@@ -334,7 +334,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.reactnativevisioncamera;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mrousavy.camera.example;
 				PRODUCT_NAME = VisionCameraExample;
 				SWIFT_OBJC_BRIDGING_HEADER = "VisionCameraExample-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -358,7 +358,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.reactnativevisioncamera;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mrousavy.camera.example;
 				PRODUCT_NAME = VisionCameraExample;
 				SWIFT_OBJC_BRIDGING_HEADER = "VisionCameraExample-Bridging-Header.h";
 				SWIFT_VERSION = 5.2;
