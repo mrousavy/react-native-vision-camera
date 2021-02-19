@@ -48,11 +48,21 @@ export const Splash: NavigationFunctionComponent = ({ componentId }) => {
 
   useEffect(() => {
     if (cameraPermissionStatus === 'authorized' && microphonePermissionStatus === 'authorized') {
-      Navigation.push(componentId, {
-        component: { name: 'Home' }
+      Navigation.setRoot({
+        root: {
+          stack: {
+            children: [
+              {
+                component: {
+                  name: 'Home'
+                }
+              }
+            ]
+          }
+        }
       })
     }
-  }, []);
+  }, [cameraPermissionStatus, microphonePermissionStatus, componentId]);
 
   return (
     <View style={styles.container}>
