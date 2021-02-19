@@ -17,18 +17,18 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="shutter" translatesAutoresizingMaskIntoConstraints="NO" id="1ec-Ah-Cuv">
-                                <rect key="frame" x="148.5" y="574" width="78" height="78"/>
+                                <rect key="frame" x="148.5" y="574" width="70" height="70"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="78" id="IpA-9U-XI8"/>
-                                    <constraint firstAttribute="height" constant="78" id="vyL-X3-jiF"/>
+                                    <constraint firstAttribute="width" constant="70" id="IpA-9U-XI8"/>
+                                    <constraint firstAttribute="height" constant="70" id="vyL-X3-jiF"/>
                                 </constraints>
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="Bcu-3y-fUS" firstAttribute="bottom" secondItem="1ec-Ah-Cuv" secondAttribute="bottom" constant="15" id="4jH-AB-6EI"/>
-                            <constraint firstItem="1ec-Ah-Cuv" firstAttribute="centerX" secondItem="Bcu-3y-fUS" secondAttribute="centerX" id="qMB-15-ipd"/>
+                            <constraint firstItem="Bcu-3y-fUS" firstAttribute="bottom" secondItem="1ec-Ah-Cuv" secondAttribute="bottom" constant="23" id="4jH-AB-6EI"/>
+                            <constraint firstItem="1ec-Ah-Cuv" firstAttribute="centerX" secondItem="Bcu-3y-fUS" secondAttribute="centerX" constant="-4" id="qMB-15-ipd"/>
                         </constraints>
                     </view>
                 </viewController>
