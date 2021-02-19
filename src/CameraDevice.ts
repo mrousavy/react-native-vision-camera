@@ -1,4 +1,4 @@
-import { CameraPosition } from "./CameraPosition";
+import type { CameraPosition } from "./CameraPosition";
 
 /**
  * Indentifiers for a physical camera (one that actually exists on the back/front of the device)

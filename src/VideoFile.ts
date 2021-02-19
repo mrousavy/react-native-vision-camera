@@ -26,8 +26,8 @@
 //   maxKeyFrameIntervalDuration?: TCodec extends "h264" ? number : never;
 // }
 
-import { CameraCaptureError } from "./CameraError";
-import { TemporaryFile } from "./TemporaryFile";
+import type { CameraCaptureError } from "./CameraError";
+import type { TemporaryFile } from "./TemporaryFile";
 
 export interface RecordVideoOptions {
   /**

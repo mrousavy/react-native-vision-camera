@@ -1,5 +1,5 @@
-import { CameraPhotoCodec } from "./CameraCodec";
-import { TemporaryFile } from "./TemporaryFile";
+import type { CameraPhotoCodec } from "./CameraCodec";
+import type { TemporaryFile } from "./TemporaryFile";
 
 export interface TakePhotoOptions {
   /**
