@@ -13,7 +13,8 @@
     "react-native": "0.63.4",
     "react-native-gesture-handler": "^1.10.1",
     "react-native-navigation": "^7.10.0",
-    "react-native-reanimated": "^2.0.0-rc.3"
+    "react-native-reanimated": "^2.0.0-rc.3",
+    "react-native-static-safe-area-insets": "^2.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",

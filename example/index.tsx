@@ -5,6 +5,11 @@ import App from './src/App';
 import Settings from './src/Settings';
 import Splash from './src/Splash';
 
+Navigation.setDefaultOptions({
+  topBar: {
+    visible: false,
+  },
+});
 
 Navigation.registerComponent('Splash', () => gestureHandlerRootHOC(Splash), () => Splash);
 Navigation.registerComponent('Home', () => gestureHandlerRootHOC(App), () => App);

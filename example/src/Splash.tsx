@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import { StyleSheet, View, Text, Image  } from 'react-native';
 import { Camera, CameraPermissionStatus } from 'react-native-vision-camera';
+import { SAFE_AREA_PADDING } from './Constants';
 
 export default function Splash() {
   const [
@@ -64,6 +65,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
+    ...SAFE_AREA_PADDING
   },
   box: {
     width: 60,
