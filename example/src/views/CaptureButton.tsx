@@ -17,6 +17,7 @@ import Reanimated, {
   withTiming,
   useAnimatedGestureHandler,
   useSharedValue,
+  withRepeat,
 } from "react-native-reanimated";
 import type { Camera, PhotoFile, TakePhotoOptions, TakeSnapshotOptions, VideoFile } from "react-native-vision-camera";
 import { CAPTURE_BUTTON_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH, USE_SNAPSHOT_ON_ANDROID } from "./../Constants";
@@ -264,6 +265,26 @@ const _CaptureButton: React.FC<Props> = ({
   );
   const buttonStyle = useAnimatedStyle(
     () => {
+      let scale: number;
+      if (enabled) {
+        if (isPressingButton.value) {
+          scale = withRepeat(withSpring(1, {
+            stiffness: 100,
+            damping: 1000,
+          }), -1, true);
+        } else {
+          scale = withSpring(0.9, {
+            stiffness: 500,
+            damping: 300,
+          });
+        }
+      } else {
+        scale = withSpring(0.6, {
+          stiffness: 500,
+          damping: 300,
+        });
+      }
+
       return ({
         opacity: withTiming(enabled ? 1 : 0.3, {
           duration: 100,
@@ -271,17 +292,7 @@ const _CaptureButton: React.FC<Props> = ({
         }),
         transform: [
           {
-            scale: withSpring(
-              enabled
-                ? isPressingButton.value
-                  ? 1
-                  : 0.9
-                : 0.6,
-              {
-                stiffness: 500,
-                damping: 300,
-              }
-            ),
+            scale: scale
           },
         ],
       })

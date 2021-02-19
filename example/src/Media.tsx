@@ -9,6 +9,7 @@ import { PressableOpacity } from './views/PressableOpacity';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { Alert } from 'react-native';
 import CameraRoll from '@react-native-community/cameraroll';
+import { StatusBarBlurBackground } from './views/StatusBarBlurBackground';
 
 interface MediaProps {
   path: string,
@@ -132,6 +133,8 @@ export const Media: NavigationFunctionComponent<MediaProps> = ({ componentId, ty
           <ActivityIndicator color="white" />
         )}
       </PressableOpacity>
+
+      <StatusBarBlurBackground />
     </View>
   );
 }
