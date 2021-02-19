@@ -1,33 +1,15 @@
-/* eslint-disable no-console */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/unbound-method */
-import React from "react";
-import {
-  requireNativeComponent,
-  NativeModules,
-  ViewProps,
-  NativeSyntheticEvent,
-  findNodeHandle,
-  NativeMethods,
-  Platform,
-} from "react-native";
-import { CameraPhotoCodec, CameraVideoCodec } from "./CameraCodec";
-import { ColorSpace, CameraDeviceFormat, CameraDevice } from "./CameraDevice";
-import {
-  CameraCaptureError,
-  CameraRuntimeError,
-  tryParseNativeCameraError,
-  ErrorWithCause,
-  isErrorWithCause,
-} from "./CameraError";
-import { CameraPreset } from "./CameraPreset";
-import { CodeType, Code } from "./Code";
-import { PhotoFile, TakePhotoOptions } from "./PhotoFile";
-import { Point } from "./Point";
-import { TakeSnapshotOptions } from "./Snapshot";
-import { RecordVideoOptions, VideoFile } from "./VideoFile";
+import React from 'react';
+import { requireNativeComponent, NativeModules, ViewProps, NativeSyntheticEvent, findNodeHandle, NativeMethods, Platform } from 'react-native';
+import type { CameraPhotoCodec, CameraVideoCodec } from './CameraCodec';
+import type { ColorSpace, CameraDeviceFormat, CameraDevice } from './CameraDevice';
+import type { ErrorWithCause } from './CameraError';
+import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError';
+import type { CameraPreset } from './CameraPreset';
+import type { CodeType, Code } from './Code';
+import type { PhotoFile, TakePhotoOptions } from './PhotoFile';
+import type { Point } from './Point';
+import type { TakeSnapshotOptions } from './Snapshot';
+import type { RecordVideoOptions, VideoFile } from './VideoFile';
 
 //#region Types
 type Modify<T, R> = Omit<T, keyof R> & R;
@@ -129,7 +111,7 @@ export type CameraDynamicProps = {
    *
    * @default "off"
    */
-  torch?: "off" | "on";
+  torch?: 'off' | 'on';
   /**
    * Specifies the zoom factor of the current camera, in percent. (`0.0` - `1.0`)
    *
@@ -162,12 +144,8 @@ export type CameraProps = (CameraPresetProps | CameraFormatProps) &
   CameraEventProps &
   ViewProps;
 
-export type CameraPermissionStatus =
-  | "authorized"
-  | "not-determined"
-  | "denied"
-  | "restricted";
-export type CameraPermissionRequestResult = "authorized" | "denied";
+export type CameraPermissionStatus = 'authorized' | 'not-determined' | 'denied' | 'restricted';
+export type CameraPermissionRequestResult = 'authorized' | 'denied';
 
 interface OnErrorEvent {
   code: string;
@@ -183,11 +161,7 @@ interface OnCodeScannedEvent {
 // NativeModules automatically resolves 'CameraView' to 'CameraViewModule'
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 const CameraModule = NativeModules.CameraView;
-if (CameraModule == null) {
-  console.error(
-    `Camera: Native Module 'CameraView' was null! Did you run pod install?`
-  );
-}
+if (CameraModule == null) console.error("Camera: Native Module 'CameraView' was null! Did you run pod install?");
 
 interface CameraState {
   /**
@@ -202,7 +176,7 @@ type RefType = React.Component<CameraProps> & Readonly<NativeMethods>;
  * ### A powerful `<Camera>` component.
  */
 export class Camera extends React.PureComponent<CameraProps, CameraState> {
-  static displayName = "Camera";
+  static displayName = 'Camera';
   displayName = Camera.displayName;
 
   private readonly ref: React.RefObject<RefType>;
@@ -218,11 +192,8 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
 
   private get handle(): number | null {
     const nodeHandle = findNodeHandle(this.ref.current);
-    if (nodeHandle == null) {
-      console.error(
-        `Camera: findNodeHandle(ref) returned null! Does the Camera view exist in the native view tree?`
-      );
-    }
+    if (nodeHandle == null) console.error('Camera: findNodeHandle(ref) returned null! Does the Camera view exist in the native view tree?');
+
     return nodeHandle;
   }
 
@@ -248,11 +219,9 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * @platform Android
    */
   public async takeSnapshot(options?: TakeSnapshotOptions): Promise<PhotoFile> {
-    if (Platform.OS !== "android")
-      throw new CameraCaptureError(
-        "capture/capture-type-not-supported",
-        `'takeSnapshot()' is not available on ${Platform.OS}!`
-      );
+    if (Platform.OS !== 'android')
+      throw new CameraCaptureError('capture/capture-type-not-supported', `'takeSnapshot()' is not available on ${Platform.OS}!`);
+
     try {
       return await CameraModule.takeSnapshot(this.handle, options ?? {});
     } catch (e) {
@@ -281,34 +250,17 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * }, 5000)
    */
   public startRecording(options: RecordVideoOptions): void {
-    const {
-      onRecordingError,
-      onRecordingFinished,
-      ...passThroughOptions
-    } = options;
-    if (
-      typeof onRecordingError !== "function" ||
-      typeof onRecordingFinished !== "function"
-    ) {
-      throw new CameraRuntimeError(
-        "parameter/invalid-parameter",
-        "The onRecordingError or onRecordingFinished functions were not set!"
-      );
-    }
-    const onRecordCallback = (
-      video?: VideoFile,
-      error?: CameraCaptureError
-    ) => {
+    const { onRecordingError, onRecordingFinished, ...passThroughOptions } = options;
+    if (typeof onRecordingError !== 'function' || typeof onRecordingFinished !== 'function')
+      throw new CameraRuntimeError('parameter/invalid-parameter', 'The onRecordingError or onRecordingFinished functions were not set!');
+
+    const onRecordCallback = (video?: VideoFile, error?: CameraCaptureError): void => {
       if (error != null) return onRecordingError(error);
       if (video != null) return onRecordingFinished(video);
     };
     // TODO: Use TurboModules to either make this a sync invokation, or make it async.
     try {
-      CameraModule.startRecording(
-        this.handle,
-        passThroughOptions,
-        onRecordCallback
-      );
+      CameraModule.startRecording(this.handle, passThroughOptions, onRecordCallback);
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -441,46 +393,36 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   //#endregion
 
   //#region Events (Wrapped to maintain reference equality)
-  private onError(event?: NativeSyntheticEvent<OnErrorEvent>) {
-    if (event == null) {
-      throw new Error("onError() was invoked but event was null!");
-    }
+  private onError(event?: NativeSyntheticEvent<OnErrorEvent>): void {
+    if (event == null) throw new Error('onError() was invoked but event was null!');
+
     if (this.props.onError != null) {
       const error = event.nativeEvent;
       const cause = isErrorWithCause(error.cause) ? error.cause : undefined;
       this.props.onError(
         // @ts-expect-error We're casting from unknown bridge types to TS unions, I expect it to hopefully work
-        new CameraRuntimeError(error.code, error.message, cause)
+        new CameraRuntimeError(error.code, error.message, cause),
       );
     }
   }
 
-  private onInitialized() {
+  private onInitialized(): void {
     this.props.onInitialized?.();
   }
 
-  private onCodeScanned(event?: NativeSyntheticEvent<OnCodeScannedEvent>) {
-    if (event == null) {
-      throw new Error("onCodeScanned() was invoked but event was null!");
-    }
-    if (this.props.onCodeScanned == null) {
-      console.warn(
-        "Camera: onCodeScanned event was invoked but no listeners attached! Did you forget to remove the `scannableCodes` property?"
-      );
-    } else {
-      this.props.onCodeScanned(event.nativeEvent.codes);
-    }
+  private onCodeScanned(event?: NativeSyntheticEvent<OnCodeScannedEvent>): void {
+    if (event == null) throw new Error('onCodeScanned() was invoked but event was null!');
+
+    if (this.props.onCodeScanned == null)
+      console.warn('Camera: onCodeScanned event was invoked but no listeners attached! Did you forget to remove the `scannableCodes` property?');
+    else this.props.onCodeScanned(event.nativeEvent.codes);
   }
   //#endregion
 
-  static getDerivedStateFromProps(
-    props: CameraProps,
-    state: CameraState
-  ): CameraState | null {
+  static getDerivedStateFromProps(props: CameraProps, state: CameraState): CameraState | null {
     const newCameraId = props.device.id;
-    if (state.cameraId !== newCameraId) {
-      return { ...state, cameraId: newCameraId };
-    }
+    if (state.cameraId !== newCameraId) return { ...state, cameraId: newCameraId };
+
     return null;
   }
 
@@ -504,7 +446,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
 
 // requireNativeComponent automatically resolves 'CameraView' to 'CameraViewManager'
 const NativeCameraView = requireNativeComponent<CameraProps>(
-  "CameraView",
+  'CameraView',
   // @ts-expect-error because the type declarations are kinda wrong, no?
-  Camera
+  Camera,
 );

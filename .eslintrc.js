@@ -43,7 +43,16 @@ module.exports = {
     'prettier/prettier': ['warn'],
     // typescript
     '@typescript-eslint/no-use-before-define': 'off',
-    '@typescript-eslint/no-unused-vars': 'warn',
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        vars: 'all',
+        args: 'after-used',
+        ignoreRestSiblings: false,
+        varsIgnorePattern: '^_',
+        argsIgnorePattern: '^_',
+      },
+    ],
     '@typescript-eslint/explicit-function-return-type': [
       'warn',
       {
@@ -51,6 +60,8 @@ module.exports = {
       },
     ],
     '@typescript-eslint/no-namespace': 'off',
+    '@typescript-eslint/ban-ts-comment': 'off',
+    '@typescript-eslint/no-unsafe-assignment': 'error',
     // react plugin
     'react/no-unescaped-entities': 'off',
     // react native plugin
