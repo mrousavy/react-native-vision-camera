@@ -1,6 +1,6 @@
 <table>
 <tr>
-<th><a href="./README.md">README.md</a></th>
+<th><a href="../README.md">README.md</a></th>
 <th><a href="./ANIMATED.md">ANIMATED.md</a></th>
 <th>DEVICES.md</th>
 <th><a href="./FORMATS.md">FORMATS.md</a></th>
