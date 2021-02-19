@@ -394,7 +394,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = VisionCamera;
 				SKIP_INSTALL = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "CameraBridge.h";
+				SWIFT_OBJC_BRIDGING_HEADER = CameraBridge.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
@@ -413,7 +413,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = VisionCamera;
 				SKIP_INSTALL = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "CameraBridge.h";
+				SWIFT_OBJC_BRIDGING_HEADER = CameraBridge.h;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
