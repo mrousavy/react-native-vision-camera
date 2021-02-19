@@ -18,6 +18,13 @@ Navigation.setDefaultOptions({
     backgroundColor: 'black',
     componentBackgroundColor: 'black'
   },
+  statusBar: {
+    animated: true,
+    drawBehind: true,
+    translucent: true,
+    visible: true,
+    style: 'dark'
+  },
 });
 
 Navigation.registerComponent('Splash', () => gestureHandlerRootHOC(Splash), () => Splash);
