@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { StyleSheet, View, Text, Image  } from 'react-native';
+import { Navigation, NavigationFunctionComponent } from 'react-native-navigation';
 import { Camera, CameraPermissionStatus } from 'react-native-vision-camera';
-import { SAFE_AREA_PADDING } from './Constants';
+import { CONTENT_SPACING, SAFE_AREA_PADDING } from './Constants';
 
-export default function Splash() {
+export const Splash: NavigationFunctionComponent = ({ componentId }) => {
   const [
     cameraPermissionStatus,
     setCameraPermissionStatus,
@@ -13,6 +14,20 @@ export default function Splash() {
     microphonePermissionStatus,
     setMicrophonePermissionStatus,
   ] = useState<CameraPermissionStatus>("not-determined");
+
+  const requestMicrophonePermission = useCallback(async () => {
+    console.log('Requesting microphone permission...');
+    const permission = await Camera.requestMicrophonePermission();
+    console.log(`Microphone permission status: ${permission}`);
+    setMicrophonePermissionStatus(permission);
+  }, []);
+
+  const requestCameraPermission = useCallback(async () => {
+    console.log('Requesting camera permission...');
+    const permission = await Camera.requestCameraPermission();
+    console.log(`Camera permission status: ${permission}`);
+    setCameraPermissionStatus(permission);
+  }, []);
 
   useEffect(() => {
     const checkPermissions = async () => {
@@ -24,13 +39,6 @@ export default function Splash() {
       console.log(
         `Check: CameraPermission: ${cameraPermission} | MicrophonePermission: ${microphonePermission}`
       );
-      if (cameraPermission !== "authorized")
-        cameraPermission = await Camera.requestCameraPermission();
-      if (microphonePermission !== "authorized")
-        microphonePermission = await Camera.requestMicrophonePermission();
-        console.log(
-        `Request: CameraPermission: ${cameraPermission} | MicrophonePermission: ${microphonePermission}`
-      );
       setCameraPermissionStatus(cameraPermission);
       setMicrophonePermissionStatus(microphonePermission);
     };
@@ -38,14 +46,27 @@ export default function Splash() {
     checkPermissions();
   }, []);
 
+  useEffect(() => {
+    if (cameraPermissionStatus === 'authorized' && microphonePermissionStatus === 'authorized') {
+      Navigation.push(componentId, {
+        component: { name: 'Home' }
+      })
+    }
+  }, []);
+
   return (
     <View style={styles.container}>
       <Image source={require('../../img/11.png')} style={styles.banner} />
       <Text style={styles.welcome}>Welcome to{'\n'}Vision Camera.</Text>
 
-
-      <Text>Camera Permission: {cameraPermissionStatus}</Text>
-      <Text>Camera Permission: {microphonePermissionStatus}</Text>
+      <View style={styles.permissionsContainer}>
+        {cameraPermissionStatus !== 'authorized' && (
+          <Text style={styles.permissionText}>Vision Camera needs <Text style={styles.bold}>Camera permission</Text>. <Text style={styles.hyperlink} onPress={requestCameraPermission}>Grant</Text></Text>
+        )}
+        {microphonePermissionStatus !== 'authorized' && (
+          <Text style={styles.permissionText}>Vision Camera needs <Text style={styles.bold}>Microphone permission</Text>. <Text style={styles.hyperlink} onPress={requestMicrophonePermission}>Grant</Text></Text>
+        )}
+      </View>
     </View>
   );
 }
@@ -67,9 +88,17 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     ...SAFE_AREA_PADDING
   },
-  box: {
-    width: 60,
-    height: 60,
-    marginVertical: 20,
+  permissionsContainer: {
+    marginTop: CONTENT_SPACING *2
+  },
+  permissionText: {
+    fontSize: 17,
+  },
+  hyperlink: {
+    color: '#007aff',
+    fontWeight: 'bold',
+  },
+  bold: {
+    fontWeight: 'bold',
   },
 });
