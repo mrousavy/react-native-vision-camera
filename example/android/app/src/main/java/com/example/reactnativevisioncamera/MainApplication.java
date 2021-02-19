@@ -13,6 +13,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import com.reactnativevisioncamera.VisionCameraPackage;
 
+import com.facebook.react.bridge.JSIModulePackage;
+import com.swmansion.reanimated.ReanimatedJSIModulePackage;
+
 public class MainApplication extends NavigationApplication {
 
   private final ReactNativeHost mReactNativeHost =
@@ -36,6 +39,11 @@ public class MainApplication extends NavigationApplication {
         protected String getJSMainModuleName() {
           return "index";
         }
+
+        @Override
+        protected JSIModulePackage getJSIModulePackage() {
+          return new ReanimatedJSIModulePackage();
+        }
       };
 
   @Override
@@ -46,7 +54,7 @@ public class MainApplication extends NavigationApplication {
   @Override
   public void onCreate() {
     super.onCreate();
-    
+
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager()); // Remove this line if you don't want Flipper enabled
   }
 
