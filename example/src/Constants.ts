@@ -34,3 +34,6 @@ export const SCREEN_HEIGHT = Platform.select<number>({
   android: Dimensions.get("screen").height - StaticSafeAreaInsets.safeAreaInsetsBottom,
   ios: Dimensions.get("window").height,
 }) as number;
+
+// Capture Button
+export const CAPTURE_BUTTON_SIZE = 78;
