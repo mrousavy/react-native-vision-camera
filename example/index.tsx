@@ -5,10 +5,18 @@ import { App } from './src/App';
 import { Settings } from './src/Settings';
 import { Splash } from './src/Splash';
 import { Media } from './src/Media';
+import { Camera } from 'react-native-vision-camera';
 
 Navigation.setDefaultOptions({
   topBar: {
     visible: false,
+  },
+  window: {
+    backgroundColor: 'black',
+  },
+  layout: {
+    backgroundColor: 'black',
+    componentBackgroundColor: 'black'
   },
 });
 
@@ -17,18 +25,27 @@ Navigation.registerComponent('Home', () => gestureHandlerRootHOC(App), () => App
 Navigation.registerComponent('Media', () => gestureHandlerRootHOC(Media), () => Media);
 Navigation.registerComponent('Settings', () => gestureHandlerRootHOC(Settings), () => Settings);
 
-Navigation.events().registerAppLaunchedListener(() => {
-   Navigation.setRoot({
-     root: {
-       stack: {
-         children: [
-           {
-             component: {
-               name: 'Splash'
-             }
-           }
-         ]
-       }
-     }
+Navigation.events().registerAppLaunchedListener(async () => {
+  const [cameraPermission, microphonePermission] = await Promise.all([
+    Camera.getCameraPermissionStatus(),
+    Camera.getMicrophonePermissionStatus(),
+  ]);
+  let rootName = "Splash";
+  if (cameraPermission === "authorized" && microphonePermission === "authorized") {
+    rootName = "Home";
+  }
+
+  Navigation.setRoot({
+    root: {
+      stack: {
+        children: [
+          {
+            component: {
+              name: rootName
+            }
+          }
+        ]
+      }
+    }
   });
 });

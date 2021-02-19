@@ -24,9 +24,10 @@ import { CAPTURE_BUTTON_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH, USE_SNAPSHOT_ON_ANDRO
 const PAN_GESTURE_HANDLER_FAIL_X = [-SCREEN_WIDTH, SCREEN_WIDTH];
 const PAN_GESTURE_HANDLER_ACTIVE_Y = [-2, 2];
 
-const IS_ANDROID = Platform.OS === "android"
+const IS_ANDROID = Platform.OS === "android";
 
 const START_RECORDING_DELAY = 200;
+const BORDER_WIDTH = CAPTURE_BUTTON_SIZE * 0.1;
 
 interface Props extends ViewProps {
   camera: React.RefObject<Camera>;
@@ -79,8 +80,8 @@ const _CaptureButton: React.FC<Props> = ({
       // capture rate at the cost of greatly reduced quality.
       const photoMethod =
         USE_SNAPSHOT_ON_ANDROID &&
-        IS_ANDROID &&
-        takePhotoOptions.flash === "off"
+          IS_ANDROID &&
+          takePhotoOptions.flash === "off"
           ? "snapshot"
           : "photo";
       console.log(`Taking ${photoMethod}...`);
@@ -251,8 +252,8 @@ const _CaptureButton: React.FC<Props> = ({
     () => ({
       transform: [
         {
-          scale: withSpring(isPressingButton.value ? 1.1 : 1, {
-            mass: 0.5,
+          scale: withSpring(isPressingButton.value ? 1 : 0, {
+            mass: 1,
             damping: 35,
             stiffness: 300,
           }),
@@ -262,23 +263,29 @@ const _CaptureButton: React.FC<Props> = ({
     [isPressingButton]
   );
   const buttonStyle = useAnimatedStyle(
-    () => ({
-      opacity: withTiming(enabled ? 1 : 0.3, {
-        duration: 100,
-        easing: Easing.linear,
-      }),
-      transform: [
-        {
-          scale: withSpring(
-            enabled ? (isPressingButton.value ? 1 : 0.9) : 0.6,
-            {
-              stiffness: 500,
-              damping: 300,
-            }
-          ),
-        },
-      ],
-    }),
+    () => {
+      return ({
+        opacity: withTiming(enabled ? 1 : 0.3, {
+          duration: 100,
+          easing: Easing.linear,
+        }),
+        transform: [
+          {
+            scale: withSpring(
+              enabled
+                ? isPressingButton.value
+                  ? 1
+                  : 0.9
+                : 0.6,
+              {
+                stiffness: 500,
+                damping: 300,
+              }
+            ),
+          },
+        ],
+      })
+    },
     [enabled, isPressingButton]
   );
 
@@ -319,14 +326,13 @@ const styles = StyleSheet.create({
     width: CAPTURE_BUTTON_SIZE,
     height: CAPTURE_BUTTON_SIZE,
     borderRadius: CAPTURE_BUTTON_SIZE / 2,
-    borderWidth: 3,
-    borderColor: "rgba(225, 48, 108, 0.7)",
+    backgroundColor: "#e34077",
   },
   button: {
     width: CAPTURE_BUTTON_SIZE,
     height: CAPTURE_BUTTON_SIZE,
     borderRadius: CAPTURE_BUTTON_SIZE / 2,
-    borderWidth: CAPTURE_BUTTON_SIZE * 0.1,
+    borderWidth: BORDER_WIDTH,
     borderColor: "white",
   },
 });

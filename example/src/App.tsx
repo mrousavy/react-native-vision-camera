@@ -282,7 +282,6 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
         style={styles.captureButton}
         camera={camera}
         onMediaCaptured={onMediaCaptured}
-        maximumVideoDuration={15}
         cameraZoom={zoom}
         flash={supportsFlash ? flash : "off"}
         enabled={isCameraInitialized && isActive}
