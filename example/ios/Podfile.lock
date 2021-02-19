@@ -448,7 +448,7 @@ SPEC CHECKSUMS:
   React-jsi: a0418934cf48f25b485631deb27c64dc40fb4c31
   React-jsiexecutor: 93bd528844ad21dc07aab1c67cb10abae6df6949
   React-jsinspector: 58aef7155bc9a9683f5b60b35eccea8722a4f53a
-  react-native-vision-camera: 0293d23e34d19a10b75510316e3580c11cddd89c
+  react-native-vision-camera: bf9c62e2795080a21e9ea134050c01b5d9494b6d
   React-RCTActionSheet: 89a0ca9f4a06c1f93c26067af074ccdce0f40336
   React-RCTAnimation: 1bde3ecc0c104c55df246eda516e0deb03c4e49b
   React-RCTBlob: a97d378b527740cc667e03ebfa183a75231ab0f0
@@ -462,6 +462,6 @@ SPEC CHECKSUMS:
   Yoga: 4bd86afe9883422a7c4028c00e34790f560923d6
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 07d9d5bcecb1f2616cab6db840a7d56083fddb76
+PODFILE CHECKSUM: bd3ea0439a0aa5667265c080a37b4b9299a7d5ae
 
 COCOAPODS: 1.10.1
