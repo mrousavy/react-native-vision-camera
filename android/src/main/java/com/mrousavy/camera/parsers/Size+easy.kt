@@ -2,7 +2,6 @@ package com.mrousavy.camera.parsers
 
 import android.util.Size
 import android.util.SizeF
-import com.reactnativenavigation.options.params.Bool
 import kotlin.math.max
 import kotlin.math.min
 
