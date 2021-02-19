@@ -7,7 +7,7 @@ import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
 import androidx.exifinterface.media.ExifInterface
-import com.cuvent.experiences.friends.camera.utils.*
+import com.mrousavy.camera.utils.*
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap

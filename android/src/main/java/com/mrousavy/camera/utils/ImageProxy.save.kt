@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.graphics.BitmapFactory
 import android.graphics.ImageFormat
 import androidx.camera.core.ImageProxy
-import com.cuvent.experiences.friends.camera.InvalidFormatError
+import com.mrousavy.camera.InvalidFormatError
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.ByteBuffer

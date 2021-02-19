@@ -2,7 +2,7 @@ package com.mrousavy.camera
 
 import android.graphics.Bitmap
 import androidx.exifinterface.media.ExifInterface
-import com.cuvent.experiences.friends.camera.utils.buildMetadataMap
+import com.mrousavy.camera.utils.buildMetadataMap
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap

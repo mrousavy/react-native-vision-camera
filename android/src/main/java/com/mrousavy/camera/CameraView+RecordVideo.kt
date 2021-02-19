@@ -2,8 +2,7 @@ package com.mrousavy.camera
 
 import android.annotation.SuppressLint
 import androidx.camera.core.VideoCapture
-import com.cuvent.experiences.friends.camera.utils.makeErrorMap
-import com.cuvent.experiences.friends.camera.utils.withSuspendablePromise
+import com.mrousavy.camera.utils.makeErrorMap
 import com.facebook.react.bridge.*
 import kotlinx.coroutines.*
 import java.io.File

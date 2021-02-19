@@ -16,8 +16,8 @@ import androidx.camera.core.MeteringPointFactory
 import androidx.camera.extensions.HdrImageCaptureExtender
 import androidx.camera.extensions.NightImageCaptureExtender
 import androidx.core.content.ContextCompat
-import com.cuvent.experiences.friends.camera.parsers.*
-import com.cuvent.experiences.friends.camera.utils.*
+import com.mrousavy.camera.parsers.*
+import com.mrousavy.camera.utils.*
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener

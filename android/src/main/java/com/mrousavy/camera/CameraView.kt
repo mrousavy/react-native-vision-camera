@@ -20,7 +20,7 @@ import androidx.camera.extensions.NightPreviewExtender
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.*
-import com.cuvent.experiences.friends.camera.utils.*
+import com.mrousavy.camera.utils.*
 import com.facebook.react.bridge.*
 import com.facebook.react.uimanager.events.RCTEventEmitter
 import kotlinx.coroutines.*
