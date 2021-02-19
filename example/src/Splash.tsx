@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { StyleSheet, View, Text  } from 'react-native';
+import { StyleSheet, View, Text, Image  } from 'react-native';
 import { Camera, CameraPermissionStatus } from 'react-native-vision-camera';
 
 export default function Splash() {
@@ -39,17 +39,30 @@ export default function Splash() {
 
   return (
     <View style={styles.container}>
+      <Image source={require('../../img/11.png')} style={styles.banner} />
+      <Text style={styles.welcome}>Welcome to{'\n'}Vision Camera.</Text>
+
+
       <Text>Camera Permission: {cameraPermissionStatus}</Text>
-      <Text>Microphone Permission: {microphonePermissionStatus}</Text>
+      <Text>Camera Permission: {microphonePermissionStatus}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  welcome: {
+    fontSize: 38,
+    fontWeight: 'bold',
+    maxWidth: '80%',
+  },
+  banner: {
+    position: 'absolute',
+    opacity: 0.4,
+    bottom: 0,
+    left: 0,
+  },
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: 'white',
   },
   box: {
