@@ -2,7 +2,6 @@
 
 This is an internal TODO list which I am using to keep track of some of the features that are still missing.
 
-* [ ] focus(x, y)
 * [ ] Mirror images from selfie cameras (iOS Done, Android WIP)
 * [ ] Allow camera switching (front <-> back) while recording and stich videos together
 * [ ] Make `startRecording()` async. Due to NativeModules limitations, we can only have either one callback or one promise in a native function. For `startRecording()` we need both, since you probably also want to catch any errors that occured during a `startRecording()` call (or wait until the recording has actually started, since this can also take some time)
