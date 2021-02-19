@@ -25,6 +25,12 @@ Navigation.registerComponent('Home', () => gestureHandlerRootHOC(App), () => App
 Navigation.registerComponent('Media', () => gestureHandlerRootHOC(Media), () => Media);
 Navigation.registerComponent('Settings', () => gestureHandlerRootHOC(Settings), () => Settings);
 
+Navigation.events().registerNavigationButtonPressedListener((event) => {
+  if (event.buttonId === "back") {
+    Navigation.pop(event.componentId);
+  }
+});
+
 Navigation.events().registerAppLaunchedListener(async () => {
   const [cameraPermission, microphonePermission] = await Promise.all([
     Camera.getCameraPermissionStatus(),

@@ -171,6 +171,9 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
   const onNightModePressed = useCallback(() => {
     setEnableNightMode((n) => !n);
   }, []);
+  const onSettingsPressed = useCallback(() => {
+    Navigation.push(componentId, { component: { name: 'Settings' } })
+  }, [componentId]);
   //#endregion
 
   //#region Tap Gesture
@@ -245,6 +248,13 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
   });
   //#endregion
 
+  if (device != null && format != null) {
+    console.log(`Re-rendering camera page with ${isActive ? "active" : "inactive"} camera. `
+      + `Device: "${device.name}" (${format.photoWidth}x${format.photoHeight} @ ${fps}fps)`);
+  } else {
+    console.log(`re-rendering camera page without active camera`);
+  }
+
   // TODO: Implement camera flipping (back <-> front) while recording and stich the videos together
   // TODO: iOS: Use custom video data stream output to manually process the data and write the MOV/MP4 for more customizability.
   return (
@@ -255,24 +265,24 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
             <TapGestureHandler
               onHandlerStateChange={onDoubleTapGesture}
               numberOfTaps={2}>
-                <ReanimatedCamera
-                  ref={camera}
-                  style={StyleSheet.absoluteFill}
-                  device={device}
-                  format={format}
-                  fps={fps}
-                  hdr={enableHdr}
-                  lowLightBoost={
-                    device.supportsLowLightBoost && enableNightMode
-                  }
-                  isActive={isActive}
-                  onInitialized={onInitialized}
-                  onError={onError}
-                  enableZoomGesture={false}
-                  // TODO: Remove once https://github.com/software-mansion/react-native-reanimated/pull/1697 gets merged
-                  // @ts-expect-error animatedProps should be Partial<P>
-                  animatedProps={cameraAnimatedProps}
-                />
+              <ReanimatedCamera
+                ref={camera}
+                style={StyleSheet.absoluteFill}
+                device={device}
+                format={format}
+                fps={fps}
+                hdr={enableHdr}
+                lowLightBoost={
+                  device.supportsLowLightBoost && enableNightMode
+                }
+                isActive={isActive}
+                onInitialized={onInitialized}
+                onError={onError}
+                enableZoomGesture={false}
+                // TODO: Remove once https://github.com/software-mansion/react-native-reanimated/pull/1697 gets merged
+                // @ts-expect-error animatedProps should be Partial<P>
+                animatedProps={cameraAnimatedProps}
+              />
             </TapGestureHandler>
           </Reanimated.View>
         </PinchGestureHandler>
@@ -336,6 +346,13 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
             />
           </PressableOpacity>
         )}
+        <PressableOpacity style={styles.button} onPress={onSettingsPressed}>
+          <IonIcon
+            name="settings-outline"
+            color="white"
+            size={24}
+          />
+        </PressableOpacity>
       </View>
     </View>
   );
