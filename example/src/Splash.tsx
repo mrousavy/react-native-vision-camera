@@ -71,10 +71,12 @@ export const Splash: NavigationFunctionComponent = ({ componentId }) => {
 
       <View style={styles.permissionsContainer}>
         {cameraPermissionStatus !== 'authorized' && (
-          <Text style={styles.permissionText}>Vision Camera needs <Text style={styles.bold}>Camera permission</Text>. <Text style={styles.hyperlink} onPress={requestCameraPermission}>Grant</Text></Text>
+          <Text style={styles.permissionText}>Vision Camera needs <Text style={styles.bold}>Camera permission</Text>.
+          <Text style={styles.hyperlink} onPress={requestCameraPermission}>Grant</Text></Text>
         )}
         {microphonePermissionStatus !== 'authorized' && (
-          <Text style={styles.permissionText}>Vision Camera needs <Text style={styles.bold}>Microphone permission</Text>. <Text style={styles.hyperlink} onPress={requestMicrophonePermission}>Grant</Text></Text>
+          <Text style={styles.permissionText}>Vision Camera needs <Text style={styles.bold}>Microphone permission</Text>.
+          <Text style={styles.hyperlink} onPress={requestMicrophonePermission}>Grant</Text></Text>
         )}
       </View>
     </View>
