@@ -8,7 +8,9 @@ target 'VisionCameraExample' do
 
   use_react_native!(:path => config["reactNativePath"])
 
-      pod 'react-native-vision-camera', :path => '../..'
+  pod 'react-native-vision-camera', :path => '../..'
+
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
 
   # Enables Flipper.
   #
