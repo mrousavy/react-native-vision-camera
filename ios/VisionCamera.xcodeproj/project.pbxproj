@@ -403,7 +403,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = CameraBridge.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 5.2;
 			};
 			name = Debug;
 		};
@@ -421,7 +421,7 @@
 				PRODUCT_NAME = VisionCamera;
 				SKIP_INSTALL = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = CameraBridge.h;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 5.2;
 			};
 			name = Release;
 		};
