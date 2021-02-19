@@ -25,6 +25,15 @@ Navigation.setDefaultOptions({
     visible: true,
     style: 'dark'
   },
+  animations: {
+    setRoot: {
+      alpha: {
+        duration: 500,
+        from: 0,
+        to: 1,
+      }
+    },
+  }
 });
 
 Navigation.registerComponent('Splash', () => gestureHandlerRootHOC(Splash), () => Splash);
