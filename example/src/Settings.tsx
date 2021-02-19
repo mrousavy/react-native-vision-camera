@@ -1,8 +1,9 @@
 import React from 'react';
 
 import { StyleSheet, View, Text } from 'react-native';
+import type { NavigationFunctionComponent } from 'react-native-navigation';
 
-export default function Settings() {
+export const Settings: NavigationFunctionComponent = ({ componentId }) => {
   return (
     <View style={styles.container}>
       <Text>powered by Cuvent</Text>

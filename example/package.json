@@ -14,7 +14,8 @@
     "react-native-gesture-handler": "^1.10.1",
     "react-native-navigation": "^7.10.0",
     "react-native-reanimated": "^2.0.0-rc.3",
-    "react-native-static-safe-area-insets": "^2.1.1"
+    "react-native-static-safe-area-insets": "^2.1.1",
+    "react-native-video": "^5.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",
@@ -23,6 +24,7 @@
     "@react-native-community/eslint-plugin": "^1.1.0",
     "@types/react": "^17.0.2",
     "@types/react-native": "^0.63.50",
+    "@types/react-native-video": "^5.0.4",
     "@typescript-eslint/eslint-plugin": "^4.15.1",
     "@typescript-eslint/parser": "^4.15.1",
     "babel-plugin-module-resolver": "^4.0.0",
