@@ -22,7 +22,8 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "esnext"
+    "target": "esnext",
+    "outDir": "lib"
   },
   "exclude": [
     "node_modules",
