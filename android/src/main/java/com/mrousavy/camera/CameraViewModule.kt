@@ -1,4 +1,4 @@
-package com.cuvent.experiences.friends.camera
+package com.mrousavy.camera
 
 import android.Manifest
 import android.content.Context

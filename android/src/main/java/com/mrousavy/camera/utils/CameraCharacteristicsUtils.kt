@@ -1,4 +1,4 @@
-package com.cuvent.experiences.friends.camera.utils
+package com.mrousavy.camera.utils
 
 import android.hardware.camera2.CameraCharacteristics
 import android.util.Size

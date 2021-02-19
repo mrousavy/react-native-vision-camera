@@ -1,4 +1,4 @@
-package com.cuvent.experiences.friends.camera.parsers
+package com.mrousavy.camera.parsers
 
 import android.util.Size
 import android.util.SizeF

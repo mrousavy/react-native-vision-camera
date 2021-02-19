@@ -1,4 +1,4 @@
-package com.cuvent.experiences.friends.camera.utils
+package com.mrousavy.camera.utils
 
 import android.util.Range
 import android.util.Size

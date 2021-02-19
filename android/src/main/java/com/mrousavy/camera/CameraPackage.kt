@@ -1,4 +1,4 @@
-package com.cuvent.experiences.friends.camera
+package com.mrousavy.camera
 
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule

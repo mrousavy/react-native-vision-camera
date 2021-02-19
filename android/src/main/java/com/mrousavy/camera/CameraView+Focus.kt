@@ -1,4 +1,4 @@
-package com.cuvent.experiences.friends.camera
+package com.mrousavy.camera
 
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory

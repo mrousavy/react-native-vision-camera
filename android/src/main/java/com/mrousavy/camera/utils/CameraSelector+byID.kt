@@ -1,4 +1,4 @@
-package com.cuvent.experiences.friends.camera.utils
+package com.mrousavy.camera.utils
 
 import android.annotation.SuppressLint
 import androidx.camera.camera2.interop.Camera2CameraInfo

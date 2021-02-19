@@ -1,4 +1,4 @@
-package com.cuvent.experiences.friends.camera.utils
+package com.mrousavy.camera.utils
 
 import androidx.camera.core.AspectRatio
 import kotlin.math.abs

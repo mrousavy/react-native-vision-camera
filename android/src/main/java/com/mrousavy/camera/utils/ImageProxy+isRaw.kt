@@ -1,4 +1,4 @@
-package com.cuvent.experiences.friends.camera.utils
+package com.mrousavy.camera.utils
 
 import android.graphics.ImageFormat
 import androidx.camera.core.ImageProxy

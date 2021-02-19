@@ -1,4 +1,4 @@
-package com.cuvent.experiences.friends.camera
+package com.mrousavy.camera
 
 import android.annotation.SuppressLint
 import android.hardware.camera2.*

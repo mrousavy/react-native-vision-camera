@@ -1,4 +1,4 @@
-package com.cuvent.experiences.friends.camera.utils
+package com.mrousavy.camera.utils
 
 import androidx.exifinterface.media.ExifInterface
 import com.facebook.react.bridge.Arguments
