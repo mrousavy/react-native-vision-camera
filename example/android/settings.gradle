@@ -2,5 +2,5 @@ rootProject.name = 'VisionCameraExample'
 apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
 include ':app'
 
-include ':reactnativevisioncamera'
-project(':reactnativevisioncamera').projectDir = new File(rootProject.projectDir, '../../android')
+include ':camera'
+project(':camera').projectDir = new File(rootProject.projectDir, '../../android')
