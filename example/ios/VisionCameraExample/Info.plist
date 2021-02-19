@@ -51,6 +51,10 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>VisionCamera needs access to your Microphone to record videos with audio.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>VisionCamera needs access to your Camera for very obvious reasons.</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 </dict>
