@@ -41,7 +41,7 @@ export const Settings: NavigationFunctionComponent = ({ componentId }) => {
 
   useEffect(() => {
     const listener = Navigation.events().registerScreenPoppedListener((event) => {
-      if (event.componentId === componentId) setFpsSelector(fps);
+      if (event.componentId === componentId) setFpsSelector(Math.round(fps));
     });
     return () => {
       listener.remove();
@@ -51,7 +51,7 @@ export const Settings: NavigationFunctionComponent = ({ componentId }) => {
   return (
     <View style={styles.container}>
       <View style={styles.vControl}>
-        <Text>Frame Rate (FPS): {fps}</Text>
+        <Text>Frame Rate (FPS): {Math.round(fps)}</Text>
         {minFps != null && maxFps != null && <Slider minimumValue={minFps} maximumValue={maxFps} value={fps} onValueChange={setFps} />}
       </View>
 
