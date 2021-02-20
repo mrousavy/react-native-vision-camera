@@ -19,6 +19,7 @@
     "noStrictGenericChecks": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "noUncheckedIndexedAccess": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
@@ -28,7 +29,6 @@
   "exclude": [
     "node_modules",
     "babel.config.js",
-    "jest.config.js",
-    ".eslintrc.js"
+    "jest.config.js"
   ]
 }
