@@ -1,11 +1,9 @@
 module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
-  globals: {
-    Logger: true,
-    performance: true,
-  },
   parserOptions: {
+    tsconfigRootDir: __dirname,
+    project: ["./tsconfig.json"],
     ecmaFeatures: {
       jsx: true,
     },
@@ -82,32 +80,5 @@ module.exports = {
   },
   env: {
     node: true,
-    'react-native/react-native': true,
-  },
-  settings: {
-    react: {
-      version: 'latest',
-    },
-    'import/resolver': {
-      extensions: [
-        '.js',
-        '.jsx',
-        '.ts',
-        '.tsx',
-        '.d.ts',
-        '.android.js',
-        '.android.jsx',
-        '.android.ts',
-        '.android.tsx',
-        '.ios.js',
-        '.ios.jsx',
-        '.ios.ts',
-        '.ios.tsx',
-        '.web.js',
-        '.web.jsx',
-        '.web.ts',
-        '.web.tsx',
-      ],
-    },
   },
 };
