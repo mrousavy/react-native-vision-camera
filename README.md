@@ -57,7 +57,7 @@ npx pod-install
 
 ```tsx
 function App() {
-  const device = useCameraDevice('wide-angle')
+  const device = useCameraDevice('wide-angle-camera')
 
   return (
     <Camera
