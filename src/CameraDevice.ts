@@ -23,7 +23,10 @@ export type LogicalCameraDeviceType = 'dual-camera' | 'dual-wide-camera' | 'trip
  * Parses an array of physical device types into a single `PhysicalCameraDeviceType` or `LogicalCameraDeviceType`, depending what matches.
  */
 export const parsePhysicalDeviceTypes = (physicalDeviceTypes: PhysicalCameraDeviceType[]): PhysicalCameraDeviceType | LogicalCameraDeviceType => {
-  if (physicalDeviceTypes.length === 1) return physicalDeviceTypes[0];
+  if (physicalDeviceTypes.length === 1) {
+    // @ts-expect-error for very obvious reasons
+    return physicalDeviceTypes[0];
+  }
 
   const hasWide = physicalDeviceTypes.includes('wide-angle-camera');
   const hasUltra = physicalDeviceTypes.includes('ultra-wide-angle-camera');
