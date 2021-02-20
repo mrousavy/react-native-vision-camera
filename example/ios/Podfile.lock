@@ -238,6 +238,8 @@ PODS:
     - React
   - react-native-cameraroll (4.0.2):
     - React-Core
+  - react-native-slider (3.0.3):
+    - React
   - react-native-video (5.1.1):
     - React-Core
     - react-native-video/Video (= 5.1.1)
@@ -392,6 +394,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - "react-native-cameraroll (from `../node_modules/@react-native-community/cameraroll`)"
+  - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-video (from `../node_modules/react-native-video`)
   - react-native-vision-camera (from `../..`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -461,6 +464,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/blur"
   react-native-cameraroll:
     :path: "../node_modules/@react-native-community/cameraroll"
+  react-native-slider:
+    :path: "../node_modules/@react-native-community/slider"
   react-native-video:
     :path: "../node_modules/react-native-video"
   react-native-vision-camera:
@@ -527,6 +532,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 58aef7155bc9a9683f5b60b35eccea8722a4f53a
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-cameraroll: 717193a0427fd0db78d3f10385a008fcc102213c
+  react-native-slider: b733e17fdd31186707146debf1f04b5d94aa1a93
   react-native-video: 1574074179ecaf6a9dd067116c8f31bf9fec15c8
   react-native-vision-camera: bf9c62e2795080a21e9ea134050c01b5d9494b6d
   React-RCTActionSheet: 89a0ca9f4a06c1f93c26067af074ccdce0f40336

@@ -11,6 +11,7 @@
   "dependencies": {
     "@react-native-community/blur": "^3.6.0",
     "@react-native-community/cameraroll": "^4.0.2",
+    "@react-native-community/slider": "^3.0.3",
     "pipestate": "^1.0.2",
     "react": "16.13.1",
     "react-native": "0.63.4",
