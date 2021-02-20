@@ -26,9 +26,15 @@
     "target": "esnext",
     "outDir": "lib"
   },
+  "include": [
+    "src",
+    "example",
+    ".eslintrc.js",
+    ".prettierrc.js",
+    "babel.config.js",
+  ],
   "exclude": [
     "node_modules",
-    "babel.config.js",
-    "jest.config.js"
+    "lib"
   ]
 }
