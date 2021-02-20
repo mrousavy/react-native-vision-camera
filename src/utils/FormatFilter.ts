@@ -2,18 +2,16 @@ import { Dimensions } from 'react-native';
 import type { CameraDevice, CameraDeviceFormat, FrameRateRange } from 'react-native-vision-camera';
 
 /**
- * Compares two devices by the following criteria:
- * * `wide-angle-camera`s are ranked higher than others
- * * Devices with more physical cameras are ranked higher than ones with less. (e.g. "Triple Camera" > "Wide-Angle Camera")
+ * Compares two devices, ranking devices with more camera devices higher than ones without.
+ *
+ * E.g.: A "Triple-Camera" device (that is a virtual mutli-cam combined of `ultra-wide-angle`, `wide-angle` and
+ * `telephoto` cameras) is better than a single Wide Angle camera device.
  *
  * > Note that this makes the `sort()` function descending, so the first element (`[0]`) is the "best" device.
  *
  * @example
- * ```ts
  * const devices = camera.devices.sort(sortDevices)
  * const bestDevice = devices[0]
- * ```
- * @method
  */
 export const sortDevices = (left: CameraDevice, right: CameraDevice): number => {
   let leftPoints = 0;
@@ -30,19 +28,7 @@ export const sortDevices = (left: CameraDevice, right: CameraDevice): number => 
   return rightPoints - leftPoints;
 };
 
-/**
- * Represents a Size in any unit.
- */
-export type Size = {
-  /**
-   * Points in width.
-   */
-  width: number;
-  /**
-   * Points in height.
-   */
-  height: number;
-};
+type Size = { width: number; height: number };
 const SCREEN_SIZE: Size = {
   width: Dimensions.get('window').width,
   height: Dimensions.get('window').height,
@@ -79,15 +65,10 @@ const getFormatAspectRatioOverflow = (format: CameraDeviceFormat, size: Size): n
 /**
  * Filters Camera Device Formats by the best matching aspect ratio for the given `viewSize`.
  *
- * @param {CameraDeviceFormat[]} formats A list of formats the current device has (see {@linkcode CameraDevice.formats})
- * @param {Size} viewSize The size of the camera view which will be used to find the best aspect ratio. Defaults to the screen size.
  * @returns A list of Camera Device Formats that match the given `viewSize`' aspect ratio _as close as possible_.
  *
  * @example
- * ```ts
  * const formats = useMemo(() => filterFormatsByAspectRatio(device.formats, CAMERA_VIEW_SIZE), [device.formats])
- * ```
- * @method
  */
 export const filterFormatsByAspectRatio = (formats: CameraDeviceFormat[], viewSize = SCREEN_SIZE): CameraDeviceFormat[] => {
   const minOverflow = formats.reduce((prev, curr) => {
@@ -96,31 +77,23 @@ export const filterFormatsByAspectRatio = (formats: CameraDeviceFormat[], viewSi
     else return prev;
   }, Number.MAX_SAFE_INTEGER);
 
-  return formats.filter((f) => {
-    // percentage of difference in overflow from this format, to the minimum available overflow
-    const overflowDiff = (getFormatAspectRatioOverflow(f, viewSize) - minOverflow) / minOverflow;
-    // we have an acceptance of 25%, if overflow is more than 25% off to the min available overflow, we drop it
-    return overflowDiff < 0.25;
-  });
+  return formats.filter((f) => getFormatAspectRatioOverflow(f, viewSize) === minOverflow);
 };
 
 /**
- * Sorts Camera Device Formats by highest photo-capture resolution, descending. Use this in a `.sort` function.
+ * Sorts Camera Device Formats by highest photo-capture resolution, descending.
  *
  * @example
- * ```ts
  * const formats = useMemo(() => device.formats.sort(sortFormatsByResolution), [device.formats])
  * const bestFormat = formats[0]
- * ```
- * @method
  */
 export const sortFormatsByResolution = (left: CameraDeviceFormat, right: CameraDeviceFormat): number => {
   let leftPoints = left.photoHeight * left.photoWidth;
   let rightPoints = right.photoHeight * right.photoWidth;
 
   if (left.videoHeight != null && left.videoWidth != null && right.videoHeight != null && right.videoWidth != null) {
-    leftPoints += left.videoWidth * left.videoHeight;
-    rightPoints += right.videoWidth * right.videoHeight;
+    leftPoints += left.videoWidth * left.videoHeight ?? 0;
+    rightPoints += right.videoWidth * right.videoHeight ?? 0;
   }
 
   // "returns a negative value if left is better than one"
@@ -130,13 +103,8 @@ export const sortFormatsByResolution = (left: CameraDeviceFormat, right: CameraD
 /**
  * Returns `true` if the given Frame Rate Range (`range`) contains the given frame rate (`fps`)
  *
- * @param {FrameRateRange} range The range to check if the given `fps` are included in
- * @param {number} fps The FPS to check if the given `range` supports.
  * @example
- * ```ts
  * // get all formats that support 60 FPS
  * const formatsWithHighFps = useMemo(() => device.formats.filter((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, 60))), [device.formats])
- * ```
- * @method
  */
 export const frameRateIncluded = (range: FrameRateRange, fps: number): boolean => fps >= range.minFrameRate && fps <= range.maxFrameRate;
