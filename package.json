@@ -8,7 +8,9 @@
   "react-native": "src/index",
   "source": "src/index",
   "files": [
-    "lib",
+    "lib/commonjs",
+    "lib/module",
+    "lib/typescript",
     "android/build.gradle",
     "android/gradle.properties",
     "android/src",
