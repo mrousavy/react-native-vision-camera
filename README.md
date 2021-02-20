@@ -15,7 +15,7 @@
   <img src="img/11.png" width="55%">
   <br />
   <br />
-  <blockquote><h4>The most powerful Camera component for react-native.</h4></blockquote>
+  <blockquote><h4>📸 The Camera library that sees the vision.</h4></blockquote>
   <br />
   <a href='https://ko-fi.com/F1F8CLXG' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi2.png?v=0' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
   <br />
@@ -32,13 +32,29 @@
 <br/>
 <br/>
 
-1. TODO: Better description
-2. TODO: Demo Screenshot from Cuvent
-
+<div>
+  <img align="right" width="35%" src="./img/example.png">
+</div>
 
 ### Install
 
 ```sh
 npm i react-native-vision-camera
 npx pod-install
+```
+
+### Example
+
+
+```tsx
+function App() {
+  const device = useCameraDevice('wide-angle')
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      device={device}
+    />
+  )
+}
 ```
