@@ -11,7 +11,6 @@
 <br />
 
 <div align="center">
-  <h1 align="center">Camera</h1>
   <img src="img/11.png" width="55%">
   <br />
   <br />
@@ -28,7 +27,6 @@
   <a href="https://twitter.com/mrousavy"><img src="https://img.shields.io/twitter/follow/mrousavy?label=Follow%20%40mrousavy&style=social"></a>
 </div>
 
-<br/>
 <br/>
 <br/>
 
