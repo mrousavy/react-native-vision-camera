@@ -13,7 +13,7 @@ import type { CameraDevice, CameraDeviceFormat, CameraProps, CameraRuntimeError,
 import { Camera } from 'react-native-vision-camera';
 import { useIsScreenFocused } from './hooks/useIsScreenFocused';
 import { compareFormats, frameRateIncluded, formatWithClosestMatchingFps, compareDevices } from './FormatFilter';
-import { CAPTURE_BUTTON_SIZE, CONTENT_SPACING, HIGH_FPS, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING, SCREEN_WIDTH } from './Constants';
+import { CONTENT_SPACING, HIGH_FPS, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING } from './Constants';
 import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated';
 import { useEffect } from 'react';
 import { useIsForeground } from './hooks/useIsForeground';
@@ -30,7 +30,6 @@ Reanimated.addWhitelistedNativeProps({
 
 const SCALE_FULL_ZOOM = 3;
 const BUTTON_SIZE = 40;
-const LOCAL_GALLERY_BUTTON_SIZE = 40;
 
 export const App: NavigationFunctionComponent = ({ componentId }) => {
   const camera = useRef<Camera>(null);
@@ -173,7 +172,7 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
 
   //#region Effects
   useEffect(() => {
-    const loadDevices = async () => {
+    const loadDevices = async (): Promise<void> => {
       try {
         const availableCameraDevices = await Camera.getAvailableCameraDevices();
         console.log(`Devices: ${availableCameraDevices.map((d) => d.name).join(', ')}`);
@@ -301,13 +300,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     alignSelf: 'center',
     bottom: SAFE_AREA_PADDING.paddingBottom,
-  },
-  openLocalGalleryButton: {
-    position: 'absolute',
-    left: (SCREEN_WIDTH / 2 - CAPTURE_BUTTON_SIZE / 2) / 2,
-    width: LOCAL_GALLERY_BUTTON_SIZE,
-    height: LOCAL_GALLERY_BUTTON_SIZE,
-    marginBottom: CAPTURE_BUTTON_SIZE / 2 - LOCAL_GALLERY_BUTTON_SIZE / 2,
   },
   button: {
     marginTop: CONTENT_SPACING,
