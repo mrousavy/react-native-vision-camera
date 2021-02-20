@@ -103,24 +103,10 @@ export const compareFormats = (left: CameraDeviceFormat, right: CameraDeviceForm
   const rightPhotoPixels = right.photoHeight * right.photoWidth;
   if (leftPhotoPixels > rightPhotoPixels) {
     // left has greater photo dimensions
-    const isLeftAbovePixelLimit = RESOLUTION_LIMIT != null && leftPhotoPixels > RESOLUTION_LIMIT;
-    if (isLeftAbovePixelLimit) {
-      // left exceeds our pixel limit
-      leftPoints -= 3;
-    } else {
-      // left does not exceed our pixel limit
-      leftPoints += 3;
-    }
+    leftPoints += 3;
   } else if (leftPhotoPixels < rightPhotoPixels) {
     // left has smaller photo dimensions
-    const isRightAbovePixelLimit = RESOLUTION_LIMIT != null && rightPhotoPixels > RESOLUTION_LIMIT;
-    if (isRightAbovePixelLimit) {
-      // right exceeds our pixel limit
-      leftPoints += 3;
-    } else {
-      // right does not exceed our pixel limit
-      leftPoints -= 3;
-    }
+    leftPoints -= 3;
   }
 
   const leftCropped = applyScaledMask(

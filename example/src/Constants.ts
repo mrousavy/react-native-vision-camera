@@ -18,13 +18,6 @@ export const SAFE_AREA_PADDING = {
 // whether to use takeSnapshot() instead of takePhoto() on Android
 export const USE_SNAPSHOT_ON_ANDROID = false;
 
-// The maximum photo resolution (in pixels).
-// Setting this to a lower value means faster capture speed
-// Setting this to a higher value means higher quality images
-export const RESOLUTION_LIMIT = Platform.select({
-  android: 3264 * 1840,
-});
-
 // whether to use ultra-wide-angle cameras if available, or explicitly disable them. I think ultra-wide-angle cams don't support 60FPS...
 export const USE_ULTRAWIDE_IF_AVAILABLE = true;
 
