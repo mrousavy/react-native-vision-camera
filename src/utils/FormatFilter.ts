@@ -27,7 +27,7 @@ export const sortDevices = (left: CameraDevice, right: CameraDevice): number => 
   return rightPoints - leftPoints;
 };
 
-type Size = { width: number; height: number };
+export type Size = { width: number; height: number };
 const SCREEN_SIZE: Size = {
   width: Dimensions.get('window').width,
   height: Dimensions.get('window').height,
