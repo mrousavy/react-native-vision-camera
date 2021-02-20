@@ -1,4 +1,4 @@
-import { RESOLUTION_LIMIT, SCREEN_HEIGHT, SCREEN_WIDTH, USE_ULTRAWIDE_IF_AVAILABLE } from './Constants';
+import { SCREEN_HEIGHT, SCREEN_WIDTH, USE_ULTRAWIDE_IF_AVAILABLE } from './Constants';
 import type { CameraDevice, CameraDeviceFormat, FrameRateRange } from 'react-native-vision-camera';
 
 /**
