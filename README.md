@@ -53,6 +53,8 @@ npx pod-install
 * HDR & Night modes
 * High performance
 
+> See the [example](./example/) app
+
 ### Example
 
 
