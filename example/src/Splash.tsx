@@ -1,19 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { StyleSheet, View, Text, Image  } from 'react-native';
+import { StyleSheet, View, Text, Image } from 'react-native';
 import { Navigation, NavigationFunctionComponent } from 'react-native-navigation';
 import { Camera, CameraPermissionStatus } from 'react-native-vision-camera';
 import { CONTENT_SPACING, SAFE_AREA_PADDING } from './Constants';
 
 export const Splash: NavigationFunctionComponent = ({ componentId }) => {
-  const [
-    cameraPermissionStatus,
-    setCameraPermissionStatus,
-  ] = useState<CameraPermissionStatus>("not-determined");
-  const [
-    microphonePermissionStatus,
-    setMicrophonePermissionStatus,
-  ] = useState<CameraPermissionStatus>("not-determined");
+  const [cameraPermissionStatus, setCameraPermissionStatus] = useState<CameraPermissionStatus>('not-determined');
+  const [microphonePermissionStatus, setMicrophonePermissionStatus] = useState<CameraPermissionStatus>('not-determined');
 
   const requestMicrophonePermission = useCallback(async () => {
     console.log('Requesting microphone permission...');
@@ -31,14 +25,12 @@ export const Splash: NavigationFunctionComponent = ({ componentId }) => {
 
   useEffect(() => {
     const checkPermissions = async () => {
-      console.log(`Checking Permission status...`);
-      let [cameraPermission, microphonePermission] = await Promise.all([
+      console.log('Checking Permission status...');
+      const [cameraPermission, microphonePermission] = await Promise.all([
         Camera.getCameraPermissionStatus(),
         Camera.getMicrophonePermissionStatus(),
       ]);
-      console.log(
-        `Check: CameraPermission: ${cameraPermission} | MicrophonePermission: ${microphonePermission}`
-      );
+      console.log(`Check: CameraPermission: ${cameraPermission} | MicrophonePermission: ${microphonePermission}`);
       setCameraPermissionStatus(cameraPermission);
       setMicrophonePermissionStatus(microphonePermission);
     };
@@ -54,13 +46,13 @@ export const Splash: NavigationFunctionComponent = ({ componentId }) => {
             children: [
               {
                 component: {
-                  name: 'Home'
-                }
-              }
-            ]
-          }
-        }
-      })
+                  name: 'Home',
+                },
+              },
+            ],
+          },
+        },
+      });
     }
   }, [cameraPermissionStatus, microphonePermissionStatus, componentId]);
 
@@ -71,17 +63,25 @@ export const Splash: NavigationFunctionComponent = ({ componentId }) => {
 
       <View style={styles.permissionsContainer}>
         {cameraPermissionStatus !== 'authorized' && (
-          <Text style={styles.permissionText}>Vision Camera needs <Text style={styles.bold}>Camera permission</Text>.
-          <Text style={styles.hyperlink} onPress={requestCameraPermission}>Grant</Text></Text>
+          <Text style={styles.permissionText}>
+            Vision Camera needs <Text style={styles.bold}>Camera permission</Text>.
+            <Text style={styles.hyperlink} onPress={requestCameraPermission}>
+              Grant
+            </Text>
+          </Text>
         )}
         {microphonePermissionStatus !== 'authorized' && (
-          <Text style={styles.permissionText}>Vision Camera needs <Text style={styles.bold}>Microphone permission</Text>.
-          <Text style={styles.hyperlink} onPress={requestMicrophonePermission}>Grant</Text></Text>
+          <Text style={styles.permissionText}>
+            Vision Camera needs <Text style={styles.bold}>Microphone permission</Text>.
+            <Text style={styles.hyperlink} onPress={requestMicrophonePermission}>
+              Grant
+            </Text>
+          </Text>
         )}
       </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   welcome: {
@@ -98,10 +98,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
-    ...SAFE_AREA_PADDING
+    ...SAFE_AREA_PADDING,
   },
   permissionsContainer: {
-    marginTop: CONTENT_SPACING *2
+    marginTop: CONTENT_SPACING * 2,
   },
   permissionText: {
     fontSize: 17,

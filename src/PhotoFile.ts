@@ -1,5 +1,5 @@
-import type { CameraPhotoCodec } from "./CameraCodec";
-import type { TemporaryFile } from "./TemporaryFile";
+import type { CameraPhotoCodec } from './CameraCodec';
+import type { TemporaryFile } from './TemporaryFile';
 
 export interface TakePhotoOptions {
   /**
@@ -18,13 +18,13 @@ export interface TakePhotoOptions {
    * @platform iOS 13.0+
    * @default "balanced"
    */
-  qualityPrioritization?: "quality" | "balanced" | "speed";
+  qualityPrioritization?: 'quality' | 'balanced' | 'speed';
   /**
    * Whether the Flash should be enabled or disabled
    *
    * @default "auto"
    */
-  flash?: "on" | "off" | "auto";
+  flash?: 'on' | 'off' | 'auto';
   /**
    * Specifies whether red-eye reduction should be applied automatically on flash captures.
    *
@@ -86,8 +86,8 @@ export type PhotoFile = Readonly<
        *
        * @platform iOS
        */
-      "{MakerApple}"?: Record<string, unknown>;
-      "{TIFF}": {
+      '{MakerApple}'?: Record<string, unknown>;
+      '{TIFF}': {
         ResolutionUnit: number;
         Software: string;
         Make: string;
@@ -100,7 +100,7 @@ export type PhotoFile = Readonly<
         Model: string;
         YResolution: number;
       };
-      "{Exif}": {
+      '{Exif}': {
         DateTimeOriginal: string;
         ExposureTime: number;
         FNumber: number;

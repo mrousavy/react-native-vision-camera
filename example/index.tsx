@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import { Navigation } from "react-native-navigation";
+import { Navigation } from 'react-native-navigation';
 import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
 import { App } from './src/App';
 import { Settings } from './src/Settings';
@@ -16,14 +16,14 @@ Navigation.setDefaultOptions({
   },
   layout: {
     backgroundColor: 'black',
-    componentBackgroundColor: 'black'
+    componentBackgroundColor: 'black',
   },
   statusBar: {
     animated: true,
     drawBehind: true,
     translucent: true,
     visible: true,
-    style: 'dark'
+    style: 'dark',
   },
   animations: {
     setRoot: {
@@ -31,31 +31,40 @@ Navigation.setDefaultOptions({
         duration: 500,
         from: 0,
         to: 1,
-      }
+      },
     },
-  }
+  },
 });
 
-Navigation.registerComponent('Splash', () => gestureHandlerRootHOC(Splash), () => Splash);
-Navigation.registerComponent('Home', () => gestureHandlerRootHOC(App), () => App);
-Navigation.registerComponent('Media', () => gestureHandlerRootHOC(Media), () => Media);
-Navigation.registerComponent('Settings', () => gestureHandlerRootHOC(Settings), () => Settings);
+Navigation.registerComponent(
+  'Splash',
+  () => gestureHandlerRootHOC(Splash),
+  () => Splash,
+);
+Navigation.registerComponent(
+  'Home',
+  () => gestureHandlerRootHOC(App),
+  () => App,
+);
+Navigation.registerComponent(
+  'Media',
+  () => gestureHandlerRootHOC(Media),
+  () => Media,
+);
+Navigation.registerComponent(
+  'Settings',
+  () => gestureHandlerRootHOC(Settings),
+  () => Settings,
+);
 
 Navigation.events().registerNavigationButtonPressedListener((event) => {
-  if (event.buttonId === "back") {
-    Navigation.pop(event.componentId);
-  }
+  if (event.buttonId === 'back') Navigation.pop(event.componentId);
 });
 
 Navigation.events().registerAppLaunchedListener(async () => {
-  const [cameraPermission, microphonePermission] = await Promise.all([
-    Camera.getCameraPermissionStatus(),
-    Camera.getMicrophonePermissionStatus(),
-  ]);
-  let rootName = "Splash";
-  if (cameraPermission === "authorized" && microphonePermission === "authorized") {
-    rootName = "Home";
-  }
+  const [cameraPermission, microphonePermission] = await Promise.all([Camera.getCameraPermissionStatus(), Camera.getMicrophonePermissionStatus()]);
+  let rootName = 'Splash';
+  if (cameraPermission === 'authorized' && microphonePermission === 'authorized') rootName = 'Home';
 
   Navigation.setRoot({
     root: {
@@ -63,11 +72,11 @@ Navigation.events().registerAppLaunchedListener(async () => {
         children: [
           {
             component: {
-              name: rootName
-            }
-          }
-        ]
-      }
-    }
+              name: rootName,
+            },
+          },
+        ],
+      },
+    },
   });
 });

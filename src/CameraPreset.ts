@@ -15,15 +15,15 @@
  * * `"vga-640x480"`: Specifies capture settings suitable for VGA quality (640 x 480 pixel) video output.
  */
 export type CameraPreset =
-  | "cif-352x288"
-  | "hd-1280x720"
-  | "hd-1920x1080"
-  | "hd-3840x2160"
-  | "high"
-  | "iframe-1280x720"
-  | "iframe-960x540"
-  | "input-priority"
-  | "low"
-  | "medium"
-  | "photo"
-  | "vga-640x480";
+  | 'cif-352x288'
+  | 'hd-1280x720'
+  | 'hd-1920x1080'
+  | 'hd-3840x2160'
+  | 'high'
+  | 'iframe-1280x720'
+  | 'iframe-960x540'
+  | 'input-priority'
+  | 'low'
+  | 'medium'
+  | 'photo'
+  | 'vga-640x480';

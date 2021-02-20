@@ -1,14 +1,5 @@
-import {
-  RESOLUTION_LIMIT,
-  SCREEN_HEIGHT,
-  SCREEN_WIDTH,
-  USE_ULTRAWIDE_IF_AVAILABLE,
-} from "./Constants";
-import type {
-  CameraDevice,
-  CameraDeviceFormat,
-  FrameRateRange,
-} from "react-native-vision-camera";
+import { RESOLUTION_LIMIT, SCREEN_HEIGHT, SCREEN_WIDTH, USE_ULTRAWIDE_IF_AVAILABLE } from './Constants';
+import type { CameraDevice, CameraDeviceFormat, FrameRateRange } from 'react-native-vision-camera';
 
 /**
  * Compares two devices with the following criteria:
@@ -23,14 +14,11 @@ import type {
  *
  * Note that this makes the `sort()` function descending, so the first element (`[0]`) is the "best" device.
  */
-export const compareDevices = (
-  left: CameraDevice,
-  right: CameraDevice
-): -1 | 0 | 1 => {
+export const compareDevices = (left: CameraDevice, right: CameraDevice): -1 | 0 | 1 => {
   let leftPoints = 0;
 
-  const leftHasWideAngle = left.devices.includes("wide-angle-camera");
-  const rightHasWideAngle = right.devices.includes("wide-angle-camera");
+  const leftHasWideAngle = left.devices.includes('wide-angle-camera');
+  const rightHasWideAngle = right.devices.includes('wide-angle-camera');
   if (leftHasWideAngle && !rightHasWideAngle) {
     // left does have a wide-angle-camera, but right doesn't.
     leftPoints += 5;
@@ -40,12 +28,8 @@ export const compareDevices = (
   }
 
   if (!USE_ULTRAWIDE_IF_AVAILABLE) {
-    const leftHasUltraWideAngle = left.devices.includes(
-      "ultra-wide-angle-camera"
-    );
-    const rightHasUltraWideAngle = right.devices.includes(
-      "ultra-wide-angle-camera"
-    );
+    const leftHasUltraWideAngle = left.devices.includes('ultra-wide-angle-camera');
+    const rightHasUltraWideAngle = right.devices.includes('ultra-wide-angle-camera');
     if (leftHasUltraWideAngle && !rightHasUltraWideAngle) {
       // left does have an ultra-wide-angle-camera, but right doesn't. Ultra-Wide cameras are bad because of their poor quality.
       leftPoints -= 5;
@@ -76,7 +60,7 @@ const CAMERA_VIEW_SIZE: Size = {
 
 const applyScaledMask = (
   clippedElementDimensions: Size, // 3024 x 4032 | 2160x3840
-  maskDimensions: Size //            375  x 623
+  maskDimensions: Size, //            375  x 623
 ): Size => {
   const wScale = maskDimensions.width / clippedElementDimensions.width;
   const hScale = maskDimensions.height / clippedElementDimensions.height;
@@ -111,10 +95,7 @@ const applyScaledMask = (
  *
  * Note that this makes the `sort()` function descending, so the first element (`[0]`) is the "best" format.
  */
-export const compareFormats = (
-  left: CameraDeviceFormat,
-  right: CameraDeviceFormat
-): -1 | 0 | 1 => {
+export const compareFormats = (left: CameraDeviceFormat, right: CameraDeviceFormat): -1 | 0 | 1 => {
   // Point score of the left format. Higher is better.
   let leftPoints = 0;
 
@@ -122,8 +103,7 @@ export const compareFormats = (
   const rightPhotoPixels = right.photoHeight * right.photoWidth;
   if (leftPhotoPixels > rightPhotoPixels) {
     // left has greater photo dimensions
-    const isLeftAbovePixelLimit =
-      RESOLUTION_LIMIT != null && leftPhotoPixels > RESOLUTION_LIMIT;
+    const isLeftAbovePixelLimit = RESOLUTION_LIMIT != null && leftPhotoPixels > RESOLUTION_LIMIT;
     if (isLeftAbovePixelLimit) {
       // left exceeds our pixel limit
       leftPoints -= 3;
@@ -133,8 +113,7 @@ export const compareFormats = (
     }
   } else if (leftPhotoPixels < rightPhotoPixels) {
     // left has smaller photo dimensions
-    const isRightAbovePixelLimit =
-      RESOLUTION_LIMIT != null && rightPhotoPixels > RESOLUTION_LIMIT;
+    const isRightAbovePixelLimit = RESOLUTION_LIMIT != null && rightPhotoPixels > RESOLUTION_LIMIT;
     if (isRightAbovePixelLimit) {
       // right exceeds our pixel limit
       leftPoints += 3;
@@ -146,17 +125,14 @@ export const compareFormats = (
 
   const leftCropped = applyScaledMask(
     { width: left.photoHeight, height: left.photoWidth }, // cameras are horizontal, we rotate to portrait
-    CAMERA_VIEW_SIZE
+    CAMERA_VIEW_SIZE,
   );
   const rightCropped = applyScaledMask(
     { width: right.photoHeight, height: right.photoWidth }, // cameras are horizontal, we rotate to portrait
-    CAMERA_VIEW_SIZE
+    CAMERA_VIEW_SIZE,
   );
-  const leftOverflow =
-    left.photoWidth * left.photoHeight - leftCropped.width * leftCropped.height;
-  const rightOverflow =
-    right.photoWidth * right.photoHeight -
-    rightCropped.width * rightCropped.height;
+  const leftOverflow = left.photoWidth * left.photoHeight - leftCropped.width * leftCropped.height;
+  const rightOverflow = right.photoWidth * right.photoHeight - rightCropped.width * rightCropped.height;
   if (leftOverflow > rightOverflow) {
     // left has a higher overflow, aka more pixels that aren't on-screen and therefore wasted. Maybe left is 4:3 and right is 16:9
     leftPoints -= 4;
@@ -165,12 +141,7 @@ export const compareFormats = (
     leftPoints += 4;
   }
 
-  if (
-    left.videoHeight != null &&
-    left.videoWidth != null &&
-    right.videoHeight != null &&
-    right.videoWidth != null
-  ) {
+  if (left.videoHeight != null && left.videoWidth != null && right.videoHeight != null && right.videoWidth != null) {
     const leftVideoPixels = left.videoWidth * left.videoHeight ?? 0;
     const rightVideoPixels = right.videoWidth * right.videoHeight ?? 0;
     if (leftVideoPixels > rightVideoPixels) {
@@ -182,12 +153,8 @@ export const compareFormats = (
     }
   }
 
-  const leftMaxFps = Math.max(
-    ...left.frameRateRanges.map((r) => r.maxFrameRate)
-  );
-  const rightMaxFps = Math.max(
-    ...right.frameRateRanges.map((r) => r.maxFrameRate)
-  );
+  const leftMaxFps = Math.max(...left.frameRateRanges.map((r) => r.maxFrameRate));
+  const rightMaxFps = Math.max(...right.frameRateRanges.map((r) => r.maxFrameRate));
   if (leftMaxFps > rightMaxFps) {
     // left has more fps
     leftPoints += 2;
@@ -220,42 +187,27 @@ export const compareFormats = (
 /**
  * Selects the smallest difference between a FrameRateRange's `maxFrameRate` and the given `fps`
  */
-const smallestFpsDiff = (
-  frameRateRanges: FrameRateRange[],
-  fps: number
-): number => {
-  const bestFrameRateRange = frameRateRanges.reduce<FrameRateRange | undefined>(
-    (prev, curr) => {
-      if (prev == null) return curr;
+const smallestFpsDiff = (frameRateRanges: FrameRateRange[], fps: number): number => {
+  const bestFrameRateRange = frameRateRanges.reduce<FrameRateRange | undefined>((prev, curr) => {
+    if (prev == null) return curr;
 
-      const prevDiff = Math.abs(prev.maxFrameRate - fps);
-      const currDiff = Math.abs(curr.maxFrameRate - fps);
-      if (prevDiff < currDiff) return prev;
-      else return curr;
-    },
-    undefined
-  );
+    const prevDiff = Math.abs(prev.maxFrameRate - fps);
+    const currDiff = Math.abs(curr.maxFrameRate - fps);
+    if (prevDiff < currDiff) return prev;
+    else return curr;
+  }, undefined);
   const max = bestFrameRateRange?.maxFrameRate ?? 0;
   return Math.abs(max - fps);
 };
 
-export const frameRateIncluded = (
-  range: FrameRateRange,
-  fps: number
-): boolean => fps >= range.minFrameRate && fps <= range.maxFrameRate;
+export const frameRateIncluded = (range: FrameRateRange, fps: number): boolean => fps >= range.minFrameRate && fps <= range.maxFrameRate;
 
-const isFpsInFrameRateRange = (
-  format: CameraDeviceFormat,
-  fps: number
-): boolean => format.frameRateRanges.some((r) => frameRateIncluded(r, fps));
+const isFpsInFrameRateRange = (format: CameraDeviceFormat, fps: number): boolean => format.frameRateRanges.some((r) => frameRateIncluded(r, fps));
 
 /**
  * Selects the format with the closest frame rate ranges to the FPS
  */
-export const formatWithClosestMatchingFps = (
-  formats: CameraDeviceFormat[],
-  fps: number
-): CameraDeviceFormat | undefined =>
+export const formatWithClosestMatchingFps = (formats: CameraDeviceFormat[], fps: number): CameraDeviceFormat | undefined =>
   formats.reduce<CameraDeviceFormat | undefined>((prev, curr) => {
     if (prev == null) return curr;
 

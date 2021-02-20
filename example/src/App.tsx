@@ -1,7 +1,13 @@
 import * as React from 'react';
 import { useRef, useState, useMemo, useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { PinchGestureHandler, PinchGestureHandlerGestureEvent, State, TapGestureHandler, TapGestureHandlerStateChangeEvent } from 'react-native-gesture-handler';
+import {
+  PinchGestureHandler,
+  PinchGestureHandlerGestureEvent,
+  State,
+  TapGestureHandler,
+  TapGestureHandlerStateChangeEvent,
+} from 'react-native-gesture-handler';
 import { Navigation, NavigationFunctionComponent } from 'react-native-navigation';
 import type { CameraDevice, CameraDeviceFormat, CameraProps, CameraRuntimeError, PhotoFile, VideoFile } from 'react-native-vision-camera';
 import { Camera } from 'react-native-vision-camera';
@@ -37,23 +43,15 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
   const isForeground = useIsForeground();
   const isActive = isFocussed && isForeground;
 
-  const [cameraPosition, setCameraPosition] = useState<"front" | "back">(
-    "back"
-  );
+  const [cameraPosition, setCameraPosition] = useState<'front' | 'back'>('back');
   const [enableHdr, setEnableHdr] = useState(false);
-  const [flash, setFlash] = useState<"off" | "on">("off");
+  const [flash, setFlash] = useState<'off' | 'on'>('off');
   const [enableNightMode, setEnableNightMode] = useState(false);
 
   // camera format settings
   const [devices, setDevices] = useState<CameraDevice[]>([]); // All available camera devices, sorted by "best device" (descending)
-  const device = useMemo<CameraDevice | undefined>(
-    () => devices.find((d) => d.position === cameraPosition),
-    [cameraPosition, devices]
-  );
-  const formats = useMemo<CameraDeviceFormat[]>(
-    () => device?.formats.sort(compareFormats) ?? [],
-    [device?.formats]
-  );
+  const device = useMemo<CameraDevice | undefined>(() => devices.find((d) => d.position === cameraPosition), [cameraPosition, devices]);
+  const formats = useMemo<CameraDeviceFormat[]>(() => device?.formats.sort(compareFormats) ?? [], [device?.formats]);
 
   //#region Memos
   const fps = useMemo(() => {
@@ -62,37 +60,24 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
       return 30;
     }
 
-    const supportsHdrAtHighFps = formats.some(
-      (f) =>
-        f.supportsVideoHDR &&
-        f.frameRateRanges.some((r) => frameRateIncluded(r, HIGH_FPS))
-    );
+    const supportsHdrAtHighFps = formats.some((f) => f.supportsVideoHDR && f.frameRateRanges.some((r) => frameRateIncluded(r, HIGH_FPS)));
     if (enableHdr && !supportsHdrAtHighFps) {
       // User has enabled HDR, but HDR is not supported at HIGH_FPS.
       return 30;
     }
 
-    const supportsHighFps = formats.some((f) =>
-      f.frameRateRanges.some((r) => frameRateIncluded(r, HIGH_FPS))
-    );
+    const supportsHighFps = formats.some((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, HIGH_FPS)));
     if (!supportsHighFps) {
       // HIGH_FPS is not supported by any format.
       return 30;
     }
     // If nothing blocks us from using it, we default to HIGH_FPS.
     return HIGH_FPS;
-  }, [device, enableHdr, enableNightMode, formats,]);
+  }, [device, enableHdr, enableNightMode, formats]);
 
-  const supportsCameraFlipping = useMemo(
-    () =>
-      devices.some((d) => d.position === "back") &&
-      devices.some((d) => d.position === "front"),
-    [devices]
-  );
+  const supportsCameraFlipping = useMemo(() => devices.some((d) => d.position === 'back') && devices.some((d) => d.position === 'front'), [devices]);
   const supportsFlash = device?.hasFlash ?? false;
-  const supportsHdr = useMemo(() => formats.some((f) => f.supportsVideoHDR), [
-    formats,
-  ]);
+  const supportsHdr = useMemo(() => formats.some((f) => f.supportsVideoHDR), [formats]);
   const canToggleNightMode = enableNightMode
     ? true // it's enabled so you have to be able to turn it off again
     : (device?.supportsLowLightBoost ?? false) || fps > 30; // either we have native support, or we can lower the FPS
@@ -118,14 +103,9 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
 
   const cameraAnimatedProps = useAnimatedProps<Partial<CameraProps>>(
     () => ({
-      zoom: interpolate(
-        zoom.value,
-        [0, neutralZoomScaled, 1],
-        [0, neutralZoom, maxZoomScaled],
-        Extrapolate.CLAMP
-      ),
+      zoom: interpolate(zoom.value, [0, neutralZoomScaled, 1], [0, neutralZoom, maxZoomScaled], Extrapolate.CLAMP),
     }),
-    [maxZoomScaled, neutralZoom, neutralZoomScaled, zoom]
+    [maxZoomScaled, neutralZoom, neutralZoomScaled, zoom],
   );
   //#endregion
 
@@ -134,45 +114,42 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
     (_isPressingButton: boolean) => {
       isPressingButton.value = _isPressingButton;
     },
-    [isPressingButton]
+    [isPressingButton],
   );
   // Camera callbacks
   const onError = useCallback((error: CameraRuntimeError) => {
     console.error(error);
   }, []);
   const onInitialized = useCallback(() => {
-    console.log(`Camera initialized!`);
+    console.log('Camera initialized!');
     setIsCameraInitialized(true);
   }, []);
-  const onMediaCaptured = useCallback(
-    async (media: PhotoFile | VideoFile, type: "photo" | "video") => {
-      console.log(`Media captured! ${JSON.stringify(media)}`);
-      await Navigation.showModal({
-        component: {
-          name: 'Media',
-          passProps: {
-            type: type,
-            path: media.path,
-          }
-        }
-      })
-    },
-    []
-  );
+  const onMediaCaptured = useCallback(async (media: PhotoFile | VideoFile, type: 'photo' | 'video') => {
+    console.log(`Media captured! ${JSON.stringify(media)}`);
+    await Navigation.showModal({
+      component: {
+        name: 'Media',
+        passProps: {
+          type: type,
+          path: media.path,
+        },
+      },
+    });
+  }, []);
   const onFlipCameraPressed = useCallback(() => {
-    setCameraPosition((p) => (p === "back" ? "front" : "back"));
+    setCameraPosition((p) => (p === 'back' ? 'front' : 'back'));
   }, []);
   const onHdrSwitchPressed = useCallback(() => {
     setEnableHdr((h) => !h);
   }, []);
   const onFlashPressed = useCallback(() => {
-    setFlash((f) => (f === "off" ? "on" : "off"));
+    setFlash((f) => (f === 'off' ? 'on' : 'off'));
   }, []);
   const onNightModePressed = useCallback(() => {
     setEnableNightMode((n) => !n);
   }, []);
   const onSettingsPressed = useCallback(() => {
-    Navigation.push(componentId, { component: { name: 'Settings' } })
+    Navigation.push(componentId, { component: { name: 'Settings' } });
   }, [componentId]);
   //#endregion
 
@@ -190,7 +167,7 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
           break;
       }
     },
-    [isPressingButton, onFlipCameraPressed]
+    [isPressingButton, onFlipCameraPressed],
   );
   //#endregion
 
@@ -199,12 +176,12 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
     const loadDevices = async () => {
       try {
         const availableCameraDevices = await Camera.getAvailableCameraDevices();
-        console.log(`Devices: ${availableCameraDevices.map((d) => d.name).join(", ")}`);
+        console.log(`Devices: ${availableCameraDevices.map((d) => d.name).join(', ')}`);
         const sortedDevices = availableCameraDevices.sort(compareDevices);
-        console.debug(`Devices (sorted): ${sortedDevices.map((d) => d.name).join(", ")}`);
+        console.debug(`Devices (sorted): ${sortedDevices.map((d) => d.name).join(', ')}`);
         setDevices(sortedDevices);
       } catch (e) {
-        console.error(`Failed to get available devices!`, e);
+        console.error('Failed to get available devices!', e);
       }
     };
     loadDevices();
@@ -216,9 +193,7 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
 
   useEffect(() => {
     // Run everytime the camera gets set to isActive = false. (reset zoom when tab switching)
-    if (!isActive) {
-      zoom.value = neutralZoomScaled;
-    }
+    if (!isActive) zoom.value = neutralZoomScaled;
   }, [neutralZoomScaled, isActive, zoom]);
   //#endregion
 
@@ -232,27 +207,19 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
     onActive: (event, context) => {
       // we're trying to map the scale gesture to a linear zoom here
       const startZoom = context.startZoom ?? 0;
-      const scale = interpolate(
-        event.scale,
-        [1 - 1 / SCALE_FULL_ZOOM, 1, SCALE_FULL_ZOOM],
-        [-1, 0, 1],
-        Extrapolate.CLAMP
-      );
-      zoom.value = interpolate(
-        scale,
-        [-1, 0, 1],
-        [0, startZoom, 1],
-        Extrapolate.CLAMP
-      );
+      const scale = interpolate(event.scale, [1 - 1 / SCALE_FULL_ZOOM, 1, SCALE_FULL_ZOOM], [-1, 0, 1], Extrapolate.CLAMP);
+      zoom.value = interpolate(scale, [-1, 0, 1], [0, startZoom, 1], Extrapolate.CLAMP);
     },
   });
   //#endregion
 
   if (device != null && format != null) {
-    console.log(`Re-rendering camera page with ${isActive ? "active" : "inactive"} camera. `
-      + `Device: "${device.name}" (${format.photoWidth}x${format.photoHeight} @ ${fps}fps)`);
+    console.log(
+      `Re-rendering camera page with ${isActive ? 'active' : 'inactive'} camera. ` +
+        `Device: "${device.name}" (${format.photoWidth}x${format.photoHeight} @ ${fps}fps)`,
+    );
   } else {
-    console.log(`re-rendering camera page without active camera`);
+    console.log('re-rendering camera page without active camera');
   }
 
   // TODO: Implement camera flipping (back <-> front) while recording and stich the videos together
@@ -262,9 +229,7 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
       {device != null && (
         <PinchGestureHandler onGestureEvent={onPinchGesture} enabled={isActive}>
           <Reanimated.View style={StyleSheet.absoluteFill}>
-            <TapGestureHandler
-              onHandlerStateChange={onDoubleTapGesture}
-              numberOfTaps={2}>
+            <TapGestureHandler onHandlerStateChange={onDoubleTapGesture} numberOfTaps={2}>
               <ReanimatedCamera
                 ref={camera}
                 style={StyleSheet.absoluteFill}
@@ -272,9 +237,7 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
                 format={format}
                 fps={fps}
                 hdr={enableHdr}
-                lowLightBoost={
-                  device.supportsLowLightBoost && enableNightMode
-                }
+                lowLightBoost={device.supportsLowLightBoost && enableNightMode}
                 isActive={isActive}
                 onInitialized={onInitialized}
                 onError={onError}
@@ -293,7 +256,7 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
         camera={camera}
         onMediaCaptured={onMediaCaptured}
         cameraZoom={zoom}
-        flash={supportsFlash ? flash : "off"}
+        flash={supportsFlash ? flash : 'off'}
         enabled={isCameraInitialized && isActive}
         setIsPressingButton={setIsPressingButton}
       />
@@ -302,74 +265,45 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
 
       <View style={styles.rightButtonRow}>
         {supportsCameraFlipping && (
-          <PressableOpacity
-            style={styles.button}
-            onPress={onFlipCameraPressed}
-            disabledOpacity={0.4}>
-            <IonIcon
-              name="camera-reverse"
-              color="white"
-              size={24}
-            />
+          <PressableOpacity style={styles.button} onPress={onFlipCameraPressed} disabledOpacity={0.4}>
+            <IonIcon name="camera-reverse" color="white" size={24} />
           </PressableOpacity>
         )}
         {supportsFlash && (
-          <PressableOpacity
-            style={styles.button}
-            onPress={onFlashPressed}
-            disabledOpacity={0.4}>
-            <IonIcon
-              name={flash === "on" ? "flash" : "flash-off"}
-              color="white"
-              size={24}
-            />
+          <PressableOpacity style={styles.button} onPress={onFlashPressed} disabledOpacity={0.4}>
+            <IonIcon name={flash === 'on' ? 'flash' : 'flash-off'} color="white" size={24} />
           </PressableOpacity>
         )}
         {canToggleNightMode && (
-          <PressableOpacity
-            style={styles.button}
-            onPress={onNightModePressed}
-            disabledOpacity={0.4}>
-            <IonIcon
-              name={enableNightMode ? "moon" : "moon-outline"}
-              color="white"
-              size={24}
-            />
+          <PressableOpacity style={styles.button} onPress={onNightModePressed} disabledOpacity={0.4}>
+            <IonIcon name={enableNightMode ? 'moon' : 'moon-outline'} color="white" size={24} />
           </PressableOpacity>
         )}
         {supportsHdr && (
           <PressableOpacity style={styles.button} onPress={onHdrSwitchPressed}>
-            <MaterialIcon
-              name={enableHdr ? "hdr" : "hdr-off"}
-              color="white"
-              size={24}
-            />
+            <MaterialIcon name={enableHdr ? 'hdr' : 'hdr-off'} color="white" size={24} />
           </PressableOpacity>
         )}
         <PressableOpacity style={styles.button} onPress={onSettingsPressed}>
-          <IonIcon
-            name="settings-outline"
-            color="white"
-            size={24}
-          />
+          <IonIcon name="settings-outline" color="white" size={24} />
         </PressableOpacity>
       </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "black",
+    backgroundColor: 'black',
   },
   captureButton: {
-    position: "absolute",
-    alignSelf: "center",
-    bottom: SAFE_AREA_PADDING.paddingBottom
+    position: 'absolute',
+    alignSelf: 'center',
+    bottom: SAFE_AREA_PADDING.paddingBottom,
   },
   openLocalGalleryButton: {
-    position: "absolute",
+    position: 'absolute',
     left: (SCREEN_WIDTH / 2 - CAPTURE_BUTTON_SIZE / 2) / 2,
     width: LOCAL_GALLERY_BUTTON_SIZE,
     height: LOCAL_GALLERY_BUTTON_SIZE,
@@ -380,13 +314,13 @@ const styles = StyleSheet.create({
     width: BUTTON_SIZE,
     height: BUTTON_SIZE,
     borderRadius: BUTTON_SIZE / 2,
-    backgroundColor: "rgba(140, 140, 140, 0.3)",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'rgba(140, 140, 140, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   rightButtonRow: {
-    position: "absolute",
+    position: 'absolute',
     right: CONTENT_SPACING,
-    top: SAFE_AREA_PADDING.paddingTop
+    top: SAFE_AREA_PADDING.paddingTop,
   },
 });

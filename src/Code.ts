@@ -2,24 +2,24 @@
  * Available code types
  */
 export type CodeType =
-  | "cat-body"
-  | "dog-body"
-  | "human-body"
-  | "salient-object"
-  | "aztec"
-  | "code-128"
-  | "code-39"
-  | "code-39-mod-43"
-  | "code-93"
-  | "data-matrix"
-  | "ean-13"
-  | "ean-8"
-  | "face"
-  | "interleaved-2-of-5"
-  | "itf-14"
-  | "pdf-417"
-  | "qr"
-  | "upce";
+  | 'cat-body'
+  | 'dog-body'
+  | 'human-body'
+  | 'salient-object'
+  | 'aztec'
+  | 'code-128'
+  | 'code-39'
+  | 'code-39-mod-43'
+  | 'code-93'
+  | 'data-matrix'
+  | 'ean-13'
+  | 'ean-8'
+  | 'face'
+  | 'interleaved-2-of-5'
+  | 'itf-14'
+  | 'pdf-417'
+  | 'qr'
+  | 'upce';
 
 /**
  * Represents a File in the local filesystem.

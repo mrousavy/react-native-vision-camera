@@ -26,14 +26,14 @@
 //   maxKeyFrameIntervalDuration?: TCodec extends "h264" ? number : never;
 // }
 
-import type { CameraCaptureError } from "./CameraError";
-import type { TemporaryFile } from "./TemporaryFile";
+import type { CameraCaptureError } from './CameraError';
+import type { TemporaryFile } from './TemporaryFile';
 
 export interface RecordVideoOptions {
   /**
    * Set the video flash mode. Natively, this just enables the torch while recording.
    */
-  flash?: "on" | "off" | "auto";
+  flash?: 'on' | 'off' | 'auto';
   /**
    * Called when there was an unexpected runtime error while recording the video.
    */

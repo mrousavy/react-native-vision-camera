@@ -10,4 +10,4 @@
  * #### Android only
  * * `"external"`: The camera device is an external camera, and has no fixed facing relative to the device's screen. (Android only)
  */
-export type CameraPosition = "front" | "back" | "unspecified" | "external";
+export type CameraPosition = 'front' | 'back' | 'unspecified' | 'external';

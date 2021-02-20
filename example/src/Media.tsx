@@ -12,42 +12,41 @@ import CameraRoll from '@react-native-community/cameraroll';
 import { StatusBarBlurBackground } from './views/StatusBarBlurBackground';
 
 interface MediaProps {
-  path: string,
-  type: 'video' | 'photo'
+  path: string;
+  type: 'video' | 'photo';
 }
 
 const requestSavePermission = async (): Promise<boolean> => {
-  if (Platform.OS !== "android") {
-    return true;
-  }
+  if (Platform.OS !== 'android') return true;
+
   const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
   let hasPermission = await PermissionsAndroid.check(permission);
   if (!hasPermission) {
     const permissionRequestResult = await PermissionsAndroid.request(permission);
-    hasPermission = permissionRequestResult === "granted";
+    hasPermission = permissionRequestResult === 'granted';
   }
   return hasPermission;
-}
+};
 
 export const Media: NavigationFunctionComponent<MediaProps> = ({ componentId, type, path }) => {
   const [hasMediaLoaded, setHasMediaLoaded] = useState(false);
   const isForeground = useIsForeground();
   const isScreenFocused = useIsScreenFocused(componentId);
   const isVideoPaused = !isForeground || !isScreenFocused;
-  const [savingState, setSavingState] = useState<"none" | "saving" | "saved">("none");
+  const [savingState, setSavingState] = useState<'none' | 'saving' | 'saved'>('none');
 
   const onClosePressed = useCallback(() => {
     Navigation.dismissModal(componentId);
   }, [componentId]);
 
   const onMediaLoadEnd = useCallback(() => {
-    console.log(`media has loaded.`);
+    console.log('media has loaded.');
     setHasMediaLoaded(true);
   }, []);
 
   const onSavePressed = useCallback(async () => {
     try {
-      setSavingState("saving");
+      setSavingState('saving');
 
       const hasPermission = await requestSavePermission();
       if (!hasPermission) {
@@ -57,33 +56,23 @@ export const Media: NavigationFunctionComponent<MediaProps> = ({ componentId, ty
       await CameraRoll.save(`file://${path}`, {
         type: type,
       });
-      setSavingState("saved");
+      setSavingState('saved');
     } catch (e) {
-      setSavingState("none");
-      Alert.alert(
-        "Failed to save!",
-        `An unexpected error occured while trying to save your ${type}. ${e?.message ?? JSON.stringify(e)}`
-      );
+      setSavingState('none');
+      Alert.alert('Failed to save!', `An unexpected error occured while trying to save your ${type}. ${e?.message ?? JSON.stringify(e)}`);
     }
   }, [path, type]);
 
   const source = useMemo(() => ({ uri: `file://${path}` }), [path]);
 
-  const screenStyle = useMemo(() => ({ opacity: hasMediaLoaded ? 1 : 0 }), [
-    hasMediaLoaded,
-  ]);
+  const screenStyle = useMemo(() => ({ opacity: hasMediaLoaded ? 1 : 0 }), [hasMediaLoaded]);
 
   return (
     <View style={[styles.container, screenStyle]}>
-      {type === "photo" && (
-        <Image
+      {type === 'photo' && <Image source={source} style={StyleSheet.absoluteFill} resizeMode="cover" onLoadEnd={onMediaLoadEnd} />}
+      {type === 'video' && (
+        <Video
           source={source}
-          style={StyleSheet.absoluteFill}
-          resizeMode="cover"
-          onLoadEnd={onMediaLoadEnd} />
-      )}
-      {type === "video" && (
-        <Video source={source}
           style={StyleSheet.absoluteFill}
           paused={isVideoPaused}
           resizeMode="cover"
@@ -96,48 +85,24 @@ export const Media: NavigationFunctionComponent<MediaProps> = ({ componentId, ty
           controls={false}
           playWhenInactive={true}
           ignoreSilentSwitch="ignore"
-          onReadyForDisplay={onMediaLoadEnd} />
+          onReadyForDisplay={onMediaLoadEnd}
+        />
       )}
 
-      <PressableOpacity
-        style={styles.closeButton}
-        onPress={onClosePressed}>
-        <IonIcon
-          name="close"
-          size={35}
-          color="white"
-          style={styles.icon} />
+      <PressableOpacity style={styles.closeButton} onPress={onClosePressed}>
+        <IonIcon name="close" size={35} color="white" style={styles.icon} />
       </PressableOpacity>
 
-      <PressableOpacity
-        style={styles.saveButton}
-        onPress={onSavePressed}
-        disabled={savingState !== "none"}>
-        {savingState === "none" && (
-          <IonIcon
-            name="download"
-            size={35}
-            color="white"
-            style={styles.icon}
-          />
-        )}
-        {savingState === "saved" && (
-          <IonIcon
-            name="checkmark"
-            size={35}
-            color="white"
-            style={styles.icon}
-          />
-        )}
-        {savingState === "saving" && (
-          <ActivityIndicator color="white" />
-        )}
+      <PressableOpacity style={styles.saveButton} onPress={onSavePressed} disabled={savingState !== 'none'}>
+        {savingState === 'none' && <IonIcon name="download" size={35} color="white" style={styles.icon} />}
+        {savingState === 'saved' && <IonIcon name="checkmark" size={35} color="white" style={styles.icon} />}
+        {savingState === 'saving' && <ActivityIndicator color="white" />}
       </PressableOpacity>
 
       <StatusBarBlurBackground />
     </View>
   );
-}
+};
 
 Media.options = {
   modal: {
@@ -154,8 +119,8 @@ Media.options = {
     },
   },
   layout: {
-    backgroundColor: "transparent",
-    componentBackgroundColor: "transparent",
+    backgroundColor: 'transparent',
+    componentBackgroundColor: 'transparent',
   },
 };
 
@@ -181,7 +146,7 @@ const styles = StyleSheet.create({
     height: 40,
   },
   icon: {
-    textShadowColor: "black",
+    textShadowColor: 'black',
     textShadowOffset: {
       height: 0,
       width: 0,

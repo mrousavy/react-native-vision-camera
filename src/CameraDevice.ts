@@ -1,4 +1,4 @@
-import type { CameraPosition } from "./CameraPosition";
+import type { CameraPosition } from './CameraPosition';
 
 /**
  * Indentifiers for a physical camera (one that actually exists on the back/front of the device)
@@ -7,10 +7,7 @@ import type { CameraPosition } from "./CameraPosition";
  * * `"wide-angle-camera"`: A built-in wide-angle camera. (focal length between 24mm and 35mm)
  * * `"telephoto-camera"`: A built-in camera device with a longer focal length than a wide-angle camera. (focal length between above 85mm)
  */
-export type PhysicalCameraDeviceType =
-  | "ultra-wide-angle-camera"
-  | "wide-angle-camera"
-  | "telephoto-camera";
+export type PhysicalCameraDeviceType = 'ultra-wide-angle-camera' | 'wide-angle-camera' | 'telephoto-camera';
 
 /**
  * Indentifiers for a logical camera (Combinations of multiple physical cameras to create a single logical camera).
@@ -20,38 +17,24 @@ export type PhysicalCameraDeviceType =
  * * `"triple-camera"`: A device that consists of three cameras of fixed focal length, one ultrawide angle, one wide angle, and one telephoto.
  * * `"true-depth-camera"`: A combination of cameras and other sensors that creates a capture device capable of photo, video, and depth capture.
  */
-export type LogicalCameraDeviceType =
-  | "dual-camera"
-  | "dual-wide-camera"
-  | "triple-camera"
-  | "true-depth-camera";
+export type LogicalCameraDeviceType = 'dual-camera' | 'dual-wide-camera' | 'triple-camera' | 'true-depth-camera';
 
 /**
  * Parses an array of physical device types into a single `PhysicalCameraDeviceType` or `LogicalCameraDeviceType`, depending what matches.
  */
-export const parsePhysicalDeviceTypes = (
-  physicalDeviceTypes: PhysicalCameraDeviceType[]
-): PhysicalCameraDeviceType | LogicalCameraDeviceType => {
-  if (physicalDeviceTypes.length === 1) {
-    return physicalDeviceTypes[0];
-  }
-  const hasWide = physicalDeviceTypes.includes("wide-angle-camera");
-  const hasUltra = physicalDeviceTypes.includes("ultra-wide-angle-camera");
-  const hasTele = physicalDeviceTypes.includes("telephoto-camera");
-  if (hasTele && hasWide && hasUltra) {
-    return "triple-camera";
-  }
-  if (hasWide && hasUltra) {
-    return "dual-wide-camera";
-  }
-  if (hasWide && hasTele) {
-    return "dual-camera";
-  }
-  throw new Error(
-    `Invalid physical device type combination! ${physicalDeviceTypes.join(
-      " + "
-    )}`
-  );
+export const parsePhysicalDeviceTypes = (physicalDeviceTypes: PhysicalCameraDeviceType[]): PhysicalCameraDeviceType | LogicalCameraDeviceType => {
+  if (physicalDeviceTypes.length === 1) return physicalDeviceTypes[0];
+
+  const hasWide = physicalDeviceTypes.includes('wide-angle-camera');
+  const hasUltra = physicalDeviceTypes.includes('ultra-wide-angle-camera');
+  const hasTele = physicalDeviceTypes.includes('telephoto-camera');
+  if (hasTele && hasWide && hasUltra) return 'triple-camera';
+
+  if (hasWide && hasUltra) return 'dual-wide-camera';
+
+  if (hasWide && hasTele) return 'dual-camera';
+
+  throw new Error(`Invalid physical device type combination! ${physicalDeviceTypes.join(' + ')}`);
 };
 
 /**
@@ -65,7 +48,7 @@ export const parsePhysicalDeviceTypes = (
  * #### The following colorspaces are available on Android:
  * * `"yuv"`: The YCbCr color space.
  */
-export type ColorSpace = "hlg-bt2020" | "p3-d65" | "srgb" | "yuv";
+export type ColorSpace = 'hlg-bt2020' | 'p3-d65' | 'srgb' | 'yuv';
 
 /**
  * Indicates a format's autofocus system.
@@ -74,7 +57,7 @@ export type ColorSpace = "hlg-bt2020" | "p3-d65" | "srgb" | "yuv";
  * * `"contrast-detection"`: Indicates that autofocus is achieved by contrast detection. Contrast detection performs a focus scan to find the optimal position
  * * `"phase-detection"`: Indicates that autofocus is achieved by phase detection. Phase detection has the ability to achieve focus in many cases without a focus scan. Phase detection autofocus is typically less visually intrusive than contrast detection autofocus
  */
-export type AutoFocusSystem = "contrast-detection" | "phase-detection" | "none";
+export type AutoFocusSystem = 'contrast-detection' | 'phase-detection' | 'none';
 
 /**
  * Indicates a format's supported video stabilization mode
@@ -85,12 +68,7 @@ export type AutoFocusSystem = "contrast-detection" | "phase-detection" | "none";
  * * `"cinematic-extended"`: Indicates that the video should be stabilized using the extended cinematic stabilization algorithm. Enabling extended cinematic stabilization introduces longer latency into the video capture pipeline compared to the AVCaptureVideoStabilizationModeCinematic and consumes more memory, but yields improved stability. It is recommended to use identical or similar min and max frame durations in conjunction with this mode (iOS 13.0+)
  * * `"auto"`: Indicates that the most appropriate video stabilization mode for the device and format should be chosen automatically
  */
-export type VideoStabilizationMode =
-  | "off"
-  | "standard"
-  | "cinematic"
-  | "cinematic-extended"
-  | "auto";
+export type VideoStabilizationMode = 'off' | 'standard' | 'cinematic' | 'cinematic-extended' | 'auto';
 
 export type FrameRateRange = Readonly<{
   minFrameRate: number;
