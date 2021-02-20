@@ -288,22 +288,12 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
                         val isExtensionAvailable = imageExtension.isExtensionAvailable(cameraSelector) &&
                                 previewExtension.isExtensionAvailable(cameraSelector)
                         if (isExtensionAvailable) {
-                            Log.d(REACT_CLASS, "Enabling native HDR extension...")
+                            Log.i(REACT_CLASS, "Enabling native HDR extension...")
                             imageExtension.enableExtension(cameraSelector)
                             previewExtension.enableExtension(cameraSelector)
                         } else {
-                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP_MR1) {
-                                Log.d(REACT_CLASS, "Native HDR extension not available, falling back to CONTROL_SCENE_MODE...")
-                                Camera2Interop.Extender(previewBuilder)
-                                        .setCaptureRequestOption(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_HDR)
-                                Camera2Interop.Extender(imageCaptureBuilder)
-                                        .setCaptureRequestOption(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_HDR)
-                                Camera2Interop.Extender(videoCaptureBuilder)
-                                        .setCaptureRequestOption(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_HDR)
-                            } else {
-                                Log.d(REACT_CLASS, "Native HDR extension and CONTROL_SCENE_MODE_HDR not available!")
-                                throw UnsupportedOSError("hdr", "true", "5.1 (Lollipop/22)")
-                            }
+                            Log.e(REACT_CLASS, "Native HDR vendor extension not available!")
+                            throw HdrNotContainedInFormatError()
                         }
                     }
                 }
@@ -314,17 +304,12 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
                         val isExtensionAvailable = imageExtension.isExtensionAvailable(cameraSelector) &&
                                 previewExtension.isExtensionAvailable(cameraSelector)
                         if (isExtensionAvailable) {
-                            Log.d(REACT_CLASS, "Enabling native night-mode extension...")
+                            Log.i(REACT_CLASS, "Enabling native night-mode extension...")
                             imageExtension.enableExtension(cameraSelector)
                             previewExtension.enableExtension(cameraSelector)
                         } else {
-                            Log.d(REACT_CLASS, "Native night-mode extension not available, falling back to CONTROL_SCENE_MODE...")
-                            Camera2Interop.Extender(previewBuilder)
-                                    .setCaptureRequestOption(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_NIGHT)
-                            Camera2Interop.Extender(imageCaptureBuilder)
-                                    .setCaptureRequestOption(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_NIGHT)
-                            Camera2Interop.Extender(videoCaptureBuilder)
-                                    .setCaptureRequestOption(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_NIGHT)
+                            Log.e(REACT_CLASS, "Native night-mode vendor extension not available!")
+                            throw LowLightBoostNotContainedInFormatError()
                         }
                     }
                 }

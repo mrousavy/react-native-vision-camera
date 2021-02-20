@@ -41,10 +41,10 @@ class NoCameraDeviceError: CameraError("device", "no-device", "No device was set
 class InvalidCameraDeviceError(cause: Throwable): CameraError("device", "invalid-device", "The given Camera device could not be found for use-case binding!", cause)
 
 class FpsNotContainedInFormatError(fps: Int): CameraError("format", "invalid-fps", "The given FPS were not valid for the currently selected format. Make sure you select a format which `frameRateRanges` includes $fps FPS!")
-class HdrNotContainedInFormatError(usesFallback: Boolean): CameraError("format", "invalid-hdr", "The currently selected format does not support HDR capture! " +
-        "Make sure you select a format which `frameRateRanges` includes `supportsPhotoHDR`! Using CONTROL_SCENE_MODE_HDR as fallback: $usesFallback")
-class LowLightBoostNotContainedInFormatError(usesFallback: Boolean): CameraError("format", "invalid-low-light-boost", "The currently selected format does not support low-light boost (night mode)! " +
-        "Make sure you select a format which includes `supportsLowLightBoost`. Using CONTROL_SCENE_MODE_NIGHT as fallback: $usesFallback")
+class HdrNotContainedInFormatError(): CameraError("format", "invalid-hdr", "The currently selected format does not support HDR capture! " +
+        "Make sure you select a format which `frameRateRanges` includes `supportsPhotoHDR`!")
+class LowLightBoostNotContainedInFormatError(): CameraError("format", "invalid-low-light-boost", "The currently selected format does not support low-light boost (night mode)! " +
+        "Make sure you select a format which includes `supportsLowLightBoost`.")
 
 class CameraNotReadyError: CameraError("session", "camera-not-ready", "The Camera is not ready yet! Wait for the onInitialized() callback!")
 

@@ -11,8 +11,6 @@ import android.os.Build
 import android.util.Log
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.MeteringPoint
-import androidx.camera.core.MeteringPointFactory
 import androidx.camera.extensions.HdrImageCaptureExtender
 import androidx.camera.extensions.NightImageCaptureExtender
 import androidx.core.content.ContextCompat
@@ -153,18 +151,15 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
                     characteristics.get(CameraCharacteristics.INFO_VERSION)
                 else null
                 val fpsRanges = characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES)!!
-                val scenes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_SCENE_MODES)!!
 
                 var supportsHdr = false
                 var supportsLowLightBoost = false
                 try {
                     val hdrExtension = HdrImageCaptureExtender.create(imageCaptureBuilder)
                     supportsHdr = hdrExtension.isExtensionAvailable(cameraSelector)
-                            || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1 && scenes.contains(CameraCharacteristics.CONTROL_SCENE_MODE_HDR))
 
                     val nightExtension = NightImageCaptureExtender.create(imageCaptureBuilder)
                     supportsLowLightBoost = nightExtension.isExtensionAvailable(cameraSelector)
-                            || scenes.contains(CameraCharacteristics.CONTROL_SCENE_MODE_NIGHT)
                 } catch (e: Throwable) {
                     // error on checking availability. falls back to "false"
                     Log.e(REACT_CLASS, "Failed to check HDR/Night Mode extension availability.", e)
