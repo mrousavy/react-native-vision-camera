@@ -64,7 +64,7 @@ module.exports = {
     'react/no-unescaped-entities': 'off',
     // react native plugin
     'react-native/no-unused-styles': 'warn',
-    'react-native/split-platform-components': 'warn',
+    'react-native/split-platform-components': 'off',
     'react-native/no-inline-styles': 'warn',
     'react-native/no-color-literals': 'off',
     'react-native/no-raw-text': 'off',
