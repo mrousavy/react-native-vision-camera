@@ -2,10 +2,9 @@ import { Dimensions } from 'react-native';
 import type { CameraDevice, CameraDeviceFormat, FrameRateRange } from 'react-native-vision-camera';
 
 /**
- * Compares two devices, ranking devices with more camera devices higher than ones without.
- *
- * E.g.: A "Triple-Camera" device (that is a virtual mutli-cam combined of `ultra-wide-angle`, `wide-angle` and
- * `telephoto` cameras) is better than a single Wide Angle camera device.
+ * Compares two devices by the following criteria:
+ * * `wide-angle-camera`s are ranked higher than others
+ * * Devices with more physical cameras are ranked higher than ones with less. (e.g. "Triple Camera" > "Wide-Angle Camera")
  *
  * > Note that this makes the `sort()` function descending, so the first element (`[0]`) is the "best" device.
  *
