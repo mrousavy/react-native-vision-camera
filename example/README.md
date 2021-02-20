@@ -1,7 +1,7 @@
-# Vison Camera playground
-
 <div>
   <img align="right" width="35%" src="./../img/example.png">
+
+  <h1>Vison Camera playground</h1>
 
   <h2>Overview</h2>
 
