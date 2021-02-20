@@ -28,9 +28,6 @@ export const RESOLUTION_LIMIT = Platform.select({
 // whether to use ultra-wide-angle cameras if available, or explicitly disable them. I think ultra-wide-angle cams don't support 60FPS...
 export const USE_ULTRAWIDE_IF_AVAILABLE = true;
 
-// the max FPS to use if available
-export const HIGH_FPS = 50;
-
 // The maximum zoom _factor_ you should be able to zoom in
 export const MAX_ZOOM_FACTOR = 16;
 

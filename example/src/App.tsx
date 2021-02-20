@@ -13,7 +13,7 @@ import type { CameraDevice, CameraDeviceFormat, CameraProps, CameraRuntimeError,
 import { Camera } from 'react-native-vision-camera';
 import { useIsScreenFocused } from './hooks/useIsScreenFocused';
 import { compareFormats, frameRateIncluded, formatWithClosestMatchingFps, compareDevices } from './FormatFilter';
-import { CONTENT_SPACING, HIGH_FPS, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING } from './Constants';
+import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING } from './Constants';
 import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated';
 import { useEffect } from 'react';
 import { useIsForeground } from './hooks/useIsForeground';
@@ -22,6 +22,8 @@ import { CaptureButton } from './views/CaptureButton';
 import { PressableOpacity } from './views/PressableOpacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
+import { useSelector } from 'pipestate';
+import { FpsSelector } from './state/selectors';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -53,26 +55,28 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
   const formats = useMemo<CameraDeviceFormat[]>(() => device?.formats.sort(compareFormats) ?? [], [device?.formats]);
 
   //#region Memos
+  const [targetFps] = useSelector(FpsSelector);
+  console.log(`Target FPS: ${targetFps}`);
   const fps = useMemo(() => {
     if (enableNightMode && !device?.supportsLowLightBoost) {
       // User has enabled Night Mode, but Night Mode is not natively supported, so we simulate it by lowering the frame rate.
       return 30;
     }
 
-    const supportsHdrAtHighFps = formats.some((f) => f.supportsVideoHDR && f.frameRateRanges.some((r) => frameRateIncluded(r, HIGH_FPS)));
+    const supportsHdrAtHighFps = formats.some((f) => f.supportsVideoHDR && f.frameRateRanges.some((r) => frameRateIncluded(r, targetFps)));
     if (enableHdr && !supportsHdrAtHighFps) {
-      // User has enabled HDR, but HDR is not supported at HIGH_FPS.
+      // User has enabled HDR, but HDR is not supported at targetFps.
       return 30;
     }
 
-    const supportsHighFps = formats.some((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, HIGH_FPS)));
+    const supportsHighFps = formats.some((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, targetFps)));
     if (!supportsHighFps) {
-      // HIGH_FPS is not supported by any format.
+      // targetFps is not supported by any format.
       return 30;
     }
-    // If nothing blocks us from using it, we default to HIGH_FPS.
-    return HIGH_FPS;
-  }, [device, enableHdr, enableNightMode, formats]);
+    // If nothing blocks us from using it, we default to targetFps.
+    return targetFps;
+  }, [device?.supportsLowLightBoost, enableHdr, enableNightMode, formats, targetFps]);
 
   const supportsCameraFlipping = useMemo(() => devices.some((d) => d.position === 'back') && devices.some((d) => d.position === 'front'), [devices]);
   const supportsFlash = device?.hasFlash ?? false;

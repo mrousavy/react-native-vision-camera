@@ -1,7 +1,7 @@
 import { selector } from 'pipestate';
 import { FormatSettingsAtom } from './atoms';
 
-export const FpsSelector = selector({
+export const FpsSelector = selector<number, []>({
   get: ({ get }) => {
     return get(FormatSettingsAtom).fps;
   },
