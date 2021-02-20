@@ -20,7 +20,8 @@
     "ios/**/*.cpp",
     "ios/**/*.swift",
     "react-native-vision-camera.podspec",
-    "*.md"
+    "README.md",
+    "docs"
   ],
   "scripts": {
     "test": "jest",

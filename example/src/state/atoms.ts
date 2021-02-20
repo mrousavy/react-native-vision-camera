@@ -6,6 +6,6 @@ interface FormatSettings {
 
 export const FormatSettingsAtom = atom<FormatSettings>({
   default: {
-    fps: 50,
+    fps: 60,
   },
 });

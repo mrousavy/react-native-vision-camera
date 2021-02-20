@@ -6,7 +6,8 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
-    "start": "react-native start"
+    "start": "react-native start",
+    "pods": "cd ios && pod install"
   },
   "dependencies": {
     "@react-native-community/blur": "^3.6.0",

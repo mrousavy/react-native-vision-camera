@@ -10,9 +10,8 @@ import {
 } from 'react-native-gesture-handler';
 import { Navigation, NavigationFunctionComponent } from 'react-native-navigation';
 import type { CameraDevice, CameraDeviceFormat, CameraProps, CameraRuntimeError, PhotoFile, VideoFile } from 'react-native-vision-camera';
-import { Camera } from 'react-native-vision-camera';
+import { Camera, frameRateIncluded, sortDevices, sortFormatsByResolution, filterFormatsByAspectRatio } from 'react-native-vision-camera';
 import { useIsScreenFocused } from './hooks/useIsScreenFocused';
-import { compareFormats, frameRateIncluded, formatWithClosestMatchingFps, compareDevices } from './FormatFilter';
 import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING } from './Constants';
 import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated';
 import { useEffect } from 'react';
@@ -52,7 +51,11 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
   // camera format settings
   const [devices, setDevices] = useState<CameraDevice[]>([]); // All available camera devices, sorted by "best device" (descending)
   const device = useMemo<CameraDevice | undefined>(() => devices.find((d) => d.position === cameraPosition), [cameraPosition, devices]);
-  const formats = useMemo<CameraDeviceFormat[]>(() => device?.formats.sort(compareFormats) ?? [], [device?.formats]);
+  const formats = useMemo<CameraDeviceFormat[]>(() => {
+    if (device?.formats == null) return [];
+    const filtered = filterFormatsByAspectRatio(device.formats);
+    return filtered.sort(sortFormatsByResolution);
+  }, [device?.formats]);
 
   //#region Memos
   const [targetFps] = useSelector(FpsSelector);
@@ -94,7 +97,8 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
       result = result.filter((f) => f.supportsVideoHDR);
     }
 
-    return formatWithClosestMatchingFps(result, fps);
+    // find the first format that includes the given FPS
+    return result.find((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, fps)));
   }, [formats, fps, enableHdr]);
 
   //#region Animated Zoom
@@ -180,7 +184,7 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
       try {
         const availableCameraDevices = await Camera.getAvailableCameraDevices();
         console.log(`Devices: ${availableCameraDevices.map((d) => d.name).join(', ')}`);
-        const sortedDevices = availableCameraDevices.sort(compareDevices);
+        const sortedDevices = availableCameraDevices.sort(sortDevices);
         console.debug(`Devices (sorted): ${sortedDevices.map((d) => d.name).join(', ')}`);
         setDevices(sortedDevices);
       } catch (e) {
