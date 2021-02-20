@@ -43,6 +43,16 @@ npm i react-native-vision-camera
 npx pod-install
 ```
 
+### Features
+
+* Photo and Video capture
+* Customizable FPS
+* Customizable device (`ultra-wide-angle`, `wide-angle`, `telephoto` and virtual multi-cameras)
+* JS worklet frame processors powered by JSI and Reanimated
+* Reanimated zooming
+* HDR & Night modes
+* High performance
+
 ### Example
 
 
