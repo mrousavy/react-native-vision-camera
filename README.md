@@ -46,12 +46,11 @@ npx pod-install
 ### Features
 
 * Photo and Video capture
-* Customizable FPS
 * Customizable device (`ultra-wide-angle`, `wide-angle`, `telephoto` and virtual multi-cameras)
+* Customizable FPS
 * JS worklet frame processors powered by JSI and Reanimated
 * Reanimated zooming
 * HDR & Night modes
-* High performance
 
 > See the [example](./example/) app
 
