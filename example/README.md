@@ -1,19 +1,25 @@
 # Vison Camera playground
 
-## Overview
+<div>
+  <img align="right" width="35%" src="./../img/example.png">
 
-This is a demo application featuring some of the many features of the Vision Camera:
+  <h2>Overview</h2>
 
-* Photo capture
-* Video capture
-* Device filtering (ultra-wide-angle, wide-angle, telephoto, or even combined virtual multi-cameras)
-* Format filtering (targeting 60 FPS, best capture size, best matching aspect ratio, etc.)
-* Zooming using [react-native-gesture-handler](https://github.com/software-mansion/react-native-gesture-handler) and [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated)
-* HDR mode
-* Night mode
-* Flash for photo capture
-* Flash for video capture
-* Activating/Pausing the Camera but keeping it "warm"
+  <p align="left">
+  This is a demo application featuring some of the many features of the Vision Camera:
+
+  * Photo capture
+  * Video capture
+  * Device filtering (ultra-wide-angle, wide-angle, telephoto, or even combined virtual multi-cameras)
+  * Format filtering (targeting 60 FPS, best capture size, best matching aspect ratio, etc.)
+  * Zooming using [react-native-gesture-handler](https://github.com/software-mansion/react-native-gesture-handler) and [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated)
+  * HDR mode
+  * Night mode
+  * Flash for photo capture
+  * Flash for video capture
+  * Activating/Pausing the Camera but keeping it "warm"
+  </p>
+</div>
 
 ## Get started
 
