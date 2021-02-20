@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     bottom: SAFE_AREA_PADDING.paddingBottom,
   },
   button: {
-    marginTop: CONTENT_SPACING,
+    marginBottom: CONTENT_SPACING,
     width: BUTTON_SIZE,
     height: BUTTON_SIZE,
     borderRadius: BUTTON_SIZE / 2,
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
   },
   rightButtonRow: {
     position: 'absolute',
-    right: CONTENT_SPACING,
+    right: SAFE_AREA_PADDING.paddingRight,
     top: SAFE_AREA_PADDING.paddingTop,
   },
 });
