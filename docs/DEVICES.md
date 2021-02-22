@@ -37,7 +37,9 @@ To get a list of all available camera devices, use the `getAvailableCameraDevice
 const devices = await Camera.getAvailableCameraDevices()
 ```
 
-A camera device (`CameraDevice`) contains a list of physical device type this camera device consists of.
+> [🔗 See the `CameraDevice` type](./../src/CameraDevice.ts)
+
+A camera device (`CameraDevice`) contains a list of physical device types this camera device consists of.
 
 Example:
 * For a single Wide-Angle camera, this would be `["wide-angle-camera"]`
@@ -53,6 +55,8 @@ const deviceType = parsePhysicalDeviceTypes(device.devices)
 console.log(deviceType)
 //  --> "triple-camera"
 ```
+
+The `CameraDevice` type also contains other useful information describing a camera device, such as `position` ("front", "back", ...), `hasFlash`, it's `formats` (See [FORMATS.md](./FORMATS.md)), and more.
 
 Make sure to carefully filter out unneeded camera devices, since not every phone supports all camera device types. Some phones don't even have front-cameras.
 
