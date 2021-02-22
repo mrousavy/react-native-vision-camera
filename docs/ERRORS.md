@@ -25,6 +25,9 @@ switch (error.code) {
   case "device/microphone-unavailable":
     console.log("This camera device does not have a microphone.")
     break
+  case "capture/recording-in-progress":
+    console.log("Another recording is already in progress!")
+    break
   default:
     console.error(error)
     break
@@ -79,14 +82,14 @@ function App() {
       const photo = await camera.current.takePhoto()
     } catch (e) {
       if (e instanceof CameraCaptureError) {
-      switch (e.code) {
-        case "file-io-error":
-          console.error("Failed to write photo to disk!")
-          break
-        default:
-          console.error(e)
-          break
-      }
+        switch (e.code) {
+          case "file-io-error":
+            console.error("Failed to write photo to disk!")
+            break
+          default:
+            console.error(e)
+            break
+        }
       }
     }
   }, [camera]);
