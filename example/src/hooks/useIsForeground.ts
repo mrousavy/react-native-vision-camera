@@ -6,7 +6,7 @@ export const useIsForeground = (): boolean => {
   const [isForeground, setIsForeground] = useCachedState(true);
 
   useEffect(() => {
-    const onChange = (state: AppStateStatus) => {
+    const onChange = (state: AppStateStatus): void => {
       setIsForeground(state === 'active');
     };
     AppState.addEventListener('change', onChange);
