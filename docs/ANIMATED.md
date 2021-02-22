@@ -8,7 +8,14 @@
 </tr>
 </table>
 
-<br />
+<br/>
+<br/>
+
+<h1 align="center">Animated</h1>
+
+<div>
+  <img align="right" width="35%" src="../img/ultra-wide-demo.gif">
+</div>
 
 ## Animations
 
