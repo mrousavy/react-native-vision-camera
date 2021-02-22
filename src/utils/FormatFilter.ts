@@ -21,8 +21,8 @@ export const sortDevices = (left: CameraDevice, right: CameraDevice): number => 
   if (leftHasWideAngle) leftPoints += 5;
   if (rightHasWideAngle) rightPoints += 5;
 
-  if (left.devices.length > right.devices.length) leftPoints += 3;
-  if (right.devices.length > left.devices.length) rightPoints += 3;
+  if (left.devices.length > right.devices.length) leftPoints += 2;
+  if (right.devices.length > left.devices.length) rightPoints += 2;
 
   return rightPoints - leftPoints;
 };
