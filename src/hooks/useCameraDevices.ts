@@ -1,8 +1,18 @@
 import { useEffect, useState } from 'react';
-import { CameraRuntimeError } from 'src/CameraError';
+import type { CameraPosition } from 'src/CameraPosition';
 import { sortDevices } from 'src/utils/FormatFilter';
 import { Camera } from '../Camera';
 import { CameraDevice, LogicalCameraDeviceType, parsePhysicalDeviceTypes, PhysicalCameraDeviceType } from '../CameraDevice';
+
+type CameraDevices = {
+  [key in CameraPosition]: CameraDevice | undefined;
+};
+const DefaultCameraDevices: CameraDevices = {
+  back: undefined,
+  external: undefined,
+  front: undefined,
+  unspecified: undefined,
+};
 
 /**
  * Gets the best available `CameraDevice`. Devices with more cameras are preferred.
@@ -14,7 +24,7 @@ import { CameraDevice, LogicalCameraDeviceType, parsePhysicalDeviceTypes, Physic
  * // ...
  * return <Camera device={device} />
  */
-export function useCameraDevice(): CameraDevice;
+export function useCameraDevices(): CameraDevices;
 
 /**
  * Gets a `CameraDevice` for the requested device type.
@@ -26,32 +36,31 @@ export function useCameraDevice(): CameraDevice;
  * // ...
  * return <Camera device={device} />
  */
-export function useCameraDevice(deviceType: PhysicalCameraDeviceType | LogicalCameraDeviceType): CameraDevice | undefined;
+export function useCameraDevices(deviceType: PhysicalCameraDeviceType | LogicalCameraDeviceType): CameraDevices;
 
-export function useCameraDevice(deviceType?: PhysicalCameraDeviceType | LogicalCameraDeviceType): CameraDevice | undefined {
-  const [device, setDevice] = useState<CameraDevice>();
+export function useCameraDevices(deviceType?: PhysicalCameraDeviceType | LogicalCameraDeviceType): CameraDevices {
+  const [cameraDevices, setCameraDevices] = useState<CameraDevices>(DefaultCameraDevices);
 
   useEffect(() => {
     let isMounted = true;
 
     const loadDevice = async (): Promise<void> => {
-      const devices = await Camera.getAvailableCameraDevices();
+      let devices = await Camera.getAvailableCameraDevices();
       if (!isMounted) return;
 
-      let bestMatch: CameraDevice | undefined;
-      if (deviceType == null) {
-        // use any device
-        const sorted = devices.sort(sortDevices);
-        bestMatch = sorted[0];
-      } else {
-        // use specified device (type)
-        bestMatch = devices.find((d) => {
+      devices = devices.sort(sortDevices);
+      if (deviceType != null) {
+        devices = devices.filter((d) => {
           const parsedType = parsePhysicalDeviceTypes(d.devices);
           return parsedType === deviceType;
         });
       }
-      if (bestMatch == null) throw new CameraRuntimeError('device/no-device', 'No Camera device was found!');
-      setDevice(bestMatch);
+      setCameraDevices({
+        back: devices.find((d) => d.position === 'back'),
+        external: devices.find((d) => d.position === 'external'),
+        front: devices.find((d) => d.position === 'front'),
+        unspecified: devices.find((d) => d.position === 'unspecified'),
+      });
     };
     loadDevice();
 
@@ -60,5 +69,5 @@ export function useCameraDevice(deviceType?: PhysicalCameraDeviceType | LogicalC
     };
   }, [deviceType]);
 
-  return device;
+  return cameraDevices;
 }

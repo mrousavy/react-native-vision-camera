@@ -91,8 +91,8 @@ export const sortFormatsByResolution = (left: CameraDeviceFormat, right: CameraD
   let rightPoints = right.photoHeight * right.photoWidth;
 
   if (left.videoHeight != null && left.videoWidth != null && right.videoHeight != null && right.videoWidth != null) {
-    leftPoints += left.videoWidth * left.videoHeight ?? 0;
-    rightPoints += right.videoWidth * right.videoHeight ?? 0;
+    leftPoints += left.videoWidth * left.videoHeight;
+    rightPoints += right.videoWidth * right.videoHeight;
   }
 
   // "returns a negative value if left is better than one"
