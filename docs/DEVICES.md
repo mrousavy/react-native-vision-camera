@@ -66,10 +66,17 @@ The react-native-vision-camera library provides a hook to make camera device sel
 
 You can specify a device type to only find devices with the given type:
 
-```ts
+```tsx
 function App() {
   const devices = useCameraDevices('wide-angle-camera')
   const device = devices.back
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      device={device}
+    />
+  )
 }
 ```
 
@@ -77,9 +84,16 @@ Or just return the "best matching camera device". This function prefers camera d
 
 > Example: `triple-camera` > `dual-wide-camera` > `dual-camera` > `wide-angle-camera` > `ultra-wide-angle-camera` > `telephoto-camera` > ...
 
-```ts
+```tsx
 function App() {
   const devices = useCameraDevices()
   const device = devices.back
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      device={device}
+    />
+  )
 }
 ```

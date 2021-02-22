@@ -60,12 +60,7 @@ function App() {
     console.error(error)
   }, [])
 
-  return (
-    <Camera
-      style={StyleSheet.absoluteFill}
-      onError={onError}
-    />
-  )
+  return <Camera ref={camera} {...cameraProps} />
 }
 ```
 
@@ -94,11 +89,6 @@ function App() {
     }
   }, [camera]);
 
-  return (
-    <Camera
-      style={StyleSheet.absoluteFill}
-      ref={camera}
-    />
-  )
+  return <Camera ref={camera} {...cameraProps} />
 }
 ```
