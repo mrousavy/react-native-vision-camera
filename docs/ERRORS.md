@@ -8,6 +8,94 @@
 </tr>
 </table>
 
-<br />
+<br/>
+<br/>
 
-TODO: Explanation on how errors in the camera library work and how to identify the cause of the problem
+<h1 align="center">Errors</h1>
+
+## Why?
+
+Since the Camera library is quite big, there is a lot that can "go wrong". The react-native-vision-camera library provides thoroughly typed errors to help you quickly identify the cause and fix the problem.
+
+```ts
+switch (error.code) {
+  case "device/configuration-error":
+    console.log("Failed to configure the camera device.")
+    break
+  case "device/microphone-unavailable":
+    console.log("This camera device does not have a microphone.")
+    break
+  default:
+    console.error(error)
+    break
+}
+```
+
+## The Error types
+
+### `CameraError`
+
+The `CameraError` type is a baseclass type for all other errors, and should only be used internally. It, and therefore all other error classes, provide the following properties:
+
+* `code`: A typed code that can be used to quickly identify and group errors
+* `message`: A non-localized message text that provides a more information and context about the error and possibly problematic values.
+* (optional) `cause`: An `ErrorWithCause` instance that provides information about the cause of the error.
+  * `cause.message`: The message of the error that caused the camera error. This is localized on iOS.
+  * (iOS) `cause.details`: More dictionary-style information about the cause. (iOS only)
+  * (Android) `cause.stacktrace`: A native Java stacktrace for the cause.
+  * (optional) `cause.cause`: The cause that caused the given error. (Recursive)
+
+### Runtime Errors
+
+The `CameraRuntimeError` represents any kind of error that occured while mounting the Camera view, or an error that occured during the runtime.
+
+The `<Camera />` UI Component provides an `onError` function that will be invoked every time an unexpected runtime error occured.
+
+```tsx
+function App() {
+  const onError = useCallback((error: CameraRuntimeError) => {
+    console.error(error)
+  }, [])
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      onError={onError}
+    />
+  )
+}
+```
+
+### Capture Errors
+
+The `CameraCaptureError` represents any kind of error that occured only while capturing a photo or recording a video.
+
+```tsx
+function App() {
+  const camera = useRef<Camera>(null)
+
+  const onPress = useCallback(() => {
+    try {
+      const photo = await camera.current.takePhoto()
+    } catch (e) {
+      if (e instanceof CameraCaptureError) {
+      switch (e.code) {
+        case "file-io-error":
+          console.error("Failed to write photo to disk!")
+          break
+        default:
+          console.error(e)
+          break
+      }
+      }
+    }
+  }, [camera]);
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      ref={camera}
+    />
+  )
+}
+```
