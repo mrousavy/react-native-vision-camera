@@ -46,6 +46,8 @@ The `CameraError` type is a baseclass type for all other errors and provides the
 * `message`: A non-localized message text that provides a more information and context about the error and possibly problematic values.
 * (optional) `cause`: An `ErrorWithCause` instance that provides information about the cause of the error.
   * `cause.message`: The message of the error that caused the camera error. This is localized on iOS.
+  * (iOS) `cause.code`: The native error's error-code. (iOS only)
+  * (iOS) `cause.domain`: The native error's domain. (iOS only)
   * (iOS) `cause.details`: More dictionary-style information about the cause. (iOS only)
   * (Android) `cause.stacktrace`: A native Java stacktrace for the cause.
   * (optional) `cause.cause`: The cause that caused the given error. (Recursive)

@@ -38,6 +38,20 @@ export type UnknownError = 'unknown/unknown';
 
 export interface ErrorWithCause {
   /**
+   * The native error's code.
+   *
+   * * iOS: `NSError.code`
+   * * Android: N/A
+   */
+  code?: number;
+  /**
+   * The native error's domain.
+   *
+   * * iOS: `NSError.domain`
+   * * Android: N/A
+   */
+  domain?: string;
+  /**
    * The native error description (Localized on iOS)
    *
    * * iOS: `NSError.message`

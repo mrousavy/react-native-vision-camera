@@ -463,7 +463,12 @@ final class CameraView: UIView {
 
     var causeDictionary: [String: Any]?
     if let cause = cause {
-      causeDictionary = ["message": cause.localizedDescription, "details": cause.userInfo]
+      causeDictionary = [
+        "code": cause.code,
+        "domain": cause.domain,
+        "message": cause.localizedDescription,
+        "details": cause.userInfo
+      ]
     }
     onError([
       "code": error.code,
