@@ -19,7 +19,7 @@ on:
       - 'package.json'
 
 jobs:
-  node_modules:
+  TypeScript:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
