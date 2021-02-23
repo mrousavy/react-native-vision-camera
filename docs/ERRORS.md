@@ -1,11 +1,11 @@
 <table>
 <tr>
-<th><a href="../README.md">README.md</a></th>
-<th><a href="./DEVICES.md">DEVICES.md</a></th>
-<th><a href="./FORMATS.md">FORMATS.md</a></th>
-<th><a href="./FRAME_PROCESSORS.md">FRAME_PROCESSORS.md</a></th>
-<th><a href="./ANIMATED.md">ANIMATED.md</a></th>
-<th>ERRORS.md</th>
+<th><a href="../README.md">README</a></th>
+<th><a href="./DEVICES.md">DEVICES</a></th>
+<th><a href="./FORMATS.md">FORMATS</a></th>
+<th><a href="./FRAME_PROCESSORS.md">FRAME_PROCESSORS</a></th>
+<th><a href="./ANIMATED.md">ANIMATED</a></th>
+<th>ERRORS</th>
 </tr>
 </table>
 
