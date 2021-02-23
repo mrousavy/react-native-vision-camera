@@ -37,3 +37,13 @@
     * iPhone 11 Pro, iOS 14.3
     * Huawai P20, Android 10
 -->
+
+## Related issues
+
+<!--
+  Link related issues here.
+  Examples:
+    * Fixes #29
+    * Closes #30
+    * Resolves #5
+-->
