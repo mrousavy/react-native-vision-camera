@@ -29,29 +29,14 @@ jobs:
           WORKING_DIRECTORY: ios
   SwiftFormat:
     name: SwiftFormat
-    runs-on: ubuntu-latest
+    description: 'https://github.com/nicklockwood/SwiftFormat'
+    runs:
+      using: 'docker'
+      image: 'Dockerfile'
     env:
       working-directory: ./ios
     steps:
       - uses: actions/checkout@v2
-
-      - name: Cache packages/Tools/.build
-        uses: actions/cache@v1
-        with:
-          path: packages/Tools/.build
-          key: ${{ runner.os }}-swift-tools-build-${{ hashFiles('packages/Tools/Package.resolved') }}
-          restore-keys: |
-            ${{ runner.os }}-swift-tools-build-
-      - name: Cache ~/bin
-        uses: actions/cache@v1
-        with:
-          path: ~/bin
-          key: ${{ runner.os }}-home-bin-${{ hashFiles('packages/Tools/Package.resolved') }}
-          restore-keys: |
-            ${{ runner.os }}-home-bin-
-      - name: Install Swift tools
-        run: make swift-tools
-        working-directory: ${{env.working-directory}}
 
       - name: Format Swift code
         run: swiftformat --verbose .
