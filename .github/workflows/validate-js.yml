@@ -36,7 +36,7 @@ jobs:
       run: yarn example
   tsc:
     name: Run TypeScript
-    needs: node_modules
+    needs: setup
     runs-on: ubuntu-latest
     steps:
     # - uses: actions/checkout@v2
@@ -54,7 +54,7 @@ jobs:
       run: yarn typescript
   lint:
     name: Run ESLint and Prettier
-    needs: node_modules
+    needs: setup
     runs-on: ubuntu-latest
     steps:
     # - uses: actions/checkout@v2
