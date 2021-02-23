@@ -236,6 +236,7 @@ final class CameraView: UIView {
     } catch let error as NSError {
       // not critical, so don't return
       invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)))
+      captureSession.automaticallyConfiguresApplicationAudioSession = true // fallback to auto-setup
     }
 
     // Video Input
