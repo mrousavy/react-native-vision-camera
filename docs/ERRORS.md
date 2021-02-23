@@ -44,7 +44,7 @@ The `CameraError` type is a baseclass type for all other errors and provides the
 
 * `code`: A typed code in the form of `{domain}/{code}` that can be used to quickly identify and group errors
 * `message`: A non-localized message text that provides a more information and context about the error and possibly problematic values.
-* (optional) `cause`: An `ErrorWithCause` instance that provides information about the cause of the error.
+* `cause?`: An `ErrorWithCause` instance that provides information about the cause of the error. (Optional)
   * `cause.message`: The message of the error that caused the camera error. This is localized on iOS.
   * `cause.code?`: The native error's error-code. (iOS only)
   * `cause.domain?`: The native error's domain. (iOS only)
