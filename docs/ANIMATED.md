@@ -30,24 +30,24 @@ import Reanimated, {
   useAnimatedProps,
   useSharedValue,
   withSpring,
-} from "react-native-reanimated";
+} from "react-native-reanimated"
 
-const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
+const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 Reanimated.addWhitelistedNativeProps({
   zoom: true,
-});
+})
 
-export const App = () => {
-  const zoom = useSharedValue(0);
+export function App() {
+  const zoom = useSharedValue(0)
 
   const onRandomZoomPress = useCallback(() => {
-    zoom.value = withSpring(Math.random());
-  }, []);
+    zoom.value = withSpring(Math.random())
+  }, [])
 
   const animatedProps = useAnimatedProps<Partial<CameraProps>>(
     () => ({ zoom: zoom.value }),
     [zoom]
-  );
+  )
 
   return (
     <>
