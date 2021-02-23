@@ -9,12 +9,14 @@ on:
       - "*.js"
       - "*.json"
       - "package.json"
+      - ".github/workflows/validate-typescript.yml"
   pull_request:
     paths:
       - "src"
       - "*.js"
       - "*.json"
       - "package.json"
+      - ".github/workflows/validate-typescript.yml"
 
 jobs:
   build:

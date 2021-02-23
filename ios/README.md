@@ -4,7 +4,11 @@ This folder contains the iOS-platform-specific code for react-native-vision-came
 
 ## Prerequesites
 
-1. Install need [SwiftFormat](https://github.com/nicklockwood/SwiftFormat) and [SwiftLint](https://github.com/realm/SwiftLint)
+1. Install Xcode tools
+    ```sh
+    xcode-select --install
+    ```
+2. Install need [SwiftFormat](https://github.com/nicklockwood/SwiftFormat) and [SwiftLint](https://github.com/realm/SwiftLint)
     ```sh
     brew install swiftformat swiftlint
     ```
