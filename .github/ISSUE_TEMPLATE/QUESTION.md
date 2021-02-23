@@ -1,7 +1,7 @@
 ---
-name: "\U0002753 Question"
+name: "❓ Question"
 about: Ask a question about the library
-title: "\U0002753 "
+title: "❓ "
 labels: question
 assignees: ''
 
