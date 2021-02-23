@@ -13,6 +13,10 @@
 
 <h1 align="center">Errors</h1>
 
+<div>
+  <img align="right" width="35%" src="../img/example_error.png">
+</div>
+
 ## Why?
 
 Since the Camera library is quite big, there is a lot that can "go wrong". The react-native-vision-camera library provides thoroughly typed errors to help you quickly identify the cause and fix the problem.
