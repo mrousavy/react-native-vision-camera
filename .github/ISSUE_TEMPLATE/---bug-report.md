@@ -7,9 +7,14 @@ assignees: ''
 
 ---
 
-<!-- ❤️ Thank you for your contribution! ❤️ -->
-<!-- Remember that you can use this project FOR FREE. -->
-<!-- Badly written issues are less likely to be picked up than well written ones. -->
+<!--
+                      ❤️ Thank you for your contribution! ❤️
+                  Remember that you can use this project FOR FREE.
+      Badly written issues are less likely to be picked up than well written ones.
+  BEFORE creating an issue, make sure you tried everything in the TROUBLESHOOTING.md doc:
+  https://github.com/mrousavy/react-native-vision-camera/blob/main/docs/TROUBLESHOOTING.md
+-->
+
 
 ## Type
 
@@ -29,23 +34,14 @@ assignees: ''
 ## Reproducable sample
 
 <!--
-    Paste a minimal code snippet in there that I/we can use to reproduce the problem you're experiencing. You can also link a GitHub repository.
-    ⚠️ Note: if you don't provide a reproducable sample, your issue will most likely not be picked up.
+    Paste a minimal code snippet so that I can use to reproduce the problem you're experiencing.
+                                You can also link a GitHub repository.
+    ⚠️ if you don't provide a reproducable sample, your issue will most likely not be picked up. ⚠️
 -->
 
 ```tsx
 // code here
 ```
-
-## Debugging
-
-<!--
-    Replace the `[ ]` with a `[x]` where it fits:
--->
-
-* [ ] I tried to clean & rebuild (`rm -rf node_modules && rm -rf package-lock.json && rm -rf yarn.lock && rm -rf ios/Pods && rm -rf ios/Podfile.lock` and then re-install node_modules and Pods)
-* [ ] I tried to debug the native code and noticed the following: ___
-* [ ] I can reproduce this error on multiple devices
 
 ## Environment
 
