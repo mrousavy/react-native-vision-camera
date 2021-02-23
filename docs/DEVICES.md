@@ -98,3 +98,29 @@ function App() {
   )
 }
 ```
+
+### The `isActive` prop
+
+The Camera's `isActive` property can be used to _pause_ the session (`isActive={false}`) while still keeping the session "warm". This is more desirable than completely unmounting the camera, since _resuming_ the session (`isActive={true}`) will be **much faster** than re-mounting the camera view.
+
+For example, you want to **pause the camera** when the user **navigates to another page** or **minimizes the app** since otherwise the camera continues to run in the background without the user seeing it, causing **siginificant battery drain**. Also, on iOS a green dot indicates the user that the camera is still active, possibly causing the user to raise privacy concerns. (🔗 See ["About the orange and green indicators in your iPhone status bar"](https://support.apple.com/en-us/HT211876))
+
+This example demonstrates how you could pause the camera stream once the app goes into background using a custom `useIsAppForeground` hook:
+
+```tsx
+function App() {
+  const devices = useCameraDevices()
+  const device = devices.back
+  const isAppForeground = useIsAppForeground()
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      device={device}
+      isActive={isAppForeground}
+    />
+  )
+}
+```
+
+> Note: If you don't care about fast resume times you can also fully unmount the `<Camera>` view instead, which will use a lot less memory (RAM).
