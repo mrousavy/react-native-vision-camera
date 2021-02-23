@@ -7,7 +7,11 @@ assignees: ''
 
 ---
 
-<!-- ❤️ Thank you for your contribution! ❤️ -->
+<!--
+                            ❤️ Thank you for your contribution! ❤️
+                        Remember that you can use this project FOR FREE.
+      Badly written feature requests are less likely to be picked up than well written ones.
+-->
 
 ## Type
 
