@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import type { CameraPosition } from 'src/CameraPosition';
-import { sortDevices } from 'src/utils/FormatFilter';
+import type { CameraPosition } from '../CameraPosition';
+import { sortDevices } from '../utils/FormatFilter';
 import { Camera } from '../Camera';
 import { CameraDevice, LogicalCameraDeviceType, parsePhysicalDeviceTypes, PhysicalCameraDeviceType } from '../CameraDevice';
 

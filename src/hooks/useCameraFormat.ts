@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import type { CameraDevice, CameraDeviceFormat } from 'src/CameraDevice';
-import { filterFormatsByAspectRatio, sortFormatsByResolution } from 'src/utils/FormatFilter';
-import type { Size } from 'src/utils/FormatFilter';
+import type { CameraDevice, CameraDeviceFormat } from '../CameraDevice';
+import { filterFormatsByAspectRatio, sortFormatsByResolution } from '../utils/FormatFilter';
+import type { Size } from '../utils/FormatFilter';
 
 /**
  * Returns the best format for the given camera device.
