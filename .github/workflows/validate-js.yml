@@ -19,7 +19,8 @@ on:
       - 'package.json'
 
 jobs:
-  TypeScript:
+  validate:
+    name: Validate JS (tsc, eslint, prettier)
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
