@@ -13,8 +13,8 @@ on:
       - 'android/**'
 
 jobs:
-  AndroidLint:
-    name: AndroidLint
+  lint:
+    name: Gradle Lint
     runs-on: ubuntu-latest
     defaults:
       run:
