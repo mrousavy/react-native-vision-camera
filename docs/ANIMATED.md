@@ -55,7 +55,7 @@ export const App = () => {
         style={StyleSheet.absoluteFill}
         device={device}
         isActive={true}
-        {...{ animatedProps }}
+        animatedProps={animatedProps}
       />
       <TouchableOpacity
         style={styles.zoomButton}
@@ -74,4 +74,4 @@ export const App = () => {
     > Note that this might not be needed in the future, see: [reanimated#1409](https://github.com/software-mansion/react-native-reanimated/pull/1409)
 3. Using [`useSharedValue`](https://docs.swmansion.com/react-native-reanimated/docs/api/useSharedValue), we're creating a shared value that holds the `zoom` property.
 4. Using the [`useAnimatedProps`](https://docs.swmansion.com/react-native-reanimated/docs/api/useAnimatedProps) hook, we apply the shared value to the animated props.
-5. We apply the animated props to the `ReanimatedCamera` component using the spread syntax.
+5. We apply the animated props to the `ReanimatedCamera` component's `animatedProps` property.
