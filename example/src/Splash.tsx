@@ -1,9 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import type { ImageRequireSource } from 'react-native';
 
 import { StyleSheet, View, Text, Image } from 'react-native';
 import { Navigation, NavigationFunctionComponent } from 'react-native-navigation';
 import { Camera, CameraPermissionStatus } from 'react-native-vision-camera';
 import { CONTENT_SPACING, SAFE_AREA_PADDING } from './Constants';
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const BANNER_IMAGE = require('../../img/11.png') as ImageRequireSource;
 
 export const Splash: NavigationFunctionComponent = ({ componentId }) => {
   const [cameraPermissionStatus, setCameraPermissionStatus] = useState<CameraPermissionStatus>('not-determined');
@@ -24,7 +28,7 @@ export const Splash: NavigationFunctionComponent = ({ componentId }) => {
   }, []);
 
   useEffect(() => {
-    const checkPermissions = async () => {
+    const checkPermissions = async (): Promise<void> => {
       console.log('Checking Permission status...');
       const [cameraPermission, microphonePermission] = await Promise.all([
         Camera.getCameraPermissionStatus(),
@@ -58,9 +62,8 @@ export const Splash: NavigationFunctionComponent = ({ componentId }) => {
 
   return (
     <View style={styles.container}>
-      <Image source={require('../../img/11.png')} style={styles.banner} />
+      <Image source={BANNER_IMAGE} style={styles.banner} />
       <Text style={styles.welcome}>Welcome to{'\n'}Vision Camera.</Text>
-
       <View style={styles.permissionsContainer}>
         {cameraPermissionStatus !== 'authorized' && (
           <Text style={styles.permissionText}>

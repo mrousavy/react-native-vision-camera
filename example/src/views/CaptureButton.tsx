@@ -125,7 +125,7 @@ const _CaptureButton: React.FC<Props> = ({
     } catch (e) {
       console.error('failed to start recording!', e, 'camera');
     }
-  }, [camera, flash, onMediaCaptured, onStoppedRecording, recordingProgress, stopRecording]);
+  }, [camera, flash, onMediaCaptured, onStoppedRecording]);
   //#endregion
 
   //#region Tap handler
