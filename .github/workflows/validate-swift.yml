@@ -1,0 +1,65 @@
+name: Validate Swift
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - ".github/workflows/validate-swift.yaml"
+      - "ios/"
+      - "example/ios/"
+  pull_request:
+    paths:
+      - ".github/workflows/validate-swift.yaml"
+      - "ios/"
+      - "example/ios/"
+
+jobs:
+  SwiftLint:
+    name: SwiftLint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: GitHub Action for SwiftLint with --strict
+        uses: norio-nomura/action-swiftlint@3.2.1
+        with:
+          args: --strict
+        env:
+          # DIFF_BASE: ${{ github.base_ref }}
+          WORKING_DIRECTORY: ios
+  SwiftFormat:
+    name: SwiftFormat
+    runs-on: ubuntu-latest
+    env:
+      working-directory: ./ios
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Update PATH
+        run: echo ::add-path::$HOME/bin
+
+      - name: Cache packages/Tools/.build
+        uses: actions/cache@v1
+        with:
+          path: packages/Tools/.build
+          key: ${{ runner.os }}-swift-tools-build-${{ hashFiles('packages/Tools/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-swift-tools-build-
+      - name: Cache ~/bin
+        uses: actions/cache@v1
+        with:
+          path: ~/bin
+          key: ${{ runner.os }}-home-bin-${{ hashFiles('packages/Tools/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-home-bin-
+      - name: Install Swift tools
+        run: make swift-tools
+        working-directory: ${{env.working-directory}}
+
+      - name: Format Swift code
+        run: swiftformat --verbose .
+        working-directory: ${{env.working-directory}}
+
+      - name: Verify formatted code is unchanged
+        run: git diff --exit-code HEAD
+        working-directory: ${{env.working-directory}}
