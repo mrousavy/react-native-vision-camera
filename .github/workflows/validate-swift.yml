@@ -5,14 +5,12 @@ on:
     branches:
       - master
     paths:
-      - ".github/workflows/validate-swift.yaml"
-      - "ios/"
-      - "example/ios/"
+      - '.github/workflows/validate-swift.yml'
+      - 'ios/**'
   pull_request:
     paths:
-      - ".github/workflows/validate-swift.yaml"
-      - "ios/"
-      - "example/ios/"
+      - '.github/workflows/validate-swift.yml'
+      - 'ios/**'
 
 jobs:
   SwiftLint:
