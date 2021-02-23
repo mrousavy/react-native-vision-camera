@@ -32,6 +32,20 @@ assignees: ''
         You can also attach screenshots, GIFs or videos.
 -->
 
+<!--
+  If you are experiencing an Error, uncomment the following lines and add
+        the full error object (with `JSON.stringify(error)`) here:
+-->
+
+<!--
+### Error
+
+```json
+
+```
+-->
+
+
 ## Reproducable sample
 
 <!--
