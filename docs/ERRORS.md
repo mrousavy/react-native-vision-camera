@@ -41,9 +41,7 @@ switch (error.code) {
 
 ## The Error types
 
-### `CameraError`
-
-The `CameraError` type is a baseclass type for all other errors, and should only be used internally. It, and therefore all other error classes, provide the following properties:
+The `CameraError` type is a baseclass type for all other errors and provides the following properties:
 
 * `code`: A typed code in the form of `{domain}/{code}` that can be used to quickly identify and group errors
 * `message`: A non-localized message text that provides a more information and context about the error and possibly problematic values.
