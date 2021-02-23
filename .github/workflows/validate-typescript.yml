@@ -19,7 +19,7 @@ on:
       - 'package.json'
 
 jobs:
-  build:
+  node_modules:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -33,8 +33,13 @@ jobs:
       run: yarn
     - name: Install modules (example/)
       run: yarn example
+  tsc:
+    needs: node_modules
+    steps:
     - name: Run TypeScript
       run: npx tsc
+  eslint:
+    needs: node_modules
+    steps:
     - name: Run ESLint
       run: yarn lint
-      # TODO: Run SwiftLint
