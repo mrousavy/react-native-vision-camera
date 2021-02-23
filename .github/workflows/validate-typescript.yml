@@ -7,6 +7,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install modules
       run: yarn
+    - name: Install modules (example/)
+      run: yarn example
     - name: Run TypeScript
       run: npx tsc
     - name: Run ESLint
