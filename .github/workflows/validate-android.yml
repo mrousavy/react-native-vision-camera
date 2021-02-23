@@ -1,15 +1,15 @@
-name: Validate Kotlin
+name: Validate Android
 
 on:
   push:
     branches:
       - main
     paths:
-      - '.github/workflows/validate-kotlin.yml'
+      - '.github/workflows/validate-android.yml'
       - 'android/**'
   pull_request:
     paths:
-      - '.github/workflows/validate-kotlin.yml'
+      - '.github/workflows/validate-android.yml'
       - 'android/**'
 
 jobs:

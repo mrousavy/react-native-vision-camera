@@ -1,18 +1,18 @@
-name: Validate TypeScript
+name: Validate JS
 
 on:
   push:
     branches:
       - main
     paths:
-      - '.github/workflows/validate-typescript.yml'
+      - '.github/workflows/validate-js.yml'
       - 'src/**'
       - '*.js'
       - '*.json'
       - 'package.json'
   pull_request:
     paths:
-      - '.github/workflows/validate-typescript.yml'
+      - '.github/workflows/validate-js.yml'
       - 'src/**'
       - '*.js'
       - '*.json'

@@ -1,15 +1,15 @@
-name: Validate Swift
+name: Validate iOS
 
 on:
   push:
     branches:
       - main
     paths:
-      - '.github/workflows/validate-swift.yml'
+      - '.github/workflows/validate-ios.yml'
       - 'ios/**'
   pull_request:
     paths:
-      - '.github/workflows/validate-swift.yml'
+      - '.github/workflows/validate-ios.yml'
       - 'ios/**'
 
 jobs:
