@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: GitHub Action for SwiftLint with --strict
+      - name: Run SwiftLint GitHub Action (--strict)
         uses: norio-nomura/action-swiftlint@3.2.1
         with:
           args: --strict
