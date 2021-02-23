@@ -58,6 +58,11 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-yarn-
 
+    - name: Install modules
+      run: yarn
+    - name: Install modules (example/)
+      run: yarn example
+
     - name: Run TypeScript
       run: yarn typescript
   lint:
@@ -77,6 +82,11 @@ jobs:
         key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
         restore-keys: |
           ${{ runner.os }}-yarn-
+
+    - name: Install modules
+      run: yarn
+    - name: Install modules (example/)
+      run: yarn example
 
     - name: Run ESLint
       run: yarn lint-ci
