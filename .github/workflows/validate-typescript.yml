@@ -1,5 +1,21 @@
 name: Validate TypeScript
-on: push
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "src"
+      - "*.js"
+      - "*.json"
+      - "package.json"
+  pull_request:
+    paths:
+      - "src"
+      - "*.js"
+      - "*.json"
+      - "package.json"
+
 jobs:
   build:
     runs-on: ubuntu-latest
