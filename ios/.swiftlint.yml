@@ -1,0 +1,17 @@
+disabled_rules:
+  - identifier_name
+  - trailing_comma
+  - todo
+opt_in_rules: # some rules are turned off by default, so you need to opt-in
+  - empty_count # Find all the available rules by running: `swiftlint rules`
+
+excluded: # paths to ignore during linting. Takes precedence over `included`.
+  - Pods
+
+# Adjust rule numbers
+line_length: 160
+cyclomatic_complexity: 16
+function_body_length: 45
+
+# reporter type (xcode, json, csv, checkstyle, codeclimate, junit, html, emoji, sonarqube, markdown, github-actions-logging)
+reporter: "xcode"
