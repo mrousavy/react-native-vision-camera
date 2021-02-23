@@ -25,6 +25,8 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+      - name: Setup node_modules
+        run: yarn --cwd ..
       - name: Run Gradle Lint
         run: ./gradlew lint
       - uses: yutailang0119/action-android-lint@v1.0.2
