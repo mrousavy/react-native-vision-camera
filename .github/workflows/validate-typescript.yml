@@ -1,0 +1,14 @@
+name: Validate TypeScript
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install modules
+      run: yarn
+    - name: Run TypeScript
+      run: npx tsc
+    - name: Run ESLint
+      run: yarn lint
+      # TODO: Run SwiftLint
