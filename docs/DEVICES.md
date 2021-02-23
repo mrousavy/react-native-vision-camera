@@ -10,7 +10,6 @@
 </table>
 
 <br/>
-<br/>
 
 <h1 align="center">Devices</h1>
 

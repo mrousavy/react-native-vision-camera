@@ -10,7 +10,6 @@
 </table>
 
 <br/>
-<br/>
 
 <h1 align="center">Camera</h1>
 
