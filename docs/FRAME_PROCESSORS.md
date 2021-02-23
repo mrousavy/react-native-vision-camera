@@ -42,7 +42,7 @@ Frame processors are by far not limited to QR code detection, other examples inc
 
 ### Technical
 
-Frame processors are JS functions that will be **workletized** using [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated). They are created on a **separate thread** using a separate Hermes/JSC Runtime and are **invoked synchronously** without ever going over the bridge.
+Frame processors are JS functions that will be **workletized** using [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated). They are created on a **separate thread** using a separate Hermes/JSC Runtime and are **invoked synchronously** (using JSI) without ever going over the bridge.
 
 ### Example
 
