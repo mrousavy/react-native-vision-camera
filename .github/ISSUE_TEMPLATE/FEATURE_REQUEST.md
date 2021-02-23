@@ -22,6 +22,7 @@ assignees: ''
 
 <!--
     Describe what your requested feature is about.
+    You can also attach screenshots, GIFs or videos.
 -->
 
 ## Alternatives/Workarounds
