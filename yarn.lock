@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@actions/core@^1.2.0":
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/@actions/core/-/core-1.2.6.tgz#a78d49f41a4def18e88ce47c2cac615d5694bf09"
+  integrity sha512-ZQYitnqiyBc3D+k7LsgSBmMDVkOVidaagDG7j3fOym77jNunWRuYx7VSHa9GNfFZh+zh61xsCjRj4JxMZlDqTA==
+
 "@babel/code-frame@7.12.11":
   version "7.12.11"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.12.11.tgz#f4ad435aa263db935b8f10f2c552d23fb716a63f"
@@ -1015,6 +1020,13 @@
     lodash "^4.17.20"
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
+
+"@firmnav/eslint-github-actions-formatter@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@firmnav/eslint-github-actions-formatter/-/eslint-github-actions-formatter-1.0.1.tgz#dbedcc4d8a799faf9b709417981039819980aab0"
+  integrity sha512-KbhZwNPFuwoRWspUfoJISOeGZHGSm7tvdOC+uOUlbcY9LNmusRHHmBcq3KaorvW9WmmiOS/2EOo0nafFZ0gpEQ==
+  dependencies:
+    "@actions/core" "^1.2.0"
 
 "@hapi/address@2.x.x":
   version "2.1.4"

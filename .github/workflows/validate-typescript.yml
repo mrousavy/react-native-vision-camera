@@ -36,4 +36,4 @@ jobs:
     - name: Run TypeScript
       run: yarn typescript
     - name: Run ESLint
-      run: yarn lint
+      run: yarn lint-ci

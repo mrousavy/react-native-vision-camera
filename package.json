@@ -27,6 +27,7 @@
     "test": "jest",
     "typescript": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
+    "lint-ci": "yarn lint -f ./node_modules/@firmnav/eslint-github-actions-formatter/dist/formatter.js",
     "prepare": "bob build",
     "release": "release-it",
     "example": "yarn --cwd example",
@@ -49,6 +50,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "devDependencies": {
+    "@firmnav/eslint-github-actions-formatter": "^1.0.1",
     "@react-native-community/eslint-config": "^2.0.0",
     "@react-native-community/eslint-plugin": "^1.1.0",
     "@release-it/conventional-changelog": "^2.0.0",
