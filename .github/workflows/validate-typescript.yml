@@ -5,18 +5,18 @@ on:
     branches:
       - master
     paths:
-      - "src"
+      - ".github/workflows/validate-typescript.yml"
+      - "src/"
       - "*.js"
       - "*.json"
       - "package.json"
-      - ".github/workflows/validate-typescript.yml"
   pull_request:
     paths:
-      - "src"
+      - ".github/workflows/validate-typescript.yml"
+      - "src/"
       - "*.js"
       - "*.json"
       - "package.json"
-      - ".github/workflows/validate-typescript.yml"
 
 jobs:
   build:

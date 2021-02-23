@@ -8,13 +8,11 @@ on:
       - ".github/workflows/validate-swift.yaml"
       - "ios/"
       - "example/ios/"
-      - ".github/workflows/validate-swift.yml"
   pull_request:
     paths:
       - ".github/workflows/validate-swift.yaml"
       - "ios/"
       - "example/ios/"
-      - ".github/workflows/validate-swift.yml"
 
 jobs:
   SwiftLint:
