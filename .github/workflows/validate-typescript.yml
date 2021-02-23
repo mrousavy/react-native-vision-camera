@@ -33,7 +33,7 @@ jobs:
       run: yarn
     - name: Install modules (example/)
       run: yarn example
-    - name: Run TypeScript
-      run: yarn typescript
+    # - name: Run TypeScript
+    #   run: yarn typescript
     - name: Run ESLint
       run: yarn lint-ci
