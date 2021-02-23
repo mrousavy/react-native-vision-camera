@@ -19,8 +19,8 @@ on:
       - 'package.json'
 
 jobs:
-  validate:
-    name: Validate JS (tsc, eslint, prettier)
+  setup:
+    name: Setup node_modules
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -34,7 +34,39 @@ jobs:
       run: yarn
     - name: Install modules (example/)
       run: yarn example
+  tsc:
+    name: Run TypeScript
+    needs: node_modules
+    runs-on: ubuntu-latest
+    steps:
+    # - uses: actions/checkout@v2
+    # - uses: actions/cache@v2
+    #   with:
+    #     path: node_modules
+    #     key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+    #     restore-keys: |
+    #       ${{ runner.os }}-node-
+    # - name: Install modules
+    #   run: yarn
+    # - name: Install modules (example/)
+    #   run: yarn example
     - name: Run TypeScript
       run: yarn typescript
+  lint:
+    name: Run ESLint and Prettier
+    needs: node_modules
+    runs-on: ubuntu-latest
+    steps:
+    # - uses: actions/checkout@v2
+    # - uses: actions/cache@v2
+    #   with:
+    #     path: node_modules
+    #     key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+    #     restore-keys: |
+    #       ${{ runner.os }}-node-
+    # - name: Install modules
+    #   run: yarn
+    # - name: Install modules (example/)
+    #   run: yarn example
     - name: Run ESLint
       run: yarn lint-ci
