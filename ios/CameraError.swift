@@ -133,17 +133,25 @@ enum FormatError {
   }
 }
 
-enum SessionError: String {
-  case cameraNotReady = "camera-not-ready"
+enum SessionError {
+  case cameraNotReady
+  case audioSessionSetupFailed(reason: String)
 
   var code: String {
-    return rawValue
+    switch self {
+    case .cameraNotReady:
+      return "camera-not-ready"
+    case .audioSessionSetupFailed:
+      return "audio-session-setup-failed"
+    }
   }
 
   var message: String {
     switch self {
     case .cameraNotReady:
       return "The Camera is not ready yet! Wait for the onInitialized() callback!"
+    case let .audioSessionSetupFailed(reason):
+      return "The audio session failed to setup! \(reason)"
     }
   }
 }

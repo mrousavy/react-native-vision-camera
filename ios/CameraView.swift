@@ -111,12 +111,12 @@ final class CameraView: UIView {
                                               name: .AVCaptureSessionRuntimeError,
                                               object: captureSession)
   }
-  
+
   override func removeFromSuperview() {
     captureSession.stopRunning()
     super.removeFromSuperview()
   }
-  
+
   @objc
   func sessionRuntimeError(notification: Notification) {
     guard let error = notification.userInfo?[AVCaptureSessionErrorKey] as? AVError else {
@@ -136,19 +136,19 @@ final class CameraView: UIView {
   required init?(coder _: NSCoder) {
     fatalError("init(coder:) is not implemented.")
   }
-  
+
   // pragma MARK: Props updating
   override final func didSetProps(_ changedProps: [String]!) {
     let shouldReconfigure = changedProps.contains { propsThatRequireReconfiguration.contains($0) }
     let shouldReconfigureFormat = shouldReconfigure || changedProps.contains("format")
     let shouldReconfigureDevice = shouldReconfigureFormat || changedProps.contains { propsThatRequireDeviceReconfiguration.contains($0) }
-    
+
     let willReconfigure = shouldReconfigure || shouldReconfigureFormat || shouldReconfigureDevice
-    
+
     let shouldCheckActive = willReconfigure || changedProps.contains("isActive") || captureSession.isRunning != isActive
     let shouldUpdateTorch = willReconfigure || changedProps.contains("torch") || shouldCheckActive
     let shouldUpdateZoom = willReconfigure || changedProps.contains("zoom") || shouldCheckActive
-    
+
     if shouldReconfigure || shouldCheckActive || shouldUpdateTorch || shouldUpdateZoom || shouldReconfigureFormat || shouldReconfigureDevice {
       queue.async {
         if shouldReconfigure {
@@ -160,14 +160,14 @@ final class CameraView: UIView {
         if shouldReconfigureDevice {
           self.configureDevice()
         }
-        
+
         if shouldUpdateZoom {
           let zoomPercent = CGFloat(max(min(self.zoom.doubleValue, 1.0), 0.0))
           let zoomScaled = (zoomPercent * (self.maxAvailableZoom - self.minAvailableZoom)) + self.minAvailableZoom
           self.zoom(factor: zoomScaled, animated: false)
           self.pinchScaleOffset = zoomScaled
         }
-        
+
         if shouldCheckActive && self.captureSession.isRunning != self.isActive {
           if self.isActive {
             self.captureSession.startRunning()
@@ -175,7 +175,7 @@ final class CameraView: UIView {
             self.captureSession.stopRunning()
           }
         }
-        
+
         // This is a wack workaround, but if I immediately set torch mode after `startRunning()`, the session isn't quite ready yet and will ignore torch.
         self.queue.asyncAfter(deadline: .now() + 0.1) {
           if shouldUpdateTorch {
@@ -228,6 +228,16 @@ final class CameraView: UIView {
     }
 
     // INPUTS
+    // Audio Setup
+    do {
+      captureSession.automaticallyConfiguresApplicationAudioSession = false
+      try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playAndRecord, options: [.mixWithOthers, .allowBluetooth, .defaultToSpeaker])
+      try AVAudioSession.sharedInstance().setActive(true)
+    } catch let error as NSError {
+      // not critical, so don't return
+      invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)))
+    }
+
     // Video Input
     do {
       if let videoDeviceInput = self.videoDeviceInput {
