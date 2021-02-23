@@ -1,18 +1,18 @@
 name: Validate Swift
 
-on:
-  push:
-    branches:
-      - master
-    paths:
-      - ".github/workflows/validate-swift.yaml"
-      - "ios/"
-      - "example/ios/"
-  pull_request:
-    paths:
-      - ".github/workflows/validate-swift.yaml"
-      - "ios/"
-      - "example/ios/"
+on: push
+  # push:
+  #   branches:
+  #     - master
+  #   paths:
+  #     - ".github/workflows/validate-swift.yaml"
+  #     - "ios/"
+  #     - "example/ios/"
+  # pull_request:
+  #   paths:
+  #     - ".github/workflows/validate-swift.yaml"
+  #     - "ios/"
+  #     - "example/ios/"
 
 jobs:
   SwiftLint:
