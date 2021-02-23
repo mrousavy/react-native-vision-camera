@@ -30,8 +30,9 @@ jobs:
   #   name: SwiftFormat
   #   description: 'https://github.com/nicklockwood/SwiftFormat'
   #   runs-on: ubuntu-latest
-  #   env:
-  #     working-directory: ./ios
+    # defaults:
+    #   run:
+    #     working-directory: ./ios
   #   steps:
   #     - uses: actions/checkout@v2
 
