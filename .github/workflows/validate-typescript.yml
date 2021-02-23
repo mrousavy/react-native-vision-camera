@@ -34,11 +34,13 @@ jobs:
     - name: Install modules (example/)
       run: yarn example
   tsc:
+    runs-on: ubuntu-latest
     needs: node_modules
     steps:
     - name: Run TypeScript
       run: npx tsc
   eslint:
+    runs-on: ubuntu-latest
     needs: node_modules
     steps:
     - name: Run ESLint
