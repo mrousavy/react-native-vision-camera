@@ -1,14 +1,18 @@
 <table>
 <tr>
 <th>README.md</th>
-<th><a href="./docs/ANIMATED.md">ANIMATED.md</a></th>
 <th><a href="./docs/DEVICES.md">DEVICES.md</a></th>
 <th><a href="./docs/FORMATS.md">FORMATS.md</a></th>
+<th><a href="./docs/FRAME_PROCESSORS.md">FRAME_PROCESSORS.md</a></th>
+<th><a href="./docs/ANIMATED.md">ANIMATED.md</a></th>
 <th><a href="./docs/ERRORS.md">ERRORS.md</a></th>
 </tr>
 </table>
 
-<br />
+<br/>
+<br/>
+
+<h1 align="center">Camera</h1>
 
 <div align="center">
   <img src="img/11.png" width="55%">
