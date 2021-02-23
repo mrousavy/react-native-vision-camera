@@ -3,7 +3,7 @@ name: Validate Swift
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - '.github/workflows/validate-swift.yml'
       - 'ios/**'

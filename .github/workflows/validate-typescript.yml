@@ -3,7 +3,7 @@ name: Validate TypeScript
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - '.github/workflows/validate-typescript.yml'
       - 'src/**'

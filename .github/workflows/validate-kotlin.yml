@@ -3,7 +3,7 @@ name: Validate Kotlin
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - '.github/workflows/validate-kotlin.yml'
       - 'android/**'
