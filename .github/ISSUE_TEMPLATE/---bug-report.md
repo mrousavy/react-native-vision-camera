@@ -29,6 +29,7 @@ assignees: ''
 
 <!--
   Enter a short description for the issue you're experiencing.
+        You can also attach screenshots, GIFs or videos.
 -->
 
 ## Reproducable sample
