@@ -10,6 +10,7 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: 'module',
   },
+  ignorePatterns: ['scripts', 'lib'],
   plugins: ['@typescript-eslint', 'react', 'react-native', '@react-native-community', 'prettier', 'react-hooks'],
   extends: [
     'eslint:recommended',
@@ -72,7 +73,7 @@ module.exports = {
 
     // react hooks
     'react-hooks/exhaustive-deps': [
-      'warn',
+      'error',
       {
         additionalHooks: '(useDerivedValue|useAnimatedStyle|useAnimatedProps|useWorkletCallback)',
       },
