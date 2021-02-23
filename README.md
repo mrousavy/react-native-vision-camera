@@ -68,6 +68,7 @@ function App() {
     <Camera
       style={StyleSheet.absoluteFill}
       device={device}
+      isActive={true}
     />
   )
 }
