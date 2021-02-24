@@ -18,9 +18,9 @@ Before opening an issue, make sure you try the following:
 3. Check your Swift version. react-native-vision-camera requires a minimum Swift version of **5.2**.
 4. Make sure you have created a Swift bridging header in your project.
    1. Open your project with Xcode (`Example.xcworkspace`)
-   2. In the menu-bar, press **File** > **New** > **File** (<kbd>⌘</kbd>+<kbd>N</kbd>)
-   3. Use whatever name you prefer, e.g. `File.swift`, and press **Create**
-   4. Press **Create Bridging Header** when promted.
+   2. In the menu-bar, press **File** > **New** > **File** (<kbd>⌘</kbd><kbd>N</kbd>)
+   4. Use whatever name you prefer, e.g. `File.swift`, and press **Create**
+   5. Press **Create Bridging Header** when promted.
 
 ## Android
 
