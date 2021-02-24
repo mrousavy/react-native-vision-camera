@@ -14,7 +14,7 @@
 <h1 align="center">Devices</h1>
 
 <div>
-  <img align="right" width="35%" src="../img/ultra-wide-demo.gif">
+  <img align="right" width="35%" src="../img/11_back.png">
 </div>
 
 ### What are camera devices?
