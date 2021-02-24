@@ -14,18 +14,18 @@
 <h1 align="center">Devices</h1>
 
 <div>
-  <img align="right" width="35%" src="../img/11_back.png">
+  <img align="right" width="35%" src="../img/ultra-wide-demo.gif">
 </div>
 
 ### What are camera devices?
 
 Camera devices are the physical (or "virtual") devices that can be used to record videos or capture photos.
 
-* **Physical**: A physical camera device is a camera lens on your phone. Different physical camera devices have different specifications, such as different capture formats, field of views, focal lengths, and more. Some phones have multiple physical camera devices.
+* **Physical**: A physical camera device is a **camera lens on your phone**. Different physical camera devices have different specifications, such as different capture formats, field of views, focal lengths, and more. Some phones have multiple physical camera devices.
 
   > Examples: _"Backside Wide-Angle Camera"_, _"Frontside Wide-Angle Camera (FaceTime HD)"_, _"Ultra-Wide-Angle back camera"_.
 
-* **Virtual**: A virtual camera device is a combination of multiple physical camera devices, and provides features such as [_virtual-device-switchover_ while zooming](../img/ultra-wide-demo.gif), and _combined photo delivery_ from all physiscal cameras to produce higher quality images.
+* **Virtual**: A virtual camera device is a **combination of one or more physical camera devices**, and provides features such as _virtual-device-switchover_ while zooming or _combined photo delivery_ from all physiscal cameras to produce higher quality images.
 
   > Examples: _"Triple-Camera"_, _"Dual-Wide-Angle Camera"_
 
@@ -59,6 +59,10 @@ console.log(deviceType)
 The `CameraDevice` type also contains other useful information describing a camera device, such as `position` ("front", "back", ...), `hasFlash`, it's `formats` (See [FORMATS.md](./FORMATS.md)), and more.
 
 Make sure to carefully filter out unneeded camera devices, since not every phone supports all camera device types. Some phones don't even have front-cameras.
+
+<div>
+  <img align="right" width="35%" src="../img/11_back.png">
+</div>
 
 ### `useCameraDevices` hook
 
