@@ -25,7 +25,7 @@ Camera devices are the physical (or "virtual") devices that can be used to recor
 
   > Examples: _"Backside Wide-Angle Camera"_, _"Frontside Wide-Angle Camera (FaceTime HD)"_, _"Ultra-Wide-Angle back camera"_.
 
-* **Virtual**: A virtual camera device is a combination of multiple physical camera devices, and provides features such as _virtual-device-switchover_ while zooming, and _combined photo delivery_ from all physiscal cameras to produce higher quality images.
+* **Virtual**: A virtual camera device is a combination of multiple physical camera devices, and provides features such as [_virtual-device-switchover_ while zooming](../img/ultra-wide-demo.gif), and _combined photo delivery_ from all physiscal cameras to produce higher quality images.
 
   > Examples: _"Triple-Camera"_, _"Dual-Wide-Angle Camera"_
 
