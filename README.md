@@ -14,7 +14,7 @@
 <h1 align="center">Camera</h1>
 
 <div align="center">
-  <img src="img/11.png" width="55%">
+  <img src="img/11.png" width="50%">
   <br />
   <br />
   <blockquote><h4>📸 The Camera library that sees the vision.</h4></blockquote>
