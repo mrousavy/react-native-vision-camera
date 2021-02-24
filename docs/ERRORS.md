@@ -39,6 +39,10 @@ switch (error.code) {
 }
 ```
 
+## Troubleshooting
+
+See [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) if you're having "weird issues".
+
 ## The Error types
 
 The `CameraError` type is a baseclass type for all other errors and provides the following properties:

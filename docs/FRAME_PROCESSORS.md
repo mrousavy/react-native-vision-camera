@@ -60,3 +60,8 @@ function App() {
 ```
 
 > FRAME PROCESSORS ARE STILL WIP
+
+
+<br />
+
+#### 🚀 Next section: [ANIMATED](./ANIMATED.md)

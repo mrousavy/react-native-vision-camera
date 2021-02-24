@@ -147,3 +147,8 @@ Other props that depend on the `format`:
 * `hdr`: Enables HDR photo or video capture and preview
 * `lowLightBoost`: Enables a night-mode/low-light-boost for photo or video capture and preview
 * `colorSpace`: Uses the specified color-space for photo or video capture and preview (iOS only since Android only uses `YUV`)
+
+
+<br />
+
+#### 🚀 Next section: [FRAME_PROCESSORS](./FRAME_PROCESSORS.md)

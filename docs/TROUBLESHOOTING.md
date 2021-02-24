@@ -1,4 +1,8 @@
-# Troubleshooting
+<h1 align="center">Troubleshooting</h1>
+
+<div>
+  <img align="right" width="35%" src="../img/11_back.png">
+</div>
 
 Before opening an issue, make sure you try the following:
 

@@ -124,3 +124,8 @@ function App() {
 ```
 
 > Note: If you don't care about fast resume times you can also fully unmount the `<Camera>` view instead, which will use a lot less memory (RAM).
+
+
+<br />
+
+#### 🚀 Next section: [FORMATS](./FORMATS.md)
