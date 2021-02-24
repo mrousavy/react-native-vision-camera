@@ -1,6 +1,7 @@
 <table>
 <tr>
 <th>README</th>
+<th><a href="./docs/SETUP.md">SETUP</a></th>
 <th><a href="./docs/DEVICES.md">DEVICES</a></th>
 <th><a href="./docs/FORMATS.md">FORMATS</a></th>
 <th><a href="./docs/FRAME_PROCESSORS.md">FRAME_PROCESSORS</a></th>
@@ -71,4 +72,4 @@ function App() {
 
 <br />
 
-#### 🚀 Get started by learning about [Devices](./docs/DEVICES.md)!
+#### 🚀 Get started by [setting up permissions](./docs/SETUP.md)!

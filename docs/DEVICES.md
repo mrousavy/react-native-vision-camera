@@ -1,6 +1,7 @@
 <table>
 <tr>
 <th><a href="../README.md">README</a></th>
+<th><a href="./SETUP.md">SETUP</a></th>
 <th>DEVICES</th>
 <th><a href="./FORMATS.md">FORMATS</a></th>
 <th><a href="./FRAME_PROCESSORS.md">FRAME_PROCESSORS</a></th>
@@ -59,10 +60,6 @@ console.log(deviceType)
 The `CameraDevice` type also contains other useful information describing a camera device, such as `position` ("front", "back", ...), `hasFlash`, it's `formats` (See [FORMATS.md](./FORMATS.md)), and more.
 
 Make sure to carefully filter out unneeded camera devices, since not every phone supports all camera device types. Some phones don't even have front-cameras.
-
-<div>
-  <img align="right" width="35%" src="../img/11_back.png">
-</div>
 
 ### `useCameraDevices` hook
 

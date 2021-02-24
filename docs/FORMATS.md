@@ -1,6 +1,7 @@
 <table>
 <tr>
 <th><a href="../README.md">README</a></th>
+<th><a href="./SETUP.md">SETUP</a></th>
 <th><a href="./DEVICES.md">DEVICES</a></th>
 <th>FORMATS</th>
 <th><a href="./FRAME_PROCESSORS.md">FRAME_PROCESSORS</a></th>
