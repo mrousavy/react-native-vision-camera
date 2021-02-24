@@ -68,3 +68,7 @@ function App() {
   )
 }
 ```
+
+<br />
+
+#### 🚀 Get started by learning about [Devices](./docs/DEVICES.md)!
