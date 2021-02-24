@@ -50,7 +50,7 @@ The `CameraError` type is a baseclass type for all other errors and provides the
   * `cause.domain?`: The native error's domain. (iOS only)
   * `cause.details?`: More dictionary-style information about the cause. (iOS only)
   * `cause.stacktrace?`: A native Java stacktrace for the cause. (Android only)
-  * `cause.cause?`: The cause that caused the given error. (Recursive) (Optional)
+  * `cause.cause?`: The cause that caused this cause. (Recursive) (Optional)
 
 ### Runtime Errors
 
@@ -82,7 +82,7 @@ function App() {
     } catch (e) {
       if (e instanceof CameraCaptureError) {
         switch (e.code) {
-          case "file-io-error":
+          case "capture/file-io-error":
             console.error("Failed to write photo to disk!")
             break
           default:
