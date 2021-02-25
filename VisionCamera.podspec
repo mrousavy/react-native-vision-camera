@@ -15,5 +15,7 @@ Pod::Spec.new do |s|
 
   s.source_files = "ios/**/*.{h,m,mm,swift}"
 
+  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
+
   s.dependency "React-Core"
 end
