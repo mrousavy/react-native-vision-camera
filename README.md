@@ -20,11 +20,16 @@
   <br />
   <blockquote><h4>📸 The Camera library that sees the vision.</h4></blockquote>
   <br />
-  <!-- <a href="https://github.com/mrousavy?tab=followers"><img src="https://img.shields.io/github/followers/mrousavy?label=Follow%20%40mrousavy&style=social"></a>
-  <br />
-  <a href="https://twitter.com/mrousavy"><img src="https://img.shields.io/twitter/follow/mrousavy?label=Follow%20%40mrousavy&style=social"></a>
-  <br /> -->
+
   <a href="https://cuvent.com"><img height=40 src="./img/cuvent-logo-text.svg"></a>
+  <br/>
+  <a align="center" href="https://github.com/mrousavy?tab=followers">
+    <img src="https://img.shields.io/github/followers/mrousavy?label=Follow%20%40mrousavy&style=social" />
+  </a>
+  <br/>
+  <a align="center" href="https://twitter.com/mrousavy">
+    <img src="https://img.shields.io/twitter/follow/mrousavy?label=Follow%20%40mrousavy&style=social" />
+  </a>
 </div>
 
 <br/>
