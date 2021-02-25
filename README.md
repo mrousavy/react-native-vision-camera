@@ -27,9 +27,6 @@
     <a align="center" href="https://github.com/mrousavy?tab=followers">
       <img src="https://img.shields.io/github/followers/mrousavy?label=Follow%20%40mrouscuventavy&style=social" />
     </a>
-    <a align="center" href="https://github.com/cuvent?tab=followers">
-      <img src="https://img.shields.io/github/followers/cuvent?label=Follow%20%40cuvent&style=social" />
-    </a>
   </span>
   <br />
   <span>
