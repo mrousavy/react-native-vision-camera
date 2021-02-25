@@ -7,6 +7,8 @@
 //
 
 #import "FrameProcessorBindings.h"
+#import "JSI Utils/YeetJSIUtils.h"
+
 #import <React/RCTBridge.h>
 #import <React/RCTBridge+Private.h>
 #import <jsi/jsi.h>
@@ -31,7 +33,16 @@ using namespace facebook;
                                                                  [](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
     if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: First argument ('viewTag') must be a number!");
     if (!arguments[1].isObject()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
-    auto viewTag = arguments[0].getNumber();
+    
+    //auto viewTag = arguments[0].asNumber();
+    //auto worklet = arguments[1].asObject(runtime).asFunction(runtime);
+    
+    // TODO: Setup new Runtime in which the passed jsi::Function will run in.
+    // TODO: "Workletize" the worklet object by passing it to a Reanimated API
+    // TODO: Find `CameraView` by it's viewTag
+    
+    // auto anonymousView = [bridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
+    // auto view = static_cast<CameraView*>(anonymousView);
     
     return jsi::Value::undefined();
   });
