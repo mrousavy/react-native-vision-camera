@@ -19,6 +19,26 @@ opt_in_rules:
   - reduce_boolean
   - reduce_into
   - sorted_first_last
+  - yoda_condition
+  - vertical_whitespace_opening_braces
+  - vertical_whitespace_closing_braces
+  - vertical_parameter_alignment_on_call
+  - unused_import
+  - unused_declaration
+  - untyped_error_in_catch
+  - unowned_variable_capture
+  - unavailable_function
+  - switch_case_on_newline
+  - static_operator
+  - strict_fileprivate
+  - sorted_imports
+  - sorted_first_last
+  - required_enum_case
+  - redundant_type_annotation
+  - redundant_nil_coalescing
+  - attributes
+  - convenience_type
+  - explicit_self
 
 excluded: # paths to ignore during linting. Takes precedence over `included`.
   - Pods

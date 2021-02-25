@@ -9,7 +9,6 @@
 import Foundation
 
 extension CameraView {
-
   func focus(point: CGPoint, promise: Promise) {
     withPromise(promise) {
       guard let device = self.videoDeviceInput?.device else {

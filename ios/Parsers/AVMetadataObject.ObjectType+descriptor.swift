@@ -98,7 +98,8 @@ extension AVMetadataObject.ObjectType {
         return "human-body"
       case .salientObject:
         return "salient-object"
-      default: break
+      default:
+        break
       }
     }
     switch self {
