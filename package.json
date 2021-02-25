@@ -39,7 +39,18 @@
   "keywords": [
     "react-native",
     "ios",
-    "android"
+    "android",
+    "camera",
+    "vision",
+    "native",
+    "module",
+    "cuvent",
+    "react",
+    "ai",
+    "ar",
+    "qr",
+    "qr-code",
+    "scanner"
   ],
   "repository": "https://github.com/mrousavy/react-native-vision-camera",
   "author": "Marc Rousavy <marcrousavy@hotmail.com> (https://github.com/mrousavy)",
