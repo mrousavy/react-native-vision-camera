@@ -92,6 +92,7 @@ final class CameraView: UIView {
 
   /// Convenience wrapper to get layer as its statically known type.
   var videoPreviewLayer: AVCaptureVideoPreviewLayer {
+    // swiftlint:disable force_cast
     return layer as! AVCaptureVideoPreviewLayer
   }
 

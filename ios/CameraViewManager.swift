@@ -24,28 +24,27 @@ final class CameraViewManager: RCTViewManager {
     return DispatchQueue.main
   }
 
+  private func getCameraView(withTag tag: NSNumber) -> CameraView {
+    // swiftlint:disable force_cast
+    return bridge.uiManager.view(forReactTag: node) as! CameraView
+  }
+
   // pragma MARK: Exported Functions
   @objc
   final func startRecording(_ node: NSNumber, options: NSDictionary, onRecordCallback: @escaping RCTResponseSenderBlock) {
-    let component = bridge.uiManager.view(
-      forReactTag: node
-    ) as! CameraView
+    let component = getCameraView(withTag: node)
     component.startRecording(options: options, callback: onRecordCallback)
   }
 
   @objc
   final func stopRecording(_ node: NSNumber, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    let component = bridge.uiManager.view(
-      forReactTag: node
-    ) as! CameraView
+    let component = getCameraView(withTag: node)
     component.stopRecording(promise: Promise(resolver: resolve, rejecter: reject))
   }
 
   @objc
   final func takePhoto(_ node: NSNumber, options: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    let component = bridge.uiManager.view(
-      forReactTag: node
-    ) as! CameraView
+    let component = getCameraView(withTag: node)
     component.takePhoto(options: options, promise: Promise(resolver: resolve, rejecter: reject))
   }
 
@@ -55,16 +54,14 @@ final class CameraViewManager: RCTViewManager {
     guard let x = point["x"] as? NSNumber, let y = point["y"] as? NSNumber else {
       return promise.reject(error: .parameter(.invalid(unionName: "point", receivedValue: point.description)))
     }
-    let component = bridge.uiManager.view(
-      forReactTag: node
-    ) as! CameraView
+    let component = getCameraView(withTag: node)
     component.focus(point: CGPoint(x: x.doubleValue, y: y.doubleValue), promise: promise)
   }
 
   @objc
   final func getAvailableVideoCodecs(_ node: NSNumber, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     withPromise(resolve: resolve, reject: reject) {
-      let component = self.bridge.uiManager.view(forReactTag: node) as! CameraView
+      let component = getCameraView(withTag: node)
       guard let movieOutput = component.movieOutput else {
         throw CameraError.session(SessionError.cameraNotReady)
       }
@@ -75,7 +72,7 @@ final class CameraViewManager: RCTViewManager {
   @objc
   final func getAvailablePhotoCodecs(_ node: NSNumber, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     withPromise(resolve: resolve, reject: reject) {
-      let component = self.bridge.uiManager.view(forReactTag: node) as! CameraView
+      let component = getCameraView(withTag: node)
       guard let photoOutput = component.photoOutput else {
         throw CameraError.session(SessionError.cameraNotReady)
       }
