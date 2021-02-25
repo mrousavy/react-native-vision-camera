@@ -239,7 +239,6 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
           <Reanimated.View style={StyleSheet.absoluteFill}>
             <TapGestureHandler onHandlerStateChange={onDoubleTapGesture} numberOfTaps={2}>
               <ReanimatedCamera
-                // @ts-expect-error The <Camera> types are a bit tricky since they're using Unions. I'll try to flatten those out in a future PR.
                 ref={camera}
                 style={StyleSheet.absoluteFill}
                 device={device}
