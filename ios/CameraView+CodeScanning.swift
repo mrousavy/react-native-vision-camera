@@ -37,7 +37,10 @@ extension CameraView: AVCaptureMetadataOutputObjectsDelegate {
 
   private func invokeOnCodeScanned(codes: [[String: Any]?]) {
     guard let onCodeScanned = self.onCodeScanned else {
-      ReactLogger.log(level: .warning, message: "onCodeScanned was invoked with no listeners. This means that the Camera is unnecessarily scanning codes. This indicates a memory leak.", alsoLogToJS: true)
+      ReactLogger.log(level: .warning,
+                      message: "onCodeScanned was invoked with no listeners. " +
+                        "This means that the Camera is unnecessarily scanning codes. This indicates a memory leak.",
+                      alsoLogToJS: true)
       return
     }
     onCodeScanned(["codes": codes])
