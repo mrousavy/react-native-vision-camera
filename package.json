@@ -8,6 +8,7 @@
   "react-native": "src/index",
   "source": "src/index",
   "files": [
+    "src",
     "lib/commonjs",
     "lib/module",
     "lib/typescript",
