@@ -9,4 +9,10 @@
 #import <Foundation/Foundation.h>
 #import <React/RCTBridge.h>
 
-void installFrameProcessorBindings(RCTBridge* bridge);
+#import <Foundation/Foundation.h>
+
+@interface FrameProcessorBindings : NSObject
+
++ (void) installFrameProcessorBindings:(RCTBridge*)bridge;
+
+@end

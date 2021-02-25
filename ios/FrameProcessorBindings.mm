@@ -13,7 +13,10 @@
 
 using namespace facebook;
 
-void installFrameProcessorBindings(RCTBridge* bridge) {
+@implementation FrameProcessorBindings
+
+
++ (void) installFrameProcessorBindings:(RCTBridge*)bridge {
   RCTCxxBridge *cxxBridge = (RCTCxxBridge *)bridge;
   if (!cxxBridge.runtime) {
     return;
@@ -21,3 +24,6 @@ void installFrameProcessorBindings(RCTBridge* bridge) {
   jsi::Runtime& runtime = *(jsi::Runtime*)cxxBridge.runtime;
   
 }
+
+@end
+
