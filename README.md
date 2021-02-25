@@ -25,7 +25,7 @@
   <br/>
   <span>
     <a align="center" href="https://github.com/mrousavy?tab=followers">
-      <img src="https://img.shields.io/github/followers/mrousavy?label=Follow%20%40mrouscuventavy&style=social" />
+      <img src="https://img.shields.io/github/followers/mrousavy?label=Follow%20%40mrousavy&style=social" />
     </a>
   </span>
   <br />
