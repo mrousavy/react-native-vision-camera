@@ -19,6 +19,7 @@
     "ios/**/*.mm",
     "ios/**/*.cpp",
     "ios/**/*.swift",
+    "ios/VisionCamera.xcodeproj/project.pbxproj",
     "react-native-vision-camera.podspec",
     "README.md",
     "docs"
