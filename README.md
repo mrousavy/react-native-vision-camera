@@ -46,7 +46,7 @@ npx pod-install
 * Photo and Video capture
 * Customizable device (`ultra-wide-angle`, `wide-angle`, `telephoto` and virtual multi-cameras)
 * Customizable FPS
-* JS worklet frame processors powered by JSI and Reanimated
+* JS worklet frame processors powered by JSI and Reanimated (WIP [#2](https://github.com/cuvent/react-native-vision-camera/pull/2))
 * Reanimated zooming
 * HDR & Night modes
 

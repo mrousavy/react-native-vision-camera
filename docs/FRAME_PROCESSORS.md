@@ -19,6 +19,8 @@
   <img align="right" width="35%" src="../img/ultra-wide-demo.gif">
 </div>
 
+> FRAME PROCESSORS ARE STILL WIP - SEE [#2](https://github.com/cuvent/react-native-vision-camera/pull/2)
+
 ### What are frame processors?
 
 Frame processors are functions that are written in JavaScript (or TypeScript) which can be used to **process frames the camera "sees"**.
@@ -58,8 +60,6 @@ function App() {
   )
 }
 ```
-
-> FRAME PROCESSORS ARE STILL WIP
 
 
 <br />
