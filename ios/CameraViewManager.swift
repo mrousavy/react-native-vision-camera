@@ -40,7 +40,7 @@ final class CameraViewManager: RCTViewManager {
     ) as! CameraView
     component.stopRecording(promise: Promise(resolver: resolve, rejecter: reject))
   }
-  
+
   @objc
   final func takePhoto(_ node: NSNumber, options: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     let component = bridge.uiManager.view(
@@ -48,7 +48,7 @@ final class CameraViewManager: RCTViewManager {
     ) as! CameraView
     component.takePhoto(options: options, promise: Promise(resolver: resolve, rejecter: reject))
   }
-  
+
   @objc
   final func focus(_ node: NSNumber, point: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     let promise = Promise(resolver: resolve, rejecter: reject)

@@ -9,7 +9,7 @@
 import Foundation
 
 extension CameraView {
-  
+
   func focus(point: CGPoint, promise: Promise) {
     withPromise(promise) {
       guard let device = self.videoDeviceInput?.device else {
@@ -18,20 +18,20 @@ extension CameraView {
       if !device.isFocusPointOfInterestSupported {
         throw CameraError.device(DeviceError.focusNotSupported)
       }
-      
+
       let normalizedPoint = self.videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: point)
-      
+
       do {
         try device.lockForConfiguration()
-        
+
         device.focusPointOfInterest = normalizedPoint
         device.focusMode = .continuousAutoFocus
-        
+
         if device.isExposurePointOfInterestSupported {
           device.exposurePointOfInterest = normalizedPoint
           device.exposureMode = .continuousAutoExposure
         }
-        
+
         device.unlockForConfiguration()
         return nil
       } catch {

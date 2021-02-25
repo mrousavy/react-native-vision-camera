@@ -18,8 +18,7 @@ extension AVCaptureDevice.Format {
     // compare still image dimensions
     let leftDimensions = highResolutionStillImageDimensions
     let rightDimensions = other.highResolutionStillImageDimensions
-    if leftDimensions.height * leftDimensions.width > rightDimensions.height * rightDimensions.width
-    {
+    if leftDimensions.height * leftDimensions.width > rightDimensions.height * rightDimensions.width {
       return true
     }
 
@@ -27,16 +26,14 @@ extension AVCaptureDevice.Format {
       // compare video dimensions
       let leftVideo = self.formatDescription.presentationDimensions()
       let rightVideo = other.formatDescription.presentationDimensions()
-      if leftVideo.height * leftVideo.width > rightVideo.height * rightVideo.width
-      {
+      if leftVideo.height * leftVideo.width > rightVideo.height * rightVideo.width {
         return true
       }
     }
 
     // compare max fps
     if let leftMaxFps = videoSupportedFrameRateRanges.max(by: { $0.maxFrameRate > $1.maxFrameRate }),
-       let rightMaxFps = other.videoSupportedFrameRateRanges.max(by: { $0.maxFrameRate > $1.maxFrameRate })
-    {
+       let rightMaxFps = other.videoSupportedFrameRateRanges.max(by: { $0.maxFrameRate > $1.maxFrameRate }) {
       if leftMaxFps.maxFrameRate > rightMaxFps.maxFrameRate {
         return true
       }
