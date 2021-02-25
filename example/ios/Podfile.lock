@@ -245,7 +245,7 @@ PODS:
     - react-native-video/Video (= 5.1.1)
   - react-native-video/Video (5.1.1):
     - React-Core
-  - react-native-vision-camera (0.1.0):
+  - react-native-vision-camera (1.0.0-alpha.2):
     - React-Core
   - React-RCTActionSheet (0.63.4):
     - React-Core/RCTActionSheetHeaders (= 0.63.4)
@@ -307,16 +307,16 @@ PODS:
     - React-Core (= 0.63.4)
     - React-cxxreact (= 0.63.4)
     - React-jsi (= 0.63.4)
-  - ReactNativeNavigation (7.10.0):
+  - ReactNativeNavigation (7.11.0):
     - React-Core
     - React-RCTImage
     - React-RCTText
-    - ReactNativeNavigation/Core (= 7.10.0)
-  - ReactNativeNavigation/Core (7.10.0):
+    - ReactNativeNavigation/Core (= 7.11.0)
+  - ReactNativeNavigation/Core (7.11.0):
     - React-Core
     - React-RCTImage
     - React-RCTText
-  - RNGestureHandler (1.10.1):
+  - RNGestureHandler (1.10.2):
     - React-Core
   - RNReanimated (2.0.0-rc.3):
     - DoubleConversion
@@ -349,7 +349,7 @@ PODS:
     - Yoga
   - RNStaticSafeAreaInsets (2.1.1):
     - React
-  - RNVectorIcons (8.0.0):
+  - RNVectorIcons (8.1.0):
     - React-Core
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
@@ -531,10 +531,10 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 93bd528844ad21dc07aab1c67cb10abae6df6949
   React-jsinspector: 58aef7155bc9a9683f5b60b35eccea8722a4f53a
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
-  react-native-cameraroll: 717193a0427fd0db78d3f10385a008fcc102213c
-  react-native-slider: b733e17fdd31186707146debf1f04b5d94aa1a93
-  react-native-video: 1574074179ecaf6a9dd067116c8f31bf9fec15c8
-  react-native-vision-camera: bf9c62e2795080a21e9ea134050c01b5d9494b6d
+  react-native-cameraroll: 1965db75c851b15e77a22ca0ac78e32af6b571ae
+  react-native-slider: e99fc201cefe81270fc9d81714a7a0f5e566b168
+  react-native-video: 0bb76b6d6b77da3009611586c7dbf817b947f30e
+  react-native-vision-camera: 4001b74e9a6a9c5b6d874d3d15a87cec3b34e71a
   React-RCTActionSheet: 89a0ca9f4a06c1f93c26067af074ccdce0f40336
   React-RCTAnimation: 1bde3ecc0c104c55df246eda516e0deb03c4e49b
   React-RCTBlob: a97d378b527740cc667e03ebfa183a75231ab0f0
@@ -545,11 +545,11 @@ SPEC CHECKSUMS:
   React-RCTText: 5c51df3f08cb9dedc6e790161195d12bac06101c
   React-RCTVibration: ae4f914cfe8de7d4de95ae1ea6cc8f6315d73d9d
   ReactCommon: 73d79c7039f473b76db6ff7c6b159c478acbbb3b
-  ReactNativeNavigation: fa1eed29e815dfca6a1cb325776ef97658c54ce3
-  RNGestureHandler: 5e58135436aacc1c5d29b75547d3d2b9430d052c
+  ReactNativeNavigation: 16d97374852c2e23f6d6b5e4ff9cd616fb037f02
+  RNGestureHandler: e66feb0fda7da74ea6a3094656b3c1efe05f5c07
   RNReanimated: ca4f28c765329144d68bdad126bf6b0b1afc7a5a
   RNStaticSafeAreaInsets: 6103cf09647fa427186d30f67b0f5163c1ae8252
-  RNVectorIcons: f67a1abce2ec73e62fe4606e8110e95a832bc859
+  RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
   Yoga: 4bd86afe9883422a7c4028c00e34790f560923d6
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
