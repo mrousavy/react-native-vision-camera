@@ -5,8 +5,20 @@ disabled_rules:
   - type_body_length
   - cyclomatic_complexity
   - function_body_length
-opt_in_rules: # some rules are turned off by default, so you need to opt-in
-  - empty_count # Find all the available rules by running: `swiftlint rules`
+opt_in_rules:
+  - contains_over_filter_count
+  - contains_over_filter_is_empty
+  - contains_over_first_not_nil
+  - contains_over_range_nil_comparison
+  - empty_collection_literal
+  - empty_count
+  - empty_string
+  - first_where
+  - flatmap_over_map_reduce
+  - last_where
+  - reduce_boolean
+  - reduce_into
+  - sorted_first_last
 
 excluded: # paths to ignore during linting. Takes precedence over `included`.
   - Pods
