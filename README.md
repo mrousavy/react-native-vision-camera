@@ -50,7 +50,7 @@
 ### Install
 
 ```sh
-npm i react-native-vision-camera
+npm i react-native-vision-camera@alpha
 npx pod-install
 ```
 
