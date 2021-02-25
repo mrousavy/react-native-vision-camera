@@ -11,7 +11,7 @@ import Foundation
 
 extension CameraView: AVCaptureMetadataOutputObjectsDelegate {
   func metadataOutput(_: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from _: AVCaptureConnection) {
-    guard metadataObjects.count > 0 else {
+    if metadataObjects.isEmpty {
       return
     }
 
