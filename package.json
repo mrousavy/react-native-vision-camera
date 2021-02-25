@@ -41,7 +41,7 @@
   ],
   "repository": "https://github.com/mrousavy/react-native-vision-camera",
   "author": "Marc Rousavy <marcrousavy@hotmail.com> (https://github.com/mrousavy)",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/mrousavy/react-native-vision-camera/issues"
   },
