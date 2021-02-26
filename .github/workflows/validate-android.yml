@@ -32,3 +32,15 @@ jobs:
       - uses: yutailang0119/action-android-lint@v1.0.2
         with:
           xml_path: android/build/reports/lint-results.xml
+  ktlint:
+    name: Kotlin Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./android
+    steps:
+      - uses: actions/checkout@v2
+      - name: ktlint
+        uses: ScaCap/action-ktlint@master
+        with:
+          reporter: github-pr-review
