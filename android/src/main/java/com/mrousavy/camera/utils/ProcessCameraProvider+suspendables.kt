@@ -7,9 +7,12 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 suspend fun getCameraProvider(context: Context) = suspendCoroutine<ProcessCameraProvider> { cont ->
-    val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
+  val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
-    cameraProviderFuture.addListener({
-        cont.resume(cameraProviderFuture.get())
-    }, ContextCompat.getMainExecutor(context))
+  cameraProviderFuture.addListener(
+    {
+      cont.resume(cameraProviderFuture.get())
+    },
+    ContextCompat.getMainExecutor(context)
+  )
 }
