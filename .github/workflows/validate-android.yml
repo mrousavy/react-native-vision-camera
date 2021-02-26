@@ -38,6 +38,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run KTLint
-        uses: mrousavy/action-ktlint@v1.5
+        uses: mrousavy/action-ktlint@v1.6
         with:
           github_token: ${{ secrets.github_token }}
