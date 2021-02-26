@@ -34,7 +34,6 @@ class MicrophonePermissionError : CameraError("permission", "microphone-permissi
 class CameraPermissionError : CameraError("permission", "camera-permission-denied", "The Camera permission was denied!")
 
 class InvalidTypeScriptUnionError(unionName: String, unionValue: String) : CameraError("parameter", "invalid-parameter", "The given value for $unionName could not be parsed! (Received: $unionValue)")
-class UnsupportedOSError(unionName: String, unionValue: String, supportedOnOS: String) : CameraError("parameter", "unsupported-os", "The given value \"$unionValue\" could not be used for $unionName, as it is only available on Android $supportedOnOS and above!")
 
 class NoCameraDeviceError : CameraError("device", "no-device", "No device was set! Use `getAvailableCameraDevices()` to select a suitable Camera device.")
 class InvalidCameraDeviceError(cause: Throwable) : CameraError("device", "invalid-device", "The given Camera device could not be found for use-case binding!", cause)

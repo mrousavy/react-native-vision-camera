@@ -266,9 +266,9 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         // User has selected a custom format={}. Use that
         val format = DeviceFormat(format!!)
         Log.d(REACT_CLASS, "Using custom format - photo: ${format.photoSize}, video: ${format.videoSize} @ $fps FPS")
-        previewBuilder.setTargetResolution(format.photoSize) // TODO: <-- photoSize or videoSize? Or nothing & just use aspectRatio?
-        imageCaptureBuilder.setTargetResolution(format.photoSize)
-        videoCaptureBuilder.setTargetResolution(format.videoSize)
+        previewBuilder.setDefaultResolution(format.photoSize)
+        imageCaptureBuilder.setDefaultResolution(format.photoSize)
+        videoCaptureBuilder.setDefaultResolution(format.photoSize)
 
         fps?.let { fps ->
           if (format.frameRateRanges.any { it.contains(fps) }) {
