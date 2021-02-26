@@ -52,8 +52,7 @@ RCT_EXTERN_METHOD(focus:(nonnull NSNumber *)node point:(NSDictionary *)point res
 RCT_EXTERN_METHOD(getAvailableVideoCodecs:(nonnull NSNumber *)node resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject);
 RCT_EXTERN_METHOD(getAvailablePhotoCodecs:(nonnull NSNumber *)node resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject);
 
-- (void)setBridge:(RCTBridge *)bridge
-{
+- (void)setBridge:(RCTBridge *)bridge {
   [FrameProcessorBindings installFrameProcessorBindings:bridge];
 }
 
