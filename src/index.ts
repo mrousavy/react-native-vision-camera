@@ -4,7 +4,10 @@ export * from './CameraDevice';
 export * from './CameraError';
 export * from './CameraPosition';
 export * from './CameraPreset';
+<<<<<<< HEAD
 export * from './CameraProps';
+=======
+>>>>>>> Remove onCodeScanned and all references
 export * from './PhotoFile';
 export * from './Point';
 export * from './Snapshot';

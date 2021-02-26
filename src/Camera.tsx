@@ -4,7 +4,11 @@ import type { CameraPhotoCodec, CameraVideoCodec } from './CameraCodec';
 import type { CameraDevice } from './CameraDevice';
 import type { ErrorWithCause } from './CameraError';
 import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError';
+<<<<<<< HEAD
 import type { CameraProps } from './CameraProps';
+=======
+import type { CameraPreset } from './CameraPreset';
+>>>>>>> Remove onCodeScanned and all references
 import type { Frame } from './FrameProcessor';
 import type { PhotoFile, TakePhotoOptions } from './PhotoFile';
 import type { Point } from './Point';
