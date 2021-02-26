@@ -12,12 +12,6 @@
 #import <React/RCTViewManager.h>
 #import <React/RCTUtils.h>
 
-// In VisionCameraExample (VisionCamera):
-// #import <react-native-vision-camera/react_native_vision_camera-Swift.h>
-#import "react_native_vision_camera-Swift.h"
-// In VisionCamera:
-//#import <VisionCamera/VisionCamera-Swift.h>
-
 @interface RCT_EXTERN_REMAP_MODULE(CameraView, CameraViewManager, RCTViewManager)
 
 // Module Functions
