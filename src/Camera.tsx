@@ -385,6 +385,14 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   /**
    * @internal
    */
+  componentWillUnmount(): void {
+    // @ts-expect-error JSI functions aren't typed
+    global.unsetFrameProcessor(this.handle);
+  }
+
+  /**
+   * @internal
+   */
   public render(): React.ReactNode {
     if (this.state.cameraId == null) throw new Error('CameraId was null! Did you pass a valid `device`?');
 
