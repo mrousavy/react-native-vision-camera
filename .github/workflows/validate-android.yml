@@ -38,7 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run KTLint
-        uses: ScaCap/action-ktlint@master
+        uses: ScaCap/action-ktlint@custom-version
         with:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
