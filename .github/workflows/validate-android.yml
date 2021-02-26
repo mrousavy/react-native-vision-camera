@@ -33,15 +33,13 @@ jobs:
         with:
           xml_path: android/build/reports/lint-results.xml
   ktlint:
-    name: Kotlin Lint
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./android
     steps:
       - uses: actions/checkout@v2
-      - name: ktlint
-        uses: ScaCap/action-ktlint@master
+      - run: brew install ktlint
+      - name: run ktlint
+        run: |
+          ktlint --reporter=checkstyle,output=build/ktlint-report-in-checkstyle-format.xml
+      - uses: yutailang0119/action-ktlint@v1.0.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          reporter: github-pr-review
+          xml_path: build/ktlint-report-in-checkstyle-format.xml
