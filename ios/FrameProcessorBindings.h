@@ -6,6 +6,10 @@
 //  Copyright © 2021 Facebook. All rights reserved.
 //
 
+#import "FrameProcessorDefinitions.h"
+
+#ifdef ENABLE_FRAME_PROCESSORS
+
 #import <Foundation/Foundation.h>
 #import <React/RCTBridge.h>
 
@@ -14,3 +18,5 @@
 + (void) installFrameProcessorBindings:(RCTBridge*)bridge;
 
 @end
+
+#endif

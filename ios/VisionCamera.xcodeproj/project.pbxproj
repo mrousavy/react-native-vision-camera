@@ -107,6 +107,7 @@
 		B887518425E0102000DB86D6 /* CameraView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		B8DDC38225E970CE00986573 /* FrameProcessorDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameProcessorDelegate.swift; sourceTree = "<group>"; };
 		B8DDC38625E9713000986573 /* FrameProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameProcessor.swift; sourceTree = "<group>"; };
+		B8DDC42F25E97D6A00986573 /* FrameProcessorDefinitions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorDefinitions.h; sourceTree = "<group>"; };
 		B8E0A94325E82DFD008AE93F /* FrameProcessorBindings.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessorBindings.mm; sourceTree = "<group>"; };
 		B8E0A94725E82E40008AE93F /* FrameProcessorBindings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorBindings.h; sourceTree = "<group>"; };
 		B8E0A9BA25E833D7008AE93F /* YeetJSIUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = YeetJSIUtils.mm; sourceTree = "<group>"; };
@@ -136,6 +137,7 @@
 			isa = PBXGroup;
 			children = (
 				B8E0A9B925E833C8008AE93F /* JSI Utils */,
+				B8DDC42F25E97D6A00986573 /* FrameProcessorDefinitions.h */,
 				B8DDC38625E9713000986573 /* FrameProcessor.swift */,
 				B8E0A94725E82E40008AE93F /* FrameProcessorBindings.h */,
 				B8E0A94325E82DFD008AE93F /* FrameProcessorBindings.mm */,

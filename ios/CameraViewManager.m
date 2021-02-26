@@ -8,9 +8,14 @@
 
 #import <Foundation/Foundation.h>
 #import "FrameProcessorBindings.h"
+#import "FrameProcessorDefinitions.h"
 
 #import <React/RCTViewManager.h>
 #import <React/RCTUtils.h>
+
+#ifdef ENABLE_FRAME_PROCESSORS
+#import "FrameProcessorBindings.h"
+#endif
 
 @interface RCT_EXTERN_REMAP_MODULE(CameraView, CameraViewManager, RCTViewManager)
 
@@ -52,6 +57,8 @@ RCT_EXTERN_METHOD(focus:(nonnull NSNumber *)node point:(NSDictionary *)point res
 RCT_EXTERN_METHOD(getAvailableVideoCodecs:(nonnull NSNumber *)node resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject);
 RCT_EXTERN_METHOD(getAvailablePhotoCodecs:(nonnull NSNumber *)node resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject);
 
+#ifdef ENABLE_FRAME_PROCESSORS
+
 - (void)setBridge:(RCTBridge *)bridge {
   [FrameProcessorBindings installFrameProcessorBindings:bridge];
 }
@@ -59,5 +66,7 @@ RCT_EXTERN_METHOD(getAvailablePhotoCodecs:(nonnull NSNumber *)node resolve:(RCTP
 - (void)invalidate {
   // TODO: uninstall any bindings? free any jsi::Functions?
 }
+
+#endif
 
 @end

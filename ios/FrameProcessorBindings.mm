@@ -6,13 +6,20 @@
 //  Copyright © 2021 Facebook. All rights reserved.
 //
 
+#import "FrameProcessorDefinitions.h"
+
+#ifdef ENABLE_FRAME_PROCESSORS
+
 #import "FrameProcessorBindings.h"
 #import "JSI Utils/YeetJSIUtils.h"
 
 #import <React/RCTBridge.h>
 #import <React/RCTBridge+Private.h>
 #import <React/RCTUIManager.h>
+
 #import <jsi/jsi.h>
+
+#import <RNReanimated/REAUtils.h>
 
 #if __has_include("react_native_vision_camera-Swift.h")
 #import "react_native_vision_camera-Swift.h"
@@ -21,7 +28,6 @@
 #else
 #error Objective-C Generated Interface Header (VisionCamera-Swift.h) was not found!
 #endif
-
 
 using namespace facebook;
 
@@ -77,3 +83,4 @@ using namespace facebook;
 
 @end
 
+#endif
