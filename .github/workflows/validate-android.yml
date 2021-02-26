@@ -38,10 +38,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run KTLint
-        uses: ScaCap/action-ktlint@custom-version
+        uses: mrousavy/action-ktlint@v1.0
         with:
           github_token: ${{ secrets.github_token }}
-          reporter: github-pr-review
-          level: warning
-          fail_on_error: true
-          android: true
