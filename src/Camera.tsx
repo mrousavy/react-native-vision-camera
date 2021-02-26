@@ -5,6 +5,7 @@ import type { CameraDevice } from './CameraDevice';
 import type { ErrorWithCause } from './CameraError';
 import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError';
 import type { CameraProps } from './CameraProps';
+import type { Frame } from './FrameProcessor';
 import type { PhotoFile, TakePhotoOptions } from './PhotoFile';
 import type { Point } from './Point';
 import type { TakeSnapshotOptions } from './Snapshot';
@@ -78,6 +79,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * @internal
    */
   displayName = Camera.displayName;
+  lastFrameProcessor: ((frame: Frame) => void) | undefined;
 
   private readonly ref: React.RefObject<RefType>;
 
@@ -90,6 +92,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     this.onInitialized = this.onInitialized.bind(this);
     this.onError = this.onError.bind(this);
     this.ref = React.createRef<RefType>();
+    this.lastFrameProcessor = undefined;
   }
 
   private get handle(): number | null {
@@ -386,7 +389,18 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     if (this.state.cameraId == null) throw new Error('CameraId was null! Did you pass a valid `device`?');
 
     // We remove the big `device` object from the props because we only need to pass `cameraId` to native.
-    const { device: _, ...props } = this.props;
+    const { device: _, frameProcessor, ...props } = this.props;
+
+    if (frameProcessor !== this.lastFrameProcessor) {
+      if (frameProcessor != null) {
+        // @ts-expect-error JSI functions aren't typed
+        global.setFrameProcessor(this.handle, frameProcessor);
+      } else {
+        // @ts-expect-error JSI functions aren't typed
+        global.unsetFrameProcessor(this.handle);
+      }
+    }
+
     return (
       <NativeCameraView
         {...props}
