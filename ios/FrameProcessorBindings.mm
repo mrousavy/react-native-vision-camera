@@ -49,7 +49,6 @@ using namespace facebook;
     
     // TODO: Setup new Runtime in which the passed jsi::Function will run in.
     // TODO: "Workletize" the worklet object by passing it to a Reanimated API
-    // TODO: Find `CameraView` by it's viewTag
     
     auto anonymousView = [bridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
     auto view = static_cast<CameraView*>(anonymousView);
@@ -59,6 +58,21 @@ using namespace facebook;
   });
   jsiRuntime.global().setProperty(jsiRuntime, "setFrameProcessor", std::move(setFrameProcessor));
   
+  // unsetFrameProcessor(viewTag: number)
+  auto unsetFrameProcessor = jsi::Function::createFromHostFunction(jsiRuntime,
+                                                                   jsi::PropNameID::forAscii(jsiRuntime, "unsetFrameProcessor"),
+                                                                   1,  // viewTag
+                                                                   [&bridge](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+    if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::unsetFrameProcessor: First argument ('viewTag') must be a number!");
+    auto viewTag = arguments[0].asNumber();
+    
+    auto anonymousView = [bridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
+    auto view = static_cast<CameraView*>(anonymousView);
+    view.frameProcessor = nil;
+    
+    return jsi::Value::undefined();
+  });
+  jsiRuntime.global().setProperty(jsiRuntime, "unsetFrameProcessor", std::move(unsetFrameProcessor));
 }
 
 @end
