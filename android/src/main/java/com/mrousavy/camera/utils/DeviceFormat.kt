@@ -27,7 +27,7 @@ fun rangeFactory(minFrameRate: Any?, maxFrameRate: Any?): Range<Int> {
     is Double -> Range(minFrameRate.toInt(), (maxFrameRate as Double).toInt())
     else -> throw IllegalArgumentException(
       "DeviceFormat: frameRateRanges contained a Range that didn't have minFrameRate/maxFrameRate of types Int/Double! " +
-      "Actual Type: ${minFrameRate?.javaClass?.name} & ${maxFrameRate?.javaClass?.name}"
+        "Actual Type: ${minFrameRate?.javaClass?.name} & ${maxFrameRate?.javaClass?.name}"
     )
   }
 }

@@ -25,11 +25,11 @@ import com.facebook.react.bridge.*
 import com.facebook.react.uimanager.events.RCTEventEmitter
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.guava.await
 import java.lang.IllegalArgumentException
 import java.util.concurrent.Executors
 import kotlin.math.max
 import kotlin.math.min
-import kotlinx.coroutines.guava.await
 
 // CaptureRequest.java
 // TODO: CONTROL_AE_ANTIBANDING_MODE (60Hz, 50Hz lights)
