@@ -7,9 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <jsi/jsi.h>
 #import <React/RCTConvert.h>
 #import <React/RCTBridgeModule.h>
+
+#ifndef __cplusplus
+#error YeetJSIUtil.h has to be compiled with C++!
+#endif
+
+#import <jsi/jsi.h>
 
 using namespace facebook;
 /**
