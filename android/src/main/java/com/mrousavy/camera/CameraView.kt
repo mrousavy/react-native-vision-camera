@@ -128,7 +128,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
     scaleGestureListener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
       override fun onScale(detector: ScaleGestureDetector): Boolean {
         zoom = min(max(((zoom + 1) * detector.scaleFactor) - 1, 0.0), 1.0)
-        update(arrayListOf("zoom"))
+        update(arrayListOfZoom)
         return true
       }
     }
@@ -389,5 +389,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
     const val REACT_CLASS = "CameraView"
 
     private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "fps", "hdr", "lowLightBoost")
+
+    private val arrayListOfZoom = arrayListOf("zoom")
   }
 }
