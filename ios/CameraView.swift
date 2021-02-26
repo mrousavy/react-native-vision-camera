@@ -86,13 +86,19 @@ public final class CameraView: UIView {
   // CameraView+Zoom
   internal var pinchGestureRecognizer: UIPinchGestureRecognizer?
   internal var pinchScaleOffset: CGFloat = 1.0
-  // CameraView+FrameProcessor
-  @objc public var frameProcessor: (([Any]) -> Void)? {
+
+  // Frame Processing
+  internal weak var frameProcessorDelegate: FrameProcessorDelegate?
+  @objc public var frameProcessor: FrameProcessor? {
     didSet {
       self.didSetProps(["frameProcessor"])
+      if let frameProcessor = self.frameProcessor {
+        self.frameProcessorDelegate = FrameProcessorDelegate(withFrameProcessor: frameProcessor)
+      } else {
+        self.frameProcessorDelegate = nil
+      }
     }
   }
-  internal let frameProcessorQueue = DispatchQueue(label: "com.mrousavy.camera-queue-frame-processor", qos: .userInteractive, attributes: [], autoreleaseFrequency: .inherit, target: nil)
 
   var isRunning: Bool {
     return captureSession.isRunning
