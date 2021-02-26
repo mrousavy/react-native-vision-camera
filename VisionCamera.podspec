@@ -16,6 +16,7 @@ Pod::Spec.new do |s|
   s.source_files = "ios/**/*.{h,m,mm,swift}"
 
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
+  s.private_header_files = 'ios/JSI Utils/YeetJSIUtils.h'
 
   s.dependency "React-Core"
 end
