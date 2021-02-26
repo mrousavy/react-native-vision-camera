@@ -15,7 +15,7 @@ class DeviceFormat(map: ReadableMap) {
       if (range is HashMap<*, *>)
         rangeFactory(range["minFrameRate"], range["maxFrameRate"])
       else
-        throw IllegalArgumentException()
+        throw IllegalArgumentException("DeviceFormat: frameRateRanges contained a Range that was not of type HashMap<*,*>! Actual Type: ${range.javaClass.name}")
     }
     photoSize = Size(map.getInt("photoWidth"), map.getInt("photoHeight"))
     videoSize = Size(map.getInt("videoWidth"), map.getInt("videoHeight"))
