@@ -64,7 +64,7 @@ RCT_EXTERN_METHOD(getAvailablePhotoCodecs:(nonnull NSNumber *)node resolve:(RCTP
 }
 
 - (void)invalidate {
-  // TODO: uninstall any bindings? free any jsi::Functions?
+  [FrameProcessorBindings uninstallFrameProcessorBindings];
 }
 
 #endif

@@ -16,6 +16,7 @@
 @interface FrameProcessorBindings : NSObject
 
 + (void) installFrameProcessorBindings:(RCTBridge*)bridge;
++ (void) uninstallFrameProcessorBindings;
 
 @end
 
