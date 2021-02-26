@@ -11,10 +11,10 @@ import Foundation
 
 class FrameProcessorDelegate: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
   public let queue = DispatchQueue(label: "com.mrousavy.camera-queue-frame-processor",
-                                                 qos: .userInteractive,
-                                                 attributes: [],
-                                                 autoreleaseFrequency: .inherit,
-                                                 target: nil)
+                                   qos: .userInteractive,
+                                   attributes: [],
+                                   autoreleaseFrequency: .inherit,
+                                   target: nil)
   private let frameProcessor: FrameProcessor
 
   init(withFrameProcessor frameProcessor: @escaping FrameProcessor) {
