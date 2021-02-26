@@ -38,7 +38,7 @@ using namespace facebook;
 @implementation FrameProcessorBindings
 
 // TODO: Does this go out of scope and release immediately?
-std::unique_ptr<jsi::Runtime> frameProcessorRuntime;
+static std::unique_ptr<jsi::Runtime> frameProcessorRuntime;
 
 + (void) installFrameProcessorBindings:(RCTBridge*)bridge {
   RCTCxxBridge *cxxBridge = (RCTCxxBridge *)bridge;
