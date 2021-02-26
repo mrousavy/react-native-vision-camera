@@ -246,25 +246,29 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       val cameraSelector = CameraSelector.Builder().byID(cameraId!!).build()
 
       val rotation = previewView.display.rotation
-      val aspectRatio = aspectRatio(previewView.width, previewView.height)
 
       val previewBuilder = Preview.Builder()
-        .setTargetAspectRatio(aspectRatio)
         .setTargetRotation(rotation)
       val imageCaptureBuilder = ImageCapture.Builder()
-        .setTargetAspectRatio(aspectRatio)
         .setTargetRotation(rotation)
         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
       val videoCaptureBuilder = VideoCapture.Builder()
-        .setTargetAspectRatio(aspectRatio)
         .setTargetRotation(rotation)
 
-      if (format != null) {
+      if (format == null) {
+        // let CameraX automatically find best resolution for the target aspect ratio
+        Log.d(REACT_CLASS, "No custom format has been set, CameraX will automatically determine best configuration...")
+        val aspectRatio = aspectRatio(previewView.width, previewView.height)
+        previewBuilder.setTargetAspectRatio(aspectRatio)
+        imageCaptureBuilder.setTargetAspectRatio(aspectRatio)
+        videoCaptureBuilder.setTargetAspectRatio(aspectRatio)
+      } else {
         // User has selected a custom format={}. Use that
         val format = DeviceFormat(format!!)
-
-        // The format (exported in CameraViewModule) specifies the resolution in ROTATION_90 (horizontal)
-        val rotationRelativeToFormat = rotation - 1 // subtract one, so that ROTATION_90 becomes ROTATION_0 and so on
+        Log.d(REACT_CLASS, "Using custom format - photo: ${format.photoSize}, video: ${format.videoSize} @ $fps FPS")
+        previewBuilder.setTargetResolution(format.photoSize) // TODO: <-- photoSize or videoSize? Or nothing & just use aspectRatio?
+        imageCaptureBuilder.setTargetResolution(format.photoSize)
+        videoCaptureBuilder.setTargetResolution(format.videoSize)
 
         fps?.let { fps ->
           if (format.frameRateRanges.any { it.contains(fps) }) {
@@ -275,9 +279,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
             Camera2Interop.Extender(previewBuilder)
               .setCaptureRequestOption(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(fps, fps))
               .setCaptureRequestOption(CaptureRequest.SENSOR_FRAME_DURATION, frameDuration)
-            Camera2Interop.Extender(videoCaptureBuilder)
-              .setCaptureRequestOption(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(fps, fps))
-              .setCaptureRequestOption(CaptureRequest.SENSOR_FRAME_DURATION, frameDuration)
+            videoCaptureBuilder.setVideoFrameRate(fps)
           } else {
             throw FpsNotContainedInFormatError(fps)
           }
@@ -314,17 +316,6 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
               throw LowLightBoostNotContainedInFormatError()
             }
           }
-        }
-
-        // TODO: qualityPrioritization for ImageCapture
-        imageCaptureBuilder.setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-        val photoResolution = format.photoSize.rotated(rotationRelativeToFormat)
-        // TODO: imageCaptureBuilder.setTargetResolution(photoResolution)
-        Log.d(REACT_CLASS, "Using Photo Capture resolution $photoResolution")
-
-        fps?.let { fps ->
-          Log.d(REACT_CLASS, "Setting video recording FPS to $fps")
-          videoCaptureBuilder.setVideoFrameRate(fps)
         }
       }
 
