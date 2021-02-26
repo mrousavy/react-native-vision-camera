@@ -7,10 +7,12 @@ on:
     paths:
       - '.github/workflows/validate-android.yml'
       - 'android/**'
+      - '.editorconfig'
   pull_request:
     paths:
       - '.github/workflows/validate-android.yml'
       - 'android/**'
+      - '.editorconfig'
 
 jobs:
   lint:
