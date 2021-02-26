@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { StyleSheet, View, Image, ActivityIndicator, PermissionsAndroid, Platform } from 'react-native';
 import { Navigation, NavigationFunctionComponent, OptionsModalPresentationStyle } from 'react-native-navigation';
-import Video from 'react-native-video';
+import Video, { OnLoadData } from 'react-native-video';
 import { SAFE_AREA_PADDING } from './Constants';
 import { useIsForeground } from './hooks/useIsForeground';
 import { useIsScreenFocused } from './hooks/useIsScreenFocused';
@@ -10,6 +10,8 @@ import IonIcon from 'react-native-vector-icons/Ionicons';
 import { Alert } from 'react-native';
 import CameraRoll from '@react-native-community/cameraroll';
 import { StatusBarBlurBackground } from './views/StatusBarBlurBackground';
+import type { NativeSyntheticEvent } from 'react-native';
+import type { ImageLoadEventData } from 'react-native';
 
 interface MediaProps {
   path: string;
@@ -29,6 +31,9 @@ const requestSavePermission = async (): Promise<boolean> => {
   return hasPermission;
 };
 
+const isVideoOnLoadEvent = (event: OnLoadData | NativeSyntheticEvent<ImageLoadEventData>): event is OnLoadData =>
+  'duration' in event && 'naturalSize' in event;
+
 export const Media: NavigationFunctionComponent<MediaProps> = ({ componentId, type, path }) => {
   const [hasMediaLoaded, setHasMediaLoaded] = useState(false);
   const isForeground = useIsForeground();
@@ -40,6 +45,15 @@ export const Media: NavigationFunctionComponent<MediaProps> = ({ componentId, ty
     Navigation.dismissModal(componentId);
   }, [componentId]);
 
+  const onMediaLoad = useCallback((event: OnLoadData | NativeSyntheticEvent<ImageLoadEventData>) => {
+    if (isVideoOnLoadEvent(event)) {
+      console.log(
+        `Video loaded. Size: ${event.naturalSize.width}x${event.naturalSize.height} (${event.naturalSize.orientation}, ${event.duration} seconds)`,
+      );
+    } else {
+      console.log(`Image loaded. Size: ${event.nativeEvent.source.width}x${event.nativeEvent.source.height}`);
+    }
+  }, []);
   const onMediaLoadEnd = useCallback(() => {
     console.log('media has loaded.');
     setHasMediaLoaded(true);
@@ -70,7 +84,9 @@ export const Media: NavigationFunctionComponent<MediaProps> = ({ componentId, ty
 
   return (
     <View style={[styles.container, screenStyle]}>
-      {type === 'photo' && <Image source={source} style={StyleSheet.absoluteFill} resizeMode="cover" onLoadEnd={onMediaLoadEnd} />}
+      {type === 'photo' && (
+        <Image source={source} style={StyleSheet.absoluteFill} resizeMode="cover" onLoadEnd={onMediaLoadEnd} onLoad={onMediaLoad} />
+      )}
       {type === 'video' && (
         <Video
           source={source}
@@ -87,6 +103,7 @@ export const Media: NavigationFunctionComponent<MediaProps> = ({ componentId, ty
           playWhenInactive={true}
           ignoreSilentSwitch="ignore"
           onReadyForDisplay={onMediaLoadEnd}
+          onLoad={onMediaLoad}
         />
       )}
 
