@@ -95,7 +95,7 @@ std::unique_ptr<jsi::Runtime> frameProcessorRuntime;
 }
 
 + (void) uninstallFrameProcessorBindings {
-  frameProcessorRuntime.release();
+  frameProcessorRuntime.reset();
 }
 
 @end
