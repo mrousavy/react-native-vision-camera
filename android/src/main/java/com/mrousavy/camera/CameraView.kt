@@ -17,6 +17,7 @@ import androidx.camera.extensions.HdrImageCaptureExtender
 import androidx.camera.extensions.HdrPreviewExtender
 import androidx.camera.extensions.NightImageCaptureExtender
 import androidx.camera.extensions.NightPreviewExtender
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.*
@@ -28,6 +29,7 @@ import java.lang.IllegalArgumentException
 import java.util.concurrent.Executors
 import kotlin.math.max
 import kotlin.math.min
+import kotlinx.coroutines.guava.await
 
 // CaptureRequest.java
 // TODO: CONTROL_AE_ANTIBANDING_MODE (60Hz, 50Hz lights)
@@ -239,7 +241,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         Log.d(REACT_CLASS, "Configuring session with Camera ID $cameraId and default format options...")
 
       // Used to bind the lifecycle of cameras to the lifecycle owner
-      val cameraProvider = getCameraProvider(context)
+      val cameraProvider = ProcessCameraProvider.getInstance(context).await()
 
       val cameraSelector = CameraSelector.Builder().byID(cameraId!!).build()
 
