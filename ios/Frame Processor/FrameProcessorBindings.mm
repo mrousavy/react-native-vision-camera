@@ -13,7 +13,7 @@
 #import <React/RCTUIManager.h>
 
 #import <jsi/jsi.h>
-#import "YeetJSIUtils.h"
+#import "../JSI Utils/YeetJSIUtils.h"
 #import "FrameProcessorDelegate.h"
 
 #if __has_include("react_native_vision_camera-Swift.h")

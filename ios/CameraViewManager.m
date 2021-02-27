@@ -13,7 +13,7 @@
 #import <React/RCTViewManager.h>
 #import <React/RCTUtils.h>
 
-#import "FrameProcessorBindings.h"
+#import "Frame Processor/FrameProcessorBindings.h"
 
 @interface RCT_EXTERN_REMAP_MODULE(CameraView, CameraViewManager, RCTViewManager)
 

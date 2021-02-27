@@ -1,6 +1,6 @@
 #pragma once
 
-#include "LoggerInterface.h"
+#include "../../cpp/LoggerInterface.h"
 #include <stdio.h>
 
 namespace vision {

@@ -11,7 +11,7 @@
 #import <Foundation/Foundation.h>
 #import <React/RCTViewManager.h>
 #import <React/RCTUIManager.h>
-#import "FrameProcessorDelegate.h"
+#import "Frame Processor/FrameProcessorDelegate.h"
 
 @interface CameraBridge: RCTViewManager
 

@@ -9,11 +9,11 @@
 #import "FrameProcessorDelegate.h"
 #import <Foundation/Foundation.h>
 #import <jsi/jsi.h>
-#import "Logger.h"
 
-#import "MakeJSIRuntime.h"
-#import "RuntimeDecorator.h"
-#import "YeetJSIUtils.h"
+#import "../../cpp/Logger.h"
+#import "../../cpp/MakeJSIRuntime.h"
+#import "../../cpp/RuntimeDecorator.h"
+#import "../JSI Utils/YeetJSIUtils.h"
 
 using namespace facebook;
 
