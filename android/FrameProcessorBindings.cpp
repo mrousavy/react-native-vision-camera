@@ -1,58 +1,20 @@
 //
-//  FrameProcessorBindings.mm
-//  VisionCamera
-//
-//  Created by Marc Rousavy on 25.02.21.
-//  Copyright © 2021 Facebook. All rights reserved.
+// Created by Marc Rousavy on 2/27/21.
 //
 
-#import "FrameProcessorBindings.h"
+#include <jni.h>
+#include <jsi/jsi.h>
+#include <hermes/hermes.h>
 
-#ifdef ENABLE_FRAME_PROCESSORS
-
-#import <React/RCTBridge.h>
-#import <React/RCTBridge+Private.h>
-#import <React/RCTUIManager.h>
-
-#import <jsi/jsi.h>
-#import "JSI Utils/YeetJSIUtils.h"
-
-#import <RNReanimated/RuntimeDecorator.h>
-
-#if __has_include(<hermes/hermes.h>)
-#import <hermes/hermes.h>
-#else
-#import <jsi/JSCRuntime.h>
-#endif
-
-#if __has_include("react_native_vision_camera-Swift.h")
-#import "react_native_vision_camera-Swift.h"
-#elif __has_include("VisionCamera-Swift.h")
-#import "VisionCamera-Swift.h"
-#else
-#error Objective-C Generated Interface Header (VisionCamera-Swift.h) was not found!
-#endif
+// TODO: Check ifdef ENABLE_FRAME_PROCESSORS
 
 using namespace facebook;
-
-@implementation FrameProcessorBindings
 
 // TODO: Lazily initialize this, and only on a per-view basis
 static std::unique_ptr<jsi::Runtime> frameProcessorRuntime;
 
-+ (void) installFrameProcessorBindings:(RCTBridge*)bridge {
-  RCTCxxBridge *cxxBridge = (RCTCxxBridge *)bridge;
-  if (!cxxBridge.runtime) {
-    return;
-  }
-  jsi::Runtime& jsiRuntime = *(jsi::Runtime*)cxxBridge.runtime;
-
-#if __has_include(<hermes/hermes.h>)
+void install(jsi::Runtime& jsiRuntime) {
   frameProcessorRuntime = facebook::hermes::makeHermesRuntime();
-#else
-  frameProcessorRuntime = facebook::jsc::makeJSCRuntime();
-#endif
-  // TODO: Decorate frameProcessorRuntime with reanimated::RuntimeDecorator::decorateCustomThread(...) from Karol's PR
 
   // setFrameProcessor(viewTag: number, frameProcessor: (frame: Frame) => void)
   auto setFrameProcessor = jsi::Function::createFromHostFunction(jsiRuntime,
@@ -67,9 +29,9 @@ static std::unique_ptr<jsi::Runtime> frameProcessorRuntime;
 
     // TODO: "Workletize" the worklet object by passing it to a Reanimated API
 
-    auto anonymousView = [bridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
-    auto view = static_cast<CameraView*>(anonymousView);
-    view.frameProcessor = convertJSIFunctionToCallback(runtime, worklet);
+    // auto anonymousView = [bridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
+    // auto view = static_cast<CameraView*>(anonymousView);
+    // view.frameProcessor = convertJSIFunctionToCallback(runtime, worklet);
 
     // TODO: Spawn thread with reanimated::NativeReanimatedModule::spawnThread(...) from Karol's PR
 
@@ -85,19 +47,28 @@ static std::unique_ptr<jsi::Runtime> frameProcessorRuntime;
     if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::unsetFrameProcessor: First argument ('viewTag') must be a number!");
     auto viewTag = arguments[0].asNumber();
 
-    auto anonymousView = [bridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
-    auto view = static_cast<CameraView*>(anonymousView);
-    view.frameProcessor = nil;
+    // auto anonymousView = [bridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
+    // auto view = static_cast<CameraView*>(anonymousView);
+    // view.frameProcessor = nil;
 
     return jsi::Value::undefined();
   });
   jsiRuntime.global().setProperty(jsiRuntime, "unsetFrameProcessor", std::move(unsetFrameProcessor));
 }
 
-+ (void) uninstallFrameProcessorBindings {
+void uninstall() {
   frameProcessorRuntime.reset();
 }
 
-@end
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_mrousavy_camera_CameraModule_installFrameProcessorBindings(JNIEnv *env, jobject clazz, jlong jsiPtr) {
+    auto runtime = reinterpret_cast<jsi::Runtime*>(jsiPtr);
+    install(*runtime);
+}
 
-#endif
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_mrousavy_camera_CameraModule_uninstallFrameProcessorBindings(JNIEnv *env, jobject clazz, jlong jsiPtr) {
+    uninstall();
+}
