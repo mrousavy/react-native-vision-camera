@@ -15,6 +15,7 @@
 #import <jsi/jsi.h>
 #import "../JSI Utils/YeetJSIUtils.h"
 #import "FrameProcessorDelegate.h"
+#import "../../cpp/Logger.h"
 
 #if __has_include("react_native_vision_camera-Swift.h")
 #import "react_native_vision_camera-Swift.h"
@@ -34,6 +35,8 @@ using namespace facebook;
     return;
   }
   jsi::Runtime& jsiRuntime = *(jsi::Runtime*)cxxBridge.runtime;
+  
+  
 
   // setFrameProcessor(viewTag: number, frameProcessor: (frame: Frame) => void)
   auto setFrameProcessor = [&bridge](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
@@ -42,17 +45,22 @@ using namespace facebook;
 
     auto viewTag = arguments[0].asNumber();
     auto function = arguments[1].asObject(runtime).asFunction(runtime);
-
-    auto anonymousView = [bridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
-    auto view = static_cast<CameraView*>(anonymousView);
-    if (view.frameProcessorDelegate == nil) {
-      view.frameProcessorDelegate = [[FrameProcessorDelegate alloc] init];
-    }
-    
-    // TODO: I am pretty sure it is a _very_ bad idea to move the worklet to the stack and pass that pointer around.
-    // alternative:  auto functionPointer = std::make_unique<jsi::Function>(std::move(function));
     auto functionPointer = new jsi::Function(std::move(function));
-    [view.frameProcessorDelegate setFrameProcessorFunction:(void*)functionPointer];
+    // alternative:  auto functionPointer = std::make_unique<jsi::Function>(std::move(function));
+    
+    vision::Logger::log("FrameProcessorBindings: Setting new frame processor...");
+    
+    RCTExecuteOnMainQueue(^{
+      
+      auto anonymousView = [bridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
+      auto view = static_cast<CameraView*>(anonymousView);
+      if (view.frameProcessorDelegate == nil) {
+        view.frameProcessorDelegate = [[FrameProcessorDelegate alloc] init];
+      }
+      
+      // TODO: I am pretty sure it is a _very_ bad idea to move the worklet to the heap and pass that pointer around.
+      [view.frameProcessorDelegate setFrameProcessorFunction:(void*)functionPointer];
+    });
 
     return jsi::Value::undefined();
   };
@@ -66,9 +74,12 @@ using namespace facebook;
     if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::unsetFrameProcessor: First argument ('viewTag') must be a number!");
     auto viewTag = arguments[0].asNumber();
 
-    auto anonymousView = [bridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
-    auto view = static_cast<CameraView*>(anonymousView);
-    view.frameProcessorDelegate = nil;
+    vision::Logger::log("FrameProcessorBindings: Removing frame processor...");
+    RCTExecuteOnMainQueue(^{
+      auto anonymousView = [bridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
+      auto view = static_cast<CameraView*>(anonymousView);
+      view.frameProcessorDelegate = nil;
+    });
 
     return jsi::Value::undefined();
   };

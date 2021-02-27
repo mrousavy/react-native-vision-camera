@@ -34,6 +34,7 @@ using namespace facebook;
 - (instancetype) init {
   self = [super init];
   if (self) {
+    vision::Logger::log("FrameProcessorDelegate: init()");
     // TODO: relativePriority 0 or -1?
     dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, -1);
     dispatchQueue = dispatch_queue_create("com.mrousavy.camera-frame-processor", qos);
@@ -44,6 +45,7 @@ using namespace facebook;
 }
 
 - (void) setFrameProcessorFunction:(void*)function {
+  vision::Logger::log("FrameProcessorDelegate: Frame Processor function has been set!");
   // TODO: Make sure this unique_ptr stuff works, because it seems like a very bad idea to move the jsi::Function and keep a strong reference
   worklet = std::unique_ptr<jsi::Function>(static_cast<jsi::Function*>(function));
   
