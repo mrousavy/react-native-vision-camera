@@ -9,8 +9,10 @@
 #import "FrameProcessorDelegate.h"
 #import <Foundation/Foundation.h>
 #import <jsi/jsi.h>
+#import "Logger.h"
 
 #import "MakeJSIRuntime.h"
+#import "../../cpp/RuntimeDecorator.h"
 
 using namespace facebook;
 
@@ -27,7 +29,9 @@ using namespace facebook;
     // TODO: relativePriority 0 or -1?
     dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, -1);
     dispatchQueue = dispatch_queue_create("com.mrousavy.camera-frame-processor", qos);
+    // TODO: Do I need to create the JSI runtime in the `dispatchQueue`'s Thread?
     runtime = std::unique_ptr<jsi::Runtime>(vision::makeJSIRuntime());
+    vision::RuntimeDecorator::decorateRuntime(*runtime);
   }
   return self;
 }
@@ -39,6 +43,11 @@ using namespace facebook;
 }
 
 - (void) captureOutput:(AVCaptureOutput *)output didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
+  if (!runtime) {
+    // TODO: Handle case where runtime is not created yet
+    vision::Logger::log("FrameProcessorDelegate: Camera frame arrived, but JSI Runtime has not been created yet!");
+    return;
+  }
   // TODO: Call [worklet] with the output buffer
   auto args = jsi::Array::createWithElements(*runtime, { jsi::Value::undefined() });
   worklet->call(*runtime, args, 1);
