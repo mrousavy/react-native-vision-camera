@@ -112,6 +112,7 @@
 		B8DCF09825EA7BEF00EA5C72 /* LoggerInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LoggerInterface.h; sourceTree = "<group>"; };
 		B8DCF09A25EA7BEF00EA5C72 /* RuntimeDecorator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RuntimeDecorator.cpp; sourceTree = "<group>"; };
 		B8DCF09B25EA7BEF00EA5C72 /* Logger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Logger.h; sourceTree = "<group>"; };
+		B8DCF14425EA817D00EA5C72 /* MakeJSIRuntime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MakeJSIRuntime.h; sourceTree = "<group>"; };
 		B8DDC38225E970CE00986573 /* FrameProcessorDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameProcessorDelegate.swift; sourceTree = "<group>"; };
 		B8DDC38625E9713000986573 /* FrameProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameProcessor.swift; sourceTree = "<group>"; };
 		B8DDC42F25E97D6A00986573 /* FrameProcessorDefinitions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorDefinitions.h; sourceTree = "<group>"; };
@@ -220,6 +221,7 @@
 		B8DCF08F25EA7BEE00EA5C72 /* cpp */ = {
 			isa = PBXGroup;
 			children = (
+				B8DCF14425EA817D00EA5C72 /* MakeJSIRuntime.h */,
 				B8DCF09B25EA7BEF00EA5C72 /* Logger.h */,
 				B8DCF09825EA7BEF00EA5C72 /* LoggerInterface.h */,
 				B8DCF09125EA7BEE00EA5C72 /* SpeedChecker.h */,
