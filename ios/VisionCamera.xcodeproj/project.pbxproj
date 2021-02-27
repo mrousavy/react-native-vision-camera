@@ -118,7 +118,6 @@
 		B8DCF1B425EA852900EA5C72 /* IOSLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOSLogger.h; sourceTree = "<group>"; };
 		B8DDC38225E970CE00986573 /* FrameProcessorDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameProcessorDelegate.swift; sourceTree = "<group>"; };
 		B8DDC38625E9713000986573 /* FrameProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameProcessor.swift; sourceTree = "<group>"; };
-		B8DDC42F25E97D6A00986573 /* FrameProcessorDefinitions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorDefinitions.h; sourceTree = "<group>"; };
 		B8E0A94325E82DFD008AE93F /* FrameProcessorBindings.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessorBindings.mm; sourceTree = "<group>"; };
 		B8E0A94725E82E40008AE93F /* FrameProcessorBindings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorBindings.h; sourceTree = "<group>"; };
 		B8E0A9BA25E833D7008AE93F /* YeetJSIUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = YeetJSIUtils.mm; sourceTree = "<group>"; };
@@ -147,13 +146,9 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				B8DCF2D725EA940700EA5C72 /* FrameProcessor */,
 				B8DCF1B225EA84D900EA5C72 /* Vision */,
 				B8E0A9B925E833C8008AE93F /* JSI Utils */,
-				B8DDC42F25E97D6A00986573 /* FrameProcessorDefinitions.h */,
-				B8DDC38625E9713000986573 /* FrameProcessor.swift */,
-				B8E0A94725E82E40008AE93F /* FrameProcessorBindings.h */,
-				B8E0A94325E82DFD008AE93F /* FrameProcessorBindings.mm */,
-				B8DDC38225E970CE00986573 /* FrameProcessorDelegate.swift */,
 				B887515E25E0102000DB86D6 /* CameraBridge.h */,
 				B887518325E0102000DB86D6 /* CameraError.swift */,
 				B887518425E0102000DB86D6 /* CameraView.swift */,
@@ -245,6 +240,17 @@
 				B8DCF1B325EA852900EA5C72 /* IOSLogger.mm */,
 			);
 			path = Vision;
+			sourceTree = "<group>";
+		};
+		B8DCF2D725EA940700EA5C72 /* FrameProcessor */ = {
+			isa = PBXGroup;
+			children = (
+				B8DDC38625E9713000986573 /* FrameProcessor.swift */,
+				B8E0A94725E82E40008AE93F /* FrameProcessorBindings.h */,
+				B8E0A94325E82DFD008AE93F /* FrameProcessorBindings.mm */,
+				B8DDC38225E970CE00986573 /* FrameProcessorDelegate.swift */,
+			);
+			path = FrameProcessor;
 			sourceTree = "<group>";
 		};
 		B8E0A9B925E833C8008AE93F /* JSI Utils */ = {

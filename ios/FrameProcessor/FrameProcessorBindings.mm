@@ -8,14 +8,12 @@
 
 #import "FrameProcessorBindings.h"
 
-#ifdef ENABLE_FRAME_PROCESSORS
-
 #import <React/RCTBridge.h>
 #import <React/RCTBridge+Private.h>
 #import <React/RCTUIManager.h>
 
 #import <jsi/jsi.h>
-#import "JSI Utils/YeetJSIUtils.h"
+#import "YeetJSIUtils.h"
 
 #if __has_include(<hermes/hermes.h>)
 #import <hermes/hermes.h>
@@ -23,7 +21,7 @@
 #import <jsi/JSCRuntime.h>
 #endif
 
-#import "../cpp/RuntimeDecorator.h"
+#import "../../cpp/RuntimeDecorator.h"
 
 #if __has_include("react_native_vision_camera-Swift.h")
 #import "react_native_vision_camera-Swift.h"
@@ -100,5 +98,3 @@ static std::unique_ptr<jsi::Runtime> frameProcessorRuntime;
 }
 
 @end
-
-#endif
