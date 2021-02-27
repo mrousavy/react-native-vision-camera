@@ -13,10 +13,22 @@ Pod::Spec.new do |s|
   s.platforms    = { :ios => "11.0" }
   s.source       = { :git => "https://github.com/cuvent/react-native-vision-camera.git", :tag => "#{s.version}" }
 
-  s.source_files = "ios/**/*.{h,m,mm,swift}", "cpp/**/*.{h,cpp}"
-
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
-  s.private_header_files = "ios/JSI Utils/**/*.h", "cpp/**/*.h", "ios/Vision/**/*.h"
+
+  # All source files that should be publicly visible
+  # Note how this does not include headers, since those can nameclash.
+  s.source_files = [
+    "ios/**/*.{m,mm,swift}",
+    "ios/CameraBridge.h",
+    "cpp/**/*.{cpp}"
+  ]
+  # Any private headers that are not globally unique should be mentioned here.
+  # Otherwise there will be a nameclash, since CocoaPods flattens out any header directories
+  # See https://github.com/firebase/firebase-ios-sdk/issues/4035 for more details.
+  s.preserve_paths = [
+    'cpp/**/*.h',
+    'ios/**/*.h'
+  ]
 
   s.dependency "React-Core"
 end
