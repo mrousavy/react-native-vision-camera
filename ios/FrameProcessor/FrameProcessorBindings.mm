@@ -60,13 +60,18 @@ static std::unique_ptr<jsi::Runtime> frameProcessorRuntime;
     if (!arguments[1].isObject()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
 
     auto viewTag = arguments[0].asNumber();
-    auto worklet = arguments[1].asObject(runtime).asFunction(runtime);
-
-    // TODO: "Workletize" the worklet object by passing it to a Reanimated API
+    auto function = arguments[1].asObject(runtime).asFunction(runtime);
 
     auto anonymousView = [bridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
     auto view = static_cast<CameraView*>(anonymousView);
-    view.frameProcessorDelegate = [[FrameProcessorDelegate alloc] init];
+    if (view.frameProcessorDelegate == nil) {
+      view.frameProcessorDelegate = [[FrameProcessorDelegate alloc] init];
+    }
+    
+    // TODO: I am pretty sure it is a _very_ bad idea to move the worklet to the stack and pass that pointer around.
+    // alternative:  auto functionPointer = std::make_unique<jsi::Function>(std::move(function));
+    auto functionPointer = new jsi::Function(std::move(function));
+    [view.frameProcessorDelegate setFrameProcessorFunction:(void*)functionPointer];
 
     return jsi::Value::undefined();
   };

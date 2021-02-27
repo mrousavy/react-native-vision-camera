@@ -14,4 +14,7 @@
 
 @property (strong, nonatomic) dispatch_queue_t dispatchQueue;
 
+// Has to be void* because I can't use the C++ type jsi::Function in Objective-C/Swift/C.
+- (void) setFrameProcessorFunction:(void*)function;
+
 @end
