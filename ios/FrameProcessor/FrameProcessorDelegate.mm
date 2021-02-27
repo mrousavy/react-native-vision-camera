@@ -12,7 +12,7 @@
 #import "Logger.h"
 
 #import "MakeJSIRuntime.h"
-#import "../../cpp/RuntimeDecorator.h"
+#import "RuntimeDecorator.h"
 #import "YeetJSIUtils.h"
 
 using namespace facebook;
