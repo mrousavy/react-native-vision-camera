@@ -16,14 +16,6 @@
 #import "YeetJSIUtils.h"
 #import "FrameProcessorDelegate.h"
 
-#if __has_include(<hermes/hermes.h>)
-#import <hermes/hermes.h>
-#else
-#import <jsi/JSCRuntime.h>
-#endif
-
-#import "../../cpp/RuntimeDecorator.h"
-
 #if __has_include("react_native_vision_camera-Swift.h")
 #import "react_native_vision_camera-Swift.h"
 #elif __has_include("VisionCamera-Swift.h")
@@ -36,23 +28,12 @@ using namespace facebook;
 
 @implementation FrameProcessorBindings
 
-// TODO: Lazily initialize this, and only on a per-view basis
-static std::unique_ptr<jsi::Runtime> frameProcessorRuntime;
-
 + (void) installFrameProcessorBindings:(RCTBridge*)bridge {
   RCTCxxBridge *cxxBridge = (RCTCxxBridge *)bridge;
   if (!cxxBridge.runtime) {
     return;
   }
   jsi::Runtime& jsiRuntime = *(jsi::Runtime*)cxxBridge.runtime;
-
-#if __has_include(<hermes/hermes.h>)
-  frameProcessorRuntime = facebook::hermes::makeHermesRuntime();
-#else
-  frameProcessorRuntime = facebook::jsc::makeJSCRuntime();
-#endif
-  // TODO: Decorate frameProcessorRuntime with vision::RuntimeDecorator::decorateCustomThread(...) from Karol's PR
-  vision::RuntimeDecorator::decorateRuntime(*frameProcessorRuntime);
 
   // setFrameProcessor(viewTag: number, frameProcessor: (frame: Frame) => void)
   auto setFrameProcessor = [&bridge](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
@@ -98,7 +79,7 @@ static std::unique_ptr<jsi::Runtime> frameProcessorRuntime;
 }
 
 + (void) uninstallFrameProcessorBindings {
-  frameProcessorRuntime.reset();
+  // TODO: Any cleanup?
 }
 
 @end
