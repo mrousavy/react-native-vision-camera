@@ -393,21 +393,30 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   /**
    * @internal
    */
-  public render(): React.ReactNode {
-    if (this.state.cameraId == null) throw new Error('CameraId was null! Did you pass a valid `device`?');
-
-    // We remove the big `device` object from the props because we only need to pass `cameraId` to native.
-    const { device: _, frameProcessor, ...props } = this.props;
-
-    if (frameProcessor !== this.lastFrameProcessor) {
-      if (frameProcessor != null) {
+  componentDidUpdate(): void {
+    if (this.props.frameProcessor !== this.lastFrameProcessor) {
+      // frameProcessor argument changed. Update native to reflect the change.
+      if (this.props.frameProcessor != null) {
+        // 1. Spawn threaded JSI Runtime (if not already done)
+        // 2. Add video data output to Camera stream (if not already done)
+        // 3. Workletize the frameProcessor and prepare it for being called with frames
         // @ts-expect-error JSI functions aren't typed
-        global.setFrameProcessor(this.handle, frameProcessor);
+        global.setFrameProcessor(this.handle, this.props.frameProcessor);
       } else {
+        // 1. Destroy the threaded runtime
+        // 2. remove the frame processor
+        // 3. Remove the video data output
         // @ts-expect-error JSI functions aren't typed
         global.unsetFrameProcessor(this.handle);
       }
+      this.lastFrameProcessor = this.props.frameProcessor;
     }
+  }
+
+  public render(): React.ReactNode {
+    if (this.state.cameraId == null) throw new Error('CameraID is null! Did you pass a valid `device`?');
+    // We remove the big `device` object from the props because we only need to pass `cameraId` to native.
+    const { device: _, frameProcessor: __, ...props } = this.props;
 
     return (
       <NativeCameraView
