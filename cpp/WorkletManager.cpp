@@ -12,11 +12,10 @@
 #include <thread>
 #include <future>
 #include <memory>
-#include "JSIStoreValueUser.h"
 
 using namespace facebook;
 
-namespace reanimated
+namespace vision
 {
 
 void extractMutables(jsi::Runtime &rt,
@@ -301,4 +300,4 @@ NativeReanimatedModule::~NativeReanimatedModule()
   StoreUser::clearStore();
 }
 
-} // namespace reanimated
+} // namespace vision

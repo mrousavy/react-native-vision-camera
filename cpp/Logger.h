@@ -1,9 +1,8 @@
 #pragma once
 
 #include "LoggerInterface.h"
-#include <memory>
 
-namespace reanimated
+namespace vision
 {
 
 class Logger {

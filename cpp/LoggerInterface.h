@@ -1,6 +1,6 @@
 #pragma once
 
-namespace reanimated
+namespace vision
 {
 
 class LoggerInterface {

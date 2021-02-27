@@ -2,7 +2,7 @@
 
 #include "LoggerInterface.h"
 
-namespace reanimated
+namespace vision
 {
 
 class AndroidLogger : public LoggerInterface {

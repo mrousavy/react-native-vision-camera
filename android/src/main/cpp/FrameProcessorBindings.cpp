@@ -34,7 +34,7 @@ void install(jsi::Runtime& jsiRuntime) {
                                                                        // auto view = static_cast<CameraView*>(anonymousView);
                                                                        // view.frameProcessor = convertJSIFunctionToCallback(runtime, worklet);
 
-                                                                       // TODO: Spawn thread with reanimated::NativeReanimatedModule::spawnThread(...) from Karol's PR
+                                                                       // TODO: Spawn thread with vision::NativeReanimatedModule::spawnThread(...) from Karol's PR
 
                                                                        return jsi::Value::undefined();
                                                                    });

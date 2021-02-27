@@ -5,7 +5,7 @@
 #include <jsi/jsi.h>
 #include <memory>
 
-namespace reanimated
+namespace vision
 {
 
 using namespace facebook;
@@ -17,7 +17,7 @@ class WorkletsCache {
   std::shared_ptr<jsi::Function> obtainFunction(jsi::Runtime &rt, const std::string &code);
 public:
   jsi::Function functionFromString(jsi::Runtime &rt, const std::string &code);
-  std::shared_ptr<jsi::Function> getFunction(jsi::Runtime & rt, std::shared_ptr<reanimated::FrozenObject> frozenObj, const int customThreadId = -1);
+  std::shared_ptr<jsi::Function> getFunction(jsi::Runtime & rt, std::shared_ptr<vision::FrozenObject> frozenObj, const int customThreadId = -1);
 };
 
-} // namespace reanimated
+} // namespace vision

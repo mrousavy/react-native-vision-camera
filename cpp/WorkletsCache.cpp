@@ -4,7 +4,7 @@
 
 using namespace facebook;
 
-namespace reanimated
+namespace vision
 {
 
 jsi::Function WorkletsCache::functionFromString(jsi::Runtime &rt, const std::string &code) {

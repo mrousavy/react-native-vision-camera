@@ -4,7 +4,7 @@
 
 #include "Logger.h"
 
-namespace reanimated
+namespace vision
 {
 
 class SpeedChecker {

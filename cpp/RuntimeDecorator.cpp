@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <memory>
 
-namespace reanimated {
+namespace vision {
 
 void RuntimeDecorator::decorateRuntime(jsi::Runtime &rt) {
   rt.global().setProperty(rt, "_WORKLET", jsi::Value(true));

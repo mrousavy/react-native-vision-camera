@@ -5,7 +5,7 @@
 
 using namespace facebook;
 
-namespace reanimated {
+namespace vision {
 
 class RuntimeDecorator {
 public:

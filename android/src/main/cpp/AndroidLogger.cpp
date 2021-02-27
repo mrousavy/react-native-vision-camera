@@ -5,7 +5,7 @@
 
 #define APP_NAME "NATIVE_VISION_CAMERA"
 
-namespace reanimated
+namespace vision
 {
 
 std::unique_ptr<LoggerInterface> Logger::instance = std::make_unique<AndroidLogger>();
