@@ -6,11 +6,18 @@ include_directories(
         ../../react-native/ReactCommon/jsi
 )
 
+file(GLOB android_cpp_src
+        "src/main/cpp/*.h"
+        "src/main/cpp/*.cpp"
+        "../cpp/*.h"
+        "../cpp/*.cpp"
+)
+
 add_library(cpp  # <-- Library name
         SHARED
         # Provides a relative path to your source file(s).
         ../../react-native/ReactCommon/jsi/jsi/jsi.cpp
-        FrameProcessorBindings.cpp
+        ${android_cpp_src}
 )
 
 #set_target_properties(
