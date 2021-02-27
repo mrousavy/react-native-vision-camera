@@ -220,12 +220,12 @@
 		B8892BB225EA6F1D00D503D2 /* cpp */ = {
 			isa = PBXGroup;
 			children = (
+				B8892BB825EA6F1D00D503D2 /* Logger.h */,
+				B8892BB625EA6F1D00D503D2 /* LoggerInterface.h */,
 				B8892BB325EA6F1D00D503D2 /* SpeedChecker.h */,
 				B8892BB425EA6F1D00D503D2 /* RuntimeDecorator.h */,
-				B8892BB525EA6F1D00D503D2 /* NativeReanimatedModule.h */,
-				B8892BB625EA6F1D00D503D2 /* LoggerInterface.h */,
 				B8892BB725EA6F1D00D503D2 /* RuntimeDecorator.cpp */,
-				B8892BB825EA6F1D00D503D2 /* Logger.h */,
+				B8892BB525EA6F1D00D503D2 /* NativeReanimatedModule.h */,
 				B8892BB925EA6F1D00D503D2 /* NativeReanimatedModule.cpp */,
 			);
 			name = cpp;
