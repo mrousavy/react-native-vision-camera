@@ -39,27 +39,30 @@ using namespace facebook;
   
 
   // setFrameProcessor(viewTag: number, frameProcessor: (frame: Frame) => void)
-  auto setFrameProcessor = [&bridge](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+  auto setFrameProcessor = [](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+    vision::Logger::log("FrameProcessorBindings: Setting new frame processor...");
     if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: First argument ('viewTag') must be a number!");
     if (!arguments[1].isObject()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
 
     auto viewTag = arguments[0].asNumber();
     auto function = arguments[1].asObject(runtime).asFunction(runtime);
+    
+    // TODO: I am pretty sure it is a _very_ bad idea to move the worklet to the heap and pass that pointer around.
     auto functionPointer = new jsi::Function(std::move(function));
     // alternative:  auto functionPointer = std::make_unique<jsi::Function>(std::move(function));
     
-    vision::Logger::log("FrameProcessorBindings: Setting new frame processor...");
-    
     RCTExecuteOnMainQueue(^{
-      
-      auto anonymousView = [bridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
+      auto currentBridge = [RCTBridge currentBridge];
+      auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
       auto view = static_cast<CameraView*>(anonymousView);
+      
       if (view.frameProcessorDelegate == nil) {
+        vision::Logger::log("FrameProcessorBindings: Initializing FrameProcessorDelegate...");
         view.frameProcessorDelegate = [[FrameProcessorDelegate alloc] init];
       }
       
-      // TODO: I am pretty sure it is a _very_ bad idea to move the worklet to the heap and pass that pointer around.
       [view.frameProcessorDelegate setFrameProcessorFunction:(void*)functionPointer];
+      vision::Logger::log("FrameProcessorBindings: Frame processor set!");
     });
 
     return jsi::Value::undefined();
@@ -70,15 +73,17 @@ using namespace facebook;
                                                                                                          setFrameProcessor));
 
   // unsetFrameProcessor(viewTag: number)
-  auto unsetFrameProcessor = [&bridge](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+  auto unsetFrameProcessor = [](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+    vision::Logger::log("FrameProcessorBindings: Removing frame processor...");
     if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::unsetFrameProcessor: First argument ('viewTag') must be a number!");
     auto viewTag = arguments[0].asNumber();
 
-    vision::Logger::log("FrameProcessorBindings: Removing frame processor...");
     RCTExecuteOnMainQueue(^{
-      auto anonymousView = [bridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
+      auto currentBridge = [RCTBridge currentBridge];
+      auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
       auto view = static_cast<CameraView*>(anonymousView);
       view.frameProcessorDelegate = nil;
+      vision::Logger::log("FrameProcessorBindings: Frame processor removed!");
     });
 
     return jsi::Value::undefined();
