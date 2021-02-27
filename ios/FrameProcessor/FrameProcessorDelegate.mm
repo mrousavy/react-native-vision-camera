@@ -13,6 +13,7 @@
 
 #import "MakeJSIRuntime.h"
 #import "../../cpp/RuntimeDecorator.h"
+#import "YeetJSIUtils.h"
 
 using namespace facebook;
 
@@ -40,18 +41,17 @@ using namespace facebook;
   // TODO: Make sure this unique_ptr stuff works, because it seems like a very bad idea to move the jsi::Function and keep a strong reference
   worklet = std::unique_ptr<jsi::Function>(static_cast<jsi::Function*>(function));
   // TODO: Workletize the [worklet] using the Reanimated API
+  //  1. Capture any variables/functions from "outside" the function (Copy over to this runtime & freeze)
+  //  2. Make sure the user can assign Reanimated SharedValues in the worklet, no idea if this is already supported after step 1.
 }
 
 - (void) captureOutput:(AVCaptureOutput *)output didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
   if (!runtime) {
-    // TODO: Handle case where runtime is not created yet
-    vision::Logger::log("FrameProcessorDelegate: Camera frame arrived, but JSI Runtime has not been created yet!");
+    vision::Logger::log("FrameProcessorDelegate: Camera frame arrived, but JSI Runtime has not been created yet! This might indicate a memory leak.");
     return;
   }
-  // TODO: Call [worklet] with the output buffer
-  auto args = jsi::Array::createWithElements(*runtime, { jsi::Value::undefined() });
-  worklet->call(*runtime, args, 1);
-  //worklet->call(*runtime, jsi::Value::undefined(), 1);
+  // TODO: Call [worklet] with the actual frame output buffer
+  worklet->call(*runtime, convertNSStringToJSIString(*runtime, @"Hello from VisionCamera!"), 1);
 }
 
 @end
