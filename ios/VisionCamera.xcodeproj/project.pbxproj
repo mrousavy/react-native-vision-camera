@@ -516,6 +516,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = CameraBridge.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.2;
+				USER_HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../cpp\"/**";
 			};
 			name = Debug;
 		};
@@ -535,6 +536,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = CameraBridge.h;
 				SWIFT_VERSION = 5.2;
+				USER_HEADER_SEARCH_PATHS = "\"$(SRCROOT)/../cpp\"/**";
 			};
 			name = Release;
 		};

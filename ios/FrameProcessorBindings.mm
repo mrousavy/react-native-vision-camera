@@ -23,6 +23,8 @@
 #import <jsi/JSCRuntime.h>
 #endif
 
+#import "RuntimeDecorator.h"
+
 #if __has_include("react_native_vision_camera-Swift.h")
 #import "react_native_vision_camera-Swift.h"
 #elif __has_include("VisionCamera-Swift.h")
@@ -51,6 +53,7 @@ static std::unique_ptr<jsi::Runtime> frameProcessorRuntime;
   frameProcessorRuntime = facebook::jsc::makeJSCRuntime();
 #endif
   // TODO: Decorate frameProcessorRuntime with vision::RuntimeDecorator::decorateCustomThread(...) from Karol's PR
+  vision::RuntimeDecorator::decorateRuntime(frameProcessorRuntime);
 
   // setFrameProcessor(viewTag: number, frameProcessor: (frame: Frame) => void)
   auto setFrameProcessor = [&bridge](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
