@@ -15,7 +15,7 @@ using namespace facebook;
 namespace vision
 {
   
-jsi::Value NativeReanimatedModule::spawnThread(jsi::Runtime &rt, const jsi::Value &operations) {
+jsi::Value WorkletManager::spawnThread(jsi::Runtime &rt, const jsi::Value &operations) {
   auto object = operations.asObject(rt);
 
   if (!object.isFunction(rt) || object.getProperty(rt, "__worklet").isUndefined()) {
@@ -24,102 +24,39 @@ jsi::Value NativeReanimatedModule::spawnThread(jsi::Runtime &rt, const jsi::Valu
   }
 
   const int threadId = ++this->currentThreadId;
+  
 
-  std::shared_ptr<ShareableValue> workletShareable = ShareableValue::adapt(rt, operations, this, ValueType::UndefinedType, threadId);
+  //std::shared_ptr<ShareableValue> workletShareable = ShareableValue::adapt(rt, operations, this, ValueType::UndefinedType, threadId);
+  auto func = std::make_shared<jsi::Function>(object.asFunction(rt));
 
   std::shared_ptr<RuntimeThread> runtimeThread = std::make_shared<RuntimeThread>();
   this->threads.insert(std::make_pair(threadId, runtimeThread));
 
   auto job = [=]() {
     std::unique_ptr<jsi::Runtime> customRuntime = makeJSIRuntime();
-    std::shared_ptr<Th> th = this->threads.at(threadId);
-    th->rt = std::move(customRuntime);
-    RuntimeDecorator::decorateCustomThread(*th->rt);
-    jsi::Value result = jsi::Value::undefined();
+    std::shared_ptr<RuntimeThread> th = this->threads.at(threadId);
+    th->runtime = std::move(customRuntime);
+    RuntimeDecorator::decorateRuntime(*th->runtime);
 
-    jsi::Function func = workletShareable->getValue(*th->rt, threadId).asObject(*th->rt).asFunction(*th->rt);
-    std::shared_ptr<jsi::Function> funcPtr = std::make_shared<jsi::Function>(std::move(func));
     try {
-      result = funcPtr->callWithThis(*th->rt, *funcPtr);
+      return func->callWithThis(*th->runtime, *func);
     }
     catch (std::exception &e) {
-      std::string str = e.what();
-      errorHandler->setError(str);
-      errorHandler->raise();
+      std::string what = e.what();
+      throw jsi::JSError(*customRuntime, what);
+      // TODO: Better error handling
     }
-    return result;
   };
 
   threads.at(threadId)->thread = std::make_shared<std::thread>(job);
   return jsi::Value::undefined();
 }
 
-void NativeReanimatedModule::onEvent(std::string eventName, std::string eventAsString)
+WorkletManager::~WorkletManager()
 {
-   try
-    {
-      eventHandlerRegistry->processEvent(*runtime, eventName, eventAsString);
-      mapperRegistry->execute(*runtime);
-      if (mapperRegistry->needRunOnRender())
-      {
-        maybeRequestRender();
-      }
-    }
-    catch (...)
-    {
-      if (!errorHandler->raise())
-      {
-        throw;
-      }
-    }
-}
-
-bool NativeReanimatedModule::isAnyHandlerWaitingForEvent(std::string eventName) {
-  return eventHandlerRegistry->isAnyHandlerWaitingForEvent(eventName);
-}
-
-
-void NativeReanimatedModule::maybeRequestRender()
-{
-  if (!renderRequested)
-  {
-    renderRequested = true;
-    requestRender([this](double timestampMs) {
-      this->renderRequested = false;
-      this->onRender(timestampMs);
-    }, *this->runtime);
+  for (auto thread : this->threads) {
+    thread.second.reset();
   }
-}
-
-void NativeReanimatedModule::onRender(double timestampMs)
-{
-  try
-  {
-    std::vector<FrameCallback> callbacks = frameCallbacks;
-    frameCallbacks.clear();
-    for (auto callback : callbacks)
-    {
-      callback(timestampMs);
-    }
-    mapperRegistry->execute(*runtime);
-
-    if (mapperRegistry->needRunOnRender())
-    {
-      maybeRequestRender();
-    }
-  }
-  catch (...)
-  {
-    if (!errorHandler->raise())
-    {
-      throw;
-    }
-  }
-}
-
-NativeReanimatedModule::~NativeReanimatedModule()
-{
-  StoreUser::clearStore();
 }
 
 } // namespace vision

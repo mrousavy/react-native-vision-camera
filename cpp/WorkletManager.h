@@ -19,7 +19,7 @@ namespace vision
     WorkletManager();
     virtual ~WorkletManager();
 
-    jsi::Value spawnThread(jsi::Runtime &rt, const jsi::Value &operations) override;
+    jsi::Value spawnThread(jsi::Runtime &rt, const jsi::Value &operations);
   public:
     struct RuntimeThread {
       std::unique_ptr<jsi::Runtime> runtime;

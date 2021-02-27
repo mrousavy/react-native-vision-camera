@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LoggerInterface.h"
+#import <memory>
 
 namespace vision
 {
