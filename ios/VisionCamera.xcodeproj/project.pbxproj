@@ -105,15 +105,19 @@
 		B887518225E0102000DB86D6 /* CameraView+Zoom.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CameraView+Zoom.swift"; sourceTree = "<group>"; };
 		B887518325E0102000DB86D6 /* CameraError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraError.swift; sourceTree = "<group>"; };
 		B887518425E0102000DB86D6 /* CameraView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
-		B8892BB325EA6F1D00D503D2 /* SpeedChecker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SpeedChecker.h; sourceTree = "<group>"; };
-		B8892BB425EA6F1D00D503D2 /* RuntimeDecorator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RuntimeDecorator.h; sourceTree = "<group>"; };
-		B8892BB525EA6F1D00D503D2 /* WorkletManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WorkletManager.h; sourceTree = "<group>"; };
-		B8892BB625EA6F1D00D503D2 /* LoggerInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LoggerInterface.h; sourceTree = "<group>"; };
-		B8892BB725EA6F1D00D503D2 /* RuntimeDecorator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RuntimeDecorator.cpp; sourceTree = "<group>"; };
-		B8892BB825EA6F1D00D503D2 /* Logger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Logger.h; sourceTree = "<group>"; };
-		B8892BB925EA6F1D00D503D2 /* WorkletManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WorkletManager.cpp; sourceTree = "<group>"; };
-		B8892C5E25EA718E00D503D2 /* WorkletsCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WorkletsCache.h; sourceTree = "<group>"; };
-		B8892C5F25EA718E00D503D2 /* WorkletsCache.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WorkletsCache.cpp; sourceTree = "<group>"; };
+		B8DCF09025EA7BEE00EA5C72 /* WorkletManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WorkletManager.cpp; sourceTree = "<group>"; };
+		B8DCF09125EA7BEE00EA5C72 /* SpeedChecker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SpeedChecker.h; sourceTree = "<group>"; };
+		B8DCF09225EA7BEE00EA5C72 /* WorkletsCache.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WorkletsCache.cpp; sourceTree = "<group>"; };
+		B8DCF09325EA7BEF00EA5C72 /* RuntimeDecorator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RuntimeDecorator.h; sourceTree = "<group>"; };
+		B8DCF09425EA7BEF00EA5C72 /* ShareableValue.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ShareableValue.cpp; sourceTree = "<group>"; };
+		B8DCF09525EA7BEF00EA5C72 /* FrozenObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrozenObject.h; sourceTree = "<group>"; };
+		B8DCF09625EA7BEF00EA5C72 /* SharedParent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SharedParent.h; sourceTree = "<group>"; };
+		B8DCF09725EA7BEF00EA5C72 /* WorkletManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WorkletManager.h; sourceTree = "<group>"; };
+		B8DCF09825EA7BEF00EA5C72 /* LoggerInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LoggerInterface.h; sourceTree = "<group>"; };
+		B8DCF09925EA7BEF00EA5C72 /* ShareableValue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShareableValue.h; sourceTree = "<group>"; };
+		B8DCF09A25EA7BEF00EA5C72 /* RuntimeDecorator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RuntimeDecorator.cpp; sourceTree = "<group>"; };
+		B8DCF09B25EA7BEF00EA5C72 /* Logger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Logger.h; sourceTree = "<group>"; };
+		B8DCF09C25EA7BEF00EA5C72 /* WorkletsCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WorkletsCache.h; sourceTree = "<group>"; };
 		B8DDC38225E970CE00986573 /* FrameProcessorDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameProcessorDelegate.swift; sourceTree = "<group>"; };
 		B8DDC38625E9713000986573 /* FrameProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameProcessor.swift; sourceTree = "<group>"; };
 		B8DDC42F25E97D6A00986573 /* FrameProcessorDefinitions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorDefinitions.h; sourceTree = "<group>"; };
@@ -162,7 +166,7 @@
 				B887518225E0102000DB86D6 /* CameraView+Zoom.swift */,
 				B887515F25E0102000DB86D6 /* CameraViewManager.m */,
 				B887518125E0102000DB86D6 /* CameraViewManager.swift */,
-				B8892BB225EA6F1D00D503D2 /* cpp */,
+				B8DCF08F25EA7BEE00EA5C72 /* cpp */,
 				B887516125E0102000DB86D6 /* Extensions */,
 				B887517225E0102000DB86D6 /* Parsers */,
 				B887515C25E0102000DB86D6 /* PhotoCaptureDelegate.swift */,
@@ -219,18 +223,22 @@
 			path = Parsers;
 			sourceTree = "<group>";
 		};
-		B8892BB225EA6F1D00D503D2 /* cpp */ = {
+		B8DCF08F25EA7BEE00EA5C72 /* cpp */ = {
 			isa = PBXGroup;
 			children = (
-				B8892BB825EA6F1D00D503D2 /* Logger.h */,
-				B8892BB625EA6F1D00D503D2 /* LoggerInterface.h */,
-				B8892BB325EA6F1D00D503D2 /* SpeedChecker.h */,
-				B8892BB425EA6F1D00D503D2 /* RuntimeDecorator.h */,
-				B8892BB725EA6F1D00D503D2 /* RuntimeDecorator.cpp */,
-				B8892BB525EA6F1D00D503D2 /* WorkletManager.h */,
-				B8892BB925EA6F1D00D503D2 /* WorkletManager.cpp */,
-				B8892C5F25EA718E00D503D2 /* WorkletsCache.cpp */,
-				B8892C5E25EA718E00D503D2 /* WorkletsCache.h */,
+				B8DCF09025EA7BEE00EA5C72 /* WorkletManager.cpp */,
+				B8DCF09125EA7BEE00EA5C72 /* SpeedChecker.h */,
+				B8DCF09225EA7BEE00EA5C72 /* WorkletsCache.cpp */,
+				B8DCF09325EA7BEF00EA5C72 /* RuntimeDecorator.h */,
+				B8DCF09425EA7BEF00EA5C72 /* ShareableValue.cpp */,
+				B8DCF09525EA7BEF00EA5C72 /* FrozenObject.h */,
+				B8DCF09625EA7BEF00EA5C72 /* SharedParent.h */,
+				B8DCF09725EA7BEF00EA5C72 /* WorkletManager.h */,
+				B8DCF09825EA7BEF00EA5C72 /* LoggerInterface.h */,
+				B8DCF09925EA7BEF00EA5C72 /* ShareableValue.h */,
+				B8DCF09A25EA7BEF00EA5C72 /* RuntimeDecorator.cpp */,
+				B8DCF09B25EA7BEF00EA5C72 /* Logger.h */,
+				B8DCF09C25EA7BEF00EA5C72 /* WorkletsCache.h */,
 			);
 			name = cpp;
 			path = ../cpp;
