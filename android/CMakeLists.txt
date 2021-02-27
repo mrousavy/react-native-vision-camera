@@ -20,6 +20,8 @@ add_library(cpp  # <-- Library name
         ${android_cpp_src}
 )
 
+target_include_directories(cpp PRIVATE ../cpp)
+
 #set_target_properties(
 #        cpp PROPERTIES
 #        CXX_STANDARD 17
