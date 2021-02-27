@@ -43,6 +43,8 @@ using namespace facebook;
   // TODO: Workletize the [worklet] using the Reanimated API
   //  1. Capture any variables/functions from "outside" the function (Copy over to this runtime & freeze)
   //  2. Make sure the user can assign Reanimated SharedValues in the worklet, no idea if this is already supported after step 1.
+  
+  // auto workletShareable = reanimated::ShareableValue::adapt(*runtime, worklet, reanimated::ValueType::UndefinedType);
 }
 
 - (void) captureOutput:(AVCaptureOutput *)output didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
