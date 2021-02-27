@@ -14,6 +14,7 @@
 
 #import <jsi/jsi.h>
 #import "YeetJSIUtils.h"
+#import "FrameProcessorDelegate.h"
 
 #if __has_include(<hermes/hermes.h>)
 #import <hermes/hermes.h>
@@ -65,9 +66,7 @@ static std::unique_ptr<jsi::Runtime> frameProcessorRuntime;
 
     auto anonymousView = [bridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
     auto view = static_cast<CameraView*>(anonymousView);
-    view.frameProcessor = convertJSIFunctionToCallback(runtime, worklet);
-
-    // TODO: Spawn thread with vision::NativeReanimatedModule::spawnThread(...) from Karol's PR
+    view.frameProcessorDelegate = [[FrameProcessorDelegate alloc] init];
 
     return jsi::Value::undefined();
   };
@@ -80,11 +79,11 @@ static std::unique_ptr<jsi::Runtime> frameProcessorRuntime;
   auto unsetFrameProcessor = [&bridge](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
     if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::unsetFrameProcessor: First argument ('viewTag') must be a number!");
     auto viewTag = arguments[0].asNumber();
-    
+
     auto anonymousView = [bridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
     auto view = static_cast<CameraView*>(anonymousView);
-    view.frameProcessor = nil;
-    
+    view.frameProcessorDelegate = nil;
+
     return jsi::Value::undefined();
   };
   jsiRuntime.global().setProperty(jsiRuntime, "unsetFrameProcessor", jsi::Function::createFromHostFunction(jsiRuntime,

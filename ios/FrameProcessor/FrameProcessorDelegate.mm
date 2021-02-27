@@ -1,5 +1,5 @@
 //
-//  FrameProcessorHolder.m
+//  FrameProcessorDelegate.mm
 //  VisionCamera
 //
 //  Created by Marc Rousavy on 27.02.21.
@@ -7,14 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "FrameProcessorHolder.h"
+#import "FrameProcessorDelegate.h"
 
-@implementation FrameProcessorHolder
+@implementation FrameProcessorDelegate
 
 @synthesize dispatchQueue;
 
-- (instancetype)init
-{
+- (instancetype)init {
   self = [super init];
   if (self) {
     // TODO: relativePriority 0 or -1?
@@ -22,6 +21,10 @@
     dispatchQueue = dispatch_queue_create("com.mrousavy.camera-frame-processor", qos);
   }
   return self;
+}
+
+- (void) captureOutput:(AVCaptureOutput *)output didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
+  // TODO: Work with sample output buffer
 }
 
 @end

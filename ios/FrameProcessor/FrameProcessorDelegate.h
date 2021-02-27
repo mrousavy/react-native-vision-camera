@@ -1,5 +1,5 @@
 //
-//  FrameProcessorHolder.h
+//  FrameProcessorDelegate.h
 //  VisionCamera
 //
 //  Created by Marc Rousavy on 27.02.21.
@@ -8,7 +8,9 @@
 
 #pragma once
 
-@interface FrameProcessorHolder : NSObject
+#import <AVFoundation/AVFoundation.h>
+
+@interface FrameProcessorDelegate : NSObject<AVCaptureVideoDataOutputSampleBufferDelegate>
 
 @property (strong, nonatomic) dispatch_queue_t dispatchQueue;
 

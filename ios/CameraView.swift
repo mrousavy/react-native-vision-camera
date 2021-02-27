@@ -88,15 +88,8 @@ public final class CameraView: UIView {
   internal var pinchScaleOffset: CGFloat = 1.0
 
   // Frame Processing
-  // swiftlint:disable weak_delegate
-  internal var frameProcessorDelegate: FrameProcessorDelegate?
-  @objc public var frameProcessor: FrameProcessor? {
+  @objc public var frameProcessorDelegate: FrameProcessorDelegate? {
     didSet {
-      if let frameProcessor = self.frameProcessor {
-        self.frameProcessorDelegate = FrameProcessorDelegate(withFrameProcessor: frameProcessor)
-      } else {
-        self.frameProcessorDelegate = nil
-      }
       self.didSetProps(["frameProcessor"])
     }
   }
