@@ -17,8 +17,6 @@
 #import <jsi/jsi.h>
 #import "JSI Utils/YeetJSIUtils.h"
 
-#import <RNReanimated/RuntimeDecorator.h>
-
 #if __has_include(<hermes/hermes.h>)
 #import <hermes/hermes.h>
 #else
@@ -52,13 +50,10 @@ static std::unique_ptr<jsi::Runtime> frameProcessorRuntime;
 #else
   frameProcessorRuntime = facebook::jsc::makeJSCRuntime();
 #endif
-  // TODO: Decorate frameProcessorRuntime with reanimated::RuntimeDecorator::decorateCustomThread(...) from Karol's PR
+  // TODO: Decorate frameProcessorRuntime with vision::RuntimeDecorator::decorateCustomThread(...) from Karol's PR
 
   // setFrameProcessor(viewTag: number, frameProcessor: (frame: Frame) => void)
-  auto setFrameProcessor = jsi::Function::createFromHostFunction(jsiRuntime,
-                                                                 jsi::PropNameID::forAscii(jsiRuntime, "setFrameProcessor"),
-                                                                 2,  // viewTag, frameProcessor
-                                                                 [&bridge](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+  auto setFrameProcessor = [&bridge](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
     if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: First argument ('viewTag') must be a number!");
     if (!arguments[1].isObject()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
 
@@ -71,27 +66,30 @@ static std::unique_ptr<jsi::Runtime> frameProcessorRuntime;
     auto view = static_cast<CameraView*>(anonymousView);
     view.frameProcessor = convertJSIFunctionToCallback(runtime, worklet);
 
-    // TODO: Spawn thread with reanimated::NativeReanimatedModule::spawnThread(...) from Karol's PR
+    // TODO: Spawn thread with vision::NativeReanimatedModule::spawnThread(...) from Karol's PR
 
     return jsi::Value::undefined();
-  });
-  jsiRuntime.global().setProperty(jsiRuntime, "setFrameProcessor", std::move(setFrameProcessor));
+  };
+  jsiRuntime.global().setProperty(jsiRuntime, "setFrameProcessor", jsi::Function::createFromHostFunction(jsiRuntime,
+                                                                                                         jsi::PropNameID::forAscii(jsiRuntime, "setFrameProcessor"),
+                                                                                                         2,  // viewTag, frameProcessor
+                                                                                                         setFrameProcessor));
 
   // unsetFrameProcessor(viewTag: number)
-  auto unsetFrameProcessor = jsi::Function::createFromHostFunction(jsiRuntime,
-                                                                   jsi::PropNameID::forAscii(jsiRuntime, "unsetFrameProcessor"),
-                                                                   1,  // viewTag
-                                                                   [&bridge](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+  auto unsetFrameProcessor = [&bridge](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
     if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::unsetFrameProcessor: First argument ('viewTag') must be a number!");
     auto viewTag = arguments[0].asNumber();
-
+    
     auto anonymousView = [bridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
     auto view = static_cast<CameraView*>(anonymousView);
     view.frameProcessor = nil;
-
+    
     return jsi::Value::undefined();
-  });
-  jsiRuntime.global().setProperty(jsiRuntime, "unsetFrameProcessor", std::move(unsetFrameProcessor));
+  };
+  jsiRuntime.global().setProperty(jsiRuntime, "unsetFrameProcessor", jsi::Function::createFromHostFunction(jsiRuntime,
+                                                                                                           jsi::PropNameID::forAscii(jsiRuntime, "unsetFrameProcessor"),
+                                                                                                           1,  // viewTag
+                                                                                                           unsetFrameProcessor));
 }
 
 + (void) uninstallFrameProcessorBindings {
