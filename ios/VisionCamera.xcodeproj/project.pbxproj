@@ -46,6 +46,7 @@
 		B88751A825E0102000DB86D6 /* CameraError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887518325E0102000DB86D6 /* CameraError.swift */; };
 		B88751A925E0102000DB86D6 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887518425E0102000DB86D6 /* CameraView.swift */; };
 		B8DCF1B525EA852900EA5C72 /* IOSLogger.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8DCF1B325EA852900EA5C72 /* IOSLogger.mm */; };
+		B8DCF31225EA94F000EA5C72 /* FrameProcessorHolder.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8DCF31125EA94F000EA5C72 /* FrameProcessorHolder.mm */; };
 		B8DDC38325E970CE00986573 /* FrameProcessorDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8DDC38225E970CE00986573 /* FrameProcessorDelegate.swift */; };
 		B8DDC38725E9713000986573 /* FrameProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8DDC38625E9713000986573 /* FrameProcessor.swift */; };
 		B8E0A94425E82DFD008AE93F /* FrameProcessorBindings.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8E0A94325E82DFD008AE93F /* FrameProcessorBindings.mm */; };
@@ -116,6 +117,8 @@
 		B8DCF14425EA817D00EA5C72 /* MakeJSIRuntime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MakeJSIRuntime.h; sourceTree = "<group>"; };
 		B8DCF1B325EA852900EA5C72 /* IOSLogger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IOSLogger.mm; sourceTree = "<group>"; };
 		B8DCF1B425EA852900EA5C72 /* IOSLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IOSLogger.h; sourceTree = "<group>"; };
+		B8DCF31125EA94F000EA5C72 /* FrameProcessorHolder.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessorHolder.mm; sourceTree = "<group>"; };
+		B8DCF31425EA94F800EA5C72 /* FrameProcessorHolder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorHolder.h; sourceTree = "<group>"; };
 		B8DDC38225E970CE00986573 /* FrameProcessorDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameProcessorDelegate.swift; sourceTree = "<group>"; };
 		B8DDC38625E9713000986573 /* FrameProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameProcessor.swift; sourceTree = "<group>"; };
 		B8E0A94325E82DFD008AE93F /* FrameProcessorBindings.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessorBindings.mm; sourceTree = "<group>"; };
@@ -249,6 +252,8 @@
 				B8E0A94725E82E40008AE93F /* FrameProcessorBindings.h */,
 				B8E0A94325E82DFD008AE93F /* FrameProcessorBindings.mm */,
 				B8DDC38225E970CE00986573 /* FrameProcessorDelegate.swift */,
+				B8DCF31425EA94F800EA5C72 /* FrameProcessorHolder.h */,
+				B8DCF31125EA94F000EA5C72 /* FrameProcessorHolder.mm */,
 			);
 			path = FrameProcessor;
 			sourceTree = "<group>";
@@ -371,6 +376,7 @@
 				B887519825E0102000DB86D6 /* EnumParserError.swift in Sources */,
 				B887518C25E0102000DB86D6 /* AVCaptureDevice+isMultiCam.swift in Sources */,
 				B887518D25E0102000DB86D6 /* AVCaptureDevice+physicalDevices.swift in Sources */,
+				B8DCF31225EA94F000EA5C72 /* FrameProcessorHolder.mm in Sources */,
 				B887519625E0102000DB86D6 /* Promise.swift in Sources */,
 				B887518725E0102000DB86D6 /* CameraViewManager.m in Sources */,
 				B88751A925E0102000DB86D6 /* CameraView.swift in Sources */,
