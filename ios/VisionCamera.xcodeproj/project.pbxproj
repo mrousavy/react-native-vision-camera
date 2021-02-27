@@ -145,7 +145,7 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
-				B8DCF2D725EA940700EA5C72 /* FrameProcessor */,
+				B8DCF2D725EA940700EA5C72 /* Frame Processor */,
 				B8DCF1B225EA84D900EA5C72 /* Vision */,
 				B8E0A9B925E833C8008AE93F /* JSI Utils */,
 				B887515E25E0102000DB86D6 /* CameraBridge.h */,
@@ -241,7 +241,7 @@
 			path = Vision;
 			sourceTree = "<group>";
 		};
-		B8DCF2D725EA940700EA5C72 /* FrameProcessor */ = {
+		B8DCF2D725EA940700EA5C72 /* Frame Processor */ = {
 			isa = PBXGroup;
 			children = (
 				B8E0A94725E82E40008AE93F /* FrameProcessorBindings.h */,
@@ -249,7 +249,7 @@
 				B8DCF31425EA94F800EA5C72 /* FrameProcessorDelegate.h */,
 				B8DCF31125EA94F000EA5C72 /* FrameProcessorDelegate.mm */,
 			);
-			path = FrameProcessor;
+			path = "Frame Processor";
 			sourceTree = "<group>";
 		};
 		B8E0A9B925E833C8008AE93F /* JSI Utils */ = {
