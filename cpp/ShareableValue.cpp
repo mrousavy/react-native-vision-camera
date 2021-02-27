@@ -7,7 +7,7 @@
 #include "RemoteObject.h"
 #include "FrozenObject.h"
 
-namespace reanimated {
+namespace vision {
 
 const char *HIDDEN_HOST_OBJECT_PROP = "__reanimatedHostObjectRef";
 const char *ALREADY_CONVERTED= "__alreadyConverted";
@@ -18,7 +18,7 @@ Solution is:
 a) If you want to synchronously execute this method, mark it as a Worklet
 b) If you want to execute this method on the JS thread, wrap it using runOnJS
 )";
-  
+
 void addHiddenProperty(jsi::Runtime &rt,
                        jsi::Value &&value,
                        jsi::Object &obj,
@@ -71,7 +71,7 @@ void ShareableValue::adapt(jsi::Runtime &rt, const jsi::Value &value, ValueType 
       }
     }
   }
-  
+
   if (objectType == ValueType::MutableValueType) {
     type = ValueType::MutableValueType;
     mutableValue = std::make_shared<MutableValue>(rt, value, module, module->scheduler);
@@ -151,7 +151,7 @@ jsi::Value ShareableValue::getValue(jsi::Runtime &rt, const int customThreadId) 
       auto ref = getWeakRef(rt);
       remoteValue = ref;
     }
-    
+
     if (remoteValue.lock()->isUndefined()) {
       (*remoteValue.lock()) = jsi::Value(rt, toJSValue(rt));
     }
@@ -217,10 +217,10 @@ jsi::Value ShareableValue::toJSValue(jsi::Runtime &rt) {
       } else {
         // function is accessed from a different runtime, we wrap function in host func that'd enqueue
         // call on an appropriate thread
-        
+
         auto module = this->module;
         auto hostFunction = this->hostFunction;
-        
+
         auto warnFunction = [module, hostFunction](
             jsi::Runtime &rt,
             const jsi::Value &thisValue,
@@ -231,7 +231,7 @@ jsi::Value ShareableValue::toJSValue(jsi::Runtime &rt) {
           module->errorHandler->raise();
           return jsi::Value::undefined();
         };
-        
+
         auto hostRuntime = this->hostRuntime;
         auto clb = [module, hostFunction, hostRuntime](
             jsi::Runtime &rt,
@@ -241,28 +241,28 @@ jsi::Value ShareableValue::toJSValue(jsi::Runtime &rt) {
             ) -> jsi::Value {
           // TODO: we should find thread based on runtime such that we could also call UI methods
           // from RN and not only RN methods from UI
-          
+
           std::vector<std::shared_ptr<ShareableValue>> params;
           for (int i = 0; i < count; ++i) {
             params.push_back(ShareableValue::adapt(rt, args[i], module));
           }
-          
+
           std::function<void()> job = [hostFunction, hostRuntime, params] {
             jsi::Value * args = new jsi::Value[params.size()];
             for (int i = 0; i < params.size(); ++i) {
               args[i] = params[i]->getValue(*hostRuntime);
             }
-             
+
             jsi::Value returnedValue;
-             
+
             returnedValue = hostFunction->get()->call(*hostRuntime,
                                               static_cast<const jsi::Value*>(args),
                                               (size_t)params.size());
-             
+
             delete [] args;
              // ToDo use returned value to return promise
           };
-          
+
           module->scheduler->scheduleOnJS(job);
           return jsi::Value::undefined();
         };
@@ -334,28 +334,28 @@ jsi::Value ShareableValue::toJSValue(jsi::Runtime &rt) {
           for (int i = 0; i < count; ++i) {
             params.push_back(ShareableValue::adapt(rt, args[i], retain_this->module));
           }
-          
+
           retain_this->module->scheduler->scheduleOnUI([retain_this, params] {
             NativeReanimatedModule *module = retain_this->module;
             jsi::Runtime &rt = *module->runtime.get();
             auto jsThis = createFrozenWrapper(rt, retain_this->frozenObject, retain_this->customThreadId).getObject(rt);
             auto code = jsThis.getProperty(rt, "asString").asString(rt).utf8(rt);
             std::shared_ptr<jsi::Function> funPtr(retain_this->module->workletsCache->getFunction(rt, retain_this->frozenObject));
-            
+
             jsi::Value * args = new jsi::Value[params.size()];
             for (int i = 0; i < params.size(); ++i) {
               args[i] = params[i]->getValue(rt);
             }
-            
+
             jsi::Value returnedValue;
-            
+
             jsi::Value oldJSThis = rt.global().getProperty(rt, "jsThis");
             rt.global().setProperty(rt, "jsThis", jsThis); //set jsThis
             try {
               returnedValue = funPtr->call(rt,
                                              static_cast<const jsi::Value*>(args),
                                              (size_t)params.size());
-            
+
             } catch(std::exception &e) {
               std::string str = e.what();
               module->errorHandler->setError(str);
@@ -371,7 +371,7 @@ jsi::Value ShareableValue::toJSValue(jsi::Runtime &rt) {
               module->errorHandler->raise();
             }
             rt.global().setProperty(rt, "jsThis", oldJSThis); //clean jsThis
-            
+
             delete [] args;
             // ToDo use returned value to return promise
           });

@@ -7,11 +7,10 @@
 #include <mutex>
 #include <unordered_map>
 #include <jsi/jsi.h>
-#include <JSIStoreValueUser.h>
 
 using namespace facebook;
 
-namespace reanimated {
+namespace vision {
 
 struct HostFunctionHandler {
   std::shared_ptr<jsi::Function> pureFunction;
@@ -20,7 +19,7 @@ struct HostFunctionHandler {
     pureFunction = f;
     functionName = f->getProperty(rt, "name").asString(rt).utf8(rt);
   }
-  
+
   std::shared_ptr<jsi::Function> get() {
     return pureFunction;
   }
