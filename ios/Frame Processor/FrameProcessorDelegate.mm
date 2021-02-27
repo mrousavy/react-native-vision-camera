@@ -38,8 +38,8 @@ using namespace facebook;
     // TODO: relativePriority 0 or -1?
     dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, -1);
     dispatchQueue = dispatch_queue_create("com.mrousavy.camera-frame-processor", qos);
-    // TODO: Do I need to create the JSI runtime in the `dispatchQueue`'s Thread?
-
+    // TODO: Find NativeReanimated module here so I can use `makeShared`
+    // auto reanimatedModule = std::shared_ptr<TurboModule>(TurboModule("NativeReanimated", [[RCTBridge currentBridge] jsCallInvoker]));
   }
   return self;
 }
@@ -53,14 +53,15 @@ using namespace facebook;
   // TODO: Make sure this unique_ptr stuff works, because it seems like a very bad idea to move the jsi::Function and keep a strong reference
   worklet = std::unique_ptr<jsi::Function>(static_cast<jsi::Function*>(function));
   
-  // TODO: Use ShareableValue::adapt without a NativeReanimatedModule instance?
-  // auto workletShareable = reanimated::ShareableValue::adapt(*runtime, *worklet, reanimated::ValueType::UndefinedType);
-  
   // TODO: Workletize the [worklet] using the Reanimated API
   //  1. Capture any variables/functions from "outside" the function (Copy over to this runtime & freeze)
   //  2. Make sure the user can assign Reanimated SharedValues in the worklet, no idea if this is already supported after step 1.
+  //  3. Any other preparations so the [worklet] can be called in this [dispatchQueue]'s thread.
   
-  // auto workletShareable = reanimated::ShareableValue::adapt(*runtime, worklet, reanimated::ValueType::UndefinedType);
+  // TODO: Use NativeReanimatedModule::makeShareable/ShareableValue::adapt without a NativeReanimatedModule instance?
+  // A:   auto workletShareable = reanimated::ShareableValue::adapt(*runtime, *worklet, reanimated::ValueType::UndefinedType);
+  // B:   auto& workletSharedValue = NativeReanimatedModule::makeShareable(runtime, *worklet)->getValue();
+  //      auto worklet = workletSharedValue.asObject(runtime).asFunction(runtime);
 }
 
 - (void) captureOutput:(AVCaptureOutput *)output didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
