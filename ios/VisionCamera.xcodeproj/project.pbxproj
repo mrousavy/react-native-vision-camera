@@ -107,11 +107,11 @@
 		B887518425E0102000DB86D6 /* CameraView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		B8892BB325EA6F1D00D503D2 /* SpeedChecker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SpeedChecker.h; sourceTree = "<group>"; };
 		B8892BB425EA6F1D00D503D2 /* RuntimeDecorator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RuntimeDecorator.h; sourceTree = "<group>"; };
-		B8892BB525EA6F1D00D503D2 /* NativeReanimatedModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NativeReanimatedModule.h; sourceTree = "<group>"; };
+		B8892BB525EA6F1D00D503D2 /* WorkletManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WorkletManager.h; sourceTree = "<group>"; };
 		B8892BB625EA6F1D00D503D2 /* LoggerInterface.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LoggerInterface.h; sourceTree = "<group>"; };
 		B8892BB725EA6F1D00D503D2 /* RuntimeDecorator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RuntimeDecorator.cpp; sourceTree = "<group>"; };
 		B8892BB825EA6F1D00D503D2 /* Logger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Logger.h; sourceTree = "<group>"; };
-		B8892BB925EA6F1D00D503D2 /* NativeReanimatedModule.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = NativeReanimatedModule.cpp; sourceTree = "<group>"; };
+		B8892BB925EA6F1D00D503D2 /* WorkletManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WorkletManager.cpp; sourceTree = "<group>"; };
 		B8DDC38225E970CE00986573 /* FrameProcessorDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameProcessorDelegate.swift; sourceTree = "<group>"; };
 		B8DDC38625E9713000986573 /* FrameProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameProcessor.swift; sourceTree = "<group>"; };
 		B8DDC42F25E97D6A00986573 /* FrameProcessorDefinitions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorDefinitions.h; sourceTree = "<group>"; };
@@ -225,8 +225,8 @@
 				B8892BB325EA6F1D00D503D2 /* SpeedChecker.h */,
 				B8892BB425EA6F1D00D503D2 /* RuntimeDecorator.h */,
 				B8892BB725EA6F1D00D503D2 /* RuntimeDecorator.cpp */,
-				B8892BB525EA6F1D00D503D2 /* NativeReanimatedModule.h */,
-				B8892BB925EA6F1D00D503D2 /* NativeReanimatedModule.cpp */,
+				B8892BB525EA6F1D00D503D2 /* WorkletManager.h */,
+				B8892BB925EA6F1D00D503D2 /* WorkletManager.cpp */,
 			);
 			name = cpp;
 			path = ../cpp;
