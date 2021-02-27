@@ -193,11 +193,10 @@ jsi::Value NativeReanimatedModule::getViewProp(jsi::Runtime &rt, const jsi::Valu
 }
 
 jsi::Value NativeReanimatedModule::spawnThread(jsi::Runtime &rt, const jsi::Value &operations) {
-  jsi::Object object = operations.asObject(rt);
+  auto object = operations.asObject(rt);
 
   if (!object.isFunction(rt) || object.getProperty(rt, "__worklet").isUndefined()) {
-    errorHandler->setError("Function passed to spawnThread doesn't seem to be a worklet");
-    errorHandler->raise();
+    // TODO: Throw error "Function passed to spawnThread doesn't seem to be a worklet"
     return jsi::Value::undefined();
   }
 
