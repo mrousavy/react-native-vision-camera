@@ -19,6 +19,12 @@ final class CameraViewManager: RCTViewManager {
     return true
   }
 
+  override var bridge: RCTBridge! {
+    didSet {
+      FrameProcessorBindings.installFrameProcessorBindings(bridge)
+    }
+  }
+
   // pragma MARK: Setup
   override final func view() -> UIView! {
     return CameraView()
