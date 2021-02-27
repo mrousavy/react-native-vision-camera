@@ -4,7 +4,8 @@ This folder contains the Android-platform-specific code for react-native-vision-
 
 ## Prerequesites
 
-1. Install ktlint
+1. Download the [NDK and build tools](https://developer.android.com/studio/projects/add-native-code#download-ndk)
+2. Install ktlint
     ```sh
     brew install ktlint
     ```
