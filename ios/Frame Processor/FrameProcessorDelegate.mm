@@ -44,6 +44,10 @@ using namespace facebook;
   return self;
 }
 
+- (void)dealloc {
+  vision::Logger::log("FrameProcessorDelegate: dealloc()");
+}
+
 - (void) setFrameProcessorFunction:(void*)function {
   vision::Logger::log("FrameProcessorDelegate: Frame Processor function has been set!");
   // TODO: Make sure this unique_ptr stuff works, because it seems like a very bad idea to move the jsi::Function and keep a strong reference
