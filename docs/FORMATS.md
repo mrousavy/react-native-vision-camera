@@ -35,6 +35,7 @@ function App() {
   const devices = useCameraDevices()
   const device = devices.back
 
+  if (device == null) return <LoadingView />
   return (
     <Camera
       style={StyleSheet.absoluteFill}
@@ -83,6 +84,7 @@ function App() {
     }, undefined);
   }, [device?.formats]);
 
+  if (device == null) return <LoadingView />
   return (
     <Camera
       style={StyleSheet.absoluteFill}
@@ -129,6 +131,7 @@ The `Camera` View provides a few props that depend on the specified `format`. Fo
 
 ```tsx
 function App() {
+  // ...
   return (
     <Camera
       style={StyleSheet.absoluteFill}
