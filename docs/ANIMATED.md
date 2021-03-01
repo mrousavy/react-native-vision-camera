@@ -38,6 +38,8 @@ Reanimated.addWhitelistedNativeProps({
 })
 
 export function App() {
+  const devices = useCameraDevices()
+  const device = devices.back
   const zoom = useSharedValue(0)
 
   const onRandomZoomPress = useCallback(() => {
@@ -49,6 +51,7 @@ export function App() {
     [zoom]
   )
 
+  if (device == null) return <LoadingView />
   return (
     <>
       <ReanimatedCamera
