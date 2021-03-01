@@ -72,6 +72,7 @@ function App() {
   const devices = useCameraDevices('wide-angle-camera')
   const device = devices.back
 
+  if (device == null) return <LoadingView />
   return (
     <Camera
       style={StyleSheet.absoluteFill}
@@ -90,6 +91,7 @@ function App() {
   const devices = useCameraDevices()
   const device = devices.back
 
+  if (device == null) return <LoadingView />
   return (
     <Camera
       style={StyleSheet.absoluteFill}
@@ -113,6 +115,7 @@ function App() {
   const device = devices.back
   const isAppForeground = useIsAppForeground()
 
+  if (device == null) return <LoadingView />
   return (
     <Camera
       style={StyleSheet.absoluteFill}
