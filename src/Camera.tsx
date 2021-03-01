@@ -175,6 +175,23 @@ type RefType = React.Component<CameraProps> & Readonly<NativeMethods>;
 /**
  * ### A powerful `<Camera>` component.
  *
+ * The `<Camera>` component always requires a `{@link CameraDevice}`, so make sure to use `{@link Camera.getAvailableCameraDevices}` (or the {@link useCameraDevices} hook) before mounting the component.
+ *
+ * @example
+ * function App() {
+ *   const devices = useCameraDevices('wide-angle-camera')
+ *   const device = devices.back
+ *
+ *   if (device == null) return <LoadingView />
+ *   return (
+ *     <Camera
+ *       style={StyleSheet.absoluteFill}
+ *       device={device}
+ *       isActive={true}
+ *     />
+ *   )
+ * }
+ *
  * @component
  */
 export class Camera extends React.PureComponent<CameraProps, CameraState> {

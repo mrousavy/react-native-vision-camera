@@ -7,15 +7,17 @@
   },
   "tags": {
     "allowUnknownTags": [
-      "optional"
+      "blocking",
+      "platform",
+      "component"
     ]
   },
   "plugins": [
-    "node_modules/better-docs/typescript",
-    "node_modules/better-docs/component"
+    "plugins/markdown",
+    "node_modules/better-docs/typescript"
   ],
   "source": {
     "include": ["src"],
-    "includePattern": ".+\\.ts(doc|x)?$"
+    "includePattern": ".+\\.(ts|tsx)?$"
   }
 }
