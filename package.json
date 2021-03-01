@@ -36,7 +36,8 @@
     "pods": "cd example && pod-install --quiet",
     "bootstrap": "yarn example && yarn && yarn pods",
     "ktlint-fix": "ktlint -F android/**/*.kt*",
-    "swiftlint-fix": "cd ios && swiftlint autocorrect"
+    "swiftlint-fix": "cd ios && swiftlint autocorrect",
+    "docs": "jsdoc -c jsdoc.json"
   },
   "keywords": [
     "react-native",
@@ -74,12 +75,14 @@
     "@types/react-native": "0.62.13",
     "@typescript-eslint/eslint-plugin": "^4.15.1",
     "@typescript-eslint/parser": "^4.15.1",
+    "better-docs": "^2.3.2",
     "eslint": "^7.20.0",
     "eslint-config-prettier": "^7.2.0",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-react-hooks": "^4.2.0",
     "eslint-plugin-react-native": "^3.10.0",
     "jest": "^26.0.1",
+    "jsdoc": "^3.6.6",
     "pod-install": "^0.1.0",
     "prettier": "^2.2.1",
     "react": "16.13.1",

@@ -174,6 +174,8 @@ type RefType = React.Component<CameraProps> & Readonly<NativeMethods>;
 
 /**
  * ### A powerful `<Camera>` component.
+ *
+ * @component
  */
 export class Camera extends React.PureComponent<CameraProps, CameraState> {
   static displayName = 'Camera';
