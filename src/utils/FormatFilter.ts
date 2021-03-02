@@ -31,7 +31,16 @@ export const sortDevices = (left: CameraDevice, right: CameraDevice): number => 
 /**
  * Represents a Size in any unit.
  */
-export type Size = { width: number; height: number };
+export type Size = {
+  /**
+   * Points in width.
+   */
+  width: number;
+  /**
+   * Points in height.
+   */
+  height: number;
+};
 const SCREEN_SIZE: Size = {
   width: Dimensions.get('window').width,
   height: Dimensions.get('window').height,
@@ -68,6 +77,8 @@ const getFormatAspectRatioOverflow = (format: CameraDeviceFormat, size: Size): n
 /**
  * Filters Camera Device Formats by the best matching aspect ratio for the given `viewSize`.
  *
+ * @param {CameraDeviceFormat[]} formats A list of formats the current device has (see `{@link CameraDevice.formats}`)
+ * @param {Size} viewSize The size of the camera view which will be used to find the best aspect ratio. Defaults to the screen size.
  * @returns A list of Camera Device Formats that match the given `viewSize`' aspect ratio _as close as possible_.
  *
  * @example
@@ -85,7 +96,7 @@ export const filterFormatsByAspectRatio = (formats: CameraDeviceFormat[], viewSi
 };
 
 /**
- * Sorts Camera Device Formats by highest photo-capture resolution, descending.
+ * Sorts Camera Device Formats by highest photo-capture resolution, descending. Use this in a `.sort` function.
  *
  * @example
  * const formats = useMemo(() => device.formats.sort(sortFormatsByResolution), [device.formats])
@@ -108,6 +119,8 @@ export const sortFormatsByResolution = (left: CameraDeviceFormat, right: CameraD
 /**
  * Returns `true` if the given Frame Rate Range (`range`) contains the given frame rate (`fps`)
  *
+ * @param {FrameRateRange} range The range to check if the given `fps` are included in
+ * @param {number} fps The FPS to check if the given `range` supports.
  * @example
  * // get all formats that support 60 FPS
  * const formatsWithHighFps = useMemo(() => device.formats.filter((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, 60))), [device.formats])

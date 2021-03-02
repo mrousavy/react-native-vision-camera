@@ -29,6 +29,7 @@ export function useCameraDevices(): CameraDevices;
 /**
  * Gets a `CameraDevice` for the requested device type.
  *
+ * @param {PhysicalCameraDeviceType | LogicalCameraDeviceType} deviceType Specifies a device type which will be used as a device filter.
  * @returns A `CameraDevice` for the requested device type.
  * @throws `CameraRuntimeError` if no device was found.
  * @example

@@ -36,6 +36,9 @@ export type CaptureError =
 export type SystemError = 'system/no-camera-manager';
 export type UnknownError = 'unknown/unknown';
 
+/**
+ * Represents a JSON-style error cause. This contains native `NSError`/`Throwable` information, and can have recursive `.cause` properties until the ultimate cause has been found.
+ */
 export interface ErrorWithCause {
   /**
    * The native error's code.
