@@ -101,7 +101,11 @@ export type CameraDeviceProps = {
 
 export type CameraDynamicProps = {
   /**
-   * `true` enables streaming from the camera's input stream, `false` "pauses" the camera input stream.
+   * Whether the Camera should actively stream video frames, or not.
+   *
+   * This can be compared to a Video component, where `isActive` specifies whether the video is paused or not.
+   *
+   * > Note: If you fully unmount the `<Camera>` component instead of using `isActive={false}`, the Camera will take a bit longer to start again. In return, it will use less resources since the Camera will be completely destroyed when unmounted.
    */
   isActive: boolean;
   /**
@@ -175,7 +179,10 @@ type RefType = React.Component<CameraProps> & Readonly<NativeMethods>;
 /**
  * ### A powerful `<Camera>` component.
  *
- * The `<Camera>` component always requires a `{@link CameraDevice}`, so make sure to use `{@link Camera.getAvailableCameraDevices}` (or the {@link useCameraDevices} hook) before mounting the component.
+ * The `<Camera>` component's most important (and therefore _required_) properties are:
+ *
+ * * `device`: Specifies the `{@link CameraDevice}` to use. Get a `{@link CameraDevice}` by using the {@link useCameraDevices}, or manually by using the `{@link Camera.getAvailableCameraDevices}` function.
+ * * `isActive`: A boolean value that specifies whether the Camera should actively stream video frames or not. This can be compared to a Video component, where `isActive` specifies whether the video is paused or not. If you fully unmount the `<Camera>` component instead of using `isActive={false}`, the Camera will take a bit longer to start again.
  *
  * @example
  * function App() {
