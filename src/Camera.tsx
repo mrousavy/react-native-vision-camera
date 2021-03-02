@@ -310,7 +310,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
 
   /**
    * Focus the camera to a specific point in the coordinate system.
-   * @param point The point to focus to. This should be relative to the Camera view's coordinate system,
+   * @param {Point} point The point to focus to. This should be relative to the Camera view's coordinate system,
    * and expressed in Pixel on iOS and Points on Android.
    *  * `(0, 0)` means **top left**.
    *  * `(CameraView.width, CameraView.height)` means **bottom right**.

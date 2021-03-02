@@ -8,8 +8,8 @@ import type { Size } from '../utils/FormatFilter';
  *
  * This function tries to choose a format with the highest possible photo-capture resolution and best matching aspect ratio.
  *
- * @param device The Camera Device
- * @param cameraViewSize The Camera View's size. This can be an approximation and **must be memoized**! Default: `SCREEN_SIZE`
+ * @param {CameraDevice} device The Camera Device
+ * @param {Size} cameraViewSize The Camera View's size. This can be an approximation and **must be memoized**! Default: `SCREEN_SIZE`
  *
  * @returns The best matching format for the given camera device, or `undefined` if the camera device is `undefined`.
  */
