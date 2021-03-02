@@ -2,7 +2,7 @@
   "opts": {
     "destination": "docs/website",
     "recurse": true,
-    "readme": "README.md",
+    "readme": "docs/WEBSITE_README.md",
     "template": "node_modules/better-docs"
   },
   "tags": {
