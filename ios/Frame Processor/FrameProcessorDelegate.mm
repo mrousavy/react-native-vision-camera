@@ -19,6 +19,7 @@
 #error The NativeReanimatedModule.h header could not be found, make sure you install react-native-reanimated!
 #endif
 
+#import <RNReanimated/NativeReanimatedModule.h>
 #import <RNReanimated/ShareableValue.h>
  
 using namespace facebook;

@@ -14,13 +14,23 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/cuvent/react-native-vision-camera.git", :tag => "#{s.version}" }
 
   s.pod_target_xcconfig = {
-    'DEFINES_MODULE' => 'YES'
+    "DEFINES_MODULE" => "YES",
+    "USE_HEADERMAP" => "YES",
+    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_TARGET_SRCROOT)\" \"$(PODS_ROOT)/Headers/Private/React-Core\" "
   }
+  s.xcconfig = {
+    "CLANG_CXX_LANGUAGE_STANDARD" => "c++14",
+    "OTHER_CFLAGS" => "$(inherited)"
+  }
+  s.requires_arc = true
 
   # All source files that should be publicly visible
   # Note how this does not include headers, since those can nameclash.
   s.source_files = [
     "ios/**/*.{m,mm,swift}",
+    "ios/CameraBridge.h",
+    "ios/Frame Processor/FrameProcessorDelegate.h",
+    "ios/Frame Processor/FrameProcessorBindings.h",
     "ios/CameraBridge.h",
     "cpp/**/*.{cpp}"
   ]
@@ -28,9 +38,11 @@ Pod::Spec.new do |s|
   # Otherwise there will be a nameclash, since CocoaPods flattens out any header directories
   # See https://github.com/firebase/firebase-ios-sdk/issues/4035 for more details.
   s.preserve_paths = [
-    'cpp/**/*.h',
-    'ios/**/*.h'
+    "cpp/**/*.h",
+    "ios/**/*.h"
   ]
 
+  s.dependency "React-callinvoker"
+  s.dependency "React"
   s.dependency "React-Core"
 end
