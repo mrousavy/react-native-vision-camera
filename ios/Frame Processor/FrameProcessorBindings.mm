@@ -17,9 +17,7 @@
 #import "FrameProcessorDelegate.h"
 #import "../../cpp/Logger.h"
 
-#if __has_include("react_native_vision_camera-Swift.h")
-#import "react_native_vision_camera-Swift.h"
-#elif __has_include("VisionCamera-Swift.h")
+#if __has_include("VisionCamera-Swift.h")
 #import "VisionCamera-Swift.h"
 #else
 #error Objective-C Generated Interface Header (VisionCamera-Swift.h) was not found!
