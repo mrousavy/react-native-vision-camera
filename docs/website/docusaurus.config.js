@@ -76,7 +76,7 @@ module.exports = {
       '@docusaurus/preset-classic',
       {
         docs: {
-          sidebarPath: require.resolve('./sidebar.js'),
+          sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
           editUrl:
             'https://github.com/cuvent/react-native-vision-camera/edit/main/docs/website/',
@@ -96,7 +96,7 @@ module.exports = {
         readme: "none",
         out: 'api',
         sidebar: {
-          sidebarFile: 'sidebar.js',
+          sidebarFile: 'typedoc-sidebar.js',
           fullNames: true,
           readmeLabel: 'Overview'
         },
