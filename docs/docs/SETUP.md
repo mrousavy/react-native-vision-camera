@@ -6,7 +6,7 @@ slug: /
 ---
 
 <div>
-  <img align="right" width="35%" src="../static/img/example_intro.png" />
+  <img align="right" width="35%" src="../img/example_intro.png" />
 </div>
 
 ## Installing the library

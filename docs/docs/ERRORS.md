@@ -5,7 +5,7 @@ sidebar_label: Camera Errors
 ---
 
 <div>
-  <img align="right" width="35%" src="../static/img/example_error.png" />
+  <img align="right" width="35%" src="../img/example_error.png" />
 </div>
 
 ## Why?

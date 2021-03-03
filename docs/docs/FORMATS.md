@@ -5,7 +5,7 @@ sidebar_label: Camera Formats
 ---
 
 <div>
-  <img align="right" width="35%" src="../static/img/example.png" />
+  <img align="right" width="35%" src="../img/example.png" />
 </div>
 
 ### What are camera formats?

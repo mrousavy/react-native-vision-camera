@@ -1,5 +1,5 @@
 <div>
-  <img align="right" width="35%" src="./../img/example.png">
+  <img align="right" width="35%" src="../docs/static/img/example.png">
 
   <h1>Vison Camera playground</h1>
 

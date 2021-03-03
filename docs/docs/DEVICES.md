@@ -5,7 +5,7 @@ sidebar_label: Camera Devices
 ---
 
 <div>
-  <img align="right" width="35%" src="../static/img/ultra-wide-demo.gif" />
+  <img align="right" width="35%" src="../img/ultra-wide-demo.gif" />
 </div>
 
 ### What are camera devices?
