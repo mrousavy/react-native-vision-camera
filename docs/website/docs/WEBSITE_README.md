@@ -1,5 +1,5 @@
 <div>
-  <img align="right" width="20%" src="../../img/example.png">
+  <img align="right" width="20%" src="../../img/example.png" />
 </div>
 
 # VisionCamera

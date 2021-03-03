@@ -1,21 +1,11 @@
-<table>
-<tr>
-<th><a href="../README.md">README</a></th>
-<th><a href="./SETUP.md">SETUP</a></th>
-<th><a href="./DEVICES.md">DEVICES</a></th>
-<th><a href="./FORMATS.md">FORMATS</a></th>
-<th><a href="./FRAME_PROCESSORS.md">FRAME_PROCESSORS</a></th>
-<th><a href="./ANIMATED.md">ANIMATED</a></th>
-<th>ERRORS</th>
-</tr>
-</table>
-
-<br/>
-
-<h1 align="center">Errors</h1>
+---
+id: errors
+title: Camera Errors
+sidebar_label: Camera Errors
+---
 
 <div>
-  <img align="right" width="35%" src="../img/example_error.png">
+  <img align="right" width="35%" src="../static/img/example_error.png" />
 </div>
 
 ## Why?
@@ -41,7 +31,7 @@ switch (error.code) {
 
 ## Troubleshooting
 
-See [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) if you're having "weird issues".
+See [Troubleshooting](troubleshooting) if you're having "weird issues".
 
 ## The Error types
 

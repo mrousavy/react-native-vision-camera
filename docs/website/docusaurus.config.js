@@ -10,18 +10,22 @@ module.exports = {
   projectName: 'react-native-vision-camera',
   themeConfig: {
     navbar: {
-      title: 'My Site',
+      title: 'VisionCamera',
       logo: {
-        alt: 'My Site Logo',
-        src: 'img/logo.svg',
+        alt: 'Logo',
+        src: 'https://github.com/cuvent/react-native-vision-camera/blob/main/img/11.png?raw=true',
       },
       items: [
         {
-          href: 'https://github.com/cuvent/react-native-vision-camera/blob/main/README.md',
           label: 'Guides',
+          to: 'docs/',
           position: 'left',
         },
-        {to: 'docs/api', label: 'API', position: 'left'},
+        {
+          to: 'docs/api',
+          label: 'API',
+          position: 'left'
+        },
         {
           href: 'https://github.com/cuvent/react-native-vision-camera',
           label: 'GitHub',
@@ -37,7 +41,7 @@ module.exports = {
           items: [
             {
               label: 'Guides',
-              href: 'https://github.com/cuvent/react-native-vision-camera/blob/main/README.md',
+              to: 'docs/'
             },
             {
               label: 'API',

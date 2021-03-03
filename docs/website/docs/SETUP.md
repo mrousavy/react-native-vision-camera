@@ -1,21 +1,12 @@
-<table>
-<tr>
-<th><a href="../README.md">README</a></th>
-<th>SETUP</th>
-<th><a href="./DEVICES.md">DEVICES</a></th>
-<th><a href="./FORMATS.md">FORMATS</a></th>
-<th><a href="./FRAME_PROCESSORS.md">FRAME_PROCESSORS</a></th>
-<th><a href="./ANIMATED.md">ANIMATED</a></th>
-<th><a href="./ERRORS.md">ERRORS</a></th>
-</tr>
-</table>
-
-<br/>
-
-<h1 align="center">Setup</h1>
+---
+id: setup
+title: Getting Started
+sidebar_label: Getting Started
+slug: /
+---
 
 <div>
-  <img align="right" width="35%" src="../img/example_intro.png">
+  <img align="right" width="35%" src="../static/img/example_intro.png" />
 </div>
 
 ## Installing the library
@@ -53,7 +44,7 @@ Open your project's `AndroidManifest.xml` and add the following lines inside the
 
 ## Permissions
 
-react-native-vision-camera also provides functions to easily get and request Microphone and Camera permissions.
+VisionCamera also provides functions to easily get and request Microphone and Camera permissions.
 
 ### Getting Permissions
 
@@ -75,7 +66,9 @@ A permission status can have the following values:
 
 Use the **request** functions to prompt the user to give your app permission to use the Camera or Microphone.
 
-> Note: You can only use **request** functions if the current permission status is `not-determined`.
+:::caution
+Note: You can only use **request** functions if the current permission status is `not-determined`.
+:::
 
 ```ts
 const newCameraPermission = await Camera.requestCameraPermission()
@@ -89,4 +82,4 @@ The permission request status can have the following values:
 
 <br />
 
-#### 🎉 Hooray! You're ready to learn about [devices](./DEVICES.md)!
+#### 🎉 Hooray! You're ready to learn about [Camera Devices](devices)!

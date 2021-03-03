@@ -22,4 +22,4 @@ hide_title: true
 
 Represents a Photo taken by the Camera written to the local filesystem.
 
-Defined in: [src/PhotoFile.ts:68](https://github.com/cuvent/react-native-vision-camera/blob/1d4e105/src/PhotoFile.ts#L68)
+Defined in: [src/PhotoFile.ts:68](https://github.com/cuvent/react-native-vision-camera/blob/cebf4df/src/PhotoFile.ts#L68)

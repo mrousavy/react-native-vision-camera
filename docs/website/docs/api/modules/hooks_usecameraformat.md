@@ -29,4 +29,4 @@ Name | Type | Description |
 
 The best matching format for the given camera device, or `undefined` if the camera device is `undefined`.
 
-Defined in: [src/hooks/useCameraFormat.ts:16](https://github.com/cuvent/react-native-vision-camera/blob/1d4e105/src/hooks/useCameraFormat.ts#L16)
+Defined in: [src/hooks/useCameraFormat.ts:16](https://github.com/cuvent/react-native-vision-camera/blob/cebf4df/src/hooks/useCameraFormat.ts#L16)

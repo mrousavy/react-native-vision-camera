@@ -1,7 +1,6 @@
 module.exports = {
   someSidebar: {
-    Guides: ['doc1', 'doc2', 'doc3'],
-    Features: ['mdx'],
+    Guides: ['setup', 'devices', 'formats', 'frame-processors', 'animated', 'errors', 'troubleshooting'],
     API: require('./typedoc-sidebar.js'),
   },
 };

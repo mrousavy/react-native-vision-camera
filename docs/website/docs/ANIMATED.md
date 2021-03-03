@@ -1,29 +1,28 @@
-<table>
-<tr>
-<th><a href="../README.md">README</a></th>
-<th><a href="./SETUP.md">SETUP</a></th>
-<th><a href="./DEVICES.md">DEVICES</a></th>
-<th><a href="./FORMATS.md">FORMATS</a></th>
-<th><a href="./FRAME_PROCESSORS.md">FRAME_PROCESSORS</a></th>
-<th>ANIMATED</th>
-<th><a href="./ERRORS.md">ERRORS</a></th>
-</tr>
-</table>
-
-<br/>
-
-<h1 align="center">Animated</h1>
+---
+id: animated
+title: Zooming with Reanimated
+sidebar_label: Zooming with Reanimated
+---
 
 <div>
-  <img align="right" width="35%" src="../img/ultra-wide-demo.gif">
+  <img align="right" width="35%" src="../img/ultra-wide-demo.gif" />
 </div>
 
 ## Animations
 
 Often you'd want to animate specific props in the Camera. For example, if you'd want to create a custom zoom gesture, you can smoothly animate the Camera's `zoom` property.
 
-The following example uses [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated) (v2) to animate the `zoom` property:
+:::note
+The `<Camera>` component does provide a natively implemented zoom gesture which you can enable with the `enableZoomGesture={true}` prop.
 
+This does not require any additional work, but if you want to setup a custom gesture, such as the one in Snapchat or Instagram where you move up your finger while recording, continue reading.
+:::
+
+### Installing reanimated
+
+The following example uses [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated) (v2) to animate the `zoom` property. Head over to their [Installation guide](https://docs.swmansion.com/react-native-reanimated/docs/installation) to install Reanimated if you haven't already.
+
+### Implementation
 
 ```tsx
 import Reanimated, {
@@ -82,4 +81,4 @@ export function App() {
 
 <br />
 
-#### 🚀 Next section: [ERRORS](./ERRORS.md)
+#### 🚀 Next section: [Camera Errors](errors)

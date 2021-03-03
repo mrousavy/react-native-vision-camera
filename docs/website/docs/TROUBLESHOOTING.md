@@ -1,7 +1,11 @@
-<h1 align="center">Troubleshooting</h1>
+---
+id: troubleshooting
+title: Troubleshooting
+sidebar_label: Troubleshooting
+---
 
 <div>
-  <img align="right" width="35%" src="../img/11_back.png">
+  <img align="right" width="35%" src="../static/img/11_back.png" />
 </div>
 
 Before opening an issue, make sure you try the following:

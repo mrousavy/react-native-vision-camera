@@ -1,32 +1,22 @@
-<table>
-<tr>
-<th><a href="../README.md">README</a></th>
-<th><a href="./SETUP.md">SETUP</a></th>
-<th><a href="./DEVICES.md">DEVICES</a></th>
-<th>FORMATS</th>
-<th><a href="./FRAME_PROCESSORS.md">FRAME_PROCESSORS</a></th>
-<th><a href="./ANIMATED.md">ANIMATED</a></th>
-<th><a href="./ERRORS.md">ERRORS</a></th>
-</tr>
-</table>
-
-<br/>
-
-<h1 align="center">Formats</h1>
+---
+id: formats
+title: Camera Formats
+sidebar_label: Camera Formats
+---
 
 <div>
-  <img align="right" width="35%" src="../img/example.png">
+  <img align="right" width="35%" src="../static/img/example.png" />
 </div>
 
 ### What are camera formats?
 
-Each camera device (see [DEVICES.md](./DEVICES.md)) provides a number of capture formats that have different specifications. There are formats specifically designed for high-resolution photo capture, which have very high photo output quality but in return only support frame-rates of up to 30 FPS. On the other side, there might be formats that are designed for slow-motion video capture which have frame-rates up to 240 FPS.
+Each camera device (see [Camera Devices](./DEVICES.md)) provides a number of capture formats that have different specifications. There are formats specifically designed for high-resolution photo capture, which have very high photo output quality but in return only support frame-rates of up to 30 FPS. On the other side, there might be formats that are designed for slow-motion video capture which have frame-rates up to 240 FPS.
 
 ### What if I don't want to choose a format?
 
 If you don't want to specify the best format for your camera device, you don't have to. The Camera _automatically chooses the best matching format_ for the current camera device. This is why the Camera's `format` property is _optional_.
 
-If you don't want to do a lot of filtering, but still want to let the camera know what your intentions are, you can use the Camera's `preset` property. (🔗 See the [CameraPreset.ts](../src/CameraPreset.ts) type for more information about presets)
+If you don't want to do a lot of filtering, but still want to let the camera know what your intentions are, you can use the Camera's `preset` property. (See the [CameraPreset.ts](https://github.com/cuvent/react-native-vision-camera/blob/main/src/CameraPreset.ts) type for more information about presets)
 
 For example, use the `'medium'` preset if you want to create a video-chat application that shouldn't excessively use mobile data:
 
@@ -60,7 +50,9 @@ Each application has different needs, so the format filtering is up to you.
 
 To get all available formats, simply use the `CameraDevice`'s `.formats` property. See how to get a camera device in the [DEVICES.md](./DEVICES.md) doc.
 
-> Note: You can also manually get all camera devices and decide which device to use based on the available `formats`. In fact, this is how we do it in the [Cuvent](https://cuvent.com) app.
+:::note
+You can also manually get all camera devices and decide which device to use based on the available `formats`. In fact, this is how we do it in the [Cuvent](https://cuvent.com) app.
+:::
 
 This example shows how you would pick the format with the _highest frame rate_:
 
@@ -123,7 +115,9 @@ export const sortFormatsByResolution = (left: CameraDeviceFormat, right: CameraD
 const formats = useMemo(() => device?.formats.sort(sortFormatsByResolution), [device?.formats])
 ```
 
-Be careful that you don't `filter` out a lot of formats since you might end up having no format to use at all. (_Remember; not all devices support e.g. 240 FPS._) Always sort them and pick the best format, that way you are guaranteed to have a format available, even if your desired specifications aren't fully met.
+:::caution
+Be careful that you don't `filter` out a lot of formats since you might end up having no format to use at all. (_Remember; not all devices support e.g. 240 FPS._) Always carefully sort instead of filter, and pick the best available format - that way you are guaranteed to have a format available, even if your desired specifications aren't fully met.
+:::
 
 ### Props
 
@@ -143,7 +137,9 @@ function App() {
 }
 ```
 
-> Note: You should always verify that the format supports the desired FPS, and fall back to `undefined` (or a value that is supported, like `30`) if it doesn't.
+:::note
+You should always verify that the format supports the desired FPS, and fall back to `undefined` (or a value that is supported, like `30`) if it doesn't.
+:::
 
 Other props that depend on the `format`:
 
@@ -154,4 +150,4 @@ Other props that depend on the `format`:
 
 <br />
 
-#### 🚀 Next section: [FRAME_PROCESSORS](./FRAME_PROCESSORS.md)
+#### 🚀 Next section: [Frame Processors](./frame-processors)
