@@ -48,12 +48,12 @@ jobs:
           EOT
       - name: Release to GitHub Pages
         env:
-          USE_SSH: true
+          USE_SSH: false
           GIT_USER: git
           CURRENT_BRANCH: main
           DEPLOYMENT_BRANCH: gh-pages
         run: |
-          git config --global user.email "actions@gihub.com"
+          git config --global user.email "actions@github.com"
           git config --global user.name "gh-actions"
           cd docs
           yarn install --frozen-lockfile
