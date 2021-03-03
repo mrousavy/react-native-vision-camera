@@ -37,7 +37,7 @@
     "bootstrap": "yarn example && yarn && yarn pods",
     "ktlint-fix": "ktlint -F android/**/*.kt*",
     "swiftlint-fix": "cd ios && swiftlint autocorrect",
-    "docs": "rm -rf docs/api && typedoc --options typedoc.json"
+    "docs": "cd docs && yarn build"
   },
   "keywords": [
     "react-native",
