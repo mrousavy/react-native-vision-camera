@@ -105,12 +105,16 @@ module.exports = {
   plugins: [
     [
       'docusaurus-plugin-typedoc',
-
       {
-        entryPoints: ['../src/index.ts'],
-        tsconfig: '../tsconfig.json'
+        entryPoints: ['../../src'],
+        tsconfig: '../../tsconfig.json',
+        out: 'api',
+        sidebar: {
+          sidebarFile: 'some-sidebar.js',
+          fullNames: true,
+          readmeLabel: 'Overview'
+        },
       },
     ],
   ],
-
 };
