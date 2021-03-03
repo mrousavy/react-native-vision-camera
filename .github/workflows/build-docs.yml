@@ -56,6 +56,7 @@ jobs:
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "gh-actions"
+          yarn install --frozen-lockfile
           cd docs
           yarn install --frozen-lockfile
           yarn deploy
