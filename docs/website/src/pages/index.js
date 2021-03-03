@@ -8,32 +8,29 @@ import styles from './styles.module.css';
 
 const features = [
   {
-    title: 'Easy to Use',
-    imageUrl: 'img/undraw_docusaurus_mountain.svg',
+    title: 'Easy to use',
+    imageUrl: 'https://github.com/cuvent/react-native-vision-camera/blob/main/img/example_intro.png?raw=true',
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        While having a lot of features, VisionCamera makes sure you don't get overwhelmed from the beginning. It provides hooks and functions to help you get started faster, and if you need full control, you can easily do that.
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
-    imageUrl: 'img/undraw_docusaurus_tree.svg',
+    title: 'Feature Rich',
+    imageUrl: 'https://github.com/cuvent/react-native-vision-camera/blob/main/img/example.png?raw=true',
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        VisionCamera was designed from the ground up to provide all features a camera app should have. You have full control over what device is used, and can even configure options such as frame rate, colorspace and more.
       </>
     ),
   },
   {
-    title: 'Powered by React',
-    imageUrl: 'img/undraw_docusaurus_react.svg',
+    title: 'Rich Developer Support',
+    imageUrl: 'https://github.com/cuvent/react-native-vision-camera/blob/main/img/example_error.png?raw=true',
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Every functionality has been thoroughly documented and even errors are fully typed. Use TypeScript to get compile-time feedback on what has went wrong.
       </>
     ),
   },
