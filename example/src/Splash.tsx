@@ -7,7 +7,7 @@ import { Camera, CameraPermissionStatus } from 'react-native-vision-camera';
 import { CONTENT_SPACING, SAFE_AREA_PADDING } from './Constants';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const BANNER_IMAGE = require('../docs/static/img/11.png') as ImageRequireSource;
+const BANNER_IMAGE = require('../../docs/static/img/11.png') as ImageRequireSource;
 
 export const Splash: NavigationFunctionComponent = ({ componentId }) => {
   const [cameraPermissionStatus, setCameraPermissionStatus] = useState<CameraPermissionStatus>('not-determined');
