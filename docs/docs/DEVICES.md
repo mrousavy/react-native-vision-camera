@@ -1,21 +1,11 @@
-<table>
-<tr>
-<th><a href="../README.md">README</a></th>
-<th><a href="./SETUP.md">SETUP</a></th>
-<th>DEVICES</th>
-<th><a href="./FORMATS.md">FORMATS</a></th>
-<th><a href="./FRAME_PROCESSORS.md">FRAME_PROCESSORS</a></th>
-<th><a href="./ANIMATED.md">ANIMATED</a></th>
-<th><a href="./ERRORS.md">ERRORS</a></th>
-</tr>
-</table>
-
-<br/>
-
-<h1 align="center">Devices</h1>
+---
+id: devices
+title: Camera Devices
+sidebar_label: Camera Devices
+---
 
 <div>
-  <img align="right" width="35%" src="../img/ultra-wide-demo.gif">
+  <img align="right" width="35%" src="../static/img/ultra-wide-demo.gif" />
 </div>
 
 ### What are camera devices?
@@ -38,7 +28,9 @@ To get a list of all available camera devices, use the `getAvailableCameraDevice
 const devices = await Camera.getAvailableCameraDevices()
 ```
 
-> [🔗 See the `CameraDevice` type](./../src/CameraDevice.ts)
+:::note
+See the [`CameraDevice` type](https://github.com/cuvent/react-native-vision-camera/blob/main/src/CameraDevice.ts) for more information about a Camera Device
+:::
 
 A camera device (`CameraDevice`) contains a list of physical device types this camera device consists of.
 
@@ -57,9 +49,11 @@ console.log(deviceType)
 //  --> "triple-camera"
 ```
 
-The `CameraDevice` type also contains other useful information describing a camera device, such as `position` ("front", "back", ...), `hasFlash`, it's `formats` (See [FORMATS.md](./FORMATS.md)), and more.
+The `CameraDevice` type also contains other useful information describing a camera device, such as `position` ("front", "back", ...), `hasFlash`, it's `formats` (See [Camera Formats](./FORMATS.md)), and more.
 
-Make sure to carefully filter out unneeded camera devices, since not every phone supports all camera device types. Some phones don't even have front-cameras.
+:::caution
+Make sure to be careful when filtering out unneeded camera devices, since not every phone supports all camera device types. Some phones don't even have front-cameras. You always want to have a camera device, even when it's not the one that has the best features.
+:::
 
 ### `useCameraDevices` hook
 
@@ -126,9 +120,10 @@ function App() {
 }
 ```
 
-> Note: If you don't care about fast resume times you can also fully unmount the `<Camera>` view instead, which will use a lot less memory (RAM).
-
+:::info
+Note: If you don't care about fast resume times you can also fully unmount the `<Camera>` view instead, which will use a lot less memory (RAM).
+:::
 
 <br />
 
-#### 🚀 Next section: [FORMATS](./FORMATS.md)
+#### 🚀 Next section: [Camera Formats](formats)

@@ -36,6 +36,9 @@ export type CaptureError =
 export type SystemError = 'system/no-camera-manager';
 export type UnknownError = 'unknown/unknown';
 
+/**
+ * Represents a JSON-style error cause. This contains native `NSError`/`Throwable` information, and can have recursive `.cause` properties until the ultimate cause has been found.
+ */
 export interface ErrorWithCause {
   /**
    * The native error's code.
@@ -143,8 +146,9 @@ const isCameraErrorJson = (error: unknown): error is { code: string; message: st
 
 /**
  * Tries to parse an error coming from native to a typed JS camera error.
- * @param nativeError The native error instance. This is a JSON in the legacy native module architecture.
+ * @param {CameraError} nativeError The native error instance. This is a JSON in the legacy native module architecture.
  * @returns A `CameraRuntimeError` or `CameraCaptureError`, or the nativeError if it's not parsable
+ * @method
  */
 export const tryParseNativeCameraError = <T>(nativeError: T): (CameraRuntimeError | CameraCaptureError) | T => {
   if (isCameraErrorJson(nativeError)) {

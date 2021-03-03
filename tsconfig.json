@@ -35,6 +35,7 @@
   ],
   "exclude": [
     "node_modules",
-    "lib"
+    "lib",
+    "docs"
   ]
 }

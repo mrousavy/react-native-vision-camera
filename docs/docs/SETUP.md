@@ -1,21 +1,12 @@
-<table>
-<tr>
-<th><a href="../README.md">README</a></th>
-<th>SETUP</th>
-<th><a href="./DEVICES.md">DEVICES</a></th>
-<th><a href="./FORMATS.md">FORMATS</a></th>
-<th><a href="./FRAME_PROCESSORS.md">FRAME_PROCESSORS</a></th>
-<th><a href="./ANIMATED.md">ANIMATED</a></th>
-<th><a href="./ERRORS.md">ERRORS</a></th>
-</tr>
-</table>
-
-<br/>
-
-<h1 align="center">Setup</h1>
+---
+id: setup
+title: Getting Started
+sidebar_label: Getting Started
+slug: /
+---
 
 <div>
-  <img align="right" width="35%" src="../img/example_intro.png">
+  <img align="right" width="35%" src="../static/img/example_intro.png" />
 </div>
 
 ## Installing the library
@@ -42,11 +33,23 @@ Open your project's `Info.plist` and add the following lines inside the outermos
 <string>$(PRODUCT_NAME) needs access to your Microphone to record videos with audio.</string>
 ```
 
-You also may need to:
-- add a Swift file to your project so that Xcode creates a bridging header
-- remove explicit Swift 5.0 references in the `LIBRARY_SEARCH_PATH` list as per [this StackOverflow answer](https://stackoverflow.com/a/66281846/1123156)
+#### Compatibility
 
-> See [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) if you're having problems
+VisionCamera is written in Swift. If your project is written in Objective-C, you have to create a Bridging Header first:
+
+1. Open your project (`.xcworkspace`) in Xcode
+2. Press **File** > **New** > **File** (<kbd>⌘</kbd>+<kbd>N</kbd>)
+3. Select **Swift File** and press **Next**
+4. Choose whatever name you want, e.g. `File.swift` and press **Create**
+5. Press **Create Bridging Header** when promted.
+
+Also, make sure you're using Swift 5.2 or above:
+
+1. Open `project.pbxproj` in a Text Editor
+2. If the `LIBRARY_SEARCH_PATH` value is set, make sure there is no explicit reference to Swift-5.0. If there is, remove it. See [this StackOverflow answer](https://stackoverflow.com/a/66281846/1123156).
+3. If the `SWIFT_VERSION` value is set, make sure it is set to `5.2` or higher.
+
+> See [Troubleshooting](troubleshooting) if you're having problems
 
 ### Android
 
@@ -59,7 +62,7 @@ Open your project's `AndroidManifest.xml` and add the following lines inside the
 
 ## Permissions
 
-react-native-vision-camera also provides functions to easily get and request Microphone and Camera permissions.
+VisionCamera also provides functions to easily get and request Microphone and Camera permissions.
 
 ### Getting Permissions
 
@@ -81,7 +84,9 @@ A permission status can have the following values:
 
 Use the **request** functions to prompt the user to give your app permission to use the Camera or Microphone.
 
-> Note: You can only use **request** functions if the current permission status is `not-determined`.
+:::caution
+Note: You can only use **request** functions if the current permission status is `not-determined`.
+:::
 
 ```ts
 const newCameraPermission = await Camera.requestCameraPermission()
@@ -95,4 +100,4 @@ The permission request status can have the following values:
 
 <br />
 
-#### 🎉 Hooray! You're ready to learn about [devices](./DEVICES.md)!
+#### 🎉 Hooray! You're ready to learn about [Camera Devices](devices)!

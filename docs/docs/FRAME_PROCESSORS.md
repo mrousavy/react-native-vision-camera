@@ -1,25 +1,17 @@
-<table>
-<tr>
-<th><a href="../README.md">README</a></th>
-<th><a href="./SETUP.md">SETUP</a></th>
-<th><a href="./DEVICES.md">DEVICES</a></th>
-<th><a href="./FORMATS.md">FORMATS</a></th>
-<th>FRAME_PROCESSORS</th>
-<th><a href="./ANIMATED.md">ANIMATED</a></th>
-<th><a href="./ERRORS.md">ERRORS</a></th>
-</tr>
-</table>
+---
+id: frame-processors
+title: Frame Processors
+sidebar_label: Frame Processors
+---
 
-<br/>
+:::warning
+FRAME PROCESSORS ARE STILL WORK IN PROGRESS - SEE [#2](https://github.com/cuvent/react-native-vision-camera/pull/2)
+:::
 
-<h1 align="center">Frame Processors</h1>
-
-<div>
 <!-- TODO: Demo of QR code scanning or smth -->
-  <img align="right" width="35%" src="../img/ultra-wide-demo.gif">
+<div>
+  <img align="right" width="35%" src="../static/img/ultra-wide-demo.gif" />
 </div>
-
-> FRAME PROCESSORS ARE STILL WIP - SEE [#2](https://github.com/cuvent/react-native-vision-camera/pull/2)
 
 ### What are frame processors?
 
@@ -61,7 +53,11 @@ function App() {
 }
 ```
 
+### Plugins
+
+> TODO
+
 
 <br />
 
-#### 🚀 Next section: [ANIMATED](./ANIMATED.md)
+#### 🚀 Next section: [Zooming with Reanimated](animated)
