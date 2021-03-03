@@ -1,5 +1,5 @@
 module.exports = {
-  title: 'My Site',
+  title: 'VisionCamera',
   tagline: 'The tagline of my site',
   url: 'https://your-docusaurus-test-site.com',
   baseUrl: '/',
@@ -102,4 +102,15 @@ module.exports = {
       },
     ],
   ],
+  plugins: [
+    [
+      'docusaurus-plugin-typedoc',
+
+      {
+        entryPoints: ['../src/index.ts'],
+        tsconfig: '../tsconfig.json'
+      },
+    ],
+  ],
+
 };
