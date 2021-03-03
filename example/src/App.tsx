@@ -24,7 +24,6 @@ import IonIcon from 'react-native-vector-icons/Ionicons';
 import { useSelector } from 'pipestate';
 import { FpsSelector } from './state/selectors';
 
-// @ts-expect-error The <Camera> types are a bit tricky since they're using Unions. I'll try to flatten those out in a future PR.
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
   zoom: true,
@@ -242,13 +241,9 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
                 ref={camera}
                 style={StyleSheet.absoluteFill}
                 device={device}
-                // @ts-expect-error The <Camera> types are a bit tricky since they're using Unions. I'll try to flatten those out in a future PR.
                 format={format}
-                // @ts-expect-error The <Camera> types are a bit tricky since they're using Unions. I'll try to flatten those out in a future PR.
                 fps={fps}
-                // @ts-expect-error The <Camera> types are a bit tricky since they're using Unions. I'll try to flatten those out in a future PR.
                 hdr={enableHdr}
-                // @ts-expect-error The <Camera> types are a bit tricky since they're using Unions. I'll try to flatten those out in a future PR.
                 lowLightBoost={device.supportsLowLightBoost && enableNightMode}
                 isActive={isActive}
                 onInitialized={onInitialized}
