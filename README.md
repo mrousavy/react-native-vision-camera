@@ -1,4 +1,4 @@
-<h1 align="center">Camera</h1>
+<h1 align="center">Vision Camera</h1>
 
 <div align="center">
   <img src="docs/static/img/11.png" width="50%">
@@ -35,8 +35,8 @@
 
 ### Documentation
 
-* [VisionCamera Guides (Getting Started)](https://cuvent.com)
-* [VisionCamera API](https://cuvent.com)
+* [Guides (Getting Started) 🚀](https://cuvent.com)
+* [API 🧩](https://cuvent.com)
 
 ### Install
 
@@ -44,8 +44,6 @@
 npm i react-native-vision-camera
 npx pod-install
 ```
-
-> See [SETUP.md](./docs/SETUP.md)
 
 ### Features
 
