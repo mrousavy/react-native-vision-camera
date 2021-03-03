@@ -60,3 +60,7 @@ lib/
 
 # we only use yarn
 package-lock.json
+
+# TypeDoc/Docusaurus stuff
+docs/docs/api
+docs/typedoc-sidebar.js
