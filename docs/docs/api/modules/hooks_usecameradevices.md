@@ -29,7 +29,7 @@ return <Camera device={device} />
 
 The best matching `CameraDevice`.
 
-Defined in: [src/hooks/useCameraDevices.ts:29](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/hooks/useCameraDevices.ts#L29)
+Defined in: [src/hooks/useCameraDevices.ts:29](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/hooks/useCameraDevices.ts#L29)
 
 ▸ **useCameraDevices**(`deviceType`: [*PhysicalCameraDeviceType*](cameradevice.md#physicalcameradevicetype) \| [*LogicalCameraDeviceType*](cameradevice.md#logicalcameradevicetype)): CameraDevices
 
@@ -54,4 +54,4 @@ Name | Type | Description |
 
 A `CameraDevice` for the requested device type.
 
-Defined in: [src/hooks/useCameraDevices.ts:44](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/hooks/useCameraDevices.ts#L44)
+Defined in: [src/hooks/useCameraDevices.ts:44](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/hooks/useCameraDevices.ts#L44)

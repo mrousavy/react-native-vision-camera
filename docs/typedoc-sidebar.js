@@ -18,7 +18,6 @@ module.exports = [
       "api/modules/videofile",
       "api/modules/hooks_usecameradevices",
       "api/modules/hooks_usecameraformat",
-      "api/modules/index",
       "api/modules/utils_formatfilter"
     ]
   },
@@ -28,10 +27,7 @@ module.exports = [
     "items": [
       "api/classes/camera.camera-1",
       "api/classes/cameraerror.cameracaptureerror",
-      "api/classes/cameraerror.cameraruntimeerror",
-      "api/classes/index.camera",
-      "api/classes/index.cameracaptureerror",
-      "api/classes/index.cameraruntimeerror"
+      "api/classes/cameraerror.cameraruntimeerror"
     ]
   },
   {
@@ -42,12 +38,7 @@ module.exports = [
       "api/interfaces/photofile.takephotooptions",
       "api/interfaces/point.point-1",
       "api/interfaces/snapshot.takesnapshotoptions",
-      "api/interfaces/videofile.recordvideooptions",
-      "api/interfaces/index.errorwithcause",
-      "api/interfaces/index.point",
-      "api/interfaces/index.recordvideooptions",
-      "api/interfaces/index.takephotooptions",
-      "api/interfaces/index.takesnapshotoptions"
+      "api/interfaces/videofile.recordvideooptions"
     ]
   }
 ];

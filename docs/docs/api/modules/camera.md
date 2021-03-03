@@ -29,7 +29,7 @@ Name | Type | Description |
 `enableHighResolutionCapture`? | *boolean* | Indicates whether the photo render pipeline should be configured to deliver high resolution still images  **`default`** false  |
 `enablePortraitEffectsMatteDelivery`? | *boolean* | A boolean specifying whether the photo render pipeline is prepared for portrait effects matte delivery.  When enabling this, you must also set `enableDepthData` to `true`.   **`platform`** iOS 12.0+  **`default`** false  |
 
-Defined in: [src/Camera.tsx:73](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L73)
+Defined in: [src/Camera.tsx:73](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L73)
 
 ___
 
@@ -46,7 +46,7 @@ Name | Type | Description |
 `torch`? | *off* \| *on* | Set the current torch mode.  Note: The torch is only available on `"back"` cameras, and isn't supported by every phone.   **`default`** "off"  |
 `zoom`? | *number* | Specifies the zoom factor of the current camera, in percent. (`0.0` - `1.0`)  **`default`** 0.0  |
 
-Defined in: [src/Camera.tsx:102](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L102)
+Defined in: [src/Camera.tsx:102](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L102)
 
 ___
 
@@ -61,7 +61,7 @@ Name | Type | Description |
 `onError`? | (`error`: [*CameraRuntimeError*](../classes/cameraerror.cameraruntimeerror.md)) => *void* | Called when any kind of runtime error occured.   |
 `onInitialized`? | () => *void* | Called when the camera was successfully initialized.   |
 
-Defined in: [src/Camera.tsx:133](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L133)
+Defined in: [src/Camera.tsx:133](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L133)
 
 ___
 
@@ -69,7 +69,7 @@ ___
 
 Ƭ **CameraPermissionRequestResult**: *authorized* \| *denied*
 
-Defined in: [src/Camera.tsx:152](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L152)
+Defined in: [src/Camera.tsx:152](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L152)
 
 ___
 
@@ -77,7 +77,7 @@ ___
 
 Ƭ **CameraPermissionStatus**: *authorized* \| *not-determined* \| *denied* \| *restricted*
 
-Defined in: [src/Camera.tsx:151](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L151)
+Defined in: [src/Camera.tsx:151](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L151)
 
 ___
 
@@ -85,7 +85,7 @@ ___
 
 Ƭ **CameraProps**: CameraPresetProps \| CameraFormatProps & CameraScannerPropsNever \| [*CameraScannerProps*](camera.md#camerascannerprops) & [*CameraDeviceProps*](camera.md#cameradeviceprops) & [*CameraDynamicProps*](camera.md#cameradynamicprops) & [*CameraEventProps*](camera.md#cameraeventprops) & ViewProps
 
-Defined in: [src/Camera.tsx:144](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L144)
+Defined in: [src/Camera.tsx:144](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L144)
 
 ___
 
@@ -93,4 +93,4 @@ ___
 
 Ƭ **CameraScannerProps**: *Modify*<CameraScannerPropsNever, { `onCodeScanned`: (`codes`: [*Code*](code.md#code)[]) => *void* ; `scannableCodes`: [*CodeType*](code.md#codetype)[]  }\>
 
-Defined in: [src/Camera.tsx:65](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L65)
+Defined in: [src/Camera.tsx:65](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L65)

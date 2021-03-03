@@ -27,5 +27,4 @@ hide_title: true
 - [VideoFile](modules/videofile.md)
 - [hooks/useCameraDevices](modules/hooks_usecameradevices.md)
 - [hooks/useCameraFormat](modules/hooks_usecameraformat.md)
-- [index](modules/index.md)
 - [utils/FormatFilter](modules/utils_formatfilter.md)

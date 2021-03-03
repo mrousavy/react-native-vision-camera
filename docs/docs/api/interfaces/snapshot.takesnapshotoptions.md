@@ -22,7 +22,7 @@ It is recommended to set this to `90` or even `80`, since the user probably won'
 
 **`default`** 100
 
-Defined in: [src/Snapshot.ts:9](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Snapshot.ts#L9)
+Defined in: [src/Snapshot.ts:9](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Snapshot.ts#L9)
 
 ___
 
@@ -38,4 +38,4 @@ This might result in a faster capture, as metadata reading and mapping requires 
 
 **`platform`** Android
 
-Defined in: [src/Snapshot.ts:20](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Snapshot.ts#L20)
+Defined in: [src/Snapshot.ts:20](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Snapshot.ts#L20)

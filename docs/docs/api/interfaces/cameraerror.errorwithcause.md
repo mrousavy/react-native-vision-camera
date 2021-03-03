@@ -23,7 +23,7 @@ Optional additional cause for nested errors
 * iOS: N/A
 * Android: `Throwable.cause`
 
-Defined in: [src/CameraError.ts:84](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L84)
+Defined in: [src/CameraError.ts:84](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/CameraError.ts#L84)
 
 ___
 
@@ -36,7 +36,7 @@ The native error's code.
 * iOS: `NSError.code`
 * Android: N/A
 
-Defined in: [src/CameraError.ts:49](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L49)
+Defined in: [src/CameraError.ts:49](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/CameraError.ts#L49)
 
 ___
 
@@ -49,7 +49,7 @@ Optional additional details
 * iOS: `NSError.userInfo`
 * Android: N/A
 
-Defined in: [src/CameraError.ts:70](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L70)
+Defined in: [src/CameraError.ts:70](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/CameraError.ts#L70)
 
 ___
 
@@ -62,7 +62,7 @@ The native error's domain.
 * iOS: `NSError.domain`
 * Android: N/A
 
-Defined in: [src/CameraError.ts:56](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L56)
+Defined in: [src/CameraError.ts:56](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/CameraError.ts#L56)
 
 ___
 
@@ -75,7 +75,7 @@ The native error description (Localized on iOS)
 * iOS: `NSError.message`
 * Android: `Throwable.message`
 
-Defined in: [src/CameraError.ts:63](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L63)
+Defined in: [src/CameraError.ts:63](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/CameraError.ts#L63)
 
 ___
 
@@ -88,4 +88,4 @@ Optional stacktrace
 * iOS: N/A
 * Android: `Throwable.stacktrace.toString()`
 
-Defined in: [src/CameraError.ts:77](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L77)
+Defined in: [src/CameraError.ts:77](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/CameraError.ts#L77)

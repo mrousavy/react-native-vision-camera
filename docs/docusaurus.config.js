@@ -96,6 +96,7 @@ module.exports = {
       'docusaurus-plugin-typedoc',
       {
         entryPoints: ['../src'],
+        exclude: "../src/index.ts",
         tsconfig: '../tsconfig.json',
         readme: "none",
         sidebar: {

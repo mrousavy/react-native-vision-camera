@@ -29,4 +29,4 @@ Indicates the quality level or bit rate of the output.
 * `"photo"`: Specifies capture settings suitable for high-resolution photo quality output.
 * `"vga-640x480"`: Specifies capture settings suitable for VGA quality (640 x 480 pixel) video output.
 
-Defined in: [src/CameraPreset.ts:17](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraPreset.ts#L17)
+Defined in: [src/CameraPreset.ts:17](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/CameraPreset.ts#L17)

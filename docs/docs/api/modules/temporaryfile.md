@@ -16,4 +16,4 @@ hide_title: true
 
 Represents a temporary file in the local filesystem.
 
-Defined in: [src/TemporaryFile.ts:4](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/TemporaryFile.ts#L4)
+Defined in: [src/TemporaryFile.ts:4](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/TemporaryFile.ts#L4)

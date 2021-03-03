@@ -20,7 +20,7 @@ Specifies whether the photo output should use content aware distortion correctio
 
 **`default`** false
 
-Defined in: [src/PhotoFile.ts:52](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/PhotoFile.ts#L52)
+Defined in: [src/PhotoFile.ts:52](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/PhotoFile.ts#L52)
 
 ___
 
@@ -32,7 +32,7 @@ Specifies whether red-eye reduction should be applied automatically on flash cap
 
 **`default`** false
 
-Defined in: [src/PhotoFile.ts:33](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/PhotoFile.ts#L33)
+Defined in: [src/PhotoFile.ts:33](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/PhotoFile.ts#L33)
 
 ___
 
@@ -44,7 +44,7 @@ Indicates whether still image stabilization will be employed when capturing the 
 
 **`default`** false
 
-Defined in: [src/PhotoFile.ts:46](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/PhotoFile.ts#L46)
+Defined in: [src/PhotoFile.ts:46](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/PhotoFile.ts#L46)
 
 ___
 
@@ -57,7 +57,7 @@ to create a combined, higher quality image.
 
 **`see`** [`isAutoVirtualDeviceFusionEnabled`](https://developer.apple.com/documentation/avfoundation/avcapturephotosettings/3192192-isautovirtualdevicefusionenabled)
 
-Defined in: [src/PhotoFile.ts:40](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/PhotoFile.ts#L40)
+Defined in: [src/PhotoFile.ts:40](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/PhotoFile.ts#L40)
 
 ___
 
@@ -69,7 +69,7 @@ Whether the Flash should be enabled or disabled
 
 **`default`** "auto"
 
-Defined in: [src/PhotoFile.ts:27](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/PhotoFile.ts#L27)
+Defined in: [src/PhotoFile.ts:27](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/PhotoFile.ts#L27)
 
 ___
 
@@ -81,7 +81,7 @@ Specify the photo codec to use. To get a list of available photo codecs use the 
 
 **`default`** undefined
 
-Defined in: [src/PhotoFile.ts:10](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/PhotoFile.ts#L10)
+Defined in: [src/PhotoFile.ts:10](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/PhotoFile.ts#L10)
 
 ___
 
@@ -99,7 +99,7 @@ Indicates how photo quality should be prioritized against speed.
 
 **`default`** "balanced"
 
-Defined in: [src/PhotoFile.ts:21](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/PhotoFile.ts#L21)
+Defined in: [src/PhotoFile.ts:21](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/PhotoFile.ts#L21)
 
 ___
 
@@ -115,4 +115,4 @@ This might result in a faster capture, as metadata reading and mapping requires 
 
 **`platform`** Android
 
-Defined in: [src/PhotoFile.ts:62](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/PhotoFile.ts#L62)
+Defined in: [src/PhotoFile.ts:62](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/PhotoFile.ts#L62)

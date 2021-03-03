@@ -22,4 +22,4 @@ hide_title: true
 
 Represents a Video taken by the Camera written to the local filesystem.
 
-Defined in: [src/VideoFile.ts:50](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/VideoFile.ts#L50)
+Defined in: [src/VideoFile.ts:50](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/VideoFile.ts#L50)

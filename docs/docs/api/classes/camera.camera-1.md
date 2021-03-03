@@ -56,7 +56,7 @@ Name | Type |
 
 **Returns:** [*Camera*](camera.camera-1.md)
 
-Defined in: [src/Camera.tsx:210](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L210)
+Defined in: [src/Camera.tsx:210](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L210)
 
 ## Properties
 
@@ -86,7 +86,7 @@ ___
 
 • **displayName**: *string*
 
-Defined in: [src/Camera.tsx:208](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L208)
+Defined in: [src/Camera.tsx:208](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L208)
 
 ___
 
@@ -102,7 +102,7 @@ ___
 
 • `Private` `Readonly` **ref**: *RefObject*<RefType\>
 
-Defined in: [src/Camera.tsx:210](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L210)
+Defined in: [src/Camera.tsx:210](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L210)
 
 ___
 
@@ -158,7 +158,7 @@ ___
 
 ▪ `Static` **displayName**: *string*= 'Camera'
 
-Defined in: [src/Camera.tsx:207](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L207)
+Defined in: [src/Camera.tsx:207](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L207)
 
 ## Accessors
 
@@ -168,7 +168,7 @@ Defined in: [src/Camera.tsx:207](https://github.com/cuvent/react-native-vision-c
 
 **Returns:** *null* \| *number*
 
-Defined in: [src/Camera.tsx:221](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L221)
+Defined in: [src/Camera.tsx:221](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L221)
 
 ## Methods
 
@@ -429,7 +429,7 @@ Name | Type | Description |
 
 **Returns:** *Promise*<void\>
 
-Defined in: [src/Camera.tsx:326](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L326)
+Defined in: [src/Camera.tsx:326](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L326)
 
 ___
 
@@ -460,7 +460,7 @@ so only use this after the `onInitialized` event has fired.
 
 **Returns:** *Promise*<[*CameraPhotoCodec*](../modules/cameracodec.md#cameraphotocodec)[]\>
 
-Defined in: [src/Camera.tsx:353](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L353)
+Defined in: [src/Camera.tsx:353](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L353)
 
 ___
 
@@ -475,7 +475,7 @@ so only use this after the `onInitialized` event has fired.
 
 **Returns:** *Promise*<[*CameraVideoCodec*](../modules/cameracodec.md#cameravideocodec)[]\>
 
-Defined in: [src/Camera.tsx:340](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L340)
+Defined in: [src/Camera.tsx:340](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L340)
 
 ___
 
@@ -515,7 +515,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [src/Camera.tsx:445](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L445)
+Defined in: [src/Camera.tsx:445](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L445)
 
 ___
 
@@ -531,7 +531,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [src/Camera.tsx:428](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L428)
+Defined in: [src/Camera.tsx:428](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L428)
 
 ___
 
@@ -541,7 +541,7 @@ ___
 
 **Returns:** *void*
 
-Defined in: [src/Camera.tsx:441](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L441)
+Defined in: [src/Camera.tsx:441](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L441)
 
 ___
 
@@ -551,7 +551,7 @@ ___
 
 **Returns:** ReactNode
 
-Defined in: [src/Camera.tsx:461](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L461)
+Defined in: [src/Camera.tsx:461](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L461)
 
 ___
 
@@ -638,7 +638,7 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [src/Camera.tsx:282](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L282)
+Defined in: [src/Camera.tsx:282](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L282)
 
 ___
 
@@ -658,7 +658,7 @@ setTimeout(async () => {
 
 **Returns:** *Promise*<void\>
 
-Defined in: [src/Camera.tsx:309](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L309)
+Defined in: [src/Camera.tsx:309](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L309)
 
 ___
 
@@ -678,7 +678,7 @@ Name | Type |
 
 **Returns:** *Promise*<Readonly<*Readonly*<{ `path`: *string*  }\> & { `height`: *number* ; `isRawPhoto`: *boolean* ; `metadata`: { `DPIHeight`: *number* ; `DPIWidth`: *number* ; `Orientation`: *number* ; `{Exif}`: { `ApertureValue`: *number* ; `BrightnessValue`: *number* ; `ColorSpace`: *number* ; `DateTimeDigitized`: *string* ; `DateTimeOriginal`: *string* ; `ExifVersion`: *string* ; `ExposureBiasValue`: *number* ; `ExposureMode`: *number* ; `ExposureProgram`: *number* ; `ExposureTime`: *number* ; `FNumber`: *number* ; `Flash`: *number* ; `FocalLenIn35mmFilm`: *number* ; `FocalLength`: *number* ; `ISOSpeedRatings`: *number*[] ; `LensMake`: *string* ; `LensModel`: *string* ; `LensSpecification`: *number*[] ; `MeteringMode`: *number* ; `OffsetTime`: *string* ; `OffsetTimeDigitized`: *string* ; `OffsetTimeOriginal`: *string* ; `PixelXDimension`: *number* ; `PixelYDimension`: *number* ; `SceneType`: *number* ; `SensingMethod`: *number* ; `ShutterSpeedValue`: *number* ; `SubjectArea`: *number*[] ; `SubsecTimeDigitized`: *string* ; `SubsecTimeOriginal`: *string* ; `WhiteBalance`: *number*  } ; `{MakerApple}?`: *undefined* \| *Record*<string, unknown\> ; `{TIFF}`: { `DateTime`: *string* ; `HostComputer?`: *undefined* \| *string* ; `Make`: *string* ; `Model`: *string* ; `ResolutionUnit`: *number* ; `Software`: *string* ; `XResolution`: *number* ; `YResolution`: *number*  }  } ; `thumbnail?`: *undefined* \| *Record*<string, unknown\> ; `width`: *number*  }\>\>
 
-Defined in: [src/Camera.tsx:234](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L234)
+Defined in: [src/Camera.tsx:234](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L234)
 
 ___
 
@@ -700,7 +700,7 @@ Name | Type |
 
 **Returns:** *Promise*<Readonly<*Readonly*<{ `path`: *string*  }\> & { `height`: *number* ; `isRawPhoto`: *boolean* ; `metadata`: { `DPIHeight`: *number* ; `DPIWidth`: *number* ; `Orientation`: *number* ; `{Exif}`: { `ApertureValue`: *number* ; `BrightnessValue`: *number* ; `ColorSpace`: *number* ; `DateTimeDigitized`: *string* ; `DateTimeOriginal`: *string* ; `ExifVersion`: *string* ; `ExposureBiasValue`: *number* ; `ExposureMode`: *number* ; `ExposureProgram`: *number* ; `ExposureTime`: *number* ; `FNumber`: *number* ; `Flash`: *number* ; `FocalLenIn35mmFilm`: *number* ; `FocalLength`: *number* ; `ISOSpeedRatings`: *number*[] ; `LensMake`: *string* ; `LensModel`: *string* ; `LensSpecification`: *number*[] ; `MeteringMode`: *number* ; `OffsetTime`: *string* ; `OffsetTimeDigitized`: *string* ; `OffsetTimeOriginal`: *string* ; `PixelXDimension`: *number* ; `PixelYDimension`: *number* ; `SceneType`: *number* ; `SensingMethod`: *number* ; `ShutterSpeedValue`: *number* ; `SubjectArea`: *number*[] ; `SubsecTimeDigitized`: *string* ; `SubsecTimeOriginal`: *string* ; `WhiteBalance`: *number*  } ; `{MakerApple}?`: *undefined* \| *Record*<string, unknown\> ; `{TIFF}`: { `DateTime`: *string* ; `HostComputer?`: *undefined* \| *string* ; `Make`: *string* ; `Model`: *string* ; `ResolutionUnit`: *number* ; `Software`: *string* ; `XResolution`: *number* ; `YResolution`: *number*  }  } ; `thumbnail?`: *undefined* \| *Record*<string, unknown\> ; `width`: *number*  }\>\>
 
-Defined in: [src/Camera.tsx:249](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L249)
+Defined in: [src/Camera.tsx:249](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L249)
 
 ___
 
@@ -712,7 +712,7 @@ Get a list of all available camera devices on the current phone.
 
 **Returns:** *Promise*<Readonly<{ `devices`: [*PhysicalCameraDeviceType*](../modules/cameradevice.md#physicalcameradevicetype)[] ; `formats`: *Readonly*<{ `autoFocusSystem`: [*AutoFocusSystem*](../modules/cameradevice.md#autofocussystem) ; `colorSpaces`: [*ColorSpace*](../modules/cameradevice.md#colorspace)[] ; `fieldOfView`: *number* ; `frameRateRanges`: *Readonly*<{ `maxFrameRate`: *number* ; `minFrameRate`: *number*  }\>[] ; `isHighestPhotoQualitySupported?`: *undefined* \| *boolean* ; `maxISO`: *number* ; `maxZoom`: *number* ; `minISO`: *number* ; `photoHeight`: *number* ; `photoWidth`: *number* ; `supportsPhotoHDR`: *boolean* ; `supportsVideoHDR`: *boolean* ; `videoHeight?`: *undefined* \| *number* ; `videoStabilizationModes`: [*VideoStabilizationMode*](../modules/cameradevice.md#videostabilizationmode)[] ; `videoWidth?`: *undefined* \| *number*  }\>[] ; `hasFlash`: *boolean* ; `hasTorch`: *boolean* ; `id`: *string* ; `isMultiCam`: *boolean* ; `maxZoom`: *number* ; `minZoom`: *number* ; `name`: *string* ; `neutralZoom`: *number* ; `position`: [*CameraPosition*](../modules/cameraposition.md#cameraposition) ; `supportsLowLightBoost`: *boolean*  }\>[]\>
 
-Defined in: [src/Camera.tsx:366](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L366)
+Defined in: [src/Camera.tsx:366](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L366)
 
 ___
 
@@ -727,7 +727,7 @@ To actually prompt the user for camera permission, use `Camera.requestCameraPerm
 
 **Returns:** *Promise*<[*CameraPermissionStatus*](../modules/camera.md#camerapermissionstatus)\>
 
-Defined in: [src/Camera.tsx:379](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L379)
+Defined in: [src/Camera.tsx:379](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L379)
 
 ___
 
@@ -744,7 +744,7 @@ Name | Type |
 
 **Returns:** *null* \| CameraState
 
-Defined in: [src/Camera.tsx:454](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L454)
+Defined in: [src/Camera.tsx:454](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L454)
 
 ___
 
@@ -759,7 +759,7 @@ To actually prompt the user for microphone permission, use `Camera.requestMicrop
 
 **Returns:** *Promise*<[*CameraPermissionStatus*](../modules/camera.md#camerapermissionstatus)\>
 
-Defined in: [src/Camera.tsx:392](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L392)
+Defined in: [src/Camera.tsx:392](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L392)
 
 ___
 
@@ -774,7 +774,7 @@ and `"denied"` will be returned.
 
 **Returns:** *Promise*<[*CameraPermissionRequestResult*](../modules/camera.md#camerapermissionrequestresult)\>
 
-Defined in: [src/Camera.tsx:405](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L405)
+Defined in: [src/Camera.tsx:405](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L405)
 
 ___
 
@@ -789,4 +789,4 @@ and `"denied"` will be returned.
 
 **Returns:** *Promise*<[*CameraPermissionRequestResult*](../modules/camera.md#camerapermissionrequestresult)\>
 
-Defined in: [src/Camera.tsx:418](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L418)
+Defined in: [src/Camera.tsx:418](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Camera.tsx#L418)

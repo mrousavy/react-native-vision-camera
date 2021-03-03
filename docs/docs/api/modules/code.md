@@ -16,7 +16,7 @@ hide_title: true
 
 Represents a File in the local filesystem.
 
-Defined in: [src/Code.ts:27](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Code.ts#L27)
+Defined in: [src/Code.ts:27](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Code.ts#L27)
 
 ___
 
@@ -26,4 +26,4 @@ ___
 
 Available code types
 
-Defined in: [src/Code.ts:4](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Code.ts#L4)
+Defined in: [src/Code.ts:4](https://github.com/cuvent/react-native-vision-camera/blob/c314255/src/Code.ts#L4)
