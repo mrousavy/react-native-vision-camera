@@ -1,11 +1,32 @@
 name: Build Documentation
 
 on:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
 
 jobs:
+  checks:
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
+      - name: Test Build
+        run: |
+          if [ -e yarn.lock ]; then
+          yarn install --frozen-lockfile
+          elif [ -e package-lock.json ]; then
+          npm ci
+          else
+          npm i
+          fi
+          npm run build
   gh-release:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -29,6 +50,8 @@ jobs:
         env:
           USE_SSH: true
           GIT_USER: git
+          CURRENT_BRANCH: main
+          DEPLOYMENT_BRANCH: gh-pages
         run: |
           git config --global user.email "actions@gihub.com"
           git config --global user.name "gh-actions"
