@@ -48,7 +48,7 @@ jobs:
           EOT
       - name: Release to GitHub Pages
         env:
-          USE_SSH: false
+          USE_SSH: true
           GIT_USER: git
           CURRENT_BRANCH: main
           DEPLOYMENT_BRANCH: gh-pages
