@@ -33,6 +33,24 @@ Open your project's `Info.plist` and add the following lines inside the outermos
 <string>$(PRODUCT_NAME) needs access to your Microphone to record videos with audio.</string>
 ```
 
+#### Compatibility
+
+VisionCamera is written in Swift. If your project is written in Objective-C, you have to create a Bridging Header first:
+
+1. Open your project (`.xcworkspace`) in Xcode
+2. Press **File** > **New** > **File** (<kbd>⌘</kbd>+<kbd>N</kbd>)
+3. Select **Swift File** and press **Next**
+4. Choose whatever name you want, e.g. `File.swift` and press **Create**
+5. Press **Create Bridging Header** when promted.
+
+Also, make sure you're using Swift 5.2 or above:
+
+1. Open `project.pbxproj` in a Text Editor
+2. If the `LIBRARY_SEARCH_PATH` value is set, make sure there is no explicit reference to Swift-5.0. If there is, remove it. See [this StackOverflow answer](https://stackoverflow.com/a/66281846/1123156).
+3. If the `SWIFT_VERSION` value is set, make sure it is set to `5.2` or higher.
+
+> See [Troubleshooting](troubleshooting) if you're having problems
+
 ### Android
 
 Open your project's `AndroidManifest.xml` and add the following lines inside the `<manifest>` tag:
