@@ -20,7 +20,7 @@ Represents a Point in a 2 dimensional coordinate system.
 
 The X coordinate of this Point. (double)
 
-Defined in: [src/Point.ts:8](https://github.com/cuvent/react-native-vision-camera/blob/cebf4df/src/Point.ts#L8)
+Defined in: [src/Point.ts:8](https://github.com/cuvent/react-native-vision-camera/blob/89913de/src/Point.ts#L8)
 
 ___
 
@@ -30,4 +30,4 @@ ___
 
 The Y coordinate of this Point. (double)
 
-Defined in: [src/Point.ts:12](https://github.com/cuvent/react-native-vision-camera/blob/cebf4df/src/Point.ts#L12)
+Defined in: [src/Point.ts:12](https://github.com/cuvent/react-native-vision-camera/blob/89913de/src/Point.ts#L12)

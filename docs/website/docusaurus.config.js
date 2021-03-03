@@ -5,7 +5,7 @@ module.exports = {
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
-  favicon: 'img/favicon.ico',
+  favicon: './favicon.ico',
   organizationName: 'cuvent',
   projectName: 'react-native-vision-camera',
   themeConfig: {
