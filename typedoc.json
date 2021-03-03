@@ -1,6 +1,22 @@
 {
-  "entryPoints": ["src/index.ts"],
+  "entryPoints": [
+    "src/index.ts"
+  ],
   "out": "docs/api",
   "media": "img/example.png",
-  "theme": "node_modules/typedoc-neo-theme/bin/default"
+  "theme": "node_modules/typedoc-neo-theme/bin/default",
+  "links": [
+    {
+      "label": "Guides",
+      "url": "https://github.com/cuvent/react-native-vision-camera/blob/main/README.md"
+    },
+    {
+      "label": "Troubleshooting",
+      "url": "https://github.com/cuvent/react-native-vision-camera/blob/main/docs/TROUBLESHOOTING.md"
+    },
+    {
+      "label": "Issues",
+      "url": "https://github.com/cuvent/react-native-vision-camera/issues"
+    }
+  ]
 }
