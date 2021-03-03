@@ -1,8 +1,8 @@
 module.exports = {
   title: 'VisionCamera',
   tagline: '📸 The Camera library that sees the vision.',
-  url: 'https://github.com/cuvent/react-native-vision-camera',
-  baseUrl: '/',
+  url: 'https://cuvent.github.io',
+  baseUrl: '/react-native-vision-camera/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: './favicon.ico',
