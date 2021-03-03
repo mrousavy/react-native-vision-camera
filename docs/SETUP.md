@@ -42,6 +42,10 @@ Open your project's `Info.plist` and add the following lines inside the outermos
 <string>$(PRODUCT_NAME) needs access to your Microphone to record videos with audio.</string>
 ```
 
+You also may need to:
+- add a Swift file to your project so that Xcode creates a bridging header,
+- remove explicit Swift 5.0 imports for the library to compile as per [this StackOverflow answer](https://stackoverflow.com/a/66281846/1123156).
+
 ### Android
 
 Open your project's `AndroidManifest.xml` and add the following lines inside the `<manifest>` tag:
