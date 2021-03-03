@@ -35,8 +35,9 @@
 
 ### Documentation
 
-* [Guides (Getting Started) 🚀](https://cuvent.com)
-* [API 🧩](https://cuvent.com)
+* [Guides](https://cuvent.github.io/react-native-vision-camera/docs/)
+* [API](https://cuvent.github.io/react-native-vision-camera/docs/api)
+* [Example](./example/)
 
 ### Install
 
@@ -77,4 +78,4 @@ function App() {
 
 <br />
 
-#### 🚀 Get started by [setting up permissions](https://cuvent.com)!
+#### 🚀 Get started by [setting up permissions](https://cuvent.github.io/react-native-vision-camera/docs/)!
