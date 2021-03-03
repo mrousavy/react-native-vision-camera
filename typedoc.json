@@ -1,9 +1,9 @@
 {
   "entryPoints": [
-    "src/index.ts"
+    "src"
   ],
+  "exclude": "**/index.ts",
   "out": "docs/api",
-  "media": "img/example.png",
   "theme": "node_modules/typedoc-neo-theme/bin/default",
   "links": [
     {
@@ -18,5 +18,6 @@
       "label": "Issues",
       "url": "https://github.com/cuvent/react-native-vision-camera/issues"
     }
-  ]
+  ],
+  "highlightTheme": "dark-plus"
 }
