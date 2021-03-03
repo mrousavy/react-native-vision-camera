@@ -54,6 +54,8 @@ npm i react-native-vision-camera
 npx pod-install
 ```
 
+> See [SETUP.md](./docs/SETUP.md)
+
 ### Features
 
 * Photo and Video capture
