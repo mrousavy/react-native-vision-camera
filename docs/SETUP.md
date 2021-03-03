@@ -43,8 +43,10 @@ Open your project's `Info.plist` and add the following lines inside the outermos
 ```
 
 You also may need to:
-- add a Swift file to your project so that Xcode creates a bridging header,
-- remove explicit Swift 5.0 imports for the library to compile as per [this StackOverflow answer](https://stackoverflow.com/a/66281846/1123156).
+- add a Swift file to your project so that Xcode creates a bridging header
+- remove explicit Swift 5.0 references in the `LIBRARY_SEARCH_PATH` list as per [this StackOverflow answer](https://stackoverflow.com/a/66281846/1123156)
+
+> See [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) if you're having problems
 
 ### Android
 
