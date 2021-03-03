@@ -101,9 +101,9 @@ module.exports = {
         readme: "none",
         sidebar: {
           sidebarFile: 'typedoc-sidebar.js',
-          fullNames: true,
-          readmeLabel: 'Overview'
-        },
+          fullNames: false,
+          indexLabel: 'Overview'
+        }
       },
     ],
   ],

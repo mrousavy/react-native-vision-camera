@@ -1,5 +1,6 @@
 module.exports = [
   "api/index",
+  "api/modules",
   {
     "type": "category",
     "label": "Modules",

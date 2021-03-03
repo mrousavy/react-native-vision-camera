@@ -34,7 +34,6 @@
   "devDependencies": {
     "docusaurus-plugin-typedoc": "^0.10.0",
     "typedoc": "^0.20.28",
-    "typedoc-plugin-markdown": "^3.6.0",
-    "typescript": "^4.1.5"
+    "typedoc-plugin-markdown": "^3.6.0"
   }
 }

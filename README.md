@@ -7,7 +7,7 @@
   <blockquote><h4>📸 The Camera library that sees the vision.</h4></blockquote>
   <br />
 
-  <a href="https://cuvent.com"><img height=40 src="docs/static/img/cuvent-logo-text.svg"></a>
+  <a href="https://cuvent.com"><img height="40" src="docs/static/img/cuvent-logo-text.svg"></a>
   <br/>
   <span>
     <a align="center" href="https://github.com/mrousavy?tab=followers">
