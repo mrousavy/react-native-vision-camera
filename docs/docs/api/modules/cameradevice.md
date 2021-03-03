@@ -20,7 +20,7 @@ Indicates a format's autofocus system.
 * `"contrast-detection"`: Indicates that autofocus is achieved by contrast detection. Contrast detection performs a focus scan to find the optimal position
 * `"phase-detection"`: Indicates that autofocus is achieved by phase detection. Phase detection has the ability to achieve focus in many cases without a focus scan. Phase detection autofocus is typically less visually intrusive than contrast detection autofocus
 
-Defined in: [src/CameraDevice.ts:64](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraDevice.ts#L64)
+Defined in: [src/CameraDevice.ts:64](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraDevice.ts#L64)
 
 ___
 
@@ -30,7 +30,7 @@ ___
 
 Represents a camera device discovered by the `Camera.getAvailableCameraDevices()` function
 
-Defined in: [src/CameraDevice.ts:159](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraDevice.ts#L159)
+Defined in: [src/CameraDevice.ts:159](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraDevice.ts#L159)
 
 ___
 
@@ -40,7 +40,7 @@ ___
 
 A Camera Device's video format. Do not create instances of this type yourself, only use `Camera.getAvailableCameraDevices(...)`.
 
-Defined in: [src/CameraDevice.ts:85](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraDevice.ts#L85)
+Defined in: [src/CameraDevice.ts:85](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraDevice.ts#L85)
 
 ___
 
@@ -58,7 +58,7 @@ Indicates a format's color space.
 #### The following colorspaces are available on Android:
 * `"yuv"`: The YCbCr color space.
 
-Defined in: [src/CameraDevice.ts:55](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraDevice.ts#L55)
+Defined in: [src/CameraDevice.ts:55](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraDevice.ts#L55)
 
 ___
 
@@ -66,7 +66,7 @@ ___
 
 Ƭ **FrameRateRange**: *Readonly*<{ `maxFrameRate`: *number* ; `minFrameRate`: *number*  }\>
 
-Defined in: [src/CameraDevice.ts:77](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraDevice.ts#L77)
+Defined in: [src/CameraDevice.ts:77](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraDevice.ts#L77)
 
 ___
 
@@ -81,7 +81,7 @@ Indentifiers for a logical camera (Combinations of multiple physical cameras to 
 * `"triple-camera"`: A device that consists of three cameras of fixed focal length, one ultrawide angle, one wide angle, and one telephoto.
 * `"true-depth-camera"`: A combination of cameras and other sensors that creates a capture device capable of photo, video, and depth capture.
 
-Defined in: [src/CameraDevice.ts:20](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraDevice.ts#L20)
+Defined in: [src/CameraDevice.ts:20](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraDevice.ts#L20)
 
 ___
 
@@ -95,7 +95,7 @@ Indentifiers for a physical camera (one that actually exists on the back/front o
 * `"wide-angle-camera"`: A built-in wide-angle camera. (focal length between 24mm and 35mm)
 * `"telephoto-camera"`: A built-in camera device with a longer focal length than a wide-angle camera. (focal length between above 85mm)
 
-Defined in: [src/CameraDevice.ts:10](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraDevice.ts#L10)
+Defined in: [src/CameraDevice.ts:10](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraDevice.ts#L10)
 
 ___
 
@@ -111,7 +111,7 @@ Indicates a format's supported video stabilization mode
 * `"cinematic-extended"`: Indicates that the video should be stabilized using the extended cinematic stabilization algorithm. Enabling extended cinematic stabilization introduces longer latency into the video capture pipeline compared to the AVCaptureVideoStabilizationModeCinematic and consumes more memory, but yields improved stability. It is recommended to use identical or similar min and max frame durations in conjunction with this mode (iOS 13.0+)
 * `"auto"`: Indicates that the most appropriate video stabilization mode for the device and format should be chosen automatically
 
-Defined in: [src/CameraDevice.ts:75](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraDevice.ts#L75)
+Defined in: [src/CameraDevice.ts:75](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraDevice.ts#L75)
 
 ## Functions
 
@@ -131,4 +131,4 @@ Name | Type |
 
 **Returns:** *ultra-wide-angle-camera* \| *wide-angle-camera* \| *telephoto-camera* \| *dual-camera* \| *dual-wide-camera* \| *triple-camera* \| *true-depth-camera*
 
-Defined in: [src/CameraDevice.ts:26](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraDevice.ts#L26)
+Defined in: [src/CameraDevice.ts:26](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraDevice.ts#L26)

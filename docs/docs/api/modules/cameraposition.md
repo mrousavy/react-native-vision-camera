@@ -25,4 +25,4 @@ Represents the camera device position.
 #### Android only
 * `"external"`: The camera device is an external camera, and has no fixed facing relative to the device's screen. (Android only)
 
-Defined in: [src/CameraPosition.ts:13](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraPosition.ts#L13)
+Defined in: [src/CameraPosition.ts:13](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraPosition.ts#L13)

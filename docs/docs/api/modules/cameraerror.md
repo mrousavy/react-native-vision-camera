@@ -25,7 +25,7 @@ hide_title: true
 
 Ƭ **CaptureError**: *capture/invalid-photo-format* \| *capture/encoder-error* \| *capture/muxer-error* \| *capture/recording-in-progress* \| *capture/no-recording-in-progress* \| *capture/file-io-error* \| *capture/create-temp-file-error* \| *capture/invalid-photo-codec* \| *capture/not-bound-error* \| *capture/capture-type-not-supported* \| *capture/unknown*
 
-Defined in: [src/CameraError.ts:24](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L24)
+Defined in: [src/CameraError.ts:24](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L24)
 
 ___
 
@@ -33,7 +33,7 @@ ___
 
 Ƭ **DeviceError**: *device/configuration-error* \| *device/no-device* \| *device/invalid-device* \| *device/torch-unavailable* \| *device/microphone-unavailable* \| *device/low-light-boost-not-supported* \| *device/focus-not-supported* \| *device/camera-not-available-on-simulator*
 
-Defined in: [src/CameraError.ts:8](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L8)
+Defined in: [src/CameraError.ts:8](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L8)
 
 ___
 
@@ -41,7 +41,7 @@ ___
 
 Ƭ **FormatError**: *format/invalid-fps* \| *format/invalid-hdr* \| *format/invalid-low-light-boost* \| *format/invalid-format* \| *format/invalid-preset*
 
-Defined in: [src/CameraError.ts:17](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L17)
+Defined in: [src/CameraError.ts:17](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L17)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 Ƭ **ParameterError**: *parameter/invalid-parameter* \| *parameter/unsupported-os* \| *parameter/unsupported-output* \| *parameter/unsupported-input* \| *parameter/invalid-combination*
 
-Defined in: [src/CameraError.ts:2](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L2)
+Defined in: [src/CameraError.ts:2](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L2)
 
 ___
 
@@ -57,7 +57,7 @@ ___
 
 Ƭ **PermissionError**: *permission/microphone-permission-denied* \| *permission/camera-permission-denied*
 
-Defined in: [src/CameraError.ts:1](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L1)
+Defined in: [src/CameraError.ts:1](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L1)
 
 ___
 
@@ -65,7 +65,7 @@ ___
 
 Ƭ **SessionError**: *session/camera-not-ready* \| *session/audio-session-setup-failed*
 
-Defined in: [src/CameraError.ts:23](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L23)
+Defined in: [src/CameraError.ts:23](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L23)
 
 ___
 
@@ -73,7 +73,7 @@ ___
 
 Ƭ **SystemError**: *system/no-camera-manager*
 
-Defined in: [src/CameraError.ts:36](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L36)
+Defined in: [src/CameraError.ts:36](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L36)
 
 ___
 
@@ -81,7 +81,7 @@ ___
 
 Ƭ **UnknownError**: *unknown/unknown*
 
-Defined in: [src/CameraError.ts:37](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L37)
+Defined in: [src/CameraError.ts:37](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L37)
 
 ## Functions
 
@@ -97,7 +97,7 @@ Name | Type |
 
 **Returns:** error is ErrorWithCause
 
-Defined in: [src/CameraError.ts:127](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L127)
+Defined in: [src/CameraError.ts:127](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L127)
 
 ___
 
@@ -125,4 +125,4 @@ Name | Type | Description |
 
 A `CameraRuntimeError` or `CameraCaptureError`, or the nativeError if it's not parsable
 
-Defined in: [src/CameraError.ts:153](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L153)
+Defined in: [src/CameraError.ts:153](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L153)

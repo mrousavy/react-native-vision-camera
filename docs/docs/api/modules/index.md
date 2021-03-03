@@ -36,7 +36,7 @@ Indicates a format's autofocus system.
 * `"contrast-detection"`: Indicates that autofocus is achieved by contrast detection. Contrast detection performs a focus scan to find the optimal position
 * `"phase-detection"`: Indicates that autofocus is achieved by phase detection. Phase detection has the ability to achieve focus in many cases without a focus scan. Phase detection autofocus is typically less visually intrusive than contrast detection autofocus
 
-Defined in: [src/CameraDevice.ts:64](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraDevice.ts#L64)
+Defined in: [src/CameraDevice.ts:64](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraDevice.ts#L64)
 
 ___
 
@@ -46,7 +46,7 @@ ___
 
 Represents a camera device discovered by the `Camera.getAvailableCameraDevices()` function
 
-Defined in: [src/CameraDevice.ts:159](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraDevice.ts#L159)
+Defined in: [src/CameraDevice.ts:159](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraDevice.ts#L159)
 
 ___
 
@@ -56,7 +56,7 @@ ___
 
 A Camera Device's video format. Do not create instances of this type yourself, only use `Camera.getAvailableCameraDevices(...)`.
 
-Defined in: [src/CameraDevice.ts:85](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraDevice.ts#L85)
+Defined in: [src/CameraDevice.ts:85](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraDevice.ts#L85)
 
 ___
 
@@ -73,7 +73,7 @@ Name | Type | Description |
 `enableHighResolutionCapture`? | *boolean* | Indicates whether the photo render pipeline should be configured to deliver high resolution still images  **`default`** false  |
 `enablePortraitEffectsMatteDelivery`? | *boolean* | A boolean specifying whether the photo render pipeline is prepared for portrait effects matte delivery.  When enabling this, you must also set `enableDepthData` to `true`.   **`platform`** iOS 12.0+  **`default`** false  |
 
-Defined in: [src/Camera.tsx:73](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/Camera.tsx#L73)
+Defined in: [src/Camera.tsx:73](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L73)
 
 ___
 
@@ -90,7 +90,7 @@ Name | Type | Description |
 `torch`? | *off* \| *on* | Set the current torch mode.  Note: The torch is only available on `"back"` cameras, and isn't supported by every phone.   **`default`** "off"  |
 `zoom`? | *number* | Specifies the zoom factor of the current camera, in percent. (`0.0` - `1.0`)  **`default`** 0.0  |
 
-Defined in: [src/Camera.tsx:102](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/Camera.tsx#L102)
+Defined in: [src/Camera.tsx:102](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L102)
 
 ___
 
@@ -105,7 +105,7 @@ Name | Type | Description |
 `onError`? | (`error`: [*CameraRuntimeError*](../classes/cameraerror.cameraruntimeerror.md)) => *void* | Called when any kind of runtime error occured.   |
 `onInitialized`? | () => *void* | Called when the camera was successfully initialized.   |
 
-Defined in: [src/Camera.tsx:133](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/Camera.tsx#L133)
+Defined in: [src/Camera.tsx:133](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L133)
 
 ___
 
@@ -113,7 +113,7 @@ ___
 
 Ƭ **CameraPermissionRequestResult**: *authorized* \| *denied*
 
-Defined in: [src/Camera.tsx:152](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/Camera.tsx#L152)
+Defined in: [src/Camera.tsx:152](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L152)
 
 ___
 
@@ -121,7 +121,7 @@ ___
 
 Ƭ **CameraPermissionStatus**: *authorized* \| *not-determined* \| *denied* \| *restricted*
 
-Defined in: [src/Camera.tsx:151](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/Camera.tsx#L151)
+Defined in: [src/Camera.tsx:151](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L151)
 
 ___
 
@@ -135,7 +135,7 @@ Available Photo Codec types used for taking a photo.
 * `"jpeg"`: The JPEG (`jpeg`) video codec. _(iOS 11.0+)_
 * `"hevc-alpha"`: The HEVC (`muxa`) video codec that supports an alpha channel. This constant is used to select the appropriate encoder, but is NOT used on the encoded content, which is backwards compatible and hence uses `"hvc1"` as its codec type. _(iOS 13.0+)_
 
-Defined in: [src/CameraCodec.ts:33](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraCodec.ts#L33)
+Defined in: [src/CameraCodec.ts:33](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraCodec.ts#L33)
 
 ___
 
@@ -154,7 +154,7 @@ Represents the camera device position.
 #### Android only
 * `"external"`: The camera device is an external camera, and has no fixed facing relative to the device's screen. (Android only)
 
-Defined in: [src/CameraPosition.ts:13](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraPosition.ts#L13)
+Defined in: [src/CameraPosition.ts:13](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraPosition.ts#L13)
 
 ___
 
@@ -177,7 +177,7 @@ Indicates the quality level or bit rate of the output.
 * `"photo"`: Specifies capture settings suitable for high-resolution photo quality output.
 * `"vga-640x480"`: Specifies capture settings suitable for VGA quality (640 x 480 pixel) video output.
 
-Defined in: [src/CameraPreset.ts:17](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraPreset.ts#L17)
+Defined in: [src/CameraPreset.ts:17](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraPreset.ts#L17)
 
 ___
 
@@ -185,7 +185,7 @@ ___
 
 Ƭ **CameraProps**: CameraPresetProps \| CameraFormatProps & CameraScannerPropsNever \| [*CameraScannerProps*](camera.md#camerascannerprops) & [*CameraDeviceProps*](camera.md#cameradeviceprops) & [*CameraDynamicProps*](camera.md#cameradynamicprops) & [*CameraEventProps*](camera.md#cameraeventprops) & ViewProps
 
-Defined in: [src/Camera.tsx:144](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/Camera.tsx#L144)
+Defined in: [src/Camera.tsx:144](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L144)
 
 ___
 
@@ -193,7 +193,7 @@ ___
 
 Ƭ **CameraScannerProps**: *Modify*<CameraScannerPropsNever, { `onCodeScanned`: (`codes`: [*Code*](code.md#code)[]) => *void* ; `scannableCodes`: [*CodeType*](code.md#codetype)[]  }\>
 
-Defined in: [src/Camera.tsx:65](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/Camera.tsx#L65)
+Defined in: [src/Camera.tsx:65](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Camera.tsx#L65)
 
 ___
 
@@ -213,7 +213,7 @@ Available Video Codec types used for recording a video.
 * `"pro-res-422-proxy"`: The Apple ProRes 422 Proxy (`apco`) video codec. _(iOS 13.0+)_
 * `"hevc-alpha"`: The HEVC (`muxa`) video codec that supports an alpha channel. This constant is used to select the appropriate encoder, but is NOT used on the encoded content, which is backwards compatible and hence uses `"hvc1"` as its codec type. _(iOS 13.0+)_
 
-Defined in: [src/CameraCodec.ts:14](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraCodec.ts#L14)
+Defined in: [src/CameraCodec.ts:14](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraCodec.ts#L14)
 
 ___
 
@@ -221,7 +221,7 @@ ___
 
 Ƭ **CaptureError**: *capture/invalid-photo-format* \| *capture/encoder-error* \| *capture/muxer-error* \| *capture/recording-in-progress* \| *capture/no-recording-in-progress* \| *capture/file-io-error* \| *capture/create-temp-file-error* \| *capture/invalid-photo-codec* \| *capture/not-bound-error* \| *capture/capture-type-not-supported* \| *capture/unknown*
 
-Defined in: [src/CameraError.ts:24](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L24)
+Defined in: [src/CameraError.ts:24](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L24)
 
 ___
 
@@ -231,7 +231,7 @@ ___
 
 Represents a File in the local filesystem.
 
-Defined in: [src/Code.ts:27](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/Code.ts#L27)
+Defined in: [src/Code.ts:27](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Code.ts#L27)
 
 ___
 
@@ -241,7 +241,7 @@ ___
 
 Available code types
 
-Defined in: [src/Code.ts:4](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/Code.ts#L4)
+Defined in: [src/Code.ts:4](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/Code.ts#L4)
 
 ___
 
@@ -259,7 +259,7 @@ Indicates a format's color space.
 #### The following colorspaces are available on Android:
 * `"yuv"`: The YCbCr color space.
 
-Defined in: [src/CameraDevice.ts:55](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraDevice.ts#L55)
+Defined in: [src/CameraDevice.ts:55](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraDevice.ts#L55)
 
 ___
 
@@ -267,7 +267,7 @@ ___
 
 Ƭ **DeviceError**: *device/configuration-error* \| *device/no-device* \| *device/invalid-device* \| *device/torch-unavailable* \| *device/microphone-unavailable* \| *device/low-light-boost-not-supported* \| *device/focus-not-supported* \| *device/camera-not-available-on-simulator*
 
-Defined in: [src/CameraError.ts:8](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L8)
+Defined in: [src/CameraError.ts:8](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L8)
 
 ___
 
@@ -275,7 +275,7 @@ ___
 
 Ƭ **FormatError**: *format/invalid-fps* \| *format/invalid-hdr* \| *format/invalid-low-light-boost* \| *format/invalid-format* \| *format/invalid-preset*
 
-Defined in: [src/CameraError.ts:17](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L17)
+Defined in: [src/CameraError.ts:17](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L17)
 
 ___
 
@@ -283,7 +283,7 @@ ___
 
 Ƭ **FrameRateRange**: *Readonly*<{ `maxFrameRate`: *number* ; `minFrameRate`: *number*  }\>
 
-Defined in: [src/CameraDevice.ts:77](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraDevice.ts#L77)
+Defined in: [src/CameraDevice.ts:77](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraDevice.ts#L77)
 
 ___
 
@@ -298,7 +298,7 @@ Indentifiers for a logical camera (Combinations of multiple physical cameras to 
 * `"triple-camera"`: A device that consists of three cameras of fixed focal length, one ultrawide angle, one wide angle, and one telephoto.
 * `"true-depth-camera"`: A combination of cameras and other sensors that creates a capture device capable of photo, video, and depth capture.
 
-Defined in: [src/CameraDevice.ts:20](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraDevice.ts#L20)
+Defined in: [src/CameraDevice.ts:20](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraDevice.ts#L20)
 
 ___
 
@@ -306,7 +306,7 @@ ___
 
 Ƭ **ParameterError**: *parameter/invalid-parameter* \| *parameter/unsupported-os* \| *parameter/unsupported-output* \| *parameter/unsupported-input* \| *parameter/invalid-combination*
 
-Defined in: [src/CameraError.ts:2](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L2)
+Defined in: [src/CameraError.ts:2](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L2)
 
 ___
 
@@ -314,7 +314,7 @@ ___
 
 Ƭ **PermissionError**: *permission/microphone-permission-denied* \| *permission/camera-permission-denied*
 
-Defined in: [src/CameraError.ts:1](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L1)
+Defined in: [src/CameraError.ts:1](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L1)
 
 ___
 
@@ -324,7 +324,7 @@ ___
 
 Represents a Photo taken by the Camera written to the local filesystem.
 
-Defined in: [src/PhotoFile.ts:68](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/PhotoFile.ts#L68)
+Defined in: [src/PhotoFile.ts:68](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/PhotoFile.ts#L68)
 
 ___
 
@@ -338,7 +338,7 @@ Indentifiers for a physical camera (one that actually exists on the back/front o
 * `"wide-angle-camera"`: A built-in wide-angle camera. (focal length between 24mm and 35mm)
 * `"telephoto-camera"`: A built-in camera device with a longer focal length than a wide-angle camera. (focal length between above 85mm)
 
-Defined in: [src/CameraDevice.ts:10](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraDevice.ts#L10)
+Defined in: [src/CameraDevice.ts:10](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraDevice.ts#L10)
 
 ___
 
@@ -346,7 +346,7 @@ ___
 
 Ƭ **SessionError**: *session/camera-not-ready* \| *session/audio-session-setup-failed*
 
-Defined in: [src/CameraError.ts:23](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L23)
+Defined in: [src/CameraError.ts:23](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L23)
 
 ___
 
@@ -363,7 +363,7 @@ Name | Type | Description |
 `height` | *number* | Points in height.   |
 `width` | *number* | Points in width.   |
 
-Defined in: [src/utils/FormatFilter.ts:36](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/utils/FormatFilter.ts#L36)
+Defined in: [src/utils/FormatFilter.ts:36](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/utils/FormatFilter.ts#L36)
 
 ___
 
@@ -371,7 +371,7 @@ ___
 
 Ƭ **SystemError**: *system/no-camera-manager*
 
-Defined in: [src/CameraError.ts:36](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L36)
+Defined in: [src/CameraError.ts:36](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L36)
 
 ___
 
@@ -381,7 +381,7 @@ ___
 
 Represents a temporary file in the local filesystem.
 
-Defined in: [src/TemporaryFile.ts:4](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/TemporaryFile.ts#L4)
+Defined in: [src/TemporaryFile.ts:4](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/TemporaryFile.ts#L4)
 
 ___
 
@@ -389,7 +389,7 @@ ___
 
 Ƭ **UnknownError**: *unknown/unknown*
 
-Defined in: [src/CameraError.ts:37](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L37)
+Defined in: [src/CameraError.ts:37](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L37)
 
 ___
 
@@ -399,7 +399,7 @@ ___
 
 Represents a Video taken by the Camera written to the local filesystem.
 
-Defined in: [src/VideoFile.ts:50](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/VideoFile.ts#L50)
+Defined in: [src/VideoFile.ts:50](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/VideoFile.ts#L50)
 
 ___
 
@@ -415,7 +415,7 @@ Indicates a format's supported video stabilization mode
 * `"cinematic-extended"`: Indicates that the video should be stabilized using the extended cinematic stabilization algorithm. Enabling extended cinematic stabilization introduces longer latency into the video capture pipeline compared to the AVCaptureVideoStabilizationModeCinematic and consumes more memory, but yields improved stability. It is recommended to use identical or similar min and max frame durations in conjunction with this mode (iOS 13.0+)
 * `"auto"`: Indicates that the most appropriate video stabilization mode for the device and format should be chosen automatically
 
-Defined in: [src/CameraDevice.ts:75](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraDevice.ts#L75)
+Defined in: [src/CameraDevice.ts:75](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraDevice.ts#L75)
 
 ## Functions
 
@@ -443,7 +443,7 @@ Name | Type | Description |
 
 A list of Camera Device Formats that match the given `viewSize`' aspect ratio _as close as possible_.
 
-Defined in: [src/utils/FormatFilter.ts:92](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/utils/FormatFilter.ts#L92)
+Defined in: [src/utils/FormatFilter.ts:92](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/utils/FormatFilter.ts#L92)
 
 ___
 
@@ -470,7 +470,7 @@ Name | Type | Description |
 
 **Returns:** *boolean*
 
-Defined in: [src/utils/FormatFilter.ts:137](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/utils/FormatFilter.ts#L137)
+Defined in: [src/utils/FormatFilter.ts:137](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/utils/FormatFilter.ts#L137)
 
 ___
 
@@ -486,7 +486,7 @@ Name | Type |
 
 **Returns:** error is ErrorWithCause
 
-Defined in: [src/CameraError.ts:127](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L127)
+Defined in: [src/CameraError.ts:127](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L127)
 
 ___
 
@@ -506,7 +506,7 @@ Name | Type |
 
 **Returns:** *ultra-wide-angle-camera* \| *wide-angle-camera* \| *telephoto-camera* \| *dual-camera* \| *dual-wide-camera* \| *triple-camera* \| *true-depth-camera*
 
-Defined in: [src/CameraDevice.ts:26](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraDevice.ts#L26)
+Defined in: [src/CameraDevice.ts:26](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraDevice.ts#L26)
 
 ___
 
@@ -537,7 +537,7 @@ Name | Type |
 
 **Returns:** *number*
 
-Defined in: [src/utils/FormatFilter.ts:18](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/utils/FormatFilter.ts#L18)
+Defined in: [src/utils/FormatFilter.ts:18](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/utils/FormatFilter.ts#L18)
 
 ___
 
@@ -564,7 +564,7 @@ Name | Type |
 
 **Returns:** *number*
 
-Defined in: [src/utils/FormatFilter.ts:112](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/utils/FormatFilter.ts#L112)
+Defined in: [src/utils/FormatFilter.ts:112](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/utils/FormatFilter.ts#L112)
 
 ___
 
@@ -592,7 +592,7 @@ Name | Type | Description |
 
 A `CameraRuntimeError` or `CameraCaptureError`, or the nativeError if it's not parsable
 
-Defined in: [src/CameraError.ts:153](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L153)
+Defined in: [src/CameraError.ts:153](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L153)
 
 ___
 
@@ -615,7 +615,7 @@ return <Camera device={device} />
 
 The best matching `CameraDevice`.
 
-Defined in: [src/hooks/useCameraDevices.ts:29](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/hooks/useCameraDevices.ts#L29)
+Defined in: [src/hooks/useCameraDevices.ts:29](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/hooks/useCameraDevices.ts#L29)
 
 ▸ **useCameraDevices**(`deviceType`: [*PhysicalCameraDeviceType*](cameradevice.md#physicalcameradevicetype) \| [*LogicalCameraDeviceType*](cameradevice.md#logicalcameradevicetype)): CameraDevices
 
@@ -640,7 +640,7 @@ Name | Type | Description |
 
 A `CameraDevice` for the requested device type.
 
-Defined in: [src/hooks/useCameraDevices.ts:44](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/hooks/useCameraDevices.ts#L44)
+Defined in: [src/hooks/useCameraDevices.ts:44](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/hooks/useCameraDevices.ts#L44)
 
 ___
 
@@ -663,4 +663,4 @@ Name | Type | Description |
 
 The best matching format for the given camera device, or `undefined` if the camera device is `undefined`.
 
-Defined in: [src/hooks/useCameraFormat.ts:16](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/hooks/useCameraFormat.ts#L16)
+Defined in: [src/hooks/useCameraFormat.ts:16](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/hooks/useCameraFormat.ts#L16)

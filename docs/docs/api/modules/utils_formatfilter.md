@@ -23,7 +23,7 @@ Name | Type | Description |
 `height` | *number* | Points in height.   |
 `width` | *number* | Points in width.   |
 
-Defined in: [src/utils/FormatFilter.ts:36](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/utils/FormatFilter.ts#L36)
+Defined in: [src/utils/FormatFilter.ts:36](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/utils/FormatFilter.ts#L36)
 
 ## Functions
 
@@ -51,7 +51,7 @@ Name | Type | Description |
 
 A list of Camera Device Formats that match the given `viewSize`' aspect ratio _as close as possible_.
 
-Defined in: [src/utils/FormatFilter.ts:92](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/utils/FormatFilter.ts#L92)
+Defined in: [src/utils/FormatFilter.ts:92](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/utils/FormatFilter.ts#L92)
 
 ___
 
@@ -78,7 +78,7 @@ Name | Type | Description |
 
 **Returns:** *boolean*
 
-Defined in: [src/utils/FormatFilter.ts:137](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/utils/FormatFilter.ts#L137)
+Defined in: [src/utils/FormatFilter.ts:137](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/utils/FormatFilter.ts#L137)
 
 ___
 
@@ -109,7 +109,7 @@ Name | Type |
 
 **Returns:** *number*
 
-Defined in: [src/utils/FormatFilter.ts:18](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/utils/FormatFilter.ts#L18)
+Defined in: [src/utils/FormatFilter.ts:18](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/utils/FormatFilter.ts#L18)
 
 ___
 
@@ -136,4 +136,4 @@ Name | Type |
 
 **Returns:** *number*
 
-Defined in: [src/utils/FormatFilter.ts:112](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/utils/FormatFilter.ts#L112)
+Defined in: [src/utils/FormatFilter.ts:112](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/utils/FormatFilter.ts#L112)

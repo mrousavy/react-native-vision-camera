@@ -20,7 +20,7 @@ Available Photo Codec types used for taking a photo.
 * `"jpeg"`: The JPEG (`jpeg`) video codec. _(iOS 11.0+)_
 * `"hevc-alpha"`: The HEVC (`muxa`) video codec that supports an alpha channel. This constant is used to select the appropriate encoder, but is NOT used on the encoded content, which is backwards compatible and hence uses `"hvc1"` as its codec type. _(iOS 13.0+)_
 
-Defined in: [src/CameraCodec.ts:33](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraCodec.ts#L33)
+Defined in: [src/CameraCodec.ts:33](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraCodec.ts#L33)
 
 ___
 
@@ -40,4 +40,4 @@ Available Video Codec types used for recording a video.
 * `"pro-res-422-proxy"`: The Apple ProRes 422 Proxy (`apco`) video codec. _(iOS 13.0+)_
 * `"hevc-alpha"`: The HEVC (`muxa`) video codec that supports an alpha channel. This constant is used to select the appropriate encoder, but is NOT used on the encoded content, which is backwards compatible and hence uses `"hvc1"` as its codec type. _(iOS 13.0+)_
 
-Defined in: [src/CameraCodec.ts:14](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraCodec.ts#L14)
+Defined in: [src/CameraCodec.ts:14](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraCodec.ts#L14)

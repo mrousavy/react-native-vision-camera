@@ -34,7 +34,7 @@ Name | Type |
 
 **Returns:** [*CameraRuntimeError*](cameraerror.cameraruntimeerror.md)
 
-Defined in: [src/CameraError.ts:105](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L105)
+Defined in: [src/CameraError.ts:105](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L105)
 
 ## Properties
 
@@ -42,7 +42,7 @@ Defined in: [src/CameraError.ts:105](https://github.com/cuvent/react-native-visi
 
 • **name**: *string*
 
-Defined in: node_modules/typescript/lib/lib.es5.d.ts:973
+Defined in: docs/node_modules/typescript/lib/lib.es5.d.ts:973
 
 ___
 
@@ -62,7 +62,7 @@ ___
 
 • `Optional` **stack**: *undefined* \| *string*
 
-Defined in: node_modules/typescript/lib/lib.es5.d.ts:975
+Defined in: docs/node_modules/typescript/lib/lib.es5.d.ts:975
 
 ___
 
@@ -80,7 +80,7 @@ Defined in: node_modules/@types/node/globals.d.ts:13
 
 **Returns:** *undefined* \| [*ErrorWithCause*](../interfaces/cameraerror.errorwithcause.md)
 
-Defined in: [src/CameraError.ts:103](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L103)
+Defined in: [src/CameraError.ts:103](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L103)
 
 ___
 
@@ -90,7 +90,7 @@ ___
 
 **Returns:** TCode
 
-Defined in: [src/CameraError.ts:97](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L97)
+Defined in: [src/CameraError.ts:97](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L97)
 
 ___
 
@@ -100,7 +100,7 @@ ___
 
 **Returns:** *string*
 
-Defined in: [src/CameraError.ts:100](https://github.com/cuvent/react-native-vision-camera/blob/daa3c48/src/CameraError.ts#L100)
+Defined in: [src/CameraError.ts:100](https://github.com/cuvent/react-native-vision-camera/blob/919aa3d/src/CameraError.ts#L100)
 
 ## Methods
 
