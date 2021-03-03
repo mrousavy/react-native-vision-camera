@@ -10,7 +10,7 @@ FRAME PROCESSORS ARE STILL WORK IN PROGRESS - SEE [#2](https://github.com/cuvent
 
 <!-- TODO: Demo of QR code scanning or smth -->
 <div>
-  <img align="right" width="35%" src="./img/ultra-wide-demo.gif" />
+  <img align="right" width="35%" src="../img/ultra-wide-demo.gif" />
 </div>
 
 ### What are frame processors?
@@ -20,7 +20,7 @@ Frame processors are functions that are written in JavaScript (or TypeScript) wh
 For example, you might want to create a QR code scanner _without ever writing native code while still achieving almost-native performance_. Since you can write the scanning part yourself, you can implement a custom QR code system like the one Snapchat uses for Snap-codes.
 
 <div align="center">
-  <img src="./img/snap-code.png" width="15%" />
+  <img src="../img/snap-code.png" width="15%" />
 </div>
 <br />
 

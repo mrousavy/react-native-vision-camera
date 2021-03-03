@@ -5,7 +5,7 @@ sidebar_label: Zooming with Reanimated
 ---
 
 <div>
-  <img align="right" width="35%" src="./img/ultra-wide-demo.gif" />
+  <img align="right" width="35%" src="../img/ultra-wide-demo.gif" />
 </div>
 
 ## Animations
