@@ -1,13 +1,13 @@
 <h1 align="center">Camera</h1>
 
 <div align="center">
-  <img src="docs/website/static/img/11.png" width="50%">
+  <img src="docs/static/img/11.png" width="50%">
   <br />
   <br />
   <blockquote><h4>📸 The Camera library that sees the vision.</h4></blockquote>
   <br />
 
-  <a href="https://cuvent.com"><img height=40 src="docs/website/static/img/cuvent-logo-text.svg"></a>
+  <a href="https://cuvent.com"><img height=40 src="docs/static/img/cuvent-logo-text.svg"></a>
   <br/>
   <span>
     <a align="center" href="https://github.com/mrousavy?tab=followers">
@@ -30,8 +30,13 @@
 <br/>
 
 <div>
-  <img align="right" width="35%" src="docs/website/static/img/example.png">
+  <img align="right" width="35%" src="docs/static/img/example.png">
 </div>
+
+### Documentation
+
+* [VisionCamera Guides (Getting Started)](https://cuvent.com)
+* [VisionCamera API](https://cuvent.com)
 
 ### Install
 
@@ -72,4 +77,4 @@ function App() {
 
 <br />
 
-#### 🚀 Get started by [setting up permissions](./docs/SETUP.md)!
+#### 🚀 Get started by [setting up permissions](https://cuvent.com)!
