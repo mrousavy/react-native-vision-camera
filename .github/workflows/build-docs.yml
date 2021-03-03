@@ -52,6 +52,7 @@ jobs:
           GIT_USER: git
           CURRENT_BRANCH: main
           DEPLOYMENT_BRANCH: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "gh-actions"
