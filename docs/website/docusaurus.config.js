@@ -1,13 +1,13 @@
 module.exports = {
   title: 'VisionCamera',
-  tagline: 'The tagline of my site',
-  url: 'https://your-docusaurus-test-site.com',
+  tagline: '📸 The Camera library that sees the vision.',
+  url: 'https://github.com/cuvent/react-native-vision-camera',
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
-  organizationName: 'facebook', // Usually your GitHub org/user name.
-  projectName: 'docusaurus', // Usually your repo name.
+  organizationName: 'cuvent',
+  projectName: 'react-native-vision-camera',
   themeConfig: {
     navbar: {
       title: 'My Site',
@@ -17,14 +17,13 @@ module.exports = {
       },
       items: [
         {
-          to: 'docs/',
-          activeBasePath: 'docs',
-          label: 'Docs',
+          href: 'https://github.com/cuvent/react-native-vision-camera/blob/main/README.md',
+          label: 'Guides',
           position: 'left',
         },
-        {to: 'blog', label: 'Blog', position: 'left'},
+        {to: 'docs/api', label: 'API', position: 'left'},
         {
-          href: 'https://github.com/facebook/docusaurus',
+          href: 'https://github.com/cuvent/react-native-vision-camera',
           label: 'GitHub',
           position: 'right',
         },
@@ -37,12 +36,12 @@ module.exports = {
           title: 'Docs',
           items: [
             {
-              label: 'Style Guide',
-              to: 'docs/',
+              label: 'Guides',
+              href: 'https://github.com/cuvent/react-native-vision-camera/blob/main/README.md',
             },
             {
-              label: 'Second Doc',
-              to: 'docs/doc2/',
+              label: 'API',
+              to: 'docs/api',
             },
           ],
         },
@@ -50,16 +49,12 @@ module.exports = {
           title: 'Community',
           items: [
             {
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/docusaurus',
-            },
-            {
-              label: 'Discord',
-              href: 'https://discordapp.com/invite/docusaurus',
+              label: 'GitHub discussions',
+              href: 'https://github.com/cuvent/react-native-vision-camera/discussions',
             },
             {
               label: 'Twitter',
-              href: 'https://twitter.com/docusaurus',
+              href: 'https://twitter.com/mrousavy',
             },
           ],
         },
@@ -67,17 +62,13 @@ module.exports = {
           title: 'More',
           items: [
             {
-              label: 'Blog',
-              to: 'blog',
-            },
-            {
               label: 'GitHub',
-              href: 'https://github.com/facebook/docusaurus',
+              href: 'https://github.com/cuvent/react-native-vision-camera',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Cuvent`,
     },
   },
   presets: [
@@ -85,16 +76,10 @@ module.exports = {
       '@docusaurus/preset-classic',
       {
         docs: {
-          sidebarPath: require.resolve('./sidebars.js'),
+          sidebarPath: require.resolve('./sidebar.js'),
           // Please change this to your repo.
           editUrl:
-            'https://github.com/facebook/docusaurus/edit/master/website/',
-        },
-        blog: {
-          showReadingTime: true,
-          // Please change this to your repo.
-          editUrl:
-            'https://github.com/facebook/docusaurus/edit/master/website/blog/',
+            'https://github.com/cuvent/react-native-vision-camera/edit/main/docs/website/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
@@ -108,9 +93,10 @@ module.exports = {
       {
         entryPoints: ['../../src'],
         tsconfig: '../../tsconfig.json',
+        readme: "none",
         out: 'api',
         sidebar: {
-          sidebarFile: 'some-sidebar.js',
+          sidebarFile: 'sidebar.js',
           fullNames: true,
           readmeLabel: 'Overview'
         },
