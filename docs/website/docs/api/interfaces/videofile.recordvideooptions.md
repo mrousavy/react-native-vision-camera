@@ -18,7 +18,7 @@ hide_title: true
 
 Set the video flash mode. Natively, this just enables the torch while recording.
 
-Defined in: [src/VideoFile.ts:36](https://github.com/cuvent/react-native-vision-camera/blob/89913de/src/VideoFile.ts#L36)
+Defined in: [src/VideoFile.ts:36](https://github.com/cuvent/react-native-vision-camera/blob/9a54ec2/src/VideoFile.ts#L36)
 
 ___
 
@@ -40,9 +40,9 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [src/VideoFile.ts:40](https://github.com/cuvent/react-native-vision-camera/blob/89913de/src/VideoFile.ts#L40)
+Defined in: [src/VideoFile.ts:40](https://github.com/cuvent/react-native-vision-camera/blob/9a54ec2/src/VideoFile.ts#L40)
 
-Defined in: [src/VideoFile.ts:40](https://github.com/cuvent/react-native-vision-camera/blob/89913de/src/VideoFile.ts#L40)
+Defined in: [src/VideoFile.ts:40](https://github.com/cuvent/react-native-vision-camera/blob/9a54ec2/src/VideoFile.ts#L40)
 
 ___
 
@@ -64,6 +64,6 @@ Name | Type |
 
 **Returns:** *void*
 
-Defined in: [src/VideoFile.ts:44](https://github.com/cuvent/react-native-vision-camera/blob/89913de/src/VideoFile.ts#L44)
+Defined in: [src/VideoFile.ts:44](https://github.com/cuvent/react-native-vision-camera/blob/9a54ec2/src/VideoFile.ts#L44)
 
-Defined in: [src/VideoFile.ts:44](https://github.com/cuvent/react-native-vision-camera/blob/89913de/src/VideoFile.ts#L44)
+Defined in: [src/VideoFile.ts:44](https://github.com/cuvent/react-native-vision-camera/blob/9a54ec2/src/VideoFile.ts#L44)
