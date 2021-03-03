@@ -181,10 +181,11 @@ type RefType = React.Component<CameraProps> & Readonly<NativeMethods>;
  *
  * The `<Camera>` component's most important (and therefore _required_) properties are:
  *
- * * `device`: Specifies the `{@link CameraDevice}` to use. Get a `{@link CameraDevice}` by using the {@link useCameraDevices}, or manually by using the `{@link Camera.getAvailableCameraDevices}` function.
+ * * `device`: Specifies the {@link CameraDevice} to use. Get a {@link CameraDevice} by using the {@link useCameraDevices} hook, or manually by using the {@link Camera.getAvailableCameraDevices} function.
  * * `isActive`: A boolean value that specifies whether the Camera should actively stream video frames or not. This can be compared to a Video component, where `isActive` specifies whether the video is paused or not. If you fully unmount the `<Camera>` component instead of using `isActive={false}`, the Camera will take a bit longer to start again.
  *
  * @example
+ * ```jsx
  * function App() {
  *   const devices = useCameraDevices('wide-angle-camera')
  *   const device = devices.back
@@ -198,6 +199,7 @@ type RefType = React.Component<CameraProps> & Readonly<NativeMethods>;
  *     />
  *   )
  * }
+ * ```
  *
  * @component
  */
@@ -267,6 +269,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * @throws {CameraCaptureError} When any kind of error occured. Use the `CameraCaptureError.code` property to get the actual error
    *
    * @example
+   * ```js
    * camera.current.startRecording({
    *   onRecordingFinished: (video) => console.log(video),
    *   onRecordingError: (error) => console.error(error),
@@ -274,6 +277,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * setTimeout(() => {
    *   camera.current.stopRecording()
    * }, 5000)
+   * ```
    */
   public startRecording(options: RecordVideoOptions): void {
     const { onRecordingError, onRecordingFinished, ...passThroughOptions } = options;
@@ -295,10 +299,12 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * Stop the current video recording.
    *
    * @example
+   * ```js
    * await camera.current.startRecording()
    * setTimeout(async () => {
    *  const video = await camera.current.stopRecording()
    * }, 5000)
+   * ```
    */
   public async stopRecording(): Promise<void> {
     try {
