@@ -60,6 +60,3 @@ lib/
 
 # we only use yarn
 package-lock.json
-
-# Docusaurus + TypeDoc generated API
-docs/docs/api

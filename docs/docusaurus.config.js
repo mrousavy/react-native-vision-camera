@@ -98,7 +98,6 @@ module.exports = {
         entryPoints: ['../src'],
         tsconfig: '../tsconfig.json',
         readme: "none",
-        out: 'api',
         sidebar: {
           sidebarFile: 'typedoc-sidebar.js',
           fullNames: true,
