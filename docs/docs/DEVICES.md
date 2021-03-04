@@ -5,7 +5,10 @@ sidebar_label: Camera Devices
 ---
 
 <div>
-  <img align="right" width="35%" src="../img/ultra-wide-demo.gif" />
+  <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535" style={{ float: 'right' }}>
+    <image href="../img/demo.gif" x="18" y="33" width="247" height="469"  />
+    <image href="../img/frame.png" width="283" height="535" />
+  </svg>
 </div>
 
 ### What are camera devices?

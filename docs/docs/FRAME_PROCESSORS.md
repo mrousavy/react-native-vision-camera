@@ -10,7 +10,10 @@ FRAME PROCESSORS ARE STILL WORK IN PROGRESS - SEE [#2](https://github.com/cuvent
 
 <!-- TODO: Demo of QR code scanning or smth -->
 <div>
-  <img align="right" width="35%" src="../img/ultra-wide-demo.gif" />
+  <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535" style={{ float: 'right' }}>
+    <image href="../img/demo.gif" x="18" y="33" width="247" height="469"  />
+    <image href="../img/frame.png" width="283" height="535" />
+  </svg>
 </div>
 
 ### What are frame processors?

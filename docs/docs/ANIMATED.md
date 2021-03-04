@@ -5,9 +5,9 @@ sidebar_label: Zooming with Reanimated
 ---
 
 <div>
-  <svg xmlns="http://www.w3.org/2000/svg" width="150" height="300" style={{ float: 'right' }}>
-    <image href="https://cuvent.github.io/react-native-vision-camera/img/ultra-wide-demo.gif" height="300" width="150" />
-    <image href="https://i.pinimg.com/originals/15/d4/90/15d4903ffd54f3ad76007ffae8722fc5.png" height="300" width="150" />
+  <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535" style={{ float: 'right' }}>
+    <image href="../img/demo.gif" x="18" y="33" width="247" height="469"  />
+    <image href="../img/frame.png" width="283" height="535" />
   </svg>
 </div>
 
@@ -15,11 +15,7 @@ sidebar_label: Zooming with Reanimated
 
 Often you'd want to animate specific props in the Camera. For example, if you'd want to create a custom zoom gesture, you can smoothly animate the Camera's `zoom` property.
 
-:::note
-The `<Camera>` component does provide a natively implemented zoom gesture which you can enable with the `enableZoomGesture={true}` prop.
-
-This does not require any additional work, but if you want to setup a custom gesture, such as the one in Snapchat or Instagram where you move up your finger while recording, continue reading.
-:::
+Note: The `<Camera>` component does provide a natively implemented zoom gesture which you can enable with the `enableZoomGesture={true}` prop. This does not require any additional work, but if you want to setup a custom gesture, such as the one in Snapchat or Instagram where you move up your finger while recording, continue reading.
 
 ### Installing reanimated
 
