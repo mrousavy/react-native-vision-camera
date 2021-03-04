@@ -40,13 +40,10 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-      - name: Install modules
-        run: yarn install --frozen-lockfile
-      - name: Install modules (example/)
-        run: yarn example --frozen-lockfile
 
       - name: Test Docs Build
         run: |
+          yarn install --frozen-lockfile
           cd docs
           yarn install --frozen-lockfile
           yarn build
@@ -82,10 +79,6 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-      - name: Install modules
-        run: yarn install --frozen-lockfile
-      - name: Install modules (example/)
-        run: yarn example --frozen-lockfile
 
       - name: Release to GitHub Pages
         env:

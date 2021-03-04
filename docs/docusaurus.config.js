@@ -97,7 +97,7 @@ module.exports = {
       {
         entryPoints: ['../src'],
         exclude: "../src/index.ts",
-        tsconfig: '../tsconfig.json',
+        tsconfig: '../tsconfig.docs.json',
         readme: "none",
         sidebar: {
           sidebarFile: 'typedoc-sidebar.js',
