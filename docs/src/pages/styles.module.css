@@ -34,3 +34,12 @@
 .featureImage {
   width: 200px;
 }
+
+.getStarted {
+  background-color: white;
+  color: rgb(63, 72, 67);
+}
+.getStarted:hover {
+  background-color: #eeeeee;
+  color: rgb(95, 102, 96);
+}

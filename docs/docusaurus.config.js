@@ -13,7 +13,7 @@ module.exports = {
       title: 'VisionCamera',
       logo: {
         alt: 'Logo',
-        src: './img/11.png',
+        src: './android-chrome-192x192.png',
       },
       items: [
         {
