@@ -52,6 +52,10 @@ module.exports = {
               label: 'API',
               to: 'docs/api',
             },
+            {
+              label: 'Example App',
+              href: 'https://github.com/cuvent/react-native-vision-camera/tree/main/example',
+            },
           ],
         },
         {
@@ -62,8 +66,12 @@ module.exports = {
               href: 'https://github.com/cuvent/react-native-vision-camera/discussions',
             },
             {
-              label: 'Twitter',
+              label: 'Twitter (@mrousavy)',
               href: 'https://twitter.com/mrousavy',
+            },
+            {
+              label: 'Twitter (@CuventTech)',
+              href: 'https://twitter.com/CuventTech',
             },
           ],
         },
@@ -73,10 +81,6 @@ module.exports = {
             {
               label: 'GitHub',
               href: 'https://github.com/cuvent/react-native-vision-camera',
-            },
-            {
-              label: 'VisionCamera Example App',
-              href: 'https://github.com/cuvent/react-native-vision-camera/tree/main/example',
             },
           ],
         },
