@@ -17,7 +17,6 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:react/recommended',
     'plugin:prettier/recommended',
-    'prettier/@typescript-eslint',
     '@react-native-community',
     'plugin:react-hooks/recommended',
   ],
