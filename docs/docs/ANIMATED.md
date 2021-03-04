@@ -5,7 +5,10 @@ sidebar_label: Zooming with Reanimated
 ---
 
 <div>
-  <img align="right" width="35%" src="../img/ultra-wide-demo.gif" />
+  <svg xmlns="http://www.w3.org/2000/svg" width="150" height="300" style={{ float: 'right' }}>
+    <image href="https://cuvent.github.io/react-native-vision-camera/img/ultra-wide-demo.gif" height="300" width="150" />
+    <image href="https://i.pinimg.com/originals/15/d4/90/15d4903ffd54f3ad76007ffae8722fc5.png" height="300" width="150" />
+  </svg>
 </div>
 
 ## Animations
