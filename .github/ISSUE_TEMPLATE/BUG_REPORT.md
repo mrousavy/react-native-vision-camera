@@ -11,8 +11,8 @@ assignees: ''
                       ❤️ Thank you for your contribution! ❤️
                   Remember that you can use this project FOR FREE.
       Badly written issues are less likely to be picked up than well written ones.
-  BEFORE creating an issue, make sure you tried everything in the TROUBLESHOOTING.md doc:
-  https://github.com/mrousavy/react-native-vision-camera/blob/main/docs/TROUBLESHOOTING.md
+  BEFORE creating an issue, make sure you tried everything in the TROUBLESHOOTING guide:
+        https://cuvent.github.io/react-native-vision-camera/docs/troubleshooting
 -->
 
 
