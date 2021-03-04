@@ -7,7 +7,7 @@ sidebar_label: Camera Errors
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 <div>
-  <img align="right" width="35%" src={useBaseUrl("img/example_error.png")} />
+  <img align="right" width="283" src={useBaseUrl("img/example_error.png")} />
 </div>
 
 ## Why?
@@ -17,13 +17,13 @@ Since the Camera library is quite big, there is a lot that can "go wrong". The V
 ```ts
 switch (error.code) {
   case "device/configuration-error":
-    console.log("Failed to configure the camera device.")
+    // promt user
     break
   case "device/microphone-unavailable":
-    console.log("This camera device does not have a microphone.")
+    // ask for permission
     break
   case "capture/recording-in-progress":
-    console.log("Another recording is already in progress!")
+    // stop recording
     break
   default:
     console.error(error)
