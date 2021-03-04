@@ -600,13 +600,8 @@ SPEC CHECKSUMS:
   RNReanimated: 7d2b97cf2dd7c8c69956080fe911edc08cf0a8c7
   RNStaticSafeAreaInsets: 6103cf09647fa427186d30f67b0f5163c1ae8252
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
-<<<<<<< HEAD
   VisionCamera: cd6fc4091d9508ced1dae2862e872c8055165f6a
   Yoga: 8c8436d4171c87504c648ae23b1d81242bdf3bbf
-=======
-  VisionCamera: 3b48f139ec43484633c300ac4ff00e08d9e87e4a
-  Yoga: 31313df467e58b5b53f26a0319fa100159c79fa3
->>>>>>> Fix RCTTurboModule import podspec
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
 PODFILE CHECKSUM: 703892d4cb39598dd9a51bd3a58fe2502c68dfbd

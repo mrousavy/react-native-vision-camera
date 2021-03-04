@@ -4526,22 +4526,10 @@ has@^1.0.3:
   dependencies:
     function-bind "^1.1.1"
 
-<<<<<<< HEAD
-hermes-engine@~0.7.0:
+hermes-engine@^0.7.2, hermes-engine@~0.7.0:
   version "0.7.2"
   resolved "https://registry.yarnpkg.com/hermes-engine/-/hermes-engine-0.7.2.tgz#303cd99d23f68e708b223aec2d49d5872985388b"
   integrity sha512-E2DkRaO97gwL98LPhgfkMqhHiNsrAjIfEk3wWYn2Y31xdkdWn0572H7RnVcGujMJVqZNJvtknxlpsUb8Wzc3KA==
-=======
-hermes-engine@^0.7.2:
-  version "0.7.2"
-  resolved "https://registry.yarnpkg.com/hermes-engine/-/hermes-engine-0.7.2.tgz#303cd99d23f68e708b223aec2d49d5872985388b"
-  integrity sha512-E2DkRaO97gwL98LPhgfkMqhHiNsrAjIfEk3wWYn2Y31xdkdWn0572H7RnVcGujMJVqZNJvtknxlpsUb8Wzc3KA==
-
-hermes-engine@~0.5.0:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/hermes-engine/-/hermes-engine-0.5.1.tgz#601115e4b1e0a17d9aa91243b96277de4e926e09"
-  integrity sha512-hLwqh8dejHayjlpvZY40e1aDCDvyP98cWx/L5DhAjSJLH8g4z9Tp08D7y4+3vErDsncPOdf1bxm+zUWpx0/Fxg==
->>>>>>> "React" -> "React Helper" to avoid confusion
 
 hermes-profile-transformer@^0.0.6:
   version "0.0.6"
