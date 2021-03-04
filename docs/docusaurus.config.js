@@ -27,6 +27,11 @@ module.exports = {
           position: 'left'
         },
         {
+          href: 'https://github.com/cuvent/react-native-vision-camera/tree/main/example',
+          label: 'Example App',
+          position: 'left'
+        },
+        {
           href: 'https://github.com/cuvent/react-native-vision-camera',
           label: 'GitHub',
           position: 'right',
@@ -68,6 +73,10 @@ module.exports = {
             {
               label: 'GitHub',
               href: 'https://github.com/cuvent/react-native-vision-camera',
+            },
+            {
+              label: 'VisionCamera Example App',
+              href: 'https://github.com/cuvent/react-native-vision-camera/tree/main/example',
             },
           ],
         },
