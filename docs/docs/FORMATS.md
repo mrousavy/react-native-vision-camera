@@ -16,7 +16,7 @@ Each camera device (see [Camera Devices](./DEVICES.md)) provides a number of cap
 
 If you don't want to specify the best format for your camera device, you don't have to. The Camera _automatically chooses the best matching format_ for the current camera device. This is why the Camera's `format` property is _optional_.
 
-If you don't want to do a lot of filtering, but still want to let the camera know what your intentions are, you can use the Camera's `preset` property. (See the [CameraPreset.ts](https://github.com/cuvent/react-native-vision-camera/blob/main/src/CameraPreset.ts) type for more information about presets)
+If you don't want to do a lot of filtering, but still want to let the camera know what your intentions are, you can use the Camera's `preset` property.
 
 For example, use the `'medium'` preset if you want to create a video-chat application that shouldn't excessively use mobile data:
 
@@ -35,6 +35,10 @@ function App() {
   )
 }
 ```
+
+:::note
+See the [CameraPreset.ts](https://github.com/cuvent/react-native-vision-camera/blob/main/src/CameraPreset.ts) type for more information about presets
+:::
 
 ### What you need to know about cameras
 

@@ -10,7 +10,7 @@ sidebar_label: Camera Errors
 
 ## Why?
 
-Since the Camera library is quite big, there is a lot that can "go wrong". The react-native-vision-camera library provides thoroughly typed errors to help you quickly identify the cause and fix the problem.
+Since the Camera library is quite big, there is a lot that can "go wrong". The VisionCamera library provides thoroughly typed errors to help you quickly identify the cause and fix the problem.
 
 ```ts
 switch (error.code) {
@@ -47,6 +47,10 @@ The `CameraError` type is a baseclass type for all other errors and provides the
   * `cause.stacktrace?`: A native Java stacktrace for the cause. (Android only)
   * `cause.cause?`: The cause that caused this cause. (Recursive) (Optional)
 
+:::note
+See [the `CameraError.ts` file](https://github.com/cuvent/react-native-vision-camera/blob/main/src/CameraError.ts) for a list of all possible error codes
+:::
+
 ### Runtime Errors
 
 The `CameraRuntimeError` represents any kind of error that occured while mounting the Camera view, or an error that occured during the runtime.
@@ -59,7 +63,7 @@ function App() {
     console.error(error)
   }, [])
 
-  return <Camera ref={camera} {...cameraProps} />
+  return <Camera onError={onError} {...cameraProps} />
 }
 ```
 
@@ -71,6 +75,7 @@ The `CameraCaptureError` represents any kind of error that occured only while ca
 function App() {
   const camera = useRef<Camera>(null)
 
+  // called when the user presses a "capture" button
   const onPress = useCallback(() => {
     try {
       const photo = await camera.current.takePhoto()
