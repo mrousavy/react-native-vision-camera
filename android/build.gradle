@@ -136,7 +136,7 @@ dependencies {
 
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2"
-  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.4.2"
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.4.3-native-mt"
 
   implementation "androidx.camera:camera-core:1.1.0-alpha02"
   implementation "androidx.camera:camera-camera2:1.1.0-alpha02"
