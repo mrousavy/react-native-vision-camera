@@ -5,8 +5,14 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    labels:
+      - "dependencies"
+      - "js"
 
   - package-ecosystem: "gradle"
     directory: "/android/"
     schedule:
       interval: "daily"
+    labels:
+      - "dependencies"
+      - "android"
