@@ -13,7 +13,7 @@ module.exports = {
       title: 'VisionCamera',
       logo: {
         alt: 'Logo',
-        src: 'https://github.com/cuvent/react-native-vision-camera/blob/main/docs/static/img/11.png?raw=true',
+        src: './img/11.png',
       },
       items: [
         {
