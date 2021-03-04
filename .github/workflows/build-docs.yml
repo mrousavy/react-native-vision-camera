@@ -45,8 +45,9 @@ jobs:
       - name: Install modules (example/)
         run: yarn example --frozen-lockfile
 
-      - name: Test Build
+      - name: Test Docs Build
         run: |
+          cd docs
           yarn install --frozen-lockfile
           yarn build
   gh-release:
