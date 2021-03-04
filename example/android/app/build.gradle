@@ -132,7 +132,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.mrousavy.camera"
+        applicationId "com.mrousavy.camera.example"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
