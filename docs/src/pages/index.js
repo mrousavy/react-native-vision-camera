@@ -8,17 +8,8 @@ import styles from './styles.module.css';
 
 const features = [
   {
-    title: 'Easy to use',
-    imageUrl: 'https://github.com/cuvent/react-native-vision-camera/blob/main/docs/static/img/example_intro.png?raw=true',
-    description: (
-      <>
-        While having a lot of features, VisionCamera makes sure you don't get overwhelmed from the beginning. It provides hooks and functions to help you get started faster, and if you need full control, you can easily do that.
-      </>
-    ),
-  },
-  {
-    title: 'Feature Rich',
-    imageUrl: 'https://github.com/cuvent/react-native-vision-camera/blob/main/docs/static/img/example.png?raw=true',
+    title: 'Feature-rich',
+    imageUrl: './img/example.png',
     description: (
       <>
         VisionCamera was designed from the ground up to provide all features a camera app should have. You have full control over what device is used, and can even configure options such as frame rate, colorspace and more.
@@ -26,8 +17,17 @@ const features = [
     ),
   },
   {
+    title: 'Easy to use',
+    imageUrl: './img/example_intro.png',
+    description: (
+      <>
+        While having a lot of features, VisionCamera makes sure you don't get overwhelmed from the beginning. It provides hooks and functions to help you get started faster, and if you need full control, you can easily do that.
+      </>
+    ),
+  },
+  {
     title: 'Rich Developer Support',
-    imageUrl: 'https://github.com/cuvent/react-native-vision-camera/blob/main/docs/static/img/example_error.png?raw=true',
+    imageUrl: './img/example_error.png',
     description: (
       <>
         Every functionality has been thoroughly documented and even errors are fully typed. Use TypeScript to get compile-time feedback on what has went wrong.
