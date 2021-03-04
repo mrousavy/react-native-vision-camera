@@ -12,7 +12,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 ### What are camera formats?
 
-Each camera device (see [Camera Devices](./DEVICES.md)) provides a number of capture formats that have different specifications. There are formats specifically designed for high-resolution photo capture, which have very high photo output quality but in return only support frame-rates of up to 30 FPS. On the other side, there might be formats that are designed for slow-motion video capture which have frame-rates up to 240 FPS.
+Each camera device (see [Camera Devices](devices)) provides a number of capture formats that have different specifications. There are formats specifically designed for high-resolution photo capture, which have very high photo output quality but in return only support frame-rates of up to 30 FPS. On the other side, there might be formats that are designed for slow-motion video capture which have frame-rates up to 240 FPS.
 
 ### What if I don't want to choose a format?
 
@@ -54,7 +54,7 @@ To understand a bit more about camera formats, you first need to understand a fe
 
 Each application has different needs, so the format filtering is up to you.
 
-To get all available formats, simply use the `CameraDevice`'s `.formats` property. See how to get a camera device in the [DEVICES.md](./DEVICES.md) doc.
+To get all available formats, simply use the `CameraDevice`'s `.formats` property. See how to get a camera device in the [Camera Devices guide](devices).
 
 :::note
 You can also manually get all camera devices and decide which device to use based on the available `formats`. In fact, this is how we do it in the [Cuvent](https://cuvent.com) app.
