@@ -82,6 +82,10 @@ module.exports = {
               label: 'GitHub',
               href: 'https://github.com/cuvent/react-native-vision-camera',
             },
+            {
+              label: 'Cuvent',
+              href: 'https://cuvent.com',
+            },
           ],
         },
       ],
