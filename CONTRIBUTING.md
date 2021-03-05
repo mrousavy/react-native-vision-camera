@@ -13,6 +13,8 @@
    yarn bootstrap
    ```
 
+> You can also open VisionCamera in [a quick online editor (github1s)](https://github1s.com/cuvent/react-native-vision-camera)
+
 ### iOS
 
 1. Open the `example/ios/VisionCameraExample.xcworkspace` file with Xcode
