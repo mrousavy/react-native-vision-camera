@@ -204,11 +204,20 @@ type RefType = React.Component<CameraProps> & Readonly<NativeMethods>;
  * @component
  */
 export class Camera extends React.PureComponent<CameraProps, CameraState> {
+  /**
+   * @internal
+   */
   static displayName = 'Camera';
+  /**
+   * @internal
+   */
   displayName = Camera.displayName;
 
   private readonly ref: React.RefObject<RefType>;
 
+  /**
+   * @internal
+   */
   constructor(props: CameraProps) {
     super(props);
     this.state = { cameraId: undefined };
@@ -451,6 +460,9 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   }
   //#endregion
 
+  /**
+   * @internal
+   */
   static getDerivedStateFromProps(props: CameraProps, state: CameraState): CameraState | null {
     const newCameraId = props.device.id;
     if (state.cameraId !== newCameraId) return { ...state, cameraId: newCameraId };
@@ -458,6 +470,9 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     return null;
   }
 
+  /**
+   * @internal
+   */
   public render(): React.ReactNode {
     // We remove the big `device` object from the props because we only need to pass `cameraId` to native.
     const { device: _, ...props } = this.props;
