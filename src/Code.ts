@@ -22,7 +22,7 @@ export type CodeType =
   | 'upce';
 
 /**
- * Represents a File in the local filesystem.
+ * Represents a Metadata Code read by the Camera. Example: QR Code
  */
 export type Code = Readonly<{
   /**
