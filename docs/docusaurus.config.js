@@ -112,9 +112,13 @@ module.exports = {
     [
       'docusaurus-plugin-typedoc',
       {
+        name: 'VisionCamera',
         entryPoints: ['../src'],
         exclude: "../src/index.ts",
         tsconfig: '../tsconfig.docs.json',
+        excludePrivate: true,
+        excludeProtected: true,
+        excludeExternals: true,
         readme: "none",
         sidebar: {
           sidebarFile: 'typedoc-sidebar.js',
