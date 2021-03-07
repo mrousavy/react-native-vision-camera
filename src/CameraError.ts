@@ -104,6 +104,9 @@ class CameraError<TCode extends CameraErrorCode> extends Error {
     return this._cause;
   }
 
+  /**
+   * @internal
+   */
   constructor(code: TCode, message: string, cause?: ErrorWithCause) {
     super(`[${code}]: ${message}${cause ? ` (Cause: ${cause.message})` : ''}`);
     this._code = code;
@@ -124,6 +127,11 @@ export class CameraRuntimeError extends CameraError<
   PermissionError | ParameterError | DeviceError | FormatError | SessionError | SystemError | UnknownError
 > {}
 
+/**
+ * Checks if the given `error` is of type `ErrorWithCause`
+ * @param error Any unknown object to validate
+ * @returns `true` if the given `error` is of type `ErrorWithCause`
+ */
 export const isErrorWithCause = (error: unknown): error is ErrorWithCause =>
   typeof error === 'object' &&
   error != null &&
