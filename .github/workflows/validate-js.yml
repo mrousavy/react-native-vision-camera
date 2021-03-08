@@ -33,6 +33,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Install reviewdog
+      uses: reviewdog/action-setup@v1
+
     - name: Get yarn cache directory path
       id: yarn-cache-dir-path
       run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -44,13 +47,18 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-yarn-
 
-    - name: Install modules
+    - name: Install node_modules
       run: yarn
-    - name: Install modules (example/)
+    - name: Install node_modules (example/)
       run: yarn example
 
     - name: Run TypeScript
-      run: yarn typescript
+      run: yarn typescript | reviewdog -f=tsc -reporter=github-pr-review
+      env:
+        REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Run ESLint
-      run: yarn lint-ci
+      uses: reviewdog/action-eslint@v1
+      with:
+        reporter: github-pr-review
+        eslint_flags: '--ext .js,.ts,.jsx,.tsx src'
