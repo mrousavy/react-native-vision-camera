@@ -241,6 +241,14 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * Take a single photo and write it's content to a temporary file.
    *
    * @throws {@link CameraCaptureError} When any kind of error occured. Use the {@link CameraCaptureError.code} property to get the actual error
+   * @example
+   * ```js
+   * const photo = await camera.current.takePhoto({
+   *   qualityPrioritization: 'quality',
+   *   flash: 'on',
+   *   enableAutoRedEyeReduction: true
+   * })
+   * ```
    */
   public async takePhoto(options?: TakePhotoOptions): Promise<PhotoFile> {
     try {
@@ -256,6 +264,13 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * This can be used as an alternative to {@link Camera.takePhoto} if speed is more important than quality
    *
    * @platform Android
+   * @example
+   * ```js
+   * const photo = await camera.current.takeSnapshot({
+   *   quality: 85,
+   *   skipMetadata: true
+   * })
+   * ```
    */
   public async takeSnapshot(options?: TakeSnapshotOptions): Promise<PhotoFile> {
     if (Platform.OS !== 'android')
@@ -337,6 +352,13 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * Make sure the value doesn't exceed the CameraView's dimensions.
    *
    * @throws {@link CameraRuntimeError} When any kind of error occured. Use the {@link CameraRuntimeError.code} property to get the actual error
+   * @example
+   * ```js
+   * await camera.current.focus({
+   *   x: tapEvent.x,
+   *   y: tapEvent.y
+   * })
+   * ```
    */
   public async focus(point: Point): Promise<void> {
     try {
@@ -383,6 +405,16 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * Get a list of all available camera devices on the current phone.
    *
    * @throws {@link CameraRuntimeError} When any kind of error occured. Use the {@link CameraRuntimeError.code} property to get the actual error
+   * @example
+   * ```js
+   * const devices = await Camera.getAvailableCameraDevices()
+   * const filtered = devices.filter((d) => matchesMyExpectations(d))
+   * const sorted = devices.sort(sortDevicesByAmountOfCameras)
+   * return {
+   *   back: sorted.find((d) => d.position === "back"),
+   *   front: sorted.find((d) => d.position === "front")
+   * }
+   * ```
    */
   public static async getAvailableCameraDevices(): Promise<CameraDevice[]> {
     try {
