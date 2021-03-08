@@ -119,6 +119,7 @@ module.exports = {
         excludePrivate: true,
         excludeProtected: true,
         excludeExternals: true,
+        excludeInternal: true,
         readme: "none",
         sidebar: {
           sidebarFile: 'typedoc-sidebar.js',
