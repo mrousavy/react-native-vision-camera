@@ -119,11 +119,13 @@ export type CameraDynamicProps = {
   /**
    * Specifies the zoom factor of the current camera, in percent. (`0.0` - `1.0`)
    *
+   * **Note:** Linearly increasing this value always appears logarithmic to the user.
+   *
    * @default 0.0
    */
   zoom?: number;
   /**
-   * Enables or disables the pinch to zoom gesture
+   * Enables or disables the native pinch to zoom gesture
    *
    * @default false
    */
@@ -181,8 +183,8 @@ type RefType = React.Component<CameraProps> & Readonly<NativeMethods>;
  *
  * The `<Camera>` component's most important (and therefore _required_) properties are:
  *
- * * `device`: Specifies the {@link CameraDevice} to use. Get a {@link CameraDevice} by using the {@link useCameraDevices} hook, or manually by using the {@link Camera.getAvailableCameraDevices} function.
- * * `isActive`: A boolean value that specifies whether the Camera should actively stream video frames or not. This can be compared to a Video component, where `isActive` specifies whether the video is paused or not. If you fully unmount the `<Camera>` component instead of using `isActive={false}`, the Camera will take a bit longer to start again.
+ * * {@link CameraProps.device}: Specifies the {@link CameraDevice} to use. Get a {@link CameraDevice} by using the {@link useCameraDevices} hook, or manually by using the {@link Camera.getAvailableCameraDevices} function.
+ * * {@link CameraProps.isActive}: A boolean value that specifies whether the Camera should actively stream video frames or not. This can be compared to a Video component, where `isActive` specifies whether the video is paused or not. If you fully unmount the `<Camera>` component instead of using `isActive={false}`, the Camera will take a bit longer to start again.
  *
  * @example
  * ```jsx
@@ -238,7 +240,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   /**
    * Take a single photo and write it's content to a temporary file.
    *
-   * @throws {@link CameraCaptureError} When any kind of error occured. Use the `CameraCaptureError.code` property to get the actual error
+   * @throws {@link CameraCaptureError} When any kind of error occured. Use the {@link CameraCaptureError.code} property to get the actual error
    */
   public async takePhoto(options?: TakePhotoOptions): Promise<PhotoFile> {
     try {
@@ -251,7 +253,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   /**
    * Take a snapshot of the current preview view.
    *
-   * This can be used as an alternative to `takePhoto()` if speed is more important than quality
+   * This can be used as an alternative to {@link Camera.takePhoto} if speed is more important than quality
    *
    * @platform Android
    */
@@ -275,7 +277,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    *
    * @blocking This function is synchronized/blocking.
    *
-   * @throws {@link CameraCaptureError} When any kind of error occured. Use the `CameraCaptureError.code` property to get the actual error
+   * @throws {@link CameraCaptureError} When any kind of error occured. Use the {@link CameraCaptureError.code} property to get the actual error
    *
    * @example
    * ```js
@@ -307,6 +309,8 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   /**
    * Stop the current video recording.
    *
+   * @throws {@link CameraCaptureError} When any kind of error occured. Use the {@link CameraCaptureError.code} property to get the actual error
+   *
    * @example
    * ```js
    * await camera.current.startRecording()
@@ -331,6 +335,8 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    *  * `(CameraView.width, CameraView.height)` means **bottom right**.
    *
    * Make sure the value doesn't exceed the CameraView's dimensions.
+   *
+   * @throws {@link CameraRuntimeError} When any kind of error occured. Use the {@link CameraRuntimeError.code} property to get the actual error
    */
   public async focus(point: Point): Promise<void> {
     try {
@@ -344,7 +350,9 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * Get a list of video codecs the current camera supports.  Returned values are ordered by efficiency (descending).
    *
    * This function can only be called after the camera has been initialized,
-   * so only use this after the `onInitialized` event has fired.
+   * so only use this after the {@link onInitialized} event has fired.
+   *
+   * @throws {@link CameraRuntimeError} When any kind of error occured. Use the {@link CameraRuntimeError.code} property to get the actual error
    */
   public async getAvailableVideoCodecs(): Promise<CameraVideoCodec[]> {
     try {
@@ -357,7 +365,9 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * Get a list of photo codecs the current camera supports. Returned values are ordered by efficiency (descending).
    *
    * This function can only be called after the camera has been initialized,
-   * so only use this after the `onInitialized` event has fired.
+   * so only use this after the {@link onInitialized} event has fired.
+   *
+   * @throws {@link CameraRuntimeError} When any kind of error occured. Use the {@link CameraRuntimeError.code} property to get the actual error
    */
   public async getAvailablePhotoCodecs(): Promise<CameraPhotoCodec[]> {
     try {
@@ -371,6 +381,8 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   //#region Static Functions (NativeModule)
   /**
    * Get a list of all available camera devices on the current phone.
+   *
+   * @throws {@link CameraRuntimeError} When any kind of error occured. Use the {@link CameraRuntimeError.code} property to get the actual error
    */
   public static async getAvailableCameraDevices(): Promise<CameraDevice[]> {
     try {
@@ -383,7 +395,9 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * Gets the current Camera Permission Status. Check this before mounting the Camera to ensure
    * the user has permitted the app to use the camera.
    *
-   * To actually prompt the user for camera permission, use `Camera.requestCameraPermission()`.
+   * To actually prompt the user for camera permission, use {@link Camera.requestCameraPermission}.
+   *
+   * @throws {@link CameraRuntimeError} When any kind of error occured. Use the {@link CameraRuntimeError.code} property to get the actual error
    */
   public static async getCameraPermissionStatus(): Promise<CameraPermissionStatus> {
     try {
@@ -396,7 +410,9 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * Gets the current Microphone-Recording Permission Status. Check this before mounting the Camera to ensure
    * the user has permitted the app to use the microphone.
    *
-   * To actually prompt the user for microphone permission, use `Camera.requestMicrophonePermission()`.
+   * To actually prompt the user for microphone permission, use {@link Camera.requestMicrophonePermission}.
+   *
+   * @throws {@link CameraRuntimeError} When any kind of error occured. Use the {@link CameraRuntimeError.code} property to get the actual error
    */
   public static async getMicrophonePermissionStatus(): Promise<CameraPermissionStatus> {
     try {
@@ -410,6 +426,8 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    *
    * If the user has previously blocked the app from using the camera, the alert will not be shown
    * and `"denied"` will be returned.
+   *
+   * @throws {@link CameraRuntimeError} When any kind of error occured. Use the {@link CameraRuntimeError.code} property to get the actual error
    */
   public static async requestCameraPermission(): Promise<CameraPermissionRequestResult> {
     try {
@@ -423,6 +441,8 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    *
    * If the user has previously blocked the app from using the microphone, the alert will not be shown
    * and `"denied"` will be returned.
+   *
+   * @throws {@link CameraRuntimeError} When any kind of error occured. Use the {@link CameraRuntimeError.code} property to get the actual error
    */
   public static async requestMicrophonePermission(): Promise<CameraPermissionRequestResult> {
     try {
