@@ -24,7 +24,7 @@ export type CodeType =
 /**
  * Represents a Metadata Code read by the Camera. Example: QR Code
  */
-export type Code = Readonly<{
+export interface Code {
   /**
    * The decoded string representation of the code.
    */
@@ -62,4 +62,4 @@ export type Code = Readonly<{
      */
     height: number;
   };
-}>;
+}
