@@ -20,7 +20,7 @@ export type PhysicalCameraDeviceType = 'ultra-wide-angle-camera' | 'wide-angle-c
 export type LogicalCameraDeviceType = 'dual-camera' | 'dual-wide-camera' | 'triple-camera' | 'true-depth-camera';
 
 /**
- * Parses an array of physical device types into a single `PhysicalCameraDeviceType` or `LogicalCameraDeviceType`, depending what matches.
+ * Parses an array of physical device types into a single {@link PhysicalCameraDeviceType} or {@link LogicalCameraDeviceType}, depending what matches.
  * @method
  */
 export const parsePhysicalDeviceTypes = (physicalDeviceTypes: PhysicalCameraDeviceType[]): PhysicalCameraDeviceType | LogicalCameraDeviceType => {
@@ -80,7 +80,7 @@ export interface FrameRateRange {
 }
 
 /**
- * A Camera Device's video format. Do not create instances of this type yourself, only use `Camera.getAvailableCameraDevices(...)`.
+ * A Camera Device's video format. Do not create instances of this type yourself, only use {@link Camera.getAvailableCameraDevices}.
  */
 export interface CameraDeviceFormat {
   /**
@@ -154,7 +154,7 @@ export interface CameraDeviceFormat {
 }
 
 /**
- * Represents a camera device discovered by the `Camera.getAvailableCameraDevices()` function
+ * Represents a camera device discovered by the {@link Camera.getAvailableCameraDevices} function
  */
 export interface CameraDevice {
   /**

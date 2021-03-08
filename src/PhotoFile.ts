@@ -3,8 +3,9 @@ import type { TemporaryFile } from './TemporaryFile';
 
 export interface TakePhotoOptions {
   /**
-   * Specify the photo codec to use. To get a list of available photo codecs use the `getAvailablePhotoCodecs()` function.
+   * Specify the photo codec to use. To get a list of available photo codecs use the {@link Camera.getAvailablePhotoCodecs} function.
    *
+   * @platform iOS
    * @default undefined
    */
   photoCodec?: CameraPhotoCodec;
@@ -51,7 +52,7 @@ export interface TakePhotoOptions {
    */
   enableAutoDistortionCorrection?: boolean;
   /**
-   * When set to `true`, metadata reading and mapping will be skipped. (`PhotoFile.metadata` will be null)
+   * When set to `true`, metadata reading and mapping will be skipped. ({@link PhotoFile.metadata} will be null)
    *
    * This might result in a faster capture, as metadata reading and mapping requires File IO.
    *
@@ -64,6 +65,8 @@ export interface TakePhotoOptions {
 
 /**
  * Represents a Photo taken by the Camera written to the local filesystem.
+ *
+ * Related: {@link Camera.takePhoto}, {@link Camera.takeSnapshot}
  */
 export interface PhotoFile extends TemporaryFile {
   width: number;

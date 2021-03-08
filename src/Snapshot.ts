@@ -9,7 +9,7 @@ export interface TakeSnapshotOptions {
   quality?: number;
 
   /**
-   * When set to `true`, metadata reading and mapping will be skipped. (`PhotoFile.metadata` will be null)
+   * When set to `true`, metadata reading and mapping will be skipped. ({@link PhotoFile.metadata} will be `null`)
    *
    * This might result in a faster capture, as metadata reading and mapping requires File IO.
    *
