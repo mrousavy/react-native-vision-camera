@@ -20,7 +20,7 @@ export type PhysicalCameraDeviceType = 'ultra-wide-angle-camera' | 'wide-angle-c
 export type LogicalCameraDeviceType = 'dual-camera' | 'dual-wide-camera' | 'triple-camera' | 'true-depth-camera';
 
 /**
- * Parses an array of physical device types into a single {@link PhysicalCameraDeviceType} or {@link LogicalCameraDeviceType}, depending what matches.
+ * Parses an array of physical device types into a single {@linkcode PhysicalCameraDeviceType} or {@linkcode LogicalCameraDeviceType}, depending what matches.
  * @method
  */
 export const parsePhysicalDeviceTypes = (physicalDeviceTypes: PhysicalCameraDeviceType[]): PhysicalCameraDeviceType | LogicalCameraDeviceType => {
@@ -80,7 +80,7 @@ export interface FrameRateRange {
 }
 
 /**
- * A Camera Device's video format. Do not create instances of this type yourself, only use {@link Camera.getAvailableCameraDevices}.
+ * A Camera Device's video format. Do not create instances of this type yourself, only use {@linkcode Camera.getAvailableCameraDevices | Camera.getAvailableCameraDevices()}.
  */
 export interface CameraDeviceFormat {
   /**
@@ -154,7 +154,7 @@ export interface CameraDeviceFormat {
 }
 
 /**
- * Represents a camera device discovered by the {@link Camera.getAvailableCameraDevices} function
+ * Represents a camera device discovered by the {@linkcode Camera.getAvailableCameraDevices | Camera.getAvailableCameraDevices()} function
  */
 export interface CameraDevice {
   /**
@@ -212,7 +212,9 @@ export interface CameraDevice {
    */
   neutralZoom: number;
   /**
-   * All available formats for this camera device. Use this to find the best format for your use case and set it to the Camera's `format` property.
+   * All available formats for this camera device. Use this to find the best format for your use case and set it to the Camera's {@linkcode Camera.format} property.
+   *
+   * See [the Camera Formats documentation](https://cuvent.github.io/react-native-vision-camera/docs/formats) for more information about Camera Formats.
    */
   formats: CameraDeviceFormat[];
   /**

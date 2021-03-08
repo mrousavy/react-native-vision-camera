@@ -47,7 +47,7 @@ export interface RecordVideoOptions {
 /**
  * Represents a Video taken by the Camera written to the local filesystem.
  *
- * Related: {@link Camera.startRecording}, {@link Camera.stopRecording}
+ * Related: {@linkcode Camera.startRecording | Camera.startRecording()}, {@linkcode Camera.stopRecording | Camera.stopRecording()}
  */
 export interface VideoFile extends TemporaryFile {
   /**

@@ -79,7 +79,7 @@ const getFormatAspectRatioOverflow = (format: CameraDeviceFormat, size: Size): n
 /**
  * Filters Camera Device Formats by the best matching aspect ratio for the given `viewSize`.
  *
- * @param {CameraDeviceFormat[]} formats A list of formats the current device has (see {@link CameraDevice.formats})
+ * @param {CameraDeviceFormat[]} formats A list of formats the current device has (see {@linkcode CameraDevice.formats})
  * @param {Size} viewSize The size of the camera view which will be used to find the best aspect ratio. Defaults to the screen size.
  * @returns A list of Camera Device Formats that match the given `viewSize`' aspect ratio _as close as possible_.
  *
