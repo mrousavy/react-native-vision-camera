@@ -51,7 +51,7 @@ jobs:
     - name: Install node_modules
       run: yarn install --frozen-lockfile
     - name: Install node_modules (example/)
-      run: yarn install --frozen-lockfile example
+      run: yarn install --frozen-lockfile --cwd example
 
     - name: Run TypeScript
       run: yarn typescript | reviewdog -f=tsc -reporter=github-pr-review
