@@ -74,15 +74,15 @@ export type AutoFocusSystem = 'contrast-detection' | 'phase-detection' | 'none';
  */
 export type VideoStabilizationMode = 'off' | 'standard' | 'cinematic' | 'cinematic-extended' | 'auto';
 
-export type FrameRateRange = Readonly<{
+export interface FrameRateRange {
   minFrameRate: number;
   maxFrameRate: number;
-}>;
+}
 
 /**
  * A Camera Device's video format. Do not create instances of this type yourself, only use `Camera.getAvailableCameraDevices(...)`.
  */
-export type CameraDeviceFormat = Readonly<{
+export interface CameraDeviceFormat {
   /**
    * The height of the highest resolution a still image (photo) can be produced in
    */
@@ -151,12 +151,12 @@ export type CameraDeviceFormat = Readonly<{
    * All supported video stabilization modes
    */
   videoStabilizationModes: VideoStabilizationMode[];
-}>;
+}
 
 /**
  * Represents a camera device discovered by the `Camera.getAvailableCameraDevices()` function
  */
-export type CameraDevice = Readonly<{
+export interface CameraDevice {
   /**
    * The native ID of the camera device instance.
    */
@@ -230,4 +230,4 @@ export type CameraDevice = Readonly<{
   //  * Whether this camera supports taking photos in RAW format
   //  */
   // supportsRawCapture: boolean;
-}>;
+}
