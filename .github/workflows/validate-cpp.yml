@@ -1,0 +1,33 @@
+name: Validate C++
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/validate-cpp.yml'
+      - 'cpp/**'
+  pull_request:
+    paths:
+      - '.github/workflows/validate-cpp.yml'
+      - 'cpp/**'
+
+jobs:
+  lint:
+    name: SwiftLint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: reviewdog/action-cpplint@master
+        with:
+          github_token: ${{ secrets.github_token }}
+          reporter: github-pr-review
+          flags: --linelength=160
+          filter: "-readability/braces\
+            ,-whitespace/braces\
+            ,-whitespace/comments\
+            ,-whitespace/indent\
+            ,-whitespace/newline\
+            ,-whitespace/operators\
+            ,-whitespace/parens\
+            "
