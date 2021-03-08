@@ -14,7 +14,7 @@ import type { RecordVideoOptions, VideoFile } from './VideoFile';
 //#region Types
 type Modify<T, R> = Omit<T, keyof R> & R;
 
-type CameraFormatProps = {
+interface CameraFormatProps {
   /**
    * Automatically selects a camera format which best matches the given preset
    */
@@ -39,7 +39,7 @@ type CameraFormatProps = {
    * Selects a given format.
    */
   format?: never;
-};
+}
 type CameraPresetProps = Modify<
   CameraFormatProps,
   {
@@ -52,7 +52,7 @@ type CameraPresetProps = Modify<
   }
 >;
 
-type CameraScannerPropsNever = {
+interface CameraScannerPropsNever {
   /**
    * Specify the code types this camera can scan.
    */
@@ -61,7 +61,7 @@ type CameraScannerPropsNever = {
    * Called when one or multiple codes have been scanned.
    */
   onCodeScanned?: never;
-};
+}
 export type CameraScannerProps = Modify<
   CameraScannerPropsNever,
   {
@@ -70,7 +70,7 @@ export type CameraScannerProps = Modify<
   }
 >;
 
-export type CameraDeviceProps = {
+export interface CameraDeviceProps {
   // Properties
   /**
    * The Camera Device to use
@@ -97,9 +97,9 @@ export type CameraDeviceProps = {
    * @default false
    */
   enableHighResolutionCapture?: boolean;
-};
+}
 
-export type CameraDynamicProps = {
+export interface CameraDynamicProps {
   /**
    * Whether the Camera should actively stream video frames, or not.
    *
@@ -130,9 +130,9 @@ export type CameraDynamicProps = {
    * @default false
    */
   enableZoomGesture?: boolean;
-};
+}
 
-export type CameraEventProps = {
+export interface CameraEventProps {
   /**
    * Called when any kind of runtime error occured.
    */
@@ -141,7 +141,7 @@ export type CameraEventProps = {
    * Called when the camera was successfully initialized.
    */
   onInitialized?: () => void;
-};
+}
 
 export type CameraProps = (CameraPresetProps | CameraFormatProps) &
   (CameraScannerPropsNever | CameraScannerProps) &
@@ -183,8 +183,8 @@ type RefType = React.Component<CameraProps> & Readonly<NativeMethods>;
  *
  * The `<Camera>` component's most important (and therefore _required_) properties are:
  *
- * * {@link CameraProps.device}: Specifies the {@link CameraDevice} to use. Get a {@link CameraDevice} by using the {@link useCameraDevices} hook, or manually by using the {@link Camera.getAvailableCameraDevices} function.
- * * {@link CameraProps.isActive}: A boolean value that specifies whether the Camera should actively stream video frames or not. This can be compared to a Video component, where `isActive` specifies whether the video is paused or not. If you fully unmount the `<Camera>` component instead of using `isActive={false}`, the Camera will take a bit longer to start again.
+ * * {@link CameraDeviceProps.device}: Specifies the {@link CameraDevice} to use. Get a {@link CameraDevice} by using the {@link useCameraDevices} hook, or manually by using the {@link Camera.getAvailableCameraDevices} function.
+ * * {@link CameraDynamicProps.isActive}: A boolean value that specifies whether the Camera should actively stream video frames or not. This can be compared to a Video component, where `isActive` specifies whether the video is paused or not. If you fully unmount the `<Camera>` component instead of using `isActive={false}`, the Camera will take a bit longer to start again.
  *
  * @example
  * ```jsx
