@@ -238,7 +238,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   /**
    * Take a single photo and write it's content to a temporary file.
    *
-   * @throws {CameraCaptureError} When any kind of error occured. Use the `CameraCaptureError.code` property to get the actual error
+   * @throws {@link CameraCaptureError} When any kind of error occured. Use the `CameraCaptureError.code` property to get the actual error
    */
   public async takePhoto(options?: TakePhotoOptions): Promise<PhotoFile> {
     try {
@@ -275,7 +275,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    *
    * @blocking This function is synchronized/blocking.
    *
-   * @throws {CameraCaptureError} When any kind of error occured. Use the `CameraCaptureError.code` property to get the actual error
+   * @throws {@link CameraCaptureError} When any kind of error occured. Use the `CameraCaptureError.code` property to get the actual error
    *
    * @example
    * ```js
