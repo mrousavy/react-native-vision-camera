@@ -78,7 +78,7 @@ export interface CameraDeviceProps {
    * See the [Camera Devices](https://cuvent.github.io/react-native-vision-camera/docs/devices) section in the documentation for more information about Camera Devices.
    *
    * @example
-   * ```js
+   * ```tsx
    * const devices = useCameraDevices('wide-angle-camera')
    * const device = devices.back
    *
@@ -89,7 +89,6 @@ export interface CameraDeviceProps {
    *     style={StyleSheet.absoluteFill}
    *   />
    * )
-   *
    * ```
    */
   device: CameraDevice;
@@ -208,7 +207,7 @@ type RefType = React.Component<CameraProps> & Readonly<NativeMethods>;
  * * {@linkcode CameraDynamicProps.isActive | isActive}: A boolean value that specifies whether the Camera should actively stream video frames or not. This can be compared to a Video component, where `isActive` specifies whether the video is paused or not. If you fully unmount the `<Camera>` component instead of using `isActive={false}`, the Camera will take a bit longer to start again.
  *
  * @example
- * ```jsx
+ * ```tsx
  * function App() {
  *   const devices = useCameraDevices('wide-angle-camera')
  *   const device = devices.back
@@ -263,7 +262,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    *
    * @throws {@linkcode CameraCaptureError} When any kind of error occured while capturing the photo. Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
    * @example
-   * ```js
+   * ```ts
    * const photo = await camera.current.takePhoto({
    *   qualityPrioritization: 'quality',
    *   flash: 'on',
@@ -288,7 +287,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    *
    * @platform Android
    * @example
-   * ```js
+   * ```ts
    * const photo = await camera.current.takeSnapshot({
    *   quality: 85,
    *   skipMetadata: true
@@ -318,7 +317,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * @throws {@linkcode CameraCaptureError} When any kind of error occured while starting the video recording. Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
    *
    * @example
-   * ```js
+   * ```ts
    * camera.current.startRecording({
    *   onRecordingFinished: (video) => console.log(video),
    *   onRecordingError: (error) => console.error(error),
@@ -350,7 +349,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * @throws {@linkcode CameraCaptureError} When any kind of error occured while stopping the video recording. Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
    *
    * @example
-   * ```js
+   * ```ts
    * await camera.current.startRecording()
    * setTimeout(async () => {
    *  const video = await camera.current.stopRecording()
@@ -376,7 +375,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    *
    * @throws {@linkcode CameraRuntimeError} When any kind of error occured while focussing. Use the {@linkcode CameraRuntimeError.code | code} property to get the actual error
    * @example
-   * ```js
+   * ```ts
    * await camera.current.focus({
    *   x: tapEvent.x,
    *   y: tapEvent.y
@@ -431,7 +430,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    *
    * @throws {@linkcode CameraRuntimeError} When any kind of error occured while getting all available camera devices. Use the {@linkcode CameraRuntimeError.code | code} property to get the actual error
    * @example
-   * ```js
+   * ```ts
    * const devices = await Camera.getAvailableCameraDevices()
    * const filtered = devices.filter((d) => matchesMyExpectations(d))
    * const sorted = devices.sort(sortDevicesByAmountOfCameras)

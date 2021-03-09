@@ -73,6 +73,12 @@ export interface PhotoFile extends TemporaryFile {
   height: number;
   isRawPhoto: boolean;
   thumbnail?: Record<string, unknown>;
+  /**
+   * Metadata information describing the captured image.
+   *
+   * @see [AVCapturePhoto.metadata](https://developer.apple.com/documentation/avfoundation/avcapturephoto/2873982-metadata)
+   * @see [AndroidX ExifInterface](https://developer.android.com/reference/androidx/exifinterface/media/ExifInterface)
+   */
   metadata: {
     Orientation: number;
     /**

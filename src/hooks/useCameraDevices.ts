@@ -20,7 +20,7 @@ const DefaultCameraDevices: CameraDevices = {
  * @returns The best matching {@linkcode CameraDevice}.
  * @throws {@linkcode CameraRuntimeError} if no device was found.
  * @example
- * ```jsx
+ * ```tsx
  * const device = useCameraDevice()
  * // ...
  * return <Camera device={device} />
@@ -35,7 +35,7 @@ export function useCameraDevices(): CameraDevices;
  * @returns A {@linkcode CameraDevice} for the requested device type.
  * @throws {@linkcode CameraRuntimeError} if no device was found.
  * @example
- * ```jsx
+ * ```tsx
  * const device = useCameraDevice('wide-angle-camera')
  * // ...
  * return <Camera device={device} />
