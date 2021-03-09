@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install SwiftFormat
-        run: brew install swiftformat
+        run: mint install nicklockwood/SwiftFormat
 
       - name: Format Swift code
         run: swiftformat --verbose .
