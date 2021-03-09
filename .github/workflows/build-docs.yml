@@ -25,12 +25,10 @@ on:
 jobs:
   checks:
     if: github.event_name != 'push'
+    name: Build Documentation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: '12.x'
+      - uses: actions/checkout@v2
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -51,9 +49,10 @@ jobs:
           yarn build
   gh-release:
     if: github.event_name != 'pull_request'
+    name: Deploy Documentation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
 
       - name: Add key to allow access to repository
         env:
