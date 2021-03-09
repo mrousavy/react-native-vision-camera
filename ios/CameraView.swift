@@ -135,7 +135,7 @@ final class CameraView: UIView {
   @objc var onInitialized: RCTDirectEventBlock?
   @objc var onError: RCTDirectEventBlock?
   @objc var onCodeScanned: RCTBubblingEventBlock?
-  var isReady: Bool = false
+  var isReady = false
   // pragma MARK: Private Properties
   /// The serial execution queue for the camera preview layer (input stream) as well as output processing (take photo, record video, process metadata/barcodes)
   internal let queue = DispatchQueue(label: "com.mrousavy.camera-queue", qos: .userInteractive, attributes: [], autoreleaseFrequency: .inherit, target: nil)
@@ -153,7 +153,7 @@ final class CameraView: UIView {
   internal var pinchGestureRecognizer: UIPinchGestureRecognizer?
   internal var pinchScaleOffset: CGFloat = 1.0
 
-  @objc var enableZoomGesture: Bool = false {
+  @objc var enableZoomGesture = false {
     didSet {
       if enableZoomGesture {
         addPinchGestureRecognizer()
