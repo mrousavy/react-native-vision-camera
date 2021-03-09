@@ -35,10 +35,14 @@
     "example": "yarn --cwd example",
     "pods": "cd example && pod-install --quiet",
     "bootstrap": "yarn example && yarn && yarn pods",
-    "ktlint-fix": "ktlint -F android/**/*.kt*",
-    "swiftlint-fix": "cd ios && swiftlint autocorrect",
+    "ktlint": "scripts/ktlint.sh",
+    "swiftlint": "scripts/swiftlint.sh",
+    "swiftformat": "scripts/swiftformat.sh",
     "docs": "cd docs && yarn build"
   },
+  "pre-commit": [
+    "swiftformat"
+  ],
   "keywords": [
     "react-native",
     "ios",
@@ -81,6 +85,7 @@
     "eslint-plugin-react-native": "^3.10.0",
     "jest": "^26.0.1",
     "pod-install": "^0.1.0",
+    "pre-commit": "^1.2.2",
     "prettier": "^2.2.1",
     "react": "17.0.1",
     "react-native": "0.63.4",

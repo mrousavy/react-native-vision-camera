@@ -14,9 +14,10 @@ import AVFoundation
 // once the delegate has been triggered once.
 private var delegateReferences: [NSObject] = []
 
+// MARK: - RecordingDelegateWithCallback
+
 class RecordingDelegateWithCallback: NSObject, AVCaptureFileOutputRecordingDelegate {
-  private let callback: RCTResponseSenderBlock // (video?, error?) => void
-  private let resetTorchMode: () -> Void
+  // MARK: Lifecycle
 
   init(callback: @escaping RCTResponseSenderBlock, resetTorchMode: @escaping () -> Void) {
     self.callback = callback
@@ -24,6 +25,8 @@ class RecordingDelegateWithCallback: NSObject, AVCaptureFileOutputRecordingDeleg
     super.init()
     delegateReferences.append(self)
   }
+
+  // MARK: Internal
 
   func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from _: [AVCaptureConnection], error: Error?) {
     defer {
@@ -37,4 +40,9 @@ class RecordingDelegateWithCallback: NSObject, AVCaptureFileOutputRecordingDeleg
     let seconds = CMTimeGetSeconds(output.recordedDuration)
     return callback([["path": outputFileURL.absoluteString, "duration": seconds, "size": output.recordedFileSize], NSNull()])
   }
+
+  // MARK: Private
+
+  private let callback: RCTResponseSenderBlock // (video?, error?) => void
+  private let resetTorchMode: () -> Void
 }

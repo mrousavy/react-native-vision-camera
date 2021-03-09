@@ -29,72 +29,10 @@ import UIKit
 private let propsThatRequireReconfiguration = ["cameraId", "enableDepthData", "enableHighResolutionCapture", "enablePortraitEffectsMatteDelivery", "preset", "onCodeScanned", "scannableCodes"]
 private let propsThatRequireDeviceReconfiguration = ["fps", "hdr", "lowLightBoost", "colorSpace"]
 
+// MARK: - CameraView
+
 final class CameraView: UIView {
-  // pragma MARK: Exported Properties
-  // props that require reconfiguring
-  @objc var cameraId: NSString?
-  @objc var enableDepthData = false
-  @objc var enableHighResolutionCapture: NSNumber? // nullable bool
-  @objc var enablePortraitEffectsMatteDelivery = false
-  @objc var preset: String?
-  @objc var scannableCodes: [String]?
-  // props that require format reconfiguring
-  @objc var format: NSDictionary?
-  @objc var fps: NSNumber?
-  @objc var hdr: NSNumber? // nullable bool
-  @objc var lowLightBoost: NSNumber? // nullable bool
-  @objc var colorSpace: NSString?
-  // other props
-  @objc var isActive = false
-  @objc var torch = "off"
-  @objc var zoom: NSNumber = 0.0 // in percent
-  // events
-  @objc var onInitialized: RCTDirectEventBlock?
-  @objc var onError: RCTDirectEventBlock?
-  @objc var onCodeScanned: RCTBubblingEventBlock?
-  @objc var enableZoomGesture: Bool = false {
-    didSet {
-      if enableZoomGesture {
-        addPinchGestureRecognizer()
-      } else {
-        removePinchGestureRecognizer()
-      }
-    }
-  }
-
-  var isReady: Bool = false
-  var isRunning: Bool {
-    return captureSession.isRunning
-  }
-
-  // pragma MARK: Private Properties
-  /// The serial execution queue for the camera preview layer (input stream) as well as output processing (take photo, record video, process metadata/barcodes)
-  internal let queue = DispatchQueue(label: "com.mrousavy.camera-queue", qos: .userInteractive, attributes: [], autoreleaseFrequency: .inherit, target: nil)
-  private let captureSession = AVCaptureSession()
-  internal var videoDeviceInput: AVCaptureDeviceInput?
-  internal var audioDeviceInput: AVCaptureDeviceInput?
-  internal var photoOutput: AVCapturePhotoOutput?
-  internal var movieOutput: AVCaptureMovieFileOutput?
-  internal var metadataOutput: AVCaptureMetadataOutput?
-  // CameraView+TakePhoto
-  internal var photoCaptureDelegates: [PhotoCaptureDelegate] = []
-  // CameraView+RecordVideo
-  internal var recordingDelegateResolver: RCTPromiseResolveBlock?
-  internal var recordingDelegateRejecter: RCTPromiseRejectBlock?
-  // CameraView+Zoom
-  internal var pinchGestureRecognizer: UIPinchGestureRecognizer?
-  internal var pinchScaleOffset: CGFloat = 1.0
-
-  // pragma MARK: Setup
-  override class var layerClass: AnyClass {
-    return AVCaptureVideoPreviewLayer.self
-  }
-
-  /// Convenience wrapper to get layer as its statically known type.
-  var videoPreviewLayer: AVCaptureVideoPreviewLayer {
-    // swiftlint:disable force_cast
-    return layer as! AVCaptureVideoPreviewLayer
-  }
+  // MARK: Lifecycle
 
   override init(frame: CGRect) {
     super.init(frame: frame)
@@ -112,26 +50,6 @@ final class CameraView: UIView {
     NotificationCenter.default.removeObserver(self,
                                               name: .AVCaptureSessionRuntimeError,
                                               object: captureSession)
-  }
-
-  override func removeFromSuperview() {
-    captureSession.stopRunning()
-    super.removeFromSuperview()
-  }
-
-  @objc
-  func sessionRuntimeError(notification: Notification) {
-    guard let error = notification.userInfo?[AVCaptureSessionErrorKey] as? AVError else {
-      return
-    }
-
-    if isActive {
-      // restart capture session after an error occured
-      queue.async {
-        self.captureSession.startRunning()
-      }
-    }
-    invokeOnError(.unknown(message: error.localizedDescription), cause: error as NSError)
   }
 
   @available(*, unavailable)
@@ -188,6 +106,159 @@ final class CameraView: UIView {
     }
   }
 
+  // MARK: Internal
+
+  // pragma MARK: Setup
+  override class var layerClass: AnyClass {
+    return AVCaptureVideoPreviewLayer.self
+  }
+
+  // pragma MARK: Exported Properties
+  // props that require reconfiguring
+  @objc var cameraId: NSString?
+  @objc var enableDepthData = false
+  @objc var enableHighResolutionCapture: NSNumber? // nullable bool
+  @objc var enablePortraitEffectsMatteDelivery = false
+  @objc var preset: String?
+  @objc var scannableCodes: [String]?
+  // props that require format reconfiguring
+  @objc var format: NSDictionary?
+  @objc var fps: NSNumber?
+  @objc var hdr: NSNumber? // nullable bool
+  @objc var lowLightBoost: NSNumber? // nullable bool
+  @objc var colorSpace: NSString?
+  // other props
+  @objc var isActive = false
+  @objc var torch = "off"
+  @objc var zoom: NSNumber = 0.0 // in percent
+  // events
+  @objc var onInitialized: RCTDirectEventBlock?
+  @objc var onError: RCTDirectEventBlock?
+  @objc var onCodeScanned: RCTBubblingEventBlock?
+  var isReady = false
+  // pragma MARK: Private Properties
+  /// The serial execution queue for the camera preview layer (input stream) as well as output processing (take photo, record video, process metadata/barcodes)
+  internal let queue = DispatchQueue(label: "com.mrousavy.camera-queue", qos: .userInteractive, attributes: [], autoreleaseFrequency: .inherit, target: nil)
+  internal var videoDeviceInput: AVCaptureDeviceInput?
+  internal var audioDeviceInput: AVCaptureDeviceInput?
+  internal var photoOutput: AVCapturePhotoOutput?
+  internal var movieOutput: AVCaptureMovieFileOutput?
+  internal var metadataOutput: AVCaptureMetadataOutput?
+  // CameraView+TakePhoto
+  internal var photoCaptureDelegates: [PhotoCaptureDelegate] = []
+  // CameraView+RecordVideo
+  internal var recordingDelegateResolver: RCTPromiseResolveBlock?
+  internal var recordingDelegateRejecter: RCTPromiseRejectBlock?
+  // CameraView+Zoom
+  internal var pinchGestureRecognizer: UIPinchGestureRecognizer?
+  internal var pinchScaleOffset: CGFloat = 1.0
+
+  @objc var enableZoomGesture = false {
+    didSet {
+      if enableZoomGesture {
+        addPinchGestureRecognizer()
+      } else {
+        removePinchGestureRecognizer()
+      }
+    }
+  }
+
+  var isRunning: Bool {
+    return captureSession.isRunning
+  }
+
+  /// Convenience wrapper to get layer as its statically known type.
+  var videoPreviewLayer: AVCaptureVideoPreviewLayer {
+    // swiftlint:disable force_cast
+    return layer as! AVCaptureVideoPreviewLayer
+  }
+
+  override func removeFromSuperview() {
+    captureSession.stopRunning()
+    super.removeFromSuperview()
+  }
+
+  @objc
+  func sessionRuntimeError(notification: Notification) {
+    guard let error = notification.userInfo?[AVCaptureSessionErrorKey] as? AVError else {
+      return
+    }
+
+    if isActive {
+      // restart capture session after an error occured
+      queue.async {
+        self.captureSession.startRunning()
+      }
+    }
+    invokeOnError(.unknown(message: error.localizedDescription), cause: error as NSError)
+  }
+
+  internal final func setTorchMode(_ torchMode: String) {
+    guard let device = videoDeviceInput?.device else {
+      return invokeOnError(.session(.cameraNotReady))
+    }
+    guard var torchMode = AVCaptureDevice.TorchMode(withString: torchMode) else {
+      return invokeOnError(.parameter(.invalid(unionName: "TorchMode", receivedValue: torch)))
+    }
+    if !captureSession.isRunning {
+      torchMode = .off
+    }
+    if device.torchMode == torchMode {
+      // no need to run the whole lock/unlock bs
+      return
+    }
+    if !device.hasTorch || !device.isTorchAvailable {
+      if torchMode == .off {
+        // ignore it, when it's off and not supported, it's off.
+        return
+      } else {
+        // torch mode is .auto or .on, but no torch is available.
+        return invokeOnError(.device(.torchUnavailable))
+      }
+    }
+    do {
+      try device.lockForConfiguration()
+      device.torchMode = torchMode
+      if torchMode == .on {
+        try device.setTorchModeOn(level: 1.0)
+      }
+      device.unlockForConfiguration()
+    } catch let error as NSError {
+      return invokeOnError(.device(.configureError), cause: error)
+    }
+  }
+
+  // pragma MARK: Event Invokers
+  internal final func invokeOnError(_ error: CameraError, cause: NSError? = nil) {
+    ReactLogger.log(level: .error, message: error.localizedDescription, alsoLogToJS: true)
+    guard let onError = self.onError else { return }
+
+    var causeDictionary: [String: Any]?
+    if let cause = cause {
+      causeDictionary = [
+        "code": cause.code,
+        "domain": cause.domain,
+        "message": cause.localizedDescription,
+        "details": cause.userInfo,
+      ]
+    }
+    onError([
+      "code": error.code,
+      "message": error.message,
+      "cause": causeDictionary ?? NSNull(),
+    ])
+  }
+
+  internal final func invokeOnInitialized() {
+    ReactLogger.log(level: .info, message: "Camera onInitialized()", alsoLogToJS: true)
+    guard let onInitialized = self.onInitialized else { return }
+    onInitialized([String: Any]())
+  }
+
+  // MARK: Private
+
+  private let captureSession = AVCaptureSession()
+
   // pragma MARK: Session, Device and Format Configuration
   /**
    Configures the Capture Session.
@@ -196,7 +267,7 @@ final class CameraView: UIView {
     isReady = false
 
     #if targetEnvironment(simulator)
-    return invokeOnError(.device(.notAvailableOnSimulator))
+      return invokeOnError(.device(.notAvailableOnSimulator))
     #endif
 
     guard cameraId != nil else {
@@ -295,7 +366,7 @@ final class CameraView: UIView {
     }
     captureSession.addOutput(photoOutput!)
     if videoDeviceInput!.device.position == .front {
-        photoOutput!.mirror()
+      photoOutput!.mirror()
     }
 
     // Video Output
@@ -308,7 +379,7 @@ final class CameraView: UIView {
     }
     captureSession.addOutput(movieOutput!)
     if videoDeviceInput!.device.position == .front {
-        movieOutput!.mirror()
+      movieOutput!.mirror()
     }
 
     // Barcode Scanning
@@ -421,67 +492,5 @@ final class CameraView: UIView {
     } catch let error as NSError {
       return invokeOnError(.device(.configureError), cause: error)
     }
-  }
-
-  internal final func setTorchMode(_ torchMode: String) {
-    guard let device = videoDeviceInput?.device else {
-      return invokeOnError(.session(.cameraNotReady))
-    }
-    guard var torchMode = AVCaptureDevice.TorchMode(withString: torchMode) else {
-      return invokeOnError(.parameter(.invalid(unionName: "TorchMode", receivedValue: torch)))
-    }
-    if !captureSession.isRunning {
-      torchMode = .off
-    }
-    if device.torchMode == torchMode {
-      // no need to run the whole lock/unlock bs
-      return
-    }
-    if !device.hasTorch || !device.isTorchAvailable {
-      if torchMode == .off {
-        // ignore it, when it's off and not supported, it's off.
-        return
-      } else {
-        // torch mode is .auto or .on, but no torch is available.
-        return invokeOnError(.device(.torchUnavailable))
-      }
-    }
-    do {
-      try device.lockForConfiguration()
-      device.torchMode = torchMode
-      if torchMode == .on {
-        try device.setTorchModeOn(level: 1.0)
-      }
-      device.unlockForConfiguration()
-    } catch let error as NSError {
-      return invokeOnError(.device(.configureError), cause: error)
-    }
-  }
-
-  // pragma MARK: Event Invokers
-  internal final func invokeOnError(_ error: CameraError, cause: NSError? = nil) {
-    ReactLogger.log(level: .error, message: error.localizedDescription, alsoLogToJS: true)
-    guard let onError = self.onError else { return }
-
-    var causeDictionary: [String: Any]?
-    if let cause = cause {
-      causeDictionary = [
-        "code": cause.code,
-        "domain": cause.domain,
-        "message": cause.localizedDescription,
-        "details": cause.userInfo
-      ]
-    }
-    onError([
-      "code": error.code,
-      "message": error.message,
-      "cause": causeDictionary ?? NSNull(),
-    ])
-  }
-
-  internal final func invokeOnInitialized() {
-    ReactLogger.log(level: .info, message: "Camera onInitialized()", alsoLogToJS: true)
-    guard let onInitialized = self.onInitialized else { return }
-    onInitialized([String: Any]())
   }
 }

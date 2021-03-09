@@ -1,3 +1,14 @@
 --allman false
 --indent 2
 --exclude Pods,Generated
+
+--disable andOperator
+--disable redundantReturn
+--disable wrapMultilineStatementBraces
+
+--enable organizeDeclarations
+--lifecycle didSetProps,requiresMainQueueSetup,view,methodQueue,getCameraView
+
+--enable markTypes
+
+--enable isEmpty

@@ -8,9 +8,13 @@
 
 import Foundation
 
+// MARK: - PermissionError
+
 enum PermissionError: String {
   case microphone = "microphone-permission-denied"
   case camera = "camera-permission-denied"
+
+  // MARK: Internal
 
   var code: String {
     return rawValue
@@ -26,12 +30,16 @@ enum PermissionError: String {
   }
 }
 
+// MARK: - ParameterError
+
 enum ParameterError {
   case invalid(unionName: String, receivedValue: String)
   case unsupportedOS(unionName: String, receivedValue: String, supportedOnOs: String)
   case unsupportedOutput(outputDescriptor: String)
   case unsupportedInput(inputDescriptor: String)
   case invalidCombination(provided: String, missing: String)
+
+  // MARK: Internal
 
   var code: String {
     switch self {
@@ -64,6 +72,8 @@ enum ParameterError {
   }
 }
 
+// MARK: - DeviceError
+
 enum DeviceError: String {
   case configureError = "configuration-error"
   case noDevice = "no-device"
@@ -73,6 +83,8 @@ enum DeviceError: String {
   case lowLightBoostNotSupported = "low-light-boost-not-supported"
   case focusNotSupported = "focus-not-supported"
   case notAvailableOnSimulator = "camera-not-available-on-simulator"
+
+  // MARK: Internal
 
   var code: String {
     return rawValue
@@ -100,11 +112,15 @@ enum DeviceError: String {
   }
 }
 
+// MARK: - FormatError
+
 enum FormatError {
   case invalidFps(fps: Int)
   case invalidHdr
   case invalidFormat
   case invalidPreset(preset: String)
+
+  // MARK: Internal
 
   var code: String {
     switch self {
@@ -133,9 +149,13 @@ enum FormatError {
   }
 }
 
+// MARK: - SessionError
+
 enum SessionError {
   case cameraNotReady
   case audioSessionSetupFailed(reason: String)
+
+  // MARK: Internal
 
   var code: String {
     switch self {
@@ -156,6 +176,8 @@ enum SessionError {
   }
 }
 
+// MARK: - CaptureError
+
 enum CaptureError {
   case invalidPhotoFormat
   case recordingInProgress
@@ -164,6 +186,8 @@ enum CaptureError {
   case createTempFileError
   case invalidPhotoCodec
   case unknown(message: String? = nil)
+
+  // MARK: Internal
 
   var code: String {
     switch self {
@@ -204,8 +228,12 @@ enum CaptureError {
   }
 }
 
+// MARK: - SystemError
+
 enum SystemError: String {
   case noManager = "no-camera-manager"
+
+  // MARK: Internal
 
   var code: String {
     return rawValue
@@ -219,6 +247,8 @@ enum SystemError: String {
   }
 }
 
+// MARK: - CameraError
+
 enum CameraError: Error {
   case permission(_ id: PermissionError)
   case parameter(_ id: ParameterError)
@@ -228,6 +258,8 @@ enum CameraError: Error {
   case capture(_ id: CaptureError)
   case system(_ id: SystemError)
   case unknown(message: String? = nil)
+
+  // MARK: Internal
 
   var code: String {
     switch self {

@@ -13,33 +13,30 @@ on:
       - 'ios/**'
 
 jobs:
-  lint:
-    name: SwiftLint
+  SwiftLint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Run SwiftLint GitHub Action (--strict)
-        uses: norio-nomura/action-swiftlint@3.2.1
+        uses: norio-nomura/action-swiftlint@master
         with:
           args: --strict
         env:
           # DIFF_BASE: ${{ github.base_ref }}
           WORKING_DIRECTORY: ios
-  # TODO: Figure out how to run SwiftFormat in a GitHub action
-  # SwiftFormat:
-  #   name: SwiftFormat
-  #   description: 'https://github.com/nicklockwood/SwiftFormat'
-  #   runs-on: ubuntu-latest
-    # defaults:
-    #   run:
-    #     working-directory: ./ios
-  #   steps:
-  #     - uses: actions/checkout@v2
+  SwiftFormat:
+    runs-on: macOS-latest
+    defaults:
+      run:
+        working-directory: ./ios
+    steps:
+      - uses: actions/checkout@v2
 
-  #     - name: Format Swift code
-  #       run: swiftformat --verbose .
-  #       working-directory: ${{env.working-directory}}
+      - name: Install SwiftFormat
+        run: brew install swiftformat
 
-  #     - name: Verify formatted code is unchanged
-  #       run: git diff --exit-code HEAD
-  #       working-directory: ${{env.working-directory}}
+      - name: Format Swift code
+        run: swiftformat --verbose .
+
+      - name: Verify formatted code is unchanged
+        run: git diff --exit-code HEAD

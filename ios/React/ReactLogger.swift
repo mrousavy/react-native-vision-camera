@@ -10,6 +10,8 @@ import Foundation
 
 let context = "Camera"
 
+// MARK: - ReactLogger
+
 enum ReactLogger {
   static func log(level: RCTLogLevel, message: String, alsoLogToJS: Bool = false, file: String = #file, lineNumber: Int = #line) {
     RCTDefaultLogFunction(level, RCTLogSource.native, file, lineNumber as NSNumber, "\(context): \(message)")
