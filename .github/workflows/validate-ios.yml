@@ -14,21 +14,16 @@ on:
 
 jobs:
   SwiftLint:
-    runs-on: macOS-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
-      - name: Install Reviewdog
-        uses: reviewdog/action-setup@v1
+      - name: Run SwiftLint GitHub Action (--strict)
+        uses: norio-nomura/action-swiftlint@master
         with:
-          reviewdog_version: latest # Optional. [latest,nightly,v.X.Y.Z]
-
-      - name: Install SwiftLint
-        run: brew install swiftlint
-
-      - name: Lint Swift Files
-        run: swiftlint ios --quiet | reviewdog -efm="%f:%l:%c:\ %t%*[^:]:\\ %m"
-
+          args: --strict
+        env:
+          # DIFF_BASE: ${{ github.base_ref }}
+          WORKING_DIRECTORY: ios
   SwiftFormat:
     runs-on: macOS-latest
     defaults:
