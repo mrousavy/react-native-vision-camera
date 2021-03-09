@@ -28,3 +28,25 @@
 2. Select your device in the devices drop-down
 3. Hit run
 
+## Committing
+
+We love to keep our codebases clean. To achieve that, we use linters and formatters which output errors when something isn't formatted the way we like it to be.
+
+Before pushing your changes, you can verify that everything is still correctly formatted by running all linters:
+
+```
+yarn check-all
+```
+
+This validates Swift, Kotlin, C++ and JS/TS code:
+
+```bash
+$ yarn check-all
+   yarn run v1.22.10
+   Formatting Swift code..
+   Linting Swift code..
+   Linting Kotlin code..
+   Linting JS/TS code..
+   All done!
+   ✨  Done in 8.05s.
+```
