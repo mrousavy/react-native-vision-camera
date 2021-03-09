@@ -68,7 +68,7 @@ jobs:
 
       - name: Release to GitHub Pages
         env:
-          USE_SSH: false
+          USE_SSH: true
           GIT_USER: github-actions
           CURRENT_BRANCH: main
           DEPLOYMENT_BRANCH: gh-pages
