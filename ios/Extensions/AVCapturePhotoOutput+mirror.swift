@@ -9,11 +9,11 @@
 import AVFoundation
 
 extension AVCapturePhotoOutput {
-    func mirror() {
-        connections.forEach { (connection) in
-            if connection.isVideoMirroringSupported {
-                connection.isVideoMirrored = true
-            }
-        }
+  func mirror() {
+    connections.forEach { connection in
+      if connection.isVideoMirroringSupported {
+        connection.isVideoMirrored = true
+      }
     }
+  }
 }

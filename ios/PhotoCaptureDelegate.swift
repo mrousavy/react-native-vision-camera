@@ -10,14 +10,18 @@ import AVFoundation
 
 private var delegatesReferences: [NSObject] = []
 
+// MARK: - PhotoCaptureDelegate
+
 class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
-  private let promise: Promise
+  // MARK: Lifecycle
 
   required init(promise: Promise) {
     self.promise = promise
     super.init()
     delegatesReferences.append(self)
   }
+
+  // MARK: Internal
 
   func photoOutput(_: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
     defer {
@@ -66,4 +70,8 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
       return promise.reject(error: .capture(.unknown(message: error.localizedDescription)), cause: error as NSError)
     }
   }
+
+  // MARK: Private
+
+  private let promise: Promise
 }

@@ -23,7 +23,7 @@ extension AVCaptureDevice.Format {
 
   func toDictionary() -> [String: Any] {
     var dict: [String: Any] = [
-      "videoStabilizationModes": videoStabilizationModes.map { $0.descriptor },
+      "videoStabilizationModes": videoStabilizationModes.map(\.descriptor),
       "autoFocusSystem": autoFocusSystem.descriptor,
       "photoHeight": highResolutionStillImageDimensions.height,
       "photoWidth": highResolutionStillImageDimensions.width,
@@ -31,7 +31,7 @@ extension AVCaptureDevice.Format {
       "minISO": minISO,
       "fieldOfView": videoFieldOfView,
       "maxZoom": videoMaxZoomFactor,
-      "colorSpaces": supportedColorSpaces.map { $0.descriptor },
+      "colorSpaces": supportedColorSpaces.map(\.descriptor),
       "supportsVideoHDR": isVideoHDRSupported,
       "supportsPhotoHDR": false,
       "frameRateRanges": videoSupportedFrameRateRanges.map {

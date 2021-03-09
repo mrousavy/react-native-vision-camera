@@ -85,7 +85,8 @@ extension AVCaptureDevice.Format {
       }
     }
     if let autoFocusSystem = filter.value(forKey: "autoFocusSystem") as? String,
-       let avAutoFocusSystem = try? AVCaptureDevice.Format.AutoFocusSystem(withString: autoFocusSystem) {
+       let avAutoFocusSystem = try? AVCaptureDevice.Format.AutoFocusSystem(withString: autoFocusSystem)
+    {
       if self.autoFocusSystem != avAutoFocusSystem {
         return false
       }
