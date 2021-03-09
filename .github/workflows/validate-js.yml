@@ -7,24 +7,16 @@ on:
     paths:
       - '.github/workflows/validate-js.yml'
       - 'src/**'
-      - '*.js'
       - '*.json'
-      - 'package.json'
-      - 'tsconfig.json'
-      - '.prettierrc.js'
-      - '.eslintrc.js'
-      - 'babel.config.js'
+      - '*.js'
+      - '*.lock'
   pull_request:
     paths:
       - '.github/workflows/validate-js.yml'
       - 'src/**'
-      - '*.js'
       - '*.json'
-      - 'package.json'
-      - 'tsconfig.json'
-      - '.prettierrc.js'
-      - '.eslintrc.js'
-      - 'babel.config.js'
+      - '*.js'
+      - '*.lock'
 
 jobs:
   vibe_check:

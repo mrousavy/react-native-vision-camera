@@ -6,19 +6,21 @@ on:
       - main
     paths:
       - '.github/workflows/build-docs.yml'
-      - 'src/**'
       - 'docs/**'
-      - '*.js'
+      - 'src/**'
       - '*.json'
+      - '*.js'
+      - '*.lock'
   push:
     branches:
       - main
     paths:
       - '.github/workflows/build-docs.yml'
-      - 'src/**'
       - 'docs/**'
-      - '*.js'
+      - 'src/**'
       - '*.json'
+      - '*.js'
+      - '*.lock'
 
 jobs:
   checks:
