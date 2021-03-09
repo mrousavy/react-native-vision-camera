@@ -14,17 +14,21 @@ on:
 
 jobs:
   SwiftLint:
-    runs-on: ubuntu-latest
+    runs-on: macOS-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Run SwiftLint GitHub Action (--strict)
-        uses: norio-nomura/action-swiftlint@3.2.1
+
+      - name: Install Reviewdog
+        uses: reviewdog/action-setup@v1
         with:
-          args: --strict
-        env:
-          # DIFF_BASE: ${{ github.base_ref }}
-          WORKING_DIRECTORY: ios
-  # TODO: Figure out how to run SwiftFormat in a GitHub action
+          reviewdog_version: latest # Optional. [latest,nightly,v.X.Y.Z]
+
+      - name: Install SwiftLint
+        run: brew install swiftlint
+
+      - name: Lint Swift Files
+        run: swiftlint ios --quiet | reviewdog -efm="%f:%l:%c:\ %t%*[^:]:\\ %m"
+
   SwiftFormat:
     runs-on: macOS-latest
     defaults:
