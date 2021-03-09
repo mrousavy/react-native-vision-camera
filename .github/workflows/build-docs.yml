@@ -25,10 +25,12 @@ on:
 jobs:
   checks:
     if: github.event_name != 'push'
-    name: Build Documentation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12.x'
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -49,10 +51,23 @@ jobs:
           yarn build
   gh-release:
     if: github.event_name != 'pull_request'
-    name: Build & Release Documentation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v1
+
+      - name: Add key to allow access to repository
+        env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          echo "${{ secrets.GH_PAGES_DEPLOY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          cat <<EOT >> ~/.ssh/config
+          Host github.com
+          HostName github.com
+          IdentityFile ~/.ssh/id_rsa
+          EOT
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -69,14 +84,13 @@ jobs:
       - name: Release to GitHub Pages
         env:
           USE_SSH: true
-          GIT_USER: github-actions
+          GIT_USER: git
           CURRENT_BRANCH: main
           DEPLOYMENT_BRANCH: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          date > generated.txt
-          git config user.name github-actions
-          git config user.email github-actions@github.com
+          git config --global user.email "actions@github.com"
+          git config --global user.name "gh-actions"
           yarn install --frozen-lockfile
           cd docs
           yarn install --frozen-lockfile
