@@ -26,18 +26,15 @@ jobs:
           WORKING_DIRECTORY: ios
   # TODO: Figure out how to run SwiftFormat in a GitHub action
   SwiftFormat:
-    runs-on: ubuntu-latest
+    runs-on: macOS-latest
     defaults:
       run:
         working-directory: ./ios
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install mint
-        run: brew install mint
-
       - name: Install SwiftFormat
-        run: mint install nicklockwood/SwiftFormat
+        run: brew install swiftformat
 
       - name: Format Swift code
         run: swiftformat --verbose .
