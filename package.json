@@ -41,9 +41,7 @@
     "docs": "cd docs && yarn build"
   },
   "pre-commit": [
-    "swiftlint",
-    "swiftformat",
-    "ktlint"
+    "swiftformat"
   ],
   "keywords": [
     "react-native",
