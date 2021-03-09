@@ -18,7 +18,6 @@ opt_in_rules:
   - last_where
   - reduce_boolean
   - reduce_into
-  - sorted_first_last
   - yoda_condition
   - vertical_whitespace_opening_braces
   - vertical_whitespace_closing_braces

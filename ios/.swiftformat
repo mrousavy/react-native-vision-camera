@@ -4,6 +4,7 @@
 
 --disable andOperator
 --disable redundantReturn
+--disable wrapMultilineStatementBraces
 
 --enable organizeDeclarations
 --lifecycle didSetProps,requiresMainQueueSetup,view,methodQueue,getCameraView
