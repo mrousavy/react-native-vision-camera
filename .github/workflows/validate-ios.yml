@@ -33,6 +33,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Install mint
+        run: brew install mint
+
       - name: Install SwiftFormat
         run: mint install nicklockwood/SwiftFormat
 
