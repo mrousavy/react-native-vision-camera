@@ -66,9 +66,20 @@ using namespace facebook;
   NSLog(@"FrameProcessorDelegate: Setting frame processor function!");
   // TODO: Make sure this unique_ptr stuff works, because it seems like a very bad idea to move the jsi::Function and keep a strong reference
 
-  auto& rt = *static_cast<jsi::Runtime*>(reactRuntime);
-  auto& funcRef = *static_cast<jsi::Value*>(function);
-  auto shareableValue = reanimated::ShareableValue::adapt(rt, funcRef, runtimeManager.get());
+  auto runtimePointer = static_cast<jsi::Runtime*>(reactRuntime);
+  if (runtimePointer == nullptr) {
+    NSLog(@"Warning: Tried to set Frame Processor, but reactRuntime was null!");
+    return;
+  }
+  auto functionPointer = static_cast<jsi::Value*>(function);
+  if (functionPointer == nullptr) {
+    NSLog(@"Warning: Tried to set Frame Processor, but the passed function (Frame Processor) was null!");
+    return;
+  }
+  auto& rt = *runtimePointer;
+  auto& func = *functionPointer;
+  
+  auto shareableValue = reanimated::ShareableValue::adapt(rt, func, runtimeManager.get());
   worklet = std::make_shared<jsi::Function>(shareableValue->getValue(rt).asObject(rt).asFunction(rt));
 }
 
