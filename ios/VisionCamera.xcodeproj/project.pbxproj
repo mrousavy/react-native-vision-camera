@@ -104,6 +104,8 @@
 		B887518225E0102000DB86D6 /* CameraView+Zoom.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CameraView+Zoom.swift"; sourceTree = "<group>"; };
 		B887518325E0102000DB86D6 /* CameraError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraError.swift; sourceTree = "<group>"; };
 		B887518425E0102000DB86D6 /* CameraView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
+		B8C31EC725F916F4000278CF /* FrameProcessorManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorManager.h; sourceTree = "<group>"; };
+		B8C31EC825F91776000278CF /* FrameProcessorManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FrameProcessorManager.cpp; sourceTree = "<group>"; };
 		B8DCF09125EA7BEE00EA5C72 /* SpeedChecker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SpeedChecker.h; sourceTree = "<group>"; };
 		B8DCF14425EA817D00EA5C72 /* MakeJSIRuntime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MakeJSIRuntime.h; sourceTree = "<group>"; };
 		B8DCF31125EA94F000EA5C72 /* FrameProcessorDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessorDelegate.mm; sourceTree = "<group>"; };
@@ -211,6 +213,8 @@
 			children = (
 				B8DCF14425EA817D00EA5C72 /* MakeJSIRuntime.h */,
 				B8DCF09125EA7BEE00EA5C72 /* SpeedChecker.h */,
+				B8C31EC725F916F4000278CF /* FrameProcessorManager.h */,
+				B8C31EC825F91776000278CF /* FrameProcessorManager.cpp */,
 			);
 			name = cpp;
 			path = ../cpp;
