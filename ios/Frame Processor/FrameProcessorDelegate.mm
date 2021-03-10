@@ -66,7 +66,7 @@ using namespace facebook;
 }
 
 - (void) setFrameProcessorFunction:(void*)function {
-  NSLog(@"FrameProcessorDelegate: Frame Processor function has been set!");
+  NSLog(@"FrameProcessorDelegate: Setting frame processor function!");
   // TODO: Make sure this unique_ptr stuff works, because it seems like a very bad idea to move the jsi::Function and keep a strong reference
 
   auto& rt = *runtimeManager->runtime;
