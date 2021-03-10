@@ -18,28 +18,44 @@
 #endif
 
 #import <RNReanimated/NativeReanimatedModule.h>
+#import <RNReanimated/RuntimeManager.h>
 #import <RNReanimated/ShareableValue.h>
 #import <RNReanimated/RuntimeDecorator.h>
+#import <RNReanimated/REAIOSErrorHandler.h>
+#import <RNReanimated/REAIOSScheduler.h>
+
+#import <ReactCommon/RCTTurboModuleManager.h>
  
 using namespace facebook;
 //using namespace reanimated;
 
 @implementation FrameProcessorDelegate {
   std::unique_ptr<jsi::Function> worklet;
-  std::unique_ptr<jsi::Runtime> runtime;
+  std::unique_ptr<reanimated::RuntimeManager> runtimeManager;
 }
 
 @synthesize dispatchQueue;
 
-- (instancetype) init {
+- (instancetype) initWithBridge:(RCTBridge *)bridge {
   self = [super init];
   if (self) {
     NSLog(@"FrameProcessorDelegate: init()");
     // TODO: relativePriority 0 or -1?
     dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, -1);
     dispatchQueue = dispatch_queue_create("com.mrousavy.camera-frame-processor", qos);
-    // TODO: Find NativeReanimated module here so I can use `makeShared`
-    // auto reanimatedModule = std::shared_ptr<TurboModule>(TurboModule("NativeReanimated", [[RCTBridge currentBridge] jsCallInvoker]));
+    
+    NSLog(@"FrameProcessorDelegate: Creating Runtime Manager...");
+    
+    auto start = std::chrono::system_clock::now();
+    auto runtime = vision::makeJSIRuntime();
+    reanimated::RuntimeDecorator::decorateRuntime(*runtime);
+    auto scheduler = std::make_shared<reanimated::REAIOSScheduler>(bridge.jsCallInvoker);
+    runtimeManager = std::make_unique<reanimated::RuntimeManager>(std::move(runtime),
+                                                                  std::make_shared<reanimated::REAIOSErrorHandler>(scheduler),
+                                                                  scheduler);
+    auto end = std::chrono::system_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    NSLog(@"FrameProcessorDelegate: Runtime Manager created! Took %lld seconds", elapsed);
   }
   return self;
 }
@@ -62,21 +78,13 @@ using namespace facebook;
   // A:   auto workletShareable = reanimated::ShareableValue::adapt(*runtime, *worklet, reanimated::ValueType::UndefinedType);
   // B:   auto& workletSharedValue = NativeReanimatedModule::makeShareable(runtime, *worklet)->getValue();
   //      auto worklet = workletSharedValue.asObject(runtime).asFunction(runtime);
+  //reanimated::ShareableValue::adapt(*runtime, *worklet, *this);
 }
 
 - (void) captureOutput:(AVCaptureOutput *)output didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
   NSLog(@"FrameProcessorDelegate: Camera frame arrived");
-  if (!runtime) {
-    NSLog(@"FrameProcessorDelegate: Creating JSI Runtime...");
-    auto start = std::chrono::system_clock::now();
-    runtime = std::unique_ptr<jsi::Runtime>(vision::makeJSIRuntime());
-    reanimated::RuntimeDecorator::decorateRuntime(*runtime);
-    auto end = std::chrono::system_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    NSLog(@"FrameProcessorDelegate: Runtime created! Took %ll seconds", elapsed);
-  }
   // TODO: Call [worklet] with the actual frame output buffer
-  worklet->callWithThis(*runtime, *worklet, convertNSStringToJSIString(*runtime, @"Hello from VisionCamera!"), 1);
+  //worklet->callWithThis(*runtime, *worklet, convertNSStringToJSIString(*runtime, @"Hello from VisionCamera!"), 1);
 }
 
 @end

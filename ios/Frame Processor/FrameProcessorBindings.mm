@@ -32,8 +32,6 @@ using namespace facebook;
     return;
   }
   jsi::Runtime& jsiRuntime = *(jsi::Runtime*)cxxBridge.runtime;
-  
-  
 
   // setFrameProcessor(viewTag: number, frameProcessor: (frame: Frame) => void)
   auto setFrameProcessor = [](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
@@ -55,7 +53,7 @@ using namespace facebook;
       
       if (view.frameProcessorDelegate == nil) {
         NSLog(@"FrameProcessorBindings: Initializing FrameProcessorDelegate...");
-        view.frameProcessorDelegate = [[FrameProcessorDelegate alloc] init];
+        view.frameProcessorDelegate = [[FrameProcessorDelegate alloc] initWithBridge:[RCTBridge currentBridge]];
       }
       
       [view.frameProcessorDelegate setFrameProcessorFunction:(void*)functionPointer];
