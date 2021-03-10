@@ -18,6 +18,6 @@
 - (instancetype) initWithBridge:(RCTBridge*)bridge;
 
 // Has to be void* because I can't use the C++ type jsi::Function in Objective-C/Swift/C.
-- (void) setFrameProcessorFunction:(void*)function;
+- (void) setFrameProcessorFunction:(void*)shareableWorklet forReactRuntime:(void*)reactRuntime;
 
 @end

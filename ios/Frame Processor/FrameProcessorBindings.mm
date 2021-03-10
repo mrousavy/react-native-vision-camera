@@ -41,8 +41,6 @@ using namespace facebook;
 
     auto viewTag = arguments[0].asNumber();
     // TODO: is it a bad idea to use new here? I'm never deleting => memory leak
-    //auto functionPointer = new jsi::Value(std::move(arguments[1]));
-    //auto& funcRef = arguments[1];
     jsi::Value* functionPointer = new jsi::Value(arguments[1].asObject(runtime));
     
     RCTExecuteOnMainQueue(^{
@@ -55,7 +53,7 @@ using namespace facebook;
         view.frameProcessorDelegate = [[FrameProcessorDelegate alloc] initWithBridge:[RCTBridge currentBridge]];
       }
       
-      [view.frameProcessorDelegate setFrameProcessorFunction:(void*)functionPointer];
+      [view.frameProcessorDelegate setFrameProcessorFunction:(void*)functionPointer forReactRuntime:&runtime];
       NSLog(@"FrameProcessorBindings: Frame processor set!");
     });
 

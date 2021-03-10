@@ -47,16 +47,13 @@ using namespace facebook;
     
     NSLog(@"FrameProcessorDelegate: Creating Runtime Manager...");
     
-    auto start = std::chrono::system_clock::now();
     auto runtime = vision::makeJSIRuntime();
     reanimated::RuntimeDecorator::decorateRuntime(*runtime);
     auto scheduler = std::make_shared<reanimated::REAIOSScheduler>(bridge.jsCallInvoker);
     runtimeManager = std::make_unique<reanimated::RuntimeManager>(std::move(runtime),
                                                                   std::make_shared<reanimated::REAIOSErrorHandler>(scheduler),
                                                                   scheduler);
-    auto end = std::chrono::system_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    NSLog(@"FrameProcessorDelegate: Runtime Manager created! Took %lld seconds", elapsed);
+    NSLog(@"FrameProcessorDelegate: Runtime Manager created!");
   }
   return self;
 }
@@ -65,11 +62,11 @@ using namespace facebook;
   NSLog(@"FrameProcessorDelegate: dealloc()");
 }
 
-- (void) setFrameProcessorFunction:(void*)function {
+- (void) setFrameProcessorFunction:(void*)function forReactRuntime:(void*)reactRuntime {
   NSLog(@"FrameProcessorDelegate: Setting frame processor function!");
   // TODO: Make sure this unique_ptr stuff works, because it seems like a very bad idea to move the jsi::Function and keep a strong reference
 
-  auto& rt = *runtimeManager->runtime;
+  auto& rt = *static_cast<jsi::Runtime*>(reactRuntime);
   auto& funcRef = *static_cast<jsi::Value*>(function);
   auto shareableValue = reanimated::ShareableValue::adapt(rt, funcRef, runtimeManager.get());
   worklet = std::make_shared<jsi::Function>(shareableValue->getValue(rt).asObject(rt).asFunction(rt));
