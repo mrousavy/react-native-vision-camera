@@ -19,8 +19,6 @@ Pod::Spec.new do |s|
     "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_TARGET_SRCROOT)\" \"$(PODS_ROOT)/Headers/Private/React-Core\" "
   }
   s.xcconfig = {
-    "CLANG_CXX_LANGUAGE_STANDARD" => "c++14",
-    "OTHER_CFLAGS" => "$(inherited)",
     "SWIFT_VERSION" => "5.2"
   }
   s.requires_arc = true
