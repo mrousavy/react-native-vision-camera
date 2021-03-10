@@ -15,9 +15,9 @@
 
 @property (strong, nonatomic) dispatch_queue_t dispatchQueue;
 
-- (instancetype) initWithBridge:(RCTBridge*)bridge;
+- (instancetype) initWithDispatchQueue:(dispatch_queue_t)dispatchQueue;
 
 // Has to be void* because I can't use the C++ type jsi::Function in Objective-C/Swift/C.
-- (void) setFrameProcessorFunction:(void*)shareableWorklet forReactRuntime:(void*)reactRuntime;
+- (void) setFrameProcessor:(RCTResponseSenderBlock)frameProcessor;
 
 @end
