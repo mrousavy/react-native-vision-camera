@@ -10,9 +10,7 @@
 #import <Foundation/Foundation.h>
 #import <jsi/jsi.h>
 
-#import "../../cpp/Logger.h"
 #import "../../cpp/MakeJSIRuntime.h"
-#import "../../cpp/RuntimeDecorator.h"
 #import "../JSI Utils/YeetJSIUtils.h"
 
 #if !__has_include(<RNReanimated/NativeReanimatedModule.h>)
@@ -21,6 +19,7 @@
 
 #import <RNReanimated/NativeReanimatedModule.h>
 #import <RNReanimated/ShareableValue.h>
+#import <RNReanimated/RuntimeDecorator.h>
  
 using namespace facebook;
 //using namespace reanimated;
@@ -35,7 +34,7 @@ using namespace facebook;
 - (instancetype) init {
   self = [super init];
   if (self) {
-    vision::Logger::log("FrameProcessorDelegate: init()");
+    NSLog(@"FrameProcessorDelegate: init()");
     // TODO: relativePriority 0 or -1?
     dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, -1);
     dispatchQueue = dispatch_queue_create("com.mrousavy.camera-frame-processor", qos);
@@ -46,11 +45,11 @@ using namespace facebook;
 }
 
 - (void)dealloc {
-  vision::Logger::log("FrameProcessorDelegate: dealloc()");
+  NSLog(@"FrameProcessorDelegate: dealloc()");
 }
 
 - (void) setFrameProcessorFunction:(void*)function {
-  vision::Logger::log("FrameProcessorDelegate: Frame Processor function has been set!");
+  NSLog(@"FrameProcessorDelegate: Frame Processor function has been set!");
   // TODO: Make sure this unique_ptr stuff works, because it seems like a very bad idea to move the jsi::Function and keep a strong reference
   worklet = std::unique_ptr<jsi::Function>(static_cast<jsi::Function*>(function));
   
@@ -66,16 +65,15 @@ using namespace facebook;
 }
 
 - (void) captureOutput:(AVCaptureOutput *)output didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
-  vision::Logger::log("FrameProcessorDelegate: Camera frame arrived");
+  NSLog(@"FrameProcessorDelegate: Camera frame arrived");
   if (!runtime) {
-    vision::Logger::log("FrameProcessorDelegate: Creating JSI Runtime...");
+    NSLog(@"FrameProcessorDelegate: Creating JSI Runtime...");
     auto start = std::chrono::system_clock::now();
     runtime = std::unique_ptr<jsi::Runtime>(vision::makeJSIRuntime());
-    vision::RuntimeDecorator::decorateRuntime(*runtime);
+    reanimated::RuntimeDecorator::decorateRuntime(*runtime);
     auto end = std::chrono::system_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-    std::string msg = "FrameProcessorDelegate: Runtime created! Took " + std::to_string(elapsed) + " seconds";
-    vision::Logger::log(msg.c_str());
+    NSLog(@"FrameProcessorDelegate: Runtime created! Took %ll seconds", elapsed);
   }
   // TODO: Call [worklet] with the actual frame output buffer
   worklet->callWithThis(*runtime, *worklet, convertNSStringToJSIString(*runtime, @"Hello from VisionCamera!"), 1);
