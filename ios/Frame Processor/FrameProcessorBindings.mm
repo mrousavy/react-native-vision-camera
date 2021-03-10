@@ -40,11 +40,10 @@ using namespace facebook;
     if (!arguments[1].isObject()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
 
     auto viewTag = arguments[0].asNumber();
-    auto function = arguments[1].asObject(runtime).asFunction(runtime);
-    
-    // TODO: I am pretty sure it is a _very_ bad idea to move the worklet to the heap and pass that pointer around.
-    auto functionPointer = new jsi::Function(std::move(function));
-    // alternative:  auto functionPointer = std::make_unique<jsi::Function>(std::move(function));
+    // TODO: is it a bad idea to use new here? I'm never deleting => memory leak
+    //auto functionPointer = new jsi::Value(std::move(arguments[1]));
+    //auto& funcRef = arguments[1];
+    auto functionPointer = new jsi::Value(runtime, arguments[1]);
     
     RCTExecuteOnMainQueue(^{
       auto currentBridge = [RCTBridge currentBridge];

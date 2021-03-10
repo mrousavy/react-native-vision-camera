@@ -30,7 +30,8 @@ using namespace facebook;
 //using namespace reanimated;
 
 @implementation FrameProcessorDelegate {
-  std::unique_ptr<jsi::Function> worklet;
+  //std::shared_ptr<reanimated::ShareableValue> worklet;
+  std::shared_ptr<jsi::Function> worklet;
   std::unique_ptr<reanimated::RuntimeManager> runtimeManager;
 }
 
@@ -67,24 +68,25 @@ using namespace facebook;
 - (void) setFrameProcessorFunction:(void*)function {
   NSLog(@"FrameProcessorDelegate: Frame Processor function has been set!");
   // TODO: Make sure this unique_ptr stuff works, because it seems like a very bad idea to move the jsi::Function and keep a strong reference
-  worklet = std::unique_ptr<jsi::Function>(static_cast<jsi::Function*>(function));
-  
-  // TODO: Workletize the [worklet] using the Reanimated API
-  //  1. Capture any variables/functions from "outside" the function (Copy over to this runtime & freeze)
-  //  2. Make sure the user can assign Reanimated SharedValues in the worklet, no idea if this is already supported after step 1.
-  //  3. Any other preparations so the [worklet] can be called in this [dispatchQueue]'s thread.
-  
-  // TODO: Use NativeReanimatedModule::makeShareable/ShareableValue::adapt without a NativeReanimatedModule instance?
-  // A:   auto workletShareable = reanimated::ShareableValue::adapt(*runtime, *worklet, reanimated::ValueType::UndefinedType);
-  // B:   auto& workletSharedValue = NativeReanimatedModule::makeShareable(runtime, *worklet)->getValue();
-  //      auto worklet = workletSharedValue.asObject(runtime).asFunction(runtime);
-  //reanimated::ShareableValue::adapt(*runtime, *worklet, *this);
+
+  auto& rt = *runtimeManager->runtime;
+  auto& funcRef = *static_cast<jsi::Value*>(function);
+  auto shareableValue = reanimated::ShareableValue::adapt(rt, funcRef, runtimeManager.get());
+  worklet = std::make_shared<jsi::Function>(shareableValue->getValue(rt).asObject(rt).asFunction(rt));
 }
 
 - (void) captureOutput:(AVCaptureOutput *)output didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
   NSLog(@"FrameProcessorDelegate: Camera frame arrived");
+  if (runtimeManager->runtime == nullptr) {
+    NSLog(@"Warning: Frame Processor was called, but the jsi::Runtime was null!");
+    return;
+  }
+  if (worklet == nullptr) {
+    NSLog(@"Warning: Frame Processor was called, but the Worklet was null!");
+    return;
+  }
   // TODO: Call [worklet] with the actual frame output buffer
-  //worklet->callWithThis(*runtime, *worklet, convertNSStringToJSIString(*runtime, @"Hello from VisionCamera!"), 1);
+  worklet->callWithThis(*runtimeManager->runtime, *worklet, convertNSStringToJSIString(*runtimeManager->runtime, @"Hello from VisionCamera!"), 1);
 }
 
 @end
