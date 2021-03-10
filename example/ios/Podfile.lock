@@ -359,7 +359,6 @@ PODS:
     - FBLazyVector
     - FBReactNativeSpec
     - glog
-    - RCT-Folly
     - RCTRequired
     - RCTTypeSafety
     - React

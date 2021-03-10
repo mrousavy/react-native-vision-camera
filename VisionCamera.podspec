@@ -18,9 +18,6 @@ Pod::Spec.new do |s|
     "USE_HEADERMAP" => "YES",
     "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_TARGET_SRCROOT)\" \"$(PODS_ROOT)/Headers/Private/React-Core\" "
   }
-  s.xcconfig = {
-    "SWIFT_VERSION" => "5.2"
-  }
   s.requires_arc = true
 
   # All source files that should be publicly visible
