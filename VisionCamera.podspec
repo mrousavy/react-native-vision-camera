@@ -20,7 +20,8 @@ Pod::Spec.new do |s|
   }
   s.xcconfig = {
     "CLANG_CXX_LANGUAGE_STANDARD" => "c++14",
-    "OTHER_CFLAGS" => "$(inherited)"
+    "OTHER_CFLAGS" => "$(inherited)",
+    "SWIFT_VERSION" => "5.2"
   }
   s.requires_arc = true
 
