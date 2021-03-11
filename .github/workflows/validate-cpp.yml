@@ -23,6 +23,7 @@ jobs:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
           flags: --linelength=160
+          targets: --recursive cpp
           filter: "-readability/braces\
             ,-whitespace/braces\
             ,-whitespace/comments\
