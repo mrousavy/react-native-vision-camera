@@ -32,6 +32,12 @@ final class CameraViewManager: RCTViewManager {
 
   // MARK: Internal
 
+  override var bridge: RCTBridge! {
+    didSet {
+      FrameProcessorBindings.installFrameProcessorBindings(bridge)
+    }
+  }
+
   override var methodQueue: DispatchQueue! {
     return DispatchQueue.main
   }

@@ -98,11 +98,8 @@ public final class CameraView: UIView {
     return captureSession.isRunning
   }
 
-  /// Convenience wrapper to get layer as its statically known type.
-  var videoPreviewLayer: AVCaptureVideoPreviewLayer {
-    // swiftlint:disable force_cast
-    return layer as! AVCaptureVideoPreviewLayer
-  }
+public final class CameraView: UIView {
+  // MARK: Lifecycle
 
   override public class var layerClass: AnyClass {
     return AVCaptureVideoPreviewLayer.self
