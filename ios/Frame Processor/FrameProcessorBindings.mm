@@ -40,10 +40,12 @@ using namespace facebook;
 
 @implementation FrameProcessorBindings
 
-static std::shared_ptr<jsi::Function> worklet;
-
+static std::unique_ptr<reanimated::RuntimeManager> runtimeManager;
+static dispatch_queue_t dispatchQueue = dispatch_queue_create("com.mrousavy.camera-frame-processor",
+                                                              dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, -1)); // TODO: Use -1 or 0 for this?
 
 + (void) installFrameProcessorBindings:(RCTBridge*)bridge {
+  NSLog(@"FrameProcessorBindings: Installing Frame Processor Bindings...");
   RCTCxxBridge *cxxBridge = (RCTCxxBridge *)bridge;
   if (!cxxBridge.runtime) {
     return;
@@ -51,25 +53,22 @@ static std::shared_ptr<jsi::Function> worklet;
   jsi::Runtime& jsiRuntime = *(jsi::Runtime*)cxxBridge.runtime;
   
   NSLog(@"FrameProcessorBindings: Creating Runtime Manager...");
-  dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, -1);
-  auto dispatchQueue = dispatch_queue_create("com.mrousavy.camera-frame-processor", qos);
   
-  // TODO: Use a smart pointer for this.
-  reanimated::RuntimeManager* runtimeManager;
   auto callInvoker = bridge.jsCallInvoker;
-  dispatch_async(dispatchQueue, [&runtimeManager, callInvoker]() -> void {
+  dispatch_async(dispatchQueue, [callInvoker]() -> void {
+    NSLog(@"FrameProcessorBindings: Creating Runtime Manager on DispatchQueue %s...", dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL));
     auto runtime = vision::makeJSIRuntime();
     reanimated::RuntimeDecorator::decorateRuntime(*runtime);
     auto scheduler = std::make_shared<reanimated::REAIOSScheduler>(callInvoker);
-    runtimeManager = new reanimated::RuntimeManager(std::move(runtime),
-                                                    std::make_shared<reanimated::REAIOSErrorHandler>(scheduler),
-                                                    scheduler);
+    runtimeManager = std::make_unique<reanimated::RuntimeManager>(std::move(runtime),
+                                                                  std::make_shared<reanimated::REAIOSErrorHandler>(scheduler),
+                                                                  scheduler);
     NSLog(@"FrameProcessorBindings: Runtime Manager created!");
   });
   NSLog(@"FrameProcessorBindings: Installing global functions...");
 
   // setFrameProcessor(viewTag: number, frameProcessor: (frame: Frame) => void)
-  auto setFrameProcessor = [&runtimeManager, &dispatchQueue](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+  auto setFrameProcessor = [](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
     NSLog(@"FrameProcessorBindings: Setting new frame processor...");
     if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: First argument ('viewTag') must be a number!");
     if (!arguments[1].isObject()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
@@ -77,23 +76,24 @@ static std::shared_ptr<jsi::Function> worklet;
 
     auto viewTag = arguments[0].asNumber();
     NSLog(@"FrameProcessorBindings: Adapting Shareable value from function (conversion to worklet)...");
-    auto worklet = reanimated::ShareableValue::adapt(runtime, arguments[1], runtimeManager);
+    auto worklet = reanimated::ShareableValue::adapt(runtime, arguments[1], runtimeManager.get());
     NSLog(@"FrameProcessorBindings: Successfully created worklet!");
     
-    RCTExecuteOnMainQueue([&dispatchQueue, worklet, runtimeManager, viewTag]() -> void {
+    RCTExecuteOnMainQueue([worklet, viewTag]() -> void {
       auto currentBridge = [RCTBridge currentBridge];
       auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
       auto view = static_cast<CameraView*>(anonymousView);
       
-      dispatch_async(dispatchQueue, [worklet, runtimeManager, view, &dispatchQueue]() -> void {
+      dispatch_async(dispatchQueue, [worklet, view]() -> void {
         if (view.frameProcessorDelegate == nil) {
           NSLog(@"FrameProcessorBindings: Initializing FrameProcessorDelegate...");
           view.frameProcessorDelegate = [[FrameProcessorDelegate alloc] initWithDispatchQueue:dispatchQueue];
         }
         
         NSLog(@"FrameProcessorBindings: Converting worklet to Objective-C callback...");
-        auto function = worklet->getValue(*runtimeManager->runtime).asObject(*runtimeManager->runtime).asFunction(*runtimeManager->runtime);
-        auto callback = convertJSIFunctionToCallback(*runtimeManager->runtime, function);
+        auto& rt = *runtimeManager->runtime;
+        auto function = worklet->getValue(rt).asObject(rt).asFunction(rt);
+        auto callback = convertJSIFunctionToCallback(rt, function);
         
         [view.frameProcessorDelegate setFrameProcessor:callback];
         NSLog(@"FrameProcessorBindings: Frame processor set!");
@@ -130,7 +130,7 @@ static std::shared_ptr<jsi::Function> worklet;
 }
 
 + (void) uninstallFrameProcessorBindings {
-  // TODO: Any cleanup?
+  runtimeManager.reset();
 }
 
 @end
