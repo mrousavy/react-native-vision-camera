@@ -1,0 +1,67 @@
+name: Build iOS App
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/build-ios.yml'
+      - 'ios/**'
+      - '*.podspec'
+      - 'example/ios/**'
+      - 'yarn.lock'
+      - 'example/yarn.lock'
+  pull_request:
+    paths:
+      - '.github/workflows/build-ios.yml'
+      - 'ios/**'
+      - '*.podspec'
+      - 'example/ios/**'
+      - 'yarn.lock'
+      - 'example/yarn.lock'
+
+jobs:
+  build:
+    name: Build iOS Example App
+    runs-on: macOS-latest
+    defaults:
+      run:
+        working-directory: example/ios
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - name: Restore node_modules from cache
+        uses: actions/cache@v2
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Install node_modules for example/
+        run: yarn install --frozen-lockfile --cwd ..
+
+      - name: Restore Pods cache
+        uses: actions/cache@v2
+        with:
+          path: Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+      - name: Install Pods
+        run: pod install   # TODO: Optimize this (see https://guides.cocoapods.org/plugins/optimising-ci-times.html)
+      - name: Build App
+        run: "xcodebuild \
+          -workspace VisionCameraExample.xcworkspace \
+          -scheme VisionCameraExample \
+          -sdk iphoneos \
+          -configuration Debug \
+          CODE_SIGNING_ALLOWED=NO"
