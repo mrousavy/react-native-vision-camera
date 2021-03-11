@@ -62,7 +62,7 @@ jobs:
         run: "xcodebuild \
           -workspace VisionCameraExample.xcworkspace \
           -scheme VisionCameraExample \
-          -sdk iphoneos \
+          -sdk iphonesimulator \
           -configuration Debug \
-          -destination generic/platform=iOS \
+          -destination \"generic/platform=iOS Simulator\" \
           CODE_SIGNING_ALLOWED=NO"
