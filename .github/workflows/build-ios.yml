@@ -1,30 +1,32 @@
-name: Build Android App
+name: Build iOS App
 
 on:
   push:
     branches:
       - main
     paths:
-      - '.github/workflows/build-android.yml'
-      - 'android/**'
-      - 'example/android/**'
+      - '.github/workflows/build-ios.yml'
+      - 'ios/**'
+      - '*.podspec'
+      - 'example/ios/**'
       - 'yarn.lock'
       - 'example/yarn.lock'
   pull_request:
     paths:
-      - '.github/workflows/build-android.yml'
-      - 'android/**'
-      - 'example/android/**'
+      - '.github/workflows/build-ios.yml'
+      - 'ios/**'
+      - '*.podspec'
+      - 'example/ios/**'
       - 'yarn.lock'
       - 'example/yarn.lock'
 
 jobs:
   build:
-    name: Build Android Example App
-    runs-on: ubuntu-latest
+    name: Build iOS Example App
+    runs-on: macOS-latest
     defaults:
       run:
-        working-directory: example/android
+        working-directory: example/ios
     steps:
       - uses: actions/checkout@v2
 
@@ -47,14 +49,22 @@ jobs:
       - name: Install node_modules for example/
         run: yarn install --frozen-lockfile --cwd ..
 
-      - name: Restore Gradle cache
+      - name: Restore Pods cache
         uses: actions/cache@v2
         with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          path: Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-
-      - name: Run Gradle Build
-        run: ./gradlew assembleDebug
+            ${{ runner.os }}-pods-
+      - name: Install Pods
+        run: pod install   # TODO: Optimize this (see https://guides.cocoapods.org/plugins/optimising-ci-times.html)
+      - name: Build App
+        run: "xcodebuild \
+          -workspace VisionCameraExample.xcworkspace \
+          -scheme VisionCameraExample \
+          clean archive \
+          -sdk iphoneos \
+          -configuration Debug \
+          -UseModernBuildSystem=NO \
+          -archivePath $PWD/VisionCameraExample \
+          CODE_SIGNING_ALLOWED=NO"
