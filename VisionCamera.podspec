@@ -27,6 +27,7 @@ Pod::Spec.new do |s|
     "ios/CameraBridge.h",
     "ios/Frame Processor/FrameProcessorDelegate.h",
     "ios/Frame Processor/FrameProcessorBindings.h",
+    "ios/Frame Processor/FrameProcessorCallback.h",
     "ios/CameraBridge.h",
     "cpp/**/*.{cpp}"
   ]

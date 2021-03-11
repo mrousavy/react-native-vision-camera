@@ -9,7 +9,7 @@
 #pragma once
 
 #import <AVFoundation/AVFoundation.h>
-#import <React/RCTBridge.h>
+#import "FrameProcessorCallback.h"
 
 @interface FrameProcessorDelegate : NSObject<AVCaptureVideoDataOutputSampleBufferDelegate>
 
@@ -18,6 +18,6 @@
 - (instancetype) initWithDispatchQueue:(dispatch_queue_t)dispatchQueue;
 
 // Has to be void* because I can't use the C++ type jsi::Function in Objective-C/Swift/C.
-- (void) setFrameProcessor:(RCTResponseSenderBlock)frameProcessor;
+- (void) setFrameProcessor:(FrameProcessorCallback)frameProcessor;
 
 @end

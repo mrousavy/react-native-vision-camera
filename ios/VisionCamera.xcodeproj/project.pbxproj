@@ -48,7 +48,7 @@
 		B8DCF31225EA94F000EA5C72 /* FrameProcessorDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8DCF31125EA94F000EA5C72 /* FrameProcessorDelegate.mm */; };
 		B8E0A94425E82DFD008AE93F /* FrameProcessorBindings.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8E0A94325E82DFD008AE93F /* FrameProcessorBindings.mm */; };
 		B8E0A94825E82E40008AE93F /* FrameProcessorBindings.h in Sources */ = {isa = PBXBuildFile; fileRef = B8E0A94725E82E40008AE93F /* FrameProcessorBindings.h */; };
-		B8E0A9BC25E833D7008AE93F /* YeetJSIUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8E0A9BA25E833D7008AE93F /* YeetJSIUtils.mm */; };
+		B8E0A9BC25E833D7008AE93F /* JSIUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8E0A9BA25E833D7008AE93F /* JSIUtils.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -68,6 +68,7 @@
 		B86DC970260E2D5200FB17B2 /* AVAudioSession+trySetAllowHaptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAudioSession+trySetAllowHaptics.swift"; sourceTree = "<group>"; };
 		B86DC973260E310600FB17B2 /* CameraView+AVAudioSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraView+AVAudioSession.swift"; sourceTree = "<group>"; };
 		B86DC976260E315100FB17B2 /* CameraView+AVCaptureSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraView+AVCaptureSession.swift"; sourceTree = "<group>"; };
+		B80D67A825FA25380008FE8D /* FrameProcessorCallback.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorCallback.h; sourceTree = "<group>"; };
 		B887515C25E0102000DB86D6 /* PhotoCaptureDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoCaptureDelegate.swift; sourceTree = "<group>"; };
 		B887515D25E0102000DB86D6 /* CameraView+RecordVideo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CameraView+RecordVideo.swift"; sourceTree = "<group>"; };
 		B887515E25E0102000DB86D6 /* CameraBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraBridge.h; sourceTree = "<group>"; };
@@ -110,8 +111,8 @@
 		B8DCF31425EA94F800EA5C72 /* FrameProcessorDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorDelegate.h; sourceTree = "<group>"; };
 		B8E0A94325E82DFD008AE93F /* FrameProcessorBindings.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessorBindings.mm; sourceTree = "<group>"; };
 		B8E0A94725E82E40008AE93F /* FrameProcessorBindings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorBindings.h; sourceTree = "<group>"; };
-		B8E0A9BA25E833D7008AE93F /* YeetJSIUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = YeetJSIUtils.mm; sourceTree = "<group>"; };
-		B8E0A9BB25E833D7008AE93F /* YeetJSIUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YeetJSIUtils.h; sourceTree = "<group>"; };
+		B8E0A9BA25E833D7008AE93F /* JSIUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = JSIUtils.mm; sourceTree = "<group>"; };
+		B8E0A9BB25E833D7008AE93F /* JSIUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSIUtils.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -223,6 +224,7 @@
 				B8E0A94325E82DFD008AE93F /* FrameProcessorBindings.mm */,
 				B8DCF31425EA94F800EA5C72 /* FrameProcessorDelegate.h */,
 				B8DCF31125EA94F000EA5C72 /* FrameProcessorDelegate.mm */,
+				B80D67A825FA25380008FE8D /* FrameProcessorCallback.h */,
 			);
 			path = "Frame Processor";
 			sourceTree = "<group>";
@@ -230,8 +232,8 @@
 		B8E0A9B925E833C8008AE93F /* JSI Utils */ = {
 			isa = PBXGroup;
 			children = (
-				B8E0A9BB25E833D7008AE93F /* YeetJSIUtils.h */,
-				B8E0A9BA25E833D7008AE93F /* YeetJSIUtils.mm */,
+				B8E0A9BB25E833D7008AE93F /* JSIUtils.h */,
+				B8E0A9BA25E833D7008AE93F /* JSIUtils.mm */,
 			);
 			path = "JSI Utils";
 			sourceTree = "<group>";

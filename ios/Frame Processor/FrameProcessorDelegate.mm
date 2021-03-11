@@ -12,7 +12,7 @@
 //using namespace reanimated;
 
 @implementation FrameProcessorDelegate {
-  RCTResponseSenderBlock frameProcessorCallback;
+  FrameProcessorCallback frameProcessorCallback;
 }
 
 @synthesize dispatchQueue;
@@ -30,7 +30,7 @@
   NSLog(@"FrameProcessorDelegate: dealloc()");
 }
 
-- (void) setFrameProcessor:(RCTResponseSenderBlock)frameProcessor {
+- (void) setFrameProcessor:(FrameProcessorCallback)frameProcessor {
   NSLog(@"FrameProcessorDelegate: Setting frame processor function!");
   frameProcessorCallback = frameProcessor;
 }
@@ -39,7 +39,7 @@
   NSLog(@"FrameProcessorDelegate: Camera frame arrived");
   // TODO: Call [worklet] with the actual frame output buffer
   
-  frameProcessorCallback([NSArray array]);
+  frameProcessorCallback(42);
 }
 
 @end

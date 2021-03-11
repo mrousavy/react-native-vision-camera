@@ -14,7 +14,7 @@
 #import <ReactCommon/RCTTurboModuleManager.h>
 
 #import <jsi/jsi.h>
-#import "../JSI Utils/YeetJSIUtils.h"
+#import "../JSI Utils/JSIUtils.h"
 #import "../../cpp/MakeJSIRuntime.h"
 #import "FrameProcessorDelegate.h"
 
@@ -94,7 +94,7 @@ static dispatch_queue_t dispatchQueue = dispatch_queue_create("com.mrousavy.came
         NSLog(@"FrameProcessorBindings: Converting worklet to Objective-C callback...");
         auto& rt = *runtimeManager->runtime;
         auto function = worklet->getValue(rt).asObject(rt).asFunction(rt);
-        auto callback = convertJSIFunctionToCallback(rt, function);
+        auto callback = convertJSIFunctionToFrameProcessorCallback(rt, function);
         
         [view.frameProcessorDelegate setFrameProcessor:callback];
         NSLog(@"FrameProcessorBindings: Frame processor set!");
