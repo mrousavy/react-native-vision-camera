@@ -9,6 +9,24 @@ updates:
       - "dependencies"
       - "js"
 
+  - package-ecosystem: "npm"
+    directory: "/example"
+    schedule:
+      interval: "daily"
+    labels:
+      - "dependencies"
+      - "js"
+      - "example"
+
+  - package-ecosystem: "npm"
+    directory: "/docs"
+    schedule:
+      interval: "daily"
+    labels:
+      - "dependencies"
+      - "js"
+      - "documentation"
+
   - package-ecosystem: "gradle"
     directory: "/android/"
     schedule:
