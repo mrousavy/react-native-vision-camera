@@ -9,6 +9,10 @@ module.exports = {
   organizationName: 'cuvent',
   projectName: 'react-native-vision-camera',
   themeConfig: {
+    algolia: {
+      apiKey: 'ab7f44570bb62d0e07c0f7d92312ed1a',
+      indexName: 'react-native-vision-camera',
+    },
     navbar: {
       title: 'VisionCamera',
       logo: {
