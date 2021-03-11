@@ -220,8 +220,9 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
     console.log('re-rendering camera page without active camera');
   }
 
-  const frameProcessor = useWorkletCallback((frame) => {
-    console.log(`Frame Processor: ${frame}`);
+  const frameProcessor = useWorkletCallback(() => {
+    _log(`Good morning from Frame Processor! _FRAME_PROCESSOR: ${global._FRAME_PROCESSOR} | _WORKLET: ${global._WORKLET} | _UI: ${global._UI}`);
+    //console.log(`Frame Processor: ${frame}`);
   }, []);
 
   // TODO: Implement camera flipping (back <-> front) while recording and stich the videos together

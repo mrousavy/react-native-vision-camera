@@ -59,6 +59,7 @@ static dispatch_queue_t dispatchQueue = dispatch_queue_create("com.mrousavy.came
     NSLog(@"FrameProcessorBindings: Creating Runtime Manager on DispatchQueue %s...", dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL));
     auto runtime = vision::makeJSIRuntime();
     reanimated::RuntimeDecorator::decorateRuntime(*runtime);
+    runtime->global().setProperty(*runtime, "_FRAME_PROCESSOR", jsi::Value(true));
     auto scheduler = std::make_shared<reanimated::REAIOSScheduler>(callInvoker);
     runtimeManager = std::make_unique<reanimated::RuntimeManager>(std::move(runtime),
                                                                   std::make_shared<reanimated::REAIOSErrorHandler>(scheduler),
