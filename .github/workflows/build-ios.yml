@@ -30,11 +30,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup JDK 1.8
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.8
-
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -52,7 +47,7 @@ jobs:
       - name: Restore Pods cache
         uses: actions/cache@v2
         with:
-          path: Pods
+          path: example/ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-pods-
@@ -62,6 +57,8 @@ jobs:
         run: "xcodebuild \
           -workspace VisionCameraExample.xcworkspace \
           -scheme VisionCameraExample \
-          -sdk iphoneos \
+          -sdk iphonesimulator \
           -configuration Debug \
+          -destination \"generic/platform=iOS Simulator\" \
+          build \
           CODE_SIGNING_ALLOWED=NO"
