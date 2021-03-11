@@ -32,7 +32,7 @@
     "@types/react-native": "^0.63.50",
     "@types/react-native-vector-icons": "^6.4.6",
     "@types/react-native-video": "^5.0.4",
-    "@typescript-eslint/eslint-plugin": "^4.16.1",
+    "@typescript-eslint/eslint-plugin": "^4.17.0",
     "@typescript-eslint/parser": "^4.16.1",
     "babel-plugin-module-resolver": "^4.0.0",
     "eslint": "^7.21.0",
