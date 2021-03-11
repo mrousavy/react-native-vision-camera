@@ -17,7 +17,7 @@
     "react": "16.13.1",
     "react-native": "0.63.4",
     "react-native-gesture-handler": "^1.10.3",
-    "react-native-navigation": "^7.11.2",
+    "react-native-navigation": "^7.11.3",
     "react-native-reanimated": "^2.0.0",
     "react-native-static-safe-area-insets": "^2.1.1",
     "react-native-vector-icons": "^8.0.0",
