@@ -220,8 +220,10 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
     console.log('re-rendering camera page without active camera');
   }
 
-  const frameProcessor = useWorkletCallback(() => {
-    _log(`Good morning from Frame Processor! _FRAME_PROCESSOR: ${global._FRAME_PROCESSOR} | _WORKLET: ${global._WORKLET} | _UI: ${global._UI}`);
+  const frameProcessor = useWorkletCallback((frame: number) => {
+    _log(
+      `Good morning from Frame Processor! Frame: ${frame} (globals: _FRAME_PROCESSOR: ${global._FRAME_PROCESSOR} | _WORKLET: ${global._WORKLET} | _UI: ${global._UI})`,
+    );
     //console.log(`Frame Processor: ${frame}`);
   }, []);
 
