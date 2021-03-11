@@ -22,7 +22,6 @@ jobs:
         with:
           args: --strict
         env:
-          # DIFF_BASE: ${{ github.base_ref }}
           WORKING_DIRECTORY: ios
   SwiftFormat:
     runs-on: macOS-latest
