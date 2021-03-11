@@ -47,7 +47,10 @@ jobs:
       - name: Restore Pods cache
         uses: actions/cache@v2
         with:
-          path: Pods
+          path: |
+            example/ios/Pods
+            ~/Library/Caches/CocoaPods
+            ~/.cocoapods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-pods-
