@@ -44,6 +44,13 @@ jobs:
       - name: Install node_modules for example/
         run: yarn install --frozen-lockfile --cwd ..
 
+      - name: Setup Ruby (bundle)
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6
+          bundler-cache: true
+          working-directory: example/ios
+
       - name: Restore Pods cache
         uses: actions/cache@v2
         with:
@@ -55,7 +62,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pods-
       - name: Install Pods
-        run: pod install   # TODO: Optimize "pod install" step (see https://guides.cocoapods.org/plugins/optimising-ci-times.html)
+        run: bundle exec pod check || bundle exec pod install
       - name: Build App
         run: "xcodebuild \
           -workspace VisionCameraExample.xcworkspace \
