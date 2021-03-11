@@ -62,9 +62,6 @@ jobs:
         run: "xcodebuild \
           -workspace VisionCameraExample.xcworkspace \
           -scheme VisionCameraExample \
-          clean archive \
           -sdk iphoneos \
           -configuration Debug \
-          -UseModernBuildSystem=NO \
-          -archivePath $PWD/VisionCameraExample \
           CODE_SIGNING_ALLOWED=NO"
