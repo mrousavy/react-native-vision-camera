@@ -65,4 +65,5 @@ jobs:
           -sdk iphonesimulator \
           -configuration Debug \
           -destination \"generic/platform=iOS Simulator\" \
+          clean build \
           CODE_SIGNING_ALLOWED=NO"
