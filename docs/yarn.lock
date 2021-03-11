@@ -4120,10 +4120,10 @@ dns-txt@^2.0.2:
   dependencies:
     buffer-indexof "^1.0.0"
 
-docusaurus-plugin-typedoc@^0.10.0:
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/docusaurus-plugin-typedoc/-/docusaurus-plugin-typedoc-0.10.0.tgz#64cdbed26efa29c39a91b9db277e45d3d5eb3c61"
-  integrity sha512-cztkkhJeiZLrGmO4/lI3wLsOqDgJkRwK5WOO+eRko59UP9N3CqTcQoNRDr4ADUO0GZm8jvRT2NBTON5Q1+RVEw==
+docusaurus-plugin-typedoc@^0.11.0:
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/docusaurus-plugin-typedoc/-/docusaurus-plugin-typedoc-0.11.0.tgz#40603bb46c368e81bb126f2cb059f1be5c0ed8a0"
+  integrity sha512-U4FESmxZNkXXmUlLHiSU5GGzz+DCJsnFauI5puYL22KMTy4CLE6i1kNOpwmHtmfO2XMkAXe3R7YHossOgP0FFg==
 
 dom-converter@^0.2:
   version "0.2.0"
