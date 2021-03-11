@@ -174,9 +174,13 @@ const isCameraErrorJson = (error: unknown): error is { code: string; message: st
  * Tries to parse an error coming from native to a typed JS camera error.
  * @param {CameraError} nativeError The native error instance. This is a JSON in the legacy native module architecture.
 <<<<<<< HEAD
+<<<<<<< HEAD
  * @returns A {@linkcode CameraRuntimeError} or {@linkcode CameraCaptureError}, or the `nativeError` itself if it's not parsable
 =======
  * @returns A `CameraRuntimeError` or `CameraCaptureError`, or the nativeError if it's not parsable
+>>>>>>> Merge branch 'main' into frame-processors
+=======
+ * @returns A {@linkcode CameraRuntimeError} or {@linkcode CameraCaptureError}, or the `nativeError` itself if it's not parsable
 >>>>>>> Merge branch 'main' into frame-processors
  * @method
  */

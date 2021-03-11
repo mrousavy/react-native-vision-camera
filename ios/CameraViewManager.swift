@@ -30,6 +30,12 @@ final class CameraViewManager: RCTViewManager {
     return CameraView()
   }
 
+  // MARK: Internal
+
+  override var methodQueue: DispatchQueue! {
+    return DispatchQueue.main
+  }
+
   // pragma MARK: Exported Functions
   @objc
   final func startRecording(_ node: NSNumber, options: NSDictionary, onRecordCallback: @escaping RCTResponseSenderBlock) {

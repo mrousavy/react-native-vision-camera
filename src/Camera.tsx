@@ -413,6 +413,9 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     }
   }
 
+  /**
+   * @internal
+   */
   public render(): React.ReactNode {
     if (this.state.cameraId == null) throw new Error('CameraID is null! Did you pass a valid `device`?');
     // We remove the big `device` object from the props because we only need to pass `cameraId` to native.

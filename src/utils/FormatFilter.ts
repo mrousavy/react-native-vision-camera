@@ -9,7 +9,7 @@ import type { CameraDevice, CameraDeviceFormat, FrameRateRange } from 'react-nat
  * > Note that this makes the `sort()` function descending, so the first element (`[0]`) is the "best" device.
  *
  * @example
- * ```js
+ * ```ts
  * const devices = camera.devices.sort(sortDevices)
  * const bestDevice = devices[0]
  * ```
@@ -79,12 +79,12 @@ const getFormatAspectRatioOverflow = (format: CameraDeviceFormat, size: Size): n
 /**
  * Filters Camera Device Formats by the best matching aspect ratio for the given `viewSize`.
  *
- * @param {CameraDeviceFormat[]} formats A list of formats the current device has (see {@link CameraDevice.formats})
+ * @param {CameraDeviceFormat[]} formats A list of formats the current device has (see {@linkcode CameraDevice.formats})
  * @param {Size} viewSize The size of the camera view which will be used to find the best aspect ratio. Defaults to the screen size.
  * @returns A list of Camera Device Formats that match the given `viewSize`' aspect ratio _as close as possible_.
  *
  * @example
- * ```js
+ * ```ts
  * const formats = useMemo(() => filterFormatsByAspectRatio(device.formats, CAMERA_VIEW_SIZE), [device.formats])
  * ```
  * @method
@@ -103,7 +103,7 @@ export const filterFormatsByAspectRatio = (formats: CameraDeviceFormat[], viewSi
  * Sorts Camera Device Formats by highest photo-capture resolution, descending. Use this in a `.sort` function.
  *
  * @example
- * ```js
+ * ```ts
  * const formats = useMemo(() => device.formats.sort(sortFormatsByResolution), [device.formats])
  * const bestFormat = formats[0]
  * ```
@@ -128,7 +128,7 @@ export const sortFormatsByResolution = (left: CameraDeviceFormat, right: CameraD
  * @param {FrameRateRange} range The range to check if the given `fps` are included in
  * @param {number} fps The FPS to check if the given `range` supports.
  * @example
- * ```js
+ * ```ts
  * // get all formats that support 60 FPS
  * const formatsWithHighFps = useMemo(() => device.formats.filter((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, 60))), [device.formats])
  * ```
