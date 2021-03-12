@@ -25,6 +25,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Install reviewdog
+      uses: reviewdog/action-setup@v1
+
     - name: Get yarn cache directory path
       id: yarn-cache-dir-path
       run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -42,8 +45,11 @@ jobs:
     - name: Install node_modules (example/)
       run: yarn install --frozen-lockfile --cwd example
 
-    - name: Run TypeScript
-      uses: ypresto/typescript-error-reporter-action@6cb6a970f0783c19f55fb83079f7846a583c7543
+    - name: Run TypeScript # Reviewdog tsc errorformat: %f:%l:%c - error TS%n: %m
+      run: |
+        yarn typescript | reviewdog -name="tsc" -efm="%f(%l,%c): error TS%n: %m" -reporter="github-pr-review" -filter-mode="nofilter" -fail-on-error -tee
+      env:
+        REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   lint:
     name: Lint JS (eslint, prettier)
@@ -69,9 +75,4 @@ jobs:
       run: yarn install --frozen-lockfile --cwd example
 
     - name: Run ESLint
-      uses: reviewdog/action-eslint@v1
-      with:
-        reporter: github-pr-review
-        eslint_flags: '--ext .js,.ts,.jsx,.tsx src'
-        fail_on_error: true
-        filter_mode: nofilter
+      run: yarn lint -f @jamesacarr/github-actions
