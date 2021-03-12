@@ -45,10 +45,8 @@ jobs:
     - name: Install node_modules (example/)
       run: yarn install --frozen-lockfile --cwd example
 
-    - name: Run TypeScript
-      run: yarn typescript | tee >(reviewdog -f=tsc -reporter=github-check -fail-on-error)
-      env:
-        REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Typecheck
+      uses: andoshin11/typescript-error-reporter-action@master
 
     - name: Run ESLint
       uses: reviewdog/action-eslint@v1
