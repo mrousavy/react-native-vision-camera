@@ -1,7 +1,7 @@
 import { atom } from 'pipestate';
 
 interface FormatSettings {
-  fps: unknown;
+  fps: number;
 }
 
 export const FormatSettingsAtom = atom<FormatSettings>({
