@@ -197,7 +197,7 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
   }, []);
   useEffect(() => {
     // Run everytime the neutralZoomScaled value changes. (reset zoom when device changes)
-    zoom.value = neutralZoomScaled;
+    zoom.value = false;
   }, [neutralZoomScaled, zoom]);
 
   useEffect(() => {
