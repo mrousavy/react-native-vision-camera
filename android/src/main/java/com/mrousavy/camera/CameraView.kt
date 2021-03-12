@@ -193,30 +193,35 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   /**
    * Invalidate all React Props and reconfigure the device
    */
-  fun update(changedProps: ArrayList<String>) = GlobalScope.launch(Dispatchers.Main) {
-    try {
-      val shouldReconfigureSession = changedProps.containsAny(propsThatRequireSessionReconfiguration)
-      val shouldReconfigureZoom = shouldReconfigureSession || changedProps.contains("zoom")
-      val shouldReconfigureTorch = shouldReconfigureSession || changedProps.contains("torch")
+  fun update(changedProps: ArrayList<String>) = previewView.post {
+    // TODO: Does this introduce too much overhead?
+    //  I need to .post on the previewView because it might've not been initialized yet
+    //  I need to use GlobalScope.launch because of the suspend fun [configureSession]
+    GlobalScope.launch(Dispatchers.Main) {
+      try {
+        val shouldReconfigureSession = changedProps.containsAny(propsThatRequireSessionReconfiguration)
+        val shouldReconfigureZoom = shouldReconfigureSession || changedProps.contains("zoom")
+        val shouldReconfigureTorch = shouldReconfigureSession || changedProps.contains("torch")
 
-      if (changedProps.contains("isActive")) {
-        updateLifecycleState()
+        if (changedProps.contains("isActive")) {
+          updateLifecycleState()
+        }
+        if (shouldReconfigureSession) {
+          configureSession()
+        }
+        if (shouldReconfigureZoom) {
+          val scaled = (zoom.toFloat() * (maxZoom - minZoom)) + minZoom
+          camera!!.cameraControl.setZoomRatio(scaled)
+        }
+        if (shouldReconfigureTorch) {
+          camera!!.cameraControl.enableTorch(torch == "on")
+        }
+        if (changedProps.contains("enableZoomGesture")) {
+          setOnTouchListener(if (enableZoomGesture) touchEventListener else null)
+        }
+      } catch (e: CameraError) {
+        invokeOnError(e)
       }
-      if (shouldReconfigureSession) {
-        configureSession()
-      }
-      if (shouldReconfigureZoom) {
-        val scaled = (zoom.toFloat() * (maxZoom - minZoom)) + minZoom
-        camera!!.cameraControl.setZoomRatio(scaled)
-      }
-      if (shouldReconfigureTorch) {
-        camera!!.cameraControl.enableTorch(torch == "on")
-      }
-      if (changedProps.contains("enableZoomGesture")) {
-        setOnTouchListener(if (enableZoomGesture) touchEventListener else null)
-      }
-    } catch (e: CameraError) {
-      invokeOnError(e)
     }
   }
 
