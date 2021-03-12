@@ -113,7 +113,7 @@ class CameraViewManager : SimpleViewManager<CameraView>() {
 
   @ReactProp(name = "enableZoomGesture")
   fun setEnableZoomGesture(view: CameraView, enableZoomGesture: Boolean) {
-    if (view.enableZoomGesture != enableZoomGesture)
+    if  (view.enableZoomGesture != enableZoomGesture)
       addChangedPropToTransaction(view, "enableZoomGesture")
     view.enableZoomGesture = enableZoomGesture
   }
