@@ -134,7 +134,7 @@ export interface CameraDeviceFormat {
   /**
    * Specifies whether this format supports HDR mode for video capture
    */
-  supportsVideoHDR: boolean;
+  supportsVideoHDR____renamed: boolean;
   /**
    * Specifies whether this format supports HDR mode for photo capture
    */
