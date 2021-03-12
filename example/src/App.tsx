@@ -9,7 +9,7 @@ import {
   TapGestureHandlerStateChangeEvent,
 } from 'react-native-gesture-handler';
 import { Navigation, NavigationFunctionComponent } from 'react-native-navigation';
-import type { CameraDevice, CameraDeviceFormat, CameraProps, CameraRuntimeError, PhotoFile, VideoFile } from 'react-native-vision-camera';
+import type { CameraDevice, CameraDeviceFormat, CameraRuntimeError, PhotoFile, VideoFile } from 'react-native-vision-camera';
 import { Camera, frameRateIncluded, sortDevices, sortFormatsByResolution, filterFormatsByAspectRatio } from 'react-native-vision-camera';
 import { useIsScreenFocused } from './hooks/useIsScreenFocused';
 import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING } from './Constants';
@@ -24,7 +24,9 @@ import IonIcon from 'react-native-vector-icons/Ionicons';
 import { useSelector } from 'pipestate';
 import { FpsSelector } from './state/selectors';
 
-const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
+// TODO: Remove once https://github.com/software-mansion/react-native-reanimated/pull/1697 gets merged
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera) as any;
 Reanimated.addWhitelistedNativeProps({
   zoom: true,
 });
@@ -108,7 +110,7 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
   const neutralZoomScaled = (neutralZoom / maxZoomFactor) * formatMaxZoom;
   const maxZoomScaled = (1 / formatMaxZoom) * maxZoomFactor;
 
-  const cameraAnimatedProps = useAnimatedProps<Partial<CameraProps>>(
+  const cameraAnimatedProps = useAnimatedProps(
     () => ({
       zoom: interpolate(zoom.value, [0, neutralZoomScaled, 1], [0, neutralZoom, maxZoomScaled], Extrapolate.CLAMP),
     }),
@@ -249,8 +251,6 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
                 onInitialized={onInitialized}
                 onError={onError}
                 enableZoomGesture={false}
-                // TODO: Remove once https://github.com/software-mansion/react-native-reanimated/pull/1697 gets merged
-                // @ts-expect-error animatedProps should be Partial<P>
                 animatedProps={cameraAnimatedProps}
               />
             </TapGestureHandler>
