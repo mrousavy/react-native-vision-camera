@@ -31,7 +31,7 @@ private let propsThatRequireDeviceReconfiguration = ["fps", "hdr", "lowLightBoos
 
 // MARK: - CameraView
 
-final class CameraView: UIView {
+final class CameraView:  UIView {
   // MARK: Lifecycle
 
   override init(frame: CGRect) {
