@@ -100,6 +100,10 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   private val reactContext: ReactContext
     get() = context as ReactContext
 
+  // Used to bind the lifecycle of cameras to the lifecycle owner
+  private val cameraProvider = ProcessCameraProvider.getInstance(context)
+
+  @Suppress("JoinDeclarationAndAssignment")
   internal val previewView: PreviewView
   private val cameraExecutor = Executors.newSingleThreadExecutor()
   internal val takePhotoExecutor = Executors.newSingleThreadExecutor()
@@ -240,8 +244,8 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       else
         Log.d(REACT_CLASS, "Configuring session with Camera ID $cameraId and default format options...")
 
-      // Used to bind the lifecycle of cameras to the lifecycle owner
-      val cameraProvider = ProcessCameraProvider.getInstance(context).await()
+      // Future might already be completed at this point, so this resolves immediately
+      val cameraProvider = this.cameraProvider.await()
 
       val cameraSelector = CameraSelector.Builder().byID(cameraId!!).build()
 
