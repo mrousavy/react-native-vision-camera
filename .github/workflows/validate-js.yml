@@ -25,6 +25,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Install reviewdog
+      uses: reviewdog/action-setup@v1
+
     - name: Get yarn cache directory path
       id: yarn-cache-dir-path
       run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -42,9 +45,8 @@ jobs:
     - name: Install node_modules (example/)
       run: yarn install --frozen-lockfile --cwd example
 
-    # TODO: Create GitHub annotations from error output!
-    - name: Run TypeScript
-      run: yarn typescript
+    - name: Run TypeScript # %f:%l:%c - error TS%n: %m
+      run: yarn typescript | reviewdog -efm="%f:%l:%c - error TS%n:\ %m" -reporter=github-pr-review -fail-on-error
 
   lint:
     name: Lint JS (eslint, prettier)
