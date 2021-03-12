@@ -38,9 +38,6 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
-  private val processCameraProvider = ProcessCameraProvider.getInstance(reactApplicationContext)
-  private val extensionsManager = ExtensionsManager.init(reactApplicationContext)
-
   override fun getName(): String {
     return REACT_CLASS
   }
@@ -116,14 +113,12 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   // https://issuetracker.google.com/issues/179925896
   @ReactMethod
   fun getAvailableCameraDevices(promise: Promise) {
+    val startTime = System.currentTimeMillis()
     GlobalScope.launch(Dispatchers.Main) {
       withPromise(promise) {
-        // those futures might have already been completed, so this returns immediately
-        val startTime = System.currentTimeMillis()
-        val extensionsManager = this@CameraViewModule.extensionsManager.await()
-        val processCameraProvider = this@CameraViewModule.processCameraProvider.await()
-        val difference = System.currentTimeMillis() - startTime
-        Log.w(REACT_CLASS, "Took: $difference ms")
+        // I need to init those because the HDR/Night Mode Extension expects them to be initialized
+        val extensionsManager = ExtensionsManager.init(reactApplicationContext).await()
+        val processCameraProvider = ProcessCameraProvider.getInstance(reactApplicationContext).await()
 
         val manager = reactApplicationContext.getSystemService(Context.CAMERA_SERVICE) as? CameraManager
           ?: throw CameraManagerUnavailableError()
@@ -259,6 +254,8 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
           cameraDevices.pushMap(map)
         }
 
+        val difference = System.currentTimeMillis() - startTime
+        Log.w(REACT_CLASS, "CameraViewModule::getAvailableCameraDevices took: $difference ms")
         return@withPromise cameraDevices
       }
     }

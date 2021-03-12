@@ -100,9 +100,6 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   private val reactContext: ReactContext
     get() = context as ReactContext
 
-  // Used to bind the lifecycle of cameras to the lifecycle owner
-  private val cameraProvider = ProcessCameraProvider.getInstance(context)
-
   @Suppress("JoinDeclarationAndAssignment")
   internal val previewView: PreviewView
   private val cameraExecutor = Executors.newSingleThreadExecutor()
@@ -229,7 +226,8 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   @SuppressLint("UnsafeExperimentalUsageError", "RestrictedApi")
   private suspend fun configureSession() {
     try {
-      Log.d(REACT_CLASS, "Configuring session...")
+      val startTime = System.currentTimeMillis()
+      Log.i(REACT_CLASS, "Configuring session...")
       if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
         throw MicrophonePermissionError()
       }
@@ -240,12 +238,12 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         throw NoCameraDeviceError()
       }
       if (format != null)
-        Log.d(REACT_CLASS, "Configuring session with Camera ID $cameraId and custom format...")
+        Log.i(REACT_CLASS, "Configuring session with Camera ID $cameraId and custom format...")
       else
-        Log.d(REACT_CLASS, "Configuring session with Camera ID $cameraId and default format options...")
+        Log.i(REACT_CLASS, "Configuring session with Camera ID $cameraId and default format options...")
 
-      // Future might already be completed at this point, so this resolves immediately
-      val cameraProvider = this.cameraProvider.await()
+      // Used to bind the lifecycle of cameras to the lifecycle owner
+      val cameraProvider = ProcessCameraProvider.getInstance(reactContext).await()
 
       val cameraSelector = CameraSelector.Builder().byID(cameraId!!).build()
 
@@ -261,7 +259,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
 
       if (format == null) {
         // let CameraX automatically find best resolution for the target aspect ratio
-        Log.d(REACT_CLASS, "No custom format has been set, CameraX will automatically determine best configuration...")
+        Log.i(REACT_CLASS, "No custom format has been set, CameraX will automatically determine best configuration...")
         val aspectRatio = aspectRatio(previewView.width, previewView.height)
         previewBuilder.setTargetAspectRatio(aspectRatio)
         imageCaptureBuilder.setTargetAspectRatio(aspectRatio)
@@ -269,7 +267,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       } else {
         // User has selected a custom format={}. Use that
         val format = DeviceFormat(format!!)
-        Log.d(REACT_CLASS, "Using custom format - photo: ${format.photoSize}, video: ${format.videoSize} @ $fps FPS")
+        Log.i(REACT_CLASS, "Using custom format - photo: ${format.photoSize}, video: ${format.videoSize} @ $fps FPS")
         previewBuilder.setDefaultResolution(format.photoSize)
         imageCaptureBuilder.setDefaultResolution(format.photoSize)
         videoCaptureBuilder.setDefaultResolution(format.photoSize)
@@ -279,7 +277,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
             // Camera supports the given FPS (frame rate range)
             val frameDuration = (1.0 / fps.toDouble()).toLong() * 1_000_000_000
 
-            Log.d(REACT_CLASS, "Setting AE_TARGET_FPS_RANGE to $fps-$fps, and SENSOR_FRAME_DURATION to $frameDuration")
+            Log.i(REACT_CLASS, "Setting AE_TARGET_FPS_RANGE to $fps-$fps, and SENSOR_FRAME_DURATION to $frameDuration")
             Camera2Interop.Extender(previewBuilder)
               .setCaptureRequestOption(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(fps, fps))
               .setCaptureRequestOption(CaptureRequest.SENSOR_FRAME_DURATION, frameDuration)
@@ -337,7 +335,8 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       minZoom = camera!!.cameraInfo.zoomState.value?.minZoomRatio ?: 1f
       maxZoom = camera!!.cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
 
-      Log.d(REACT_CLASS, "Session configured! Camera: ${camera!!}")
+      val duration = System.currentTimeMillis() - startTime
+      Log.i(REACT_CLASS, "Session configured in $duration ms! Camera: ${camera!!}")
       invokeOnInitialized()
     } catch (exc: Throwable) {
       throw when (exc) {
