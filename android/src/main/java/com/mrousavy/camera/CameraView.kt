@@ -100,6 +100,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   private val reactContext: ReactContext
     get() = context as ReactContext
 
+  @Suppress("JoinDeclarationAndAssignment")
   internal val previewView: PreviewView
   private val cameraExecutor = Executors.newSingleThreadExecutor()
   internal val takePhotoExecutor = Executors.newSingleThreadExecutor()
@@ -192,30 +193,35 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   /**
    * Invalidate all React Props and reconfigure the device
    */
-  fun update(changedProps: ArrayList<String>) = GlobalScope.launch(Dispatchers.Main) {
-    try {
-      val shouldReconfigureSession = changedProps.containsAny(propsThatRequireSessionReconfiguration)
-      val shouldReconfigureZoom = shouldReconfigureSession || changedProps.contains("zoom")
-      val shouldReconfigureTorch = shouldReconfigureSession || changedProps.contains("torch")
+  fun update(changedProps: ArrayList<String>) = previewView.post {
+    // TODO: Does this introduce too much overhead?
+    //  I need to .post on the previewView because it might've not been initialized yet
+    //  I need to use GlobalScope.launch because of the suspend fun [configureSession]
+    GlobalScope.launch(Dispatchers.Main) {
+      try {
+        val shouldReconfigureSession = changedProps.containsAny(propsThatRequireSessionReconfiguration)
+        val shouldReconfigureZoom = shouldReconfigureSession || changedProps.contains("zoom")
+        val shouldReconfigureTorch = shouldReconfigureSession || changedProps.contains("torch")
 
-      if (changedProps.contains("isActive")) {
-        updateLifecycleState()
+        if (changedProps.contains("isActive")) {
+          updateLifecycleState()
+        }
+        if (shouldReconfigureSession) {
+          configureSession()
+        }
+        if (shouldReconfigureZoom) {
+          val scaled = (zoom.toFloat() * (maxZoom - minZoom)) + minZoom
+          camera!!.cameraControl.setZoomRatio(scaled)
+        }
+        if (shouldReconfigureTorch) {
+          camera!!.cameraControl.enableTorch(torch == "on")
+        }
+        if (changedProps.contains("enableZoomGesture")) {
+          setOnTouchListener(if (enableZoomGesture) touchEventListener else null)
+        }
+      } catch (e: CameraError) {
+        invokeOnError(e)
       }
-      if (shouldReconfigureSession) {
-        configureSession()
-      }
-      if (shouldReconfigureZoom) {
-        val scaled = (zoom.toFloat() * (maxZoom - minZoom)) + minZoom
-        camera!!.cameraControl.setZoomRatio(scaled)
-      }
-      if (shouldReconfigureTorch) {
-        camera!!.cameraControl.enableTorch(torch == "on")
-      }
-      if (changedProps.contains("enableZoomGesture")) {
-        setOnTouchListener(if (enableZoomGesture) touchEventListener else null)
-      }
-    } catch (e: CameraError) {
-      invokeOnError(e)
     }
   }
 
@@ -225,7 +231,8 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   @SuppressLint("UnsafeExperimentalUsageError", "RestrictedApi")
   private suspend fun configureSession() {
     try {
-      Log.d(REACT_CLASS, "Configuring session...")
+      val startTime = System.currentTimeMillis()
+      Log.i(REACT_CLASS, "Configuring session...")
       if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
         throw MicrophonePermissionError()
       }
@@ -236,12 +243,12 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         throw NoCameraDeviceError()
       }
       if (format != null)
-        Log.d(REACT_CLASS, "Configuring session with Camera ID $cameraId and custom format...")
+        Log.i(REACT_CLASS, "Configuring session with Camera ID $cameraId and custom format...")
       else
-        Log.d(REACT_CLASS, "Configuring session with Camera ID $cameraId and default format options...")
+        Log.i(REACT_CLASS, "Configuring session with Camera ID $cameraId and default format options...")
 
       // Used to bind the lifecycle of cameras to the lifecycle owner
-      val cameraProvider = ProcessCameraProvider.getInstance(context).await()
+      val cameraProvider = ProcessCameraProvider.getInstance(reactContext).await()
 
       val cameraSelector = CameraSelector.Builder().byID(cameraId!!).build()
 
@@ -257,7 +264,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
 
       if (format == null) {
         // let CameraX automatically find best resolution for the target aspect ratio
-        Log.d(REACT_CLASS, "No custom format has been set, CameraX will automatically determine best configuration...")
+        Log.i(REACT_CLASS, "No custom format has been set, CameraX will automatically determine best configuration...")
         val aspectRatio = aspectRatio(previewView.width, previewView.height)
         previewBuilder.setTargetAspectRatio(aspectRatio)
         imageCaptureBuilder.setTargetAspectRatio(aspectRatio)
@@ -265,7 +272,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       } else {
         // User has selected a custom format={}. Use that
         val format = DeviceFormat(format!!)
-        Log.d(REACT_CLASS, "Using custom format - photo: ${format.photoSize}, video: ${format.videoSize} @ $fps FPS")
+        Log.i(REACT_CLASS, "Using custom format - photo: ${format.photoSize}, video: ${format.videoSize} @ $fps FPS")
         previewBuilder.setDefaultResolution(format.photoSize)
         imageCaptureBuilder.setDefaultResolution(format.photoSize)
         videoCaptureBuilder.setDefaultResolution(format.photoSize)
@@ -275,7 +282,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
             // Camera supports the given FPS (frame rate range)
             val frameDuration = (1.0 / fps.toDouble()).toLong() * 1_000_000_000
 
-            Log.d(REACT_CLASS, "Setting AE_TARGET_FPS_RANGE to $fps-$fps, and SENSOR_FRAME_DURATION to $frameDuration")
+            Log.i(REACT_CLASS, "Setting AE_TARGET_FPS_RANGE to $fps-$fps, and SENSOR_FRAME_DURATION to $frameDuration")
             Camera2Interop.Extender(previewBuilder)
               .setCaptureRequestOption(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(fps, fps))
               .setCaptureRequestOption(CaptureRequest.SENSOR_FRAME_DURATION, frameDuration)
@@ -333,7 +340,8 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       minZoom = camera!!.cameraInfo.zoomState.value?.minZoomRatio ?: 1f
       maxZoom = camera!!.cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
 
-      Log.d(REACT_CLASS, "Session configured! Camera: ${camera!!}")
+      val duration = System.currentTimeMillis() - startTime
+      Log.i(REACT_CLASS, "Session configured in $duration ms! Camera: ${camera!!}")
       invokeOnInitialized()
     } catch (exc: Throwable) {
       throw when (exc) {
