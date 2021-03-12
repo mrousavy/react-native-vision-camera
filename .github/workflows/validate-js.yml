@@ -10,6 +10,11 @@ on:
       - '*.json'
       - '*.js'
       - '*.lock'
+      - 'example/src/**'
+      - 'example/*.json'
+      - 'example/*.js'
+      - 'example/*.lock'
+      - 'example/*.tsx'
   pull_request:
     paths:
       - '.github/workflows/validate-js.yml'
@@ -17,6 +22,11 @@ on:
       - '*.json'
       - '*.js'
       - '*.lock'
+      - 'example/src/**'
+      - 'example/*.json'
+      - 'example/*.js'
+      - 'example/*.lock'
+      - 'example/*.tsx'
 
 jobs:
   compile:
