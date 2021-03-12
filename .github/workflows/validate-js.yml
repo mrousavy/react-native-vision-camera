@@ -86,3 +86,9 @@ jobs:
 
     - name: Run ESLint
       run: yarn lint -f @jamesacarr/github-actions
+
+    - name: Run ESLint with auto-fix
+      run: yarn lint --fix
+
+    - name: Verify no files have changed after auto-fix
+      run: git diff --exit-code HEAD
