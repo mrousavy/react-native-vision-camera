@@ -9,16 +9,12 @@ on:
       - 'ios/**'
       - '*.podspec'
       - 'example/ios/**'
-      - 'yarn.lock'
-      - 'example/yarn.lock'
   pull_request:
     paths:
       - '.github/workflows/build-ios.yml'
       - 'ios/**'
       - '*.podspec'
       - 'example/ios/**'
-      - 'yarn.lock'
-      - 'example/yarn.lock'
 
 jobs:
   build:
