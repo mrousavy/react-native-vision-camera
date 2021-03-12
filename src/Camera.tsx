@@ -160,6 +160,13 @@ interface OnErrorEvent {
 interface OnCodeScannedEvent {
   codes: Code[];
 }
+type NativeCameraViewProps = Omit<CameraProps, 'device' | 'onInitialized' | 'onError' | 'onCodeScanned'> & {
+  cameraId: string;
+  onInitialized?: (event: NativeSyntheticEvent<void>) => void;
+  onError?: (event: NativeSyntheticEvent<OnErrorEvent>) => void;
+  onCodeScanned?: (event: NativeSyntheticEvent<OnCodeScannedEvent>) => void;
+};
+type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>;
 
 //#endregion
 
@@ -174,9 +181,6 @@ interface CameraState {
    */
   cameraId?: string;
 }
-
-type NativeCameraViewProps = Omit<CameraProps, 'device'> & { cameraId: string };
-type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>;
 
 /**
  * ### A powerful `<Camera>` component.
@@ -492,7 +496,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   //#endregion
 
   //#region Events (Wrapped to maintain reference equality)
-  private onError(event?: NativeSyntheticEvent<OnErrorEvent>): void {
+  private onError(event: NativeSyntheticEvent<OnErrorEvent>): void {
     if (event == null) throw new Error('onError() was invoked but event was null!');
 
     if (this.props.onError != null) {
@@ -509,7 +513,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     this.props.onInitialized?.();
   }
 
-  private onCodeScanned(event?: NativeSyntheticEvent<OnCodeScannedEvent>): void {
+  private onCodeScanned(event: NativeSyntheticEvent<OnCodeScannedEvent>): void {
     if (event == null) throw new Error('onCodeScanned() was invoked but event was null!');
 
     if (this.props.onCodeScanned == null)
@@ -542,9 +546,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
         cameraId={this.state.cameraId}
         ref={this.ref}
         onInitialized={this.onInitialized}
-        // @ts-expect-error with our callback wrapping we have to extract NativeSyntheticEvent params
         onError={this.onError}
-        // @ts-expect-error with our callback wrapping we have to extract NativeSyntheticEvent params
         onCodeScanned={this.onCodeScanned}
       />
     );
