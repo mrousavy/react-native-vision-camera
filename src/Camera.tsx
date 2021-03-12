@@ -12,66 +12,7 @@ import type { TakeSnapshotOptions } from './Snapshot';
 import type { RecordVideoOptions, VideoFile } from './VideoFile';
 
 //#region Types
-type Modify<T, R> = Omit<T, keyof R> & R;
-
-interface CameraFormatProps {
-  /**
-   * Automatically selects a camera format which best matches the given preset
-   */
-  preset?: CameraPreset;
-  /**
-   * Specify the frames per second this camera should use. Make sure the given `format` includes a frame rate range with the given `fps`.
-   */
-  fps?: never;
-  /**
-   * Enables or disables HDR on this camera device. Make sure the given `format` supports HDR mode.
-   */
-  hdr?: never;
-  /**
-   * Enables or disables low-light boost on this camera device. Make sure the given `format` supports low-light boost.
-   */
-  lowLightBoost?: never;
-  /**
-   * Specifies the color space to use for this camera device. Make sure the given `format` contains the given `colorSpace`.
-   */
-  colorSpace?: never;
-  /**
-   * Selects a given format.
-   */
-  format?: never;
-}
-type CameraPresetProps = Modify<
-  CameraFormatProps,
-  {
-    preset?: never;
-    fps?: number;
-    hdr?: boolean;
-    lowLightBoost?: boolean;
-    colorSpace?: ColorSpace;
-    format?: CameraDeviceFormat;
-  }
->;
-
-interface CameraScannerPropsNever {
-  /**
-   * Specify the code types this camera can scan.
-   */
-  scannableCodes?: never;
-  /**
-   * Called when one or multiple codes have been scanned.
-   */
-  onCodeScanned?: never;
-}
-export type CameraScannerProps = Modify<
-  CameraScannerPropsNever,
-  {
-    scannableCodes: CodeType[];
-    onCodeScanned: (codes: Code[]) => void;
-  }
->;
-
-export interface CameraDeviceProps {
-  // Properties
+export interface CameraProps extends ViewProps {
   /**
    * The Camera Device to use.
    *
@@ -93,30 +34,6 @@ export interface CameraDeviceProps {
    */
   device: CameraDevice;
   /**
-   * Also captures data from depth-perception sensors. (e.g. disparity maps)
-   *
-   * @default false
-   */
-  enableDepthData?: boolean;
-  /**
-   * A boolean specifying whether the photo render pipeline is prepared for portrait effects matte delivery.
-   *
-   * When enabling this, you must also set `enableDepthData` to `true`.
-   *
-   * @platform iOS 12.0+
-   * @default false
-   */
-  enablePortraitEffectsMatteDelivery?: boolean;
-  /**
-   * Indicates whether the photo render pipeline should be configured to deliver high resolution still images
-   *
-   * @default false
-   */
-  enableHighResolutionCapture?: boolean;
-}
-
-export interface CameraDynamicProps {
-  /**
    * Whether the Camera should actively stream video frames, or not. See the [documentation about the `isActive` prop](https://cuvent.github.io/react-native-vision-camera/docs/devices#the-isactive-prop) for more information.
    *
    * This can be compared to a Video component, where `isActive` specifies whether the video is paused or not.
@@ -124,6 +41,8 @@ export interface CameraDynamicProps {
    * > Note: If you fully unmount the `<Camera>` component instead of using `isActive={false}`, the Camera will take a bit longer to start again. In return, it will use less resources since the Camera will be completely destroyed when unmounted.
    */
   isActive: boolean;
+
+  //#region Common Props (torch, zoom)
   /**
    * Set the current torch mode.
    *
@@ -148,9 +67,66 @@ export interface CameraDynamicProps {
    * @default false
    */
   enableZoomGesture?: boolean;
-}
+  //#endregion
 
-export interface CameraEventProps {
+  //#region Format/Preset selection
+  /**
+   * Automatically selects a camera format which best matches the given preset. Must be `undefined` when `format` is set!
+   */
+  preset?: CameraPreset;
+  /**
+   * Selects a given format. Must be `undefined` when `preset` is set!
+   */
+  format?: CameraDeviceFormat;
+  /**
+   * Specify the frames per second this camera should use. Make sure the given `format` includes a frame rate range with the given `fps`.
+   *
+   * Requires `format` to be set.
+   */
+  fps?: number;
+  /**
+   * Enables or disables HDR on this camera device. Make sure the given `format` supports HDR mode.
+   *
+   * Requires `format` to be set.
+   */
+  hdr?: boolean;
+  /**
+   * Enables or disables low-light boost on this camera device. Make sure the given `format` supports low-light boost.
+   *
+   * Requires `format` to be set.
+   */
+  lowLightBoost?: boolean;
+  /**
+   * Specifies the color space to use for this camera device. Make sure the given `format` contains the given `colorSpace`.
+   *
+   * Requires `format` to be set.
+   */
+  colorSpace?: ColorSpace;
+  //#endregion
+
+  /**
+   * Also captures data from depth-perception sensors. (e.g. disparity maps)
+   *
+   * @default false
+   */
+  enableDepthData?: boolean;
+  /**
+   * A boolean specifying whether the photo render pipeline is prepared for portrait effects matte delivery.
+   *
+   * When enabling this, you must also set `enableDepthData` to `true`.
+   *
+   * @platform iOS 12.0+
+   * @default false
+   */
+  enablePortraitEffectsMatteDelivery?: boolean;
+  /**
+   * Indicates whether the photo render pipeline should be configured to deliver high resolution still images
+   *
+   * @default false
+   */
+  enableHighResolutionCapture?: boolean;
+
+  //#region Events
   /**
    * Called when any kind of runtime error occured.
    */
@@ -159,14 +135,19 @@ export interface CameraEventProps {
    * Called when the camera was successfully initialized.
    */
   onInitialized?: () => void;
-}
 
-export type CameraProps = (CameraPresetProps | CameraFormatProps) &
-  (CameraScannerPropsNever | CameraScannerProps) &
-  CameraDeviceProps &
-  CameraDynamicProps &
-  CameraEventProps &
-  ViewProps;
+  // TODO: Remove once frameProcessors land
+  /**
+   * Specify the code types this camera can scan.
+   */
+  scannableCodes?: CodeType[];
+  // TODO: Remove once frameProcessors land
+  /**
+   * Called when one or multiple codes have been scanned.
+   */
+  onCodeScanned?: (codes: Code[]) => void;
+  //#endregion
+}
 
 export type CameraPermissionStatus = 'authorized' | 'not-determined' | 'denied' | 'restricted';
 export type CameraPermissionRequestResult = 'authorized' | 'denied';

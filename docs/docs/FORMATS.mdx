@@ -42,6 +42,10 @@ function App() {
 See the [CameraPreset.ts](https://github.com/cuvent/react-native-vision-camera/blob/main/src/CameraPreset.ts) type for more information about presets
 :::
 
+:::warning
+You cannot set `preset` and `format` at the same time; if `format` is set, `preset` must be `undefined` and vice versa!
+:::
+
 ### What you need to know about cameras
 
 To understand a bit more about camera formats, you first need to understand a few "general camera basics":
