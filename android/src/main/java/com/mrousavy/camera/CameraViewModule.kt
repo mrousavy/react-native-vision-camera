@@ -11,8 +11,10 @@ import android.os.Build
 import android.util.Log
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
+import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.extensions.HdrImageCaptureExtender
 import androidx.camera.extensions.NightImageCaptureExtender
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.PermissionAwareActivity
@@ -21,6 +23,7 @@ import com.mrousavy.camera.parsers.*
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.guava.await
 import kotlinx.coroutines.launch
 
 class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
@@ -109,9 +112,13 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   }
 
   // TODO: This uses the Camera2 API to list all characteristics of a camera device and therefore doesn't work with Camera1. Find a way to use CameraX for this
+  // https://issuetracker.google.com/issues/179925896
   @ReactMethod
-  fun getAvailableCameraDevices(promise: Promise) {
-    withPromise(promise) {
+  suspend fun getAvailableCameraDevices(promise: Promise) {
+    return withSuspendablePromise(promise) {
+      val extensionsManager = ExtensionsManager.init(reactApplicationContext).await()
+      val processCameraProvider = ProcessCameraProvider.getInstance(reactApplicationContext).await()
+
       val manager = reactApplicationContext.getSystemService(Context.CAMERA_SERVICE) as? CameraManager
         ?: throw CameraManagerUnavailableError()
 
@@ -157,18 +164,10 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
         else null
         val fpsRanges = characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES)!!
 
-        var supportsHdr = false
-        var supportsLowLightBoost = false
-        try {
-          val hdrExtension = HdrImageCaptureExtender.create(imageCaptureBuilder)
-          supportsHdr = hdrExtension.isExtensionAvailable(cameraSelector)
-
-          val nightExtension = NightImageCaptureExtender.create(imageCaptureBuilder)
-          supportsLowLightBoost = nightExtension.isExtensionAvailable(cameraSelector)
-        } catch (e: Throwable) {
-          // error on checking availability. falls back to "false"
-          Log.e(REACT_CLASS, "Failed to check HDR/Night Mode extension availability.", e)
-        }
+        val hdrExtension = HdrImageCaptureExtender.create(imageCaptureBuilder)
+        val supportsHdr = hdrExtension.isExtensionAvailable(cameraSelector)
+        val nightExtension = NightImageCaptureExtender.create(imageCaptureBuilder)
+        val supportsLowLightBoost = nightExtension.isExtensionAvailable(cameraSelector)
 
         val fieldOfView = characteristics.getFieldOfView()
 
@@ -254,7 +253,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
         cameraDevices.pushMap(map)
       }
 
-      return@withPromise cameraDevices
+      return@withSuspendablePromise cameraDevices
     }
   }
 
