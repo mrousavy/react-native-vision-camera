@@ -42,8 +42,9 @@ jobs:
     - name: Install node_modules (example/)
       run: yarn install --frozen-lockfile --cwd example
 
+    # TODO: Create GitHub annotations from error output!
     - name: Run TypeScript
-      uses: ypresto/typescript-error-reporter-action@6cb6a970f0783c19f55fb83079f7846a583c7543
+      run: yarn typescript
 
   lint:
     name: Lint JS (eslint, prettier)
