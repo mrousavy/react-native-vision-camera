@@ -69,9 +69,9 @@ jobs:
       run: yarn install --frozen-lockfile --cwd example
 
     - name: Run ESLint
-      uses: reviewdog/action-eslint@v1
+      uses: reviewdog/action-eslint@master
       with:
-        reporter: github-pr-review
+        reporter: github-check
         eslint_flags: '--ext .js,.ts,.jsx,.tsx src'
         fail_on_error: true
         filter_mode: nofilter
