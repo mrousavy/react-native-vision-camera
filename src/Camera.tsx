@@ -551,7 +551,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
       />
     );
   }
-}
+  }
 
 // requireNativeComponent automatically resolves 'CameraView' to 'CameraViewManager'
 const NativeCameraView = requireNativeComponent<NativeCameraViewProps>(
