@@ -70,6 +70,18 @@ module.exports = {
     'react-native/no-raw-text': 'off',
     'react-native/no-single-element-style-arrays': 'warn',
 
+    'react/forbid-elements': [
+      'error',
+      {
+        forbid: [
+          {
+            element: 'View',
+            message: 'Testing',
+          },
+        ],
+      },
+    ],
+
     // react hooks
     'react-hooks/exhaustive-deps': [
       'error',
