@@ -115,7 +115,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   // https://issuetracker.google.com/issues/179925896
   @ReactMethod
   suspend fun getAvailableCameraDevices(promise: Promise) {
-    return withSuspendablePromise(promise) {
+    return withPromise(promise) {
       val extensionsManager = ExtensionsManager.init(reactApplicationContext).await()
       val processCameraProvider = ProcessCameraProvider.getInstance(reactApplicationContext).await()
 
@@ -253,7 +253,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
         cameraDevices.pushMap(map)
       }
 
-      return@withSuspendablePromise cameraDevices
+      return@withPromise cameraDevices
     }
   }
 
