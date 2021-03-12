@@ -175,7 +175,8 @@ interface CameraState {
   cameraId?: string;
 }
 
-type RefType = React.Component<CameraProps> & Readonly<NativeMethods>;
+type NativeCameraViewProps = Omit<CameraProps, 'device'> & { cameraId: string };
+type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>;
 
 /**
  * ### A powerful `<Camera>` component.
@@ -531,6 +532,8 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * @internal
    */
   public render(): React.ReactNode {
+    if (this.state.cameraId == null) throw new Error('CameraId was null! Did you pass a valid `device`?');
+
     // We remove the big `device` object from the props because we only need to pass `cameraId` to native.
     const { device: _, ...props } = this.props;
     return (
@@ -549,7 +552,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
 }
 
 // requireNativeComponent automatically resolves 'CameraView' to 'CameraViewManager'
-const NativeCameraView = requireNativeComponent<CameraProps>(
+const NativeCameraView = requireNativeComponent<NativeCameraViewProps>(
   'CameraView',
   // @ts-expect-error because the type declarations are kinda wrong, no?
   Camera,
