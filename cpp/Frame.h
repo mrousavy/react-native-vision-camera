@@ -14,6 +14,7 @@ namespace vision {
 
 using namespace facebook;
 
+// TODO: Write some getters for the Frame so you can inspect/manage it in JS (this probably requires platform specific implementations instead of cpp/ only)
 class Frame: public jsi::HostObject {
 public:
   Frame(void* frame): frame(frame) {}
