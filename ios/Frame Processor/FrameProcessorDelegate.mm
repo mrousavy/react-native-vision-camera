@@ -38,10 +38,7 @@
 
 - (void) captureOutput:(AVCaptureOutput *)output didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection {
   NSLog(@"FrameProcessorDelegate: Camera frame arrived");
-  // TODO: Call [worklet] with the actual frame output buffer
-  
-  auto frame = vision::Frame(sampleBuffer);
-  frameProcessorCallback(frame);
+  frameProcessorCallback(sampleBuffer);
 }
 
 @end

@@ -7,5 +7,6 @@
 //
 
 #pragma once
+#import <CoreMedia/CMSampleBuffer.h>
 
 typedef void (^FrameProcessorCallback) (CMSampleBufferRef buffer);
