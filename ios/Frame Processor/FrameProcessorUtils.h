@@ -1,9 +1,19 @@
+//
+//  FrameProcessorUtils.h
+//  VisionCamera
+//
+//  Created by Marc Rousavy on 15.03.21.
+//  Copyright © 2021 Facebook. All rights reserved.
+//
+
+#pragma once
+
 #import <Foundation/Foundation.h>
 #import <React/RCTBridgeModule.h>
 #import "FrameProcessorCallback.h"
 
 #ifndef __cplusplus
-#error JSIUtil.h has to be compiled with C++!
+#error FrameProcessorUtils.h has to be compiled with C++!
 #endif
 
 #import <jsi/jsi.h>

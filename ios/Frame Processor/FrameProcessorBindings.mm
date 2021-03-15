@@ -14,7 +14,7 @@
 #import <ReactCommon/RCTTurboModuleManager.h>
 
 #import <jsi/jsi.h>
-#import "../JSI Utils/JSIUtils.h"
+#import "FrameProcessorUtils.h"
 #import "../../cpp/MakeJSIRuntime.h"
 #import "FrameProcessorDelegate.h"
 

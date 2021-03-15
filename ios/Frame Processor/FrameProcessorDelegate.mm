@@ -39,6 +39,7 @@
   NSLog(@"FrameProcessorDelegate: Camera frame arrived");
   // TODO: Call [worklet] with the actual frame output buffer
   
+  [sampleBuffer]
   frameProcessorCallback(42);
 }
 
