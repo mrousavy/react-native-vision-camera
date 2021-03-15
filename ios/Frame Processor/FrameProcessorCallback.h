@@ -8,4 +8,6 @@
 
 #pragma once
 
-typedef void (^FrameProcessorCallback) (int todo__frame);
+#include <jsi/jsi.h>
+
+typedef void (^FrameProcessorCallback) (facebook::jsi::HostObject frame);

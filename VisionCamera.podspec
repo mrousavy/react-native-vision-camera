@@ -29,7 +29,8 @@ Pod::Spec.new do |s|
     "ios/Frame Processor/FrameProcessorBindings.h",
     "ios/Frame Processor/FrameProcessorCallback.h",
     "ios/CameraBridge.h",
-    "cpp/**/*.{cpp}"
+    "cpp/**/*.{cpp}",
+    "cpp/Frame.h"
   ]
   # Any private headers that are not globally unique should be mentioned here.
   # Otherwise there will be a nameclash, since CocoaPods flattens out any header directories

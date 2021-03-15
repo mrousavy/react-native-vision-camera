@@ -8,6 +8,7 @@
 
 #import "FrameProcessorDelegate.h"
 #import <Foundation/Foundation.h>
+#import "../../cpp/Frame.h"
 
 //using namespace reanimated;
 
@@ -39,8 +40,8 @@
   NSLog(@"FrameProcessorDelegate: Camera frame arrived");
   // TODO: Call [worklet] with the actual frame output buffer
   
-  [sampleBuffer]
-  frameProcessorCallback(42);
+  auto frame = vision::Frame(sampleBuffer);
+  frameProcessorCallback(frame);
 }
 
 @end
