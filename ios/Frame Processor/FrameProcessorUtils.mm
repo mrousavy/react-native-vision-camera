@@ -6,16 +6,24 @@
 //  Copyright © 2021 Facebook. All rights reserved.
 //
 
-#include "FrameProcessorUtils.h"
+#import "FrameProcessorUtils.h"
 #import <CoreMedia/CMSampleBuffer.h>
-#include "../../cpp/Frame.h"
+#import "../../cpp/Frame.h"
+#import <chrono>
 
 FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &runtime, const jsi::Function &value) {
   __block auto cb = value.getFunction(runtime);
   
   return ^(CMSampleBufferRef buffer) {
-    NSLog(@"Calling jsi::Function Frame Processor with HostObject frame");
-    auto frame = vision::Frame(buffer);
-    cb.callWithThis(runtime, cb, jsi::Array::createWithElements(runtime, jsi::Value(42)), 1);
+    NSLog(@"Calling Frame Processor...");
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    
+    auto frame = std::make_shared<vision::Frame>(buffer);
+    auto object = jsi::Object::createFromHostObject(runtime, frame);
+    cb.callWithThis(runtime, cb, object);
+    
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
+    NSLog(@"Finished Frame Processor execution in %lld", duration.count());
   };
 }

@@ -16,7 +16,7 @@ using namespace facebook;
 
 class Frame: public jsi::HostObject {
 public:
-  Frame(void* frame);
+  Frame(void* frame): frame(frame) {}
   
 public:
   /**
