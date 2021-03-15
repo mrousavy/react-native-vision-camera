@@ -8,6 +8,4 @@
 
 #pragma once
 
-#include <jsi/jsi.h>
-
-typedef void (^FrameProcessorCallback) (facebook::jsi::HostObject frame);
+typedef void (^FrameProcessorCallback) (CMSampleBufferRef buffer);

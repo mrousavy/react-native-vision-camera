@@ -7,12 +7,14 @@
 //
 
 #include "FrameProcessorUtils.h"
+#include <CoreMedia/CoreMedia.h>
+#include "../../cpp/Frame.h"
 
 FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &runtime, const jsi::Function &value) {
   __block auto cb = value.getFunction(runtime);
   
-  return ^(jsi::HostObject frame) {
+  return ^(CMSampleBufferRef buffer) {
     NSLog(@"Calling jsi::Function Frame Processor with HostObject frame");
-    cb.callWithThis(runtime, cb, jsi::Array::createWithElements(runtime, frame), 1);
+    cb.callWithThis(runtime, cb, vision::Frame(buffer), 1);
   };
 }

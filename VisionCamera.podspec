@@ -30,7 +30,8 @@ Pod::Spec.new do |s|
     "ios/Frame Processor/FrameProcessorCallback.h",
     "ios/CameraBridge.h",
     "cpp/**/*.{cpp}",
-    "cpp/Frame.h"
+    # TODO: Find a way to include this header for other libs to use, while still allowing the Swift Umbrella Header to compile
+    # "cpp/Frame.h"
   ]
   # Any private headers that are not globally unique should be mentioned here.
   # Otherwise there will be a nameclash, since CocoaPods flattens out any header directories
