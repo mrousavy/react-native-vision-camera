@@ -8,7 +8,7 @@
 
 import Foundation
 
-let context = "Camera"
+let context = "VisionCamera"
 
 // MARK: - ReactLogger
 
