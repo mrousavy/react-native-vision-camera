@@ -57,7 +57,7 @@ final class CameraView: UIView {
 
   // pragma MARK: Props updating
   override final func didSetProps(_ changedProps: [String]!) {
-    ReactLogger.log(level: .info, message: "Updating \(changedProps.count) props...")
+    ReactLogger.log(level: .info, message: "Updating \(changedProps.count) prop(s)...")
     let shouldReconfigure = changedProps.contains { propsThatRequireReconfiguration.contains($0) }
     let shouldReconfigureFormat = shouldReconfigure || changedProps.contains("format")
     let shouldReconfigureDevice = shouldReconfigureFormat || changedProps.contains { propsThatRequireDeviceReconfiguration.contains($0) }
@@ -104,6 +104,12 @@ final class CameraView: UIView {
         }
       }
     }
+  }
+
+  override func removeFromSuperview() {
+    ReactLogger.log(level: .info, message: "Removing Camera View...")
+    captureSession.stopRunning()
+    super.removeFromSuperview()
   }
 
   // MARK: Internal
@@ -173,12 +179,6 @@ final class CameraView: UIView {
     return layer as! AVCaptureVideoPreviewLayer
   }
 
-  override func removeFromSuperview() {
-    ReactLogger.log(level: .info, message: "Removing Camera View...")
-    captureSession.stopRunning()
-    super.removeFromSuperview()
-  }
-
   @objc
   func sessionRuntimeError(notification: Notification) {
     ReactLogger.log(level: .error, message: "Unexpected Camera Runtime Error occured!")
@@ -232,7 +232,7 @@ final class CameraView: UIView {
 
   // pragma MARK: Event Invokers
   internal final func invokeOnError(_ error: CameraError, cause: NSError? = nil) {
-    ReactLogger.log(level: .error, message: error.message, alsoLogToJS: true)
+    ReactLogger.log(level: .error, message: "Invoking onError(): \(error.message)", alsoLogToJS: true)
     guard let onError = self.onError else { return }
 
     var causeDictionary: [String: Any]?

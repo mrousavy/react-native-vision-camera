@@ -7,7 +7,7 @@
 --disable wrapMultilineStatementBraces
 
 --enable organizeDeclarations
---lifecycle didSetProps,requiresMainQueueSetup,view,methodQueue,getCameraView
+--lifecycle didSetProps,requiresMainQueueSetup,view,methodQueue,getCameraView,removeFromSuperview
 
 --enable markTypes
 
