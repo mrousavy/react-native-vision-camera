@@ -23,14 +23,6 @@ extension AVCaptureDevice.DeviceType {
         break
       }
     }
-    if #available(iOS 11.1, *) {
-      switch self {
-      case .builtInTrueDepthCamera:
-        return "true-depth-camera"
-      default:
-        break
-      }
-    }
     switch self {
     case .builtInDualCamera:
       return "dual-camera"
@@ -39,6 +31,7 @@ extension AVCaptureDevice.DeviceType {
     case .builtInWideAngleCamera:
       return "wide-angle-camera"
     default:
+      // e.g. `.builtInTrueDepthCamera`
       fatalError("AVCaptureDevice.Position has unknown state.")
     }
   }

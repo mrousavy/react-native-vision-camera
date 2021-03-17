@@ -89,7 +89,14 @@ final class CameraViewManager: RCTViewManager {
   final func getAvailableCameraDevices(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     withPromise(resolve: resolve, reject: reject) {
       let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: getAllDeviceTypes(), mediaType: .video, position: .unspecified)
-      return discoverySession.devices.map {
+      let devices = discoverySession.devices.filter({
+        if #available(iOS 11.1, *) {
+          // exclude the true-depth camera. The True-Depth camera has YUV and Infrared, can't take photos!
+          return $0.deviceType != .builtInTrueDepthCamera
+        }
+        return true
+      })
+      return devices.map {
         return [
           "id": $0.uniqueID,
           "devices": $0.physicalDevices.map(\.deviceType.descriptor),
