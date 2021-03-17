@@ -57,9 +57,11 @@ final class CameraView: UIView {
 
   // pragma MARK: Props updating
   override final func didSetProps(_ changedProps: [String]!) {
+    ReactLogger.log(level: .info, message: "Updating \(changedProps.count) prop(s)...")
     let shouldReconfigure = changedProps.contains { propsThatRequireReconfiguration.contains($0) }
     let shouldReconfigureFormat = shouldReconfigure || changedProps.contains("format")
     let shouldReconfigureDevice = shouldReconfigureFormat || changedProps.contains { propsThatRequireDeviceReconfiguration.contains($0) }
+    ReactLogger.log(level: .info, message: "Reconfiguring \(shouldReconfigure ? "everything" : (shouldReconfigureFormat ? "format" : shouldReconfigureDevice ? "device" : "only dynamics"))...")
 
     let willReconfigure = shouldReconfigure || shouldReconfigureFormat || shouldReconfigureDevice
 
@@ -88,9 +90,14 @@ final class CameraView: UIView {
 
         if shouldCheckActive && self.captureSession.isRunning != self.isActive {
           if self.isActive {
+            ReactLogger.log(level: .info, message: "Starting Session...")
+            self.configureAudioSession()
             self.captureSession.startRunning()
+            ReactLogger.log(level: .info, message: "Starting Session!")
           } else {
+            ReactLogger.log(level: .info, message: "Stopping Session...")
             self.captureSession.stopRunning()
+            ReactLogger.log(level: .info, message: "Stopped Session!")
           }
         }
 
@@ -102,6 +109,12 @@ final class CameraView: UIView {
         }
       }
     }
+  }
+
+  override func removeFromSuperview() {
+    ReactLogger.log(level: .info, message: "Removing Camera View...")
+    captureSession.stopRunning()
+    super.removeFromSuperview()
   }
 
   // MARK: Internal
@@ -171,13 +184,9 @@ final class CameraView: UIView {
     return layer as! AVCaptureVideoPreviewLayer
   }
 
-  override func removeFromSuperview() {
-    captureSession.stopRunning()
-    super.removeFromSuperview()
-  }
-
   @objc
   func sessionRuntimeError(notification: Notification) {
+    ReactLogger.log(level: .error, message: "Unexpected Camera Runtime Error occured!")
     guard let error = notification.userInfo?[AVCaptureSessionErrorKey] as? AVError else {
       return
     }
@@ -228,7 +237,7 @@ final class CameraView: UIView {
 
   // pragma MARK: Event Invokers
   internal final func invokeOnError(_ error: CameraError, cause: NSError? = nil) {
-    ReactLogger.log(level: .error, message: error.localizedDescription, alsoLogToJS: true)
+    ReactLogger.log(level: .error, message: "Invoking onError(): \(error.message)", alsoLogToJS: true)
     guard let onError = self.onError else { return }
 
     var causeDictionary: [String: Any]?
@@ -248,7 +257,7 @@ final class CameraView: UIView {
   }
 
   internal final func invokeOnInitialized() {
-    ReactLogger.log(level: .info, message: "Camera onInitialized()", alsoLogToJS: true)
+    ReactLogger.log(level: .info, message: "Camera initialized!", alsoLogToJS: true)
     guard let onInitialized = self.onInitialized else { return }
     onInitialized([String: Any]())
   }
@@ -259,9 +268,40 @@ final class CameraView: UIView {
 
   // pragma MARK: Session, Device and Format Configuration
   /**
+   Configures the Audio session to allow background-music playback while recording.
+   */
+  private final func configureAudioSession() {
+    let start = DispatchTime.now()
+    let audioSession = AVAudioSession.sharedInstance()
+    do {
+      if captureSession.automaticallyConfiguresApplicationAudioSession {
+        captureSession.beginConfiguration()
+        captureSession.automaticallyConfiguresApplicationAudioSession = false
+        captureSession.commitConfiguration()
+      }
+      if audioSession.category != .playAndRecord {
+        // allow background music playback
+        try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playAndRecord, options: [.mixWithOthers, .allowBluetooth, .defaultToSpeaker])
+      }
+      // activate current audio session because camera is active
+      try AVAudioSession.sharedInstance().setActive(true)
+    } catch let error as NSError {
+      self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.localizedDescription)), cause: error)
+      captureSession.beginConfiguration()
+      captureSession.automaticallyConfiguresApplicationAudioSession = true
+      captureSession.commitConfiguration()
+    }
+    let end = DispatchTime.now()
+    let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
+    ReactLogger.log(level: .info, message: "Configured Audio session in \(Double(nanoTime) / 1_000_000)ms!")
+    
+  }
+  
+  /**
    Configures the Capture Session.
    */
   private final func configureCaptureSession() {
+    ReactLogger.logJS(level: .info, message: "Configuring Session...")
     isReady = false
 
     #if targetEnvironment(simulator)
@@ -299,17 +339,6 @@ final class CameraView: UIView {
     }
 
     // INPUTS
-    // Audio Setup
-    do {
-      captureSession.automaticallyConfiguresApplicationAudioSession = false
-      try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playAndRecord, options: [.mixWithOthers, .allowBluetooth, .defaultToSpeaker])
-      try AVAudioSession.sharedInstance().setActive(true)
-    } catch let error as NSError {
-      // not critical, so don't return
-      invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)))
-      captureSession.automaticallyConfiguresApplicationAudioSession = true // fallback to auto-setup
-    }
-
     // Video Input
     do {
       if let videoDeviceInput = self.videoDeviceInput {
@@ -408,15 +437,16 @@ final class CameraView: UIView {
       metadataOutput!.metadataObjectTypes = objectTypes
     }
 
-    ReactLogger.log(level: .info, message: "Camera initialized!")
     invokeOnInitialized()
     isReady = true
+    ReactLogger.logJS(level: .info, message: "Session successfully configured!")
   }
 
   /**
    Configures the Video Device to find the best matching Format.
    */
   private final func configureFormat() {
+    ReactLogger.logJS(level: .info, message: "Configuring Format...")
     guard let filter = self.format else {
       // Format Filter was null. Ignore it.
       return
@@ -440,6 +470,7 @@ final class CameraView: UIView {
       try device.lockForConfiguration()
       device.activeFormat = format
       device.unlockForConfiguration()
+      ReactLogger.logJS(level: .info, message: "Format successfully configured!")
     } catch let error as NSError {
       return invokeOnError(.device(.configureError), cause: error)
     }
@@ -449,6 +480,7 @@ final class CameraView: UIView {
    Configures the Video Device with the given FPS, HDR and ColorSpace.
    */
   private final func configureDevice() {
+    ReactLogger.logJS(level: .info, message: "Configuring Device...")
     guard let device = videoDeviceInput?.device else {
       return invokeOnError(.session(.cameraNotReady))
     }
@@ -487,6 +519,7 @@ final class CameraView: UIView {
       }
 
       device.unlockForConfiguration()
+      ReactLogger.logJS(level: .info, message: "Device successfully configured!")
     } catch let error as NSError {
       return invokeOnError(.device(.configureError), cause: error)
     }
