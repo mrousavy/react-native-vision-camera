@@ -6,6 +6,8 @@
 //  Copyright © 2020 Facebook. All rights reserved.
 //
 
+// swiftlint:disable file_length
+
 import AVFoundation
 import Foundation
 import UIKit
@@ -294,9 +296,8 @@ final class CameraView: UIView {
     let end = DispatchTime.now()
     let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
     ReactLogger.log(level: .info, message: "Configured Audio session in \(Double(nanoTime) / 1_000_000)ms!")
-    
   }
-  
+
   /**
    Configures the Capture Session.
    */
