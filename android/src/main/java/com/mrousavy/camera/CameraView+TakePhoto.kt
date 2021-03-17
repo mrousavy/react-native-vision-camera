@@ -22,12 +22,6 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
   Log.d(CameraView.REACT_CLASS, "takePhoto() called")
   val imageCapture = imageCapture ?: throw CameraNotReadyError()
 
-  if (options.hasKey("photoCodec")) {
-    // TODO photoCodec
-  }
-  if (options.hasKey("qualityPrioritization")) {
-    // TODO qualityPrioritization
-  }
   if (options.hasKey("flash")) {
     val flashMode = options.getString("flash")
     imageCapture.flashMode = when (flashMode) {
@@ -36,6 +30,13 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
       "auto" -> ImageCapture.FLASH_MODE_AUTO
       else -> throw InvalidTypeScriptUnionError("flash", flashMode ?: "(null)")
     }
+  }
+  // All those options are not yet implemented - see https://github.com/cuvent/react-native-vision-camera/issues/75
+  if (options.hasKey("photoCodec")) {
+    // TODO photoCodec
+  }
+  if (options.hasKey("qualityPrioritization")) {
+    // TODO qualityPrioritization
   }
   if (options.hasKey("enableAutoRedEyeReduction")) {
     // TODO enableAutoRedEyeReduction
@@ -56,7 +57,7 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
 
   val camera2Info = Camera2CameraInfo.from(camera!!.cameraInfo)
   val lensFacing = camera2Info.getCameraCharacteristic(CameraCharacteristics.LENS_FACING)
-  // TODO: Flip image if lens is front side
+  // TODO: Flip image if lens is front side - see https://github.com/cuvent/react-native-vision-camera/issues/74
 
   val results = awaitAll(
     async(coroutineContext) {

@@ -15,9 +15,6 @@ import UIKit
 //
 // TODOs for the CameraView which are currently too hard to implement either because of AVFoundation's limitations, or my brain capacity
 //
-// CameraView
-// TODO: enableSmoothAutoFocus
-
 // CameraView+RecordVideo
 // TODO: Better startRecording()/stopRecording() (promise + callback, wait for TurboModules/JSI)
 // TODO: videoStabilizationMode

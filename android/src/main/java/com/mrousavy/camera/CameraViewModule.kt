@@ -223,10 +223,10 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
             val colorSpaces = Arguments.createArray()
             colorSpaces.pushString("yuv")
 
-            // TODO Revisit getAvailableCameraDevices (more accurate video stabilization modes)
             val videoStabilizationModes = Arguments.createArray()
-            if (stabilizationModes.contains(CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_OFF))
+            if (stabilizationModes.contains(CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_OFF)) {
               videoStabilizationModes.pushString("off")
+            }
             if (stabilizationModes.contains(CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_ON)) {
               videoStabilizationModes.pushString("auto")
               videoStabilizationModes.pushString("standard")

@@ -99,7 +99,6 @@ class CameraViewManager : SimpleViewManager<CameraView>() {
   fun setTorch(view: CameraView, torch: String) {
     if (view.torch != torch)
       addChangedPropToTransaction(view, "torch")
-    // TODO: why THE FUCK is this not being called?
     view.torch = torch
   }
 
@@ -107,7 +106,6 @@ class CameraViewManager : SimpleViewManager<CameraView>() {
   fun setZoom(view: CameraView, zoom: Double) {
     if (view.zoom != zoom)
       addChangedPropToTransaction(view, "zoom")
-    // TODO: why THE FUCK is this not being called?
     view.zoom = zoom
   }
 

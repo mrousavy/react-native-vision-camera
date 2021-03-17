@@ -31,40 +31,25 @@ import java.util.concurrent.Executors
 import kotlin.math.max
 import kotlin.math.min
 
-// CaptureRequest.java
-// TODO: CONTROL_AE_ANTIBANDING_MODE (60Hz, 50Hz lights)
-// TODO: CONTROL_AE_MODE for RedEye reduction
-// TODO: CONTROL_AE_TARGET_FPS_RANGE if FPS changes
-// TODO: CONTROL_CAPTURE_INTENT for prioritization (Preview, Still Capture, Video recording)
-// TODO: CONTROL_EFFECT_MODE for color filters/effects
-// TODO: CONTROL_SCENE_MODE contains HDR, do I need that?
-// TODO: CONTROL_VIDEO_STABILIZATION_MODE and STATISTICS_OIS_DATA_MODE for stabilization techniques
-// TODO: CONTROL_ENABLE_ZSL for Zero Shutter Lag (speed prio)
-// TODO: EDGE_MODE not sure what that is
-// TODO: JPEG_xxx other JPEG options
-// TODO: NOISE_REDUCTION_MODE also maybe ZSL
-// TODO: SCALER_CROP_REGION for digital zoom
-// TODO: SENSOR_FRAME_DURATION for FPS
-
 //
 // TODOs for the CameraView which are currently too hard to implement either because of CameraX' limitations, or my brain capacity.
 //
 // CameraView
+// TODO: Actually use correct sizes for video and photo (currently it's both the video size)
 // TODO: Configurable FPS higher than 30
 // TODO: High-speed video recordings (export in CameraViewModule::getAvailableVideoDevices(), and set in CameraView::configurePreview()) (120FPS+)
-// TODO: configureSession() Use format (photoWidth/photoHeight)
 // TODO: configureSession() enableDepthData
 // TODO: configureSession() enableHighResolutionCapture
 // TODO: configureSession() enablePortraitEffectsMatteDelivery
-// TODO: configureSession() scannableCodes | onCodeScanned
 // TODO: configureSession() colorSpace
 
 // CameraView+RecordVideo
 // TODO: Better startRecording()/stopRecording() (promise + callback, wait for TurboModules/JSI)
 // TODO: videoStabilizationMode
-// TODO: Video HDR
+// TODO: Return Video size/duration
 
 // CameraView+TakePhoto
+// TODO: Mirror selfie images
 // TODO: takePhoto() depth data
 // TODO: takePhoto() raw capture
 // TODO: takePhoto() photoCodec ("hevc" | "jpeg" | "raw")

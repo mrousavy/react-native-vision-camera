@@ -138,12 +138,12 @@ export interface CameraProps extends ViewProps {
 
   // TODO: Remove once frameProcessors land
   /**
-   * Specify the code types this camera can scan.
+   * Specify the code types this camera can scan. Will be removed with the addition of Frame Processors.
    */
   scannableCodes?: CodeType[];
   // TODO: Remove once frameProcessors land
   /**
-   * Called when one or multiple codes have been scanned.
+   * Called when one or multiple codes have been scanned. Will be removed with the addition of Frame Processors.
    */
   onCodeScanned?: (codes: Code[]) => void;
   //#endregion
