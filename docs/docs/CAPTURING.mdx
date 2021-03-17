@@ -76,7 +76,7 @@ camera.current.startRecording({
 })
 ```
 
-For any error that occured _while recording the video_, the `onRecordingError` callback will be invoked with a [`CaptureError`](api/classes/captureerror-1) and the recording is therefore cancelled.
+For any error that occured _while recording the video_, the `onRecordingError` callback will be invoked with a [`CaptureError`](api/classes/cameraerror.cameracaptureerror) and the recording is therefore cancelled.
 
 :::note
 Due to limitations of the React Native Bridge, this function can not be awaited. This means, any errors thrown while trying to start the recording (e.g. `capture/recording-in-progress`) can only be caught synchronously (`isBlockingSynchronousMethod`). This will change with the upcoming React Native Re-Architecture.
