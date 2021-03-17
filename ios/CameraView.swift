@@ -90,9 +90,14 @@ final class CameraView: UIView {
 
         if shouldCheckActive && self.captureSession.isRunning != self.isActive {
           if self.isActive {
+            ReactLogger.log(level: .info, message: "Starting Session...")
+            self.configureAudioSession()
             self.captureSession.startRunning()
+            ReactLogger.log(level: .info, message: "Starting Session!")
           } else {
+            ReactLogger.log(level: .info, message: "Stopping Session...")
             self.captureSession.stopRunning()
+            ReactLogger.log(level: .info, message: "Stopped Session!")
           }
         }
 
@@ -263,6 +268,36 @@ final class CameraView: UIView {
 
   // pragma MARK: Session, Device and Format Configuration
   /**
+   Configures the Audio session to allow background-music playback while recording.
+   */
+  private final func configureAudioSession() {
+    let start = DispatchTime.now()
+    let audioSession = AVAudioSession.sharedInstance()
+    do {
+      if captureSession.automaticallyConfiguresApplicationAudioSession {
+        captureSession.beginConfiguration()
+        captureSession.automaticallyConfiguresApplicationAudioSession = false
+        captureSession.commitConfiguration()
+      }
+      if audioSession.category != .playAndRecord {
+        // allow background music playback
+        try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playAndRecord, options: [.mixWithOthers, .allowBluetooth, .defaultToSpeaker])
+      }
+      // activate current audio session because camera is active
+      try AVAudioSession.sharedInstance().setActive(true)
+    } catch let error as NSError {
+      self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.localizedDescription)), cause: error)
+      captureSession.beginConfiguration()
+      captureSession.automaticallyConfiguresApplicationAudioSession = true
+      captureSession.commitConfiguration()
+    }
+    let end = DispatchTime.now()
+    let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
+    ReactLogger.log(level: .info, message: "Configured Audio session in \(Double(nanoTime) / 1_000_000)ms!")
+    
+  }
+  
+  /**
    Configures the Capture Session.
    */
   private final func configureCaptureSession() {
@@ -304,17 +339,6 @@ final class CameraView: UIView {
     }
 
     // INPUTS
-    // Audio Setup
-    do {
-      captureSession.automaticallyConfiguresApplicationAudioSession = false
-      try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playAndRecord, options: [.mixWithOthers, .allowBluetooth, .defaultToSpeaker])
-      try AVAudioSession.sharedInstance().setActive(true)
-    } catch let error as NSError {
-      // not critical, so don't return
-      invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)))
-      captureSession.automaticallyConfiguresApplicationAudioSession = true // fallback to auto-setup
-    }
-
     // Video Input
     do {
       if let videoDeviceInput = self.videoDeviceInput {
