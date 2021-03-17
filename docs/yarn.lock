@@ -1197,14 +1197,7 @@
     core-js-pure "^3.0.0"
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.1.2", "@babel/runtime@^7.10.3", "@babel/runtime@^7.12.1", "@babel/runtime@^7.12.5", "@babel/runtime@^7.8.4":
-  version "7.13.9"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.13.9.tgz#97dbe2116e2630c489f22e0656decd60aaa1fcee"
-  integrity sha512-aY2kU+xgJ3dJ1eU6FMB9EH8dIe8dmusF1xEku52joLvw6eAFN0AI+WxCLDnpev2LEejWBAy2sBvBOBAjI3zmvA==
-  dependencies:
-    regenerator-runtime "^0.13.4"
-
-"@babel/runtime@^7.10.2":
+"@babel/runtime@^7.1.2", "@babel/runtime@^7.10.2", "@babel/runtime@^7.10.3", "@babel/runtime@^7.12.1", "@babel/runtime@^7.12.5", "@babel/runtime@^7.8.4":
   version "7.13.10"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.13.10.tgz#47d42a57b6095f4468da440388fdbad8bebf0d7d"
   integrity sha512-4QPkjJq6Ns3V/RgpEahRk+AGfL0eO6RHHtTWoNNr5mO49G6B5+X6d6THgWEAvTrznU5xYpbAlVKRYcsCgh/Akw==
@@ -1355,10 +1348,103 @@
     webpack-merge "^4.2.2"
     webpackbar "^5.0.0-3"
 
+"@docusaurus/core@2.0.0-alpha.72":
+  version "2.0.0-alpha.72"
+  resolved "https://registry.yarnpkg.com/@docusaurus/core/-/core-2.0.0-alpha.72.tgz#f1acff2d84b3cbca9c35906186c49ba16d019ce3"
+  integrity sha512-PV0rlvVRvVEdqs1I4PktwZBJkhFg4O4bVeqseaTYuA1u/poQSiiZ+rhrZRJ+/OcTHZ8VlYZw7tCHaRH4RLbP2g==
+  dependencies:
+    "@babel/core" "^7.12.16"
+    "@babel/generator" "^7.12.15"
+    "@babel/plugin-proposal-nullish-coalescing-operator" "^7.12.13"
+    "@babel/plugin-proposal-optional-chaining" "^7.12.16"
+    "@babel/plugin-syntax-dynamic-import" "^7.8.3"
+    "@babel/plugin-transform-runtime" "^7.12.15"
+    "@babel/preset-env" "^7.12.16"
+    "@babel/preset-react" "^7.12.13"
+    "@babel/preset-typescript" "^7.12.16"
+    "@babel/runtime" "^7.12.5"
+    "@babel/runtime-corejs3" "^7.12.13"
+    "@babel/traverse" "^7.12.13"
+    "@docusaurus/cssnano-preset" "2.0.0-alpha.72"
+    "@docusaurus/react-loadable" "5.5.0"
+    "@docusaurus/types" "2.0.0-alpha.72"
+    "@docusaurus/utils" "2.0.0-alpha.72"
+    "@docusaurus/utils-validation" "2.0.0-alpha.72"
+    "@endiliey/static-site-generator-webpack-plugin" "^4.0.0"
+    "@svgr/webpack" "^5.5.0"
+    autoprefixer "^10.2.5"
+    babel-loader "^8.2.2"
+    babel-plugin-dynamic-import-node "2.3.0"
+    boxen "^5.0.0"
+    cache-loader "^4.1.0"
+    chalk "^4.1.0"
+    chokidar "^3.5.1"
+    clean-css "^5.1.1"
+    commander "^5.1.0"
+    copy-webpack-plugin "^6.4.1"
+    core-js "^3.9.1"
+    css-loader "^5.1.1"
+    del "^6.0.0"
+    detect-port "^1.3.0"
+    eta "^1.12.1"
+    express "^4.17.1"
+    file-loader "^6.2.0"
+    fs-extra "^9.1.0"
+    github-slugger "^1.3.0"
+    globby "^11.0.2"
+    html-minifier-terser "^5.1.1"
+    html-tags "^3.1.0"
+    html-webpack-plugin "^4.5.0"
+    import-fresh "^3.3.0"
+    is-root "^2.1.0"
+    joi "^17.4.0"
+    leven "^3.1.0"
+    lodash "^4.17.20"
+    mini-css-extract-plugin "^0.8.0"
+    module-alias "^2.2.2"
+    nprogress "^0.2.0"
+    null-loader "^4.0.0"
+    optimize-css-assets-webpack-plugin "^5.0.4"
+    pnp-webpack-plugin "^1.6.4"
+    postcss "^8.2.7"
+    postcss-loader "^4.1.0"
+    postcss-preset-env "^6.7.0"
+    prompts "^2.4.0"
+    react-dev-utils "^11.0.1"
+    react-helmet "^6.1.0"
+    react-loadable "^5.5.0"
+    react-loadable-ssr-addon "^0.3.0"
+    react-router "^5.2.0"
+    react-router-config "^5.1.1"
+    react-router-dom "^5.2.0"
+    resolve-pathname "^3.0.0"
+    semver "^7.3.4"
+    serve-handler "^6.1.3"
+    shelljs "^0.8.4"
+    std-env "^2.2.1"
+    terser-webpack-plugin "^4.1.0"
+    update-notifier "^5.1.0"
+    url-loader "^4.1.1"
+    wait-on "^5.2.1"
+    webpack "^4.44.1"
+    webpack-bundle-analyzer "^4.4.0"
+    webpack-dev-server "^3.11.2"
+    webpack-merge "^4.2.2"
+    webpackbar "^5.0.0-3"
+
 "@docusaurus/cssnano-preset@2.0.0-alpha.71":
   version "2.0.0-alpha.71"
   resolved "https://registry.yarnpkg.com/@docusaurus/cssnano-preset/-/cssnano-preset-2.0.0-alpha.71.tgz#0830ff219fec685b64236b896b552c129f358db5"
   integrity sha512-MAoCfubVuNFpPW878j6nXlhSfV+BYS0Z8gxLKqSsZvaURoXiCF3dFzO2KAOqEqw1lKESuKoLL+Odvb8jfPgjWg==
+  dependencies:
+    cssnano-preset-advanced "^4.0.7"
+    postcss "^7.0.2"
+    postcss-sort-media-queries "^1.7.26"
+
+"@docusaurus/cssnano-preset@2.0.0-alpha.72":
+  version "2.0.0-alpha.72"
+  resolved "https://registry.yarnpkg.com/@docusaurus/cssnano-preset/-/cssnano-preset-2.0.0-alpha.72.tgz#03433315207b5f43f5ba280a75b8c00f2e02b461"
+  integrity sha512-7W/dlemTaipVd/zrd9Fjq/xp6IX/qn2z/GDaPbJ2SPklHbts5nWuRAt++wkG8Ue+Qxc9Q5uOBjW0ihVb4478+A==
   dependencies:
     cssnano-preset-advanced "^4.0.7"
     postcss "^7.0.2"
@@ -1580,12 +1666,32 @@
     querystring "0.2.0"
     webpack-merge "^4.2.2"
 
+"@docusaurus/types@2.0.0-alpha.72":
+  version "2.0.0-alpha.72"
+  resolved "https://registry.yarnpkg.com/@docusaurus/types/-/types-2.0.0-alpha.72.tgz#5805b0536d584b67b914b937b0f08b17a47b8c18"
+  integrity sha512-/AfFD2Kdfm2rvG5j1v0w0L5gVuTPIE2vGOgLZh6EGzJT/Xx6CDdso9aAbhHiGfQkQS3bu1BPpLWqKlX9Ovi/aw==
+  dependencies:
+    "@types/webpack" "^4.41.0"
+    commander "^5.1.0"
+    joi "^17.4.0"
+    querystring "0.2.0"
+    webpack-merge "^4.2.2"
+
 "@docusaurus/utils-validation@2.0.0-alpha.71":
   version "2.0.0-alpha.71"
   resolved "https://registry.yarnpkg.com/@docusaurus/utils-validation/-/utils-validation-2.0.0-alpha.71.tgz#e60462cf309c31f6ee9247f71eab9c72ada1fce8"
   integrity sha512-+bps3QZrZ72OWmH8DhC1PsZBn2uWJWEOKAqM6Y/c/24Ka+ptUzUVfCwb62YKhZZiitXp2JgmAsLq3ly9aVdD7w==
   dependencies:
     "@docusaurus/utils" "2.0.0-alpha.71"
+    chalk "^4.1.0"
+    joi "^17.4.0"
+
+"@docusaurus/utils-validation@2.0.0-alpha.72":
+  version "2.0.0-alpha.72"
+  resolved "https://registry.yarnpkg.com/@docusaurus/utils-validation/-/utils-validation-2.0.0-alpha.72.tgz#38f2fa7907a57e3c5a1427b6ba0a514df1ea1d48"
+  integrity sha512-qhpyCVCCCTy0ui62GxXz6vLazcRCGal/jBGcgnxSgQ4AyXrU2NpPQH2hunOLknL6D3BivTb+w+IAFHE9JAMX0Q==
+  dependencies:
+    "@docusaurus/utils" "2.0.0-alpha.72"
     chalk "^4.1.0"
     joi "^17.4.0"
 
@@ -1602,6 +1708,20 @@
     gray-matter "^4.0.2"
     intl "^1.2.5"
     intl-locales-supported "^1.8.12"
+    lodash "^4.17.20"
+    resolve-pathname "^3.0.0"
+
+"@docusaurus/utils@2.0.0-alpha.72":
+  version "2.0.0-alpha.72"
+  resolved "https://registry.yarnpkg.com/@docusaurus/utils/-/utils-2.0.0-alpha.72.tgz#04469cd9fee615d76b74b01680368af41129e916"
+  integrity sha512-seWNBdX9LI1jREiogh0azXZaf2HStzb3MECsjAVrtEikQFbfG7K7S27C9WXDlUeQw6LVL/q0JEjHFOJD+cTSLA==
+  dependencies:
+    "@docusaurus/types" "2.0.0-alpha.72"
+    "@types/github-slugger" "^1.3.0"
+    chalk "^4.1.0"
+    escape-string-regexp "^4.0.0"
+    fs-extra "^9.1.0"
+    gray-matter "^4.0.2"
     lodash "^4.17.20"
     resolve-pathname "^3.0.0"
 
