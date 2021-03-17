@@ -37,7 +37,7 @@
     "bootstrap": "yarn example && yarn && yarn pods",
     "check-android": "scripts/ktlint.sh",
     "check-ios": "scripts/swiftformat.sh && scripts/swiftlint.sh",
-    "check-all": "scripts/checkall.sh",
+    "check-all": "scripts/check-all.sh",
     "docs": "cd docs && yarn build"
   },
   "keywords": [

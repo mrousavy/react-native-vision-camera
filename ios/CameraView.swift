@@ -15,8 +15,6 @@ import UIKit
 //
 // CameraView
 // TODO: enableSmoothAutoFocus
-// TODO: enableLowLightBoost
-// TODO: focus(x, y)
 
 // CameraView+RecordVideo
 // TODO: Better startRecording()/stopRecording() (promise + callback, wait for TurboModules/JSI)
