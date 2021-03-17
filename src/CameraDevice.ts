@@ -220,15 +220,20 @@ export interface CameraDevice {
    * Whether this camera device supports low light boost.
    */
   supportsLowLightBoost: boolean;
-
-  // TODO: supportsDepthCapture
-  // /**
-  //  * Whether this camera supports taking photos with depth data
-  //  */
-  // supportsDepthCapture: boolean;
-  // TODO: supportsRawCapture
-  // /**
-  //  * Whether this camera supports taking photos in RAW format
-  //  */
-  // supportsRawCapture: boolean;
+  /**
+   * Whether this camera supports taking photos with depth data.
+   *
+   * **! Work in Progress !**
+   */
+  supportsDepthCapture: boolean;
+  /**
+   * Whether this camera supports taking photos in RAW format
+   *
+   * **! Work in Progress !**
+   */
+  supportsRawCapture: boolean;
+  /**
+   * Specifies whether this device supports focussing ({@linkcode Camera.focus | Camera.focus(...)})
+   */
+  supportsFocus: boolean;
 }
