@@ -15,9 +15,8 @@ export type PhysicalCameraDeviceType = 'ultra-wide-angle-camera' | 'wide-angle-c
  * * `"dual-camera"`: A combination of wide-angle and telephoto cameras that creates a capture device.
  * * `"dual-wide-camera"`: A device that consists of two cameras of fixed focal length, one ultrawide angle and one wide angle.
  * * `"triple-camera"`: A device that consists of three cameras of fixed focal length, one ultrawide angle, one wide angle, and one telephoto.
- * * `"true-depth-camera"`: A combination of cameras and other sensors that creates a capture device capable of photo, video, and depth capture.
  */
-export type LogicalCameraDeviceType = 'dual-camera' | 'dual-wide-camera' | 'triple-camera' | 'true-depth-camera';
+export type LogicalCameraDeviceType = 'dual-camera' | 'dual-wide-camera' | 'triple-camera';
 
 /**
  * Parses an array of physical device types into a single {@linkcode PhysicalCameraDeviceType} or {@linkcode LogicalCameraDeviceType}, depending what matches.
