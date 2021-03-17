@@ -184,6 +184,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
           map.putBoolean("supportsRawCapture", supportsRawCapture)
           map.putBoolean("supportsDepthCapture", supportsDepthCapture)
           map.putBoolean("supportsLowLightBoost", supportsLowLightBoost)
+          map.putBoolean("supportsFocus", true) // I believe every device here supports focussing
           if (zoomRange != null) {
             map.putDouble("minZoom", zoomRange.lower.toDouble())
             map.putDouble("maxZoom", zoomRange.upper.toDouble())
