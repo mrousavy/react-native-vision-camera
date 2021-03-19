@@ -132,26 +132,29 @@ final class CameraView: UIView {
 
   // pragma MARK: Exported Properties
   // props that require reconfiguring
-  @objc var cameraId: NSString?
-  @objc var enableDepthData = false
-  @objc var enableHighResolutionCapture: NSNumber? // nullable bool
-  @objc var enablePortraitEffectsMatteDelivery = false
-  @objc var preset: String?
-  @objc var scannableCodes: [String]?
+  @objc public var cameraId: NSString?
+  @objc public var enableDepthData = false
+  @objc public var enableHighResolutionCapture: NSNumber? // nullable bool
+  @objc public var enablePortraitEffectsMatteDelivery = false
+  @objc public var preset: String?
+  @objc public var scannableCodes: [String]?
   // props that require format reconfiguring
-  @objc var format: NSDictionary?
-  @objc var fps: NSNumber?
-  @objc var hdr: NSNumber? // nullable bool
-  @objc var lowLightBoost: NSNumber? // nullable bool
-  @objc var colorSpace: NSString?
+  @objc public var format: NSDictionary?
+  @objc public var fps: NSNumber?
+  @objc public var hdr: NSNumber? // nullable bool
+  @objc public var lowLightBoost: NSNumber? // nullable bool
+  @objc public var colorSpace: NSString?
   // other props
-  @objc var isActive = false
-  @objc var torch = "off"
-  @objc var zoom: NSNumber = 0.0 // in percent
+  @objc public var isActive = false
+  @objc public var torch = "off"
+  @objc public var zoom: NSNumber = 0.0 // in percent
   // events
-  @objc var onInitialized: RCTDirectEventBlock?
-  @objc var onError: RCTDirectEventBlock?
-  @objc var onCodeScanned: RCTBubblingEventBlock?
+  @objc public var onError: RCTDirectEventBlock?
+  @objc public var onBeginInitialize: RCTDirectEventBlock?
+  @objc public var onDeviceChanged: RCTDirectEventBlock?
+  @objc public var onFormatChanged: RCTDirectEventBlock?
+  @objc public var onInitialized: RCTDirectEventBlock?
+  @objc public var onCodeScanned: RCTBubblingEventBlock?
   var isReady = false
   // pragma MARK: Private Properties
   /// The serial execution queue for the camera preview layer (input stream) as well as output processing (take photo, record video, process metadata/barcodes)
@@ -170,7 +173,7 @@ final class CameraView: UIView {
   internal var pinchGestureRecognizer: UIPinchGestureRecognizer?
   internal var pinchScaleOffset: CGFloat = 1.0
 
-  @objc var enableZoomGesture = false {
+  @objc public var enableZoomGesture = false {
     didSet {
       if enableZoomGesture {
         addPinchGestureRecognizer()
@@ -261,9 +264,27 @@ final class CameraView: UIView {
       "cause": causeDictionary ?? NSNull(),
     ])
   }
-
+  
+  internal final func invokeOnBeginInitialize() {
+    ReactLogger.log(level: .info, message: "onBeginInitialize()", alsoLogToJS: true)
+    guard let onBeginInitialize = self.onBeginInitialize else { return }
+    onBeginInitialize([String: Any]())
+  }
+  
+  internal final func invokeOnDeviceChanged(device: AVCaptureDevice) {
+    ReactLogger.log(level: .info, message: "onDeviceChanged()", alsoLogToJS: true)
+    guard let onDeviceChanged = self.onDeviceChanged else { return }
+    onInitialized(device.formats)
+  }
+  
+  internal final func invokeOnFormatChanged() {
+    ReactLogger.log(level: .info, message: "onFormatChanged()", alsoLogToJS: true)
+    guard let onInitialized = self.onInitialized else { return }
+    onInitialized([String: Any]())
+  }
+  
   internal final func invokeOnInitialized() {
-    ReactLogger.log(level: .info, message: "Camera initialized!", alsoLogToJS: true)
+    ReactLogger.log(level: .info, message: "onInitialized()", alsoLogToJS: true)
     guard let onInitialized = self.onInitialized else { return }
     onInitialized([String: Any]())
   }

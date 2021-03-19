@@ -39,6 +39,9 @@ RCT_EXPORT_VIEW_PROPERTY(zoom, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(enableZoomGesture, BOOL);
 // Camera View Properties
 RCT_EXPORT_VIEW_PROPERTY(onError, RCTDirectEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onBeginInitialize, RCTDirectEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onDeviceChanged, RCTDirectEventBlock);
+RCT_EXPORT_VIEW_PROPERTY(onFormatChanged, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onInitialized, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onCodeScanned, RCTBubblingEventBlock);
 

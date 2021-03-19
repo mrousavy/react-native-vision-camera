@@ -132,6 +132,24 @@ export interface CameraProps extends ViewProps {
    */
   onError?: (error: CameraRuntimeError) => void;
   /**
+   * Called when the Camera will begin to initialize or re-configure.
+   *
+   * This is right before {@linkcode onDeviceChanged | onDeviceChanged(...)} will be called.
+   */
+  onBeginInitialize?: () => void;
+  /**
+   * Called when a new {@linkcode CameraDevice} has been set.
+   *
+   * This is right before {@linkcode onFormatChanged | onFormatChanged(...)} will be called.
+   */
+  onDeviceChanged?: (device: CameraDevice) => void;
+  /**
+   * Called when a new {@linkcode CameraDeviceFormat} has been set.
+   *
+   * This is right before {@linkcode onInitialized | onInitialized()} will be called.
+   */
+  onFormatChanged?: (format: CameraDeviceFormat) => void;
+  /**
    * Called when the camera was successfully initialized.
    */
   onInitialized?: () => void;
