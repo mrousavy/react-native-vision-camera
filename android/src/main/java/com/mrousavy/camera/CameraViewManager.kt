@@ -129,6 +129,9 @@ class CameraViewManager : SimpleViewManager<CameraView>() {
 
   override fun getExportedCustomDirectEventTypeConstants(): MutableMap<String, Any>? {
     return MapBuilder.builder<String, Any>()
+      .put("cameraBeginInitialize", MapBuilder.of("registrationName", "onBeginInitialize"))
+      .put("cameraDeviceChanged", MapBuilder.of("registrationName", "onDeviceChanged"))
+      .put("cameraFormatChanged", MapBuilder.of("registrationName", "onFormatChanged"))
       .put("cameraInitialized", MapBuilder.of("registrationName", "onInitialized"))
       .put("cameraError", MapBuilder.of("registrationName", "onError"))
       .put("cameraCodeScanned", MapBuilder.of("registrationName", "onCodeScanned"))

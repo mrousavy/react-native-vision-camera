@@ -1,4 +1,4 @@
-package com.mrousavy.camera.parsers
+package com.mrousavy.camera.utils
 
 import android.util.Size
 import android.util.SizeF

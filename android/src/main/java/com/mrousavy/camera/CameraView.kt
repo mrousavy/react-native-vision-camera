@@ -23,6 +23,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.*
 import com.facebook.react.bridge.*
 import com.facebook.react.uimanager.events.RCTEventEmitter
+import com.mrousavy.camera.parsers.parseCameraDeviceFormatId
+import com.mrousavy.camera.parsers.parseCameraDeviceId
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.guava.await
@@ -350,6 +352,27 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
     super.onLayout(changed, left, top, right, bottom)
     Log.i(REACT_CLASS, "onLayout($changed, $left, $top, $right, $bottom) was called! (Width: $width, Height: $height)")
+  }
+
+  private fun invokeOnBeginInitialize() {
+    val reactContext = context as ReactContext
+    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraBeginInitialize", null)
+  }
+
+  private fun invokeOnDeviceChanged(deviceId: String) {
+    val reactContext = context as ReactContext
+    val manager = reactContext.getSystemService(Context.CAMERA_SERVICE) as? CameraManager
+      ?: return
+    val device = parseCameraDeviceId(deviceId, manager)
+    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraDeviceChanged", device)
+  }
+
+  private fun invokeOnFormatChanged() {
+    val reactContext = context as ReactContext
+    val manager = reactContext.getSystemService(Context.CAMERA_SERVICE) as? CameraManager
+      ?: return
+    val format = parseCameraDeviceFormatId()
+    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraFormatChanged", format)
   }
 
   private fun invokeOnInitialized() {
