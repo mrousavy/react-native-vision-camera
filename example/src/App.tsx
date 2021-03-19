@@ -186,11 +186,6 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
     // Run everytime the neutralZoomScaled value changes. (reset zoom when device changes)
     zoom.value = neutralZoomScaled;
   }, [neutralZoomScaled, zoom]);
-
-  useEffect(() => {
-    // Run everytime the camera gets set to isActive = false. (reset zoom when tab switching)
-    if (!isActive) zoom.value = neutralZoomScaled;
-  }, [neutralZoomScaled, isActive, zoom]);
   //#endregion
 
   //#region Pinch to Zoom Gesture
