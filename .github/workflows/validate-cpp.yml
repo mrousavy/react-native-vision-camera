@@ -24,11 +24,11 @@ jobs:
           reporter: github-pr-review
           flags: --linelength=160
           targets: --recursive cpp
-          filter: "-readability/braces\
-            ,-whitespace/braces\
-            ,-whitespace/comments\
-            ,-whitespace/indent\
-            ,-whitespace/newline\
-            ,-whitespace/operators\
-            ,-whitespace/parens\
-            "
+          # filter: "-readability/braces\
+          #   ,-whitespace/braces\
+          #   ,-whitespace/comments\
+          #   ,-whitespace/indent\
+          #   ,-whitespace/newline\
+          #   ,-whitespace/operators\
+          #   ,-whitespace/parens\
+          #   "
