@@ -68,7 +68,6 @@ final class CameraView: UIView {
     let shouldReconfigure = changedProps.contains { propsThatRequireReconfiguration.contains($0) }
     let shouldReconfigureFormat = shouldReconfigure || changedProps.contains("format")
     let shouldReconfigureDevice = shouldReconfigureFormat || changedProps.contains { propsThatRequireDeviceReconfiguration.contains($0) }
-    ReactLogger.log(level: .info, message: "Reconfiguring \(shouldReconfigure ? "everything" : (shouldReconfigureFormat ? "format" : shouldReconfigureDevice ? "device" : "only dynamics"))...")
 
     let willReconfigure = shouldReconfigure || shouldReconfigureFormat || shouldReconfigureDevice
 
