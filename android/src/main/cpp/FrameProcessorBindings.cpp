@@ -13,7 +13,7 @@ using namespace facebook;
 // TODO: Lazily initialize this, and only on a per-view basis
 static std::unique_ptr<jsi::Runtime> frameProcessorRuntime;
 
-void install(jsi::Runtime& jsiRuntime) {
+void install(const jsi::Runtime& jsiRuntime) {
     // TODO: "dynamically" load Hermes and Reanimated
     frameProcessorRuntime = hermes::makeHermesRuntime();
 
@@ -21,7 +21,10 @@ void install(jsi::Runtime& jsiRuntime) {
     auto setFrameProcessor = jsi::Function::createFromHostFunction(jsiRuntime,
                                                                    jsi::PropNameID::forAscii(jsiRuntime, "setFrameProcessor"),
                                                                    2,  // viewTag, frameProcessor
-                                                                   [](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+                                                                   [](jsi::Runtime& runtime,
+                                                                      const jsi::Value& thisValue,
+                                                                      const jsi::Value* arguments,
+                                                                      size_t count) -> jsi::Value {
                                                                        if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: First argument ('viewTag') must be a number!");
                                                                        if (!arguments[1].isObject()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
 
@@ -44,7 +47,10 @@ void install(jsi::Runtime& jsiRuntime) {
     auto unsetFrameProcessor = jsi::Function::createFromHostFunction(jsiRuntime,
                                                                      jsi::PropNameID::forAscii(jsiRuntime, "unsetFrameProcessor"),
                                                                      1,  // viewTag
-                                                                     [](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+                                                                     [](jsi::Runtime& runtime,
+                                                                        const jsi::Value& thisValue,
+                                                                        const jsi::Value* arguments,
+                                                                        size_t count) -> jsi::Value {
                                                                          if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::unsetFrameProcessor: First argument ('viewTag') must be a number!");
                                                                          auto viewTag = arguments[0].asNumber();
 

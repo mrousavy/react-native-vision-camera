@@ -22,13 +22,9 @@ jobs:
         with:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
-          flags: --linelength=160
+          flags: --linelength=230
           targets: --recursive cpp android/src/main/cpp
-          # filter: "-readability/braces\
-          #   ,-whitespace/braces\
-          #   ,-whitespace/comments\
-          #   ,-whitespace/indent\
-          #   ,-whitespace/newline\
-          #   ,-whitespace/operators\
-          #   ,-whitespace/parens\
-          #   "
+          filter: "-legal/copyright\
+            ,-readability/todo\
+            ,-build/namespaces\
+            "

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <jsi/jsi.h>
+#include <memory>
 
 #if __has_include(<hermes/hermes.h>)
 #include <hermes/hermes.h>
@@ -19,5 +20,5 @@ static std::unique_ptr<jsi::Runtime> makeJSIRuntime() {
   return facebook::jsc::makeJSCRuntime();
   #endif
 }
-  
-}
+
+} // namespace vision
