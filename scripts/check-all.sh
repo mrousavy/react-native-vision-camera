@@ -12,4 +12,7 @@ echo "Linting Kotlin code.."
 echo "Linting JS/TS code.."
 yarn lint --fix
 
+echo "Linting C++ code.."
+./scripts/cpplint.sh
+
 echo "All done!"

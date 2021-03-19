@@ -35,6 +35,14 @@ private let propsThatRequireDeviceReconfiguration = ["fps",
 public final class CameraView: UIView {
   // pragma MARK: React Properties
 
+  // Frame Processing
+  @objc public var frameProcessorDelegate: FrameProcessorDelegate? {
+    didSet {
+      didSetProps(["frameProcessor"])
+    }
+  }
+
+  // pragma MARK: Exported Properties
   // props that require reconfiguring
   @objc var cameraId: NSString?
   @objc var enableDepthData = false
