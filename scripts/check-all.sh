@@ -9,10 +9,10 @@ echo "Linting Swift code.."
 echo "Linting Kotlin code.."
 ./scripts/ktlint.sh
 
-echo "Linting JS/TS code.."
-yarn lint --fix
-
 echo "Linting C++ code.."
 ./scripts/cpplint.sh
+
+echo "Linting JS/TS code.."
+yarn lint --fix
 
 echo "All done!"
