@@ -274,13 +274,13 @@ final class CameraView: UIView {
   internal final func invokeOnDeviceChanged(device: AVCaptureDevice) {
     ReactLogger.log(level: .info, message: "onDeviceChanged()", alsoLogToJS: true)
     guard let onDeviceChanged = self.onDeviceChanged else { return }
-    onInitialized(device.formats)
+    onDeviceChanged(device.toDictionary())
   }
   
-  internal final func invokeOnFormatChanged() {
+  internal final func invokeOnFormatChanged(format: AVCaptureDevice.Format) {
     ReactLogger.log(level: .info, message: "onFormatChanged()", alsoLogToJS: true)
-    guard let onInitialized = self.onInitialized else { return }
-    onInitialized([String: Any]())
+    guard let onFormatChanged = self.onFormatChanged else { return }
+    onFormatChanged(format.toDictionary())
   }
   
   internal final func invokeOnInitialized() {
