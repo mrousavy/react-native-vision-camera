@@ -329,6 +329,7 @@ final class CameraView: UIView {
   private final func configureCaptureSession() {
     ReactLogger.logJS(level: .info, message: "Configuring Session...")
     isReady = false
+    invokeOnBeginInitialize()
 
     #if targetEnvironment(simulator)
       return invokeOnError(.device(.notAvailableOnSimulator))
@@ -497,6 +498,7 @@ final class CameraView: UIView {
       device.activeFormat = format
       device.unlockForConfiguration()
       ReactLogger.logJS(level: .info, message: "Format successfully configured!")
+      invokeOnFormatChanged(format: format)
     } catch let error as NSError {
       return invokeOnError(.device(.configureError), cause: error)
     }
@@ -546,6 +548,7 @@ final class CameraView: UIView {
 
       device.unlockForConfiguration()
       ReactLogger.logJS(level: .info, message: "Device successfully configured!")
+      invokeOnDeviceChanged(device: device)
     } catch let error as NSError {
       return invokeOnError(.device(.configureError), cause: error)
     }
