@@ -178,8 +178,14 @@ interface OnErrorEvent {
 interface OnCodeScannedEvent {
   codes: Code[];
 }
-type NativeCameraViewProps = Omit<CameraProps, 'device' | 'onInitialized' | 'onError' | 'onCodeScanned'> & {
+type NativeCameraViewProps = Omit<
+  CameraProps,
+  'device' | 'onBeginInitialize' | 'onDeviceChanged' | 'onFormatChanged' | 'onInitialized' | 'onError' | 'onCodeScanned'
+> & {
   cameraId: string;
+  onBeginInitialize?: (event: NativeSyntheticEvent<void>) => void;
+  onDeviceChanged?: (event: NativeSyntheticEvent<CameraDevice>) => void;
+  onFormatChanged?: (event: NativeSyntheticEvent<CameraDeviceFormat>) => void;
   onInitialized?: (event: NativeSyntheticEvent<void>) => void;
   onError?: (event: NativeSyntheticEvent<OnErrorEvent>) => void;
   onCodeScanned?: (event: NativeSyntheticEvent<OnCodeScannedEvent>) => void;
@@ -527,6 +533,18 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     }
   }
 
+  private onBeginInitialize(): void {
+    this.props.onBeginInitialize?.();
+  }
+
+  private onDeviceChanged({ nativeEvent: device }: NativeSyntheticEvent<CameraDevice>): void {
+    this.props.onDeviceChanged?.(device);
+  }
+
+  private onFormatChanged({ nativeEvent: format }: NativeSyntheticEvent<CameraDeviceFormat>): void {
+    this.props.onFormatChanged?.(format);
+  }
+
   private onInitialized(): void {
     this.props.onInitialized?.();
   }
@@ -563,6 +581,9 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
         {...props}
         cameraId={this.state.cameraId}
         ref={this.ref}
+        onBeginInitialize={this.onBeginInitialize}
+        onDeviceChanged={this.onDeviceChanged}
+        onFormatChanged={this.onFormatChanged}
         onInitialized={this.onInitialized}
         onError={this.onError}
         onCodeScanned={this.onCodeScanned}
