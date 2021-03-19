@@ -22,9 +22,17 @@ import UIKit
 // CameraView+TakePhoto
 // TODO: Photo HDR
 
-// swiftlint:disable line_length
-private let propsThatRequireReconfiguration = ["cameraId", "enableDepthData", "enableHighResolutionCapture", "enablePortraitEffectsMatteDelivery", "preset", "onCodeScanned", "scannableCodes"]
-private let propsThatRequireDeviceReconfiguration = ["fps", "hdr", "lowLightBoost", "colorSpace"]
+private let propsThatRequireReconfiguration = ["cameraId",
+                                               "enableDepthData",
+                                               "enableHighResolutionCapture",
+                                               "enablePortraitEffectsMatteDelivery",
+                                               "preset",
+                                               "onCodeScanned",
+                                               "scannableCodes"]
+private let propsThatRequireDeviceReconfiguration = ["fps",
+                                                     "hdr",
+                                                     "lowLightBoost",
+                                                     "colorSpace"]
 
 // MARK: - CameraView
 
@@ -60,7 +68,6 @@ final class CameraView: UIView {
     let shouldReconfigure = changedProps.contains { propsThatRequireReconfiguration.contains($0) }
     let shouldReconfigureFormat = shouldReconfigure || changedProps.contains("format")
     let shouldReconfigureDevice = shouldReconfigureFormat || changedProps.contains { propsThatRequireDeviceReconfiguration.contains($0) }
-    ReactLogger.log(level: .info, message: "Reconfiguring \(shouldReconfigure ? "everything" : (shouldReconfigureFormat ? "format" : shouldReconfigureDevice ? "device" : "only dynamics"))...")
 
     let willReconfigure = shouldReconfigure || shouldReconfigureFormat || shouldReconfigureDevice
 

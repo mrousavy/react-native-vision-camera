@@ -24,8 +24,8 @@ export const sortDevices = (left: CameraDevice, right: CameraDevice): number => 
   if (leftHasWideAngle) leftPoints += 5;
   if (rightHasWideAngle) rightPoints += 5;
 
-  if (left.devices.length > right.devices.length) leftPoints += 2;
-  if (right.devices.length > left.devices.length) rightPoints += 2;
+  if (left.devices.length > right.devices.length) leftPoints += 3;
+  if (right.devices.length > left.devices.length) rightPoints += 3;
 
   return rightPoints - leftPoints;
 };
@@ -96,7 +96,12 @@ export const filterFormatsByAspectRatio = (formats: CameraDeviceFormat[], viewSi
     else return prev;
   }, Number.MAX_SAFE_INTEGER);
 
-  return formats.filter((f) => getFormatAspectRatioOverflow(f, viewSize) === minOverflow);
+  return formats.filter((f) => {
+    // percentage of difference in overflow from this format, to the minimum available overflow
+    const overflowDiff = (getFormatAspectRatioOverflow(f, viewSize) - minOverflow) / minOverflow;
+    // we have an acceptance of 25%, if overflow is more than 25% off to the min available overflow, we drop it
+    return overflowDiff < 0.25;
+  });
 };
 
 /**

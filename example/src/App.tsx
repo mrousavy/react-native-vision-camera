@@ -9,8 +9,8 @@ import {
   TapGestureHandlerStateChangeEvent,
 } from 'react-native-gesture-handler';
 import { Navigation, NavigationFunctionComponent } from 'react-native-navigation';
-import type { CameraDevice, CameraDeviceFormat, CameraRuntimeError, PhotoFile, VideoFile } from 'react-native-vision-camera';
-import { Camera, frameRateIncluded, sortDevices, sortFormatsByResolution, filterFormatsByAspectRatio } from 'react-native-vision-camera';
+import type { CameraDeviceFormat, CameraRuntimeError, PhotoFile, VideoFile } from 'react-native-vision-camera';
+import { Camera, frameRateIncluded, sortFormatsByResolution, filterFormatsByAspectRatio } from 'react-native-vision-camera';
 import { useIsScreenFocused } from './hooks/useIsScreenFocused';
 import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING } from './Constants';
 import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated';
@@ -23,6 +23,7 @@ import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { useSelector } from 'pipestate';
 import { FpsSelector } from './state/selectors';
+import { useCameraDevice } from './hooks/useCameraDevice';
 
 // TODO: Remove once https://github.com/software-mansion/react-native-reanimated/pull/1697 gets merged
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -51,8 +52,8 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
   const [enableNightMode, setEnableNightMode] = useState(false);
 
   // camera format settings
-  const [devices, setDevices] = useState<CameraDevice[]>([]); // All available camera devices, sorted by "best device" (descending)
-  const device = useMemo<CameraDevice | undefined>(() => devices.find((d) => d.position === cameraPosition), [cameraPosition, devices]);
+  const devices = useCameraDevice();
+  const device = devices[cameraPosition];
   const formats = useMemo<CameraDeviceFormat[]>(() => {
     if (device?.formats == null) return [];
     const filtered = filterFormatsByAspectRatio(device.formats);
@@ -83,7 +84,7 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
     return targetFps;
   }, [device?.supportsLowLightBoost, enableHdr, enableNightMode, formats, targetFps]);
 
-  const supportsCameraFlipping = useMemo(() => devices.some((d) => d.position === 'back') && devices.some((d) => d.position === 'front'), [devices]);
+  const supportsCameraFlipping = useMemo(() => devices.back != null && devices.front != null, [devices.back, devices.front]);
   const supportsFlash = device?.hasFlash ?? false;
   const supportsHdr = useMemo(() => formats.some((f) => f.supportsVideoHDR), [formats]);
   const canToggleNightMode = enableNightMode
@@ -182,28 +183,9 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
 
   //#region Effects
   useEffect(() => {
-    const loadDevices = async (): Promise<void> => {
-      try {
-        const availableCameraDevices = await Camera.getAvailableCameraDevices();
-        console.log(`Devices: ${availableCameraDevices.map((d) => d.name).join(', ')}`);
-        const sortedDevices = availableCameraDevices.sort(sortDevices);
-        console.debug(`Devices (sorted): ${sortedDevices.map((d) => d.name).join(', ')}`);
-        setDevices(sortedDevices);
-      } catch (e) {
-        console.error('Failed to get available devices!', e);
-      }
-    };
-    loadDevices();
-  }, []);
-  useEffect(() => {
     // Run everytime the neutralZoomScaled value changes. (reset zoom when device changes)
     zoom.value = neutralZoomScaled;
   }, [neutralZoomScaled, zoom]);
-
-  useEffect(() => {
-    // Run everytime the camera gets set to isActive = false. (reset zoom when tab switching)
-    if (!isActive) zoom.value = neutralZoomScaled;
-  }, [neutralZoomScaled, isActive, zoom]);
   //#endregion
 
   //#region Pinch to Zoom Gesture
