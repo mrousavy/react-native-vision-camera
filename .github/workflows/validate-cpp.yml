@@ -27,4 +27,5 @@ jobs:
           filter: "-legal/copyright\
             ,-readability/todo\
             ,-build/namespaces\
+            ,-whitespace/comments\
             "
