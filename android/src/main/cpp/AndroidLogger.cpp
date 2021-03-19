@@ -1,6 +1,6 @@
 #include "AndroidLogger.h"
-#include <memory>
 #include <android/log.h>
+#include <memory>
 #include "Logger.h"
 
 #define APP_NAME "NATIVE_VISION_CAMERA"
