@@ -88,8 +88,7 @@ static dispatch_queue_t dispatchQueue = CameraQueues.videoQueue;
         NSLog(@"FrameProcessorBindings: Converting worklet to Objective-C callback...");
         auto& rt = *runtimeManager->runtime;
         auto function = worklet->getValue(rt).asObject(rt).asFunction(rt);
-        auto callback = convertJSIFunctionToFrameProcessorCallback(rt, function);
-        view.frameProcessorCallback = callback;
+        view.frameProcessorCallback = convertJSIFunctionToFrameProcessorCallback(rt, function);
         NSLog(@"FrameProcessorBindings: Frame processor set!");
       });
     });
@@ -111,7 +110,7 @@ static dispatch_queue_t dispatchQueue = CameraQueues.videoQueue;
       auto currentBridge = [RCTBridge currentBridge];
       auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
       auto view = static_cast<CameraView*>(anonymousView);
-      view.frameProcessorDelegate = nil;
+      view.frameProcessorCallback = nil;
       NSLog(@"FrameProcessorBindings: Frame processor removed!");
     });
 
@@ -124,7 +123,7 @@ static dispatch_queue_t dispatchQueue = CameraQueues.videoQueue;
 }
 
 + (void) uninstallFrameProcessorBindings {
-  runtimeManager.reset();
+  runtimeManager.reset(); // deletes the runtime, I have to be careful so that no calls are being made to that!
 }
 
 @end
