@@ -8,8 +8,9 @@
 
 #import "FrameProcessorUtils.h"
 #import <CoreMedia/CMSampleBuffer.h>
-#import "../../cpp/Frame.h"
 #import <chrono>
+#import <memory>
+#import "FrameHostObject.h"
 
 FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &runtime, const jsi::Function &value) {
   __block auto cb = value.getFunction(runtime);
@@ -18,7 +19,7 @@ FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &
     NSLog(@"Calling Frame Processor...");
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     
-    auto frame = std::make_shared<vision::Frame>(buffer);
+    auto frame = std::make_shared<FrameHostObject>(buffer);
     auto object = jsi::Object::createFromHostObject(runtime, frame);
     cb.callWithThis(runtime, cb, object);
     
