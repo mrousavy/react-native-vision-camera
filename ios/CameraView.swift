@@ -36,11 +36,7 @@ public final class CameraView: UIView {
   // pragma MARK: React Properties
 
   // Frame Processing
-  @objc public var frameProcessorCallback: FrameProcessorCallback? {
-    didSet {
-      didSetProps(["frameProcessor"])
-    }
-  }
+  @objc public var frameProcessorCallback: FrameProcessorCallback?
 
   // pragma MARK: Exported Properties
   // props that require reconfiguring
