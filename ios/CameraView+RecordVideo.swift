@@ -8,9 +8,9 @@
 
 import AVFoundation
 
-extension CameraView {
+extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate {
   func startRecording(options: NSDictionary, callback: @escaping RCTResponseSenderBlock) {
-    queue.async {
+    cameraQueue.async {
       guard let movieOutput = self.movieOutput else {
         return callback([NSNull(), makeReactError(.session(.cameraNotReady))])
       }
@@ -38,7 +38,7 @@ extension CameraView {
   }
 
   func stopRecording(promise: Promise) {
-    queue.async {
+    cameraQueue.async {
       withPromise(promise) {
         guard let movieOutput = self.movieOutput else {
           throw CameraError.session(SessionError.cameraNotReady)
@@ -51,5 +51,17 @@ extension CameraView {
         return nil
       }
     }
+  }
+
+  func captureOutput(_: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
+    print("Did output a new frame!")
+
+    if let frameProcessor = frameProcessorCallback {
+      frameProcessor(sampleBuffer)
+    }
+  }
+
+  func captureOutput(_: AVCaptureOutput, didDrop _: CMSampleBuffer, from _: AVCaptureConnection) {
+    ReactLogger.log(level: .warning, message: "Dropped a Frame. This might indicate that your Frame Processor is doing too much work.", alsoLogToJS: true)
   }
 }

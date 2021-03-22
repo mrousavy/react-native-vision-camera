@@ -24,7 +24,7 @@ struct TakePhotoOptions {
 
 extension CameraView {
   func takePhoto(options: NSDictionary, promise: Promise) {
-    queue.async {
+    cameraQueue.async {
       guard let photoOutput = self.photoOutput, let videoDeviceInput = self.videoDeviceInput else {
         return promise.reject(error: .session(.cameraNotReady))
       }

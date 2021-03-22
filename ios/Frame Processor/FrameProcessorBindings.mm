@@ -41,8 +41,7 @@ using namespace facebook;
 @implementation FrameProcessorBindings
 
 static std::unique_ptr<reanimated::RuntimeManager> runtimeManager;
-static dispatch_queue_t dispatchQueue = dispatch_queue_create("com.mrousavy.camera-frame-processor",
-                                                              dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, -1)); // TODO: Use -1 or 0 for this?
+static dispatch_queue_t dispatchQueue = CameraQueues.videoQueue;
 
 + (void) installFrameProcessorBindings:(RCTBridge*)bridge {
   NSLog(@"FrameProcessorBindings: Installing Frame Processor Bindings...");
@@ -58,7 +57,7 @@ static dispatch_queue_t dispatchQueue = dispatch_queue_create("com.mrousavy.came
   dispatch_async(dispatchQueue, [callInvoker]() -> void {
     NSLog(@"FrameProcessorBindings: Creating Runtime Manager on DispatchQueue %s...", dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL));
     auto runtime = vision::makeJSIRuntime();
-    reanimated::RuntimeDecorator::decorateRuntime(*runtime);
+    reanimated::RuntimeDecorator::decorateRuntime(*runtime, "FRAME_PROCESSOR");
     runtime->global().setProperty(*runtime, "_FRAME_PROCESSOR", jsi::Value(true));
     auto scheduler = std::make_shared<reanimated::REAIOSScheduler>(callInvoker);
     runtimeManager = std::make_unique<reanimated::RuntimeManager>(std::move(runtime),
@@ -86,17 +85,11 @@ static dispatch_queue_t dispatchQueue = dispatch_queue_create("com.mrousavy.came
       auto view = static_cast<CameraView*>(anonymousView);
       
       dispatch_async(dispatchQueue, [worklet, view]() -> void {
-        if (view.frameProcessorDelegate == nil) {
-          NSLog(@"FrameProcessorBindings: Initializing FrameProcessorDelegate...");
-          view.frameProcessorDelegate = [[FrameProcessorDelegate alloc] initWithDispatchQueue:dispatchQueue];
-        }
-        
         NSLog(@"FrameProcessorBindings: Converting worklet to Objective-C callback...");
         auto& rt = *runtimeManager->runtime;
         auto function = worklet->getValue(rt).asObject(rt).asFunction(rt);
         auto callback = convertJSIFunctionToFrameProcessorCallback(rt, function);
-        
-        [view.frameProcessorDelegate setFrameProcessor:callback];
+        view.frameProcessorCallback = callback;
         NSLog(@"FrameProcessorBindings: Frame processor set!");
       });
     });

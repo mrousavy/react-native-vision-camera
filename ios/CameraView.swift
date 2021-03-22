@@ -36,7 +36,7 @@ public final class CameraView: UIView {
   // pragma MARK: React Properties
 
   // Frame Processing
-  @objc public var frameProcessorDelegate: FrameProcessorDelegate? {
+  @objc public var frameProcessorCallback: FrameProcessorCallback? {
     didSet {
       didSetProps(["frameProcessor"])
     }
@@ -86,6 +86,8 @@ public final class CameraView: UIView {
   // Outputs
   internal var photoOutput: AVCapturePhotoOutput?
   internal var movieOutput: AVCaptureMovieFileOutput?
+  // CameraView+RecordView (+ FrameProcessorDelegate.mm)
+  internal var videoOutput: AVCaptureVideoDataOutput?
   // CameraView+TakePhoto
   internal var photoCaptureDelegates: [PhotoCaptureDelegate] = []
   // CameraView+RecordVideo
