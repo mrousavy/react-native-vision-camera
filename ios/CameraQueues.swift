@@ -9,7 +9,7 @@
 import Foundation
 
 @objc
-public enum CameraQueues {
+public class CameraQueues: NSObject {
   /// The serial execution queue for the camera preview layer (input stream) as well as output processing of photos.
   @objc public static let cameraQueue = DispatchQueue(label: "com.mrousavy.vision.camera-queue",
                                                       qos: .userInteractive,

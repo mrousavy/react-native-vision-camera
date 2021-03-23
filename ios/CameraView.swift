@@ -93,12 +93,10 @@ public final class CameraView: UIView {
   internal var pinchGestureRecognizer: UIPinchGestureRecognizer?
   internal var pinchScaleOffset: CGFloat = 1.0
 
-  // Frame Processing
-  @objc public var frameProcessorDelegate: FrameProcessorDelegate? {
-    didSet {
-      self.didSetProps(["frameProcessor"])
-    }
-  }
+  internal let cameraQueue = CameraQueues.cameraQueue
+  internal let videoQueue = CameraQueues.videoQueue
+
+  private let captureSession = AVCaptureSession()
 
   var isRunning: Bool {
     return captureSession.isRunning
@@ -225,7 +223,11 @@ public final class CameraView: UIView {
   }
 
   // pragma MARK: Props updating
+<<<<<<< HEAD
   override public final func didSetProps(_ changedProps: [String]!) {
+=======
+  public override final func didSetProps(_ changedProps: [String]!) {
+>>>>>>> Fix `@objc` export (make public)
     ReactLogger.log(level: .info, message: "Updating \(changedProps.count) prop(s)...")
     let shouldReconfigure = changedProps.contains { propsThatRequireReconfiguration.contains($0) }
     let shouldReconfigureFormat = shouldReconfigure || changedProps.contains("format")

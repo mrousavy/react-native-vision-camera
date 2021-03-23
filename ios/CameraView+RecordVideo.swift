@@ -53,7 +53,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate {
     }
   }
 
-  func captureOutput(_: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
+  public func captureOutput(_: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
     print("Did output a new frame!")
 
     if let frameProcessor = frameProcessorCallback {
@@ -61,7 +61,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate {
     }
   }
 
-  func captureOutput(_: AVCaptureOutput, didDrop _: CMSampleBuffer, from _: AVCaptureConnection) {
+  public func captureOutput(_: AVCaptureOutput, didDrop _: CMSampleBuffer, from _: AVCaptureConnection) {
     ReactLogger.log(level: .warning, message: "Dropped a Frame. This might indicate that your Frame Processor is doing too much work.", alsoLogToJS: true)
   }
 }
