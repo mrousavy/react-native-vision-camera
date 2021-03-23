@@ -49,11 +49,12 @@ npx pod-install
 
 ### Features
 
-* Photo and Video capture
-* Customizable device (`ultra-wide-angle`, `wide-angle`, `telephoto` and virtual multi-cameras)
+* Photo, Video and Snapshot capture
+* Customizable device (`ultra-wide-angle`, `wide-angle`, `telephoto` and virtual multi-cameras that automatically switch over while zooming)
 * Customizable FPS
-* JS worklet frame processors powered by JSI and Reanimated (**Work in progress: [#2](https://github.com/cuvent/react-native-vision-camera/pull/2)**)
-* Reanimated zooming
+* Frame Processors (JS worklets to run QR-Code scanning, facial recognition, AI object detection, realtime video chats and more) (**Work in progress: [#2](https://github.com/cuvent/react-native-vision-camera/pull/2)**)
+* Smooth zooming (Reanimated)
+* Fast pause and resume
 * HDR & Night modes
 
 > See the [example](./example/) app
