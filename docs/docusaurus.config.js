@@ -22,7 +22,7 @@ module.exports = {
       items: [
         {
           label: 'Guides',
-          to: 'docs/',
+          to: 'docs/guides',
           position: 'left',
         },
         {
@@ -50,7 +50,7 @@ module.exports = {
           items: [
             {
               label: 'Guides',
-              to: 'docs/'
+              to: 'docs/guides'
             },
             {
               label: 'API',

@@ -7,7 +7,9 @@
   <blockquote><h4>📸 The Camera library that sees the vision.</h4></blockquote>
   <br />
 
-  <a href="https://cuvent.com"><img height="40" src="docs/static/img/cuvent-logo-text.svg"></a>
+  <a href="https://cuvent.com">
+    <img height="40" src="docs/static/img/cuvent-logo-text.svg" />
+  </a>
   <br/>
   <span>
     <a align="center" href="https://github.com/mrousavy?tab=followers">
@@ -23,7 +25,6 @@
       <img src="https://img.shields.io/twitter/follow/cuventtech?label=Follow%20%40cuventtech&style=social" />
     </a>
   </span>
-  </table>
 </div>
 
 <br/>
@@ -35,7 +36,7 @@
 
 ### Documentation
 
-* [Guides](https://cuvent.github.io/react-native-vision-camera/docs/)
+* [Guides](https://cuvent.github.io/react-native-vision-camera/docs/guides)
 * [API](https://cuvent.github.io/react-native-vision-camera/docs/api)
 * [Example](./example/)
 
