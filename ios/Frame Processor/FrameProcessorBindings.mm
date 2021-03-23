@@ -16,7 +16,6 @@
 #import <jsi/jsi.h>
 #import "FrameProcessorUtils.h"
 #import "../../cpp/MakeJSIRuntime.h"
-#import "FrameProcessorDelegate.h"
 
 #if __has_include("VisionCamera-Swift.h")
 #import "VisionCamera-Swift.h"
@@ -42,6 +41,13 @@ using namespace facebook;
 
 static std::unique_ptr<reanimated::RuntimeManager> runtimeManager;
 static dispatch_queue_t dispatchQueue = CameraQueues.videoQueue;
+
++ (id) makeRuntimeManager:(RCTBridge*)bridge {
+  // TODO: Make backwards compatible?
+  auto callInvoker = bridge.jsCallInvoker;
+  
+  return [[FrameProcessorRuntimeManager alloc] initWithBridge:bridge];
+}
 
 + (void) installFrameProcessorBindings:(RCTBridge*)bridge {
   NSLog(@"FrameProcessorBindings: Installing Frame Processor Bindings...");

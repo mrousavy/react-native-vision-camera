@@ -11,6 +11,14 @@ import Foundation
 
 @objc(CameraViewManager)
 final class CameraViewManager: RCTViewManager {
+  private var runtimeManager: FrameProcessorRuntimeManager?
+
+  override var bridge: RCTBridge! {
+    didSet {
+      FrameProcessorBindings.installFrameProcessorBindings(bridge)
+    }
+  }
+
   override var methodQueue: DispatchQueue! {
     return DispatchQueue.main
   }
@@ -19,30 +27,12 @@ final class CameraViewManager: RCTViewManager {
     return true
   }
 
-  override var bridge: RCTBridge! {
-    didSet {
-      FrameProcessorBindings.installFrameProcessorBindings(bridge)
-    }
-  }
-
-  // pragma MARK: Setup
   override final func view() -> UIView! {
     return CameraView()
   }
 
-  // MARK: Internal
+  // pragma MARK: React Functions
 
-  override var bridge: RCTBridge! {
-    didSet {
-      FrameProcessorBindings.installFrameProcessorBindings(bridge)
-    }
-  }
-
-  override var methodQueue: DispatchQueue! {
-    return DispatchQueue.main
-  }
-
-  // pragma MARK: Exported Functions
   @objc
   final func startRecording(_ node: NSNumber, options: NSDictionary, onRecordCallback: @escaping RCTResponseSenderBlock) {
     let component = getCameraView(withTag: node)
@@ -93,7 +83,6 @@ final class CameraViewManager: RCTViewManager {
     }
   }
 
-  // pragma MARK: View Manager funcs
   @objc
   final func getAvailableCameraDevices(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     withPromise(resolve: resolve, reject: reject) {
@@ -162,7 +151,6 @@ final class CameraViewManager: RCTViewManager {
   }
 
   // MARK: Private
-
   private func getCameraView(withTag tag: NSNumber) -> CameraView {
     // swiftlint:disable force_cast
     return bridge.uiManager.view(forReactTag: tag) as! CameraView

@@ -8,9 +8,11 @@
 
 #import <Foundation/Foundation.h>
 #import <React/RCTBridge.h>
+#import "FrameProcessorRuntimeManager.h"
 
 @interface FrameProcessorBindings : NSObject
 
++ (FrameProcessorRuntimeManager) makeRuntimeManager:(RCTBridge*)bridge;
 + (void) installFrameProcessorBindings:(RCTBridge*)bridge;
 + (void) uninstallFrameProcessorBindings;
 

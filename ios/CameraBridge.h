@@ -15,6 +15,7 @@
 
 #import "FrameProcessorBindings.h"
 #import "FrameProcessorCallback.h"
+#import "FrameProcessorRuntimeManager.h"
 
 @interface CameraBridge: RCTViewManager
 

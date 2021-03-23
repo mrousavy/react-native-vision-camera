@@ -79,11 +79,11 @@ public final class CameraView: UIView {
   // Inputs
   internal var videoDeviceInput: AVCaptureDeviceInput?
   internal var audioDeviceInput: AVCaptureDeviceInput?
-  // Outputs
   internal var photoOutput: AVCapturePhotoOutput?
   internal var movieOutput: AVCaptureMovieFileOutput?
   // CameraView+RecordView (+ FrameProcessorDelegate.mm)
   internal var videoOutput: AVCaptureVideoDataOutput?
+  @objc public var frameProcessorCallback: FrameProcessorCallback?
   // CameraView+TakePhoto
   internal var photoCaptureDelegates: [PhotoCaptureDelegate] = []
   // CameraView+RecordVideo
@@ -104,8 +104,70 @@ public final class CameraView: UIView {
     return captureSession.isRunning
   }
 
-public final class CameraView: UIView {
-  // MARK: Lifecycle
+  /// Convenience wrapper to get layer as its statically known type.
+  var videoPreviewLayer: AVCaptureVideoPreviewLayer {
+    // swiftlint:disable force_cast
+    return layer as! AVCaptureVideoPreviewLayer
+  }
+  override public class var layerClass: AnyClass {
+    return AVCaptureVideoPreviewLayer.self
+  }
+
+  // pragma MARK: Setup
+  override init(frame: CGRect) {
+    super.init(frame: frame)
+    videoPreviewLayer.session = captureSession
+    videoPreviewLayer.videoGravity = .resizeAspectFill
+    videoPreviewLayer.frame = layer.bounds
+
+    NotificationCenter.default.addObserver(self,
+                                           selector: #selector(sessionRuntimeError),
+                                           name: .AVCaptureSessionRuntimeError,
+                                           object: captureSession)
+    NotificationCenter.default.addObserver(self,
+                                           selector: #selector(sessionInterruptionBegin),
+                                           name: .AVCaptureSessionWasInterrupted,
+                                           object: captureSession)
+    NotificationCenter.default.addObserver(self,
+                                           selector: #selector(sessionInterruptionEnd),
+                                           name: .AVCaptureSessionInterruptionEnded,
+                                           object: captureSession)
+    NotificationCenter.default.addObserver(self,
+                                           selector: #selector(audioSessionInterrupted),
+                                           name: AVAudioSession.interruptionNotification,
+                                           object: AVAudioSession.sharedInstance)
+  }
+
+  deinit {
+    NotificationCenter.default.removeObserver(self,
+                                              name: .AVCaptureSessionRuntimeError,
+                                              object: captureSession)
+    NotificationCenter.default.removeObserver(self,
+                                              name: .AVCaptureSessionWasInterrupted,
+                                              object: captureSession)
+    NotificationCenter.default.removeObserver(self,
+                                              name: .AVCaptureSessionInterruptionEnded,
+                                              object: captureSession)
+    NotificationCenter.default.removeObserver(self,
+                                              name: AVAudioSession.interruptionNotification,
+                                              object: AVAudioSession.sharedInstance)
+  }
+
+  @objc
+  func sessionRuntimeError(notification: Notification) {
+    ReactLogger.log(level: .error, message: "Unexpected Camera Runtime Error occured!")
+    guard let error = notification.userInfo?[AVCaptureSessionErrorKey] as? AVError else {
+      return
+    }
+
+    if isActive {
+      // restart capture session after an error occured
+      cameraQueue.async {
+        self.captureSession.startRunning()
+      }
+    }
+    invokeOnError(.unknown(message: error.localizedDescription), cause: error as NSError)
+  }
 
   override public class var layerClass: AnyClass {
     return AVCaptureVideoPreviewLayer.self
@@ -176,7 +238,7 @@ public final class CameraView: UIView {
     let shouldUpdateZoom = willReconfigure || changedProps.contains("zoom") || shouldCheckActive
 
     if shouldReconfigure || shouldCheckActive || shouldUpdateTorch || shouldUpdateZoom || shouldReconfigureFormat || shouldReconfigureDevice {
-      queue.async {
+      cameraQueue.async {
         if shouldReconfigure {
           self.configureCaptureSession()
         }
@@ -208,7 +270,7 @@ public final class CameraView: UIView {
         }
 
         // This is a wack workaround, but if I immediately set torch mode after `startRunning()`, the session isn't quite ready yet and will ignore torch.
-        self.queue.asyncAfter(deadline: .now() + 0.1) {
+        self.cameraQueue.asyncAfter(deadline: .now() + 0.1) {
           if shouldUpdateTorch {
             self.setTorchMode(self.torch)
           }

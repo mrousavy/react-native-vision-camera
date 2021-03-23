@@ -48,6 +48,7 @@
 		B88751A725E0102000DB86D6 /* CameraView+Zoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887518225E0102000DB86D6 /* CameraView+Zoom.swift */; };
 		B88751A825E0102000DB86D6 /* CameraError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887518325E0102000DB86D6 /* CameraError.swift */; };
 		B88751A925E0102000DB86D6 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887518425E0102000DB86D6 /* CameraView.swift */; };
+		B8A751D82609E4B30011C623 /* FrameProcessorRuntimeManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8A751D72609E4B30011C623 /* FrameProcessorRuntimeManager.mm */; };
 		B8E0A94425E82DFD008AE93F /* FrameProcessorBindings.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8E0A94325E82DFD008AE93F /* FrameProcessorBindings.mm */; };
 		B8E0A94825E82E40008AE93F /* FrameProcessorBindings.h in Sources */ = {isa = PBXBuildFile; fileRef = B8E0A94725E82E40008AE93F /* FrameProcessorBindings.h */; };
 /* End PBXBuildFile section */
@@ -112,6 +113,8 @@
 		B887518225E0102000DB86D6 /* CameraView+Zoom.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CameraView+Zoom.swift"; sourceTree = "<group>"; };
 		B887518325E0102000DB86D6 /* CameraError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraError.swift; sourceTree = "<group>"; };
 		B887518425E0102000DB86D6 /* CameraView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
+		B8A751D62609E4980011C623 /* FrameProcessorRuntimeManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorRuntimeManager.h; sourceTree = "<group>"; };
+		B8A751D72609E4B30011C623 /* FrameProcessorRuntimeManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessorRuntimeManager.mm; sourceTree = "<group>"; };
 		B8DCF09125EA7BEE00EA5C72 /* SpeedChecker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SpeedChecker.h; sourceTree = "<group>"; };
 		B8DCF14425EA817D00EA5C72 /* MakeJSIRuntime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MakeJSIRuntime.h; sourceTree = "<group>"; };
 		B8E0A94325E82DFD008AE93F /* FrameProcessorBindings.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessorBindings.mm; sourceTree = "<group>"; };
@@ -231,6 +234,8 @@
 				B8103E5725FF56F0007A1684 /* Frame.h */,
 				B84760A22608EE38004C3180 /* FrameHostObject.h */,
 				B84760A52608EE7C004C3180 /* FrameHostObject.mm */,
+				B8A751D62609E4980011C623 /* FrameProcessorRuntimeManager.h */,
+				B8A751D72609E4B30011C623 /* FrameProcessorRuntimeManager.mm */,
 			);
 			path = "Frame Processor";
 			sourceTree = "<group>";
@@ -360,6 +365,7 @@
 				B86DC977260E315100FB17B2 /* CameraView+AVCaptureSession.swift in Sources */,
 				B887518A25E0102000DB86D6 /* AVCaptureDevice+neutralZoom.swift in Sources */,
 				B88751A325E0102000DB86D6 /* AVCaptureDevice.FlashMode+descriptor.swift in Sources */,
+				B8A751D82609E4B30011C623 /* FrameProcessorRuntimeManager.mm in Sources */,
 				B887519A25E0102000DB86D6 /* AVVideoCodecType+descriptor.swift in Sources */,
 				B88751A825E0102000DB86D6 /* CameraError.swift in Sources */,
 				B887519225E0102000DB86D6 /* AVCaptureMovieFileOutput+mirror.swift in Sources */,

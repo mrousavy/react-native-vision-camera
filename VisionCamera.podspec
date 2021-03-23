@@ -25,9 +25,10 @@ Pod::Spec.new do |s|
   s.source_files = [
     "ios/**/*.{m,mm,swift}",
     "ios/CameraBridge.h",
-    "ios/Frame Processor/FrameProcessorDelegate.h",
+    "ios/Frame Processor/Frame.h",
     "ios/Frame Processor/FrameProcessorBindings.h",
     "ios/Frame Processor/FrameProcessorCallback.h",
+    "ios/Frame Processor/FrameProcessorRuntimeManager.h",
     "cpp/**/*.{cpp}",
     # TODO: Find a way to include this header for other libs to use, while still allowing the Swift Umbrella Header to compile
     # "cpp/Frame.h"
