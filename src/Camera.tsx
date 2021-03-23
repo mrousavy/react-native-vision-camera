@@ -16,7 +16,7 @@ export interface CameraProps extends ViewProps {
   /**
    * The Camera Device to use.
    *
-   * See the [Camera Devices](https://cuvent.github.io/react-native-vision-camera/docs/devices) section in the documentation for more information about Camera Devices.
+   * See the [Camera Devices](https://cuvent.github.io/react-native-vision-camera/docs/guides/devices) section in the documentation for more information about Camera Devices.
    *
    * @example
    * ```tsx
@@ -34,7 +34,7 @@ export interface CameraProps extends ViewProps {
    */
   device: CameraDevice;
   /**
-   * Whether the Camera should actively stream video frames, or not. See the [documentation about the `isActive` prop](https://cuvent.github.io/react-native-vision-camera/docs/devices#the-isactive-prop) for more information.
+   * Whether the Camera should actively stream video frames, or not. See the [documentation about the `isActive` prop](https://cuvent.github.io/react-native-vision-camera/docs/guides/devices#the-isactive-prop) for more information.
    *
    * This can be compared to a Video component, where `isActive` specifies whether the video is paused or not.
    *
@@ -62,7 +62,7 @@ export interface CameraProps extends ViewProps {
   /**
    * Enables or disables the native pinch to zoom gesture.
    *
-   * If you want to implement a custom zoom gesture, see [the Zooming with Reanimated documentation](https://cuvent.github.io/react-native-vision-camera/docs/animated).
+   * If you want to implement a custom zoom gesture, see [the Zooming with Reanimated documentation](https://cuvent.github.io/react-native-vision-camera/docs/guides/animated).
    *
    * @default false
    */
