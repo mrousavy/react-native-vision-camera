@@ -60,6 +60,13 @@ This will change with the upcoming React Native Re-Architecture, so that instead
 
 Compared to iOS, Cameras on Android tend to be slower in image capture. If you care about speed, you can use the Camera's [`takeSnapshot(...)`](api/classes/camera.camera-1#takesnapshot) function (Android only) which simply takes a snapshot of the Camera View instead of actually taking a photo through the Camera lens.
 
+```ts
+const snapshot = await camera.current.takeSnapshot({
+  quality: 85,
+  skipMetadata: true
+})
+```
+
 :::note
 While taking Snapshots is faster than taking Photos, the resulting image has way lower quality. You can combine both functions to create a Snapshot for presenting to the User at first, then deliver the actual Photo afterwards.
 :::
