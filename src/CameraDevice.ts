@@ -211,7 +211,7 @@ export interface CameraDevice {
    */
   neutralZoom: number;
   /**
-   * All available formats for this camera device. Use this to find the best format for your use case and set it to the Camera's {@linkcode Camera.format} property.
+   * All available formats for this camera device. Use this to find the best format for your use case and set it to the Camera's {@linkcode CameraProps.format | Camera's .format} property.
    *
    * See [the Camera Formats documentation](https://cuvent.github.io/react-native-vision-camera/docs/guides/formats) for more information about Camera Formats.
    */
