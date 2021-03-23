@@ -4,7 +4,7 @@ module.exports = {
   url: 'https://cuvent.github.io',
   baseUrl: '/react-native-vision-camera/',
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
+  onBrokenMarkdownLinks: 'throw',
   favicon: './favicon.ico',
   organizationName: 'cuvent',
   projectName: 'react-native-vision-camera',
