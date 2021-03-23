@@ -15,6 +15,7 @@
 
 #import "FrameProcessorCallback.h"
 #import "FrameProcessorRuntimeManager.h"
+#import "RCTBridge+runOnJS.h"
 
 @interface CameraBridge: RCTViewManager
 

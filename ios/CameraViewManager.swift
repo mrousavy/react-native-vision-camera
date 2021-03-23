@@ -19,7 +19,9 @@ final class CameraViewManager: RCTViewManager {
     didSet {
       CameraQueues.videoQueue.async {
         self.runtimeManager = FrameProcessorRuntimeManager(bridge: self.bridge)
-        self.runtimeManager?.installFrameProcessorBindings()
+        self.bridge.runOnJS {
+          self.runtimeManager?.installFrameProcessorBindings()
+        }
       }
     }
   }

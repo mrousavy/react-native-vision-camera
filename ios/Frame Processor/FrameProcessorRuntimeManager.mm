@@ -56,14 +56,17 @@
   return self;
 }
 
-- (void) installFrameProcessorBindingsImpl:(RCTBridge*)bridge {
+- (void) installFrameProcessorBindings {
+  if (!weakBridge) {
+    NSLog(@"FrameProcessorBindings: Failed to install Frame Processor Bindings - bridge was null!");
+    return;
+  }
   NSLog(@"FrameProcessorBindings: Installing Frame Processor Bindings for Bridge...");
   RCTCxxBridge *cxxBridge = (RCTCxxBridge *)weakBridge;
   if (!cxxBridge.runtime) {
     return;
   }
   jsi::Runtime& jsiRuntime = *(jsi::Runtime*)cxxBridge.runtime;
-  
   NSLog(@"FrameProcessorBindings: Installing global functions...");
   
   // setFrameProcessor(viewTag: number, frameProcessor: (frame: Frame) => void)
@@ -109,7 +112,9 @@
       auto currentBridge = [RCTBridge currentBridge];
       auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
       auto view = static_cast<CameraView*>(anonymousView);
-      view.frameProcessorCallback = nil;
+      // TODO: Fix this empty assignment
+      view.frameProcessorCallback = nullptr;
+      //view.frameProcessorCallback = nil;
       NSLog(@"FrameProcessorBindings: Frame processor removed!");
     });
     
@@ -119,16 +124,6 @@
                                                                                                            jsi::PropNameID::forAscii(jsiRuntime, "unsetFrameProcessor"),
                                                                                                            1,  // viewTag
                                                                                                            unsetFrameProcessor));
-}
-
-- (void) installFrameProcessorBindings {
-  if (!weakBridge) {
-    NSLog(@"FrameProcessorBindings: Failed to install Frame Processor Bindings - bridge was null!");
-    return;
-  }
-  weakBridge.jsCallInvoker->runOnJSQueueThread(^{
-    self.installFrameProcessorBindingsImpl:weakBridge;
-  });
 }
 
 @end

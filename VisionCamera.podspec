@@ -28,6 +28,7 @@ Pod::Spec.new do |s|
     "ios/Frame Processor/FrameProcessorBindings.h",
     "ios/Frame Processor/FrameProcessorCallback.h",
     "ios/Frame Processor/FrameProcessorRuntimeManager.h",
+    "ios/React Helpers/RCTBridge+runOnJS.h",
     "cpp/**/*.{cpp}",
     # TODO: Find a way to include this header for other libs to use, while still allowing the Swift Umbrella Header to compile
     # "cpp/Frame.h"
