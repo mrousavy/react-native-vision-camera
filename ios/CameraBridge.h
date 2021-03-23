@@ -13,7 +13,6 @@
 #import <React/RCTViewManager.h>
 #import <React/RCTUIManager.h>
 
-#import "FrameProcessorBindings.h"
 #import "FrameProcessorCallback.h"
 #import "FrameProcessorRuntimeManager.h"
 

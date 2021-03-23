@@ -13,4 +13,6 @@
 
 - (instancetype) initWithBridge:(RCTBridge*)bridge;
 
+- (void) installFrameProcessorBindings;
+
 @end

@@ -11,11 +11,16 @@ import Foundation
 
 @objc(CameraViewManager)
 final class CameraViewManager: RCTViewManager {
+  // pragma MARK: Properties
+  
   private var runtimeManager: FrameProcessorRuntimeManager?
 
   override var bridge: RCTBridge! {
     didSet {
-      FrameProcessorBindings.installFrameProcessorBindings(bridge)
+      CameraQueues.videoQueue.async {
+        self.runtimeManager = FrameProcessorRuntimeManager(bridge: self.bridge)
+        self.runtimeManager?.installFrameProcessorBindings()
+      }
     }
   }
 
