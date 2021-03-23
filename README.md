@@ -79,4 +79,4 @@ function App() {
 
 <br />
 
-#### 🚀 Get started by [setting up permissions](https://cuvent.github.io/react-native-vision-camera/docs/)!
+#### 🚀 Get started by [setting up permissions](https://cuvent.github.io/react-native-vision-camera/docs/guides/)!
