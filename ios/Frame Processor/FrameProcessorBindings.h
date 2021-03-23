@@ -12,7 +12,7 @@
 
 @interface FrameProcessorBindings : NSObject
 
-+ (FrameProcessorRuntimeManager) makeRuntimeManager:(RCTBridge*)bridge;
++ (FrameProcessorRuntimeManager*) makeRuntimeManager:(RCTBridge*)bridge;
 + (void) installFrameProcessorBindings:(RCTBridge*)bridge;
 + (void) uninstallFrameProcessorBindings;
 
