@@ -24,10 +24,14 @@
 #import <ReactCommon/RCTTurboModuleManager.h>
 
 #if __has_include(<RNReanimated/NativeReanimatedModule.h>)
+#if __has_include(<RNReanimated/RuntimeManager.h>)
 #import <RNReanimated/RuntimeManager.h>
 #import <RNReanimated/RuntimeDecorator.h>
 #import <RNReanimated/REAIOSScheduler.h>
 #import <RNReanimated/REAIOSErrorHandler.h>
+#else
+#error Your react-native-reanimated version is not compatible with VisionCamera. Make sure you're using reanimated 2.0.2 or above!
+#endif
 #else
 #error The NativeReanimatedModule.h header could not be found, make sure you install react-native-reanimated!
 #endif
