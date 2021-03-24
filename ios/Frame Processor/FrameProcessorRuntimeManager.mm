@@ -31,12 +31,18 @@
 #endif
 
 #import "../../cpp/MakeJSIRuntime.h"
+#import "FrameProcessorUtils.h"
+#import "FrameProcessorCallback.h"
 
-#if __has_include("VisionCamera-Swift.h")
-#import "VisionCamera-Swift.h"
-#else
-#error Objective-C Generated Interface Header (VisionCamera-Swift.h) was not found!
-#endif
+// Forward declarations for the Swift classes
+__attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
+@interface CameraQueues : NSObject
+@property (nonatomic, class, readonly, strong) dispatch_queue_t _Nonnull videoQueue;
+@end
+__attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
+@interface CameraView : UIView
+@property (nonatomic, copy) FrameProcessorCallback _Nullable frameProcessorCallback;
+@end
 
 @implementation FrameProcessorRuntimeManager {
   std::unique_ptr<reanimated::RuntimeManager> runtimeManager;
@@ -85,12 +91,12 @@
     auto worklet = reanimated::ShareableValue::adapt(runtime, arguments[1], runtimeManager.get());
     NSLog(@"FrameProcessorBindings: Successfully created worklet!");
     
-    RCTExecuteOnMainQueue([worklet, viewTag]() -> void {
+    RCTExecuteOnMainQueue([worklet, viewTag, &self]() -> void {
       auto currentBridge = [RCTBridge currentBridge];
       auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
       auto view = static_cast<CameraView*>(anonymousView);
       
-      dispatch_async(CameraQueues.videoQueue, [worklet, view]() -> void {
+      dispatch_async(CameraQueues.videoQueue, [worklet, view, &self]() -> void {
         NSLog(@"FrameProcessorBindings: Converting worklet to Objective-C callback...");
         auto& rt = *runtimeManager->runtime;
         auto function = worklet->getValue(rt).asObject(rt).asFunction(rt);
