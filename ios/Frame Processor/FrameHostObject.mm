@@ -14,3 +14,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& na
   // TODO: Implement custom getters so you can access the frame from JS
   return jsi::Value(42);
 }
+
+void FrameHostObject::destroyBuffer() {
+  this->buffer = nil;
+}
