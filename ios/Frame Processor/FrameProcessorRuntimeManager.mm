@@ -6,16 +6,10 @@
 //  Copyright © 2021 Facebook. All rights reserved.
 //
 
-#import "FrameProcessorRuntimeManager.h"
-#import "../../cpp/MakeJSIRuntime.h"
-
-#if __has_include("VisionCamera-Swift.h")
-#import "VisionCamera-Swift.h"
-#else
-#error Objective-C Generated Interface Header (VisionCamera-Swift.h) was not found!
-#endif
-
 #import <Foundation/Foundation.h>
+#import "FrameProcessorRuntimeManager.h"
+
+#import <memory>
 
 #import <React/RCTBridge.h>
 #import <ReactCommon/RCTTurboModule.h>
@@ -36,7 +30,13 @@
 #error The NativeReanimatedModule.h header could not be found, make sure you install react-native-reanimated!
 #endif
 
-#import <memory>
+#import "../../cpp/MakeJSIRuntime.h"
+
+#if __has_include("VisionCamera-Swift.h")
+#import "VisionCamera-Swift.h"
+#else
+#error Objective-C Generated Interface Header (VisionCamera-Swift.h) was not found!
+#endif
 
 @implementation FrameProcessorRuntimeManager {
   std::unique_ptr<reanimated::RuntimeManager> runtimeManager;
