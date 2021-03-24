@@ -11,7 +11,7 @@
 #import <React/RCTBridge.h>
 #import <ReactCommon/RCTTurboModule.h>
 
-@implementation RCTBridge (RCTBridgeRunOnJS)
+@implementation RCTBridge (RunOnJS)
 
 - (void) runOnJS:(void (^)())block {
   auto callInvoker = [self jsCallInvoker];

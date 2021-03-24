@@ -11,7 +11,7 @@
 #import <Foundation/Foundation.h>
 #import <React/RCTBridge.h>
 
-@interface RCTBridge (RCTBridgeRunOnJS)
+@interface RCTBridge (RunOnJS)
 
 - (void) runOnJS:(void (^)(void))block;
 
