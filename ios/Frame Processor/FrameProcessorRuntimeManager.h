@@ -6,6 +6,8 @@
 //  Copyright © 2021 Facebook. All rights reserved.
 //
 
+#pragma once
+
 #import <Foundation/Foundation.h>
 #import <React/RCTBridge.h>
 
