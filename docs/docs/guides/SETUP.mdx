@@ -68,7 +68,7 @@ VisionCamera requires a minimum Android SDK version of **21 or higher**, and a t
 
 Open your project's `build.gradle`, and set the following values:
 
-```
+```groovy
 buildToolsVersion = "30.0.0"
 minSdkVersion = 21
 compileSdkVersion = 30
@@ -113,7 +113,7 @@ const newMicrophonePermission = await Camera.requestMicrophonePermission()
 The permission request status can have the following values:
 
 * `authorized`: Your app is authorized to use said permission. Continue with mounting the `<Camera>` view.
-* `denied`: Your app has already requested permissions from the user, but was explicitly denied. You cannot use the **request** functions again, but you can use the [`Linking` API](https://reactnative.dev/docs/linking#opensettings) to redirect the user to the Settings App where he can manually grant the permission.
+* `denied`: The user explicitly denied the permission request alert. You cannot use the **request** functions again, but you can use the [`Linking` API](https://reactnative.dev/docs/linking#opensettings) to redirect the user to the Settings App where he can manually grant the permission.
 
 <br />
 
