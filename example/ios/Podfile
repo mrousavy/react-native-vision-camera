@@ -11,7 +11,7 @@ target 'VisionCameraExample' do
     :hermes_enabled => true
   )
 
-  pod 'react-native-vision-camera', :path => '../..'
+  pod 'VisionCamera', :path => '../..'
 
   # Enables Flipper.
   #

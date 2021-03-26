@@ -279,8 +279,6 @@ PODS:
     - react-native-video/Video (= 5.1.1)
   - react-native-video/Video (5.1.1):
     - React-Core
-  - react-native-vision-camera (1.0.4):
-    - React-Core
   - React-perflogger (0.64.0)
   - React-RCTActionSheet (0.64.0):
     - React-Core/RCTActionSheetHeaders (= 0.64.0)
@@ -389,6 +387,8 @@ PODS:
     - React
   - RNVectorIcons (8.1.0):
     - React-Core
+  - VisionCamera (1.0.4):
+    - React-Core
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
     - Yoga (~> 1.14)
@@ -437,7 +437,6 @@ DEPENDENCIES:
   - "react-native-cameraroll (from `../node_modules/@react-native-community/cameraroll`)"
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-video (from `../node_modules/react-native-video`)
-  - react-native-vision-camera (from `../..`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../node_modules/react-native/Libraries/NativeAnimation`)
@@ -455,6 +454,7 @@ DEPENDENCIES:
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNStaticSafeAreaInsets (from `../node_modules/react-native-static-safe-area-insets`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
+  - VisionCamera (from `../..`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -512,8 +512,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/slider"
   react-native-video:
     :path: "../node_modules/react-native-video"
-  react-native-vision-camera:
-    :path: "../.."
   React-perflogger:
     :path: "../node_modules/react-native/ReactCommon/reactperflogger"
   React-RCTActionSheet:
@@ -548,6 +546,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-static-safe-area-insets"
   RNVectorIcons:
     :path: "../node_modules/react-native-vector-icons"
+  VisionCamera:
+    :path: "../.."
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -583,7 +583,6 @@ SPEC CHECKSUMS:
   react-native-cameraroll: 1965db75c851b15e77a22ca0ac78e32af6b571ae
   react-native-slider: e99fc201cefe81270fc9d81714a7a0f5e566b168
   react-native-video: 0bb76b6d6b77da3009611586c7dbf817b947f30e
-  react-native-vision-camera: d0d6fdd334f1536d016b3ca92064f25a6312e09c
   React-perflogger: 9c547d8f06b9bf00cb447f2b75e8d7f19b7e02af
   React-RCTActionSheet: 3080b6e12e0e1a5b313c8c0050699b5c794a1b11
   React-RCTAnimation: 3f96f21a497ae7dabf4d2f150ee43f906aaf516f
@@ -601,9 +600,10 @@ SPEC CHECKSUMS:
   RNReanimated: 64f6c5789f82818c07ba3c71864b73619cb23c76
   RNStaticSafeAreaInsets: 6103cf09647fa427186d30f67b0f5163c1ae8252
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
+  VisionCamera: df21c7ec84e2fb254ee0e085bafcb95b0217376a
   Yoga: 8c8436d4171c87504c648ae23b1d81242bdf3bbf
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: db25a39701ce2438513512d2baf1909bd711d24d
+PODFILE CHECKSUM: 703892d4cb39598dd9a51bd3a58fe2502c68dfbd
 
 COCOAPODS: 1.10.1
