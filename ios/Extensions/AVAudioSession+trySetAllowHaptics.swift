@@ -6,8 +6,8 @@
 //  Copyright © 2021 Facebook. All rights reserved.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 
 extension AVAudioSession {
   /**
@@ -16,7 +16,7 @@ extension AVAudioSession {
   func trySetAllowHaptics(_ allowHaptics: Bool) {
     if #available(iOS 13.0, *) {
       if !self.allowHapticsAndSystemSoundsDuringRecording {
-        try? self.setAllowHapticsAndSystemSoundsDuringRecording(true)
+        try? self.setAllowHapticsAndSystemSoundsDuringRecording(allowHaptics)
       }
     }
   }

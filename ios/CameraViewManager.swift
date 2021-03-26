@@ -11,7 +11,11 @@ import Foundation
 
 @objc(CameraViewManager)
 final class CameraViewManager: RCTViewManager {
-  // MARK: Lifecycle
+  // MARK: Internal
+
+  override var methodQueue: DispatchQueue! {
+    return DispatchQueue.main
+  }
 
   override static func requiresMainQueueSetup() -> Bool {
     return true
@@ -20,17 +24,6 @@ final class CameraViewManager: RCTViewManager {
   // pragma MARK: Setup
   override final func view() -> UIView! {
     return CameraView()
-  }
-
-  private func getCameraView(withTag tag: NSNumber) -> CameraView {
-    // swiftlint:disable force_cast
-    return bridge.uiManager.view(forReactTag: tag) as! CameraView
-  }
-
-  // MARK: Internal
-
-  override var methodQueue: DispatchQueue! {
-    return DispatchQueue.main
   }
 
   // pragma MARK: Exported Functions
@@ -153,6 +146,11 @@ final class CameraViewManager: RCTViewManager {
   }
 
   // MARK: Private
+
+  private func getCameraView(withTag tag: NSNumber) -> CameraView {
+    // swiftlint:disable force_cast
+    return bridge.uiManager.view(forReactTag: tag) as! CameraView
+  }
 
   private final func getAllDeviceTypes() -> [AVCaptureDevice.DeviceType] {
     var deviceTypes: [AVCaptureDevice.DeviceType] = []

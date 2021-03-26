@@ -6,53 +6,35 @@
 //  Copyright © 2021 Facebook. All rights reserved.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 
 /**
  Extension for CameraView that sets up the AVCaptureSession, Device and Format.
  */
 extension CameraView {
-  @objc
-  func sessionRuntimeError(notification: Notification) {
-    ReactLogger.log(level: .error, message: "Unexpected Camera Runtime Error occured!")
-    guard let error = notification.userInfo?[AVCaptureSessionErrorKey] as? AVError else {
-      return
-    }
-    
-    invokeOnError(.unknown(message: error._nsError.description), cause: error._nsError)
-    
-    if isActive {
-      // restart capture session after an error occured
-      queue.async {
-        self.captureSession.startRunning()
-      }
-    }
-  }
-  
-  
   /**
    Configures the Capture Session.
    */
-  internal final func configureCaptureSession() {
+  final func configureCaptureSession() {
     ReactLogger.logJS(level: .info, message: "Configuring Session...")
     isReady = false
-    
+
     #if targetEnvironment(simulator)
-    return invokeOnError(.device(.notAvailableOnSimulator))
+      return invokeOnError(.device(.notAvailableOnSimulator))
     #endif
-    
+
     guard cameraId != nil else {
       return invokeOnError(.device(.noDevice))
     }
     let cameraId = self.cameraId! as String
-    
+
     ReactLogger.log(level: .info, message: "Initializing Camera with device \(cameraId)...")
     captureSession.beginConfiguration()
     defer {
       captureSession.commitConfiguration()
     }
-    
+
     if let preset = self.preset {
       var sessionPreset: AVCaptureSession.Preset?
       do {
@@ -71,7 +53,7 @@ extension CameraView {
         }
       }
     }
-    
+
     // INPUTS
     // Video Input
     do {
@@ -90,7 +72,7 @@ extension CameraView {
     } catch {
       return invokeOnError(.device(.invalid))
     }
-    
+
     // Microphone (Audio Input)
     do {
       if let audioDeviceInput = self.audioDeviceInput {
@@ -99,7 +81,7 @@ extension CameraView {
       guard let audioDevice = AVCaptureDevice.default(for: .audio) else {
         return invokeOnError(.device(.microphoneUnavailable))
       }
-      
+
       audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice)
       guard captureSession.canAddInput(audioDeviceInput!) else {
         return invokeOnError(.parameter(.unsupportedInput(inputDescriptor: "audio-input")))
@@ -108,7 +90,7 @@ extension CameraView {
     } catch {
       return invokeOnError(.device(.invalid))
     }
-    
+
     // OUTPUTS
     if let photoOutput = self.photoOutput {
       captureSession.removeOutput(photoOutput)
@@ -129,7 +111,7 @@ extension CameraView {
     if videoDeviceInput!.device.position == .front {
       photoOutput!.mirror()
     }
-    
+
     // Video Output
     if let movieOutput = self.movieOutput {
       captureSession.removeOutput(movieOutput)
@@ -142,7 +124,7 @@ extension CameraView {
     if videoDeviceInput!.device.position == .front {
       movieOutput!.mirror()
     }
-    
+
     // Barcode Scanning
     if let metadataOutput = self.metadataOutput {
       captureSession.removeOutput(metadataOutput)
@@ -170,58 +152,24 @@ extension CameraView {
       }
       metadataOutput!.metadataObjectTypes = objectTypes
     }
-    
+
     invokeOnInitialized()
     isReady = true
     ReactLogger.logJS(level: .info, message: "Session successfully configured!")
   }
-  
-  /**
-   Configures the Video Device to find the best matching Format.
-   */
-  internal final func configureFormat() {
-    ReactLogger.logJS(level: .info, message: "Configuring Format...")
-    guard let filter = self.format else {
-      // Format Filter was null. Ignore it.
-      return
-    }
-    guard let device = videoDeviceInput?.device else {
-      return invokeOnError(.session(.cameraNotReady))
-    }
-    
-    if device.activeFormat.matchesFilter(filter) {
-      ReactLogger.log(level: .info, message: "Active format already matches filter.")
-      return
-    }
-    
-    // get matching format
-    let matchingFormats = device.formats.filter { $0.matchesFilter(filter) }.sorted { $0.isBetterThan($1) }
-    guard let format = matchingFormats.first else {
-      return invokeOnError(.format(.invalidFormat))
-    }
-    
-    do {
-      try device.lockForConfiguration()
-      device.activeFormat = format
-      device.unlockForConfiguration()
-      ReactLogger.logJS(level: .info, message: "Format successfully configured!")
-    } catch let error as NSError {
-      return invokeOnError(.device(.configureError), cause: error)
-    }
-  }
-  
+
   /**
    Configures the Video Device with the given FPS, HDR and ColorSpace.
    */
-  internal final func configureDevice() {
+  final func configureDevice() {
     ReactLogger.logJS(level: .info, message: "Configuring Device...")
     guard let device = videoDeviceInput?.device else {
       return invokeOnError(.session(.cameraNotReady))
     }
-    
+
     do {
       try device.lockForConfiguration()
-      
+
       if let fps = self.fps?.int32Value {
         let duration = CMTimeMake(value: 1, timescale: fps)
         device.activeVideoMinFrameDuration = duration
@@ -251,11 +199,62 @@ extension CameraView {
       if colorSpace != nil, let avColorSpace = try? AVCaptureColorSpace(string: String(colorSpace!)) {
         device.activeColorSpace = avColorSpace
       }
-      
+
       device.unlockForConfiguration()
       ReactLogger.logJS(level: .info, message: "Device successfully configured!")
     } catch let error as NSError {
       return invokeOnError(.device(.configureError), cause: error)
+    }
+  }
+
+  /**
+   Configures the Video Device to find the best matching Format.
+   */
+  final func configureFormat() {
+    ReactLogger.logJS(level: .info, message: "Configuring Format...")
+    guard let filter = self.format else {
+      // Format Filter was null. Ignore it.
+      return
+    }
+    guard let device = videoDeviceInput?.device else {
+      return invokeOnError(.session(.cameraNotReady))
+    }
+
+    if device.activeFormat.matchesFilter(filter) {
+      ReactLogger.log(level: .info, message: "Active format already matches filter.")
+      return
+    }
+
+    // get matching format
+    let matchingFormats = device.formats.filter { $0.matchesFilter(filter) }.sorted { $0.isBetterThan($1) }
+    guard let format = matchingFormats.first else {
+      return invokeOnError(.format(.invalidFormat))
+    }
+
+    do {
+      try device.lockForConfiguration()
+      device.activeFormat = format
+      device.unlockForConfiguration()
+      ReactLogger.logJS(level: .info, message: "Format successfully configured!")
+    } catch let error as NSError {
+      return invokeOnError(.device(.configureError), cause: error)
+    }
+  }
+
+  @objc
+  func sessionRuntimeError(notification: Notification) {
+    ReactLogger.log(level: .error, message: "Unexpected Camera Runtime Error occured!")
+    guard let error = notification.userInfo?[AVCaptureSessionErrorKey] as? AVError else {
+      return
+    }
+
+    invokeOnError(.unknown(message: error._nsError.description), cause: error._nsError)
+
+    if isActive {
+      // restart capture session after an error occured
+      queue.async {
+        self.captureSession.startRunning()
+      }
     }
   }
 }
