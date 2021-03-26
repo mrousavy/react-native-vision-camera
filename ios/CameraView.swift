@@ -293,6 +293,7 @@ final class CameraView: UIView {
         // allow background music playback
         try audioSession.setCategory(AVAudioSession.Category.playAndRecord, options: [.mixWithOthers, .allowBluetoothA2DP, .defaultToSpeaker])
       }
+      audioSession.trySetAllowHaptics(true)
       // activate current audio session because camera is active
       try audioSession.setActive(true)
     } catch let error as NSError {
