@@ -272,30 +272,32 @@ final class CameraView: UIView {
 
   private let captureSession = AVCaptureSession()
 
+  private final func setAutomaticallyConfiguresAudioSession(_ automaticallyConfiguresAudioSession: Bool) {
+    if captureSession.automaticallyConfiguresApplicationAudioSession != automaticallyConfiguresAudioSession {
+      captureSession.beginConfiguration()
+      captureSession.automaticallyConfiguresApplicationAudioSession = automaticallyConfiguresAudioSession
+      captureSession.commitConfiguration()
+    }
+  }
+
   // pragma MARK: Session, Device and Format Configuration
   /**
    Configures the Audio session to allow background-music playback while recording.
    */
   private final func configureAudioSession() {
     let start = DispatchTime.now()
-    let audioSession = AVAudioSession.sharedInstance()
     do {
-      if captureSession.automaticallyConfiguresApplicationAudioSession {
-        captureSession.beginConfiguration()
-        captureSession.automaticallyConfiguresApplicationAudioSession = false
-        captureSession.commitConfiguration()
-      }
+      setAutomaticallyConfiguresAudioSession(false)
+      let audioSession = AVAudioSession.sharedInstance()
       if audioSession.category != .playAndRecord {
         // allow background music playback
-        try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playAndRecord, options: [.mixWithOthers, .allowBluetooth, .defaultToSpeaker])
+        try audioSession.setCategory(AVAudioSession.Category.playAndRecord, options: [.mixWithOthers, .allowBluetoothA2DP, .defaultToSpeaker])
       }
       // activate current audio session because camera is active
-      try AVAudioSession.sharedInstance().setActive(true)
+      try audioSession.setActive(true)
     } catch let error as NSError {
       self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.localizedDescription)), cause: error)
-      captureSession.beginConfiguration()
-      captureSession.automaticallyConfiguresApplicationAudioSession = true
-      captureSession.commitConfiguration()
+      setAutomaticallyConfiguresAudioSession(true)
     }
     let end = DispatchTime.now()
     let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
