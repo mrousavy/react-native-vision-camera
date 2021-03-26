@@ -16,5 +16,6 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& na
 }
 
 void FrameHostObject::destroyBuffer() {
+  // ARC will hopefully delete it lol
   this->buffer = nil;
 }
