@@ -15,8 +15,8 @@ extension AVAudioSession {
    */
   func trySetAllowHaptics(_ allowHaptics: Bool) {
     if #available(iOS 13.0, *) {
-      if !audioSession.allowHapticsAndSystemSoundsDuringRecording {
-        try? audioSession.setAllowHapticsAndSystemSoundsDuringRecording(true)
+      if !self.allowHapticsAndSystemSoundsDuringRecording {
+        try? self.setAllowHapticsAndSystemSoundsDuringRecording(true)
       }
     }
   }

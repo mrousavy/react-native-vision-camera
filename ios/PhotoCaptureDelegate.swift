@@ -27,8 +27,8 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     defer {
       delegatesReferences.removeAll(where: { $0 == self })
     }
-    if let error = error {
-      return promise.reject(error: .capture(.unknown(message: error.description)), cause: error as NSError)
+    if let error = error as NSError? {
+      return promise.reject(error: .capture(.unknown(message: error.description)), cause: error)
     }
 
     let error = ErrorPointer(nilLiteral: ())
@@ -66,8 +66,8 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     defer {
       delegatesReferences.removeAll(where: { $0 == self })
     }
-    if let error = error {
-      return promise.reject(error: .capture(.unknown(message: error.description)), cause: error as NSError)
+    if let error = error as NSError? {
+      return promise.reject(error: .capture(.unknown(message: error.description)), cause: error)
     }
   }
 

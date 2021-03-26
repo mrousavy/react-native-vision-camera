@@ -33,8 +33,8 @@ class RecordingDelegateWithCallback: NSObject, AVCaptureFileOutputRecordingDeleg
       self.resetTorchMode()
       delegateReferences.removeAll(where: { $0 == self })
     }
-    if let error = error {
-      return callback([NSNull(), makeReactError(.capture(.unknown(message: error.description)), cause: error as NSError)])
+    if let error = error as NSError? {
+      return callback([NSNull(), makeReactError(.capture(.unknown(message: error.description)), cause: error)])
     }
 
     let seconds = CMTimeGetSeconds(output.recordedDuration)
