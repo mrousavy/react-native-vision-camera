@@ -55,7 +55,7 @@ export interface ErrorWithCause {
    */
   domain?: string;
   /**
-   * The native error description (Localized on iOS)
+   * The native error description
    *
    * * iOS: `NSError.message`
    * * Android: `Throwable.message`

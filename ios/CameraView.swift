@@ -203,7 +203,7 @@ final class CameraView: UIView {
         self.captureSession.startRunning()
       }
     }
-    invokeOnError(.unknown(message: error.localizedDescription), cause: error as NSError)
+    invokeOnError(.unknown(message: error.description), cause: error as NSError)
   }
 
   internal final func setTorchMode(_ torchMode: String) {
@@ -251,7 +251,7 @@ final class CameraView: UIView {
       causeDictionary = [
         "code": cause.code,
         "domain": cause.domain,
-        "message": cause.localizedDescription,
+        "message": cause.description,
         "details": cause.userInfo,
       ]
     }
@@ -296,7 +296,7 @@ final class CameraView: UIView {
       // activate current audio session because camera is active
       try audioSession.setActive(true)
     } catch let error as NSError {
-      self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.localizedDescription)), cause: error)
+      self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)), cause: error)
       setAutomaticallyConfiguresAudioSession(true)
     }
     let end = DispatchTime.now()

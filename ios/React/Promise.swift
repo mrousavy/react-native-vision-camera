@@ -58,7 +58,7 @@ func withPromise(_ promise: Promise, _ block: () throws -> Any?) {
   } catch let error as CameraError {
     promise.reject(error: error)
   } catch let error as NSError {
-    promise.reject(error: CameraError.unknown(message: error.localizedDescription), cause: error)
+    promise.reject(error: CameraError.unknown(message: error.description), cause: error)
   }
 }
 

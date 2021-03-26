@@ -34,7 +34,7 @@ class RecordingDelegateWithCallback: NSObject, AVCaptureFileOutputRecordingDeleg
       delegateReferences.removeAll(where: { $0 == self })
     }
     if let error = error {
-      return callback([NSNull(), makeReactError(.capture(.unknown(message: error.localizedDescription)), cause: error as NSError)])
+      return callback([NSNull(), makeReactError(.capture(.unknown(message: error.description)), cause: error as NSError)])
     }
 
     let seconds = CMTimeGetSeconds(output.recordedDuration)
