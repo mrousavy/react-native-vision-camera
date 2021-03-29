@@ -71,7 +71,6 @@
     "@react-native-community/eslint-config": "^2.0.0",
     "@react-native-community/eslint-plugin": "^1.1.0",
     "@release-it/conventional-changelog": "^2.0.0",
-    "@types/jest": "^26.0.0",
     "@types/react": "^17.0.2",
     "@types/react-native": "0.63.52",
     "@typescript-eslint/eslint-plugin": "^4.18.0",
