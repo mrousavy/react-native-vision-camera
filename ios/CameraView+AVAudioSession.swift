@@ -19,7 +19,7 @@ extension CameraView {
   final func configureAudioSession() {
     let start = DispatchTime.now()
     do {
-      setAutomaticallyConfiguresAudioSession(false)
+      try addAudioInput()
       let audioSession = AVAudioSession.sharedInstance()
       if audioSession.category != .playAndRecord {
         // allow background music playback
@@ -30,25 +30,57 @@ extension CameraView {
       // activate current audio session because camera is active
       try audioSession.setActive(true)
     } catch let error as NSError {
-      self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)), cause: error)
-      setAutomaticallyConfiguresAudioSession(true)
+      switch error.code {
+      case 561_017_449:
+        self.invokeOnError(.session(.audioInUseByOtherApp), cause: error)
+      default:
+        self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)), cause: error)
+      }
+      self.removeAudioInput()
     }
     let end = DispatchTime.now()
     let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
     ReactLogger.log(level: .info, message: "Configured Audio session in \(Double(nanoTime) / 1_000_000)ms!")
   }
 
-  private final func setAutomaticallyConfiguresAudioSession(_ automaticallyConfiguresAudioSession: Bool) {
-    if captureSession.automaticallyConfiguresApplicationAudioSession != automaticallyConfiguresAudioSession {
-      captureSession.beginConfiguration()
-      captureSession.automaticallyConfiguresApplicationAudioSession = automaticallyConfiguresAudioSession
-      captureSession.commitConfiguration()
+  /**
+   Configures the CaptureSession and adds the audio device if it has not already been added yet.
+   */
+  private final func addAudioInput() throws {
+    if audioDeviceInput != nil {
+      // we already added the audio device, don't add it again
+      return
     }
+    removeAudioInput()
+    captureSession.beginConfiguration()
+    guard let audioDevice = AVCaptureDevice.default(for: .audio) else {
+      throw CameraError.device(.microphoneUnavailable)
+    }
+    audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice)
+    guard captureSession.canAddInput(audioDeviceInput!) else {
+      throw CameraError.parameter(.unsupportedInput(inputDescriptor: "audio-input"))
+    }
+    captureSession.addInput(audioDeviceInput!)
+    captureSession.automaticallyConfiguresApplicationAudioSession = true
+    captureSession.commitConfiguration()
+  }
+
+  /**
+   Configures the CaptureSession and removes the audio device if it has been added before.
+   */
+  private final func removeAudioInput() {
+    guard let audioInput = audioDeviceInput else {
+      return
+    }
+    captureSession.beginConfiguration()
+    captureSession.removeInput(audioInput)
+    audioDeviceInput = nil
+    captureSession.commitConfiguration()
   }
 
   @objc
   func audioSessionInterrupted(notification: Notification) {
-    ReactLogger.log(level: .error, message: "The Audio Session was interrupted!")
+    ReactLogger.log(level: .error, message: "Audio Session Interruption Notification!")
     guard let userInfo = notification.userInfo,
           let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
           let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
@@ -56,13 +88,15 @@ extension CameraView {
     }
     switch type {
     case .began:
-      // TODO: Should we also disable the camera here? I think it will throw a runtime error
-      // disable audio session
-      try? AVAudioSession.sharedInstance().setActive(false)
+      // Something interrupted our Audio Session, stop recording audio.
+      ReactLogger.log(level: .error, message: "The Audio Session was interrupted!")
+      removeAudioInput()
     case .ended:
+      ReactLogger.log(level: .error, message: "The Audio Session interruption has ended.")
       guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else { return }
       let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
       if options.contains(.shouldResume) {
+        ReactLogger.log(level: .error, message: "Resuming interrupted Audio Session...")
         // restart audio session because interruption is over
         configureAudioSession()
       } else {

@@ -154,6 +154,7 @@ enum FormatError {
 enum SessionError {
   case cameraNotReady
   case audioSessionSetupFailed(reason: String)
+  case audioInUseByOtherApp
 
   // MARK: Internal
 
@@ -163,6 +164,8 @@ enum SessionError {
       return "camera-not-ready"
     case .audioSessionSetupFailed:
       return "audio-session-setup-failed"
+    case .audioInUseByOtherApp:
+      return "audio-in-use-by-other-app"
     }
   }
 
@@ -172,6 +175,8 @@ enum SessionError {
       return "The Camera is not ready yet! Wait for the onInitialized() callback!"
     case let .audioSessionSetupFailed(reason):
       return "The audio session failed to setup! \(reason)"
+    case .audioInUseByOtherApp:
+      return "The audio session is already in use by another app with higher priority!"
     }
   }
 }
