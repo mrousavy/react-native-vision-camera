@@ -47,6 +47,14 @@ final class CameraView: UIView {
                                            name: .AVCaptureSessionRuntimeError,
                                            object: captureSession)
     NotificationCenter.default.addObserver(self,
+                                           selector: #selector(sessionInterruptionBegin),
+                                           name: .AVCaptureSessionWasInterrupted,
+                                           object: captureSession)
+    NotificationCenter.default.addObserver(self,
+                                           selector: #selector(sessionInterruptionEnd),
+                                           name: .AVCaptureSessionInterruptionEnded,
+                                           object: captureSession)
+    NotificationCenter.default.addObserver(self,
                                            selector: #selector(audioSessionInterrupted),
                                            name: AVAudioSession.interruptionNotification,
                                            object: AVAudioSession.sharedInstance)
@@ -55,6 +63,12 @@ final class CameraView: UIView {
   deinit {
     NotificationCenter.default.removeObserver(self,
                                               name: .AVCaptureSessionRuntimeError,
+                                              object: captureSession)
+    NotificationCenter.default.removeObserver(self,
+                                              name: .AVCaptureSessionWasInterrupted,
+                                              object: captureSession)
+    NotificationCenter.default.removeObserver(self,
+                                              name: .AVCaptureSessionInterruptionEnded,
                                               object: captureSession)
     NotificationCenter.default.removeObserver(self,
                                               name: AVAudioSession.interruptionNotification,
@@ -234,7 +248,7 @@ final class CameraView: UIView {
 
   // pragma MARK: Event Invokers
   internal final func invokeOnError(_ error: CameraError, cause: NSError? = nil) {
-    ReactLogger.log(level: .error, message: "Invoking onError(): \(error.message)", alsoLogToJS: true)
+    ReactLogger.log(level: .error, message: "Invoking onError(): \(error.message)")
     guard let onError = self.onError else { return }
 
     var causeDictionary: [String: Any]?
@@ -254,7 +268,7 @@ final class CameraView: UIView {
   }
 
   internal final func invokeOnInitialized() {
-    ReactLogger.log(level: .info, message: "Camera initialized!", alsoLogToJS: true)
+    ReactLogger.log(level: .info, message: "Camera initialized!")
     guard let onInitialized = self.onInitialized else { return }
     onInitialized([String: Any]())
   }

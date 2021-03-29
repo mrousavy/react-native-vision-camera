@@ -48,13 +48,14 @@ extension CameraView {
   /**
    Configures the CaptureSession and adds the audio device if it has not already been added yet.
    */
-  private final func addAudioInput() throws {
+  func addAudioInput() throws {
     if audioDeviceInput != nil {
       // we already added the audio device, don't add it again
       return
     }
     removeAudioInput()
 
+    ReactLogger.log(level: .info, message: "Adding audio input...")
     captureSession.beginConfiguration()
     guard let audioDevice = AVCaptureDevice.default(for: .audio) else {
       throw CameraError.device(.microphoneUnavailable)
@@ -71,11 +72,12 @@ extension CameraView {
   /**
    Configures the CaptureSession and removes the audio device if it has been added before.
    */
-  private final func removeAudioInput() {
+  func removeAudioInput() {
     guard let audioInput = audioDeviceInput else {
       return
     }
 
+    ReactLogger.log(level: .info, message: "Removing audio input...")
     captureSession.beginConfiguration()
     captureSession.removeInput(audioInput)
     audioDeviceInput = nil
