@@ -2,7 +2,6 @@ import type { ViewProps } from 'react-native';
 import type { CameraDevice, CameraDeviceFormat, ColorSpace } from './CameraDevice';
 import type { CameraRuntimeError } from './CameraError';
 import type { CameraPreset } from './CameraPreset';
-import type { Code, CodeType } from './Code';
 
 export interface CameraProps extends ViewProps {
   /**
@@ -127,16 +126,5 @@ export interface CameraProps extends ViewProps {
    * Called when the camera was successfully initialized.
    */
   onInitialized?: () => void;
-
-  // TODO: Remove once frameProcessors land
-  /**
-   * Specify the code types this camera can scan. Will be removed with the addition of Frame Processors.
-   */
-  scannableCodes?: CodeType[];
-  // TODO: Remove once frameProcessors land
-  /**
-   * Called when one or multiple codes have been scanned. Will be removed with the addition of Frame Processors.
-   */
-  onCodeScanned?: (codes: Code[]) => void;
   //#endregion
 }

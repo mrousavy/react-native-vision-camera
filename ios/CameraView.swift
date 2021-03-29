@@ -24,9 +24,7 @@ private let propsThatRequireReconfiguration = ["cameraId",
                                                "enableDepthData",
                                                "enableHighResolutionCapture",
                                                "enablePortraitEffectsMatteDelivery",
-                                               "preset",
-                                               "onCodeScanned",
-                                               "scannableCodes"]
+                                               "preset"]
 private let propsThatRequireDeviceReconfiguration = ["fps",
                                                      "hdr",
                                                      "lowLightBoost",
@@ -99,7 +97,7 @@ final class CameraView: UIView {
 
   // pragma MARK: Private Properties
   internal var isReady = false
-  /// The serial execution queue for the camera preview layer (input stream) as well as output processing (take photo, record video, process metadata/barcodes)
+  /// The serial execution queue for the camera preview layer (input stream) as well as output processing (take photo and record video)
   internal let queue = DispatchQueue(label: "com.mrousavy.camera-queue", qos: .userInteractive, attributes: [], autoreleaseFrequency: .inherit, target: nil)
   // Capture Session
   internal let captureSession = AVCaptureSession()
@@ -109,7 +107,6 @@ final class CameraView: UIView {
   // Outputs
   internal var photoOutput: AVCapturePhotoOutput?
   internal var movieOutput: AVCaptureMovieFileOutput?
-  internal var metadataOutput: AVCaptureMetadataOutput?
   // CameraView+TakePhoto
   internal var photoCaptureDelegates: [PhotoCaptureDelegate] = []
   // CameraView+RecordVideo

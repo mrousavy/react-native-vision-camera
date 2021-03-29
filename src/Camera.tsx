@@ -5,7 +5,6 @@ import type { CameraDevice } from './CameraDevice';
 import type { ErrorWithCause } from './CameraError';
 import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError';
 import type { CameraProps } from './CameraProps';
-import type { Code } from './Code';
 import type { PhotoFile, TakePhotoOptions } from './PhotoFile';
 import type { Point } from './Point';
 import type { TakeSnapshotOptions } from './Snapshot';
@@ -20,14 +19,10 @@ interface OnErrorEvent {
   message: string;
   cause?: ErrorWithCause;
 }
-interface OnCodeScannedEvent {
-  codes: Code[];
-}
 type NativeCameraViewProps = Omit<CameraProps, 'device' | 'onInitialized' | 'onError' | 'onCodeScanned'> & {
   cameraId: string;
   onInitialized?: (event: NativeSyntheticEvent<void>) => void;
   onError?: (event: NativeSyntheticEvent<OnErrorEvent>) => void;
-  onCodeScanned?: (event: NativeSyntheticEvent<OnCodeScannedEvent>) => void;
 };
 type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>;
 //#endregion
@@ -94,7 +89,6 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     this.state = { cameraId: undefined };
     this.onInitialized = this.onInitialized.bind(this);
     this.onError = this.onError.bind(this);
-    this.onCodeScanned = this.onCodeScanned.bind(this);
     this.ref = React.createRef<RefType>();
   }
 
@@ -375,14 +369,6 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   private onInitialized(): void {
     this.props.onInitialized?.();
   }
-
-  private onCodeScanned(event: NativeSyntheticEvent<OnCodeScannedEvent>): void {
-    if (event == null) throw new Error('onCodeScanned() was invoked but event was null!');
-
-    if (this.props.onCodeScanned == null)
-      console.warn('Camera: onCodeScanned event was invoked but no listeners attached! Did you forget to remove the `scannableCodes` property?');
-    else this.props.onCodeScanned(event.nativeEvent.codes);
-  }
   //#endregion
 
   /**
@@ -403,16 +389,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
 
     // We remove the big `device` object from the props because we only need to pass `cameraId` to native.
     const { device: _, ...props } = this.props;
-    return (
-      <NativeCameraView
-        {...props}
-        cameraId={this.state.cameraId}
-        ref={this.ref}
-        onInitialized={this.onInitialized}
-        onError={this.onError}
-        onCodeScanned={this.onCodeScanned}
-      />
-    );
+    return <NativeCameraView {...props} cameraId={this.state.cameraId} ref={this.ref} onInitialized={this.onInitialized} onError={this.onError} />;
   }
 }
 //#endregion

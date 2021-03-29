@@ -24,7 +24,6 @@
 		B887519025E0102000DB86D6 /* AVCaptureDevice.Format+matchesFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887516925E0102000DB86D6 /* AVCaptureDevice.Format+matchesFilter.swift */; };
 		B887519125E0102000DB86D6 /* AVCaptureDevice.Format+toDictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887516A25E0102000DB86D6 /* AVCaptureDevice.Format+toDictionary.swift */; };
 		B887519225E0102000DB86D6 /* AVCaptureMovieFileOutput+mirror.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887516B25E0102000DB86D6 /* AVCaptureMovieFileOutput+mirror.swift */; };
-		B887519325E0102000DB86D6 /* CameraView+CodeScanning.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887516C25E0102000DB86D6 /* CameraView+CodeScanning.swift */; };
 		B887519425E0102000DB86D6 /* MakeReactError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887516E25E0102000DB86D6 /* MakeReactError.swift */; };
 		B887519525E0102000DB86D6 /* ReactLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887516F25E0102000DB86D6 /* ReactLogger.swift */; };
 		B887519625E0102000DB86D6 /* Promise.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887517025E0102000DB86D6 /* Promise.swift */; };
@@ -34,7 +33,6 @@
 		B887519A25E0102000DB86D6 /* AVVideoCodecType+descriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887517525E0102000DB86D6 /* AVVideoCodecType+descriptor.swift */; };
 		B887519B25E0102000DB86D6 /* AVCaptureSession.Preset+descriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887517625E0102000DB86D6 /* AVCaptureSession.Preset+descriptor.swift */; };
 		B887519C25E0102000DB86D6 /* AVCaptureDevice.TorchMode+descriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887517725E0102000DB86D6 /* AVCaptureDevice.TorchMode+descriptor.swift */; };
-		B887519D25E0102000DB86D6 /* AVMetadataObject.ObjectType+descriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887517825E0102000DB86D6 /* AVMetadataObject.ObjectType+descriptor.swift */; };
 		B887519E25E0102000DB86D6 /* AVCapturePhotoOutput.QualityPrioritization+descriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887517925E0102000DB86D6 /* AVCapturePhotoOutput.QualityPrioritization+descriptor.swift */; };
 		B887519F25E0102000DB86D6 /* AVCaptureDevice.DeviceType+descriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887517A25E0102000DB86D6 /* AVCaptureDevice.DeviceType+descriptor.swift */; };
 		B88751A025E0102000DB86D6 /* AVAuthorizationStatus+descriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887517B25E0102000DB86D6 /* AVAuthorizationStatus+descriptor.swift */; };
@@ -81,7 +79,6 @@
 		B887516925E0102000DB86D6 /* AVCaptureDevice.Format+matchesFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AVCaptureDevice.Format+matchesFilter.swift"; sourceTree = "<group>"; };
 		B887516A25E0102000DB86D6 /* AVCaptureDevice.Format+toDictionary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AVCaptureDevice.Format+toDictionary.swift"; sourceTree = "<group>"; };
 		B887516B25E0102000DB86D6 /* AVCaptureMovieFileOutput+mirror.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AVCaptureMovieFileOutput+mirror.swift"; sourceTree = "<group>"; };
-		B887516C25E0102000DB86D6 /* CameraView+CodeScanning.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CameraView+CodeScanning.swift"; sourceTree = "<group>"; };
 		B887516E25E0102000DB86D6 /* MakeReactError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MakeReactError.swift; sourceTree = "<group>"; };
 		B887516F25E0102000DB86D6 /* ReactLogger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReactLogger.swift; sourceTree = "<group>"; };
 		B887517025E0102000DB86D6 /* Promise.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Promise.swift; sourceTree = "<group>"; };
@@ -91,7 +88,6 @@
 		B887517525E0102000DB86D6 /* AVVideoCodecType+descriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AVVideoCodecType+descriptor.swift"; sourceTree = "<group>"; };
 		B887517625E0102000DB86D6 /* AVCaptureSession.Preset+descriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AVCaptureSession.Preset+descriptor.swift"; sourceTree = "<group>"; };
 		B887517725E0102000DB86D6 /* AVCaptureDevice.TorchMode+descriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AVCaptureDevice.TorchMode+descriptor.swift"; sourceTree = "<group>"; };
-		B887517825E0102000DB86D6 /* AVMetadataObject.ObjectType+descriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AVMetadataObject.ObjectType+descriptor.swift"; sourceTree = "<group>"; };
 		B887517925E0102000DB86D6 /* AVCapturePhotoOutput.QualityPrioritization+descriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AVCapturePhotoOutput.QualityPrioritization+descriptor.swift"; sourceTree = "<group>"; };
 		B887517A25E0102000DB86D6 /* AVCaptureDevice.DeviceType+descriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AVCaptureDevice.DeviceType+descriptor.swift"; sourceTree = "<group>"; };
 		B887517B25E0102000DB86D6 /* AVAuthorizationStatus+descriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AVAuthorizationStatus+descriptor.swift"; sourceTree = "<group>"; };
@@ -133,7 +129,6 @@
 				B887518425E0102000DB86D6 /* CameraView.swift */,
 				B86DC976260E315100FB17B2 /* CameraView+AVCaptureSession.swift */,
 				B86DC973260E310600FB17B2 /* CameraView+AVAudioSession.swift */,
-				B887516C25E0102000DB86D6 /* CameraView+CodeScanning.swift */,
 				B887518025E0102000DB86D6 /* CameraView+Focus.swift */,
 				B887515D25E0102000DB86D6 /* CameraView+RecordVideo.swift */,
 				B887517125E0102000DB86D6 /* CameraView+TakePhoto.swift */,
@@ -185,7 +180,6 @@
 				B887517525E0102000DB86D6 /* AVVideoCodecType+descriptor.swift */,
 				B887517625E0102000DB86D6 /* AVCaptureSession.Preset+descriptor.swift */,
 				B887517725E0102000DB86D6 /* AVCaptureDevice.TorchMode+descriptor.swift */,
-				B887517825E0102000DB86D6 /* AVMetadataObject.ObjectType+descriptor.swift */,
 				B887517925E0102000DB86D6 /* AVCapturePhotoOutput.QualityPrioritization+descriptor.swift */,
 				B887517A25E0102000DB86D6 /* AVCaptureDevice.DeviceType+descriptor.swift */,
 				B887517B25E0102000DB86D6 /* AVAuthorizationStatus+descriptor.swift */,
@@ -313,7 +307,6 @@
 				B887519B25E0102000DB86D6 /* AVCaptureSession.Preset+descriptor.swift in Sources */,
 				B88751A725E0102000DB86D6 /* CameraView+Zoom.swift in Sources */,
 				B887518525E0102000DB86D6 /* PhotoCaptureDelegate.swift in Sources */,
-				B887519D25E0102000DB86D6 /* AVMetadataObject.ObjectType+descriptor.swift in Sources */,
 				B887518B25E0102000DB86D6 /* AVCaptureDevice.Format+isBetterThan.swift in Sources */,
 				B887518E25E0102000DB86D6 /* AVFrameRateRange+includes.swift in Sources */,
 				B88751A125E0102000DB86D6 /* AVCaptureDevice.Position+descriptor.swift in Sources */,
@@ -332,7 +325,6 @@
 				B887519C25E0102000DB86D6 /* AVCaptureDevice.TorchMode+descriptor.swift in Sources */,
 				B88751A525E0102000DB86D6 /* CameraView+Focus.swift in Sources */,
 				B86DC971260E2D5200FB17B2 /* AVAudioSession+trySetAllowHaptics.swift in Sources */,
-				B887519325E0102000DB86D6 /* CameraView+CodeScanning.swift in Sources */,
 				B887519E25E0102000DB86D6 /* AVCapturePhotoOutput.QualityPrioritization+descriptor.swift in Sources */,
 				B887518825E0102000DB86D6 /* VideoCaptureDelegate.swift in Sources */,
 			);
