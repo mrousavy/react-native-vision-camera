@@ -80,7 +80,7 @@ extension CameraView {
 
   @objc
   func audioSessionInterrupted(notification: Notification) {
-    ReactLogger.log(level: .error, message: "The Audio Session was interrupted!")
+    ReactLogger.log(level: .error, message: "Audio Session Interruption Notification!")
     guard let userInfo = notification.userInfo,
           let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
           let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
@@ -88,13 +88,15 @@ extension CameraView {
     }
     switch type {
     case .began:
-      // TODO: Should we also disable the camera here? I think it will throw a runtime error
-      // disable audio session
-      try? AVAudioSession.sharedInstance().setActive(false)
+      // Something interrupted our Audio Session, stop recording audio.
+      ReactLogger.log(level: .error, message: "The Audio Session was interrupted!")
+      self.removeAudioInput()
     case .ended:
+      ReactLogger.log(level: .error, message: "The Audio Session interruption has ended.")
       guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else { return }
       let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
       if options.contains(.shouldResume) {
+        ReactLogger.log(level: .error, message: "Resuming interrupted Audio Session...")
         // restart audio session because interruption is over
         configureAudioSession()
       } else {
