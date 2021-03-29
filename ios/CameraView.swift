@@ -248,7 +248,7 @@ final class CameraView: UIView {
 
   // pragma MARK: Event Invokers
   internal final func invokeOnError(_ error: CameraError, cause: NSError? = nil) {
-    ReactLogger.log(level: .error, message: "Invoking onError(): \(error.message)", alsoLogToJS: true)
+    ReactLogger.log(level: .error, message: "Invoking onError(): \(error.message)")
     guard let onError = self.onError else { return }
 
     var causeDictionary: [String: Any]?
@@ -268,7 +268,7 @@ final class CameraView: UIView {
   }
 
   internal final func invokeOnInitialized() {
-    ReactLogger.log(level: .info, message: "Camera initialized!", alsoLogToJS: true)
+    ReactLogger.log(level: .info, message: "Camera initialized!")
     guard let onInitialized = self.onInitialized else { return }
     onInitialized([String: Any]())
   }
