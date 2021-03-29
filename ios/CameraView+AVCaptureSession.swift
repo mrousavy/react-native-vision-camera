@@ -17,7 +17,7 @@ extension CameraView {
    Configures the Capture Session.
    */
   final func configureCaptureSession() {
-    ReactLogger.logJS(level: .info, message: "Configuring Session...")
+    ReactLogger.log(level: .info, message: "Configuring Session...")
     isReady = false
 
     #if targetEnvironment(simulator)
@@ -113,14 +113,14 @@ extension CameraView {
 
     invokeOnInitialized()
     isReady = true
-    ReactLogger.logJS(level: .info, message: "Session successfully configured!")
+    ReactLogger.log(level: .info, message: "Session successfully configured!")
   }
 
   /**
    Configures the Video Device with the given FPS, HDR and ColorSpace.
    */
   final func configureDevice() {
-    ReactLogger.logJS(level: .info, message: "Configuring Device...")
+    ReactLogger.log(level: .info, message: "Configuring Device...")
     guard let device = videoDeviceInput?.device else {
       return invokeOnError(.session(.cameraNotReady))
     }
@@ -159,7 +159,7 @@ extension CameraView {
       }
 
       device.unlockForConfiguration()
-      ReactLogger.logJS(level: .info, message: "Device successfully configured!")
+      ReactLogger.log(level: .info, message: "Device successfully configured!")
     } catch let error as NSError {
       return invokeOnError(.device(.configureError), cause: error)
     }
@@ -169,7 +169,7 @@ extension CameraView {
    Configures the Video Device to find the best matching Format.
    */
   final func configureFormat() {
-    ReactLogger.logJS(level: .info, message: "Configuring Format...")
+    ReactLogger.log(level: .info, message: "Configuring Format...")
     guard let filter = self.format else {
       // Format Filter was null. Ignore it.
       return
@@ -193,7 +193,7 @@ extension CameraView {
       try device.lockForConfiguration()
       device.activeFormat = format
       device.unlockForConfiguration()
-      ReactLogger.logJS(level: .info, message: "Format successfully configured!")
+      ReactLogger.log(level: .info, message: "Format successfully configured!")
     } catch let error as NSError {
       return invokeOnError(.device(.configureError), cause: error)
     }
