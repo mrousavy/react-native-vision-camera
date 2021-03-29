@@ -30,7 +30,12 @@ extension CameraView {
       // activate current audio session because camera is active
       try audioSession.setActive(true)
     } catch let error as NSError {
-      self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)), cause: error)
+      switch error.code {
+      case 561017449:
+        self.invokeOnError(.session(.audioInUseByOtherApp), cause: error)
+      default:
+        self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)), cause: error)
+      }
       self.removeAudioInput()
     }
     let end = DispatchTime.now()
@@ -38,6 +43,9 @@ extension CameraView {
     ReactLogger.log(level: .info, message: "Configured Audio session in \(Double(nanoTime) / 1_000_000)ms!")
   }
   
+  /**
+   Configures the CaptureSession and adds the audio device if it has not already been added yet.
+   */
   private final func addAudioInput() throws {
     if self.audioDeviceInput != nil {
       // we already added the audio device, don't add it again
@@ -57,6 +65,9 @@ extension CameraView {
     captureSession.commitConfiguration()
   }
   
+  /**
+   Configures the CaptureSession and removes the audio device if it has been added before.
+   */
   private final func removeAudioInput() {
     guard let audioInput = self.audioDeviceInput else {
       return
