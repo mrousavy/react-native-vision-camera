@@ -22,8 +22,10 @@ assignees: ''
     Replace the `[ ]` with a `[x]` where it fits:
 -->
 
+* [ ] I'm cannot build my project with VisionCamera
 * [ ] I'm experiencing a full app crash
 * [ ] A feature is not working correctly
+* [ ] Other: __________________
 
 ## What
 
