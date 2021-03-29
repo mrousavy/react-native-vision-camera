@@ -222,7 +222,7 @@ extension CameraView {
     guard let reasonNumber = notification.userInfo?[AVCaptureSessionInterruptionReasonKey] as? NSNumber else {
       return
     }
-    let reason = AVCaptureSession.InterruptionReason.init(rawValue: reasonNumber.intValue)
+    let reason = AVCaptureSession.InterruptionReason(rawValue: reasonNumber.intValue)
 
     switch reason {
     case .audioDeviceInUseByAnotherClient:
@@ -240,7 +240,7 @@ extension CameraView {
     guard let reasonNumber = notification.userInfo?[AVCaptureSessionInterruptionReasonKey] as? NSNumber else {
       return
     }
-    let reason = AVCaptureSession.InterruptionReason.init(rawValue: reasonNumber.intValue)
+    let reason = AVCaptureSession.InterruptionReason(rawValue: reasonNumber.intValue)
 
     switch reason {
     case .audioDeviceInUseByAnotherClient:
