@@ -61,7 +61,7 @@ extension CameraView {
       throw CameraError.parameter(.unsupportedInput(inputDescriptor: "audio-input"))
     }
     captureSession.addInput(audioDeviceInput!)
-    captureSession.automaticallyConfiguresApplicationAudioSession = true
+    captureSession.automaticallyConfiguresApplicationAudioSession = false
     captureSession.commitConfiguration()
   }
 
