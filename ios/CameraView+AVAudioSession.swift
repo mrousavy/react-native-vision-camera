@@ -19,7 +19,7 @@ extension CameraView {
   final func configureAudioSession() {
     let start = DispatchTime.now()
     do {
-      setAutomaticallyConfiguresAudioSession(false)
+      try self.addAudioInput()
       let audioSession = AVAudioSession.sharedInstance()
       if audioSession.category != .playAndRecord {
         // allow background music playback
@@ -31,19 +31,40 @@ extension CameraView {
       try audioSession.setActive(true)
     } catch let error as NSError {
       self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)), cause: error)
-      setAutomaticallyConfiguresAudioSession(true)
+      self.removeAudioInput()
     }
     let end = DispatchTime.now()
     let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
     ReactLogger.log(level: .info, message: "Configured Audio session in \(Double(nanoTime) / 1_000_000)ms!")
   }
-
-  private final func setAutomaticallyConfiguresAudioSession(_ automaticallyConfiguresAudioSession: Bool) {
-    if captureSession.automaticallyConfiguresApplicationAudioSession != automaticallyConfiguresAudioSession {
-      captureSession.beginConfiguration()
-      captureSession.automaticallyConfiguresApplicationAudioSession = automaticallyConfiguresAudioSession
-      captureSession.commitConfiguration()
+  
+  private final func addAudioInput() throws {
+    if self.audioDeviceInput != nil {
+      // we already added the audio device, don't add it again
+      return
     }
+    self.removeAudioInput()
+    captureSession.beginConfiguration()
+    guard let audioDevice = AVCaptureDevice.default(for: .audio) else {
+      throw CameraError.device(.microphoneUnavailable)
+    }
+    audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice)
+    guard captureSession.canAddInput(audioDeviceInput!) else {
+      throw CameraError.parameter(.unsupportedInput(inputDescriptor: "audio-input"))
+    }
+    captureSession.addInput(audioDeviceInput!)
+    captureSession.automaticallyConfiguresApplicationAudioSession = true
+    captureSession.commitConfiguration()
+  }
+  
+  private final func removeAudioInput() {
+    guard let audioInput = self.audioDeviceInput else {
+      return
+    }
+    captureSession.beginConfiguration()
+    captureSession.removeInput(audioInput)
+    self.audioDeviceInput = nil
+    captureSession.commitConfiguration()
   }
 
   @objc

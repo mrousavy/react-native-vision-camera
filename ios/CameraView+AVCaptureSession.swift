@@ -73,24 +73,6 @@ extension CameraView {
       return invokeOnError(.device(.invalid))
     }
 
-    // Microphone (Audio Input)
-    do {
-      if let audioDeviceInput = self.audioDeviceInput {
-        captureSession.removeInput(audioDeviceInput)
-      }
-      guard let audioDevice = AVCaptureDevice.default(for: .audio) else {
-        return invokeOnError(.device(.microphoneUnavailable))
-      }
-
-      audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice)
-      guard captureSession.canAddInput(audioDeviceInput!) else {
-        return invokeOnError(.parameter(.unsupportedInput(inputDescriptor: "audio-input")))
-      }
-      captureSession.addInput(audioDeviceInput!)
-    } catch {
-      return invokeOnError(.device(.invalid))
-    }
-
     // OUTPUTS
     if let photoOutput = self.photoOutput {
       captureSession.removeOutput(photoOutput)
