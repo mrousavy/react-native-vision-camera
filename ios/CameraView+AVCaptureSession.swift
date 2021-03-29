@@ -35,6 +35,10 @@ extension CameraView {
       captureSession.commitConfiguration()
     }
 
+    // Disable automatic Audio Session configuration because we configure it in CameraView+AVAudioSession.swift (called before Camera gets activated)
+    captureSession.automaticallyConfiguresApplicationAudioSession = false
+
+    // If preset is set, use preset. Otherwise use format.
     if let preset = self.preset {
       var sessionPreset: AVCaptureSession.Preset?
       do {

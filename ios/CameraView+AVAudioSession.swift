@@ -20,13 +20,14 @@ extension CameraView {
     let start = DispatchTime.now()
     do {
       try addAudioInput()
+
       let audioSession = AVAudioSession.sharedInstance()
       if audioSession.category != .playAndRecord {
         // allow background music playback
         try audioSession.setCategory(AVAudioSession.Category.playAndRecord, options: [.mixWithOthers, .allowBluetoothA2DP, .defaultToSpeaker])
       }
-      // TODO: Use https://developer.apple.com/documentation/avfaudio/avaudiosession/3726094-setprefersnointerruptionsfromsys
       audioSession.trySetAllowHaptics(true)
+
       // activate current audio session because camera is active
       try audioSession.setActive(true)
     } catch let error as NSError {
@@ -38,6 +39,7 @@ extension CameraView {
       }
       self.removeAudioInput()
     }
+
     let end = DispatchTime.now()
     let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
     ReactLogger.log(level: .info, message: "Configured Audio session in \(Double(nanoTime) / 1_000_000)ms!")
@@ -52,6 +54,7 @@ extension CameraView {
       return
     }
     removeAudioInput()
+
     captureSession.beginConfiguration()
     guard let audioDevice = AVCaptureDevice.default(for: .audio) else {
       throw CameraError.device(.microphoneUnavailable)
@@ -72,6 +75,7 @@ extension CameraView {
     guard let audioInput = audioDeviceInput else {
       return
     }
+
     captureSession.beginConfiguration()
     captureSession.removeInput(audioInput)
     audioDeviceInput = nil
@@ -86,6 +90,7 @@ extension CameraView {
           let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
       return
     }
+
     switch type {
     case .began:
       // Something interrupted our Audio Session, stop recording audio.
