@@ -107,34 +107,6 @@ extension CameraView {
       movieOutput!.mirror()
     }
 
-    // Barcode Scanning
-    if let metadataOutput = self.metadataOutput {
-      captureSession.removeOutput(metadataOutput)
-    }
-    if let scannableCodes = self.scannableCodes {
-      // scannableCodes prop is not nil, so enable barcode scanning.
-      guard onCodeScanned != nil else {
-        return invokeOnError(.parameter(.invalidCombination(provided: "scannableCodes", missing: "onCodeScanned")))
-      }
-      metadataOutput = AVCaptureMetadataOutput()
-      guard captureSession.canAddOutput(metadataOutput!) else {
-        return invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "metadata-output")))
-      }
-      captureSession.addOutput(metadataOutput!)
-      metadataOutput!.setMetadataObjectsDelegate(self, queue: queue)
-      var objectTypes: [AVMetadataObject.ObjectType] = []
-      scannableCodes.forEach { code in
-        do {
-          objectTypes.append(try AVMetadataObject.ObjectType(withString: code))
-        } catch let EnumParserError.unsupportedOS(supportedOnOS: os) {
-          invokeOnError(.parameter(.unsupportedOS(unionName: "CodeType", receivedValue: code, supportedOnOs: os)))
-        } catch {
-          invokeOnError(.parameter(.invalid(unionName: "CodeType", receivedValue: code)))
-        }
-      }
-      metadataOutput!.metadataObjectTypes = objectTypes
-    }
-
     invokeOnInitialized()
     isReady = true
     ReactLogger.logJS(level: .info, message: "Session successfully configured!")
