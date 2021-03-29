@@ -33,7 +33,7 @@ Before opening an issue, make sure you try the following:
    3. Select **Swift File** and press **Next**
    4. Choose whatever name you want, e.g. `File.swift` and press **Create**
    5. Press **Create Bridging Header** when promted.
-5. If you're experiencing weird behaviour, check the logs in Xcode to find out more.
+5. If you're having runtime issues, check the logs in Xcode to find out more. In Xcode, go to **View** > **Debug Area** > **Activate Console**  (<kbd>⇧</kbd>+<kbd>⌘</kbd>+<kbd>C</kbd>).
 
 ## Android
 
@@ -58,7 +58,7 @@ Before opening an issue, make sure you try the following:
    ```
    distributionUrl=https\://services.gradle.org/distributions/gradle-6.5-all.zip
    ```
-5. If you're experiencing weird behaviour, check the logs in Android Studio/Logcat (<kbd>⌘</kbd>+<kbd>6</kbd>) to find out more.
+5. If you're having runtime issues, check the logs in Android Studio/Logcat to find out more. In Android Studio, go to **View** > **Tool Windows** > **Logcat** (<kbd>⌘</kbd>+<kbd>6</kbd>) or run `adb logcat` in Terminal.
 6. If a camera device is not being returned by `getAvailableCameraDevices()`, make sure it meets the minimum requirements - that is minum supported harwdware level of `LIMITED` and above. See [this section in the Android docs](https://developer.android.com/reference/android/hardware/camera2/CameraDevice) for more information.
 
 ## Issues
