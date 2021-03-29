@@ -47,6 +47,14 @@ final class CameraView: UIView {
                                            name: .AVCaptureSessionRuntimeError,
                                            object: captureSession)
     NotificationCenter.default.addObserver(self,
+                                           selector: #selector(sessionInterruptionBegin),
+                                           name: .AVCaptureSessionWasInterrupted,
+                                           object: captureSession)
+    NotificationCenter.default.addObserver(self,
+                                           selector: #selector(sessionInterruptionEnd),
+                                           name: .AVCaptureSessionInterruptionEnded,
+                                           object: captureSession)
+    NotificationCenter.default.addObserver(self,
                                            selector: #selector(audioSessionInterrupted),
                                            name: AVAudioSession.interruptionNotification,
                                            object: AVAudioSession.sharedInstance)
@@ -55,6 +63,12 @@ final class CameraView: UIView {
   deinit {
     NotificationCenter.default.removeObserver(self,
                                               name: .AVCaptureSessionRuntimeError,
+                                              object: captureSession)
+    NotificationCenter.default.removeObserver(self,
+                                              name: .AVCaptureSessionWasInterrupted,
+                                              object: captureSession)
+    NotificationCenter.default.removeObserver(self,
+                                              name: .AVCaptureSessionInterruptionEnded,
                                               object: captureSession)
     NotificationCenter.default.removeObserver(self,
                                               name: AVAudioSession.interruptionNotification,
