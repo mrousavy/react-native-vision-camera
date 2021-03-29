@@ -219,9 +219,10 @@ extension CameraView {
   @objc
   func sessionInterruptionBegin(notification: Notification) {
     ReactLogger.log(level: .error, message: "Capture Session Interruption begin Notification!")
-    guard let reason = notification.userInfo?[AVCaptureSessionInterruptionReasonKey] as? AVCaptureSession.InterruptionReason else {
+    guard let reasonNumber = notification.userInfo?[AVCaptureSessionInterruptionReasonKey] as? NSNumber else {
       return
     }
+    let reason = AVCaptureSession.InterruptionReason.init(rawValue: reasonNumber.intValue)
 
     switch reason {
     case .audioDeviceInUseByAnotherClient:
@@ -236,9 +237,10 @@ extension CameraView {
   @objc
   func sessionInterruptionEnd(notification: Notification) {
     ReactLogger.log(level: .error, message: "Capture Session Interruption end Notification!")
-    guard let reason = notification.userInfo?[AVCaptureSessionInterruptionReasonKey] as? AVCaptureSession.InterruptionReason else {
+    guard let reasonNumber = notification.userInfo?[AVCaptureSessionInterruptionReasonKey] as? NSNumber else {
       return
     }
+    let reason = AVCaptureSession.InterruptionReason.init(rawValue: reasonNumber.intValue)
 
     switch reason {
     case .audioDeviceInUseByAnotherClient:
