@@ -176,7 +176,7 @@ enum SessionError {
     case let .audioSessionSetupFailed(reason):
       return "The audio session failed to setup! \(reason)"
     case .audioInUseByOtherApp:
-      return "The audio session is already in use by another app!"
+      return "The audio session is already in use by another app with higher priority!"
     }
   }
 }
