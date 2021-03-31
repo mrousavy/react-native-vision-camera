@@ -2,6 +2,7 @@ import type { ViewProps } from 'react-native';
 import type { CameraDevice, CameraDeviceFormat, ColorSpace } from './CameraDevice';
 import type { CameraRuntimeError } from './CameraError';
 import type { CameraPreset } from './CameraPreset';
+import type { Frame } from './FrameProcessor';
 
 export interface CameraProps extends ViewProps {
   /**
@@ -126,5 +127,9 @@ export interface CameraProps extends ViewProps {
    * Called when the camera was successfully initialized.
    */
   onInitialized?: () => void;
+  /**
+   * TODO: Docs
+   */
+  frameProcessor?: (frame: Frame) => void;
   //#endregion
 }
