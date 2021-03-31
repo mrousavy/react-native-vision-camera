@@ -139,22 +139,23 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
   
   NSLog(@"FrameProcessorBindings: Installing Frame Processor plugins...");
   
-  for (NSString* pluginName in [FrameProcessorPluginRegistry frameProcessorPlugins]) {
-    NSLog(@"FrameProcessorBindings: Installing Frame Processor plugin \"%@\"...", pluginName);
-    FrameProcessorPlugin callback = [[FrameProcessorPluginRegistry frameProcessorPlugins] valueForKey:pluginName];
+  for (NSString* pluginKey in [FrameProcessorPluginRegistry frameProcessorPlugins]) {
+    auto pluginName = [pluginKey UTF8String];
+    NSLog(@"FrameProcessorBindings: Installing Frame Processor plugin \"%s\"...", pluginName);
+    FrameProcessorPlugin callback = [[FrameProcessorPluginRegistry frameProcessorPlugins] valueForKey:pluginKey];
     
-    auto function = [callback](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+    auto function = [callback, pluginName](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+      NSLog(@"Calling Frame Processor Plugin \"%s\"...", pluginName);
       auto frameHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
       auto frame = static_cast<FrameHostObject*>(frameHostObject.get());
       return callback(frame->buffer);
     };
     
     auto visionRuntime = runtimeManager->runtime;
-    auto name = [pluginName UTF8String];
-    visionRuntime.global().setProperty(visionRuntime, name, jsi::Function::createFromHostFunction(visionRuntime,
-                                                                                                  jsi::PropNameID::forUtf8(visionRuntime, name),
-                                                                                                  1, // frame
-                                                                                                  function));
+    visionRuntime.global().setProperty(visionRuntime, pluginName, jsi::Function::createFromHostFunction(visionRuntime,
+                                                                                                        jsi::PropNameID::forUtf8(visionRuntime, pluginName),
+                                                                                                        1, // frame
+                                                                                                        function));
   }
   
   NSLog(@"FrameProcessorBindings: Finished installing bindings.");
