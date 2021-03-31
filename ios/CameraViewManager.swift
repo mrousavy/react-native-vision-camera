@@ -11,8 +11,6 @@ import Foundation
 
 @objc(CameraViewManager)
 final class CameraViewManager: RCTViewManager {
-  // MARK: Internal
-
   override var methodQueue: DispatchQueue! {
     return DispatchQueue.main
   }

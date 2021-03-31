@@ -11,16 +11,12 @@ import AVFoundation
 // MARK: - TakePhotoOptions
 
 struct TakePhotoOptions {
-  // MARK: Lifecycle
-
   init(fromDictionary dictionary: NSDictionary) {
     if let videoCodec = dictionary.value(forKey: "videoCodec") as? String {
       self.videoCodec = AVVideoCodecType(withString: videoCodec)
     }
     qualityPrioritization = dictionary.value(forKey: "qualityPrioritization") as? String
   }
-
-  // MARK: Internal
 
   var videoCodec: AVVideoCodecType?
   var qualityPrioritization: String?

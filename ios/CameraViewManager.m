@@ -6,7 +6,7 @@
 //  Copyright © 2020 Facebook. All rights reserved.
 //
 
-#import "CameraBridge.h"
+#import <Foundation/Foundation.h>
 #import <React/RCTViewManager.h>
 
 @interface RCT_EXTERN_REMAP_MODULE(CameraView, CameraViewManager, RCTViewManager)

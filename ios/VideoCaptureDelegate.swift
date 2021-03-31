@@ -17,16 +17,12 @@ private var delegateReferences: [NSObject] = []
 // MARK: - RecordingDelegateWithCallback
 
 class RecordingDelegateWithCallback: NSObject, AVCaptureFileOutputRecordingDelegate {
-  // MARK: Lifecycle
-
   init(callback: @escaping RCTResponseSenderBlock, resetTorchMode: @escaping () -> Void) {
     self.callback = callback
     self.resetTorchMode = resetTorchMode
     super.init()
     delegateReferences.append(self)
   }
-
-  // MARK: Internal
 
   func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from _: [AVCaptureConnection], error: Error?) {
     defer {
