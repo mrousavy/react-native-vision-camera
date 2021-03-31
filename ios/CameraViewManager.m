@@ -7,8 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "FrameProcessorBindings.h"
-#import "FrameProcessorDefinitions.h"
 
 #import <React/RCTViewManager.h>
 #import <React/RCTUtils.h>
