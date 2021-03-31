@@ -92,8 +92,6 @@ public final class CameraView: UIView {
   internal let cameraQueue = CameraQueues.cameraQueue
   internal let videoQueue = CameraQueues.videoQueue
 
-  private let captureSession = AVCaptureSession()
-
   var isRunning: Bool {
     return captureSession.isRunning
   }
