@@ -57,7 +57,6 @@ PODS:
     - FlipperKit/Core
     - FlipperKit/FlipperKitNetworkPlugin
   - glog (0.3.5)
-  - hermes-engine (0.7.2)
   - libevent (2.1.12)
   - OpenSSL-Universal (1.1.180)
   - RCT-Folly (2020.01.13.00):
@@ -69,11 +68,6 @@ PODS:
     - boost-for-react-native
     - DoubleConversion
     - glog
-  - RCT-Folly/Futures (2020.01.13.00):
-    - boost-for-react-native
-    - DoubleConversion
-    - glog
-    - libevent
   - RCTRequired (0.64.0)
   - RCTTypeSafety (0.64.0):
     - FBLazyVector (= 0.64.0)
@@ -129,16 +123,6 @@ PODS:
     - React-jsi (= 0.64.0)
     - React-jsiexecutor (= 0.64.0)
     - React-jsinspector (= 0.64.0)
-    - React-perflogger (= 0.64.0)
-    - Yoga
-  - React-Core/Hermes (0.64.0):
-    - glog
-    - hermes-engine
-    - RCT-Folly (= 2020.01.13.00)
-    - RCT-Folly/Futures
-    - React-cxxreact (= 0.64.0)
-    - React-jsi (= 0.64.0)
-    - React-jsiexecutor (= 0.64.0)
     - React-perflogger (= 0.64.0)
     - Yoga
   - React-Core/RCTActionSheetHeaders (0.64.0):
@@ -388,6 +372,8 @@ PODS:
   - RNVectorIcons (8.1.0):
     - React-Core
   - VisionCamera (1.0.7):
+    - React
+    - React-callinvoker
     - React-Core
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
@@ -417,8 +403,6 @@ DEPENDENCIES:
   - FlipperKit/FlipperKitUserDefaultsPlugin (~> 0.75.1)
   - FlipperKit/SKIOSNetworkPlugin (~> 0.75.1)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
-  - hermes-engine (~> 0.7.2)
-  - libevent (~> 2.1.12)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
@@ -426,7 +410,6 @@ DEPENDENCIES:
   - React-callinvoker (from `../node_modules/react-native/ReactCommon/callinvoker`)
   - React-Core (from `../node_modules/react-native/`)
   - React-Core/DevSupport (from `../node_modules/react-native/`)
-  - React-Core/Hermes (from `../node_modules/react-native/`)
   - React-Core/RCTWebSocket (from `../node_modules/react-native/`)
   - React-CoreModules (from `../node_modules/react-native/React/CoreModules`)
   - React-cxxreact (from `../node_modules/react-native/ReactCommon/cxxreact`)
@@ -468,7 +451,6 @@ SPEC REPOS:
     - Flipper-PeerTalk
     - Flipper-RSocket
     - FlipperKit
-    - hermes-engine
     - libevent
     - OpenSSL-Universal
     - YogaKit
@@ -565,7 +547,6 @@ SPEC CHECKSUMS:
   Flipper-RSocket: 127954abe8b162fcaf68d2134d34dc2bd7076154
   FlipperKit: 8a20b5c5fcf9436cac58551dc049867247f64b00
   glog: 73c2498ac6884b13ede40eda8228cb1eee9d9d62
-  hermes-engine: 7d97ba46a1e29bacf3e3c61ecb2804a5ddd02d4f
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
   RCT-Folly: ec7a233ccc97cc556cf7237f0db1ff65b986f27c
@@ -600,10 +581,10 @@ SPEC CHECKSUMS:
   RNReanimated: 7d2b97cf2dd7c8c69956080fe911edc08cf0a8c7
   RNStaticSafeAreaInsets: 6103cf09647fa427186d30f67b0f5163c1ae8252
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
-  VisionCamera: cd6fc4091d9508ced1dae2862e872c8055165f6a
+  VisionCamera: fd5cff588c0b20fe5ebdfacd09904a8f3089428a
   Yoga: 8c8436d4171c87504c648ae23b1d81242bdf3bbf
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 703892d4cb39598dd9a51bd3a58fe2502c68dfbd
+PODFILE CHECKSUM: 374493416002ddc576e3531946470d0a15cb902c
 
 COCOAPODS: 1.10.1
