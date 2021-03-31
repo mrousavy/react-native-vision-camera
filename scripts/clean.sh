@@ -31,6 +31,8 @@ rm -rf ~/Library/Developer/Xcode/DerivedData/*
 cd ios
 echo "pod deintegrate"
 pod deintegrate
+echo "bundle clean"
+bundle clean --force
 
 cd ../..
 echo "yarn in $PWD"
@@ -41,7 +43,9 @@ echo "yarn in $PWD"
 yarn
 
 cd ios
+echo "bundle install"
+bundle install
 echo "pod setup"
-pod setup
+bundle exec pod setup
 echo "pod install"
-pod install
+bundle exec pod install
