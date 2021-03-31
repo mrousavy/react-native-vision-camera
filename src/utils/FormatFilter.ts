@@ -96,7 +96,12 @@ export const filterFormatsByAspectRatio = (formats: CameraDeviceFormat[], viewSi
     else return prev;
   }, Number.MAX_SAFE_INTEGER);
 
-  return formats.filter((f) => getFormatAspectRatioOverflow(f, viewSize) === minOverflow);
+  return formats.filter((f) => {
+    // percentage of difference in overflow from this format, to the minimum available overflow
+    const overflowDiff = (getFormatAspectRatioOverflow(f, viewSize) - minOverflow) / minOverflow;
+    // we have an acceptance of 25%, if overflow is more than 25% off to the min available overflow, we drop it
+    return overflowDiff < 0.25;
+  });
 };
 
 /**
@@ -114,8 +119,8 @@ export const sortFormatsByResolution = (left: CameraDeviceFormat, right: CameraD
   let rightPoints = right.photoHeight * right.photoWidth;
 
   if (left.videoHeight != null && left.videoWidth != null && right.videoHeight != null && right.videoWidth != null) {
-    leftPoints += left.videoWidth * left.videoHeight ?? 0;
-    rightPoints += right.videoWidth * right.videoHeight ?? 0;
+    leftPoints += left.videoWidth * left.videoHeight;
+    rightPoints += right.videoWidth * right.videoHeight;
   }
 
   // "returns a negative value if left is better than one"

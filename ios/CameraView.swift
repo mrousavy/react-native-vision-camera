@@ -35,9 +35,6 @@ private let propsThatRequireDeviceReconfiguration = ["fps",
 public final class CameraView: UIView {
   // pragma MARK: React Properties
 
-  // Frame Processing
-  @objc public var frameProcessorCallback: FrameProcessorCallback?
-
   // pragma MARK: Exported Properties
   // props that require reconfiguring
   @objc var cameraId: NSString?
@@ -111,7 +108,7 @@ public final class CameraView: UIView {
   }
 
   // pragma MARK: Setup
-  override init(frame: CGRect) {
+  override public init(frame: CGRect) {
     super.init(frame: frame)
     videoPreviewLayer.session = captureSession
     videoPreviewLayer.videoGravity = .resizeAspectFill
@@ -153,22 +150,6 @@ public final class CameraView: UIView {
     NotificationCenter.default.removeObserver(self,
                                               name: AVAudioSession.interruptionNotification,
                                               object: AVAudioSession.sharedInstance)
-  }
-
-  @objc
-  func sessionRuntimeError(notification: Notification) {
-    ReactLogger.log(level: .error, message: "Unexpected Camera Runtime Error occured!")
-    guard let error = notification.userInfo?[AVCaptureSessionErrorKey] as? AVError else {
-      return
-    }
-
-    if isActive {
-      // restart capture session after an error occured
-      cameraQueue.async {
-        self.captureSession.startRunning()
-      }
-    }
-    invokeOnError(.unknown(message: error.localizedDescription), cause: error as NSError)
   }
 
   override public func removeFromSuperview() {
