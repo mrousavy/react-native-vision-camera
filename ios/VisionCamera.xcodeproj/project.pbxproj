@@ -138,7 +138,7 @@
 				B887516125E0102000DB86D6 /* Extensions */,
 				B887517225E0102000DB86D6 /* Parsers */,
 				B887515C25E0102000DB86D6 /* PhotoCaptureDelegate.swift */,
-				B887516D25E0102000DB86D6 /* React Helpers */,
+				B887516D25E0102000DB86D6 /* React Utils */,
 				B887516025E0102000DB86D6 /* VideoCaptureDelegate.swift */,
 				134814211AA4EA7D00B7C361 /* Products */,
 			);
@@ -162,14 +162,14 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
-		B887516D25E0102000DB86D6 /* React Helpers */ = {
+		B887516D25E0102000DB86D6 /* React Utils */ = {
 			isa = PBXGroup;
 			children = (
 				B887516E25E0102000DB86D6 /* MakeReactError.swift */,
 				B887516F25E0102000DB86D6 /* ReactLogger.swift */,
 				B887517025E0102000DB86D6 /* Promise.swift */,
 			);
-			path = "React Helpers";
+			path = "React Utils";
 			sourceTree = "<group>";
 		};
 		B887517225E0102000DB86D6 /* Parsers */ = {
