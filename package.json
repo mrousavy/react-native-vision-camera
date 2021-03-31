@@ -38,6 +38,7 @@
     "check-android": "scripts/ktlint.sh",
     "check-ios": "scripts/swiftformat.sh && scripts/swiftlint.sh",
     "check-all": "scripts/check-all.sh",
+    "clean": "scripts/clean.sh",
     "docs": "cd docs && yarn build"
   },
   "keywords": [
