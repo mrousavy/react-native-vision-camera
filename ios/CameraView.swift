@@ -80,9 +80,8 @@ public final class CameraView: UIView {
   internal var videoDeviceInput: AVCaptureDeviceInput?
   internal var audioDeviceInput: AVCaptureDeviceInput?
   internal var photoOutput: AVCapturePhotoOutput?
-  internal var movieOutput: AVCaptureMovieFileOutput?
-  // CameraView+RecordView (+ FrameProcessorDelegate.mm)
   internal var videoOutput: AVCaptureVideoDataOutput?
+  // CameraView+RecordView (+ FrameProcessorDelegate.mm)
   @objc public var frameProcessorCallback: FrameProcessorCallback?
   // CameraView+TakePhoto
   internal var photoCaptureDelegates: [PhotoCaptureDelegate] = []
