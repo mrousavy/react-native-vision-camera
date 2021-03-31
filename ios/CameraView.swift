@@ -93,7 +93,6 @@ final class CameraView: UIView {
   @objc var enableHighResolutionCapture: NSNumber? // nullable bool
   @objc var enablePortraitEffectsMatteDelivery = false
   @objc var preset: String?
-  @objc var scannableCodes: [String]?
   // props that require format reconfiguring
   @objc var format: NSDictionary?
   @objc var fps: NSNumber?
@@ -107,7 +106,6 @@ final class CameraView: UIView {
   // events
   @objc var onInitialized: RCTDirectEventBlock?
   @objc var onError: RCTDirectEventBlock?
-  @objc var onCodeScanned: RCTBubblingEventBlock?
 
   // pragma MARK: Private Properties
   internal var isReady = false

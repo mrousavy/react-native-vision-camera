@@ -68,7 +68,6 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   var enableDepthData = false
   var enableHighResolutionCapture: Boolean? = null
   var enablePortraitEffectsMatteDelivery = false
-  var scannableCodes: ReadableArray? = null
   // props that require format reconfiguring
   var format: ReadableMap? = null
   var fps: Int? = null

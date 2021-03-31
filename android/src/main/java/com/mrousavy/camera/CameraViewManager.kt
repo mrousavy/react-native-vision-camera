@@ -44,13 +44,6 @@ class CameraViewManager : SimpleViewManager<CameraView>() {
     view.enablePortraitEffectsMatteDelivery = enablePortraitEffectsMatteDelivery
   }
 
-  @ReactProp(name = "scannableCodes")
-  fun setScannableCodes(view: CameraView, scannableCodes: ReadableArray?) {
-    if (view.scannableCodes != scannableCodes)
-      addChangedPropToTransaction(view, "scannableCodes")
-    view.scannableCodes = scannableCodes
-  }
-
   @ReactProp(name = "format")
   fun setFormat(view: CameraView, format: ReadableMap?) {
     if (view.format != format)
@@ -131,7 +124,6 @@ class CameraViewManager : SimpleViewManager<CameraView>() {
     return MapBuilder.builder<String, Any>()
       .put("cameraInitialized", MapBuilder.of("registrationName", "onInitialized"))
       .put("cameraError", MapBuilder.of("registrationName", "onError"))
-      .put("cameraCodeScanned", MapBuilder.of("registrationName", "onCodeScanned"))
       .build()
   }
 

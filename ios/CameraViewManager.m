@@ -33,14 +33,12 @@ RCT_EXPORT_VIEW_PROPERTY(lowLightBoost, NSNumber); // nullable bool
 RCT_EXPORT_VIEW_PROPERTY(colorSpace, NSString);
 // other props
 RCT_EXPORT_VIEW_PROPERTY(preset, NSString);
-RCT_EXPORT_VIEW_PROPERTY(scannableCodes, NSArray<NSString>);
 RCT_EXPORT_VIEW_PROPERTY(torch, NSString);
 RCT_EXPORT_VIEW_PROPERTY(zoom, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(enableZoomGesture, BOOL);
 // Camera View Properties
 RCT_EXPORT_VIEW_PROPERTY(onError, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onInitialized, RCTDirectEventBlock);
-RCT_EXPORT_VIEW_PROPERTY(onCodeScanned, RCTBubblingEventBlock);
 
 // Camera View Functions
 RCT_EXTERN_METHOD(startRecording:(nonnull NSNumber *)node options:(NSDictionary *)options onRecordCallback:(RCTResponseSenderBlock)onRecordCallback);

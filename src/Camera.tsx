@@ -19,7 +19,7 @@ interface OnErrorEvent {
   message: string;
   cause?: ErrorWithCause;
 }
-type NativeCameraViewProps = Omit<CameraProps, 'device' | 'onInitialized' | 'onError' | 'onCodeScanned'> & {
+type NativeCameraViewProps = Omit<CameraProps, 'device' | 'onInitialized' | 'onError'> & {
   cameraId: string;
   onInitialized?: (event: NativeSyntheticEvent<void>) => void;
   onError?: (event: NativeSyntheticEvent<OnErrorEvent>) => void;
@@ -389,7 +389,15 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
 
     // We remove the big `device` object from the props because we only need to pass `cameraId` to native.
     const { device: _, ...props } = this.props;
-    return <NativeCameraView {...props} cameraId={this.state.cameraId} ref={this.ref} onInitialized={this.onInitialized} onError={this.onError} />;
+    return (
+      <NativeCameraView
+        {...props}
+        cameraId={this.state.cameraId}
+        ref={this.ref}
+        onInitialized={this.onInitialized}
+        onError={this.onError}
+      />
+    );
   }
 }
 //#endregion
