@@ -9,18 +9,11 @@ import {
   TapGestureHandlerStateChangeEvent,
 } from 'react-native-gesture-handler';
 import { Navigation, NavigationFunctionComponent } from 'react-native-navigation';
-import type { CameraDeviceFormat, CameraRuntimeError, PhotoFile, VideoFile } from 'react-native-vision-camera';
+import { CameraDeviceFormat, CameraRuntimeError, PhotoFile, useFrameProcessor, VideoFile } from 'react-native-vision-camera';
 import { Camera, frameRateIncluded, sortFormatsByResolution, filterFormatsByAspectRatio } from 'react-native-vision-camera';
 import { useIsScreenFocused } from './hooks/useIsScreenFocused';
 import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING } from './Constants';
-import Reanimated, {
-  Extrapolate,
-  interpolate,
-  useAnimatedGestureHandler,
-  useAnimatedProps,
-  useSharedValue,
-  useWorkletCallback,
-} from 'react-native-reanimated';
+import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated';
 import { useEffect } from 'react';
 import { useIsForeground } from './hooks/useIsForeground';
 import { StatusBarBlurBackground } from './views/StatusBarBlurBackground';
@@ -220,7 +213,8 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
     console.log('re-rendering camera page without active camera');
   }
 
-  const frameProcessor = useWorkletCallback((frame: number) => {
+  const frameProcessor = useFrameProcessor((frame) => {
+    'worklet';
     global._log(
       `Good morning from Frame Processor! Frame: ${frame} (globals: _FRAME_PROCESSOR: ${global._FRAME_PROCESSOR} | _WORKLET: ${global._WORKLET} | _UI: ${global._UI})`,
     );
