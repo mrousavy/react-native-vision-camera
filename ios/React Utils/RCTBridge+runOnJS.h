@@ -13,6 +13,6 @@
 
 @interface RCTBridge (RunOnJS)
 
-- (void) runOnJS:(void (^)(void))block;
+- (void) runOnJS:(void (^)(void))block NS_SWIFT_NAME( runOnJS(_:) );
 
 @end

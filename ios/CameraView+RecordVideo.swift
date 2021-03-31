@@ -45,6 +45,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate {
   }
 
   public func captureOutput(_: AVCaptureOutput, didDrop _: CMSampleBuffer, from _: AVCaptureConnection) {
-    ReactLogger.log(level: .warning, message: "Dropped a Frame. This might indicate that your Frame Processor is doing too much work.", alsoLogToJS: true)
+    // TODO: Show in React console?
+    ReactLogger.log(level: .warning, message: "Dropped a Frame. This might indicate that your Frame Processor is doing too much work.")
   }
 }
