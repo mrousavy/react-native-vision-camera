@@ -32,11 +32,77 @@ private let propsThatRequireDeviceReconfiguration = ["fps",
 
 // MARK: - CameraView
 
-final class CameraView: UIView {
-  // MARK: Lifecycle
+public final class CameraView: UIView {
+  // pragma MARK: React Properties
+
+  // props that require reconfiguring
+  @objc var cameraId: NSString?
+  @objc var enableDepthData = false
+  @objc var enableHighResolutionCapture: NSNumber? // nullable bool
+  @objc var enablePortraitEffectsMatteDelivery = false
+  @objc var preset: String?
+  // props that require format reconfiguring
+  @objc var format: NSDictionary?
+  @objc var fps: NSNumber?
+  @objc var hdr: NSNumber? // nullable bool
+  @objc var lowLightBoost: NSNumber? // nullable bool
+  @objc var colorSpace: NSString?
+  // other props
+  @objc var isActive = false
+  @objc var torch = "off"
+  @objc var zoom: NSNumber = 0.0 // in percent
+  // events
+  @objc var onInitialized: RCTDirectEventBlock?
+  @objc var onError: RCTDirectEventBlock?
+  // zoom
+  @objc var enableZoomGesture = false {
+    didSet {
+      if enableZoomGesture {
+        addPinchGestureRecognizer()
+      } else {
+        removePinchGestureRecognizer()
+      }
+    }
+  }
+
+  // pragma MARK: Internal Properties
+
+  internal var isReady = false
+  /// The serial execution queue for the camera preview layer (input stream) as well as output processing (take photo and record video)
+  internal let queue = DispatchQueue(label: "com.mrousavy.camera-queue", qos: .userInteractive, attributes: [], autoreleaseFrequency: .inherit, target: nil)
+  // Capture Session
+  internal let captureSession = AVCaptureSession()
+  // Inputs
+  internal var videoDeviceInput: AVCaptureDeviceInput?
+  internal var audioDeviceInput: AVCaptureDeviceInput?
+  // Outputs
+  internal var photoOutput: AVCapturePhotoOutput?
+  internal var movieOutput: AVCaptureMovieFileOutput?
+  // CameraView+TakePhoto
+  internal var photoCaptureDelegates: [PhotoCaptureDelegate] = []
+  // CameraView+RecordVideo
+  internal var recordingDelegateResolver: RCTPromiseResolveBlock?
+  internal var recordingDelegateRejecter: RCTPromiseRejectBlock?
+  // CameraView+Zoom
+  internal var pinchGestureRecognizer: UIPinchGestureRecognizer?
+  internal var pinchScaleOffset: CGFloat = 1.0
+
+  var isRunning: Bool {
+    return captureSession.isRunning
+  }
+
+  /// Convenience wrapper to get layer as its statically known type.
+  var videoPreviewLayer: AVCaptureVideoPreviewLayer {
+    // swiftlint:disable force_cast
+    return layer as! AVCaptureVideoPreviewLayer
+  }
+
+  override public class var layerClass: AnyClass {
+    return AVCaptureVideoPreviewLayer.self
+  }
 
   // pragma MARK: Setup
-  override init(frame: CGRect) {
+  override public init(frame: CGRect) {
     super.init(frame: frame)
     videoPreviewLayer.session = captureSession
     videoPreviewLayer.videoGravity = .resizeAspectFill
@@ -80,82 +146,14 @@ final class CameraView: UIView {
     fatalError("init(coder:) is not implemented.")
   }
 
-  // MARK: Internal
-
-  override class var layerClass: AnyClass {
-    return AVCaptureVideoPreviewLayer.self
-  }
-
-  // pragma MARK: Exported Properties
-  // props that require reconfiguring
-  @objc var cameraId: NSString?
-  @objc var enableDepthData = false
-  @objc var enableHighResolutionCapture: NSNumber? // nullable bool
-  @objc var enablePortraitEffectsMatteDelivery = false
-  @objc var preset: String?
-  // props that require format reconfiguring
-  @objc var format: NSDictionary?
-  @objc var fps: NSNumber?
-  @objc var hdr: NSNumber? // nullable bool
-  @objc var lowLightBoost: NSNumber? // nullable bool
-  @objc var colorSpace: NSString?
-  // other props
-  @objc var isActive = false
-  @objc var torch = "off"
-  @objc var zoom: NSNumber = 0.0 // in percent
-  // events
-  @objc var onInitialized: RCTDirectEventBlock?
-  @objc var onError: RCTDirectEventBlock?
-
-  // pragma MARK: Private Properties
-  internal var isReady = false
-  /// The serial execution queue for the camera preview layer (input stream) as well as output processing (take photo and record video)
-  internal let queue = DispatchQueue(label: "com.mrousavy.camera-queue", qos: .userInteractive, attributes: [], autoreleaseFrequency: .inherit, target: nil)
-  // Capture Session
-  internal let captureSession = AVCaptureSession()
-  // Inputs
-  internal var videoDeviceInput: AVCaptureDeviceInput?
-  internal var audioDeviceInput: AVCaptureDeviceInput?
-  // Outputs
-  internal var photoOutput: AVCapturePhotoOutput?
-  internal var movieOutput: AVCaptureMovieFileOutput?
-  // CameraView+TakePhoto
-  internal var photoCaptureDelegates: [PhotoCaptureDelegate] = []
-  // CameraView+RecordVideo
-  internal var recordingDelegateResolver: RCTPromiseResolveBlock?
-  internal var recordingDelegateRejecter: RCTPromiseRejectBlock?
-  // CameraView+Zoom
-  internal var pinchGestureRecognizer: UIPinchGestureRecognizer?
-  internal var pinchScaleOffset: CGFloat = 1.0
-
-  @objc var enableZoomGesture = false {
-    didSet {
-      if enableZoomGesture {
-        addPinchGestureRecognizer()
-      } else {
-        removePinchGestureRecognizer()
-      }
-    }
-  }
-
-  var isRunning: Bool {
-    return captureSession.isRunning
-  }
-
-  /// Convenience wrapper to get layer as its statically known type.
-  var videoPreviewLayer: AVCaptureVideoPreviewLayer {
-    // swiftlint:disable force_cast
-    return layer as! AVCaptureVideoPreviewLayer
-  }
-
-  override func removeFromSuperview() {
+  override public func removeFromSuperview() {
     ReactLogger.log(level: .info, message: "Removing Camera View...")
     captureSession.stopRunning()
     super.removeFromSuperview()
   }
 
   // pragma MARK: Props updating
-  override final func didSetProps(_ changedProps: [String]!) {
+  override public final func didSetProps(_ changedProps: [String]!) {
     ReactLogger.log(level: .info, message: "Updating \(changedProps.count) prop(s)...")
     let shouldReconfigure = changedProps.contains { propsThatRequireReconfiguration.contains($0) }
     let shouldReconfigureFormat = shouldReconfigure || changedProps.contains("format")

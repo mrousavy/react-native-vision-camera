@@ -5,8 +5,7 @@
 --disable andOperator
 --disable redundantReturn
 --disable wrapMultilineStatementBraces
-
---enable organizeDeclarations
+--disable organizeDeclarations
 
 --enable markTypes
 

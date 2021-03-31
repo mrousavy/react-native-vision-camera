@@ -13,15 +13,11 @@ private var delegatesReferences: [NSObject] = []
 // MARK: - PhotoCaptureDelegate
 
 class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
-  // MARK: Lifecycle
-
   required init(promise: Promise) {
     self.promise = promise
     super.init()
     delegatesReferences.append(self)
   }
-
-  // MARK: Internal
 
   func photoOutput(_: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
     defer {

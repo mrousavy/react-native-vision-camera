@@ -6,8 +6,7 @@
 //  Copyright © 2020 Facebook. All rights reserved.
 //
 
-#ifndef CameraBridge_h
-#define CameraBridge_h
+#pragma once
 
 #import <Foundation/Foundation.h>
 #import <React/RCTViewManager.h>
@@ -16,5 +15,3 @@
 @interface CameraBridge: RCTViewManager
 
 @end
-
-#endif /* CameraBridge_h */

@@ -22,7 +22,9 @@ export type LogicalCameraDeviceType = 'dual-camera' | 'dual-wide-camera' | 'trip
  * Parses an array of physical device types into a single {@linkcode PhysicalCameraDeviceType} or {@linkcode LogicalCameraDeviceType}, depending what matches.
  * @method
  */
-export const parsePhysicalDeviceTypes = (physicalDeviceTypes: PhysicalCameraDeviceType[]): PhysicalCameraDeviceType | LogicalCameraDeviceType => {
+export const parsePhysicalDeviceTypes = (
+  physicalDeviceTypes: PhysicalCameraDeviceType[],
+): PhysicalCameraDeviceType | LogicalCameraDeviceType => {
   if (physicalDeviceTypes.length === 1) {
     // @ts-expect-error for very obvious reasons
     return physicalDeviceTypes[0];

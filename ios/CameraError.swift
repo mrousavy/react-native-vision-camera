@@ -14,8 +14,6 @@ enum PermissionError: String {
   case microphone = "microphone-permission-denied"
   case camera = "camera-permission-denied"
 
-  // MARK: Internal
-
   var code: String {
     return rawValue
   }
@@ -38,8 +36,6 @@ enum ParameterError {
   case unsupportedOutput(outputDescriptor: String)
   case unsupportedInput(inputDescriptor: String)
   case invalidCombination(provided: String, missing: String)
-
-  // MARK: Internal
 
   var code: String {
     switch self {
@@ -84,8 +80,6 @@ enum DeviceError: String {
   case focusNotSupported = "focus-not-supported"
   case notAvailableOnSimulator = "camera-not-available-on-simulator"
 
-  // MARK: Internal
-
   var code: String {
     return rawValue
   }
@@ -119,8 +113,6 @@ enum FormatError {
   case invalidHdr
   case invalidFormat
   case invalidPreset(preset: String)
-
-  // MARK: Internal
 
   var code: String {
     switch self {
@@ -156,8 +148,6 @@ enum SessionError {
   case audioSessionSetupFailed(reason: String)
   case audioInUseByOtherApp
 
-  // MARK: Internal
-
   var code: String {
     switch self {
     case .cameraNotReady:
@@ -191,8 +181,6 @@ enum CaptureError {
   case createTempFileError
   case invalidPhotoCodec
   case unknown(message: String? = nil)
-
-  // MARK: Internal
 
   var code: String {
     switch self {
@@ -238,8 +226,6 @@ enum CaptureError {
 enum SystemError: String {
   case noManager = "no-camera-manager"
 
-  // MARK: Internal
-
   var code: String {
     return rawValue
   }
@@ -263,8 +249,6 @@ enum CameraError: Error {
   case capture(_ id: CaptureError)
   case system(_ id: SystemError)
   case unknown(message: String? = nil)
-
-  // MARK: Internal
 
   var code: String {
     switch self {

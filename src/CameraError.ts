@@ -84,7 +84,15 @@ export interface ErrorWithCause {
   cause?: ErrorWithCause;
 }
 
-type CameraErrorCode = PermissionError | ParameterError | DeviceError | FormatError | SessionError | CaptureError | SystemError | UnknownError;
+type CameraErrorCode =
+  | PermissionError
+  | ParameterError
+  | DeviceError
+  | FormatError
+  | SessionError
+  | CaptureError
+  | SystemError
+  | UnknownError;
 
 /**
  * Represents any kind of error that occured in the {@linkcode Camera} View Module.

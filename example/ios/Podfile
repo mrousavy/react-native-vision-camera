@@ -8,7 +8,7 @@ target 'VisionCameraExample' do
 
   use_react_native!(
     :path => config["reactNativePath"],
-    :hermes_enabled => true
+    :hermes_enabled => false
   )
 
   pod 'VisionCamera', :path => '../..'

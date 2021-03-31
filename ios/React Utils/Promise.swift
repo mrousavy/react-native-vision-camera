@@ -14,14 +14,10 @@ import Foundation
  * Represents a JavaScript Promise instance. `reject()` and `resolve()` should only be called once.
  */
 class Promise {
-  // MARK: Lifecycle
-
   init(resolver: @escaping RCTPromiseResolveBlock, rejecter: @escaping RCTPromiseRejectBlock) {
     self.resolver = resolver
     self.rejecter = rejecter
   }
-
-  // MARK: Internal
 
   func reject(error: CameraError, cause: NSError?) {
     rejecter(error.code, error.message, cause)

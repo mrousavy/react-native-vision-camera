@@ -34,10 +34,11 @@
     "release": "release-it",
     "example": "yarn --cwd example",
     "pods": "cd example && pod-install --quiet",
-    "bootstrap": "yarn example && yarn && yarn pods",
+    "bootstrap": "yarn example && yarn && yarn setup && yarn pods",
     "check-android": "scripts/ktlint.sh",
     "check-ios": "scripts/swiftformat.sh && scripts/swiftlint.sh",
     "check-all": "scripts/check-all.sh",
+    "clean": "scripts/clean.sh",
     "docs": "cd docs && yarn build"
   },
   "keywords": [
