@@ -103,6 +103,7 @@ public final class CameraView: UIView {
     // swiftlint:disable force_cast
     return layer as! AVCaptureVideoPreviewLayer
   }
+
   override public class var layerClass: AnyClass {
     return AVCaptureVideoPreviewLayer.self
   }
