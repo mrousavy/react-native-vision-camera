@@ -62,7 +62,10 @@ Navigation.events().registerNavigationButtonPressedListener((event) => {
 });
 
 Navigation.events().registerAppLaunchedListener(async () => {
-  const [cameraPermission, microphonePermission] = await Promise.all([Camera.getCameraPermissionStatus(), Camera.getMicrophonePermissionStatus()]);
+  const [cameraPermission, microphonePermission] = await Promise.all([
+    Camera.getCameraPermissionStatus(),
+    Camera.getMicrophonePermissionStatus(),
+  ]);
   let rootName = 'Splash';
   if (cameraPermission === 'authorized' && microphonePermission === 'authorized') rootName = 'Home';
 
