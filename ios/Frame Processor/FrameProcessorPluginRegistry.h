@@ -9,10 +9,15 @@
 #pragma once
 
 #import <Foundation/Foundation.h>
-#import "FrameProcessorCallback.h"
+#import <jsi/jsi.h>
+#import <CoreMedia/CMSampleBuffer.h>
+
+typedef facebook::jsi::Value (^FrameProcessorPlugin) (CMSampleBufferRef buffer);
 
 @interface FrameProcessorPluginRegistry : NSObject
 
-+ (void) addFrameProcessorPlugin:(FrameProcessorCallback)callback;
++ (NSMutableDictionary<NSString*, FrameProcessorPlugin>*)frameProcessorPlugins;
+
++ (void) addFrameProcessorPlugin:(NSString*)name callback:(FrameProcessorPlugin)callback;
 
 @end

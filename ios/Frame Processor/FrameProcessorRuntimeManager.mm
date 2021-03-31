@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 #import "FrameProcessorRuntimeManager.h"
+#import "FrameProcessorPluginRegistry.h"
+#import "FrameHostObject.h"
 
 #import <memory>
 
@@ -134,6 +136,28 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                                                                                            jsi::PropNameID::forAscii(jsiRuntime, "unsetFrameProcessor"),
                                                                                                            1,  // viewTag
                                                                                                            unsetFrameProcessor));
+  
+  NSLog(@"FrameProcessorBindings: Installing Frame Processor plugins...");
+  
+  for (NSString* pluginName in [FrameProcessorPluginRegistry frameProcessorPlugins]) {
+    NSLog(@"FrameProcessorBindings: Installing Frame Processor plugin \"%@\"...", pluginName);
+    FrameProcessorPlugin callback = [[FrameProcessorPluginRegistry frameProcessorPlugins] valueForKey:pluginName];
+    
+    auto function = [callback](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+      auto frameHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
+      auto frame = static_cast<FrameHostObject*>(frameHostObject.get());
+      return callback(frame->buffer);
+    };
+    
+    auto visionRuntime = runtimeManager->runtime;
+    auto name = [pluginName UTF8String];
+    visionRuntime.global().setProperty(visionRuntime, name, jsi::Function::createFromHostFunction(visionRuntime,
+                                                                                                  jsi::PropNameID::forUtf8(visionRuntime, name),
+                                                                                                  1, // frame
+                                                                                                  function));
+  }
+  
+  NSLog(@"FrameProcessorBindings: Finished installing bindings.");
 }
 
 @end
