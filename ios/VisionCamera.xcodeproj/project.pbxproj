@@ -14,6 +14,9 @@
 		B8103E1C25FF553B007A1684 /* FrameProcessorUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8103E1B25FF553B007A1684 /* FrameProcessorUtils.mm */; };
 		B84760A62608EE7C004C3180 /* FrameHostObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = B84760A52608EE7C004C3180 /* FrameHostObject.mm */; };
 		B84760DF2608F57D004C3180 /* CameraQueues.swift in Sources */ = {isa = PBXBuildFile; fileRef = B84760DE2608F57D004C3180 /* CameraQueues.swift */; };
+		B86DC971260E2D5200FB17B2 /* AVAudioSession+trySetAllowHaptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = B86DC970260E2D5200FB17B2 /* AVAudioSession+trySetAllowHaptics.swift */; };
+		B86DC974260E310600FB17B2 /* CameraView+AVAudioSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B86DC973260E310600FB17B2 /* CameraView+AVAudioSession.swift */; };
+		B86DC977260E315100FB17B2 /* CameraView+AVCaptureSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B86DC976260E315100FB17B2 /* CameraView+AVCaptureSession.swift */; };
 		B887518525E0102000DB86D6 /* PhotoCaptureDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887515C25E0102000DB86D6 /* PhotoCaptureDelegate.swift */; };
 		B887518625E0102000DB86D6 /* CameraView+RecordVideo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887515D25E0102000DB86D6 /* CameraView+RecordVideo.swift */; };
 		B887518725E0102000DB86D6 /* CameraViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B887515F25E0102000DB86D6 /* CameraViewManager.m */; };
@@ -79,6 +82,9 @@
 		B84760A22608EE38004C3180 /* FrameHostObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameHostObject.h; sourceTree = "<group>"; };
 		B84760A52608EE7C004C3180 /* FrameHostObject.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameHostObject.mm; sourceTree = "<group>"; };
 		B84760DE2608F57D004C3180 /* CameraQueues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraQueues.swift; sourceTree = "<group>"; };
+		B86DC970260E2D5200FB17B2 /* AVAudioSession+trySetAllowHaptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAudioSession+trySetAllowHaptics.swift"; sourceTree = "<group>"; };
+		B86DC973260E310600FB17B2 /* CameraView+AVAudioSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraView+AVAudioSession.swift"; sourceTree = "<group>"; };
+		B86DC976260E315100FB17B2 /* CameraView+AVCaptureSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraView+AVCaptureSession.swift"; sourceTree = "<group>"; };
 		B887515C25E0102000DB86D6 /* PhotoCaptureDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoCaptureDelegate.swift; sourceTree = "<group>"; };
 		B887515D25E0102000DB86D6 /* CameraView+RecordVideo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CameraView+RecordVideo.swift"; sourceTree = "<group>"; };
 		B887515E25E0102000DB86D6 /* CameraBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraBridge.h; sourceTree = "<group>"; };

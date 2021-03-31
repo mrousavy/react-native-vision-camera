@@ -98,18 +98,20 @@ extension CameraView {
       photoOutput!.mirror()
     }
 
-    // Video Output
-    if let movieOutput = self.movieOutput {
-      captureSession.removeOutput(movieOutput)
+    // Video Output + Frame Processor
+    if let videoOutput = self.videoOutput {
+      captureSession.removeOutput(videoOutput)
+      self.videoOutput = nil
     }
-    movieOutput = AVCaptureMovieFileOutput()
-    guard captureSession.canAddOutput(movieOutput!) else {
-      return invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "movie-output")))
+    ReactLogger.log(level: .info, message: "Adding Video Data output...")
+    videoOutput = AVCaptureVideoDataOutput()
+    guard captureSession.canAddOutput(videoOutput!) else {
+      return invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "video-output")))
     }
-    captureSession.addOutput(movieOutput!)
-    if videoDeviceInput!.device.position == .front {
-      movieOutput!.mirror()
-    }
+    videoOutput!.setSampleBufferDelegate(self, queue: videoQueue)
+    videoOutput!.alwaysDiscardsLateVideoFrames = true
+    captureSession.addOutput(videoOutput!)
+    // TODO: Mirror videoOutput if selfie camera is used
 
     invokeOnInitialized()
     isReady = true

@@ -136,6 +136,11 @@ public final class CameraView: UIView {
                                            object: AVAudioSession.sharedInstance)
   }
 
+  @available(*, unavailable)
+  required init?(coder _: NSCoder) {
+    fatalError("init(coder:) is not implemented.")
+  }
+
   deinit {
     NotificationCenter.default.removeObserver(self,
                                               name: .AVCaptureSessionRuntimeError,
@@ -167,55 +172,6 @@ public final class CameraView: UIView {
     invokeOnError(.unknown(message: error.localizedDescription), cause: error as NSError)
   }
 
-  override public class var layerClass: AnyClass {
-    return AVCaptureVideoPreviewLayer.self
-  }
-
-  // pragma MARK: Setup
-  override public init(frame: CGRect) {
-    super.init(frame: frame)
-    videoPreviewLayer.session = captureSession
-    videoPreviewLayer.videoGravity = .resizeAspectFill
-    videoPreviewLayer.frame = layer.bounds
-
-    NotificationCenter.default.addObserver(self,
-                                           selector: #selector(sessionRuntimeError),
-                                           name: .AVCaptureSessionRuntimeError,
-                                           object: captureSession)
-    NotificationCenter.default.addObserver(self,
-                                           selector: #selector(sessionInterruptionBegin),
-                                           name: .AVCaptureSessionWasInterrupted,
-                                           object: captureSession)
-    NotificationCenter.default.addObserver(self,
-                                           selector: #selector(sessionInterruptionEnd),
-                                           name: .AVCaptureSessionInterruptionEnded,
-                                           object: captureSession)
-    NotificationCenter.default.addObserver(self,
-                                           selector: #selector(audioSessionInterrupted),
-                                           name: AVAudioSession.interruptionNotification,
-                                           object: AVAudioSession.sharedInstance)
-  }
-
-  deinit {
-    NotificationCenter.default.removeObserver(self,
-                                              name: .AVCaptureSessionRuntimeError,
-                                              object: captureSession)
-    NotificationCenter.default.removeObserver(self,
-                                              name: .AVCaptureSessionWasInterrupted,
-                                              object: captureSession)
-    NotificationCenter.default.removeObserver(self,
-                                              name: .AVCaptureSessionInterruptionEnded,
-                                              object: captureSession)
-    NotificationCenter.default.removeObserver(self,
-                                              name: AVAudioSession.interruptionNotification,
-                                              object: AVAudioSession.sharedInstance)
-  }
-
-  @available(*, unavailable)
-  required init?(coder _: NSCoder) {
-    fatalError("init(coder:) is not implemented.")
-  }
-
   override public func removeFromSuperview() {
     ReactLogger.log(level: .info, message: "Removing Camera View...")
     captureSession.stopRunning()
@@ -223,11 +179,7 @@ public final class CameraView: UIView {
   }
 
   // pragma MARK: Props updating
-<<<<<<< HEAD
   override public final func didSetProps(_ changedProps: [String]!) {
-=======
-  public override final func didSetProps(_ changedProps: [String]!) {
->>>>>>> Fix `@objc` export (make public)
     ReactLogger.log(level: .info, message: "Updating \(changedProps.count) prop(s)...")
     let shouldReconfigure = changedProps.contains { propsThatRequireReconfiguration.contains($0) }
     let shouldReconfigureFormat = shouldReconfigure || changedProps.contains("format")

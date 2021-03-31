@@ -12,7 +12,7 @@ import Foundation
 @objc(CameraViewManager)
 final class CameraViewManager: RCTViewManager {
   // pragma MARK: Properties
-  
+
   private var runtimeManager: FrameProcessorRuntimeManager?
 
   override var bridge: RCTBridge! {
@@ -158,6 +158,7 @@ final class CameraViewManager: RCTViewManager {
   }
 
   // MARK: Private
+
   private func getCameraView(withTag tag: NSNumber) -> CameraView {
     // swiftlint:disable force_cast
     return bridge.uiManager.view(forReactTag: tag) as! CameraView
