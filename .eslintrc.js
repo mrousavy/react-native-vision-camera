@@ -69,12 +69,23 @@ module.exports = {
     'react-native/no-color-literals': 'off',
     'react-native/no-raw-text': 'off',
     'react-native/no-single-element-style-arrays': 'warn',
+    '@typescript-eslint/strict-boolean-expressions': [
+      'error',
+      {
+        allowString: false,
+        allowNullableObject: false,
+        allowNumber: false,
+        allowNullableBoolean: true,
+      },
+    ],
+    '@typescript-eslint/no-non-null-assertion': 'error',
+    '@typescript-eslint/no-unnecessary-condition': 'error',
 
     // react hooks
     'react-hooks/exhaustive-deps': [
       'error',
       {
-        additionalHooks: '(useDerivedValue|useAnimatedStyle|useAnimatedProps|useWorkletCallback)',
+        additionalHooks: '(useDerivedValue|useAnimatedStyle|useAnimatedProps|useWorkletCallback|useFrameProcessor)',
       },
     ],
   },

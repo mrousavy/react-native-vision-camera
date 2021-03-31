@@ -76,6 +76,7 @@ const _CaptureButton: React.FC<Props> = ({
       // If we're on Android and flash is disabled, we can use the "snapshot" method.
       // this will take a snapshot of the current SurfaceView, which results in faster image
       // capture rate at the cost of greatly reduced quality.
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       const photoMethod = USE_SNAPSHOT_ON_ANDROID && IS_ANDROID && takePhotoOptions.flash === 'off' ? 'snapshot' : 'photo';
       console.log(`Taking ${photoMethod}...`);
       const photo =

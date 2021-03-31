@@ -354,8 +354,6 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
 
   //#region Events (Wrapped to maintain reference equality)
   private onError(event: NativeSyntheticEvent<OnErrorEvent>): void {
-    if (event == null) throw new Error('onError() was invoked but event was null!');
-
     if (this.props.onError != null) {
       const error = event.nativeEvent;
       const cause = isErrorWithCause(error.cause) ? error.cause : undefined;
