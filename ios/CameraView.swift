@@ -97,12 +97,12 @@ public final class CameraView: UIView {
     return layer as! AVCaptureVideoPreviewLayer
   }
 
-  public override class var layerClass: AnyClass {
+  override public class var layerClass: AnyClass {
     return AVCaptureVideoPreviewLayer.self
   }
 
   // pragma MARK: Setup
-  public override init(frame: CGRect) {
+  override public init(frame: CGRect) {
     super.init(frame: frame)
     videoPreviewLayer.session = captureSession
     videoPreviewLayer.videoGravity = .resizeAspectFill
@@ -146,14 +146,14 @@ public final class CameraView: UIView {
     fatalError("init(coder:) is not implemented.")
   }
 
-  public override func removeFromSuperview() {
+  override public func removeFromSuperview() {
     ReactLogger.log(level: .info, message: "Removing Camera View...")
     captureSession.stopRunning()
     super.removeFromSuperview()
   }
 
   // pragma MARK: Props updating
-  public override final func didSetProps(_ changedProps: [String]!) {
+  override public final func didSetProps(_ changedProps: [String]!) {
     ReactLogger.log(level: .info, message: "Updating \(changedProps.count) prop(s)...")
     let shouldReconfigure = changedProps.contains { propsThatRequireReconfiguration.contains($0) }
     let shouldReconfigureFormat = shouldReconfigure || changedProps.contains("format")
