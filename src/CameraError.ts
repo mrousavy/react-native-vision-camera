@@ -116,10 +116,16 @@ class CameraError<TCode extends CameraErrorCode> extends Error {
    * @internal
    */
   constructor(code: TCode, message: string, cause?: ErrorWithCause) {
-    super(`[${code}]: ${message}${cause ? ` (Cause: ${cause.message})` : ''}`);
+    super(`[${code}]: ${message}${cause != null ? ` (Cause: ${cause.message})` : ''}`);
+    super.name = code;
+    super.message = message;
     this._code = code;
     this._message = message;
     this._cause = cause;
+  }
+
+  public toString(): string {
+    return `[${this.code}]: ${this.message}`;
   }
 }
 
