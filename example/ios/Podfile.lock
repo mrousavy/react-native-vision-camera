@@ -338,7 +338,7 @@ PODS:
     - React-RCTText
   - RNGestureHandler (1.10.3):
     - React-Core
-  - RNReanimated (2.0.1):
+  - RNReanimated (2.1.0):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
@@ -578,7 +578,7 @@ SPEC CHECKSUMS:
   ReactCommon: cfe2b7fd20e0dbd2d1185cd7d8f99633fbc5ff05
   ReactNativeNavigation: 63321d37e8172bdcc1fbb93e77cffc74a0ba6d20
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
-  RNReanimated: 7d2b97cf2dd7c8c69956080fe911edc08cf0a8c7
+  RNReanimated: b8c8004b43446e3c2709fe64b2b41072f87428ad
   RNStaticSafeAreaInsets: 6103cf09647fa427186d30f67b0f5163c1ae8252
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
   VisionCamera: 6001bb97cda76d4345bac77e000038d997d44b07
