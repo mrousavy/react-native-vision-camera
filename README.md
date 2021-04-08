@@ -4,8 +4,7 @@
   <img src="docs/static/img/11.png" width="50%">
   <br />
   <br />
-  <blockquote><h4>📸 The Camera library that sees the vision.</h4></blockquote>
-  <br />
+  <blockquote><b>📸 The Camera library that sees the vision.</b></blockquote>
   <pre align="center">
     npm i <a href="https://www.npmjs.com/package/react-native-vision-camera">react-native-vision-camera</a>
     npx pod-install                 </pre>
