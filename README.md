@@ -5,10 +5,7 @@
   <br />
   <br />
   <blockquote><b>📸 The Camera library that sees the vision.</b></blockquote>
-  <pre align="center">
-    npm i <a href="https://www.npmjs.com/package/react-native-vision-camera">react-native-vision-camera</a>
-    npx pod-install                 </pre>
-
+  <pre align="center">npm i <a href="https://www.npmjs.com/package/react-native-vision-camera">react-native-vision-camera</a><br/>npx pod-install                 </pre>
   <a href="https://cuvent.com">
     <img height="40" src="docs/static/img/cuvent-logo-text.svg" />
   </a>
