@@ -6,6 +6,9 @@
   <br />
   <blockquote><h4>📸 The Camera library that sees the vision.</h4></blockquote>
   <br />
+  <pre align="center">
+    npm i <a href="https://www.npmjs.com/package/react-native-vision-camera">react-native-vision-camera</a>
+    npx pod-install                 </pre>
 
   <a href="https://cuvent.com">
     <img height="40" src="docs/static/img/cuvent-logo-text.svg" />
@@ -39,13 +42,6 @@
 * [Guides](https://cuvent.github.io/react-native-vision-camera/docs/guides)
 * [API](https://cuvent.github.io/react-native-vision-camera/docs/api)
 * [Example](./example/)
-
-### Install
-
-```sh
-npm i react-native-vision-camera
-npx pod-install
-```
 
 ### Features
 
