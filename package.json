@@ -22,8 +22,7 @@
     "ios/**/*.swift",
     "ios/VisionCamera.xcodeproj/project.pbxproj",
     "VisionCamera.podspec",
-    "README.md",
-    "docs"
+    "README.md"
   ],
   "scripts": {
     "test": "jest",

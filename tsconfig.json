@@ -10,7 +10,7 @@
     "esModuleInterop": true,
     "importsNotUsedAsValues": "error",
     "forceConsistentCasingInFileNames": true,
-    "jsx": "react",
+    "jsx": "react-native",
     "lib": ["esnext"],
     "module": "esnext",
     "moduleResolution": "node",
