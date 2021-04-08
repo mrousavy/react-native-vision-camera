@@ -23,9 +23,6 @@
     <a align="center" href="https://twitter.com/mrousavy">
       <img src="https://img.shields.io/twitter/follow/mrousavy?label=Follow%20%40mrousavy&style=social" />
     </a>
-    <a align="center" href="https://twitter.com/cuventtech">
-      <img src="https://img.shields.io/twitter/follow/cuventtech?label=Follow%20%40cuventtech&style=social" />
-    </a>
   </span>
 </div>
 
