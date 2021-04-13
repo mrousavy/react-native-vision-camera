@@ -51,7 +51,14 @@ export const parsePhysicalDeviceTypes = (
  * * `"hlg-bt2020"`: The BT2020 wide color space which uses Illuminant D65 as the white point and Hybrid Log-Gamma as the transfer function
  *
  * #### The following colorspaces are available on Android:
- * * `"yuv"`: The YCbCr color space.
+ * * `"yuv"`: The Multi-plane Android YCbCr color space. (YUV 420_888, 422_888 or 444_888)
+ * * `"jpeg"`: The compressed JPEG color space.
+ * * `"jpeg-depth"`: The compressed JPEG color space including depth data.
+ * * `"raw"`: The Camera's RAW sensor color space. (Single-channel Bayer-mosaic image, usually 16 bit)
+ * * `"heic"`: The compressed HEIC color space.
+ * * `"private"`: The Android private opaque image format. (The choices of the actual format and pixel data layout are entirely up to the device-specific and framework internal implementations, and may vary depending on use cases even for the same device. These buffers are not directly accessible to the application)
+ * * `"depth-16"`: The Android dense depth image format (16 bit)
+ * * `"unknown"`: Placeholder for an unknown image/pixel format. [Edit this file](https://github.com/cuvent/react-native-vision-camera/edit/main/android/src/main/java/com/mrousavy/camera/parsers/ImageFormat+String.kt) to add a name for the unknown format.
  */
 export type ColorSpace =
   // ios
