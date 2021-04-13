@@ -2,8 +2,6 @@ package com.mrousavy.camera.parsers
 
 import android.graphics.ImageFormat
 import android.graphics.PixelFormat
-import android.hardware.camera2.CameraCharacteristics
-
 
 /**
  * Parses Lens Facing int to a string representation useable for the TypeScript types.

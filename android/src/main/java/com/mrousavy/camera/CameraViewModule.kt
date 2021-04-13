@@ -5,8 +5,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
-import android.media.ImageReader
-import android.media.MediaRecorder
 import android.os.Build
 import android.util.Log
 import androidx.camera.core.CameraSelector
@@ -203,10 +201,15 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
               val isHighestPhotoQualitySupported = areUltimatelyEqual(size, maxImageOutputSize)
 
               // Get the number of seconds that each frame will take to process
-              val secondsPerFrame = cameraConfig.getOutputMinFrameDuration(MediaRecorder::class.java, size) / 1_000_000_000.0
+              val secondsPerFrame = try {
+                cameraConfig.getOutputMinFrameDuration(formatId, size) / 1_000_000_000.0
+              } catch(error: Throwable) {
+                Log.e(REACT_CLASS, "Minimum Frame Duration for MediaRecorder Output cannot be calculated, format \"$formatName\" is not supported.")
+                null
+              }
 
               val frameRateRanges = Arguments.createArray()
-              if (secondsPerFrame > 0) {
+              if (secondsPerFrame != null && secondsPerFrame > 0) {
                 val fps = (1.0 / secondsPerFrame).toInt()
                 val frameRateRange = Arguments.createMap()
                 frameRateRange.putInt("minFrameRate", 1)
