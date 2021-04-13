@@ -107,6 +107,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   init {
     previewView = PreviewView(context)
     previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+    previewView.scaleType = PreviewView.ScaleType.FIT_CENTER // avoids cropping on takePhoto
     previewView.installHierarchyFitter() // If this is not called correctly, view finder will be black/blank
     addView(previewView)
 
