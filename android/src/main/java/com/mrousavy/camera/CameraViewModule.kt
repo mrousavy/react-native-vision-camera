@@ -115,8 +115,8 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     GlobalScope.launch(Dispatchers.Main) {
       withPromise(promise) {
         // I need to init those because the HDR/Night Mode Extension expects them to be initialized
-        val extensionsManager = ExtensionsManager.init(reactApplicationContext).await()
-        val processCameraProvider = ProcessCameraProvider.getInstance(reactApplicationContext).await()
+        ExtensionsManager.init(reactApplicationContext).await()
+        ProcessCameraProvider.getInstance(reactApplicationContext).await()
 
         val manager = reactApplicationContext.getSystemService(Context.CAMERA_SERVICE) as? CameraManager
           ?: throw CameraManagerUnavailableError()
@@ -171,7 +171,6 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
           val fieldOfView = characteristics.getFieldOfView()
 
           val map = Arguments.createMap()
-          val formats = Arguments.createArray()
           map.putString("id", id)
           map.putArray("devices", deviceTypes)
           map.putString("position", parseLensFacing(lensFacing))
@@ -192,11 +191,16 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
           }
           map.putDouble("neutralZoom", characteristics.neutralZoomPercent.toDouble())
 
-          val sizes = cameraConfig.outputFormats.flatMap { format -> cameraConfig.getOutputSizes(format).toList() }
-          val maxImageOutputSize = sizes.maxByOrNull { it.width * it.height }!!
+          // TODO: Optimize?
+          val maxImageOutputSize = cameraConfig.outputFormats
+            .flatMap { cameraConfig.getOutputSizes(it).toList() }
+            .maxByOrNull { it.width * it.height }!!
+
+          val formats = Arguments.createArray()
 
           cameraConfig.outputFormats.forEach { formatId ->
             val formatName = parseImageFormat(formatId)
+
             cameraConfig.getOutputSizes(formatId).forEach { size ->
               val isHighestPhotoQualitySupported = areUltimatelyEqual(size, maxImageOutputSize)
 

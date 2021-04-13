@@ -53,7 +53,20 @@ export const parsePhysicalDeviceTypes = (
  * #### The following colorspaces are available on Android:
  * * `"yuv"`: The YCbCr color space.
  */
-export type ColorSpace = 'hlg-bt2020' | 'p3-d65' | 'srgb' | 'yuv';
+export type ColorSpace =
+  // ios
+  | 'hlg-bt2020'
+  | 'p3-d65'
+  | 'srgb'
+  // android
+  | 'yuv'
+  | 'jpeg'
+  | 'jpeg-depth'
+  | 'raw'
+  | 'heic'
+  | 'private'
+  | 'depth-16'
+  | 'unknown';
 
 /**
  * Indicates a format's autofocus system.
