@@ -59,6 +59,8 @@ export const parsePhysicalDeviceTypes = (
  * * `"private"`: The Android private opaque image format. (The choices of the actual format and pixel data layout are entirely up to the device-specific and framework internal implementations, and may vary depending on use cases even for the same device. These buffers are not directly accessible to the application)
  * * `"depth-16"`: The Android dense depth image format (16 bit)
  * * `"unknown"`: Placeholder for an unknown image/pixel format. [Edit this file](https://github.com/cuvent/react-native-vision-camera/edit/main/android/src/main/java/com/mrousavy/camera/parsers/ImageFormat+String.kt) to add a name for the unknown format.
+ *
+ * > See ["Android Color Formats"](https://jbit.net/Android_Colors/) for more information.
  */
 export type ColorSpace =
   // ios
