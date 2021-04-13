@@ -5,8 +5,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
-import android.media.ImageReader
-import android.media.MediaRecorder
 import android.os.Build
 import android.util.Log
 import androidx.camera.core.CameraSelector
@@ -117,8 +115,8 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     GlobalScope.launch(Dispatchers.Main) {
       withPromise(promise) {
         // I need to init those because the HDR/Night Mode Extension expects them to be initialized
-        val extensionsManager = ExtensionsManager.init(reactApplicationContext).await()
-        val processCameraProvider = ProcessCameraProvider.getInstance(reactApplicationContext).await()
+        ExtensionsManager.init(reactApplicationContext).await()
+        ProcessCameraProvider.getInstance(reactApplicationContext).await()
 
         val manager = reactApplicationContext.getSystemService(Context.CAMERA_SERVICE) as? CameraManager
           ?: throw CameraManagerUnavailableError()
@@ -173,7 +171,6 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
           val fieldOfView = characteristics.getFieldOfView()
 
           val map = Arguments.createMap()
-          val formats = Arguments.createArray()
           map.putString("id", id)
           map.putArray("devices", deviceTypes)
           map.putString("position", parseLensFacing(lensFacing))
@@ -194,61 +191,72 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
           }
           map.putDouble("neutralZoom", characteristics.neutralZoomPercent.toDouble())
 
-          val maxImageOutputSize = cameraConfig.getOutputSizes(ImageReader::class.java).maxByOrNull { it.width * it.height }!!
+          // TODO: Optimize?
+          val maxImageOutputSize = cameraConfig.outputFormats
+            .flatMap { cameraConfig.getOutputSizes(it).toList() }
+            .maxByOrNull { it.width * it.height }!!
 
-          // TODO: Should I really check MediaRecorder::class instead of SurfaceView::class?
-          // Recording should always be done in the most efficient format, which is the format native to the camera framework
-          cameraConfig.getOutputSizes(MediaRecorder::class.java).forEach { size ->
-            val isHighestPhotoQualitySupported = areUltimatelyEqual(size, maxImageOutputSize)
+          val formats = Arguments.createArray()
 
-            // Get the number of seconds that each frame will take to process
-            val secondsPerFrame = cameraConfig.getOutputMinFrameDuration(MediaRecorder::class.java, size) / 1_000_000_000.0
+          cameraConfig.outputFormats.forEach { formatId ->
+            val formatName = parseImageFormat(formatId)
 
-            val frameRateRanges = Arguments.createArray()
-            if (secondsPerFrame > 0) {
-              val fps = (1.0 / secondsPerFrame).toInt()
-              val frameRateRange = Arguments.createMap()
-              frameRateRange.putInt("minFrameRate", 1)
-              frameRateRange.putInt("maxFrameRate", fps)
-              frameRateRanges.pushMap(frameRateRange)
+            cameraConfig.getOutputSizes(formatId).forEach { size ->
+              val isHighestPhotoQualitySupported = areUltimatelyEqual(size, maxImageOutputSize)
+
+              // Get the number of seconds that each frame will take to process
+              val secondsPerFrame = try {
+                cameraConfig.getOutputMinFrameDuration(formatId, size) / 1_000_000_000.0
+              } catch (error: Throwable) {
+                Log.e(REACT_CLASS, "Minimum Frame Duration for MediaRecorder Output cannot be calculated, format \"$formatName\" is not supported.")
+                null
+              }
+
+              val frameRateRanges = Arguments.createArray()
+              if (secondsPerFrame != null && secondsPerFrame > 0) {
+                val fps = (1.0 / secondsPerFrame).toInt()
+                val frameRateRange = Arguments.createMap()
+                frameRateRange.putInt("minFrameRate", 1)
+                frameRateRange.putInt("maxFrameRate", fps)
+                frameRateRanges.pushMap(frameRateRange)
+              }
+              fpsRanges.forEach { range ->
+                val frameRateRange = Arguments.createMap()
+                frameRateRange.putInt("minFrameRate", range.lower)
+                frameRateRange.putInt("maxFrameRate", range.upper)
+                frameRateRanges.pushMap(frameRateRange)
+              }
+
+              val colorSpaces = Arguments.createArray()
+              colorSpaces.pushString(formatName)
+
+              val videoStabilizationModes = Arguments.createArray()
+              if (stabilizationModes.contains(CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_OFF)) {
+                videoStabilizationModes.pushString("off")
+              }
+              if (stabilizationModes.contains(CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_ON)) {
+                videoStabilizationModes.pushString("auto")
+                videoStabilizationModes.pushString("standard")
+              }
+
+              val format = Arguments.createMap()
+              format.putDouble("photoHeight", size.height.toDouble())
+              format.putDouble("photoWidth", size.width.toDouble())
+              format.putDouble("videoHeight", size.height.toDouble()) // TODO: Revisit getAvailableCameraDevices (videoHeight == photoHeight?)
+              format.putDouble("videoWidth", size.width.toDouble()) // TODO: Revisit getAvailableCameraDevices (videoWidth == photoWidth?)
+              format.putBoolean("isHighestPhotoQualitySupported", isHighestPhotoQualitySupported)
+              format.putInt("maxISO", isoRange?.upper)
+              format.putInt("minISO", isoRange?.lower)
+              format.putDouble("fieldOfView", fieldOfView) // TODO: Revisit getAvailableCameraDevices (is fieldOfView accurate?)
+              format.putDouble("maxZoom", (zoomRange?.upper ?: maxScalerZoom).toDouble())
+              format.putArray("colorSpaces", colorSpaces)
+              format.putBoolean("supportsVideoHDR", false) // TODO: supportsVideoHDR
+              format.putBoolean("supportsPhotoHDR", supportsHdr)
+              format.putArray("frameRateRanges", frameRateRanges)
+              format.putString("autoFocusSystem", "none") // TODO: Revisit getAvailableCameraDevices (autoFocusSystem) (CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES or CameraCharacteristics.LENS_INFO_FOCUS_DISTANCE_CALIBRATION)
+              format.putArray("videoStabilizationModes", videoStabilizationModes)
+              formats.pushMap(format)
             }
-            fpsRanges.forEach { range ->
-              val frameRateRange = Arguments.createMap()
-              frameRateRange.putInt("minFrameRate", range.lower)
-              frameRateRange.putInt("maxFrameRate", range.upper)
-              frameRateRanges.pushMap(frameRateRange)
-            }
-
-            // TODO Revisit getAvailableCameraDevices (colorSpaces, more than YUV?)
-            val colorSpaces = Arguments.createArray()
-            colorSpaces.pushString("yuv")
-
-            val videoStabilizationModes = Arguments.createArray()
-            if (stabilizationModes.contains(CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_OFF)) {
-              videoStabilizationModes.pushString("off")
-            }
-            if (stabilizationModes.contains(CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_ON)) {
-              videoStabilizationModes.pushString("auto")
-              videoStabilizationModes.pushString("standard")
-            }
-
-            val format = Arguments.createMap()
-            format.putDouble("photoHeight", size.height.toDouble())
-            format.putDouble("photoWidth", size.width.toDouble())
-            format.putDouble("videoHeight", size.height.toDouble()) // TODO: Revisit getAvailableCameraDevices (videoHeight == photoHeight?)
-            format.putDouble("videoWidth", size.width.toDouble()) // TODO: Revisit getAvailableCameraDevices (videoWidth == photoWidth?)
-            format.putBoolean("isHighestPhotoQualitySupported", isHighestPhotoQualitySupported)
-            format.putInt("maxISO", isoRange?.upper)
-            format.putInt("minISO", isoRange?.lower)
-            format.putDouble("fieldOfView", fieldOfView) // TODO: Revisit getAvailableCameraDevices (is fieldOfView accurate?)
-            format.putDouble("maxZoom", (zoomRange?.upper ?: maxScalerZoom).toDouble())
-            format.putArray("colorSpaces", colorSpaces)
-            format.putBoolean("supportsVideoHDR", false) // TODO: supportsVideoHDR
-            format.putBoolean("supportsPhotoHDR", supportsHdr)
-            format.putArray("frameRateRanges", frameRateRanges)
-            format.putString("autoFocusSystem", "none") // TODO: Revisit getAvailableCameraDevices (autoFocusSystem) (CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES or CameraCharacteristics.LENS_INFO_FOCUS_DISTANCE_CALIBRATION)
-            format.putArray("videoStabilizationModes", videoStabilizationModes)
-            formats.pushMap(format)
           }
 
           map.putArray("formats", formats)
