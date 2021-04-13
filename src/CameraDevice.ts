@@ -46,9 +46,11 @@ export const parsePhysicalDeviceTypes = (
  * Indicates a format's color space.
  *
  * #### The following colorspaces are available on iOS:
- * * `"srgb"`: The sGRB color space (https://www.w3.org/Graphics/Color/srgb)
+ * * `"srgb"`: The sGRB color space.
  * * `"p3-d65"`: The P3 D65 wide color space which uses Illuminant D65 as the white point
  * * `"hlg-bt2020"`: The BT2020 wide color space which uses Illuminant D65 as the white point and Hybrid Log-Gamma as the transfer function
+ *
+ * > See ["AVCaptureColorSpace"](https://developer.apple.com/documentation/avfoundation/avcapturecolorspace) for more information.
  *
  * #### The following colorspaces are available on Android:
  * * `"yuv"`: The Multi-plane Android YCbCr color space. (YUV 420_888, 422_888 or 444_888)
