@@ -207,7 +207,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
               // Get the number of seconds that each frame will take to process
               val secondsPerFrame = try {
                 cameraConfig.getOutputMinFrameDuration(formatId, size) / 1_000_000_000.0
-              } catch(error: Throwable) {
+              } catch (error: Throwable) {
                 Log.e(REACT_CLASS, "Minimum Frame Duration for MediaRecorder Output cannot be calculated, format \"$formatName\" is not supported.")
                 null
               }
