@@ -286,11 +286,10 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   fun requestCameraPermission(promise: Promise) {
     val activity = reactApplicationContext.currentActivity
     if (activity is PermissionAwareActivity) {
-      val currentRequestCode = RequestCode
-      RequestCode++
+      val currentRequestCode = RequestCode++
       val listener = PermissionListener { requestCode: Int, _: Array<String>, grantResults: IntArray ->
         if (requestCode == currentRequestCode) {
-          val permissionStatus = grantResults[0]
+          val permissionStatus = if (grantResults.size > 0) grantResults[0] else PackageManager.PERMISSION_DENIED
           promise.resolve(parsePermissionStatus(permissionStatus))
           return@PermissionListener true
         }
@@ -306,11 +305,10 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   fun requestMicrophonePermission(promise: Promise) {
     val activity = reactApplicationContext.currentActivity
     if (activity is PermissionAwareActivity) {
-      val currentRequestCode = RequestCode
-      RequestCode++
+      val currentRequestCode = RequestCode++
       val listener = PermissionListener { requestCode: Int, _: Array<String>, grantResults: IntArray ->
         if (requestCode == currentRequestCode) {
-          val permissionStatus = grantResults[0]
+          val permissionStatus = if (grantResults.size > 0) grantResults[0] else PackageManager.PERMISSION_DENIED
           promise.resolve(parsePermissionStatus(permissionStatus))
           return@PermissionListener true
         }
