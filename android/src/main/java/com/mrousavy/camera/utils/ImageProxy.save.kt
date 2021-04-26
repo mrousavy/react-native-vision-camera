@@ -33,7 +33,6 @@ fun flip(imageBytes: ByteArray, imageWidth: Int): ByteArray {
   return holder + subArray
 }
 
-@SuppressLint("UnsafeExperimentalUsageError")
 fun ImageProxy.save(file: File, flipHorizontally: Boolean) {
   when (format) {
     // TODO: ImageFormat.RAW_SENSOR
