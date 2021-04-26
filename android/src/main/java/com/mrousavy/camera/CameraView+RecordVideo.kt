@@ -1,7 +1,10 @@
 package com.mrousavy.camera
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import androidx.camera.core.VideoCapture
+import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
 import com.mrousavy.camera.utils.makeErrorMap
 import kotlinx.coroutines.*
@@ -9,11 +12,15 @@ import java.io.File
 
 data class TemporaryFile(val path: String)
 
-@SuppressLint("RestrictedApi")
+@SuppressLint("RestrictedApi", "MissingPermission")
 suspend fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Callback): TemporaryFile {
   if (videoCapture == null) {
     throw CameraNotReadyError()
   }
+  if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+    throw MicrophonePermissionError()
+  }
+
   if (options.hasKey("flash")) {
     val enableFlash = options.getString("flash") == "on"
     // overrides current torch mode value to enable flash while recording

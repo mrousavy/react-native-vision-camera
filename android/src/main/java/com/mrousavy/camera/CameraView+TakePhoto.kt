@@ -16,7 +16,7 @@ import java.io.File
 
 private const val TAG = "CameraView.performance"
 
-@SuppressLint("UnsafeExperimentalUsageError")
+@SuppressLint("UnsafeOptInUsageError")
 suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineScope {
   val startFunc = System.nanoTime()
   Log.d(CameraView.REACT_CLASS, "takePhoto() called")

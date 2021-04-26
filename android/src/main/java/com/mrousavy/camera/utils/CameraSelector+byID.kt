@@ -8,7 +8,7 @@ import java.lang.IllegalArgumentException
 /**
  * Create a new [CameraSelector] which selects the camera with the given [cameraId]
  */
-@SuppressLint("UnsafeExperimentalUsageError")
+@SuppressLint("UnsafeOptInUsageError")
 fun CameraSelector.Builder.byID(cameraId: String): CameraSelector.Builder {
   return this.addCameraFilter { cameras ->
     cameras.filter { cameraInfoX ->
