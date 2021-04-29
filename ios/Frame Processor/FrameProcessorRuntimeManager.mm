@@ -139,6 +139,9 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
   
   NSLog(@"FrameProcessorBindings: Installing Frame Processor plugins...");
   
+  
+  auto& visionRuntime = *runtimeManager->runtime.get();
+  auto global = visionRuntime.global();
   for (NSString* pluginKey in [FrameProcessorPluginRegistry frameProcessorPlugins]) {
     auto pluginName = [pluginKey UTF8String];
     NSLog(@"FrameProcessorBindings: Installing Frame Processor plugin \"%s\"...", pluginName);
@@ -151,11 +154,10 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
       return callback(frame->buffer);
     };
     
-    auto visionRuntime = runtimeManager->runtime;
-    visionRuntime.global().setProperty(visionRuntime, pluginName, jsi::Function::createFromHostFunction(visionRuntime,
-                                                                                                        jsi::PropNameID::forUtf8(visionRuntime, pluginName),
-                                                                                                        1, // frame
-                                                                                                        function));
+    global.setProperty(visionRuntime, pluginName, jsi::Function::createFromHostFunction(visionRuntime,
+                                                                                        jsi::PropNameID::forUtf8(visionRuntime, pluginName),
+                                                                                        1, // frame
+                                                                                        function));
   }
   
   NSLog(@"FrameProcessorBindings: Finished installing bindings.");
