@@ -82,7 +82,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
   NSLog(@"FrameProcessorBindings: Installing global functions...");
   
   // setFrameProcessor(viewTag: number, frameProcessor: (frame: Frame) => void)
-  auto setFrameProcessor = [&self](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+  auto setFrameProcessor = [self](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
     NSLog(@"FrameProcessorBindings: Setting new frame processor...");
     if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: First argument ('viewTag') must be a number!");
     if (!arguments[1].isObject()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
@@ -93,12 +93,12 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
     auto worklet = reanimated::ShareableValue::adapt(runtime, arguments[1], runtimeManager.get());
     NSLog(@"FrameProcessorBindings: Successfully created worklet!");
     
-    RCTExecuteOnMainQueue([worklet, viewTag, &self]() -> void {
+    RCTExecuteOnMainQueue([worklet, viewTag, self]() -> void {
       auto currentBridge = [RCTBridge currentBridge];
       auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
       auto view = static_cast<CameraView*>(anonymousView);
       
-      dispatch_async(CameraQueues.videoQueue, [worklet, view, &self]() -> void {
+      dispatch_async(CameraQueues.videoQueue, [worklet, view, self]() -> void {
         NSLog(@"FrameProcessorBindings: Converting worklet to Objective-C callback...");
         auto& rt = *runtimeManager->runtime;
         auto function = worklet->getValue(rt).asObject(rt).asFunction(rt);
