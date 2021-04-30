@@ -25,9 +25,11 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
   if (name == "toString") {
     auto toString = [this] (jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
-      auto size = CMSampleBufferGetTotalSampleSize(buffer);
+      auto imageBuffer = CMSampleBufferGetImageBuffer(buffer);
+      auto width = CVPixelBufferGetWidth(imageBuffer);
+      auto height = CVPixelBufferGetHeight(imageBuffer);
       
-      NSMutableString* string = [NSMutableString stringWithFormat:@"Buffer (%lu bytes)", size];
+      NSMutableString* string = [NSMutableString stringWithFormat:@"%lu x %lu Frame", width, height];
       return jsi::String::createFromUtf8(runtime, string.UTF8String);
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
@@ -36,6 +38,30 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "isValid") {
     auto isValid = buffer != nil && CMSampleBufferIsValid(buffer);
     return jsi::Value(isValid);
+  }
+  if (name == "isReady") {
+    auto isReady = buffer != nil && CMSampleBufferDataIsReady(buffer);
+    return jsi::Value(isReady);
+  }
+  if (name == "width") {
+    auto imageBuffer = CMSampleBufferGetImageBuffer(buffer);
+    auto width = CVPixelBufferGetWidth(imageBuffer);
+    return jsi::Value((double) width);
+  }
+  if (name == "height") {
+    auto imageBuffer = CMSampleBufferGetImageBuffer(buffer);
+    auto height = CVPixelBufferGetHeight(imageBuffer);
+    return jsi::Value((double) height);
+  }
+  if (name == "bytesPerRow") {
+    auto imageBuffer = CMSampleBufferGetImageBuffer(buffer);
+    auto bytesPerRow = CVPixelBufferGetPlaneCount(imageBuffer);
+    return jsi::Value((double) bytesPerRow);
+  }
+  if (name == "planesCount") {
+    auto imageBuffer = CMSampleBufferGetImageBuffer(buffer);
+    auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
+    return jsi::Value((double) planesCount);
   }
   
   return jsi::Value::undefined();
