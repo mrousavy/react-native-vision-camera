@@ -35,6 +35,7 @@
 #import "../../cpp/MakeJSIRuntime.h"
 #import "FrameProcessorUtils.h"
 #import "FrameProcessorCallback.h"
+#import "../React Utils/JSIUtils.h"
 
 // Forward declarations for the Swift classes
 __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
@@ -151,7 +152,8 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
       NSLog(@"Calling Frame Processor Plugin \"%s\"...", pluginName);
       auto frameHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
       auto frame = static_cast<FrameHostObject*>(frameHostObject.get());
-      return callback(frame->buffer);
+      id result = callback(frame->buffer);
+      return convertObjCObjectToJSIValue(runtime, result);
     };
     
     global.setProperty(visionRuntime, pluginName, jsi::Function::createFromHostFunction(visionRuntime,

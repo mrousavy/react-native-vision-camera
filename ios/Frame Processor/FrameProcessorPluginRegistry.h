@@ -9,10 +9,9 @@
 #pragma once
 
 #import <Foundation/Foundation.h>
-#import <jsi/jsi.h>
 #import <CoreMedia/CMSampleBuffer.h>
 
-typedef facebook::jsi::Value (^FrameProcessorPlugin) (CMSampleBufferRef buffer);
+typedef id (^FrameProcessorPlugin) (CMSampleBufferRef buffer);
 
 @interface FrameProcessorPluginRegistry : NSObject
 
