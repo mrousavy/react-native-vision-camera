@@ -10,10 +10,22 @@
 #import <Foundation/Foundation.h>
 #import <jsi/jsi.h>
 
+std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt) {
+  std::vector<jsi::PropNameID> result;
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isValid")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isReady")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("width")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("height")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("buffer")));
+  return result;
+}
+
 jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {
   auto name = propName.utf8(runtime);
   
-  // TODO: Implement custom getters so you can access the frame from JS
   
   if (name == "Symbol.toPrimitive") {
     // not implemented
@@ -62,6 +74,10 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     auto imageBuffer = CMSampleBufferGetImageBuffer(buffer);
     auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
     return jsi::Value((double) planesCount);
+  }
+  if (name == "buffer") {
+    // TODO: Actually return the pixels of the buffer. Not sure if this will be a huge performance hit or not
+    return jsi::Array(runtime, 0);
   }
   
   return jsi::Value::undefined();
