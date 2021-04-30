@@ -21,11 +21,15 @@ FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &
     
     auto frame = std::make_shared<FrameHostObject>(buffer);
     auto object = jsi::Object::createFromHostObject(runtime, frame);
-    cb.callWithThis(runtime, cb, object);
+    try {
+      cb.callWithThis(runtime, cb, object);
+    } catch (jsi::JSError& jsError) {
+      NSLog(@"Frame Processor threw an error: %s", jsError.getMessage().c_str());
+    }
     
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
-    NSLog(@"Finished Frame Processor execution in %lld", duration.count());
+    NSLog(@"Finished Frame Processor execution in %lld ms", duration.count());
     
     // Manually free the buffer because:
     //  1. we are sure we don't need it anymore, the frame processor worklet has finished executing.

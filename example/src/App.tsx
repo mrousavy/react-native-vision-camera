@@ -248,7 +248,12 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
                 onError={onError}
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
-                frameProcessor={frameProcessor}
+                frameProcessor={(frame) => {
+                  'worklet';
+                  _log(
+                    `Good morning from Frame Processor! Frame: ${frame} (Is Valid: ${frame.isValid}) (globals: _FRAME_PROCESSOR: ${global._FRAME_PROCESSOR} | _WORKLET: ${global._WORKLET} | _UI: ${global._UI})`,
+                  );
+                }}
               />
             </TapGestureHandler>
           </Reanimated.View>
