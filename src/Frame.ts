@@ -30,4 +30,11 @@ export interface Frame {
    * Returns the number of planes this frame contains.
    */
   planesCount: number;
+
+  /**
+   * Returns a string representation of the frame.
+   * @example
+   * console.log(frame.toString()) // -> "3840 x 2160 Frame"
+   */
+  toString(): string;
 }

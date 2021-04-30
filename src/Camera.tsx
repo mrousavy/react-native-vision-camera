@@ -5,7 +5,7 @@ import type { CameraDevice } from './CameraDevice';
 import type { ErrorWithCause } from './CameraError';
 import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError';
 import type { CameraProps } from './CameraProps';
-import type { Frame } from './FrameProcessor';
+import type { Frame } from './Frame';
 import type { PhotoFile, TakePhotoOptions } from './PhotoFile';
 import type { Point } from './Point';
 import type { TakeSnapshotOptions } from './Snapshot';

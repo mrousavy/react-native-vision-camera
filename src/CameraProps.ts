@@ -2,7 +2,7 @@ import type { ViewProps } from 'react-native';
 import type { CameraDevice, CameraDeviceFormat, ColorSpace } from './CameraDevice';
 import type { CameraRuntimeError } from './CameraError';
 import type { CameraPreset } from './CameraPreset';
-import type { Frame } from './FrameProcessor';
+import type { Frame } from './Frame';
 
 export interface CameraProps extends ViewProps {
   /**

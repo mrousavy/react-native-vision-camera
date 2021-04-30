@@ -221,9 +221,7 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
 
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
-    _log(
-      `Good morning from Frame Processor! Frame: ${frame} (globals: _FRAME_PROCESSOR: ${global._FRAME_PROCESSOR} | _WORKLET: ${global._WORKLET} | _UI: ${global._UI})`,
-    );
+    _log(`Good morning from Frame Processor! Frame: ${frame}`);
     //console.log(`Frame Processor: ${frame}`);
   }, []);
 

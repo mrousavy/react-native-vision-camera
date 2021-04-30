@@ -5,7 +5,7 @@ export * from './CameraError';
 export * from './CameraPosition';
 export * from './CameraPreset';
 export * from './CameraProps';
-export * from './FrameProcessor';
+export * from './Frame';
 export * from './CameraProps';
 export * from './PhotoFile';
 export * from './Point';

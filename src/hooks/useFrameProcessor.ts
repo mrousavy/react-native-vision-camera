@@ -1,5 +1,5 @@
 import { DependencyList, useCallback } from 'react';
-import type { Frame } from 'src/FrameProcessor';
+import type { Frame } from 'src/Frame';
 
 export function useFrameProcessor(frameProcessor: (frame: Frame) => void, dependencies: DependencyList): (frame: Frame) => void {
   return useCallback((frame: Frame) => {
