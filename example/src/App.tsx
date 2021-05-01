@@ -32,9 +32,7 @@ import { FpsSelector } from './state/selectors';
 import { useCameraDevice } from './hooks/useCameraDevice';
 import { scanQRCodes } from './QRCodeScanner';
 
-// TODO: Remove once https://github.com/software-mansion/react-native-reanimated/pull/1697 gets merged
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera) as any;
+const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
   zoom: true,
 });
