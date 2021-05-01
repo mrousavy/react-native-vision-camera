@@ -19,7 +19,6 @@ class RecordingSession {
   private let videoWriter: AVAssetWriterInput
   private let audioWriter: AVAssetWriterInput
   private let completionHandler: (AVAssetWriter.Status, Error?) -> Void
-  private var didWriteFirstVideoFrame = false
   
   var url: URL {
     return assetWriter.outputURL
@@ -43,10 +42,8 @@ class RecordingSession {
       throw CameraError.capture(.createRecorderError(message: error.description))
     }
     
-    if !assetWriter.canAdd(videoWriter) {
-      throw CameraError.capture(.createRecorderError(message: "The AVAssetWriter does not support the AVAssetWriterInput!"))
-    }
     assetWriter.add(videoWriter)
+    assetWriter.add(audioWriter)
     
     // assetWriter!.producesCombinableFragments = false // <-- TODO: What value do I want here?
   }
@@ -61,9 +58,15 @@ class RecordingSession {
     }
     
     if assetWriter.status == .unknown {
-      let startTime = CMSampleBufferGetPresentationTimeStamp(buffer)
-      assetWriter.startWriting()
-      assetWriter.startSession(atSourceTime: startTime)
+      if bufferType == .video {
+        let startTime = CMSampleBufferGetPresentationTimeStamp(buffer)
+        assetWriter.startWriting()
+        assetWriter.startSession(atSourceTime: startTime)
+      } else {
+        // if we didn't receive a Video buffer we don't want to start recording yet.
+        // the first buffer strictly has to be a video frame.
+        return
+      }
     }
     
     switch bufferType {
@@ -72,11 +75,7 @@ class RecordingSession {
         return
       }
       videoWriter.append(buffer)
-      didWriteFirstVideoFrame = true
     case .audio:
-      if !didWriteFirstVideoFrame {
-        return
-      }
       if !audioWriter.isReadyForMoreMediaData {
         return
       }
