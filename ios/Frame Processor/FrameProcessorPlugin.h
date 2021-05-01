@@ -25,9 +25,11 @@
 \
 +(void)load                               \
 {                                         \
-SEL selector = @selector(callback:);    \
-[FrameProcessorPluginRegistry addFrameProcessorPlugin:@ #name callback:^id(CMSampleBufferRef buffer) { \
-return [NSNull performSelector:selector withObject:(__bridge id)(buffer)]; \
+SEL selector = @selector(callback:);  \
+IMP method = [self methodForSelector:selector]; \
+id (*func)(CMSampleBufferRef) = (void*) method; \
+[FrameProcessorPluginRegistry addFrameProcessorPlugin:@"__" @ #name callback:^id(CMSampleBufferRef buffer) { \
+  return func(buffer); \
 }]; \
 }
 

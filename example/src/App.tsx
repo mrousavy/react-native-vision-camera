@@ -30,6 +30,7 @@ import IonIcon from 'react-native-vector-icons/Ionicons';
 import { useSelector } from 'pipestate';
 import { FpsSelector } from './state/selectors';
 import { useCameraDevice } from './hooks/useCameraDevice';
+import { scanQRCodes } from './QRCodeScanner';
 
 // TODO: Remove once https://github.com/software-mansion/react-native-reanimated/pull/1697 gets merged
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -221,8 +222,8 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
 
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
-    _log(`Good morning from Frame Processor! Frame: ${frame}`);
-    //console.log(`Frame Processor: ${frame}`);
+    const codes = scanQRCodes(frame);
+    _log(`Codes: ${JSON.stringify(codes)}`);
   }, []);
 
   // TODO: Implement camera flipping (back <-> front) while recording and stich the videos together
