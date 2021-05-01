@@ -16,7 +16,7 @@
 
 + (id) scanQRCodes:(CMSampleBufferRef)buffer {
   NSLog(@"Called with buffer!");
-  return [NSNull null];
+  return [NSArray arrayWithObjects:@"test"];
 }
 
 VISION_EXPORT_FRAME_PROCESSOR(scanQRCodes)

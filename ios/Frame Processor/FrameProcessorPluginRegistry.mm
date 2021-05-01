@@ -26,6 +26,10 @@ static BOOL _isValid = YES;
 
 + (void) addFrameProcessorPlugin:(NSString*)name callback:(FrameProcessorPlugin)callback {
   NSAssert(_isValid, @"Tried to add Frame Processor Plugin but Frame Processor Registry has already registered all plugins!");
+  
+  BOOL alreadyExists = [[FrameProcessorPluginRegistry frameProcessorPlugins] valueForKey:name] != nil;
+  NSAssert(!alreadyExists, @"Tried to two Frame Processor Plugins with the same name! Either choose unique names, or remove the unused plugin.");
+  
   [[FrameProcessorPluginRegistry frameProcessorPlugins] setValue:callback forKey:name];
 }
 
