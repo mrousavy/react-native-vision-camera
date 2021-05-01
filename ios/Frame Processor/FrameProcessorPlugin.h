@@ -27,6 +27,9 @@
  * * Make sure the given function's name is unique across other frame processor plugins
  * * Make sure your frame processor returns a Value that can be converted to JS
  * * Make sure to use this Macro in an @implementation, not @interface
+ *
+ * The JS function will have the same name as the given Objective-C function, but with a "__" prefix.
+ * Make sure to add that function to the babel.config.js under reanimated's "globals" option, and add TypeScript type declarations.
  */
 #define VISION_EXPORT_FRAME_PROCESSOR(frame_processor)                              \
                                                                                     \
