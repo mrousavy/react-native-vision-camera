@@ -17,10 +17,16 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate {
       guard let tempFilePath = RCTTempFilePath("mov", errorPointer) else {
         return callback([NSNull(), makeReactError(.capture(.createTempFileError), cause: errorPointer?.pointee)])
       }
+      
       let tempURL = URL(string: "file://\(tempFilePath)")!
       if let flashMode = options["flash"] as? String {
         // use the torch as the video's flash
         self.setTorchMode(flashMode)
+      }
+      
+      var fileType = AVFileType.mov
+      if let fileTypeOption = options["fileType"] as? String {
+        fileType = AVFileType(withString: fileTypeOption)
       }
       
       // TODO: The startRecording() func cannot be async because RN doesn't allow
@@ -28,7 +34,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate {
       //       This means that any errors that occur in this function have to be delegated through
       //       the callback, but I'd prefer for them to throw for the original function instead.
       
-      recordingSession = try RecordingSession(url: tempURL, fileType: .mov, outputSettings: [:])
+      let outputSettings = videoOutput!.recommendedVideoSettingsForAssetWriter(writingTo: fileType)
+      recordingSession = try RecordingSession(url: tempURL, fileType: fileType, outputSettings: outputSettings)
       
       isRecording = true
     } catch let error as NSError {
@@ -38,6 +45,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate {
 
   func stopRecording(promise: Promise) {
     isRecording = false
+    
     guard let recordingSession = self.recordingSession else {
       return promise.reject(error: .capture(.noRecordingInProgress))
     }

@@ -53,6 +53,7 @@
 		B8A751D82609E4B30011C623 /* FrameProcessorRuntimeManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8A751D72609E4B30011C623 /* FrameProcessorRuntimeManager.mm */; };
 		B8DB3BC8263DC28C004C18D7 /* AVAssetWriter.Status+descriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BC7263DC28C004C18D7 /* AVAssetWriter.Status+descriptor.swift */; };
 		B8DB3BCA263DC4D8004C18D7 /* RecordingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BC9263DC4D8004C18D7 /* RecordingSession.swift */; };
+		B8DB3BCC263DC97E004C18D7 /* AVFileType+descriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BCB263DC97E004C18D7 /* AVFileType+descriptor.swift */; };
 		B8E1627F263D7ECC008C7426 /* QRCodeFrameProcessorPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = B8E1627E263D7ECC008C7426 /* QRCodeFrameProcessorPlugin.m */; };
 /* End PBXBuildFile section */
 
@@ -126,6 +127,7 @@
 		B8A751D72609E4B30011C623 /* FrameProcessorRuntimeManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessorRuntimeManager.mm; sourceTree = "<group>"; };
 		B8DB3BC7263DC28C004C18D7 /* AVAssetWriter.Status+descriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAssetWriter.Status+descriptor.swift"; sourceTree = "<group>"; };
 		B8DB3BC9263DC4D8004C18D7 /* RecordingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingSession.swift; sourceTree = "<group>"; };
+		B8DB3BCB263DC97E004C18D7 /* AVFileType+descriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVFileType+descriptor.swift"; sourceTree = "<group>"; };
 		B8DCF09125EA7BEE00EA5C72 /* SpeedChecker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SpeedChecker.h; sourceTree = "<group>"; };
 		B8DCF14425EA817D00EA5C72 /* MakeJSIRuntime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MakeJSIRuntime.h; sourceTree = "<group>"; };
 		B8E1627E263D7ECC008C7426 /* QRCodeFrameProcessorPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QRCodeFrameProcessorPlugin.m; sourceTree = "<group>"; };
@@ -223,6 +225,7 @@
 				B887517D25E0102000DB86D6 /* AVCaptureColorSpace+descriptor.swift */,
 				B887517E25E0102000DB86D6 /* AVCaptureDevice.FlashMode+descriptor.swift */,
 				B887517F25E0102000DB86D6 /* AVCaptureDevice.Format.AutoFocusSystem+descriptor.swift */,
+				B8DB3BCB263DC97E004C18D7 /* AVFileType+descriptor.swift */,
 			);
 			path = Parsers;
 			sourceTree = "<group>";
@@ -404,6 +407,7 @@
 				B8577DD7263C83B300599A5F /* QRCodeFrameProcessorPlugin.swift in Sources */,
 				B887518F25E0102000DB86D6 /* AVCapturePhotoOutput+mirror.swift in Sources */,
 				B88751A425E0102000DB86D6 /* AVCaptureDevice.Format.AutoFocusSystem+descriptor.swift in Sources */,
+				B8DB3BCC263DC97E004C18D7 /* AVFileType+descriptor.swift in Sources */,
 				B88751A025E0102000DB86D6 /* AVAuthorizationStatus+descriptor.swift in Sources */,
 				B80C0E00260BDDF7001699AB /* FrameProcessorPluginRegistry.mm in Sources */,
 				B887519C25E0102000DB86D6 /* AVCaptureDevice.TorchMode+descriptor.swift in Sources */,
