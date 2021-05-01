@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "FrameProcessorPlugin.h"
+#import <VisionCamera/FrameProcessorPlugin.h>
 
 @interface VISION_EXPORT_SWIFT_FRAME_PROCESSOR(exampleSwift___scanQRCodes, QRCodeFrameProcessorPluginSwift)
 @end
