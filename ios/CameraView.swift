@@ -93,6 +93,7 @@ public final class CameraView: UIView {
 
   internal let cameraQueue = CameraQueues.cameraQueue
   internal let videoQueue = CameraQueues.videoQueue
+  internal let audioQueue = CameraQueues.audioQueue
 
   var isRunning: Bool {
     return captureSession.isRunning

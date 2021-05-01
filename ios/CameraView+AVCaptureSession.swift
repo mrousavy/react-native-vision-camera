@@ -123,7 +123,7 @@ extension CameraView {
     guard captureSession.canAddOutput(audioOutput!) else {
       return invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "audio-output")))
     }
-    audioOutput!.setSampleBufferDelegate(self, queue: videoQueue)
+    audioOutput!.setSampleBufferDelegate(self, queue: audioQueue)
     captureSession.addOutput(audioOutput!)
 
     invokeOnInitialized()

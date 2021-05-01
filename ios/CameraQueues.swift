@@ -17,7 +17,15 @@ public class CameraQueues: NSObject {
                                                       autoreleaseFrequency: .inherit,
                                                       target: nil)
   /// The serial execution queue for output processing of videos as well as frame processors.
-  @objc public static let videoQueue = DispatchQueue(label: "com.mrousavy.vision.frame-processor-queue",
+  @objc public static let videoQueue = DispatchQueue(label: "com.mrousavy.vision.video-queue",
+                                                     qos: .userInteractive,
+                                                     attributes: [],
+                                                     autoreleaseFrequency: .inherit,
+                                                     target: nil)
+  
+  // TODO: Is it a good idea to use a separate queue for audio output processing?
+  /// The serial execution queue for output processing of audio buffers.
+  @objc public static let audioQueue = DispatchQueue(label: "com.mrousavy.vision.audio-queue",
                                                      qos: .userInteractive,
                                                      attributes: [],
                                                      autoreleaseFrequency: .inherit,
