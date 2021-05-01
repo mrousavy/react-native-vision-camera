@@ -51,6 +51,7 @@
 		B88751A825E0102000DB86D6 /* CameraError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887518325E0102000DB86D6 /* CameraError.swift */; };
 		B88751A925E0102000DB86D6 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887518425E0102000DB86D6 /* CameraView.swift */; };
 		B8A751D82609E4B30011C623 /* FrameProcessorRuntimeManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8A751D72609E4B30011C623 /* FrameProcessorRuntimeManager.mm */; };
+		B8E1627F263D7ECC008C7426 /* QRCodeFrameProcessorPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = B8E1627E263D7ECC008C7426 /* QRCodeFrameProcessorPlugin.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -123,6 +124,7 @@
 		B8A751D72609E4B30011C623 /* FrameProcessorRuntimeManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessorRuntimeManager.mm; sourceTree = "<group>"; };
 		B8DCF09125EA7BEE00EA5C72 /* SpeedChecker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SpeedChecker.h; sourceTree = "<group>"; };
 		B8DCF14425EA817D00EA5C72 /* MakeJSIRuntime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MakeJSIRuntime.h; sourceTree = "<group>"; };
+		B8E1627E263D7ECC008C7426 /* QRCodeFrameProcessorPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QRCodeFrameProcessorPlugin.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -219,6 +221,15 @@
 			path = Parsers;
 			sourceTree = "<group>";
 		};
+		B88873E8263D783B008B1D0E /* QR Code Plugin */ = {
+			isa = PBXGroup;
+			children = (
+				B8577DD6263C83B300599A5F /* QRCodeFrameProcessorPlugin.swift */,
+				B8E1627E263D7ECC008C7426 /* QRCodeFrameProcessorPlugin.m */,
+			);
+			path = "QR Code Plugin";
+			sourceTree = "<group>";
+		};
 		B8DCF08F25EA7BEE00EA5C72 /* cpp */ = {
 			isa = PBXGroup;
 			children = (
@@ -232,6 +243,7 @@
 		B8DCF2D725EA940700EA5C72 /* Frame Processor */ = {
 			isa = PBXGroup;
 			children = (
+				B88873E8263D783B008B1D0E /* QR Code Plugin */,
 				B80D67A825FA25380008FE8D /* FrameProcessorCallback.h */,
 				B8103E1E25FF5550007A1684 /* FrameProcessorUtils.h */,
 				B8103E1B25FF553B007A1684 /* FrameProcessorUtils.mm */,
@@ -242,7 +254,6 @@
 				B8A751D72609E4B30011C623 /* FrameProcessorRuntimeManager.mm */,
 				B80C0DFE260BDD97001699AB /* FrameProcessorPluginRegistry.h */,
 				B80C0DFF260BDDF7001699AB /* FrameProcessorPluginRegistry.mm */,
-				B8577DD6263C83B300599A5F /* QRCodeFrameProcessorPlugin.swift */,
 				B88873E5263D46C7008B1D0E /* FrameProcessorPlugin.h */,
 			);
 			path = "Frame Processor";
@@ -374,6 +385,7 @@
 				B88751A325E0102000DB86D6 /* AVCaptureDevice.FlashMode+descriptor.swift in Sources */,
 				B8A751D82609E4B30011C623 /* FrameProcessorRuntimeManager.mm in Sources */,
 				B887519A25E0102000DB86D6 /* AVVideoCodecType+descriptor.swift in Sources */,
+				B8E1627F263D7ECC008C7426 /* QRCodeFrameProcessorPlugin.m in Sources */,
 				B88751A825E0102000DB86D6 /* CameraError.swift in Sources */,
 				B887519225E0102000DB86D6 /* AVCaptureMovieFileOutput+mirror.swift in Sources */,
 				B88751A625E0102000DB86D6 /* CameraViewManager.swift in Sources */,
