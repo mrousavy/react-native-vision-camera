@@ -16,7 +16,8 @@ typedef id (^FrameProcessorPlugin) (CMSampleBufferRef buffer);
 @interface FrameProcessorPluginRegistry : NSObject
 
 + (NSMutableDictionary<NSString*, FrameProcessorPlugin>*)frameProcessorPlugins;
-
 + (void) addFrameProcessorPlugin:(NSString*)name callback:(FrameProcessorPlugin)callback;
+
++ (void) markInvalid;
 
 @end

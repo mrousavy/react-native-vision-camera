@@ -65,6 +65,30 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                                                   std::make_shared<reanimated::REAIOSErrorHandler>(scheduler),
                                                                   scheduler);
     NSLog(@"FrameProcessorBindings: Runtime Manager created!");
+    
+    NSLog(@"FrameProcessorBindings: Installing Frame Processor plugins...");
+    auto& visionRuntime = *runtimeManager->runtime;
+    auto visionGlobal = visionRuntime.global();
+    for (NSString* pluginKey in [FrameProcessorPluginRegistry frameProcessorPlugins]) {
+      auto pluginName = [pluginKey UTF8String];
+      
+      NSLog(@"FrameProcessorBindings: Installing Frame Processor plugin \"%s\"...", pluginName);
+      FrameProcessorPlugin callback = [[FrameProcessorPluginRegistry frameProcessorPlugins] valueForKey:pluginKey];
+      
+      auto function = [callback](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+        auto frameHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
+        auto frame = static_cast<FrameHostObject*>(frameHostObject.get());
+        id result = callback(frame->buffer);
+        return convertObjCObjectToJSIValue(runtime, result);
+      };
+      
+      visionGlobal.setProperty(visionRuntime, pluginName, jsi::Function::createFromHostFunction(visionRuntime,
+                                                                                                jsi::PropNameID::forAscii(visionRuntime, pluginName),
+                                                                                                1, // frame
+                                                                                                function));
+    }
+    [FrameProcessorPluginRegistry markInvalid];
+    NSLog(@"FrameProcessorBindings: Frame Processor plugins installed!");
   }
   return self;
 }
@@ -137,31 +161,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                                                                                            jsi::PropNameID::forAscii(jsiRuntime, "unsetFrameProcessor"),
                                                                                                            1,  // viewTag
                                                                                                            unsetFrameProcessor));
-  
-  NSLog(@"FrameProcessorBindings: Installing Frame Processor plugins...");
-  
-  
-  auto& visionRuntime = *runtimeManager->runtime.get();
-  auto global = visionRuntime.global();
-  for (NSString* pluginKey in [FrameProcessorPluginRegistry frameProcessorPlugins]) {
-    auto pluginName = [pluginKey UTF8String];
-    NSLog(@"FrameProcessorBindings: Installing Frame Processor plugin \"%s\"...", pluginName);
-    FrameProcessorPlugin callback = [[FrameProcessorPluginRegistry frameProcessorPlugins] valueForKey:pluginKey];
-    
-    auto function = [callback, pluginName](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
-      NSLog(@"Calling Frame Processor Plugin \"%s\"...", pluginName);
-      auto frameHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
-      auto frame = static_cast<FrameHostObject*>(frameHostObject.get());
-      id result = callback(frame->buffer);
-      return convertObjCObjectToJSIValue(runtime, result);
-    };
-    
-    global.setProperty(visionRuntime, pluginName, jsi::Function::createFromHostFunction(visionRuntime,
-                                                                                        jsi::PropNameID::forUtf8(visionRuntime, pluginName),
-                                                                                        1, // frame
-                                                                                        function));
-  }
-  
+
   NSLog(@"FrameProcessorBindings: Finished installing bindings.");
 }
 

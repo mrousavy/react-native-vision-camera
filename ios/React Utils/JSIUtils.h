@@ -49,7 +49,9 @@ static jsi::Array convertNSArrayToJSIArray(jsi::Runtime &runtime, NSArray *value
 
 jsi::Value convertObjCObjectToJSIValue(jsi::Runtime &runtime, id value)
 {
-  if ([value isKindOfClass:[NSString class]]) {
+  if (value == nil) {
+    return jsi::Value::undefined();
+  } else if ([value isKindOfClass:[NSString class]]) {
     return convertNSStringToJSIString(runtime, (NSString *)value);
   } else if ([value isKindOfClass:[NSNumber class]]) {
     if ([value isKindOfClass:[@YES class]]) {
