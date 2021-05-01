@@ -8,6 +8,8 @@
 
 import AVFoundation
 
+private var hasLoggedFrameDropWarning = false
+
 extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate {
   func startRecording(options: NSDictionary, callback: @escaping RCTResponseSenderBlock) {
     cameraQueue.async {
@@ -37,7 +39,6 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate {
   }
 
   public func captureOutput(_: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
-    print("Did output a new frame!")
 
     if let frameProcessor = frameProcessorCallback {
       let dropRate = self.frameProcessorFrameDropRate.intValue
@@ -51,8 +52,12 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate {
 
   public func captureOutput(_: AVCaptureOutput, didDrop _: CMSampleBuffer, from _: AVCaptureConnection) {
     self.frameProcessorFrameCounter = 0
-    // TODO: Show in React console?
-    ReactLogger.log(level: .warning, message: "Dropped a Frame. This might indicate that your Frame Processor is doing too much work. " +
-      "Either throttle the frame processor's frame rate, or optimize your frame processor's execution speed.")
+    
+    if !hasLoggedFrameDropWarning {
+      // TODO: Show in React console?
+      ReactLogger.log(level: .warning, message: "Dropped a Frame. This might indicate that your Frame Processor is doing too much work. " +
+        "Either throttle the frame processor's frame rate, or optimize your frame processor's execution speed.")
+      hasLoggedFrameDropWarning = true
+    }
   }
 }
