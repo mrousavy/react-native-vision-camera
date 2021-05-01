@@ -53,7 +53,7 @@ objc_name : NSObject<FrameProcessorPluginBase>                                  
 __attribute__((constructor)) static void VISION_CONCAT(initialize_, objc_name)()    \
 {                                                                                   \
   [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"__" @ #name callback:^id(CMSampleBufferRef buffer) {    \
-    return [QRCodeFrameProcessorPlugin callback:buffer];                            \
+    return [objc_name callback:buffer];                                             \
   }];                                                                               \
 }
 
