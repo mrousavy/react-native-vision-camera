@@ -79,6 +79,7 @@ public final class CameraView: UIView {
   internal var audioDeviceInput: AVCaptureDeviceInput?
   internal var photoOutput: AVCapturePhotoOutput?
   internal var videoOutput: AVCaptureVideoDataOutput?
+  internal var audioOutput: AVCaptureAudioDataOutput?
   // CameraView+RecordView (+ FrameProcessorDelegate.mm)
   internal var isRecording = false
   internal var recordingSession: RecordingSession?

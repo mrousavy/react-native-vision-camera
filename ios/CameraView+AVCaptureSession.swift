@@ -111,6 +111,20 @@ extension CameraView {
     videoOutput!.setSampleBufferDelegate(self, queue: videoQueue)
     videoOutput!.alwaysDiscardsLateVideoFrames = true
     captureSession.addOutput(videoOutput!)
+    
+    // Audio Output
+    if let audioOutput = self.audioOutput {
+      captureSession.removeOutput(audioOutput)
+      self.audioOutput = nil
+    }
+    ReactLogger.log(level: .info, message: "Adding Audio Data output...")
+    audioOutput = AVCaptureAudioDataOutput()
+    guard captureSession.canAddOutput(audioOutput!) else {
+      return invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "audio-output")))
+    }
+    audioOutput!.setSampleBufferDelegate(self, queue: videoQueue)
+    captureSession.addOutput(audioOutput!)
+    
     // TODO: Mirror videoOutput if selfie camera is used
 
     invokeOnInitialized()

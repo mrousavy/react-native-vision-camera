@@ -10,7 +10,7 @@ import AVFoundation
 
 private var hasLoggedFrameDropWarning = false
 
-extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate {
+extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
   func startRecording(options: NSDictionary, callback: @escaping RCTResponseSenderBlock) {
     cameraQueue.async {
       do {
@@ -52,10 +52,12 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate {
           }
         }
         
-        let outputSettings = self.videoOutput!.recommendedVideoSettingsForAssetWriter(writingTo: fileType)
+        let videoSettings = self.videoOutput!.recommendedVideoSettingsForAssetWriter(writingTo: fileType)
+        let audioSettings = self.audioOutput!.recommendedAudioSettingsForAssetWriter(writingTo: fileType) as? [String: Any]
         self.recordingSession = try RecordingSession(url: tempURL,
                                                      fileType: fileType,
-                                                     outputSettings: outputSettings ?? [:],
+                                                     videoSettings: videoSettings ?? [:],
+                                                     audioSettings: audioSettings ?? [:],
                                                      completion: onFinish)
         
         self.isRecording = true
@@ -105,12 +107,20 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate {
     }
   }
 
-  public func captureOutput(_: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
+  public func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
     if isRecording {
       guard let recordingSession = recordingSession else {
         return invokeOnError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
       }
-      recordingSession.appendBuffer(sampleBuffer)
+      let type: BufferType
+      if let _ = captureOutput as? AVCaptureVideoDataOutput {
+        type = .video
+      } else if let _ = captureOutput as? AVCaptureAudioDataOutput {
+        type = .audio
+      } else {
+        return invokeOnError(.capture(.unknown(message: "Received CMSampleBuffer from unknown AVCaptureOutput!")))
+      }
+      recordingSession.appendBuffer(sampleBuffer, type: type)
     }
     
     if let frameProcessor = frameProcessorCallback {
