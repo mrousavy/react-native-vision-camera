@@ -9,6 +9,9 @@
 #import <VisionCamera/FrameProcessorPlugin.h>
 #import <Vision/VNDetectBarcodesRequest.h>
 
+// Example for an Objective-C Frame Processor plugin
+
+/*
 @interface QRFrameProcessorPlugin : NSObject
 @end
 
@@ -19,7 +22,7 @@ static inline id scanQRCodes(CMSampleBufferRef buffer) {
   return @[];
 }
 
-// Uncomment this line to register the above function as a frame processor
-//VISION_EXPORT_FRAME_PROCESSOR(scanQRCodes)
+VISION_EXPORT_FRAME_PROCESSOR(scanQRCodes)
 
 @end
+*/
