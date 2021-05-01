@@ -1,5 +1,5 @@
 //
-//  QRFrameProcessorPluginSwift.m
+//  QRCodeFrameProcessorPluginSwift.m
 //  VisionCamera
 //
 //  Created by Marc Rousavy on 01.05.21.
@@ -9,5 +9,5 @@
 #import <Foundation/Foundation.h>
 #import "FrameProcessorPlugin.h"
 
-@interface VISION_EXPORT_SWIFT_FRAME_PROCESSOR(exampleSwift___scanQRCodes, QRFrameProcessorPluginSwift)
+@interface VISION_EXPORT_SWIFT_FRAME_PROCESSOR(exampleSwift___scanQRCodes, QRCodeFrameProcessorPluginSwift)
 @end

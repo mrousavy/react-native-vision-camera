@@ -1,5 +1,5 @@
 //
-//  QRFrameProcessorPluginObjC.m
+//  QRCodeFrameProcessorPluginObjC.m
 //  VisionCameraExample
 //
 //  Created by Marc Rousavy on 01.05.21.
@@ -11,10 +11,10 @@
 
 // Example for an Objective-C Frame Processor plugin
 
-@interface QRFrameProcessorPluginObjC : NSObject
+@interface QRCodeFrameProcessorPluginObjC : NSObject
 @end
 
-@implementation QRFrameProcessorPluginObjC
+@implementation QRCodeFrameProcessorPluginObjC
 
 static inline id exampleObjC___scanQRCodes(CMSampleBufferRef buffer) {
   // TODO: Use some AI to detect QR codes in the CMSampleBufferRef
