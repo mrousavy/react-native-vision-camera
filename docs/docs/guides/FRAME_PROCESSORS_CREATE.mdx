@@ -1,0 +1,214 @@
+---
+id: frame-processors-create
+title: Creating Frame Processors
+sidebar_label: Creating Frame Processors
+---
+
+import useBaseUrl from '@docusaurus/useBaseUrl';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+:::warning
+FRAME PROCESSORS ARE STILL WORK IN PROGRESS - SEE [#2](https://github.com/cuvent/react-native-vision-camera/pull/2)
+:::
+
+<!-- TODO: Demo of QR code scanning or smth -->
+<div>
+  <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535" style={{ float: 'right' }}>
+    <image href={useBaseUrl("img/demo.gif")} x="18" y="33" width="247" height="469"  />
+    <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
+  </svg>
+</div>
+
+### Creating a Frame Processor
+
+The Frame Processor Plugin API is built to be as extensible as possible, which allows you to create custom Frame Processor Plugins.
+In this guide we will create a custom QR Code Scanner Plugin.
+
+Prerequisites:
+
+* For iOS: Minimal **Objective-C** or **Swift** knowledge
+* For Android: Minimal **Java**, **Kotlin** or **C++** knowledge
+
+#### iOS
+
+iOS Frame Processor Plugins can be written in Objective-C or Swift.
+
+
+<Tabs
+  defaultValue="objc"
+  values={[
+    {label: 'Objective-C', value: 'objc'},
+    {label: 'Swift', value: 'swift'}
+  ]}>
+<TabItem value="objc">
+
+1. Create your Objective-C source file, for the QR Code Plugin this will be `QRCodeFrameProcessorPlugin.m`.
+2. Add the following code:
+
+```objc
+#import <VisionCamera/FrameProcessorPlugin.h>
+
+@interface QRCodeFrameProcessorPlugin : NSObject
+@end
+
+@implementation QRCodeFrameProcessorPlugin
+
+// code goes here
+
+@end
+```
+
+3. Inside the `@implementation`, implement the plugin using a C-style function with the following signature:
+
+```objc
+static inline id scanQRCodes(CMSampleBufferRef buffer) {
+  // code goes here
+  return @[];
+}
+
+VISION_EXPORT_FRAME_PROCESSOR(scanQRCodes)
+```
+
+:::info
+The JS function name will be equal to the Objective-C function name you choose (with a `__` prefix). Make sure it is unique across other Frame Processors, and doesn't shadow a JS runtime variable.
+:::
+
+:::info
+The following return values are supported:
+* `NSString` (`string` in JS)
+* `NSNumber` (`number` in JS)
+* `nil` (`undefined` or `null` in JS)
+* `NSDictionary` (`{}` in JS)
+* `NSArray` (`[]` in JS)
+:::
+
+4. Start implementing your custom Frame Processor's code! 🚀
+
+> See [QR Code Plugin (Objective-C)](https://github.com/cuvent/react-native-vision-camera/blob/main/example/ios/Frame%20Processor%20Plugins/QR%20Code%20Plugin%20%28Objective%2DC%29) for reference.
+
+</TabItem>
+<TabItem value="swift">
+
+1. Create a Swift file, for the QR Code Plugin this will be `QRCodeFrameProcessorPlugin.swift`. If Xcode asks you to create a Bridging Header, press **create**.
+
+![Xcode "Create Bridging Header" alert](https://docs-assets.developer.apple.com/published/7ebca7212c/2a065d1a-7e53-4907-a889-b7fa4f2206c9.png)
+
+2. Inside the newly created Bridging Header, import the `FrameProcessorPlugin` header:
+
+```objc
+#import <VisionCamera/FrameProcessorPlugin.h>
+```
+
+3. Create an Objective-C source file with the same name as the Swift file, for the QR Code Plugin this will be `QRCodeFrameProcessorPlugin.m`
+4. Add the following code to the Objective-C source file:
+
+```objc
+#import <VisionCamera/FrameProcessorPlugin.h>
+
+@interface VISION_EXPORT_SWIFT_FRAME_PROCESSOR(scanQRCodes, QRCodeFrameProcessorPlugin)
+@end
+```
+
+:::info
+The first parameter in the Macro specifies the JS function name. Make sure it is unique across other Frame Processors, and doesn't shadow a JS runtime variable (such as `Map`, `Number`, ...)
+:::
+
+5. In the Swift file, add the following code:
+
+```swift
+@objc(QRCodeFrameProcessorPlugin)
+public class QRCodeFrameProcessorPlugin: NSObject, FrameProcessorPluginBase {
+    @objc
+    public static func callback(_: CMSampleBuffer!) -> Any! {
+        // code goes here
+        return []
+    }
+}
+```
+
+:::info
+The following return values are supported:
+* `NSString` (`string` in JS)
+* `NSNumber` (`number` in JS)
+* `nil` (`undefined` or `null` in JS)
+* `[String: Any]` (`{}` in JS)
+* `Any[]` (`[]` in JS)
+:::
+
+6. Start implementing your custom Frame Processor's code! 🚀
+
+> See [QR Code Plugin (Swift)](https://github.com/cuvent/react-native-vision-camera/blob/main/example/ios/Frame%20Processor%20Plugins/QR%20Code%20Plugin%20%28Swift%29) for reference.
+
+
+</TabItem>
+</Tabs>
+
+
+#### JS
+
+1. To make the Frame Processor Plugin available to the Frame Processor Worklet Runtime, create the following function in JS/TS:
+
+```ts
+/* global _WORKLET __scanQRCodes */
+import type { Frame } from 'react-native-vision-camera';
+
+/**
+  * Scans the given Frame for QR codes.
+  */
+export function scanQRCodes(frame: Frame): string[] {
+  'worklet';
+  if (!_WORKLET) throw new Error('scanQRCodes must be called from a frame processor!');
+
+  // @ts-expect-error because this function is dynamically injected by VisionCamera
+  return __scanQRCodes(frame);
+}
+```
+
+2. Add the `__scanQRCodes` function to your `babel.config.js`:
+
+```js
+module.exports = {
+  // ...
+  plugins: [
+    [
+      'react-native-reanimated/plugin',
+      {
+        globals: ['__scanQRCodes'],
+      },
+    ],
+    // ...
+```
+
+### Test it!
+
+Simply call the wrapper Worklet in your Frame Processor:
+
+```tsx
+function App() {
+  const frameProcessor = useFrameProcessor((frame) => {
+    const qrCodes = scanQrCodes(frame)
+    _log(`QR Codes in Frame: ${qrCodes}`)
+  }, [])
+
+  return (
+    <Camera frameProcessor={frameProcessor} {...cameraProps} />
+  )
+}
+```
+
+### Next Steps
+
+If you want to distribute your Frame Processor Plugin, simply use npm.
+
+1. Create a blank Native Module using [bob](https://github.com/callstack/react-native-builder-bob) or [create-react-native-module](https://github.com/brodybits/create-react-native-module)
+2. Name it `vision-camera-plugin-xxxxx` where `xxxxx` is the name of your plugin
+3. Remove all the source files for the Example Native Module
+4. Implement the Frame Processor Plugin in the iOS, Android and JS/TS Codebase using the guides above
+5. Add installation instructions to let users know they have to add your frame processor in the `babel.config.js` configuration.
+6. Publish the plugin to npm. Users will only have to install the plugin using `npm i vision-camera-plugin-xxxxx` and add it to their `babel.config.js` file.
+7. [Add the plugin to the official VisionCamera plugin list](https://github.com/cuvent/react-native-vision-camera/issues/new/choose) for more visibility
+
+<br />
+
+#### 🚀 Next section: [Zooming with Reanimated](animated)
