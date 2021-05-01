@@ -16,9 +16,12 @@ enum BufferType {
 
 class RecordingSession {
   private let assetWriter: AVAssetWriter
-  private let videoWriter: AVAssetWriterInput
   private let audioWriter: AVAssetWriterInput
+  private let videoWriter: AVAssetWriterInput
+  private let bufferAdapter: AVAssetWriterInputPixelBufferAdaptor
   private let completionHandler: (AVAssetWriter.Status, Error?) -> Void
+  
+  private var startTimestamp: CMTime? = nil
   
   var url: URL {
     return assetWriter.outputURL
@@ -35,12 +38,16 @@ class RecordingSession {
        completion: @escaping (AVAssetWriter.Status, Error?) -> Void) throws {
     do {
       assetWriter = try AVAssetWriter(outputURL: url, fileType: fileType)
-      videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: videoSettings)
       audioWriter = AVAssetWriterInput(mediaType: .audio, outputSettings: audioSettings)
+      videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: videoSettings)
+      bufferAdapter = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter, sourcePixelBufferAttributes: nil)
       completionHandler = completion
     } catch let error as NSError {
       throw CameraError.capture(.createRecorderError(message: error.description))
     }
+    
+    videoWriter.expectsMediaDataInRealTime = true
+    audioWriter.expectsMediaDataInRealTime = true
     
     assetWriter.add(videoWriter)
     assetWriter.add(audioWriter)
@@ -72,9 +79,15 @@ class RecordingSession {
     switch bufferType {
     case .video:
       if !videoWriter.isReadyForMoreMediaData {
+        ReactLogger.log(level: .warning, message: "The Video AVAssetWriterInput was not ready for more data! Is your frame rate too high?")
         return
       }
-      videoWriter.append(buffer)
+      let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
+      if startTimestamp == nil {
+        startTimestamp = timestamp
+      }
+      let time = CMTime(seconds: timestamp.seconds - startTimestamp!.seconds, preferredTimescale: CMTimeScale(bitPattern: 600))
+      bufferAdapter.append(CMSampleBufferGetImageBuffer(buffer)!, withPresentationTime: time)
     case .audio:
       if !audioWriter.isReadyForMoreMediaData {
         return
