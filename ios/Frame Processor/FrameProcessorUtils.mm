@@ -20,9 +20,8 @@ FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     
     auto frame = std::make_shared<FrameHostObject>(buffer);
-    auto object = jsi::Object::createFromHostObject(runtime, frame);
     try {
-      cb.callWithThis(runtime, cb, object);
+      cb.call(runtime, jsi::Object::createFromHostObject(runtime, frame));
     } catch (jsi::JSError& jsError) {
       NSLog(@"Frame Processor threw an error: %s", jsError.getMessage().c_str());
     }
