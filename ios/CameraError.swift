@@ -179,6 +179,7 @@ enum CaptureError {
   case noRecordingInProgress
   case fileError
   case createTempFileError
+  case createRecorderError(message: String? = nil)
   case invalidPhotoCodec
   case unknown(message: String? = nil)
 
@@ -194,6 +195,8 @@ enum CaptureError {
       return "file-io-error"
     case .createTempFileError:
       return "create-temp-file-error"
+    case .createRecorderError:
+      return "create-recorder-error"
     case .invalidPhotoCodec:
       return "invalid-photo-codec"
     case .unknown:
@@ -215,6 +218,8 @@ enum CaptureError {
       return "An unexpected File IO error occured!"
     case .createTempFileError:
       return "Failed to create a temporary file!"
+    case let .createRecorderError(message: message):
+      return "Failed to create the AVAssetWriter (Recorder)! \(message ?? "(no additional message)")"
     case let .unknown(message: message):
       return message ?? "An unknown error occured while capturing a video/photo."
     }

@@ -12,7 +12,7 @@ private var hasLoggedFrameDropWarning = false
 
 extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate {
   func startRecording(options: NSDictionary, callback: @escaping RCTResponseSenderBlock) {
-    cameraQueue.async {
+    do {
       let errorPointer = ErrorPointer(nilLiteral: ())
       guard let tempFilePath = RCTTempFilePath("mov", errorPointer) else {
         return callback([NSNull(), makeReactError(.capture(.createTempFileError), cause: errorPointer?.pointee)])
@@ -22,24 +22,69 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate {
         // use the torch as the video's flash
         self.setTorchMode(flashMode)
       }
-
-      // TODO: Start recording with AVCaptureVideoDataOutputSampleBufferDelegate
-      // TODO: The startRecording() func cannot be async because RN doesn't allow both a callback and a Promise in a single function. Wait for TurboModules?
-      // return ["path": tempFilePath]
+      
+      // TODO: The startRecording() func cannot be async because RN doesn't allow
+      //       both a callback and a Promise in a single function. Wait for TurboModules?
+      //       This means that any errors that occur in this function have to be delegated through
+      //       the callback, but I'd prefer for them to throw for the original function instead.
+      
+      recordingSession = try RecordingSession(url: tempURL, fileType: .mov, outputSettings: [:])
+      
+      isRecording = true
+    } catch let error as NSError {
+      return callback([NSNull(), makeReactError(.capture(.createTempFileError), cause: error)])
     }
   }
 
   func stopRecording(promise: Promise) {
-    cameraQueue.async {
-      withPromise(promise) {
-        // TODO: Stop recording with AVCaptureVideoDataOutputSampleBufferDelegate
+    isRecording = false
+    guard let recordingSession = self.recordingSession else {
+      return promise.reject(error: .capture(.noRecordingInProgress))
+    }
+    recordingSession.finish { status, error in
+      if let error = error {
+        return promise.reject(error: .capture(.fileError), cause: error as NSError)
+      }
+      if status == AVAssetWriter.Status.completed {
+        return promise.resolve([
+          "path": recordingSession.url.absoluteString,
+          "duration": recordingSession.duration
+        ])
+      } else {
+        promise.reject(error: .capture(.unknown(message: "AVAssetWriter completed with status: \(status.descriptor)")))
+      }
+    }
+  }
+  
+  func pauseRecording(promise: Promise) {
+    withPromise(promise) {
+      if isRecording {
+        isRecording = false
         return nil
+      } else {
+        throw CameraError.capture(.noRecordingInProgress)
+      }
+    }
+  }
+  
+  func resumeRecording(promise: Promise) {
+    withPromise(promise) {
+      if !isRecording {
+        isRecording = true
+        return nil
+      } else {
+        throw CameraError.capture(.noRecordingInProgress)
       }
     }
   }
 
   public func captureOutput(_: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
-    // TODO: Add to encoder if recording
+    if isRecording {
+      guard let recordingSession = recordingSession else {
+        return invokeOnError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
+      }
+      recordingSession.appendBuffer(sampleBuffer)
+    }
     
     if let frameProcessor = frameProcessorCallback {
       // check if last frame was x nanoseconds ago, effectively throttling FPS

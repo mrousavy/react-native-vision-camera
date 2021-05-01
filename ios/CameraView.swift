@@ -80,20 +80,18 @@ public final class CameraView: UIView {
   internal var photoOutput: AVCapturePhotoOutput?
   internal var videoOutput: AVCaptureVideoDataOutput?
   // CameraView+RecordView (+ FrameProcessorDelegate.mm)
+  internal var isRecording = false
+  internal var recordingSession: RecordingSession?
   @objc public var frameProcessorCallback: FrameProcessorCallback?
+  internal var lastFrameProcessorCall = DispatchTime.now()
   // CameraView+TakePhoto
   internal var photoCaptureDelegates: [PhotoCaptureDelegate] = []
-  // CameraView+RecordVideo
-  internal var recordingDelegateResolver: RCTPromiseResolveBlock?
-  internal var recordingDelegateRejecter: RCTPromiseRejectBlock?
   // CameraView+Zoom
   internal var pinchGestureRecognizer: UIPinchGestureRecognizer?
   internal var pinchScaleOffset: CGFloat = 1.0
 
   internal let cameraQueue = CameraQueues.cameraQueue
   internal let videoQueue = CameraQueues.videoQueue
-  
-  internal var lastFrameProcessorCall = DispatchTime.now()
 
   var isRunning: Bool {
     return captureSession.isRunning
