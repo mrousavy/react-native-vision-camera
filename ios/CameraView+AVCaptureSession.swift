@@ -111,6 +111,7 @@ extension CameraView {
     videoOutput!.setSampleBufferDelegate(self, queue: videoQueue)
     videoOutput!.alwaysDiscardsLateVideoFrames = true
     captureSession.addOutput(videoOutput!)
+    // TODO: Mirror videoOutput if selfie camera is used
     
     // Audio Output
     if let audioOutput = self.audioOutput {
@@ -124,8 +125,6 @@ extension CameraView {
     }
     audioOutput!.setSampleBufferDelegate(self, queue: videoQueue)
     captureSession.addOutput(audioOutput!)
-    
-    // TODO: Mirror videoOutput if selfie camera is used
 
     invokeOnInitialized()
     isReady = true
