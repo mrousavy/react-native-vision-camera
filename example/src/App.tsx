@@ -246,7 +246,7 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
                 frameProcessor={frameProcessor}
-                frameProcessorFrameDropRate={10}
+                frameProcessorFps={1}
               />
             </TapGestureHandler>
           </Reanimated.View>

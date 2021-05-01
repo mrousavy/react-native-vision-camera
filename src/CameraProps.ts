@@ -132,12 +132,17 @@ export interface CameraProps extends ViewProps {
    */
   frameProcessor?: (frame: Frame) => void;
   /**
-   * Specifies the number of frames the frame processor drops, relative to the current `fps`.
-   * * A number of `1` indicates that the frame processor gets executed for every frame, so 30 times a second for 30 fps. (not recommended)
-   * * A number of `2` indicates that the frame processor only gets executed for every second frame, so 15 times a second for 30 fps.
-   * * A number of `10` indicates that the frame processor gets executed for every 10th frame, so 3 times a second for 30 fps.
-   * @default 2
+   * Specifies the maximum frame rate the frame processor can use, independent of the Camera's frame rate (`fps` property).
+   *
+   * * A value of `1` (default) indicates that the frame processor gets executed once per second, perfect for code scanning.
+   * * A value of `10` indicates that the frame processor gets executed 10 times per second, perfect for more realtime use-cases.
+   * * A value of `25` indicates that the frame processor gets executed 30 times per second, perfect for high-speed realtime use-cases.
+   *
+   * If you're using higher values, always check your Xcode/Android Studio Logs to make sure your frame processors are executing fast enough
+   * without blocking the video recording queue.
+   *
+   * @default 1
    */
-  frameProcessorFrameDropRate?: number;
+  frameProcessorFps?: number;
   //#endregion
 }
