@@ -8,7 +8,7 @@ module.exports = {
     [
       'react-native-reanimated/plugin',
       {
-        globals: ['__scanQRCodes'],
+        globals: ['__exampleSwift___scanQRCodes', '__exampleObjC___scanQRCodes'],
       },
     ],
     [
