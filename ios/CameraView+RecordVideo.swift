@@ -12,77 +12,95 @@ private var hasLoggedFrameDropWarning = false
 
 extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate {
   func startRecording(options: NSDictionary, callback: @escaping RCTResponseSenderBlock) {
-    do {
-      let errorPointer = ErrorPointer(nilLiteral: ())
-      guard let tempFilePath = RCTTempFilePath("mov", errorPointer) else {
-        return callback([NSNull(), makeReactError(.capture(.createTempFileError), cause: errorPointer?.pointee)])
+    cameraQueue.async {
+      do {
+        let errorPointer = ErrorPointer(nilLiteral: ())
+        guard let tempFilePath = RCTTempFilePath("mov", errorPointer) else {
+          return callback([NSNull(), makeReactError(.capture(.createTempFileError), cause: errorPointer?.pointee)])
+        }
+        
+        let tempURL = URL(string: "file://\(tempFilePath)")!
+        if let flashMode = options["flash"] as? String {
+          // use the torch as the video's flash
+          self.setTorchMode(flashMode)
+        }
+        
+        var fileType = AVFileType.mov
+        if let fileTypeOption = options["fileType"] as? String {
+          fileType = AVFileType(withString: fileTypeOption)
+        }
+        
+        // TODO: The startRecording() func cannot be async because RN doesn't allow
+        //       both a callback and a Promise in a single function. Wait for TurboModules?
+        //       This means that any errors that occur in this function have to be delegated through
+        //       the callback, but I'd prefer for them to throw for the original function instead.
+        
+        let onFinish = { (status: AVAssetWriter.Status, error: Error?) -> Void in
+          ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
+          if let error = error {
+            let description = (error as NSError).description
+            return callback([NSNull(), CameraError.capture(.unknown(message: "An unknown recording error occured! \(description)"))])
+          } else {
+            if status == .completed {
+              return callback([[
+                "path": self.recordingSession!.url.absoluteString,
+                "duration": self.recordingSession!.duration
+              ], NSNull()])
+            } else {
+              return callback([NSNull(), CameraError.unknown(message: "AVAssetWriter completed with status: \(status.descriptor)")])
+            }
+          }
+        }
+        
+        let outputSettings = self.videoOutput!.recommendedVideoSettingsForAssetWriter(writingTo: fileType)
+        self.recordingSession = try RecordingSession(url: tempURL,
+                                                     fileType: fileType,
+                                                     outputSettings: outputSettings ?? [:],
+                                                     completion: onFinish)
+        
+        self.isRecording = true
+      } catch let error as NSError {
+        return callback([NSNull(), makeReactError(.capture(.createTempFileError), cause: error)])
       }
-      
-      let tempURL = URL(string: "file://\(tempFilePath)")!
-      if let flashMode = options["flash"] as? String {
-        // use the torch as the video's flash
-        self.setTorchMode(flashMode)
-      }
-      
-      var fileType = AVFileType.mov
-      if let fileTypeOption = options["fileType"] as? String {
-        fileType = AVFileType(withString: fileTypeOption)
-      }
-      
-      // TODO: The startRecording() func cannot be async because RN doesn't allow
-      //       both a callback and a Promise in a single function. Wait for TurboModules?
-      //       This means that any errors that occur in this function have to be delegated through
-      //       the callback, but I'd prefer for them to throw for the original function instead.
-      
-      let outputSettings = videoOutput!.recommendedVideoSettingsForAssetWriter(writingTo: fileType)
-      recordingSession = try RecordingSession(url: tempURL, fileType: fileType, outputSettings: outputSettings)
-      
-      isRecording = true
-    } catch let error as NSError {
-      return callback([NSNull(), makeReactError(.capture(.createTempFileError), cause: error)])
     }
   }
 
   func stopRecording(promise: Promise) {
     isRecording = false
     
-    guard let recordingSession = self.recordingSession else {
-      return promise.reject(error: .capture(.noRecordingInProgress))
-    }
-    recordingSession.finish { status, error in
-      ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor). Has error: \(error != nil)")
-      if let error = error {
-        return promise.reject(error: .capture(.fileError), cause: error as NSError)
-      }
-      if status == AVAssetWriter.Status.completed {
-        return promise.resolve([
-          "path": recordingSession.url.absoluteString,
-          "duration": recordingSession.duration
-        ])
-      } else {
-        promise.reject(error: .capture(.unknown(message: "AVAssetWriter completed with status: \(status.descriptor)")))
+    cameraQueue.async {
+      withPromise(promise) {
+        guard let recordingSession = self.recordingSession else {
+          throw CameraError.capture(.noRecordingInProgress)
+        }
+        recordingSession.finish()
+        return nil
       }
     }
   }
   
   func pauseRecording(promise: Promise) {
-    withPromise(promise) {
-      if isRecording {
-        isRecording = false
-        return nil
-      } else {
-        throw CameraError.capture(.noRecordingInProgress)
+    cameraQueue.async {
+      withPromise(promise) {
+        if self.isRecording {
+          self.isRecording = false
+          return nil
+        } else {
+          throw CameraError.capture(.noRecordingInProgress)
+        }
       }
     }
   }
   
   func resumeRecording(promise: Promise) {
-    withPromise(promise) {
-      if !isRecording {
-        isRecording = true
-        return nil
-      } else {
-        throw CameraError.capture(.noRecordingInProgress)
+    cameraQueue.async {
+      withPromise(promise) {
+        if !self.isRecording {
+          self.isRecording = true
+          return nil
+        } else {
+          throw CameraError.capture(.noRecordingInProgress)
+        }
       }
     }
   }

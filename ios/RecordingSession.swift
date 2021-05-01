@@ -12,6 +12,7 @@ import AVFoundation
 class RecordingSession {
   private var assetWriter: AVAssetWriter
   private var assetWriterInput: AVAssetWriterInput
+  private var completionHandler: (AVAssetWriter.Status, Error?) -> Void
   
   var url: URL {
     return assetWriter.outputURL
@@ -21,10 +22,14 @@ class RecordingSession {
     return assetWriter.overallDurationHint.seconds
   }
   
-  init(url: URL, fileType: AVFileType = .mov, outputSettings: [String: Any]? = nil) throws {
+  init(url: URL,
+       fileType: AVFileType,
+       outputSettings: [String: Any],
+       completion: @escaping (AVAssetWriter.Status, Error?) -> Void) throws {
     do {
       assetWriter = try AVAssetWriter(outputURL: url, fileType: fileType)
       assetWriterInput = AVAssetWriterInput(mediaType: .video, outputSettings: outputSettings)
+      completionHandler = completion
     } catch let error as NSError {
       throw CameraError.capture(.createRecorderError(message: error.description))
     }
@@ -53,10 +58,10 @@ class RecordingSession {
     assetWriterInput.append(buffer)
   }
   
-  func finish(completion: @escaping (AVAssetWriter.Status, Error?) -> Void) {
+  func finish() {
     assetWriterInput.markAsFinished()
     assetWriter.finishWriting {
-      completion(self.assetWriter.status, self.assetWriter.error)
+      self.completionHandler(self.assetWriter.status, self.assetWriter.error)
     }
   }
 }
