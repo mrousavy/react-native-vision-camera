@@ -29,11 +29,18 @@
 import type { CameraCaptureError } from './CameraError';
 import type { TemporaryFile } from './TemporaryFile';
 
+type VideoFileType = 'mov' | 'avci' | 'heic' | 'heif' | 'm4v' | 'mp4';
+
 export interface RecordVideoOptions {
   /**
    * Set the video flash mode. Natively, this just enables the torch while recording.
    */
   flash?: 'on' | 'off' | 'auto';
+  /**
+   * Sets the file type to use for the Video Recording.
+   * @default "mov"
+   */
+  fileType?: VideoFileType;
   /**
    * Called when there was an unexpected runtime error while recording the video.
    */

@@ -35,6 +35,10 @@ class RecordingSession {
     assetWriter.add(assetWriterInput)
     
     // assetWriter!.producesCombinableFragments = false // <-- TODO: What value do I want here?
+    let successful = assetWriter.startWriting()
+    if !successful {
+      throw CameraError.capture(.unknown(message: "Failed to start writing to the temporary file (\(url.absoluteString))"))
+    }
     assetWriter.startSession(atSourceTime: CMTime.zero)
   }
   
