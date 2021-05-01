@@ -14,6 +14,9 @@ enum BufferType {
   case video
 }
 
+// TODO: Use AVAssetWriterInputPixelBufferAdaptor for more efficient video recording (pixel pool recycling)
+//       Set kCVPixelBufferPixelFormatTypeKey -> kCVPixelFormatType_420YpCbCr8BiPlanarFullRange (or full-range)
+
 class RecordingSession {
   private let assetWriter: AVAssetWriter
   private let audioWriter: AVAssetWriterInput
@@ -53,7 +56,9 @@ class RecordingSession {
   }
   
   deinit {
-    assetWriter.cancelWriting()
+    if assetWriter.status == .writing {
+      assetWriter.cancelWriting()
+    }
   }
   
   func appendBuffer(_ buffer: CMSampleBuffer, type bufferType: BufferType) {
@@ -85,6 +90,10 @@ class RecordingSession {
         return
       }
       audioWriter.append(buffer)
+    }
+    
+    if assetWriter.status == .failed {
+      self.completionHandler(self.assetWriter.status, self.assetWriter.error)
     }
   }
   
