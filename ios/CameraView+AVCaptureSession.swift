@@ -112,7 +112,7 @@ extension CameraView {
     videoOutput!.alwaysDiscardsLateVideoFrames = true
     captureSession.addOutput(videoOutput!)
     // TODO: Mirror videoOutput if selfie camera is used
-    
+
     // Audio Output
     if let audioOutput = self.audioOutput {
       captureSession.removeOutput(audioOutput)

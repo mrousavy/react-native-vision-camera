@@ -10,6 +10,8 @@ import AVFoundation
 
 private var hasLoggedFrameDropWarning = false
 
+// MARK: - CameraView + AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate
+
 extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
   func startRecording(options: NSDictionary, callback: @escaping RCTResponseSenderBlock) {
     cameraQueue.async {
@@ -18,23 +20,23 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         guard let tempFilePath = RCTTempFilePath("mov", errorPointer) else {
           return callback([NSNull(), makeReactError(.capture(.createTempFileError), cause: errorPointer?.pointee)])
         }
-        
+
         let tempURL = URL(string: "file://\(tempFilePath)")!
         if let flashMode = options["flash"] as? String {
           // use the torch as the video's flash
           self.setTorchMode(flashMode)
         }
-        
+
         var fileType = AVFileType.mov
         if let fileTypeOption = options["fileType"] as? String {
           fileType = AVFileType(withString: fileTypeOption)
         }
-        
+
         // TODO: The startRecording() func cannot be async because RN doesn't allow
         //       both a callback and a Promise in a single function. Wait for TurboModules?
         //       This means that any errors that occur in this function have to be delegated through
         //       the callback, but I'd prefer for them to throw for the original function instead.
-        
+
         let onFinish = { (status: AVAssetWriter.Status, error: Error?) -> Void in
           ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
           if let error = error {
@@ -44,14 +46,14 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
             if status == .completed {
               return callback([[
                 "path": self.recordingSession!.url.absoluteString,
-                "duration": self.recordingSession!.duration
+                "duration": self.recordingSession!.duration,
               ], NSNull()])
             } else {
               return callback([NSNull(), CameraError.unknown(message: "AVAssetWriter completed with status: \(status.descriptor)")])
             }
           }
         }
-        
+
         let videoSettings = self.videoOutput!.recommendedVideoSettingsForAssetWriter(writingTo: fileType)
         let audioSettings = self.audioOutput!.recommendedAudioSettingsForAssetWriter(writingTo: fileType) as? [String: Any]
         self.recordingSession = try RecordingSession(url: tempURL,
@@ -59,7 +61,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
                                                      videoSettings: videoSettings ?? [:],
                                                      audioSettings: audioSettings ?? [:],
                                                      completion: onFinish)
-        
+
         self.isRecording = true
       } catch let error as NSError {
         return callback([NSNull(), makeReactError(.capture(.createTempFileError), cause: error)])
@@ -69,7 +71,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
   func stopRecording(promise: Promise) {
     isRecording = false
-    
+
     cameraQueue.async {
       withPromise(promise) {
         guard let recordingSession = self.recordingSession else {
@@ -80,7 +82,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       }
     }
   }
-  
+
   func pauseRecording(promise: Promise) {
     cameraQueue.async {
       withPromise(promise) {
@@ -93,7 +95,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       }
     }
   }
-  
+
   func resumeRecording(promise: Promise) {
     cameraQueue.async {
       withPromise(promise) {
@@ -107,7 +109,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
     }
   }
 
-  public func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from captureConnection: AVCaptureConnection) {
+  public func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
     if isRecording {
       guard let recordingSession = recordingSession else {
         return invokeOnError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
@@ -122,15 +124,15 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       }
       recordingSession.appendBuffer(sampleBuffer, type: type)
     }
-    
+
     if let frameProcessor = frameProcessorCallback {
       // check if last frame was x nanoseconds ago, effectively throttling FPS
-      let diff = DispatchTime.now().uptimeNanoseconds - self.lastFrameProcessorCall.uptimeNanoseconds
-      let secondsPerFrame = 1.0 / self.frameProcessorFps.doubleValue
+      let diff = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorCall.uptimeNanoseconds
+      let secondsPerFrame = 1.0 / frameProcessorFps.doubleValue
       let nanosecondsPerFrame = secondsPerFrame * 1_000_000_000.0
       if diff > UInt64(nanosecondsPerFrame) {
         frameProcessor(sampleBuffer)
-        self.lastFrameProcessorCall = DispatchTime.now()
+        lastFrameProcessorCall = DispatchTime.now()
       }
     }
   }
