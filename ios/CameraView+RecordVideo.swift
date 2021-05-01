@@ -50,6 +50,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate {
       return promise.reject(error: .capture(.noRecordingInProgress))
     }
     recordingSession.finish { status, error in
+      ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor). Has error: \(error != nil)")
       if let error = error {
         return promise.reject(error: .capture(.fileError), cause: error as NSError)
       }

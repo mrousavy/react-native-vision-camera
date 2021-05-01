@@ -47,6 +47,9 @@ class RecordingSession {
   }
   
   func appendBuffer(_ buffer: CMSampleBuffer) {
+    if !assetWriterInput.isReadyForMoreMediaData {
+      return
+    }
     assetWriterInput.append(buffer)
   }
   
