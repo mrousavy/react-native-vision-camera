@@ -11,7 +11,10 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		B88873E7263D4B8E008B1D0E /* QRCodeFrameProcessorPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = B88873E6263D4B8E008B1D0E /* QRCodeFrameProcessorPlugin.m */; };
+		B8DB3BD5263DE8B7004C18D7 /* (null) in Sources */ = {isa = PBXBuildFile; };
+		B8DB3BDC263DEA31004C18D7 /* QRCodeFrameProcessorPluginObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BD8263DEA31004C18D7 /* QRCodeFrameProcessorPluginObjC.m */; };
+		B8DB3BDD263DEA31004C18D7 /* QRCodeFrameProcessorPluginSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BDA263DEA31004C18D7 /* QRCodeFrameProcessorPluginSwift.swift */; };
+		B8DB3BDE263DEA31004C18D7 /* QRCodeFrameProcessorPluginSwift.m in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BDB263DEA31004C18D7 /* QRCodeFrameProcessorPluginSwift.m */; };
 		B8F0E10825E0199F00586F16 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F0E10725E0199F00586F16 /* File.swift */; };
 		D27D5196997E7C9532F05776 /* libPods-VisionCameraExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 321EF902E53C449CC036AD27 /* libPods-VisionCameraExample.a */; };
 /* End PBXBuildFile section */
@@ -28,7 +31,9 @@
 		321EF902E53C449CC036AD27 /* libPods-VisionCameraExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VisionCameraExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = VisionCameraExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		9993ED8FD4B3171BB28C87C9 /* Pods-VisionCameraExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VisionCameraExample.debug.xcconfig"; path = "Target Support Files/Pods-VisionCameraExample/Pods-VisionCameraExample.debug.xcconfig"; sourceTree = "<group>"; };
-		B88873E6263D4B8E008B1D0E /* QRCodeFrameProcessorPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QRCodeFrameProcessorPlugin.m; sourceTree = "<group>"; };
+		B8DB3BD8263DEA31004C18D7 /* QRCodeFrameProcessorPluginObjC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QRCodeFrameProcessorPluginObjC.m; sourceTree = "<group>"; };
+		B8DB3BDA263DEA31004C18D7 /* QRCodeFrameProcessorPluginSwift.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QRCodeFrameProcessorPluginSwift.swift; sourceTree = "<group>"; };
+		B8DB3BDB263DEA31004C18D7 /* QRCodeFrameProcessorPluginSwift.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QRCodeFrameProcessorPluginSwift.m; sourceTree = "<group>"; };
 		B8F0E10625E0199F00586F16 /* VisionCameraExample-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VisionCameraExample-Bridging-Header.h"; sourceTree = "<group>"; };
 		B8F0E10725E0199F00586F16 /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -50,6 +55,7 @@
 		13B07FAE1A68108700A75B9A /* VisionCameraExample */ = {
 			isa = PBXGroup;
 			children = (
+				B8DB3BD6263DEA31004C18D7 /* Frame Processor Plugins */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
@@ -59,7 +65,6 @@
 				13B07FB71A68108700A75B9A /* main.m */,
 				B8F0E10725E0199F00586F16 /* File.swift */,
 				B8F0E10625E0199F00586F16 /* VisionCameraExample-Bridging-Header.h */,
-				B88873E6263D4B8E008B1D0E /* QRCodeFrameProcessorPlugin.m */,
 			);
 			name = VisionCameraExample;
 			sourceTree = "<group>";
@@ -110,6 +115,32 @@
 				13B07F961A680F5B00A75B9A /* VisionCameraExample.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		B8DB3BD6263DEA31004C18D7 /* Frame Processor Plugins */ = {
+			isa = PBXGroup;
+			children = (
+				B8DB3BD7263DEA31004C18D7 /* QR Code Plugin (Objective-C) */,
+				B8DB3BD9263DEA31004C18D7 /* QR Code Plugin (Swift) */,
+			);
+			path = "Frame Processor Plugins";
+			sourceTree = "<group>";
+		};
+		B8DB3BD7263DEA31004C18D7 /* QR Code Plugin (Objective-C) */ = {
+			isa = PBXGroup;
+			children = (
+				B8DB3BD8263DEA31004C18D7 /* QRCodeFrameProcessorPluginObjC.m */,
+			);
+			path = "QR Code Plugin (Objective-C)";
+			sourceTree = "<group>";
+		};
+		B8DB3BD9263DEA31004C18D7 /* QR Code Plugin (Swift) */ = {
+			isa = PBXGroup;
+			children = (
+				B8DB3BDA263DEA31004C18D7 /* QRCodeFrameProcessorPluginSwift.swift */,
+				B8DB3BDB263DEA31004C18D7 /* QRCodeFrameProcessorPluginSwift.m */,
+			);
+			path = "QR Code Plugin (Swift)";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -332,9 +363,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
+				B8DB3BDC263DEA31004C18D7 /* QRCodeFrameProcessorPluginObjC.m in Sources */,
+				B8DB3BD5263DE8B7004C18D7 /* (null) in Sources */,
+				B8DB3BDD263DEA31004C18D7 /* QRCodeFrameProcessorPluginSwift.swift in Sources */,
 				B8F0E10825E0199F00586F16 /* File.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
-				B88873E7263D4B8E008B1D0E /* QRCodeFrameProcessorPlugin.m in Sources */,
+				B8DB3BDE263DEA31004C18D7 /* QRCodeFrameProcessorPluginSwift.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
