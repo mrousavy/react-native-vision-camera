@@ -44,7 +44,7 @@ class RecordingSession {
     
     audioWriter.expectsMediaDataInRealTime = true
     videoWriter.expectsMediaDataInRealTime = true
-    videoWriter.transform = getVideoTransform()
+    videoWriter.transform = CGAffineTransform(rotationAngle: .pi / 2)
     
     assetWriter.add(videoWriter)
     assetWriter.add(audioWriter)
@@ -92,21 +92,6 @@ class RecordingSession {
     videoWriter.markAsFinished()
     assetWriter.finishWriting {
       self.completionHandler(self.assetWriter.status, self.assetWriter.error)
-    }
-  }
-  
-  private func getVideoTransform() -> CGAffineTransform {
-    switch UIDevice.current.orientation {
-    case .portrait:
-      return .identity
-    case .portraitUpsideDown:
-      return CGAffineTransform(rotationAngle: .pi)
-    case .landscapeLeft:
-      return CGAffineTransform(rotationAngle: .pi/2)
-    case .landscapeRight:
-      return CGAffineTransform(rotationAngle: -.pi/2)
-    default:
-      return .identity
     }
   }
 }
