@@ -40,11 +40,17 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate {
     print("Did output a new frame!")
 
     if let frameProcessor = frameProcessorCallback {
-      frameProcessor(sampleBuffer)
+      let dropRate = self.frameProcessorFrameDropRate.intValue
+      if self.frameProcessorFrameCounter % dropRate == 0 {
+        frameProcessor(sampleBuffer)
+        self.frameProcessorFrameCounter = 0
+      }
+      self.frameProcessorFrameCounter += 1
     }
   }
 
   public func captureOutput(_: AVCaptureOutput, didDrop _: CMSampleBuffer, from _: AVCaptureConnection) {
+    self.frameProcessorFrameCounter = 0
     // TODO: Show in React console?
     ReactLogger.log(level: .warning, message: "Dropped a Frame. This might indicate that your Frame Processor is doing too much work. " +
       "Either throttle the frame processor's frame rate, or optimize your frame processor's execution speed.")

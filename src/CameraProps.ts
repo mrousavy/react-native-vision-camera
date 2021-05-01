@@ -131,5 +131,13 @@ export interface CameraProps extends ViewProps {
    * TODO: Docs
    */
   frameProcessor?: (frame: Frame) => void;
+  /**
+   * Specifies the number of frames the frame processor drops, relative to the current `fps`.
+   * * A number of `1` indicates that the frame processor gets executed for every frame, so 30 times a second for 30 fps. (not recommended)
+   * * A number of `2` indicates that the frame processor only gets executed for every second frame, so 15 times a second for 30 fps.
+   * * A number of `10` indicates that the frame processor gets executed for every 10th frame, so 3 times a second for 30 fps.
+   * @default 2
+   */
+  frameProcessorFrameDropRate?: number;
   //#endregion
 }

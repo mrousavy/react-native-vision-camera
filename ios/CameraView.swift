@@ -45,6 +45,7 @@ public final class CameraView: UIView {
   // props that require format reconfiguring
   @objc var format: NSDictionary?
   @objc var fps: NSNumber?
+  @objc var frameProcessorFrameDropRate: NSNumber = 2
   @objc var hdr: NSNumber? // nullable bool
   @objc var lowLightBoost: NSNumber? // nullable bool
   @objc var colorSpace: NSString?
@@ -91,6 +92,8 @@ public final class CameraView: UIView {
 
   internal let cameraQueue = CameraQueues.cameraQueue
   internal let videoQueue = CameraQueues.videoQueue
+  
+  internal var frameProcessorFrameCounter: Int = 0
 
   var isRunning: Bool {
     return captureSession.isRunning
