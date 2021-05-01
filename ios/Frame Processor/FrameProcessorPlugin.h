@@ -23,21 +23,18 @@
 
 /**
  * Use this Macro to register the given function as a Frame Processor.
- * * Make sure the given function matches the following signature: (id)callback:(CMSampleBufferRef)
+ * * Make sure the given function is a C-style function with the following signature: static inline id callback(CMSampleBufferRef buffer)
  * * Make sure the given function's name is unique across other frame processor plugins
  * * Make sure your frame processor returns a Value that can be converted to JS
  * * Make sure to use this Macro in an @implementation, not @interface
  */
-#define VISION_EXPORT_FRAME_PROCESSOR(frame_processor)          \
-\
-+(void)load                                         \
-{                                                   \
-  SEL selector = @selector(frame_processor:);         \
-  IMP method = [self methodForSelector:selector];     \
-  id (*func)(CMSampleBufferRef) = (void*) method;     \
+#define VISION_EXPORT_FRAME_PROCESSOR(frame_processor)                              \
+                                                                                    \
++(void)load                                                                         \
+{                                                                                   \
   [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"__" @ #frame_processor callback:^id(CMSampleBufferRef buffer) { \
-    return func(buffer);        \
-  }];       \
+    return frame_processor(buffer);                                                 \
+  }];                                                                               \
 }
 
 
