@@ -89,13 +89,13 @@ The following return values are supported:
 
 ![Xcode "Create Bridging Header" alert](https://docs-assets.developer.apple.com/published/7ebca7212c/2a065d1a-7e53-4907-a889-b7fa4f2206c9.png)
 
-2. Inside the newly created Bridging Header, import the `FrameProcessorPlugin` header:
+2. Inside the newly created Bridging Header, add the following code:
 
 ```objc
 #import <VisionCamera/FrameProcessorPlugin.h>
 ```
 
-3. Create an Objective-C source file with the same name as the Swift file, for the QR Code Plugin this will be `QRCodeFrameProcessorPlugin.m`:
+3. Create an Objective-C source file with the same name as the Swift file, for the QR Code Plugin this will be `QRCodeFrameProcessorPlugin.m`. Add the following code:
 
 ```objc
 #import <VisionCamera/FrameProcessorPlugin.h>
@@ -167,17 +167,10 @@ Frame Processors are still work in progress for Android.
 1. To make the Frame Processor Plugin available to the Frame Processor Worklet Runtime, create the following function in JS/TS:
 
 ```ts
-/* global _WORKLET __scanQRCodes */
 import type { Frame } from 'react-native-vision-camera';
 
-/**
-  * Scans the given Frame for QR codes.
-  */
 export function scanQRCodes(frame: Frame): string[] {
   'worklet';
-  if (!_WORKLET) throw new Error('scanQRCodes must be called from a frame processor!');
-
-  // @ts-expect-error because this function is dynamically injected by VisionCamera
   return __scanQRCodes(frame);
 }
 ```
@@ -186,7 +179,6 @@ export function scanQRCodes(frame: Frame): string[] {
 
 ```js
 module.exports = {
-  // ...
   plugins: [
     [
       'react-native-reanimated/plugin',
@@ -194,7 +186,6 @@ module.exports = {
         globals: ['__scanQRCodes'],
       },
     ],
-    // ...
 ```
 
 ### Test it!
