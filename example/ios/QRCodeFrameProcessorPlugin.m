@@ -14,11 +14,11 @@
 
 @implementation QRFrameProcessorPlugin
 
-+ (id) callback:(CMSampleBufferRef)buffer {
++ (id) scanQRCodes:(CMSampleBufferRef)buffer {
   NSLog(@"Called with buffer!");
   return [NSNull null];
 }
 
-VISION_EXPORT_FRAME_PROCESSOR(scanQRCodes, callback)
+VISION_EXPORT_FRAME_PROCESSOR(scanQRCodes)
 
 @end

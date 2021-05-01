@@ -21,16 +21,16 @@
  * will be used as the JS module name. If omitted, the JS module name will
  * match the Objective-C class name.
  */
-#define VISION_EXPORT_FRAME_PROCESSOR(name, callback)          \
+#define VISION_EXPORT_FRAME_PROCESSOR(frame_processor)          \
 \
-+(void)load                               \
-{                                         \
-SEL selector = @selector(callback:);  \
-IMP method = [self methodForSelector:selector]; \
-id (*func)(CMSampleBufferRef) = (void*) method; \
-[FrameProcessorPluginRegistry addFrameProcessorPlugin:@"__" @ #name callback:^id(CMSampleBufferRef buffer) { \
-  return func(buffer); \
-}]; \
++(void)load                                         \
+{                                                   \
+SEL selector = @selector(frame_processor:);         \
+IMP method = [self methodForSelector:selector];     \
+id (*func)(CMSampleBufferRef) = (void*) method;     \
+[FrameProcessorPluginRegistry addFrameProcessorPlugin:@"__" @ #frame_processor callback:^id(CMSampleBufferRef buffer) { \
+  return func(buffer);        \
+}];       \
 }
 
 /**
