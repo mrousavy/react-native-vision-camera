@@ -18,13 +18,11 @@ enum BufferType {
 
 // MARK: - RecordingSession
 
-// TODO: Use AVAssetWriterInputPixelBufferAdaptor for more efficient video recording (pixel pool recycling)
-//       Set kCVPixelBufferPixelFormatTypeKey -> kCVPixelFormatType_420YpCbCr8BiPlanarFullRange (or full-range)
-
 class RecordingSession {
   private let assetWriter: AVAssetWriter
   private let audioWriter: AVAssetWriterInput
   private let videoWriter: AVAssetWriterInput
+  private let bufferAdaptor: AVAssetWriterInputPixelBufferAdaptor
   private let completionHandler: (AVAssetWriter.Status, Error?) -> Void
 
   var url: URL {
@@ -52,11 +50,12 @@ class RecordingSession {
     audioWriter.expectsMediaDataInRealTime = true
     videoWriter.expectsMediaDataInRealTime = true
     videoWriter.transform = CGAffineTransform(rotationAngle: .pi / 2)
+    bufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter, sourcePixelBufferAttributes: [
+      kCVPixelBufferPixelFormatTypeKey as String: /*kCVPixelFormatType_32ARGB*/ kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
+    ])
 
     assetWriter.add(videoWriter)
     assetWriter.add(audioWriter)
-
-    // assetWriter!.producesCombinableFragments = false // <-- TODO: What value do I want here?
   }
 
   deinit {
@@ -88,7 +87,8 @@ class RecordingSession {
         ReactLogger.log(level: .warning, message: "The Video AVAssetWriterInput was not ready for more data! Is your frame rate too high?")
         return
       }
-      videoWriter.append(buffer)
+      bufferAdaptor.append(CMSampleBufferGetImageBuffer(buffer)!,
+                           withPresentationTime: CMSampleBufferGetPresentationTimeStamp(buffer))
     case .audio:
       if !audioWriter.isReadyForMoreMediaData {
         return
@@ -97,7 +97,8 @@ class RecordingSession {
     }
 
     if assetWriter.status == .failed {
-      completionHandler(assetWriter.status, assetWriter.error)
+      // TODO: Should I call the completion handler or is this instance still valid?
+      ReactLogger.log(level: .error, message: "AssetWriter failed to write buffer! Error: \(assetWriter.error?.localizedDescription ?? "none")")
     }
   }
 

@@ -30,7 +30,7 @@ import IonIcon from 'react-native-vector-icons/Ionicons';
 import { useSelector } from 'pipestate';
 import { FpsSelector } from './state/selectors';
 import { useCameraDevice } from './hooks/useCameraDevice';
-import { scanQRCodes } from './QRCodeScanner';
+import { scanQRCodesObjC } from './frame-processors/ScanQRCode';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -220,7 +220,7 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
 
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
-    const codes = scanQRCodes(frame);
+    const codes = scanQRCodesObjC(frame);
     _log(`Codes: ${JSON.stringify(codes)}`);
   }, []);
 
