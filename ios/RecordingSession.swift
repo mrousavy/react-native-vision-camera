@@ -84,6 +84,9 @@ class RecordingSession {
       return
     }
 
+    let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
+    latestTimestamp = timestamp
+    
     switch bufferType {
     case .video:
       if !videoWriter.isReadyForMoreMediaData {
@@ -91,11 +94,10 @@ class RecordingSession {
         return
       }
       guard let imageBuffer = CMSampleBufferGetImageBuffer(buffer) else {
+        ReactLogger.log(level: .error, message: "Failed to get the CVImageBuffer!")
         return
       }
-      let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
       bufferAdaptor.append(imageBuffer, withPresentationTime: timestamp)
-      latestTimestamp = timestamp
       if !hasWrittenFirstVideoFrame {
         hasWrittenFirstVideoFrame = true
         ReactLogger.log(level: .warning, message: "VideoWriter: First frame arrived \((timestamp - initialTimestamp).seconds) seconds late.")
