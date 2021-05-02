@@ -14,7 +14,8 @@ private var hasLoggedFrameDropWarning = false
 
 extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
   func startRecording(options: NSDictionary, callback: @escaping RCTResponseSenderBlock) {
-    videoQueue.async {
+    cameraQueue.async {
+      ReactLogger.log(level: .info, message: "Starting Video recording...")
       do {
         let errorPointer = ErrorPointer(nilLiteral: ())
         guard let tempFilePath = RCTTempFilePath("mov", errorPointer) else {
@@ -86,7 +87,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   func stopRecording(promise: Promise) {
     isRecording = false
 
-    videoQueue.async {
+    cameraQueue.async {
       withPromise(promise) {
         guard let recordingSession = self.recordingSession else {
           throw CameraError.capture(.noRecordingInProgress)
@@ -99,7 +100,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
   // TODO: Implement for JS
   func pauseRecording(promise: Promise) {
-    videoQueue.async {
+    cameraQueue.async {
       withPromise(promise) {
         if self.isRecording {
           self.isRecording = false
@@ -113,7 +114,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
   // TODO: Implement for JS
   func resumeRecording(promise: Promise) {
-    videoQueue.async {
+    cameraQueue.async {
       withPromise(promise) {
         if !self.isRecording {
           self.isRecording = true
