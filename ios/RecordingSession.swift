@@ -58,10 +58,13 @@ class RecordingSession {
 
     assetWriter.add(videoWriter)
     assetWriter.add(audioWriter)
+    
+    ReactLogger.log(level: .info, message: "Initialized Video and Audio AssetWriter.")
   }
 
   deinit {
     if assetWriter.status == .writing {
+      ReactLogger.log(level: .info, message: "Cancelling AssetWriter...")
       assetWriter.cancelWriting()
     }
   }
@@ -73,6 +76,7 @@ class RecordingSession {
 
     if assetWriter.status == .unknown {
       if bufferType == .video {
+        // TODO: Eagerly start session to avoid lag at first frame?
         let startTime = CMSampleBufferGetPresentationTimeStamp(buffer)
         assetWriter.startWriting()
         assetWriter.startSession(atSourceTime: startTime)
@@ -105,6 +109,7 @@ class RecordingSession {
   }
 
   func finish() {
+    ReactLogger.log(level: .info, message: "Finishing Recording with AssetWriter status \"\(assetWriter.status.descriptor)\"...")
     if assetWriter.status == .writing {
       videoWriter.markAsFinished()
       assetWriter.finishWriting {
