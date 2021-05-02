@@ -32,7 +32,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         if let fileTypeOption = options["fileType"] as? String {
           fileType = AVFileType(withString: fileTypeOption)
         }
-        
+
         let settings = self.videoOutput?.videoSettings
         var pixelBufferFormat = settings?[kCVPixelBufferPixelFormatTypeKey as String] as? OSType ?? kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
         if let pixelFormat = options["pixelFormat"] as? String {
@@ -134,10 +134,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       switch captureOutput {
       case is AVCaptureVideoDataOutput:
         recordingSession.appendBuffer(sampleBuffer, type: .video)
-        break
       case is AVCaptureAudioDataOutput:
         recordingSession.appendBuffer(sampleBuffer, type: .audio)
-        break
       default:
         break
       }

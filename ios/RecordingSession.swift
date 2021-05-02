@@ -24,9 +24,9 @@ class RecordingSession {
   private let videoWriter: AVAssetWriterInput
   private let bufferAdaptor: AVAssetWriterInputPixelBufferAdaptor
   private let completionHandler: (AVAssetWriter.Status, Error?) -> Void
-  
+
   private let initialTimestamp: CMTime
-  private var latestTimestamp: CMTime? = nil
+  private var latestTimestamp: CMTime?
   private var hasWrittenFirstVideoFrame = false
 
   var url: URL {
@@ -58,14 +58,14 @@ class RecordingSession {
     audioWriter.expectsMediaDataInRealTime = true
     videoWriter.expectsMediaDataInRealTime = true
     videoWriter.transform = CGAffineTransform(rotationAngle: .pi / 2)
-    
+
     bufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter, sourcePixelBufferAttributes: [
-      kCVPixelBufferPixelFormatTypeKey as String: pixelBufferFormat
+      kCVPixelBufferPixelFormatTypeKey as String: pixelBufferFormat,
     ])
 
     assetWriter.add(videoWriter)
     assetWriter.add(audioWriter)
-    
+
     assetWriter.startWriting()
     initialTimestamp = CMTime(seconds: CACurrentMediaTime(), preferredTimescale: 1_000_000_000)
     assetWriter.startSession(atSourceTime: initialTimestamp)
@@ -86,7 +86,7 @@ class RecordingSession {
 
     let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
     latestTimestamp = timestamp
-    
+
     switch bufferType {
     case .video:
       if !videoWriter.isReadyForMoreMediaData {
@@ -127,7 +127,7 @@ class RecordingSession {
         self.completionHandler(self.assetWriter.status, self.assetWriter.error)
       }
     } else {
-      self.completionHandler(self.assetWriter.status, self.assetWriter.error)
+      completionHandler(assetWriter.status, assetWriter.error)
     }
   }
 }

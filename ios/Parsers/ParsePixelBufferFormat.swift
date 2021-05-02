@@ -6,11 +6,11 @@
 //  Copyright © 2021 Facebook. All rights reserved.
 //
 
-import Foundation
 import CoreVideo
+import Foundation
 
 func parsePixelBufferFormat(_ string: String) throws -> OSType {
-  switch (string) {
+  switch string {
   case "420v":
     return kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
   case "420f":
