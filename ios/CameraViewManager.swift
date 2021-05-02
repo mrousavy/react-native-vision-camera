@@ -115,7 +115,7 @@ final class CameraViewManager: RCTViewManager {
           "supportsRawCapture": false, // TODO: supportsRawCapture
           "supportsLowLightBoost": $0.isLowLightBoostSupported,
           "supportsFocus": $0.isFocusPointOfInterestSupported,
-          "formats": $0.formats.map { (format) -> [String: Any] in
+          "formats": $0.formats.map { format -> [String: Any] in
             format.toDictionary()
           },
         ]

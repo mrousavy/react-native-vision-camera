@@ -70,8 +70,8 @@ extension AVCaptureDevice.Format {
       }
     }
     if let frameRateRanges = filter.value(forKey: "frameRateRanges") as? [NSDictionary] {
-      let allFrameRateRangesIncluded = videoSupportedFrameRateRanges.allSatisfy { (range) -> Bool in
-        frameRateRanges.contains { (dict) -> Bool in
+      let allFrameRateRangesIncluded = videoSupportedFrameRateRanges.allSatisfy { range -> Bool in
+        frameRateRanges.contains { dict -> Bool in
           guard let max = dict.value(forKey: "maxFrameRate") as? NSNumber,
                 let min = dict.value(forKey: "minFrameRate") as? NSNumber
           else {
