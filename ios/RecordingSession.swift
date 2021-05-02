@@ -25,14 +25,19 @@ class RecordingSession {
   private let bufferAdaptor: AVAssetWriterInputPixelBufferAdaptor
   private let completionHandler: (AVAssetWriter.Status, Error?) -> Void
   
-  private var startTimestamp: CMTime? = nil
+  private let initialTimestamp: CMTime
+  private var latestTimestamp: CMTime? = nil
+  private var hasWrittenFirstVideoFrame = false
 
   var url: URL {
     return assetWriter.outputURL
   }
 
   var duration: Double {
-    return assetWriter.overallDurationHint.seconds
+    guard let latestTimestamp = latestTimestamp else {
+      return 0.0
+    }
+    return (latestTimestamp - initialTimestamp).seconds
   }
 
   init(url: URL,
@@ -62,7 +67,8 @@ class RecordingSession {
     assetWriter.add(audioWriter)
     
     assetWriter.startWriting()
-    assetWriter.startSession(atSourceTime: CMTime(seconds: CACurrentMediaTime(), preferredTimescale: 1_000_000_000))
+    initialTimestamp = CMTime(seconds: CACurrentMediaTime(), preferredTimescale: 1_000_000_000)
+    assetWriter.startSession(atSourceTime: initialTimestamp)
     ReactLogger.log(level: .info, message: "Initialized Video and Audio AssetWriter.")
   }
 
@@ -89,14 +95,16 @@ class RecordingSession {
       }
       let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
       bufferAdaptor.append(imageBuffer, withPresentationTime: timestamp)
-      if startTimestamp == nil {
-        startTimestamp = timestamp
+      latestTimestamp = timestamp
+      if !hasWrittenFirstVideoFrame {
+        hasWrittenFirstVideoFrame = true
+        ReactLogger.log(level: .warning, message: "VideoWriter: First frame arrived \((timestamp - initialTimestamp).seconds) seconds late.")
       }
     case .audio:
       if !audioWriter.isReadyForMoreMediaData {
         return
       }
-      if startTimestamp == nil {
+      if !hasWrittenFirstVideoFrame {
         // first video frame has not been written yet, so skip this audio frame.
         return
       }
