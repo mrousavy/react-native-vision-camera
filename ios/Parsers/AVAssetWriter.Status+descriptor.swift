@@ -21,6 +21,8 @@ extension AVAssetWriter.Status {
       return "unknown"
     case .writing:
       return "writing"
+    @unknown default:
+      fatalError("Unknown AVAssetWriter.Status value! \(self.rawValue)")
     }
   }
 }
