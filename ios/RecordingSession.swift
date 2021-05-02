@@ -59,6 +59,7 @@ class RecordingSession {
        let videoHeight = videoSettings[AVVideoHeightKey] as? NSNumber {
       adaptorAttributes[kCVPixelBufferWidthKey as String] = videoWidth
       adaptorAttributes[kCVPixelBufferHeightKey as String] = videoHeight
+      ReactLogger.log(level: .info, message: "Initializing Pixel Buffer Adaptor with size \(videoWidth)x\(videoHeight)")
     }
     bufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter, sourcePixelBufferAttributes: adaptorAttributes)
 
@@ -111,8 +112,12 @@ class RecordingSession {
   }
 
   func finish() {
-    videoWriter.markAsFinished()
-    assetWriter.finishWriting {
+    if assetWriter.status == .writing {
+      videoWriter.markAsFinished()
+      assetWriter.finishWriting {
+        self.completionHandler(self.assetWriter.status, self.assetWriter.error)
+      }
+    } else {
       self.completionHandler(self.assetWriter.status, self.assetWriter.error)
     }
   }
