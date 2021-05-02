@@ -89,6 +89,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           throw CameraError.capture(.noRecordingInProgress)
         }
         recordingSession.finish()
+        self.recordingSession = nil
         return nil
       }
     }
@@ -127,15 +128,16 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       guard let recordingSession = recordingSession else {
         return invokeOnError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
       }
-      let type: BufferType
-      if let _ = captureOutput as? AVCaptureVideoDataOutput {
-        type = .video
-      } else if let _ = captureOutput as? AVCaptureAudioDataOutput {
-        type = .audio
-      } else {
-        return invokeOnError(.capture(.unknown(message: "Received CMSampleBuffer from unknown AVCaptureOutput!")))
+      switch captureOutput {
+      case is AVCaptureVideoDataOutput:
+        recordingSession.appendBuffer(sampleBuffer, type: .video)
+        break
+      case is AVCaptureAudioDataOutput:
+        recordingSession.appendBuffer(sampleBuffer, type: .audio)
+        break
+      default:
+        break
       }
-      recordingSession.appendBuffer(sampleBuffer, type: type)
     }
 
     if let frameProcessor = frameProcessorCallback {
