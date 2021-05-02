@@ -10,13 +10,7 @@ import {
 } from 'react-native-gesture-handler';
 import { Navigation, NavigationFunctionComponent } from 'react-native-navigation';
 import type { CameraDeviceFormat, CameraRuntimeError, PhotoFile, VideoFile } from 'react-native-vision-camera';
-import {
-  Camera,
-  frameRateIncluded,
-  sortFormatsByResolution,
-  filterFormatsByAspectRatio,
-  useFrameProcessor,
-} from 'react-native-vision-camera';
+import { Camera, frameRateIncluded, sortFormatsByResolution, filterFormatsByAspectRatio } from 'react-native-vision-camera';
 import { useIsScreenFocused } from './hooks/useIsScreenFocused';
 import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING } from './Constants';
 import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated';
@@ -217,11 +211,11 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
     console.log('re-rendering camera page without active camera');
   }
 
-  const frameProcessor = useFrameProcessor((frame) => {
-    'worklet';
-    // const codes = scanQRCodesObjC(frame);
-    // _log(`Codes: ${JSON.stringify(codes)}`);
-  }, []);
+  // const frameProcessor = useFrameProcessor((frame) => {
+  //   'worklet';
+  //   const codes = scanQRCodesObjC(frame);
+  //   _log(`Codes: ${JSON.stringify(codes)}`);
+  // }, []);
 
   // TODO: Implement camera flipping (back <-> front) while recording and stich the videos together
   // TODO: iOS: Use custom video data stream output to manually process the data and write the MOV/MP4 for more customizability.
