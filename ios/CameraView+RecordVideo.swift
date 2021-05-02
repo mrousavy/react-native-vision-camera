@@ -46,6 +46,9 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         //       the callback, but I'd prefer for them to throw for the original function instead.
 
         let onFinish = { (status: AVAssetWriter.Status, error: Error?) -> Void in
+          defer {
+            self.recordingSession = nil
+          }
           ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
           if let error = error {
             let description = (error as NSError).description
@@ -89,7 +92,6 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           throw CameraError.capture(.noRecordingInProgress)
         }
         recordingSession.finish()
-        self.recordingSession = nil
         return nil
       }
     }
