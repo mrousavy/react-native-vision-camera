@@ -33,9 +33,11 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         }
         
         let settings = self.videoOutput?.videoSettings
-        var pixelBufferFormat = kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
+        var pixelBufferFormat = settings?[kCVPixelBufferPixelFormatTypeKey as String] as? OSType ?? kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
         if let pixelFormat = options["pixelFormat"] as? String {
-          pixelBufferFormat = try parsePixelBufferFormat(pixelFormat)
+          if pixelFormat != "native" {
+            pixelBufferFormat = try parsePixelBufferFormat(pixelFormat)
+          }
         }
 
         // TODO: The startRecording() func cannot be async because RN doesn't allow

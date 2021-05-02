@@ -34,6 +34,7 @@ export type VideoFileType = 'mov' | 'avci' | 'heic' | 'heif' | 'm4v' | 'mp4';
 /**
  * Represents the Format in which the AssetWriter encodes the Image Buffer in.
  *
+ * * `native`: Automatically selects the native format from the current Camera Video Device Output, often that's `420v`.
  * * `420v`: [`kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange`](https://developer.apple.com/documentation/corevideo/1563591-pixel_format_identifiers/kcvpixelformattype_420ypcbcr8biplanarvideorange)
  * * `420f`: [`kCVPixelFormatType_420YpCbCr8BiPlanarFullRange`](https://developer.apple.com/documentation/corevideo/1563591-pixel_format_identifiers/kcvpixelformattype_420ypcbcr8biplanarfullrange)
  * * `a2vy`: [`kCVPixelFormatType_422YpCbCr_4A_8BiPlanar`](https://developer.apple.com/documentation/corevideo/1563591-pixel_format_identifiers/kcvpixelformattype_422ypcbcr_4a_8biplanar)
@@ -56,7 +57,7 @@ export interface RecordVideoOptions {
   fileType?: VideoFileType;
   /**
    * Specifies the Pixel Format to use for the Image Buffer encoding. (See [`videoSettings`](https://developer.apple.com/documentation/avfoundation/avcapturevideodataoutput/1389945-videosettings) for more information)
-   * @default "420v"
+   * @default "native"
    */
   pixelFormat?: PixelFormat;
   /**
