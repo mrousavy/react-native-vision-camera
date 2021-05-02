@@ -35,7 +35,7 @@ Users will then have to add the Frame Processor Plugin's name to their  `babel.c
 
 For the QR Code Scanner, this will be `__scanQRCodes`:
 
-```js
+```js {6}
 module.exports = {
   plugins: [
     [
@@ -50,7 +50,7 @@ module.exports = {
 
 Simply call the wrapper Worklet in your Frame Processor:
 
-```tsx
+```tsx {3-4}
 function App() {
   const frameProcessor = useFrameProcessor((frame) => {
     const qrCodes = scanQrCodes(frame)

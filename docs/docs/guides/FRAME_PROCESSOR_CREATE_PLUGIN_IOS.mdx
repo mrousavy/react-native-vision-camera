@@ -36,7 +36,7 @@ iOS Frame Processor Plugins can be written in either **Objective-C** or **Swift*
 2. Create an Objective-C source file, for the QR Code Plugin this will be called `QRCodeFrameProcessorPlugin.m`.
 3. Add the following code:
 
-```objc {7}
+```objc {9}
 #import <VisionCamera/FrameProcessorPlugin.h>
 
 @interface QRCodeFrameProcessorPlugin : NSObject
@@ -98,7 +98,7 @@ The first parameter in the Macro specifies the JS function name. Make sure it is
 
 4. In the Swift file, add the following code:
 
-```swift
+```swift {6}
 @objc(QRCodeFrameProcessorPlugin)
 public class QRCodeFrameProcessorPlugin: NSObject, FrameProcessorPluginBase {
 
