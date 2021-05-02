@@ -23,11 +23,12 @@ To make the Frame Processor Plugin available to the Frame Processor Worklet Runt
 ```ts
 import type { Frame } from 'react-native-vision-camera';
 
+/**
+ * Scans QR codes.
+ */
 export function scanQRCodes(frame: Frame): string[] {
   'worklet';
   return __scanQRCodes(frame);
-  // or with args:
-  return __scanQRCodes(frame, "hello!", "parameter 2", 42, true);
 }
 ```
 
@@ -50,7 +51,7 @@ module.exports = {
 
 Simply call the wrapper Worklet in your Frame Processor:
 
-```tsx {3-4}
+```tsx {3}
 function App() {
   const frameProcessor = useFrameProcessor((frame) => {
     const qrCodes = scanQrCodes(frame)
@@ -77,4 +78,4 @@ If you want to distribute your Frame Processor Plugin, simply use npm.
 
 <br />
 
-#### 🚀 Next section: [Zooming with Reanimated](animated)
+#### 🚀 Next section: [Browse Community Plugins](frame-processor-plugin-list)
