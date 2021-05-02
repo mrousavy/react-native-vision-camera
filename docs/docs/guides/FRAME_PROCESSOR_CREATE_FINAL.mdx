@@ -1,0 +1,80 @@
+---
+id: frame-processors-plugins-final
+title: Finish creating your Frame Processor Plugin
+sidebar_label: Finish creating your Frame Processor Plugin
+---
+
+import useBaseUrl from '@docusaurus/useBaseUrl';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<!-- TODO: Demo of QR code scanning or smth -->
+<div>
+  <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535" style={{ float: 'right' }}>
+    <image href={useBaseUrl("img/demo.gif")} x="18" y="33" width="247" height="469"  />
+    <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
+  </svg>
+</div>
+
+## Make your Frame Processor Plugin available to JS
+
+To make the Frame Processor Plugin available to the Frame Processor Worklet Runtime, create the following function in JS/TS:
+
+```ts
+import type { Frame } from 'react-native-vision-camera';
+
+export function scanQRCodes(frame: Frame): string[] {
+  'worklet';
+  return __scanQRCodes(frame);
+  // or with args:
+  return __scanQRCodes(frame, "hello!", "parameter 2", 42, true);
+}
+```
+
+Users will then have to add the Frame Processor Plugin's name to their  `babel.config.js`.
+
+For the QR Code Scanner, this will be `__scanQRCodes`:
+
+```js
+module.exports = {
+  plugins: [
+    [
+      'react-native-reanimated/plugin',
+      {
+        globals: ['__scanQRCodes'],
+      },
+    ],
+```
+
+### Test it!
+
+Simply call the wrapper Worklet in your Frame Processor:
+
+```tsx
+function App() {
+  const frameProcessor = useFrameProcessor((frame) => {
+    const qrCodes = scanQrCodes(frame)
+    _log(`QR Codes in Frame: ${qrCodes}`)
+  }, [])
+
+  return (
+    <Camera frameProcessor={frameProcessor} {...cameraProps} />
+  )
+}
+```
+
+### Next Steps
+
+If you want to distribute your Frame Processor Plugin, simply use npm.
+
+1. Create a blank Native Module using [bob](https://github.com/callstack/react-native-builder-bob) or [create-react-native-module](https://github.com/brodybits/create-react-native-module)
+2. Name it `vision-camera-plugin-xxxxx` where `xxxxx` is the name of your plugin
+3. Remove all the source files for the Example Native Module
+4. Implement the Frame Processor Plugin in the iOS, Android and JS/TS Codebase using the guides above
+5. Add installation instructions to let users know they have to add your frame processor in the `babel.config.js` configuration.
+6. Publish the plugin to npm. Users will only have to install the plugin using `npm i vision-camera-plugin-xxxxx` and add it to their `babel.config.js` file.
+7. [Add the plugin to the **official VisionCamera plugin list**](https://github.com/cuvent/react-native-vision-camera/issues/new/choose) for more visibility
+
+<br />
+
+#### 🚀 Next section: [Zooming with Reanimated](animated)

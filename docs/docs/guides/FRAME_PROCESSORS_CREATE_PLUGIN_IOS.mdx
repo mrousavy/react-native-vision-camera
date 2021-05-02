@@ -1,16 +1,12 @@
 ---
-id: frame-processors-create
-title: Creating Frame Processors
-sidebar_label: Creating Frame Processors
+id: frame-processors-plugins-ios
+title: Creating Frame Processor Plugins (iOS)
+sidebar_label: Creating Frame Processor Plugins (iOS)
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-
-:::warning
-FRAME PROCESSORS ARE STILL WORK IN PROGRESS - SEE [#2](https://github.com/cuvent/react-native-vision-camera/pull/2)
-:::
 
 <!-- TODO: Demo of QR code scanning or smth -->
 <div>
@@ -23,20 +19,7 @@ FRAME PROCESSORS ARE STILL WORK IN PROGRESS - SEE [#2](https://github.com/cuvent
 ## Creating a Frame Processor
 
 The Frame Processor Plugin API is built to be as extensible as possible, which allows you to create custom Frame Processor Plugins.
-In this guide we will create a custom QR Code Scanner Plugin.
-
-Prerequisites:
-
-* For iOS: Minimal **Objective-C** or **Swift** knowledge
-* For Android: Minimal **Java**, **Kotlin** or **C++** knowledge
-
-<Tabs
-  defaultValue="ios"
-  values={[
-    {label: 'iOS', value: 'ios'},
-    {label: 'Android', value: 'android'}
-  ]}>
-<TabItem value="ios">
+In this guide we will create a custom QR Code Scanner Plugin which can be used from JS.
 
 iOS Frame Processor Plugins can be written in either **Objective-C** or **Swift**.
 
@@ -114,11 +97,12 @@ The first parameter in the Macro specifies the JS function name. Make sure it is
 ```swift
 @objc(QRCodeFrameProcessorPlugin)
 public class QRCodeFrameProcessorPlugin: NSObject, FrameProcessorPluginBase {
-    @objc
-    public static func callback(_: CMSampleBuffer!, withArgs _: [Any]!) -> Any! {
-        // code goes here
-        return []
-    }
+
+  @objc
+  public static func callback(_: CMSampleBuffer!, withArgs _: [Any]!) -> Any! {
+    // code goes here
+    return []
+  }
 }
 ```
 
@@ -135,34 +119,6 @@ The following return- and parameter-types are supported:
 
 </TabItem>
 </Tabs>
-
-</TabItem>
-
-<TabItem value="android">
-
-<br />
-<br />
-<br />
-<br />
-<br />
-<br />
-
-:::warning
-Frame Processors are still work in progress for Android.
-:::
-
-<br />
-<br />
-<br />
-<br />
-<br />
-<br />
-
-</TabItem>
-</Tabs>
-
-<br />
-<br />
 
 ### JS
 
@@ -223,4 +179,4 @@ If you want to distribute your Frame Processor Plugin, simply use npm.
 
 <br />
 
-#### 🚀 Next section: [Zooming with Reanimated](animated)
+#### 🚀 Next section: [Finish creating your Frame Processor Plugin](frame-processors-plugins-final) (or [add Android support to your Frame Processor Plugin](frame-processors-plugins-android))
