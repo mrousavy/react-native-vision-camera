@@ -141,7 +141,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       }
     }
 
-    if let frameProcessor = frameProcessorCallback && captureOutput is AVCaptureVideoDataOutput {
+    if let frameProcessor = frameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
       // check if last frame was x nanoseconds ago, effectively throttling FPS
       let diff = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorCall.uptimeNanoseconds
       let secondsPerFrame = 1.0 / frameProcessorFps.doubleValue
