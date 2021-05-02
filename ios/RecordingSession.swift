@@ -24,6 +24,8 @@ class RecordingSession {
   private let videoWriter: AVAssetWriterInput
   private let bufferAdaptor: AVAssetWriterInputPixelBufferAdaptor
   private let completionHandler: (AVAssetWriter.Status, Error?) -> Void
+  
+  private var startTimestamp: CMTime? = nil
 
   var url: URL {
     return assetWriter.outputURL
@@ -59,6 +61,8 @@ class RecordingSession {
     assetWriter.add(videoWriter)
     assetWriter.add(audioWriter)
     
+    assetWriter.startWriting()
+    assetWriter.startSession(atSourceTime: CMTime(seconds: CACurrentMediaTime(), preferredTimescale: 1_000_000_000))
     ReactLogger.log(level: .info, message: "Initialized Video and Audio AssetWriter.")
   }
 
@@ -74,29 +78,26 @@ class RecordingSession {
       return
     }
 
-    if assetWriter.status == .unknown {
-      if bufferType == .video {
-        // TODO: Eagerly start session to avoid lag at first frame?
-        let startTime = CMSampleBufferGetPresentationTimeStamp(buffer)
-        assetWriter.startWriting()
-        assetWriter.startSession(atSourceTime: startTime)
-      } else {
-        // if we didn't receive a Video buffer we don't want to start recording yet.
-        // the first buffer strictly has to be a video frame.
-        return
-      }
-    }
-
     switch bufferType {
     case .video:
       if !videoWriter.isReadyForMoreMediaData {
         ReactLogger.log(level: .warning, message: "The Video AVAssetWriterInput was not ready for more data! Is your frame rate too high?")
         return
       }
-      bufferAdaptor.append(CMSampleBufferGetImageBuffer(buffer)!,
-                           withPresentationTime: CMSampleBufferGetPresentationTimeStamp(buffer))
+      guard let imageBuffer = CMSampleBufferGetImageBuffer(buffer) else {
+        return
+      }
+      let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
+      bufferAdaptor.append(imageBuffer, withPresentationTime: timestamp)
+      if startTimestamp == nil {
+        startTimestamp = timestamp
+      }
     case .audio:
       if !audioWriter.isReadyForMoreMediaData {
+        return
+      }
+      if startTimestamp == nil {
+        // first video frame has not been written yet, so skip this audio frame.
         return
       }
       audioWriter.append(buffer)
