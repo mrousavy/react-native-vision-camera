@@ -52,16 +52,9 @@ class RecordingSession {
     videoWriter.expectsMediaDataInRealTime = true
     videoWriter.transform = CGAffineTransform(rotationAngle: .pi / 2)
     
-    var adaptorAttributes: [String: Any] = [
+    bufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter, sourcePixelBufferAttributes: [
       kCVPixelBufferPixelFormatTypeKey as String: pixelBufferFormat
-    ]
-    if let videoWidth = videoSettings[AVVideoWidthKey] as? NSNumber,
-       let videoHeight = videoSettings[AVVideoHeightKey] as? NSNumber {
-      adaptorAttributes[kCVPixelBufferWidthKey as String] = videoWidth
-      adaptorAttributes[kCVPixelBufferHeightKey as String] = videoHeight
-      ReactLogger.log(level: .info, message: "Initializing Pixel Buffer Adaptor with size \(videoWidth)x\(videoHeight)")
-    }
-    bufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter, sourcePixelBufferAttributes: adaptorAttributes)
+    ])
 
     assetWriter.add(videoWriter)
     assetWriter.add(audioWriter)
