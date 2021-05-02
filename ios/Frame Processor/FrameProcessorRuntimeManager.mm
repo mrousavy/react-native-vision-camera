@@ -60,7 +60,8 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
     auto runtime = vision::makeJSIRuntime();
     reanimated::RuntimeDecorator::decorateRuntime(*runtime, "FRAME_PROCESSOR");
     runtime->global().setProperty(*runtime, "_FRAME_PROCESSOR", jsi::Value(true));
-    auto scheduler = std::make_shared<reanimated::REAIOSScheduler>(bridge.jsCallInvoker);
+    auto callInvoker = bridge.jsCallInvoker;
+    auto scheduler = std::make_shared<reanimated::REAIOSScheduler>(callInvoker);
     runtimeManager = std::make_unique<reanimated::RuntimeManager>(std::move(runtime),
                                                                   std::make_shared<reanimated::REAIOSErrorHandler>(scheduler),
                                                                   scheduler);
@@ -75,10 +76,11 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
       NSLog(@"FrameProcessorBindings: Installing Frame Processor plugin \"%s\"...", pluginName);
       FrameProcessorPlugin callback = [[FrameProcessorPluginRegistry frameProcessorPlugins] valueForKey:pluginKey];
       
-      auto function = [callback](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+      auto function = [callback, callInvoker](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
         auto frameHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
         auto frame = static_cast<FrameHostObject*>(frameHostObject.get());
-        id result = callback(frame->buffer);
+        auto args = convertJSICStyleArrayToNSArray(runtime, arguments, count, callInvoker);
+        id result = callback(frame->buffer, args);
         return convertObjCObjectToJSIValue(runtime, result);
       };
       

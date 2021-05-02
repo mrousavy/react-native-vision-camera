@@ -16,7 +16,7 @@
 
 @implementation QRCodeFrameProcessorPluginObjC
 
-static inline id exampleObjC___scanQRCodes(CMSampleBufferRef buffer) {
+static inline id exampleObjC___scanQRCodes(CMSampleBufferRef buffer, NSArray* arguments) {
   // TODO: Use some AI to detect QR codes in the CMSampleBufferRef
   return @[];
 }

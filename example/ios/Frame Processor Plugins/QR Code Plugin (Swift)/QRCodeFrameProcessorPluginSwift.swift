@@ -12,7 +12,7 @@ import Vision
 @objc(QRCodeFrameProcessorPluginSwift)
 public class QRCodeFrameProcessorPluginSwift: NSObject, FrameProcessorPluginBase {
     @objc
-    public static func callback(_: CMSampleBuffer!) -> Any! {
+    public static func callback(_: CMSampleBuffer!, withArgs _: [Any]!) -> Any! {
         // TODO: Use some AI to detect QR codes in the CMSampleBufferRef
         return []
     }

@@ -14,7 +14,7 @@
 #import <CoreMedia/CMSampleBuffer.h>
 
 @protocol FrameProcessorPluginBase
-+ (id) callback:(CMSampleBufferRef)buffer;
++ (id) callback:(CMSampleBufferRef)buffer withArgs:(NSArray<id>*)args;
 @end
 
 
@@ -35,8 +35,8 @@
                                                                                     \
 +(void)load                                                                         \
 {                                                                                   \
-  [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"__" @ #frame_processor callback:^id(CMSampleBufferRef buffer) { \
-    return frame_processor(buffer);                                                 \
+  [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"__" @ #frame_processor callback:^id(CMSampleBufferRef buffer, NSArray<id>* args) { \
+    return frame_processor(buffer, args);                                           \
   }];                                                                               \
 }
 
@@ -55,8 +55,8 @@ objc_name : NSObject<FrameProcessorPluginBase>                                  
                                                                                     \
 __attribute__((constructor)) static void VISION_CONCAT(initialize_, objc_name)()    \
 {                                                                                   \
-  [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"__" @ #name callback:^id(CMSampleBufferRef buffer) {    \
-    return [objc_name callback:buffer];                                             \
+  [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"__" @ #name callback:^id(CMSampleBufferRef buffer, NSArray<id>* args) {    \
+    return [objc_name callback:buffer withArgs:args];                               \
   }];                                                                               \
 }
 

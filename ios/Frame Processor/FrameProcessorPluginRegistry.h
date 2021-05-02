@@ -11,7 +11,7 @@
 #import <Foundation/Foundation.h>
 #import <CoreMedia/CMSampleBuffer.h>
 
-typedef id (^FrameProcessorPlugin) (CMSampleBufferRef buffer);
+typedef id (^FrameProcessorPlugin) (CMSampleBufferRef buffer, NSArray<id>* arguments);
 
 @interface FrameProcessorPluginRegistry : NSObject
 
