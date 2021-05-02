@@ -1,6 +1,5 @@
 import React from 'react';
 import { requireNativeComponent, NativeModules, NativeSyntheticEvent, findNodeHandle, NativeMethods, Platform } from 'react-native';
-import type { CameraPhotoCodec, CameraVideoCodec } from './CameraCodec';
 import type { CameraDevice } from './CameraDevice';
 import type { ErrorWithCause } from './CameraError';
 import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError';
@@ -231,39 +230,6 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   public async focus(point: Point): Promise<void> {
     try {
       return await CameraModule.focus(this.handle, point);
-    } catch (e) {
-      throw tryParseNativeCameraError(e);
-    }
-  }
-
-  /**
-   * Get a list of video codecs the current camera supports.  Returned values are ordered by efficiency (descending).
-   *
-   * This function can only be called after the camera has been initialized,
-   * so only use this after the {@linkcode onInitialized | onInitialized()} event has fired.
-   *
-   * @platform iOS
-   * @throws {@linkcode CameraRuntimeError} When any kind of error occured while getting available video codecs. Use the {@linkcode CameraRuntimeError.code | code} property to get the actual error
-   */
-  public async getAvailableVideoCodecs(): Promise<CameraVideoCodec[]> {
-    try {
-      return await CameraModule.getAvailableVideoCodecs(this.handle);
-    } catch (e) {
-      throw tryParseNativeCameraError(e);
-    }
-  }
-  /**
-   * Get a list of photo codecs the current camera supports. Returned values are ordered by efficiency (descending).
-   *
-   * This function can only be called after the camera has been initialized,
-   * so only use this after the {@linkcode onInitialized | onInitialized()} event has fired.
-   *
-   * @platform iOS
-   * @throws {@linkcode CameraRuntimeError} When any kind of error occured while getting available photo codecs. Use the {@linkcode CameraRuntimeError.code | code} property to get the actual error
-   */
-  public async getAvailablePhotoCodecs(): Promise<CameraPhotoCodec[]> {
-    try {
-      return await CameraModule.getAvailablePhotoCodecs(this.handle);
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }

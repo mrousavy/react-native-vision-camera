@@ -1,5 +1,4 @@
 export * from './Camera';
-export * from './CameraCodec';
 export * from './CameraDevice';
 export * from './CameraError';
 export * from './CameraPosition';

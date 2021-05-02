@@ -69,28 +69,6 @@ final class CameraViewManager: RCTViewManager {
   }
 
   @objc
-  final func getAvailableVideoCodecs(_ node: NSNumber, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    withPromise(resolve: resolve, reject: reject) {
-      let component = getCameraView(withTag: node)
-      guard let videoOutput = component.videoOutput else {
-        throw CameraError.session(SessionError.cameraNotReady)
-      }
-      return videoOutput.availableVideoCodecTypes.map(\.descriptor)
-    }
-  }
-
-  @objc
-  final func getAvailablePhotoCodecs(_ node: NSNumber, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    withPromise(resolve: resolve, reject: reject) {
-      let component = getCameraView(withTag: node)
-      guard let photoOutput = component.photoOutput else {
-        throw CameraError.session(SessionError.cameraNotReady)
-      }
-      return photoOutput.availablePhotoCodecTypes.map(\.descriptor)
-    }
-  }
-
-  @objc
   final func getAvailableCameraDevices(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     withPromise(resolve: resolve, reject: reject) {
       let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: getAllDeviceTypes(), mediaType: .video, position: .unspecified)
