@@ -79,7 +79,10 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
       auto function = [callback, callInvoker](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
         auto frameHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
         auto frame = static_cast<FrameHostObject*>(frameHostObject.get());
-        auto args = convertJSICStyleArrayToNSArray(runtime, arguments, count, callInvoker);
+        auto args = convertJSICStyleArrayToNSArray(runtime,
+                                                   arguments + 1, // start at index 1 since first arg = Frame
+                                                   count - 1, // use smaller count
+                                                   callInvoker);
         id result = callback(frame->buffer, args);
         return convertObjCObjectToJSIValue(runtime, result);
       };
