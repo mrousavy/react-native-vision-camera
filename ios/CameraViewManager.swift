@@ -72,8 +72,10 @@ final class CameraViewManager: RCTViewManager {
   final func getAvailableVideoCodecs(_ node: NSNumber, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     withPromise(resolve: resolve, reject: reject) {
       let component = getCameraView(withTag: node)
-      // TODO: Return available video codecs: movieOutput.availableVideoCodecTypes.map(\.descriptor)
-      return []
+      guard let videoOutput = component.videoOutput else {
+        throw CameraError.session(SessionError.cameraNotReady)
+      }
+      return videoOutput.availableVideoCodecTypes.map(\.descriptor)
     }
   }
 
