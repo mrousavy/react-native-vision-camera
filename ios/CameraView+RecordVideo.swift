@@ -31,6 +31,12 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         if let fileTypeOption = options["fileType"] as? String {
           fileType = AVFileType(withString: fileTypeOption)
         }
+        
+        let settings = self.videoOutput?.videoSettings
+        var pixelBufferFormat = kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
+        if let pixelFormat = options["pixelFormat"] as? String {
+          pixelBufferFormat = try parsePixelBufferFormat(pixelFormat)
+        }
 
         // TODO: The startRecording() func cannot be async because RN doesn't allow
         //       both a callback and a Promise in a single function. Wait for TurboModules?
@@ -60,9 +66,12 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
                                                      fileType: fileType,
                                                      videoSettings: videoSettings ?? [:],
                                                      audioSettings: audioSettings ?? [:],
+                                                     pixelBufferFormat: pixelBufferFormat,
                                                      completion: onFinish)
 
         self.isRecording = true
+      } catch EnumParserError.invalidValue {
+        return callback([NSNull(), EnumParserError.invalidValue])
       } catch let error as NSError {
         return callback([NSNull(), makeReactError(.capture(.createTempFileError), cause: error)])
       }

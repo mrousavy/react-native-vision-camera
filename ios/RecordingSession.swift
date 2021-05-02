@@ -37,6 +37,7 @@ class RecordingSession {
        fileType: AVFileType,
        videoSettings: [String: Any],
        audioSettings: [String: Any],
+       pixelBufferFormat: OSType,
        completion: @escaping (AVAssetWriter.Status, Error?) -> Void) throws {
     do {
       assetWriter = try AVAssetWriter(outputURL: url, fileType: fileType)
@@ -51,7 +52,7 @@ class RecordingSession {
     videoWriter.expectsMediaDataInRealTime = true
     videoWriter.transform = CGAffineTransform(rotationAngle: .pi / 2)
     bufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter, sourcePixelBufferAttributes: [
-      kCVPixelBufferPixelFormatTypeKey as String: /*kCVPixelFormatType_32ARGB*/ kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
+      kCVPixelBufferPixelFormatTypeKey as String: pixelBufferFormat
     ])
 
     assetWriter.add(videoWriter)
