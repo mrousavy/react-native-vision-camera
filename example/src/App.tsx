@@ -30,7 +30,6 @@ import IonIcon from 'react-native-vector-icons/Ionicons';
 import { useSelector } from 'pipestate';
 import { FpsSelector } from './state/selectors';
 import { useCameraDevice } from './hooks/useCameraDevice';
-import { scanQRCodesObjC } from './frame-processors/ScanQRCode';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -220,8 +219,8 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
 
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
-    const codes = scanQRCodesObjC(frame);
-    _log(`Codes: ${JSON.stringify(codes)}`);
+    // const codes = scanQRCodesObjC(frame);
+    // _log(`Codes: ${JSON.stringify(codes)}`);
   }, []);
 
   // TODO: Implement camera flipping (back <-> front) while recording and stich the videos together
@@ -245,8 +244,8 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
                 onError={onError}
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
-                frameProcessor={frameProcessor}
-                frameProcessorFps={1}
+                // frameProcessor={frameProcessor}
+                // frameProcessorFps={1}
               />
             </TapGestureHandler>
           </Reanimated.View>

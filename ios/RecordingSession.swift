@@ -51,9 +51,16 @@ class RecordingSession {
     audioWriter.expectsMediaDataInRealTime = true
     videoWriter.expectsMediaDataInRealTime = true
     videoWriter.transform = CGAffineTransform(rotationAngle: .pi / 2)
-    bufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter, sourcePixelBufferAttributes: [
+    
+    var adaptorAttributes: [String: Any] = [
       kCVPixelBufferPixelFormatTypeKey as String: pixelBufferFormat
-    ])
+    ]
+    if let videoWidth = videoSettings[AVVideoWidthKey] as? NSNumber,
+       let videoHeight = videoSettings[AVVideoHeightKey] as? NSNumber {
+      adaptorAttributes[kCVPixelBufferWidthKey as String] = videoWidth
+      adaptorAttributes[kCVPixelBufferHeightKey as String] = videoHeight
+    }
+    bufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter, sourcePixelBufferAttributes: adaptorAttributes)
 
     assetWriter.add(videoWriter)
     assetWriter.add(audioWriter)
