@@ -54,19 +54,11 @@ VISION_EXPORT_FRAME_PROCESSOR(scanQRCodes)
 @end
 ```
 
-4. Implement your Frame Processing
+4. **Implement your Frame Processing.**
 
 :::info
 The JS function name will be equal to the Objective-C function name you choose (with a `__` prefix). Make sure it is unique across other Frame Processor Plugins, and doesn't shadow a JS runtime variable.
 :::
-
-The following return- and parameter-types are supported:
-* `NSString` (`string` in JS)
-* `NSNumber` (`number` in JS)
-* `nil` (`undefined` or `null` in JS)
-* `NSDictionary` (`{}` in JS)
-* `NSArray` (`[]` in JS)
-* `RCTResponseSenderBlock` (`(any...) => void` in JS)
 
 > See [QR Code Plugin (Objective-C)](https://github.com/cuvent/react-native-vision-camera/blob/main/example/ios/Frame%20Processor%20Plugins/QR%20Code%20Plugin%20%28Objective%2DC%29) for reference.
 
@@ -109,14 +101,6 @@ public class QRCodeFrameProcessorPlugin: NSObject, FrameProcessorPluginBase {
   }
 }
 ```
-
-The following return- and parameter-types are supported:
-* `NSString` (`string` in JS)
-* `NSNumber` (`number` in JS)
-* `nil` (`undefined` or `null` in JS)
-* `[String: Any]` (`{}` in JS)
-* `Any[]` (`[]` in JS)
-* `RCTResponseSenderBlock` (`(any...) => void` in JS)
 
 > See [QR Code Plugin (Swift)](https://github.com/cuvent/react-native-vision-camera/blob/main/example/ios/Frame%20Processor%20Plugins/QR%20Code%20Plugin%20%28Swift%29) for reference.
 
