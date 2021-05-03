@@ -127,7 +127,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
     }
   }
 
-  public func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
+  public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
     if isRecording {
       guard let recordingSession = recordingSession else {
         return invokeOnError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
@@ -154,12 +154,23 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
     }
   }
 
-  public func captureOutput(_ captureOutput: AVCaptureOutput, didDrop _: CMSampleBuffer, from _: AVCaptureConnection) {
+  public final func captureOutput(_ captureOutput: AVCaptureOutput, didDrop buffer: CMSampleBuffer, from _: AVCaptureConnection) {
     if frameProcessorCallback != nil && !hasLoggedFrameDropWarning && captureOutput is AVCaptureVideoDataOutput {
+      let reason = findFrameDropReason(inBuffer: buffer)
       // TODO: Show in React console?
       ReactLogger.log(level: .warning, message: "Dropped a Frame. This might indicate that your Frame Processor is doing too much work. " +
-        "Either throttle the frame processor's frame rate, or optimize your frame processor's execution speed.")
+        "Either throttle the frame processor's frame rate, or optimize your frame processor's execution speed. Frame drop reason: \(reason)")
       hasLoggedFrameDropWarning = true
     }
+  }
+  
+  private final func findFrameDropReason(inBuffer buffer: CMSampleBuffer) -> String {
+    var mode: CMAttachmentMode = 0
+    guard let reason = CMGetAttachment(buffer,
+                                       key: kCMSampleBufferAttachmentKey_DroppedFrameReason,
+                                       attachmentModeOut: &mode) else {
+      return "unknown"
+    }
+    return String(describing: reason)
   }
 }
