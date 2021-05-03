@@ -25,6 +25,7 @@ They **receive a frame from the Camera** as an input and can return any kind of 
 ```tsx {3-4}
 function App() {
   const frameProcessor = useFrameProcessor((frame) => {
+    'worklet'
     const qrCodes = scanQRCodes(frame)
     _log(`QR Codes in Frame: ${qrCodes}`)
   }, [])
@@ -79,6 +80,7 @@ Frame Processors can also accept parameters, following the same type convention 
 
 ```ts
 const frameProcessor = useFrameProcessor((frame) => {
+  'worklet'
   const codes = scanCodes(frame, ['qr', 'barcode'])
 }, [])
 ```
@@ -87,6 +89,7 @@ Or with multiple parameters:
 
 ```ts
 const frameProcessor = useFrameProcessor((frame) => {
+  'worklet'
   const codes = scanCodes(frame, true, 'hello-world', 42)
 }, [])
 ```
@@ -122,6 +125,7 @@ This might look like this for the user:
 ```tsx
 function App() {
   const frameProcessor = useFrameProcessor((frame) => {
+    'worklet'
     SomeAI.process(frame) // does not block frame processor, runs async
   }, [])
 
