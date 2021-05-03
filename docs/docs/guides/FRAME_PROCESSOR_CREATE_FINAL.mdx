@@ -55,7 +55,7 @@ Simply call the wrapper Worklet in your Frame Processor:
 function App() {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet'
-    const qrCodes = scanQrCodes(frame)
+    const qrCodes = scanQRCodes(frame)
     _log(`QR Codes in Frame: ${qrCodes}`)
   }, [])
 

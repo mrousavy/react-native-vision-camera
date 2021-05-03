@@ -128,7 +128,20 @@ export interface CameraProps extends ViewProps {
    */
   onInitialized?: () => void;
   /**
-   * TODO: Docs
+   * A worklet which will be called for every frame the Camera "sees". Throttle the Frame Processor's frame rate with {@linkcode frameProcessorFps}.
+   *
+   * > See [the Frame Processors documentation](https://cuvent.github.io/react-native-vision-camera/docs/guides/frame-processors) for more information
+   *
+   * @example
+   * ```jsx
+   * const frameProcessor = useFrameProcessor((frame) => {
+   *   'worklet'
+   *   const qrCodes = scanQRCodes(frame)
+   *   console.log(`Detected QR Codes: ${qrCodes}`)
+   * }, [])
+   *
+   * return <Camera {...cameraProps} frameProcessor={frameProcessor} />
+   * ```
    */
   frameProcessor?: (frame: Frame) => void;
   /**

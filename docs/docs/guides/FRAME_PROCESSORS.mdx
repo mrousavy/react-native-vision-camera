@@ -25,7 +25,7 @@ For example, you might want to create a QR code scanner **without ever writing n
 function App() {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet'
-    const qrCodes = scanQrCodes(frame)
+    const qrCodes = scanQRCodes(frame)
     console.log(`Detected QR Codes: ${qrCodes}`)
   }, [])
 
