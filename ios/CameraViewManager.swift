@@ -17,6 +17,8 @@ final class CameraViewManager: RCTViewManager {
 
   override var bridge: RCTBridge! {
     didSet {
+      if !enableFrameProcessors { return }
+
       CameraQueues.videoQueue.async {
         self.runtimeManager = FrameProcessorRuntimeManager(bridge: self.bridge)
         self.bridge.runOnJS {

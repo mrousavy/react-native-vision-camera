@@ -17,6 +17,12 @@
 #import "FrameProcessorRuntimeManager.h"
 #import "RCTBridge+runOnJS.h"
 
+#ifdef VISION_CAMERA_DISABLE_FRAME_PROCESSORS
+static bool enableFrameProcessors = false;
+#else
+static bool enableFrameProcessors = true;
+#endif
+
 @interface CameraBridge: RCTViewManager
 
 @end
