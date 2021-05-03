@@ -64,7 +64,7 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
       val startCapture = System.nanoTime()
       val pic = imageCapture.takePicture(takePhotoExecutor)
       val endCapture = System.nanoTime()
-      Log.d(CameraView.TAG_PERF, "Finished image capture in ${(endCapture - startCapture) / 1_000_000}ms")
+      Log.i(CameraView.TAG_PERF, "Finished image capture in ${(endCapture - startCapture) / 1_000_000}ms")
       pic
     },
     async(Dispatchers.IO) {
@@ -82,7 +82,7 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
     val milliseconds = measureTimeMillis {
       photo.save(file, lensFacing == CameraCharacteristics.LENS_FACING_FRONT)
     }
-    Log.d(CameraView.TAG_PERF, "Finished image saving in ${milliseconds}ms")
+    Log.i(CameraView.TAG_PERF, "Finished image saving in ${milliseconds}ms")
     // TODO: Read Exif from existing in-memory photo buffer instead of file?
     exif = if (skipMetadata) null else ExifInterface(file)
   }
@@ -101,6 +101,6 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
   Log.d(CameraView.TAG, "Finished taking photo!")
 
   val endFunc = System.nanoTime()
-  Log.d(CameraView.TAG_PERF, "Finished function execution in ${(endFunc - startFunc) / 1_000_000}ms")
+  Log.i(CameraView.TAG_PERF, "Finished function execution in ${(endFunc - startFunc) / 1_000_000}ms")
   return@coroutineScope map
 }
