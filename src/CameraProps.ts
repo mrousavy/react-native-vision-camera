@@ -133,7 +133,7 @@ export interface CameraProps extends ViewProps {
    * > See [the Frame Processors documentation](https://cuvent.github.io/react-native-vision-camera/docs/guides/frame-processors) for more information
    *
    * @example
-   * ```jsx
+   * ```tsx
    * const frameProcessor = useFrameProcessor((frame) => {
    *   'worklet'
    *   const qrCodes = scanQRCodes(frame)

@@ -34,7 +34,9 @@ export interface Frame {
   /**
    * Returns a string representation of the frame.
    * @example
+   * ```ts
    * console.log(frame.toString()) // -> "3840 x 2160 Frame"
+   * ```
    */
   toString(): string;
 }
