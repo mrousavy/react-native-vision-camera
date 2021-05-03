@@ -17,13 +17,15 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 Often you'd want to animate specific props in the Camera. For example, if you'd want to create a custom zoom gesture, you can smoothly animate the Camera's `zoom` property.
 
-Note: The `<Camera>` component does provide a natively implemented zoom gesture which you can enable with the `enableZoomGesture={true}` prop. This does not require any additional work, but if you want to setup a custom gesture, such as the one in Snapchat or Instagram where you move up your finger while recording, continue reading.
+The `<Camera>` component already provides a natively implemented zoom gesture which you can enable with the [`enableZoomGesture`](/docs/api/interfaces/cameraprops.cameraprops-1#enablezoomgesture) prop. This does not require any additional work, but if you want to setup a custom gesture, such as the one in Snapchat or Instagram where you move up your finger while recording, continue reading.
 
-### Installing reanimated
+### Animation libraries
 
-The following example uses [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated) (v2) to animate the `zoom` property. Head over to their [Installation guide](https://docs.swmansion.com/react-native-reanimated/docs/installation) to install Reanimated if you haven't already.
+While you can use any animation library to animate the `zoom` property (or use no animation library at all) it is recommended to use [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated) (v2) to achieve best performance. Head over to their [Installation guide](https://docs.swmansion.com/react-native-reanimated/docs/installation) to install Reanimated if you haven't already.
 
 ### Implementation
+
+The following example implements a button which smoothly zooms to a random value using [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated):
 
 ```tsx
 import Reanimated, {
@@ -72,13 +74,16 @@ export function App() {
 
 ### Explanation
 
-1. The `Camera` is converted to a reanimated Camera using `Reanimated.createAnimatedComponent`
+1. The `Camera` was made animatable using `Reanimated.createAnimatedComponent`
 2. The `zoom` property is added to the whitelisted native props to make it animatable.
     > Note that this might not be needed in the future, see: [reanimated#1409](https://github.com/software-mansion/react-native-reanimated/pull/1409)
-3. Using [`useSharedValue`](https://docs.swmansion.com/react-native-reanimated/docs/api/useSharedValue), we're creating a shared value that holds the `zoom` property.
-4. Using the [`useAnimatedProps`](https://docs.swmansion.com/react-native-reanimated/docs/api/useAnimatedProps) hook, we apply the shared value to the animated props.
+3. Using [`useSharedValue`](https://docs.swmansion.com/react-native-reanimated/docs/api/useSharedValue), we're creating a shared value that holds the value for the `zoom` property.
+4. Using the [`useAnimatedProps`](https://docs.swmansion.com/react-native-reanimated/docs/api/useAnimatedProps) hook, we apply the shared value to Camera's `zoom` property.
 5. We apply the animated props to the `ReanimatedCamera` component's `animatedProps` property.
 
+### Logarithmic scale
+
+A Camera's `zoom` property is represented in a **logarithmic scale**. That means, increasing from `0` to `0.1` will appear to be a much larger offset than increasing from `0.9` to `1`. If you want to implement a zoom gesture (`<PinchGestureHandler>`, `<PanGestureHandler>`), try to flatten the `zoom` property to a **linear scale** by raising it **exponentially**. (`zoom.value ** 2`)
 
 <br />
 
