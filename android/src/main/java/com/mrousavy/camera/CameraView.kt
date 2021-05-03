@@ -161,7 +161,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       // Host Lifecycle (Activity) is currently inactive (STARTED or DESTROYED), so that overrules our view's lifecycle
       lifecycleRegistry.currentState = hostLifecycleState
     }
-    Log.d(REACT_CLASS, "Lifecycle went from ${lifecycleBefore.name} -> ${lifecycleRegistry.currentState.name} (isActive: $isActive | isAttachedToWindow: $isAttachedToWindow)")
+    Log.d(TAG, "Lifecycle went from ${lifecycleBefore.name} -> ${lifecycleRegistry.currentState.name} (isActive: $isActive | isAttachedToWindow: $isAttachedToWindow)")
   }
 
   override fun onAttachedToWindow() {
@@ -216,7 +216,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   private suspend fun configureSession() {
     try {
       val startTime = System.currentTimeMillis()
-      Log.i(REACT_CLASS, "Configuring session...")
+      Log.i(TAG, "Configuring session...")
       if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
         throw MicrophonePermissionError()
       }
@@ -227,9 +227,9 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         throw NoCameraDeviceError()
       }
       if (format != null)
-        Log.i(REACT_CLASS, "Configuring session with Camera ID $cameraId and custom format...")
+        Log.i(TAG, "Configuring session with Camera ID $cameraId and custom format...")
       else
-        Log.i(REACT_CLASS, "Configuring session with Camera ID $cameraId and default format options...")
+        Log.i(TAG, "Configuring session with Camera ID $cameraId and default format options...")
 
       // Used to bind the lifecycle of cameras to the lifecycle owner
       val cameraProvider = ProcessCameraProvider.getInstance(reactContext).await()
@@ -248,7 +248,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
 
       if (format == null) {
         // let CameraX automatically find best resolution for the target aspect ratio
-        Log.i(REACT_CLASS, "No custom format has been set, CameraX will automatically determine best configuration...")
+        Log.i(TAG, "No custom format has been set, CameraX will automatically determine best configuration...")
         val aspectRatio = aspectRatio(previewView.width, previewView.height)
         previewBuilder.setTargetAspectRatio(aspectRatio)
         imageCaptureBuilder.setTargetAspectRatio(aspectRatio)
@@ -256,7 +256,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       } else {
         // User has selected a custom format={}. Use that
         val format = DeviceFormat(format!!)
-        Log.i(REACT_CLASS, "Using custom format - photo: ${format.photoSize}, video: ${format.videoSize} @ $fps FPS")
+        Log.i(TAG, "Using custom format - photo: ${format.photoSize}, video: ${format.videoSize} @ $fps FPS")
         previewBuilder.setDefaultResolution(format.photoSize)
         imageCaptureBuilder.setDefaultResolution(format.photoSize)
         videoCaptureBuilder.setDefaultResolution(format.photoSize)
@@ -266,7 +266,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
             // Camera supports the given FPS (frame rate range)
             val frameDuration = (1.0 / fps.toDouble()).toLong() * 1_000_000_000
 
-            Log.i(REACT_CLASS, "Setting AE_TARGET_FPS_RANGE to $fps-$fps, and SENSOR_FRAME_DURATION to $frameDuration")
+            Log.i(TAG, "Setting AE_TARGET_FPS_RANGE to $fps-$fps, and SENSOR_FRAME_DURATION to $frameDuration")
             Camera2Interop.Extender(previewBuilder)
               .setCaptureRequestOption(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(fps, fps))
               .setCaptureRequestOption(CaptureRequest.SENSOR_FRAME_DURATION, frameDuration)
@@ -283,11 +283,11 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
             val isExtensionAvailable = imageExtension.isExtensionAvailable(cameraSelector) &&
               previewExtension.isExtensionAvailable(cameraSelector)
             if (isExtensionAvailable) {
-              Log.i(REACT_CLASS, "Enabling native HDR extension...")
+              Log.i(TAG, "Enabling native HDR extension...")
               imageExtension.enableExtension(cameraSelector)
               previewExtension.enableExtension(cameraSelector)
             } else {
-              Log.e(REACT_CLASS, "Native HDR vendor extension not available!")
+              Log.e(TAG, "Native HDR vendor extension not available!")
               throw HdrNotContainedInFormatError()
             }
           }
@@ -299,11 +299,11 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
             val isExtensionAvailable = imageExtension.isExtensionAvailable(cameraSelector) &&
               previewExtension.isExtensionAvailable(cameraSelector)
             if (isExtensionAvailable) {
-              Log.i(REACT_CLASS, "Enabling native night-mode extension...")
+              Log.i(TAG, "Enabling native night-mode extension...")
               imageExtension.enableExtension(cameraSelector)
               previewExtension.enableExtension(cameraSelector)
             } else {
-              Log.e(REACT_CLASS, "Native night-mode vendor extension not available!")
+              Log.e(TAG, "Native night-mode vendor extension not available!")
               throw LowLightBoostNotContainedInFormatError()
             }
           }
@@ -325,7 +325,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       maxZoom = camera!!.cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
 
       val duration = System.currentTimeMillis() - startTime
-      Log.i(REACT_CLASS, "Session configured in $duration ms! Camera: ${camera!!}")
+      Log.i(TAG_PERF, "Session configured in $duration ms! Camera: ${camera!!}")
       invokeOnInitialized()
     } catch (exc: Throwable) {
       throw when (exc) {
@@ -348,7 +348,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
 
   override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
     super.onLayout(changed, left, top, right, bottom)
-    Log.i(REACT_CLASS, "onLayout($changed, $left, $top, $right, $bottom) was called! (Width: $width, Height: $height)")
+    Log.i(TAG, "onLayout($changed, $left, $top, $right, $bottom) was called! (Width: $width, Height: $height)")
   }
 
   private fun invokeOnInitialized() {
@@ -378,7 +378,8 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   }
 
   companion object {
-    const val REACT_CLASS = "CameraView"
+    const val TAG = "CameraView"
+    const val TAG_PERF = "CameraView.performance"
 
     private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "fps", "hdr", "lowLightBoost")
 

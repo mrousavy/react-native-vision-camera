@@ -13,13 +13,12 @@ import com.facebook.react.bridge.WritableMap
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import java.io.File
-
-private const val TAG = "CameraView.performance"
+import kotlin.system.measureTimeMillis
 
 @SuppressLint("UnsafeOptInUsageError")
 suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineScope {
   val startFunc = System.nanoTime()
-  Log.d(CameraView.REACT_CLASS, "takePhoto() called")
+  Log.d(CameraView.TAG, "takePhoto() called")
   val imageCapture = imageCapture ?: throw CameraNotReadyError()
 
   if (options.hasKey("flash")) {
@@ -57,19 +56,18 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
 
   val camera2Info = Camera2CameraInfo.from(camera!!.cameraInfo)
   val lensFacing = camera2Info.getCameraCharacteristic(CameraCharacteristics.LENS_FACING)
-  // TODO: Flip image if lens is front side - see https://github.com/cuvent/react-native-vision-camera/issues/74
 
   val results = awaitAll(
     async(coroutineContext) {
-      Log.d(CameraView.REACT_CLASS, "Taking picture...")
+      Log.d(CameraView.TAG, "Taking picture...")
       val startCapture = System.nanoTime()
       val pic = imageCapture.takePicture(takePhotoExecutor)
       val endCapture = System.nanoTime()
-      Log.d(TAG, "Finished image capture in ${(endCapture - startCapture) / 1_000_000}ms")
+      Log.i(CameraView.TAG_PERF, "Finished image capture in ${(endCapture - startCapture) / 1_000_000}ms")
       pic
     },
     async(Dispatchers.IO) {
-      Log.d(CameraView.REACT_CLASS, "Creating temp file...")
+      Log.d(CameraView.TAG, "Creating temp file...")
       File.createTempFile("mrousavy", ".jpg", context.cacheDir).apply { deleteOnExit() }
     }
   )
@@ -79,11 +77,12 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
   val exif: ExifInterface?
   @Suppress("BlockingMethodInNonBlockingContext")
   withContext(Dispatchers.IO) {
-    Log.d(CameraView.REACT_CLASS, "Saving picture to ${file.absolutePath}...")
-    val startSave = System.nanoTime()
-    photo.save(file, lensFacing == CameraCharacteristics.LENS_FACING_FRONT)
-    val endSave = System.nanoTime()
-    Log.d(TAG, "Finished image saving in ${(endSave - startSave) / 1_000_000}ms")
+    Log.d(CameraView.TAG, "Saving picture to ${file.absolutePath}...")
+    val milliseconds = measureTimeMillis {
+      val flipHorizontally = lensFacing == CameraCharacteristics.LENS_FACING_FRONT
+      photo.save(file, flipHorizontally)
+    }
+    Log.i(CameraView.TAG_PERF, "Finished image saving in ${milliseconds}ms")
     // TODO: Read Exif from existing in-memory photo buffer instead of file?
     exif = if (skipMetadata) null else ExifInterface(file)
   }
@@ -99,9 +98,9 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
 
   photo.close()
 
-  Log.d(CameraView.REACT_CLASS, "Finished taking photo!")
+  Log.d(CameraView.TAG, "Finished taking photo!")
 
   val endFunc = System.nanoTime()
-  Log.d(TAG, "Finished function execution in ${(endFunc - startFunc) / 1_000_000}ms")
+  Log.i(CameraView.TAG_PERF, "Finished function execution in ${(endFunc - startFunc) / 1_000_000}ms")
   return@coroutineScope map
 }

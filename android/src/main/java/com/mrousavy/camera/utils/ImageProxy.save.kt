@@ -1,12 +1,19 @@
 package com.mrousavy.camera.utils
 
-import android.annotation.SuppressLint
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.ImageFormat
+import android.graphics.Matrix
+import android.util.Log
 import androidx.camera.core.ImageProxy
+import com.mrousavy.camera.CameraView
 import com.mrousavy.camera.InvalidFormatError
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.ByteBuffer
+import kotlin.system.measureTimeMillis
+
 
 // TODO: Fix this flip() function (this outputs a black image)
 fun flip(imageBytes: ByteArray, imageWidth: Int): ByteArray {
@@ -33,16 +40,34 @@ fun flip(imageBytes: ByteArray, imageWidth: Int): ByteArray {
   return holder + subArray
 }
 
+// TODO: This function is slow. Figure out a faster way to flip images, preferably via directly manipulating the byte[] Exif flags
+fun flipImage(imageBytes: ByteArray): ByteArray {
+  val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+  val matrix = Matrix()
+  matrix.preScale(-1f, 1f)
+  val newBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+  val stream = ByteArrayOutputStream()
+  newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+  return stream.toByteArray()
+}
+
 fun ImageProxy.save(file: File, flipHorizontally: Boolean) {
   when (format) {
     // TODO: ImageFormat.RAW_SENSOR
     // TODO: ImageFormat.DEPTH_JPEG
     ImageFormat.JPEG -> {
       val buffer = planes[0].buffer
-      val bytes = ByteArray(buffer.remaining())
+      var bytes = ByteArray(buffer.remaining())
 
       // copy image from buffer to byte array
       buffer.get(bytes)
+
+      if (flipHorizontally) {
+        val milliseconds = measureTimeMillis {
+          bytes = flipImage(bytes)
+        }
+        Log.i(CameraView.TAG_PERF, "Flipping Image took $milliseconds ms.")
+      }
 
       val output = FileOutputStream(file)
       output.write(bytes)
