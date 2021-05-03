@@ -163,7 +163,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       hasLoggedFrameDropWarning = true
     }
   }
-  
+
   private final func findFrameDropReason(inBuffer buffer: CMSampleBuffer) -> String {
     var mode: CMAttachmentMode = 0
     guard let reason = CMGetAttachment(buffer,
