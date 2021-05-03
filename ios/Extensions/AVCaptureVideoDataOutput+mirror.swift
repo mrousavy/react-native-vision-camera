@@ -8,7 +8,7 @@
 
 import AVFoundation
 
-extension AVCaptureMovieFileOutput {
+extension AVCaptureVideoDataOutput {
   func mirror() {
     connections.forEach { connection in
       if connection.isVideoMirroringSupported {
