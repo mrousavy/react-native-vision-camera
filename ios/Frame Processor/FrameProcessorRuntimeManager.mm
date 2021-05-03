@@ -152,11 +152,11 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
     
     RCTExecuteOnMainQueue(^{
       auto currentBridge = [RCTBridge currentBridge];
+      if (!currentBridge) return;
       auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
+      if (!anonymousView) return;
       auto view = static_cast<CameraView*>(anonymousView);
-      // TODO: Fix this empty assignment
-      view.frameProcessorCallback = nullptr;
-      //view.frameProcessorCallback = nil;
+      view.frameProcessorCallback = nil;
       NSLog(@"FrameProcessorBindings: Frame processor removed!");
     });
     
