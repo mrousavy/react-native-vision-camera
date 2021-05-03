@@ -13,6 +13,7 @@ import com.facebook.react.bridge.WritableMap
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import java.io.File
+import kotlin.system.measureTimeMillis
 
 private const val TAG = "CameraView.performance"
 
@@ -80,10 +81,10 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
   @Suppress("BlockingMethodInNonBlockingContext")
   withContext(Dispatchers.IO) {
     Log.d(CameraView.REACT_CLASS, "Saving picture to ${file.absolutePath}...")
-    val startSave = System.nanoTime()
-    photo.save(file, lensFacing == CameraCharacteristics.LENS_FACING_FRONT)
-    val endSave = System.nanoTime()
-    Log.d(TAG, "Finished image saving in ${(endSave - startSave) / 1_000_000}ms")
+    val milliseconds = measureTimeMillis {
+      photo.save(file, lensFacing == CameraCharacteristics.LENS_FACING_FRONT)
+    }
+    Log.d(TAG, "Finished image saving in ${milliseconds}ms")
     // TODO: Read Exif from existing in-memory photo buffer instead of file?
     exif = if (skipMetadata) null else ExifInterface(file)
   }
