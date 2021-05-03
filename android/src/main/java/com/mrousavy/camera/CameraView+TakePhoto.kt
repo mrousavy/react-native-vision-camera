@@ -56,7 +56,6 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
 
   val camera2Info = Camera2CameraInfo.from(camera!!.cameraInfo)
   val lensFacing = camera2Info.getCameraCharacteristic(CameraCharacteristics.LENS_FACING)
-  // TODO: Flip image if lens is front side - see https://github.com/cuvent/react-native-vision-camera/issues/74
 
   val results = awaitAll(
     async(coroutineContext) {
@@ -80,7 +79,8 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
   withContext(Dispatchers.IO) {
     Log.d(CameraView.TAG, "Saving picture to ${file.absolutePath}...")
     val milliseconds = measureTimeMillis {
-      photo.save(file, lensFacing == CameraCharacteristics.LENS_FACING_FRONT)
+      val flipHorizontally = lensFacing == CameraCharacteristics.LENS_FACING_FRONT
+      photo.save(file, flipHorizontally)
     }
     Log.i(CameraView.TAG_PERF, "Finished image saving in ${milliseconds}ms")
     // TODO: Read Exif from existing in-memory photo buffer instead of file?
