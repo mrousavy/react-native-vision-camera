@@ -18,7 +18,7 @@ import kotlin.system.measureTimeMillis
 @SuppressLint("UnsafeOptInUsageError")
 suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineScope {
   val startFunc = System.nanoTime()
-  Log.d(CameraView.REACT_CLASS, "takePhoto() called")
+  Log.d(CameraView.TAG, "takePhoto() called")
   val imageCapture = imageCapture ?: throw CameraNotReadyError()
 
   if (options.hasKey("flash")) {
@@ -60,15 +60,15 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
 
   val results = awaitAll(
     async(coroutineContext) {
-      Log.d(CameraView.REACT_CLASS, "Taking picture...")
+      Log.d(CameraView.TAG, "Taking picture...")
       val startCapture = System.nanoTime()
       val pic = imageCapture.takePicture(takePhotoExecutor)
       val endCapture = System.nanoTime()
-      Log.d(CameraView.REACT_CLASS_PERFORMANCE, "Finished image capture in ${(endCapture - startCapture) / 1_000_000}ms")
+      Log.d(CameraView.TAG_PERF, "Finished image capture in ${(endCapture - startCapture) / 1_000_000}ms")
       pic
     },
     async(Dispatchers.IO) {
-      Log.d(CameraView.REACT_CLASS, "Creating temp file...")
+      Log.d(CameraView.TAG, "Creating temp file...")
       File.createTempFile("mrousavy", ".jpg", context.cacheDir).apply { deleteOnExit() }
     }
   )
@@ -78,11 +78,11 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
   val exif: ExifInterface?
   @Suppress("BlockingMethodInNonBlockingContext")
   withContext(Dispatchers.IO) {
-    Log.d(CameraView.REACT_CLASS, "Saving picture to ${file.absolutePath}...")
+    Log.d(CameraView.TAG, "Saving picture to ${file.absolutePath}...")
     val milliseconds = measureTimeMillis {
       photo.save(file, lensFacing == CameraCharacteristics.LENS_FACING_FRONT)
     }
-    Log.d(CameraView.REACT_CLASS_PERFORMANCE, "Finished image saving in ${milliseconds}ms")
+    Log.d(CameraView.TAG_PERF, "Finished image saving in ${milliseconds}ms")
     // TODO: Read Exif from existing in-memory photo buffer instead of file?
     exif = if (skipMetadata) null else ExifInterface(file)
   }
@@ -98,9 +98,9 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
 
   photo.close()
 
-  Log.d(CameraView.REACT_CLASS, "Finished taking photo!")
+  Log.d(CameraView.TAG, "Finished taking photo!")
 
   val endFunc = System.nanoTime()
-  Log.d(CameraView.REACT_CLASS_PERFORMANCE, "Finished function execution in ${(endFunc - startFunc) / 1_000_000}ms")
+  Log.d(CameraView.TAG_PERF, "Finished function execution in ${(endFunc - startFunc) / 1_000_000}ms")
   return@coroutineScope map
 }

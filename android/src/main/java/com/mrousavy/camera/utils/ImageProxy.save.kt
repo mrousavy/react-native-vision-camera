@@ -66,7 +66,7 @@ fun ImageProxy.save(file: File, flipHorizontally: Boolean) {
         val milliseconds = measureTimeMillis {
           bytes = flipImage(bytes)
         }
-        Log.i(CameraView.REACT_CLASS_PERFORMANCE, "Flipping Image took $milliseconds ms.")
+        Log.i(CameraView.TAG_PERF, "Flipping Image took $milliseconds ms.")
       }
 
       val output = FileOutputStream(file)
