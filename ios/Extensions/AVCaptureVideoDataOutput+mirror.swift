@@ -16,4 +16,10 @@ extension AVCaptureVideoDataOutput {
       }
     }
   }
+  
+  var isMirrored: Bool {
+    return connections.contains { connection in
+      connection.isVideoMirrored
+    }
+  }
 }

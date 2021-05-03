@@ -45,6 +45,7 @@ class RecordingSession {
        videoSettings: [String: Any],
        audioSettings: [String: Any],
        pixelBufferFormat: OSType,
+       isVideoMirrored: Bool,
        completion: @escaping (AVAssetWriter.Status, Error?) -> Void) throws {
     do {
       assetWriter = try AVAssetWriter(outputURL: url, fileType: fileType)
@@ -57,7 +58,11 @@ class RecordingSession {
 
     audioWriter.expectsMediaDataInRealTime = true
     videoWriter.expectsMediaDataInRealTime = true
-    videoWriter.transform = CGAffineTransform(rotationAngle: .pi / 2)
+    if isVideoMirrored {
+      videoWriter.transform = CGAffineTransform(rotationAngle: -(.pi / 2))
+    } else {
+      videoWriter.transform = CGAffineTransform(rotationAngle: .pi / 2)
+    }
 
     bufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter, sourcePixelBufferAttributes: [
       kCVPixelBufferPixelFormatTypeKey as String: pixelBufferFormat,

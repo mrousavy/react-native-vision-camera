@@ -73,6 +73,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
                                                      videoSettings: videoSettings ?? [:],
                                                      audioSettings: audioSettings ?? [:],
                                                      pixelBufferFormat: pixelBufferFormat,
+                                                     isVideoMirrored: self.videoOutput!.isMirrored,
                                                      completion: onFinish)
 
         self.isRecording = true
