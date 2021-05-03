@@ -1,5 +1,5 @@
 //
-//  AVCaptureMovieFileOutput+mirror.swift
+//  AVCaptureVideoDataOutput+mirror.swift
 //  Cuvent
 //
 //  Created by Marc Rousavy on 18.01.21.
