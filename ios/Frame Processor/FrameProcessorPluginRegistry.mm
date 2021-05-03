@@ -22,6 +22,7 @@
 static BOOL _isValid = YES;
 + (void) markInvalid {
   _isValid = NO;
+  [[FrameProcessorPluginRegistry frameProcessorPlugins] removeAllObjects];
 }
 
 + (void) addFrameProcessorPlugin:(NSString*)name callback:(FrameProcessorPlugin)callback {
