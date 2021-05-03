@@ -6,6 +6,7 @@ import android.graphics.ImageFormat
 import android.graphics.Matrix
 import android.util.Log
 import androidx.camera.core.ImageProxy
+import com.mrousavy.camera.CameraView
 import com.mrousavy.camera.InvalidFormatError
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -61,12 +62,12 @@ fun ImageProxy.save(file: File, flipHorizontally: Boolean) {
       // copy image from buffer to byte array
       buffer.get(bytes)
 
-      val milliseconds = measureTimeMillis {
-        if (flipHorizontally) {
+      if (flipHorizontally) {
+        val milliseconds = measureTimeMillis {
           bytes = flipImage(bytes)
         }
+        Log.i(CameraView.REACT_CLASS_PERFORMANCE, "Flipping Image took $milliseconds ms.")
       }
-      Log.i("VISION_CAMERA", "Flipping Image took $milliseconds ms.")
 
       val output = FileOutputStream(file)
       output.write(bytes)

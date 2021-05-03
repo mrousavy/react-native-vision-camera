@@ -15,8 +15,6 @@ import kotlinx.coroutines.*
 import java.io.File
 import kotlin.system.measureTimeMillis
 
-private const val TAG = "CameraView.performance"
-
 @SuppressLint("UnsafeOptInUsageError")
 suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineScope {
   val startFunc = System.nanoTime()
@@ -66,7 +64,7 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
       val startCapture = System.nanoTime()
       val pic = imageCapture.takePicture(takePhotoExecutor)
       val endCapture = System.nanoTime()
-      Log.d(TAG, "Finished image capture in ${(endCapture - startCapture) / 1_000_000}ms")
+      Log.d(CameraView.REACT_CLASS_PERFORMANCE, "Finished image capture in ${(endCapture - startCapture) / 1_000_000}ms")
       pic
     },
     async(Dispatchers.IO) {
@@ -84,7 +82,7 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
     val milliseconds = measureTimeMillis {
       photo.save(file, lensFacing == CameraCharacteristics.LENS_FACING_FRONT)
     }
-    Log.d(TAG, "Finished image saving in ${milliseconds}ms")
+    Log.d(CameraView.REACT_CLASS_PERFORMANCE, "Finished image saving in ${milliseconds}ms")
     // TODO: Read Exif from existing in-memory photo buffer instead of file?
     exif = if (skipMetadata) null else ExifInterface(file)
   }
@@ -103,6 +101,6 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
   Log.d(CameraView.REACT_CLASS, "Finished taking photo!")
 
   val endFunc = System.nanoTime()
-  Log.d(TAG, "Finished function execution in ${(endFunc - startFunc) / 1_000_000}ms")
+  Log.d(CameraView.REACT_CLASS_PERFORMANCE, "Finished function execution in ${(endFunc - startFunc) / 1_000_000}ms")
   return@coroutineScope map
 }

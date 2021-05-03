@@ -379,6 +379,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
 
   companion object {
     const val REACT_CLASS = "CameraView"
+    const val REACT_CLASS_PERFORMANCE = "CameraView.performance"
 
     private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "fps", "hdr", "lowLightBoost")
 
