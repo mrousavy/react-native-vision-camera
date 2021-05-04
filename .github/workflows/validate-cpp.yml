@@ -14,18 +14,10 @@ on:
 
 jobs:
   lint:
-    name: cpplint
+    name: clang-format
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: reviewdog/action-cpplint@master
+      - uses: RafikFarhad/clang-format-github-action@v1
         with:
-          github_token: ${{ secrets.github_token }}
-          reporter: github-pr-review
-          flags: --linelength=230
-          targets: --recursive cpp android/src/main/cpp
-          filter: "-legal/copyright\
-            ,-readability/todo\
-            ,-build/namespaces\
-            ,-whitespace/comments\
-            "
+          sources: "**/*.h,**/*.cpp,**/*.m"
