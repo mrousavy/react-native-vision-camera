@@ -41,7 +41,7 @@ jobs:
         run: yarn install --frozen-lockfile --cwd ..
 
       - name: buildcache
-      - uses: mikehardy/buildcache-action@v1
+        uses: mikehardy/buildcache-action@v1
 
       - name: Setup Ruby (bundle)
         uses: ruby/setup-ruby@v1
