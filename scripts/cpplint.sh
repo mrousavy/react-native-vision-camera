@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if which cpplint >/dev/null; then
-  clang-format -style=file -i **/*.h,**/*.cpp,**/*.m,**/*.mm
+  cpplint --linelength=230 --filter=-legal/copyright,-readability/todo,-build/namespaces,-whitespace/comments --quiet --recursive cpp android/src/main/cpp
 else
-  echo "warning: clang-format not installed, download from https://clang.llvm.org/docs/ClangFormat.html"
+  echo "warning: cpplint not installed, download from https://github.com/cpplint/cpplint"
 fi
