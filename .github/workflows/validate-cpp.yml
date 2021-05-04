@@ -20,4 +20,4 @@ jobs:
       - uses: actions/checkout@v2
       - uses: RafikFarhad/clang-format-github-action@v1
         with:
-          sources: "**/*.h,**/*.cpp,**/*.m"
+          sources: "**/*.h,**/*.cpp,**/*.m,**/*.mm"
