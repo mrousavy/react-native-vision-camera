@@ -2,7 +2,7 @@
 name: "🐛 Bug report"
 about: Report a bug
 title: "🐛 "
-labels: bug
+labels: 🐛 bug
 assignees: ''
 
 ---
@@ -15,18 +15,6 @@ assignees: ''
         https://cuvent.github.io/react-native-vision-camera/docs/guides/troubleshooting
 -->
 
-
-## Type
-
-<!--
-    Replace the `[ ]` with a `[x]` where it fits:
--->
-
-* [ ] I'm cannot build my project with VisionCamera
-* [ ] I'm experiencing a full app crash
-* [ ] A feature is not working correctly
-* [ ] Other: __________________
-
 ## What
 
 <!--
@@ -34,19 +22,15 @@ assignees: ''
         You can also attach screenshots, GIFs or videos.
 -->
 
+### Logs
+
 <!--
-  If you are experiencing an Error, uncomment the following lines and add
-        the full error object (with `JSON.stringify(error)`) here:
+  Paste logs and error informations below (Metro Console, Xcode Logs, Android Logcat)
 -->
-
-<!--
-### Error
-
-```json
 
 ```
--->
 
+```
 
 ## Reproducable sample
 
@@ -61,10 +45,6 @@ assignees: ''
 ```
 
 ## Environment
-
-<!--
-    Replace the `[ ]` with a `[x]` where it fits, and fill in the versions from `package.json`
--->
 
 * Platform(s):
   * [ ] iOS

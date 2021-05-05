@@ -2,7 +2,7 @@
 name: "✨ Feature request"
 about: Suggest an idea for this project
 title: "✨ "
-labels: enhancement
+labels: ✨ enhancement
 assignees: ''
 
 ---
@@ -12,15 +12,6 @@ assignees: ''
                         Remember that you can use this project FOR FREE.
       Badly written feature requests are less likely to be picked up than well written ones.
 -->
-
-## Type
-
-<!--
-    Replace the `[ ]` with a `[x]` where it fits:
--->
-
-* [ ] Enhancement for an existing feature
-* [ ] An entirely new feature
 
 ## What
 

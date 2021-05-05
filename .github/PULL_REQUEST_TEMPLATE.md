@@ -20,15 +20,6 @@
     * This PR changes the configure() function to cache results.
 -->
 
-## Side-effects
-
-<!--
-  Change `[ ]` to `[x]` where it fits:
--->
-
-* [ ] This PR does not introduce any known side-effects.
-* [ ] This PR introduces the following side-effects: _______
-
 ## Tested on
 
 <!--
