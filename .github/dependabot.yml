@@ -14,5 +14,5 @@ updates:
     schedule:
       interval: "daily"
     labels:
-      - "dependencies"
-      - "android"
+      - "🛠 dependencies"
+      - "🤖 android"
