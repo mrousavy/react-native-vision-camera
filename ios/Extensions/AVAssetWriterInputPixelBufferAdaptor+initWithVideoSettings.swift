@@ -1,0 +1,30 @@
+//
+//  AVAssetWriterInputPixelBufferAdaptor+initWithVideoSettings.swift
+//  VisionCamera
+//
+//  Created by Marc Rousavy on 05.05.21.
+//  Copyright © 2021 Facebook. All rights reserved.
+//
+
+import Foundation
+import AVFoundation
+
+extension AVAssetWriterInputPixelBufferAdaptor {
+  /**
+   Convenience initializer to extract correct attributes from the given videoSettings.
+   */
+  convenience init(assetWriterInput: AVAssetWriterInput, withVideoSettings videoSettings: [String: Any]) {
+    var attributes: [String: Any] = [:]
+    
+    if let width = videoSettings[AVVideoWidthKey] as? NSNumber,
+       let height = videoSettings[AVVideoHeightKey] as? NSNumber {
+      attributes[kCVPixelBufferWidthKey as String] = width as CFNumber
+      attributes[kCVPixelBufferHeightKey as String] = height as CFNumber
+    }
+    
+    attributes[kCVPixelBufferPixelFormatTypeKey as String] = kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
+    
+    self.init(assetWriterInput: assetWriterInput, sourcePixelBufferAttributes: attributes)
+  }
+  
+}

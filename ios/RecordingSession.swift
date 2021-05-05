@@ -63,9 +63,7 @@ class RecordingSession {
       videoWriter.transform = CGAffineTransform(rotationAngle: .pi / 2)
     }
 
-    bufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter, sourcePixelBufferAttributes: [
-      kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange,
-    ])
+    bufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter, withVideoSettings: videoSettings)
 
     assetWriter.add(videoWriter)
     assetWriter.add(audioWriter)

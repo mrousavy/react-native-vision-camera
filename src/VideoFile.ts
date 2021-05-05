@@ -1,7 +1,7 @@
 import type { CameraCaptureError } from './CameraError';
 import type { TemporaryFile } from './TemporaryFile';
 
-export type VideoFileType = 'mov' | 'avci' | 'heic' | 'heif' | 'm4v' | 'mp4';
+export type VideoFileType = 'mov' | 'avci' | 'm4v' | 'mp4';
 
 export interface RecordVideoOptions {
   /**
