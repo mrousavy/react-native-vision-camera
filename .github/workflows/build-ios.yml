@@ -40,6 +40,9 @@ jobs:
       - name: Install node_modules for example/
         run: yarn install --frozen-lockfile --cwd ..
 
+      - name: Restore buildcache
+        uses: mikehardy/buildcache-action@v1
+
       - name: Setup Ruby (bundle)
         uses: ruby/setup-ruby@v1
         with:
@@ -61,6 +64,8 @@ jobs:
         run: bundle exec pod check || bundle exec pod install
       - name: Build App
         run: "xcodebuild \
+          CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ \
+          -derivedDataPath ios/build -UseModernBuildSystem=YES \
           -workspace VisionCameraExample.xcworkspace \
           -scheme VisionCameraExample \
           -sdk iphonesimulator \
