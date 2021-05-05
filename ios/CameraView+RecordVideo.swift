@@ -33,14 +33,6 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           fileType = AVFileType(withString: fileTypeOption)
         }
 
-        let settings = self.videoOutput?.videoSettings
-        var pixelBufferFormat = settings?[kCVPixelBufferPixelFormatTypeKey as String] as? OSType ?? kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
-        if let pixelFormat = options["pixelFormat"] as? String {
-          if pixelFormat != "native" {
-            pixelBufferFormat = try parsePixelBufferFormat(pixelFormat)
-          }
-        }
-
         // TODO: The startRecording() func cannot be async because RN doesn't allow
         //       both a callback and a Promise in a single function. Wait for TurboModules?
         //       This means that any errors that occur in this function have to be delegated through
@@ -72,7 +64,6 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
                                                      fileType: fileType,
                                                      videoSettings: videoSettings ?? [:],
                                                      audioSettings: audioSettings ?? [:],
-                                                     pixelBufferFormat: pixelBufferFormat,
                                                      isVideoMirrored: self.videoOutput!.isMirrored,
                                                      completion: onFinish)
 

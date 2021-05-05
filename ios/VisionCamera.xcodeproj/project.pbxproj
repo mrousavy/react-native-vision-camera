@@ -12,7 +12,6 @@
 		B82FBA962614B69D00909718 /* RCTBridge+runOnJS.mm in Sources */ = {isa = PBXBuildFile; fileRef = B82FBA952614B69D00909718 /* RCTBridge+runOnJS.mm */; };
 		B84760A62608EE7C004C3180 /* FrameHostObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = B84760A52608EE7C004C3180 /* FrameHostObject.mm */; };
 		B84760DF2608F57D004C3180 /* CameraQueues.swift in Sources */ = {isa = PBXBuildFile; fileRef = B84760DE2608F57D004C3180 /* CameraQueues.swift */; };
-		B85C1F1F263EA64C0053D4B7 /* ParsePixelBufferFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85C1F1E263EA64C0053D4B7 /* ParsePixelBufferFormat.swift */; };
 		B86DC971260E2D5200FB17B2 /* AVAudioSession+trySetAllowHaptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = B86DC970260E2D5200FB17B2 /* AVAudioSession+trySetAllowHaptics.swift */; };
 		B86DC974260E310600FB17B2 /* CameraView+AVAudioSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B86DC973260E310600FB17B2 /* CameraView+AVAudioSession.swift */; };
 		B86DC977260E315100FB17B2 /* CameraView+AVCaptureSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B86DC976260E315100FB17B2 /* CameraView+AVCaptureSession.swift */; };
@@ -83,7 +82,6 @@
 		B84760A22608EE38004C3180 /* FrameHostObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameHostObject.h; sourceTree = "<group>"; };
 		B84760A52608EE7C004C3180 /* FrameHostObject.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameHostObject.mm; sourceTree = "<group>"; };
 		B84760DE2608F57D004C3180 /* CameraQueues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraQueues.swift; sourceTree = "<group>"; };
-		B85C1F1E263EA64C0053D4B7 /* ParsePixelBufferFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParsePixelBufferFormat.swift; sourceTree = "<group>"; };
 		B86DC970260E2D5200FB17B2 /* AVAudioSession+trySetAllowHaptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAudioSession+trySetAllowHaptics.swift"; sourceTree = "<group>"; };
 		B86DC973260E310600FB17B2 /* CameraView+AVAudioSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraView+AVAudioSession.swift"; sourceTree = "<group>"; };
 		B86DC976260E315100FB17B2 /* CameraView+AVCaptureSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraView+AVCaptureSession.swift"; sourceTree = "<group>"; };
@@ -227,7 +225,6 @@
 				B887517E25E0102000DB86D6 /* AVCaptureDevice.FlashMode+descriptor.swift */,
 				B887517F25E0102000DB86D6 /* AVCaptureDevice.Format.AutoFocusSystem+descriptor.swift */,
 				B8DB3BCB263DC97E004C18D7 /* AVFileType+descriptor.swift */,
-				B85C1F1E263EA64C0053D4B7 /* ParsePixelBufferFormat.swift */,
 			);
 			path = Parsers;
 			sourceTree = "<group>";
@@ -401,7 +398,6 @@
 				B88751A025E0102000DB86D6 /* AVAuthorizationStatus+descriptor.swift in Sources */,
 				B80C0E00260BDDF7001699AB /* FrameProcessorPluginRegistry.mm in Sources */,
 				B887519C25E0102000DB86D6 /* AVCaptureDevice.TorchMode+descriptor.swift in Sources */,
-				B85C1F1F263EA64C0053D4B7 /* ParsePixelBufferFormat.swift in Sources */,
 				B8994E6C263F03E100069589 /* JSIUtils.mm in Sources */,
 				B88751A525E0102000DB86D6 /* CameraView+Focus.swift in Sources */,
 				B86DC971260E2D5200FB17B2 /* AVAudioSession+trySetAllowHaptics.swift in Sources */,

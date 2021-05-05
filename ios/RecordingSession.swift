@@ -44,7 +44,6 @@ class RecordingSession {
        fileType: AVFileType,
        videoSettings: [String: Any],
        audioSettings: [String: Any],
-       pixelBufferFormat: OSType,
        isVideoMirrored: Bool,
        completion: @escaping (AVAssetWriter.Status, Error?) -> Void) throws {
     do {
@@ -65,7 +64,7 @@ class RecordingSession {
     }
 
     bufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter, sourcePixelBufferAttributes: [
-      kCVPixelBufferPixelFormatTypeKey as String: pixelBufferFormat,
+      kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange,
     ])
 
     assetWriter.add(videoWriter)
