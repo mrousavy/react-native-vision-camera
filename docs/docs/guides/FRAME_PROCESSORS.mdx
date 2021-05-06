@@ -6,7 +6,6 @@ sidebar_label: Frame Processors
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-<!-- TODO: Demo of QR code scanning or smth -->
 <div>
   <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535" style={{ float: 'right' }}>
     <image href={useBaseUrl("img/frame-processors.gif")} x="18" y="33" width="247" height="469"  />
@@ -53,6 +52,12 @@ Because of the Frame Processor API's extensibility, you can even create your **c
   <img src={useBaseUrl("img/snap-code.png")} height={150} />
   <img src={useBaseUrl("img/appclip.png")} height={150} style={{ marginLeft: 50 }} />
 </div>
+
+<br />
+
+:::note
+Frame Processors require [**react-native-reanimated**](https://github.com/software-mansion/react-native-reanimated) 2.1.0 or higher.
+:::
 
 ### Interacting with Frame Processors
 
