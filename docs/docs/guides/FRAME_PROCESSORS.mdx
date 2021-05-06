@@ -9,7 +9,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 <!-- TODO: Demo of QR code scanning or smth -->
 <div>
   <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535" style={{ float: 'right' }}>
-    <image href={useBaseUrl("img/demo.gif")} x="18" y="33" width="247" height="469"  />
+    <image href={useBaseUrl("img/frame-processors.gif")} x="18" y="33" width="247" height="469"  />
     <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
   </svg>
 </div>
@@ -74,9 +74,11 @@ const boxOverlayStyle = useAnimatedStyle(() => ({
 }), [catBounds])
 
 return (
-  <Camera {...cameraProps} frameProcessor={frameProcessor} />
-  // draws a red rectangle on the screen which surrounds the cat
-  <Reanimated.View style={boxOverlayStyle} />
+  <View>
+    <Camera {...cameraProps} frameProcessor={frameProcessor} />
+    // draws a red rectangle on the screen which surrounds the cat
+    <Reanimated.View style={boxOverlayStyle} />
+  </View>
 )
 ```
 

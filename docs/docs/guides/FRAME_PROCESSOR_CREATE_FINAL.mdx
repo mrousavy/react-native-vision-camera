@@ -4,19 +4,9 @@ title: Finish creating your Frame Processor Plugin
 sidebar_label: Finish creating your Frame Processor Plugin
 ---
 
-import useBaseUrl from '@docusaurus/useBaseUrl';
-
-<!-- TODO: Demo of QR code scanning or smth -->
-<div>
-  <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535" style={{ float: 'right' }}>
-    <image href={useBaseUrl("img/demo.gif")} x="18" y="33" width="247" height="469"  />
-    <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
-  </svg>
-</div>
-
 ## Make your Frame Processor Plugin available to JS
 
-To make the Frame Processor Plugin available to the Frame Processor Worklet Runtime, create the following function in JS/TS:
+To make the Frame Processor Plugin available to the Frame Processor Worklet Runtime, create the following wrapper function in JS/TS:
 
 ```ts
 import type { Frame } from 'react-native-vision-camera';
