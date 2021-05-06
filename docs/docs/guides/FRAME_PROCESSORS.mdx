@@ -68,6 +68,7 @@ const frameProcessor = useFrameProcessor((frame) => {
 }, [])
 
 const boxOverlayStyle = useAnimatedStyle(() => ({
+  position: 'absolute',
   borderWidth: 1,
   borderColor: 'red',
   ...catBounds.value
