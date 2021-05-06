@@ -351,7 +351,17 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   /**
    * @internal
    */
+  private assertFrameProcessorsEnabled(): void {
+    // @ts-expect-error JSI functions aren't typed
+    if (global.setFrameProcessor == null || global.unsetFrameProcessor == null)
+      throw new Error('Frame Processors are not enabled. Make sure you install react-native-reanimated 2.1.0 or above!');
+  }
+
+  /**
+   * @internal
+   */
   componentWillUnmount(): void {
+    this.assertFrameProcessorsEnabled();
     // @ts-expect-error JSI functions aren't typed
     global.unsetFrameProcessor(this.handle);
   }
@@ -361,6 +371,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    */
   componentDidUpdate(): void {
     if (this.props.frameProcessor !== this.lastFrameProcessor) {
+      this.assertFrameProcessorsEnabled();
       // frameProcessor argument changed. Update native to reflect the change.
       if (this.props.frameProcessor != null) {
         // 1. Spawn threaded JSI Runtime (if not already done)
