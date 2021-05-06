@@ -32,13 +32,6 @@ type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>;
 const CameraModule = NativeModules.CameraView;
 if (CameraModule == null) console.error("Camera: Native Module 'CameraView' was null! Did you run pod install?");
 
-interface CameraState {
-  /**
-   * The actual native ID for the camera device.
-   */
-  cameraId?: string;
-}
-
 //#region Camera Component
 /**
  * ### A powerful `<Camera>` component.
@@ -69,7 +62,7 @@ interface CameraState {
  *
  * @component
  */
-export class Camera extends React.PureComponent<CameraProps, CameraState> {
+export class Camera extends React.PureComponent<CameraProps> {
   /**
    * @internal
    */
@@ -87,7 +80,6 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    */
   constructor(props: CameraProps) {
     super(props);
-    this.state = { cameraId: undefined };
     this.onInitialized = this.onInitialized.bind(this);
     this.onError = this.onError.bind(this);
     this.ref = React.createRef<RefType>();
@@ -341,16 +333,6 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   /**
    * @internal
    */
-  static getDerivedStateFromProps(props: CameraProps, state: CameraState): CameraState | null {
-    const newCameraId = props.device.id;
-    if (state.cameraId !== newCameraId) return { ...state, cameraId: newCameraId };
-
-    return null;
-  }
-
-  /**
-   * @internal
-   */
   private assertFrameProcessorsEnabled(): void {
     // @ts-expect-error JSI functions aren't typed
     if (global.setFrameProcessor == null || global.unsetFrameProcessor == null)
@@ -394,19 +376,9 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * @internal
    */
   public render(): React.ReactNode {
-    if (this.state.cameraId == null) throw new Error('CameraID is null! Did you pass a valid `device`?');
     // We remove the big `device` object from the props because we only need to pass `cameraId` to native.
-    const { device: _, frameProcessor: __, ...props } = this.props;
-
-    return (
-      <NativeCameraView
-        {...props}
-        cameraId={this.state.cameraId}
-        ref={this.ref}
-        onInitialized={this.onInitialized}
-        onError={this.onError}
-      />
-    );
+    const { device, frameProcessor: _, ...props } = this.props;
+    return <NativeCameraView {...props} cameraId={device.id} ref={this.ref} onInitialized={this.onInitialized} onError={this.onError} />;
   }
 }
 //#endregion
