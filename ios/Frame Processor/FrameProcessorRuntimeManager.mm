@@ -25,11 +25,12 @@
 #import <RNReanimated/RuntimeDecorator.h>
 #import <RNReanimated/REAIOSScheduler.h>
 #import <RNReanimated/REAIOSErrorHandler.h>
+#define ENABLE_FRAME_PROCESSORS
 #else
-#error Your react-native-reanimated version is not compatible with VisionCamera. Make sure you're using reanimated 2.0.2 or above!
+#error Your react-native-reanimated version is not compatible with VisionCamera. Make sure you're using reanimated 2.1.0 or above!
 #endif
 #else
-#error The NativeReanimatedModule.h header could not be found, make sure you install react-native-reanimated!
+#warning The NativeReanimatedModule.h header could not be found, Frame Processors are disabled. If you want to use Frame Processors, make sure you install react-native-reanimated!
 #endif
 
 #import "../../cpp/MakeJSIRuntime.h"
@@ -48,13 +49,16 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 @end
 
 @implementation FrameProcessorRuntimeManager {
+#ifdef ENABLE_FRAME_PROCESSORS
   std::unique_ptr<reanimated::RuntimeManager> runtimeManager;
+#endif
   __weak RCTBridge* weakBridge;
 }
 
 - (instancetype) initWithBridge:(RCTBridge*)bridge {
   self = [super init];
   if (self) {
+#ifdef ENABLE_FRAME_PROCESSORS
     NSLog(@"FrameProcessorBindings: Creating Runtime Manager...");
     weakBridge = bridge;
     auto runtime = vision::makeJSIRuntime();
@@ -94,11 +98,15 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
     }
     [FrameProcessorPluginRegistry markInvalid];
     NSLog(@"FrameProcessorBindings: Frame Processor plugins installed!");
+#else
+    NSLog(@"Reanimated not found, Frame Processors are disabled.");
+#endif
   }
   return self;
 }
 
 - (void) installFrameProcessorBindings {
+#ifdef ENABLE_FRAME_PROCESSORS
   if (!weakBridge) {
     NSLog(@"FrameProcessorBindings: Failed to install Frame Processor Bindings - bridge was null!");
     return;
@@ -168,6 +176,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                                                                                            unsetFrameProcessor));
 
   NSLog(@"FrameProcessorBindings: Finished installing bindings.");
+#endif
 }
 
 @end
