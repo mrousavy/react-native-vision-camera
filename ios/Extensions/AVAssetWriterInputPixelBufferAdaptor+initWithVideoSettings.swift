@@ -22,6 +22,7 @@ extension AVAssetWriterInputPixelBufferAdaptor {
       attributes[kCVPixelBufferHeightKey as String] = height as CFNumber
     }
     
+    // TODO: Is "Bi-Planar Y'CbCr 8-bit 4:2:0 full-range" the best CVPixelFormatType? How can I find natively supported ones?
     attributes[kCVPixelBufferPixelFormatTypeKey as String] = kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
     
     self.init(assetWriterInput: assetWriterInput, sourcePixelBufferAttributes: attributes)
