@@ -20,17 +20,19 @@
 #import <ReactCommon/RCTTurboModuleManager.h>
 
 #if __has_include(<RNReanimated/NativeReanimatedModule.h>)
-#if __has_include(<RNReanimated/RuntimeManager.h>)
-#import <RNReanimated/RuntimeManager.h>
-#import <RNReanimated/RuntimeDecorator.h>
-#import <RNReanimated/REAIOSScheduler.h>
-#import <RNReanimated/REAIOSErrorHandler.h>
-#define ENABLE_FRAME_PROCESSORS
+  #if __has_include(<RNReanimated/RuntimeManager.h>)
+    #ifndef VISION_CAMERA_DISABLE_FRAME_PROCESSORS
+    #import <RNReanimated/RuntimeManager.h>
+    #import <RNReanimated/RuntimeDecorator.h>
+    #import <RNReanimated/REAIOSScheduler.h>
+    #import <RNReanimated/REAIOSErrorHandler.h>
+    #define ENABLE_FRAME_PROCESSORS
+    #endif
+  #else
+    #warning Your react-native-reanimated version is not compatible with VisionCamera, Frame Processors are disabled. Make sure you're using reanimated 2.1.0 or above!
+  #endif
 #else
-#error Your react-native-reanimated version is not compatible with VisionCamera. Make sure you're using reanimated 2.1.0 or above!
-#endif
-#else
-#warning The NativeReanimatedModule.h header could not be found, Frame Processors are disabled. If you want to use Frame Processors, make sure you install react-native-reanimated!
+  #warning The NativeReanimatedModule.h header could not be found, Frame Processors are disabled. If you want to use Frame Processors, make sure you install react-native-reanimated!
 #endif
 
 #import "../../cpp/MakeJSIRuntime.h"
