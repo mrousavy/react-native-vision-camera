@@ -336,16 +336,6 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
     }
   }
 
-  fun getAvailablePhotoCodecs(): WritableArray {
-    // TODO
-    return Arguments.createArray()
-  }
-
-  fun getAvailableVideoCodecs(): WritableArray {
-    // TODO
-    return Arguments.createArray()
-  }
-
   override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
     super.onLayout(changed, left, top, right, bottom)
     Log.i(TAG, "onLayout($changed, $left, $top, $right, $bottom) was called! (Width: $width, Height: $height)")

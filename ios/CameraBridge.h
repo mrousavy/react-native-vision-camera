@@ -9,8 +9,19 @@
 #pragma once
 
 #import <Foundation/Foundation.h>
+
 #import <React/RCTViewManager.h>
 #import <React/RCTUIManager.h>
+
+#import "FrameProcessorCallback.h"
+#import "FrameProcessorRuntimeManager.h"
+#import "RCTBridge+runOnJS.h"
+
+#ifdef VISION_CAMERA_DISABLE_FRAME_PROCESSORS
+static bool enableFrameProcessors = false;
+#else
+static bool enableFrameProcessors = true;
+#endif
 
 @interface CameraBridge: RCTViewManager
 

@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { StyleSheet, View, Image, ActivityIndicator, PermissionsAndroid, Platform } from 'react-native';
 import { Navigation, NavigationFunctionComponent, OptionsModalPresentationStyle } from 'react-native-navigation';
-import Video, { OnLoadData } from 'react-native-video';
+import Video, { LoadError, OnLoadData } from 'react-native-video';
 import { SAFE_AREA_PADDING } from './Constants';
 import { useIsForeground } from './hooks/useIsForeground';
 import { useIsScreenFocused } from './hooks/useIsScreenFocused';
@@ -58,6 +58,9 @@ export const Media: NavigationFunctionComponent<MediaProps> = ({ componentId, ty
     console.log('media has loaded.');
     setHasMediaLoaded(true);
   }, []);
+  const onMediaLoadError = useCallback((error: LoadError) => {
+    console.log(`failed to load media: ${JSON.stringify(error)}`);
+  }, []);
 
   const onSavePressed = useCallback(async () => {
     try {
@@ -104,6 +107,7 @@ export const Media: NavigationFunctionComponent<MediaProps> = ({ componentId, ty
           ignoreSilentSwitch="ignore"
           onReadyForDisplay={onMediaLoadEnd}
           onLoad={onMediaLoad}
+          onError={onMediaLoadError}
         />
       )}
 

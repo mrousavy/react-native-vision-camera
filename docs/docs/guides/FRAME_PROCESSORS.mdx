@@ -6,14 +6,10 @@ sidebar_label: Frame Processors
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-:::warning
-FRAME PROCESSORS ARE STILL WORK IN PROGRESS - SEE [#2](https://github.com/cuvent/react-native-vision-camera/pull/2)
-:::
-
 <!-- TODO: Demo of QR code scanning or smth -->
 <div>
   <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535" style={{ float: 'right' }}>
-    <image href={useBaseUrl("img/demo.gif")} x="18" y="33" width="247" height="469"  />
+    <image href={useBaseUrl("img/frame-processors.gif")} x="18" y="33" width="247" height="469"  />
     <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
   </svg>
 </div>
@@ -21,48 +17,147 @@ FRAME PROCESSORS ARE STILL WORK IN PROGRESS - SEE [#2](https://github.com/cuvent
 ### What are frame processors?
 
 Frame processors are functions that are written in JavaScript (or TypeScript) which can be used to **process frames the camera "sees"**.
+Inside those functions you can call **Frame Processor Plugins**, which are high performance native functions specifically designed for certain use-cases.
 
-For example, you might want to create a QR code scanner _without ever writing native code while still achieving almost-native performance_. Since you can write the scanning part yourself, you can implement a custom QR code system like the one Snapchat uses for Snap-codes.
+For example, you might want to create a QR code scanner **without ever writing native code**, while still **achieving almost-native performance**:
 
-<div align="center">
-  <img src={useBaseUrl("img/snap-code.png")} width="15%" />
-</div>
-<br />
+```jsx
+function App() {
+  const frameProcessor = useFrameProcessor((frame) => {
+    'worklet'
+    const qrCodes = scanQRCodes(frame)
+    console.log(`Detected QR Codes: ${qrCodes}`)
+  }, [])
+
+  return (
+    <Camera
+      {...cameraProps}
+      frameProcessor={frameProcessor}
+    />
+  )
+}
+```
 
 Frame processors are by far not limited to QR code detection, other examples include:
 
 * **AI** for **facial recognition**
 * **AI** for **object detection**
-* Using **Tensorflow**, **MLKit Vision** or other libraries (if they provide React Native JSI bindings in the form of "react-native-vision-camera plugins")
-* Creating **realtime video-chats** since you can directly send the camera frames over the network
-* Creating **snapchat-like filters**, e.g. draw a dog-mask filter over the user's face (WIP)
+* Using **Tensorflow**, **MLKit Vision** or other libraries
+* Creating **realtime video-chats** using **WebRTC** to directly send the camera frames over the network
+* Creating **snapchat-like filters**, e.g. draw a dog-mask filter over the user's face
 * Creating **color filters** with depth-detection
-* Using **custom C++ processors** exposed to JS for maximum performance
+
+Because of the Frame Processor API's extensibility, you can even create your **custom code-scanner plugins** - for example you might want to support a custom code design such as **Snapchat's SnapCodes** or **Apple's AppClips**:
+
+<div align="center">
+  <img src={useBaseUrl("img/snap-code.png")} height={150} />
+  <img src={useBaseUrl("img/appclip.png")} height={150} style={{ marginLeft: 50 }} />
+</div>
+
+### Interacting with Frame Processors
+
+Since Frame Processors run in Worklets, you can also easily read from, and assign to [**Shared Values**](https://docs.swmansion.com/react-native-reanimated/docs/shared-values):
+
+```tsx {6}
+// represents position of the cat on the screen 🐈
+const catBounds = useSharedValue({ top: 0, left: 0, right: 0, bottom: 0 })
+
+const frameProcessor = useFrameProcessor((frame) => {
+  'worklet'
+  catBounds.value = scanFrameForCat(frame)
+}, [])
+
+const boxOverlayStyle = useAnimatedStyle(() => ({
+  borderWidth: 1,
+  borderColor: 'red',
+  ...catBounds.value
+}), [catBounds])
+
+return (
+  <View>
+    <Camera {...cameraProps} frameProcessor={frameProcessor} />
+    // draws a red rectangle on the screen which surrounds the cat
+    <Reanimated.View style={boxOverlayStyle} />
+  </View>
+)
+```
+
+And you can also call back to the React-JS thread using [`runOnJS`](https://docs.swmansion.com/react-native-reanimated/docs/api/runOnJS):
+
+```tsx {9}
+const onQRCodeDetected = useCallback((qrCode: string) => {
+  navigation.push("ProductPage", { productId: qrCode })
+}, [])
+
+const frameProcessor = useFrameProcessor((frame) => {
+  'worklet'
+  const qrCodes = scanQRCodes(frame)
+  if (qrCodes.length > 0) {
+    runOnJS(onQRCodeDetected)(qrCodes[0])
+  }
+}, [onQRCodeDetected])
+```
 
 ### Technical
 
-Frame processors are JS functions that will be **workletized** using [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated). They are created on a **separate thread** using a separate Hermes/JSC Runtime and are **invoked synchronously** (using JSI) without ever going over the bridge.
+**Frame Processors** are JS functions that will be **workletized** using [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated). They are created on a **custom camera thread** using a separate JavaScript Runtime (_"VisionCamera JS-Runtime"_) and are **invoked synchronously** (using JSI) without ever going over the bridge.
 
-### Example
+**Frame Processor Plugins** are native functions (written in Objective-C, Swift, C++, Java or Kotlin) that are injected into the VisionCamera JS-Runtime. They can be **synchronously called** from your JS Frame Processors (using JSI) without ever going over the bridge.
 
-```tsx
-function App() {
-  const frameProcessor = useFrameProcessor((frame) => {
-    const qrCodes = scanQrCodes(frame)
-    console.log(qrCodes)
-  }, [])
+> Learn how to [**create Frame Processor Plugins**](frame-processors-plugins-overview)
 
-  return (
-    <Camera frameProcessor={frameProcessor} {...cameraProps} />
-  )
-}
+### Using Frame Processor Plugins
+
+Frame Processor Plugins are distributed through npm. To install the [**vision-camera-qrcode-scanner**](https://github.com/mrousavy/vision-camera-qrcode-scanner) plugin, run:
+
+```terminal
+npm i vision-camera-qrcode-scanner
+cd ios && pod install
 ```
 
-### Plugins
+Then add it to your `babel.config.js`. For the QR Code Scanner, this will be `__scanQRCodes`:
 
-> TODO
+```js {6}
+module.exports = {
+  plugins: [
+    [
+      'react-native-reanimated/plugin',
+      {
+        globals: ['__scanQRCodes'],
+      },
+    ],
+```
 
+:::note
+You have to restart metro-bundler for changes in the `babel.config.js` file to take effect.
+:::
+
+That's it! 🎉 Now you can use it:
+
+```ts
+const frameProcessor = useFrameProcessor((frame: Frame) => {
+  'worklet'
+  const codes = scanQRCodes(frame)
+  // ...
+}, [])
+```
+
+Check out [**Frame Processor community plugins**](frame-processor-plugin-list) to discover plugins!
+
+### Disabling Frame Processors
+
+The Frame Processor API spawns a secondary JavaScript Runtime which consumes a small amount of extra CPU and RAM. If you're not using Frame Processors at all, you can disable them by setting the `VISION_CAMERA_DISABLE_FRAME_PROCESSORS` flag. Inside your `project.pbxproj`, find the `GCC_PREPROCESSOR_DEFINITIONS` parameter and add the flag:
+
+```txt {3}
+GCC_PREPROCESSOR_DEFINITIONS = (
+  "DEBUG=1",
+  "VISION_CAMERA_DISABLE_FRAME_PROCESSORS=1",
+  "$(inherited)",
+);
+```
+
+Make sure to add this to your Debug-, as well as your Release-configuration.
 
 <br />
 
-#### 🚀 Next section: [Zooming with Reanimated](animated)
+#### 🚀 Next section: [Zooming with Reanimated](animated) (or [creating a Frame Processor Plugin](frame-processors-plugins-overview))

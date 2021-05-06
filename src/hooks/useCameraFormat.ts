@@ -22,6 +22,7 @@ export function useCameraFormat(device?: CameraDevice, cameraViewSize?: Size): C
     const bestFormat = sorted[0];
     if (bestFormat == null) return [];
     const bestFormatResolution = bestFormat.photoHeight * bestFormat.photoWidth;
+
     return sorted.filter((f) => {
       // difference in resolution in percent (e.g. 100x100 is 0.5 of 200x200)
       const resolutionDiff = (bestFormatResolution - f.photoHeight * f.photoWidth) / bestFormatResolution;

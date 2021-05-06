@@ -98,18 +98,35 @@ extension CameraView {
       photoOutput!.mirror()
     }
 
-    // Video Output
-    if let movieOutput = self.movieOutput {
-      captureSession.removeOutput(movieOutput)
+    // Video Output + Frame Processor
+    if let videoOutput = self.videoOutput {
+      captureSession.removeOutput(videoOutput)
+      self.videoOutput = nil
     }
-    movieOutput = AVCaptureMovieFileOutput()
-    guard captureSession.canAddOutput(movieOutput!) else {
-      return invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "movie-output")))
+    ReactLogger.log(level: .info, message: "Adding Video Data output...")
+    videoOutput = AVCaptureVideoDataOutput()
+    guard captureSession.canAddOutput(videoOutput!) else {
+      return invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "video-output")))
     }
-    captureSession.addOutput(movieOutput!)
+    videoOutput!.setSampleBufferDelegate(self, queue: videoQueue)
+    videoOutput!.alwaysDiscardsLateVideoFrames = true
+    captureSession.addOutput(videoOutput!)
     if videoDeviceInput!.device.position == .front {
-      movieOutput!.mirror()
+      videoOutput!.mirror()
     }
+
+    // Audio Output
+    if let audioOutput = self.audioOutput {
+      captureSession.removeOutput(audioOutput)
+      self.audioOutput = nil
+    }
+    ReactLogger.log(level: .info, message: "Adding Audio Data output...")
+    audioOutput = AVCaptureAudioDataOutput()
+    guard captureSession.canAddOutput(audioOutput!) else {
+      return invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "audio-output")))
+    }
+    audioOutput!.setSampleBufferDelegate(self, queue: audioQueue)
+    captureSession.addOutput(audioOutput!)
 
     invokeOnInitialized()
     isReady = true

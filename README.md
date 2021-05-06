@@ -41,7 +41,7 @@
 * Photo, Video and Snapshot capture
 * Customizable devices and multi-cameras (smoothly zoom out to "fish-eye" camera)
 * Customizable FPS
-* Frame Processors (JS worklets to run QR-Code scanning, facial recognition, AI object detection, realtime video chats and more) (**Work in progress: [#2](https://github.com/cuvent/react-native-vision-camera/pull/2)**)
+* Frame Processors (JS worklets to run QR-Code scanning, facial recognition, AI object detection, realtime video chats and more)
 * Smooth zooming (Reanimated)
 * Fast pause and resume
 * HDR & Night modes

@@ -1,10 +1,10 @@
 import React from 'react';
 import { requireNativeComponent, NativeModules, NativeSyntheticEvent, findNodeHandle, NativeMethods, Platform } from 'react-native';
-import type { CameraPhotoCodec, CameraVideoCodec } from './CameraCodec';
 import type { CameraDevice } from './CameraDevice';
 import type { ErrorWithCause } from './CameraError';
 import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError';
 import type { CameraProps } from './CameraProps';
+import type { Frame } from './Frame';
 import type { PhotoFile, TakePhotoOptions } from './PhotoFile';
 import type { Point } from './Point';
 import type { TakeSnapshotOptions } from './Snapshot';
@@ -19,7 +19,7 @@ interface OnErrorEvent {
   message: string;
   cause?: ErrorWithCause;
 }
-type NativeCameraViewProps = Omit<CameraProps, 'device' | 'onInitialized' | 'onError'> & {
+type NativeCameraViewProps = Omit<CameraProps, 'device' | 'onInitialized' | 'onError' | 'frameProcessor'> & {
   cameraId: string;
   onInitialized?: (event: NativeSyntheticEvent<void>) => void;
   onError?: (event: NativeSyntheticEvent<OnErrorEvent>) => void;
@@ -78,6 +78,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * @internal
    */
   displayName = Camera.displayName;
+  private lastFrameProcessor: ((frame: Frame) => void) | undefined;
 
   private readonly ref: React.RefObject<RefType>;
 
@@ -90,6 +91,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     this.onInitialized = this.onInitialized.bind(this);
     this.onError = this.onError.bind(this);
     this.ref = React.createRef<RefType>();
+    this.lastFrameProcessor = undefined;
   }
 
   private get handle(): number | null {
@@ -232,39 +234,6 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
       throw tryParseNativeCameraError(e);
     }
   }
-
-  /**
-   * Get a list of video codecs the current camera supports.  Returned values are ordered by efficiency (descending).
-   *
-   * This function can only be called after the camera has been initialized,
-   * so only use this after the {@linkcode onInitialized | onInitialized()} event has fired.
-   *
-   * @platform iOS
-   * @throws {@linkcode CameraRuntimeError} When any kind of error occured while getting available video codecs. Use the {@linkcode CameraRuntimeError.code | code} property to get the actual error
-   */
-  public async getAvailableVideoCodecs(): Promise<CameraVideoCodec[]> {
-    try {
-      return await CameraModule.getAvailableVideoCodecs(this.handle);
-    } catch (e) {
-      throw tryParseNativeCameraError(e);
-    }
-  }
-  /**
-   * Get a list of photo codecs the current camera supports. Returned values are ordered by efficiency (descending).
-   *
-   * This function can only be called after the camera has been initialized,
-   * so only use this after the {@linkcode onInitialized | onInitialized()} event has fired.
-   *
-   * @platform iOS
-   * @throws {@linkcode CameraRuntimeError} When any kind of error occured while getting available photo codecs. Use the {@linkcode CameraRuntimeError.code | code} property to get the actual error
-   */
-  public async getAvailablePhotoCodecs(): Promise<CameraPhotoCodec[]> {
-    try {
-      return await CameraModule.getAvailablePhotoCodecs(this.handle);
-    } catch (e) {
-      throw tryParseNativeCameraError(e);
-    }
-  }
   //#endregion
 
   //#region Static Functions (NativeModule)
@@ -382,11 +351,53 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   /**
    * @internal
    */
-  public render(): React.ReactNode {
-    if (this.state.cameraId == null) throw new Error('CameraId was null! Did you pass a valid `device`?');
+  private assertFrameProcessorsEnabled(): void {
+    // @ts-expect-error JSI functions aren't typed
+    if (global.setFrameProcessor == null || global.unsetFrameProcessor == null)
+      throw new Error('Frame Processors are not enabled. Make sure you install react-native-reanimated 2.1.0 or above!');
+  }
 
+  /**
+   * @internal
+   */
+  componentWillUnmount(): void {
+    this.assertFrameProcessorsEnabled();
+    // @ts-expect-error JSI functions aren't typed
+    global.unsetFrameProcessor(this.handle);
+  }
+
+  /**
+   * @internal
+   */
+  componentDidUpdate(): void {
+    if (this.props.frameProcessor !== this.lastFrameProcessor) {
+      this.assertFrameProcessorsEnabled();
+      // frameProcessor argument changed. Update native to reflect the change.
+      if (this.props.frameProcessor != null) {
+        // 1. Spawn threaded JSI Runtime (if not already done)
+        // 2. Add video data output to Camera stream (if not already done)
+        // 3. Workletize the frameProcessor and prepare it for being called with frames
+        // @ts-expect-error JSI functions aren't typed
+        global.setFrameProcessor(this.handle, this.props.frameProcessor);
+      } else {
+        // 1. Destroy the threaded runtime
+        // 2. remove the frame processor
+        // 3. Remove the video data output
+        // @ts-expect-error JSI functions aren't typed
+        global.unsetFrameProcessor(this.handle);
+      }
+      this.lastFrameProcessor = this.props.frameProcessor;
+    }
+  }
+
+  /**
+   * @internal
+   */
+  public render(): React.ReactNode {
+    if (this.state.cameraId == null) throw new Error('CameraID is null! Did you pass a valid `device`?');
     // We remove the big `device` object from the props because we only need to pass `cameraId` to native.
-    const { device: _, ...props } = this.props;
+    const { device: _, frameProcessor: __, ...props } = this.props;
+
     return (
       <NativeCameraView
         {...props}

@@ -35,6 +35,7 @@ private let propsThatRequireDeviceReconfiguration = ["fps",
 public final class CameraView: UIView {
   // pragma MARK: React Properties
 
+  // pragma MARK: Exported Properties
   // props that require reconfiguring
   @objc var cameraId: NSString?
   @objc var enableDepthData = false
@@ -44,6 +45,7 @@ public final class CameraView: UIView {
   // props that require format reconfiguring
   @objc var format: NSDictionary?
   @objc var fps: NSNumber?
+  @objc var frameProcessorFps: NSNumber = 1.0
   @objc var hdr: NSNumber? // nullable bool
   @objc var lowLightBoost: NSNumber? // nullable bool
   @objc var colorSpace: NSString?
@@ -75,17 +77,23 @@ public final class CameraView: UIView {
   // Inputs
   internal var videoDeviceInput: AVCaptureDeviceInput?
   internal var audioDeviceInput: AVCaptureDeviceInput?
-  // Outputs
   internal var photoOutput: AVCapturePhotoOutput?
-  internal var movieOutput: AVCaptureMovieFileOutput?
+  internal var videoOutput: AVCaptureVideoDataOutput?
+  internal var audioOutput: AVCaptureAudioDataOutput?
+  // CameraView+RecordView (+ FrameProcessorDelegate.mm)
+  internal var isRecording = false
+  internal var recordingSession: RecordingSession?
+  @objc public var frameProcessorCallback: FrameProcessorCallback?
+  internal var lastFrameProcessorCall = DispatchTime.now()
   // CameraView+TakePhoto
   internal var photoCaptureDelegates: [PhotoCaptureDelegate] = []
-  // CameraView+RecordVideo
-  internal var recordingDelegateResolver: RCTPromiseResolveBlock?
-  internal var recordingDelegateRejecter: RCTPromiseRejectBlock?
   // CameraView+Zoom
   internal var pinchGestureRecognizer: UIPinchGestureRecognizer?
   internal var pinchScaleOffset: CGFloat = 1.0
+
+  internal let cameraQueue = CameraQueues.cameraQueue
+  internal let videoQueue = CameraQueues.videoQueue
+  internal let audioQueue = CameraQueues.audioQueue
 
   var isRunning: Bool {
     return captureSession.isRunning
@@ -126,6 +134,11 @@ public final class CameraView: UIView {
                                            object: AVAudioSession.sharedInstance)
   }
 
+  @available(*, unavailable)
+  required init?(coder _: NSCoder) {
+    fatalError("init(coder:) is not implemented.")
+  }
+
   deinit {
     NotificationCenter.default.removeObserver(self,
                                               name: .AVCaptureSessionRuntimeError,
@@ -139,11 +152,6 @@ public final class CameraView: UIView {
     NotificationCenter.default.removeObserver(self,
                                               name: AVAudioSession.interruptionNotification,
                                               object: AVAudioSession.sharedInstance)
-  }
-
-  @available(*, unavailable)
-  required init?(coder _: NSCoder) {
-    fatalError("init(coder:) is not implemented.")
   }
 
   override public func removeFromSuperview() {
@@ -166,7 +174,7 @@ public final class CameraView: UIView {
     let shouldUpdateZoom = willReconfigure || changedProps.contains("zoom") || shouldCheckActive
 
     if shouldReconfigure || shouldCheckActive || shouldUpdateTorch || shouldUpdateZoom || shouldReconfigureFormat || shouldReconfigureDevice {
-      queue.async {
+      cameraQueue.async {
         if shouldReconfigure {
           self.configureCaptureSession()
         }
@@ -198,7 +206,7 @@ public final class CameraView: UIView {
         }
 
         // This is a wack workaround, but if I immediately set torch mode after `startRunning()`, the session isn't quite ready yet and will ignore torch.
-        self.queue.asyncAfter(deadline: .now() + 0.1) {
+        self.cameraQueue.asyncAfter(deadline: .now() + 0.1) {
           if shouldUpdateTorch {
             self.setTorchMode(self.torch)
           }

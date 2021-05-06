@@ -25,9 +25,7 @@ import { useSelector } from 'pipestate';
 import { FpsSelector } from './state/selectors';
 import { useCameraDevice } from './hooks/useCameraDevice';
 
-// TODO: Remove once https://github.com/software-mansion/react-native-reanimated/pull/1697 gets merged
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera) as any;
+const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
   zoom: true,
 });
@@ -213,6 +211,12 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
     console.log('re-rendering camera page without active camera');
   }
 
+  // const frameProcessor = useFrameProcessor((frame) => {
+  //   'worklet';
+  //   const codes = scanQRCodesObjC(frame);
+  //   _log(`Codes: ${JSON.stringify(codes)}`);
+  // }, []);
+
   // TODO: Implement camera flipping (back <-> front) while recording and stich the videos together
   // TODO: iOS: Use custom video data stream output to manually process the data and write the MOV/MP4 for more customizability.
   return (
@@ -234,6 +238,8 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
                 onError={onError}
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
+                // frameProcessor={frameProcessor}
+                // frameProcessorFps={1}
               />
             </TapGestureHandler>
           </Reanimated.View>

@@ -91,22 +91,6 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
-  @ReactMethod
-  fun getAvailableVideoCodecs(viewTag: Int, promise: Promise) {
-    withPromise(promise) {
-      val view = findCameraView(viewTag)
-      view.getAvailableVideoCodecs()
-    }
-  }
-
-  @ReactMethod
-  fun getAvailablePhotoCodecs(viewTag: Int, promise: Promise) {
-    withPromise(promise) {
-      val view = findCameraView(viewTag)
-      view.getAvailablePhotoCodecs()
-    }
-  }
-
   // TODO: This uses the Camera2 API to list all characteristics of a camera device and therefore doesn't work with Camera1. Find a way to use CameraX for this
   // https://issuetracker.google.com/issues/179925896
   @ReactMethod

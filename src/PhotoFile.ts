@@ -1,14 +1,6 @@
-import type { CameraPhotoCodec } from './CameraCodec';
 import type { TemporaryFile } from './TemporaryFile';
 
 export interface TakePhotoOptions {
-  /**
-   * Specify the photo codec to use. To get a list of available photo codecs use the {@linkcode Camera.getAvailablePhotoCodecs | getAvailablePhotoCodecs()} function.
-   *
-   * @platform iOS
-   * @default undefined
-   */
-  photoCodec?: CameraPhotoCodec;
   /**
    * Indicates how photo quality should be prioritized against speed.
    *

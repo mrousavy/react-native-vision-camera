@@ -29,6 +29,7 @@ export type CaptureError =
   | 'capture/no-recording-in-progress'
   | 'capture/file-io-error'
   | 'capture/create-temp-file-error'
+  | 'capture/create-recorder-error'
   | 'capture/invalid-photo-codec'
   | 'capture/not-bound-error'
   | 'capture/capture-type-not-supported'

@@ -13,6 +13,8 @@
    yarn bootstrap
    ```
 
+Read the READMEs in [`android/`](android/README.md), [`ios/`](ios/README.md), and [`cpp/`](cpp/README.md) for a quick overview of the development workflow.
+
 > You can also open VisionCamera in [a quick online editor (github1s)](https://github1s.com/cuvent/react-native-vision-camera)
 
 ### iOS
@@ -22,11 +24,21 @@
 3. Select your device in the devices drop-down
 4. Hit run
 
+> Run `yarn check-ios` to validate codestyle
+
 ### Android
 
 1. Open the `example/android/` folder with Android Studio
 2. Select your device in the devices drop-down
 3. Hit run
+
+> Run `yarn check-android` to validate codestyle
+
+### C++
+
+The C++ codebase is shared between Android and iOS. This means you can make changes to those files in either the Android example or the iOS example, but make sure to test changes on both platforms.
+
+> Run `yarn check-cpp` to validate codestyle
 
 ## Committing
 

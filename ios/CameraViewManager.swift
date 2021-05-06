@@ -11,6 +11,23 @@ import Foundation
 
 @objc(CameraViewManager)
 final class CameraViewManager: RCTViewManager {
+  // pragma MARK: Properties
+
+  private var runtimeManager: FrameProcessorRuntimeManager?
+
+  override var bridge: RCTBridge! {
+    didSet {
+      if !enableFrameProcessors { return }
+
+      CameraQueues.videoQueue.async {
+        self.runtimeManager = FrameProcessorRuntimeManager(bridge: self.bridge)
+        self.bridge.runOnJS {
+          self.runtimeManager!.installFrameProcessorBindings()
+        }
+      }
+    }
+  }
+
   override var methodQueue: DispatchQueue! {
     return DispatchQueue.main
   }
@@ -19,12 +36,12 @@ final class CameraViewManager: RCTViewManager {
     return true
   }
 
-  // pragma MARK: Setup
   override final func view() -> UIView! {
     return CameraView()
   }
 
-  // pragma MARK: Exported Functions
+  // pragma MARK: React Functions
+
   @objc
   final func startRecording(_ node: NSNumber, options: NSDictionary, onRecordCallback: @escaping RCTResponseSenderBlock) {
     let component = getCameraView(withTag: node)
@@ -54,29 +71,6 @@ final class CameraViewManager: RCTViewManager {
   }
 
   @objc
-  final func getAvailableVideoCodecs(_ node: NSNumber, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    withPromise(resolve: resolve, reject: reject) {
-      let component = getCameraView(withTag: node)
-      guard let movieOutput = component.movieOutput else {
-        throw CameraError.session(SessionError.cameraNotReady)
-      }
-      return movieOutput.availableVideoCodecTypes.map(\.descriptor)
-    }
-  }
-
-  @objc
-  final func getAvailablePhotoCodecs(_ node: NSNumber, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    withPromise(resolve: resolve, reject: reject) {
-      let component = getCameraView(withTag: node)
-      guard let photoOutput = component.photoOutput else {
-        throw CameraError.session(SessionError.cameraNotReady)
-      }
-      return photoOutput.availablePhotoCodecTypes.map(\.descriptor)
-    }
-  }
-
-  // pragma MARK: View Manager funcs
-  @objc
   final func getAvailableCameraDevices(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     withPromise(resolve: resolve, reject: reject) {
       let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: getAllDeviceTypes(), mediaType: .video, position: .unspecified)
@@ -103,7 +97,7 @@ final class CameraViewManager: RCTViewManager {
           "supportsRawCapture": false, // TODO: supportsRawCapture
           "supportsLowLightBoost": $0.isLowLightBoostSupported,
           "supportsFocus": $0.isFocusPointOfInterestSupported,
-          "formats": $0.formats.map { (format) -> [String: Any] in
+          "formats": $0.formats.map { format -> [String: Any] in
             format.toDictionary()
           },
         ]
