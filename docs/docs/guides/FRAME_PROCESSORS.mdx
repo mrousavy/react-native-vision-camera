@@ -19,7 +19,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 Frame processors are functions that are written in JavaScript (or TypeScript) which can be used to **process frames the camera "sees"**.
 Inside those functions you can call **Frame Processor Plugins**, which are high performance native functions specifically designed for certain use-cases.
 
-For example, you might want to create a QR code scanner **without ever writing native code**, while still **achieving almost-native performance**:
+For example, you might want to create a QR code scanner **without ever writing native code**, while still **achieving native performance**:
 
 ```jsx
 function App() {
@@ -142,7 +142,7 @@ const frameProcessor = useFrameProcessor((frame: Frame) => {
 }, [])
 ```
 
-Check out [**Frame Processor community plugins**](frame-processor-plugin-list) to discover plugins!
+Check out [**Frame Processor community plugins**](/docs/guides/frame-processor-plugin-list) to discover plugins!
 
 ### Disabling Frame Processors
 
@@ -160,4 +160,4 @@ Make sure to add this to your Debug-, as well as your Release-configuration.
 
 <br />
 
-#### 🚀 Next section: [Zooming with Reanimated](animated) (or [creating a Frame Processor Plugin](/docs/guides/frame-processors-plugins-overview))
+#### 🚀 Next section: [Zooming with Reanimated](/docs/guides/animated) (or [creating a Frame Processor Plugin](/docs/guides/frame-processors-plugins-overview))
