@@ -149,7 +149,8 @@ export interface CameraProps extends ViewProps {
    *
    * * A value of `1` (default) indicates that the frame processor gets executed once per second, perfect for code scanning.
    * * A value of `10` indicates that the frame processor gets executed 10 times per second, perfect for more realtime use-cases.
-   * * A value of `25` indicates that the frame processor gets executed 30 times per second, perfect for high-speed realtime use-cases.
+   * * A value of `25` indicates that the frame processor gets executed 25 times per second, perfect for high-speed realtime use-cases.
+   * * ...and so on
    *
    * If you're using higher values, always check your Xcode/Android Studio Logs to make sure your frame processors are executing fast enough
    * without blocking the video recording queue.
