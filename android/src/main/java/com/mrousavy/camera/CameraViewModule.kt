@@ -113,17 +113,6 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
           val imageCaptureBuilder = ImageCapture.Builder()
 
           val characteristics = manager.getCameraCharacteristics(id)
-          val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
-
-          // Filters out cameras that are LEGACY hardware level. Those don't support Preview + Photo Capture + Video Capture at the same time.
-          if (hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
-            Log.i(
-              REACT_CLASS,
-              "Skipping Camera #$id because it does not meet the minimum requirements for react-native-vision-camera. " +
-                "See the tables at https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture for more information."
-            )
-            return@loop
-          }
 
           val capabilities = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)!!
           val isMultiCam = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
