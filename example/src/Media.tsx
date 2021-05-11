@@ -4,8 +4,8 @@ import { Navigation, NavigationFunctionComponent, OptionsModalPresentationStyle 
 import Video, { LoadError, OnLoadData } from 'react-native-video';
 import { SAFE_AREA_PADDING } from './Constants';
 import { useIsForeground } from './hooks/useIsForeground';
-import { useIsScreenFocused } from './hooks/useIsScreenFocused';
-import { PressableOpacity } from './views/PressableOpacity';
+import { useIsScreenFocussed } from './hooks/useIsScreenFocused';
+import { PressableOpacity } from 'react-native-pressable-opacity';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { Alert } from 'react-native';
 import CameraRoll from '@react-native-community/cameraroll';
@@ -37,7 +37,7 @@ const isVideoOnLoadEvent = (event: OnLoadData | NativeSyntheticEvent<ImageLoadEv
 export const Media: NavigationFunctionComponent<MediaProps> = ({ componentId, type, path }) => {
   const [hasMediaLoaded, setHasMediaLoaded] = useState(false);
   const isForeground = useIsForeground();
-  const isScreenFocused = useIsScreenFocused(componentId);
+  const isScreenFocused = useIsScreenFocussed(componentId);
   const isVideoPaused = !isForeground || !isScreenFocused;
   const [savingState, setSavingState] = useState<'none' | 'saving' | 'saved'>('none');
 
