@@ -156,9 +156,6 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
   const onNightModePressed = useCallback(() => {
     setEnableNightMode((n) => !n);
   }, []);
-  const onSettingsPressed = useCallback(() => {
-    Navigation.push(componentId, { component: { name: 'Settings' } });
-  }, [componentId]);
   //#endregion
 
   //#region Tap Gesture
@@ -279,9 +276,6 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
             <MaterialIcon name={enableHdr ? 'hdr' : 'hdr-off'} color="white" size={24} />
           </PressableOpacity>
         )}
-        <PressableOpacity style={styles.button} onPress={onSettingsPressed}>
-          <IonIcon name="settings-outline" color="white" size={24} />
-        </PressableOpacity>
       </View>
     </View>
   );
