@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useRef, useState, useMemo, useCallback } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import {
   PinchGestureHandler,
   PinchGestureHandlerGestureEvent,
@@ -11,18 +11,16 @@ import {
 import { Navigation, NavigationFunctionComponent } from 'react-native-navigation';
 import type { CameraDeviceFormat, CameraRuntimeError, PhotoFile, VideoFile } from 'react-native-vision-camera';
 import { Camera, frameRateIncluded, sortFormatsByResolution, filterFormatsByAspectRatio } from 'react-native-vision-camera';
-import { useIsScreenFocused } from './hooks/useIsScreenFocused';
+import { useIsScreenFocussed } from './hooks/useIsScreenFocused';
 import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING } from './Constants';
 import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated';
 import { useEffect } from 'react';
 import { useIsForeground } from './hooks/useIsForeground';
 import { StatusBarBlurBackground } from './views/StatusBarBlurBackground';
 import { CaptureButton } from './views/CaptureButton';
-import { PressableOpacity } from './views/PressableOpacity';
+import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { useSelector } from 'pipestate';
-import { FpsSelector } from './state/selectors';
 import { useCameraDevice } from './hooks/useCameraDevice';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
@@ -33,14 +31,14 @@ Reanimated.addWhitelistedNativeProps({
 const SCALE_FULL_ZOOM = 3;
 const BUTTON_SIZE = 40;
 
-export const App: NavigationFunctionComponent = ({ componentId }) => {
+export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
   const camera = useRef<Camera>(null);
   const [isCameraInitialized, setIsCameraInitialized] = useState(false);
   const zoom = useSharedValue(0);
   const isPressingButton = useSharedValue(false);
 
   // check if camera page is active
-  const isFocussed = useIsScreenFocused(componentId);
+  const isFocussed = useIsScreenFocussed(componentId);
   const isForeground = useIsForeground();
   const isActive = isFocussed && isForeground;
 
@@ -59,32 +57,34 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
   }, [device?.formats]);
 
   //#region Memos
-  const [targetFps] = useSelector(FpsSelector);
-  console.log(`Target FPS: ${targetFps}`);
+  const [is60Fps, setIs60Fps] = useState(true);
   const fps = useMemo(() => {
+    if (!is60Fps) return 30;
+
     if (enableNightMode && !device?.supportsLowLightBoost) {
       // User has enabled Night Mode, but Night Mode is not natively supported, so we simulate it by lowering the frame rate.
       return 30;
     }
 
-    const supportsHdrAtHighFps = formats.some((f) => f.supportsVideoHDR && f.frameRateRanges.some((r) => frameRateIncluded(r, targetFps)));
-    if (enableHdr && !supportsHdrAtHighFps) {
-      // User has enabled HDR, but HDR is not supported at targetFps.
+    const supportsHdrAt60Fps = formats.some((f) => f.supportsVideoHDR && f.frameRateRanges.some((r) => frameRateIncluded(r, 60)));
+    if (enableHdr && !supportsHdrAt60Fps) {
+      // User has enabled HDR, but HDR is not supported at 60 FPS.
       return 30;
     }
 
-    const supportsHighFps = formats.some((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, targetFps)));
-    if (!supportsHighFps) {
-      // targetFps is not supported by any format.
+    const supports60Fps = formats.some((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, 60)));
+    if (!supports60Fps) {
+      // 60 FPS is not supported by any format.
       return 30;
     }
-    // If nothing blocks us from using it, we default to targetFps.
-    return targetFps;
-  }, [device?.supportsLowLightBoost, enableHdr, enableNightMode, formats, targetFps]);
+    // If nothing blocks us from using it, we default to 60 FPS.
+    return 60;
+  }, [device?.supportsLowLightBoost, enableHdr, enableNightMode, formats, is60Fps]);
 
   const supportsCameraFlipping = useMemo(() => devices.back != null && devices.front != null, [devices.back, devices.front]);
   const supportsFlash = device?.hasFlash ?? false;
   const supportsHdr = useMemo(() => formats.some((f) => f.supportsVideoHDR), [formats]);
+  const supports60Fps = useMemo(() => formats.some((f) => f.frameRateRanges.some((rate) => frameRateIncluded(rate, 60))), [formats]);
   const canToggleNightMode = enableNightMode
     ? true // it's enabled so you have to be able to turn it off again
     : (device?.supportsLowLightBoost ?? false) || fps > 30; // either we have native support, or we can lower the FPS
@@ -136,7 +136,7 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
     console.log(`Media captured! ${JSON.stringify(media)}`);
     await Navigation.showModal({
       component: {
-        name: 'Media',
+        name: 'MediaPage',
         passProps: {
           type: type,
           path: media.path,
@@ -147,18 +147,9 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
   const onFlipCameraPressed = useCallback(() => {
     setCameraPosition((p) => (p === 'back' ? 'front' : 'back'));
   }, []);
-  const onHdrSwitchPressed = useCallback(() => {
-    setEnableHdr((h) => !h);
-  }, []);
   const onFlashPressed = useCallback(() => {
     setFlash((f) => (f === 'off' ? 'on' : 'off'));
   }, []);
-  const onNightModePressed = useCallback(() => {
-    setEnableNightMode((n) => !n);
-  }, []);
-  const onSettingsPressed = useCallback(() => {
-    Navigation.push(componentId, { component: { name: 'Settings' } });
-  }, [componentId]);
   //#endregion
 
   //#region Tap Gesture
@@ -269,19 +260,24 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
             <IonIcon name={flash === 'on' ? 'flash' : 'flash-off'} color="white" size={24} />
           </PressableOpacity>
         )}
-        {canToggleNightMode && (
-          <PressableOpacity style={styles.button} onPress={onNightModePressed} disabledOpacity={0.4}>
-            <IonIcon name={enableNightMode ? 'moon' : 'moon-outline'} color="white" size={24} />
+        {supports60Fps && (
+          <PressableOpacity style={styles.button} onPress={() => setIs60Fps(!is60Fps)}>
+            <Text style={styles.text}>
+              {is60Fps ? '60' : '30'}
+              {'\n'}FPS
+            </Text>
           </PressableOpacity>
         )}
         {supportsHdr && (
-          <PressableOpacity style={styles.button} onPress={onHdrSwitchPressed}>
+          <PressableOpacity style={styles.button} onPress={() => setEnableHdr((h) => !h)}>
             <MaterialIcon name={enableHdr ? 'hdr' : 'hdr-off'} color="white" size={24} />
           </PressableOpacity>
         )}
-        <PressableOpacity style={styles.button} onPress={onSettingsPressed}>
-          <IonIcon name="settings-outline" color="white" size={24} />
-        </PressableOpacity>
+        {canToggleNightMode && (
+          <PressableOpacity style={styles.button} onPress={() => setEnableNightMode(!enableNightMode)} disabledOpacity={0.4}>
+            <IonIcon name={enableNightMode ? 'moon' : 'moon-outline'} color="white" size={24} />
+          </PressableOpacity>
+        )}
       </View>
     </View>
   );
@@ -310,5 +306,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: SAFE_AREA_PADDING.paddingRight,
     top: SAFE_AREA_PADDING.paddingTop,
+  },
+  text: {
+    color: 'white',
+    fontSize: 11,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });

@@ -4598,11 +4598,6 @@ pify@^4.0.1:
   resolved "https://registry.yarnpkg.com/pify/-/pify-4.0.1.tgz#4b2cd25c50d598735c50292224fd8c6df41e3231"
   integrity sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==
 
-pipestate@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/pipestate/-/pipestate-1.0.2.tgz#5b859ce947eb9180395199a44e7622b5700a0151"
-  integrity sha512-1ZaIMyWESR2cb76AZfUosRBSWPQ/2s29naiV72N1iKixzLY1qdPUgZYV990L/pEt/9T/nZDQU7zXSy/aq1ttYw==
-
 pirates@^4.0.0:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/pirates/-/pirates-4.0.1.tgz#643a92caf894566f91b2b986d2c66950a8e2fb87"
@@ -4782,6 +4777,11 @@ react-native-navigation@7.8.4-snapshot.1439:
     prop-types "15.x.x"
     react-lifecycles-compat "2.0.0"
     tslib "1.9.3"
+
+react-native-pressable-opacity@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/react-native-pressable-opacity/-/react-native-pressable-opacity-1.0.4.tgz#391f33fdc25cb84551f2743a25eced892b9f30f7"
+  integrity sha512-DBIg7UoRiuBYiFEvx+XNMqH0OEx64WrSksXhT6Kq9XuyyKsThMNDqZ9G5QV7vfu7dU2/IctwIz5c0Xwkp4K3tA==
 
 react-native-reanimated@^2.1.0:
   version "2.1.0"

@@ -1,57 +1,39 @@
-import { useEffect, useMemo, useReducer } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Navigation } from 'react-native-navigation';
 
-type Action =
-  | {
-      action: 'push';
-      componentId: string;
-    }
-  | {
-      action: 'pop';
-      componentId: string;
-    };
+export const useIsScreenFocussed = (componentId: string): boolean => {
+  const componentStack = useRef<string[]>(['componentId']);
+  const [isFocussed, setIsFocussed] = useState(true);
 
-const reducer = (stack: string[], action: Action): string[] => {
-  switch (action.action) {
-    case 'push': {
-      stack.push(action.componentId);
-      break;
-    }
-    case 'pop': {
-      const index = stack.indexOf(action.componentId);
-      if (index > -1) stack.splice(index, 1);
-      break;
-    }
-  }
-  return [...stack];
-};
-
-export const useIsScreenFocused = (componentId: string): boolean => {
-  const [componentStack, dispatch] = useReducer(reducer, [componentId]);
-  const isFocussed = useMemo(() => componentStack[componentStack.length - 1] === componentId, [componentStack, componentId]);
+  const invalidate = useCallback(() => {
+    const last = componentStack.current[componentStack.current.length - 1];
+    setIsFocussed(last === componentId);
+  }, [componentId, setIsFocussed]);
 
   useEffect(() => {
     const listener = Navigation.events().registerComponentDidAppearListener((event) => {
       if (event.componentType !== 'Component') return;
-      dispatch({
-        action: 'push',
-        componentId: event.componentId,
-      });
+      componentStack.current.push(event.componentId);
+      invalidate();
     });
 
     return () => listener.remove();
-  }, []);
+  }, [invalidate]);
   useEffect(() => {
     const listener = Navigation.events().registerComponentDidDisappearListener((event) => {
       if (event.componentType !== 'Component') return;
-      dispatch({
-        action: 'pop',
-        componentId: event.componentId,
-      });
+      // we can't simply use .pop() here because the component might be popped deeper down in the hierarchy.
+      for (let i = componentStack.current.length - 1; i >= 0; i--) {
+        if (componentStack.current[i] === event.componentId) {
+          componentStack.current.splice(i, 1);
+          break;
+        }
+      }
+      invalidate();
     });
 
     return () => listener.remove();
-  }, []);
+  }, [invalidate]);
 
   return isFocussed;
 };
