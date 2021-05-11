@@ -43,10 +43,12 @@ export type Size = {
    */
   height: number;
 };
+
 const SCREEN_SIZE: Size = {
   width: Dimensions.get('window').width,
   height: Dimensions.get('window').height,
 };
+
 const applyScaledMask = (
   clippedElementDimensions: Size, // 12 x 12
   maskDimensions: Size, //            6 x 12
@@ -54,17 +56,11 @@ const applyScaledMask = (
   const wScale = maskDimensions.width / clippedElementDimensions.width; //   0.5
   const hScale = maskDimensions.height / clippedElementDimensions.height; // 1.0
 
-  if (wScale > hScale) {
-    return {
-      width: maskDimensions.width / hScale,
-      height: maskDimensions.height / hScale,
-    };
-  } else {
-    return {
-      width: maskDimensions.width / wScale,
-      height: maskDimensions.height / wScale,
-    };
-  }
+  const scale = Math.min(wScale, hScale);
+  return {
+    width: maskDimensions.width / scale,
+    height: maskDimensions.height / scale,
+  };
 };
 
 const getFormatAspectRatioOverflow = (format: CameraDeviceFormat, size: Size): number => {
