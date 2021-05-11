@@ -11,14 +11,14 @@ import {
 import { Navigation, NavigationFunctionComponent } from 'react-native-navigation';
 import type { CameraDeviceFormat, CameraRuntimeError, PhotoFile, VideoFile } from 'react-native-vision-camera';
 import { Camera, frameRateIncluded, sortFormatsByResolution, filterFormatsByAspectRatio } from 'react-native-vision-camera';
-import { useIsScreenFocused } from './hooks/useIsScreenFocused';
+import { useIsScreenFocussed } from './hooks/useIsScreenFocused';
 import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING } from './Constants';
 import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated';
 import { useEffect } from 'react';
 import { useIsForeground } from './hooks/useIsForeground';
 import { StatusBarBlurBackground } from './views/StatusBarBlurBackground';
 import { CaptureButton } from './views/CaptureButton';
-import { PressableOpacity } from './views/PressableOpacity';
+import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { useSelector } from 'pipestate';
@@ -40,7 +40,7 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
   const isPressingButton = useSharedValue(false);
 
   // check if camera page is active
-  const isFocussed = useIsScreenFocused(componentId);
+  const isFocussed = useIsScreenFocussed(componentId);
   const isForeground = useIsForeground();
   const isActive = isFocussed && isForeground;
 

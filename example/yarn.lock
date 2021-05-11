@@ -4783,6 +4783,11 @@ react-native-navigation@7.8.4-snapshot.1439:
     react-lifecycles-compat "2.0.0"
     tslib "1.9.3"
 
+react-native-pressable-opacity@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/react-native-pressable-opacity/-/react-native-pressable-opacity-1.0.1.tgz#74d8aabae522e744fd3e3410a021386159976d4b"
+  integrity sha512-XMjm66arNpaBbF8wX0zSbJ9IGcjgeEJ6zomUY1VMTgRiDqBk9OL6Lw8IeBs9ewxWBPrGg770q9tp+5/S/yyXWg==
+
 react-native-reanimated@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/react-native-reanimated/-/react-native-reanimated-2.1.0.tgz#b9ad04aee490e1e030d0a6cdaa43a14895d9a54d"
