@@ -14,7 +14,6 @@
     "@react-native-community/blur": "^3.6.0",
     "@react-native-community/cameraroll": "^4.0.2",
     "@react-native-community/slider": "^3.0.3",
-    "pipestate": "^1.0.2",
     "react": "17.0.2",
     "react-native": "0.64",
     "react-native-gesture-handler": "^1.10.3",
