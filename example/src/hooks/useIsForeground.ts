@@ -1,9 +1,9 @@
+import { useState } from 'react';
 import { useEffect } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
-import { useCachedState } from './useCachedState';
 
 export const useIsForeground = (): boolean => {
-  const [isForeground, setIsForeground] = useCachedState(true);
+  const [isForeground, setIsForeground] = useState(true);
 
   useEffect(() => {
     const onChange = (state: AppStateStatus): void => {
