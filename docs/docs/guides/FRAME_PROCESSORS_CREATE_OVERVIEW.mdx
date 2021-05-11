@@ -95,7 +95,7 @@ static dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORIT
 
 static inline id sendFrameToWebRTC(CMSampleBufferRef buffer, NSArray args) {
   CMSampleBufferRef bufferCopy;
-  CMSampleBufferCreateCopy(kCFAllocatorDefault, &buffer, &bufferCopy);
+  CMSampleBufferCreateCopy(kCFAllocatorDefault, buffer, &bufferCopy);
 
   dispatch_async(queue, ^{
     NSString* serverURL = (NSString*)args[0];
@@ -121,6 +121,7 @@ function App() {
 
   useEffect(() => {
     SomeAI.addListener((results) => {
+      // gets called asynchronously, goes through the React Event Emitter system
       console.log(`AI results: ${results}`)
     })
   }, [])
