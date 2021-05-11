@@ -33,7 +33,7 @@ Reanimated.addWhitelistedNativeProps({
 const SCALE_FULL_ZOOM = 3;
 const BUTTON_SIZE = 40;
 
-export const App: NavigationFunctionComponent = ({ componentId }) => {
+export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
   const camera = useRef<Camera>(null);
   const [isCameraInitialized, setIsCameraInitialized] = useState(false);
   const zoom = useSharedValue(0);
@@ -136,7 +136,7 @@ export const App: NavigationFunctionComponent = ({ componentId }) => {
     console.log(`Media captured! ${JSON.stringify(media)}`);
     await Navigation.showModal({
       component: {
-        name: 'Media',
+        name: 'MediaPage',
         passProps: {
           type: type,
           path: media.path,

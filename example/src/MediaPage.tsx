@@ -34,7 +34,7 @@ const requestSavePermission = async (): Promise<boolean> => {
 const isVideoOnLoadEvent = (event: OnLoadData | NativeSyntheticEvent<ImageLoadEventData>): event is OnLoadData =>
   'duration' in event && 'naturalSize' in event;
 
-export const Media: NavigationFunctionComponent<MediaProps> = ({ componentId, type, path }) => {
+export const MediaPage: NavigationFunctionComponent<MediaProps> = ({ componentId, type, path }) => {
   const [hasMediaLoaded, setHasMediaLoaded] = useState(false);
   const isForeground = useIsForeground();
   const isScreenFocused = useIsScreenFocussed(componentId);
@@ -126,7 +126,7 @@ export const Media: NavigationFunctionComponent<MediaProps> = ({ componentId, ty
   );
 };
 
-Media.options = {
+MediaPage.options = {
   modal: {
     swipeToDismiss: false,
   },

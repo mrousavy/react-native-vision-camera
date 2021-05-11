@@ -1,10 +1,9 @@
 import 'react-native-gesture-handler';
 import { Navigation } from 'react-native-navigation';
 import { gestureHandlerRootHOC } from 'react-native-gesture-handler';
-import { App } from './src/App';
-import { Settings } from './src/Settings';
+import { CameraPage } from './src/CameraPage';
 import { Splash } from './src/Splash';
-import { Media } from './src/Media';
+import { MediaPage } from './src/MediaPage';
 import { Camera } from 'react-native-vision-camera';
 
 Navigation.setDefaultOptions({
@@ -42,19 +41,14 @@ Navigation.registerComponent(
   () => Splash,
 );
 Navigation.registerComponent(
-  'Home',
-  () => gestureHandlerRootHOC(App),
-  () => App,
+  'CameraPage',
+  () => gestureHandlerRootHOC(CameraPage),
+  () => CameraPage,
 );
 Navigation.registerComponent(
-  'Media',
-  () => gestureHandlerRootHOC(Media),
-  () => Media,
-);
-Navigation.registerComponent(
-  'Settings',
-  () => gestureHandlerRootHOC(Settings),
-  () => Settings,
+  'MediaPage',
+  () => gestureHandlerRootHOC(MediaPage),
+  () => MediaPage,
 );
 
 Navigation.events().registerNavigationButtonPressedListener((event) => {
@@ -67,7 +61,7 @@ Navigation.events().registerAppLaunchedListener(async () => {
     Camera.getMicrophonePermissionStatus(),
   ]);
   let rootName = 'Splash';
-  if (cameraPermission === 'authorized' && microphonePermission === 'authorized') rootName = 'Home';
+  if (cameraPermission === 'authorized' && microphonePermission === 'authorized') rootName = 'CameraPage';
 
   Navigation.setRoot({
     root: {
