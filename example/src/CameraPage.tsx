@@ -9,8 +9,8 @@ import {
   TapGestureHandlerStateChangeEvent,
 } from 'react-native-gesture-handler';
 import { Navigation, NavigationFunctionComponent } from 'react-native-navigation';
-import type { CameraDeviceFormat, CameraRuntimeError, PhotoFile, VideoFile } from 'react-native-vision-camera';
-import { Camera, frameRateIncluded, sortFormatsByResolution, filterFormatsByAspectRatio } from 'react-native-vision-camera';
+import { CameraDeviceFormat, CameraRuntimeError, PhotoFile, sortFormats, VideoFile } from 'react-native-vision-camera';
+import { Camera, frameRateIncluded } from 'react-native-vision-camera';
 import { useIsScreenFocussed } from './hooks/useIsScreenFocused';
 import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING } from './Constants';
 import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated';
@@ -52,8 +52,7 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
   const device = devices[cameraPosition];
   const formats = useMemo<CameraDeviceFormat[]>(() => {
     if (device?.formats == null) return [];
-    const filtered = filterFormatsByAspectRatio(device.formats);
-    return filtered.sort(sortFormatsByResolution);
+    return device.formats.sort(sortFormats);
   }, [device?.formats]);
 
   //#region Memos
