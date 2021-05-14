@@ -1,13 +1,7 @@
 import * as React from 'react';
 import { useRef, useState, useMemo, useCallback } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import {
-  PinchGestureHandler,
-  PinchGestureHandlerGestureEvent,
-  State,
-  TapGestureHandler,
-  TapGestureHandlerStateChangeEvent,
-} from 'react-native-gesture-handler';
+import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler';
 import { Navigation, NavigationFunctionComponent } from 'react-native-navigation';
 import { CameraDeviceFormat, CameraRuntimeError, PhotoFile, sortFormats, VideoFile } from 'react-native-vision-camera';
 import { Camera, frameRateIncluded } from 'react-native-vision-camera';
@@ -152,21 +146,11 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
   //#endregion
 
   //#region Tap Gesture
-  const onDoubleTapGesture = useCallback(
-    ({ nativeEvent: event }: TapGestureHandlerStateChangeEvent) => {
-      // TODO: (MARC) Allow switching camera (back <-> front) while recording and stich videos together!
-      if (isPressingButton.value) return;
-      switch (event.state) {
-        case State.END:
-          // on double tap
-          onFlipCameraPressed();
-          break;
-        default:
-          break;
-      }
-    },
-    [isPressingButton, onFlipCameraPressed],
-  );
+  const onDoubleTap = useCallback(() => {
+    // TODO: (MARC) Allow switching camera (back <-> front) while recording and stich videos together!
+    if (isPressingButton.value) return;
+    onFlipCameraPressed();
+  }, [isPressingButton, onFlipCameraPressed]);
   //#endregion
 
   //#region Effects
@@ -207,14 +191,12 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
   //   _log(`Codes: ${JSON.stringify(codes)}`);
   // }, []);
 
-  // TODO: Implement camera flipping (back <-> front) while recording and stich the videos together
-  // TODO: iOS: Use custom video data stream output to manually process the data and write the MOV/MP4 for more customizability.
   return (
     <View style={styles.container}>
       {device != null && (
         <PinchGestureHandler onGestureEvent={onPinchGesture} enabled={isActive}>
           <Reanimated.View style={StyleSheet.absoluteFill}>
-            <TapGestureHandler onHandlerStateChange={onDoubleTapGesture} numberOfTaps={2}>
+            <TapGestureHandler onEnded={onDoubleTap} numberOfTaps={2}>
               <ReanimatedCamera
                 ref={camera}
                 style={StyleSheet.absoluteFill}
