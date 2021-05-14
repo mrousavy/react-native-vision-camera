@@ -82,7 +82,7 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
 
   const supportsCameraFlipping = useMemo(() => devices.back != null && devices.front != null, [devices.back, devices.front]);
   const supportsFlash = device?.hasFlash ?? false;
-  const supportsHdr = useMemo(() => formats.some((f) => f.supportsVideoHDR), [formats]);
+  const supportsHdr = useMemo(() => formats.some((f) => f.supportsVideoHDR || f.supportsPhotoHDR), [formats]);
   const supports60Fps = useMemo(() => formats.some((f) => f.frameRateRanges.some((rate) => frameRateIncluded(rate, 60))), [formats]);
   const canToggleNightMode = enableNightMode
     ? true // it's enabled so you have to be able to turn it off again
@@ -94,7 +94,7 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
     if (enableHdr) {
       // We only filter by HDR capable formats if HDR is set to true.
       // Otherwise we ignore the `supportsVideoHDR` property and accept formats which support HDR `true` or `false`
-      result = result.filter((f) => f.supportsVideoHDR);
+      result = result.filter((f) => f.supportsVideoHDR || f.supportsPhotoHDR);
     }
 
     // find the first format that includes the given FPS
