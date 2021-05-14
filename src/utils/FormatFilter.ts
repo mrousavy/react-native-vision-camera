@@ -30,96 +30,31 @@ export const sortDevices = (left: CameraDevice, right: CameraDevice): number => 
   return rightPoints - leftPoints;
 };
 
-/**
- * Represents a Size in any unit.
- */
-export type Size = {
-  /**
-   * Points in width.
-   */
-  width: number;
-  /**
-   * Points in height.
-   */
-  height: number;
-};
-
-const SCREEN_SIZE: Size = {
+const SCREEN_SIZE = {
   width: Dimensions.get('window').width,
   height: Dimensions.get('window').height,
 };
-
-const applyScaledMask = (
-  clippedElementDimensions: Size, // 12 x 12
-  maskDimensions: Size, //            6 x 12
-): Size => {
-  const wScale = maskDimensions.width / clippedElementDimensions.width; //   0.5
-  const hScale = maskDimensions.height / clippedElementDimensions.height; // 1.0
-
-  const scale = Math.min(wScale, hScale);
-  return {
-    width: maskDimensions.width / scale,
-    height: maskDimensions.height / scale,
-  };
-};
-
-const getFormatAspectRatioOverflow = (format: CameraDeviceFormat, size: Size): number => {
-  const downscaled = applyScaledMask(
-    size,
-    // cameras are landscape, so we intentionally rotate
-    { width: format.photoHeight, height: format.photoWidth },
-  );
-  return downscaled.width * downscaled.height - size.width * size.height;
-};
+const SCREEN_ASPECT_RATIO = SCREEN_SIZE.width / SCREEN_SIZE.height;
 
 /**
- * Filters Camera Device Formats by the best matching aspect ratio for the given `viewSize`.
+ * Sort formats by resolution and aspect ratio difference (to the Screen size).
  *
- * @param {CameraDeviceFormat[]} formats A list of formats the current device has (see {@linkcode CameraDevice.formats})
- * @param {Size} viewSize The size of the camera view which will be used to find the best aspect ratio. Defaults to the screen size.
- * @returns A list of Camera Device Formats that match the given `viewSize`' aspect ratio _as close as possible_.
- *
- * @example
- * ```ts
- * const formats = useMemo(() => filterFormatsByAspectRatio(device.formats, CAMERA_VIEW_SIZE), [device.formats])
- * ```
- * @method
+ * > Note that this makes the `sort()` function descending, so the first element (`[0]`) is the "best" device.
  */
-export const filterFormatsByAspectRatio = (formats: CameraDeviceFormat[], viewSize = SCREEN_SIZE): CameraDeviceFormat[] => {
-  const minOverflow = formats.reduce((prev, curr) => {
-    const overflow = getFormatAspectRatioOverflow(curr, viewSize);
-    if (overflow < prev) return overflow;
-    else return prev;
-  }, Number.MAX_SAFE_INTEGER);
+export const sortFormats = (left: CameraDeviceFormat, right: CameraDeviceFormat): number => {
+  let leftPoints = 0,
+    rightPoints = 0;
 
-  return formats.filter((f) => {
-    // percentage of difference in overflow from this format, to the minimum available overflow
-    const overflowDiff = (getFormatAspectRatioOverflow(f, viewSize) - minOverflow) / minOverflow;
-    // we have an acceptance of 25%, if overflow is more than 25% off to the min available overflow, we drop it
-    return overflowDiff < 0.25;
-  });
-};
+  // we downscale the points so much that we are in smaller number ranges for future calculations
+  // e.g. for 4k (4096), this adds 4 points.
+  leftPoints += Math.round(left.photoWidth / 1000);
+  rightPoints += Math.round(right.photoWidth / 1000);
 
-/**
- * Sorts Camera Device Formats by highest photo-capture resolution, descending. Use this in a `.sort` function.
- *
- * @example
- * ```ts
- * const formats = useMemo(() => device.formats.sort(sortFormatsByResolution), [device.formats])
- * const bestFormat = formats[0]
- * ```
- * @method
- */
-export const sortFormatsByResolution = (left: CameraDeviceFormat, right: CameraDeviceFormat): number => {
-  let leftPoints = left.photoHeight * left.photoWidth;
-  let rightPoints = right.photoHeight * right.photoWidth;
+  const leftAspectRatioDiff = left.photoHeight / left.photoWidth - SCREEN_ASPECT_RATIO;
+  const rightAspectRatioDiff = right.photoHeight / right.photoWidth - SCREEN_ASPECT_RATIO;
+  leftPoints -= Math.abs(leftAspectRatioDiff) * 50;
+  rightPoints -= Math.abs(rightAspectRatioDiff) * 50;
 
-  if (left.videoHeight != null && left.videoWidth != null && right.videoHeight != null && right.videoWidth != null) {
-    leftPoints += left.videoWidth * left.videoHeight;
-    rightPoints += right.videoWidth * right.videoHeight;
-  }
-
-  // "returns a negative value if left is better than one"
   return rightPoints - leftPoints;
 };
 

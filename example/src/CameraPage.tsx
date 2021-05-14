@@ -1,16 +1,10 @@
 import * as React from 'react';
 import { useRef, useState, useMemo, useCallback } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import {
-  PinchGestureHandler,
-  PinchGestureHandlerGestureEvent,
-  State,
-  TapGestureHandler,
-  TapGestureHandlerStateChangeEvent,
-} from 'react-native-gesture-handler';
+import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler';
 import { Navigation, NavigationFunctionComponent } from 'react-native-navigation';
-import type { CameraDeviceFormat, CameraRuntimeError, PhotoFile, VideoFile } from 'react-native-vision-camera';
-import { Camera, frameRateIncluded, sortFormatsByResolution, filterFormatsByAspectRatio } from 'react-native-vision-camera';
+import { CameraDeviceFormat, CameraRuntimeError, PhotoFile, sortFormats, useCameraDevices, VideoFile } from 'react-native-vision-camera';
+import { Camera, frameRateIncluded } from 'react-native-vision-camera';
 import { useIsScreenFocussed } from './hooks/useIsScreenFocused';
 import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING } from './Constants';
 import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated';
@@ -21,7 +15,6 @@ import { CaptureButton } from './views/CaptureButton';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { useCameraDevice } from './hooks/useCameraDevice';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -48,12 +41,11 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
   const [enableNightMode, setEnableNightMode] = useState(false);
 
   // camera format settings
-  const devices = useCameraDevice();
+  const devices = useCameraDevices();
   const device = devices[cameraPosition];
   const formats = useMemo<CameraDeviceFormat[]>(() => {
     if (device?.formats == null) return [];
-    const filtered = filterFormatsByAspectRatio(device.formats);
-    return filtered.sort(sortFormatsByResolution);
+    return device.formats.sort(sortFormats);
   }, [device?.formats]);
 
   //#region Memos
@@ -83,7 +75,7 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
 
   const supportsCameraFlipping = useMemo(() => devices.back != null && devices.front != null, [devices.back, devices.front]);
   const supportsFlash = device?.hasFlash ?? false;
-  const supportsHdr = useMemo(() => formats.some((f) => f.supportsVideoHDR), [formats]);
+  const supportsHdr = useMemo(() => formats.some((f) => f.supportsVideoHDR || f.supportsPhotoHDR), [formats]);
   const supports60Fps = useMemo(() => formats.some((f) => f.frameRateRanges.some((rate) => frameRateIncluded(rate, 60))), [formats]);
   const canToggleNightMode = enableNightMode
     ? true // it's enabled so you have to be able to turn it off again
@@ -95,7 +87,7 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
     if (enableHdr) {
       // We only filter by HDR capable formats if HDR is set to true.
       // Otherwise we ignore the `supportsVideoHDR` property and accept formats which support HDR `true` or `false`
-      result = result.filter((f) => f.supportsVideoHDR);
+      result = result.filter((f) => f.supportsVideoHDR || f.supportsPhotoHDR);
     }
 
     // find the first format that includes the given FPS
@@ -153,21 +145,11 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
   //#endregion
 
   //#region Tap Gesture
-  const onDoubleTapGesture = useCallback(
-    ({ nativeEvent: event }: TapGestureHandlerStateChangeEvent) => {
-      // TODO: (MARC) Allow switching camera (back <-> front) while recording and stich videos together!
-      if (isPressingButton.value) return;
-      switch (event.state) {
-        case State.END:
-          // on double tap
-          onFlipCameraPressed();
-          break;
-        default:
-          break;
-      }
-    },
-    [isPressingButton, onFlipCameraPressed],
-  );
+  const onDoubleTap = useCallback(() => {
+    // TODO: (MARC) Allow switching camera (back <-> front) while recording and stich videos together!
+    if (isPressingButton.value) return;
+    onFlipCameraPressed();
+  }, [isPressingButton, onFlipCameraPressed]);
   //#endregion
 
   //#region Effects
@@ -208,14 +190,12 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
   //   _log(`Codes: ${JSON.stringify(codes)}`);
   // }, []);
 
-  // TODO: Implement camera flipping (back <-> front) while recording and stich the videos together
-  // TODO: iOS: Use custom video data stream output to manually process the data and write the MOV/MP4 for more customizability.
   return (
     <View style={styles.container}>
       {device != null && (
         <PinchGestureHandler onGestureEvent={onPinchGesture} enabled={isActive}>
           <Reanimated.View style={StyleSheet.absoluteFill}>
-            <TapGestureHandler onHandlerStateChange={onDoubleTapGesture} numberOfTaps={2}>
+            <TapGestureHandler onEnded={onDoubleTap} numberOfTaps={2}>
               <ReanimatedCamera
                 ref={camera}
                 style={StyleSheet.absoluteFill}

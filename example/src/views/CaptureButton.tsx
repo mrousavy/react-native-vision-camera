@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import { Platform, StyleSheet, View, ViewProps } from 'react-native';
+import { StyleSheet, View, ViewProps } from 'react-native';
 import {
   PanGestureHandler,
   PanGestureHandlerGestureEvent,
@@ -20,12 +20,10 @@ import Reanimated, {
   withRepeat,
 } from 'react-native-reanimated';
 import type { Camera, PhotoFile, TakePhotoOptions, TakeSnapshotOptions, VideoFile } from 'react-native-vision-camera';
-import { CAPTURE_BUTTON_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH, USE_SNAPSHOT_ON_ANDROID } from './../Constants';
+import { CAPTURE_BUTTON_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH } from './../Constants';
 
 const PAN_GESTURE_HANDLER_FAIL_X = [-SCREEN_WIDTH, SCREEN_WIDTH];
 const PAN_GESTURE_HANDLER_ACTIVE_Y = [-2, 2];
-
-const IS_ANDROID = Platform.OS === 'android';
 
 const START_RECORDING_DELAY = 200;
 const BORDER_WIDTH = CAPTURE_BUTTON_SIZE * 0.1;
@@ -73,14 +71,8 @@ const _CaptureButton: React.FC<Props> = ({
     try {
       if (camera.current == null) throw new Error('Camera ref is null!');
 
-      // If we're on Android and flash is disabled, we can use the "snapshot" method.
-      // this will take a snapshot of the current SurfaceView, which results in faster image
-      // capture rate at the cost of greatly reduced quality.
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      const photoMethod = USE_SNAPSHOT_ON_ANDROID && IS_ANDROID && takePhotoOptions.flash === 'off' ? 'snapshot' : 'photo';
-      console.log(`Taking ${photoMethod}...`);
-      const photo =
-        photoMethod === 'snapshot' ? await camera.current.takeSnapshot(takePhotoOptions) : await camera.current.takePhoto(takePhotoOptions);
+      console.log('Taking photo...');
+      const photo = await camera.current.takePhoto(takePhotoOptions);
       onMediaCaptured(photo, 'photo');
     } catch (e) {
       console.error('Failed to take photo!', e);
