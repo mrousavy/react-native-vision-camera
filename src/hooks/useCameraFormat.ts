@@ -12,10 +12,5 @@ import { sortFormats } from '../utils/FormatFilter';
  * @returns The best matching format for the given camera device, or `undefined` if the camera device is `undefined`.
  */
 export function useCameraFormat(device?: CameraDevice): CameraDeviceFormat | undefined {
-  const formats = useMemo(() => {
-    if (device?.formats == null) return [];
-    return device.formats.sort(sortFormats);
-  }, [device?.formats]);
-
-  return formats[0];
+  return useMemo(() => device?.formats.sort(sortFormats)[0], [device?.formats]);
 }
