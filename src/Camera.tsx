@@ -343,9 +343,11 @@ export class Camera extends React.PureComponent<CameraProps> {
    * @internal
    */
   componentWillUnmount(): void {
-    this.assertFrameProcessorsEnabled();
-    // @ts-expect-error JSI functions aren't typed
-    global.unsetFrameProcessor(this.handle);
+    if (this.lastFrameProcessor != null || this.props.frameProcessor != null) {
+      this.assertFrameProcessorsEnabled();
+      // @ts-expect-error JSI functions aren't typed
+      global.unsetFrameProcessor(this.handle);
+    }
   }
 
   /**
