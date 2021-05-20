@@ -1,0 +1,13 @@
+name: Notice yarn.lock changes
+on:
+  - pull_request
+
+jobs:
+  notice_yarn_changes:
+    name: Notice yarn.lock changes
+    runs-on: ubuntu-latest
+    steps:
+    - name: Yarn Lock Changes
+      uses: Simek/yarn-lock-changes@main
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
