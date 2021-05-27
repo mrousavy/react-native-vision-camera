@@ -11,7 +11,7 @@ buildscript {
     }
     repositories {
         google()
-        mavenCentral()
+        jcenter()
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.0"
@@ -35,7 +35,7 @@ allprojects {
         }
 
         google()
-        mavenCentral()
+        jcenter()
         maven { url 'https://www.jitpack.io' }
     }
 }
