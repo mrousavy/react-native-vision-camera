@@ -149,6 +149,10 @@ const frameProcessor = useFrameProcessor((frame: Frame) => {
 
 Check out [**Frame Processor community plugins**](/docs/guides/frame-processor-plugin-list) to discover plugins!
 
+### ESLint react-hooks plugin
+
+If you are using the [react-hooks ESLint plugin](https://www.npmjs.com/package/eslint-plugin-react-hooks), make sure to add `useFrameProcessor` to `additionalHooks` inside your ESLint config. (See ["advanced configuration"](https://www.npmjs.com/package/eslint-plugin-react-hooks#advanced-configuration))
+
 ### Disabling Frame Processors
 
 The Frame Processor API spawns a secondary JavaScript Runtime which consumes a small amount of extra CPU and RAM. If you're not using Frame Processors at all, you can disable them by setting the `VISION_CAMERA_DISABLE_FRAME_PROCESSORS` flag. Inside your `project.pbxproj`, find the `GCC_PREPROCESSOR_DEFINITIONS` parameter and add the flag:
