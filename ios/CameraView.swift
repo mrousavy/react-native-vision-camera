@@ -154,12 +154,6 @@ public final class CameraView: UIView {
                                               object: AVAudioSession.sharedInstance)
   }
 
-  override public func removeFromSuperview() {
-    ReactLogger.log(level: .info, message: "Removing Camera View...")
-    captureSession.stopRunning()
-    super.removeFromSuperview()
-  }
-
   // pragma MARK: Props updating
   override public final func didSetProps(_ changedProps: [String]!) {
     ReactLogger.log(level: .info, message: "Updating \(changedProps.count) prop(s)...")
