@@ -141,6 +141,13 @@ const frameProcessor = useFrameProcessor((frame: Frame) => {
 
 Check out [**Frame Processor community plugins**](/docs/guides/frame-processor-plugin-list) to discover plugins!
 
+### Benchmarks
+
+I have used [MLKit Vision Image Labeling](https://firebase.google.com/docs/ml-kit/ios/label-images) to label 4k Camera frames in realtime.
+
+* Fully natively (written in pure Objective-C, no React interaction at all), I have measured an average of **68ms** per label call.
+* As a Frame Processor Plugin (written in Objective-C, called through a JS Frame Processor function), I have measured an average of **69ms** per label call, meaning **the Frame Processor API only takes ~1ms longer than a fully native implementation**, making it **the fastest way to run any sort of Frame Processing in React Native**.
+
 ### ESLint react-hooks plugin
 
 If you are using the [react-hooks ESLint plugin](https://www.npmjs.com/package/eslint-plugin-react-hooks), make sure to add `useFrameProcessor` to `additionalHooks` inside your ESLint config. (See ["advanced configuration"](https://www.npmjs.com/package/eslint-plugin-react-hooks#advanced-configuration))
