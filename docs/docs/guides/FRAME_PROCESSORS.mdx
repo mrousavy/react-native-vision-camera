@@ -43,17 +43,9 @@ Frame processors are by far not limited to QR code detection, other examples inc
 * **AI** for **object detection**
 * Using **Tensorflow**, **MLKit Vision** or other libraries
 * Creating **realtime video-chats** using **WebRTC** to directly send the camera frames over the network
+* Creating scanners for QR codes, Barcodes or even custom codes such as Snapchat's SnapCodes or Apple's AppClips
 * Creating **snapchat-like filters**, e.g. draw a dog-mask filter over the user's face
 * Creating **color filters** with depth-detection
-
-Because of the Frame Processor API's extensibility, you can even create your **custom code-scanner plugins** - for example you might want to support a custom code design such as **Snapchat's SnapCodes** or **Apple's AppClips**:
-
-<div align="center">
-  <img src={useBaseUrl("img/snap-code.png")} height={150} />
-  <img src={useBaseUrl("img/appclip.png")} height={150} style={{ marginLeft: 50 }} />
-</div>
-
-<br />
 
 :::note
 Frame Processors require [**react-native-reanimated**](https://github.com/software-mansion/react-native-reanimated) 2.2.0 or higher.
@@ -148,6 +140,15 @@ const frameProcessor = useFrameProcessor((frame: Frame) => {
 ```
 
 Check out [**Frame Processor community plugins**](/docs/guides/frame-processor-plugin-list) to discover plugins!
+
+### Benchmarks
+
+I have used [MLKit Vision Image Labeling](https://firebase.google.com/docs/ml-kit/ios/label-images) to label 4k Camera frames in realtime.
+
+* Fully natively (written in pure Objective-C, no React interaction at all), I have measured an average of **68ms** per call.
+* As a Frame Processor Plugin (written in Objective-C, called through a JS Frame Processor function), I have measured an average of **69ms** per call, meaning **the Frame Processor API only takes ~1ms longer than a fully native implementation**, making it **the fastest way to run any sort of Frame Processing in React Native**.
+
+> All measurements are recorded on an iPhone 11 Pro, benchmarked total execution time of the [`captureOutput`](https://developer.apple.com/documentation/avfoundation/avcapturevideodataoutputsamplebufferdelegate/1385775-captureoutput) function by using [`mach_absolute_time`](https://developer.apple.com/documentation/kernel/1462446-mach_absolute_time).
 
 ### ESLint react-hooks plugin
 
