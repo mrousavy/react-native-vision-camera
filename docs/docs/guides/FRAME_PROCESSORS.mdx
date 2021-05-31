@@ -148,7 +148,7 @@ I have used [MLKit Vision Image Labeling](https://firebase.google.com/docs/ml-ki
 * Fully natively (written in pure Objective-C, no React interaction at all), I have measured an average of **68ms** per call.
 * As a Frame Processor Plugin (written in Objective-C, called through a JS Frame Processor function), I have measured an average of **69ms** per call, meaning **the Frame Processor API only takes ~1ms longer than a fully native implementation**, making it **the fastest way to run any sort of Frame Processing in React Native**.
 
-> All measurements are recorded on an iPhone 11 Pro, benchmarked total execution time of the [`captureOutput`](https://developer.apple.com/documentation/avfoundation/avcapturevideodataoutputsamplebufferdelegate/1385775-captureoutput) function by using [`mach_absolute_time`](https://developer.apple.com/documentation/kernel/1462446-mach_absolute_time).
+> All measurements are recorded on an iPhone 11 Pro, benchmarked total execution time of the [`captureOutput`](https://developer.apple.com/documentation/avfoundation/avcapturevideodataoutputsamplebufferdelegate/1385775-captureoutput) function by using [`CFAbsoluteTimeGetCurrent`](https://developer.apple.com/documentation/corefoundation/1543542-cfabsolutetimegetcurrent). Running smaller images (lower than 4k resolution) is much quicker and many algorithms can even run at 60 FPS.
 
 ### ESLint react-hooks plugin
 
