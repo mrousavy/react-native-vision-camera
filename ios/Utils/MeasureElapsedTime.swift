@@ -8,7 +8,7 @@
 
 import Foundation
 
-func measureElapsedTime<T>(label: String, _ code: () -> T) -> T {
+@inlinable func measureElapsedTime<T>(label: String, _ code: () -> T) -> T {
   #if DEBUG
   let start = DispatchTime.now()
   defer {

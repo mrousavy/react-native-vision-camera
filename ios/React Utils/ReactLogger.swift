@@ -13,7 +13,7 @@ let context = "VisionCamera"
 // MARK: - ReactLogger
 
 enum ReactLogger {
-  static func log(level: RCTLogLevel,
+  @inlinable static func log(level: RCTLogLevel,
                   message: String,
                   _ file: String = #file,
                   _ lineNumber: Int = #line,
