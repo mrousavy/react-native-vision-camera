@@ -10,7 +10,7 @@ import Foundation
 
 /**
  Measures the amount of time the given codeblock takes to execute.
- Results will be printed to the [RCTDefaultLogFunction] with millisecond precision.
+ Results will be printed to the [ReactLogger] with millisecond precision.
  */
 @inlinable
 func measureElapsedTime<T>(_ label: String = #function, _ code: () -> T) -> T {
