@@ -22,7 +22,7 @@ extension CameraView {
   final func activateAudioSession() {
     ReactLogger.log(level: .info, message: "Activating Audio Session...")
 
-    measureElapsedTime(label: "Audio Session activation") {
+    measureElapsedTime {
       do {
         let audioSession = AVAudioSession.sharedInstance()
         // deactivates, updates category and activates session again if category/options are not equal.
@@ -49,7 +49,7 @@ extension CameraView {
   final func deactivateAudioSession() {
     ReactLogger.log(level: .info, message: "Deactivating Audio Session...")
 
-    measureElapsedTime(label: "Audio Session deactivation") {
+    measureElapsedTime {
       do {
         removeAudioInput()
         try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
