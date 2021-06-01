@@ -261,7 +261,7 @@ extension CameraView {
 
     switch reason {
     case .audioDeviceInUseByAnotherClient:
-      if self.isRecording {
+      if isRecording {
         // add audio again because we removed it when we received the interruption.
         activateAudioSession()
       }
