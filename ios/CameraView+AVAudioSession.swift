@@ -3,7 +3,7 @@
 //  VisionCamera
 //
 //  Created by Marc Rousavy on 26.03.21.
-//  Copyright © 2021 Facebook. All rights reserved.
+//  Copyright © 2021 mrousavy. All rights reserved.
 //
 
 import AVFoundation
@@ -22,10 +22,7 @@ extension CameraView {
       try addAudioInput()
 
       let audioSession = AVAudioSession.sharedInstance()
-      if audioSession.category != .playAndRecord {
-        // allow background music playback
-        try audioSession.setCategory(AVAudioSession.Category.playAndRecord, options: [.mixWithOthers, .allowBluetoothA2DP, .defaultToSpeaker])
-      }
+      try audioSession.setCategoryIfNotSet(AVAudioSession.Category.playAndRecord, options: [.mixWithOthers, .allowBluetoothA2DP, .defaultToSpeaker])
       audioSession.trySetAllowHaptics(true)
 
       // activate current audio session because camera is active

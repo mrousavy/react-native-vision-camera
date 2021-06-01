@@ -3,7 +3,7 @@
 //  VisionCamera
 //
 //  Created by Marc Rousavy on 22.03.21.
-//  Copyright © 2021 Facebook. All rights reserved.
+//  Copyright © 2021 mrousavy. All rights reserved.
 //
 
 #import "FrameHostObject.h"
@@ -25,8 +25,8 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
 
 jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {
   auto name = propName.utf8(runtime);
-  
-  
+
+
   if (name == "Symbol.toPrimitive") {
     // not implemented
     return jsi::Value::undefined();
@@ -40,13 +40,13 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       auto imageBuffer = CMSampleBufferGetImageBuffer(buffer);
       auto width = CVPixelBufferGetWidth(imageBuffer);
       auto height = CVPixelBufferGetHeight(imageBuffer);
-      
+
       NSMutableString* string = [NSMutableString stringWithFormat:@"%lu x %lu Frame", width, height];
       return jsi::String::createFromUtf8(runtime, string.UTF8String);
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
   }
-  
+
   if (name == "isValid") {
     auto isValid = buffer != nil && CMSampleBufferIsValid(buffer);
     return jsi::Value(isValid);
@@ -79,7 +79,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     // TODO: Actually return the pixels of the buffer. Not sure if this will be a huge performance hit or not
     return jsi::Array(runtime, 0);
   }
-  
+
   return jsi::Value::undefined();
 }
 

@@ -3,7 +3,7 @@
 //  VisionCamera
 //
 //  Created by Marc Rousavy on 02.05.21.
-//  Copyright © 2021 Facebook. All rights reserved.
+//  Copyright © 2021 mrousavy. All rights reserved.
 //
 
 #import "JSIUtils.h"
@@ -146,7 +146,7 @@ id convertJSIValueToObjCObject(jsi::Runtime &runtime, const jsi::Value &value, s
     }
     return convertJSIObjectToNSDictionary(runtime, o, jsInvoker);
   }
-  
+
   throw std::runtime_error("Unsupported jsi::jsi::Value kind");
 }
 
@@ -158,30 +158,30 @@ RCTResponseSenderBlock convertJSIFunctionToCallback(jsi::Runtime &runtime, const
     if (wrapperWasCalled) {
       throw std::runtime_error("callback arg cannot be called more than once");
     }
-    
+
     auto strongWrapper = weakWrapper.lock();
     if (!strongWrapper) {
       return;
     }
-    
+
     strongWrapper->jsInvoker().invokeAsync([weakWrapper, responses]() {
       auto strongWrapper2 = weakWrapper.lock();
       if (!strongWrapper2) {
         return;
       }
-      
+
       const jsi::Value* args = convertNSArrayToJSICStyleArray(strongWrapper2->runtime(), responses);
       strongWrapper2->callback().call(strongWrapper2->runtime(), args, static_cast<size_t>(responses.count));
       strongWrapper2->destroy();
       delete[] args;
     });
-    
+
     wrapperWasCalled = YES;
   };
-  
+
   if (RCTTurboModuleBlockCopyEnabled()) {
     return [callback copy];
   }
-  
+
   return callback;
 }
