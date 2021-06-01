@@ -1,5 +1,5 @@
 //
-//  AVAudioSession+trySetCategory.swift
+//  AVAudioSession+updateCategory.swift
 //  VisionCamera
 //
 //  Created by Marc Rousavy on 01.06.21.
@@ -11,11 +11,14 @@ import Foundation
 
 extension AVAudioSession {
   /**
-   Calls [setCategory] if the given category or options are not equal to the currently set category and options.
+   Calls [setCategory] if the given category or options are not equal to the currently set category and options and reactivates the session.
    */
-  func setCategoryIfNotSet(_ category: AVAudioSession.Category, options: AVAudioSession.CategoryOptions = []) throws {
+  func updateCategory(_ category: AVAudioSession.Category, options: AVAudioSession.CategoryOptions = []) throws {
     if self.category != category || categoryOptions.rawValue != options.rawValue {
+      ReactLogger.log(level: .info, message: "Setting AVAudioSession category to \(category.rawValue)")
+      try setActive(false, options: .notifyOthersOnDeactivation)
       try setCategory(category, options: options)
+      try setActive(true)
     }
   }
 }
