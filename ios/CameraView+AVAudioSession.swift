@@ -19,6 +19,8 @@ extension CameraView {
    The Audio Session will be configured to allow background music, haptics (vibrations) and system sound playback while recording. Background audio is allowed to play on speakers or bluetooth speakers.
    */
   final func activateAudioSession() {
+    ReactLogger.log(level: .info, message: "Activating Audio Session...")
+    
     let start = DispatchTime.now()
     do {
       let audioSession = AVAudioSession.sharedInstance()
@@ -40,20 +42,26 @@ extension CameraView {
 
     let end = DispatchTime.now()
     let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
-    ReactLogger.log(level: .info, message: "Configured Audio session in \(Double(nanoTime) / 1_000_000)ms!")
+    ReactLogger.log(level: .info, message: "Activated Audio session in \(Double(nanoTime) / 1_000_000)ms!")
   }
 
   /**
    Deactivate the shared Audio Session.
    */
   final func deactivateAudioSession() {
+    ReactLogger.log(level: .info, message: "Deactivating Audio Session...")
+    
+    let start = DispatchTime.now()
     do {
-      ReactLogger.log(level: .info, message: "Deactivating Audio Session...")
       removeAudioInput()
       try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     } catch let error as NSError {
       self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)), cause: error)
     }
+    
+    let end = DispatchTime.now()
+    let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
+    ReactLogger.log(level: .info, message: "Deactivated Audio session in \(Double(nanoTime) / 1_000_000)ms!")
   }
 
   /**
@@ -64,7 +72,6 @@ extension CameraView {
       // we already added the audio device, don't add it again
       return
     }
-    removeAudioInput()
 
     ReactLogger.log(level: .info, message: "Adding audio input...")
     captureSession.beginConfiguration()
