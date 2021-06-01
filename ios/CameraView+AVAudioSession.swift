@@ -21,29 +21,26 @@ extension CameraView {
    */
   final func activateAudioSession() {
     ReactLogger.log(level: .info, message: "Activating Audio Session...")
-
-    let start = DispatchTime.now()
-    do {
-      let audioSession = AVAudioSession.sharedInstance()
-      // deactivates, updates category and activates session again if category/options are not equal.
-      try audioSession.updateCategory(AVAudioSession.Category.playAndRecord, options: [.mixWithOthers, .allowBluetoothA2DP, .defaultToSpeaker])
-      // allows haptic feedback (vibrations) and system sounds to play while recording.
-      audioSession.trySetAllowHaptics(true)
-
-      try addAudioInput()
-    } catch let error as NSError {
-      switch error.code {
-      case 561_017_449:
-        self.invokeOnError(.session(.audioInUseByOtherApp), cause: error)
-      default:
-        self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)), cause: error)
+    
+    measureElapsedTime(label: "Audio Session activation") {
+      do {
+        let audioSession = AVAudioSession.sharedInstance()
+        // deactivates, updates category and activates session again if category/options are not equal.
+        try audioSession.updateCategory(AVAudioSession.Category.playAndRecord, options: [.mixWithOthers, .allowBluetoothA2DP, .defaultToSpeaker])
+        // allows haptic feedback (vibrations) and system sounds to play while recording.
+        audioSession.trySetAllowHaptics(true)
+        
+        try addAudioInput()
+      } catch let error as NSError {
+        switch error.code {
+        case 561_017_449:
+          self.invokeOnError(.session(.audioInUseByOtherApp), cause: error)
+        default:
+          self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)), cause: error)
+        }
+        self.removeAudioInput()
       }
-      self.removeAudioInput()
     }
-
-    let end = DispatchTime.now()
-    let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
-    ReactLogger.log(level: .info, message: "Activated Audio session in \(Double(nanoTime) / 1_000_000)ms!")
   }
 
   /**
@@ -52,17 +49,14 @@ extension CameraView {
   final func deactivateAudioSession() {
     ReactLogger.log(level: .info, message: "Deactivating Audio Session...")
 
-    let start = DispatchTime.now()
-    do {
-      removeAudioInput()
-      try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
-    } catch let error as NSError {
-      self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)), cause: error)
+    measureElapsedTime(label: "Audio Session deactivation") {
+      do {
+        removeAudioInput()
+        try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+      } catch let error as NSError {
+        self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)), cause: error)
+      }
     }
-
-    let end = DispatchTime.now()
-    let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
-    ReactLogger.log(level: .info, message: "Deactivated Audio session in \(Double(nanoTime) / 1_000_000)ms!")
   }
 
   /**
