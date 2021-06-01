@@ -17,7 +17,7 @@
     "react": "^17.0.2",
     "react-native": "^0.64.1",
     "react-native-gesture-handler": "^1.10.3",
-    "react-native-navigation": "7.15.0-snapshot.1552",
+    "react-native-navigation": "7.8.4-snapshot.1439",
     "react-native-pressable-opacity": "^1.0.4",
     "react-native-reanimated": "^2.2.0",
     "react-native-static-safe-area-insets": "^2.1.1",
