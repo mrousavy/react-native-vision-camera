@@ -14,9 +14,7 @@ extension AVAudioSession {
    Calls [setCategory] if the given category or options are not equal to the currently set category and options.
    */
   func setCategoryIfNotSet(_ category: AVAudioSession.Category, options: AVAudioSession.CategoryOptions = []) throws {
-    print("YEEET TRY Setting category")
     if self.category != category || categoryOptions.rawValue != options.rawValue {
-      print("YEEET Setting category")
       try setCategory(category, options: options)
     }
   }
