@@ -18,6 +18,8 @@ enum ReactLogger {
                   _ file: String = #file,
                   _ lineNumber: Int = #line,
                   _ function: String = #function) {
+    #if DEBUG
     RCTDefaultLogFunction(level, RCTLogSource.native, file, lineNumber as NSNumber, "\(context).\(function): \(message)")
+    #endif
   }
 }
