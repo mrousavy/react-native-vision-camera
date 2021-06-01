@@ -261,8 +261,10 @@ extension CameraView {
 
     switch reason {
     case .audioDeviceInUseByAnotherClient:
-      // add audio again because we removed it when we received the interruption.
-      configureAudioSession()
+      if self.isRecording {
+        // add audio again because we removed it when we received the interruption.
+        activateAudioSession()
+      }
     default:
       // don't do anything, iOS will automatically resume session
       break

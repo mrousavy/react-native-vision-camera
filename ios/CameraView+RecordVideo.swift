@@ -58,6 +58,9 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           }
         }
 
+        // configures AVAudioSession, activates it and adds the audioOutput.
+        self.activateAudioSession()
+        
         let videoSettings = self.videoOutput!.recommendedVideoSettingsForAssetWriter(writingTo: fileType)
         let audioSettings = self.audioOutput!.recommendedAudioSettingsForAssetWriter(writingTo: fileType) as? [String: Any]
         self.recordingSession = try RecordingSession(url: tempURL,

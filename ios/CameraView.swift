@@ -189,7 +189,6 @@ public final class CameraView: UIView {
         if shouldCheckActive && self.captureSession.isRunning != self.isActive {
           if self.isActive {
             ReactLogger.log(level: .info, message: "Starting Session...")
-            self.configureAudioSession()
             self.captureSession.startRunning()
             ReactLogger.log(level: .info, message: "Started Session!")
           } else {

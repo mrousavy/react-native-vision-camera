@@ -14,9 +14,11 @@ import Foundation
  */
 extension CameraView {
   /**
-   Configures the Audio session to allow background-music playback while recording.
+   Configures the Audio session and activates it. If the session was active it will shortly be deactivated before configuration.
+   
+   The Audio Session will be configured to allow background music, haptics (vibrations) and system sound playback while recording. Background audio is allowed to play on speakers or bluetooth speakers.
    */
-  final func configureAudioSession() {
+  final func activateAudioSession() {
     let start = DispatchTime.now()
     do {
       let audioSession = AVAudioSession.sharedInstance()
@@ -26,6 +28,7 @@ extension CameraView {
       audioSession.trySetAllowHaptics(true)
 
       try addAudioInput()
+
     } catch let error as NSError {
       switch error.code {
       case 561_017_449:
@@ -100,8 +103,10 @@ extension CameraView {
       let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
       if options.contains(.shouldResume) {
         ReactLogger.log(level: .error, message: "Resuming interrupted Audio Session...")
-        // restart audio session because interruption is over
-        configureAudioSession()
+        if self.isRecording {
+          // restart audio session because interruption is over
+          activateAudioSession()
+        }
       } else {
         ReactLogger.log(level: .error, message: "Cannot resume interrupted Audio Session!")
       }
