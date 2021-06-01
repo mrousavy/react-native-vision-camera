@@ -49,6 +49,7 @@ extension CameraView {
   final func deactivateAudioSession() {
     do {
       ReactLogger.log(level: .info, message: "Deactivating Audio Session...")
+      self.removeAudioInput()
       try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     } catch let error as NSError {
       self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)), cause: error)
