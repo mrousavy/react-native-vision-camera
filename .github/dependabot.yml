@@ -1,18 +1,36 @@
 version: 2
 
 updates:
-#  - package-ecosystem: "npm"
-#    directory: "/"
-#    schedule:
-#      interval: "daily"
-#    labels:
-#      - "dependencies"
-#      - "js"
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "🛠 dependencies"
+      - "☕️ js"
+
+  - package-ecosystem: "npm"
+    directory: "/docs/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "🛠 dependencies"
+      - "☕️ js"
+      - "📚 documentation"
+
+  - package-ecosystem: "npm"
+    directory: "/example/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "🛠 dependencies"
+      - "☕️ js"
+      - "🛸 example"
 
   - package-ecosystem: "gradle"
     directory: "/android/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     labels:
       - "🛠 dependencies"
       - "🤖 android"
