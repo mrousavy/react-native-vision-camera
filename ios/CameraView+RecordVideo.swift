@@ -41,6 +41,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         let onFinish = { (status: AVAssetWriter.Status, error: Error?) -> Void in
           defer {
             self.recordingSession = nil
+            self.deactivateAudioSession()
           }
           ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
           if let error = error {
