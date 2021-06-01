@@ -161,6 +161,7 @@ class RecordingSession {
     ReactLogger.log(level: .info, message: "Finishing Recording with AssetWriter status \"\(assetWriter.status.descriptor)\"...")
     if assetWriter.status == .writing {
       bufferAdaptor?.assetWriterInput.markAsFinished()
+      audioWriter?.markAsFinished()
       assetWriter.finishWriting {
         self.completionHandler(self.assetWriter.status, self.assetWriter.error)
       }
