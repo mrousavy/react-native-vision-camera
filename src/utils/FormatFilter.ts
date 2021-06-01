@@ -21,11 +21,17 @@ export const sortDevices = (left: CameraDevice, right: CameraDevice): number => 
 
   const leftHasWideAngle = left.devices.includes('wide-angle-camera');
   const rightHasWideAngle = right.devices.includes('wide-angle-camera');
-  if (leftHasWideAngle) leftPoints += 5;
-  if (rightHasWideAngle) rightPoints += 5;
+  if (leftHasWideAngle) leftPoints += 2;
+  if (rightHasWideAngle) rightPoints += 2;
 
-  if (left.devices.length > right.devices.length) leftPoints += 3;
-  if (right.devices.length > left.devices.length) rightPoints += 3;
+  // telephoto cameras often have very poor quality.
+  const leftHasTelephoto = left.devices.includes('telephoto-camera');
+  const rightHasTelephoto = right.devices.includes('telephoto-camera');
+  if (leftHasTelephoto) leftPoints -= 2;
+  if (rightHasTelephoto) rightPoints -= 2;
+
+  if (left.devices.length > right.devices.length) leftPoints += 1;
+  if (right.devices.length > left.devices.length) rightPoints += 1;
 
   return rightPoints - leftPoints;
 };
@@ -55,10 +61,13 @@ export const sortFormats = (left: CameraDeviceFormat, right: CameraDeviceFormat)
     rightPoints += Math.round(right.videoWidth / 500);
   }
 
+  // we downscale the points here as well, so if left has 16:9 and right has 21:9, this roughly
+  // adds 5 points. If the difference is smaller, e.g. 16:9 vs 17:9, this roughly adds a little
+  // bit over 1 point, just enough to overrule the FPS below.
   const leftAspectRatioDiff = left.photoHeight / left.photoWidth - SCREEN_ASPECT_RATIO;
   const rightAspectRatioDiff = right.photoHeight / right.photoWidth - SCREEN_ASPECT_RATIO;
-  leftPoints -= Math.abs(leftAspectRatioDiff) * 50;
-  rightPoints -= Math.abs(rightAspectRatioDiff) * 50;
+  leftPoints -= Math.abs(leftAspectRatioDiff) * 10;
+  rightPoints -= Math.abs(rightAspectRatioDiff) * 10;
 
   return rightPoints - leftPoints;
 };
