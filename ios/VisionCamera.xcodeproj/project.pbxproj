@@ -303,7 +303,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 1240;
-				ORGANIZATIONNAME = Facebook;
+				ORGANIZATIONNAME = mrousavy;
 				TargetAttributes = {
 					58B511DA1A9E6C8500147676 = {
 						CreatedOnToolsVersion = 6.1.1;
