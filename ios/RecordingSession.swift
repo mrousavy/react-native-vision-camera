@@ -11,7 +11,7 @@ import Foundation
 
 // MARK: - BufferType
 
-enum BufferType {
+enum BufferType: String {
   case audio
   case video
 }
@@ -20,12 +20,11 @@ enum BufferType {
 
 class RecordingSession {
   private let assetWriter: AVAssetWriter
-  private var audioWriter: AVAssetWriterInput? = nil
-  private let videoWriter: AVAssetWriterInput
-  private let bufferAdaptor: AVAssetWriterInputPixelBufferAdaptor
+  private var audioWriter: AVAssetWriterInput?
+  private var bufferAdaptor: AVAssetWriterInputPixelBufferAdaptor?
   private let completionHandler: (AVAssetWriter.Status, Error?) -> Void
 
-  private let initialTimestamp: CMTime
+  private var initialTimestamp: CMTime?
   private var latestTimestamp: CMTime?
   private var hasWrittenFirstVideoFrame = false
 
@@ -34,7 +33,8 @@ class RecordingSession {
   }
 
   var duration: Double {
-    guard let latestTimestamp = latestTimestamp else {
+    guard let latestTimestamp = latestTimestamp,
+          let initialTimestamp = initialTimestamp else {
       return 0.0
     }
     return (latestTimestamp - initialTimestamp).seconds
@@ -42,51 +42,76 @@ class RecordingSession {
 
   init(url: URL,
        fileType: AVFileType,
-       videoSettings: [String: Any],
-       audioSettings: [String: Any],
-       isVideoMirrored: Bool,
        completion: @escaping (AVAssetWriter.Status, Error?) -> Void) throws {
+    
+    completionHandler = completion
+    
     do {
       assetWriter = try AVAssetWriter(outputURL: url, fileType: fileType)
-      videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: videoSettings)
-      if !audioSettings.isEmpty {
-        audioWriter = AVAssetWriterInput(mediaType: .audio, outputSettings: audioSettings)
-      }
-      completionHandler = completion
     } catch let error as NSError {
       throw CameraError.capture(.createRecorderError(message: error.description))
     }
 
-    audioWriter?.expectsMediaDataInRealTime = true
-    videoWriter.expectsMediaDataInRealTime = true
-    if isVideoMirrored {
-      videoWriter.transform = CGAffineTransform(rotationAngle: -(.pi / 2))
-    } else {
-      videoWriter.transform = CGAffineTransform(rotationAngle: .pi / 2)
-    }
-
-    bufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter, withVideoSettings: videoSettings)
-
-    assetWriter.add(videoWriter)
-    if let audioWriter = audioWriter {
-      assetWriter.add(audioWriter)
-    }
-
-    assetWriter.startWriting()
-    initialTimestamp = CMTime(seconds: CACurrentMediaTime(), preferredTimescale: 1_000_000_000)
-    assetWriter.startSession(atSourceTime: initialTimestamp)
     ReactLogger.log(level: .info, message: "Initialized Video and Audio AssetWriter.")
   }
-
+  
   deinit {
     if assetWriter.status == .writing {
       ReactLogger.log(level: .info, message: "Cancelling AssetWriter...")
       assetWriter.cancelWriting()
     }
   }
+  
+  func initializeVideoWriter(withSettings settings: [String: Any], isVideoMirrored: Bool) {
+    guard !settings.isEmpty else {
+      ReactLogger.log(level: .error, message: "Tried to initialize Video Writer with empty settings!")
+      return
+    }
+    guard bufferAdaptor == nil else {
+      ReactLogger.log(level: .error, message: "Tried to add a second Video Writer!")
+      return
+    }
+    
+    let videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: settings)
+    videoWriter.expectsMediaDataInRealTime = true
+    
+    if isVideoMirrored {
+      videoWriter.transform = CGAffineTransform(rotationAngle: -(.pi / 2))
+    } else {
+      videoWriter.transform = CGAffineTransform(rotationAngle: .pi / 2)
+    }
+    
+    assetWriter.add(videoWriter)
+    bufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter, withVideoSettings: settings)
+  }
+  
+  func initializeAudioWriter(withSettings settings: [String: Any]) {
+    guard !settings.isEmpty else {
+      ReactLogger.log(level: .error, message: "Tried to initialize Audio Writer with empty settings!")
+      return
+    }
+    guard audioWriter == nil else {
+      ReactLogger.log(level: .error, message: "Tried to add a second Audio Writer!")
+      return
+    }
+    
+    audioWriter = AVAssetWriterInput(mediaType: .audio, outputSettings: settings)
+    audioWriter!.expectsMediaDataInRealTime = true
+    assetWriter.add(audioWriter!)
+  }
+  
+  func start() {
+    assetWriter.startWriting()
+    initialTimestamp = CMTime(seconds: CACurrentMediaTime(), preferredTimescale: 1_000_000_000)
+    assetWriter.startSession(atSourceTime: initialTimestamp!)
+  }
 
   func appendBuffer(_ buffer: CMSampleBuffer, type bufferType: BufferType) {
     if !CMSampleBufferDataIsReady(buffer) {
+      return
+    }
+    guard let initialTimestamp = initialTimestamp else {
+      ReactLogger.log(level: .error, message: "A \(bufferType.rawValue) frame arrived, but initialTimestamp was nil. Is this RecordingSession running?")
       return
     }
 
@@ -95,7 +120,11 @@ class RecordingSession {
 
     switch bufferType {
     case .video:
-      if !videoWriter.isReadyForMoreMediaData {
+      guard let bufferAdaptor = bufferAdaptor else {
+        ReactLogger.log(level: .error, message: "Video Frame arrived but VideoWriter was nil!")
+        return
+      }
+      if !bufferAdaptor.assetWriterInput.isReadyForMoreMediaData {
         ReactLogger.log(level: .warning, message: "The Video AVAssetWriterInput was not ready for more data! Is your frame rate too high?")
         return
       }
@@ -132,7 +161,7 @@ class RecordingSession {
   func finish() {
     ReactLogger.log(level: .info, message: "Finishing Recording with AssetWriter status \"\(assetWriter.status.descriptor)\"...")
     if assetWriter.status == .writing {
-      videoWriter.markAsFinished()
+      bufferAdaptor?.assetWriterInput.markAsFinished()
       assetWriter.finishWriting {
         self.completionHandler(self.assetWriter.status, self.assetWriter.error)
       }

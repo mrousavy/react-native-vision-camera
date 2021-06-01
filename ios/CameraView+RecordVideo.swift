@@ -13,6 +13,9 @@ private var hasLoggedFrameDropWarning = false
 // MARK: - CameraView + AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate
 
 extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
+  
+  // TODO: startRecording() stutters the camera. run audio initialization async?
+  
   func startRecording(options: NSDictionary, callback: @escaping RCTResponseSenderBlock) {
     cameraQueue.async {
       ReactLogger.log(level: .info, message: "Starting Video recording...")
@@ -59,19 +62,30 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           }
         }
 
+        let recordingSession = try RecordingSession(url: tempURL,
+                                                    fileType: fileType,
+                                                    completion: onFinish)
+        
+        // Init Video
+        guard let videoSettings = self.videoOutput!.recommendedVideoSettingsForAssetWriter(writingTo: fileType),
+              !videoSettings.isEmpty else {
+          throw CameraError.capture(.createRecorderError(message: "Failed to get video settings!"))
+        }
+        recordingSession.initializeVideoWriter(withSettings: videoSettings,
+                                               isVideoMirrored: self.videoOutput!.isMirrored)
+        
+        // Init Audio (optional)
         // configures AVAudioSession, activates it and adds the audioOutput.
         self.activateAudioSession()
-
-        let videoSettings = self.videoOutput!.recommendedVideoSettingsForAssetWriter(writingTo: fileType)
-        let audioSettings = self.audioOutput!.recommendedAudioSettingsForAssetWriter(writingTo: fileType) as? [String: Any]
-        self.recordingSession = try RecordingSession(url: tempURL,
-                                                     fileType: fileType,
-                                                     videoSettings: videoSettings ?? [:],
-                                                     audioSettings: audioSettings ?? [:],
-                                                     isVideoMirrored: self.videoOutput!.isMirrored,
-                                                     completion: onFinish)
-
+        if let audioSettings = self.audioOutput!.recommendedAudioSettingsForAssetWriter(writingTo: fileType) as? [String: Any] {
+          recordingSession.initializeAudioWriter(withSettings: audioSettings)
+        }
+        
+        // Start recording
+        recordingSession.start()
+        self.recordingSession = recordingSession
         self.isRecording = true
+        
       } catch EnumParserError.invalidValue {
         return callback([NSNull(), EnumParserError.invalidValue])
       } catch let error as NSError {
@@ -81,9 +95,9 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   }
 
   func stopRecording(promise: Promise) {
-    isRecording = false
-
     cameraQueue.async {
+      self.isRecording = false
+      
       withPromise(promise) {
         guard let recordingSession = self.recordingSession else {
           throw CameraError.capture(.noRecordingInProgress)
