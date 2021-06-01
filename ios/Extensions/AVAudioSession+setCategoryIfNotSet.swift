@@ -15,9 +15,9 @@ extension AVAudioSession {
    */
   func setCategoryIfNotSet(_ category: AVAudioSession.Category, options: AVAudioSession.CategoryOptions = []) throws {
     print("YEEET TRY Setting category")
-    if self.category != category || self.categoryOptions.rawValue != options.rawValue {
+    if self.category != category || categoryOptions.rawValue != options.rawValue {
       print("YEEET Setting category")
-      try self.setCategory(category, options: options)
+      try setCategory(category, options: options)
     }
   }
 }
