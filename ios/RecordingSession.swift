@@ -20,7 +20,7 @@ enum BufferType {
 
 class RecordingSession {
   private let assetWriter: AVAssetWriter
-  private let audioWriter: AVAssetWriterInput
+  private var audioWriter: AVAssetWriterInput? = nil
   private let videoWriter: AVAssetWriterInput
   private let bufferAdaptor: AVAssetWriterInputPixelBufferAdaptor
   private let completionHandler: (AVAssetWriter.Status, Error?) -> Void
@@ -48,14 +48,16 @@ class RecordingSession {
        completion: @escaping (AVAssetWriter.Status, Error?) -> Void) throws {
     do {
       assetWriter = try AVAssetWriter(outputURL: url, fileType: fileType)
-      audioWriter = AVAssetWriterInput(mediaType: .audio, outputSettings: audioSettings)
       videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: videoSettings)
+      if !audioSettings.isEmpty {
+        audioWriter = AVAssetWriterInput(mediaType: .audio, outputSettings: audioSettings)
+      }
       completionHandler = completion
     } catch let error as NSError {
       throw CameraError.capture(.createRecorderError(message: error.description))
     }
 
-    audioWriter.expectsMediaDataInRealTime = true
+    audioWriter?.expectsMediaDataInRealTime = true
     videoWriter.expectsMediaDataInRealTime = true
     if isVideoMirrored {
       videoWriter.transform = CGAffineTransform(rotationAngle: -(.pi / 2))
@@ -66,7 +68,9 @@ class RecordingSession {
     bufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter, withVideoSettings: videoSettings)
 
     assetWriter.add(videoWriter)
-    assetWriter.add(audioWriter)
+    if let audioWriter = audioWriter {
+      assetWriter.add(audioWriter)
+    }
 
     assetWriter.startWriting()
     initialTimestamp = CMTime(seconds: CACurrentMediaTime(), preferredTimescale: 1_000_000_000)
@@ -105,6 +109,10 @@ class RecordingSession {
         ReactLogger.log(level: .warning, message: "VideoWriter: First frame arrived \((timestamp - initialTimestamp).seconds) seconds late.")
       }
     case .audio:
+      guard let audioWriter = audioWriter else {
+        ReactLogger.log(level: .error, message: "Audio Frame arrived but AudioWriter was nil!")
+        return
+      }
       if !audioWriter.isReadyForMoreMediaData {
         return
       }
