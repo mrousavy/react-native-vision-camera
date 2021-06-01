@@ -14,5 +14,6 @@ echo "Linting C++ code.."
 
 echo "Linting JS/TS code.."
 yarn lint --fix
+yarn typescript
 
 echo "All done!"
