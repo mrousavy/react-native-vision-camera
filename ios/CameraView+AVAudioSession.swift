@@ -22,10 +22,7 @@ extension CameraView {
       try addAudioInput()
 
       let audioSession = AVAudioSession.sharedInstance()
-      if audioSession.category != .playAndRecord {
-        // allow background music playback
-        try audioSession.setCategory(AVAudioSession.Category.playAndRecord, options: [.mixWithOthers, .allowBluetoothA2DP, .defaultToSpeaker])
-      }
+      try audioSession.setCategoryIfNotSet(AVAudioSession.Category.playAndRecord, options: [.mixWithOthers, .allowBluetoothA2DP, .defaultToSpeaker])
       audioSession.trySetAllowHaptics(true)
 
       // activate current audio session because camera is active

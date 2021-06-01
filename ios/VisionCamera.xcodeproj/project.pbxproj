@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		B80C0E00260BDDF7001699AB /* FrameProcessorPluginRegistry.mm in Sources */ = {isa = PBXBuildFile; fileRef = B80C0DFF260BDDF7001699AB /* FrameProcessorPluginRegistry.mm */; };
+		B80E06A0266632F000728644 /* AVAudioSession+setCategoryIfNotSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B80E069F266632F000728644 /* AVAudioSession+setCategoryIfNotSet.swift */; };
 		B8103E1C25FF553B007A1684 /* FrameProcessorUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8103E1B25FF553B007A1684 /* FrameProcessorUtils.mm */; };
 		B82FBA962614B69D00909718 /* RCTBridge+runOnJS.mm in Sources */ = {isa = PBXBuildFile; fileRef = B82FBA952614B69D00909718 /* RCTBridge+runOnJS.mm */; };
 		B84760A62608EE7C004C3180 /* FrameHostObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = B84760A52608EE7C004C3180 /* FrameHostObject.mm */; };
@@ -74,6 +75,7 @@
 		B80C0DFE260BDD97001699AB /* FrameProcessorPluginRegistry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorPluginRegistry.h; sourceTree = "<group>"; };
 		B80C0DFF260BDDF7001699AB /* FrameProcessorPluginRegistry.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessorPluginRegistry.mm; sourceTree = "<group>"; };
 		B80D67A825FA25380008FE8D /* FrameProcessorCallback.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorCallback.h; sourceTree = "<group>"; };
+		B80E069F266632F000728644 /* AVAudioSession+setCategoryIfNotSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAudioSession+setCategoryIfNotSet.swift"; sourceTree = "<group>"; };
 		B8103E1B25FF553B007A1684 /* FrameProcessorUtils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessorUtils.mm; sourceTree = "<group>"; };
 		B8103E1E25FF5550007A1684 /* FrameProcessorUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorUtils.h; sourceTree = "<group>"; };
 		B8103E5725FF56F0007A1684 /* Frame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Frame.h; sourceTree = "<group>"; };
@@ -183,6 +185,7 @@
 			children = (
 				B8D22CDB2642DB4D00234472 /* AVAssetWriterInputPixelBufferAdaptor+initWithVideoSettings.swift */,
 				B86DC970260E2D5200FB17B2 /* AVAudioSession+trySetAllowHaptics.swift */,
+				B80E069F266632F000728644 /* AVAudioSession+setCategoryIfNotSet.swift */,
 				B887516325E0102000DB86D6 /* AVCaptureDevice+neutralZoom.swift */,
 				B887516425E0102000DB86D6 /* AVCaptureDevice.Format+isBetterThan.swift */,
 				B887516525E0102000DB86D6 /* AVCaptureDevice+isMultiCam.swift */,
@@ -373,6 +376,7 @@
 				B887518725E0102000DB86D6 /* CameraViewManager.m in Sources */,
 				B88751A925E0102000DB86D6 /* CameraView.swift in Sources */,
 				B887519925E0102000DB86D6 /* AVCaptureVideoStabilizationMode+descriptor.swift in Sources */,
+				B80E06A0266632F000728644 /* AVAudioSession+setCategoryIfNotSet.swift in Sources */,
 				B887519425E0102000DB86D6 /* MakeReactError.swift in Sources */,
 				B887519525E0102000DB86D6 /* ReactLogger.swift in Sources */,
 				B887519B25E0102000DB86D6 /* AVCaptureSession.Preset+descriptor.swift in Sources */,
