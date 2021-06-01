@@ -21,7 +21,7 @@ extension CameraView {
    */
   final func activateAudioSession() {
     ReactLogger.log(level: .info, message: "Activating Audio Session...")
-    
+
     measureElapsedTime(label: "Audio Session activation") {
       do {
         let audioSession = AVAudioSession.sharedInstance()
@@ -29,7 +29,7 @@ extension CameraView {
         try audioSession.updateCategory(AVAudioSession.Category.playAndRecord, options: [.mixWithOthers, .allowBluetoothA2DP, .defaultToSpeaker])
         // allows haptic feedback (vibrations) and system sounds to play while recording.
         audioSession.trySetAllowHaptics(true)
-        
+
         try addAudioInput()
       } catch let error as NSError {
         switch error.code {
