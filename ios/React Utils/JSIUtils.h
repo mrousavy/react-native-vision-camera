@@ -3,7 +3,7 @@
 //  VisionCamera
 //
 //  Created by Marc Rousavy on 30.04.21.
-//  Copyright © 2021 Facebook. All rights reserved.
+//  Copyright © 2021 mrousavy. All rights reserved.
 //
 
 #pragma once

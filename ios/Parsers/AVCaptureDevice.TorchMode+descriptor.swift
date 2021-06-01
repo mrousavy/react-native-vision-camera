@@ -3,7 +3,7 @@
 //  Cuvent
 //
 //  Created by Marc Rousavy on 18.12.20.
-//  Copyright © 2020 Facebook. All rights reserved.
+//  Copyright © 2020 mrousavy. All rights reserved.
 //
 
 import AVFoundation

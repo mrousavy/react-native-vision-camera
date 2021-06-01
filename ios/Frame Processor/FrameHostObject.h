@@ -3,7 +3,7 @@
 //  VisionCamera
 //
 //  Created by Marc Rousavy on 22.03.21.
-//  Copyright © 2021 Facebook. All rights reserved.
+//  Copyright © 2021 mrousavy. All rights reserved.
 //
 
 #pragma once
@@ -18,7 +18,7 @@ class JSI_EXPORT FrameHostObject: public Frame, public jsi::HostObject {
 public:
   explicit FrameHostObject(CMSampleBufferRef buffer): Frame(buffer) {}
   ~FrameHostObject();
-  
+
 public:
   jsi::Value get(jsi::Runtime&, const jsi::PropNameID& name) override;
   std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime& rt) override;
