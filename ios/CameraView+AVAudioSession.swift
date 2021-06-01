@@ -42,14 +42,14 @@ extension CameraView {
     let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
     ReactLogger.log(level: .info, message: "Configured Audio session in \(Double(nanoTime) / 1_000_000)ms!")
   }
-  
+
   /**
    Deactivate the shared Audio Session.
    */
   final func deactivateAudioSession() {
     do {
       ReactLogger.log(level: .info, message: "Deactivating Audio Session...")
-      self.removeAudioInput()
+      removeAudioInput()
       try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     } catch let error as NSError {
       self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)), cause: error)
