@@ -16,11 +16,12 @@ extension CameraView {
   /**
    Configures the Audio session and activates it. If the session was active it will shortly be deactivated before configuration.
 
-   The Audio Session will be configured to allow background music, haptics (vibrations) and system sound playback while recording. Background audio is allowed to play on speakers or bluetooth speakers.
+   The Audio Session will be configured to allow background music, haptics (vibrations) and system sound playback while recording.
+   Background audio is allowed to play on speakers or bluetooth speakers.
    */
   final func activateAudioSession() {
     ReactLogger.log(level: .info, message: "Activating Audio Session...")
-    
+
     let start = DispatchTime.now()
     do {
       let audioSession = AVAudioSession.sharedInstance()
@@ -50,7 +51,7 @@ extension CameraView {
    */
   final func deactivateAudioSession() {
     ReactLogger.log(level: .info, message: "Deactivating Audio Session...")
-    
+
     let start = DispatchTime.now()
     do {
       removeAudioInput()
@@ -58,7 +59,7 @@ extension CameraView {
     } catch let error as NSError {
       self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)), cause: error)
     }
-    
+
     let end = DispatchTime.now()
     let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
     ReactLogger.log(level: .info, message: "Deactivated Audio session in \(Double(nanoTime) / 1_000_000)ms!")
