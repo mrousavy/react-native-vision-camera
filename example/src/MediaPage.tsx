@@ -127,9 +127,6 @@ export const MediaPage: NavigationFunctionComponent<MediaProps> = ({ componentId
 };
 
 MediaPage.options = {
-  modal: {
-    swipeToDismiss: false,
-  },
   modalPresentationStyle: OptionsModalPresentationStyle.overCurrentContext,
   animations: {
     showModal: {
