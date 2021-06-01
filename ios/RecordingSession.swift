@@ -43,9 +43,8 @@ class RecordingSession {
   init(url: URL,
        fileType: AVFileType,
        completion: @escaping (AVAssetWriter.Status, Error?) -> Void) throws {
-    
     completionHandler = completion
-    
+
     do {
       assetWriter = try AVAssetWriter(outputURL: url, fileType: fileType)
     } catch let error as NSError {
@@ -54,14 +53,14 @@ class RecordingSession {
 
     ReactLogger.log(level: .info, message: "Initialized Video and Audio AssetWriter.")
   }
-  
+
   deinit {
     if assetWriter.status == .writing {
       ReactLogger.log(level: .info, message: "Cancelling AssetWriter...")
       assetWriter.cancelWriting()
     }
   }
-  
+
   func initializeVideoWriter(withSettings settings: [String: Any], isVideoMirrored: Bool) {
     guard !settings.isEmpty else {
       ReactLogger.log(level: .error, message: "Tried to initialize Video Writer with empty settings!")
@@ -71,20 +70,20 @@ class RecordingSession {
       ReactLogger.log(level: .error, message: "Tried to add a second Video Writer!")
       return
     }
-    
+
     let videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: settings)
     videoWriter.expectsMediaDataInRealTime = true
-    
+
     if isVideoMirrored {
       videoWriter.transform = CGAffineTransform(rotationAngle: -(.pi / 2))
     } else {
       videoWriter.transform = CGAffineTransform(rotationAngle: .pi / 2)
     }
-    
+
     assetWriter.add(videoWriter)
     bufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter, withVideoSettings: settings)
   }
-  
+
   func initializeAudioWriter(withSettings settings: [String: Any]) {
     guard !settings.isEmpty else {
       ReactLogger.log(level: .error, message: "Tried to initialize Audio Writer with empty settings!")
@@ -94,12 +93,12 @@ class RecordingSession {
       ReactLogger.log(level: .error, message: "Tried to add a second Audio Writer!")
       return
     }
-    
+
     audioWriter = AVAssetWriterInput(mediaType: .audio, outputSettings: settings)
     audioWriter!.expectsMediaDataInRealTime = true
     assetWriter.add(audioWriter!)
   }
-  
+
   func start() {
     assetWriter.startWriting()
     initialTimestamp = CMTime(seconds: CACurrentMediaTime(), preferredTimescale: 1_000_000_000)

@@ -13,9 +13,8 @@ private var hasLoggedFrameDropWarning = false
 // MARK: - CameraView + AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate
 
 extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
-  
   // TODO: startRecording() stutters the camera. run audio initialization async?
-  
+
   func startRecording(options: NSDictionary, callback: @escaping RCTResponseSenderBlock) {
     cameraQueue.async {
       ReactLogger.log(level: .info, message: "Starting Video recording...")
@@ -65,7 +64,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         let recordingSession = try RecordingSession(url: tempURL,
                                                     fileType: fileType,
                                                     completion: onFinish)
-        
+
         // Init Video
         guard let videoSettings = self.videoOutput!.recommendedVideoSettingsForAssetWriter(writingTo: fileType),
               !videoSettings.isEmpty else {
@@ -73,19 +72,18 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         }
         recordingSession.initializeVideoWriter(withSettings: videoSettings,
                                                isVideoMirrored: self.videoOutput!.isMirrored)
-        
+
         // Init Audio (optional)
         // configures AVAudioSession, activates it and adds the audioOutput.
         self.activateAudioSession()
         if let audioSettings = self.audioOutput!.recommendedAudioSettingsForAssetWriter(writingTo: fileType) as? [String: Any] {
           recordingSession.initializeAudioWriter(withSettings: audioSettings)
         }
-        
+
         // Start recording
         recordingSession.start()
         self.recordingSession = recordingSession
         self.isRecording = true
-        
       } catch EnumParserError.invalidValue {
         return callback([NSNull(), EnumParserError.invalidValue])
       } catch let error as NSError {
@@ -97,7 +95,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   func stopRecording(promise: Promise) {
     cameraQueue.async {
       self.isRecording = false
-      
+
       withPromise(promise) {
         guard let recordingSession = self.recordingSession else {
           throw CameraError.capture(.noRecordingInProgress)
@@ -165,13 +163,13 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didDrop buffer: CMSampleBuffer, from _: AVCaptureConnection) {
     #if DEBUG
-    if frameProcessorCallback != nil && !hasLoggedFrameDropWarning && captureOutput is AVCaptureVideoDataOutput {
-      let reason = findFrameDropReason(inBuffer: buffer)
-      // TODO: Show in React console?
-      ReactLogger.log(level: .warning, message: "Dropped a Frame. This might indicate that your Frame Processor is doing too much work. " +
-        "Either throttle the frame processor's frame rate, or optimize your frame processor's execution speed. Frame drop reason: \(reason)")
-      hasLoggedFrameDropWarning = true
-    }
+      if frameProcessorCallback != nil && !hasLoggedFrameDropWarning && captureOutput is AVCaptureVideoDataOutput {
+        let reason = findFrameDropReason(inBuffer: buffer)
+        // TODO: Show in React console?
+        ReactLogger.log(level: .warning, message: "Dropped a Frame. This might indicate that your Frame Processor is doing too much work. " +
+          "Either throttle the frame processor's frame rate, or optimize your frame processor's execution speed. Frame drop reason: \(reason)")
+        hasLoggedFrameDropWarning = true
+      }
     #endif
   }
 
