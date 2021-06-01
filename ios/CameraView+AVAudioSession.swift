@@ -19,13 +19,13 @@ extension CameraView {
   final func configureAudioSession() {
     let start = DispatchTime.now()
     do {
-      try addAudioInput()
-
       let audioSession = AVAudioSession.sharedInstance()
       // deactivates, updates category and activates session again if category/options are not equal.
       try audioSession.updateCategory(AVAudioSession.Category.playAndRecord, options: [.mixWithOthers, .allowBluetoothA2DP, .defaultToSpeaker])
       // allows haptic feedback (vibrations) and system sounds to play while recording.
       audioSession.trySetAllowHaptics(true)
+
+      try addAudioInput()
     } catch let error as NSError {
       switch error.code {
       case 561_017_449:
