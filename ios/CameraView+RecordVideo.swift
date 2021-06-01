@@ -150,6 +150,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   }
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didDrop buffer: CMSampleBuffer, from _: AVCaptureConnection) {
+    #if DEBUG
     if frameProcessorCallback != nil && !hasLoggedFrameDropWarning && captureOutput is AVCaptureVideoDataOutput {
       let reason = findFrameDropReason(inBuffer: buffer)
       // TODO: Show in React console?
@@ -157,6 +158,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         "Either throttle the frame processor's frame rate, or optimize your frame processor's execution speed. Frame drop reason: \(reason)")
       hasLoggedFrameDropWarning = true
     }
+    #endif
   }
 
   private final func findFrameDropReason(inBuffer buffer: CMSampleBuffer) -> String {
