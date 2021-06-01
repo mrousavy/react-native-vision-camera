@@ -46,9 +46,14 @@ export const sortFormats = (left: CameraDeviceFormat, right: CameraDeviceFormat)
     rightPoints = 0;
 
   // we downscale the points so much that we are in smaller number ranges for future calculations
-  // e.g. for 4k (4096), this adds 4 points.
-  leftPoints += Math.round(left.photoWidth / 1000);
-  rightPoints += Math.round(right.photoWidth / 1000);
+  // e.g. for 4k (4096), this adds 8 points.
+  leftPoints += Math.round(left.photoWidth / 500);
+  rightPoints += Math.round(right.photoWidth / 500);
+  // e.g. for 4k (4096), this adds 8 points.
+  if (left.videoWidth != null && right.videoWidth != null) {
+    leftPoints += Math.round(left.videoWidth / 500);
+    rightPoints += Math.round(right.videoWidth / 500);
+  }
 
   const leftAspectRatioDiff = left.photoHeight / left.photoWidth - SCREEN_ASPECT_RATIO;
   const rightAspectRatioDiff = right.photoHeight / right.photoWidth - SCREEN_ASPECT_RATIO;
