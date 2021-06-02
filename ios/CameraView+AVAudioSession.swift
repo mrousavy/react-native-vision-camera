@@ -24,17 +24,18 @@ extension CameraView {
 
     measureElapsedTime {
       do {
-        let audioSession = AVAudioSession.sharedInstance()
-        // deactivates, updates category and activates session again if category/options are not equal.
-        try audioSession.updateCategory(AVAudioSession.Category.playAndRecord, options: [.mixWithOthers, .allowBluetoothA2DP, .defaultToSpeaker])
-        // allows haptic feedback (vibrations) and system sounds to play while recording.
-        audioSession.trySetAllowHaptics(true)
+//        let audioSession = AVAudioSession.sharedInstance()
+//        // deactivates, updates category and activates session again if category/options are not equal.
+//        try audioSession.updateCategory(AVAudioSession.Category.playAndRecord, options: [.mixWithOthers, .allowBluetoothA2DP, .defaultToSpeaker])
+//        // allows haptic feedback (vibrations) and system sounds to play while recording.
+//        audioSession.trySetAllowHaptics(true)
+        try AVAudioSession.sharedInstance().setActive(true)
       } catch let error as NSError {
         switch error.code {
         case 561_017_449:
           self.invokeOnError(.session(.audioInUseByOtherApp), cause: error)
         default:
-          self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)), cause: error)
+          self.invokeOnError(.session(.audioSessionFailedToActivate), cause: error)
         }
       }
     }
@@ -44,13 +45,16 @@ extension CameraView {
    Deactivate the shared Audio Session.
    */
   final func deactivateAudioSession() {
+    // TODO: Do I actually need to deactivate the audio session?
+    return
+    
     ReactLogger.log(level: .info, message: "Deactivating Audio Session...")
 
     measureElapsedTime {
       do {
         try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
       } catch let error as NSError {
-        self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)), cause: error)
+        self.invokeOnError(.session(.audioSessionFailedToDeactivate), cause: error)
       }
     }
   }

@@ -189,6 +189,13 @@ public final class CameraView: UIView {
         if shouldCheckActive && self.captureSession.isRunning != self.isActive {
           if self.isActive {
             ReactLogger.log(level: .info, message: "Starting Session...")
+            do {
+              try AVAudioSession.sharedInstance().updateCategory(AVAudioSession.Category.playAndRecord,
+                                                                 options: [.mixWithOthers, .allowBluetoothA2DP, .defaultToSpeaker])
+            } catch let error as NSError {
+              // TODO: Return? Is this error critical?
+              return self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)), cause: error)
+            }
             self.captureSession.startRunning()
             ReactLogger.log(level: .info, message: "Started Session!")
           } else {

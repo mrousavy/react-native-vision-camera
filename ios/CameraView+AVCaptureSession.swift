@@ -33,6 +33,9 @@ extension CameraView {
 
     ReactLogger.log(level: .info, message: "Initializing Camera with device \(cameraId)...")
     captureSession.beginConfiguration()
+    defer {
+      captureSession.commitConfiguration()
+    }
 
     if captureSession.automaticallyConfiguresApplicationAudioSession {
       // Disable automatic Audio Session configuration because we configure it in CameraView+AVAudioSession.swift (called before Camera gets activated)
@@ -94,8 +97,8 @@ extension CameraView {
         return invokeOnError(.parameter(.unsupportedInput(inputDescriptor: "audio-input")))
       }
       captureSession.addInput(audioDeviceInput!)
-    } catch {
-      return invokeOnError(.device(.microphoneUnavailable))
+    } catch let error as NSError {
+      return invokeOnError(.device(.microphoneUnavailable), cause: error)
     }
 
     // pragma MARK: Capture Session Outputs
@@ -151,9 +154,6 @@ extension CameraView {
     }
     audioOutput!.setSampleBufferDelegate(self, queue: audioQueue)
     captureSession.addOutput(audioOutput!)
-
-    // Commit changes
-    captureSession.commitConfiguration()
 
     invokeOnInitialized()
     isReady = true
@@ -268,7 +268,7 @@ extension CameraView {
 
   @objc
   func sessionInterruptionBegin(notification: Notification) {
-    ReactLogger.log(level: .error, message: "Capture Session Interruption begin Notification!", alsoLogToJS: true)
+    ReactLogger.log(level: .info, message: "Capture Session interrupted!", alsoLogToJS: true)
     guard let reasonNumber = notification.userInfo?[AVCaptureSessionInterruptionReasonKey] as? NSNumber else {
       return
     }
@@ -286,7 +286,7 @@ extension CameraView {
 
   @objc
   func sessionInterruptionEnd(notification: Notification) {
-    ReactLogger.log(level: .error, message: "Capture Session Interruption end Notification!", alsoLogToJS: true)
+    ReactLogger.log(level: .info, message: "Capture Session interruption has ended.", alsoLogToJS: true)
     guard let reasonNumber = notification.userInfo?[AVCaptureSessionInterruptionReasonKey] as? NSNumber else {
       return
     }
