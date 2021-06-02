@@ -39,7 +39,7 @@
   
   jsi::Runtime* jsiRuntime = (jsi::Runtime*)cxxBridge.runtime;
   
-  return ^ (RCTLogLevel level, NSString* message) {
+  return ^(RCTLogLevel level, NSString* message) {
     [bridge runOnJS:^{
       if (jsiRuntime != nullptr) {
         jsi::Runtime& runtime = *jsiRuntime;
