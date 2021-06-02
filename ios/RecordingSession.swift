@@ -56,18 +56,18 @@ class RecordingSession {
 
   deinit {
     if assetWriter.status == .writing {
-      ReactLogger.log(level: .info, message: "Cancelling AssetWriter...")
+      ReactLogger.log(level: .info, message: "Cancelling AssetWriter...", alsoLogToJS: true)
       assetWriter.cancelWriting()
     }
   }
 
   func initializeVideoWriter(withSettings settings: [String: Any], isVideoMirrored: Bool) {
     guard !settings.isEmpty else {
-      ReactLogger.log(level: .error, message: "Tried to initialize Video Writer with empty settings!")
+      ReactLogger.log(level: .error, message: "Tried to initialize Video Writer with empty settings!", alsoLogToJS: true)
       return
     }
     guard bufferAdaptor == nil else {
-      ReactLogger.log(level: .error, message: "Tried to add a second Video Writer!")
+      ReactLogger.log(level: .error, message: "Tried to add a second Video Writer!", alsoLogToJS: true)
       return
     }
 
@@ -86,11 +86,11 @@ class RecordingSession {
 
   func initializeAudioWriter(withSettings settings: [String: Any]) {
     guard !settings.isEmpty else {
-      ReactLogger.log(level: .error, message: "Tried to initialize Audio Writer with empty settings!")
+      ReactLogger.log(level: .error, message: "Tried to initialize Audio Writer with empty settings!", alsoLogToJS: true)
       return
     }
     guard audioWriter == nil else {
-      ReactLogger.log(level: .error, message: "Tried to add a second Audio Writer!")
+      ReactLogger.log(level: .error, message: "Tried to add a second Audio Writer!", alsoLogToJS: true)
       return
     }
 
@@ -110,7 +110,7 @@ class RecordingSession {
       return
     }
     guard let initialTimestamp = initialTimestamp else {
-      ReactLogger.log(level: .error, message: "A \(bufferType.rawValue) frame arrived, but initialTimestamp was nil. Is this RecordingSession running?")
+      ReactLogger.log(level: .error, message: "A \(bufferType.rawValue) frame arrived, but initialTimestamp was nil. Is this RecordingSession running?", alsoLogToJS: true)
       return
     }
 
@@ -120,15 +120,15 @@ class RecordingSession {
     switch bufferType {
     case .video:
       guard let bufferAdaptor = bufferAdaptor else {
-        ReactLogger.log(level: .error, message: "Video Frame arrived but VideoWriter was nil!")
+        ReactLogger.log(level: .error, message: "Video Frame arrived but VideoWriter was nil!", alsoLogToJS: true)
         return
       }
       if !bufferAdaptor.assetWriterInput.isReadyForMoreMediaData {
-        ReactLogger.log(level: .warning, message: "The Video AVAssetWriterInput was not ready for more data! Is your frame rate too high?")
+        ReactLogger.log(level: .warning, message: "The Video AVAssetWriterInput was not ready for more data! Is your frame rate too high?", alsoLogToJS: true)
         return
       }
       guard let imageBuffer = CMSampleBufferGetImageBuffer(buffer) else {
-        ReactLogger.log(level: .error, message: "Failed to get the CVImageBuffer!")
+        ReactLogger.log(level: .error, message: "Failed to get the CVImageBuffer!", alsoLogToJS: true)
         return
       }
       bufferAdaptor.append(imageBuffer, withPresentationTime: timestamp)
@@ -138,7 +138,7 @@ class RecordingSession {
       }
     case .audio:
       guard let audioWriter = audioWriter else {
-        ReactLogger.log(level: .error, message: "Audio Frame arrived but AudioWriter was nil!")
+        ReactLogger.log(level: .error, message: "Audio Frame arrived but AudioWriter was nil!", alsoLogToJS: true)
         return
       }
       if !audioWriter.isReadyForMoreMediaData {
@@ -153,7 +153,7 @@ class RecordingSession {
 
     if assetWriter.status == .failed {
       // TODO: Should I call the completion handler or is this instance still valid?
-      ReactLogger.log(level: .error, message: "AssetWriter failed to write buffer! Error: \(assetWriter.error?.localizedDescription ?? "none")")
+      ReactLogger.log(level: .error, message: "AssetWriter failed to write buffer! Error: \(assetWriter.error?.localizedDescription ?? "none")", alsoLogToJS: true)
     }
   }
 

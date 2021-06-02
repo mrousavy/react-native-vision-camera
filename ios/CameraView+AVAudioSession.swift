@@ -108,20 +108,20 @@ extension CameraView {
     switch type {
     case .began:
       // Something interrupted our Audio Session, stop recording audio.
-      ReactLogger.log(level: .error, message: "The Audio Session was interrupted!")
+      ReactLogger.log(level: .error, message: "The Audio Session was interrupted!", alsoLogToJS: true)
       removeAudioInput()
     case .ended:
-      ReactLogger.log(level: .error, message: "The Audio Session interruption has ended.")
+      ReactLogger.log(level: .info, message: "The Audio Session interruption has ended.")
       guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else { return }
       let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
       if options.contains(.shouldResume) {
-        ReactLogger.log(level: .error, message: "Resuming interrupted Audio Session...")
+        ReactLogger.log(level: .info, message: "Resuming interrupted Audio Session...", alsoLogToJS: true)
         if isRecording {
           // restart audio session because interruption is over
           activateAudioSession()
         }
       } else {
-        ReactLogger.log(level: .error, message: "Cannot resume interrupted Audio Session!")
+        ReactLogger.log(level: .error, message: "Cannot resume interrupted Audio Session!", alsoLogToJS: true)
       }
     @unknown default: ()
     }

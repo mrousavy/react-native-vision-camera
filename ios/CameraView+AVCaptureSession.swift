@@ -220,7 +220,7 @@ extension CameraView {
 
   @objc
   func sessionRuntimeError(notification: Notification) {
-    ReactLogger.log(level: .error, message: "Unexpected Camera Runtime Error occured!")
+    ReactLogger.log(level: .error, message: "Unexpected Camera Runtime Error occured!", alsoLogToJS: true)
     guard let error = notification.userInfo?[AVCaptureSessionErrorKey] as? AVError else {
       return
     }
@@ -237,7 +237,7 @@ extension CameraView {
 
   @objc
   func sessionInterruptionBegin(notification: Notification) {
-    ReactLogger.log(level: .error, message: "Capture Session Interruption begin Notification!")
+    ReactLogger.log(level: .error, message: "Capture Session Interruption begin Notification!", alsoLogToJS: true)
     guard let reasonNumber = notification.userInfo?[AVCaptureSessionInterruptionReasonKey] as? NSNumber else {
       return
     }
@@ -255,7 +255,7 @@ extension CameraView {
 
   @objc
   func sessionInterruptionEnd(notification: Notification) {
-    ReactLogger.log(level: .error, message: "Capture Session Interruption end Notification!")
+    ReactLogger.log(level: .error, message: "Capture Session Interruption end Notification!", alsoLogToJS: true)
     guard let reasonNumber = notification.userInfo?[AVCaptureSessionInterruptionReasonKey] as? NSNumber else {
       return
     }

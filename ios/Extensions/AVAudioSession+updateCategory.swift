@@ -15,7 +15,7 @@ extension AVAudioSession {
    */
   func updateCategory(_ category: AVAudioSession.Category, options: AVAudioSession.CategoryOptions = []) throws {
     if self.category != category || categoryOptions.rawValue != options.rawValue {
-      ReactLogger.log(level: .info, message: "Setting AVAudioSession category to \(category.rawValue)")
+      ReactLogger.log(level: .info, message: "Setting AVAudioSession category to \(category.rawValue)", alsoLogToJS: true)
       try setActive(false, options: .notifyOthersOnDeactivation)
       try setCategory(category, options: options)
       try setActive(true)
