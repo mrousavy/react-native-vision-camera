@@ -102,7 +102,7 @@ extension CameraView {
     }
 
     // pragma MARK: Capture Session Outputs
-    
+
     // Photo Output
     if let photoOutput = self.photoOutput {
       captureSession.removeOutput(photoOutput)

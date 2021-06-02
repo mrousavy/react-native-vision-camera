@@ -27,7 +27,7 @@ extension CameraView {
       return self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)), cause: error)
     }
   }
-  
+
   /**
    Configures the Audio session and activates it. If the session was active it will shortly be deactivated before configuration.
 
@@ -62,8 +62,8 @@ extension CameraView {
   final func deactivateAudioSession() {
     // TODO: Do I actually need to deactivate the audio session?
     return
-    
-    ReactLogger.log(level: .info, message: "Deactivating Audio Session...")
+
+        ReactLogger.log(level: .info, message: "Deactivating Audio Session...")
 
     measureElapsedTime {
       do {
