@@ -43,9 +43,15 @@
     [bridge runOnJS:^{
       if (jsiRuntime != nullptr) {
         jsi::Runtime& runtime = *jsiRuntime;
-        auto console = runtime.global().getPropertyAsObject(runtime, "console");
-        auto log = console.getPropertyAsFunction(runtime, [JSConsoleHelper getLogFunctionNameForLogLevel:level]);
-        log.call(runtime, jsi::String::createFromAscii(runtime, [message UTF8String]));
+        auto logFunctionName = [JSConsoleHelper getLogFunctionNameForLogLevel:level];
+        try {
+          auto console = runtime.global().getPropertyAsObject(runtime, "console");
+          auto log = console.getPropertyAsFunction(runtime, logFunctionName);
+          log.call(runtime, jsi::String::createFromAscii(runtime, [message UTF8String]));
+        } catch (jsi::JSError& jsError) {
+          NSLog(@"%@", message);
+          NSLog(@"Failed to call `console.%s`: %s", logFunctionName, jsError.getMessage().c_str());
+        }
       }
     }];
   };
