@@ -11,8 +11,19 @@ import Foundation
 // MARK: - ReactLogger
 
 enum ReactLogger {
+  /**
+   A function that logs to the JavaScript console.
+   */
   static var ConsoleLogFunction: ConsoleLogFunction?
 
+  /**
+   Log a message to the console in the format of `VisionCamera.[caller-function-name]: [message]`
+
+   @discussion
+   If the global ConsoleLogFunction is set, this function also logs to the JavaScript console (console.log, console.trace, console.warn or console.error)
+   This function also always logs to [RCTDefaultLogFunction].
+   In non-DEBUG builds, this function is no-op.
+   */
   @inlinable
   static func log(level: RCTLogLevel,
                   message: String,

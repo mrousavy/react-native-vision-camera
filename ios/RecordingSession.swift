@@ -110,7 +110,9 @@ class RecordingSession {
       return
     }
     guard let initialTimestamp = initialTimestamp else {
-      ReactLogger.log(level: .error, message: "A \(bufferType.rawValue) frame arrived, but initialTimestamp was nil. Is this RecordingSession running?", alsoLogToJS: true)
+      ReactLogger.log(level: .error,
+                      message: "A \(bufferType.rawValue) frame arrived, but initialTimestamp was nil. Is this RecordingSession running?",
+                      alsoLogToJS: true)
       return
     }
 
@@ -124,7 +126,9 @@ class RecordingSession {
         return
       }
       if !bufferAdaptor.assetWriterInput.isReadyForMoreMediaData {
-        ReactLogger.log(level: .warning, message: "The Video AVAssetWriterInput was not ready for more data! Is your frame rate too high?", alsoLogToJS: true)
+        ReactLogger.log(level: .warning,
+                        message: "The Video AVAssetWriterInput was not ready for more data! Is your frame rate too high?",
+                        alsoLogToJS: true)
         return
       }
       guard let imageBuffer = CMSampleBufferGetImageBuffer(buffer) else {
@@ -153,7 +157,9 @@ class RecordingSession {
 
     if assetWriter.status == .failed {
       // TODO: Should I call the completion handler or is this instance still valid?
-      ReactLogger.log(level: .error, message: "AssetWriter failed to write buffer! Error: \(assetWriter.error?.localizedDescription ?? "none")", alsoLogToJS: true)
+      ReactLogger.log(level: .error,
+                      message: "AssetWriter failed to write buffer! Error: \(assetWriter.error?.localizedDescription ?? "none")",
+                      alsoLogToJS: true)
     }
   }
 
