@@ -246,6 +246,8 @@ extension CameraView {
     }
   }
 
+  // pragma MARK: Notifications/Interruptions
+  
   @objc
   func sessionRuntimeError(notification: Notification) {
     ReactLogger.log(level: .error, message: "Unexpected Camera Runtime Error occured!", alsoLogToJS: true)
