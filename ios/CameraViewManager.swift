@@ -18,10 +18,10 @@ final class CameraViewManager: RCTViewManager {
   override var bridge: RCTBridge! {
     didSet {
       #if DEBUG
-      // Install console.log bindings
-      ReactLogger.ConsoleLogFunction = JSConsoleHelper.getLogFunction(for: bridge)
+        // Install console.log bindings
+        ReactLogger.ConsoleLogFunction = JSConsoleHelper.getLogFunction(for: bridge)
       #endif
-      
+
       // Install Frame Processor bindings and setup Runtime
       if enableFrameProcessors {
         CameraQueues.videoQueue.async {

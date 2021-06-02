@@ -13,8 +13,8 @@ let context = "VisionCamera"
 // MARK: - ReactLogger
 
 enum ReactLogger {
-  static var ConsoleLogFunction: ConsoleLogFunction? = nil
-  
+  static var ConsoleLogFunction: ConsoleLogFunction?
+
   @inlinable
   static func log(level: RCTLogLevel,
                   message: String,
