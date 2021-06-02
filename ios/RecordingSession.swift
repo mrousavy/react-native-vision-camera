@@ -67,7 +67,7 @@ class RecordingSession {
       return
     }
     guard bufferAdaptor == nil else {
-      ReactLogger.log(level: .error, message: "Tried to add a second Video Writer!", alsoLogToJS: true)
+      ReactLogger.log(level: .error, message: "Tried to add Video Writer twice!", alsoLogToJS: true)
       return
     }
 
@@ -90,7 +90,7 @@ class RecordingSession {
       return
     }
     guard audioWriter == nil else {
-      ReactLogger.log(level: .error, message: "Tried to add a second Audio Writer!", alsoLogToJS: true)
+      ReactLogger.log(level: .error, message: "Tried to add Audio Writer twice!", alsoLogToJS: true)
       return
     }
 
