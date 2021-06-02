@@ -8,8 +8,6 @@
 
 import Foundation
 
-let context = "VisionCamera"
-
 // MARK: - ReactLogger
 
 enum ReactLogger {
@@ -24,9 +22,9 @@ enum ReactLogger {
                   _ function: String = #function) {
     #if DEBUG
       if alsoLogToJS, let log = ConsoleLogFunction {
-        log(level, "📷 VisionCamera: \(message)")
+        log(level, "[📷 VisionCamera.\(function)]: \(message)")
       }
-      RCTDefaultLogFunction(level, RCTLogSource.native, file, lineNumber as NSNumber, "\(context).\(function): \(message)")
+      RCTDefaultLogFunction(level, RCTLogSource.native, file, lineNumber as NSNumber, "VisionCamera.\(function): \(message)")
     #endif
   }
 }
