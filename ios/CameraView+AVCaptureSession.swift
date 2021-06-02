@@ -14,7 +14,7 @@ import Foundation
  */
 extension CameraView {
   // pragma MARK: Configure Capture Session
-  
+
   /**
    Configures the Capture Session.
    */
@@ -59,7 +59,7 @@ extension CameraView {
       }
     }
 
-    // pragma MARK: -- Inputs
+    // pragma MARK: Capture Session Inputs
     // Video Input
     do {
       if let videoDeviceInput = self.videoDeviceInput {
@@ -98,7 +98,8 @@ extension CameraView {
       return invokeOnError(.device(.microphoneUnavailable))
     }
 
-    // pragma MARK: -- Outputs
+    // pragma MARK: Capture Session Outputs
+    
     // Photo Output
     if let photoOutput = self.photoOutput {
       captureSession.removeOutput(photoOutput)
@@ -153,14 +154,14 @@ extension CameraView {
 
     // Commit changes
     captureSession.commitConfiguration()
-    
+
     invokeOnInitialized()
     isReady = true
     ReactLogger.log(level: .info, message: "Session successfully configured!")
   }
 
   // pragma MARK: Configure Device
-  
+
   /**
    Configures the Video Device with the given FPS, HDR and ColorSpace.
    */
@@ -211,7 +212,7 @@ extension CameraView {
   }
 
   // pragma MARK: Configure Format
-  
+
   /**
    Configures the Video Device to find the best matching Format.
    */
@@ -247,7 +248,7 @@ extension CameraView {
   }
 
   // pragma MARK: Notifications/Interruptions
-  
+
   @objc
   func sessionRuntimeError(notification: Notification) {
     ReactLogger.log(level: .error, message: "Unexpected Camera Runtime Error occured!", alsoLogToJS: true)
