@@ -17,12 +17,18 @@ final class CameraViewManager: RCTViewManager {
 
   override var bridge: RCTBridge! {
     didSet {
-      if !enableFrameProcessors { return }
-
-      CameraQueues.videoQueue.async {
-        self.runtimeManager = FrameProcessorRuntimeManager(bridge: self.bridge)
-        self.bridge.runOnJS {
-          self.runtimeManager!.installFrameProcessorBindings()
+      #if DEBUG
+      // Install console.log bindings
+      ReactLogger.ConsoleLogFunction = JSConsoleHelper.getLogFunction(for: bridge)
+      #endif
+      
+      // Install Frame Processor bindings and setup Runtime
+      if enableFrameProcessors {
+        CameraQueues.videoQueue.async {
+          self.runtimeManager = FrameProcessorRuntimeManager(bridge: self.bridge)
+          self.bridge.runOnJS {
+            self.runtimeManager!.installFrameProcessorBindings()
+          }
         }
       }
     }

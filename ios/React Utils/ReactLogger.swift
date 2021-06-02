@@ -13,13 +13,19 @@ let context = "VisionCamera"
 // MARK: - ReactLogger
 
 enum ReactLogger {
+  static var ConsoleLogFunction: ConsoleLogFunction? = nil
+  
   @inlinable
   static func log(level: RCTLogLevel,
                   message: String,
+                  alsoLogToJS: Bool = false,
                   _ file: String = #file,
                   _ lineNumber: Int = #line,
                   _ function: String = #function) {
     #if DEBUG
+      if alsoLogToJS, let log = ConsoleLogFunction {
+        log(level, "📷 VisionCamera: \(message)")
+      }
       RCTDefaultLogFunction(level, RCTLogSource.native, file, lineNumber as NSNumber, "\(context).\(function): \(message)")
     #endif
   }
