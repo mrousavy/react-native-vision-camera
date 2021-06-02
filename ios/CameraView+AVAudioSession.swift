@@ -14,6 +14,21 @@ import Foundation
  */
 extension CameraView {
   /**
+   Configures the AudioSession category and options if not already configured.
+   */
+  final func configureAudioSession() {
+    do {
+      try AVAudioSession.sharedInstance().updateCategory(AVAudioSession.Category.playAndRecord,
+                                                         options: [.mixWithOthers,
+                                                                   .allowBluetoothA2DP,
+                                                                   .defaultToSpeaker,
+                                                                   .allowAirPlay])
+    } catch let error as NSError {
+      return self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)), cause: error)
+    }
+  }
+  
+  /**
    Configures the Audio session and activates it. If the session was active it will shortly be deactivated before configuration.
 
    The Audio Session will be configured to allow background music, haptics (vibrations) and system sound playback while recording.
