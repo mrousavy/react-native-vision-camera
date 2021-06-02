@@ -43,7 +43,6 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         let onFinish = { (status: AVAssetWriter.Status, error: Error?) -> Void in
           defer {
             self.recordingSession = nil
-            self.deactivateAudioSession()
           }
           ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
           if let error = error {
@@ -74,8 +73,6 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
                                                isVideoMirrored: self.videoOutput!.isMirrored)
 
         // Init Audio (optional)
-        // configures AVAudioSession, activates it and adds the audioOutput.
-        self.activateAudioSession()
         if let audioSettings = self.audioOutput!.recommendedAudioSettingsForAssetWriter(writingTo: fileType) as? [String: Any] {
           recordingSession.initializeAudioWriter(withSettings: audioSettings)
         }

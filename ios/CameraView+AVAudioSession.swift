@@ -17,14 +17,16 @@ extension CameraView {
    Configures the AudioSession category and options if not already configured.
    */
   final func configureAudioSession() {
-    do {
-      try AVAudioSession.sharedInstance().updateCategory(AVAudioSession.Category.playAndRecord,
-                                                         options: [.mixWithOthers,
-                                                                   .allowBluetoothA2DP,
-                                                                   .defaultToSpeaker,
-                                                                   .allowAirPlay])
-    } catch let error as NSError {
-      return self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)), cause: error)
+    measureElapsedTime {
+      do {
+        try AVAudioSession.sharedInstance().updateCategory(AVAudioSession.Category.playAndRecord,
+                                                           options: [.mixWithOthers,
+                                                                     .allowBluetoothA2DP,
+                                                                     .defaultToSpeaker,
+                                                                     .allowAirPlay])
+      } catch let error as NSError {
+        self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)), cause: error)
+      }
     }
   }
 
@@ -39,11 +41,6 @@ extension CameraView {
 
     measureElapsedTime {
       do {
-//        let audioSession = AVAudioSession.sharedInstance()
-//        // deactivates, updates category and activates session again if category/options are not equal.
-//        try audioSession.updateCategory(AVAudioSession.Category.playAndRecord, options: [.mixWithOthers, .allowBluetoothA2DP, .defaultToSpeaker])
-//        // allows haptic feedback (vibrations) and system sounds to play while recording.
-//        audioSession.trySetAllowHaptics(true)
         try AVAudioSession.sharedInstance().setActive(true)
       } catch let error as NSError {
         switch error.code {
@@ -52,24 +49,6 @@ extension CameraView {
         default:
           self.invokeOnError(.session(.audioSessionFailedToActivate), cause: error)
         }
-      }
-    }
-  }
-
-  /**
-   Deactivate the shared Audio Session.
-   */
-  final func deactivateAudioSession() {
-    // TODO: Do I actually need to deactivate the audio session?
-    return
-
-        ReactLogger.log(level: .info, message: "Deactivating Audio Session...")
-
-    measureElapsedTime {
-      do {
-        try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
-      } catch let error as NSError {
-        self.invokeOnError(.session(.audioSessionFailedToDeactivate), cause: error)
       }
     }
   }
@@ -94,8 +73,10 @@ extension CameraView {
       if options.contains(.shouldResume) {
         ReactLogger.log(level: .info, message: "Resuming interrupted Audio Session...", alsoLogToJS: true)
         if isRecording {
-          // restart audio session because interruption is over
-          activateAudioSession()
+          audioQueue.async {
+            // restart audio session because interruption is over
+            self.activateAudioSession()
+          }
         }
       } else {
         ReactLogger.log(level: .error, message: "Cannot resume interrupted Audio Session!", alsoLogToJS: true)
