@@ -29,8 +29,6 @@ extension CameraView {
         try audioSession.updateCategory(AVAudioSession.Category.playAndRecord, options: [.mixWithOthers, .allowBluetoothA2DP, .defaultToSpeaker])
         // allows haptic feedback (vibrations) and system sounds to play while recording.
         audioSession.trySetAllowHaptics(true)
-
-        try addAudioInput()
       } catch let error as NSError {
         switch error.code {
         case 561_017_449:
@@ -38,7 +36,6 @@ extension CameraView {
         default:
           self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)), cause: error)
         }
-        self.removeAudioInput()
       }
     }
   }
@@ -51,49 +48,11 @@ extension CameraView {
 
     measureElapsedTime {
       do {
-        removeAudioInput()
         try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
       } catch let error as NSError {
         self.invokeOnError(.session(.audioSessionSetupFailed(reason: error.description)), cause: error)
       }
     }
-  }
-
-  /**
-   Configures the CaptureSession and adds the audio device if it has not already been added yet.
-   */
-  func addAudioInput() throws {
-    if audioDeviceInput != nil {
-      // we already added the audio device, don't add it again
-      return
-    }
-
-    ReactLogger.log(level: .info, message: "Adding audio input...")
-    captureSession.beginConfiguration()
-    guard let audioDevice = AVCaptureDevice.default(for: .audio) else {
-      throw CameraError.device(.microphoneUnavailable)
-    }
-    audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice)
-    guard captureSession.canAddInput(audioDeviceInput!) else {
-      throw CameraError.parameter(.unsupportedInput(inputDescriptor: "audio-input"))
-    }
-    captureSession.addInput(audioDeviceInput!)
-    captureSession.commitConfiguration()
-  }
-
-  /**
-   Configures the CaptureSession and removes the audio device if it has been added before.
-   */
-  func removeAudioInput() {
-    guard let audioInput = audioDeviceInput else {
-      return
-    }
-
-    ReactLogger.log(level: .info, message: "Removing audio input...")
-    captureSession.beginConfiguration()
-    captureSession.removeInput(audioInput)
-    audioDeviceInput = nil
-    captureSession.commitConfiguration()
   }
 
   @objc
@@ -109,7 +68,6 @@ extension CameraView {
     case .began:
       // Something interrupted our Audio Session, stop recording audio.
       ReactLogger.log(level: .error, message: "The Audio Session was interrupted!", alsoLogToJS: true)
-      removeAudioInput()
     case .ended:
       ReactLogger.log(level: .info, message: "The Audio Session interruption has ended.")
       guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else { return }

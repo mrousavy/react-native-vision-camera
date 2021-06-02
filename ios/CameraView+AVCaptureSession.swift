@@ -13,6 +13,8 @@ import Foundation
  Extension for CameraView that sets up the AVCaptureSession, Device and Format.
  */
 extension CameraView {
+  // pragma MARK: Configure Capture Session
+  
   /**
    Configures the Capture Session.
    */
@@ -31,9 +33,6 @@ extension CameraView {
 
     ReactLogger.log(level: .info, message: "Initializing Camera with device \(cameraId)...")
     captureSession.beginConfiguration()
-    defer {
-      captureSession.commitConfiguration()
-    }
 
     if captureSession.automaticallyConfiguresApplicationAudioSession {
       // Disable automatic Audio Session configuration because we configure it in CameraView+AVAudioSession.swift (called before Camera gets activated)
@@ -60,12 +59,14 @@ extension CameraView {
       }
     }
 
-    // INPUTS
+    // pragma MARK: -- Inputs
     // Video Input
     do {
       if let videoDeviceInput = self.videoDeviceInput {
         captureSession.removeInput(videoDeviceInput)
+        self.videoDeviceInput = nil
       }
+      ReactLogger.log(level: .info, message: "Adding Video input...")
       guard let videoDevice = AVCaptureDevice(uniqueID: cameraId) else {
         return invokeOnError(.device(.invalid))
       }
@@ -78,12 +79,32 @@ extension CameraView {
     } catch {
       return invokeOnError(.device(.invalid))
     }
+    // Audio Input
+    do {
+      if let audioDeviceInput = self.audioDeviceInput {
+        captureSession.removeInput(audioDeviceInput)
+        self.audioDeviceInput = nil
+      }
+      ReactLogger.log(level: .info, message: "Adding Audio input...")
+      guard let audioDevice = AVCaptureDevice.default(for: .audio) else {
+        return invokeOnError(.device(.microphoneUnavailable))
+      }
+      audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice)
+      guard captureSession.canAddInput(audioDeviceInput!) else {
+        return invokeOnError(.parameter(.unsupportedInput(inputDescriptor: "audio-input")))
+      }
+      captureSession.addInput(audioDeviceInput!)
+    } catch {
+      return invokeOnError(.device(.microphoneUnavailable))
+    }
 
-    // OUTPUTS
+    // pragma MARK: -- Outputs
+    // Photo Output
     if let photoOutput = self.photoOutput {
       captureSession.removeOutput(photoOutput)
+      self.photoOutput = nil
     }
-    // Photo Output
+    ReactLogger.log(level: .info, message: "Adding Photo output...")
     photoOutput = AVCapturePhotoOutput()
     photoOutput!.isDepthDataDeliveryEnabled = photoOutput!.isDepthDataDeliverySupported && enableDepthData
     if let enableHighResolutionCapture = self.enableHighResolutionCapture?.boolValue {
@@ -130,11 +151,16 @@ extension CameraView {
     audioOutput!.setSampleBufferDelegate(self, queue: audioQueue)
     captureSession.addOutput(audioOutput!)
 
+    // Commit changes
+    captureSession.commitConfiguration()
+    
     invokeOnInitialized()
     isReady = true
     ReactLogger.log(level: .info, message: "Session successfully configured!")
   }
 
+  // pragma MARK: Configure Device
+  
   /**
    Configures the Video Device with the given FPS, HDR and ColorSpace.
    */
@@ -184,6 +210,8 @@ extension CameraView {
     }
   }
 
+  // pragma MARK: Configure Format
+  
   /**
    Configures the Video Device to find the best matching Format.
    */
@@ -246,7 +274,7 @@ extension CameraView {
     switch reason {
     case .audioDeviceInUseByAnotherClient:
       // remove audio input so iOS thinks nothing is wrong and won't pause the session.
-      removeAudioInput()
+      invokeOnError(.session(.audioInUseByOtherApp))
     default:
       // don't do anything, iOS will automatically pause session
       break
