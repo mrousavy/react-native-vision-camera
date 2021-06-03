@@ -197,8 +197,8 @@ public final class CameraView: UIView {
         }
 
         // This is a wack workaround, but if I immediately set torch mode after `startRunning()`, the session isn't quite ready yet and will ignore torch.
-        self.cameraQueue.asyncAfter(deadline: .now() + 0.1) {
-          if shouldUpdateTorch {
+        if shouldUpdateTorch {
+          self.cameraQueue.asyncAfter(deadline: .now() + 0.1) {
             self.setTorchMode(self.torch)
           }
         }
