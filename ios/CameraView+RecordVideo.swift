@@ -13,11 +13,13 @@ private var hasLoggedFrameDropWarning = false
 // MARK: - CameraView + AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate
 
 extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
-  // TODO: startRecording() stutters the camera. run audio initialization async?
-
+  /**
+   Starts a video + audio recording with a custom Asset Writer.
+   */
   func startRecording(options: NSDictionary, callback: @escaping RCTResponseSenderBlock) {
     cameraQueue.async {
       ReactLogger.log(level: .info, message: "Starting Video recording...")
+
       do {
         let errorPointer = ErrorPointer(nilLiteral: ())
         guard let tempFilePath = RCTTempFilePath("mov", errorPointer) else {
@@ -89,7 +91,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
             recordingSession.initializeAudioWriter(withSettings: audioSettings)
           }
 
-          // Start recording
+          // Finally start recording, with or without audio.
           recordingSession.start()
           self.isRecording = true
         }
