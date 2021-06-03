@@ -229,45 +229,4 @@ extension CameraView {
       }
     }
   }
-
-  @objc
-  func sessionInterruptionBegin(notification: Notification) {
-    ReactLogger.log(level: .info, message: "Capture Session interrupted!", alsoLogToJS: true)
-    guard let reasonNumber = notification.userInfo?[AVCaptureSessionInterruptionReasonKey] as? NSNumber else {
-      return
-    }
-    let reason = AVCaptureSession.InterruptionReason(rawValue: reasonNumber.intValue)
-
-    switch reason {
-    case .audioDeviceInUseByAnotherClient:
-      // remove audio input so iOS thinks nothing is wrong and won't pause the session.
-      invokeOnError(.session(.audioInUseByOtherApp))
-    default:
-      // don't do anything, iOS will automatically pause session
-      break
-    }
-  }
-
-  @objc
-  func sessionInterruptionEnd(notification: Notification) {
-    ReactLogger.log(level: .info, message: "Capture Session interruption has ended.", alsoLogToJS: true)
-    guard let reasonNumber = notification.userInfo?[AVCaptureSessionInterruptionReasonKey] as? NSNumber else {
-      return
-    }
-    let reason = AVCaptureSession.InterruptionReason(rawValue: reasonNumber.intValue)
-
-    switch reason {
-    case .audioDeviceInUseByAnotherClient:
-      if isRecording {
-        audioQueue.async {
-          ReactLogger.log(level: .info, message: "Resuming interrupted Audio Session...")
-          // add audio again because we removed it when we received the interruption.
-          self.activateAudioSession()
-        }
-      }
-    default:
-      // don't do anything, iOS will automatically resume session
-      break
-    }
-  }
 }

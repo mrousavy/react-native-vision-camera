@@ -122,13 +122,9 @@ public final class CameraView: UIView {
                                            name: .AVCaptureSessionRuntimeError,
                                            object: captureSession)
     NotificationCenter.default.addObserver(self,
-                                           selector: #selector(sessionInterruptionBegin),
-                                           name: .AVCaptureSessionWasInterrupted,
-                                           object: captureSession)
-    NotificationCenter.default.addObserver(self,
-                                           selector: #selector(sessionInterruptionEnd),
-                                           name: .AVCaptureSessionInterruptionEnded,
-                                           object: captureSession)
+                                           selector: #selector(sessionRuntimeError),
+                                           name: .AVCaptureSessionRuntimeError,
+                                           object: audioCaptureSession)
     NotificationCenter.default.addObserver(self,
                                            selector: #selector(audioSessionInterrupted),
                                            name: AVAudioSession.interruptionNotification,
@@ -149,11 +145,8 @@ public final class CameraView: UIView {
                                               name: .AVCaptureSessionRuntimeError,
                                               object: captureSession)
     NotificationCenter.default.removeObserver(self,
-                                              name: .AVCaptureSessionWasInterrupted,
-                                              object: captureSession)
-    NotificationCenter.default.removeObserver(self,
-                                              name: .AVCaptureSessionInterruptionEnded,
-                                              object: captureSession)
+                                              name: .AVCaptureSessionRuntimeError,
+                                              object: audioCaptureSession)
     NotificationCenter.default.removeObserver(self,
                                               name: AVAudioSession.interruptionNotification,
                                               object: AVAudioSession.sharedInstance)
