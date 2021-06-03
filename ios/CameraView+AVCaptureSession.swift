@@ -167,9 +167,6 @@ extension CameraView {
       if colorSpace != nil, let avColorSpace = try? AVCaptureColorSpace(string: String(colorSpace!)) {
         device.activeColorSpace = avColorSpace
       }
-      captureSession.connections.forEach { connection in
-        connection.videoPreviewLayer
-      }
 
       device.unlockForConfiguration()
       ReactLogger.log(level: .info, message: "Device successfully configured!")
