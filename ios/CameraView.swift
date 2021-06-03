@@ -167,7 +167,13 @@ public final class CameraView: UIView {
     let shouldUpdateZoom = willReconfigure || changedProps.contains("zoom") || shouldCheckActive
     let shouldUpdateVideoStabilization = willReconfigure || changedProps.contains("videoStabilizationMode")
 
-    if shouldReconfigure || shouldCheckActive || shouldUpdateTorch || shouldUpdateZoom || shouldReconfigureFormat || shouldReconfigureDevice || shouldUpdateVideoStabilization {
+    if shouldReconfigure ||
+      shouldCheckActive ||
+      shouldUpdateTorch ||
+      shouldUpdateZoom ||
+      shouldReconfigureFormat ||
+      shouldReconfigureDevice ||
+      shouldUpdateVideoStabilization {
       cameraQueue.async {
         if shouldReconfigure {
           self.configureCaptureSession()
