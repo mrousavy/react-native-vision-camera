@@ -53,6 +53,7 @@ public final class CameraView: UIView {
   @objc var isActive = false
   @objc var torch = "off"
   @objc var zoom: NSNumber = 0.0 // in percent
+  @objc var videoStabilizationMode: NSString?
   // events
   @objc var onInitialized: RCTDirectEventBlock?
   @objc var onError: RCTDirectEventBlock?
@@ -164,8 +165,15 @@ public final class CameraView: UIView {
     let shouldCheckActive = willReconfigure || changedProps.contains("isActive") || captureSession.isRunning != isActive
     let shouldUpdateTorch = willReconfigure || changedProps.contains("torch") || shouldCheckActive
     let shouldUpdateZoom = willReconfigure || changedProps.contains("zoom") || shouldCheckActive
+    let shouldUpdateVideoStabilization = willReconfigure || changedProps.contains("videoStabilizationMode")
 
-    if shouldReconfigure || shouldCheckActive || shouldUpdateTorch || shouldUpdateZoom || shouldReconfigureFormat || shouldReconfigureDevice {
+    if shouldReconfigure ||
+      shouldCheckActive ||
+      shouldUpdateTorch ||
+      shouldUpdateZoom ||
+      shouldReconfigureFormat ||
+      shouldReconfigureDevice ||
+      shouldUpdateVideoStabilization {
       cameraQueue.async {
         if shouldReconfigure {
           self.configureCaptureSession()
@@ -175,6 +183,9 @@ public final class CameraView: UIView {
         }
         if shouldReconfigureDevice {
           self.configureDevice()
+        }
+        if shouldUpdateVideoStabilization, let videoStabilizationMode = self.videoStabilizationMode as String? {
+          self.captureSession.setVideoStabilizationMode(videoStabilizationMode)
         }
 
         if shouldUpdateZoom {
