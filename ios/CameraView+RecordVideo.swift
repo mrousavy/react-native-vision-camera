@@ -152,9 +152,12 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       }
       switch captureOutput {
       case is AVCaptureVideoDataOutput:
-        recordingSession.appendBuffer(sampleBuffer, type: .video)
+        recordingSession.appendBuffer(sampleBuffer, type: .video, timestamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
       case is AVCaptureAudioDataOutput:
-        recordingSession.appendBuffer(sampleBuffer, type: .audio)
+        let timestamp = CMSyncConvertTime(CMSampleBufferGetPresentationTimeStamp(sampleBuffer),
+                                          from: audioCaptureSession.masterClock!,
+                                          to: captureSession.masterClock!)
+        recordingSession.appendBuffer(sampleBuffer, type: .audio, timestamp: timestamp)
       default:
         break
       }

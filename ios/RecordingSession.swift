@@ -106,7 +106,7 @@ class RecordingSession {
     ReactLogger.log(level: .info, message: "Started RecordingSession at \(initialTimestamp!.seconds) seconds.")
   }
 
-  func appendBuffer(_ buffer: CMSampleBuffer, type bufferType: BufferType) {
+  func appendBuffer(_ buffer: CMSampleBuffer, type bufferType: BufferType, timestamp: CMTime) {
     if !CMSampleBufferDataIsReady(buffer) {
       return
     }
@@ -117,7 +117,6 @@ class RecordingSession {
       return
     }
 
-    let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
     latestTimestamp = timestamp
 
     switch bufferType {
