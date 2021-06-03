@@ -218,10 +218,10 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       val startTime = System.currentTimeMillis()
       Log.i(TAG, "Configuring session...")
       if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-        throw MicrophonePermissionError()
+        throw CameraPermissionError()
       }
       if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-        throw CameraPermissionError()
+        throw MicrophonePermissionError()
       }
       if (cameraId == null) {
         throw NoCameraDeviceError()
