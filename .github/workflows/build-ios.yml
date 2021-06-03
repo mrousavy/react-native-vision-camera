@@ -65,7 +65,7 @@ jobs:
       - name: Build App
         run: "xcodebuild \
           CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ \
-          -derivedDataPath ios/build -UseModernBuildSystem=YES \
+          -derivedDataPath build -UseModernBuildSystem=YES \
           -workspace VisionCameraExample.xcworkspace \
           -scheme VisionCameraExample \
           -sdk iphonesimulator \
