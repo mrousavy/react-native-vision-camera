@@ -37,11 +37,6 @@ extension CameraView {
       captureSession.commitConfiguration()
     }
 
-    if captureSession.automaticallyConfiguresApplicationAudioSession {
-      // Disable automatic Audio Session configuration because we configure it in CameraView+AVAudioSession.swift (called before Camera gets activated)
-      captureSession.automaticallyConfiguresApplicationAudioSession = false
-    }
-
     // If preset is set, use preset. Otherwise use format.
     if let preset = self.preset {
       var sessionPreset: AVCaptureSession.Preset?
@@ -265,6 +260,7 @@ extension CameraView {
     case .audioDeviceInUseByAnotherClient:
       if isRecording {
         audioQueue.async {
+          ReactLogger.log(level: .info, message: "Resuming interrupted Audio Session...")
           // add audio again because we removed it when we received the interruption.
           self.activateAudioSession()
         }

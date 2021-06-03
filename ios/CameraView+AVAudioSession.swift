@@ -13,38 +13,19 @@ import Foundation
  Extension for CameraView that sets up the AVAudioSession.
  */
 extension CameraView {
+  
   /**
-   Configures the Audio session and activates it. If the session was active it will shortly be deactivated before configuration.
-
-   The Audio Session will be configured to allow background music, haptics (vibrations) and system sound playback while recording.
-   Background audio is allowed to play on speakers or bluetooth speakers.
+   Configures the Audio Capture Session with an audio input and audio data output.
    */
-  final func activateAudioSession() {
-    ReactLogger.log(level: .info, message: "Activating Audio Session...")
-
-//        try AVAudioSession.sharedInstance().setActive(true)
-    do {
-      try AVAudioSession.sharedInstance().updateCategory(AVAudioSession.Category.playAndRecord,
-                                                         options: [.mixWithOthers,
-                                                                   .allowBluetoothA2DP,
-                                                                   .defaultToSpeaker,
-                                                                   .allowAirPlay])
-    } catch let error as NSError {
-      switch error.code {
-      case 561_017_449:
-        self.invokeOnError(.session(.audioInUseByOtherApp), cause: error)
-      default:
-        self.invokeOnError(.session(.audioSessionFailedToActivate), cause: error)
-      }
-    }
-    
+  final func configureAudioSession() {
     ReactLogger.log(level: .info, message: "Configuring Audio Session...")
+    
     audioCaptureSession.beginConfiguration()
-    audioCaptureSession.automaticallyConfiguresApplicationAudioSession = false
     defer {
       audioCaptureSession.commitConfiguration()
-      audioCaptureSession.startRunning()
     }
+    
+    audioCaptureSession.automaticallyConfiguresApplicationAudioSession = false
     
     // Audio Input
     do {
@@ -65,7 +46,6 @@ extension CameraView {
       return invokeOnError(.device(.microphoneUnavailable), cause: error)
     }
     
-    
     // Audio Output
     if let audioOutput = self.audioOutput {
       audioCaptureSession.removeOutput(audioOutput)
@@ -79,24 +59,37 @@ extension CameraView {
     audioOutput!.setSampleBufferDelegate(self, queue: audioQueue)
     audioCaptureSession.addOutput(audioOutput!)
   }
+  /**
+   Configures the Audio session and activates it. If the session was active it will shortly be deactivated before configuration.
+
+   The Audio Session will be configured to allow background music, haptics (vibrations) and system sound playback while recording.
+   Background audio is allowed to play on speakers or bluetooth speakers.
+   */
+  final func activateAudioSession() {
+    ReactLogger.log(level: .info, message: "Activating Audio Session...")
+
+    do {
+      try AVAudioSession.sharedInstance().updateCategory(AVAudioSession.Category.playAndRecord,
+                                                         options: [.mixWithOthers,
+                                                                   .allowBluetoothA2DP,
+                                                                   .defaultToSpeaker,
+                                                                   .allowAirPlay])
+      audioCaptureSession.startRunning()
+    } catch let error as NSError {
+      switch error.code {
+      case 561_017_449:
+        self.invokeOnError(.session(.audioInUseByOtherApp), cause: error)
+      default:
+        self.invokeOnError(.session(.audioSessionFailedToActivate), cause: error)
+      }
+    }
+    
+  }
   
   final func deactivateAudioSession() {
     ReactLogger.log(level: .info, message: "Deactivating Audio Session...")
     
     audioCaptureSession.stopRunning()
-    audioCaptureSession.beginConfiguration()
-    defer {
-      audioCaptureSession.commitConfiguration()
-    }
-    
-    if let audioOutput = self.audioOutput {
-      audioCaptureSession.removeOutput(audioOutput)
-      self.audioOutput = nil
-    }
-    if let audioDeviceInput = self.audioDeviceInput {
-      audioCaptureSession.removeInput(audioDeviceInput)
-      self.audioDeviceInput = nil
-    }
   }
 
   @objc
@@ -117,9 +110,9 @@ extension CameraView {
       guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else { return }
       let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
       if options.contains(.shouldResume) {
-        ReactLogger.log(level: .info, message: "Resuming interrupted Audio Session...", alsoLogToJS: true)
         if isRecording {
           audioQueue.async {
+            ReactLogger.log(level: .info, message: "Resuming interrupted Audio Session...", alsoLogToJS: true)
             // restart audio session because interruption is over
             self.activateAudioSession()
           }

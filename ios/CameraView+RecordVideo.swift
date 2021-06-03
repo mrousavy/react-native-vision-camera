@@ -68,7 +68,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
                                                      completion: onFinish)
 
         // Init Video
-        guard let videoSettings = self.videoOutput!.recommendedVideoSettingsForAssetWriter(writingTo: fileType),
+        guard let videoOutput = self.videoOutput,
+              let videoSettings = videoOutput.recommendedVideoSettingsForAssetWriter(writingTo: fileType),
               !videoSettings.isEmpty else {
           throw CameraError.capture(.createRecorderError(message: "Failed to get video settings!"))
         }
@@ -83,7 +84,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
             // recording has already been cancelled
             return
           }
-          if let audioSettings = self.audioOutput!.recommendedAudioSettingsForAssetWriter(writingTo: fileType) as? [String: Any] {
+          if let audioOutput = self.audioOutput,
+             let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: fileType) as? [String: Any] {
             recordingSession.initializeAudioWriter(withSettings: audioSettings)
           }
           
