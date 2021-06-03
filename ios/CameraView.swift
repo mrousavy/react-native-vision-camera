@@ -133,7 +133,7 @@ public final class CameraView: UIView {
                                            selector: #selector(audioSessionInterrupted),
                                            name: AVAudioSession.interruptionNotification,
                                            object: AVAudioSession.sharedInstance)
-    
+
     audioQueue.async {
       self.configureAudioSession()
     }

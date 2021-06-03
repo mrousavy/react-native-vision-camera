@@ -74,7 +74,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           throw CameraError.capture(.createRecorderError(message: "Failed to get video settings!"))
         }
         self.recordingSession!.initializeVideoWriter(withSettings: videoSettings,
-                                                    isVideoMirrored: self.videoOutput!.isMirrored)
+                                                     isVideoMirrored: self.videoOutput!.isMirrored)
 
         // Init Audio (optional, async)
         self.audioQueue.async {
@@ -88,7 +88,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
              let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: fileType) as? [String: Any] {
             recordingSession.initializeAudioWriter(withSettings: audioSettings)
           }
-          
+
           // Start recording
           recordingSession.start()
           self.isRecording = true

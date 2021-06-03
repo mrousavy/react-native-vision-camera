@@ -13,20 +13,19 @@ import Foundation
  Extension for CameraView that sets up the AVAudioSession.
  */
 extension CameraView {
-  
   /**
    Configures the Audio Capture Session with an audio input and audio data output.
    */
   final func configureAudioSession() {
     ReactLogger.log(level: .info, message: "Configuring Audio Session...")
-    
+
     audioCaptureSession.beginConfiguration()
     defer {
       audioCaptureSession.commitConfiguration()
     }
-    
+
     audioCaptureSession.automaticallyConfiguresApplicationAudioSession = false
-    
+
     // Audio Input
     do {
       if let audioDeviceInput = self.audioDeviceInput {
@@ -45,7 +44,7 @@ extension CameraView {
     } catch let error as NSError {
       return invokeOnError(.device(.microphoneUnavailable), cause: error)
     }
-    
+
     // Audio Output
     if let audioOutput = self.audioOutput {
       audioCaptureSession.removeOutput(audioOutput)
@@ -59,6 +58,7 @@ extension CameraView {
     audioOutput!.setSampleBufferDelegate(self, queue: audioQueue)
     audioCaptureSession.addOutput(audioOutput!)
   }
+
   /**
    Configures the Audio session and activates it. If the session was active it will shortly be deactivated before configuration.
 
@@ -83,12 +83,11 @@ extension CameraView {
         self.invokeOnError(.session(.audioSessionFailedToActivate), cause: error)
       }
     }
-    
   }
-  
+
   final func deactivateAudioSession() {
     ReactLogger.log(level: .info, message: "Deactivating Audio Session...")
-    
+
     audioCaptureSession.stopRunning()
   }
 
