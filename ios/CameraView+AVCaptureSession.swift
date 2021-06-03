@@ -13,6 +13,8 @@ import Foundation
  Extension for CameraView that sets up the AVCaptureSession, Device and Format.
  */
 extension CameraView {
+  // pragma MARK: Configure Capture Session
+
   /**
    Configures the Capture Session.
    */
@@ -35,9 +37,6 @@ extension CameraView {
       captureSession.commitConfiguration()
     }
 
-    // Disable automatic Audio Session configuration because we configure it in CameraView+AVAudioSession.swift (called before Camera gets activated)
-    captureSession.automaticallyConfiguresApplicationAudioSession = false
-
     // If preset is set, use preset. Otherwise use format.
     if let preset = self.preset {
       var sessionPreset: AVCaptureSession.Preset?
@@ -58,12 +57,14 @@ extension CameraView {
       }
     }
 
-    // INPUTS
+    // pragma MARK: Capture Session Inputs
     // Video Input
     do {
       if let videoDeviceInput = self.videoDeviceInput {
         captureSession.removeInput(videoDeviceInput)
+        self.videoDeviceInput = nil
       }
+      ReactLogger.log(level: .info, message: "Adding Video input...")
       guard let videoDevice = AVCaptureDevice(uniqueID: cameraId) else {
         return invokeOnError(.device(.invalid))
       }
@@ -77,11 +78,14 @@ extension CameraView {
       return invokeOnError(.device(.invalid))
     }
 
-    // OUTPUTS
+    // pragma MARK: Capture Session Outputs
+
+    // Photo Output
     if let photoOutput = self.photoOutput {
       captureSession.removeOutput(photoOutput)
+      self.photoOutput = nil
     }
-    // Photo Output
+    ReactLogger.log(level: .info, message: "Adding Photo output...")
     photoOutput = AVCapturePhotoOutput()
     photoOutput!.isDepthDataDeliveryEnabled = photoOutput!.isDepthDataDeliverySupported && enableDepthData
     if let enableHighResolutionCapture = self.enableHighResolutionCapture?.boolValue {
@@ -115,23 +119,12 @@ extension CameraView {
       videoOutput!.mirror()
     }
 
-    // Audio Output
-    if let audioOutput = self.audioOutput {
-      captureSession.removeOutput(audioOutput)
-      self.audioOutput = nil
-    }
-    ReactLogger.log(level: .info, message: "Adding Audio Data output...")
-    audioOutput = AVCaptureAudioDataOutput()
-    guard captureSession.canAddOutput(audioOutput!) else {
-      return invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "audio-output")))
-    }
-    audioOutput!.setSampleBufferDelegate(self, queue: audioQueue)
-    captureSession.addOutput(audioOutput!)
-
     invokeOnInitialized()
     isReady = true
     ReactLogger.log(level: .info, message: "Session successfully configured!")
   }
+
+  // pragma MARK: Configure Device
 
   /**
    Configures the Video Device with the given FPS, HDR and ColorSpace.
@@ -182,6 +175,8 @@ extension CameraView {
     }
   }
 
+  // pragma MARK: Configure Format
+
   /**
    Configures the Video Device to find the best matching Format.
    */
@@ -216,9 +211,11 @@ extension CameraView {
     }
   }
 
+  // pragma MARK: Notifications/Interruptions
+
   @objc
   func sessionRuntimeError(notification: Notification) {
-    ReactLogger.log(level: .error, message: "Unexpected Camera Runtime Error occured!")
+    ReactLogger.log(level: .error, message: "Unexpected Camera Runtime Error occured!", alsoLogToJS: true)
     guard let error = notification.userInfo?[AVCaptureSessionErrorKey] as? AVError else {
       return
     }
@@ -230,42 +227,6 @@ extension CameraView {
       queue.async {
         self.captureSession.startRunning()
       }
-    }
-  }
-
-  @objc
-  func sessionInterruptionBegin(notification: Notification) {
-    ReactLogger.log(level: .error, message: "Capture Session Interruption begin Notification!")
-    guard let reasonNumber = notification.userInfo?[AVCaptureSessionInterruptionReasonKey] as? NSNumber else {
-      return
-    }
-    let reason = AVCaptureSession.InterruptionReason(rawValue: reasonNumber.intValue)
-
-    switch reason {
-    case .audioDeviceInUseByAnotherClient:
-      // remove audio input so iOS thinks nothing is wrong and won't pause the session.
-      removeAudioInput()
-    default:
-      // don't do anything, iOS will automatically pause session
-      break
-    }
-  }
-
-  @objc
-  func sessionInterruptionEnd(notification: Notification) {
-    ReactLogger.log(level: .error, message: "Capture Session Interruption end Notification!")
-    guard let reasonNumber = notification.userInfo?[AVCaptureSessionInterruptionReasonKey] as? NSNumber else {
-      return
-    }
-    let reason = AVCaptureSession.InterruptionReason(rawValue: reasonNumber.intValue)
-
-    switch reason {
-    case .audioDeviceInUseByAnotherClient:
-      // add audio again because we removed it when we received the interruption.
-      configureAudioSession()
-    default:
-      // don't do anything, iOS will automatically resume session
-      break
     }
   }
 }

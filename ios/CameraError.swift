@@ -146,6 +146,7 @@ enum FormatError {
 enum SessionError {
   case cameraNotReady
   case audioSessionSetupFailed(reason: String)
+  case audioSessionFailedToActivate
   case audioInUseByOtherApp
 
   var code: String {
@@ -156,6 +157,8 @@ enum SessionError {
       return "audio-session-setup-failed"
     case .audioInUseByOtherApp:
       return "audio-in-use-by-other-app"
+    case .audioSessionFailedToActivate:
+      return "audio-session-failed-to-activate"
     }
   }
 
@@ -167,6 +170,8 @@ enum SessionError {
       return "The audio session failed to setup! \(reason)"
     case .audioInUseByOtherApp:
       return "The audio session is already in use by another app with higher priority!"
+    case .audioSessionFailedToActivate:
+      return "Failed to activate Audio Session!"
     }
   }
 }

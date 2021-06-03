@@ -74,6 +74,7 @@ public final class CameraView: UIView {
   internal let queue = DispatchQueue(label: "com.mrousavy.camera-queue", qos: .userInteractive, attributes: [], autoreleaseFrequency: .inherit, target: nil)
   // Capture Session
   internal let captureSession = AVCaptureSession()
+  internal let audioCaptureSession = AVCaptureSession()
   // Inputs
   internal var videoDeviceInput: AVCaptureDeviceInput?
   internal var audioDeviceInput: AVCaptureDeviceInput?
@@ -121,17 +122,17 @@ public final class CameraView: UIView {
                                            name: .AVCaptureSessionRuntimeError,
                                            object: captureSession)
     NotificationCenter.default.addObserver(self,
-                                           selector: #selector(sessionInterruptionBegin),
-                                           name: .AVCaptureSessionWasInterrupted,
-                                           object: captureSession)
-    NotificationCenter.default.addObserver(self,
-                                           selector: #selector(sessionInterruptionEnd),
-                                           name: .AVCaptureSessionInterruptionEnded,
-                                           object: captureSession)
+                                           selector: #selector(sessionRuntimeError),
+                                           name: .AVCaptureSessionRuntimeError,
+                                           object: audioCaptureSession)
     NotificationCenter.default.addObserver(self,
                                            selector: #selector(audioSessionInterrupted),
                                            name: AVAudioSession.interruptionNotification,
                                            object: AVAudioSession.sharedInstance)
+
+    audioQueue.async {
+      self.configureAudioSession()
+    }
   }
 
   @available(*, unavailable)
@@ -144,11 +145,8 @@ public final class CameraView: UIView {
                                               name: .AVCaptureSessionRuntimeError,
                                               object: captureSession)
     NotificationCenter.default.removeObserver(self,
-                                              name: .AVCaptureSessionWasInterrupted,
-                                              object: captureSession)
-    NotificationCenter.default.removeObserver(self,
-                                              name: .AVCaptureSessionInterruptionEnded,
-                                              object: captureSession)
+                                              name: .AVCaptureSessionRuntimeError,
+                                              object: audioCaptureSession)
     NotificationCenter.default.removeObserver(self,
                                               name: AVAudioSession.interruptionNotification,
                                               object: AVAudioSession.sharedInstance)
@@ -189,7 +187,6 @@ public final class CameraView: UIView {
         if shouldCheckActive && self.captureSession.isRunning != self.isActive {
           if self.isActive {
             ReactLogger.log(level: .info, message: "Starting Session...")
-            self.configureAudioSession()
             self.captureSession.startRunning()
             ReactLogger.log(level: .info, message: "Started Session!")
           } else {

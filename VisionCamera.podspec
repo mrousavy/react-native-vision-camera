@@ -30,6 +30,7 @@ Pod::Spec.new do |s|
     "ios/Frame Processor/FrameProcessorPluginRegistry.h",
     "ios/Frame Processor/FrameProcessorPlugin.h",
     "ios/React Utils/RCTBridge+runOnJS.h",
+    "ios/React Utils/JSConsoleHelper.h",
     "cpp/**/*.{cpp}",
   ]
   # Any private headers that are not globally unique should be mentioned here.

@@ -16,6 +16,7 @@
 #import "FrameProcessorCallback.h"
 #import "FrameProcessorRuntimeManager.h"
 #import "RCTBridge+runOnJS.h"
+#import "JSConsoleHelper.h"
 
 #ifdef VISION_CAMERA_DISABLE_FRAME_PROCESSORS
 static bool enableFrameProcessors = false;

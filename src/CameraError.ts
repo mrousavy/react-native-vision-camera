@@ -20,7 +20,11 @@ export type FormatError =
   | 'format/invalid-low-light-boost'
   | 'format/invalid-format'
   | 'format/invalid-preset';
-export type SessionError = 'session/camera-not-ready' | 'session/audio-session-setup-failed' | 'session/audio-in-use-by-other-app';
+export type SessionError =
+  | 'session/camera-not-ready'
+  | 'session/audio-session-setup-failed'
+  | 'session/audio-in-use-by-other-app'
+  | 'audio-session-failed-to-activate';
 export type CaptureError =
   | 'capture/invalid-photo-format'
   | 'capture/encoder-error'
