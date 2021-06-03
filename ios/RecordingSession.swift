@@ -50,8 +50,6 @@ class RecordingSession {
     } catch let error as NSError {
       throw CameraError.capture(.createRecorderError(message: error.description))
     }
-
-    ReactLogger.log(level: .info, message: "Initialized Video and Audio AssetWriter.")
   }
 
   deinit {
@@ -82,6 +80,7 @@ class RecordingSession {
 
     assetWriter.add(videoWriter)
     bufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter, withVideoSettings: settings)
+    ReactLogger.log(level: .info, message: "Initialized Video AssetWriter.")
   }
 
   func initializeAudioWriter(withSettings settings: [String: Any]) {
@@ -97,12 +96,14 @@ class RecordingSession {
     audioWriter = AVAssetWriterInput(mediaType: .audio, outputSettings: settings)
     audioWriter!.expectsMediaDataInRealTime = true
     assetWriter.add(audioWriter!)
+    ReactLogger.log(level: .info, message: "Initialized Audio AssetWriter.")
   }
 
   func start() {
     assetWriter.startWriting()
     initialTimestamp = CMTime(seconds: CACurrentMediaTime(), preferredTimescale: 1_000_000_000)
     assetWriter.startSession(atSourceTime: initialTimestamp!)
+    ReactLogger.log(level: .info, message: "Started RecordingSession at \(initialTimestamp!.seconds) seconds.")
   }
 
   func appendBuffer(_ buffer: CMSampleBuffer, type bufferType: BufferType) {

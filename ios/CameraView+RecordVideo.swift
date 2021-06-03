@@ -43,6 +43,9 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         let onFinish = { (status: AVAssetWriter.Status, error: Error?) -> Void in
           defer {
             self.recordingSession = nil
+            self.audioQueue.async {
+              self.deactivateAudioSession()
+            }
           }
           ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
           if let error = error {
@@ -60,27 +63,34 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           }
         }
 
-        let recordingSession = try RecordingSession(url: tempURL,
-                                                    fileType: fileType,
-                                                    completion: onFinish)
+        self.recordingSession = try RecordingSession(url: tempURL,
+                                                     fileType: fileType,
+                                                     completion: onFinish)
 
         // Init Video
         guard let videoSettings = self.videoOutput!.recommendedVideoSettingsForAssetWriter(writingTo: fileType),
               !videoSettings.isEmpty else {
           throw CameraError.capture(.createRecorderError(message: "Failed to get video settings!"))
         }
-        recordingSession.initializeVideoWriter(withSettings: videoSettings,
-                                               isVideoMirrored: self.videoOutput!.isMirrored)
+        self.recordingSession!.initializeVideoWriter(withSettings: videoSettings,
+                                                    isVideoMirrored: self.videoOutput!.isMirrored)
 
-        // Init Audio (optional)
-        if let audioSettings = self.audioOutput!.recommendedAudioSettingsForAssetWriter(writingTo: fileType) as? [String: Any] {
-          recordingSession.initializeAudioWriter(withSettings: audioSettings)
+        // Init Audio (optional, async)
+        self.audioQueue.async {
+          // Activate Audio Session (blocking)
+          self.activateAudioSession()
+          guard let recordingSession = self.recordingSession else {
+            // recording has already been cancelled
+            return
+          }
+          if let audioSettings = self.audioOutput!.recommendedAudioSettingsForAssetWriter(writingTo: fileType) as? [String: Any] {
+            recordingSession.initializeAudioWriter(withSettings: audioSettings)
+          }
+          
+          // Start recording
+          recordingSession.start()
+          self.isRecording = true
         }
-
-        // Start recording
-        recordingSession.start()
-        self.recordingSession = recordingSession
-        self.isRecording = true
       } catch EnumParserError.invalidValue {
         return callback([NSNull(), EnumParserError.invalidValue])
       } catch let error as NSError {

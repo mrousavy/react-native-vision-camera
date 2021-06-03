@@ -82,24 +82,6 @@ extension CameraView {
     } catch {
       return invokeOnError(.device(.invalid))
     }
-    // Audio Input
-    do {
-      if let audioDeviceInput = self.audioDeviceInput {
-        captureSession.removeInput(audioDeviceInput)
-        self.audioDeviceInput = nil
-      }
-      ReactLogger.log(level: .info, message: "Adding Audio input...")
-      guard let audioDevice = AVCaptureDevice.default(for: .audio) else {
-        return invokeOnError(.device(.microphoneUnavailable))
-      }
-      audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice)
-      guard captureSession.canAddInput(audioDeviceInput!) else {
-        return invokeOnError(.parameter(.unsupportedInput(inputDescriptor: "audio-input")))
-      }
-      captureSession.addInput(audioDeviceInput!)
-    } catch let error as NSError {
-      return invokeOnError(.device(.microphoneUnavailable), cause: error)
-    }
 
     // pragma MARK: Capture Session Outputs
 
@@ -141,19 +123,6 @@ extension CameraView {
     if videoDeviceInput!.device.position == .front {
       videoOutput!.mirror()
     }
-
-    // Audio Output
-    if let audioOutput = self.audioOutput {
-      captureSession.removeOutput(audioOutput)
-      self.audioOutput = nil
-    }
-    ReactLogger.log(level: .info, message: "Adding Audio Data output...")
-    audioOutput = AVCaptureAudioDataOutput()
-    guard captureSession.canAddOutput(audioOutput!) else {
-      return invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "audio-output")))
-    }
-    audioOutput!.setSampleBufferDelegate(self, queue: audioQueue)
-    captureSession.addOutput(audioOutput!)
 
     invokeOnInitialized()
     isReady = true

@@ -74,6 +74,7 @@ public final class CameraView: UIView {
   internal let queue = DispatchQueue(label: "com.mrousavy.camera-queue", qos: .userInteractive, attributes: [], autoreleaseFrequency: .inherit, target: nil)
   // Capture Session
   internal let captureSession = AVCaptureSession()
+  internal let audioCaptureSession = AVCaptureSession()
   // Inputs
   internal var videoDeviceInput: AVCaptureDeviceInput?
   internal var audioDeviceInput: AVCaptureDeviceInput?
@@ -189,7 +190,6 @@ public final class CameraView: UIView {
         if shouldCheckActive && self.captureSession.isRunning != self.isActive {
           if self.isActive {
             ReactLogger.log(level: .info, message: "Starting Session...")
-            self.configureAudioSession()
             self.captureSession.startRunning()
             ReactLogger.log(level: .info, message: "Started Session!")
           } else {
