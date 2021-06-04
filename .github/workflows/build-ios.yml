@@ -72,5 +72,6 @@ jobs:
           -sdk iphonesimulator \
           -configuration Debug \
           -destination 'platform=iOS Simulator,name=iPhone 11 Pro' \
+          -quiet
           build \
           CODE_SIGNING_ALLOWED=NO"
