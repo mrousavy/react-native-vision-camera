@@ -63,6 +63,8 @@ jobs:
             ${{ runner.os }}-pods-
       - name: Install Pods
         run: bundle exec pod check || bundle exec pod install
+      - name: Install xcpretty
+        run: gem install xcpretty
       - name: Build App
         run: "xcodebuild \
           CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ \
@@ -72,6 +74,5 @@ jobs:
           -sdk iphonesimulator \
           -configuration Debug \
           -destination 'platform=iOS Simulator,name=iPhone 11 Pro' \
-          -quiet
           build \
-          CODE_SIGNING_ALLOWED=NO"
+          CODE_SIGNING_ALLOWED=NO | xcpretty"
