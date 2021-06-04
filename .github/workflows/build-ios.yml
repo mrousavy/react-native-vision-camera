@@ -63,13 +63,4 @@ jobs:
       - name: Install Pods
         run: bundle exec pod check || bundle exec pod install
       - name: Build App
-        run: "xcodebuild \
-          CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ \
-          -derivedDataPath build -UseModernBuildSystem=YES \
-          -workspace VisionCameraExample.xcworkspace \
-          -scheme VisionCameraExample \
-          -sdk iphonesimulator \
-          -configuration Debug \
-          -destination \"generic/platform=iOS Simulator\" \
-          build \
-          CODE_SIGNING_ALLOWED=NO"
+        run: "xcodebuild -scheme VisionCameraExample -workspace VisionCameraExample.xcworkspace build"
