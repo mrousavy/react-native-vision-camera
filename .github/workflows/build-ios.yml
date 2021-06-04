@@ -64,8 +64,12 @@ jobs:
         run: bundle exec pod check || bundle exec pod install
       - name: Build App
         run: "xcodebuild \
+          CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ \
+          -derivedDataPath build -UseModernBuildSystem=YES \
           -workspace VisionCameraExample.xcworkspace \
           -scheme VisionCameraExample \
-          -PBXBuildsContinueAfterErrors \
+          -sdk iphonesimulator \
+          -configuration Debug \
+          -destination \"platform=iOS Simulator,name=iPhone 11\" \
           build \
           CODE_SIGNING_ALLOWED=NO"
