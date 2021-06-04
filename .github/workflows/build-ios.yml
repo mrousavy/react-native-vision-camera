@@ -42,6 +42,7 @@ jobs:
 
       - name: Restore buildcache
         uses: mikehardy/buildcache-action@v1
+        continue-on-error: true
 
       - name: Setup Ruby (bundle)
         uses: ruby/setup-ruby@v1
