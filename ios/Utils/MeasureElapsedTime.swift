@@ -19,7 +19,7 @@ func measureElapsedTime<T>(_ label: String = #function, _ code: () -> T) -> T {
     defer {
       let end = DispatchTime.now()
       let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
-      ReactLogger.log(level: .info, message: "⏱ \(label) took: \(Double(nanoTime) / 1_000_000)ms!")
+      ReactLogger.log(level: .info, message: "\(label) took: \(Double(nanoTime) / 1_000_000)ms!")
     }
   #endif
   return code()
