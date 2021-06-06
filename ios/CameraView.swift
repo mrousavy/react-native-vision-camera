@@ -15,7 +15,6 @@ import UIKit
 //
 // CameraView+RecordVideo
 // TODO: Better startRecording()/stopRecording() (promise + callback, wait for TurboModules/JSI)
-// TODO: videoStabilizationMode
 
 // CameraView+TakePhoto
 // TODO: Photo HDR
@@ -42,6 +41,10 @@ public final class CameraView: UIView {
   @objc var enableHighResolutionCapture: NSNumber? // nullable bool
   @objc var enablePortraitEffectsMatteDelivery = false
   @objc var preset: String?
+  // use cases
+  @objc var photo: NSNumber? // nullable bool
+  @objc var video: NSNumber? // nullable bool
+  @objc var audio: NSNumber? // nullable bool
   // props that require format reconfiguring
   @objc var format: NSDictionary?
   @objc var fps: NSNumber?
