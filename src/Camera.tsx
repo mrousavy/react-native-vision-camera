@@ -358,6 +358,13 @@ export class Camera extends React.PureComponent<CameraProps> {
       this.assertFrameProcessorsEnabled();
       // frameProcessor argument changed. Update native to reflect the change.
       if (this.props.frameProcessor != null) {
+        if (this.props.video !== true) {
+          throw new CameraCaptureError(
+            'capture/video-not-enabled',
+            'Video capture is disabled! Pass `video={true}` to enable frame processors.',
+          );
+        }
+
         // 1. Spawn threaded JSI Runtime (if not already done)
         // 2. Add video data output to Camera stream (if not already done)
         // 3. Workletize the frameProcessor and prepare it for being called with frames
