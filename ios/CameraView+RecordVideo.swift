@@ -36,6 +36,14 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         if let fileTypeOption = options["fileType"] as? String {
           fileType = AVFileType(withString: fileTypeOption)
         }
+        
+        guard let videoOutput = self.videoOutput else {
+          if self.video?.boolValue == true {
+            return callback([NSNull(), CameraError.session(.cameraNotReady)])
+          } else {
+            return callback([NSNull(), CameraError.capture(.videoNotEnabled)])
+          }
+        }
 
         // TODO: The startRecording() func cannot be async because RN doesn't allow
         //       both a callback and a Promise in a single function. Wait for TurboModules?
@@ -81,8 +89,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
                                                      completion: onFinish)
 
         // Init Video
-        guard let videoOutput = self.videoOutput,
-              let videoSettings = videoOutput.recommendedVideoSettingsForAssetWriter(writingTo: fileType),
+        guard let videoSettings = videoOutput.recommendedVideoSettingsForAssetWriter(writingTo: fileType),
               !videoSettings.isEmpty else {
           throw CameraError.capture(.createRecorderError(message: "Failed to get video settings!"))
         }
