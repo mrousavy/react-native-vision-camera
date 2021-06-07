@@ -100,14 +100,6 @@ function App() {
 }
 ```
 
-### The `supportsPhotoAndVideoCapture` prop
-
-Camera devices provide the `supportsPhotoAndVideoCapture` property which determines whether the device allows enabling photo- and video-capture at the same time. While every iOS device supports this feature, there are some older Android devices which only allow enabling one of each - either photo capture or video capture. (Those are `LEGACY` devices, see [this table](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture).)
-
-:::note
-If you need photo- and video-capture for devices where `supportsPhotoAndVideoCapture` is `false`, you can fall back to snapshot capture (see [**"Taking Snapshots"**](https://cuvent.github.io/react-native-vision-camera/docs/guides/capturing#taking-snapshots)) instead.
-:::
-
 ### The `isActive` prop
 
 The Camera's `isActive` property can be used to _pause_ the session (`isActive={false}`) while still keeping the session "warm". This is more desirable than completely unmounting the camera, since _resuming_ the session (`isActive={true}`) will be **much faster** than re-mounting the camera view.
@@ -135,6 +127,14 @@ function App() {
 
 :::info
 If you don't care about fast resume times you can also fully unmount the `<Camera>` view instead, which will use less memory (RAM).
+:::
+
+### The `supportsPhotoAndVideoCapture` prop
+
+Camera devices provide the [`supportsPhotoAndVideoCapture` property](/docs/api/interfaces/cameradevice.cameradevice-1#supportsphotoandvideocapture) which determines whether the device allows enabling photo- and video-capture at the same time. While every iOS device supports this feature, there are some older Android devices which only allow enabling one of each - either photo capture or video capture. (Those are `LEGACY` devices, see [this table](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture).)
+
+:::note
+If you need photo- and video-capture for devices where `supportsPhotoAndVideoCapture` is `false`, you can fall back to snapshot capture (see [**"Taking Snapshots"**](/docs/guides/capturing#taking-snapshots)) instead.
 :::
 
 <br />

@@ -255,9 +255,9 @@ export interface CameraDevice {
    *
    * * On **iOS** devices this value is always `true`.
    * * On newer **Android** devices this value is always `true`.
-   * * On older **Android** devices this value is `true` if the device's hardware level is `LIMITED` and above, `false` otherwise. (`LEGACY`) (See [this table](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture))
+   * * On older **Android** devices this value is `true` if the device's hardware level is `LIMITED` or above, `false` otherwise. (`LEGACY`) (See [this table](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture))
    *
-   * If the device does not allow enabling `photo` and `video` capture at the same time, you might want to fall back to **snapshot capture** (See ["Taking Snapshots"](https://cuvent.github.io/react-native-vision-camera/docs/guides/capturing#taking-snapshots)) instead:
+   * If the device does not allow enabling `photo` and `video` capture at the same time, you might want to fall back to **snapshot capture** (See [**"Taking Snapshots"**](https://cuvent.github.io/react-native-vision-camera/docs/guides/capturing#taking-snapshots)) instead:
    *
    * @example
    * ```tsx
