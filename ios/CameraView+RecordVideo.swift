@@ -42,11 +42,14 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         //       This means that any errors that occur in this function have to be delegated through
         //       the callback, but I'd prefer for them to throw for the original function instead.
 
+        let enableAudio = self.audio?.boolValue == true
         let onFinish = { (status: AVAssetWriter.Status, error: Error?) -> Void in
           defer {
             self.recordingSession = nil
-            self.audioQueue.async {
-              self.deactivateAudioSession()
+            if enableAudio {
+              self.audioQueue.async {
+                self.deactivateAudioSession()
+              }
             }
           }
           ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
@@ -78,20 +81,26 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         self.recordingSession!.initializeVideoWriter(withSettings: videoSettings,
                                                      isVideoMirrored: self.videoOutput!.isMirrored)
 
-        // Init Audio (optional, async)
-        self.audioQueue.async {
-          // Activate Audio Session (blocking)
-          self.activateAudioSession()
-          guard let recordingSession = self.recordingSession else {
-            // recording has already been cancelled
-            return
-          }
-          if let audioOutput = self.audioOutput,
-             let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: fileType) as? [String: Any] {
-            recordingSession.initializeAudioWriter(withSettings: audioSettings)
-          }
+        if enableAudio {
+          // Init Audio (optional, async)
+          self.audioQueue.async {
+            // Activate Audio Session (blocking)
+            self.activateAudioSession()
+            guard let recordingSession = self.recordingSession else {
+              // recording has already been cancelled
+              return
+            }
+            if let audioOutput = self.audioOutput,
+               let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: fileType) as? [String: Any] {
+              recordingSession.initializeAudioWriter(withSettings: audioSettings)
+            }
 
-          // Finally start recording, with or without audio.
+            // Finally start recording, with or without audio.
+            recordingSession.start()
+            self.isRecording = true
+          }
+        } else {
+          // start recording session without audio.
           recordingSession.start()
           self.isRecording = true
         }
