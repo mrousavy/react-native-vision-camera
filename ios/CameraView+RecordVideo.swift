@@ -43,6 +43,14 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         //       the callback, but I'd prefer for them to throw for the original function instead.
 
         let enableAudio = self.audio?.boolValue == true
+        
+        if enableAudio {
+          let audioPermissionStatus = AVCaptureDevice.authorizationStatus(for: .audio)
+          if audioPermissionStatus != .authorized {
+            return callback([NSNull(), CameraError.permission(.microphone)])
+          }
+        }
+        
         let onFinish = { (status: AVAssetWriter.Status, error: Error?) -> Void in
           defer {
             self.recordingSession = nil

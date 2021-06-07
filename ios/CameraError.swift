@@ -21,7 +21,7 @@ enum PermissionError: String {
   var message: String {
     switch self {
     case .microphone:
-      return "The Microphone permission was denied!"
+      return "The Microphone permission was denied! If you want to record Videos without sound, pass `audio={false}`."
     case .camera:
       return "The Camera permission was denied!"
     }
