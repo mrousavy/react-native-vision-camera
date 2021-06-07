@@ -95,11 +95,16 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
   }, [formats, fps, enableHdr]);
 
   //#region Animated Zoom
-  const formatMaxZoom = format?.maxZoom ?? 1;
-  const maxZoomFactor = Math.min(formatMaxZoom, MAX_ZOOM_FACTOR);
-  const neutralZoom = device?.neutralZoom ?? 0;
-  const neutralZoomScaled = (neutralZoom / maxZoomFactor) * formatMaxZoom;
-  const maxZoomScaled = (1 / formatMaxZoom) * maxZoomFactor;
+  const minZoomFactor = device?.minZoom ?? 1;
+  const neutralZoomFactor = device?.neutralZoom ?? 1;
+  const maxZoomFactor = device?.maxZoom ?? 1;
+  const maxZoomFactorClamped = Math.min(maxZoomFactor, MAX_ZOOM_FACTOR);
+
+  const neutralZoomNaN = (neutralZoomFactor - minZoomFactor) / (maxZoomFactor - minZoomFactor);
+  const neutralZoom = isNaN(neutralZoomNaN) ? 0 : neutralZoomNaN;
+  const neutralZoomScaledNaN = (neutralZoom / maxZoomFactorClamped) * maxZoomFactor;
+  const neutralZoomScaled = isNaN(neutralZoomScaledNaN) ? 0 : neutralZoomScaledNaN;
+  const maxZoomScaled = maxZoomFactorClamped / maxZoomFactor;
 
   const cameraAnimatedProps = useAnimatedProps(
     () => ({
