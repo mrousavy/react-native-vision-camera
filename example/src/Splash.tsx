@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import type { ImageRequireSource } from 'react-native';
+import { ImageRequireSource, Linking } from 'react-native';
 
 import { StyleSheet, View, Text, Image } from 'react-native';
 import { Navigation, NavigationFunctionComponent } from 'react-native-navigation';
@@ -17,6 +17,8 @@ export const Splash: NavigationFunctionComponent = ({ componentId }) => {
     console.log('Requesting microphone permission...');
     const permission = await Camera.requestMicrophonePermission();
     console.log(`Microphone permission status: ${permission}`);
+
+    if (permission === 'denied') Linking.openSettings();
     setMicrophonePermissionStatus(permission);
   }, []);
 
@@ -24,6 +26,8 @@ export const Splash: NavigationFunctionComponent = ({ componentId }) => {
     console.log('Requesting camera permission...');
     const permission = await Camera.requestCameraPermission();
     console.log(`Camera permission status: ${permission}`);
+
+    if (permission === 'denied') Linking.openSettings();
     setCameraPermissionStatus(permission);
   }, []);
 
@@ -43,14 +47,14 @@ export const Splash: NavigationFunctionComponent = ({ componentId }) => {
   }, []);
 
   useEffect(() => {
-    if (cameraPermissionStatus === 'authorized' && microphonePermissionStatus === 'authorized') {
+    if (cameraPermissionStatus === 'authorized' && microphonePermissionStatus !== 'not-determined') {
       Navigation.setRoot({
         root: {
           stack: {
             children: [
               {
                 component: {
-                  name: 'Home',
+                  name: 'CameraPage',
                 },
               },
             ],
@@ -73,7 +77,7 @@ export const Splash: NavigationFunctionComponent = ({ componentId }) => {
             </Text>
           </Text>
         )}
-        {microphonePermissionStatus !== 'authorized' && (
+        {microphonePermissionStatus === 'not-determined' && (
           <Text style={styles.permissionText}>
             Vision Camera needs <Text style={styles.bold}>Microphone permission</Text>.
             <Text style={styles.hyperlink} onPress={requestMicrophonePermission}>
