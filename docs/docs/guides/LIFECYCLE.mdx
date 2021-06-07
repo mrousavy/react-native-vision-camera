@@ -1,0 +1,69 @@
+---
+id: lifecycle
+title: Camera Lifecycle
+sidebar_label: Camera Lifecycle
+---
+
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+<div>
+  <img align="right" width="283" src={useBaseUrl("img/example.png")} />
+</div>
+
+### The `isActive` prop
+
+The Camera's `isActive` property can be used to _pause_ the session (`isActive={false}`) while still keeping the session "warm". This is more desirable than completely unmounting the camera, since _resuming_ the session (`isActive={true}`) will be **much faster** than re-mounting the camera view.
+
+For example, you want to **pause the camera** when the user **navigates to another page** or **minimizes the app** since otherwise the camera continues to run in the background without the user seeing it, causing **siginificant battery drain**. Also, on iOS a green dot indicates the user that the camera is still active, possibly causing the user to raise privacy concerns. (🔗 See ["About the orange and green indicators in your iPhone status bar"](https://support.apple.com/en-us/HT211876))
+
+This example demonstrates how you could pause the camera stream once the app goes into background using a custom `useIsAppForeground` hook:
+
+```tsx
+function App() {
+  const devices = useCameraDevices()
+  const device = devices.back
+  const isAppForeground = useIsAppForeground()
+
+  if (device == null) return <LoadingView />
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      device={device}
+      isActive={isAppForeground}
+    />
+  )
+}
+```
+
+#### Usage with `react-navigation`
+
+To automatically pause the Camera when the user navigates to a different page, use the [`useIsFocused`](https://reactnavigation.org/docs/use-is-focused/) function:
+
+```tsx
+const isFocused = useIsFocused()
+
+return (
+  <Camera
+    {...cameraProps}
+    isActive={isFocused}
+  />
+)
+```
+
+### Focussing
+
+To focus the camera to a specific point, simply use the Camera's [`focus(...)`](../api/classes/camera.camera-1#focus) function:
+
+```ts
+await camera.current.focus({ x: tapEvent.x, y: tapEvent.y })
+```
+
+The focus function expects a [`Point`](../api/interfaces/point.point-1) parameter which represents the location relative to the Camera View where you want to focus the Camera to. If you use [react-native-gesture-handler](https://docs.swmansion.com/react-native-gesture-handler/), this will consist of the [`x`](https://docs.swmansion.com/react-native-gesture-handler/docs/api/gesture-handlers/tap-gh#x) and [`y`](https://docs.swmansion.com/react-native-gesture-handler/docs/api/gesture-handlers/tap-gh#y) properties of the tap event payload.
+
+So for example, `{ x: 0, y: 0 }` will focus to the upper left corner, while `{ x: CAM_WIDTH, y: CAM_HEIGHT }` will focus to the bottom right corner.
+
+Focussing adjusts auto-focus (AF) and auto-exposure (AE).
+
+<br />
+
+#### 🚀 Next section: [Camera Formats](formats)
