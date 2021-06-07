@@ -115,16 +115,6 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
           val characteristics = manager.getCameraCharacteristics(id)
           val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
 
-          // Filters out cameras that are LEGACY hardware level. Those don't support Preview + Photo Capture + Video Capture at the same time.
-          if (hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
-            Log.i(
-              REACT_CLASS,
-              "Skipping Camera #$id because it does not meet the minimum requirements for react-native-vision-camera. " +
-                "See the tables at https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture for more information."
-            )
-            return@loop
-          }
-
           val capabilities = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)!!
           val isMultiCam = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
             capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA)
@@ -162,6 +152,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
           map.putBoolean("hasFlash", hasFlash)
           map.putBoolean("hasTorch", hasFlash)
           map.putBoolean("isMultiCam", isMultiCam)
+          map.putBoolean("supportsPhotoAndVideoCapture", hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
           map.putBoolean("supportsRawCapture", supportsRawCapture)
           map.putBoolean("supportsDepthCapture", supportsDepthCapture)
           map.putBoolean("supportsLowLightBoost", supportsLowLightBoost)

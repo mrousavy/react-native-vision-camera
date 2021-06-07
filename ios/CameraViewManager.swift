@@ -99,6 +99,7 @@ final class CameraViewManager: RCTViewManager {
           "maxZoom": $0.maxAvailableVideoZoomFactor,
           "neutralZoom": $0.neutralZoomPercent,
           "isMultiCam": $0.isMultiCam,
+          "supportsPhotoAndVideoCapture": true,
           "supportsDepthCapture": false, // TODO: supportsDepthCapture
           "supportsRawCapture": false, // TODO: supportsRawCapture
           "supportsLowLightBoost": $0.isLowLightBoostSupported,
