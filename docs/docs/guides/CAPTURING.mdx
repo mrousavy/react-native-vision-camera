@@ -58,10 +58,6 @@ You can customize capture options such as [automatic red-eye reduction](../api/i
 
 This function returns a [`PhotoFile`](../api/interfaces/photofile.photofile-1) which contains a [`path`](../api/interfaces/photofile.photofile-1#path) property you can display in your App using an `<Image>` or `<FastImage>`.
 
-:::note
-This will change with the upcoming React Native Re-Architecture, so that instead of writing a temporary file which you have to read again, this function will immediately return an Image HostObject on which you can directly interop with the underlying `UIImage`/`Bitmap` for faster image capture. See [issue #69](https://github.com/cuvent/react-native-vision-camera/issues/69)
-:::
-
 ### Taking Snapshots
 
 Compared to iOS, Cameras on Android tend to be slower in image capture. If you care about speed, you can use the Camera's [`takeSnapshot(...)`](../api/classes/camera.camera-1#takesnapshot) function (Android only) which simply takes a snapshot of the Camera View instead of actually taking a photo through the Camera lens.
