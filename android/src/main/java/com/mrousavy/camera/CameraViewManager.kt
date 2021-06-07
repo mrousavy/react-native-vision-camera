@@ -23,6 +23,27 @@ class CameraViewManager : SimpleViewManager<CameraView>() {
     view.cameraId = cameraId
   }
 
+  @ReactProp(name = "photo")
+  fun setPhoto(view: CameraView, photo: Boolean?) {
+    if (view.photo != photo)
+      addChangedPropToTransaction(view, "photo")
+    view.photo = photo
+  }
+
+  @ReactProp(name = "video")
+  fun setVideo(view: CameraView, video: Boolean?) {
+    if (view.video != video)
+      addChangedPropToTransaction(view, "video")
+    view.video = video
+  }
+
+  @ReactProp(name = "audio")
+  fun setAudio(view: CameraView, audio: Boolean?) {
+    if (view.audio != audio)
+      addChangedPropToTransaction(view, "audio")
+    view.audio = audio
+  }
+
   @ReactProp(name = "enableDepthData")
   fun setEnableDepthData(view: CameraView, enableDepthData: Boolean) {
     if (view.enableDepthData != enableDepthData)
