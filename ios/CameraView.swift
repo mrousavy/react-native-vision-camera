@@ -76,8 +76,6 @@ public final class CameraView: UIView {
   // pragma MARK: Internal Properties
 
   internal var isReady = false
-  /// The serial execution queue for the camera preview layer (input stream) as well as output processing (take photo and record video)
-  internal let queue = DispatchQueue(label: "com.mrousavy.camera-queue", qos: .userInteractive, attributes: [], autoreleaseFrequency: .inherit, target: nil)
   // Capture Session
   internal let captureSession = AVCaptureSession()
   internal let audioCaptureSession = AVCaptureSession()

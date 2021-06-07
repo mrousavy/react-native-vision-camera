@@ -228,7 +228,7 @@ extension CameraView {
 
     if isActive {
       // restart capture session after an error occured
-      queue.async {
+      cameraQueue.async {
         self.captureSession.startRunning()
       }
     }
