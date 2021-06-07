@@ -58,13 +58,6 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
       let enableAudio = self.audio?.boolValue == true
 
-      if enableAudio {
-        let audioPermissionStatus = AVCaptureDevice.authorizationStatus(for: .audio)
-        if audioPermissionStatus != .authorized {
-          return callback.reject(error: .permission(.microphone))
-        }
-      }
-
       let onFinish = { (status: AVAssetWriter.Status, error: Error?) -> Void in
         defer {
           self.recordingSession = nil

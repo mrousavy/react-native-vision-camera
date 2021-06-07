@@ -135,10 +135,6 @@ public final class CameraView: UIView {
                                            selector: #selector(audioSessionInterrupted),
                                            name: AVAudioSession.interruptionNotification,
                                            object: AVAudioSession.sharedInstance)
-
-    audioQueue.async {
-      self.configureAudioSession()
-    }
   }
 
   @available(*, unavailable)
@@ -164,6 +160,7 @@ public final class CameraView: UIView {
     let shouldReconfigure = changedProps.contains { propsThatRequireReconfiguration.contains($0) }
     let shouldReconfigureFormat = shouldReconfigure || changedProps.contains("format")
     let shouldReconfigureDevice = shouldReconfigureFormat || changedProps.contains { propsThatRequireDeviceReconfiguration.contains($0) }
+    let shouldReconfigureAudioSession = changedProps.contains("audio")
 
     let willReconfigure = shouldReconfigure || shouldReconfigureFormat || shouldReconfigureDevice
 
@@ -173,6 +170,7 @@ public final class CameraView: UIView {
     let shouldUpdateVideoStabilization = willReconfigure || changedProps.contains("videoStabilizationMode")
 
     if shouldReconfigure ||
+      shouldReconfigureAudioSession ||
       shouldCheckActive ||
       shouldUpdateTorch ||
       shouldUpdateZoom ||
@@ -217,6 +215,13 @@ public final class CameraView: UIView {
           self.cameraQueue.asyncAfter(deadline: .now() + 0.1) {
             self.setTorchMode(self.torch)
           }
+        }
+      }
+      
+      // Audio Configuration
+      if shouldReconfigureAudioSession {
+        audioQueue.async {
+          self.configureAudioSession()
         }
       }
     }
