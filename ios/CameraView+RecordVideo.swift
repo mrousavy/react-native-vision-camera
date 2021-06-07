@@ -16,116 +16,119 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   /**
    Starts a video + audio recording with a custom Asset Writer.
    */
-  func startRecording(options: NSDictionary, callback: @escaping RCTResponseSenderBlock) {
+  func startRecording(options: NSDictionary, callback jsCallbackFunc: @escaping RCTResponseSenderBlock) {
     cameraQueue.async {
       ReactLogger.log(level: .info, message: "Starting Video recording...")
+      let callback = Callback(jsCallbackFunc)
+
+      var fileType = AVFileType.mov
+      if let fileTypeOption = options["fileType"] as? String {
+        guard let parsed = try? AVFileType(withString: fileTypeOption) else {
+          return callback.reject(error: .parameter(.invalid(unionName: "fileType", receivedValue: fileTypeOption)))
+        }
+        fileType = parsed
+      }
+      
+      let errorPointer = ErrorPointer(nilLiteral: ())
+      let fileExtension = fileType.descriptor ?? "mov"
+      guard let tempFilePath = RCTTempFilePath(fileExtension, errorPointer) else {
+        return callback.reject(error: .capture(.createTempFileError), cause: errorPointer?.pointee)
+      }
+      
+      ReactLogger.log(level: .info, message: "File path: \(tempFilePath)")
+      let tempURL = URL(string: "file://\(tempFilePath)")!
+      
+      if let flashMode = options["flash"] as? String {
+        // use the torch as the video's flash
+        self.setTorchMode(flashMode)
+      }
+
+      guard let videoOutput = self.videoOutput else {
+        if self.video?.boolValue == true {
+          return callback.reject(error: .session(.cameraNotReady))
+        } else {
+          return callback.reject(error: .capture(.videoNotEnabled))
+        }
+      }
+
+      // TODO: The startRecording() func cannot be async because RN doesn't allow
+      //       both a callback and a Promise in a single function. Wait for TurboModules?
+      //       This means that any errors that occur in this function have to be delegated through
+      //       the callback, but I'd prefer for them to throw for the original function instead.
+
+      let enableAudio = self.audio?.boolValue == true
+
+      if enableAudio {
+        let audioPermissionStatus = AVCaptureDevice.authorizationStatus(for: .audio)
+        if audioPermissionStatus != .authorized {
+          return callback.reject(error: .permission(.microphone))
+        }
+      }
+
+      let onFinish = { (status: AVAssetWriter.Status, error: Error?) -> Void in
+        defer {
+          self.recordingSession = nil
+          if enableAudio {
+            self.audioQueue.async {
+              self.deactivateAudioSession()
+            }
+          }
+        }
+        ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
+        if let error = error as NSError? {
+          let description = error.description
+          return callback.reject(error: .capture(.unknown(message: "An unknown recording error occured! \(description)")), cause: error)
+        } else {
+          if status == .completed {
+            return callback.resolve([
+              "path": self.recordingSession!.url.absoluteString,
+              "duration": self.recordingSession!.duration,
+            ])
+          } else {
+            return callback.reject(error: .unknown(message: "AVAssetWriter completed with status: \(status.descriptor)"))
+          }
+        }
+      }
 
       do {
-        var fileType = AVFileType.mov
-        if let fileTypeOption = options["fileType"] as? String {
-          fileType = try AVFileType(withString: fileTypeOption)
-        }
-        
-        let errorPointer = ErrorPointer(nilLiteral: ())
-        let fileExtension = fileType.descriptor ?? "mov"
-        guard let tempFilePath = RCTTempFilePath(fileExtension, errorPointer) else {
-          return callback([NSNull(), makeReactError(.capture(.createTempFileError), cause: errorPointer?.pointee)])
-        }
-        
-        ReactLogger.log(level: .info, message: "File path: \(tempFilePath)")
-        let tempURL = URL(string: "file://\(tempFilePath)")!
-        
-        if let flashMode = options["flash"] as? String {
-          // use the torch as the video's flash
-          self.setTorchMode(flashMode)
-        }
-
-        guard let videoOutput = self.videoOutput else {
-          if self.video?.boolValue == true {
-            return callback([NSNull(), CameraError.session(.cameraNotReady)])
-          } else {
-            return callback([NSNull(), CameraError.capture(.videoNotEnabled)])
-          }
-        }
-
-        // TODO: The startRecording() func cannot be async because RN doesn't allow
-        //       both a callback and a Promise in a single function. Wait for TurboModules?
-        //       This means that any errors that occur in this function have to be delegated through
-        //       the callback, but I'd prefer for them to throw for the original function instead.
-
-        let enableAudio = self.audio?.boolValue == true
-
-        if enableAudio {
-          let audioPermissionStatus = AVCaptureDevice.authorizationStatus(for: .audio)
-          if audioPermissionStatus != .authorized {
-            return callback([NSNull(), CameraError.permission(.microphone)])
-          }
-        }
-
-        let onFinish = { (status: AVAssetWriter.Status, error: Error?) -> Void in
-          defer {
-            self.recordingSession = nil
-            if enableAudio {
-              self.audioQueue.async {
-                self.deactivateAudioSession()
-              }
-            }
-          }
-          ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
-          if let error = error {
-            let description = (error as NSError).description
-            return callback([NSNull(), CameraError.capture(.unknown(message: "An unknown recording error occured! \(description)"))])
-          } else {
-            if status == .completed {
-              return callback([[
-                "path": self.recordingSession!.url.absoluteString,
-                "duration": self.recordingSession!.duration,
-              ], NSNull()])
-            } else {
-              return callback([NSNull(), CameraError.unknown(message: "AVAssetWriter completed with status: \(status.descriptor)")])
-            }
-          }
-        }
-
         self.recordingSession = try RecordingSession(url: tempURL,
                                                      fileType: fileType,
                                                      completion: onFinish)
+      } catch let error as NSError {
+        return callback.reject(error: .capture(.createRecorderError(message: nil)), cause: error)
+      }
 
-        // Init Video
-        guard let videoSettings = videoOutput.recommendedVideoSettingsForAssetWriter(writingTo: fileType),
-              !videoSettings.isEmpty else {
-          throw CameraError.capture(.createRecorderError(message: "Failed to get video settings!"))
-        }
-        self.recordingSession!.initializeVideoWriter(withSettings: videoSettings,
-                                                     isVideoMirrored: self.videoOutput!.isMirrored)
+      // Init Video
+      guard let videoSettings = videoOutput.recommendedVideoSettingsForAssetWriter(writingTo: fileType),
+            !videoSettings.isEmpty else {
+        return callback.reject(error: .capture(.createRecorderError(message: "Failed to get video settings!")))
+      }
+      self.recordingSession!.initializeVideoWriter(withSettings: videoSettings,
+                                                   isVideoMirrored: self.videoOutput!.isMirrored)
 
-        if enableAudio {
-          // Init Audio (optional, async)
-          self.audioQueue.async {
-            // Activate Audio Session (blocking)
-            self.activateAudioSession()
-            guard let recordingSession = self.recordingSession else {
-              // recording has already been cancelled
-              return
-            }
-            if let audioOutput = self.audioOutput,
-               let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: fileType) as? [String: Any] {
-              recordingSession.initializeAudioWriter(withSettings: audioSettings)
-            }
-
-            // Finally start recording, with or without audio.
-            recordingSession.start()
-            self.isRecording = true
+      // Init Audio (optional, async)
+      if enableAudio {
+        self.audioQueue.async {
+          // Activate Audio Session (blocking)
+          self.activateAudioSession()
+          
+          guard let recordingSession = self.recordingSession else {
+            // recording has already been cancelled
+            return
           }
-        } else {
-          // start recording session without audio.
-          self.recordingSession!.start()
+          if let audioOutput = self.audioOutput,
+             let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: fileType) as? [String: Any] {
+            recordingSession.initializeAudioWriter(withSettings: audioSettings)
+          }
+
+          // Finally start recording, with or without audio.
+          recordingSession.start()
           self.isRecording = true
         }
-      } catch EnumParserError.invalidValue {
-        return callback([NSNull(), EnumParserError.invalidValue])
-      } catch let error as NSError {
-        return callback([NSNull(), makeReactError(.capture(.createTempFileError), cause: error)])
+      } else {
+        // start recording session without audio.
+        self.recordingSession!.start()
+        self.isRecording = true
       }
     }
   }
