@@ -102,7 +102,7 @@ function App() {
 
 ### The `supportsPhotoAndVideoCapture` prop
 
-Camera devices provide the `supportsPhotoAndVideoCapture` property which determines whether the device allows enabling photo- and video-capture at the same time. While every iOS device supports this feature, there are some older Android devices which only allow enabling one of each - either photo capture or video capture. (Those are `LEGACY` devices, see [this table](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture).)
+Camera devices provide the [`supportsPhotoAndVideoCapture` property](/api/interfaces/cameradevice.cameradevice-1#supportsphotoandvideocapture) which determines whether the device allows enabling photo- and video-capture at the same time. While every iOS device supports this feature, there are some older Android devices which only allow enabling one of each - either photo capture or video capture. (Those are `LEGACY` devices, see [this table](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture).)
 
 :::note
 If you need photo- and video-capture for devices where `supportsPhotoAndVideoCapture` is `false`, you can fall back to snapshot capture (see [**"Taking Snapshots"**](https://cuvent.github.io/react-native-vision-camera/docs/guides/capturing#taking-snapshots)) instead.
