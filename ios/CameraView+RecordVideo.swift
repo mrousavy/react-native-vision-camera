@@ -36,7 +36,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         if let fileTypeOption = options["fileType"] as? String {
           fileType = AVFileType(withString: fileTypeOption)
         }
-        
+
         guard let videoOutput = self.videoOutput else {
           if self.video?.boolValue == true {
             return callback([NSNull(), CameraError.session(.cameraNotReady)])
