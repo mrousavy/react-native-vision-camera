@@ -25,8 +25,13 @@ struct TakePhotoOptions {
 extension CameraView {
   func takePhoto(options: NSDictionary, promise: Promise) {
     cameraQueue.async {
-      guard let photoOutput = self.photoOutput, let videoDeviceInput = self.videoDeviceInput else {
-        return promise.reject(error: .session(.cameraNotReady))
+      guard let photoOutput = self.photoOutput,
+            let videoDeviceInput = self.videoDeviceInput else {
+        if self.photo?.boolValue == true {
+          return promise.reject(error: .session(.cameraNotReady))
+        } else {
+          return promise.reject(error: .capture(.photoNotEnabled))
+        }
       }
 
       var photoSettings = AVCapturePhotoSettings()

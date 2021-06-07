@@ -15,7 +15,6 @@ import UIKit
 //
 // CameraView+RecordVideo
 // TODO: Better startRecording()/stopRecording() (promise + callback, wait for TurboModules/JSI)
-// TODO: videoStabilizationMode
 
 // CameraView+TakePhoto
 // TODO: Photo HDR
@@ -24,7 +23,9 @@ private let propsThatRequireReconfiguration = ["cameraId",
                                                "enableDepthData",
                                                "enableHighResolutionCapture",
                                                "enablePortraitEffectsMatteDelivery",
-                                               "preset"]
+                                               "preset",
+                                               "photo",
+                                               "video"]
 private let propsThatRequireDeviceReconfiguration = ["fps",
                                                      "hdr",
                                                      "lowLightBoost",
@@ -42,6 +43,10 @@ public final class CameraView: UIView {
   @objc var enableHighResolutionCapture: NSNumber? // nullable bool
   @objc var enablePortraitEffectsMatteDelivery = false
   @objc var preset: String?
+  // use cases
+  @objc var photo: NSNumber? // nullable bool
+  @objc var video: NSNumber? // nullable bool
+  @objc var audio: NSNumber? // nullable bool
   // props that require format reconfiguring
   @objc var format: NSDictionary?
   @objc var fps: NSNumber?
@@ -71,8 +76,6 @@ public final class CameraView: UIView {
   // pragma MARK: Internal Properties
 
   internal var isReady = false
-  /// The serial execution queue for the camera preview layer (input stream) as well as output processing (take photo and record video)
-  internal let queue = DispatchQueue(label: "com.mrousavy.camera-queue", qos: .userInteractive, attributes: [], autoreleaseFrequency: .inherit, target: nil)
   // Capture Session
   internal let captureSession = AVCaptureSession()
   internal let audioCaptureSession = AVCaptureSession()
@@ -130,10 +133,6 @@ public final class CameraView: UIView {
                                            selector: #selector(audioSessionInterrupted),
                                            name: AVAudioSession.interruptionNotification,
                                            object: AVAudioSession.sharedInstance)
-
-    audioQueue.async {
-      self.configureAudioSession()
-    }
   }
 
   @available(*, unavailable)
@@ -159,6 +158,7 @@ public final class CameraView: UIView {
     let shouldReconfigure = changedProps.contains { propsThatRequireReconfiguration.contains($0) }
     let shouldReconfigureFormat = shouldReconfigure || changedProps.contains("format")
     let shouldReconfigureDevice = shouldReconfigureFormat || changedProps.contains { propsThatRequireDeviceReconfiguration.contains($0) }
+    let shouldReconfigureAudioSession = changedProps.contains("audio")
 
     let willReconfigure = shouldReconfigure || shouldReconfigureFormat || shouldReconfigureDevice
 
@@ -168,6 +168,7 @@ public final class CameraView: UIView {
     let shouldUpdateVideoStabilization = willReconfigure || changedProps.contains("videoStabilizationMode")
 
     if shouldReconfigure ||
+      shouldReconfigureAudioSession ||
       shouldCheckActive ||
       shouldUpdateTorch ||
       shouldUpdateZoom ||
@@ -212,6 +213,13 @@ public final class CameraView: UIView {
           self.cameraQueue.asyncAfter(deadline: .now() + 0.1) {
             self.setTorchMode(self.torch)
           }
+        }
+      }
+
+      // Audio Configuration
+      if shouldReconfigureAudioSession {
+        audioQueue.async {
+          self.configureAudioSession()
         }
       }
     }

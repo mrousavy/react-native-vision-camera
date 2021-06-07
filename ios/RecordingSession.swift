@@ -11,7 +11,7 @@ import Foundation
 
 // MARK: - BufferType
 
-enum BufferType: String {
+enum BufferType {
   case audio
   case video
 }
@@ -112,7 +112,7 @@ class RecordingSession {
     }
     guard let initialTimestamp = initialTimestamp else {
       ReactLogger.log(level: .error,
-                      message: "A \(bufferType.rawValue) frame arrived, but initialTimestamp was nil. Is this RecordingSession running?",
+                      message: "A frame arrived, but initialTimestamp was nil. Is this RecordingSession running?",
                       alsoLogToJS: true)
       return
     }

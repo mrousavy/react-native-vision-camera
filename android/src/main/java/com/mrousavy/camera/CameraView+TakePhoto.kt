@@ -19,11 +19,17 @@ import kotlin.system.measureTimeMillis
 suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineScope {
   val startFunc = System.nanoTime()
   Log.d(CameraView.TAG, "takePhoto() called")
-  val imageCapture = imageCapture ?: throw CameraNotReadyError()
+  if (imageCapture == null) {
+    if (photo == true) {
+      throw CameraNotReadyError()
+    } else {
+      throw PhotoNotEnabledError()
+    }
+  }
 
   if (options.hasKey("flash")) {
     val flashMode = options.getString("flash")
-    imageCapture.flashMode = when (flashMode) {
+    imageCapture!!.flashMode = when (flashMode) {
       "on" -> ImageCapture.FLASH_MODE_ON
       "off" -> ImageCapture.FLASH_MODE_OFF
       "auto" -> ImageCapture.FLASH_MODE_AUTO
@@ -61,7 +67,7 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
     async(coroutineContext) {
       Log.d(CameraView.TAG, "Taking picture...")
       val startCapture = System.nanoTime()
-      val pic = imageCapture.takePicture(takePhotoExecutor)
+      val pic = imageCapture!!.takePicture(takePhotoExecutor)
       val endCapture = System.nanoTime()
       Log.i(CameraView.TAG_PERF, "Finished image capture in ${(endCapture - startCapture) / 1_000_000}ms")
       pic

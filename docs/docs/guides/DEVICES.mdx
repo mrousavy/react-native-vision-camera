@@ -60,7 +60,7 @@ The `CameraDevice` type also contains other useful information describing a came
 Make sure to be careful when filtering out unneeded camera devices, since not every phone supports all camera device types. Some phones don't even have front-cameras. You always want to have a camera device, even when it's not the one that has the best features.
 :::
 
-### `useCameraDevices` hook
+### The `useCameraDevices` hook
 
 The react-native-vision-camera library provides a hook to make camera device selection a lot easier.
 
@@ -99,6 +99,14 @@ function App() {
   )
 }
 ```
+
+### The `supportsPhotoAndVideoCapture` prop
+
+Camera devices provide the `supportsPhotoAndVideoCapture` property which determines whether the device allows enabling photo- and video-capture at the same time. While every iOS device supports this feature, there are some older Android devices which only allow enabling one of each - either photo capture or video capture. (Those are `LEGACY` devices, see [this table](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture).)
+
+:::note
+If you need photo- and video-capture for devices where `supportsPhotoAndVideoCapture` is `false`, you can fall back to snapshot capture (see [**"Taking Snapshots"**](https://cuvent.github.io/react-native-vision-camera/docs/guides/capturing#taking-snapshots)) instead.
+:::
 
 ### The `isActive` prop
 

@@ -34,6 +34,22 @@ export interface CameraProps extends ViewProps {
    */
   isActive: boolean;
 
+  //#region Use-cases
+  /**
+   * * Enables **photo capture** with the `takePhoto` function (see ["Taking Photos"](https://cuvent.github.io/react-native-vision-camera/docs/guides/capturing#taking-photos))
+   */
+  photo?: boolean;
+  /**
+   * * Enables **video capture** with the `startRecording` function (see ["Recording Videos"](https://cuvent.github.io/react-native-vision-camera/docs/guides/capturing/#recording-videos))
+   * * Enables **frame processing** (see ["Frame Processors"](https://cuvent.github.io/react-native-vision-camera/docs/guides/frame-processors))
+   */
+  video?: boolean;
+  /**
+   * * Enables **audio capture** for video recordings (see ["Recording Videos"](https://cuvent.github.io/react-native-vision-camera/docs/guides/capturing/#recording-videos))
+   */
+  audio?: boolean;
+  //#endregion
+
   //#region Common Props (torch, zoom)
   /**
    * Set the current torch mode.

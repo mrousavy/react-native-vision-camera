@@ -40,7 +40,13 @@ The most important actions are:
 
 ## Taking Photos
 
-To take a photo, simply use the Camera's [`takePhoto(...)`](../api/classes/camera.camera-1#takephoto) function:
+To take a photo you first have to enable photo capture:
+
+```tsx
+<Camera {...props} photo={true} />
+```
+
+Then, simply use the Camera's [`takePhoto(...)`](../api/classes/camera.camera-1#takephoto) function:
 
 ```ts
 const photo = await camera.current.takePhoto({
@@ -71,9 +77,23 @@ const snapshot = await camera.current.takeSnapshot({
 While taking snapshots is faster than taking photos, the resulting image has way lower quality. You can combine both functions to create a snapshot to present to the user at first, then deliver the actual high-res photo afterwards.
 :::
 
+:::note
+The `takeSnapshot` function also works with `photo={false}`. For this reason, devices that do not support photo and video capture at the same time can use `video={true}` and fall back to snapshot capture for photos.
+:::
+
 ## Recording Videos
 
-To start a video recording, use the Camera's [`startRecording(...)`](../api/classes/camera.camera-1#startrecording) function:
+To start a video recording you first have to enable video capture:
+
+```tsx
+<Camera
+  {...props}
+  video={true}
+  audio={true} // <-- optional
+  />
+```
+
+Then, simply use the Camera's [`startRecording(...)`](../api/classes/camera.camera-1#startrecording) function:
 
 ```ts
 camera.current.startRecording({
@@ -84,10 +104,6 @@ camera.current.startRecording({
 ```
 
 For any error that occured _while recording the video_, the `onRecordingError` callback will be invoked with a [`CaptureError`](../api/classes/cameraerror.cameracaptureerror) and the recording is therefore cancelled.
-
-:::note
-Due to limitations of the React Native Bridge, this function can not be awaited. This means, any errors thrown while trying to start the recording (e.g. `capture/recording-in-progress`) can only be caught synchronously (`isBlockingSynchronousMethod`). This will change with the upcoming React Native Re-Architecture.
-:::
 
 To stop the video recording, you can call [`stopRecording(...)`](../api/classes/camera.camera-1#stoprecording):
 

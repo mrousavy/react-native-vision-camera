@@ -68,6 +68,10 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   var enableDepthData = false
   var enableHighResolutionCapture: Boolean? = null
   var enablePortraitEffectsMatteDelivery = false
+  // use-cases
+  var photo: Boolean? = null
+  var video: Boolean? = null
+  var audio: Boolean? = null
   // props that require format reconfiguring
   var format: ReadableMap? = null
   var fps: Int? = null
@@ -220,9 +224,6 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
         throw CameraPermissionError()
       }
-      if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-        throw MicrophonePermissionError()
-      }
       if (cameraId == null) {
         throw NoCameraDeviceError()
       }
@@ -249,7 +250,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       if (format == null) {
         // let CameraX automatically find best resolution for the target aspect ratio
         Log.i(TAG, "No custom format has been set, CameraX will automatically determine best configuration...")
-        val aspectRatio = aspectRatio(previewView.width, previewView.height)
+        val aspectRatio = aspectRatio(previewView.height, previewView.width) // flipped because it's in sensor orientation.
         previewBuilder.setTargetAspectRatio(aspectRatio)
         imageCaptureBuilder.setTargetAspectRatio(aspectRatio)
         videoCaptureBuilder.setTargetAspectRatio(aspectRatio)
@@ -257,7 +258,8 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         // User has selected a custom format={}. Use that
         val format = DeviceFormat(format!!)
         Log.i(TAG, "Using custom format - photo: ${format.photoSize}, video: ${format.videoSize} @ $fps FPS")
-        previewBuilder.setDefaultResolution(format.photoSize)
+        val aspectRatio = aspectRatio(format.photoSize.width, format.photoSize.height)
+        previewBuilder.setTargetAspectRatio(aspectRatio)
         imageCaptureBuilder.setDefaultResolution(format.photoSize)
         videoCaptureBuilder.setDefaultResolution(format.photoSize)
 
@@ -311,14 +313,23 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       }
 
       val preview = previewBuilder.build()
-      imageCapture = imageCaptureBuilder.build()
-      videoCapture = videoCaptureBuilder.build()
 
       // Unbind use cases before rebinding
+      videoCapture = null
+      imageCapture = null
       cameraProvider.unbindAll()
 
       // Bind use cases to camera
-      camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture!!, videoCapture!!)
+      val useCases = ArrayList<UseCase>()
+      if (video == true) {
+        videoCapture = videoCaptureBuilder.build()
+        useCases.add(videoCapture!!)
+      }
+      if (photo == true) {
+        imageCapture = imageCaptureBuilder.build()
+        useCases.add(imageCapture!!)
+      }
+      camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, *useCases.toTypedArray())
       preview.setSurfaceProvider(previewView.surfaceProvider)
 
       minZoom = camera!!.cameraInfo.zoomState.value?.minZoomRatio ?: 1f
@@ -371,7 +382,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
     const val TAG = "CameraView"
     const val TAG_PERF = "CameraView.performance"
 
-    private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "fps", "hdr", "lowLightBoost")
+    private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "fps", "hdr", "lowLightBoost", "photo", "video")
 
     private val arrayListOfZoom = arrayListOf("zoom")
   }

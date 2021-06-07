@@ -84,21 +84,23 @@ extension CameraView {
       captureSession.removeOutput(photoOutput)
       self.photoOutput = nil
     }
-    ReactLogger.log(level: .info, message: "Adding Photo output...")
-    photoOutput = AVCapturePhotoOutput()
-    photoOutput!.isDepthDataDeliveryEnabled = photoOutput!.isDepthDataDeliverySupported && enableDepthData
-    if let enableHighResolutionCapture = self.enableHighResolutionCapture?.boolValue {
-      photoOutput!.isHighResolutionCaptureEnabled = enableHighResolutionCapture
-    }
-    if #available(iOS 12.0, *) {
-      photoOutput!.isPortraitEffectsMatteDeliveryEnabled = photoOutput!.isPortraitEffectsMatteDeliverySupported && self.enablePortraitEffectsMatteDelivery
-    }
-    guard captureSession.canAddOutput(photoOutput!) else {
-      return invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "photo-output")))
-    }
-    captureSession.addOutput(photoOutput!)
-    if videoDeviceInput!.device.position == .front {
-      photoOutput!.mirror()
+    if photo?.boolValue == true {
+      ReactLogger.log(level: .info, message: "Adding Photo output...")
+      photoOutput = AVCapturePhotoOutput()
+      photoOutput!.isDepthDataDeliveryEnabled = photoOutput!.isDepthDataDeliverySupported && enableDepthData
+      if let enableHighResolutionCapture = self.enableHighResolutionCapture?.boolValue {
+        photoOutput!.isHighResolutionCaptureEnabled = enableHighResolutionCapture
+      }
+      if #available(iOS 12.0, *) {
+        photoOutput!.isPortraitEffectsMatteDeliveryEnabled = photoOutput!.isPortraitEffectsMatteDeliverySupported && self.enablePortraitEffectsMatteDelivery
+      }
+      guard captureSession.canAddOutput(photoOutput!) else {
+        return invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "photo-output")))
+      }
+      captureSession.addOutput(photoOutput!)
+      if videoDeviceInput!.device.position == .front {
+        photoOutput!.mirror()
+      }
     }
 
     // Video Output + Frame Processor
@@ -106,16 +108,18 @@ extension CameraView {
       captureSession.removeOutput(videoOutput)
       self.videoOutput = nil
     }
-    ReactLogger.log(level: .info, message: "Adding Video Data output...")
-    videoOutput = AVCaptureVideoDataOutput()
-    guard captureSession.canAddOutput(videoOutput!) else {
-      return invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "video-output")))
-    }
-    videoOutput!.setSampleBufferDelegate(self, queue: videoQueue)
-    videoOutput!.alwaysDiscardsLateVideoFrames = true
-    captureSession.addOutput(videoOutput!)
-    if videoDeviceInput!.device.position == .front {
-      videoOutput!.mirror()
+    if video?.boolValue == true {
+      ReactLogger.log(level: .info, message: "Adding Video Data output...")
+      videoOutput = AVCaptureVideoDataOutput()
+      guard captureSession.canAddOutput(videoOutput!) else {
+        return invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "video-output")))
+      }
+      videoOutput!.setSampleBufferDelegate(self, queue: videoQueue)
+      videoOutput!.alwaysDiscardsLateVideoFrames = true
+      captureSession.addOutput(videoOutput!)
+      if videoDeviceInput!.device.position == .front {
+        videoOutput!.mirror()
+      }
     }
 
     invokeOnInitialized()
@@ -223,7 +227,7 @@ extension CameraView {
 
     if isActive {
       // restart capture session after an error occured
-      queue.async {
+      cameraQueue.async {
         self.captureSession.startRunning()
       }
     }

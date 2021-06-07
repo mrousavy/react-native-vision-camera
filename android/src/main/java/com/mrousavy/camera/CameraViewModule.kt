@@ -63,11 +63,19 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   }
 
   // TODO: startRecording() cannot be awaited, because I can't have a Promise and a onRecordedCallback in the same function. Hopefully TurboModules allows that
-  @ReactMethod(isBlockingSynchronousMethod = true)
+  @ReactMethod
   fun startRecording(viewTag: Int, options: ReadableMap, onRecordCallback: Callback) {
     GlobalScope.launch(Dispatchers.Main) {
       val view = findCameraView(viewTag)
-      view.startRecording(options, onRecordCallback)
+      try {
+        view.startRecording(options, onRecordCallback)
+      } catch (error: CameraError) {
+        val map = makeErrorMap("${error.domain}/${error.id}", error.message, error)
+        onRecordCallback(null, map)
+      } catch (error: Throwable) {
+        val map = makeErrorMap("capture/unknown", "An unknown error occured while trying to start a video recording!", error)
+        onRecordCallback(null, map)
+      }
     }
   }
 
@@ -115,16 +123,6 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
           val characteristics = manager.getCameraCharacteristics(id)
           val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
 
-          // Filters out cameras that are LEGACY hardware level. Those don't support Preview + Photo Capture + Video Capture at the same time.
-          if (hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
-            Log.i(
-              REACT_CLASS,
-              "Skipping Camera #$id because it does not meet the minimum requirements for react-native-vision-camera. " +
-                "See the tables at https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture for more information."
-            )
-            return@loop
-          }
-
           val capabilities = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)!!
           val isMultiCam = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
             capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA)
@@ -162,6 +160,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
           map.putBoolean("hasFlash", hasFlash)
           map.putBoolean("hasTorch", hasFlash)
           map.putBoolean("isMultiCam", isMultiCam)
+          map.putBoolean("supportsPhotoAndVideoCapture", hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
           map.putBoolean("supportsRawCapture", supportsRawCapture)
           map.putBoolean("supportsDepthCapture", supportsDepthCapture)
           map.putBoolean("supportsLowLightBoost", supportsLowLightBoost)

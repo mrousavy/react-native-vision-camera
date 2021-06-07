@@ -251,6 +251,28 @@ export interface CameraDevice {
    */
   formats: CameraDeviceFormat[];
   /**
+   * Whether this camera device supports enabling photo and video capture at the same time.
+   *
+   * * On **iOS** devices this value is always `true`.
+   * * On newer **Android** devices this value is always `true`.
+   * * On older **Android** devices this value is `true` if the device's hardware level is `LIMITED` and above, `false` otherwise. (`LEGACY`) (See [this table](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture))
+   *
+   * If the device does not allow enabling `photo` and `video` capture at the same time, you might want to fall back to **snapshot capture** (See ["Taking Snapshots"](https://cuvent.github.io/react-native-vision-camera/docs/guides/capturing#taking-snapshots)) instead:
+   *
+   * @example
+   * ```tsx
+   * const captureMode = device.supportsPhotoAndVideoCapture ? "photo" : "snapshot"
+   * return (
+   *   <Camera
+   *     photo={captureMode === "photo"}
+   *     video={true}
+   *     audio={true}
+   *   />
+   * )
+   * ```
+   */
+  supportsPhotoAndVideoCapture: boolean;
+  /**
    * Whether this camera device supports low light boost.
    */
   supportsLowLightBoost: boolean;

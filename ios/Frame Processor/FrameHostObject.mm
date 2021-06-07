@@ -75,10 +75,6 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
     return jsi::Value((double) planesCount);
   }
-  if (name == "buffer") {
-    // TODO: Actually return the pixels of the buffer. Not sure if this will be a huge performance hit or not
-    return jsi::Array(runtime, 0);
-  }
 
   return jsi::Value::undefined();
 }

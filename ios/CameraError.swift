@@ -21,7 +21,7 @@ enum PermissionError: String {
   var message: String {
     switch self {
     case .microphone:
-      return "The Microphone permission was denied!"
+      return "The Microphone permission was denied! If you want to record Videos without sound, pass `audio={false}`."
     case .camera:
       return "The Camera permission was denied!"
     }
@@ -186,6 +186,8 @@ enum CaptureError {
   case createTempFileError
   case createRecorderError(message: String? = nil)
   case invalidPhotoCodec
+  case videoNotEnabled
+  case photoNotEnabled
   case unknown(message: String? = nil)
 
   var code: String {
@@ -204,6 +206,10 @@ enum CaptureError {
       return "create-recorder-error"
     case .invalidPhotoCodec:
       return "invalid-photo-codec"
+    case .videoNotEnabled:
+      return "video-not-enabled"
+    case .photoNotEnabled:
+      return "photo-not-enabled"
     case .unknown:
       return "unknown"
     }
@@ -225,6 +231,10 @@ enum CaptureError {
       return "Failed to create a temporary file!"
     case let .createRecorderError(message: message):
       return "Failed to create the AVAssetWriter (Recorder)! \(message ?? "(no additional message)")"
+    case .videoNotEnabled:
+      return "Video capture is disabled! Pass `video={true}` to enable video recordings."
+    case .photoNotEnabled:
+      return "Photo capture is disabled! Pass `photo={true}` to enable photo capture."
     case let .unknown(message: message):
       return message ?? "An unknown error occured while capturing a video/photo."
     }

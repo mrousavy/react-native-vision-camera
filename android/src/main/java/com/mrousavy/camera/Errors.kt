@@ -30,7 +30,7 @@ abstract class CameraError(
 val CameraError.code: String
   get() = "$domain/$id"
 
-class MicrophonePermissionError : CameraError("permission", "microphone-permission-denied", "The Microphone permission was denied!")
+class MicrophonePermissionError : CameraError("permission", "microphone-permission-denied", "The Microphone permission was denied! If you want to record Video without sound, pass `audio={false}`.")
 class CameraPermissionError : CameraError("permission", "camera-permission-denied", "The Camera permission was denied!")
 
 class InvalidTypeScriptUnionError(unionName: String, unionValue: String) : CameraError("parameter", "invalid-parameter", "The given value for $unionName could not be parsed! (Received: $unionValue)")
@@ -51,6 +51,9 @@ class LowLightBoostNotContainedInFormatError() : CameraError(
 )
 
 class CameraNotReadyError : CameraError("session", "camera-not-ready", "The Camera is not ready yet! Wait for the onInitialized() callback!")
+
+class VideoNotEnabledError : CameraError("capture", "video-not-enabled", "Video capture is disabled! Pass `video={true}` to enable video recordings.")
+class PhotoNotEnabledError : CameraError("capture", "photo-not-enabled", "Photo capture is disabled! Pass `photo={true}` to enable photo capture.")
 
 class InvalidFormatError(format: Int) : CameraError("capture", "invalid-photo-format", "The Photo has an invalid format! Expected ${ImageFormat.YUV_420_888}, actual: $format")
 class VideoEncoderError(message: String, cause: Throwable? = null) : CameraError("capture", "encoder-error", message, cause)

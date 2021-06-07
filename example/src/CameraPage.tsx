@@ -214,6 +214,9 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
                 onError={onError}
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
+                photo={true}
+                video={true}
+                audio={true}
                 // frameProcessor={frameProcessor}
                 // frameProcessorFps={1}
               />
