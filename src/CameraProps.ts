@@ -36,15 +36,16 @@ export interface CameraProps extends ViewProps {
 
   //#region Use-cases
   /**
-   * Enable **photo capture** with the `takePhoto` function (see ["Taking Photos"](https://cuvent.github.io/react-native-vision-camera/docs/guides/capturing#taking-photos)).
+   * * Enables **photo capture** with the `takePhoto` function (see ["Taking Photos"](https://cuvent.github.io/react-native-vision-camera/docs/guides/capturing#taking-photos))
    */
   photo?: boolean;
   /**
-   * Enable **video capture** with the `startRecording` function (see ["Recording Videos"](https://cuvent.github.io/react-native-vision-camera/docs/guides/capturing/#recording-videos)), and **frame processing** (see ["Frame Processors"](https://cuvent.github.io/react-native-vision-camera/docs/guides/frame-processors)).
+   * * Enables **video capture** with the `startRecording` function (see ["Recording Videos"](https://cuvent.github.io/react-native-vision-camera/docs/guides/capturing/#recording-videos))
+   * * Enables **frame processing** (see ["Frame Processors"](https://cuvent.github.io/react-native-vision-camera/docs/guides/frame-processors))
    */
   video?: boolean;
   /**
-   * Enable **audio capture** for video recordings (see ["Recording Videos"](https://cuvent.github.io/react-native-vision-camera/docs/guides/capturing/#recording-videos)).
+   * * Enables **audio capture** for video recordings (see ["Recording Videos"](https://cuvent.github.io/react-native-vision-camera/docs/guides/capturing/#recording-videos))
    */
   audio?: boolean;
   //#endregion
