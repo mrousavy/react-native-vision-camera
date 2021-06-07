@@ -43,14 +43,14 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         //       the callback, but I'd prefer for them to throw for the original function instead.
 
         let enableAudio = self.audio?.boolValue == true
-        
+
         if enableAudio {
           let audioPermissionStatus = AVCaptureDevice.authorizationStatus(for: .audio)
           if audioPermissionStatus != .authorized {
             return callback([NSNull(), CameraError.permission(.microphone)])
           }
         }
-        
+
         let onFinish = { (status: AVAssetWriter.Status, error: Error?) -> Void in
           defer {
             self.recordingSession = nil
@@ -192,8 +192,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
     }
   }
 
-  public final func captureOutput(_ captureOutput: AVCaptureOutput, didDrop buffer: CMSampleBuffer, from _: AVCaptureConnection) {
-    #if DEBUG
+  #if DEBUG
+    public final func captureOutput(_ captureOutput: AVCaptureOutput, didDrop buffer: CMSampleBuffer, from _: AVCaptureConnection) {
       if frameProcessorCallback != nil && !hasLoggedFrameDropWarning && captureOutput is AVCaptureVideoDataOutput {
         let reason = findFrameDropReason(inBuffer: buffer)
         ReactLogger.log(level: .warning,
@@ -202,16 +202,16 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
                         alsoLogToJS: true)
         hasLoggedFrameDropWarning = true
       }
-    #endif
-  }
-
-  private final func findFrameDropReason(inBuffer buffer: CMSampleBuffer) -> String {
-    var mode: CMAttachmentMode = 0
-    guard let reason = CMGetAttachment(buffer,
-                                       key: kCMSampleBufferAttachmentKey_DroppedFrameReason,
-                                       attachmentModeOut: &mode) else {
-      return "unknown"
     }
-    return String(describing: reason)
-  }
+
+    private final func findFrameDropReason(inBuffer buffer: CMSampleBuffer) -> String {
+      var mode: CMAttachmentMode = 0
+      guard let reason = CMGetAttachment(buffer,
+                                         key: kCMSampleBufferAttachmentKey_DroppedFrameReason,
+                                         attachmentModeOut: &mode) else {
+        return "unknown"
+      }
+      return String(describing: reason)
+    }
+  #endif
 }
