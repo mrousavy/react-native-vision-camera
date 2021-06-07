@@ -101,7 +101,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           }
         } else {
           // start recording session without audio.
-          recordingSession.start()
+          self.recordingSession!.start()
           self.isRecording = true
         }
       } catch EnumParserError.invalidValue {
