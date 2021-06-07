@@ -72,6 +72,9 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
       } catch (error: CameraError) {
         val map = makeErrorMap("${error.domain}/${error.id}", error.message, error)
         onRecordCallback(null, map)
+      } catch (error: Throwable) {
+        val map = makeErrorMap("capture/unknown", "An unknown error occured while trying to start a video recording!", error)
+        onRecordCallback(null, map)
       }
     }
   }
