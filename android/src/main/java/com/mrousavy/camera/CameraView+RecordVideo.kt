@@ -15,10 +15,18 @@ data class TemporaryFile(val path: String)
 @SuppressLint("RestrictedApi", "MissingPermission")
 suspend fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Callback): TemporaryFile {
   if (videoCapture == null) {
-    throw CameraNotReadyError()
+    if (video == true) {
+      throw CameraNotReadyError()
+    } else {
+      throw VideoNotEnabledError()
+    }
   }
-  if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-    throw MicrophonePermissionError()
+
+  // check audio permission
+  if (audio == true) {
+    if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+      throw MicrophonePermissionError()
+    }
   }
 
   if (options.hasKey("flash")) {

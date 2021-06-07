@@ -37,6 +37,8 @@ export type CaptureError =
   | 'capture/invalid-photo-codec'
   | 'capture/not-bound-error'
   | 'capture/capture-type-not-supported'
+  | 'capture/video-not-enabled'
+  | 'capture/photo-not-enabled'
   | 'capture/unknown';
 export type SystemError = 'system/no-camera-manager';
 export type UnknownError = 'unknown/unknown';
