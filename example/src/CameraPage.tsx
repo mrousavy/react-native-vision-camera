@@ -95,23 +95,23 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
   }, [formats, fps, enableHdr]);
 
   //#region Animated Zoom
+  // This just maps the zoom factor to a percentage value.
+  // so e.g. for [min, neutr., max] values [1, 2, 128] this would result in [0, 0.0081, 1]
   const minZoomFactor = device?.minZoom ?? 1;
   const neutralZoomFactor = device?.neutralZoom ?? 1;
   const maxZoomFactor = device?.maxZoom ?? 1;
   const maxZoomFactorClamped = Math.min(maxZoomFactor, MAX_ZOOM_FACTOR);
 
-  const neutralZoomNaN = (neutralZoomFactor - minZoomFactor) / (maxZoomFactor - minZoomFactor);
-  const neutralZoom = isNaN(neutralZoomNaN) ? 0 : neutralZoomNaN;
-  const neutralZoomScaledNaN = (neutralZoom / maxZoomFactorClamped) * maxZoomFactor;
-  const neutralZoomScaled = isNaN(neutralZoomScaledNaN) ? 0 : neutralZoomScaledNaN;
-  const maxZoomScaled = maxZoomFactorClamped / maxZoomFactor;
+  const neutralZoomOut = (neutralZoomFactor - minZoomFactor) / (maxZoomFactor - minZoomFactor);
+  const neutralZoomIn = (neutralZoomOut / maxZoomFactorClamped) * maxZoomFactor;
+  const maxZoomOut = maxZoomFactorClamped / maxZoomFactor;
 
-  const cameraAnimatedProps = useAnimatedProps(
-    () => ({
-      zoom: interpolate(zoom.value, [0, neutralZoomScaled, 1], [0, neutralZoom, maxZoomScaled], Extrapolate.CLAMP),
-    }),
-    [maxZoomScaled, neutralZoom, neutralZoomScaled, zoom],
-  );
+  const cameraAnimatedProps = useAnimatedProps(() => {
+    const z = interpolate(zoom.value, [0, neutralZoomIn, 1], [0, neutralZoomOut, maxZoomOut], Extrapolate.CLAMP);
+    return {
+      zoom: isNaN(z) ? 0 : z,
+    };
+  }, [maxZoomOut, neutralZoomOut, neutralZoomIn, zoom]);
   //#endregion
 
   //#region Callbacks
@@ -160,8 +160,8 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
   //#region Effects
   useEffect(() => {
     // Run everytime the neutralZoomScaled value changes. (reset zoom when device changes)
-    zoom.value = neutralZoomScaled;
-  }, [neutralZoomScaled, zoom]);
+    zoom.value = neutralZoomIn;
+  }, [neutralZoomIn, zoom]);
   //#endregion
 
   //#region Pinch to Zoom Gesture
