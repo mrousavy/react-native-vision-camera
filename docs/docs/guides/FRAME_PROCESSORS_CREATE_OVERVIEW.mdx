@@ -44,7 +44,7 @@ The Frame Processor Plugin Registry API automatically manages type conversion fr
 
 ### Return values
 
-The values will automatically be converted to JS values, assuming they are representable in the ["Types" table](#types). so the following Objective-C frame processor:
+Return values will automatically be converted to JS values, assuming they are representable in the ["Types" table](#types). So the following Objective-C frame processor:
 
 ```objc
 static inline id detectObject(CMSampleBufferRef buffer, NSArray args) {
