@@ -56,25 +56,3 @@ fun CameraCharacteristics.getFieldOfView(): Double {
 
   return 2 * atan(sensorSize.bigger / (focalLengths[0] * 2)) * (180 / PI)
 }
-
-fun CameraCharacteristics.supportsFps(fps: Int): Boolean {
-  return this.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES)!!
-    .any { it.upper >= fps && it.lower <= fps }
-}
-
-/**
- * Get the value at which the Zoom is at neutral state (wide-angle camera zoom 0) (in percent, between 0.0-1.0)
- *
- * * On single-camera physical devices this value will always be 0
- * * On devices with multiple cameras, e.g. triple-camera, this value will be a value between 0.0 and 1.0, where the field-of-view and zoom looks "neutral"
- */
-val CameraCharacteristics.neutralZoomPercent: Float
-  get() {
-    val zoomRange = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R)
-      this.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
-    else null
-    return if (zoomRange != null)
-      ((1.0f - zoomRange.lower) / (zoomRange.upper - zoomRange.lower))
-    else
-      0.0f
-  }

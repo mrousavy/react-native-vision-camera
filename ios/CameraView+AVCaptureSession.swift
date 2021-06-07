@@ -68,7 +68,6 @@ extension CameraView {
       guard let videoDevice = AVCaptureDevice(uniqueID: cameraId) else {
         return invokeOnError(.device(.invalid))
       }
-      zoom = NSNumber(value: Double(videoDevice.neutralZoomPercent))
       videoDeviceInput = try AVCaptureDeviceInput(device: videoDevice)
       guard captureSession.canAddInput(videoDeviceInput!) else {
         return invokeOnError(.parameter(.unsupportedInput(inputDescriptor: "video-input")))
