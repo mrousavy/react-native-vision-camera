@@ -15,24 +15,24 @@ class Callback {
   init(_ callback: @escaping RCTResponseSenderBlock) {
     self.callback = callback
   }
-  
+
   func reject(error: CameraError, cause: NSError?) {
-    self.callback([NSNull(), makeReactError(error, cause: cause)])
+    callback([NSNull(), makeReactError(error, cause: cause)])
   }
-  
+
   func reject(error: CameraError) {
     reject(error: error, cause: nil)
   }
-  
+
   func resolve(_ value: Any?) {
-    self.callback([value, NSNull()])
+    callback([value, NSNull()])
   }
-  
+
   func resolve() {
     resolve(nil)
   }
-  
+
   // MARK: Private
-  
+
   private let callback: RCTResponseSenderBlock
 }

@@ -217,7 +217,7 @@ public final class CameraView: UIView {
           }
         }
       }
-      
+
       // Audio Configuration
       if shouldReconfigureAudioSession {
         audioQueue.async {

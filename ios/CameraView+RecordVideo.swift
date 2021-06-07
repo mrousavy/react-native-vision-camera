@@ -28,16 +28,16 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         }
         fileType = parsed
       }
-      
+
       let errorPointer = ErrorPointer(nilLiteral: ())
       let fileExtension = fileType.descriptor ?? "mov"
       guard let tempFilePath = RCTTempFilePath(fileExtension, errorPointer) else {
         return callback.reject(error: .capture(.createTempFileError), cause: errorPointer?.pointee)
       }
-      
+
       ReactLogger.log(level: .info, message: "File path: \(tempFilePath)")
       let tempURL = URL(string: "file://\(tempFilePath)")!
-      
+
       if let flashMode = options["flash"] as? String {
         // use the torch as the video's flash
         self.setTorchMode(flashMode)
@@ -104,7 +104,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         self.audioQueue.async {
           // Activate Audio Session (blocking)
           self.activateAudioSession()
-          
+
           guard let recordingSession = self.recordingSession else {
             // recording has already been cancelled
             return

@@ -25,8 +25,8 @@ extension CameraView {
     }
 
     audioCaptureSession.automaticallyConfiguresApplicationAudioSession = false
-    let enableAudio = self.audio?.boolValue == true
-    
+    let enableAudio = audio?.boolValue == true
+
     // check microphone permission
     if enableAudio {
       let audioPermissionStatus = AVCaptureDevice.authorizationStatus(for: .audio)
