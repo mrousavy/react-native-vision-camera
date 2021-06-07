@@ -16,6 +16,10 @@ extension AVFileType {
       self = .mov
     case "mp4":
       self = .mp4
+    case "avci":
+      self = .avci
+    case "m4v":
+      self = .m4v
     default:
       throw EnumParserError.invalidValue
     }
@@ -27,6 +31,10 @@ extension AVFileType {
       return "mov"
     case .mp4:
       return "mp4"
+    case .avci:
+      return "avci"
+    case .m4v:
+      return "m4v"
     default:
       return nil
     }
