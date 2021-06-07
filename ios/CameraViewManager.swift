@@ -96,8 +96,8 @@ final class CameraViewManager: RCTViewManager {
           "hasFlash": $0.hasFlash,
           "hasTorch": $0.hasTorch,
           "minZoom": $0.minAvailableVideoZoomFactor,
+          "neutralZoom": $0.neutralZoomFactor,
           "maxZoom": $0.maxAvailableVideoZoomFactor,
-          "neutralZoom": $0.neutralZoomPercent,
           "isMultiCam": $0.isMultiCam,
           "supportsDepthCapture": false, // TODO: supportsDepthCapture
           "supportsRawCapture": false, // TODO: supportsRawCapture

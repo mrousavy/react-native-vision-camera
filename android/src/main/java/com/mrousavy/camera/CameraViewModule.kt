@@ -173,7 +173,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
             map.putDouble("minZoom", 1.0)
             map.putDouble("maxZoom", maxScalerZoom.toDouble())
           }
-          map.putDouble("neutralZoom", characteristics.neutralZoomPercent.toDouble())
+          map.putDouble("neutralZoom", 1.0)
 
           // TODO: Optimize?
           val maxImageOutputSize = cameraConfig.outputFormats

@@ -9,6 +9,12 @@
 import AVFoundation
 
 extension AVCaptureDevice {
+  /**
+   Get the value at which the Zoom factor is neutral.
+
+   For normal wide-angle devices, this is always going to be 1.0, since this is the default scale.
+   For devices with an ultra-wide-angle camera, this value is going to be the value where the wide-angle device will switch over.
+   */
   var neutralZoomFactor: CGFloat {
     if #available(iOS 13.0, *) {
       if let indexOfWideAngle = self.constituentDevices.firstIndex(where: { $0.deviceType == .builtInWideAngleCamera }) {
@@ -18,15 +24,5 @@ extension AVCaptureDevice {
       }
     }
     return 1.0
-  }
-
-  /**
-   Get the value at which the Zoom value is neutral, in percent (0.0-1.0)
-
-   * On single-camera physical devices, this value will always be 0.0
-   * On devices with multiple cameras, e.g. triple-camera, this value will be a value between 0.0 and 1.0, where the field-of-view and zoom looks "neutral"
-   */
-  var neutralZoomPercent: CGFloat {
-    return (neutralZoomFactor - minAvailableVideoZoomFactor) / (maxAvailableVideoZoomFactor - minAvailableVideoZoomFactor)
   }
 }
