@@ -39,15 +39,14 @@ function App() {
 
 To automatically pause the Camera when the user navigates to a different page, use the [`useIsFocused`](https://reactnavigation.org/docs/use-is-focused/) function:
 
-```tsx
-const isFocused = useIsFocused()
+```tsx {4}
+function App() {
+  // ...
 
-return (
-  <Camera
-    {...cameraProps}
-    isActive={isFocused}
-  />
-)
+  const isFocused = useIsFocused()
+
+  return <Camera {...props} isActive={isFocused} />
+}
 ```
 
 <br />

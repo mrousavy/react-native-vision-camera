@@ -150,6 +150,10 @@ I have used [MLKit Vision Image Labeling](https://firebase.google.com/docs/ml-ki
 
 > All measurements are recorded on an iPhone 11 Pro, benchmarked total execution time of the [`captureOutput`](https://developer.apple.com/documentation/avfoundation/avcapturevideodataoutputsamplebufferdelegate/1385775-captureoutput) function by using [`CFAbsoluteTimeGetCurrent`](https://developer.apple.com/documentation/corefoundation/1543542-cfabsolutetimegetcurrent). Running smaller images (lower than 4k resolution) is much quicker and many algorithms can even run at 60 FPS.
 
+### Performance
+
+Frame Processors will be **synchronously** called for each frame the Camera sees and have to finish executing before the next frame arrives, otherwise the next frame(s) will be dropped. For a frame rate of **30 FPS**, you have about **33ms** to finish processing frames. Use [`frameProcessorFps`](../api/interfaces/cameraprops.cameraprops-1#frameprocessorfps) to throttle the frame processor's FPS. For a QR Code Scanner, **5 FPS** might suffice.
+
 ### ESLint react-hooks plugin
 
 If you are using the [react-hooks ESLint plugin](https://www.npmjs.com/package/eslint-plugin-react-hooks), make sure to add `useFrameProcessor` to `additionalHooks` inside your ESLint config. (See ["advanced configuration"](https://www.npmjs.com/package/eslint-plugin-react-hooks#advanced-configuration))
