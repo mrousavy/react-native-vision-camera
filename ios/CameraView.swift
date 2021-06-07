@@ -23,7 +23,9 @@ private let propsThatRequireReconfiguration = ["cameraId",
                                                "enableDepthData",
                                                "enableHighResolutionCapture",
                                                "enablePortraitEffectsMatteDelivery",
-                                               "preset"]
+                                               "preset",
+                                               "photo",
+                                               "video"]
 private let propsThatRequireDeviceReconfiguration = ["fps",
                                                      "hdr",
                                                      "lowLightBoost",
