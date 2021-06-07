@@ -20,8 +20,4 @@ enum EnumParserError: Error {
    Raised when the descriptor does not match any of the possible values.
    */
   case invalidValue
-  /**
-   Raised when no descriptor for the given enum is available.
-   */
-  case noDescriptorAvailable
 }

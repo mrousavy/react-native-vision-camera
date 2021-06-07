@@ -23,11 +23,11 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       do {
         var fileType = AVFileType.mov
         if let fileTypeOption = options["fileType"] as? String {
-          fileType = AVFileType(withString: fileTypeOption)
+          fileType = try AVFileType(withString: fileTypeOption)
         }
         
         let errorPointer = ErrorPointer(nilLiteral: ())
-        let fileExtension = fileType.rawValue
+        let fileExtension = fileType.descriptor ?? "mov"
         guard let tempFilePath = RCTTempFilePath(fileExtension, errorPointer) else {
           return callback([NSNull(), makeReactError(.capture(.createTempFileError), cause: errorPointer?.pointee)])
         }
