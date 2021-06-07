@@ -19,6 +19,7 @@ module.exports = {
         ]
       },
       'guides/animated',
+      'guides/focusing',
       'guides/errors',
       'guides/troubleshooting',
     ],
