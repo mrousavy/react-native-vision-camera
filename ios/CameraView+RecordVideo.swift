@@ -21,20 +21,23 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       ReactLogger.log(level: .info, message: "Starting Video recording...")
 
       do {
-        let errorPointer = ErrorPointer(nilLiteral: ())
-        guard let tempFilePath = RCTTempFilePath("mov", errorPointer) else {
-          return callback([NSNull(), makeReactError(.capture(.createTempFileError), cause: errorPointer?.pointee)])
-        }
-
-        let tempURL = URL(string: "file://\(tempFilePath)")!
-        if let flashMode = options["flash"] as? String {
-          // use the torch as the video's flash
-          self.setTorchMode(flashMode)
-        }
-
         var fileType = AVFileType.mov
         if let fileTypeOption = options["fileType"] as? String {
           fileType = AVFileType(withString: fileTypeOption)
+        }
+        
+        let errorPointer = ErrorPointer(nilLiteral: ())
+        let fileExtension = fileType.rawValue
+        guard let tempFilePath = RCTTempFilePath(fileExtension, errorPointer) else {
+          return callback([NSNull(), makeReactError(.capture(.createTempFileError), cause: errorPointer?.pointee)])
+        }
+        
+        ReactLogger.log(level: .info, message: "File path: \(tempFilePath)")
+        let tempURL = URL(string: "file://\(tempFilePath)")!
+        
+        if let flashMode = options["flash"] as? String {
+          // use the torch as the video's flash
+          self.setTorchMode(flashMode)
         }
 
         guard let videoOutput = self.videoOutput else {
