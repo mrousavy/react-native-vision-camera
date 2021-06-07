@@ -289,7 +289,7 @@ export interface CameraDevice {
    */
   supportsRawCapture: boolean;
   /**
-   * Specifies whether this device supports focussing ({@linkcode Camera.focus | Camera.focus(...)})
+   * Specifies whether this device supports focusing ({@linkcode Camera.focus | Camera.focus(...)})
    */
   supportsFocus: boolean;
 }

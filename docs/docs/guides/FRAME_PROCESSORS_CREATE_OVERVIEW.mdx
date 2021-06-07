@@ -28,10 +28,6 @@ function App() {
 
 To achieve **maximum performance**, the `scanQRCodes` function is written in a native language (e.g. Objective-C), but it will be directly called from the VisionCamera Frame Processor JavaScript-Runtime.
 
-### Execution
-
-Frame Processors will be **synchronously** called for each frame the Camera sees and have to finish executing before the next frame arrives, otherwise the next frame(s) will be dropped. For a frame rate of **30 FPS**, you have about **33ms** to finish processing frames. Use [`frameProcessorFps`](../api/interfaces/cameraprops.cameraprops-1#frameprocessorfps) to throttle the frame processor's FPS. For a QR Code Scanner, **5 FPS** might suffice.
-
 ### Return Types
 
 Frame Processors can return any primitive value that is representable in JS. So for Objective-C that maps to:

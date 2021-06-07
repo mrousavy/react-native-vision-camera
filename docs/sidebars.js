@@ -3,6 +3,7 @@ module.exports = {
     Guides: [
       'guides/setup',
       'guides/devices',
+      'guides/lifecycle',
       'guides/formats',
       'guides/capturing',
       'guides/frame-processors',
@@ -18,6 +19,7 @@ module.exports = {
         ]
       },
       'guides/animated',
+      'guides/focusing',
       'guides/errors',
       'guides/troubleshooting',
     ],

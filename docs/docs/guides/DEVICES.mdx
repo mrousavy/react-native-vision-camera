@@ -17,7 +17,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 Camera devices are the physical (or "virtual") devices that can be used to record videos or capture photos.
 
-* **Physical**: A physical camera device is a **camera lens on your phone**. Different physical camera devices have different specifications, such as different capture formats, field of views, focal lengths, and more. Some phones have multiple physical camera devices.
+* **Physical**: A physical camera device is a **camera lens on your phone**. Different physical camera devices have different specifications, such as different capture formats, field of views, frame rates, focal lengths, and more. Some phones have multiple physical camera devices.
 
   > Examples: _"Backside Wide-Angle Camera"_, _"Frontside Wide-Angle Camera (FaceTime HD)"_, _"Ultra-Wide-Angle back camera"_.
 
@@ -62,9 +62,7 @@ Make sure to be careful when filtering out unneeded camera devices, since not ev
 
 ### The `useCameraDevices` hook
 
-The react-native-vision-camera library provides a hook to make camera device selection a lot easier.
-
-You can specify a device type to only find devices with the given type:
+VisionCamera provides a hook to make camera device selection a lot easier. You can specify a device type to only find devices with the given type:
 
 ```tsx
 function App() {
@@ -100,31 +98,6 @@ function App() {
 }
 ```
 
-### The `isActive` prop
-
-The Camera's `isActive` property can be used to _pause_ the session (`isActive={false}`) while still keeping the session "warm". This is more desirable than completely unmounting the camera, since _resuming_ the session (`isActive={true}`) will be **much faster** than re-mounting the camera view.
-
-For example, you want to **pause the camera** when the user **navigates to another page** or **minimizes the app** since otherwise the camera continues to run in the background without the user seeing it, causing **siginificant battery drain**. Also, on iOS a green dot indicates the user that the camera is still active, possibly causing the user to raise privacy concerns. (🔗 See ["About the orange and green indicators in your iPhone status bar"](https://support.apple.com/en-us/HT211876))
-
-This example demonstrates how you could pause the camera stream once the app goes into background using a custom `useIsAppForeground` hook:
-
-```tsx
-function App() {
-  const devices = useCameraDevices()
-  const device = devices.back
-  const isAppForeground = useIsAppForeground()
-
-  if (device == null) return <LoadingView />
-  return (
-    <Camera
-      style={StyleSheet.absoluteFill}
-      device={device}
-      isActive={isAppForeground}
-    />
-  )
-}
-```
-
 ### The `supportsPhotoAndVideoCapture` prop
 
 Camera devices provide the [`supportsPhotoAndVideoCapture` property](/docs/api/interfaces/cameradevice.cameradevice-1#supportsphotoandvideocapture) which determines whether the device supports enabling photo- and video-capture at the same time.
@@ -136,4 +109,4 @@ If `supportsPhotoAndVideoCapture` is `false` but you still need photo- and video
 
 <br />
 
-#### 🚀 Next section: [Camera Formats](formats)
+#### 🚀 Next section: [Camera Lifecycle](lifecycle)
