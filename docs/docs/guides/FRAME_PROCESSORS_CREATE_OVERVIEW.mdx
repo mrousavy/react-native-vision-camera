@@ -32,15 +32,15 @@ To achieve **maximum performance**, the `scanQRCodes` function is written in a n
 
 Frame Processors can return any primitive value that is representable in JS. So for Objective-C that maps to:
 
-| Objective-C Type         | JS Type              |
-|--------------------------|----------------------|
-| `NSNumber`               | `number`             |
-| `NSNumber` (boolean)     | `boolean`            |
-| `NSString`               | `string`             |
-| `NSArray`                | `[]`                 |
-| `NSDictionary`           | `{}`                 |
-| `nil` / `NSNull`         | `undefined`          |
-| `RCTResponseSenderBlock` | `(any, any) => void` |
+| JS Type              | Objective-C Type         | Java Type                  |
+|----------------------|--------------------------|----------------------------|
+| `number`             | `NSNumber`               | `double`                   |
+| `boolean`            | `NSNumber` (boolean)     | `boolean`                  |
+| `string`             | `NSString`               | `String`                   |
+| `[]`                 | `NSArray`                | `Array<Object>`            |
+| `{}`                 | `NSDictionary`           | `HashMap<Object>`          |
+| `undefined`          | `nil` / `NSNull`         | `null`                     |
+| `(any, any) => void` | `RCTResponseSenderBlock` | `(Object, Object) -> void` |
 
 The values will automatically be converted to JS values, so the following Objective-C frame processor:
 
