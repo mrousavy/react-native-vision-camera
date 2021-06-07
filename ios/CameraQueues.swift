@@ -23,7 +23,6 @@ public class CameraQueues: NSObject {
                                                      autoreleaseFrequency: .inherit,
                                                      target: nil)
 
-  // TODO: Is it a good idea to use a separate queue for audio output processing?
   /// The serial execution queue for output processing of audio buffers.
   @objc public static let audioQueue = DispatchQueue(label: "com.mrousavy.vision.audio-queue",
                                                      qos: .userInteractive,
