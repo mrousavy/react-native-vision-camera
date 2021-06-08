@@ -28,13 +28,13 @@ function App() {
 
 To achieve **maximum performance**, the `scanQRCodes` function is written in a native language (e.g. Objective-C), but it will be directly called from the VisionCamera Frame Processor JavaScript-Runtime.
 
-### Return Types
+### Types
 
-Frame Processors can return any primitive value that is representable in JS. So for Objective-C that maps to:
+The Frame Processor Plugin Registry API automatically manages type conversion from JS <-> native. They are converted into the most efficient data-structures, as seen here:
 
 | JS Type              | Objective-C Type         | Java Type                  |
 |----------------------|--------------------------|----------------------------|
-| `number`             | `NSNumber`               | `double`                   |
+| `number`             | `NSNumber` (double)      | `double`                   |
 | `boolean`            | `NSNumber` (boolean)     | `boolean`                  |
 | `string`             | `NSString`               | `String`                   |
 | `[]`                 | `NSArray`                | `Array<Object>`            |
@@ -42,7 +42,9 @@ Frame Processors can return any primitive value that is representable in JS. So 
 | `undefined`          | `nil` / `NSNull`         | `null`                     |
 | `(any, any) => void` | `RCTResponseSenderBlock` | `(Object, Object) -> void` |
 
-The values will automatically be converted to JS values, so the following Objective-C frame processor:
+### Return values
+
+Return values will automatically be converted to JS values, assuming they are representable in the ["Types" table](#types). So the following Objective-C frame processor:
 
 ```objc
 static inline id detectObject(CMSampleBufferRef buffer, NSArray args) {
@@ -62,7 +64,7 @@ export function detectObject(frame: Frame): string {
 
 ### Parameters
 
-Frame Processors can also accept parameters, following the same type convention as [return values](#return-types):
+Frame Processors can also accept parameters, following the same type convention as [return values](#return-values):
 
 ```ts
 const frameProcessor = useFrameProcessor((frame) => {
