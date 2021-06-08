@@ -32,15 +32,16 @@ To achieve **maximum performance**, the `scanQRCodes` function is written in a n
 
 The Frame Processor Plugin Registry API automatically manages type conversion from JS <-> native. They are converted into the most efficient data-structures, as seen here:
 
-| JS Type              | Objective-C Type         | Java Type                  |
-|----------------------|--------------------------|----------------------------|
-| `number`             | `NSNumber` (double)      | `double`                   |
-| `boolean`            | `NSNumber` (boolean)     | `boolean`                  |
-| `string`             | `NSString`               | `String`                   |
-| `[]`                 | `NSArray`                | `Array<Object>`            |
-| `{}`                 | `NSDictionary`           | `HashMap<Object>`          |
-| `undefined`          | `nil` / `NSNull`         | `null`                     |
-| `(any, any) => void` | `RCTResponseSenderBlock` | `(Object, Object) -> void` |
+| JS Type              | Objective-C Type          | Java Type                  |
+|----------------------|---------------------------|----------------------------|
+| `number`             | `NSNumber*` (double)      | `double`                   |
+| `boolean`            | `NSNumber*` (boolean)     | `boolean`                  |
+| `string`             | `NSString*`               | `String`                   |
+| `[]`                 | `NSArray*`                | `Array<Object>`            |
+| `{}`                 | `NSDictionary*`           | `HashMap<Object>`          |
+| `undefined` / `null` | `nil` / `NSNull`          | `null`                     |
+| `(any, any) => void` | `RCTResponseSenderBlock`  | `(Object, Object) -> void` |
+| `Frame`              | `CMSampleBufferRefHolder` | `ImageProxy`               |
 
 ### Return values
 
@@ -56,10 +57,34 @@ Returns a `string` in JS:
 
 ```js
 export function detectObject(frame: Frame): string {
-  'worklet';
-  const result =  __detectObject(frame);
+  'worklet'
+  const result = __detectObject(frame)
   _log(result) // <-- "cat"
 }
+```
+
+You can also manipulate the buffer and return it (or a copy) by using the `CMSampleBufferRefHolder` class:
+
+```objc
+static inline id resize(CMSampleBufferRef buffer, NSArray args) {
+  NSNumber* width = [arguments objectAtIndex:0];
+  NSNumber* height = [arguments objectAtIndex:1];
+
+  CMSampleBufferRef resizedBuffer = CMSampleBufferCopyAndResize(buffer, width, height);
+  return [[CMSampleBufferRefHolder alloc] initWithBuffer:resizedBuffer];
+}
+```
+
+Which returns a `Frame` in JS:
+
+```js
+const frameProcessor = useFrameProcessor((frame) => {
+  'worklet';
+  // by downscaling the frame, the `detectObjects` function runs faster.
+  const resizedFrame = resize(frame, 720, 480)
+  const objects = detectObjects(resizedFrame)
+  _log(objects)
+}, [])
 ```
 
 ### Parameters

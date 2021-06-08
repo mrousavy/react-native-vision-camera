@@ -203,8 +203,9 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       if frameProcessorCallback != nil && !hasLoggedFrameDropWarning && captureOutput is AVCaptureVideoDataOutput {
         let reason = findFrameDropReason(inBuffer: buffer)
         ReactLogger.log(level: .warning,
-                        message: "Dropped a Frame. This might indicate that your Frame Processor is doing too much work. " +
-                          "Either throttle the frame processor's frame rate, or optimize your frame processor's execution speed. Frame drop reason: \(reason)",
+                        message: "Dropped a Frame - This might indicate that your Frame Processor is doing too much work. " +
+                          "Either throttle the frame processor's frame rate using the `frameProcessorFps` prop, or optimize " +
+                          "your frame processor's execution speed. Frame drop reason: \(reason)",
                         alsoLogToJS: true)
         hasLoggedFrameDropWarning = true
       }
