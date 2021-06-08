@@ -34,12 +34,12 @@ The Frame Processor Plugin Registry API automatically manages type conversion fr
 
 | JS Type              | Objective-C Type          | Java Type                  |
 |----------------------|---------------------------|----------------------------|
-| `number`             | `NSNumber` (double)       | `double`                   |
-| `boolean`            | `NSNumber` (boolean)      | `boolean`                  |
-| `string`             | `NSString`                | `String`                   |
-| `[]`                 | `NSArray`                 | `Array<Object>`            |
-| `{}`                 | `NSDictionary`            | `HashMap<Object>`          |
-| `undefined`          | `nil` / `NSNull`          | `null`                     |
+| `number`             | `NSNumber*` (double)      | `double`                   |
+| `boolean`            | `NSNumber*` (boolean)     | `boolean`                  |
+| `string`             | `NSString*`               | `String`                   |
+| `[]`                 | `NSArray*`                | `Array<Object>`            |
+| `{}`                 | `NSDictionary*`           | `HashMap<Object>`          |
+| `undefined` / `null` | `nil` / `NSNull`          | `null`                     |
 | `(any, any) => void` | `RCTResponseSenderBlock`  | `(Object, Object) -> void` |
 | `Frame`              | `CMSampleBufferRefHolder` | `ImageProxy`               |
 
@@ -63,7 +63,7 @@ export function detectObject(frame: Frame): string {
 }
 ```
 
-You can also manipulate the buffer and return it by using the `CMSampleBufferRefHolder` class:
+You can also manipulate the buffer and return it (or a copy) by using the `CMSampleBufferRefHolder` class:
 
 ```objc
 static inline id resize(CMSampleBufferRef buffer, NSArray args) {
