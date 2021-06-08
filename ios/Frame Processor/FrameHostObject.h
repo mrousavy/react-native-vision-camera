@@ -24,6 +24,6 @@ public:
   std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime& rt) override;
   void destroyBuffer();
   
-public:
+private:
   Frame* frame;
 };
