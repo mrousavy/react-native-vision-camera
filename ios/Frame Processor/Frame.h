@@ -8,13 +8,15 @@
 
 #pragma once
 
+#import <Foundation/Foundation.h>
 #import <CoreMedia/CMSampleBuffer.h>
 
-// TODO: Make this Objective-C so it can be imported in Swift?
-class Frame {
- public:
-  explicit Frame(CMSampleBufferRef buffer): buffer(buffer) {}
-
- public:
+@interface Frame : NSObject {
   CMSampleBufferRef buffer;
-};
+}
+
+- (instancetype) initWithBuffer:(CMSampleBufferRef)buffer;
+
+@property (nonatomic) CMSampleBufferRef buffer;
+
+@end

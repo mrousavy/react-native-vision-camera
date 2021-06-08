@@ -140,6 +140,7 @@
 		B8DB3BCB263DC97E004C18D7 /* AVFileType+descriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVFileType+descriptor.swift"; sourceTree = "<group>"; };
 		B8DCF09125EA7BEE00EA5C72 /* SpeedChecker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SpeedChecker.h; sourceTree = "<group>"; };
 		B8DCF14425EA817D00EA5C72 /* MakeJSIRuntime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MakeJSIRuntime.h; sourceTree = "<group>"; };
+		B8F7DDD1266F715D00120533 /* Frame.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Frame.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -263,6 +264,7 @@
 				B8103E1E25FF5550007A1684 /* FrameProcessorUtils.h */,
 				B8103E1B25FF553B007A1684 /* FrameProcessorUtils.mm */,
 				B8103E5725FF56F0007A1684 /* Frame.h */,
+				B8F7DDD1266F715D00120533 /* Frame.m */,
 				B84760A22608EE38004C3180 /* FrameHostObject.h */,
 				B84760A52608EE7C004C3180 /* FrameHostObject.mm */,
 				B8A751D62609E4980011C623 /* FrameProcessorRuntimeManager.h */,
