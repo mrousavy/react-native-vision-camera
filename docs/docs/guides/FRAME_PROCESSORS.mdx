@@ -62,7 +62,7 @@ const catBounds = useSharedValue({ top: 0, left: 0, right: 0, bottom: 0 })
 const frameProcessor = useFrameProcessor((frame) => {
   'worklet'
   catBounds.value = scanFrameForCat(frame)
-}, [])
+}, [catBounds])
 
 const boxOverlayStyle = useAnimatedStyle(() => ({
   position: 'absolute',
