@@ -69,6 +69,7 @@ jsi::Value convertObjCObjectToJSIValue(jsi::Runtime &runtime, id value)
   } else if (value == (id)kCFNull) {
     return jsi::Value::null();
   } else if ([value isKindOfClass:[CMSampleBufferRefHolder class]]) {
+    // it's boxed in a CMSampleBufferRefHolder because CMSampleBufferRef is not an NSObject
     CMSampleBufferRef buffer = [(CMSampleBufferRefHolder*)value buffer];
     auto frame = std::make_shared<FrameHostObject>(buffer);
     return jsi::Object::createFromHostObject(runtime, frame);
