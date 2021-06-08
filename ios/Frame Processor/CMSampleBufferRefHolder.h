@@ -1,5 +1,5 @@
 //
-//  Frame.h
+//  CMSampleBufferRefHolder.h
 //  VisionCamera
 //
 //  Created by Marc Rousavy on 15.03.21.
@@ -11,7 +11,7 @@
 #import <Foundation/Foundation.h>
 #import <CoreMedia/CMSampleBuffer.h>
 
-@interface Frame : NSObject {
+@interface CMSampleBufferRefHolder : NSObject {
   CMSampleBufferRef buffer;
 }
 
