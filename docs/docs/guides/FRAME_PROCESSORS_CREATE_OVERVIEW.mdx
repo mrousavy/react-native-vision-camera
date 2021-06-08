@@ -57,10 +57,34 @@ Returns a `string` in JS:
 
 ```js
 export function detectObject(frame: Frame): string {
-  'worklet';
-  const result =  __detectObject(frame);
+  'worklet'
+  const result = __detectObject(frame)
   _log(result) // <-- "cat"
 }
+```
+
+You can also manipulate the buffer and return it by using the `CMSampleBufferRefHolder` class:
+
+```objc
+static inline id resize(CMSampleBufferRef buffer, NSArray args) {
+  NSNumber* width = [arguments objectAtIndex:0];
+  NSNumber* height = [arguments objectAtIndex:1];
+
+  CMSampleBufferRef resizedBuffer = CMSampleBufferCopyAndResize(buffer, width, height);
+  return [[CMSampleBufferRefHolder alloc] initWithBuffer:resizedBuffer];
+}
+```
+
+Which returns a `Frame` in JS:
+
+```js
+const frameProcessor = useFrameProcessor((frame) => {
+  'worklet';
+  // by downscaling the frame, the `detectObjects` function runs faster.
+  const resizedFrame = resize(frame, 720, 480)
+  const objects = detectObjects(resizedFrame)
+  _log(objects)
+}, [])
 ```
 
 ### Parameters
