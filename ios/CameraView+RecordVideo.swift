@@ -169,10 +169,12 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   }
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
+    // Video Recording runs in the same queue
     if isRecording {
       guard let recordingSession = recordingSession else {
         return invokeOnError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
       }
+      
       switch captureOutput {
       case is AVCaptureVideoDataOutput:
         recordingSession.appendBuffer(sampleBuffer, type: .video, timestamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
@@ -191,8 +193,9 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       let diff = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorCall.uptimeNanoseconds
       let secondsPerFrame = 1.0 / frameProcessorFps.doubleValue
       let nanosecondsPerFrame = secondsPerFrame * 1_000_000_000.0
+      
       if diff > UInt64(nanosecondsPerFrame) {
-        let frame = Frame(buffer: sampleBuffer)
+        let frame = Frame(buffer: sampleBuffer, orientation: .left)
         frameProcessor(frame)
         lastFrameProcessorCall = DispatchTime.now()
       }

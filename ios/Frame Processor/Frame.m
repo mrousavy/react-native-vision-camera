@@ -12,14 +12,16 @@
 
 @implementation Frame
 
-- (instancetype) initWithBuffer:(CMSampleBufferRef)buffer {
+- (instancetype) initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation {
   self = [super init];
   if (self) {
     self.buffer = buffer;
+    self.orientation = orientation;
   }
   return self;
 }
 
 @synthesize buffer;
+@synthesize orientation;
 
 @end

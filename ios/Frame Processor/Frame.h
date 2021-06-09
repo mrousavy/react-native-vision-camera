@@ -13,10 +13,12 @@
 
 @interface Frame : NSObject {
   CMSampleBufferRef buffer;
+  UIImageOrientation orientation;
 }
 
-- (instancetype) initWithBuffer:(CMSampleBufferRef)buffer;
+- (instancetype) initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation;
 
 @property (nonatomic) CMSampleBufferRef buffer;
+@property (nonatomic) UIImageOrientation orientation;
 
 @end
