@@ -21,6 +21,17 @@ While you can use any animation library to animate the `zoom` property (or use n
 
 ### Implementation
 
+#### Overview
+
+1. Make the Camera View animatable using `Reanimated.createAnimatedComponent`
+2. Make the Camera's `zoom` property animatable using `addWhitelistedNativeProps`
+   > Note that this might not be needed in the future, see: [reanimated#1409](https://github.com/software-mansion/react-native-reanimated/pull/1409)
+3. Create a SharedValue using [`useSharedValue`](https://docs.swmansion.com/react-native-reanimated/docs/api/useSharedValue) which represents the zoom state (from `0` to `1`)
+4. Use [`useAnimatedProps`](https://docs.swmansion.com/react-native-reanimated/docs/api/useAnimatedProps) to map the zoom SharedValue to the zoom property.
+5. We apply the animated props to the `ReanimatedCamera` component's `animatedProps` property.
+
+#### Code
+
 The following example implements a button which smoothly zooms to a random value using [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated):
 
 ```tsx
@@ -68,14 +79,17 @@ export function App() {
 }
 ```
 
-### Explanation
+### Min, Max and Neutral Zoom
 
-1. The `Camera` was made animatable using `Reanimated.createAnimatedComponent`
-2. The `zoom` property is added to the whitelisted native props to make it animatable.
-    > Note that this might not be needed in the future, see: [reanimated#1409](https://github.com/software-mansion/react-native-reanimated/pull/1409)
-3. Using [`useSharedValue`](https://docs.swmansion.com/react-native-reanimated/docs/api/useSharedValue), we're creating a shared value that holds the value for the `zoom` property.
-4. Using the [`useAnimatedProps`](https://docs.swmansion.com/react-native-reanimated/docs/api/useAnimatedProps) hook, we apply the shared value to Camera's `zoom` property.
-5. We apply the animated props to the `ReanimatedCamera` component's `animatedProps` property.
+A Camera device has different minimum, maximum and neutral zoom values. Those values are expressed through the `CameraDevice`'s [`minZoom`](/docs/api/interfaces/cameradevice.cameradevice-1#minzoom), [`maxZoom`](/docs/api/interfaces/cameradevice.cameradevice-1#maxzoom) and [`neutralZoom`](/docs/api/interfaces/cameradevice.cameradevice-1#neutralzoom) props, and are represented in "scale". So if the `maxZoom` property of a device is `2`, that means the view can be enlarged by twice it's zoom, aka the viewport halves.
+
+* The `minZoom` value is always `1`.
+* The `maxZoom` value can have very high values (such as `128`), but often you want to clamp this value to something realistic like `16`.
+* The `neutralZoom` value is often `1`, but can be smaller than `1` for devices with "fish-eye" (ultra-wide-angle) cameras. In those cases, the user expects to be at whatever zoom value `neutralZoom` is (e.g. `2`) per default, and if he tries to zoom out even more, he goes to `minZoom` (`1`), which switches over to the "fish-eye" (ultra-wide-angle) camera as seen in this GIF:
+
+<div align="center">
+  <img src="https://developer.android.com/images/training/camera/multi-camera-4.gif" width="45%" />
+</div>
 
 ### Logarithmic scale
 
