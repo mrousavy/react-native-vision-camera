@@ -97,7 +97,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                                    arguments + 1, // start at index 1 since first arg = Frame
                                                    count - 1, // use smaller count
                                                    callInvoker);
-        id result = callback([frame->frame buffer], args);
+        id result = callback(frame->frame, args);
         
         return convertObjCObjectToJSIValue(runtime, result);
         

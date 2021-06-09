@@ -36,7 +36,7 @@
 +(void)load                                                                         \
 {                                                                                   \
   [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"__" @ #frame_processor callback:^id(Frame* frame, NSArray<id>* args) { \
-    return frame_processor(buffer, args);                                           \
+    return frame_processor(frame, args);                                           \
   }];                                                                               \
 }
 
@@ -56,7 +56,7 @@ objc_name : NSObject<FrameProcessorPluginBase>                                  
 __attribute__((constructor)) static void VISION_CONCAT(initialize_, objc_name)()    \
 {                                                                                   \
   [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"__" @ #name callback:^id(Frame* frame, NSArray<id>* args) {    \
-    return [objc_name callback:buffer withArgs:args];                               \
+    return [objc_name callback:frame withArgs:args];                               \
   }];                                                                               \
 }
 

@@ -10,6 +10,7 @@
 
 #import <Foundation/Foundation.h>
 #import <CoreMedia/CMSampleBuffer.h>
+#import <UIKit/UIImage.h>
 
 @interface Frame : NSObject {
   CMSampleBufferRef buffer;
