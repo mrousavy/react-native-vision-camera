@@ -8,7 +8,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 ## Overview
 
-Frame Processor Plugins are **native functions** which can be directly called from a JS Frame Processor. (See [Frame Processors](frame-processors))
+Frame Processor Plugins are **native functions** which can be directly called from a JS Frame Processor. (See ["Frame Processors"](frame-processors))
 
 They **receive a frame from the Camera** as an input and can return any kind of output. For example, a `scanQRCodes` function returns an array of detected QR code strings in the frame:
 
@@ -98,7 +98,7 @@ const frameProcessor = useFrameProcessor((frame) => {
 }, [])
 ```
 
-Or with multiple parameters:
+Or with multiple ("variadic") parameters:
 
 ```ts
 const frameProcessor = useFrameProcessor((frame) => {
