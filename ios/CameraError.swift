@@ -188,6 +188,7 @@ enum CaptureError {
   case invalidPhotoCodec
   case videoNotEnabled
   case photoNotEnabled
+  case aborted
   case unknown(message: String? = nil)
 
   var code: String {
@@ -210,6 +211,8 @@ enum CaptureError {
       return "video-not-enabled"
     case .photoNotEnabled:
       return "photo-not-enabled"
+    case .aborted:
+      return "aborted"
     case .unknown:
       return "unknown"
     }
