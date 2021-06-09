@@ -13,7 +13,6 @@ private var delegatesReferences: [NSObject] = []
 // MARK: - PhotoCaptureDelegate
 
 class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
-
   private let promise: Promise
 
   required init(promise: Promise) {
