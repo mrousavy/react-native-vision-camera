@@ -63,7 +63,7 @@ export function detectObject(frame: Frame): string {
 }
 ```
 
-You can also manipulate the buffer and return it (or a copy) by using the `Frame` class:
+You can also manipulate the buffer and return it (or a copy of it) by using the [`Frame` class](https://github.com/cuvent/react-native-vision-camera/blob/main/ios/Frame%20Processor/Frame.h):
 
 ```objc
 #import <VisionCamera/Frame.h>
@@ -75,7 +75,7 @@ static inline id resize(Frame* frame, NSArray args) {
 }
 ```
 
-Which returns a `Frame` in JS:
+Which returns a [`Frame`](https://github.com/cuvent/react-native-vision-camera/blob/main/src/Frame.ts) in JS:
 
 ```js
 const frameProcessor = useFrameProcessor((frame) => {
