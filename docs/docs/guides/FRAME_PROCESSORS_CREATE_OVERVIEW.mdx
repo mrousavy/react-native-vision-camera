@@ -69,10 +69,8 @@ You can also manipulate the buffer and return it (or a copy) by using the `Frame
 #import <VisionCamera/Frame.h>
 
 static inline id resize(Frame* frame, NSArray args) {
-  NSNumber* width = [arguments objectAtIndex:0];
-  NSNumber* height = [arguments objectAtIndex:1];
-
-  CMSampleBufferRef resizedBuffer = CMSampleBufferCopyAndResize(frame.buffer, width, height);
+  CMSampleBufferRef resizedBuffer = // ...
+  
   return [[Frame alloc] initWithBuffer:resizedBuffer orientation:frame.orientation];
 }
 ```
