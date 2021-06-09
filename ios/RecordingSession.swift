@@ -169,7 +169,7 @@ class RecordingSession {
       bufferAdaptor.append(imageBuffer, withPresentationTime: timestamp)
       if !hasWrittenFirstVideoFrame {
         hasWrittenFirstVideoFrame = true
-        ReactLogger.log(level: .warning, message: "VideoWriter: First frame arrived \((timestamp - initialTimestamp).seconds) seconds late.")
+        ReactLogger.log(level: .warning, message: "VideoWriter: First frame arrived \((initialTimestamp - timestamp).seconds) seconds late.")
       }
     case .audio:
       guard let audioWriter = audioWriter else {
