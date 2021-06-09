@@ -18,7 +18,7 @@ module.exports = {
           'guides/frame-processor-plugin-list'
         ]
       },
-      'guides/animated',
+      'guides/zooming',
       'guides/focusing',
       'guides/errors',
       'guides/troubleshooting',
