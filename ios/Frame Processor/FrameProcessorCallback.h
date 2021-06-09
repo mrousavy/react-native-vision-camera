@@ -9,6 +9,6 @@
 #pragma once
 
 #import <Foundation/Foundation.h>
-#import <CoreMedia/CMSampleBuffer.h>
+#import "Frame.h"
 
-typedef void (^FrameProcessorCallback) (CMSampleBufferRef buffer);
+typedef void (^FrameProcessorCallback) (Frame* frame);

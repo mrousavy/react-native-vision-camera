@@ -37,7 +37,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
   if (name == "toString") {
     auto toString = [this] (jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
-      auto imageBuffer = CMSampleBufferGetImageBuffer(buffer);
+      auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
       auto width = CVPixelBufferGetWidth(imageBuffer);
       auto height = CVPixelBufferGetHeight(imageBuffer);
 
@@ -48,30 +48,30 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
 
   if (name == "isValid") {
-    auto isValid = buffer != nil && CMSampleBufferIsValid(buffer);
+    auto isValid = frame != nil && CMSampleBufferIsValid(frame.buffer);
     return jsi::Value(isValid);
   }
   if (name == "isReady") {
-    auto isReady = buffer != nil && CMSampleBufferDataIsReady(buffer);
+    auto isReady = frame != nil && CMSampleBufferDataIsReady(frame.buffer);
     return jsi::Value(isReady);
   }
   if (name == "width") {
-    auto imageBuffer = CMSampleBufferGetImageBuffer(buffer);
+    auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     auto width = CVPixelBufferGetWidth(imageBuffer);
     return jsi::Value((double) width);
   }
   if (name == "height") {
-    auto imageBuffer = CMSampleBufferGetImageBuffer(buffer);
+    auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     auto height = CVPixelBufferGetHeight(imageBuffer);
     return jsi::Value((double) height);
   }
   if (name == "bytesPerRow") {
-    auto imageBuffer = CMSampleBufferGetImageBuffer(buffer);
+    auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     auto bytesPerRow = CVPixelBufferGetPlaneCount(imageBuffer);
     return jsi::Value((double) bytesPerRow);
   }
   if (name == "planesCount") {
-    auto imageBuffer = CMSampleBufferGetImageBuffer(buffer);
+    auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
     return jsi::Value((double) planesCount);
   }
@@ -85,5 +85,5 @@ FrameHostObject::~FrameHostObject() {
 
 void FrameHostObject::destroyBuffer() {
   // ARC will hopefully delete it lol
-  this->buffer = nil;
+  this->frame = nil;
 }

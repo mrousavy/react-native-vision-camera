@@ -11,10 +11,10 @@
 
 #import <Foundation/Foundation.h>
 #import "FrameProcessorPluginRegistry.h"
-#import <CoreMedia/CMSampleBuffer.h>
+#import "Frame.h"
 
 @protocol FrameProcessorPluginBase
-+ (id) callback:(CMSampleBufferRef)buffer withArgs:(NSArray<id>*)args;
++ (id) callback:(Frame*)frame withArgs:(NSArray<id>*)args;
 @end
 
 
@@ -23,7 +23,7 @@
 
 /**
  * Use this Macro to register the given function as a Frame Processor.
- * * Make sure the given function is a C-style function with the following signature: static inline id callback(CMSampleBufferRef buffer)
+ * * Make sure the given function is a C-style function with the following signature: static inline id callback(Frame* frame, NSArray* args)
  * * Make sure the given function's name is unique across other frame processor plugins
  * * Make sure your frame processor returns a Value that can be converted to JS
  * * Make sure to use this Macro in an @implementation, not @interface
@@ -35,8 +35,8 @@
                                                                                     \
 +(void)load                                                                         \
 {                                                                                   \
-  [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"__" @ #frame_processor callback:^id(CMSampleBufferRef buffer, NSArray<id>* args) { \
-    return frame_processor(buffer, args);                                           \
+  [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"__" @ #frame_processor callback:^id(Frame* frame, NSArray<id>* args) { \
+    return frame_processor(frame, args);                                           \
   }];                                                                               \
 }
 
@@ -55,8 +55,8 @@ objc_name : NSObject<FrameProcessorPluginBase>                                  
                                                                                     \
 __attribute__((constructor)) static void VISION_CONCAT(initialize_, objc_name)()    \
 {                                                                                   \
-  [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"__" @ #name callback:^id(CMSampleBufferRef buffer, NSArray<id>* args) {    \
-    return [objc_name callback:buffer withArgs:args];                               \
+  [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"__" @ #name callback:^id(Frame* frame, NSArray<id>* args) {    \
+    return [objc_name callback:frame withArgs:args];                               \
   }];                                                                               \
 }
 

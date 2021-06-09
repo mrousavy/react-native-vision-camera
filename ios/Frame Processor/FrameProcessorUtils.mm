@@ -7,22 +7,22 @@
 //
 
 #import "FrameProcessorUtils.h"
-#import <CoreMedia/CMSampleBuffer.h>
 #import <chrono>
 #import <memory>
 #import "FrameHostObject.h"
+#import "Frame.h"
 
 FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &runtime, const jsi::Function &value) {
   __block auto cb = value.getFunction(runtime);
 
-  return ^(CMSampleBufferRef buffer) {
+  return ^(Frame* frame) {
 #if DEBUG
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 #endif
 
-    auto frame = std::make_shared<FrameHostObject>(buffer);
+    auto frameHostObject = std::make_shared<FrameHostObject>(frame);
     try {
-      cb.call(runtime, jsi::Object::createFromHostObject(runtime, frame));
+      cb.call(runtime, jsi::Object::createFromHostObject(runtime, frameHostObject));
     } catch (jsi::JSError& jsError) {
       NSLog(@"Frame Processor threw an error: %s", jsError.getMessage().c_str());
     }
@@ -39,6 +39,6 @@ FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &
     //  1. we are sure we don't need it anymore, the frame processor worklet has finished executing.
     //  2. we don't know when the JS runtime garbage collects this object, it might be holding it for a few more frames
     //     which then blocks the camera queue from pushing new frames (memory limit)
-    frame->destroyBuffer();
+    frameHostObject->destroyBuffer();
   };
 }

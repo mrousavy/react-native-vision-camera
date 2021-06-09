@@ -10,12 +10,13 @@
 
 #import <jsi/jsi.h>
 #import <CoreMedia/CMSampleBuffer.h>
+#import "Frame.h"
 
 using namespace facebook;
 
 class JSI_EXPORT FrameHostObject: public jsi::HostObject {
 public:
-  explicit FrameHostObject(CMSampleBufferRef buffer): buffer(buffer) {}
+  explicit FrameHostObject(Frame* frame): frame(frame) {}
   ~FrameHostObject();
 
 public:
@@ -24,5 +25,5 @@ public:
   void destroyBuffer();
   
 public:
-  CMSampleBufferRef buffer;
+  Frame* frame;
 };

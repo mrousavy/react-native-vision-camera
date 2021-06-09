@@ -9,9 +9,9 @@
 #pragma once
 
 #import <Foundation/Foundation.h>
-#import <CoreMedia/CMSampleBuffer.h>
+#import "Frame.h"
 
-typedef id (^FrameProcessorPlugin) (CMSampleBufferRef buffer, NSArray<id>* arguments);
+typedef id (^FrameProcessorPlugin) (Frame* frame, NSArray<id>* arguments);
 
 @interface FrameProcessorPluginRegistry : NSObject
 

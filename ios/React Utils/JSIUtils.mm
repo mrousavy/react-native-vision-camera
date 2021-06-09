@@ -12,7 +12,7 @@
 #import <ReactCommon/CallInvoker.h>
 #import <React/RCTBridge.h>
 #import <ReactCommon/TurboModuleUtils.h>
-#import "../Frame Processor/CMSampleBufferRefHolder.h"
+#import "../Frame Processor/Frame.h"
 #import "../Frame Processor/FrameHostObject.h"
 
 using namespace facebook;
@@ -68,11 +68,9 @@ jsi::Value convertObjCObjectToJSIValue(jsi::Runtime &runtime, id value)
     return convertNSArrayToJSIArray(runtime, (NSArray *)value);
   } else if (value == (id)kCFNull) {
     return jsi::Value::null();
-  } else if ([value isKindOfClass:[CMSampleBufferRefHolder class]]) {
-    // it's boxed in a CMSampleBufferRefHolder because CMSampleBufferRef is not an NSObject
-    CMSampleBufferRef buffer = [(CMSampleBufferRefHolder*)value buffer];
-    auto frame = std::make_shared<FrameHostObject>(buffer);
-    return jsi::Object::createFromHostObject(runtime, frame);
+  } else if ([value isKindOfClass:[Frame class]]) {
+    auto frameHostObject = std::make_shared<FrameHostObject>((Frame*)value);
+    return jsi::Object::createFromHostObject(runtime, frameHostObject);
   }
   return jsi::Value::undefined();
 }
@@ -155,7 +153,7 @@ id convertJSIValueToObjCObject(jsi::Runtime &runtime, const jsi::Value &value, s
       auto hostObject = o.asHostObject(runtime);
       auto frame = dynamic_cast<FrameHostObject*>(hostObject.get());
       if (frame != nullptr) {
-        return [[CMSampleBufferRefHolder alloc] initWithBuffer:frame->buffer];
+        return frame->frame;
       }
     }
     return convertJSIObjectToNSDictionary(runtime, o, jsInvoker);

@@ -85,15 +85,22 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
       NSLog(@"FrameProcessorBindings: Installing Frame Processor plugin \"%s\"...", pluginName);
       FrameProcessorPlugin callback = [[FrameProcessorPluginRegistry frameProcessorPlugins] valueForKey:pluginKey];
 
-      auto function = [callback, callInvoker](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+      auto function = [callback, callInvoker](jsi::Runtime& runtime,
+                                              const jsi::Value& thisValue,
+                                              const jsi::Value* arguments,
+                                              size_t count) -> jsi::Value {
+        
         auto frameHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
         auto frame = static_cast<FrameHostObject*>(frameHostObject.get());
+        
         auto args = convertJSICStyleArrayToNSArray(runtime,
                                                    arguments + 1, // start at index 1 since first arg = Frame
                                                    count - 1, // use smaller count
                                                    callInvoker);
-        id result = callback(frame->buffer, args);
+        id result = callback(frame->frame, args);
+        
         return convertObjCObjectToJSIValue(runtime, result);
+        
       };
 
       visionGlobal.setProperty(visionRuntime, pluginName, jsi::Function::createFromHostFunction(visionRuntime,
@@ -129,7 +136,10 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
   NSLog(@"FrameProcessorBindings: Installing global functions...");
 
   // setFrameProcessor(viewTag: number, frameProcessor: (frame: Frame) => void)
-  auto setFrameProcessor = [self](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+  auto setFrameProcessor = [self](jsi::Runtime& runtime,
+                                  const jsi::Value& thisValue,
+                                  const jsi::Value* arguments,
+                                  size_t count) -> jsi::Value {
     NSLog(@"FrameProcessorBindings: Setting new frame processor...");
     if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: First argument ('viewTag') must be a number!");
     if (!arguments[1].isObject()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
@@ -163,7 +173,10 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                                                                                          setFrameProcessor));
 
   // unsetFrameProcessor(viewTag: number)
-  auto unsetFrameProcessor = [](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+  auto unsetFrameProcessor = [](jsi::Runtime& runtime,
+                                const jsi::Value& thisValue,
+                                const jsi::Value* arguments,
+                                size_t count) -> jsi::Value {
     NSLog(@"FrameProcessorBindings: Removing frame processor...");
     if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::unsetFrameProcessor: First argument ('viewTag') must be a number!");
     auto viewTag = arguments[0].asNumber();

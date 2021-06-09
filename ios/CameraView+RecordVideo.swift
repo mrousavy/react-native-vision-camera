@@ -169,10 +169,12 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   }
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
+    // Video Recording runs in the same queue
     if isRecording {
       guard let recordingSession = recordingSession else {
         return invokeOnError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
       }
+
       switch captureOutput {
       case is AVCaptureVideoDataOutput:
         recordingSession.appendBuffer(sampleBuffer, type: .video, timestamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
@@ -191,8 +193,10 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       let diff = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorCall.uptimeNanoseconds
       let secondsPerFrame = 1.0 / frameProcessorFps.doubleValue
       let nanosecondsPerFrame = secondsPerFrame * 1_000_000_000.0
+
       if diff > UInt64(nanosecondsPerFrame) {
-        frameProcessor(sampleBuffer)
+        let frame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
+        frameProcessor(frame)
         lastFrameProcessorCall = DispatchTime.now()
       }
     }
@@ -221,4 +225,32 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       return String(describing: reason)
     }
   #endif
+
+  /**
+   Gets the orientation of the CameraView's images (CMSampleBuffers).
+   */
+  var bufferOrientation: UIImage.Orientation {
+    guard let cameraPosition = videoDeviceInput?.device.position else {
+      return .up
+    }
+
+    switch UIDevice.current.orientation {
+    case .portrait:
+      return cameraPosition == .front ? .leftMirrored : .right
+
+    case .landscapeLeft:
+      return cameraPosition == .front ? .downMirrored : .up
+
+    case .portraitUpsideDown:
+      return cameraPosition == .front ? .rightMirrored : .left
+
+    case .landscapeRight:
+      return cameraPosition == .front ? .upMirrored : .down
+
+    case .unknown, .faceUp, .faceDown:
+      fallthrough
+    @unknown default:
+      return .up
+    }
+  }
 }

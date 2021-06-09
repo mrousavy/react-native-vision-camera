@@ -27,15 +27,18 @@ iOS Frame Processor Plugins can be written in either **Objective-C** or **Swift*
 2. Create an Objective-C source file, for the QR Code Plugin this will be called `QRCodeFrameProcessorPlugin.m`.
 3. Add the following code:
 
-```objc {9}
+```objc {11}
 #import <VisionCamera/FrameProcessorPlugin.h>
+#import <VisionCamera/Frame.h>
 
 @interface QRCodeFrameProcessorPlugin : NSObject
 @end
 
 @implementation QRCodeFrameProcessorPlugin
 
-static inline id scanQRCodes(CMSampleBufferRef buffer, NSArray args) {
+static inline id scanQRCodes(Frame* frame, NSArray args) {
+  CMSampleBufferRef buffer = frame.buffer;
+  UIImageOrientation orientation = frame.orientation;
   // code goes here
   return @[];
 }
@@ -62,6 +65,7 @@ The JS function name will be equal to the Objective-C function name you choose (
 
 ```objc
 #import <VisionCamera/FrameProcessorPlugin.h>
+#import <VisionCamera/Frame.h>
 ```
 
 3. Create an Objective-C source file with the same name as the Swift file, for the QR Code Plugin this will be `QRCodeFrameProcessorPlugin.m`. Add the following code:
@@ -79,12 +83,14 @@ The first parameter in the Macro specifies the JS function name. Make sure it is
 
 4. In the Swift file, add the following code:
 
-```swift {6}
+```swift {8}
 @objc(QRCodeFrameProcessorPlugin)
 public class QRCodeFrameProcessorPlugin: NSObject, FrameProcessorPluginBase {
 
   @objc
-  public static func callback(_: CMSampleBuffer!, withArgs _: [Any]!) -> Any! {
+  public static func callback(_ frame: Frame!, withArgs _: [Any]!) -> Any! {
+    let buffer = frame.buffer
+    let orientation = frame.orientation
     // code goes here
     return []
   }
