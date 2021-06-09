@@ -73,19 +73,15 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         }
         ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
         if let error = error as NSError? {
-          let description = error.description
-          callback.reject(error: .capture(.unknown(message: "An unknown recording error occured! \(description)")), cause: error)
-          return
+          callback.reject(error: .capture(.unknown(message: "An unknown recording error occured! \(error.description)")), cause: error)
         } else {
           if status == .completed {
             callback.resolve([
               "path": self.recordingSession!.url.absoluteString,
               "duration": self.recordingSession!.duration,
             ])
-            return
           } else {
             callback.reject(error: .unknown(message: "AVAssetWriter completed with status: \(status.descriptor)"))
-            return
           }
         }
       }
