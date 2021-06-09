@@ -23,9 +23,8 @@ While you can use any animation library to animate the `zoom` property (or use n
 
 #### Overview
 
-1. Make the Camera View animatable using `Reanimated.createAnimatedComponent`
+1. Make the Camera View animatable using `createAnimatedComponent`
 2. Make the Camera's `zoom` property animatable using `addWhitelistedNativeProps`
-   > Note that this might not be needed in the future, see: [reanimated#1409](https://github.com/software-mansion/react-native-reanimated/pull/1409)
 3. Create a SharedValue using [`useSharedValue`](https://docs.swmansion.com/react-native-reanimated/docs/api/useSharedValue) which represents the zoom state (from `0` to `1`)
 4. Use [`useAnimatedProps`](https://docs.swmansion.com/react-native-reanimated/docs/api/useAnimatedProps) to map the zoom SharedValue to the zoom property.
 5. We apply the animated props to the `ReanimatedCamera` component's `animatedProps` property.
