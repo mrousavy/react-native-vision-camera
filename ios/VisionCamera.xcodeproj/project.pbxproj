@@ -81,7 +81,7 @@
 		B80E069F266632F000728644 /* AVAudioSession+updateCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAudioSession+updateCategory.swift"; sourceTree = "<group>"; };
 		B8103E1B25FF553B007A1684 /* FrameProcessorUtils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessorUtils.mm; sourceTree = "<group>"; };
 		B8103E1E25FF5550007A1684 /* FrameProcessorUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorUtils.h; sourceTree = "<group>"; };
-		B8103E5725FF56F0007A1684 /* CMSampleBufferRefHolder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMSampleBufferRefHolder.h; sourceTree = "<group>"; };
+		B8103E5725FF56F0007A1684 /* Frame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Frame.h; sourceTree = "<group>"; };
 		B81D41EF263C86F900B041FD /* JSIUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSIUtils.h; sourceTree = "<group>"; };
 		B82FBA942614B69D00909718 /* RCTBridge+runOnJS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RCTBridge+runOnJS.h"; sourceTree = "<group>"; };
 		B82FBA952614B69D00909718 /* RCTBridge+runOnJS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "RCTBridge+runOnJS.mm"; sourceTree = "<group>"; };
@@ -140,7 +140,7 @@
 		B8DB3BCB263DC97E004C18D7 /* AVFileType+descriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVFileType+descriptor.swift"; sourceTree = "<group>"; };
 		B8DCF09125EA7BEE00EA5C72 /* SpeedChecker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SpeedChecker.h; sourceTree = "<group>"; };
 		B8DCF14425EA817D00EA5C72 /* MakeJSIRuntime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MakeJSIRuntime.h; sourceTree = "<group>"; };
-		B8F7DDD1266F715D00120533 /* CMSampleBufferRefHolder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMSampleBufferRefHolder.m; sourceTree = "<group>"; };
+		B8F7DDD1266F715D00120533 /* Frame.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Frame.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -263,8 +263,8 @@
 				B80D67A825FA25380008FE8D /* FrameProcessorCallback.h */,
 				B8103E1E25FF5550007A1684 /* FrameProcessorUtils.h */,
 				B8103E1B25FF553B007A1684 /* FrameProcessorUtils.mm */,
-				B8103E5725FF56F0007A1684 /* CMSampleBufferRefHolder.h */,
-				B8F7DDD1266F715D00120533 /* CMSampleBufferRefHolder.m */,
+				B8103E5725FF56F0007A1684 /* Frame.h */,
+				B8F7DDD1266F715D00120533 /* Frame.m */,
 				B84760A22608EE38004C3180 /* FrameHostObject.h */,
 				B84760A52608EE7C004C3180 /* FrameHostObject.mm */,
 				B8A751D62609E4980011C623 /* FrameProcessorRuntimeManager.h */,

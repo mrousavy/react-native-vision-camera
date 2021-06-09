@@ -41,7 +41,7 @@ The Frame Processor Plugin Registry API automatically manages type conversion fr
 | `{}`                 | `NSDictionary*`           | `HashMap<Object>`          |
 | `undefined` / `null` | `nil`                     | `null`                     |
 | `(any, any) => void` | `RCTResponseSenderBlock`  | `(Object, Object) -> void` |
-| `Frame`              | `CMSampleBufferRefHolder` | `ImageProxy`               |
+| `Frame`              | `Frame`                   | `ImageProxy`               |
 
 ### Return values
 
@@ -63,15 +63,17 @@ export function detectObject(frame: Frame): string {
 }
 ```
 
-You can also manipulate the buffer and return it (or a copy) by using the `CMSampleBufferRefHolder` class:
+You can also manipulate the buffer and return it (or a copy) by using the `Frame` class:
 
 ```objc
+#import <VisionCamera/Frame.h>
+
 static inline id resize(CMSampleBufferRef buffer, NSArray args) {
   NSNumber* width = [arguments objectAtIndex:0];
   NSNumber* height = [arguments objectAtIndex:1];
 
   CMSampleBufferRef resizedBuffer = CMSampleBufferCopyAndResize(buffer, width, height);
-  return [[CMSampleBufferRefHolder alloc] initWithBuffer:resizedBuffer];
+  return [[Frame alloc] initWithBuffer:resizedBuffer];
 }
 ```
 

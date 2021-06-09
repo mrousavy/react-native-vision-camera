@@ -192,7 +192,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       let secondsPerFrame = 1.0 / frameProcessorFps.doubleValue
       let nanosecondsPerFrame = secondsPerFrame * 1_000_000_000.0
       if diff > UInt64(nanosecondsPerFrame) {
-        frameProcessor(sampleBuffer)
+        let frame = Frame(buffer: sampleBuffer)
+        frameProcessor(frame)
         lastFrameProcessorCall = DispatchTime.now()
       }
     }
