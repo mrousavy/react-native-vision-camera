@@ -10,14 +10,13 @@ import Foundation
 
 @objc
 public class CameraQueues: NSObject {
-  
   /// The serial execution queue for the camera preview layer (input stream) as well as output processing of photos.
   @objc public static let cameraQueue = DispatchQueue(label: "mrousavy/VisionCamera.main",
                                                       qos: .userInteractive,
                                                       attributes: [],
                                                       autoreleaseFrequency: .inherit,
                                                       target: nil)
-  
+
   /// The serial execution queue for output processing of videos as well as frame processors.
   @objc public static let videoQueue = DispatchQueue(label: "mrousavy/VisionCamera.video",
                                                      qos: .userInteractive,
@@ -31,5 +30,4 @@ public class CameraQueues: NSObject {
                                                      attributes: [],
                                                      autoreleaseFrequency: .inherit,
                                                      target: nil)
-  
 }
