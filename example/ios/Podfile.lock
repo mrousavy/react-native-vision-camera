@@ -278,12 +278,12 @@ PODS:
     - React-cxxreact (= 0.64.2)
     - React-jsi (= 0.64.2)
     - React-perflogger (= 0.64.2)
-  - ReactNativeNavigation (7.15.0-snapshot.1548):
+  - ReactNativeNavigation (7.16.0):
     - React-Core
     - React-RCTImage
     - React-RCTText
-    - ReactNativeNavigation/Core (= 7.15.0-snapshot.1548)
-  - ReactNativeNavigation/Core (7.15.0-snapshot.1548):
+    - ReactNativeNavigation/Core (= 7.16.0)
+  - ReactNativeNavigation/Core (7.16.0):
     - React-Core
     - React-RCTImage
     - React-RCTText
@@ -322,7 +322,7 @@ PODS:
     - React
   - RNVectorIcons (8.1.0):
     - React-Core
-  - VisionCamera (2.2.0):
+  - VisionCamera (2.3.0):
     - React
     - React-callinvoker
     - React-Core
@@ -485,12 +485,12 @@ SPEC CHECKSUMS:
   React-RCTVibration: 24600e3b1aaa77126989bc58b6747509a1ba14f3
   React-runtimeexecutor: a9904c6d0218fb9f8b19d6dd88607225927668f9
   ReactCommon: 149906e01aa51142707a10665185db879898e966
-  ReactNativeNavigation: 1357861a63f5d4da6ee099062c4d3473d777c86a
+  ReactNativeNavigation: 5303d00327dab4e26f74c3164b23ba3119664e77
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNReanimated: 9c13c86454bfd54dab7505c1a054470bfecd2563
   RNStaticSafeAreaInsets: 6103cf09647fa427186d30f67b0f5163c1ae8252
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
-  VisionCamera: 60f51b9c8e5074fda9952a603311338039f7bf28
+  VisionCamera: aa5a3c3fd9f32a3d9836872b4aea04b600dddd75
   Yoga: 575c581c63e0d35c9a83f4b46d01d63abc1100ac
 
 PODFILE CHECKSUM: 4b093c1d474775c2eac3268011e4b0b80929d3a2
