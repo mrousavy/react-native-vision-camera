@@ -72,8 +72,8 @@ static inline id resize(Frame* frame, NSArray args) {
   NSNumber* width = [arguments objectAtIndex:0];
   NSNumber* height = [arguments objectAtIndex:1];
 
-  CMSampleBufferRef resizedBuffer = CMSampleBufferCopyAndResize([frame buffer], width, height);
-  return [[Frame alloc] initWithBuffer:resizedBuffer orientation:[frame orientation]];
+  CMSampleBufferRef resizedBuffer = CMSampleBufferCopyAndResize(frame.buffer, width, height);
+  return [[Frame alloc] initWithBuffer:resizedBuffer orientation:frame.orientation];
 }
 ```
 
@@ -120,7 +120,7 @@ static dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORIT
 
 static inline id sendFrameToWebRTC(Frame* frame, NSArray args) {
   CMSampleBufferRef bufferCopy;
-  CMSampleBufferCreateCopy(kCFAllocatorDefault, [frame buffer], &bufferCopy);
+  CMSampleBufferCreateCopy(kCFAllocatorDefault, frame.buffer, &bufferCopy);
 
   dispatch_async(queue, ^{
     NSString* serverURL = (NSString*)args[0];
