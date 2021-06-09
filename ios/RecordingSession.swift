@@ -16,6 +16,8 @@ enum BufferType {
   case video
 }
 
+// MARK: - RecordingSessionError
+
 enum RecordingSessionError: Error {
   case failedToStartSession
 }
@@ -114,13 +116,13 @@ class RecordingSession {
    */
   func start() throws {
     ReactLogger.log(level: .info, message: "Starting Asset Writer(s)...")
-    
+
     let success = assetWriter.startWriting()
     if !success {
       ReactLogger.log(level: .error, message: "Failed to start Asset Writer(s)!")
       throw RecordingSessionError.failedToStartSession
     }
-    
+
     initialTimestamp = CMTime(seconds: CACurrentMediaTime(), preferredTimescale: 1_000_000_000)
     assetWriter.startSession(atSourceTime: initialTimestamp!)
     ReactLogger.log(level: .info, message: "Started RecordingSession at \(initialTimestamp!.seconds) seconds.")
@@ -197,11 +199,11 @@ class RecordingSession {
    */
   func finish() {
     ReactLogger.log(level: .info, message: "Finishing Recording with AssetWriter status \"\(assetWriter.status.descriptor)\"...")
-    
+
     if !hasWrittenFirstVideoFrame {
       let error = NSError(domain: "capture/aborted",
                           code: 1,
-                          userInfo: [NSLocalizedDescriptionKey : "Stopped Recording Session too early, no frames have been recorded!"])
+                          userInfo: [NSLocalizedDescriptionKey: "Stopped Recording Session too early, no frames have been recorded!"])
       completionHandler(.failed, error)
     } else if assetWriter.status == .writing {
       bufferAdaptor?.assetWriterInput.markAsFinished()

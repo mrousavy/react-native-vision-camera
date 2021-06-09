@@ -71,10 +71,10 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
             }
           }
         }
-        
+
         self.isRecording = false
         ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
-        
+
         if let error = error as NSError? {
           if error.domain == "capture/aborted" {
             callback.reject(error: .capture(.aborted), cause: error)
@@ -115,13 +115,13 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       if enableAudio {
         // Activate Audio Session (blocking)
         self.activateAudioSession()
-        
+
         if let audioOutput = self.audioOutput,
            let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: fileType) as? [String: Any] {
           self.recordingSession!.initializeAudioWriter(withSettings: audioSettings)
         }
       }
-      
+
       // start recording session with or without audio.
       do {
         try self.recordingSession!.start()
