@@ -12,10 +12,7 @@
 #import <CoreMedia/CMSampleBuffer.h>
 #import <UIKit/UIImage.h>
 
-@interface Frame : NSObject {
-  CMSampleBufferRef buffer;
-  UIImageOrientation orientation;
-}
+@interface Frame : NSObject
 
 - (instancetype) initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation;
 

@@ -10,18 +10,21 @@
 #import <Foundation/Foundation.h>
 #import <CoreMedia/CMSampleBuffer.h>
 
-@implementation Frame
+@implementation Frame {
+  CMSampleBufferRef buffer;
+  UIImageOrientation orientation;
+}
 
 - (instancetype) initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation {
   self = [super init];
   if (self) {
-    self.buffer = buffer;
-    self.orientation = orientation;
+    _buffer = buffer;
+    _orientation = orientation;
   }
   return self;
 }
 
-@synthesize buffer;
-@synthesize orientation;
+@synthesize buffer = _buffer;
+@synthesize orientation = _orientation;
 
 @end
