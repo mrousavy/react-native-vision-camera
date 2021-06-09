@@ -188,6 +188,7 @@ enum CaptureError {
   case invalidPhotoCodec
   case videoNotEnabled
   case photoNotEnabled
+  case aborted
   case unknown(message: String? = nil)
 
   var code: String {
@@ -210,6 +211,8 @@ enum CaptureError {
       return "video-not-enabled"
     case .photoNotEnabled:
       return "photo-not-enabled"
+    case .aborted:
+      return "aborted"
     case .unknown:
       return "unknown"
     }
@@ -235,6 +238,8 @@ enum CaptureError {
       return "Video capture is disabled! Pass `video={true}` to enable video recordings."
     case .photoNotEnabled:
       return "Photo capture is disabled! Pass `photo={true}` to enable photo capture."
+    case .aborted:
+      return "The capture has been stopped before any input data arrived."
     case let .unknown(message: message):
       return message ?? "An unknown error occured while capturing a video/photo."
     }

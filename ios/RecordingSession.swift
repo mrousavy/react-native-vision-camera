@@ -16,6 +16,12 @@ enum BufferType {
   case video
 }
 
+// MARK: - RecordingSessionError
+
+enum RecordingSessionError: Error {
+  case failedToStartSession
+}
+
 // MARK: - RecordingSession
 
 class RecordingSession {
@@ -59,6 +65,9 @@ class RecordingSession {
     }
   }
 
+  /**
+   Initializes an AssetWriter for video frames (CMSampleBuffers).
+   */
   func initializeVideoWriter(withSettings settings: [String: Any], isVideoMirrored: Bool) {
     guard !settings.isEmpty else {
       ReactLogger.log(level: .error, message: "Tried to initialize Video Writer with empty settings!", alsoLogToJS: true)
@@ -83,6 +92,9 @@ class RecordingSession {
     ReactLogger.log(level: .info, message: "Initialized Video AssetWriter.")
   }
 
+  /**
+   Initializes an AssetWriter for audio frames (CMSampleBuffers).
+   */
   func initializeAudioWriter(withSettings settings: [String: Any]) {
     guard !settings.isEmpty else {
       ReactLogger.log(level: .error, message: "Tried to initialize Audio Writer with empty settings!", alsoLogToJS: true)
@@ -99,15 +111,34 @@ class RecordingSession {
     ReactLogger.log(level: .info, message: "Initialized Audio AssetWriter.")
   }
 
-  func start() {
-    assetWriter.startWriting()
+  /**
+   Start the Asset Writer(s). If the AssetWriter failed to start, an error will be thrown.
+   */
+  func start() throws {
+    ReactLogger.log(level: .info, message: "Starting Asset Writer(s)...")
+
+    let success = assetWriter.startWriting()
+    if !success {
+      ReactLogger.log(level: .error, message: "Failed to start Asset Writer(s)!")
+      throw RecordingSessionError.failedToStartSession
+    }
+
     initialTimestamp = CMTime(seconds: CACurrentMediaTime(), preferredTimescale: 1_000_000_000)
     assetWriter.startSession(atSourceTime: initialTimestamp!)
     ReactLogger.log(level: .info, message: "Started RecordingSession at \(initialTimestamp!.seconds) seconds.")
   }
 
+  /**
+   Appends a new CMSampleBuffer to the Asset Writer. Use bufferType to specify if this is a video or audio frame.
+   The timestamp parameter represents the presentation timestamp of the buffer, which should be synchronized across video and audio frames.
+   */
   func appendBuffer(_ buffer: CMSampleBuffer, type bufferType: BufferType, timestamp: CMTime) {
+    guard assetWriter.status == .writing else {
+      ReactLogger.log(level: .error, message: "Frame arrived, but AssetWriter status is \(assetWriter.status.descriptor)!")
+      return
+    }
     if !CMSampleBufferDataIsReady(buffer) {
+      ReactLogger.log(level: .error, message: "Frame arrived, but sample buffer is not ready!")
       return
     }
     guard let initialTimestamp = initialTimestamp else {
@@ -138,7 +169,7 @@ class RecordingSession {
       bufferAdaptor.append(imageBuffer, withPresentationTime: timestamp)
       if !hasWrittenFirstVideoFrame {
         hasWrittenFirstVideoFrame = true
-        ReactLogger.log(level: .warning, message: "VideoWriter: First frame arrived \((timestamp - initialTimestamp).seconds) seconds late.")
+        ReactLogger.log(level: .warning, message: "VideoWriter: First frame arrived \((initialTimestamp - timestamp).seconds) seconds late.")
       }
     case .audio:
       guard let audioWriter = audioWriter else {
@@ -156,16 +187,25 @@ class RecordingSession {
     }
 
     if assetWriter.status == .failed {
-      // TODO: Should I call the completion handler or is this instance still valid?
       ReactLogger.log(level: .error,
                       message: "AssetWriter failed to write buffer! Error: \(assetWriter.error?.localizedDescription ?? "none")",
                       alsoLogToJS: true)
+      finish()
     }
   }
 
+  /**
+   Marks the AssetWriters as finished and stops writing frames. The callback will be invoked either with an error or the status "success".
+   */
   func finish() {
     ReactLogger.log(level: .info, message: "Finishing Recording with AssetWriter status \"\(assetWriter.status.descriptor)\"...")
-    if assetWriter.status == .writing {
+
+    if !hasWrittenFirstVideoFrame {
+      let error = NSError(domain: "capture/aborted",
+                          code: 1,
+                          userInfo: [NSLocalizedDescriptionKey: "Stopped Recording Session too early, no frames have been recorded!"])
+      completionHandler(.failed, error)
+    } else if assetWriter.status == .writing {
       bufferAdaptor?.assetWriterInput.markAsFinished()
       audioWriter?.markAsFinished()
       assetWriter.finishWriting {

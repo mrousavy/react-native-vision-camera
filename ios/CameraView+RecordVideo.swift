@@ -71,9 +71,16 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
             }
           }
         }
+
+        self.isRecording = false
         ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
+
         if let error = error as NSError? {
-          callback.reject(error: .capture(.unknown(message: "An unknown recording error occured! \(error.description)")), cause: error)
+          if error.domain == "capture/aborted" {
+            callback.reject(error: .capture(.aborted), cause: error)
+          } else {
+            callback.reject(error: .capture(.unknown(message: "An unknown recording error occured! \(error.description)")), cause: error)
+          }
         } else {
           if status == .completed {
             callback.resolve([
@@ -106,28 +113,23 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
       // Init Audio (optional, async)
       if enableAudio {
-        self.audioQueue.async {
-          // Activate Audio Session (blocking)
-          self.activateAudioSession()
+        // Activate Audio Session (blocking)
+        self.activateAudioSession()
 
-          guard let recordingSession = self.recordingSession else {
-            // recording has already been cancelled
-            return
-          }
-          if let audioOutput = self.audioOutput,
-             let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: fileType) as? [String: Any] {
-            recordingSession.initializeAudioWriter(withSettings: audioSettings)
-          }
-
-          // Finally start recording, with or without audio.
-          recordingSession.start()
-          self.isRecording = true
+        if let audioOutput = self.audioOutput,
+           let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: fileType) as? [String: Any] {
+          self.recordingSession!.initializeAudioWriter(withSettings: audioSettings)
         }
-      } else {
-        // start recording session without audio.
-        self.recordingSession!.start()
-        self.isRecording = true
       }
+
+      // start recording session with or without audio.
+      do {
+        try self.recordingSession!.start()
+      } catch {
+        callback.reject(error: .capture(.createRecorderError(message: "RecordingSession failed to start writing.")))
+        return
+      }
+      self.isRecording = true
     }
   }
 
