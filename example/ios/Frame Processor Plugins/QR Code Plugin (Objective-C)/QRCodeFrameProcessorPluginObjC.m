@@ -7,7 +7,7 @@
 
 #import <Foundation/Foundation.h>
 #import <VisionCamera/FrameProcessorPlugin.h>
-#import <Vision/VNDetectBarcodesRequest.h>
+#import <VisionCamera/Frame.h>
 
 // Example for an Objective-C Frame Processor plugin
 
@@ -16,8 +16,8 @@
 
 @implementation QRCodeFrameProcessorPluginObjC
 
-static inline id exampleObjC___scanQRCodes(CMSampleBufferRef buffer, NSArray* arguments) {
-  // TODO: Use some AI to detect QR codes in the CMSampleBufferRef
+static inline id exampleObjC___scanQRCodes(Frame* frame, NSArray* arguments) {
+  // TODO: Use some AI to detect QR codes in the frame
   return @[];
 }
 

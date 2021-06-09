@@ -7,7 +7,6 @@
 //
 
 #import "FrameProcessorUtils.h"
-#import <CoreMedia/CMSampleBuffer.h>
 #import <chrono>
 #import <memory>
 #import "FrameHostObject.h"

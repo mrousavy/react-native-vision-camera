@@ -35,7 +35,7 @@ iOS Frame Processor Plugins can be written in either **Objective-C** or **Swift*
 
 @implementation QRCodeFrameProcessorPlugin
 
-static inline id scanQRCodes(CMSampleBufferRef buffer, NSArray args) {
+static inline id scanQRCodes(Frame* frame, NSArray args) {
   // code goes here
   return @[];
 }
@@ -84,7 +84,7 @@ The first parameter in the Macro specifies the JS function name. Make sure it is
 public class QRCodeFrameProcessorPlugin: NSObject, FrameProcessorPluginBase {
 
   @objc
-  public static func callback(_: CMSampleBuffer!, withArgs _: [Any]!) -> Any! {
+  public static func callback(_: Frame!, withArgs _: [Any]!) -> Any! {
     // code goes here
     return []
   }

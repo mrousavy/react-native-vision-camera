@@ -48,7 +48,7 @@ The Frame Processor Plugin Registry API automatically manages type conversion fr
 Return values will automatically be converted to JS values, assuming they are representable in the ["Types" table](#types). So the following Objective-C frame processor:
 
 ```objc
-static inline id detectObject(CMSampleBufferRef buffer, NSArray args) {
+static inline id detectObject(Frame* frame, NSArray args) {
   return @"cat";
 }
 ```
@@ -68,12 +68,12 @@ You can also manipulate the buffer and return it (or a copy) by using the `Frame
 ```objc
 #import <VisionCamera/Frame.h>
 
-static inline id resize(CMSampleBufferRef buffer, NSArray args) {
+static inline id resize(Frame* frame, NSArray args) {
   NSNumber* width = [arguments objectAtIndex:0];
   NSNumber* height = [arguments objectAtIndex:1];
 
-  CMSampleBufferRef resizedBuffer = CMSampleBufferCopyAndResize(buffer, width, height);
-  return [[Frame alloc] initWithBuffer:resizedBuffer];
+  CMSampleBufferRef resizedBuffer = CMSampleBufferCopyAndResize([frame buffer], width, height);
+  return [[Frame alloc] initWithBuffer:resizedBuffer orientation:[frame orientation]];
 }
 ```
 
@@ -118,9 +118,9 @@ For example, a realtime video chat application might use WebRTC to send the fram
 ```objc
 static dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul);
 
-static inline id sendFrameToWebRTC(CMSampleBufferRef buffer, NSArray args) {
+static inline id sendFrameToWebRTC(Frame* frame, NSArray args) {
   CMSampleBufferRef bufferCopy;
-  CMSampleBufferCreateCopy(kCFAllocatorDefault, buffer, &bufferCopy);
+  CMSampleBufferCreateCopy(kCFAllocatorDefault, [frame buffer], &bufferCopy);
 
   dispatch_async(queue, ^{
     NSString* serverURL = (NSString*)args[0];
