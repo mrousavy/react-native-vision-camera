@@ -31,7 +31,8 @@ extension CameraView {
     if enableAudio {
       let audioPermissionStatus = AVCaptureDevice.authorizationStatus(for: .audio)
       if audioPermissionStatus != .authorized {
-        return invokeOnError(.permission(.microphone))
+        invokeOnError(.permission(.microphone))
+        return
       }
     }
 
@@ -44,16 +45,19 @@ extension CameraView {
       if enableAudio {
         ReactLogger.log(level: .info, message: "Adding Audio input...")
         guard let audioDevice = AVCaptureDevice.default(for: .audio) else {
-          return invokeOnError(.device(.microphoneUnavailable))
+          invokeOnError(.device(.microphoneUnavailable))
+          return
         }
         audioDeviceInput = try AVCaptureDeviceInput(device: audioDevice)
         guard audioCaptureSession.canAddInput(audioDeviceInput!) else {
-          return invokeOnError(.parameter(.unsupportedInput(inputDescriptor: "audio-input")))
+          invokeOnError(.parameter(.unsupportedInput(inputDescriptor: "audio-input")))
+          return
         }
         audioCaptureSession.addInput(audioDeviceInput!)
       }
     } catch let error as NSError {
-      return invokeOnError(.device(.microphoneUnavailable), cause: error)
+      invokeOnError(.device(.microphoneUnavailable), cause: error)
+      return
     }
 
     // Audio Output
@@ -65,7 +69,8 @@ extension CameraView {
       ReactLogger.log(level: .info, message: "Adding Audio Data output...")
       audioOutput = AVCaptureAudioDataOutput()
       guard audioCaptureSession.canAddOutput(audioOutput!) else {
-        return invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "audio-output")))
+        invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "audio-output")))
+        return
       }
       audioOutput!.setSampleBufferDelegate(self, queue: audioQueue)
       audioCaptureSession.addOutput(audioOutput!)

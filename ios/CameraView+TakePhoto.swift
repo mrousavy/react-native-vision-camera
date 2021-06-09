@@ -28,26 +28,31 @@ extension CameraView {
       guard let photoOutput = self.photoOutput,
             let videoDeviceInput = self.videoDeviceInput else {
         if self.photo?.boolValue == true {
-          return promise.reject(error: .session(.cameraNotReady))
+          promise.reject(error: .session(.cameraNotReady))
+          return
         } else {
-          return promise.reject(error: .capture(.photoNotEnabled))
+          promise.reject(error: .capture(.photoNotEnabled))
+          return
         }
       }
 
       var photoSettings = AVCapturePhotoSettings()
       if let photoCodecString = options["photoCodec"] as? String {
         guard let photoCodec = AVVideoCodecType(withString: photoCodecString) else {
-          return promise.reject(error: .capture(.invalidPhotoCodec))
+          promise.reject(error: .capture(.invalidPhotoCodec))
+          return
         }
         if photoOutput.availablePhotoCodecTypes.contains(photoCodec) {
           photoSettings = AVCapturePhotoSettings(format: [AVVideoCodecKey: photoCodec])
         } else {
-          return promise.reject(error: .parameter(.invalid(unionName: "PhotoCodec", receivedValue: photoCodecString)))
+          promise.reject(error: .parameter(.invalid(unionName: "PhotoCodec", receivedValue: photoCodecString)))
+          return
         }
       }
       if videoDeviceInput.device.isFlashAvailable, let flash = options["flash"] as? String {
         guard let flashMode = AVCaptureDevice.FlashMode(withString: flash) else {
-          return promise.reject(error: .parameter(.invalid(unionName: "FlashMode", receivedValue: flash)))
+          promise.reject(error: .parameter(.invalid(unionName: "FlashMode", receivedValue: flash)))
+          return
         }
         photoSettings.flashMode = flashMode
       }
@@ -63,7 +68,8 @@ extension CameraView {
       }
       if #available(iOS 13.0, *), let qualityPrioritization = options["qualityPrioritization"] as? String {
         guard let photoQualityPrioritization = AVCapturePhotoOutput.QualityPrioritization(withString: qualityPrioritization) else {
-          return promise.reject(error: .parameter(.invalid(unionName: "QualityPrioritization", receivedValue: qualityPrioritization)))
+          promise.reject(error: .parameter(.invalid(unionName: "QualityPrioritization", receivedValue: qualityPrioritization)))
+          return
         }
         photoSettings.photoQualityPrioritization = photoQualityPrioritization
       }

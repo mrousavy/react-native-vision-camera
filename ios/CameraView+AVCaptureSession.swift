@@ -23,11 +23,13 @@ extension CameraView {
     isReady = false
 
     #if targetEnvironment(simulator)
-      return invokeOnError(.device(.notAvailableOnSimulator))
+      invokeOnError(.device(.notAvailableOnSimulator))
+      return
     #endif
 
     guard cameraId != nil else {
-      return invokeOnError(.device(.noDevice))
+      invokeOnError(.device(.noDevice))
+      return
     }
     let cameraId = self.cameraId! as String
 
@@ -43,9 +45,11 @@ extension CameraView {
       do {
         sessionPreset = try AVCaptureSession.Preset(withString: preset)
       } catch let EnumParserError.unsupportedOS(supportedOnOS: os) {
-        return invokeOnError(.parameter(.unsupportedOS(unionName: "Preset", receivedValue: preset, supportedOnOs: os)))
+        invokeOnError(.parameter(.unsupportedOS(unionName: "Preset", receivedValue: preset, supportedOnOs: os)))
+        return
       } catch {
-        return invokeOnError(.parameter(.invalid(unionName: "Preset", receivedValue: preset)))
+        invokeOnError(.parameter(.invalid(unionName: "Preset", receivedValue: preset)))
+        return
       }
       if sessionPreset != nil {
         if captureSession.canSetSessionPreset(sessionPreset!) {
@@ -66,15 +70,18 @@ extension CameraView {
       }
       ReactLogger.log(level: .info, message: "Adding Video input...")
       guard let videoDevice = AVCaptureDevice(uniqueID: cameraId) else {
-        return invokeOnError(.device(.invalid))
+        invokeOnError(.device(.invalid))
+        return
       }
       videoDeviceInput = try AVCaptureDeviceInput(device: videoDevice)
       guard captureSession.canAddInput(videoDeviceInput!) else {
-        return invokeOnError(.parameter(.unsupportedInput(inputDescriptor: "video-input")))
+        invokeOnError(.parameter(.unsupportedInput(inputDescriptor: "video-input")))
+        return
       }
       captureSession.addInput(videoDeviceInput!)
     } catch {
-      return invokeOnError(.device(.invalid))
+      invokeOnError(.device(.invalid))
+      return
     }
 
     // pragma MARK: Capture Session Outputs
@@ -95,7 +102,8 @@ extension CameraView {
         photoOutput!.isPortraitEffectsMatteDeliveryEnabled = photoOutput!.isPortraitEffectsMatteDeliverySupported && self.enablePortraitEffectsMatteDelivery
       }
       guard captureSession.canAddOutput(photoOutput!) else {
-        return invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "photo-output")))
+        invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "photo-output")))
+        return
       }
       captureSession.addOutput(photoOutput!)
       if videoDeviceInput!.device.position == .front {
@@ -112,7 +120,8 @@ extension CameraView {
       ReactLogger.log(level: .info, message: "Adding Video Data output...")
       videoOutput = AVCaptureVideoDataOutput()
       guard captureSession.canAddOutput(videoOutput!) else {
-        return invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "video-output")))
+        invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "video-output")))
+        return
       }
       videoOutput!.setSampleBufferDelegate(self, queue: videoQueue)
       videoOutput!.alwaysDiscardsLateVideoFrames = true
@@ -135,7 +144,8 @@ extension CameraView {
   final func configureDevice() {
     ReactLogger.log(level: .info, message: "Configuring Device...")
     guard let device = videoDeviceInput?.device else {
-      return invokeOnError(.session(.cameraNotReady))
+      invokeOnError(.session(.cameraNotReady))
+      return
     }
 
     do {
@@ -151,7 +161,8 @@ extension CameraView {
       }
       if hdr != nil {
         if hdr == true && !device.activeFormat.isVideoHDRSupported {
-          return invokeOnError(.format(.invalidHdr))
+          invokeOnError(.format(.invalidHdr))
+          return
         }
         if !device.automaticallyAdjustsVideoHDREnabled {
           if device.isVideoHDREnabled != hdr!.boolValue {
@@ -161,7 +172,8 @@ extension CameraView {
       }
       if lowLightBoost != nil {
         if lowLightBoost == true && !device.isLowLightBoostSupported {
-          return invokeOnError(.device(.lowLightBoostNotSupported))
+          invokeOnError(.device(.lowLightBoostNotSupported))
+          return
         }
         if device.automaticallyEnablesLowLightBoostWhenAvailable != lowLightBoost!.boolValue {
           device.automaticallyEnablesLowLightBoostWhenAvailable = lowLightBoost!.boolValue
@@ -174,7 +186,8 @@ extension CameraView {
       device.unlockForConfiguration()
       ReactLogger.log(level: .info, message: "Device successfully configured!")
     } catch let error as NSError {
-      return invokeOnError(.device(.configureError), cause: error)
+      invokeOnError(.device(.configureError), cause: error)
+      return
     }
   }
 
@@ -190,7 +203,8 @@ extension CameraView {
       return
     }
     guard let device = videoDeviceInput?.device else {
-      return invokeOnError(.session(.cameraNotReady))
+      invokeOnError(.session(.cameraNotReady))
+      return
     }
 
     if device.activeFormat.matchesFilter(filter) {
@@ -201,7 +215,8 @@ extension CameraView {
     // get matching format
     let matchingFormats = device.formats.filter { $0.matchesFilter(filter) }.sorted { $0.isBetterThan($1) }
     guard let format = matchingFormats.first else {
-      return invokeOnError(.format(.invalidFormat))
+      invokeOnError(.format(.invalidFormat))
+      return
     }
 
     do {
@@ -210,7 +225,8 @@ extension CameraView {
       device.unlockForConfiguration()
       ReactLogger.log(level: .info, message: "Format successfully configured!")
     } catch let error as NSError {
-      return invokeOnError(.device(.configureError), cause: error)
+      invokeOnError(.device(.configureError), cause: error)
+      return
     }
   }
 
