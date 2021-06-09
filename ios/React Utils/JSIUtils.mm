@@ -81,7 +81,7 @@ NSString *convertJSIStringToNSString(jsi::Runtime &runtime, const jsi::String &v
 }
 
 NSArray* convertJSICStyleArrayToNSArray(jsi::Runtime &runtime, const jsi::Value* array, size_t length, std::shared_ptr<CallInvoker> jsInvoker) {
-  if (length == 0) return @[];
+  if (length < 1) return @[];
   NSMutableArray *result = [NSMutableArray new];
   for (size_t i = 0; i < length; i++) {
     // Insert kCFNull when it's `undefined` value to preserve the indices.

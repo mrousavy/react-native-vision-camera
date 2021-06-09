@@ -227,10 +227,12 @@ public final class CameraView: UIView {
 
   internal final func setTorchMode(_ torchMode: String) {
     guard let device = videoDeviceInput?.device else {
-      return invokeOnError(.session(.cameraNotReady))
+      invokeOnError(.session(.cameraNotReady))
+      return
     }
     guard var torchMode = AVCaptureDevice.TorchMode(withString: torchMode) else {
-      return invokeOnError(.parameter(.invalid(unionName: "TorchMode", receivedValue: torch)))
+      invokeOnError(.parameter(.invalid(unionName: "TorchMode", receivedValue: torch)))
+      return
     }
     if !captureSession.isRunning {
       torchMode = .off
@@ -245,7 +247,8 @@ public final class CameraView: UIView {
         return
       } else {
         // torch mode is .auto or .on, but no torch is available.
-        return invokeOnError(.device(.torchUnavailable))
+        invokeOnError(.device(.torchUnavailable))
+        return
       }
     }
     do {
@@ -256,7 +259,8 @@ public final class CameraView: UIView {
       }
       device.unlockForConfiguration()
     } catch let error as NSError {
-      return invokeOnError(.device(.configureError), cause: error)
+      invokeOnError(.device(.configureError), cause: error)
+      return
     }
   }
 

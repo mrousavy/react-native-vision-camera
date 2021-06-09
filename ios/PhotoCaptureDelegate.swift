@@ -13,6 +13,8 @@ private var delegatesReferences: [NSObject] = []
 // MARK: - PhotoCaptureDelegate
 
 class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
+  private let promise: Promise
+
   required init(promise: Promise) {
     self.promise = promise
     super.init()
@@ -24,19 +26,21 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
       delegatesReferences.removeAll(where: { $0 == self })
     }
     if let error = error as NSError? {
-      return promise.reject(error: .capture(.unknown(message: error.description)), cause: error)
+      promise.reject(error: .capture(.unknown(message: error.description)), cause: error)
+      return
     }
 
     let error = ErrorPointer(nilLiteral: ())
     guard let tempFilePath = RCTTempFilePath("jpeg", error)
     else {
-      return promise.reject(error: .capture(.createTempFileError), cause: error?.pointee)
+      promise.reject(error: .capture(.createTempFileError), cause: error?.pointee)
+      return
     }
     let url = URL(string: "file://\(tempFilePath)")!
 
-    guard let data = photo.fileDataRepresentation()
-    else {
-      return promise.reject(error: .capture(.fileError))
+    guard let data = photo.fileDataRepresentation() else {
+      promise.reject(error: .capture(.fileError))
+      return
     }
 
     do {
@@ -45,7 +49,7 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
       let width = exif?["PixelXDimension"]
       let height = exif?["PixelYDimension"]
 
-      return promise.resolve([
+      promise.resolve([
         "path": tempFilePath,
         "width": width as Any,
         "height": height as Any,
@@ -54,7 +58,7 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
         "thumbnail": photo.embeddedThumbnailPhotoFormat as Any,
       ])
     } catch {
-      return promise.reject(error: .capture(.fileError), cause: error as NSError)
+      promise.reject(error: .capture(.fileError), cause: error as NSError)
     }
   }
 
@@ -63,11 +67,8 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
       delegatesReferences.removeAll(where: { $0 == self })
     }
     if let error = error as NSError? {
-      return promise.reject(error: .capture(.unknown(message: error.description)), cause: error)
+      promise.reject(error: .capture(.unknown(message: error.description)), cause: error)
+      return
     }
   }
-
-  // MARK: Private
-
-  private let promise: Promise
 }

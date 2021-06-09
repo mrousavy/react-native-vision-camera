@@ -24,7 +24,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       var fileType = AVFileType.mov
       if let fileTypeOption = options["fileType"] as? String {
         guard let parsed = try? AVFileType(withString: fileTypeOption) else {
-          return callback.reject(error: .parameter(.invalid(unionName: "fileType", receivedValue: fileTypeOption)))
+          callback.reject(error: .parameter(.invalid(unionName: "fileType", receivedValue: fileTypeOption)))
+          return
         }
         fileType = parsed
       }
@@ -32,7 +33,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       let errorPointer = ErrorPointer(nilLiteral: ())
       let fileExtension = fileType.descriptor ?? "mov"
       guard let tempFilePath = RCTTempFilePath(fileExtension, errorPointer) else {
-        return callback.reject(error: .capture(.createTempFileError), cause: errorPointer?.pointee)
+        callback.reject(error: .capture(.createTempFileError), cause: errorPointer?.pointee)
+        return
       }
 
       ReactLogger.log(level: .info, message: "File path: \(tempFilePath)")
@@ -45,9 +47,11 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
       guard let videoOutput = self.videoOutput else {
         if self.video?.boolValue == true {
-          return callback.reject(error: .session(.cameraNotReady))
+          callback.reject(error: .session(.cameraNotReady))
+          return
         } else {
-          return callback.reject(error: .capture(.videoNotEnabled))
+          callback.reject(error: .capture(.videoNotEnabled))
+          return
         }
       }
 
@@ -58,7 +62,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
       let enableAudio = self.audio?.boolValue == true
 
-      let onFinish = { (status: AVAssetWriter.Status, error: Error?) -> Void in
+      let onFinish = { (status: AVAssetWriter.Status, error: Error?) in
         defer {
           self.recordingSession = nil
           if enableAudio {
@@ -69,16 +73,15 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         }
         ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
         if let error = error as NSError? {
-          let description = error.description
-          return callback.reject(error: .capture(.unknown(message: "An unknown recording error occured! \(description)")), cause: error)
+          callback.reject(error: .capture(.unknown(message: "An unknown recording error occured! \(error.description)")), cause: error)
         } else {
           if status == .completed {
-            return callback.resolve([
+            callback.resolve([
               "path": self.recordingSession!.url.absoluteString,
               "duration": self.recordingSession!.duration,
             ])
           } else {
-            return callback.reject(error: .unknown(message: "AVAssetWriter completed with status: \(status.descriptor)"))
+            callback.reject(error: .unknown(message: "AVAssetWriter completed with status: \(status.descriptor)"))
           }
         }
       }
@@ -88,13 +91,15 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
                                                      fileType: fileType,
                                                      completion: onFinish)
       } catch let error as NSError {
-        return callback.reject(error: .capture(.createRecorderError(message: nil)), cause: error)
+        callback.reject(error: .capture(.createRecorderError(message: nil)), cause: error)
+        return
       }
 
       // Init Video
       guard let videoSettings = videoOutput.recommendedVideoSettingsForAssetWriter(writingTo: fileType),
             !videoSettings.isEmpty else {
-        return callback.reject(error: .capture(.createRecorderError(message: "Failed to get video settings!")))
+        callback.reject(error: .capture(.createRecorderError(message: "Failed to get video settings!")))
+        return
       }
       self.recordingSession!.initializeVideoWriter(withSettings: videoSettings,
                                                    isVideoMirrored: self.videoOutput!.isMirrored)
@@ -172,7 +177,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
     // Video Recording runs in the same queue
     if isRecording {
       guard let recordingSession = recordingSession else {
-        return invokeOnError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
+        invokeOnError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
+        return
       }
 
       switch captureOutput {
