@@ -89,7 +89,6 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                               const jsi::Value& thisValue,
                                               const jsi::Value* arguments,
                                               size_t count) -> jsi::Value {
-
         auto frameHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
         auto frame = static_cast<FrameHostObject*>(frameHostObject.get());
 
@@ -100,7 +99,6 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
         id result = callback(frame->frame, args);
 
         return convertObjCObjectToJSIValue(runtime, result);
-
       };
 
       visionGlobal.setProperty(visionRuntime, pluginName, jsi::Function::createFromHostFunction(visionRuntime,
