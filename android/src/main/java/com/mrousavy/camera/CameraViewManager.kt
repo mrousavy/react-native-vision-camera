@@ -52,7 +52,7 @@ class CameraViewManager : SimpleViewManager<CameraView>() {
   }
 
   @ReactProp(name = "enableHighQualityCapture")
-  fun setenableHighQualityCapture(view: CameraView, enableHighQualityCapture: Boolean?) {
+  fun setEnableHighQualityCapture(view: CameraView, enableHighQualityCapture: Boolean?) {
     if (view.enableHighQualityCapture != enableHighQualityCapture)
       addChangedPropToTransaction(view, "enableHighQualityCapture")
     view.enableHighQualityCapture = enableHighQualityCapture
