@@ -71,18 +71,10 @@ extension CameraView {
         photoSettings.flashMode = flashMode
       }
       
-      // high resolution
-      photoSettings.isHighResolutionPhotoEnabled = photoOutput.isHighResolutionCaptureEnabled
-      if !photoSettings.availablePreviewPhotoPixelFormatTypes.isEmpty {
-        photoSettings.previewPhotoFormat = [kCVPixelBufferPixelFormatTypeKey as String: photoSettings.availablePreviewPhotoPixelFormatTypes.first!]
-      }
-      
       // depth data
       photoSettings.isDepthDataDeliveryEnabled = photoOutput.isDepthDataDeliveryEnabled
-      photoSettings.embedsDepthDataInPhoto = photoSettings.isDepthDataDeliveryEnabled
       if #available(iOS 12.0, *) {
         photoSettings.isPortraitEffectsMatteDeliveryEnabled = photoOutput.isPortraitEffectsMatteDeliveryEnabled
-        photoSettings.embedsPortraitEffectsMatteInPhoto = photoSettings.isPortraitEffectsMatteDeliveryEnabled
       }
       
       // quality prioritization

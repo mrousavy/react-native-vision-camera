@@ -94,7 +94,6 @@ extension CameraView {
     if photo?.boolValue == true {
       ReactLogger.log(level: .info, message: "Adding Photo output...")
       photoOutput = AVCapturePhotoOutput()
-      photoOutput!.isDepthDataDeliveryEnabled = photoOutput!.isDepthDataDeliverySupported && enableDepthData
 
       if enableHighQualityCapture?.boolValue == true {
         photoOutput!.isHighResolutionCaptureEnabled = true
@@ -105,8 +104,11 @@ extension CameraView {
           photoOutput!.isDualCameraDualPhotoDeliveryEnabled = photoOutput!.isDualCameraDualPhotoDeliverySupported
         }
       }
-      if #available(iOS 12.0, *) {
-        photoOutput!.isPortraitEffectsMatteDeliveryEnabled = photoOutput!.isPortraitEffectsMatteDeliverySupported && self.enablePortraitEffectsMatteDelivery
+      if enableDepthData {
+        photoOutput!.isDepthDataDeliveryEnabled = photoOutput!.isDepthDataDeliverySupported
+      }
+      if #available(iOS 12.0, *), enablePortraitEffectsMatteDelivery {
+        photoOutput!.isPortraitEffectsMatteDeliveryEnabled = photoOutput!.isPortraitEffectsMatteDeliverySupported
       }
       guard captureSession.canAddOutput(photoOutput!) else {
         invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "photo-output")))
