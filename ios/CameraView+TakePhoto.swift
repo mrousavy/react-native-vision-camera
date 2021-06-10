@@ -37,6 +37,8 @@ extension CameraView {
       }
 
       var photoSettings = AVCapturePhotoSettings()
+      
+      // photo codec
       if let photoCodecString = options["photoCodec"] as? String {
         guard let photoCodec = AVVideoCodecType(withString: photoCodecString) else {
           promise.reject(error: .capture(.invalidPhotoCodec))
@@ -49,6 +51,18 @@ extension CameraView {
           return
         }
       }
+      
+      if self.enableHighQualityCapture?.boolValue == true {
+        photoSettings.isHighResolutionPhotoEnabled = true
+        if #available(iOS 13.0, *) {
+          photoSettings.photoQualityPrioritization = .quality
+          photoSettings.isAutoVirtualDeviceFusionEnabled = photoOutput.isVirtualDeviceFusionSupported
+        } else {
+          photoSettings.isAutoDualCameraFusionEnabled = photoOutput.isDualCameraFusionSupported
+        }
+      }
+      
+      // flash
       if videoDeviceInput.device.isFlashAvailable, let flash = options["flash"] as? String {
         guard let flashMode = AVCaptureDevice.FlashMode(withString: flash) else {
           promise.reject(error: .parameter(.invalid(unionName: "FlashMode", receivedValue: flash)))
@@ -56,16 +70,22 @@ extension CameraView {
         }
         photoSettings.flashMode = flashMode
       }
+      
+      // high resolution
       photoSettings.isHighResolutionPhotoEnabled = photoOutput.isHighResolutionCaptureEnabled
-      if !photoSettings.__availablePreviewPhotoPixelFormatTypes.isEmpty {
-        photoSettings.previewPhotoFormat = [kCVPixelBufferPixelFormatTypeKey as String: photoSettings.__availablePreviewPhotoPixelFormatTypes.first!]
+      if !photoSettings.availablePreviewPhotoPixelFormatTypes.isEmpty {
+        photoSettings.previewPhotoFormat = [kCVPixelBufferPixelFormatTypeKey as String: photoSettings.availablePreviewPhotoPixelFormatTypes.first!]
       }
+      
+      // depth data
       photoSettings.isDepthDataDeliveryEnabled = photoOutput.isDepthDataDeliveryEnabled
       photoSettings.embedsDepthDataInPhoto = photoSettings.isDepthDataDeliveryEnabled
       if #available(iOS 12.0, *) {
         photoSettings.isPortraitEffectsMatteDeliveryEnabled = photoOutput.isPortraitEffectsMatteDeliveryEnabled
         photoSettings.embedsPortraitEffectsMatteInPhoto = photoSettings.isPortraitEffectsMatteDeliveryEnabled
       }
+      
+      // quality prioritization
       if #available(iOS 13.0, *), let qualityPrioritization = options["qualityPrioritization"] as? String {
         guard let photoQualityPrioritization = AVCapturePhotoOutput.QualityPrioritization(withString: qualityPrioritization) else {
           promise.reject(error: .parameter(.invalid(unionName: "QualityPrioritization", receivedValue: qualityPrioritization)))
@@ -73,9 +93,13 @@ extension CameraView {
         }
         photoSettings.photoQualityPrioritization = photoQualityPrioritization
       }
+      
+      // red-eye reduction
       if #available(iOS 12.0, *), let autoRedEyeReduction = options["enableAutoRedEyeReduction"] as? Bool {
         photoSettings.isAutoRedEyeReductionEnabled = autoRedEyeReduction
       }
+      
+      // virtual device fusion
       if let enableVirtualDeviceFusion = options["enableVirtualDeviceFusion"] as? Bool {
         if #available(iOS 13.0, *) {
           photoSettings.isAutoVirtualDeviceFusionEnabled = enableVirtualDeviceFusion
@@ -83,9 +107,13 @@ extension CameraView {
           photoSettings.isAutoDualCameraFusionEnabled = enableVirtualDeviceFusion
         }
       }
+      
+      // stabilization
       if let enableAutoStabilization = options["enableAutoStabilization"] as? Bool {
         photoSettings.isAutoStillImageStabilizationEnabled = enableAutoStabilization
       }
+      
+      // distortion correction
       if #available(iOS 14.1, *), let enableAutoDistortionCorrection = options["enableAutoDistortionCorrection"] as? Bool {
         photoSettings.isAutoContentAwareDistortionCorrectionEnabled = enableAutoDistortionCorrection
       }
