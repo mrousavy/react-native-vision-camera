@@ -35,11 +35,11 @@ extension CameraView {
           return
         }
       }
-      
+
       ReactLogger.log(level: .info, message: "Capturing photo...")
 
       var photoSettings = AVCapturePhotoSettings()
-      
+
       // default, overridable settings if high quality capture was enabled
       if self.enableHighQualityCapture?.boolValue == true {
         photoSettings.isHighResolutionPhotoEnabled = true
@@ -47,7 +47,7 @@ extension CameraView {
           photoSettings.photoQualityPrioritization = .quality
         }
       }
-      
+
       // photo codec
       if let photoCodecString = options["photoCodec"] as? String {
         guard let photoCodec = AVVideoCodecType(withString: photoCodecString) else {
@@ -61,7 +61,7 @@ extension CameraView {
           return
         }
       }
-      
+
       // flash
       if videoDeviceInput.device.isFlashAvailable, let flash = options["flash"] as? String {
         guard let flashMode = AVCaptureDevice.FlashMode(withString: flash) else {
@@ -70,13 +70,13 @@ extension CameraView {
         }
         photoSettings.flashMode = flashMode
       }
-      
+
       // depth data
       photoSettings.isDepthDataDeliveryEnabled = photoOutput.isDepthDataDeliveryEnabled
       if #available(iOS 12.0, *) {
         photoSettings.isPortraitEffectsMatteDeliveryEnabled = photoOutput.isPortraitEffectsMatteDeliveryEnabled
       }
-      
+
       // quality prioritization
       if #available(iOS 13.0, *), let qualityPrioritization = options["qualityPrioritization"] as? String {
         guard let photoQualityPrioritization = AVCapturePhotoOutput.QualityPrioritization(withString: qualityPrioritization) else {
@@ -85,24 +85,24 @@ extension CameraView {
         }
         photoSettings.photoQualityPrioritization = photoQualityPrioritization
       }
-      
+
       // red-eye reduction
       if #available(iOS 12.0, *), let autoRedEyeReduction = options["enableAutoRedEyeReduction"] as? Bool {
         photoSettings.isAutoRedEyeReductionEnabled = autoRedEyeReduction
       }
-      
+
       // stabilization
       if let enableAutoStabilization = options["enableAutoStabilization"] as? Bool {
         photoSettings.isAutoStillImageStabilizationEnabled = enableAutoStabilization
       }
-      
+
       // distortion correction
       if #available(iOS 14.1, *), let enableAutoDistortionCorrection = options["enableAutoDistortionCorrection"] as? Bool {
         photoSettings.isAutoContentAwareDistortionCorrectionEnabled = enableAutoDistortionCorrection
       }
 
       photoOutput.capturePhoto(with: photoSettings, delegate: PhotoCaptureDelegate(promise: promise))
-      
+
       // Assume that `takePhoto` is always called with the same parameters, so prepare the next call too.
       photoOutput.setPreparedPhotoSettingsArray([photoSettings], completionHandler: nil)
     }
