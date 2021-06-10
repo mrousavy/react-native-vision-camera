@@ -25,13 +25,6 @@ export interface TakePhotoOptions {
    */
   enableAutoRedEyeReduction?: boolean;
   /**
-   * Specifies whether a virtual multi-cam device should capture images from all containing physical cameras
-   * to create a combined, higher quality image.
-   *
-   * @see [`isAutoVirtualDeviceFusionEnabled`](https://developer.apple.com/documentation/avfoundation/avcapturephotosettings/3192192-isautovirtualdevicefusionenabled)
-   */
-  enableVirtualDeviceFusion?: boolean;
-  /**
    * Indicates whether still image stabilization will be employed when capturing the photo
    *
    * @default false

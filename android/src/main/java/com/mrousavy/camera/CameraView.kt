@@ -55,7 +55,6 @@ import kotlin.math.min
 // TODO: takePhoto() photoCodec ("hevc" | "jpeg" | "raw")
 // TODO: takePhoto() qualityPrioritization
 // TODO: takePhoto() enableAutoRedEyeReduction
-// TODO: takePhoto() enableVirtualDeviceFusion
 // TODO: takePhoto() enableAutoStabilization
 // TODO: takePhoto() enableAutoDistortionCorrection
 // TODO: takePhoto() return with jsi::Value Image reference for faster capture

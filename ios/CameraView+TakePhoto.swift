@@ -35,8 +35,18 @@ extension CameraView {
           return
         }
       }
+      
+      ReactLogger.log(level: .info, message: "Capturing photo...")
 
       var photoSettings = AVCapturePhotoSettings()
+      
+      // default, overridable settings if high quality capture was enabled
+      if self.enableHighQualityCapture?.boolValue == true {
+        photoSettings.isHighResolutionPhotoEnabled = true
+        if #available(iOS 13.0, *) {
+          photoSettings.photoQualityPrioritization = .quality
+        }
+      }
       
       // photo codec
       if let photoCodecString = options["photoCodec"] as? String {
@@ -49,16 +59,6 @@ extension CameraView {
         } else {
           promise.reject(error: .parameter(.invalid(unionName: "PhotoCodec", receivedValue: photoCodecString)))
           return
-        }
-      }
-      
-      if self.enableHighQualityCapture?.boolValue == true {
-        photoSettings.isHighResolutionPhotoEnabled = true
-        if #available(iOS 13.0, *) {
-          photoSettings.photoQualityPrioritization = .quality
-          photoSettings.isAutoVirtualDeviceFusionEnabled = photoOutput.isVirtualDeviceFusionSupported
-        } else {
-          photoSettings.isAutoDualCameraFusionEnabled = photoOutput.isDualCameraFusionSupported
         }
       }
       
@@ -97,15 +97,6 @@ extension CameraView {
       // red-eye reduction
       if #available(iOS 12.0, *), let autoRedEyeReduction = options["enableAutoRedEyeReduction"] as? Bool {
         photoSettings.isAutoRedEyeReductionEnabled = autoRedEyeReduction
-      }
-      
-      // virtual device fusion
-      if let enableVirtualDeviceFusion = options["enableVirtualDeviceFusion"] as? Bool {
-        if #available(iOS 13.0, *) {
-          photoSettings.isAutoVirtualDeviceFusionEnabled = enableVirtualDeviceFusion
-        } else {
-          photoSettings.isAutoDualCameraFusionEnabled = enableVirtualDeviceFusion
-        }
       }
       
       // stabilization
