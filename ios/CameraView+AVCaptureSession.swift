@@ -95,7 +95,7 @@ extension CameraView {
       ReactLogger.log(level: .info, message: "Adding Photo output...")
       photoOutput = AVCapturePhotoOutput()
 
-      if enableHighQualityCapture?.boolValue == true {
+      if enableHighQualityPhotos?.boolValue == true {
         photoOutput!.isHighResolutionCaptureEnabled = true
         if #available(iOS 13.0, *) {
           photoOutput!.isVirtualDeviceConstituentPhotoDeliveryEnabled = photoOutput!.isVirtualDeviceConstituentPhotoDeliverySupported

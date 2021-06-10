@@ -41,7 +41,7 @@ extension CameraView {
       var photoSettings = AVCapturePhotoSettings()
 
       // default, overridable settings if high quality capture was enabled
-      if self.enableHighQualityCapture?.boolValue == true {
+      if self.enableHighQualityPhotos?.boolValue == true {
         photoSettings.isHighResolutionPhotoEnabled = true
         if #available(iOS 13.0, *) {
           photoSettings.photoQualityPrioritization = .quality

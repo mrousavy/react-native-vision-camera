@@ -39,7 +39,7 @@ import kotlin.math.min
 // TODO: Configurable FPS higher than 30
 // TODO: High-speed video recordings (export in CameraViewModule::getAvailableVideoDevices(), and set in CameraView::configurePreview()) (120FPS+)
 // TODO: configureSession() enableDepthData
-// TODO: configureSession() enableHighQualityCapture
+// TODO: configureSession() enableHighQualityPhotos
 // TODO: configureSession() enablePortraitEffectsMatteDelivery
 // TODO: configureSession() colorSpace
 
@@ -65,7 +65,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   // props that require reconfiguring
   var cameraId: String? = null // this is actually not a react prop directly, but the result of setting device={}
   var enableDepthData = false
-  var enableHighQualityCapture: Boolean? = null
+  var enableHighQualityPhotos: Boolean? = null
   var enablePortraitEffectsMatteDelivery = false
   // use-cases
   var photo: Boolean? = null

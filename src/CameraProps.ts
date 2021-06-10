@@ -145,7 +145,7 @@ export interface CameraProps extends ViewProps {
    *
    * @default false
    */
-  enableHighQualityCapture?: boolean;
+  enableHighQualityPhotos?: boolean;
 
   //#region Events
   /**
