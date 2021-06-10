@@ -95,8 +95,15 @@ extension CameraView {
       ReactLogger.log(level: .info, message: "Adding Photo output...")
       photoOutput = AVCapturePhotoOutput()
       photoOutput!.isDepthDataDeliveryEnabled = photoOutput!.isDepthDataDeliverySupported && enableDepthData
-      if let enableHighResolutionCapture = self.enableHighResolutionCapture?.boolValue {
-        photoOutput!.isHighResolutionCaptureEnabled = enableHighResolutionCapture
+
+      if enableHighQualityCapture?.boolValue == true {
+        photoOutput!.isHighResolutionCaptureEnabled = true
+        if #available(iOS 13.0, *) {
+          photoOutput!.isVirtualDeviceConstituentPhotoDeliveryEnabled = photoOutput!.isVirtualDeviceConstituentPhotoDeliverySupported
+          photoOutput!.maxPhotoQualityPrioritization = .quality
+        } else {
+          photoOutput!.isDualCameraDualPhotoDeliveryEnabled = photoOutput!.isDualCameraDualPhotoDeliverySupported
+        }
       }
       if #available(iOS 12.0, *) {
         photoOutput!.isPortraitEffectsMatteDeliveryEnabled = photoOutput!.isPortraitEffectsMatteDeliverySupported && self.enablePortraitEffectsMatteDelivery
