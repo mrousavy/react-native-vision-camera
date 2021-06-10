@@ -38,7 +38,7 @@ extension CameraView {
 
       ReactLogger.log(level: .info, message: "Capturing photo...")
 
-      var format: [String: Any]? = nil
+      var format: [String: Any]?
       // photo codec
       if let photoCodecString = options["photoCodec"] as? String {
         guard let photoCodec = AVVideoCodecType(withString: photoCodecString) else {
@@ -52,7 +52,7 @@ extension CameraView {
           return
         }
       }
-      
+
       // Create photo settings
       let photoSettings = AVCapturePhotoSettings(format: format)
 
