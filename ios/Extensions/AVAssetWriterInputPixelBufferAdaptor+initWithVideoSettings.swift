@@ -23,7 +23,7 @@ extension AVAssetWriterInputPixelBufferAdaptor {
       attributes[kCVPixelBufferWidthKey as String] = width as CFNumber
       attributes[kCVPixelBufferHeightKey as String] = height as CFNumber
     }
-    
+
     attributes[kCVPixelBufferPixelFormatTypeKey as String] = CMFormatDescriptionGetMediaSubType(activeFormat.formatDescription)
 
     self.init(assetWriterInput: assetWriterInput, sourcePixelBufferAttributes: attributes)
