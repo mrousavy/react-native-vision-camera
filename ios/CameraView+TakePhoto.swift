@@ -42,13 +42,13 @@ extension CameraView {
       // photo codec
       if let photoCodecString = options["photoCodec"] as? String {
         guard let photoCodec = AVVideoCodecType(withString: photoCodecString) else {
-          promise.reject(error: .capture(.invalidPhotoCodec))
+          promise.reject(error: .parameter(.invalid(unionName: "PhotoCodec", receivedValue: photoCodecString)))
           return
         }
         if photoOutput.availablePhotoCodecTypes.contains(photoCodec) {
           format = [AVVideoCodecKey: photoCodec]
         } else {
-          promise.reject(error: .parameter(.invalid(unionName: "PhotoCodec", receivedValue: photoCodecString)))
+          promise.reject(error: .capture(.invalidPhotoCodec))
           return
         }
       }
