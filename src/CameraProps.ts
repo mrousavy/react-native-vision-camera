@@ -135,7 +135,7 @@ export interface CameraProps extends ViewProps {
    */
   enablePortraitEffectsMatteDelivery?: boolean;
   /**
-   * Indicates whether the Camera should prioritize high quality photo capture over speed.
+   * Indicates whether the Camera should prepare the photo pipeline to provide maximum quality photos.
    *
    * This enables:
    * * High Resolution Capture ([`isHighResolutionCaptureEnabled`](https://developer.apple.com/documentation/avfoundation/avcapturephotooutput/1648721-ishighresolutioncaptureenabled))
