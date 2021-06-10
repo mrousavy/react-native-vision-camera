@@ -13,7 +13,9 @@ extension AVAssetWriterInputPixelBufferAdaptor {
   /**
    Convenience initializer to extract correct attributes from the given videoSettings.
    */
-  convenience init(assetWriterInput: AVAssetWriterInput, withVideoSettings videoSettings: [String: Any]) {
+  convenience init(assetWriterInput: AVAssetWriterInput,
+                   withVideoSettings videoSettings: [String: Any],
+                   activeFormat: AVCaptureDevice.Format) {
     var attributes: [String: Any] = [:]
 
     if let width = videoSettings[AVVideoWidthKey] as? NSNumber,
@@ -21,9 +23,8 @@ extension AVAssetWriterInputPixelBufferAdaptor {
       attributes[kCVPixelBufferWidthKey as String] = width as CFNumber
       attributes[kCVPixelBufferHeightKey as String] = height as CFNumber
     }
-
-    // TODO: Is "Bi-Planar Y'CbCr 8-bit 4:2:0 full-range" the best CVPixelFormatType? How can I find natively supported ones?
-    attributes[kCVPixelBufferPixelFormatTypeKey as String] = kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
+    
+    attributes[kCVPixelBufferPixelFormatTypeKey as String] = CMFormatDescriptionGetMediaSubType(activeFormat.formatDescription)
 
     self.init(assetWriterInput: assetWriterInput, sourcePixelBufferAttributes: attributes)
   }
