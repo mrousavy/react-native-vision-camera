@@ -38,16 +38,7 @@ extension CameraView {
 
       ReactLogger.log(level: .info, message: "Capturing photo...")
 
-      var photoSettings = AVCapturePhotoSettings()
-
-      // default, overridable settings if high quality capture was enabled
-      if self.enableHighQualityPhotos?.boolValue == true {
-        photoSettings.isHighResolutionPhotoEnabled = true
-        if #available(iOS 13.0, *) {
-          photoSettings.photoQualityPrioritization = .quality
-        }
-      }
-
+      var format: [String: Any]? = nil
       // photo codec
       if let photoCodecString = options["photoCodec"] as? String {
         guard let photoCodec = AVVideoCodecType(withString: photoCodecString) else {
@@ -55,10 +46,21 @@ extension CameraView {
           return
         }
         if photoOutput.availablePhotoCodecTypes.contains(photoCodec) {
-          photoSettings = AVCapturePhotoSettings(format: [AVVideoCodecKey: photoCodec])
+          format = [AVVideoCodecKey: photoCodec]
         } else {
           promise.reject(error: .parameter(.invalid(unionName: "PhotoCodec", receivedValue: photoCodecString)))
           return
+        }
+      }
+      
+      // Create photo settings
+      let photoSettings = AVCapturePhotoSettings(format: format)
+
+      // default, overridable settings if high quality capture was enabled
+      if self.enableHighQualityPhotos?.boolValue == true {
+        photoSettings.isHighResolutionPhotoEnabled = true
+        if #available(iOS 13.0, *) {
+          photoSettings.photoQualityPrioritization = .quality
         }
       }
 
