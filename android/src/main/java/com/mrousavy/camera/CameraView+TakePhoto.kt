@@ -49,9 +49,6 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
   if (options.hasKey("enableDualCameraFusion")) {
     // TODO enableDualCameraFusion
   }
-  if (options.hasKey("enableVirtualDeviceFusion")) {
-    // TODO enableVirtualDeviceFusion
-  }
   if (options.hasKey("enableAutoStabilization")) {
     // TODO enableAutoStabilization
   }

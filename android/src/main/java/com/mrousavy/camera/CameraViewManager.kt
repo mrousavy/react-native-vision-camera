@@ -51,11 +51,11 @@ class CameraViewManager : SimpleViewManager<CameraView>() {
     view.enableDepthData = enableDepthData
   }
 
-  @ReactProp(name = "enableHighResolutionCapture")
-  fun setEnableHighResolutionCapture(view: CameraView, enableHighResolutionCapture: Boolean?) {
-    if (view.enableHighResolutionCapture != enableHighResolutionCapture)
-      addChangedPropToTransaction(view, "enableHighResolutionCapture")
-    view.enableHighResolutionCapture = enableHighResolutionCapture
+  @ReactProp(name = "enableHighQualityPhotos")
+  fun setEnableHighQualityPhotos(view: CameraView, enableHighQualityPhotos: Boolean?) {
+    if (view.enableHighQualityPhotos != enableHighQualityPhotos)
+      addChangedPropToTransaction(view, "enableHighQualityPhotos")
+    view.enableHighQualityPhotos = enableHighQualityPhotos
   }
 
   @ReactProp(name = "enablePortraitEffectsMatteDelivery")

@@ -21,7 +21,7 @@ import UIKit
 
 private let propsThatRequireReconfiguration = ["cameraId",
                                                "enableDepthData",
-                                               "enableHighResolutionCapture",
+                                               "enableHighQualityPhotos",
                                                "enablePortraitEffectsMatteDelivery",
                                                "preset",
                                                "photo",
@@ -40,7 +40,7 @@ public final class CameraView: UIView {
   // props that require reconfiguring
   @objc var cameraId: NSString?
   @objc var enableDepthData = false
-  @objc var enableHighResolutionCapture: NSNumber? // nullable bool
+  @objc var enableHighQualityPhotos: NSNumber? // nullable bool
   @objc var enablePortraitEffectsMatteDelivery = false
   @objc var preset: String?
   // use cases

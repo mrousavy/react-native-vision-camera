@@ -135,11 +135,17 @@ export interface CameraProps extends ViewProps {
    */
   enablePortraitEffectsMatteDelivery?: boolean;
   /**
-   * Indicates whether the photo render pipeline should be configured to deliver high resolution still images
+   * Indicates whether the Camera should prepare the photo pipeline to provide maximum quality photos.
+   *
+   * This enables:
+   * * High Resolution Capture ([`isHighResolutionCaptureEnabled`](https://developer.apple.com/documentation/avfoundation/avcapturephotooutput/1648721-ishighresolutioncaptureenabled))
+   * * Virtual Device fusion for greater detail ([`isVirtualDeviceConstituentPhotoDeliveryEnabled`](https://developer.apple.com/documentation/avfoundation/avcapturephotooutput/3192189-isvirtualdeviceconstituentphotod))
+   * * Dual Device fusion for greater detail ([`isDualCameraDualPhotoDeliveryEnabled`](https://developer.apple.com/documentation/avfoundation/avcapturephotosettings/2873917-isdualcameradualphotodeliveryena))
+   * * Sets the maximum quality prioritization to `.quality` ([`maxPhotoQualityPrioritization`](https://developer.apple.com/documentation/avfoundation/avcapturephotooutput/3182995-maxphotoqualityprioritization))
    *
    * @default false
    */
-  enableHighResolutionCapture?: boolean;
+  enableHighQualityPhotos?: boolean;
 
   //#region Events
   /**
