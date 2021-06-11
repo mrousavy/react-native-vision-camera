@@ -43,7 +43,7 @@
 // Forward declarations for the Swift classes
 __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
 @interface CameraQueues : NSObject
-@property (nonatomic, class, readonly, strong) dispatch_queue_t _Nonnull videoQueue;
+@property (nonatomic, class, readonly, strong) dispatch_queue_t _Nonnull frameProcessorQueue;
 @end
 __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 @interface CameraView : UIView
@@ -153,7 +153,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
       auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
       auto view = static_cast<CameraView*>(anonymousView);
 
-      dispatch_async(CameraQueues.videoQueue, [worklet, view, self]() {
+      dispatch_async(CameraQueues.frameProcessorQueue, [worklet, view, self]() {
         NSLog(@"FrameProcessorBindings: Converting worklet to Objective-C callback...");
         auto& rt = *runtimeManager->runtime;
         auto function = worklet->getValue(rt).asObject(rt).asFunction(rt);

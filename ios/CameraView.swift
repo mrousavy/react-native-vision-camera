@@ -100,6 +100,9 @@ public final class CameraView: UIView {
   internal let videoQueue = CameraQueues.videoQueue
   internal let audioQueue = CameraQueues.audioQueue
 
+  /// Specifies whether the frameProcessor() function is currently executing. used to drop late frames.
+  internal var isRunningFrameProcessor = false
+
   var isRunning: Bool {
     return captureSession.isRunning
   }

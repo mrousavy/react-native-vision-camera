@@ -151,10 +151,8 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
 
   //#region Tap Gesture
   const onDoubleTap = useCallback(() => {
-    // TODO: (MARC) Allow switching camera (back <-> front) while recording and stich videos together!
-    if (isPressingButton.value) return;
     onFlipCameraPressed();
-  }, [isPressingButton, onFlipCameraPressed]);
+  }, [onFlipCameraPressed]);
   //#endregion
 
   //#region Effects

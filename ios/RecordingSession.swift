@@ -68,7 +68,7 @@ class RecordingSession {
   /**
    Initializes an AssetWriter for video frames (CMSampleBuffers).
    */
-  func initializeVideoWriter(withSettings settings: [String: Any], isVideoMirrored: Bool) {
+  func initializeVideoWriter(withSettings settings: [String: Any], pixelFormat: OSType) {
     guard !settings.isEmpty else {
       ReactLogger.log(level: .error, message: "Tried to initialize Video Writer with empty settings!", alsoLogToJS: true)
       return
@@ -81,14 +81,10 @@ class RecordingSession {
     let videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: settings)
     videoWriter.expectsMediaDataInRealTime = true
 
-    if isVideoMirrored {
-      videoWriter.transform = CGAffineTransform(rotationAngle: -(.pi / 2))
-    } else {
-      videoWriter.transform = CGAffineTransform(rotationAngle: .pi / 2)
-    }
-
     assetWriter.add(videoWriter)
-    bufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter, withVideoSettings: settings)
+    bufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter,
+                                                         withVideoSettings: settings,
+                                                         pixelFormat: pixelFormat)
     ReactLogger.log(level: .info, message: "Initialized Video AssetWriter.")
   }
 
