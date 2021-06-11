@@ -62,8 +62,11 @@ android {
     excludes = ["**/libc++_shared.so"]
   }
 
-  buildTypes {
+  buildFeatures {
     prefab true
+  }
+
+  buildTypes {
     release {
       minifyEnabled false
     }
