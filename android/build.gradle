@@ -176,7 +176,9 @@ dependencies {
   def json = new JsonSlurper().parseText(inputFile.text)
   def reactNativeVersion = json.version as String
   def (major, minor, patch) = reactNativeVersion.tokenize('.')
-  def raAAR = "${rootDir}/../node_modules/react-native-reanimated/android/react-native-reanimated-${minor}.aar"
+
+  // TODO: REA separates JSC and Hermes builds into separate .aar files, which one do I choose here?
+  def raAAR = "${rootDir}/../node_modules/react-native-reanimated/android/react-native-reanimated-${minor}-jsc.aar"
 
   extractJNI(files(rnAAR, jscAAR, raAAR))
 
