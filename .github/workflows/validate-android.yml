@@ -41,6 +41,8 @@ jobs:
             ${{ runner.os }}-yarn-
       - name: Install node_modules
         run: yarn install --frozen-lockfile --cwd ..
+      - name: Install node_modules for example/
+        run: yarn install --frozen-lockfile --cwd ../example
 
       - name: Restore Gradle cache
         uses: actions/cache@v2
@@ -52,7 +54,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - name: Run Gradle Lint
-        run: ./gradlew lint
+        run: ./gradlew lint --build-cache
 
       - name: Parse Gradle Lint Report
         uses: yutailang0119/action-android-lint@v1.0.2
