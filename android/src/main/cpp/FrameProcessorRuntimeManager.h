@@ -17,10 +17,10 @@ namespace vision {
 
 using namespace facebook;
 
-class CameraViewModule : public jni::HybridClass<CameraViewModule> {
+class FrameProcessorRuntimeManager : public jni::HybridClass<FrameProcessorRuntimeManager> {
 public:
   static auto constexpr kJavaDescriptor =
-      "Lcom/mrousavy/camera/CameraViewModule;";
+      "Lcom/mrousavy/camera/frameprocessor/FrameProcessorRuntimeManager;";
   static jni::local_ref<jhybriddata> initHybrid(
       jni::alias_ref<jhybridobject> jThis,
       jlong jsContext,
@@ -30,7 +30,7 @@ public:
 
 private:
   friend HybridBase;
-  jni::global_ref<CameraViewModule::javaobject> javaPart_;
+  jni::global_ref<FrameProcessorRuntimeManager::javaobject> javaPart_;
   jsi::Runtime* runtime_;
   std::shared_ptr<facebook::react::CallInvoker> jsCallInvoker_;
   std::shared_ptr<reanimated::RuntimeManager> _runtimeManager;
@@ -39,8 +39,8 @@ private:
   void installJSIBindings();
 
 
-  explicit CameraViewModule(
-    jni::alias_ref<CameraViewModule::jhybridobject> jThis,
+  explicit FrameProcessorRuntimeManager(
+    jni::alias_ref<FrameProcessorRuntimeManager::jhybridobject> jThis,
     jsi::Runtime* runtime,
     std::shared_ptr<facebook::react::CallInvoker> jsCallInvoker,
     std::shared_ptr<reanimated::Scheduler> scheduler) :
