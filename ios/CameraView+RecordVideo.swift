@@ -54,6 +54,10 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           return
         }
       }
+      guard let videoInput = self.videoDeviceInput else {
+        callback.reject(error: .session(.cameraNotReady))
+        return
+      }
 
       // TODO: The startRecording() func cannot be async because RN doesn't allow
       //       both a callback and a Promise in a single function. Wait for TurboModules?
@@ -108,8 +112,10 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         callback.reject(error: .capture(.createRecorderError(message: "Failed to get video settings!")))
         return
       }
+      // get pixel format (420f, 420v)
+      let pixelFormat = CMFormatDescriptionGetMediaSubType(videoInput.device.activeFormat.formatDescription)
       self.recordingSession!.initializeVideoWriter(withSettings: videoSettings,
-                                                   isVideoMirrored: self.videoOutput!.isMirrored)
+                                                   pixelFormat: pixelFormat)
 
       // Init Audio (optional, async)
       if enableAudio {
