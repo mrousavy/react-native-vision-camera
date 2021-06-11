@@ -133,7 +133,7 @@ extension CameraView {
         return
       }
       videoOutput!.setSampleBufferDelegate(self, queue: videoQueue)
-      videoOutput!.alwaysDiscardsLateVideoFrames = true
+      videoOutput!.alwaysDiscardsLateVideoFrames = false
       captureSession.addOutput(videoOutput!)
       videoOutput!.setOrientation(forCameraPosition: videoDeviceInput!.device.position)
     }
