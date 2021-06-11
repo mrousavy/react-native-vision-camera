@@ -20,6 +20,8 @@ import com.facebook.react.modules.core.PermissionListener
 import com.mrousavy.camera.frameprocessor.FrameProcessorRuntimeManager
 import com.mrousavy.camera.parsers.*
 import com.mrousavy.camera.utils.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import kotlinx.coroutines.*
 import kotlinx.coroutines.guava.await
 
@@ -28,6 +30,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   companion object {
     const val REACT_CLASS = "CameraView"
     var RequestCode = 10
+    val FrameProcessorThread: ExecutorService = Executors.newSingleThreadExecutor()
 
     fun parsePermissionStatus(status: Int): String {
       return when (status) {
@@ -42,8 +45,11 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   override fun initialize() {
     super.initialize()
-    reactApplicationContext.runOnJSQueueThread {
+    FrameProcessorThread.execute {
       frameProcessorManager = FrameProcessorRuntimeManager(reactApplicationContext)
+      reactApplicationContext.runOnJSQueueThread {
+        frameProcessorManager!!.installJSIBindings()
+      }
     }
   }
 

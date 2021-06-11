@@ -27,7 +27,6 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
     mScheduler = Scheduler(context)
     mHybridData = initHybrid(context.javaScriptContextHolder.get(), holder, mScheduler!!)
     mContext = WeakReference(context)
-    installJSIBindings()
   }
 
   fun destroy() {
@@ -40,5 +39,6 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
     jsCallInvokerHolder: CallInvokerHolderImpl,
     scheduler: Scheduler
   ): HybridData?
-  private external fun installJSIBindings()
+  external fun installJSIBindings()
+  private external fun initializeRuntime()
 }

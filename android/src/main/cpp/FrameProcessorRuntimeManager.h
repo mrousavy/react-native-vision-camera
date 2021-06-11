@@ -35,6 +35,7 @@ private:
   std::shared_ptr<reanimated::RuntimeManager> _runtimeManager;
   std::shared_ptr<reanimated::Scheduler> scheduler_;
 
+  void initializeRuntime();
   void installJSIBindings();
 
   explicit FrameProcessorRuntimeManager(jni::alias_ref<FrameProcessorRuntimeManager::jhybridobject> jThis,
