@@ -202,10 +202,9 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         break
       }
     }
-    
+
     // TODO: resize using VideoToolbox (VTPixelTransferSession)
-    // TODO: dispatch to other thread
-    
+
     if let frameProcessor = frameProcessorCallback,
        captureOutput is AVCaptureVideoDataOutput {
       // check if last frame was x nanoseconds ago, effectively throttling FPS
@@ -228,7 +227,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
               frameProcessor(frame)
               self.isRunningFrameProcessor = false
             }
-            self.lastFrameProcessorCall = DispatchTime.now()
+            lastFrameProcessorCall = DispatchTime.now()
           } else {
             // failed to create a buffer copy.
             ReactLogger.log(level: .error, message: "Failed to copy buffer! Frame Processor cannot be called.", alsoLogToJS: true)
@@ -238,8 +237,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           if !hasLoggedFrameProcessorFrameDropWarning {
             ReactLogger.log(level: .warning,
                             message: "Your Frame Processor took so long to execute that a frame was dropped. " +
-                            "Either throttle your Frame Processor's frame rate using the `frameProcessorFps` prop, or optimize " +
-                            "it's execution speed. (This warning will only be shown once)",
+                              "Either throttle your Frame Processor's frame rate using the `frameProcessorFps` prop, or optimize " +
+                              "it's execution speed. (This warning will only be shown once)",
                             alsoLogToJS: true)
             hasLoggedFrameProcessorFrameDropWarning = true
           }
