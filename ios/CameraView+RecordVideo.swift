@@ -236,9 +236,11 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         } else {
           // we're still in the middle of executing a Frame Processor for a previous frame, notify user about dropped frame.
           if !hasLoggedFrameProcessorFrameDropWarning {
-            ReactLogger.log(level: .warning, message: "Your Frame Processor took so long to execute that a frame was dropped. " +
+            ReactLogger.log(level: .warning,
+                            message: "Your Frame Processor took so long to execute that a frame was dropped. " +
                             "Either throttle your Frame Processor's frame rate using the `frameProcessorFps` prop, or optimize " +
-                            "it's execution speed.")
+                            "it's execution speed.",
+                            alsoLogToJS: true)
             hasLoggedFrameProcessorFrameDropWarning = true
           }
         }
