@@ -12,9 +12,8 @@ set (BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
 add_library(
         ${PACKAGE_NAME}
         SHARED
-        src/main/cpp/CameraViewModule.cpp
         src/main/cpp/VisionCamera.cpp
-        src/main/cpp/VisionCameraModule.cpp
+        src/main/cpp/FrameProcessorRuntimeManager.cpp
 )
 
 # includes

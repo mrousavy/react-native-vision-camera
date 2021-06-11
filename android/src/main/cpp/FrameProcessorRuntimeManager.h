@@ -38,7 +38,6 @@ private:
 
   void installJSIBindings();
 
-
   explicit FrameProcessorRuntimeManager(
     jni::alias_ref<FrameProcessorRuntimeManager::jhybridobject> jThis,
     jsi::Runtime* runtime,
