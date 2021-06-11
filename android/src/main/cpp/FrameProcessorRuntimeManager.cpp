@@ -66,20 +66,34 @@ void vision::FrameProcessorRuntimeManager::installJSIBindings() {
     return;
   }
 
-  auto& runtime = *runtime_;
+  auto& jsiRuntime = *runtime_;
 
   auto setFrameProcessor = [this](jsi::Runtime& runtime,
                                   const jsi::Value& thisValue,
                                   const jsi::Value* arguments,
                                   size_t count) -> jsi::Value {
+    __android_log_write(ANDROID_LOG_INFO, TAG, "Setting new Frame Processor...");
+    if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: First argument ('viewTag') must be a number!");
+    if (!arguments[1].isObject()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
+    if (!_runtimeManager || !_runtimeManager->runtime) throw jsi::JSError(runtime, "Camera::setFrameProcessor: The RuntimeManager is not yet initialized!");
+
+    auto viewTag = arguments[0].asNumber();
+    __android_log_write(ANDROID_LOG_INFO, TAG, "Adapting Shareable value from function (conversion to worklet)...");
+    auto worklet = reanimated::ShareableValue::adapt(runtime, arguments[1], _runtimeManager.get());
+    __android_log_write(ANDROID_LOG_INFO, TAG, "Successfully created worklet!");
+
+    // TODO: Find CameraView by it's viewTag
+    // TODO: Set [worklet] to CameraView and notify it
+
+    __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processor set!");
 
     return jsi::Value::undefined();
   };
-  runtime.global().setProperty(runtime,
-                               "setFrameProcessor",
-                               jsi::Function::createFromHostFunction(runtime,
-                                                                     jsi::PropNameID::forAscii(runtime, "setFrameProcessor"),
-                                                                     2,  // viewTag, frameProcessor
+  jsiRuntime.global().setProperty(jsiRuntime,
+                                  "setFrameProcessor",
+                                  jsi::Function::createFromHostFunction(jsiRuntime,
+                                                                        jsi::PropNameID::forAscii(jsiRuntime, "setFrameProcessor"),
+                                                                        2,  // viewTag, frameProcessor
                                                                      setFrameProcessor));
 
 
@@ -87,14 +101,22 @@ void vision::FrameProcessorRuntimeManager::installJSIBindings() {
                                     const jsi::Value& thisValue,
                                     const jsi::Value* arguments,
                                     size_t count) -> jsi::Value {
+    __android_log_write(ANDROID_LOG_INFO, TAG, "Removing Frame Processor...");
+    if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::unsetFrameProcessor: First argument ('viewTag') must be a number!");
 
+    auto viewTag = arguments[0].asNumber();
+
+    // TODO: Find CameraView by it's viewTag
+    // TODO: Remove CameraView's [frameProcessor] (worklet) property and notify it
+
+    __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processor removed!");
     return jsi::Value::undefined();
   };
-  runtime.global().setProperty(runtime,
-                               "unsetFrameProcessor",
-                               jsi::Function::createFromHostFunction(runtime,
-                                                                     jsi::PropNameID::forAscii(runtime, "unsetFrameProcessor"),
-                                                                     1, // viewTag
+  jsiRuntime.global().setProperty(jsiRuntime,
+                                  "unsetFrameProcessor",
+                                  jsi::Function::createFromHostFunction(jsiRuntime,
+                                                                        jsi::PropNameID::forAscii(jsiRuntime, "unsetFrameProcessor"),
+                                                                        1, // viewTag
                                                                      unsetFrameProcessor));
 
   __android_log_write(ANDROID_LOG_INFO, TAG, "Finished installing JSI bindings!");
