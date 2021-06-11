@@ -19,8 +19,8 @@ using namespace facebook;
 
 class FrameProcessorRuntimeManager : public jni::HybridClass<FrameProcessorRuntimeManager> {
 public:
-  static auto constexpr kJavaDescriptor =
-      "Lcom/mrousavy/camera/frameprocessor/FrameProcessorRuntimeManager;";
+  static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/FrameProcessorRuntimeManager;";
+  static auto constexpr TAG = "VisionCamera";
   static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis,
                                                 jlong jsContext,
                                                 jni::alias_ref<facebook::react::CallInvokerHolder::javaobject> jsCallInvokerHolder,

@@ -3,7 +3,14 @@
 //
 
 #include "FrameProcessorRuntimeManager.h"
+#include <android/log.h>
 
+// type aliases
+using self = local_ref<HybridClass<vision::FrameProcessorRuntimeManager>::jhybriddata>;
+using JSCallInvokerHolder = jni::alias_ref<facebook::react::CallInvokerHolder::javaobject>;
+using AndroidScheduler = jni::alias_ref<reanimated::AndroidScheduler::javaobject>;
+
+// JNI binding
 void vision::FrameProcessorRuntimeManager::registerNatives() {
   registerHybrid({
     makeNativeMethod("initHybrid", FrameProcessorRuntimeManager::initHybrid),
@@ -11,18 +18,20 @@ void vision::FrameProcessorRuntimeManager::registerNatives() {
   });
 }
 
-void vision::FrameProcessorRuntimeManager::installJSIBindings() {
-
-}
-
-local_ref<HybridClass<vision::FrameProcessorRuntimeManager>::jhybriddata>
-vision::FrameProcessorRuntimeManager::initHybrid(alias_ref<jhybridobject> jThis,
-                                                 jlong jsContext,
-                                                 jni::alias_ref<facebook::react::CallInvokerHolder::javaobject> jsCallInvokerHolder,
-                                                 jni::alias_ref<reanimated::AndroidScheduler::javaobject> androidScheduler) {
+// JNI init
+self vision::FrameProcessorRuntimeManager::initHybrid(alias_ref<jhybridobject> jThis,
+                                                      jlong jsContext,
+                                                      JSCallInvokerHolder jsCallInvokerHolder,
+                                                      AndroidScheduler androidScheduler) {
+  __android_log_write(ANDROID_LOG_INFO, TAG, "initHybrid(...)");
   auto jsCallInvoker = jsCallInvokerHolder->cthis()->getCallInvoker();
   auto scheduler = androidScheduler->cthis()->getScheduler();
   scheduler->setJSCallInvoker(jsCallInvoker);
 
   return makeCxxInstance(jThis, (jsi::Runtime*)jsContext, jsCallInvoker, scheduler);
+}
+
+// actual JSI installer
+void vision::FrameProcessorRuntimeManager::installJSIBindings() {
+  __android_log_write(ANDROID_LOG_INFO, TAG, "installing JSI bindings...");
 }
