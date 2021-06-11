@@ -57,4 +57,4 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - name: Run Gradle Build
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleDebug --build-cache

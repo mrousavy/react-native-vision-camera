@@ -1,7 +1,7 @@
 #include <jni.h>
 // #include <jsi/jsi.h>
 // #include <memory>
-// #include <fbjni/fbjni.h>
+#include <fbjni/fbjni.h>
 // #include <ReactCommon/CallInvokerHolder.h>
 // #include <react/jni/JavaScriptExecutorHolder.h>
 // #include <android/log.h>
