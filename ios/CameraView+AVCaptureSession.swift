@@ -135,9 +135,7 @@ extension CameraView {
       videoOutput!.setSampleBufferDelegate(self, queue: videoQueue)
       videoOutput!.alwaysDiscardsLateVideoFrames = true
       captureSession.addOutput(videoOutput!)
-      if videoDeviceInput!.device.position == .front {
-        videoOutput!.mirror()
-      }
+      videoOutput!.setOrientation(forCameraPosition: videoDeviceInput!.device.position)
     }
 
     invokeOnInitialized()

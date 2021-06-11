@@ -81,12 +81,6 @@ class RecordingSession {
     let videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: settings)
     videoWriter.expectsMediaDataInRealTime = true
 
-    if isVideoMirrored {
-      videoWriter.transform = CGAffineTransform(rotationAngle: -(.pi / 2))
-    } else {
-      videoWriter.transform = CGAffineTransform(rotationAngle: .pi / 2)
-    }
-
     assetWriter.add(videoWriter)
     bufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter,
                                                          withVideoSettings: settings,
