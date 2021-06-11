@@ -21,11 +21,10 @@ class FrameProcessorRuntimeManager : public jni::HybridClass<FrameProcessorRunti
 public:
   static auto constexpr kJavaDescriptor =
       "Lcom/mrousavy/camera/frameprocessor/FrameProcessorRuntimeManager;";
-  static jni::local_ref<jhybriddata> initHybrid(
-      jni::alias_ref<jhybridobject> jThis,
-      jlong jsContext,
-      jni::alias_ref<facebook::react::CallInvokerHolder::javaobject> jsCallInvokerHolder,
-      jni::alias_ref<reanimated::AndroidScheduler::javaobject> androidScheduler);
+  static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis,
+                                                jlong jsContext,
+                                                jni::alias_ref<facebook::react::CallInvokerHolder::javaobject> jsCallInvokerHolder,
+                                                jni::alias_ref<reanimated::AndroidScheduler::javaobject> androidScheduler);
   static void registerNatives();
 
 private:
@@ -38,15 +37,14 @@ private:
 
   void installJSIBindings();
 
-  explicit FrameProcessorRuntimeManager(
-    jni::alias_ref<FrameProcessorRuntimeManager::jhybridobject> jThis,
-    jsi::Runtime* runtime,
-    std::shared_ptr<facebook::react::CallInvoker> jsCallInvoker,
-    std::shared_ptr<reanimated::Scheduler> scheduler) :
-      javaPart_(jni::make_global(jThis)),
-      runtime_(runtime),
-      jsCallInvoker_(jsCallInvoker),
-      scheduler_(scheduler)
+  explicit FrameProcessorRuntimeManager(jni::alias_ref<FrameProcessorRuntimeManager::jhybridobject> jThis,
+                                        jsi::Runtime* runtime,
+                                        std::shared_ptr<facebook::react::CallInvoker> jsCallInvoker,
+                                        std::shared_ptr<reanimated::Scheduler> scheduler) :
+                                          javaPart_(jni::make_global(jThis)),
+                                          runtime_(runtime),
+                                          jsCallInvoker_(jsCallInvoker),
+                                          scheduler_(scheduler)
   {}
 };
 
