@@ -209,9 +209,21 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       let nanosecondsPerFrame = secondsPerFrame * 1_000_000_000.0
 
       if diff > UInt64(nanosecondsPerFrame) {
-        let frame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
-        frameProcessor(frame)
-        lastFrameProcessorCall = DispatchTime.now()
+        var bufferCopy: CMSampleBuffer?
+        CMSampleBufferCreateCopy(allocator: kCFAllocatorDefault,
+                                 sampleBuffer: sampleBuffer,
+                                 sampleBufferOut: &bufferCopy)
+        if let bufferCopy = bufferCopy {
+          // successfully copied buffer, dispatch frame processor call.
+          CameraQueues.frameProcessorQueue.async {
+            let frame = Frame(buffer: bufferCopy, orientation: self.bufferOrientation)
+            frameProcessor(frame)
+          }
+          self.lastFrameProcessorCall = DispatchTime.now()
+        } else {
+          // failed to create a buffer copy.
+          ReactLogger.log(level: .error, message: "Failed to copy buffer!")
+        }
       }
     }
   }
