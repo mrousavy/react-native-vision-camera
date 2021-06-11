@@ -43,7 +43,12 @@ private:
     jni::alias_ref<CameraViewModule::jhybridobject> jThis,
     jsi::Runtime* runtime,
     std::shared_ptr<facebook::react::CallInvoker> jsCallInvoker,
-    std::shared_ptr<reanimated::Scheduler> scheduler);
+    std::shared_ptr<reanimated::Scheduler> scheduler) :
+      javaPart_(jni::make_global(jThis)),
+      runtime_(runtime),
+      jsCallInvoker_(jsCallInvoker),
+      scheduler_(scheduler)
+  {}
 };
 
 } // namespace vision
