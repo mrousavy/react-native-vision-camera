@@ -17,10 +17,12 @@ import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener
+import com.mrousavy.camera.frameprocessor.FrameProcessorRuntimeManager
 import com.mrousavy.camera.parsers.*
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.guava.await
+
 
 class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
   companion object {
@@ -34,6 +36,20 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
         else -> "not-determined"
       }
     }
+  }
+
+  private var frameProcessorManager: FrameProcessorRuntimeManager? = null
+
+  override fun initialize() {
+    super.initialize()
+    reactApplicationContext.runOnJSQueueThread {
+      frameProcessorManager = FrameProcessorRuntimeManager(reactApplicationContext)
+    }
+  }
+
+  override fun onCatalystInstanceDestroy() {
+    super.onCatalystInstanceDestroy()
+    frameProcessorManager?.destroy()
   }
 
   override fun getName(): String {
