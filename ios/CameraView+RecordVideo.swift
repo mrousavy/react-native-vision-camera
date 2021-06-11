@@ -239,7 +239,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
             ReactLogger.log(level: .warning,
                             message: "Your Frame Processor took so long to execute that a frame was dropped. " +
                             "Either throttle your Frame Processor's frame rate using the `frameProcessorFps` prop, or optimize " +
-                            "it's execution speed.",
+                            "it's execution speed. (This warning will only be shown once)",
                             alsoLogToJS: true)
             hasLoggedFrameProcessorFrameDropWarning = true
           }
@@ -255,7 +255,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         ReactLogger.log(level: .warning,
                         message: "Dropped a Frame - This might indicate that your frame rate is higher than the phone can currently process. " +
                           "Throttle the Camera frame rate using the `fps` prop and make sure the device stays in optimal condition for recording. " +
-                          "Frame drop reason: \(reason)",
+                          "Frame drop reason: \(reason). (This warning will only be shown once)",
                         alsoLogToJS: true)
         hasLoggedVideoFrameDropWarning = true
       }
