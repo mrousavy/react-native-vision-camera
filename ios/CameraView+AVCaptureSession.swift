@@ -186,7 +186,12 @@ extension CameraView {
           device.automaticallyEnablesLowLightBoostWhenAvailable = lowLightBoost!.boolValue
         }
       }
-      if colorSpace != nil, let avColorSpace = try? AVCaptureColorSpace(string: String(colorSpace!)) {
+      if let colorSpace = self.colorSpace as String? {
+        guard let avColorSpace = try? AVCaptureColorSpace(string: colorSpace),
+              device.activeFormat.supportedColorSpaces.contains(avColorSpace) else {
+          invokeOnError(.format(.invalidColorSpace(colorSpace: colorSpace)))
+          return
+        }
         device.activeColorSpace = avColorSpace
       }
 

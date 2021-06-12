@@ -19,6 +19,7 @@ export type FormatError =
   | 'format/invalid-hdr'
   | 'format/invalid-low-light-boost'
   | 'format/invalid-format'
+  | 'format/invalid-color-space'
   | 'format/invalid-preset';
 export type SessionError =
   | 'session/camera-not-ready'

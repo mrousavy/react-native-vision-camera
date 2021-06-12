@@ -112,6 +112,7 @@ enum FormatError {
   case invalidFps(fps: Int)
   case invalidHdr
   case invalidFormat
+  case invalidColorSpace(colorSpace: String)
   case invalidPreset(preset: String)
 
   var code: String {
@@ -124,6 +125,8 @@ enum FormatError {
       return "invalid-hdr"
     case .invalidPreset:
       return "invalid-preset"
+    case .invalidColorSpace:
+      return "invalid-color-space"
     }
   }
 
@@ -135,6 +138,8 @@ enum FormatError {
       return "The given FPS were not valid for the currently selected format. Make sure you select a format which `frameRateRanges` includes \(fps) FPS!"
     case .invalidHdr:
       return "The currently selected format does not support HDR capture! Make sure you select a format which `frameRateRanges` includes `supportsPhotoHDR`!"
+    case let .invalidColorSpace(colorSpace):
+      return "The currently selected format does not support the colorSpace \"\(colorSpace)\"! Make sure you select a format which `colorSpaces` includes \"\(colorSpace)\"!"
     case let .invalidPreset(preset):
       return "The preset \"\(preset)\" is not available for the current camera device."
     }
