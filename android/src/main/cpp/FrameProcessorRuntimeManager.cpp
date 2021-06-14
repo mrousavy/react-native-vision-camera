@@ -9,6 +9,7 @@
 #include "AndroidErrorHandler.h"
 
 #include "MakeJSIRuntime.h"
+#include "CameraView.h"
 
 // type aliases
 using self = local_ref<HybridClass<vision::FrameProcessorRuntimeManager>::jhybriddata>;
@@ -57,6 +58,12 @@ void vision::FrameProcessorRuntimeManager::initializeRuntime() {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Initialized Vision JS-Runtime!");
 }
 
+static vision::CameraView* findCameraViewById(alias_ref<JClass> clazz, jint viewId) {
+  static const auto func = clazz->getMethod<vision::CameraView(jint)>("findCameraViewById");
+  auto result = func(clazz, viewId);
+  return result->cthis();
+}
+
 // actual JSI installer
 void vision::FrameProcessorRuntimeManager::installJSIBindings() {
   __android_log_write(ANDROID_LOG_INFO, TAG, "installing JSI bindings...");
@@ -82,8 +89,15 @@ void vision::FrameProcessorRuntimeManager::installJSIBindings() {
     auto worklet = reanimated::ShareableValue::adapt(runtime, arguments[1], _runtimeManager.get());
     __android_log_write(ANDROID_LOG_INFO, TAG, "Successfully created worklet!");
 
-    // TODO: Find CameraView by it's viewTag
-    // TODO: Set [worklet] to CameraView and notify it
+    auto cameraView = findCameraViewById(javaClassLocal(), (int)viewTag);
+    auto& rt = *this->_runtimeManager->runtime;
+    auto function = std::make_shared<jsi::Function>(worklet->getValue(rt).asObject(rt).asFunction(rt));
+
+
+    cameraView->setFrameProcessor([&rt, function](int frame) {
+      // TODO: Actually pass ImageProxy type instead of int.
+      function.call(rt, jsi::Value(frame));
+    });
 
     __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processor set!");
 

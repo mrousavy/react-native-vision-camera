@@ -4,6 +4,8 @@ import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.turbomodule.core.CallInvokerHolderImpl
+import com.mrousavy.camera.CameraView
+import com.mrousavy.camera.ViewNotFoundError
 import com.swmansion.reanimated.Scheduler
 import java.lang.ref.WeakReference
 
@@ -32,6 +34,10 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
   fun destroy() {
     mScheduler?.deactivate()
     mHybridData?.resetNative()
+  }
+
+  fun findCameraViewById(viewId: Int): CameraView {
+    return mContext?.get()?.currentActivity?.findViewById(viewId) ?: throw ViewNotFoundError(viewId)
   }
 
   private external fun initHybrid(

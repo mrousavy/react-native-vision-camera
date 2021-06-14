@@ -21,9 +21,13 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.*
+import com.facebook.jni.HybridData
+import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.*
+import com.facebook.react.turbomodule.core.CallInvokerHolderImpl
 import com.facebook.react.uimanager.events.RCTEventEmitter
 import com.mrousavy.camera.utils.*
+import com.swmansion.reanimated.Scheduler
 import kotlinx.coroutines.*
 import kotlinx.coroutines.guava.await
 import java.lang.IllegalArgumentException
@@ -107,7 +111,12 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   private var minZoom: Float = 1f
   private var maxZoom: Float = 1f
 
+  @DoNotStrip
+  private var mHybridData: HybridData?
+
   init {
+    mHybridData = initHybrid()
+
     previewView = PreviewView(context)
     previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
     previewView.installHierarchyFitter() // If this is not called correctly, view finder will be black/blank
@@ -143,6 +152,13 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       }
     })
   }
+
+  fun finalize() {
+    mHybridData?.resetNative()
+  }
+
+  private external fun initHybrid(): HybridData?
+  private external fun frameProcessorCallback(frame: Int)
 
   override fun getLifecycle(): Lifecycle {
     return lifecycleRegistry

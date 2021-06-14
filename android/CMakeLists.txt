@@ -14,6 +14,7 @@ add_library(
         SHARED
         src/main/cpp/VisionCamera.cpp
         src/main/cpp/FrameProcessorRuntimeManager.cpp
+        src/main/cpp/CameraView.cpp
 )
 
 # includes
