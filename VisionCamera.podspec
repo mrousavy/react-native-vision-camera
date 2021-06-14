@@ -43,6 +43,5 @@ Pod::Spec.new do |s|
   ]
 
   s.dependency "React-callinvoker"
-  s.dependency "React"
   s.dependency "React-Core"
 end
