@@ -5,12 +5,13 @@
 #pragma once
 
 #include <memory>
+#include <jni.h>
 #include <fbjni/fbjni.h>
 
 namespace vision {
 
 using namespace facebook;
-using FrameProcessor = std::function<void(int)>;
+using FrameProcessor = std::function<void(jobject)>;
 
 class CameraView : public jni::HybridClass<CameraView> {
 public:
@@ -28,7 +29,7 @@ private:
   jni::global_ref<CameraView::javaobject> javaPart_;
   FrameProcessor frameProcessor_;
 
-  void frameProcessorCallback(int frame);
+  void frameProcessorCallback(jobject frame);
 
   explicit CameraView(jni::alias_ref<CameraView::jhybridobject> jThis) :
     javaPart_(jni::make_global(jThis)),

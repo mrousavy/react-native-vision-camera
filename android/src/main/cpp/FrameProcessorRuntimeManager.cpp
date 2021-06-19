@@ -4,6 +4,7 @@
 
 #include "FrameProcessorRuntimeManager.h"
 #include <android/log.h>
+#include <jni.h>
 
 #include "RuntimeDecorator.h"
 #include "AndroidErrorHandler.h"
@@ -95,9 +96,8 @@ void vision::FrameProcessorRuntimeManager::installJSIBindings() {
     auto function = std::make_shared<jsi::Function>(worklet->getValue(rt).asObject(rt).asFunction(rt));
 
 
-    cameraView->setFrameProcessor([&rt, function](int frame) {
-      // TODO: Actually pass ImageProxy type instead of int.
-      function->call(rt, jsi::Value(frame));
+    cameraView->setFrameProcessor([&rt, function](jobject frame) {
+      function->call(rt, jsi::Value(42));
     });
 
     __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processor set!");

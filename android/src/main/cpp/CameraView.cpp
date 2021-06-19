@@ -4,6 +4,7 @@
 
 #include "CameraView.h"
 #include <memory>
+#include <jni.h>
 #include <fbjni/fbjni.h>
 
 using namespace facebook;
@@ -24,7 +25,7 @@ void CameraView::registerNatives() {
     });
 }
 
-void CameraView::frameProcessorCallback(int frame) {
+void CameraView::frameProcessorCallback(jobject frame) {
   // TODO: frameProcessorCallback
 }
 
