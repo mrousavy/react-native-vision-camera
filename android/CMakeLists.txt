@@ -85,17 +85,24 @@ find_library(
         NO_CMAKE_FIND_ROOT_PATH
 )
 
+find_library(
+        HERMES_LIB
+        hermes
+        PATHS ${HERMES_DIR}
+        NO_CMAKE_FIND_ROOT_PATH
+)
+find_library(
+        JSEXECUTOR_LIB
+        jscexecutor
+        PATHS ${LIBRN_DIR}
+        NO_CMAKE_FIND_ROOT_PATH
+)
+
 # linking
 
-message(INFO "VisionCamera linking: FOR_HERMES=${FOR_HERMES}")
+message(WARNING "VisionCamera linking: FOR_HERMES=${FOR_HERMES}")
 
 if(${FOR_HERMES})
-    find_library(
-            HERMES_LIB
-            hermes
-            PATHS ${LIBHERMES_DIR}
-            NO_CMAKE_FIND_ROOT_PATH
-    )
     target_link_libraries(
             ${PACKAGE_NAME}
             ${LOG_LIB}
@@ -107,12 +114,6 @@ if(${FOR_HERMES})
             android
     )
 else()
-    find_library(
-            JSEXECUTOR_LIB
-            jscexecutor
-            PATHS ${LIBJSC_DIR}
-            NO_CMAKE_FIND_ROOT_PATH
-    )
     target_link_libraries(
             ${PACKAGE_NAME}
             ${LOG_LIB}
