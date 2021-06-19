@@ -33,7 +33,7 @@ void CameraView::frameProcessorCallback(alias_ref<JImageProxy> frame) {
 
   local_ref<JImageProxy> frameStrong = make_local(frame);
   __android_log_write(ANDROID_LOG_INFO, TAG, "Calling Frame Processor...");
-  frameProcessor_(frame);
+  frameProcessor_(frameStrong);
 }
 
 void CameraView::setFrameProcessor(const FrameProcessor&& frameProcessor) {
