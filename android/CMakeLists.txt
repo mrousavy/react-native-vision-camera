@@ -25,11 +25,10 @@ file (GLOB LIBFBJNI_INCLUDE_DIR "${BUILD_DIR}/fbjni-*-headers.jar/")
 target_include_directories(
         ${PACKAGE_NAME}
         PRIVATE
-        ${LIBFBJNI_INCLUDE_DIR}
-        ${BUILD_DIR}/third-party-ndk/boost
-        ${BUILD_DIR}/third-party-ndk/double-conversion
-        ${BUILD_DIR}/third-party-ndk/folly
-        ${BUILD_DIR}/third-party-ndk/glog
+        "${LIBFBJNI_INCLUDE_DIR}"
+        "${BUILD_DIR}/third-party-ndk/boost"
+        "${BUILD_DIR}/third-party-ndk/double-conversion"
+        "${BUILD_DIR}/third-party-ndk/folly"
         "${NODE_MODULES_DIR}/react-native/React"
         "${NODE_MODULES_DIR}/react-native/React/Base"
         "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni"
@@ -37,13 +36,12 @@ target_include_directories(
         "${NODE_MODULES_DIR}/react-native/ReactCommon"
         "${NODE_MODULES_DIR}/react-native/ReactCommon/callinvoker"
         "${NODE_MODULES_DIR}/react-native/ReactCommon/jsi"
-        "${NODE_MODULES_DIR}/react-native/ReactCommon/jsi"
+        "${NODE_MODULES_DIR}/hermes-engine/android/include/"
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/Tools"
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/SpecTools"
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/SharedItems"
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/Registries"
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/hidden_headers"
-        "${NODE_MODULES_DIR}/hermes-engine/android/include/"
         "src/main/cpp"
         "../cpp"
 )
