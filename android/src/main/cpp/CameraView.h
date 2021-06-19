@@ -20,7 +20,7 @@ public:
   static void registerNatives();
 
   // TODO: Use template<> to avoid heap allocation for std::function<>
-  void setFrameProcessor(FrameProcessor&& frameProcessor);
+  void setFrameProcessor(const FrameProcessor&& frameProcessor);
   void unsetFrameProcessor();
 
 private:

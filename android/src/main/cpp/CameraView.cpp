@@ -28,13 +28,12 @@ void CameraView::frameProcessorCallback(int frame) {
   // TODO: frameProcessorCallback
 }
 
-void CameraView::setFrameProcessor(FrameProcessor&& frameProcessor) {
+void CameraView::setFrameProcessor(const FrameProcessor&& frameProcessor) {
   frameProcessor_ = frameProcessor;
-  // TODO: setFrameProcessor
 }
 
 void vision::CameraView::unsetFrameProcessor() {
-
+  frameProcessor_ = nullptr;
 }
 
 } // namespace vision
