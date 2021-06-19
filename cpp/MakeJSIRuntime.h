@@ -3,7 +3,7 @@
 #include <jsi/jsi.h>
 #include <memory>
 
-#if __has_include(<hermes/hermes.h>)
+#if __has_include(<hermes/hermes.h>) || defined FOR_HERMES
 // Hermes (https://hermesengine.dev)
 #include <hermes/hermes.h>
 #elif __has_include(<v8runtime/V8RuntimeFactory.h>)

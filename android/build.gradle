@@ -1,6 +1,13 @@
 import groovy.json.JsonSlurper
 import org.apache.tools.ant.filters.ReplaceTokens
 
+def FOR_HERMES = "";
+if(findProject(':app')) {
+  FOR_HERMES = project(':app').ext.react.enableHermes;
+} else {
+  FOR_HERMES = System.getenv("FOR_HERMES") == "True";
+}
+
 buildscript {
   // Buildscript is evaluated before everything else so we can't use getExtOrDefault
   def kotlin_version = rootProject.ext.has('kotlinVersion') ? rootProject.ext.get('kotlinVersion') : project.properties['VisionCamera_kotlinVersion']
@@ -47,7 +54,9 @@ android {
       cmake {
         cppFlags "-fexceptions", "-frtti", "-std=c++1y", "-DONANDROID"
         abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
-        arguments '-DANDROID_STL=c++_shared', "-DNODE_MODULES_DIR=${rootDir}/../node_modules"
+        arguments '-DANDROID_STL=c++_shared',
+                "-DNODE_MODULES_DIR=${rootDir}/../node_modules",
+                "-DFOR_HERMES=${FOR_HERMES}"
       }
     }
   }
