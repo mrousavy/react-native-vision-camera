@@ -343,6 +343,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         Log.i(TAG, "Image Analyzer called with ${image.width}x${image.height} image. Calling Frame Processor...")
         frameProcessorCallback(image)
         Log.i(TAG, "Frame Processor finished!")
+        image.close()
       })
 
       // TODO: Remove this once I'm done with frame processors.
