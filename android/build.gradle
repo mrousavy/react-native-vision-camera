@@ -177,10 +177,10 @@ dependencies {
   def reactNativeVersion = json.version as String
   def (major, minor, patch) = reactNativeVersion.tokenize('.')
 
-  // TODO: REA separates JSC and Hermes builds into separate .aar files, which one do I choose here?
-  def raAAR = "${rootDir}/../node_modules/react-native-reanimated/android/react-native-reanimated-${minor}-jsc.aar"
+  def raAARJSC = "${rootDir}/../node_modules/react-native-reanimated/android/react-native-reanimated-${minor}-jsc.aar"
+  def raAARHermes = "${rootDir}/../node_modules/react-native-reanimated/android/react-native-reanimated-${minor}-hermes.aar"
 
-  extractJNI(files(rnAAR, jscAAR, raAAR))
+  extractJNI(files(rnAAR, jscAAR, raAARJSC, raAARHermes))
 
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.5.0"
