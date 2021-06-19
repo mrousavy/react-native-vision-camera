@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.hardware.camera2.*
 import android.util.Log
 import android.util.Range
+import android.util.Size
 import android.view.*
 import android.view.View.OnTouchListener
 import android.widget.FrameLayout
@@ -334,17 +335,32 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       imageCapture = null
       cameraProvider.unbindAll()
 
+      val imageAnalysis = ImageAnalysis.Builder()
+        .setTargetResolution(Size(1280, 720))
+        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+        .build()
+      imageAnalysis.setAnalyzer(cameraExecutor, { image ->
+        Log.i(TAG, "Image Analyzer called with ${image.width}x${image.height} image. Calling Frame Processor...")
+        frameProcessorCallback(image)
+        Log.i(TAG, "Frame Processor finished!")
+      })
+
+      // TODO: Remove this once I'm done with frame processors.
+      val DEBUG_FRAME_PROCESSORS = true
+
       // Bind use cases to camera
       val useCases = ArrayList<UseCase>()
-      if (video == true) {
+      if (video == true && !DEBUG_FRAME_PROCESSORS) {
         videoCapture = videoCaptureBuilder.build()
         useCases.add(videoCapture!!)
       }
-      if (photo == true) {
+      if (photo == true && !DEBUG_FRAME_PROCESSORS) {
         imageCapture = imageCaptureBuilder.build()
         useCases.add(imageCapture!!)
       }
-      camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, *useCases.toTypedArray())
+      
+      // TODO: Find out how to use frame processor, video recording and image capture at the same time. Maybe implement custom video recorder in ImageAnalyzer?
+      camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis, *useCases.toTypedArray())
       preview.setSurfaceProvider(previewView.surfaceProvider)
 
       minZoom = camera!!.cameraInfo.zoomState.value?.minZoomRatio ?: 1f
