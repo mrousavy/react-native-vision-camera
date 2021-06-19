@@ -108,7 +108,7 @@ void vision::FrameProcessorRuntimeManager::installJSIBindings() {
                                   jsi::Function::createFromHostFunction(jsiRuntime,
                                                                         jsi::PropNameID::forAscii(jsiRuntime, "setFrameProcessor"),
                                                                         2,  // viewTag, frameProcessor
-                                                                     setFrameProcessor));
+                                                                        setFrameProcessor));
 
 
   auto unsetFrameProcessor = [this](jsi::Runtime& runtime,
@@ -131,7 +131,7 @@ void vision::FrameProcessorRuntimeManager::installJSIBindings() {
                                   jsi::Function::createFromHostFunction(jsiRuntime,
                                                                         jsi::PropNameID::forAscii(jsiRuntime, "unsetFrameProcessor"),
                                                                         1, // viewTag
-                                                                     unsetFrameProcessor));
+                                                                        unsetFrameProcessor));
 
   __android_log_write(ANDROID_LOG_INFO, TAG, "Finished installing JSI bindings!");
 }
