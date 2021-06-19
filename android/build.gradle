@@ -1,11 +1,50 @@
 import groovy.json.JsonSlurper
 import org.apache.tools.ant.filters.ReplaceTokens
+import java.nio.file.Paths
+
+def reactNative = new File("$projectDir/../node_modules/react-native")
+def reactNativeThirdParty = new File("$reactNative/ReactAndroid/src/main/jni/third-party")
 
 def FOR_HERMES = "";
 if(findProject(':app')) {
   FOR_HERMES = project(':app').ext.react.enableHermes;
 } else {
   FOR_HERMES = System.getenv("FOR_HERMES") == "True";
+}
+
+/**
+ * Finds the path of the installed npm package with the given name using Node's
+ * module resolution algorithm, which searches "node_modules" directories up to
+ * the file system root. This handles various cases, including:
+ *
+ *   - Working in the open-source RN repo:
+ *       Gradle: /path/to/react-native/ReactAndroid
+ *       Node module: /path/to/react-native/node_modules/[package]
+ *
+ *   - Installing RN as a dependency of an app and searching for hoisted
+ *     dependencies:
+ *       Gradle: /path/to/app/node_modules/react-native/ReactAndroid
+ *       Node module: /path/to/app/node_modules/[package]
+ *
+ *   - Working in a larger repo (e.g., Facebook) that contains RN:
+ *       Gradle: /path/to/repo/path/to/react-native/ReactAndroid
+ *       Node module: /path/to/repo/node_modules/[package]
+ *
+ * The search begins at the given base directory (a File object). The returned
+ * path is a string.
+ */
+static def findNodeModulePath(baseDir, packageName) {
+  def basePath = baseDir.toPath().normalize()
+  // Node's module resolution algorithm searches up to the root directory,
+  // after which the base path will be null
+  while (basePath) {
+    def candidatePath = Paths.get(basePath.toString(), "node_modules", packageName)
+    if (candidatePath.toFile().exists()) {
+      return candidatePath.toString()
+    }
+    basePath = basePath.getParent()
+  }
+  return null
 }
 
 buildscript {
@@ -203,10 +242,6 @@ dependencies {
   implementation "androidx.exifinterface:exifinterface:1.3.2"
 }
 
-
-// fbjni
-// https://github.com/facebookincubator/fbjni/blob/master/docs/android_setup.md
-
 task extractAARHeaders {
   doLast {
     configurations.extractHeaders.files.each {
@@ -346,6 +381,56 @@ task prepareGlog(dependsOn: downloadGlog, type: Copy) {
       from(fileTree(dir: "$thirdPartyNdkDir/glog", includes: ["stl_logging.h", "logging.h", "raw_logging.h", "vlog_is_on.h", "**/src/glog/log_severity.h"]).files)
       includeEmptyDirs = false
       into("$thirdPartyNdkDir/glog/exported/glog")
+    }
+  }
+}
+
+task prepareHermes() {
+  def hermesPackagePath = findNodeModulePath(projectDir, "hermes-engine")
+  if (!hermesPackagePath) {
+    throw new GradleScriptException("Could not find the hermes-engine npm package", null)
+  }
+
+  def hermesAAR = file("$hermesPackagePath/android/hermes-debug.aar")
+  if (!hermesAAR.exists()) {
+    throw new GradleScriptException("The hermes-engine npm package is missing \"android/hermes-debug.aar\"", null)
+  }
+
+  def soFiles = zipTree(hermesAAR).matching({ it.include "**/*.so" })
+
+  copy {
+    from soFiles
+    from "$reactNative/ReactAndroid/src/main/jni/first-party/hermes/Android.mk"
+    into "$thirdPartyNdkDir/hermes"
+  }
+}
+
+task prepareJSC {
+  doLast {
+    def jscPackagePath = findNodeModulePath(projectDir, "jsc-android")
+    if (!jscPackagePath) {
+      throw new GradleScriptException("Could not find the jsc-android npm package", null)
+    }
+
+    def jscDist = file("$jscPackagePath/dist")
+    if (!jscDist.exists()) {
+      throw new GradleScriptException("The jsc-android npm package is missing its \"dist\" directory", null)
+    }
+
+    def jscAAR = fileTree(jscDist).matching({ it.include "**/android-jsc/**/*.aar" }).singleFile
+    def soFiles = zipTree(jscAAR).matching({ it.include "**/*.so" })
+
+    def headerFiles = fileTree(jscDist).matching({ it.include "**/include/*.h" })
+
+    copy {
+      from(soFiles)
+      from(headerFiles)
+      from("$reactNative/ReactAndroid/src/main/jni/third-party/jsc/Android.mk")
+
+      filesMatching("**/*.h", { it.path = "JavaScriptCore/${it.name}" })
+
+      includeEmptyDirs(false)
+      into("$thirdPartyNdkDir/jsc")
     }
   }
 }
