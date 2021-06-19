@@ -16,6 +16,7 @@ add_library(
         src/main/cpp/VisionCamera.cpp
         src/main/cpp/FrameProcessorRuntimeManager.cpp
         src/main/cpp/CameraView.cpp
+        src/main/cpp/JImageProxyHostObject.cpp
 )
 
 # includes
