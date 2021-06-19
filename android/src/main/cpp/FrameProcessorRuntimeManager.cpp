@@ -96,7 +96,7 @@ void vision::FrameProcessorRuntimeManager::installJSIBindings() {
     auto& rt = *this->_runtimeManager->runtime;
     auto function = std::make_shared<jsi::Function>(worklet->getValue(rt).asObject(rt).asFunction(rt));
 
-    cameraView->setFrameProcessor([&rt, function](jni::local_ref<JImageProxy> frame) {
+    cameraView->setFrameProcessor([&rt, function](jni::local_ref<jobject> frame) {
       __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processor called!");
       function->call(rt, jsi::Value(42));
     });

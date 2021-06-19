@@ -13,7 +13,7 @@
 namespace vision {
 
 using namespace facebook;
-using FrameProcessor = std::function<void(jni::local_ref<JImageProxy>)>;
+using FrameProcessor = std::function<void(jni::local_ref<jobject>)>;
 
 class CameraView : public jni::HybridClass<CameraView> {
 public:
@@ -31,7 +31,7 @@ private:
   jni::global_ref<CameraView::javaobject> javaPart_;
   FrameProcessor frameProcessor_;
 
-  void frameProcessorCallback(jni::alias_ref<JImageProxy> frame);
+  void frameProcessorCallback(jni::alias_ref<jobject> frame);
 
   explicit CameraView(jni::alias_ref<CameraView::jhybridobject> jThis) :
     javaPart_(jni::make_global(jThis)),

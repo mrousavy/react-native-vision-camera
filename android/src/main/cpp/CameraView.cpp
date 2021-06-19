@@ -25,13 +25,13 @@ void CameraView::registerNatives() {
     });
 }
 
-void CameraView::frameProcessorCallback(alias_ref<JImageProxy> frame) {
+void CameraView::frameProcessorCallback(alias_ref<jobject> frame) {
   if (frameProcessor_ == nullptr) {
     __android_log_write(ANDROID_LOG_WARN, TAG, "Frame Processor is null!");
     return;
   }
 
-  local_ref<JImageProxy> frameStrong = make_local(frame);
+  local_ref<jobject> frameStrong = make_local(frame);
   __android_log_write(ANDROID_LOG_INFO, TAG, "Calling Frame Processor...");
   frameProcessor_(frameStrong);
 }
