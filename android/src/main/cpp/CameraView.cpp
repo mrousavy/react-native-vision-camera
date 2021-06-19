@@ -7,10 +7,10 @@
 #include <jni.h>
 #include <fbjni/fbjni.h>
 
+namespace vision {
+
 using namespace facebook;
 using namespace jni;
-
-namespace vision {
 
 using self = local_ref<HybridClass<vision::CameraView>::jhybriddata>;
 
@@ -25,8 +25,15 @@ void CameraView::registerNatives() {
     });
 }
 
-void CameraView::frameProcessorCallback(jobject frame) {
-  // TODO: frameProcessorCallback
+void CameraView::frameProcessorCallback(alias_ref<JImageProxy> frame) {
+  if (frameProcessor_ == nullptr) {
+    __android_log_write(ANDROID_LOG_WARN, TAG, "Frame Processor is null!");
+    return;
+  }
+
+  local_ref<JImageProxy> frameStrong = make_local(frame);
+  __android_log_write(ANDROID_LOG_INFO, TAG, "Calling Frame Processor...");
+  frameProcessor_(frame);
 }
 
 void CameraView::setFrameProcessor(const FrameProcessor&& frameProcessor) {

@@ -11,6 +11,7 @@
 
 #include "MakeJSIRuntime.h"
 #include "CameraView.h"
+#include "JImageProxy.h"
 
 // type aliases
 using self = local_ref<HybridClass<vision::FrameProcessorRuntimeManager>::jhybriddata>;
@@ -96,7 +97,8 @@ void vision::FrameProcessorRuntimeManager::installJSIBindings() {
     auto function = std::make_shared<jsi::Function>(worklet->getValue(rt).asObject(rt).asFunction(rt));
 
 
-    cameraView->setFrameProcessor([&rt, function](jobject frame) {
+    cameraView->setFrameProcessor([&rt, function](jni::alias_ref<JImageProxy> frame) {
+      __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processor called!");
       function->call(rt, jsi::Value(42));
     });
 

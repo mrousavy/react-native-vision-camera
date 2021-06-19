@@ -8,10 +8,12 @@
 #include <jni.h>
 #include <fbjni/fbjni.h>
 
+#include "JImageProxy.h"
+
 namespace vision {
 
 using namespace facebook;
-using FrameProcessor = std::function<void(jobject)>;
+using FrameProcessor = std::function<void(jni::alias_ref<JImageProxy>)>;
 
 class CameraView : public jni::HybridClass<CameraView> {
 public:
@@ -29,7 +31,7 @@ private:
   jni::global_ref<CameraView::javaobject> javaPart_;
   FrameProcessor frameProcessor_;
 
-  void frameProcessorCallback(jobject frame);
+  void frameProcessorCallback(jni::alias_ref<JImageProxy> frame);
 
   explicit CameraView(jni::alias_ref<CameraView::jhybridobject> jThis) :
     javaPart_(jni::make_global(jThis)),
