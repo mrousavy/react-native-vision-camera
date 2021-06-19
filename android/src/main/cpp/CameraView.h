@@ -4,11 +4,13 @@
 
 #pragma once
 
+#include <memory>
 #include <fbjni/fbjni.h>
 
 namespace vision {
 
 using namespace facebook;
+using FrameProcessor = std::function<void(int)>;
 
 class CameraView : public jni::HybridClass<CameraView> {
 public:
@@ -18,16 +20,19 @@ public:
   static void registerNatives();
 
   // TODO: Use template<> to avoid heap allocation for std::function<>
-  void setFrameProcessor(const std::function<void(int)>& frameProcessor);
+  void setFrameProcessor(FrameProcessor&& frameProcessor);
+  void unsetFrameProcessor();
 
 private:
   friend HybridBase;
   jni::global_ref<CameraView::javaobject> javaPart_;
+  FrameProcessor frameProcessor_;
 
   void frameProcessorCallback(int frame);
 
   explicit CameraView(jni::alias_ref<CameraView::jhybridobject> jThis) :
-    javaPart_(jni::make_global(jThis))
+    javaPart_(jni::make_global(jThis)),
+    frameProcessor_(nullptr)
   {}
 };
 

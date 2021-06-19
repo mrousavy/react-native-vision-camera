@@ -85,6 +85,7 @@ void vision::FrameProcessorRuntimeManager::installJSIBindings() {
     if (!_runtimeManager || !_runtimeManager->runtime) throw jsi::JSError(runtime, "Camera::setFrameProcessor: The RuntimeManager is not yet initialized!");
 
     auto viewTag = arguments[0].asNumber();
+
     __android_log_write(ANDROID_LOG_INFO, TAG, "Adapting Shareable value from function (conversion to worklet)...");
     auto worklet = reanimated::ShareableValue::adapt(runtime, arguments[1], _runtimeManager.get());
     __android_log_write(ANDROID_LOG_INFO, TAG, "Successfully created worklet!");
@@ -96,7 +97,7 @@ void vision::FrameProcessorRuntimeManager::installJSIBindings() {
 
     cameraView->setFrameProcessor([&rt, function](int frame) {
       // TODO: Actually pass ImageProxy type instead of int.
-      function.call(rt, jsi::Value(frame));
+      function->call(rt, jsi::Value(frame));
     });
 
     __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processor set!");

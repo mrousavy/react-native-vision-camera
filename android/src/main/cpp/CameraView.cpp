@@ -3,29 +3,38 @@
 //
 
 #include "CameraView.h"
+#include <memory>
 #include <fbjni/fbjni.h>
 
 using namespace facebook;
 using namespace jni;
 
+namespace vision {
+
 using self = local_ref<HybridClass<vision::CameraView>::jhybriddata>;
 
-self vision::CameraView::initHybrid(alias_ref<HybridClass::jhybridobject> jThis) {
-  return makeCxxInstance(jThis);
+self CameraView::initHybrid(alias_ref <HybridClass::jhybridobject> jThis) {
+    return makeCxxInstance(jThis);
 }
 
-void vision::CameraView::registerNatives() {
-  registerHybrid({
-    makeNativeMethod("initHybrid", CameraView::initHybrid),
-    makeNativeMethod("frameProcessorCallback", CameraView::frameProcessorCallback),
-  });
+void CameraView::registerNatives() {
+    registerHybrid({
+        makeNativeMethod("initHybrid", CameraView::initHybrid),
+        makeNativeMethod("frameProcessorCallback", CameraView::frameProcessorCallback),
+    });
 }
 
-void vision::CameraView::frameProcessorCallback(int frame) {
+void CameraView::frameProcessorCallback(int frame) {
   // TODO: frameProcessorCallback
 }
 
-void vision::CameraView::setFrameProcessor(const std::function<void(int)>& frameProcessor) {
+void CameraView::setFrameProcessor(FrameProcessor&& frameProcessor) {
+  frameProcessor_ = frameProcessor;
   // TODO: setFrameProcessor
 }
 
+void vision::CameraView::unsetFrameProcessor() {
+
+}
+
+} // namespace vision
