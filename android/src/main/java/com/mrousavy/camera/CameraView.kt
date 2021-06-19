@@ -358,7 +358,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         imageCapture = imageCaptureBuilder.build()
         useCases.add(imageCapture!!)
       }
-      
+
       // TODO: Find out how to use frame processor, video recording and image capture at the same time. Maybe implement custom video recorder in ImageAnalyzer?
       camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis, *useCases.toTypedArray())
       preview.setSurfaceProvider(previewView.surfaceProvider)

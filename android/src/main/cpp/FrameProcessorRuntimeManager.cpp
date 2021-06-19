@@ -96,7 +96,6 @@ void vision::FrameProcessorRuntimeManager::installJSIBindings() {
     auto& rt = *this->_runtimeManager->runtime;
     auto function = std::make_shared<jsi::Function>(worklet->getValue(rt).asObject(rt).asFunction(rt));
 
-
     cameraView->setFrameProcessor([&rt, function](jni::local_ref<JImageProxy> frame) {
       __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processor called!");
       function->call(rt, jsi::Value(42));
@@ -122,9 +121,9 @@ void vision::FrameProcessorRuntimeManager::installJSIBindings() {
     if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::unsetFrameProcessor: First argument ('viewTag') must be a number!");
 
     auto viewTag = arguments[0].asNumber();
+    auto cameraView = findCameraViewById(javaClassLocal(), (int)viewTag);
 
-    // TODO: Find CameraView by it's viewTag
-    // TODO: Remove CameraView's [frameProcessor] (worklet) property and notify it
+    cameraView->unsetFrameProcessor();
 
     __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processor removed!");
     return jsi::Value::undefined();
