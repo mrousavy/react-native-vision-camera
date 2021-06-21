@@ -1,12 +1,12 @@
 module.exports = {
   title: 'VisionCamera',
   tagline: '📸 The Camera library that sees the vision.',
-  url: 'https://cuvent.github.io',
+  url: 'https://mrousavy.github.io',
   baseUrl: '/react-native-vision-camera/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'throw',
   favicon: './favicon.ico',
-  organizationName: 'cuvent',
+  organizationName: 'mrousavy',
   projectName: 'react-native-vision-camera',
   themeConfig: {
     algolia: {
@@ -76,10 +76,6 @@ module.exports = {
               label: 'Twitter (@mrousavy)',
               href: 'https://twitter.com/mrousavy',
             },
-            {
-              label: 'Twitter (@CuventTech)',
-              href: 'https://twitter.com/CuventTech',
-            },
           ],
         },
         {
@@ -90,13 +86,13 @@ module.exports = {
               href: 'https://github.com/mrousavy/react-native-vision-camera',
             },
             {
-              label: 'Cuvent',
-              href: 'https://cuvent.com',
+              label: 'Marc\'s Portfolio',
+              href: 'https://mrousavy.github.io',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Cuvent`,
+      copyright: `Copyright © ${new Date().getFullYear()} Marc Rousavy`,
     },
   },
   presets: [

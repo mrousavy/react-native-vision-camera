@@ -247,7 +247,7 @@ export interface CameraDevice {
   /**
    * All available formats for this camera device. Use this to find the best format for your use case and set it to the Camera's {@linkcode CameraProps.format | Camera's .format} property.
    *
-   * See [the Camera Formats documentation](https://cuvent.github.io/react-native-vision-camera/docs/guides/formats) for more information about Camera Formats.
+   * See [the Camera Formats documentation](https://mrousavy.github.io/react-native-vision-camera/docs/guides/formats) for more information about Camera Formats.
    */
   formats: CameraDeviceFormat[];
   /**
@@ -257,7 +257,7 @@ export interface CameraDevice {
    * * On newer **Android** devices this value is always `true`.
    * * On older **Android** devices this value is `true` if the device's hardware level is `LIMITED` or above, `false` otherwise. (`LEGACY`) (See [this table](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture))
    *
-   * If the device does not allow enabling `photo` and `video` capture at the same time, you might want to fall back to **snapshot capture** (See [**"Taking Snapshots"**](https://cuvent.github.io/react-native-vision-camera/docs/guides/capturing#taking-snapshots)) instead:
+   * If the device does not allow enabling `photo` and `video` capture at the same time, you might want to fall back to **snapshot capture** (See [**"Taking Snapshots"**](https://mrousavy.github.io/react-native-vision-camera/docs/guides/capturing#taking-snapshots)) instead:
    *
    * @example
    * ```tsx

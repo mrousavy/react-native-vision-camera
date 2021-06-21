@@ -1,6 +1,6 @@
 //
 //  CameraError.swift
-//  Cuvent
+//  mrousavy
 //
 //  Created by Marc Rousavy on 14.01.21.
 //  Copyright © 2021 mrousavy. All rights reserved.

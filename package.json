@@ -50,7 +50,6 @@
     "vision",
     "native",
     "module",
-    "cuvent",
     "react",
     "ai",
     "ar",
@@ -64,7 +63,7 @@
   "bugs": {
     "url": "https://github.com/mrousavy/react-native-vision-camera/issues"
   },
-  "homepage": "https://cuvent.github.io/react-native-vision-camera/",
+  "homepage": "https://mrousavy.github.io/react-native-vision-camera/",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
