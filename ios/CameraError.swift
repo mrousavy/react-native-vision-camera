@@ -1,6 +1,6 @@
 //
 //  CameraError.swift
-//  Cuvent
+//  mrousavy
 //
 //  Created by Marc Rousavy on 14.01.21.
 //  Copyright © 2021 mrousavy. All rights reserved.
@@ -139,7 +139,8 @@ enum FormatError {
     case .invalidHdr:
       return "The currently selected format does not support HDR capture! Make sure you select a format which `frameRateRanges` includes `supportsPhotoHDR`!"
     case let .invalidColorSpace(colorSpace):
-      return "The currently selected format does not support the colorSpace \"\(colorSpace)\"! Make sure you select a format which `colorSpaces` includes \"\(colorSpace)\"!"
+      return "The currently selected format does not support the colorSpace \"\(colorSpace)\"! " +
+        "Make sure you select a format which `colorSpaces` includes \"\(colorSpace)\"!"
     case let .invalidPreset(preset):
       return "The preset \"\(preset)\" is not available for the current camera device."
     }

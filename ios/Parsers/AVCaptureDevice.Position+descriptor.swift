@@ -1,6 +1,6 @@
 //
 //  AVCaptureDevice.Position+String.swift
-//  Cuvent
+//  mrousavy
 //
 //  Created by Marc Rousavy on 15.12.20.
 //  Copyright © 2020 mrousavy. All rights reserved.
