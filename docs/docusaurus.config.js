@@ -34,12 +34,12 @@ module.exports = {
           position: 'left'
         },
         {
-          href: 'https://github.com/cuvent/react-native-vision-camera/tree/main/example',
+          href: 'https://github.com/mrousavy/react-native-vision-camera/tree/main/example',
           label: 'Example App',
           position: 'left'
         },
         {
-          href: 'https://github.com/cuvent/react-native-vision-camera',
+          href: 'https://github.com/mrousavy/react-native-vision-camera',
           label: 'GitHub',
           position: 'right',
         },
@@ -61,7 +61,7 @@ module.exports = {
             },
             {
               label: 'Example App',
-              href: 'https://github.com/cuvent/react-native-vision-camera/tree/main/example',
+              href: 'https://github.com/mrousavy/react-native-vision-camera/tree/main/example',
             },
           ],
         },
@@ -70,7 +70,7 @@ module.exports = {
           items: [
             {
               label: 'GitHub discussions',
-              href: 'https://github.com/cuvent/react-native-vision-camera/discussions',
+              href: 'https://github.com/mrousavy/react-native-vision-camera/discussions',
             },
             {
               label: 'Twitter (@mrousavy)',
@@ -87,7 +87,7 @@ module.exports = {
           items: [
             {
               label: 'GitHub',
-              href: 'https://github.com/cuvent/react-native-vision-camera',
+              href: 'https://github.com/mrousavy/react-native-vision-camera',
             },
             {
               label: 'Cuvent',
@@ -107,7 +107,7 @@ module.exports = {
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
           editUrl:
-            'https://github.com/cuvent/react-native-vision-camera/edit/main/docs/',
+            'https://github.com/mrousavy/react-native-vision-camera/edit/main/docs/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
