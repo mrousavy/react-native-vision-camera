@@ -12,6 +12,9 @@ public abstract class FrameProcessorPlugin {
         System.loadLibrary("VisionCamera");
     }
 
+    @SuppressWarnings({"FieldCanBeLocal", "unused"})
+    private final HybridData mHybridData;
+
     /**
      * The actual Frame Processor plugin callback. Called for every frame the ImageAnalyzer receives.
      * @param image The CameraX ImageProxy. Don't call .close() on this, as VisionCamera handles that.
@@ -24,7 +27,7 @@ public abstract class FrameProcessorPlugin {
      *             The actual name in the JS Runtime will be prefixed with two underscores (`__`)
      */
     protected FrameProcessorPlugin(String name) {
-        initHybrid(name);
+        mHybridData = initHybrid(name);
     }
 
     private native HybridData initHybrid(String name);
