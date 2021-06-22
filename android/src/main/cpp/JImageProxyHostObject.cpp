@@ -23,6 +23,35 @@ jsi::Value JImageProxyHostObject::get(jsi::Runtime& runtime, const jsi::PropName
   auto name = propNameId.utf8(runtime);
   __android_log_write(ANDROID_LOG_INFO, TAG, ("Getting prop \"" + name + "\"...").c_str());
 
+  if (name == "toString") {
+    auto toString = [this] (jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+      auto width = this->frame->getWidth();
+      auto height = this->frame->getHeight();
+      auto str = std::to_string(width) + " x " + std::to_string(height) + " Frame";
+      return jsi::String::createFromUtf8(runtime, str);
+    };
+    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
+  }
+
+  if (name == "isValid") {
+    return jsi::Value(this->frame->getIsValid());
+  }
+  if (name == "isReady") {
+    return jsi::Value(this->frame->getIsValid());
+  }
+  if (name == "width") {
+    return jsi::Value((double) this->frame->getWidth());
+  }
+  if (name == "height") {
+    return jsi::Value((double) this->frame->getHeight());
+  }
+  if (name == "bytesPerRow") {
+    return jsi::Value(0);
+  }
+  if (name == "planesCount") {
+    return jsi::Value(0);
+  }
+
   return jsi::Value::undefined();
 }
 

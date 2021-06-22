@@ -26,15 +26,6 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
 jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {
   auto name = propName.utf8(runtime);
 
-
-  if (name == "Symbol.toPrimitive") {
-    // not implemented
-    return jsi::Value::undefined();
-  }
-  if (name == "valueOf") {
-    // not implemented
-    return jsi::Value::undefined();
-  }
   if (name == "toString") {
     auto toString = [this] (jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
       auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);

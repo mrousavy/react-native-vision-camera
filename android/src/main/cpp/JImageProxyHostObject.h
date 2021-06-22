@@ -7,6 +7,7 @@
 #include <jsi/jsi.h>
 #include <jni.h>
 #include <fbjni/fbjni.h>
+#include <android/log.h>
 
 #include "JImageProxy.h"
 
@@ -16,7 +17,13 @@ using namespace facebook;
 
 class JSI_EXPORT JImageProxyHostObject : public jsi::HostObject {
 public:
-  explicit JImageProxyHostObject(jni::local_ref<jobject> boxedImage) : frame(boxedImage) {
+  explicit JImageProxyHostObject(jni::local_ref<jobject> boxedImage) {
+    if (boxedImage->isInstanceOf(JImageProxy::javaClassLocal())) {
+      frame = reinterpret_cast<JImageProxy *>(boxedImage.get());
+    } else {
+      throw std::runtime_error("Tried to initialize JImageProxyHostObject with an object not of type ImageProxy.");
+    }
+  }
 
   ~JImageProxyHostObject();
 
@@ -26,7 +33,7 @@ public:
   std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime &rt) override;
 
 public:
-  jni::local_ref<jobject> frame;
+  JImageProxy* frame;
 
 private:
   static auto constexpr TAG = "VisionCamera";
