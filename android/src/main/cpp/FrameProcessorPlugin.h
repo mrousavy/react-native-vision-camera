@@ -7,6 +7,8 @@
 #include <jni.h>
 #include <fbjni/fbjni.h>
 
+#include "JImageProxy.h"
+
 namespace vision {
 
 using namespace facebook;
@@ -19,7 +21,7 @@ public:
                                                 const std::string& name);
   static void registerNatives();
 
-  void callback(const local_ref<jobject>& image);
+  void callback(alias_ref<JImageProxy::javaobject> image);
   std::string getName();
 
 private:

@@ -67,8 +67,6 @@ void vision::FrameProcessorRuntimeManager::initializeRuntime() {
   auto &visionRuntime = *_runtimeManager->runtime;
   auto visionGlobal = visionRuntime.global();
 
-  // TODO: Initialize plugins here.
-
   __android_log_write(ANDROID_LOG_INFO, TAG,
                       "Initialized Vision JS-Runtime!");
 }
@@ -117,7 +115,7 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
     auto &rt = *this->_runtimeManager->runtime;
     auto function = std::make_shared<jsi::Function>(worklet->getValue(rt).asObject(rt).asFunction(rt));
 
-    cameraView->setFrameProcessor([&rt, function](jni::local_ref<jobject> frame) {
+    cameraView->setFrameProcessor([&rt, function](jni::local_ref<JImageProxy::javaobject> frame) {
       __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processor called!");
       // create HostObject which holds the Frame (JImageProxy)
       auto hostObject = std::make_shared<JImageProxyHostObject>(frame);
@@ -185,9 +183,10 @@ void FrameProcessorRuntimeManager::registerPlugin(alias_ref<FrameProcessorPlugin
                               size_t count) -> jsi::Value {
     __android_log_write(ANDROID_LOG_INFO, TAG, "Calling Frame Processor Plugin...");
 
-    auto frameHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
+    auto boxedHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
+    auto frameHostObject = dynamic_cast<JImageProxyHostObject*>(boxedHostObject.get());
 
-    pluginCxx->callback(nullptr);
+    pluginCxx->callback(frameHostObject->frame);
     __android_log_write(ANDROID_LOG_INFO, TAG, "Called plugin!");
 
     return jsi::Value::undefined();

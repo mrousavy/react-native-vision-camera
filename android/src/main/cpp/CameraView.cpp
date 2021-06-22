@@ -25,7 +25,7 @@ void CameraView::registerNatives() {
     });
 }
 
-void CameraView::frameProcessorCallback(alias_ref<jobject> frame) {
+void CameraView::frameProcessorCallback(alias_ref<JImageProxy::javaobject> frame) {
   __android_log_write(ANDROID_LOG_WARN, TAG, "Getting format...");
   static auto getFormatMethod = findClassLocal("androidx/camera/core/ImageProxy")->getMethod<jint()>("getFormat");
   auto format = getFormatMethod(frame);
@@ -39,7 +39,7 @@ void CameraView::frameProcessorCallback(alias_ref<jobject> frame) {
     return;
   }
 
-  local_ref<jobject> frameStrong = make_local(frame);
+  auto frameStrong = make_local(frame);
   try {
     __android_log_write(ANDROID_LOG_INFO, TAG, "Calling Frame Processor...");
     frameProcessor_(frameStrong);

@@ -23,7 +23,7 @@ int JImageProxy::getHeight() {
 }
 
 bool JImageProxy::getIsValid() {
-  static auto getImageMethod = getClass()->getMethod<jobject()>("getImage");
+  static auto getImageMethod = getClass()->getMethod<JImageProxy::javaobject()>("getImage");
   auto image = getImageMethod(javaClassLocal());
 
   static auto getHardwareBufferMethod = findClassLocal("android/media/Image")->getMethod<jobject()>("getHardwareBuffer");

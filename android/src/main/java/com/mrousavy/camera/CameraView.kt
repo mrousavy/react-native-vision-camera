@@ -161,7 +161,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   }
 
   private external fun initHybrid(): HybridData
-  private external fun frameProcessorCallback(frame: Any)
+  private external fun frameProcessorCallback(frame: ImageProxy)
 
   @Suppress("unused")
   @DoNotStrip
