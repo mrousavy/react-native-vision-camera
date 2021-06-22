@@ -92,6 +92,8 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   private val reactContext: ReactContext
     get() = context as ReactContext
 
+  private var enableFrameProcessor = false
+
   @Suppress("JoinDeclarationAndAssignment")
   internal val previewView: PreviewView
   private val cameraExecutor = Executors.newSingleThreadExecutor()
@@ -160,6 +162,13 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
 
   private external fun initHybrid(): HybridData
   private external fun frameProcessorCallback(frame: Any)
+
+  @Suppress("unused")
+  @DoNotStrip
+  fun setEnableFrameProcessor(enable: Boolean) {
+    Log.d(TAG, "Set enable frame processor: $enable")
+    enableFrameProcessor = true
+  }
 
   override fun getLifecycle(): Lifecycle {
     return lifecycleRegistry
@@ -340,9 +349,12 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
         .build()
       imageAnalysis.setAnalyzer(cameraExecutor, { image ->
-        Log.i(TAG, "Image Analyzer called with ${image.width}x${image.height} image. Calling Frame Processor...")
-        frameProcessorCallback(image)
-        Log.i(TAG, "Frame Processor finished!")
+        Log.i(TAG, "Image Analyzer called with ${image.width}x${image.height} image.")
+        if (enableFrameProcessor) {
+          Log.i(TAG, "Calling Frame Processor...")
+          frameProcessorCallback(image)
+          Log.i(TAG, "Frame Processor finished!")
+        }
         image.close()
       })
 

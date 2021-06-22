@@ -1,5 +1,6 @@
 package com.mrousavy.camera.frameprocessor
 
+import android.util.Log
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.ReactApplicationContext
@@ -11,7 +12,7 @@ import java.lang.ref.WeakReference
 
 class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
   companion object {
-    const val TAG = "FrameProcessorRuntimeManager"
+    const val TAG = "FrameProcessorRuntime"
 
     init {
       System.loadLibrary("reanimated")
@@ -27,8 +28,9 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
   init {
     val holder = context.catalystInstance.jsCallInvokerHolder as CallInvokerHolderImpl
     mScheduler = Scheduler(context)
-    mHybridData = initHybrid(context.javaScriptContextHolder.get(), holder, mScheduler!!)
     mContext = WeakReference(context)
+    mHybridData = initHybrid(context.javaScriptContextHolder.get(), holder, mScheduler!!)
+    initializeRuntime()
   }
 
   fun destroy() {
@@ -37,7 +39,10 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
   }
 
   fun findCameraViewById(viewId: Int): CameraView {
-    return mContext?.get()?.currentActivity?.findViewById(viewId) ?: throw ViewNotFoundError(viewId)
+    Log.d(TAG, "finding view $viewId...")
+    val view = mContext?.get()?.currentActivity?.findViewById<CameraView>(viewId)
+    Log.d(TAG, "found view $viewId! is null: ${view == null}")
+    return view ?: throw ViewNotFoundError(viewId)
   }
 
   private external fun initHybrid(

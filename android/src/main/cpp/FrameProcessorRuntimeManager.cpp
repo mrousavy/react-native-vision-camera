@@ -13,87 +13,105 @@
 #include "CameraView.h"
 #include "JImageProxy.h"
 
+namespace vision {
+
 // type aliases
-using self = local_ref<HybridClass<vision::FrameProcessorRuntimeManager>::jhybriddata>;
+using TSelf = local_ref<HybridClass<vision::FrameProcessorRuntimeManager>::jhybriddata>;
 using JSCallInvokerHolder = jni::alias_ref<facebook::react::CallInvokerHolder::javaobject>;
 using AndroidScheduler = jni::alias_ref<reanimated::AndroidScheduler::javaobject>;
 
 // JNI binding
 void vision::FrameProcessorRuntimeManager::registerNatives() {
   registerHybrid({
-    makeNativeMethod("initHybrid", FrameProcessorRuntimeManager::initHybrid),
-    makeNativeMethod("installJSIBindings", FrameProcessorRuntimeManager::installJSIBindings),
-    makeNativeMethod("initializeRuntime", FrameProcessorRuntimeManager::initializeRuntime),
+    makeNativeMethod("initHybrid",
+                    FrameProcessorRuntimeManager::initHybrid),
+    makeNativeMethod("installJSIBindings",
+                    FrameProcessorRuntimeManager::installJSIBindings),
+    makeNativeMethod("initializeRuntime",
+                    FrameProcessorRuntimeManager::initializeRuntime),
   });
 }
 
 // JNI init
-self vision::FrameProcessorRuntimeManager::initHybrid(alias_ref<jhybridobject> jThis,
-                                                      jlong jsContext,
-                                                      JSCallInvokerHolder jsCallInvokerHolder,
-                                                      AndroidScheduler androidScheduler) {
-  __android_log_write(ANDROID_LOG_INFO, TAG, "Initializing FrameProcessorRuntimeManager...");
+TSelf vision::FrameProcessorRuntimeManager::initHybrid(
+    alias_ref<jhybridobject> jThis,
+    jlong jsContext,
+    JSCallInvokerHolder jsCallInvokerHolder,
+    AndroidScheduler androidScheduler) {
+  __android_log_write(ANDROID_LOG_INFO, TAG,
+                      "Initializing FrameProcessorRuntimeManager...");
   auto jsCallInvoker = jsCallInvokerHolder->cthis()->getCallInvoker();
   auto scheduler = androidScheduler->cthis()->getScheduler();
   scheduler->setJSCallInvoker(jsCallInvoker);
 
-  return makeCxxInstance(jThis, (jsi::Runtime*)jsContext, jsCallInvoker, scheduler);
+  return makeCxxInstance(jThis, (jsi::Runtime *) jsContext, jsCallInvoker, scheduler);
 }
 
 void vision::FrameProcessorRuntimeManager::initializeRuntime() {
-  __android_log_write(ANDROID_LOG_INFO, TAG, "Initializing Vision JS-Runtime...");
+  __android_log_write(ANDROID_LOG_INFO, TAG,
+                      "Initializing Vision JS-Runtime...");
 
   auto runtime = makeJSIRuntime();
   reanimated::RuntimeDecorator::decorateRuntime(*runtime, "FRAME_PROCESSOR");
-  runtime->global().setProperty(*runtime, "_FRAME_PROCESSOR", jsi::Value(true));
+  runtime->global().setProperty(*runtime, "_FRAME_PROCESSOR",
+                                jsi::Value(true));
 
   auto errorHandler = std::make_shared<reanimated::AndroidErrorHandler>(scheduler_);
   _runtimeManager = std::make_unique<reanimated::RuntimeManager>(std::move(runtime),
                                                                  errorHandler,
                                                                  scheduler_);
 
-  auto& visionRuntime = *_runtimeManager->runtime;
+  auto &visionRuntime = *_runtimeManager->runtime;
   auto visionGlobal = visionRuntime.global();
 
   // TODO: Initialize plugins here.
 
-  __android_log_write(ANDROID_LOG_INFO, TAG, "Initialized Vision JS-Runtime!");
+  __android_log_write(ANDROID_LOG_INFO, TAG,
+                      "Initialized Vision JS-Runtime!");
 }
 
-static vision::CameraView* findCameraViewById(alias_ref<JClass> clazz, jint viewId) {
-  static const auto func = clazz->getMethod<vision::CameraView(jint)>("findCameraViewById");
-  auto result = func(clazz, viewId);
+CameraView* FrameProcessorRuntimeManager::findCameraViewById(int viewId) {
+  static const auto func = javaPart_->getClass()->getMethod<CameraView*(jint)>("findCameraViewById");
+  auto result = func(javaPart_.get(), viewId);
   return result->cthis();
 }
 
 // actual JSI installer
-void vision::FrameProcessorRuntimeManager::installJSIBindings() {
-  __android_log_write(ANDROID_LOG_INFO, TAG, "installing JSI bindings...");
+void FrameProcessorRuntimeManager::installJSIBindings() {
+  __android_log_write(ANDROID_LOG_INFO, TAG, "Installing JSI bindings...");
 
   if (runtime_ == nullptr) {
-    __android_log_write(ANDROID_LOG_ERROR, TAG, "JS-Runtime was null, Frame Processor JSI bindings could not be installed!");
+    __android_log_write(ANDROID_LOG_ERROR, TAG,
+                        "JS-Runtime was null, Frame Processor JSI bindings could not be installed!");
     return;
   }
 
-  auto& jsiRuntime = *runtime_;
+  auto &jsiRuntime = *runtime_;
 
-  auto setFrameProcessor = [this](jsi::Runtime& runtime,
-                                  const jsi::Value& thisValue,
-                                  const jsi::Value* arguments,
+  auto setFrameProcessor = [this](jsi::Runtime &runtime,
+                                  const jsi::Value &thisValue,
+                                  const jsi::Value *arguments,
                                   size_t count) -> jsi::Value {
-    __android_log_write(ANDROID_LOG_INFO, TAG, "Setting new Frame Processor...");
-    if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: First argument ('viewTag') must be a number!");
-    if (!arguments[1].isObject()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
-    if (!_runtimeManager || !_runtimeManager->runtime) throw jsi::JSError(runtime, "Camera::setFrameProcessor: The RuntimeManager is not yet initialized!");
+    __android_log_write(ANDROID_LOG_INFO, TAG,
+                        "Setting new Frame Processor...");
+    if (!arguments[0].isNumber())
+      throw jsi::JSError(runtime, "Camera::setFrameProcessor: First argument ('viewTag') must be a number!");
+    if (!arguments[1].isObject())
+      throw jsi::JSError(runtime, "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
+    if (!_runtimeManager || !_runtimeManager->runtime)
+      throw jsi::JSError(runtime, "Camera::setFrameProcessor: The RuntimeManager is not yet initialized!");
 
     auto viewTag = arguments[0].asNumber();
 
     __android_log_write(ANDROID_LOG_INFO, TAG, "Adapting Shareable value from function (conversion to worklet)...");
-    auto worklet = reanimated::ShareableValue::adapt(runtime, arguments[1], _runtimeManager.get());
+    auto worklet = reanimated::ShareableValue::adapt(runtime, arguments[1],
+                                                     _runtimeManager.get());
     __android_log_write(ANDROID_LOG_INFO, TAG, "Successfully created worklet!");
 
-    auto cameraView = findCameraViewById(javaClassLocal(), (int)viewTag);
-    auto& rt = *this->_runtimeManager->runtime;
+    auto cameraView = findCameraViewById((int) viewTag);
+    __android_log_write(ANDROID_LOG_INFO, TAG, "Found CameraView!");
+
+    auto &rt = *this->_runtimeManager->runtime;
     auto function = std::make_shared<jsi::Function>(worklet->getValue(rt).asObject(rt).asFunction(rt));
 
     cameraView->setFrameProcessor([&rt, function](jni::local_ref<jobject> frame) {
@@ -107,21 +125,24 @@ void vision::FrameProcessorRuntimeManager::installJSIBindings() {
   };
   jsiRuntime.global().setProperty(jsiRuntime,
                                   "setFrameProcessor",
-                                  jsi::Function::createFromHostFunction(jsiRuntime,
-                                                                        jsi::PropNameID::forAscii(jsiRuntime, "setFrameProcessor"),
-                                                                        2,  // viewTag, frameProcessor
-                                                                        setFrameProcessor));
+                                  jsi::Function::createFromHostFunction(
+                                      jsiRuntime,
+                                      jsi::PropNameID::forAscii(jsiRuntime,
+                                                                "setFrameProcessor"),
+                                      2,  // viewTag, frameProcessor
+                                      setFrameProcessor));
 
 
-  auto unsetFrameProcessor = [this](jsi::Runtime& runtime,
-                                    const jsi::Value& thisValue,
-                                    const jsi::Value* arguments,
+  auto unsetFrameProcessor = [this](jsi::Runtime &runtime,
+                                    const jsi::Value &thisValue,
+                                    const jsi::Value *arguments,
                                     size_t count) -> jsi::Value {
     __android_log_write(ANDROID_LOG_INFO, TAG, "Removing Frame Processor...");
-    if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::unsetFrameProcessor: First argument ('viewTag') must be a number!");
+    if (!arguments[0].isNumber())
+      throw jsi::JSError(runtime, "Camera::unsetFrameProcessor: First argument ('viewTag') must be a number!");
 
     auto viewTag = arguments[0].asNumber();
-    auto cameraView = findCameraViewById(javaClassLocal(), (int)viewTag);
+    auto cameraView = findCameraViewById((int) viewTag);
 
     cameraView->unsetFrameProcessor();
 
@@ -130,10 +151,14 @@ void vision::FrameProcessorRuntimeManager::installJSIBindings() {
   };
   jsiRuntime.global().setProperty(jsiRuntime,
                                   "unsetFrameProcessor",
-                                  jsi::Function::createFromHostFunction(jsiRuntime,
-                                                                        jsi::PropNameID::forAscii(jsiRuntime, "unsetFrameProcessor"),
-                                                                        1, // viewTag
-                                                                        unsetFrameProcessor));
+                                  jsi::Function::createFromHostFunction(
+                                      jsiRuntime,
+                                      jsi::PropNameID::forAscii(jsiRuntime,
+                                                                "unsetFrameProcessor"),
+                                      1, // viewTag
+                                      unsetFrameProcessor));
 
   __android_log_write(ANDROID_LOG_INFO, TAG, "Finished installing JSI bindings!");
 }
+
+} // namespace vision

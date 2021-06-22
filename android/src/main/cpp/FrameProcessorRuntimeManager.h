@@ -12,6 +12,7 @@
 #include "Scheduler.h"
 #include "RuntimeManager.h"
 #include "AndroidScheduler.h"
+#include "CameraView.h"
 
 namespace vision {
 
@@ -27,6 +28,17 @@ public:
                                                 jni::alias_ref<reanimated::AndroidScheduler::javaobject> androidScheduler);
   static void registerNatives();
 
+  FrameProcessorRuntimeManager() {}
+  explicit FrameProcessorRuntimeManager(jni::alias_ref<FrameProcessorRuntimeManager::jhybridobject> jThis,
+                                        jsi::Runtime* runtime,
+                                        std::shared_ptr<facebook::react::CallInvoker> jsCallInvoker,
+                                        std::shared_ptr<reanimated::Scheduler> scheduler) :
+      javaPart_(jni::make_global(jThis)),
+      runtime_(runtime),
+      jsCallInvoker_(jsCallInvoker),
+      scheduler_(scheduler)
+  {}
+
 private:
   friend HybridBase;
   jni::global_ref<FrameProcessorRuntimeManager::javaobject> javaPart_;
@@ -35,18 +47,9 @@ private:
   std::shared_ptr<reanimated::RuntimeManager> _runtimeManager;
   std::shared_ptr<reanimated::Scheduler> scheduler_;
 
+  CameraView* findCameraViewById(int viewId);
   void initializeRuntime();
   void installJSIBindings();
-
-  explicit FrameProcessorRuntimeManager(jni::alias_ref<FrameProcessorRuntimeManager::jhybridobject> jThis,
-                                        jsi::Runtime* runtime,
-                                        std::shared_ptr<facebook::react::CallInvoker> jsCallInvoker,
-                                        std::shared_ptr<reanimated::Scheduler> scheduler) :
-                                          javaPart_(jni::make_global(jThis)),
-                                          runtime_(runtime),
-                                          jsCallInvoker_(jsCallInvoker),
-                                          scheduler_(scheduler)
-  {}
 };
 
 } // namespace vision

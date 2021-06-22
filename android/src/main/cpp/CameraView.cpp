@@ -12,9 +12,9 @@ namespace vision {
 using namespace facebook;
 using namespace jni;
 
-using self = local_ref<HybridClass<vision::CameraView>::jhybriddata>;
+using TSelf = local_ref<HybridClass<vision::CameraView>::jhybriddata>;
 
-self CameraView::initHybrid(alias_ref <HybridClass::jhybridobject> jThis) {
+TSelf CameraView::initHybrid(alias_ref <HybridClass::jhybridobject> jThis) {
     return makeCxxInstance(jThis);
 }
 
@@ -36,12 +36,24 @@ void CameraView::frameProcessorCallback(alias_ref<jobject> frame) {
   frameProcessor_(frameStrong);
 }
 
+void CameraView::setEnableFrameProcessor(bool enable) {
+  if (enable) {
+    __android_log_write(ANDROID_LOG_INFO, TAG, "Enabling Frame Processor Callback...");
+  } else {
+    __android_log_write(ANDROID_LOG_INFO, TAG, "Disabling Frame Processor Callback...");
+  }
+  static const auto javaMethod = javaPart_->getClass()->getMethod<void(bool)>("setEnableFrameProcessor");
+  javaMethod(javaPart_->getClass(), enable);
+}
+
 void CameraView::setFrameProcessor(const FrameProcessor&& frameProcessor) {
   frameProcessor_ = frameProcessor;
+  setEnableFrameProcessor(true);
 }
 
 void vision::CameraView::unsetFrameProcessor() {
   frameProcessor_ = nullptr;
+  setEnableFrameProcessor(false);
 }
 
 } // namespace vision
