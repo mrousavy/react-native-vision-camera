@@ -10,7 +10,7 @@
 namespace vision {
 
 struct JImageProxy : public facebook::jni::JavaClass<JImageProxy> {
-  static constexpr auto kJavaDescriptor = "Landroidx.camera.core/ImageProxy;";
+  static constexpr auto kJavaDescriptor = "Landroidx/camera/core/ImageProxy;";
 
 public:
   int getWidth();
