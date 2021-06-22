@@ -171,6 +171,10 @@ void FrameProcessorRuntimeManager::registerPlugin(alias_ref<FrameProcessorPlugin
 
   auto pluginGlobal = make_global(plugin);
   auto pluginCxx = pluginGlobal->cthis();
+  auto name = pluginCxx->getName();
+
+  auto message = "Installing Frame Processor Plugin \"" + name + "\"...";
+  __android_log_write(ANDROID_LOG_INFO, TAG, message.c_str());
 
   auto callback = [pluginCxx](jsi::Runtime& runtime,
                               const jsi::Value& thisValue,
@@ -186,7 +190,6 @@ void FrameProcessorRuntimeManager::registerPlugin(alias_ref<FrameProcessorPlugin
     return jsi::Value::undefined();
   };
 
-  auto name = pluginCxx->getName();
   runtime.global().setProperty(runtime, name.c_str(), jsi::Function::createFromHostFunction(runtime,
                                                                                             jsi::PropNameID::forAscii(runtime, name),
                                                                                             1, // frame

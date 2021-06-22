@@ -41,9 +41,11 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
     mHybridData = initHybrid(context.javaScriptContextHolder.get(), holder, mScheduler!!)
     initializeRuntime()
 
+    Log.i(TAG, "Installing Frame Processor Plugins...")
     Plugins.forEach { plugin ->
       registerPlugin(plugin)
     }
+    Log.i(TAG, "Successfully installed ${Plugins.count()} Frame Processor Plugins!")
     HasRegisteredPlugins = true
   }
 
