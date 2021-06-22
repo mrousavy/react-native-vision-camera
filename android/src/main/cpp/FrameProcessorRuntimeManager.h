@@ -52,7 +52,7 @@ private:
   CameraView* findCameraViewById(int viewId);
   void initializeRuntime();
   void installJSIBindings();
-  void registerPlugin(FrameProcessorPlugin* plugin);
+  void registerPlugin(alias_ref<FrameProcessorPlugin::javaobject> plugin);
 };
 
 } // namespace vision

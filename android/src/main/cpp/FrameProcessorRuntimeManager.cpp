@@ -163,8 +163,34 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Finished installing JSI bindings!");
 }
 
-void FrameProcessorRuntimeManager::registerPlugin(FrameProcessorPlugin* plugin) {
-  // noop
+void FrameProcessorRuntimeManager::registerPlugin(alias_ref<FrameProcessorPlugin::javaobject> plugin) {
+  if (!_runtimeManager || !_runtimeManager->runtime) {
+    throw std::runtime_error("Tried to register plugin before initializing JS runtime! Call `initializeRuntime()` first.");
+  }
+  auto& runtime = *_runtimeManager->runtime;
+
+  auto pluginGlobal = make_global(plugin);
+  auto pluginCxx = pluginGlobal->cthis();
+
+  auto callback = [pluginCxx](jsi::Runtime& runtime,
+                              const jsi::Value& thisValue,
+                              const jsi::Value* arguments,
+                              size_t count) -> jsi::Value {
+    __android_log_write(ANDROID_LOG_INFO, TAG, "Calling Frame Processor Plugin...");
+
+    auto frameHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
+
+    pluginCxx->callback(nullptr);
+    __android_log_write(ANDROID_LOG_INFO, TAG, "Called plugin!");
+
+    return jsi::Value::undefined();
+  };
+
+  auto name = pluginCxx->getName();
+  runtime.global().setProperty(runtime, name.c_str(), jsi::Function::createFromHostFunction(runtime,
+                                                                                            jsi::PropNameID::forAscii(runtime, name),
+                                                                                            1, // frame
+                                                                                            callback));
 }
 
 } // namespace vision

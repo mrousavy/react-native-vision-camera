@@ -12,7 +12,7 @@ namespace vision {
 using namespace facebook;
 using namespace jni;
 
-class FrameProcessorPlugin: HybridClass<FrameProcessorPlugin> {
+class FrameProcessorPlugin: public HybridClass<FrameProcessorPlugin> {
 public:
   static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/FrameProcessorPlugin;";
   static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis,
