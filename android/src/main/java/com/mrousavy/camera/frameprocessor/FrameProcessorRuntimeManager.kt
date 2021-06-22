@@ -13,7 +13,15 @@ import java.lang.ref.WeakReference
 class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
   companion object {
     const val TAG = "FrameProcessorRuntime"
+    private var HasRegisteredPlugins = false
     val Plugins: ArrayList<FrameProcessorPlugin> = ArrayList()
+      get() {
+        if (HasRegisteredPlugins) {
+          throw Error("Tried to access Frame Processor Plugin list, " +
+            "but plugins have already been registered (list is frozen now!).")
+        }
+        return field
+      }
 
     init {
       System.loadLibrary("reanimated")
@@ -32,7 +40,12 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
     mContext = WeakReference(context)
     mHybridData = initHybrid(context.javaScriptContextHolder.get(), holder, mScheduler!!)
     initializeRuntime()
+
+    Plugins.forEach { plugin ->
+
+    }
     // TODO: Initialize Plugins...
+    HasRegisteredPlugins = true
   }
 
   fun destroy() {
@@ -52,6 +65,7 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
     jsCallInvokerHolder: CallInvokerHolderImpl,
     scheduler: Scheduler
   ): HybridData?
-  external fun installJSIBindings()
+  private external fun installJSIBindings()
   private external fun initializeRuntime()
+  private external fun registerPlugin(plugin: FrameProcessorPlugin)
 }

@@ -24,11 +24,13 @@ using AndroidScheduler = jni::alias_ref<reanimated::AndroidScheduler::javaobject
 void vision::FrameProcessorRuntimeManager::registerNatives() {
   registerHybrid({
     makeNativeMethod("initHybrid",
-                    FrameProcessorRuntimeManager::initHybrid),
+                     FrameProcessorRuntimeManager::initHybrid),
     makeNativeMethod("installJSIBindings",
-                    FrameProcessorRuntimeManager::installJSIBindings),
+                     FrameProcessorRuntimeManager::installJSIBindings),
     makeNativeMethod("initializeRuntime",
-                    FrameProcessorRuntimeManager::initializeRuntime),
+                     FrameProcessorRuntimeManager::initializeRuntime),
+    makeNativeMethod("registerPlugin",
+                     FrameProcessorRuntimeManager::registerPlugin),
   });
 }
 
@@ -159,6 +161,10 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
                                       unsetFrameProcessor));
 
   __android_log_write(ANDROID_LOG_INFO, TAG, "Finished installing JSI bindings!");
+}
+
+void FrameProcessorRuntimeManager::registerPlugin(FrameProcessorPlugin* plugin) {
+  // noop
 }
 
 } // namespace vision

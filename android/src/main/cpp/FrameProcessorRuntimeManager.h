@@ -12,7 +12,9 @@
 #include "Scheduler.h"
 #include "RuntimeManager.h"
 #include "AndroidScheduler.h"
+
 #include "CameraView.h"
+#include "FrameProcessorPlugin.h"
 
 namespace vision {
 
@@ -50,6 +52,7 @@ private:
   CameraView* findCameraViewById(int viewId);
   void initializeRuntime();
   void installJSIBindings();
+  void registerPlugin(FrameProcessorPlugin* plugin);
 };
 
 } // namespace vision
