@@ -23,7 +23,7 @@ public abstract class FrameProcessorPlugin {
      * @param name Specifies the Frame Processor Plugin's name in the Runtime.
      *             The actual name in the JS Runtime will be prefixed with two underscores (`__`)
      */
-    private FrameProcessorPlugin(String name) {
+    protected FrameProcessorPlugin(String name) {
         initHybrid(name);
         FrameProcessorRuntimeManager.Companion.getPlugins().add(this);
     }
