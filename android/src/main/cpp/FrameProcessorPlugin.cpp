@@ -16,7 +16,10 @@ TSelf vision::FrameProcessorPlugin::initHybrid(alias_ref<HybridClass::jhybridobj
 }
 
 void FrameProcessorPlugin::registerNatives() {
-  // noop
+  registerHybrid({
+    makeNativeMethod("initHybrid",
+                     FrameProcessorPlugin::initHybrid),
+  });
 }
 
 void FrameProcessorPlugin::callback(const local_ref<jobject>& image) {
