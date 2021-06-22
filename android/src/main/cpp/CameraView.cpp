@@ -26,6 +26,13 @@ void CameraView::registerNatives() {
 }
 
 void CameraView::frameProcessorCallback(alias_ref<jobject> frame) {
+  __android_log_write(ANDROID_LOG_WARN, TAG, "Getting format...");
+  static auto getFormatMethod = findClassLocal("androidx/camera/core/ImageProxy")->getMethod<jint()>("getFormat");
+  auto format = getFormatMethod(frame);
+  auto txt = "Format: " + std::to_string(format) + ".";
+  __android_log_write(ANDROID_LOG_WARN, TAG, txt.c_str());
+
+
   if (frameProcessor_ == nullptr) {
     __android_log_write(ANDROID_LOG_WARN, TAG, "Frame Processor is null!");
     setEnableFrameProcessor(false);
