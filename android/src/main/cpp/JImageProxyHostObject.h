@@ -16,7 +16,7 @@ using namespace facebook;
 
 class JSI_EXPORT JImageProxyHostObject : public jsi::HostObject {
 public:
-  explicit JImageProxyHostObject(jni::local_ref<JImageProxy> frame) : frame(frame) {}
+  explicit JImageProxyHostObject(jni::local_ref<jobject> boxedImage) : frame(boxedImage) {
 
   ~JImageProxyHostObject();
 
@@ -26,7 +26,7 @@ public:
   std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime &rt) override;
 
 public:
-  jni::local_ref<JImageProxy> frame;
+  jni::local_ref<jobject> frame;
 
 private:
   static auto constexpr TAG = "VisionCamera";
