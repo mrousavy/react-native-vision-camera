@@ -186,8 +186,10 @@ void FrameProcessorRuntimeManager::registerPlugin(alias_ref<FrameProcessorPlugin
     auto boxedHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
     auto frameHostObject = dynamic_cast<JImageProxyHostObject*>(boxedHostObject.get());
 
-    pluginCxx->callback(frameHostObject->frame);
+    auto result = pluginCxx->callback(frameHostObject->frame);
     __android_log_write(ANDROID_LOG_INFO, TAG, "Called plugin!");
+
+    // TODO: Convert result to ObjC value
 
     return jsi::Value::undefined();
   };

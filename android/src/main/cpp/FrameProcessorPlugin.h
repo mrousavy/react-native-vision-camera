@@ -21,7 +21,7 @@ public:
                                                 const std::string& name);
   static void registerNatives();
 
-  void callback(alias_ref<JImageProxy::javaobject> image);
+  jobject callback(alias_ref<JImageProxy::javaobject> image);
   std::string getName();
 
 private:

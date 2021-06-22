@@ -22,9 +22,10 @@ void FrameProcessorPlugin::registerNatives() {
   });
 }
 
-void FrameProcessorPlugin::callback(alias_ref<JImageProxy::javaobject> image) {
-  static const auto func = javaPart_->getClass()->getMethod<void(alias_ref<JImageProxy::javaobject>)>("callback");
-  func(javaPart_.get(), image);
+jobject FrameProcessorPlugin::callback(alias_ref<JImageProxy::javaobject> image) {
+  static const auto func = javaPart_->getClass()->getMethod<jobject(alias_ref<JImageProxy::javaobject>)>("callback");
+  auto result = func(javaPart_.get(), image);
+  return result.get();
 }
 
 std::string FrameProcessorPlugin::getName() {

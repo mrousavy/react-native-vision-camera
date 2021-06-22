@@ -6,8 +6,9 @@ import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
 
 public class ScanQRCodePlugin extends FrameProcessorPlugin {
     @Override
-    public void callback(ImageProxy image) {
+    public Object callback(ImageProxy image) {
         Log.d("FPPPPPPP", "YEEEEEEEEEET - Format: " + image.getFormat());
+        return null;
     }
 
     ScanQRCodePlugin() {
