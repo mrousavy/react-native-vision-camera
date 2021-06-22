@@ -43,7 +43,7 @@ void CameraView::setEnableFrameProcessor(bool enable) {
     __android_log_write(ANDROID_LOG_INFO, TAG, "Disabling Frame Processor Callback...");
   }
   static const auto javaMethod = javaPart_->getClass()->getMethod<void(bool)>("setEnableFrameProcessor");
-  javaMethod(javaPart_->getClass(), enable);
+  javaMethod(javaPart_.get(), enable);
 }
 
 void CameraView::setFrameProcessor(const FrameProcessor&& frameProcessor) {
