@@ -42,9 +42,8 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
     initializeRuntime()
 
     Plugins.forEach { plugin ->
-
+      registerPlugin(plugin)
     }
-    // TODO: Initialize Plugins...
     HasRegisteredPlugins = true
   }
 
@@ -60,12 +59,15 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
     return view ?: throw ViewNotFoundError(viewId)
   }
 
+  // private C++ funcs
   private external fun initHybrid(
     jsContext: Long,
     jsCallInvokerHolder: CallInvokerHolderImpl,
     scheduler: Scheduler
   ): HybridData?
-  private external fun installJSIBindings()
   private external fun initializeRuntime()
   private external fun registerPlugin(plugin: FrameProcessorPlugin)
+
+  // public C++ funcs
+  external fun installJSIBindings()
 }
