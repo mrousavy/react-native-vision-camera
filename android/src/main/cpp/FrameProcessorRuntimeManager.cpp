@@ -171,7 +171,7 @@ void FrameProcessorRuntimeManager::registerPlugin(alias_ref<FrameProcessorPlugin
 
   auto pluginGlobal = make_global(plugin);
   auto pluginCxx = pluginGlobal->cthis();
-  auto name = pluginCxx->getName();
+  auto name = "__" + pluginCxx->getName();
 
   auto message = "Installing Frame Processor Plugin \"" + name + "\"...";
   __android_log_write(ANDROID_LOG_INFO, TAG, message.c_str());
