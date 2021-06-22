@@ -88,7 +88,7 @@ find_library(
 find_library(
         HERMES_LIB
         hermes
-        PATHS ${HERMES_DIR}
+        PATHS ${LIBHERMES_DIR}
         NO_CMAKE_FIND_ROOT_PATH
 )
 find_library(
