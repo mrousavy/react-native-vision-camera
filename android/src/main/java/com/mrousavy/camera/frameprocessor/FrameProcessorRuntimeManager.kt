@@ -13,6 +13,7 @@ import java.lang.ref.WeakReference
 class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
   companion object {
     const val TAG = "FrameProcessorRuntime"
+    val Plugins: ArrayList<FrameProcessorPlugin> = ArrayList()
 
     init {
       System.loadLibrary("reanimated")
@@ -31,6 +32,7 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
     mContext = WeakReference(context)
     mHybridData = initHybrid(context.javaScriptContextHolder.get(), holder, mScheduler!!)
     initializeRuntime()
+    // TODO: Initialize Plugins...
   }
 
   fun destroy() {
