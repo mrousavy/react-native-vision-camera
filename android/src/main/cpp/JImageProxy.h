@@ -7,6 +7,6 @@
 #include <jni.h>
 #include <fbjni/fbjni.h>
 
-struct JImageProxy : facebook::jni::JavaClass<JImageProxy> {
+struct JImageProxy : public facebook::jni::JavaClass<JImageProxy> {
   static constexpr auto kJavaDescriptor = "Landroidx.camera.core/ImageProxy;";
 };
