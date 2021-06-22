@@ -13,20 +13,20 @@ using namespace facebook;
 using namespace jni;
 
 int JImageProxy::getWidth() {
-  static auto getWidthMethod = getClass()->getMethod<jint()>("getWidth");
+  static const auto getWidthMethod = getClass()->getMethod<jint()>("getWidth");
   return getWidthMethod(javaClassLocal());
 }
 
 int JImageProxy::getHeight() {
-  static auto getWidthMethod = getClass()->getMethod<jint()>("getHeight");
+  static const auto getWidthMethod = getClass()->getMethod<jint()>("getHeight");
   return getWidthMethod(javaClassLocal());
 }
 
 bool JImageProxy::getIsValid() {
-  static auto getImageMethod = getClass()->getMethod<JImageProxy::javaobject()>("getImage");
+  static const auto getImageMethod = getClass()->getMethod<JImageProxy::javaobject()>("getImage");
   auto image = getImageMethod(javaClassLocal());
 
-  static auto getHardwareBufferMethod = findClassLocal("android/media/Image")->getMethod<jobject()>("getHardwareBuffer");
+  static const auto getHardwareBufferMethod = findClassLocal("android/media/Image")->getMethod<jobject()>("getHardwareBuffer");
   try {
     getHardwareBufferMethod(image.get());
     return true;
@@ -34,6 +34,21 @@ bool JImageProxy::getIsValid() {
     // function throws if the image is not active anymore
     return false;
   }
+}
+
+int JImageProxy::getPlaneCount() {
+  static const auto getPlanesMethod = getClass()->getMethod<JArrayClass<jobject>()>("getPlanes");
+  auto planes = getPlanesMethod(javaClassLocal());
+  return planes->size();
+}
+
+int JImageProxy::getBytesPerRow() {
+  static const auto getPlanesMethod = getClass()->getMethod<JArrayClass<jobject>()>("getPlanes");
+  auto planes = getPlanesMethod(javaClassLocal());
+  auto firstPlane = planes->getElement(0);
+
+  static const auto getRowStrideMethod = findClassLocal("android/media/Image$PlaneProxy")->getMethod<int()>("getRowStride");
+  return getRowStrideMethod(firstPlane.get());
 }
 
 }

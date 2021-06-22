@@ -16,6 +16,8 @@ public:
   int getWidth();
   int getHeight();
   bool getIsValid();
+  int getPlaneCount();
+  int getBytesPerRow();
 };
 
 } // namespace vision

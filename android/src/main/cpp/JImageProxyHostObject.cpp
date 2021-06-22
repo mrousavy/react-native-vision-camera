@@ -40,16 +40,16 @@ jsi::Value JImageProxyHostObject::get(jsi::Runtime& runtime, const jsi::PropName
     return jsi::Value(this->frame->getIsValid());
   }
   if (name == "width") {
-    return jsi::Value((double) this->frame->getWidth());
+    return jsi::Value(this->frame->getWidth());
   }
   if (name == "height") {
-    return jsi::Value((double) this->frame->getHeight());
+    return jsi::Value(this->frame->getHeight());
   }
   if (name == "bytesPerRow") {
-    return jsi::Value(0);
+    return jsi::Value(this->frame->getBytesPerRow());
   }
   if (name == "planesCount") {
-    return jsi::Value(0);
+    return jsi::Value(this->frame->getPlaneCount());
   }
 
   return jsi::Value::undefined();
