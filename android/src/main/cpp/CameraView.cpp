@@ -6,6 +6,7 @@
 #include <memory>
 #include <jni.h>
 #include <fbjni/fbjni.h>
+#include <jsi/jsi.h>
 
 namespace vision {
 
@@ -40,8 +41,14 @@ void CameraView::frameProcessorCallback(alias_ref<jobject> frame) {
   }
 
   local_ref<jobject> frameStrong = make_local(frame);
-  __android_log_write(ANDROID_LOG_INFO, TAG, "Calling Frame Processor...");
-  frameProcessor_(frameStrong);
+  try {
+    __android_log_write(ANDROID_LOG_INFO, TAG, "Calling Frame Processor...");
+    frameProcessor_(frameStrong);
+  } catch (const facebook::jsi::JSError& error) {
+    // TODO: Errors cannot be caught on Hermes. They crash the entire app.
+    auto message = "Frame Processor threw an error! " + error.getMessage();
+    __android_log_write(ANDROID_LOG_ERROR, TAG, message.c_str());
+  }
 }
 
 void CameraView::setEnableFrameProcessor(bool enable) {
