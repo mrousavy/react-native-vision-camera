@@ -46,7 +46,6 @@
 
 ### Example
 
-
 ```tsx
 function App() {
   const devices = useCameraDevices('wide-angle-camera')
