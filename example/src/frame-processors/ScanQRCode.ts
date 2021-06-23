@@ -14,5 +14,5 @@ export function scanQRCodesObjC(frame: Frame): string[] {
   if (!_WORKLET) throw new Error('scanQRCodesObjC must be called from a frame processor!');
 
   // @ts-expect-error because this function is dynamically injected by VisionCamera
-  return __exampleObjC___scanQRCodes(frame, 'hello!', 'parameter2', true, 42);
+  return __exampleObjC___scanQRCodes(frame, 'hello!', 'parameter2', true, 42, { test: 0, second: 'test' }, ['another test', 5]);
 }
