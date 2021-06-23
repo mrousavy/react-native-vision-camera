@@ -151,8 +151,14 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
   } else if (object->isInstanceOf(react::ReadableNativeArray::javaClassStatic())) {
 
     auto value = reinterpret_cast<react::ReadableNativeArray*>(object.get());
-
-    // TODO: Array -> []
+    auto dynamicArray = value->consume();
+    auto size = dynamicArray.size();
+    auto array = jsi::Array(runtime, size);
+    for (size_t i = 0; i < size; i++) {
+      auto item = jsi::valueFromDynamic(runtime, dynamicArray[i]);
+      array.setValueAtIndex(runtime, i, item);
+    }
+    return array;
 
   } else if (object->isInstanceOf(react::ReadableNativeMap::javaClassStatic())) {
 
