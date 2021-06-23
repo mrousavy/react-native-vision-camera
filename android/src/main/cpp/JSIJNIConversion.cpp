@@ -129,29 +129,20 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
 
   } else if (object->isInstanceOf(react::ReadableNativeMap::javaClassStatic())) {
 
-    return nullptr;
     // TODO: This does not work because toHashMap returns a generic type (HashMap<K, V>)
-    static const auto toHashMapFunc = jni::findClassLocal("com/facebook/react/bridge/ReadableMap")->getMethod<jobject()>("toHashMap");
+    static const auto toHashMapFunc = jni::findClassLocal("com/facebook/react/bridge/ReadableMap")->getMethod<jni::JMap<jstring, jobject>()>("toHashMap");
     auto hashMap = toHashMapFunc(object.get());
 
-    static const auto keySetFunc = jni::findClassLocal("java/util/HashMap")->getMethod<jobject()>("keySet");
-    auto keySet = keySetFunc(hashMap.get());
-
-    static const auto toArrayFunc = jni::findClassLocal("java/util/Set")->getMethod<jni::JArrayClass<jni::JString>()>("toArray");
-    auto keys = toArrayFunc(keySet.get());
-
     auto map = jsi::Object(runtime);
-    static const auto getFunc = jni::findClassLocal("java/util/HashMap")->getMethod<jobject(jstring)>("get");
 
-    for (size_t i = 0; i < keys->size(); i++) {
-      auto key = keys->getElement(i);
-      auto value = getFunc(hashMap.get(), key.get());
+    for (const auto& entry : *hashMap) {
+      auto key = entry.first->toStdString();
+      auto value = entry.second;
       auto jsiValue = convertJNIObjectToJSIValue(runtime, value);
-      map.setProperty(runtime, key->toString().c_str(), jsiValue);
+      map.setProperty(runtime, key.c_str(), jsiValue);
     }
 
     return map;
-
   }
 
   __android_log_write(ANDROID_LOG_ERROR, "VisionCamera", "Received unknown JNI type! Cannot convert to jsi::Value.");
