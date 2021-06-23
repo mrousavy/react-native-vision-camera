@@ -209,11 +209,10 @@ void FrameProcessorRuntimeManager::registerPlugin(alias_ref<FrameProcessorPlugin
     auto boxedHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
     auto frameHostObject = dynamic_cast<JImageProxyHostObject*>(boxedHostObject.get());
 
-    // parse params
-    auto paramsCount = count - 1;
-    auto params = JArrayClass<jobject>::newArray(paramsCount);
-    for (size_t i = 1; i < paramsCount; i++) {
-      params->setElement(i, JSIJNIConversion::convertJSIValueToJNIObject(runtime, arguments[i]));
+    // parse params - we are offset by `1` because the frame is the first parameter.
+    auto params = JArrayClass<jobject>::newArray(count - 1);
+    for (size_t i = 1; i < count; i++) {
+      params->setElement(i - 1, JSIJNIConversion::convertJSIValueToJNIObject(runtime, arguments[i]));
     }
 
     // call implemented virtual method
