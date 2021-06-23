@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.4.1)
 
 set (CMAKE_VERBOSE_MAKEFILE ON)
 set (CMAKE_CXX_STANDARD 14)
-set (CMAKE_CXX_FLAGS "-DFOLLY_NO_CONFIG=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -DFOLLY_HAVE_MEMRCHR=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_MOBILE=1 -DON_ANDROID -DFOR_HERMES=${FOR_HERMES}")
+set (CMAKE_CXX_FLAGS "-DFOLLY_NO_CONFIG=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -DFOLLY_HAVE_MEMRCHR=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_MOBILE=1 -DON_ANDROID -DONANDROID -DFOR_HERMES=${FOR_HERMES}")
 
 set (PACKAGE_NAME "VisionCamera")
 set (BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
@@ -14,12 +14,12 @@ add_library(
         ${PACKAGE_NAME}
         SHARED
         src/main/cpp/VisionCamera.cpp
+        src/main/cpp/JSIJNIConversion.cpp
         src/main/cpp/FrameProcessorRuntimeManager.cpp
         src/main/cpp/FrameProcessorPlugin.cpp
         src/main/cpp/CameraView.cpp
         src/main/cpp/JImageProxy.cpp
         src/main/cpp/JImageProxyHostObject.cpp
-        src/main/cpp/JSIJNIConversion.cpp
 )
 
 # includes
@@ -33,6 +33,7 @@ target_include_directories(
         "${BUILD_DIR}/third-party-ndk/boost"
         "${BUILD_DIR}/third-party-ndk/double-conversion"
         "${BUILD_DIR}/third-party-ndk/folly"
+        "${BUILD_DIR}/third-party-ndk/glog"
         "${NODE_MODULES_DIR}/react-native/React"
         "${NODE_MODULES_DIR}/react-native/React/Base"
         "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni"

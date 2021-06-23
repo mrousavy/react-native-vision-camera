@@ -22,7 +22,9 @@
 
 namespace vision {
 
-jobject convertJSIValueToJNIObject(jsi::Runtime& runtime, const jsi::Value& value) {
+using namespace facebook;
+
+jobject JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtime &runtime, const jsi::Value &value) {
   // TODO: .get() or .release() ?
 
   if (value.isBool()) {
@@ -56,11 +58,12 @@ jobject convertJSIValueToJNIObject(jsi::Runtime& runtime, const jsi::Value& valu
 
       auto array = object.getArray(runtime);
 
-      auto nativeArray = react::ReadableNativeArray::newObjectCxxArgs(jsi::dynamicFromValue(runtime, array));
-      return nativeArray.release();
-
-      // TODO: Legacy code, remove?
       /*
+       * TODO: Using folly dynamic seems to be less code
+      auto nativeArray = react::ReadableNativeArray::newObjectCxxArgs(jsi::dynamicFromValue(runtime, std::move(array)));
+      return nativeArray.release();
+       */
+
       int size = array.size(runtime);
       auto args = jni::JArrayClass<jobject>::newArray(size);
       for (size_t i = 0; i < size; i++) {
@@ -68,7 +71,6 @@ jobject convertJSIValueToJNIObject(jsi::Runtime& runtime, const jsi::Value& valu
         args->setElement(i, convertJSIValueToJNIObject(runtime, array.getValueAtIndex(runtime, i)));
       }
       return args.release();
-       */
 
     } else if (object.isHostObject(runtime)) {
       // jsi::HostObject
@@ -93,10 +95,30 @@ jobject convertJSIValueToJNIObject(jsi::Runtime& runtime, const jsi::Value& valu
       // jsi::Object
 
       auto propertyNames = object.getPropertyNames(runtime);
-      auto dynamic = jsi::dynamicFromValue(runtime, object);
+      auto mapJavaObject = react::WritableNativeMap::newObjectCxxArgs();
+      auto map = mapJavaObject->cthis();
+
+      for (size_t i = 0; i < propertyNames.size(runtime); i++) {
+        auto name = propertyNames.getValueAtIndex(runtime, i).getString(runtime);
+        auto property = object.getProperty(runtime, name);
+
+        if (property.isBool()) {
+          map->putBoolean(name.utf8(runtime), property.getBool());
+        } else if (value.isNumber()) {
+          map->putDouble(name.utf8(runtime), property.getNumber());
+        } else {
+          // TODO: Other types
+        }
+      }
+
+      return mapJavaObject.release();
+
+      // TODO: Convert {} to ReadableMap
+      /*
+      auto dynamic = jsi::dynamicFromValue(runtime, std::move(object));
       auto map = react::ReadableNativeMap::createWithContents(std::move(dynamic));
       return map.release();
-using namespace facebook;
+       */
 
     }
   } else {
@@ -105,8 +127,8 @@ using namespace facebook;
   }
 }
 
-jsi::Value convertJNIObjectToJSIValue(const jsi::Runtime& runtime, const jobject& object) {
+jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(const jsi::Runtime &runtime, jobject const &object) {
   return jsi::Value::undefined();
 }
 
-}
+} // namespace vision

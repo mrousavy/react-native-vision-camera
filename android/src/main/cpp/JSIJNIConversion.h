@@ -12,8 +12,13 @@ namespace vision {
 
 using namespace facebook;
 
-jobject convertJSIValueToJNIObject(const jsi::Runtime& runtime, const jsi::Value& value);
+class JSIJNIConversion {
 
-jsi::Value convertJNIObjectToJSIValue(const jsi::Runtime& runtime, const jobject& object);
+public:
+  static jobject convertJSIValueToJNIObject(jsi::Runtime& runtime, const jsi::Value& value);
+
+  static jsi::Value convertJNIObjectToJSIValue(const jsi::Runtime& runtime, const jobject& object);
+
+};
 
 }
