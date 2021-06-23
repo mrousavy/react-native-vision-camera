@@ -131,7 +131,7 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
   if (object->isInstanceOf(jni::JBoolean::javaClassStatic())) {
 
     auto value = reinterpret_cast<jni::JBoolean*>(object.get());
-    return jsi::Value(value->booleanValue());
+    return jsi::Value(value->booleanValue() == true);
 
   } else if (object->isInstanceOf(jni::JDouble::javaClassStatic())) {
 
