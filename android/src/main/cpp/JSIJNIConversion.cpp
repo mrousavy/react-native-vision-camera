@@ -96,6 +96,7 @@ jobject convertJSIValueToJNIObject(jsi::Runtime& runtime, const jsi::Value& valu
       auto dynamic = jsi::dynamicFromValue(runtime, object);
       auto map = react::ReadableNativeMap::createWithContents(std::move(dynamic));
       return map.release();
+using namespace facebook;
 
     }
   } else {
