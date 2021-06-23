@@ -97,17 +97,20 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
   if (object->isInstanceOf(jni::JBoolean::javaClassStatic())) {
 
     static const auto getBooleanFunc = jni::findClassLocal("java/lang/Boolean")->getMethod<jboolean()>("booleanValue");
-    return jsi::Value(getBooleanFunc(object.get()));
+    auto boolean = getBooleanFunc(object.get());
+    return jsi::Value(boolean == true);
 
   } else if (object->isInstanceOf(jni::JDouble::javaClassStatic())) {
 
     static const auto getDoubleFunc = jni::findClassLocal("java/lang/Double")->getMethod<jdouble()>("doubleValue");
-    return jsi::Value(getDoubleFunc(object.get()));
+    auto d = getDoubleFunc(object.get());
+    return jsi::Value(d);
 
   } else if (object->isInstanceOf(jni::JInteger::javaClassStatic())) {
 
     static const auto getIntegerFunc = jni::findClassLocal("java/lang/Integer")->getMethod<jint()>("integerValue");
-    return jsi::Value(getIntegerFunc(object.get()));
+    auto i = getIntegerFunc(object.get());
+    return jsi::Value(i);
 
   } else if (object->isInstanceOf(jni::JString::javaClassStatic())) {
 
