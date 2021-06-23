@@ -23,10 +23,10 @@ void FrameProcessorPlugin::registerNatives() {
   });
 }
 
-alias_ref<jobject> FrameProcessorPlugin::callback(alias_ref<JImageProxy::javaobject> image, alias_ref<JArrayClass<jobject>> params) {
+local_ref<jobject> FrameProcessorPlugin::callback(alias_ref<JImageProxy::javaobject> image, alias_ref<JArrayClass<jobject>> params) {
   static const auto func = javaPart_->getClass()->getMethod<TFrameProcessorPlugin>("callback");
   auto result = func(javaPart_.get(), image, params);
-  return result;
+  return make_local(result);
 }
 
 std::string FrameProcessorPlugin::getName() {

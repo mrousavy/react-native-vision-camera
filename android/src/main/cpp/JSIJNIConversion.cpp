@@ -7,12 +7,11 @@
 #include <jsi/jsi.h>
 #include <jni.h>
 #include <fbjni/fbjni.h>
+#include <android/log.h>
 
 #include <react/jni/NativeMap.h>
 #include <react/jni/ReadableNativeMap.h>
 #include <react/jni/WritableNativeMap.h>
-
-#include <react/jni/MethodInvoker.h>
 
 #include <jsi/JSIDynamic.h>
 #include <folly/dynamic.h>
@@ -93,39 +92,66 @@ jobject JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtime &runtime, cons
   }
 }
 
-jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, const jni::alias_ref<jobject>& object) {
+jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, const jni::local_ref<jobject>& object) {
+
   if (object->isInstanceOf(jni::JBoolean::javaClassStatic())) {
 
-    auto value = reinterpret_cast<jni::JBoolean*>(object.get());
-    return jsi::Value(value->booleanValue() == true);
+    static const auto getBooleanFunc = jni::findClassLocal("java/lang/Boolean")->getMethod<jboolean()>("booleanValue");
+    return jsi::Value(getBooleanFunc(object.get()));
 
   } else if (object->isInstanceOf(jni::JDouble::javaClassStatic())) {
 
-    auto value = reinterpret_cast<jni::JDouble*>(object.get());
-    return jsi::Value(value->doubleValue());
+    static const auto getDoubleFunc = jni::findClassLocal("java/lang/Double")->getMethod<jdouble()>("doubleValue");
+    return jsi::Value(getDoubleFunc(object.get()));
 
   } else if (object->isInstanceOf(jni::JInteger::javaClassStatic())) {
 
-    auto value = reinterpret_cast<jni::JInteger*>(object.get());
-    return jsi::Value(value->intValue());
+    static const auto getIntegerFunc = jni::findClassLocal("java/lang/Integer")->getMethod<jint()>("integerValue");
+    return jsi::Value(getIntegerFunc(object.get()));
 
   } else if (object->isInstanceOf(jni::JString::javaClassStatic())) {
 
-    auto value = reinterpret_cast<jni::JString*>(object.get());
-    return jsi::String::createFromUtf8(runtime, value->toString());
+    return jsi::String::createFromUtf8(runtime, object->toString());
 
   } else if (object->isInstanceOf(react::ReadableNativeArray::javaClassStatic())) {
 
-    auto value = reinterpret_cast<react::ReadableNativeArray*>(object.get());
-    return jsi::valueFromDynamic(runtime, value->consume());
+    static const auto toArrayListFunc = jni::findClassLocal("com/facebook/react/bridge/ReadableNativeArray")->getMethod<jni::JArrayClass<jobject>()>("toArrayList");
+
+    auto array = toArrayListFunc(object.get());
+    auto size = array->size();
+
+    auto result = jsi::Array(runtime, size);
+    for (size_t i = 0; i < size; i++) {
+      result.setValueAtIndex(runtime, i, convertJNIObjectToJSIValue(runtime, (*array)[i]));
+    }
+    return result;
 
   } else if (object->isInstanceOf(react::ReadableNativeMap::javaClassStatic())) {
 
-    auto value = reinterpret_cast<react::ReadableNativeMap*>(object.get());
-    return jsi::valueFromDynamic(runtime, value->consume());
+    static const auto toHashMapFunc = jni::findClassLocal("com/facebook/react/bridge/ReadableNativeMap")->getMethod<jobject()>("toHashMap");
+    auto hashMap = toHashMapFunc(object.get());
+
+    static const auto keySetFunc = jni::findClassLocal("java/util/HashMap")->getMethod<jobject()>("keySet");
+    auto keySet = keySetFunc(hashMap.get());
+
+    static const auto toArrayFunc = jni::findClassLocal("java/util/Set")->getMethod<jni::JArrayClass<jni::JString>()>("toArray");
+    auto keys = toArrayFunc(keySet.get());
+
+    auto map = jsi::Object(runtime);
+    static const auto getFunc = jni::findClassLocal("java/util/HashMap")->getMethod<jobject(jstring)>("get");
+
+    for (size_t i = 0; i < keys->size(); i++) {
+      auto key = keys->getElement(i);
+      auto value = getFunc(hashMap.get(), key.get());
+      auto jsiValue = convertJNIObjectToJSIValue(runtime, value);
+      map.setProperty(runtime, key->toString().c_str(), jsiValue);
+    }
+
+    return map;
 
   }
 
+  __android_log_write(ANDROID_LOG_ERROR, "VisionCamera", "Received unknown JNI type! Cannot convert to jsi::Value.");
   return jsi::Value::undefined();
 }
 

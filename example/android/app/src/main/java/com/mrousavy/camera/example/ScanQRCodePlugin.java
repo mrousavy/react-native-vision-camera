@@ -10,7 +10,7 @@ public class ScanQRCodePlugin extends FrameProcessorPlugin {
     @Override
     public Object callback(ImageProxy image, Object[] params) {
         Log.d("FPPPPPPP", "YEEEEEEEEEET - Format: " + image.getFormat() + " - params size: " + params.length);
-        return 5.2;
+        return true;
     }
 
     ScanQRCodePlugin() {
