@@ -4,6 +4,8 @@ import androidx.camera.core.ImageProxy;
 
 import com.facebook.jni.HybridData;
 
+import java.util.ArrayList;
+
 /**
  * Declares a Frame Processor Plugin.
  */
@@ -22,7 +24,7 @@ public abstract class FrameProcessorPlugin {
      * <a href="https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors-plugins-overview#types">Types</a>
      * table for a list of supported types.
      */
-    public abstract Object callback(ImageProxy image);
+    public abstract Object callback(ImageProxy image, ArrayList<Object> params);
 
     /**
      * Initializes the native plugin part.

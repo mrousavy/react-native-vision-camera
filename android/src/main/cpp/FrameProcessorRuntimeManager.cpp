@@ -189,7 +189,7 @@ void FrameProcessorRuntimeManager::registerPlugin(alias_ref<FrameProcessorPlugin
   if (!_runtimeManager || !_runtimeManager->runtime) {
     throw std::runtime_error("Tried to register plugin before initializing JS runtime! Call `initializeRuntime()` first.");
   }
-  
+
   auto& runtime = *_runtimeManager->runtime;
 
   // we need a strong reference on the plugin, make_global does that.
@@ -209,8 +209,15 @@ void FrameProcessorRuntimeManager::registerPlugin(alias_ref<FrameProcessorPlugin
     auto boxedHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
     auto frameHostObject = dynamic_cast<JImageProxyHostObject*>(boxedHostObject.get());
 
+    // parse params
+    auto paramsCount = count - 1;
+    auto params = JArrayClass<jobject>::newArray(paramsCount);
+    for (size_t i = 1; i < paramsCount; i++) {
+      params->setElement(i, convertJSIValueToJNIObject(runtime, arguments[i]));
+    }
+
     // call implemented virtual method
-    auto result = pluginCxx->callback(frameHostObject->frame);
+    auto result = pluginCxx->callback(frameHostObject->frame, params);
 
     // convert result from JNI to JSI value
     return convertJSIValueToJNIObject(runtime, result);
