@@ -56,21 +56,9 @@ jobject JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtime &runtime, cons
     if (object.isArray(runtime)) {
       // jsi::Array
 
-      auto array = object.getArray(runtime);
-
-      /*
-       * TODO: Using folly dynamic seems to be less code
-      auto nativeArray = react::ReadableNativeArray::newObjectCxxArgs(jsi::dynamicFromValue(runtime, std::move(array)));
+      auto dynamic = jsi::dynamicFromValue(runtime, value);
+      auto nativeArray = react::ReadableNativeArray::newObjectCxxArgs(std::move(dynamic));
       return nativeArray.release();
-       */
-
-      int size = array.size(runtime);
-      auto args = jni::JArrayClass<jobject>::newArray(size);
-      for (size_t i = 0; i < size; i++) {
-        // recursively converts the values to JNI objects
-        args->setElement(i, convertJSIValueToJNIObject(runtime, array.getValueAtIndex(runtime, i)));
-      }
-      return args.release();
 
     } else if (object.isHostObject(runtime)) {
       // jsi::HostObject
@@ -94,31 +82,9 @@ jobject JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtime &runtime, cons
     } else {
       // jsi::Object
 
-      auto propertyNames = object.getPropertyNames(runtime);
-      auto mapJavaObject = react::WritableNativeMap::newObjectCxxArgs();
-      auto map = mapJavaObject->cthis();
-
-      for (size_t i = 0; i < propertyNames.size(runtime); i++) {
-        auto name = propertyNames.getValueAtIndex(runtime, i).getString(runtime);
-        auto property = object.getProperty(runtime, name);
-
-        if (property.isBool()) {
-          map->putBoolean(name.utf8(runtime), property.getBool());
-        } else if (value.isNumber()) {
-          map->putDouble(name.utf8(runtime), property.getNumber());
-        } else {
-          // TODO: Other types
-        }
-      }
-
-      return mapJavaObject.release();
-
-      // TODO: Convert {} to ReadableMap
-      /*
-      auto dynamic = jsi::dynamicFromValue(runtime, std::move(object));
+      auto dynamic = jsi::dynamicFromValue(runtime, value);
       auto map = react::ReadableNativeMap::createWithContents(std::move(dynamic));
       return map.release();
-       */
 
     }
   } else {
