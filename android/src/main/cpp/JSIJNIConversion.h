@@ -17,7 +17,7 @@ class JSIJNIConversion {
 public:
   static jobject convertJSIValueToJNIObject(jsi::Runtime& runtime, const jsi::Value& value);
 
-  static jsi::Value convertJNIObjectToJSIValue(jsi::Runtime& runtime, const jobject& object);
+  static jsi::Value convertJNIObjectToJSIValue(jsi::Runtime& runtime, const jni::alias_ref<jobject>& object);
 
 };
 

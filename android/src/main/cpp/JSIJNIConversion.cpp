@@ -127,9 +127,7 @@ jobject JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtime &runtime, cons
   }
 }
 
-jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, jni::alias_ref<jobject> const &object) {
-  auto clazz = object->getClass()->kJavaDescriptor;
-
+jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, const jni::alias_ref<jobject>& object) {
   if (object->isInstanceOf(jni::JBoolean::javaClassStatic())) {
 
     auto value = reinterpret_cast<jni::JBoolean*>(object.get());
