@@ -129,7 +129,9 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
 
   } else if (object->isInstanceOf(react::ReadableNativeMap::javaClassStatic())) {
 
-    static const auto toHashMapFunc = jni::findClassLocal("com/facebook/react/bridge/ReadableNativeMap")->getMethod<jobject()>("toHashMap");
+    return nullptr;
+    // TODO: This does not work because toHashMap returns a generic type (HashMap<K, V>)
+    static const auto toHashMapFunc = jni::findClassLocal("com/facebook/react/bridge/ReadableMap")->getMethod<jobject()>("toHashMap");
     auto hashMap = toHashMapFunc(object.get());
 
     static const auto keySetFunc = jni::findClassLocal("java/util/HashMap")->getMethod<jobject()>("keySet");
