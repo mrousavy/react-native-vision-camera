@@ -24,8 +24,6 @@ namespace vision {
 using namespace facebook;
 
 jobject JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtime &runtime, const jsi::Value &value) {
-  // TODO: .get() or .release() ?
-
   if (value.isBool()) {
     // jsi::Bool
 

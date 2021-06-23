@@ -12,7 +12,7 @@ public class ScanQRCodePlugin extends FrameProcessorPlugin {
         Log.d("FPPPPPPP", "YEEEEEEEEEET - Format: " + image.getFormat() + " - params size: " + params.length);
 
         for (Object param : params) {
-            Log.d("FPPPPPPP", "YEEEEEEEEEET - Param: " + (param == null ? "(null)" : param.toString()));
+            Log.d("FPPPPPPP", "YEEEEEEEEEET - Param: " + (param == null ? "(null)" : param.toString() + " (" + param.getClass().getName() + ")"));
         }
 
         return true;
