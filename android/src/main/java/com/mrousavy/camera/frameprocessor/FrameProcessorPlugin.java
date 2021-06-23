@@ -24,7 +24,7 @@ public abstract class FrameProcessorPlugin {
      * <a href="https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors-plugins-overview#types">Types</a>
      * table for a list of supported types.
      */
-    public abstract Object callback(ImageProxy image, ArrayList<Object> params);
+    public abstract Object callback(ImageProxy image, Object[] params);
 
     /**
      * Initializes the native plugin part.
