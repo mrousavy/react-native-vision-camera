@@ -127,7 +127,43 @@ jobject JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtime &runtime, cons
   }
 }
 
-jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(const jsi::Runtime &runtime, jobject const &object) {
+jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, jni::alias_ref<jobject> const &object) {
+  auto clazz = object->getClass()->kJavaDescriptor;
+
+  if (object->isInstanceOf(jni::JBoolean::javaClassStatic())) {
+
+    auto value = reinterpret_cast<jni::JBoolean*>(object.get());
+    return jsi::Value(value->booleanValue());
+
+  } else if (object->isInstanceOf(jni::JDouble::javaClassStatic())) {
+
+    auto value = reinterpret_cast<jni::JDouble*>(object.get());
+    return jsi::Value(value->doubleValue());
+
+  } else if (object->isInstanceOf(jni::JInteger::javaClassStatic())) {
+
+    auto value = reinterpret_cast<jni::JInteger*>(object.get());
+    return jsi::Value(value->intValue());
+
+  } else if (object->isInstanceOf(jni::JString::javaClassStatic())) {
+
+    auto value = reinterpret_cast<jni::JString*>(object.get());
+    return jsi::String::createFromUtf8(runtime, value->toString());
+
+  } else if (object->isInstanceOf(react::ReadableNativeArray::javaClassStatic())) {
+
+    auto value = reinterpret_cast<react::ReadableNativeArray*>(object.get());
+
+    // TODO: Array -> []
+
+  } else if (object->isInstanceOf(react::ReadableNativeMap::javaClassStatic())) {
+
+    auto value = reinterpret_cast<react::ReadableNativeMap*>(object.get());
+
+    // TODO: Map -> {}
+
+  }
+
   return jsi::Value::undefined();
 }
 
