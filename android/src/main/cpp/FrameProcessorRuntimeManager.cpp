@@ -98,12 +98,18 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
     __android_log_write(ANDROID_LOG_INFO, TAG,
                         "Setting new Frame Processor...");
 
-    if (!arguments[0].isNumber())
-      throw jsi::JSError(runtime, "Camera::setFrameProcessor: First argument ('viewTag') must be a number!");
-    if (!arguments[1].isObject())
-      throw jsi::JSError(runtime, "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
-    if (!_runtimeManager || !_runtimeManager->runtime)
-      throw jsi::JSError(runtime, "Camera::setFrameProcessor: The RuntimeManager is not yet initialized!");
+    if (!arguments[0].isNumber()) {
+      throw jsi::JSError(runtime,
+                         "Camera::setFrameProcessor: First argument ('viewTag') must be a number!");
+    }
+    if (!arguments[1].isObject()) {
+      throw jsi::JSError(runtime,
+                         "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
+    }
+    if (!_runtimeManager || !_runtimeManager->runtime) {
+      throw jsi::JSError(runtime,
+                         "Camera::setFrameProcessor: The RuntimeManager is not yet initialized!");
+    }
 
     // find camera view
     auto viewTag = arguments[0].asNumber();
@@ -125,6 +131,7 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
     // assign lambda to frame processor
     cameraView->setFrameProcessor([&rt, function](jni::local_ref<JImageProxy::javaobject> frame) {
       __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processor called!");
+
       // create HostObject which holds the Frame (JImageProxy)
       auto hostObject = std::make_shared<JImageProxyHostObject>(frame);
       function->call(rt, jsi::Object::createFromHostObject(rt, hostObject));
@@ -182,6 +189,7 @@ void FrameProcessorRuntimeManager::registerPlugin(alias_ref<FrameProcessorPlugin
   if (!_runtimeManager || !_runtimeManager->runtime) {
     throw std::runtime_error("Tried to register plugin before initializing JS runtime! Call `initializeRuntime()` first.");
   }
+  
   auto& runtime = *_runtimeManager->runtime;
 
   // we need a strong reference on the plugin, make_global does that.
