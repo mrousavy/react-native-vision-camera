@@ -220,8 +220,7 @@ void FrameProcessorRuntimeManager::registerPlugin(alias_ref<FrameProcessorPlugin
     auto result = pluginCxx->callback(frameHostObject->frame, params);
 
     // convert result from JNI to JSI value
-    return jsi::Value::undefined();
-    //return JSIJNIConversion::convertJSIValueToJNIObject(runtime, result);
+    return JSIJNIConversion::convertJNIObjectToJSIValue(runtime, result);
   };
 
   runtime.global().setProperty(runtime, name.c_str(), jsi::Function::createFromHostFunction(runtime,
