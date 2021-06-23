@@ -23,7 +23,7 @@ import { CaptureButton } from './views/CaptureButton';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { scanQRCodesObjC } from './frame-processors/ScanQRCode';
+import { examplePlugin } from './frame-processors/ExamplePlugin';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -198,8 +198,8 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
 
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
-    const codes = scanQRCodesObjC(frame);
-    _log(`Codes: ${JSON.stringify(codes)}`);
+    const values = examplePlugin(frame);
+    _log(`Return Values: ${JSON.stringify(values)}`);
   }, []);
 
   return (
