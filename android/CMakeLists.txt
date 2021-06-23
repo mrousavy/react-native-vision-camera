@@ -76,6 +76,13 @@ find_library(
 )
 
 find_library(
+        FOLLY_JSON_LIB
+        folly_json
+        PATHS ${LIBRN_DIR}
+        NO_CMAKE_FIND_ROOT_PATH
+)
+
+find_library(
         REACT_NATIVE_JNI_LIB
         reactnativejni
         PATHS ${LIBRN_DIR}
@@ -115,6 +122,7 @@ if(${FOR_HERMES})
             ${REACT_NATIVE_JNI_LIB}
             ${REACT_NATIVE_UTILS_LIB}
             ${FBJNI_LIB}
+            ${FOLLY_JSON_LIB}
             android
     )
 else()
@@ -126,6 +134,7 @@ else()
             ${REACT_NATIVE_JNI_LIB}
             ${REACT_NATIVE_UTILS_LIB}
             ${FBJNI_LIB}
+            ${FOLLY_JSON_LIB}
             android
     )
 endif()
