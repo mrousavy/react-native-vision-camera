@@ -98,8 +98,8 @@ const frameProcessor = useFrameProcessor((frame) => {
 
 ### Technical
 
-* **Frame Processors** are JS functions that will be **workletized** using [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated). They are created on a **custom camera thread** using a separate JavaScript Runtime (_"VisionCamera JS-Runtime"_) and are **invoked synchronously** (using JSI) without ever going over the bridge.
-* **Frame Processor Plugins** are native functions (written in Objective-C, Swift, C++, Java or Kotlin) that are injected into the VisionCamera JS-Runtime. They can be **synchronously called** from your JS Frame Processors (using JSI) without ever going over the bridge.
+* **Frame Processors** are JS functions that will be **workletized** using [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated). They are created on a **custom camera thread** using a separate JavaScript Runtime (_"VisionCamera JS-Runtime"_) and are **invoked synchronously** (using JSI) without ever going over the bridge. In a **Frame Processor** you can directly call **Frame Processor Plugins**.
+* **Frame Processor Plugins** are native functions (written in Objective-C, Swift, C++, Java or Kotlin) that are injected into the VisionCamera JS-Runtime. They can be **synchronously called** from your JS Frame Processors (using JSI) without ever going over the bridge. Because VisionCamera provides an easy-to-use plugin API, you can easily create a **Frame Processor Plugin** yourself. Some examples include [Barcode Scanning](https://developers.google.com/ml-kit/vision/barcode-scanning), [Face Detection](https://developers.google.com/ml-kit/vision/face-detection), [Image Labeling](https://developers.google.com/ml-kit/vision/image-labeling), [Text Recognition](https://developers.google.com/ml-kit/vision/text-recognition) and more.
 
 > Learn how to [**create Frame Processor Plugins**](frame-processors-plugins-overview)
 
