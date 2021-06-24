@@ -251,12 +251,12 @@ export interface CameraDevice {
    */
   formats: CameraDeviceFormat[];
   /**
-   * Specifies the maximum amount of use-cases this camera device supports at the same time.
+   * Specifies the maximum amount of use-cases this camera device supports at the same time. (See ["Use-cases"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/camera-devices#use-cases))
    *
    * The following props are use-cases:
    * * `photo={true}` - Prepares the Camera for photo capture (`takePhoto()`)
    * * `video={true}` - Prepares the Camera for video capture (`startRecording()`/`stopRecording()`)
-   * * `frameProcessor={...}` - Adds a [Frame Processor](https://cuvent.github.io/react-native-vision-camera/docs/guides/frame-processors)
+   * * `frameProcessor={...}` - Adds a [Frame Processor](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors)
    *
    * For example, a Camera device might report a `maxUseCasesCount` of `3`, which means you can enable all of the above use-cases at the same time - so photo capture, video capture and frame processing in the same session:
    *
@@ -275,7 +275,7 @@ export interface CameraDevice {
    * * On newer **Android** devices this value is always `3`.
    * * On older **Android** devices this value is `3` if the device's hardware level is `FULL` or above, `2` if it is `LIMITED`, `1` if it is `LEGACY`. (See [this table](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture))
    *
-   * Note that [Snapshot capture](https://cuvent.github.io/react-native-vision-camera/docs/guides/frame-processors) does not occupy a use-case, so you can fall back to snapshot capture to take photos if you're limited by the Camera's `maxUseCasesCount`.
+   * Note that [Snapshot capture](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors) does not occupy a use-case, so you can fall back to snapshot capture to take photos if you're limited by the Camera's `maxUseCasesCount`.
    *
    * @example
    * ```tsx

@@ -47,7 +47,7 @@ class NoCameraDeviceError : CameraError("device", "no-device", "No device was se
 class InvalidCameraDeviceError(cause: Throwable) : CameraError("device", "invalid-device", "The given Camera device could not be found for use-case binding!", cause)
 class TooManyUseCasesError(useCases: Array<String>, maxUseCasesCount: Int) : CameraError("device", "too-many-use-cases",
   "The given Camera device only supports up to $maxUseCasesCount use-cases at a time, but you've enabled ${useCases.size}. Disable ${numberToFriendlyString(useCases.size - maxUseCasesCount)} of the " +
-    "following: [${useCases.joinToString(", ")}] (See https://cuvent.github.io/react-native-vision-camera/docs/guides/devices/#use-cases for more info)")
+    "following: [${useCases.joinToString(", ")}] (See https://mrousavy.github.io/react-native-vision-camera/docs/guides/devices/#use-cases for more info)")
 
 class FpsNotContainedInFormatError(fps: Int) : CameraError("format", "invalid-fps", "The given FPS were not valid for the currently selected format. Make sure you select a format which `frameRateRanges` includes $fps FPS!")
 class HdrNotContainedInFormatError() : CameraError(
