@@ -103,6 +103,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   internal var camera: Camera? = null
   internal var imageCapture: ImageCapture? = null
   internal var videoCapture: VideoCapture? = null
+  internal var imageAnalysis: ImageAnalysis? = null
 
   private val scaleGestureListener: ScaleGestureDetector.SimpleOnScaleGestureListener
   private val scaleGestureDetector: ScaleGestureDetector
@@ -167,7 +168,15 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   @DoNotStrip
   fun setEnableFrameProcessor(enable: Boolean) {
     Log.d(TAG, "Set enable frame processor: $enable")
-    enableFrameProcessor = true
+    val before = enableFrameProcessor
+    enableFrameProcessor = enable
+    
+    if (before != enable) {
+      // reconfigure session if frame processor was added/removed to adjust use-cases.
+      GlobalScope.launch(Dispatchers.Main) {
+        configureSession()
+      }
+    }
   }
 
   override fun getLifecycle(): Lifecycle {
@@ -271,6 +280,8 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
       val videoCaptureBuilder = VideoCapture.Builder()
         .setTargetRotation(rotation)
+      val imageAnalysisBuilder = ImageAnalysis.Builder()
+        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
 
       if (format == null) {
         // let CameraX automatically find best resolution for the target aspect ratio
@@ -342,38 +353,31 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       // Unbind use cases before rebinding
       videoCapture = null
       imageCapture = null
+      imageAnalysis = null
       cameraProvider.unbindAll()
-
-      val imageAnalysis = ImageAnalysis.Builder()
-        .setTargetResolution(Size(1280, 720))
-        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-        .build()
-      imageAnalysis.setAnalyzer(cameraExecutor, { image ->
-        Log.i(TAG, "Image Analyzer called with ${image.width}x${image.height} image.")
-        if (enableFrameProcessor) {
-          Log.i(TAG, "Calling Frame Processor...")
-          frameProcessorCallback(image)
-          Log.i(TAG, "Frame Processor finished!")
-        }
-        image.close()
-      })
-
-      // TODO: Remove this once I'm done with frame processors.
-      val DEBUG_FRAME_PROCESSORS = true
 
       // Bind use cases to camera
       val useCases = ArrayList<UseCase>()
-      if (video == true && !DEBUG_FRAME_PROCESSORS) {
+      if (video == true) {
         videoCapture = videoCaptureBuilder.build()
         useCases.add(videoCapture!!)
       }
-      if (photo == true && !DEBUG_FRAME_PROCESSORS) {
+      if (photo == true) {
         imageCapture = imageCaptureBuilder.build()
         useCases.add(imageCapture!!)
       }
+      if (enableFrameProcessor) {
+        imageAnalysis = imageAnalysisBuilder.build().apply {
+          setAnalyzer(cameraExecutor, { image ->
+            Log.d(TAG, "Calling Frame Processor...")
+            frameProcessorCallback(image)
+            image.close()
+          })
+        }
+        useCases.add(imageAnalysis!!)
+      }
 
-      // TODO: Find out how to use frame processor, video recording and image capture at the same time. Maybe implement custom video recorder in ImageAnalyzer?
-      camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis, *useCases.toTypedArray())
+      camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, *useCases.toTypedArray())
       preview.setSurfaceProvider(previewView.surfaceProvider)
 
       minZoom = camera!!.cameraInfo.zoomState.value?.minZoomRatio ?: 1f
