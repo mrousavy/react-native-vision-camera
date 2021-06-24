@@ -89,6 +89,9 @@ jobject JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtime &runtime, cons
     }
   } else {
     // unknown jsi type!
+    auto stringRepresentation = value.toString(runtime).utf8(runtime);
+    auto message = "Received unknown JSI value! (" + stringRepresentation + ") Cannot convert to JNI Object.";
+    __android_log_write(ANDROID_LOG_ERROR, "VisionCamera", message.c_str());
     return nullptr;
   }
 }
