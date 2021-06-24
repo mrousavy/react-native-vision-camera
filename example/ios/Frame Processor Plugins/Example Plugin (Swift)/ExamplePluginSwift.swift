@@ -19,7 +19,13 @@ public class ExamplePluginSwift: NSObject, FrameProcessorPluginBase {
         NSLog("ExamplePlugin: \(CVPixelBufferGetWidth(imageBuffer)) x \(CVPixelBufferGetHeight(imageBuffer)) Image. Logging \(args.count) parameters:")
 
         args.forEach { arg in
-            NSLog("ExamplePlugin:   -> \(arg) (\(type(of: arg)))")
+            var string = "\(arg)"
+            if let array = arg as? NSArray {
+                string = (array as Array).description
+            } else if let map = arg as? NSDictionary {
+                string = (map as Dictionary).description
+            }
+            NSLog("ExamplePlugin:   -> \(string) (\(type(of: arg)))")
         }
 
         return [

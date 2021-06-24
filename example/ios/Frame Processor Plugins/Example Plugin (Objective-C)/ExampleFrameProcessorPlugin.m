@@ -21,7 +21,7 @@ static inline id example_plugin(Frame* frame, NSArray* arguments) {
   NSLog(@"ExamplePlugin: %zu x %zu Image. Logging %lu parameters:", CVPixelBufferGetWidth(imageBuffer), CVPixelBufferGetHeight(imageBuffer), (unsigned long)arguments.count);
   
   for (id param in arguments) {
-    NSLog(@"ExamplePlugin:   -> %@ (%@)", param == nil ? @"(nil)" : [param debugDescription], NSStringFromClass([param classForCoder]));
+    NSLog(@"ExamplePlugin:   -> %@ (%@)", param == nil ? @"(nil)" : [param description], NSStringFromClass([param classForCoder]));
   }
   
   return @{
