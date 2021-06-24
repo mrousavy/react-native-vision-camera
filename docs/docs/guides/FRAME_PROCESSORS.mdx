@@ -105,14 +105,14 @@ const frameProcessor = useFrameProcessor((frame) => {
 
 ### Using Frame Processor Plugins
 
-Frame Processor Plugins are distributed through npm. To install the [**vision-camera-qrcode-scanner**](https://github.com/mrousavy/vision-camera-qrcode-scanner) plugin, run:
+Frame Processor Plugins are distributed through npm. To install the [**vision-camera-image-labeler**](https://github.com/mrousavy/vision-camera-image-labeler) plugin, run:
 
 ```bash
-npm i vision-camera-qrcode-scanner
+npm i vision-camera-image-labeler
 cd ios && pod install
 ```
 
-Then add it to your `babel.config.js`. For the QR Code Scanner, this will be `__scanQRCodes`:
+Then add it to your `babel.config.js`. For the Image Labeler, this will be `__labelImage`:
 
 ```js {6}
 module.exports = {
@@ -120,7 +120,7 @@ module.exports = {
     [
       'react-native-reanimated/plugin',
       {
-        globals: ['__scanQRCodes'],
+        globals: ['__labelImage'],
       },
     ],
 ```
@@ -134,7 +134,7 @@ That's it! 🎉 Now you can use it:
 ```ts
 const frameProcessor = useFrameProcessor((frame: Frame) => {
   'worklet'
-  const codes = scanQRCodes(frame)
+  const labels = labelImage(frame)
   // ...
 }, [])
 ```
