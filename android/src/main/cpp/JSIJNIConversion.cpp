@@ -20,6 +20,7 @@
 #include "JImageProxy.h"
 #include "JReadableArray.h"
 #include "JReadableMap.h"
+#include "JArrayList.h"
 
 namespace vision {
 
@@ -95,28 +96,33 @@ jobject JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtime &runtime, cons
 jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, const jni::local_ref<jobject>& object) {
 
   if (object->isInstanceOf(jni::JBoolean::javaClassStatic())) {
+    // Boolean
 
     static const auto getBooleanFunc = jni::findClassLocal("java/lang/Boolean")->getMethod<jboolean()>("booleanValue");
     auto boolean = getBooleanFunc(object.get());
     return jsi::Value(boolean == true);
 
   } else if (object->isInstanceOf(jni::JDouble::javaClassStatic())) {
+    // Double
 
     static const auto getDoubleFunc = jni::findClassLocal("java/lang/Double")->getMethod<jdouble()>("doubleValue");
     auto d = getDoubleFunc(object.get());
     return jsi::Value(d);
 
   } else if (object->isInstanceOf(jni::JInteger::javaClassStatic())) {
+    // Integer
 
     static const auto getIntegerFunc = jni::findClassLocal("java/lang/Integer")->getMethod<jint()>("integerValue");
     auto i = getIntegerFunc(object.get());
     return jsi::Value(i);
 
   } else if (object->isInstanceOf(jni::JString::javaClassStatic())) {
+    // String
 
     return jsi::String::createFromUtf8(runtime, object->toString());
 
   } else if (object->isInstanceOf(JReadableArray::javaClassStatic())) {
+    // ReadableArray
 
     static const auto toArrayListFunc = JReadableArray::javaClassLocal()->getMethod<jni::JArrayClass<jobject>()>("toArrayList");
 
@@ -129,7 +135,25 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
     }
     return result;
 
+  } else if (object->isInstanceOf(JArrayList::javaClassStatic())) {
+    // ArrayList
+
+    static const auto iteratorFunc = JArrayList::javaClassLocal()->getMethod<jni::JIterator<jobject>()>("iterator");
+    static const auto sizeFunc = JArrayList::javaClassLocal()->getMethod<jint()>("size");
+
+    auto iterator = iteratorFunc(object.get());
+    auto size = sizeFunc(object.get());
+
+    auto result = jsi::Array(runtime, size);
+    size_t i = 0;
+    for (auto& item : *iterator) {
+      result.setValueAtIndex(runtime, i, convertJNIObjectToJSIValue(runtime, item));
+      i++;
+    }
+    return result;
+
   } else if (object->isInstanceOf(JReadableMap::javaClassStatic())) {
+    // ReadableMap
 
     static const auto toMapFunc = jni::findClassLocal("com/mrousavy/camera/utils/ReactUtils")->getStaticMethod<jni::JMap<>(jobject)>("readableMapToMap");
     auto map = toMapFunc(jni::findClassLocal("com/mrousavy/camera/utils/ReactUtils"), object.get());
