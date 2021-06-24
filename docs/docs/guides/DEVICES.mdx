@@ -98,13 +98,37 @@ function App() {
 }
 ```
 
-### The `supportsPhotoAndVideoCapture` prop
+### Use-cases
 
-Camera devices provide the [`supportsPhotoAndVideoCapture` property](/docs/api/interfaces/cameradevice.cameradevice-1#supportsphotoandvideocapture) which determines whether the device supports enabling photo- and video-capture at the same time.
-While every iOS device supports this feature, there are some older Android devices which only allow enabling one of each - either photo capture or video capture. (Those are `LEGACY` devices, see [this table](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture).)
+A "use-case" is one of the following:
+
+* **Photo capture** (`photo={true}`) - Taking photos using [`takePhoto()`](/docs/guides/capturing#taking-photos)
+* **Video capture** (`video={true}`) - Recording videos using [`startRecording()`](/docs/guides/capturing#recording-videos)/[`stopRecording()`](/docs/guides/capturing#recording-videos)
+* **Frame processing** (`frameProcessor={...}`) - Using a Frame Processor (See ["Frame Processors"](/docs/guides/frame-processors))
+
+Camera devices provide the [`maxUseCasesCount` property](/docs/api/interfaces/cameradevice.cameradevice-1#maxusecasescount) which determines how many use-cases the given Camera device supports at the same time.
+
+So if you need to be able to take photos **and** record videos, `maxUseCasesCount` has to be `2` or `3`. If it is `1`, it only supports either the photo use-case, the video use-case or the frame processor use-case - but not multiple of those at the same time.
+
+The `maxUseCasesCount` property has the following values:
+
+* On iOS this value is always `3`.
+* On newer Android devices this value is always `3`.
+* On older Android devices this value is `1` if the Camera's hardware level is `LEGACY`, `2` if it is `LIMITED` and `3` if it is `FULL`, `LEVEL_3` or above. (See [`INFO_SUPPORTED_HARDWARE_LEVEL`](https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL) or [the tables at "Regular capture"](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture))
+
+#### Examples
+
+* An app that only supports taking photos works on every Camera device because it only needs `1` use-case.
+* An app that supports taking photos and videos works on every Camera device that has a `maxUseCasesCount` of `2` or above. To also make it work on older devices you can fall-back to snapshot capture instead of `photo={true}` on those devices. (See ["Taking Snapshots"](/docs/guides/capturing#taking-snapshots))
+* An app that only uses Frame Processors (no taking photos or videos) works on every Camera device because it only needs `1` use-case.
+* An app that uses Frame Processors and supports taking photos and videos only works on Camera devices with a `maxUseCasesCount` of `3`. (Or `2` if you fall back to snapshot capture.)
 
 :::note
-If `supportsPhotoAndVideoCapture` is `false` but you still need photo- and video-capture at the same time, you can fall back to _snapshot capture_ (see [**"Taking Snapshots"**](/docs/guides/capturing#taking-snapshots)) instead.
+**Snapshot capture** can be used instead of Photo capture (`photo={true}`) to not occupy a use-case, so if `maxUseCasesCount` is too low for your app you can fall back to _snapshot capture_ instead. (See ["Taking Snapshots"](/docs/guides/capturing#taking-snapshots))
+:::
+
+:::note
+`audio={true}` is not a use-case.
 :::
 
 <br />
