@@ -32,7 +32,7 @@ private:
   jni::global_ref<CameraView::javaobject> javaPart_;
   FrameProcessor frameProcessor_;
 
-  void frameProcessorCallback(jni::alias_ref<JImageProxy::javaobject> frame);
+  void frameProcessorCallback(const jni::alias_ref<JImageProxy::javaobject>& frame);
 
   explicit CameraView(jni::alias_ref<CameraView::jhybridobject> jThis) :
     javaPart_(jni::make_global(jThis)),

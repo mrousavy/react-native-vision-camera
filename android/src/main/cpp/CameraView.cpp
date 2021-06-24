@@ -25,7 +25,7 @@ void CameraView::registerNatives() {
     });
 }
 
-void CameraView::frameProcessorCallback(alias_ref<JImageProxy::javaobject> frame) {
+void CameraView::frameProcessorCallback(const alias_ref<JImageProxy::javaobject>& frame) {
   if (frameProcessor_ == nullptr) {
     __android_log_write(ANDROID_LOG_WARN, TAG, "Frame Processor is null!");
     setEnableFrameProcessor(false);
