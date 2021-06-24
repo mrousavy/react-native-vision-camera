@@ -394,7 +394,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       Log.i(TAG_PERF, "Session configured in $duration ms! Camera: ${camera!!}")
       invokeOnInitialized()
     } catch (exc: Throwable) {
-      throw when (exc) {
+      val error = when (exc) {
         is CameraError -> exc
         is IllegalArgumentException -> {
           if (exc.message?.contains("too many use cases") == true) {
@@ -413,6 +413,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         }
         else -> UnknownCameraError(exc)
       }
+      invokeOnError(error)
     }
   }
 
