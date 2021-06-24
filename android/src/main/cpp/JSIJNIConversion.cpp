@@ -93,7 +93,7 @@ jobject JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtime &runtime, cons
   }
 }
 
-jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, const jni::local_ref<jobject>& object) {
+jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, const jni::local_ref<jobject>& object) { // NOLINT(misc-no-recursion)
 
   if (object->isInstanceOf(jni::JBoolean::javaClassStatic())) {
     // Boolean
