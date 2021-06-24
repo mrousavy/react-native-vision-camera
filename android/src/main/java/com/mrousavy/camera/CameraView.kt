@@ -11,6 +11,7 @@ import android.util.Size
 import android.view.*
 import android.view.View.OnTouchListener
 import android.widget.FrameLayout
+import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.*
 import androidx.camera.core.impl.*
@@ -118,6 +119,12 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   @DoNotStrip
   private var mHybridData: HybridData?
 
+  private val cameraManager: CameraManager
+    get() {
+      return reactContext.getSystemService(Context.CAMERA_SERVICE) as? CameraManager
+        ?: throw CameraManagerUnavailableError()
+    }
+
   init {
     mHybridData = initHybrid()
 
@@ -170,7 +177,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
     Log.d(TAG, "Set enable frame processor: $enable")
     val before = enableFrameProcessor
     enableFrameProcessor = enable
-    
+
     if (before != enable) {
       // reconfigure session if frame processor was added/removed to adjust use-cases.
       GlobalScope.launch(Dispatchers.Main) {
@@ -389,7 +396,21 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
     } catch (exc: Throwable) {
       throw when (exc) {
         is CameraError -> exc
-        is IllegalArgumentException -> InvalidCameraDeviceError(exc)
+        is IllegalArgumentException -> {
+          if (exc.message?.contains("too many use cases") == true) {
+            val useCases = ArrayList<String>()
+            if (photo == true) useCases.add("photo")
+            if (video == true) useCases.add("video")
+            if (enableFrameProcessor) useCases.add("frameProcessor")
+
+            val characteristics = cameraManager.getCameraCharacteristics(cameraId!!)
+            val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
+
+            TooManyUseCasesError(useCases.toTypedArray(), hardwareLevelToMaxUseCasesCount(hardwareLevel))
+          } else {
+            InvalidCameraDeviceError(exc)
+          }
+        }
         else -> UnknownCameraError(exc)
       }
     }

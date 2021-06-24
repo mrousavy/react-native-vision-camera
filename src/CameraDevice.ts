@@ -251,17 +251,35 @@ export interface CameraDevice {
    */
   formats: CameraDeviceFormat[];
   /**
-   * Whether this camera device supports enabling photo and video capture at the same time.
+   * Specifies the maximum amount of use-cases this camera device supports at the same time.
    *
-   * * On **iOS** devices this value is always `true`.
-   * * On newer **Android** devices this value is always `true`.
-   * * On older **Android** devices this value is `true` if the device's hardware level is `LIMITED` or above, `false` otherwise. (`LEGACY`) (See [this table](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture))
+   * The following props are use-cases:
+   * * `photo={true}` - Prepares the Camera for photo capture (`takePhoto()`)
+   * * `video={true}` - Prepares the Camera for video capture (`startRecording()`/`stopRecording()`)
+   * * `frameProcessor={...}` - Adds a [Frame Processor](https://cuvent.github.io/react-native-vision-camera/docs/guides/frame-processors)
    *
-   * If the device does not allow enabling `photo` and `video` capture at the same time, you might want to fall back to **snapshot capture** (See [**"Taking Snapshots"**](https://mrousavy.github.io/react-native-vision-camera/docs/guides/capturing#taking-snapshots)) instead:
+   * For example, a Camera device might report a `maxUseCasesCount` of `3`, which means you can enable all of the above use-cases at the same time - so photo capture, video capture and frame processing in the same session:
+   *
+   * ```tsx
+   * const frameProcessor = ...
+   * return (
+   *   <Camera
+   *     photo={true}
+   *     video={true}
+   *     frameProcessor={frameProcessor}
+   *   />
+   * )
+   * ```
+   *
+   * * On **iOS** devices this value is always `3`.
+   * * On newer **Android** devices this value is always `3`.
+   * * On older **Android** devices this value is `3` if the device's hardware level is `FULL` or above, `2` if it is `LIMITED`, `1` if it is `LEGACY`. (See [this table](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture))
+   *
+   * Note that [Snapshot capture](https://cuvent.github.io/react-native-vision-camera/docs/guides/frame-processors) does not occupy a use-case, so you can fall back to snapshot capture to take photos if you're limited by the Camera's `maxUseCasesCount`.
    *
    * @example
    * ```tsx
-   * const captureMode = device.supportsPhotoAndVideoCapture ? "photo" : "snapshot"
+   * const captureMode = device.maxUseCasesCount >= 2 ? "photo" : "snapshot"
    * return (
    *   <Camera
    *     photo={captureMode === "photo"}
@@ -271,7 +289,7 @@ export interface CameraDevice {
    * )
    * ```
    */
-  supportsPhotoAndVideoCapture: boolean;
+  maxUseCasesCount: 1 | 2 | 3;
   /**
    * Whether this camera device supports low light boost.
    */

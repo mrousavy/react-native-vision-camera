@@ -30,6 +30,14 @@ abstract class CameraError(
 val CameraError.code: String
   get() = "$domain/$id"
 
+fun numberToFriendlyString(num: Int): String {
+  return when (num) {
+    1 -> "one"
+    2 -> "two"
+    else -> num.toString()
+  }
+}
+
 class MicrophonePermissionError : CameraError("permission", "microphone-permission-denied", "The Microphone permission was denied! If you want to record Video without sound, pass `audio={false}`.")
 class CameraPermissionError : CameraError("permission", "camera-permission-denied", "The Camera permission was denied!")
 
@@ -37,6 +45,8 @@ class InvalidTypeScriptUnionError(unionName: String, unionValue: String) : Camer
 
 class NoCameraDeviceError : CameraError("device", "no-device", "No device was set! Use `getAvailableCameraDevices()` to select a suitable Camera device.")
 class InvalidCameraDeviceError(cause: Throwable) : CameraError("device", "invalid-device", "The given Camera device could not be found for use-case binding!", cause)
+class TooManyUseCasesError(useCases: Array<String>, maxUseCasesCount: Int) : CameraError("device", "too-many-use-cases",
+  "The given Camera device only supports up to $maxUseCasesCount use-cases at a time, but you've enabled ${useCases.size}. Disable ${numberToFriendlyString(useCases.size - maxUseCasesCount)} of the following: [${useCases.joinToString(", ")}]")
 
 class FpsNotContainedInFormatError(fps: Int) : CameraError("format", "invalid-fps", "The given FPS were not valid for the currently selected format. Make sure you select a format which `frameRateRanges` includes $fps FPS!")
 class HdrNotContainedInFormatError() : CameraError(

@@ -56,3 +56,18 @@ fun CameraCharacteristics.getFieldOfView(): Double {
 
   return 2 * atan(sensorSize.bigger / (focalLengths[0] * 2)) * (180 / PI)
 }
+
+fun CameraCharacteristics.getMaxUseCasesCount(): Int {
+  return hardwareLevelToMaxUseCasesCount(this.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!)
+}
+
+fun hardwareLevelToMaxUseCasesCount(hardwareLevel: Int): Int {
+  return when (hardwareLevel) {
+    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY -> 1
+    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED -> 2
+    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL -> 2
+    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL -> 3
+    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3 -> 3
+    else -> 3 // if hardware levels are added in the future, they definitely support up to 3 use cases.
+  }
+}
