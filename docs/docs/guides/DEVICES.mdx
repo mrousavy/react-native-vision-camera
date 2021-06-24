@@ -118,10 +118,10 @@ The `maxUseCasesCount` property has the following values:
 
 #### Examples
 
-* An app that only supports taking photos works on every Camera device because it only needs `1` use-case.
-* An app that supports taking photos and videos works on every Camera device that has a `maxUseCasesCount` of `2` or above. To also make it work on older devices you can fall-back to snapshot capture instead of `photo={true}` on those devices. (See ["Taking Snapshots"](/docs/guides/capturing#taking-snapshots))
-* An app that only uses Frame Processors (no taking photos or videos) works on every Camera device because it only needs `1` use-case.
-* An app that uses Frame Processors and supports taking photos and videos only works on Camera devices with a `maxUseCasesCount` of `3`. (Or `2` if you fall back to snapshot capture.)
+* An app that only supports **taking photos** works on every Camera device because it only needs `1` use-case.
+* An app that supports **taking photos** and **videos** works on every Camera device that has a `maxUseCasesCount` of `2` or above. To also make it work on older devices you can fall-back to snapshot capture instead of `photo={true}` on those devices. (See ["Taking Snapshots"](/docs/guides/capturing#taking-snapshots))
+* An app that only uses **Frame Processors** (no taking photos or videos) works on every Camera device because it only needs `1` use-case.
+* An app that uses **Frame Processors** and supports **taking photos** and **videos** only works on Camera devices with a `maxUseCasesCount` of `3`. (Or `2` if you fall back to snapshot capture.)
 
 :::note
 **Snapshot capture** can be used instead of Photo capture (`photo={true}`) to not occupy a use-case, so if `maxUseCasesCount` is too low for your app you can fall back to _snapshot capture_ instead. (See ["Taking Snapshots"](/docs/guides/capturing#taking-snapshots))
