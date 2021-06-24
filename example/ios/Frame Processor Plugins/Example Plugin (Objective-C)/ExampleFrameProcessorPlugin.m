@@ -29,9 +29,9 @@ static inline id example_plugin(Frame* frame, NSArray* arguments) {
     @"example_bool": @true,
     @"example_double": @5.3,
     @"example_array": @[
-        @"Hello",
-        @true,
-        @17.38
+      @"Hello",
+      @true,
+      @17.38
     ]
   };
 }
