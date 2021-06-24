@@ -14,7 +14,7 @@ using namespace jni;
 
 using TSelf = local_ref<HybridClass<vision::CameraView>::jhybriddata>;
 
-TSelf CameraView::initHybrid(alias_ref <HybridClass::jhybridobject> jThis) {
+TSelf CameraView::initHybrid(alias_ref<HybridClass::jhybridobject> jThis) {
     return makeCxxInstance(jThis);
 }
 
