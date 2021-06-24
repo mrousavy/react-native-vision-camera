@@ -358,13 +358,6 @@ export class Camera extends React.PureComponent<CameraProps> {
       this.assertFrameProcessorsEnabled();
       // frameProcessor argument changed. Update native to reflect the change.
       if (this.props.frameProcessor != null) {
-        if (this.props.video !== true) {
-          throw new CameraCaptureError(
-            'capture/video-not-enabled',
-            'Video capture is disabled! Pass `video={true}` to enable frame processors.',
-          );
-        }
-
         // 1. Spawn threaded JSI Runtime (if not already done)
         // 2. Add video data output to Camera stream (if not already done)
         // 3. Workletize the frameProcessor and prepare it for being called with frames
@@ -386,8 +379,19 @@ export class Camera extends React.PureComponent<CameraProps> {
    */
   public render(): React.ReactNode {
     // We remove the big `device` object from the props because we only need to pass `cameraId` to native.
-    const { device, frameProcessor: _, ...props } = this.props;
-    return <NativeCameraView {...props} cameraId={device.id} ref={this.ref} onInitialized={this.onInitialized} onError={this.onError} />;
+    const { device, video: enableVideo, frameProcessor, ...props } = this.props;
+    // on iOS, enabling a frameProcessor requires `video` to be `true`. On Android, it doesn't.
+    const video = Platform.OS === 'ios' ? frameProcessor != null || enableVideo : enableVideo;
+    return (
+      <NativeCameraView
+        {...props}
+        cameraId={device.id}
+        ref={this.ref}
+        onInitialized={this.onInitialized}
+        onError={this.onError}
+        video={video}
+      />
+    );
   }
 }
 //#endregion
