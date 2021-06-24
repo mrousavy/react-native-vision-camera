@@ -18,6 +18,8 @@
 
 #include "JImageProxyHostObject.h"
 #include "JImageProxy.h"
+#include "JReadableArray.h"
+#include "JReadableMap.h"
 
 namespace vision {
 
@@ -114,9 +116,9 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
 
     return jsi::String::createFromUtf8(runtime, object->toString());
 
-  } else if (object->isInstanceOf(react::ReadableNativeArray::javaClassStatic())) {
+  } else if (object->isInstanceOf(JReadableArray::javaClassStatic())) {
 
-    static const auto toArrayListFunc = jni::findClassLocal("com/facebook/react/bridge/ReadableNativeArray")->getMethod<jni::JArrayClass<jobject>()>("toArrayList");
+    static const auto toArrayListFunc = JReadableArray::javaClassLocal()->getMethod<jni::JArrayClass<jobject>()>("toArrayList");
 
     auto array = toArrayListFunc(object.get());
     auto size = array->size();
@@ -127,25 +129,26 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
     }
     return result;
 
-  } else if (object->isInstanceOf(react::ReadableNativeMap::javaClassStatic())) {
+  } else if (object->isInstanceOf(JReadableMap::javaClassStatic())) {
 
-    // TODO: This does not work because toHashMap returns a generic type (HashMap<K, V>)
-    static const auto toHashMapFunc = jni::findClassLocal("com/facebook/react/bridge/ReadableMap")->getMethod<jni::JMap<jstring, jobject>()>("toHashMap");
-    auto hashMap = toHashMapFunc(object.get());
+    static const auto toMapFunc = jni::findClassLocal("com/mrousavy/camera/utils/ReactUtils")->getStaticMethod<jni::JMap<>(jobject)>("readableMapToMap");
+    auto map = toMapFunc(jni::findClassLocal("com/mrousavy/camera/utils/ReactUtils"), object.get());
 
-    auto map = jsi::Object(runtime);
+    auto result = jsi::Object(runtime);
 
-    for (const auto& entry : *hashMap) {
-      auto key = entry.first->toStdString();
+    for (const auto& entry : *map) {
+      auto key = entry.first->toString();
       auto value = entry.second;
       auto jsiValue = convertJNIObjectToJSIValue(runtime, value);
-      map.setProperty(runtime, key.c_str(), jsiValue);
+      result.setProperty(runtime, key.c_str(), jsiValue);
     }
 
-    return map;
+    return result;
   }
 
-  __android_log_write(ANDROID_LOG_ERROR, "VisionCamera", "Received unknown JNI type! Cannot convert to jsi::Value.");
+  auto type = object->getClass()->toString();
+  auto message = "Received unknown JNI type \"" + type + "\"! Cannot convert to jsi::Value.";
+  __android_log_write(ANDROID_LOG_ERROR, "VisionCamera", message.c_str());
   return jsi::Value::undefined();
 }
 
