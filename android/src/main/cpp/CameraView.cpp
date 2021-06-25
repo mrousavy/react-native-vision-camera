@@ -3,9 +3,11 @@
 //
 
 #include "CameraView.h"
-#include <memory>
+
 #include <jni.h>
 #include <fbjni/fbjni.h>
+
+#include <memory>
 #include <string>
 
 namespace vision {

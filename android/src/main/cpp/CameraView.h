@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include <memory>
 #include <jni.h>
 #include <fbjni/fbjni.h>
+
+#include <memory>
 
 #include "JImageProxy.h"
 
