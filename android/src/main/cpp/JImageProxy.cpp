@@ -51,4 +51,4 @@ int JImageProxy::getBytesPerRow() {
   return getRowStrideMethod(firstPlane.get());
 }
 
-}
+} // namespace vision

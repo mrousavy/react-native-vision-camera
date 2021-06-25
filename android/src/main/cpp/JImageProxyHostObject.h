@@ -7,7 +7,7 @@
 #include <jsi/jsi.h>
 #include <jni.h>
 #include <fbjni/fbjni.h>
-#include <android/log.h>
+#include <vector>
 
 #include "JImageProxy.h"
 
@@ -16,19 +16,19 @@ namespace vision {
 using namespace facebook;
 
 class JSI_EXPORT JImageProxyHostObject : public jsi::HostObject {
-public:
+ public:
   explicit JImageProxyHostObject(jni::local_ref<JImageProxy::javaobject> image): frame(image) {}
   ~JImageProxyHostObject();
 
-public:
+ public:
   jsi::Value get(jsi::Runtime &, const jsi::PropNameID &name) override;
 
   std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime &rt) override;
 
-public:
+ public:
   jni::local_ref<JImageProxy> frame;
 
-private:
+ private:
   static auto constexpr TAG = "VisionCamera";
 };
 

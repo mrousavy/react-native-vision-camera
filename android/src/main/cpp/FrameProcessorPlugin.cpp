@@ -3,6 +3,7 @@
 //
 
 #include "FrameProcessorPlugin.h"
+#include <string>
 
 namespace vision {
 

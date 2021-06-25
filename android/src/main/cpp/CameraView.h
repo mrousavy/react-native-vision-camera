@@ -16,7 +16,7 @@ using namespace facebook;
 using FrameProcessor = std::function<void(jni::local_ref<JImageProxy::javaobject>)>;
 
 class CameraView : public jni::HybridClass<CameraView> {
-public:
+ public:
   static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/CameraView;";
   static auto constexpr TAG = "VisionCamera";
   static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis);
@@ -27,7 +27,7 @@ public:
   void unsetFrameProcessor();
   void setEnableFrameProcessor(bool enable);
 
-private:
+ private:
   friend HybridBase;
   jni::global_ref<CameraView::javaobject> javaPart_;
   FrameProcessor frameProcessor_;

@@ -4,6 +4,8 @@
 
 #include "JImageProxyHostObject.h"
 #include <android/log.h>
+#include <vector>
+#include <string>
 
 namespace vision {
 
@@ -60,5 +62,4 @@ JImageProxyHostObject::~JImageProxyHostObject() {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Destroying JImageProxyHostObject...");
 }
 
-
-}
+} // namespace vision

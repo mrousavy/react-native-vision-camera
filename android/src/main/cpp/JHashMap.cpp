@@ -12,8 +12,8 @@ namespace facebook {
 namespace jni {
 
 template <typename K, typename V>
-local_ref<JHashMap<K, V>> JHashMap<K,V>::create() {
-  return JHashMap<K,V>::newInstance();
+local_ref<JHashMap<K, V>> JHashMap<K, V>::create() {
+  return JHashMap<K, V>::newInstance();
 }
 
 } // namespace jni

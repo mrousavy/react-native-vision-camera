@@ -9,6 +9,9 @@
 #include <fbjni/fbjni.h>
 #include <android/log.h>
 
+#include <string>
+#include <utility>
+
 #include <react/jni/NativeMap.h>
 #include <react/jni/ReadableNativeMap.h>
 #include <react/jni/WritableNativeMap.h>
@@ -52,8 +55,10 @@ jobject JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtime &runtime, cons
     return string.release();
 
   } else if (value.isObject()) {
+    // jsi::Object
 
     auto object = value.asObject(runtime);
+
     if (object.isArray(runtime)) {
       // jsi::Array
 
@@ -86,7 +91,6 @@ jobject JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtime &runtime, cons
       auto dynamic = jsi::dynamicFromValue(runtime, value);
       auto map = react::ReadableNativeMap::createWithContents(std::move(dynamic));
       return map.release();
-
     }
   } else {
     // unknown jsi type!
@@ -97,8 +101,7 @@ jobject JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtime &runtime, cons
   }
 }
 
-jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, const jni::local_ref<jobject>& object) { // NOLINT(misc-no-recursion)
-
+jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, const jni::local_ref<jobject>& object) {
   if (object->isInstanceOf(jni::JBoolean::javaClassStatic())) {
     // Boolean
 

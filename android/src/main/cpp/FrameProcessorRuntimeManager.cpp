@@ -5,6 +5,7 @@
 #include "FrameProcessorRuntimeManager.h"
 #include <android/log.h>
 #include <jni.h>
+#include <utility>
 
 #include "RuntimeDecorator.h"
 #include "RuntimeManager.h"
@@ -52,7 +53,7 @@ TSelf vision::FrameProcessorRuntimeManager::initHybrid(
   auto scheduler = androidScheduler->cthis()->getScheduler();
   scheduler->setJSCallInvoker(jsCallInvoker);
 
-  return makeCxxInstance(jThis, (jsi::Runtime *) jsContext, jsCallInvoker, scheduler);
+  return makeCxxInstance(jThis, reinterpret_cast<jsi::Runtime *>(jsContext), jsCallInvoker, scheduler);
 }
 
 void vision::FrameProcessorRuntimeManager::initializeRuntime() {
@@ -115,7 +116,7 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
 
     // find camera view
     auto viewTag = arguments[0].asNumber();
-    auto cameraView = findCameraViewById((int) viewTag);
+    auto cameraView = findCameraViewById(static_cast<int>(viewTag));
     __android_log_write(ANDROID_LOG_INFO, TAG, "Found CameraView!");
 
     // TODO: does this have to be called on the separate VisionCamera Frame Processor Thread?
@@ -165,7 +166,7 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
 
     // find camera view
     auto viewTag = arguments[0].asNumber();
-    auto cameraView = findCameraViewById((int) viewTag);
+    auto cameraView = findCameraViewById(static_cast<int>(viewTag));
 
     // call Java method to unset frame processor
     cameraView->unsetFrameProcessor();

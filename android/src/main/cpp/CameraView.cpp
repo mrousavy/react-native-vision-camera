@@ -6,6 +6,7 @@
 #include <memory>
 #include <jni.h>
 #include <fbjni/fbjni.h>
+#include <string>
 
 namespace vision {
 

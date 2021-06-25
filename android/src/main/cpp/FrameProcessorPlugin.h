@@ -6,6 +6,7 @@
 
 #include <jni.h>
 #include <fbjni/fbjni.h>
+#include <string>
 
 #include "JImageProxy.h"
 
@@ -15,7 +16,7 @@ using namespace facebook;
 using namespace jni;
 
 class FrameProcessorPlugin: public HybridClass<FrameProcessorPlugin> {
-public:
+ public:
   static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/FrameProcessorPlugin;";
   static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis,
                                                 const std::string& name);
@@ -24,7 +25,7 @@ public:
   local_ref<jobject> callback(alias_ref<JImageProxy::javaobject> image, alias_ref<JArrayClass<jobject>> params);
   std::string getName();
 
-private:
+ private:
   friend HybridBase;
   jni::global_ref<FrameProcessorPlugin::javaobject> javaPart_;
   std::string name;
