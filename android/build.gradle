@@ -3,7 +3,6 @@ import org.apache.tools.ant.filters.ReplaceTokens
 import java.nio.file.Paths
 
 def reactNative = new File("$projectDir/../node_modules/react-native")
-def reactNativeThirdParty = new File("$reactNative/ReactAndroid/src/main/jni/third-party")
 
 def FOR_HERMES = "";
 if(findProject(':app')) {
@@ -454,6 +453,8 @@ task prepareThirdPartyNdkHeaders {
 
 tasks.whenTaskAdded { task ->
   if (task.name.contains('externalNativeBuild')) {
+    task.dependsOn(prepareJSC)
+    task.dependsOn(prepareHermes)
     task.dependsOn(extractAARHeaders)
     task.dependsOn(extractJNIFiles)
     task.dependsOn(prepareThirdPartyNdkHeaders)
