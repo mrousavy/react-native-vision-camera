@@ -311,6 +311,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       val imageAnalysisBuilder = ImageAnalysis.Builder()
         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
         .setTargetRotation(rotation)
+        .setBackgroundExecutor(CameraViewModule.FrameProcessorThread)
 
       if (format == null) {
         // let CameraX automatically find best resolution for the target aspect ratio
