@@ -30,14 +30,6 @@ abstract class CameraError(
 val CameraError.code: String
   get() = "$domain/$id"
 
-fun numberToFriendlyString(num: Int): String {
-  return when (num) {
-    1 -> "one"
-    2 -> "two"
-    else -> num.toString()
-  }
-}
-
 class MicrophonePermissionError : CameraError("permission", "microphone-permission-denied", "The Microphone permission was denied! If you want to record Video without sound, pass `audio={false}`.")
 class CameraPermissionError : CameraError("permission", "camera-permission-denied", "The Camera permission was denied!")
 
