@@ -171,6 +171,8 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
           val supportsHdr = hdrExtension.isExtensionAvailable(cameraSelector)
           val nightExtension = NightImageCaptureExtender.create(imageCaptureBuilder)
           val supportsLowLightBoost = nightExtension.isExtensionAvailable(cameraSelector)
+          // see https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture
+          val supportsParallelVideoProcessing = hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY && hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
 
           val fieldOfView = characteristics.getFieldOfView()
 
@@ -182,7 +184,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
           map.putBoolean("hasFlash", hasFlash)
           map.putBoolean("hasTorch", hasFlash)
           map.putBoolean("isMultiCam", isMultiCam)
-          map.putBoolean("supportsParallelVideoProcessing", hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
+          map.putBoolean("supportsParallelVideoProcessing", supportsParallelVideoProcessing)
           map.putBoolean("supportsRawCapture", supportsRawCapture)
           map.putBoolean("supportsDepthCapture", supportsDepthCapture)
           map.putBoolean("supportsLowLightBoost", supportsLowLightBoost)
