@@ -15,9 +15,10 @@ import java.io.FileOutputStream
 import kotlinx.coroutines.guava.await
 
 suspend fun CameraView.takeSnapshot(options: ReadableMap): WritableMap = coroutineScope {
+  val camera = camera ?: throw com.mrousavy.camera.CameraNotReadyError()
+  val enableFlash = options.getString("flash") == "on"
+
   try {
-    val camera = camera ?: throw CameraNotReadyError()
-    val enableFlash = options.getString("flash") == "on"
     if (enableFlash) {
       camera.cameraControl.enableTorch(true).await()
     }
@@ -50,8 +51,9 @@ suspend fun CameraView.takeSnapshot(options: ReadableMap): WritableMap = corouti
 
     return@coroutineScope map
   } finally {
-    if (camera?.cameraInfo?.torchState?.value == TorchState.ON) {
-      camera?.cameraControl?.enableTorch(false)
+    if (enableFlash) {
+      // reset to `torch` property
+      camera.cameraControl.enableTorch(this@takeSnapshot.torch == "on")
     }
   }
 }
