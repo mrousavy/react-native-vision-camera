@@ -224,7 +224,7 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
                 photo={true}
                 video={true}
                 audio={true}
-                frameProcessor={frameProcessor}
+                frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
                 frameProcessorFps={1}
               />
             </TapGestureHandler>
