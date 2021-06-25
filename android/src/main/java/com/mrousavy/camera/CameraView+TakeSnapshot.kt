@@ -1,7 +1,6 @@
 package com.mrousavy.camera
 
 import android.graphics.Bitmap
-import androidx.camera.core.TorchState
 import androidx.exifinterface.media.ExifInterface
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableMap
