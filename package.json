@@ -30,7 +30,7 @@
     "typescript": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "lint-ci": "yarn lint -f ./node_modules/@firmnav/eslint-github-actions-formatter/dist/formatter.js",
-    "prepare": "bob build && scripts/build-android-npm-package.sh",
+    "prepare": "bob build",
     "release": "release-it",
     "pods": "cd example && yarn pods",
     "bootstrap": "yarn && cd example && yarn && yarn pods",
@@ -40,7 +40,7 @@
     "check-all": "scripts/check-all.sh",
     "clean": "scripts/clean.sh",
     "docs": "cd docs && yarn build",
-    "prepack": "rm -rf android-tmp && mv android android-tmp && mv android-npm android",
+    "prepack": "scripts/build-android-npm-package.sh && rm -rf android-tmp && mv android android-tmp && mv android-npm android",
     "postpack": "rm -rf android-npm && mv android android-npm && mv android-tmp android"
   },
   "keywords": [
