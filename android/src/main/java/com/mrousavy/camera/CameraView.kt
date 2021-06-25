@@ -88,6 +88,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   var torch = "off"
   var zoom = 0.0 // in percent
   var enableZoomGesture = false
+  var frameProcessorFps = 1.0
 
   // private properties
   private val reactContext: ReactContext
@@ -380,8 +381,6 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         }
       }
 
-      val preview = previewBuilder.build()
-
       // Unbind use cases before rebinding
       videoCapture = null
       imageCapture = null
@@ -404,16 +403,23 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         }
       }
       if (enableFrameProcessor) {
+        var lastCall = System.currentTimeMillis() - 1000
+        val intervalMs = (1.0 / frameProcessorFps) * 1000.0
         imageAnalysis = imageAnalysisBuilder.build().apply {
           setAnalyzer(cameraExecutor, { image ->
-            Log.d(TAG, "Calling Frame Processor...")
-            frameProcessorCallback(image)
+            val now = System.currentTimeMillis()
+            if (now - lastCall > intervalMs) {
+              lastCall = now
+              Log.d(TAG, "Calling Frame Processor...")
+              frameProcessorCallback(image)
+            }
             image.close()
           })
         }
         useCases.add(imageAnalysis!!)
       }
 
+      val preview = previewBuilder.build()
       camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, *useCases.toTypedArray())
       preview.setSurfaceProvider(previewView.surfaceProvider)
 
@@ -474,7 +480,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
     const val TAG = "CameraView"
     const val TAG_PERF = "CameraView.performance"
 
-    private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "fps", "hdr", "lowLightBoost", "photo", "video")
+    private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "fps", "hdr", "lowLightBoost", "photo", "video", "frameProcessorFps")
 
     private val arrayListOfZoom = arrayListOf("zoom")
   }
