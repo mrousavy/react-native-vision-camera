@@ -13,8 +13,7 @@
     "lib/module",
     "lib/typescript",
     "android/build.gradle",
-    "android/gradle.properties",
-    "android/src",
+    "android/*.aar",
     "ios/**/*.h",
     "ios/**/*.m",
     "ios/**/*.mm",
@@ -40,7 +39,9 @@
     "check-cpp": "scripts/cpplint.sh",
     "check-all": "scripts/check-all.sh",
     "clean": "scripts/clean.sh",
-    "docs": "cd docs && yarn build"
+    "docs": "cd docs && yarn build",
+    "prepack": "scripts/build-android-npm-package.sh && rm -rf android-tmp && mv android android-tmp && mv android-npm android",
+    "postpack": "rm -rf android-npm && mv android android-npm && mv android-tmp android"
   },
   "keywords": [
     "react-native",

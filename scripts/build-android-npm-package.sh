@@ -4,8 +4,7 @@ set -x
 
 ROOT=$(pwd)
 
-rm -rf android-npm/react-native-vision-camera-jsc.aar
-rm -rf android-npm/react-native-vision-camera-hermes.aar
+rm -rf android-npm/*.aar
 
 for for_hermes in "True" "False"
 do
