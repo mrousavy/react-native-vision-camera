@@ -14,6 +14,10 @@ In this guide we will create a custom QR Code Scanner Plugin which can be used f
 
 Android Frame Processor Plugins can be written in either **Java**, **Kotlin** or **C++ (JNI)**.
 
+1. Open your Project in Android Studio
+2. Create a Java/Kotlin source file, for the QR Code Plugin this will be called `QRCodeFrameProcessorPlugin`.
+3. Add the following code:
+
 <Tabs
   defaultValue="java"
   values={[
@@ -21,10 +25,6 @@ Android Frame Processor Plugins can be written in either **Java**, **Kotlin** or
     {label: 'Kotlin', value: 'kotlin'}
   ]}>
 <TabItem value="java">
-
-1. Open your Project in Android Studio
-2. Create a Java source file, for the QR Code Plugin this will be called `QRCodeFrameProcessorPlugin.java`.
-3. Add the following code:
 
 ```java {8}
 import androidx.camera.core.ImageProxy;
@@ -45,18 +45,12 @@ public class QRCodeFrameProcessorPlugin extends FrameProcessorPlugin {
 
 ```
 
-4. **Implement your Frame Processing.** See the [Example Plugin (Java)](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/android/app/src/main/java/com/mrousavy/camera/example/ExampleFrameProcessorPlugin.java) for reference.
-
 :::note
 The JS function name will be equal to the name you pass to the `super(...)` call (with a `__` prefix). Make sure it is unique across other Frame Processor Plugins.
 :::
 
 </TabItem>
 <TabItem value="kotlin">
-
-1. Open your Project in Android Studio
-2. Create a Kotlin source file, for the QR Code Plugin this will be called `QRCodeFrameProcessorPlugin.kt`.
-3. Add the following code:
 
 ```kt {7}
 import androidx.camera.core.ImageProxy
@@ -71,14 +65,14 @@ class ExampleFrameProcessorPluginKotlin: FrameProcessorPlugin("scanQRCodes") {
 }
 ```
 
-4. **Implement your Frame Processing.** See the [Example Plugin (Java)](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/android/app/src/main/java/com/mrousavy/camera/example/ExampleFrameProcessorPlugin.java) for reference.
-
 :::note
 The JS function name will be equal to the name you pass to the `FrameProcessorPlugin(...)` call (with a `__` prefix). Make sure it is unique across other Frame Processor Plugins.
 :::
 
 </TabItem>
 </Tabs>
+
+4. **Implement your Frame Processing.** See the [Example Plugin (Java)](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/android/app/src/main/java/com/mrousavy/camera/example/ExampleFrameProcessorPlugin.java) for reference.
 
 <br />
 
