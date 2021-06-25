@@ -28,4 +28,5 @@ jobs:
             ,-readability/todo\
             ,-build/namespaces\
             ,-whitespace/comments\
+            ,-build/include_order\
             "
