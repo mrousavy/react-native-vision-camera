@@ -110,10 +110,6 @@ android {
     excludes = ["**/libc++_shared.so"]
   }
 
-  buildFeatures {
-    prefab true
-  }
-
   buildTypes {
     release {
       minifyEnabled false
