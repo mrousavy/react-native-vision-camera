@@ -7,11 +7,9 @@ import android.content.pm.PackageManager
 import android.hardware.camera2.*
 import android.util.Log
 import android.util.Range
-import android.util.Size
 import android.view.*
 import android.view.View.OnTouchListener
 import android.widget.FrameLayout
-import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.*
 import androidx.camera.core.impl.*
@@ -26,10 +24,8 @@ import androidx.lifecycle.*
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.*
-import com.facebook.react.turbomodule.core.CallInvokerHolderImpl
 import com.facebook.react.uimanager.events.RCTEventEmitter
 import com.mrousavy.camera.utils.*
-import com.swmansion.reanimated.Scheduler
 import kotlinx.coroutines.*
 import kotlinx.coroutines.guava.await
 import java.lang.IllegalArgumentException

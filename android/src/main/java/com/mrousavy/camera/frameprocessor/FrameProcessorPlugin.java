@@ -3,10 +3,7 @@ package com.mrousavy.camera.frameprocessor;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.ImageProxy;
-
 import com.facebook.jni.HybridData;
-
-import java.util.ArrayList;
 
 /**
  * Declares a Frame Processor Plugin.

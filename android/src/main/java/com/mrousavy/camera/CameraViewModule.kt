@@ -25,7 +25,6 @@ import java.util.concurrent.Executors
 import kotlinx.coroutines.*
 import kotlinx.coroutines.guava.await
 
-
 class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
   companion object {
     const val REACT_CLASS = "CameraView"
