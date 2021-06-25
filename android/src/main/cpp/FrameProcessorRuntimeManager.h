@@ -11,7 +11,7 @@
 
 #include "Scheduler.h"
 #include "RuntimeManager.h"
-#include "AndroidScheduler.h"
+#include "reanimated-headers/AndroidScheduler.h"
 
 #include "CameraView.h"
 #include "FrameProcessorPlugin.h"

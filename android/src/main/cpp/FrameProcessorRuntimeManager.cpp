@@ -7,7 +7,9 @@
 #include <jni.h>
 
 #include "RuntimeDecorator.h"
-#include "AndroidErrorHandler.h"
+#include "RuntimeManager.h"
+#include "reanimated-headers/AndroidScheduler.h"
+#include "reanimated-headers/AndroidErrorHandler.h"
 
 #include "MakeJSIRuntime.h"
 #include "CameraView.h"
