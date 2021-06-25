@@ -40,7 +40,7 @@
     "check-all": "scripts/check-all.sh",
     "clean": "scripts/clean.sh",
     "docs": "cd docs && yarn build",
-    "prepublishOnly": "scripts/build-android-npm-package.sh",
+    "preversion": "scripts/build-android-npm-package.sh",
     "prepack": "rm -rf android-tmp && mv android android-tmp && mv android-npm android",
     "postpack": "rm -rf android-npm && mv android android-npm && mv android-tmp android"
   },
