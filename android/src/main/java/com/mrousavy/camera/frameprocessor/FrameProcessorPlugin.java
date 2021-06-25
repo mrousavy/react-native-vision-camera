@@ -1,5 +1,7 @@
 package com.mrousavy.camera.frameprocessor;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.ImageProxy;
 
 import com.facebook.jni.HybridData;
@@ -24,14 +26,14 @@ public abstract class FrameProcessorPlugin {
      * <a href="https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors-plugins-overview#types">Types</a>
      * table for a list of supported types.
      */
-    public abstract Object callback(ImageProxy image, Object[] params);
+    public abstract @Nullable Object callback(@NonNull ImageProxy image, @NonNull Object[] params);
 
     /**
      * Initializes the native plugin part.
      * @param name Specifies the Frame Processor Plugin's name in the Runtime.
      *             The actual name in the JS Runtime will be prefixed with two underscores (`__`)
      */
-    protected FrameProcessorPlugin(String name) {
+    protected FrameProcessorPlugin(@NonNull String name) {
         mHybridData = initHybrid(name);
     }
 
@@ -43,13 +45,13 @@ public abstract class FrameProcessorPlugin {
         }
     }
 
-    private native HybridData initHybrid(String name);
+    private native @NonNull HybridData initHybrid(@NonNull String name);
 
     /**
      * Registers the given plugin in the Frame Processor Runtime.
      * @param plugin An instance of a plugin.
      */
-    public static void register(FrameProcessorPlugin plugin) {
+    public static void register(@NonNull FrameProcessorPlugin plugin) {
         FrameProcessorRuntimeManager.Companion.getPlugins().add(plugin);
     }
 }
