@@ -123,23 +123,26 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   internal val fallbackToSnapshot: Boolean
     @SuppressLint("UnsafeOptInUsageError")
     get() {
-      camera?.let { camera ->
-        if (video != true && !enableFrameProcessor) {
-          // Both use-cases are disabled, so `photo` is the only use-case anyways. Don't need to fallback here.
-          return false
-        }
-        val characteristics = Camera2CameraInfo.from(camera.cameraInfo)
-        val hardwareLevel = characteristics.getCameraCharacteristic(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
-        if (hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
-          // Camera only supports a single use-case at a time
-          return true
-        } else {
-          if (video == true && enableFrameProcessor) {
-            // Camera supports max. 2 use-cases, but both are occupied by `frameProcessor` and `video`
+      if (video != true && !enableFrameProcessor) {
+        // Both use-cases are disabled, so `photo` is the only use-case anyways. Don't need to fallback here.
+        return false
+      }
+      cameraId?.let { cameraId ->
+        val cameraManger = reactContext.getSystemService(Context.CAMERA_SERVICE) as? CameraManager
+        cameraManger?.let {
+          val characteristics = cameraManger.getCameraCharacteristics(cameraId)
+          val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
+          if (hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
+            // Camera only supports a single use-case at a time
             return true
           } else {
-            // Camera supports max. 2 use-cases and only one is occupied (either `frameProcessor` or `video`), so we can add `photo`
-            return false
+            if (video == true && enableFrameProcessor) {
+              // Camera supports max. 2 use-cases, but both are occupied by `frameProcessor` and `video`
+              return true
+            } else {
+              // Camera supports max. 2 use-cases and only one is occupied (either `frameProcessor` or `video`), so we can add `photo`
+              return false
+            }
           }
         }
       }
