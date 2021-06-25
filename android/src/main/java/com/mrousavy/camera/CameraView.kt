@@ -119,10 +119,31 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   @DoNotStrip
   private var mHybridData: HybridData?
 
-  private val cameraManager: CameraManager
+  @Suppress("LiftReturnOrAssignment", "RedundantIf")
+  internal val fallbackToSnapshot: Boolean
+    @SuppressLint("UnsafeOptInUsageError")
     get() {
-      return reactContext.getSystemService(Context.CAMERA_SERVICE) as? CameraManager
-        ?: throw CameraManagerUnavailableError()
+      camera?.let { camera ->
+        if (video != true && !enableFrameProcessor) {
+          // Both use-cases are disabled, so `photo` is the only use-case anyways. Don't need to fallback here.
+          return false
+        }
+        val characteristics = Camera2CameraInfo.from(camera.cameraInfo)
+        val hardwareLevel = characteristics.getCameraCharacteristic(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
+        if (hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
+          // Camera only supports a single use-case at a time
+          return true
+        } else {
+          if (video == true && enableFrameProcessor) {
+            // Camera supports max. 2 use-cases, but both are occupied by `frameProcessor` and `video`
+            return true
+          } else {
+            // Camera supports max. 2 use-cases and only one is occupied (either `frameProcessor` or `video`), so we can add `photo`
+            return false
+          }
+        }
+      }
+      return false
     }
 
   init {
@@ -370,8 +391,13 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         useCases.add(videoCapture!!)
       }
       if (photo == true) {
-        imageCapture = imageCaptureBuilder.build()
-        useCases.add(imageCapture!!)
+        if (fallbackToSnapshot) {
+          Log.i(TAG, "Tried to add photo use-case (`photo={true}`) but the Camera device only supports " +
+            "a single use-case at a time. Falling back to Snapshot capture.")
+        } else {
+          imageCapture = imageCaptureBuilder.build()
+          useCases.add(imageCapture!!)
+        }
       }
       if (enableFrameProcessor) {
         imageAnalysis = imageAnalysisBuilder.build().apply {
@@ -398,15 +424,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         is CameraError -> exc
         is IllegalArgumentException -> {
           if (exc.message?.contains("too many use cases") == true) {
-            val useCases = ArrayList<String>()
-            if (photo == true) useCases.add("photo")
-            if (video == true) useCases.add("video")
-            if (enableFrameProcessor) useCases.add("frameProcessor")
-
-            val characteristics = cameraManager.getCameraCharacteristics(cameraId!!)
-            val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
-
-            TooManyUseCasesError(useCases.toTypedArray(), hardwareLevelToMaxUseCasesCount(hardwareLevel))
+            ParallelVideoProcessingNotSupportedError(exc)
           } else {
             InvalidCameraDeviceError(exc)
           }

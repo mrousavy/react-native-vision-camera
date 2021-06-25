@@ -17,8 +17,13 @@ import kotlin.system.measureTimeMillis
 
 @SuppressLint("UnsafeOptInUsageError")
 suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineScope {
+  if (fallbackToSnapshot) {
+    Log.i(CameraView.TAG, "takePhoto() called, but falling back to Snapshot because 1 use-case is already occupied.")
+    return@coroutineScope takeSnapshot(options)
+  }
+
   val startFunc = System.nanoTime()
-  Log.d(CameraView.TAG, "takePhoto() called")
+  Log.i(CameraView.TAG, "takePhoto() called")
   if (imageCapture == null) {
     if (photo == true) {
       throw CameraNotReadyError()

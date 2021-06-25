@@ -98,15 +98,12 @@ function App() {
 }
 ```
 
-### Use-cases
+### The `supportsParallelVideoProcessing` prop
 
-A "use-case" is one of the following:
+Camera devices provide the [`supportsParallelVideoProcessing` property](/docs/api/interfaces/cameradevice.cameradevice-1#supportsparallelvideoprocessing) which determines ...
 
-* **Photo capture** (`photo={true}`) - Taking photos using [`takePhoto()`](/docs/guides/capturing#taking-photos)
-* **Video capture** (`video={true}`) - Recording videos using [`startRecording()`](/docs/guides/capturing#recording-videos)/[`stopRecording()`](/docs/guides/capturing#recording-videos)
-* **Frame processing** (`frameProcessor={...}`) - Using a Frame Processor (See ["Frame Processors"](/docs/guides/frame-processors))
 
-Camera devices provide the [`maxUseCasesCount` property](/docs/api/interfaces/cameradevice.cameradevice-1#maxusecasescount) which determines how many use-cases the given Camera device supports at the same time.
+...
 
 So if you need to be able to take photos **and** record videos, `maxUseCasesCount` has to be `2` or `3`. If it is `1`, it only supports either the photo use-case, the video use-case or the frame processor use-case - but not multiple of those at the same time.
 
