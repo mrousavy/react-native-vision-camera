@@ -14,7 +14,7 @@ module.exports = {
       indexName: 'react-native-vision-camera',
     },
     prism: {
-      additionalLanguages: ['swift'],
+      additionalLanguages: ['swift', 'java', 'kotlin'],
     },
     navbar: {
       title: 'VisionCamera',
