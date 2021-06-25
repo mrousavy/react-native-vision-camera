@@ -45,6 +45,8 @@ fun flipImage(imageBytes: ByteArray): ByteArray {
   val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
   val matrix = Matrix()
   matrix.preScale(-1f, 1f)
+  // Setting post rotate to 90 because image will be possibly in landscape
+  matrix.postRotate(90f);
   val newBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
   val stream = ByteArrayOutputStream()
   newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
