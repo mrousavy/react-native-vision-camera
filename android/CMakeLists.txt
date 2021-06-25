@@ -20,6 +20,7 @@ add_library(
         src/main/cpp/CameraView.cpp
         src/main/cpp/JImageProxy.cpp
         src/main/cpp/JImageProxyHostObject.cpp
+        src/main/cpp/JHashMap.cpp
 )
 
 # includes

@@ -21,6 +21,7 @@
 #include "JReadableArray.h"
 #include "JReadableMap.h"
 #include "JArrayList.h"
+#include "JHashMap.h"
 
 namespace vision {
 
@@ -158,12 +159,12 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
   } else if (object->isInstanceOf(JReadableMap::javaClassStatic())) {
     // ReadableMap
 
-    static const auto toMapFunc = jni::findClassLocal("com/mrousavy/camera/utils/ReactUtils")->getStaticMethod<jni::JMap<>(jobject)>("readableMapToMap");
-    auto map = toMapFunc(jni::findClassLocal("com/mrousavy/camera/utils/ReactUtils"), object.get());
+    static const auto toHashMapFunc = JReadableMap::javaClassLocal()->getMethod<jni::JHashMap<jstring, jobject>()>("toHashMap");
+    auto hashMap = toHashMapFunc(object.get());
 
     auto result = jsi::Object(runtime);
 
-    for (const auto& entry : *map) {
+    for (const auto& entry : *hashMap) {
       auto key = entry.first->toString();
       auto value = entry.second;
       auto jsiValue = convertJNIObjectToJSIValue(runtime, value);
