@@ -10,32 +10,32 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		2D25D416E10790D96A54417B /* libPods-VisionCameraExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0FC5D1C53D06B40B4CA981B8 /* libPods-VisionCameraExample.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		B8DB3BD5263DE8B7004C18D7 /* BuildFile in Sources */ = {isa = PBXBuildFile; };
 		B8DB3BDC263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BD8263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m */; };
 		B8DB3BDD263DEA31004C18D7 /* ExamplePluginSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BDA263DEA31004C18D7 /* ExamplePluginSwift.swift */; };
 		B8DB3BDE263DEA31004C18D7 /* ExamplePluginSwift.m in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BDB263DEA31004C18D7 /* ExamplePluginSwift.m */; };
 		B8F0E10825E0199F00586F16 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F0E10725E0199F00586F16 /* File.swift */; };
-		D27D5196997E7C9532F05776 /* libPods-VisionCameraExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 321EF902E53C449CC036AD27 /* libPods-VisionCameraExample.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		008F07F21AC5B25A0029DE68 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
-		0547A6E7EED7421DBCBCF7E4 /* Pods-VisionCameraExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VisionCameraExample.release.xcconfig"; path = "Target Support Files/Pods-VisionCameraExample/Pods-VisionCameraExample.release.xcconfig"; sourceTree = "<group>"; };
+		0FC5D1C53D06B40B4CA981B8 /* libPods-VisionCameraExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VisionCameraExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07F961A680F5B00A75B9A /* VisionCameraExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VisionCameraExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = VisionCameraExample/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = VisionCameraExample/AppDelegate.m; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = VisionCameraExample/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = VisionCameraExample/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = VisionCameraExample/main.m; sourceTree = "<group>"; };
-		321EF902E53C449CC036AD27 /* libPods-VisionCameraExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VisionCameraExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3AE81CC8871244CDFFFE8AE3 /* Pods-VisionCameraExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VisionCameraExample.release.xcconfig"; path = "Target Support Files/Pods-VisionCameraExample/Pods-VisionCameraExample.release.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = VisionCameraExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		9993ED8FD4B3171BB28C87C9 /* Pods-VisionCameraExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VisionCameraExample.debug.xcconfig"; path = "Target Support Files/Pods-VisionCameraExample/Pods-VisionCameraExample.debug.xcconfig"; sourceTree = "<group>"; };
 		B8DB3BD8263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExampleFrameProcessorPlugin.m; sourceTree = "<group>"; };
 		B8DB3BDA263DEA31004C18D7 /* ExamplePluginSwift.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExamplePluginSwift.swift; sourceTree = "<group>"; };
 		B8DB3BDB263DEA31004C18D7 /* ExamplePluginSwift.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExamplePluginSwift.m; sourceTree = "<group>"; };
 		B8F0E10625E0199F00586F16 /* VisionCameraExample-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VisionCameraExample-Bridging-Header.h"; sourceTree = "<group>"; };
 		B8F0E10725E0199F00586F16 /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
+		E9E709EFF68B90B41F828506 /* Pods-VisionCameraExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VisionCameraExample.debug.xcconfig"; path = "Target Support Files/Pods-VisionCameraExample/Pods-VisionCameraExample.debug.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
@@ -45,7 +45,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D27D5196997E7C9532F05776 /* libPods-VisionCameraExample.a in Frameworks */,
+				2D25D416E10790D96A54417B /* libPods-VisionCameraExample.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -74,7 +74,7 @@
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				ED2971642150620600B7C4FE /* JavaScriptCore.framework */,
-				321EF902E53C449CC036AD27 /* libPods-VisionCameraExample.a */,
+				0FC5D1C53D06B40B4CA981B8 /* libPods-VisionCameraExample.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -82,8 +82,8 @@
 		6B9684456A2045ADE5A6E47E /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				9993ED8FD4B3171BB28C87C9 /* Pods-VisionCameraExample.debug.xcconfig */,
-				0547A6E7EED7421DBCBCF7E4 /* Pods-VisionCameraExample.release.xcconfig */,
+				E9E709EFF68B90B41F828506 /* Pods-VisionCameraExample.debug.xcconfig */,
+				3AE81CC8871244CDFFFE8AE3 /* Pods-VisionCameraExample.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -150,7 +150,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "VisionCameraExample" */;
 			buildPhases = (
-				DECBF3FC22FA76EDF8EAAE3A /* [CP] Check Pods Manifest.lock */,
+				61061D8AA46EA92199E38783 /* [CP] Check Pods Manifest.lock */,
 				B81F12712604CF8800B08949 /* SwiftFormat */,
 				B81F12702604CF6600B08949 /* SwiftLint */,
 				FD10A7F022414F080027D42C /* Start Packager */,
@@ -158,7 +158,7 @@
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				A8A786DD4DE7AB6FD7D4C54C /* [CP] Copy Pods Resources */,
+				62D9B6272AA9D5720A929C8F /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -228,7 +228,29 @@
 			shellPath = /bin/sh;
 			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh";
 		};
-		A8A786DD4DE7AB6FD7D4C54C /* [CP] Copy Pods Resources */ = {
+		61061D8AA46EA92199E38783 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-VisionCameraExample-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		62D9B6272AA9D5720A929C8F /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -314,28 +336,6 @@
 			shellPath = /bin/sh;
 			shellScript = "if which swiftformat >/dev/null; then\n  swiftformat .\nelse\n  echo \"warning: SwiftFormat not installed, download from https://github.com/nicklockwood/SwiftFormat\"\nfi\n";
 		};
-		DECBF3FC22FA76EDF8EAAE3A /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-VisionCameraExample-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
 		FD10A7F022414F080027D42C /* Start Packager */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -377,7 +377,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9993ED8FD4B3171BB28C87C9 /* Pods-VisionCameraExample.debug.xcconfig */;
+			baseConfigurationReference = E9E709EFF68B90B41F828506 /* Pods-VisionCameraExample.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -402,7 +402,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0547A6E7EED7421DBCBCF7E4 /* Pods-VisionCameraExample.release.xcconfig */;
+			baseConfigurationReference = 3AE81CC8871244CDFFFE8AE3 /* Pods-VisionCameraExample.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
