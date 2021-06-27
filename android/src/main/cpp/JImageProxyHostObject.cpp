@@ -18,6 +18,7 @@ std::vector<jsi::PropNameID> JImageProxyHostObject::getPropertyNames(jsi::Runtim
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("height")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("close")));
   return result;
 }
 
