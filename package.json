@@ -73,7 +73,7 @@
     "@jamesacarr/eslint-formatter-github-actions": "^0.1.0",
     "@react-native-community/eslint-config": "^2.0.0",
     "@react-native-community/eslint-plugin": "^1.1.0",
-    "@release-it/conventional-changelog": "^2.0.0",
+    "@release-it/conventional-changelog": "^3.0.1",
     "@types/react": "^17.0.9",
     "@types/react-native": "^0.64.10",
     "@typescript-eslint/eslint-plugin": "^4.26.0",
