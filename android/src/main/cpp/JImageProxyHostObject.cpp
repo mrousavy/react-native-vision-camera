@@ -33,6 +33,10 @@ jsi::Value JImageProxyHostObject::get(jsi::Runtime& runtime, const jsi::PropName
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
   }
+  if (name == "close") {
+    this->frame->close();
+    return jsi::Value::undefined();
+  }
 
   if (name == "isValid") {
     return jsi::Value(this->frame->getIsValid());

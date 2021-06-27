@@ -35,4 +35,19 @@ export interface Frame {
    * ```
    */
   toString(): string;
+  /**
+   * Closes and disposes the Frame.
+   * Only close frames that you have created yourself, e.g. by copying the frame you receive in a frame processor.
+   *
+   * @example
+   * ```ts
+   * const frameProcessor = useFrameProcessor((frame) => {
+   *   const smallerCopy = resize(frame, 480, 270)
+   *   // run AI ...
+   *   smallerCopy.close()
+   *   // don't close `frame`!
+   * })
+   * ```
+   */
+  close(): void;
 }

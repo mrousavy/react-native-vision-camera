@@ -41,4 +41,9 @@ int JImageProxy::getBytesPerRow() {
   return getRowStrideMethod(firstPlane.get());
 }
 
+void JImageProxy::close() {
+  static const auto closeMethod = getClass()->getMethod<void()>("close");
+  closeMethod(javaClassLocal());
+}
+
 } // namespace vision
