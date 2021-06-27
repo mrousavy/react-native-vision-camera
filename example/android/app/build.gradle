@@ -131,6 +131,10 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
+
     defaultConfig {
         applicationId "com.mrousavy.camera.example"
         minSdkVersion rootProject.ext.minSdkVersion
