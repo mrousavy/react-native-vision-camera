@@ -41,6 +41,8 @@ jobs:
             ${{ runner.os }}-yarn-
       - name: Install node_modules
         run: yarn install --frozen-lockfile --cwd ..
+      - name: Install node_modules for example/
+        run: yarn install --frozen-lockfile --cwd ../example
 
       - name: Restore Gradle cache
         uses: actions/cache@v2
@@ -52,18 +54,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - name: Run Gradle Lint
-        run: ./gradlew lint
+        run: ./gradlew lint --build-cache
 
       - name: Parse Gradle Lint Report
         uses: yutailang0119/action-android-lint@v1.0.2
         with:
           xml_path: android/build/reports/lint-results.xml
-  ktlint:
-    name: Kotlin Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Run KTLint
-        uses: mrousavy/action-ktlint@v1.6
-        with:
-          github_token: ${{ secrets.github_token }}
+  # ktlint:
+  #   name: Kotlin Lint
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: Run KTLint
+  #       uses: mrousavy/action-ktlint@v1.7
+  #       with:
+  #         github_token: ${{ secrets.github_token }}

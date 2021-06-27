@@ -36,16 +36,19 @@ export interface CameraProps extends ViewProps {
 
   //#region Use-cases
   /**
-   * * Enables **photo capture** with the `takePhoto` function (see ["Taking Photos"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/capturing#taking-photos))
+   * Enables **photo capture** with the `takePhoto` function (see ["Taking Photos"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/capturing#taking-photos))
+   *
+   * Note: This occupies a use-case. (See ["Use-cases"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/devices#use-cases))
    */
   photo?: boolean;
   /**
-   * * Enables **video capture** with the `startRecording` function (see ["Recording Videos"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/capturing/#recording-videos))
-   * * Enables **frame processing** (see ["Frame Processors"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors))
+   * Enables **video capture** with the `startRecording` function (see ["Recording Videos"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/capturing/#recording-videos))
+   *
+   * Note: This occupies a use-case. (See ["Use-cases"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/devices#use-cases))
    */
   video?: boolean;
   /**
-   * * Enables **audio capture** for video recordings (see ["Recording Videos"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/capturing/#recording-videos))
+   * Enables **audio capture** for video recordings (see ["Recording Videos"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/capturing/#recording-videos))
    */
   audio?: boolean;
   //#endregion
@@ -160,6 +163,8 @@ export interface CameraProps extends ViewProps {
    * A worklet which will be called for every frame the Camera "sees". Throttle the Frame Processor's frame rate with {@linkcode frameProcessorFps}.
    *
    * > See [the Frame Processors documentation](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors) for more information
+   *
+   * Note: This occupies a use-case. (See ["Use-cases"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/devices#use-cases))
    *
    * @example
    * ```tsx

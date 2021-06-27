@@ -21,6 +21,8 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.*
+import com.facebook.jni.HybridData
+import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.*
 import com.facebook.react.uimanager.events.RCTEventEmitter
 import com.mrousavy.camera.utils.*
@@ -82,10 +84,13 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   var torch = "off"
   var zoom = 0.0 // in percent
   var enableZoomGesture = false
+  var frameProcessorFps = 1.0
 
   // private properties
   private val reactContext: ReactContext
     get() = context as ReactContext
+
+  private var enableFrameProcessor = false
 
   @Suppress("JoinDeclarationAndAssignment")
   internal val previewView: PreviewView
@@ -96,6 +101,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   internal var camera: Camera? = null
   internal var imageCapture: ImageCapture? = null
   internal var videoCapture: VideoCapture? = null
+  internal var imageAnalysis: ImageAnalysis? = null
 
   private val scaleGestureListener: ScaleGestureDetector.SimpleOnScaleGestureListener
   private val scaleGestureDetector: ScaleGestureDetector
@@ -107,7 +113,42 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   private var minZoom: Float = 1f
   private var maxZoom: Float = 1f
 
+  @DoNotStrip
+  private var mHybridData: HybridData?
+
+  @Suppress("LiftReturnOrAssignment", "RedundantIf")
+  internal val fallbackToSnapshot: Boolean
+    @SuppressLint("UnsafeOptInUsageError")
+    get() {
+      if (video != true && !enableFrameProcessor) {
+        // Both use-cases are disabled, so `photo` is the only use-case anyways. Don't need to fallback here.
+        return false
+      }
+      cameraId?.let { cameraId ->
+        val cameraManger = reactContext.getSystemService(Context.CAMERA_SERVICE) as? CameraManager
+        cameraManger?.let {
+          val characteristics = cameraManger.getCameraCharacteristics(cameraId)
+          val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
+          if (hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) {
+            // Camera only supports a single use-case at a time
+            return true
+          } else {
+            if (video == true && enableFrameProcessor) {
+              // Camera supports max. 2 use-cases, but both are occupied by `frameProcessor` and `video`
+              return true
+            } else {
+              // Camera supports max. 2 use-cases and only one is occupied (either `frameProcessor` or `video`), so we can add `photo`
+              return false
+            }
+          }
+        }
+      }
+      return false
+    }
+
   init {
+    mHybridData = initHybrid()
+
     previewView = PreviewView(context)
     previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
     previewView.installHierarchyFitter() // If this is not called correctly, view finder will be black/blank
@@ -142,6 +183,28 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         recordVideoExecutor.shutdown()
       }
     })
+  }
+
+  fun finalize() {
+    mHybridData?.resetNative()
+  }
+
+  private external fun initHybrid(): HybridData
+  private external fun frameProcessorCallback(frame: ImageProxy)
+
+  @Suppress("unused")
+  @DoNotStrip
+  fun setEnableFrameProcessor(enable: Boolean) {
+    Log.d(TAG, "Set enable frame processor: $enable")
+    val before = enableFrameProcessor
+    enableFrameProcessor = enable
+
+    if (before != enable) {
+      // reconfigure session if frame processor was added/removed to adjust use-cases.
+      GlobalScope.launch(Dispatchers.Main) {
+        configureSession()
+      }
+    }
   }
 
   override fun getLifecycle(): Lifecycle {
@@ -245,6 +308,10 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
       val videoCaptureBuilder = VideoCapture.Builder()
         .setTargetRotation(rotation)
+      val imageAnalysisBuilder = ImageAnalysis.Builder()
+        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+        .setTargetRotation(rotation)
+        .setBackgroundExecutor(CameraViewModule.FrameProcessorThread)
 
       if (format == null) {
         // let CameraX automatically find best resolution for the target aspect ratio
@@ -311,11 +378,10 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         }
       }
 
-      val preview = previewBuilder.build()
-
       // Unbind use cases before rebinding
       videoCapture = null
       imageCapture = null
+      imageAnalysis = null
       cameraProvider.unbindAll()
 
       // Bind use cases to camera
@@ -325,9 +391,32 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         useCases.add(videoCapture!!)
       }
       if (photo == true) {
-        imageCapture = imageCaptureBuilder.build()
-        useCases.add(imageCapture!!)
+        if (fallbackToSnapshot) {
+          Log.i(TAG, "Tried to add photo use-case (`photo={true}`) but the Camera device only supports " +
+            "a single use-case at a time. Falling back to Snapshot capture.")
+        } else {
+          imageCapture = imageCaptureBuilder.build()
+          useCases.add(imageCapture!!)
+        }
       }
+      if (enableFrameProcessor) {
+        var lastCall = System.currentTimeMillis() - 1000
+        val intervalMs = (1.0 / frameProcessorFps) * 1000.0
+        imageAnalysis = imageAnalysisBuilder.build().apply {
+          setAnalyzer(cameraExecutor, { image ->
+            val now = System.currentTimeMillis()
+            if (now - lastCall > intervalMs) {
+              lastCall = now
+              Log.d(TAG, "Calling Frame Processor...")
+              frameProcessorCallback(image)
+            }
+            image.close()
+          })
+        }
+        useCases.add(imageAnalysis!!)
+      }
+
+      val preview = previewBuilder.build()
       camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, *useCases.toTypedArray())
       preview.setSurfaceProvider(previewView.surfaceProvider)
 
@@ -338,11 +427,18 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       Log.i(TAG_PERF, "Session configured in $duration ms! Camera: ${camera!!}")
       invokeOnInitialized()
     } catch (exc: Throwable) {
-      throw when (exc) {
+      val error = when (exc) {
         is CameraError -> exc
-        is IllegalArgumentException -> InvalidCameraDeviceError(exc)
+        is IllegalArgumentException -> {
+          if (exc.message?.contains("too many use cases") == true) {
+            ParallelVideoProcessingNotSupportedError(exc)
+          } else {
+            InvalidCameraDeviceError(exc)
+          }
+        }
         else -> UnknownCameraError(exc)
       }
+      invokeOnError(error)
     }
   }
 
@@ -381,7 +477,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
     const val TAG = "CameraView"
     const val TAG_PERF = "CameraView.performance"
 
-    private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "fps", "hdr", "lowLightBoost", "photo", "video")
+    private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "fps", "hdr", "lowLightBoost", "photo", "video", "frameProcessorFps")
 
     private val arrayListOfZoom = arrayListOf("zoom")
   }

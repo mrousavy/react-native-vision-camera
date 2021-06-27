@@ -8,7 +8,8 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "setup": "cd ios && bundle install",
-    "pods": "cd ios && bundle exec pod install"
+    "pods": "cd ios && bundle exec pod install",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@react-native-community/blur": "^3.6.0",
@@ -43,6 +44,7 @@
     "eslint-plugin-react-native": "^3.11.0",
     "metro-config": "^0.66.0",
     "metro-react-native-babel-preset": "^0.66.0",
+    "patch-package": "^6.4.7",
     "prettier": "^2.3.1",
     "typescript": "4.3.2"
   }

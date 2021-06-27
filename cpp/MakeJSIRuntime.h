@@ -3,6 +3,22 @@
 #include <jsi/jsi.h>
 #include <memory>
 
+#ifdef ON_ANDROID
+
+// on Android we need to pass FOR_HERMES flag to determine if hermes is used or not since both headers are there.
+
+#if FOR_HERMES
+// Hermes
+#include <hermes/hermes.h>
+#else
+// JSC
+#include <jsi/JSCRuntime.h>
+#endif
+
+#else
+
+// on iOS, we simply check by __has_include. Headers are only available if the sources are there too.
+
 #if __has_include(<hermes/hermes.h>)
 // Hermes (https://hermesengine.dev)
 #include <hermes/hermes.h>
@@ -14,11 +30,23 @@
 #include <jsi/JSCRuntime.h>
 #endif
 
+#endif
+
 using namespace facebook;
 
 namespace vision {
 
 static std::unique_ptr<jsi::Runtime> makeJSIRuntime() {
+#ifdef ON_ANDROID
+
+  #if FOR_HERMES
+  return facebook::hermes::makeHermesRuntime();
+  #else
+  return facebook::jsc::makeJSCRuntime();
+  #endif
+
+#else
+
   #if __has_include(<hermes/hermes.h>)
   return facebook::hermes::makeHermesRuntime();
   #elif __has_include(<v8runtime/V8RuntimeFactory.h>)
@@ -26,6 +54,8 @@ static std::unique_ptr<jsi::Runtime> makeJSIRuntime() {
   #else
   return facebook::jsc::makeJSCRuntime();
   #endif
+
+#endif
 }
 
 } // namespace vision

@@ -4,13 +4,125 @@ title: Creating Frame Processor Plugins for Android
 sidebar_label: Creating Frame Processor Plugins (Android)
 ---
 
-import useBaseUrl from '@docusaurus/useBaseUrl';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-:::warning
-Frame Processors are not yet available for Android.
+## Creating a Frame Processor
+
+The Frame Processor Plugin API is built to be as extensible as possible, which allows you to create custom Frame Processor Plugins.
+In this guide we will create a custom QR Code Scanner Plugin which can be used from JS.
+
+Android Frame Processor Plugins can be written in either **Java**, **Kotlin** or **C++ (JNI)**.
+
+<Tabs
+  defaultValue="java"
+  values={[
+    {label: 'Java', value: 'java'},
+    {label: 'Kotlin', value: 'kotlin'}
+  ]}>
+<TabItem value="java">
+
+1. Open your Project in Android Studio
+2. Create a Java source file, for the QR Code Plugin this will be called `QRCodeFrameProcessorPlugin.java`.
+3. Add the following code:
+
+```java {8}
+import androidx.camera.core.ImageProxy;
+import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
+
+public class QRCodeFrameProcessorPlugin extends FrameProcessorPlugin {
+
+  @Override
+  public Object callback(ImageProxy image, Object[] params) {
+    // code goes here
+    return null;
+  }
+
+  QRCodeFrameProcessorPlugin() {
+    super("scanQRCodes");
+  }
+}
+```
+
+:::note
+The JS function name will be equal to the name you pass to the `super(...)` call (with a `__` prefix). Make sure it is unique across other Frame Processor Plugins.
 :::
+
+4. **Implement your Frame Processing.** See the [Example Plugin (Java)](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/android/app/src/main/java/com/mrousavy/camera/example/ExampleFrameProcessorPlugin.java) for reference.
+5. Create a new Java file which registers the Frame Processor Plugin in a React Package, for the QR Code Scanner plugin this file will be called `QRCodeFrameProcessorPluginPackage.java`:
+
+```java {12}
+import com.facebook.react.ReactPackage;
+import com.facebook.react.bridge.NativeModule;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.uimanager.ViewManager;
+import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
+import javax.annotation.Nonnull;
+
+public class QRCodeFrameProcessorPluginPackage implements ReactPackage {
+  @NonNull
+  @Override
+  public List<NativeModule> createNativeModules(@NonNull ReactApplicationContext reactContext) {
+    FrameProcessorPlugin.register(new QRCodeFrameProcessorPlugin());
+    return Collections.emptyList();
+  }
+
+  @Nonnull
+  @Override
+  public List<ViewManager> createViewManagers(@Nonnull ReactApplicationContext reactContext) {
+    return Collections.emptyList();
+  }
+}
+```
+
+</TabItem>
+<TabItem value="kotlin">
+
+1. Open your Project in Android Studio
+2. Create a Kotlin source file, for the QR Code Plugin this will be called `QRCodeFrameProcessorPlugin.kt`.
+3. Add the following code:
+
+```kotlin {7}
+import androidx.camera.core.ImageProxy
+import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin
+
+class ExampleFrameProcessorPluginKotlin: FrameProcessorPlugin("scanQRCodes") {
+
+  override fun callback(image: ImageProxy, params: Array<Any>): Any? {
+    // code goes here
+    return null
+  }
+}
+```
+
+:::note
+The JS function name will be equal to the name you pass to the `FrameProcessorPlugin(...)` call (with a `__` prefix). Make sure it is unique across other Frame Processor Plugins.
+:::
+
+4. **Implement your Frame Processing.** See the [Example Plugin (Java)](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/android/app/src/main/java/com/mrousavy/camera/example/ExampleFrameProcessorPlugin.java) for reference.
+5. Create a new Kotlin file which registers the Frame Processor Plugin in a React Package, for the QR Code Scanner plugin this file will be called `QRCodeFrameProcessorPluginPackage.kt`:
+
+```kotlin {9}
+import com.facebook.react.ReactPackage
+import com.facebook.react.bridge.NativeModule
+import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.uimanager.ViewManager
+import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin
+
+class QRCodeFrameProcessorPluginPackage : ReactPackage {
+  override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
+    FrameProcessorPlugin.register(ExampleFrameProcessorPluginKotlin())
+    return emptyList()
+  }
+
+  override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {
+    return emptyList()
+  }
+}
+```
+
+</TabItem>
+</Tabs>
 
 <br />
 

@@ -98,13 +98,25 @@ function App() {
 }
 ```
 
-### The `supportsPhotoAndVideoCapture` prop
+### The `supportsParallelVideoProcessing` prop
 
-Camera devices provide the [`supportsPhotoAndVideoCapture` property](/docs/api/interfaces/cameradevice.cameradevice-1#supportsphotoandvideocapture) which determines whether the device supports enabling photo- and video-capture at the same time.
-While every iOS device supports this feature, there are some older Android devices which only allow enabling one of each - either photo capture or video capture. (Those are `LEGACY` devices, see [this table](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture).)
+Camera devices provide the [`supportsParallelVideoProcessing` property](/docs/api/interfaces/cameradevice.cameradevice-1#supportsparallelvideoprocessing) which determines whether the device supports using Video Recordings (`video={true}`) and Frame Processors (`frameProcessor={...}`) at the same time.
+
+If this property is `false`, you can only enable `video` or add a `frameProcessor`, but not both.
+
+* On iOS this value is always `true`.
+* On newer Android devices this value is always `true`.
+* On older Android devices this value is `false` if the Camera's hardware level is `LEGACY` or `LIMITED`, `true` otherwise. (See [`INFO_SUPPORTED_HARDWARE_LEVEL`](https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL) or [the tables at "Regular capture"](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture))
+
+#### Examples
+
+* An app that only supports **taking photos** works on every Camera device because this only affects video processing.
+* An app that supports **taking photos** and **videos** works on every Camera device because only a single video processing feature is used (`video`).
+* An app that only uses **Frame Processors** (no taking photos or videos) works on every Camera device because it only uses a single video processing feature (`frameProcessor`).
+* An app that uses **Frame Processors** and supports **taking photos** and **videos** only works on Camera devices where `supportsParallelVideoProcessing` is `true`. (iPhones and newer Android Phones)
 
 :::note
-If `supportsPhotoAndVideoCapture` is `false` but you still need photo- and video-capture at the same time, you can fall back to _snapshot capture_ (see [**"Taking Snapshots"**](/docs/guides/capturing#taking-snapshots)) instead.
+Actually the limitation also affects the `photo` feature, but VisionCamera will automatically fall-back to **Snapshot capture** if you are trying to use multiple features (`photo` + `video` + `frameProcessor`) and they are not natively supported. (See ["Taking Snapshots"](/docs/guides/capturing#taking-snapshots))
 :::
 
 <br />

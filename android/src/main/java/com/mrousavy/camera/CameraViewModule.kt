@@ -17,8 +17,11 @@ import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener
+import com.mrousavy.camera.frameprocessor.FrameProcessorRuntimeManager
 import com.mrousavy.camera.parsers.*
 import com.mrousavy.camera.utils.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import kotlinx.coroutines.*
 import kotlinx.coroutines.guava.await
 
@@ -26,6 +29,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   companion object {
     const val REACT_CLASS = "CameraView"
     var RequestCode = 10
+    val FrameProcessorThread: ExecutorService = Executors.newSingleThreadExecutor()
 
     fun parsePermissionStatus(status: Int): String {
       return when (status) {
@@ -34,6 +38,23 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
         else -> "not-determined"
       }
     }
+  }
+
+  private var frameProcessorManager: FrameProcessorRuntimeManager? = null
+
+  override fun initialize() {
+    super.initialize()
+    FrameProcessorThread.execute {
+      frameProcessorManager = FrameProcessorRuntimeManager(reactApplicationContext)
+      reactApplicationContext.runOnJSQueueThread {
+        frameProcessorManager!!.installJSIBindings()
+      }
+    }
+  }
+
+  override fun onCatalystInstanceDestroy() {
+    super.onCatalystInstanceDestroy()
+    frameProcessorManager?.destroy()
   }
 
   override fun getName(): String {
@@ -73,7 +94,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
         val map = makeErrorMap("${error.domain}/${error.id}", error.message, error)
         onRecordCallback(null, map)
       } catch (error: Throwable) {
-        val map = makeErrorMap("capture/unknown", "An unknown error occured while trying to start a video recording!", error)
+        val map = makeErrorMap("capture/unknown", "An unknown error occurred while trying to start a video recording!", error)
         onRecordCallback(null, map)
       }
     }
@@ -149,6 +170,8 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
           val supportsHdr = hdrExtension.isExtensionAvailable(cameraSelector)
           val nightExtension = NightImageCaptureExtender.create(imageCaptureBuilder)
           val supportsLowLightBoost = nightExtension.isExtensionAvailable(cameraSelector)
+          // see https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture
+          val supportsParallelVideoProcessing = hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY && hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
 
           val fieldOfView = characteristics.getFieldOfView()
 
@@ -160,7 +183,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
           map.putBoolean("hasFlash", hasFlash)
           map.putBoolean("hasTorch", hasFlash)
           map.putBoolean("isMultiCam", isMultiCam)
-          map.putBoolean("supportsPhotoAndVideoCapture", hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
+          map.putBoolean("supportsParallelVideoProcessing", supportsParallelVideoProcessing)
           map.putBoolean("supportsRawCapture", supportsRawCapture)
           map.putBoolean("supportsDepthCapture", supportsDepthCapture)
           map.putBoolean("supportsLowLightBoost", supportsLowLightBoost)

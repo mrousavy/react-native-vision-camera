@@ -62,3 +62,30 @@ $ yarn check-all
    All done!
    ✨  Done in 8.05s.
 ```
+
+To actually build the library, run the `build` script:
+
+```
+yarn build
+```
+
+This builds the JS Module, TypeScript definitions, as well as the Hermes and JSC .aar libraries:
+
+```
+$ yarn build
+   yarn run v1.22.10
+   ℹ Building target commonjs
+   ℹ Cleaning up previous build at lib/commonjs
+   ℹ Compiling 18 files in src with babel
+   ✔ Wrote files to lib/commonjs
+   ℹ Building target module
+   ℹ Cleaning up previous build at lib/module
+   ℹ Compiling 18 files in src with babel
+   ✔ Wrote files to lib/module
+   ℹ Building target typescript
+   ℹ Cleaning up previous build at lib/typescript
+   ℹ Generating type definitions with tsc
+   ✔ Wrote definition files to lib/typescript
+   Building VisionCamera for JS Engine hermes...
+   ...
+```

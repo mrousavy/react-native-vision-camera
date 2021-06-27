@@ -9,6 +9,7 @@ export type DeviceError =
   | 'device/configuration-error'
   | 'device/no-device'
   | 'device/invalid-device'
+  | 'device/too-many-use-cases'
   | 'device/torch-unavailable'
   | 'device/microphone-unavailable'
   | 'device/low-light-boost-not-supported'

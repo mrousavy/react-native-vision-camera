@@ -73,7 +73,7 @@ While taking snapshots is faster than taking photos, the resulting image has way
 :::
 
 :::note
-The `takeSnapshot` function also works with `photo={false}`. For this reason, devices that do not support photo and video capture at the same time (see ["The `supportsPhotoAndVideoCapture` prop"](/docs/guides/devices/#the-supportsphotoandvideocapture-prop)) can use `video={true}` and fall back to snapshot capture for photos. (See ["Taking Snapshots"](/docs/guides/capturing#taking-snapshots))
+The `takeSnapshot` function also works with `photo={false}`. For this reason VisionCamera will automatically fall-back to snapshot capture if you are trying to use more use-cases than the Camera natively supports. (see ["The `supportsParallelVideoProcessing` prop"](/docs/guides/devices#the-supportsparallelvideoprocessing-prop))
 :::
 
 ## Recording Videos

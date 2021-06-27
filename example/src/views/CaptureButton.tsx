@@ -34,7 +34,7 @@ interface Props extends ViewProps {
 
   cameraZoom: Reanimated.SharedValue<number>;
 
-  flash: 'off' | 'on' | 'auto';
+  flash: 'off' | 'on';
 
   enabled: boolean;
 

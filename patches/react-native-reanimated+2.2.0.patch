@@ -1,0 +1,20 @@
+diff --git a/node_modules/react-native-reanimated/android/build.gradle b/node_modules/react-native-reanimated/android/build.gradle
+index bb707e7..9186873 100644
+--- a/node_modules/react-native-reanimated/android/build.gradle
++++ b/node_modules/react-native-reanimated/android/build.gradle
+@@ -7,8 +7,12 @@ def reactNativeVersion = json.version as String
+ def (major, minor, patch) = reactNativeVersion.tokenize('.')
+ 
+ def engine = "jsc"
+-if (project(':app').ext.react.enableHermes) {
+-    engine = "hermes"
+-}
++rootProject.getSubprojects().forEach({project ->
++     if (project.plugins.hasPlugin("com.android.application")) {
++         if(project.ext.react.enableHermes) {
++             engine = "hermes"
++         }
++     }
++ })
+ 
+ artifacts.add("default", file("react-native-reanimated-${minor}-${engine}.aar"))

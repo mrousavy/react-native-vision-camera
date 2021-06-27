@@ -3,7 +3,15 @@ import { useRef, useState, useMemo, useCallback } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler';
 import { Navigation, NavigationFunctionComponent } from 'react-native-navigation';
-import { CameraDeviceFormat, CameraRuntimeError, PhotoFile, sortFormats, useCameraDevices, VideoFile } from 'react-native-vision-camera';
+import {
+  CameraDeviceFormat,
+  CameraRuntimeError,
+  PhotoFile,
+  sortFormats,
+  useCameraDevices,
+  useFrameProcessor,
+  VideoFile,
+} from 'react-native-vision-camera';
 import { Camera, frameRateIncluded } from 'react-native-vision-camera';
 import { useIsScreenFocussed } from './hooks/useIsScreenFocused';
 import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING } from './Constants';
@@ -15,6 +23,7 @@ import { CaptureButton } from './views/CaptureButton';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
+import { examplePlugin } from './frame-processors/ExamplePlugin';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -187,11 +196,11 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
     console.log('re-rendering camera page without active camera');
   }
 
-  // const frameProcessor = useFrameProcessor((frame) => {
-  //   'worklet';
-  //   const codes = scanQRCodesObjC(frame);
-  //   _log(`Codes: ${JSON.stringify(codes)}`);
-  // }, []);
+  const frameProcessor = useFrameProcessor((frame) => {
+    'worklet';
+    const values = examplePlugin(frame);
+    _log(`Return Values: ${JSON.stringify(values)}`);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -215,8 +224,8 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
                 photo={true}
                 video={true}
                 audio={true}
-                // frameProcessor={frameProcessor}
-                // frameProcessorFps={1}
+                frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
+                frameProcessorFps={1}
               />
             </TapGestureHandler>
           </Reanimated.View>

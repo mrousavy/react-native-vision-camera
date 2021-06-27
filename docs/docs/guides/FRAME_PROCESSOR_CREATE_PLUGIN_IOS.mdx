@@ -48,7 +48,7 @@ VISION_EXPORT_FRAME_PROCESSOR(scanQRCodes)
 @end
 ```
 
-4. **Implement your Frame Processing.** See the [QR Code Plugin (Objective-C)](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/ios/Frame%20Processor%20Plugins/QR%20Code%20Plugin%20%28Objective%2DC%29) for reference.
+4. **Implement your Frame Processing.** See the [Example Plugin (Objective-C)](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/ios/Frame%20Processor%20Plugins/Example%20Plugin%20%28Objective%2DC%29) for reference.
 
 :::note
 The JS function name will be equal to the Objective-C function name you choose (with a `__` prefix). Make sure it is unique across other Frame Processor Plugins.
@@ -57,18 +57,19 @@ The JS function name will be equal to the Objective-C function name you choose (
 </TabItem>
 <TabItem value="swift">
 
-1. Create a Swift file, for the QR Code Plugin this will be `QRCodeFrameProcessorPlugin.swift`. If Xcode asks you to create a Bridging Header, press **create**.
+1. Open your Project in Xcode
+2. Create a Swift file, for the QR Code Plugin this will be `QRCodeFrameProcessorPlugin.swift`. If Xcode asks you to create a Bridging Header, press **create**.
 
 ![Xcode "Create Bridging Header" alert](https://docs-assets.developer.apple.com/published/7ebca7212c/2a065d1a-7e53-4907-a889-b7fa4f2206c9.png)
 
-2. Inside the newly created Bridging Header, add the following code:
+3. Inside the newly created Bridging Header, add the following code:
 
 ```objc
 #import <VisionCamera/FrameProcessorPlugin.h>
 #import <VisionCamera/Frame.h>
 ```
 
-3. Create an Objective-C source file with the same name as the Swift file, for the QR Code Plugin this will be `QRCodeFrameProcessorPlugin.m`. Add the following code:
+4. Create an Objective-C source file with the same name as the Swift file, for the QR Code Plugin this will be `QRCodeFrameProcessorPlugin.m`. Add the following code:
 
 ```objc
 #import <VisionCamera/FrameProcessorPlugin.h>
@@ -81,7 +82,7 @@ The JS function name will be equal to the Objective-C function name you choose (
 The first parameter in the Macro specifies the JS function name. Make sure it is unique across other Frame Processors.
 :::
 
-4. In the Swift file, add the following code:
+5. In the Swift file, add the following code:
 
 ```swift {8}
 @objc(QRCodeFrameProcessorPlugin)
@@ -97,7 +98,7 @@ public class QRCodeFrameProcessorPlugin: NSObject, FrameProcessorPluginBase {
 }
 ```
 
-5. **Implement your frame processing.** See [QR Code Plugin (Swift)](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/ios/Frame%20Processor%20Plugins/QR%20Code%20Plugin%20%28Swift%29) for reference.
+6. **Implement your frame processing.** See [Example Plugin (Swift)](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/ios/Frame%20Processor%20Plugins/Example%20Plugin%20%28Swift%29) for reference.
 
 
 </TabItem>

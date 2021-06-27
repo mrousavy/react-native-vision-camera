@@ -13,8 +13,7 @@
     "lib/module",
     "lib/typescript",
     "android/build.gradle",
-    "android/gradle.properties",
-    "android/src",
+    "android/*.aar",
     "ios/**/*.h",
     "ios/**/*.m",
     "ios/**/*.mm",
@@ -31,7 +30,7 @@
     "typescript": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "lint-ci": "yarn lint -f ./node_modules/@firmnav/eslint-github-actions-formatter/dist/formatter.js",
-    "prepare": "bob build",
+    "build": "bob build && scripts/build-android-npm-package.sh",
     "release": "release-it",
     "pods": "cd example && yarn pods",
     "bootstrap": "yarn && cd example && yarn && yarn pods",
@@ -40,7 +39,10 @@
     "check-cpp": "scripts/cpplint.sh",
     "check-all": "scripts/check-all.sh",
     "clean": "scripts/clean.sh",
-    "docs": "cd docs && yarn build"
+    "docs": "cd docs && yarn build",
+    "prepack": "rm -rf android-tmp && mv android android-tmp && mv android-npm android",
+    "postpack": "rm -rf android-npm && mv android android-npm && mv android-tmp android",
+    "postinstall": "patch-package"
   },
   "keywords": [
     "react-native",
@@ -81,6 +83,7 @@
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-react-hooks": "^4.2.0",
     "eslint-plugin-react-native": "^3.11.0",
+    "patch-package": "^6.4.7",
     "pod-install": "^0.1.23",
     "prettier": "^2.3.0",
     "react": "^17.0.2",

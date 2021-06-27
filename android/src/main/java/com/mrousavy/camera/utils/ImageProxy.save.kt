@@ -14,7 +14,6 @@ import java.io.FileOutputStream
 import java.nio.ByteBuffer
 import kotlin.system.measureTimeMillis
 
-
 // TODO: Fix this flip() function (this outputs a black image)
 fun flip(imageBytes: ByteArray, imageWidth: Int): ByteArray {
   // separate out the sub arrays

@@ -251,27 +251,15 @@ export interface CameraDevice {
    */
   formats: CameraDeviceFormat[];
   /**
-   * Whether this camera device supports enabling photo and video capture at the same time.
+   * Whether this camera device supports using Video Recordings (`video={true}`) and Frame Processors (`frameProcessor={...}`) at the same time. See ["The `supportsParallelVideoProcessing` prop"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/devices#the-supportsparallelvideoprocessing-prop) for more information.
    *
-   * * On **iOS** devices this value is always `true`.
-   * * On newer **Android** devices this value is always `true`.
-   * * On older **Android** devices this value is `true` if the device's hardware level is `LIMITED` or above, `false` otherwise. (`LEGACY`) (See [this table](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture))
+   * If this property is `false`, you can only enable `video` or add a `frameProcessor`, but not both.
    *
-   * If the device does not allow enabling `photo` and `video` capture at the same time, you might want to fall back to **snapshot capture** (See [**"Taking Snapshots"**](https://mrousavy.github.io/react-native-vision-camera/docs/guides/capturing#taking-snapshots)) instead:
-   *
-   * @example
-   * ```tsx
-   * const captureMode = device.supportsPhotoAndVideoCapture ? "photo" : "snapshot"
-   * return (
-   *   <Camera
-   *     photo={captureMode === "photo"}
-   *     video={true}
-   *     audio={true}
-   *   />
-   * )
-   * ```
+   * * On iOS this value is always `true`.
+   * * On newer Android devices this value is always `true`.
+   * * On older Android devices this value is `false` if the Camera's hardware level is `LEGACY` or `LIMITED`, `true` otherwise. (See [`INFO_SUPPORTED_HARDWARE_LEVEL`](https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL) or [the tables at "Regular capture"](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture))
    */
-  supportsPhotoAndVideoCapture: boolean;
+  supportsParallelVideoProcessing: boolean;
   /**
    * Whether this camera device supports low light boost.
    */

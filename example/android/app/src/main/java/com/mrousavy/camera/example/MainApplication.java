@@ -1,13 +1,12 @@
 package com.mrousavy.camera.example;
 
-import android.content.Context;
 import com.facebook.react.PackageList;
+import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
 import com.reactnativenavigation.NavigationApplication;
 import com.facebook.react.ReactNativeHost;
 import com.reactnativenavigation.react.NavigationReactNativeHost;
 import com.facebook.react.ReactPackage;
-import com.facebook.react.ReactInstanceManager;
-import java.lang.reflect.InvocationTargetException;
+
 import java.util.List;
 import com.mrousavy.camera.CameraPackage;
 
@@ -52,5 +51,7 @@ public class MainApplication extends NavigationApplication {
   @Override
   public void onCreate() {
     super.onCreate();
+    // register VisionCamera Frame Processor Plugins here.
+    FrameProcessorPlugin.register(new ExampleFrameProcessorPlugin());
   }
 }

@@ -34,11 +34,11 @@ The Frame Processor Plugin Registry API automatically manages type conversion fr
 
 | JS Type              | Objective-C Type              | Java Type                  |
 |----------------------|-------------------------------|----------------------------|
-| `number`             | `NSNumber*` (double)          | `double`                   |
-| `boolean`            | `NSNumber*` (boolean)         | `boolean`                  |
+| `number`             | `NSNumber*` (double)          | `Double`                   |
+| `boolean`            | `NSNumber*` (boolean)         | `Boolean`                  |
 | `string`             | `NSString*`                   | `String`                   |
-| `[]`                 | `NSArray*`                    | `Array<Object>`            |
-| `{}`                 | `NSDictionary*`               | `HashMap<Object>`          |
+| `[]`                 | `NSArray*`                    | `ReadableNativeArray`      |
+| `{}`                 | `NSDictionary*`               | `ReadableNativeMap`        |
 | `undefined` / `null` | `nil`                         | `null`                     |
 | `(any, any) => void` | [`RCTResponseSenderBlock`][4] | `(Object, Object) -> void` |
 | [`Frame`][1]         | [`Frame*`][2]                 | [`ImageProxy`][3]          |

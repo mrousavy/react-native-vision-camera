@@ -9,6 +9,13 @@ export interface TakeSnapshotOptions {
   quality?: number;
 
   /**
+   * Whether the Flash should be enabled or disabled
+   *
+   * @default "off"
+   */
+  flash?: 'on' | 'off';
+
+  /**
    * When set to `true`, metadata reading and mapping will be skipped. ({@linkcode PhotoFile.metadata} will be `null`)
    *
    * This might result in a faster capture, as metadata reading and mapping requires File IO.
