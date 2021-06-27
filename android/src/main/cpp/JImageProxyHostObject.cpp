@@ -62,7 +62,7 @@ jsi::Value JImageProxyHostObject::get(jsi::Runtime& runtime, const jsi::PropName
 
 
 JImageProxyHostObject::~JImageProxyHostObject() {
-  __android_log_write(ANDROID_LOG_INFO, TAG, "Destroying JImageProxyHostObject...");
+  this->frame->close();
 }
 
 } // namespace vision

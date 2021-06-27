@@ -39,6 +39,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
   if (name == "close") {
     CMSampleBufferInvalidate(frame.buffer);
+    this->frame = nil;
     return jsi::Value::undefined();
   }
 
