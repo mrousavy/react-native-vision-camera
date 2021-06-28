@@ -82,7 +82,7 @@ CameraView* FrameProcessorRuntimeManager::findCameraViewById(int viewId) {
   return result->cthis();
 }
 
-void FrameProcessorRuntimeManager::logErrorToJS(std::string message) {
+void FrameProcessorRuntimeManager::logErrorToJS(const std::string& message) {
    if (!this->jsCallInvoker_) {
      return;
    }
