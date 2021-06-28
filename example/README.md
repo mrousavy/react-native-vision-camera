@@ -20,6 +20,7 @@
   * Flash for photo capture
   * Flash for video capture
   * Activating/Pausing the Camera but keeping it "warm"
+  * Using the Example Frame Processor Plugin
   </p>
 </div>
 
