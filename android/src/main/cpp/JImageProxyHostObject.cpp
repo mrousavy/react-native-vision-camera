@@ -36,6 +36,7 @@ jsi::Value JImageProxyHostObject::get(jsi::Runtime& runtime, const jsi::PropName
   }
   if (name == "close") {
     this->frame->close();
+    this->frame.release();
     return jsi::Value::undefined();
   }
 
@@ -64,6 +65,7 @@ jsi::Value JImageProxyHostObject::get(jsi::Runtime& runtime, const jsi::PropName
 
 JImageProxyHostObject::~JImageProxyHostObject() {
   this->frame->close();
+  this->frame.release();
 }
 
 } // namespace vision
