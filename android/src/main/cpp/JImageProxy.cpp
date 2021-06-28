@@ -7,6 +7,8 @@
 #include <jni.h>
 #include <fbjni/fbjni.h>
 
+#include "JImage.h"
+
 namespace vision {
 
 using namespace facebook;
@@ -23,17 +25,10 @@ int JImageProxy::getHeight() {
 }
 
 bool JImageProxy::getIsValid() {
-  static const auto getImageMethod = getClass()->getMethod<jobject()>("getImage");
+  static const auto getImageMethod = getClass()->getMethod<JImage::javaobject()>("getImage");
   auto image = getImageMethod(javaClassLocal());
 
-  static const auto getHardwareBufferMethod = findClassLocal("android/media/Image")->getMethod<jobject()>("getHardwareBuffer");
-  try {
-    getHardwareBufferMethod(image.get());
-    return true;
-  } catch (...) {
-    // function throws if the image is not active anymore
-    return false;
-  }
+  return image->getIsValid();
 }
 
 int JImageProxy::getPlaneCount() {
