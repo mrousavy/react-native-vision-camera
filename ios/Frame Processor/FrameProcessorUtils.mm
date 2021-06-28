@@ -44,6 +44,6 @@ FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &
     //  1. we are sure we don't need it anymore, the frame processor worklet has finished executing.
     //  2. we don't know when the JS runtime garbage collects this object, it might be holding it for a few more frames
     //     which then blocks the camera queue from pushing new frames (memory limit)
-    frameHostObject->destroyBuffer();
+    frameHostObject->close();
   };
 }

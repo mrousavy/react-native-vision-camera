@@ -36,8 +36,10 @@ jsi::Value JImageProxyHostObject::get(jsi::Runtime& runtime, const jsi::PropName
   }
   if (name == "close") {
     auto close = [this] (jsi::Runtime&, const jsi::Value&, const jsi::Value*, size_t) -> jsi::Value {
-      this->frame->close();
-      this->frame.release();
+      if (this.frame.get() == nullptr) {
+        throw jsi::JSError(runtime, "Trying to close an already closed frame! Did you call frame.close() twice?");
+      }
+      this->close();
       return jsi::Value::undefined();
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "close"), 0, close);
@@ -67,8 +69,14 @@ jsi::Value JImageProxyHostObject::get(jsi::Runtime& runtime, const jsi::PropName
 
 
 JImageProxyHostObject::~JImageProxyHostObject() {
-  this->frame->close();
-  this->frame.release();
+  this->close();
+}
+
+void JImageProxyHostObject::close() {
+  if (this.frame.get() != nullptr) {
+    this->frame->close();
+    this->frame.release();
+  }
 }
 
 } // namespace vision

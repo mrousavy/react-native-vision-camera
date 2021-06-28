@@ -38,8 +38,11 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
   }
   if (name == "close") {
-    auto close = [this] (jsi::Runtime&, const jsi::Value&, const jsi::Value*, size_t) -> jsi::Value {
-      this->destroyBuffer();
+    auto close = [this] (jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t) -> jsi::Value {
+      if (this->frame == nil) {
+        throw jsi::JSError(runtime, "Trying to close an already closed frame! Did you call frame.close() twice?");
+      }
+      this->close();
       return jsi::Value::undefined();
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "close"), 0, close);
@@ -78,13 +81,13 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 }
 
 FrameHostObject::~FrameHostObject() {
-  destroyBuffer();
+  close();
 }
 
-void FrameHostObject::destroyBuffer() {
+void FrameHostObject::close() {
   if (frame != nil) {
     CMSampleBufferInvalidate(frame.buffer);
+    // ARC will hopefully delete it lol
+    this->frame = nil;
   }
-  // ARC will hopefully delete it lol
-  this->frame = nil;
 }
