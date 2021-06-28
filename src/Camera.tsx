@@ -1,5 +1,13 @@
 import React from 'react';
-import { requireNativeComponent, NativeModules, NativeSyntheticEvent, findNodeHandle, NativeMethods, Platform } from 'react-native';
+import {
+  requireNativeComponent,
+  NativeModules,
+  NativeSyntheticEvent,
+  findNodeHandle,
+  NativeMethods,
+  Platform,
+  InteractionManager,
+} from 'react-native';
 import type { CameraDevice } from './CameraDevice';
 import type { ErrorWithCause } from './CameraError';
 import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError';
@@ -363,7 +371,12 @@ export class Camera extends React.PureComponent<CameraProps> {
    * @internal
    */
   componentDidMount(): void {
-    if (this.props.frameProcessor != null) this.setFrameProcessor(this.props.frameProcessor);
+    const frameProcessor = this.props.frameProcessor;
+    if (frameProcessor != null) {
+      InteractionManager.runAfterInteractions(() => {
+        this.setFrameProcessor(frameProcessor);
+      });
+    }
   }
 
   /**
