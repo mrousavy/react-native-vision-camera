@@ -82,6 +82,26 @@ CameraView* FrameProcessorRuntimeManager::findCameraViewById(int viewId) {
   return result->cthis();
 }
 
+void FrameProcessorRuntimeManager::logErrorToJS(std::string message) {
+   if (!this->jsCallInvoker_) {
+     return;
+   }
+
+   this->jsCallInvoker_->invokeAsync([this, message]() {
+     if (this->runtime_ == nullptr) {
+       return;
+     }
+
+     auto& runtime = *this->runtime_;
+     auto consoleError = runtime
+         .global()
+         .getPropertyAsObject(runtime, "console")
+         .getPropertyAsFunction(runtime, "error");
+     consoleError.call(runtime, jsi::String::createFromUtf8(runtime, message));
+   });
+ }
+
+
 // actual JSI installer
 void FrameProcessorRuntimeManager::installJSIBindings() {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Installing JSI bindings...");
@@ -132,10 +152,16 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
     auto function = std::make_shared<jsi::Function>(worklet->getValue(rt).asObject(rt).asFunction(rt));
 
     // assign lambda to frame processor
-    cameraView->setFrameProcessor([&rt, function](jni::local_ref<JImageProxy::javaobject> frame) {
-      // create HostObject which holds the Frame (JImageProxy)
-      auto hostObject = std::make_shared<JImageProxyHostObject>(frame);
-      function->call(rt, jsi::Object::createFromHostObject(rt, hostObject));
+    cameraView->setFrameProcessor([this, &rt, function](jni::local_ref<JImageProxy::javaobject> frame) {
+      try {
+        // create HostObject which holds the Frame (JImageProxy)
+        auto hostObject = std::make_shared<JImageProxyHostObject>(frame);
+        function->call(rt, jsi::Object::createFromHostObject(rt, hostObject));
+      } catch (jsi::JSError& jsError) {
+        auto message = "Frame Processor threw an error: " + jsError.getMessage();
+        __android_log_write(ANDROID_LOG_ERROR, TAG, message.c_str());
+        this->logErrorToJS(message);
+      }
     });
 
     __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processor set!");

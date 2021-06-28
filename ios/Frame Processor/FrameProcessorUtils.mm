@@ -9,19 +9,35 @@
 #import "FrameProcessorUtils.h"
 #import <chrono>
 #import <memory>
+
 #import "FrameHostObject.h"
 #import "Frame.h"
+
+#import <React/RCTBridge.h>
+#import <React/RCTBridge+Private.h>
+#import "JSConsoleHelper.h"
+#import <ReactCommon/RCTTurboModule.h>
 
 FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &runtime, const jsi::Function &value) {
   __block auto cb = value.getFunction(runtime);
 
   return ^(Frame* frame) {
-    
+
     auto frameHostObject = std::make_shared<FrameHostObject>(frame);
     try {
       cb.call(runtime, jsi::Object::createFromHostObject(runtime, frameHostObject));
     } catch (jsi::JSError& jsError) {
-      NSLog(@"Frame Processor threw an error: %s", jsError.getMessage().c_str());
+      auto message = jsError.getMessage();
+
+      RCTBridge* bridge = [RCTBridge currentBridge];
+      if (bridge != nil) {
+        bridge.jsCallInvoker->invokeAsync([bridge, message]() {
+          auto logFn = [JSConsoleHelper getLogFunctionForBridge:bridge];
+          logFn(RCTLogLevelError, [NSString stringWithFormat:@"Frame Processor threw an error: %s", message.c_str()]);
+        });
+      } else {
+        NSLog(@"Frame Processor threw an error: %s", message.c_str());
+      }
     }
 
     // Manually free the buffer because:
