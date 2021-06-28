@@ -38,8 +38,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
   }
   if (name == "close") {
-    CMSampleBufferInvalidate(frame.buffer);
-    this->frame = nil;
+    destroyBuffer();
     return jsi::Value::undefined();
   }
 
@@ -80,6 +79,9 @@ FrameHostObject::~FrameHostObject() {
 }
 
 void FrameHostObject::destroyBuffer() {
+  if (frame != nil) {
+    CMSampleBufferInvalidate(frame.buffer);
+  }
   // ARC will hopefully delete it lol
   this->frame = nil;
 }
