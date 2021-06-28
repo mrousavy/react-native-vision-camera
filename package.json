@@ -23,6 +23,7 @@
     "cpp/**/*.h",
     "cpp/**/*.cpp",
     "VisionCamera.podspec",
+    "react-native.config.js",
     "README.md"
   ],
   "scripts": {
