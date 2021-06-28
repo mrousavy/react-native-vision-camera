@@ -407,7 +407,6 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
             val now = System.currentTimeMillis()
             if (now - lastCall > intervalMs) {
               lastCall = now
-              Log.d(TAG, "Calling Frame Processor...")
               frameProcessorCallback(image)
             }
             image.close()

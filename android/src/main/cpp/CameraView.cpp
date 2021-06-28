@@ -37,7 +37,6 @@ void CameraView::frameProcessorCallback(const alias_ref<JImageProxy::javaobject>
 
   auto frameStrong = make_local(frame);
   try {
-    __android_log_write(ANDROID_LOG_INFO, TAG, "Calling Frame Processor...");
     frameProcessor_(frameStrong);
   } catch (const std::exception& exception) {
     // TODO: jsi::JSErrors cannot be caught on Hermes. They crash the entire app.

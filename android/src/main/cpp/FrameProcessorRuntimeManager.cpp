@@ -133,8 +133,6 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
 
     // assign lambda to frame processor
     cameraView->setFrameProcessor([&rt, function](jni::local_ref<JImageProxy::javaobject> frame) {
-      __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processor called!");
-
       // create HostObject which holds the Frame (JImageProxy)
       auto hostObject = std::make_shared<JImageProxyHostObject>(frame);
       function->call(rt, jsi::Object::createFromHostObject(rt, hostObject));

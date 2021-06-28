@@ -23,7 +23,6 @@ std::vector<jsi::PropNameID> JImageProxyHostObject::getPropertyNames(jsi::Runtim
 
 jsi::Value JImageProxyHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& propNameId) {
   auto name = propNameId.utf8(runtime);
-  __android_log_write(ANDROID_LOG_INFO, TAG, ("Getting prop \"" + name + "\"...").c_str());
 
   if (name == "toString") {
     auto toString = [this] (jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
