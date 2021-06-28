@@ -330,6 +330,7 @@ export class Camera extends React.PureComponent<CameraProps> {
   }
   //#endregion
 
+  //#region Lifecycle
   /**
    * @internal
    */
@@ -339,15 +340,30 @@ export class Camera extends React.PureComponent<CameraProps> {
       throw new Error('Frame Processors are not enabled. Make sure you install react-native-reanimated 2.2.0 or above!');
   }
 
+  private setFrameProcessor(frameProcessor: (frame: Frame) => void): void {
+    this.assertFrameProcessorsEnabled();
+    // @ts-expect-error JSI functions aren't typed
+    global.setFrameProcessor(this.handle, frameProcessor);
+  }
+
+  private unsetFrameProcessor(): void {
+    this.assertFrameProcessorsEnabled();
+    // @ts-expect-error JSI functions aren't typed
+    global.setFrameProcessor(this.handle, this.props.frameProcessor);
+  }
+
   /**
    * @internal
    */
   componentWillUnmount(): void {
-    if (this.lastFrameProcessor != null || this.props.frameProcessor != null) {
-      this.assertFrameProcessorsEnabled();
-      // @ts-expect-error JSI functions aren't typed
-      global.unsetFrameProcessor(this.handle);
-    }
+    if (this.lastFrameProcessor != null || this.props.frameProcessor != null) this.unsetFrameProcessor();
+  }
+
+  /**
+   * @internal
+   */
+  componentDidMount(): void {
+    if (this.props.frameProcessor != null) this.setFrameProcessor(this.props.frameProcessor);
   }
 
   /**
@@ -355,24 +371,14 @@ export class Camera extends React.PureComponent<CameraProps> {
    */
   componentDidUpdate(): void {
     if (this.props.frameProcessor !== this.lastFrameProcessor) {
-      this.assertFrameProcessorsEnabled();
-      // frameProcessor argument changed. Update native to reflect the change.
-      if (this.props.frameProcessor != null) {
-        // 1. Spawn threaded JSI Runtime (if not already done)
-        // 2. Add video data output to Camera stream (if not already done)
-        // 3. Workletize the frameProcessor and prepare it for being called with frames
-        // @ts-expect-error JSI functions aren't typed
-        global.setFrameProcessor(this.handle, this.props.frameProcessor);
-      } else {
-        // 1. Destroy the threaded runtime
-        // 2. remove the frame processor
-        // 3. Remove the video data output
-        // @ts-expect-error JSI functions aren't typed
-        global.unsetFrameProcessor(this.handle);
-      }
+      // frameProcessor argument identity changed. Update native to reflect the change.
+      if (this.props.frameProcessor != null) this.setFrameProcessor(this.props.frameProcessor);
+      else this.unsetFrameProcessor();
+
       this.lastFrameProcessor = this.props.frameProcessor;
     }
   }
+  //#endregion
 
   /**
    * @internal
