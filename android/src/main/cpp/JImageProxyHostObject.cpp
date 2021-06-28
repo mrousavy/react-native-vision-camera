@@ -35,8 +35,8 @@ jsi::Value JImageProxyHostObject::get(jsi::Runtime& runtime, const jsi::PropName
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
   }
   if (name == "close") {
-    auto close = [this] (jsi::Runtime&, const jsi::Value&, const jsi::Value*, size_t) -> jsi::Value {
-      if (this.frame.get() == nullptr) {
+    auto close = [this] (jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t) -> jsi::Value {
+      if (!this->frame) {
         throw jsi::JSError(runtime, "Trying to close an already closed frame! Did you call frame.close() twice?");
       }
       this->close();
@@ -73,7 +73,7 @@ JImageProxyHostObject::~JImageProxyHostObject() {
 }
 
 void JImageProxyHostObject::close() {
-  if (this.frame.get() != nullptr) {
+  if (this->frame) {
     this->frame->close();
     this->frame.release();
   }
