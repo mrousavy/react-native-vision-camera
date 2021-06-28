@@ -23,7 +23,17 @@ int JImageProxy::getHeight() {
 }
 
 bool JImageProxy::getIsValid() {
-  return true;
+  static const auto getImageMethod = getClass()->getMethod<jobject()>("getImage");
+  auto image = getImageMethod(javaClassLocal());
+
+  static const auto getHardwareBufferMethod = findClassLocal("android/media/Image")->getMethod<jobject()>("getHardwareBuffer");
+  try {
+    getHardwareBufferMethod(image.get());
+    return true;
+  } catch (...) {
+    // function throws if the image is not active anymore
+    return false;
+  }
 }
 
 int JImageProxy::getPlaneCount() {
