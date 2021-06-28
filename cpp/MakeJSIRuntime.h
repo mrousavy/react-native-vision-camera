@@ -19,7 +19,10 @@
 
 // on iOS, we simply check by __has_include. Headers are only available if the sources are there too.
 
-#if __has_include(<hermes/hermes.h>)
+#if __has_include(<reacthermes/HermesExecutorFactory.h>)
+// Hermes (https://hermesengine.dev) (RN 0.65+)
+#include <reacthermes/HermesExecutorFactory.h>
+#elif __has_include(<hermes/hermes.h>)
 // Hermes (https://hermesengine.dev)
 #include <hermes/hermes.h>
 #elif __has_include(<v8runtime/V8RuntimeFactory.h>)
@@ -47,7 +50,7 @@ static std::unique_ptr<jsi::Runtime> makeJSIRuntime() {
 
 #else
 
-  #if __has_include(<hermes/hermes.h>)
+  #if __has_include(<hermes/hermes.h>) || __has_include(<reacthermes/HermesExecutorFactory.h>)
   return facebook::hermes::makeHermesRuntime();
   #elif __has_include(<v8runtime/V8RuntimeFactory.h>)
   return facebook::createV8Runtime("");
