@@ -42,13 +42,8 @@ int JImageProxy::getBytesPerRow() {
 }
 
 void JImageProxy::close() {
-  if (isClosed) {
-    return;
-  }
-
   static const auto closeMethod = getClass()->getMethod<void()>("close");
   closeMethod(javaClassLocal());
-  isClosed = true;
 }
 
 } // namespace vision
