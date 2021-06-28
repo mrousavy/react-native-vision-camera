@@ -41,8 +41,7 @@
     "clean": "scripts/clean.sh",
     "docs": "cd docs && yarn build",
     "prepack": "rm -rf android-tmp && mv android android-tmp && mv android-npm android",
-    "postpack": "rm -rf android-npm && mv android android-npm && mv android-tmp android",
-    "postinstall": "patch-package"
+    "postpack": "rm -rf android-npm && mv android android-npm && mv android-tmp android"
   },
   "keywords": [
     "react-native",
@@ -83,7 +82,6 @@
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-react-hooks": "^4.2.0",
     "eslint-plugin-react-native": "^3.11.0",
-    "patch-package": "^6.4.7",
     "pod-install": "^0.1.23",
     "prettier": "^2.3.0",
     "react": "^17.0.2",

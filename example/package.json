@@ -9,7 +9,7 @@
     "start": "react-native start",
     "setup": "cd ios && bundle install",
     "pods": "cd ios && bundle exec pod install",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package && cd .. && patch-package"
   },
   "dependencies": {
     "@react-native-community/blur": "^3.6.0",
