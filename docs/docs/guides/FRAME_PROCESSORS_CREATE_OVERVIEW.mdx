@@ -107,6 +107,8 @@ const frameProcessor = useFrameProcessor((frame) => {
 }, [])
 ```
 
+## Implementations
+
 ### Long-running Frame Processors
 
 If your Frame Processor takes longer than a single frame interval to execute, or runs asynchronously, you can create a **copy of the frame** and dispatch the actual frame processing to a **separate thread**.

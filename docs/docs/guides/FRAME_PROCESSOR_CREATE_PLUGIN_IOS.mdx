@@ -1,13 +1,13 @@
 ---
 id: frame-processors-plugins-ios
-title: Creating Frame Processor Plugins for iOS
+title: Creating Frame Processor Plugins
 sidebar_label: Creating Frame Processor Plugins (iOS)
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-## Creating a Frame Processor
+## Creating a Frame Processor Plugin for iOS
 
 The Frame Processor Plugin API is built to be as extensible as possible, which allows you to create custom Frame Processor Plugins.
 In this guide we will create a custom QR Code Scanner Plugin which can be used from JS.
@@ -48,11 +48,11 @@ VISION_EXPORT_FRAME_PROCESSOR(scanQRCodes)
 @end
 ```
 
-4. **Implement your Frame Processing.** See the [Example Plugin (Objective-C)](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/ios/Frame%20Processor%20Plugins/Example%20Plugin%20%28Objective%2DC%29) for reference.
-
 :::note
 The JS function name will be equal to the Objective-C function name you choose (with a `__` prefix). Make sure it is unique across other Frame Processor Plugins.
 :::
+
+4. **Implement your Frame Processing.** See the [Example Plugin (Objective-C)](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/ios/Frame%20Processor%20Plugins/Example%20Plugin%20%28Objective%2DC%29) for reference.
 
 </TabItem>
 <TabItem value="swift">

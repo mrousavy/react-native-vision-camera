@@ -1,10 +1,10 @@
 ---
 id: frame-processors-plugins-final
-title: Finish creating your Frame Processor Plugin
+title: Creating Frame Processor Plugins
 sidebar_label: Finish creating your Frame Processor Plugin
 ---
 
-## Make your Frame Processor Plugin available to JS
+## Expose your Frame Processor Plugin to JS
 
 To make the Frame Processor Plugin available to the Frame Processor Worklet Runtime, create the following wrapper function in JS/TS:
 
@@ -39,7 +39,7 @@ module.exports = {
 You have to restart metro-bundler for changes in the `babel.config.js` file to take effect.
 :::
 
-### Test it!
+## Test it!
 
 Simply call the wrapper Worklet in your Frame Processor:
 
@@ -57,7 +57,7 @@ function App() {
 }
 ```
 
-### Next Steps
+## Next Steps
 
 If you want to distribute your Frame Processor Plugin, simply use npm.
 
