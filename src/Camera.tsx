@@ -18,6 +18,9 @@ import type { Point } from './Point';
 import type { TakeSnapshotOptions } from './Snapshot';
 import type { RecordVideoOptions, VideoFile } from './VideoFile';
 
+// a custom delay to wait for after `componentDidMount` because view initialization takes longer on Android.
+const NATIVE_VIEW_INIT_DELAY = Platform.OS === 'android' ? 300 : 0;
+
 //#region Types
 export type CameraPermissionStatus = 'authorized' | 'not-determined' | 'denied' | 'restricted';
 export type CameraPermissionRequestResult = 'authorized' | 'denied';
@@ -373,9 +376,9 @@ export class Camera extends React.PureComponent<CameraProps> {
   componentDidMount(): void {
     const frameProcessor = this.props.frameProcessor;
     if (frameProcessor != null) {
-      InteractionManager.runAfterInteractions(() => {
+      setTimeout(() => {
         this.setFrameProcessor(frameProcessor);
-      });
+      }, NATIVE_VIEW_INIT_DELAY);
     }
   }
 
