@@ -14,6 +14,9 @@ using namespace jni;
 
 
 bool JImage::getIsValid() {
+  return true;
+
+  // TODO: JNI cannot find the class `getNativeContext` because it tries to look it up on an Annotation instead of an Image!
   static const auto getNativeContextMethod = getClass()->getMethod<jlong()>("getNativeContext");
   try {
     getNativeContextMethod(javaClassLocal());
