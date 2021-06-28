@@ -27,7 +27,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   auto name = propName.utf8(runtime);
 
   if (name == "toString") {
-    auto toString = [this] (jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+    auto toString = [this] (jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t) -> jsi::Value {
       auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
       auto width = CVPixelBufferGetWidth(imageBuffer);
       auto height = CVPixelBufferGetHeight(imageBuffer);
@@ -38,8 +38,11 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
   }
   if (name == "close") {
-    destroyBuffer();
-    return jsi::Value::undefined();
+    auto close = [this] (jsi::Runtime&, const jsi::Value&, const jsi::Value*, size_t) -> jsi::Value {
+      this->destroyBuffer();
+      return jsi::Value::undefined();
+    };
+    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "close"), 0, close);
   }
 
   if (name == "isValid") {
