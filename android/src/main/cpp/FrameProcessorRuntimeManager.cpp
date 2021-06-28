@@ -102,7 +102,6 @@ void FrameProcessorRuntimeManager::logErrorToJS(const std::string& message) {
   });
 }
 
-
 // actual JSI installer
 void FrameProcessorRuntimeManager::installJSIBindings() {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Installing JSI bindings...");
