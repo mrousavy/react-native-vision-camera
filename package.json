@@ -38,7 +38,9 @@
     "check-ios": "scripts/swiftformat.sh && scripts/swiftlint.sh",
     "check-cpp": "scripts/cpplint.sh",
     "check-all": "scripts/check-all.sh",
-    "clean": "scripts/clean.sh",
+    "clean-ios": "scripts/clean-ios.sh",
+    "clean-android": "scripts/clean-android.sh",
+    "clean-js": "scripts/clean-js.sh",
     "docs": "cd docs && yarn build",
     "prepack": "rm -rf android-tmp && mv android android-tmp && mv android-npm android",
     "postpack": "rm -rf android-npm && mv android android-npm && mv android-tmp android"
