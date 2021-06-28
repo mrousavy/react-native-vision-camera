@@ -28,7 +28,6 @@ FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &
       cb.call(runtime, jsi::Object::createFromHostObject(runtime, frameHostObject));
     } catch (jsi::JSError& jsError) {
       auto message = jsError.getMessage();
-
       RCTBridge* bridge = [RCTBridge currentBridge];
       if (bridge != nil) {
         bridge.jsCallInvoker->invokeAsync([bridge, message]() {
