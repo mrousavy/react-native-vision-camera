@@ -15,4 +15,4 @@ rootProject.getSubprojects().forEach({project ->
     }
 })
 
-artifacts.add("default", file("react-native-vision-camera-${engine}.aar"))
+artifacts.add("default", file("react-native-vision-camera-${minor}-${engine}.aar"))
