@@ -100,7 +100,7 @@ void FrameProcessorRuntimeManager::logErrorToJS(const std::string& message) {
         .getPropertyAsFunction(runtime, "error");
     consoleError.call(runtime, jsi::String::createFromUtf8(runtime, message));
   });
- }
+}
 
 
 // actual JSI installer
