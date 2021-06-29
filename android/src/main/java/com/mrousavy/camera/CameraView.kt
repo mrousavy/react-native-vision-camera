@@ -204,7 +204,8 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       GlobalScope.launch(Dispatchers.Main) {
         try {
           configureSession()
-        } catch (e: CameraError) {
+        } catch (e: Throwable) {
+          Log.e(TAG, "Failed to configure session after setting frame processor! ${e.message}")
           invokeOnError(e)
         }
       }
@@ -275,10 +276,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         }
       } catch (e: Throwable) {
         Log.e(TAG, "update() threw: ${e.message}")
-        when(e) {
-          is CameraError -> invokeOnError(e)
-          else -> invokeOnError(UnknownCameraError(e))
-        }
+        invokeOnError(e)
       }
     }
   }
@@ -459,11 +457,18 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
     reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraInitialized", null)
   }
 
-  private fun invokeOnError(error: CameraError) {
+  private fun invokeOnError(error: Throwable) {
+    Log.e(TAG, "invokeOnError(...):")
+    error.printStackTrace()
+    
+    val cameraError = when (error) {
+      is CameraError -> error
+      else -> UnknownCameraError(error)
+    }
     val event = Arguments.createMap()
-    event.putString("code", error.code)
-    event.putString("message", error.message)
-    error.cause?.let { cause ->
+    event.putString("code", cameraError.code)
+    event.putString("message", cameraError.message)
+    cameraError.cause?.let { cause ->
       event.putMap("cause", errorToMap(cause))
     }
     val reactContext = context as ReactContext
