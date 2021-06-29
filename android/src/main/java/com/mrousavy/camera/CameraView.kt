@@ -422,6 +422,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       }
 
       val preview = previewBuilder.build()
+      Log.i(TAG, "Attaching ${useCases.size} use-cases...")
       camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, *useCases.toTypedArray())
       preview.setSurfaceProvider(previewView.surfaceProvider)
 
@@ -447,12 +448,9 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
     }
   }
 
-  override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-    super.onLayout(changed, left, top, right, bottom)
-    Log.i(TAG, "onLayout($changed, $left, $top, $right, $bottom) was called! (Width: $width, Height: $height)")
-  }
-
   private fun invokeOnInitialized() {
+    Log.i(TAG, "invokeOnInitialized()")
+
     val reactContext = context as ReactContext
     reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraInitialized", null)
   }
@@ -460,7 +458,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   private fun invokeOnError(error: Throwable) {
     Log.e(TAG, "invokeOnError(...):")
     error.printStackTrace()
-    
+
     val cameraError = when (error) {
       is CameraError -> error
       else -> UnknownCameraError(error)
