@@ -6,7 +6,7 @@ ROOT=$(pwd)
 rm -rf android-npm/*.aar
 
 
-versions=("0.64.1" "0.63.3")
+versions=("0.64.2" "0.63.3")
 versions_majors=("64" "63")
 total_versions=${#versions[@]}
 
