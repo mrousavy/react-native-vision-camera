@@ -10,7 +10,7 @@ versions=("0.64.1" "0.63.3")
 versions_majors=("64" "63")
 total_versions=${#versions[@]}
 
-for (( i=0; i<$len; i++ ));
+for (( i=0; i<$total_versions; i++ ));
 do
 
   yarn add "react-native@${versions[$i]}" -D
