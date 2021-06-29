@@ -273,10 +273,12 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         if (changedProps.contains("enableZoomGesture")) {
           setOnTouchListener(if (enableZoomGesture) touchEventListener else null)
         }
-      } catch (e: CameraError) {
-        invokeOnError(e)
       } catch (e: Throwable) {
-        invokeOnError(UnknownCameraError(e))
+        Log.e(TAG, "update() threw: ${e.message}")
+        when(e) {
+          is CameraError -> invokeOnError(e)
+          else -> invokeOnError(UnknownCameraError(e))
+        }
       }
     }
   }
@@ -432,6 +434,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       Log.i(TAG_PERF, "Session configured in $duration ms! Camera: ${camera!!}")
       invokeOnInitialized()
     } catch (exc: Throwable) {
+      Log.e(TAG, "Failed to configure session: ${exc.message}")
       throw when (exc) {
         is CameraError -> exc
         is IllegalArgumentException -> {
