@@ -8,6 +8,7 @@
 #include <jsi/jsi.h>
 #include <ReactCommon/CallInvokerHolder.h>
 #include <memory>
+#include <string>
 
 #include "Scheduler.h"
 #include "RuntimeManager.h"

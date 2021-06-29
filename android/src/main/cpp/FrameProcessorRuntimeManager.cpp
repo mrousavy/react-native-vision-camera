@@ -6,6 +6,7 @@
 #include <android/log.h>
 #include <jni.h>
 #include <utility>
+#include <string>
 
 #include "RuntimeDecorator.h"
 #include "RuntimeManager.h"
@@ -83,22 +84,22 @@ CameraView* FrameProcessorRuntimeManager::findCameraViewById(int viewId) {
 }
 
 void FrameProcessorRuntimeManager::logErrorToJS(const std::string& message) {
-   if (!this->jsCallInvoker_) {
-     return;
-   }
+  if (!this->jsCallInvoker_) {
+    return;
+  }
 
-   this->jsCallInvoker_->invokeAsync([this, message]() {
-     if (this->runtime_ == nullptr) {
-       return;
-     }
+  this->jsCallInvoker_->invokeAsync([this, message]() {
+    if (this->runtime_ == nullptr) {
+      return;
+    }
 
-     auto& runtime = *this->runtime_;
-     auto consoleError = runtime
-         .global()
-         .getPropertyAsObject(runtime, "console")
-         .getPropertyAsFunction(runtime, "error");
-     consoleError.call(runtime, jsi::String::createFromUtf8(runtime, message));
-   });
+    auto& runtime = *this->runtime_;
+    auto consoleError = runtime
+        .global()
+        .getPropertyAsObject(runtime, "console")
+        .getPropertyAsFunction(runtime, "error");
+    consoleError.call(runtime, jsi::String::createFromUtf8(runtime, message));
+  });
  }
 
 
