@@ -271,6 +271,8 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         }
       } catch (e: CameraError) {
         invokeOnError(e)
+      } catch (e: Throwable) {
+        invokeOnError(UnknownCameraError(e))
       }
     }
   }
