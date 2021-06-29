@@ -10,6 +10,8 @@ on:
       - 'example/android/**'
       - 'yarn.lock'
       - 'example/yarn.lock'
+      - 'scripts/build-android-npm-package.sh'
+      - 'android-npm/**'
   pull_request:
     paths:
       - '.github/workflows/build-android.yml'
@@ -17,6 +19,8 @@ on:
       - 'example/android/**'
       - 'yarn.lock'
       - 'example/yarn.lock'
+      - 'scripts/build-android-npm-package.sh'
+      - 'android-npm/**'
 
 jobs:
   build_lib:
