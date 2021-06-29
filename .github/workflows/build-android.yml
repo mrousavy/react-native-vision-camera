@@ -59,6 +59,12 @@ jobs:
             ${{ runner.os }}-gradle-
       - name: Build .aar
         run: scripts/build-android-npm-package.sh
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: android-npm-package
+          path: android-npm/
+
   build_example:
     name: Build Android Example App
     runs-on: ubuntu-latest
