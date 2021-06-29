@@ -202,7 +202,11 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
     if (before != enable) {
       // reconfigure session if frame processor was added/removed to adjust use-cases.
       GlobalScope.launch(Dispatchers.Main) {
-        configureSession()
+        try {
+          configureSession()
+        } catch (e: CameraError) {
+          invokeOnError(e)
+        }
       }
     }
   }
@@ -428,7 +432,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       Log.i(TAG_PERF, "Session configured in $duration ms! Camera: ${camera!!}")
       invokeOnInitialized()
     } catch (exc: Throwable) {
-      val error = when (exc) {
+      throw when (exc) {
         is CameraError -> exc
         is IllegalArgumentException -> {
           if (exc.message?.contains("too many use cases") == true) {
@@ -439,7 +443,6 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         }
         else -> UnknownCameraError(exc)
       }
-      invokeOnError(error)
     }
   }
 
