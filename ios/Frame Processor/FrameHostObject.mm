@@ -55,27 +55,38 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     return jsi::Value(isValid);
   }
   if (name == "width") {
+    this->assertIsFrameStrong(runtime, name);
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     auto width = CVPixelBufferGetWidth(imageBuffer);
     return jsi::Value((double) width);
   }
   if (name == "height") {
+    this->assertIsFrameStrong(runtime, name);
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     auto height = CVPixelBufferGetHeight(imageBuffer);
     return jsi::Value((double) height);
   }
   if (name == "bytesPerRow") {
+    this->assertIsFrameStrong(runtime, name);
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     auto bytesPerRow = CVPixelBufferGetPlaneCount(imageBuffer);
     return jsi::Value((double) bytesPerRow);
   }
   if (name == "planesCount") {
+    this->assertIsFrameStrong(runtime, name);
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
     return jsi::Value((double) planesCount);
   }
 
   return jsi::Value::undefined();
+}
+
+void FrameHostObject::assertIsFrameStrong(jsi::Runtime &runtime, const std::string &accessedPropName) {
+  if (frame == nil) {
+    auto message = "Cannot get `" + accessedPropName + "`, frame is already closed!";
+    throw jsi::JSError(runtime, message.c_str());
+  }
 }
 
 FrameHostObject::~FrameHostObject() {

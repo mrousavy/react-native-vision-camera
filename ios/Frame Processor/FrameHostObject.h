@@ -26,4 +26,7 @@ public:
 
 public:
   Frame* frame;
+  
+private:
+  void assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName);
 };
