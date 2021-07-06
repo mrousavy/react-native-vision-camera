@@ -7,8 +7,6 @@
 #include <jni.h>
 #include <fbjni/fbjni.h>
 
-#include "JImage.h"
-
 namespace vision {
 
 using namespace facebook;
