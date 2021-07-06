@@ -55,7 +55,20 @@ Frame Processors require [**react-native-reanimated**](https://github.com/softwa
 
 ### Interacting with Frame Processors
 
-Since Frame Processors run in [**Worklets**](https://docs.swmansion.com/react-native-reanimated/docs/worklets), you can also easily read from, and assign to [**Shared Values**](https://docs.swmansion.com/react-native-reanimated/docs/shared-values) to create smooth, 60 FPS animations:
+Since Frame Processors run in [**Worklets**](https://docs.swmansion.com/react-native-reanimated/docs/worklets), you can directly use JS values such as React state:
+
+```tsx
+// can be controlled with a Slider
+const [sensitivity, setSensitivity] = useState(0.4)
+
+const frameProcessor = useFrameProcessor((frame) => {
+  'worklet'
+  const isHotdog = detectIsHotdog(frame, sensitivity)
+  console.log(isHotdog ? "Hotdog!" : "Not Hotdog.")
+}, [sensitivity])
+```
+
+You can also easily read from, and assign to [**Shared Values**](https://docs.swmansion.com/react-native-reanimated/docs/shared-values) to create smooth, 60 FPS animations:
 
 ```tsx {6}
 // represents position of the cat on the screen 🐈
@@ -98,22 +111,6 @@ const frameProcessor = useFrameProcessor((frame) => {
 }, [onQRCodeDetected])
 ```
 
-### Technical
-
-#### Frame Processors
-
-**Frame Processors** are JS functions that will be **workletized** using [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated). They are created on a **parallel camera thread** using a separate JavaScript Runtime (_"VisionCamera JS-Runtime"_) and are **invoked synchronously** (using JSI) without ever going over the bridge. In a **Frame Processor** you can write normal JS code, call back to the React-JS Thread (e.g. `setState`), use [Shared Values](https://docs.swmansion.com/react-native-reanimated/docs/shared-values) and call **Frame Processor Plugins**.
-
-#### Frame Processor Plugins
-
-**Frame Processor Plugins** are native functions (written in Objective-C, Swift, C++, Java or Kotlin) that are injected into the VisionCamera JS-Runtime. They can be **synchronously called** from your JS Frame Processors (using JSI) without ever going over the bridge. Because VisionCamera provides an easy-to-use plugin API, you can easily create a **Frame Processor Plugin** yourself. Some examples include [Barcode Scanning](https://developers.google.com/ml-kit/vision/barcode-scanning), [Face Detection](https://developers.google.com/ml-kit/vision/face-detection), [Image Labeling](https://developers.google.com/ml-kit/vision/image-labeling), [Text Recognition](https://developers.google.com/ml-kit/vision/text-recognition) and more.
-
-> Learn how to [**create Frame Processor Plugins**](frame-processors-plugins-overview)
-
-#### The `Frame` object
-
-The Frame Processor gets called with a `Frame` object, which is a **JSI HostObject**. It holds a reference to the native (C++) Frame Image Buffer (~10 MB in size) and exposes properties such as `width`, `height`, `bytesPerRow` and more to JavaScript so you can synchronously access them. The `Frame` object can be passed around in JS, as well as returned from- and passed to a native **Frame Processor Plugin**. See [this tweet](https://twitter.com/mrousavy/status/1412300883149393921) for more information.
-
 ### Using Frame Processor Plugins
 
 Frame Processor Plugins are distributed through npm. To install the [**vision-camera-image-labeler**](https://github.com/mrousavy/vision-camera-image-labeler) plugin, run:
@@ -154,20 +151,36 @@ Check out [**Frame Processor community plugins**](/docs/guides/frame-processor-p
 
 ### Benchmarks
 
-I have used [MLKit Vision Image Labeling](https://firebase.google.com/docs/ml-kit/ios/label-images) to label 4k Camera frames in realtime.
+Frame Processors are _really_ fast. I have used [MLKit Vision Image Labeling](https://firebase.google.com/docs/ml-kit/ios/label-images) to label 4k Camera frames in realtime, and measured the following results:
 
 * Fully natively (written in pure Objective-C, no React interaction at all), I have measured an average of **68ms** per call.
 * As a Frame Processor Plugin (written in Objective-C, called through a JS Frame Processor function), I have measured an average of **69ms** per call, meaning **the Frame Processor API only takes ~1ms longer than a fully native implementation**, making it **the fastest way to run any sort of Frame Processing in React Native**.
 
 > All measurements are recorded on an iPhone 11 Pro, benchmarked total execution time of the [`captureOutput`](https://developer.apple.com/documentation/avfoundation/avcapturevideodataoutputsamplebufferdelegate/1385775-captureoutput) function by using [`CFAbsoluteTimeGetCurrent`](https://developer.apple.com/documentation/corefoundation/1543542-cfabsolutetimegetcurrent). Running smaller images (lower than 4k resolution) is much quicker and many algorithms can even run at 60 FPS.
 
-### Performance
+### Avoiding Frame-drops
 
-Frame Processors will be **synchronously** called for each frame the Camera sees and have to finish executing before the next frame arrives, otherwise the next frame(s) will be dropped. For a frame rate of **30 FPS**, you have about **33ms** to finish processing frames. Use [`frameProcessorFps`](../api/interfaces/cameraprops.cameraprops-1#frameprocessorfps) to throttle the frame processor's FPS. For a QR Code Scanner, **5 FPS** might suffice.
+Frame Processors will be **synchronously** called for each frame the Camera sees and have to finish executing before the next frame arrives, otherwise the next frame(s) will be dropped. For a frame rate of **30 FPS**, you have about **33ms** to finish processing frames. Use [`frameProcessorFps`](../api/interfaces/cameraprops.cameraprops-1#frameprocessorfps) to throttle the frame processor's FPS. For a QR Code Scanner, **5 FPS** (200ms) might suffice, while a object tracking AI might run at **60 FPS** (16ms).
 
 ### ESLint react-hooks plugin
 
 If you are using the [react-hooks ESLint plugin](https://www.npmjs.com/package/eslint-plugin-react-hooks), make sure to add `useFrameProcessor` to `additionalHooks` inside your ESLint config. (See ["advanced configuration"](https://www.npmjs.com/package/eslint-plugin-react-hooks#advanced-configuration))
+
+### Technical
+
+#### Frame Processors
+
+**Frame Processors** are JS functions that will be **workletized** using [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated). They are created on a **parallel camera thread** using a separate JavaScript Runtime (_"VisionCamera JS-Runtime"_) and are **invoked synchronously** (using JSI) without ever going over the bridge. In a **Frame Processor** you can write normal JS code, call back to the React-JS Thread (e.g. `setState`), use [Shared Values](https://docs.swmansion.com/react-native-reanimated/docs/shared-values) and call **Frame Processor Plugins**.
+
+#### Frame Processor Plugins
+
+**Frame Processor Plugins** are native functions (written in Objective-C, Swift, C++, Java or Kotlin) that are injected into the VisionCamera JS-Runtime. They can be **synchronously called** from your JS Frame Processors (using JSI) without ever going over the bridge. Because VisionCamera provides an easy-to-use plugin API, you can easily create a **Frame Processor Plugin** yourself. Some examples include [Barcode Scanning](https://developers.google.com/ml-kit/vision/barcode-scanning), [Face Detection](https://developers.google.com/ml-kit/vision/face-detection), [Image Labeling](https://developers.google.com/ml-kit/vision/image-labeling), [Text Recognition](https://developers.google.com/ml-kit/vision/text-recognition) and more.
+
+> Learn how to [**create Frame Processor Plugins**](frame-processors-plugins-overview)
+
+#### The `Frame` object
+
+The Frame Processor gets called with a `Frame` object, which is a **JSI HostObject**. It holds a reference to the native (C++) Frame Image Buffer (~10 MB in size) and exposes properties such as `width`, `height`, `bytesPerRow` and more to JavaScript so you can synchronously access them. The `Frame` object can be passed around in JS, as well as returned from- and passed to a native **Frame Processor Plugin**. See [this tweet](https://twitter.com/mrousavy/status/1412300883149393921) for more information.
 
 ### Disabling Frame Processors
 
