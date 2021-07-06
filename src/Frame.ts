@@ -7,10 +7,6 @@ export interface Frame {
    */
   isValid: boolean;
   /**
-   * Whether the underlying buffer is marked as "ready" or not.
-   */
-  isReady: boolean;
-  /**
    * Returns the width of the frame, in pixels.
    */
   width: number;

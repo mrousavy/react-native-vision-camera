@@ -14,7 +14,6 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   std::vector<jsi::PropNameID> result;
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isValid")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isReady")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("width")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("height")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
@@ -54,10 +53,6 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "isValid") {
     auto isValid = frame != nil && CMSampleBufferIsValid(frame.buffer);
     return jsi::Value(isValid);
-  }
-  if (name == "isReady") {
-    auto isReady = frame != nil && CMSampleBufferDataIsReady(frame.buffer);
-    return jsi::Value(isReady);
   }
   if (name == "width") {
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);

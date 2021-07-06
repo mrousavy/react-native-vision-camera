@@ -13,7 +13,6 @@ std::vector<jsi::PropNameID> JImageProxyHostObject::getPropertyNames(jsi::Runtim
   std::vector<jsi::PropNameID> result;
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isValid")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isReady")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("width")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("height")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
@@ -49,9 +48,6 @@ jsi::Value JImageProxyHostObject::get(jsi::Runtime& runtime, const jsi::PropName
   }
 
   if (name == "isValid") {
-    return jsi::Value(this->frame->getIsValid());
-  }
-  if (name == "isReady") {
     return jsi::Value(this->frame && this->frame->getIsValid());
   }
   if (name == "width") {
