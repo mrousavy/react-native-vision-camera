@@ -37,14 +37,12 @@ export interface CameraProps extends ViewProps {
   //#region Use-cases
   /**
    * Enables **photo capture** with the `takePhoto` function (see ["Taking Photos"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/capturing#taking-photos))
-   *
-   * Note: This occupies a use-case. (See ["Use-cases"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/devices#use-cases))
    */
   photo?: boolean;
   /**
    * Enables **video capture** with the `startRecording` function (see ["Recording Videos"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/capturing/#recording-videos))
    *
-   * Note: This occupies a use-case. (See ["Use-cases"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/devices#use-cases))
+   * Note: If you want to use `video` and `frameProcessor` simultaneously, make sure [`supportsParallelVideoProcessing`](https://mrousavy.github.io/react-native-vision-camera/docs/guides/devices#the-supportsparallelvideoprocessing-prop) is `true`.
    */
   video?: boolean;
   /**
@@ -164,7 +162,7 @@ export interface CameraProps extends ViewProps {
    *
    * > See [the Frame Processors documentation](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors) for more information
    *
-   * Note: This occupies a use-case. (See ["Use-cases"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/devices#use-cases))
+   * Note: If you want to use `video` and `frameProcessor` simultaneously, make sure [`supportsParallelVideoProcessing`](https://mrousavy.github.io/react-native-vision-camera/docs/guides/devices#the-supportsparallelvideoprocessing-prop) is `true`.
    *
    * @example
    * ```tsx
