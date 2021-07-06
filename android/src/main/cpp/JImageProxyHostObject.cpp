@@ -51,19 +51,30 @@ jsi::Value JImageProxyHostObject::get(jsi::Runtime& runtime, const jsi::PropName
     return jsi::Value(this->frame && this->frame->getIsValid());
   }
   if (name == "width") {
+    this->assertIsFrameStrong(runtime, name);
     return jsi::Value(this->frame->getWidth());
   }
   if (name == "height") {
+    this->assertIsFrameStrong(runtime, name);
     return jsi::Value(this->frame->getHeight());
   }
   if (name == "bytesPerRow") {
+    this->assertIsFrameStrong(runtime, name);
     return jsi::Value(this->frame->getBytesPerRow());
   }
   if (name == "planesCount") {
+    this->assertIsFrameStrong(runtime, name);
     return jsi::Value(this->frame->getPlaneCount());
   }
 
   return jsi::Value::undefined();
+}
+
+void JImageProxyHostObject::assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName) {
+  if (!this->frame) {
+    auto message = "Cannot get `" + accessedPropName + "`, frame is already closed!";
+    throw jsi::JSError(runtime, message.c_str());
+  }
 }
 
 
