@@ -25,11 +25,7 @@ function App() {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet'
     const isHotdog = detectIsHotdog(frame)
-    if (isHotdog) {
-      console.log("Hotdog!")
-    } else {
-      console.log("Not Hotdog!")
-    }
+    console.log(isHotdog ? "Hotdog!" : "Not Hotdog.")
   }, [])
 
   return (
