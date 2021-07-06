@@ -18,14 +18,18 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 Frame processors are functions that are written in JavaScript (or TypeScript) which can be used to **process frames the camera "sees"**.
 Inside those functions you can call **Frame Processor Plugins**, which are high performance native functions specifically designed for certain use-cases.
 
-For example, you might want to create a QR code scanner **without writing any native code**, while still **achieving native performance**:
+For example, you might want to create a [Hotdog/Not Hotdog detector app](https://apps.apple.com/us/app/not-hotdog/id1212457521) **without writing any native code**, while still **achieving native performance**:
 
 ```jsx
 function App() {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet'
-    const qrCodes = scanQRCodes(frame)
-    console.log(`Detected QR Codes: ${qrCodes}`)
+    const isHotdog = detectIsHotdog(frame)
+    if (isHotdog) {
+      console.log("Hotdog!")
+    } else {
+      console.log("Not Hotdog!")
+    }
   }, [])
 
   return (
@@ -37,7 +41,7 @@ function App() {
 }
 ```
 
-Frame processors are by far not limited to QR code detection, other examples include:
+Frame processors are by far not limited to Hotdog detection, other examples include:
 
 * **AI** for **facial recognition**
 * **AI** for **object detection**
@@ -47,13 +51,15 @@ Frame processors are by far not limited to QR code detection, other examples inc
 * Creating **snapchat-like filters**, e.g. draw a dog-mask filter over the user's face
 * Creating **color filters** with depth-detection
 
+Because they are written in JS, Frame Processors are **simple** and **easy to create** while still maintaining **native performance**. (Frame Processors can run up to 1000 times a second!) Also, you can use **over-the-air updates** to tweak the Hotdog detector's sensitivity without pushing a native update.
+
 :::note
 Frame Processors require [**react-native-reanimated**](https://github.com/software-mansion/react-native-reanimated) 2.2.0 or higher.
 :::
 
 ### Interacting with Frame Processors
 
-Since Frame Processors run in Worklets, you can also easily read from, and assign to [**Shared Values**](https://docs.swmansion.com/react-native-reanimated/docs/shared-values):
+Since Frame Processors run in Worklets, you can also easily read from, and assign to [**Shared Values**](https://docs.swmansion.com/react-native-reanimated/docs/shared-values) to create smooth, 60 FPS animations:
 
 ```tsx {6}
 // represents position of the cat on the screen 🐈
