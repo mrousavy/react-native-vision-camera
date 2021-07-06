@@ -31,7 +31,7 @@
     "typescript": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "lint-ci": "yarn lint -f ./node_modules/@firmnav/eslint-github-actions-formatter/dist/formatter.js",
-    "build": "bob build && scripts/build-android-npm-package.sh",
+    "build": "bob build",
     "release": "release-it",
     "pods": "cd example && yarn pods",
     "bootstrap": "yarn && cd example && yarn && yarn pods",
@@ -42,9 +42,7 @@
     "clean-ios": "scripts/clean-ios.sh",
     "clean-android": "scripts/clean-android.sh",
     "clean-js": "scripts/clean-js.sh",
-    "docs": "cd docs && yarn build",
-    "prepack": "rm -rf android-tmp && mv android android-tmp && mv android-npm android",
-    "postpack": "rm -rf android-npm && mv android android-npm && mv android-tmp android"
+    "docs": "cd docs && yarn build"
   },
   "keywords": [
     "react-native",
