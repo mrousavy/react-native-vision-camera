@@ -49,7 +49,6 @@ target_include_directories(
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/Registries"
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/hidden_headers"
         "src/main/cpp"
-        "../cpp"
 )
 
 # find libraries
