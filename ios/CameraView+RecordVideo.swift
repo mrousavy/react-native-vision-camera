@@ -215,23 +215,13 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       if diff > UInt64(nanosecondsPerFrame) {
         if !isRunningFrameProcessor {
           // we're not in the middle of executing the Frame Processor, so prepare for next call.
-          var bufferCopy: CMSampleBuffer?
-          CMSampleBufferCreateCopy(allocator: kCFAllocatorDefault,
-                                   sampleBuffer: sampleBuffer,
-                                   sampleBufferOut: &bufferCopy)
-          if let bufferCopy = bufferCopy {
-            // successfully copied buffer, dispatch frame processor call.
-            CameraQueues.frameProcessorQueue.async {
-              self.isRunningFrameProcessor = true
-              let frame = Frame(buffer: bufferCopy, orientation: self.bufferOrientation)
-              frameProcessor(frame)
-              self.isRunningFrameProcessor = false
-            }
-            lastFrameProcessorCall = DispatchTime.now()
-          } else {
-            // failed to create a buffer copy.
-            ReactLogger.log(level: .error, message: "Failed to copy buffer! Frame Processor cannot be called.", alsoLogToJS: true)
+          CameraQueues.frameProcessorQueue.async {
+            self.isRunningFrameProcessor = true
+            let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
+            frameProcessor(frame)
+            self.isRunningFrameProcessor = false
           }
+          lastFrameProcessorCall = DispatchTime.now()
         } else {
           // we're still in the middle of executing a Frame Processor for a previous frame, notify user about dropped frame.
           if !hasLoggedFrameProcessorFrameDropWarning {
