@@ -102,7 +102,7 @@ function App() {
 
 Camera devices provide the [`supportsParallelVideoProcessing` property](/docs/api/interfaces/cameradevice.cameradevice-1#supportsparallelvideoprocessing) which determines whether the device supports using Video Recordings (`video={true}`) and Frame Processors (`frameProcessor={...}`) at the same time.
 
-If this property is `false`, you can only enable `video` or add a `frameProcessor`, but not both.
+If this property is `false`, you can either enable `video` or add a `frameProcessor`, but not both.
 
 * On iOS this value is always `true`.
 * On newer Android devices this value is always `true`.
