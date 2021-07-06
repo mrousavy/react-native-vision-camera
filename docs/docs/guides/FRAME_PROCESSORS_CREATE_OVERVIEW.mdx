@@ -107,6 +107,10 @@ const frameProcessor = useFrameProcessor((frame) => {
 }, [])
 ```
 
+## What's possible?
+
+You can run any native code you want in a Frame Processor Plugin. Just like in the native iOS and Android Camera APIs, you will receive a frame (`CMSampleBuffer` on iOS, `ImageProxy` on Android) which you can use however you want. In other words; **everything is possible**.
+
 ## Implementations
 
 ### Long-running Frame Processors
