@@ -4,12 +4,12 @@ import java.nio.file.Paths
 
 def reactNative = new File("$projectDir/../node_modules/react-native")
 
-def FOR_HERMES = "";
-if(findProject(':app')) {
-  FOR_HERMES = project(':app').ext.react.enableHermes;
-} else {
-  FOR_HERMES = System.getenv("FOR_HERMES") == "True";
-}
+def FOR_HERMES = System.getenv("FOR_HERMES") == "True";
+rootProject.getSubprojects().forEach({project ->
+  if (project.plugins.hasPlugin("com.android.application")) {
+    FOR_HERMES = project.ext.react.enableHermes;
+  }
+})
 
 /**
  * Finds the path of the installed npm package with the given name using Node's
