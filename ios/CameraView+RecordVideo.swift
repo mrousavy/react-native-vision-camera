@@ -215,7 +215,6 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       if diff > UInt64(nanosecondsPerFrame) {
         if !isRunningFrameProcessor {
           // we're not in the middle of executing the Frame Processor, so prepare for next call.
-          // successfully copied buffer, dispatch frame processor call.
           CameraQueues.frameProcessorQueue.async {
             self.isRunningFrameProcessor = true
             let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
