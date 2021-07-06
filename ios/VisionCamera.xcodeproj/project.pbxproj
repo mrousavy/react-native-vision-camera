@@ -88,6 +88,7 @@
 		B84760A22608EE38004C3180 /* FrameHostObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameHostObject.h; sourceTree = "<group>"; };
 		B84760A52608EE7C004C3180 /* FrameHostObject.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameHostObject.mm; sourceTree = "<group>"; };
 		B84760DE2608F57D004C3180 /* CameraQueues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraQueues.swift; sourceTree = "<group>"; };
+		B84C10592694A182006EFA70 /* MakeJSIRuntime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MakeJSIRuntime.h; sourceTree = "<group>"; };
 		B86DC970260E2D5200FB17B2 /* AVAudioSession+trySetAllowHaptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAudioSession+trySetAllowHaptics.swift"; sourceTree = "<group>"; };
 		B86DC973260E310600FB17B2 /* CameraView+AVAudioSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraView+AVAudioSession.swift"; sourceTree = "<group>"; };
 		B86DC976260E315100FB17B2 /* CameraView+AVCaptureSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraView+AVCaptureSession.swift"; sourceTree = "<group>"; };
@@ -138,8 +139,6 @@
 		B8DB3BC7263DC28C004C18D7 /* AVAssetWriter.Status+descriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAssetWriter.Status+descriptor.swift"; sourceTree = "<group>"; };
 		B8DB3BC9263DC4D8004C18D7 /* RecordingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingSession.swift; sourceTree = "<group>"; };
 		B8DB3BCB263DC97E004C18D7 /* AVFileType+descriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVFileType+descriptor.swift"; sourceTree = "<group>"; };
-		B8DCF09125EA7BEE00EA5C72 /* SpeedChecker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SpeedChecker.h; sourceTree = "<group>"; };
-		B8DCF14425EA817D00EA5C72 /* MakeJSIRuntime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MakeJSIRuntime.h; sourceTree = "<group>"; };
 		B8F7DDD1266F715D00120533 /* Frame.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Frame.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -180,7 +179,6 @@
 				B887518125E0102000DB86D6 /* CameraViewManager.swift */,
 				B8DB3BC9263DC4D8004C18D7 /* RecordingSession.swift */,
 				B887515C25E0102000DB86D6 /* PhotoCaptureDelegate.swift */,
-				B8DCF08F25EA7BEE00EA5C72 /* cpp */,
 				B887516125E0102000DB86D6 /* Extensions */,
 				B887517225E0102000DB86D6 /* Parsers */,
 				B887516D25E0102000DB86D6 /* React Utils */,
@@ -222,6 +220,7 @@
 				B8994E6B263F03E100069589 /* JSIUtils.mm */,
 				B8805065266798AB00EAD7F2 /* JSConsoleHelper.h */,
 				B8805066266798B600EAD7F2 /* JSConsoleHelper.mm */,
+				B84C10592694A182006EFA70 /* MakeJSIRuntime.h */,
 			);
 			path = "React Utils";
 			sourceTree = "<group>";
@@ -245,16 +244,6 @@
 				B8DB3BCB263DC97E004C18D7 /* AVFileType+descriptor.swift */,
 			);
 			path = Parsers;
-			sourceTree = "<group>";
-		};
-		B8DCF08F25EA7BEE00EA5C72 /* cpp */ = {
-			isa = PBXGroup;
-			children = (
-				B8DCF14425EA817D00EA5C72 /* MakeJSIRuntime.h */,
-				B8DCF09125EA7BEE00EA5C72 /* SpeedChecker.h */,
-			);
-			name = cpp;
-			path = ../cpp;
 			sourceTree = "<group>";
 		};
 		B8DCF2D725EA940700EA5C72 /* Frame Processor */ = {

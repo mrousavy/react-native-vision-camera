@@ -30,7 +30,6 @@
     "src",
     "example",
     ".eslintrc.js",
-    ".prettierrc.js",
     "babel.config.js",
   ],
   "exclude": [
