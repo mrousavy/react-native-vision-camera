@@ -102,7 +102,7 @@ function App() {
 
 Camera devices provide the [`supportsParallelVideoProcessing` property](/docs/api/interfaces/cameradevice.cameradevice-1#supportsparallelvideoprocessing) which determines whether the device supports using Video Recordings (`video={true}`) and Frame Processors (`frameProcessor={...}`) at the same time.
 
-If this property is `false`, you can either enable `video` or add a `frameProcessor`, but not both.
+If this property is `false`, you can either enable `video`, or add a `frameProcessor`, but not both.
 
 * On iOS this value is always `true`.
 * On newer Android devices this value is always `true`.
@@ -110,9 +110,9 @@ If this property is `false`, you can either enable `video` or add a `frameProces
 
 #### Examples
 
-* An app that only supports **taking photos** works on every Camera device because this only affects video processing.
-* An app that supports **taking photos** and **videos** works on every Camera device because only a single video processing feature is used (`video`).
-* An app that only uses **Frame Processors** (no taking photos or videos) works on every Camera device because it only uses a single video processing feature (`frameProcessor`).
+* An app that only supports **taking photos** works on every Camera device because this only affects _video processing_.
+* An app that supports **taking photos** and **videos** works on every Camera device because only a single _video processing_ feature is used (`video`).
+* An app that only uses **Frame Processors** (no taking photos or videos) works on every Camera device because it only uses a single _video processing_ feature (`frameProcessor`).
 * An app that uses **Frame Processors** and supports **taking photos** and **videos** only works on Camera devices where `supportsParallelVideoProcessing` is `true`. (iPhones and newer Android Phones)
 
 :::note
