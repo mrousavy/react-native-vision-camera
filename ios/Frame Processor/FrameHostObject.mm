@@ -28,6 +28,9 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 
   if (name == "toString") {
     auto toString = [this] (jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t) -> jsi::Value {
+      if (this->frame == nil) {
+        return jsi::String::createFromUtf8(runtime, "[closed frame]");
+      }
       auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
       auto width = CVPixelBufferGetWidth(imageBuffer);
       auto height = CVPixelBufferGetHeight(imageBuffer);

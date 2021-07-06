@@ -27,6 +27,9 @@ jsi::Value JImageProxyHostObject::get(jsi::Runtime& runtime, const jsi::PropName
 
   if (name == "toString") {
     auto toString = [this] (jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t) -> jsi::Value {
+      if (!this->frame) {
+        return jsi::String::createFromUtf8(runtime, "[closed frame]");
+      }
       auto width = this->frame->getWidth();
       auto height = this->frame->getHeight();
       auto str = std::to_string(width) + " x " + std::to_string(height) + " Frame";
@@ -49,7 +52,7 @@ jsi::Value JImageProxyHostObject::get(jsi::Runtime& runtime, const jsi::PropName
     return jsi::Value(this->frame->getIsValid());
   }
   if (name == "isReady") {
-    return jsi::Value(this->frame->getIsValid());
+    return jsi::Value(this->frame && this->frame->getIsValid());
   }
   if (name == "width") {
     return jsi::Value(this->frame->getWidth());
