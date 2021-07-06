@@ -35,9 +35,9 @@
   #warning The NativeReanimatedModule.h header could not be found, Frame Processors are disabled. If you want to use Frame Processors, make sure you install react-native-reanimated!
 #endif
 
-#import "../../cpp/MakeJSIRuntime.h"
 #import "FrameProcessorUtils.h"
 #import "FrameProcessorCallback.h"
+#import "../React Utils/MakeJSIRuntime.h"
 #import "../React Utils/JSIUtils.h"
 
 // Forward declarations for the Swift classes
