@@ -22,8 +22,11 @@ public:
 public:
   jsi::Value get(jsi::Runtime&, const jsi::PropNameID& name) override;
   std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime& rt) override;
-  void destroyBuffer();
-  
+  void close();
+
 public:
   Frame* frame;
+  
+private:
+  void assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName);
 };

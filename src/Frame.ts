@@ -3,13 +3,9 @@
  */
 export interface Frame {
   /**
-   * Whether the underlying buffer is still valid or not. The buffer will be released after the frame processor returns.
+   * Whether the underlying buffer is still valid or not. The buffer will be released after the frame processor returns, or `close()` is called.
    */
   isValid: boolean;
-  /**
-   * Whether the underlying buffer is marked as "ready" or not.
-   */
-  isReady: boolean;
   /**
    * Returns the width of the frame, in pixels.
    */
@@ -35,4 +31,19 @@ export interface Frame {
    * ```
    */
   toString(): string;
+  /**
+   * Closes and disposes the Frame.
+   * Only close frames that you have created yourself, e.g. by copying the frame you receive in a frame processor.
+   *
+   * @example
+   * ```ts
+   * const frameProcessor = useFrameProcessor((frame) => {
+   *   const smallerCopy = resize(frame, 480, 270)
+   *   // run AI ...
+   *   smallerCopy.close()
+   *   // don't close `frame`!
+   * })
+   * ```
+   */
+  close(): void;
 }

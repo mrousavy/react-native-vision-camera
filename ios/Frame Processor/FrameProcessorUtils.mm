@@ -28,7 +28,6 @@ FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &
       cb.call(runtime, jsi::Object::createFromHostObject(runtime, frameHostObject));
     } catch (jsi::JSError& jsError) {
       auto message = jsError.getMessage();
-
       RCTBridge* bridge = [RCTBridge currentBridge];
       if (bridge != nil) {
         bridge.jsCallInvoker->invokeAsync([bridge, message]() {
@@ -44,6 +43,6 @@ FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &
     //  1. we are sure we don't need it anymore, the frame processor worklet has finished executing.
     //  2. we don't know when the JS runtime garbage collects this object, it might be holding it for a few more frames
     //     which then blocks the camera queue from pushing new frames (memory limit)
-    frameHostObject->destroyBuffer();
+    frameHostObject->close();
   };
 }
