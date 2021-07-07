@@ -2,12 +2,17 @@ package com.mrousavy.camera.frameprocessor;
 
 import android.annotation.SuppressLint;
 import android.media.Image;
+
+import androidx.annotation.Keep;
 import androidx.camera.core.ImageProxy;
 import com.facebook.proguard.annotations.DoNotStrip;
 
+@DoNotStrip
+@Keep
 public class ImageProxyUtils {
     @SuppressLint("UnsafeOptInUsageError")
     @DoNotStrip
+    @Keep
     public static boolean isImageProxyValid(ImageProxy imageProxy) {
         try {
             Image image = imageProxy.getImage();

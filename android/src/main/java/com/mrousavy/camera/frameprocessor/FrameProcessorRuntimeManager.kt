@@ -1,6 +1,7 @@
 package com.mrousavy.camera.frameprocessor
 
 import android.util.Log
+import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.ReactApplicationContext
@@ -55,6 +56,8 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
     mHybridData?.resetNative()
   }
 
+  @DoNotStrip
+  @Keep
   fun findCameraViewById(viewId: Int): CameraView {
     Log.d(TAG, "finding view $viewId...")
     val view = mContext?.get()?.currentActivity?.findViewById<CameraView>(viewId)
