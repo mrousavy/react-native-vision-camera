@@ -61,7 +61,7 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
     jsContext: Long,
     jsCallInvokerHolder: CallInvokerHolderImpl,
     scheduler: Scheduler
-  ): HybridData?
+  ): HybridData
   private external fun initializeRuntime()
   private external fun registerPlugin(plugin: FrameProcessorPlugin)
 
