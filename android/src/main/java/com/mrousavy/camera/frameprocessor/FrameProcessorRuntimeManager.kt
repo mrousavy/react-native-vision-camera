@@ -15,15 +15,7 @@ import java.lang.ref.WeakReference
 class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
   companion object {
     const val TAG = "FrameProcessorRuntime"
-    private var HasRegisteredPlugins = false
     val Plugins: ArrayList<FrameProcessorPlugin> = ArrayList()
-      get() {
-        if (HasRegisteredPlugins) {
-          throw Error("Tried to access Frame Processor Plugin list, " +
-            "but plugins have already been registered (list is frozen now!).")
-        }
-        return field
-      }
 
     init {
       System.loadLibrary("reanimated")
@@ -48,7 +40,6 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
       registerPlugin(plugin)
     }
     Log.i(TAG, "Successfully installed ${Plugins.count()} Frame Processor Plugins!")
-    HasRegisteredPlugins = true
   }
 
   fun destroy() {

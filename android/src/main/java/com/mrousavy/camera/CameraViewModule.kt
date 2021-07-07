@@ -28,7 +28,6 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     const val REACT_CLASS = "CameraView"
     var RequestCode = 10
     val FrameProcessorThread: ExecutorService = Executors.newSingleThreadExecutor()
-    private var didInitFrameProcessorRuntime = false
 
     fun parsePermissionStatus(status: Int): String {
       return when (status) {
@@ -43,8 +42,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   override fun initialize() {
     super.initialize()
-    if (!didInitFrameProcessorRuntime) {
-      didInitFrameProcessorRuntime = true
+    if (frameProcessorManager == null) {
       FrameProcessorThread.execute {
         frameProcessorManager = FrameProcessorRuntimeManager(reactApplicationContext)
         reactApplicationContext.runOnJSQueueThread {
@@ -57,6 +55,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   override fun onCatalystInstanceDestroy() {
     super.onCatalystInstanceDestroy()
     frameProcessorManager?.destroy()
+    frameProcessorManager = null
   }
 
   override fun getName(): String {
