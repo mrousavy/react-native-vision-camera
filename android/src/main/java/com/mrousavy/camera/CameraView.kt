@@ -478,7 +478,6 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
     const val TAG_PERF = "CameraView.performance"
 
     private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "fps", "hdr", "lowLightBoost", "photo", "video", "frameProcessorFps")
-
     private val arrayListOfZoom = arrayListOf("zoom")
   }
 }

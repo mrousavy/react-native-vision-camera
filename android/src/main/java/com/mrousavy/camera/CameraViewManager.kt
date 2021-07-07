@@ -155,16 +155,16 @@ class CameraViewManager : SimpleViewManager<CameraView>() {
   }
 
   override fun onDropViewInstance(view: CameraView) {
-    Log.d(REACT_CLASS, "onDropViewInstance() called!")
+    Log.d(TAG, "onDropViewInstance() called!")
     super.onDropViewInstance(view)
   }
 
   override fun getName(): String {
-    return REACT_CLASS
+    return TAG
   }
 
   companion object {
-    const val REACT_CLASS = "CameraView"
+    const val TAG = "CameraView"
 
     val cameraViewTransactions: HashMap<CameraView, ArrayList<String>> = HashMap()
   }
