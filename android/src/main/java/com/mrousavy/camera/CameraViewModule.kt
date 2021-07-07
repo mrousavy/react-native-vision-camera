@@ -153,7 +153,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
             capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DEPTH_OUTPUT)
           val supportsRawCapture = capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW)
           val isoRange = characteristics.get(CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE)
-          val stabilizationModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES)!! // only digital, no optical
+          val stabilizationModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES) ?: IntArray(0) // only digital, no optical
           val zoomRange = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
             characteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
           else null
