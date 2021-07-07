@@ -28,6 +28,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     const val REACT_CLASS = "CameraView"
     var RequestCode = 10
     val FrameProcessorThread: ExecutorService = Executors.newSingleThreadExecutor()
+    private var didInitFrameProcessorRuntime = false
 
     fun parsePermissionStatus(status: Int): String {
       return when (status) {
@@ -42,10 +43,13 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   override fun initialize() {
     super.initialize()
-    FrameProcessorThread.execute {
-      frameProcessorManager = FrameProcessorRuntimeManager(reactApplicationContext)
-      reactApplicationContext.runOnJSQueueThread {
-        frameProcessorManager!!.installJSIBindings()
+    if (!didInitFrameProcessorRuntime) {
+      didInitFrameProcessorRuntime = true
+      FrameProcessorThread.execute {
+        frameProcessorManager = FrameProcessorRuntimeManager(reactApplicationContext)
+        reactApplicationContext.runOnJSQueueThread {
+          frameProcessorManager!!.installJSIBindings()
+        }
       }
     }
   }
