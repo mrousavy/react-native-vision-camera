@@ -128,7 +128,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     GlobalScope.launch(Dispatchers.Main) {
       withPromise(promise) {
         // I need to init those because the HDR/Night Mode Extension expects them to be initialized
-        ExtensionsManager.init(reactApplicationContext).await()
+        ExtensionsManager.getInstance(reactApplicationContext).await()
         ProcessCameraProvider.getInstance(reactApplicationContext).await()
 
         val manager = reactApplicationContext.getSystemService(Context.CAMERA_SERVICE) as? CameraManager
