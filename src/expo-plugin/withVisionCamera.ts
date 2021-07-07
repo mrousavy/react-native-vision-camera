@@ -5,37 +5,11 @@ const pkg = require('../../package.json');
 const CAMERA_USAGE = 'Allow $(PRODUCT_NAME) to access your camera';
 const MICROPHONE_USAGE = 'Allow $(PRODUCT_NAME) to access your microphone';
 
-type CameraPermissionProps = {
-  /**
-   * Specifies the Text that should appear in the Permission Alert.
-   * @default 'Allow $(PRODUCT_NAME) to access your camera'
-   */
+type Props = {
   cameraPermissionText?: string;
+  enableMicrophonePermission?: boolean;
+  microphonePermissionText?: string;
 };
-type MicrophonePermissionProps =
-  | {
-      /**
-       * Enables or disables the Microphone Permission. Only enable this feature if you want to use `audio={true}`.
-       *
-       * @default false
-       */
-      enableMicrophonePermission?: false;
-    }
-  | {
-      /**
-       * Enables or disables the Microphone Permission. Only enable this feature if you want to use `audio={true}`.
-       *
-       * @default false
-       */
-      enableMicrophonePermission: true;
-      /**
-       * Specifies the Text that should appear in the Permission Alert.
-       * @default 'Allow $(PRODUCT_NAME) to access your microphone'
-       */
-      microphonePermissionText?: string;
-    };
-
-type Props = CameraPermissionProps & MicrophonePermissionProps;
 
 const withCamera: ConfigPlugin<Props> = (config, props = {}) => {
   if (config.ios == null) config.ios = {};
