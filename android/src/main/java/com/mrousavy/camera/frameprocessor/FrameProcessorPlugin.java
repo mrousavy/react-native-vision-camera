@@ -1,13 +1,16 @@
 package com.mrousavy.camera.frameprocessor;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.ImageProxy;
 import com.facebook.jni.HybridData;
+import com.facebook.proguard.annotations.DoNotStrip;
 
 /**
  * Declares a Frame Processor Plugin.
  */
+@SuppressWarnings("JavaJniMissingFunction")
 public abstract class FrameProcessorPlugin {
     static {
         System.loadLibrary("VisionCamera");
@@ -23,6 +26,8 @@ public abstract class FrameProcessorPlugin {
      * <a href="https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors-plugins-overview#types">Types</a>
      * table for a list of supported types.
      */
+    @DoNotStrip
+    @Keep
     public abstract @Nullable Object callback(@NonNull ImageProxy image, @NonNull Object[] params);
 
     /**
