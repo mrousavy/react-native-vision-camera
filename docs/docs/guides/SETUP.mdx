@@ -17,10 +17,30 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 Install [**react-native-vision-camera**](https://www.npmjs.com/package/react-native-vision-camera) through npm:
 
+<Tabs
+  groupId="environment"
+  defaultValue="rn"
+  values={[
+    {label: 'React Native', value: 'rn'},
+    {label: 'Expo', value: 'expo'}
+  ]}>
+<TabItem value="rn">
+
 ```bash
 npm i react-native-vision-camera
 npx pod-install
 ```
+
+</TabItem>
+
+<TabItem value="expo">
+
+```bash
+expo install react-native-vision-camera
+```
+
+</TabItem>
+</Tabs>
 
 VisionCamera requires **iOS 11 or higher**, and **Android-SDK version 21 or higher**. See [Troubleshooting](/docs/guides/troubleshooting) if you're having installation issues.
 
@@ -31,12 +51,13 @@ VisionCamera requires **iOS 11 or higher**, and **Android-SDK version 21 or high
 To use a Camera or Microphone you must first specify that your app requires camera and microphone permissions.
 
 <Tabs
-  defaultValue="bare-rn"
+  groupId="environment"
+  defaultValue="rn"
   values={[
-    {label: 'Bare React Native', value: 'bare-rn'},
+    {label: 'React Native', value: 'rn'},
     {label: 'Expo', value: 'expo'}
   ]}>
-<TabItem value="bare-rn">
+<TabItem value="rn">
 
 ### iOS
 
@@ -44,10 +65,11 @@ Open your project's `Info.plist` and add the following lines inside the outermos
 
 ```xml
 <key>NSCameraUsageDescription</key>
-<string>$(PRODUCT_NAME) needs access to your Camera to record videos and capture photos.</string>
+<string>$(PRODUCT_NAME) needs access to your Camera.</string>
+
 <!-- optionally, if you want to record audio: -->
 <key>NSMicrophoneUsageDescription</key>
-<string>$(PRODUCT_NAME) needs access to your Microphone to record videos with audio.</string>
+<string>$(PRODUCT_NAME) needs access to your Microphone.</string>
 ```
 
 ### Android
@@ -56,6 +78,7 @@ Open your project's `AndroidManifest.xml` and add the following lines inside the
 
 ```xml
 <uses-permission android:name="android.permission.CAMERA" />
+
 <!-- optionally, if you want to record audio: -->
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
 ```
@@ -67,24 +90,25 @@ Open your project's `AndroidManifest.xml` and add the following lines inside the
 
 Add the VisionCamera plugin to your Expo config (`app.json`, `app.config.json` or `app.config.js`):
 
-```json
+```json {5-12}
 {
   "name": "my app",
   "plugins": [
     [
       "react-native-vision-camera",
       {
-        "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera to record videos and capture photos.",
+        "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera.",
+
         // optionally, if you want to record audio:
         "enableMicrophonePermission": true,
-        "microphonePermissionText": "$(PRODUCT_NAME) needs access to your Microphone to record videos with audio."
+        "microphonePermissionText": "$(PRODUCT_NAME) needs access to your Microphone."
       }
     ]
   ]
 }
 ```
 
-Finally, run the following command to compile the mods:
+Finally, compile the mods:
 
 ```bash
 expo prebuild
