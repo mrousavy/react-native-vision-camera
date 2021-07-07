@@ -1,1 +1,1 @@
-module.exports = require('./dist/withCamera');
+module.exports = require('./dist/expo-plugin/withVisionCamera');
