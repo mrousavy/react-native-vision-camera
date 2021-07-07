@@ -17,6 +17,10 @@
   <a align="center" href="https://twitter.com/mrousavy">
     <img src="https://img.shields.io/twitter/follow/mrousavy?label=Follow%20%40mrousavy&style=social" />
   </a>
+  <br />
+  <a align="center" href="https://github.com/expo/expo">
+    <img src="https://img.shields.io/badge/Runs%20with%20Expo-000.svg?style=flat-square&logo=EXPO&labelColor=ffffff&logoColor=000" alt="Runs with Expo." />
+  </a>
 </div>
 
 <br/>
