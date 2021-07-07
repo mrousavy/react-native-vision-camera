@@ -58,6 +58,7 @@ import kotlin.math.min
 // TODO: takePhoto() enableAutoDistortionCorrection
 // TODO: takePhoto() return with jsi::Value Image reference for faster capture
 
+@Suppress("KotlinJniMissingFunction") // I use fbjni, Android Studio is not smart enough to realize that.
 @SuppressLint("ClickableViewAccessibility") // suppresses the warning that the pinch to zoom gesture is not accessible
 class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   // react properties
