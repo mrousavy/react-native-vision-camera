@@ -10,6 +10,7 @@ import com.mrousavy.camera.ViewNotFoundError
 import com.swmansion.reanimated.Scheduler
 import java.lang.ref.WeakReference
 
+@Suppress("KotlinJniMissingFunction") // I use fbjni, Android Studio is not smart enough to realize that.
 class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
   companion object {
     const val TAG = "FrameProcessorRuntime"
