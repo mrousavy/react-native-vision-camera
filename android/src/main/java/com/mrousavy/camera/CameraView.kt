@@ -99,6 +99,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   internal var imageCapture: ImageCapture? = null
   internal var videoCapture: VideoCapture? = null
   internal var imageAnalysis: ImageAnalysis? = null
+  private var extensionsManager: ExtensionsManager? = null
 
   private val scaleGestureListener: ScaleGestureDetector.SimpleOnScaleGestureListener
   private val scaleGestureDetector: ScaleGestureDetector
