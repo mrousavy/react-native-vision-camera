@@ -13,10 +13,7 @@ import android.widget.FrameLayout
 import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.*
 import androidx.camera.core.impl.*
-import androidx.camera.extensions.HdrImageCaptureExtender
-import androidx.camera.extensions.HdrPreviewExtender
-import androidx.camera.extensions.NightImageCaptureExtender
-import androidx.camera.extensions.NightPreviewExtender
+import androidx.camera.extensions.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
@@ -102,6 +99,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   internal var imageCapture: ImageCapture? = null
   internal var videoCapture: VideoCapture? = null
   internal var imageAnalysis: ImageAnalysis? = null
+  private var extensionsManager: ExtensionsManager? = null
 
   private val scaleGestureListener: ScaleGestureDetector.SimpleOnScaleGestureListener
   private val scaleGestureDetector: ScaleGestureDetector
@@ -303,7 +301,21 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       // Used to bind the lifecycle of cameras to the lifecycle owner
       val cameraProvider = ProcessCameraProvider.getInstance(reactContext).await()
 
-      val cameraSelector = CameraSelector.Builder().byID(cameraId!!).build()
+      var cameraSelector = CameraSelector.Builder().byID(cameraId!!).build()
+
+      val tryEnableExtension: (suspend (extension: Int) -> Unit) = lambda@ { extension ->
+        if (extensionsManager == null) {
+          Log.i(TAG, "Initializing ExtensionsManager...")
+          extensionsManager = ExtensionsManager.getInstance(context).await()
+        }
+        if (extensionsManager!!.isExtensionAvailable(cameraProvider, cameraSelector, extension)) {
+          Log.i(TAG, "Enabling extension $extension...")
+          cameraSelector = extensionsManager!!.getExtensionEnabledCameraSelector(cameraProvider, cameraSelector, extension)
+        } else {
+          Log.e(TAG, "Extension $extension is not available for the given Camera!")
+          throw HdrNotContainedInFormatError()
+        }
+      }
 
       val rotation = previewView.display.rotation
 
@@ -349,38 +361,11 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
             throw FpsNotContainedInFormatError(fps)
           }
         }
-        hdr?.let { hdr ->
-          // Enable HDR scene mode if set
-          if (hdr) {
-            val imageExtension = HdrImageCaptureExtender.create(imageCaptureBuilder)
-            val previewExtension = HdrPreviewExtender.create(previewBuilder)
-            val isExtensionAvailable = imageExtension.isExtensionAvailable(cameraSelector) &&
-              previewExtension.isExtensionAvailable(cameraSelector)
-            if (isExtensionAvailable) {
-              Log.i(TAG, "Enabling native HDR extension...")
-              imageExtension.enableExtension(cameraSelector)
-              previewExtension.enableExtension(cameraSelector)
-            } else {
-              Log.e(TAG, "Native HDR vendor extension not available!")
-              throw HdrNotContainedInFormatError()
-            }
-          }
+        if (hdr == true) {
+          tryEnableExtension(ExtensionMode.HDR)
         }
-        lowLightBoost?.let { lowLightBoost ->
-          if (lowLightBoost) {
-            val imageExtension = NightImageCaptureExtender.create(imageCaptureBuilder)
-            val previewExtension = NightPreviewExtender.create(previewBuilder)
-            val isExtensionAvailable = imageExtension.isExtensionAvailable(cameraSelector) &&
-              previewExtension.isExtensionAvailable(cameraSelector)
-            if (isExtensionAvailable) {
-              Log.i(TAG, "Enabling native night-mode extension...")
-              imageExtension.enableExtension(cameraSelector)
-              previewExtension.enableExtension(cameraSelector)
-            } else {
-              Log.e(TAG, "Native night-mode vendor extension not available!")
-              throw LowLightBoostNotContainedInFormatError()
-            }
-          }
+        if (lowLightBoost == true) {
+          tryEnableExtension(ExtensionMode.NIGHT)
         }
       }
 

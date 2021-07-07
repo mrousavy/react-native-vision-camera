@@ -8,10 +8,8 @@ import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.util.Log
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageCapture
+import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
-import androidx.camera.extensions.HdrImageCaptureExtender
-import androidx.camera.extensions.NightImageCaptureExtender
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
@@ -127,8 +125,8 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     val startTime = System.currentTimeMillis()
     GlobalScope.launch(Dispatchers.Main) {
       withPromise(promise) {
-        // I need to init those because the HDR/Night Mode Extension expects them to be initialized
-        ExtensionsManager.init(reactApplicationContext).await()
+        val extensionsManager = ExtensionsManager.getInstance(reactApplicationContext).await()
+        val cameraProvider = ProcessCameraProvider.getInstance(reactApplicationContext).await()
         ProcessCameraProvider.getInstance(reactApplicationContext).await()
 
         val manager = reactApplicationContext.getSystemService(Context.CAMERA_SERVICE) as? CameraManager
@@ -138,8 +136,6 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
         manager.cameraIdList.forEach loop@{ id ->
           val cameraSelector = CameraSelector.Builder().byID(id).build()
-          // TODO: ImageCapture.Builder - I'm not setting the target resolution, does that matter?
-          val imageCaptureBuilder = ImageCapture.Builder()
 
           val characteristics = manager.getCameraCharacteristics(id)
           val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
@@ -166,10 +162,8 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
           else null
           val fpsRanges = characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES)!!
 
-          val hdrExtension = HdrImageCaptureExtender.create(imageCaptureBuilder)
-          val supportsHdr = hdrExtension.isExtensionAvailable(cameraSelector)
-          val nightExtension = NightImageCaptureExtender.create(imageCaptureBuilder)
-          val supportsLowLightBoost = nightExtension.isExtensionAvailable(cameraSelector)
+          val supportsHdr = extensionsManager.isExtensionAvailable(cameraProvider, cameraSelector, ExtensionMode.HDR)
+          val supportsLowLightBoost = extensionsManager.isExtensionAvailable(cameraProvider, cameraSelector, ExtensionMode.NIGHT)
           // see https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture
           val supportsParallelVideoProcessing = hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY && hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
 
