@@ -113,7 +113,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   private var maxZoom: Float = 1f
 
   @DoNotStrip
-  private var mHybridData: HybridData?
+  private var mHybridData: HybridData
 
   @Suppress("LiftReturnOrAssignment", "RedundantIf")
   internal val fallbackToSnapshot: Boolean
@@ -185,7 +185,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   }
 
   fun finalize() {
-    mHybridData?.resetNative()
+    mHybridData.resetNative()
   }
 
   private external fun initHybrid(): HybridData
@@ -478,7 +478,6 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
     const val TAG_PERF = "CameraView.performance"
 
     private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "fps", "hdr", "lowLightBoost", "photo", "video", "frameProcessorFps")
-
     private val arrayListOfZoom = arrayListOf("zoom")
   }
 }

@@ -25,7 +25,7 @@ import kotlinx.coroutines.guava.await
 
 class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
   companion object {
-    const val REACT_CLASS = "CameraView"
+    const val TAG = "CameraView"
     var RequestCode = 10
     val FrameProcessorThread: ExecutorService = Executors.newSingleThreadExecutor()
 
@@ -42,10 +42,12 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   override fun initialize() {
     super.initialize()
-    FrameProcessorThread.execute {
-      frameProcessorManager = FrameProcessorRuntimeManager(reactApplicationContext)
-      reactApplicationContext.runOnJSQueueThread {
-        frameProcessorManager!!.installJSIBindings()
+    if (frameProcessorManager == null) {
+      FrameProcessorThread.execute {
+        frameProcessorManager = FrameProcessorRuntimeManager(reactApplicationContext)
+        reactApplicationContext.runOnJSQueueThread {
+          frameProcessorManager!!.installJSIBindings()
+        }
       }
     }
   }
@@ -53,10 +55,11 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   override fun onCatalystInstanceDestroy() {
     super.onCatalystInstanceDestroy()
     frameProcessorManager?.destroy()
+    frameProcessorManager = null
   }
 
   override fun getName(): String {
-    return REACT_CLASS
+    return TAG
   }
 
   private fun findCameraView(id: Int): CameraView = reactApplicationContext.currentActivity?.findViewById(id) ?: throw ViewNotFoundError(id)
@@ -208,7 +211,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
               val secondsPerFrame = try {
                 cameraConfig.getOutputMinFrameDuration(formatId, size) / 1_000_000_000.0
               } catch (error: Throwable) {
-                Log.e(REACT_CLASS, "Minimum Frame Duration for MediaRecorder Output cannot be calculated, format \"$formatName\" is not supported.")
+                Log.e(TAG, "Minimum Frame Duration for MediaRecorder Output cannot be calculated, format \"$formatName\" is not supported.")
                 null
               }
 
@@ -264,7 +267,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
         }
 
         val difference = System.currentTimeMillis() - startTime
-        Log.w(REACT_CLASS, "CameraViewModule::getAvailableCameraDevices took: $difference ms")
+        Log.w(TAG, "CameraViewModule::getAvailableCameraDevices took: $difference ms")
         return@withPromise cameraDevices
       }
     }
