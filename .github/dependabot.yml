@@ -30,7 +30,7 @@ updates:
   - package-ecosystem: "gradle"
     directory: "/android/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     labels:
       - "🛠 dependencies"
       - "🤖 android"
