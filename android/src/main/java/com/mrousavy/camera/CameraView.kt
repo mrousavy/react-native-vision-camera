@@ -313,7 +313,11 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
           cameraSelector = extensionsManager!!.getExtensionEnabledCameraSelector(cameraProvider, cameraSelector, extension)
         } else {
           Log.e(TAG, "Extension $extension is not available for the given Camera!")
-          throw HdrNotContainedInFormatError()
+          throw when (extension) {
+            ExtensionMode.HDR -> HdrNotContainedInFormatError()
+            ExtensionMode.NIGHT -> LowLightBoostNotContainedInFormatError()
+            else -> Error("Invalid extension supplied! Extension $extension is not available.")
+          }
         }
       }
 
