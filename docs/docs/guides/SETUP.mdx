@@ -5,6 +5,8 @@ sidebar_label: Getting Started
 slug: /guides
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 <div>
@@ -28,6 +30,14 @@ VisionCamera requires **iOS 11 or higher**, and **Android-SDK version 21 or high
 
 To use a Camera or Microphone you must first specify that your app requires camera and microphone permissions.
 
+<Tabs
+  defaultValue="bare-rn"
+  values={[
+    {label: 'Bare React Native', value: 'bare-rn'},
+    {label: 'Expo', value: 'expo'}
+  ]}>
+<TabItem value="bare-rn">
+
 ### iOS
 
 Open your project's `Info.plist` and add the following lines inside the outermost `<dict>` tag:
@@ -35,6 +45,7 @@ Open your project's `Info.plist` and add the following lines inside the outermos
 ```xml
 <key>NSCameraUsageDescription</key>
 <string>$(PRODUCT_NAME) needs access to your Camera to record videos and capture photos.</string>
+<!-- optionally, if you want to record audio: -->
 <key>NSMicrophoneUsageDescription</key>
 <string>$(PRODUCT_NAME) needs access to your Microphone to record videos with audio.</string>
 ```
@@ -45,8 +56,36 @@ Open your project's `AndroidManifest.xml` and add the following lines inside the
 
 ```xml
 <uses-permission android:name="android.permission.CAMERA" />
+<!-- optionally, if you want to record audio: -->
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
 ```
+
+</TabItem>
+<TabItem value="expo">
+
+Add the VisionCamera plugin to your Expo config (`app.json`, `app.config.json` or `app.config.js`):
+
+```json
+{
+  "name": "my app",
+  "plugins": [
+    [
+      "react-native-vision-camera",
+      {
+        "cameraPermissionText": "$(PRODUCT_NAME) needs access to your Camera to record videos and capture photos.",
+        // optionally, if you want to record audio:
+        "enableMicrophonePermission": true,
+        "microphonePermissionText": "$(PRODUCT_NAME) needs access to your Microphone to record videos with audio."
+      }
+    ]
+  ]
+}
+```
+
+Finally, run `expo prebuild` to compile the mods. The changes will be applied once you build a new binary with `eas build`.
+
+</TabItem>
+</Tabs>
 
 ## Getting/Requesting Permissions
 
