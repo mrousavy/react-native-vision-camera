@@ -8,6 +8,7 @@
 #include <jni.h>
 #include <fbjni/fbjni.h>
 #include <vector>
+#include <string>
 
 #include "JImageProxy.h"
 
@@ -32,7 +33,7 @@ class JSI_EXPORT JImageProxyHostObject : public jsi::HostObject {
  private:
   static auto constexpr TAG = "VisionCamera";
 
-  void assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName);
+  void assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName); // NOLINT(runtime/references)
 };
 
 } // namespace vision
