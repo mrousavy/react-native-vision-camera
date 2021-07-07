@@ -63,6 +63,8 @@ Open your project's `AndroidManifest.xml` and add the following lines inside the
 </TabItem>
 <TabItem value="expo">
 
+### Managed Expo
+
 Add the VisionCamera plugin to your Expo config (`app.json`, `app.config.json` or `app.config.js`):
 
 ```json
@@ -82,7 +84,17 @@ Add the VisionCamera plugin to your Expo config (`app.json`, `app.config.json` o
 }
 ```
 
-Finally, run `expo prebuild` to compile the mods. The changes will be applied once you build a new binary with `eas build`.
+Finally, run the following command to compile the mods:
+
+```bash
+expo prebuild
+```
+
+To apply the changes, build a new binary with EAS:
+
+```bash
+eas build
+```
 
 </TabItem>
 </Tabs>
