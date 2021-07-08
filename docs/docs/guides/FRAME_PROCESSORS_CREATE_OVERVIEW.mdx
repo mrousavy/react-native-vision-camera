@@ -54,6 +54,7 @@ Return values will automatically be converted to JS values, assuming they are re
   defaultValue="swift"
   values={[
     {label: 'Swift', value: 'swift'},
+    {label: 'Objective-C', value: 'objc'},
     {label: 'Java', value: 'java'}
   ]}>
 <TabItem value="swift">
@@ -62,6 +63,15 @@ Return values will automatically be converted to JS values, assuming they are re
 @objc
 public static func callback(_ frame: Frame!, withArgs args: [Any]!) -> Any! {
   return "cat"
+}
+```
+
+</TabItem>
+<TabItem value="objc">
+
+```objc
+static inline id detectObject(Frame* frame, NSArray args) {
+  return @"cat";
 }
 ```
 
@@ -95,6 +105,7 @@ You can also manipulate the buffer and return it (or a copy of it) by returning 
   defaultValue="swift"
   values={[
     {label: 'Swift', value: 'swift'},
+    {label: 'Objective-C', value: 'objc'},
     {label: 'Java', value: 'java'}
   ]}>
 <TabItem value="swift">
@@ -105,6 +116,19 @@ public static func callback(_ frame: Frame!, withArgs args: [Any]!) -> Any! {
   let resizedBuffer = // ...
 
   return Frame(buffer: resizedBuffer, orientation: frame.orientation)
+}
+```
+
+</TabItem>
+<TabItem value="objc">
+
+```objc
+#import <VisionCamera/Frame.h>
+
+static inline id resize(Frame* frame, NSArray args) {
+  CMSampleBufferRef resizedBuffer = // ...
+
+  return [[Frame alloc] initWithBuffer:resizedBuffer orientation:frame.orientation];
 }
 ```
 
@@ -173,6 +197,7 @@ For example, a realtime video chat application might use WebRTC to send the fram
   defaultValue="swift"
   values={[
     {label: 'Swift', value: 'swift'},
+    {label: 'Objective-C', value: 'objc'},
     {label: 'Java', value: 'java'}
   ]}>
 <TabItem value="swift">
@@ -194,6 +219,25 @@ public static func callback(_ frame: Frame!, withArgs args: [Any]!) -> Any! {
   }
 
   return nil
+}
+```
+
+</TabItem>
+<TabItem value="objc">
+
+```objc
+static dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul);
+
+static inline id sendFrameToWebRTC(Frame* frame, NSArray args) {
+  CMSampleBufferRef bufferCopy;
+  CMSampleBufferCreateCopy(kCFAllocatorDefault, frame.buffer, &bufferCopy);
+
+  dispatch_async(queue, ^{
+    NSString* serverURL = (NSString*)args[0];
+    [WebRTC uploadFrame:bufferCopy toServer:serverURL];
+  });
+
+  return nil;
 }
 ```
 
