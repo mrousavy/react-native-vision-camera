@@ -1,5 +1,13 @@
 import React from 'react';
-import { requireNativeComponent, NativeModules, NativeSyntheticEvent, findNodeHandle, NativeMethods, Platform } from 'react-native';
+import {
+  requireNativeComponent,
+  NativeModules,
+  NativeSyntheticEvent,
+  findNodeHandle,
+  NativeMethods,
+  Platform,
+  LayoutChangeEvent,
+} from 'react-native';
 import type { CameraDevice } from './CameraDevice';
 import type { ErrorWithCause } from './CameraError';
 import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError';
@@ -69,6 +77,7 @@ export class Camera extends React.PureComponent<CameraProps> {
   /** @internal */
   displayName = Camera.displayName;
   private lastFrameProcessor: ((frame: Frame) => void) | undefined;
+  private isNativeViewMounted = false;
 
   private readonly ref: React.RefObject<RefType>;
 
@@ -77,6 +86,7 @@ export class Camera extends React.PureComponent<CameraProps> {
     super(props);
     this.onInitialized = this.onInitialized.bind(this);
     this.onError = this.onError.bind(this);
+    this.onLayout = this.onLayout.bind(this);
     this.ref = React.createRef<RefType>();
     this.lastFrameProcessor = undefined;
   }
@@ -348,24 +358,22 @@ export class Camera extends React.PureComponent<CameraProps> {
     global.unsetFrameProcessor(this.handle);
   }
 
-  /** @internal */
-  componentDidMount(): void {
-    const frameProcessor = this.props.frameProcessor;
-    if (frameProcessor != null) {
-      // wait for `setImmediate` because native view might not exist yet (batch flush)
-      setImmediate(() => {
-        if (frameProcessor !== this.props.frameProcessor) {
-          // `frameProcessor` has changed in the meantime, we already handle the update in `componentDidUpdate`
-          return;
-        }
-        this.setFrameProcessor(frameProcessor);
-        this.lastFrameProcessor = frameProcessor;
-      });
+  private onLayout(event: LayoutChangeEvent): void {
+    if (!this.isNativeViewMounted) {
+      this.isNativeViewMounted = true;
+      if (this.props.frameProcessor != null) {
+        // user passed a `frameProcessor` but we didn't set it yet because the native view was not mounted yet. set it now.
+        this.setFrameProcessor(this.props.frameProcessor);
+        this.lastFrameProcessor = this.props.frameProcessor;
+      }
     }
+
+    this.props.onLayout?.(event);
   }
 
   /** @internal */
   componentDidUpdate(): void {
+    if (!this.isNativeViewMounted) return;
     const frameProcessor = this.props.frameProcessor;
     if (frameProcessor !== this.lastFrameProcessor) {
       // frameProcessor argument identity changed. Update native to reflect the change.
@@ -397,6 +405,7 @@ export class Camera extends React.PureComponent<CameraProps> {
         onInitialized={this.onInitialized}
         onError={this.onError}
         enableFrameProcessor={frameProcessor != null}
+        onLayout={this.onLayout}
       />
     );
   }
