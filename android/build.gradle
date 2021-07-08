@@ -225,10 +225,10 @@ dependencies {
   def reactNativeVersion = json.version as String
   def (major, minor, patch) = reactNativeVersion.tokenize('.')
 
-  def raAARJSC = "${rootDir}/../node_modules/react-native-reanimated/android/react-native-reanimated-${minor}-jsc.aar"
-  def raAARHermes = "${rootDir}/../node_modules/react-native-reanimated/android/react-native-reanimated-${minor}-hermes.aar"
+  def jsEngine = FOR_HERMES ? "hermes" : "jsc"
+  def reaAAR = "${rootDir}/../node_modules/react-native-reanimated/android/react-native-reanimated-${minor}-${jsEngine}.aar"
 
-  extractJNI(files(rnAAR, jscAAR, raAARJSC, raAARHermes))
+  extractJNI(files(rnAAR, jscAAR, reaAAR))
 
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.5.0"
