@@ -20,9 +20,9 @@
 #import "JSConsoleHelper.h"
 
 #ifdef VISION_CAMERA_DISABLE_FRAME_PROCESSORS
-static bool enableFrameProcessors = false;
+static bool VISION_CAMERA_ENABLE_FRAME_PROCESSORS = false;
 #else
-static bool enableFrameProcessors = true;
+static bool VISION_CAMERA_ENABLE_FRAME_PROCESSORS = true;
 #endif
 
 @interface CameraBridge: RCTViewManager
