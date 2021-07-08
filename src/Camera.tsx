@@ -63,21 +63,15 @@ if (CameraModule == null) console.error("Camera: Native Module 'CameraView' was 
  * @component
  */
 export class Camera extends React.PureComponent<CameraProps> {
-  /**
-   * @internal
-   */
+  /** @internal */
   static displayName = 'Camera';
-  /**
-   * @internal
-   */
+  /** @internal */
   displayName = Camera.displayName;
   private lastFrameProcessor: ((frame: Frame) => void) | undefined;
 
   private readonly ref: React.RefObject<RefType>;
 
-  /**
-   * @internal
-   */
+  /** @internal */
   constructor(props: CameraProps) {
     super(props);
     this.onInitialized = this.onInitialized.bind(this);
@@ -331,9 +325,7 @@ export class Camera extends React.PureComponent<CameraProps> {
   //#endregion
 
   //#region Lifecycle
-  /**
-   * @internal
-   */
+  /** @internal */
   private assertFrameProcessorsEnabled(): void {
     // @ts-expect-error JSI functions aren't typed
     if (global.setFrameProcessor == null || global.unsetFrameProcessor == null)
@@ -352,39 +344,44 @@ export class Camera extends React.PureComponent<CameraProps> {
     global.unsetFrameProcessor(this.handle);
   }
 
-  /**
-   * @internal
-   */
-  componentWillUnmount(): void {
-    if (this.lastFrameProcessor != null || this.props.frameProcessor != null) this.unsetFrameProcessor();
-  }
-
-  /**
-   * @internal
-   */
+  /** @internal */
   componentDidMount(): void {
-    setImmediate(() => {
-      if (this.props.frameProcessor != null) this.setFrameProcessor(this.props.frameProcessor);
-    });
+    const frameProcessor = this.props.frameProcessor;
+    if (frameProcessor != null) {
+      // wait for `setImmediate` because native view might not exist yet (batch flush)
+      setImmediate(() => {
+        if (frameProcessor !== this.props.frameProcessor) {
+          // `frameProcessor` has changed in the meantime, we already handle the update in `componentDidUpdate`
+          return;
+        }
+        this.setFrameProcessor(frameProcessor);
+        this.lastFrameProcessor = frameProcessor;
+      });
+    }
   }
 
-  /**
-   * @internal
-   */
+  /** @internal */
   componentDidUpdate(): void {
-    if (this.props.frameProcessor !== this.lastFrameProcessor) {
+    const frameProcessor = this.props.frameProcessor;
+    if (frameProcessor !== this.lastFrameProcessor) {
       // frameProcessor argument identity changed. Update native to reflect the change.
-      if (this.props.frameProcessor != null) this.setFrameProcessor(this.props.frameProcessor);
+      if (frameProcessor != null) this.setFrameProcessor(frameProcessor);
       else this.unsetFrameProcessor();
 
-      this.lastFrameProcessor = this.props.frameProcessor;
+      this.lastFrameProcessor = frameProcessor;
+    }
+  }
+
+  /** @internal */
+  componentWillUnmount(): void {
+    if (this.lastFrameProcessor != null || this.props.frameProcessor != null) {
+      this.unsetFrameProcessor();
+      this.lastFrameProcessor = undefined;
     }
   }
   //#endregion
 
-  /**
-   * @internal
-   */
+  /** @internal */
   public render(): React.ReactNode {
     // We remove the big `device` object from the props because we only need to pass `cameraId` to native.
     const { device, video: enableVideo, frameProcessor, ...props } = this.props;
