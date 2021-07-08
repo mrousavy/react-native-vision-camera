@@ -21,6 +21,7 @@ interface OnErrorEvent {
 }
 type NativeCameraViewProps = Omit<CameraProps, 'device' | 'onInitialized' | 'onError' | 'frameProcessor'> & {
   cameraId: string;
+  enableFrameProcessor: boolean;
   onInitialized?: (event: NativeSyntheticEvent<void>) => void;
   onError?: (event: NativeSyntheticEvent<OnErrorEvent>) => void;
 };
@@ -384,9 +385,7 @@ export class Camera extends React.PureComponent<CameraProps> {
   /** @internal */
   public render(): React.ReactNode {
     // We remove the big `device` object from the props because we only need to pass `cameraId` to native.
-    const { device, video: enableVideo, frameProcessor, ...props } = this.props;
-    // on iOS, enabling a frameProcessor requires `video` to be `true`. On Android, it doesn't.
-    const video = Platform.OS === 'ios' ? frameProcessor != null || enableVideo : enableVideo;
+    const { device, frameProcessor, ...props } = this.props;
     return (
       <NativeCameraView
         {...props}
@@ -394,7 +393,7 @@ export class Camera extends React.PureComponent<CameraProps> {
         ref={this.ref}
         onInitialized={this.onInitialized}
         onError={this.onError}
-        video={video}
+        enableFrameProcessor={frameProcessor != null}
       />
     );
   }

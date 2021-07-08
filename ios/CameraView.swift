@@ -25,7 +25,8 @@ private let propsThatRequireReconfiguration = ["cameraId",
                                                "enablePortraitEffectsMatteDelivery",
                                                "preset",
                                                "photo",
-                                               "video"]
+                                               "video",
+                                               "enableFrameProcessor"]
 private let propsThatRequireDeviceReconfiguration = ["fps",
                                                      "hdr",
                                                      "lowLightBoost",
@@ -47,6 +48,7 @@ public final class CameraView: UIView {
   @objc var photo: NSNumber? // nullable bool
   @objc var video: NSNumber? // nullable bool
   @objc var audio: NSNumber? // nullable bool
+  @objc var enableFrameProcessor = false
   // props that require format reconfiguring
   @objc var format: NSDictionary?
   @objc var fps: NSNumber?

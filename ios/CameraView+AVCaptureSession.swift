@@ -125,7 +125,7 @@ extension CameraView {
       captureSession.removeOutput(videoOutput)
       self.videoOutput = nil
     }
-    if video?.boolValue == true {
+    if video?.boolValue == true || enableFrameProcessor {
       ReactLogger.log(level: .info, message: "Adding Video Data output...")
       videoOutput = AVCaptureVideoDataOutput()
       guard captureSession.canAddOutput(videoOutput!) else {
