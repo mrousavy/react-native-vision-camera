@@ -56,10 +56,8 @@ export const sortFormats = (left: CameraDeviceFormat, right: CameraDeviceFormat)
   leftPoints += Math.round(left.photoWidth / 500);
   rightPoints += Math.round(right.photoWidth / 500);
   // e.g. for 4k (4096), this adds 8 points.
-  if (left.videoWidth != null && right.videoWidth != null) {
-    leftPoints += Math.round(left.videoWidth / 500);
-    rightPoints += Math.round(right.videoWidth / 500);
-  }
+  leftPoints += Math.round(left.videoWidth / 500);
+  rightPoints += Math.round(right.videoWidth / 500);
 
   // we downscale the points here as well, so if left has 16:9 and right has 21:9, this roughly
   // adds 5 points. If the difference is smaller, e.g. 16:9 vs 17:9, this roughly adds a little
