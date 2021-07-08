@@ -26,7 +26,6 @@ class CameraView : public jni::HybridClass<CameraView> {
   // TODO: Use template<> to avoid heap allocation for std::function<>
   void setFrameProcessor(const FrameProcessor&& frameProcessor);
   void unsetFrameProcessor();
-  void setEnableFrameProcessor(bool enable);
 
  private:
   friend HybridBase;

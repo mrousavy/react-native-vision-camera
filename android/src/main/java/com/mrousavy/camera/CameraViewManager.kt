@@ -43,6 +43,13 @@ class CameraViewManager : SimpleViewManager<CameraView>() {
     view.audio = audio
   }
 
+  @ReactProp(name = "enableFrameProcessor")
+  fun setEnableFrameProcessor(view: CameraView, enableFrameProcessor: Boolean) {
+    if (view.enableFrameProcessor != enableFrameProcessor)
+      addChangedPropToTransaction(view, "enableFrameProcessor")
+    view.enableFrameProcessor = enableFrameProcessor
+  }
+
   @ReactProp(name = "enableDepthData")
   fun setEnableDepthData(view: CameraView, enableDepthData: Boolean) {
     if (view.enableDepthData != enableDepthData)

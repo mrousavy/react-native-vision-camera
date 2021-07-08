@@ -71,6 +71,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   var photo: Boolean? = null
   var video: Boolean? = null
   var audio: Boolean? = null
+  var enableFrameProcessor = false
   // props that require format reconfiguring
   var format: ReadableMap? = null
   var fps: Int? = null
@@ -88,8 +89,6 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   private val reactContext: ReactContext
     get() = context as ReactContext
 
-  private var enableFrameProcessor = false
-
   @Suppress("JoinDeclarationAndAssignment")
   internal val previewView: PreviewView
   private val cameraExecutor = Executors.newSingleThreadExecutor()
@@ -99,7 +98,10 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   internal var camera: Camera? = null
   internal var imageCapture: ImageCapture? = null
   internal var videoCapture: VideoCapture? = null
-  internal var imageAnalysis: ImageAnalysis? = null
+  private var imageAnalysis: ImageAnalysis? = null
+
+  private var lastFrameProcessorCall = System.currentTimeMillis()
+
   private var extensionsManager: ExtensionsManager? = null
 
   private val scaleGestureListener: ScaleGestureDetector.SimpleOnScaleGestureListener
@@ -190,26 +192,6 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
 
   private external fun initHybrid(): HybridData
   private external fun frameProcessorCallback(frame: ImageProxy)
-
-  @Suppress("unused")
-  @DoNotStrip
-  fun setEnableFrameProcessor(enable: Boolean) {
-    Log.d(TAG, "Set enable frame processor: $enable")
-    val before = enableFrameProcessor
-    enableFrameProcessor = enable
-
-    if (before != enable) {
-      // reconfigure session if frame processor was added/removed to adjust use-cases.
-      GlobalScope.launch(Dispatchers.Main) {
-        try {
-          configureSession()
-        } catch (e: Throwable) {
-          Log.e(TAG, "Failed to configure session after setting frame processor! ${e.message}")
-          invokeOnError(e)
-        }
-      }
-    }
-  }
 
   override fun getLifecycle(): Lifecycle {
     return lifecycleRegistry
@@ -396,13 +378,12 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         }
       }
       if (enableFrameProcessor) {
-        var lastCall = System.currentTimeMillis() - 1000
-        val intervalMs = (1.0 / frameProcessorFps) * 1000.0
         imageAnalysis = imageAnalysisBuilder.build().apply {
           setAnalyzer(cameraExecutor, { image ->
             val now = System.currentTimeMillis()
-            if (now - lastCall > intervalMs) {
-              lastCall = now
+            val intervalMs = (1.0 / frameProcessorFps) * 1000.0
+            if (now - lastFrameProcessorCall > intervalMs) {
+              lastFrameProcessorCall = now
               frameProcessorCallback(image)
             }
             image.close()
@@ -477,7 +458,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
     const val TAG = "CameraView"
     const val TAG_PERF = "CameraView.performance"
 
-    private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "fps", "hdr", "lowLightBoost", "photo", "video", "frameProcessorFps")
+    private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "fps", "hdr", "lowLightBoost", "photo", "video", "enableFrameProcessor")
     private val arrayListOfZoom = arrayListOf("zoom")
   }
 }
