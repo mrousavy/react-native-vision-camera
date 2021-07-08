@@ -329,8 +329,11 @@ export class Camera extends React.PureComponent<CameraProps> {
   /** @internal */
   private assertFrameProcessorsEnabled(): void {
     // @ts-expect-error JSI functions aren't typed
-    if (global.setFrameProcessor == null || global.unsetFrameProcessor == null)
-      throw new Error('Frame Processors are not enabled. Make sure you install react-native-reanimated 2.2.0 or above!');
+    if (global.setFrameProcessor == null || global.unsetFrameProcessor == null) {
+      throw new Error(
+        'Frame Processors are not enabled. See https://mrousavy.github.io/react-native-vision-camera/docs/guides/troubleshooting',
+      );
+    }
   }
 
   private setFrameProcessor(frameProcessor: (frame: Frame) => void): void {
