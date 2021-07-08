@@ -95,7 +95,7 @@ return (
 )
 ```
 
-And you can also call back to the React-JS thread using [`runOnJS`](https://docs.swmansion.com/react-native-reanimated/docs/api/runOnJS):
+And you can also call back to the React-JS thread by using [`runOnJS`](https://docs.swmansion.com/react-native-reanimated/docs/api/runOnJS):
 
 ```tsx {9}
 const onQRCodeDetected = useCallback((qrCode: string) => {
@@ -172,15 +172,19 @@ If you are using the [react-hooks ESLint plugin](https://www.npmjs.com/package/e
 
 **Frame Processors** are JS functions that will be **workletized** using [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated). They are created on a **parallel camera thread** using a separate JavaScript Runtime (_"VisionCamera JS-Runtime"_) and are **invoked synchronously** (using JSI) without ever going over the bridge. In a **Frame Processor** you can write normal JS code, call back to the React-JS Thread (e.g. `setState`), use [Shared Values](https://docs.swmansion.com/react-native-reanimated/docs/shared-values) and call **Frame Processor Plugins**.
 
+> See [the example Frame Processor](https://github.com/mrousavy/react-native-vision-camera/blob/cf68a4c6476d085ec48fc424a53a96962e0c33f9/example/src/CameraPage.tsx#L199-L203)
+
 #### Frame Processor Plugins
 
 **Frame Processor Plugins** are native functions (written in Objective-C, Swift, C++, Java or Kotlin) that are injected into the VisionCamera JS-Runtime. They can be **synchronously called** from your JS Frame Processors (using JSI) without ever going over the bridge. Because VisionCamera provides an easy-to-use plugin API, you can easily create a **Frame Processor Plugin** yourself. Some examples include [Barcode Scanning](https://developers.google.com/ml-kit/vision/barcode-scanning), [Face Detection](https://developers.google.com/ml-kit/vision/face-detection), [Image Labeling](https://developers.google.com/ml-kit/vision/image-labeling), [Text Recognition](https://developers.google.com/ml-kit/vision/text-recognition) and more.
 
-> Learn how to [**create Frame Processor Plugins**](frame-processors-plugins-overview)
+> Learn how to [**create Frame Processor Plugins**](frame-processors-plugins-overview), or check out the [example Frame Processor Plugin for iOS](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/ios/Frame%20Processor%20Plugins/Example%20Plugin%20(Swift)/ExamplePluginSwift.swift) or [Android](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/android/app/src/main/java/com/mrousavy/camera/example/ExampleFrameProcessorPlugin.java).
 
 #### The `Frame` object
 
 The Frame Processor gets called with a `Frame` object, which is a **JSI HostObject**. It holds a reference to the native (C++) Frame Image Buffer (~10 MB in size) and exposes properties such as `width`, `height`, `bytesPerRow` and more to JavaScript so you can synchronously access them. The `Frame` object can be passed around in JS, as well as returned from- and passed to a native **Frame Processor Plugin**. See [this tweet](https://twitter.com/mrousavy/status/1412300883149393921) for more information.
+
+> Check out [the `Frame.ts` code](https://github.com/mrousavy/react-native-vision-camera/blob/main/src/Frame.ts)
 
 ### Disabling Frame Processors
 
