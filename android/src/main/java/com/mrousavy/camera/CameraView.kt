@@ -365,6 +365,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       // Bind use cases to camera
       val useCases = ArrayList<UseCase>()
       if (video == true) {
+        Log.i(TAG, "Adding VideoCapture use-case...")
         videoCapture = videoCaptureBuilder.build()
         useCases.add(videoCapture!!)
       }
@@ -373,11 +374,13 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
           Log.i(TAG, "Tried to add photo use-case (`photo={true}`) but the Camera device only supports " +
             "a single use-case at a time. Falling back to Snapshot capture.")
         } else {
+          Log.i(TAG, "Adding ImageCapture use-case...")
           imageCapture = imageCaptureBuilder.build()
           useCases.add(imageCapture!!)
         }
       }
       if (enableFrameProcessor) {
+        Log.i(TAG, "Adding ImageAnalysis use-case...")
         imageAnalysis = imageAnalysisBuilder.build().apply {
           setAnalyzer(cameraExecutor, { image ->
             val now = System.currentTimeMillis()
