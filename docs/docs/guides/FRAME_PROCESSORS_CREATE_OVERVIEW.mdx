@@ -54,7 +54,7 @@ Return values will automatically be converted to JS values, assuming they are re
   defaultValue="swift"
   values={[
     {label: 'Swift', value: 'swift'},
-    {label: 'java', value: 'java'}
+    {label: 'Java', value: 'java'}
   ]}>
 <TabItem value="swift">
 
@@ -88,14 +88,14 @@ export function detectObject(frame: Frame): string {
 }
 ```
 
-You can also manipulate the buffer and return it (or a copy of it) by using the [`Frame` class](https://github.com/mrousavy/react-native-vision-camera/blob/main/ios/Frame%20Processor/Frame.h):
+You can also manipulate the buffer and return it (or a copy of it) by returning a [`Frame`][2]/[`ImageProxy`][3] instance:
 
 <Tabs
   groupId="native-lang"
   defaultValue="swift"
   values={[
     {label: 'Swift', value: 'swift'},
-    {label: 'java', value: 'java'}
+    {label: 'Java', value: 'java'}
   ]}>
 <TabItem value="swift">
 
@@ -131,6 +131,7 @@ const frameProcessor = useFrameProcessor((frame) => {
   // by downscaling the frame, the `detectObjects` function runs faster.
   const resizedFrame = resize(frame, 720, 480)
   const objects = detectObjects(resizedFrame)
+
   _log(objects)
 }, [])
 ```
@@ -172,7 +173,7 @@ For example, a realtime video chat application might use WebRTC to send the fram
   defaultValue="swift"
   values={[
     {label: 'Swift', value: 'swift'},
-    {label: 'java', value: 'java'}
+    {label: 'Java', value: 'java'}
   ]}>
 <TabItem value="swift">
 
