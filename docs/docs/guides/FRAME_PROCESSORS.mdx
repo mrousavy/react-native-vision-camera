@@ -182,9 +182,9 @@ If you are using the [react-hooks ESLint plugin](https://www.npmjs.com/package/e
 
 #### The `Frame` object
 
-The Frame Processor gets called with a `Frame` object, which is a **JSI HostObject**. It holds a reference to the native (C++) Frame Image Buffer (~10 MB in size) and exposes properties such as `width`, `height`, `bytesPerRow` and more to JavaScript so you can synchronously access them. The `Frame` object can be passed around in JS, as well as returned from- and passed to a native **Frame Processor Plugin**. See [this tweet](https://twitter.com/mrousavy/status/1412300883149393921) for more information.
+The Frame Processor gets called with a `Frame` object, which is a **JSI HostObject**. It holds a reference to the native (C++) Frame Image Buffer (~10 MB in size) and exposes properties such as `width`, `height`, `bytesPerRow` and more to JavaScript so you can synchronously access them. The `Frame` object can be passed around in JS, as well as returned from- and passed to a native **Frame Processor Plugin**.
 
-> Check out [the `Frame.ts` code](https://github.com/mrousavy/react-native-vision-camera/blob/main/src/Frame.ts)
+> See [**this tweet**](https://twitter.com/mrousavy/status/1412300883149393921) for more information.
 
 ### Disabling Frame Processors
 
