@@ -110,6 +110,34 @@ const frameProcessor = useFrameProcessor((frame) => {
 }, [])
 ```
 
+### Exceptions
+
+To let the user know that something went wrong you can use Exceptions:
+
+```java
+@Override
+public Object callback(ImageProxy image, Object[] params) {
+  if (params[0] instanceof String) {
+    // ...
+  } else {
+    throw new Exception("First argument has to be a string!");
+  }
+}
+```
+
+Which will throw a JS-error:
+
+```ts
+const frameProcessor = useFrameProcessor((frame) => {
+  'worklet'
+  try {
+    const codes = scanCodes(frame, true)
+  } catch (e) {
+    _log(`Error: ${e.message}`)
+  }
+}, [])
+```
+
 ## What's possible?
 
 You can run any native code you want in a Frame Processor Plugin. Just like in the native iOS and Android Camera APIs, you will receive a frame (`CMSampleBuffer` on iOS, `ImageProxy` on Android) which you can use however you want. In other words; **everything is possible**.
