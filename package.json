@@ -1,6 +1,6 @@
 {
   "name": "react-native-vision-camera",
-  "version": "2.4.2-beta.7",
+  "version": "2.4.2-beta.8",
   "description": "The Camera library that sees the vision.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
@@ -109,7 +109,9 @@
     "printWidth": 140
   },
   "babel": {
-    "presets": ["module:metro-react-native-babel-preset"]
+    "presets": [
+      "module:metro-react-native-babel-preset"
+    ]
   },
   "release-it": {
     "git": {
