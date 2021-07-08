@@ -157,8 +157,8 @@ public Object callback(ImageProxy image, Object[] params) {
   ImageProxy imageCopy = new ImageProxy(/* ... */);
 
   uploaderQueue.runAsync(() -> {
-      WebRTC.uploadImage(imageCopy, serverURL);
-      imageCopy.close();
+    WebRTC.uploadImage(imageCopy, serverURL);
+    imageCopy.close();
   });
 
   return null;
