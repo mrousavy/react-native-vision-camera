@@ -363,17 +363,9 @@ export class Camera extends React.PureComponent<CameraProps> {
    * @internal
    */
   componentDidMount(): void {
-    if (this.props.frameProcessor != null) {
-      if (Platform.OS === 'android') {
-        // on Android the View is not fully mounted yet (`findViewById` returns null), so we wait 300ms.
-        setTimeout(() => {
-          if (this.props.frameProcessor != null) this.setFrameProcessor(this.props.frameProcessor);
-        }, 300);
-      } else {
-        // on other platforms (iOS) the View we can assume that the View is immediatelly available.
-        this.setFrameProcessor(this.props.frameProcessor);
-      }
-    }
+    setImmediate(() => {
+      if (this.props.frameProcessor != null) this.setFrameProcessor(this.props.frameProcessor);
+    });
   }
 
   /**
