@@ -23,7 +23,7 @@ extension AVCaptureDevice.Format {
 
   func toDictionary() -> [String: Any] {
     let videoDimensions = CMVideoFormatDescriptionGetDimensions(formatDescription)
-    
+
     var dict: [String: Any] = [
       "videoStabilizationModes": videoStabilizationModes.map(\.descriptor),
       "autoFocusSystem": autoFocusSystem.descriptor,
@@ -45,11 +45,11 @@ extension AVCaptureDevice.Format {
         ]
       },
     ]
-    
+
     if #available(iOS 13.0, *) {
       dict["isHighestPhotoQualitySupported"] = self.isHighestPhotoQualitySupported
     }
-    
+
     return dict
   }
 }
