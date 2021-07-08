@@ -5,6 +5,8 @@ sidebar_label: Overview
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 ## Overview
 
@@ -32,7 +34,7 @@ To achieve **maximum performance**, the `scanQRCodes` function is written in a n
 
 Similar to a TurboModule, the Frame Processor Plugin Registry API automatically manages type conversion from JS <-> native. They are converted into the most efficient data-structures, as seen here:
 
-| JS Type              | Objective-C Type              | Java Type                  |
+| JS Type              | Objective-C/Swift Type        | Java/Kotlin Type           |
 |----------------------|-------------------------------|----------------------------|
 | `number`             | `NSNumber*` (double)          | `Double`                   |
 | `boolean`            | `NSNumber*` (boolean)         | `Boolean`                  |
@@ -45,11 +47,12 @@ Similar to a TurboModule, the Frame Processor Plugin Registry API automatically 
 
 ### Return values
 
-Return values will automatically be converted to JS values, assuming they are representable in the ["Types" table](#types). So the following Objective-C frame processor:
+Return values will automatically be converted to JS values, assuming they are representable in the ["Types" table](#types). So the following Java Frame Processor Plugin:
 
-```objc
-static inline id detectObject(Frame* frame, NSArray args) {
-  return @"cat";
+```java
+@Override
+public Object callback(ImageProxy image, Object[] params) {
+  return "cat";
 }
 ```
 
@@ -63,15 +66,13 @@ export function detectObject(frame: Frame): string {
 }
 ```
 
-You can also manipulate the buffer and return it (or a copy of it) by using the [`Frame` class](https://github.com/mrousavy/react-native-vision-camera/blob/main/ios/Frame%20Processor/Frame.h):
+You can also manipulate the buffer and return it (or a copy of it) by returning a [`Frame`][2]/[`ImageProxy`][3] instance:
 
-```objc
-#import <VisionCamera/Frame.h>
-
-static inline id resize(Frame* frame, NSArray args) {
-  CMSampleBufferRef resizedBuffer = // ...
-
-  return [[Frame alloc] initWithBuffer:resizedBuffer orientation:frame.orientation];
+```java
+@Override
+public Object callback(ImageProxy image, Object[] params) {
+  ImageProxy resizedImage = new ImageProxy(/* ... */);
+  return resizedImage;
 }
 ```
 
@@ -80,8 +81,10 @@ Which returns a [`Frame`](https://github.com/mrousavy/react-native-vision-camera
 ```js
 const frameProcessor = useFrameProcessor((frame) => {
   'worklet';
-  // by downscaling the frame, the `detectObjects` function runs faster.
+  // creates a new `Frame` that's 720x480
   const resizedFrame = resize(frame, 720, 480)
+
+  // by downscaling the frame, the `detectObjects` function runs faster.
   const objects = detectObjects(resizedFrame)
   _log(objects)
 }, [])
@@ -107,6 +110,34 @@ const frameProcessor = useFrameProcessor((frame) => {
 }, [])
 ```
 
+### Exceptions
+
+To let the user know that something went wrong you can use Exceptions:
+
+```java
+@Override
+public Object callback(ImageProxy image, Object[] params) {
+  if (params[0] instanceof String) {
+    // ...
+  } else {
+    throw new Exception("First argument has to be a string!");
+  }
+}
+```
+
+Which will throw a JS-error:
+
+```ts
+const frameProcessor = useFrameProcessor((frame) => {
+  'worklet'
+  try {
+    const codes = scanCodes(frame, true)
+  } catch (e) {
+    _log(`Error: ${e.message}`)
+  }
+}, [])
+```
+
 ## What's possible?
 
 You can run any native code you want in a Frame Processor Plugin. Just like in the native iOS and Android Camera APIs, you will receive a frame (`CMSampleBuffer` on iOS, `ImageProxy` on Android) which you can use however you want. In other words; **everything is possible**.
@@ -119,19 +150,18 @@ If your Frame Processor takes longer than a single frame interval to execute, or
 
 For example, a realtime video chat application might use WebRTC to send the frames to the server. I/O operations (networking) are asynchronous, and we don't _need_ to wait for the upload to succeed before pushing the next frame, so we copy the frame and perform the upload on another Thread.
 
-```objc
-static dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul);
+```java
+@Override
+public Object callback(ImageProxy image, Object[] params) {
+  String serverURL = (String)params[0];
+  ImageProxy imageCopy = new ImageProxy(/* ... */);
 
-static inline id sendFrameToWebRTC(Frame* frame, NSArray args) {
-  CMSampleBufferRef bufferCopy;
-  CMSampleBufferCreateCopy(kCFAllocatorDefault, frame.buffer, &bufferCopy);
-
-  dispatch_async(queue, ^{
-    NSString* serverURL = (NSString*)args[0];
-    [WebRTC uploadFrame:bufferCopy toServer:serverURL];
+  uploaderQueue.runAsync(() -> {
+      WebRTC.uploadImage(imageCopy, serverURL);
+      imageCopy.close();
   });
 
-  return nil;
+  return null;
 }
 ```
 
