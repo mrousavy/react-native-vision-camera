@@ -68,6 +68,3 @@ docs/typedoc-sidebar.js
 # External native build folder generated in Android Studio 2.2 and later
 .externalNativeBuild
 .cxx/
-
-# npm package aars
-android-npm/*.aar
