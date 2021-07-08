@@ -118,16 +118,12 @@ export interface CameraDeviceFormat {
   photoWidth: number;
   /**
    * The video resolutions's height
-   *
-   * @platform iOS 13.0
    */
-  videoHeight?: number;
+  videoHeight: number;
   /**
    * The video resolution's width
-   *
-   * @platform iOS 13.0
    */
-  videoWidth?: number;
+  videoWidth: number;
   /**
    * A boolean value specifying whether this format supports the highest possible photo quality that can be delivered on the current platform.
    *
