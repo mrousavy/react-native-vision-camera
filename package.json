@@ -22,8 +22,7 @@
     "ios/**/*.cpp",
     "ios/**/*.swift",
     "ios/VisionCamera.xcodeproj/project.pbxproj",
-    "cpp/**/*.h",
-    "cpp/**/*.cpp",
+    "app.plugin.js",
     "VisionCamera.podspec",
     "README.md"
   ],
