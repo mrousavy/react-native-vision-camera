@@ -30,8 +30,7 @@ void CameraView::registerNatives() {
 
 void CameraView::frameProcessorCallback(const alias_ref<JImageProxy::javaobject>& frame) {
   if (frameProcessor_ == nullptr) {
-    __android_log_write(ANDROID_LOG_WARN, TAG, "Frame Processor is null!");
-    setEnableFrameProcessor(false);
+    __android_log_write(ANDROID_LOG_WARN, TAG, "Called Frame Processor callback, but `frameProcessor` is null!");
     return;
   }
 
@@ -45,24 +44,12 @@ void CameraView::frameProcessorCallback(const alias_ref<JImageProxy::javaobject>
   }
 }
 
-void CameraView::setEnableFrameProcessor(bool enable) {
-  if (enable) {
-    __android_log_write(ANDROID_LOG_INFO, TAG, "Enabling Frame Processor Callback...");
-  } else {
-    __android_log_write(ANDROID_LOG_INFO, TAG, "Disabling Frame Processor Callback...");
-  }
-  static const auto javaMethod = javaPart_->getClass()->getMethod<void(bool)>("setEnableFrameProcessor");
-  javaMethod(javaPart_.get(), enable);
-}
-
 void CameraView::setFrameProcessor(const FrameProcessor&& frameProcessor) {
   frameProcessor_ = frameProcessor;
-  setEnableFrameProcessor(true);
 }
 
 void vision::CameraView::unsetFrameProcessor() {
   frameProcessor_ = nullptr;
-  setEnableFrameProcessor(false);
 }
 
 } // namespace vision

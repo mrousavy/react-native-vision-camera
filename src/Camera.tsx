@@ -1,5 +1,13 @@
 import React from 'react';
-import { requireNativeComponent, NativeModules, NativeSyntheticEvent, findNodeHandle, NativeMethods, Platform } from 'react-native';
+import {
+  requireNativeComponent,
+  NativeModules,
+  NativeSyntheticEvent,
+  findNodeHandle,
+  NativeMethods,
+  Platform,
+  LayoutChangeEvent,
+} from 'react-native';
 import type { CameraDevice } from './CameraDevice';
 import type { ErrorWithCause } from './CameraError';
 import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError';
@@ -21,6 +29,7 @@ interface OnErrorEvent {
 }
 type NativeCameraViewProps = Omit<CameraProps, 'device' | 'onInitialized' | 'onError' | 'frameProcessor'> & {
   cameraId: string;
+  enableFrameProcessor: boolean;
   onInitialized?: (event: NativeSyntheticEvent<void>) => void;
   onError?: (event: NativeSyntheticEvent<OnErrorEvent>) => void;
 };
@@ -63,25 +72,21 @@ if (CameraModule == null) console.error("Camera: Native Module 'CameraView' was 
  * @component
  */
 export class Camera extends React.PureComponent<CameraProps> {
-  /**
-   * @internal
-   */
+  /** @internal */
   static displayName = 'Camera';
-  /**
-   * @internal
-   */
+  /** @internal */
   displayName = Camera.displayName;
   private lastFrameProcessor: ((frame: Frame) => void) | undefined;
+  private isNativeViewMounted = false;
 
   private readonly ref: React.RefObject<RefType>;
 
-  /**
-   * @internal
-   */
+  /** @internal */
   constructor(props: CameraProps) {
     super(props);
     this.onInitialized = this.onInitialized.bind(this);
     this.onError = this.onError.bind(this);
+    this.onLayout = this.onLayout.bind(this);
     this.ref = React.createRef<RefType>();
     this.lastFrameProcessor = undefined;
   }
@@ -331,13 +336,14 @@ export class Camera extends React.PureComponent<CameraProps> {
   //#endregion
 
   //#region Lifecycle
-  /**
-   * @internal
-   */
+  /** @internal */
   private assertFrameProcessorsEnabled(): void {
     // @ts-expect-error JSI functions aren't typed
-    if (global.setFrameProcessor == null || global.unsetFrameProcessor == null)
-      throw new Error('Frame Processors are not enabled. Make sure you install react-native-reanimated 2.2.0 or above!');
+    if (global.setFrameProcessor == null || global.unsetFrameProcessor == null) {
+      throw new Error(
+        'Frame Processors are not enabled. See https://mrousavy.github.io/react-native-vision-camera/docs/guides/troubleshooting',
+      );
+    }
   }
 
   private setFrameProcessor(frameProcessor: (frame: Frame) => void): void {
@@ -352,52 +358,45 @@ export class Camera extends React.PureComponent<CameraProps> {
     global.unsetFrameProcessor(this.handle);
   }
 
-  /**
-   * @internal
-   */
-  componentWillUnmount(): void {
-    if (this.lastFrameProcessor != null || this.props.frameProcessor != null) this.unsetFrameProcessor();
+  private onLayout(event: LayoutChangeEvent): void {
+    if (!this.isNativeViewMounted) {
+      this.isNativeViewMounted = true;
+      if (this.props.frameProcessor != null) {
+        // user passed a `frameProcessor` but we didn't set it yet because the native view was not mounted yet. set it now.
+        this.setFrameProcessor(this.props.frameProcessor);
+        this.lastFrameProcessor = this.props.frameProcessor;
+      }
+    }
+
+    this.props.onLayout?.(event);
   }
 
-  /**
-   * @internal
-   */
-  componentDidMount(): void {
-    if (this.props.frameProcessor != null) {
-      if (Platform.OS === 'android') {
-        // on Android the View is not fully mounted yet (`findViewById` returns null), so we wait 300ms.
-        setTimeout(() => {
-          if (this.props.frameProcessor != null) this.setFrameProcessor(this.props.frameProcessor);
-        }, 300);
-      } else {
-        // on other platforms (iOS) the View we can assume that the View is immediatelly available.
-        this.setFrameProcessor(this.props.frameProcessor);
-      }
+  /** @internal */
+  componentDidUpdate(): void {
+    if (!this.isNativeViewMounted) return;
+    const frameProcessor = this.props.frameProcessor;
+    if (frameProcessor !== this.lastFrameProcessor) {
+      // frameProcessor argument identity changed. Update native to reflect the change.
+      if (frameProcessor != null) this.setFrameProcessor(frameProcessor);
+      else this.unsetFrameProcessor();
+
+      this.lastFrameProcessor = frameProcessor;
     }
   }
 
-  /**
-   * @internal
-   */
-  componentDidUpdate(): void {
-    if (this.props.frameProcessor !== this.lastFrameProcessor) {
-      // frameProcessor argument identity changed. Update native to reflect the change.
-      if (this.props.frameProcessor != null) this.setFrameProcessor(this.props.frameProcessor);
-      else this.unsetFrameProcessor();
-
-      this.lastFrameProcessor = this.props.frameProcessor;
+  /** @internal */
+  componentWillUnmount(): void {
+    if (this.lastFrameProcessor != null || this.props.frameProcessor != null) {
+      this.unsetFrameProcessor();
+      this.lastFrameProcessor = undefined;
     }
   }
   //#endregion
 
-  /**
-   * @internal
-   */
+  /** @internal */
   public render(): React.ReactNode {
     // We remove the big `device` object from the props because we only need to pass `cameraId` to native.
-    const { device, video: enableVideo, frameProcessor, ...props } = this.props;
-    // on iOS, enabling a frameProcessor requires `video` to be `true`. On Android, it doesn't.
-    const video = Platform.OS === 'ios' ? frameProcessor != null || enableVideo : enableVideo;
+    const { device, frameProcessor, ...props } = this.props;
     return (
       <NativeCameraView
         {...props}
@@ -405,7 +404,8 @@ export class Camera extends React.PureComponent<CameraProps> {
         ref={this.ref}
         onInitialized={this.onInitialized}
         onError={this.onError}
-        video={video}
+        enableFrameProcessor={frameProcessor != null}
+        onLayout={this.onLayout}
       />
     );
   }
