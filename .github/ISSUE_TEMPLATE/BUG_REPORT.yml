@@ -1,8 +1,17 @@
-name: Bug Report
+name: 🐛 Bug Report
 description: File a bug report
 title: "🐛 "
 labels: [🐛 bug]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        <div align="center"><h4 align="center">
+                       ❤️ Thank you for your contribution! ❤️
+                   Remember that you can use this project FOR FREE.
+       Badly written issues are less likely to be picked up than well written ones.
+         </h4></div>
+         
   - type: textarea
     id: what-are-you-trying-to-do
     attributes:
