@@ -33,6 +33,8 @@ body:
       options:
         - iOS
         - Android
+    validations:
+      required: true
   - type: input
     id: version
     attributes:
