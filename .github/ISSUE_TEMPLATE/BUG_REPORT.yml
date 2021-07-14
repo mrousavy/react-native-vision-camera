@@ -4,7 +4,6 @@ title: "🐛 "
 labels: [🐛 bug]
 body:
   - type: textarea
-    id: what-are-you-trying-to-do
     attributes:
       label: What were you trying to do?
       description: Explain what you are trying to do.
@@ -12,7 +11,6 @@ body:
     validations:
       required: true
   - type: textarea
-    id: what-happened-instead
     attributes:
       label: What happened instead?
       description: Explain what happened instead of the desired outcome. Did something crash?
@@ -20,13 +18,11 @@ body:
     validations:
       required: true
   - type: textarea
-    id: logs
     attributes:
       label: Relevant log output
       description: Please copy and paste any relevant log output (Xcode Logs/Android Studio Logcat). This will be automatically formatted into code, so no need for backticks.
       render: shell
   - type: dropdown
-    id: platforms
     attributes:
       label: What Platforms are you seeing this Problem on?
       multiple: true
@@ -36,7 +32,6 @@ body:
     validations:
       required: true
   - type: input
-    id: version
     attributes:
       label: VisionCamera Version
       description: Which version of react-native-vision-camera are you using?
@@ -44,7 +39,6 @@ body:
     validations:
       required: true
   - type: checkboxes
-    id: terms
     attributes:
       label: Additional information
       description: Please check all the boxes that apply
@@ -53,4 +47,6 @@ body:
         - label: I have read the [Troubleshooting Guide](https://mrousavy.github.io/react-native-vision-camera/docs/guides/troubleshooting)
           required: true
         - label: I agree to follow this project's [Code of Conduct](https://github.com/mrousavy/react-native-vision-camera/blob/main/CODE_OF_CONDUCT.md)
+          required: true
+        - label: I searched for [similar issues in this repository](https://github.com/mrousavy/react-native-vision-camera/issues) and found none.
           required: true

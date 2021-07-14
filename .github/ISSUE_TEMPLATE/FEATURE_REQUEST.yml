@@ -34,3 +34,5 @@ body:
       options:
         - label: I agree to follow this project's [Code of Conduct](https://github.com/mrousavy/react-native-vision-camera/blob/main/CODE_OF_CONDUCT.md)
           required: true
+        - label: I searched for [similar feature requests in this repository](https://github.com/mrousavy/react-native-vision-camera/issues?q=is%3Aopen+is%3Aissue+label%3A%22✨+enhancement%22) and found none.
+          required: true
