@@ -11,15 +11,8 @@ module.exports = {
     sourceType: 'module',
   },
   ignorePatterns: ['scripts', 'lib', 'docs', 'app.plugin.js'],
-  plugins: ['@typescript-eslint', 'react', 'react-native', '@react-native-community', 'prettier', 'react-hooks'],
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:react/recommended',
-    'plugin:prettier/recommended',
-    '@react-native-community',
-    'plugin:react-hooks/recommended',
-  ],
+  plugins: ['@typescript-eslint'],
+  extends: ['plugin:@typescript-eslint/recommended', '@react-native-community'],
   rules: {
     // eslint
     semi: 'off',
