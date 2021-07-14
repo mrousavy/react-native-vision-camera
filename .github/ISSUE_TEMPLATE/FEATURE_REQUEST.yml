@@ -1,0 +1,36 @@
+name: ✨ Feature request
+description: Suggest an idea for this project
+title: "✨ "
+labels: [✨ enhancement]
+body:
+  - type: textarea
+    attributes:
+      label: What feature or enhancement are you suggesting?
+      description: Explain what the feature or enhancement you're suggesting is, how it might improve VisionCamera and what it's pros and cons are.
+      placeholder: I think it would be great to have support for rotation in VisionCamera.
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: What Platforms whould this feature/enhancement affect?
+      description: Select the platforms where this feature/enhancement should work on. Features/Enhancements that work on all platforms are more likely to be picked up than platform specifics.
+      multiple: true
+      options:
+        - iOS
+        - Android
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Alternatives/Workarounds
+      description: Explain if there are any alternatives/workarounds for the feature/enhancement.
+      placeholder: I am currently manually applying the rotation to the image once it has been taken.
+    validations:
+      required: true
+  - type: checkboxes
+    attributes:
+      label: Code of Conduct
+      description: Please agree to follow this project's [Code of Conduct](https://github.com/mrousavy/react-native-vision-camera/blob/main/CODE_OF_CONDUCT.md).
+      options:
+        - label: I agree to follow this project's [Code of Conduct](https://github.com/mrousavy/react-native-vision-camera/blob/main/CODE_OF_CONDUCT.md)
+          required: true
