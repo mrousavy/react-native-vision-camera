@@ -45,7 +45,7 @@ body:
     id: terms
     attributes:
       label: Additional information
-      description: Please check all the boxes that apply:
+      description: Please check all the boxes that apply
       options:
         - label: I am using Expo
         - label: I have read the [Troubleshooting Guide](https://mrousavy.github.io/react-native-vision-camera/docs/guides/troubleshooting)
