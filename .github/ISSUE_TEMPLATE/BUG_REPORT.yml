@@ -22,13 +22,11 @@ body:
       label: Relevant log output
       description: Please copy and paste any relevant log output (Xcode Logs/Android Studio Logcat). This will be automatically formatted into code, so no need for backticks.
       render: shell
-  - type: dropdown
+  - type: input
     attributes:
-      label: What Platforms are you seeing this Problem on?
-      multiple: true
-      options:
-        - iOS
-        - Android
+      label: Device
+      description: Which device are you seeing this Problem on?
+      placeholder: ex. iPhone 11 Pro (iOS 14.3)
     validations:
       required: true
   - type: input
