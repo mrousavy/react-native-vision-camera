@@ -86,6 +86,7 @@ module.exports = {
     node: true,
   },
   globals: {
+    // A native (Xcode Logs/Android Studio Logcat) logging function
     _log: 'readonly',
   },
 };

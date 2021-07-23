@@ -16,7 +16,7 @@ type FrameProcessor = (frame: Frame) => void;
  * const frameProcessor = useFrameProcessor((frame) => {
  *   'worklet'
  *   const qrCodes = scanQRCodes(frame)
- *   _log(`QR Codes: ${qrCodes}`)
+ *   console.log(`QR Codes: ${qrCodes}`)
  * }, [])
  * ```
  */

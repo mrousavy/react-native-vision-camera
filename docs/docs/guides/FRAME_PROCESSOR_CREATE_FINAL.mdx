@@ -48,7 +48,7 @@ function App() {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet'
     const qrCodes = scanQRCodes(frame)
-    _log(`QR Codes in Frame: ${qrCodes}`)
+    console.log(`QR Codes in Frame: ${qrCodes}`)
   }, [])
 
   return (
