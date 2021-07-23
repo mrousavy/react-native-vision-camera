@@ -1,7 +1,10 @@
 import { DependencyList, useCallback } from 'react';
+import { runOnJS } from 'react-native-reanimated';
 import type { Frame } from 'src/Frame';
 
 type FrameProcessor = (frame: Frame) => void;
+
+const capturableConsole = console;
 
 /**
  * Returns a memoized Frame Processor function wich you can pass to the `<Camera>`. (See ["Frame Processors"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors))
@@ -20,4 +23,25 @@ type FrameProcessor = (frame: Frame) => void;
  * }, [])
  * ```
  */
-export const useFrameProcessor: (frameProcessor: FrameProcessor, dependencies: DependencyList) => FrameProcessor = useCallback;
+export function useFrameProcessor(frameProcessor: FrameProcessor, dependencies: DependencyList): FrameProcessor {
+  return useCallback((frame: Frame) => {
+    'worklet';
+
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (console == null) {
+      const console = {
+        debug: runOnJS(capturableConsole.debug),
+        log: runOnJS(capturableConsole.log),
+        warn: runOnJS(capturableConsole.warn),
+        error: runOnJS(capturableConsole.error),
+        info: runOnJS(capturableConsole.info),
+      };
+      // @ts-expect-error _setGlobalConsole is set by RuntimeDecorator::decorateRuntime
+      // eslint-disable-next-line no-undef
+      _setGlobalConsole(console);
+    }
+
+    frameProcessor(frame);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, dependencies);
+}
