@@ -96,13 +96,6 @@ find_library(
 )
 
 find_library(
-        REACT_NATIVE_UTILS_LIB
-        reactnativeutilsjni
-        PATHS ${LIBRN_DIR}
-        NO_CMAKE_FIND_ROOT_PATH
-)
-
-find_library(
         HERMES_LIB
         hermes
         PATHS ${LIBHERMES_DIR}
@@ -126,7 +119,6 @@ if(${FOR_HERMES})
             ${HERMES_LIB}
             ${REANIMATED_LIB}
             ${REACT_NATIVE_JNI_LIB}
-            ${REACT_NATIVE_UTILS_LIB}
             ${FBJNI_LIB}
             ${FOLLY_JSON_LIB}
             android
@@ -138,7 +130,6 @@ else()
             ${JSEXECUTOR_LIB}
             ${REANIMATED_LIB}
             ${REACT_NATIVE_JNI_LIB}
-            ${REACT_NATIVE_UTILS_LIB}
             ${FBJNI_LIB}
             ${FOLLY_JSON_LIB}
             android
