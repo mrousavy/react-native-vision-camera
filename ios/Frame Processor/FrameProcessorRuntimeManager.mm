@@ -108,7 +108,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                                                                                 function));
       
       // Installs `console` mirror/pipe (for logging)
-      vision::installJSConsoleMirror(*runtime,
+      vision::installJSConsoleMirror(runtime.get(),
                                      std::weak_ptr<reanimated::RuntimeManager>(runtimeManager),
                                      std::weak_ptr<react::CallInvoker>(callInvoker));
     }

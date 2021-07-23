@@ -21,7 +21,7 @@ using namespace facebook;
 /**
  Installs a `console` mirror object into the `mirrorRuntime`'s global namespace which redirects all log calls to the `originalRuntime`.
  */
-void installJSConsoleMirror(jsi::Runtime& originalRuntime,
+void installJSConsoleMirror(jsi::Runtime* originalRuntime,
                             std::weak_ptr<reanimated::RuntimeManager> mirrorRuntimeManager,
                             std::weak_ptr<react::CallInvoker> callInvoker);
 
