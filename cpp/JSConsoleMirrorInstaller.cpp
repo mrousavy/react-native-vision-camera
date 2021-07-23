@@ -22,18 +22,40 @@ void installJSConsoleMirror(jsi::Runtime* originalRuntime,
   if (mirrorRuntimeManager.expired()) return;
   if (callInvoker.expired()) return;
   
-  auto log = [callInvoker, originalRuntime](const char* logFuncName, const jsi::Value* args, size_t argsCount) {
-    auto strongArgs = std::move(args);
-    
+  auto logMirror = [callInvoker, originalRuntime, mirrorRuntimeManager](const char* logFuncName,
+                                                                        const jsi::Value* args,
+                                                                        size_t argsCount) {
     auto strongCallInvoker = callInvoker.lock();
     if (!strongCallInvoker) return;
-    strongCallInvoker->invokeSync([originalRuntime, strongArgs, argsCount, logFuncName]() {
+    
+    if (!originalRuntime) return;
+    
+    auto runtimeManager = mirrorRuntimeManager.lock();
+    if (!runtimeManager) return;
+    
+    std::vector<std::shared_ptr<reanimated::ShareableValue>> arguments(argsCount);
+    for (size_t i = 0; i < argsCount; i++) {
+      auto sharedValue = reanimated::ShareableValue::adapt(*originalRuntime, args[i], runtimeManager.get());
+      arguments.push_back(sharedValue);
+    }
+    
+    strongCallInvoker->invokeSync([originalRuntime, arguments, argsCount, logFuncName]() {
       if (!originalRuntime) return;
       auto& runtime = *originalRuntime;
       
+      jsi::Value* adaptedArgs = new jsi::Value[argsCount];
+      for (size_t i = 0; i < argsCount; i++) {
+        auto& sharedValue = arguments[i];
+        adaptedArgs[i] = sharedValue->getValue(runtime);
+      }
+      
       auto console = runtime.global().getPropertyAsObject(runtime, "console");
       auto logFunc = console.getPropertyAsFunction(runtime, logFuncName);
-      logFunc.call(runtime, strongArgs, argsCount);
+      
+      const jsi::Value* cargs = adaptedArgs;
+      logFunc.call(runtime, cargs, argsCount);
+      
+      delete[] adaptedArgs;
     });
   };
   
@@ -41,17 +63,17 @@ void installJSConsoleMirror(jsi::Runtime* originalRuntime,
   auto& mirrorRuntime = *runtimeManager.runtime;
   auto console = jsi::Object(mirrorRuntime);
   
-  const std::vector<const char*> logFunctionNames{ "log", "info", "error", "warn", "trace", "debug", "fatal" };
+  const std::vector<const char*> logFunctionNames{ "log", "info", "error", "warn", "trace", "debug" };
   for (auto& logFunctionName : logFunctionNames) {
     // Create mirror log function
     auto func = jsi::Function::createFromHostFunction(mirrorRuntime,
                                                       jsi::PropNameID::forUtf8(mirrorRuntime, logFunctionName),
                                                       1,
-                                                      [log, logFunctionName](jsi::Runtime& runtime,
-                                                                             const jsi::Value& thisValue,
-                                                                             const jsi::Value* arguments,
-                                                                             size_t count) -> jsi::Value {
-      log(logFunctionName, arguments, count);
+                                                      [logMirror, logFunctionName](jsi::Runtime& runtime,
+                                                                                   const jsi::Value& thisValue,
+                                                                                   const jsi::Value* arguments,
+                                                                                   size_t count) -> jsi::Value {
+      logMirror(logFunctionName, arguments, count);
       return jsi::Value::undefined();
     });
     console.setProperty(mirrorRuntime, logFunctionName, func);
