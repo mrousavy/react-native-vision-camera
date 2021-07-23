@@ -75,6 +75,8 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libVisionCamera.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libVisionCamera.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		B80416F026AB16E8000DEB6A /* VisionCameraScheduler.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = VisionCameraScheduler.mm; sourceTree = "<group>"; };
+		B80416F126AB16F3000DEB6A /* VisionCameraScheduler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VisionCameraScheduler.h; sourceTree = "<group>"; };
 		B80C0DFE260BDD97001699AB /* FrameProcessorPluginRegistry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorPluginRegistry.h; sourceTree = "<group>"; };
 		B80C0DFF260BDDF7001699AB /* FrameProcessorPluginRegistry.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessorPluginRegistry.mm; sourceTree = "<group>"; };
 		B80D67A825FA25380008FE8D /* FrameProcessorCallback.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorCallback.h; sourceTree = "<group>"; };
@@ -261,6 +263,8 @@
 				B80C0DFE260BDD97001699AB /* FrameProcessorPluginRegistry.h */,
 				B80C0DFF260BDDF7001699AB /* FrameProcessorPluginRegistry.mm */,
 				B88873E5263D46C7008B1D0E /* FrameProcessorPlugin.h */,
+				B80416F026AB16E8000DEB6A /* VisionCameraScheduler.mm */,
+				B80416F126AB16F3000DEB6A /* VisionCameraScheduler.h */,
 			);
 			path = "Frame Processor";
 			sourceTree = "<group>";
