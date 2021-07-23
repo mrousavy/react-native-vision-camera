@@ -39,7 +39,7 @@
 #import "FrameProcessorCallback.h"
 #import "../React Utils/MakeJSIRuntime.h"
 #import "../React Utils/JSIUtils.h"
-#import "JSConsoleMirrorInstaller.h"
+#import "../../cpp/JSConsoleMirrorInstaller.h"
 
 // Forward declarations for the Swift classes
 __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
@@ -108,7 +108,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                                                                                 function));
       
       // Installs `console` mirror/pipe (for logging)
-      vision::installJSConsoleMirror(*runtime, visionRuntime);
+      vision::installJSConsoleMirror(*runtime, visionRuntime, callInvoker);
     }
 
     [FrameProcessorPluginRegistry markInvalid];
