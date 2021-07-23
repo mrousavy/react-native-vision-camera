@@ -27,16 +27,8 @@ VisionCameraScheduler::VisionCameraScheduler(std::shared_ptr<react::CallInvoker>
 
 // does not schedule on UI thread but rather on Frame Processor Thread
 void VisionCameraScheduler::scheduleOnUI(std::function<void()> job) {
-  if (runtimeManager.lock() == nullptr) {
-    return;
-  }
-  
-  __block std::weak_ptr<reanimated::RuntimeManager> blockRuntimeManager = runtimeManager;
-  
   dispatch_async(CameraQueues.frameProcessorQueue, ^{
-    if (blockRuntimeManager.lock()) {
-      job();
-    }
+    job();
   });
 }
 
