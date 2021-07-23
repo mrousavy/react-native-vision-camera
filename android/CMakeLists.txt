@@ -54,12 +54,32 @@ target_include_directories(
 # find libraries
 
 file (GLOB LIBRN_DIR "${BUILD_DIR}/react-native-0*/jni/${ANDROID_ABI}")
-file (GLOB LIBJSC_DIR "${BUILD_DIR}/android-jsc*.aar/jni/${ANDROID_ABI}")
-file (GLOB LIBHERMES_DIR "${BUILD_DIR}/third-party-ndk/hermes/jni/${ANDROID_ABI}")
 
 if(${FOR_HERMES})
+else()
+endif()
+
+if(${FOR_HERMES})
+    file (GLOB LIBHERMES_DIR "${BUILD_DIR}/third-party-ndk/hermes/jni/${ANDROID_ABI}")
+    # Use Hermes
+    find_library(
+            JS_ENGINE_LIB
+            hermes
+            PATHS ${LIBHERMES_DIR}
+            NO_CMAKE_FIND_ROOT_PATH
+    )
+    # Use Reanimated Hermes
     file (GLOB LIBREANIMATED_DIR "${BUILD_DIR}/react-native-reanimated-*-hermes.aar/jni/${ANDROID_ABI}")
 else()
+    file (GLOB LIBJSC_DIR "${BUILD_DIR}/android-jsc*.aar/jni/${ANDROID_ABI}")
+    # Use JSC
+    find_library(
+            JS_ENGINE_LIB
+            jscexecutor
+            PATHS ${LIBRN_DIR}
+            NO_CMAKE_FIND_ROOT_PATH
+    )
+    # Use Reanimated JSC
     file (GLOB LIBREANIMATED_DIR "${BUILD_DIR}/react-native-reanimated-*-jsc.aar/jni/${ANDROID_ABI}")
 endif()
 
@@ -95,52 +115,16 @@ find_library(
         NO_CMAKE_FIND_ROOT_PATH
 )
 
-find_library(
-        REACT_NATIVE_UTILS_LIB
-        reactnativeutilsjni
-        PATHS ${LIBRN_DIR}
-        NO_CMAKE_FIND_ROOT_PATH
-)
-
-find_library(
-        HERMES_LIB
-        hermes
-        PATHS ${LIBHERMES_DIR}
-        NO_CMAKE_FIND_ROOT_PATH
-)
-find_library(
-        JSEXECUTOR_LIB
-        jscexecutor
-        PATHS ${LIBRN_DIR}
-        NO_CMAKE_FIND_ROOT_PATH
-)
-
 # linking
 
 message(WARNING "VisionCamera linking: FOR_HERMES=${FOR_HERMES}")
-
-if(${FOR_HERMES})
-    target_link_libraries(
-            ${PACKAGE_NAME}
-            ${LOG_LIB}
-            ${HERMES_LIB}
-            ${REANIMATED_LIB}
-            ${REACT_NATIVE_JNI_LIB}
-            ${REACT_NATIVE_UTILS_LIB}
-            ${FBJNI_LIB}
-            ${FOLLY_JSON_LIB}
-            android
-    )
-else()
-    target_link_libraries(
-            ${PACKAGE_NAME}
-            ${LOG_LIB}
-            ${JSEXECUTOR_LIB}
-            ${REANIMATED_LIB}
-            ${REACT_NATIVE_JNI_LIB}
-            ${REACT_NATIVE_UTILS_LIB}
-            ${FBJNI_LIB}
-            ${FOLLY_JSON_LIB}
-            android
-    )
-endif()
+target_link_libraries(
+        ${PACKAGE_NAME}
+        ${LOG_LIB}
+        ${JS_ENGINE_LIB} # <-- Hermes or JSC
+        ${REANIMATED_LIB}
+        ${REACT_NATIVE_JNI_LIB}
+        ${FBJNI_LIB}
+        ${FOLLY_JSON_LIB}
+        android
+)
