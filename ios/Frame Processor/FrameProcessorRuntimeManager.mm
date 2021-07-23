@@ -53,7 +53,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 
 @implementation FrameProcessorRuntimeManager {
 #ifdef ENABLE_FRAME_PROCESSORS
-  std::unique_ptr<reanimated::RuntimeManager> runtimeManager;
+  std::shared_ptr<reanimated::RuntimeManager> runtimeManager;
 #endif
   __weak RCTBridge* weakBridge;
 }
@@ -71,7 +71,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 
     auto callInvoker = bridge.jsCallInvoker;
     auto scheduler = std::make_shared<reanimated::REAIOSScheduler>(callInvoker);
-    runtimeManager = std::make_unique<reanimated::RuntimeManager>(std::move(runtime),
+    runtimeManager = std::make_shared<reanimated::RuntimeManager>(std::move(runtime),
                                                                   std::make_shared<reanimated::REAIOSErrorHandler>(scheduler),
                                                                   scheduler);
     NSLog(@"FrameProcessorBindings: Runtime Manager created!");
@@ -108,7 +108,9 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                                                                                 function));
       
       // Installs `console` mirror/pipe (for logging)
-      vision::installJSConsoleMirror(*runtime, visionRuntime, callInvoker);
+      vision::installJSConsoleMirror(*runtime,
+                                     std::weak_ptr<reanimated::RuntimeManager>(runtimeManager),
+                                     std::weak_ptr<react::CallInvoker>(callInvoker));
     }
 
     [FrameProcessorPluginRegistry markInvalid];

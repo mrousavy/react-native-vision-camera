@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <jsi/jsi.h>
 #include <React-callinvoker/ReactCommon/CallInvoker.h>
+#include <RNReanimated/RuntimeManager.h>
 
 namespace vision {
 
@@ -21,8 +22,8 @@ using namespace facebook;
  Installs a `console` mirror object into the `mirrorRuntime`'s global namespace which redirects all log calls to the `originalRuntime`.
  */
 void installJSConsoleMirror(jsi::Runtime& originalRuntime,
-                            jsi::Runtime& mirrorRuntime,
-                            std::shared_ptr<react::CallInvoker> callInvoker);
+                            std::weak_ptr<reanimated::RuntimeManager> mirrorRuntimeManager,
+                            std::weak_ptr<react::CallInvoker> callInvoker);
 
 }
 
