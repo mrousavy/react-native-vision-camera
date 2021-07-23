@@ -11,15 +11,18 @@
 
 #include <stdio.h>
 #include <jsi/jsi.h>
+#include <React-callinvoker/ReactCommon/CallInvoker.h>
 
 namespace vision {
 
 using namespace facebook;
 
 /**
- Installs a `console` mirror object into the `toRuntime`'s global namespace which redirects all log calls to the original `fromRuntime`.
+ Installs a `console` mirror object into the `mirrorRuntime`'s global namespace which redirects all log calls to the `originalRuntime`.
  */
-void installJSConsoleMirror(jsi::Runtime& fromRuntime, jsi::Runtime& toRuntime);
+void installJSConsoleMirror(jsi::Runtime& originalRuntime,
+                            jsi::Runtime& mirrorRuntime,
+                            std::shared_ptr<react::CallInvoker> callInvoker);
 
 }
 
