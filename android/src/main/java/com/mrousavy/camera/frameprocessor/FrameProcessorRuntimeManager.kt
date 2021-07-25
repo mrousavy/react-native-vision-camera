@@ -26,11 +26,11 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
   @DoNotStrip
   private var mHybridData: HybridData
   private var mContext: WeakReference<ReactApplicationContext>
-  private var mScheduler: Scheduler
+  private var mScheduler: VisionCameraScheduler
 
   init {
     val holder = context.catalystInstance.jsCallInvokerHolder as CallInvokerHolderImpl
-    mScheduler = Scheduler(context)
+    mScheduler = VisionCameraScheduler()
     mContext = WeakReference(context)
     mHybridData = initHybrid(context.javaScriptContextHolder.get(), holder, mScheduler)
     initializeRuntime()
@@ -43,7 +43,6 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
   }
 
   fun destroy() {
-    mScheduler.deactivate()
     mHybridData.resetNative()
   }
 
@@ -60,7 +59,7 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
   private external fun initHybrid(
     jsContext: Long,
     jsCallInvokerHolder: CallInvokerHolderImpl,
-    scheduler: Scheduler
+    scheduler: VisionCameraScheduler
   ): HybridData
   private external fun initializeRuntime()
   private external fun registerPlugin(plugin: FrameProcessorPlugin)
