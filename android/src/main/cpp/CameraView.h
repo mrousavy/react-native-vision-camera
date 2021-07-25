@@ -9,7 +9,7 @@
 
 #include <memory>
 
-#include "JImageProxy.h"
+#include "java-bindings/JImageProxy.h"
 
 namespace vision {
 

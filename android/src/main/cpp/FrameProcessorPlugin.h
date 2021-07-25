@@ -8,7 +8,7 @@
 #include <fbjni/fbjni.h>
 #include <string>
 
-#include "JImageProxy.h"
+#include "java-bindings/JImageProxy.h"
 
 namespace vision {
 

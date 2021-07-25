@@ -15,8 +15,8 @@
 
 #include "MakeJSIRuntime.h"
 #include "CameraView.h"
-#include "JImageProxy.h"
-#include "JImageProxyHostObject.h"
+#include "java-bindings/JImageProxy.h"
+#include "java-bindings/JImageProxyHostObject.h"
 #include "JSIJNIConversion.h"
 
 namespace vision {

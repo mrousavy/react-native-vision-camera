@@ -19,12 +19,12 @@
 #include <jsi/JSIDynamic.h>
 #include <folly/dynamic.h>
 
-#include "JImageProxyHostObject.h"
-#include "JImageProxy.h"
-#include "JReadableArray.h"
-#include "JReadableMap.h"
-#include "JArrayList.h"
-#include "JHashMap.h"
+#include "java-bindings/JImageProxyHostObject.h"
+#include "java-bindings/JImageProxy.h"
+#include "java-bindings/JReadableArray.h"
+#include "java-bindings/JReadableMap.h"
+#include "java-bindings/JArrayList.h"
+#include "java-bindings/JHashMap.h"
 
 namespace vision {
 
