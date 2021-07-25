@@ -18,8 +18,9 @@ using namespace facebook;
 class VisionCameraScheduler : public reanimated::Scheduler {
 public:
   VisionCameraScheduler(std::shared_ptr<react::CallInvoker> jsInvoker);
-  void scheduleOnUI(std::function<void()> job) override;
   virtual ~VisionCameraScheduler();
+  
+  void scheduleOnUI(std::function<void()> job) override;
 };
 
 } // namespace vision

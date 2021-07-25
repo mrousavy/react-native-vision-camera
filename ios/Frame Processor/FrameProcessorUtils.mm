@@ -25,7 +25,7 @@ FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &
 
     auto frameHostObject = std::make_shared<FrameHostObject>(frame);
     try {
-      cb.call(runtime, jsi::Object::createFromHostObject(runtime, frameHostObject));
+      cb.callWithThis(runtime, cb, jsi::Object::createFromHostObject(runtime, frameHostObject));
     } catch (jsi::JSError& jsError) {
       auto message = jsError.getMessage();
       RCTBridge* bridge = [RCTBridge currentBridge];

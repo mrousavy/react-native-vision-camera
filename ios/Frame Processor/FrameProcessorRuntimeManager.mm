@@ -148,13 +148,14 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
     auto worklet = reanimated::ShareableValue::adapt(runtime, arguments[1], runtimeManager.get());
     NSLog(@"FrameProcessorBindings: Successfully created worklet!");
 
-    RCTExecuteOnMainQueue([worklet, viewTag, self]() {
+    RCTExecuteOnMainQueue([=]() {
       auto currentBridge = [RCTBridge currentBridge];
       auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
       auto view = static_cast<CameraView*>(anonymousView);
 
-      dispatch_async(CameraQueues.frameProcessorQueue, [worklet, view, self]() {
+      dispatch_async(CameraQueues.frameProcessorQueue, [=]() {
         NSLog(@"FrameProcessorBindings: Converting worklet to Objective-C callback...");
+        
         auto& rt = *runtimeManager->runtime;
         auto function = worklet->getValue(rt).asObject(rt).asFunction(rt);
 
