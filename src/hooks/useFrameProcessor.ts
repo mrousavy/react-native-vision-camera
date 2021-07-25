@@ -1,3 +1,5 @@
+/* global _setGlobalConsole */
+
 import { DependencyList, useCallback } from 'react';
 import { runOnJS } from 'react-native-reanimated';
 import type { Frame } from 'src/Frame';
@@ -27,8 +29,8 @@ export function useFrameProcessor(frameProcessor: FrameProcessor, dependencies: 
   return useCallback((frame: Frame) => {
     'worklet';
 
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    if (console == null) {
+    // @ts-expect-error
+    if (global.didSetConsole == null || global.didSetConsole === false) {
       const console = {
         debug: runOnJS(capturableConsole.debug),
         log: runOnJS(capturableConsole.log),
@@ -37,8 +39,9 @@ export function useFrameProcessor(frameProcessor: FrameProcessor, dependencies: 
         info: runOnJS(capturableConsole.info),
       };
       // @ts-expect-error _setGlobalConsole is set by RuntimeDecorator::decorateRuntime
-      // eslint-disable-next-line no-undef
       _setGlobalConsole(console);
+      // @ts-expect-error
+      global.didSetConsole = true;
     }
 
     frameProcessor(frame);
