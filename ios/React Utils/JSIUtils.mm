@@ -191,9 +191,5 @@ RCTResponseSenderBlock convertJSIFunctionToCallback(jsi::Runtime &runtime, const
     wrapperWasCalled = YES;
   };
 
-  if (RCTTurboModuleBlockCopyEnabled()) {
-    return [callback copy];
-  }
-
-  return callback;
+  return [callback copy];
 }
