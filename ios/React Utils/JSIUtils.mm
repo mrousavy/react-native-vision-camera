@@ -12,6 +12,8 @@
 #import <ReactCommon/CallInvoker.h>
 #import <React/RCTBridge.h>
 #import <ReactCommon/TurboModuleUtils.h>
+#import <ReactCommon/RCTBlockGuard.h>
+
 #import "../Frame Processor/Frame.h"
 #import "../Frame Processor/FrameHostObject.h"
 
@@ -86,7 +88,7 @@ NSArray* convertJSICStyleArrayToNSArray(jsi::Runtime &runtime, const jsi::Value*
   for (size_t i = 0; i < length; i++) {
     // Insert kCFNull when it's `undefined` value to preserve the indices.
     [result
-     addObject:convertJSIValueToObjCObject(runtime, array[i], jsInvoker) ?: (id)kCFNull];
+      addObject:convertJSIValueToObjCObject(runtime, array[i], jsInvoker) ?: (id)kCFNull];
   }
   return [result copy];
 }
@@ -106,7 +108,7 @@ NSArray* convertJSIArrayToNSArray(jsi::Runtime &runtime, const jsi::Array &value
   for (size_t i = 0; i < size; i++) {
     // Insert kCFNull when it's `undefined` value to preserve the indices.
     [result
-     addObject:convertJSIValueToObjCObject(runtime, value.getValueAtIndex(runtime, i), jsInvoker) ?: (id)kCFNull];
+      addObject:convertJSIValueToObjCObject(runtime, value.getValueAtIndex(runtime, i), jsInvoker) ?: (id)kCFNull];
   }
   return [result copy];
 }
@@ -165,6 +167,13 @@ id convertJSIValueToObjCObject(jsi::Runtime &runtime, const jsi::Value &value, s
 RCTResponseSenderBlock convertJSIFunctionToCallback(jsi::Runtime &runtime, const jsi::Function &value, std::shared_ptr<CallInvoker> jsInvoker)
 {
   auto weakWrapper = CallbackWrapper::createWeak(value.getFunction(runtime), runtime, jsInvoker);
+  RCTBlockGuard *blockGuard = [[RCTBlockGuard alloc] initWithCleanup:^() {
+    auto strongWrapper = weakWrapper.lock();
+    if (strongWrapper) {
+      strongWrapper->destroy();
+    }
+  }];
+
   BOOL __block wrapperWasCalled = NO;
   RCTResponseSenderBlock callback = ^(NSArray *responses) {
     if (wrapperWasCalled) {
@@ -176,7 +185,7 @@ RCTResponseSenderBlock convertJSIFunctionToCallback(jsi::Runtime &runtime, const
       return;
     }
 
-    strongWrapper->jsInvoker().invokeAsync([weakWrapper, responses]() {
+    strongWrapper->jsInvoker().invokeAsync([weakWrapper, responses, blockGuard]() {
       auto strongWrapper2 = weakWrapper.lock();
       if (!strongWrapper2) {
         return;
@@ -185,15 +194,13 @@ RCTResponseSenderBlock convertJSIFunctionToCallback(jsi::Runtime &runtime, const
       const jsi::Value* args = convertNSArrayToJSICStyleArray(strongWrapper2->runtime(), responses);
       strongWrapper2->callback().call(strongWrapper2->runtime(), args, static_cast<size_t>(responses.count));
       strongWrapper2->destroy();
-      delete[] args;
+
+      // Delete the CallbackWrapper when the block gets dealloced without being invoked.
+      (void)blockGuard;
     });
 
     wrapperWasCalled = YES;
   };
 
-  if (RCTTurboModuleBlockCopyEnabled()) {
-    return [callback copy];
-  }
-
-  return callback;
+  return [callback copy];
 }
