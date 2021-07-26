@@ -192,7 +192,10 @@ RCTResponseSenderBlock convertJSIFunctionToCallback(jsi::Runtime &runtime, const
       }
 
       const jsi::Value* args = convertNSArrayToJSICStyleArray(strongWrapper2->runtime(), responses);
+
       strongWrapper2->callback().call(strongWrapper2->runtime(), args, static_cast<size_t>(responses.count));
+
+      delete[] args;
       strongWrapper2->destroy();
 
       // Delete the CallbackWrapper when the block gets dealloced without being invoked.
