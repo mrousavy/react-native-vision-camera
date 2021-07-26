@@ -154,7 +154,9 @@ Check out [**Frame Processor community plugins**](/docs/guides/frame-processor-p
 Frame Processors are _really_ fast. I have used [MLKit Vision Image Labeling](https://firebase.google.com/docs/ml-kit/ios/label-images) to label 4k Camera frames in realtime, and measured the following results:
 
 * Fully natively (written in pure Objective-C, no React interaction at all), I have measured an average of **68ms** per call.
-* As a Frame Processor Plugin (written in Objective-C, called through a JS Frame Processor function), I have measured an average of **69ms** per call, meaning **the Frame Processor API only takes ~1ms longer than a fully native implementation**, making it **the fastest way to run any sort of Frame Processing in React Native**.
+* As a Frame Processor Plugin (written in Objective-C, called through a JS Frame Processor function), I have measured an average of **69ms** per call.
+
+This means that **the Frame Processor API only takes ~1ms longer than a fully native implementation**, making it **the fastest and easiest way to run any sort of Frame Processing in React Native**.
 
 > All measurements are recorded on an iPhone 11 Pro, benchmarked total execution time of the [`captureOutput`](https://developer.apple.com/documentation/avfoundation/avcapturevideodataoutputsamplebufferdelegate/1385775-captureoutput) function by using [`CFAbsoluteTimeGetCurrent`](https://developer.apple.com/documentation/corefoundation/1543542-cfabsolutetimegetcurrent). Running smaller images (lower than 4k resolution) is much quicker and many algorithms can even run at 60 FPS.
 
