@@ -136,8 +136,8 @@ extension CameraView {
       videoOutput!.alwaysDiscardsLateVideoFrames = false
       captureSession.addOutput(videoOutput!)
     }
-    
-    self.onOrientationChanged()
+
+    onOrientationChanged()
 
     invokeOnInitialized()
     isReady = true

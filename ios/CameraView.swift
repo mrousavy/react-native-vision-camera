@@ -109,7 +109,7 @@ public final class CameraView: UIView {
   var isRunning: Bool {
     return captureSession.isRunning
   }
-  
+
   /// Returns the current _interface_ orientation of the main window
   private var windowInterfaceOrientation: UIInterfaceOrientation {
     if #available(iOS 13.0, *) {
@@ -285,7 +285,7 @@ public final class CameraView: UIView {
       return
     }
   }
-  
+
   @objc
   func onOrientationChanged() {
     // Updates the Orientation for all rotable connections (outputs) as well as for the preview layer
@@ -293,9 +293,9 @@ public final class CameraView: UIView {
       // `windowInterfaceOrientation` and `videoPreviewLayer` should only be accessed from UI thread
       let isMirrored = self.videoDeviceInput?.device.position == .front
       let orientation = self.windowInterfaceOrientation
-      
+
       self.videoPreviewLayer.connection?.setInterfaceOrientation(orientation)
-      
+
       self.cameraQueue.async {
         // Run those updates on cameraQueue since they can be blocking.
         self.captureSession.outputs.forEach { output in
