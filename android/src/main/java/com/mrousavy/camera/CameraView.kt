@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.hardware.camera2.*
 import android.util.Log
 import android.util.Range
@@ -114,14 +115,6 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   private var hostLifecycleState: Lifecycle.State
 
   private var rotation: Int = Surface.ROTATION_0
-    @SuppressLint("RestrictedApi")
-    set(value) {
-      preview?.targetRotation = value
-      imageCapture?.targetRotation = value
-      imageAnalysis?.targetRotation = value
-      videoCapture?.setTargetRotation(value)
-      field = value
-    }
 
   private var minZoom: Float = 1f
   private var maxZoom: Float = 1f
@@ -187,7 +180,6 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       }
     }
     orientationEventListener.enable()
-    rotation = previewView.display.rotation
 
     hostLifecycleState = Lifecycle.State.INITIALIZED
     lifecycleRegistry = LifecycleRegistry(this)
@@ -208,6 +200,18 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         recordVideoExecutor.shutdown()
       }
     })
+  }
+
+  @SuppressLint("RestrictedApi")
+  override fun onConfigurationChanged(newConfig: Configuration?) {
+    super.onConfigurationChanged(newConfig)
+
+    if (preview?.targetRotation != rotation) {
+      preview?.targetRotation = rotation
+      imageCapture?.targetRotation = rotation
+      imageAnalysis?.targetRotation = rotation
+      videoCapture?.setTargetRotation(rotation)
+    }
   }
 
   fun finalize() {
