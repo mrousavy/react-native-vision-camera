@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.hardware.camera2.*
 import android.util.Log
 import android.util.Range
@@ -99,6 +100,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   internal var imageCapture: ImageCapture? = null
   internal var videoCapture: VideoCapture? = null
   private var imageAnalysis: ImageAnalysis? = null
+  private var preview: Preview? = null
 
   private var lastFrameProcessorCall = System.currentTimeMillis()
 
@@ -107,9 +109,12 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   private val scaleGestureListener: ScaleGestureDetector.SimpleOnScaleGestureListener
   private val scaleGestureDetector: ScaleGestureDetector
   private val touchEventListener: OnTouchListener
+  private val orientationEventListener: OrientationEventListener
 
   private val lifecycleRegistry: LifecycleRegistry
   private var hostLifecycleState: Lifecycle.State
+
+  private var rotation: Int = Surface.ROTATION_0
 
   private var minZoom: Float = 1f
   private var maxZoom: Float = 1f
@@ -164,6 +169,17 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
     }
     scaleGestureDetector = ScaleGestureDetector(context, scaleGestureListener)
     touchEventListener = OnTouchListener { _, event -> return@OnTouchListener scaleGestureDetector.onTouchEvent(event) }
+    orientationEventListener = object : OrientationEventListener(context) {
+      override fun onOrientationChanged(orientation : Int) {
+        rotation = when (orientation) {
+          in 45..134 -> Surface.ROTATION_270
+          in 135..224 -> Surface.ROTATION_180
+          in 225..314 -> Surface.ROTATION_90
+          else -> Surface.ROTATION_0
+        }
+      }
+    }
+    orientationEventListener.enable()
 
     hostLifecycleState = Lifecycle.State.INITIALIZED
     lifecycleRegistry = LifecycleRegistry(this)
@@ -186,8 +202,21 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
     })
   }
 
+  @SuppressLint("RestrictedApi")
+  override fun onConfigurationChanged(newConfig: Configuration?) {
+    super.onConfigurationChanged(newConfig)
+
+    if (preview?.targetRotation != rotation) {
+      preview?.targetRotation = rotation
+      imageCapture?.targetRotation = rotation
+      imageAnalysis?.targetRotation = rotation
+      videoCapture?.setTargetRotation(rotation)
+    }
+  }
+
   fun finalize() {
     mHybridData.resetNative()
+    orientationEventListener.disable()
   }
 
   private external fun initHybrid(): HybridData
@@ -304,8 +333,6 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         }
       }
 
-      val rotation = previewView.display.rotation
-
       val previewBuilder = Preview.Builder()
         .setTargetRotation(rotation)
       val imageCaptureBuilder = ImageCapture.Builder()
@@ -314,8 +341,8 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       val videoCaptureBuilder = VideoCapture.Builder()
         .setTargetRotation(rotation)
       val imageAnalysisBuilder = ImageAnalysis.Builder()
-        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
         .setTargetRotation(rotation)
+        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
         .setBackgroundExecutor(CameraViewModule.FrameProcessorThread)
 
       if (format == null) {
@@ -395,10 +422,10 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         useCases.add(imageAnalysis!!)
       }
 
-      val preview = previewBuilder.build()
+      preview = previewBuilder.build()
       Log.i(TAG, "Attaching ${useCases.size} use-cases...")
       camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, *useCases.toTypedArray())
-      preview.setSurfaceProvider(previewView.surfaceProvider)
+      preview!!.setSurfaceProvider(previewView.surfaceProvider)
 
       minZoom = camera!!.cameraInfo.zoomState.value?.minZoomRatio ?: 1f
       maxZoom = camera!!.cameraInfo.zoomState.value?.maxZoomRatio ?: 1f

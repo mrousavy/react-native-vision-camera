@@ -105,8 +105,18 @@ public final class CameraView: UIView {
   /// Specifies whether the frameProcessor() function is currently executing. used to drop late frames.
   internal var isRunningFrameProcessor = false
 
+  /// Returns whether the AVCaptureSession is currently running (reflected by isActive)
   var isRunning: Bool {
     return captureSession.isRunning
+  }
+
+  /// Returns the current _interface_ orientation of the main window
+  private var windowInterfaceOrientation: UIInterfaceOrientation {
+    if #available(iOS 13.0, *) {
+      return UIApplication.shared.windows.first?.windowScene?.interfaceOrientation ?? .unknown
+    } else {
+      return UIApplication.shared.statusBarOrientation
+    }
   }
 
   /// Convenience wrapper to get layer as its statically known type.
@@ -138,6 +148,10 @@ public final class CameraView: UIView {
                                            selector: #selector(audioSessionInterrupted),
                                            name: AVAudioSession.interruptionNotification,
                                            object: AVAudioSession.sharedInstance)
+    NotificationCenter.default.addObserver(self,
+                                           selector: #selector(onOrientationChanged),
+                                           name: UIDevice.orientationDidChangeNotification,
+                                           object: nil)
   }
 
   @available(*, unavailable)
@@ -155,6 +169,9 @@ public final class CameraView: UIView {
     NotificationCenter.default.removeObserver(self,
                                               name: AVAudioSession.interruptionNotification,
                                               object: AVAudioSession.sharedInstance)
+    NotificationCenter.default.removeObserver(self,
+                                              name: UIDevice.orientationDidChangeNotification,
+                                              object: nil)
   }
 
   // pragma MARK: Props updating
@@ -266,6 +283,31 @@ public final class CameraView: UIView {
     } catch let error as NSError {
       invokeOnError(.device(.configureError), cause: error)
       return
+    }
+  }
+
+  @objc
+  func onOrientationChanged() {
+    // Updates the Orientation for all rotable connections (outputs) as well as for the preview layer
+    DispatchQueue.main.async {
+      // `windowInterfaceOrientation` and `videoPreviewLayer` should only be accessed from UI thread
+      let isMirrored = self.videoDeviceInput?.device.position == .front
+      let orientation = self.windowInterfaceOrientation
+
+      self.videoPreviewLayer.connection?.setInterfaceOrientation(orientation)
+
+      self.cameraQueue.async {
+        // Run those updates on cameraQueue since they can be blocking.
+        self.captureSession.outputs.forEach { output in
+          output.connections.forEach { connection in
+            if connection.isVideoMirroringSupported {
+              connection.automaticallyAdjustsVideoMirroring = false
+              connection.isVideoMirrored = isMirrored
+            }
+            connection.setInterfaceOrientation(orientation)
+          }
+        }
+      }
     }
   }
 
