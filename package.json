@@ -135,6 +135,10 @@
               "section": "💨 Performance Improvements"
             },
             {
+              "type": "chore(deps)",
+              "section": "🛠️ Dependency Upgrades"
+            },
+            {
               "type": "docs",
               "section": "📚 Documentation"
             }
