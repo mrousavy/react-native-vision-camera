@@ -14,7 +14,7 @@ export interface Frame {
    *
    * For YUV images this is an array of 3 elements, one for **Y**, one for **U** and one for **V** pixels.
    */
-  getPlanes(): Plane[];
+  planes: Plane[];
   /**
    * Whether the underlying buffer is still valid or not. The buffer will be released after the frame processor returns, or `close()` is called.
    */

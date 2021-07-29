@@ -19,12 +19,12 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   std::vector<jsi::PropNameID> result;
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isValid")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getPlanes")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("width")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("height")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("close")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planes")));
   return result;
 }
 
@@ -84,18 +84,16 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
     return jsi::Value((double) planesCount);
   }
-  if (name == "getPlanes") {
-    auto getPlanes = [this, name] (jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t) -> jsi::Value {
+  if (name == "planes") {
+    if (!this->planesCache) {
       this->assertIsFrameStrong(runtime, name);
-      
       auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
       bool isPlanar = CVPixelBufferIsPlanar(imageBuffer);
       
       if (isPlanar) {
         // Image Buffer is separated into planes
-        
         auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
-        auto planes = jsi::Array(runtime, (size_t) planesCount);
+        planesCache = std::make_shared<jsi::Array>(runtime, (size_t) planesCount);
         
         for (size_t i = 0; i < planesCount; i++) {
           auto plane = jsi::Object(runtime);
@@ -117,14 +115,11 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
           
           auto array = TypedArray<TypedArrayKind::Uint8Array>(runtime, vector);
           plane.setProperty(runtime, "pixels", array);
-          planes.setValueAtIndex(runtime, i, plane);
+          planesCache->setValueAtIndex(runtime, i, plane);
         }
-        
-        return planes;
       } else {
         // Image Buffer is not separated into planes, buffer accessible at once
-        
-        auto planes = jsi::Array(runtime, 1);
+        planesCache = std::make_shared<jsi::Array>(runtime, 1);
         auto plane = jsi::Object(runtime);
         
         int result = CVPixelBufferLockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly);
@@ -145,12 +140,11 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
         auto array = TypedArray<TypedArrayKind::Uint8Array>(runtime, vector);
         plane.setProperty(runtime, "pixels", array);
         
-        planes.setValueAtIndex(runtime, 0, plane);
-        
-        return planes;
+        planesCache->setValueAtIndex(runtime, 0, plane);
       }
-    };
-    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "getPlanes"), 0, getPlanes);
+    }
+    
+    return this->planesCache->getArray(runtime);
   }
 
   return jsi::Value::undefined();
@@ -172,6 +166,9 @@ void FrameHostObject::close() {
     CMSampleBufferInvalidate(frame.buffer);
     // ARC will hopefully delete it lol
     this->frame = nil;
+  }
+  if (this->planesCache) {
+    this->planesCache.reset();
   }
 }
 

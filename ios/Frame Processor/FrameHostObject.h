@@ -18,7 +18,7 @@ namespace vision {
 
 class JSI_EXPORT FrameHostObject: public jsi::HostObject {
 public:
-  explicit FrameHostObject(Frame* _Nonnull frame): frame(frame) {}
+  explicit FrameHostObject(Frame* _Nonnull frame): frame(frame), planesCache(std::shared_ptr<jsi::Array>(nullptr)) {}
   ~FrameHostObject();
 
 public:
@@ -31,6 +31,7 @@ public:
   
 private:
   void assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName);
+  std::shared_ptr<jsi::Array> planesCache;
 };
 
 } // namespace vision
