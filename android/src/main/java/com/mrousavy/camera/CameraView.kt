@@ -82,7 +82,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   // other props
   var isActive = false
   var torch = "off"
-  var zoom = 0.0 // in percent
+  var zoom: Float = 1f // in "factor"
   var enableZoomGesture = false
   var frameProcessorFps = 1.0
 
@@ -162,7 +162,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
 
     scaleGestureListener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
       override fun onScale(detector: ScaleGestureDetector): Boolean {
-        zoom = min(max(((zoom + 1) * detector.scaleFactor) - 1, 0.0), 1.0)
+        zoom = max(min((zoom * detector.scaleFactor), maxZoom), minZoom)
         update(arrayListOfZoom)
         return true
       }
@@ -275,8 +275,8 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
           configureSession()
         }
         if (shouldReconfigureZoom) {
-          val scaled = (zoom.toFloat() * (maxZoom - minZoom)) + minZoom
-          camera!!.cameraControl.setZoomRatio(scaled)
+          val zoomClamped = max(min(zoom.toFloat(), maxZoom), minZoom)
+          camera!!.cameraControl.setZoomRatio(zoomClamped)
         }
         if (shouldReconfigureTorch) {
           camera!!.cameraControl.enableTorch(torch == "on")

@@ -59,7 +59,7 @@ public final class CameraView: UIView {
   // other props
   @objc var isActive = false
   @objc var torch = "off"
-  @objc var zoom: NSNumber = 0.0 // in percent
+  @objc var zoom: NSNumber = 1.0 // in "factor"
   @objc var videoStabilizationMode: NSString?
   // events
   @objc var onInitialized: RCTDirectEventBlock?
@@ -212,10 +212,9 @@ public final class CameraView: UIView {
         }
 
         if shouldUpdateZoom {
-          let zoomPercent = CGFloat(max(min(self.zoom.doubleValue, 1.0), 0.0))
-          let zoomScaled = (zoomPercent * (self.maxAvailableZoom - self.minAvailableZoom)) + self.minAvailableZoom
-          self.zoom(factor: zoomScaled, animated: false)
-          self.pinchScaleOffset = zoomScaled
+          let zoomClamped = max(min(CGFloat(self.zoom.doubleValue), self.maxAvailableZoom), self.minAvailableZoom)
+          self.zoom(factor: zoomClamped, animated: false)
+          self.pinchScaleOffset = zoomClamped
         }
 
         if shouldCheckActive && self.captureSession.isRunning != self.isActive {

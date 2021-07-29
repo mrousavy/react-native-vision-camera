@@ -131,9 +131,10 @@ class CameraViewManager : SimpleViewManager<CameraView>() {
 
   @ReactProp(name = "zoom")
   fun setZoom(view: CameraView, zoom: Double) {
-    if (view.zoom != zoom)
+    val zoomFloat = zoom.toFloat()
+    if (view.zoom != zoomFloat)
       addChangedPropToTransaction(view, "zoom")
-    view.zoom = zoom
+    view.zoom = zoomFloat
   }
 
   @ReactProp(name = "enableZoomGesture")

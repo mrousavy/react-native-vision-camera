@@ -32,6 +32,8 @@ interface Props extends ViewProps {
   camera: React.RefObject<Camera>;
   onMediaCaptured: (media: PhotoFile | VideoFile, type: 'photo' | 'video') => void;
 
+  minZoom: number;
+  maxZoom: number;
   cameraZoom: Reanimated.SharedValue<number>;
 
   flash: 'off' | 'on';
@@ -44,6 +46,8 @@ interface Props extends ViewProps {
 const _CaptureButton: React.FC<Props> = ({
   camera,
   onMediaCaptured,
+  minZoom,
+  maxZoom,
   cameraZoom,
   flash,
   enabled,
@@ -191,15 +195,14 @@ const _CaptureButton: React.FC<Props> = ({
       const offsetYForFullZoom = context.startY - yForFullZoom;
 
       // extrapolate [0 ... 1] zoom -> [0 ... Y_FOR_FULL_ZOOM] finger position
-      context.offsetY = interpolate(Math.sqrt(cameraZoom.value), [0, 1], [0, offsetYForFullZoom], Extrapolate.CLAMP);
+      context.offsetY = interpolate(cameraZoom.value, [minZoom, maxZoom], [0, offsetYForFullZoom], Extrapolate.CLAMP);
     },
     onActive: (event, context) => {
       const offset = context.offsetY ?? 0;
       const startY = context.startY ?? SCREEN_HEIGHT;
       const yForFullZoom = startY * 0.7;
 
-      const zoom = interpolate(event.absoluteY - offset, [yForFullZoom, startY], [1, 0], Extrapolate.CLAMP);
-      cameraZoom.value = zoom ** 2;
+      cameraZoom.value = interpolate(event.absoluteY - offset, [yForFullZoom, startY], [maxZoom, minZoom], Extrapolate.CLAMP);
     },
   });
   //#endregion

@@ -90,9 +90,11 @@ A Camera device has different minimum, maximum and neutral zoom values. Those va
   <img src="https://developer.android.com/images/training/camera/multi-camera-4.gif" width="45%" />
 </div>
 
+The Camera's `zoom` property expects values to be in the same "factor" scale as the `minZoom`, `neutralZoom` and `maxZoom` values - so if you pass `zoom={device.minZoom}` it is at the minimum available zoom, where as if you pass `zoom={device.maxZoom}` the maximum zoom value possible is zoomed in. It is recommended that you start at `device.neutralZoom` and let the user manually zoom out to the fish-eye camera on demand (if available).
+
 ### Logarithmic scale
 
-A Camera's `zoom` property is represented in a **logarithmic scale**. That means, increasing from `0` to `0.1` will appear to be a much larger offset than increasing from `0.9` to `1`. If you want to implement a zoom gesture (`<PinchGestureHandler>`, `<PanGestureHandler>`), try to flatten the `zoom` property to a **linear scale** by raising it **exponentially**. (`zoom.value ** 2`)
+A Camera's `zoom` property is represented in a **logarithmic scale**. That means, increasing from `1` to `2` will appear to be a much larger offset than increasing from `127` to `128`. If you want to implement a zoom gesture (`<PinchGestureHandler>`, `<PanGestureHandler>`), try to flatten the `zoom` property to a **linear scale** by raising it **exponentially**. (`zoom.value ** 2`)
 
 ### Pinch-to-zoom
 
