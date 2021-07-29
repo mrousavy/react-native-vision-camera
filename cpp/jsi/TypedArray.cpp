@@ -1,6 +1,6 @@
 // source: https://github.com/expo/expo/blob/2b862489f6c25adff1515ba177d28cf65c331603/packages/expo-gl-cpp/cpp/TypedArrayApi.cpp
 
-#include "TypedArrayApi.h"
+#include "TypedArray.h"
 
 #include <unordered_map>
 
