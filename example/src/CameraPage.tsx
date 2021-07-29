@@ -106,21 +106,15 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
   //#region Animated Zoom
   // This just maps the zoom factor to a percentage value.
   // so e.g. for [min, neutr., max] values [1, 2, 128] this would result in [0, 0.0081, 1]
-  const minZoomFactor = device?.minZoom ?? 1;
-  const neutralZoomFactor = device?.neutralZoom ?? 1;
-  const maxZoomFactor = device?.maxZoom ?? 1;
-  const maxZoomFactorClamped = Math.min(maxZoomFactor, MAX_ZOOM_FACTOR);
-
-  const neutralZoomOut = (neutralZoomFactor - minZoomFactor) / (maxZoomFactor - minZoomFactor);
-  const neutralZoomIn = (neutralZoomOut / maxZoomFactorClamped) * maxZoomFactor;
-  const maxZoomOut = maxZoomFactorClamped / maxZoomFactor;
+  const minZoom = device?.minZoom ?? 1;
+  const maxZoom = Math.min(device?.maxZoom ?? 1, MAX_ZOOM_FACTOR);
 
   const cameraAnimatedProps = useAnimatedProps(() => {
-    const z = interpolate(zoom.value, [0, neutralZoomIn, 1], [0, neutralZoomOut, maxZoomOut], Extrapolate.CLAMP);
+    const z = Math.max(Math.min(zoom.value, maxZoom), minZoom);
     return {
-      zoom: isNaN(z) ? 0 : z,
+      zoom: z,
     };
-  }, [maxZoomOut, neutralZoomOut, neutralZoomIn, zoom]);
+  }, [maxZoom, minZoom, zoom]);
   //#endregion
 
   //#region Callbacks
@@ -165,10 +159,11 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
   //#endregion
 
   //#region Effects
+  const neutralZoom = device?.neutralZoom ?? 1;
   useEffect(() => {
     // Run everytime the neutralZoomScaled value changes. (reset zoom when device changes)
-    zoom.value = neutralZoomIn;
-  }, [neutralZoomIn, zoom]);
+    zoom.value = neutralZoom;
+  }, [neutralZoom, zoom]);
   //#endregion
 
   //#region Pinch to Zoom Gesture
@@ -182,7 +177,7 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
       // we're trying to map the scale gesture to a linear zoom here
       const startZoom = context.startZoom ?? 0;
       const scale = interpolate(event.scale, [1 - 1 / SCALE_FULL_ZOOM, 1, SCALE_FULL_ZOOM], [-1, 0, 1], Extrapolate.CLAMP);
-      zoom.value = interpolate(scale, [-1, 0, 1], [0, startZoom, 1], Extrapolate.CLAMP);
+      zoom.value = interpolate(scale, [-1, 0, 1], [minZoom, startZoom, maxZoom], Extrapolate.CLAMP);
     },
   });
   //#endregion
@@ -237,6 +232,8 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
         camera={camera}
         onMediaCaptured={onMediaCaptured}
         cameraZoom={zoom}
+        minZoom={minZoom}
+        maxZoom={maxZoom}
         flash={supportsFlash ? flash : 'off'}
         enabled={isCameraInitialized && isActive}
         setIsPressingButton={setIsPressingButton}
