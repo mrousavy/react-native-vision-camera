@@ -84,7 +84,7 @@ A Camera device has different minimum, maximum and neutral zoom values. Those va
 
 * The `minZoom` value is always `1`.
 * The `maxZoom` value can have very high values (such as `128`), but often you want to clamp this value to something realistic like `16`.
-* The `neutralZoom` value is often `1`, but can be smaller than `1` for devices with "fish-eye" (ultra-wide-angle) cameras. In those cases, the user expects to be at whatever zoom value `neutralZoom` is (e.g. `2`) per default, and if he tries to zoom out even more, he goes to `minZoom` (`1`), which switches over to the "fish-eye" (ultra-wide-angle) camera as seen in this GIF:
+* The `neutralZoom` value is often `1`, but can be larger than `1` for devices with "fish-eye" (ultra-wide-angle) cameras. In those cases, the user expects to be at whatever zoom value `neutralZoom` is (e.g. `2`) per default, and if he tries to zoom out even more, he goes to `minZoom` (`1`), which switches over to the "fish-eye" (ultra-wide-angle) camera as seen in this GIF:
 
 <div align="center">
   <img src="https://developer.android.com/images/training/camera/multi-camera-4.gif" width="45%" />
