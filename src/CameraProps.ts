@@ -61,11 +61,14 @@ export interface CameraProps extends ViewProps {
    */
   torch?: 'off' | 'on';
   /**
-   * Specifies the zoom factor of the current camera, in percent. (`0.0` - `1.0`)
+   * Specifies the zoom factor of the current camera, in "factor"/scale.
+   *
+   * This value ranges from `minZoom` (e.g. `1`) to `maxZoom` (e.g. `128`). It is recommended to set this value
+   * to the CameraDevice's `neutralZoom` per default
    *
    * **Note:** Linearly increasing this value always appears logarithmic to the user.
    *
-   * @default 0.0
+   * @default 1.0
    */
   zoom?: number;
   /**
