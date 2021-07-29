@@ -22,6 +22,8 @@ add_library(
         src/main/cpp/java-bindings/JImageProxy.cpp
         src/main/cpp/java-bindings/JImageProxyHostObject.cpp
         src/main/cpp/java-bindings/JHashMap.cpp
+        src/main/cpp/JPlaneProxy.cpp
+        ../cpp/jsi/TypedArray.cpp
 )
 
 # includes
@@ -51,6 +53,7 @@ target_include_directories(
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/LayoutAnimations"
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/hidden_headers"
         "src/main/cpp"
+        "../cpp"
 )
 
 # find libraries

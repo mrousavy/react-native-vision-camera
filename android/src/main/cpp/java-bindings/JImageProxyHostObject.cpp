@@ -7,6 +7,8 @@
 #include <vector>
 #include <string>
 
+#include "jsi/TypedArray.h"
+
 namespace vision {
 
 std::vector<jsi::PropNameID> JImageProxyHostObject::getPropertyNames(jsi::Runtime& rt) {
@@ -18,6 +20,7 @@ std::vector<jsi::PropNameID> JImageProxyHostObject::getPropertyNames(jsi::Runtim
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("close")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planes")));
   return result;
 }
 
@@ -65,6 +68,31 @@ jsi::Value JImageProxyHostObject::get(jsi::Runtime& runtime, const jsi::PropName
   if (name == "planesCount") {
     this->assertIsFrameStrong(runtime, name);
     return jsi::Value(this->frame->getPlaneCount());
+  }
+  if (name == "planes") {
+    this->assertIsFrameStrong(runtime, name);
+
+    // TODO: Cache planes value to avoid building this multiple times
+    auto planesCount = this->frame->getPlaneCount();
+    auto planes = jsi::Array(runtime, (size_t) planesCount);
+
+    for (size_t i = 0; i < planesCount; i++) {
+      auto plane = jsi::Object(runtime);
+
+      // TODO: GET ACTUAL BUFFER OF PLANE
+      uint8_t* buffer = nullptr;
+      auto size = 0;
+
+      auto start = buffer;
+      auto end = start + (size * sizeof(uint8_t));
+      std::vector<uint8_t> vector(start, end);
+
+      auto array = TypedArray<TypedArrayKind::Uint8Array>(runtime, vector);
+      plane.setProperty(runtime, "pixels", array);
+      planes.setValueAtIndex(runtime, i, plane);
+    }
+
+    return planes;
   }
 
   return jsi::Value::undefined();
