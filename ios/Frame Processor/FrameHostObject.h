@@ -14,6 +14,8 @@
 
 using namespace facebook;
 
+namespace vision {
+
 class JSI_EXPORT FrameHostObject: public jsi::HostObject {
 public:
   explicit FrameHostObject(Frame* frame): frame(frame) {}
@@ -30,3 +32,5 @@ public:
 private:
   void assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName);
 };
+
+} // namespace vision

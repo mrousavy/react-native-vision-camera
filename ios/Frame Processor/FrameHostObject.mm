@@ -7,8 +7,13 @@
 //
 
 #import "FrameHostObject.h"
+
 #import <Foundation/Foundation.h>
 #import <jsi/jsi.h>
+
+#import "../../cpp/jsi/TypedArray.h"
+
+namespace vision {
 
 std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt) {
   std::vector<jsi::PropNameID> result;
@@ -19,6 +24,7 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("close")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("buffer")));
   return result;
 }
 
@@ -78,6 +84,11 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
     return jsi::Value((double) planesCount);
   }
+  if (name == "buffer") {
+    // TODO: TypedArray creation
+    auto array = TypedArray<TypedArrayKind::Float32Array>(runtime, 0);
+    return array;
+  }
 
   return jsi::Value::undefined();
 }
@@ -100,3 +111,5 @@ void FrameHostObject::close() {
     this->frame = nil;
   }
 }
+
+} // namespace vision

@@ -69,7 +69,7 @@ jsi::Value convertObjCObjectToJSIValue(jsi::Runtime &runtime, id value)
   } else if (value == (id)kCFNull) {
     return jsi::Value::null();
   } else if ([value isKindOfClass:[Frame class]]) {
-    auto frameHostObject = std::make_shared<FrameHostObject>((Frame*)value);
+    auto frameHostObject = std::make_shared<vision::FrameHostObject>((Frame*)value);
     return jsi::Object::createFromHostObject(runtime, frameHostObject);
   }
   return jsi::Value::undefined();
@@ -151,7 +151,7 @@ id convertJSIValueToObjCObject(jsi::Runtime &runtime, const jsi::Value &value, s
     }
     if (o.isHostObject(runtime)) {
       auto hostObject = o.asHostObject(runtime);
-      auto frame = dynamic_cast<FrameHostObject*>(hostObject.get());
+      auto frame = dynamic_cast<vision::FrameHostObject*>(hostObject.get());
       if (frame != nullptr) {
         return frame->frame;
       }

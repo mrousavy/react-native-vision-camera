@@ -23,7 +23,7 @@ FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &
 
   return ^(Frame* frame) {
 
-    auto frameHostObject = std::make_shared<FrameHostObject>(frame);
+    auto frameHostObject = std::make_shared<vision::FrameHostObject>(frame);
     try {
       cb.callWithThis(runtime, cb, jsi::Object::createFromHostObject(runtime, frameHostObject));
     } catch (jsi::JSError& jsError) {
