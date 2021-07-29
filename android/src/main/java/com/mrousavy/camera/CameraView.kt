@@ -82,7 +82,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   // other props
   var isActive = false
   var torch = "off"
-  var zoom = 1.0 // in "factor"
+  var zoom: Float = 1f // in "factor"
   var enableZoomGesture = false
   var frameProcessorFps = 1.0
 
