@@ -94,6 +94,8 @@
 		B86DC970260E2D5200FB17B2 /* AVAudioSession+trySetAllowHaptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAudioSession+trySetAllowHaptics.swift"; sourceTree = "<group>"; };
 		B86DC973260E310600FB17B2 /* CameraView+AVAudioSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraView+AVAudioSession.swift"; sourceTree = "<group>"; };
 		B86DC976260E315100FB17B2 /* CameraView+AVCaptureSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraView+AVCaptureSession.swift"; sourceTree = "<group>"; };
+		B876D85B26B2E6040096F522 /* PixelBufferCache.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = PixelBufferCache.mm; sourceTree = "<group>"; };
+		B876D85C26B2E6110096F522 /* PixelBufferCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PixelBufferCache.h; sourceTree = "<group>"; };
 		B8805065266798AB00EAD7F2 /* JSConsoleHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSConsoleHelper.h; sourceTree = "<group>"; };
 		B8805066266798B600EAD7F2 /* JSConsoleHelper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = JSConsoleHelper.mm; sourceTree = "<group>"; };
 		B882720F26AEB1A100B14107 /* AVCaptureConnection+setInterfaceOrientation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVCaptureConnection+setInterfaceOrientation.swift"; sourceTree = "<group>"; };
@@ -265,6 +267,8 @@
 				B88873E5263D46C7008B1D0E /* FrameProcessorPlugin.h */,
 				B80416F026AB16E8000DEB6A /* VisionCameraScheduler.mm */,
 				B80416F126AB16F3000DEB6A /* VisionCameraScheduler.h */,
+				B876D85C26B2E6110096F522 /* PixelBufferCache.h */,
+				B876D85B26B2E6040096F522 /* PixelBufferCache.mm */,
 			);
 			path = "Frame Processor";
 			sourceTree = "<group>";

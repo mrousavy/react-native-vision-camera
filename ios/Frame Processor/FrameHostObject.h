@@ -11,25 +11,11 @@
 #import <jsi/jsi.h>
 #import <CoreMedia/CMSampleBuffer.h>
 #import "Frame.h"
+#import "PixelBufferCache.h"
 
 using namespace facebook;
 
 namespace vision {
-
-class PixelBufferCache {
-public:
-  explicit PixelBufferCache(Frame* _Nonnull frame): frame(frame) {}
-  ~PixelBufferCache();
-  
-public:
-  uint8_t* _Nonnull getPixelBuffer();
-  size_t getPixelBufferSize();
-  
-private:
-  Frame* _Nonnull frame;
-  uint8_t* _Nullable pixelBuffer = nil;
-  size_t pixelBufferSize = -1;
-};
 
 class JSI_EXPORT FrameHostObject: public jsi::HostObject {
 public:
