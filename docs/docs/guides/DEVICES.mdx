@@ -42,8 +42,8 @@ The most important properties are:
 * `hasFlash`: Whether this camera device supports using the flash to take photos or record videos
 * `hasTorch`: Whether this camera device supports enabling/disabling the torch at any time ([`Camera.torch` prop](/docs/api/interfaces/cameraprops.cameraprops-1#torch))
 * `isMultiCam`: Determines whether the camera device is a virtual multi-camera device which contains multiple combined physical camera devices.
-* `minZoom`: The minimum available zoom factor. This can be `1` for any wide-angle camera, and a value lower than `1` (such as `0.5`) for ultra-wide-angle cameras ("fish-eye"). When you pass `zoom={0}` to the Camera, the `minZoom` factor will be applied.
-* `neutralZoom`: The zoom factor where the camera is "neutral". For any wide-angle cameras this property might be the same as `minZoom`, where as for ultra-wide-angle cameras ("fish-eye") this might be a value higher than `minZoom`. It is recommended that you always start at `neutralZoom` and let the user manually zoom out to `minZoom` on demand.
+* `minZoom`: The minimum available zoom factor. This value is often `1`. When you pass `zoom={0}` to the Camera, the `minZoom` factor will be applied.
+* `neutralZoom`: The zoom factor where the camera is "neutral". For any wide-angle cameras this property might be the same as `minZoom`, where as for ultra-wide-angle cameras ("fish-eye") this might be a value higher than `minZoom` (e.g. `2`). It is recommended that you always start at `neutralZoom` and let the user manually zoom out to `minZoom` on demand.
 * `maxZoom`: The maximum available zoom factor. When you pass `zoom={1}` to the Camera, the `maxZoom` factor will be applied.
 * `formats`: A list of all available formats (See [Camera Formats](formats))
 * `supportsParallelVideoProcessing`: Determines whether this camera devices supports using Video Recordings (`video={true}`) and Frame Processors (`frameProcessor={...}`) at the same time. (See [`supportsParallelVideoProcessing`](#the-supportsparallelvideoprocessing-prop))
