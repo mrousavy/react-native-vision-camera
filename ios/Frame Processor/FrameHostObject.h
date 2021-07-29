@@ -16,9 +16,24 @@ using namespace facebook;
 
 namespace vision {
 
+class PixelBufferCache {
+public:
+  explicit PixelBufferCache(Frame* _Nonnull frame): frame(frame) {}
+  ~PixelBufferCache();
+  
+public:
+  uint8_t* _Nonnull getPixelBuffer();
+  size_t getPixelBufferSize();
+  
+private:
+  Frame* _Nonnull frame;
+  uint8_t* _Nullable pixelBuffer = nil;
+  size_t pixelBufferSize = -1;
+};
+
 class JSI_EXPORT FrameHostObject: public jsi::HostObject {
 public:
-  explicit FrameHostObject(Frame* _Nonnull frame): frame(frame) {}
+  explicit FrameHostObject(Frame* _Nonnull frame): frame(frame), pixelBufferCache(frame) {}
   ~FrameHostObject();
 
 public:
@@ -31,10 +46,7 @@ public:
   
 private:
   void assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName);
-  
-  // Cached Pixel Buffer
-  uint8_t* _Nullable pixelBuffer = nullptr;
-  size_t pixelBufferSize = 0;
+  PixelBufferCache pixelBufferCache;
 };
 
 } // namespace vision
