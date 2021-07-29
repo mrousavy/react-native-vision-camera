@@ -212,7 +212,7 @@ public final class CameraView: UIView {
         }
 
         if shouldUpdateZoom {
-          let zoomClamped = CGFloat(max(min(self.zoom.doubleValue, self.maxAvailableZoom), self.minAvailableZoom))
+          let zoomClamped = max(min(CGFloat(self.zoom.doubleValue), self.maxAvailableZoom), self.minAvailableZoom)
           self.zoom(factor: zoomClamped, animated: false)
           self.pinchScaleOffset = zoomClamped
         }
