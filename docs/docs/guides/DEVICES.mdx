@@ -33,13 +33,28 @@ To get a list of all available camera devices, use the `getAvailableCameraDevice
 const devices = await Camera.getAvailableCameraDevices()
 ```
 
+Each camera device provides properties describing the features of this device. For example, a camera device provides the `hasFlash` property which is `true` if the device supports activating the flash when taking photos or recording videos.
+
+The most important properties are:
+
+* `devices`: A list of physical device types this camera device consists of. For a **single physical camera device**, this property is always an array of one element. **For virtual multi-cameras** this property contains all the physical camera devices that are combined to create this virtual multi-camera device
+* `position`: The position of the camera device relative to the phone (`front`, `back`)
+* `hasFlash`: Whether this camera device supports using the flash to take photos or record videos
+* `hasTorch`: Whether this camera device supports enabling/disabling the torch at any time ([`Camera.torch` prop](/docs/api/interfaces/cameraprops.cameraprops-1#torch))
+* `isMultiCam`: Determines whether the camera device is a virtual multi-camera device which contains multiple combined physical camera devices.
+* `minZoom`: The minimum available zoom factor. This can be `1` for any wide-angle camera, and a value lower than `1` (such as `0.5`) for ultra-wide-angle cameras ("fish-eye"). When you pass `zoom={0}` to the Camera, the `minZoom` factor will be applied.
+* `neutralZoom`: The zoom factor where the camera is "neutral". For any wide-angle cameras this property might be the same as `minZoom`, where as for ultra-wide-angle cameras ("fish-eye") this might be a value higher than `minZoom`. It is recommended that you always start at `neutralZoom` and let the user manually zoom out to `minZoom` on demand.
+* `maxZoom`: The maximum available zoom factor. When you pass `zoom={1}` to the Camera, the `maxZoom` factor will be applied.
+* `formats`: A list of all available formats (See [Camera Formats](formats))
+* `supportsParallelVideoProcessing`: Determines whether this camera devices supports using Video Recordings (`video={true}`) and Frame Processors (`frameProcessor={...}`) at the same time. (See [`supportsParallelVideoProcessing`](#the-supportsparallelvideoprocessing-prop))
+* `supportsFocus`: Determines whether this camera device supports focusing (See [Focusing](focusing))
+
 :::note
-See the [`CameraDevice` type](https://github.com/mrousavy/react-native-vision-camera/blob/main/src/CameraDevice.ts) for more information about a Camera Device
+See the [`CameraDevice` type](../api/interfaces/cameradevice.cameradevice-1) for full API reference
 :::
 
-A camera device (`CameraDevice`) contains a list of physical device types this camera device consists of.
+For debugging purposes you can use the `id` or `name` properties to log and compare devices. You can also use the `devices` properties to determine the physical camera devices this camera device consists of, for example:
 
-Example:
 * For a single Wide-Angle camera, this would be `["wide-angle-camera"]`
 * For a Triple-Camera, this would be `["wide-angle-camera", "ultra-wide-angle-camera", "telephoto-camera"]`
 
@@ -54,7 +69,7 @@ console.log(deviceType)
 //  --> "triple-camera"
 ```
 
-The `CameraDevice` type also contains other useful information describing a camera device, such as `position` ("front", "back", ...), `hasFlash`, it's `formats` (See [Camera Formats](formats)), and more.
+Always choose a camera device that is best fitted for your use-case; so you might filter out any cameras that do not support flash, have low zoom values, are not on the back side of the phone, do not contain a format with high resolution or fps, and more.
 
 :::caution
 Make sure to be careful when filtering out unneeded camera devices, since not every phone supports all camera device types. Some phones don't even have front-cameras. You always want to have a camera device, even when it's not the one that has the best features.

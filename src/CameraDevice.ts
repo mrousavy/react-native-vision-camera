@@ -208,7 +208,7 @@ export interface CameraDevice {
    */
   hasTorch: boolean;
   /**
-   * A property indicating whether the receiver is a logical camera consisting of multiple physical cameras.
+   * A property indicating whether the device is a virtual multi-camera consisting of multiple combined physical cameras.
    *
    * Examples:
    * * The Dual Camera, which supports seamlessly switching between a wide and telephoto camera while zooming and generating depth data from the disparities between the different points of view of the physical cameras.
