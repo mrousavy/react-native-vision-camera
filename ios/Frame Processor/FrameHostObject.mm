@@ -85,22 +85,22 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     return jsi::Value((double) planesCount);
   }
   if (name == "pixels") {
-    auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
+    if (pixelBuffer == nil) {
+      auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
+      
+      CVPixelBufferLockBaseAddress(imageBuffer, 0);
+      void* buffer = CVPixelBufferGetBaseAddress(imageBuffer);
+      size_t bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
+      size_t height = CVPixelBufferGetHeight(imageBuffer);
+      CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
+      
+      pixelBuffer = (uint8_t*)buffer;
+      pixelBufferSize = bytesPerRow * height;
+    }
     
-    CVPixelBufferLockBaseAddress(imageBuffer, 0);
-    
-    size_t bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
-    size_t height = CVPixelBufferGetHeight(imageBuffer);
-    void* buffer = CVPixelBufferGetBaseAddress(imageBuffer);
-    
-    uint8_t* pixels = (uint8_t*)buffer;
-    size_t size = bytesPerRow * height;
-    
-    auto start = pixels;
-    auto end = start + (size * sizeof(uint8_t));
+    auto start = pixelBuffer;
+    auto end = start + (pixelBufferSize * sizeof(uint8_t));
     auto vector = std::vector<uint8_t>(start, end);
-    
-    CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
 
     return TypedArray<TypedArrayKind::Uint8Array>(runtime, vector);
   }
@@ -117,6 +117,9 @@ void FrameHostObject::assertIsFrameStrong(jsi::Runtime &runtime, const std::stri
 
 FrameHostObject::~FrameHostObject() {
   close();
+  if (pixelBuffer != nil) {
+    CFRelease(pixelBuffer);
+  }
 }
 
 void FrameHostObject::close() {

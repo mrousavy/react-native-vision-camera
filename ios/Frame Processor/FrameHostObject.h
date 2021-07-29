@@ -18,7 +18,7 @@ namespace vision {
 
 class JSI_EXPORT FrameHostObject: public jsi::HostObject {
 public:
-  explicit FrameHostObject(Frame* frame): frame(frame) {}
+  explicit FrameHostObject(Frame* _Nonnull frame): frame(frame) {}
   ~FrameHostObject();
 
 public:
@@ -27,10 +27,14 @@ public:
   void close();
 
 public:
-  Frame* frame;
+  Frame* _Nonnull frame;
   
 private:
   void assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName);
+  
+  // Cached Pixel Buffer
+  uint8_t* _Nullable pixelBuffer = nullptr;
+  size_t pixelBufferSize = 0;
 };
 
 } // namespace vision
