@@ -143,7 +143,7 @@ export interface CameraDeviceFormat {
    */
   fieldOfView: number;
   /**
-   * The maximum zoom factor
+   * The maximum zoom factor (e.g. `128`)
    */
   maxZoom: number;
   /**
@@ -216,27 +216,26 @@ export interface CameraDevice {
    */
   isMultiCam: boolean;
   /**
-   * Minimum available zoom factor
+   * Minimum available zoom factor (e.g. `1`)
    */
   minZoom: number;
   /**
-   * Maximum available zoom factor
+   * Maximum available zoom factor (e.g. `128`)
    */
   maxZoom: number;
   /**
    * The zoom factor where the camera is "neutral".
    *
    * * For single-physical cameras this property is always `1.0`.
-   * * For multi cameras this property is a value between `minZoom` and `maxZoom`, where the camera is in _wide-angle_ mode and hasn't switched to the _ultra-wide-angle_ (`0.5`x zoom) or telephoto camera yet.
+   * * For multi cameras this property is a value between `minZoom` and `maxZoom`, where the camera is in _wide-angle_ mode and hasn't switched to the _ultra-wide-angle_ ("fish-eye") or telephoto camera yet.
    *
    * Use this value as an initial value for the zoom property if you implement custom zoom. (e.g. reanimated shared value should be initially set to this value)
    * @example
    * const device = ...
    *
-   * const neutralZoomPercent = (device.neutralZoom - device.minZoom) / (device.maxZoom - device.minZoom)
-   * const zoomFactor = useSharedValue(neutralZoomPercent) // <-- initial value so it doesn't start at ultra-wide
+   * const zoom = useSharedValue(device.neutralZoom) // <-- initial value so it doesn't start at ultra-wide
    * const cameraProps = useAnimatedProps(() => ({
-   *   zoom: zoomFactor.value
+   *   zoom: zoom.value
    * }))
    */
   neutralZoom: number;

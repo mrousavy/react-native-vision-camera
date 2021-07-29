@@ -64,7 +64,8 @@ export interface CameraProps extends ViewProps {
    * Specifies the zoom factor of the current camera, in "factor"/scale.
    *
    * This value ranges from `minZoom` (e.g. `1`) to `maxZoom` (e.g. `128`). It is recommended to set this value
-   * to the CameraDevice's `neutralZoom` per default
+   * to the CameraDevice's `neutralZoom` per default and let the user zoom out to the fish-eye (ultra-wide) camera
+   * on demand (if available)
    *
    * **Note:** Linearly increasing this value always appears logarithmic to the user.
    *
