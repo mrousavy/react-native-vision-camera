@@ -5,7 +5,7 @@ export interface Frame {
   /**
    * An array of all pixels in this frame.
    */
-  buffer: Int8Array;
+  pixels: Int8Array;
   /**
    * Whether the underlying buffer is still valid or not. The buffer will be released after the frame processor returns, or `close()` is called.
    */

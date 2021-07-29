@@ -24,7 +24,7 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("close")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("buffer")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("pixels")));
   return result;
 }
 
@@ -84,7 +84,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
     return jsi::Value((double) planesCount);
   }
-  if (name == "buffer") {
+  if (name == "pixels") {
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     
     CVPixelBufferLockBaseAddress(imageBuffer, 0);
@@ -93,16 +93,16 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     size_t height = CVPixelBufferGetHeight(imageBuffer);
     void* buffer = CVPixelBufferGetBaseAddress(imageBuffer);
     
-    int8_t* pixels = (int8_t*)buffer;
+    uint8_t* pixels = (uint8_t*)buffer;
     size_t size = bytesPerRow * height;
     
     auto start = pixels;
-    auto end = start + (size * sizeof(int8_t));
-    auto vector = std::vector<int8_t>(start, end);
+    auto end = start + (size * sizeof(uint8_t));
+    auto vector = std::vector<uint8_t>(start, end);
     
     CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
 
-    return TypedArray<TypedArrayKind::Int8Array>(runtime, vector);
+    return TypedArray<TypedArrayKind::Uint8Array>(runtime, vector);
   }
 
   return jsi::Value::undefined();
