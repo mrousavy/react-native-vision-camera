@@ -85,9 +85,24 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     return jsi::Value((double) planesCount);
   }
   if (name == "buffer") {
-    // TODO: TypedArray creation
-    auto array = TypedArray<TypedArrayKind::Float32Array>(runtime, 0);
-    return array;
+    auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
+    
+    CVPixelBufferLockBaseAddress(imageBuffer, 0);
+    
+    size_t bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
+    size_t height = CVPixelBufferGetHeight(imageBuffer);
+    void* buffer = CVPixelBufferGetBaseAddress(imageBuffer);
+    
+    int* pixels = (int*) buffer;
+    size_t size = bytesPerRow * height;
+    
+    auto start = pixels;
+    auto end = pixels + (size * sizeof(int));
+    auto vector = std::vector<int>(start, end);
+    
+    CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
+
+    return TypedArray<TypedArrayKind::Int32Array>(runtime, vector);
   }
 
   return jsi::Value::undefined();
