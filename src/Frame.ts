@@ -1,11 +1,20 @@
+export interface Plane {
+  /**
+   * An array of all pixels in this plane.
+   */
+  pixels: Uint8Array;
+}
+
 /**
  * A single frame, as seen by the camera.
  */
 export interface Frame {
   /**
-   * An array of all pixels in this frame.
+   * Get an array of all planes in this current Frame.
+   *
+   * For YUV images this is an array of 3 elements, one for **Y**, one for **U** and one for **V** pixels.
    */
-  pixels: Uint8Array;
+  getPlanes(): Plane[];
   /**
    * Whether the underlying buffer is still valid or not. The buffer will be released after the frame processor returns, or `close()` is called.
    */

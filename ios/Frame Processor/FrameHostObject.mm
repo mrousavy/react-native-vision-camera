@@ -19,12 +19,12 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   std::vector<jsi::PropNameID> result;
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isValid")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("getPlanes")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("width")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("height")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("close")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("pixels")));
   return result;
 }
 
@@ -84,15 +84,73 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
     return jsi::Value((double) planesCount);
   }
-  if (name == "pixels") {
-    auto pixelBuffer = pixelBufferCache.getPixelBuffer();
-    auto pixelBufferSize = pixelBufferCache.getPixelBufferSize();
-    
-    auto start = pixelBuffer;
-    auto end = start + (pixelBufferSize * sizeof(uint8_t));
-    auto vector = std::vector<uint8_t>(start, end);
-
-    return TypedArray<TypedArrayKind::Uint8Array>(runtime, vector);
+  if (name == "getPlanes") {
+    auto getPlanes = [this, name] (jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t) -> jsi::Value {
+      this->assertIsFrameStrong(runtime, name);
+      
+      auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
+      bool isPlanar = CVPixelBufferIsPlanar(imageBuffer);
+      
+      if (isPlanar) {
+        // Image Buffer is separated into planes
+        
+        auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
+        auto planes = jsi::Array(runtime, (size_t) planesCount);
+        
+        for (size_t i = 0; i < planesCount; i++) {
+          auto plane = jsi::Object(runtime);
+          
+          int result = CVPixelBufferLockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly);
+          if (result != noErr) {
+            throw jsi::JSError(runtime, "Failed to read the Frame's pixel buffer! Error code: " + std::to_string(result));
+          }
+          uint8_t* buffer = (uint8_t*) CVPixelBufferGetBaseAddressOfPlane(imageBuffer, i);
+          CVPixelBufferUnlockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly);
+          
+          auto bytesPerRow = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer, i);
+          auto height = CVPixelBufferGetHeightOfPlane(imageBuffer, i);
+          auto size = bytesPerRow * height;
+          
+          auto start = buffer;
+          auto end = start + (size * sizeof(uint8_t));
+          std::vector<uint8_t> vector(start, end);
+          
+          auto array = TypedArray<TypedArrayKind::Uint8Array>(runtime, vector);
+          plane.setProperty(runtime, "pixels", array);
+          planes.setValueAtIndex(runtime, i, plane);
+        }
+        
+        return planes;
+      } else {
+        // Image Buffer is not separated into planes, buffer accessible at once
+        
+        auto planes = jsi::Array(runtime, 1);
+        auto plane = jsi::Object(runtime);
+        
+        int result = CVPixelBufferLockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly);
+        if (result != noErr) {
+          throw jsi::JSError(runtime, "Failed to read the Frame's pixel buffer! Error code: " + std::to_string(result));
+        }
+        uint8_t* buffer = (uint8_t*) CVPixelBufferGetBaseAddress(imageBuffer);
+        CVPixelBufferUnlockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly);
+        
+        auto bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
+        auto height = CVPixelBufferGetHeight(imageBuffer);
+        auto size = bytesPerRow * height;
+        
+        auto start = buffer;
+        auto end = start + (size * sizeof(uint8_t));
+        std::vector<uint8_t> vector(start, end);
+        
+        auto array = TypedArray<TypedArrayKind::Uint8Array>(runtime, vector);
+        plane.setProperty(runtime, "pixels", array);
+        
+        planes.setValueAtIndex(runtime, 0, plane);
+        
+        return planes;
+      }
+    };
+    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "getPlanes"), 0, getPlanes);
   }
 
   return jsi::Value::undefined();

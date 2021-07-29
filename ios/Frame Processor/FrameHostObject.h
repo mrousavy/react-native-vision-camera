@@ -11,7 +11,6 @@
 #import <jsi/jsi.h>
 #import <CoreMedia/CMSampleBuffer.h>
 #import "Frame.h"
-#import "PixelBufferCache.h"
 
 using namespace facebook;
 
@@ -19,7 +18,7 @@ namespace vision {
 
 class JSI_EXPORT FrameHostObject: public jsi::HostObject {
 public:
-  explicit FrameHostObject(Frame* _Nonnull frame): frame(frame), pixelBufferCache(frame) {}
+  explicit FrameHostObject(Frame* _Nonnull frame): frame(frame) {}
   ~FrameHostObject();
 
 public:
@@ -32,7 +31,6 @@ public:
   
 private:
   void assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName);
-  PixelBufferCache pixelBufferCache;
 };
 
 } // namespace vision
