@@ -46,7 +46,7 @@ The most important properties are:
 * `neutralZoom`: The zoom factor where the camera is "neutral". For any wide-angle cameras this property might be the same as `minZoom`, where as for ultra-wide-angle cameras ("fish-eye") this might be a value higher than `minZoom` (e.g. `2`). It is recommended that you always start at `neutralZoom` and let the user manually zoom out to `minZoom` on demand.
 * `maxZoom`: The maximum available zoom factor. When you pass `zoom={1}` to the Camera, the `maxZoom` factor will be applied.
 * `formats`: A list of all available formats (See [Camera Formats](formats))
-* `supportsParallelVideoProcessing`: Determines whether this camera devices supports using Video Recordings (`video={true}`) and Frame Processors (`frameProcessor={...}`) at the same time. (See [`supportsParallelVideoProcessing`](#the-supportsparallelvideoprocessing-prop))
+* `supportsParallelVideoProcessing`: Determines whether this camera devices supports using Video Recordings and Frame Processors at the same time. (See [`supportsParallelVideoProcessing`](#the-supportsparallelvideoprocessing-prop))
 * `supportsFocus`: Determines whether this camera device supports focusing (See [Focusing](focusing))
 
 :::note
