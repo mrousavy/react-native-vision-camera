@@ -6,6 +6,8 @@
 
 namespace vision {
 
+using namespace facebook;
+
 enum class TypedArrayKind {
   Int8Array,
   Int16Array,

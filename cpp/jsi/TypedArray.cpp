@@ -6,6 +6,8 @@
 
 namespace vision {
 
+using namespace facebook;
+
 template <TypedArrayKind T>
 using ContentType = typename typedArrayTypeMap<T>::type;
 
