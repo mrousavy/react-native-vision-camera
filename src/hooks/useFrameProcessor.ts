@@ -1,7 +1,6 @@
 /* global _setGlobalConsole */
 
 import { DependencyList, useCallback } from 'react';
-import { runOnJS } from 'react-native-reanimated';
 import type { Frame } from 'src/Frame';
 
 type FrameProcessor = (frame: Frame) => void;
@@ -21,7 +20,7 @@ const capturableConsole = console;
  * const frameProcessor = useFrameProcessor((frame) => {
  *   'worklet'
  *   const qrCodes = scanQRCodes(frame)
- *   _log(`QR Codes: ${qrCodes}`)
+ *   console.log(`QR Codes: ${qrCodes}`)
  * }, [])
  * ```
  */
@@ -32,11 +31,21 @@ export function useFrameProcessor(frameProcessor: FrameProcessor, dependencies: 
     // @ts-expect-error
     if (global.didSetConsole == null || global.didSetConsole === false) {
       const console = {
-        debug: runOnJS(capturableConsole.debug),
-        log: runOnJS(capturableConsole.log),
-        warn: runOnJS(capturableConsole.warn),
-        error: runOnJS(capturableConsole.error),
-        info: runOnJS(capturableConsole.info),
+        // @ts-expect-error __callAsync is injected by native REA
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        debug: capturableConsole.debug.__callAsync,
+        // @ts-expect-error __callAsync is injected by native REA
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        log: capturableConsole.log.__callAsync,
+        // @ts-expect-error __callAsync is injected by native REA
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        warn: capturableConsole.warn.__callAsync,
+        // @ts-expect-error __callAsync is injected by native REA
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        error: capturableConsole.error.__callAsync,
+        // @ts-expect-error __callAsync is injected by native REA
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        info: capturableConsole.info.__callAsync,
       };
       // @ts-expect-error _setGlobalConsole is set by RuntimeDecorator::decorateRuntime
       _setGlobalConsole(console);
