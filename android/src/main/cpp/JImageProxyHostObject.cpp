@@ -70,7 +70,7 @@ jsi::Value JImageProxyHostObject::get(jsi::Runtime& runtime, const jsi::PropName
   return jsi::Value::undefined();
 }
 
-void JImageProxyHostObject::assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName) {
+void JImageProxyHostObject::assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName) const {
   if (!this->frame) {
     auto message = "Cannot get `" + accessedPropName + "`, frame is already closed!";
     throw jsi::JSError(runtime, message.c_str());

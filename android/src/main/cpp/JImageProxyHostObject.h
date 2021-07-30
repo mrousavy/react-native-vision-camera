@@ -33,7 +33,7 @@ class JSI_EXPORT JImageProxyHostObject : public jsi::HostObject {
  private:
   static auto constexpr TAG = "VisionCamera";
 
-  void assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName); // NOLINT(runtime/references)
+  void assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName) const; // NOLINT(runtime/references)
 };
 
 } // namespace vision
