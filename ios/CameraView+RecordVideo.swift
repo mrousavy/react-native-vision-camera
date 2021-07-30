@@ -202,9 +202,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         break
       }
     }
-
-    // TODO: resize using VideoToolbox (VTPixelTransferSession)
-
+    
     if let frameProcessor = frameProcessorCallback,
        captureOutput is AVCaptureVideoDataOutput {
       // check if last frame was x nanoseconds ago, effectively throttling FPS
