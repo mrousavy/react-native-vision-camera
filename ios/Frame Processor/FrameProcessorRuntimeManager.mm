@@ -24,7 +24,6 @@
     #if __has_include(<RNReanimated/RuntimeManager.h>)
       #import <RNReanimated/RuntimeManager.h>
       #import <RNReanimated/RuntimeDecorator.h>
-      #import <RNReanimated/REAIOSScheduler.h>
       #import <RNReanimated/REAIOSErrorHandler.h>
       #define ENABLE_FRAME_PROCESSORS
     #else
@@ -37,6 +36,7 @@
 
 #import "FrameProcessorUtils.h"
 #import "FrameProcessorCallback.h"
+#import "VisionCameraScheduler.h"
 #import "../React Utils/MakeJSIRuntime.h"
 #import "../React Utils/JSIUtils.h"
 
@@ -69,7 +69,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
     runtime->global().setProperty(*runtime, "_FRAME_PROCESSOR", jsi::Value(true));
 
     auto callInvoker = bridge.jsCallInvoker;
-    auto scheduler = std::make_shared<reanimated::REAIOSScheduler>(callInvoker);
+    auto scheduler = std::make_shared<vision::VisionCameraScheduler>(callInvoker);
     runtimeManager = std::make_unique<reanimated::RuntimeManager>(std::move(runtime),
                                                                   std::make_shared<reanimated::REAIOSErrorHandler>(scheduler),
                                                                   scheduler);
@@ -148,13 +148,14 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
     auto worklet = reanimated::ShareableValue::adapt(runtime, arguments[1], runtimeManager.get());
     NSLog(@"FrameProcessorBindings: Successfully created worklet!");
 
-    RCTExecuteOnMainQueue([worklet, viewTag, self]() {
+    RCTExecuteOnMainQueue([=]() {
       auto currentBridge = [RCTBridge currentBridge];
       auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
       auto view = static_cast<CameraView*>(anonymousView);
 
-      dispatch_async(CameraQueues.frameProcessorQueue, [worklet, view, self]() {
+      dispatch_async(CameraQueues.frameProcessorQueue, [=]() {
         NSLog(@"FrameProcessorBindings: Converting worklet to Objective-C callback...");
+        
         auto& rt = *runtimeManager->runtime;
         auto function = worklet->getValue(rt).asObject(rt).asFunction(rt);
 

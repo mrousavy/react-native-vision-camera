@@ -194,7 +194,7 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
     const values = examplePlugin(frame);
-    _log(`Return Values: ${JSON.stringify(values)}`);
+    console.log(`Return Values: ${JSON.stringify(values)}`);
   }, []);
 
   return (

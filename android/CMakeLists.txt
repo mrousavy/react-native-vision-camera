@@ -18,9 +18,10 @@ add_library(
         src/main/cpp/FrameProcessorRuntimeManager.cpp
         src/main/cpp/FrameProcessorPlugin.cpp
         src/main/cpp/CameraView.cpp
-        src/main/cpp/JImageProxy.cpp
-        src/main/cpp/JImageProxyHostObject.cpp
-        src/main/cpp/JHashMap.cpp
+        src/main/cpp/VisionCameraScheduler.cpp
+        src/main/cpp/java-bindings/JImageProxy.cpp
+        src/main/cpp/java-bindings/JImageProxyHostObject.cpp
+        src/main/cpp/java-bindings/JHashMap.cpp
 )
 
 # includes

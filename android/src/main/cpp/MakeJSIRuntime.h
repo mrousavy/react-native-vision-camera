@@ -15,9 +15,9 @@
   #include <jsi/JSCRuntime.h>
 #endif
 
-using namespace facebook;
-
 namespace vision {
+
+using namespace facebook;
 
 static std::unique_ptr<jsi::Runtime> makeJSIRuntime() {
   #if FOR_HERMES

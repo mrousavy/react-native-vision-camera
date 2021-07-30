@@ -10,12 +10,14 @@
 
 namespace vision {
 
+namespace JSIJNIConversion {
+
 using namespace facebook;
 
-namespace JSIJNIConversion {
-  jobject convertJSIValueToJNIObject(jsi::Runtime& runtime, const jsi::Value& value); // NOLINT(runtime/references)
+jobject convertJSIValueToJNIObject(jsi::Runtime& runtime, const jsi::Value& value); // NOLINT(runtime/references)
 
-  jsi::Value convertJNIObjectToJSIValue(jsi::Runtime& runtime, const jni::local_ref<jobject>& object); // NOLINT(runtime/references)
-};
+jsi::Value convertJNIObjectToJSIValue(jsi::Runtime& runtime, const jni::local_ref<jobject>& object); // NOLINT(runtime/references)
+
+} // namespace JSIJNIConversion
 
 } // namespace vision

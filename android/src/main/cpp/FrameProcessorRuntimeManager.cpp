@@ -15,16 +15,17 @@
 
 #include "MakeJSIRuntime.h"
 #include "CameraView.h"
-#include "JImageProxy.h"
-#include "JImageProxyHostObject.h"
+#include "java-bindings/JImageProxy.h"
+#include "java-bindings/JImageProxyHostObject.h"
 #include "JSIJNIConversion.h"
+#include "VisionCameraScheduler.h"
 
 namespace vision {
 
 // type aliases
 using TSelf = local_ref<HybridClass<vision::FrameProcessorRuntimeManager>::jhybriddata>;
 using JSCallInvokerHolder = jni::alias_ref<facebook::react::CallInvokerHolder::javaobject>;
-using AndroidScheduler = jni::alias_ref<reanimated::AndroidScheduler::javaobject>;
+using AndroidScheduler = jni::alias_ref<VisionCameraScheduler::javaobject>;
 
 // JNI binding
 void vision::FrameProcessorRuntimeManager::registerNatives() {
@@ -51,7 +52,7 @@ TSelf vision::FrameProcessorRuntimeManager::initHybrid(
 
   // cast from JNI hybrid objects to C++ instances
   auto jsCallInvoker = jsCallInvokerHolder->cthis()->getCallInvoker();
-  auto scheduler = androidScheduler->cthis()->getScheduler();
+  auto scheduler = std::shared_ptr<VisionCameraScheduler>(androidScheduler->cthis());
   scheduler->setJSCallInvoker(jsCallInvoker);
 
   return makeCxxInstance(jThis, reinterpret_cast<jsi::Runtime *>(jsContext), jsCallInvoker, scheduler);
@@ -147,24 +148,27 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
                                                      _runtimeManager.get());
     __android_log_write(ANDROID_LOG_INFO, TAG, "Successfully created worklet!");
 
-    // cast worklet to a jsi::Function for the new runtime
-    auto &rt = *this->_runtimeManager->runtime;
-    auto function = std::make_shared<jsi::Function>(worklet->getValue(rt).asObject(rt).asFunction(rt));
 
-    // assign lambda to frame processor
-    cameraView->setFrameProcessor([this, &rt, function](jni::local_ref<JImageProxy::javaobject> frame) {
-      try {
-        // create HostObject which holds the Frame (JImageProxy)
-        auto hostObject = std::make_shared<JImageProxyHostObject>(frame);
-        function->call(rt, jsi::Object::createFromHostObject(rt, hostObject));
-      } catch (jsi::JSError& jsError) {
-        auto message = "Frame Processor threw an error: " + jsError.getMessage();
-        __android_log_write(ANDROID_LOG_ERROR, TAG, message.c_str());
-        this->logErrorToJS(message);
-      }
+    scheduler_->scheduleOnUI([=]() {
+      // cast worklet to a jsi::Function for the new runtime
+      auto &rt = *_runtimeManager->runtime;
+      auto function = std::make_shared<jsi::Function>(worklet->getValue(rt).asObject(rt).asFunction(rt));
+
+      // assign lambda to frame processor
+      cameraView->setFrameProcessor([this, &rt, function](jni::local_ref<JImageProxy::javaobject> frame) {
+        try {
+          // create HostObject which holds the Frame (JImageProxy)
+          auto hostObject = std::make_shared<JImageProxyHostObject>(frame);
+          function->callWithThis(rt, *function, jsi::Object::createFromHostObject(rt, hostObject));
+        } catch (jsi::JSError& jsError) {
+          auto message = "Frame Processor threw an error: " + jsError.getMessage();
+          __android_log_write(ANDROID_LOG_ERROR, TAG, message.c_str());
+          this->logErrorToJS(message);
+        }
+      });
+
+      __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processor set!");
     });
-
-    __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processor set!");
 
     return jsi::Value::undefined();
   };
