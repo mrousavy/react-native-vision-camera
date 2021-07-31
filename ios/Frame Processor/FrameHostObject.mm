@@ -110,11 +110,11 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
         auto end = start + (size * sizeof(buffer[0]));
         auto vector = std::vector<uint8_t>(start, end);
         
-        auto& arrayCache = this->cacheProvider->getArrayBufferCache(vector.size(), planesCount);
-        arrayCache[i].update(runtime, vector);
+        auto& arrayCache = this->cacheProvider->getArrayBufferCache(i, vector.size());
+        arrayCache.update(runtime, vector);
         
         auto plane = jsi::Object(runtime);
-        plane.setProperty(runtime, "pixels", arrayCache[i]);
+        plane.setProperty(runtime, "pixels", arrayCache);
         
         planes.setValueAtIndex(runtime, i, plane);
       }
@@ -139,11 +139,11 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       auto end = start + (size * sizeof(uint8_t));
       auto vector = std::vector<uint8_t>(start, end);
       
-      auto& arrayCache = this->cacheProvider->getArrayBufferCache(vector.size(), 1);
-      arrayCache[0].update(runtime, vector);
+      auto& arrayCache = this->cacheProvider->getArrayBufferCache(0, vector.size());
+      arrayCache.update(runtime, vector);
 
       auto plane = jsi::Object(runtime);
-      plane.setProperty(runtime, "pixels", arrayCache[0]);
+      plane.setProperty(runtime, "pixels", arrayCache);
       
       planes.setValueAtIndex(runtime, 0, plane);
       return planes;

@@ -8,8 +8,9 @@
 
 #pragma once
 
-#include <jsi/jsi.h>
 #include "../../cpp/jsi/TypedArray.h"
+#include <jsi/jsi.h>
+#include <unordered_map>
 
 namespace vision {
 
@@ -22,20 +23,18 @@ public:
   explicit TypedArrayCacheProvider(jsi::Runtime& runtime): runtime(runtime) {}
   
 public:
-  std::vector<TypedArray<T>>& getArrayBufferCache(size_t bufferSize, size_t arraysCount) {
-    if (this->arrayBuffers.size() != arraysCount) {
-      arrayBuffers.reserve(arraysCount);
-      for (size_t i = 0; i < arraysCount; i++) {
-        arrayBuffers.push_back(TypedArray<T>(runtime, bufferSize));
-      }
+  TypedArray<T>& getArrayBufferCache(size_t arrayBufferIndex, size_t bufferSize) {
+    auto element = arrayBuffers.find(arrayBufferIndex);
+    if (element == arrayBuffers.end() || element->second->size(runtime) != bufferSize) {
+      arrayBuffers[arrayBufferIndex] = std::make_unique<TypedArray<T>>(runtime, bufferSize);
     }
     
-    return arrayBuffers;
+    return *arrayBuffers[arrayBufferIndex];
   }
   
 private:
   jsi::Runtime& runtime;
-  std::vector<TypedArray<T>> arrayBuffers;
+  std::unordered_map<size_t, std::unique_ptr<TypedArray<T>>> arrayBuffers;
 };
 
 
