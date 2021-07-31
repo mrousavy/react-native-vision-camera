@@ -11,6 +11,7 @@
 #import <jsi/jsi.h>
 #import <CoreMedia/CMSampleBuffer.h>
 #import "Frame.h"
+#import "../../cpp/jsi/TypedArrayCacheProvider.h"
 
 using namespace facebook;
 
@@ -18,7 +19,9 @@ namespace vision {
 
 class JSI_EXPORT FrameHostObject: public jsi::HostObject {
 public:
-  explicit FrameHostObject(Frame* _Nonnull frame): frame(frame) {}
+  explicit FrameHostObject(Frame* _Nonnull frame,
+                           std::shared_ptr<TypedArrayCacheProvider<TypedArrayKind::Uint8Array>> cacheProvider):
+    frame(frame), cacheProvider(cacheProvider) {}
   ~FrameHostObject();
 
 public:
@@ -31,6 +34,9 @@ public:
   
 private:
   void assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName);
+  
+private:
+  std::shared_ptr<TypedArrayCacheProvider<TypedArrayKind::Uint8Array>> cacheProvider;
 };
 
 } // namespace vision

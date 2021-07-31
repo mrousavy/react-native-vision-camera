@@ -14,6 +14,7 @@
 #import <ReactCommon/TurboModuleUtils.h>
 #import "../Frame Processor/Frame.h"
 #import "../Frame Processor/FrameHostObject.h"
+#import "../../cpp/jsi/TypedArrayCacheProvider.h"
 
 using namespace facebook;
 using namespace facebook::react;
@@ -69,7 +70,8 @@ jsi::Value convertObjCObjectToJSIValue(jsi::Runtime &runtime, id value)
   } else if (value == (id)kCFNull) {
     return jsi::Value::null();
   } else if ([value isKindOfClass:[Frame class]]) {
-    auto frameHostObject = std::make_shared<vision::FrameHostObject>((Frame*)value);
+    auto cacheProvider = std::make_shared<vision::TypedArrayCacheProvider<vision::TypedArrayKind::Uint8Array>>(runtime);
+    auto frameHostObject = std::make_shared<vision::FrameHostObject>((Frame*)value, cacheProvider);
     return jsi::Object::createFromHostObject(runtime, frameHostObject);
   }
   return jsi::Value::undefined();

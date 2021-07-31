@@ -108,11 +108,13 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
         
         auto start = buffer;
         auto end = start + (size * sizeof(buffer[0]));
+        auto vector = std::vector<uint8_t>(start, end);
         
-        auto pixelsBuffer = TypedArray<TypedArrayKind::Uint8Array>(runtime, std::vector<uint8_t>(start, end));
+        auto& arrayCache = this->cacheProvider->getArrayBufferCache(vector.size(), planesCount);
+        arrayCache[i].update(runtime, vector);
         
         auto plane = jsi::Object(runtime);
-        plane.setProperty(runtime, "pixels", pixelsBuffer);
+        plane.setProperty(runtime, "pixels", arrayCache[i]);
         
         planes.setValueAtIndex(runtime, i, plane);
       }
@@ -121,7 +123,6 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     } else {
       // Image Buffer is not separated into planes, buffer accessible at once
       auto planes = jsi::Array(runtime, 1);
-      auto plane = jsi::Object(runtime);
       
       int result = CVPixelBufferLockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly);
       if (result != noErr) {
@@ -138,8 +139,11 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       auto end = start + (size * sizeof(uint8_t));
       auto vector = std::vector<uint8_t>(start, end);
       
-      auto array = TypedArray<TypedArrayKind::Uint8Array>(runtime, vector);
-      plane.setProperty(runtime, "pixels", array);
+      auto& arrayCache = this->cacheProvider->getArrayBufferCache(vector.size(), 1);
+      arrayCache[0].update(runtime, vector);
+
+      auto plane = jsi::Object(runtime);
+      plane.setProperty(runtime, "pixels", arrayCache[0]);
       
       planes.setValueAtIndex(runtime, 0, plane);
       return planes;

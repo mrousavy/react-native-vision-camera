@@ -12,6 +12,7 @@
 
 #import "FrameHostObject.h"
 #import "Frame.h"
+#import "../../cpp/jsi/TypedArrayCacheProvider.h"
 
 #import <React/RCTBridge.h>
 #import <React/RCTBridge+Private.h>
@@ -23,11 +24,13 @@
 FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &runtime, const jsi::Function &value) {
   __block auto cb = value.getFunction(runtime);
 
+  auto cacheProvider = std::make_shared<vision::TypedArrayCacheProvider<vision::TypedArrayKind::Uint8Array>>(runtime);
+  
   return ^(Frame* frame) {
-    // forces garbage collection to run & delete ArrayBuffers after this goes out of scope
+    // suggests garbage collection to run & delete ArrayBuffers after this goes out of scope
     jsi::Scope scope(runtime);
 
-    auto frameHostObject = std::make_shared<vision::FrameHostObject>(frame);
+    auto frameHostObject = std::make_shared<vision::FrameHostObject>(frame, cacheProvider);
     try {
       cb.callWithThis(runtime, cb, jsi::Object::createFromHostObject(runtime, frameHostObject));
     } catch (jsi::JSError& jsError) {
