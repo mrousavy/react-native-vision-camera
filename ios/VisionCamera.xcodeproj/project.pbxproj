@@ -265,8 +265,6 @@
 				B88873E5263D46C7008B1D0E /* FrameProcessorPlugin.h */,
 				B80416F026AB16E8000DEB6A /* VisionCameraScheduler.mm */,
 				B80416F126AB16F3000DEB6A /* VisionCameraScheduler.h */,
-				B876D85C26B2E6110096F522 /* PixelBufferCache.h */,
-				B876D85B26B2E6040096F522 /* PixelBufferCache.mm */,
 			);
 			path = "Frame Processor";
 			sourceTree = "<group>";

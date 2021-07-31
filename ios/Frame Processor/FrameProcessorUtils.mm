@@ -18,10 +18,14 @@
 #import "JSConsoleHelper.h"
 #import <ReactCommon/RCTTurboModule.h>
 
+#import <jsi/jsi.h>
+
 FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &runtime, const jsi::Function &value) {
   __block auto cb = value.getFunction(runtime);
 
   return ^(Frame* frame) {
+    // forces garbage collection to run & delete ArrayBuffers after this goes out of scope
+    jsi::Scope scope(runtime);
 
     auto frameHostObject = std::make_shared<vision::FrameHostObject>(frame);
     try {

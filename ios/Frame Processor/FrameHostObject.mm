@@ -85,72 +85,71 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     return jsi::Value((double) planesCount);
   }
   if (name == "planes") {
-    if (!this->planesCache) {
-      this->assertIsFrameStrong(runtime, name);
-      auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
-      bool isPlanar = CVPixelBufferIsPlanar(imageBuffer);
+    this->assertIsFrameStrong(runtime, name);
+    auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
+    bool isPlanar = CVPixelBufferIsPlanar(imageBuffer);
+    
+    if (isPlanar) {
+      // Image Buffer is separated into planes
+      auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
+      auto planes = jsi::Array(runtime, (size_t) planesCount);
       
-      if (isPlanar) {
-        // Image Buffer is separated into planes
-        auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
-        planesCache = std::make_shared<jsi::Array>(runtime, (size_t) planesCount);
-        
-        for (size_t i = 0; i < planesCount; i++) {
-          auto plane = jsi::Object(runtime);
-          
-          int result = CVPixelBufferLockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly);
-          if (result != noErr) {
-            throw jsi::JSError(runtime, "Failed to read the Frame's pixel buffer! Error code: " + std::to_string(result));
-          }
-          uint8_t* buffer = (uint8_t*) CVPixelBufferGetBaseAddressOfPlane(imageBuffer, i);
-          CVPixelBufferUnlockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly);
-          
-          auto bytesPerRow = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer, i);
-          auto height = CVPixelBufferGetHeightOfPlane(imageBuffer, i);
-          auto size = bytesPerRow * height;
-          
-          auto start = buffer;
-          auto end = start + (size * sizeof(uint8_t));
-          std::vector<uint8_t> vector(start, end);
-          
-          auto array = TypedArray<TypedArrayKind::Uint8Array>(runtime, vector);
-          plane.setProperty(runtime, "pixels", array);
-          planesCache->setValueAtIndex(runtime, i, plane);
-        }
-      } else {
-        // Image Buffer is not separated into planes, buffer accessible at once
-        planesCache = std::make_shared<jsi::Array>(runtime, 1);
-        auto plane = jsi::Object(runtime);
-        
+      for (size_t i = 0; i < planesCount; i++) {
         int result = CVPixelBufferLockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly);
         if (result != noErr) {
           throw jsi::JSError(runtime, "Failed to read the Frame's pixel buffer! Error code: " + std::to_string(result));
         }
-        uint8_t* buffer = (uint8_t*) CVPixelBufferGetBaseAddress(imageBuffer);
+        uint8_t* buffer = (uint8_t*) CVPixelBufferGetBaseAddressOfPlane(imageBuffer, i);
         CVPixelBufferUnlockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly);
         
-        auto bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
-        auto height = CVPixelBufferGetHeight(imageBuffer);
+        auto bytesPerRow = CVPixelBufferGetBytesPerRowOfPlane(imageBuffer, i);
+        auto height = CVPixelBufferGetHeightOfPlane(imageBuffer, i);
         auto size = bytesPerRow * height;
         
         auto start = buffer;
-        auto end = start + (size * sizeof(uint8_t));
-        std::vector<uint8_t> vector(start, end);
+        auto end = start + (size * sizeof(buffer[0]));
         
-        auto array = TypedArray<TypedArrayKind::Uint8Array>(runtime, vector);
-        plane.setProperty(runtime, "pixels", array);
+        auto pixelsBuffer = TypedArray<TypedArrayKind::Uint8Array>(runtime, std::vector<uint8_t>(start, end));
         
-        planesCache->setValueAtIndex(runtime, 0, plane);
+        auto plane = jsi::Object(runtime);
+        plane.setProperty(runtime, "pixels", pixelsBuffer);
+        
+        planes.setValueAtIndex(runtime, i, plane);
       }
+      
+      return planes;
+    } else {
+      // Image Buffer is not separated into planes, buffer accessible at once
+      auto planes = jsi::Array(runtime, 1);
+      auto plane = jsi::Object(runtime);
+      
+      int result = CVPixelBufferLockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly);
+      if (result != noErr) {
+        throw jsi::JSError(runtime, "Failed to read the Frame's pixel buffer! Error code: " + std::to_string(result));
+      }
+      uint8_t* buffer = (uint8_t*) CVPixelBufferGetBaseAddress(imageBuffer);
+      CVPixelBufferUnlockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly);
+      
+      auto bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
+      auto height = CVPixelBufferGetHeight(imageBuffer);
+      auto size = bytesPerRow * height;
+      
+      auto start = buffer;
+      auto end = start + (size * sizeof(uint8_t));
+      auto vector = std::vector<uint8_t>(start, end);
+      
+      auto array = TypedArray<TypedArrayKind::Uint8Array>(runtime, vector);
+      plane.setProperty(runtime, "pixels", array);
+      
+      planes.setValueAtIndex(runtime, 0, plane);
+      return planes;
     }
-    
-    return this->planesCache->getArray(runtime);
   }
 
   return jsi::Value::undefined();
 }
 
-void FrameHostObject::assertIsFrameStrong(jsi::Runtime &runtime, const std::string &accessedPropName) {
+void FrameHostObject::assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName) {
   if (frame == nil) {
     auto message = "Cannot get `" + accessedPropName + "`, frame is already closed!";
     throw jsi::JSError(runtime, message.c_str());
@@ -166,9 +165,6 @@ void FrameHostObject::close() {
     CMSampleBufferInvalidate(frame.buffer);
     // ARC will hopefully delete it lol
     this->frame = nil;
-  }
-  if (this->planesCache) {
-    this->planesCache.reset();
   }
 }
 
