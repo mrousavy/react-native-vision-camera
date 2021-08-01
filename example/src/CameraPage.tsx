@@ -193,8 +193,19 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
 
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
-    const values = examplePlugin(frame);
-    console.log(`Return Values: ${JSON.stringify(values)}`);
+    console.log('Okay lets do this');
+    const planes = frame.planes;
+    console.log('i got it');
+    console.log('size: ' + planes.length);
+    // console.log('first: ' + planes[0]);
+    const plane = planes[0];
+    console.log('first---: ' + plane?.pixels);
+    // for (let i = buf.length * 0.5; i < buf.length * 0.5 + 50; i++) {
+    //   const val = buf[i];
+    //   _log(`buf[${i}] = ${val}`);
+    // }
+    // const values = examplePlugin(frame);
+    // _log(`Return Values: ${JSON.stringify(values)}`);
   }, []);
 
   return (
