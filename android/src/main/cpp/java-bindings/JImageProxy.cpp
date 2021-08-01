@@ -43,6 +43,12 @@ int JImageProxy::getBytesPerRow() {
   return getRowStrideMethod(firstPlane.get());
 }
 
+uint8_t* JImageProxy::getPixels() {
+  static const auto getPlanesMethod = getClass()->getMethod<JArrayClass<jobject>()>("getPlanes");
+  auto planes = getPlanesMethod(self());
+  planes
+}
+
 void JImageProxy::close() {
   static const auto closeMethod = getClass()->getMethod<void()>("close");
   closeMethod(self());

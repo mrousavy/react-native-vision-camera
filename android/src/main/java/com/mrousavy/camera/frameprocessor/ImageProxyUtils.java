@@ -26,4 +26,12 @@ public class ImageProxyUtils {
             return false;
         }
     }
+
+    public static byte[] getImageBytes(ImageProxy imageProxy) {
+
+        ImageProxy.PlaneProxy[] planes = imageProxy.getPlanes();
+        
+        planes[0].getBuffer()
+
+    }
 }

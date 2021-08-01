@@ -19,6 +19,7 @@ struct JImageProxy : public facebook::jni::JavaClass<JImageProxy> {
   int getPlaneCount();
   int getBytesPerRow();
   void close();
+  uint8_t* getPixels();
 };
 
 } // namespace vision
