@@ -89,7 +89,7 @@ extension AVCaptureDevice.Format {
         return false
       }
     }
-    
+
     if #available(iOS 13.0, *) {
       if let isHighestPhotoQualitySupported = filter.value(forKey: "isHighestPhotoQualitySupported") as? Bool {
         if self.isHighestPhotoQualitySupported != isHighestPhotoQualitySupported {

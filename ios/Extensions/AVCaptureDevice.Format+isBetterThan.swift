@@ -23,7 +23,7 @@ extension AVCaptureDevice.Format {
     }
 
     // compare video dimensions
-    let leftVideo = self.videoDimensions
+    let leftVideo = videoDimensions
     let rightVideo = other.videoDimensions
     if leftVideo.height * leftVideo.width > rightVideo.height * rightVideo.width {
       return true
