@@ -22,13 +22,11 @@ extension AVCaptureDevice.Format {
       return true
     }
 
-    if #available(iOS 13.0, *) {
-      // compare video dimensions
-      let leftVideo = self.formatDescription.presentationDimensions()
-      let rightVideo = other.formatDescription.presentationDimensions()
-      if leftVideo.height * leftVideo.width > rightVideo.height * rightVideo.width {
-        return true
-      }
+    // compare video dimensions
+    let leftVideo = self.videoDimensions
+    let rightVideo = other.videoDimensions
+    if leftVideo.height * leftVideo.width > rightVideo.height * rightVideo.width {
+      return true
     }
 
     // compare max fps

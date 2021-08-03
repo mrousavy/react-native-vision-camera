@@ -24,22 +24,14 @@ extension AVCaptureDevice.Format {
         return false
       }
     }
-
-    if #available(iOS 13.0, *) {
-      if let videoHeight = filter.value(forKey: "videoHeight") as? NSNumber {
-        if self.formatDescription.presentationDimensions().height != CGFloat(videoHeight.doubleValue) {
-          return false
-        }
+    if let videoHeight = filter.value(forKey: "videoHeight") as? NSNumber {
+      if videoDimensions.height != CGFloat(videoHeight.doubleValue) {
+        return false
       }
-      if let videoWidth = filter.value(forKey: "videoWidth") as? NSNumber {
-        if self.formatDescription.presentationDimensions().width != CGFloat(videoWidth.doubleValue) {
-          return false
-        }
-      }
-      if let isHighestPhotoQualitySupported = filter.value(forKey: "isHighestPhotoQualitySupported") as? Bool {
-        if self.isHighestPhotoQualitySupported != isHighestPhotoQualitySupported {
-          return false
-        }
+    }
+    if let videoWidth = filter.value(forKey: "videoWidth") as? NSNumber {
+      if videoDimensions.width != CGFloat(videoWidth.doubleValue) {
+        return false
       }
     }
     if let maxISO = filter.value(forKey: "maxISO") as? NSNumber {
@@ -95,6 +87,14 @@ extension AVCaptureDevice.Format {
       let allStabilizationModesIncluded = self.videoStabilizationModes.allSatisfy { avVideoStabilizationModes.contains($0) }
       if !allStabilizationModesIncluded {
         return false
+      }
+    }
+    
+    if #available(iOS 13.0, *) {
+      if let isHighestPhotoQualitySupported = filter.value(forKey: "isHighestPhotoQualitySupported") as? Bool {
+        if self.isHighestPhotoQualitySupported != isHighestPhotoQualitySupported {
+          return false
+        }
       }
     }
 

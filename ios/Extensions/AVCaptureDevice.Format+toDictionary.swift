@@ -22,8 +22,6 @@ extension AVCaptureDevice.Format {
   }
 
   func toDictionary() -> [String: Any] {
-    let videoDimensions = CMVideoFormatDescriptionGetDimensions(formatDescription)
-
     var dict: [String: Any] = [
       "videoStabilizationModes": videoStabilizationModes.map(\.descriptor),
       "autoFocusSystem": autoFocusSystem.descriptor,
