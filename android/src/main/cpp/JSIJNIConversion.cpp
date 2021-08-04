@@ -21,8 +21,6 @@
 
 #include "java-bindings/JImageProxyHostObject.h"
 #include "java-bindings/JImageProxy.h"
-#include "java-bindings/JReadableArray.h"
-#include "java-bindings/JReadableMap.h"
 #include "java-bindings/JArrayList.h"
 #include "java-bindings/JHashMap.h"
 
@@ -128,61 +126,58 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
 
     return jsi::String::createFromUtf8(runtime, object->toString());
 
-  } else if (object->isInstanceOf(JReadableArray::javaClassStatic())) {
+  } else if (object->isInstanceOf(JArrayList<jobject>::javaClassStatic())) {
+    // ArrayList<E>
+
+    auto arrayList = static_ref_cast<JArrayList<jobject>>(object);
+    auto size = arrayList->size();
+
+    auto result = jsi::Array(runtime, size);
+    size_t i = 0;
+    for (const auto& item : *arrayList) {
+      result.setValueAtIndex(runtime, i, convertJNIObjectToJSIValue(runtime, item));
+      i++;
+    }
+    return result;
+
+  } else if (object->isInstanceOf(react::ReadableArray::javaClassStatic())) {
     // ReadableArray
 
-    static const auto toArrayListFunc = JReadableArray::javaClassLocal()->getMethod<JArrayList<jobject>()>("toArrayList");
+    static const auto toArrayListFunc = react::ReadableArray::javaClassLocal()->getMethod<JArrayList<jobject>()>("toArrayList");
 
+    // call recursive, this time ArrayList<E>
     auto array = toArrayListFunc(object.get());
-    auto size = array->size();
+    return convertJNIObjectToJSIValue(runtime, array);
 
-    auto result = jsi::Array(runtime, size);
-    size_t i = 0;
-    for (auto& item : *array) {
-      result.setValueAtIndex(runtime, i, convertJNIObjectToJSIValue(runtime, item));
-      i++;
-    }
-    return result;
+  } else if (object->isInstanceOf(jni::JHashMap<jstring, jobject>::javaClassStatic())) {
+    // HashMap<K, V>
 
-  } else if (object->isInstanceOf(JArrayList<jobject>::javaClassStatic())) {
-    // ArrayList
-
-    static const auto iteratorFunc = JArrayList<jobject>::javaClassLocal()->getMethod<jni::JIterator<jobject>()>("iterator");
-    static const auto sizeFunc = JArrayList<jobject>::javaClassLocal()->getMethod<jint()>("size");
-
-    auto iterator = iteratorFunc(object.get());
-    auto size = sizeFunc(object.get());
-
-    auto result = jsi::Array(runtime, size);
-    size_t i = 0;
-    for (auto& item : *iterator) {
-      result.setValueAtIndex(runtime, i, convertJNIObjectToJSIValue(runtime, item));
-      i++;
-    }
-    return result;
-
-  } else if (object->isInstanceOf(JReadableMap::javaClassStatic())) {
-    // ReadableMap
-
-    static const auto toHashMapFunc = JReadableMap::javaClassLocal()->getMethod<jni::JHashMap<jstring, jobject>()>("toHashMap");
-    auto hashMap = toHashMapFunc(object.get());
+    auto map = static_ref_cast<jni::JHashMap<jstring, jobject>>(object);
 
     auto result = jsi::Object(runtime);
-
-    for (const auto& entry : *hashMap) {
+    for (const auto& entry : *map) {
       auto key = entry.first->toString();
       auto value = entry.second;
       auto jsiValue = convertJNIObjectToJSIValue(runtime, value);
       result.setProperty(runtime, key.c_str(), jsiValue);
     }
-
     return result;
+
+  } else if (object->isInstanceOf(react::ReadableMap::javaClassStatic())) {
+    // ReadableMap
+
+    static const auto toHashMapFunc = react::ReadableMap::javaClassLocal()->getMethod<jni::JHashMap<jstring, jobject>()>("toHashMap");
+
+    // call recursive, this time HashMap<K, V>
+    auto hashMap = toHashMapFunc(object.get());
+    return convertJNIObjectToJSIValue(runtime, hashMap);
+
   }
 
   auto type = object->getClass()->toString();
   auto message = "Received unknown JNI type \"" + type + "\"! Cannot convert to jsi::Value.";
   __android_log_write(ANDROID_LOG_ERROR, "VisionCamera", message.c_str());
-  return jsi::Value::undefined();
+  throw std::runtime_error(message);
 }
 
 } // namespace vision
