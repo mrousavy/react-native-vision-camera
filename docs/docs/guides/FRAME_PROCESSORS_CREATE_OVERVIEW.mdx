@@ -39,8 +39,8 @@ Similar to a TurboModule, the Frame Processor Plugin Registry API automatically 
 | `number`             | `NSNumber*` (double)          | `Double`                   |
 | `boolean`            | `NSNumber*` (boolean)         | `Boolean`                  |
 | `string`             | `NSString*`                   | `String`                   |
-| `[]`                 | `NSArray*`                    | `ReadableNativeArray`      |
-| `{}`                 | `NSDictionary*`               | `ReadableNativeMap`        |
+| `[]`                 | `NSArray*`                    | `ArrayList<E>`             |
+| `{}`                 | `NSDictionary*`               | `HashMap<K, V>`            |
 | `undefined` / `null` | `nil`                         | `null`                     |
 | `(any, any) => void` | [`RCTResponseSenderBlock`][4] | `(Object, Object) -> void` |
 | [`Frame`][1]         | [`Frame*`][2]                 | [`ImageProxy`][3]          |
