@@ -13,8 +13,9 @@ using namespace facebook;
 using namespace jni;
 
 // TODO: Remove when fbjni 0.2.3 releases.
-struct JArrayList : public JavaClass<JArrayList> {
-  static constexpr auto kJavaDescriptor = "Ljava/util/ArrayList;";
+template <typename E = jobject>
+struct JArrayList : JavaClass<JArrayList<E>, JList<E>> {
+  constexpr static auto kJavaDescriptor = "Ljava/util/ArrayList;";
 };
 
 } // namespace vision

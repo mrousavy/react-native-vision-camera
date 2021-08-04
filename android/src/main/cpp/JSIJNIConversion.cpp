@@ -131,22 +131,24 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
   } else if (object->isInstanceOf(JReadableArray::javaClassStatic())) {
     // ReadableArray
 
-    static const auto toArrayListFunc = JReadableArray::javaClassLocal()->getMethod<jni::JArrayClass<jobject>()>("toArrayList");
+    static const auto toArrayListFunc = JReadableArray::javaClassLocal()->getMethod<JArrayList<jobject>()>("toArrayList");
 
     auto array = toArrayListFunc(object.get());
     auto size = array->size();
 
     auto result = jsi::Array(runtime, size);
-    for (size_t i = 0; i < size; i++) {
-      result.setValueAtIndex(runtime, i, convertJNIObjectToJSIValue(runtime, (*array)[i]));
+    size_t i = 0;
+    for (auto& item : *array) {
+      result.setValueAtIndex(runtime, i, convertJNIObjectToJSIValue(runtime, item));
+      i++;
     }
     return result;
 
-  } else if (object->isInstanceOf(JArrayList::javaClassStatic())) {
+  } else if (object->isInstanceOf(JArrayList<jobject>::javaClassStatic())) {
     // ArrayList
 
-    static const auto iteratorFunc = JArrayList::javaClassLocal()->getMethod<jni::JIterator<jobject>()>("iterator");
-    static const auto sizeFunc = JArrayList::javaClassLocal()->getMethod<jint()>("size");
+    static const auto iteratorFunc = JArrayList<jobject>::javaClassLocal()->getMethod<jni::JIterator<jobject>()>("iterator");
+    static const auto sizeFunc = JArrayList<jobject>::javaClassLocal()->getMethod<jint()>("size");
 
     auto iterator = iteratorFunc(object.get());
     auto size = sizeFunc(object.get());
