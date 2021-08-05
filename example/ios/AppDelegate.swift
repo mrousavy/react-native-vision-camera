@@ -19,7 +19,10 @@ class AppDelegate: NSObject, UIApplicationDelegate, RCTBridgeDelegate {
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool
     {
         window = UIWindow(frame: UIScreen.main.bounds)
-        window?.makeKeyAndVisible()
+        guard let window = window else {
+            return false
+        }
+        window.makeKeyAndVisible()
 
         bridge = RCTBridge(delegate: self, launchOptions: launchOptions)
         guard let bridge = bridge else {
