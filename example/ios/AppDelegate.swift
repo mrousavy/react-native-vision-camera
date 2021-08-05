@@ -10,11 +10,19 @@ import UIKit
 
 @UIApplicationMain
 class AppDelegate: NSObject, UIApplicationDelegate, RCTBridgeDelegate {
+    var bridge: RCTBridge?
+    var window: UIWindow?
+
     // MARK: - App Initialization
 
     func application(_: UIApplication,
-                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-        guard let bridge = RCTBridge(delegate: self, launchOptions: launchOptions) else {
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool
+    {
+        window = UIWindow(frame: UIScreen.main.bounds)
+        window?.makeKeyAndVisible()
+
+        bridge = RCTBridge(delegate: self, launchOptions: launchOptions)
+        guard let bridge = bridge else {
             return false
         }
         ReactNativeNavigation.bootstrap(with: bridge)
