@@ -74,14 +74,14 @@ jobject JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtime &runtime, cons
         return hostObject->frame.get();
       } else {
         // it's different kind of HostObject. We don't support it.
-        return nullptr;
+        throw std::runtime_error("Received an unknown HostObject! Cannot convert to a JNI value.");
       }
 
     } else if (object.isFunction(runtime)) {
       // jsi::Function
 
       // TODO: Convert Function to Callback
-      return nullptr;
+      throw std::runtime_error("Cannot convert a JS Function to a JNI value (yet)!");
 
     } else {
       // jsi::Object
@@ -89,13 +89,15 @@ jobject JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtime &runtime, cons
       auto dynamic = jsi::dynamicFromValue(runtime, value);
       auto map = react::ReadableNativeMap::createWithContents(std::move(dynamic));
       return map.release();
+
     }
   } else {
     // unknown jsi type!
+
     auto stringRepresentation = value.toString(runtime).utf8(runtime);
-    auto message = "Received unknown JSI value! (" + stringRepresentation + ") Cannot convert to JNI Object.";
-    __android_log_write(ANDROID_LOG_ERROR, "VisionCamera", message.c_str());
-    return nullptr;
+    auto message = "Received unknown JSI value! (" + stringRepresentation + ") Cannot convert to a JNI value.";
+    throw std::runtime_error(message);
+
   }
 }
 
