@@ -8,6 +8,8 @@
 import Foundation
 import UIKit
 
+// TODO: Reanimated cannot be installed when AppDelegate is written in Swift.
+
 @UIApplicationMain
 class AppDelegate: NSObject, UIApplicationDelegate, RCTBridgeDelegate {
     var bridge: RCTBridge?
