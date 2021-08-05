@@ -4,6 +4,7 @@
 
 #import <React/RCTBridge.h>
 #import <React/RCTBridgeDelegate.h>
+#import <React/RCTBundleURLProvider.h>
 #import <ReactNativeNavigation/ReactNativeNavigation.h>
 
 #import <VisionCamera/FrameProcessorPlugin.h>
