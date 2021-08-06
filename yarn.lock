@@ -1232,6 +1232,11 @@
   resolved "https://registry.yarnpkg.com/@octokit/openapi-types/-/openapi-types-7.3.5.tgz#ffd195472f345b32fb29ba3c86a1ee68c09f24b3"
   integrity sha512-6bm5lzGDOeSnWHM5W8OZ86RD2KpchynU+/Qlm5hNEFjfLDhwfAY2lSe68YRUEYFGlxSHe0HmakyhvmtWoD3Zog==
 
+"@octokit/openapi-types@^9.4.0":
+  version "9.4.0"
+  resolved "https://registry.yarnpkg.com/@octokit/openapi-types/-/openapi-types-9.4.0.tgz#31a76fb4c0f2e15af300edd880cedf4f75be212b"
+  integrity sha512-rKRkXikOJgDNImPl49IJuECLVXjj+t4qOXHhl8SBjMQCGGp1w4m5Ud/0kfdUx+zCpTvBN8vaOUDF4nnboZoOtQ==
+
 "@octokit/plugin-paginate-rest@^2.6.2":
   version "2.13.5"
   resolved "https://registry.yarnpkg.com/@octokit/plugin-paginate-rest/-/plugin-paginate-rest-2.13.5.tgz#e459f9b5dccbe0a53f039a355d5b80c0a2b0dc57"
@@ -1244,12 +1249,12 @@
   resolved "https://registry.yarnpkg.com/@octokit/plugin-request-log/-/plugin-request-log-1.0.4.tgz#5e50ed7083a613816b1e4a28aeec5fb7f1462e85"
   integrity sha512-mLUsMkgP7K/cnFEw07kWqXGF5LKrOkD+lhCrKvPHXWDywAwuDUeDwWBpc69XK3pNX0uKiVt8g5z96PJ6z9xCFA==
 
-"@octokit/plugin-rest-endpoint-methods@5.3.1":
-  version "5.3.1"
-  resolved "https://registry.yarnpkg.com/@octokit/plugin-rest-endpoint-methods/-/plugin-rest-endpoint-methods-5.3.1.tgz#deddce769b4ec3179170709ab42e4e9e6195aaa9"
-  integrity sha512-3B2iguGmkh6bQQaVOtCsS0gixrz8Lg0v4JuXPqBcFqLKuJtxAUf3K88RxMEf/naDOI73spD+goJ/o7Ie7Cvdjg==
+"@octokit/plugin-rest-endpoint-methods@5.5.1":
+  version "5.5.1"
+  resolved "https://registry.yarnpkg.com/@octokit/plugin-rest-endpoint-methods/-/plugin-rest-endpoint-methods-5.5.1.tgz#31cce8fc3eda4d186bd90828cb7a2203ad95e3d1"
+  integrity sha512-Al57+OZmO65JpiPk4JS6u6kQ2y9qjoZtY1IWiSshc4N+F7EcrK8Rgy/cUJBB4WIcSFUQyF66EJQK1oKgXWeRNw==
   dependencies:
-    "@octokit/types" "^6.16.2"
+    "@octokit/types" "^6.21.1"
     deprecation "^2.3.1"
 
 "@octokit/request-error@^2.0.5", "@octokit/request-error@^2.1.0":
@@ -1273,22 +1278,29 @@
     node-fetch "^2.6.1"
     universal-user-agent "^6.0.0"
 
-"@octokit/rest@18.6.0":
-  version "18.6.0"
-  resolved "https://registry.yarnpkg.com/@octokit/rest/-/rest-18.6.0.tgz#9a8457374c78c2773d3ab3f50aaffc62f3ed4f76"
-  integrity sha512-MdHuXHDJM7e5sUBe3K9tt7th0cs4csKU5Bb52LRi2oHAeIMrMZ4XqaTrEv660HoUPoM1iDlnj27Ab/Nh3MtwlA==
+"@octokit/rest@18.7.1":
+  version "18.7.1"
+  resolved "https://registry.yarnpkg.com/@octokit/rest/-/rest-18.7.1.tgz#575ecf8b881b79540daa28b0fa3a2b3ae8ef2649"
+  integrity sha512-790Yv8Xpbqs3BtnMAO5hlOftVICHPdgZ/3qlTmeOoqrQGzT25BIpHkg/KKMeKG9Fg8d598PLxGhf80RswElv9g==
   dependencies:
     "@octokit/core" "^3.5.0"
     "@octokit/plugin-paginate-rest" "^2.6.2"
     "@octokit/plugin-request-log" "^1.0.2"
-    "@octokit/plugin-rest-endpoint-methods" "5.3.1"
+    "@octokit/plugin-rest-endpoint-methods" "5.5.1"
 
-"@octokit/types@^6.0.3", "@octokit/types@^6.13.0", "@octokit/types@^6.16.1", "@octokit/types@^6.16.2":
+"@octokit/types@^6.0.3", "@octokit/types@^6.13.0", "@octokit/types@^6.16.1":
   version "6.16.7"
   resolved "https://registry.yarnpkg.com/@octokit/types/-/types-6.16.7.tgz#f27e87daf7ed87bde3e67b2e71956468fa4d02a7"
   integrity sha512-OuQELiwIKeDySgNID52vm33wDRc2aaX8lKYgAw9Hmw939ITow1HspT8/AH3M3jgGFUMDmHlMNBNEmH7xV7ggXQ==
   dependencies:
     "@octokit/openapi-types" "^7.3.5"
+
+"@octokit/types@^6.21.1":
+  version "6.24.0"
+  resolved "https://registry.yarnpkg.com/@octokit/types/-/types-6.24.0.tgz#d7858ceae8ac29256da85dcfcb9acbae28e6ba22"
+  integrity sha512-MfEimJeQ8AV1T2nI5kOfHqsqPHaAnG0Dw3MVoHSEsEq6iLKx2N91o+k2uAgXhPYeSE76LVBqjgTShnFFgNwe0A==
+  dependencies:
+    "@octokit/openapi-types" "^9.4.0"
 
 "@react-native-community/cli-debugger-ui@^5.0.1":
   version "5.0.1"
@@ -2857,10 +2869,10 @@ debug@2.6.9, debug@^2.2.0, debug@^2.3.3:
   dependencies:
     ms "2.0.0"
 
-debug@4.3.1, debug@^4.0.1, debug@^4.1.0, debug@^4.1.1, debug@^4.3.1:
-  version "4.3.1"
-  resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.1.tgz#f0d229c505e0c6d8c49ac553d1b13dc183f6b2ee"
-  integrity sha512-doEwdvm4PCeK4K3RQN2ZC2BYUBaxwLARCqZmMjtF8a51J2Rb0xpVloFRnCODwqjpwnAoao4pelN8l3RJdv3gRQ==
+debug@4.3.2, debug@^4.0.1, debug@^4.1.0, debug@^4.1.1, debug@^4.3.1:
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.2.tgz#f0a49c18ac8779e31d4a0c6029dfb76873c7428b"
+  integrity sha512-mOp8wKcvj7XxC78zLgw/ZA+6TSgkoE2C/ienthhRD298T7UNwAg9diBpLRxC0mOezLl4B0xV7M0cCO6P/O0Xhw==
   dependencies:
     ms "2.1.2"
 
@@ -3821,10 +3833,10 @@ git-up@^4.0.0:
     is-ssh "^1.3.0"
     parse-url "^5.0.0"
 
-git-url-parse@11.4.4:
-  version "11.4.4"
-  resolved "https://registry.yarnpkg.com/git-url-parse/-/git-url-parse-11.4.4.tgz#5d747debc2469c17bc385719f7d0427802d83d77"
-  integrity sha512-Y4o9o7vQngQDIU9IjyCmRJBin5iYjI5u9ZITnddRZpD7dcCFQj2sL2XuMNbLRE4b4B/4ENPsp2Q8P44fjAZ0Pw==
+git-url-parse@11.5.0:
+  version "11.5.0"
+  resolved "https://registry.yarnpkg.com/git-url-parse/-/git-url-parse-11.5.0.tgz#acaaf65239cb1536185b19165a24bbc754b3f764"
+  integrity sha512-TZYSMDeM37r71Lqg1mbnMlOqlHd7BSij9qN7XwTkRqSAYFMihGLGhfHwgqQob3GUhEneKnV4nskN9rbQw2KGxA==
   dependencies:
     git-up "^4.0.0"
 
@@ -4176,10 +4188,10 @@ ini@^1.3.2, ini@~1.3.0:
   resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.8.tgz#a29da425b48806f34767a4efce397269af28432c"
   integrity sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew==
 
-inquirer@8.1.1:
-  version "8.1.1"
-  resolved "https://registry.yarnpkg.com/inquirer/-/inquirer-8.1.1.tgz#7c53d94c6d03011c7bb2a947f0dca3b98246c26a"
-  integrity sha512-hUDjc3vBkh/uk1gPfMAD/7Z188Q8cvTGl0nxwaCdwSbzFh6ZKkZh+s2ozVxbE5G9ZNRyeY0+lgbAIOUFsFf98w==
+inquirer@8.1.2:
+  version "8.1.2"
+  resolved "https://registry.yarnpkg.com/inquirer/-/inquirer-8.1.2.tgz#65b204d2cd7fb63400edd925dfe428bafd422e3d"
+  integrity sha512-DHLKJwLPNgkfwNmsuEUKSejJFbkv0FMO9SMiQbjI3n5NQuCrSIBqP66ggqyz2a6t2qEolKrMjhQ3+W/xXgUQ+Q==
   dependencies:
     ansi-escapes "^4.2.1"
     chalk "^4.1.1"
@@ -4191,7 +4203,7 @@ inquirer@8.1.1:
     mute-stream "0.0.8"
     ora "^5.3.0"
     run-async "^2.4.0"
-    rxjs "^6.6.6"
+    rxjs "^7.2.0"
     string-width "^4.1.0"
     strip-ansi "^6.0.0"
     through "^2.3.6"
@@ -6581,25 +6593,25 @@ regjsparser@^0.6.4:
     jsesc "~0.5.0"
 
 release-it@^14.6.1:
-  version "14.10.0"
-  resolved "https://registry.yarnpkg.com/release-it/-/release-it-14.10.0.tgz#2ad9aa5357f257ee92d4c632a0c64dfe8286bff0"
-  integrity sha512-BwL7W3VPILma+MwO2kEtZaAL0/G/mZafg4xgpfxy4MVxLd+28lBp22EDF2gS4GXHmcblawyV2IdbWo/56QIyJw==
+  version "14.10.1"
+  resolved "https://registry.yarnpkg.com/release-it/-/release-it-14.10.1.tgz#5416887e6568347bd9b19de88b5371b0466dfb23"
+  integrity sha512-uC+LtV9vlcFOAkclJYnANNlufLoESZPjC5wGeKoW/Y91jJp0bfQv6/iU44a7rmZ4LHy3q52JD54jNe45RUOPYw==
   dependencies:
     "@iarna/toml" "2.2.5"
-    "@octokit/rest" "18.6.0"
+    "@octokit/rest" "18.7.1"
     async-retry "1.3.1"
     chalk "4.1.1"
     cosmiconfig "7.0.0"
-    debug "4.3.1"
+    debug "4.3.2"
     deprecated-obj "2.0.0"
     execa "5.1.1"
     find-up "5.0.0"
     form-data "4.0.0"
-    git-url-parse "11.4.4"
+    git-url-parse "11.5.0"
     globby "11.0.4"
     got "11.8.2"
     import-cwd "3.0.0"
-    inquirer "8.1.1"
+    inquirer "8.1.2"
     is-ci "3.0.0"
     lodash "4.17.21"
     mime-types "2.1.31"
@@ -6612,7 +6624,7 @@ release-it@^14.6.1:
     url-join "4.0.1"
     uuid "8.3.2"
     yaml "1.10.2"
-    yargs-parser "20.2.7"
+    yargs-parser "20.2.9"
 
 remove-trailing-separator@^1.0.1:
   version "1.1.0"
@@ -6780,12 +6792,12 @@ run-parallel@^1.1.9:
   dependencies:
     queue-microtask "^1.2.2"
 
-rxjs@^6.6.6:
-  version "6.6.7"
-  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-6.6.7.tgz#90ac018acabf491bf65044235d5863c4dab804c9"
-  integrity sha512-hTdwr+7yYNIT5n4AMYp85KA6yw2Va0FLa3Rguvbpa4W3I5xynaBZo41cM3XM+4Q6fRMj3sBYIR1VAmZMXYJvRQ==
+rxjs@^7.2.0:
+  version "7.3.0"
+  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.3.0.tgz#39fe4f3461dc1e50be1475b2b85a0a88c1e938c6"
+  integrity sha512-p2yuGIg9S1epc3vrjKf6iVb3RCaAYjYskkO+jHIaV0IjOPlJop4UnodOoFb2xeNwlguqLYvGw1b1McillYb5Gw==
   dependencies:
-    tslib "^1.9.0"
+    tslib "~2.1.0"
 
 safe-buffer@5.1.2, safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.2"
@@ -7485,7 +7497,7 @@ trim-off-newlines@^1.0.0:
   resolved "https://registry.yarnpkg.com/trim-off-newlines/-/trim-off-newlines-1.0.1.tgz#9f9ba9d9efa8764c387698bcbfeb2c848f11adb3"
   integrity sha1-n5up2e+odkw4dpi8v+sshI8RrbM=
 
-tslib@^1.8.1, tslib@^1.9.0:
+tslib@^1.8.1:
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
@@ -7494,6 +7506,11 @@ tslib@^2.0.1:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.3.0.tgz#803b8cdab3e12ba581a4ca41c8839bbb0dacb09e"
   integrity sha512-N82ooyxVNm6h1riLCoyS9e3fuJ3AMG2zIZs2Gd1ATcSFjSA23Q0fzjjZeh0jbJvWVDZ0cJT8yaNNaaXHzueNjg==
+
+tslib@~2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.1.0.tgz#da60860f1c2ecaa5703ab7d39bc05b6bf988b97a"
+  integrity sha512-hcVC3wYEziELGGmEEXue7D75zbwIIVUMWAVbHItGPx0ziyXxrOMQx4rQEVEV45Ut/1IotuEvwqPopzIOkDMf0A==
 
 tsutils@^3.21.0:
   version "3.21.0"
@@ -7982,10 +7999,10 @@ yaml@1.10.2, yaml@^1.10.0:
   resolved "https://registry.yarnpkg.com/yaml/-/yaml-1.10.2.tgz#2301c5ffbf12b467de8da2333a459e29e7920e4b"
   integrity sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==
 
-yargs-parser@20.2.7:
-  version "20.2.7"
-  resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-20.2.7.tgz#61df85c113edfb5a7a4e36eb8aa60ef423cbc90a"
-  integrity sha512-FiNkvbeHzB/syOjIUxFDCnhSfzAL8R5vs40MgLFBorXACCOAEaWu0gRZl14vG8MR9AOJIZbmkjhusqBYZ3HTHw==
+yargs-parser@20.2.9, yargs-parser@^20.2.2, yargs-parser@^20.2.3:
+  version "20.2.9"
+  resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-20.2.9.tgz#2eb7dc3b0289718fc295f362753845c41a0c94ee"
+  integrity sha512-y11nGElTIV+CT3Zv9t7VKl+Q3hTQoT9a1Qzezhhl6Rp21gJ/IVTW7Z3y9EWXhuUBC2Shnf+DX0antecpAwSP8w==
 
 yargs-parser@^18.1.2:
   version "18.1.3"
@@ -7994,11 +8011,6 @@ yargs-parser@^18.1.2:
   dependencies:
     camelcase "^5.0.0"
     decamelize "^1.2.0"
-
-yargs-parser@^20.2.2, yargs-parser@^20.2.3:
-  version "20.2.9"
-  resolved "https://registry.yarnpkg.com/yargs-parser/-/yargs-parser-20.2.9.tgz#2eb7dc3b0289718fc295f362753845c41a0c94ee"
-  integrity sha512-y11nGElTIV+CT3Zv9t7VKl+Q3hTQoT9a1Qzezhhl6Rp21gJ/IVTW7Z3y9EWXhuUBC2Shnf+DX0antecpAwSP8w==
 
 yargs@^15.1.0, yargs@^15.3.1:
   version "15.4.1"
