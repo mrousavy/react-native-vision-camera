@@ -53,10 +53,22 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
-  override fun onCatalystInstanceDestroy() {
-    super.onCatalystInstanceDestroy()
+  private fun cleanup() {
     frameProcessorManager?.destroy()
     frameProcessorManager = null
+    if (CoroutineScope.isActive) {
+      CoroutineScope.cancel("CameraViewModule has been destroyed.")
+    }
+  }
+
+  override fun onCatalystInstanceDestroy() {
+    super.onCatalystInstanceDestroy()
+    cleanup()
+  }
+
+  override fun invalidate() {
+    super.invalidate()
+    cleanup()
   }
 
   override fun getName(): String {
@@ -280,18 +292,21 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
+  @Suppress("unused")
   @ReactMethod
   fun getCameraPermissionStatus(promise: Promise) {
     val status = ContextCompat.checkSelfPermission(reactApplicationContext, Manifest.permission.CAMERA)
     promise.resolve(parsePermissionStatus(status))
   }
 
+  @Suppress("unused")
   @ReactMethod
   fun getMicrophonePermissionStatus(promise: Promise) {
     val status = ContextCompat.checkSelfPermission(reactApplicationContext, Manifest.permission.RECORD_AUDIO)
     promise.resolve(parsePermissionStatus(status))
   }
 
+  @Suppress("unused")
   @ReactMethod
   fun requestCameraPermission(promise: Promise) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -316,6 +331,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
+  @Suppress("unused")
   @ReactMethod
   fun requestMicrophonePermission(promise: Promise) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {

@@ -62,6 +62,14 @@ import kotlin.math.min
 @Suppress("KotlinJniMissingFunction") // I use fbjni, Android Studio is not smart enough to realize that.
 @SuppressLint("ClickableViewAccessibility") // suppresses the warning that the pinch to zoom gesture is not accessible
 class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
+  companion object {
+    const val TAG = "CameraView"
+    const val TAG_PERF = "CameraView.performance"
+
+    private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "fps", "hdr", "lowLightBoost", "photo", "video", "enableFrameProcessor")
+    private val arrayListOfZoom = arrayListOf("zoom")
+  }
+
   // react properties
   // props that require reconfiguring
   var cameraId: String? = null // this is actually not a react prop directly, but the result of setting device={}
@@ -252,7 +260,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   fun update(changedProps: ArrayList<String>) = previewView.post {
     // TODO: Does this introduce too much overhead?
     //  I need to .post on the previewView because it might've not been initialized yet
-    //  I need to use GlobalScope.launch because of the suspend fun [configureSession]
+    //  I need to use CoroutineScope.launch because of the suspend fun [configureSession]
     CameraViewModule.CoroutineScope.launch {
       try {
         val shouldReconfigureSession = changedProps.containsAny(propsThatRequireSessionReconfiguration)
@@ -472,13 +480,5 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
       map.putMap("cause", errorToMap(cause))
     }
     return map
-  }
-
-  companion object {
-    const val TAG = "CameraView"
-    const val TAG_PERF = "CameraView.performance"
-
-    private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "fps", "hdr", "lowLightBoost", "photo", "video", "enableFrameProcessor")
-    private val arrayListOfZoom = arrayListOf("zoom")
   }
 }
