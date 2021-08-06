@@ -30,7 +30,7 @@
     "@react-native-community/eslint-config": "^2.0.0",
     "@react-native-community/eslint-plugin": "^1.1.0",
     "@types/react": "^17.0.9",
-    "@types/react-native": "^0.64.10",
+    "@types/react-native": "^0.64.12",
     "@types/react-native-vector-icons": "^6.4.6",
     "@types/react-native-video": "^5.0.5",
     "@typescript-eslint/eslint-plugin": "^4.26.0",
