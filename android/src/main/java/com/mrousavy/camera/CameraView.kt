@@ -253,7 +253,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
     // TODO: Does this introduce too much overhead?
     //  I need to .post on the previewView because it might've not been initialized yet
     //  I need to use GlobalScope.launch because of the suspend fun [configureSession]
-    GlobalScope.launch(Dispatchers.Main) {
+    CameraViewModule.CoroutineScope.launch {
       try {
         val shouldReconfigureSession = changedProps.containsAny(propsThatRequireSessionReconfiguration)
         val shouldReconfigureZoom = shouldReconfigureSession || changedProps.contains("zoom")

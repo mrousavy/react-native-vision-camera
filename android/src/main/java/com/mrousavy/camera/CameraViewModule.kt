@@ -28,6 +28,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     const val TAG = "CameraView"
     var RequestCode = 10
     val FrameProcessorThread: ExecutorService = Executors.newSingleThreadExecutor()
+    val CoroutineScope = CoroutineScope(Dispatchers.Default)
 
     fun parsePermissionStatus(status: Int): String {
       return when (status) {
@@ -64,9 +65,10 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   private fun findCameraView(id: Int): CameraView = reactApplicationContext.currentActivity?.findViewById(id) ?: throw ViewNotFoundError(id)
 
+  @Suppress("unused")
   @ReactMethod
   fun takePhoto(viewTag: Int, options: ReadableMap, promise: Promise) {
-    GlobalScope.launch(Dispatchers.Main) {
+    CoroutineScope.launch {
       withPromise(promise) {
         val view = findCameraView(viewTag)
         view.takePhoto(options)
@@ -74,9 +76,10 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
+  @Suppress("unused")
   @ReactMethod
   fun takeSnapshot(viewTag: Int, options: ReadableMap, promise: Promise) {
-    GlobalScope.launch(Dispatchers.Main) {
+    CoroutineScope.launch {
       withPromise(promise) {
         val view = findCameraView(viewTag)
         view.takeSnapshot(options)
@@ -85,9 +88,10 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   }
 
   // TODO: startRecording() cannot be awaited, because I can't have a Promise and a onRecordedCallback in the same function. Hopefully TurboModules allows that
+  @Suppress("unused")
   @ReactMethod
   fun startRecording(viewTag: Int, options: ReadableMap, onRecordCallback: Callback) {
-    GlobalScope.launch(Dispatchers.Main) {
+    CoroutineScope.launch {
       val view = findCameraView(viewTag)
       try {
         view.startRecording(options, onRecordCallback)
@@ -101,6 +105,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
+  @Suppress("unused")
   @ReactMethod
   fun stopRecording(viewTag: Int, promise: Promise) {
     withPromise(promise) {
@@ -110,9 +115,10 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
+  @Suppress("unused")
   @ReactMethod
   fun focus(viewTag: Int, point: ReadableMap, promise: Promise) {
-    GlobalScope.launch(Dispatchers.Main) {
+    CoroutineScope.launch {
       withPromise(promise) {
         val view = findCameraView(viewTag)
         view.focus(point)
@@ -123,10 +129,11 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   // TODO: This uses the Camera2 API to list all characteristics of a camera device and therefore doesn't work with Camera1. Find a way to use CameraX for this
   // https://issuetracker.google.com/issues/179925896
+  @Suppress("unused")
   @ReactMethod
   fun getAvailableCameraDevices(promise: Promise) {
     val startTime = System.currentTimeMillis()
-    GlobalScope.launch(Dispatchers.Main) {
+    CoroutineScope.launch {
       withPromise(promise) {
         val extensionsManager = ExtensionsManager.getInstance(reactApplicationContext).await()
         val cameraProvider = ProcessCameraProvider.getInstance(reactApplicationContext).await()
