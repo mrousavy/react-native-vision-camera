@@ -9,11 +9,31 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - uses: dorny/paths-filter@v2
+        id: changed
+        with:
+          filters: |
+            main:
+              - 'yarn.lock'
+            docs:
+              - 'docs/yarn.lock'
+            example:
+              - 'example/yarn.lock'
       - name: Notice yarn.lock changes
+        if: steps.changed.outputs.main == 'true'
         uses: Simek/yarn-lock-changes@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          collapsibleThreshold: '25'
-          failOnDowngrade: 'false'
           path: 'yarn.lock'
-          updateComment: 'true'
+      - name: Notice docs/yarn.lock changes
+        if: steps.changed.outputs.docs == 'true'
+        uses: Simek/yarn-lock-changes@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: 'docs/yarn.lock'
+      - name: Notice example/yarn.lock changes
+        if: steps.changed.outputs.example == 'true'
+        uses: Simek/yarn-lock-changes@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: 'example/yarn.lock'
