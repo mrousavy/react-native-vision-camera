@@ -6032,9 +6032,9 @@ plist@^3.0.1:
     xmldom "^0.6.0"
 
 pod-install@^0.1.23:
-  version "0.1.25"
-  resolved "https://registry.yarnpkg.com/pod-install/-/pod-install-0.1.25.tgz#fb888e082ce43df236f07473618e49a7805dfe08"
-  integrity sha512-/cOrj3h0XCXTkWlE+FcRM3Mz+71aqw0g4ycEKBUWDNgwkFalQ9DCg1koz3n4700OWzc4MmSPkU640tbN+zyeqQ==
+  version "0.1.26"
+  resolved "https://registry.yarnpkg.com/pod-install/-/pod-install-0.1.26.tgz#9b9ca270e99df7c19ad79c5c7034c6e1bd9e9933"
+  integrity sha512-cPuS5g/LgZrjvfynfiljfudAf2F3L86udzQQfPaHqbUfi2cEFsaTQPwlGuw9Xu33qPJJixGEZm4jV+SukzpgbA==
 
 posix-character-classes@^0.1.0:
   version "0.1.1"
