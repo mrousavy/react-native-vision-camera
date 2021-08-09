@@ -51,6 +51,7 @@ buildscript {
   def kotlin_version = rootProject.ext.has('kotlinVersion') ? rootProject.ext.get('kotlinVersion') : project.properties['VisionCamera_kotlinVersion']
 
   repositories {
+    mavenCentral()
     google()
     maven {
       url "https://plugins.gradle.org/m2/"

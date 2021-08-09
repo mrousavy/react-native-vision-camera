@@ -10,6 +10,7 @@ buildscript {
         ndkVersion = "20.1.5948944"
     }
     repositories {
+        mavenCentral()
         google()
     }
     dependencies {
@@ -23,6 +24,7 @@ buildscript {
 
 allprojects {
     repositories {
+        mavenCentral()
         mavenLocal()
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
