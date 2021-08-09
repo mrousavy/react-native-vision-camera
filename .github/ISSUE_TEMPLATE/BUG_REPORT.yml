@@ -12,6 +12,11 @@ body:
       required: true
   - type: textarea
     attributes:
+      label: Reproduceable Code
+      description: Share a small reproduceable code snippet here (or the entire file if necessary). This will be automatically formatted into code, so no need for backticks.
+      render: tsx
+  - type: textarea
+    attributes:
       label: What happened instead?
       description: Explain what happened instead of the desired outcome. Did something crash?
       placeholder: The app crashes with an `InvalidPhotoCodec` error.
