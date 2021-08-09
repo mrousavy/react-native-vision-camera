@@ -287,6 +287,11 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   @ReactMethod
   fun requestCameraPermission(promise: Promise) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+      // API 21 and below always grants permission on app install
+      return promise.resolve("authorized")
+    }
+
     val activity = reactApplicationContext.currentActivity
     if (activity is PermissionAwareActivity) {
       val currentRequestCode = RequestCode++
@@ -306,6 +311,11 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   @ReactMethod
   fun requestMicrophonePermission(promise: Promise) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+      // API 21 and below always grants permission on app install
+      return promise.resolve("authorized")
+    }
+
     val activity = reactApplicationContext.currentActivity
     if (activity is PermissionAwareActivity) {
       val currentRequestCode = RequestCode++
