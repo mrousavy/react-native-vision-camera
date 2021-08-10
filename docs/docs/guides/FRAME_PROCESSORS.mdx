@@ -68,17 +68,21 @@ const frameProcessor = useFrameProcessor((frame) => {
 }, [sensitivity])
 ```
 
-You can also easily read from, and assign to [**Shared Values**](https://docs.swmansion.com/react-native-reanimated/docs/shared-values) to create smooth, 60 FPS animations:
+You can also easily read from, and assign to [**Shared Values**](https://docs.swmansion.com/react-native-reanimated/docs/shared-values) to create smooth, 60 FPS animations.
+In this example, we detect a cat in the frame. If a cat was found, we set the `catBounds` Shared Value to the coordinates of the cat relative to the screen, which we can then use in a `useAnimatedStyle` hook to display a red rectangle surrounding the cat. This smoothly updates in realtime on the UI Thread, and can also be smoothly animated with `withSpring` or `withTiming`.
 
 ```tsx {6}
 // represents position of the cat on the screen 🐈
 const catBounds = useSharedValue({ top: 0, left: 0, right: 0, bottom: 0 })
 
+// continously sets 'catBounds' to the cat's coordinates on screen
 const frameProcessor = useFrameProcessor((frame) => {
   'worklet'
   catBounds.value = scanFrameForCat(frame)
 }, [catBounds])
 
+// uses 'catBounds' to position the red rectangle on screen.
+// smoothly updates on UI thread whenever 'catBounds' is changed
 const boxOverlayStyle = useAnimatedStyle(() => ({
   position: 'absolute',
   borderWidth: 1,
