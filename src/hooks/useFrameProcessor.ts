@@ -2,6 +2,7 @@
 
 import { DependencyList, useCallback } from 'react';
 import type { Frame } from 'src/Frame';
+import 'react-native-reanimated';
 
 type FrameProcessor = (frame: Frame) => void;
 
