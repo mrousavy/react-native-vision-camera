@@ -30,7 +30,7 @@
     "test": "jest",
     "typescript": "tsc --noEmit && cd example && tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
-    "lint-ci": "yarn lint -f ./node_modules/@firmnav/eslint-github-actions-formatter/dist/formatter.js",
+    "lint-ci": "yarn lint -f ./node_modules/@firmnav/eslint-github-actions-formatter/dist/formatter.js && cd example && yarn lint-ci",
     "build": "bob build",
     "release": "release-it",
     "pods": "cd example && yarn pods",
