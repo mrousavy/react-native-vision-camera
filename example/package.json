@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.14.3",
-    "@babel/runtime": "^7.14.0",
+    "@babel/runtime": "^7.15.3",
     "@react-native-community/eslint-config": "^3.0.0",
     "@react-native-community/eslint-plugin": "^1.1.0",
     "@types/react": "^17.0.9",
