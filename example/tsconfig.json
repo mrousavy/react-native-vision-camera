@@ -5,5 +5,11 @@
     "paths": {
       "react-native-vision-camera": ["../src/index"]
     },
-  }
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
