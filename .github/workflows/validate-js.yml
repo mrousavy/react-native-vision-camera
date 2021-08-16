@@ -61,6 +61,12 @@ jobs:
       env:
         REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Run TypeScript in example/ # Reviewdog tsc errorformat: %f:%l:%c - error TS%n: %m
+      run: |
+        cd example && yarn typescript | reviewdog -name="tsc" -efm="%f(%l,%c): error TS%n: %m" -reporter="github-pr-review" -filter-mode="nofilter" -fail-on-error -tee && cd ..
+      env:
+        REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   lint:
     name: Lint JS (eslint, prettier)
     runs-on: ubuntu-latest
@@ -89,6 +95,12 @@ jobs:
 
     - name: Run ESLint with auto-fix
       run: yarn lint --fix
+
+    - name: Run ESLint in example/
+      run: cd example && yarn lint -f @jamesacarr/github-actions && cd ..
+
+    - name: Run ESLint in example/ with auto-fix
+      run: cd example && yarn lint --fix && cd ..
 
     - name: Verify no files have changed after auto-fix
       run: git diff --exit-code HEAD
