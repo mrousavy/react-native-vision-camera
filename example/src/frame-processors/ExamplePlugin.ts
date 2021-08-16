@@ -1,5 +1,7 @@
-/* global _WORKLET __example_plugin __example_plugin_swift */
+/* global __example_plugin __example_plugin_swift */
 import type { Frame } from 'react-native-vision-camera';
+
+declare let _WORKLET: true | undefined;
 
 export function examplePluginSwift(frame: Frame): string[] {
   'worklet';

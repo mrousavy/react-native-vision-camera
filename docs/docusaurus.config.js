@@ -118,7 +118,7 @@ module.exports = {
         name: 'VisionCamera',
         entryPoints: ['../src'],
         exclude: "../src/index.ts",
-        tsconfig: '../tsconfig.build.json',
+        tsconfig: '../tsconfig.json',
         excludePrivate: true,
         excludeProtected: true,
         excludeExternals: true,

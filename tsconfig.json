@@ -1,9 +1,5 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "react-native-vision-camera": ["./src/index"]
-    },
     "allowJs": false,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
@@ -28,13 +24,13 @@
   },
   "include": [
     "src",
-    "example",
     ".eslintrc.js",
     "babel.config.js",
   ],
   "exclude": [
     "node_modules",
     "lib",
-    "docs"
+    "docs",
+    "example"
   ]
 }
