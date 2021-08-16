@@ -1,9 +1,5 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "react-native-vision-camera": ["./src/index"]
-    },
     "allowJs": false,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,

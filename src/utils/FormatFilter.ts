@@ -1,5 +1,5 @@
 import { Dimensions } from 'react-native';
-import type { CameraDevice, CameraDeviceFormat, FrameRateRange } from 'react-native-vision-camera';
+import type { CameraDevice, CameraDeviceFormat, FrameRateRange } from '../CameraDevice';
 
 /**
  * Compares two devices by the following criteria:

@@ -1,7 +1,7 @@
 /* global _setGlobalConsole */
 
 import { DependencyList, useCallback } from 'react';
-import type { Frame } from 'src/Frame';
+import type { Frame } from '../Frame';
 
 type FrameProcessor = (frame: Frame) => void;
 
