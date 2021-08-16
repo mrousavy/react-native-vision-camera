@@ -400,7 +400,7 @@ export class Camera extends React.PureComponent<CameraProps> {
     return (
       <NativeCameraView
         {...props}
-        cameraId={null}
+        cameraId={device.id}
         ref={this.ref}
         onInitialized={this.onInitialized}
         onError={this.onError}
