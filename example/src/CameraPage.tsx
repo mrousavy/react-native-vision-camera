@@ -132,7 +132,7 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
     console.log('Camera initialized!');
     setIsCameraInitialized('true');
   }, []);
-  const onMediaCaptured = useCallback(async (media: PhotoFile | VideoFile, type: 'photo' | 'video') => {
+  const onMediaCaptured = useCallback(async (media, type: 'photo' | 'video') => {
     console.log(`Media captured! ${JSON.stringify(media)}`);
     await Navigation.showModal({
       component: {
