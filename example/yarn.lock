@@ -2,11 +2,6 @@
 # yarn lockfile v1
 
 
-"@actions/core@^1.2.6":
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/@actions/core/-/core-1.4.0.tgz#cf2e6ee317e314b03886adfeb20e448d50d6e524"
-  integrity sha512-CGx2ilGq5i7zSLgiiGUtBCxhRRxibJYU6Fim0Q1Wg2aQL2LTnF27zbqZOrxfvFQ55eSBW0L8uVStgtKMpa0Qlg==
-
 "@arcanis/slice-ansi@^1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@arcanis/slice-ansi/-/slice-ansi-1.0.2.tgz#35331e41a1062e3c53c01ad2ec1555c5c1959d8f"
@@ -763,13 +758,6 @@
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/object-schema/-/object-schema-1.2.0.tgz#87de7af9c231826fdd68ac7258f77c429e0e5fcf"
   integrity sha512-wdppn25U8z/2yiaT6YGquE6X8sSv7hNMWSXYSSU1jGv/yd6XqjXgTDJ8KP4NgjTXfJ3GbRjeeb8RTV7a/VpM+w==
-
-"@jamesacarr/eslint-formatter-github-actions@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@jamesacarr/eslint-formatter-github-actions/-/eslint-formatter-github-actions-0.1.0.tgz#d00814b5b8b309cf97d488773cfdb140edf00932"
-  integrity sha512-ysXRx5C5pPVJ0t3Q1DpsMLWLQw5Fj8erEM0WnGhaOIgjLwZkOLmEiIw+4b5UhPsVCaf6jbUgdZuH2StR3jW0Ug==
-  dependencies:
-    "@actions/core" "^1.2.6"
 
 "@jest/create-cache-key-function@^26.5.0":
   version "26.6.2"

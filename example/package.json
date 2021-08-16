@@ -10,7 +10,7 @@
     "setup": "cd ios && bundle install",
     "pods": "cd ios && bundle exec pod install",
     "lint": "eslint .",
-    "lint-ci": "yarn lint -f @jamesacarr/github-actions",
+    "lint-ci": "yarn lint -f ../node_modules/@firmnav/eslint-github-actions-formatter/dist/formatter.js",
     "typescript": "tsc --noEmit"
   },
   "dependencies": {
@@ -30,7 +30,6 @@
   "devDependencies": {
     "@babel/core": "^7.14.3",
     "@babel/runtime": "^7.14.0",
-    "@jamesacarr/eslint-formatter-github-actions": "^0.1.0",
     "@react-native-community/eslint-config": "^3.0.0",
     "@react-native-community/eslint-plugin": "^1.1.0",
     "@types/react": "^17.0.9",
