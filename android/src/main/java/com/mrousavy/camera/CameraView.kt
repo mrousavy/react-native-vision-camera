@@ -3,6 +3,7 @@ package com.mrousavy.camera
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Context.WINDOW_SERVICE
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.hardware.camera2.*
@@ -231,6 +232,9 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
    */
   private fun updateLifecycleState() {
     val lifecycleBefore = lifecycleRegistry.currentState
+    // Update the rotation value here so that it is the correct value on initializing or screen rotation.
+    rotation = (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay.orientation
+
     if (hostLifecycleState == Lifecycle.State.RESUMED) {
       // Host Lifecycle (Activity) is currently active (RESUMED), so we narrow it down to the view's lifecycle
       if (isActive && isAttachedToWindow) {
