@@ -114,7 +114,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   private val lifecycleRegistry: LifecycleRegistry
   private var hostLifecycleState: Lifecycle.State
 
-  private var rotation: Int = Surface.ROTATION_0
+  private var rotation: Int
 
   private var minZoom: Float = 1f
   private var maxZoom: Float = 1f
@@ -169,6 +169,8 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
     }
     scaleGestureDetector = ScaleGestureDetector(context, scaleGestureListener)
     touchEventListener = OnTouchListener { _, event -> return@OnTouchListener scaleGestureDetector.onTouchEvent(event) }
+
+    rotation = context.displayRotation
     orientationEventListener = object : OrientationEventListener(context) {
       override fun onOrientationChanged(orientation : Int) {
         rotation = when (orientation) {
