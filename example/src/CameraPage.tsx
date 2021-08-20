@@ -193,6 +193,8 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
 
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
+    const values = examplePlugin(frame);
+    console.log(`Return Values: ${JSON.stringify(values)}`);
     console.log(frame.planesCount);
   }, []);
 
@@ -215,7 +217,10 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
                 onError={onError}
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
-                frameProcessor={true ? frameProcessor : undefined}
+                photo={true}
+                video={true}
+                audio={true}
+                frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
                 frameProcessorFps={1}
               />
             </TapGestureHandler>
