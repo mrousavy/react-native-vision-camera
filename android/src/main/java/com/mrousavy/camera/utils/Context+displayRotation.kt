@@ -9,11 +9,20 @@ import com.facebook.react.bridge.ReactContext
 val Context.displayRotation: Int
   get() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+      // Context.display
       this.display?.let { display ->
         return display.rotation
       }
+
+      // ReactContext.currentActivity.display
+      if (this is ReactContext) {
+        currentActivity?.display?.let { display ->
+          return display.rotation
+        }
+      }
     }
 
+    // WindowManager.defaultDisplay
     val windowManager = getSystemService(Context.WINDOW_SERVICE) as? WindowManager
     if (windowManager != null) {
       @Suppress("DEPRECATION") // deprecated since SDK 30
@@ -22,11 +31,6 @@ val Context.displayRotation: Int
       }
     }
 
-    if (this is ReactContext && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-      currentActivity?.display?.let { display ->
-        return display.rotation
-      }
-    }
-
+    // 0
     return Surface.ROTATION_0
   }

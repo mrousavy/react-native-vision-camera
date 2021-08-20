@@ -109,12 +109,14 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   private val scaleGestureListener: ScaleGestureDetector.SimpleOnScaleGestureListener
   private val scaleGestureDetector: ScaleGestureDetector
   private val touchEventListener: OnTouchListener
-  private val orientationEventListener: OrientationEventListener
 
   private val lifecycleRegistry: LifecycleRegistry
   private var hostLifecycleState: Lifecycle.State
 
-  private var rotation: Int
+  private val rotation: Int
+    get() {
+      return context.displayRotation
+    }
 
   private var minZoom: Float = 1f
   private var maxZoom: Float = 1f
@@ -170,18 +172,6 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
     scaleGestureDetector = ScaleGestureDetector(context, scaleGestureListener)
     touchEventListener = OnTouchListener { _, event -> return@OnTouchListener scaleGestureDetector.onTouchEvent(event) }
 
-    rotation = context.displayRotation
-    orientationEventListener = object : OrientationEventListener(context) {
-      override fun onOrientationChanged(orientation : Int) {
-        rotation = when (orientation) {
-          in 45..134 -> Surface.ROTATION_270
-          in 135..224 -> Surface.ROTATION_180
-          in 225..314 -> Surface.ROTATION_90
-          else -> Surface.ROTATION_0
-        }
-      }
-    }
-    orientationEventListener.enable()
 
     hostLifecycleState = Lifecycle.State.INITIALIZED
     lifecycleRegistry = LifecycleRegistry(this)
@@ -208,6 +198,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   override fun onConfigurationChanged(newConfig: Configuration?) {
     super.onConfigurationChanged(newConfig)
 
+    val rotation = rotation
     if (preview?.targetRotation != rotation) {
       preview?.targetRotation = rotation
       imageCapture?.targetRotation = rotation
@@ -218,7 +209,6 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
 
   fun finalize() {
     mHybridData.resetNative()
-    orientationEventListener.disable()
   }
 
   private external fun initHybrid(): HybridData
@@ -277,7 +267,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
           configureSession()
         }
         if (shouldReconfigureZoom) {
-          val zoomClamped = max(min(zoom.toFloat(), maxZoom), minZoom)
+          val zoomClamped = max(min(zoom, maxZoom), minZoom)
           camera!!.cameraControl.setZoomRatio(zoomClamped)
         }
         if (shouldReconfigureTorch) {
@@ -335,6 +325,7 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         }
       }
 
+      val rotation = rotation
       val previewBuilder = Preview.Builder()
         .setTargetRotation(rotation)
       val imageCaptureBuilder = ImageCapture.Builder()
