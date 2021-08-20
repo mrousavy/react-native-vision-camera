@@ -6,7 +6,6 @@
 
 #include <jni.h>
 #include <fbjni/fbjni.h>
-#include "JPlaneProxy.h"
 
 namespace vision {
 
