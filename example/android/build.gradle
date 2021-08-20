@@ -3,7 +3,7 @@
 buildscript {
     ext {
         RNNKotlinVersion = "1.3.61"
-        buildToolsVersion = "30.0.0"
+        buildToolsVersion = "30.0.2"
         minSdkVersion = 21
         compileSdkVersion = 30
         targetSdkVersion = 30
@@ -11,11 +11,12 @@ buildscript {
     }
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+        jcenter() // <-- TODO: REMOVE jcenter() WHEN BlurView & Video supports it
     }
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.0"
-        classpath("com.android.tools.build:gradle:4.1.3")
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.21"
+        classpath("com.android.tools.build:gradle:4.2.2")
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -24,6 +25,8 @@ buildscript {
 
 allprojects {
     repositories {
+        mavenCentral()
+        jcenter() // <-- TODO: REMOVE jcenter() WHEN BlurView & Video supports it
         mavenLocal()
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
@@ -35,7 +38,6 @@ allprojects {
         }
 
         google()
-        jcenter()
         maven { url 'https://www.jitpack.io' }
     }
 }

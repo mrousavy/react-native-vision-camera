@@ -4,10 +4,10 @@ import java.nio.file.Paths
 
 def reactNative = new File("$projectDir/../node_modules/react-native")
 
-def FOR_HERMES = System.getenv("FOR_HERMES") == "True";
+def FOR_HERMES = System.getenv("FOR_HERMES") == "True"
 rootProject.getSubprojects().forEach({project ->
   if (project.plugins.hasPlugin("com.android.application")) {
-    FOR_HERMES = project.ext.react.enableHermes;
+    FOR_HERMES = project.ext.react.enableHermes
   }
 })
 
@@ -52,14 +52,14 @@ buildscript {
 
   repositories {
     google()
-    jcenter()
+    mavenCentral()
     maven {
       url "https://plugins.gradle.org/m2/"
     }
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:4.2.1'
+    classpath 'com.android.tools.build:gradle:4.2.2'
     classpath 'de.undercouch:gradle-download-task:4.1.2'
     // noinspection DifferentKotlinGradleVersion
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
@@ -136,7 +136,6 @@ android {
 
 repositories {
   mavenCentral()
-  jcenter()
   google()
 
   def found = false
