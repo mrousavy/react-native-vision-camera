@@ -38,10 +38,9 @@ int JImageProxy::getPlaneCount() {
 int JImageProxy::getBytesPerRow() {
   static const auto getPlanesMethod = getClass()->getMethod<JArrayClass<JPlaneProxy>()>("getPlanes");
   auto planes = getPlanesMethod(self());
-  auto firstPlane = planes->getElement(0);
 
-  static const auto getRowStrideMethod = findClassLocal("android/media/Image$PlaneProxy")->getMethod<int()>("getRowStride");
-  return getRowStrideMethod(firstPlane.get());
+  auto firstPlane = planes->getElement(0);
+  return firstPlane->getRowStride();
 }
 
 void JImageProxy::close() {
