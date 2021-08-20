@@ -155,7 +155,7 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
       auto function = std::make_shared<jsi::Function>(worklet->getValue(rt).asObject(rt).asFunction(rt));
 
       // assign lambda to frame processor
-      cameraView->setFrameProcessor([this, &rt, function](jni::local_ref<JImageProxy::javaobject> frame) {
+      cameraView->setFrameProcessor([this, &rt, function](jni::alias_ref<JImageProxy::javaobject> frame) {
         try {
           // create HostObject which holds the Frame (JImageProxy)
           auto hostObject = std::make_shared<JImageProxyHostObject>(frame);

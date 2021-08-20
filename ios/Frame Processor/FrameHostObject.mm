@@ -89,10 +89,6 @@ void FrameHostObject::assertIsFrameStrong(jsi::Runtime &runtime, const std::stri
   }
 }
 
-FrameHostObject::~FrameHostObject() {
-  close();
-}
-
 void FrameHostObject::close() {
   if (frame != nil) {
     CMSampleBufferInvalidate(frame.buffer);

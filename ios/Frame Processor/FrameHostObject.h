@@ -17,7 +17,6 @@ using namespace facebook;
 class JSI_EXPORT FrameHostObject: public jsi::HostObject {
 public:
   explicit FrameHostObject(Frame* frame): frame(frame) {}
-  ~FrameHostObject();
 
 public:
   jsi::Value get(jsi::Runtime&, const jsi::PropNameID& name) override;
