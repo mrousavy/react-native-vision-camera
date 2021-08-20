@@ -7,6 +7,7 @@ import androidx.annotation.Keep;
 import androidx.camera.core.ImageProxy;
 import com.facebook.proguard.annotations.DoNotStrip;
 
+@SuppressWarnings("unused") // used through JNI
 @DoNotStrip
 @Keep
 public class ImageProxyUtils {
@@ -25,5 +26,17 @@ public class ImageProxyUtils {
             // exception thrown, image has already been closed.
             return false;
         }
+    }
+
+    @DoNotStrip
+    @Keep
+    public static int getPlanesCount(ImageProxy imageProxy) {
+        return imageProxy.getPlanes().length;
+    }
+
+    @DoNotStrip
+    @Keep
+    public static int getBytesPerRow(ImageProxy imageProxy) {
+        return imageProxy.getPlanes()[0].getRowStride();
     }
 }

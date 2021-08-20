@@ -23,24 +23,27 @@ int JImageProxy::getHeight() {
   return getWidthMethod(self());
 }
 
+alias_ref<JClass> getUtilsClass() {
+  static const auto ImageProxyUtilsClass = findClassStatic("com/mrousavy/camera/frameprocessor/ImageProxyUtils");
+  return ImageProxyUtilsClass;
+}
+
 bool JImageProxy::getIsValid() {
-  static const auto utilsClass = findClassStatic("com/mrousavy/camera/frameprocessor/ImageProxyUtils");
+  auto utilsClass = getUtilsClass();
   static const auto isImageProxyValidMethod = utilsClass->getStaticMethod<jboolean(JImageProxy::javaobject)>("isImageProxyValid");
   return isImageProxyValidMethod(utilsClass, self());
 }
 
-int JImageProxy::getPlaneCount() {
-  static const auto getPlanesMethod = getClass()->getMethod<JArrayClass<JPlaneProxy>()>("getPlanes");
-  auto planes = getPlanesMethod(self());
-  return planes->size();
+int JImageProxy::getPlanesCount() {
+  auto utilsClass = getUtilsClass();
+  static const auto getPlanesCountMethod = utilsClass->getStaticMethod<jint(JImageProxy::javaobject)>("getPlanesCount");
+  return getPlanesCountMethod(utilsClass, self());
 }
 
 int JImageProxy::getBytesPerRow() {
-  static const auto getPlanesMethod = getClass()->getMethod<JArrayClass<JPlaneProxy>()>("getPlanes");
-  auto planes = getPlanesMethod(self());
-
-  auto firstPlane = planes->getElement(0);
-  return firstPlane->getRowStride();
+  auto utilsClass = getUtilsClass();
+  static const auto getBytesPerRowMethod = utilsClass->getStaticMethod<jint(JImageProxy::javaobject)>("getBytesPerRow");
+  return getBytesPerRowMethod(utilsClass, self());
 }
 
 void JImageProxy::close() {

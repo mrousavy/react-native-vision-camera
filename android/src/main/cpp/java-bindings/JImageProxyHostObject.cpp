@@ -64,7 +64,7 @@ jsi::Value JImageProxyHostObject::get(jsi::Runtime& runtime, const jsi::PropName
   }
   if (name == "planesCount") {
     this->assertIsFrameStrong(runtime, name);
-    return jsi::Value(this->frame->getPlaneCount());
+    return jsi::Value(this->frame->getPlanesCount());
   }
 
   return jsi::Value::undefined();

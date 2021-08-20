@@ -16,7 +16,7 @@ struct JImageProxy : public facebook::jni::JavaClass<JImageProxy> {
   int getWidth();
   int getHeight();
   bool getIsValid();
-  int getPlaneCount();
+  int getPlanesCount();
   int getBytesPerRow();
   void close();
 };
