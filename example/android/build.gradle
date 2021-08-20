@@ -12,6 +12,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        jcenter() // <-- TODO: REMOVE jcenter() WHEN BlurView & Video supports it
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.0"
@@ -25,6 +26,7 @@ buildscript {
 allprojects {
     repositories {
         mavenCentral()
+        jcenter() // <-- TODO: REMOVE jcenter() WHEN BlurView & Video supports it
         mavenLocal()
         maven {
             // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
