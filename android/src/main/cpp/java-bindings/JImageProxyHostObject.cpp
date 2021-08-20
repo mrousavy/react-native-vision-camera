@@ -77,15 +77,9 @@ void JImageProxyHostObject::assertIsFrameStrong(jsi::Runtime& runtime, const std
   }
 }
 
-
-JImageProxyHostObject::~JImageProxyHostObject() {
-  this->close();
-}
-
 void JImageProxyHostObject::close() {
   if (this->frame) {
     this->frame->close();
-    this->frame.release();
   }
 }
 
