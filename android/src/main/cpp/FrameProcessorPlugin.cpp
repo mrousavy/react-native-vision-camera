@@ -11,7 +11,7 @@ using namespace facebook;
 using namespace jni;
 
 using TSelf = local_ref<HybridClass<FrameProcessorPlugin>::jhybriddata>;
-using TFrameProcessorPlugin = jobject(local_ref<JImageProxy::javaobject>, local_ref<JArrayClass<jobject>>);
+using TFrameProcessorPlugin = jobject(alias_ref<JImageProxy::javaobject>, alias_ref<JArrayClass<jobject>>);
 
 TSelf vision::FrameProcessorPlugin::initHybrid(alias_ref<HybridClass::jhybridobject> jThis, const std::string& name) {
   return makeCxxInstance(jThis, name);
@@ -24,7 +24,7 @@ void FrameProcessorPlugin::registerNatives() {
   });
 }
 
-local_ref<jobject> FrameProcessorPlugin::callback(local_ref<JImageProxy::javaobject> image, local_ref<JArrayClass<jobject>> params) {
+local_ref<jobject> FrameProcessorPlugin::callback(alias_ref<JImageProxy::javaobject> image, alias_ref<JArrayClass<jobject>> params) {
   static const auto func = javaPart_->getClass()->getMethod<TFrameProcessorPlugin>("callback");
   auto result = func(javaPart_.get(), image, params);
   return make_local(result);

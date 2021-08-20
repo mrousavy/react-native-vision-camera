@@ -22,7 +22,7 @@ class FrameProcessorPlugin: public HybridClass<FrameProcessorPlugin> {
                                                 const std::string& name);
   static void registerNatives();
 
-  local_ref<jobject> callback(local_ref<JImageProxy::javaobject> image, local_ref<JArrayClass<jobject>> params);
+  local_ref<jobject> callback(alias_ref<JImageProxy::javaobject> image, alias_ref<JArrayClass<jobject>> params);
   std::string getName();
 
  private:
