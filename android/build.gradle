@@ -52,7 +52,7 @@ buildscript {
 
   repositories {
     google()
-    jcenter()
+    mavenCentral()
     maven {
       url "https://plugins.gradle.org/m2/"
     }
@@ -136,7 +136,6 @@ android {
 
 repositories {
   mavenCentral()
-  jcenter()
   google()
 
   def found = false
