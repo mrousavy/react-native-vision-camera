@@ -10,10 +10,6 @@ PODS:
     - React-jsi (= 0.65.1)
     - ReactCommon/turbomodule/core (= 0.65.1)
   - fmt (6.2.1)
-  - Folly (2016.09.26.00):
-    - boost-for-react-native
-    - DoubleConversion
-    - glog
   - glog (0.3.5)
   - RCT-Folly (2021.04.26.00):
     - boost-for-react-native
@@ -300,8 +296,8 @@ PODS:
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
-    - Folly
     - glog
+    - RCT-Folly
     - RCTRequired
     - RCTTypeSafety
     - React
@@ -381,7 +377,6 @@ SPEC REPOS:
   trunk:
     - boost-for-react-native
     - fmt
-    - Folly
 
 EXTERNAL SOURCES:
   DoubleConversion:
@@ -467,7 +462,6 @@ SPEC CHECKSUMS:
   FBLazyVector: 33c82491102f20ecddb6c6a2c273696ace3191e0
   FBReactNativeSpec: df8f81d2a7541ee6755a047b398a5cb5a72acd0e
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
-  Folly: 211775e49d8da0ca658aebc8eab89d642935755c
   glog: 5337263514dd6f09803962437687240c5dc39aa4
   RCT-Folly: 0dd9e1eb86348ecab5ba76f910b56f4b5fef3c46
   RCTRequired: 6cf071ab2adfd769014b3d94373744ee6e789530
@@ -498,7 +492,7 @@ SPEC CHECKSUMS:
   ReactCommon: eafed38eec7b591c31751bfa7494801618460459
   ReactNativeNavigation: 88128fa06b2c349b613e1e0fd3cdff2c58c01c55
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
-  RNReanimated: 47e9d4c48555db74c13077db904d4efe9bafe6b0
+  RNReanimated: f89561404f0efaa5352b627dc35e5a97a845a2cd
   RNStaticSafeAreaInsets: 6103cf09647fa427186d30f67b0f5163c1ae8252
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
   VisionCamera: 55fbbd06480129be9b6f1e5bdfd262a4e52191fd
