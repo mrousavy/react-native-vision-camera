@@ -281,12 +281,12 @@ PODS:
     - React-cxxreact (= 0.65.1)
     - React-jsi (= 0.65.1)
     - React-perflogger (= 0.65.1)
-  - ReactNativeNavigation (7.18.1):
+  - ReactNativeNavigation (7.18.1-snapshot.1611):
     - React-Core
     - React-RCTImage
     - React-RCTText
-    - ReactNativeNavigation/Core (= 7.18.1)
-  - ReactNativeNavigation/Core (7.18.1):
+    - ReactNativeNavigation/Core (= 7.18.1-snapshot.1611)
+  - ReactNativeNavigation/Core (7.18.1-snapshot.1611):
     - React-Core
     - React-RCTImage
     - React-RCTText
@@ -490,7 +490,7 @@ SPEC CHECKSUMS:
   React-RCTVibration: 92d41c2442e5328cc4d342cd7f78e5876b68bae5
   React-runtimeexecutor: 85187f19dd9c47a7c102f9994f9d14e4dc2110de
   ReactCommon: eafed38eec7b591c31751bfa7494801618460459
-  ReactNativeNavigation: 88128fa06b2c349b613e1e0fd3cdff2c58c01c55
+  ReactNativeNavigation: b3db788b20301269e76a647d24d1bd8bb3cce42c
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNReanimated: f89561404f0efaa5352b627dc35e5a97a845a2cd
   RNStaticSafeAreaInsets: 6103cf09647fa427186d30f67b0f5163c1ae8252
@@ -500,4 +500,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 4b093c1d474775c2eac3268011e4b0b80929d3a2
 
-COCOAPODS: 1.10.2
+COCOAPODS: 1.10.1
