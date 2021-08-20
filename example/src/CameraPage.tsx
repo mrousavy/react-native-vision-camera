@@ -195,7 +195,6 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
     'worklet';
     const values = examplePlugin(frame);
     console.log(`Return Values: ${JSON.stringify(values)}`);
-    console.log(frame.planesCount);
   }, []);
 
   return (
