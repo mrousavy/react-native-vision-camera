@@ -20,6 +20,7 @@ add_library(
         src/main/cpp/CameraView.cpp
         src/main/cpp/VisionCameraScheduler.cpp
         src/main/cpp/java-bindings/JImageProxy.cpp
+        src/main/cpp/java-bindings/JPlaneProxy.cpp
         src/main/cpp/java-bindings/JImageProxyHostObject.cpp
         src/main/cpp/java-bindings/JHashMap.cpp
 )

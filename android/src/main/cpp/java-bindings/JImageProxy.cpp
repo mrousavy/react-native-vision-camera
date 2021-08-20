@@ -6,6 +6,7 @@
 
 #include <jni.h>
 #include <fbjni/fbjni.h>
+#include "JPlaneProxy.h"
 
 namespace vision {
 
@@ -29,13 +30,13 @@ bool JImageProxy::getIsValid() {
 }
 
 int JImageProxy::getPlaneCount() {
-  static const auto getPlanesMethod = getClass()->getMethod<JArrayClass<jobject>()>("getPlanes");
+  static const auto getPlanesMethod = getClass()->getMethod<JArrayClass<JPlaneProxy>()>("getPlanes");
   auto planes = getPlanesMethod(self());
   return planes->size();
 }
 
 int JImageProxy::getBytesPerRow() {
-  static const auto getPlanesMethod = getClass()->getMethod<JArrayClass<jobject>()>("getPlanes");
+  static const auto getPlanesMethod = getClass()->getMethod<JArrayClass<JPlaneProxy>()>("getPlanes");
   auto planes = getPlanesMethod(self());
   auto firstPlane = planes->getElement(0);
 
