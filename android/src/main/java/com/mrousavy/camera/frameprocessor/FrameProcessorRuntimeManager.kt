@@ -43,10 +43,6 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext, frameProces
     Log.i(TAG, "Successfully installed ${Plugins.count()} Frame Processor Plugins!")
   }
 
-  fun destroy() {
-    mHybridData.resetNative()
-  }
-
   @Suppress("unused")
   @DoNotStrip
   @Keep

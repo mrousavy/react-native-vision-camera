@@ -216,10 +216,6 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
     }
   }
 
-  fun finalize() {
-    mHybridData.resetNative()
-  }
-
   private external fun initHybrid(): HybridData
   private external fun frameProcessorCallback(frame: ImageProxy)
 
