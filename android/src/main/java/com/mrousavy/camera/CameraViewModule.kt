@@ -15,20 +15,16 @@ import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener
-import com.mrousavy.camera.frameprocessor.FrameProcessorRuntimeManager
 import com.mrousavy.camera.parsers.*
 import com.mrousavy.camera.utils.*
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 import kotlinx.coroutines.*
 import kotlinx.coroutines.guava.await
 
+@Suppress("unused")
 class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
   companion object {
     const val TAG = "CameraView"
     var RequestCode = 10
-    val FrameProcessorThread: ExecutorService = Executors.newSingleThreadExecutor()
-    val CoroutineScope = CoroutineScope(Dispatchers.Default)
 
     fun parsePermissionStatus(status: Int): String {
       return when (status) {
@@ -39,25 +35,11 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
-  private var frameProcessorManager: FrameProcessorRuntimeManager? = null
-
-  override fun initialize() {
-    super.initialize()
-    if (frameProcessorManager == null) {
-      FrameProcessorThread.execute {
-        frameProcessorManager = FrameProcessorRuntimeManager(reactApplicationContext)
-        reactApplicationContext.runOnJSQueueThread {
-          frameProcessorManager!!.installJSIBindings()
-        }
-      }
-    }
-  }
+  private val coroutineScope = CoroutineScope(Dispatchers.Default) // TODO: or Dispatchers.Main?
 
   private fun cleanup() {
-    frameProcessorManager?.destroy()
-    frameProcessorManager = null
-    if (CoroutineScope.isActive) {
-      CoroutineScope.cancel("CameraViewModule has been destroyed.")
+    if (coroutineScope.isActive) {
+      coroutineScope.cancel("CameraViewModule has been destroyed.")
     }
   }
 
@@ -77,10 +59,9 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   private fun findCameraView(id: Int): CameraView = reactApplicationContext.currentActivity?.findViewById(id) ?: throw ViewNotFoundError(id)
 
-  @Suppress("unused")
   @ReactMethod
   fun takePhoto(viewTag: Int, options: ReadableMap, promise: Promise) {
-    CoroutineScope.launch {
+    coroutineScope.launch {
       withPromise(promise) {
         val view = findCameraView(viewTag)
         view.takePhoto(options)
@@ -91,7 +72,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   @Suppress("unused")
   @ReactMethod
   fun takeSnapshot(viewTag: Int, options: ReadableMap, promise: Promise) {
-    CoroutineScope.launch {
+    coroutineScope.launch {
       withPromise(promise) {
         val view = findCameraView(viewTag)
         view.takeSnapshot(options)
@@ -100,10 +81,9 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   }
 
   // TODO: startRecording() cannot be awaited, because I can't have a Promise and a onRecordedCallback in the same function. Hopefully TurboModules allows that
-  @Suppress("unused")
   @ReactMethod
   fun startRecording(viewTag: Int, options: ReadableMap, onRecordCallback: Callback) {
-    CoroutineScope.launch {
+    coroutineScope.launch {
       val view = findCameraView(viewTag)
       try {
         view.startRecording(options, onRecordCallback)
@@ -117,7 +97,6 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
-  @Suppress("unused")
   @ReactMethod
   fun stopRecording(viewTag: Int, promise: Promise) {
     withPromise(promise) {
@@ -127,10 +106,9 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
-  @Suppress("unused")
   @ReactMethod
   fun focus(viewTag: Int, point: ReadableMap, promise: Promise) {
-    CoroutineScope.launch {
+    coroutineScope.launch {
       withPromise(promise) {
         val view = findCameraView(viewTag)
         view.focus(point)
@@ -141,11 +119,10 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   // TODO: This uses the Camera2 API to list all characteristics of a camera device and therefore doesn't work with Camera1. Find a way to use CameraX for this
   // https://issuetracker.google.com/issues/179925896
-  @Suppress("unused")
   @ReactMethod
   fun getAvailableCameraDevices(promise: Promise) {
     val startTime = System.currentTimeMillis()
-    CoroutineScope.launch {
+    coroutineScope.launch {
       withPromise(promise) {
         val extensionsManager = ExtensionsManager.getInstance(reactApplicationContext).await()
         val cameraProvider = ProcessCameraProvider.getInstance(reactApplicationContext).await()
@@ -292,21 +269,18 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
-  @Suppress("unused")
   @ReactMethod
   fun getCameraPermissionStatus(promise: Promise) {
     val status = ContextCompat.checkSelfPermission(reactApplicationContext, Manifest.permission.CAMERA)
     promise.resolve(parsePermissionStatus(status))
   }
 
-  @Suppress("unused")
   @ReactMethod
   fun getMicrophonePermissionStatus(promise: Promise) {
     val status = ContextCompat.checkSelfPermission(reactApplicationContext, Manifest.permission.RECORD_AUDIO)
     promise.resolve(parsePermissionStatus(status))
   }
 
-  @Suppress("unused")
   @ReactMethod
   fun requestCameraPermission(promise: Promise) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -331,7 +305,6 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
-  @Suppress("unused")
   @ReactMethod
   fun requestMicrophonePermission(promise: Promise) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
