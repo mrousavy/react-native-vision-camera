@@ -182,7 +182,6 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
     scaleGestureDetector = ScaleGestureDetector(context, scaleGestureListener)
     touchEventListener = OnTouchListener { _, event -> return@OnTouchListener scaleGestureDetector.onTouchEvent(event) }
 
-
     hostLifecycleState = Lifecycle.State.INITIALIZED
     lifecycleRegistry = LifecycleRegistry(this)
     reactContext.addLifecycleEventListener(object : LifecycleEventListener {
