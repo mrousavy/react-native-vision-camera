@@ -15,19 +15,16 @@ import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener
-import com.mrousavy.camera.frameprocessor.FrameProcessorRuntimeManager
 import com.mrousavy.camera.parsers.*
 import com.mrousavy.camera.utils.*
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 import kotlinx.coroutines.*
 import kotlinx.coroutines.guava.await
 
+@Suppress("unused")
 class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
   companion object {
     const val TAG = "CameraView"
     var RequestCode = 10
-    val FrameProcessorThread: ExecutorService = Executors.newSingleThreadExecutor()
 
     fun parsePermissionStatus(status: Int): String {
       return when (status) {
@@ -38,24 +35,22 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
-  private var frameProcessorManager: FrameProcessorRuntimeManager? = null
+  private val coroutineScope = CoroutineScope(Dispatchers.Default) // TODO: or Dispatchers.Main?
 
-  override fun initialize() {
-    super.initialize()
-    if (frameProcessorManager == null) {
-      FrameProcessorThread.execute {
-        frameProcessorManager = FrameProcessorRuntimeManager(reactApplicationContext)
-        reactApplicationContext.runOnJSQueueThread {
-          frameProcessorManager!!.installJSIBindings()
-        }
-      }
+  private fun cleanup() {
+    if (coroutineScope.isActive) {
+      coroutineScope.cancel("CameraViewModule has been destroyed.")
     }
   }
 
   override fun onCatalystInstanceDestroy() {
     super.onCatalystInstanceDestroy()
-    frameProcessorManager?.destroy()
-    frameProcessorManager = null
+    cleanup()
+  }
+
+  override fun invalidate() {
+    super.invalidate()
+    cleanup()
   }
 
   override fun getName(): String {
@@ -66,7 +61,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   @ReactMethod
   fun takePhoto(viewTag: Int, options: ReadableMap, promise: Promise) {
-    GlobalScope.launch(Dispatchers.Main) {
+    coroutineScope.launch {
       withPromise(promise) {
         val view = findCameraView(viewTag)
         view.takePhoto(options)
@@ -74,9 +69,10 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
+  @Suppress("unused")
   @ReactMethod
   fun takeSnapshot(viewTag: Int, options: ReadableMap, promise: Promise) {
-    GlobalScope.launch(Dispatchers.Main) {
+    coroutineScope.launch {
       withPromise(promise) {
         val view = findCameraView(viewTag)
         view.takeSnapshot(options)
@@ -87,7 +83,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   // TODO: startRecording() cannot be awaited, because I can't have a Promise and a onRecordedCallback in the same function. Hopefully TurboModules allows that
   @ReactMethod
   fun startRecording(viewTag: Int, options: ReadableMap, onRecordCallback: Callback) {
-    GlobalScope.launch(Dispatchers.Main) {
+    coroutineScope.launch {
       val view = findCameraView(viewTag)
       try {
         view.startRecording(options, onRecordCallback)
@@ -112,7 +108,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   @ReactMethod
   fun focus(viewTag: Int, point: ReadableMap, promise: Promise) {
-    GlobalScope.launch(Dispatchers.Main) {
+    coroutineScope.launch {
       withPromise(promise) {
         val view = findCameraView(viewTag)
         view.focus(point)
@@ -126,7 +122,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   @ReactMethod
   fun getAvailableCameraDevices(promise: Promise) {
     val startTime = System.currentTimeMillis()
-    GlobalScope.launch(Dispatchers.Main) {
+    coroutineScope.launch {
       withPromise(promise) {
         val extensionsManager = ExtensionsManager.getInstance(reactApplicationContext).await()
         val cameraProvider = ProcessCameraProvider.getInstance(reactApplicationContext).await()

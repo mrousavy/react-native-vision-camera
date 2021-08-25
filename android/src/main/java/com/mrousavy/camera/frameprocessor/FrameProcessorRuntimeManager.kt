@@ -10,9 +10,10 @@ import com.mrousavy.camera.CameraView
 import com.mrousavy.camera.ViewNotFoundError
 import com.swmansion.reanimated.Scheduler
 import java.lang.ref.WeakReference
+import java.util.concurrent.ExecutorService
 
 @Suppress("KotlinJniMissingFunction") // I use fbjni, Android Studio is not smart enough to realize that.
-class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
+class FrameProcessorRuntimeManager(context: ReactApplicationContext, frameProcessorThread: ExecutorService) {
   companion object {
     const val TAG = "FrameProcessorRuntime"
     val Plugins: ArrayList<FrameProcessorPlugin> = ArrayList()
@@ -30,7 +31,7 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
 
   init {
     val holder = context.catalystInstance.jsCallInvokerHolder as CallInvokerHolderImpl
-    mScheduler = VisionCameraScheduler()
+    mScheduler = VisionCameraScheduler(frameProcessorThread)
     mContext = WeakReference(context)
     mHybridData = initHybrid(context.javaScriptContextHolder.get(), holder, mScheduler)
     initializeRuntime()
@@ -42,10 +43,7 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext) {
     Log.i(TAG, "Successfully installed ${Plugins.count()} Frame Processor Plugins!")
   }
 
-  fun destroy() {
-    mHybridData.resetNative()
-  }
-
+  @Suppress("unused")
   @DoNotStrip
   @Keep
   fun findCameraViewById(viewId: Int): CameraView {

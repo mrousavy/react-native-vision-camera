@@ -39,14 +39,6 @@ public abstract class FrameProcessorPlugin {
         mHybridData = initHybrid(name);
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        if (mHybridData != null) {
-            mHybridData.resetNative();
-        }
-    }
-
     private native @NonNull HybridData initHybrid(@NonNull String name);
 
     /**

@@ -2,28 +2,26 @@ package com.mrousavy.camera.frameprocessor;
 
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
-import com.mrousavy.camera.CameraViewModule;
+import java.util.concurrent.ExecutorService;
 
 @SuppressWarnings("JavaJniMissingFunction") // using fbjni here
 public class VisionCameraScheduler {
+    @SuppressWarnings({"unused", "FieldCanBeLocal"})
     @DoNotStrip
     private final HybridData mHybridData;
+    private final ExecutorService frameProcessorThread;
 
-    public VisionCameraScheduler() {
+    public VisionCameraScheduler(ExecutorService frameProcessorThread) {
+        this.frameProcessorThread = frameProcessorThread;
         mHybridData = initHybrid();
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        mHybridData.resetNative();
-        super.finalize();
     }
 
     private native HybridData initHybrid();
     private native void triggerUI();
 
+    @SuppressWarnings("unused")
     @DoNotStrip
     private void scheduleTrigger() {
-        CameraViewModule.Companion.getFrameProcessorThread().submit(this::triggerUI);
+        frameProcessorThread.submit(this::triggerUI);
     }
 }

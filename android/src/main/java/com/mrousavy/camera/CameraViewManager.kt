@@ -1,18 +1,67 @@
 package com.mrousavy.camera
 
-import android.util.Log
+import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.common.MapBuilder
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
+import com.mrousavy.camera.frameprocessor.FrameProcessorRuntimeManager
+import java.util.concurrent.Executors
 
-class CameraViewManager : SimpleViewManager<CameraView>() {
-  private fun addChangedPropToTransaction(view: CameraView, changedProp: String) {
-    if (cameraViewTransactions[view] == null) {
-      cameraViewTransactions[view] = ArrayList()
+@Suppress("unused")
+class CameraViewManager(reactContext: ReactApplicationContext) : SimpleViewManager<CameraView>() {
+  private val frameProcessorThread = Executors.newSingleThreadExecutor()
+  private var frameProcessorManager: FrameProcessorRuntimeManager? = null
+
+  init {
+    if (frameProcessorManager == null) {
+      frameProcessorThread.execute {
+        frameProcessorManager = FrameProcessorRuntimeManager(reactContext, frameProcessorThread)
+
+        reactContext.runOnJSQueueThread {
+          frameProcessorManager!!.installJSIBindings()
+        }
+      }
     }
-    cameraViewTransactions[view]!!.add(changedProp)
+  }
+
+  private fun destroy() {
+    frameProcessorManager = null
+    frameProcessorThread.shutdown()
+  }
+
+
+  override fun onCatalystInstanceDestroy() {
+    super.onCatalystInstanceDestroy()
+    destroy()
+  }
+
+  override fun invalidate() {
+    super.invalidate()
+    destroy()
+  }
+
+  public override fun createViewInstance(context: ThemedReactContext): CameraView {
+    return CameraView(context, frameProcessorThread)
+  }
+
+  override fun onAfterUpdateTransaction(view: CameraView) {
+    super.onAfterUpdateTransaction(view)
+    val changedProps = cameraViewTransactions[view] ?: ArrayList()
+    view.update(changedProps)
+    cameraViewTransactions.remove(view)
+  }
+
+  override fun getExportedCustomDirectEventTypeConstants(): MutableMap<String, Any>? {
+    return MapBuilder.builder<String, Any>()
+      .put("cameraInitialized", MapBuilder.of("registrationName", "onInitialized"))
+      .put("cameraError", MapBuilder.of("registrationName", "onError"))
+      .build()
+  }
+
+  override fun getName(): String {
+    return TAG
   }
 
   @ReactProp(name = "cameraId")
@@ -78,6 +127,7 @@ class CameraViewManager : SimpleViewManager<CameraView>() {
     view.format = format
   }
 
+  // TODO: Change when TurboModules release.
   // We're treating -1 as "null" here, because when I make the fps parameter
   // of type "Int?" the react bridge throws an error.
   @ReactProp(name = "fps", defaultInt = -1)
@@ -144,36 +194,16 @@ class CameraViewManager : SimpleViewManager<CameraView>() {
     view.enableZoomGesture = enableZoomGesture
   }
 
-  override fun onAfterUpdateTransaction(view: CameraView) {
-    super.onAfterUpdateTransaction(view)
-    val changedProps = cameraViewTransactions[view] ?: ArrayList()
-    view.update(changedProps)
-    cameraViewTransactions.remove(view)
-  }
-
-  public override fun createViewInstance(context: ThemedReactContext): CameraView {
-    return CameraView(context)
-  }
-
-  override fun getExportedCustomDirectEventTypeConstants(): MutableMap<String, Any>? {
-    return MapBuilder.builder<String, Any>()
-      .put("cameraInitialized", MapBuilder.of("registrationName", "onInitialized"))
-      .put("cameraError", MapBuilder.of("registrationName", "onError"))
-      .build()
-  }
-
-  override fun onDropViewInstance(view: CameraView) {
-    Log.d(TAG, "onDropViewInstance() called!")
-    super.onDropViewInstance(view)
-  }
-
-  override fun getName(): String {
-    return TAG
-  }
-
   companion object {
     const val TAG = "CameraView"
 
     val cameraViewTransactions: HashMap<CameraView, ArrayList<String>> = HashMap()
+
+    private fun addChangedPropToTransaction(view: CameraView, changedProp: String) {
+      if (cameraViewTransactions[view] == null) {
+        cameraViewTransactions[view] = ArrayList()
+      }
+      cameraViewTransactions[view]!!.add(changedProp)
+    }
   }
 }

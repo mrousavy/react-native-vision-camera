@@ -11,6 +11,6 @@ class CameraPackage : ReactPackage {
   }
 
   override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {
-    return listOf(CameraViewManager())
+    return listOf(CameraViewManager(reactContext))
   }
 }
