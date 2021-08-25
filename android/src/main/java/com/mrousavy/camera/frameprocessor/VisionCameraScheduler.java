@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutorService;
 
 @SuppressWarnings("JavaJniMissingFunction") // using fbjni here
 public class VisionCameraScheduler {
+    @SuppressWarnings({"unused", "FieldCanBeLocal"})
     @DoNotStrip
     private final HybridData mHybridData;
     private final ExecutorService frameProcessorThread;
@@ -13,12 +14,6 @@ public class VisionCameraScheduler {
     public VisionCameraScheduler(ExecutorService frameProcessorThread) {
         this.frameProcessorThread = frameProcessorThread;
         mHybridData = initHybrid();
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        mHybridData.resetNative();
-        super.finalize();
     }
 
     private native HybridData initHybrid();
