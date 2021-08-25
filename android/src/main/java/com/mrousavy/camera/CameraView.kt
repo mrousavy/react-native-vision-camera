@@ -198,7 +198,6 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
   override fun onConfigurationChanged(newConfig: Configuration?) {
     super.onConfigurationChanged(newConfig)
 
-    val rotation = rotation
     if (preview?.targetRotation != rotation) {
       preview?.targetRotation = rotation
       imageCapture?.targetRotation = rotation
@@ -325,7 +324,6 @@ class CameraView(context: Context) : FrameLayout(context), LifecycleOwner {
         }
       }
 
-      val rotation = rotation
       val previewBuilder = Preview.Builder()
         .setTargetRotation(rotation)
       val imageCaptureBuilder = ImageCapture.Builder()
