@@ -27,7 +27,6 @@ class CameraViewManager(reactContext: ReactApplicationContext) : SimpleViewManag
   }
 
   private fun destroy() {
-    frameProcessorManager?.destroy()
     frameProcessorManager = null
     frameProcessorThread.shutdown()
   }
