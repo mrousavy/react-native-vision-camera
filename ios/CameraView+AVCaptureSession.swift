@@ -160,6 +160,14 @@ extension CameraView {
       try device.lockForConfiguration()
 
       if let fps = self.fps?.int32Value {
+        let supportsGivenFps = device.activeFormat.videoSupportedFrameRateRanges.contains { range in
+          return range.includes(fps: Double(fps))
+        }
+        if !supportsGivenFps {
+          invokeOnError(.format(.invalidFps(fps: Int(fps))))
+          return
+        }
+
         let duration = CMTimeMake(value: 1, timescale: fps)
         device.activeVideoMinFrameDuration = duration
         device.activeVideoMaxFrameDuration = duration
