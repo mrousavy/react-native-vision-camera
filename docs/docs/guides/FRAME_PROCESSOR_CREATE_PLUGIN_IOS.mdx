@@ -36,7 +36,7 @@ iOS Frame Processor Plugins can be written in either **Objective-C** or **Swift*
 
 @implementation QRCodeFrameProcessorPlugin
 
-static inline id scanQRCodes(Frame* frame, NSArray args) {
+static inline id scanQRCodes(Frame* frame, NSArray* args) {
   CMSampleBufferRef buffer = frame.buffer;
   UIImageOrientation orientation = frame.orientation;
   // code goes here
