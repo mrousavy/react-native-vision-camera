@@ -95,7 +95,16 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   var torch = "off"
   var zoom: Float = 1f // in "factor"
   var enableZoomGesture = false
+    set(value) {
+      field = value
+      setOnTouchListener(if (value) touchEventListener else null)
+    }
   var frameProcessorFps = 1.0
+    set(value) {
+      field = value
+      actualFrameProcessorFps = if (value == -1.0) 30.0 else value
+      frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(actualFrameProcessorFps.toInt())
+    }
 
   // private properties
   private val reactContext: ReactContext
@@ -282,13 +291,6 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         }
         if (shouldReconfigureTorch) {
           camera!!.cameraControl.enableTorch(torch == "on")
-        }
-        if (changedProps.contains("enableZoomGesture")) {
-          setOnTouchListener(if (enableZoomGesture) touchEventListener else null)
-        }
-        if (changedProps.contains("frameProcessorFps")) {
-          actualFrameProcessorFps = if (frameProcessorFps == -1.0) 30.0 else frameProcessorFps
-          frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(actualFrameProcessorFps.toInt())
         }
       } catch (e: Throwable) {
         Log.e(TAG, "update() threw: ${e.message}")
