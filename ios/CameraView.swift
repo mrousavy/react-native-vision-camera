@@ -32,8 +32,6 @@ private let propsThatRequireDeviceReconfiguration = ["fps",
                                                      "lowLightBoost",
                                                      "colorSpace"]
 
-private let defaultFrameProcessorFps = 30.0
-
 // MARK: - CameraView
 
 public final class CameraView: UIView {
@@ -107,8 +105,8 @@ public final class CameraView: UIView {
 
   /// Specifies whether the frameProcessor() function is currently executing. used to drop late frames.
   internal var isRunningFrameProcessor = false
-  internal var frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(maxSamplesSize: Int(defaultFrameProcessorFps))
-  internal var actualFrameProcessorFps = defaultFrameProcessorFps
+  internal var frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(maxSamplesSize: 30)
+  internal var actualFrameProcessorFps = 30.0
   internal var frameProcessorCallCounter = 0
 
   /// Returns whether the AVCaptureSession is currently running (reflected by isActive)
@@ -198,7 +196,7 @@ public final class CameraView: UIView {
     if changedProps.contains("frameProcessorFps") {
       if frameProcessorFps.doubleValue == -1 {
         // "auto"
-        actualFrameProcessorFps = defaultFrameProcessorFps
+        actualFrameProcessorFps = 30.0
       } else {
         actualFrameProcessorFps = frameProcessorFps.doubleValue
       }
