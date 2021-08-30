@@ -194,7 +194,7 @@ public final class CameraView: UIView {
     let shouldUpdateTorch = willReconfigure || changedProps.contains("torch") || shouldCheckActive
     let shouldUpdateZoom = willReconfigure || changedProps.contains("zoom") || shouldCheckActive
     let shouldUpdateVideoStabilization = willReconfigure || changedProps.contains("videoStabilizationMode")
-    
+
     if changedProps.contains("frameProcessorFps") {
       if frameProcessorFps.doubleValue == -1 {
         // "auto"
@@ -250,7 +250,7 @@ public final class CameraView: UIView {
             self.setTorchMode(self.torch)
           }
         }
-        
+
         if let minFrameDuration = self.videoDeviceInput?.device.activeVideoMinFrameDuration {
           let fps = Double(minFrameDuration.timescale) * Double(minFrameDuration.value)
           self.frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(maxSamplesSize: Int(fps))
@@ -356,13 +356,13 @@ public final class CameraView: UIView {
     guard let onInitialized = self.onInitialized else { return }
     onInitialized([String: Any]())
   }
-  
+
   internal final func invokeOnFrameProcessorPerformanceSuggestionAvailable(suggestion: FrameProcessorPerformanceSuggestion) {
     ReactLogger.log(level: .info, message: "Frame Processor Performance Suggestion available!")
     guard let onFrameProcessorPerformanceSuggestionAvailable = self.onFrameProcessorPerformanceSuggestionAvailable else { return }
     onFrameProcessorPerformanceSuggestionAvailable([
       "type": suggestion.type.rawValue,
-      "suggestedFrameProcessorFps": floor(suggestion.suggestedFps)
+      "suggestedFrameProcessorFps": floor(suggestion.suggestedFps),
     ])
   }
 }

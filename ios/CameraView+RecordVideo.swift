@@ -202,7 +202,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
     if let frameProcessor = frameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
       frameProcessorCallCounter += 1
-      
+
       // check if last frame was x nanoseconds ago, effectively throttling FPS
       let diff = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorCall.uptimeNanoseconds
       let secondsPerFrame = 1.0 / actualFrameProcessorFps
@@ -213,12 +213,12 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           // we're not in the middle of executing the Frame Processor, so prepare for next call.
           CameraQueues.frameProcessorQueue.async {
             self.isRunningFrameProcessor = true
-            
+
             let end = self.frameProcessorPerformanceDataCollector.beginPerformanceSampleCollection()
             let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
             frameProcessor(frame)
             end.endPerformanceSampleCollection()
-            
+
             self.isRunningFrameProcessor = false
           }
           lastFrameProcessorCall = DispatchTime.now()
@@ -227,26 +227,27 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           ReactLogger.log(level: .warning, message: "The Frame Processor took so long to execute that a frame was dropped.")
         }
       }
-      
+
       // evaluate new frame processor FPS suggestion when ready
       if frameProcessorPerformanceDataCollector.isReadyForNewEvaluation {
         guard let videoDevice = videoDeviceInput?.device else { return }
-        
+
         let maxFrameProcessorFps = Double(videoDevice.activeVideoMinFrameDuration.timescale) * Double(videoDevice.activeVideoMinFrameDuration.value)
-        
-        let averageExecutionTimeSeconds = self.frameProcessorPerformanceDataCollector.averageExecutionTimeSeconds
+
+        let averageExecutionTimeSeconds = frameProcessorPerformanceDataCollector.averageExecutionTimeSeconds
         let averageFps = 1.0 / averageExecutionTimeSeconds
         let suggestedFrameProcessorFps = min(averageFps, maxFrameProcessorFps)
-        
+
         print("Suggestion available! Max FPS for Video queue: \(maxFrameProcessorFps) | suggested FP FPS: \(suggestedFrameProcessorFps)")
-        
+
         if frameProcessorFps.intValue == -1 {
           // frameProcessorFps="auto"
           actualFrameProcessorFps = suggestedFrameProcessorFps
         } else {
           // frameProcessorFps={someCustomFpsValue}
           let type: PerformanceSuggestionType = averageFps > frameProcessorFps.doubleValue ? .canUseHigherFps : .shouldUseLowerFps
-          self.invokeOnFrameProcessorPerformanceSuggestionAvailable(suggestion: FrameProcessorPerformanceSuggestion(type: type, suggestedFps: suggestedFrameProcessorFps))
+          invokeOnFrameProcessorPerformanceSuggestionAvailable(suggestion: FrameProcessorPerformanceSuggestion(type: type,
+                                                                                                               suggestedFps: suggestedFrameProcessorFps))
         }
       }
     }
