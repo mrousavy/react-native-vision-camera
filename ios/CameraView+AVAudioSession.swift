@@ -118,10 +118,11 @@ extension CameraView {
       return
     }
 
+    // TODO: Add JS-Event for Audio Session interruptions?
     switch type {
     case .began:
       // Something interrupted our Audio Session, stop recording audio.
-      ReactLogger.log(level: .error, message: "The Audio Session was interrupted!", alsoLogToJS: true)
+      ReactLogger.log(level: .error, message: "The Audio Session was interrupted!")
     case .ended:
       ReactLogger.log(level: .info, message: "The Audio Session interruption has ended.")
       guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else { return }
@@ -129,13 +130,13 @@ extension CameraView {
       if options.contains(.shouldResume) {
         if isRecording {
           audioQueue.async {
-            ReactLogger.log(level: .info, message: "Resuming interrupted Audio Session...", alsoLogToJS: true)
+            ReactLogger.log(level: .info, message: "Resuming interrupted Audio Session...")
             // restart audio session because interruption is over
             self.activateAudioSession()
           }
         }
       } else {
-        ReactLogger.log(level: .error, message: "Cannot resume interrupted Audio Session!", alsoLogToJS: true)
+        ReactLogger.log(level: .error, message: "Cannot resume interrupted Audio Session!")
       }
     @unknown default: ()
     }
