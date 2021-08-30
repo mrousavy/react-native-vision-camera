@@ -23,6 +23,7 @@ import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.*
 import com.facebook.react.uimanager.events.RCTEventEmitter
+import com.mrousavy.camera.frameprocessor.FrameProcessorPerformanceDataCollector
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.guava.await
@@ -130,6 +131,9 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
 
   private var minZoom: Float = 1f
   private var maxZoom: Float = 1f
+
+  private var actualFrameProcessorFps = 30.0
+  private var frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(30)
 
   @DoNotStrip
   private var mHybridData: HybridData
@@ -406,12 +410,30 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         imageAnalysis = imageAnalysisBuilder.build().apply {
           setAnalyzer(cameraExecutor, { image ->
             val now = System.currentTimeMillis()
-            val intervalMs = (1.0 / frameProcessorFps) * 1000.0
+            val intervalMs = (1.0 / actualFrameProcessorFps) * 1000.0
             if (now - lastFrameProcessorCall > intervalMs) {
               lastFrameProcessorCall = now
+
+              val sample = frameProcessorPerformanceDataCollector.beginPerformanceSampleCollection()
               frameProcessorCallback(image)
+              sample.endPerformanceSampleCollection()
             }
             image.close()
+
+            if (frameProcessorPerformanceDataCollector.isReadyForNewEvaluation) {
+              val maxFrameProcessorFps = fps ?: 30
+              val averageExecutionTimeSeconds = frameProcessorPerformanceDataCollector.averageExecutionTimeSeconds
+              val averageFps = 1.0 / averageExecutionTimeSeconds
+              val suggestedFrameProcessorFps = min(averageFps, maxFrameProcessorFps.toDouble())
+
+              if (frameProcessorFps == -1.0) {
+                // frameProcessorFps="auto"
+                actualFrameProcessorFps = suggestedFrameProcessorFps
+              } else {
+                // frameProcessorFps={someCustomFpsValue}
+                invokeOnFrameProcessorPerformanceSuggestionAvailable(suggestedFrameProcessorFps)
+              }
+            }
           })
         }
         useCases.add(imageAnalysis!!)
@@ -465,6 +487,17 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
     cameraError.cause?.let { cause ->
       event.putMap("cause", errorToMap(cause))
     }
+    val reactContext = context as ReactContext
+    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraError", event)
+  }
+
+  private fun invokeOnFrameProcessorPerformanceSuggestionAvailable(suggestedFps: Double) {
+    Log.e(TAG, "invokeOnFrameProcessorPerformanceSuggestionAvailable(suggestedFps: $suggestedFps):")
+
+    val event = Arguments.createMap()
+    val type = if (suggestedFps > actualFrameProcessorFps) "can-use-higher-fps" else "should-use-lower-fps"
+    event.putString("type", type)
+    event.putDouble("suggestedFrameProcessorFps", suggestedFps)
     val reactContext = context as ReactContext
     reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraError", event)
   }
