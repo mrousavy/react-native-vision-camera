@@ -30,6 +30,7 @@ import kotlinx.coroutines.guava.await
 import java.lang.IllegalArgumentException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 
@@ -424,14 +425,14 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
               val maxFrameProcessorFps = fps ?: 30
               val averageExecutionTimeSeconds = frameProcessorPerformanceDataCollector.averageExecutionTimeSeconds
               val averageFps = 1.0 / averageExecutionTimeSeconds
-              val suggestedFrameProcessorFps = min(averageFps, maxFrameProcessorFps.toDouble())
+              val suggestedFrameProcessorFps = floor(min(averageFps, maxFrameProcessorFps.toDouble()))
 
               if (frameProcessorFps == -1.0) {
                 // frameProcessorFps="auto"
                 actualFrameProcessorFps = suggestedFrameProcessorFps
               } else {
                 // frameProcessorFps={someCustomFpsValue}
-                invokeOnFrameProcessorPerformanceSuggestionAvailable(suggestedFrameProcessorFps)
+                invokeOnFrameProcessorPerformanceSuggestionAvailable(frameProcessorFps, suggestedFrameProcessorFps)
               }
             }
           })
@@ -464,51 +465,5 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         else -> UnknownCameraError(exc)
       }
     }
-  }
-
-  private fun invokeOnInitialized() {
-    Log.i(TAG, "invokeOnInitialized()")
-
-    val reactContext = context as ReactContext
-    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraInitialized", null)
-  }
-
-  private fun invokeOnError(error: Throwable) {
-    Log.e(TAG, "invokeOnError(...):")
-    error.printStackTrace()
-
-    val cameraError = when (error) {
-      is CameraError -> error
-      else -> UnknownCameraError(error)
-    }
-    val event = Arguments.createMap()
-    event.putString("code", cameraError.code)
-    event.putString("message", cameraError.message)
-    cameraError.cause?.let { cause ->
-      event.putMap("cause", errorToMap(cause))
-    }
-    val reactContext = context as ReactContext
-    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraError", event)
-  }
-
-  private fun invokeOnFrameProcessorPerformanceSuggestionAvailable(suggestedFps: Double) {
-    Log.e(TAG, "invokeOnFrameProcessorPerformanceSuggestionAvailable(suggestedFps: $suggestedFps):")
-
-    val event = Arguments.createMap()
-    val type = if (suggestedFps > actualFrameProcessorFps) "can-use-higher-fps" else "should-use-lower-fps"
-    event.putString("type", type)
-    event.putDouble("suggestedFrameProcessorFps", suggestedFps)
-    val reactContext = context as ReactContext
-    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraError", event)
-  }
-
-  private fun errorToMap(error: Throwable): WritableMap {
-    val map = Arguments.createMap()
-    map.putString("message", error.message)
-    map.putString("stacktrace", error.stackTraceToString())
-    error.cause?.let { cause ->
-      map.putMap("cause", errorToMap(cause))
-    }
-    return map
   }
 }

@@ -236,18 +236,15 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
         let averageExecutionTimeSeconds = frameProcessorPerformanceDataCollector.averageExecutionTimeSeconds
         let averageFps = 1.0 / averageExecutionTimeSeconds
-        let suggestedFrameProcessorFps = min(averageFps, maxFrameProcessorFps)
-
-        print("Suggestion available! Max FPS for Video queue: \(maxFrameProcessorFps) | suggested FP FPS: \(suggestedFrameProcessorFps)")
+        let suggestedFrameProcessorFps = floor(min(averageFps, maxFrameProcessorFps))
 
         if frameProcessorFps.intValue == -1 {
           // frameProcessorFps="auto"
           actualFrameProcessorFps = suggestedFrameProcessorFps
         } else {
           // frameProcessorFps={someCustomFpsValue}
-          let type: PerformanceSuggestionType = averageFps > frameProcessorFps.doubleValue ? .canUseHigherFps : .shouldUseLowerFps
-          invokeOnFrameProcessorPerformanceSuggestionAvailable(suggestion: FrameProcessorPerformanceSuggestion(type: type,
-                                                                                                               suggestedFps: suggestedFrameProcessorFps))
+          invokeOnFrameProcessorPerformanceSuggestionAvailable(currentFps: frameProcessorFps.doubleValue,
+                                                               suggestedFps: suggestedFrameProcessorFps)
         }
       }
     }
