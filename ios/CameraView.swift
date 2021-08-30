@@ -105,7 +105,7 @@ public final class CameraView: UIView {
 
   /// Specifies whether the frameProcessor() function is currently executing. used to drop late frames.
   internal var isRunningFrameProcessor = false
-  internal var frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(maxSamplesSize: 30)
+  internal let frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector()
   internal var actualFrameProcessorFps = 30.0
   internal var frameProcessorCallCounter = 0
   internal var lastSuggestedFrameProcessorFps = 0.0
@@ -249,8 +249,8 @@ public final class CameraView: UIView {
           } else {
             self.actualFrameProcessorFps = self.frameProcessorFps.doubleValue
           }
-          self.frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(maxSamplesSize: Int(self.actualFrameProcessorFps))
           self.lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
+          self.frameProcessorPerformanceDataCollector.clear()
         }
       }
 

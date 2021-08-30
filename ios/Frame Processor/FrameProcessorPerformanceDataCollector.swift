@@ -8,6 +8,9 @@
 
 import Foundation
 
+// keep a maximum of `maxSampleSize` historical performance data samples cached.
+private let maxSampleSize = 15
+
 // MARK: - PerformanceSampleCollection
 
 struct PerformanceSampleCollection {
@@ -21,8 +24,7 @@ struct PerformanceSampleCollection {
 // MARK: - FrameProcessorPerformanceDataCollector
 
 class FrameProcessorPerformanceDataCollector {
-  let maxSamplesSize: Int
-  private var performanceSamples: [Double]
+  private var performanceSamples: [Double] = []
   private var counter = 0
   private var lastEvaluation = -1
 
@@ -35,19 +37,6 @@ class FrameProcessorPerformanceDataCollector {
     return average
   }
 
-  var hasEnoughData: Bool {
-    return counter >= maxSamplesSize
-  }
-
-  var isReadyForNewEvaluation: Bool {
-    return hasEnoughData && counter % maxSamplesSize == 0 && lastEvaluation != counter
-  }
-
-  init(maxSamplesSize: Int) {
-    self.maxSamplesSize = maxSamplesSize
-    performanceSamples = Array(repeating: 0, count: maxSamplesSize)
-  }
-
   func beginPerformanceSampleCollection() -> PerformanceSampleCollection {
     let begin = DispatchTime.now()
 
@@ -55,9 +44,19 @@ class FrameProcessorPerformanceDataCollector {
       let end = DispatchTime.now()
       let seconds = Double(end.uptimeNanoseconds - begin.uptimeNanoseconds) / 1_000_000_000.0
 
-      let index = self.counter % self.maxSamplesSize
-      self.performanceSamples[index] = seconds
+      let index = self.counter % maxSampleSize
+      
+      if self.performanceSamples.count > index {
+        self.performanceSamples[index] = seconds
+      } else {
+        self.performanceSamples.append(seconds)
+      }
+      
       self.counter += 1
     }
+  }
+  
+  func clear() {
+    performanceSamples.removeAll()
   }
 }

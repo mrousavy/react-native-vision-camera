@@ -103,8 +103,8 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
     set(value) {
       field = value
       actualFrameProcessorFps = if (value == -1.0) 30.0 else value
-      frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(actualFrameProcessorFps.toInt())
       lastFrameProcessorPerformanceEvaluation = System.currentTimeMillis()
+      frameProcessorPerformanceDataCollector.clear()
     }
 
   // private properties
@@ -144,7 +144,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   private var maxZoom: Float = 1f
 
   private var actualFrameProcessorFps = 30.0
-  private var frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(30)
+  private val frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector()
   private var lastSuggestedFrameProcessorFps = 0.0
   private var lastFrameProcessorPerformanceEvaluation = System.currentTimeMillis()
 

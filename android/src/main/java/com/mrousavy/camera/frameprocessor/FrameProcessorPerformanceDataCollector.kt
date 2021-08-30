@@ -2,7 +2,10 @@ package com.mrousavy.camera.frameprocessor
 
 data class PerformanceSampleCollection(val endPerformanceSampleCollection: () -> Unit)
 
-class FrameProcessorPerformanceDataCollector(private val maxSampleSize: Int) {
+// keep a maximum of `maxSampleSize` historical performance data samples cached.
+private const val maxSampleSize = 15
+
+class FrameProcessorPerformanceDataCollector {
   private var counter = 0
   private var performanceSamples: ArrayList<Double> = ArrayList()
 
@@ -26,5 +29,10 @@ class FrameProcessorPerformanceDataCollector(private val maxSampleSize: Int) {
 
       counter++
     }
+  }
+
+  fun clear() {
+    counter = 0
+    performanceSamples.clear()
   }
 }
