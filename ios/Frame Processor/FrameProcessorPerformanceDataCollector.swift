@@ -45,17 +45,17 @@ class FrameProcessorPerformanceDataCollector {
       let seconds = Double(end.uptimeNanoseconds - begin.uptimeNanoseconds) / 1_000_000_000.0
 
       let index = self.counter % maxSampleSize
-      
+
       if self.performanceSamples.count > index {
         self.performanceSamples[index] = seconds
       } else {
         self.performanceSamples.append(seconds)
       }
-      
+
       self.counter += 1
     }
   }
-  
+
   func clear() {
     counter = 0
     performanceSamples.removeAll()
