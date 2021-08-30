@@ -8,17 +8,17 @@
 
 import Foundation
 
-enum PerformanceSuggestionMode: String {
+enum PerformanceSuggestionType: String {
   case canUseHigherFps = "can-use-higher-fps"
   case shouldUseLowerFps = "should-use-lower-fps"
 }
 
 struct FrameProcessorPerformanceSuggestion {
-  let mode: PerformanceSuggestionMode
+  let type: PerformanceSuggestionType
   let suggestedFps: Double
   
-  init(mode: PerformanceSuggestionMode, suggestedFps: Double) {
-    self.mode = mode
+  init(type: PerformanceSuggestionType, suggestedFps: Double) {
+    self.type = type
     self.suggestedFps = suggestedFps
   }
 }

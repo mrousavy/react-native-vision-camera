@@ -32,6 +32,8 @@ private let propsThatRequireDeviceReconfiguration = ["fps",
                                                      "lowLightBoost",
                                                      "colorSpace"]
 
+private let defaultFrameProcessorFps = 30.0
+
 // MARK: - CameraView
 
 public final class CameraView: UIView {
@@ -105,8 +107,9 @@ public final class CameraView: UIView {
 
   /// Specifies whether the frameProcessor() function is currently executing. used to drop late frames.
   internal var isRunningFrameProcessor = false
-  internal var frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(maxSamplesSize: 30)
-  internal var actualFrameProcessorFps = 1.0
+  internal var frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(maxSamplesSize: Int(defaultFrameProcessorFps))
+  internal var actualFrameProcessorFps = defaultFrameProcessorFps
+  internal var frameProcessorCallCounter = 0
 
   /// Returns whether the AVCaptureSession is currently running (reflected by isActive)
   var isRunning: Bool {
@@ -191,6 +194,15 @@ public final class CameraView: UIView {
     let shouldUpdateTorch = willReconfigure || changedProps.contains("torch") || shouldCheckActive
     let shouldUpdateZoom = willReconfigure || changedProps.contains("zoom") || shouldCheckActive
     let shouldUpdateVideoStabilization = willReconfigure || changedProps.contains("videoStabilizationMode")
+    
+    if changedProps.contains("frameProcessorFps") {
+      if frameProcessorFps.doubleValue == -1 {
+        // "auto"
+        actualFrameProcessorFps = defaultFrameProcessorFps
+      } else {
+        actualFrameProcessorFps = frameProcessorFps.doubleValue
+      }
+    }
 
     if shouldReconfigure ||
       shouldReconfigureAudioSession ||
@@ -237,6 +249,11 @@ public final class CameraView: UIView {
           self.cameraQueue.asyncAfter(deadline: .now() + 0.1) {
             self.setTorchMode(self.torch)
           }
+        }
+        
+        if let minFrameDuration = self.videoDeviceInput?.device.activeVideoMinFrameDuration {
+          let fps = Double(minFrameDuration.timescale) * Double(minFrameDuration.value)
+          self.frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(maxSamplesSize: Int(fps))
         }
       }
 
@@ -344,8 +361,8 @@ public final class CameraView: UIView {
     ReactLogger.log(level: .info, message: "Frame Processor Performance Suggestion available!")
     guard let onFrameProcessorPerformanceSuggestionAvailable = self.onFrameProcessorPerformanceSuggestionAvailable else { return }
     onFrameProcessorPerformanceSuggestionAvailable([
-      "mode": suggestion.mode.rawValue,
-      "suggestedFps": suggestion.suggestedFps
+      "type": suggestion.type.rawValue,
+      "suggestedFrameProcessorFps": suggestion.suggestedFps
     ])
   }
 }

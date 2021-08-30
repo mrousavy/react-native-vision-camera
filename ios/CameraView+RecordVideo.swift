@@ -203,8 +203,9 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       }
     }
 
-    if let frameProcessor = frameProcessorCallback,
-       captureOutput is AVCaptureVideoDataOutput {
+    if let frameProcessor = frameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
+      frameProcessorCallCounter += 1
+      
       // check if last frame was x nanoseconds ago, effectively throttling FPS
       let diff = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorCall.uptimeNanoseconds
       let secondsPerFrame = 1.0 / actualFrameProcessorFps
@@ -237,7 +238,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         }
       }
       
-      if self.frameProcessorPerformanceDataCollector.isReadyForNewEvaluation {
+      // evaluate new frame processor FPS suggestion when ready
+      if frameProcessorPerformanceDataCollector.isReadyForNewEvaluation {
         guard let videoDevice = videoDeviceInput?.device else { return }
         
         let maxFrameProcessorFps = Double(videoDevice.activeVideoMinFrameDuration.timescale) * Double(videoDevice.activeVideoMinFrameDuration.value)
@@ -246,13 +248,15 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         let averageFps = 1.0 / averageExecutionTimeSeconds
         let suggestedFrameProcessorFps = min(averageFps, maxFrameProcessorFps)
         
+        print("Suggestion available! Max FPS for Video queue: \(maxFrameProcessorFps) | suggested FP FPS: \(suggestedFrameProcessorFps)")
+        
         if frameProcessorFps.intValue == -1 {
           // frameProcessorFps="auto"
           actualFrameProcessorFps = suggestedFrameProcessorFps
         } else {
           // frameProcessorFps={someCustomFpsValue}
-          let mode: PerformanceSuggestionMode = averageFps > frameProcessorFps.doubleValue ? .canUseHigherFps : .shouldUseLowerFps
-          self.invokeOnFrameProcessorPerformanceSuggestionAvailable(suggestion: FrameProcessorPerformanceSuggestion(mode: mode, suggestedFps: suggestedFrameProcessorFps))
+          let type: PerformanceSuggestionType = averageFps > frameProcessorFps.doubleValue ? .canUseHigherFps : .shouldUseLowerFps
+          self.invokeOnFrameProcessorPerformanceSuggestionAvailable(suggestion: FrameProcessorPerformanceSuggestion(type: type, suggestedFps: suggestedFrameProcessorFps))
         }
       }
     }

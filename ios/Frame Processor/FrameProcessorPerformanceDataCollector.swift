@@ -8,7 +8,7 @@
 
 import Foundation
 
-class PerformanceSampleCollection {
+struct PerformanceSampleCollection {
   var endPerformanceSampleCollection: () -> Void
   
   init(end: @escaping () -> Void) {
@@ -17,14 +17,18 @@ class PerformanceSampleCollection {
 }
 
 class FrameProcessorPerformanceDataCollector {
-  private let maxSamplesSize: Int
+  let maxSamplesSize: Int
   private var performanceSamples: [Double]
   private var counter = 0
+  private var lastEvaluation = -1
   
   var averageExecutionTimeSeconds: Double {
     get {
       let sum = performanceSamples.reduce(0, +)
       let average = sum / Double(performanceSamples.count)
+      
+      lastEvaluation = counter
+      
       return average
     }
   }
@@ -35,14 +39,13 @@ class FrameProcessorPerformanceDataCollector {
   }
   var isReadyForNewEvaluation: Bool {
     get {
-      return counter % maxSamplesSize == 0
+      return hasEnoughData && counter % maxSamplesSize == 0 && lastEvaluation != counter
     }
   }
   
   init(maxSamplesSize: Int) {
     self.maxSamplesSize = maxSamplesSize
-    self.performanceSamples = []
-    self.performanceSamples.reserveCapacity(maxSamplesSize)
+    self.performanceSamples = Array(repeating: 0, count: maxSamplesSize)
   }
   
   func beginPerformanceSampleCollection() -> PerformanceSampleCollection {

@@ -6,6 +6,7 @@ import { Navigation, NavigationFunctionComponent } from 'react-native-navigation
 import {
   CameraDeviceFormat,
   CameraRuntimeError,
+  FrameProcessorPerformanceSuggestion,
   PhotoFile,
   sortFormats,
   useCameraDevices,
@@ -197,6 +198,10 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
     console.log(`Return Values: ${JSON.stringify(values)}`);
   }, []);
 
+  const onFrameProcessorSuggestionAvailable = useCallback((suggestion: FrameProcessorPerformanceSuggestion) => {
+    console.log(`Suggestion available! ${suggestion.type}: Can do ${suggestion.suggestedFrameProcessorFps} FPS`);
+  }, []);
+
   return (
     <View style={styles.container}>
       {device != null && (
@@ -221,6 +226,7 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
                 audio={true}
                 frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
                 frameProcessorFps={1}
+                onFrameProcessorPerformanceSuggestionAvailable={onFrameProcessorSuggestionAvailable}
               />
             </TapGestureHandler>
           </Reanimated.View>
