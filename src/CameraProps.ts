@@ -4,6 +4,11 @@ import type { CameraRuntimeError } from './CameraError';
 import type { CameraPreset } from './CameraPreset';
 import type { Frame } from './Frame';
 
+export interface FrameProcessorPerformanceSuggestion {
+  type: 'can-use-higher-fps' | 'should-use-lower-fps';
+  suggestedFrameProcessorFps: number;
+}
+
 export interface CameraProps extends ViewProps {
   /**
    * The Camera Device to use.
@@ -162,6 +167,10 @@ export interface CameraProps extends ViewProps {
    */
   onInitialized?: () => void;
   /**
+   * Called when a new performance suggestion for a Frame Processor is available - either if your Frame Processor is running too fast and frames are being dropped, or because it is able to run faster. Optionally, you can adjust your `frameProcessorFps` accordingly.
+   */
+  onFrameProcessorPerformanceSuggestionAvailable?: (suggestion: FrameProcessorPerformanceSuggestion) => void;
+  /**
    * A worklet which will be called for every frame the Camera "sees". Throttle the Frame Processor's frame rate with {@linkcode frameProcessorFps}.
    *
    * > See [the Frame Processors documentation](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors) for more information
@@ -183,7 +192,8 @@ export interface CameraProps extends ViewProps {
   /**
    * Specifies the maximum frame rate the frame processor can use, independent of the Camera's frame rate (`fps` property).
    *
-   * * A value of `1` (default) indicates that the frame processor gets executed once per second, perfect for code scanning.
+   * * A value of `'auto'` (default) indicates that the frame processor should execute as fast as it can, without dropping frames. This is achieved by collecting historical data for previous frame processor calls and adjusting frame rate accordingly.
+   * * A value of `1` indicates that the frame processor gets executed once per second, perfect for code scanning.
    * * A value of `10` indicates that the frame processor gets executed 10 times per second, perfect for more realtime use-cases.
    * * A value of `25` indicates that the frame processor gets executed 25 times per second, perfect for high-speed realtime use-cases.
    * * ...and so on
@@ -191,8 +201,8 @@ export interface CameraProps extends ViewProps {
    * If you're using higher values, always check your Xcode/Android Studio Logs to make sure your frame processors are executing fast enough
    * without blocking the video recording queue.
    *
-   * @default 1
+   * @default 'auto'
    */
-  frameProcessorFps?: number;
+  frameProcessorFps?: number | 'auto';
   //#endregion
 }
