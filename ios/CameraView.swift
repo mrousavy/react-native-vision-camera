@@ -362,7 +362,7 @@ public final class CameraView: UIView {
     guard let onFrameProcessorPerformanceSuggestionAvailable = self.onFrameProcessorPerformanceSuggestionAvailable else { return }
     onFrameProcessorPerformanceSuggestionAvailable([
       "type": suggestion.type.rawValue,
-      "suggestedFrameProcessorFps": suggestion.suggestedFps
+      "suggestedFrameProcessorFps": floor(suggestion.suggestedFps)
     ])
   }
 }
