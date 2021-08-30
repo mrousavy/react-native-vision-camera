@@ -145,6 +145,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   private var actualFrameProcessorFps = 30.0
   private var frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(30)
   private var lastSuggestedFrameProcessorFps = 0.0
+  private var lastFrameProcessorPerformanceEvaluation = System.currentTimeMillis()
 
   @DoNotStrip
   private var mHybridData: HybridData
@@ -417,7 +418,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         Log.i(TAG, "Adding ImageAnalysis use-case...")
         imageAnalysis = imageAnalysisBuilder.build().apply {
           setAnalyzer(cameraExecutor, { image ->
-            val now = System.currentTimeMillis()
+            var now = System.currentTimeMillis()
             val intervalMs = (1.0 / actualFrameProcessorFps) * 1000.0
             if (now - lastFrameProcessorCall > intervalMs) {
               lastFrameProcessorCall = now
@@ -428,7 +429,10 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
             }
             image.close()
 
-            if (frameProcessorPerformanceDataCollector.isReadyForNewEvaluation) {
+            now = System.currentTimeMillis()
+            if (now - lastFrameProcessorPerformanceEvaluation > 1000) {
+              // last evaluation was more than a second ago, evaluate again
+              lastFrameProcessorPerformanceEvaluation = now
               val maxFrameProcessorFps = 30 // TODO: Get maxFrameProcessorFps from ImageAnalyser
               val averageExecutionTimeSeconds = frameProcessorPerformanceDataCollector.averageExecutionTimeSeconds
               val averageFps = 1.0 / averageExecutionTimeSeconds
@@ -441,10 +445,8 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
                 // frameProcessorFps={someCustomFpsValue}
                 if (suggestedFrameProcessorFps != lastSuggestedFrameProcessorFps &&
                     suggestedFrameProcessorFps != frameProcessorFps) {
-                  invokeOnFrameProcessorPerformanceSuggestionAvailable(
-                    frameProcessorFps,
-                    suggestedFrameProcessorFps
-                  )
+                  invokeOnFrameProcessorPerformanceSuggestionAvailable(frameProcessorFps, suggestedFrameProcessorFps)
+                  lastSuggestedFrameProcessorFps = suggestedFrameProcessorFps
                 }
               }
             }

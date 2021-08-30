@@ -109,6 +109,7 @@ public final class CameraView: UIView {
   internal var actualFrameProcessorFps = 30.0
   internal var frameProcessorCallCounter = 0
   internal var lastSuggestedFrameProcessorFps = 0.0
+  internal var lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
 
   /// Returns whether the AVCaptureSession is currently running (reflected by isActive)
   var isRunning: Bool {
@@ -248,7 +249,7 @@ public final class CameraView: UIView {
           } else {
             self.actualFrameProcessorFps = self.frameProcessorFps.doubleValue
           }
-          self.frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(maxSamplesSize: self.actualFrameProcessorFps)
+          self.frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(maxSamplesSize: Int(self.actualFrameProcessorFps))
         }
       }
 

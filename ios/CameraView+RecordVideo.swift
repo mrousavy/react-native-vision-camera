@@ -204,11 +204,11 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       frameProcessorCallCounter += 1
 
       // check if last frame was x nanoseconds ago, effectively throttling FPS
-      let diff = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorCall.uptimeNanoseconds
+      let lastFrameProcessorCallElapsedTime = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorCall.uptimeNanoseconds
       let secondsPerFrame = 1.0 / actualFrameProcessorFps
       let nanosecondsPerFrame = secondsPerFrame * 1_000_000_000.0
 
-      if diff > UInt64(nanosecondsPerFrame) {
+      if lastFrameProcessorCallElapsedTime > UInt64(nanosecondsPerFrame) {
         if !isRunningFrameProcessor {
           // we're not in the middle of executing the Frame Processor, so prepare for next call.
           CameraQueues.frameProcessorQueue.async {
@@ -228,8 +228,11 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         }
       }
 
-      // evaluate new frame processor FPS suggestion when ready
-      if frameProcessorPerformanceDataCollector.isReadyForNewEvaluation {
+      // evaluate new frame processor FPS suggestion every second
+      let lastPerformanceEvaluationElapsedTime = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorPerformanceEvaluation.uptimeNanoseconds
+      if lastPerformanceEvaluationElapsedTime > 1_000_000_000 {
+        // > 1sec ago, evaluate again
+        lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
         guard let videoDevice = videoDeviceInput?.device else { return }
 
         let maxFrameProcessorFps = Double(videoDevice.activeVideoMinFrameDuration.timescale) * Double(videoDevice.activeVideoMinFrameDuration.value)
