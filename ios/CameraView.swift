@@ -359,10 +359,10 @@ public final class CameraView: UIView {
   internal final func invokeOnFrameProcessorPerformanceSuggestionAvailable(suggestion: FrameProcessorPerformanceSuggestion) {
     ReactLogger.log(level: .info, message: "Frame Processor Performance Suggestion available!")
     guard let onFrameProcessorPerformanceSuggestionAvailable = self.onFrameProcessorPerformanceSuggestionAvailable else { return }
-    
+
     let suggestedFps = floor(suggestion.suggestedFps)
     if lastSuggestedFrameProcessorFps == suggestedFps { return }
-    
+
     onFrameProcessorPerformanceSuggestionAvailable([
       "type": suggestion.type.rawValue,
       "suggestedFrameProcessorFps": suggestedFps,
