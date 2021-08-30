@@ -357,6 +357,7 @@ public final class CameraView: UIView {
     guard let onFrameProcessorPerformanceSuggestionAvailable = self.onFrameProcessorPerformanceSuggestionAvailable else { return }
 
     if lastSuggestedFrameProcessorFps == suggestedFps { return }
+    if suggestedFps == currentFps { return }
 
     onFrameProcessorPerformanceSuggestionAvailable([
       "type": suggestedFps > currentFps ? "can-use-higher-fps" : "should-use-lower-fps",
