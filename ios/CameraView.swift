@@ -194,15 +194,6 @@ public final class CameraView: UIView {
     let shouldUpdateZoom = willReconfigure || changedProps.contains("zoom") || shouldCheckActive
     let shouldUpdateVideoStabilization = willReconfigure || changedProps.contains("videoStabilizationMode")
 
-    if changedProps.contains("frameProcessorFps") {
-      if frameProcessorFps.doubleValue == -1 {
-        // "auto"
-        actualFrameProcessorFps = 30.0
-      } else {
-        actualFrameProcessorFps = frameProcessorFps.doubleValue
-      }
-    }
-
     if shouldReconfigure ||
       shouldReconfigureAudioSession ||
       shouldCheckActive ||
@@ -250,9 +241,14 @@ public final class CameraView: UIView {
           }
         }
 
-        if let minFrameDuration = self.videoDeviceInput?.device.activeVideoMinFrameDuration {
-          let fps = Double(minFrameDuration.timescale) * Double(minFrameDuration.value)
-          self.frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(maxSamplesSize: Int(fps))
+        if changedProps.contains("frameProcessorFps") {
+          if self.frameProcessorFps.doubleValue == -1 {
+            // "auto"
+            self.actualFrameProcessorFps = 30.0
+          } else {
+            self.actualFrameProcessorFps = self.frameProcessorFps.doubleValue
+          }
+          self.frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(maxSamplesSize: self.actualFrameProcessorFps)
         }
       }
 
