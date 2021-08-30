@@ -57,6 +57,7 @@ class FrameProcessorPerformanceDataCollector {
   }
   
   func clear() {
+    counter = 0
     performanceSamples.removeAll()
   }
 }
