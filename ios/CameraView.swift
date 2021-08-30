@@ -108,6 +108,7 @@ public final class CameraView: UIView {
   internal var frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(maxSamplesSize: 30)
   internal var actualFrameProcessorFps = 30.0
   internal var frameProcessorCallCounter = 0
+  internal var lastSuggestedFrameProcessorFps = 0.0
 
   /// Returns whether the AVCaptureSession is currently running (reflected by isActive)
   var isRunning: Bool {
@@ -358,9 +359,14 @@ public final class CameraView: UIView {
   internal final func invokeOnFrameProcessorPerformanceSuggestionAvailable(suggestion: FrameProcessorPerformanceSuggestion) {
     ReactLogger.log(level: .info, message: "Frame Processor Performance Suggestion available!")
     guard let onFrameProcessorPerformanceSuggestionAvailable = self.onFrameProcessorPerformanceSuggestionAvailable else { return }
+    
+    let suggestedFps = floor(suggestion.suggestedFps)
+    if lastSuggestedFrameProcessorFps == suggestedFps { return }
+    
     onFrameProcessorPerformanceSuggestionAvailable([
       "type": suggestion.type.rawValue,
-      "suggestedFrameProcessorFps": floor(suggestion.suggestedFps),
+      "suggestedFrameProcessorFps": suggestedFps,
     ])
+    lastSuggestedFrameProcessorFps = suggestedFps
   }
 }
