@@ -250,6 +250,7 @@ public final class CameraView: UIView {
             self.actualFrameProcessorFps = self.frameProcessorFps.doubleValue
           }
           self.frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(maxSamplesSize: Int(self.actualFrameProcessorFps))
+          self.lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
         }
       }
 

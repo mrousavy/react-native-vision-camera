@@ -104,6 +104,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
       field = value
       actualFrameProcessorFps = if (value == -1.0) 30.0 else value
       frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(actualFrameProcessorFps.toInt())
+      lastFrameProcessorPerformanceEvaluation = System.currentTimeMillis()
     }
 
   // private properties
