@@ -285,6 +285,16 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         if (changedProps.contains("enableZoomGesture")) {
           setOnTouchListener(if (enableZoomGesture) touchEventListener else null)
         }
+        if (changedProps.contains("frameProcessorFps")) {
+          if (frameProcessorFps == -1.0) {
+            // "auto"
+            actualFrameProcessorFps = 30.0
+            frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(30)
+          } else {
+            actualFrameProcessorFps = frameProcessorFps
+            frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(frameProcessorFps.toInt())
+          }
+        }
       } catch (e: Throwable) {
         Log.e(TAG, "update() threw: ${e.message}")
         invokeOnError(e)
