@@ -52,7 +52,7 @@ public final class CameraView: UIView {
   // props that require format reconfiguring
   @objc var format: NSDictionary?
   @objc var fps: NSNumber?
-  @objc var frameProcessorFps: NSNumber = 1.0
+  @objc var frameProcessorFps: NSNumber = -1.0 // "auto"
   @objc var hdr: NSNumber? // nullable bool
   @objc var lowLightBoost: NSNumber? // nullable bool
   @objc var colorSpace: NSString?
@@ -64,6 +64,7 @@ public final class CameraView: UIView {
   // events
   @objc var onInitialized: RCTDirectEventBlock?
   @objc var onError: RCTDirectEventBlock?
+  @objc var onFrameProcessorPerformanceSuggestionAvailable: RCTDirectEventBlock?
   // zoom
   @objc var enableZoomGesture = false {
     didSet {
@@ -104,6 +105,8 @@ public final class CameraView: UIView {
 
   /// Specifies whether the frameProcessor() function is currently executing. used to drop late frames.
   internal var isRunningFrameProcessor = false
+  internal var frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(maxSamplesSize: 30)
+  internal var actualFrameProcessorFps = 1.0
 
   /// Returns whether the AVCaptureSession is currently running (reflected by isActive)
   var isRunning: Bool {
@@ -335,5 +338,14 @@ public final class CameraView: UIView {
     ReactLogger.log(level: .info, message: "Camera initialized!")
     guard let onInitialized = self.onInitialized else { return }
     onInitialized([String: Any]())
+  }
+  
+  internal final func invokeOnFrameProcessorPerformanceSuggestionAvailable(suggestion: FrameProcessorPerformanceSuggestion) {
+    ReactLogger.log(level: .info, message: "Frame Processor Performance Suggestion available!")
+    guard let onFrameProcessorPerformanceSuggestionAvailable = self.onFrameProcessorPerformanceSuggestionAvailable else { return }
+    onFrameProcessorPerformanceSuggestionAvailable([
+      "mode": suggestion.mode.rawValue,
+      "suggestedFps": suggestion.suggestedFps
+    ])
   }
 }
