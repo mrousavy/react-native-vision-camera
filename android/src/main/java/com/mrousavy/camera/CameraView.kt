@@ -135,6 +135,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
 
   private var actualFrameProcessorFps = 30.0
   private var frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector(30)
+  private var lastSuggestedFrameProcessorFps = 0.0
 
   @DoNotStrip
   private var mHybridData: HybridData
@@ -426,7 +427,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
             image.close()
 
             if (frameProcessorPerformanceDataCollector.isReadyForNewEvaluation) {
-              val maxFrameProcessorFps = fps ?: 30
+              val maxFrameProcessorFps = 30 // TODO: Get maxFrameProcessorFps from ImageAnalyser
               val averageExecutionTimeSeconds = frameProcessorPerformanceDataCollector.averageExecutionTimeSeconds
               val averageFps = 1.0 / averageExecutionTimeSeconds
               val suggestedFrameProcessorFps = floor(min(averageFps, maxFrameProcessorFps.toDouble()))
@@ -436,7 +437,12 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
                 actualFrameProcessorFps = suggestedFrameProcessorFps
               } else {
                 // frameProcessorFps={someCustomFpsValue}
-                invokeOnFrameProcessorPerformanceSuggestionAvailable(frameProcessorFps, suggestedFrameProcessorFps)
+                if (suggestedFrameProcessorFps != lastSuggestedFrameProcessorFps) {
+                  invokeOnFrameProcessorPerformanceSuggestionAvailable(
+                    frameProcessorFps,
+                    suggestedFrameProcessorFps
+                  )
+                }
               }
             }
           })
