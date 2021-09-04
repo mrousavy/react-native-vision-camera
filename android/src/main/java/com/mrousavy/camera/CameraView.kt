@@ -424,9 +424,9 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
             if (now - lastFrameProcessorCall > intervalMs) {
               lastFrameProcessorCall = now
 
-              val sample = frameProcessorPerformanceDataCollector.beginPerformanceSampleCollection()
+              val perfSample = frameProcessorPerformanceDataCollector.beginPerformanceSampleCollection()
               frameProcessorCallback(image)
-              sample.endPerformanceSampleCollection()
+              perfSample.endPerformanceSampleCollection()
             }
             image.close()
 
@@ -435,8 +435,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
               // last evaluation was more than a second ago, evaluate again
               lastFrameProcessorPerformanceEvaluation = now
               val maxFrameProcessorFps = 30 // TODO: Get maxFrameProcessorFps from ImageAnalyser
-              val averageExecutionTimeSeconds = frameProcessorPerformanceDataCollector.averageExecutionTimeSeconds
-              val averageFps = 1.0 / averageExecutionTimeSeconds
+              val averageFps = 1.0 / frameProcessorPerformanceDataCollector.averageExecutionTimeSeconds
               val suggestedFrameProcessorFps = floor(min(averageFps, maxFrameProcessorFps.toDouble()))
 
               if (frameProcessorFps == -1.0) {
