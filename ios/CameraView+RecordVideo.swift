@@ -214,10 +214,10 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           CameraQueues.frameProcessorQueue.async {
             self.isRunningFrameProcessor = true
 
-            let end = self.frameProcessorPerformanceDataCollector.beginPerformanceSampleCollection()
+            let perfSample = self.frameProcessorPerformanceDataCollector.beginPerformanceSampleCollection()
             let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
             frameProcessor(frame)
-            end.endPerformanceSampleCollection()
+            perfSample.endPerformanceSampleCollection()
 
             self.isRunningFrameProcessor = false
           }
@@ -236,9 +236,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         guard let videoDevice = videoDeviceInput?.device else { return }
 
         let maxFrameProcessorFps = Double(videoDevice.activeVideoMinFrameDuration.timescale) * Double(videoDevice.activeVideoMinFrameDuration.value)
-
-        let averageExecutionTimeSeconds = frameProcessorPerformanceDataCollector.averageExecutionTimeSeconds
-        let averageFps = 1.0 / averageExecutionTimeSeconds
+        let averageFps = 1.0 / frameProcessorPerformanceDataCollector.averageExecutionTimeSeconds
         let suggestedFrameProcessorFps = floor(min(averageFps, maxFrameProcessorFps))
 
         if frameProcessorFps.intValue == -1 {
