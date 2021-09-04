@@ -16,6 +16,7 @@ public abstract class FrameProcessorPlugin {
         System.loadLibrary("VisionCamera");
     }
 
+    @DoNotStrip
     @SuppressWarnings({"FieldCanBeLocal", "unused"})
     private final HybridData mHybridData;
 
