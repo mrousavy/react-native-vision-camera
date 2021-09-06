@@ -241,33 +241,6 @@ dependencies {
   implementation "androidx.exifinterface:exifinterface:1.3.3"
 }
 
-task extractAARHeaders {
-  doLast {
-    configurations.extractHeaders.files.each {
-      def file = it.absoluteFile
-      copy {
-        from zipTree(file)
-        into "$buildDir/$file.name"
-        include "**/*.h"
-      }
-    }
-  }
-}
-
-task extractJNIFiles {
-  doLast {
-    configurations.extractJNI.files.each {
-      def file = it.absoluteFile
-
-      copy {
-        from zipTree(file)
-        into "$buildDir/$file.name"
-        include "jni/**/*"
-      }
-    }
-  }
-}
-
 // third-party-ndk deps headers
 // mostly a copy of https://github.com/software-mansion/react-native-reanimated/blob/master/android/build.gradle#L115
 
@@ -287,8 +260,10 @@ def GLOG_VERSION = thirdPartyVersions["GLOG_VERSION"]
 def glog_file = new File(downloadsDir, "glog-${GLOG_VERSION}.tar.gz")
 
 task createNativeDepsDirectories {
-  downloadsDir.mkdirs()
-  thirdPartyNdkDir.mkdirs()
+  doLast {
+    downloadsDir.mkdirs()
+    thirdPartyNdkDir.mkdirs()
+  }
 }
 
 task downloadBoost(dependsOn: createNativeDepsDirectories, type: Download) {
@@ -384,25 +359,46 @@ task prepareGlog(dependsOn: downloadGlog, type: Copy) {
   }
 }
 
-task prepareHermes() {
-  def hermesPackagePath = findNodeModulePath(projectDir, "hermes-engine")
-  if (!hermesPackagePath) {
-    throw new GradleScriptException("Could not find the hermes-engine npm package", null)
+task prepareThirdPartyNdkHeaders {
+  if (!boost_file.exists()) {
+    dependsOn(prepareBoost)
   }
-
-  def hermesAAR = file("$hermesPackagePath/android/hermes-debug.aar")
-  if (!hermesAAR.exists()) {
-    throw new GradleScriptException("The hermes-engine npm package is missing \"android/hermes-debug.aar\"", null)
+  if (!double_conversion_file.exists()) {
+    dependsOn(prepareDoubleConversion)
   }
-
-  def soFiles = zipTree(hermesAAR).matching({ it.include "**/*.so" })
-
-  copy {
-    from soFiles
-    from "$reactNative/ReactAndroid/src/main/jni/first-party/hermes/Android.mk"
-    into "$thirdPartyNdkDir/hermes"
+  if (!folly_file.exists()) {
+    dependsOn(prepareFolly)
+  }
+  if (!glog_file.exists()) {
+    dependsOn(prepareGlog)
   }
 }
+
+prepareThirdPartyNdkHeaders.mustRunAfter createNativeDepsDirectories
+
+task prepareHermes() {
+  doLast {
+    def hermesPackagePath = findNodeModulePath(projectDir, "hermes-engine")
+    if (!hermesPackagePath) {
+      throw new GradleScriptException("Could not find the hermes-engine npm package", null)
+    }
+
+    def hermesAAR = file("$hermesPackagePath/android/hermes-debug.aar")
+    if (!hermesAAR.exists()) {
+      throw new GradleScriptException("The hermes-engine npm package is missing \"android/hermes-debug.aar\"", null)
+    }
+
+    def soFiles = zipTree(hermesAAR).matching({ it.include "**/*.so" })
+
+    copy {
+      from soFiles
+      from "$reactNative/ReactAndroid/src/main/jni/first-party/hermes/Android.mk"
+      into "$thirdPartyNdkDir/hermes"
+    }
+  }
+}
+
+prepareHermes.mustRunAfter prepareThirdPartyNdkHeaders
 
 task prepareJSC {
   doLast {
@@ -434,29 +430,47 @@ task prepareJSC {
   }
 }
 
-task prepareThirdPartyNdkHeaders {
-  if (!boost_file.exists()) {
-    dependsOn(prepareBoost)
-  }
-  if (!double_conversion_file.exists()) {
-    dependsOn(prepareDoubleConversion)
-  }
-  if (!folly_file.exists()) {
-    dependsOn(prepareFolly)
-  }
-  if (!glog_file.exists()) {
-    dependsOn(prepareGlog)
+prepareJSC.mustRunAfter prepareHermes
+
+task extractAARHeaders {
+  doLast {
+    configurations.extractHeaders.files.each {
+      def file = it.absoluteFile
+      copy {
+        from zipTree(file)
+        into "$buildDir/$file.name"
+        include "**/*.h"
+      }
+    }
   }
 }
+
+extractAARHeaders.mustRunAfter prepareJSC
+
+task extractJNIFiles {
+  doLast {
+    configurations.extractJNI.files.each {
+      def file = it.absoluteFile
+
+      copy {
+        from zipTree(file)
+        into "$buildDir/$file.name"
+        include "jni/**/*"
+      }
+    }
+  }
+}
+
+extractJNIFiles.mustRunAfter extractAARHeaders
 
 // pre-native build pipeline
 
 tasks.whenTaskAdded { task ->
-  if (task.name.contains('externalNativeBuild')) {
-    task.dependsOn(prepareJSC)
-    task.dependsOn(prepareHermes)
+  if (task.name == 'externalNativeBuildDebug' || task.name == 'externalNativeBuildRelease') {
     task.dependsOn(extractAARHeaders)
     task.dependsOn(extractJNIFiles)
+    task.dependsOn(prepareJSC)
+    task.dependsOn(prepareHermes)
     task.dependsOn(prepareThirdPartyNdkHeaders)
   }
 }
