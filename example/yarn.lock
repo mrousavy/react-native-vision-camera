@@ -4401,7 +4401,7 @@ react-native-pressable-opacity@^1.0.4:
   resolved "https://registry.yarnpkg.com/react-native-pressable-opacity/-/react-native-pressable-opacity-1.0.4.tgz#391f33fdc25cb84551f2743a25eced892b9f30f7"
   integrity sha512-DBIg7UoRiuBYiFEvx+XNMqH0OEx64WrSksXhT6Kq9XuyyKsThMNDqZ9G5QV7vfu7dU2/IctwIz5c0Xwkp4K3tA==
 
-react-native-reanimated@^2.3.0-alpha.2:
+react-native-reanimated@^2.3.0-alpha.3:
   version "2.3.0-alpha.3"
   resolved "https://registry.yarnpkg.com/react-native-reanimated/-/react-native-reanimated-2.3.0-alpha.3.tgz#022f5b4eaa847304a155942165a77125c86428bc"
   integrity sha512-Ln+edkTrepKUETKKmGl+GxL8RiB7awBDQFcRJIK39m5ggiLfksOAfqzclpKPLWbAfOvB4cSg+QdowzRN570FXA==
@@ -4413,7 +4413,7 @@ react-native-reanimated@^2.3.0-alpha.2:
     react-native-screens "^3.4.0"
     string-hash-64 "^1.0.3"
 
-react-native-screens@^3.4.0:
+react-native-screens@^3.4.0, react-native-screens@^3.6.0:
   version "3.6.0"
   resolved "https://registry.yarnpkg.com/react-native-screens/-/react-native-screens-3.6.0.tgz#054af728e50c06bff6b3b4fa7b4b656b70f247cd"
   integrity sha512-emQmSu+B6cOIjJH2OIgpuxd9zCD6xz7/oo5GCetyjsM5qR3sMnVgOxqtK99xPu9XJH/8k7MplXbtJgtk/PHXwA==
