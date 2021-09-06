@@ -107,7 +107,6 @@ public final class CameraView: UIView {
   internal var isRunningFrameProcessor = false
   internal let frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector()
   internal var actualFrameProcessorFps = 30.0
-  internal var frameProcessorCallCounter = 0
   internal var lastSuggestedFrameProcessorFps = 0.0
   internal var lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
 

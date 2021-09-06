@@ -201,8 +201,6 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
     }
 
     if let frameProcessor = frameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
-      frameProcessorCallCounter += 1
-
       // check if last frame was x nanoseconds ago, effectively throttling FPS
       let lastFrameProcessorCallElapsedTime = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorCall.uptimeNanoseconds
       let secondsPerFrame = 1.0 / actualFrameProcessorFps
@@ -228,27 +226,34 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         }
       }
 
-      // evaluate new frame processor FPS suggestion every second
-      let lastPerformanceEvaluationElapsedTime = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorPerformanceEvaluation.uptimeNanoseconds
-      if lastPerformanceEvaluationElapsedTime > 1_000_000_000 {
-        // > 1sec ago, evaluate again
-        lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
-        guard let videoDevice = videoDeviceInput?.device else { return }
-
-        let maxFrameProcessorFps = Double(videoDevice.activeVideoMinFrameDuration.timescale) * Double(videoDevice.activeVideoMinFrameDuration.value)
-        let averageFps = 1.0 / frameProcessorPerformanceDataCollector.averageExecutionTimeSeconds
-        let suggestedFrameProcessorFps = floor(min(averageFps, maxFrameProcessorFps))
-
-        if frameProcessorFps.intValue == -1 {
-          // frameProcessorFps="auto"
-          actualFrameProcessorFps = suggestedFrameProcessorFps
-        } else {
-          // frameProcessorFps={someCustomFpsValue}
-          invokeOnFrameProcessorPerformanceSuggestionAvailable(currentFps: frameProcessorFps.doubleValue,
-                                                               suggestedFps: suggestedFrameProcessorFps)
-        }
+      if isReadyForNewEvaluation {
+        // last evaluation was more than 1sec ago, evaluate again
+        evaluateNewPerformanceSamples()
       }
     }
+  }
+  
+  private func evaluateNewPerformanceSamples() {
+    lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
+    guard let videoDevice = videoDeviceInput?.device else { return }
+    
+    let maxFrameProcessorFps = Double(videoDevice.activeVideoMinFrameDuration.timescale) * Double(videoDevice.activeVideoMinFrameDuration.value)
+    let averageFps = 1.0 / frameProcessorPerformanceDataCollector.averageExecutionTimeSeconds
+    let suggestedFrameProcessorFps = floor(min(averageFps, maxFrameProcessorFps))
+    
+    if frameProcessorFps.intValue == -1 {
+      // frameProcessorFps="auto"
+      actualFrameProcessorFps = suggestedFrameProcessorFps
+    } else {
+      // frameProcessorFps={someCustomFpsValue}
+      invokeOnFrameProcessorPerformanceSuggestionAvailable(currentFps: frameProcessorFps.doubleValue,
+                                                           suggestedFps: suggestedFrameProcessorFps)
+    }
+  }
+  
+  private var isReadyForNewEvaluation: Bool {
+    let lastPerformanceEvaluationElapsedTime = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorPerformanceEvaluation.uptimeNanoseconds
+    return lastPerformanceEvaluationElapsedTime > 1_000_000_000
   }
 
   /**
