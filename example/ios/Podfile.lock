@@ -321,6 +321,9 @@ PODS:
     - React-RCTVibration
     - ReactCommon/turbomodule/core
     - Yoga
+  - RNScreens (3.6.0):
+    - React-Core
+    - React-RCTImage
   - RNStaticSafeAreaInsets (2.1.1):
     - React
   - RNVectorIcons (8.1.0):
@@ -368,6 +371,7 @@ DEPENDENCIES:
   - ReactNativeNavigation (from `../node_modules/react-native-navigation`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
+  - RNScreens (from `../node_modules/react-native-screens`)
   - RNStaticSafeAreaInsets (from `../node_modules/react-native-static-safe-area-insets`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - VisionCamera (from `../..`)
@@ -447,6 +451,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNReanimated:
     :path: "../node_modules/react-native-reanimated"
+  RNScreens:
+    :path: "../node_modules/react-native-screens"
   RNStaticSafeAreaInsets:
     :path: "../node_modules/react-native-static-safe-area-insets"
   RNVectorIcons:
@@ -493,6 +499,7 @@ SPEC CHECKSUMS:
   ReactNativeNavigation: 87aa2e3a749a9b338057e8d53af54d865241b843
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNReanimated: 48e578538b2fad573d3d5ce2e80ad375e1534d87
+  RNScreens: eb0dfb2d6b21d2d7f980ad46b14eb306d2f1062e
   RNStaticSafeAreaInsets: 6103cf09647fa427186d30f67b0f5163c1ae8252
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
   VisionCamera: dc481620431e31c1d6bbbc438d8a1d9c56f3d304

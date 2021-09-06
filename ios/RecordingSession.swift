@@ -60,7 +60,7 @@ class RecordingSession {
 
   deinit {
     if assetWriter.status == .writing {
-      ReactLogger.log(level: .info, message: "Cancelling AssetWriter...", alsoLogToJS: true)
+      ReactLogger.log(level: .info, message: "Cancelling AssetWriter...")
       assetWriter.cancelWriting()
     }
   }
@@ -70,11 +70,11 @@ class RecordingSession {
    */
   func initializeVideoWriter(withSettings settings: [String: Any], pixelFormat: OSType) {
     guard !settings.isEmpty else {
-      ReactLogger.log(level: .error, message: "Tried to initialize Video Writer with empty settings!", alsoLogToJS: true)
+      ReactLogger.log(level: .error, message: "Tried to initialize Video Writer with empty settings!")
       return
     }
     guard bufferAdaptor == nil else {
-      ReactLogger.log(level: .error, message: "Tried to add Video Writer twice!", alsoLogToJS: true)
+      ReactLogger.log(level: .error, message: "Tried to add Video Writer twice!")
       return
     }
 
@@ -93,11 +93,11 @@ class RecordingSession {
    */
   func initializeAudioWriter(withSettings settings: [String: Any]) {
     guard !settings.isEmpty else {
-      ReactLogger.log(level: .error, message: "Tried to initialize Audio Writer with empty settings!", alsoLogToJS: true)
+      ReactLogger.log(level: .error, message: "Tried to initialize Audio Writer with empty settings!")
       return
     }
     guard audioWriter == nil else {
-      ReactLogger.log(level: .error, message: "Tried to add Audio Writer twice!", alsoLogToJS: true)
+      ReactLogger.log(level: .error, message: "Tried to add Audio Writer twice!")
       return
     }
 
@@ -139,8 +139,7 @@ class RecordingSession {
     }
     guard let initialTimestamp = initialTimestamp else {
       ReactLogger.log(level: .error,
-                      message: "A frame arrived, but initialTimestamp was nil. Is this RecordingSession running?",
-                      alsoLogToJS: true)
+                      message: "A frame arrived, but initialTimestamp was nil. Is this RecordingSession running?")
       return
     }
 
@@ -149,17 +148,16 @@ class RecordingSession {
     switch bufferType {
     case .video:
       guard let bufferAdaptor = bufferAdaptor else {
-        ReactLogger.log(level: .error, message: "Video Frame arrived but VideoWriter was nil!", alsoLogToJS: true)
+        ReactLogger.log(level: .error, message: "Video Frame arrived but VideoWriter was nil!")
         return
       }
       if !bufferAdaptor.assetWriterInput.isReadyForMoreMediaData {
         ReactLogger.log(level: .warning,
-                        message: "The Video AVAssetWriterInput was not ready for more data! Is your frame rate too high?",
-                        alsoLogToJS: true)
+                        message: "The Video AVAssetWriterInput was not ready for more data! Is your frame rate too high?")
         return
       }
       guard let imageBuffer = CMSampleBufferGetImageBuffer(buffer) else {
-        ReactLogger.log(level: .error, message: "Failed to get the CVImageBuffer!", alsoLogToJS: true)
+        ReactLogger.log(level: .error, message: "Failed to get the CVImageBuffer!")
         return
       }
       bufferAdaptor.append(imageBuffer, withPresentationTime: timestamp)
@@ -169,7 +167,7 @@ class RecordingSession {
       }
     case .audio:
       guard let audioWriter = audioWriter else {
-        ReactLogger.log(level: .error, message: "Audio Frame arrived but AudioWriter was nil!", alsoLogToJS: true)
+        ReactLogger.log(level: .error, message: "Audio Frame arrived but AudioWriter was nil!")
         return
       }
       if !audioWriter.isReadyForMoreMediaData {
@@ -184,8 +182,7 @@ class RecordingSession {
 
     if assetWriter.status == .failed {
       ReactLogger.log(level: .error,
-                      message: "AssetWriter failed to write buffer! Error: \(assetWriter.error?.localizedDescription ?? "none")",
-                      alsoLogToJS: true)
+                      message: "AssetWriter failed to write buffer! Error: \(assetWriter.error?.localizedDescription ?? "none")")
       finish()
     }
   }

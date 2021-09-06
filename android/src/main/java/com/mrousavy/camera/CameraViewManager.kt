@@ -57,6 +57,7 @@ class CameraViewManager(reactContext: ReactApplicationContext) : SimpleViewManag
     return MapBuilder.builder<String, Any>()
       .put("cameraInitialized", MapBuilder.of("registrationName", "onInitialized"))
       .put("cameraError", MapBuilder.of("registrationName", "onError"))
+      .put("cameraPerformanceSuggestionAvailable", MapBuilder.of("registrationName", "onFrameProcessorPerformanceSuggestionAvailable"))
       .build()
   }
 

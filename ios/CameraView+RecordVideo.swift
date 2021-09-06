@@ -8,9 +8,6 @@
 
 import AVFoundation
 
-private var hasLoggedVideoFrameDropWarning = false
-private var hasLoggedFrameProcessorFrameDropWarning = false
-
 // MARK: - CameraView + AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate
 
 extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
@@ -203,63 +200,61 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       }
     }
 
-    // TODO: resize using VideoToolbox (VTPixelTransferSession)
-
-    if let frameProcessor = frameProcessorCallback,
-       captureOutput is AVCaptureVideoDataOutput {
+    if let frameProcessor = frameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
       // check if last frame was x nanoseconds ago, effectively throttling FPS
-      let diff = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorCall.uptimeNanoseconds
-      let secondsPerFrame = 1.0 / frameProcessorFps.doubleValue
+      let lastFrameProcessorCallElapsedTime = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorCall.uptimeNanoseconds
+      let secondsPerFrame = 1.0 / actualFrameProcessorFps
       let nanosecondsPerFrame = secondsPerFrame * 1_000_000_000.0
 
-      if diff > UInt64(nanosecondsPerFrame) {
+      if lastFrameProcessorCallElapsedTime > UInt64(nanosecondsPerFrame) {
         if !isRunningFrameProcessor {
           // we're not in the middle of executing the Frame Processor, so prepare for next call.
           CameraQueues.frameProcessorQueue.async {
             self.isRunningFrameProcessor = true
+
+            let perfSample = self.frameProcessorPerformanceDataCollector.beginPerformanceSampleCollection()
             let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
             frameProcessor(frame)
+            perfSample.endPerformanceSampleCollection()
+
             self.isRunningFrameProcessor = false
           }
           lastFrameProcessorCall = DispatchTime.now()
         } else {
-          // we're still in the middle of executing a Frame Processor for a previous frame, notify user about dropped frame.
-          if !hasLoggedFrameProcessorFrameDropWarning {
-            ReactLogger.log(level: .warning,
-                            message: "Your Frame Processor took so long to execute that a frame was dropped. " +
-                              "Either throttle your Frame Processor's frame rate using the `frameProcessorFps` prop, or optimize " +
-                              "it's execution speed. (This warning will only be shown once)",
-                            alsoLogToJS: true)
-            hasLoggedFrameProcessorFrameDropWarning = true
-          }
+          // we're still in the middle of executing a Frame Processor for a previous frame, so a frame was dropped.
+          ReactLogger.log(level: .warning, message: "The Frame Processor took so long to execute that a frame was dropped.")
         }
+      }
+
+      if isReadyForNewEvaluation {
+        // last evaluation was more than 1sec ago, evaluate again
+        evaluateNewPerformanceSamples()
       }
     }
   }
 
-  #if DEBUG
-    public final func captureOutput(_ captureOutput: AVCaptureOutput, didDrop buffer: CMSampleBuffer, from _: AVCaptureConnection) {
-      if !hasLoggedVideoFrameDropWarning && captureOutput is AVCaptureVideoDataOutput {
-        let reason = findFrameDropReason(inBuffer: buffer)
-        ReactLogger.log(level: .warning,
-                        message: "Dropped a Frame - This might indicate that your frame rate is higher than the phone can currently process. " +
-                          "Throttle the Camera frame rate using the `fps` prop and make sure the device stays in optimal condition for recording. " +
-                          "Frame drop reason: \(reason). (This warning will only be shown once)",
-                        alsoLogToJS: true)
-        hasLoggedVideoFrameDropWarning = true
-      }
-    }
+  private func evaluateNewPerformanceSamples() {
+    lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
+    guard let videoDevice = videoDeviceInput?.device else { return }
 
-    private final func findFrameDropReason(inBuffer buffer: CMSampleBuffer) -> String {
-      var mode: CMAttachmentMode = 0
-      guard let reason = CMGetAttachment(buffer,
-                                         key: kCMSampleBufferAttachmentKey_DroppedFrameReason,
-                                         attachmentModeOut: &mode) else {
-        return "unknown"
-      }
-      return String(describing: reason)
+    let maxFrameProcessorFps = Double(videoDevice.activeVideoMinFrameDuration.timescale) * Double(videoDevice.activeVideoMinFrameDuration.value)
+    let averageFps = 1.0 / frameProcessorPerformanceDataCollector.averageExecutionTimeSeconds
+    let suggestedFrameProcessorFps = floor(min(averageFps, maxFrameProcessorFps))
+
+    if frameProcessorFps.intValue == -1 {
+      // frameProcessorFps="auto"
+      actualFrameProcessorFps = suggestedFrameProcessorFps
+    } else {
+      // frameProcessorFps={someCustomFpsValue}
+      invokeOnFrameProcessorPerformanceSuggestionAvailable(currentFps: frameProcessorFps.doubleValue,
+                                                           suggestedFps: suggestedFrameProcessorFps)
     }
-  #endif
+  }
+
+  private var isReadyForNewEvaluation: Bool {
+    let lastPerformanceEvaluationElapsedTime = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorPerformanceEvaluation.uptimeNanoseconds
+    return lastPerformanceEvaluationElapsedTime > 1_000_000_000
+  }
 
   /**
    Gets the orientation of the CameraView's images (CMSampleBuffers).

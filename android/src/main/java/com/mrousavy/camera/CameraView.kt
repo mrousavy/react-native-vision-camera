@@ -23,12 +23,14 @@ import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.*
 import com.facebook.react.uimanager.events.RCTEventEmitter
+import com.mrousavy.camera.frameprocessor.FrameProcessorPerformanceDataCollector
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.guava.await
 import java.lang.IllegalArgumentException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 
@@ -93,7 +95,17 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   var torch = "off"
   var zoom: Float = 1f // in "factor"
   var enableZoomGesture = false
+    set(value) {
+      field = value
+      setOnTouchListener(if (value) touchEventListener else null)
+    }
   var frameProcessorFps = 1.0
+    set(value) {
+      field = value
+      actualFrameProcessorFps = if (value == -1.0) 30.0 else value
+      lastFrameProcessorPerformanceEvaluation = System.currentTimeMillis()
+      frameProcessorPerformanceDataCollector.clear()
+    }
 
   // private properties
   private val reactContext: ReactContext
@@ -130,6 +142,16 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
 
   private var minZoom: Float = 1f
   private var maxZoom: Float = 1f
+
+  private var actualFrameProcessorFps = 30.0
+  private val frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector()
+  private var lastSuggestedFrameProcessorFps = 0.0
+  private var lastFrameProcessorPerformanceEvaluation = System.currentTimeMillis()
+  private val isReadyForNewEvaluation: Boolean
+    get() {
+      val lastPerformanceEvaluationElapsedTime = System.currentTimeMillis() - lastFrameProcessorPerformanceEvaluation
+      return lastPerformanceEvaluationElapsedTime > 1000
+    }
 
   @DoNotStrip
   private var mHybridData: HybridData
@@ -277,9 +299,6 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         if (shouldReconfigureTorch) {
           camera!!.cameraControl.enableTorch(torch == "on")
         }
-        if (changedProps.contains("enableZoomGesture")) {
-          setOnTouchListener(if (enableZoomGesture) touchEventListener else null)
-        }
       } catch (e: Throwable) {
         Log.e(TAG, "update() threw: ${e.message}")
         invokeOnError(e)
@@ -406,12 +425,20 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         imageAnalysis = imageAnalysisBuilder.build().apply {
           setAnalyzer(cameraExecutor, { image ->
             val now = System.currentTimeMillis()
-            val intervalMs = (1.0 / frameProcessorFps) * 1000.0
+            val intervalMs = (1.0 / actualFrameProcessorFps) * 1000.0
             if (now - lastFrameProcessorCall > intervalMs) {
               lastFrameProcessorCall = now
+
+              val perfSample = frameProcessorPerformanceDataCollector.beginPerformanceSampleCollection()
               frameProcessorCallback(image)
+              perfSample.endPerformanceSampleCollection()
             }
             image.close()
+
+            if (isReadyForNewEvaluation) {
+              // last evaluation was more than a second ago, evaluate again
+              evaluateNewPerformanceSamples()
+            }
           })
         }
         useCases.add(imageAnalysis!!)
@@ -444,38 +471,21 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
     }
   }
 
-  private fun invokeOnInitialized() {
-    Log.i(TAG, "invokeOnInitialized()")
+  private fun evaluateNewPerformanceSamples() {
+    lastFrameProcessorPerformanceEvaluation = System.currentTimeMillis()
+    val maxFrameProcessorFps = 30 // TODO: Get maxFrameProcessorFps from ImageAnalyser
+    val averageFps = 1.0 / frameProcessorPerformanceDataCollector.averageExecutionTimeSeconds
+    val suggestedFrameProcessorFps = floor(min(averageFps, maxFrameProcessorFps.toDouble()))
 
-    val reactContext = context as ReactContext
-    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraInitialized", null)
-  }
-
-  private fun invokeOnError(error: Throwable) {
-    Log.e(TAG, "invokeOnError(...):")
-    error.printStackTrace()
-
-    val cameraError = when (error) {
-      is CameraError -> error
-      else -> UnknownCameraError(error)
+    if (frameProcessorFps == -1.0) {
+      // frameProcessorFps="auto"
+      actualFrameProcessorFps = suggestedFrameProcessorFps
+    } else {
+      // frameProcessorFps={someCustomFpsValue}
+      if (suggestedFrameProcessorFps != lastSuggestedFrameProcessorFps && suggestedFrameProcessorFps != frameProcessorFps) {
+        invokeOnFrameProcessorPerformanceSuggestionAvailable(frameProcessorFps, suggestedFrameProcessorFps)
+        lastSuggestedFrameProcessorFps = suggestedFrameProcessorFps
+      }
     }
-    val event = Arguments.createMap()
-    event.putString("code", cameraError.code)
-    event.putString("message", cameraError.message)
-    cameraError.cause?.let { cause ->
-      event.putMap("cause", errorToMap(cause))
-    }
-    val reactContext = context as ReactContext
-    reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraError", event)
-  }
-
-  private fun errorToMap(error: Throwable): WritableMap {
-    val map = Arguments.createMap()
-    map.putString("message", error.message)
-    map.putString("stacktrace", error.stackTraceToString())
-    error.cause?.let { cause ->
-      map.putMap("cause", errorToMap(cause))
-    }
-    return map
   }
 }

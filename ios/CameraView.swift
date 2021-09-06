@@ -52,7 +52,7 @@ public final class CameraView: UIView {
   // props that require format reconfiguring
   @objc var format: NSDictionary?
   @objc var fps: NSNumber?
-  @objc var frameProcessorFps: NSNumber = 1.0
+  @objc var frameProcessorFps: NSNumber = -1.0 // "auto"
   @objc var hdr: NSNumber? // nullable bool
   @objc var lowLightBoost: NSNumber? // nullable bool
   @objc var colorSpace: NSString?
@@ -64,6 +64,7 @@ public final class CameraView: UIView {
   // events
   @objc var onInitialized: RCTDirectEventBlock?
   @objc var onError: RCTDirectEventBlock?
+  @objc var onFrameProcessorPerformanceSuggestionAvailable: RCTDirectEventBlock?
   // zoom
   @objc var enableZoomGesture = false {
     didSet {
@@ -104,6 +105,10 @@ public final class CameraView: UIView {
 
   /// Specifies whether the frameProcessor() function is currently executing. used to drop late frames.
   internal var isRunningFrameProcessor = false
+  internal let frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector()
+  internal var actualFrameProcessorFps = 30.0
+  internal var lastSuggestedFrameProcessorFps = 0.0
+  internal var lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
 
   /// Returns whether the AVCaptureSession is currently running (reflected by isActive)
   var isRunning: Bool {
@@ -244,6 +249,18 @@ public final class CameraView: UIView {
         }
       }
     }
+
+    // Frame Processor FPS Configuration
+    if changedProps.contains("frameProcessorFps") {
+      if frameProcessorFps.doubleValue == -1 {
+        // "auto"
+        actualFrameProcessorFps = 30.0
+      } else {
+        actualFrameProcessorFps = frameProcessorFps.doubleValue
+      }
+      lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
+      frameProcessorPerformanceDataCollector.clear()
+    }
   }
 
   internal final func setTorchMode(_ torchMode: String) {
@@ -335,5 +352,19 @@ public final class CameraView: UIView {
     ReactLogger.log(level: .info, message: "Camera initialized!")
     guard let onInitialized = self.onInitialized else { return }
     onInitialized([String: Any]())
+  }
+
+  internal final func invokeOnFrameProcessorPerformanceSuggestionAvailable(currentFps: Double, suggestedFps: Double) {
+    ReactLogger.log(level: .info, message: "Frame Processor Performance Suggestion available!")
+    guard let onFrameProcessorPerformanceSuggestionAvailable = self.onFrameProcessorPerformanceSuggestionAvailable else { return }
+
+    if lastSuggestedFrameProcessorFps == suggestedFps { return }
+    if suggestedFps == currentFps { return }
+
+    onFrameProcessorPerformanceSuggestionAvailable([
+      "type": suggestedFps > currentFps ? "can-use-higher-fps" : "should-use-lower-fps",
+      "suggestedFrameProcessorFps": suggestedFps,
+    ])
+    lastSuggestedFrameProcessorFps = suggestedFps
   }
 }

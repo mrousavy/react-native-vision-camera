@@ -135,6 +135,7 @@
 		B887518425E0102000DB86D6 /* CameraView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		B88873E5263D46C7008B1D0E /* FrameProcessorPlugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorPlugin.h; sourceTree = "<group>"; };
 		B88B47462667C8E00091F538 /* AVCaptureSession+setVideoStabilizationMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVCaptureSession+setVideoStabilizationMode.swift"; sourceTree = "<group>"; };
+		B8948BDF26DCEE2B00B430E2 /* FrameProcessorPerformanceDataCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameProcessorPerformanceDataCollector.swift; sourceTree = "<group>"; };
 		B8994E6B263F03E100069589 /* JSIUtils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = JSIUtils.mm; sourceTree = "<group>"; };
 		B8A751D62609E4980011C623 /* FrameProcessorRuntimeManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorRuntimeManager.h; sourceTree = "<group>"; };
 		B8A751D72609E4B30011C623 /* FrameProcessorRuntimeManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessorRuntimeManager.mm; sourceTree = "<group>"; };
@@ -268,6 +269,7 @@
 				B88873E5263D46C7008B1D0E /* FrameProcessorPlugin.h */,
 				B80416F026AB16E8000DEB6A /* VisionCameraScheduler.mm */,
 				B80416F126AB16F3000DEB6A /* VisionCameraScheduler.h */,
+				B8948BDF26DCEE2B00B430E2 /* FrameProcessorPerformanceDataCollector.swift */,
 			);
 			path = "Frame Processor";
 			sourceTree = "<group>";
