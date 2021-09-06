@@ -232,15 +232,15 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       }
     }
   }
-  
+
   private func evaluateNewPerformanceSamples() {
     lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
     guard let videoDevice = videoDeviceInput?.device else { return }
-    
+
     let maxFrameProcessorFps = Double(videoDevice.activeVideoMinFrameDuration.timescale) * Double(videoDevice.activeVideoMinFrameDuration.value)
     let averageFps = 1.0 / frameProcessorPerformanceDataCollector.averageExecutionTimeSeconds
     let suggestedFrameProcessorFps = floor(min(averageFps, maxFrameProcessorFps))
-    
+
     if frameProcessorFps.intValue == -1 {
       // frameProcessorFps="auto"
       actualFrameProcessorFps = suggestedFrameProcessorFps
@@ -250,7 +250,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
                                                            suggestedFps: suggestedFrameProcessorFps)
     }
   }
-  
+
   private var isReadyForNewEvaluation: Bool {
     let lastPerformanceEvaluationElapsedTime = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorPerformanceEvaluation.uptimeNanoseconds
     return lastPerformanceEvaluationElapsedTime > 1_000_000_000
