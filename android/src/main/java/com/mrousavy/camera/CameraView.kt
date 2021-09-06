@@ -482,8 +482,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
       actualFrameProcessorFps = suggestedFrameProcessorFps
     } else {
       // frameProcessorFps={someCustomFpsValue}
-      if (suggestedFrameProcessorFps != lastSuggestedFrameProcessorFps &&
-        suggestedFrameProcessorFps != frameProcessorFps) {
+      if (suggestedFrameProcessorFps != lastSuggestedFrameProcessorFps && suggestedFrameProcessorFps != frameProcessorFps) {
         invokeOnFrameProcessorPerformanceSuggestionAvailable(frameProcessorFps, suggestedFrameProcessorFps)
         lastSuggestedFrameProcessorFps = suggestedFrameProcessorFps
       }
