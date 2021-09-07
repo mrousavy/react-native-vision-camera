@@ -7,10 +7,12 @@ on:
     paths:
       - '.github/workflows/validate-cpp.yml'
       - 'cpp/**'
+      - 'android/src/main/cpp/**'
   pull_request:
     paths:
       - '.github/workflows/validate-cpp.yml'
       - 'cpp/**'
+      - 'android/src/main/cpp/**'
 
 jobs:
   lint:

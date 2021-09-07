@@ -58,10 +58,6 @@ target_include_directories(
 file (GLOB LIBRN_DIR "${BUILD_DIR}/react-native-0*/jni/${ANDROID_ABI}")
 
 if(${FOR_HERMES})
-else()
-endif()
-
-if(${FOR_HERMES})
     file (GLOB LIBHERMES_DIR "${BUILD_DIR}/third-party-ndk/hermes/jni/${ANDROID_ABI}")
     # Use Hermes
     find_library(
