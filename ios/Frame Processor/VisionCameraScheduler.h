@@ -19,7 +19,7 @@ class VisionCameraScheduler : public reanimated::Scheduler {
 public:
   VisionCameraScheduler(std::shared_ptr<react::CallInvoker> jsInvoker);
   virtual ~VisionCameraScheduler();
-  
+
   void scheduleOnUI(std::function<void()> job) override;
 };
 
