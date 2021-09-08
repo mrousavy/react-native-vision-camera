@@ -28,6 +28,10 @@ class FrameProcessorPerformanceDataCollector {
   private var counter = 0
   private var lastEvaluation = -1
 
+  var hasEnoughData: Bool {
+    return !performanceSamples.isEmpty
+  }
+
   var averageExecutionTimeSeconds: Double {
     let sum = performanceSamples.reduce(0, +)
     let average = sum / Double(performanceSamples.count)
