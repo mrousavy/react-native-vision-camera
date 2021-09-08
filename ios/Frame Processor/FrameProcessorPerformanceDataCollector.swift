@@ -29,7 +29,7 @@ class FrameProcessorPerformanceDataCollector {
   private var lastEvaluation = -1
 
   var hasEnoughData: Bool {
-    return performanceSamples.count > 0
+    return !performanceSamples.isEmpty
   }
 
   var averageExecutionTimeSeconds: Double {
