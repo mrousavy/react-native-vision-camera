@@ -236,6 +236,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   private func evaluateNewPerformanceSamples() {
     lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
     guard let videoDevice = videoDeviceInput?.device else { return }
+    guard frameProcessorPerformanceDataCollector.hasEnoughData else { return }
 
     let maxFrameProcessorFps = Double(videoDevice.activeVideoMinFrameDuration.timescale) * Double(videoDevice.activeVideoMinFrameDuration.value)
     let averageFps = 1.0 / frameProcessorPerformanceDataCollector.averageExecutionTimeSeconds
