@@ -62,6 +62,12 @@ function App() {
 }
 ```
 
+### Adopting at scale
+
+VisionCamera is provided _as is_, I work on it in my free time.
+
+If you're integrating VisionCamera in a production app, consider [funding this project](https://github.com/sponsors/mrousavy) and <a href="mailto:marcrousavy@hotmail.com?subject=Adopting VisionCamera at scale">contact me</a> to receive premium enterprise support, help with issues, prioritize bugfixes, request features, help at integrating VisionCamera and/or Frame Processors, and more.
+
 <br />
 
 #### 🚀 Get started by [setting up permissions](https://mrousavy.github.io/react-native-vision-camera/docs/guides/)!
