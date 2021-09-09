@@ -145,7 +145,7 @@ You have to restart metro-bundler for changes in the `babel.config.js` file to t
 That's it! 🎉 Now you can use it:
 
 ```ts
-const frameProcessor = useFrameProcessor((frame: Frame) => {
+const frameProcessor = useFrameProcessor((frame) => {
   'worklet'
   const labels = labelImage(frame)
   // ...
