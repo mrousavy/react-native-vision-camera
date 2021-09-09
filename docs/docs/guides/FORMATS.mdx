@@ -69,9 +69,9 @@ This example shows how you would pick the format with the _highest frame rate_:
 ```tsx
 function getMaxFps(format: CameraDeviceFormat): number {
   return format.frameRateRanges.reduce((prev, curr) => {
-    if (curr.maxFrameRate > prev) return curr.maxFrameRate;
-    else return prev;
-  }, 0);
+    if (curr.maxFrameRate > prev) return curr.maxFrameRate
+    else return prev
+  }, 0)
 }
 
 function App() {
@@ -80,11 +80,11 @@ function App() {
 
   const format = useMemo(() => {
     return device?.formats.reduce((prev, curr) => {
-      if (prev == null) return curr;
-      if (getMaxFps(curr) > getMaxFps(prev)) return curr;
-      else return prev;
-    }, undefined);
-  }, [device?.formats]);
+      if (prev == null) return curr
+      if (getMaxFps(curr) > getMaxFps(prev)) return curr
+      else return prev
+    }, undefined)
+  }, [device?.formats])
 
   if (device == null) return <LoadingView />
   return (
@@ -108,17 +108,17 @@ Implement this however you want, I personally use a "point-based system":
 ```ts
 export const sortFormatsByResolution = (left: CameraDeviceFormat, right: CameraDeviceFormat): number => {
   // in this case, points aren't "normalized" (e.g. higher resolution = 1 point, lower resolution = -1 points)
-  let leftPoints = left.photoHeight * left.photoWidth;
-  let rightPoints = right.photoHeight * right.photoWidth;
+  let leftPoints = left.photoHeight * left.photoWidth
+  let rightPoints = right.photoHeight * right.photoWidth
   
   // we also care about video dimensions, not only photo.
-  leftPoints += left.videoWidth * left.videoHeight;
-  rightPoints += right.videoWidth * right.videoHeight;
+  leftPoints += left.videoWidth * left.videoHeight
+  rightPoints += right.videoWidth * right.videoHeight
 
   // you can also add points for FPS, etc
 
-  return rightPoints - leftPoints;
-};
+  return rightPoints - leftPoints
+}
 
 // and then call it:
 const formats = useMemo(() => device?.formats.sort(sortFormatsByResolution), [device?.formats])
