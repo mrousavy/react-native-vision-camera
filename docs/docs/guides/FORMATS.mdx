@@ -110,11 +110,10 @@ export const sortFormatsByResolution = (left: CameraDeviceFormat, right: CameraD
   // in this case, points aren't "normalized" (e.g. higher resolution = 1 point, lower resolution = -1 points)
   let leftPoints = left.photoHeight * left.photoWidth;
   let rightPoints = right.photoHeight * right.photoWidth;
-
-  if (left.videoHeight != null && left.videoWidth != null && right.videoHeight != null && right.videoWidth != null) {
-    leftPoints += left.videoWidth * left.videoHeight;
-    rightPoints += right.videoWidth * right.videoHeight;
-  }
+  
+  // we also care about video dimensions, not only photo.
+  leftPoints += left.videoWidth * left.videoHeight;
+  rightPoints += right.videoWidth * right.videoHeight;
 
   // you can also add points for FPS, etc
 
