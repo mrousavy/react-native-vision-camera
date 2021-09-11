@@ -47,7 +47,7 @@ export const Splash: NavigationFunctionComponent = ({ componentId }) => {
   }, []);
 
   useEffect(() => {
-    if (cameraPermissionStatus === 'authorized' && microphonePermissionStatus !== 'not-determined') {
+    if (cameraPermissionStatus === 'authorized' && microphonePermissionStatus === 'authorized') {
       Navigation.setRoot({
         root: {
           stack: {
@@ -77,7 +77,7 @@ export const Splash: NavigationFunctionComponent = ({ componentId }) => {
             </Text>
           </Text>
         )}
-        {microphonePermissionStatus === 'not-determined' && (
+        {microphonePermissionStatus !== 'authorized' && (
           <Text style={styles.permissionText}>
             Vision Camera needs <Text style={styles.bold}>Microphone permission</Text>.
             <Text style={styles.hyperlink} onPress={requestMicrophonePermission}>
