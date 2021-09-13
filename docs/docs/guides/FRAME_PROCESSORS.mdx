@@ -50,7 +50,13 @@ Frame processors are by far not limited to Hotdog detection, other examples incl
 Because they are written in JS, Frame Processors are **simple**, **powerful**, **extensible** and **easy to create** while still running at **native performance**. (Frame Processors can run up to **1000 times a second**!) Also, you can use **fast-refresh** to quickly see changes while developing or publish [over-the-air updates](https://github.com/microsoft/react-native-code-push) to tweak the Hotdog detector's sensitivity in live apps without pushing a native update.
 
 :::note
-Frame Processors require [**react-native-reanimated**](https://github.com/software-mansion/react-native-reanimated) 2.2.0 or higher.
+Frame Processors require [**react-native-reanimated**](https://github.com/software-mansion/react-native-reanimated) 2.2.0 or higher. Also make sure to add
+
+```js
+import 'react-native-reanimated'
+```
+
+to the top of the file when using `useFrameProcessor`.
 :::
 
 ### Interacting with Frame Processors
