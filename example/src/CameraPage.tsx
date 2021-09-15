@@ -24,7 +24,7 @@ import { CaptureButton } from './views/CaptureButton';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { examplePlugin } from './frame-processors/ExamplePlugin';
+import { anotherPlugin, examplePlugin } from './frame-processors/ExamplePlugin';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -196,6 +196,8 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
     'worklet';
     const values = examplePlugin(frame);
     console.log(`Return Values: ${JSON.stringify(values)}`);
+    const another = anotherPlugin(frame);
+    console.log(`Another plugin: ${another}`);
   }, []);
 
   const onFrameProcessorSuggestionAvailable = useCallback((suggestion: FrameProcessorPerformanceSuggestion) => {
@@ -221,10 +223,7 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
                 onError={onError}
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
-                photo={true}
-                video={true}
-                audio={true}
-                frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
+                frameProcessor={true ? frameProcessor : undefined}
                 frameProcessorFps={1}
                 onFrameProcessorPerformanceSuggestionAvailable={onFrameProcessorSuggestionAvailable}
               />

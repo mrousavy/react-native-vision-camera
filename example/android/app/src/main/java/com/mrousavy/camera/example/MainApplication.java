@@ -53,5 +53,6 @@ public class MainApplication extends NavigationApplication {
     super.onCreate();
     // register VisionCamera Frame Processor Plugins here.
     FrameProcessorPlugin.register(new ExampleFrameProcessorPlugin());
+    FrameProcessorPlugin.register(new AnotherPlugin());
   }
 }

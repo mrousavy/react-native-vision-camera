@@ -1,4 +1,4 @@
-/* global __example_plugin __example_plugin_swift */
+/* global __example_plugin __example_plugin_swift __another_plugin */
 import type { Frame } from 'react-native-vision-camera';
 
 declare let _WORKLET: true | undefined;
@@ -17,4 +17,12 @@ export function examplePlugin(frame: Frame): string[] {
 
   // @ts-expect-error because this function is dynamically injected by VisionCamera
   return __example_plugin(frame, 'hello!', 'parameter2', true, 42, { test: 0, second: 'test' }, ['another test', 5]);
+}
+
+export function anotherPlugin(frame: Frame): string[] {
+  'worklet';
+  if (!_WORKLET) throw new Error('anotherPlugin must be called from a frame processor!');
+
+  // @ts-expect-error because this function is dynamically injected by VisionCamera
+  return __another_plugin(frame, 'test', 5, true);
 }
