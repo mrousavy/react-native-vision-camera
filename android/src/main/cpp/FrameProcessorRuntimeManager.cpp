@@ -231,10 +231,13 @@ void FrameProcessorRuntimeManager::registerPlugin(alias_ref<FrameProcessorPlugin
 
   __android_log_print(ANDROID_LOG_INFO, TAG, "Installing Frame Processor Plugin \"%s\"...", name.c_str());
 
-  auto callback = [pluginCxx](jsi::Runtime& runtime,
+  auto callback = [pluginCxx, pluginGlobal](jsi::Runtime& runtime,
                               const jsi::Value& thisValue,
                               const jsi::Value* arguments,
                               size_t count) -> jsi::Value {
+    auto typeName = pluginGlobal->getClass()->toString();
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Calling Plugin \"%s\"...", typeName.c_str());
+
     // Unbox object and get typed HostObject
     auto boxedHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
     auto frameHostObject = dynamic_cast<JImageProxyHostObject*>(boxedHostObject.get());
