@@ -210,8 +210,8 @@ PODS:
     - React
   - react-native-cameraroll (4.0.4):
     - React-Core
-  - react-native-slider (3.0.3):
-    - React
+  - react-native-slider (4.1.6):
+    - React-Core
   - react-native-video (5.1.1):
     - React-Core
     - react-native-video/Video (= 5.1.1)
@@ -281,12 +281,12 @@ PODS:
     - React-cxxreact (= 0.65.1)
     - React-jsi (= 0.65.1)
     - React-perflogger (= 0.65.1)
-  - ReactNativeNavigation (7.20.0):
+  - ReactNativeNavigation (7.21.0):
     - React-Core
     - React-RCTImage
     - React-RCTText
-    - ReactNativeNavigation/Core (= 7.20.0)
-  - ReactNativeNavigation/Core (7.20.0):
+    - ReactNativeNavigation/Core (= 7.21.0)
+  - ReactNativeNavigation/Core (7.21.0):
     - React-Core
     - React-RCTImage
     - React-RCTText
@@ -321,14 +321,14 @@ PODS:
     - React-RCTVibration
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.6.0):
+  - RNScreens (3.7.2):
     - React-Core
     - React-RCTImage
   - RNStaticSafeAreaInsets (2.1.1):
     - React
   - RNVectorIcons (8.1.0):
     - React-Core
-  - VisionCamera (2.6.1):
+  - VisionCamera (2.7.0):
     - React
     - React-callinvoker
     - React-Core
@@ -482,7 +482,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 41e58e5b8e3e0bf061fdf725b03f2144014a8fb0
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-cameraroll: 88f4e62d9ecd0e1f253abe4f685474f2ea14bfa2
-  react-native-slider: e99fc201cefe81270fc9d81714a7a0f5e566b168
+  react-native-slider: c983657bf7d95450c8d64cceb4b318452b24ccd0
   react-native-video: 0bb76b6d6b77da3009611586c7dbf817b947f30e
   React-perflogger: fd28ee1f2b5b150b00043f0301d96bd417fdc339
   React-RCTActionSheet: 7f3fa0855c346aa5d7c60f9ced16e067db6d29fa
@@ -496,13 +496,13 @@ SPEC CHECKSUMS:
   React-RCTVibration: 92d41c2442e5328cc4d342cd7f78e5876b68bae5
   React-runtimeexecutor: 85187f19dd9c47a7c102f9994f9d14e4dc2110de
   ReactCommon: eafed38eec7b591c31751bfa7494801618460459
-  ReactNativeNavigation: 87aa2e3a749a9b338057e8d53af54d865241b843
+  ReactNativeNavigation: d6f27d4ba71887a161534a13e8ef3873b26c68b5
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNReanimated: 48e578538b2fad573d3d5ce2e80ad375e1534d87
-  RNScreens: eb0dfb2d6b21d2d7f980ad46b14eb306d2f1062e
+  RNScreens: 0591543e343c7444ea1756b6265d81a4295922c9
   RNStaticSafeAreaInsets: 6103cf09647fa427186d30f67b0f5163c1ae8252
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
-  VisionCamera: dc481620431e31c1d6bbbc438d8a1d9c56f3d304
+  VisionCamera: 575e691d9eda91dce798f9958770b39841bbd981
   Yoga: aa0cb45287ebe1004c02a13f279c55a95f1572f4
 
 PODFILE CHECKSUM: 4b093c1d474775c2eac3268011e4b0b80929d3a2
