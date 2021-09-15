@@ -101,9 +101,7 @@ module.exports = {
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          // Please change this to your repo.
-          editUrl:
-            'https://github.com/mrousavy/react-native-vision-camera/edit/main/docs/',
+          editUrl: 'https://github.com/mrousavy/react-native-vision-camera/edit/main/docs/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
