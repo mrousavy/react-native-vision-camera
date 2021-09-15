@@ -119,6 +119,7 @@ module.exports = {
         entryPoints: ['../src'],
         exclude: "../src/index.ts",
         tsconfig: '../tsconfig.json',
+        watch: process.env.TYPEDOC_WATCH,
         excludePrivate: true,
         excludeProtected: true,
         excludeExternals: true,
