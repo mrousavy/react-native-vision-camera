@@ -119,7 +119,7 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
   } else if (object->isInstanceOf(jni::JInteger::javaClassStatic())) {
     // Integer
 
-    static const auto getIntegerFunc = jni::findClassLocal("java/lang/Integer")->getMethod<jint()>("integerValue");
+    static const auto getIntegerFunc = jni::findClassLocal("java/lang/Integer")->getMethod<jint()>("intValue");
     auto i = getIntegerFunc(object.get());
     return jsi::Value(i);
 
