@@ -229,8 +229,7 @@ void FrameProcessorRuntimeManager::registerPlugin(alias_ref<FrameProcessorPlugin
   // name is always prefixed with two underscores (__)
   auto name = "__" + pluginCxx->getName();
 
-  auto message = "Installing Frame Processor Plugin \"" + name + "\"...";
-  __android_log_write(ANDROID_LOG_INFO, TAG, message.c_str());
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Installing Frame Processor Plugin \"%s\"...", name);
 
   auto callback = [pluginCxx](jsi::Runtime& runtime,
                               const jsi::Value& thisValue,
