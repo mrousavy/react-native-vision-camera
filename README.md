@@ -65,7 +65,7 @@ function App() {
 ### Adopting at scale
 
 <a href="https://github.com/sponsors/mrousavy">
-  <img align="right" width="160" alt="This library helped you? Consider sponsoring!" src="https://github.com/mrousavy/react-native-blurhash/raw/master/.github/funding-octocat.svg">
+  <img align="right" width="160" alt="This library helped you? Consider sponsoring!" src=".github/funding-octocat.svg">
 </a>
 
 VisionCamera is provided _as is_, I work on it in my free time.
