@@ -3382,7 +3382,7 @@ dns-txt@^2.0.2:
   dependencies:
     buffer-indexof "^1.0.0"
 
-docusaurus-plugin-typedoc@^0.16.0:
+docusaurus-plugin-typedoc@^0.16.1:
   version "0.16.1"
   resolved "https://registry.yarnpkg.com/docusaurus-plugin-typedoc/-/docusaurus-plugin-typedoc-0.16.1.tgz#a0464f23586238ee077aa664e975ca50444aff3e"
   integrity sha512-NTMYhzndD9yYaPA2peXZry30Bk8rTR2674pVzF/OovmZFNI4DchPDtL88tQamZRXw5f5PeyCuVw+JKvfIPoBQA==
