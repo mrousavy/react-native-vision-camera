@@ -9,8 +9,10 @@ export const useIsForeground = (): boolean => {
     const onChange = (state: AppStateStatus): void => {
       setIsForeground(state === 'active');
     };
-    AppState.addEventListener('change', onChange);
-    return () => AppState.removeEventListener('change', onChange);
+    const subscription = AppState.addEventListener('change', onChange);
+    return () => {
+      subscription.remove();
+    };
   }, [setIsForeground]);
 
   return isForeground;
