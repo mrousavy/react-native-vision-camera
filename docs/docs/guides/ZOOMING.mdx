@@ -13,7 +13,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
   </svg>
 </div>
 
-The `<Camera>` component already provides a natively implemented zoom gesture which you can enable with the [`enableZoomGesture`](/docs/api/interfaces/cameraprops.cameraprops-1#enablezoomgesture) prop. This does not require any additional work, but if you want to setup a custom gesture, such as the one in Snapchat or Instagram where you move up your finger while recording, continue reading.
+The `<Camera>` component already provides a natively implemented zoom gesture which you can enable with the [`enableZoomGesture`](/docs/api/interfaces/CameraProps#enablezoomgesture) prop. This does not require any additional work, but if you want to setup a custom gesture, such as the one in Snapchat or Instagram where you move up your finger while recording, continue reading.
 
 ### Animation libraries
 
@@ -80,7 +80,7 @@ export function App() {
 
 ### Min, Max and Neutral Zoom
 
-A Camera device has different minimum, maximum and neutral zoom values. Those values are expressed through the `CameraDevice`'s [`minZoom`](/docs/api/interfaces/cameradevice.cameradevice-1#minzoom), [`maxZoom`](/docs/api/interfaces/cameradevice.cameradevice-1#maxzoom) and [`neutralZoom`](/docs/api/interfaces/cameradevice.cameradevice-1#neutralzoom) props, and are represented in "scale". So if the `maxZoom` property of a device is `2`, that means the view can be enlarged by twice it's zoom, aka the viewport halves.
+A Camera device has different minimum, maximum and neutral zoom values. Those values are expressed through the `CameraDevice`'s [`minZoom`](/docs/api/interfaces/CameraDevice#minzoom), [`maxZoom`](/docs/api/interfaces/CameraDevice#maxzoom) and [`neutralZoom`](/docs/api/interfaces/CameraDevice#neutralzoom) props, and are represented in "scale". So if the `maxZoom` property of a device is `2`, that means the view can be enlarged by twice it's zoom, aka the viewport halves.
 
 * The `minZoom` value is always `1`.
 * The `maxZoom` value can have very high values (such as `128`), but often you want to clamp this value to something realistic like `16`.

@@ -45,7 +45,7 @@ To take a photo you first have to enable photo capture:
 <Camera {...props} photo={true} />
 ```
 
-Then, simply use the Camera's [`takePhoto(...)`](../api/classes/camera.camera-1#takephoto) function:
+Then, simply use the Camera's [`takePhoto(...)`](/docs/api/classes/Camera#takephoto) function:
 
 ```ts
 const photo = await camera.current.takePhoto({
@@ -53,13 +53,13 @@ const photo = await camera.current.takePhoto({
 })
 ```
 
-You can customize capture options such as [automatic red-eye reduction](../api/interfaces/photofile.takephotooptions#enableautoredeyereduction), [automatic image stabilization](../api/interfaces/photofile.takephotooptions#enableautostabilization), [combining images from constituent physical camera devices](../api/interfaces/photofile.takephotooptions#enablevirtualdevicefusion) to create a single high quality fused image, [enable flash](../api/interfaces/photofile.takephotooptions#flash), [prioritize speed over quality](../api/interfaces/photofile.takephotooptions#qualityprioritization) and more using the `options` parameter. (See [`TakePhotoOptions`](../api/interfaces/photofile.takephotooptions))
+You can customize capture options such as [automatic red-eye reduction](/docs/api/interfaces/TakePhotoOptions#enableautoredeyereduction), [automatic image stabilization](/docs/api/interfaces/TakePhotoOptions#enableautostabilization), [combining images from constituent physical camera devices](/docs/api/interfaces/TakePhotoOptions#enablevirtualdevicefusion) to create a single high quality fused image, [enable flash](/docs/api/interfaces/TakePhotoOptions#flash), [prioritize speed over quality](/docs/api/interfaces/TakePhotoOptions#qualityprioritization) and more using the `options` parameter. (See [`TakePhotoOptions`](/docs/api/interfaces/TakePhotoOptions))
 
-This function returns a [`PhotoFile`](../api/interfaces/photofile.photofile-1) which contains a [`path`](../api/interfaces/photofile.photofile-1#path) property you can display in your App using an `<Image>` or `<FastImage>`.
+This function returns a [`PhotoFile`](/docs/api/interfaces/PhotoFile) which contains a [`path`](/docs/api/interfaces/PhotoFile#path) property you can display in your App using an `<Image>` or `<FastImage>`.
 
 ### Taking Snapshots
 
-Compared to iOS, Cameras on Android tend to be slower in image capture. If you care about speed, you can use the Camera's [`takeSnapshot(...)`](../api/classes/camera.camera-1#takesnapshot) function (Android only) which simply takes a snapshot of the Camera View instead of actually taking a photo through the Camera lens.
+Compared to iOS, Cameras on Android tend to be slower in image capture. If you care about speed, you can use the Camera's [`takeSnapshot(...)`](/docs/api/classes/Camera#takesnapshot) function (Android only) which simply takes a snapshot of the Camera View instead of actually taking a photo through the Camera lens.
 
 ```ts
 const snapshot = await camera.current.takeSnapshot({
@@ -88,7 +88,7 @@ To start a video recording you first have to enable video capture:
 />
 ```
 
-Then, simply use the Camera's [`startRecording(...)`](../api/classes/camera.camera-1#startrecording) function:
+Then, simply use the Camera's [`startRecording(...)`](/docs/api/classes/Camera#startrecording) function:
 
 ```ts
 camera.current.startRecording({
@@ -98,15 +98,15 @@ camera.current.startRecording({
 })
 ```
 
-For any error that occured _while recording the video_, the `onRecordingError` callback will be invoked with a [`CaptureError`](../api/classes/cameraerror.cameracaptureerror) and the recording is therefore cancelled.
+For any error that occured _while recording the video_, the `onRecordingError` callback will be invoked with a [`CaptureError`](/docs/api/classes/CameraCaptureError) and the recording is therefore cancelled.
 
-To stop the video recording, you can call [`stopRecording(...)`](../api/classes/camera.camera-1#stoprecording):
+To stop the video recording, you can call [`stopRecording(...)`](/docs/api/classes/Camera#stoprecording):
 
 ```ts
 await camera.current.stopRecording()
 ```
 
-Once a recording has been stopped, the `onRecordingFinished` callback passed to the `startRecording` function will be invoked with a [`VideoFile`](../api/interfaces/videofile.videofile-1) which you can then use to display in a [`<Video>`](https://github.com/react-native-video/react-native-video) component.
+Once a recording has been stopped, the `onRecordingFinished` callback passed to the `startRecording` function will be invoked with a [`VideoFile`](/docs/api/interfaces/VideoFile) which you can then use to display in a [`<Video>`](https://github.com/react-native-video/react-native-video) component.
 
 <br />
 

@@ -173,7 +173,7 @@ This means that **the Frame Processor API only takes ~1ms longer than a fully na
 
 ### Avoiding Frame-drops
 
-Frame Processors will be **synchronously** called for each frame the Camera sees and have to finish executing before the next frame arrives, otherwise the next frame(s) will be dropped. For a frame rate of **30 FPS**, you have about **33ms** to finish processing frames. Use [`frameProcessorFps`](../api/interfaces/cameraprops.cameraprops-1#frameprocessorfps) to throttle the frame processor's FPS. For a QR Code Scanner, **5 FPS** (200ms) might suffice, while a object tracking AI might run at the same frame rate as the Camera itself (e.g. **60 FPS** (16ms)).
+Frame Processors will be **synchronously** called for each frame the Camera sees and have to finish executing before the next frame arrives, otherwise the next frame(s) will be dropped. For a frame rate of **30 FPS**, you have about **33ms** to finish processing frames. Use [`frameProcessorFps`](/docs/api/interfaces/CameraProps#frameprocessorfps) to throttle the frame processor's FPS. For a QR Code Scanner, **5 FPS** (200ms) might suffice, while a object tracking AI might run at the same frame rate as the Camera itself (e.g. **60 FPS** (16ms)).
 
 ### ESLint react-hooks plugin
 

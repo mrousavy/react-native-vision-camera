@@ -76,8 +76,9 @@ export const MediaPage: NavigationFunctionComponent<MediaProps> = ({ componentId
       });
       setSavingState('saved');
     } catch (e) {
+      const message = e instanceof Error ? e.message : JSON.stringify(e);
       setSavingState('none');
-      Alert.alert('Failed to save!', `An unexpected error occured while trying to save your ${type}. ${e?.message ?? JSON.stringify(e)}`);
+      Alert.alert('Failed to save!', `An unexpected error occured while trying to save your ${type}. ${message}`);
     }
   }, [path, type]);
 

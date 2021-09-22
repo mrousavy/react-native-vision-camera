@@ -101,9 +101,7 @@ module.exports = {
       {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          // Please change this to your repo.
-          editUrl:
-            'https://github.com/mrousavy/react-native-vision-camera/edit/main/docs/',
+          editUrl: 'https://github.com/mrousavy/react-native-vision-camera/edit/main/docs/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
@@ -119,14 +117,13 @@ module.exports = {
         entryPoints: ['../src'],
         exclude: "../src/index.ts",
         tsconfig: '../tsconfig.json',
+        watch: process.env.TYPEDOC_WATCH,
         excludePrivate: true,
         excludeProtected: true,
         excludeExternals: true,
         excludeInternal: true,
         readme: "none",
         sidebar: {
-          sidebarFile: 'typedoc-sidebar.js',
-          fullNames: false,
           indexLabel: 'Overview'
         }
       },

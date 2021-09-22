@@ -27,7 +27,7 @@ Camera devices are the physical (or "virtual") devices that can be used to recor
 
 ### Get available camera devices
 
-To get a list of all available camera devices, use [the `getAvailableCameraDevices` function](/docs/api/classes/camera.camera-1#getavailablecameradevices):
+To get a list of all available camera devices, use [the `getAvailableCameraDevices` function](/docs/api/classes/Camera#getavailablecameradevices):
 
 ```ts
 const devices = await Camera.getAvailableCameraDevices()
@@ -40,7 +40,7 @@ The most important properties are:
 * `devices`: A list of physical device types this camera device consists of. For a **single physical camera device**, this property is always an array of one element. **For virtual multi-cameras** this property contains all the physical camera devices that are combined to create this virtual multi-camera device
 * `position`: The position of the camera device relative to the phone (`front`, `back`)
 * `hasFlash`: Whether this camera device supports using the flash to take photos or record videos
-* `hasTorch`: Whether this camera device supports enabling/disabling the torch at any time ([`Camera.torch` prop](/docs/api/interfaces/cameraprops.cameraprops-1#torch))
+* `hasTorch`: Whether this camera device supports enabling/disabling the torch at any time ([`Camera.torch` prop](/docs/api/interfaces/CameraProps#torch))
 * `isMultiCam`: Determines whether the camera device is a virtual multi-camera device which contains multiple combined physical camera devices.
 * `minZoom`: The minimum available zoom factor. This value is often `1`. When you pass `zoom={0}` to the Camera, the `minZoom` factor will be applied.
 * `neutralZoom`: The zoom factor where the camera is "neutral". For any wide-angle cameras this property might be the same as `minZoom`, where as for ultra-wide-angle cameras ("fish-eye") this might be a value higher than `minZoom` (e.g. `2`). It is recommended that you always start at `neutralZoom` and let the user manually zoom out to `minZoom` on demand.
@@ -50,7 +50,7 @@ The most important properties are:
 * `supportsFocus`: Determines whether this camera device supports focusing (See [Focusing](focusing))
 
 :::note
-See the [`CameraDevice` type](../api/interfaces/cameradevice.cameradevice-1) for full API reference
+See the [`CameraDevice` type](/docs/api/interfaces/CameraDevice) for full API reference
 :::
 
 For debugging purposes you can use the `id` or `name` properties to log and compare devices. You can also use the `devices` properties to determine the physical camera devices this camera device consists of, for example:
@@ -115,7 +115,7 @@ function App() {
 
 ### The `supportsParallelVideoProcessing` prop
 
-Camera devices provide the [`supportsParallelVideoProcessing` property](/docs/api/interfaces/cameradevice.cameradevice-1#supportsparallelvideoprocessing) which determines whether the device supports using Video Recordings (`video={true}`) and Frame Processors (`frameProcessor={...}`) at the same time.
+Camera devices provide the [`supportsParallelVideoProcessing` property](/docs/api/interfaces/CameraDevice#supportsparallelvideoprocessing) which determines whether the device supports using Video Recordings (`video={true}`) and Frame Processors (`frameProcessor={...}`) at the same time.
 
 If this property is `false`, you can either enable `video`, or add a `frameProcessor`, but not both.
 

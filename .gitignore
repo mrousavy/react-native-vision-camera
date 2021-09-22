@@ -63,7 +63,6 @@ package-lock.json
 
 # TypeDoc/Docusaurus stuff
 docs/docs/api
-docs/typedoc-sidebar.js
 
 # External native build folder generated in Android Studio 2.2 and later
 .externalNativeBuild
