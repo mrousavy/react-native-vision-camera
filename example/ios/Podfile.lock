@@ -210,7 +210,7 @@ PODS:
     - React
   - react-native-cameraroll (4.0.4):
     - React-Core
-  - react-native-slider (4.1.6):
+  - react-native-slider (4.1.7):
     - React-Core
   - react-native-video (5.1.1):
     - React-Core
@@ -328,7 +328,7 @@ PODS:
     - React
   - RNVectorIcons (8.1.0):
     - React-Core
-  - VisionCamera (2.7.0):
+  - VisionCamera (2.8.0):
     - React
     - React-callinvoker
     - React-Core
@@ -482,7 +482,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 41e58e5b8e3e0bf061fdf725b03f2144014a8fb0
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
   react-native-cameraroll: 88f4e62d9ecd0e1f253abe4f685474f2ea14bfa2
-  react-native-slider: c983657bf7d95450c8d64cceb4b318452b24ccd0
+  react-native-slider: 269d81247e2a87358ee03241da55b00c919e4d7a
   react-native-video: 0bb76b6d6b77da3009611586c7dbf817b947f30e
   React-perflogger: fd28ee1f2b5b150b00043f0301d96bd417fdc339
   React-RCTActionSheet: 7f3fa0855c346aa5d7c60f9ced16e067db6d29fa
@@ -502,7 +502,7 @@ SPEC CHECKSUMS:
   RNScreens: 0591543e343c7444ea1756b6265d81a4295922c9
   RNStaticSafeAreaInsets: 6103cf09647fa427186d30f67b0f5163c1ae8252
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
-  VisionCamera: 575e691d9eda91dce798f9958770b39841bbd981
+  VisionCamera: c760f5e5207ca71962e46a7e70eef5d8d8e86ad7
   Yoga: aa0cb45287ebe1004c02a13f279c55a95f1572f4
 
 PODFILE CHECKSUM: 4b093c1d474775c2eac3268011e4b0b80929d3a2
