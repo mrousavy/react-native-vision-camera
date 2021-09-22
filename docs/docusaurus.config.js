@@ -124,8 +124,6 @@ module.exports = {
         excludeInternal: true,
         readme: "none",
         sidebar: {
-          sidebarFile: 'typedoc-sidebar.js',
-          fullNames: false,
           indexLabel: 'Overview'
         }
       },
