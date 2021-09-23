@@ -25,7 +25,13 @@ void FrameProcessorPlugin::registerNatives() {
 }
 
 local_ref<jobject> FrameProcessorPlugin::callback(alias_ref<JImageProxy::javaobject> image, alias_ref<JArrayClass<jobject>> params) {
-  static const auto func = javaPart_->getClass()->getMethod<TFrameProcessorPlugin>("callback");
+  static const auto clzzz = javaPart_->getClass();
+  static const auto func = clzzz->getMethod<TFrameProcessorPlugin>("callback");
+  
+  auto typeName = javaPart_->getClass()->toString();
+  auto typeNameStatic = clzzz->toString();
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Plugin \"%s\" (actual: \"%s\"): Calling callback...", typeName.c_str(), clzzz.c_str());
+  
   auto result = func(javaPart_.get(), image, params);
   return make_local(result);
 }
