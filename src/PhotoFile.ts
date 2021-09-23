@@ -4,9 +4,9 @@ export interface TakePhotoOptions {
   /**
    * Indicates how photo quality should be prioritized against speed.
    *
-   * * `"quality"` Indicates that speed of photo delivery is most important, even at the expense of quality
+   * * `"quality"` Indicates that photo quality is paramount, even at the expense of shot-to-shot time
    * * `"balanced"` Indicates that photo quality and speed of delivery are balanced in priority
-   * * `"speed"` Indicates that photo quality is paramount, even at the expense of shot-to-shot time
+   * * `"speed"` Indicates that speed of photo delivery is most important, even at the expense of quality
    *
    * @platform iOS 13.0+
    * @default "balanced"
