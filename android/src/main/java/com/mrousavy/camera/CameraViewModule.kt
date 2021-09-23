@@ -152,7 +152,8 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
             capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DEPTH_OUTPUT)
           val supportsRawCapture = capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW)
           val isoRange = characteristics.get(CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE)
-          val stabilizationModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES)!! // only digital, no optical
+          val digitalStabilizationModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES)
+          val opticalStabilizationModes = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_OPTICAL_STABILIZATION)
           val zoomRange = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
             characteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
           else null
@@ -230,12 +231,17 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
               colorSpaces.pushString(formatName)
 
               val videoStabilizationModes = Arguments.createArray()
-              if (stabilizationModes.contains(CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_OFF)) {
-                videoStabilizationModes.pushString("off")
+              videoStabilizationModes.pushString("off")
+              if (digitalStabilizationModes != null) {
+                if (digitalStabilizationModes.contains(CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_ON)) {
+                  videoStabilizationModes.pushString("auto")
+                  videoStabilizationModes.pushString("standard")
+                }
               }
-              if (stabilizationModes.contains(CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_ON)) {
-                videoStabilizationModes.pushString("auto")
-                videoStabilizationModes.pushString("standard")
+              if (opticalStabilizationModes != null) {
+                if (opticalStabilizationModes.contains(CameraCharacteristics.LENS_OPTICAL_STABILIZATION_MODE_ON)) {
+                  videoStabilizationModes.pushString("cinematic")
+                }
               }
 
               val format = Arguments.createMap()
