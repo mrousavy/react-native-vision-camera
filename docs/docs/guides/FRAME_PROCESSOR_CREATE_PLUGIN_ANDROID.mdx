@@ -75,6 +75,19 @@ public class QRCodeFrameProcessorPluginPackage implements ReactPackage {
 }
 ```
 
+6. Register the package in MainApplication.java
+
+```java {6}
+        @Override
+        protected List<ReactPackage> getPackages() {
+          @SuppressWarnings("UnnecessaryLocalVariable")
+          List<ReactPackage> packages = new PackageList(this).getPackages();
+          ...
+          packages.add(new QRCodeFrameProcessorPluginPackage()); // <- add
+          return packages;
+        }
+```
+
 </TabItem>
 <TabItem value="kotlin">
 
@@ -119,6 +132,19 @@ class QRCodeFrameProcessorPluginPackage : ReactPackage {
     return emptyList()
   }
 }
+```
+
+6. Register the package in MainApplication.java
+
+```java {6}
+        @Override
+        protected List<ReactPackage> getPackages() {
+          @SuppressWarnings("UnnecessaryLocalVariable")
+          List<ReactPackage> packages = new PackageList(this).getPackages();
+          ...
+          packages.add(new QRCodeFrameProcessorPluginPackage()); // <- add
+          return packages;
+        }
 ```
 
 </TabItem>
