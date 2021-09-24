@@ -367,6 +367,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         previewBuilder.setTargetAspectRatio(aspectRatio)
         imageCaptureBuilder.setTargetAspectRatio(aspectRatio)
         videoCaptureBuilder.setTargetAspectRatio(aspectRatio)
+        imageAnalysisBuilder.setTargetAspectRatio(aspectRatio)
       } else {
         // User has selected a custom format={}. Use that
         val format = DeviceFormat(format!!)
@@ -374,6 +375,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         previewBuilder.setTargetResolution(format.videoSize)
         imageCaptureBuilder.setTargetResolution(format.photoSize)
         videoCaptureBuilder.setTargetResolution(format.videoSize)
+        imageAnalysisBuilder.setTargetResolution(format.videoSize)
 
         fps?.let { fps ->
           if (format.frameRateRanges.any { it.contains(fps) }) {
