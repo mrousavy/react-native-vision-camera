@@ -4,26 +4,21 @@
 
 #include "JImageProxyHostObject.h"
 #include <android/log.h>
-#include <vector>
-#include <string>
-
-#if FOR_HERMES
 #include <fbjni/fbjni.h>
 #include <jni.h>
-#endif
+#include <vector>
+#include <string>
 
 namespace vision {
 
 using namespace facebook;
 
 JImageProxyHostObject::~JImageProxyHostObject() {
-#if FOR_HERMES
   // Hermes' Garbage Collector (Hades GC) calls destructors on a separate Thread
   // which might not be attached to JNI. Ensure that we use the JNI class loader when
   // deallocating the `frame` HybridClass, because otherwise JNI cannot call the Java
   // destroy() function.
   jni::ThreadScope::WithClassLoader([&] { frame.reset(); });
-#endif
 }
 
 std::vector<jsi::PropNameID> JImageProxyHostObject::getPropertyNames(jsi::Runtime& rt) {
