@@ -8,7 +8,7 @@ module.exports = {
     [
       'react-native-reanimated/plugin',
       {
-        globals: ['__example_plugin', '__example_plugin_swift', '__another_plugin'],
+        globals: ['__example_plugin', '__example_plugin_swift'],
       },
     ],
     [
