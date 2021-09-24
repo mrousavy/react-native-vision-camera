@@ -25,7 +25,8 @@ void FrameProcessorPlugin::registerNatives() {
 }
 
 local_ref<jobject> FrameProcessorPlugin::callback(alias_ref<JImageProxy::javaobject> image, alias_ref<JArrayClass<jobject>> params) {
-  static const auto func = javaPart_->getClass()->getMethod<TFrameProcessorPlugin>("callback");
+  auto func = javaPart_->getClass()->getMethod<TFrameProcessorPlugin>("callback");
+
   auto result = func(javaPart_.get(), image, params);
   return make_local(result);
 }

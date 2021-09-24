@@ -43,6 +43,13 @@ Read the READMEs in [`android/`](android/README.md) and [`ios/`](ios/README.md) 
 
 > Run `yarn check-android` to validate codestyle
 
+### Docs
+
+1. Edit the relevant file, it may be easiest to search for what you're editing to find the right file
+2. Install all dependencies by running `yarn` inside the `docs` folder
+
+> Run `yarn start` to generate the docs, you can then view them in your browser to confirm your changes
+
 ## Committing
 
 We love to keep our codebases clean. To achieve that, we use linters and formatters which output errors when something isn't formatted the way we like it to be.
