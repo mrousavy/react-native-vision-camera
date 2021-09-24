@@ -19,6 +19,7 @@ using namespace facebook;
 class JSI_EXPORT JImageProxyHostObject : public jsi::HostObject {
  public:
   explicit JImageProxyHostObject(jni::alias_ref<JImageProxy::javaobject> image): frame(image) {}
+  ~JImageProxyHostObject();
 
  public:
   jsi::Value get(jsi::Runtime &, const jsi::PropNameID &name) override;
