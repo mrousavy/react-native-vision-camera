@@ -6238,10 +6238,10 @@ react-native-builder-bob@^0.18.1:
   optionalDependencies:
     jetifier "^1.6.6"
 
-react-native-reanimated@^2.3.0-alpha.3:
-  version "2.3.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/react-native-reanimated/-/react-native-reanimated-2.3.0-alpha.3.tgz#022f5b4eaa847304a155942165a77125c86428bc"
-  integrity sha512-Ln+edkTrepKUETKKmGl+GxL8RiB7awBDQFcRJIK39m5ggiLfksOAfqzclpKPLWbAfOvB4cSg+QdowzRN570FXA==
+react-native-reanimated@^2.3.0-beta.1:
+  version "2.3.0-beta.1"
+  resolved "https://registry.yarnpkg.com/react-native-reanimated/-/react-native-reanimated-2.3.0-beta.1.tgz#29deb1fe66db02b431f85b4afd5ba77d689554e6"
+  integrity sha512-scO945EqhQxbNox4GxY+NX0fsPNG7YheYnJTVs/u7XJ0+NuMeuSlUt9Yi89Q161hs2RpY7xAvYpQSU7PQXCeow==
   dependencies:
     "@babel/plugin-transform-object-assign" "^7.10.4"
     invariant "^2.2.4"

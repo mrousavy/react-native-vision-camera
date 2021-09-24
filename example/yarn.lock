@@ -4443,10 +4443,10 @@ react-native-pressable-opacity@^1.0.4:
   resolved "https://registry.yarnpkg.com/react-native-pressable-opacity/-/react-native-pressable-opacity-1.0.4.tgz#391f33fdc25cb84551f2743a25eced892b9f30f7"
   integrity sha512-DBIg7UoRiuBYiFEvx+XNMqH0OEx64WrSksXhT6Kq9XuyyKsThMNDqZ9G5QV7vfu7dU2/IctwIz5c0Xwkp4K3tA==
 
-react-native-reanimated@^2.3.0-alpha.3:
-  version "2.3.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/react-native-reanimated/-/react-native-reanimated-2.3.0-alpha.3.tgz#022f5b4eaa847304a155942165a77125c86428bc"
-  integrity sha512-Ln+edkTrepKUETKKmGl+GxL8RiB7awBDQFcRJIK39m5ggiLfksOAfqzclpKPLWbAfOvB4cSg+QdowzRN570FXA==
+react-native-reanimated@^2.3.0-beta.1:
+  version "2.3.0-beta.1"
+  resolved "https://registry.yarnpkg.com/react-native-reanimated/-/react-native-reanimated-2.3.0-beta.1.tgz#29deb1fe66db02b431f85b4afd5ba77d689554e6"
+  integrity sha512-scO945EqhQxbNox4GxY+NX0fsPNG7YheYnJTVs/u7XJ0+NuMeuSlUt9Yi89Q161hs2RpY7xAvYpQSU7PQXCeow==
   dependencies:
     "@babel/plugin-transform-object-assign" "^7.10.4"
     invariant "^2.2.4"
