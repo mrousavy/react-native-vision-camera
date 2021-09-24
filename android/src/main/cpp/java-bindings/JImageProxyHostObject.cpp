@@ -13,6 +13,8 @@ namespace vision {
 
 using namespace facebook;
 
+JImageProxyHostObject::JImageProxyHostObject(): frame(make_local(image)) { }
+
 JImageProxyHostObject::~JImageProxyHostObject() {
   // Hermes' Garbage Collector (Hades GC) calls destructors on a separate Thread
   // which might not be attached to JNI. Ensure that we use the JNI class loader when

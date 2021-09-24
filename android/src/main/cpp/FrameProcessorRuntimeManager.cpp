@@ -140,8 +140,6 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
     auto cameraView = findCameraViewById(static_cast<int>(viewTag));
     __android_log_write(ANDROID_LOG_INFO, TAG, "Found CameraView!");
 
-    // TODO: does this have to be called on the separate VisionCamera Frame Processor Thread?
-
     // convert jsi::Function to a ShareableValue (can be shared across runtimes)
     __android_log_write(ANDROID_LOG_INFO, TAG, "Adapting Shareable value from function (conversion to worklet)...");
     auto worklet = reanimated::ShareableValue::adapt(runtime, arguments[1],
