@@ -8,19 +8,23 @@
 #include <jni.h>
 #include <vector>
 #include <string>
+#include <thread>
 
 namespace vision {
 
 using namespace facebook;
 
-JImageProxyHostObject::JImageProxyHostObject(jni::alias_ref<JImageProxy::javaobject> image): frame(make_local(image)) { }
+JImageProxyHostObject::JImageProxyHostObject(jni::alias_ref<JImageProxy::javaobject> image):
+  frame(make_local(image)), jniThreadId(std::this_thread::get_id()) { }
 
 JImageProxyHostObject::~JImageProxyHostObject() {
-  // Hermes' Garbage Collector (Hades GC) calls destructors on a separate Thread
-  // which might not be attached to JNI. Ensure that we use the JNI class loader when
-  // deallocating the `frame` HybridClass, because otherwise JNI cannot call the Java
-  // destroy() function.
-  jni::ThreadScope::WithClassLoader([&] { frame.reset(); });
+  if (this->jniThreadId != std::this_thread::get_id()) {
+    // Hermes' Garbage Collector (Hades GC) calls destructors on a separate Thread
+    // which might not be attached to JNI. Ensure that we use the JNI class loader when
+    // deallocating the `frame` HybridClass, because otherwise JNI cannot call the Java
+    // destroy() function.
+    jni::ThreadScope::WithClassLoader([=] { frame.reset(); });
+  }
 }
 
 std::vector<jsi::PropNameID> JImageProxyHostObject::getPropertyNames(jsi::Runtime& rt) {

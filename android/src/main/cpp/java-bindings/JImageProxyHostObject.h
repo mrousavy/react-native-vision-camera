@@ -9,6 +9,7 @@
 #include <fbjni/fbjni.h>
 #include <vector>
 #include <string>
+#include <thread>
 
 #include "JImageProxy.h"
 
@@ -29,6 +30,9 @@ class JSI_EXPORT JImageProxyHostObject : public jsi::HostObject {
 
  public:
   jni::local_ref<JImageProxy> frame;
+
+private:
+  std::thread::id jniThreadId;
 
  private:
   static auto constexpr TAG = "VisionCamera";
