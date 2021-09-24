@@ -225,17 +225,15 @@ void FrameProcessorRuntimeManager::registerPlugin(alias_ref<FrameProcessorPlugin
 
   // we need a strong reference on the plugin, make_global does that.
   auto pluginGlobal = make_global(plugin);
-  auto pluginCxx = pluginGlobal->cthis();
   // name is always prefixed with two underscores (__)
-  auto name = "__" + pluginCxx->getName();
+  auto name = "__" + pluginGlobal->cthis()->getName();
 
-  auto message = "Installing Frame Processor Plugin \"" + name + "\"...";
-  __android_log_write(ANDROID_LOG_INFO, TAG, message.c_str());
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Installing Frame Processor Plugin \"%s\"...", name.c_str());
 
-  auto callback = [pluginCxx](jsi::Runtime& runtime,
-                              const jsi::Value& thisValue,
-                              const jsi::Value* arguments,
-                              size_t count) -> jsi::Value {
+  auto callback = [pluginGlobal](jsi::Runtime& runtime,
+                                 const jsi::Value& thisValue,
+                                 const jsi::Value* arguments,
+                                 size_t count) -> jsi::Value {
     // Unbox object and get typed HostObject
     auto boxedHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
     auto frameHostObject = dynamic_cast<JImageProxyHostObject*>(boxedHostObject.get());
@@ -247,7 +245,7 @@ void FrameProcessorRuntimeManager::registerPlugin(alias_ref<FrameProcessorPlugin
     }
 
     // call implemented virtual method
-    auto result = pluginCxx->callback(frameHostObject->frame, params);
+    auto result = pluginGlobal->cthis()->callback(frameHostObject->frame, params);
 
     // convert result from JNI to JSI value
     return JSIJNIConversion::convertJNIObjectToJSIValue(runtime, result);
