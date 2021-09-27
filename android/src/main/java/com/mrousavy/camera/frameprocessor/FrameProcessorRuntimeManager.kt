@@ -11,7 +11,6 @@ import com.mrousavy.camera.CameraView
 import com.mrousavy.camera.ViewNotFoundError
 import java.lang.ref.WeakReference
 import java.util.concurrent.ExecutorService
-import com.mrousavy.camera.utils.*
 
 @Suppress("KotlinJniMissingFunction") // I use fbjni, Android Studio is not smart enough to realize that.
 class FrameProcessorRuntimeManager(context: ReactApplicationContext, frameProcessorThread: ExecutorService) {

@@ -76,11 +76,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
       ReactFindViewUtil.findView(rootView, object : ReactFindViewUtil.OnViewFoundListener {
         override fun getNativeId(): String = nativeId
         override fun onViewFound(view: View?) {
-          if (view == null) {
-            callback.invoke(false)
-          } else {
-            callback.invoke(true)
-          }
+          callback.invoke(view != null)
         }
       })
     }
@@ -126,12 +122,10 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   @ReactMethod
   fun stopRecording(viewTag: String, promise: Promise) {
-    coroutineScope.launch {
-      withPromise(promise) {
-        val view = findCameraView(viewTag)
-        view.stopRecording()
-        return@withPromise null
-      }
+    withPromise(promise) {
+      val view = findCameraView(viewTag)
+      view.stopRecording()
+      return@withPromise null
     }
   }
 
