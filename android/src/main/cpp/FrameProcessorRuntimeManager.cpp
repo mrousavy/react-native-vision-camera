@@ -78,7 +78,7 @@ void vision::FrameProcessorRuntimeManager::initializeRuntime() {
                       "Initialized Vision JS-Runtime!");
 }
 
-CameraView* FrameProcessorRuntimeManager::findCameraViewById(std::string& nativeId) {
+CameraView* FrameProcessorRuntimeManager::findCameraViewById(const std::string& nativeId) {
   static const auto func = javaPart_->getClass()->getMethod<CameraView*(std::string)>("findCameraViewById");
   auto result = func(javaPart_.get(), nativeId);
   return result->cthis();
