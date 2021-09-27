@@ -66,6 +66,6 @@ class FileIOError(message: String, cause: Throwable? = null) : CameraError("capt
 class InvalidCameraError(message: String, cause: Throwable? = null) : CameraError("capture", "not-bound-error", message, cause)
 
 class CameraManagerUnavailableError : CameraError("system", "no-camera-manager", "The Camera manager instance was unavailable for the current Application!")
-class ViewNotFoundError(viewId: Int) : CameraError("system", "view-not-found", "The given view (ID $viewId) was not found in the view manager.")
+class ViewNotFoundError(viewId: String) : CameraError("system", "view-not-found", "The given view (ID $viewId) was not found in the view manager.")
 
 class UnknownCameraError(cause: Throwable) : CameraError("unknown", "unknown", cause.message ?: "An unknown camera error occured.", cause)
