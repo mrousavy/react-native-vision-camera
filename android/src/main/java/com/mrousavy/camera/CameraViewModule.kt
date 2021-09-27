@@ -60,15 +60,9 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     return TAG
   }
 
-  private suspend fun findCameraView(id: String): CameraView {
-    val time = measureTimeMillis {
-      val rootView = reactApplicationContext.currentActivity?.window?.decorView ?: throw ViewNotFoundError(id)
-      val view = findViewWithTimeout<CameraView>(rootView, id, 1000)
-    }
-    Log.d("YEEEEET", "Took $time ms.")
-
+  private fun findCameraView(id: String): CameraView {
     val rootView = reactApplicationContext.currentActivity?.window?.decorView ?: throw ViewNotFoundError(id)
-    return findViewWithTimeout(rootView, id, 1000)
+    return ReactFindViewUtil.findView(rootView, id) as? CameraView ?: throw ViewNotFoundError(id)
   }
 
   @ReactMethod

@@ -50,7 +50,7 @@ class FrameProcessorRuntimeManager : public jni::HybridClass<FrameProcessorRunti
   std::shared_ptr<reanimated::RuntimeManager> _runtimeManager;
   std::shared_ptr<vision::VisionCameraScheduler> scheduler_;
 
-  CameraView* findCameraViewById(int viewId);
+  CameraView* findCameraViewById(std::string& nativeId);
   void initializeRuntime();
   void installJSIBindings();
   void registerPlugin(alias_ref<FrameProcessorPlugin::javaobject> plugin);

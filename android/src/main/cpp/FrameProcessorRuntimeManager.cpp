@@ -78,9 +78,9 @@ void vision::FrameProcessorRuntimeManager::initializeRuntime() {
                       "Initialized Vision JS-Runtime!");
 }
 
-CameraView* FrameProcessorRuntimeManager::findCameraViewById(int viewId) {
-  static const auto func = javaPart_->getClass()->getMethod<CameraView*(jint)>("findCameraViewById");
-  auto result = func(javaPart_.get(), viewId);
+CameraView* FrameProcessorRuntimeManager::findCameraViewById(std::string& nativeId) {
+  static const auto func = javaPart_->getClass()->getMethod<CameraView*(std::string)>("findCameraViewById");
+  auto result = func(javaPart_.get(), nativeId);
   return result->cthis();
 }
 
@@ -122,9 +122,9 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
     __android_log_write(ANDROID_LOG_INFO, TAG,
                         "Setting new Frame Processor...");
 
-    if (!arguments[0].isNumber()) {
+    if (!arguments[0].isString()) {
       throw jsi::JSError(runtime,
-                         "Camera::setFrameProcessor: First argument ('viewTag') must be a number!");
+                         "Camera::setFrameProcessor: First argument ('nativeId') must be a string!");
     }
     if (!arguments[1].isObject()) {
       throw jsi::JSError(runtime,
@@ -136,8 +136,8 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
     }
 
     // find camera view
-    auto viewTag = arguments[0].asNumber();
-    auto cameraView = findCameraViewById(static_cast<int>(viewTag));
+    auto nativeId = arguments[0].asString(runtime).utf8(runtime);
+    auto cameraView = findCameraViewById(nativeId);
     __android_log_write(ANDROID_LOG_INFO, TAG, "Found CameraView!");
 
     // convert jsi::Function to a ShareableValue (can be shared across runtimes)
@@ -176,7 +176,7 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
                                       jsiRuntime,
                                       jsi::PropNameID::forAscii(jsiRuntime,
                                                                 "setFrameProcessor"),
-                                      2,  // viewTag, frameProcessor
+                                      2,  // nativeId, frameProcessor
                                       setFrameProcessor));
 
 
@@ -185,14 +185,14 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
                                     const jsi::Value *arguments,
                                     size_t count) -> jsi::Value {
     __android_log_write(ANDROID_LOG_INFO, TAG, "Removing Frame Processor...");
-    if (!arguments[0].isNumber()) {
+    if (!arguments[0].isString()) {
       throw jsi::JSError(runtime,
-                         "Camera::unsetFrameProcessor: First argument ('viewTag') must be a number!");
+                         "Camera::unsetFrameProcessor: First argument ('nativeId') must be a string!");
     }
 
     // find camera view
-    auto viewTag = arguments[0].asNumber();
-    auto cameraView = findCameraViewById(static_cast<int>(viewTag));
+    auto nativeId = arguments[0].asString(runtime).utf8(runtime);
+    auto cameraView = findCameraViewById(nativeId);
 
     // call Java method to unset frame processor
     cameraView->unsetFrameProcessor();
@@ -207,7 +207,7 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
                                       jsiRuntime,
                                       jsi::PropNameID::forAscii(jsiRuntime,
                                                                 "unsetFrameProcessor"),
-                                      1, // viewTag
+                                      1, // nativeId
                                       unsetFrameProcessor));
 
   __android_log_write(ANDROID_LOG_INFO, TAG, "Finished installing JSI bindings!");

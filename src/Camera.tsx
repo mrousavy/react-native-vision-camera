@@ -87,9 +87,23 @@ export class Camera extends React.PureComponent<CameraProps> {
     this.onFrameProcessorPerformanceSuggestionAvailable = this.onFrameProcessorPerformanceSuggestionAvailable.bind(this);
     this.ref = React.createRef<RefType>();
     this.lastFrameProcessor = undefined;
+
+    CameraModule.addOnViewMountListener(this.nativeId, (didViewMount: boolean) => {
+      if (!didViewMount)
+        throw new CameraRuntimeError('system/view-not-found', `The View "${this.nativeId}" cannot be found in the native View Hierarchy!`);
+
+      requestAnimationFrame(() => {
+        this.isNativeViewMounted = true;
+        if (this.props.frameProcessor != null) {
+          // user passed a `frameProcessor` but we didn't set it yet because the native view was not mounted yet. set it now.
+          this.setFrameProcessor(this.props.frameProcessor);
+          this.lastFrameProcessor = this.props.frameProcessor;
+        }
+      });
+    });
   }
 
-  get nativeId(): string {
+  private get nativeId(): string {
     return this.props.nativeID ?? 'VisionCamera.View';
   }
 
@@ -356,21 +370,6 @@ export class Camera extends React.PureComponent<CameraProps> {
     this.assertFrameProcessorsEnabled();
     // @ts-expect-error JSI functions aren't typed
     global.unsetFrameProcessor(this.nativeId);
-  }
-
-  /** @internal */
-  componentDidMount(): void {
-    CameraModule.addOnViewMountListener(this.nativeId, (didViewMount: boolean) => {
-      if (!didViewMount)
-        throw new CameraRuntimeError('system/view-not-found', `The View "${this.nativeId}" cannot be found in the native View Hierarchy!`);
-
-      this.isNativeViewMounted = true;
-      if (this.props.frameProcessor != null) {
-        // user passed a `frameProcessor` but we didn't set it yet because the native view was not mounted yet. set it now.
-        this.setFrameProcessor(this.props.frameProcessor);
-        this.lastFrameProcessor = this.props.frameProcessor;
-      }
-    });
   }
 
   /** @internal */
