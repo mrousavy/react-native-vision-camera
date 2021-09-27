@@ -55,6 +55,12 @@ class FrameProcessorRuntimeManager : public jni::HybridClass<FrameProcessorRunti
   void installJSIBindings();
   void registerPlugin(alias_ref<FrameProcessorPlugin::javaobject> plugin);
   void logErrorToJS(const std::string& message);
+
+  void setFrameProcessor(jsi::Runtime& runtime,
+                         jsi::Value& viewTag,
+                         const jsi::Value& frameProcessor);
+  void unsetFrameProcessor(jsi::Runtime& runtime,
+                           jsi::Value& viewTag);
 };
 
 } // namespace vision

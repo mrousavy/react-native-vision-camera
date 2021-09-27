@@ -119,9 +119,6 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
                                   const jsi::Value &thisValue,
                                   const jsi::Value *arguments,
                                   size_t count) -> jsi::Value {
-    __android_log_write(ANDROID_LOG_INFO, TAG,
-                        "Setting new Frame Processor...");
-
     if (!arguments[0].isNumber()) {
       throw jsi::JSError(runtime,
                          "Camera::setFrameProcessor: First argument ('viewTag') must be a number!");
@@ -130,44 +127,8 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
       throw jsi::JSError(runtime,
                          "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
     }
-    if (!_runtimeManager || !_runtimeManager->runtime) {
-      throw jsi::JSError(runtime,
-                         "Camera::setFrameProcessor: The RuntimeManager is not yet initialized!");
-    }
 
-    // find camera view
-    auto viewTag = arguments[0].asNumber();
-    auto cameraView = findCameraViewById(static_cast<int>(viewTag));
-    __android_log_write(ANDROID_LOG_INFO, TAG, "Found CameraView!");
-
-    // convert jsi::Function to a ShareableValue (can be shared across runtimes)
-    __android_log_write(ANDROID_LOG_INFO, TAG, "Adapting Shareable value from function (conversion to worklet)...");
-    auto worklet = reanimated::ShareableValue::adapt(runtime, arguments[1],
-                                                     _runtimeManager.get());
-    __android_log_write(ANDROID_LOG_INFO, TAG, "Successfully created worklet!");
-
-
-    scheduler_->scheduleOnUI([=]() {
-      // cast worklet to a jsi::Function for the new runtime
-      auto &rt = *_runtimeManager->runtime;
-      auto function = std::make_shared<jsi::Function>(worklet->getValue(rt).asObject(rt).asFunction(rt));
-
-      // assign lambda to frame processor
-      cameraView->setFrameProcessor([this, &rt, function](jni::alias_ref<JImageProxy::javaobject> frame) {
-        try {
-          // create HostObject which holds the Frame (JImageProxy)
-          auto hostObject = std::make_shared<JImageProxyHostObject>(frame);
-          function->callWithThis(rt, *function, jsi::Object::createFromHostObject(rt, hostObject));
-        } catch (jsi::JSError& jsError) {
-          auto message = "Frame Processor threw an error: " + jsError.getMessage();
-          __android_log_write(ANDROID_LOG_ERROR, TAG, message.c_str());
-          this->logErrorToJS(message);
-        }
-      });
-
-      __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processor set!");
-    });
-
+    this->setFrameProcessor(runtime, arguments[0], arguments[1]);
     return jsi::Value::undefined();
   };
   jsiRuntime.global().setProperty(jsiRuntime,
@@ -184,21 +145,12 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
                                     const jsi::Value &thisValue,
                                     const jsi::Value *arguments,
                                     size_t count) -> jsi::Value {
-    __android_log_write(ANDROID_LOG_INFO, TAG, "Removing Frame Processor...");
     if (!arguments[0].isNumber()) {
       throw jsi::JSError(runtime,
                          "Camera::unsetFrameProcessor: First argument ('viewTag') must be a number!");
     }
 
-    // find camera view
-    auto viewTag = arguments[0].asNumber();
-    auto cameraView = findCameraViewById(static_cast<int>(viewTag));
-
-    // call Java method to unset frame processor
-    cameraView->unsetFrameProcessor();
-
-    __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processor removed!");
-
+    this->unsetFrameProcessor(runtime, arguments[0]);
     return jsi::Value::undefined();
   };
   jsiRuntime.global().setProperty(jsiRuntime,
@@ -253,6 +205,64 @@ void FrameProcessorRuntimeManager::registerPlugin(alias_ref<FrameProcessorPlugin
                                                                                             jsi::PropNameID::forAscii(runtime, name),
                                                                                             1, // frame
                                                                                             callback));
+}
+
+void FrameProcessorRuntimeManager::setFrameProcessor(jsi::Runtime& runtime,
+                                                     jsi::Value& viewTag,
+                                                     const jsi::Value& frameProcessor) {
+    __android_log_write(ANDROID_LOG_INFO, TAG, "Setting new Frame Processor...");
+
+    if (!_runtimeManager || !_runtimeManager->runtime) {
+        throw jsi::JSError(runtime,
+                           "Camera::setFrameProcessor: The RuntimeManager is not yet initialized!");
+    }
+
+    // find camera view
+    auto viewTagDouble = viewTag.asNumber();
+    auto cameraView = findCameraViewById(static_cast<int>(viewTagDouble));
+    __android_log_write(ANDROID_LOG_INFO, TAG, "Found CameraView!");
+
+    // convert jsi::Function to a ShareableValue (can be shared across runtimes)
+    __android_log_write(ANDROID_LOG_INFO, TAG, "Adapting Shareable value from function (conversion to worklet)...");
+    auto worklet = reanimated::ShareableValue::adapt(runtime, frameProcessor,
+                                                     _runtimeManager.get());
+    __android_log_write(ANDROID_LOG_INFO, TAG, "Successfully created worklet!");
+
+
+    scheduler_->scheduleOnUI([=]() {
+        // cast worklet to a jsi::Function for the new runtime
+        auto &rt = *_runtimeManager->runtime;
+        auto function = std::make_shared<jsi::Function>(worklet->getValue(rt).asObject(rt).asFunction(rt));
+
+        // assign lambda to frame processor
+        cameraView->setFrameProcessor([this, &rt, function](jni::alias_ref<JImageProxy::javaobject> frame) {
+            try {
+                // create HostObject which holds the Frame (JImageProxy)
+                auto hostObject = std::make_shared<JImageProxyHostObject>(frame);
+                function->callWithThis(rt, *function, jsi::Object::createFromHostObject(rt, hostObject));
+            } catch (jsi::JSError& jsError) {
+                auto message = "Frame Processor threw an error: " + jsError.getMessage();
+                __android_log_write(ANDROID_LOG_ERROR, TAG, message.c_str());
+                this->logErrorToJS(message);
+            }
+        });
+
+        __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processor set!");
+    });
+}
+
+void FrameProcessorRuntimeManager::unsetFrameProcessor(jsi::Runtime& runtime,
+                                                       jsi::Value& viewTag) {
+    __android_log_write(ANDROID_LOG_INFO, TAG, "Removing Frame Processor...");
+
+    // find camera view
+    auto viewTagDouble = viewTag.asNumber();
+    auto cameraView = findCameraViewById(static_cast<int>(viewTagDouble));
+
+    // call Java method to unset frame processor
+    cameraView->unsetFrameProcessor();
+
+    __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processor removed!");
 }
 
 } // namespace vision
