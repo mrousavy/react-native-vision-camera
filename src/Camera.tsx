@@ -88,19 +88,27 @@ export class Camera extends React.PureComponent<CameraProps> {
     this.ref = React.createRef<RefType>();
     this.lastFrameProcessor = undefined;
 
-    CameraModule.addOnViewMountListener(this.nativeId, (didViewMount: boolean) => {
-      if (!didViewMount)
-        throw new CameraRuntimeError('system/view-not-found', `The View "${this.nativeId}" cannot be found in the native View Hierarchy!`);
-
-      requestAnimationFrame(() => {
-        this.isNativeViewMounted = true;
-        if (this.props.frameProcessor != null) {
-          // user passed a `frameProcessor` but we didn't set it yet because the native view was not mounted yet. set it now.
-          this.setFrameProcessor(this.props.frameProcessor);
-          this.lastFrameProcessor = this.props.frameProcessor;
+    if (Platform.OS === 'android') {
+      CameraModule.addOnViewMountListener(this.nativeId, (didViewMount: boolean) => {
+        if (!didViewMount) {
+          throw new CameraRuntimeError(
+            'system/view-not-found',
+            `The View "${this.nativeId}" cannot be found in the native View Hierarchy!`,
+          );
         }
+
+        requestAnimationFrame(() => {
+          this.isNativeViewMounted = true;
+          if (this.props.frameProcessor != null) {
+            // user passed a `frameProcessor` but we didn't set it yet because the native view was not mounted yet. set it now.
+            this.setFrameProcessor(this.props.frameProcessor);
+            this.lastFrameProcessor = this.props.frameProcessor;
+          }
+        });
       });
-    });
+    } else {
+      this.isNativeViewMounted = true;
+    }
   }
 
   private get nativeId(): string {
