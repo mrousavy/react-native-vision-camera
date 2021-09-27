@@ -1,5 +1,5 @@
 import React from 'react';
-import { requireNativeComponent, NativeModules, NativeSyntheticEvent, NativeMethods, Platform } from 'react-native';
+import { requireNativeComponent, NativeModules, NativeSyntheticEvent, NativeMethods, Platform, findNodeHandle } from 'react-native';
 import type { FrameProcessorPerformanceSuggestion } from '.';
 import type { CameraDevice } from './CameraDevice';
 import type { ErrorWithCause } from './CameraError';
@@ -89,7 +89,13 @@ export class Camera extends React.PureComponent<CameraProps> {
     this.lastFrameProcessor = undefined;
   }
 
-  get nativeId(): string {
+  private get handle(): number | null {
+    const nodeHandle = findNodeHandle(this.ref.current);
+    if (nodeHandle == null) console.error('Camera: findNodeHandle(ref) returned null! Does the Camera view exist in the native view tree?');
+
+    return nodeHandle;
+  }
+  private get nativeId(): string {
     return this.props.nativeID ?? 'VisionCamera.View';
   }
 
@@ -109,7 +115,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    */
   public async takePhoto(options?: TakePhotoOptions): Promise<PhotoFile> {
     try {
-      return await CameraModule.takePhoto(this.nativeId, options ?? {});
+      return await CameraModule.takePhoto(this.handle, options ?? {});
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -136,7 +142,7 @@ export class Camera extends React.PureComponent<CameraProps> {
       throw new CameraCaptureError('capture/capture-type-not-supported', `'takeSnapshot()' is not available on ${Platform.OS}!`);
 
     try {
-      return await CameraModule.takeSnapshot(this.nativeId, options ?? {});
+      return await CameraModule.takeSnapshot(this.handle, options ?? {});
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -175,7 +181,7 @@ export class Camera extends React.PureComponent<CameraProps> {
     };
     // TODO: Use TurboModules to either make this a sync invokation, or make it async.
     try {
-      CameraModule.startRecording(this.nativeId, passThroughOptions, onRecordCallback);
+      CameraModule.startRecording(this.handle, passThroughOptions, onRecordCallback);
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -195,7 +201,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    */
   public async stopRecording(): Promise<void> {
     try {
-      return await CameraModule.stopRecording(this.nativeId);
+      return await CameraModule.stopRecording(this.handle);
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -221,7 +227,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    */
   public async focus(point: Point): Promise<void> {
     try {
-      return await CameraModule.focus(this.nativeId, point);
+      return await CameraModule.focus(this.handle, point);
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -349,13 +355,13 @@ export class Camera extends React.PureComponent<CameraProps> {
   private setFrameProcessor(frameProcessor: (frame: Frame) => void): void {
     this.assertFrameProcessorsEnabled();
     // @ts-expect-error JSI functions aren't typed
-    global.setFrameProcessor(this.nativeId, frameProcessor);
+    global.setFrameProcessor(this.handle, frameProcessor);
   }
 
   private unsetFrameProcessor(): void {
     this.assertFrameProcessorsEnabled();
     // @ts-expect-error JSI functions aren't typed
-    global.unsetFrameProcessor(this.nativeId);
+    global.unsetFrameProcessor(this.handle);
   }
 
   /** @internal */

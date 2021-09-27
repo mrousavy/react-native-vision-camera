@@ -6,12 +6,11 @@ import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.turbomodule.core.CallInvokerHolderImpl
-import com.facebook.react.uimanager.util.ReactFindViewUtil
 import com.mrousavy.camera.CameraView
 import com.mrousavy.camera.ViewNotFoundError
+import com.swmansion.reanimated.Scheduler
 import java.lang.ref.WeakReference
 import java.util.concurrent.ExecutorService
-import com.mrousavy.camera.utils.*
 
 @Suppress("KotlinJniMissingFunction") // I use fbjni, Android Studio is not smart enough to realize that.
 class FrameProcessorRuntimeManager(context: ReactApplicationContext, frameProcessorThread: ExecutorService) {
@@ -47,13 +46,10 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext, frameProces
   @Suppress("unused")
   @DoNotStrip
   @Keep
-  fun findCameraViewById(viewId: String): CameraView {
+  fun findCameraViewById(viewId: Int): CameraView {
     Log.d(TAG, "finding view $viewId...")
-
-    val activity = mContext.get()?.currentActivity ?: throw ViewNotFoundError(viewId)
-    val view = ReactFindViewUtil.findView(activity.window.decorView, viewId) as? CameraView
-
-    Log.d(TAG, "found view $viewId!")
+    val view = mContext.get()?.currentActivity?.findViewById<CameraView>(viewId)
+    Log.d(TAG, "found view $viewId! is null: ${view == null}")
     return view ?: throw ViewNotFoundError(viewId)
   }
 

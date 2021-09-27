@@ -21,7 +21,6 @@ import com.mrousavy.camera.parsers.*
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.guava.await
-import kotlin.system.measureTimeMillis
 
 @Suppress("unused")
 class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
@@ -60,16 +59,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     return TAG
   }
 
-  private suspend fun findCameraView(id: String): CameraView {
-    val time = measureTimeMillis {
-      val rootView = reactApplicationContext.currentActivity?.window?.decorView ?: throw ViewNotFoundError(id)
-      val view = findViewWithTimeout<CameraView>(rootView, id, 1000)
-    }
-    Log.d("YEEEEET", "Took $time ms.")
-
-    val rootView = reactApplicationContext.currentActivity?.window?.decorView ?: throw ViewNotFoundError(id)
-    return findViewWithTimeout(rootView, id, 1000)
-  }
+  private fun findCameraView(id: Int): CameraView = reactApplicationContext.currentActivity?.findViewById(id) ?: throw ViewNotFoundError(id)
 
   @ReactMethod
   fun addOnViewMountListener(nativeId: String, callback: Callback) {
@@ -93,7 +83,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   }
 
   @ReactMethod
-  fun takePhoto(viewTag: String, options: ReadableMap, promise: Promise) {
+  fun takePhoto(viewTag: Int, options: ReadableMap, promise: Promise) {
     coroutineScope.launch {
       withPromise(promise) {
         val view = findCameraView(viewTag)
@@ -104,7 +94,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   @Suppress("unused")
   @ReactMethod
-  fun takeSnapshot(viewTag: String, options: ReadableMap, promise: Promise) {
+  fun takeSnapshot(viewTag: Int, options: ReadableMap, promise: Promise) {
     coroutineScope.launch {
       withPromise(promise) {
         val view = findCameraView(viewTag)
@@ -115,7 +105,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   // TODO: startRecording() cannot be awaited, because I can't have a Promise and a onRecordedCallback in the same function. Hopefully TurboModules allows that
   @ReactMethod
-  fun startRecording(viewTag: String, options: ReadableMap, onRecordCallback: Callback) {
+  fun startRecording(viewTag: Int, options: ReadableMap, onRecordCallback: Callback) {
     coroutineScope.launch {
       val view = findCameraView(viewTag)
       try {
@@ -131,18 +121,16 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   }
 
   @ReactMethod
-  fun stopRecording(viewTag: String, promise: Promise) {
-    coroutineScope.launch {
-      withPromise(promise) {
-        val view = findCameraView(viewTag)
-        view.stopRecording()
-        return@withPromise null
-      }
+  fun stopRecording(viewTag: Int, promise: Promise) {
+    withPromise(promise) {
+      val view = findCameraView(viewTag)
+      view.stopRecording()
+      return@withPromise null
     }
   }
 
   @ReactMethod
-  fun focus(viewTag: String, point: ReadableMap, promise: Promise) {
+  fun focus(viewTag: Int, point: ReadableMap, promise: Promise) {
     coroutineScope.launch {
       withPromise(promise) {
         val view = findCameraView(viewTag)
