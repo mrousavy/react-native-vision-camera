@@ -1,13 +1,5 @@
 import React from 'react';
-import {
-  requireNativeComponent,
-  NativeModules,
-  NativeSyntheticEvent,
-  findNodeHandle,
-  NativeMethods,
-  Platform,
-  LayoutChangeEvent,
-} from 'react-native';
+import { requireNativeComponent, NativeModules, NativeSyntheticEvent, findNodeHandle, NativeMethods, Platform } from 'react-native';
 import type { FrameProcessorPerformanceSuggestion } from '.';
 import type { CameraDevice } from './CameraDevice';
 import type { ErrorWithCause } from './CameraError';
@@ -93,7 +85,6 @@ export class Camera extends React.PureComponent<CameraProps> {
     this.onInitialized = this.onInitialized.bind(this);
     this.onError = this.onError.bind(this);
     this.onFrameProcessorPerformanceSuggestionAvailable = this.onFrameProcessorPerformanceSuggestionAvailable.bind(this);
-    this.onLayout = this.onLayout.bind(this);
     this.ref = React.createRef<RefType>();
     this.lastFrameProcessor = undefined;
   }
@@ -370,17 +361,15 @@ export class Camera extends React.PureComponent<CameraProps> {
     global.unsetFrameProcessor(this.handle);
   }
 
-  private onLayout(event: LayoutChangeEvent): void {
-    if (!this.isNativeViewMounted) {
+  componentDidMount(): void {
+    requestAnimationFrame(() => {
       this.isNativeViewMounted = true;
       if (this.props.frameProcessor != null) {
         // user passed a `frameProcessor` but we didn't set it yet because the native view was not mounted yet. set it now.
         this.setFrameProcessor(this.props.frameProcessor);
         this.lastFrameProcessor = this.props.frameProcessor;
       }
-    }
-
-    this.props.onLayout?.(event);
+    });
   }
 
   /** @internal */
@@ -419,7 +408,6 @@ export class Camera extends React.PureComponent<CameraProps> {
         onError={this.onError}
         onFrameProcessorPerformanceSuggestionAvailable={this.onFrameProcessorPerformanceSuggestionAvailable}
         enableFrameProcessor={frameProcessor != null}
-        onLayout={this.onLayout}
       />
     );
   }
