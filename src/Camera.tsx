@@ -91,7 +91,12 @@ export class Camera extends React.PureComponent<CameraProps> {
 
   private get handle(): number | null {
     const nodeHandle = findNodeHandle(this.ref.current);
-    if (nodeHandle == null) console.error('Camera: findNodeHandle(ref) returned null! Does the Camera view exist in the native view tree?');
+    if (nodeHandle == null || nodeHandle === -1) {
+      throw new CameraRuntimeError(
+        'system/view-not-found',
+        "Could not get the Camera's native view tag! Does the Camera View exist in the native view-tree?",
+      );
+    }
 
     return nodeHandle;
   }
