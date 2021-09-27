@@ -7,6 +7,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.util.Log
+import android.view.View
 import androidx.camera.core.CameraSelector
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
@@ -15,6 +16,7 @@ import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener
+import com.facebook.react.uimanager.util.ReactFindViewUtil
 import com.mrousavy.camera.parsers.*
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
@@ -67,6 +69,27 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
     val rootView = reactApplicationContext.currentActivity?.window?.decorView ?: throw ViewNotFoundError(id)
     return findViewWithTimeout(rootView, id, 1000)
+  }
+
+  @ReactMethod
+  fun addOnViewMountListener(nativeId: String, callback: Callback) {
+    coroutineScope.launch {
+      val rootView = reactApplicationContext.currentActivity?.window?.decorView
+      if (rootView == null) {
+        callback.invoke(false)
+        return@launch
+      }
+      ReactFindViewUtil.findView(rootView, object : ReactFindViewUtil.OnViewFoundListener {
+        override fun getNativeId(): String = nativeId
+        override fun onViewFound(view: View?) {
+          if (view == null) {
+            callback.invoke(false)
+          } else {
+            callback.invoke(true)
+          }
+        }
+      })
+    }
   }
 
   @ReactMethod
