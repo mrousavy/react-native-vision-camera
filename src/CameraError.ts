@@ -15,6 +15,7 @@ export type DeviceError =
   | 'device/low-light-boost-not-supported'
   | 'device/focus-not-supported'
   | 'device/camera-not-available-on-simulator';
+export type FrameProcessorError = 'frame-processor/unavailable';
 export type FormatError =
   | 'format/invalid-fps'
   | 'format/invalid-hdr'
@@ -98,6 +99,7 @@ type CameraErrorCode =
   | PermissionError
   | ParameterError
   | DeviceError
+  | FrameProcessorError
   | FormatError
   | SessionError
   | CaptureError
@@ -152,7 +154,7 @@ export class CameraCaptureError extends CameraError<CaptureError> {}
  * See the ["Camera Errors" documentation](https://mrousavy.github.io/react-native-vision-camera/docs/guides/errors) for more information about Camera Errors.
  */
 export class CameraRuntimeError extends CameraError<
-  PermissionError | ParameterError | DeviceError | FormatError | SessionError | SystemError | UnknownError
+  PermissionError | ParameterError | DeviceError | FormatError | FrameProcessorError | SessionError | SystemError | UnknownError
 > {}
 
 /**

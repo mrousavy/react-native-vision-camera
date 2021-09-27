@@ -33,10 +33,9 @@ export const parsePhysicalDeviceTypes = (
   const hasWide = physicalDeviceTypes.includes('wide-angle-camera');
   const hasUltra = physicalDeviceTypes.includes('ultra-wide-angle-camera');
   const hasTele = physicalDeviceTypes.includes('telephoto-camera');
+
   if (hasTele && hasWide && hasUltra) return 'triple-camera';
-
   if (hasWide && hasUltra) return 'dual-wide-camera';
-
   if (hasWide && hasTele) return 'dual-camera';
 
   throw new Error(`Invalid physical device type combination! ${physicalDeviceTypes.join(' + ')}`);

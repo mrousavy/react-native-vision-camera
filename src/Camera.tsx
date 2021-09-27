@@ -348,7 +348,8 @@ export class Camera extends React.PureComponent<CameraProps> {
   private assertFrameProcessorsEnabled(): void {
     // @ts-expect-error JSI functions aren't typed
     if (global.setFrameProcessor == null || global.unsetFrameProcessor == null) {
-      throw new Error(
+      throw new CameraRuntimeError(
+        'frame-processor/unavailable',
         'Frame Processors are not enabled. See https://mrousavy.github.io/react-native-vision-camera/docs/guides/troubleshooting',
       );
     }
