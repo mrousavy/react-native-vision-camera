@@ -89,7 +89,6 @@ jobject JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtime &runtime, cons
       auto dynamic = jsi::dynamicFromValue(runtime, value);
       auto map = react::ReadableNativeMap::createWithContents(std::move(dynamic));
       return map.release();
-
     }
   } else {
     // unknown jsi type!
@@ -97,7 +96,6 @@ jobject JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtime &runtime, cons
     auto stringRepresentation = value.toString(runtime).utf8(runtime);
     auto message = "Received unknown JSI value! (" + stringRepresentation + ") Cannot convert to a JNI value.";
     throw std::runtime_error(message);
-
   }
 }
 
@@ -173,7 +171,6 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
     // call recursive, this time HashMap<K, V>
     auto hashMap = toHashMapFunc(object.get());
     return convertJNIObjectToJSIValue(runtime, hashMap);
-
   }
 
   auto type = object->getClass()->toString();
