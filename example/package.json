@@ -19,7 +19,7 @@
     "@react-native-community/slider": "^4.1.7",
     "react": "^17.0.2",
     "react-native": "^0.65.1",
-    "react-native-codegen": "^0.0.7",
+    "react-native-codegen": "^0.0.8",
     "react-native-gesture-handler": "^1.10.3",
     "react-native-navigation": "^7.21.0",
     "react-native-pressable-opacity": "^1.0.4",
