@@ -83,6 +83,15 @@ Open your project's `AndroidManifest.xml` and add the following lines inside the
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
 ```
 
+#### ProGuard
+
+If you use [ProGuard](https://www.guardsquare.com/proguard), make sure to add this to your `proguard-rules.pro` file:
+
+```py
+# VisionCamera (CameraX)
+-keep class androidx.camera.extensions.** { *; }
+```
+
 </TabItem>
 <TabItem value="expo">
 
