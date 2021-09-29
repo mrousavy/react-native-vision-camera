@@ -15,10 +15,11 @@
 
 #include "MakeJSIRuntime.h"
 #include "CameraView.h"
-#include "java-bindings/JImageProxy.h"
 #include "FrameHostObject.h"
 #include "JSIJNIConversion.h"
 #include "VisionCameraScheduler.h"
+#include "java-bindings/JImageProxy.h"
+#include "java-bindings/JFrameProcessorPlugin.h"
 
 namespace vision {
 
@@ -213,7 +214,7 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Finished installing JSI bindings!");
 }
 
-void FrameProcessorRuntimeManager::registerPlugin(alias_ref<FrameProcessorPlugin::javaobject> plugin) {
+void FrameProcessorRuntimeManager::registerPlugin(alias_ref<JFrameProcessorPlugin::javaobject> plugin) {
   // _runtimeManager might never be null, but we can never be too sure.
   if (!_runtimeManager || !_runtimeManager->runtime) {
     throw std::runtime_error("Tried to register plugin before initializing JS runtime! Call `initializeRuntime()` first.");

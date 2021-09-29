@@ -14,7 +14,7 @@
 #include "reanimated-headers/AndroidScheduler.h"
 
 #include "CameraView.h"
-#include "FrameProcessorPlugin.h"
+#include "JFrameProcessorPlugin.h"
 #include "VisionCameraScheduler.h"
 
 namespace vision {
@@ -53,7 +53,7 @@ class FrameProcessorRuntimeManager : public jni::HybridClass<FrameProcessorRunti
   CameraView* findCameraViewById(int viewId);
   void initializeRuntime();
   void installJSIBindings();
-  void registerPlugin(alias_ref<FrameProcessorPlugin::javaobject> plugin);
+  void registerPlugin(alias_ref<JFrameProcessorPlugin::javaobject> plugin);
   void logErrorToJS(const std::string& message);
 };
 
