@@ -26,7 +26,7 @@ struct JFrameProcessorPlugin : public facebook::jni::JavaClass<JFrameProcessorPl
   /**
    * Get the user-defined name of the Frame Processor Plugin
    */
-  std::string getName();
+  std::string getName() const;
 };
 
 } // namespace vision

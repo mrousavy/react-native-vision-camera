@@ -61,7 +61,7 @@ local_ref<jobject> JFrameProcessorPlugin::callback(alias_ref<JImageProxy::javaob
   return make_local(result);
 }
 
-std::string JFrameProcessorPlugin::getName() {
+std::string JFrameProcessorPlugin::getName() const {
   static const auto getNameMethod = getClass()->getMethod<std::string()>("getName");
   return getNameMethod(self())->toStdString();
 }
