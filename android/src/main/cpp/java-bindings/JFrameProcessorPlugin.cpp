@@ -14,7 +14,8 @@ using namespace jni;
 
 using TCallback = jobject(alias_ref<JImageProxy::javaobject>, alias_ref<JArrayClass<jobject>>);
 
-local_ref<jobject> JFrameProcessorPlugin::callback(alias_ref<JImageProxy::javaobject> image, alias_ref<JArrayClass<jobject>> params) const {
+local_ref<jobject> JFrameProcessorPlugin::callback(alias_ref<JImageProxy::javaobject> image,
+                                                   alias_ref<JArrayClass<jobject>> params) const {
   auto callbackMethod = getClass()->getMethod<TCallback>("callback");
 
   auto result = callbackMethod(self(), image, params);
