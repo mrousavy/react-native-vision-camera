@@ -19,7 +19,7 @@
 #include <jsi/JSIDynamic.h>
 #include <folly/dynamic.h>
 
-#include "java-bindings/JImageProxyHostObject.h"
+#include "FrameHostObject.h"
 #include "java-bindings/JImageProxy.h"
 #include "java-bindings/JArrayList.h"
 #include "java-bindings/JHashMap.h"
@@ -68,7 +68,7 @@ jobject JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtime &runtime, cons
       // jsi::HostObject
 
       auto boxedHostObject = object.getHostObject(runtime);
-      auto hostObject = dynamic_cast<JImageProxyHostObject*>(boxedHostObject.get());
+      auto hostObject = dynamic_cast<FrameHostObject*>(boxedHostObject.get());
       if (hostObject != nullptr) {
         // return jni local_ref to the JImageProxy
         return hostObject->frame.get();

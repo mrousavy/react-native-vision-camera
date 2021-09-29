@@ -4,21 +4,13 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.ImageProxy;
-import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
 
 /**
  * Declares a Frame Processor Plugin.
  */
-@SuppressWarnings("JavaJniMissingFunction")
 public abstract class FrameProcessorPlugin {
-    static {
-        System.loadLibrary("VisionCamera");
-    }
-
-    @DoNotStrip
-    @SuppressWarnings({"FieldCanBeLocal", "unused"})
-    private final HybridData mHybridData;
+    private final @NonNull String mName;
 
     /**
      * The actual Frame Processor plugin callback. Called for every frame the ImageAnalyzer receives.
@@ -37,10 +29,15 @@ public abstract class FrameProcessorPlugin {
      *             The actual name in the JS Runtime will be prefixed with two underscores (`__`)
      */
     protected FrameProcessorPlugin(@NonNull String name) {
-        mHybridData = initHybrid(name);
+        mName = name;
     }
 
-    private native @NonNull HybridData initHybrid(@NonNull String name);
+    /**
+     * Get the user-defined name of the Frame Processor Plugin.
+     */
+    public @NonNull String getName() {
+        return mName;
+    }
 
     /**
      * Registers the given plugin in the Frame Processor Runtime.

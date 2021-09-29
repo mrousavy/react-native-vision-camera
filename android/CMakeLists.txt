@@ -15,12 +15,12 @@ add_library(
         SHARED
         src/main/cpp/VisionCamera.cpp
         src/main/cpp/JSIJNIConversion.cpp
+        src/main/cpp/FrameHostObject.cpp
         src/main/cpp/FrameProcessorRuntimeManager.cpp
-        src/main/cpp/FrameProcessorPlugin.cpp
         src/main/cpp/CameraView.cpp
         src/main/cpp/VisionCameraScheduler.cpp
+        src/main/cpp/java-bindings/JFrameProcessorPlugin.cpp
         src/main/cpp/java-bindings/JImageProxy.cpp
-        src/main/cpp/java-bindings/JImageProxyHostObject.cpp
         src/main/cpp/java-bindings/JHashMap.cpp
 )
 

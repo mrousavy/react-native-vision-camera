@@ -9,15 +9,18 @@
 
 namespace vision {
 
-struct JImageProxy : public facebook::jni::JavaClass<JImageProxy> {
+using namespace facebook;
+using namespace jni;
+
+struct JImageProxy : public JavaClass<JImageProxy> {
   static constexpr auto kJavaDescriptor = "Landroidx/camera/core/ImageProxy;";
 
  public:
-  int getWidth();
-  int getHeight();
-  bool getIsValid();
-  int getPlanesCount();
-  int getBytesPerRow();
+  int getWidth() const;
+  int getHeight() const;
+  bool getIsValid() const;
+  int getPlanesCount() const;
+  int getBytesPerRow() const;
   void close();
 };
 

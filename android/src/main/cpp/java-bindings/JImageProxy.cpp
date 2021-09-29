@@ -12,12 +12,12 @@ namespace vision {
 using namespace facebook;
 using namespace jni;
 
-int JImageProxy::getWidth() {
+int JImageProxy::getWidth() const {
   static const auto getWidthMethod = getClass()->getMethod<jint()>("getWidth");
   return getWidthMethod(self());
 }
 
-int JImageProxy::getHeight() {
+int JImageProxy::getHeight() const {
   static const auto getWidthMethod = getClass()->getMethod<jint()>("getHeight");
   return getWidthMethod(self());
 }
@@ -27,19 +27,19 @@ alias_ref<JClass> getUtilsClass() {
   return ImageProxyUtilsClass;
 }
 
-bool JImageProxy::getIsValid() {
+bool JImageProxy::getIsValid() const {
   auto utilsClass = getUtilsClass();
   static const auto isImageProxyValidMethod = utilsClass->getStaticMethod<jboolean(JImageProxy::javaobject)>("isImageProxyValid");
   return isImageProxyValidMethod(utilsClass, self());
 }
 
-int JImageProxy::getPlanesCount() {
+int JImageProxy::getPlanesCount() const {
   auto utilsClass = getUtilsClass();
   static const auto getPlanesCountMethod = utilsClass->getStaticMethod<jint(JImageProxy::javaobject)>("getPlanesCount");
   return getPlanesCountMethod(utilsClass, self());
 }
 
-int JImageProxy::getBytesPerRow() {
+int JImageProxy::getBytesPerRow() const {
   auto utilsClass = getUtilsClass();
   static const auto getBytesPerRowMethod = utilsClass->getStaticMethod<jint(JImageProxy::javaobject)>("getBytesPerRow");
   return getBytesPerRowMethod(utilsClass, self());

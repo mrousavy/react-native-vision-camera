@@ -14,8 +14,8 @@
 #include "reanimated-headers/AndroidScheduler.h"
 
 #include "CameraView.h"
-#include "FrameProcessorPlugin.h"
 #include "VisionCameraScheduler.h"
+#include "java-bindings/JFrameProcessorPlugin.h"
 
 namespace vision {
 
@@ -31,7 +31,6 @@ class FrameProcessorRuntimeManager : public jni::HybridClass<FrameProcessorRunti
                                                 jni::alias_ref<vision::VisionCameraScheduler::javaobject> androidScheduler);
   static void registerNatives();
 
-  FrameProcessorRuntimeManager() {}
   explicit FrameProcessorRuntimeManager(jni::alias_ref<FrameProcessorRuntimeManager::jhybridobject> jThis,
                                         jsi::Runtime* runtime,
                                         std::shared_ptr<facebook::react::CallInvoker> jsCallInvoker,
@@ -50,11 +49,16 @@ class FrameProcessorRuntimeManager : public jni::HybridClass<FrameProcessorRunti
   std::shared_ptr<reanimated::RuntimeManager> _runtimeManager;
   std::shared_ptr<vision::VisionCameraScheduler> scheduler_;
 
-  CameraView* findCameraViewById(int viewId);
+  jni::global_ref<CameraView::javaobject> findCameraViewById(int viewId);
   void initializeRuntime();
   void installJSIBindings();
-  void registerPlugin(alias_ref<FrameProcessorPlugin::javaobject> plugin);
+  void registerPlugin(alias_ref<JFrameProcessorPlugin::javaobject> plugin);
   void logErrorToJS(const std::string& message);
+
+  void setFrameProcessor(jsi::Runtime& runtime,                 // NOLINT(runtime/references)
+                         int viewTag,
+                         const jsi::Value& frameProcessor);
+  void unsetFrameProcessor(int viewTag);
 };
 
 } // namespace vision

@@ -14,7 +14,7 @@
 namespace vision {
 
 using namespace facebook;
-using FrameProcessor = std::function<void(jni::alias_ref<JImageProxy::javaobject>)>;
+using TFrameProcessor = std::function<void(jni::alias_ref<JImageProxy::javaobject>)>;
 
 class CameraView : public jni::HybridClass<CameraView> {
  public:
@@ -24,13 +24,13 @@ class CameraView : public jni::HybridClass<CameraView> {
   static void registerNatives();
 
   // TODO: Use template<> to avoid heap allocation for std::function<>
-  void setFrameProcessor(const FrameProcessor&& frameProcessor);
+  void setFrameProcessor(const TFrameProcessor&& frameProcessor);
   void unsetFrameProcessor();
 
  private:
   friend HybridBase;
   jni::global_ref<CameraView::javaobject> javaPart_;
-  FrameProcessor frameProcessor_;
+  TFrameProcessor frameProcessor_;
 
   void frameProcessorCallback(const jni::alias_ref<JImageProxy::javaobject>& frame);
 

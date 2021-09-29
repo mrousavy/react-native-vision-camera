@@ -15,7 +15,7 @@ namespace vision {
 using namespace facebook;
 using namespace jni;
 
-using TSelf = local_ref<HybridClass<vision::CameraView>::jhybriddata>;
+using TSelf = local_ref<CameraView::jhybriddata>;
 
 TSelf CameraView::initHybrid(alias_ref<HybridClass::jhybridobject> jThis) {
     return makeCxxInstance(jThis);
@@ -42,7 +42,7 @@ void CameraView::frameProcessorCallback(const alias_ref<JImageProxy::javaobject>
   }
 }
 
-void CameraView::setFrameProcessor(const FrameProcessor&& frameProcessor) {
+void CameraView::setFrameProcessor(const TFrameProcessor&& frameProcessor) {
   frameProcessor_ = frameProcessor;
 }
 
