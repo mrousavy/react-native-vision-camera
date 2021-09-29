@@ -217,7 +217,7 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
     }
 
     auto viewTag = arguments[0].asNumber();
-    this->unsetFrameProcessor(runtime, static_cast<int>(viewTag));
+    this->unsetFrameProcessor(static_cast<int>(viewTag));
 
     return jsi::Value::undefined();
   };
