@@ -12,57 +12,17 @@ namespace vision {
 using namespace facebook;
 using namespace jni;
 
-/*
-int JImageProxy::getWidth() {
-  static const auto getWidthMethod = getClass()->getMethod<jint()>("getWidth");
-  return getWidthMethod(self());
-}
-
-int JImageProxy::getHeight() {
-  static const auto getWidthMethod = getClass()->getMethod<jint()>("getHeight");
-  return getWidthMethod(self());
-}
-
-alias_ref<JClass> getUtilsClass() {
-  static const auto ImageProxyUtilsClass = findClassStatic("com/mrousavy/camera/frameprocessor/ImageProxyUtils");
-  return ImageProxyUtilsClass;
-}
-
-bool JImageProxy::getIsValid() {
-  auto utilsClass = getUtilsClass();
-  static const auto isImageProxyValidMethod = utilsClass->getStaticMethod<jboolean(JImageProxy::javaobject)>("isImageProxyValid");
-  return isImageProxyValidMethod(utilsClass, self());
-}
-
-int JImageProxy::getPlanesCount() {
-  auto utilsClass = getUtilsClass();
-  static const auto getPlanesCountMethod = utilsClass->getStaticMethod<jint(JImageProxy::javaobject)>("getPlanesCount");
-  return getPlanesCountMethod(utilsClass, self());
-}
-
-int JImageProxy::getBytesPerRow() {
-  auto utilsClass = getUtilsClass();
-  static const auto getBytesPerRowMethod = utilsClass->getStaticMethod<jint(JImageProxy::javaobject)>("getBytesPerRow");
-  return getBytesPerRowMethod(utilsClass, self());
-}
-
-void JImageProxy::close() {
-  static const auto getNameMethod = getClass()->getMethod<void()>("close");
-  closeMethod(self());
-}
-*/
-
 using TCallback = jobject(alias_ref<JImageProxy::javaobject>, alias_ref<JArrayClass<jobject>>);
 
 local_ref<jobject> JFrameProcessorPlugin::callback(alias_ref<JImageProxy::javaobject> image, alias_ref<JArrayClass<jobject>> params) const {
-  auto func = getClass()->getMethod<TCallback>("callback");
+  auto callbackMethod = getClass()->getMethod<TCallback>("callback");
 
-  auto result = func(self(), image, params);
+  auto result = callbackMethod(self(), image, params);
   return make_local(result);
 }
 
 std::string JFrameProcessorPlugin::getName() const {
-  static const auto getNameMethod = getClass()->getMethod<std::string()>("getName");
+  auto getNameMethod = getClass()->getMethod<jstring()>("getName");
   return getNameMethod(self())->toStdString();
 }
 
