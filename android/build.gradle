@@ -88,6 +88,7 @@ android {
   defaultConfig {
     minSdkVersion 21
     targetSdkVersion getExtOrIntegerDefault('targetSdkVersion')
+    consumerProguardFiles 'proguard-rules.pro'
 
     externalNativeBuild {
       cmake {
