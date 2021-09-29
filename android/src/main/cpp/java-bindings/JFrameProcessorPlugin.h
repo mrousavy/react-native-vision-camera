@@ -15,7 +15,7 @@ namespace vision {
 using namespace facebook;
 using namespace jni;
 
-struct JFrameProcessorPlugin : public facebook::jni::JavaClass<JFrameProcessorPlugin> {
+struct JFrameProcessorPlugin : public JavaClass<JFrameProcessorPlugin> {
   static constexpr auto kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/FrameProcessorPlugin;";
 
  public:
