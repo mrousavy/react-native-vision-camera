@@ -80,10 +80,10 @@ void vision::FrameProcessorRuntimeManager::initializeRuntime() {
                       "Initialized Vision JS-Runtime!");
 }
 
-CameraView* FrameProcessorRuntimeManager::findCameraViewById(int viewId) {
-  static const auto func = javaPart_->getClass()->getMethod<CameraView*(jint)>("findCameraViewById");
-  auto result = func(javaPart_.get(), viewId);
-  return result->cthis();
+global_ref<CameraView::javaobject> FrameProcessorRuntimeManager::findCameraViewById(int viewId) {
+  static const auto findCameraViewByIdMethod = javaPart_->getClass()->getMethod<CameraView(jint)>("findCameraViewById");
+  auto weakCameraView = findCameraViewByIdMethod(javaPart_.get(), viewId);
+  return make_global(weakCameraView);
 }
 
 void FrameProcessorRuntimeManager::logErrorToJS(const std::string& message) {
@@ -127,7 +127,6 @@ void FrameProcessorRuntimeManager::setFrameProcessor(jsi::Runtime& runtime,
                                                    _runtimeManager.get());
   __android_log_write(ANDROID_LOG_INFO, TAG, "Successfully created worklet!");
 
-
   scheduler_->scheduleOnUI([=]() {
       __android_log_write(ANDROID_LOG_INFO, TAG, "Dereferencing...");
       // cast worklet to a jsi::Function for the new runtime
@@ -136,7 +135,7 @@ void FrameProcessorRuntimeManager::setFrameProcessor(jsi::Runtime& runtime,
       __android_log_write(ANDROID_LOG_INFO, TAG, "Dereferenced!");
 
       // assign lambda to frame processor
-      cameraView->setFrameProcessor([this, &rt, function](jni::alias_ref<JImageProxy::javaobject> frame) {
+      cameraView->cthis()->setFrameProcessor([this, &rt, function](jni::alias_ref<JImageProxy::javaobject> frame) {
           try {
             // create HostObject which holds the Frame (JImageProxy)
             auto hostObject = std::make_shared<FrameHostObject>(frame);
@@ -160,7 +159,7 @@ void FrameProcessorRuntimeManager::unsetFrameProcessor(jsi::Runtime& runtime,
   auto cameraView = findCameraViewById(viewTag);
 
   // call Java method to unset frame processor
-  cameraView->unsetFrameProcessor();
+  cameraView->cthis()->unsetFrameProcessor();
 
   __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processor removed!");
 }
