@@ -31,7 +31,6 @@ class FrameProcessorRuntimeManager : public jni::HybridClass<FrameProcessorRunti
                                                 jni::alias_ref<vision::VisionCameraScheduler::javaobject> androidScheduler);
   static void registerNatives();
 
-  FrameProcessorRuntimeManager() {}
   explicit FrameProcessorRuntimeManager(jni::alias_ref<FrameProcessorRuntimeManager::jhybridobject> jThis,
                                         jsi::Runtime* runtime,
                                         std::shared_ptr<facebook::react::CallInvoker> jsCallInvoker,
