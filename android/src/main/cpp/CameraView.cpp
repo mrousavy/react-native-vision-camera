@@ -15,7 +15,9 @@ namespace vision {
 using namespace facebook;
 using namespace jni;
 
-local_ref<CameraView::jhybriddata> CameraView::initHybrid(alias_ref<HybridClass::jhybridobject> jThis) {
+using TSelf = local_ref<CameraView::jhybriddata>;
+
+TSelf CameraView::initHybrid(alias_ref<HybridClass::jhybridobject> jThis) {
     return makeCxxInstance(jThis);
 }
 
