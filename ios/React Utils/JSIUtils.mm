@@ -6,6 +6,16 @@
 //  Copyright © 2021 mrousavy. All rights reserved.
 //
 
+// Forked and Adjusted from 
+//   https://github.com/facebook/react-native/blob/900210cacc4abca0079e3903781bc223c80c8ac7/ReactCommon/react/nativemodule/core/platform/ios
+// Original Copyright Notice:
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 #import "JSIUtils.h"
 #import <Foundation/Foundation.h>
 #import <jsi/jsi.h>
