@@ -256,7 +256,7 @@ void FrameProcessorRuntimeManager::registerPlugin(alias_ref<JFrameProcessorPlugi
                                  size_t count) -> jsi::Value {
     // Unbox object and get typed HostObject
     auto boxedHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
-    auto frameHostObject = dynamic_cast<FrameHostObject*>(boxedHostObject.get());
+    auto frameHostObject = static_cast<FrameHostObject*>(boxedHostObject.get());
 
     // parse params - we are offset by `1` because the frame is the first parameter.
     auto params = JArrayClass<jobject>::newArray(count - 1);
