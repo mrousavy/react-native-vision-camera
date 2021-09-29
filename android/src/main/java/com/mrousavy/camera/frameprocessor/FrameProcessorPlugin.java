@@ -29,7 +29,7 @@ public abstract class FrameProcessorPlugin {
      *             The actual name in the JS Runtime will be prefixed with two underscores (`__`)
      */
     protected FrameProcessorPlugin(@NonNull String name) {
-        mName = initHybrid(name);
+        mName = name;
     }
 
     /**

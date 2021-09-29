@@ -225,7 +225,7 @@ void FrameProcessorRuntimeManager::registerPlugin(alias_ref<JFrameProcessorPlugi
   // we need a strong reference on the plugin, make_global does that.
   auto pluginGlobal = make_global(plugin);
   // name is always prefixed with two underscores (__)
-  auto name = "__" + pluginGlobal->cthis()->getName();
+  auto name = "__" + pluginGlobal->getName();
 
   __android_log_print(ANDROID_LOG_INFO, TAG, "Installing Frame Processor Plugin \"%s\"...", name.c_str());
 
@@ -244,7 +244,7 @@ void FrameProcessorRuntimeManager::registerPlugin(alias_ref<JFrameProcessorPlugi
     }
 
     // call implemented virtual method
-    auto result = pluginGlobal->cthis()->callback(frameHostObject->frame, params);
+    auto result = pluginGlobal->callback(frameHostObject->frame, params);
 
     // convert result from JNI to JSI value
     return JSIJNIConversion::convertJNIObjectToJSIValue(runtime, result);

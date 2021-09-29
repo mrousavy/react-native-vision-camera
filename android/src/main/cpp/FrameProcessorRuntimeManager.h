@@ -14,8 +14,8 @@
 #include "reanimated-headers/AndroidScheduler.h"
 
 #include "CameraView.h"
-#include "JFrameProcessorPlugin.h"
 #include "VisionCameraScheduler.h"
+#include "java-bindings/JFrameProcessorPlugin.h"
 
 namespace vision {
 

@@ -22,7 +22,7 @@ struct JFrameProcessorPlugin : public facebook::jni::JavaClass<JFrameProcessorPl
   /**
    * Call the plugin.
    */
-  local_ref<jobject> callback(alias_ref<JImageProxy::javaobject> image, alias_ref<JArrayClass<jobject>> params);
+  local_ref<jobject> callback(alias_ref<JImageProxy::javaobject> image, alias_ref<JArrayClass<jobject>> params) const;
   /**
    * Get the user-defined name of the Frame Processor Plugin
    */

@@ -54,15 +54,16 @@ void JImageProxy::close() {
 
 using TCallback = jobject(alias_ref<JImageProxy::javaobject>, alias_ref<JArrayClass<jobject>>);
 
-local_ref<jobject> JFrameProcessorPlugin::callback(alias_ref<JImageProxy::javaobject> image, alias_ref<JArrayClass<jobject>> params) {
-  auto func = javaPart_->getClass()->getMethod<TCallback>("callback");
+local_ref<jobject> JFrameProcessorPlugin::callback(alias_ref<JImageProxy::javaobject> image, alias_ref<JArrayClass<jobject>> params) const {
+  auto func = getClass()->getMethod<TCallback>("callback");
 
-  auto result = func(javaPart_.get(), image, params);
+  auto result = func(self(), image, params);
   return make_local(result);
 }
 
 std::string JFrameProcessorPlugin::getName() {
-  return name;
+  static const auto getNameMethod = getClass()->getMethod<std::string()>("getName");
+  return getNameMethod(self())->toStdString();
 }
 
 } // namespace vision
