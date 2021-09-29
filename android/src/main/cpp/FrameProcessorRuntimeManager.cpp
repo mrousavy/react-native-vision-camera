@@ -113,7 +113,7 @@ void FrameProcessorRuntimeManager::setFrameProcessor(jsi::Runtime& runtime,
 
   if (!_runtimeManager || !_runtimeManager->runtime) {
     throw jsi::JSError(runtime,
-                       "Camera::setFrameProcessor: The RuntimeManager is not yet initialized!");
+                       "setFrameProcessor(..): VisionCamera's RuntimeManager is not yet initialized!");
   }
 
   // find camera view
@@ -150,8 +150,7 @@ void FrameProcessorRuntimeManager::setFrameProcessor(jsi::Runtime& runtime,
   });
 }
 
-void FrameProcessorRuntimeManager::unsetFrameProcessor(jsi::Runtime& runtime,
-                                                       int viewTag) {
+void FrameProcessorRuntimeManager::unsetFrameProcessor(int viewTag) {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Removing Frame Processor...");
 
   // find camera view
