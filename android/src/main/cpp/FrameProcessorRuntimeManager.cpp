@@ -16,7 +16,7 @@
 #include "MakeJSIRuntime.h"
 #include "CameraView.h"
 #include "java-bindings/JImageProxy.h"
-#include "java-bindings/JImageProxyHostObject.h"
+#include "FrameHostObject.h"
 #include "JSIJNIConversion.h"
 #include "VisionCameraScheduler.h"
 
@@ -156,7 +156,7 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
       cameraView->setFrameProcessor([this, &rt, function](jni::alias_ref<JImageProxy::javaobject> frame) {
         try {
           // create HostObject which holds the Frame (JImageProxy)
-          auto hostObject = std::make_shared<JImageProxyHostObject>(frame);
+          auto hostObject = std::make_shared<FrameHostObject>(frame);
           function->callWithThis(rt, *function, jsi::Object::createFromHostObject(rt, hostObject));
         } catch (jsi::JSError& jsError) {
           auto message = "Frame Processor threw an error: " + jsError.getMessage();
@@ -234,7 +234,7 @@ void FrameProcessorRuntimeManager::registerPlugin(alias_ref<FrameProcessorPlugin
                                  size_t count) -> jsi::Value {
     // Unbox object and get typed HostObject
     auto boxedHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
-    auto frameHostObject = dynamic_cast<JImageProxyHostObject*>(boxedHostObject.get());
+    auto frameHostObject = dynamic_cast<FrameHostObject*>(boxedHostObject.get());
 
     // parse params - we are offset by `1` because the frame is the first parameter.
     auto params = JArrayClass<jobject>::newArray(count - 1);

@@ -2,7 +2,7 @@
 // Created by Marc on 19/06/2021.
 //
 
-#include "JImageProxyHostObject.h"
+#include "FrameHostObject.h"
 #include <android/log.h>
 #include <fbjni/fbjni.h>
 #include <jni.h>
@@ -13,9 +13,9 @@ namespace vision {
 
 using namespace facebook;
 
-JImageProxyHostObject::JImageProxyHostObject(jni::alias_ref<JImageProxy::javaobject> image): frame(make_local(image)) { }
+FrameHostObject::FrameHostObject(jni::alias_ref<JImageProxy::javaobject> image): frame(make_local(image)) { }
 
-JImageProxyHostObject::~JImageProxyHostObject() {
+FrameHostObject::~FrameHostObject() {
   // Hermes' Garbage Collector (Hades GC) calls destructors on a separate Thread
   // which might not be attached to JNI. Ensure that we use the JNI class loader when
   // deallocating the `frame` HybridClass, because otherwise JNI cannot call the Java
@@ -23,7 +23,7 @@ JImageProxyHostObject::~JImageProxyHostObject() {
   jni::ThreadScope::WithClassLoader([=] { frame.reset(); });
 }
 
-std::vector<jsi::PropNameID> JImageProxyHostObject::getPropertyNames(jsi::Runtime& rt) {
+std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt) {
   std::vector<jsi::PropNameID> result;
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isValid")));
@@ -35,7 +35,7 @@ std::vector<jsi::PropNameID> JImageProxyHostObject::getPropertyNames(jsi::Runtim
   return result;
 }
 
-jsi::Value JImageProxyHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& propNameId) {
+jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& propNameId) {
   auto name = propNameId.utf8(runtime);
 
   if (name == "toString") {
@@ -84,14 +84,14 @@ jsi::Value JImageProxyHostObject::get(jsi::Runtime& runtime, const jsi::PropName
   return jsi::Value::undefined();
 }
 
-void JImageProxyHostObject::assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName) const {
+void FrameHostObject::assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName) const {
   if (!this->frame) {
     auto message = "Cannot get `" + accessedPropName + "`, frame is already closed!";
     throw jsi::JSError(runtime, message.c_str());
   }
 }
 
-void JImageProxyHostObject::close() {
+void FrameHostObject::close() {
   if (this->frame) {
     this->frame->close();
   }
