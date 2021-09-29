@@ -121,18 +121,17 @@ void FrameProcessorRuntimeManager::setFrameProcessor(jsi::Runtime& runtime,
   __android_log_write(ANDROID_LOG_INFO, TAG, "Found CameraView!");
 
   // convert jsi::Function to a ShareableValue (can be shared across runtimes)
-  __android_log_write(ANDROID_LOG_INFO, TAG, "Adapting Shareable value from function (conversion to worklet)...");
+  __android_log_write(ANDROID_LOG_INFO, TAG,
+                      "Adapting Shareable value from function (conversion to worklet)...");
   auto worklet = reanimated::ShareableValue::adapt(runtime,
                                                    frameProcessor,
                                                    _runtimeManager.get());
   __android_log_write(ANDROID_LOG_INFO, TAG, "Successfully created worklet!");
 
   scheduler_->scheduleOnUI([=]() {
-      __android_log_write(ANDROID_LOG_INFO, TAG, "Dereferencing...");
       // cast worklet to a jsi::Function for the new runtime
-      auto &rt = *_runtimeManager->runtime;
+      auto& rt = *_runtimeManager->runtime;
       auto function = std::make_shared<jsi::Function>(worklet->getValue(rt).asObject(rt).asFunction(rt));
-      __android_log_write(ANDROID_LOG_INFO, TAG, "Dereferenced!");
 
       // assign lambda to frame processor
       cameraView->cthis()->setFrameProcessor([this, &rt, function](jni::alias_ref<JImageProxy::javaobject> frame) {
@@ -174,7 +173,7 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
     return;
   }
 
-  auto &jsiRuntime = *runtime_;
+  auto& jsiRuntime = *runtime_;
 
   auto setFrameProcessor = [this](jsi::Runtime &runtime,
                                   const jsi::Value &thisValue,
