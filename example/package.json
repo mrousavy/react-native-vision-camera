@@ -34,7 +34,7 @@
     "@babel/runtime": "^7.15.4",
     "@react-native-community/eslint-config": "^3.0.1",
     "@react-native-community/eslint-plugin": "^1.1.0",
-    "@types/react": "^17.0.24",
+    "@types/react": "^17.0.27",
     "@types/react-native": "^0.65.1",
     "@types/react-native-vector-icons": "^6.4.9",
     "@types/react-native-video": "^5.0.9",
