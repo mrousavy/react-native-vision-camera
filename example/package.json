@@ -24,7 +24,7 @@
     "react-native-navigation": "^7.21.0",
     "react-native-pressable-opacity": "^1.0.4",
     "react-native-reanimated": "^2.3.0-beta.1",
-    "react-native-screens": "^3.7.2",
+    "react-native-screens": "^3.8.0",
     "react-native-static-safe-area-insets": "^2.1.1",
     "react-native-vector-icons": "^8.1.0",
     "react-native-video": "^5.1.1"
