@@ -1,15 +1,17 @@
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ImageRequireSource, Linking } from 'react-native';
 
 import { StyleSheet, View, Text, Image } from 'react-native';
-import { Navigation, NavigationFunctionComponent } from 'react-native-navigation';
 import { Camera, CameraPermissionStatus } from 'react-native-vision-camera';
 import { CONTENT_SPACING, SAFE_AREA_PADDING } from './Constants';
+import type { Routes } from './Routes';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const BANNER_IMAGE = require('../../docs/static/img/11.png') as ImageRequireSource;
 
-export const Splash: NavigationFunctionComponent = ({ componentId }) => {
+type Props = NativeStackScreenProps<Routes, 'Splash'>;
+export function Splash({ navigation }: Props): React.ReactElement {
   const [cameraPermissionStatus, setCameraPermissionStatus] = useState<CameraPermissionStatus>('not-determined');
   const [microphonePermissionStatus, setMicrophonePermissionStatus] = useState<CameraPermissionStatus>('not-determined');
 
@@ -47,22 +49,8 @@ export const Splash: NavigationFunctionComponent = ({ componentId }) => {
   }, []);
 
   useEffect(() => {
-    if (cameraPermissionStatus === 'authorized' && microphonePermissionStatus === 'authorized') {
-      Navigation.setRoot({
-        root: {
-          stack: {
-            children: [
-              {
-                component: {
-                  name: 'CameraPage',
-                },
-              },
-            ],
-          },
-        },
-      });
-    }
-  }, [cameraPermissionStatus, microphonePermissionStatus, componentId]);
+    if (cameraPermissionStatus === 'authorized' && microphonePermissionStatus === 'authorized') navigation.replace('CameraPage');
+  }, [cameraPermissionStatus, microphonePermissionStatus, navigation]);
 
   return (
     <View style={styles.container}>
@@ -88,7 +76,7 @@ export const Splash: NavigationFunctionComponent = ({ componentId }) => {
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   welcome: {
