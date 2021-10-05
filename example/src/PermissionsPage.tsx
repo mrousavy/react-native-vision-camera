@@ -10,8 +10,8 @@ import type { Routes } from './Routes';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const BANNER_IMAGE = require('../../docs/static/img/11.png') as ImageRequireSource;
 
-type Props = NativeStackScreenProps<Routes, 'Splash'>;
-export function Splash({ navigation }: Props): React.ReactElement {
+type Props = NativeStackScreenProps<Routes, 'PermissionsPage'>;
+export function PermissionsPage({ navigation }: Props): React.ReactElement {
   const [cameraPermissionStatus, setCameraPermissionStatus] = useState<CameraPermissionStatus>('not-determined');
   const [microphonePermissionStatus, setMicrophonePermissionStatus] = useState<CameraPermissionStatus>('not-determined');
 

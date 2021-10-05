@@ -1,5 +1,5 @@
 export type Routes = {
-  Splash: undefined;
+  PermissionsPage: undefined;
   CameraPage: undefined;
   MediaPage: {
     path: string;

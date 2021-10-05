@@ -1,7 +1,7 @@
 import { NavigationContainer } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Splash } from './Splash';
+import { PermissionsPage } from './PermissionsPage';
 import { MediaPage } from './MediaPage';
 import { CameraPage } from './CameraPage';
 import type { Routes } from './Routes';
@@ -25,7 +25,7 @@ export function App(): React.ReactElement | null {
     return null;
   }
 
-  const showSplash = cameraPermission !== 'authorized' || microphonePermission === 'not-determined';
+  const showPermissionsPage = cameraPermission !== 'authorized' || microphonePermission === 'not-determined';
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -34,8 +34,8 @@ export function App(): React.ReactElement | null {
           statusBarStyle: 'dark',
           animationTypeForReplace: 'push',
         }}
-        initialRouteName={showSplash ? 'Splash' : 'CameraPage'}>
-        <Stack.Screen name="Splash" component={Splash} />
+        initialRouteName={showPermissionsPage ? 'PermissionsPage' : 'CameraPage'}>
+        <Stack.Screen name="PermissionsPage" component={PermissionsPage} />
         <Stack.Screen name="CameraPage" component={CameraPage} />
         <Stack.Screen
           name="MediaPage"
