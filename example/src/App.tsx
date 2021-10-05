@@ -25,7 +25,7 @@ export function App(): React.ReactElement | null {
     return null;
   }
 
-  const showSplash = cameraPermission === 'authorized' && microphonePermission !== 'not-determined';
+  const showSplash = cameraPermission !== 'authorized' || microphonePermission === 'not-determined';
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -34,23 +34,16 @@ export function App(): React.ReactElement | null {
           statusBarStyle: 'dark',
         }}
         initialRouteName={showSplash ? 'Splash' : 'CameraPage'}>
-        {showSplash ? (
-          <>
-            <Stack.Screen name="Splash" component={Splash} />
-          </>
-        ) : (
-          <>
-            <Stack.Screen name="CameraPage" component={CameraPage} />
-            <Stack.Screen
-              name="MediaPage"
-              component={MediaPage}
-              options={{
-                animation: 'none',
-                presentation: 'transparentModal',
-              }}
-            />
-          </>
-        )}
+        <Stack.Screen name="Splash" component={Splash} />
+        <Stack.Screen name="CameraPage" component={CameraPage} />
+        <Stack.Screen
+          name="MediaPage"
+          component={MediaPage}
+          options={{
+            animation: 'none',
+            presentation: 'transparentModal',
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
