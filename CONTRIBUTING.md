@@ -78,10 +78,12 @@ $ yarn check-all
 
 ### PR messages
 
-When creating a pull-request, make sure to use the [conventional changelog](https://github.com/conventional-changelog/conventional-changelog) format:
+When creating a pull-request, make sure to use the [conventional changelog](https://github.com/conventional-changelog/conventional-changelog) format for it's title:
 
 * ✨ For new features or enhancements, use `feat`. Example: `feat: Support ultra-wide-angle cameras`
 * 🐛 For bugfixes or build improvements, use `fix`. Example: `fix: Fix iOS 13 crash when switching cameras`
 * 💨 For performance improvements, use `perf`. Example: `perf: Improve takePhoto() performance by re-using file-session`
 * 🛠️ When upgrading dependencies, use `chore(deps)`. Example: `chore(deps): Upgrade react-native to 0.70`
 * 📚 When changing anything in the documentation, use `docs`. Example: `docs: Fix typo in installation instructions`
+
+Pull-requests will be squash-committed, so no need to prefix your individual commits with the conventional changelog format as long as the commit messages are descriptive.
