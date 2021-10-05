@@ -1,15 +1,17 @@
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ImageRequireSource, Linking } from 'react-native';
 
 import { StyleSheet, View, Text, Image } from 'react-native';
-import { Navigation, NavigationFunctionComponent } from 'react-native-navigation';
 import { Camera, CameraPermissionStatus } from 'react-native-vision-camera';
 import { CONTENT_SPACING, SAFE_AREA_PADDING } from './Constants';
+import type { Routes } from './Routes';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const BANNER_IMAGE = require('../../docs/static/img/11.png') as ImageRequireSource;
 
-export const Splash: NavigationFunctionComponent = ({ componentId }) => {
+type Props = NativeStackScreenProps<Routes, 'PermissionsPage'>;
+export function PermissionsPage({ navigation }: Props): React.ReactElement {
   const [cameraPermissionStatus, setCameraPermissionStatus] = useState<CameraPermissionStatus>('not-determined');
   const [microphonePermissionStatus, setMicrophonePermissionStatus] = useState<CameraPermissionStatus>('not-determined');
 
@@ -18,7 +20,7 @@ export const Splash: NavigationFunctionComponent = ({ componentId }) => {
     const permission = await Camera.requestMicrophonePermission();
     console.log(`Microphone permission status: ${permission}`);
 
-    if (permission === 'denied') Linking.openSettings();
+    if (permission === 'denied') await Linking.openSettings();
     setMicrophonePermissionStatus(permission);
   }, []);
 
@@ -27,42 +29,13 @@ export const Splash: NavigationFunctionComponent = ({ componentId }) => {
     const permission = await Camera.requestCameraPermission();
     console.log(`Camera permission status: ${permission}`);
 
-    if (permission === 'denied') Linking.openSettings();
+    if (permission === 'denied') await Linking.openSettings();
     setCameraPermissionStatus(permission);
   }, []);
 
   useEffect(() => {
-    const checkPermissions = async (): Promise<void> => {
-      console.log('Checking Permission status...');
-      const [cameraPermission, microphonePermission] = await Promise.all([
-        Camera.getCameraPermissionStatus(),
-        Camera.getMicrophonePermissionStatus(),
-      ]);
-      console.log(`Check: CameraPermission: ${cameraPermission} | MicrophonePermission: ${microphonePermission}`);
-      setCameraPermissionStatus(cameraPermission);
-      setMicrophonePermissionStatus(microphonePermission);
-    };
-
-    checkPermissions();
-  }, []);
-
-  useEffect(() => {
-    if (cameraPermissionStatus === 'authorized' && microphonePermissionStatus === 'authorized') {
-      Navigation.setRoot({
-        root: {
-          stack: {
-            children: [
-              {
-                component: {
-                  name: 'CameraPage',
-                },
-              },
-            ],
-          },
-        },
-      });
-    }
-  }, [cameraPermissionStatus, microphonePermissionStatus, componentId]);
+    if (cameraPermissionStatus === 'authorized' && microphonePermissionStatus === 'authorized') navigation.replace('CameraPage');
+  }, [cameraPermissionStatus, microphonePermissionStatus, navigation]);
 
   return (
     <View style={styles.container}>
@@ -88,7 +61,7 @@ export const Splash: NavigationFunctionComponent = ({ componentId }) => {
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   welcome: {

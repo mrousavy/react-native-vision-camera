@@ -1,10 +1,8 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { StyleSheet, View, Image, ActivityIndicator, PermissionsAndroid, Platform } from 'react-native';
-import { Navigation, NavigationFunctionComponent, OptionsModalPresentationStyle } from 'react-native-navigation';
 import Video, { LoadError, OnLoadData } from 'react-native-video';
 import { SAFE_AREA_PADDING } from './Constants';
 import { useIsForeground } from './hooks/useIsForeground';
-import { useIsScreenFocussed } from './hooks/useIsScreenFocused';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { Alert } from 'react-native';
@@ -12,11 +10,9 @@ import CameraRoll from '@react-native-community/cameraroll';
 import { StatusBarBlurBackground } from './views/StatusBarBlurBackground';
 import type { NativeSyntheticEvent } from 'react-native';
 import type { ImageLoadEventData } from 'react-native';
-
-interface MediaProps {
-  path: string;
-  type: 'video' | 'photo';
-}
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { Routes } from './Routes';
+import { useIsFocused } from '@react-navigation/core';
 
 const requestSavePermission = async (): Promise<boolean> => {
   if (Platform.OS !== 'android') return true;
@@ -34,16 +30,18 @@ const requestSavePermission = async (): Promise<boolean> => {
 const isVideoOnLoadEvent = (event: OnLoadData | NativeSyntheticEvent<ImageLoadEventData>): event is OnLoadData =>
   'duration' in event && 'naturalSize' in event;
 
-export const MediaPage: NavigationFunctionComponent<MediaProps> = ({ componentId, type, path }) => {
+type Props = NativeStackScreenProps<Routes, 'MediaPage'>;
+export function MediaPage({ navigation, route }: Props): React.ReactElement {
+  const { path, type } = route.params;
   const [hasMediaLoaded, setHasMediaLoaded] = useState(false);
   const isForeground = useIsForeground();
-  const isScreenFocused = useIsScreenFocussed(componentId);
+  const isScreenFocused = useIsFocused();
   const isVideoPaused = !isForeground || !isScreenFocused;
   const [savingState, setSavingState] = useState<'none' | 'saving' | 'saved'>('none');
 
   const onClosePressed = useCallback(() => {
-    Navigation.dismissModal(componentId);
-  }, [componentId]);
+    navigation.goBack();
+  }, [navigation]);
 
   const onMediaLoad = useCallback((event: OnLoadData | NativeSyntheticEvent<ImageLoadEventData>) => {
     if (isVideoOnLoadEvent(event)) {
@@ -125,24 +123,7 @@ export const MediaPage: NavigationFunctionComponent<MediaProps> = ({ componentId
       <StatusBarBlurBackground />
     </View>
   );
-};
-
-MediaPage.options = {
-  modalPresentationStyle: OptionsModalPresentationStyle.overCurrentContext,
-  animations: {
-    showModal: {
-      waitForRender: true,
-      enabled: false,
-    },
-    dismissModal: {
-      enabled: false,
-    },
-  },
-  layout: {
-    backgroundColor: 'transparent',
-    componentBackgroundColor: 'transparent',
-  },
-};
+}
 
 const styles = StyleSheet.create({
   container: {

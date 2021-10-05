@@ -2,7 +2,6 @@ import * as React from 'react';
 import { useRef, useState, useMemo, useCallback } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler';
-import { Navigation, NavigationFunctionComponent } from 'react-native-navigation';
 import {
   CameraDeviceFormat,
   CameraRuntimeError,
@@ -14,7 +13,6 @@ import {
   VideoFile,
 } from 'react-native-vision-camera';
 import { Camera, frameRateIncluded } from 'react-native-vision-camera';
-import { useIsScreenFocussed } from './hooks/useIsScreenFocused';
 import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING } from './Constants';
 import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated';
 import { useEffect } from 'react';
@@ -25,6 +23,9 @@ import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { examplePlugin } from './frame-processors/ExamplePlugin';
+import type { Routes } from './Routes';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useIsFocused } from '@react-navigation/core';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -34,14 +35,16 @@ Reanimated.addWhitelistedNativeProps({
 const SCALE_FULL_ZOOM = 3;
 const BUTTON_SIZE = 40;
 
-export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
+type Props = NativeStackScreenProps<Routes, 'CameraPage'>;
+export function CameraPage({ navigation }: Props): React.ReactElement {
   const camera = useRef<Camera>(null);
   const [isCameraInitialized, setIsCameraInitialized] = useState(false);
+  const [hasMicrophonePermission, setHasMicrophonePermission] = useState(false);
   const zoom = useSharedValue(0);
   const isPressingButton = useSharedValue(false);
 
   // check if camera page is active
-  const isFocussed = useIsScreenFocussed(componentId);
+  const isFocussed = useIsFocused();
   const isForeground = useIsForeground();
   const isActive = isFocussed && isForeground;
 
@@ -133,18 +136,16 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
     console.log('Camera initialized!');
     setIsCameraInitialized(true);
   }, []);
-  const onMediaCaptured = useCallback(async (media: PhotoFile | VideoFile, type: 'photo' | 'video') => {
-    console.log(`Media captured! ${JSON.stringify(media)}`);
-    await Navigation.showModal({
-      component: {
-        name: 'MediaPage',
-        passProps: {
-          type: type,
-          path: media.path,
-        },
-      },
-    });
-  }, []);
+  const onMediaCaptured = useCallback(
+    (media: PhotoFile | VideoFile, type: 'photo' | 'video') => {
+      console.log(`Media captured! ${JSON.stringify(media)}`);
+      navigation.navigate('MediaPage', {
+        path: media.path,
+        type: type,
+      });
+    },
+    [navigation],
+  );
   const onFlipCameraPressed = useCallback(() => {
     setCameraPosition((p) => (p === 'back' ? 'front' : 'back'));
   }, []);
@@ -165,6 +166,10 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
     // Run everytime the neutralZoomScaled value changes. (reset zoom when device changes)
     zoom.value = neutralZoom;
   }, [neutralZoom, zoom]);
+
+  useEffect(() => {
+    Camera.getMicrophonePermissionStatus().then((status) => setHasMicrophonePermission(status === 'authorized'));
+  }, []);
   //#endregion
 
   //#region Pinch to Zoom Gesture
@@ -223,7 +228,7 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
                 animatedProps={cameraAnimatedProps}
                 photo={true}
                 video={true}
-                audio={true}
+                audio={hasMicrophonePermission}
                 frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
                 frameProcessorFps={1}
                 onFrameProcessorPerformanceSuggestionAvailable={onFrameProcessorSuggestionAvailable}
@@ -279,7 +284,7 @@ export const CameraPage: NavigationFunctionComponent = ({ componentId }) => {
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
