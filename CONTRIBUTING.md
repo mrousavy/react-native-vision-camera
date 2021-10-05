@@ -52,7 +52,9 @@ Read the READMEs in [`android/`](android/README.md) and [`ios/`](ios/README.md) 
 
 ## Committing
 
-We love to keep our codebases clean. To achieve that, we use linters and formatters which output errors when something isn't formatted the way we like it to be.
+### Codestyle
+
+Great code produces great products. That's why we love to keep our codebases clean, and to achieve that, we use linters and formatters which output errors when something isn't formatted the way we like it to be.
 
 Before pushing your changes, you can verify that everything is still correctly formatted by running all linters:
 
@@ -73,3 +75,13 @@ $ yarn check-all
    All done!
    ✨  Done in 8.05s.
 ```
+
+### PR messages
+
+When creating a pull-request, make sure to use the [conventional changelog](https://github.com/conventional-changelog/conventional-changelog) format:
+
+* ✨ For new features or enhancements, use `feat`. Example: `feat: Support ultra-wide-angle cameras`
+* 🐛 For bugfixes or build improvements, use `fix`. Example: `fix: Fix iOS 13 crash when switching cameras`
+* 💨 For performance improvements, use `perf`. Example: `perf: Improve takePhoto() performance by re-using file-session`
+* 🛠️ When upgrading dependencies, use `chore(deps)`. Example: `chore(deps): Upgrade react-native to 0.70`
+* 📚 When changing anything in the documentation, use `docs`. Example: `docs: Fix typo in installation instructions`
