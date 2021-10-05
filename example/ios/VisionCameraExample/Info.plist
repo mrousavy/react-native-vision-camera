@@ -48,7 +48,7 @@
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<false/>
+	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>VisionCamera needs access to your Camera for very obvious reasons.</string>
 	<key>NSMicrophoneUsageDescription</key>
