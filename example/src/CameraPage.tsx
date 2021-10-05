@@ -139,7 +139,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const onMediaCaptured = useCallback(
     (media: PhotoFile | VideoFile, type: 'photo' | 'video') => {
       console.log(`Media captured! ${JSON.stringify(media)}`);
-      navigation.push('MediaPage', {
+      navigation.navigate('MediaPage', {
         path: media.path,
         type: type,
       });
