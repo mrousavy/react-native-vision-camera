@@ -18,6 +18,8 @@ export function App(): React.ReactElement | null {
     Camera.getMicrophonePermissionStatus().then(setMicrophonePermission);
   }, []);
 
+  console.log(`Re-rendering Navigator. Camera: ${cameraPermission} | Microphone: ${microphonePermission}`);
+
   if (cameraPermission == null || microphonePermission == null) {
     // still loading
     return null;
@@ -30,13 +32,15 @@ export function App(): React.ReactElement | null {
         screenOptions={{
           headerShown: false,
           statusBarStyle: 'dark',
-        }}>
+        }}
+        initialRouteName={showSplash ? 'Splash' : 'CameraPage'}>
         {showSplash ? (
           <>
             <Stack.Screen name="Splash" component={Splash} />
           </>
         ) : (
           <>
+            <Stack.Screen name="CameraPage" component={CameraPage} />
             <Stack.Screen
               name="MediaPage"
               component={MediaPage}
@@ -45,7 +49,6 @@ export function App(): React.ReactElement | null {
                 presentation: 'transparentModal',
               }}
             />
-            <Stack.Screen name="CameraPage" component={CameraPage} />
           </>
         )}
       </Stack.Navigator>
