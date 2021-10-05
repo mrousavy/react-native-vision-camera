@@ -17,7 +17,7 @@
 {
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
-                                                   moduleName:@"HelloWorld"
+                                                   moduleName:@"VisionCameraExample"
                                             initialProperties:nil];
 
   if (@available(iOS 13.0, *)) {
