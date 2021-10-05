@@ -10,7 +10,7 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: 'module',
   },
-  ignorePatterns: ['babel.config.js', 'metro.config.js', '.eslintrc.js', 'index.js'],
+  ignorePatterns: ['babel.config.js', 'metro.config.js', '.eslintrc.js'],
   plugins: ['@typescript-eslint'],
   extends: ['plugin:@typescript-eslint/recommended', '@react-native-community', '../.eslintrc.js'],
 };
