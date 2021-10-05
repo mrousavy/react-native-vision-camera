@@ -20,7 +20,7 @@ export function Splash({ navigation }: Props): React.ReactElement {
     const permission = await Camera.requestMicrophonePermission();
     console.log(`Microphone permission status: ${permission}`);
 
-    if (permission === 'denied') Linking.openSettings();
+    if (permission === 'denied') await Linking.openSettings();
     setMicrophonePermissionStatus(permission);
   }, []);
 
@@ -29,23 +29,8 @@ export function Splash({ navigation }: Props): React.ReactElement {
     const permission = await Camera.requestCameraPermission();
     console.log(`Camera permission status: ${permission}`);
 
-    if (permission === 'denied') Linking.openSettings();
+    if (permission === 'denied') await Linking.openSettings();
     setCameraPermissionStatus(permission);
-  }, []);
-
-  useEffect(() => {
-    const checkPermissions = async (): Promise<void> => {
-      console.log('Checking Permission status...');
-      const [cameraPermission, microphonePermission] = await Promise.all([
-        Camera.getCameraPermissionStatus(),
-        Camera.getMicrophonePermissionStatus(),
-      ]);
-      console.log(`Check: CameraPermission: ${cameraPermission} | MicrophonePermission: ${microphonePermission}`);
-      setCameraPermissionStatus(cameraPermission);
-      setMicrophonePermissionStatus(microphonePermission);
-    };
-
-    checkPermissions();
   }, []);
 
   useEffect(() => {
