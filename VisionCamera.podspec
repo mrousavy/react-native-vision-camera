@@ -2,6 +2,15 @@ require "json"
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
+reactVersion = JSON.parse(File.read(File.join(__dir__, "..", "react-native", "package.json")))["version"]
+rnVersion = reactVersion.split('.')[1]
+folly_prefix = "RCT-"
+
+folly_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DRNVERSION=' + rnVersion
+folly_compiler_flags = folly_flags + ' ' + '-Wno-comma -Wno-shorten-64-to-32'
+folly_version = '2020.01.13.00'
+boost_compiler_flags = '-Wno-documentation'
+
 Pod::Spec.new do |s|
   s.name         = "VisionCamera"
   s.version      = package["version"]
@@ -16,8 +25,14 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig = {
     "DEFINES_MODULE" => "YES",
     "USE_HEADERMAP" => "YES",
-    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_TARGET_SRCROOT)\" \"$(PODS_ROOT)/Headers/Private/React-Core\" \"$(PODS_ROOT)/Headers/Public/React-hermes\" \"$(PODS_ROOT)/Headers/Public/hermes-engine\""
+    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_TARGET_SRCROOT)\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/Headers/Private/React-Core\" \"$(PODS_ROOT)/Headers/Public/React-hermes\" \"$(PODS_ROOT)/Headers/Public/hermes-engine\""
   }
+
+  s.compiler_flags = folly_compiler_flags + ' ' + boost_compiler_flags
+  s.xcconfig               = {
+    "CLANG_CXX_LANGUAGE_STANDARD" => "c++14",
+    "HEADER_SEARCH_PATHS" => "\"$(PODS_ROOT)/boost-for-react-native\" \"$(PODS_ROOT)/glog\" \"$(PODS_ROOT)/#{folly_prefix}Folly\" \"${PODS_ROOT}/Headers/Public/React-hermes\" \"${PODS_ROOT}/Headers/Public/hermes-engine\"",
+                               "OTHER_CFLAGS" => "$(inherited)" + " " + folly_flags  }
   s.requires_arc = true
 
   # All source files that should be publicly visible
