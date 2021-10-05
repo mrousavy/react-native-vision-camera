@@ -32,6 +32,7 @@ export function App(): React.ReactElement | null {
         screenOptions={{
           headerShown: false,
           statusBarStyle: 'dark',
+          animationTypeForReplace: 'push',
         }}
         initialRouteName={showSplash ? 'Splash' : 'CameraPage'}>
         <Stack.Screen name="Splash" component={Splash} />
