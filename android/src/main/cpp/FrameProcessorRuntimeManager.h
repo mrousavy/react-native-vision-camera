@@ -28,26 +28,30 @@ class FrameProcessorRuntimeManager : public jni::HybridClass<FrameProcessorRunti
   static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis,
                                                 jlong jsContext,
                                                 jni::alias_ref<facebook::react::CallInvokerHolder::javaobject> jsCallInvokerHolder,
-                                                jni::alias_ref<vision::VisionCameraScheduler::javaobject> androidScheduler);
+                                                jni::alias_ref<vision::VisionCameraScheduler::javaobject> frameProcessorScheduler,
+                                                jni::alias_ref<reanimated::AndroidScheduler::javaobject> uiScheduler);
   static void registerNatives();
 
   explicit FrameProcessorRuntimeManager(jni::alias_ref<FrameProcessorRuntimeManager::jhybridobject> jThis,
                                         jsi::Runtime* runtime,
                                         std::shared_ptr<facebook::react::CallInvoker> jsCallInvoker,
-                                        std::shared_ptr<vision::VisionCameraScheduler> scheduler) :
-      javaPart_(jni::make_global(jThis)),
-      runtime_(runtime),
-      jsCallInvoker_(jsCallInvoker),
-      scheduler_(scheduler)
+                                        jni::alias_ref<vision::VisionCameraScheduler::javaobject> frameProcessorScheduler,
+                                        jni::alias_ref<reanimated::AndroidScheduler::javaobject> uiScheduler) :
+      _javaPart(jni::make_global(jThis)),
+      _runtime(runtime),
+      _jsCallInvoker(jsCallInvoker),
+      _frameProcessorScheduler(jni::make_global(frameProcessorScheduler)),
+      _uiScheduler(jni::make_global(uiScheduler))
   {}
 
  private:
   friend HybridBase;
-  jni::global_ref<FrameProcessorRuntimeManager::javaobject> javaPart_;
-  jsi::Runtime* runtime_;
-  std::shared_ptr<facebook::react::CallInvoker> jsCallInvoker_;
+  jni::global_ref<FrameProcessorRuntimeManager::javaobject> _javaPart;
+  jsi::Runtime* _runtime;
+  std::shared_ptr<facebook::react::CallInvoker> _jsCallInvoker;
   std::shared_ptr<reanimated::RuntimeManager> _runtimeManager;
-  std::shared_ptr<vision::VisionCameraScheduler> scheduler_;
+  jni::global_ref<vision::VisionCameraScheduler::javaobject> _frameProcessorScheduler;
+  jni::global_ref<reanimated::AndroidScheduler::javaobject> _uiScheduler;
 
   jni::global_ref<CameraView::javaobject> findCameraViewById(int viewId);
   void initializeRuntime();

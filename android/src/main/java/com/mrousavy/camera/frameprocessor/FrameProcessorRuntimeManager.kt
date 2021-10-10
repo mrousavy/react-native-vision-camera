@@ -27,13 +27,17 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext, frameProces
   @DoNotStrip
   private var mHybridData: HybridData
   private var mContext: WeakReference<ReactApplicationContext>
-  private var mScheduler: VisionCameraScheduler
 
   init {
-    val holder = context.catalystInstance.jsCallInvokerHolder as CallInvokerHolderImpl
-    mScheduler = VisionCameraScheduler(frameProcessorThread)
+    val callInvokerHolder = context.catalystInstance.jsCallInvokerHolder as CallInvokerHolderImpl
+    val frameProcessorScheduler = VisionCameraScheduler(frameProcessorThread)
+    val uiScheduler = Scheduler(context)
+    mHybridData = initHybrid(context.javaScriptContextHolder.get(),
+                             callInvokerHolder,
+                             frameProcessorScheduler,
+                             uiScheduler)
     mContext = WeakReference(context)
-    mHybridData = initHybrid(context.javaScriptContextHolder.get(), holder, mScheduler)
+
     initializeRuntime()
 
     Log.i(TAG, "Installing Frame Processor Plugins...")
@@ -57,7 +61,8 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext, frameProces
   private external fun initHybrid(
     jsContext: Long,
     jsCallInvokerHolder: CallInvokerHolderImpl,
-    scheduler: VisionCameraScheduler
+    frameProcessorScheduler: VisionCameraScheduler,
+    uiScheduler: Scheduler
   ): HybridData
   private external fun initializeRuntime()
   private external fun registerPlugin(plugin: FrameProcessorPlugin)

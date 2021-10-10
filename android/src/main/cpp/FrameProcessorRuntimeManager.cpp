@@ -26,7 +26,8 @@ namespace vision {
 // type aliases
 using TSelf = local_ref<HybridClass<vision::FrameProcessorRuntimeManager>::jhybriddata>;
 using TJSCallInvokerHolder = jni::alias_ref<facebook::react::CallInvokerHolder::javaobject>;
-using TAndroidScheduler = jni::alias_ref<VisionCameraScheduler::javaobject>;
+using TFrameProcessorScheduler = jni::alias_ref<VisionCameraScheduler::javaobject>;
+using TUIScheduler = jni::alias_ref<reanimated::AndroidScheduler::javaobject>;
 
 // JNI binding
 void vision::FrameProcessorRuntimeManager::registerNatives() {
@@ -47,17 +48,24 @@ TSelf vision::FrameProcessorRuntimeManager::initHybrid(
     alias_ref<jhybridobject> jThis,
     jlong jsRuntimePointer,
     TJSCallInvokerHolder jsCallInvokerHolder,
-    TAndroidScheduler androidScheduler) {
+    TAndroidScheduler frameProcessorScheduler,
+    TUIScheduler uiScheduler) {
   __android_log_write(ANDROID_LOG_INFO, TAG,
                       "Initializing FrameProcessorRuntimeManager...");
 
   // cast from JNI hybrid objects to C++ instances
   auto runtime = reinterpret_cast<jsi::Runtime*>(jsRuntimePointer);
   auto jsCallInvoker = jsCallInvokerHolder->cthis()->getCallInvoker();
-  auto scheduler = std::shared_ptr<VisionCameraScheduler>(androidScheduler->cthis());
-  scheduler->setJSCallInvoker(jsCallInvoker);
 
-  return makeCxxInstance(jThis, runtime, jsCallInvoker, scheduler);
+  // prepare Schedulers
+  frameProcessorScheduler->cthis()->setJSCallInvoker(jsCallInvoker);
+  uiScheduler->cthis()->setJSCallInvoker(jsCallInvoker);
+
+  return makeCxxInstance(jThis,
+                         runtime,
+                         jsCallInvoker,
+                         frameProcessorScheduler,
+                         uiScheduler);
 }
 
 void vision::FrameProcessorRuntimeManager::initializeRuntime() {
@@ -92,11 +100,11 @@ void FrameProcessorRuntimeManager::logErrorToJS(const std::string& message) {
   }
 
   this->jsCallInvoker_->invokeAsync([this, message]() {
-    if (this->runtime_ == nullptr) {
+    if (this->_runtime == nullptr) {
       return;
     }
 
-    auto& runtime = *this->runtime_;
+    auto& runtime = *this->_runtime;
     auto consoleError = runtime
         .global()
         .getPropertyAsObject(runtime, "console")
