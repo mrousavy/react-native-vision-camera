@@ -79,10 +79,10 @@ void vision::FrameProcessorRuntimeManager::initializeRuntime() {
                                 jsi::Value(true));
 
   // create REA runtime manager
-  auto errorHandler = std::make_shared<reanimated::AndroidErrorHandler>(scheduler_);
+  auto errorHandler = std::make_shared<reanimated::AndroidErrorHandler>(_frameProcessorScheduler);
   _runtimeManager = std::make_unique<reanimated::RuntimeManager>(std::move(runtime),
                                                                  errorHandler,
-                                                                 scheduler_);
+                                                                 _frameProcessorScheduler);
 
   __android_log_write(ANDROID_LOG_INFO, TAG,
                       "Initialized Vision JS-Runtime!");
@@ -95,11 +95,11 @@ global_ref<CameraView::javaobject> FrameProcessorRuntimeManager::findCameraViewB
 }
 
 void FrameProcessorRuntimeManager::logErrorToJS(const std::string& message) {
-  if (!this->jsCallInvoker_) {
+  if (!this->_jsCallInvoker) {
     return;
   }
 
-  this->jsCallInvoker_->invokeAsync([this, message]() {
+  this->_jsCallInvoker->invokeAsync([this, message]() {
     if (this->_runtime == nullptr) {
       return;
     }
@@ -136,7 +136,7 @@ void FrameProcessorRuntimeManager::setFrameProcessor(jsi::Runtime& runtime,
                                                    _runtimeManager.get());
   __android_log_write(ANDROID_LOG_INFO, TAG, "Successfully created worklet!");
 
-  scheduler_->scheduleOnUI([=]() {
+  _frameProcessorScheduler->scheduleOnUI([=]() {
       // cast worklet to a jsi::Function for the new runtime
       auto& rt = *_runtimeManager->runtime;
       auto function = std::make_shared<jsi::Function>(worklet->getValue(rt).asObject(rt).asFunction(rt));
