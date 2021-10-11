@@ -50,7 +50,7 @@ final class CameraViewManager: RCTViewManager {
       let camera = try getCameraView(withNativeId: nativeID)
       // TODO: Make startRecording() async to allow awaiting it with TurboModules
       camera.startRecording(options: options, callback: callback)
-    } catch let error {
+    } catch {
       let cameraError = error as? CameraError ?? .unknown(message: "Failed to find Camera View with nativeID \"\(nativeID)\"")
       callback.reject(error: cameraError)
     }
@@ -63,7 +63,7 @@ final class CameraViewManager: RCTViewManager {
       let camera = try getCameraView(withNativeId: nativeID)
       // TODO: Make stopRecording() async to get rid of passing promise in here
       camera.stopRecording(promise: Promise(resolver: resolve, rejecter: reject))
-    } catch let error {
+    } catch {
       let cameraError = error as? CameraError ?? .unknown(message: "Failed to find Camera View with nativeID \"\(nativeID)\"")
       promise.reject(error: cameraError)
     }
@@ -76,7 +76,7 @@ final class CameraViewManager: RCTViewManager {
       let camera = try getCameraView(withNativeId: nativeID)
       // TODO: Make takePhoto() async to get rid of passing promise in here
       camera.takePhoto(options: options, promise: promise)
-    } catch let error {
+    } catch {
       let cameraError = error as? CameraError ?? .unknown(message: "Failed to find Camera View with nativeID \"\(nativeID)\"")
       promise.reject(error: cameraError)
     }
@@ -173,7 +173,8 @@ final class CameraViewManager: RCTViewManager {
       throw CameraError.system(.viewNotFound(nativeID: nativeID))
     }
     guard let cameraView = view as? CameraView else {
-      throw CameraError.unknown(message: "Failed to find Camera View - View with nativeID \"\(nativeID)\" is a different kind of View! Did you pass the same \"nativeID\" to multiple views?")
+      throw CameraError.unknown(message: "Failed to find Camera View - View with nativeID \"\(nativeID)\" " +
+        "is a different kind of View! Did you pass the same \"nativeID\" to multiple views?")
     }
     return cameraView
   }

@@ -10,14 +10,14 @@ import Foundation
 
 extension CameraView {
   func focus(point: CGPoint) throws {
-    guard let device = self.videoDeviceInput?.device else {
+    guard let device = videoDeviceInput?.device else {
       throw CameraError.session(SessionError.cameraNotReady)
     }
     if !device.isFocusPointOfInterestSupported {
       throw CameraError.device(DeviceError.focusNotSupported)
     }
 
-    let normalizedPoint = self.videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: point)
+    let normalizedPoint = videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: point)
 
     do {
       try device.lockForConfiguration()
