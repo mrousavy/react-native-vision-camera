@@ -804,10 +804,10 @@
   dependencies:
     prop-types "^15.5.10"
 
-"@react-native-community/cameraroll@^4.0.4":
-  version "4.0.4"
-  resolved "https://registry.yarnpkg.com/@react-native-community/cameraroll/-/cameraroll-4.0.4.tgz#3e2567ce54e3985e8e0a51832dfa0e1c5317f75b"
-  integrity sha512-3SY96Xh1yQjV5M7dFisl5kQmrO/K09URarZwmTN801KEalOoo/opsd/e8Vu1dwSKe0NGCK7A2u0oJQpeNbWbnA==
+"@react-native-community/cameraroll@^4.1.1":
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/@react-native-community/cameraroll/-/cameraroll-4.1.1.tgz#5907a995545ae670fca3d492bca7b18c7ba91d67"
+  integrity sha512-nJetg28ljIcVpENWv40m2VeHNMYsS9ANPnxwRdZ7O5Bqt9j27LdbY5Os6YOutlIimAwOH38TiY5sEldEV2PqVw==
 
 "@react-native-community/cli-debugger-ui@^6.0.0-rc.0":
   version "6.0.0-rc.0"
