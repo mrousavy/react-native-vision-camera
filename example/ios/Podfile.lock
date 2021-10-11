@@ -211,11 +211,11 @@ PODS:
     - glog
   - react-native-blur (0.8.0):
     - React
-  - react-native-cameraroll (4.0.4):
+  - react-native-cameraroll (4.1.1):
     - React-Core
   - react-native-safe-area-context (3.3.2):
     - React-Core
-  - react-native-slider (4.1.7):
+  - react-native-slider (4.1.8):
     - React-Core
   - react-native-video (5.1.1):
     - React-Core
@@ -484,9 +484,9 @@ SPEC CHECKSUMS:
   React-jsinspector: be95ad424ba9f7b817aff22732eb9b1b810a000a
   React-logger: 9a9cd87d4ea681ae929b32ef580638ff1b50fb24
   react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
-  react-native-cameraroll: 88f4e62d9ecd0e1f253abe4f685474f2ea14bfa2
+  react-native-cameraroll: 189f69dbf4b4d490aaabe7a17b64e7240a442950
   react-native-safe-area-context: 584dc04881deb49474363f3be89e4ca0e854c057
-  react-native-slider: 269d81247e2a87358ee03241da55b00c919e4d7a
+  react-native-slider: 64c2214609cdcd4ca9ac7260007dfa023a1824f6
   react-native-video: 0bb76b6d6b77da3009611586c7dbf817b947f30e
   React-perflogger: 1f554c2b684e2f484f9edcdfdaeedab039fbaca8
   React-RCTActionSheet: 610d5a5d71ab4808734782c8bca6a12ec3563672
