@@ -179,7 +179,7 @@ public final class CameraView: UIView {
                                               name: UIDevice.orientationDidChangeNotification,
                                               object: nil)
   }
-  
+
   override public func willMove(toSuperview newSuperview: UIView?) {
     super.willMove(toSuperview: newSuperview)
     if !isMounted {
