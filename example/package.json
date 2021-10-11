@@ -18,7 +18,7 @@
     "@react-native-community/cameraroll": "^4.1.1",
     "@react-native-community/slider": "^4.1.7",
     "@react-navigation/native": "^6.0.5",
-    "@react-navigation/native-stack": "^6.2.2",
+    "@react-navigation/native-stack": "^6.2.3",
     "react": "^17.0.2",
     "react-native": "^0.66.0",
     "react-native-gesture-handler": "^1.10.3",
