@@ -1,5 +1,5 @@
 import React from 'react';
-import { requireNativeComponent, NativeModules, NativeSyntheticEvent, findNodeHandle, NativeMethods, Platform } from 'react-native';
+import { requireNativeComponent, NativeModules, NativeSyntheticEvent, NativeMethods, Platform } from 'react-native';
 import type { FrameProcessorPerformanceSuggestion } from '.';
 import type { CameraDevice } from './CameraDevice';
 import type { ErrorWithCause } from './CameraError';
@@ -74,6 +74,9 @@ export class Camera extends React.PureComponent<CameraProps> {
   static displayName = 'Camera';
   /** @internal */
   displayName = Camera.displayName;
+
+  private static globalCounter = 0;
+  private readonly id: number;
   private lastFrameProcessor: ((frame: Frame) => void) | undefined;
   private isNativeViewMounted = false;
 
@@ -82,6 +85,7 @@ export class Camera extends React.PureComponent<CameraProps> {
   /** @internal */
   constructor(props: CameraProps) {
     super(props);
+    this.id = Camera.globalCounter++;
     this.onInitialized = this.onInitialized.bind(this);
     this.onError = this.onError.bind(this);
     this.onFrameProcessorPerformanceSuggestionAvailable = this.onFrameProcessorPerformanceSuggestionAvailable.bind(this);
@@ -89,16 +93,8 @@ export class Camera extends React.PureComponent<CameraProps> {
     this.lastFrameProcessor = undefined;
   }
 
-  private get handle(): number | null {
-    const nodeHandle = findNodeHandle(this.ref.current);
-    if (nodeHandle == null || nodeHandle === -1) {
-      throw new CameraRuntimeError(
-        'system/view-not-found',
-        "Could not get the Camera's native view tag! Does the Camera View exist in the native view-tree?",
-      );
-    }
-
-    return nodeHandle;
+  private get nativeID(): string {
+    return this.props.nativeID ?? `CameraView_${this.id}`;
   }
 
   //#region View-specific functions (UIViewManager)
@@ -117,7 +113,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    */
   public async takePhoto(options?: TakePhotoOptions): Promise<PhotoFile> {
     try {
-      return await CameraModule.takePhoto(this.handle, options ?? {});
+      return await CameraModule.takePhoto(this.nativeID, options ?? {});
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -144,7 +140,7 @@ export class Camera extends React.PureComponent<CameraProps> {
       throw new CameraCaptureError('capture/capture-type-not-supported', `'takeSnapshot()' is not available on ${Platform.OS}!`);
 
     try {
-      return await CameraModule.takeSnapshot(this.handle, options ?? {});
+      return await CameraModule.takeSnapshot(this.nativeID, options ?? {});
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -183,7 +179,7 @@ export class Camera extends React.PureComponent<CameraProps> {
     };
     // TODO: Use TurboModules to either make this a sync invokation, or make it async.
     try {
-      CameraModule.startRecording(this.handle, passThroughOptions, onRecordCallback);
+      CameraModule.startRecording(this.nativeID, passThroughOptions, onRecordCallback);
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -203,7 +199,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    */
   public async stopRecording(): Promise<void> {
     try {
-      return await CameraModule.stopRecording(this.handle);
+      return await CameraModule.stopRecording(this.nativeID);
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -229,7 +225,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    */
   public async focus(point: Point): Promise<void> {
     try {
-      return await CameraModule.focus(this.handle, point);
+      return await CameraModule.focus(this.nativeID, point);
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -403,11 +399,11 @@ export class Camera extends React.PureComponent<CameraProps> {
 
   /** @internal */
   public render(): React.ReactNode {
-    // We remove the big `device` object from the props because we only need to pass `cameraId` to native.
-    const { device, frameProcessor, frameProcessorFps, ...props } = this.props;
+    const { device, frameProcessor, frameProcessorFps, nativeID: _, ...props } = this.props;
     return (
       <NativeCameraView
         {...props}
+        nativeID={this.nativeID}
         frameProcessorFps={frameProcessorFps === 'auto' ? -1 : frameProcessorFps}
         cameraId={device.id}
         ref={this.ref}
