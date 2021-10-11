@@ -30,6 +30,7 @@ type NativeCameraViewProps = Omit<
   onInitialized?: (event: NativeSyntheticEvent<void>) => void;
   onError?: (event: NativeSyntheticEvent<OnErrorEvent>) => void;
   onFrameProcessorPerformanceSuggestionAvailable?: (event: NativeSyntheticEvent<FrameProcessorPerformanceSuggestion>) => void;
+  onViewReady: () => void;
 };
 type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>;
 //#endregion
@@ -82,6 +83,7 @@ export class Camera extends React.PureComponent<CameraProps> {
   /** @internal */
   constructor(props: CameraProps) {
     super(props);
+    this.onViewReady = this.onViewReady.bind(this);
     this.onInitialized = this.onInitialized.bind(this);
     this.onError = this.onError.bind(this);
     this.onFrameProcessorPerformanceSuggestionAvailable = this.onFrameProcessorPerformanceSuggestionAvailable.bind(this);
@@ -367,15 +369,13 @@ export class Camera extends React.PureComponent<CameraProps> {
     global.unsetFrameProcessor(this.handle);
   }
 
-  componentDidMount(): void {
-    requestAnimationFrame(() => {
-      this.isNativeViewMounted = true;
-      if (this.props.frameProcessor != null) {
-        // user passed a `frameProcessor` but we didn't set it yet because the native view was not mounted yet. set it now.
-        this.setFrameProcessor(this.props.frameProcessor);
-        this.lastFrameProcessor = this.props.frameProcessor;
-      }
-    });
+  private onViewReady(): void {
+    this.isNativeViewMounted = true;
+    if (this.props.frameProcessor != null) {
+      // user passed a `frameProcessor` but we didn't set it yet because the native view was not mounted yet. set it now.
+      this.setFrameProcessor(this.props.frameProcessor);
+      this.lastFrameProcessor = this.props.frameProcessor;
+    }
   }
 
   /** @internal */
@@ -411,6 +411,7 @@ export class Camera extends React.PureComponent<CameraProps> {
         frameProcessorFps={frameProcessorFps === 'auto' ? -1 : frameProcessorFps}
         cameraId={device.id}
         ref={this.ref}
+        onViewReady={this.onViewReady}
         onInitialized={this.onInitialized}
         onError={this.onError}
         onFrameProcessorPerformanceSuggestionAvailable={this.onFrameProcessorPerformanceSuggestionAvailable}

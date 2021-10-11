@@ -65,6 +65,7 @@ public final class CameraView: UIView {
   @objc var onInitialized: RCTDirectEventBlock?
   @objc var onError: RCTDirectEventBlock?
   @objc var onFrameProcessorPerformanceSuggestionAvailable: RCTDirectEventBlock?
+  @objc var onViewReady: RCTDirectEventBlock?
   // zoom
   @objc var enableZoomGesture = false {
     didSet {
@@ -77,7 +78,7 @@ public final class CameraView: UIView {
   }
 
   // pragma MARK: Internal Properties
-
+  internal var isMounted = false
   internal var isReady = false
   // Capture Session
   internal let captureSession = AVCaptureSession()
@@ -177,6 +178,17 @@ public final class CameraView: UIView {
     NotificationCenter.default.removeObserver(self,
                                               name: UIDevice.orientationDidChangeNotification,
                                               object: nil)
+  }
+
+  override public func willMove(toSuperview newSuperview: UIView?) {
+    super.willMove(toSuperview: newSuperview)
+    if !isMounted {
+      isMounted = true
+      guard let onViewReady = onViewReady else {
+        return
+      }
+      onViewReady(nil)
+    }
   }
 
   // pragma MARK: Props updating
