@@ -42,6 +42,12 @@ fun CameraView.invokeOnFrameProcessorPerformanceSuggestionAvailable(currentFps: 
   reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraPerformanceSuggestionAvailable", event)
 }
 
+fun CameraView.invokeOnViewReady() {
+  val event = Arguments.createMap()
+  val reactContext = context as ReactContext
+  reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraViewReady", event)
+}
+
 private fun errorToMap(error: Throwable): WritableMap {
   val map = Arguments.createMap()
   map.putString("message", error.message)

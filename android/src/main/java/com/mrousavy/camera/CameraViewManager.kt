@@ -55,6 +55,7 @@ class CameraViewManager(reactContext: ReactApplicationContext) : SimpleViewManag
 
   override fun getExportedCustomDirectEventTypeConstants(): MutableMap<String, Any>? {
     return MapBuilder.builder<String, Any>()
+      .put("cameraViewReady", MapBuilder.of("registrationName", "onViewReady"))
       .put("cameraInitialized", MapBuilder.of("registrationName", "onInitialized"))
       .put("cameraError", MapBuilder.of("registrationName", "onError"))
       .put("cameraPerformanceSuggestionAvailable", MapBuilder.of("registrationName", "onFrameProcessorPerformanceSuggestionAvailable"))

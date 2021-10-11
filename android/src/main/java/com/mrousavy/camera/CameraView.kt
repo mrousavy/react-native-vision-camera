@@ -108,6 +108,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
     }
 
   // private properties
+  private var isMounted = false
   private val reactContext: ReactContext
     get() = context as ReactContext
 
@@ -266,6 +267,10 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
     updateLifecycleState()
+    if (!isMounted) {
+      isMounted = true
+      invokeOnViewReady()
+    }
   }
 
   override fun onDetachedFromWindow() {
