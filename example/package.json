@@ -31,7 +31,7 @@
     "react-native-video": "^5.1.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.15.5",
+    "@babel/core": "^7.15.8",
     "@babel/runtime": "^7.15.4",
     "@react-native-community/eslint-config": "^3.0.1",
     "@react-native-community/eslint-plugin": "^1.1.0",
