@@ -143,14 +143,16 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
     if (!arguments[1].isObject()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
     if (!runtimeManager || !runtimeManager->runtime) throw jsi::JSError(runtime, "Camera::setFrameProcessor: The RuntimeManager is not yet initialized!");
 
-    auto viewTag = arguments[0].asNumber();
+    auto nativeID = arguments[0].asString(runtime).utf8(runtime);
     NSLog(@"FrameProcessorBindings: Adapting Shareable value from function (conversion to worklet)...");
     auto worklet = reanimated::ShareableValue::adapt(runtime, arguments[1], runtimeManager.get());
     NSLog(@"FrameProcessorBindings: Successfully created worklet!");
 
     RCTExecuteOnMainQueue([=]() {
-      auto currentBridge = [RCTBridge currentBridge];
-      auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
+      auto currentBridge = RCTBridge.currentBridge;
+      auto rootTag = UIApplication.sharedApplication.keyWindow.reactTag;
+      auto anonymousView = [currentBridge.uiManager viewForNativeID:[NSString stringWithUTF8String:nativeID.c_str()]
+                                                        withRootTag:rootTag];
       auto view = static_cast<CameraView*>(anonymousView);
 
       dispatch_async(CameraQueues.frameProcessorQueue, [=]() {

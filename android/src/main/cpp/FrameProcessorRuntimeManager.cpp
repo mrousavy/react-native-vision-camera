@@ -80,9 +80,9 @@ void vision::FrameProcessorRuntimeManager::initializeRuntime() {
                       "Initialized Vision JS-Runtime!");
 }
 
-global_ref<CameraView::javaobject> FrameProcessorRuntimeManager::findCameraViewById(int viewId) {
-  static const auto findCameraViewByIdMethod = javaPart_->getClass()->getMethod<CameraView(jint)>("findCameraViewById");
-  auto weakCameraView = findCameraViewByIdMethod(javaPart_.get(), viewId);
+global_ref<CameraView::javaobject> FrameProcessorRuntimeManager::findCameraViewById(const std::string& nativeID) {
+  static const auto findCameraViewByIdMethod = javaPart_->getClass()->getMethod<CameraView(std::string)>("findCameraViewById");
+  auto weakCameraView = findCameraViewByIdMethod(javaPart_.get(), nativeID);
   return make_global(weakCameraView);
 }
 
@@ -106,7 +106,7 @@ void FrameProcessorRuntimeManager::logErrorToJS(const std::string& message) {
 }
 
 void FrameProcessorRuntimeManager::setFrameProcessor(jsi::Runtime& runtime,
-                                                     int viewTag,
+                                                     const std::string& nativeID,
                                                      const jsi::Value& frameProcessor) {
   __android_log_write(ANDROID_LOG_INFO, TAG,
                       "Setting new Frame Processor...");
@@ -117,7 +117,7 @@ void FrameProcessorRuntimeManager::setFrameProcessor(jsi::Runtime& runtime,
   }
 
   // find camera view
-  auto cameraView = findCameraViewById(viewTag);
+  auto cameraView = findCameraViewById(nativeID);
   __android_log_write(ANDROID_LOG_INFO, TAG, "Found CameraView!");
 
   // convert jsi::Function to a ShareableValue (can be shared across runtimes)
@@ -150,11 +150,11 @@ void FrameProcessorRuntimeManager::setFrameProcessor(jsi::Runtime& runtime,
   });
 }
 
-void FrameProcessorRuntimeManager::unsetFrameProcessor(int viewTag) {
+void FrameProcessorRuntimeManager::unsetFrameProcessor(const std::string& nativeID) {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Removing Frame Processor...");
 
   // find camera view
-  auto cameraView = findCameraViewById(viewTag);
+  auto cameraView = findCameraViewById(nativeID);
 
   // call Java method to unset frame processor
   cameraView->cthis()->unsetFrameProcessor();
@@ -174,9 +174,9 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
 
   auto& jsiRuntime = *runtime_;
 
-  auto setFrameProcessor = [this](jsi::Runtime &runtime,
-                                  const jsi::Value &thisValue,
-                                  const jsi::Value *arguments,
+  auto setFrameProcessor = [this](jsi::Runtime& runtime,
+                                  const jsi::Value& thisValue,
+                                  const jsi::Value* arguments,
                                   size_t count) -> jsi::Value {
     __android_log_write(ANDROID_LOG_INFO, TAG,
                         "Setting new Frame Processor...");
@@ -190,9 +190,9 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
                          "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
     }
 
-    double viewTag = arguments[0].asNumber();
+    std::string nativeID = arguments[0].asString(runtime).utf8(runtime);
     const jsi::Value& frameProcessor = arguments[1];
-    this->setFrameProcessor(runtime, static_cast<int>(viewTag), frameProcessor);
+    this->setFrameProcessor(runtime, nativeID, frameProcessor);
 
     return jsi::Value::undefined();
   };
@@ -216,8 +216,8 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
                          "Camera::unsetFrameProcessor: First argument ('viewTag') must be a number!");
     }
 
-    auto viewTag = arguments[0].asNumber();
-    this->unsetFrameProcessor(static_cast<int>(viewTag));
+    std::string nativeID = arguments[0].asString(runtime).utf8(runtime);
+    this->unsetFrameProcessor(nativeID);
 
     return jsi::Value::undefined();
   };

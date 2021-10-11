@@ -49,16 +49,16 @@ class FrameProcessorRuntimeManager : public jni::HybridClass<FrameProcessorRunti
   std::shared_ptr<reanimated::RuntimeManager> _runtimeManager;
   std::shared_ptr<vision::VisionCameraScheduler> scheduler_;
 
-  jni::global_ref<CameraView::javaobject> findCameraViewById(int viewId);
+  jni::global_ref<CameraView::javaobject> findCameraViewById(const std::string& nativeID);
   void initializeRuntime();
   void installJSIBindings();
   void registerPlugin(alias_ref<JFrameProcessorPlugin::javaobject> plugin);
   void logErrorToJS(const std::string& message);
 
   void setFrameProcessor(jsi::Runtime& runtime,                 // NOLINT(runtime/references)
-                         int viewTag,
+                         const std::string& nativeID,
                          const jsi::Value& frameProcessor);
-  void unsetFrameProcessor(int viewTag);
+  void unsetFrameProcessor(const std::string& nativeID);
 };
 
 } // namespace vision
