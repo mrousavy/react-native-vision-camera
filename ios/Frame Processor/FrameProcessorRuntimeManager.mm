@@ -139,7 +139,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                   const jsi::Value* arguments,
                                   size_t count) -> jsi::Value {
     NSLog(@"FrameProcessorBindings: Setting new frame processor...");
-    if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: First argument ('viewTag') must be a number!");
+    if (!arguments[0].isString()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: First argument ('nativeID') must be a string!");
     if (!arguments[1].isObject()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
     if (!runtimeManager || !runtimeManager->runtime) throw jsi::JSError(runtime, "Camera::setFrameProcessor: The RuntimeManager is not yet initialized!");
 
@@ -179,14 +179,16 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                 const jsi::Value* arguments,
                                 size_t count) -> jsi::Value {
     NSLog(@"FrameProcessorBindings: Removing frame processor...");
-    if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::unsetFrameProcessor: First argument ('viewTag') must be a number!");
-    auto viewTag = arguments[0].asNumber();
+    if (!arguments[0].isString()) throw jsi::JSError(runtime, "Camera::unsetFrameProcessor: First argument ('nativeID') must be a string!");
+    auto nativeID = arguments[0].asString(runtime).utf8(runtime);
 
     RCTExecuteOnMainQueue(^{
       auto currentBridge = [RCTBridge currentBridge];
       if (!currentBridge) return;
 
-      auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
+      auto rootTag = UIApplication.sharedApplication.keyWindow.reactTag;
+      auto anonymousView = [currentBridge.uiManager viewForNativeID:[NSString stringWithUTF8String:nativeID.c_str()]
+                                                        withRootTag:rootTag];
       if (!anonymousView) return;
 
       auto view = static_cast<CameraView*>(anonymousView);
