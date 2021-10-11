@@ -7,6 +7,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.util.Log
+import android.view.View
 import androidx.camera.core.CameraSelector
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
@@ -15,6 +16,7 @@ import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener
+import com.facebook.react.uimanager.util.ReactFindViewUtil
 import com.mrousavy.camera.parsers.*
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
@@ -57,10 +59,15 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     return TAG
   }
 
-  private fun findCameraView(id: Int): CameraView = reactApplicationContext.currentActivity?.findViewById(id) ?: throw ViewNotFoundError(id)
+  private fun findCameraView(viewTag: String): CameraView {
+    val activity = reactApplicationContext.currentActivity ?: throw ViewNotFoundError(viewTag)
+    val rootView = activity.window.decorView.findViewById<View>(android.R.id.content)
+    val view = ReactFindViewUtil.findView(rootView, viewTag)
+    return view as? CameraView ?: throw ViewNotFoundError(viewTag)
+  }
 
   @ReactMethod
-  fun takePhoto(viewTag: Int, options: ReadableMap, promise: Promise) {
+  fun takePhoto(viewTag: String, options: ReadableMap, promise: Promise) {
     coroutineScope.launch {
       withPromise(promise) {
         val view = findCameraView(viewTag)
@@ -71,7 +78,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   @Suppress("unused")
   @ReactMethod
-  fun takeSnapshot(viewTag: Int, options: ReadableMap, promise: Promise) {
+  fun takeSnapshot(viewTag: String, options: ReadableMap, promise: Promise) {
     coroutineScope.launch {
       withPromise(promise) {
         val view = findCameraView(viewTag)
@@ -82,7 +89,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   // TODO: startRecording() cannot be awaited, because I can't have a Promise and a onRecordedCallback in the same function. Hopefully TurboModules allows that
   @ReactMethod
-  fun startRecording(viewTag: Int, options: ReadableMap, onRecordCallback: Callback) {
+  fun startRecording(viewTag: String, options: ReadableMap, onRecordCallback: Callback) {
     coroutineScope.launch {
       val view = findCameraView(viewTag)
       try {
@@ -98,7 +105,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   }
 
   @ReactMethod
-  fun stopRecording(viewTag: Int, promise: Promise) {
+  fun stopRecording(viewTag: String, promise: Promise) {
     withPromise(promise) {
       val view = findCameraView(viewTag)
       view.stopRecording()
@@ -107,7 +114,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   }
 
   @ReactMethod
-  fun focus(viewTag: Int, point: ReadableMap, promise: Promise) {
+  fun focus(viewTag: String, point: ReadableMap, promise: Promise) {
     coroutineScope.launch {
       withPromise(promise) {
         val view = findCameraView(viewTag)

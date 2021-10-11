@@ -1,11 +1,13 @@
 package com.mrousavy.camera.frameprocessor
 
 import android.util.Log
+import android.view.View
 import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.turbomodule.core.CallInvokerHolderImpl
+import com.facebook.react.uimanager.util.ReactFindViewUtil
 import com.mrousavy.camera.CameraView
 import com.mrousavy.camera.ViewNotFoundError
 import com.swmansion.reanimated.Scheduler
@@ -46,11 +48,12 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext, frameProces
   @Suppress("unused")
   @DoNotStrip
   @Keep
-  fun findCameraViewById(viewId: Int): CameraView {
-    Log.d(TAG, "finding view $viewId...")
-    val view = mContext.get()?.currentActivity?.findViewById<CameraView>(viewId)
-    Log.d(TAG, "found view $viewId! is null: ${view == null}")
-    return view ?: throw ViewNotFoundError(viewId)
+  fun findCameraViewById(viewTag: String): CameraView {
+    Log.d(TAG, "Finding view \"$viewTag\"...")
+    val activity = mContext.get()?.currentActivity ?: throw ViewNotFoundError(viewTag)
+    val rootView = activity.window.decorView.findViewById<View>(android.R.id.content)
+    val view = ReactFindViewUtil.findView(rootView, viewTag)
+    return view as? CameraView ?: throw ViewNotFoundError(viewTag)
   }
 
   // private C++ funcs
