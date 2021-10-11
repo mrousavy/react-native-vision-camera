@@ -14,10 +14,9 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   /**
    Starts a video + audio recording with a custom Asset Writer.
    */
-  func startRecording(options: NSDictionary, callback jsCallbackFunc: @escaping RCTResponseSenderBlock) {
+  func startRecording(options: NSDictionary, callback: Callback) {
     cameraQueue.async {
       ReactLogger.log(level: .info, message: "Starting Video recording...")
-      let callback = Callback(jsCallbackFunc)
 
       var fileType = AVFileType.mov
       if let fileTypeOption = options["fileType"] as? String {

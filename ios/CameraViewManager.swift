@@ -44,32 +44,54 @@ final class CameraViewManager: RCTViewManager {
   // pragma MARK: React Functions
 
   @objc
-  final func startRecording(_ node: NSNumber, options: NSDictionary, onRecordCallback: @escaping RCTResponseSenderBlock) {
-    let component = getCameraView(withTag: node)
-    component.startRecording(options: options, callback: onRecordCallback)
-  }
-
-  @objc
-  final func stopRecording(_ node: NSNumber, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    let component = getCameraView(withTag: node)
-    component.stopRecording(promise: Promise(resolver: resolve, rejecter: reject))
-  }
-
-  @objc
-  final func takePhoto(_ node: NSNumber, options: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    let component = getCameraView(withTag: node)
-    component.takePhoto(options: options, promise: Promise(resolver: resolve, rejecter: reject))
-  }
-
-  @objc
-  final func focus(_ node: NSNumber, point: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    let promise = Promise(resolver: resolve, rejecter: reject)
-    guard let x = point["x"] as? NSNumber, let y = point["y"] as? NSNumber else {
-      promise.reject(error: .parameter(.invalid(unionName: "point", receivedValue: point.description)))
-      return
+  final func startRecording(_ nativeID: String, options: NSDictionary, onRecordCallback: @escaping RCTResponseSenderBlock) {
+    let callback = Callback(onRecordCallback)
+    do {
+      let camera = try getCameraView(withNativeId: nativeID)
+      // TODO: Make startRecording() async to allow awaiting it with TurboModules
+      camera.startRecording(options: options, callback: callback)
+    } catch let error {
+      let cameraError = error as? CameraError ?? .unknown(message: "Failed to find Camera View with nativeID \"\(nativeID)\"")
+      callback.reject(error: cameraError)
     }
-    let component = getCameraView(withTag: node)
-    component.focus(point: CGPoint(x: x.doubleValue, y: y.doubleValue), promise: promise)
+  }
+
+  @objc
+  final func stopRecording(_ nativeID: String, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    let promise = Promise(resolver: resolve, rejecter: reject)
+    do {
+      let camera = try getCameraView(withNativeId: nativeID)
+      // TODO: Make stopRecording() async to get rid of passing promise in here
+      camera.stopRecording(promise: Promise(resolver: resolve, rejecter: reject))
+    } catch let error {
+      let cameraError = error as? CameraError ?? .unknown(message: "Failed to find Camera View with nativeID \"\(nativeID)\"")
+      promise.reject(error: cameraError)
+    }
+  }
+
+  @objc
+  final func takePhoto(_ nativeID: String, options: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    let promise = Promise(resolver: resolve, rejecter: reject)
+    do {
+      let camera = try getCameraView(withNativeId: nativeID)
+      // TODO: Make takePhoto() async to get rid of passing promise in here
+      camera.takePhoto(options: options, promise: promise)
+    } catch let error {
+      let cameraError = error as? CameraError ?? .unknown(message: "Failed to find Camera View with nativeID \"\(nativeID)\"")
+      promise.reject(error: cameraError)
+    }
+  }
+
+  @objc
+  final func focus(_ nativeID: String, point: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    withPromise(resolve: resolve, reject: reject) {
+      guard let x = point["x"] as? NSNumber, let y = point["y"] as? NSNumber else {
+        throw CameraError.parameter(.invalid(unionName: "point", receivedValue: point.description))
+      }
+      let camera = try getCameraView(withNativeId: nativeID)
+      try camera.focus(point: CGPoint(x: x.doubleValue, y: y.doubleValue))
+      return nil
+    }
   }
 
   @objc
@@ -142,9 +164,18 @@ final class CameraViewManager: RCTViewManager {
 
   // MARK: Private
 
-  private func getCameraView(withTag tag: NSNumber) -> CameraView {
-    // swiftlint:disable force_cast
-    return bridge.uiManager.view(forReactTag: tag) as! CameraView
+  private func getCameraView(withNativeId nativeID: String) throws -> CameraView {
+    guard let window = UIApplication.shared.keyWindow else {
+      throw CameraError.unknown(message: "Failed to find Camera View - Could not find root window!")
+    }
+    guard let view = bridge.uiManager.view(forNativeID: nativeID,
+                                           withRootTag: window.reactTag) else {
+      throw CameraError.system(.viewNotFound(nativeID: nativeID))
+    }
+    guard let cameraView = view as? CameraView else {
+      throw CameraError.unknown(message: "Failed to find Camera View - View with nativeID \"\(nativeID)\" is a different kind of View! Did you pass the same \"nativeID\" to multiple views?")
+    }
+    return cameraView
   }
 
   private final func getAllDeviceTypes() -> [AVCaptureDevice.DeviceType] {

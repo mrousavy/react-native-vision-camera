@@ -254,17 +254,25 @@ enum CaptureError {
 
 // MARK: - SystemError
 
-enum SystemError: String {
-  case noManager = "no-camera-manager"
+enum SystemError {
+  case noManager
+  case viewNotFound(nativeID: String)
 
   var code: String {
-    return rawValue
+    switch self {
+    case .noManager:
+      return "no-camera-manager"
+    case .viewNotFound:
+      return "view-not-found"
+    }
   }
 
   var message: String {
     switch self {
     case .noManager:
       return "No Camera Manager was found."
+    case let .viewNotFound(nativeID: nativeID):
+      return "The given view (nativeID: \(nativeID)) was not found in the view manager."
     }
   }
 }
