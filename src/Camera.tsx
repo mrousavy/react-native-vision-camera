@@ -354,13 +354,13 @@ export class Camera extends React.PureComponent<CameraProps> {
   private setFrameProcessor(frameProcessor: (frame: Frame) => void): void {
     this.assertFrameProcessorsEnabled();
     // @ts-expect-error JSI functions aren't typed
-    global.setFrameProcessor(this.handle, frameProcessor);
+    global.setFrameProcessor(this.nativeID, frameProcessor);
   }
 
   private unsetFrameProcessor(): void {
     this.assertFrameProcessorsEnabled();
     // @ts-expect-error JSI functions aren't typed
-    global.unsetFrameProcessor(this.handle);
+    global.unsetFrameProcessor(this.nativeID);
   }
 
   componentDidMount(): void {

@@ -181,9 +181,9 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
     __android_log_write(ANDROID_LOG_INFO, TAG,
                         "Setting new Frame Processor...");
 
-    if (!arguments[0].isNumber()) {
+    if (!arguments[0].isString()) {
       throw jsi::JSError(runtime,
-                         "Camera::setFrameProcessor: First argument ('viewTag') must be a number!");
+                         "Camera::setFrameProcessor: First argument ('nativeID') must be a string!");
     }
     if (!arguments[1].isObject()) {
       throw jsi::JSError(runtime,
@@ -211,9 +211,9 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
                                     const jsi::Value *arguments,
                                     size_t count) -> jsi::Value {
     __android_log_write(ANDROID_LOG_INFO, TAG, "Removing Frame Processor...");
-    if (!arguments[0].isNumber()) {
+    if (!arguments[0].isString()) {
       throw jsi::JSError(runtime,
-                         "Camera::unsetFrameProcessor: First argument ('viewTag') must be a number!");
+                         "Camera::unsetFrameProcessor: First argument ('nativeID') must be a string!");
     }
 
     std::string nativeID = arguments[0].asString(runtime).utf8(runtime);
