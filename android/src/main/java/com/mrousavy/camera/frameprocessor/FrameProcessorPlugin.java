@@ -9,6 +9,8 @@ import com.facebook.proguard.annotations.DoNotStrip;
 /**
  * Declares a Frame Processor Plugin.
  */
+@DoNotStrip
+@Keep
 public abstract class FrameProcessorPlugin {
     private final @NonNull String mName;
 
@@ -35,6 +37,8 @@ public abstract class FrameProcessorPlugin {
     /**
      * Get the user-defined name of the Frame Processor Plugin.
      */
+    @DoNotStrip
+    @Keep
     public @NonNull String getName() {
         return mName;
     }
