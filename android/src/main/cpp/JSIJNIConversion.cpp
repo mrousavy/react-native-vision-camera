@@ -102,7 +102,12 @@ jobject JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtime &runtime, cons
 }
 
 jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, const jni::local_ref<jobject>& object) {
-  if (object->isInstanceOf(jni::JBoolean::javaClassStatic())) {
+  if (object == nullptr) {
+    // null
+
+    return jsi::Value::undefined();
+
+  } else if (object->isInstanceOf(jni::JBoolean::javaClassStatic())) {
     // Boolean
 
     static const auto getBooleanFunc = jni::findClassLocal("java/lang/Boolean")->getMethod<jboolean()>("booleanValue");
