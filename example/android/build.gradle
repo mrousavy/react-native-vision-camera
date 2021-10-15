@@ -5,8 +5,8 @@ buildscript {
         RNNKotlinVersion = "1.3.61"
         buildToolsVersion = "30.0.2"
         minSdkVersion = 21
-        compileSdkVersion = 31
-        targetSdkVersion = 31
+        compileSdkVersion = 30
+        targetSdkVersion = 30
         ndkVersion = "21.4.7075529"
     }
     repositories {
