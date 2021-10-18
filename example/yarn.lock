@@ -972,10 +972,10 @@
   resolved "https://registry.yarnpkg.com/@react-native-community/eslint-plugin/-/eslint-plugin-1.1.0.tgz#e42b1bef12d2415411519fd528e64b593b1363dc"
   integrity sha512-W/J0fNYVO01tioHjvYWQ9m6RgndVtbElzYozBq1ZPrHO/iCzlqoySHl4gO/fpCl9QEFjvJfjPgtPMTMlsoq5DQ==
 
-"@react-native-community/slider@^4.1.8":
-  version "4.1.8"
-  resolved "https://registry.yarnpkg.com/@react-native-community/slider/-/slider-4.1.8.tgz#aa8932fe793f607fde32bef9fbe5a65fbf58f389"
-  integrity sha512-JXU+coasnXh1BtUSNxYvzSVnS1mueFZNTgMMHS6pH6JFy2Ur51Gow5PeVs9cyvYW4YTqwW1tFGHzS8jQ+UbluQ==
+"@react-native-community/slider@^4.1.9":
+  version "4.1.9"
+  resolved "https://registry.yarnpkg.com/@react-native-community/slider/-/slider-4.1.9.tgz#2de4faf74027a0d828854e6e09133cc84ea34101"
+  integrity sha512-alK8CXAeo3d5ZqPeFWoHHEi0hVfcKeCAAahhaAWyTSrt5EoIj2ia15pokepS92nAAmMQKAOStxaDk1fYZCH6hw==
   dependencies:
     flow-bin "0.113.0"
 
