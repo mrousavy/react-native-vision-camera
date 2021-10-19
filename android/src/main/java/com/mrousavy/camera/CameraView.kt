@@ -16,6 +16,8 @@ import androidx.camera.core.*
 import androidx.camera.core.impl.*
 import androidx.camera.extensions.*
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.video.*
+import androidx.camera.video.VideoCapture
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.*
@@ -121,9 +123,11 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
 
   internal var camera: Camera? = null
   internal var imageCapture: ImageCapture? = null
-  internal var videoCapture: VideoCapture? = null
+  internal var videoCapture: Recorder? = null
   private var imageAnalysis: ImageAnalysis? = null
   private var preview: Preview? = null
+
+  internal var activeVideoRecording: ActiveRecording? = null
 
   private var lastFrameProcessorCall = System.currentTimeMillis()
 
@@ -234,7 +238,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
       preview?.targetRotation = rotation
       imageCapture?.targetRotation = rotation
       imageAnalysis?.targetRotation = rotation
-      videoCapture?.setTargetRotation(rotation)
+      // TODO: videoCapture?.setTargetRotation(rotation)
     }
   }
 
@@ -355,11 +359,18 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
 
       val previewBuilder = Preview.Builder()
         .setTargetRotation(rotation)
+
       val imageCaptureBuilder = ImageCapture.Builder()
         .setTargetRotation(rotation)
         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-      val videoCaptureBuilder = VideoCapture.Builder()
-        .setTargetRotation(rotation)
+
+      val videoRecorder = Recorder.Builder()
+        // TODO: Quality .setQualitySelector(QualitySelector.of())
+        .setExecutor(cameraExecutor)
+        .build()
+      val videoCapture = VideoCapture.withOutput(videoRecorder)
+      videoCapture.targetRotation = rotation
+
       val imageAnalysisBuilder = ImageAnalysis.Builder()
         .setTargetRotation(rotation)
         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
@@ -371,7 +382,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         val aspectRatio = aspectRatio(previewView.height, previewView.width) // flipped because it's in sensor orientation.
         previewBuilder.setTargetAspectRatio(aspectRatio)
         imageCaptureBuilder.setTargetAspectRatio(aspectRatio)
-        videoCaptureBuilder.setTargetAspectRatio(aspectRatio)
+        // TODO: Aspect Ratio for Video Recorder?
         imageAnalysisBuilder.setTargetAspectRatio(aspectRatio)
       } else {
         // User has selected a custom format={}. Use that
@@ -379,7 +390,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         Log.i(TAG, "Using custom format - photo: ${format.photoSize}, video: ${format.videoSize} @ $fps FPS")
         previewBuilder.setTargetResolution(format.videoSize)
         imageCaptureBuilder.setTargetResolution(format.photoSize)
-        videoCaptureBuilder.setTargetResolution(format.videoSize)
+        // TODO: Resolution for Video Recorder?
         imageAnalysisBuilder.setTargetResolution(format.videoSize)
 
         fps?.let { fps ->
@@ -391,7 +402,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
             Camera2Interop.Extender(previewBuilder)
               .setCaptureRequestOption(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(fps, fps))
               .setCaptureRequestOption(CaptureRequest.SENSOR_FRAME_DURATION, frameDuration)
-            videoCaptureBuilder.setVideoFrameRate(fps)
+            // TODO: Frame Rate/FPS for Video Recorder?
           } else {
             throw FpsNotContainedInFormatError(fps)
           }
@@ -405,7 +416,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
       }
 
       // Unbind use cases before rebinding
-      videoCapture = null
+      this.videoCapture = null
       imageCapture = null
       imageAnalysis = null
       cameraProvider.unbindAll()
@@ -414,8 +425,8 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
       val useCases = ArrayList<UseCase>()
       if (video == true) {
         Log.i(TAG, "Adding VideoCapture use-case...")
-        videoCapture = videoCaptureBuilder.build()
-        useCases.add(videoCapture!!)
+        this.videoCapture = videoRecorder
+        useCases.add(videoCapture)
       }
       if (photo == true) {
         if (fallbackToSnapshot) {
