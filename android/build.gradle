@@ -111,7 +111,7 @@ android {
   }
 
   packagingOptions {
-    pickFirst '**/*.so'
+    exclude '**/*.so'
   }
 
   buildTypes {
