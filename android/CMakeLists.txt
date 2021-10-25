@@ -139,7 +139,6 @@ find_library(
 
 # linking
 
-message(WARNING "VisionCamera linking: FOR_HERMES=${FOR_HERMES}")
 target_link_libraries(
         ${PACKAGE_NAME}
         ${LOG_LIB}
