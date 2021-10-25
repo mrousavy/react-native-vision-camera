@@ -114,7 +114,7 @@ find_library(
         NO_CMAKE_FIND_ROOT_PATH
 )
 
-if(${REACT_NATIVE_TARGET_VERSION} GREATER 65)
+if(${RN_VERSION} GREATER 65)
         find_library(
                 JSI_LIB
                 jsi
