@@ -8,6 +8,17 @@ set (PACKAGE_NAME "VisionCamera")
 set (BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
 set (RN_SO_DIR ${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni/first-party/react/jni)
 
+if(${RN_VERSION} LESS 66)
+        set (
+                INCLUDE_JSI_CPP
+                "${NODE_MODULES_DIR}/react-native/ReactCommon/jsi/jsi/jsi.cpp"
+        )
+        set (
+                INCLUDE_JSIDYNAMIC_CPP
+                "${NODE_MODULES_DIR}/react-native/ReactCommon/jsi/jsi/JSIDynamic.cpp"
+        )
+ endif()
+
 # VisionCamera shared
 
 add_library(
@@ -50,6 +61,8 @@ target_include_directories(
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/Registries"
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/LayoutAnimations"
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/hidden_headers"
+        ${INCLUDE_JSI_CPP}
+        ${INCLUDE_JSIDYNAMIC_CPP}
         "src/main/cpp"
 )
 
@@ -101,6 +114,17 @@ find_library(
         NO_CMAKE_FIND_ROOT_PATH
 )
 
+if(${REACT_NATIVE_TARGET_VERSION} GREATER 65)
+        find_library(
+                JSI_LIB
+                jsi
+                PATHS ${LIBRN_DIR}
+                NO_CMAKE_FIND_ROOT_PATH
+        )
+ else()
+        set (JSI_LIB "")
+ endif()
+
 find_library(
         REANIMATED_LIB
         reanimated
@@ -122,6 +146,7 @@ target_link_libraries(
         ${JS_ENGINE_LIB} # <-- Hermes or JSC
         ${REANIMATED_LIB}
         ${REACT_NATIVE_JNI_LIB}
+        ${JSI_LIB}
         ${FBJNI_LIB}
         ${FOLLY_JSON_LIB}
         android
