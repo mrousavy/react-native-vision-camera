@@ -128,6 +128,7 @@ android {
       "**/libfolly_json.so",
       "**/libjscexecutor.so",
       "**/libhermes.so"
+      "**/libreanimated.so"
     ]
   }
 
