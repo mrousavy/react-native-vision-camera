@@ -13,10 +13,6 @@ if(${RN_VERSION} LESS 66)
                 COMPILE_JSI_CPP
                 "${NODE_MODULES_DIR}/react-native/ReactCommon/jsi/jsi/jsi.cpp"
         )
-        set (
-                COMPILE_JSIDYNAMIC_CPP
-                "${NODE_MODULES_DIR}/react-native/ReactCommon/jsi/jsi/JSIDynamic.cpp"
-        )
  endif()
 
 # VisionCamera shared
@@ -34,7 +30,6 @@ add_library(
         src/main/cpp/java-bindings/JImageProxy.cpp
         src/main/cpp/java-bindings/JHashMap.cpp
         ${COMPILE_JSI_CPP}
-        ${COMPILE_JSIDYNAMIC_CPP}
 )
 
 # includes
