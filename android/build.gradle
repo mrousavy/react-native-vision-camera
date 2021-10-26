@@ -2,12 +2,6 @@ import groovy.json.JsonSlurper
 import org.apache.tools.ant.filters.ReplaceTokens
 import java.nio.file.Paths
 
-def reactNative = new File("$projectDir/../node_modules/react-native")
-
-def reactProperties = new Properties()
-file("$reactNative/ReactAndroid/gradle.properties").withInputStream { reactProperties.load(it) }
-
-def REACT_VERSION = reactProperties.getProperty("VERSION_NAME").split("\\.")[1].toInteger()
 
 def FOR_HERMES = System.getenv("FOR_HERMES") == "True"
 rootProject.getSubprojects().forEach({project ->
@@ -50,6 +44,14 @@ static def findNodeModulePath(baseDir, packageName) {
   }
   return null
 }
+
+def reactNativePath = findNodeModulePath(projectDir, "react-native")
+def reactNative = file(reactNativePath)
+
+def reactProperties = new Properties()
+file("$reactNativePath/ReactAndroid/gradle.properties").withInputStream { reactProperties.load(it) }
+
+def REACT_VERSION = reactProperties.getProperty("VERSION_NAME").split("\\.")[1].toInteger()
 
 buildscript {
   // Buildscript is evaluated before everything else so we can't use getExtOrDefault
