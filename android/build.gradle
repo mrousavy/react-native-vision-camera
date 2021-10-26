@@ -45,6 +45,7 @@ static def findNodeModulePath(baseDir, packageName) {
   return null
 }
 
+def nodeModulesPath = findNodeModulePath(projectDir, ".")
 def reactNativePath = findNodeModulePath(projectDir, "react-native")
 def reactNative = file(reactNativePath)
 
@@ -101,7 +102,7 @@ android {
         cppFlags "-fexceptions", "-frtti", "-std=c++1y", "-DONANDROID"
         abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
         arguments '-DANDROID_STL=c++_shared',
-                "-DNODE_MODULES_DIR=${rootDir}/../node_modules",
+                "-DNODE_MODULES_DIR=${nodeModulesPath}",
                 "-DRN_VERSION=${REACT_VERSION}",
                 "-DFOR_HERMES=${FOR_HERMES}"
       }
@@ -232,16 +233,18 @@ dependencies {
   //noinspection GradleDynamicVersion
   extractJNI("com.facebook.fbjni:fbjni:+")
 
-  def rnAAR = fileTree("${rootDir}/../node_modules/react-native/android").matching({ it.include "**/**/*.aar" }).singleFile
-  def jscAAR = fileTree("${rootDir}/../node_modules/jsc-android/dist/org/webkit/android-jsc").matching({ it.include "**/**/*.aar" }).singleFile
+  def rnAAR = fileTree("${reactNativePath}/android").matching({ it.include "**/**/*.aar" }).singleFile
+  def jscPath = findNodeModulePath(projectDir, "jsc-android")
+  def jscAAR = fileTree("${jscPath}/dist/org/webkit/android-jsc").matching({ it.include "**/**/*.aar" }).singleFile
 
-  def inputFile = new File(rootDir, '../node_modules/react-native/package.json')
-  def json = new JsonSlurper().parseText(inputFile.text)
+  def reactNativePackageJson = file("${reactNativePath}/package.json")
+  def json = new JsonSlurper().parseText(reactNativePackageJson.text)
   def reactNativeVersion = json.version as String
   def (major, minor, patch) = reactNativeVersion.tokenize('.')
 
+  def reaPath = findNodeModulePath(projectDir, "react-native-reanimated")
   def jsEngine = FOR_HERMES ? "hermes" : "jsc"
-  def reaAAR = "${rootDir}/../node_modules/react-native-reanimated/android/react-native-reanimated-${minor}-${jsEngine}.aar"
+  def reaAAR = "${reaPath}/android/react-native-reanimated-${minor}-${jsEngine}.aar"
 
   extractJNI(files(rnAAR, jscAAR, reaAAR))
 
@@ -262,7 +265,7 @@ dependencies {
 
 def downloadsDir = new File("$buildDir/downloads")
 def thirdPartyNdkDir = new File("$buildDir/third-party-ndk")
-def thirdPartyVersionsFile = new File("${rootDir}/../node_modules/react-native/ReactAndroid/gradle.properties")
+def thirdPartyVersionsFile = new File("${reactNativePath}/ReactAndroid/gradle.properties")
 def thirdPartyVersions = new Properties()
 thirdPartyVersions.load(new FileInputStream(thirdPartyVersionsFile))
 
