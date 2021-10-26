@@ -127,7 +127,7 @@ android {
       "**/libreactnativejni.so",
       "**/libfolly_json.so",
       "**/libjscexecutor.so",
-      "**/libhermes.so"
+      "**/libhermes.so",
       "**/libreanimated.so"
     ]
   }
