@@ -101,7 +101,13 @@ final class CameraViewManager: RCTViewManager {
           "supportsLowLightBoost": $0.isLowLightBoostSupported,
           "supportsFocus": $0.isFocusPointOfInterestSupported,
           "formats": $0.formats.map { format -> [String: Any] in
-            format.toDictionary()
+            var dict = format.toDictionary()
+            // Get the pixel format (mediaSubType), remove apostrophes from start and end
+            // of value
+            if #available(iOS 13.0, *) {
+              dict["mediaSubType"] = String(format.formatDescription.mediaSubType.description.dropFirst(1).dropLast(1))
+            }
+            return dict
           },
         ]
       }

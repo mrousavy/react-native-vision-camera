@@ -171,6 +171,10 @@ export interface CameraDeviceFormat {
    * All supported video stabilization modes
    */
   videoStabilizationModes: VideoStabilizationMode[];
+  /**
+   * Specifies the pixel format on iOS. e.g. 420v, 420f
+   */
+  mediaSubType?: string;
 }
 
 /**
