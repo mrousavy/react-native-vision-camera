@@ -244,6 +244,9 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
                 }
               }
 
+              // TODO: Get the pixel format programatically rather than assuming a default of 420v
+              val pixelFormat = "420v"
+
               val format = Arguments.createMap()
               format.putDouble("photoHeight", size.height.toDouble())
               format.putDouble("photoWidth", size.width.toDouble())
@@ -260,6 +263,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
               format.putArray("frameRateRanges", frameRateRanges)
               format.putString("autoFocusSystem", "none") // TODO: Revisit getAvailableCameraDevices (autoFocusSystem) (CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES or CameraCharacteristics.LENS_INFO_FOCUS_DISTANCE_CALIBRATION)
               format.putArray("videoStabilizationModes", videoStabilizationModes)
+              format.putString("pixelFormat", pixelFormat)
               formats.pushMap(format)
             }
           }
