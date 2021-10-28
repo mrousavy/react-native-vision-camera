@@ -1,4 +1,5 @@
 import type { CameraPosition } from './CameraPosition';
+import type { PixelFormat } from './PixelFormat';
 
 /**
  * Indentifiers for a physical camera (one that actually exists on the back/front of the device)
@@ -174,7 +175,7 @@ export interface CameraDeviceFormat {
   /**
    * Specifies the pixel format on iOS. e.g. 420v, 420f
    */
-  pixelFormat: string;
+  pixelFormat: PixelFormat;
 }
 
 /**
