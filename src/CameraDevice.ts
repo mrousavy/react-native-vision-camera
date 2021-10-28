@@ -174,7 +174,7 @@ export interface CameraDeviceFormat {
   /**
    * Specifies the pixel format on iOS. e.g. 420v, 420f
    */
-  mediaSubType?: string;
+  pixelFormat: string;
 }
 
 /**
