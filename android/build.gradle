@@ -45,7 +45,22 @@ static def findNodeModulePath(baseDir, packageName) {
   return null
 }
 
-def nodeModulesPath = findNodeModulePath(projectDir, "react-native-vision-camera")
+static def findNodeModulesPathForModule(baseDir, packageName) {
+  def basePath = baseDir.toPath().normalize()
+  // Node's module resolution algorithm searches up to the root directory,
+  // after which the base path will be null
+  while (basePath) {
+    def candidatePath = Paths.get(basePath.toString(), "node_modules", packageName)
+    if (candidatePath.toFile().exists()) {
+      // we found the module path, so let's take the parent which is the node_modules
+      return candidatePath.getParent().toString()
+    }
+    basePath = basePath.getParent()
+  }
+  return null
+}
+
+def nodeModulesPath = findNodeModulesPathForModule(projectDir, "react-native-vision-camera")
 def reactNativePath = findNodeModulePath(projectDir, "react-native")
 def reactNative = file(reactNativePath)
 
