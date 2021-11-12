@@ -45,7 +45,7 @@ static def findNodeModulePath(baseDir, packageName) {
   return null
 }
 
-def nodeModulesPath = findNodeModulePath(projectDir, "react-native-vision-camera")
+def nodeModulesPath = findNodeModulePath(projectDir, "react-native-vision-camera").toPath().getParent().toString()
 def reactNativePath = findNodeModulePath(projectDir, "react-native")
 def reactNative = file(reactNativePath)
 
