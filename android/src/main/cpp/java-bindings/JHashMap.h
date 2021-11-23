@@ -7,9 +7,10 @@
 #include <jni.h>
 #include <fbjni/fbjni.h>
 
+namespace vision {
 
-namespace facebook {
-namespace jni {
+using namespace facebook;
+using namespace jni;
 
 // TODO: Remove when fbjni 0.2.3 releases.
 template <typename K = jobject, typename V = jobject>
@@ -19,5 +20,4 @@ struct JHashMap : JavaClass<JHashMap<K, V>, JMap<K, V>> {
   static local_ref<JHashMap<K, V>> create();
 };
 
-} // namespace jni
-} // namespace facebook
+} // namespace vision
