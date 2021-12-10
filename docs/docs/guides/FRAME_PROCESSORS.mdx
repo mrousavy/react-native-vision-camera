@@ -160,6 +160,13 @@ const frameProcessor = useFrameProcessor((frame) => {
 
 Check out [**Frame Processor community plugins**](/docs/guides/frame-processor-plugin-list) to discover plugins, or [**start creating a plugin yourself**](/docs/guides/frame-processors-plugins-overview)!
 
+### Selecting a Format for a Frame Processor
+
+When running frame processors, it is often important to choose an appropriate [format](/docs/guides/formats). Here are some general tips to consider:
+
+* If you are running heavy AI/ML calculations in your frame processor, make sure to [select a format](/docs/guides/formats) that has a lower resolution to optimize it's performance.
+* Sometimes a frame processor plugin only works with specific [pixel formats](/docs/api/interfaces/CameraDeviceFormat#pixelformat). Some plugins (like MLKit) don't work with `x420`.
+
 ### Benchmarks
 
 Frame Processors are _really_ fast. I have used [MLKit Vision Image Labeling](https://firebase.google.com/docs/ml-kit/ios/label-images) to label 4k Camera frames in realtime, and measured the following results:

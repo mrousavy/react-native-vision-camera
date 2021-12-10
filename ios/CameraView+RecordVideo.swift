@@ -110,7 +110,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         callback.reject(error: .capture(.createRecorderError(message: "Failed to get video settings!")))
         return
       }
-      // get pixel format (420f, 420v)
+      // get pixel format (420f, 420v, x420)
       let pixelFormat = CMFormatDescriptionGetMediaSubType(videoInput.device.activeFormat.formatDescription)
       self.recordingSession!.initializeVideoWriter(withSettings: videoSettings,
                                                    pixelFormat: pixelFormat)

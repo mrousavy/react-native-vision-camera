@@ -173,7 +173,9 @@ export interface CameraDeviceFormat {
    */
   videoStabilizationModes: VideoStabilizationMode[];
   /**
-   * Specifies the pixel format on iOS. e.g. 420v, 420f
+   * Specifies this format's pixel format. The pixel format specifies how the individual pixels are interpreted as a visual image.
+   *
+   * The most common format is `420v`. Some formats (like `x420`) are not compatible with some frame processor plugins (e.g. MLKit)
    */
   pixelFormat: PixelFormat;
 }
