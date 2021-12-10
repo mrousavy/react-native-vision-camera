@@ -72,6 +72,10 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
               self.deactivateAudioSession()
             }
           }
+          if options["flash"] != nil {
+            // Set torch mode back to what it was before if we used it for the video flash.
+            self.setTorchMode(self.torch)
+          }
         }
 
         self.isRecording = false
