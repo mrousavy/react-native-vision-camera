@@ -38,7 +38,7 @@ extension CameraView {
 
     // Audio Input
     do {
-      if let audioDeviceInput = self.audioDeviceInput {
+      if let audioDeviceInput = audioDeviceInput {
         audioCaptureSession.removeInput(audioDeviceInput)
         self.audioDeviceInput = nil
       }
@@ -61,7 +61,7 @@ extension CameraView {
     }
 
     // Audio Output
-    if let audioOutput = self.audioOutput {
+    if let audioOutput = audioOutput {
       audioCaptureSession.removeOutput(audioOutput)
       self.audioOutput = nil
     }

@@ -40,7 +40,7 @@ extension CameraView {
     }
 
     // If preset is set, use preset. Otherwise use format.
-    if let preset = self.preset {
+    if let preset = preset {
       var sessionPreset: AVCaptureSession.Preset?
       do {
         sessionPreset = try AVCaptureSession.Preset(withString: preset)
@@ -64,7 +64,7 @@ extension CameraView {
     // pragma MARK: Capture Session Inputs
     // Video Input
     do {
-      if let videoDeviceInput = self.videoDeviceInput {
+      if let videoDeviceInput = videoDeviceInput {
         captureSession.removeInput(videoDeviceInput)
         self.videoDeviceInput = nil
       }
@@ -87,7 +87,7 @@ extension CameraView {
     // pragma MARK: Capture Session Outputs
 
     // Photo Output
-    if let photoOutput = self.photoOutput {
+    if let photoOutput = photoOutput {
       captureSession.removeOutput(photoOutput)
       self.photoOutput = nil
     }
@@ -121,7 +121,7 @@ extension CameraView {
     }
 
     // Video Output + Frame Processor
-    if let videoOutput = self.videoOutput {
+    if let videoOutput = videoOutput {
       captureSession.removeOutput(videoOutput)
       self.videoOutput = nil
     }
@@ -159,7 +159,7 @@ extension CameraView {
     do {
       try device.lockForConfiguration()
 
-      if let fps = self.fps?.int32Value {
+      if let fps = fps?.int32Value {
         let supportsGivenFps = device.activeFormat.videoSupportedFrameRateRanges.contains { range in
           return range.includes(fps: Double(fps))
         }
@@ -195,7 +195,7 @@ extension CameraView {
           device.automaticallyEnablesLowLightBoostWhenAvailable = lowLightBoost!.boolValue
         }
       }
-      if let colorSpace = self.colorSpace as String? {
+      if let colorSpace = colorSpace as String? {
         guard let avColorSpace = try? AVCaptureColorSpace(string: colorSpace),
               device.activeFormat.supportedColorSpaces.contains(avColorSpace) else {
           invokeOnError(.format(.invalidColorSpace(colorSpace: colorSpace)))
@@ -219,7 +219,7 @@ extension CameraView {
    */
   final func configureFormat() {
     ReactLogger.log(level: .info, message: "Configuring Format...")
-    guard let filter = self.format else {
+    guard let filter = format else {
       // Format Filter was null. Ignore it.
       return
     }

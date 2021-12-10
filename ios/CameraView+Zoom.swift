@@ -45,7 +45,7 @@ extension CameraView {
   }
 
   func removePinchGestureRecognizer() {
-    if let pinchGestureRecognizer = self.pinchGestureRecognizer {
+    if let pinchGestureRecognizer = pinchGestureRecognizer {
       removeGestureRecognizer(pinchGestureRecognizer)
       self.pinchGestureRecognizer = nil
     }

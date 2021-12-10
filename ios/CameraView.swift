@@ -342,7 +342,7 @@ public final class CameraView: UIView {
   // pragma MARK: Event Invokers
   internal final func invokeOnError(_ error: CameraError, cause: NSError? = nil) {
     ReactLogger.log(level: .error, message: "Invoking onError(): \(error.message)")
-    guard let onError = self.onError else { return }
+    guard let onError = onError else { return }
 
     var causeDictionary: [String: Any]?
     if let cause = cause {
@@ -362,13 +362,13 @@ public final class CameraView: UIView {
 
   internal final func invokeOnInitialized() {
     ReactLogger.log(level: .info, message: "Camera initialized!")
-    guard let onInitialized = self.onInitialized else { return }
+    guard let onInitialized = onInitialized else { return }
     onInitialized([String: Any]())
   }
 
   internal final func invokeOnFrameProcessorPerformanceSuggestionAvailable(currentFps: Double, suggestedFps: Double) {
     ReactLogger.log(level: .info, message: "Frame Processor Performance Suggestion available!")
-    guard let onFrameProcessorPerformanceSuggestionAvailable = self.onFrameProcessorPerformanceSuggestionAvailable else { return }
+    guard let onFrameProcessorPerformanceSuggestionAvailable = onFrameProcessorPerformanceSuggestionAvailable else { return }
 
     if lastSuggestedFrameProcessorFps == suggestedFps { return }
     if suggestedFps == currentFps { return }
