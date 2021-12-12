@@ -107,20 +107,20 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         callback.reject(error: .capture(.createRecorderError(message: nil)), cause: error)
         return
       }
-      
-      var videoCodec:AVVideoCodecType?
+
+      var videoCodec: AVVideoCodecType?
       if let codecString = options["videoCodec"] as? String {
-        videoCodec = AVVideoCodecType.init(withString: codecString)
+        videoCodec = AVVideoCodecType(withString: codecString)
       }
-      
+
       // Init Video
       guard let videoSettings = videoCodec != nil ?
-              videoOutput.recommendedVideoSettings(forVideoCodecType: videoCodec!, assetWriterOutputFileType: fileType) :
-                videoOutput.recommendedVideoSettingsForAssetWriter(writingTo: fileType),
-            !videoSettings.isEmpty else {
-              callback.reject(error: .capture(.createRecorderError(message: "Failed to get video settings!")))
-              return
-            }
+        videoOutput.recommendedVideoSettings(forVideoCodecType: videoCodec!, assetWriterOutputFileType: fileType) :
+        videoOutput.recommendedVideoSettingsForAssetWriter(writingTo: fileType),
+        !videoSettings.isEmpty else {
+        callback.reject(error: .capture(.createRecorderError(message: "Failed to get video settings!")))
+        return
+      }
 
       // get pixel format (420f, 420v, x420)
       let pixelFormat = CMFormatDescriptionGetMediaSubType(videoInput.device.activeFormat.formatDescription)
