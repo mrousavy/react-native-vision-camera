@@ -33,8 +33,8 @@ export interface RecordVideoOptions {
    */
   onRecordingFinished: (video: VideoFile) => void;
   /**
-   * IOS only
-   * Specify the video codec to use. To get a list of available video codecs use the `getAvailableVideoCodecs()` function.
+   * Set the video codec to record in. Different video codecs affect video quality and video size.
+   * To get a list of all available video codecs use the `getAvailableVideoCodecs()` function.
    *
    * @default undefined
    */
