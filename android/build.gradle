@@ -466,7 +466,7 @@ extractJNIFiles.mustRunAfter extractAARHeaders
 // pre-native build pipeline
 
 tasks.whenTaskAdded { task ->
-  if (task.name.contains('externalNative') || task.name.contains('CMake')) {
+  if (!task.name.contains('Clean') && (task.name.contains('externalNative') || task.name.contains('CMake'))) {
     task.dependsOn(extractAARHeaders)
     task.dependsOn(extractJNIFiles)
     task.dependsOn(prepareJSC)
