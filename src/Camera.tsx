@@ -1,5 +1,5 @@
 import React from 'react';
-import { requireNativeComponent, NativeModules, NativeSyntheticEvent, findNodeHandle, NativeMethods, Platform } from 'react-native';
+import { requireNativeComponent, NativeModules, NativeSyntheticEvent, NativeMethods, Platform } from 'react-native';
 import type { FrameProcessorPerformanceSuggestion } from '.';
 import type { CameraDevice } from './CameraDevice';
 import type { ErrorWithCause } from './CameraError';
@@ -91,16 +91,15 @@ export class Camera extends React.PureComponent<CameraProps> {
     this.lastFrameProcessor = undefined;
   }
 
-  private get handle(): number | null {
-    const nodeHandle = findNodeHandle(this.ref.current);
-    if (nodeHandle == null || nodeHandle === -1) {
+  private get handle(): RefType {
+    if (this.ref.current == null) {
       throw new CameraRuntimeError(
         'system/view-not-found',
         "Could not get the Camera's native view tag! Does the Camera View exist in the native view-tree?",
       );
     }
 
-    return nodeHandle;
+    return this.ref.current;
   }
 
   //#region View-specific functions (UIViewManager)
@@ -117,9 +116,9 @@ export class Camera extends React.PureComponent<CameraProps> {
    * })
    * ```
    */
-  public async takePhoto(options?: TakePhotoOptions): Promise<PhotoFile> {
+  public async takePhoto(options: TakePhotoOptions = {}): Promise<PhotoFile> {
     try {
-      return await CameraModule.takePhoto(this.handle, options ?? {});
+      return await this.handle.takePhoto(options);
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -141,12 +140,12 @@ export class Camera extends React.PureComponent<CameraProps> {
    * })
    * ```
    */
-  public async takeSnapshot(options?: TakeSnapshotOptions): Promise<PhotoFile> {
+  public async takeSnapshot(options: TakeSnapshotOptions = {}): Promise<PhotoFile> {
     if (Platform.OS !== 'android')
       throw new CameraCaptureError('capture/capture-type-not-supported', `'takeSnapshot()' is not available on ${Platform.OS}!`);
 
     try {
-      return await CameraModule.takeSnapshot(this.handle, options ?? {});
+      return await this.handle.takeSnapshot(options);
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -174,7 +173,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    * }, 5000)
    * ```
    */
-  public startRecording(options: RecordVideoOptions): void {
+  public async startRecording(options: RecordVideoOptions): Promise<void> {
     const { onRecordingError, onRecordingFinished, ...passThroughOptions } = options;
     if (typeof onRecordingError !== 'function' || typeof onRecordingFinished !== 'function')
       throw new CameraRuntimeError('parameter/invalid-parameter', 'The onRecordingError or onRecordingFinished functions were not set!');
@@ -183,9 +182,9 @@ export class Camera extends React.PureComponent<CameraProps> {
       if (error != null) return onRecordingError(error);
       if (video != null) return onRecordingFinished(video);
     };
-    // TODO: Use TurboModules to either make this a sync invokation, or make it async.
+
     try {
-      CameraModule.startRecording(this.handle, passThroughOptions, onRecordCallback);
+      await this.handle.startRecording(passThroughOptions, onRecordCallback);
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -205,7 +204,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    */
   public async stopRecording(): Promise<void> {
     try {
-      return await CameraModule.stopRecording(this.handle);
+      return await this.handle.stopRecording();
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -231,7 +230,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    */
   public async focus(point: Point): Promise<void> {
     try {
-      return await CameraModule.focus(this.handle, point);
+      return await this.handle.focusPoint(point);
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -359,12 +358,14 @@ export class Camera extends React.PureComponent<CameraProps> {
 
   private setFrameProcessor(frameProcessor: (frame: Frame) => void): void {
     this.assertFrameProcessorsEnabled();
+    // TODO: Use native Ref (HostComponent) handle?
     // @ts-expect-error JSI functions aren't typed
     global.setFrameProcessor(this.handle, frameProcessor);
   }
 
   private unsetFrameProcessor(): void {
     this.assertFrameProcessorsEnabled();
+    // TODO: Use native Ref (HostComponent) handle?
     // @ts-expect-error JSI functions aren't typed
     global.unsetFrameProcessor(this.handle);
   }
