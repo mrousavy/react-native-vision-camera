@@ -1,9 +1,11 @@
 import React from 'react';
-import { requireNativeComponent, NativeModules, NativeSyntheticEvent, NativeMethods, Platform } from 'react-native';
+import { NativeModules, NativeSyntheticEvent, NativeMethods, Platform } from 'react-native';
 import type { FrameProcessorPerformanceSuggestion } from '.';
 import type { CameraDevice } from './CameraDevice';
 import type { ErrorWithCause } from './CameraError';
 import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError';
+import type { CameraNativeComponentProps } from './CameraNativeComponent';
+import CameraNativeComponent from './CameraNativeComponent';
 import type { CameraProps } from './CameraProps';
 import type { Frame } from './Frame';
 import type { PhotoFile, TakePhotoOptions } from './PhotoFile';
@@ -20,19 +22,7 @@ interface OnErrorEvent {
   message: string;
   cause?: ErrorWithCause;
 }
-type NativeCameraViewProps = Omit<
-  CameraProps,
-  'device' | 'onInitialized' | 'onError' | 'onFrameProcessorPerformanceSuggestionAvailable' | 'frameProcessor' | 'frameProcessorFps'
-> & {
-  cameraId: string;
-  frameProcessorFps?: number; // native cannot use number | string, so we use '-1' for 'auto'
-  enableFrameProcessor: boolean;
-  onInitialized?: (event: NativeSyntheticEvent<void>) => void;
-  onError?: (event: NativeSyntheticEvent<OnErrorEvent>) => void;
-  onFrameProcessorPerformanceSuggestionAvailable?: (event: NativeSyntheticEvent<FrameProcessorPerformanceSuggestion>) => void;
-  onViewReady: () => void;
-};
-type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>;
+type RefType = React.Component<CameraNativeComponentProps> & Readonly<NativeMethods>;
 //#endregion
 
 // NativeModules automatically resolves 'CameraView' to 'CameraViewModule'
@@ -407,7 +397,7 @@ export class Camera extends React.PureComponent<CameraProps> {
     // We remove the big `device` object from the props because we only need to pass `cameraId` to native.
     const { device, frameProcessor, frameProcessorFps, ...props } = this.props;
     return (
-      <NativeCameraView
+      <CameraNativeComponent
         {...props}
         frameProcessorFps={frameProcessorFps === 'auto' ? -1 : frameProcessorFps}
         cameraId={device.id}
@@ -422,10 +412,3 @@ export class Camera extends React.PureComponent<CameraProps> {
   }
 }
 //#endregion
-
-// requireNativeComponent automatically resolves 'CameraView' to 'CameraViewManager'
-const NativeCameraView = requireNativeComponent<NativeCameraViewProps>(
-  'CameraView',
-  // @ts-expect-error because the type declarations are kinda wrong, no?
-  Camera,
-);
