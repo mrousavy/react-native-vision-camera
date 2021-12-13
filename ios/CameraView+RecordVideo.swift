@@ -114,10 +114,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       }
 
       // Init Video
-      guard let videoSettings = videoCodec != nil ?
-        videoOutput.recommendedVideoSettings(forVideoCodecType: videoCodec!, assetWriterOutputFileType: fileType) :
-        videoOutput.recommendedVideoSettingsForAssetWriter(writingTo: fileType),
-        !videoSettings.isEmpty else {
+      guard let videoSettings = self.recommendedVideoSettings(videoOutput: videoOutput, fileType: fileType, videoCodec: videoCodec),
+            !videoSettings.isEmpty else {
         callback.reject(error: .capture(.createRecorderError(message: "Failed to get video settings!")))
         return
       }
@@ -261,6 +259,14 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       // frameProcessorFps={someCustomFpsValue}
       invokeOnFrameProcessorPerformanceSuggestionAvailable(currentFps: frameProcessorFps.doubleValue,
                                                            suggestedFps: suggestedFrameProcessorFps)
+    }
+  }
+
+  private func recommendedVideoSettings(videoOutput: AVCaptureVideoDataOutput, fileType: AVFileType, videoCodec: AVVideoCodecType?) -> [String: Any]? {
+    if videoCodec != nil {
+      return videoOutput.recommendedVideoSettings(forVideoCodecType: videoCodec!, assetWriterOutputFileType: fileType)
+    } else {
+      return videoOutput.recommendedVideoSettingsForAssetWriter(writingTo: fileType)
     }
   }
 
