@@ -79,7 +79,7 @@ final class CameraViewManager: RCTViewManager {
       guard let videoOutput = component.videoOutput else {
         throw CameraError.session(SessionError.cameraNotReady)
       }
-      
+
       var parsedFileType = AVFileType.mov
       if fileType != nil {
         guard let parsed = try? AVFileType(withString: fileType!) else {
