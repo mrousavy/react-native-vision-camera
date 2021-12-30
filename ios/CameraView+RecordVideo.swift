@@ -108,12 +108,18 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         return
       }
 
+      var videoCodec: AVVideoCodecType?
+      if let codecString = options["videoCodec"] as? String {
+        videoCodec = AVVideoCodecType(withString: codecString)
+      }
+
       // Init Video
-      guard let videoSettings = videoOutput.recommendedVideoSettingsForAssetWriter(writingTo: fileType),
+      guard let videoSettings = self.recommendedVideoSettings(videoOutput: videoOutput, fileType: fileType, videoCodec: videoCodec),
             !videoSettings.isEmpty else {
         callback.reject(error: .capture(.createRecorderError(message: "Failed to get video settings!")))
         return
       }
+
       // get pixel format (420f, 420v, x420)
       let pixelFormat = CMFormatDescriptionGetMediaSubType(videoInput.device.activeFormat.formatDescription)
       self.recordingSession!.initializeVideoWriter(withSettings: videoSettings,
@@ -253,6 +259,14 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       // frameProcessorFps={someCustomFpsValue}
       invokeOnFrameProcessorPerformanceSuggestionAvailable(currentFps: frameProcessorFps.doubleValue,
                                                            suggestedFps: suggestedFrameProcessorFps)
+    }
+  }
+
+  private func recommendedVideoSettings(videoOutput: AVCaptureVideoDataOutput, fileType: AVFileType, videoCodec: AVVideoCodecType?) -> [String: Any]? {
+    if videoCodec != nil {
+      return videoOutput.recommendedVideoSettings(forVideoCodecType: videoCodec!, assetWriterOutputFileType: fileType)
+    } else {
+      return videoOutput.recommendedVideoSettingsForAssetWriter(writingTo: fileType)
     }
   }
 

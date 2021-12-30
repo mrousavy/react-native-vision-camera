@@ -3,6 +3,17 @@ import type { TemporaryFile } from './TemporaryFile';
 
 export type VideoFileType = 'mov' | 'avci' | 'm4v' | 'mp4';
 
+export type CameraVideoCodec =
+  | 'h264'
+  | 'hevc'
+  | 'hevc-alpha'
+  | 'jpeg'
+  | 'pro-res-4444'
+  | 'pro-res-422'
+  | 'pro-res-422-hq'
+  | 'pro-res-422-lt'
+  | 'pro-res-422-proxy';
+
 export interface RecordVideoOptions {
   /**
    * Set the video flash mode. Natively, this just enables the torch while recording.
@@ -21,6 +32,13 @@ export interface RecordVideoOptions {
    * Called when the recording has been successfully saved to file.
    */
   onRecordingFinished: (video: VideoFile) => void;
+  /**
+   * Set the video codec to record in. Different video codecs affect video quality and video size.
+   * To get a list of all available video codecs use the `getAvailableVideoCodecs()` function.
+   *
+   * @default undefined
+   */
+  videoCodec?: CameraVideoCodec;
 }
 
 /**
