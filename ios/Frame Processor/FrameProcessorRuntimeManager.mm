@@ -107,8 +107,6 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                                                                                 function));
     }
 
-    [FrameProcessorPluginRegistry markInvalid];
-
     NSLog(@"FrameProcessorBindings: Frame Processor plugins installed!");
 #else
     NSLog(@"Reanimated not found, Frame Processors are disabled.");

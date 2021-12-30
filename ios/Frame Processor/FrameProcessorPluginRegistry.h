@@ -18,6 +18,4 @@ typedef id (^FrameProcessorPlugin) (Frame* frame, NSArray<id>* arguments);
 + (NSMutableDictionary<NSString*, FrameProcessorPlugin>*)frameProcessorPlugins;
 + (void) addFrameProcessorPlugin:(NSString*)name callback:(FrameProcessorPlugin)callback;
 
-+ (void) markInvalid;
-
 @end
