@@ -127,7 +127,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   private var imageAnalysis: ImageAnalysis? = null
   private var preview: Preview? = null
 
-  internal var activeVideoRecording: ActiveRecording? = null
+  internal var activeVideoRecording: Recording? = null
 
   private var lastFrameProcessorCall = System.currentTimeMillis()
 
@@ -342,11 +342,11 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
       val tryEnableExtension: (suspend (extension: Int) -> Unit) = lambda@ { extension ->
         if (extensionsManager == null) {
           Log.i(TAG, "Initializing ExtensionsManager...")
-          extensionsManager = ExtensionsManager.getInstance(context).await()
+          extensionsManager = ExtensionsManager.getInstanceAsync(context, cameraProvider).await()
         }
-        if (extensionsManager!!.isExtensionAvailable(cameraProvider, cameraSelector, extension)) {
+        if (extensionsManager!!.isExtensionAvailable(cameraSelector, extension)) {
           Log.i(TAG, "Enabling extension $extension...")
-          cameraSelector = extensionsManager!!.getExtensionEnabledCameraSelector(cameraProvider, cameraSelector, extension)
+          cameraSelector = extensionsManager!!.getExtensionEnabledCameraSelector(cameraSelector, extension)
         } else {
           Log.e(TAG, "Extension $extension is not available for the given Camera!")
           throw when (extension) {
@@ -364,12 +364,8 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         .setTargetRotation(rotation)
         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
 
-      val videoRecorder = Recorder.Builder()
-        // TODO: Quality .setQualitySelector(QualitySelector.of())
+      val videoRecorderBuilder = Recorder.Builder()
         .setExecutor(cameraExecutor)
-        .build()
-      val videoCapture = VideoCapture.withOutput(videoRecorder)
-      videoCapture.targetRotation = rotation
 
       val imageAnalysisBuilder = ImageAnalysis.Builder()
         .setTargetRotation(rotation)
@@ -390,8 +386,15 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         Log.i(TAG, "Using custom format - photo: ${format.photoSize}, video: ${format.videoSize} @ $fps FPS")
         previewBuilder.setTargetResolution(format.videoSize)
         imageCaptureBuilder.setTargetResolution(format.photoSize)
-        // TODO: Resolution for Video Recorder?
         imageAnalysisBuilder.setTargetResolution(format.videoSize)
+
+        // TODO: Ability to select resolution exactly depending on format? Just like on iOS...
+        when (min(format.videoSize.height, format.videoSize.width)) {
+          in 0..480 -> videoRecorderBuilder.setQualitySelector(QualitySelector.from(Quality.SD))
+          in 480..720 -> videoRecorderBuilder.setQualitySelector(QualitySelector.from(Quality.HD))
+          in 720..1080 -> videoRecorderBuilder.setQualitySelector(QualitySelector.from(Quality.FHD))
+          in 1080..2160 -> videoRecorderBuilder.setQualitySelector(QualitySelector.from(Quality.UHD))
+        }
 
         fps?.let { fps ->
           if (format.frameRateRanges.any { it.contains(fps) }) {
@@ -414,6 +417,10 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
           tryEnableExtension(ExtensionMode.NIGHT)
         }
       }
+
+      val videoRecorder = videoRecorderBuilder.build()
+      val videoCapture = VideoCapture.withOutput(videoRecorder)
+      videoCapture.targetRotation = rotation
 
       // Unbind use cases before rebinding
       this.videoCapture = null

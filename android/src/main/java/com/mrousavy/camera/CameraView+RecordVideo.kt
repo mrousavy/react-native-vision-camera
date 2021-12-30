@@ -57,44 +57,43 @@ fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Callback) 
 
   var recording = videoCapture!!
     .prepareRecording(context, mediaStoreOutput)
-    .withEventListener(ContextCompat.getMainExecutor(context), object : Consumer<VideoRecordEvent> {
-      override fun accept(event: VideoRecordEvent?) {
-        if (event is VideoRecordEvent.Finalize) {
-          if (event.hasError()) {
-            // error occured!
-            val error = when (event.error) {
-              VideoRecordEvent.Finalize.ERROR_ENCODING_FAILED -> VideoEncoderError(event.cause)
-              VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED -> FileSizeLimitReachedError(event.cause)
-              VideoRecordEvent.Finalize.ERROR_INSUFFICIENT_STORAGE -> InsufficientStorageError(event.cause)
-              VideoRecordEvent.Finalize.ERROR_INVALID_OUTPUT_OPTIONS -> InvalidVideoOutputOptionsError(event.cause)
-              VideoRecordEvent.Finalize.ERROR_NO_VALID_DATA -> NoValidDataError(event.cause)
-              VideoRecordEvent.Finalize.ERROR_RECORDER_ERROR -> RecorderError(event.cause)
-              VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE -> InactiveSourceError(event.cause)
-              else -> UnknownCameraError(event.cause)
-            }
-            val map = makeErrorMap("${error.domain}/${error.id}", error.message, error)
-            onRecordCallback(null, map)
-          } else {
-            // recording saved successfully!
-            val map = Arguments.createMap()
-            map.putString("path", event.outputResults.outputUri.toString())
-            map.putDouble("duration", /* seconds */ event.recordingStats.recordedDurationNanos.toDouble() / 1000000.0 / 1000.0)
-            map.putDouble("size", /* kB */ event.recordingStats.numBytesRecorded.toDouble() / 1000.0)
-            onRecordCallback(map, null)
-          }
-
-          // reset the torch mode
-          camera!!.cameraControl.enableTorch(torch == "on")
-        }
-      }
-    })
 
   if (audio == true) {
     @SuppressLint("MissingPermission")
     recording = recording.withAudioEnabled()
   }
 
-  activeVideoRecording = recording.start()
+  activeVideoRecording = recording.start(ContextCompat.getMainExecutor(context), object : Consumer<VideoRecordEvent> {
+    override fun accept(event: VideoRecordEvent?) {
+      if (event is VideoRecordEvent.Finalize) {
+        if (event.hasError()) {
+          // error occured!
+          val error = when (event.error) {
+            VideoRecordEvent.Finalize.ERROR_ENCODING_FAILED -> VideoEncoderError(event.cause)
+            VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED -> FileSizeLimitReachedError(event.cause)
+            VideoRecordEvent.Finalize.ERROR_INSUFFICIENT_STORAGE -> InsufficientStorageError(event.cause)
+            VideoRecordEvent.Finalize.ERROR_INVALID_OUTPUT_OPTIONS -> InvalidVideoOutputOptionsError(event.cause)
+            VideoRecordEvent.Finalize.ERROR_NO_VALID_DATA -> NoValidDataError(event.cause)
+            VideoRecordEvent.Finalize.ERROR_RECORDER_ERROR -> RecorderError(event.cause)
+            VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE -> InactiveSourceError(event.cause)
+            else -> UnknownCameraError(event.cause)
+          }
+          val map = makeErrorMap("${error.domain}/${error.id}", error.message, error)
+          onRecordCallback(null, map)
+        } else {
+          // recording saved successfully!
+          val map = Arguments.createMap()
+          map.putString("path", event.outputResults.outputUri.toString())
+          map.putDouble("duration", /* seconds */ event.recordingStats.recordedDurationNanos.toDouble() / 1000000.0 / 1000.0)
+          map.putDouble("size", /* kB */ event.recordingStats.numBytesRecorded.toDouble() / 1000.0)
+          onRecordCallback(map, null)
+        }
+
+        // reset the torch mode
+        camera!!.cameraControl.enableTorch(torch == "on")
+      }
+    }
+  })
 }
 
 @SuppressLint("RestrictedApi")
