@@ -198,6 +198,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
           val formats = Arguments.createArray()
 
+          // TODO: Get supported video qualities with QualitySelector.getSupportedQualities(...)
           cameraConfig.outputFormats.forEach { formatId ->
             val formatName = parseImageFormat(formatId)
 

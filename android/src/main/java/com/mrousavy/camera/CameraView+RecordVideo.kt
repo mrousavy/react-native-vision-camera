@@ -2,21 +2,13 @@ package com.mrousavy.camera
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.ContentResolver
-import android.content.ContentValues
 import android.content.pm.PackageManager
-import android.provider.MediaStore
-import androidx.camera.core.VideoCapture
 import androidx.camera.video.FileOutputOptions
-import androidx.camera.video.MediaStoreOutputOptions
-import androidx.camera.video.RecordingStats
 import androidx.camera.video.VideoRecordEvent
-import androidx.core.content.ContentResolverCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.Consumer
 import com.facebook.react.bridge.*
 import com.mrousavy.camera.utils.makeErrorMap
-import kotlinx.coroutines.*
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -46,17 +38,11 @@ fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Callback) 
   }
 
   val id = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-  val filename = "VisionCamera-${id}.mp4"
-  val contentValues = ContentValues().apply {
-    put(MediaStore.Video.Media.DISPLAY_NAME, filename)
-  }
-  val mediaStoreOutput = MediaStoreOutputOptions.Builder(context.contentResolver,
-    MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
-    .setContentValues(contentValues)
-    .build()
+  val file = File.createTempFile("VisionCamera-${id}", ".mp4")
+  val fileOptions = FileOutputOptions.Builder(file).build()
 
   var recording = videoCapture!!
-    .prepareRecording(context, mediaStoreOutput)
+    .prepareRecording(context, fileOptions)
 
   if (audio == true) {
     @SuppressLint("MissingPermission")
