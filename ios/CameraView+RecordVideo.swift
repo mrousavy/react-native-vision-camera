@@ -125,7 +125,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         self.activateAudioSession()
 
         if let audioOutput = self.audioOutput,
-           let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: fileType) as? [String: Any] {
+           let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: fileType) {
           self.recordingSession!.initializeAudioWriter(withSettings: audioSettings)
         }
       }
