@@ -3,17 +3,19 @@ package com.mrousavy.camera
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import androidx.camera.core.VideoCapture
+import androidx.camera.video.FileOutputOptions
+import androidx.camera.video.VideoRecordEvent
 import androidx.core.content.ContextCompat
+import androidx.core.util.Consumer
 import com.facebook.react.bridge.*
 import com.mrousavy.camera.utils.makeErrorMap
-import kotlinx.coroutines.*
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 
 data class TemporaryFile(val path: String)
 
-@SuppressLint("RestrictedApi", "MissingPermission")
-suspend fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Callback): TemporaryFile {
+fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Callback) {
   if (videoCapture == null) {
     if (video == true) {
       throw CameraNotReadyError()
@@ -35,44 +37,49 @@ suspend fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Ca
     camera!!.cameraControl.enableTorch(enableFlash)
   }
 
-  @Suppress("BlockingMethodInNonBlockingContext") // in withContext we are not blocking. False positive.
-  val videoFile = withContext(Dispatchers.IO) {
-    File.createTempFile("video", ".mp4", context.cacheDir).apply { deleteOnExit() }
+  val id = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+  val file = File.createTempFile("VisionCamera-${id}", ".mp4")
+  val fileOptions = FileOutputOptions.Builder(file).build()
+
+  var recording = videoCapture!!
+    .prepareRecording(context, fileOptions)
+
+  if (audio == true) {
+    @SuppressLint("MissingPermission")
+    recording = recording.withAudioEnabled()
   }
-  val videoFileOptions = VideoCapture.OutputFileOptions.Builder(videoFile)
 
-  videoCapture!!.startRecording(
-    videoFileOptions.build(), recordVideoExecutor,
-    object : VideoCapture.OnVideoSavedCallback {
-      override fun onVideoSaved(outputFileResults: VideoCapture.OutputFileResults) {
-        val map = Arguments.createMap()
-        map.putString("path", videoFile.absolutePath)
-        // TODO: duration and size - see https://github.com/mrousavy/react-native-vision-camera/issues/77
-        onRecordCallback(map, null)
-
-        // reset the torch mode
-        camera!!.cameraControl.enableTorch(torch == "on")
-      }
-
-      override fun onError(videoCaptureError: Int, message: String, cause: Throwable?) {
-        val error = when (videoCaptureError) {
-          VideoCapture.ERROR_ENCODER -> VideoEncoderError(message, cause)
-          VideoCapture.ERROR_FILE_IO -> FileIOError(message, cause)
-          VideoCapture.ERROR_INVALID_CAMERA -> InvalidCameraError(message, cause)
-          VideoCapture.ERROR_MUXER -> VideoMuxerError(message, cause)
-          VideoCapture.ERROR_RECORDING_IN_PROGRESS -> RecordingInProgressError(message, cause)
-          else -> UnknownCameraError(Error(message, cause))
+  activeVideoRecording = recording.start(ContextCompat.getMainExecutor(context), object : Consumer<VideoRecordEvent> {
+    override fun accept(event: VideoRecordEvent?) {
+      if (event is VideoRecordEvent.Finalize) {
+        if (event.hasError()) {
+          // error occured!
+          val error = when (event.error) {
+            VideoRecordEvent.Finalize.ERROR_ENCODING_FAILED -> VideoEncoderError(event.cause)
+            VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED -> FileSizeLimitReachedError(event.cause)
+            VideoRecordEvent.Finalize.ERROR_INSUFFICIENT_STORAGE -> InsufficientStorageError(event.cause)
+            VideoRecordEvent.Finalize.ERROR_INVALID_OUTPUT_OPTIONS -> InvalidVideoOutputOptionsError(event.cause)
+            VideoRecordEvent.Finalize.ERROR_NO_VALID_DATA -> NoValidDataError(event.cause)
+            VideoRecordEvent.Finalize.ERROR_RECORDER_ERROR -> RecorderError(event.cause)
+            VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE -> InactiveSourceError(event.cause)
+            else -> UnknownCameraError(event.cause)
+          }
+          val map = makeErrorMap("${error.domain}/${error.id}", error.message, error)
+          onRecordCallback(null, map)
+        } else {
+          // recording saved successfully!
+          val map = Arguments.createMap()
+          map.putString("path", event.outputResults.outputUri.toString())
+          map.putDouble("duration", /* seconds */ event.recordingStats.recordedDurationNanos.toDouble() / 1000000.0 / 1000.0)
+          map.putDouble("size", /* kB */ event.recordingStats.numBytesRecorded.toDouble() / 1000.0)
+          onRecordCallback(map, null)
         }
-        val map = makeErrorMap("${error.domain}/${error.id}", error.message, error)
-        onRecordCallback(null, map)
 
         // reset the torch mode
         camera!!.cameraControl.enableTorch(torch == "on")
       }
     }
-  )
-
-  return TemporaryFile(videoFile.absolutePath)
+  })
 }
 
 @SuppressLint("RestrictedApi")
@@ -80,8 +87,12 @@ fun CameraView.stopRecording() {
   if (videoCapture == null) {
     throw CameraNotReadyError()
   }
+  if (activeVideoRecording == null) {
+    throw NoRecordingInProgressError()
+  }
 
-  videoCapture!!.stopRecording()
+  activeVideoRecording!!.stop()
+
   // reset torch mode to original value
   camera!!.cameraControl.enableTorch(torch == "on")
 }

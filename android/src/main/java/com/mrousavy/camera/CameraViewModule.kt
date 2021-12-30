@@ -124,8 +124,8 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     val startTime = System.currentTimeMillis()
     coroutineScope.launch {
       withPromise(promise) {
-        val extensionsManager = ExtensionsManager.getInstance(reactApplicationContext).await()
         val cameraProvider = ProcessCameraProvider.getInstance(reactApplicationContext).await()
+        val extensionsManager = ExtensionsManager.getInstanceAsync(reactApplicationContext, cameraProvider).await()
         ProcessCameraProvider.getInstance(reactApplicationContext).await()
 
         val manager = reactApplicationContext.getSystemService(Context.CAMERA_SERVICE) as? CameraManager
@@ -162,8 +162,8 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
           else null
           val fpsRanges = characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES)!!
 
-          val supportsHdr = extensionsManager.isExtensionAvailable(cameraProvider, cameraSelector, ExtensionMode.HDR)
-          val supportsLowLightBoost = extensionsManager.isExtensionAvailable(cameraProvider, cameraSelector, ExtensionMode.NIGHT)
+          val supportsHdr = extensionsManager.isExtensionAvailable(cameraSelector, ExtensionMode.HDR)
+          val supportsLowLightBoost = extensionsManager.isExtensionAvailable(cameraSelector, ExtensionMode.NIGHT)
           // see https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture
           val supportsParallelVideoProcessing = hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY && hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
 
@@ -198,6 +198,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
           val formats = Arguments.createArray()
 
+          // TODO: Get supported video qualities with QualitySelector.getSupportedQualities(...)
           cameraConfig.outputFormats.forEach { formatId ->
             val formatName = parseImageFormat(formatId)
 
