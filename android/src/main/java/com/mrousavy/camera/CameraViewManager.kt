@@ -6,44 +6,13 @@ import com.facebook.react.common.MapBuilder
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
-import com.mrousavy.camera.frameprocessor.FrameProcessorRuntimeManager
-import java.util.concurrent.Executors
 
 @Suppress("unused")
 class CameraViewManager(reactContext: ReactApplicationContext) : SimpleViewManager<CameraView>() {
-  private val frameProcessorThread = Executors.newSingleThreadExecutor()
-  private var frameProcessorManager: FrameProcessorRuntimeManager? = null
-
-  init {
-    if (frameProcessorManager == null) {
-      frameProcessorThread.execute {
-        frameProcessorManager = FrameProcessorRuntimeManager(reactContext, frameProcessorThread)
-
-        reactContext.runOnJSQueueThread {
-          frameProcessorManager!!.installJSIBindings()
-        }
-      }
-    }
-  }
-
-  private fun destroy() {
-    frameProcessorManager = null
-    frameProcessorThread.shutdown()
-  }
-
-
-  override fun onCatalystInstanceDestroy() {
-    super.onCatalystInstanceDestroy()
-    destroy()
-  }
-
-  override fun invalidate() {
-    super.invalidate()
-    destroy()
-  }
 
   public override fun createViewInstance(context: ThemedReactContext): CameraView {
-    return CameraView(context, frameProcessorThread)
+    val cameraViewModule = context.getNativeModule(CameraViewModule::class.java)!!
+    return CameraView(context, cameraViewModule.frameProcessorThread)
   }
 
   override fun onAfterUpdateTransaction(view: CameraView) {
