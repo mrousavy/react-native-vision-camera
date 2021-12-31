@@ -245,8 +245,11 @@ export class Camera extends React.PureComponent<CameraProps> {
    * const codecs = await camera.current.getAvailableVideoCodecs("mp4")
    * ```
    * @throws {@linkcode CameraRuntimeError} When any kind of error occured while getting available video codecs. Use the {@linkcode ParameterError.code | code} property to get the actual error
+   * @platform iOS
    */
   public async getAvailableVideoCodecs(fileType?: VideoFileType): Promise<CameraVideoCodec[]> {
+    if (Platform.OS !== 'ios') return []; // no video codecs supported on other platforms.
+
     try {
       return await CameraModule.getAvailableVideoCodecs(this.handle, fileType);
     } catch (e) {

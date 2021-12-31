@@ -37,6 +37,7 @@ export interface RecordVideoOptions {
    * To get a list of all available video codecs use the `getAvailableVideoCodecs()` function.
    *
    * @default undefined
+   * @platform iOS
    */
   videoCodec?: CameraVideoCodec;
 }
