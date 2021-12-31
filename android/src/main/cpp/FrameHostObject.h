@@ -28,7 +28,7 @@ class JSI_EXPORT FrameHostObject : public jsi::HostObject {
   void close();
 
  public:
-  jni::local_ref<JImageProxy> frame;
+  jni::global_ref<JImageProxy> frame;
 
  private:
   static auto constexpr TAG = "VisionCamera";
