@@ -69,7 +69,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "bytesPerRow") {
     this->assertIsFrameStrong(runtime, name);
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
-    auto bytesPerRow = CVPixelBufferGetPlaneCount(imageBuffer);
+    auto bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
     return jsi::Value((double) bytesPerRow);
   }
   if (name == "planesCount") {
