@@ -13,7 +13,6 @@ import java.util.List;
 import com.mrousavy.camera.CameraPackage;
 import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
 import com.facebook.react.bridge.JSIModulePackage;
-import com.swmansion.reanimated.ReanimatedJSIModulePackage;
 
 
 public class MainApplication extends Application implements ReactApplication {
@@ -37,11 +36,6 @@ public class MainApplication extends Application implements ReactApplication {
         @Override
         protected String getJSMainModuleName() {
           return "index";
-        }
-
-        @Override
-        protected JSIModulePackage getJSIModulePackage() {
-          return new ReanimatedJSIModulePackage();
         }
       };
 
