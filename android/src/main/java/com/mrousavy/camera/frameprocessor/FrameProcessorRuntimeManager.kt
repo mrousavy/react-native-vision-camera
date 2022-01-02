@@ -49,7 +49,7 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext, frameProces
       Log.i(TAG, "Successfully installed ${Plugins.count()} Frame Processor Plugins!")
 
       Log.i(TAG, "Installing JSI Bindings on JS Thread...")
-      reactApplicationContext.runOnJSQueueThread {
+      context.runOnJSQueueThread {
         installJSIBindings()
       }
     }
