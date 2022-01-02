@@ -85,7 +85,7 @@ def getExtOrIntegerDefault(name) {
 }
 
 def reanimated = rootProject.subprojects.find { it.name == 'react-native-reanimated' }
-def ENABLE_FRAME_PROCESSORS = getExtOrDefault("enableFrameProcessors") && reanimated != null
+def ENABLE_FRAME_PROCESSORS = !getExtOrDefault("disableFrameProcessors") && reanimated != null
 
 android {
   compileSdkVersion getExtOrIntegerDefault('compileSdkVersion')
