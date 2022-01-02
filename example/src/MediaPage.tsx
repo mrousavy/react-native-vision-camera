@@ -3,7 +3,6 @@ import { StyleSheet, View, Image, ActivityIndicator, PermissionsAndroid, Platfor
 import Video, { LoadError, OnLoadData } from 'react-native-video';
 import { SAFE_AREA_PADDING } from './Constants';
 import { useIsForeground } from './hooks/useIsForeground';
-import { PressableOpacity } from 'react-native-pressable-opacity';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { Alert } from 'react-native';
 import CameraRoll from '@react-native-community/cameraroll';
@@ -109,16 +108,6 @@ export function MediaPage({ navigation, route }: Props): React.ReactElement {
           onError={onMediaLoadError}
         />
       )}
-
-      <PressableOpacity style={styles.closeButton} onPress={onClosePressed}>
-        <IonIcon name="close" size={35} color="white" style={styles.icon} />
-      </PressableOpacity>
-
-      <PressableOpacity style={styles.saveButton} onPress={onSavePressed} disabled={savingState !== 'none'}>
-        {savingState === 'none' && <IonIcon name="download" size={35} color="white" style={styles.icon} />}
-        {savingState === 'saved' && <IonIcon name="checkmark" size={35} color="white" style={styles.icon} />}
-        {savingState === 'saving' && <ActivityIndicator color="white" />}
-      </PressableOpacity>
 
       <StatusBarBlurBackground />
     </View>

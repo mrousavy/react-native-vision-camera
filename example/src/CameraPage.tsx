@@ -16,7 +16,6 @@ import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING } from './Constants
 import { useEffect } from 'react';
 import { useIsForeground } from './hooks/useIsForeground';
 import { StatusBarBlurBackground } from './views/StatusBarBlurBackground';
-import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { examplePlugin } from './frame-processors/ExamplePlugin';
@@ -202,36 +201,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
       <StatusBarBlurBackground />
 
-      <View style={styles.rightButtonRow}>
-        {supportsCameraFlipping && (
-          <PressableOpacity style={styles.button} onPress={onFlipCameraPressed} disabledOpacity={0.4}>
-            <IonIcon name="camera-reverse" color="white" size={24} />
-          </PressableOpacity>
-        )}
-        {supportsFlash && (
-          <PressableOpacity style={styles.button} onPress={onFlashPressed} disabledOpacity={0.4}>
-            <IonIcon name={flash === 'on' ? 'flash' : 'flash-off'} color="white" size={24} />
-          </PressableOpacity>
-        )}
-        {supports60Fps && (
-          <PressableOpacity style={styles.button} onPress={() => setIs60Fps(!is60Fps)}>
-            <Text style={styles.text}>
-              {is60Fps ? '60' : '30'}
-              {'\n'}FPS
-            </Text>
-          </PressableOpacity>
-        )}
-        {supportsHdr && (
-          <PressableOpacity style={styles.button} onPress={() => setEnableHdr((h) => !h)}>
-            <MaterialIcon name={enableHdr ? 'hdr' : 'hdr-off'} color="white" size={24} />
-          </PressableOpacity>
-        )}
-        {canToggleNightMode && (
-          <PressableOpacity style={styles.button} onPress={() => setEnableNightMode(!enableNightMode)} disabledOpacity={0.4}>
-            <IonIcon name={enableNightMode ? 'moon' : 'moon-outline'} color="white" size={24} />
-          </PressableOpacity>
-        )}
-      </View>
+      <View style={styles.rightButtonRow} />
     </View>
   );
 }
