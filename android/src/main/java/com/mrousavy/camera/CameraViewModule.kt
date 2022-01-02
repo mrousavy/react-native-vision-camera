@@ -13,13 +13,18 @@ import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
+import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener
+import com.mrousavy.camera.frameprocessor.FrameProcessorRuntimeManager
 import com.mrousavy.camera.parsers.*
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.guava.await
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
+@ReactModule(name = CameraViewModule.TAG)
 @Suppress("unused")
 class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
   companion object {
@@ -35,11 +40,28 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
+  var frameProcessorThread: ExecutorService = Executors.newSingleThreadExecutor()
   private val coroutineScope = CoroutineScope(Dispatchers.Default) // TODO: or Dispatchers.Main?
+  private var frameProcessorManager: FrameProcessorRuntimeManager? = null
 
   private fun cleanup() {
     if (coroutineScope.isActive) {
       coroutineScope.cancel("CameraViewModule has been destroyed.")
+    }
+    frameProcessorManager = null
+  }
+
+  override fun initialize() {
+    super.initialize()
+
+    if (frameProcessorManager == null) {
+      frameProcessorThread.execute {
+        frameProcessorManager = FrameProcessorRuntimeManager(reactApplicationContext, frameProcessorThread)
+
+        reactApplicationContext.runOnJSQueueThread {
+          frameProcessorManager!!.installJSIBindings()
+        }
+      }
     }
   }
 
