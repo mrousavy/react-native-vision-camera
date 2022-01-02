@@ -13,14 +13,14 @@ namespace vision {
 
 using namespace facebook;
 
-FrameHostObject::FrameHostObject(jni::alias_ref<JImageProxy::javaobject> image): frame(make_local(image)) { }
+FrameHostObject::FrameHostObject(jni::alias_ref<JImageProxy::javaobject> image): frame(make_global(image)) { }
 
 FrameHostObject::~FrameHostObject() {
   // Hermes' Garbage Collector (Hades GC) calls destructors on a separate Thread
   // which might not be attached to JNI. Ensure that we use the JNI class loader when
   // deallocating the `frame` HybridClass, because otherwise JNI cannot call the Java
   // destroy() function.
-  jni::ThreadScope::WithClassLoader([=] { frame.reset(); });
+  jni::ThreadScope::WithClassLoader([&] { frame.reset(); });
 }
 
 std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt) {
