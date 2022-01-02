@@ -47,6 +47,11 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext, frameProces
         registerPlugin(plugin)
       }
       Log.i(TAG, "Successfully installed ${Plugins.count()} Frame Processor Plugins!")
+
+      Log.i(TAG, "Installing JSI Bindings on JS Thread...")
+      reactApplicationContext.runOnJSQueueThread {
+        installJSIBindings()
+      }
     }
   }
 
@@ -68,7 +73,5 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext, frameProces
   ): HybridData
   private external fun initializeRuntime()
   private external fun registerPlugin(plugin: FrameProcessorPlugin)
-
-  // public C++ funcs
-  external fun installJSIBindings()
+  private external fun installJSIBindings()
 }
