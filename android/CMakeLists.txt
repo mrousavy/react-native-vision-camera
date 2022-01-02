@@ -117,7 +117,7 @@ find_library(
         PATHS ${LIBRN_DIR}
         NO_CMAKE_FIND_ROOT_PATH
 )
-if(${REACT_NATIVE_TARGET_VERSION} LESS 66)
+if(${REACT_NATIVE_VERSION} LESS 66)
         # JSI lib didn't exist on RN 0.65 and before. Simply omit it.
         set (JSI_LIB "")
 else()
