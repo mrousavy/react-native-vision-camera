@@ -12,8 +12,8 @@
     "clear": "docusaurus clear"
   },
   "dependencies": {
-    "@docusaurus/core": "^2.0.0-beta.6",
-    "@docusaurus/preset-classic": "^2.0.0-beta.6",
+    "@docusaurus/core": "^2.0.0-beta.14",
+    "@docusaurus/preset-classic": "^2.0.0-beta.14",
     "@mdx-js/react": "^1.6.22",
     "clsx": "^1.1.1",
     "react": "^17.0.2",
@@ -33,8 +33,8 @@
   },
   "devDependencies": {
     "docusaurus-plugin-typedoc": "^0.16.6",
-    "typedoc": "^0.22.5",
-    "typedoc-plugin-markdown": "^3.11.3",
-    "typescript": "^4.4.3"
+    "typedoc": "^0.22.10",
+    "typedoc-plugin-markdown": "^3.11.8",
+    "typescript": "^4.5.4"
   }
 }
