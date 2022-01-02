@@ -18,9 +18,9 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
 @end
 
 namespace vision {
-  
+
 using namespace facebook;
-  
+
 VisionCameraScheduler::VisionCameraScheduler(std::shared_ptr<react::CallInvoker> jsInvoker) {
   this->jsCallInvoker_ = jsInvoker;
 }
@@ -34,6 +34,6 @@ void VisionCameraScheduler::scheduleOnUI(std::function<void()> job) {
 
 VisionCameraScheduler::~VisionCameraScheduler(){
 }
-  
-  
+
+
 } // namespace vision

@@ -57,10 +57,6 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     if (frameProcessorManager == null) {
       frameProcessorThread.execute {
         frameProcessorManager = FrameProcessorRuntimeManager(reactApplicationContext, frameProcessorThread)
-
-        reactApplicationContext.runOnJSQueueThread {
-          frameProcessorManager!!.installJSIBindings()
-        }
       }
     }
   }
