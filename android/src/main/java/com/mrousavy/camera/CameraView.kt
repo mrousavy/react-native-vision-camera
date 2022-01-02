@@ -26,6 +26,7 @@ import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.*
 import com.facebook.react.uimanager.events.RCTEventEmitter
 import com.mrousavy.camera.frameprocessor.FrameProcessorPerformanceDataCollector
+import com.mrousavy.camera.frameprocessor.FrameProcessorRuntimeManager
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.guava.await
@@ -159,7 +160,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
     }
 
   @DoNotStrip
-  private var mHybridData: HybridData
+  private var mHybridData: HybridData? = null
 
   @Suppress("LiftReturnOrAssignment", "RedundantIf")
   internal val fallbackToSnapshot: Boolean
@@ -192,7 +193,9 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
     }
 
   init {
-    mHybridData = initHybrid()
+    if (FrameProcessorRuntimeManager.enableFrameProcessors) {
+      mHybridData = initHybrid()
+    }
 
     previewView = PreviewView(context)
     previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
