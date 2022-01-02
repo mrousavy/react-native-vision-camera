@@ -35,7 +35,7 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext, frameProces
   private var mScheduler: VisionCameraScheduler? = null
 
   init {
-    if (!enableFrameProcessors) {
+    if (enableFrameProcessors) {
       val holder = context.catalystInstance.jsCallInvokerHolder as CallInvokerHolderImpl
       mScheduler = VisionCameraScheduler(frameProcessorThread)
       mContext = WeakReference(context)
