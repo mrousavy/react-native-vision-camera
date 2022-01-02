@@ -8,7 +8,15 @@
 
 #pragma once
 
-#import <RNReanimated/Scheduler.h>
+#if __has_include(<RNReanimated/RuntimeManager.h>)
+  #import <RNReanimated/Scheduler.h>
+#else
+  // dummy placeholder
+  namespace reanimated {
+    class Scheduler {};
+  }
+#endif
+
 #import <React-callinvoker/ReactCommon/CallInvoker.h>
 
 namespace vision {
