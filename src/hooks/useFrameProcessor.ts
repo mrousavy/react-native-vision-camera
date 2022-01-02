@@ -3,7 +3,11 @@
 import { DependencyList, useCallback } from 'react';
 import type { Frame } from '../Frame';
 
-if (global.__reanimatedWorkletInit == null) require('react-native-reanimated');
+// @ts-expect-error
+if (global.__reanimatedWorkletInit == null) {
+  // import REA to initialize it before we use the Worklet API.
+  require('react-native-reanimated');
+}
 
 type FrameProcessor = (frame: Frame) => void;
 
