@@ -4,6 +4,10 @@ import java.nio.file.Paths
 
 def reactNative = new File("$projectDir/../node_modules/react-native")
 
+def reactProperties = new Properties()
+file("$projectDir/../node_modules/react-native/ReactAndroid/gradle.properties").withInputStream { reactProperties.load(it) }
+def REACT_NATIVE_VERSION = reactProperties.getProperty("VERSION_NAME").split("\\.")[1].toInteger()
+
 def FOR_HERMES = System.getenv("FOR_HERMES") == "True"
 rootProject.getSubprojects().forEach({project ->
   if (project.plugins.hasPlugin("com.android.application")) {
@@ -94,6 +98,7 @@ android {
         cppFlags "-fexceptions", "-frtti", "-std=c++1y", "-DONANDROID"
         abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
         arguments '-DANDROID_STL=c++_shared',
+                "-DREACT_NATIVE_VERSION=${REACT_NATIVE_VERSION}",
                 "-DNODE_MODULES_DIR=${rootDir}/../node_modules",
                 "-DFOR_HERMES=${FOR_HERMES}"
       }
@@ -111,7 +116,10 @@ android {
   }
 
   packagingOptions {
-    excludes = ["**/libc++_shared.so", "**/libfbjni.so", "**/libjsi.so"]
+    // Exclude all Libraries that are already present in the user's app (through React Native or by him installing REA)
+    excludes = ["**/libc++_shared.so", "**/libfbjni.so", "**/libjsi.so", "**/libreactnativejni.so", "**/libfolly_json.so", "**/libreanimated.so", "**/libjscexecutor.so"]
+    // META-INF is duplicate by CameraX.
+    exclude "META-INF/**"
   }
 
   buildTypes {
