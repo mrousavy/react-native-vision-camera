@@ -8,7 +8,6 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.turbomodule.core.CallInvokerHolderImpl
 import com.mrousavy.camera.CameraView
 import com.mrousavy.camera.ViewNotFoundError
-import com.swmansion.reanimated.Scheduler
 import java.lang.ref.WeakReference
 import java.util.concurrent.ExecutorService
 
