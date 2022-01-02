@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useRef, useState, useMemo, useCallback } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler';
 import {
   CameraDeviceFormat,
   CameraRuntimeError,
@@ -14,11 +13,9 @@ import {
 } from 'react-native-vision-camera';
 import { Camera, frameRateIncluded } from 'react-native-vision-camera';
 import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING } from './Constants';
-import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated';
 import { useEffect } from 'react';
 import { useIsForeground } from './hooks/useIsForeground';
 import { StatusBarBlurBackground } from './views/StatusBarBlurBackground';
-import { CaptureButton } from './views/CaptureButton';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
@@ -27,12 +24,6 @@ import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
 
-const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
-Reanimated.addWhitelistedNativeProps({
-  zoom: true,
-});
-
-const SCALE_FULL_ZOOM = 3;
 const BUTTON_SIZE = 40;
 
 type Props = NativeStackScreenProps<Routes, 'CameraPage'>;
@@ -40,8 +31,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const camera = useRef<Camera>(null);
   const [isCameraInitialized, setIsCameraInitialized] = useState(false);
   const [hasMicrophonePermission, setHasMicrophonePermission] = useState(false);
-  const zoom = useSharedValue(0);
-  const isPressingButton = useSharedValue(false);
+  const zoom = { value: 0 };
+  const isPressingButton = { value: false };
 
   // check if camera page is active
   const isFocussed = useIsFocused();
@@ -113,12 +104,6 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const minZoom = device?.minZoom ?? 1;
   const maxZoom = Math.min(device?.maxZoom ?? 1, MAX_ZOOM_FACTOR);
 
-  const cameraAnimatedProps = useAnimatedProps(() => {
-    const z = Math.max(Math.min(zoom.value, maxZoom), minZoom);
-    return {
-      zoom: z,
-    };
-  }, [maxZoom, minZoom, zoom]);
   //#endregion
 
   //#region Callbacks
@@ -172,22 +157,6 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   }, []);
   //#endregion
 
-  //#region Pinch to Zoom Gesture
-  // The gesture handler maps the linear pinch gesture (0 - 1) to an exponential curve since a camera's zoom
-  // function does not appear linear to the user. (aka zoom 0.1 -> 0.2 does not look equal in difference as 0.8 -> 0.9)
-  const onPinchGesture = useAnimatedGestureHandler<PinchGestureHandlerGestureEvent, { startZoom?: number }>({
-    onStart: (_, context) => {
-      context.startZoom = zoom.value;
-    },
-    onActive: (event, context) => {
-      // we're trying to map the scale gesture to a linear zoom here
-      const startZoom = context.startZoom ?? 0;
-      const scale = interpolate(event.scale, [1 - 1 / SCALE_FULL_ZOOM, 1, SCALE_FULL_ZOOM], [-1, 0, 1], Extrapolate.CLAMP);
-      zoom.value = interpolate(scale, [-1, 0, 1], [minZoom, startZoom, maxZoom], Extrapolate.CLAMP);
-    },
-  });
-  //#endregion
-
   if (device != null && format != null) {
     console.log(
       `Re-rendering camera page with ${isActive ? 'active' : 'inactive'} camera. ` +
@@ -210,45 +179,26 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   return (
     <View style={styles.container}>
       {device != null && (
-        <PinchGestureHandler onGestureEvent={onPinchGesture} enabled={isActive}>
-          <Reanimated.View style={StyleSheet.absoluteFill}>
-            <TapGestureHandler onEnded={onDoubleTap} numberOfTaps={2}>
-              <ReanimatedCamera
-                ref={camera}
-                style={StyleSheet.absoluteFill}
-                device={device}
-                format={format}
-                fps={fps}
-                hdr={enableHdr}
-                lowLightBoost={device.supportsLowLightBoost && enableNightMode}
-                isActive={isActive}
-                onInitialized={onInitialized}
-                onError={onError}
-                enableZoomGesture={false}
-                animatedProps={cameraAnimatedProps}
-                photo={true}
-                video={true}
-                audio={hasMicrophonePermission}
-                frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
-                frameProcessorFps={1}
-                onFrameProcessorPerformanceSuggestionAvailable={onFrameProcessorSuggestionAvailable}
-              />
-            </TapGestureHandler>
-          </Reanimated.View>
-        </PinchGestureHandler>
+        <Camera
+          ref={camera}
+          style={StyleSheet.absoluteFill}
+          device={device}
+          format={format}
+          fps={fps}
+          hdr={enableHdr}
+          lowLightBoost={device.supportsLowLightBoost && enableNightMode}
+          isActive={isActive}
+          onInitialized={onInitialized}
+          onError={onError}
+          enableZoomGesture={false}
+          photo={true}
+          video={true}
+          audio={hasMicrophonePermission}
+          frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
+          frameProcessorFps={1}
+          onFrameProcessorPerformanceSuggestionAvailable={onFrameProcessorSuggestionAvailable}
+        />
       )}
-
-      <CaptureButton
-        style={styles.captureButton}
-        camera={camera}
-        onMediaCaptured={onMediaCaptured}
-        cameraZoom={zoom}
-        minZoom={minZoom}
-        maxZoom={maxZoom}
-        flash={supportsFlash ? flash : 'off'}
-        enabled={isCameraInitialized && isActive}
-        setIsPressingButton={setIsPressingButton}
-      />
 
       <StatusBarBlurBackground />
 
