@@ -3,6 +3,8 @@
 import { DependencyList, useCallback } from 'react';
 import type { Frame } from '../Frame';
 
+if (global.__reanimatedWorkletInit == null) require('react-native-reanimated');
+
 type FrameProcessor = (frame: Frame) => void;
 
 const capturableConsole = console;
