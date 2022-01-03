@@ -404,7 +404,7 @@ if (ENABLE_FRAME_PROCESSORS) {
       logger.warn("VisionCamera: Using Hermes AAR: ${aarName}")
 
       if (!hermesAAR.exists()) {
-        throw new GradleScriptException("The hermes-engine npm package is missing \"android/hermes-debug.aar\"", null)
+        throw new GradleScriptException("The hermes-engine npm package is missing \"android/${aarName}\"", null)
       }
 
       def soFiles = zipTree(hermesAAR).matching({ it.include "**/*.so" })
