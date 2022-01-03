@@ -30,6 +30,7 @@ rootProject.getSubprojects().forEach({project ->
     FOR_HERMES = project.ext.react.enableHermes
   }
 })
+logger.warn("VisionCamera: Building with ${FOR_HERMES ? "Hermes" : "JSC"}...")
 
 buildscript {
   // Buildscript is evaluated before everything else so we can't use getExtOrDefault
