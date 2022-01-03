@@ -229,6 +229,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         cameraExecutor.shutdown()
         takePhotoExecutor.shutdown()
         recordVideoExecutor.shutdown()
+        reactContext.removeLifecycleEventListener(this)
       }
     })
   }
