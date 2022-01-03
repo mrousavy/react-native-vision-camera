@@ -2,41 +2,6 @@ import groovy.json.JsonSlurper
 import org.apache.tools.ant.filters.ReplaceTokens
 import java.nio.file.Paths
 
-def nodeModulesPath = "$projectDir/../node_modules"
-def reactNative = new File("$nodeModulesPath/react-native")
-
-def reactProperties = new Properties()
-file("$nodeModulesPath/react-native/ReactAndroid/gradle.properties").withInputStream { reactProperties.load(it) }
-def REACT_NATIVE_VERSION = reactProperties.getProperty("VERSION_NAME").split("\\.")[1].toInteger()
-
-def FOR_HERMES = System.getenv("FOR_HERMES") == "True"
-rootProject.getSubprojects().forEach({project ->
-  if (project.plugins.hasPlugin("com.android.application")) {
-    FOR_HERMES = project.ext.react.enableHermes
-  }
-})
-
-/**
- * Finds the path of the installed npm package with the given name using Node's
- * module resolution algorithm, which searches "node_modules" directories up to
- * the file system root. This handles various cases, including:
- *
- *   - Working in the open-source RN repo:
- *       Gradle: /path/to/react-native/ReactAndroid
- *       Node module: /path/to/react-native/node_modules/[package]
- *
- *   - Installing RN as a dependency of an app and searching for hoisted
- *     dependencies:
- *       Gradle: /path/to/app/node_modules/react-native/ReactAndroid
- *       Node module: /path/to/app/node_modules/[package]
- *
- *   - Working in a larger repo (e.g., Facebook) that contains RN:
- *       Gradle: /path/to/repo/path/to/react-native/ReactAndroid
- *       Node module: /path/to/repo/node_modules/[package]
- *
- * The search begins at the given base directory (a File object). The returned
- * path is a string.
- */
 static def findNodeModulePath(baseDir, packageName) {
   def basePath = baseDir.toPath().normalize()
   // Node's module resolution algorithm searches up to the root directory,
@@ -50,6 +15,20 @@ static def findNodeModulePath(baseDir, packageName) {
   }
   return null
 }
+
+def nodeModulesPath = findNodeModulePath(projectDir, null)
+def reactNative = new File("$nodeModulesPath/react-native")
+
+def reactProperties = new Properties()
+file("$nodeModulesPath/react-native/ReactAndroid/gradle.properties").withInputStream { reactProperties.load(it) }
+def REACT_NATIVE_VERSION = reactProperties.getProperty("VERSION_NAME").split("\\.")[1].toInteger()
+
+def FOR_HERMES = System.getenv("FOR_HERMES") == "True"
+rootProject.getSubprojects().forEach({project ->
+  if (project.plugins.hasPlugin("com.android.application")) {
+    FOR_HERMES = project.ext.react.enableHermes
+  }
+})
 
 buildscript {
   // Buildscript is evaluated before everything else so we can't use getExtOrDefault
