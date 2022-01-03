@@ -11,10 +11,7 @@ export const withDangerouslyHandleAndroidSharedLibrary: ConfigPlugin = (config) 
   return withAppBuildGradle(config, (config) => {
     if (config.modResults.language === 'groovy') {
       const body = `
-        pickFirst 'lib/x86/libc++_shared.so'
-        pickFirst 'lib/x86_64/libc++_shared.so'
-        pickFirst 'lib/armeabi-v7a/libc++_shared.so'
-        pickFirst 'lib/arm64-v8a/libc++_shared.so'
+        pickFirst 'lib/**/libc++*'
       `;
       const regexpPackagingOptions = /\bpackagingOptions\s*{[^}]*}/;
       const packagingOptionsMatch = config.modResults.contents.match(regexpPackagingOptions);
