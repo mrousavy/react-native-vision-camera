@@ -91,9 +91,9 @@ def disableFrameProcessors = getExtOrDefault("disableFrameProcessors")
 def ENABLE_FRAME_PROCESSORS = hasReanimated2 && !disableFrameProcessors
 
 if (ENABLE_FRAME_PROCESSORS) {
-  logger.info("VisionCamera: Frame Processors are enabled! Building C++ part...")
+  logger.warn("VisionCamera: Frame Processors are enabled! Building C++ part...")
 } else {
-  logger.info("VisionCamera: Frame Processors are disabled. C++ part will not be built.")
+  logger.warn("VisionCamera: Frame Processors are disabled. C++ part will not be built.")
 }
 
 android {
