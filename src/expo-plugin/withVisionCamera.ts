@@ -1,5 +1,5 @@
 import { withPlugins, AndroidConfig, ConfigPlugin, createRunOncePlugin } from '@expo/config-plugins';
-import { withDisableFrameProcessors } from './withDisableFrameProcessor';
+import { withDisableFrameProcessors } from './withDisableFrameProcessors';
 // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-unsafe-assignment
 const pkg = require('../../../package.json');
 
