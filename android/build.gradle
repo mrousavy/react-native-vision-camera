@@ -87,7 +87,7 @@ def getExtOrIntegerDefault(name) {
 
 // REA Common/ folder only exists since REA v2.
 def hasReanimated2 = file("${nodeModulesPath}/react-native-reanimated/plugin.js").exists()
-def disableFrameProcessors = getExtOrDefault("disableFrameProcessors")
+def disableFrameProcessors = getExtOrDefault("disableFrameProcessors").asBoolean()
 def ENABLE_FRAME_PROCESSORS = hasReanimated2 && !disableFrameProcessors
 
 if (ENABLE_FRAME_PROCESSORS) {
