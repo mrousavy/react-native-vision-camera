@@ -85,8 +85,9 @@ def getExtOrIntegerDefault(name) {
   return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties['VisionCamera_' + name]).toInteger()
 }
 
-def reanimatedPath = "${nodeModulesPath}/react-native-reanimated"
-def ENABLE_FRAME_PROCESSORS = !getExtOrDefault("disableFrameProcessors") && file(reanimatedPath).exists()
+// REA Common/ folder only exists since REA v2.
+def hasReanimated2 = file("${nodeModulesPath}/react-native-reanimated/Common").exists()
+def ENABLE_FRAME_PROCESSORS = !getExtOrDefault("disableFrameProcessors") && hasReanimated2
 
 android {
   compileSdkVersion getExtOrIntegerDefault('compileSdkVersion')
