@@ -16,7 +16,7 @@ static def findNodeModules(baseDir) {
   throw new GradleException("VisionCamera: Failed to find node_modules/ path!")
 }
 
-def nodeModules = findNodeModules(projectDir)
+def nodeModules = findNodeModules(rootDir)
 logger.warn("VisionCamera: node_modules/ found at: ${nodeModules}")
 def reactNative = new File("$nodeModules/react-native")
 
