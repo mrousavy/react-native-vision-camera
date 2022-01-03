@@ -93,10 +93,10 @@ def ENABLE_FRAME_PROCESSORS = hasReanimated2 && !disableFrameProcessors
 if (ENABLE_FRAME_PROCESSORS) {
   logger.warn("VisionCamera: Frame Processors are enabled! Building C++ part...")
 } else {
-  if (hasReanimated2) {
-    logger.warn("VisionCamera: Frame Processors are disabled because REA v2 does not exist. C++ part will not be built.")
-  } else {
+  if (disableFrameProcessors) {
     logger.warn("VisionCamera: Frame Processors are disabled because the user explicitly disabled it ('disableFrameProcessors=true'). C++ part will not be built.")
+  } else if (!hasReanimated2) {
+    logger.warn("VisionCamera: Frame Processors are disabled because REA v2 does not exist. C++ part will not be built.")
   }
 }
 
