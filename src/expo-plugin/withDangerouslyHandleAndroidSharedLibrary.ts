@@ -11,7 +11,7 @@ export const withDangerouslyHandleAndroidSharedLibrary: ConfigPlugin = (config) 
   return withAppBuildGradle(config, (config) => {
     if (config.modResults.language === 'groovy') {
       const body = `
-        pickFirst 'lib/**/*.so'
+        pickFirst 'lib/**/lib*.so'
       `;
       const regexpPackagingOptions = /\bpackagingOptions\s*{[^}]*}/;
       const packagingOptionsMatch = config.modResults.contents.match(regexpPackagingOptions);
