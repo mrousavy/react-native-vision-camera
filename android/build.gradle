@@ -2,10 +2,11 @@ import groovy.json.JsonSlurper
 import org.apache.tools.ant.filters.ReplaceTokens
 import java.nio.file.Paths
 
-def reactNative = new File("$projectDir/../node_modules/react-native")
+def nodeModulesPath = "$projectDir/../node_modules"
+def reactNative = new File("$nodeModulesPath/react-native")
 
 def reactProperties = new Properties()
-file("$projectDir/../node_modules/react-native/ReactAndroid/gradle.properties").withInputStream { reactProperties.load(it) }
+file("$nodeModulesPath/react-native/ReactAndroid/gradle.properties").withInputStream { reactProperties.load(it) }
 def REACT_NATIVE_VERSION = reactProperties.getProperty("VERSION_NAME").split("\\.")[1].toInteger()
 
 def FOR_HERMES = System.getenv("FOR_HERMES") == "True"
@@ -84,8 +85,20 @@ def getExtOrIntegerDefault(name) {
   return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties['VisionCamera_' + name]).toInteger()
 }
 
-def reanimated = rootProject.subprojects.find { it.name == 'react-native-reanimated' }
-def ENABLE_FRAME_PROCESSORS = !getExtOrDefault("disableFrameProcessors") && reanimated != null
+// REA Common/ folder only exists since REA v2.
+def hasReanimated2 = file("${nodeModulesPath}/react-native-reanimated/plugin.js").exists()
+def disableFrameProcessors = rootProject.ext.has("disableFrameProcessors") ? rootProject.ext.get("disableFrameProcessors").asBoolean() : false
+def ENABLE_FRAME_PROCESSORS = hasReanimated2 && !disableFrameProcessors
+
+if (ENABLE_FRAME_PROCESSORS) {
+  logger.warn("VisionCamera: Frame Processors are enabled! Building C++ part...")
+} else {
+  if (disableFrameProcessors) {
+    logger.warn("VisionCamera: Frame Processors are disabled because the user explicitly disabled it ('disableFrameProcessors=${disableFrameProcessors}'). C++ part will not be built.")
+  } else if (!hasReanimated2) {
+    logger.warn("VisionCamera: Frame Processors are disabled because REA v2 does not exist. C++ part will not be built.")
+  }
+}
 
 android {
   compileSdkVersion getExtOrIntegerDefault('compileSdkVersion')
@@ -103,7 +116,7 @@ android {
           abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
           arguments '-DANDROID_STL=c++_shared',
                   "-DREACT_NATIVE_VERSION=${REACT_NATIVE_VERSION}",
-                  "-DNODE_MODULES_DIR=${rootDir}/../node_modules",
+                  "-DNODE_MODULES_DIR=${nodeModulesPath}",
                   "-DFOR_HERMES=${FOR_HERMES}"
         }
       }
@@ -233,16 +246,16 @@ dependencies {
     //noinspection GradleDynamicVersion
     extractJNI("com.facebook.fbjni:fbjni:+")
 
-    def rnAAR = fileTree("${rootDir}/../node_modules/react-native/android").matching({ it.include "**/**/*.aar" }).singleFile
-    def jscAAR = fileTree("${rootDir}/../node_modules/jsc-android/dist/org/webkit/android-jsc").matching({ it.include "**/**/*.aar" }).singleFile
+    def rnAAR = fileTree("${nodeModulesPath}/react-native/android").matching({ it.include "**/**/*.aar" }).singleFile
+    def jscAAR = fileTree("${nodeModulesPath}/jsc-android/dist/org/webkit/android-jsc").matching({ it.include "**/**/*.aar" }).singleFile
 
-    def inputFile = new File(rootDir, '../node_modules/react-native/package.json')
+    def inputFile = file("${nodeModulesPath}/react-native/package.json")
     def json = new JsonSlurper().parseText(inputFile.text)
     def reactNativeVersion = json.version as String
     def (major, minor, patch) = reactNativeVersion.tokenize('.')
 
     def jsEngine = FOR_HERMES ? "hermes" : "jsc"
-    def reaAAR = "${rootDir}/../node_modules/react-native-reanimated/android/react-native-reanimated-${minor}-${jsEngine}.aar"
+    def reaAAR = "${nodeModulesPath}/react-native-reanimated/android/react-native-reanimated-${minor}-${jsEngine}.aar"
 
     extractJNI(files(rnAAR, jscAAR, reaAAR))
   }
@@ -269,7 +282,7 @@ if (ENABLE_FRAME_PROCESSORS) {
 
   def downloadsDir = new File("$buildDir/downloads")
   def thirdPartyNdkDir = new File("$buildDir/third-party-ndk")
-  def thirdPartyVersionsFile = new File("${rootDir}/../node_modules/react-native/ReactAndroid/gradle.properties")
+  def thirdPartyVersionsFile = new File("${nodeModulesPath}/react-native/ReactAndroid/gradle.properties")
   def thirdPartyVersions = new Properties()
   thirdPartyVersions.load(new FileInputStream(thirdPartyVersionsFile))
 
