@@ -17,6 +17,7 @@ static def findNodeModulePath(baseDir, packageName) {
 }
 
 def nodeModulesPath = findNodeModulePath(projectDir, "")
+logger.warn("VisionCamera: node_modules/ found at: ${nodeModulesPath}")
 def reactNative = new File("$nodeModulesPath/react-native")
 
 def reactProperties = new Properties()
