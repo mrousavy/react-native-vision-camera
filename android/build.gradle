@@ -399,7 +399,10 @@ if (ENABLE_FRAME_PROCESSORS) {
         throw new GradleScriptException("Could not find the hermes-engine npm package", null)
       }
 
-      def hermesAAR = file("$hermesPackagePath/android/hermes-debug.aar")
+      def aarName = BuildConfig.DEBUG ? "hermes-debug.aar" : "hermes-release.aar"
+      def hermesAAR = file("$hermesPackagePath/android/${aarName}")
+      logger.warn("VisionCamera: Using Hermes AAR: ${aarName}")
+
       if (!hermesAAR.exists()) {
         throw new GradleScriptException("The hermes-engine npm package is missing \"android/hermes-debug.aar\"", null)
       }
