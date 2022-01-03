@@ -16,7 +16,7 @@ static def findNodeModulePath(baseDir, packageName) {
   return null
 }
 
-def nodeModulesPath = findNodeModulePath(projectDir, null)
+def nodeModulesPath = findNodeModulePath(projectDir, "")
 def reactNative = new File("$nodeModulesPath/react-native")
 
 def reactProperties = new Properties()
