@@ -172,7 +172,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
           val isoRange = characteristics.get(CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE)
           val digitalStabilizationModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES)
           val opticalStabilizationModes = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_OPTICAL_STABILIZATION)
-          val zoomRange = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+          val zoomRange = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q)
             characteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
           else null
           val name = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)

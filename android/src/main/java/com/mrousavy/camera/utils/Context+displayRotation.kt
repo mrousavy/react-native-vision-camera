@@ -8,7 +8,7 @@ import com.facebook.react.bridge.ReactContext
 
 val Context.displayRotation: Int
   get() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
       // Context.display
       this.display?.let { display ->
         return display.rotation
