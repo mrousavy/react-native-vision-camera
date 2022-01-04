@@ -20,7 +20,7 @@ export const withDisableFrameProcessorsIOS: ConfigPlugin = (c) => {
       buildSettings = configurations[key].buildSettings;
       // configurations[key].name
       if (typeof buildSettings?.GCC_PREPROCESSOR_DEFINITIONS !== 'undefined') {
-        // alright, this is the DEBUG config, push GCC_PREPROCESSOR to it
+        // alright, this is the DEBUG config, push our setting to it
         if (buildSettings.GCC_PREPROCESSOR_DEFINITIONS.includes(valueKey) === false)
           buildSettings.GCC_PREPROCESSOR_DEFINITIONS.push(valueKey);
       } else if (typeof buildSettings !== 'undefined') {
@@ -29,8 +29,6 @@ export const withDisableFrameProcessorsIOS: ConfigPlugin = (c) => {
         buildSettings.GCC_PREPROCESSOR_DEFINITIONS = [inheritKey, valueKey];
       }
     }
-
-    //xcodeProject.addToBuildSettings('GCC_PREPROCESSOR_DEFINITIONS', currentSettings);
     return config;
   });
 };
