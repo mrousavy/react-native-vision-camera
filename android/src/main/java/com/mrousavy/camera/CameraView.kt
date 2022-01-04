@@ -251,18 +251,17 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
     })
   }
 
-  @SuppressLint("RestrictedApi")
   override fun onConfigurationChanged(newConfig: Configuration?) {
     super.onConfigurationChanged(newConfig)
+    updateOrientation()
+  }
 
-    if (preview?.targetRotation != inputRotation) {
-      preview?.targetRotation = inputRotation
-    }
-    if (imageCapture?.targetRotation != outputRotation) {
-      imageCapture?.targetRotation = outputRotation
-      videoCapture?.targetRotation = outputRotation
-      imageAnalysis?.targetRotation = outputRotation
-    }
+  @SuppressLint("RestrictedApi")
+  private fun updateOrientation() {
+    preview?.targetRotation = inputRotation
+    imageCapture?.targetRotation = outputRotation
+    videoCapture?.targetRotation = outputRotation
+    imageAnalysis?.targetRotation = outputRotation
   }
 
   private external fun initHybrid(): HybridData
@@ -317,6 +316,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         val shouldReconfigureSession = changedProps.containsAny(propsThatRequireSessionReconfiguration)
         val shouldReconfigureZoom = shouldReconfigureSession || changedProps.contains("zoom")
         val shouldReconfigureTorch = shouldReconfigureSession || changedProps.contains("torch")
+        val shouldUpdateOrientation = shouldReconfigureSession ||  changedProps.contains("orientation")
 
         if (changedProps.contains("isActive")) {
           updateLifecycleState()
@@ -330,6 +330,9 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         }
         if (shouldReconfigureTorch) {
           camera!!.cameraControl.enableTorch(torch == "on")
+        }
+        if (shouldUpdateOrientation) {
+          updateOrientation()
         }
       } catch (e: Throwable) {
         Log.e(TAG, "update() threw: ${e.message}")
