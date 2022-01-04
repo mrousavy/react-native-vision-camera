@@ -165,6 +165,13 @@ class CameraViewManager(reactContext: ReactApplicationContext) : SimpleViewManag
     view.enableZoomGesture = enableZoomGesture
   }
 
+  @ReactProp(name = "orientation")
+  fun setOrientation(view: CameraView, orientation: String) {
+    if (view.orientation != orientation)
+      addChangedPropToTransaction(view, "orientation")
+    view.orientation = orientation
+  }
+
   companion object {
     const val TAG = "CameraView"
 

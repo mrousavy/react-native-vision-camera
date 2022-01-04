@@ -56,6 +56,7 @@ public final class CameraView: UIView {
   @objc var hdr: NSNumber? // nullable bool
   @objc var lowLightBoost: NSNumber? // nullable bool
   @objc var colorSpace: NSString?
+  @objc var orientation: NSString?
   // other props
   @objc var isActive = false
   @objc var torch = "off"
@@ -114,15 +115,6 @@ public final class CameraView: UIView {
   /// Returns whether the AVCaptureSession is currently running (reflected by isActive)
   var isRunning: Bool {
     return captureSession.isRunning
-  }
-
-  /// Returns the current _interface_ orientation of the main window
-  private var windowInterfaceOrientation: UIInterfaceOrientation {
-    if #available(iOS 13.0, *) {
-      return UIApplication.shared.windows.first?.windowScene?.interfaceOrientation ?? .unknown
-    } else {
-      return UIApplication.shared.statusBarOrientation
-    }
   }
 
   /// Convenience wrapper to get layer as its statically known type.
@@ -205,6 +197,7 @@ public final class CameraView: UIView {
     let shouldUpdateTorch = willReconfigure || changedProps.contains("torch") || shouldCheckActive
     let shouldUpdateZoom = willReconfigure || changedProps.contains("zoom") || shouldCheckActive
     let shouldUpdateVideoStabilization = willReconfigure || changedProps.contains("videoStabilizationMode")
+    let shouldUpdateOrientation = changedProps.contains("orientation")
 
     if shouldReconfigure ||
       shouldReconfigureAudioSession ||
@@ -213,7 +206,8 @@ public final class CameraView: UIView {
       shouldUpdateZoom ||
       shouldReconfigureFormat ||
       shouldReconfigureDevice ||
-      shouldUpdateVideoStabilization {
+      shouldUpdateVideoStabilization ||
+      shouldUpdateOrientation {
       cameraQueue.async {
         if shouldReconfigure {
           self.configureCaptureSession()
@@ -244,6 +238,10 @@ public final class CameraView: UIView {
             self.captureSession.stopRunning()
             ReactLogger.log(level: .info, message: "Stopped Session!")
           }
+        }
+
+        if shouldUpdateOrientation {
+          self.updateOrientation()
         }
 
         // This is a wack workaround, but if I immediately set torch mode after `startRunning()`, the session isn't quite ready yet and will ignore torch.
@@ -316,27 +314,7 @@ public final class CameraView: UIView {
 
   @objc
   func onOrientationChanged() {
-    // Updates the Orientation for all rotable connections (outputs) as well as for the preview layer
-    DispatchQueue.main.async {
-      // `windowInterfaceOrientation` and `videoPreviewLayer` should only be accessed from UI thread
-      let isMirrored = self.videoDeviceInput?.device.position == .front
-      let orientation = self.windowInterfaceOrientation
-
-      self.videoPreviewLayer.connection?.setInterfaceOrientation(orientation)
-
-      self.cameraQueue.async {
-        // Run those updates on cameraQueue since they can be blocking.
-        self.captureSession.outputs.forEach { output in
-          output.connections.forEach { connection in
-            if connection.isVideoMirroringSupported {
-              connection.automaticallyAdjustsVideoMirroring = false
-              connection.isVideoMirrored = isMirrored
-            }
-            connection.setInterfaceOrientation(orientation)
-          }
-        }
-      }
-    }
+    updateOrientation()
   }
 
   // pragma MARK: Event Invokers

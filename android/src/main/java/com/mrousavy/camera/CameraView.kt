@@ -97,6 +97,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   var isActive = false
   var torch = "off"
   var zoom: Float = 1f // in "factor"
+  var orientation: String? = null
   var enableZoomGesture = false
     set(value) {
       field = value
@@ -124,7 +125,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
 
   internal var camera: Camera? = null
   internal var imageCapture: ImageCapture? = null
-  internal var videoCapture: Recorder? = null
+  internal var videoCapture: VideoCapture<Recorder>? = null
   private var imageAnalysis: ImageAnalysis? = null
   private var preview: Preview? = null
 
@@ -141,9 +142,25 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   private val lifecycleRegistry: LifecycleRegistry
   private var hostLifecycleState: Lifecycle.State
 
-  private val rotation: Int
+  private val inputRotation: Int
     get() {
       return context.displayRotation
+    }
+  private val outputRotation: Int
+    get() {
+      if (orientation != null) {
+        // user is overriding output orientation
+        return when (orientation!!) {
+          "portrait" -> Surface.ROTATION_0
+          "landscapeRight" -> Surface.ROTATION_90
+          "portraitUpsideDown" -> Surface.ROTATION_180
+          "landscapeLeft" -> Surface.ROTATION_270
+          else -> throw InvalidTypeScriptUnionError("orientation", orientation!!)
+        }
+      } else {
+        // use same as input rotation
+        return inputRotation
+      }
     }
 
   private var minZoom: Float = 1f
@@ -234,16 +251,17 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
     })
   }
 
-  @SuppressLint("RestrictedApi")
   override fun onConfigurationChanged(newConfig: Configuration?) {
     super.onConfigurationChanged(newConfig)
+    updateOrientation()
+  }
 
-    if (preview?.targetRotation != rotation) {
-      preview?.targetRotation = rotation
-      imageCapture?.targetRotation = rotation
-      imageAnalysis?.targetRotation = rotation
-      // TODO: videoCapture?.setTargetRotation(rotation)
-    }
+  @SuppressLint("RestrictedApi")
+  private fun updateOrientation() {
+    preview?.targetRotation = inputRotation
+    imageCapture?.targetRotation = outputRotation
+    videoCapture?.targetRotation = outputRotation
+    imageAnalysis?.targetRotation = outputRotation
   }
 
   private external fun initHybrid(): HybridData
@@ -298,6 +316,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         val shouldReconfigureSession = changedProps.containsAny(propsThatRequireSessionReconfiguration)
         val shouldReconfigureZoom = shouldReconfigureSession || changedProps.contains("zoom")
         val shouldReconfigureTorch = shouldReconfigureSession || changedProps.contains("torch")
+        val shouldUpdateOrientation = shouldReconfigureSession ||  changedProps.contains("orientation")
 
         if (changedProps.contains("isActive")) {
           updateLifecycleState()
@@ -311,6 +330,9 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         }
         if (shouldReconfigureTorch) {
           camera!!.cameraControl.enableTorch(torch == "on")
+        }
+        if (shouldUpdateOrientation) {
+          updateOrientation()
         }
       } catch (e: Throwable) {
         Log.e(TAG, "update() threw: ${e.message}")
@@ -362,17 +384,17 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
       }
 
       val previewBuilder = Preview.Builder()
-        .setTargetRotation(rotation)
+        .setTargetRotation(inputRotation)
 
       val imageCaptureBuilder = ImageCapture.Builder()
-        .setTargetRotation(rotation)
+        .setTargetRotation(outputRotation)
         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
 
       val videoRecorderBuilder = Recorder.Builder()
         .setExecutor(cameraExecutor)
 
       val imageAnalysisBuilder = ImageAnalysis.Builder()
-        .setTargetRotation(rotation)
+        .setTargetRotation(outputRotation)
         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
         .setBackgroundExecutor(frameProcessorThread)
 
@@ -422,12 +444,9 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         }
       }
 
-      val videoRecorder = videoRecorderBuilder.build()
-      val videoCapture = VideoCapture.withOutput(videoRecorder)
-      videoCapture.targetRotation = rotation
 
       // Unbind use cases before rebinding
-      this.videoCapture = null
+      videoCapture = null
       imageCapture = null
       imageAnalysis = null
       cameraProvider.unbindAll()
@@ -436,8 +455,11 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
       val useCases = ArrayList<UseCase>()
       if (video == true) {
         Log.i(TAG, "Adding VideoCapture use-case...")
-        this.videoCapture = videoRecorder
-        useCases.add(videoCapture)
+
+        val videoRecorder = videoRecorderBuilder.build()
+        videoCapture = VideoCapture.withOutput(videoRecorder)
+        videoCapture!!.targetRotation = outputRotation
+        useCases.add(videoCapture!!)
       }
       if (photo == true) {
         if (fallbackToSnapshot) {
