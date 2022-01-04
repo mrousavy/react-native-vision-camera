@@ -147,7 +147,7 @@ public final class CameraView: UIView {
                                            name: AVAudioSession.interruptionNotification,
                                            object: AVAudioSession.sharedInstance)
     NotificationCenter.default.addObserver(self,
-                                           selector: #selector(updateOrientation),
+                                           selector: #selector(onOrientationChanged),
                                            name: UIDevice.orientationDidChangeNotification,
                                            object: nil)
   }
@@ -310,6 +310,11 @@ public final class CameraView: UIView {
       invokeOnError(.device(.configureError), cause: error)
       return
     }
+  }
+
+  @objc
+  func onOrientationChanged() {
+    self.updateOrientation()
   }
 
   // pragma MARK: Event Invokers
