@@ -248,7 +248,7 @@ public final class CameraView: UIView {
             ReactLogger.log(level: .info, message: "Stopped Session!")
           }
         }
-        
+
         if shouldUpdateOrientation {
           self.onOrientationChanged()
         }
