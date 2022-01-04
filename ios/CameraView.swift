@@ -314,7 +314,7 @@ public final class CameraView: UIView {
 
   @objc
   func onOrientationChanged() {
-    self.updateOrientation()
+    updateOrientation()
   }
 
   // pragma MARK: Event Invokers

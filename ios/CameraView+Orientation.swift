@@ -18,12 +18,12 @@ extension CameraView {
       return UIApplication.shared.statusBarOrientation
     }
   }
-  
+
   /// Orientation of the input connection (preview)
   private var inputOrientation: UIInterfaceOrientation {
     return windowInterfaceOrientation
   }
-  
+
   // Orientation of the output connections (photo, video, frame processor)
   private var outputOrientation: UIInterfaceOrientation {
     if let userOrientation = orientation as String?,
@@ -35,15 +35,15 @@ extension CameraView {
       return inputOrientation
     }
   }
-  
+
   internal func updateOrientation() {
     // Updates the Orientation for all rotable connections (outputs) as well as for the preview layer
     DispatchQueue.main.async {
       // `windowInterfaceOrientation` and `videoPreviewLayer` should only be accessed from UI thread
       let isMirrored = self.videoDeviceInput?.device.position == .front
-      
+
       self.videoPreviewLayer.connection?.setInterfaceOrientation(self.inputOrientation)
-      
+
       self.cameraQueue.async {
         // Run those updates on cameraQueue since they can be blocking.
         self.captureSession.outputs.forEach { output in
