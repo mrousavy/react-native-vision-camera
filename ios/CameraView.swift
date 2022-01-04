@@ -250,7 +250,7 @@ public final class CameraView: UIView {
         }
         
         if shouldUpdateOrientation {
-          onOrientationChanged()
+          self.onOrientationChanged()
         }
 
         // This is a wack workaround, but if I immediately set torch mode after `startRunning()`, the session isn't quite ready yet and will ignore torch.
