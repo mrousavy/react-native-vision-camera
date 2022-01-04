@@ -8,4 +8,20 @@
 
 #pragma once
 
-#import <AVFoundation.h>
+#import <jsi/jsi.h>
+#import <AVFoundation/AVCapturePhoto.h>
+
+using namespace facebook;
+
+class JSI_EXPORT PhotoHostObject: public jsi::HostObject {
+public:
+  explicit PhotoHostObject(AVCapturePhoto* photo): photo(photo) {}
+
+public:
+  jsi::Value get(jsi::Runtime&, const jsi::PropNameID& name) override;
+  std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime& rt) override;
+  void close();
+
+public:
+  AVCapturePhoto* photo;
+};
