@@ -1,5 +1,6 @@
 import { withPlugins, AndroidConfig, ConfigPlugin, createRunOncePlugin } from '@expo/config-plugins';
-import { withDisableFrameProcessors } from './withDisableFrameProcessors';
+import { withDisableFrameProcessorsAndroid } from './withDisableFrameProcessorsAndroid';
+import { withDisableFrameProcessorsIOS } from './withDisableFrameProcessorsIOS';
 import { withDangerouslyHandleAndroidSharedLibrary } from './withDangerouslyHandleAndroidSharedLibrary';
 // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-unsafe-assignment
 const pkg = require('../../../package.json');
@@ -27,7 +28,10 @@ const withCamera: ConfigPlugin<Props> = (config, props = {}) => {
   const androidPermissions = ['android.permission.CAMERA'];
   if (props.enableMicrophonePermission) androidPermissions.push('android.permission.RECORD_AUDIO');
 
-  if (props.disableFrameProcessors) config = withDisableFrameProcessors(config, true);
+  if (props.disableFrameProcessors) {
+    config = withDisableFrameProcessorsAndroid(config, true);
+    config = withDisableFrameProcessorsIOS(config);
+  }
   if (props.dangerouslyHandleAndroidSharedLibrary) config = withDangerouslyHandleAndroidSharedLibrary(config);
 
   return withPlugins(config, [[AndroidConfig.Permissions.withPermissions, androidPermissions]]);
