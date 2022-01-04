@@ -60,7 +60,6 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
   if (options.hasKey("enableAutoDistortionCorrection")) {
     // TODO enableAutoDistortionCorrection
   }
-  val skipMetadata = if (options.hasKey("skipMetadata")) options.getBoolean("skipMetadata") else false
 
   val camera2Info = Camera2CameraInfo.from(camera!!.cameraInfo)
   val lensFacing = camera2Info.getCameraCharacteristic(CameraCharacteristics.LENS_FACING)
@@ -92,7 +91,7 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
     }
     Log.i(CameraView.TAG_PERF, "Finished image saving in ${milliseconds}ms")
     // TODO: Read Exif from existing in-memory photo buffer instead of file?
-    exif = if (skipMetadata) null else ExifInterface(file)
+    exif = ExifInterface(file)
   }
 
   val map = Arguments.createMap()

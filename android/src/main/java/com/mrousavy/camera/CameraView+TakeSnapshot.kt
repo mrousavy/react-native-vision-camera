@@ -43,9 +43,7 @@ suspend fun CameraView.takeSnapshot(options: ReadableMap): WritableMap = corouti
     map.putInt("height", bitmap.height)
     map.putBoolean("isRawPhoto", false)
 
-    val skipMetadata =
-      if (options.hasKey("skipMetadata")) options.getBoolean("skipMetadata") else false
-    val metadata = if (skipMetadata) null else exif.buildMetadataMap()
+    val metadata = exif.buildMetadataMap()
     map.putMap("metadata", metadata)
 
     return@coroutineScope map

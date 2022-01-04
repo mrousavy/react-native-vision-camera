@@ -14,15 +14,4 @@ export interface TakeSnapshotOptions {
    * @default "off"
    */
   flash?: 'on' | 'off';
-
-  /**
-   * When set to `true`, metadata reading and mapping will be skipped. ({@linkcode PhotoFile.metadata} will be `null`)
-   *
-   * This might result in a faster capture, as metadata reading and mapping requires File IO.
-   *
-   * @default false
-   *
-   * @platform Android
-   */
-  skipMetadata?: boolean;
 }

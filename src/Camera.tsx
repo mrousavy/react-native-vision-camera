@@ -136,8 +136,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    * @example
    * ```ts
    * const photo = await camera.current.takeSnapshot({
-   *   quality: 85,
-   *   skipMetadata: true
+   *   quality: 85
    * })
    * ```
    */
