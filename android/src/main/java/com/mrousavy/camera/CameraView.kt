@@ -151,10 +151,10 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
       if (orientation != null) {
         // user is overriding output orientation
         return when (orientation!!) {
-          "portrait" -> 0
-          "landscapeLeft" -> 90
-          "portraitUpsideDown" -> 180
-          "landscapeRight" -> 270
+          "portrait" -> Surface.ROTATION_0
+          "landscapeRight" -> Surface.ROTATION_90
+          "portraitUpsideDown" -> Surface.ROTATION_180
+          "landscapeLeft" -> Surface.ROTATION_270
           else -> throw InvalidTypeScriptUnionError("orientation", orientation!!)
         }
       } else {
