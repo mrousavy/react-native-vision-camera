@@ -97,6 +97,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   var isActive = false
   var torch = "off"
   var zoom: Float = 1f // in "factor"
+  var orientation: String? = null
   var enableZoomGesture = false
     set(value) {
       field = value
@@ -141,9 +142,25 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   private val lifecycleRegistry: LifecycleRegistry
   private var hostLifecycleState: Lifecycle.State
 
-  private val rotation: Int
+  private val inputRotation: Int
     get() {
       return context.displayRotation
+    }
+  private val outputRotation: Int
+    get() {
+      if (orientation != null) {
+        // user is overriding output orientation
+        return when (orientation!!) {
+          "portrait" -> 0
+          "landscapeLeft" -> 90
+          "portraitUpsideDown" -> 180
+          "landscapeRight" -> 270
+          else -> throw InvalidTypeScriptUnionError("orientation", orientation!!)
+        }
+      } else {
+        // use same as input rotation
+        return inputRotation
+      }
     }
 
   private var minZoom: Float = 1f
@@ -238,10 +255,12 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   override fun onConfigurationChanged(newConfig: Configuration?) {
     super.onConfigurationChanged(newConfig)
 
-    if (preview?.targetRotation != rotation) {
-      preview?.targetRotation = rotation
-      imageCapture?.targetRotation = rotation
-      imageAnalysis?.targetRotation = rotation
+    if (preview?.targetRotation != inputRotation) {
+      preview?.targetRotation = inputRotation
+    }
+    if (imageCapture?.targetRotation != outputRotation)
+      imageCapture?.targetRotation = outputRotation
+      imageAnalysis?.targetRotation = outputRotation
       // TODO: videoCapture?.setTargetRotation(rotation)
     }
   }
@@ -362,17 +381,17 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
       }
 
       val previewBuilder = Preview.Builder()
-        .setTargetRotation(rotation)
+        .setTargetRotation(inputRotation)
 
       val imageCaptureBuilder = ImageCapture.Builder()
-        .setTargetRotation(rotation)
+        .setTargetRotation(outputRotation)
         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
 
       val videoRecorderBuilder = Recorder.Builder()
         .setExecutor(cameraExecutor)
 
       val imageAnalysisBuilder = ImageAnalysis.Builder()
-        .setTargetRotation(rotation)
+        .setTargetRotation(outputRotation)
         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
         .setBackgroundExecutor(frameProcessorThread)
 
@@ -424,7 +443,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
 
       val videoRecorder = videoRecorderBuilder.build()
       val videoCapture = VideoCapture.withOutput(videoRecorder)
-      videoCapture.targetRotation = rotation
+      videoCapture.targetRotation = outputRotation
 
       // Unbind use cases before rebinding
       this.videoCapture = null
