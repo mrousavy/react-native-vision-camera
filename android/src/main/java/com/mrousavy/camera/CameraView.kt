@@ -258,7 +258,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
     if (preview?.targetRotation != inputRotation) {
       preview?.targetRotation = inputRotation
     }
-    if (imageCapture?.targetRotation != outputRotation)
+    if (imageCapture?.targetRotation != outputRotation) {
       imageCapture?.targetRotation = outputRotation
       imageAnalysis?.targetRotation = outputRotation
       // TODO: videoCapture?.setTargetRotation(rotation)
