@@ -18,7 +18,6 @@ export const withDisableFrameProcessorsIOS: ConfigPlugin = (c) => {
 
     for (key in configurations) {
       buildSettings = configurations[key].buildSettings;
-      // configurations[key].name
       if (typeof buildSettings?.GCC_PREPROCESSOR_DEFINITIONS !== 'undefined') {
         // alright, this is the DEBUG config, push our setting to it
         if (buildSettings.GCC_PREPROCESSOR_DEFINITIONS.includes(valueKey) === false)
