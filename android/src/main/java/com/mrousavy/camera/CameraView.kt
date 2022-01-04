@@ -125,7 +125,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
 
   internal var camera: Camera? = null
   internal var imageCapture: ImageCapture? = null
-  internal var videoCapture: Recorder? = null
+  internal var videoCapture: VideoCapture<Recorder>? = null
   private var imageAnalysis: ImageAnalysis? = null
   private var preview: Preview? = null
 
@@ -260,8 +260,8 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
     }
     if (imageCapture?.targetRotation != outputRotation) {
       imageCapture?.targetRotation = outputRotation
+      videoCapture?.targetRotation = outputRotation
       imageAnalysis?.targetRotation = outputRotation
-      // TODO: videoCapture?.setTargetRotation(rotation)
     }
   }
 
@@ -441,12 +441,9 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         }
       }
 
-      val videoRecorder = videoRecorderBuilder.build()
-      val videoCapture = VideoCapture.withOutput(videoRecorder)
-      videoCapture.targetRotation = outputRotation
 
       // Unbind use cases before rebinding
-      this.videoCapture = null
+      videoCapture = null
       imageCapture = null
       imageAnalysis = null
       cameraProvider.unbindAll()
@@ -455,8 +452,11 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
       val useCases = ArrayList<UseCase>()
       if (video == true) {
         Log.i(TAG, "Adding VideoCapture use-case...")
-        this.videoCapture = videoRecorder
-        useCases.add(videoCapture)
+
+        val videoRecorder = videoRecorderBuilder.build()
+        videoCapture = VideoCapture.withOutput(videoRecorder)
+        videoCapture!!.targetRotation = outputRotation
+        useCases.add(videoCapture!!)
       }
       if (photo == true) {
         if (fallbackToSnapshot) {

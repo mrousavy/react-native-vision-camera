@@ -41,8 +41,8 @@ fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Callback) 
   val file = File.createTempFile("VisionCamera-${id}", ".mp4")
   val fileOptions = FileOutputOptions.Builder(file).build()
 
-  var recording = videoCapture!!
-    .prepareRecording(context, fileOptions)
+  val recorder = videoCapture!!.output
+  var recording = recorder.prepareRecording(context, fileOptions)
 
   if (audio == true) {
     @SuppressLint("MissingPermission")
