@@ -7,8 +7,8 @@ import { ConfigPlugin, withAppBuildGradle } from '@expo/config-plugins';
  * Credits: @mercyaj [Credits](https://github.com/mrousavy/react-native-vision-camera/pull/545#issuecomment-949477264)
  */
 
-export const withDangerouslyHandleAndroidSharedLibrary: ConfigPlugin = (config) => {
-  return withAppBuildGradle(config, (config) => {
+export const withDangerouslyHandleAndroidSharedLibrary: ConfigPlugin = (c) => {
+  return withAppBuildGradle(c, (config) => {
     if (config.modResults.language === 'groovy') {
       const body = `
         pickFirst 'lib/**/lib*.so'
