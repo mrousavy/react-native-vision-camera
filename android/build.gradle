@@ -67,7 +67,7 @@ def getExtOrIntegerDefault(name) {
   return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties['VisionCamera_' + name]).toInteger()
 }
 
-// REA Common/ folder only exists since REA v2.
+// plugin.js file only exists since REA v2.
 def hasReanimated2 = file("${nodeModules}/react-native-reanimated/plugin.js").exists()
 def disableFrameProcessors = rootProject.ext.has("disableFrameProcessors") ? rootProject.ext.get("disableFrameProcessors").asBoolean() : false
 def ENABLE_FRAME_PROCESSORS = hasReanimated2 && !disableFrameProcessors
