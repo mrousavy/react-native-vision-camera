@@ -156,6 +156,10 @@ export interface CameraProps extends ViewProps {
    * @default false
    */
   enableHighQualityPhotos?: boolean;
+  /**
+   * Represents the orientation of the Camera, and all outputs. If this value is not set, VisionCamera will use the device orientation per default.
+   */
+  orientation?: 'portrait' | 'portraitUpsideDown' | 'landscapeLeft' | 'landscapeRight';
 
   //#region Events
   /**

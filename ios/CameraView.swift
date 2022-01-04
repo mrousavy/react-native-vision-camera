@@ -56,6 +56,7 @@ public final class CameraView: UIView {
   @objc var hdr: NSNumber? // nullable bool
   @objc var lowLightBoost: NSNumber? // nullable bool
   @objc var colorSpace: NSString?
+  @objc var orientation: NSString?
   // other props
   @objc var isActive = false
   @objc var torch = "off"
@@ -205,6 +206,7 @@ public final class CameraView: UIView {
     let shouldUpdateTorch = willReconfigure || changedProps.contains("torch") || shouldCheckActive
     let shouldUpdateZoom = willReconfigure || changedProps.contains("zoom") || shouldCheckActive
     let shouldUpdateVideoStabilization = willReconfigure || changedProps.contains("videoStabilizationMode")
+    let shouldUpdateOrientation = changedProps.contains("orientation")
 
     if shouldReconfigure ||
       shouldReconfigureAudioSession ||
@@ -213,7 +215,8 @@ public final class CameraView: UIView {
       shouldUpdateZoom ||
       shouldReconfigureFormat ||
       shouldReconfigureDevice ||
-      shouldUpdateVideoStabilization {
+      shouldUpdateVideoStabilization ||
+      shouldUpdateOrientation {
       cameraQueue.async {
         if shouldReconfigure {
           self.configureCaptureSession()
@@ -244,6 +247,10 @@ public final class CameraView: UIView {
             self.captureSession.stopRunning()
             ReactLogger.log(level: .info, message: "Stopped Session!")
           }
+        }
+        
+        if shouldUpdateOrientation {
+          onOrientationChanged()
         }
 
         // This is a wack workaround, but if I immediately set torch mode after `startRunning()`, the session isn't quite ready yet and will ignore torch.
@@ -320,7 +327,11 @@ public final class CameraView: UIView {
     DispatchQueue.main.async {
       // `windowInterfaceOrientation` and `videoPreviewLayer` should only be accessed from UI thread
       let isMirrored = self.videoDeviceInput?.device.position == .front
-      let orientation = self.windowInterfaceOrientation
+      var orientation = self.windowInterfaceOrientation
+      if let customOrientation = self.orientation as String?,
+         let parsedOrientation = try? UIInterfaceOrientation(withString: customOrientation) {
+        orientation = parsedOrientation
+      }
 
       self.videoPreviewLayer.connection?.setInterfaceOrientation(orientation)
 
