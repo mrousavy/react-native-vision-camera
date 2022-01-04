@@ -81,7 +81,7 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
   val photo = results.first { it is ImageProxy } as ImageProxy
   val file = results.first { it is File } as File
 
-  val exif: ExifInterface?
+  val exif: ExifInterface
   @Suppress("BlockingMethodInNonBlockingContext")
   withContext(Dispatchers.IO) {
     Log.d(CameraView.TAG, "Saving picture to ${file.absolutePath}...")
@@ -100,7 +100,7 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
   map.putInt("height", photo.height)
   map.putBoolean("isRawPhoto", photo.isRaw)
 
-  val metadata = exif?.buildMetadataMap()
+  val metadata = exif.buildMetadataMap()
   map.putMap("metadata", metadata)
 
   photo.close()
