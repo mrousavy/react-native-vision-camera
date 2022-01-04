@@ -117,15 +117,6 @@ public final class CameraView: UIView {
     return captureSession.isRunning
   }
 
-  /// Returns the current _interface_ orientation of the main window
-  private var windowInterfaceOrientation: UIInterfaceOrientation {
-    if #available(iOS 13.0, *) {
-      return UIApplication.shared.windows.first?.windowScene?.interfaceOrientation ?? .unknown
-    } else {
-      return UIApplication.shared.statusBarOrientation
-    }
-  }
-
   /// Convenience wrapper to get layer as its statically known type.
   var videoPreviewLayer: AVCaptureVideoPreviewLayer {
     // swiftlint:disable force_cast
@@ -156,7 +147,7 @@ public final class CameraView: UIView {
                                            name: AVAudioSession.interruptionNotification,
                                            object: AVAudioSession.sharedInstance)
     NotificationCenter.default.addObserver(self,
-                                           selector: #selector(onOrientationChanged),
+                                           selector: #selector(updateOrientation),
                                            name: UIDevice.orientationDidChangeNotification,
                                            object: nil)
   }
@@ -250,7 +241,7 @@ public final class CameraView: UIView {
         }
 
         if shouldUpdateOrientation {
-          self.onOrientationChanged()
+          self.updateOrientation()
         }
 
         // This is a wack workaround, but if I immediately set torch mode after `startRunning()`, the session isn't quite ready yet and will ignore torch.
@@ -318,35 +309,6 @@ public final class CameraView: UIView {
     } catch let error as NSError {
       invokeOnError(.device(.configureError), cause: error)
       return
-    }
-  }
-
-  @objc
-  func onOrientationChanged() {
-    // Updates the Orientation for all rotable connections (outputs) as well as for the preview layer
-    DispatchQueue.main.async {
-      // `windowInterfaceOrientation` and `videoPreviewLayer` should only be accessed from UI thread
-      let isMirrored = self.videoDeviceInput?.device.position == .front
-      var orientation = self.windowInterfaceOrientation
-      if let customOrientation = self.orientation as String?,
-         let parsedOrientation = try? UIInterfaceOrientation(withString: customOrientation) {
-        orientation = parsedOrientation
-      }
-
-      self.videoPreviewLayer.connection?.setInterfaceOrientation(orientation)
-
-      self.cameraQueue.async {
-        // Run those updates on cameraQueue since they can be blocking.
-        self.captureSession.outputs.forEach { output in
-          output.connections.forEach { connection in
-            if connection.isVideoMirroringSupported {
-              connection.automaticallyAdjustsVideoMirroring = false
-              connection.isVideoMirrored = isMirrored
-            }
-            connection.setInterfaceOrientation(orientation)
-          }
-        }
-      }
     }
   }
 
