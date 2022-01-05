@@ -81,6 +81,30 @@ Open your project's `AndroidManifest.xml` and add the following lines inside the
 
 <!-- optionally, if you want to record audio: -->
 <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+<application>
+  ...
+  <activity
+    ...
+    android:exported="true" <- ADD
+  >
+    ...
+  </activity>
+</application>
+```
+
+Change compileSdkVersion and targetSdkVersion in android/build.gradle to 31.
+
+```gradle
+  buildscript {
+    ext {
+        ...
+        compileSdkVersion = 31
+        targetSdkVersion = 31
+        ...
+    }
+    ...
+  }
 ```
 
 </TabItem>
