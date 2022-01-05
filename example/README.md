@@ -1,7 +1,7 @@
 <div>
   <img align="right" width="35%" src="../docs/static/img/example.png">
 
-  <h1>Vison Camera playground</h1>
+  <h1>Vision Camera playground</h1>
 
   <h2>Overview</h2>
 
