@@ -19,7 +19,7 @@
 #import "JSConsoleHelper.h"
 #import <ReactCommon/RCTTurboModule.h>
 
-FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &runtime, const jsi::Function &value) {
+FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime& runtime, const jsi::Function& value) {
   __block auto cb = value.getFunction(runtime);
 
   return ^(Frame* frame) {
