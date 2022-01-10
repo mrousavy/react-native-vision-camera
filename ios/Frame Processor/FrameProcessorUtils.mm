@@ -27,15 +27,17 @@ FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &
     try {
       cb.callWithThis(runtime, cb, jsi::Object::createFromHostObject(runtime, frameHostObject));
     } catch (jsi::JSError& jsError) {
-      auto message = jsError.getMessage();
+      
+      auto message = [NSString stringWithFormat:@"Frame Processor threw an error: %s\n%s", jsError.getMessage().c_str(), jsError.getStack().c_str()];
+      
       RCTBridge* bridge = [RCTBridge currentBridge];
       if (bridge != nil) {
         bridge.jsCallInvoker->invokeAsync([bridge, message]() {
           auto logFn = [JSConsoleHelper getLogFunctionForBridge:bridge];
-          logFn(RCTLogLevelError, [NSString stringWithFormat:@"Frame Processor threw an error: %s", message.c_str()]);
+          logFn(RCTLogLevelError, message);
         });
       } else {
-        NSLog(@"Frame Processor threw an error: %s", message.c_str());
+        NSLog(@"%@", message);
       }
     }
 
