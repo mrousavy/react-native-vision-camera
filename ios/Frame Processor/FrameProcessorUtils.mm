@@ -9,6 +9,7 @@
 #import "FrameProcessorUtils.h"
 #import <chrono>
 #import <memory>
+#import <regex>
 
 #import "FrameHostObject.h"
 #import "Frame.h"
@@ -18,7 +19,7 @@
 #import "JSConsoleHelper.h"
 #import <ReactCommon/RCTTurboModule.h>
 
-FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &runtime, const jsi::Function &value) {
+FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime& runtime, const jsi::Function& value) {
   __block auto cb = value.getFunction(runtime);
 
   return ^(Frame* frame) {
@@ -27,15 +28,17 @@ FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &
     try {
       cb.callWithThis(runtime, cb, jsi::Object::createFromHostObject(runtime, frameHostObject));
     } catch (jsi::JSError& jsError) {
-      auto message = jsError.getMessage();
+      auto stack = std::regex_replace(jsError.getStack(), std::regex("\n"), "\n    ");
+      auto message = [NSString stringWithFormat:@"Frame Processor threw an error: %s\nIn: %s", jsError.getMessage().c_str(), stack.c_str()];
+      
       RCTBridge* bridge = [RCTBridge currentBridge];
       if (bridge != nil) {
         bridge.jsCallInvoker->invokeAsync([bridge, message]() {
           auto logFn = [JSConsoleHelper getLogFunctionForBridge:bridge];
-          logFn(RCTLogLevelError, [NSString stringWithFormat:@"Frame Processor threw an error: %s", message.c_str()]);
+          logFn(RCTLogLevelError, message);
         });
       } else {
-        NSLog(@"Frame Processor threw an error: %s", message.c_str());
+        NSLog(@"%@", message);
       }
     }
 
