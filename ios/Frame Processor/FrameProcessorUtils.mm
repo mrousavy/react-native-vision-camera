@@ -9,6 +9,7 @@
 #import "FrameProcessorUtils.h"
 #import <chrono>
 #import <memory>
+#import <regex>
 
 #import "FrameHostObject.h"
 #import "Frame.h"
@@ -27,8 +28,8 @@ FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &
     try {
       cb.callWithThis(runtime, cb, jsi::Object::createFromHostObject(runtime, frameHostObject));
     } catch (jsi::JSError& jsError) {
-      
-      auto message = [NSString stringWithFormat:@"Frame Processor threw an error: %s\n%s", jsError.getMessage().c_str(), jsError.getStack().c_str()];
+      auto stack = std::regex_replace(jsError.getStack(), std::regex("\n"), "\n    ");
+      auto message = [NSString stringWithFormat:@"Frame Processor threw an error: %s\nIn: %s", jsError.getMessage().c_str(), stack.c_str()];
       
       RCTBridge* bridge = [RCTBridge currentBridge];
       if (bridge != nil) {
