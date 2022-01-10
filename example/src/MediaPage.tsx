@@ -39,10 +39,6 @@ export function MediaPage({ navigation, route }: Props): React.ReactElement {
   const isVideoPaused = !isForeground || !isScreenFocused;
   const [savingState, setSavingState] = useState<'none' | 'saving' | 'saved'>('none');
 
-  const onClosePressed = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
   const onMediaLoad = useCallback((event: OnLoadData | NativeSyntheticEvent<ImageLoadEventData>) => {
     if (isVideoOnLoadEvent(event)) {
       console.log(
@@ -110,7 +106,7 @@ export function MediaPage({ navigation, route }: Props): React.ReactElement {
         />
       )}
 
-      <PressableOpacity style={styles.closeButton} onPress={onClosePressed}>
+      <PressableOpacity style={styles.closeButton} onPress={navigation.goBack}>
         <IonIcon name="close" size={35} color="white" style={styles.icon} />
       </PressableOpacity>
 
