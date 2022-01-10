@@ -41,7 +41,7 @@ void CameraView::frameProcessorCallback(const alias_ref<JImageProxy::javaobject>
   } catch (const jsi::JSError& error) {
     // TODO: jsi::JSErrors cannot be caught on Hermes. They crash the entire app.
     auto stack = std::regex_replace(error.getStack(), std::regex("\n"), "\n    ");
-    __android_log_print(ANDROID_LOG_ERROR, TAG, "Frame Processor threw an error! %s\nIn: %s", error.getMessage(), stack);
+    __android_log_print(ANDROID_LOG_ERROR, TAG, "Frame Processor threw an error! %s\nIn: %s", error.getMessage().c_str(), stack.c_str());
   } catch (const std::exception& exception) {
     __android_log_print(ANDROID_LOG_ERROR, TAG, "Frame Processor threw a C++ error! %s", exception.what());
   }
