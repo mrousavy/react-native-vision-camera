@@ -10,23 +10,18 @@ export const withDisableFrameProcessorsIOS: ConfigPlugin = (c) => {
     const xcodeProject: XcodeProject = config.modResults;
 
     const configurations = xcodeProject.pbxXCBuildConfigurationSection();
-    let key;
-    let buildSettings;
 
     const inheritKey = '"$(inherited)"';
     const valueKey = '"VISION_CAMERA_DISABLE_FRAME_PROCESSORS=1"';
 
-    for (key in configurations) {
-      buildSettings = configurations[key].buildSettings;
-      if (typeof buildSettings?.GCC_PREPROCESSOR_DEFINITIONS !== 'undefined') {
-        // alright, this is the DEBUG config, push our setting to it
-        if (buildSettings.GCC_PREPROCESSOR_DEFINITIONS.includes(valueKey) === false)
-          buildSettings.GCC_PREPROCESSOR_DEFINITIONS.push(valueKey);
-      } else if (typeof buildSettings !== 'undefined') {
-        // new projects do not have GCC_PREPROCESSOR_DEFINITIONS for "Release", lets create it
-        // we need to add the inheritKey or it will break the release build.
-        buildSettings.GCC_PREPROCESSOR_DEFINITIONS = [inheritKey, valueKey];
-      }
+    for (const key in configurations) {
+      const buildSettings = configurations[key].buildSettings;
+      if (buildSettings == null) continue;
+
+      const preprocessorDefinitions = (buildSettings.GCC_PREPROCESSOR_DEFINITIONS ?? [inheritKey]) as string[];
+
+      if (!preprocessorDefinitions.includes(valueKey)) preprocessorDefinitions.push(valueKey);
+      buildSettings.GCC_PREPROCESSOR_DEFINITIONS = preprocessorDefinitions;
     }
     return config;
   });
