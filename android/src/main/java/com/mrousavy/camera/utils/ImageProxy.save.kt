@@ -6,6 +6,7 @@ import android.graphics.ImageFormat
 import android.graphics.Matrix
 import android.util.Log
 import androidx.camera.core.ImageProxy
+import androidx.exifinterface.media.ExifInterface
 import com.mrousavy.camera.CameraView
 import com.mrousavy.camera.InvalidFormatError
 import java.io.ByteArrayOutputStream
@@ -43,7 +44,34 @@ fun flip(imageBytes: ByteArray, imageWidth: Int): ByteArray {
 fun flipImage(imageBytes: ByteArray): ByteArray {
   val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
   val matrix = Matrix()
-  matrix.preScale(-1f, 1f)
+
+  val exif = ExifInterface(imageBytes.inputStream())
+  val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
+
+  when (orientation) {
+    ExifInterface.ORIENTATION_ROTATE_180 -> {
+      matrix.setRotate(180f)
+      matrix.postScale(-1f, 1f)
+    }
+    ExifInterface.ORIENTATION_FLIP_VERTICAL -> {
+      matrix.setRotate(180f)
+    }
+    ExifInterface.ORIENTATION_TRANSPOSE -> {
+      matrix.setRotate(90f)
+    }
+    ExifInterface.ORIENTATION_ROTATE_90 -> {
+      matrix.setRotate(90f)
+      matrix.postScale(-1f, 1f)
+    }
+    ExifInterface.ORIENTATION_TRANSVERSE -> {
+      matrix.setRotate(-90f)
+    }
+    ExifInterface.ORIENTATION_ROTATE_270 -> {
+      matrix.setRotate(-90f)
+      matrix.postScale(-1f, 1f)
+    }
+  }
+
   val newBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
   val stream = ByteArrayOutputStream()
   newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
