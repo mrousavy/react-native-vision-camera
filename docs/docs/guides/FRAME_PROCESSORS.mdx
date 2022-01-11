@@ -210,6 +210,15 @@ The Frame Processor gets called with a `Frame` object, which is a **JSI HostObje
 
 The Frame Processor API spawns a secondary JavaScript Runtime which consumes a small amount of extra CPU and RAM. Additionally, compile time increases since Frame Processors are written in native C++. If you're not using Frame Processors at all, you can disable them:
 
+<Tabs
+  groupId="environment"
+  defaultValue="rn"
+  values={[
+    {label: 'React Native', value: 'rn'},
+    {label: 'Expo', value: 'expo'}
+  ]}>
+<TabItem value="rn">
+
 #### Android
 
 Inside your `gradle.properties` file, add the `disableFrameProcessors` flag:
@@ -233,6 +242,31 @@ GCC_PREPROCESSOR_DEFINITIONS = (
 ```
 
 Make sure to add this to your Debug-, as well as your Release-configuration.
+
+</TabItem>
+
+<TabItem value="expo">
+
+Inside your Expo config (`app.json`, `app.config.json` or `app.config.js`), add the `disableFrameProcessors` flag:
+
+```json
+{
+  "name": "my app",
+  "plugins": [
+    [
+      "react-native-vision-camera",
+      {
+        // ...
+        disableFrameProcessors: true
+      }
+    ]
+  ]
+}
+```
+
+</TabItem>
+</Tabs>
+
 
 <br />
 
