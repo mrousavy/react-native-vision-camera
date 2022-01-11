@@ -27,7 +27,6 @@ export const parsePhysicalDeviceTypes = (
   physicalDeviceTypes: PhysicalCameraDeviceType[],
 ): PhysicalCameraDeviceType | LogicalCameraDeviceType => {
   if (physicalDeviceTypes.length === 1) {
-    // @ts-expect-error for very obvious reasons
     return physicalDeviceTypes[0];
   }
 
