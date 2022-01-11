@@ -6,9 +6,11 @@
 
 #include <jni.h>
 #include <fbjni/fbjni.h>
+#include <jsi/jsi.h>
 
 #include <memory>
 #include <string>
+#include <regex>
 
 namespace vision {
 
@@ -36,9 +38,12 @@ void CameraView::frameProcessorCallback(const alias_ref<JImageProxy::javaobject>
 
   try {
     frameProcessor_(frame);
-  } catch (const std::exception& exception) {
+  } catch (const jsi::JSError& error) {
     // TODO: jsi::JSErrors cannot be caught on Hermes. They crash the entire app.
-    __android_log_print(ANDROID_LOG_ERROR, TAG, "Frame Processor threw an error! %s", exception.what());
+    auto stack = std::regex_replace(error.getStack(), std::regex("\n"), "\n    ");
+    __android_log_print(ANDROID_LOG_ERROR, TAG, "Frame Processor threw an error! %s\nIn: %s", error.getMessage().c_str(), stack.c_str());
+  } catch (const std::exception& exception) {
+    __android_log_print(ANDROID_LOG_ERROR, TAG, "Frame Processor threw a C++ error! %s", exception.what());
   }
 }
 
