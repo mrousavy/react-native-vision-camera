@@ -16,7 +16,10 @@
 
 - (instancetype) initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation;
 
+- (instancetype) initWithBufferAndDepth:(CMSampleBufferRef)buffer depth:(CVPixelBufferRef)depth orientation:(UIImageOrientation)orientation;
+
 @property (nonatomic, readonly) CMSampleBufferRef buffer;
+@property (nonatomic, readonly) CVPixelBufferRef depth;
 @property (nonatomic, readonly) UIImageOrientation orientation;
 
 @end

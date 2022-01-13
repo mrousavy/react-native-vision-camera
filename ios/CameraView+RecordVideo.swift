@@ -10,7 +10,8 @@ import AVFoundation
 
 // MARK: - CameraView + AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate
 
-extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
+extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate, AVCaptureDepthDataOutputDelegate, AVCaptureDataOutputSynchronizerDelegate {
+    
   /**
    Starts a video + audio recording with a custom Asset Writer.
    */
@@ -188,8 +189,49 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       }
     }
   }
+    
+    public final func dataOutputSynchronizer(_ synchronizer: AVCaptureDataOutputSynchronizer, didOutput synchronizedDataCollection: AVCaptureSynchronizedDataCollection) {
+        
+        ReactLogger.log(level: .info, message: "Running Depth FP 1")
+
+        // Read all outputs
+        guard let syncedDepthData: AVCaptureSynchronizedDepthData =
+                synchronizedDataCollection.synchronizedData(for: depthOutput!) as? AVCaptureSynchronizedDepthData,
+            let syncedVideoData: AVCaptureSynchronizedSampleBufferData =
+            synchronizedDataCollection.synchronizedData(for: videoOutput!) as? AVCaptureSynchronizedSampleBufferData else {
+                // only work on synced pairs
+                ReactLogger.log(level: .info, message: "Video and depth data out of sync")
+                return
+        }
+
+        if syncedDepthData.depthDataWasDropped || syncedVideoData.sampleBufferWasDropped {
+            return
+        }
+
+        let depthData = syncedDepthData.depthData
+        let depthPixelBuffer = depthData.depthDataMap
+        let sampleBuffer = syncedVideoData.sampleBuffer
+//        guard let videoPixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer),
+//            let formatDescription = CMSampleBufferGetFormatDescription(sampleBuffer) else {
+//                return
+//        }
+
+        if let frameProcessor = frameProcessorCallback {
+            if !isRunningFrameProcessor {
+              // we're not in the middle of executing the Frame Processor, so prepare for next call.
+              CameraQueues.frameProcessorQueue.async {
+                self.isRunningFrameProcessor = true
+                  let frame = Frame(bufferAndDepth: sampleBuffer, depth: depthPixelBuffer, orientation: self.bufferOrientation)
+                frameProcessor(frame)
+                self.isRunningFrameProcessor = false
+              }
+            }
+        }
+        
+    }
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
+      ReactLogger.log(level: .info, message: "Capture output: \(captureOutput.debugDescription)")
     // Video Recording runs in the same queue
     if isRecording {
       guard let recordingSession = recordingSession else {

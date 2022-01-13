@@ -126,15 +126,37 @@ extension CameraView {
       self.videoOutput = nil
     }
     if video?.boolValue == true || enableFrameProcessor {
-      ReactLogger.log(level: .info, message: "Adding Video Data output...")
       videoOutput = AVCaptureVideoDataOutput()
       guard captureSession.canAddOutput(videoOutput!) else {
         invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "video-output")))
         return
       }
-      videoOutput!.setSampleBufferDelegate(self, queue: videoQueue)
-      videoOutput!.alwaysDiscardsLateVideoFrames = false
-      captureSession.addOutput(videoOutput!)
+        // TODO: Replace with `depth` prop value
+        if false {
+            ReactLogger.log(level: .info, message: "Adding Video Data output...")
+            videoOutput!.setSampleBufferDelegate(self, queue: videoQueue)
+            videoOutput!.alwaysDiscardsLateVideoFrames = false
+            captureSession.addOutput(videoOutput!)
+        }
+        else {
+            ReactLogger.log(level: .info, message: "Adding Video + Depth Data output...")
+            depthOutput = AVCaptureDepthDataOutput()
+            guard captureSession.canAddOutput(depthOutput!) else {
+              invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "depth-output")))
+              return
+            }
+            guard let depthOutput = depthOutput else {
+                return
+            }
+            guard let videoOutput = videoOutput else {
+                return
+            }
+            captureSession.addOutput(depthOutput)
+            captureSession.addOutput(videoOutput)
+            outputSynchronizer = AVCaptureDataOutputSynchronizer(dataOutputs: [videoOutput, depthOutput])
+            outputSynchronizer!.setDelegate(self, queue: videoQueue)
+        }
+      
     }
 
     onOrientationChanged()

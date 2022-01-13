@@ -26,6 +26,7 @@ private let propsThatRequireReconfiguration = ["cameraId",
                                                "preset",
                                                "photo",
                                                "video",
+                                               "depth",
                                                "enableFrameProcessor"]
 private let propsThatRequireDeviceReconfiguration = ["fps",
                                                      "hdr",
@@ -48,6 +49,7 @@ public final class CameraView: UIView {
   @objc var photo: NSNumber? // nullable bool
   @objc var video: NSNumber? // nullable bool
   @objc var audio: NSNumber? // nullable bool
+  @objc var depth: NSNumber? // nullable bool
   @objc var enableFrameProcessor = false
   // props that require format reconfiguring
   @objc var format: NSDictionary?
@@ -89,6 +91,8 @@ public final class CameraView: UIView {
   internal var audioDeviceInput: AVCaptureDeviceInput?
   internal var photoOutput: AVCapturePhotoOutput?
   internal var videoOutput: AVCaptureVideoDataOutput?
+  internal var depthOutput: AVCaptureDepthDataOutput?
+  internal var outputSynchronizer: AVCaptureDataOutputSynchronizer?
   internal var audioOutput: AVCaptureAudioDataOutput?
   // CameraView+RecordView (+ FrameProcessorDelegate.mm)
   internal var isRecording = false
@@ -241,7 +245,7 @@ public final class CameraView: UIView {
         }
 
         if shouldUpdateOrientation {
-          self.updateOrientation()
+//          self.updateOrientation()
         }
 
         // This is a wack workaround, but if I immediately set torch mode after `startRunning()`, the session isn't quite ready yet and will ignore torch.
@@ -314,7 +318,7 @@ public final class CameraView: UIView {
 
   @objc
   func onOrientationChanged() {
-    updateOrientation()
+//    updateOrientation()
   }
 
   // pragma MARK: Event Invokers

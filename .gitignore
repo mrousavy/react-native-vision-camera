@@ -40,6 +40,11 @@ android.iml
 #
 example/ios/Pods
 
+# Vendor Bundle
+#
+example/ios/vendor
+.bundle
+
 # node.js
 #
 node_modules/

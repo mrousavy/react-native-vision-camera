@@ -12,6 +12,7 @@
 
 @implementation Frame {
   CMSampleBufferRef buffer;
+  CVPixelBufferRef depth;
   UIImageOrientation orientation;
 }
 
@@ -24,7 +25,18 @@
   return self;
 }
 
+- (instancetype) initWithBufferAndDepth:(CMSampleBufferRef)buffer depth:(CVPixelBufferRef)depth orientation:(UIImageOrientation)orientation {
+  self = [super init];
+  if (self) {
+    _buffer = buffer;
+    _depth = depth;
+    _orientation = orientation;
+  }
+  return self;
+}
+
 @synthesize buffer = _buffer;
+@synthesize depth = _depth;
 @synthesize orientation = _orientation;
 
 @end
