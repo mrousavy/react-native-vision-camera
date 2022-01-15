@@ -197,9 +197,11 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
+  const [avg, setAvg] = useState([]);
+
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
-    const values = examplePluginSwift(frame);
+    const values = examplePluginSwift(frame) as any;
     console.log('Ran FP');
     // console.log(`Return Values: ${JSON.stringify(values)}`);
   }, []);
@@ -218,8 +220,6 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 ref={camera}
                 style={StyleSheet.absoluteFill}
                 device={device}
-                format={format}
-                fps={fps}
                 hdr={enableHdr}
                 lowLightBoost={device.supportsLowLightBoost && enableNightMode}
                 isActive={isActive}

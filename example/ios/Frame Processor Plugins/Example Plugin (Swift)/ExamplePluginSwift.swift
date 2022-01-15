@@ -16,6 +16,18 @@ public class ExamplePluginSwift: NSObject, FrameProcessorPluginBase {
       
       print("FP depth: \(frame.depth!)")
       
+      CVPixelBufferLockBaseAddress(frame.depth!, CVPixelBufferLockFlags(rawValue: 0))
+      let depthHeight = CVPixelBufferGetHeightOfPlane(frame.depth!, 0)
+      let depthWidth = CVPixelBufferGetWidthOfPlane(frame.depth!, 0)
+      let bytesPerRow = CVPixelBufferGetBytesPerRowOfPlane(frame.depth!, 0)
+      let baseAddress = CVPixelBufferGetBaseAddressOfPlane(frame.depth!, 0)
+      let pointer = baseAddress!.assumingMemoryBound(to: UInt8.self)
+      let bufferData = UnsafeMutableBufferPointer<UInt8>(start: pointer, count: bytesPerRow * depthHeight)
+      CVPixelBufferUnlockBaseAddress(frame.depth!, CVPixelBufferLockFlags(rawValue: 0))
+      
+      let center = bufferData[(bytesPerRow * Int(depthHeight / 2)) + Int(depthWidth / 2)]
+      print("Center screen value: \(center)")
+      
 //        guard let imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer) else {
 //            return nil
 //        }
@@ -41,6 +53,6 @@ public class ExamplePluginSwift: NSObject, FrameProcessorPluginBase {
 //                17.38,
 //            ],
 //        ]
-      return []
+      return ["center": center]
     }
 }
