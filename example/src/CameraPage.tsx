@@ -22,7 +22,7 @@ import { CaptureButton } from './views/CaptureButton';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { examplePlugin, examplePluginSwift } from './frame-processors/ExamplePlugin';
+import { examplePlugin } from './frame-processors/ExamplePlugin';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
@@ -52,6 +52,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const [enableHdr, setEnableHdr] = useState(false);
   const [flash, setFlash] = useState<'off' | 'on'>('off');
   const [enableNightMode, setEnableNightMode] = useState(false);
+  const [enableDepthData, setEnableDepthData] = useState(true);
 
   // camera format settings
   const devices = useCameraDevices();
@@ -77,6 +78,12 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
       return 30;
     }
 
+    const supportsDepthAt60Fps = formats.some((f) => f.supportsDepthData && f.frameRateRanges.some((r) => frameRateIncluded(r, 60)));
+    if (enableDepthData && !supportsDepthAt60Fps) {
+      // User has enabled Depth Data, but Depth Data is not supported at 60 FPS.
+      return 30;
+    }
+
     const supports60Fps = formats.some((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, 60)));
     if (!supports60Fps) {
       // 60 FPS is not supported by any format.
@@ -84,7 +91,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     }
     // If nothing blocks us from using it, we default to 60 FPS.
     return 60;
-  }, [device?.supportsLowLightBoost, enableHdr, enableNightMode, formats, is60Fps]);
+  }, [device?.supportsLowLightBoost, enableHdr, enableNightMode, enableDepthData, formats, is60Fps]);
 
   const supportsCameraFlipping = useMemo(() => devices.back != null && devices.front != null, [devices.back, devices.front]);
   const supportsFlash = device?.hasFlash ?? false;
@@ -103,9 +110,13 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
       result = result.filter((f) => f.supportsVideoHDR || f.supportsPhotoHDR);
     }
 
+    if (enableDepthData) {
+      result = result.filter((f) => f.supportsDepthData);
+    }
+
     // find the first format that includes the given FPS
     return result.find((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, fps)));
-  }, [formats, fps, enableHdr]);
+  }, [formats, fps, enableHdr, enableDepthData]);
 
   //#region Animated Zoom
   // This just maps the zoom factor to a percentage value.
@@ -197,13 +208,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const [avg, setAvg] = useState([]);
-
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
-    const values = examplePluginSwift(frame) as any;
-    console.log('Ran FP');
-    // console.log(`Return Values: ${JSON.stringify(values)}`);
+    const values = examplePlugin(frame);
+    console.log(`Return Values: ${JSON.stringify(values)}`);
   }, []);
 
   const onFrameProcessorSuggestionAvailable = useCallback((suggestion: FrameProcessorPerformanceSuggestion) => {
@@ -219,6 +227,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
               <ReanimatedCamera
                 ref={camera}
                 style={StyleSheet.absoluteFill}
+                format={format}
+                fps={fps}
                 device={device}
                 hdr={enableHdr}
                 lowLightBoost={device.supportsLowLightBoost && enableNightMode}
@@ -229,7 +239,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 animatedProps={cameraAnimatedProps}
                 photo={true}
                 video={true}
-                depth={false}
+                enableDepthData={true}
                 audio={hasMicrophonePermission}
                 frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
                 orientation="portrait"

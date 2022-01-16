@@ -18,7 +18,13 @@
 
 static inline id example_plugin(Frame* frame, NSArray* arguments) {
   CVPixelBufferRef imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
-  NSLog(@"ExamplePlugin: %zu x %zu Image. Logging %lu parameters:", CVPixelBufferGetWidth(imageBuffer), CVPixelBufferGetHeight(imageBuffer), (unsigned long)arguments.count);
+  NSLog(@"ExamplePlugin: %zu x %zu Video Frame", CVPixelBufferGetWidth(imageBuffer), CVPixelBufferGetHeight(imageBuffer));
+  
+  if (frame.depth != nil) {
+    NSLog(@"ExamplePlugin: %zu x %zu Depth Frame", CVPixelBufferGetWidth(frame.depth), CVPixelBufferGetHeight(frame.depth));
+  }
+  
+  NSLog(@"ExamplePlugin: Logging %lu parameters:", (unsigned long)arguments.count);
   
   for (id param in arguments) {
     NSLog(@"ExamplePlugin:   -> %@ (%@)", param == nil ? @"(nil)" : [param description], NSStringFromClass([param classForCoder]));

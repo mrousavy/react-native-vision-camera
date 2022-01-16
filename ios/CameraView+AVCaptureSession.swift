@@ -106,7 +106,7 @@ extension CameraView {
                     photoOutput!.isDualCameraDualPhotoDeliveryEnabled = photoOutput!.isDualCameraDualPhotoDeliverySupported
                 }
             }
-            if enableDepthData {
+            if enableDepthData?.boolValue == true {
                 photoOutput!.isDepthDataDeliveryEnabled = photoOutput!.isDepthDataDeliverySupported
             }
             if #available(iOS 12.0, *), enablePortraitEffectsMatteDelivery {
@@ -138,7 +138,7 @@ extension CameraView {
                 return
             }
             // TODO: Replace with `depth` prop value
-            if false {
+            if enableDepthData?.boolValue != true {
                 ReactLogger.log(level: .info, message: "Adding Video Data output...")
                 videoOutput!.setSampleBufferDelegate(self, queue: videoQueue)
                 videoOutput!.alwaysDiscardsLateVideoFrames = false

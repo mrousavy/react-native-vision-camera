@@ -26,7 +26,6 @@ private let propsThatRequireReconfiguration = ["cameraId",
                                                "preset",
                                                "photo",
                                                "video",
-                                               "depth",
                                                "enableFrameProcessor"]
 private let propsThatRequireDeviceReconfiguration = ["fps",
                                                      "hdr",
@@ -41,7 +40,7 @@ public final class CameraView: UIView {
   // pragma MARK: Exported Properties
   // props that require reconfiguring
   @objc var cameraId: NSString?
-  @objc var enableDepthData = false
+  @objc var enableDepthData: NSNumber? // nullable bool
   @objc var enableHighQualityPhotos: NSNumber? // nullable bool
   @objc var enablePortraitEffectsMatteDelivery = false
   @objc var preset: String?
@@ -49,7 +48,6 @@ public final class CameraView: UIView {
   @objc var photo: NSNumber? // nullable bool
   @objc var video: NSNumber? // nullable bool
   @objc var audio: NSNumber? // nullable bool
-  @objc var depth: NSNumber? // nullable bool
   @objc var enableFrameProcessor = false
   // props that require format reconfiguring
   @objc var format: NSDictionary?

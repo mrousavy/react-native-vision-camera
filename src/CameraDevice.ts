@@ -161,6 +161,10 @@ export interface CameraDeviceFormat {
    */
   supportsPhotoHDR: boolean;
   /**
+   * Specifies whether this format supports depth data capture
+   */
+  supportsDepthData: boolean;
+  /**
    * All available frame rate ranges. You can query this to find the highest frame rate available
    */
   frameRateRanges: FrameRateRange[];
