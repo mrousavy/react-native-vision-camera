@@ -20,7 +20,6 @@ import UIKit
 // TODO: Photo HDR
 
 private let propsThatRequireReconfiguration = ["cameraId",
-                                               "enableDepthData",
                                                "enableHighQualityPhotos",
                                                "enablePortraitEffectsMatteDelivery",
                                                "preset",
@@ -30,7 +29,9 @@ private let propsThatRequireReconfiguration = ["cameraId",
 private let propsThatRequireDeviceReconfiguration = ["fps",
                                                      "hdr",
                                                      "lowLightBoost",
-                                                     "colorSpace"]
+                                                     "colorSpace",
+                                                     "depthDataFormat",
+                                                     "enableDepthData"]
 
 // MARK: - CameraView
 
@@ -56,6 +57,7 @@ public final class CameraView: UIView {
   @objc var hdr: NSNumber? // nullable bool
   @objc var lowLightBoost: NSNumber? // nullable bool
   @objc var colorSpace: NSString?
+  @objc var depthDataFormat: NSString?
   @objc var orientation: NSString?
   // other props
   @objc var isActive = false

@@ -43,7 +43,9 @@ extension AVCaptureDevice.Format {
         ]
       },
       "pixelFormat": CMFormatDescriptionGetMediaSubType(formatDescription).toString(),
-      "supportsDepthData": supportedDepthDataFormats.count > 0
+      "supportedDepthDataFormats": supportedDepthDataFormats.map {
+           CMFormatDescriptionGetMediaSubType($0.formatDescription).toString()
+      }
     ]
 
     if #available(iOS 13.0, *) {

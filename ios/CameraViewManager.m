@@ -39,6 +39,7 @@ RCT_EXPORT_VIEW_PROPERTY(frameProcessorFps, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(hdr, NSNumber); // nullable bool
 RCT_EXPORT_VIEW_PROPERTY(lowLightBoost, NSNumber); // nullable bool
 RCT_EXPORT_VIEW_PROPERTY(colorSpace, NSString);
+RCT_EXPORT_VIEW_PROPERTY(depthDataFormat, NSString);
 RCT_EXPORT_VIEW_PROPERTY(videoStabilizationMode, NSString);
 // other props
 RCT_EXPORT_VIEW_PROPERTY(preset, NSString);

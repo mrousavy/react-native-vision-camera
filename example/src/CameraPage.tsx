@@ -78,7 +78,9 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
       return 30;
     }
 
-    const supportsDepthAt60Fps = formats.some((f) => f.supportsDepthData && f.frameRateRanges.some((r) => frameRateIncluded(r, 60)));
+    const supportsDepthAt60Fps = formats.some(
+      (f) => f.supportedDepthDataFormats.length > 0 && f.frameRateRanges.some((r) => frameRateIncluded(r, 60)),
+    );
     if (enableDepthData && !supportsDepthAt60Fps) {
       // User has enabled Depth Data, but Depth Data is not supported at 60 FPS.
       return 30;
@@ -96,6 +98,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const supportsCameraFlipping = useMemo(() => devices.back != null && devices.front != null, [devices.back, devices.front]);
   const supportsFlash = device?.hasFlash ?? false;
   const supportsHdr = useMemo(() => formats.some((f) => f.supportsVideoHDR || f.supportsPhotoHDR), [formats]);
+  const supportsDepthData = useMemo(() => formats.some((f) => f.supportedDepthDataFormats.length > 0), [formats]);
   const supports60Fps = useMemo(() => formats.some((f) => f.frameRateRanges.some((rate) => frameRateIncluded(rate, 60))), [formats]);
   const canToggleNightMode = enableNightMode
     ? true // it's enabled so you have to be able to turn it off again
@@ -111,7 +114,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     }
 
     if (enableDepthData) {
-      result = result.filter((f) => f.supportsDepthData);
+      result = result.filter((f) => f.supportedDepthDataFormats.includes('fdep'));
     }
 
     // find the first format that includes the given FPS
@@ -239,7 +242,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 animatedProps={cameraAnimatedProps}
                 photo={true}
                 video={true}
-                enableDepthData={true}
+                enableDepthData={enableDepthData}
+                depthDataFormat="fdep"
                 audio={hasMicrophonePermission}
                 frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
                 orientation="portrait"
@@ -287,6 +291,11 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
         {supportsHdr && (
           <PressableOpacity style={styles.button} onPress={() => setEnableHdr((h) => !h)}>
             <MaterialIcon name={enableHdr ? 'hdr' : 'hdr-off'} color="white" size={24} />
+          </PressableOpacity>
+        )}
+        {supportsDepthData && (
+          <PressableOpacity style={styles.button} onPress={() => setEnableDepthData((d) => !d)}>
+            <MaterialIcon name={enableDepthData ? 'video-3d' : 'video-3d-off'} color="white" size={24} />
           </PressableOpacity>
         )}
         {canToggleNightMode && (

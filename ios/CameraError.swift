@@ -111,6 +111,7 @@ enum DeviceError: String {
 enum FormatError {
   case invalidFps(fps: Int)
   case invalidHdr
+  case invalidDepth
   case invalidFormat
   case invalidColorSpace(colorSpace: String)
   case invalidPreset(preset: String)
@@ -121,6 +122,8 @@ enum FormatError {
       return "invalid-format"
     case .invalidFps:
       return "invalid-fps"
+    case .invalidDepth:
+      return "invalid-depth"
     case .invalidHdr:
       return "invalid-hdr"
     case .invalidPreset:
@@ -138,6 +141,8 @@ enum FormatError {
       return "The given FPS were not valid for the currently selected format. Make sure you select a format which `frameRateRanges` includes \(fps) FPS!"
     case .invalidHdr:
       return "The currently selected format does not support HDR capture! Make sure you select a format which `frameRateRanges` includes `supportsPhotoHDR`!"
+    case .invalidDepth:
+      return "The currently selected device or format does not support depth capture! Make sure you select a device or format which supports depth capture!"
     case let .invalidColorSpace(colorSpace):
       return "The currently selected format does not support the colorSpace \"\(colorSpace)\"! " +
         "Make sure you select a format which `colorSpaces` includes \"\(colorSpace)\"!"

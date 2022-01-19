@@ -138,17 +138,16 @@ extension CameraView {
                 return
             }
             // TODO: Replace with `depth` prop value
-            if enableDepthData?.boolValue != true {
+            if enableDepthData?.boolValue != true || videoDevice.activeDepthDataFormat == nil {
                 ReactLogger.log(level: .info, message: "Adding Video Data output...")
                 videoOutput!.setSampleBufferDelegate(self, queue: videoQueue)
                 videoOutput!.alwaysDiscardsLateVideoFrames = false
                 captureSession.addOutput(videoOutput!)
             }
             else {
-                captureSession.addOutput(videoOutput!)
                 ReactLogger.log(level: .info, message: "Adding Video + Depth Data output...")
+                captureSession.addOutput(videoOutput!)
                 depthOutput = AVCaptureDepthDataOutput()
-                
                 // Add a depth data output
                 if captureSession.canAddOutput(depthOutput!) {
                     captureSession.addOutput(depthOutput!)
@@ -160,25 +159,6 @@ extension CameraView {
                     }
                 } else {
                     invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "depth-output")))
-                    captureSession.commitConfiguration()
-                    return
-                }
-                
-                // Search for highest resolution with half-point depth values
-                let depthFormats = videoDevice.activeFormat.supportedDepthDataFormats
-                let filtered = depthFormats.filter({
-                    CMFormatDescriptionGetMediaSubType($0.formatDescription) == kCVPixelFormatType_DepthFloat16
-                })
-                let selectedFormat = filtered.max(by: {
-                    first, second in CMVideoFormatDescriptionGetDimensions(first.formatDescription).width < CMVideoFormatDescriptionGetDimensions(second.formatDescription).width
-                })
-                
-                do {
-                    try videoDevice.lockForConfiguration()
-                    videoDevice.activeDepthDataFormat = selectedFormat
-                    videoDevice.unlockForConfiguration()
-                } catch {
-                    print("Could not lock device for configuration: \(error)")
                     captureSession.commitConfiguration()
                     return
                 }
@@ -199,7 +179,7 @@ extension CameraView {
     // pragma MARK: Configure Device
     
     /**
-     Configures the Video Device with the given FPS, HDR and ColorSpace.
+     Configures the Video Device with the given FPS, HDR, ColorSpace and Depth Data Format.
      */
     final func configureDevice() {
         ReactLogger.log(level: .info, message: "Configuring Device...")
@@ -254,6 +234,29 @@ extension CameraView {
                           return
                       }
                 device.activeColorSpace = avColorSpace
+            }
+            if #available(iOS 13.0, *) {
+                if enableDepthData?.boolValue == true {
+                    if let depthDataFormat = depthDataFormat as String? {
+                        // Check if the selected depth format is supported as part of the activeFormat
+                        // TODO: use the hdep, fdis etc. code to get a AvCaptureDevice.FOrmat to check against the supportedDepthFormats and finally set it as the active format if it passed the checks
+                        let avCaptureDepthDataFormat = depthDataFormat
+                        if device.activeFormat.supportedDepthDataFormats.map({CMFormatDescriptionGetMediaSubType($0.formatDescription).toString()}).contains(avCaptureDepthDataFormat) {
+                            let selectedDepthFormat = device.activeFormat.supportedDepthDataFormats.filter {format -> Bool in
+                                return CMFormatDescriptionGetMediaSubType(format.formatDescription).toString() == avCaptureDepthDataFormat
+                            }.max(by: {
+                                CMVideoFormatDescriptionGetDimensions($0.formatDescription).width
+                                < CMVideoFormatDescriptionGetDimensions($1.formatDescription).width
+                            })!
+                            device.activeDepthDataFormat = selectedDepthFormat
+                        } else {
+                            invokeOnError(.format(.invalidDepth))
+                            return
+                        }
+                    }
+                }
+            } else {
+                // Fallback on earlier versions
             }
             
             device.unlockForConfiguration()
