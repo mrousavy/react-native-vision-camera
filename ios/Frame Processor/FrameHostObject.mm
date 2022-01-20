@@ -19,6 +19,7 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("close")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("depth")));
   return result;
 }
 
@@ -77,6 +78,31 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
     return jsi::Value((double) planesCount);
+  }
+  if (name == "depth") {
+      if (this->frame.depth != nil) {
+          jsi::Object depthFrame = jsi::Object(runtime);
+          auto toString = [this] (jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t) -> jsi::Value {
+            if (this->frame.depth == nil) {
+              return jsi::String::createFromUtf8(runtime, "[closed frame]");
+            }
+            auto width = CVPixelBufferGetWidth(frame.depth);
+            auto height = CVPixelBufferGetHeight(frame.depth);
+
+            NSMutableString* string = [NSMutableString stringWithFormat:@"%lu x %lu Frame", width, height];
+            return jsi::String::createFromUtf8(runtime, string.UTF8String);
+          };
+          auto width = CVPixelBufferGetWidth(frame.depth);
+          auto height = CVPixelBufferGetHeight(frame.depth);
+          auto bytesPerRow = CVPixelBufferGetBytesPerRow(frame.depth);
+          auto planesCount = CVPixelBufferGetPlaneCount(frame.depth);
+          depthFrame.setProperty(runtime, "toString", jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString));
+          depthFrame.setProperty(runtime, "width", jsi::Value((double) width));
+          depthFrame.setProperty(runtime, "height", jsi::Value((double) height));
+          depthFrame.setProperty(runtime, "bytesPerRow", jsi::Value((double) bytesPerRow));
+          depthFrame.setProperty(runtime, "planesCount", jsi::Value((double) planesCount));
+          return depthFrame;
+      }
   }
 
   return jsi::Value::undefined();

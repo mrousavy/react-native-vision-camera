@@ -46,4 +46,8 @@ export interface Frame {
    * ```
    */
   close(): void;
+  /**
+   * The depth frame which is attached to the video frame
+   */
+  depth?: Omit<Frame, 'depth' | 'isValid' | 'close'>;
 }
