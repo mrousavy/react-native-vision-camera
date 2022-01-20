@@ -234,7 +234,7 @@ extension CameraView {
         device.activeColorSpace = avColorSpace
       }
       if #available(iOS 13.0, *) {
-        if enableDepthData?.boolValue == true {
+        if enableDepthData?.boolValue == true && !device.activeFormat.supportedDepthDataFormats.isEmpty {
           if let depthDataFormat = depthDataFormat as String? {
             // Check if the selected depth format is supported as part of the activeFormat
             let avCaptureDepthDataFormat = depthDataFormat
