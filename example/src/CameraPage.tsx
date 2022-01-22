@@ -213,8 +213,16 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
+    console.log(`Frame Properties: ${JSON.stringify(frame)}`);
+    console.log(`Frame Depth: ${JSON.stringify(frame.depth)} ${frame.depth?.toString()}`);
     const values = examplePlugin(frame);
-    console.log(`Return Values: ${JSON.stringify(values)}`);
+    try {
+      frame.depth?.close();
+      console.log('Successfully released depth buffer');
+    } catch (error) {
+      console.log(error);
+    }
+    // console.log(`Return Values: ${JSON.stringify(values)}`);
   }, []);
 
   const onFrameProcessorSuggestionAvailable = useCallback((suggestion: FrameProcessorPerformanceSuggestion) => {

@@ -49,5 +49,5 @@ export interface Frame {
   /**
    * The depth frame which is attached to the video frame
    */
-  depth?: Omit<Frame, 'depth' | 'isValid' | 'close'>;
+  depth?: Pick<Frame, 'width' | 'height' | 'planesCount' | 'bytesPerRow' | 'toString'>;
 }

@@ -283,6 +283,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
               format.putString("autoFocusSystem", "none") // TODO: Revisit getAvailableCameraDevices (autoFocusSystem) (CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES or CameraCharacteristics.LENS_INFO_FOCUS_DISTANCE_CALIBRATION)
               format.putArray("videoStabilizationModes", videoStabilizationModes)
               format.putString("pixelFormat", pixelFormat)
+              format.putArray("supportedDepthDataFormats", Arguments.createArray())
               formats.pushMap(format)
             }
           }

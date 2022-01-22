@@ -197,16 +197,18 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate,
     guard let syncedVideoData: AVCaptureSynchronizedSampleBufferData =
       synchronizedDataCollection.synchronizedData(for: videoOutput!) as? AVCaptureSynchronizedSampleBufferData else {
       // only work on synced pairs
-      ReactLogger.log(level: .info, message: "Video data out of sync")
+      invokeOnError(.capture(.videoDataOutOfSync))
       return
     }
     guard let syncedDepthData: AVCaptureSynchronizedDepthData =
       synchronizedDataCollection.synchronizedData(for: depthOutput!) as? AVCaptureSynchronizedDepthData else {
-      ReactLogger.log(level: .info, message: "Depth data out of sync")
+          // only work on synced pairs
+          invokeOnError(.capture(.depthDataOutOfSync))
       return
     }
 
     if syncedDepthData.depthDataWasDropped || syncedVideoData.sampleBufferWasDropped {
+      ReactLogger.log(level: .warning, message: "Synced video and depth data pair dropped")
       return
     }
 
@@ -228,7 +230,6 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate,
   }
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
-    ReactLogger.log(level: .info, message: "Capture output: \(captureOutput.debugDescription)")
     // Video Recording runs in the same queue
     if isRecording {
       guard let recordingSession = recordingSession else {

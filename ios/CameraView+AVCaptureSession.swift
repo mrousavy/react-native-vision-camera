@@ -154,7 +154,9 @@ extension CameraView {
           if let connection = depthOutput!.connection(with: .depthData) {
             connection.isEnabled = true
           } else {
-            print("No AVCaptureConnection")
+              invokeOnError(.session(.depthConnectionFailed))
+              captureSession.commitConfiguration()
+              return
           }
         } else {
           invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "depth-output")))
@@ -238,15 +240,12 @@ extension CameraView {
           if let depthDataFormat = depthDataFormat as String? {
             // Check if the selected depth format is supported as part of the activeFormat
             let avCaptureDepthDataFormat = depthDataFormat
-            if device.activeFormat.supportedDepthDataFormats.map({
-              CMFormatDescriptionGetMediaSubType($0.formatDescription).toString()
-            }).contains(avCaptureDepthDataFormat) {
-              let selectedDepthFormat = device.activeFormat.supportedDepthDataFormats.filter { format -> Bool in
-                return CMFormatDescriptionGetMediaSubType(format.formatDescription).toString() == avCaptureDepthDataFormat
-              }.max(by: {
-                CMVideoFormatDescriptionGetDimensions($0.formatDescription).width
-                  < CMVideoFormatDescriptionGetDimensions($1.formatDescription).width
-              })!
+              let selectedDepthFormat = device.activeFormat.supportedDepthDataFormats.sorted(by: {
+                  CMVideoFormatDescriptionGetDimensions($0.formatDescription).width
+                    < CMVideoFormatDescriptionGetDimensions($1.formatDescription).width
+              }).first(where: {CMFormatDescriptionGetMediaSubType($0.formatDescription).toString() == avCaptureDepthDataFormat})
+              if let selectedDepthFormat = selectedDepthFormat {
+                  ReactLogger.log(level: .info, message: "Configured depth data format: \(selectedDepthFormat)")
               device.activeDepthDataFormat = selectedDepthFormat
             } else {
               invokeOnError(.format(.invalidDepth))
@@ -255,7 +254,7 @@ extension CameraView {
           }
         }
       } else {
-        // Fallback on earlier versions
+          ReactLogger.log(level: .info, message: "Depth data capture is not supported on devices < iOS 13.0")
       }
 
       device.unlockForConfiguration()
