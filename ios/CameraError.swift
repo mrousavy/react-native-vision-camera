@@ -172,7 +172,7 @@ enum SessionError {
     case .audioSessionFailedToActivate:
       return "audio-session-failed-to-activate"
     case .depthConnectionFailed:
-        return "depth-connection-failed"
+      return "depth-connection-failed"
     }
   }
 
@@ -187,7 +187,7 @@ enum SessionError {
     case .audioSessionFailedToActivate:
       return "Failed to activate Audio Session!"
     case .depthConnectionFailed:
-        return "Depth connection could not be established for session"
+      return "Depth connection could not be established for session"
     }
   }
 }
@@ -232,9 +232,9 @@ enum CaptureError {
     case .aborted:
       return "aborted"
     case .videoDataOutOfSync:
-        return "video-data-out-of-sync"
+      return "video-data-out-of-sync"
     case .depthDataOutOfSync:
-        return "depth-data-out-of-sync"
+      return "depth-data-out-of-sync"
     case .unknown:
       return "unknown"
     }
@@ -263,9 +263,9 @@ enum CaptureError {
     case .aborted:
       return "The capture has been stopped before any input data arrived."
     case .videoDataOutOfSync:
-        return "The video data is nil or arrived out of sync while processing the synced video and depth data"
+      return "The video data is nil or arrived out of sync while processing the synced video and depth data"
     case .depthDataOutOfSync:
-        return "The depth data is nil or arrived out of sync while processing the synced video and depth data"
+      return "The depth data is nil or arrived out of sync while processing the synced video and depth data"
     case let .unknown(message: message):
       return message ?? "An unknown error occured while capturing a video/photo."
     }

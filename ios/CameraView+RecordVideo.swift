@@ -202,8 +202,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate,
     }
     guard let syncedDepthData: AVCaptureSynchronizedDepthData =
       synchronizedDataCollection.synchronizedData(for: depthOutput!) as? AVCaptureSynchronizedDepthData else {
-          // only work on synced pairs
-          invokeOnError(.capture(.depthDataOutOfSync))
+      // only work on synced pairs
+      invokeOnError(.capture(.depthDataOutOfSync))
       return
     }
 
