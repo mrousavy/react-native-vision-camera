@@ -155,12 +155,10 @@ extension CameraView {
             connection.isEnabled = true
           } else {
             invokeOnError(.session(.depthConnectionFailed))
-            captureSession.commitConfiguration()
             return
           }
         } else {
           invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "depth-output")))
-          captureSession.commitConfiguration()
           return
         }
 
