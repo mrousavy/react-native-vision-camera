@@ -213,16 +213,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
-    console.log(`Frame Properties: ${JSON.stringify(frame)}`);
-    console.log(`Frame Depth: ${JSON.stringify(frame.depth)} ${frame.depth?.toString()}`);
     const values = examplePlugin(frame);
-    try {
-      frame.depth?.close();
-      console.log('Successfully released depth buffer');
-    } catch (error) {
-      console.log(error);
-    }
-    // console.log(`Return Values: ${JSON.stringify(values)}`);
+    console.log(`Return Values: ${JSON.stringify(values)}`);
   }, []);
 
   const onFrameProcessorSuggestionAvailable = useCallback((suggestion: FrameProcessorPerformanceSuggestion) => {
@@ -250,7 +242,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 animatedProps={cameraAnimatedProps}
                 photo={true}
                 video={true}
-                enableDepthData={enableDepthData}
+                enableDepthData={device.supportsDepthCapture && enableDepthData}
                 depthDataFormat="fdep"
                 audio={hasMicrophonePermission}
                 frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
