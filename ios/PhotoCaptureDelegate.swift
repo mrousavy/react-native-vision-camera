@@ -42,13 +42,13 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
       promise.reject(error: .capture(.fileError))
       return
     }
-
+      
     do {
       try data.write(to: url)
       let exif = photo.metadata["{Exif}"] as? [String: Any]
       let width = exif?["PixelXDimension"]
       let height = exif?["PixelYDimension"]
-
+    
       promise.resolve([
         "path": tempFilePath,
         "width": width as Any,

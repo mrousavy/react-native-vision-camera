@@ -78,6 +78,10 @@ extension CameraView {
       if #available(iOS 12.0, *) {
         photoSettings.isPortraitEffectsMatteDeliveryEnabled = photoOutput.isPortraitEffectsMatteDeliveryEnabled
       }
+        
+      if self.enableDepthData?.boolValue == true {
+        photoSettings.embedsDepthDataInPhoto = true;
+      }
 
       // quality prioritization
       if #available(iOS 13.0, *), let qualityPrioritization = options["qualityPrioritization"] as? String {
