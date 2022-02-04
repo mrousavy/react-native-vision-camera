@@ -50,10 +50,6 @@ export interface RecordVideoOptions {
 export interface VideoFile extends TemporaryFile {
   /**
    * Represents the duration of the video, in seconds.
-   *
-   * This is `undefined` on Android, see [issue #77](https://github.com/mrousavy/react-native-vision-camera/issues/77)
-   *
-   * @platform iOS
    */
-  duration?: number;
+  duration: number;
 }
