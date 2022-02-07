@@ -210,29 +210,46 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       }
     }
 
-    if let frameProcessor = frameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
+    if let frameProcessor = audioFrameProcessorCallback, captureOutput is AVCaptureAudioDataOutput {
+        if !isRunningAudioFrameProcessor {
+          // we're not in the middle of executing the Frame Processor, so prepare for next call.
+          CameraQueues.frameProcessorQueue.async {
+            self.isRunningAudioFrameProcessor = true
+
+            let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
+            frameProcessor(frame)
+
+            self.isRunningAudioFrameProcessor = false
+          }
+        } else {
+          // we're still in the middle of executing a Frame Processor for a previous frame, so a frame was dropped.
+          ReactLogger.log(level: .warning, message: "The Audio Frame Processor took so long to execute that a frame was dropped.")
+        }
+    }
+
+    if let frameProcessor = videoFrameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
       // check if last frame was x nanoseconds ago, effectively throttling FPS
       let lastFrameProcessorCallElapsedTime = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorCall.uptimeNanoseconds
       let secondsPerFrame = 1.0 / actualFrameProcessorFps
       let nanosecondsPerFrame = secondsPerFrame * 1_000_000_000.0
 
       if lastFrameProcessorCallElapsedTime > UInt64(nanosecondsPerFrame) {
-        if !isRunningFrameProcessor {
+        if !isRunningVideoFrameProcessor {
           // we're not in the middle of executing the Frame Processor, so prepare for next call.
           CameraQueues.frameProcessorQueue.async {
-            self.isRunningFrameProcessor = true
+            self.isRunningVideoFrameProcessor = true
 
             let perfSample = self.frameProcessorPerformanceDataCollector.beginPerformanceSampleCollection()
             let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
             frameProcessor(frame)
             perfSample.endPerformanceSampleCollection()
 
-            self.isRunningFrameProcessor = false
+            self.isRunningVideoFrameProcessor = false
           }
           lastFrameProcessorCall = DispatchTime.now()
         } else {
           // we're still in the middle of executing a Frame Processor for a previous frame, so a frame was dropped.
-          ReactLogger.log(level: .warning, message: "The Frame Processor took so long to execute that a frame was dropped.")
+          ReactLogger.log(level: .warning, message: "The Video Frame Processor took so long to execute that a frame was dropped.")
         }
       }
 

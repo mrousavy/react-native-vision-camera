@@ -47,7 +47,8 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
 @end
 __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 @interface CameraView : UIView
-@property (nonatomic, copy) FrameProcessorCallback _Nullable frameProcessorCallback;
+@property (nonatomic, copy) FrameProcessorCallback _Nullable videoFrameProcessorCallback;
+@property (nonatomic, copy) FrameProcessorCallback _Nullable audioFrameProcessorCallback;
 @end
 
 @implementation FrameProcessorRuntimeManager {
@@ -157,7 +158,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
         auto& rt = *runtimeManager->runtime;
         auto function = worklet->getValue(rt).asObject(rt).asFunction(rt);
 
-        view.frameProcessorCallback = convertJSIFunctionToFrameProcessorCallback(rt, function);
+        view.videoFrameProcessorCallback = convertJSIFunctionToFrameProcessorCallback(rt, function);
         NSLog(@"FrameProcessorBindings: Frame processor set!");
       });
     });
@@ -186,7 +187,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
       if (!anonymousView) return;
 
       auto view = static_cast<CameraView*>(anonymousView);
-      view.frameProcessorCallback = nil;
+      view.videoFrameProcessorCallback = nil;
       NSLog(@"FrameProcessorBindings: Frame processor removed!");
     });
 
