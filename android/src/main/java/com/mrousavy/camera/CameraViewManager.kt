@@ -129,6 +129,13 @@ class CameraViewManager(reactContext: ReactApplicationContext) : SimpleViewManag
     view.lowLightBoost = lowLightBoost
   }
 
+  @ReactProp(name = "autoRotateAnalysisImage")
+  fun setAutoRotateAnalysisImage(view: CameraView, autoRotateAnalysisImage: Boolean?) {
+    if (view.autoRotateAnalysisImage != autoRotateAnalysisImage)
+      addChangedPropToTransaction(view, "autoRotateAnalysisImage")
+    view.autoRotateAnalysisImage = autoRotateAnalysisImage
+  }
+
   @ReactProp(name = "colorSpace")
   fun setColorSpace(view: CameraView, colorSpace: String?) {
     if (view.colorSpace != colorSpace)

@@ -72,7 +72,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
     const val TAG = "CameraView"
     const val TAG_PERF = "CameraView.performance"
 
-    private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "fps", "hdr", "lowLightBoost", "photo", "video", "enableFrameProcessor")
+    private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "fps", "hdr", "lowLightBoost", "autoRotateAnalysisImage", "photo", "video", "enableFrameProcessor")
     private val arrayListOfZoom = arrayListOf("zoom")
   }
 
@@ -93,6 +93,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   var hdr: Boolean? = null // nullable bool
   var colorSpace: String? = null
   var lowLightBoost: Boolean? = null // nullable bool
+  var autoRotateAnalysisImage: Boolean? = null // nullable bool
   // other props
   var isActive = false
   var torch = "off"
@@ -375,6 +376,10 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         .setTargetRotation(rotation)
         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
         .setBackgroundExecutor(frameProcessorThread)
+
+      if (autoRotateAnalysisImage == true) {
+        imageAnalysisBuilder.setOutputImageRotationEnabled(true)
+      }
 
       if (format == null) {
         // let CameraX automatically find best resolution for the target aspect ratio

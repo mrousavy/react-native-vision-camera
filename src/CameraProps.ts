@@ -115,6 +115,12 @@ export interface CameraProps extends ViewProps {
    */
   lowLightBoost?: boolean;
   /**
+   * Enables or disables automatic ouput image rotation for frame processor output on Android, see https://developer.android.com/reference/androidx/camera/core/ImageAnalysis.Builder#setOutputImageRotationEnabled(boolean)
+   *
+   * @platform android
+   */
+  autoRotateAnalysisImage?: boolean;
+  /**
    * Specifies the color space to use for this camera device. Make sure the given `format` contains the given `colorSpace`.
    *
    * Requires `format` to be set.

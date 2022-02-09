@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 public class ExampleFrameProcessorPlugin extends FrameProcessorPlugin {
     @Override
     public Object callback(@NotNull ImageProxy image, @NotNull Object[] params) {
-        Log.d("ExamplePlugin", image.getWidth() + " x " + image.getHeight() + " Image with format #" + image.getFormat() + ". Logging " + params.length + " parameters:");
+        Log.d("ExamplePlugin", image.getWidth() + " x " + image.getHeight() + " Image with format #" + image.getFormat() + " and rotation: " + image.getImageInfo().getRotationDegrees() + ". Logging " + params.length + " parameters:");
 
         for (Object param : params) {
             Log.d("ExamplePlugin", "  -> " + (param == null ? "(null)" : param.toString() + " (" + param.getClass().getName() + ")"));
