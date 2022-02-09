@@ -58,6 +58,7 @@ export interface PhotoFile extends TemporaryFile {
   height: number;
   isRawPhoto: boolean;
   thumbnail?: Record<string, unknown>;
+  depthPath?: string;
   /**
    * Metadata information describing the captured image.
    *
