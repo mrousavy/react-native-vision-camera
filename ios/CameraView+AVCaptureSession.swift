@@ -148,8 +148,8 @@ extension CameraView {
         depthOutput = AVCaptureDepthDataOutput()
         // Add a depth data output
         if captureSession.canAddOutput(depthOutput!) {
+          depthOutput!.isFilteringEnabled = true
           captureSession.addOutput(depthOutput!)
-          depthOutput!.isFilteringEnabled = false
           if let connection = depthOutput!.connection(with: .depthData) {
             connection.isEnabled = true
           } else {

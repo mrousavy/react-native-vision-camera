@@ -12,7 +12,6 @@ import AVFoundation
 
 extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate,
   AVCaptureAudioDataOutputSampleBufferDelegate,
-  AVCaptureDepthDataOutputDelegate,
   AVCaptureDataOutputSynchronizerDelegate {
   /**
    Starts a video + audio recording with a custom Asset Writer.
@@ -193,6 +192,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate,
   }
 
   public final func dataOutputSynchronizer(_: AVCaptureDataOutputSynchronizer, didOutput synchronizedDataCollection: AVCaptureSynchronizedDataCollection) {
+      
     guard let syncedVideoData = synchronizedDataCollection.synchronizedData(for: videoOutput!) as? AVCaptureSynchronizedSampleBufferData else {
       ReactLogger.log(level: .warning, message: "Video data out of sync for current frame")
       return
