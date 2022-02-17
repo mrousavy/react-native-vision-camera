@@ -410,9 +410,19 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         // User has selected a custom format={}. Use that
         val format = DeviceFormat(format!!)
         Log.i(TAG, "Using custom format - photo: ${format.photoSize}, video: ${format.videoSize} @ $fps FPS")
-        previewBuilder.setTargetResolution(format.videoSize)
+        
+        val targetPreviewResolution:Size
+        if (getDisplay().rotation == Surface.ROTATION_0) {
+          val newWidth = format.videoSize.height
+          val newHeight = format.videoSize.width
+          targetPreviewResolution = Size(newWidth, newHeight)
+        } else {
+          targetPreviewResolution = Size(format.videoSize.width, format.videoSize.height)
+        }
+
+        previewBuilder.setTargetResolution(targetPreviewResolution)
         imageCaptureBuilder.setTargetResolution(format.photoSize)
-        imageAnalysisBuilder.setTargetResolution(format.videoSize)
+        imageAnalysisBuilder.setTargetResolution(targetPreviewResolution)
 
         // TODO: Ability to select resolution exactly depending on format? Just like on iOS...
         when (min(format.videoSize.height, format.videoSize.width)) {
