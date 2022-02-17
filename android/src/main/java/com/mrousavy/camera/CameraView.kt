@@ -8,6 +8,7 @@ import android.content.res.Configuration
 import android.hardware.camera2.*
 import android.util.Log
 import android.util.Range
+import android.util.Size
 import android.view.*
 import android.view.View.OnTouchListener
 import android.widget.FrameLayout
