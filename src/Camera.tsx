@@ -409,15 +409,6 @@ export class Camera extends React.PureComponent<CameraProps> {
       this.lastFrameProcessor = frameProcessor;
     }
   }
-
-  /** @internal */
-  componentWillUnmount(): void {
-    if (!this.isNativeViewMounted) return;
-    if (this.lastFrameProcessor != null || this.props.frameProcessor != null) {
-      this.unsetFrameProcessor();
-      this.lastFrameProcessor = undefined;
-    }
-  }
   //#endregion
 
   /** @internal */
