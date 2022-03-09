@@ -80,6 +80,22 @@ export type ColorSpace =
   | 'unknown';
 
 /**
+ * Indicates a format's depth data format.
+ *
+ * #### The following depth data formats are available on iOS:
+ * `"hdep"`: Float16 depth map
+ * `"fdep"`: Float32 depth map
+ * `"hdis"`: Float16 disparity map
+ * `"fdis"`: Float32 disparity map
+ *
+ * #### The following depth data formats are available on Android:
+ * * None yet :/
+ */
+export type DepthDataFormat =
+  // ios
+  'hdep' | 'fdep' | 'hdis' | 'fdis';
+
+/**
  * Indicates a format's autofocus system.
  *
  * * `"none"`: Indicates that autofocus is not available
@@ -160,6 +176,10 @@ export interface CameraDeviceFormat {
    * Specifies whether this format supports HDR mode for photo capture
    */
   supportsPhotoHDR: boolean;
+  /**
+   * Specifies whether this format supports depth data capture
+   */
+  supportedDepthDataFormats: DepthDataFormat[];
   /**
    * All available frame rate ranges. You can query this to find the highest frame rate available
    */

@@ -63,16 +63,18 @@ extension CameraView {
 
     // pragma MARK: Capture Session Inputs
     // Video Input
+
+    if let videoDeviceInput = videoDeviceInput {
+      captureSession.removeInput(videoDeviceInput)
+      self.videoDeviceInput = nil
+    }
+    ReactLogger.log(level: .info, message: "Adding Video input...")
+    guard let videoDevice = AVCaptureDevice(uniqueID: cameraId) else {
+      invokeOnError(.device(.invalid))
+      return
+    }
+
     do {
-      if let videoDeviceInput = videoDeviceInput {
-        captureSession.removeInput(videoDeviceInput)
-        self.videoDeviceInput = nil
-      }
-      ReactLogger.log(level: .info, message: "Adding Video input...")
-      guard let videoDevice = AVCaptureDevice(uniqueID: cameraId) else {
-        invokeOnError(.device(.invalid))
-        return
-      }
       videoDeviceInput = try AVCaptureDeviceInput(device: videoDevice)
       guard captureSession.canAddInput(videoDeviceInput!) else {
         invokeOnError(.parameter(.unsupportedInput(inputDescriptor: "video-input")))
@@ -104,7 +106,7 @@ extension CameraView {
           photoOutput!.isDualCameraDualPhotoDeliveryEnabled = photoOutput!.isDualCameraDualPhotoDeliverySupported
         }
       }
-      if enableDepthData {
+      if enableDepthData?.boolValue == true {
         photoOutput!.isDepthDataDeliveryEnabled = photoOutput!.isDepthDataDeliverySupported
       }
       if #available(iOS 12.0, *), enablePortraitEffectsMatteDelivery {
@@ -125,16 +127,43 @@ extension CameraView {
       captureSession.removeOutput(videoOutput)
       self.videoOutput = nil
     }
+    if let depthOutput = depthOutput {
+      captureSession.removeOutput(depthOutput)
+      self.depthOutput = nil
+    }
     if video?.boolValue == true || enableFrameProcessor {
-      ReactLogger.log(level: .info, message: "Adding Video Data output...")
       videoOutput = AVCaptureVideoDataOutput()
       guard captureSession.canAddOutput(videoOutput!) else {
         invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "video-output")))
         return
       }
-      videoOutput!.setSampleBufferDelegate(self, queue: videoQueue)
-      videoOutput!.alwaysDiscardsLateVideoFrames = false
-      captureSession.addOutput(videoOutput!)
+      if enableDepthData?.boolValue != true || videoDevice.activeDepthDataFormat == nil {
+        ReactLogger.log(level: .info, message: "Adding Video Data output...")
+        videoOutput!.setSampleBufferDelegate(self, queue: videoQueue)
+        videoOutput!.alwaysDiscardsLateVideoFrames = false
+        captureSession.addOutput(videoOutput!)
+      } else {
+        ReactLogger.log(level: .info, message: "Adding Video + Depth Data output...")
+        captureSession.addOutput(videoOutput!)
+        depthOutput = AVCaptureDepthDataOutput()
+        // Add a depth data output
+        if captureSession.canAddOutput(depthOutput!) {
+          depthOutput!.isFilteringEnabled = true
+          captureSession.addOutput(depthOutput!)
+          if let connection = depthOutput!.connection(with: .depthData) {
+            connection.isEnabled = true
+          } else {
+            invokeOnError(.session(.depthConnectionFailed))
+            return
+          }
+        } else {
+          invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "depth-output")))
+          return
+        }
+
+        outputSynchronizer = AVCaptureDataOutputSynchronizer(dataOutputs: [videoOutput!, depthOutput!])
+        outputSynchronizer!.setDelegate(self, queue: videoQueue)
+      }
     }
 
     onOrientationChanged()
@@ -147,7 +176,7 @@ extension CameraView {
   // pragma MARK: Configure Device
 
   /**
-   Configures the Video Device with the given FPS, HDR and ColorSpace.
+   Configures the Video Device with the given FPS, HDR, ColorSpace and Depth Data Format.
    */
   final func configureDevice() {
     ReactLogger.log(level: .info, message: "Configuring Device...")
@@ -202,6 +231,27 @@ extension CameraView {
           return
         }
         device.activeColorSpace = avColorSpace
+      }
+      if #available(iOS 13.0, *) {
+        if enableDepthData?.boolValue == true && !device.activeFormat.supportedDepthDataFormats.isEmpty {
+          if let depthDataFormat = depthDataFormat as String? {
+            // Check if the selected depth format is supported as part of the activeFormat
+            let avCaptureDepthDataFormat = depthDataFormat
+            let selectedDepthFormat = device.activeFormat.supportedDepthDataFormats.filter { CMFormatDescriptionGetMediaSubType($0.formatDescription).toString() == avCaptureDepthDataFormat }.max(by: {
+              CMVideoFormatDescriptionGetDimensions($0.formatDescription).width
+                < CMVideoFormatDescriptionGetDimensions($1.formatDescription).width
+            })
+            if let selectedDepthFormat = selectedDepthFormat {
+              ReactLogger.log(level: .info, message: "Configured depth data format: \(selectedDepthFormat)")
+              device.activeDepthDataFormat = selectedDepthFormat
+            } else {
+              invokeOnError(.format(.invalidDepth))
+              return
+            }
+          }
+        }
+      } else {
+        ReactLogger.log(level: .info, message: "Depth data capture is not supported on devices < iOS 13.0")
       }
 
       device.unlockForConfiguration()

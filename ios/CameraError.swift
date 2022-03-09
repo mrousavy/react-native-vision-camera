@@ -111,6 +111,7 @@ enum DeviceError: String {
 enum FormatError {
   case invalidFps(fps: Int)
   case invalidHdr
+  case invalidDepth
   case invalidFormat
   case invalidColorSpace(colorSpace: String)
   case invalidPreset(preset: String)
@@ -121,6 +122,8 @@ enum FormatError {
       return "invalid-format"
     case .invalidFps:
       return "invalid-fps"
+    case .invalidDepth:
+      return "invalid-depth"
     case .invalidHdr:
       return "invalid-hdr"
     case .invalidPreset:
@@ -138,6 +141,8 @@ enum FormatError {
       return "The given FPS were not valid for the currently selected format. Make sure you select a format which `frameRateRanges` includes \(fps) FPS!"
     case .invalidHdr:
       return "The currently selected format does not support HDR capture! Make sure you select a format which `frameRateRanges` includes `supportsPhotoHDR`!"
+    case .invalidDepth:
+      return "The currently selected device or format does not support depth capture! Make sure you select a device or format which supports depth capture!"
     case let .invalidColorSpace(colorSpace):
       return "The currently selected format does not support the colorSpace \"\(colorSpace)\"! " +
         "Make sure you select a format which `colorSpaces` includes \"\(colorSpace)\"!"
@@ -154,6 +159,7 @@ enum SessionError {
   case audioSessionSetupFailed(reason: String)
   case audioSessionFailedToActivate
   case audioInUseByOtherApp
+  case depthConnectionFailed
 
   var code: String {
     switch self {
@@ -165,6 +171,8 @@ enum SessionError {
       return "audio-in-use-by-other-app"
     case .audioSessionFailedToActivate:
       return "audio-session-failed-to-activate"
+    case .depthConnectionFailed:
+      return "depth-connection-failed"
     }
   }
 
@@ -178,6 +186,8 @@ enum SessionError {
       return "The audio session is already in use by another app with higher priority!"
     case .audioSessionFailedToActivate:
       return "Failed to activate Audio Session!"
+    case .depthConnectionFailed:
+      return "Depth connection could not be established for session"
     }
   }
 }
@@ -195,6 +205,8 @@ enum CaptureError {
   case videoNotEnabled
   case photoNotEnabled
   case aborted
+  case videoDataOutOfSync
+  case depthDataOutOfSync
   case unknown(message: String? = nil)
 
   var code: String {
@@ -219,6 +231,10 @@ enum CaptureError {
       return "photo-not-enabled"
     case .aborted:
       return "aborted"
+    case .videoDataOutOfSync:
+      return "video-data-out-of-sync"
+    case .depthDataOutOfSync:
+      return "depth-data-out-of-sync"
     case .unknown:
       return "unknown"
     }
@@ -246,6 +262,10 @@ enum CaptureError {
       return "Photo capture is disabled! Pass `photo={true}` to enable photo capture."
     case .aborted:
       return "The capture has been stopped before any input data arrived."
+    case .videoDataOutOfSync:
+      return "The video data is nil or arrived out of sync while processing the synced video and depth data"
+    case .depthDataOutOfSync:
+      return "The depth data is nil or arrived out of sync while processing the synced video and depth data"
     case let .unknown(message: message):
       return message ?? "An unknown error occured while capturing a video/photo."
     }

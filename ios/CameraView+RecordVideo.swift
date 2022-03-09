@@ -10,7 +10,9 @@ import AVFoundation
 
 // MARK: - CameraView + AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate
 
-extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
+extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate,
+  AVCaptureAudioDataOutputSampleBufferDelegate,
+  AVCaptureDataOutputSynchronizerDelegate {
   /**
    Starts a video + audio recording with a custom Asset Writer.
    */
@@ -184,6 +186,42 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           return nil
         } else {
           throw CameraError.capture(.noRecordingInProgress)
+        }
+      }
+    }
+  }
+
+  public final func dataOutputSynchronizer(_: AVCaptureDataOutputSynchronizer, didOutput synchronizedDataCollection: AVCaptureSynchronizedDataCollection) {
+      
+    guard let syncedVideoData = synchronizedDataCollection.synchronizedData(for: videoOutput!) as? AVCaptureSynchronizedSampleBufferData else {
+      ReactLogger.log(level: .warning, message: "Video data out of sync for current frame")
+      return
+    }
+    guard !syncedVideoData.sampleBufferWasDropped else {
+      ReactLogger.log(level: .warning, message: "Video data buffer data dropped")
+      return
+    }
+    guard let syncedDepthData = synchronizedDataCollection.synchronizedData(for: depthOutput!) as? AVCaptureSynchronizedDepthData else {
+      ReactLogger.log(level: .warning, message: "Depth data out of sync for current video frame")
+      return
+    }
+    guard !syncedDepthData.depthDataWasDropped else {
+      ReactLogger.log(level: .warning, message: "Depth data buffer dropped")
+      return
+    }
+
+    let depthData = syncedDepthData.depthData
+    let depthPixelBuffer = depthData.depthDataMap
+    let sampleBuffer = syncedVideoData.sampleBuffer
+
+    if let frameProcessor = frameProcessorCallback {
+      if !isRunningFrameProcessor {
+        // we're not in the middle of executing the Frame Processor, so prepare for next call.
+        CameraQueues.frameProcessorQueue.async {
+          self.isRunningFrameProcessor = true
+          let frame = Frame(bufferAndDepth: sampleBuffer, depth: depthPixelBuffer, orientation: self.bufferOrientation)
+          frameProcessor(frame)
+          self.isRunningFrameProcessor = false
         }
       }
     }

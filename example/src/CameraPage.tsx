@@ -52,6 +52,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const [enableHdr, setEnableHdr] = useState(false);
   const [flash, setFlash] = useState<'off' | 'on'>('off');
   const [enableNightMode, setEnableNightMode] = useState(false);
+  const [enableDepthData, setEnableDepthData] = useState(true);
 
   // camera format settings
   const devices = useCameraDevices();
@@ -77,6 +78,14 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
       return 30;
     }
 
+    const supportsDepthAt60Fps = formats.some(
+      (f) => f.supportedDepthDataFormats.length > 0 && f.frameRateRanges.some((r) => frameRateIncluded(r, 60)),
+    );
+    if (enableDepthData && !supportsDepthAt60Fps) {
+      // User has enabled Depth Data, but Depth Data is not supported at 60 FPS.
+      return 30;
+    }
+
     const supports60Fps = formats.some((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, 60)));
     if (!supports60Fps) {
       // 60 FPS is not supported by any format.
@@ -84,11 +93,12 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     }
     // If nothing blocks us from using it, we default to 60 FPS.
     return 60;
-  }, [device?.supportsLowLightBoost, enableHdr, enableNightMode, formats, is60Fps]);
+  }, [device?.supportsLowLightBoost, enableHdr, enableNightMode, enableDepthData, formats, is60Fps]);
 
   const supportsCameraFlipping = useMemo(() => devices.back != null && devices.front != null, [devices.back, devices.front]);
   const supportsFlash = device?.hasFlash ?? false;
   const supportsHdr = useMemo(() => formats.some((f) => f.supportsVideoHDR || f.supportsPhotoHDR), [formats]);
+  const supportsDepthData = useMemo(() => formats.some((f) => f.supportedDepthDataFormats.length > 0), [formats]);
   const supports60Fps = useMemo(() => formats.some((f) => f.frameRateRanges.some((rate) => frameRateIncluded(rate, 60))), [formats]);
   const canToggleNightMode = enableNightMode
     ? true // it's enabled so you have to be able to turn it off again
@@ -103,9 +113,13 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
       result = result.filter((f) => f.supportsVideoHDR || f.supportsPhotoHDR);
     }
 
+    if (enableDepthData) {
+      result = result.filter((f) => f.supportedDepthDataFormats.includes('fdep'));
+    }
+
     // find the first format that includes the given FPS
     return result.find((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, fps)));
-  }, [formats, fps, enableHdr]);
+  }, [formats, fps, enableHdr, enableDepthData]);
 
   //#region Animated Zoom
   // This just maps the zoom factor to a percentage value.
@@ -216,9 +230,9 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
               <ReanimatedCamera
                 ref={camera}
                 style={StyleSheet.absoluteFill}
-                device={device}
                 format={format}
                 fps={fps}
+                device={device}
                 hdr={enableHdr}
                 lowLightBoost={device.supportsLowLightBoost && enableNightMode}
                 isActive={isActive}
@@ -228,6 +242,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 animatedProps={cameraAnimatedProps}
                 photo={true}
                 video={true}
+                enableDepthData={device.supportsDepthCapture && enableDepthData}
+                depthDataFormat="fdep"
                 audio={hasMicrophonePermission}
                 frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
                 orientation="portrait"
@@ -275,6 +291,11 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
         {supportsHdr && (
           <PressableOpacity style={styles.button} onPress={() => setEnableHdr((h) => !h)}>
             <MaterialIcon name={enableHdr ? 'hdr' : 'hdr-off'} color="white" size={24} />
+          </PressableOpacity>
+        )}
+        {supportsDepthData && (
+          <PressableOpacity style={styles.button} onPress={() => setEnableDepthData((d) => !d)}>
+            <MaterialIcon name={enableDepthData ? 'video-3d' : 'video-3d-off'} color="white" size={24} />
           </PressableOpacity>
         )}
         {canToggleNightMode && (

@@ -98,6 +98,12 @@ extension AVCaptureDevice.Format {
       }
     }
 
+    if let depthData = filter.value(forKey: "supportsDepthData") as? NSNumber {
+      if depthData.boolValue == true && supportedDepthDataFormats.isEmpty {
+        return false
+      }
+    }
+
     return true
   }
 }

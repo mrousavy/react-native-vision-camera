@@ -16,7 +16,13 @@ public class ExamplePluginSwift: NSObject, FrameProcessorPluginBase {
         guard let imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer) else {
             return nil
         }
-        NSLog("ExamplePlugin: \(CVPixelBufferGetWidth(imageBuffer)) x \(CVPixelBufferGetHeight(imageBuffer)) Image. Logging \(args.count) parameters:")
+        NSLog("ExamplePlugin: \(CVPixelBufferGetWidth(imageBuffer)) x \(CVPixelBufferGetHeight(imageBuffer)) Video Frame")
+
+        if let depth = frame.depth {
+            NSLog("ExamplePlugin: \(CVPixelBufferGetWidth(depth)) x \(CVPixelBufferGetHeight(depth)) Depth Frame")
+        }
+
+        NSLog("ExamplePlugin: Logging \(args.count) parameters:")
 
         args.forEach { arg in
             var string = "\(arg)"

@@ -14,9 +14,12 @@
 
 @interface Frame : NSObject
 
-- (instancetype) initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation;
+- (nonnull instancetype) initWithBuffer:(nonnull CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation;
 
-@property (nonatomic, readonly) CMSampleBufferRef buffer;
+- (nonnull instancetype) initWithBufferAndDepth:(nonnull CMSampleBufferRef)buffer depth:(nullable CVPixelBufferRef)depth orientation:(UIImageOrientation)orientation;
+
+@property (nonatomic, readonly, nonnull) CMSampleBufferRef buffer;
+@property (nonatomic, readonly, nullable) CVPixelBufferRef depth;
 @property (nonatomic, readonly) UIImageOrientation orientation;
 
 @end

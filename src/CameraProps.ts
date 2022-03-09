@@ -1,5 +1,5 @@
 import type { ViewProps } from 'react-native';
-import type { CameraDevice, CameraDeviceFormat, ColorSpace, VideoStabilizationMode } from './CameraDevice';
+import type { CameraDevice, CameraDeviceFormat, ColorSpace, VideoStabilizationMode, DepthDataFormat } from './CameraDevice';
 import type { CameraRuntimeError } from './CameraError';
 import type { CameraPreset } from './CameraPreset';
 import type { Frame } from './Frame';
@@ -120,6 +120,12 @@ export interface CameraProps extends ViewProps {
    * Requires `format` to be set.
    */
   colorSpace?: ColorSpace;
+  /**
+   * Specifies the depth data format to use for this camera device. Make sure the given `format` supports the selected `depthDataFormat`.
+   *
+   * Requires `format` to be set.
+   */
+  depthDataFormat?: DepthDataFormat;
   /**
    * Specifies the video stabilization mode to use for this camera device. Make sure the given `format` contains the given `videoStabilizationMode`.
    *

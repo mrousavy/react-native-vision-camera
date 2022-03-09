@@ -20,7 +20,6 @@ import UIKit
 // TODO: Photo HDR
 
 private let propsThatRequireReconfiguration = ["cameraId",
-                                               "enableDepthData",
                                                "enableHighQualityPhotos",
                                                "enablePortraitEffectsMatteDelivery",
                                                "preset",
@@ -30,7 +29,9 @@ private let propsThatRequireReconfiguration = ["cameraId",
 private let propsThatRequireDeviceReconfiguration = ["fps",
                                                      "hdr",
                                                      "lowLightBoost",
-                                                     "colorSpace"]
+                                                     "colorSpace",
+                                                     "depthDataFormat",
+                                                     "enableDepthData"]
 
 // MARK: - CameraView
 
@@ -40,7 +41,7 @@ public final class CameraView: UIView {
   // pragma MARK: Exported Properties
   // props that require reconfiguring
   @objc var cameraId: NSString?
-  @objc var enableDepthData = false
+  @objc var enableDepthData: NSNumber? // nullable bool
   @objc var enableHighQualityPhotos: NSNumber? // nullable bool
   @objc var enablePortraitEffectsMatteDelivery = false
   @objc var preset: String?
@@ -56,6 +57,7 @@ public final class CameraView: UIView {
   @objc var hdr: NSNumber? // nullable bool
   @objc var lowLightBoost: NSNumber? // nullable bool
   @objc var colorSpace: NSString?
+  @objc var depthDataFormat: NSString?
   @objc var orientation: NSString?
   // other props
   @objc var isActive = false
@@ -89,6 +91,8 @@ public final class CameraView: UIView {
   internal var audioDeviceInput: AVCaptureDeviceInput?
   internal var photoOutput: AVCapturePhotoOutput?
   internal var videoOutput: AVCaptureVideoDataOutput?
+  internal var depthOutput: AVCaptureDepthDataOutput?
+  internal var outputSynchronizer: AVCaptureDataOutputSynchronizer?
   internal var audioOutput: AVCaptureAudioDataOutput?
   // CameraView+RecordView (+ FrameProcessorDelegate.mm)
   internal var isRecording = false
