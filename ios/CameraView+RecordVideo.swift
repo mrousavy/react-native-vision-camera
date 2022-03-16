@@ -168,10 +168,6 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           // there's no active recording!
           throw CameraError.capture(.noRecordingInProgress)
         }
-        guard self.isRecording else {
-          // the user already paused!
-          return
-        }
         self.isRecording = false
         return nil
       }
@@ -184,10 +180,6 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         guard self.recordingSession != nil else {
           // there's no active recording!
           throw CameraError.capture(.noRecordingInProgress)
-        }
-        guard !self.isRecording else {
-          // the user already resumed!
-          return
         }
         self.isRecording = true
         return nil
