@@ -83,6 +83,30 @@ fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Callback) 
 }
 
 @SuppressLint("RestrictedApi")
+fun CameraView.pauseRecording() {
+  if (videoCapture == null) {
+    throw CameraNotReadyError()
+  }
+  if (activeVideoRecording == null) {
+    throw NoRecordingInProgressError()
+  }
+
+  activeVideoRecording!!.pause()
+}
+
+@SuppressLint("RestrictedApi")
+fun CameraView.resumeRecording() {
+  if (videoCapture == null) {
+    throw CameraNotReadyError()
+  }
+  if (activeVideoRecording == null) {
+    throw NoRecordingInProgressError()
+  }
+
+  activeVideoRecording!!.resume()
+}
+
+@SuppressLint("RestrictedApi")
 fun CameraView.stopRecording() {
   if (videoCapture == null) {
     throw CameraNotReadyError()
