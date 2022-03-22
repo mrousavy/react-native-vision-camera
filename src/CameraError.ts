@@ -120,8 +120,10 @@ class CameraError<TCode extends CameraErrorCode> extends Error {
   public get message(): string {
     return this._message;
   }
-  public get cause(): ErrorWithCause | undefined {
-    return this._cause;
+  public get cause(): Error | undefined {
+    const c = this._cause;
+    if (c == null) return undefined;
+    return new Error(`[${c.code}]: ${c.message}`);
   }
 
   /**

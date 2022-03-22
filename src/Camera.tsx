@@ -75,7 +75,7 @@ export class Camera extends React.PureComponent<CameraProps> {
   static displayName = 'Camera';
   /** @internal */
   displayName = Camera.displayName;
-  private lastFrameProcessor: ((frame: Frame) => void) | undefined;
+  private lastFrameProcessor: ((_: Frame) => void) | undefined;
   private isNativeViewMounted = false;
 
   private readonly ref: React.RefObject<RefType>;
