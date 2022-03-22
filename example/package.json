@@ -20,7 +20,7 @@
     "@react-navigation/native": "^6.0.8",
     "@react-navigation/native-stack": "^6.5.0",
     "react": "^17.0.2",
-    "react-native": "^0.66.0",
+    "react-native": "^0.67.4",
     "react-native-gesture-handler": "^2.3.2",
     "react-native-pressable-opacity": "^1.0.8",
     "react-native-reanimated": "^2.5.0",
