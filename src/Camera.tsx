@@ -190,6 +190,63 @@ export class Camera extends React.PureComponent<CameraProps> {
       throw tryParseNativeCameraError(e);
     }
   }
+
+  /**
+   * Pauses the current video recording.
+   *
+   * @throws {@linkcode CameraCaptureError} When any kind of error occured while pausing the video recording. Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
+   *
+   * @example
+   * ```ts
+   * // Start
+   * await camera.current.startRecording()
+   * await timeout(1000)
+   * // Pause
+   * await camera.current.pauseRecording()
+   * await timeout(500)
+   * // Resume
+   * await camera.current.resumeRecording()
+   * await timeout(2000)
+   * // Stop
+   * const video = await camera.current.stopRecording()
+   * ```
+   */
+  public async pauseRecording(): Promise<void> {
+    try {
+      return await CameraModule.pauseRecording(this.handle);
+    } catch (e) {
+      throw tryParseNativeCameraError(e);
+    }
+  }
+
+  /**
+   * Resumes a currently paused video recording.
+   *
+   * @throws {@linkcode CameraCaptureError} When any kind of error occured while resuming the video recording. Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
+   *
+   * @example
+   * ```ts
+   * // Start
+   * await camera.current.startRecording()
+   * await timeout(1000)
+   * // Pause
+   * await camera.current.pauseRecording()
+   * await timeout(500)
+   * // Resume
+   * await camera.current.resumeRecording()
+   * await timeout(2000)
+   * // Stop
+   * const video = await camera.current.stopRecording()
+   * ```
+   */
+  public async resumeRecording(): Promise<void> {
+    try {
+      return await CameraModule.resumeRecording(this.handle);
+    } catch (e) {
+      throw tryParseNativeCameraError(e);
+    }
+  }
+
   /**
    * Stop the current video recording.
    *

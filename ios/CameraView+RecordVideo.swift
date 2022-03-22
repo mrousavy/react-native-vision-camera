@@ -161,30 +161,28 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
     }
   }
 
-  // TODO: Implement for JS
   func pauseRecording(promise: Promise) {
     cameraQueue.async {
       withPromise(promise) {
-        if self.isRecording {
-          self.isRecording = false
-          return nil
-        } else {
+        guard self.recordingSession != nil else {
+          // there's no active recording!
           throw CameraError.capture(.noRecordingInProgress)
         }
+        self.isRecording = false
+        return nil
       }
     }
   }
 
-  // TODO: Implement for JS
   func resumeRecording(promise: Promise) {
     cameraQueue.async {
       withPromise(promise) {
-        if !self.isRecording {
-          self.isRecording = true
-          return nil
-        } else {
+        guard self.recordingSession != nil else {
+          // there's no active recording!
           throw CameraError.capture(.noRecordingInProgress)
         }
+        self.isRecording = true
+        return nil
       }
     }
   }

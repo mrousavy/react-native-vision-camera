@@ -50,6 +50,18 @@ final class CameraViewManager: RCTViewManager {
   }
 
   @objc
+  final func pauseRecording(_ node: NSNumber, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    let component = getCameraView(withTag: node)
+    component.pauseRecording(promise: Promise(resolver: resolve, rejecter: reject))
+  }
+
+  @objc
+  final func resumeRecording(_ node: NSNumber, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    let component = getCameraView(withTag: node)
+    component.resumeRecording(promise: Promise(resolver: resolve, rejecter: reject))
+  }
+
+  @objc
   final func stopRecording(_ node: NSNumber, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     let component = getCameraView(withTag: node)
     component.stopRecording(promise: Promise(resolver: resolve, rejecter: reject))
