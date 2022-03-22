@@ -76,6 +76,7 @@
     "@release-it/conventional-changelog": "^4.2.2",
     "@types/react": "^17.0.41",
     "@types/react-native": "^0.65.5",
+    "@typescript-eslint/parser": "^5.16.0",
     "eslint": "^7.32.0",
     "pod-install": "^0.1.32",
     "prettier": "^2.6.0",
