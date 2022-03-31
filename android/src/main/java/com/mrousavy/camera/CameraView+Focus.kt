@@ -1,9 +1,9 @@
 package com.mrousavy.camera
 
 import androidx.camera.core.FocusMeteringAction
-import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import com.facebook.react.bridge.ReadableMap
 import kotlinx.coroutines.guava.await
+import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
 suspend fun CameraView.focus(pointMap: ReadableMap) {
@@ -16,8 +16,11 @@ suspend fun CameraView.focus(pointMap: ReadableMap) {
   val x = pointMap.getDouble("x") * dpi
   val y = pointMap.getDouble("y") * dpi
 
-  val factory = SurfaceOrientedMeteringPointFactory(this.width.toFloat(), this.height.toFloat())
-  val point = factory.createPoint(x.toFloat(), y.toFloat())
+  // Getting the point from the previewView needs to be run on the UI thread
+  val point = withContext(coroutineScope.coroutineContext) {
+    previewView.meteringPointFactory.createPoint(x.toFloat(), y.toFloat());
+  }
+
   val action = FocusMeteringAction.Builder(point, FocusMeteringAction.FLAG_AF or FocusMeteringAction.FLAG_AE)
     .setAutoCancelDuration(5, TimeUnit.SECONDS) // auto-reset after 5 seconds
     .build()
