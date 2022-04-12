@@ -31,6 +31,11 @@ const withCamera: ConfigPlugin<Props> = (config, props = {}) => {
     config = withDisableFrameProcessorsIOS(config);
   }
 
+  config = AndroidConfig.Version.withBuildScriptExtMinimumVersion(config, {
+    name: 'compileSdkVersion',
+    minVersion: 31,
+  });
+
   return withPlugins(config, [[AndroidConfig.Permissions.withPermissions, androidPermissions]]);
 };
 
