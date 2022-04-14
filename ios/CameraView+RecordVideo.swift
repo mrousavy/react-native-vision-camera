@@ -99,9 +99,12 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         }
       }
 
-      guard let recordingSession = try? RecordingSession(url: tempURL,
-                                                         fileType: fileType,
-                                                         completion: onFinish) else {
+      let recordingSession: RecordingSession
+      do {
+        recordingSession = try RecordingSession(url: tempURL,
+                                                fileType: fileType,
+                                                completion: onFinish)
+      } catch let error as NSError {
         callback.reject(error: .capture(.createRecorderError(message: nil)), cause: error)
         return
       }
@@ -138,8 +141,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       // start recording session with or without audio.
       do {
         try recordingSession.start()
-      } catch {
-        callback.reject(error: .capture(.createRecorderError(message: "RecordingSession failed to start writing.")))
+      } catch let error as NSError {
+        callback.reject(error: .capture(.createRecorderError(message: "RecordingSession failed to start writing.")), cause: error)
         return
       }
       self.isRecording = true
