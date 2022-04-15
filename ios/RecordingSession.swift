@@ -33,7 +33,7 @@ class RecordingSession {
   private var initialTimestamp: CMTime?
   private var latestTimestamp: CMTime?
   private var hasWrittenFirstVideoFrame = false
-  private var hasRunningWritingAttempt = false;
+  private var hasRunningWritingAttempt = false
 
   var url: URL {
     return assetWriter.outputURL
@@ -208,7 +208,7 @@ class RecordingSession {
       bufferAdaptor?.assetWriterInput.markAsFinished()
       audioWriter?.markAsFinished()
       assetWriter.finishWriting {
-        self.hasRunningWritingAttempt = false;
+        self.hasRunningWritingAttempt = false
         self.completionHandler(self, self.assetWriter.status, self.assetWriter.error)
       }
     } else {
