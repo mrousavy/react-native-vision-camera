@@ -125,7 +125,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       // get pixel format (420f, 420v, x420)
       let pixelFormat = CMFormatDescriptionGetMediaSubType(videoInput.device.activeFormat.formatDescription)
       recordingSession.initializeVideoWriter(withSettings: videoSettings,
-                                                   pixelFormat: pixelFormat)
+                                             pixelFormat: pixelFormat)
 
       // Init Audio (optional, async)
       if enableAudio {
