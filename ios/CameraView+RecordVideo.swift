@@ -64,9 +64,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
       let enableAudio = self.audio?.boolValue == true
 
-      let onFinish = { (status: AVAssetWriter.Status, error: Error?) in
+      let onFinish = { (recordingSession: RecordingSession, status: AVAssetWriter.Status, error: Error?) in
         defer {
-          self.recordingSession = nil
           if enableAudio {
             self.audioQueue.async {
               self.deactivateAudioSession()
@@ -78,6 +77,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           }
         }
 
+        self.recordingSession = nil
         self.isRecording = false
         ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
 
@@ -90,8 +90,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         } else {
           if status == .completed {
             callback.resolve([
-              "path": self.recordingSession!.url.absoluteString,
-              "duration": self.recordingSession!.duration,
+              "path": recordingSession.url.absoluteString,
+              "duration": recordingSession.duration,
             ])
           } else {
             callback.reject(error: .unknown(message: "AVAssetWriter completed with status: \(status.descriptor)"))
@@ -99,14 +99,16 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         }
       }
 
+      let recordingSession: RecordingSession
       do {
-        self.recordingSession = try RecordingSession(url: tempURL,
-                                                     fileType: fileType,
-                                                     completion: onFinish)
+        recordingSession = try RecordingSession(url: tempURL,
+                                                fileType: fileType,
+                                                completion: onFinish)
       } catch let error as NSError {
         callback.reject(error: .capture(.createRecorderError(message: nil)), cause: error)
         return
       }
+      self.recordingSession = recordingSession
 
       var videoCodec: AVVideoCodecType?
       if let codecString = options["videoCodec"] as? String {
@@ -122,8 +124,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
       // get pixel format (420f, 420v, x420)
       let pixelFormat = CMFormatDescriptionGetMediaSubType(videoInput.device.activeFormat.formatDescription)
-      self.recordingSession!.initializeVideoWriter(withSettings: videoSettings,
-                                                   pixelFormat: pixelFormat)
+      recordingSession.initializeVideoWriter(withSettings: videoSettings,
+                                             pixelFormat: pixelFormat)
 
       // Init Audio (optional, async)
       if enableAudio {
@@ -132,15 +134,15 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
         if let audioOutput = self.audioOutput,
            let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: fileType) {
-          self.recordingSession!.initializeAudioWriter(withSettings: audioSettings)
+          recordingSession.initializeAudioWriter(withSettings: audioSettings)
         }
       }
 
       // start recording session with or without audio.
       do {
-        try self.recordingSession!.start()
-      } catch {
-        callback.reject(error: .capture(.createRecorderError(message: "RecordingSession failed to start writing.")))
+        try recordingSession.start()
+      } catch let error as NSError {
+        callback.reject(error: .capture(.createRecorderError(message: "RecordingSession failed to start writing.")), cause: error)
         return
       }
       self.isRecording = true

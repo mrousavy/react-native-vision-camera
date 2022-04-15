@@ -28,7 +28,7 @@ class RecordingSession {
   private let assetWriter: AVAssetWriter
   private var audioWriter: AVAssetWriterInput?
   private var bufferAdaptor: AVAssetWriterInputPixelBufferAdaptor?
-  private let completionHandler: (AVAssetWriter.Status, Error?) -> Void
+  private let completionHandler: (RecordingSession, AVAssetWriter.Status, Error?) -> Void
 
   private var initialTimestamp: CMTime?
   private var latestTimestamp: CMTime?
@@ -48,7 +48,7 @@ class RecordingSession {
 
   init(url: URL,
        fileType: AVFileType,
-       completion: @escaping (AVAssetWriter.Status, Error?) -> Void) throws {
+       completion: @escaping (RecordingSession, AVAssetWriter.Status, Error?) -> Void) throws {
     completionHandler = completion
 
     do {
@@ -197,15 +197,15 @@ class RecordingSession {
       let error = NSError(domain: "capture/aborted",
                           code: 1,
                           userInfo: [NSLocalizedDescriptionKey: "Stopped Recording Session too early, no frames have been recorded!"])
-      completionHandler(.failed, error)
+      completionHandler(self, .failed, error)
     } else if assetWriter.status == .writing {
       assetWriter.finishWriting {
         self.bufferAdaptor?.assetWriterInput.markAsFinished()
         self.audioWriter?.markAsFinished()
-        self.completionHandler(self.assetWriter.status, self.assetWriter.error)
+        self.completionHandler(self, self.assetWriter.status, self.assetWriter.error)
       }
     } else {
-      completionHandler(assetWriter.status, assetWriter.error)
+      completionHandler(self, assetWriter.status, assetWriter.error)
     }
   }
 }
