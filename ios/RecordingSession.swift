@@ -199,9 +199,9 @@ class RecordingSession {
                           userInfo: [NSLocalizedDescriptionKey: "Stopped Recording Session too early, no frames have been recorded!"])
       completionHandler(.failed, error)
     } else if assetWriter.status == .writing {
-      bufferAdaptor?.assetWriterInput.markAsFinished()
-      audioWriter?.markAsFinished()
       assetWriter.finishWriting {
+        self.bufferAdaptor?.assetWriterInput.markAsFinished()
+        self.audioWriter?.markAsFinished()
         self.completionHandler(self.assetWriter.status, self.assetWriter.error)
       }
     } else {
