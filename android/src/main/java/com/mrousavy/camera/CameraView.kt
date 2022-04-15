@@ -121,7 +121,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   private val cameraExecutor = Executors.newSingleThreadExecutor()
   internal val takePhotoExecutor = Executors.newSingleThreadExecutor()
   internal val recordVideoExecutor = Executors.newSingleThreadExecutor()
-  private var coroutineScope = CoroutineScope(Dispatchers.Main)
+  internal var coroutineScope = CoroutineScope(Dispatchers.Main)
 
   internal var camera: Camera? = null
   internal var imageCapture: ImageCapture? = null
