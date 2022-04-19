@@ -207,7 +207,7 @@ class RecordingSession {
       bufferAdaptor?.assetWriterInput.markAsFinished()
       audioWriter?.markAsFinished()
       assetWriter.finishWriting {
-        self.hasRunningWritingAttempt = false
+        self.isFinishing = false
         self.completionHandler(self, self.assetWriter.status, self.assetWriter.error)
       }
     } else {
