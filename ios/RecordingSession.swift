@@ -193,12 +193,12 @@ class RecordingSession {
    */
   func finish() {
     ReactLogger.log(level: .info, message: "Finishing Recording with AssetWriter status \"\(assetWriter.status.descriptor)\"...")
-    
+
     if isFinishing {
       ReactLogger.log(level: .warning, message: "Tried calling finish() twice while AssetWriter is still writing!")
       return
     }
-    
+
     if !hasWrittenFirstVideoFrame {
       let error = NSError(domain: "capture/aborted",
                           code: 1,
