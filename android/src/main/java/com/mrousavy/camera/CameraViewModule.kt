@@ -116,6 +116,24 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   }
 
   @ReactMethod
+  fun pauseRecording(viewTag: Int, promise: Promise) {
+    withPromise(promise) {
+      val view = findCameraView(viewTag)
+      view.pauseRecording()
+      return@withPromise null
+    }
+  }
+
+  @ReactMethod
+  fun resumeRecording(viewTag: Int, promise: Promise) {
+    withPromise(promise) {
+      val view = findCameraView(viewTag)
+      view.resumeRecording()
+      return@withPromise null
+    }
+  }
+
+  @ReactMethod
   fun stopRecording(viewTag: Int, promise: Promise) {
     withPromise(promise) {
       val view = findCameraView(viewTag)

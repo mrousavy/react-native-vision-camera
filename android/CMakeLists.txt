@@ -61,6 +61,7 @@ target_include_directories(
         ${INCLUDE_JSI_CPP} # only on older RN versions
         ${INCLUDE_JSIDYNAMIC_CPP} # only on older RN versions
         # --- Reanimated ---
+        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/AnimatedSensor"
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/Tools"
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/SpecTools"
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/SharedItems"
