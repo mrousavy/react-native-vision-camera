@@ -197,7 +197,7 @@ class RecordingSession {
       ReactLogger.log(level: .warning, message: "Tried calling finish() twice while AssetWriter is still writing!")
       return
     }
-    if !isFinishing {
+    if !hasWrittenFirstVideoFrame {
       let error = NSError(domain: "capture/aborted",
                           code: 1,
                           userInfo: [NSLocalizedDescriptionKey: "Stopped Recording Session too early, no frames have been recorded!"])
