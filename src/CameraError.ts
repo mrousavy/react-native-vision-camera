@@ -27,7 +27,7 @@ export type SessionError =
   | 'session/camera-not-ready'
   | 'session/audio-session-setup-failed'
   | 'session/audio-in-use-by-other-app'
-  | 'audio-session-failed-to-activate';
+  | 'session/audio-session-failed-to-activate';
 export type CaptureError =
   | 'capture/invalid-photo-format'
   | 'capture/encoder-error'
