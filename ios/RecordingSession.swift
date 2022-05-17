@@ -128,7 +128,7 @@ class RecordingSession {
    Appends a new CMSampleBuffer to the Asset Writer. Use bufferType to specify if this is a video or audio frame.
    The timestamp parameter represents the presentation timestamp of the buffer, which should be synchronized across video and audio frames.
    */
-  func appendBuffer(_ buffer: CMSampleBuffer, type bufferType: BufferType, timestamp: CMTime) {
+    func appendBuffer(_ buffer: CMSampleBuffer, type bufferType: BufferType, timestamp: CMTime, diff: CMTime) {
     guard assetWriter.status == .writing else {
       ReactLogger.log(level: .error, message: "Frame arrived, but AssetWriter status is \(assetWriter.status.descriptor)!")
       return
@@ -142,8 +142,12 @@ class RecordingSession {
                       message: "A frame arrived, but initialTimestamp was nil. Is this RecordingSession running?")
       return
     }
-
-    latestTimestamp = timestamp
+     
+    if (diff != CMTime.zero) {
+        latestTimestamp = timestamp - diff
+    } else {
+        latestTimestamp = timestamp
+    }
 
     switch bufferType {
     case .video:
@@ -160,7 +164,7 @@ class RecordingSession {
         ReactLogger.log(level: .error, message: "Failed to get the CVImageBuffer!")
         return
       }
-      bufferAdaptor.append(imageBuffer, withPresentationTime: timestamp)
+      bufferAdaptor.append(imageBuffer, withPresentationTime: latestTimestamp!)
       if !hasWrittenFirstVideoFrame {
         hasWrittenFirstVideoFrame = true
         ReactLogger.log(level: .warning, message: "VideoWriter: First frame arrived \((initialTimestamp - timestamp).seconds) seconds late.")

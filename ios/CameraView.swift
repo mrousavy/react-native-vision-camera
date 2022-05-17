@@ -92,7 +92,12 @@ public final class CameraView: UIView {
   internal var audioOutput: AVCaptureAudioDataOutput?
   // CameraView+RecordView (+ FrameProcessorDelegate.mm)
   internal var isRecording = false
+  internal var isPausing = false
   internal var recordingSession: RecordingSession?
+  internal var pauseTimestamp: CMTime = CMTime.zero
+  internal var latestTimestamp: CMTime = CMTime.zero
+  internal var currentDiff: CMTime = CMTime.zero
+  internal var totalDiff: CMTime = CMTime.zero
   @objc public var frameProcessorCallback: FrameProcessorCallback?
   internal var lastFrameProcessorCall = DispatchTime.now()
   // CameraView+TakePhoto

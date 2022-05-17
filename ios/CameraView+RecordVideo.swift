@@ -152,7 +152,9 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   func stopRecording(promise: Promise) {
     cameraQueue.async {
       self.isRecording = false
-
+      self.isPausing = false
+      self.totalDiff = CMTime.zero
+    
       withPromise(promise) {
         guard let recordingSession = self.recordingSession else {
           throw CameraError.capture(.noRecordingInProgress)
@@ -170,7 +172,9 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           // there's no active recording!
           throw CameraError.capture(.noRecordingInProgress)
         }
+        self.isPausing = true
         self.isRecording = false
+        self.pauseTimestamp = self.latestTimestamp
         return nil
       }
     }
@@ -183,7 +187,11 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           // there's no active recording!
           throw CameraError.capture(.noRecordingInProgress)
         }
+        self.isPausing = false
         self.isRecording = true
+        self.pauseTimestamp = CMTime.zero
+        self.totalDiff = self.totalDiff + self.currentDiff
+        self.currentDiff = CMTime.zero
         return nil
       }
     }
@@ -191,6 +199,16 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
     // Video Recording runs in the same queue
+    switch captureOutput {
+    case is AVCaptureVideoDataOutput:
+        self.latestTimestamp = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
+    case is AVCaptureAudioDataOutput:
+        self.latestTimestamp = CMSyncConvertTime(CMSampleBufferGetPresentationTimeStamp(sampleBuffer),
+                                                       from: audioCaptureSession.masterClock!,
+                                                       to: captureSession.masterClock!)
+          default:
+            break
+      }
     if isRecording {
       guard let recordingSession = recordingSession else {
         invokeOnError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
@@ -198,16 +216,17 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       }
 
       switch captureOutput {
-      case is AVCaptureVideoDataOutput:
-        recordingSession.appendBuffer(sampleBuffer, type: .video, timestamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
-      case is AVCaptureAudioDataOutput:
-        let timestamp = CMSyncConvertTime(CMSampleBufferGetPresentationTimeStamp(sampleBuffer),
-                                          from: audioCaptureSession.masterClock!,
-                                          to: captureSession.masterClock!)
-        recordingSession.appendBuffer(sampleBuffer, type: .audio, timestamp: timestamp)
-      default:
-        break
+          case is AVCaptureVideoDataOutput:
+            recordingSession.appendBuffer(sampleBuffer, type: .video, timestamp: self.latestTimestamp, diff: self.totalDiff)
+          case is AVCaptureAudioDataOutput:
+            recordingSession.appendBuffer(sampleBuffer, type: .audio, timestamp: self.latestTimestamp, diff: self.totalDiff)
+          default:
+            break
       }
+    } else {
+        if (self.isPausing && self.pauseTimestamp != CMTime.zero) {
+            self.currentDiff = self.latestTimestamp - self.pauseTimestamp
+        }
     }
 
     if let frameProcessor = frameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
