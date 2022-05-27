@@ -1,0 +1,136 @@
+---
+id: mocking
+title: Mocking
+sidebar_label: Mocking
+---
+
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+<div>
+  <img align="right" width="283" src={useBaseUrl("img/11_back.png")} />
+</div>
+
+The provided library doesn't work on simulators. These steps allow you to mock the library
+and use it for developing or testing. Based on
+[Detox Mock Guide](https://github.com/wix/Detox/blob/master/docs/Guide.Mocking.md).
+
+### Configure the Metro bundler
+
+In order to override React Native modules, allow bundler to use the flag `RN_SRC_EXT` to extend
+`resolver.sourceExts`, and then prioritize any given source extension over the default one.
+
+Add to your [Metro Config](https://facebook.github.io/metro/docs/configuration/):
+```js
+const { getDefaultConfig } = require("metro-config");
+const { resolver: defaultResolver } = getDefaultConfig.getDefaultValues();
+
+module.exports = {
+  ...
+  resolver: {
+    ...defaultResolver,
+    sourceExts: [
+      process.env.RN_SRC_EXT && process.env.RN_SRC_EXT.split(','),
+      ...defaultResolver.sourceExts,
+    ],
+  },
+};
+
+```
+
+### Create proxy for original and mocked modules
+
+   1. Create a new folder `vision-camera` anywhere in your project.
+   2. Inside that folder, create `vision-camera.js` and `vision-camera.e2e.js`.
+   3. Inside `vision-camera.js`, export the original react native modules you need to mock, and
+   inside `vision-camera.e2e.js` export the mocked modules.
+
+   In this example, several functions of the modules `Camera` and `sortDevices` are mocked.
+   Define your mocks following the [original definitions](https://github.com/mrousavy/react-native-vision-camera/tree/main/src).
+
+   ```js
+    // vision-camera.js
+
+    import { Camera, sortDevices } from 'react-native-vision-camera';
+
+    export const VisionCamera = Camera;
+    export const visionCameraSortDevices = sortDevices;
+   ```
+
+   ```js
+    // vision-camera.e2e.js
+
+    import React from 'react';
+    import RNFS, { writeFile } from 'react-native-fs';
+
+    console.log('[DETOX] Using mocked react-native-vision-camera');
+
+    export class VisionCamera extends React.PureComponent {
+      static async getAvailableCameraDevices() {
+        return (
+          [
+            {
+              position: 'back',
+            },
+          ]
+        );
+      }
+
+      static async getCameraPermissionStatus() {
+        return 'authorized';
+      }
+
+      static async requestCameraPermission() {
+        return 'authorized';
+      }
+
+      async takePhoto() {
+        const writePath = `${RNFS.DocumentDirectoryPath}/simulated_camera_photo.png`;
+
+        const imageDataBase64 = 'some_large_base_64_encoded_simulated_camera_photo';
+        await writeFile(writePath, imageDataBase64, 'base64');
+
+        return { path: writePath };
+      }
+
+      render() {
+        return null;
+      }
+    }
+
+    export const visionCameraSortDevices = (_left, _right) => 1;
+   ```
+
+   These mocked modules allows us to get authorized camera permissions, get one back camera
+   available and take a fake photo, while the component doesn't render when instantiated.
+
+### Use proxy module
+
+Now that we have exported our native modules and our mocked modules from the same folder,
+we must reference the proxy module.
+
+```ts
+// before
+import { Camera } from 'react-native-vision-camera';
+
+// now
+import { VisionCamera } from '/your_path_to_created_folder/vision-camera/vision-camera';
+```
+
+### Trigger
+
+Start Metro bundler with provided flag for using `.e2e.js` files.
+Whenever Metro runs with `RN_SRC_EXT` environment variable set, it will override the default files with the ones set in `RN_SRC_EXT`.
+
+```sh
+RN_SRC_EXT=e2e.js react-native start
+RN_SRC_EXT=e2e.js xcodebuild <params>
+RN_SRC_EXT=e2e.js ./gradlew assembleRelease
+```
+
+On your simulator, with debug mode enabled, you should see
+`"[DETOX] Using mocked react-native-vision-camera"`
+
+
+## Issues
+
+If testing doesn't work, try browsing the [GitHub issues](https://github.com/mrousavy/react-native-vision-camera/issues?q=is%3Aissue). If your issue doesn't exist, [create a new one](https://github.com/mrousavy/react-native-vision-camera/issues/new/choose). Make sure to fill out the template and include as many details as possible.

@@ -21,6 +21,7 @@ module.exports = {
       'guides/zooming',
       'guides/focusing',
       'guides/errors',
+      'guides/mocking',
       'guides/troubleshooting',
     ],
     API: [
