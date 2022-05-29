@@ -33,6 +33,7 @@ class RecordingSession {
   private var initialTimestamp: CMTime?
   private var latestTimestamp: CMTime?
   private var hasWrittenFirstVideoFrame = false
+  private var isFinishing = false
 
   var url: URL {
     return assetWriter.outputURL
@@ -193,15 +194,22 @@ class RecordingSession {
   func finish() {
     ReactLogger.log(level: .info, message: "Finishing Recording with AssetWriter status \"\(assetWriter.status.descriptor)\"...")
 
+    if isFinishing {
+      ReactLogger.log(level: .warning, message: "Tried calling finish() twice while AssetWriter is still writing!")
+      return
+    }
+
     if !hasWrittenFirstVideoFrame {
       let error = NSError(domain: "capture/aborted",
                           code: 1,
                           userInfo: [NSLocalizedDescriptionKey: "Stopped Recording Session too early, no frames have been recorded!"])
       completionHandler(self, .failed, error)
     } else if assetWriter.status == .writing {
+      isFinishing = true
+      bufferAdaptor?.assetWriterInput.markAsFinished()
+      audioWriter?.markAsFinished()
       assetWriter.finishWriting {
-        self.bufferAdaptor?.assetWriterInput.markAsFinished()
-        self.audioWriter?.markAsFinished()
+        self.isFinishing = false
         self.completionHandler(self, self.assetWriter.status, self.assetWriter.error)
       }
     } else {
