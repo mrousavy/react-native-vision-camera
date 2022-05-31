@@ -31,6 +31,12 @@ export interface TakePhotoOptions {
    */
   enableAutoStabilization?: boolean;
   /**
+   * Indicates whether the shutter sound should be muted when capturing the photo
+   *
+   * @default false
+   */
+  disableShutterSound?: boolean;
+  /**
    * Specifies whether the photo output should use content aware distortion correction on this photo request (at its discretion).
    *
    * @default false

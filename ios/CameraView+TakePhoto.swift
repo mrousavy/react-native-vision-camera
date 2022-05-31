@@ -53,6 +53,9 @@ extension CameraView {
         }
       }
 
+      // Create photo capture delegate
+      var photoCaptureDelegate = PhotoCaptureDelegate(promise: promise)
+
       // Create photo settings
       let photoSettings = AVCapturePhotoSettings(format: format)
 
@@ -98,12 +101,19 @@ extension CameraView {
         photoSettings.isAutoStillImageStabilizationEnabled = enableAutoStabilization
       }
 
+      // shutter sound
+      if let disableShutterSound = options["disableShutterSound"] as? Bool {
+        if disableShutterSound {
+          photoCaptureDelegate = SilentPhotoCaptureDelegate(promise: promise)
+        }
+      }
+
       // distortion correction
       if #available(iOS 14.1, *), let enableAutoDistortionCorrection = options["enableAutoDistortionCorrection"] as? Bool {
         photoSettings.isAutoContentAwareDistortionCorrectionEnabled = enableAutoDistortionCorrection
       }
 
-      photoOutput.capturePhoto(with: photoSettings, delegate: PhotoCaptureDelegate(promise: promise))
+      photoOutput.capturePhoto(with: photoSettings, delegate: photoCaptureDelegate)
 
       // Assume that `takePhoto` is always called with the same parameters, so prepare the next call too.
       photoOutput.setPreparedPhotoSettingsArray([photoSettings], completionHandler: nil)

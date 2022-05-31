@@ -65,6 +65,7 @@ const _CaptureButton: React.FC<Props> = ({
       flash: flash,
       quality: 90,
       skipMetadata: true,
+      disableShutterSound: true,
     }),
     [flash],
   );
