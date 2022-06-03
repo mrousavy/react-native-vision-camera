@@ -140,9 +140,9 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
       // start recording session with or without audio.
       do {
-        try recordingSession.start()
+        try recordingSession.startAssetWriter()
       } catch let error as NSError {
-        callback.reject(error: .capture(.createRecorderError(message: "RecordingSession failed to start writing.")), cause: error)
+        callback.reject(error: .capture(.createRecorderError(message: "RecordingSession failed to start asset writer.")), cause: error)
         return
       }
       self.isRecording = true
@@ -200,6 +200,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       switch captureOutput {
       case is AVCaptureVideoDataOutput:
         recordingSession.appendBuffer(sampleBuffer, type: .video, timestamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
+        print("T: Video Buffer \(CMSampleBufferGetPresentationTimeStamp(sampleBuffer).seconds)")
       case is AVCaptureAudioDataOutput:
         let timestamp = CMSyncConvertTime(CMSampleBufferGetPresentationTimeStamp(sampleBuffer),
                                           from: audioCaptureSession.masterClock!,
