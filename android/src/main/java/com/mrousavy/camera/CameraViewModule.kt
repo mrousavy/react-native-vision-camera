@@ -302,10 +302,8 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
               // videoResolution will be the highest supported video resolution lower than or equal to photo resolution
               // TODO: Somehow integrate with CamcorderProfileProxy?
               val videoResolution = supportedVideoResolutions.find { it.width <= size.width && it.height <= size.height }
-              val videoHeight = videoResolution?.height
-              val videoWidth = videoResolution?.width
-              format.putDouble("videoHeight", videoHeight?.toDouble())
-              format.putDouble("videoWidth", videoWidth?.toDouble())
+              format.putDouble("videoHeight", videoResolution?.height?.toDouble())
+              format.putDouble("videoWidth", videoResolution?.width?.toDouble())
               format.putBoolean("isHighestPhotoQualitySupported", isHighestPhotoQualitySupported)
               format.putInt("maxISO", isoRange?.upper)
               format.putInt("minISO", isoRange?.lower)
