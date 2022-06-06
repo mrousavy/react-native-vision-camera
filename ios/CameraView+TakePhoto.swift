@@ -54,14 +54,49 @@ extension CameraView {
       }
 
       // Create photo settings
-      let photoSettings = AVCapturePhotoSettings(format: format)
+      var photoSettings: AVCapturePhotoSettings?
+
+      if #available(iOS 14.3, *), self.enableRawCapture?.boolValue == true {
+        let query =
+          photoOutput.isAppleProRAWEnabled ? { AVCapturePhotoOutput.isAppleProRAWPixelFormat($0) } : { AVCapturePhotoOutput.isBayerRAWPixelFormat($0) }
+
+        // Retrieve the RAW format, favoring Apple ProRAW when it's in an enabled state.
+        guard let rawFormat =
+          photoOutput.availableRawPhotoPixelFormatTypes.first(where: query) else {
+          fatalError("No RAW format found.")
+        }
+
+        let processedFormat = [AVVideoCodecKey: AVVideoCodecType.hevc]
+
+        photoSettings = AVCapturePhotoSettings(rawPixelFormatType: rawFormat,
+                                               processedFormat: processedFormat)
+      } else {
+        photoSettings = AVCapturePhotoSettings(format: format)
+      }
 
       // default, overridable settings if high quality capture was enabled
       if self.enableHighQualityPhotos?.boolValue == true {
-        photoSettings.isHighResolutionPhotoEnabled = true
+        photoSettings!.isHighResolutionPhotoEnabled = true
         if #available(iOS 13.0, *) {
-          photoSettings.photoQualityPrioritization = .quality
+          photoSettings!.photoQualityPrioritization = .quality
         }
+      }
+
+      if #available(iOS 12.0, *), self.enableRawCapture?.boolValue == true {
+        // Select a supported thumbnail codec type and thumbnail dimensions
+        guard let thumbnailPhotoCodecType = photoSettings!.availableRawEmbeddedThumbnailPhotoCodecTypes.first else {
+          // Handle failure to find an available thumbnail photo codec type
+          ReactLogger.log(level: .info, message: "Error finding an available thumbnail photo codec type")
+          return
+        }
+
+        let dimensions = videoDeviceInput.device.activeFormat.highResolutionStillImageDimensions
+
+        photoSettings!.rawEmbeddedThumbnailPhotoFormat = [
+          AVVideoCodecKey: thumbnailPhotoCodecType,
+          AVVideoWidthKey: dimensions.width,
+          AVVideoHeightKey: dimensions.height,
+        ]
       }
 
       // flash
@@ -70,13 +105,13 @@ extension CameraView {
           promise.reject(error: .parameter(.invalid(unionName: "FlashMode", receivedValue: flash)))
           return
         }
-        photoSettings.flashMode = flashMode
+        photoSettings!.flashMode = flashMode
       }
 
       // depth data
-      photoSettings.isDepthDataDeliveryEnabled = photoOutput.isDepthDataDeliveryEnabled
+      photoSettings!.isDepthDataDeliveryEnabled = photoOutput.isDepthDataDeliveryEnabled
       if #available(iOS 12.0, *) {
-        photoSettings.isPortraitEffectsMatteDeliveryEnabled = photoOutput.isPortraitEffectsMatteDeliveryEnabled
+        photoSettings!.isPortraitEffectsMatteDeliveryEnabled = photoOutput.isPortraitEffectsMatteDeliveryEnabled
       }
 
       // quality prioritization
@@ -85,28 +120,39 @@ extension CameraView {
           promise.reject(error: .parameter(.invalid(unionName: "QualityPrioritization", receivedValue: qualityPrioritization)))
           return
         }
-        photoSettings.photoQualityPrioritization = photoQualityPrioritization
+        photoSettings!.photoQualityPrioritization = photoQualityPrioritization
       }
 
       // red-eye reduction
       if #available(iOS 12.0, *), let autoRedEyeReduction = options["enableAutoRedEyeReduction"] as? Bool {
-        photoSettings.isAutoRedEyeReductionEnabled = autoRedEyeReduction
+        photoSettings!.isAutoRedEyeReductionEnabled = autoRedEyeReduction
       }
 
       // stabilization
       if let enableAutoStabilization = options["enableAutoStabilization"] as? Bool {
-        photoSettings.isAutoStillImageStabilizationEnabled = enableAutoStabilization
+        photoSettings!.isAutoStillImageStabilizationEnabled = enableAutoStabilization
       }
 
       // distortion correction
       if #available(iOS 14.1, *), let enableAutoDistortionCorrection = options["enableAutoDistortionCorrection"] as? Bool {
-        photoSettings.isAutoContentAwareDistortionCorrectionEnabled = enableAutoDistortionCorrection
+        photoSettings!.isAutoContentAwareDistortionCorrectionEnabled = enableAutoDistortionCorrection
       }
 
-      photoOutput.capturePhoto(with: photoSettings, delegate: PhotoCaptureDelegate(promise: promise))
-
+      if self.enableRawCapture?.boolValue == true {
+        // Create a delegate to monitor the capture process.
+        let delegate = RAWCaptureDelegate(promise: promise)
+        self.captureDelegates[photoSettings!.uniqueID] = delegate
+        // Remove the delegate reference when it finishes its processing.
+        delegate.didFinish = {
+          self.captureDelegates[photoSettings!.uniqueID] = nil
+        }
+        // Tell the output to capture the photo.
+        photoOutput.capturePhoto(with: photoSettings!, delegate: delegate)
+      } else {
+        photoOutput.capturePhoto(with: photoSettings!, delegate: PhotoCaptureDelegate(promise: promise))
+      }
       // Assume that `takePhoto` is always called with the same parameters, so prepare the next call too.
-      photoOutput.setPreparedPhotoSettingsArray([photoSettings], completionHandler: nil)
+      photoOutput.setPreparedPhotoSettingsArray([photoSettings!], completionHandler: nil)
     }
   }
 }

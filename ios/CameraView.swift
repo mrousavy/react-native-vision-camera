@@ -42,6 +42,7 @@ public final class CameraView: UIView {
   @objc var cameraId: NSString?
   @objc var enableDepthData = false
   @objc var enableHighQualityPhotos: NSNumber? // nullable bool
+  @objc var enableRawCapture: NSNumber? // nullable bool
   @objc var enablePortraitEffectsMatteDelivery = false
   @objc var preset: String?
   // use cases
@@ -97,6 +98,7 @@ public final class CameraView: UIView {
   internal var lastFrameProcessorCall = DispatchTime.now()
   // CameraView+TakePhoto
   internal var photoCaptureDelegates: [PhotoCaptureDelegate] = []
+  internal var captureDelegates = [Int64: RAWCaptureDelegate]()
   // CameraView+Zoom
   internal var pinchGestureRecognizer: UIPinchGestureRecognizer?
   internal var pinchScaleOffset: CGFloat = 1.0

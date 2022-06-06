@@ -157,6 +157,11 @@ export interface CameraProps extends ViewProps {
    */
   enableHighQualityPhotos?: boolean;
   /**
+   * Enable the Camera to take photos with RAW format.
+   * @platform iOS 10+
+   */
+  enableRawCapture?: boolean;
+  /**
    * Represents the orientation of all Camera Outputs (Photo, Video, and Frame Processor). If this value is not set, the device orientation is used.
    */
   orientation?: 'portrait' | 'portraitUpsideDown' | 'landscapeLeft' | 'landscapeRight';

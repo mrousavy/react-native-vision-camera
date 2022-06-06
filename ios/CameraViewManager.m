@@ -26,6 +26,7 @@ RCT_EXPORT_VIEW_PROPERTY(isActive, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(cameraId, NSString);
 RCT_EXPORT_VIEW_PROPERTY(enableDepthData, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(enableHighQualityPhotos, NSNumber); // nullable bool
+RCT_EXPORT_VIEW_PROPERTY(enableRawCapture, NSNumber); // nullable bool
 RCT_EXPORT_VIEW_PROPERTY(enablePortraitEffectsMatteDelivery, BOOL);
 // use cases
 RCT_EXPORT_VIEW_PROPERTY(photo, NSNumber); // nullable bool

@@ -61,6 +61,10 @@ extension CameraView {
       }
     }
 
+    if enableRawCapture?.boolValue == true {
+      captureSession.sessionPreset = .photo
+    }
+
     // pragma MARK: Capture Session Inputs
     // Video Input
     do {
@@ -115,6 +119,9 @@ extension CameraView {
         return
       }
       captureSession.addOutput(photoOutput!)
+      if #available(iOS 14.3, *), enableRawCapture?.boolValue == true {
+        photoOutput!.isAppleProRAWEnabled = photoOutput!.isAppleProRAWSupported
+      }
       if videoDeviceInput!.device.position == .front {
         photoOutput!.mirror()
       }
@@ -233,21 +240,40 @@ extension CameraView {
       return
     }
 
-    // get matching format
-    let matchingFormats = device.formats.filter { $0.matchesFilter(filter) }.sorted { $0.isBetterThan($1) }
-    guard let format = matchingFormats.first else {
-      invokeOnError(.format(.invalidFormat))
-      return
-    }
+    if #available(iOS 14.3, *), enableRawCapture?.boolValue == true {
+      guard let format = device.formats.first(where: { $0.isHighestPhotoQualitySupported }) else {
+        // handle failure to find a format that supports highest quality stills
+        invokeOnError(.format(.invalidFormat))
+        return
+      }
 
-    do {
-      try device.lockForConfiguration()
-      device.activeFormat = format
-      device.unlockForConfiguration()
-      ReactLogger.log(level: .info, message: "Format successfully configured!")
-    } catch let error as NSError {
-      invokeOnError(.device(.configureError), cause: error)
-      return
+      do {
+        try device.lockForConfiguration()
+        device.activeFormat = format
+        device.unlockForConfiguration()
+        ReactLogger.log(level: .info, message: "Format successfully configured!")
+      } catch let error as NSError {
+        invokeOnError(.device(.configureError), cause: error)
+        return
+      }
+    } else {
+      // get matching format
+      let matchingFormats = device.formats.filter { $0.matchesFilter(filter) }.sorted { $0.isBetterThan($1) }
+
+      guard let format = matchingFormats.first else {
+        invokeOnError(.format(.invalidFormat))
+        return
+      }
+
+      do {
+        try device.lockForConfiguration()
+        device.activeFormat = format
+        device.unlockForConfiguration()
+        ReactLogger.log(level: .info, message: "Format successfully configured!")
+      } catch let error as NSError {
+        invokeOnError(.device(.configureError), cause: error)
+        return
+      }
     }
   }
 
