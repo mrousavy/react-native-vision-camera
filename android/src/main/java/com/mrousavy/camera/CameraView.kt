@@ -235,6 +235,8 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
       override fun onHostResume() {
         hostLifecycleState = Lifecycle.State.RESUMED
         updateLifecycleState()
+        // ensure that session props are not ignored when app is resumed
+        update(propsThatRequireSessionReconfiguration)
       }
       override fun onHostPause() {
         hostLifecycleState = Lifecycle.State.CREATED
