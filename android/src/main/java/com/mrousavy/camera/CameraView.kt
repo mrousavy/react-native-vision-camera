@@ -418,7 +418,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
           previewBuilder.setTargetResolution(format.photoSize)
         }
         imageCaptureBuilder.setTargetResolution(format.photoSize)
-        imageAnalysisBuilder.setTargetResolution(format.videoSize)
+        imageAnalysisBuilder.setTargetResolution(format.photoSize)
 
         // TODO: Ability to select resolution exactly depending on format? Just like on iOS...
         when (min(format.videoSize.height, format.videoSize.width)) {
