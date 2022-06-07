@@ -8,6 +8,14 @@
 
 import AVFoundation
 
+struct OculaTimestamps {
+    var actualRecordingStartedAt: NSDate
+    var actualTorchOnAt: NSDate
+    var actualTOrchOffAt: NSDate
+    var actualRecordingEndedAt: NSDate
+}
+
+
 // MARK: - CameraView + AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate
 
 extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
@@ -92,6 +100,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
             callback.resolve([
               "path": recordingSession.url.absoluteString,
               "duration": recordingSession.duration,
+              // TODO: timestamp props
             ])
           } else {
             callback.reject(error: .unknown(message: "AVAssetWriter completed with status: \(status.descriptor)"))
@@ -137,6 +146,18 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           recordingSession.initializeAudioWriter(withSettings: audioSettings)
         }
       }
+        
+        let torchOnIntevalSeconds = 2.0
+        DispatchQueue.main.asyncAfter(deadline: .now() + torchOnIntevalSeconds) {
+            // Put your code which should be executed with a delay here
+            self.setTorchMode("1")
+        }
+        
+        let torchOffIntevalSeconds = 7.0
+        DispatchQueue.main.asyncAfter(deadline: .now() + torchOffIntevalSeconds) {
+            // Put your code which should be executed with a delay here
+            self.setTorchMode("0")
+        }
 
       // start recording session with or without audio.
       do {
@@ -146,6 +167,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         return
       }
       self.isRecording = true
+        let recordingStartTimestamp = NSDate().timeIntervalSince1970
+        ReactLogger.log(level: .info, message: "recordingStartTimestamp:  \(recordingStartTimestamp)")
     }
   }
 
@@ -158,6 +181,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           throw CameraError.capture(.noRecordingInProgress)
         }
         recordingSession.finish()
+          let recordingStopTimestamp = NSDate().timeIntervalSince1970
+          ReactLogger.log(level: .info, message: "recordingStopTimestamp:  \(recordingStopTimestamp)")
         return nil
       }
     }
@@ -171,6 +196,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           throw CameraError.capture(.noRecordingInProgress)
         }
         self.isRecording = false
+          let recordingStopTimestamp = NSDate().timeIntervalSince1970
+          ReactLogger.log(level: .info, message: "recordingStopTimestamp:  \(recordingStopTimestamp)")
         return nil
       }
     }

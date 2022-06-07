@@ -303,7 +303,7 @@ public final class CameraView: UIView {
       try device.lockForConfiguration()
       device.torchMode = torchMode
       if torchMode == .on {
-        try device.setTorchModeOn(level: 1.0)
+//        try device.setTorchModeOn(level: 1.0)
       }
       device.unlockForConfiguration()
     } catch let error as NSError {
