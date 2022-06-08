@@ -145,7 +145,6 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         self.recordingSession = nil
         self.isRecording = false
         ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
-          self.oculaTimestamps.actualRecordingStartedAt = NSDate().timeIntervalSince1970
 
         if let error = error as NSError? {
           if error.domain == "capture/aborted" {
@@ -234,6 +233,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       self.isRecording = true
         let recordingStartTimestamp = NSDate().timeIntervalSince1970
         ReactLogger.log(level: .info, message: "recordingStartTimestamp:  \(recordingStartTimestamp)")
+        self.oculaTimestamps.actualRecordingStartedAt = NSDate().timeIntervalSince1970
     }
   }
 
