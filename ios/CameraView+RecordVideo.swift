@@ -8,14 +8,14 @@
 
 import AVFoundation
 
-enum OculaExamMode: Int {
-    case normal = 1
-    case enhancedRecording = 2
-    case enhancedMetric = 3
-    case enhancedAll = 4
+enum OculaExamMode: String {
+    case normal = "normal"
+    case enhancedRecording = "enhancedRecording"
+    case enhancedMetric = "enhancedMetric"
+    case enhancedAll = "enhancedAll"
     
-    func getTorchOnAfterSeconds(examMode: OculaExamMode) -> Double {
-        switch examMode {
+    func getTorchOnAfterSeconds() -> Double {
+        switch self {
         case .normal, .enhancedMetric:
             return 0.0
         case .enhancedRecording, .enhancedAll:
@@ -23,7 +23,7 @@ enum OculaExamMode: Int {
         }
     }
     
-    func getTorchOffAfterSeconds(examMode: OculaExamMode) -> Double {
+    func getTorchOffAfterSeconds() -> Double {
         switch self {
         case .normal, .enhancedMetric:
             return 5.0
@@ -33,15 +33,11 @@ enum OculaExamMode: Int {
     }
 }
 
-class OculaTimestamps {
-    var actualRecordingStartedAt: Double
-    var actualTorchOnAt: Double
-    var actualTorchOffAt: Double
-    var actualRecordingEndedAt: Double
-    
-    init() {
-        
-    }
+struct OculaTimestamps {
+    var actualRecordingStartedAt: Double?
+    var actualTorchOnAt: Double?
+    var actualTorchOffAt: Double?
+    var actualRecordingEndedAt: Double?
 }
 
 
@@ -179,16 +175,15 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         }
       }
         
-        if (options["examMode"] as Any?) != nil {
-            let examMode = options["examMode"]
-            
-            var torchOnIntevalSeconds = OculaExamMode.getTorchOnAfterSeconds(examMode as! OculaExamMode)
+        if let examModeStr = options["examMode"] as? String,
+            let examMode = OculaExamMode(rawValue: examModeStr) {
+            let torchOnIntevalSeconds = examMode.getTorchOnAfterSeconds()
             DispatchQueue.main.asyncAfter(deadline: .now() + torchOnIntevalSeconds) {
                 self.setTorchMode("on")
                 self.oculaTimestamps.actualTorchOnAt = NSDate().timeIntervalSince1970
             }
             
-            var torchOffIntevalSeconds = OculaExamMode.getTorchOffAfterSeconds(examMode as! OculaExamMode)
+            let torchOffIntevalSeconds = examMode.getTorchOffAfterSeconds()
             DispatchQueue.main.asyncAfter(deadline: .now() + torchOffIntevalSeconds) {
                 self.setTorchMode("off")
                 self.oculaTimestamps.actualTorchOffAt = NSDate().timeIntervalSince1970
