@@ -9,63 +9,35 @@
 import AVFoundation
 
 enum OculaExamMode: Int {
-    case one = 1
-    case two = 2
-    case three = 3
-    case four = 4
+    case normal = 1
+    case enhancedRecording = 2
+    case enhancedMetric = 3
+    case enhancedAll = 4
     
     func getTorchOnAfterSeconds(examMode: OculaExamMode) -> Double {
         switch examMode {
-        case .one, .three:
+        case .normal, .enhancedMetric:
             return 0.0
-        case .two, .four:
+        case .enhancedRecording, .enhancedAll:
             return 2.0
         }
     }
     
     func getTorchOffAfterSeconds(examMode: OculaExamMode) -> Double {
         switch self {
-        case .one, .three:
+        case .normal, .enhancedMetric:
             return 5.0
-        case .two, .four:
+        case .enhancedRecording, .enhancedAll:
             return 7.0
         }
     }
 }
 
 class OculaTimestamps {
-    var actualRecordingStartedAt: Double {
-        get {
-            return self.actualRecordingStartedAt
-        }
-        set {
-            self.actualRecordingStartedAt = newValue
-        }
-    }
-    var actualTorchOnAt: Double {
-        get {
-            return self.actualTorchOnAt
-        }
-        set {
-            self.actualTorchOnAt = newValue
-        }
-    }
-    var actualTorchOffAt: Double {
-        get {
-            return self.actualTorchOffAt
-        }
-        set {
-            self.actualTorchOffAt = newValue
-        }
-    }
-    var actualRecordingEndedAt: Double {
-        get {
-            return self.actualRecordingEndedAt
-        }
-        set {
-            self.actualRecordingEndedAt = newValue
-        }
-    }
+    var actualRecordingStartedAt: Double
+    var actualTorchOnAt: Double
+    var actualTorchOffAt: Double
+    var actualRecordingEndedAt: Double
     
     init() {
         
