@@ -100,6 +100,7 @@ public final class CameraView: UIView {
   // CameraView+Zoom
   internal var pinchGestureRecognizer: UIPinchGestureRecognizer?
   internal var pinchScaleOffset: CGFloat = 1.0
+  internal var oculaTimestamps = OculaTimestamps()
 
   internal let cameraQueue = CameraQueues.cameraQueue
   internal let videoQueue = CameraQueues.videoQueue

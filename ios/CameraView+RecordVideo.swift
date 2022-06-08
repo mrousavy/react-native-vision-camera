@@ -8,11 +8,68 @@
 
 import AVFoundation
 
-struct OculaTimestamps {
-    var actualRecordingStartedAt: NSDate
-    var actualTorchOnAt: NSDate
-    var actualTOrchOffAt: NSDate
-    var actualRecordingEndedAt: NSDate
+enum OculaExamMode: Int {
+    case one = 1
+    case two = 2
+    case three = 3
+    case four = 4
+    
+    func getTorchOnAfterSeconds(examMode: OculaExamMode) -> Double {
+        switch examMode {
+        case .one, .three:
+            return 0.0
+        case .two, .four:
+            return 2.0
+        }
+    }
+    
+    func getTorchOffAfterSeconds(examMode: OculaExamMode) -> Double {
+        switch self {
+        case .one, .three:
+            return 5.0
+        case .two, .four:
+            return 7.0
+        }
+    }
+}
+
+class OculaTimestamps {
+    var actualRecordingStartedAt: Double {
+        get {
+            return self.actualRecordingStartedAt
+        }
+        set {
+            self.actualRecordingStartedAt = newValue
+        }
+    }
+    var actualTorchOnAt: Double {
+        get {
+            return self.actualTorchOnAt
+        }
+        set {
+            self.actualTorchOnAt = newValue
+        }
+    }
+    var actualTorchOffAt: Double {
+        get {
+            return self.actualTorchOffAt
+        }
+        set {
+            self.actualTorchOffAt = newValue
+        }
+    }
+    var actualRecordingEndedAt: Double {
+        get {
+            return self.actualRecordingEndedAt
+        }
+        set {
+            self.actualRecordingEndedAt = newValue
+        }
+    }
+    
+    init() {
+        
+    }
 }
 
 
@@ -88,6 +145,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         self.recordingSession = nil
         self.isRecording = false
         ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
+          self.oculaTimestamps.actualRecordingStartedAt = NSDate().timeIntervalSince1970
 
         if let error = error as NSError? {
           if error.domain == "capture/aborted" {
@@ -100,7 +158,10 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
             callback.resolve([
               "path": recordingSession.url.absoluteString,
               "duration": recordingSession.duration,
-              // TODO: timestamp props
+              "actualRecordingStartedAt": self.oculaTimestamps.actualRecordingStartedAt,
+              "actualTorchOnAt": self.oculaTimestamps.actualTorchOnAt,
+              "actualTorchOffAt": self.oculaTimestamps.actualTorchOffAt,
+              "actualRecordingEndedAt": self.oculaTimestamps.actualRecordingEndedAt,
             ])
           } else {
             callback.reject(error: .unknown(message: "AVAssetWriter completed with status: \(status.descriptor)"))
@@ -147,16 +208,20 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         }
       }
         
-        let torchOnIntevalSeconds = 2.0
-        DispatchQueue.main.asyncAfter(deadline: .now() + torchOnIntevalSeconds) {
-            // Put your code which should be executed with a delay here
-            self.setTorchMode("1")
-        }
-        
-        let torchOffIntevalSeconds = 7.0
-        DispatchQueue.main.asyncAfter(deadline: .now() + torchOffIntevalSeconds) {
-            // Put your code which should be executed with a delay here
-            self.setTorchMode("0")
+        if (options["examMode"] as Any?) != nil {
+            let examMode = options["examMode"]
+            
+            var torchOnIntevalSeconds = OculaExamMode.getTorchOnAfterSeconds(examMode as! OculaExamMode)
+            DispatchQueue.main.asyncAfter(deadline: .now() + torchOnIntevalSeconds) {
+                self.setTorchMode("on")
+                self.oculaTimestamps.actualTorchOnAt = NSDate().timeIntervalSince1970
+            }
+            
+            var torchOffIntevalSeconds = OculaExamMode.getTorchOffAfterSeconds(examMode as! OculaExamMode)
+            DispatchQueue.main.asyncAfter(deadline: .now() + torchOffIntevalSeconds) {
+                self.setTorchMode("off")
+                self.oculaTimestamps.actualTorchOffAt = NSDate().timeIntervalSince1970
+            }
         }
 
       // start recording session with or without audio.
@@ -183,6 +248,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         recordingSession.finish()
           let recordingStopTimestamp = NSDate().timeIntervalSince1970
           ReactLogger.log(level: .info, message: "recordingStopTimestamp:  \(recordingStopTimestamp)")
+          self.oculaTimestamps.actualRecordingEndedAt = NSDate().timeIntervalSince1970
         return nil
       }
     }
