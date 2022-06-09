@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import React, { useCallback, useContext, useMemo, useRef } from 'react';
 import { StyleSheet, View, ViewProps } from 'react-native';
 import {
@@ -123,6 +125,13 @@ const _CaptureButton: React.FC<Props> = ({
         },
         onRecordingFinished: (video) => {
           console.log(`Recording successfully finished! ${video.path}`);
+          setTimestamps((values: any) => ({
+            ...values,
+            actualRecordingStartedAt: video?.actualRecordingStartedAt,
+            actualTorchOnAt: video?.actualTorchOnAt,
+            actualTorchOffAt: video?.actualTorchOffAt,
+            actualRecordingEndedAt: video?.actualRecordingEndedAt,
+          }));
           onMediaCaptured(video, 'video');
           onStoppedRecording();
         },

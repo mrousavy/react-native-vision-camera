@@ -48,6 +48,10 @@ export interface RecordVideoOptions {
  * Related: {@linkcode Camera.startRecording | Camera.startRecording()}, {@linkcode Camera.stopRecording | Camera.stopRecording()}
  */
 export interface VideoFile extends TemporaryFile {
+  actualRecordingStartedAt: any;
+  actualTorchOnAt: any;
+  actualTorchOffAt: any;
+  actualRecordingEndedAt: any;
   /**
    * Represents the duration of the video, in seconds.
    */
