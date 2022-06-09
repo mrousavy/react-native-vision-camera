@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import React from 'react';
 import { requireNativeComponent, NativeModules, NativeSyntheticEvent, findNodeHandle, NativeMethods, Platform } from 'react-native';
 import type { FrameProcessorPerformanceSuggestion, VideoFileType } from '.';
@@ -35,8 +36,31 @@ type NativeCameraViewProps = Omit<
 type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>;
 //#endregion
 
+// torch on and off utils function
+export const getTorchOnAfterSeconds = (mode: string): number => {
+  switch (mode) {
+    case 'enhancedRecording':
+    case 'enhancedAll':
+      return 2;
+    case 'normal':
+    case 'enhancedMetric':
+    default:
+      return 0;
+  }
+};
+export const getTorchOffAfterSeconds = (mode: string): number => {
+  switch (mode) {
+    case 'enhancedRecording':
+    case 'enhancedAll':
+      return 7;
+    case 'normal':
+    case 'enhancedMetric':
+    default:
+      return 5;
+  }
+};
+
 // NativeModules automatically resolves 'CameraView' to 'CameraViewModule'
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 const CameraModule = NativeModules.CameraView;
 if (CameraModule == null) console.error("Camera: Native Module 'CameraView' was null! Did you run pod install?");
 
@@ -89,6 +113,19 @@ export class Camera extends React.PureComponent<CameraProps> {
     this.onFrameProcessorPerformanceSuggestionAvailable = this.onFrameProcessorPerformanceSuggestionAvailable.bind(this);
     this.ref = React.createRef<RefType>();
     this.lastFrameProcessor = undefined;
+
+    this.state = {
+      timestamps: {
+        requestRecordingStartedAt: '',
+        actualRecordingStartedAt: '',
+        requestTorchOnAt: '',
+        actualTorchOnAt: '',
+        requestTorchOffAt: '',
+        actualTorchOffAt: '',
+        requestRecordingEndedAt: '',
+        actualRecordingEndedAt: '',
+      },
+    };
   }
 
   private get handle(): number | null {
@@ -175,13 +212,24 @@ export class Camera extends React.PureComponent<CameraProps> {
    * ```
    */
   public startRecording(options: RecordVideoOptions): void {
+    this.setState(({ timestamps: prevTimestamps }) => ({
+      timestamps: {
+        ...prevTimestamps,
+        requestRecordingStartedAt: new Date().valueOf(),
+      },
+    }));
     const { onRecordingError, onRecordingFinished, ...passThroughOptions } = options;
     if (typeof onRecordingError !== 'function' || typeof onRecordingFinished !== 'function')
       throw new CameraRuntimeError('parameter/invalid-parameter', 'The onRecordingError or onRecordingFinished functions were not set!');
 
     const onRecordCallback = (video?: VideoFile, error?: CameraCaptureError): void => {
       if (error != null) return onRecordingError(error);
-      if (video != null) return onRecordingFinished(video);
+      if (video != null) {
+        return onRecordingFinished({
+          ...this.state.timestamps,
+          ...video,
+        });
+      }
     };
     // TODO: Use TurboModules to either make this a sync invokation, or make it async.
     try {
@@ -189,6 +237,25 @@ export class Camera extends React.PureComponent<CameraProps> {
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
+
+    const requestTorchOnTimeout = setTimeout(() => {
+      this.setState(({ timestamps: prevTimestamps }) => ({
+        timestamps: {
+          ...prevTimestamps,
+          requestTorchOnAt: new Date().valueOf(),
+        },
+      }));
+      clearTimeout(requestTorchOnTimeout);
+    }, getTorchOnAfterSeconds(options.examMode) * 1000);
+    const requestTorchOffTimeout = setTimeout(() => {
+      this.setState(({ timestamps: prevTimestamps }) => ({
+        timestamps: {
+          ...prevTimestamps,
+          requestTorchOffAt: new Date().valueOf(),
+        },
+      }));
+      clearTimeout(requestTorchOffTimeout);
+    }, getTorchOffAfterSeconds(options.examMode) * 1000);
   }
 
   /**
@@ -261,6 +328,12 @@ export class Camera extends React.PureComponent<CameraProps> {
    * ```
    */
   public async stopRecording(): Promise<void> {
+    this.setState(({ timestamps: prevTimestamps }) => ({
+      timestamps: {
+        ...prevTimestamps,
+        requestRecordingEndedAt: new Date().valueOf(),
+      },
+    }));
     try {
       return await CameraModule.stopRecording(this.handle);
     } catch (e) {
