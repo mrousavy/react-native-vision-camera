@@ -23,7 +23,6 @@ import Reanimated, {
 } from 'react-native-reanimated';
 import type { Camera, PhotoFile, TakePhotoOptions, TakeSnapshotOptions, VideoFile } from 'react-native-vision-camera';
 import { CAPTURE_BUTTON_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH } from './../Constants';
-import { ScanExamTimestampsContext } from '../CameraPage';
 
 const PAN_GESTURE_HANDLER_FAIL_X = [-SCREEN_WIDTH, SCREEN_WIDTH];
 const PAN_GESTURE_HANDLER_ACTIVE_Y = [-2, 2];
@@ -72,7 +71,6 @@ const _CaptureButton: React.FC<Props> = ({
     [flash],
   );
   const isPressingButton = useSharedValue(false);
-  const { setTimestamps } = useContext(ScanExamTimestampsContext);
 
   //#region Camera Capture
   const takePhoto = useCallback(async () => {
@@ -93,10 +91,6 @@ const _CaptureButton: React.FC<Props> = ({
     console.log('stopped recording video!');
   }, [recordingProgress]);
   const stopRecording = useCallback(async () => {
-    setTimestamps((values: any) => ({
-      ...values,
-      requestRecordingEndedAt: new Date().valueOf(),
-    }));
     try {
       if (camera.current == null) throw new Error('Camera ref is null!');
 
@@ -106,13 +100,8 @@ const _CaptureButton: React.FC<Props> = ({
     } catch (e) {
       console.error('failed to stop recording!', e);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [camera]);
   const startRecording = useCallback(() => {
-    setTimestamps((values: any) => ({
-      ...values,
-      requestRecordingStartedAt: new Date().valueOf(),
-    }));
     try {
       if (camera.current == null) throw new Error('Camera ref is null!');
 
@@ -139,26 +128,9 @@ const _CaptureButton: React.FC<Props> = ({
       // TODO: wait until startRecording returns to actually find out if the recording has successfully started
       console.log('called startRecording()!');
       isRecording.current = true;
-
-      // await recording to on/off torch
-      const requestTorchOnTimeout = setTimeout(() => {
-        setTimestamps((values: any) => ({
-          ...values,
-          requestTorchOnAt: new Date().valueOf(),
-        }));
-        clearTimeout(requestTorchOnTimeout);
-      }, 0);
-      const requestTorchOffTimeout = setTimeout(() => {
-        setTimestamps((values: any) => ({
-          ...values,
-          requestTorchOffAt: new Date().valueOf(),
-        }));
-        clearTimeout(requestTorchOffTimeout);
-      }, 5000);
     } catch (e) {
       console.error('failed to start recording!', e, 'camera');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [camera, flash, onMediaCaptured, onStoppedRecording]);
   //#endregion
 

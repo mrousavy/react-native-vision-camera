@@ -27,8 +27,6 @@ import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
 
-export const ScanExamTimestampsContext = React.createContext({});
-
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
   zoom: true,
@@ -54,22 +52,6 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const [enableHdr, setEnableHdr] = useState(false);
   const [flash, setFlash] = useState<'off' | 'on'>('off');
   const [enableNightMode, setEnableNightMode] = useState(false);
-
-  // scan exam timestamps values
-  const [timestamps, setTimestamps] = useState({
-    requestRecordingStartedAt: '',
-    actualRecordingStartedAt: '',
-    requestTorchOnAt: '',
-    actualTorchOnAt: '',
-    requestTorchOffAt: '',
-    actualTorchOffAt: '',
-    requestRecordingEndedAt: '',
-    actualRecordingEndedAt: '',
-  });
-  const defaultContextValues = {
-    timestamps,
-    setTimestamps,
-  };
 
   // camera format settings
   const devices = useCameraDevices();
@@ -226,85 +208,82 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   }, []);
 
   return (
-    <ScanExamTimestampsContext.Provider value={defaultContextValues}>
-      <View style={styles.container}>
-        {device != null && (
-          <PinchGestureHandler onGestureEvent={onPinchGesture} enabled={isActive}>
-            <Reanimated.View style={StyleSheet.absoluteFill}>
-              <TapGestureHandler onEnded={onDoubleTap} numberOfTaps={2}>
-                <ReanimatedCamera
-                  examMode={'normal'}
-                  ref={camera}
-                  style={StyleSheet.absoluteFill}
-                  device={device}
-                  format={format}
-                  fps={fps}
-                  hdr={enableHdr}
-                  lowLightBoost={device.supportsLowLightBoost && enableNightMode}
-                  isActive={isActive}
-                  onInitialized={onInitialized}
-                  onError={onError}
-                  enableZoomGesture={false}
-                  animatedProps={cameraAnimatedProps}
-                  photo={true}
-                  video={true}
-                  audio={hasMicrophonePermission}
-                  frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
-                  orientation="portrait"
-                  frameProcessorFps={1}
-                  onFrameProcessorPerformanceSuggestionAvailable={onFrameProcessorSuggestionAvailable}
-                />
-              </TapGestureHandler>
-            </Reanimated.View>
-          </PinchGestureHandler>
+    <View style={styles.container}>
+      {device != null && (
+        <PinchGestureHandler onGestureEvent={onPinchGesture} enabled={isActive}>
+          <Reanimated.View style={StyleSheet.absoluteFill}>
+            <TapGestureHandler onEnded={onDoubleTap} numberOfTaps={2}>
+              <ReanimatedCamera
+                ref={camera}
+                style={StyleSheet.absoluteFill}
+                device={device}
+                format={format}
+                fps={fps}
+                hdr={enableHdr}
+                lowLightBoost={device.supportsLowLightBoost && enableNightMode}
+                isActive={isActive}
+                onInitialized={onInitialized}
+                onError={onError}
+                enableZoomGesture={false}
+                animatedProps={cameraAnimatedProps}
+                photo={true}
+                video={true}
+                audio={hasMicrophonePermission}
+                frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
+                orientation="portrait"
+                frameProcessorFps={1}
+                onFrameProcessorPerformanceSuggestionAvailable={onFrameProcessorSuggestionAvailable}
+              />
+            </TapGestureHandler>
+          </Reanimated.View>
+        </PinchGestureHandler>
+      )}
+
+      <CaptureButton
+        style={styles.captureButton}
+        camera={camera}
+        onMediaCaptured={onMediaCaptured}
+        cameraZoom={zoom}
+        minZoom={minZoom}
+        maxZoom={maxZoom}
+        flash={supportsFlash ? flash : 'off'}
+        enabled={isCameraInitialized && isActive}
+        setIsPressingButton={setIsPressingButton}
+      />
+
+      <StatusBarBlurBackground />
+
+      <View style={styles.rightButtonRow}>
+        {supportsCameraFlipping && (
+          <PressableOpacity style={styles.button} onPress={onFlipCameraPressed} disabledOpacity={0.4}>
+            <IonIcon name="camera-reverse" color="white" size={24} />
+          </PressableOpacity>
         )}
-
-        <CaptureButton
-          style={styles.captureButton}
-          camera={camera}
-          onMediaCaptured={onMediaCaptured}
-          cameraZoom={zoom}
-          minZoom={minZoom}
-          maxZoom={maxZoom}
-          flash={'off'}
-          enabled={isCameraInitialized && isActive}
-          setIsPressingButton={setIsPressingButton}
-        />
-
-        <StatusBarBlurBackground />
-
-        <View style={styles.rightButtonRow}>
-          {supportsCameraFlipping && (
-            <PressableOpacity style={styles.button} onPress={onFlipCameraPressed} disabledOpacity={0.4}>
-              <IonIcon name="camera-reverse" color="white" size={24} />
-            </PressableOpacity>
-          )}
-          {supportsFlash && (
-            <PressableOpacity style={styles.button} onPress={onFlashPressed} disabledOpacity={0.4}>
-              <IonIcon name={flash === 'on' ? 'flash' : 'flash-off'} color="white" size={24} />
-            </PressableOpacity>
-          )}
-          {supports60Fps && (
-            <PressableOpacity style={styles.button} onPress={() => setIs60Fps(!is60Fps)}>
-              <Text style={styles.text}>
-                {is60Fps ? '60' : '30'}
-                {'\n'}FPS
-              </Text>
-            </PressableOpacity>
-          )}
-          {supportsHdr && (
-            <PressableOpacity style={styles.button} onPress={() => setEnableHdr((h) => !h)}>
-              <MaterialIcon name={enableHdr ? 'hdr' : 'hdr-off'} color="white" size={24} />
-            </PressableOpacity>
-          )}
-          {canToggleNightMode && (
-            <PressableOpacity style={styles.button} onPress={() => setEnableNightMode(!enableNightMode)} disabledOpacity={0.4}>
-              <IonIcon name={enableNightMode ? 'moon' : 'moon-outline'} color="white" size={24} />
-            </PressableOpacity>
-          )}
-        </View>
+        {supportsFlash && (
+          <PressableOpacity style={styles.button} onPress={onFlashPressed} disabledOpacity={0.4}>
+            <IonIcon name={flash === 'on' ? 'flash' : 'flash-off'} color="white" size={24} />
+          </PressableOpacity>
+        )}
+        {supports60Fps && (
+          <PressableOpacity style={styles.button} onPress={() => setIs60Fps(!is60Fps)}>
+            <Text style={styles.text}>
+              {is60Fps ? '60' : '30'}
+              {'\n'}FPS
+            </Text>
+          </PressableOpacity>
+        )}
+        {supportsHdr && (
+          <PressableOpacity style={styles.button} onPress={() => setEnableHdr((h) => !h)}>
+            <MaterialIcon name={enableHdr ? 'hdr' : 'hdr-off'} color="white" size={24} />
+          </PressableOpacity>
+        )}
+        {canToggleNightMode && (
+          <PressableOpacity style={styles.button} onPress={() => setEnableNightMode(!enableNightMode)} disabledOpacity={0.4}>
+            <IonIcon name={enableNightMode ? 'moon' : 'moon-outline'} color="white" size={24} />
+          </PressableOpacity>
+        )}
       </View>
-    </ScanExamTimestampsContext.Provider>
+    </View>
   );
 }
 
