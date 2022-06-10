@@ -237,25 +237,6 @@ export class Camera extends React.PureComponent<CameraProps> {
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
-
-    const requestTorchOnTimeout = setTimeout(() => {
-      this.setState(({ timestamps: prevTimestamps }) => ({
-        timestamps: {
-          ...prevTimestamps,
-          requestTorchOnAt: new Date().valueOf(),
-        },
-      }));
-      clearTimeout(requestTorchOnTimeout);
-    }, getTorchOnAfterSeconds(options.examMode) * 1000);
-    const requestTorchOffTimeout = setTimeout(() => {
-      this.setState(({ timestamps: prevTimestamps }) => ({
-        timestamps: {
-          ...prevTimestamps,
-          requestTorchOffAt: new Date().valueOf(),
-        },
-      }));
-      clearTimeout(requestTorchOffTimeout);
-    }, getTorchOffAfterSeconds(options.examMode) * 1000);
   }
 
   /**

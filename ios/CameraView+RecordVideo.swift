@@ -38,6 +38,8 @@ struct OculaTimestamps {
     var actualTorchOnAt: Double?
     var actualTorchOffAt: Double?
     var actualRecordingEndedAt: Double?
+    var requestTorchOnAt: Double?
+    var requestTorchOffAt: Double?
 }
 
 
@@ -125,10 +127,12 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
             callback.resolve([
               "path": recordingSession.url.absoluteString,
               "duration": recordingSession.duration,
-              "actualRecordingStartedAt": self.oculaTimestamps.actualRecordingStartedAt,
-              "actualTorchOnAt": self.oculaTimestamps.actualTorchOnAt,
-              "actualTorchOffAt": self.oculaTimestamps.actualTorchOffAt,
-              "actualRecordingEndedAt": self.oculaTimestamps.actualRecordingEndedAt,
+              "actualRecordingStartedAt": self.oculaTimestamps.actualRecordingStartedAt ?? "",
+              "actualTorchOnAt": self.oculaTimestamps.actualTorchOnAt ?? "",
+              "actualTorchOffAt": self.oculaTimestamps.actualTorchOffAt ?? "",
+              "actualRecordingEndedAt": self.oculaTimestamps.actualRecordingEndedAt ?? "",
+              "requestTorchOnAt": self.oculaTimestamps.requestTorchOnAt ?? "",
+              "requestTorchOffAt": self.oculaTimestamps.requestTorchOffAt ?? "",
             ])
           } else {
             callback.reject(error: .unknown(message: "AVAssetWriter completed with status: \(status.descriptor)"))
@@ -179,12 +183,14 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
             let examMode = OculaExamMode(rawValue: examModeStr) {
             let torchOnIntevalSeconds = examMode.getTorchOnAfterSeconds()
             DispatchQueue.main.asyncAfter(deadline: .now() + torchOnIntevalSeconds) {
+                self.oculaTimestamps.requestTorchOnAt = NSDate().timeIntervalSince1970
                 self.setTorchMode("on")
                 self.oculaTimestamps.actualTorchOnAt = NSDate().timeIntervalSince1970
             }
             
             let torchOffIntevalSeconds = examMode.getTorchOffAfterSeconds()
             DispatchQueue.main.asyncAfter(deadline: .now() + torchOffIntevalSeconds) {
+                self.oculaTimestamps.requestTorchOffAt = NSDate().timeIntervalSince1970
                 self.setTorchMode("off")
                 self.oculaTimestamps.actualTorchOffAt = NSDate().timeIntervalSince1970
             }
