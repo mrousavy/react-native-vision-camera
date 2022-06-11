@@ -140,9 +140,9 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
       // start recording session with or without audio.
       do {
-        try recordingSession.start()
+        try recordingSession.startAssetWriter()
       } catch let error as NSError {
-        callback.reject(error: .capture(.createRecorderError(message: "RecordingSession failed to start writing.")), cause: error)
+        callback.reject(error: .capture(.createRecorderError(message: "RecordingSession failed to start asset writer.")), cause: error)
         return
       }
       self.isRecording = true
