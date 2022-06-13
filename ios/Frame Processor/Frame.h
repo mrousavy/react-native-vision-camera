@@ -11,12 +11,14 @@
 #import <Foundation/Foundation.h>
 #import <CoreMedia/CMSampleBuffer.h>
 #import <UIKit/UIImage.h>
+#import <AVFoundation/AVCaptureDevice.h>
 
 @interface Frame : NSObject
 
-- (instancetype) initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation;
+- (instancetype) initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation cameraFormat:(AVCaptureDeviceFormat*)cameraFormat;
 
 @property (nonatomic, readonly) CMSampleBufferRef buffer;
 @property (nonatomic, readonly) UIImageOrientation orientation;
+@property (nonatomic, readonly) AVCaptureDeviceFormat* cameraFormat;
 
 @end

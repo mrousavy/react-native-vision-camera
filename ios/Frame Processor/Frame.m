@@ -13,18 +13,21 @@
 @implementation Frame {
   CMSampleBufferRef buffer;
   UIImageOrientation orientation;
+  AVCaptureDeviceFormat *cameraFormat;
 }
 
-- (instancetype) initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation {
+- (instancetype) initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation cameraFormat:(AVCaptureDeviceFormat *)cameraFormat {
   self = [super init];
   if (self) {
     _buffer = buffer;
     _orientation = orientation;
+    _cameraFormat = cameraFormat;
   }
   return self;
 }
 
 @synthesize buffer = _buffer;
 @synthesize orientation = _orientation;
+@synthesize cameraFormat = _cameraFormat;
 
 @end
