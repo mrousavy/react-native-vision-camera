@@ -44,19 +44,13 @@ extension CameraView {
 
       self.videoPreviewLayer.connection?.setInterfaceOrientation(self.inputOrientation)
 
-      self.cameraQueue.async {
-        // Run those updates on cameraQueue since they can be blocking.
-        self.captureSession.outputs.forEach { output in
-          output.connections.forEach { connection in
-            if connection.isVideoMirroringSupported {
-              connection.automaticallyAdjustsVideoMirroring = false
-              connection.isVideoMirrored = isMirrored
-            }
-            // Need to jump back to main thread to update the orientation
-            DispatchQueue.main.async {
-              connection.setInterfaceOrientation(self.outputOrientation)
-            }
+      self.captureSession.outputs.forEach { output in
+        output.connections.forEach { connection in
+          if connection.isVideoMirroringSupported {
+            connection.automaticallyAdjustsVideoMirroring = false
+            connection.isVideoMirrored = isMirrored
           }
+          connection.setInterfaceOrientation(self.outputOrientation)
         }
       }
     }
