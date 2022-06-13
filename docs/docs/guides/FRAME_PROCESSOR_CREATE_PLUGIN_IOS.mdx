@@ -14,7 +14,6 @@ In this guide we will create a custom QR Code Scanner Plugin which can be used f
 
 iOS Frame Processor Plugins can be written in either **Objective-C** or **Swift**.
 
-
 <Tabs
   defaultValue="objc"
   values={[
@@ -39,6 +38,7 @@ iOS Frame Processor Plugins can be written in either **Objective-C** or **Swift*
 static inline id scanQRCodes(Frame* frame, NSArray* args) {
   CMSampleBufferRef buffer = frame.buffer;
   UIImageOrientation orientation = frame.orientation;
+  AVCaptureDeviceFormat cameraFormat = frame.cameraFormat;
   // code goes here
   return @[];
 }
@@ -92,6 +92,7 @@ public class QRCodeFrameProcessorPlugin: NSObject, FrameProcessorPluginBase {
   public static func callback(_ frame: Frame!, withArgs _: [Any]!) -> Any! {
     let buffer = frame.buffer
     let orientation = frame.orientation
+    let cameraFormat = frame.cameraFormat
     // code goes here
     return []
   }
@@ -99,7 +100,6 @@ public class QRCodeFrameProcessorPlugin: NSObject, FrameProcessorPluginBase {
 ```
 
 6. **Implement your frame processing.** See [Example Plugin (Swift)](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/ios/Frame%20Processor%20Plugins/Example%20Plugin%20%28Swift%29) for reference.
-
 
 </TabItem>
 </Tabs>
