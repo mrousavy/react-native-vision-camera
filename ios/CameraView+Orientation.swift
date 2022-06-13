@@ -52,7 +52,10 @@ extension CameraView {
               connection.automaticallyAdjustsVideoMirroring = false
               connection.isVideoMirrored = isMirrored
             }
-            connection.setInterfaceOrientation(self.outputOrientation)
+            // Need to jump back to main thread to update the orientation
+            DispatchQueue.main.async {
+              connection.setInterfaceOrientation(self.outputOrientation)
+            }
           }
         }
       }
