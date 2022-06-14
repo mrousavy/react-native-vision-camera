@@ -7,10 +7,12 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.util.Log
+import android.util.Size
 import androidx.camera.core.CameraSelector
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.video.QualitySelector
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
@@ -227,6 +229,16 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
           }
           map.putDouble("neutralZoom", 1.0)
 
+          val supportedVideoResolutions: List<Size>
+          val cameraInfos = cameraSelector.filter(cameraProvider.availableCameraInfos)
+          if (cameraInfos.size > 0) {
+            supportedVideoResolutions = QualitySelector
+              .getSupportedQualities(cameraInfos[0])
+              .map { QualitySelector.getResolution(cameraInfos[0], it)!! }
+          } else {
+            supportedVideoResolutions = emptyList()
+          }
+
           // TODO: Optimize?
           val maxImageOutputSize = cameraConfig.outputFormats
             .flatMap { cameraConfig.getOutputSizes(it).toList() }
@@ -234,7 +246,6 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
           val formats = Arguments.createArray()
 
-          // TODO: Get supported video qualities with QualitySelector.getSupportedQualities(...)
           cameraConfig.outputFormats.forEach { formatId ->
             val formatName = parseImageFormat(formatId)
 
@@ -287,8 +298,12 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
               val format = Arguments.createMap()
               format.putDouble("photoHeight", size.height.toDouble())
               format.putDouble("photoWidth", size.width.toDouble())
-              format.putDouble("videoHeight", size.height.toDouble()) // TODO: Revisit getAvailableCameraDevices (videoHeight == photoHeight?)
-              format.putDouble("videoWidth", size.width.toDouble()) // TODO: Revisit getAvailableCameraDevices (videoWidth == photoWidth?)
+              // since supportedVideoResolutions is sorted from highest resolution to lowest,
+              // videoResolution will be the highest supported video resolution lower than or equal to photo resolution
+              // TODO: Somehow integrate with CamcorderProfileProxy?
+              val videoResolution = supportedVideoResolutions.find { it.width <= size.width && it.height <= size.height }
+              format.putDouble("videoHeight", videoResolution?.height?.toDouble())
+              format.putDouble("videoWidth", videoResolution?.width?.toDouble())
               format.putBoolean("isHighestPhotoQualitySupported", isHighestPhotoQualitySupported)
               format.putInt("maxISO", isoRange?.upper)
               format.putInt("minISO", isoRange?.lower)
