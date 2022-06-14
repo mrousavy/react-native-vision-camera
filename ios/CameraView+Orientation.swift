@@ -44,6 +44,7 @@ extension CameraView {
 
       self.videoPreviewLayer.connection?.setInterfaceOrientation(self.inputOrientation)
 
+      let connectionOrientation = self.outputOrientation
       self.cameraQueue.async {
         // Run those updates on cameraQueue since they can be blocking.
         self.captureSession.outputs.forEach { output in
@@ -52,7 +53,7 @@ extension CameraView {
               connection.automaticallyAdjustsVideoMirroring = false
               connection.isVideoMirrored = isMirrored
             }
-            connection.setInterfaceOrientation(self.outputOrientation)
+            connection.setInterfaceOrientation(connectionOrientation)
           }
         }
       }
