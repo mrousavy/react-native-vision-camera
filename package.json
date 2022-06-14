@@ -1,6 +1,6 @@
 {
   "name": "react-native-vision-camera",
-  "version": "2.13.3",
+  "version": "2.13.4",
   "description": "The Camera library that sees the vision.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
