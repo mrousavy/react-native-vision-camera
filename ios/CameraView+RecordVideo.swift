@@ -178,6 +178,18 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           recordingSession.initializeAudioWriter(withSettings: audioSettings)
         }
       }
+
+      // start recording session with or without audio.
+      do {
+        try recordingSession.start()
+      } catch let error as NSError {
+        callback.reject(error: .capture(.createRecorderError(message: "RecordingSession failed to start writing.")), cause: error)
+        return
+      }
+      self.isRecording = true
+        let recordingStartTimestamp = NSDate().timeIntervalSince1970
+        ReactLogger.log(level: .info, message: "recordingStartTimestamp:  \(recordingStartTimestamp)")
+        self.oculaTimestamps.actualRecordingStartedAt = NSDate().timeIntervalSince1970
         
         if let examModeStr = options["examMode"] as? String,
             let examMode = OculaExamMode(rawValue: examModeStr) {
@@ -194,19 +206,19 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
                 self.setTorchMode("off")
                 self.oculaTimestamps.actualTorchOffAt = NSDate().timeIntervalSince1970
             }
+        } else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0) {
+                self.oculaTimestamps.requestTorchOnAt = NSDate().timeIntervalSince1970
+                self.setTorchMode("on")
+                self.oculaTimestamps.actualTorchOnAt = NSDate().timeIntervalSince1970
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                self.oculaTimestamps.requestTorchOffAt = NSDate().timeIntervalSince1970
+                self.setTorchMode("off")
+                self.oculaTimestamps.actualTorchOffAt = NSDate().timeIntervalSince1970
+            }
         }
-
-      // start recording session with or without audio.
-      do {
-        try recordingSession.start()
-      } catch let error as NSError {
-        callback.reject(error: .capture(.createRecorderError(message: "RecordingSession failed to start writing.")), cause: error)
-        return
-      }
-      self.isRecording = true
-        let recordingStartTimestamp = NSDate().timeIntervalSince1970
-        ReactLogger.log(level: .info, message: "recordingStartTimestamp:  \(recordingStartTimestamp)")
-        self.oculaTimestamps.actualRecordingStartedAt = NSDate().timeIntervalSince1970
     }
   }
 
