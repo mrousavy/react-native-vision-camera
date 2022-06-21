@@ -36,13 +36,13 @@
 		</dict>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>VisionCamera needs access to your Camera for very obvious reasons.</string>
+	<string>Allow Ocula App access to the Camera?</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>VisionCamera needs access to your Microphone to record videos with audio.</string>
+  <string>Allow Ocula App access to the Microphone?</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>VisionCamera needs access to your photo library to save captured videos and photos.</string>
+  <string>Allow Ocula App to save data to the Photo Library?</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Ionicons.ttf</string>
