@@ -37,18 +37,18 @@
     return nil;
   }
   
-  jsi::Runtime* jsiRuntime = (jsi::Runtime*)cxxBridge.runtime;
+  facebook::jsi::Runtime* jsiRuntime = (facebook::jsi::Runtime*)cxxBridge.runtime;
   
   return ^(RCTLogLevel level, NSString* message) {
     [bridge runOnJS:^{
       if (jsiRuntime != nullptr) {
-        jsi::Runtime& runtime = *jsiRuntime;
+        facebook::jsi::Runtime& runtime = *jsiRuntime;
         auto logFunctionName = [JSConsoleHelper getLogFunctionNameForLogLevel:level];
         try {
           auto console = runtime.global().getPropertyAsObject(runtime, "console");
           auto log = console.getPropertyAsFunction(runtime, logFunctionName);
-          log.call(runtime, jsi::String::createFromAscii(runtime, [message UTF8String]));
-        } catch (jsi::JSError& jsError) {
+          log.call(runtime, facebook::jsi::String::createFromAscii(runtime, [message UTF8String]));
+        } catch (facebook::jsi::JSError& jsError) {
           NSLog(@"%@", message);
           NSLog(@"Failed to call `console.%s`: %s", logFunctionName, jsError.getMessage().c_str());
         }
