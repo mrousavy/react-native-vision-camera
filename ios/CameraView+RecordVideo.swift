@@ -6,41 +6,17 @@
 //  Copyright © 2020 mrousavy. All rights reserved.
 //
 
+struct TorchControl {
+    var torchLength: Double
+    var torchDeday: Double
+    
+    init(torchLength, torchDelay) {
+        self.torchDeday = torchDelay
+        self.torchLength = torchLength
+    }
+}
+
 import AVFoundation
-
-enum OculaExamMode: String {
-    case normal = "normal"
-    case enhancedRecording = "enhancedRecording"
-    case enhancedMetric = "enhancedMetric"
-    case enhancedAll = "enhancedAll"
-    
-    func getTorchOnAfterSeconds() -> Double {
-        switch self {
-        case .normal, .enhancedMetric:
-            return 0.0
-        case .enhancedRecording, .enhancedAll:
-            return 2.0
-        }
-    }
-    
-    func getTorchOffAfterSeconds() -> Double {
-        switch self {
-        case .normal, .enhancedMetric:
-            return 5.0
-        case .enhancedRecording, .enhancedAll:
-            return 7.0
-        }
-    }
-}
-
-struct OculaTimestamps {
-    var actualRecordingStartedAt: Double?
-    var actualTorchOnAt: Double?
-    var actualTorchOffAt: Double?
-    var actualRecordingEndedAt: Double?
-    var requestTorchOnAt: Double?
-    var requestTorchOffAt: Double?
-}
 
 
 // MARK: - CameraView + AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate
@@ -191,29 +167,15 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         ReactLogger.log(level: .info, message: "recordingStartTimestamp:  \(recordingStartTimestamp)")
         self.oculaTimestamps.actualRecordingStartedAt = NSDate().timeIntervalSince1970
         
-        if let examModeStr = options["examMode"] as? String,
-            let examMode = OculaExamMode(rawValue: examModeStr) {
-            let torchOnIntevalSeconds = examMode.getTorchOnAfterSeconds()
-            DispatchQueue.main.asyncAfter(deadline: .now() + torchOnIntevalSeconds) {
+        if let torchControl = options["torchControl"] as? TorchControl,
+           let torchOptions = TorchControl(torchLength: torchControl.torchLength, torchDeday: torchControl.torchDeday) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + torchOptions.torchDelay) {
                 self.oculaTimestamps.requestTorchOnAt = NSDate().timeIntervalSince1970
                 self.setTorchMode("on")
                 self.oculaTimestamps.actualTorchOnAt = NSDate().timeIntervalSince1970
             }
             
-            let torchOffIntevalSeconds = examMode.getTorchOffAfterSeconds()
-            DispatchQueue.main.asyncAfter(deadline: .now() + torchOffIntevalSeconds) {
-                self.oculaTimestamps.requestTorchOffAt = NSDate().timeIntervalSince1970
-                self.setTorchMode("off")
-                self.oculaTimestamps.actualTorchOffAt = NSDate().timeIntervalSince1970
-            }
-        } else {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0) {
-                self.oculaTimestamps.requestTorchOnAt = NSDate().timeIntervalSince1970
-                self.setTorchMode("on")
-                self.oculaTimestamps.actualTorchOnAt = NSDate().timeIntervalSince1970
-            }
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + torchOptions.torchLength) {
                 self.oculaTimestamps.requestTorchOffAt = NSDate().timeIntervalSince1970
                 self.setTorchMode("off")
                 self.oculaTimestamps.actualTorchOffAt = NSDate().timeIntervalSince1970
