@@ -7,7 +7,7 @@
 //
 
 struct TorchControl {
-    var torchLength: Double
+    var torchDuration: Double
     var torchDelay: Double
 }
 
@@ -178,7 +178,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
                  self.recordingTimestamps.actualTorchOnAt = NSDate().timeIntervalSince1970
              }
              
-             DispatchQueue.main.asyncAfter(deadline: .now() + torchControl.torchLength) {
+             DispatchQueue.main.asyncAfter(deadline: .now() + torchControl.torchDuration) {
                  self.recordingTimestamps.requestTorchOffAt = NSDate().timeIntervalSince1970
                  self.setTorchMode("off")
                  self.recordingTimestamps.actualTorchOffAt = NSDate().timeIntervalSince1970

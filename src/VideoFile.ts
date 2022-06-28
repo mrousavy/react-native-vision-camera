@@ -40,12 +40,6 @@ export interface RecordVideoOptions {
    * @platform iOS
    */
   videoCodec?: CameraVideoCodec;
-  /**
-   * Ocula exam mode: normal, enhancedRecording, enhancedMetric, enhancedAll
-   *
-   * @platform iOS
-   */
-  examMode: 'normal' | 'enhancedRecording' | 'enhancedMetric' | 'enhancedAll';
 }
 
 /**
@@ -58,11 +52,4 @@ export interface VideoFile extends TemporaryFile {
    * Represents the duration of the video, in seconds.
    */
   duration: number;
-  /**
-   * Represents the timestamps of the Ocula scan exam, in unix time.
-   */
-  actualRecordingStartedAt: string;
-  actualTorchOnAt: string;
-  actualTorchOffAt: string;
-  actualRecordingEndedAt: string;
 }
