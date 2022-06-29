@@ -59,6 +59,7 @@ apply plugin: 'de.undercouch.download'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
+
 def getExtOrDefault(name) {
   return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties['VisionCamera_' + name]
 }
@@ -227,15 +228,27 @@ dependencies {
     extractHeaders("com.facebook.fbjni:fbjni:+:headers")
     //noinspection GradleDynamicVersion
     extractJNI("com.facebook.fbjni:fbjni:+")
-
-    def rnAAR = fileTree("${nodeModules}/react-native/android").matching({ it.include "**/**/*.aar" }).singleFile
+    def buildType = "debug"
+    tasks.all({ task ->
+        if (task.name == "buildCMakeRelease") {
+            buildType = "release"
+        }
+    })
+    def rnAarMatcher = "**/react-native/**/*${buildType}.aar"
+   
     def jscAAR = fileTree("${nodeModules}/jsc-android/dist/org/webkit/android-jsc").matching({ it.include "**/**/*.aar" }).singleFile
 
     def inputFile = file("${nodeModules}/react-native/package.json")
     def json = new JsonSlurper().parseText(inputFile.text)
     def reactNativeVersion = json.version as String
     def (major, minor, patch) = reactNativeVersion.tokenize('.')
+    def rnMinorVersion = Integer.parseInt(minor)
 
+    if (rnMinorVersion < 69) {
+        rnAarMatcher = "**/**/*.aar"
+    }
+    def rnAAR = fileTree("$reactNative/android").matching({ it.include rnAarMatcher }).singleFile
+    
     def jsEngine = FOR_HERMES ? "hermes" : "jsc"
     def reaAAR = "${nodeModules}/react-native-reanimated/android/react-native-reanimated-${minor}-${jsEngine}.aar"
 
