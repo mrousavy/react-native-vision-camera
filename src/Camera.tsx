@@ -223,11 +223,12 @@ export class Camera extends React.PureComponent<CameraProps> {
       throw new CameraRuntimeError('parameter/invalid-parameter', 'The onRecordingError or onRecordingFinished functions were not set!');
 
     const onRecordCallback = (video?: VideoFile, error?: CameraCaptureError): void => {
+      console.log('onRecordCallback', {video, error});
       if (error != null) return onRecordingError(error);
       if (video != null) {
         return onRecordingFinished({
           ...this.state.timestamps,
-          ...video,
+          ...video.metadata,
         });
       }
     };

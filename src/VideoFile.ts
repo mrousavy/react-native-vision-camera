@@ -52,4 +52,17 @@ export interface VideoFile extends TemporaryFile {
    * Represents the duration of the video, in seconds.
    */
   duration: number;
+  /**
+   * metadata info
+   */
+  metadata: {
+    actualRecordingStartedAt: string;
+    requestRecordingStartedAt: string;
+    actualTorchOnAt: string;
+    actualTorchOffAt: string;
+    requestRecordingEndAt: string;
+    actualRecordingEndedAt: string;
+    requestTorchOnAt: string;
+    requestTorchOffAt: string;
+  };
 }
