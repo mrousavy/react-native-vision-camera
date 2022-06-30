@@ -155,6 +155,7 @@ class RecordingSession {
       }
       // Start the writing session before we write the first video frame
       if !hasStartedWritingSession {
+        initialTimestamp = timestamp
         assetWriter.startSession(atSourceTime: timestamp)
         ReactLogger.log(level: .info, message: "Started RecordingSession at \(timestamp.seconds) seconds.")
         hasStartedWritingSession = true
