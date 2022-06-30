@@ -82,9 +82,8 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   private fun findCameraView(viewId: Int): CameraView {
     Log.d(TAG, "Finding view $viewId...")
-    val ctx = reactApplicationContext
-    val view = if (ctx != null) UIManagerHelper.getUIManager(ctx, viewId)?.resolveView(viewId) as CameraView? else null
-    Log.d(TAG,  if (view != null) "Found view $viewId!" else "Couldn't find view $viewId!")
+    val view = if (reactApplicationContext != null) UIManagerHelper.getUIManager(reactApplicationContext, viewId)?.resolveView(viewId) as CameraView? else null
+    Log.d(TAG,  if (reactApplicationContext != null) "Found view $viewId!" else "Couldn't find view $viewId!")
     return view ?: throw ViewNotFoundError(viewId)
   }
 
