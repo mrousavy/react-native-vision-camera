@@ -109,7 +109,14 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
             callback.resolve([
               "path": recordingSession.url.absoluteString,
               "duration": recordingSession.duration,
-              "metadata": self.recordingTimestamps,
+              "metadata": [
+                "actualRecordingStartedAt": self.recordingTimestamps.actualRecordingStartedAt,
+                "actualTorchOnAt": self.recordingTimestamps.actualTorchOnAt,
+                "actualTorchOffAt": self.recordingTimestamps.actualTorchOffAt,
+                "actualRecordingEndedAt": self.recordingTimestamps.actualRecordingEndedAt,
+                "requestTorchOnAt": self.recordingTimestamps.requestTorchOnAt,
+                "requestTorchOffAt": self.recordingTimestamps.requestTorchOffAt,
+              ],
             ])
           } else {
             callback.reject(error: .unknown(message: "AVAssetWriter completed with status: \(status.descriptor)"))

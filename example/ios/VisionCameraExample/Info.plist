@@ -40,9 +40,9 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
 	<key>NSMicrophoneUsageDescription</key>
-  <string>Allow Ocula App access to the Microphone?</string>
+	<string>Allow Ocula App access to the Microphone?</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-  <string>Allow Ocula App to save data to the Photo Library?</string>
+	<string>Allow Ocula App to save data to the Photo Library?</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Ionicons.ttf</string>
