@@ -233,7 +233,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 orientation="portrait"
                 frameProcessorFps={1}
                 onFrameProcessorPerformanceSuggestionAvailable={onFrameProcessorSuggestionAvailable}
-                examMode={'normal'}
+                torchControl={{ torchDuration: 5, torchDelay: 2 }}
               />
             </TapGestureHandler>
           </Reanimated.View>
