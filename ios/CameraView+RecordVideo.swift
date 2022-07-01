@@ -26,6 +26,7 @@ import AVFoundation
 // MARK: - CameraView + AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate
 
 extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
+    
   /**
    Starts a video + audio recording with a custom Asset Writer.
    */
@@ -104,19 +105,20 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           }
         } else {
           if status == .completed {
-              
-            print("recordingTimestamps \(self.recordingTimestamps)")
-            callback.resolve([
-              "path": recordingSession.url.absoluteString,
-              "duration": recordingSession.duration,
-              "metadata": [
+              let metadata = [
                 "actualRecordingStartedAt": self.recordingTimestamps.actualRecordingStartedAt,
                 "actualTorchOnAt": self.recordingTimestamps.actualTorchOnAt,
                 "actualTorchOffAt": self.recordingTimestamps.actualTorchOffAt,
                 "actualRecordingEndedAt": self.recordingTimestamps.actualRecordingEndedAt,
                 "requestTorchOnAt": self.recordingTimestamps.requestTorchOnAt,
                 "requestTorchOffAt": self.recordingTimestamps.requestTorchOffAt,
-              ],
+              ]
+              
+            print("recordingTimestamps \(self.recordingTimestamps)")
+            callback.resolve([
+              "path": recordingSession.url.absoluteString,
+              "duration": recordingSession.duration,
+              "metadata": metadata,
             ])
           } else {
             callback.reject(error: .unknown(message: "AVAssetWriter completed with status: \(status.descriptor)"))
