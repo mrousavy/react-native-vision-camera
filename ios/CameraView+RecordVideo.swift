@@ -104,7 +104,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           }
         } else {
           if status == .completed {
-              print("recordingTimestamps \(self.recordingTimestamps)")
+              
+            print("recordingTimestamps \(self.recordingTimestamps)")
             callback.resolve([
               "path": recordingSession.url.absoluteString,
               "duration": recordingSession.duration,
@@ -167,6 +168,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         ReactLogger.log(level: .info, message: "recordingStartTimestamp:  \(recordingStartTimestamp)")
         self.recordingTimestamps.actualRecordingStartedAt = NSDate().timeIntervalSince1970
         
+        print("torchControl: \(options["torchControl"])")
         if let torchControl = options["torchControl"] as? TorchControl {
              DispatchQueue.main.asyncAfter(deadline: .now() + torchControl.torchDelay) {
                  self.recordingTimestamps.requestTorchOnAt = NSDate().timeIntervalSince1970
