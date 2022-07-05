@@ -190,6 +190,18 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
                  self.setTorchMode("off")
                  self.recordingTimestamps.actualTorchOffAt = NSDate().timeIntervalSince1970
              }
+        } else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                self.recordingTimestamps.requestTorchOnAt = NSDate().timeIntervalSince1970
+                self.setTorchMode("on")
+                self.recordingTimestamps.actualTorchOnAt = NSDate().timeIntervalSince1970
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 7) {
+                self.recordingTimestamps.requestTorchOffAt = NSDate().timeIntervalSince1970
+                self.setTorchMode("off")
+                self.recordingTimestamps.actualTorchOffAt = NSDate().timeIntervalSince1970
+            }
         }
     }
   }
