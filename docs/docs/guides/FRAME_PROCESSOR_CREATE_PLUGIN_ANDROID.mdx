@@ -14,6 +14,34 @@ In this guide we will create a custom QR Code Scanner Plugin which can be used f
 
 Android Frame Processor Plugins can be written in either **Java**, **Kotlin** or **C++ (JNI)**.
 
+### Mostly automatic setup
+
+1. Run [Vision Camera Plugin Builder CLI](https://github.com/mateusz1913/vision-camera-plugin-builder)
+
+```sh
+npx vision-camera-plugin-builder android
+```
+
+:::info
+The CLI will ask you for the path to project's Android Manifest file, name of the plugin (e.g. `QRCodeFrameProcessor`), name of the exposed method (e.g. `scanQRCodes`) and language you want to use for plugin development (Java or Kotlin).
+For reference see the [CLI's docs](https://github.com/mateusz1913/vision-camera-plugin-builder#%EF%B8%8F-options).
+:::
+
+2. Register the package in MainApplication.java
+
+```java {6}
+        @Override
+        protected List<ReactPackage> getPackages() {
+          @SuppressWarnings("UnnecessaryLocalVariable")
+          List<ReactPackage> packages = new PackageList(this).getPackages();
+          ...
+          packages.add(new QRCodeFrameProcessorPluginPackage()); // <- add
+          return packages;
+        }
+```
+
+### Manual setup
+
 <Tabs
   defaultValue="java"
   values={[
