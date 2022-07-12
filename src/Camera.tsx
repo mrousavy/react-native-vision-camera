@@ -227,7 +227,7 @@ export class Camera extends React.PureComponent<CameraProps> {
       if (error != null) return onRecordingError(error);
        if (video != null) {
          const videoWithTimestamps = {...video, timestamps: this.state.timestamps};
-         onRecordingFinished(videoWithTimestamps);
+         return onRecordingFinished(videoWithTimestamps);
        }
       //   return onRecordingFinished( videoWithTimestamps );
       // }
