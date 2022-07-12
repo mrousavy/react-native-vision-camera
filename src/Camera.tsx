@@ -225,12 +225,13 @@ export class Camera extends React.PureComponent<CameraProps> {
     const onRecordCallback = (video?: VideoFile, error?: CameraCaptureError): void => {
       console.log('onRecordCallback', {video, error});
       if (error != null) return onRecordingError(error);
-      if (video != null) {
-        return onRecordingFinished({
-          ...this.state.timestamps,
-          ...video.metadata,
-        });
-      }
+       if (video != null) {
+         const videoWithTimestamps = {...video, timestamps: this.state.timestamps};
+         onRecordingFinished(videoWithTimestamps);
+       }
+      //   return onRecordingFinished( videoWithTimestamps );
+      // }
+     // if (video != null) return onRecordingFinished(video);
     };
     // TODO: Use TurboModules to either make this a sync invokation, or make it async.
     try {
