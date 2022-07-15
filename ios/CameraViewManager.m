@@ -35,6 +35,8 @@ RCT_EXPORT_VIEW_PROPERTY(enableFrameProcessor, BOOL);
 // device format
 RCT_EXPORT_VIEW_PROPERTY(format, NSDictionary);
 RCT_EXPORT_VIEW_PROPERTY(fps, NSNumber);
+RCT_EXPORT_VIEW_PROPERTY(iso, NSNumber);
+RCT_EXPORT_VIEW_PROPERTY(shootingTime, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(frameProcessorFps, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(hdr, NSNumber); // nullable bool
 RCT_EXPORT_VIEW_PROPERTY(lowLightBoost, NSNumber); // nullable bool
