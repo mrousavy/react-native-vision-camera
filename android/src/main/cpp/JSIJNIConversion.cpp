@@ -11,6 +11,7 @@
 
 #include <string>
 #include <utility>
+#include <memory>
 
 #include <react/jni/NativeMap.h>
 #include <react/jni/ReadableNativeMap.h>
@@ -187,7 +188,6 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
     // box into HostObject
     auto hostObject = std::make_shared<FrameHostObject>(frame);
     return jsi::Object::createFromHostObject(runtime, hostObject);
-
   }
 
   auto type = object->getClass()->toString();
