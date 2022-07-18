@@ -86,7 +86,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   var photo: Boolean? = null
   var video: Boolean? = null
   var audio: Boolean? = null
-  var exposure: Int? = 0
+  var exposure: Int? = null
 
   var enableFrameProcessor = false
   // props that require format reconfiguring
@@ -485,7 +485,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
       val range = exposureState?.exposureCompensationRange;
       Log.d("got exposure ", exposure.toString());
       val MAX_PROP_RANGE = 100;
-      if (range != null) {
+      if (range != null && exposure != null) {
         val LOW_RANGE = Math.min(Math.abs(range!!.lower), Math.abs(range!!.upper));
         val EXPOSURE_VALUE_RATIO = LOW_RANGE.toDouble() / MAX_PROP_RANGE
         Log.i("finish exposure ", (exposure!! * EXPOSURE_VALUE_RATIO).toInt().toString());

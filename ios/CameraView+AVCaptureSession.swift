@@ -137,36 +137,35 @@ extension CameraView {
       captureSession.addOutput(videoOutput!)
     }
 
-    ReactLogger.log(level: .info, message: "Start adding exposure...")
-
-    guard let device = videoDeviceInput?.device else {
-      invokeOnError(.session(.cameraNotReady))
-      return
-    }
-    do {
-      try device.lockForConfiguration()
+    if shootingTime != nil && iso != nil {
+      ReactLogger.log(level: .info, message: "Start adding exposure...")
+      guard let device = videoDeviceInput?.device else {
+        invokeOnError(.session(.cameraNotReady))
+        return
+      }
+      do {
+        try device.lockForConfiguration()
         ReactLogger.log(level: .info, message: "Exposure mode supporting is: \"\(device.isExposureModeSupported(AVCaptureDevice.ExposureMode.custom))\"...")
-        if(device.isExposureModeSupported(AVCaptureDevice.ExposureMode.custom)){
-          let shootingTimeSafe = (shootingTime != nil) ? shootingTime : 400
-          if((iso != nil) && iso!.floatValue > device.activeFormat.minISO && iso!.floatValue < device.activeFormat.maxISO){
-              ReactLogger.log(level: .info, message: "Bad prop ISO: \"\(String(describing: iso))\"... Will be use ISO = 400.")
+        if device.isExposureModeSupported(AVCaptureDevice.ExposureMode.custom) {
+          let shootingTimeSafe = shootingTime
+          if iso!.floatValue > device.activeFormat.minISO && iso!.floatValue < device.activeFormat.maxISO {
+            ReactLogger.log(level: .info, message: "Out of range ISO: \"\(String(describing: iso))\"... Will be use ISO = 400.")
           }
-          let isoSafe = (iso != nil) && iso!.floatValue > device.activeFormat.minISO && iso!.floatValue < device.activeFormat.maxISO ? iso : 400
+          let isoSafe = iso!.floatValue > device.activeFormat.minISO && iso!.floatValue < device.activeFormat.maxISO ? iso : 400
           ReactLogger.log(level: .info, message: "ISO: \"\(String(describing: isoSafe))\"...")
-          ReactLogger.log(level: .info, message: "ShootingTime: \"\(String(describing: shootingTimeSafe))\"...")
-          device.setExposureModeCustom(duration: CMTimeMake(value: 1, timescale: shootingTimeSafe as! Int32), iso: isoSafe as! Float, completionHandler: nil)
+          ReactLogger.log(level: .info, message: "ShootingTime: \"\(String(describing: shootingTime))\"...")
+            device.setExposureModeCustom(duration: CMTimeMake(value: 1, timescale: shootingTime as! Int32), iso: isoSafe as! Float, completionHandler: nil)
           ReactLogger.log(level: .info, message: "Exposure successfully configured!")
-          } else {
-              ReactLogger.log(level: .info, message: "Exposure dont support!")
-          }
-          device.unlockForConfiguration()
-          
+        } else {
+          ReactLogger.log(level: .info, message: "Exposure dont support!")
+        }
+        device.unlockForConfiguration()
       } catch let error as NSError {
         invokeOnError(.device(.configureError), cause: error)
         return
       }
-      
-    ReactLogger.log(level: .info, message: "Finish adding exposure...")
+      ReactLogger.log(level: .info, message: "Finish adding exposure...")
+    }
 
     onOrientationChanged()
 
