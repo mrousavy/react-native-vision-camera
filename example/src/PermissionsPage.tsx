@@ -44,7 +44,7 @@ export function PermissionsPage({ navigation }: Props): React.ReactElement {
       <View style={styles.permissionsContainer}>
         {cameraPermissionStatus !== 'authorized' && (
           <Text style={styles.permissionText}>
-            Vision Camera needs <Text style={styles.bold}>Camera permission</Text>.
+            Vision Camera needs <Text style={styles.bold}>Camera permission</Text>.{' '}
             <Text style={styles.hyperlink} onPress={requestCameraPermission}>
               Grant
             </Text>
@@ -52,7 +52,7 @@ export function PermissionsPage({ navigation }: Props): React.ReactElement {
         )}
         {microphonePermissionStatus !== 'authorized' && (
           <Text style={styles.permissionText}>
-            Vision Camera needs <Text style={styles.bold}>Microphone permission</Text>.
+            Vision Camera needs <Text style={styles.bold}>Microphone permission</Text>.{' '}
             <Text style={styles.hyperlink} onPress={requestMicrophonePermission}>
               Grant
             </Text>
