@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8E160F6528873601009C1FB1 /* PreviewMetalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E160F6428873601009C1FB1 /* PreviewMetalView.swift */; };
+		8E160F6828875C3E009C1FB1 /* PassThrough.metal in Sources */ = {isa = PBXBuildFile; fileRef = 8E160F6728875C3E009C1FB1 /* PassThrough.metal */; };
 		B80C0E00260BDDF7001699AB /* FrameProcessorPluginRegistry.mm in Sources */ = {isa = PBXBuildFile; fileRef = B80C0DFF260BDDF7001699AB /* FrameProcessorPluginRegistry.mm */; };
 		B80E06A0266632F000728644 /* AVAudioSession+updateCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B80E069F266632F000728644 /* AVAudioSession+updateCategory.swift */; };
 		B8103E1C25FF553B007A1684 /* FrameProcessorUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8103E1B25FF553B007A1684 /* FrameProcessorUtils.mm */; };
@@ -78,6 +80,8 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libVisionCamera.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libVisionCamera.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		8E160F6428873601009C1FB1 /* PreviewMetalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewMetalView.swift; sourceTree = "<group>"; };
+		8E160F6728875C3E009C1FB1 /* PassThrough.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = PassThrough.metal; sourceTree = "<group>"; };
 		B80416F026AB16E8000DEB6A /* VisionCameraScheduler.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = VisionCameraScheduler.mm; sourceTree = "<group>"; };
 		B80416F126AB16F3000DEB6A /* VisionCameraScheduler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VisionCameraScheduler.h; sourceTree = "<group>"; };
 		B80C0DFE260BDD97001699AB /* FrameProcessorPluginRegistry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorPluginRegistry.h; sourceTree = "<group>"; };
@@ -189,11 +193,21 @@
 				B887518125E0102000DB86D6 /* CameraViewManager.swift */,
 				B8DB3BC9263DC4D8004C18D7 /* RecordingSession.swift */,
 				B887515C25E0102000DB86D6 /* PhotoCaptureDelegate.swift */,
+				8E160F6428873601009C1FB1 /* PreviewMetalView.swift */,
+				8E160F6628875C29009C1FB1 /* Shaders */,
 				B887516125E0102000DB86D6 /* Extensions */,
 				B887517225E0102000DB86D6 /* Parsers */,
 				B887516D25E0102000DB86D6 /* React Utils */,
 				134814211AA4EA7D00B7C361 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		8E160F6628875C29009C1FB1 /* Shaders */ = {
+			isa = PBXGroup;
+			children = (
+				8E160F6728875C3E009C1FB1 /* PassThrough.metal */,
+			);
+			path = Shaders;
 			sourceTree = "<group>";
 		};
 		B887516125E0102000DB86D6 /* Extensions */ = {
@@ -387,12 +401,14 @@
 				B887519125E0102000DB86D6 /* AVCaptureDevice.Format+toDictionary.swift in Sources */,
 				B887519725E0102000DB86D6 /* CameraView+TakePhoto.swift in Sources */,
 				B887519825E0102000DB86D6 /* EnumParserError.swift in Sources */,
+				8E160F6528873601009C1FB1 /* PreviewMetalView.swift in Sources */,
 				B887518C25E0102000DB86D6 /* AVCaptureDevice+isMultiCam.swift in Sources */,
 				B887518D25E0102000DB86D6 /* AVCaptureDevice+physicalDevices.swift in Sources */,
 				B887519625E0102000DB86D6 /* Promise.swift in Sources */,
 				B8DB3BC8263DC28C004C18D7 /* AVAssetWriter.Status+descriptor.swift in Sources */,
 				B887518725E0102000DB86D6 /* CameraViewManager.m in Sources */,
 				B88751A925E0102000DB86D6 /* CameraView.swift in Sources */,
+				8E160F6828875C3E009C1FB1 /* PassThrough.metal in Sources */,
 				B887519925E0102000DB86D6 /* AVCaptureVideoStabilizationMode+descriptor.swift in Sources */,
 				B80E06A0266632F000728644 /* AVAudioSession+updateCategory.swift in Sources */,
 				B887519425E0102000DB86D6 /* MakeReactError.swift in Sources */,
