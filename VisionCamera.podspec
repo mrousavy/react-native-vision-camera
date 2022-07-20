@@ -42,7 +42,7 @@ Pod::Spec.new do |s|
   # All source files that should be publicly visible
   # Note how this does not include headers, since those can nameclash.
   s.source_files = [
-    "ios/**/*.{m,mm,swift}",
+    "ios/**/*.{m,mm,swift,metal}",
     "ios/CameraBridge.h",
     "ios/Frame Processor/Frame.h",
     "ios/Frame Processor/FrameProcessorCallback.h",

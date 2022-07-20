@@ -12,22 +12,34 @@ import MetalKit
 
 class PreviewMetalView: MTKView {
   
-  var pixelBuffer: CVPixelBuffer?
+  private let syncQueue = DispatchQueue(label: "Preview View Sync Queue", qos: .userInitiated, attributes: [], autoreleaseFrequency: .workItem)
   
+  var pixelBuffer: CVPixelBuffer? {
+      didSet {
+          syncQueue.sync {
+              internalPixelBuffer = pixelBuffer
+          }
+      }
+  }
+  
+  private var internalPixelBuffer: CVPixelBuffer?
+  
+  private var textureCache: CVMetalTextureCache?
+  private var vertexCoordBuffer: MTLBuffer!
+  private var textCoordBuffer: MTLBuffer!
   private var sampler: MTLSamplerState!
   private var renderPipelineState: MTLRenderPipelineState!
   private var commandQueue: MTLCommandQueue?
-
-  required init(coder: NSCoder) {
-      super.init(coder: coder)
-      // Setup a device for the MTKView to render with
-      device = MTLCreateSystemDefaultDevice()
-      
+  
+  override init(frame frameRect: CGRect, device: MTLDevice?) {
+    super.init(frame: frameRect, device: device)
       configureMetal()
-//
-//      createTextureCache()
-//
-//      colorPixelFormat = .bgra8Unorm
+      createTextureCache()
+      colorPixelFormat = .bgra8Unorm
+  }
+  
+  required init(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
   }
   
   func configureMetal() {
@@ -36,6 +48,7 @@ class PreviewMetalView: MTKView {
      * a sampler descriptor for reading from the texture and a command queue
      * for the GPU
      */
+    // TODO: Move shaders to framework and access defualt lib from framework bundle
     let defaultLibrary = device!.makeDefaultLibrary()!
     let pipelineDescriptor = MTLRenderPipelineDescriptor()
     pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
@@ -54,8 +67,115 @@ class PreviewMetalView: MTKView {
     } catch {
         fatalError("Unable to create preview Metal view pipeline state. (\(error))")
     }
+    
+    let vertexData: [Float] = [
+      -1.0, -1.0, 0.0, 1.0,
+      1.0, -1.0, 0.0, 1.0,
+      -1.0, 1.0, 0.0, 1.0,
+      1.0, 1.0, 0.0, 1.0
+    ]
+    vertexCoordBuffer = device!.makeBuffer(bytes: vertexData, length: vertexData.count * MemoryLayout<Float>.size, options: [])
+    let textData: [Float] = [
+      0.0, 1.0,
+      1.0, 1.0,
+      0.0, 0.0,
+      1.0, 0.0
+    ]
+    textCoordBuffer = device?.makeBuffer(bytes: textData, length: textData.count * MemoryLayout<Float>.size, options: [])
+    
     // Command queue for the GPU command buffers
     commandQueue = device!.makeCommandQueue()
+  }
+  
+  func createTextureCache() {
+      /*
+       * Create a metal texture cache so we aren't reallocating memory for each new metal texture!
+       */
+      var newTextureCache: CVMetalTextureCache?
+      if CVMetalTextureCacheCreate(kCFAllocatorDefault, nil, device!, nil, &newTextureCache) == kCVReturnSuccess {
+          textureCache = newTextureCache
+      } else {
+          assertionFailure("Unable to allocate texture cache")
+      }
+  }
+  
+  override func draw(_ rect: CGRect) {
+    
+    var pixelBuffer: CVPixelBuffer?
+    
+    syncQueue.sync {
+      pixelBuffer = internalPixelBuffer
+    }
+    
+    guard let drawable = currentDrawable,
+        let currentRenderPassDescriptor = currentRenderPassDescriptor,
+        let previewPixelBuffer = pixelBuffer else {
+            return
+    }
+    
+    // Create a Metal texture from the image buffer.
+    let width = CVPixelBufferGetWidth(previewPixelBuffer)
+    let height = CVPixelBufferGetHeight(previewPixelBuffer)
+    
+    if textureCache == nil {
+        createTextureCache()
+    }
+    var cvTextureOut: CVMetalTexture?
+    CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
+                                              textureCache!,
+                                              previewPixelBuffer,
+                                              nil,
+                                              .bgra8Unorm,
+                                              width,
+                                              height,
+                                              0,
+                                              &cvTextureOut)
+    guard let cvTexture = cvTextureOut, let texture = CVMetalTextureGetTexture(cvTexture) else {
+        print("Failed to create preview texture")
+        
+        CVMetalTextureCacheFlush(textureCache!, 0)
+        return
+    }
+    
+//    if texture.width != textureWidth ||
+//        texture.height != textureHeight ||
+//        self.bounds != internalBounds ||
+//        mirroring != textureMirroring ||
+//        rotation != textureRotation {
+//        setupTransform(width: texture.width, height: texture.height, mirroring: mirroring, rotation: rotation)
+//    }
+    
+    // Set up command buffer and encoder
+    guard let commandQueue = commandQueue else {
+        print("Failed to create Metal command queue")
+        CVMetalTextureCacheFlush(textureCache!, 0)
+        return
+    }
+    
+    guard let commandBuffer = commandQueue.makeCommandBuffer() else {
+        print("Failed to create Metal command buffer")
+        CVMetalTextureCacheFlush(textureCache!, 0)
+        return
+    }
+    
+    guard let commandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: currentRenderPassDescriptor) else {
+        print("Failed to create Metal command encoder")
+        CVMetalTextureCacheFlush(textureCache!, 0)
+        return
+    }
+    
+    commandEncoder.label = "Passthrough render pass"
+    commandEncoder.setRenderPipelineState(renderPipelineState!)
+    commandEncoder.setVertexBuffer(vertexCoordBuffer, offset: 0, index: 0)
+    commandEncoder.setVertexBuffer(textCoordBuffer, offset: 0, index: 1)
+    commandEncoder.setFragmentTexture(texture, index: 0)
+    commandEncoder.setFragmentSamplerState(sampler, index: 0)
+    commandEncoder.drawPrimitives(type: .triangleStrip, vertexStart: 0, vertexCount: 4)
+    commandEncoder.endEncoding()
+    
+    // Draw to the screen.
+    commandBuffer.present(drawable)
+    commandBuffer.commit()
   }
   
 }

@@ -116,23 +116,13 @@ public final class CameraView: UIView {
   var isRunning: Bool {
     return captureSession.isRunning
   }
-
-  /// Convenience wrapper to get layer as its statically known type.
-  var videoPreviewLayer: AVCaptureVideoPreviewLayer {
-    // swiftlint:disable force_cast
-    return layer as! AVCaptureVideoPreviewLayer
-  }
-
-  override public class var layerClass: AnyClass {
-    return AVCaptureVideoPreviewLayer.self
-  }
+  
+  internal let mtlDevice = MTLCreateSystemDefaultDevice()!
+  internal var previewView: PreviewMetalView!
 
   // pragma MARK: Setup
   override public init(frame: CGRect) {
     super.init(frame: frame)
-    videoPreviewLayer.session = captureSession
-    videoPreviewLayer.videoGravity = .resizeAspectFill
-    videoPreviewLayer.frame = layer.bounds
 
     NotificationCenter.default.addObserver(self,
                                            selector: #selector(sessionRuntimeError),
@@ -150,6 +140,12 @@ public final class CameraView: UIView {
                                            selector: #selector(onOrientationChanged),
                                            name: UIDevice.orientationDidChangeNotification,
                                            object: nil)
+  }
+  
+  public override func layoutSubviews() {
+    // Setup the preview layer size
+    previewView = PreviewMetalView(frame: layer.bounds, device: mtlDevice)
+    self.addSubview(previewView)
   }
 
   @available(*, unavailable)

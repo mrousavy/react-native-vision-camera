@@ -18,8 +18,9 @@ extension CameraView {
         throw CameraError.device(DeviceError.focusNotSupported)
       }
 
-      let normalizedPoint = self.videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: point)
-
+//      let normalizedPoint = self.videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: point)
+      let normalizedPoint = CGPoint.zero
+      
       do {
         try device.lockForConfiguration()
 
