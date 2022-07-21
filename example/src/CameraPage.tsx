@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useRef, useState, useMemo, useCallback } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler';
 import {
   CameraDeviceFormat,
@@ -52,6 +52,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const [enableHdr, setEnableHdr] = useState(false);
   const [flash, setFlash] = useState<'off' | 'on'>('off');
   const [enableNightMode, setEnableNightMode] = useState(false);
+  const [enableMetalPreview, setEnableMetalPreview] = useState(false);
 
   // camera format settings
   const devices = useCameraDevices();
@@ -224,6 +225,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 isActive={isActive}
                 onInitialized={onInitialized}
                 onError={onError}
+                enableMetalPreview={enableMetalPreview}
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
                 photo={true}
@@ -280,6 +282,11 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
         {canToggleNightMode && (
           <PressableOpacity style={styles.button} onPress={() => setEnableNightMode(!enableNightMode)} disabledOpacity={0.4}>
             <IonIcon name={enableNightMode ? 'moon' : 'moon-outline'} color="white" size={24} />
+          </PressableOpacity>
+        )}
+        {Platform.OS === 'ios' && (
+          <PressableOpacity style={styles.button} onPress={() => setEnableMetalPreview(!enableMetalPreview)} disabledOpacity={0.4}>
+            <IonIcon name={enableMetalPreview ? 'hardware-chip-sharp' : 'hardware-chip-outline'} color="white" size={24} />
           </PressableOpacity>
         )}
       </View>

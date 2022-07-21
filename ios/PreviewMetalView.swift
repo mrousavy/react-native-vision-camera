@@ -15,11 +15,11 @@ class PreviewMetalView: MTKView {
   private let syncQueue = DispatchQueue(label: "Preview View Sync Queue", qos: .userInitiated, attributes: [], autoreleaseFrequency: .workItem)
   
   var pixelBuffer: CVPixelBuffer? {
-      didSet {
-          syncQueue.sync {
-              internalPixelBuffer = pixelBuffer
-          }
+    didSet {
+      syncQueue.sync {
+        internalPixelBuffer = pixelBuffer
       }
+    }
   }
   
   private var internalPixelBuffer: CVPixelBuffer?
@@ -31,11 +31,23 @@ class PreviewMetalView: MTKView {
   private var renderPipelineState: MTLRenderPipelineState!
   private var commandQueue: MTLCommandQueue?
   
+  // TODO: This fix below does not work. MTKView does not seemingly autorelease its drawables as is documented here: https://developer.apple.com/documentation/quartzcore/cametallayer#3385893
+  // Required to invalidate CADisplayLink when MTKView gets removed from parent
+  // Known issue reported here: https://openradar.appspot.com/23977735
+  public override func didMoveToSuperview() {
+    ReactLogger.log(level: .info, message: "Cleaning up the metal view!")
+    super.didMoveToSuperview()
+    if let link = self.value(forKey: "displayLink") as? CADisplayLink, superview == nil {
+      ReactLogger.log(level: .info, message: "Invalidating display link for metal view!")
+      link.invalidate()
+    }
+  }
+  
   override init(frame frameRect: CGRect, device: MTLDevice?) {
     super.init(frame: frameRect, device: device)
-      configureMetal()
-      createTextureCache()
-      colorPixelFormat = .bgra8Unorm
+    configureMetal()
+    createTextureCache()
+    colorPixelFormat = .bgra8Unorm
   }
   
   required init(coder: NSCoder) {
@@ -63,16 +75,16 @@ class PreviewMetalView: MTKView {
     sampler = device!.makeSamplerState(descriptor: samplerDescriptor)
     // Save the render pipeline state config so the GPU can run efficiently
     do {
-        renderPipelineState = try device!.makeRenderPipelineState(descriptor: pipelineDescriptor)
+      renderPipelineState = try device!.makeRenderPipelineState(descriptor: pipelineDescriptor)
     } catch {
-        fatalError("Unable to create preview Metal view pipeline state. (\(error))")
+      fatalError("Unable to create preview Metal view pipeline state. (\(error))")
     }
     
     let vertexData: [Float] = [
       -1.0, -1.0, 0.0, 1.0,
-      1.0, -1.0, 0.0, 1.0,
-      -1.0, 1.0, 0.0, 1.0,
-      1.0, 1.0, 0.0, 1.0
+       1.0, -1.0, 0.0, 1.0,
+       -1.0, 1.0, 0.0, 1.0,
+       1.0, 1.0, 0.0, 1.0
     ]
     vertexCoordBuffer = device!.makeBuffer(bytes: vertexData, length: vertexData.count * MemoryLayout<Float>.size, options: [])
     let textData: [Float] = [
@@ -88,29 +100,28 @@ class PreviewMetalView: MTKView {
   }
   
   func createTextureCache() {
-      /*
-       * Create a metal texture cache so we aren't reallocating memory for each new metal texture!
-       */
-      var newTextureCache: CVMetalTextureCache?
-      if CVMetalTextureCacheCreate(kCFAllocatorDefault, nil, device!, nil, &newTextureCache) == kCVReturnSuccess {
-          textureCache = newTextureCache
-      } else {
-          assertionFailure("Unable to allocate texture cache")
-      }
+    /*
+     * Create a metal texture cache so we aren't reallocating memory for each new metal texture!
+     */
+    var newTextureCache: CVMetalTextureCache?
+    if CVMetalTextureCacheCreate(kCFAllocatorDefault, nil, device!, nil, &newTextureCache) == kCVReturnSuccess {
+      textureCache = newTextureCache
+    } else {
+      assertionFailure("Unable to allocate texture cache")
+    }
   }
   
-  override func draw(_ rect: CGRect) {
-    
+  private func render() {
     var pixelBuffer: CVPixelBuffer?
     
     syncQueue.sync {
       pixelBuffer = internalPixelBuffer
     }
     
-    guard let drawable = currentDrawable,
-        let currentRenderPassDescriptor = currentRenderPassDescriptor,
-        let previewPixelBuffer = pixelBuffer else {
-            return
+    guard currentDrawable != nil,
+          let currentRenderPassDescriptor = currentRenderPassDescriptor,
+          let previewPixelBuffer = pixelBuffer else {
+      return
     }
     
     // Create a Metal texture from the image buffer.
@@ -118,7 +129,7 @@ class PreviewMetalView: MTKView {
     let height = CVPixelBufferGetHeight(previewPixelBuffer)
     
     if textureCache == nil {
-        createTextureCache()
+      createTextureCache()
     }
     var cvTextureOut: CVMetalTexture?
     CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
@@ -131,37 +142,37 @@ class PreviewMetalView: MTKView {
                                               0,
                                               &cvTextureOut)
     guard let cvTexture = cvTextureOut, let texture = CVMetalTextureGetTexture(cvTexture) else {
-        print("Failed to create preview texture")
-        
-        CVMetalTextureCacheFlush(textureCache!, 0)
-        return
+      print("Failed to create preview texture")
+      
+      CVMetalTextureCacheFlush(textureCache!, 0)
+      return
     }
     
-//    if texture.width != textureWidth ||
-//        texture.height != textureHeight ||
-//        self.bounds != internalBounds ||
-//        mirroring != textureMirroring ||
-//        rotation != textureRotation {
-//        setupTransform(width: texture.width, height: texture.height, mirroring: mirroring, rotation: rotation)
-//    }
+    //    if texture.width != textureWidth ||
+    //        texture.height != textureHeight ||
+    //        self.bounds != internalBounds ||
+    //        mirroring != textureMirroring ||
+    //        rotation != textureRotation {
+    //        setupTransform(width: texture.width, height: texture.height, mirroring: mirroring, rotation: rotation)
+    //    }
     
     // Set up command buffer and encoder
     guard let commandQueue = commandQueue else {
-        print("Failed to create Metal command queue")
-        CVMetalTextureCacheFlush(textureCache!, 0)
-        return
+      print("Failed to create Metal command queue")
+      CVMetalTextureCacheFlush(textureCache!, 0)
+      return
     }
     
     guard let commandBuffer = commandQueue.makeCommandBuffer() else {
-        print("Failed to create Metal command buffer")
-        CVMetalTextureCacheFlush(textureCache!, 0)
-        return
+      print("Failed to create Metal command buffer")
+      CVMetalTextureCacheFlush(textureCache!, 0)
+      return
     }
     
     guard let commandEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: currentRenderPassDescriptor) else {
-        print("Failed to create Metal command encoder")
-        CVMetalTextureCacheFlush(textureCache!, 0)
-        return
+      print("Failed to create Metal command encoder")
+      CVMetalTextureCacheFlush(textureCache!, 0)
+      return
     }
     
     commandEncoder.label = "Passthrough render pass"
@@ -174,8 +185,16 @@ class PreviewMetalView: MTKView {
     commandEncoder.endEncoding()
     
     // Draw to the screen.
-    commandBuffer.present(drawable)
+    commandBuffer.present(currentDrawable!)
     commandBuffer.commit()
+  }
+  
+  override func draw(_ rect: CGRect) {
+    // lol drawables do not get autoreleased?
+    // maybe ARC doesn't clean up IOSurfaces?
+    autoreleasepool {
+      self.render()
+    }
   }
   
 }

@@ -44,6 +44,7 @@ public final class CameraView: UIView {
   @objc var enableHighQualityPhotos: NSNumber? // nullable bool
   @objc var enablePortraitEffectsMatteDelivery = false
   @objc var preset: String?
+  @objc var enableMetalPreview = false
   // use cases
   @objc var photo: NSNumber? // nullable bool
   @objc var video: NSNumber? // nullable bool
@@ -118,7 +119,8 @@ public final class CameraView: UIView {
   }
   
   internal let mtlDevice = MTLCreateSystemDefaultDevice()!
-  internal var previewView: PreviewMetalView!
+  internal let standardPreview = AVCaptureVideoPreviewLayer()
+  internal var metalPreview: PreviewMetalView?
 
   // pragma MARK: Setup
   override public init(frame: CGRect) {
@@ -142,10 +144,29 @@ public final class CameraView: UIView {
                                            object: nil)
   }
   
+  internal final func configurePreview() {
+    if enableMetalPreview == false {
+      // Clear metal layer (if there is one)
+      metalPreview?.removeFromSuperview()
+      metalPreview = nil
+      // Setup a standard preview layer
+      standardPreview.session = captureSession
+      standardPreview.frame = layer.bounds
+      standardPreview.videoGravity = .resizeAspectFill
+      layer.addSublayer(standardPreview)
+    }
+    else {
+      // Clear standard preview layer (if there is one)
+      standardPreview.removeFromSuperlayer()
+      standardPreview.session = nil
+      // Setup a metal preview
+      metalPreview = PreviewMetalView(frame: layer.bounds, device: mtlDevice)
+      addSubview(metalPreview!)
+    }
+  }
+  
   public override func layoutSubviews() {
-    // Setup the preview layer size
-    previewView = PreviewMetalView(frame: layer.bounds, device: mtlDevice)
-    self.addSubview(previewView)
+    configurePreview()
   }
 
   @available(*, unavailable)
@@ -185,6 +206,7 @@ public final class CameraView: UIView {
     let shouldReconfigure = changedProps.contains { propsThatRequireReconfiguration.contains($0) }
     let shouldReconfigureFormat = shouldReconfigure || changedProps.contains("format")
     let shouldReconfigureDevice = shouldReconfigureFormat || changedProps.contains { propsThatRequireDeviceReconfiguration.contains($0) }
+    let shouldReconfigurePreview = changedProps.contains("enableMetalPreview")
     let shouldReconfigureAudioSession = changedProps.contains("audio")
 
     let willReconfigure = shouldReconfigure || shouldReconfigureFormat || shouldReconfigureDevice
@@ -202,8 +224,12 @@ public final class CameraView: UIView {
       shouldUpdateZoom ||
       shouldReconfigureFormat ||
       shouldReconfigureDevice ||
+      shouldReconfigurePreview ||
       shouldUpdateVideoStabilization ||
       shouldUpdateOrientation {
+      if shouldReconfigurePreview {
+        self.configurePreview()
+      }
       cameraQueue.async {
         if shouldReconfigure {
           self.configureCaptureSession()

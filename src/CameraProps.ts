@@ -38,6 +38,11 @@ export interface CameraProps extends ViewProps {
    * > Note: If you fully unmount the `<Camera>` component instead of using `isActive={false}`, the Camera will take a bit longer to start again. In return, it will use less resources since the Camera will be completely destroyed when unmounted.
    */
   isActive: boolean;
+  /**
+   * iOS Only. Uses a Metal preview `MTKView` instead of `AVCaptureVideoPreviewLayer` to present the camera preview.
+   * This is required for frame processor plugins that need to modify the preview before it is presented on screen
+   */
+  enableMetalPreview?: boolean;
 
   //#region Use-cases
   /**
