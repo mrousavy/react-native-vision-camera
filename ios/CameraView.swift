@@ -101,6 +101,15 @@ public final class CameraView: UIView {
   // CameraView+Zoom
   internal var pinchGestureRecognizer: UIPinchGestureRecognizer?
   internal var pinchScaleOffset: CGFloat = 1.0
+  // Derived camera state
+  internal var cameraResolution: CGSize? {
+    guard let activeFormat = videoDeviceInput?.device.activeFormat else {
+        return nil
+      }
+      let dimensions = CMVideoFormatDescriptionGetDimensions(activeFormat.formatDescription)
+      // Canonical orientation is landscape, but we need portrait so swap them
+      return CGSize(width: Int(dimensions.height), height: Int(dimensions.width))
+    }
 
   internal let cameraQueue = CameraQueues.cameraQueue
   internal let videoQueue = CameraQueues.videoQueue
@@ -156,17 +165,17 @@ public final class CameraView: UIView {
       layer.addSublayer(standardPreview)
     }
     else {
+      guard let cameraResolution = cameraResolution else {
+        ReactLogger.log(level: .error, message: "No camera resolution set; cannot configure Metal view")
+        return
+      }
       // Clear standard preview layer (if there is one)
       standardPreview.removeFromSuperlayer()
       standardPreview.session = nil
       // Setup a metal preview
-      metalPreview = PreviewMetalView(frame: layer.bounds, device: mtlDevice)
+      metalPreview = PreviewMetalView(frame: layer.bounds, device: mtlDevice, resolution: cameraResolution)
       addSubview(metalPreview!)
     }
-  }
-  
-  public override func layoutSubviews() {
-    configurePreview()
   }
 
   @available(*, unavailable)
@@ -227,9 +236,6 @@ public final class CameraView: UIView {
       shouldReconfigurePreview ||
       shouldUpdateVideoStabilization ||
       shouldUpdateOrientation {
-      if shouldReconfigurePreview {
-        self.configurePreview()
-      }
       cameraQueue.async {
         if shouldReconfigure {
           self.configureCaptureSession()
@@ -279,6 +285,11 @@ public final class CameraView: UIView {
         audioQueue.async {
           self.configureAudioSession()
         }
+      }
+      
+      // Preview Config (requires main queue for UI)
+      if shouldReconfigurePreview {
+        self.configurePreview()
       }
     }
 

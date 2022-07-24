@@ -24,6 +24,8 @@ class PreviewMetalView: MTKView {
   
   private var internalPixelBuffer: CVPixelBuffer?
   
+  private let resolution: CGSize
+  
   private var textureCache: CVMetalTextureCache?
   private var vertexCoordBuffer: MTLBuffer!
   private var textCoordBuffer: MTLBuffer!
@@ -43,7 +45,8 @@ class PreviewMetalView: MTKView {
     }
   }
   
-  override init(frame frameRect: CGRect, device: MTLDevice?) {
+  init(frame frameRect: CGRect, device: MTLDevice?, resolution: CGSize) {
+    self.resolution = resolution
     super.init(frame: frameRect, device: device)
     configureMetal()
     createTextureCache()
@@ -80,11 +83,21 @@ class PreviewMetalView: MTKView {
       fatalError("Unable to create preview Metal view pipeline state. (\(error))")
     }
     
+    var scaleX = Float(frame.width / CGFloat(resolution.width))
+    var scaleY = Float(frame.height / CGFloat(resolution.height))
+    if scaleX < scaleY {
+        scaleY = scaleX / scaleY
+        scaleX = 1.0
+    } else {
+        scaleX = scaleY / scaleX
+        scaleY = 1.0
+    }
+    
     let vertexData: [Float] = [
-      -1.0, -1.0, 0.0, 1.0,
-       1.0, -1.0, 0.0, 1.0,
-       -1.0, 1.0, 0.0, 1.0,
-       1.0, 1.0, 0.0, 1.0
+      -scaleX, -scaleY, 0.0, 1.0,
+      scaleX, -scaleY, 0.0, 1.0,
+      -scaleX, scaleY, 0.0, 1.0,
+      scaleX, scaleY, 0.0, 1.0
     ]
     vertexCoordBuffer = device!.makeBuffer(bytes: vertexData, length: vertexData.count * MemoryLayout<Float>.size, options: [])
     let textData: [Float] = [
