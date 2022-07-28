@@ -67,6 +67,33 @@ def getExtOrIntegerDefault(name) {
   return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties['VisionCamera_' + name]).toInteger()
 }
 
+def sourceBuild = false
+def defaultDir = null
+def androidSourcesDir = null
+def androidSourcesName = 'React Native sources'
+
+if (rootProject.ext.has('reactNativeAndroidRoot')) {
+  defaultDir = rootProject.ext.get('reactNativeAndroidRoot')
+  androidSourcesDir = defaultDir.parentFile.toString()
+} else if (findProject(':ReactAndroid') != null) {
+    sourceBuild = true
+    defaultDir = project(':ReactAndroid').projectDir
+    androidSourcesDir = defaultDir.parentFile.toString()
+} else {
+  defaultDir = file("$nodeModules/react-native/android")
+  androidSourcesDir = defaultDir.parentFile.toString()
+}
+
+if (!defaultDir.exists()) {
+    throw new GradleException(
+      "${project.name}: React Native android directory (node_modules/react-native/android) does not exist! Resolved node_modules to: ${nodeModules}"
+    )
+}
+
+def prebuiltDir = sourceBuild
+    ? "$nodeModules/react-native/ReactAndroid/src/main/jni/prebuilt/lib"
+    : "$buildDir/react-native-0*/jni"
+
 // plugin.js file only exists since REA v2.
 def hasReanimated2 = file("${nodeModules}/react-native-reanimated/plugin.js").exists()
 def disableFrameProcessors = rootProject.ext.has("disableFrameProcessors") ? rootProject.ext.get("disableFrameProcessors").asBoolean() : false
@@ -228,18 +255,31 @@ dependencies {
     //noinspection GradleDynamicVersion
     extractJNI("com.facebook.fbjni:fbjni:+")
 
-    def rnAAR = fileTree("${nodeModules}/react-native/android").matching({ it.include "**/**/*.aar" }).singleFile
-    def jscAAR = fileTree("${nodeModules}/jsc-android/dist/org/webkit/android-jsc").matching({ it.include "**/**/*.aar" }).singleFile
 
-    def inputFile = file("${nodeModules}/react-native/package.json")
-    def json = new JsonSlurper().parseText(inputFile.text)
-    def reactNativeVersion = json.version as String
-    def (major, minor, patch) = reactNativeVersion.tokenize('.')
 
-    def jsEngine = FOR_HERMES ? "hermes" : "jsc"
-    def reaAAR = "${nodeModules}/react-native-reanimated/android/react-native-reanimated-${minor}-${jsEngine}.aar"
+    if (!sourceBuild) {
+      def buildType = "debug"
+      tasks.all({ task ->
+        if (task.name == "buildCMakeRelease") {
+          buildType = "release"
+        }
+      })
+      def rnAarMatcher = "**/react-native/**/*${buildType}.aar"
+      if (REACT_NATIVE_VERSION < 69) {
+        rnAarMatcher = "**/**/*.aar"
+      }
+      def rnAAR = fileTree("${defaultDir.toString()}").matching({ it.include rnAarMatcher }).singleFile
+      def jscAAR = fileTree("${nodeModules}/jsc-android/dist/org/webkit/android-jsc").matching({ it.include "**/**/*.aar" }).singleFile
 
-    extractJNI(files(rnAAR, jscAAR, reaAAR))
+      def inputFile = file("${nodeModules}/react-native/package.json")
+      def json = new JsonSlurper().parseText(inputFile.text)
+      def reactNativeVersion = json.version as String
+      def (major, minor, patch) = reactNativeVersion.tokenize('.')
+
+      def jsEngine = FOR_HERMES ? "hermes" : "jsc"
+      def reaAAR = "${nodeModules}/react-native-reanimated/android/react-native-reanimated-${minor}-${jsEngine}.aar"
+      extractJNI(files(rnAAR, jscAAR, reaAAR))
+    }
   }
 
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -285,7 +325,12 @@ if (ENABLE_FRAME_PROCESSORS) {
   }
 
   task downloadBoost(dependsOn: createNativeDepsDirectories, type: Download) {
-    src("https://github.com/react-native-community/boost-for-react-native/releases/download/v${BOOST_VERSION.replace("_", ".")}-0/boost_${BOOST_VERSION}.tar.gz")
+    def transformedVersion = BOOST_VERSION.replace("_", ".")
+    def srcUrl = "https://boostorg.jfrog.io/artifactory/main/release/${transformedVersion}/source/boost_${BOOST_VERSION}.tar.gz"
+    if (REACT_NATIVE_VERSION < 69) {
+      srcUrl = "https://github.com/react-native-community/boost-for-react-native/releases/download/v${transformedVersion}-0/boost_${BOOST_VERSION}.tar.gz"
+    }
+    src(srcUrl)
     onlyIfNewer(true)
     overwrite(false)
     dest(boost_file)
