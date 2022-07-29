@@ -97,8 +97,8 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
 
   val map = Arguments.createMap()
   map.putString("path", file.absolutePath)
-  map.putInt("width", photo.width)
-  map.putInt("height", photo.height)
+  map.putInt("width", exif?.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, photo.width) ?: photo.width)
+  map.putInt("height", exif?.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, photo.height) ?: photo.height)
   map.putBoolean("isRawPhoto", photo.isRaw)
 
   val metadata = exif?.buildMetadataMap()
