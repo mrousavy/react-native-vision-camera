@@ -235,6 +235,9 @@ dependencies {
       }
     })
     def rnAarMatcher = "**/react-native/**/*${buildType}.aar"
+    if (REACT_NATIVE_VERSION < 69) {
+      rnAarMatcher = "**/**/*.aar"
+    }
     def rnAAR = fileTree("$reactNative/android").matching({ it.include rnAarMatcher }).singleFile
     def jscAAR = fileTree("${nodeModules}/jsc-android/dist/org/webkit/android-jsc").matching({ it.include "**/**/*.aar" }).singleFile
 
