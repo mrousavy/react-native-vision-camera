@@ -82,6 +82,7 @@ public final class CameraView: UIView {
   // pragma MARK: Internal Properties
   internal var isMounted = false
   internal var isReady = false
+  internal var initialLayoutComplete = false
   // Capture Session
   internal let captureSession = AVCaptureSession()
   internal let audioCaptureSession = AVCaptureSession()
@@ -155,6 +156,7 @@ public final class CameraView: UIView {
   
   internal final func configurePreview() {
     if enableMetalPreview == false {
+      ReactLogger.log(level: .info, message: "Configuring preview to use standard AVCaptureVideoPreviewLayer with bounds: \(layer.bounds)")
       // Clear metal layer (if there is one)
       metalPreview?.removeFromSuperview()
       metalPreview = nil
@@ -165,6 +167,7 @@ public final class CameraView: UIView {
       layer.addSublayer(standardPreview)
     }
     else {
+      ReactLogger.log(level: .info, message: "Configuring preview to use Metal preview layer with bounds: \(layer.bounds)")
       guard let cameraResolution = cameraResolution else {
         ReactLogger.log(level: .error, message: "No camera resolution set; cannot configure Metal view")
         return
@@ -175,6 +178,14 @@ public final class CameraView: UIView {
       // Setup a metal preview
       metalPreview = PreviewMetalView(frame: layer.bounds, device: mtlDevice, resolution: cameraResolution)
       addSubview(metalPreview!)
+    }
+  }
+  
+  public override func layoutSubviews() {
+    // When mounted and layer.bounds is not zero configure the preview
+    if !initialLayoutComplete {
+      configurePreview()
+      initialLayoutComplete = true
     }
   }
 
@@ -287,9 +298,12 @@ public final class CameraView: UIView {
         }
       }
       
-      // Preview Config (requires main queue for UI)
-      if shouldReconfigurePreview {
-        self.configurePreview()
+      // Preview Config (requires main queue for UI), let layoutSubviews() handle initial
+      // setup as layer.bounds is zero on initial didSetProps
+      if shouldReconfigurePreview, initialLayoutComplete {
+        DispatchQueue.main.async {
+          self.configurePreview()
+        }
       }
     }
 

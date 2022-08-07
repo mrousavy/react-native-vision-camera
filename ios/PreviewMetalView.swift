@@ -85,13 +85,8 @@ class PreviewMetalView: MTKView {
     
     var scaleX = Float(frame.width / CGFloat(resolution.width))
     var scaleY = Float(frame.height / CGFloat(resolution.height))
-    if scaleX < scaleY {
-        scaleY = scaleX / scaleY
-        scaleX = 1.0
-    } else {
-        scaleX = scaleY / scaleX
-        scaleY = 1.0
-    }
+    scaleX = scaleY / scaleX
+    scaleY = 1.0
     
     let vertexData: [Float] = [
       -scaleX, -scaleY, 0.0, 1.0,
@@ -160,14 +155,6 @@ class PreviewMetalView: MTKView {
       CVMetalTextureCacheFlush(textureCache!, 0)
       return
     }
-    
-    //    if texture.width != textureWidth ||
-    //        texture.height != textureHeight ||
-    //        self.bounds != internalBounds ||
-    //        mirroring != textureMirroring ||
-    //        rotation != textureRotation {
-    //        setupTransform(width: texture.width, height: texture.height, mirroring: mirroring, rotation: rotation)
-    //    }
     
     // Set up command buffer and encoder
     guard let commandQueue = commandQueue else {
