@@ -190,8 +190,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   }
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
-    if let metalPreview = metalPreview {
-      metalPreview.pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
+    if let metalPreview = metalPreview, let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
+      metalPreview.pixelBuffer = pixelBuffer
     }
     // Video Recording runs in the same queue
     if isRecording {
