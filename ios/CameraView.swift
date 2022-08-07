@@ -129,7 +129,7 @@ public final class CameraView: UIView {
   }
   
   internal let mtlDevice = MTLCreateSystemDefaultDevice()!
-  internal let standardPreview = AVCaptureVideoPreviewLayer()
+  internal var standardPreview: AVCaptureVideoPreviewLayer?
   internal var metalPreview: PreviewMetalView?
 
   // pragma MARK: Setup
@@ -161,10 +161,11 @@ public final class CameraView: UIView {
       metalPreview?.removeFromSuperview()
       metalPreview = nil
       // Setup a standard preview layer
-      standardPreview.session = captureSession
-      standardPreview.frame = layer.bounds
-      standardPreview.videoGravity = .resizeAspectFill
-      layer.addSublayer(standardPreview)
+      standardPreview = AVCaptureVideoPreviewLayer()
+      standardPreview!.session = captureSession
+      standardPreview!.frame = layer.bounds
+      standardPreview!.videoGravity = .resizeAspectFill
+      layer.addSublayer(standardPreview!)
     }
     else {
       ReactLogger.log(level: .info, message: "Configuring preview to use Metal preview layer with bounds: \(layer.bounds)")
@@ -173,8 +174,9 @@ public final class CameraView: UIView {
         return
       }
       // Clear standard preview layer (if there is one)
-      standardPreview.removeFromSuperlayer()
-      standardPreview.session = nil
+      standardPreview?.removeFromSuperlayer()
+      standardPreview?.session = nil
+      standardPreview = nil
       // Setup a metal preview
       metalPreview = PreviewMetalView(frame: layer.bounds, device: mtlDevice, resolution: cameraResolution)
       addSubview(metalPreview!)
