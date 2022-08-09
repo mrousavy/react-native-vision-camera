@@ -55,7 +55,6 @@ rootProject.getSubprojects().forEach({project ->
 })
 def jsRuntimeDir = {
   if (FOR_HERMES) {
-      return Paths.get(CMAKE_NODE_MODULES_DIR, "hermes-engine")
       if (REACT_NATIVE_VERSION >= 69) {
           return Paths.get(CMAKE_NODE_MODULES_DIR, "react-native", "sdks", "hermes")
       } else {
