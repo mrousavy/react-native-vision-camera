@@ -1,20 +1,20 @@
 cmake_minimum_required(VERSION 3.4.1)
 
-set(CMAKE_VERBOSE_MAKEFILE ON)
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_FLAGS "-DFOLLY_NO_CONFIG=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -DFOLLY_HAVE_MEMRCHR=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_MOBILE=1 -DON_ANDROID -DONANDROID -DFOR_HERMES=${FOR_HERMES}")
+set (CMAKE_VERBOSE_MAKEFILE ON)
+set (CMAKE_CXX_STANDARD 14)
+set (CMAKE_CXX_FLAGS "-DFOLLY_NO_CONFIG=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -DFOLLY_HAVE_MEMRCHR=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_MOBILE=1 -DON_ANDROID -DONANDROID -DFOR_HERMES=${FOR_HERMES}")
 
-set(PACKAGE_NAME "VisionCamera")
-set(BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
-set(RN_SO_DIR ${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni/first-party/react/jni)
+set (PACKAGE_NAME "VisionCamera")
+set (BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
+set (RN_SO_DIR ${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni/first-party/react/jni)
 
 # VisionCamera shared
 if(${REACT_NATIVE_VERSION} LESS 66)
-        set(
+        set (
                 INCLUDE_JSI_CPP
                 "${NODE_MODULES_DIR}/react-native/ReactCommon/jsi/jsi/jsi.cpp"
         )
-        set(
+        set (
                 INCLUDE_JSIDYNAMIC_CPP
                 "${NODE_MODULES_DIR}/react-native/ReactCommon/jsi/jsi/JSIDynamic.cpp"
         )
@@ -35,7 +35,7 @@ add_library(
 )
 
 # includes
-file(GLOB LIBFBJNI_INCLUDE_DIR "${BUILD_DIR}/fbjni-*-headers.jar/")
+file (GLOB LIBFBJNI_INCLUDE_DIR "${BUILD_DIR}/fbjni-*-headers.jar/")
 
 target_include_directories(
         ${PACKAGE_NAME}
@@ -74,7 +74,7 @@ target_include_directories(
 )
 
 # find libraries
-file(GLOB LIBRN_DIR "${BUILD_DIR}/react-native-0*/jni/${ANDROID_ABI}")
+file (GLOB LIBRN_DIR "${BUILD_DIR}/react-native-0*/jni/${ANDROID_ABI}")
 
 if(${FOR_HERMES})
         string(APPEND CMAKE_CXX_FLAGS " -DJS_RUNTIME_HERMES=1")
@@ -100,9 +100,9 @@ if(${FOR_HERMES})
                 ${PACKAGE_NAME}
                 "${BUILD_DIR}/third-party-ndk/hermes/jni/${ANDROID_ABI}/libhermes.so"
         )
-        file(GLOB LIBREANIMATED_DIR "${BUILD_DIR}/react-native-reanimated-*-hermes.aar/jni/${ANDROID_ABI}")
+        file (GLOB LIBREANIMATED_DIR "${BUILD_DIR}/react-native-reanimated-*-hermes.aar/jni/${ANDROID_ABI}")
 else()
-        file(GLOB LIBJSC_DIR "${BUILD_DIR}/android-jsc*.aar/jni/${ANDROID_ABI}")
+        file (GLOB LIBJSC_DIR "${BUILD_DIR}/android-jsc*.aar/jni/${ANDROID_ABI}")
 
         # Use JSC
         find_library(
@@ -117,7 +117,7 @@ else()
         )
 
         # Use Reanimated JSC
-        file(GLOB LIBREANIMATED_DIR "${BUILD_DIR}/react-native-reanimated-*-jsc.aar/jni/${ANDROID_ABI}")
+        file (GLOB LIBREANIMATED_DIR "${BUILD_DIR}/react-native-reanimated-*-jsc.aar/jni/${ANDROID_ABI}")
 endif()
 
 find_library(
@@ -152,7 +152,7 @@ find_library(
 
 if(${REACT_NATIVE_VERSION} LESS 66)
         # JSI lib didn't exist on RN 0.65 and before. Simply omit it.
-        set(JSI_LIB "")
+        set (JSI_LIB "")
 else()
         # RN 0.66 distributes libjsi.so, can be used instead of compiling jsi.cpp manually.
         find_library(
