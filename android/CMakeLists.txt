@@ -76,27 +76,47 @@ target_include_directories(
 file (GLOB LIBRN_DIR "${BUILD_DIR}/react-native-0*/jni/${ANDROID_ABI}")
 
 if(${FOR_HERMES})
-    file (GLOB LIBHERMES_DIR "${BUILD_DIR}/third-party-ndk/hermes/jni/${ANDROID_ABI}")
-    # Use Hermes
-    find_library(
-            JS_ENGINE_LIB
-            hermes
-            PATHS ${LIBHERMES_DIR}
-            NO_CMAKE_FIND_ROOT_PATH
-    )
-    # Use Reanimated Hermes
-    file (GLOB LIBREANIMATED_DIR "${BUILD_DIR}/react-native-reanimated-*-hermes.aar/jni/${ANDROID_ABI}")
+        string(APPEND CMAKE_CXX_FLAGS " -DJS_RUNTIME_HERMES=1")
+
+        if(${REACT_NATIVE_VERSION} LESS 69)
+                # From `hermes-engine` npm package
+                target_include_directories(
+                        ${PACKAGE_NAME}
+                        PRIVATE
+                        "${JS_RUNTIME_DIR}/android/include"
+                )
+        else()
+                # Bundled Hermes from module `com.facebook.react:hermes-engine` or project `:ReactAndroid:hermes-engine`
+                target_include_directories(
+                        ${PACKAGE_NAME}
+                        PRIVATE
+                        "${JS_RUNTIME_DIR}/API"
+                        "${JS_RUNTIME_DIR}/public"
+                )
+        endif()
+
+        target_link_libraries(
+                ${PACKAGE_NAME}
+                "${BUILD_DIR}/third-party-ndk/hermes/jni/${ANDROID_ABI}/libhermes.so"
+        )
+        file (GLOB LIBREANIMATED_DIR "${BUILD_DIR}/react-native-reanimated-*-hermes.aar/jni/${ANDROID_ABI}")
 else()
-    file (GLOB LIBJSC_DIR "${BUILD_DIR}/android-jsc*.aar/jni/${ANDROID_ABI}")
-    # Use JSC
-    find_library(
-            JS_ENGINE_LIB
-            jscexecutor
-            PATHS ${LIBRN_DIR}
-            NO_CMAKE_FIND_ROOT_PATH
-    )
-    # Use Reanimated JSC
-    file (GLOB LIBREANIMATED_DIR "${BUILD_DIR}/react-native-reanimated-*-jsc.aar/jni/${ANDROID_ABI}")
+        file (GLOB LIBJSC_DIR "${BUILD_DIR}/android-jsc*.aar/jni/${ANDROID_ABI}")
+
+        # Use JSC
+        find_library(
+                JS_ENGINE_LIB
+                jscexecutor
+                PATHS ${LIBRN_DIR}
+                NO_CMAKE_FIND_ROOT_PATH
+        )
+        target_link_libraries(
+                ${PACKAGE_NAME}
+                ${JS_ENGINE_LIB}
+        )
+
+        # Use Reanimated JSC
+        file (GLOB LIBREANIMATED_DIR "${BUILD_DIR}/react-native-reanimated-*-jsc.aar/jni/${ANDROID_ABI}")
 endif()
 
 find_library(
@@ -105,12 +125,22 @@ find_library(
         PATHS ${LIBRN_DIR}
         NO_CMAKE_FIND_ROOT_PATH
 )
-find_library(
-        FOLLY_JSON_LIB
-        folly_json
-        PATHS ${LIBRN_DIR}
-        NO_CMAKE_FIND_ROOT_PATH
-)
+
+if(${REACT_NATIVE_VERSION} LESS 69)
+        find_library(
+                FOLLY_LIB
+                folly_json
+                PATHS ${LIBRN_DIR}
+                NO_CMAKE_FIND_ROOT_PATH
+        )
+else()
+        find_library(
+                FOLLY_LIB
+                folly_runtime
+                PATHS ${LIBRN_DIR}
+                NO_CMAKE_FIND_ROOT_PATH
+        )
+endif()
 
 find_library(
         REACT_NATIVE_JNI_LIB
@@ -118,6 +148,7 @@ find_library(
         PATHS ${LIBRN_DIR}
         NO_CMAKE_FIND_ROOT_PATH
 )
+
 if(${REACT_NATIVE_VERSION} LESS 66)
         # JSI lib didn't exist on RN 0.65 and before. Simply omit it.
         set (JSI_LIB "")
@@ -144,16 +175,14 @@ find_library(
 )
 
 # linking
-
 message(WARNING "VisionCamera linking: FOR_HERMES=${FOR_HERMES}")
 target_link_libraries(
         ${PACKAGE_NAME}
         ${LOG_LIB}
         ${JSI_LIB}
-        ${JS_ENGINE_LIB} # <-- Hermes or JSC
         ${REANIMATED_LIB}
         ${REACT_NATIVE_JNI_LIB}
         ${FBJNI_LIB}
-        ${FOLLY_JSON_LIB}
+        ${FOLLY_LIB}
         android
 )
