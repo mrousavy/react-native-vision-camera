@@ -9,6 +9,7 @@ set (BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
 set (RN_SO_DIR ${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni/first-party/react/jni)
 
 # VisionCamera shared
+
 if(${REACT_NATIVE_VERSION} LESS 66)
         set (
                 INCLUDE_JSI_CPP
@@ -35,21 +36,19 @@ add_library(
 )
 
 # includes
+
 file (GLOB LIBFBJNI_INCLUDE_DIR "${BUILD_DIR}/fbjni-*-headers.jar/")
 
 target_include_directories(
         ${PACKAGE_NAME}
         PRIVATE
-
         # --- fbjni ---
         "${LIBFBJNI_INCLUDE_DIR}"
-
         # --- Third Party (required by RN) ---
         "${BUILD_DIR}/third-party-ndk/boost"
         "${BUILD_DIR}/third-party-ndk/double-conversion"
         "${BUILD_DIR}/third-party-ndk/folly"
         "${BUILD_DIR}/third-party-ndk/glog"
-
         # --- React Native ---
         "${NODE_MODULES_DIR}/react-native/React"
         "${NODE_MODULES_DIR}/react-native/React/Base"
@@ -61,7 +60,6 @@ target_include_directories(
         "${NODE_MODULES_DIR}/hermes-engine/android/include/"
         ${INCLUDE_JSI_CPP} # only on older RN versions
         ${INCLUDE_JSIDYNAMIC_CPP} # only on older RN versions
-
         # --- Reanimated ---
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/AnimatedSensor"
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/Tools"
@@ -74,6 +72,7 @@ target_include_directories(
 )
 
 # find libraries
+
 file (GLOB LIBRN_DIR "${BUILD_DIR}/react-native-0*/jni/${ANDROID_ABI}")
 
 if(${FOR_HERMES})
