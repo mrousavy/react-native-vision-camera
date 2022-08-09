@@ -30,12 +30,21 @@ static def findNodeModulePath(baseDir, packageName) {
     return null
 }
 
+def isNewArchitectureEnabled() {
+    // To opt-in for the New Architecture, you can either:
+    // - Set `newArchEnabled` to true inside the `gradle.properties` file
+    // - Invoke gradle with `-newArchEnabled=true`
+    // - Set an environment variable `ORG_GRADLE_PROJECT_newArchEnabled=true`
+    return project.hasProperty("newArchEnabled") && project.newArchEnabled == "true"
+}
+
 def nodeModules = findNodeModules(projectDir)
 logger.warn("VisionCamera: node_modules/ found at: ${nodeModules}")
 def reactNative = new File("$nodeModules/react-native")
 def CMAKE_NODE_MODULES_DIR = project.getProjectDir().getParentFile().getParent()
 def reactProperties = new Properties()
 file("$nodeModules/react-native/ReactAndroid/gradle.properties").withInputStream { reactProperties.load(it) }
+def REACT_NATIVE_FULL_VERSION = reactProperties.getProperty("VERSION_NAME")
 def REACT_NATIVE_VERSION = reactProperties.getProperty("VERSION_NAME").split("\\.")[1].toInteger()
 
 def FOR_HERMES = System.getenv("FOR_HERMES") == "True"
@@ -270,15 +279,8 @@ dependencies {
     }
     def rnAAR = fileTree("$reactNative/android").matching({ it.include rnAarMatcher }).singleFile
     def jscAAR = fileTree("${nodeModules}/jsc-android/dist/org/webkit/android-jsc").matching({ it.include "**/**/*.aar" }).singleFile
-
-    def inputFile = file("${nodeModules}/react-native/package.json")
-    def json = new JsonSlurper().parseText(inputFile.text)
-    def reactNativeVersion = json.version as String
-    def (major, minor, patch) = reactNativeVersion.tokenize('.')
-
     def jsEngine = FOR_HERMES ? "hermes" : "jsc"
-    def reaAAR = "${nodeModules}/react-native-reanimated/android/react-native-reanimated-${minor}-${jsEngine}.aar"
-
+    def reaAAR = "${nodeModules}/react-native-reanimated/android/react-native-reanimated-${REACT_NATIVE_VERSION}-${jsEngine}.aar"
     extractJNI(files(rnAAR, jscAAR, reaAAR))
   }
 
@@ -453,16 +455,15 @@ if (ENABLE_FRAME_PROCESSORS) {
   if (REACT_NATIVE_VERSION >= 69 && !isNewArchitectureEnabled()) {
       // copied from `react-native/ReactAndroid/hermes-engine/build.gradle`
 
-      def reactNativeRootDir = resolveReactNativeDirectory()
       def customDownloadDir = System.getenv("REACT_NATIVE_DOWNLOADS_DIR")
-      def downloadDir = customDownloadDir ? new File(customDownloadDir) : new File(reactNativeRootDir, "sdks/download")
+      def downloadDir = customDownloadDir ? new File(customDownloadDir) : new File(reactNative, "sdks/download")
 
       // By default we are going to download and unzip hermes inside the /sdks/hermes folder
       // but you can provide an override for where the hermes source code is located.
-      def hermesDir = System.getenv("REACT_NATIVE_OVERRIDE_HERMES_DIR") ?: new File(reactNativeRootDir, "sdks/hermes")
+      def hermesDir = System.getenv("REACT_NATIVE_OVERRIDE_HERMES_DIR") ?: new File(reactNative, "sdks/hermes")
 
       def hermesVersion = "main"
-      def hermesVersionFile = new File(reactNativeRootDir, "sdks/.hermesversion")
+      def hermesVersionFile = new File(reactNative, "sdks/.hermesversion")
       if (hermesVersionFile.exists()) {
           hermesVersion = hermesVersionFile.text
       }
@@ -495,7 +496,7 @@ if (ENABLE_FRAME_PROCESSORS) {
           }
 
           doLast {
-              def hermesAAR = file("$reactNative/android/com/facebook/react/hermes-engine/$reactNativeVersion/hermes-engine-$reactNativeVersion-${resolveBuildType()}.aar") // e.g. hermes-engine-0.70.0-rc.1-debug.aar
+              def hermesAAR = file("$reactNative/android/com/facebook/react/hermes-engine/$REACT_NATIVE_FULL_VERSION/hermes-engine-$REACT_NATIVE_FULL_VERSION-${resolveBuildType()}.aar") // e.g. hermes-engine-0.70.0-rc.1-debug.aar
               if (!hermesAAR.exists()) {
                   throw new GradleScriptException("Could not find hermes-engine AAR", null)
               }
