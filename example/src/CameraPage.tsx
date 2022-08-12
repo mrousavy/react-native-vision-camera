@@ -22,7 +22,7 @@ import { CaptureButton } from './views/CaptureButton';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { examplePlugin } from './frame-processors/ExamplePlugin';
+import { examplePlugin, examplePluginFilter, examplePluginSwift } from './frame-processors/ExamplePlugin';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
@@ -200,8 +200,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
-    const values = examplePlugin(frame);
-    console.log(`Return Values: ${JSON.stringify(values)}`);
+    const filteredFrame = examplePluginFilter(frame, 30);
+    return filteredFrame;
   }, []);
 
   const onFrameProcessorSuggestionAvailable = useCallback((suggestion: FrameProcessorPerformanceSuggestion) => {
@@ -233,7 +233,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 audio={hasMicrophonePermission}
                 frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
                 orientation="portrait"
-                frameProcessorFps={1}
+                frameProcessorFps={60}
                 onFrameProcessorPerformanceSuggestionAvailable={onFrameProcessorSuggestionAvailable}
               />
             </TapGestureHandler>

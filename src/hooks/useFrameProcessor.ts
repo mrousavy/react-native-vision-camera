@@ -3,7 +3,7 @@
 import { DependencyList, useCallback } from 'react';
 import type { Frame } from '../Frame';
 
-type FrameProcessor = (frame: Frame) => void;
+type FrameProcessor = (frame: Frame) => Frame;
 
 const capturableConsole = console;
 
@@ -53,7 +53,7 @@ export function useFrameProcessor(frameProcessor: FrameProcessor, dependencies: 
       global.didSetConsole = true;
     }
 
-    frameProcessor(frame);
+    return frameProcessor(frame);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies);
 }

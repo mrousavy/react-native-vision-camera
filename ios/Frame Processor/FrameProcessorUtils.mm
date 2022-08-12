@@ -21,12 +21,13 @@
 
 FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime& runtime, const jsi::Function& value) {
   __block auto cb = value.getFunction(runtime);
-
+  
   return ^(Frame* frame) {
-
     auto frameHostObject = std::make_shared<FrameHostObject>(frame);
     try {
-      cb.callWithThis(runtime, cb, jsi::Object::createFromHostObject(runtime, frameHostObject));
+      auto processedFrame = cb.callWithThis(runtime, cb, jsi::Object::createFromHostObject(runtime, frameHostObject));
+      auto processedFrameHostObject = processedFrame.asObject(runtime).asHostObject(runtime);
+      return static_cast<FrameHostObject*>(processedFrameHostObject.get())->frame;
     } catch (jsi::JSError& jsError) {
       auto stack = std::regex_replace(jsError.getStack(), std::regex("\n"), "\n    ");
       auto message = [NSString stringWithFormat:@"Frame Processor threw an error: %s\nIn: %s", jsError.getMessage().c_str(), stack.c_str()];
@@ -47,5 +48,6 @@ FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime& 
     //  2. we don't know when the JS runtime garbage collects this object, it might be holding it for a few more frames
     //     which then blocks the camera queue from pushing new frames (memory limit)
     frameHostObject->close();
+    return frame;
   };
 }
