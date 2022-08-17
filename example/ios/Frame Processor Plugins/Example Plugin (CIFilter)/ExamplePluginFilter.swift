@@ -23,13 +23,12 @@ public class ExamplePluginFilter: NSObject, FrameProcessorPluginBase {
   static var ciImage: CIImage?
   static var sampleBufferOut: CMSampleBuffer?
   
-  static func allocateBufferPool(_ format: CMFormatDescription) -> CVReturn {
+  static func allocateBufferPool(_ width: Int, _ height: Int, _ pixelFormat: FourCharCode) -> CVReturn {
     let poolAttributes: NSDictionary? = nil
-    let dimensions = CMVideoFormatDescriptionGetDimensions(format)
-    let pixelFormat = CMFormatDescriptionGetMediaSubType(format)
+    print("PB alloc: \(width) x \(height)")
     let pixelBufferAttributes: [String: Any] = [
-      kCVPixelBufferWidthKey as String: dimensions.width,
-      kCVPixelBufferHeightKey as String: dimensions.height,
+      kCVPixelBufferWidthKey as String: width,
+      kCVPixelBufferHeightKey as String: height,
       kCVPixelBufferPixelFormatTypeKey as String: UInt(pixelFormat),
       kCVPixelBufferIOSurfacePropertiesKey as String: [:]
     ]
@@ -43,9 +42,19 @@ public class ExamplePluginFilter: NSObject, FrameProcessorPluginBase {
           let formatDescription = CMSampleBufferGetFormatDescription(frame.buffer) else {
       return nil
     }
-    // Ensure we have an ouput pixel buffer pool correctly setup
+    print("PB frame orientation: \(frame.orientation.rawValue)")
+    // Ensure we have an output pixel buffer pool correctly setup
     if outputPixelBufferPool == nil {
-      let poolStatus = allocateBufferPool(formatDescription)
+      let pixelFormat = CMFormatDescriptionGetMediaSubType(formatDescription)
+      // TODO: image buffer seems to have swapped dims to what we receive in captureOutput so for now lets check against the frame orientation
+      let bufferWidth = CVPixelBufferGetWidth(imageBuffer)
+      let bufferHeight = CVPixelBufferGetHeight(imageBuffer)
+      let shouldSwapDims = frame.orientation == .right || frame.orientation == .left || frame.orientation == .rightMirrored || frame.orientation == .leftMirrored
+      let poolStatus = allocateBufferPool(
+        shouldSwapDims ? bufferHeight : bufferWidth,
+        shouldSwapDims ? bufferWidth : bufferHeight,
+        pixelFormat
+      )
       if poolStatus != kCVReturnSuccess {
         assertionFailure("Pool allocation failed with status: \(poolStatus)")
         return frame

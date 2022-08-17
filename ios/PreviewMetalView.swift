@@ -56,6 +56,28 @@ class PreviewMetalView: MTKView {
   required init(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
+  
+  func setupTransform() {
+    var scaleX = Float(frame.width / CGFloat(resolution.width))
+    var scaleY = Float(frame.height / CGFloat(resolution.height))
+    scaleX = scaleY / scaleX
+    scaleY = 1.0
+
+    let vertexData: [Float] = [
+      -scaleX, -scaleY, 0.0, 1.0,
+      scaleX, -scaleY, 0.0, 1.0,
+      -scaleX, scaleY, 0.0, 1.0,
+      scaleX, scaleY, 0.0, 1.0,
+    ]
+    vertexCoordBuffer = device!.makeBuffer(bytes: vertexData, length: vertexData.count * MemoryLayout<Float>.size, options: [])
+    let textData: [Float] = [
+      0.0, 1.0,
+      1.0, 1.0,
+      0.0, 0.0,
+      1.0, 0.0,
+    ]
+    textCoordBuffer = device?.makeBuffer(bytes: textData, length: textData.count * MemoryLayout<Float>.size, options: [])
+  }
 
   func configureMetal() {
     /*
@@ -83,25 +105,7 @@ class PreviewMetalView: MTKView {
       fatalError("Unable to create preview Metal view pipeline state. (\(error))")
     }
 
-    var scaleX = Float(frame.width / CGFloat(resolution.width))
-    var scaleY = Float(frame.height / CGFloat(resolution.height))
-    scaleX = scaleY / scaleX
-    scaleY = 1.0
-
-    let vertexData: [Float] = [
-      -scaleX, -scaleY, 0.0, 1.0,
-      scaleX, -scaleY, 0.0, 1.0,
-      -scaleX, scaleY, 0.0, 1.0,
-      scaleX, scaleY, 0.0, 1.0,
-    ]
-    vertexCoordBuffer = device!.makeBuffer(bytes: vertexData, length: vertexData.count * MemoryLayout<Float>.size, options: [])
-    let textData: [Float] = [
-      0.0, 1.0,
-      1.0, 1.0,
-      0.0, 0.0,
-      1.0, 0.0,
-    ]
-    textCoordBuffer = device?.makeBuffer(bytes: textData, length: textData.count * MemoryLayout<Float>.size, options: [])
+    setupTransform()
 
     // Command queue for the GPU command buffers
     commandQueue = device!.makeCommandQueue()
