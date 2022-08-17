@@ -25,9 +25,10 @@ FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime& 
   return ^(Frame* frame) {
     auto frameHostObject = std::make_shared<FrameHostObject>(frame);
     try {
-      auto processedFrame = cb.callWithThis(runtime, cb, jsi::Object::createFromHostObject(runtime, frameHostObject));
-      auto processedFrameHostObject = processedFrame.asObject(runtime).asHostObject(runtime);
-      return static_cast<FrameHostObject*>(processedFrameHostObject.get())->frame;
+      auto frameProcessorResult = cb.callWithThis(runtime, cb, jsi::Object::createFromHostObject(runtime, frameHostObject));
+      auto processedFrameHostObject = frameProcessorResult.asObject(runtime).asHostObject(runtime);
+      auto processedFrame = static_cast<FrameHostObject*>(processedFrameHostObject.get())->frame;
+      return processedFrame;
     } catch (jsi::JSError& jsError) {
       auto stack = std::regex_replace(jsError.getStack(), std::regex("\n"), "\n    ");
       auto message = [NSString stringWithFormat:@"Frame Processor threw an error: %s\nIn: %s", jsError.getMessage().c_str(), stack.c_str()];

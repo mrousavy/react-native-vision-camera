@@ -136,8 +136,6 @@ class PreviewMetalView: MTKView {
     let width = CVPixelBufferGetWidth(previewPixelBuffer)
     let height = CVPixelBufferGetHeight(previewPixelBuffer)
 
-    print("H: \(height) x W: \(width) Res: \(resolution)")
-
     if textureCache == nil {
       createTextureCache()
     }
