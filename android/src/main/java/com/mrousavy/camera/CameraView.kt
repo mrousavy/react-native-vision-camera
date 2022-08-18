@@ -72,7 +72,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
     const val TAG = "CameraView"
     const val TAG_PERF = "CameraView.performance"
 
-    private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "fps", "hdr", "lowLightBoost", "photo", "video", "enableFrameProcessor")
+    private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "fps", "hdr", "lowLightBoost", "photo", "video", "enableFrameProcessor", "jpegQuality")
     private val arrayListOfZoom = arrayListOf("zoom")
   }
 
@@ -110,6 +110,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
       lastFrameProcessorPerformanceEvaluation = System.currentTimeMillis()
       frameProcessorPerformanceDataCollector.clear()
     }
+  var jpegQuality = 0
 
   // private properties
   private var isMounted = false
@@ -451,6 +452,9 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         }
       }
 
+      if (jpegQuality >= 1 && jpegQuality <= 100) {
+        imageCaptureBuilder.setJpegQuality(jpegQuality)
+      }
 
       // Unbind use cases before rebinding
       videoCapture = null
