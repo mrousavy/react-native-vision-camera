@@ -46,6 +46,15 @@ export interface TakePhotoOptions {
    * @platform Android
    */
   skipMetadata?: boolean;
+  /**
+   * Indicates jpeg compression quality to use when capturing the photo.
+   *
+   * It should be a value between 0.0 and 1.0, where 0.0 is the lowest quality and 1.0 is the highest quality.
+   *
+   * @platform iOS 13.0+
+   * @default -1.0
+   */
+   jpegQuality?: number;
 }
 
 /**
