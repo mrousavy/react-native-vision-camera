@@ -14,7 +14,16 @@ import {
 } from 'react-native-vision-camera';
 import { Camera, frameRateIncluded } from 'react-native-vision-camera';
 import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING } from './Constants';
-import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated';
+import Reanimated, {
+  Extrapolate,
+  interpolate,
+  useAnimatedGestureHandler,
+  useAnimatedProps,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import { useEffect } from 'react';
 import { useIsForeground } from './hooks/useIsForeground';
 import { StatusBarBlurBackground } from './views/StatusBarBlurBackground';
@@ -42,6 +51,12 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const [hasMicrophonePermission, setHasMicrophonePermission] = useState(false);
   const zoom = useSharedValue(0);
   const isPressingButton = useSharedValue(false);
+
+  const pixelScale = useSharedValue(-1);
+
+  useEffect(() => {
+    pixelScale.value = withRepeat(withSequence(withTiming(1, { duration: 1000 }), withTiming(-1, { duration: 1000 })), -1);
+  }, [pixelScale]);
 
   // check if camera page is active
   const isFocussed = useIsFocused();
@@ -198,11 +213,14 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const frameProcessor = useFrameProcessor((frame) => {
-    'worklet';
-    const filteredFrame = examplePluginFilter(frame, 30);
-    return filteredFrame;
-  }, []);
+  const frameProcessor = useFrameProcessor(
+    (frame) => {
+      'worklet';
+      const filteredFrame = examplePluginFilter(frame, pixelScale.value);
+      return filteredFrame;
+    },
+    [pixelScale],
+  );
 
   const onFrameProcessorSuggestionAvailable = useCallback((suggestion: FrameProcessorPerformanceSuggestion) => {
     console.log(`Suggestion available! ${suggestion.type}: Can do ${suggestion.suggestedFrameProcessorFps} FPS`);
