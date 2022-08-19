@@ -26,8 +26,13 @@ FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime& 
     auto frameHostObject = std::make_shared<FrameHostObject>(frame);
     try {
       auto frameProcessorResult = cb.callWithThis(runtime, cb, jsi::Object::createFromHostObject(runtime, frameHostObject));
+      if (frameProcessorResult.isUndefined()) {
+        frameHostObject->close();
+        return frame;
+      }
       auto processedFrameHostObject = frameProcessorResult.asObject(runtime).asHostObject(runtime);
       auto processedFrame = static_cast<FrameHostObject*>(processedFrameHostObject.get())->frame;
+      frameHostObject->close();
       return processedFrame;
     } catch (jsi::JSError& jsError) {
       auto stack = std::regex_replace(jsError.getStack(), std::regex("\n"), "\n    ");
@@ -49,6 +54,7 @@ FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime& 
     //  2. we don't know when the JS runtime garbage collects this object, it might be holding it for a few more frames
     //     which then blocks the camera queue from pushing new frames (memory limit)
     frameHostObject->close();
+    // Fallback to original camera frame
     return frame;
   };
 }

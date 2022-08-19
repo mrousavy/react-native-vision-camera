@@ -42,7 +42,7 @@ extension CameraView {
       // `windowInterfaceOrientation` and `videoPreviewLayer` should only be accessed from UI thread
       let isMirrored = self.videoDeviceInput?.device.position == .front
 
-//      self.videoPreviewLayer.connection?.setInterfaceOrientation(self.inputOrientation)
+      self.standardPreview?.connection?.setInterfaceOrientation(self.inputOrientation)
 
       let connectionOrientation = self.outputOrientation
       self.cameraQueue.async {

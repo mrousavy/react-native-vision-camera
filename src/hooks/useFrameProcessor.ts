@@ -3,7 +3,7 @@
 import { DependencyList, useCallback } from 'react';
 import type { Frame } from '../Frame';
 
-type FrameProcessor = (frame: Frame) => Frame;
+type FrameProcessor = (frame: Frame) => Frame | void;
 
 const capturableConsole = console;
 

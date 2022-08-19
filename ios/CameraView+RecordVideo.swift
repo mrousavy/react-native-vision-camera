@@ -196,10 +196,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
     if let frameProcessor = frameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
       let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
       let processedFrame = frameProcessor(frame)
-      if let buffer = processedFrame?.buffer {
-        print("PB Original: \(CVPixelBufferGetWidth(pixelBuffer!)) x \(CVPixelBufferGetHeight(pixelBuffer!))")
-        pixelBuffer = CMSampleBufferGetImageBuffer(buffer)
-        print("PB Processed: \(CVPixelBufferGetWidth(pixelBuffer!)) x \(CVPixelBufferGetHeight(pixelBuffer!))")
+      if let buffer = processedFrame?.buffer, let processedPixelBuffer = CMSampleBufferGetImageBuffer(buffer) {
+        pixelBuffer = processedPixelBuffer
       }
       
 //      // check if last frame was x nanoseconds ago, effectively throttling FPS
