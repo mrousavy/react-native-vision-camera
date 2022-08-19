@@ -56,7 +56,7 @@ class PreviewMetalView: MTKView {
   required init(coder _: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
-  
+
   func setupTransform() {
     var scaleX = Float(frame.width / CGFloat(resolution.width))
     var scaleY = Float(frame.height / CGFloat(resolution.height))

@@ -190,16 +190,15 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   }
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
-    // TODO: Modify pixel buffer before it gets sent to the preview and/or asset writer
-    var pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
-    
+    var outputSampleBuffer = sampleBuffer
+
     if let frameProcessor = frameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
-      let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
+      let frame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
       let processedFrame = frameProcessor(frame)
-      if let buffer = processedFrame?.buffer, let processedPixelBuffer = CMSampleBufferGetImageBuffer(buffer) {
-        pixelBuffer = processedPixelBuffer
+      if let buffer = processedFrame?.buffer {
+        outputSampleBuffer = buffer
       }
-      
+
 //      // check if last frame was x nanoseconds ago, effectively throttling FPS
 //      let lastFrameProcessorCallElapsedTime = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorCall.uptimeNanoseconds
 //      let secondsPerFrame = 1.0 / actualFrameProcessorFps
@@ -229,11 +228,13 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 //        evaluateNewPerformanceSamples()
 //      }
     }
-    
-    
-    if let metalPreview = metalPreview, captureOutput is AVCaptureVideoDataOutput, let pixelBuffer = pixelBuffer {
+
+    // If using Metal preview backing, set the output pixel buffer to render
+    if let metalPreview = metalPreview, captureOutput is AVCaptureVideoDataOutput,
+       let pixelBuffer = CMSampleBufferGetImageBuffer(outputSampleBuffer) {
       metalPreview.pixelBuffer = pixelBuffer
     }
+
     // Video Recording runs in the same queue
     if isRecording {
       guard let recordingSession = recordingSession else {
@@ -243,7 +244,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
       switch captureOutput {
       case is AVCaptureVideoDataOutput:
-        recordingSession.appendBuffer(sampleBuffer, type: .video, timestamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
+        recordingSession.appendBuffer(outputSampleBuffer, type: .video, timestamp: CMSampleBufferGetPresentationTimeStamp(outputSampleBuffer))
       case is AVCaptureAudioDataOutput:
         let timestamp = CMSyncConvertTime(CMSampleBufferGetPresentationTimeStamp(sampleBuffer),
                                           from: audioCaptureSession.masterClock!,
