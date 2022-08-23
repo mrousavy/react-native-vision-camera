@@ -24,17 +24,24 @@
   return self;
 }
 
+/*
+ Used in the case where we need to explicitly retain the sample buffer (so ARC doesn't free it).
+ `releaseBuffer()` must be called to explicitly release this buffer before deinitialisation.
+ */
 - (instancetype) initWithBufferCopy:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation {
   self = [super init];
   if (self) {
-    CMSampleBufferRef copyBuffer = NULL;
-    CMSampleBufferCreateCopy(kCFAllocatorDefault, buffer, &copyBuffer);
-    CVPixelBufferRef imageBuffer = CMSampleBufferGetImageBuffer(copyBuffer);
-    CFRetain(imageBuffer);
-    _buffer = copyBuffer;
+    CFRetain(buffer);
+    _buffer = buffer;
     _orientation = orientation;
   }
   return self;
+}
+
+- (void) releaseBuffer {
+  CMSampleBufferInvalidate(_buffer);
+  CFRelease(_buffer);
+  buffer = NULL;
 }
 
 @synthesize buffer = _buffer;

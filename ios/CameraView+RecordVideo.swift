@@ -190,14 +190,10 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   }
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
-    var outputSampleBuffer = sampleBuffer
+    var outputFrame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
     
     if let frameProcessor = frameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
-      let frame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
-      let processedFrame = frameProcessor(frame)
-      if let buffer = processedFrame?.buffer {
-        outputSampleBuffer = buffer
-      }
+      outputFrame = frameProcessor(outputFrame)
 
 //      // check if last frame was x nanoseconds ago, effectively throttling FPS
 //      let lastFrameProcessorCallElapsedTime = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorCall.uptimeNanoseconds
@@ -230,13 +226,16 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
     }
 
     // If using Metal preview backing, set the output pixel buffer to render
-    if let metalPreview = metalPreview, captureOutput is AVCaptureVideoDataOutput,
-       let pixelBuffer = CMSampleBufferGetImageBuffer(outputSampleBuffer) {
-      metalPreview.pixelBuffer = pixelBuffer
+    if let metalPreview = metalPreview, captureOutput is AVCaptureVideoDataOutput {
+      if let sampleBuffer = outputFrame?.buffer, let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
+        metalPreview.pixelBuffer = pixelBuffer
+      } else {
+        ReactLogger.log(level: .error, message: "Preview set to Metal but there is no valid pixel buffer to display")
+      }
     }
 
     // Video Recording runs in the same queue
-    if isRecording {
+    if isRecording, let sampleBuffer = outputFrame?.buffer {
       guard let recordingSession = recordingSession else {
         invokeOnError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
         return
@@ -244,7 +243,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
       switch captureOutput {
       case is AVCaptureVideoDataOutput:
-        recordingSession.appendBuffer(outputSampleBuffer, type: .video, timestamp: CMSampleBufferGetPresentationTimeStamp(outputSampleBuffer))
+        recordingSession.appendBuffer(sampleBuffer, type: .video, timestamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
       case is AVCaptureAudioDataOutput:
         let timestamp = CMSyncConvertTime(CMSampleBufferGetPresentationTimeStamp(sampleBuffer),
                                           from: audioCaptureSession.masterClock!,
@@ -254,6 +253,10 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         break
       }
     }
+    
+    // If we explicitly retained the sample buffer for a frame, we are no longer using it so release it
+    outputFrame?.releaseBuffer()
+    
   }
 
   private func evaluateNewPerformanceSamples() {

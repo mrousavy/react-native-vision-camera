@@ -16,6 +16,7 @@
 
 - (instancetype) initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation;
 - (instancetype) initWithBufferCopy:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation;
+- (void) releaseBuffer;
 
 @property (nonatomic, readonly) CMSampleBufferRef buffer;
 @property (nonatomic, readonly) UIImageOrientation orientation;
