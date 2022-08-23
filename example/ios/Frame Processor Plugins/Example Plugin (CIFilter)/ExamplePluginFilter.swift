@@ -12,6 +12,7 @@ import Vision
 @objc(ExamplePluginFilter)
 public class ExamplePluginFilter: NSObject, FrameProcessorPluginBase {
   
+  static var outputSize = CGSize.zero
   static var outputPixelBufferPool: CVPixelBufferPool? = nil
   static let filter = CIFilter(name: "CIBumpDistortion", parameters: [
     "inputCenter": CIVector(x: 0, y: 0),
@@ -21,8 +22,8 @@ public class ExamplePluginFilter: NSObject, FrameProcessorPluginBase {
   static let ciContext = CIContext(mtlDevice: MTLCreateSystemDefaultDevice()!)
   
   static func allocateBufferPool(_ width: Int, _ height: Int, _ pixelFormat: FourCharCode) -> CVReturn {
+    print("Allocating new pixel buffer output pool with size: \(width) x \(height)")
     let poolAttributes: NSDictionary? = nil
-    print("PB alloc: \(width) x \(height)")
     let pixelBufferAttributes: [String: Any] = [
       kCVPixelBufferWidthKey as String: width,
       kCVPixelBufferHeightKey as String: height,
@@ -31,11 +32,6 @@ public class ExamplePluginFilter: NSObject, FrameProcessorPluginBase {
     ]
     return CVPixelBufferPoolCreate(kCFAllocatorDefault, poolAttributes, pixelBufferAttributes as NSDictionary, &outputPixelBufferPool)
   }
-  
-//  static func reset() {
-//    outputPixelBufferPool = nil
-//    outputPixelBuffer = nil
-//  }
   
   @objc
   public static func callback(_ frame: Frame!, withArgs args: [Any]!) -> Any! {
@@ -46,8 +42,9 @@ public class ExamplePluginFilter: NSObject, FrameProcessorPluginBase {
     }
     let bufferWidth = CVPixelBufferGetWidth(imageBuffer)
     let bufferHeight = CVPixelBufferGetHeight(imageBuffer)
-    // Ensure we have an output pixel buffer pool correctly setup
-    if outputPixelBufferPool == nil {
+    // Ensure we have an output pixel buffer pool correctly setup (in this case matching the input dimensions)
+    if bufferWidth != Int(outputSize.width) || bufferHeight != Int(outputSize.height) {
+      outputSize = CGSize(width: bufferWidth, height: bufferHeight)
       let pixelFormat = CMFormatDescriptionGetMediaSubType(formatDescription)
       let poolStatus = allocateBufferPool(
         bufferWidth,
