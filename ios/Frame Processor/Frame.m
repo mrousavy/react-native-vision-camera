@@ -24,6 +24,19 @@
   return self;
 }
 
+- (instancetype) initWithBufferCopy:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation {
+  self = [super init];
+  if (self) {
+    CMSampleBufferRef copyBuffer = NULL;
+    CMSampleBufferCreateCopy(kCFAllocatorDefault, buffer, &copyBuffer);
+    CVPixelBufferRef imageBuffer = CMSampleBufferGetImageBuffer(copyBuffer);
+    CFRetain(imageBuffer);
+    _buffer = copyBuffer;
+    _orientation = orientation;
+  }
+  return self;
+}
+
 @synthesize buffer = _buffer;
 @synthesize orientation = _orientation;
 

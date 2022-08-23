@@ -191,7 +191,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
     var outputSampleBuffer = sampleBuffer
-
+    
     if let frameProcessor = frameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
       let frame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
       let processedFrame = frameProcessor(frame)

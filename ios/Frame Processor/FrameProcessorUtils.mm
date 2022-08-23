@@ -26,18 +26,18 @@ FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime& 
     auto frameHostObject = std::make_shared<FrameHostObject>(frame);
     try {
       auto frameProcessorResult = cb.callWithThis(runtime, cb, jsi::Object::createFromHostObject(runtime, frameHostObject));
-      if (frameProcessorResult.isUndefined()) {
-        frameHostObject->close();
-        return frame;
-      }
-      auto processedFrameHostObject = frameProcessorResult.asObject(runtime).asHostObject(runtime);
-      auto processedFrame = static_cast<FrameHostObject*>(processedFrameHostObject.get())->frame;
-      frameHostObject->close();
-      return processedFrame;
+//      if (frameProcessorResult.isUndefined()) {
+//        frameHostObject->close();
+//        return frame;
+//      }
+//      auto processedFrameHostObject = frameProcessorResult.asObject(runtime).asHostObject(runtime);
+//      auto processedFrame = static_cast<FrameHostObject*>(processedFrameHostObject.get())->frame;
+//      frameHostObject->close();
+//      return processedFrame;
     } catch (jsi::JSError& jsError) {
       auto stack = std::regex_replace(jsError.getStack(), std::regex("\n"), "\n    ");
       auto message = [NSString stringWithFormat:@"Frame Processor threw an error: %s\nIn: %s", jsError.getMessage().c_str(), stack.c_str()];
-      
+      NSLog(@"%@", message);
       RCTBridge* bridge = [RCTBridge currentBridge];
       if (bridge != nil) {
         bridge.jsCallInvoker->invokeAsync([bridge, message]() {

@@ -20,10 +20,6 @@ public class ExamplePluginFilter: NSObject, FrameProcessorPluginBase {
   ])!
   static let ciContext = CIContext(mtlDevice: MTLCreateSystemDefaultDevice()!)
   
-  static var outputPixelBuffer: CVPixelBuffer?
-  static var ciImage: CIImage?
-  static var sampleBufferOut: CMSampleBuffer?
-  
   static func allocateBufferPool(_ width: Int, _ height: Int, _ pixelFormat: FourCharCode) -> CVReturn {
     let poolAttributes: NSDictionary? = nil
     print("PB alloc: \(width) x \(height)")
@@ -36,6 +32,11 @@ public class ExamplePluginFilter: NSObject, FrameProcessorPluginBase {
     return CVPixelBufferPoolCreate(kCFAllocatorDefault, poolAttributes, pixelBufferAttributes as NSDictionary, &outputPixelBufferPool)
   }
   
+//  static func reset() {
+//    outputPixelBufferPool = nil
+//    outputPixelBuffer = nil
+//  }
+  
   @objc
   public static func callback(_ frame: Frame!, withArgs args: [Any]!) -> Any! {
     // Get the underlying CVImageBuffer from our frame
@@ -45,22 +46,21 @@ public class ExamplePluginFilter: NSObject, FrameProcessorPluginBase {
     }
     let bufferWidth = CVPixelBufferGetWidth(imageBuffer)
     let bufferHeight = CVPixelBufferGetHeight(imageBuffer)
-    // TODO: image buffer seems to have swapped dims to what we receive in captureOutput so for now lets check against the frame orientation
-    let shouldSwapDims = frame.orientation == .right || frame.orientation == .left || frame.orientation == .rightMirrored || frame.orientation == .leftMirrored
     // Ensure we have an output pixel buffer pool correctly setup
     if outputPixelBufferPool == nil {
       let pixelFormat = CMFormatDescriptionGetMediaSubType(formatDescription)
       let poolStatus = allocateBufferPool(
-        shouldSwapDims ? bufferHeight : bufferWidth,
-        shouldSwapDims ? bufferWidth : bufferHeight,
+        bufferWidth,
+        bufferHeight,
         pixelFormat
       )
       if poolStatus != kCVReturnSuccess {
         assertionFailure("Pool allocation failed with status: \(poolStatus)")
         return frame
       }
-      CVPixelBufferPoolCreatePixelBuffer(kCFAllocatorDefault, outputPixelBufferPool!, &outputPixelBuffer)
     }
+    var outputPixelBuffer: CVPixelBuffer?
+    CVPixelBufferPoolCreatePixelBuffer(kCFAllocatorDefault, outputPixelBufferPool!, &outputPixelBuffer)
     // Set the input center based on the image size
     filter.setValue(
       CIVector(
@@ -78,10 +78,10 @@ public class ExamplePluginFilter: NSObject, FrameProcessorPluginBase {
       filter.setValue(intensity, forKey: kCIInputScaleKey)
     }
     // Create a CIImage from the buffer and apply the filter (CI automatically locks the buffer)
-    ciImage = CIImage(cvPixelBuffer: imageBuffer)
-    filter.setValue(ciImage!, forKey: kCIInputImageKey)
-    ciImage = (filter.outputImage)!.cropped(to: ciImage!.extent)
-    ciContext.render(ciImage!, to: outputPixelBuffer!)
+    var ciImage = CIImage(cvPixelBuffer: imageBuffer)
+    filter.setValue(ciImage, forKey: kCIInputImageKey)
+    ciImage = (filter.outputImage)!.cropped(to: ciImage.extent)
+    ciContext.render(ciImage, to: outputPixelBuffer!)
     // Return the modified frame to the worklet!
     var outputFormat: CMFormatDescription?
     CMVideoFormatDescriptionCreateForImageBuffer(allocator: kCFAllocatorDefault, imageBuffer: outputPixelBuffer!, formatDescriptionOut: &outputFormat)
@@ -90,6 +90,7 @@ public class ExamplePluginFilter: NSObject, FrameProcessorPluginBase {
       presentationTimeStamp: CMSampleBufferGetPresentationTimeStamp(frame.buffer),
       decodeTimeStamp: CMSampleBufferGetDecodeTimeStamp(frame.buffer)
     )
+    var sampleBufferOut: CMSampleBuffer?
     let createSampleBufferStatus = CMSampleBufferCreateReadyWithImageBuffer(
       allocator: kCFAllocatorDefault,
       imageBuffer: outputPixelBuffer!,
