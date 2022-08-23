@@ -13,32 +13,34 @@
 @implementation Frame {
   CMSampleBufferRef buffer;
   UIImageOrientation orientation;
+  Boolean hasRetainedBuffer;
 }
 
 - (instancetype) initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation {
   self = [super init];
   if (self) {
+    hasRetainedBuffer = false;
     _buffer = buffer;
     _orientation = orientation;
   }
   return self;
 }
 
-/*
- Used in the case where we need to explicitly retain the sample buffer (so ARC doesn't free it).
- `releaseBuffer()` must be called to explicitly release this buffer before deinitialisation.
- */
-- (instancetype) initWithBufferCopy:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation {
+- (instancetype) initWithRetainedBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation {
   self = [super init];
   if (self) {
     CFRetain(buffer);
+    hasRetainedBuffer = true;
     _buffer = buffer;
     _orientation = orientation;
   }
   return self;
 }
 
-- (void) releaseBuffer {
+- (void) dealloc {
+  if (_buffer == NULL || hasRetainedBuffer == false) {
+    return;
+  }
   CMSampleBufferInvalidate(_buffer);
   CFRelease(_buffer);
   buffer = NULL;

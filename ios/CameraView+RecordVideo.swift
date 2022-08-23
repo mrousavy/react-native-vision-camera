@@ -190,10 +190,15 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   }
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
-    var outputFrame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
+    
+    // MARK: Video buffer processing + recording
+    if captureOutput is AVCaptureVideoDataOutput {
+      var outputFrame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
 
-    if let frameProcessor = frameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
-      outputFrame = frameProcessor(outputFrame)
+      if let frameProcessor = frameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
+        if let frameProcessorResult = frameProcessor(outputFrame) {
+          outputFrame = frameProcessorResult
+        }
 
 //      // check if last frame was x nanoseconds ago, effectively throttling FPS
 //      let lastFrameProcessorCallElapsedTime = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorCall.uptimeNanoseconds
@@ -223,39 +228,40 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 //        // last evaluation was more than 1sec ago, evaluate again
 //        evaluateNewPerformanceSamples()
 //      }
-    }
+      }
 
-    // If using Metal preview backing, set the output pixel buffer to render
-    if let metalPreview = metalPreview, captureOutput is AVCaptureVideoDataOutput {
-      if let sampleBuffer = outputFrame?.buffer, let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
-        metalPreview.pixelBuffer = pixelBuffer
-      } else {
-        ReactLogger.log(level: .error, message: "Preview set to Metal but there is no valid pixel buffer to display")
+      // If using Metal preview backing, set the output pixel buffer to render
+      if let metalPreview = metalPreview {
+        if let sampleBuffer = outputFrame?.buffer, let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) {
+          metalPreview.pixelBuffer = pixelBuffer
+        } else {
+          ReactLogger.log(level: .error, message: "Preview set to Metal but there is no valid pixel buffer to display")
+        }
+      }
+
+      // Video Recording runs in the same queue
+      if isRecording, let sampleBuffer = outputFrame?.buffer {
+        guard let recordingSession = recordingSession else {
+          invokeOnError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
+          return
+        }
+
+        recordingSession.appendBuffer(sampleBuffer, type: .video, timestamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
       }
     }
-
-    // Video Recording runs in the same queue
-    if isRecording, let sampleBuffer = outputFrame?.buffer {
+    
+    // MARK: Audio buffer processing + recording
+    if isRecording, captureOutput is AVCaptureAudioDataOutput {
       guard let recordingSession = recordingSession else {
         invokeOnError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
         return
       }
-
-      switch captureOutput {
-      case is AVCaptureVideoDataOutput:
-        recordingSession.appendBuffer(sampleBuffer, type: .video, timestamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
-      case is AVCaptureAudioDataOutput:
-        let timestamp = CMSyncConvertTime(CMSampleBufferGetPresentationTimeStamp(sampleBuffer),
-                                          from: audioCaptureSession.masterClock!,
-                                          to: captureSession.masterClock!)
-        recordingSession.appendBuffer(sampleBuffer, type: .audio, timestamp: timestamp)
-      default:
-        break
-      }
+      let timestamp = CMSyncConvertTime(CMSampleBufferGetPresentationTimeStamp(sampleBuffer),
+                                        from: audioCaptureSession.masterClock!,
+                                        to: captureSession.masterClock!)
+      recordingSession.appendBuffer(sampleBuffer, type: .audio, timestamp: timestamp)
     }
-
-    // If we explicitly retained the sample buffer for a frame, we are no longer using it so release it
-    outputFrame?.releaseBuffer()
+    
   }
 
   private func evaluateNewPerformanceSamples() {

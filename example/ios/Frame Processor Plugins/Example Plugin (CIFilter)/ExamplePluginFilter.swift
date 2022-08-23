@@ -100,7 +100,7 @@ public class ExamplePluginFilter: NSObject, FrameProcessorPluginBase {
       print("Could not create output sample buffer - failed with status: \(createSampleBufferStatus)")
       return frame
     }
-    let outputFrame = Frame(bufferCopy: sampleBufferOut, orientation: frame.orientation)
+    let outputFrame = Frame(retainedBuffer: sampleBufferOut, orientation: frame.orientation)
     return outputFrame
   }
 }
