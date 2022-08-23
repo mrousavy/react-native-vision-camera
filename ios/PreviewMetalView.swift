@@ -32,7 +32,9 @@ class PreviewMetalView: MTKView {
   private var renderPipelineState: MTLRenderPipelineState!
   private var commandQueue: MTLCommandQueue?
 
-  // TODO: This fix below does not work. MTKView does not seemingly autorelease its drawables as is documented here: https://developer.apple.com/documentation/quartzcore/cametallayer#3385893
+  // TODO: This fix below does not work.
+  // MTKView does not seemingly autorelease its drawables as is documented here:
+  // https://developer.apple.com/documentation/quartzcore/cametallayer#3385893
   // Required to invalidate CADisplayLink when MTKView gets removed from parent
   // Known issue reported here: https://openradar.appspot.com/23977735
   override public func didMoveToSuperview() {

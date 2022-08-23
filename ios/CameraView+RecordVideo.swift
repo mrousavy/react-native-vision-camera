@@ -191,7 +191,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
     var outputFrame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
-    
+
     if let frameProcessor = frameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
       outputFrame = frameProcessor(outputFrame)
 
@@ -253,10 +253,9 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         break
       }
     }
-    
+
     // If we explicitly retained the sample buffer for a frame, we are no longer using it so release it
     outputFrame?.releaseBuffer()
-    
   }
 
   private func evaluateNewPerformanceSamples() {
