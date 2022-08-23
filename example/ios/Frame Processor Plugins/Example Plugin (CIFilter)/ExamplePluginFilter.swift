@@ -44,6 +44,7 @@ public class ExamplePluginFilter: NSObject, FrameProcessorPluginBase {
     let bufferHeight = CVPixelBufferGetHeight(imageBuffer)
     // Ensure we have an output pixel buffer pool correctly setup (in this case matching the input dimensions)
     if bufferWidth != Int(outputSize.width) || bufferHeight != Int(outputSize.height) {
+      outputPixelBufferPool = nil
       outputSize = CGSize(width: bufferWidth, height: bufferHeight)
       let pixelFormat = CMFormatDescriptionGetMediaSubType(formatDescription)
       let poolStatus = allocateBufferPool(
