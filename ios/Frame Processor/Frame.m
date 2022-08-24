@@ -38,7 +38,7 @@
 }
 
 - (void) dealloc {
-  if (_buffer == NULL || hasRetainedBuffer == false) {
+  if (hasRetainedBuffer == false) {
     return;
   }
   CMSampleBufferInvalidate(_buffer);

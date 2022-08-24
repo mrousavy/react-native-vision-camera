@@ -190,13 +190,13 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   }
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
-    
     // MARK: Video buffer processing + recording
-    if captureOutput is AVCaptureVideoDataOutput {
-      var outputFrame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
 
+    if captureOutput is AVCaptureVideoDataOutput {
+      let cameraFrame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
+      var outputFrame: Frame?
       if let frameProcessor = frameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
-        if let frameProcessorResult = frameProcessor(outputFrame) {
+        if let frameProcessorResult = frameProcessor(cameraFrame) {
           outputFrame = frameProcessorResult
         }
 
@@ -249,8 +249,9 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         recordingSession.appendBuffer(sampleBuffer, type: .video, timestamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
       }
     }
-    
+
     // MARK: Audio buffer processing + recording
+
     if isRecording, captureOutput is AVCaptureAudioDataOutput {
       guard let recordingSession = recordingSession else {
         invokeOnError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
@@ -261,7 +262,6 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
                                         to: captureSession.masterClock!)
       recordingSession.appendBuffer(sampleBuffer, type: .audio, timestamp: timestamp)
     }
-    
   }
 
   private func evaluateNewPerformanceSamples() {
