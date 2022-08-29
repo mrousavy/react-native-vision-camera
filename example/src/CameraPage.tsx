@@ -216,17 +216,15 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
-    console.log('Asynchronous FP called at ' + Date.now());
-    // const values = examplePlugin(frame);
-    // console.log(`Return Values: ${JSON.stringify(values)}`);
+    const values = examplePlugin(frame);
+    console.log(`Return Values: ${JSON.stringify(values)}`);
   }, []);
 
   const syncFrameProcessor = useSyncFrameProcessor(
     (frame) => {
       'worklet';
-      console.log('Synchronous FP called at ' + Date.now());
-      // const filteredFrame = examplePluginFilter(frame, pixelScale.value);
-      // return filteredFrame;
+      const filteredFrame = examplePluginFilter(frame, pixelScale.value);
+      return filteredFrame;
     },
     [pixelScale],
   );
