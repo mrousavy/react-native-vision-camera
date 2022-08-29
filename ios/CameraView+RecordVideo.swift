@@ -191,43 +191,48 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
     // MARK: Video buffer processing + recording
-
+    
     if captureOutput is AVCaptureVideoDataOutput {
+      // Create a Frame that will be passed to both the async and sync FP callbacks
       let cameraFrame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
-      var outputFrame: Frame?
-      if let frameProcessor = frameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
-        if let frameProcessorResult = frameProcessor(cameraFrame) {
-          outputFrame = frameProcessorResult
+      var outputFrame = cameraFrame
+      
+      // Run the asynchrous frame processor
+      if let frameProcessor = frameProcessorCallback {
+        // check if last frame was x nanoseconds ago, effectively throttling FPS
+        let lastFrameProcessorCallElapsedTime = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorCall.uptimeNanoseconds
+        let secondsPerFrame = 1.0 / actualFrameProcessorFps
+        let nanosecondsPerFrame = secondsPerFrame * 1_000_000_000.0
+        if lastFrameProcessorCallElapsedTime > UInt64(nanosecondsPerFrame) {
+          if !isRunningFrameProcessor {
+            // we're not in the middle of executing the Frame Processor, so prepare for next call.
+            CameraQueues.frameProcessorQueue.async {
+              self.isRunningFrameProcessor = true
+              let perfSample = self.frameProcessorPerformanceDataCollector.beginPerformanceSampleCollection()
+              frameProcessor(cameraFrame)
+              perfSample.endPerformanceSampleCollection()
+              self.isRunningFrameProcessor = false
+            }
+            lastFrameProcessorCall = DispatchTime.now()
+          } else {
+            // we're still in the middle of executing a Frame Processor for a previous frame, so a frame was dropped.
+            ReactLogger.log(level: .warning, message: "The Frame Processor took so long to execute that a frame was dropped.")
+          }
         }
 
-//      // check if last frame was x nanoseconds ago, effectively throttling FPS
-//      let lastFrameProcessorCallElapsedTime = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorCall.uptimeNanoseconds
-//      let secondsPerFrame = 1.0 / actualFrameProcessorFps
-//      let nanosecondsPerFrame = secondsPerFrame * 1_000_000_000.0
-//
-//      if lastFrameProcessorCallElapsedTime > UInt64(nanosecondsPerFrame) {
-//        if !isRunningFrameProcessor {
-//          // we're not in the middle of executing the Frame Processor, so prepare for next call.
-//          CameraQueues.frameProcessorQueue.async {
-//            self.isRunningFrameProcessor = true
-//
-//            let perfSample = self.frameProcessorPerformanceDataCollector.beginPerformanceSampleCollection()
-//            let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
-//            let processedFrame = frameProcessor(frame)
-//            perfSample.endPerformanceSampleCollection()
-//            self.isRunningFrameProcessor = false
-//          }
-//          lastFrameProcessorCall = DispatchTime.now()
-//        } else {
-//          // we're still in the middle of executing a Frame Processor for a previous frame, so a frame was dropped.
-//          ReactLogger.log(level: .warning, message: "The Frame Processor took so long to execute that a frame was dropped.")
-//        }
-//      }
-//
-//      if isReadyForNewEvaluation {
-//        // last evaluation was more than 1sec ago, evaluate again
-//        evaluateNewPerformanceSamples()
-//      }
+        if isReadyForNewEvaluation {
+          // last evaluation was more than 1sec ago, evaluate again
+          evaluateNewPerformanceSamples()
+        }
+      }
+      
+      // Run the sync frame processor
+      if let syncFrameProcessor = frameProcessorSyncCallback, captureOutput is AVCaptureVideoDataOutput {
+        CameraQueues.frameProcessorQueue.sync {
+          if let frameProcessorResult = syncFrameProcessor(cameraFrame) {
+            outputFrame = frameProcessorResult
+          }
+        }
       }
 
       // If using Metal preview backing, set the output pixel buffer to render

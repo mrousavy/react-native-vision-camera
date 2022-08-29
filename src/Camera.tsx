@@ -76,6 +76,7 @@ export class Camera extends React.PureComponent<CameraProps> {
   /** @internal */
   displayName = Camera.displayName;
   private lastFrameProcessor: ((frame: Frame) => void) | undefined;
+  private lastSyncFrameProcessor: ((frame: Frame) => void) | undefined;
   private isNativeViewMounted = false;
 
   private readonly ref: React.RefObject<RefType>;
@@ -89,6 +90,7 @@ export class Camera extends React.PureComponent<CameraProps> {
     this.onFrameProcessorPerformanceSuggestionAvailable = this.onFrameProcessorPerformanceSuggestionAvailable.bind(this);
     this.ref = React.createRef<RefType>();
     this.lastFrameProcessor = undefined;
+    this.lastSyncFrameProcessor = undefined;
   }
 
   private get handle(): number | null {
@@ -433,10 +435,10 @@ export class Camera extends React.PureComponent<CameraProps> {
     }
   }
 
-  private setFrameProcessor(frameProcessor: (frame: Frame) => void): void {
+  private setFrameProcessor(frameProcessor: (frame: Frame) => void, isSynchronous: boolean): void {
     this.assertFrameProcessorsEnabled();
     // @ts-expect-error JSI functions aren't typed
-    global.setFrameProcessor(this.handle, frameProcessor);
+    global.setFrameProcessor(this.handle, frameProcessor, isSynchronous);
   }
 
   private unsetFrameProcessor(): void {
@@ -447,23 +449,40 @@ export class Camera extends React.PureComponent<CameraProps> {
 
   private onViewReady(): void {
     this.isNativeViewMounted = true;
+    // Async
     if (this.props.frameProcessor != null) {
       // user passed a `frameProcessor` but we didn't set it yet because the native view was not mounted yet. set it now.
-      this.setFrameProcessor(this.props.frameProcessor);
+      this.setFrameProcessor(this.props.frameProcessor, false);
       this.lastFrameProcessor = this.props.frameProcessor;
+    }
+    // Sync
+    if (this.props.syncFrameProcessor != null) {
+      // user passed a `syncFrameProcessor` but we didn't set it yet because the native view was not mounted yet. set it now.
+      this.setFrameProcessor(this.props.syncFrameProcessor, true);
+      this.lastSyncFrameProcessor = this.props.syncFrameProcessor;
     }
   }
 
   /** @internal */
   componentDidUpdate(): void {
     if (!this.isNativeViewMounted) return;
+    // Async
     const frameProcessor = this.props.frameProcessor;
     if (frameProcessor !== this.lastFrameProcessor) {
       // frameProcessor argument identity changed. Update native to reflect the change.
-      if (frameProcessor != null) this.setFrameProcessor(frameProcessor);
+      if (frameProcessor != null) this.setFrameProcessor(frameProcessor, false);
       else this.unsetFrameProcessor();
 
       this.lastFrameProcessor = frameProcessor;
+    }
+    // Sync
+    const syncFrameProcessor = this.props.syncFrameProcessor;
+    if (syncFrameProcessor !== this.lastSyncFrameProcessor) {
+      // syncFrameProcessor argument identity changed. Update native to reflect the change.
+      if (syncFrameProcessor != null) this.setFrameProcessor(syncFrameProcessor, true);
+      else this.unsetFrameProcessor();
+
+      this.lastSyncFrameProcessor = syncFrameProcessor;
     }
   }
   //#endregion
@@ -471,7 +490,7 @@ export class Camera extends React.PureComponent<CameraProps> {
   /** @internal */
   public render(): React.ReactNode {
     // We remove the big `device` object from the props because we only need to pass `cameraId` to native.
-    const { device, frameProcessor, frameProcessorFps, ...props } = this.props;
+    const { device, frameProcessor, syncFrameProcessor, frameProcessorFps, ...props } = this.props;
     return (
       <NativeCameraView
         {...props}
@@ -482,7 +501,7 @@ export class Camera extends React.PureComponent<CameraProps> {
         onInitialized={this.onInitialized}
         onError={this.onError}
         onFrameProcessorPerformanceSuggestionAvailable={this.onFrameProcessorPerformanceSuggestionAvailable}
-        enableFrameProcessor={frameProcessor != null}
+        enableFrameProcessor={frameProcessor != null || syncFrameProcessor != null}
       />
     );
   }

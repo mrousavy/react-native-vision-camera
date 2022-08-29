@@ -48,6 +48,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
 __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 @interface CameraView : UIView
 @property (nonatomic, copy) FrameProcessorCallback _Nullable frameProcessorCallback;
+@property (nonatomic, copy) FrameProcessorSyncCallback _Nullable frameProcessorSyncCallback;
 @end
 
 @implementation FrameProcessorRuntimeManager {
@@ -145,19 +146,26 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
     NSLog(@"FrameProcessorBindings: Adapting Shareable value from function (conversion to worklet)...");
     auto worklet = reanimated::ShareableValue::adapt(runtime, arguments[1], runtimeManager.get());
     NSLog(@"FrameProcessorBindings: Successfully created worklet!");
+    
+    auto isSynchronous = arguments[2].getBool();
 
     RCTExecuteOnMainQueue([=]() {
       auto currentBridge = [RCTBridge currentBridge];
       auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
       auto view = static_cast<CameraView*>(anonymousView);
-
+      
       dispatch_async(CameraQueues.frameProcessorQueue, [=]() {
         NSLog(@"FrameProcessorBindings: Converting worklet to Objective-C callback...");
 
         auto& rt = *runtimeManager->runtime;
         auto function = worklet->getValue(rt).asObject(rt).asFunction(rt);
-
-        view.frameProcessorCallback = convertJSIFunctionToFrameProcessorCallback(rt, function);
+        
+        if (isSynchronous == false) {
+          view.frameProcessorCallback = convertJSIFunctionToFrameProcessorCallback(rt, function);
+        }
+        else {
+          view.frameProcessorSyncCallback = convertJSIFunctionToFrameProcessorSyncCallback(rt, function);
+        }
         NSLog(@"FrameProcessorBindings: Frame processor set!");
       });
     });
@@ -166,7 +174,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
   };
   jsiRuntime.global().setProperty(jsiRuntime, "setFrameProcessor", jsi::Function::createFromHostFunction(jsiRuntime,
                                                                                                          jsi::PropNameID::forAscii(jsiRuntime, "setFrameProcessor"),
-                                                                                                         2,  // viewTag, frameProcessor
+                                                                                                         3,  // viewTag, frameProcessor, isSynchronous
                                                                                                          setFrameProcessor));
 
   // unsetFrameProcessor(viewTag: number)

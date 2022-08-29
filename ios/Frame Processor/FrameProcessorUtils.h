@@ -21,3 +21,4 @@
 using namespace facebook;
 
 FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &runtime, const jsi::Function &value);
+FrameProcessorSyncCallback convertJSIFunctionToFrameProcessorSyncCallback(jsi::Runtime &runtime, const jsi::Function &value);
