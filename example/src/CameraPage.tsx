@@ -10,6 +10,7 @@ import {
   sortFormats,
   useCameraDevices,
   useFrameProcessor,
+  useSyncFrameProcessor,
   VideoFile,
 } from 'react-native-vision-camera';
 import { Camera, frameRateIncluded } from 'react-native-vision-camera';
@@ -31,7 +32,7 @@ import { CaptureButton } from './views/CaptureButton';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { examplePlugin, examplePluginFilter, examplePluginSwift } from './frame-processors/ExamplePlugin';
+import { examplePlugin, examplePluginFilter } from './frame-processors/ExamplePlugin';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
@@ -213,7 +214,13 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const frameProcessor = useFrameProcessor(
+  const frameProcessor = useFrameProcessor((frame) => {
+    'worklet';
+    const values = examplePlugin(frame);
+    console.log(`Return Values: ${JSON.stringify(values)}`);
+  }, []);
+
+  const syncFrameProcessor = useSyncFrameProcessor(
     (frame) => {
       'worklet';
       const filteredFrame = examplePluginFilter(frame, pixelScale.value);
@@ -249,9 +256,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 photo={true}
                 video={true}
                 audio={hasMicrophonePermission}
+                syncFrameProcessor={device.supportsParallelVideoProcessing ? syncFrameProcessor : undefined}
                 frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
                 orientation="portrait"
-                frameProcessorFps={60}
+                frameProcessorFps={5}
                 onFrameProcessorPerformanceSuggestionAvailable={onFrameProcessorSuggestionAvailable}
               />
             </TapGestureHandler>

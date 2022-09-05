@@ -3,7 +3,7 @@
 import { DependencyList, useCallback } from 'react';
 import type { Frame } from '../Frame';
 
-type FrameProcessor = (frame: Frame) => void;
+type SyncFrameProcessor = (frame: Frame) => Frame | void;
 
 const capturableConsole = console;
 
@@ -24,7 +24,7 @@ const capturableConsole = console;
  * }, [])
  * ```
  */
-export function useFrameProcessor(frameProcessor: FrameProcessor, dependencies: DependencyList): FrameProcessor {
+export function useSyncFrameProcessor(frameProcessor: SyncFrameProcessor, dependencies: DependencyList): SyncFrameProcessor {
   return useCallback((frame: Frame) => {
     'worklet';
 
@@ -53,7 +53,7 @@ export function useFrameProcessor(frameProcessor: FrameProcessor, dependencies: 
       global.didSetConsole = true;
     }
 
-    frameProcessor(frame);
+    return frameProcessor(frame);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies);
 }

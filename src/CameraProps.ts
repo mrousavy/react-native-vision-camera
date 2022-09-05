@@ -213,5 +213,24 @@ export interface CameraProps extends ViewProps {
    * @default 'auto'
    */
   frameProcessorFps?: number | 'auto';
+  /**
+   * A worklet which will be called for every frame the Camera "sees"
+   *
+   * > See [the Frame Processors documentation](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors) for more information
+   *
+   * Note: If you want to use `video` and `frameProcessor` simultaneously, make sure [`supportsParallelVideoProcessing`](https://mrousavy.github.io/react-native-vision-camera/docs/guides/devices#the-supportsparallelvideoprocessing-prop) is `true`.
+   *
+   * @example
+   * ```tsx
+   * const syncFrameProcessor = useSyncFrameProcessor((frame) => {
+   *   'worklet'
+   *   const sepiaToneFrame = sepiaFilterPlugin(frame)
+   *   return sepiaToneFrame
+   * }, [])
+   *
+   * return <Camera {...cameraProps} syncFrameProcessor={syncFrameProcessor} />
+   * ```
+   */
+  syncFrameProcessor?: (frame: Frame) => void;
   //#endregion
 }
