@@ -42,7 +42,7 @@
     "clean-android": "scripts/clean-android.sh",
     "clean-js": "scripts/clean-js.sh",
     "docs": "cd docs && yarn build",
-    "postinstall": "yarn build"
+    "postinstall": "./node_modules/react-native-builder-bob/bin/bob build"
   },
   "keywords": [
     "react-native",
