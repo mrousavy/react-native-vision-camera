@@ -44,7 +44,6 @@ public final class CameraView: UIView {
   @objc var enableHighQualityPhotos: NSNumber? // nullable bool
   @objc var enablePortraitEffectsMatteDelivery = false
   @objc var preset: String?
-  @objc var enableMetalPreview = false
   // use cases
   @objc var photo: NSNumber? // nullable bool
   @objc var video: NSNumber? // nullable bool
@@ -63,6 +62,7 @@ public final class CameraView: UIView {
   @objc var torch = "off"
   @objc var zoom: NSNumber = 1.0 // in "factor"
   @objc var videoStabilizationMode: NSString?
+  @objc var needsMetalBacking = false
   // events
   @objc var onInitialized: RCTDirectEventBlock?
   @objc var onError: RCTDirectEventBlock?
@@ -164,7 +164,7 @@ public final class CameraView: UIView {
     standardPreview?.session = nil
     standardPreview = nil
     // Configure the desired preview backing
-    if enableMetalPreview == false {
+    if needsMetalBacking == false {
       ReactLogger.log(level: .info, message: "Configuring preview to use standard AVCaptureVideoPreviewLayer with bounds: \(layer.bounds)")
       // Setup a standard preview layer
       standardPreview = AVCaptureVideoPreviewLayer()
@@ -229,7 +229,7 @@ public final class CameraView: UIView {
     let shouldReconfigure = changedProps.contains { propsThatRequireReconfiguration.contains($0) }
     let shouldReconfigureFormat = shouldReconfigure || changedProps.contains("format")
     let shouldReconfigureDevice = shouldReconfigureFormat || changedProps.contains { propsThatRequireDeviceReconfiguration.contains($0) }
-    let shouldReconfigurePreview = changedProps.contains("enableMetalPreview")
+    let shouldReconfigurePreview = changedProps.contains("needsMetalBacking")
     let shouldReconfigureAudioSession = changedProps.contains("audio")
 
     let willReconfigure = shouldReconfigure || shouldReconfigureFormat || shouldReconfigureDevice

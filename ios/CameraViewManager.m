@@ -27,7 +27,6 @@ RCT_EXPORT_VIEW_PROPERTY(cameraId, NSString);
 RCT_EXPORT_VIEW_PROPERTY(enableDepthData, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(enableHighQualityPhotos, NSNumber); // nullable bool
 RCT_EXPORT_VIEW_PROPERTY(enablePortraitEffectsMatteDelivery, BOOL);
-RCT_EXPORT_VIEW_PROPERTY(enableMetalPreview, BOOL);
 // use cases
 RCT_EXPORT_VIEW_PROPERTY(photo, NSNumber); // nullable bool
 RCT_EXPORT_VIEW_PROPERTY(video, NSNumber); // nullable bool
@@ -47,6 +46,7 @@ RCT_EXPORT_VIEW_PROPERTY(torch, NSString);
 RCT_EXPORT_VIEW_PROPERTY(zoom, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(enableZoomGesture, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(orientation, NSString);
+RCT_EXPORT_VIEW_PROPERTY(needsMetalBacking, BOOL);
 // Camera View Events
 RCT_EXPORT_VIEW_PROPERTY(onError, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onInitialized, RCTDirectEventBlock);

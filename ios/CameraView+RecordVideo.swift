@@ -191,12 +191,12 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
     // MARK: Video buffer processing + recording
-    
+
     if captureOutput is AVCaptureVideoDataOutput {
       // Create a Frame that will be passed to both the async and sync FP callbacks
       let cameraFrame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
       var outputFrame = cameraFrame
-      
+
       // Run the asynchrous frame processor
       if let frameProcessor = frameProcessorCallback {
         // check if last frame was x nanoseconds ago, effectively throttling FPS
@@ -225,7 +225,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           evaluateNewPerformanceSamples()
         }
       }
-      
+
       // Run the sync frame processor
       if let syncFrameProcessor = frameProcessorSyncCallback, captureOutput is AVCaptureVideoDataOutput {
         CameraQueues.frameProcessorQueue.sync {

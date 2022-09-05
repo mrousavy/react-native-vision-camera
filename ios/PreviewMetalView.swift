@@ -100,21 +100,26 @@ class PreviewMetalView: MTKView {
     };
 
     // Vertex shader for a textured quad
-    vertex VertexIO vertexPassThrough(const device packed_float4 *pPosition  [[ buffer(0) ]], const device packed_float2 *pTexCoords [[ buffer(1) ]], uint vid [[ vertex_id ]]) {
+    vertex VertexIO vertexPassThrough(const device packed_float4 *pPosition  [[ buffer(0) ]],
+    const device packed_float2 *pTexCoords [[ buffer(1) ]], uint vid [[ vertex_id ]]) {
         VertexIO outVertex;
-        
+
         outVertex.position = pPosition[vid];
         outVertex.textureCoord = pTexCoords[vid];
-        
+
         return outVertex;
     }
 
     // Fragment shader for a textured quad
-    fragment half4 fragmentPassThrough(VertexIO inputFragment [[ stage_in ]], texture2d<half> inputTexture  [[ texture(0) ]], sampler samplr [[ sampler(0) ]]) {
+    fragment half4 fragmentPassThrough(VertexIO inputFragment [[ stage_in ]],
+    texture2d<half> inputTexture  [[ texture(0) ]], sampler samplr [[ sampler(0) ]]) {
         return inputTexture.sample(samplr, inputFragment.textureCoord);
     }
     """
-    let defaultLibrary = try! device!.makeLibrary(source: shaders, options: nil)
+    guard let defaultLibrary = try? device!.makeLibrary(source: shaders, options: nil) else {
+      ReactLogger.log(level: .error, message: "MTLLibrary could not be created!")
+      return
+    }
     let pipelineDescriptor = MTLRenderPipelineDescriptor()
     pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
     pipelineDescriptor.vertexFunction = defaultLibrary.makeFunction(name: "vertexPassThrough")

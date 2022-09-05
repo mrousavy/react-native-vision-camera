@@ -68,7 +68,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const [enableHdr, setEnableHdr] = useState(false);
   const [flash, setFlash] = useState<'off' | 'on'>('off');
   const [enableNightMode, setEnableNightMode] = useState(false);
-  const [enableMetalPreview, setEnableMetalPreview] = useState(false);
+  const [enableFilter, setEnableFilter] = useState(false);
 
   // camera format settings
   const devices = useCameraDevices();
@@ -250,13 +250,12 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 isActive={isActive}
                 onInitialized={onInitialized}
                 onError={onError}
-                enableMetalPreview={enableMetalPreview}
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
                 photo={true}
                 video={true}
                 audio={hasMicrophonePermission}
-                syncFrameProcessor={device.supportsParallelVideoProcessing ? syncFrameProcessor : undefined}
+                syncFrameProcessor={device.supportsParallelVideoProcessing && enableFilter ? syncFrameProcessor : undefined}
                 frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
                 orientation="portrait"
                 frameProcessorFps={5}
@@ -311,8 +310,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
           </PressableOpacity>
         )}
         {Platform.OS === 'ios' && (
-          <PressableOpacity style={styles.button} onPress={() => setEnableMetalPreview(!enableMetalPreview)} disabledOpacity={0.4}>
-            <IonIcon name={enableMetalPreview ? 'hardware-chip-sharp' : 'hardware-chip-outline'} color="white" size={24} />
+          <PressableOpacity style={styles.button} onPress={() => setEnableFilter(!enableFilter)} disabledOpacity={0.4}>
+            <IonIcon name={enableFilter ? 'color-wand-sharp' : 'color-wand-outline'} color="white" size={24} />
           </PressableOpacity>
         )}
       </View>

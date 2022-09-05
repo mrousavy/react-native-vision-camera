@@ -27,6 +27,7 @@ type NativeCameraViewProps = Omit<
   cameraId: string;
   frameProcessorFps?: number; // native cannot use number | string, so we use '-1' for 'auto'
   enableFrameProcessor: boolean;
+  needsMetalBacking: boolean; // if we use a syncFrameProcessor tell Vision Camera to use Metal
   onInitialized?: (event: NativeSyntheticEvent<void>) => void;
   onError?: (event: NativeSyntheticEvent<OnErrorEvent>) => void;
   onFrameProcessorPerformanceSuggestionAvailable?: (event: NativeSyntheticEvent<FrameProcessorPerformanceSuggestion>) => void;
@@ -502,6 +503,7 @@ export class Camera extends React.PureComponent<CameraProps> {
         onError={this.onError}
         onFrameProcessorPerformanceSuggestionAvailable={this.onFrameProcessorPerformanceSuggestionAvailable}
         enableFrameProcessor={frameProcessor != null || syncFrameProcessor != null}
+        needsMetalBacking={syncFrameProcessor != null}
       />
     );
   }
