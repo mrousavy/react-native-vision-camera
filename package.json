@@ -21,6 +21,7 @@
     "ios/**/*.mm",
     "ios/**/*.cpp",
     "ios/**/*.swift",
+    "ios/**/*.metal",
     "ios/VisionCamera.xcodeproj/project.pbxproj",
     "app.plugin.js",
     "VisionCamera.podspec",
