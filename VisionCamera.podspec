@@ -28,7 +28,8 @@ Pod::Spec.new do |s|
 
   s.pod_target_xcconfig = {
     "USE_HEADERMAP" => "YES",
-    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_TARGET_SRCROOT)\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/boost-for-react-native\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/Headers/Private/React-Core\" "
+    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_TARGET_SRCROOT)\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/boost-for-react-native\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/Headers/Private/React-Core\" ",
+    "METAL_LIBRARY_OUTPUT_DIR" => "${TARGET_BUILD_DIR}/VisionCamera.bundle/"
   }
   s.compiler_flags = folly_compiler_flags + ' ' + boost_compiler_flags
   s.xcconfig = {
@@ -42,7 +43,7 @@ Pod::Spec.new do |s|
   # All source files that should be publicly visible
   # Note how this does not include headers, since those can nameclash.
   s.source_files = [
-    "ios/**/*.{m,mm,swift,metal}",
+    "ios/**/*.{m,mm,swift}",
     "ios/CameraBridge.h",
     "ios/Frame Processor/Frame.h",
     "ios/Frame Processor/FrameProcessorCallback.h",
@@ -64,4 +65,22 @@ Pod::Spec.new do |s|
   s.dependency "React-callinvoker"
   s.dependency "React"
   s.dependency "React-Core"
+  
+  # Create a resource bundle and build the metallib
+  s.resource_bundles = {
+    'VisionCamera' => ['MetalLibPlaceholder']
+  }
+  s.script_phases = [
+    {
+      :name => 'Build Metal Library (metal -> air)',
+      :script => 'xcrun -sdk iphoneos metal -c "${PODS_TARGET_SRCROOT}/ios/Shaders/PassThrough.metal" -o "${PODS_TARGET_SRCROOT}/ios/PassThrough.air"',
+      :execution_position => :after_compile
+    },
+    {
+      :name => 'Build Metal Library (air -> metallib)',
+      :script => 'xcrun -sdk iphoneos metallib "${PODS_TARGET_SRCROOT}/ios/PassThrough.air" -o "${METAL_LIBRARY_OUTPUT_DIR}/PassThrough.metallib" && rm "${PODS_TARGET_SRCROOT}/ios/PassThrough.air"',
+      :execution_position => :after_compile
+    },
+  ]
+  
 end

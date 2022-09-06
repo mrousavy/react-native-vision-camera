@@ -87,43 +87,32 @@ class PreviewMetalView: MTKView {
      * a sampler descriptor for reading from the texture and a command queue
      * for the GPU
      */
-    // TODO: Move shaders to framework and access defualt lib from framework bundle
-    let shaders = """
-    #include <metal_stdlib>
-    using namespace metal;
-
-    // Vertex input/output structure for passing results from vertex shader to fragment shader
-    struct VertexIO
-    {
-        float4 position [[position]];
-        float2 textureCoord [[user(texturecoord)]];
-    };
-
-    // Vertex shader for a textured quad
-    vertex VertexIO vertexPassThrough(const device packed_float4 *pPosition  [[ buffer(0) ]],
-    const device packed_float2 *pTexCoords [[ buffer(1) ]], uint vid [[ vertex_id ]]) {
-        VertexIO outVertex;
-
-        outVertex.position = pPosition[vid];
-        outVertex.textureCoord = pTexCoords[vid];
-
-        return outVertex;
+    let baseBundle = Bundle(for: Self.self)
+    guard let resourceBundleUrl = baseBundle.url(forResource: "VisionCamera", withExtension: "bundle") else {
+      ReactLogger.log(level: .error, message: "Could not find VisionCamera.bundle - check the build output to see if this exists")
+      return
     }
-
-    // Fragment shader for a textured quad
-    fragment half4 fragmentPassThrough(VertexIO inputFragment [[ stage_in ]],
-    texture2d<half> inputTexture  [[ texture(0) ]], sampler samplr [[ sampler(0) ]]) {
-        return inputTexture.sample(samplr, inputFragment.textureCoord);
+    guard let resourceBundle = Bundle(url: resourceBundleUrl) else {
+      ReactLogger.log(level: .error, message: "Cannot configure Metal renderer - no resource bundle found")
+      return
     }
-    """
-    guard let defaultLibrary = try? device!.makeLibrary(source: shaders, options: nil) else {
-      ReactLogger.log(level: .error, message: "MTLLibrary could not be created!")
+    guard let shaderLibraryUrl = resourceBundle.url(forResource: "PassThrough", withExtension: "metallib") else {
+      ReactLogger.log(level: .error, message: "Cannot configure Metal renderer - no metallib was detected")
+      return
+    }
+    var mtlLibrary: MTLLibrary?
+    do {
+      mtlLibrary = try device!.makeLibrary(URL: shaderLibraryUrl)
+    } catch {
+      ReactLogger.log(level: .error, message: "MTLLibrary could not be created: \(error)")
+    }
+    if (mtlLibrary == nil) {
       return
     }
     let pipelineDescriptor = MTLRenderPipelineDescriptor()
     pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
-    pipelineDescriptor.vertexFunction = defaultLibrary.makeFunction(name: "vertexPassThrough")
-    pipelineDescriptor.fragmentFunction = defaultLibrary.makeFunction(name: "fragmentPassThrough")
+    pipelineDescriptor.vertexFunction = mtlLibrary!.makeFunction(name: "vertexPassThrough")
+    pipelineDescriptor.fragmentFunction = mtlLibrary!.makeFunction(name: "fragmentPassThrough")
     // To determine how textures are sampled, create a sampler descriptor to query for a sampler state from the device.
     let samplerDescriptor = MTLSamplerDescriptor()
     samplerDescriptor.sAddressMode = .clampToEdge
