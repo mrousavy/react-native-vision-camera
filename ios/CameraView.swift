@@ -88,7 +88,13 @@ public final class CameraView: UIView {
   internal let captureSession = AVCaptureSession()
   internal let audioCaptureSession = AVCaptureSession()
   // Inputs
-  internal var videoDeviceInput: AVCaptureDeviceInput?
+  internal var videoDeviceInput: AVCaptureDeviceInput? {
+    // If the format changes we need to reconfigure the preview
+    // as it may be a
+    didSet {
+      configurePreview()
+    }
+  }
   internal var audioDeviceInput: AVCaptureDeviceInput?
   internal var photoOutput: AVCapturePhotoOutput?
   internal var videoOutput: AVCaptureVideoDataOutput?
@@ -104,15 +110,6 @@ public final class CameraView: UIView {
   // CameraView+Zoom
   internal var pinchGestureRecognizer: UIPinchGestureRecognizer?
   internal var pinchScaleOffset: CGFloat = 1.0
-  // Derived camera state
-  internal var cameraResolution: CGSize? {
-    guard let activeFormat = videoDeviceInput?.device.activeFormat else {
-      return nil
-    }
-    let dimensions = CMVideoFormatDescriptionGetDimensions(activeFormat.formatDescription)
-    // Canonical orientation is landscape, but we need portrait so swap them
-    return CGSize(width: Int(dimensions.height), height: Int(dimensions.width))
-  }
 
   internal let cameraQueue = CameraQueues.cameraQueue
   internal let videoQueue = CameraQueues.videoQueue
@@ -157,39 +154,36 @@ public final class CameraView: UIView {
   }
 
   internal final func configurePreview() {
-    // Clear metal layer (if there is one)
-    metalPreview?.removeFromSuperview()
-    metalPreview = nil
-    // Clear standard preview layer (if there is one)
-    standardPreview?.removeFromSuperlayer()
-    standardPreview?.session = nil
-    standardPreview = nil
-    // Configure the desired preview backing
-    if needsMetalBacking == false {
-      ReactLogger.log(level: .info, message: "Configuring preview to use standard AVCaptureVideoPreviewLayer with bounds: \(layer.bounds)")
-      // Setup a standard preview layer
-      standardPreview = AVCaptureVideoPreviewLayer()
-      standardPreview!.session = captureSession
-      standardPreview!.frame = layer.bounds
-      standardPreview!.videoGravity = .resizeAspectFill
-      layer.addSublayer(standardPreview!)
-    } else {
-      ReactLogger.log(level: .info, message: "Configuring preview to use Metal preview layer with bounds: \(layer.bounds)")
-      guard let cameraResolution = cameraResolution else {
-        ReactLogger.log(level: .error, message: "No camera resolution set; cannot configure Metal view")
-        return
+    DispatchQueue.main.async { [self] in
+      // Clear metal layer (if there is one)
+      metalPreview?.removeFromSuperview()
+      metalPreview = nil
+      // Clear standard preview layer (if there is one)
+      standardPreview?.removeFromSuperlayer()
+      standardPreview?.session = nil
+      standardPreview = nil
+      // Configure the desired preview backing
+      if needsMetalBacking == false {
+        ReactLogger.log(level: .info, message: "Configuring preview to use standard AVCaptureVideoPreviewLayer with bounds: \(layer.bounds)")
+        // Setup a standard preview layer
+        standardPreview = AVCaptureVideoPreviewLayer()
+        standardPreview!.session = captureSession
+        standardPreview!.frame = layer.bounds
+        standardPreview!.videoGravity = .resizeAspectFill
+        layer.addSublayer(standardPreview!)
+      } else {
+        ReactLogger.log(level: .info, message: "Configuring preview to use Metal preview layer with bounds: \(layer.bounds)")
+        guard let activeFormat = videoDeviceInput?.device.activeFormat else {
+          ReactLogger.log(level: .error, message: "No active format; cannot configure Metal view")
+          return
+        }
+        let dimensions = CMVideoFormatDescriptionGetDimensions(activeFormat.formatDescription)
+        // Canonical orientation is landscape, but we need portrait so swap them
+        let cameraResolution = CGSize(width: Int(dimensions.height), height: Int(dimensions.width))
+        // Setup a metal preview
+        metalPreview = PreviewMetalView(frame: layer.bounds, device: mtlDevice, resolution: cameraResolution)
+        addSubview(metalPreview!)
       }
-      // Setup a metal preview
-      metalPreview = PreviewMetalView(frame: layer.bounds, device: mtlDevice, resolution: cameraResolution)
-      addSubview(metalPreview!)
-    }
-  }
-
-  override public func layoutSubviews() {
-    // When mounted and layer.bounds is not zero configure the preview
-    if !initialLayoutComplete {
-      configurePreview()
-      initialLayoutComplete = true
     }
   }
 
@@ -302,12 +296,9 @@ public final class CameraView: UIView {
         }
       }
 
-      // Preview Config (requires main queue for UI), let layoutSubviews() handle initial
-      // setup as layer.bounds is zero on initial didSetProps
-      if shouldReconfigurePreview, initialLayoutComplete {
-        DispatchQueue.main.async {
-          self.configurePreview()
-        }
+      // Preview Config
+      if shouldReconfigurePreview, videoDeviceInput?.device.activeFormat != nil {
+        configurePreview()
       }
     }
 
