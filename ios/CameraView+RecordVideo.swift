@@ -195,7 +195,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
     if captureOutput is AVCaptureVideoDataOutput {
       // Create a Frame that will be passed to both the async and sync FP callbacks
       let cameraFrame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
-      var outputFrame = cameraFrame
+      var outputFrame: Frame?
 
       // Run the asynchrous frame processor
       if let frameProcessor = frameProcessorCallback {
@@ -245,7 +245,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       }
 
       // Video Recording runs in the same queue
-      if isRecording, let sampleBuffer = outputFrame?.buffer {
+      let sampleBuffer = outputFrame == nil ? cameraFrame?.buffer : (captureTarget != "camera" ? outputFrame?.buffer : cameraFrame?.buffer)
+      if isRecording, let sampleBuffer = sampleBuffer {
         guard let recordingSession = recordingSession else {
           invokeOnError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
           return

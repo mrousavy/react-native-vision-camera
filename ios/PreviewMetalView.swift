@@ -106,7 +106,7 @@ class PreviewMetalView: MTKView {
     } catch {
       ReactLogger.log(level: .error, message: "MTLLibrary could not be created: \(error)")
     }
-    if (mtlLibrary == nil) {
+    if mtlLibrary == nil {
       return
     }
     let pipelineDescriptor = MTLRenderPipelineDescriptor()

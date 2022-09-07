@@ -57,6 +57,7 @@ public final class CameraView: UIView {
   @objc var lowLightBoost: NSNumber? // nullable bool
   @objc var colorSpace: NSString?
   @objc var orientation: NSString?
+  @objc var captureTarget: NSString?
   // other props
   @objc var isActive = false
   @objc var torch = "off"

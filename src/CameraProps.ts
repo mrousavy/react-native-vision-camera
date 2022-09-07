@@ -160,6 +160,14 @@ export interface CameraProps extends ViewProps {
    * Represents the orientation of all Camera Outputs (Photo, Video, and Frame Processor). If this value is not set, the device orientation is used.
    */
   orientation?: 'portrait' | 'portraitUpsideDown' | 'landscapeLeft' | 'landscapeRight';
+  /**
+   * The target stream of frames that will be used for video recording and photo capture.
+   * Defaults to `"camera"` unless `syncFrameProcessor` is specified at which point it defaults to `"sync-processor-output"`.
+   *
+   * You may want to set this to `"camera"` when you are using a synchronous frame processor to draw the preview,
+   * but you want to record or capture the original camera footage.
+   */
+  captureTarget?: 'camera' | 'sync-processor-output';
 
   //#region Events
   /**
