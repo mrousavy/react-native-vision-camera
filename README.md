@@ -30,6 +30,10 @@
   <img align="right" width="35%" src="docs/static/img/example.png">
 </div>
 
+### Compatibility
+
+* react-native-vision-camera requires react-native >= 0.64
+
 ### Documentation
 
 * [Guides](https://mrousavy.github.io/react-native-vision-camera/docs/guides)
