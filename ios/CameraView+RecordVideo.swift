@@ -229,9 +229,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       // Run the sync frame processor
       if let syncFrameProcessor = frameProcessorSyncCallback, captureOutput is AVCaptureVideoDataOutput {
         CameraQueues.frameProcessorQueue.sync {
-          if let frameProcessorResult = syncFrameProcessor(cameraFrame) {
-            outputFrame = frameProcessorResult
-          }
+          let frameProcessorResult = syncFrameProcessor(cameraFrame) ?? cameraFrame
+          outputFrame = frameProcessorResult
         }
       }
 
