@@ -103,7 +103,13 @@ extension CameraView {
         photoSettings.isAutoContentAwareDistortionCorrectionEnabled = enableAutoDistortionCorrection
       }
 
-      photoOutput.capturePhoto(with: photoSettings, delegate: PhotoCaptureDelegate(promise: promise))
+      // disableShutterSound
+      var disableShutterSound = false
+      if let _disableShutterSound = options["disableShutterSound"] as? Bool{
+        disableShutterSound = _disableShutterSound
+      }
+
+      photoOutput.capturePhoto(with: photoSettings, delegate: PhotoCaptureDelegate(promise: promise, disableShutterSound: disableShutterSound))
 
       // Assume that `takePhoto` is always called with the same parameters, so prepare the next call too.
       photoOutput.setPreparedPhotoSettingsArray([photoSettings], completionHandler: nil)

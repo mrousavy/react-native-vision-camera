@@ -14,11 +14,20 @@ private var delegatesReferences: [NSObject] = []
 
 class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
   private let promise: Promise
+  private let disableShutterSound: Bool
 
-  required init(promise: Promise) {
+  required init(promise: Promise, disableShutterSound: Bool = false) {
     self.promise = promise
+    self.disableShutterSound = disableShutterSound
     super.init()
     delegatesReferences.append(self)
+  }
+
+  func photoOutput(_ output: AVCapturePhotoOutput, willCapturePhotoFor resolvedSettings: AVCaptureResolvedPhotoSettings) {
+    if self.disableShutterSound {
+      // dispose system shutter sound
+      AudioServicesDisposeSystemSoundID(1108)
+    }
   }
 
   func photoOutput(_: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
