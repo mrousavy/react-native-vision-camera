@@ -46,6 +46,14 @@ export interface TakePhotoOptions {
    * @platform Android
    */
   skipMetadata?: boolean;
+  /**
+   * When set to `true`, There is no shutter sound.
+   *
+   * @default false
+   *
+   * @platform iOS
+   */
+  disableShutterSound?: boolean;
 }
 
 /**
