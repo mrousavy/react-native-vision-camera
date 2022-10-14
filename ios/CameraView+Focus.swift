@@ -9,7 +9,7 @@
 import Foundation
 
 extension CameraView {
-  func focus(point: CGPoint, promise: Promise) {
+  func focus(point _: CGPoint, promise: Promise) {
     withPromise(promise) {
       guard let device = self.videoDeviceInput?.device else {
         throw CameraError.session(SessionError.cameraNotReady)
@@ -18,7 +18,8 @@ extension CameraView {
         throw CameraError.device(DeviceError.focusNotSupported)
       }
 
-      let normalizedPoint = self.videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: point)
+//      let normalizedPoint = self.videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: point)
+      let normalizedPoint = CGPoint.zero
 
       do {
         try device.lockForConfiguration()

@@ -12,3 +12,4 @@
 #import "Frame.h"
 
 typedef void (^FrameProcessorCallback) (Frame* frame);
+typedef Frame* (^FrameProcessorSyncCallback) (Frame* frame);

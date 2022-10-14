@@ -15,5 +15,6 @@ export * from './VideoFile';
 export * from './hooks/useCameraDevices';
 export * from './hooks/useCameraFormat';
 export * from './hooks/useFrameProcessor';
+export * from './hooks/useSyncFrameProcessor';
 
 export * from './utils/FormatFilter';

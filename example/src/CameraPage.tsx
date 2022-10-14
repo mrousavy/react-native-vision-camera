@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useRef, useState, useMemo, useCallback } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler';
 import {
   CameraDeviceFormat,
@@ -10,11 +10,21 @@ import {
   sortFormats,
   useCameraDevices,
   useFrameProcessor,
+  useSyncFrameProcessor,
   VideoFile,
 } from 'react-native-vision-camera';
 import { Camera, frameRateIncluded } from 'react-native-vision-camera';
 import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING } from './Constants';
-import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated';
+import Reanimated, {
+  Extrapolate,
+  interpolate,
+  useAnimatedGestureHandler,
+  useAnimatedProps,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import { useEffect } from 'react';
 import { useIsForeground } from './hooks/useIsForeground';
 import { StatusBarBlurBackground } from './views/StatusBarBlurBackground';
@@ -22,7 +32,7 @@ import { CaptureButton } from './views/CaptureButton';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { examplePlugin } from './frame-processors/ExamplePlugin';
+import { examplePlugin, examplePluginFilter } from './frame-processors/ExamplePlugin';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
@@ -43,15 +53,22 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const zoom = useSharedValue(0);
   const isPressingButton = useSharedValue(false);
 
+  const pixelScale = useSharedValue(-1);
+
+  useEffect(() => {
+    pixelScale.value = withRepeat(withSequence(withTiming(1, { duration: 1000 }), withTiming(-1, { duration: 1000 })), -1);
+  }, [pixelScale]);
+
   // check if camera page is active
   const isFocussed = useIsFocused();
   const isForeground = useIsForeground();
   const isActive = isFocussed && isForeground;
 
-  const [cameraPosition, setCameraPosition] = useState<'front' | 'back'>('back');
+  const [cameraPosition, setCameraPosition] = useState<'front' | 'back'>('front');
   const [enableHdr, setEnableHdr] = useState(false);
   const [flash, setFlash] = useState<'off' | 'on'>('off');
   const [enableNightMode, setEnableNightMode] = useState(false);
+  const [enableFilter, setEnableFilter] = useState(false);
 
   // camera format settings
   const devices = useCameraDevices();
@@ -203,6 +220,15 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log(`Return Values: ${JSON.stringify(values)}`);
   }, []);
 
+  const syncFrameProcessor = useSyncFrameProcessor(
+    (frame) => {
+      'worklet';
+      const filteredFrame = examplePluginFilter(frame, pixelScale.value);
+      return filteredFrame;
+    },
+    [pixelScale],
+  );
+
   const onFrameProcessorSuggestionAvailable = useCallback((suggestion: FrameProcessorPerformanceSuggestion) => {
     console.log(`Suggestion available! ${suggestion.type}: Can do ${suggestion.suggestedFrameProcessorFps} FPS`);
   }, []);
@@ -229,9 +255,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 photo={true}
                 video={true}
                 audio={hasMicrophonePermission}
+                syncFrameProcessor={enableFilter ? syncFrameProcessor : undefined}
                 frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
                 orientation="portrait"
-                frameProcessorFps={1}
+                frameProcessorFps={5}
                 onFrameProcessorPerformanceSuggestionAvailable={onFrameProcessorSuggestionAvailable}
               />
             </TapGestureHandler>
@@ -280,6 +307,11 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
         {canToggleNightMode && (
           <PressableOpacity style={styles.button} onPress={() => setEnableNightMode(!enableNightMode)} disabledOpacity={0.4}>
             <IonIcon name={enableNightMode ? 'moon' : 'moon-outline'} color="white" size={24} />
+          </PressableOpacity>
+        )}
+        {Platform.OS === 'ios' && (
+          <PressableOpacity style={styles.button} onPress={() => setEnableFilter(!enableFilter)} disabledOpacity={0.4}>
+            <IonIcon name={enableFilter ? 'color-wand-sharp' : 'color-wand-outline'} color="white" size={24} />
           </PressableOpacity>
         )}
       </View>

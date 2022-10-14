@@ -57,11 +57,13 @@ public final class CameraView: UIView {
   @objc var lowLightBoost: NSNumber? // nullable bool
   @objc var colorSpace: NSString?
   @objc var orientation: NSString?
+  @objc var captureTarget: NSString?
   // other props
   @objc var isActive = false
   @objc var torch = "off"
   @objc var zoom: NSNumber = 1.0 // in "factor"
   @objc var videoStabilizationMode: NSString?
+  @objc var needsMetalBacking = false
   // events
   @objc var onInitialized: RCTDirectEventBlock?
   @objc var onError: RCTDirectEventBlock?
@@ -81,11 +83,18 @@ public final class CameraView: UIView {
   // pragma MARK: Internal Properties
   internal var isMounted = false
   internal var isReady = false
+  internal var initialLayoutComplete = false
   // Capture Session
   internal let captureSession = AVCaptureSession()
   internal let audioCaptureSession = AVCaptureSession()
   // Inputs
-  internal var videoDeviceInput: AVCaptureDeviceInput?
+  internal var videoDeviceInput: AVCaptureDeviceInput? {
+    // If the format changes we need to reconfigure the preview
+    // as it may be a
+    didSet {
+      configurePreview()
+    }
+  }
   internal var audioDeviceInput: AVCaptureDeviceInput?
   internal var photoOutput: AVCapturePhotoOutput?
   internal var videoOutput: AVCaptureVideoDataOutput?
@@ -94,6 +103,7 @@ public final class CameraView: UIView {
   internal var isRecording = false
   internal var recordingSession: RecordingSession?
   @objc public var frameProcessorCallback: FrameProcessorCallback?
+  @objc public var frameProcessorSyncCallback: FrameProcessorSyncCallback?
   internal var lastFrameProcessorCall = DispatchTime.now()
   // CameraView+TakePhoto
   internal var photoCaptureDelegates: [PhotoCaptureDelegate] = []
@@ -117,22 +127,13 @@ public final class CameraView: UIView {
     return captureSession.isRunning
   }
 
-  /// Convenience wrapper to get layer as its statically known type.
-  var videoPreviewLayer: AVCaptureVideoPreviewLayer {
-    // swiftlint:disable force_cast
-    return layer as! AVCaptureVideoPreviewLayer
-  }
-
-  override public class var layerClass: AnyClass {
-    return AVCaptureVideoPreviewLayer.self
-  }
+  internal let mtlDevice = MTLCreateSystemDefaultDevice()!
+  internal var standardPreview: AVCaptureVideoPreviewLayer?
+  internal var metalPreview: PreviewMetalView?
 
   // pragma MARK: Setup
   override public init(frame: CGRect) {
     super.init(frame: frame)
-    videoPreviewLayer.session = captureSession
-    videoPreviewLayer.videoGravity = .resizeAspectFill
-    videoPreviewLayer.frame = layer.bounds
 
     NotificationCenter.default.addObserver(self,
                                            selector: #selector(sessionRuntimeError),
@@ -150,6 +151,40 @@ public final class CameraView: UIView {
                                            selector: #selector(onOrientationChanged),
                                            name: UIDevice.orientationDidChangeNotification,
                                            object: nil)
+  }
+
+  internal final func configurePreview() {
+    DispatchQueue.main.async { [self] in
+      // Clear metal layer (if there is one)
+      metalPreview?.removeFromSuperview()
+      metalPreview = nil
+      // Clear standard preview layer (if there is one)
+      standardPreview?.removeFromSuperlayer()
+      standardPreview?.session = nil
+      standardPreview = nil
+      // Configure the desired preview backing
+      if needsMetalBacking == false {
+        ReactLogger.log(level: .info, message: "Configuring preview to use standard AVCaptureVideoPreviewLayer with bounds: \(layer.bounds)")
+        // Setup a standard preview layer
+        standardPreview = AVCaptureVideoPreviewLayer()
+        standardPreview!.session = captureSession
+        standardPreview!.frame = layer.bounds
+        standardPreview!.videoGravity = .resizeAspectFill
+        layer.addSublayer(standardPreview!)
+      } else {
+        ReactLogger.log(level: .info, message: "Configuring preview to use Metal preview layer with bounds: \(layer.bounds)")
+        guard let activeFormat = videoDeviceInput?.device.activeFormat else {
+          ReactLogger.log(level: .error, message: "No active format; cannot configure Metal view")
+          return
+        }
+        let dimensions = CMVideoFormatDescriptionGetDimensions(activeFormat.formatDescription)
+        // Canonical orientation is landscape, but we need portrait so swap them
+        let cameraResolution = CGSize(width: Int(dimensions.height), height: Int(dimensions.width))
+        // Setup a metal preview
+        metalPreview = PreviewMetalView(frame: layer.bounds, device: mtlDevice, resolution: cameraResolution)
+        addSubview(metalPreview!)
+      }
+    }
   }
 
   @available(*, unavailable)
@@ -189,6 +224,7 @@ public final class CameraView: UIView {
     let shouldReconfigure = changedProps.contains { propsThatRequireReconfiguration.contains($0) }
     let shouldReconfigureFormat = shouldReconfigure || changedProps.contains("format")
     let shouldReconfigureDevice = shouldReconfigureFormat || changedProps.contains { propsThatRequireDeviceReconfiguration.contains($0) }
+    let shouldReconfigurePreview = changedProps.contains("needsMetalBacking")
     let shouldReconfigureAudioSession = changedProps.contains("audio")
 
     let willReconfigure = shouldReconfigure || shouldReconfigureFormat || shouldReconfigureDevice
@@ -206,6 +242,7 @@ public final class CameraView: UIView {
       shouldUpdateZoom ||
       shouldReconfigureFormat ||
       shouldReconfigureDevice ||
+      shouldReconfigurePreview ||
       shouldUpdateVideoStabilization ||
       shouldUpdateOrientation {
       cameraQueue.async {
@@ -257,6 +294,11 @@ public final class CameraView: UIView {
         audioQueue.async {
           self.configureAudioSession()
         }
+      }
+
+      // Preview Config
+      if shouldReconfigurePreview, videoDeviceInput?.device.activeFormat != nil {
+        configurePreview()
       }
     }
 
