@@ -95,7 +95,7 @@ extension CameraView {
 
       if #available(iOS 14.5, *) {
         // prevents the audio session from being interrupted by a phone call
-        AVAudioSession.sharedInstance().setPrefersNoInterruptionsFromSystemAlerts(true)
+        try AVAudioSession.sharedInstance().setPrefersNoInterruptionsFromSystemAlerts(true)
       }
 
       audioCaptureSession.startRunning()
