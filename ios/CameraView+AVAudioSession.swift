@@ -92,6 +92,12 @@ extension CameraView {
                                                                    .allowBluetoothA2DP,
                                                                    .defaultToSpeaker,
                                                                    .allowAirPlay])
+
+      if #available(iOS 14.5, *) {
+        // prevents the audio session from being interrupted by a phone call
+        try AVAudioSession.sharedInstance().setPrefersNoInterruptionsFromSystemAlerts(true)
+      }
+
       audioCaptureSession.startRunning()
     } catch let error as NSError {
       switch error.code {
