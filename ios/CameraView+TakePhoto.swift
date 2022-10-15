@@ -104,10 +104,7 @@ extension CameraView {
       }
 
       // disableShutterSound
-      var disableShutterSound = false
-      if let _disableShutterSound = options["disableShutterSound"] as? Bool{
-        disableShutterSound = _disableShutterSound
-      }
+      let disableShutterSound = (options["disableShutterSound"] as? Bool) ?? false
 
       photoOutput.capturePhoto(with: photoSettings, delegate: PhotoCaptureDelegate(promise: promise, disableShutterSound: disableShutterSound))
 
