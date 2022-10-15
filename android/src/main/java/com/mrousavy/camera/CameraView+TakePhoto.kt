@@ -2,6 +2,7 @@ package com.mrousavy.camera
 
 import android.annotation.SuppressLint
 import android.hardware.camera2.*
+import android.media.MediaActionSound
 import android.util.Log
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.ImageCapture
@@ -61,6 +62,7 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
     // TODO enableAutoDistortionCorrection
   }
   val skipMetadata = if (options.hasKey("skipMetadata")) options.getBoolean("skipMetadata") else false
+  val disableShutterSound = if (options.hasKey("disableShutterSound")) options.getBoolean("disableShutterSound") else false
 
   val camera2Info = Camera2CameraInfo.from(camera!!.cameraInfo)
   val lensFacing = camera2Info.getCameraCharacteristic(CameraCharacteristics.LENS_FACING)
@@ -70,6 +72,9 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
       Log.d(CameraView.TAG, "Taking picture...")
       val startCapture = System.nanoTime()
       val pic = imageCapture!!.takePicture(takePhotoExecutor)
+      if(!disableShutterSound) {
+        takePhotoSound!!.play(MediaActionSound.SHUTTER_CLICK)
+      }
       val endCapture = System.nanoTime()
       Log.i(CameraView.TAG_PERF, "Finished image capture in ${(endCapture - startCapture) / 1_000_000}ms")
       pic
