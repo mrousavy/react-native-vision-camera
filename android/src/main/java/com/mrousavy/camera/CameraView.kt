@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.hardware.camera2.*
+import android.media.MediaActionSound
 import android.util.Log
 import android.util.Range
 import android.view.*
@@ -120,6 +121,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   internal val previewView: PreviewView
   private val cameraExecutor = Executors.newSingleThreadExecutor()
   internal val takePhotoExecutor = Executors.newSingleThreadExecutor()
+  internal val takePhotoSound = MediaActionSound()
   internal val recordVideoExecutor = Executors.newSingleThreadExecutor()
   internal var coroutineScope = CoroutineScope(Dispatchers.Main)
 
@@ -251,6 +253,8 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         reactContext.removeLifecycleEventListener(this)
       }
     })
+
+    takePhotoSound.load(MediaActionSound.SHUTTER_CLICK)
   }
 
   override fun onConfigurationChanged(newConfig: Configuration?) {
