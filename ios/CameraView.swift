@@ -94,7 +94,7 @@ public final class CameraView: UIView {
   internal var isRecording = false
   internal var recordingSession: RecordingSession?
   @objc public var frameProcessorCallback: FrameProcessorCallback?
-  internal var lastFrameProcessorCall = DispatchTime.now()
+  internal var lastFrameProcessorCall = DispatchTime.now().uptimeNanoseconds
   // CameraView+TakePhoto
   internal var photoCaptureDelegates: [PhotoCaptureDelegate] = []
   // CameraView+Zoom
