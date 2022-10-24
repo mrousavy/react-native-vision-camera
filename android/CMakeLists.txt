@@ -61,12 +61,20 @@ target_include_directories(
         ${INCLUDE_JSI_CPP} # only on older RN versions
         ${INCLUDE_JSIDYNAMIC_CPP} # only on older RN versions
         # --- Reanimated ---
+        # Old
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/AnimatedSensor"
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/Tools"
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/SpecTools"
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/SharedItems"
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/Registries"
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/LayoutAnimations"
+        # New
+        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/AnimatedSensor"
+        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/Tools"
+        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/SpecTools"
+        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/SharedItems"
+        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/Registries"
+        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/LayoutAnimations"
         "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/hidden_headers"
         "src/main/cpp"
 )
