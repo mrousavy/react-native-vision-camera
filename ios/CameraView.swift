@@ -88,13 +88,7 @@ public final class CameraView: UIView {
   internal let captureSession = AVCaptureSession()
   internal let audioCaptureSession = AVCaptureSession()
   // Inputs
-  internal var videoDeviceInput: AVCaptureDeviceInput? {
-    // If the format changes we need to reconfigure the preview
-    // as it may be a
-    didSet {
-      configurePreview()
-    }
-  }
+  internal var videoDeviceInput: AVCaptureDeviceInput?
   internal var audioDeviceInput: AVCaptureDeviceInput?
   internal var photoOutput: AVCapturePhotoOutput?
   internal var videoOutput: AVCaptureVideoDataOutput?
@@ -172,7 +166,6 @@ public final class CameraView: UIView {
         standardPreview!.videoGravity = .resizeAspectFill
         layer.addSublayer(standardPreview!)
       } else {
-        ReactLogger.log(level: .info, message: "Configuring preview to use Metal preview layer with bounds: \(layer.bounds)")
         guard let activeFormat = videoDeviceInput?.device.activeFormat else {
           ReactLogger.log(level: .error, message: "No active format; cannot configure Metal view")
           return
@@ -181,6 +174,7 @@ public final class CameraView: UIView {
         // Canonical orientation is landscape, but we need portrait so swap them
         let cameraResolution = CGSize(width: Int(dimensions.height), height: Int(dimensions.width))
         // Setup a metal preview
+        ReactLogger.log(level: .info, message: "Configuring preview to use Metal preview layer with bounds: \(layer.bounds) and resolution: \(cameraResolution)")
         metalPreview = PreviewMetalView(frame: layer.bounds, device: mtlDevice, resolution: cameraResolution)
         addSubview(metalPreview!)
       }
@@ -224,7 +218,6 @@ public final class CameraView: UIView {
     let shouldReconfigure = changedProps.contains { propsThatRequireReconfiguration.contains($0) }
     let shouldReconfigureFormat = shouldReconfigure || changedProps.contains("format")
     let shouldReconfigureDevice = shouldReconfigureFormat || changedProps.contains { propsThatRequireDeviceReconfiguration.contains($0) }
-    let shouldReconfigurePreview = changedProps.contains("needsMetalBacking")
     let shouldReconfigureAudioSession = changedProps.contains("audio")
 
     let willReconfigure = shouldReconfigure || shouldReconfigureFormat || shouldReconfigureDevice
@@ -242,18 +235,20 @@ public final class CameraView: UIView {
       shouldUpdateZoom ||
       shouldReconfigureFormat ||
       shouldReconfigureDevice ||
-      shouldReconfigurePreview ||
       shouldUpdateVideoStabilization ||
       shouldUpdateOrientation {
       cameraQueue.async {
         if shouldReconfigure {
           self.configureCaptureSession()
         }
-        if shouldReconfigureFormat {
-          self.configureFormat()
-        }
-        if shouldReconfigureDevice {
-          self.configureDevice()
+        if shouldReconfigureFormat || shouldReconfigureDevice {
+          if shouldReconfigureFormat {
+            self.configureFormat()
+          }
+          if shouldReconfigureDevice {
+            self.configureDevice()
+          }
+          self.configurePreview()
         }
         if shouldUpdateVideoStabilization, let videoStabilizationMode = self.videoStabilizationMode as String? {
           self.captureSession.setVideoStabilizationMode(videoStabilizationMode)
@@ -294,11 +289,6 @@ public final class CameraView: UIView {
         audioQueue.async {
           self.configureAudioSession()
         }
-      }
-
-      // Preview Config
-      if shouldReconfigurePreview, videoDeviceInput?.device.activeFormat != nil {
-        configurePreview()
       }
     }
 

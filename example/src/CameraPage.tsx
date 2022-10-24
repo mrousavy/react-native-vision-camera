@@ -68,7 +68,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const [enableHdr, setEnableHdr] = useState(false);
   const [flash, setFlash] = useState<'off' | 'on'>('off');
   const [enableNightMode, setEnableNightMode] = useState(false);
-  const [enableFilter, setEnableFilter] = useState(false);
+  const [enableFilter, setEnableFilter] = useState(true);
 
   // camera format settings
   const devices = useCameraDevices();

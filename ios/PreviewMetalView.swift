@@ -60,8 +60,6 @@ class PreviewMetalView: MTKView {
   }
 
   func setupTransform() {
-    let fr = frame
-    let res = resolution
     var scaleX = Float(frame.width / CGFloat(resolution.width))
     var scaleY = Float(frame.height / CGFloat(resolution.height))
     scaleX = scaleY / scaleX
@@ -163,6 +161,8 @@ class PreviewMetalView: MTKView {
     // Create a Metal texture from the image buffer.
     let width = CVPixelBufferGetWidth(previewPixelBuffer)
     let height = CVPixelBufferGetHeight(previewPixelBuffer)
+    
+    let res = resolution
     
     // Check that the buffers being received match the camera resolution
     if width != Int(resolution.width) || height != Int(resolution.height) {

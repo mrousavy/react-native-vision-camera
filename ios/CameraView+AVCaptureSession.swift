@@ -245,7 +245,7 @@ extension CameraView {
       try device.lockForConfiguration()
       device.activeFormat = format
       device.unlockForConfiguration()
-      ReactLogger.log(level: .info, message: "Format successfully configured!")
+      ReactLogger.log(level: .info, message: "Format successfully configured with dimensions: \(format.videoDimensions)")
     } catch let error as NSError {
       invokeOnError(.device(.configureError), cause: error)
       return
