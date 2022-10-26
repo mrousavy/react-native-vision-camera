@@ -302,8 +302,8 @@ dependencies {
 if (ENABLE_FRAME_PROCESSORS) {
   // third-party-ndk deps headers
   // mostly a copy of https://github.com/software-mansion/react-native-reanimated/blob/master/android/build.gradle#L115
-
-  def downloadsDir = new File("$buildDir/downloads")
+  def customDownloadsDir = System.getenv("REACT_NATIVE_DOWNLOADS_DIR")
+  def downloadsDir = customDownloadsDir ? new File(customDownloadsDir) : new File("$buildDir/downloads")
   def thirdPartyNdkDir = new File("$buildDir/third-party-ndk")
   def thirdPartyVersionsFile = new File("${nodeModules}/react-native/ReactAndroid/gradle.properties")
   def thirdPartyVersions = new Properties()
