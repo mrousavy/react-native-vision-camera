@@ -1,0 +1,160 @@
+diff --git a/node_modules/@shopify/react-native-skia/.DS_Store b/node_modules/@shopify/react-native-skia/.DS_Store
+new file mode 100644
+index 0000000..f9e32b8
+Binary files /dev/null and b/node_modules/@shopify/react-native-skia/.DS_Store differ
+diff --git a/node_modules/@shopify/react-native-skia/android/cpp/api b/node_modules/@shopify/react-native-skia/android/cpp/api
+index 00bd8bd..d479b98 120000
+--- a/node_modules/@shopify/react-native-skia/android/cpp/api
++++ b/node_modules/@shopify/react-native-skia/android/cpp/api
+@@ -1 +1 @@
+-/private/var/folders/33/9w65hccx6nl9832yzprsvbsr0000gn/T/tmp-11947E275Ztm9eO19/node_modules/@shopify/react-native-skia/cpp/api
+\ No newline at end of file
++/Users/thomascoldwell/Documents/development/projects/react-native-vision-camera/example/node_modules/@shopify/react-native-skia/cpp/api
+\ No newline at end of file
+diff --git a/node_modules/@shopify/react-native-skia/android/cpp/jsi b/node_modules/@shopify/react-native-skia/android/cpp/jsi
+index 0e31925..dfcae13 120000
+--- a/node_modules/@shopify/react-native-skia/android/cpp/jsi
++++ b/node_modules/@shopify/react-native-skia/android/cpp/jsi
+@@ -1 +1 @@
+-/private/var/folders/33/9w65hccx6nl9832yzprsvbsr0000gn/T/tmp-11947E275Ztm9eO19/node_modules/@shopify/react-native-skia/cpp/jsi
+\ No newline at end of file
++/Users/thomascoldwell/Documents/development/projects/react-native-vision-camera/example/node_modules/@shopify/react-native-skia/cpp/jsi
+\ No newline at end of file
+diff --git a/node_modules/@shopify/react-native-skia/android/cpp/rnskia b/node_modules/@shopify/react-native-skia/android/cpp/rnskia
+index ca4ab0a..3062ad7 120000
+--- a/node_modules/@shopify/react-native-skia/android/cpp/rnskia
++++ b/node_modules/@shopify/react-native-skia/android/cpp/rnskia
+@@ -1 +1 @@
+-/private/var/folders/33/9w65hccx6nl9832yzprsvbsr0000gn/T/tmp-11947E275Ztm9eO19/node_modules/@shopify/react-native-skia/cpp/rnskia
+\ No newline at end of file
++/Users/thomascoldwell/Documents/development/projects/react-native-vision-camera/example/node_modules/@shopify/react-native-skia/cpp/rnskia
+\ No newline at end of file
+diff --git a/node_modules/@shopify/react-native-skia/android/cpp/skia b/node_modules/@shopify/react-native-skia/android/cpp/skia
+index 5a397d8..8632b6f 120000
+--- a/node_modules/@shopify/react-native-skia/android/cpp/skia
++++ b/node_modules/@shopify/react-native-skia/android/cpp/skia
+@@ -1 +1 @@
+-/private/var/folders/33/9w65hccx6nl9832yzprsvbsr0000gn/T/tmp-11947E275Ztm9eO19/node_modules/@shopify/react-native-skia/cpp/skia
+\ No newline at end of file
++/Users/thomascoldwell/Documents/development/projects/react-native-vision-camera/example/node_modules/@shopify/react-native-skia/cpp/skia
+\ No newline at end of file
+diff --git a/node_modules/@shopify/react-native-skia/android/cpp/utils b/node_modules/@shopify/react-native-skia/android/cpp/utils
+index 5e61c9a..077fcc5 120000
+--- a/node_modules/@shopify/react-native-skia/android/cpp/utils
++++ b/node_modules/@shopify/react-native-skia/android/cpp/utils
+@@ -1 +1 @@
+-/private/var/folders/33/9w65hccx6nl9832yzprsvbsr0000gn/T/tmp-11947E275Ztm9eO19/node_modules/@shopify/react-native-skia/cpp/utils
+\ No newline at end of file
++/Users/thomascoldwell/Documents/development/projects/react-native-vision-camera/example/node_modules/@shopify/react-native-skia/cpp/utils
+\ No newline at end of file
+diff --git a/node_modules/@shopify/react-native-skia/cpp/.DS_Store b/node_modules/@shopify/react-native-skia/cpp/.DS_Store
+new file mode 100644
+index 0000000..55f1f5f
+Binary files /dev/null and b/node_modules/@shopify/react-native-skia/cpp/.DS_Store differ
+diff --git a/node_modules/@shopify/react-native-skia/cpp/api/JsiSkCanvas.h b/node_modules/@shopify/react-native-skia/cpp/api/JsiSkCanvas.h
+index ae90af4..6fb7e6c 100644
+--- a/node_modules/@shopify/react-native-skia/cpp/api/JsiSkCanvas.h
++++ b/node_modules/@shopify/react-native-skia/cpp/api/JsiSkCanvas.h
+@@ -36,6 +36,8 @@
+ namespace RNSkia {
+ namespace jsi = facebook::jsi;
+ 
++sk_sp<SkImage> convertFrameToSkImage(jsi::Runtime& runtime, const jsi::Value& frame);
++
+ class JsiSkCanvas : public JsiSkHostObject {
+ public:
+   JSI_HOST_FUNCTION(drawPaint) {
+@@ -491,6 +493,20 @@ public:
+     return jsi::Value::undefined();
+   }
+   
++  JSI_HOST_FUNCTION(drawFrame) {
++    const jsi::Value& arg = arguments[0];
++    auto image = convertFrameToSkImage(runtime, arg);
++    
++    auto x = arguments[1].asNumber();
++    auto y = arguments[2].asNumber();
++    std::shared_ptr<SkPaint> paint;
++    if (count == 4) {
++      paint = JsiSkPaint::fromValue(runtime, arguments[3]);
++    }
++    _canvas->drawImage(image, x, y, SkSamplingOptions(), paint.get());
++    return jsi::Value::undefined();
++  }
++
+   JSI_EXPORT_FUNCTIONS(JSI_EXPORT_FUNC(JsiSkCanvas, drawPaint),
+                        JSI_EXPORT_FUNC(JsiSkCanvas, drawLine),
+                        JSI_EXPORT_FUNC(JsiSkCanvas, drawRect),
+@@ -529,7 +545,8 @@ public:
+                        JSI_EXPORT_FUNC(JsiSkCanvas, drawColor),
+                        JSI_EXPORT_FUNC(JsiSkCanvas, clear),
+                        JSI_EXPORT_FUNC(JsiSkCanvas, concat),
+-                       JSI_EXPORT_FUNC(JsiSkCanvas, drawPicture))
++                       JSI_EXPORT_FUNC(JsiSkCanvas, drawPicture),
++                       JSI_EXPORT_FUNC(JsiSkCanvas, drawFrame))
+ 
+   explicit JsiSkCanvas(std::shared_ptr<RNSkPlatformContext> context)
+       : JsiSkHostObject(std::move(context)) {}
+diff --git a/node_modules/@shopify/react-native-skia/cpp/api/JsiSkCanvas.mm b/node_modules/@shopify/react-native-skia/cpp/api/JsiSkCanvas.mm
+new file mode 100644
+index 0000000..81bb5b1
+--- /dev/null
++++ b/node_modules/@shopify/react-native-skia/cpp/api/JsiSkCanvas.mm
+@@ -0,0 +1,41 @@
++//
++//  JsiSkCanvas.mm
++//  react-native-skia
++//
++//  Created by Thomas Coldwell on 16/11/2022.
++//
++
++#import <Foundation/Foundation.h>
++#import "JsiSkCanvas.h"
++#import <VisionCamera-umbrella.h>
++
++namespace RNSkia {
++  
++sk_sp<SkImage> convertFrameToSkImage(jsi::Runtime& runtime, const jsi::Value& frame) {
++  auto frameHostObject = frame.asObject(runtime).asHostObject<FrameHostObject>(runtime);
++  auto fr = frameHostObject->frame;
++  CMSampleBufferRef buffer = fr.buffer;
++  CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(buffer);
++  
++  CVPixelBufferLockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly);
++  auto bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
++  auto height = CVPixelBufferGetHeight(imageBuffer);
++  auto srcBuff = CVPixelBufferGetBaseAddress(imageBuffer);
++
++  auto type = CVPixelBufferGetPixelFormatType(imageBuffer);
++  NSLog(@"%u", type);
++  auto s = [NSString stringWithFormat:@"%u", kCVPixelFormatType_32RGBA];
++  
++  
++  auto info = SkImageInfo::Make(CVPixelBufferGetWidth(imageBuffer), CVPixelBufferGetHeight(imageBuffer), kBGRA_8888_SkColorType, kOpaque_SkAlphaType);
++
++  auto data = SkData::MakeWithCopy(srcBuff, bytesPerRow * height);
++  
++  auto raster = SkImage::MakeRasterData(info, data, bytesPerRow);
++  
++  CVPixelBufferUnlockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly);
++  
++  return raster;
++}
++
++}
+diff --git a/node_modules/@shopify/react-native-skia/ios/.DS_Store b/node_modules/@shopify/react-native-skia/ios/.DS_Store
+new file mode 100644
+index 0000000..2dbe243
+Binary files /dev/null and b/node_modules/@shopify/react-native-skia/ios/.DS_Store differ
+diff --git a/node_modules/@shopify/react-native-skia/react-native-skia.podspec b/node_modules/@shopify/react-native-skia/react-native-skia.podspec
+index 2e4868f..54a4b55 100644
+--- a/node_modules/@shopify/react-native-skia/react-native-skia.podspec
++++ b/node_modules/@shopify/react-native-skia/react-native-skia.podspec
+@@ -67,5 +67,7 @@ Pod::Spec.new do |s|
+   s.dependency "React"
+   s.dependency "React-callinvoker"
+   s.dependency "React-Core"
++  
++  s.dependency "VisionCamera"
+ end
+ 

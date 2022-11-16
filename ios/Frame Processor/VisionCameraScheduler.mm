@@ -9,13 +9,9 @@
 #import <Foundation/Foundation.h>
 #import "VisionCameraScheduler.h"
 
+#import <React/RCTBridge+Private.h>
 #import <React-callinvoker/ReactCommon/CallInvoker.h>
-
-// Forward declarations for the Swift classes
-__attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
-@interface CameraQueues : NSObject
-@property (nonatomic, class, readonly, strong) dispatch_queue_t _Nonnull frameProcessorQueue;
-@end
+#import "../React Utils/RCTBridge+runOnJS.h"
 
 namespace vision {
 
@@ -27,9 +23,9 @@ VisionCameraScheduler::VisionCameraScheduler(std::shared_ptr<react::CallInvoker>
 
 // does not schedule on UI thread but rather on Frame Processor Thread
 void VisionCameraScheduler::scheduleOnUI(std::function<void()> job) {
-  dispatch_async(CameraQueues.frameProcessorQueue, ^{
+  [[RCTBridge currentBridge] runOnJS:^{
     job();
-  });
+  }];
 }
 
 VisionCameraScheduler::~VisionCameraScheduler(){

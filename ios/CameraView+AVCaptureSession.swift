@@ -132,6 +132,7 @@ extension CameraView {
         invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "video-output")))
         return
       }
+      videoOutput!.videoSettings = [ String(kCVPixelBufferPixelFormatTypeKey) : kCMPixelFormat_32BGRA]
       videoOutput!.setSampleBufferDelegate(self, queue: videoQueue)
       videoOutput!.alwaysDiscardsLateVideoFrames = false
       captureSession.addOutput(videoOutput!)

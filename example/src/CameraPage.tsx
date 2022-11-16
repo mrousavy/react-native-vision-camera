@@ -11,6 +11,7 @@ import {
   useCameraDevices,
   useFrameProcessor,
   VideoFile,
+  Frame,
 } from 'react-native-vision-camera';
 import { Camera, frameRateIncluded } from 'react-native-vision-camera';
 import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING } from './Constants';
@@ -26,6 +27,7 @@ import { examplePlugin } from './frame-processors/ExamplePlugin';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
+import { Skia, SkCanvas, SkiaView, useDrawCallback, useImage } from '@shopify/react-native-skia';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -34,6 +36,30 @@ Reanimated.addWhitelistedNativeProps({
 
 const SCALE_FULL_ZOOM = 3;
 const BUTTON_SIZE = 40;
+
+const runtimeEffect = Skia.RuntimeEffect.Make(`
+  uniform shader image;
+
+  half4 main(vec2 pos) {
+    vec4 color = image.eval(pos);
+    return vec4((1.0 - color).rgb, 1.0);
+  }
+`);
+
+if (runtimeEffect == null) throw new Error("Couldn't compile the shader");
+const shaderBuilder = Skia.RuntimeShaderBuilder(runtimeEffect);
+const imageFilter = Skia.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
+
+const paint = Skia.Paint();
+paint.setImageFilter(imageFilter);
+// canvas.drawPaint(paint);
+
+let fr: Frame | undefined = undefined;
+
+global.hackyCallback = (frame: Frame) => {
+  console.log('Hi from Main React JS Context');
+  fr = frame;
+};
 
 type Props = NativeStackScreenProps<Routes, 'CameraPage'>;
 export function CameraPage({ navigation }: Props): React.ReactElement {
@@ -207,6 +233,20 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log(`Suggestion available! ${suggestion.type}: Can do ${suggestion.suggestedFrameProcessorFps} FPS`);
   }, []);
 
+  const onDraw = useDrawCallback((ca) => {
+    console.log('onDraw...');
+
+    const color = Skia.Color('#ff0000');
+    if (fr != null && fr.isValid) {
+      console.log('Drawing Frame!');
+      // ca.drawPaint(paint);
+      ca.drawFrame(fr, 0, 0, paint);
+      fr.close();
+    } else {
+      console.log('Cant draw Frame, its null');
+    }
+  }, []);
+
   return (
     <View style={styles.container}>
       {device != null && (
@@ -215,7 +255,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
             <TapGestureHandler onEnded={onDoubleTap} numberOfTaps={2}>
               <ReanimatedCamera
                 ref={camera}
-                style={StyleSheet.absoluteFill}
+                style={{ width: 100, height: 100, marginTop: 100 }}
                 device={device}
                 format={format}
                 fps={fps}
@@ -231,13 +271,15 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 audio={hasMicrophonePermission}
                 frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
                 orientation="portrait"
-                frameProcessorFps={1}
+                frameProcessorFps={5}
                 onFrameProcessorPerformanceSuggestionAvailable={onFrameProcessorSuggestionAvailable}
               />
             </TapGestureHandler>
           </Reanimated.View>
         </PinchGestureHandler>
       )}
+
+      <SkiaView style={StyleSheet.absoluteFill} mode="continuous" onDraw={onDraw} />
 
       <CaptureButton
         style={styles.captureButton}

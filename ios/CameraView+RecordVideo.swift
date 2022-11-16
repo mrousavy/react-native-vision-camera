@@ -219,16 +219,14 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       if lastFrameProcessorCallElapsedTime > UInt64(nanosecondsPerFrame) {
         if !isRunningFrameProcessor {
           // we're not in the middle of executing the Frame Processor, so prepare for next call.
-          CameraQueues.frameProcessorQueue.async {
-            self.isRunningFrameProcessor = true
+          self.isRunningFrameProcessor = true
 
-            let perfSample = self.frameProcessorPerformanceDataCollector.beginPerformanceSampleCollection()
-            let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
-            frameProcessor(frame)
-            perfSample.endPerformanceSampleCollection()
+          let perfSample = self.frameProcessorPerformanceDataCollector.beginPerformanceSampleCollection()
+          let frame = Frame(retainedBuffer: sampleBuffer, orientation: self.bufferOrientation)
+          frameProcessor(frame)
+          perfSample.endPerformanceSampleCollection()
 
-            self.isRunningFrameProcessor = false
-          }
+          self.isRunningFrameProcessor = false
           lastFrameProcessorCall = DispatchTime.now()
         } else {
           // we're still in the middle of executing a Frame Processor for a previous frame, so a frame was dropped.

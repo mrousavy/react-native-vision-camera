@@ -39,11 +39,12 @@
 #import "FrameProcessorCallback.h"
 #import "../React Utils/MakeJSIRuntime.h"
 #import "../React Utils/JSIUtils.h"
+#import "../React Utils/RCTBridge+runOnJS.h"
 
 // Forward declarations for the Swift classes
 __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
 @interface CameraQueues : NSObject
-@property (nonatomic, class, readonly, strong) dispatch_queue_t _Nonnull frameProcessorQueue;
+@property (nonatomic, class, readonly, strong) dispatch_queue_t _Nonnull videoQueue;
 @end
 __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 @interface CameraView : UIView
@@ -139,27 +140,21 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
     NSLog(@"FrameProcessorBindings: Setting new frame processor...");
     if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: First argument ('viewTag') must be a number!");
     if (!arguments[1].isObject()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
-    if (!runtimeManager || !runtimeManager->runtime) throw jsi::JSError(runtime, "Camera::setFrameProcessor: The RuntimeManager is not yet initialized!");
 
     auto viewTag = arguments[0].asNumber();
-    NSLog(@"FrameProcessorBindings: Adapting Shareable value from function (conversion to worklet)...");
-    auto worklet = reanimated::ShareableValue::adapt(runtime, arguments[1], runtimeManager.get());
-    NSLog(@"FrameProcessorBindings: Successfully created worklet!");
+    jsi::Runtime* rt = &runtime;
 
     RCTExecuteOnMainQueue([=]() {
       auto currentBridge = [RCTBridge currentBridge];
       auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
       auto view = static_cast<CameraView*>(anonymousView);
 
-      dispatch_async(CameraQueues.frameProcessorQueue, [=]() {
+      [[RCTBridge currentBridge] runOnJS:^{
         NSLog(@"FrameProcessorBindings: Converting worklet to Objective-C callback...");
 
-        auto& rt = *runtimeManager->runtime;
-        auto function = worklet->getValue(rt).asObject(rt).asFunction(rt);
-
-        view.frameProcessorCallback = convertJSIFunctionToFrameProcessorCallback(rt, function);
+        view.frameProcessorCallback = convertJSIFunctionToFrameProcessorCallback(*rt);
         NSLog(@"FrameProcessorBindings: Frame processor set!");
-      });
+      }];
     });
 
     return jsi::Value::undefined();

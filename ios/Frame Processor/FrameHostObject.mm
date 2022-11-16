@@ -90,9 +90,5 @@ void FrameHostObject::assertIsFrameStrong(jsi::Runtime &runtime, const std::stri
 }
 
 void FrameHostObject::close() {
-  if (frame != nil) {
-    CMSampleBufferInvalidate(frame.buffer);
-    // ARC will hopefully delete it lol
-    this->frame = nil;
-  }
+  
 }
