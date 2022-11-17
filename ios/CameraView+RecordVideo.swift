@@ -222,12 +222,14 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           CameraQueues.frameProcessorQueue.async {
             self.isRunningFrameProcessor = true
 
+            self.previewView.drawFrame(sampleBuffer)
+            
             let perfSample = self.frameProcessorPerformanceDataCollector.beginPerformanceSampleCollection()
             let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
             frameProcessor(frame)
             perfSample.endPerformanceSampleCollection()
             
-            self.previewView.drawFrame(sampleBuffer)
+            
 
             self.isRunningFrameProcessor = false
           }
