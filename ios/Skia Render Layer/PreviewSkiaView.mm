@@ -23,9 +23,9 @@
     throw std::runtime_error("Cannot draw new Frame to Canvas when SkiaMetalCanvasProvider is null!");
   }
 
-  _canvasProvider->renderToCanvas([](SkCanvas* canvas) {
-    // TODO: Implement draw to canvas
-    NSLog(@"TODO: Draw to Canvas!!");
+  _canvasProvider->renderFrameToCanvas(buffer, [](SkCanvas* canvas) {
+    // TODO: Call Frame Processor
+    NSLog(@"TODO: Call Frame Processor with Canvas here!");
   });
   // TODO: Update view
 }

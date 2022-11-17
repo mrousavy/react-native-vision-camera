@@ -22,7 +22,7 @@ public:
   float getScaledWidth();
   float getScaledHeight();
 
-  void renderToCanvas(const std::function<void(SkCanvas*)>& cb);
+  void renderFrameToCanvas(CMSampleBufferRef sampleBuffer, const std::function<void(SkCanvas*)>& drawCallback);
 
   void setSize(int width, int height);
 
