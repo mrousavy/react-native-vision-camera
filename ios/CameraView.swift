@@ -111,28 +111,21 @@ public final class CameraView: UIView {
   internal var actualFrameProcessorFps = 30.0
   internal var lastSuggestedFrameProcessorFps = 0.0
   internal var lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
+  
+  internal var previewView: PreviewSkiaView
 
   /// Returns whether the AVCaptureSession is currently running (reflected by isActive)
   var isRunning: Bool {
     return captureSession.isRunning
   }
 
-  /// Convenience wrapper to get layer as its statically known type.
-  var videoPreviewLayer: AVCaptureVideoPreviewLayer {
-    // swiftlint:disable force_cast
-    return layer as! AVCaptureVideoPreviewLayer
-  }
-
-  override public class var layerClass: AnyClass {
-    return AVCaptureVideoPreviewLayer.self
-  }
-
   // pragma MARK: Setup
   override public init(frame: CGRect) {
+    self.previewView = PreviewSkiaView(frame: frame)
+    
     super.init(frame: frame)
-    videoPreviewLayer.session = captureSession
-    videoPreviewLayer.videoGravity = .resizeAspectFill
-    videoPreviewLayer.frame = layer.bounds
+    
+    addSubview(previewView)
 
     NotificationCenter.default.addObserver(self,
                                            selector: #selector(sessionRuntimeError),
