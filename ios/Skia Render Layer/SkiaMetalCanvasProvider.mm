@@ -117,6 +117,13 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     skSurface->getCanvas()->clear(SK_AlphaTRANSPARENT);
     
     CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+    
+    if (pixelBuffer == nil) {
+      NSLog(@"PixelBuffer is nil, wtf??");
+      return;
+    }
+    
+    CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
     CVMetalTextureRef cvTexture;
     CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
                                               _textureCache,
@@ -131,8 +138,23 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     
     GrMtlTextureInfo textureInfo;
     // TODO: Fix that cast, it will crash
-    textureInfo.fTexture.retain((__bridge void*)CVMetalTextureGetTexture(cvTexture));
+    auto t = CVMetalTextureGetTexture(cvTexture);
+  
+    textureInfo.fTexture.retain((__bridge void*)t);
     
+    // assumes BGRA 8888
+    auto srcBuff = CVPixelBufferGetBaseAddress(pixelBuffer);
+    auto bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer);
+    auto height = CVPixelBufferGetHeight(pixelBuffer);
+    auto info = SkImageInfo::Make(CVPixelBufferGetWidth(pixelBuffer),
+                                  CVPixelBufferGetHeight(pixelBuffer),
+                                  kBGRA_8888_SkColorType,
+                                  kOpaque_SkAlphaType);
+    auto data = SkData::MakeWithCopy(srcBuff, bytesPerRow * height);
+    auto image = SkImage::MakeRasterData(info, data, bytesPerRow);
+
+    /*
+     // assumes YUV 420v
     GrBackendTexture textures[1];
     textures[0] = GrBackendTexture(_width,
                                    _height,
@@ -149,16 +171,23 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
                              kTopLeft_GrSurfaceOrigin);
     
     auto image = SkImage::MakeFromYUVATextures(_skContext.get(), te);
+     */
     
     skSurface->getCanvas()->drawImage(image,
                                       0,
                                       0
                                       // TODO: Paint???
                                       );
+    
+    
+    SkPaint paint(SkColors::kRed);
+    skSurface->getCanvas()->drawPaint(paint);
 
     id<MTLCommandBuffer> commandBuffer([_commandQueue commandBuffer]);
     [commandBuffer presentDrawable:currentDrawable];
     [commandBuffer commit];
+    
+    CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
   }
 };
 
