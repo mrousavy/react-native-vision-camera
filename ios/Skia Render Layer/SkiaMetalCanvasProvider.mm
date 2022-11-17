@@ -105,7 +105,7 @@ void SkiaMetalCanvasProvider::renderToCanvas(const std::function<void(SkCanvas*)
                                     1,
                                     fbInfo);
 
-    // TODO: Fix that it will crash
+    // TODO: Fix that cast, it will crash
     auto skSurface = SkSurface::MakeFromBackendRenderTarget((GrRecordingContext*) _skContext.get(),
                                                             backendRT,
                                                             kTopLeft_GrSurfaceOrigin,
@@ -133,6 +133,7 @@ void SkiaMetalCanvasProvider::renderToCanvas(const std::function<void(SkCanvas*)
                                               &cvTexture);
     
     GrMtlTextureInfo info;
+    // TODO: Fix that cast, it will crash
     info.fTexture.retain((__bridge const void*)CVMetalTextureGetTexture(cvTexture));
     
     GrBackendTexture textures[1];
@@ -147,6 +148,7 @@ void SkiaMetalCanvasProvider::renderToCanvas(const std::function<void(SkCanvas*)
                              textures,
                              kTopLeft_GrSurfaceOrigin);
     
+    // TODO: Fix that cast, it will crash
     auto image = SkImage::MakeFromYUVATextures((GrRecordingContext*)_skContext.get(), te);
     
     skSurface->getCanvas()->drawImage(image,
