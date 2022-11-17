@@ -226,6 +226,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
             let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
             frameProcessor(frame)
             perfSample.endPerformanceSampleCollection()
+            
+            self.previewView.drawFrame(sampleBuffer)
 
             self.isRunningFrameProcessor = false
           }
