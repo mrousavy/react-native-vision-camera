@@ -131,12 +131,15 @@ void SkiaMetalCanvasProvider::renderToCanvas(const std::function<void(SkCanvas*)
                                               0,
                                               &cvTexture);
     
-    GrMtlTextureInfo info;
+    GrMtlTextureInfo textureInfo;
     // TODO: Fix that cast, it will crash
-    info.fTexture.retain((__bridge void*)CVMetalTextureGetTexture(cvTexture));
+    textureInfo.fTexture.retain((__bridge void*)CVMetalTextureGetTexture(cvTexture));
     
     GrBackendTexture textures[1];
-    textures[0] = GrBackendTexture(0, 0, GrMipmapped::kNo, info);
+    textures[0] = GrBackendTexture(_width,
+                                   _height,
+                                   GrMipmapped::kNo,
+                                   textureInfo);
     
     // TODO: I have no idea if that's correct.
     SkYUVAInfo yuvInfo(SkISize::Make(_width, _height),
