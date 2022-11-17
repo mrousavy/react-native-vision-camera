@@ -179,10 +179,6 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
                                       // TODO: Paint???
                                       );
     
-    
-    SkPaint paint(SkColors::kRed);
-    skSurface->getCanvas()->drawPaint(paint);
-    
     skSurface->getCanvas()->flush();
 
     id<MTLCommandBuffer> commandBuffer([_commandQueue commandBuffer]);

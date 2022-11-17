@@ -41,9 +41,10 @@
   } else {
     // Create implementation view when the parent view is set
     if (_canvasProvider == nullptr) {
-      _canvasProvider = std::make_shared<SkiaMetalCanvasProvider>([]() {
+      _canvasProvider = std::make_shared<SkiaMetalCanvasProvider>([&self]() {
         // TODO: Implement redraw view
         NSLog(@"TODO: Redraw View!!");
+        [self setNeedsLayout];
       });
 
       [self.layer addSublayer: _canvasProvider->getLayer()];
