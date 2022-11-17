@@ -71,12 +71,10 @@ float SkiaMetalCanvasProvider::getScaledHeight() { return _height * getPixelDens
 /**
  Render to a canvas
  */
-void SkiaMetalCanvasProvider::renderToCanvas(const std::function<void(SkCanvas*)>& cb) {
+void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer, const std::function<void(SkCanvas*)>& drawCallback) {
   if(_width == -1 && _height == -1) {
     return;
   }
-  
-  CMSampleBufferRef frame = nullptr;
 
   if(_skContext == nullptr) {
     GrContextOptions grContextOptions;
@@ -118,7 +116,7 @@ void SkiaMetalCanvasProvider::renderToCanvas(const std::function<void(SkCanvas*)
 
     skSurface->getCanvas()->clear(SK_AlphaTRANSPARENT);
     
-    CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(frame);
+    CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
     CVMetalTextureRef cvTexture;
     CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
                                               _textureCache,
