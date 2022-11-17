@@ -12,13 +12,10 @@
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
 
-@interface PreviewSkiaView: NSObject
-
-// The actual Skia Canvas
-@property (readonly) UIView* view;
+@interface PreviewSkiaView: UIView
 
 // Call to pass a new Frame to be drawn by the Skia Canvas
-- (void) captureOutput:(CMSampleBufferRef)buffer;
+- (void) drawFrame:(CMSampleBufferRef)buffer;
 
 @end
 
