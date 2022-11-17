@@ -175,6 +175,10 @@ public final class CameraView: UIView {
       onViewReady(nil)
     }
   }
+  
+  public override func layoutSubviews() {
+    self.previewView.bounds = self.bounds
+  }
 
   // pragma MARK: Props updating
   override public final func didSetProps(_ changedProps: [String]!) {
