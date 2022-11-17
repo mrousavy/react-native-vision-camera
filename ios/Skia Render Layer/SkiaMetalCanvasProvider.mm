@@ -182,6 +182,8 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     
     SkPaint paint(SkColors::kRed);
     skSurface->getCanvas()->drawPaint(paint);
+    
+    skSurface->getCanvas()->flush();
 
     id<MTLCommandBuffer> commandBuffer([_commandQueue commandBuffer]);
     [commandBuffer presentDrawable:currentDrawable];
