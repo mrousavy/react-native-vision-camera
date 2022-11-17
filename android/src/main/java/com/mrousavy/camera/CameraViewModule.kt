@@ -18,12 +18,17 @@ import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener
+import com.facebook.react.uimanager.UIManagerHelper
+import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.turbomodule.core.CallInvokerHolderImpl
+import com.mrousavy.camera.CameraView
+import com.mrousavy.camera.ViewNotFoundError
+import java.util.concurrent.ExecutorService
 import com.mrousavy.camera.frameprocessor.FrameProcessorRuntimeManager
 import com.mrousavy.camera.parsers.*
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.guava.await
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 @ReactModule(name = CameraViewModule.TAG)
@@ -77,7 +82,12 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     return TAG
   }
 
-  private fun findCameraView(id: Int): CameraView = reactApplicationContext.currentActivity?.findViewById(id) ?: throw ViewNotFoundError(id)
+  private fun findCameraView(viewId: Int): CameraView {
+    Log.d(TAG, "Finding view $viewId...")
+    val view = if (reactApplicationContext != null) UIManagerHelper.getUIManager(reactApplicationContext, viewId)?.resolveView(viewId) as CameraView? else null
+    Log.d(TAG,  if (reactApplicationContext != null) "Found view $viewId!" else "Couldn't find view $viewId!")
+    return view ?: throw ViewNotFoundError(viewId)
+  }
 
   @ReactMethod
   fun takePhoto(viewTag: Int, options: ReadableMap, promise: Promise) {

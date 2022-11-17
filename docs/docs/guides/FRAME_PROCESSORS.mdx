@@ -63,7 +63,7 @@ to the top of the file when using `useFrameProcessor`.
 
 ### Interacting with Frame Processors
 
-Since Frame Processors run in [**Worklets**](https://docs.swmansion.com/react-native-reanimated/docs/worklets), you can directly use JS values such as React state:
+Since Frame Processors run in [**Worklets**](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/worklets), you can directly use JS values such as React state:
 
 ```tsx
 // can be controlled with a Slider
@@ -76,7 +76,7 @@ const frameProcessor = useFrameProcessor((frame) => {
 }, [sensitivity])
 ```
 
-You can also easily read from, and assign to [**Shared Values**](https://docs.swmansion.com/react-native-reanimated/docs/shared-values) to create smooth, 60 FPS animations.
+You can also easily read from, and assign to [**Shared Values**](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/shared-values) to create smooth, 60 FPS animations.
 
 In this example, we detect a cat in the frame - if a cat was found, we assign the `catBounds` Shared Value to the coordinates of the cat (relative to the screen) which we can then use in a `useAnimatedStyle` hook to position the red rectangle surrounding the cat. This updates in realtime on the UI Thread, and can also be smoothly animated with `withSpring` or `withTiming`.
 
@@ -108,7 +108,7 @@ return (
 )
 ```
 
-And you can also call back to the React-JS thread by using [`runOnJS`](https://docs.swmansion.com/react-native-reanimated/docs/api/runOnJS):
+And you can also call back to the React-JS thread by using [`runOnJS`](https://docs.swmansion.com/react-native-reanimated/docs/api/miscellaneous/runOnJS/):
 
 ```tsx {9}
 const onQRCodeDetected = useCallback((qrCode: string) => {
@@ -192,7 +192,7 @@ If you are using the [react-hooks ESLint plugin](https://www.npmjs.com/package/e
 
 #### Frame Processors
 
-**Frame Processors** are JS functions that will be **workletized** using [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated). They are created on a **parallel camera thread** using a separate JavaScript Runtime (_"VisionCamera JS-Runtime"_) and are **invoked synchronously** (using JSI) without ever going over the bridge. In a **Frame Processor** you can write normal JS code, call back to the React-JS Thread (e.g. `setState`), use [Shared Values](https://docs.swmansion.com/react-native-reanimated/docs/shared-values) and call **Frame Processor Plugins**.
+**Frame Processors** are JS functions that will be **workletized** using [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated). They are created on a **parallel camera thread** using a separate JavaScript Runtime (_"VisionCamera JS-Runtime"_) and are **invoked synchronously** (using JSI) without ever going over the bridge. In a **Frame Processor** you can write normal JS code, call back to the React-JS Thread (e.g. `setState`), use [Shared Values](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/shared-values/) and call **Frame Processor Plugins**.
 
 > See [**the example Frame Processor**](https://github.com/mrousavy/react-native-vision-camera/blob/cf68a4c6476d085ec48fc424a53a96962e0c33f9/example/src/CameraPage.tsx#L199-L203)
 
