@@ -72,6 +72,8 @@ float SkiaMetalCanvasProvider::getScaledHeight() { return _height * getPixelDens
  Render to a canvas
  */
 void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer, const std::function<void(SkCanvas*)>& drawCallback) {
+  auto start = CFAbsoluteTimeGetCurrent();
+  
   if(_width == -1 && _height == -1) {
     return;
   }
@@ -86,44 +88,24 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
   // Wrap in auto release pool since we want the system to clean up after rendering
   // and not wait until later - we've seen some example of memory usage growing very
   // fast in the simulator without this.
-  @autoreleasepool
-  {
+  @autoreleasepool {
     id<CAMetalDrawable> currentDrawable = [_layer nextDrawable];
     if(currentDrawable == nullptr) {
       return;
     }
-
+    
     GrMtlTextureInfo fbInfo;
     fbInfo.fTexture.retain((__bridge void*)currentDrawable.texture);
-
+    
     
     
     GrBackendRenderTarget backendRT(_layer.drawableSize.width,
                                     _layer.drawableSize.height,
                                     1,
                                     fbInfo);
-
-    auto skSurface = SkSurface::MakeFromBackendRenderTarget(_skContext.get(),
-                                                            backendRT,
-                                                            kTopLeft_GrSurfaceOrigin,
-                                                            kBGRA_8888_SkColorType,
-                                                            nullptr,
-                                                            nullptr);
     
-    if(skSurface == nullptr || skSurface->getCanvas() == nullptr) {
-      throw std::runtime_error("Skia surface could not be created from parameters.");
-    }
-
-    skSurface->getCanvas()->clear(SK_AlphaTRANSPARENT);
-    
-    CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
-    
-    if (pixelBuffer == nil) {
-      NSLog(@"PixelBuffer is nil, wtf??");
-      return;
-    }
-    
-    CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
+    // TODO: Create a Texture Cache instead of re-creating everything all the time.
+    /*
     CVMetalTextureRef cvTexture;
     CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
                                               _textureCache,
@@ -141,6 +123,29 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     auto t = CVMetalTextureGetTexture(cvTexture);
   
     textureInfo.fTexture.retain((__bridge void*)t);
+    */
+    
+    
+    auto skSurface = SkSurface::MakeFromBackendRenderTarget(_skContext.get(),
+                                                            backendRT,
+                                                            kTopLeft_GrSurfaceOrigin,
+                                                            kBGRA_8888_SkColorType,
+                                                            nullptr,
+                                                            nullptr);
+    
+    if(skSurface == nullptr || skSurface->getCanvas() == nullptr) {
+      throw std::runtime_error("Skia surface could not be created from parameters.");
+    }
+    
+    skSurface->getCanvas()->clear(SK_AlphaTRANSPARENT);
+    
+    CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+    
+    if (pixelBuffer == nil) {
+      throw std::runtime_error("drawFrame: Pixel Buffer is corrupt/empty.");
+    }
+    
+    CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
     
     // assumes BGRA 8888
     auto srcBuff = CVPixelBufferGetBaseAddress(pixelBuffer);
@@ -150,27 +155,29 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
                                   CVPixelBufferGetHeight(pixelBuffer),
                                   kBGRA_8888_SkColorType,
                                   kOpaque_SkAlphaType);
+    // TODO: Skip this copy. This is too slow, we only want to copy once (from CMSampleBuffer straight into the Skia Canvas)
     auto data = SkData::MakeWithCopy(srcBuff, bytesPerRow * height);
     auto image = SkImage::MakeRasterData(info, data, bytesPerRow);
-
+    
+    // TODO: Right now we convert the image buffer from it's source format (whether that's YUV 420v, 420f, x420, or something else) to BGRA8888 (RGB). This conversion is slow and adds a ton of overhead - so we want to find a way to use the source format (YUV) directly instead. This also needs to be changed in CameraView+AVCaptureSession.
     /*
      // assumes YUV 420v
-    GrBackendTexture textures[1];
-    textures[0] = GrBackendTexture(_width,
-                                   _height,
-                                   GrMipmapped::kNo,
-                                   textureInfo);
-    
-    // TODO: I have no idea if that's correct.
-    SkYUVAInfo yuvInfo(SkISize::Make(_width, _height),
-                       SkYUVAInfo::PlaneConfig::kYUV,
-                       SkYUVAInfo::Subsampling::k420,
-                       SkYUVColorSpace::kJPEG_Full_SkYUVColorSpace);
-    GrYUVABackendTextures te(yuvInfo,
-                             textures,
-                             kTopLeft_GrSurfaceOrigin);
-    
-    auto image = SkImage::MakeFromYUVATextures(_skContext.get(), te);
+     GrBackendTexture textures[1];
+     textures[0] = GrBackendTexture(_width,
+     _height,
+     GrMipmapped::kNo,
+     textureInfo);
+     
+     // TODO: I have no idea if that's correct.
+     SkYUVAInfo yuvInfo(SkISize::Make(_width, _height),
+     SkYUVAInfo::PlaneConfig::kYUV,
+     SkYUVAInfo::Subsampling::k420,
+     SkYUVColorSpace::kJPEG_Full_SkYUVColorSpace);
+     GrYUVABackendTextures te(yuvInfo,
+     textures,
+     kTopLeft_GrSurfaceOrigin);
+     
+     auto image = SkImage::MakeFromYUVATextures(_skContext.get(), te);
      */
     
     skSurface->getCanvas()->drawImage(image,
@@ -178,15 +185,19 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
                                       0
                                       // TODO: Paint???
                                       );
+    // TODO: Run Frame Processor with all drawing operations on the Canvas now
     
     skSurface->getCanvas()->flush();
-
+    
     id<MTLCommandBuffer> commandBuffer([_commandQueue commandBuffer]);
     [commandBuffer presentDrawable:currentDrawable];
     [commandBuffer commit];
     
     CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
   }
+  
+  auto end = CFAbsoluteTimeGetCurrent();
+  NSLog(@"Draw took %f ms", (end - start) / 1000);
 };
 
 void SkiaMetalCanvasProvider::setSize(int width, int height) {
