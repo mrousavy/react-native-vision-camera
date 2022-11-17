@@ -133,22 +133,27 @@ void SkiaMetalCanvasProvider::renderToCanvas(const std::function<void(SkCanvas*)
                                               &cvTexture);
     
     GrMtlTextureInfo info;
-    info.fTexture.retain(CVMetalTextureGetTexture(cvTexture));
+    info.fTexture.retain((__bridge const void*)CVMetalTextureGetTexture(cvTexture));
     
     GrBackendTexture textures[1];
     textures[0] = GrBackendTexture(0, 0, GrMipmapped::kNo, info);
     
+    // TODO: I have no idea if that's correct.
+    SkYUVAInfo yuvInfo(SkISize::Make(_width, _height),
+                       SkYUVAInfo::PlaneConfig::kYUV,
+                       SkYUVAInfo::Subsampling::k420,
+                       SkYUVColorSpace::kJPEG_Full_SkYUVColorSpace);
+    GrYUVABackendTextures te(yuvInfo,
+                             textures,
+                             kTopLeft_GrSurfaceOrigin);
     
-    SkYUVAInfo(SkISize::Make(_width, _height), <#PlaneConfig#>, <#Subsampling#>, <#SkYUVColorSpace#>)
-    GrYUVABackendTextures te(<#const SkYUVAInfo &#>, <#const GrBackendTexture *#>, <#GrSurfaceOrigin textureOrigin#>)
-    
-    auto image = SkImage::MakeFromYUVATextures((GrRecordingContext*)_skContext.get(), textures);
+    auto image = SkImage::MakeFromYUVATextures((GrRecordingContext*)_skContext.get(), te);
     
     skSurface->getCanvas()->drawImage(image,
                                       0,
-                                      0,
+                                      0
                                       // TODO: Paint???
-                                      nullptr);
+                                      );
 
     id<MTLCommandBuffer> commandBuffer([_commandQueue commandBuffer]);
     [commandBuffer presentDrawable:currentDrawable];
