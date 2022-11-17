@@ -118,25 +118,25 @@ void SkiaMetalCanvasProvider::renderToCanvas(const std::function<void(SkCanvas*)
                                                             nullptr,
                                                             nullptr);
     
-    CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(frame);
-    CVMetalTextureRef cvTexture;
-    CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
-                                              _textureCache,
-                                              pixelBuffer,
-                                              nil,
-                                              MTLPixelFormatBGRA8Unorm,
-                                              _width,
-                                              _height,
-                                              0,
-                                              &cvTexture);
-    
-
     if(skSurface == nullptr || skSurface->getCanvas() == nullptr) {
       RNSkia::RNSkLogger::logToConsole("Skia surface could not be created from parameters.");
       return;
     }
 
     skSurface->getCanvas()->clear(SK_AlphaTRANSPARENT);
+    
+    CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(frame);
+    CVMetalTextureRef cvTexture;
+    CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
+                                              _textureCache,
+                                              pixelBuffer,
+                                              nil,
+                                              // TODO: Our source CMSampleBuffer is in 420v/420f, not RGBA!
+                                              MTLPixelFormatBGRA8Unorm,
+                                              _width,
+                                              _height,
+                                              0,
+                                              &cvTexture);
     
     GrMtlTextureInfo info;
     info.fTexture.retain(CVMetalTextureGetTexture(cvTexture));
