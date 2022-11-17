@@ -190,6 +190,13 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   }
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
+    if captureOutput is AVCaptureVideoDataOutput {
+      // Render to PreviewView
+      print("before drawframe")
+      self.previewView.drawFrame(sampleBuffer)
+      print("after drawframe")
+    }
+    
     // Video Recording runs in the same queue
     if isRecording {
       guard let recordingSession = recordingSession else {
@@ -222,15 +229,11 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           CameraQueues.frameProcessorQueue.async {
             self.isRunningFrameProcessor = true
 
-            self.previewView.drawFrame(sampleBuffer)
-            
             let perfSample = self.frameProcessorPerformanceDataCollector.beginPerformanceSampleCollection()
             let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
             frameProcessor(frame)
             perfSample.endPerformanceSampleCollection()
             
-            
-
             self.isRunningFrameProcessor = false
           }
           lastFrameProcessorCall = frameTime
