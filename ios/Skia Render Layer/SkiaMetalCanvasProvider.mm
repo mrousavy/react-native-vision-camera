@@ -119,7 +119,6 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
                                               &cvTexture);
     
     GrMtlTextureInfo textureInfo;
-    // TODO: Fix that cast, it will crash
     auto t = CVMetalTextureGetTexture(cvTexture);
   
     textureInfo.fTexture.retain((__bridge void*)t);
@@ -197,7 +196,7 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
   }
   
   auto end = CFAbsoluteTimeGetCurrent();
-  NSLog(@"Draw took %f ms", (end - start) / 1000);
+  NSLog(@"Draw took %f ms", (end - start) * 1000);
 };
 
 void SkiaMetalCanvasProvider::setSize(int width, int height) {
