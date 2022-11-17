@@ -9,6 +9,8 @@
 #import <SkCanvas.h>
 
 #import <include/gpu/GrDirectContext.h>
+#import <AVFoundation/AVFoundation.h>
+#import <Metal/Metal.h>
 
 #pragma clang diagnostic pop
 
@@ -17,10 +19,7 @@ id<MTLDevice> SkiaMetalCanvasProvider::_device = nullptr;
 id<MTLCommandQueue> SkiaMetalCanvasProvider::_commandQueue = nullptr;
 sk_sp<GrDirectContext> SkiaMetalCanvasProvider::_skContext = nullptr;
 
-SkiaMetalCanvasProvider::SkiaMetalCanvasProvider(std::function<void()> requestRedraw,
-                        std::shared_ptr<RNSkia::RNSkPlatformContext> context):
-RNSkCanvasProvider(requestRedraw),
-  _context(context) {
+SkiaMetalCanvasProvider::SkiaMetalCanvasProvider(std::function<void()> requestRedraw): _requestRedraw(requestRedraw) {
   if (!_device) {
     _device = MTLCreateSystemDefaultDevice();
   }
@@ -36,8 +35,12 @@ RNSkCanvasProvider(requestRedraw),
   _layer.framebufferOnly = NO;
   _layer.device = _device;
   _layer.opaque = false;
-  _layer.contentsScale = _context->getPixelDensity();
+  _layer.contentsScale = getPixelDensity();
   _layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+  
+  if (CVMetalTextureCacheCreate(kCFAllocatorDefault, nil, _device, nil, &_textureCache) != kCVReturnSuccess) {
+    throw std::runtime_error("Failed to create Metal Texture Cache!");
+  }
 }
 
 SkiaMetalCanvasProvider::~SkiaMetalCanvasProvider() {
@@ -58,15 +61,17 @@ SkiaMetalCanvasProvider::~SkiaMetalCanvasProvider() {
   }
 }
 
+float SkiaMetalCanvasProvider::getPixelDensity() { return [[UIScreen mainScreen] scale]; }
+
 /**
  Returns the scaled width of the view
  */
-float SkiaMetalCanvasProvider::getScaledWidth() { return _width * _context->getPixelDensity(); };
+float SkiaMetalCanvasProvider::getScaledWidth() { return _width * getPixelDensity(); };
 
 /**
  Returns the scaled height of the view
  */
-float SkiaMetalCanvasProvider::getScaledHeight() { return _height * _context->getPixelDensity(); };
+float SkiaMetalCanvasProvider::getScaledHeight() { return _height * getPixelDensity(); };
 
 /**
  Render to a canvas
@@ -75,6 +80,8 @@ void SkiaMetalCanvasProvider::renderToCanvas(const std::function<void(SkCanvas*)
   if(_width == -1 && _height == -1) {
     return;
   }
+  
+  CMSampleBufferRef frame = nullptr;
 
   if(_skContext == nullptr) {
     GrContextOptions grContextOptions;
@@ -96,17 +103,33 @@ void SkiaMetalCanvasProvider::renderToCanvas(const std::function<void(SkCanvas*)
     GrMtlTextureInfo fbInfo;
     fbInfo.fTexture.retain((__bridge void*)currentDrawable.texture);
 
+    
+    
     GrBackendRenderTarget backendRT(_layer.drawableSize.width,
                                     _layer.drawableSize.height,
                                     1,
                                     fbInfo);
 
-    auto skSurface = SkSurface::MakeFromBackendRenderTarget(_skContext.get(),
+    // TODO: Fix that it will crash
+    auto skSurface = SkSurface::MakeFromBackendRenderTarget((GrRecordingContext*) _skContext.get(),
                                                             backendRT,
                                                             kTopLeft_GrSurfaceOrigin,
                                                             kBGRA_8888_SkColorType,
                                                             nullptr,
                                                             nullptr);
+    
+    CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(frame);
+    CVMetalTextureRef cvTexture;
+    CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
+                                              _textureCache,
+                                              pixelBuffer,
+                                              nil,
+                                              MTLPixelFormatBGRA8Unorm,
+                                              _width,
+                                              _height,
+                                              0,
+                                              &cvTexture);
+    
 
     if(skSurface == nullptr || skSurface->getCanvas() == nullptr) {
       RNSkia::RNSkLogger::logToConsole("Skia surface could not be created from parameters.");
@@ -114,7 +137,20 @@ void SkiaMetalCanvasProvider::renderToCanvas(const std::function<void(SkCanvas*)
     }
 
     skSurface->getCanvas()->clear(SK_AlphaTRANSPARENT);
-    cb(skSurface->getCanvas());
+    
+    GrMtlTextureInfo info;
+    info.fTexture.retain(CVMetalTextureGetTexture(cvTexture));
+    
+    GrBackendTexture textures[1];
+    textures[0] = GrBackendTexture(0, 0, GrMipmapped::kNo, info);
+    
+    auto image = SkImage::MakeFromYUVATextures((GrRecordingContext*)_skContext.get(), textures);
+    
+    skSurface->getCanvas()->drawImage(image,
+                                      0,
+                                      0,
+                                      // TODO: Paint???
+                                      nullptr);
 
     id<MTLCommandBuffer> commandBuffer([_commandQueue commandBuffer]);
     [commandBuffer presentDrawable:currentDrawable];
@@ -126,8 +162,8 @@ void SkiaMetalCanvasProvider::setSize(int width, int height) {
   _width = width;
   _height = height;
   _layer.frame = CGRectMake(0, 0, width, height);
-  _layer.drawableSize = CGSizeMake(width * _context->getPixelDensity(),
-                                   height* _context->getPixelDensity());
+  _layer.drawableSize = CGSizeMake(width * getPixelDensity(),
+                                   height* getPixelDensity());
 
   _requestRedraw();
 }
