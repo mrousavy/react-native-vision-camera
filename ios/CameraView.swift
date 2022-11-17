@@ -177,6 +177,7 @@ public final class CameraView: UIView {
   }
   
   public override func layoutSubviews() {
+    self.previewView.frame = self.frame
     self.previewView.bounds = self.bounds
   }
 
