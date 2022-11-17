@@ -9,8 +9,7 @@
 #import "PreviewSkiaView.h"
 #import <Foundation/Foundation.h>
 
-#import <react_native_skia/react-native-skia-umbrella.h>
-#import "RNSkMetalCanvasProvider.h"
+#import "SkiaMetalCanvasProvider.h"
 
 #include <exception>
 #include <string>
