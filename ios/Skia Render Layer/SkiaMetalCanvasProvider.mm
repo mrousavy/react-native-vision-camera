@@ -1,18 +1,13 @@
 #import "SkiaMetalCanvasProvider.h"
-#import <RNSkLog.h>
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdocumentation"
-
-#import <SkColorSpace.h>
-#import <SkSurface.h>
-#import <SkCanvas.h>
-
-#import <include/gpu/GrDirectContext.h>
 #import <AVFoundation/AVFoundation.h>
 #import <Metal/Metal.h>
 
-#pragma clang diagnostic pop
+#import <include/core/SkColorSpace.h>
+#import <include/core/SkSurface.h>
+#import <include/core/SkCanvas.h>
+#import <include/gpu/GrDirectContext.h>
+#import <include/gpu/GrYUVABackendTextures.h>
 
 // These static class members are used by all Skia Views
 id<MTLDevice> SkiaMetalCanvasProvider::_device = nullptr;
@@ -119,8 +114,7 @@ void SkiaMetalCanvasProvider::renderToCanvas(const std::function<void(SkCanvas*)
                                                             nullptr);
     
     if(skSurface == nullptr || skSurface->getCanvas() == nullptr) {
-      RNSkia::RNSkLogger::logToConsole("Skia surface could not be created from parameters.");
-      return;
+      throw std::runtime_error("Skia surface could not be created from parameters.");
     }
 
     skSurface->getCanvas()->clear(SK_AlphaTRANSPARENT);
@@ -143,6 +137,10 @@ void SkiaMetalCanvasProvider::renderToCanvas(const std::function<void(SkCanvas*)
     
     GrBackendTexture textures[1];
     textures[0] = GrBackendTexture(0, 0, GrMipmapped::kNo, info);
+    
+    
+    SkYUVAInfo(SkISize::Make(_width, _height), <#PlaneConfig#>, <#Subsampling#>, <#SkYUVColorSpace#>)
+    GrYUVABackendTextures te(<#const SkYUVAInfo &#>, <#const GrBackendTexture *#>, <#GrSurfaceOrigin textureOrigin#>)
     
     auto image = SkImage::MakeFromYUVATextures((GrRecordingContext*)_skContext.get(), textures);
     

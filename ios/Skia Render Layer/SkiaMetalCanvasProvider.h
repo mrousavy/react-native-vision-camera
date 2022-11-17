@@ -7,8 +7,10 @@
 #import <MetalKit/MetalKit.h>
 #import <QuartzCore/CAMetalLayer.h>
 
-#include <react_native_skia/react-native-skia-umbrella.h>
 #import <AVFoundation/AVFoundation.h>
+
+#include <functional>
+#import <include/gpu/GrDirectContext.h>
 
 class SkiaMetalCanvasProvider {
 public:
@@ -40,3 +42,4 @@ private:
   static id<MTLDevice> _device;
   static sk_sp<GrDirectContext> _skContext;
 };
+
