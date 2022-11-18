@@ -23,11 +23,14 @@
     throw std::runtime_error("Cannot draw new Frame to Canvas when SkiaMetalCanvasProvider is null!");
   }
 
-  _canvasProvider->renderFrameToCanvas(buffer, [](SkCanvas* canvas) {
+  _canvasProvider->renderFrameToCanvas(buffer, [buffer, self](SkCanvas* canvas) {
     // TODO: Call Frame Processor
     NSLog(@"TODO: Call Frame Processor with Canvas here!");
+    auto frame = [[Frame alloc] initWithBuffer:buffer orientation:UIImageOrientationUp];
+    if (self.frameProcessorCallback != nil) {
+      self.frameProcessorCallback(frame, (void*)canvas);
+    }
   });
-  // TODO: Update view
 }
 
 - (void) willMoveToSuperview:(UIView *)newWindow {
@@ -41,10 +44,10 @@
   } else {
     // Create implementation view when the parent view is set
     if (_canvasProvider == nullptr) {
-      _canvasProvider = std::make_shared<SkiaMetalCanvasProvider>([&self]() {
+      _canvasProvider = std::make_shared<SkiaMetalCanvasProvider>([]() {
         // TODO: Implement redraw view
         NSLog(@"TODO: Redraw View!!");
-        [self setNeedsLayout];
+        // [self setNeedsLayout];
       });
 
       [self.layer addSublayer: _canvasProvider->getLayer()];

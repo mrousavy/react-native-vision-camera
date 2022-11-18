@@ -137,6 +137,9 @@ extension CameraView {
       videoOutput!.videoSettings = [ String(kCVPixelBufferPixelFormatTypeKey) : kCMPixelFormat_32BGRA]
       captureSession.addOutput(videoOutput!)
     }
+      
+      // set FP
+    previewView.frameProcessorCallback = frameProcessorCallback
 
     onOrientationChanged()
 

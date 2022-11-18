@@ -179,14 +179,17 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
      auto image = SkImage::MakeFromYUVATextures(_skContext.get(), te);
      */
     
-    skSurface->getCanvas()->drawImage(image,
+    auto canvas = skSurface->getCanvas();
+    canvas->drawImage(image,
                                       0,
                                       0
                                       // TODO: Paint???
                                       );
     // TODO: Run Frame Processor with all drawing operations on the Canvas now
+      
+    drawCallback(canvas);
     
-    skSurface->getCanvas()->flush();
+    canvas->flush();
     
     id<MTLCommandBuffer> commandBuffer([_commandQueue commandBuffer]);
     [commandBuffer presentDrawable:currentDrawable];

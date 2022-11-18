@@ -11,8 +11,11 @@
 
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
+#import "FrameProcessorCallback.h"
 
 @interface PreviewSkiaView: UIView
+
+@property (nullable) FrameProcessorCallback frameProcessorCallback;
 
 // Call to pass a new Frame to be drawn by the Skia Canvas
 - (void) drawFrame:(CMSampleBufferRef)buffer;
