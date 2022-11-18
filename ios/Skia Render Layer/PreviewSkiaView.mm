@@ -56,8 +56,9 @@
 }
 
 - (void) layoutSubviews {
-  if (_canvasProvider != nullptr)
+  if (_canvasProvider != nullptr) {
     _canvasProvider->setSize(self.bounds.size.width, self.bounds.size.height);
+  }
 }
 
 @end

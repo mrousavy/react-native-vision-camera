@@ -31,6 +31,7 @@ public:
 private:
   float _width = -1;
   float _height = -1;
+  float _pixelDensity = 1;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability-new"
   CAMetalLayer* _layer;

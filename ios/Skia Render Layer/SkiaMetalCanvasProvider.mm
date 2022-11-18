@@ -56,7 +56,7 @@ SkiaMetalCanvasProvider::~SkiaMetalCanvasProvider() {
   }
 }
 
-float SkiaMetalCanvasProvider::getPixelDensity() { return [[UIScreen mainScreen] scale]; }
+float SkiaMetalCanvasProvider::getPixelDensity() { return _pixelDensity; }
 
 /**
  Returns the scaled width of the view
@@ -179,15 +179,12 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     
     auto canvas = skSurface->getCanvas();
     
-    canvas->drawImage(image,
-                                      0,
-                                      0
-                                      // TODO: Paint???
-                                      );
-    // TODO: Run Frame Processor with all drawing operations on the Canvas now
+    canvas->save();
+    canvas->scale(getPixelDensity(), getPixelDensity());
     
     drawCallback(canvas);
     
+    canvas->restore();
     canvas->flush();
     
     id<MTLCommandBuffer> commandBuffer([_commandQueue commandBuffer]);
@@ -204,6 +201,7 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
 void SkiaMetalCanvasProvider::setSize(int width, int height) {
   _width = width;
   _height = height;
+  _pixelDensity = [[UIScreen mainScreen] scale];
   _layer.frame = CGRectMake(0, 0, width, height);
   _layer.drawableSize = CGSizeMake(width * getPixelDensity(),
                                    height* getPixelDensity());
