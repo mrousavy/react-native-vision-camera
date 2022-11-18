@@ -32,9 +32,11 @@ FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime& 
   auto ctx = new RNSkia::RNSkiOSPlatformContext(rrrrr, ccccc);
   auto platformContext = std::shared_ptr<RNSkia::RNSkPlatformContext>(ctx);
   
+  auto canvasHostObject = std::make_shared<RNSkia::JsiSkCanvas>(platformContext);
+  
   return ^(Frame* frame, void* skCanvas) {
 
-    auto canvasHostObject = std::make_shared<RNSkia::JsiSkCanvas>(platformContext, (SkCanvas*) skCanvas);
+    canvasHostObject->setCanvas((SkCanvas*)skCanvas);
     auto frameHostObject = std::make_shared<FrameHostObject>(frame, canvasHostObject);
     try {
       cb.callWithThis(runtime,
