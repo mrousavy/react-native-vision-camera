@@ -136,8 +136,6 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
       throw std::runtime_error("Skia surface could not be created from parameters.");
     }
     
-    skSurface->getCanvas()->clear(SK_AlphaTRANSPARENT);
-    
     CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
     
     if (pixelBuffer == nil) {
