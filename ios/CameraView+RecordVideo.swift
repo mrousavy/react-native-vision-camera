@@ -190,6 +190,9 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   }
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
+    // TODO: Remove this dirty hack
+    self.previewView.frameProcessorCallback = frameProcessorCallback
+    
     if captureOutput is AVCaptureVideoDataOutput {
       // Render to PreviewView
       print("before drawframe")
