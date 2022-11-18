@@ -155,7 +155,7 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
                                   kBGRA_8888_SkColorType,
                                   kOpaque_SkAlphaType);
     // TODO: Skip this copy. This is too slow, we only want to copy once (from CMSampleBuffer straight into the Skia Canvas)
-    auto data = SkData::MakeWithCopy(srcBuff, bytesPerRow * height);
+    auto data = SkData::MakeWithoutCopy(srcBuff, bytesPerRow * height);
     auto image = SkImage::MakeRasterData(info, data, bytesPerRow);
     
     // TODO: Right now we convert the image buffer from it's source format (whether that's YUV 420v, 420f, x420, or something else) to BGRA8888 (RGB). This conversion is slow and adds a ton of overhead - so we want to find a way to use the source format (YUV) directly instead. This also needs to be changed in CameraView+AVCaptureSession.
