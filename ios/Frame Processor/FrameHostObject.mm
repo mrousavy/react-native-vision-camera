@@ -10,6 +10,8 @@
 #import <Foundation/Foundation.h>
 #import <jsi/jsi.h>
 
+#import "SkCanvas.h"
+
 std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt) {
   std::vector<jsi::PropNameID> result;
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
@@ -56,6 +58,42 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       return jsi::Value::undefined();
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "close"), 0, close);
+  }
+  if (name == "render") {
+    auto render = [this] (jsi::Runtime& runtime, const jsi::Value&, const jsi::Value* params, size_t size) -> jsi::Value {
+      
+      CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
+      
+      if (pixelBuffer == nil) {
+        throw std::runtime_error("drawShader: Pixel Buffer is corrupt/empty.");
+      }
+      
+      CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
+      
+      // assumes BGRA 8888
+      auto srcBuff = CVPixelBufferGetBaseAddress(pixelBuffer);
+      auto bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer);
+      auto height = CVPixelBufferGetHeight(pixelBuffer);
+      auto info = SkImageInfo::Make(CVPixelBufferGetWidth(pixelBuffer),
+                                    CVPixelBufferGetHeight(pixelBuffer),
+                                    kBGRA_8888_SkColorType,
+                                    kOpaque_SkAlphaType);
+      auto data = SkData::MakeWithoutCopy(srcBuff, bytesPerRow * height);
+      auto image = SkImage::MakeRasterData(info, data, bytesPerRow);
+      
+      auto imageShader = image->makeShader(SkSamplingOptions(SkFilterMode::kLinear));
+
+      if (size > 0) {
+        auto paintHostObject = params[0].asObject(runtime).asHostObject<RNSkia::JsiSkPaint>(runtime);
+        auto paint = paintHostObject->getObject();
+        canvas->getCanvas()->drawImage(image, 0, 0, SkSamplingOptions(), paint.get());
+      } else {
+        canvas->getCanvas()->drawImage(image, 0, 0);
+      }
+      
+      return jsi::Value::undefined();
+    };
+    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "render"), 1, render);
   }
 
   if (name == "isValid") {

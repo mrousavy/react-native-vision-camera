@@ -201,9 +201,24 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
 
+    console.log('running frame processor...');
+    const runtimeEffect = SkiaApi.RuntimeEffect.Make(`
+    uniform shader image;
+
+half4 main(vec2 pos) {
+  vec4 color = image.eval(pos);
+  return vec4(1.0 - color.rgb, 1.0);
+}
+    `);
+    if (runtimeEffect == null) throw new Error('Shader failed to compile!');
+
+    const shaderBuilder = SkiaApi.RuntimeShaderBuilder(runtimeEffect);
+    const imageFilter = SkiaApi.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
+
     const paint = SkiaApi.Paint();
-    paint.setColor(new Float32Array([Math.random(), Math.random(), Math.random(), Math.random()]));
-    frame.drawPaint(paint);
+    paint.setImageFilter(imageFilter);
+
+    frame.render(paint);
   }, []);
 
   const onFrameProcessorSuggestionAvailable = useCallback((suggestion: FrameProcessorPerformanceSuggestion) => {
