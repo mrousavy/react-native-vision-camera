@@ -36,6 +36,31 @@ Reanimated.addWhitelistedNativeProps({
 const SCALE_FULL_ZOOM = 3;
 const BUTTON_SIZE = 40;
 
+const invertedColorsShader = `
+uniform shader image;
+
+half4 main(vec2 pos) {
+  vec4 color = image.eval(pos);
+  return vec4(1.0 - color.rgb, 1.0);
+}
+`;
+
+const chromaticAberrationShader = `
+uniform shader image;
+
+vec4 chromatic(vec2 pos, float offset) {
+  float r = image.eval(pos).r;
+  float g = image.eval(vec2(pos.x + offset, pos.y)).g;
+  float b = image.eval(vec2(pos.x + offset * 2.0, pos.y)).b;
+  return vec4(r, g, b, 1.0);
+}
+
+half4 main(vec2 pos) {
+  float offset = 50.0;
+  return chromatic(pos, offset);
+}
+`;
+
 type Props = NativeStackScreenProps<Routes, 'CameraPage'>;
 export function CameraPage({ navigation }: Props): React.ReactElement {
   const camera = useRef<Camera>(null);
@@ -198,28 +223,33 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const frameProcessor = useFrameProcessor((frame) => {
-    'worklet';
+  const shaderToUse = useSharedValue(invertedColorsShader);
 
-    console.log('running frame processor...');
-    const runtimeEffect = SkiaApi.RuntimeEffect.Make(`
-    uniform shader image;
+  const frameProcessor = useFrameProcessor(
+    (frame) => {
+      'worklet';
 
-half4 main(vec2 pos) {
-  vec4 color = image.eval(pos);
-  return vec4(1.0 - color.rgb, 1.0);
-}
-    `);
-    if (runtimeEffect == null) throw new Error('Shader failed to compile!');
+      const runtimeEffect = SkiaApi.RuntimeEffect.Make(shaderToUse.value);
+      if (runtimeEffect == null) throw new Error('Shader failed to compile!');
 
-    const shaderBuilder = SkiaApi.RuntimeShaderBuilder(runtimeEffect);
-    const imageFilter = SkiaApi.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
+      const shaderBuilder = SkiaApi.RuntimeShaderBuilder(runtimeEffect);
+      const imageFilter = SkiaApi.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
 
-    const paint = SkiaApi.Paint();
-    paint.setImageFilter(imageFilter);
+      const paint = SkiaApi.Paint();
+      paint.setImageFilter(imageFilter);
 
-    frame.render(paint);
-  }, []);
+      frame.render(paint);
+    },
+    [shaderToUse],
+  );
+
+  useEffect(() => {
+    const i = setInterval(() => {
+      console.log('Switching Shader!');
+      shaderToUse.value = shaderToUse.value === invertedColorsShader ? chromaticAberrationShader : invertedColorsShader;
+    }, 3000);
+    return () => clearInterval(i);
+  }, [shaderToUse]);
 
   const onFrameProcessorSuggestionAvailable = useCallback((suggestion: FrameProcessorPerformanceSuggestion) => {
     console.log(`Suggestion available! ${suggestion.type}: Can do ${suggestion.suggestedFrameProcessorFps} FPS`);
