@@ -19,27 +19,27 @@
 #import "JSConsoleHelper.h"
 #import <ReactCommon/RCTTurboModule.h>
 
-
+#import "RNSkPlatformContext.h"
+#import "RNSkiOSPlatformContext.h"
+#import <JsiSkCanvas.h>
 
 FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime& runtime, const jsi::Function& value) {
   __block auto cb = value.getFunction(runtime);
 
   
-    /*
   jsi::Runtime* rrrrr = &runtime;
   std::shared_ptr<react::CallInvoker> ccccc = RCTBridge.currentBridge.jsCallInvoker;
   auto ctx = new RNSkia::RNSkiOSPlatformContext(rrrrr, ccccc);
-  auto platformContext = std::shared_ptr<RNSkia::RNSkPlatformContext>(ctx);*/
+  auto platformContext = std::shared_ptr<RNSkia::RNSkPlatformContext>(ctx);
   
   return ^(Frame* frame, void* skCanvas) {
 
-    auto frameHostObject = std::make_shared<FrameHostObject>(frame);
-    //auto canvasHostObject = std::make_shared<RNSkia::JsiSkCanvas>(platformContext, (SkCanvas*) skCanvas);
+    auto canvasHostObject = std::make_shared<RNSkia::JsiSkCanvas>(platformContext, (SkCanvas*) skCanvas);
+    auto frameHostObject = std::make_shared<FrameHostObject>(frame, canvasHostObject);
     try {
       cb.callWithThis(runtime,
                       cb,
-                      jsi::Object::createFromHostObject(runtime, frameHostObject)/*,
-                      jsi::Object::createFromHostObject(runtime, canvasHostObject)*/);
+                      jsi::Object::createFromHostObject(runtime, frameHostObject));
     } catch (jsi::JSError& jsError) {
       auto stack = std::regex_replace(jsError.getStack(), std::regex("\n"), "\n    ");
       auto message = [NSString stringWithFormat:@"Frame Processor threw an error: %s\nIn: %s", jsError.getMessage().c_str(), stack.c_str()];
