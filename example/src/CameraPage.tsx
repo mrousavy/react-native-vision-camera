@@ -61,6 +61,12 @@ half4 main(vec2 pos) {
 }
 `;
 
+const noShader = `
+half4 main(vec2 pos) {
+  return vec4(1.0);
+}
+`;
+
 type Props = NativeStackScreenProps<Routes, 'CameraPage'>;
 export function CameraPage({ navigation }: Props): React.ReactElement {
   const camera = useRef<Camera>(null);
@@ -223,7 +229,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const shaderToUse = useSharedValue(invertedColorsShader);
+  const shaderToUse = useSharedValue(noShader);
 
   const frameProcessor = useFrameProcessor(
     (frame) => {
@@ -246,7 +252,9 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   useEffect(() => {
     const i = setInterval(() => {
       console.log('Switching Shader!');
-      shaderToUse.value = shaderToUse.value === invertedColorsShader ? chromaticAberrationShader : invertedColorsShader;
+      if (shaderToUse.value === noShader) shaderToUse.value = invertedColorsShader;
+      if (shaderToUse.value === invertedColorsShader) shaderToUse.value = chromaticAberrationShader;
+      if (shaderToUse.value === chromaticAberrationShader) shaderToUse.value = noShader;
     }, 3000);
     return () => clearInterval(i);
   }, [shaderToUse]);
