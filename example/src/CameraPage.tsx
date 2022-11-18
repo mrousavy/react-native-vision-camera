@@ -26,6 +26,7 @@ import { examplePlugin } from './frame-processors/ExamplePlugin';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
+import { SkCanvas, useDrawCallback } from '@shopify/react-native-skia';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -197,10 +198,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const frameProcessor = useFrameProcessor((frame) => {
+  const frameProcessor = useFrameProcessor((frame, canvas: SkCanvas) => {
     'worklet';
-    const values = examplePlugin(frame);
-    console.log(`Return Values: ${JSON.stringify(values)}`);
+    // const values = examplePlugin(frame);
+    console.log(`FP: ${frame.width}`);
   }, []);
 
   const onFrameProcessorSuggestionAvailable = useCallback((suggestion: FrameProcessorPerformanceSuggestion) => {
@@ -217,10 +218,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 ref={camera}
                 style={StyleSheet.absoluteFill}
                 device={device}
-                format={format}
-                fps={fps}
-                hdr={enableHdr}
-                lowLightBoost={device.supportsLowLightBoost && enableNightMode}
+                // format={format}
+                // fps={fps}
+                // hdr={enableHdr}
+                // lowLightBoost={device.supportsLowLightBoost && enableNightMode}
                 isActive={isActive}
                 onInitialized={onInitialized}
                 onError={onError}

@@ -217,7 +217,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       }
     }
 
-    if let frameProcessor = frameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
+    /*if let frameProcessor = frameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
       // check if last frame was x nanoseconds ago, effectively throttling FPS
       let frameTime = UInt64(CMSampleBufferGetPresentationTimeStamp(sampleBuffer).seconds * 1_000_000_000.0)
       let lastFrameProcessorCallElapsedTime = frameTime - lastFrameProcessorCall
@@ -247,7 +247,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         // last evaluation was more than 1sec ago, evaluate again
         evaluateNewPerformanceSamples()
       }
-    }
+    }*/
   }
 
   private func evaluateNewPerformanceSamples() {
