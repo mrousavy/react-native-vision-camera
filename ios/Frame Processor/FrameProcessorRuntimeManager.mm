@@ -39,6 +39,8 @@
 #import "FrameProcessorCallback.h"
 #import "../React Utils/MakeJSIRuntime.h"
 #import "../React Utils/JSIUtils.h"
+#import <JsiSkApi.h>
+#import <RNSkiOSPlatformContext.h>
 
 // Forward declarations for the Swift classes
 __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
@@ -67,6 +69,13 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
     auto runtime = vision::makeJSIRuntime();
     reanimated::RuntimeDecorator::decorateRuntime(*runtime, "FRAME_PROCESSOR");
     runtime->global().setProperty(*runtime, "_FRAME_PROCESSOR", jsi::Value(true));
+    
+    // Install Skia
+    auto platformContext = std::make_shared<RNSkia::RNSkiOSPlatformContext>(runtime.get(), bridge.jsCallInvoker);
+    auto skiaApi = std::make_shared<RNSkia::JsiSkApi>(*runtime, platformContext);
+    runtime->global().setProperty(
+        *runtime, "SkiaApi",
+        jsi::Object::createFromHostObject(*runtime, std::move(skiaApi)));
 
     auto callInvoker = bridge.jsCallInvoker;
     auto scheduler = std::make_shared<vision::VisionCameraScheduler>(callInvoker);

@@ -26,7 +26,7 @@ import { examplePlugin } from './frame-processors/ExamplePlugin';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
-import { SkCanvas, useDrawCallback } from '@shopify/react-native-skia';
+import { PaintStyle, SkCanvas, useDrawCallback } from '@shopify/react-native-skia';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -201,10 +201,9 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
 
-    // const values = examplePlugin(frame);
-    //canvas.clear(new Float32Array([255, 0, 255, 255]))
-    console.log(`FP: ${frame.width}`);
-    frame.clear(new Float32Array([Math.random(), Math.random(), Math.random(), Math.random()]));
+    const paint = SkiaApi.Paint();
+    paint.setColor(new Float32Array([Math.random(), Math.random(), Math.random(), Math.random()]));
+    frame.drawPaint(paint);
   }, []);
 
   const onFrameProcessorSuggestionAvailable = useCallback((suggestion: FrameProcessorPerformanceSuggestion) => {
@@ -221,8 +220,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 ref={camera}
                 style={StyleSheet.absoluteFill}
                 device={device}
-                // format={format}
-                // fps={fps}
+                format={format}
+                fps={fps}
                 // hdr={enableHdr}
                 // lowLightBoost={device.supportsLowLightBoost && enableNightMode}
                 isActive={isActive}
