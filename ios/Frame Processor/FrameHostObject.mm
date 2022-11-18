@@ -19,6 +19,14 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("close")));
+  
+  if (canvas != nullptr) {
+    auto canvasPropNames = canvas->getPropertyNames(rt);
+    for (auto& prop : canvasPropNames) {
+      result.push_back(std::move(prop));
+    }
+  }
+  
   return result;
 }
 
@@ -79,6 +87,11 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     return jsi::Value((double) planesCount);
   }
 
+  if (canvas != nullptr) {
+    // fallback to canvas function
+    return canvas->get(runtime, std::move(propName));
+  }
+  
   return jsi::Value::undefined();
 }
 

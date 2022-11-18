@@ -198,10 +198,13 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const frameProcessor = useFrameProcessor((frame, canvas: SkCanvas) => {
+  const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
+
     // const values = examplePlugin(frame);
+    //canvas.clear(new Float32Array([255, 0, 255, 255]))
     console.log(`FP: ${frame.width}`);
+    frame.clear(new Float32Array([Math.random(), Math.random(), Math.random(), Math.random()]));
   }, []);
 
   const onFrameProcessorSuggestionAvailable = useCallback((suggestion: FrameProcessorPerformanceSuggestion) => {

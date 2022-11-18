@@ -180,13 +180,14 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
      */
     
     auto canvas = skSurface->getCanvas();
+    
     canvas->drawImage(image,
                                       0,
                                       0
                                       // TODO: Paint???
                                       );
     // TODO: Run Frame Processor with all drawing operations on the Canvas now
-      
+    
     drawCallback(canvas);
     
     canvas->flush();
