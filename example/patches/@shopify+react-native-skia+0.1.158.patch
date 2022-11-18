@@ -1,50 +1,50 @@
 diff --git a/node_modules/@shopify/react-native-skia/android/cpp/api b/node_modules/@shopify/react-native-skia/android/cpp/api
-index dd961cf..a861dbf 120000
+index 1eabfba..a861dbf 120000
 --- a/node_modules/@shopify/react-native-skia/android/cpp/api
 +++ b/node_modules/@shopify/react-native-skia/android/cpp/api
 @@ -1 +1 @@
--/private/var/folders/3r/gxn72hgj7vl59jrshs0wxh600000gn/T/tmp-23945KflFUifj0Dq0/node_modules/@shopify/react-native-skia/cpp/api
+-/private/var/folders/q0/2f1y6j813zs38cn008hf8jcr0000gn/T/tmp-1848Fjq1nC2rRpUM/node_modules/@shopify/react-native-skia/cpp/api
 \ No newline at end of file
 +/Users/mrousavy/Projects/react-native-vision-camera/example/node_modules/@shopify/react-native-skia/cpp/api
 \ No newline at end of file
 diff --git a/node_modules/@shopify/react-native-skia/android/cpp/jsi b/node_modules/@shopify/react-native-skia/android/cpp/jsi
-index 1d594fe..856ac16 120000
+index 5df4067..856ac16 120000
 --- a/node_modules/@shopify/react-native-skia/android/cpp/jsi
 +++ b/node_modules/@shopify/react-native-skia/android/cpp/jsi
 @@ -1 +1 @@
--/private/var/folders/3r/gxn72hgj7vl59jrshs0wxh600000gn/T/tmp-23945KflFUifj0Dq0/node_modules/@shopify/react-native-skia/cpp/jsi
+-/private/var/folders/q0/2f1y6j813zs38cn008hf8jcr0000gn/T/tmp-1848Fjq1nC2rRpUM/node_modules/@shopify/react-native-skia/cpp/jsi
 \ No newline at end of file
 +/Users/mrousavy/Projects/react-native-vision-camera/example/node_modules/@shopify/react-native-skia/cpp/jsi
 \ No newline at end of file
 diff --git a/node_modules/@shopify/react-native-skia/android/cpp/rnskia b/node_modules/@shopify/react-native-skia/android/cpp/rnskia
-index 71f3ce9..42c13be 120000
+index afe48cc..42c13be 120000
 --- a/node_modules/@shopify/react-native-skia/android/cpp/rnskia
 +++ b/node_modules/@shopify/react-native-skia/android/cpp/rnskia
 @@ -1 +1 @@
--/private/var/folders/3r/gxn72hgj7vl59jrshs0wxh600000gn/T/tmp-23945KflFUifj0Dq0/node_modules/@shopify/react-native-skia/cpp/rnskia
+-/private/var/folders/q0/2f1y6j813zs38cn008hf8jcr0000gn/T/tmp-1848Fjq1nC2rRpUM/node_modules/@shopify/react-native-skia/cpp/rnskia
 \ No newline at end of file
 +/Users/mrousavy/Projects/react-native-vision-camera/example/node_modules/@shopify/react-native-skia/cpp/rnskia
 \ No newline at end of file
 diff --git a/node_modules/@shopify/react-native-skia/android/cpp/skia b/node_modules/@shopify/react-native-skia/android/cpp/skia
-index c73f6f1..66cfa51 120000
+index b90a36c..66cfa51 120000
 --- a/node_modules/@shopify/react-native-skia/android/cpp/skia
 +++ b/node_modules/@shopify/react-native-skia/android/cpp/skia
 @@ -1 +1 @@
--/private/var/folders/3r/gxn72hgj7vl59jrshs0wxh600000gn/T/tmp-23945KflFUifj0Dq0/node_modules/@shopify/react-native-skia/cpp/skia
+-/private/var/folders/q0/2f1y6j813zs38cn008hf8jcr0000gn/T/tmp-1848Fjq1nC2rRpUM/node_modules/@shopify/react-native-skia/cpp/skia
 \ No newline at end of file
 +/Users/mrousavy/Projects/react-native-vision-camera/example/node_modules/@shopify/react-native-skia/cpp/skia
 \ No newline at end of file
 diff --git a/node_modules/@shopify/react-native-skia/android/cpp/utils b/node_modules/@shopify/react-native-skia/android/cpp/utils
-index dee953b..b957a0b 120000
+index b07b9b3..b957a0b 120000
 --- a/node_modules/@shopify/react-native-skia/android/cpp/utils
 +++ b/node_modules/@shopify/react-native-skia/android/cpp/utils
 @@ -1 +1 @@
--/private/var/folders/3r/gxn72hgj7vl59jrshs0wxh600000gn/T/tmp-23945KflFUifj0Dq0/node_modules/@shopify/react-native-skia/cpp/utils
+-/private/var/folders/q0/2f1y6j813zs38cn008hf8jcr0000gn/T/tmp-1848Fjq1nC2rRpUM/node_modules/@shopify/react-native-skia/cpp/utils
 \ No newline at end of file
 +/Users/mrousavy/Projects/react-native-vision-camera/example/node_modules/@shopify/react-native-skia/cpp/utils
 \ No newline at end of file
 diff --git a/node_modules/@shopify/react-native-skia/react-native-skia.podspec b/node_modules/@shopify/react-native-skia/react-native-skia.podspec
-index 2e4868f..2cad4c8 100644
+index 2e4868f..5dc8c9b 100644
 --- a/node_modules/@shopify/react-native-skia/react-native-skia.podspec
 +++ b/node_modules/@shopify/react-native-skia/react-native-skia.podspec
 @@ -23,7 +23,8 @@ Pod::Spec.new do |s|
