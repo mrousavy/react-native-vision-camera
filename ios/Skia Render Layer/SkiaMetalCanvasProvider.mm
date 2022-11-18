@@ -179,12 +179,8 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     
     auto canvas = skSurface->getCanvas();
     
-    canvas->save();
-    canvas->scale(getPixelDensity(), getPixelDensity());
-    
     drawCallback(canvas);
     
-    canvas->restore();
     canvas->flush();
     
     id<MTLCommandBuffer> commandBuffer([_commandQueue commandBuffer]);

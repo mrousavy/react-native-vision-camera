@@ -73,22 +73,36 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       // assumes BGRA 8888
       auto srcBuff = CVPixelBufferGetBaseAddress(pixelBuffer);
       auto bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer);
+      auto width = CVPixelBufferGetWidth(pixelBuffer);
       auto height = CVPixelBufferGetHeight(pixelBuffer);
-      auto info = SkImageInfo::Make(CVPixelBufferGetWidth(pixelBuffer),
-                                    CVPixelBufferGetHeight(pixelBuffer),
+      auto info = SkImageInfo::Make(width,
+                                    height,
                                     kBGRA_8888_SkColorType,
                                     kOpaque_SkAlphaType);
       auto data = SkData::MakeWithoutCopy(srcBuff, bytesPerRow * height);
       auto image = SkImage::MakeRasterData(info, data, bytesPerRow);
       
-      auto imageShader = image->makeShader(SkSamplingOptions(SkFilterMode::kLinear));
-
+      SkCanvas* canvas = this->canvas->getCanvas();
+      
+      auto sourceRect = SkRect::MakeXYWH(0, 0, width, height);
+      auto destinationRect = SkRect::MakeXYWH(0,
+                                              0,
+                                              canvas->getSurface()->width(),
+                                              canvas->getSurface()->height());
+      
       if (size > 0) {
         auto paintHostObject = params[0].asObject(runtime).asHostObject<RNSkia::JsiSkPaint>(runtime);
         auto paint = paintHostObject->getObject();
-        canvas->getCanvas()->drawImage(image, 0, 0, SkSamplingOptions(), paint.get());
+        canvas->drawImageRect(image,
+                              sourceRect,
+                              destinationRect,
+                              SkSamplingOptions(),
+                              paint.get(),
+                              SkCanvas::kFast_SrcRectConstraint);
       } else {
-        canvas->getCanvas()->drawImage(image, 0, 0);
+        canvas->drawImageRect(image,
+                              destinationRect,
+                              SkSamplingOptions());
       }
       
       return jsi::Value::undefined();
