@@ -89,10 +89,14 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
   // and not wait until later - we've seen some example of memory usage growing very
   // fast in the simulator without this.
   @autoreleasepool {
+    auto startPrepare = CFAbsoluteTimeGetCurrent();
     id<CAMetalDrawable> currentDrawable = [_layer nextDrawable];
     if(currentDrawable == nullptr) {
       return;
     }
+    
+    auto endPrepare = CFAbsoluteTimeGetCurrent();
+    NSLog(@"Prepare took %f ms", (endPrepare - startPrepare) * 1000);
     
     GrMtlTextureInfo fbInfo;
     fbInfo.fTexture.retain((__bridge void*)currentDrawable.texture);
