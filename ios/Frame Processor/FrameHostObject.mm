@@ -32,6 +32,14 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   return result;
 }
 
+SkRect inscribe(SkSize size, SkRect rect) {
+  auto halfWidthDelta = (rect.width() - size.width()) / 2.0;
+  auto halfHeightDelta = (rect.height() - size.height()) / 2.0;
+  return SkRect::MakeXYWH(rect.x() + halfWidthDelta,
+                          rect.y() + halfHeightDelta, size.width(),
+                          size.height());
+}
+
 jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {
   auto name = propName.utf8(runtime);
 
@@ -84,11 +92,25 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       
       SkCanvas* canvas = this->canvas->getCanvas();
       
+      auto surfaceWidth = canvas->getSurface()->width();
+      auto surfaceHeight = canvas->getSurface()->height();
+      
       auto sourceRect = SkRect::MakeXYWH(0, 0, width, height);
       auto destinationRect = SkRect::MakeXYWH(0,
                                               0,
-                                              canvas->getSurface()->width(),
-                                              canvas->getSurface()->height());
+                                              surfaceWidth,
+                                              surfaceHeight);
+      
+      SkSize src;
+      if (destinationRect.width() / destinationRect.height() > sourceRect.width() / sourceRect.height()) {
+        src = SkSize::Make(sourceRect.width(), (sourceRect.width() * destinationRect.height()) / destinationRect.width());
+      } else {
+        src = SkSize::Make((sourceRect.height() * destinationRect.width()) / destinationRect.height(), sourceRect.height());
+      }
+      
+      sourceRect = inscribe(src, sourceRect);
+      destinationRect = inscribe(SkSize::Make(destinationRect.width(), destinationRect.height()), destinationRect);
+      
       
       if (size > 0) {
         auto paintHostObject = params[0].asObject(runtime).asHostObject<RNSkia::JsiSkPaint>(runtime);
