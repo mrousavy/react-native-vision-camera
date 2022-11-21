@@ -76,8 +76,6 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
         throw std::runtime_error("drawShader: Pixel Buffer is corrupt/empty.");
       }
       
-      CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
-      
       // assumes BGRA 8888
       auto srcBuff = CVPixelBufferGetBaseAddress(pixelBuffer);
       auto bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer);

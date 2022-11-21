@@ -167,7 +167,10 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     
     auto canvas = skSurface->getCanvas();
     
+    auto startJS = CFAbsoluteTimeGetCurrent();
     drawCallback(canvas);
+    auto endJS = CFAbsoluteTimeGetCurrent();
+    NSLog(@"Frame Processor call took %f ms", (endJS - startJS) * 1000);
     
     canvas->flush();
     
