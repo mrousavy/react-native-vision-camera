@@ -68,6 +68,67 @@ float SkiaMetalCanvasProvider::getScaledWidth() { return _width * getPixelDensit
  */
 float SkiaMetalCanvasProvider::getScaledHeight() { return _height * getPixelDensity(); };
 
+sk_sp<SkImage> SkiaMetalCanvasProvider::convertCVPixelBufferToSkImage(CVPixelBufferRef pixelBuffer) {
+  // We assume that the CVPixelBuffer is in YCbCr format, so we have to create 2 textures:
+  //  - for Y
+  //  - for CbCr
+  CVMetalTextureRef cvTextureY;
+  CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
+                                            _textureCache,
+                                            pixelBuffer,
+                                            nil,
+                                            MTLPixelFormatR8Unorm,
+                                            _width,
+                                            _height,
+                                            0, // plane index 0: Y
+                                            &cvTextureY);
+  GrMtlTextureInfo textureInfoY;
+  auto mtlTextureY = CVMetalTextureGetTexture(cvTextureY);
+  textureInfoY.fTexture.retain((__bridge void*)mtlTextureY);
+  
+  
+  CVMetalTextureRef cvTextureCbCr;
+  CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
+                                            _textureCache,
+                                            pixelBuffer,
+                                            nil,
+                                            MTLPixelFormatRG8Unorm,
+                                            _width,
+                                            _height,
+                                            1, // plane index 1: CbCr
+                                            &cvTextureCbCr);
+  GrMtlTextureInfo textureInfoCbCr;
+  auto mtlTextureCbCr = CVMetalTextureGetTexture(cvTextureCbCr);
+  textureInfoCbCr.fTexture.retain((__bridge void*)mtlTextureCbCr);
+
+  // Combine textures into array
+  GrBackendTexture textures[] {
+    GrBackendTexture(_width,
+                     _height,
+                     GrMipmapped::kNo,
+                     textureInfoY),
+    GrBackendTexture(_width,
+                     _height,
+                     GrMipmapped::kNo,
+                     textureInfoCbCr)
+  };
+   
+  // Create YUV map interpretation
+  //  - k420 because we are assuming 420v
+  //  - Y_UV because we have one Y texture, one UV (CbCr) texture
+  //  - Limited YUV Color Space because we are assuming 420v (video). 420f would be Full
+  SkYUVAInfo yuvInfo(SkISize::Make(_width, _height),
+                     SkYUVAInfo::PlaneConfig::kY_UV,
+                     SkYUVAInfo::Subsampling::k420,
+                     SkYUVColorSpace::kRec709_Limited_SkYUVColorSpace);
+  GrYUVABackendTextures yuvaTextures(yuvInfo,
+                                     textures,
+                                     kTopLeft_GrSurfaceOrigin);
+  
+  auto image = SkImage::MakeFromYUVATextures(_skContext.get(), yuvaTextures);
+  return image;
+}
+
 /**
  Render to a canvas
  */
@@ -101,32 +162,10 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     GrMtlTextureInfo fbInfo;
     fbInfo.fTexture.retain((__bridge void*)currentDrawable.texture);
     
-    
-    
     GrBackendRenderTarget backendRT(_layer.drawableSize.width,
                                     _layer.drawableSize.height,
                                     1,
                                     fbInfo);
-    
-    // TODO: Create a Texture Cache instead of re-creating everything all the time.
-    /*
-    CVMetalTextureRef cvTexture;
-    CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
-                                              _textureCache,
-                                              pixelBuffer,
-                                              nil,
-                                              // TODO: Our source CMSampleBuffer is in 420v/420f, not RGBA!
-                                              MTLPixelFormatBGRA8Unorm,
-                                              _width,
-                                              _height,
-                                              0,
-                                              &cvTexture);
-    
-    GrMtlTextureInfo textureInfo;
-    auto t = CVMetalTextureGetTexture(cvTexture);
-  
-    textureInfo.fTexture.retain((__bridge void*)t);
-    */
     
     
     auto skSurface = SkSurface::MakeFromBackendRenderTarget(_skContext.get(),
@@ -140,6 +179,9 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
       throw std::runtime_error("Skia surface could not be created from parameters.");
     }
     
+    auto format = CMSampleBufferGetFormatDescription(sampleBuffer);
+    NSLog(@"%lu : %@ : %u : %u", CMFormatDescriptionGetTypeID(), CMFormatDescriptionGetExtensions(format), (unsigned int)CMFormatDescriptionGetMediaType(format), (unsigned int)CMFormatDescriptionGetMediaSubType(format));
+    
     CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
     
     if (pixelBuffer == nil) {
@@ -148,26 +190,6 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     
     CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
     
-    // TODO: Right now we convert the image buffer from it's source format (whether that's YUV 420v, 420f, x420, or something else) to BGRA8888 (RGB). This conversion is slow and adds a ton of overhead - so we want to find a way to use the source format (YUV) directly instead. This also needs to be changed in CameraView+AVCaptureSession.
-    /*
-     // assumes YUV 420v
-     GrBackendTexture textures[1];
-     textures[0] = GrBackendTexture(_width,
-     _height,
-     GrMipmapped::kNo,
-     textureInfo);
-     
-     // TODO: I have no idea if that's correct.
-     SkYUVAInfo yuvInfo(SkISize::Make(_width, _height),
-     SkYUVAInfo::PlaneConfig::kYUV,
-     SkYUVAInfo::Subsampling::k420,
-     SkYUVColorSpace::kJPEG_Full_SkYUVColorSpace);
-     GrYUVABackendTextures te(yuvInfo,
-     textures,
-     kTopLeft_GrSurfaceOrigin);
-     
-     auto image = SkImage::MakeFromYUVATextures(_skContext.get(), te);
-     */
     
     auto canvas = skSurface->getCanvas();
     

@@ -11,6 +11,7 @@
 
 #include <functional>
 #import <include/gpu/GrDirectContext.h>
+#import "SkImage.h"
 
 class SkiaMetalCanvasProvider {
 public:
@@ -42,5 +43,7 @@ private:
   static id<MTLCommandQueue> _commandQueue;
   static id<MTLDevice> _device;
   static sk_sp<GrDirectContext> _skContext;
+  
+  sk_sp<SkImage> convertCVPixelBufferToSkImage(CVPixelBufferRef pixelBuffer);
 };
 
