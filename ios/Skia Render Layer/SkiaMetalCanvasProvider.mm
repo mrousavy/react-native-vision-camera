@@ -96,8 +96,8 @@ sk_sp<SkImage> SkiaMetalCanvasProvider::convertCVPixelBufferToSkImage(CVPixelBuf
                                             pixelBuffer,
                                             nil,
                                             MTLPixelFormatRG8Unorm,
-                                            _width,
-                                            _height,
+                                            _width / 2,
+                                            _height / 2,
                                             1, // plane index 1: CbCr
                                             &cvTextureCbCr);
   GrMtlTextureInfo textureInfoCbCr;
@@ -110,8 +110,8 @@ sk_sp<SkImage> SkiaMetalCanvasProvider::convertCVPixelBufferToSkImage(CVPixelBuf
                      _height,
                      GrMipmapped::kNo,
                      textureInfoY),
-    GrBackendTexture(_width,
-                     _height,
+    GrBackendTexture(_width / 2,
+                     _height / 2,
                      GrMipmapped::kNo,
                      textureInfoCbCr)
   };
