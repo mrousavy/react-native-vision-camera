@@ -72,6 +72,9 @@ float SkiaMetalCanvasProvider::getScaledWidth() { return _width * getPixelDensit
 float SkiaMetalCanvasProvider::getScaledHeight() { return _height * getPixelDensity(); };
 
 sk_sp<SkImage> SkiaMetalCanvasProvider::convertCVPixelBufferToSkImage(CVPixelBufferRef pixelBuffer) {
+  double width = CVPixelBufferGetWidth(pixelBuffer);
+  double height = CVPixelBufferGetHeight(pixelBuffer);
+  
   // We assume that the CVPixelBuffer is in YCbCr format, so we have to create 2 textures:
   //  - for Y
   //  - for CbCr
@@ -81,8 +84,8 @@ sk_sp<SkImage> SkiaMetalCanvasProvider::convertCVPixelBufferToSkImage(CVPixelBuf
                                             pixelBuffer,
                                             nil,
                                             MTLPixelFormatR8Unorm,
-                                            _width,
-                                            _height,
+                                            width,
+                                            height,
                                             0, // plane index 0: Y
                                             &cvTextureY);
   GrMtlTextureInfo textureInfoY;
@@ -96,8 +99,8 @@ sk_sp<SkImage> SkiaMetalCanvasProvider::convertCVPixelBufferToSkImage(CVPixelBuf
                                             pixelBuffer,
                                             nil,
                                             MTLPixelFormatRG8Unorm,
-                                            _width / 2,
-                                            _height / 2,
+                                            width / 2,
+                                            height / 2,
                                             1, // plane index 1: CbCr
                                             &cvTextureCbCr);
   GrMtlTextureInfo textureInfoCbCr;
@@ -106,12 +109,12 @@ sk_sp<SkImage> SkiaMetalCanvasProvider::convertCVPixelBufferToSkImage(CVPixelBuf
 
   // Combine textures into array
   GrBackendTexture textures[] {
-    GrBackendTexture(_width,
-                     _height,
+    GrBackendTexture(width,
+                     height,
                      GrMipmapped::kNo,
                      textureInfoY),
-    GrBackendTexture(_width / 2,
-                     _height / 2,
+    GrBackendTexture(width / 2,
+                     height / 2,
                      GrMipmapped::kNo,
                      textureInfoCbCr)
   };
@@ -120,7 +123,7 @@ sk_sp<SkImage> SkiaMetalCanvasProvider::convertCVPixelBufferToSkImage(CVPixelBuf
   //  - k420 because we are assuming 420v
   //  - Y_UV because we have one Y texture, one UV (CbCr) texture
   //  - Limited YUV Color Space because we are assuming 420v (video). 420f would be Full
-  SkYUVAInfo yuvInfo(SkISize::Make(_width, _height),
+  SkYUVAInfo yuvInfo(SkISize::Make(width, height),
                      SkYUVAInfo::PlaneConfig::kY_UV,
                      SkYUVAInfo::Subsampling::k420,
                      SkYUVColorSpace::kRec709_Limited_SkYUVColorSpace);
