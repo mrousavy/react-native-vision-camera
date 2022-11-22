@@ -244,7 +244,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
       const paint = SkiaApi.Paint();
       paint.setImageFilter(imageFilter);
 
-      frame.render(paint);
+      //frame.render(paint);
     },
     [shaderToUse],
   );
