@@ -37,7 +37,8 @@ private:
 #pragma clang diagnostic ignored "-Wunguarded-availability-new"
   CAMetalLayer* _layer;
 #pragma clang diagnostic pop
-  CVMetalTextureCacheRef _textureCache;
+  CVMetalTextureCacheRef _textureCacheY;
+  CVMetalTextureCacheRef _textureCacheCbCr;
   std::function<void()> _requestRedraw;
 
   static id<MTLCommandQueue> _commandQueue;

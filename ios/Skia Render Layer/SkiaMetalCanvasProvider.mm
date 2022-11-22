@@ -33,8 +33,11 @@ SkiaMetalCanvasProvider::SkiaMetalCanvasProvider(std::function<void()> requestRe
   _layer.contentsScale = getPixelDensity();
   _layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
   
-  if (CVMetalTextureCacheCreate(kCFAllocatorDefault, nil, _device, nil, &_textureCache) != kCVReturnSuccess) {
-    throw std::runtime_error("Failed to create Metal Texture Cache!");
+  if (CVMetalTextureCacheCreate(kCFAllocatorDefault, nil, _device, nil, &_textureCacheY) != kCVReturnSuccess) {
+    throw std::runtime_error("Failed to create Y Metal Texture Cache!");
+  }
+  if (CVMetalTextureCacheCreate(kCFAllocatorDefault, nil, _device, nil, &_textureCacheCbCr) != kCVReturnSuccess) {
+    throw std::runtime_error("Failed to create CbCr Metal Texture Cache!");
   }
 }
 
@@ -74,7 +77,7 @@ sk_sp<SkImage> SkiaMetalCanvasProvider::convertCVPixelBufferToSkImage(CVPixelBuf
   //  - for CbCr
   CVMetalTextureRef cvTextureY;
   CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
-                                            _textureCache,
+                                            _textureCacheY,
                                             pixelBuffer,
                                             nil,
                                             MTLPixelFormatR8Unorm,
@@ -89,7 +92,7 @@ sk_sp<SkImage> SkiaMetalCanvasProvider::convertCVPixelBufferToSkImage(CVPixelBuf
   
   CVMetalTextureRef cvTextureCbCr;
   CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
-                                            _textureCache,
+                                            _textureCacheCbCr,
                                             pixelBuffer,
                                             nil,
                                             MTLPixelFormatRG8Unorm,
