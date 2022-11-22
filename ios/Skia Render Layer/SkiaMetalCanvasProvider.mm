@@ -190,8 +190,11 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     
     CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
     
+    auto image = convertCVPixelBufferToSkImage(pixelBuffer);
     
     auto canvas = skSurface->getCanvas();
+    
+    canvas->drawImage(image, 0, 0);
     
     auto startJS = CFAbsoluteTimeGetCurrent();
     drawCallback(canvas);
