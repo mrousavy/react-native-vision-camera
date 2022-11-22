@@ -263,6 +263,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log(`Suggestion available! ${suggestion.type}: Can do ${suggestion.suggestedFrameProcessorFps} FPS`);
   }, []);
 
+  console.log(format?.pixelFormat);
+
   return (
     <View style={styles.container}>
       {device != null && (
