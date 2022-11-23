@@ -14,6 +14,7 @@
 		B8248868292644EF00729383 /* PreviewSkiaView.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8248867292644EF00729383 /* PreviewSkiaView.mm */; };
 		B82FBA962614B69D00909718 /* RCTBridge+runOnJS.mm in Sources */ = {isa = PBXBuildFile; fileRef = B82FBA952614B69D00909718 /* RCTBridge+runOnJS.mm */; };
 		B83373B529266A350092E380 /* SkiaMetalCanvasProvider.mm in Sources */ = {isa = PBXBuildFile; fileRef = B83373B429266A350092E380 /* SkiaMetalCanvasProvider.mm */; };
+		B841262F292E41A1001AB448 /* SkImageHelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = B841262E292E41A1001AB448 /* SkImageHelpers.mm */; };
 		B84760A62608EE7C004C3180 /* FrameHostObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = B84760A52608EE7C004C3180 /* FrameHostObject.mm */; };
 		B84760DF2608F57D004C3180 /* CameraQueues.swift in Sources */ = {isa = PBXBuildFile; fileRef = B84760DE2608F57D004C3180 /* CameraQueues.swift */; };
 		B864005027849A2400E9D2CA /* UIInterfaceOrientation+descriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B864004F27849A2400E9D2CA /* UIInterfaceOrientation+descriptor.swift */; };
@@ -97,6 +98,8 @@
 		B82FBA952614B69D00909718 /* RCTBridge+runOnJS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "RCTBridge+runOnJS.mm"; sourceTree = "<group>"; };
 		B83373B329266A350092E380 /* SkiaMetalCanvasProvider.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; path = SkiaMetalCanvasProvider.h; sourceTree = "<group>"; };
 		B83373B429266A350092E380 /* SkiaMetalCanvasProvider.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SkiaMetalCanvasProvider.mm; sourceTree = "<group>"; };
+		B841262E292E41A1001AB448 /* SkImageHelpers.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SkImageHelpers.mm; sourceTree = "<group>"; };
+		B8412630292E41AD001AB448 /* SkImageHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkImageHelpers.h; sourceTree = "<group>"; };
 		B84760A22608EE38004C3180 /* FrameHostObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameHostObject.h; sourceTree = "<group>"; };
 		B84760A52608EE7C004C3180 /* FrameHostObject.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameHostObject.mm; sourceTree = "<group>"; };
 		B84760DE2608F57D004C3180 /* CameraQueues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraQueues.swift; sourceTree = "<group>"; };
@@ -294,6 +297,8 @@
 				B8248867292644EF00729383 /* PreviewSkiaView.mm */,
 				B83373B329266A350092E380 /* SkiaMetalCanvasProvider.h */,
 				B83373B429266A350092E380 /* SkiaMetalCanvasProvider.mm */,
+				B8412630292E41AD001AB448 /* SkImageHelpers.h */,
+				B841262E292E41A1001AB448 /* SkImageHelpers.mm */,
 			);
 			path = "Skia Render Layer";
 			sourceTree = "<group>";
@@ -410,6 +415,7 @@
 				B887518D25E0102000DB86D6 /* AVCaptureDevice+physicalDevices.swift in Sources */,
 				B887519625E0102000DB86D6 /* Promise.swift in Sources */,
 				B8DB3BC8263DC28C004C18D7 /* AVAssetWriter.Status+descriptor.swift in Sources */,
+				B841262F292E41A1001AB448 /* SkImageHelpers.mm in Sources */,
 				B887518725E0102000DB86D6 /* CameraViewManager.m in Sources */,
 				B88751A925E0102000DB86D6 /* CameraView.swift in Sources */,
 				B887519925E0102000DB86D6 /* AVCaptureVideoStabilizationMode+descriptor.swift in Sources */,
