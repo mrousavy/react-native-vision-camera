@@ -154,6 +154,16 @@ sk_sp<SkImage> SkiaMetalCanvasProvider::convertCVPixelBufferToSkImage(CVPixelBuf
   return image;
 }
 
+
+SkRect inscribe(SkSize size, SkRect rect) {
+  auto halfWidthDelta = (rect.width() - size.width()) / 2.0;
+  auto halfHeightDelta = (rect.height() - size.height()) / 2.0;
+  return SkRect::MakeXYWH(rect.x() + halfWidthDelta,
+                          rect.y() + halfHeightDelta,
+                          size.width(),
+                          size.height());
+}
+
 /**
  Render to a canvas
  */
@@ -220,7 +230,32 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     
     auto canvas = skSurface->getCanvas();
     
-    canvas->drawImage(image, 0, 0);
+    
+    auto surfaceWidth = canvas->getSurface()->width();
+    auto surfaceHeight = canvas->getSurface()->height();
+    
+    auto sourceRect = SkRect::MakeXYWH(0, 0, image->width(), image->height());
+    auto destinationRect = SkRect::MakeXYWH(0,
+                                            0,
+                                            surfaceWidth,
+                                            surfaceHeight);
+    
+    SkSize src;
+    if (destinationRect.width() / destinationRect.height() > sourceRect.width() / sourceRect.height()) {
+      src = SkSize::Make(sourceRect.width(), (sourceRect.width() * destinationRect.height()) / destinationRect.width());
+    } else {
+      src = SkSize::Make((sourceRect.height() * destinationRect.width()) / destinationRect.height(), sourceRect.height());
+    }
+    
+    sourceRect = inscribe(src, sourceRect);
+    
+    
+    canvas->drawImageRect(image,
+                          sourceRect,
+                          destinationRect,
+                          SkSamplingOptions(),
+                          nullptr,
+                          SkCanvas::kFast_SrcRectConstraint);
     
     auto startJS = CFAbsoluteTimeGetCurrent();
     drawCallback(canvas);
