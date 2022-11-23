@@ -131,7 +131,12 @@ sk_sp<SkImage> SkiaMetalCanvasProvider::convertCVPixelBufferToSkImage(CVPixelBuf
                                      textures,
                                      kTopLeft_GrSurfaceOrigin);
   
+  
   auto image = SkImage::MakeFromYUVATextures(_skContext.get(), yuvaTextures);
+  
+  CFRelease(cvTextureY);
+  CFRelease(cvTextureCbCr);
+  
   return image;
 }
 
