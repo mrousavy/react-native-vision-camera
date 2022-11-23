@@ -46,5 +46,8 @@ private:
   static sk_sp<GrDirectContext> _skContext;
   
   sk_sp<SkImage> convertCVPixelBufferToSkImage(CVPixelBufferRef pixelBuffer);
+  
+  id<CAMetalDrawable> _currentDrawable;
+  void runLoop();
 };
 

@@ -39,6 +39,11 @@ SkiaMetalCanvasProvider::SkiaMetalCanvasProvider(std::function<void()> requestRe
   if (CVMetalTextureCacheCreate(kCFAllocatorDefault, nil, _device, nil, &_textureCacheCbCr) != kCVReturnSuccess) {
     throw std::runtime_error("Failed to create CbCr Metal Texture Cache!");
   }
+  
+  auto queue = dispatch_queue_create("Camera Preview runLoop()", DISPATCH_QUEUE_SERIAL);
+  dispatch_async(queue, ^{
+    runLoop();
+  });
 }
 
 SkiaMetalCanvasProvider::~SkiaMetalCanvasProvider() {
@@ -56,6 +61,15 @@ SkiaMetalCanvasProvider::~SkiaMetalCanvasProvider() {
       // https://github.com/Shopify/react-native-skia/issues/398
       tempLayer = tempLayer;
     });
+  }
+}
+
+void SkiaMetalCanvasProvider::runLoop() {
+  while (_layer != nil) {
+    @autoreleasepool {
+      _currentDrawable = [_layer nextDrawable];
+      NSLog(@"Next Drawable available!");
+    }
   }
 }
 
@@ -162,7 +176,8 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
   // fast in the simulator without this.
   @autoreleasepool {
     auto startPrepare = CFAbsoluteTimeGetCurrent();
-    id<CAMetalDrawable> currentDrawable = [_layer nextDrawable];
+    id<CAMetalDrawable> currentDrawable = _currentDrawable;
+    
     if(currentDrawable == nullptr) {
       return;
     }
