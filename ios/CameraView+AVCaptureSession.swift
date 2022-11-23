@@ -134,7 +134,10 @@ extension CameraView {
       }
       videoOutput!.setSampleBufferDelegate(self, queue: videoQueue)
       videoOutput!.alwaysDiscardsLateVideoFrames = false
-      videoOutput!.videoSettings = [ String(kCVPixelBufferPixelFormatTypeKey) : kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange]
+      videoOutput!.videoSettings = [
+        String(kCVPixelBufferPixelFormatTypeKey) : kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange,
+        String(kCVPixelBufferMetalCompatibilityKey): true
+      ]
       captureSession.addOutput(videoOutput!)
     }
       
