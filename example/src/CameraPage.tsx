@@ -235,6 +235,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     (frame) => {
       'worklet';
 
+      console.log('before');
+      const faces = __detectFaces(frame);
+      console.log('after');
+
       const runtimeEffect = SkiaApi.RuntimeEffect.Make(shaderToUse.value);
       if (runtimeEffect == null) throw new Error('Shader failed to compile!');
 
