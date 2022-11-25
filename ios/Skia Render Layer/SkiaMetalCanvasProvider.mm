@@ -132,9 +132,6 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
       throw std::runtime_error("Skia surface could not be created from parameters.");
     }
     
-    auto format = CMSampleBufferGetFormatDescription(sampleBuffer);
-    NSLog(@"%lu : %@ : %u : %u", CMFormatDescriptionGetTypeID(), CMFormatDescriptionGetExtensions(format), (unsigned int)CMFormatDescriptionGetMediaType(format), (unsigned int)CMFormatDescriptionGetMediaSubType(format));
-    
     // Get the Frame's PixelBuffer
     CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
     
@@ -145,8 +142,15 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     // Lock the Frame's PixelBuffer for the duration of the Frame Processor so the user can safely do operations on it
     CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
     
+#if DEBUG
+    auto startConvert = CFAbsoluteTimeGetCurrent();
+#endif
     // Converts the CMSampleBuffer to an SkImage - YUV or RGB.
     auto image = _imageHelper->convertCMSampleBufferToSkImage(sampleBuffer);
+#if DEBUG
+    auto endConvert = CFAbsoluteTimeGetCurrent();
+    NSLog(@"CMSampleBuffer -> SkImage conversion took %f ms", (endConvert - startConvert) * 1000);
+#endif
     
     auto canvas = skSurface->getCanvas();
     
