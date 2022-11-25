@@ -201,6 +201,12 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
                           nullptr,
                           SkCanvas::kFast_SrcRectConstraint);
     
+    // The Canvas is equal to the View size, where-as the Frame has a different size (e.g. 4k)
+    // We scale the Canvas to the exact dimensions of the Frame so that the user can use the Frame as a coordinate system
+    canvas->save();
+    canvas->scale(image->width() / surfaceWidth, image->height() / surfaceHeight);
+    canvas->translate(-destinationRect.left(), -destinationRect.top());
+    
 #if DEBUG
     auto startJS = CFAbsoluteTimeGetCurrent();
 #endif
@@ -209,6 +215,9 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     auto endJS = CFAbsoluteTimeGetCurrent();
     NSLog(@"Frame Processor call took %f ms", (endJS - startJS) * 1000);
 #endif
+    
+    // Restore the scale & transform
+    canvas->restore();
     
     // Flush all appended operations on the canvas and commit it to the SkSurface
     canvas->flush();
