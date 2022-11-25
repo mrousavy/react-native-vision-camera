@@ -40,7 +40,7 @@ SkiaMetalCanvasProvider::~SkiaMetalCanvasProvider() {
 }
 
 void SkiaMetalCanvasProvider::runLoop() {
-  while (_isValid) {
+  while (_isValid && _layer != nil) {
     @autoreleasepool {
       // Blocks until the next Frame is ready (16ms at 60 FPS)
       auto tempDrawable = [_layer nextDrawable];
