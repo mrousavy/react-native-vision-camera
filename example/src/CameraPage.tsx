@@ -72,11 +72,34 @@ const faceShader = `
   uniform float x;
   uniform float y;
   uniform float r;
+  uniform vec2 resolution;
+
+  const float kernel = 0.05;
+  const float weight = 1.0;
+
+  vec4 chromatic(vec2 pos, float offset) {
+    float r = image.eval(pos).r;
+    float g = image.eval(vec2(pos.x + offset, pos.y)).g;
+    float b = image.eval(vec2(pos.x + offset * 2.0, pos.y)).b;
+    return vec4(r, g, b, 1.0);
+  }
 
   half4 main(vec2 pos) {
     float delta = pow((pow(pos.x - x, 2) + pow(pos.y - y, 2)), 0.5);
     if (delta < r) {
-      return vec4(1.0, 0.0, 1.0, 1.0);
+      // vec2 uv = pos.xy / resolution.xy;
+      // float pixelSize = 1.0 / resolution.x; 
+      // vec3 sum = vec3(0);
+      // // Horizontal Blur
+      // vec3 accumulation = vec3(0);
+      // vec3 weightsum = vec3(0);
+      // for (float i = -kernel; i <= kernel; i++) {
+      //     accumulation += image.eval(uv + vec2(i * pixelSize, 0.0)).xyz * weight;
+      //     weightsum += weight;
+      // }
+      // sum = accumulation / weightsum;
+      float offset = 50.0;
+      return chromatic(pos, offset);
     }
     else {
       return image.eval(pos);
@@ -246,58 +269,63 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const shaderToUse = useSharedValue(faceShader);
+  const frameProcessor = useFrameProcessor((frame) => {
+    'worklet';
 
-  const frameProcessor = useFrameProcessor(
-    (frame) => {
-      'worklet';
-
-      type FaceDetection = {
-        boundingBox: {
-          x: number;
-          y: number;
-          width: number;
-          height: number;
-        };
-        score: number;
+    type FaceDetection = {
+      boundingBox: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
       };
+      score: number;
+    };
 
-      console.log('before');
-      const faces = __detectFaces(frame) as FaceDetection[] | undefined;
+    console.log('before');
+    const faces = __detectFaces(frame) as FaceDetection[] | undefined;
 
-      if (faces != null) {
-        const topResult = faces.sort((a, b) => b.score - a.score)[0];
-        console.log(topResult);
+    if (faces != null) {
+      const topResult = faces.sort((a, b) => b.score - a.score)[0];
+      console.log(topResult);
 
-        const runtimeEffect = SkiaApi.RuntimeEffect.Make(shaderToUse.value);
+      if (topResult != null) {
+        const { x: _x, y, width, height } = topResult.boundingBox;
+        const x = frame.width - _x;
+        const centerX = x + width / 2;
+        const centerY = y + height / 2;
+
+        const runtimeEffect = SkiaApi.RuntimeEffect.Make(faceShader);
         if (runtimeEffect == null) throw new Error('Shader failed to compile!');
         const shaderBuilder = SkiaApi.RuntimeShaderBuilder(runtimeEffect);
-        shaderBuilder.setUniform('r', [topResult?.boundingBox.width ?? 300]);
-        shaderBuilder.setUniform('x', [topResult?.boundingBox.x ?? 300]);
-        shaderBuilder.setUniform('y', [topResult?.boundingBox.y ?? 300]);
+        shaderBuilder.setUniform('r', [width]);
+        shaderBuilder.setUniform('x', [centerX]);
+        shaderBuilder.setUniform('y', [centerY]);
+        shaderBuilder.setUniform('resolution', [frame.width, frame.height]);
         const imageFilter = SkiaApi.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
 
         const paint = SkiaApi.Paint();
         paint.setImageFilter(imageFilter);
 
         frame.render(paint);
+      } else {
+        frame.render();
       }
+    }
 
-      console.log('after');
+    console.log('after');
 
-      // const runtimeEffect = SkiaApi.RuntimeEffect.Make(shaderToUse.value);
-      // if (runtimeEffect == null) throw new Error('Shader failed to compile!');
+    // const runtimeEffect = SkiaApi.RuntimeEffect.Make(shaderToUse.value);
+    // if (runtimeEffect == null) throw new Error('Shader failed to compile!');
 
-      // const shaderBuilder = SkiaApi.RuntimeShaderBuilder(runtimeEffect);
-      // const imageFilter = SkiaApi.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
+    // const shaderBuilder = SkiaApi.RuntimeShaderBuilder(runtimeEffect);
+    // const imageFilter = SkiaApi.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
 
-      // const paint = SkiaApi.Paint();
-      // paint.setImageFilter(imageFilter);
+    // const paint = SkiaApi.Paint();
+    // paint.setImageFilter(imageFilter);
 
-      frame.render();
-    },
-    [shaderToUse],
-  );
+    // frame.render();
+  }, []);
 
   // useEffect(() => {
   //   const i = setInterval(() => {
