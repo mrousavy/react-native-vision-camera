@@ -50,8 +50,9 @@ private:
   std::unique_ptr<SkImageHelpers> _imageHelper;
   
   id<CAMetalDrawable> _currentDrawable;
-  void runLoop();
+  std::mutex _drawableMutex;
   
-  std::mutex drawableMutex;
+private:
+  void runLoop();
 };
 

@@ -66,9 +66,9 @@ void SkiaMetalCanvasProvider::runLoop() {
 #if DEBUG
       auto start = CFAbsoluteTimeGetCurrent();
 #endif
-      this->drawableMutex.lock();
+      _drawableMutex.lock();
       _currentDrawable = tempDrawable;
-      this->drawableMutex.unlock();
+      _drawableMutex.unlock();
 #if DEBUG
       auto end = CFAbsoluteTimeGetCurrent();
       auto lockTime = (end - start) * 1000;
@@ -126,17 +126,17 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
   // and not wait until later - we've seen some example of memory usage growing very
   // fast in the simulator without this.
   @autoreleasepool {
-    auto startPrepare = CFAbsoluteTimeGetCurrent();
-    this->drawableMutex.lock();
+    // Lock Mutex to block the runLoop from overwriting the _currentDrawable
+    std::lock_guard lockGuard(_drawableMutex);
+    
     id<CAMetalDrawable> currentDrawable = _currentDrawable;
     
+    // No Drawable is ready. Abort
     if (currentDrawable == nullptr) {
       return;
     }
     
-    auto endPrepare = CFAbsoluteTimeGetCurrent();
-    NSLog(@"Prepare took %f ms", (endPrepare - startPrepare) * 1000);
-    
+    // Get & Lock the writeable Texture from the Metal Drawable
     GrMtlTextureInfo fbInfo;
     fbInfo.fTexture.retain((__bridge void*)currentDrawable.texture);
     
@@ -145,7 +145,7 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
                                     1,
                                     fbInfo);
     
-    
+    // Create a Skia Surface from the writable Texture
     auto skSurface = SkSurface::MakeFromBackendRenderTarget(_skContext.get(),
                                                             backendRT,
                                                             kTopLeft_GrSurfaceOrigin,
@@ -160,18 +160,20 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     auto format = CMSampleBufferGetFormatDescription(sampleBuffer);
     NSLog(@"%lu : %@ : %u : %u", CMFormatDescriptionGetTypeID(), CMFormatDescriptionGetExtensions(format), (unsigned int)CMFormatDescriptionGetMediaType(format), (unsigned int)CMFormatDescriptionGetMediaSubType(format));
     
+    // Get the Frame's PixelBuffer
     CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
     
     if (pixelBuffer == nil) {
       throw std::runtime_error("drawFrame: Pixel Buffer is corrupt/empty.");
     }
     
+    // Lock the Frame's PixelBuffer for the duration of the Frame Processor so the user can safely do operations on it
     CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
     
+    // Converts the CMSampleBuffer to an SkImage - YUV or RGB.
     auto image = _imageHelper->convertCMSampleBufferToSkImage(sampleBuffer);
     
     auto canvas = skSurface->getCanvas();
-    
     
     auto surfaceWidth = canvas->getSurface()->width();
     auto surfaceHeight = canvas->getSurface()->height();
@@ -191,7 +193,7 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     
     sourceRect = inscribe(src, sourceRect);
     
-    
+    // Draw the Image into the Frame (aspectRatio: cover)
     canvas->drawImageRect(image,
                           sourceRect,
                           destinationRect,
@@ -199,19 +201,25 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
                           nullptr,
                           SkCanvas::kFast_SrcRectConstraint);
     
+#if DEBUG
     auto startJS = CFAbsoluteTimeGetCurrent();
+#endif
     drawCallback(canvas);
+#if DEBUG
     auto endJS = CFAbsoluteTimeGetCurrent();
     NSLog(@"Frame Processor call took %f ms", (endJS - startJS) * 1000);
+#endif
     
+    // Flush all appended operations on the canvas and commit it to the SkSurface
     canvas->flush();
     
+    // Pass the drawable into the Metal Command Buffer and submit it to the GPU
     id<MTLCommandBuffer> commandBuffer([_commandQueue commandBuffer]);
     [commandBuffer presentDrawable:currentDrawable];
     [commandBuffer commit];
     
+    // Unlock the Pixel Buffer again so it can be freed up
     CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
-    this->drawableMutex.unlock();
   }
   
   auto end = CFAbsoluteTimeGetCurrent();
