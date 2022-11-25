@@ -12,7 +12,7 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		44CE4492E94E3AA2DC9F70FE /* libPods-VisionCameraExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7330AFF938A80A2385B7E80E /* libPods-VisionCameraExample.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		B875055E292F7F2600E60F80 /* Face500.mlkitmodel in Sources */ = {isa = PBXBuildFile; fileRef = B875055D292F7F2600E60F80 /* Face500.mlkitmodel */; };
+		B86DF1772930CFD80082302B /* BlazeFaceScaled.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = B86DF1762930CFD70082302B /* BlazeFaceScaled.mlmodel */; };
 		B8750560292F809800E60F80 /* AverageMaximumSuppression.swift in Sources */ = {isa = PBXBuildFile; fileRef = B875055F292F809800E60F80 /* AverageMaximumSuppression.swift */; };
 		B8C48867292F7B38009CC659 /* FaceDetectorFrameProcessorPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8C48866292F7B38009CC659 /* FaceDetectorFrameProcessorPlugin.swift */; };
 		B8C48869292F7B4F009CC659 /* FaceDetectorFrameProcessorPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = B8C48868292F7B4F009CC659 /* FaceDetectorFrameProcessorPlugin.m */; };
@@ -34,7 +34,7 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = VisionCameraExample/main.m; sourceTree = "<group>"; };
 		7330AFF938A80A2385B7E80E /* libPods-VisionCameraExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VisionCameraExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = VisionCameraExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		B875055D292F7F2600E60F80 /* Face500.mlkitmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = Face500.mlkitmodel; sourceTree = "<group>"; };
+		B86DF1762930CFD70082302B /* BlazeFaceScaled.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = BlazeFaceScaled.mlmodel; sourceTree = "<group>"; };
 		B875055F292F809800E60F80 /* AverageMaximumSuppression.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AverageMaximumSuppression.swift; sourceTree = "<group>"; };
 		B8C48866292F7B38009CC659 /* FaceDetectorFrameProcessorPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceDetectorFrameProcessorPlugin.swift; sourceTree = "<group>"; };
 		B8C48868292F7B4F009CC659 /* FaceDetectorFrameProcessorPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FaceDetectorFrameProcessorPlugin.m; sourceTree = "<group>"; };
@@ -75,7 +75,7 @@
 				B8F0E10625E0199F00586F16 /* VisionCameraExample-Bridging-Header.h */,
 				B8C48866292F7B38009CC659 /* FaceDetectorFrameProcessorPlugin.swift */,
 				B8C48868292F7B4F009CC659 /* FaceDetectorFrameProcessorPlugin.m */,
-				B875055D292F7F2600E60F80 /* Face500.mlkitmodel */,
+				B86DF1762930CFD70082302B /* BlazeFaceScaled.mlmodel */,
 				B875055F292F809800E60F80 /* AverageMaximumSuppression.swift */,
 			);
 			name = VisionCameraExample;
@@ -374,10 +374,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B875055E292F7F2600E60F80 /* Face500.mlkitmodel in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				B8750560292F809800E60F80 /* AverageMaximumSuppression.swift in Sources */,
 				B8DB3BDC263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m in Sources */,
+				B86DF1772930CFD80082302B /* BlazeFaceScaled.mlmodel in Sources */,
 				B8DB3BD5263DE8B7004C18D7 /* (null) in Sources */,
 				B8DB3BDD263DEA31004C18D7 /* ExamplePluginSwift.swift in Sources */,
 				B8C48867292F7B38009CC659 /* FaceDetectorFrameProcessorPlugin.swift in Sources */,

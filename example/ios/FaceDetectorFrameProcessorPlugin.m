@@ -7,7 +7,7 @@
 
 #import <Foundation/Foundation.h>
 #import <VisionCamera/FrameProcessorPlugin.h>
-#import "Face500.h"
+#import "BlazeFaceScaled.h"
 
 @interface VISION_EXPORT_SWIFT_FRAME_PROCESSOR(detectFaces, FaceDetectorFrameProcessorPlugin)
 @end
