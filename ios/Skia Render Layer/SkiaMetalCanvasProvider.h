@@ -13,6 +13,7 @@
 #import <include/gpu/GrDirectContext.h>
 #import "SkImage.h"
 #import "SkImageHelpers.h"
+#include <mutex>
 
 class SkiaMetalCanvasProvider {
 public:
@@ -50,5 +51,7 @@ private:
   
   id<CAMetalDrawable> _currentDrawable;
   void runLoop();
+  
+  std::mutex drawableMutex;
 };
 

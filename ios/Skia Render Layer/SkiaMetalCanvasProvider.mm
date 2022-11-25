@@ -62,8 +62,20 @@ SkiaMetalCanvasProvider::~SkiaMetalCanvasProvider() {
 void SkiaMetalCanvasProvider::runLoop() {
   while (_layer != nil) {
     @autoreleasepool {
-      _currentDrawable = [_layer nextDrawable];
-      NSLog(@"Next Drawable available!");
+      auto tempDrawable = [_layer nextDrawable];
+#if DEBUG
+      auto start = CFAbsoluteTimeGetCurrent();
+#endif
+      this->drawableMutex.lock();
+      _currentDrawable = tempDrawable;
+      this->drawableMutex.unlock();
+#if DEBUG
+      auto end = CFAbsoluteTimeGetCurrent();
+      auto lockTime = (end - start) * 1.000;
+      if (lockTime > 1) {
+        NSLog(@"Drawable was locked in previous draw invocation for %f ms!", lockTime);
+      }
+#endif
     }
   }
 }
@@ -115,6 +127,7 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
   // fast in the simulator without this.
   @autoreleasepool {
     auto startPrepare = CFAbsoluteTimeGetCurrent();
+    this->drawableMutex.lock();
     id<CAMetalDrawable> currentDrawable = _currentDrawable;
     
     if (currentDrawable == nullptr) {
@@ -198,6 +211,7 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     [commandBuffer commit];
     
     CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
+    this->drawableMutex.unlock();
   }
   
   auto end = CFAbsoluteTimeGetCurrent();
