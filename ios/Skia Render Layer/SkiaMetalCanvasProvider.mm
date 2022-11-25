@@ -11,7 +11,7 @@
 
 #import "SkImageHelpers.h"
 
-SkiaMetalCanvasProvider::SkiaMetalCanvasProvider(std::function<void()> requestRedraw): _requestRedraw(requestRedraw) {
+SkiaMetalCanvasProvider::SkiaMetalCanvasProvider() {
   _device = MTLCreateSystemDefaultDevice();
   _commandQueue = id<MTLCommandQueue>(CFRetain((GrMTLHandle)[_device newCommandQueue]));
   _runLoopQueue = dispatch_queue_create("Camera Preview runLoop", DISPATCH_QUEUE_SERIAL);
@@ -219,8 +219,6 @@ void SkiaMetalCanvasProvider::setSize(int width, int height) {
   _layer.frame = CGRectMake(0, 0, width, height);
   _layer.drawableSize = CGSizeMake(width * getPixelDensity(),
                                    height* getPixelDensity());
-
-  _requestRedraw();
 }
 
 CALayer* SkiaMetalCanvasProvider::getLayer() { return _layer; }

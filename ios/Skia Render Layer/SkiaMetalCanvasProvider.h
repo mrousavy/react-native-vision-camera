@@ -17,7 +17,7 @@
 
 class SkiaMetalCanvasProvider {
 public:
-  SkiaMetalCanvasProvider(std::function<void()> requestRedraw);
+  SkiaMetalCanvasProvider();
 
   ~SkiaMetalCanvasProvider();
 
@@ -42,7 +42,6 @@ private:
 #pragma clang diagnostic pop
   CVMetalTextureCacheRef _textureCacheY;
   CVMetalTextureCacheRef _textureCacheCbCr;
-  std::function<void()> _requestRedraw;
 
   id<MTLCommandQueue> _commandQueue;
   id<MTLDevice> _device;
