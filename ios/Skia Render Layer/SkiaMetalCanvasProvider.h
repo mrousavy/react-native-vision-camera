@@ -30,6 +30,8 @@ public:
   void setSize(int width, int height);
 
   CALayer* getLayer();
+  
+  std::unique_ptr<SkImageHelpers> _imageHelper;
 
 private:
   float _width = -1;
@@ -48,7 +50,6 @@ private:
   sk_sp<GrDirectContext> _skContext;
   dispatch_queue_t _runLoopQueue;
   
-  std::unique_ptr<SkImageHelpers> _imageHelper;
   
   id<CAMetalDrawable> _currentDrawable;
   std::mutex _drawableMutex;

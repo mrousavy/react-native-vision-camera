@@ -16,7 +16,7 @@
 		B8750560292F809800E60F80 /* AverageMaximumSuppression.swift in Sources */ = {isa = PBXBuildFile; fileRef = B875055F292F809800E60F80 /* AverageMaximumSuppression.swift */; };
 		B8C48867292F7B38009CC659 /* FaceDetectorFrameProcessorPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8C48866292F7B38009CC659 /* FaceDetectorFrameProcessorPlugin.swift */; };
 		B8C48869292F7B4F009CC659 /* FaceDetectorFrameProcessorPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = B8C48868292F7B4F009CC659 /* FaceDetectorFrameProcessorPlugin.m */; };
-		B8DB3BD5263DE8B7004C18D7 /* (null) in Sources */ = {isa = PBXBuildFile; };
+		B8DB3BD5263DE8B7004C18D7 /* BuildFile in Sources */ = {isa = PBXBuildFile; };
 		B8DB3BDC263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BD8263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m */; };
 		B8DB3BDD263DEA31004C18D7 /* ExamplePluginSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BDA263DEA31004C18D7 /* ExamplePluginSwift.swift */; };
 		B8DB3BDE263DEA31004C18D7 /* ExamplePluginSwift.m in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BDB263DEA31004C18D7 /* ExamplePluginSwift.m */; };
@@ -340,7 +340,7 @@
 				B8750560292F809800E60F80 /* AverageMaximumSuppression.swift in Sources */,
 				B8DB3BDC263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m in Sources */,
 				B86DF1772930CFD80082302B /* BlazeFaceScaled.mlmodel in Sources */,
-				B8DB3BD5263DE8B7004C18D7 /* (null) in Sources */,
+				B8DB3BD5263DE8B7004C18D7 /* BuildFile in Sources */,
 				B8DB3BDD263DEA31004C18D7 /* ExamplePluginSwift.swift in Sources */,
 				B8C48867292F7B38009CC659 /* FaceDetectorFrameProcessorPlugin.swift in Sources */,
 				B8F0E10825E0199F00586F16 /* File.swift in Sources */,

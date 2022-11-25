@@ -27,7 +27,7 @@
     // TODO: Get correct Buffer Orientation here!
     auto frame = [[Frame alloc] initWithBuffer:buffer orientation:UIImageOrientationUp];
     if (self.frameProcessorCallback != nil) {
-      self.frameProcessorCallback(frame, (void*)canvas);
+      self.frameProcessorCallback(frame, (void*)canvas, (void*)_canvasProvider->_imageHelper.get());
     }
   });
 }

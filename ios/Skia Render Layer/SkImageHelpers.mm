@@ -72,7 +72,7 @@ SkYUVAInfo getSkYUVAInfoForPixelFormat(SkISize imageSize, OSType pixelFormat) {
                         SkYUVAInfo::Subsampling::k420,
                         SkYUVColorSpace::kBT2020_10bit_Full_SkYUVColorSpace);
     default:
-      throw std::runtime_error("Camera pushed a Frame with an unknown Pixel Format! Cannot convert.");
+      throw std::runtime_error("VisionCamera: Unknown YUV Format, cannot convert to SkYUVAInfo.");
   }
 }
 
@@ -100,7 +100,12 @@ sk_sp<SkImage> SkImageHelpers::convertCMSampleBufferToSkImage(CMSampleBufferRef 
       return image;
     }
       
-    case kCVPixelFormatType_420YpCbCr8Planar: {
+    case kCVPixelFormatType_420YpCbCr8Planar:
+    case kCVPixelFormatType_420YpCbCr8PlanarFullRange:
+    case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
+    case kCVPixelFormatType_420YpCbCr8BiPlanarFullRange:
+    case kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange:
+    case kCVPixelFormatType_420YpCbCr10BiPlanarFullRange: {
       // ------------- Format: YUV (420v, 420f, x420)
       // YCbCr (aka YUV) has two planes, one for Y, and one for CbCr
       CVMetalTextureRef cvTextureY;
