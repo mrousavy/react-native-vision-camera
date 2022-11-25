@@ -74,32 +74,24 @@ const faceShader = `
   uniform float r;
   uniform vec2 resolution;
 
-  const float kernel = 0.05;
+  const float samples = 3.0;
+  const float radius = 40.0;
   const float weight = 1.0;
-
-  vec4 chromatic(vec2 pos, float offset) {
-    float r = image.eval(pos).r;
-    float g = image.eval(vec2(pos.x + offset, pos.y)).g;
-    float b = image.eval(vec2(pos.x + offset * 2.0, pos.y)).b;
-    return vec4(r, g, b, 1.0);
-  }
 
   half4 main(vec2 pos) {
     float delta = pow((pow(pos.x - x, 2) + pow(pos.y - y, 2)), 0.5);
     if (delta < r) {
-      // vec2 uv = pos.xy / resolution.xy;
-      // float pixelSize = 1.0 / resolution.x; 
-      // vec3 sum = vec3(0);
-      // // Horizontal Blur
-      // vec3 accumulation = vec3(0);
-      // vec3 weightsum = vec3(0);
-      // for (float i = -kernel; i <= kernel; i++) {
-      //     accumulation += image.eval(uv + vec2(i * pixelSize, 0.0)).xyz * weight;
-      //     weightsum += weight;
-      // }
-      // sum = accumulation / weightsum;
-      float offset = 50.0;
-      return chromatic(pos, offset);
+      vec3 sum = vec3(0.0);
+      vec3 accumulation = vec3(0);
+      vec3 weightedsum = vec3(0);
+      for (float deltaX = -samples * radius; deltaX <= samples * radius; deltaX += radius / samples) {
+        for (float deltaY = -samples * radius; deltaY <= samples * radius; deltaY += radius / samples) {
+          accumulation += image.eval(vec2(pos.x + deltaX, pos.y + deltaY)).rgb;
+          weightedsum += weight;
+        }
+      }
+      sum = accumulation / weightedsum;
+      return vec4(sum, 1.0);
     }
     else {
       return image.eval(pos);
