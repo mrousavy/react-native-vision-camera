@@ -162,6 +162,8 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     sourceRect = _imageHelper->createCenterCropRect(sourceRect, destinationRect);
     
     // Draw the Image into the Frame (aspectRatio: cover)
+    // The Frame Processor might draw the Frame again (through render()) to pass a custom paint/shader,
+    // but that'll just overwrite the existing one - no need to worry.
     canvas->drawImageRect(image,
                           sourceRect,
                           destinationRect,
@@ -172,8 +174,11 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     // The Canvas is equal to the View size, where-as the Frame has a different size (e.g. 4k)
     // We scale the Canvas to the exact dimensions of the Frame so that the user can use the Frame as a coordinate system
     canvas->save();
-    canvas->scale(image->width() / surfaceWidth, image->height() / surfaceHeight);
-    canvas->translate(-destinationRect.left(), -destinationRect.top());
+    
+    auto scaleW = static_cast<double>(surfaceWidth) / image->width();
+    auto scaleH = static_cast<double>(surfaceHeight) / image->height();
+    auto scale = MIN(scaleW, scaleH);
+    canvas->scale(scale, scale);
     
 #if DEBUG
     auto startJS = CFAbsoluteTimeGetCurrent();
