@@ -72,31 +72,15 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       // convert CMSampleBuffer to SkImage
       auto image = _imageHelpers->convertCMSampleBufferToSkImage(frame.buffer);
       
-      auto c = canvas->getCanvas();
-      auto surfaceWidth = c->getSurface()->width();
-      auto surfaceHeight = c->getSurface()->height();
-      
-      // apply center crop (aspectRatio: cover) rectangle
-      auto sourceRect = SkRect::MakeXYWH(0, 0, image->width(), image->height());
-      auto destinationRect = SkRect::MakeXYWH(0, 0, surfaceWidth, surfaceHeight);
-      sourceRect = _imageHelpers->createCenterCropRect(sourceRect, destinationRect);
-      
       // draw SkImage
       if (size > 0) {
         // ..with paint/shader
         auto paintHostObject = params[0].asObject(runtime).asHostObject<RNSkia::JsiSkPaint>(runtime);
         auto paint = paintHostObject->getObject();
-        c->drawImageRect(image,
-                         sourceRect,
-                         destinationRect,
-                         SkSamplingOptions(),
-                         paint.get(),
-                         SkCanvas::kFast_SrcRectConstraint);
+        canvas->getCanvas()->drawImage(image, 0, 0, SkSamplingOptions(), paint.get());
       } else {
         // ..without paint/shader
-        c->drawImageRect(image,
-                         destinationRect,
-                         SkSamplingOptions());
+        canvas->getCanvas()->drawImage(image, 0, 0);
       }
       
       return jsi::Value::undefined();
