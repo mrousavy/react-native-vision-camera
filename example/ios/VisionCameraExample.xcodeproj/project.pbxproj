@@ -12,7 +12,9 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		44CE4492E94E3AA2DC9F70FE /* libPods-VisionCameraExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7330AFF938A80A2385B7E80E /* libPods-VisionCameraExample.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		B86DF1772930CFD80082302B /* BlazeFaceScaled.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = B86DF1762930CFD70082302B /* BlazeFaceScaled.mlmodel */; };
+		8EC5BDF0293112400061AA42 /* face_detection_short_range.tflite in Resources */ = {isa = PBXBuildFile; fileRef = 8EC5BDEF293112400061AA42 /* face_detection_short_range.tflite */; };
+		8EC5BDF4293113DE0061AA42 /* rgbDataFromBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC5BDF3293113DE0061AA42 /* rgbDataFromBuffer.swift */; };
+		8EC5BDF62931146F0061AA42 /* CVPixelBuffer+resized.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC5BDF52931146F0061AA42 /* CVPixelBuffer+resized.swift */; };
 		B8750560292F809800E60F80 /* AverageMaximumSuppression.swift in Sources */ = {isa = PBXBuildFile; fileRef = B875055F292F809800E60F80 /* AverageMaximumSuppression.swift */; };
 		B8C48867292F7B38009CC659 /* FaceDetectorFrameProcessorPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8C48866292F7B38009CC659 /* FaceDetectorFrameProcessorPlugin.swift */; };
 		B8C48869292F7B4F009CC659 /* FaceDetectorFrameProcessorPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = B8C48868292F7B4F009CC659 /* FaceDetectorFrameProcessorPlugin.m */; };
@@ -34,7 +36,9 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = VisionCameraExample/main.m; sourceTree = "<group>"; };
 		7330AFF938A80A2385B7E80E /* libPods-VisionCameraExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VisionCameraExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = VisionCameraExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		B86DF1762930CFD70082302B /* BlazeFaceScaled.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = BlazeFaceScaled.mlmodel; sourceTree = "<group>"; };
+		8EC5BDEF293112400061AA42 /* face_detection_short_range.tflite */ = {isa = PBXFileReference; lastKnownFileType = file; path = face_detection_short_range.tflite; sourceTree = "<group>"; };
+		8EC5BDF3293113DE0061AA42 /* rgbDataFromBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = rgbDataFromBuffer.swift; sourceTree = "<group>"; };
+		8EC5BDF52931146F0061AA42 /* CVPixelBuffer+resized.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CVPixelBuffer+resized.swift"; sourceTree = "<group>"; };
 		B875055F292F809800E60F80 /* AverageMaximumSuppression.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AverageMaximumSuppression.swift; sourceTree = "<group>"; };
 		B8C48866292F7B38009CC659 /* FaceDetectorFrameProcessorPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceDetectorFrameProcessorPlugin.swift; sourceTree = "<group>"; };
 		B8C48868292F7B4F009CC659 /* FaceDetectorFrameProcessorPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FaceDetectorFrameProcessorPlugin.m; sourceTree = "<group>"; };
@@ -63,6 +67,8 @@
 		13B07FAE1A68108700A75B9A /* VisionCameraExample */ = {
 			isa = PBXGroup;
 			children = (
+				8EC5BDF2293113CC0061AA42 /* utils */,
+				8EC5BDEF293112400061AA42 /* face_detection_short_range.tflite */,
 				B8DB3BD6263DEA31004C18D7 /* Frame Processor Plugins */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
@@ -75,7 +81,6 @@
 				B8F0E10625E0199F00586F16 /* VisionCameraExample-Bridging-Header.h */,
 				B8C48866292F7B38009CC659 /* FaceDetectorFrameProcessorPlugin.swift */,
 				B8C48868292F7B4F009CC659 /* FaceDetectorFrameProcessorPlugin.m */,
-				B86DF1762930CFD70082302B /* BlazeFaceScaled.mlmodel */,
 				B875055F292F809800E60F80 /* AverageMaximumSuppression.swift */,
 			);
 			name = VisionCameraExample;
@@ -127,6 +132,15 @@
 				13B07F961A680F5B00A75B9A /* VisionCameraExample.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		8EC5BDF2293113CC0061AA42 /* utils */ = {
+			isa = PBXGroup;
+			children = (
+				8EC5BDF3293113DE0061AA42 /* rgbDataFromBuffer.swift */,
+				8EC5BDF52931146F0061AA42 /* CVPixelBuffer+resized.swift */,
+			);
+			path = utils;
 			sourceTree = "<group>";
 		};
 		B8DB3BD6263DEA31004C18D7 /* Frame Processor Plugins */ = {
@@ -188,7 +202,7 @@
 				LastUpgradeCheck = 1250;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
-						DevelopmentTeam = CJW62Q77E7;
+						DevelopmentTeam = TFP6882UUN;
 						LastSwiftMigration = 1240;
 					};
 				};
@@ -218,6 +232,7 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				8EC5BDF0293112400061AA42 /* face_detection_short_range.tflite in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -337,13 +352,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
+				8EC5BDF4293113DE0061AA42 /* rgbDataFromBuffer.swift in Sources */,
 				B8750560292F809800E60F80 /* AverageMaximumSuppression.swift in Sources */,
 				B8DB3BDC263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m in Sources */,
-				B86DF1772930CFD80082302B /* BlazeFaceScaled.mlmodel in Sources */,
 				B8DB3BD5263DE8B7004C18D7 /* BuildFile in Sources */,
 				B8DB3BDD263DEA31004C18D7 /* ExamplePluginSwift.swift in Sources */,
 				B8C48867292F7B38009CC659 /* FaceDetectorFrameProcessorPlugin.swift in Sources */,
 				B8F0E10825E0199F00586F16 /* File.swift in Sources */,
+				8EC5BDF62931146F0061AA42 /* CVPixelBuffer+resized.swift in Sources */,
 				B8C48869292F7B4F009CC659 /* FaceDetectorFrameProcessorPlugin.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				B8DB3BDE263DEA31004C18D7 /* ExamplePluginSwift.m in Sources */,
@@ -360,7 +376,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = CJW62Q77E7;
+				DEVELOPMENT_TEAM = TFP6882UUN;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = VisionCameraExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -434,7 +450,7 @@
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "arm64 ";
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -495,7 +511,7 @@
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "arm64 ";
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;

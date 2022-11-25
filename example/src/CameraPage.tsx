@@ -67,6 +67,23 @@ half4 main(vec2 pos) {
 }
 `;
 
+const faceShader = `
+  uniform shader image;
+  uniform float x;
+  uniform float y;
+  uniform float r;
+
+  half4 main(vec2 pos) {
+    float delta = pow((pow(pos.x - x, 2) + pow(pos.y - y, 2)), 0.5);
+    if (delta < r) {
+      return vec4(1.0, 0.0, 1.0, 1.0);
+    }
+    else {
+      return image.eval(pos);
+    }
+  }
+`;
+
 type Props = NativeStackScreenProps<Routes, 'CameraPage'>;
 export function CameraPage({ navigation }: Props): React.ReactElement {
   const camera = useRef<Camera>(null);
@@ -229,39 +246,68 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const shaderToUse = useSharedValue(noShader);
+  const shaderToUse = useSharedValue(faceShader);
 
   const frameProcessor = useFrameProcessor(
     (frame) => {
       'worklet';
 
+      type FaceDetection = {
+        boundingBox: {
+          x: number;
+          y: number;
+          width: number;
+          height: number;
+        };
+        score: number;
+      };
+
       console.log('before');
-      const faces = __detectFaces(frame);
-      console.log('after', faces);
+      const faces = __detectFaces(frame) as FaceDetection[] | undefined;
 
-      const runtimeEffect = SkiaApi.RuntimeEffect.Make(shaderToUse.value);
-      if (runtimeEffect == null) throw new Error('Shader failed to compile!');
+      if (faces != null) {
+        const topResult = faces.sort((a, b) => b.score - a.score)[0];
+        console.log(topResult);
 
-      const shaderBuilder = SkiaApi.RuntimeShaderBuilder(runtimeEffect);
-      const imageFilter = SkiaApi.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
+        const runtimeEffect = SkiaApi.RuntimeEffect.Make(shaderToUse.value);
+        if (runtimeEffect == null) throw new Error('Shader failed to compile!');
+        const shaderBuilder = SkiaApi.RuntimeShaderBuilder(runtimeEffect);
+        shaderBuilder.setUniform('r', [topResult?.boundingBox.width ?? 300]);
+        shaderBuilder.setUniform('x', [topResult?.boundingBox.x ?? 300]);
+        shaderBuilder.setUniform('y', [topResult?.boundingBox.y ?? 300]);
+        const imageFilter = SkiaApi.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
 
-      const paint = SkiaApi.Paint();
-      paint.setImageFilter(imageFilter);
+        const paint = SkiaApi.Paint();
+        paint.setImageFilter(imageFilter);
 
-      //frame.render(paint);
+        frame.render(paint);
+      }
+
+      console.log('after');
+
+      // const runtimeEffect = SkiaApi.RuntimeEffect.Make(shaderToUse.value);
+      // if (runtimeEffect == null) throw new Error('Shader failed to compile!');
+
+      // const shaderBuilder = SkiaApi.RuntimeShaderBuilder(runtimeEffect);
+      // const imageFilter = SkiaApi.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
+
+      // const paint = SkiaApi.Paint();
+      // paint.setImageFilter(imageFilter);
+
+      frame.render();
     },
     [shaderToUse],
   );
 
-  useEffect(() => {
-    const i = setInterval(() => {
-      console.log('Switching Shader!');
-      if (shaderToUse.value === noShader) shaderToUse.value = invertedColorsShader;
-      if (shaderToUse.value === invertedColorsShader) shaderToUse.value = chromaticAberrationShader;
-      if (shaderToUse.value === chromaticAberrationShader) shaderToUse.value = noShader;
-    }, 3000);
-    return () => clearInterval(i);
-  }, [shaderToUse]);
+  // useEffect(() => {
+  //   const i = setInterval(() => {
+  //     console.log('Switching Shader!');
+  //     if (shaderToUse.value === noShader) shaderToUse.value = invertedColorsShader;
+  //     if (shaderToUse.value === invertedColorsShader) shaderToUse.value = chromaticAberrationShader;
+  //     if (shaderToUse.value === chromaticAberrationShader) shaderToUse.value = noShader;
+  //   }, 3000);
+  //   return () => clearInterval(i);
+  // }, [shaderToUse]);
 
   const onFrameProcessorSuggestionAvailable = useCallback((suggestion: FrameProcessorPerformanceSuggestion) => {
     console.log(`Suggestion available! ${suggestion.type}: Can do ${suggestion.suggestedFrameProcessorFps} FPS`);
