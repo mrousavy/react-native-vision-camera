@@ -153,32 +153,31 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
 #endif
     
     auto canvas = skSurface->getCanvas();
+    auto surface = canvas->getSurface();
     
     // Calculate Center Crop (aspectRatio: cover) transform
-    auto surfaceWidth = canvas->getSurface()->width();
-    auto surfaceHeight = canvas->getSurface()->height();
     auto sourceRect = SkRect::MakeXYWH(0, 0, image->width(), image->height());
-    auto destinationRect = SkRect::MakeXYWH(0, 0, surfaceWidth, surfaceHeight);
+    auto destinationRect = SkRect::MakeXYWH(0, 0, surface->width(), surface->height());
     sourceRect = _imageHelper->createCenterCropRect(sourceRect, destinationRect);
     
-    // Draw the Image into the Frame (aspectRatio: cover)
-    // The Frame Processor might draw the Frame again (through render()) to pass a custom paint/shader,
-    // but that'll just overwrite the existing one - no need to worry.
-    canvas->drawImageRect(image,
-                          sourceRect,
-                          destinationRect,
-                          SkSamplingOptions(),
-                          nullptr,
-                          SkCanvas::kFast_SrcRectConstraint);
+    auto offsetX = -sourceRect.left();
+    auto offsetY = -sourceRect.top();
+
     
     // The Canvas is equal to the View size, where-as the Frame has a different size (e.g. 4k)
     // We scale the Canvas to the exact dimensions of the Frame so that the user can use the Frame as a coordinate system
     canvas->save();
     
-    auto scaleW = static_cast<double>(surfaceWidth) / image->width();
-    auto scaleH = static_cast<double>(surfaceHeight) / image->height();
-    auto scale = MIN(scaleW, scaleH);
+    auto scaleW = static_cast<double>(surface->width()) / (image->width());
+    auto scaleH = static_cast<double>(surface->height()) / (image->height());
+    auto scale = MAX(scaleW, scaleH);
     canvas->scale(scale, scale);
+    canvas->translate(offsetX, offsetY);
+    
+    // Draw the Image into the Frame (aspectRatio: cover)
+    // The Frame Processor might draw the Frame again (through render()) to pass a custom paint/shader,
+    // but that'll just overwrite the existing one - no need to worry.
+    canvas->drawImage(image, 0, 0);
     
 #if DEBUG
     auto startJS = CFAbsoluteTimeGetCurrent();
