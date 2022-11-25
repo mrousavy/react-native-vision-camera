@@ -81,6 +81,10 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       auto destinationRect = SkRect::MakeXYWH(0, 0, surfaceWidth, surfaceHeight);
       sourceRect = _imageHelpers->createCenterCropRect(sourceRect, destinationRect);
       
+      // reset the scale to 1:1 again, because the Metal Canvas upscales the Canvas to match Frame dimensions
+      c->save();
+      c->scale(1, 1);
+      
       // draw SkImage
       if (size > 0) {
         // ..with paint/shader
@@ -98,6 +102,9 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
                          destinationRect,
                          SkSamplingOptions());
       }
+      
+      // reset scale to whatever it was before again so the Metal Canvas upscales the Canvas to match Frame dimensions again
+      c->restore();
       
       return jsi::Value::undefined();
     };
