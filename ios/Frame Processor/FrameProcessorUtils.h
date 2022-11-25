@@ -11,6 +11,7 @@
 #import <Foundation/Foundation.h>
 #import <React/RCTBridgeModule.h>
 #import "FrameProcessorCallback.h"
+#import <react-native-worklets/cpp/JsiWorklet.h>
 
 #ifndef __cplusplus
 #error FrameProcessorUtils.h has to be compiled with C++!
@@ -20,4 +21,4 @@
 
 using namespace facebook;
 
-FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &runtime, const jsi::Function &value);
+FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &runtime, std::shared_ptr<RNWorklet::JsiWorklet> worklet);

@@ -24,9 +24,10 @@
 #import "../Skia Render Layer/SkImageHelpers.h"
 #import <JsiSkCanvas.h>
 
-FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime& runtime, const jsi::Function& value) {
-  __block auto cb = value.getFunction(runtime);
+#import <react-native-worklets/cpp/JsiWorklet.h>
 
+FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime& runtime,
+                                                                  std::shared_ptr<RNWorklet::JsiWorklet> worklet) {
   std::shared_ptr<RNSkia::RNSkPlatformContext> platformContext = std::make_shared<RNSkia::RNSkiOSPlatformContext>(&runtime, RCTBridge.currentBridge.jsCallInvoker);
   
   auto canvasHostObject = std::make_shared<RNSkia::JsiSkCanvas>(platformContext);
@@ -35,9 +36,12 @@ FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime& 
     canvasHostObject->setCanvas((SkCanvas*)skCanvas);
     auto frameHostObject = std::make_shared<FrameHostObject>(frame, canvasHostObject, (SkImageHelpers*)imageHelpers);
     try {
-      cb.callWithThis(runtime,
-                      cb,
-                      jsi::Object::createFromHostObject(runtime, frameHostObject));
+      auto object = jsi::Object::createFromHostObject(runtime, frameHostObject);
+      jsi::Value val(std::move(object));
+      worklet->callInWorkletContext(runtime,
+                                    jsi::Value::undefined(),
+                                    &val,
+                                    1);
     } catch (jsi::JSError& jsError) {
       auto stack = std::regex_replace(jsError.getStack(), std::regex("\n"), "\n    ");
       auto message = [NSString stringWithFormat:@"Frame Processor threw an error: %s\nIn: %s", jsError.getMessage().c_str(), stack.c_str()];

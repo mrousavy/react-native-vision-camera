@@ -10,6 +10,7 @@ import type { PhotoFile, TakePhotoOptions } from './PhotoFile';
 import type { Point } from './Point';
 import type { TakeSnapshotOptions } from './Snapshot';
 import type { CameraVideoCodec, RecordVideoOptions, VideoFile } from './VideoFile';
+import { Worklets } from '../react-native-worklets/src/index';
 
 //#region Types
 export type CameraPermissionStatus = 'authorized' | 'not-determined' | 'denied' | 'restricted';
@@ -436,7 +437,15 @@ export class Camera extends React.PureComponent<CameraProps> {
   private setFrameProcessor(frameProcessor: (frame: Frame) => void): void {
     this.assertFrameProcessorsEnabled();
     // @ts-expect-error JSI functions aren't typed
-    global.setFrameProcessor(this.handle, frameProcessor);
+    const clog = (...args) => console.log(...args);
+    const sharedClog = Worklets.createSharedValue(clog);
+    global.setFrameProcessor(
+      this.handle,
+      () => {
+        sharedClog.value('hello world!');
+      },
+      { clog },
+    );
   }
 
   private unsetFrameProcessor(): void {

@@ -12,67 +12,64 @@ import Foundation
 @objc(CameraViewManager)
 final class CameraViewManager: RCTViewManager {
   // pragma MARK: Properties
-
+  
   private var runtimeManager: FrameProcessorRuntimeManager?
-
+  
   override var bridge: RCTBridge! {
     didSet {
       // Install Frame Processor bindings and setup Runtime
-      if VISION_CAMERA_ENABLE_FRAME_PROCESSORS {
-        CameraQueues.frameProcessorQueue.async {
-          self.runtimeManager = FrameProcessorRuntimeManager(bridge: self.bridge)
-          self.bridge.runOnJS {
-            self.runtimeManager!.installFrameProcessorBindings()
-          }
-        }
+      self.bridge.runOnJS {
+        let manager = FrameProcessorRuntimeManager(bridge: self.bridge)!
+        manager.installFrameProcessorBindings()
+        self.runtimeManager = manager
       }
     }
   }
-
+  
   override var methodQueue: DispatchQueue! {
     return DispatchQueue.main
   }
-
+  
   override static func requiresMainQueueSetup() -> Bool {
     return true
   }
-
+  
   override final func view() -> UIView! {
     return CameraView()
   }
-
+  
   // pragma MARK: React Functions
-
+  
   @objc
   final func startRecording(_ node: NSNumber, options: NSDictionary, onRecordCallback: @escaping RCTResponseSenderBlock) {
     let component = getCameraView(withTag: node)
     component.startRecording(options: options, callback: onRecordCallback)
   }
-
+  
   @objc
   final func pauseRecording(_ node: NSNumber, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     let component = getCameraView(withTag: node)
     component.pauseRecording(promise: Promise(resolver: resolve, rejecter: reject))
   }
-
+  
   @objc
   final func resumeRecording(_ node: NSNumber, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     let component = getCameraView(withTag: node)
     component.resumeRecording(promise: Promise(resolver: resolve, rejecter: reject))
   }
-
+  
   @objc
   final func stopRecording(_ node: NSNumber, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     let component = getCameraView(withTag: node)
     component.stopRecording(promise: Promise(resolver: resolve, rejecter: reject))
   }
-
+  
   @objc
   final func takePhoto(_ node: NSNumber, options: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     let component = getCameraView(withTag: node)
     component.takePhoto(options: options, promise: Promise(resolver: resolve, rejecter: reject))
   }
-
+  
   @objc
   final func focus(_ node: NSNumber, point: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     let promise = Promise(resolver: resolve, rejecter: reject)
@@ -83,7 +80,7 @@ final class CameraViewManager: RCTViewManager {
     let component = getCameraView(withTag: node)
     component.focus(point: CGPoint(x: x.doubleValue, y: y.doubleValue), promise: promise)
   }
-
+  
   @objc
   final func getAvailableVideoCodecs(_ node: NSNumber, fileType: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     withPromise(resolve: resolve, reject: reject) {
@@ -91,7 +88,7 @@ final class CameraViewManager: RCTViewManager {
       guard let videoOutput = component.videoOutput else {
         throw CameraError.session(SessionError.cameraNotReady)
       }
-
+      
       var parsedFileType = AVFileType.mov
       if fileType != nil {
         guard let parsed = try? AVFileType(withString: fileType!) else {
@@ -99,11 +96,11 @@ final class CameraViewManager: RCTViewManager {
         }
         parsedFileType = parsed
       }
-
+      
       return videoOutput.availableVideoCodecTypesForAssetWriter(writingTo: parsedFileType).map(\.descriptor)
     }
   }
-
+  
   @objc
   final func getAvailableCameraDevices(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     withPromise(resolve: resolve, reject: reject) {
@@ -139,7 +136,7 @@ final class CameraViewManager: RCTViewManager {
       }
     }
   }
-
+  
   @objc
   final func getCameraPermissionStatus(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     withPromise(resolve: resolve, reject: reject) {
@@ -147,7 +144,7 @@ final class CameraViewManager: RCTViewManager {
       return status.descriptor
     }
   }
-
+  
   @objc
   final func getMicrophonePermissionStatus(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     withPromise(resolve: resolve, reject: reject) {
@@ -155,7 +152,7 @@ final class CameraViewManager: RCTViewManager {
       return status.descriptor
     }
   }
-
+  
   @objc
   final func requestCameraPermission(_ resolve: @escaping RCTPromiseResolveBlock, reject _: @escaping RCTPromiseRejectBlock) {
     AVCaptureDevice.requestAccess(for: .video) { granted in
@@ -163,7 +160,7 @@ final class CameraViewManager: RCTViewManager {
       resolve(result.descriptor)
     }
   }
-
+  
   @objc
   final func requestMicrophonePermission(_ resolve: @escaping RCTPromiseResolveBlock, reject _: @escaping RCTPromiseRejectBlock) {
     AVCaptureDevice.requestAccess(for: .audio) { granted in
@@ -171,14 +168,14 @@ final class CameraViewManager: RCTViewManager {
       resolve(result.descriptor)
     }
   }
-
+  
   // MARK: Private
-
+  
   private func getCameraView(withTag tag: NSNumber) -> CameraView {
     // swiftlint:disable force_cast
     return bridge.uiManager.view(forReactTag: tag) as! CameraView
   }
-
+  
   private final func getAllDeviceTypes() -> [AVCaptureDevice.DeviceType] {
     var deviceTypes: [AVCaptureDevice.DeviceType] = []
     if #available(iOS 13.0, *) {

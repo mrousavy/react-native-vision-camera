@@ -231,27 +231,24 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
   const shaderToUse = useSharedValue(noShader);
 
-  const frameProcessor = useFrameProcessor(
-    (frame) => {
-      'worklet';
+  const frameProcessor = useFrameProcessor((frame) => {
+    // 'worklet';
 
-      console.log('before');
-      const faces = __detectFaces(frame);
-      console.log('after', faces);
+    console.log('FP call! lol');
+    // const faces = __detectFaces(frame);
+    // console.log('after', faces);
 
-      const runtimeEffect = SkiaApi.RuntimeEffect.Make(shaderToUse.value);
-      if (runtimeEffect == null) throw new Error('Shader failed to compile!');
+    // const runtimeEffect = SkiaApi.RuntimeEffect.Make(shaderToUse.value);
+    // if (runtimeEffect == null) throw new Error('Shader failed to compile!');
 
-      const shaderBuilder = SkiaApi.RuntimeShaderBuilder(runtimeEffect);
-      const imageFilter = SkiaApi.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
+    // const shaderBuilder = SkiaApi.RuntimeShaderBuilder(runtimeEffect);
+    // const imageFilter = SkiaApi.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
 
-      const paint = SkiaApi.Paint();
-      paint.setImageFilter(imageFilter);
+    // const paint = SkiaApi.Paint();
+    // paint.setImageFilter(imageFilter);
 
-      //frame.render(paint);
-    },
-    [shaderToUse],
-  );
+    //frame.render(paint);
+  }, []);
 
   useEffect(() => {
     const i = setInterval(() => {

@@ -25,33 +25,34 @@ const capturableConsole = console;
  * ```
  */
 export function useFrameProcessor(frameProcessor: FrameProcessor, dependencies: DependencyList): FrameProcessor {
+  return frameProcessor;
   return useCallback((frame: Frame) => {
     'worklet';
 
     // @ts-expect-error
-    if (global.didSetConsole == null || global.didSetConsole === false) {
-      const console = {
-        // @ts-expect-error __callAsync is injected by native REA
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        debug: capturableConsole.debug.__callAsync,
-        // @ts-expect-error __callAsync is injected by native REA
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        log: capturableConsole.log.__callAsync,
-        // @ts-expect-error __callAsync is injected by native REA
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        warn: capturableConsole.warn.__callAsync,
-        // @ts-expect-error __callAsync is injected by native REA
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        error: capturableConsole.error.__callAsync,
-        // @ts-expect-error __callAsync is injected by native REA
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        info: capturableConsole.info.__callAsync,
-      };
-      // @ts-expect-error _setGlobalConsole is set by RuntimeDecorator::decorateRuntime
-      _setGlobalConsole(console);
-      // @ts-expect-error
-      global.didSetConsole = true;
-    }
+    // if (global.didSetConsole == null || global.didSetConsole === false) {
+    //   const console = {
+    //     // @ts-expect-error __callAsync is injected by native REA
+    //     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    //     debug: capturableConsole.debug.__callAsync,
+    //     // @ts-expect-error __callAsync is injected by native REA
+    //     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    //     log: capturableConsole.log.__callAsync,
+    //     // @ts-expect-error __callAsync is injected by native REA
+    //     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    //     warn: capturableConsole.warn.__callAsync,
+    //     // @ts-expect-error __callAsync is injected by native REA
+    //     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    //     error: capturableConsole.error.__callAsync,
+    //     // @ts-expect-error __callAsync is injected by native REA
+    //     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    //     info: capturableConsole.info.__callAsync,
+    //   };
+    //   // @ts-expect-error _setGlobalConsole is set by RuntimeDecorator::decorateRuntime
+    //   _setGlobalConsole(console);
+    //   // @ts-expect-error
+    //   global.didSetConsole = true;
+    // }
 
     frameProcessor(frame);
     // eslint-disable-next-line react-hooks/exhaustive-deps

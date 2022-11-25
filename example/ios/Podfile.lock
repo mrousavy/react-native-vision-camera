@@ -538,7 +538,7 @@ SPEC CHECKSUMS:
   RNScreens: 40a2cb40a02a609938137a1e0acfbf8fc9eebf19
   RNStaticSafeAreaInsets: 6103cf09647fa427186d30f67b0f5163c1ae8252
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
-  VisionCamera: cbf3cf44e891359c9fbed31fe7475a767cfaea0d
+  VisionCamera: 5519ae3cdd80de2c3dfc8a80c07b64ca428954a1
   Yoga: e7dc4e71caba6472ff48ad7d234389b91dadc280
 
 PODFILE CHECKSUM: 2ecfca9597c23d340a487bd11160e4bb54f55ecf

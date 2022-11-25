@@ -54,6 +54,7 @@ Pod::Spec.new do |s|
     "ios/React Utils/RCTBridge+runOnJS.h",
     "ios/React Utils/JSConsoleHelper.h",
     "cpp/**/*.{cpp}",
+    "react-native-worklets/cpp/**/*.{cpp}"
   ]
   # Any private headers that are not globally unique should be mentioned here.
   # Otherwise there will be a nameclash, since CocoaPods flattens out any header directories
