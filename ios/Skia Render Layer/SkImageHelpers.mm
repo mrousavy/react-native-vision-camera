@@ -99,3 +99,24 @@ sk_sp<SkImage> SkImageHelpers::convertCMSampleBufferToSkImage(CMSampleBufferRef 
   return image;
 }
 
+
+SkRect SkImageHelpers::createCenterCropRect(SkRect sourceRect, SkRect destinationRect) {
+  SkSize src;
+  if (destinationRect.width() / destinationRect.height() > sourceRect.width() / sourceRect.height()) {
+    src = SkSize::Make(sourceRect.width(), (sourceRect.width() * destinationRect.height()) / destinationRect.width());
+  } else {
+    src = SkSize::Make((sourceRect.height() * destinationRect.width()) / destinationRect.height(), sourceRect.height());
+  }
+  
+  return inscribe(src, sourceRect);
+}
+
+SkRect SkImageHelpers::inscribe(SkSize size, SkRect rect) {
+  auto halfWidthDelta = (rect.width() - size.width()) / 2.0;
+  auto halfHeightDelta = (rect.height() - size.height()) / 2.0;
+  return SkRect::MakeXYWH(rect.x() + halfWidthDelta,
+                          rect.y() + halfHeightDelta,
+                          size.width(),
+                          size.height());
+}
+

@@ -92,16 +92,6 @@ float SkiaMetalCanvasProvider::getScaledWidth() { return _width * getPixelDensit
  */
 float SkiaMetalCanvasProvider::getScaledHeight() { return _height * getPixelDensity(); };
 
-
-SkRect inscribe(SkSize size, SkRect rect) {
-  auto halfWidthDelta = (rect.width() - size.width()) / 2.0;
-  auto halfHeightDelta = (rect.height() - size.height()) / 2.0;
-  return SkRect::MakeXYWH(rect.x() + halfWidthDelta,
-                          rect.y() + halfHeightDelta,
-                          size.width(),
-                          size.height());
-}
-
 /**
  Render to a canvas
  */
@@ -175,23 +165,12 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     
     auto canvas = skSurface->getCanvas();
     
+    // Calculate Center Crop (aspectRatio: cover) transform
     auto surfaceWidth = canvas->getSurface()->width();
     auto surfaceHeight = canvas->getSurface()->height();
-    
     auto sourceRect = SkRect::MakeXYWH(0, 0, image->width(), image->height());
-    auto destinationRect = SkRect::MakeXYWH(0,
-                                            0,
-                                            surfaceWidth,
-                                            surfaceHeight);
-    
-    SkSize src;
-    if (destinationRect.width() / destinationRect.height() > sourceRect.width() / sourceRect.height()) {
-      src = SkSize::Make(sourceRect.width(), (sourceRect.width() * destinationRect.height()) / destinationRect.width());
-    } else {
-      src = SkSize::Make((sourceRect.height() * destinationRect.width()) / destinationRect.height(), sourceRect.height());
-    }
-    
-    sourceRect = inscribe(src, sourceRect);
+    auto destinationRect = SkRect::MakeXYWH(0, 0, surfaceWidth, surfaceHeight);
+    sourceRect = _imageHelper->createCenterCropRect(sourceRect, destinationRect);
     
     // Draw the Image into the Frame (aspectRatio: cover)
     canvas->drawImageRect(image,
