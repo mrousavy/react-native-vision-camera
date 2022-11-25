@@ -71,9 +71,9 @@ void SkiaMetalCanvasProvider::runLoop() {
       this->drawableMutex.unlock();
 #if DEBUG
       auto end = CFAbsoluteTimeGetCurrent();
-      auto lockTime = (end - start) * 1.000;
+      auto lockTime = (end - start) * 1000;
       if (lockTime > 1) {
-        NSLog(@"Drawable was locked in previous draw invocation for %f ms!", lockTime);
+        NSLog(@"The previous draw call took so long that it blocked a new Frame from coming in for %f ms!", lockTime);
       }
 #endif
     }
