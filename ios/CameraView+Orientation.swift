@@ -32,7 +32,6 @@ extension CameraView {
     let isMirrored = self.videoDeviceInput?.device.position == .front
 
     let connectionOrientation = self.outputOrientation
-    // Run those updates on cameraQueue since they can be blocking.
     self.captureSession.outputs.forEach { output in
       output.connections.forEach { connection in
         if connection.isVideoMirroringSupported {
