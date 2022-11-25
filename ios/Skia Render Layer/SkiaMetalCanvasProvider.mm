@@ -162,6 +162,8 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     sourceRect = _imageHelper->createCenterCropRect(sourceRect, destinationRect);
     
     // Draw the Image into the Frame (aspectRatio: cover)
+    // The Frame Processor might draw the Frame again (through render()) to pass a custom paint/shader,
+    // but that'll just overwrite the existing one - no need to worry.
     canvas->drawImageRect(image,
                           sourceRect,
                           destinationRect,
