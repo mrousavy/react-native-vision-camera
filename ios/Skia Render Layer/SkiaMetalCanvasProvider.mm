@@ -27,46 +27,33 @@ SkiaMetalCanvasProvider::SkiaMetalCanvasProvider() {
   _layer.contentsScale = getPixelDensity();
   _layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
   
+  _isValid = true;
+  
   dispatch_async(_runLoopQueue, ^{
     runLoop();
+    NSLog(@"SkiaMetalCanvasProvider: End run loop.");
   });
 }
 
 SkiaMetalCanvasProvider::~SkiaMetalCanvasProvider() {
-  if([[NSThread currentThread] isMainThread]) {
-    _layer = nil;
-  } else {
-    __block auto tempLayer = _layer;
-    dispatch_async(dispatch_get_main_queue(), ^{
-      // By using the tempLayer variable in the block we capture it and it will be
-      // released after the block has finished. This way the CAMetalLayer dealloc will
-      // only be called on the main thread. Problem: this destructor might be called from
-      // releasing the RNSkDrawViewImpl from a thread capture (after dtor has started),
-      // which would cause the CAMetalLayer dealloc to be called on another thread which
-      // causes a crash.
-      // https://github.com/Shopify/react-native-skia/issues/398
-      tempLayer = tempLayer;
-    });
-  }
+  _isValid = false;
 }
 
 void SkiaMetalCanvasProvider::runLoop() {
-  while (_layer != nil) {
+  while (_isValid) {
     @autoreleasepool {
       // Blocks until the next Frame is ready (16ms at 60 FPS)
       auto tempDrawable = [_layer nextDrawable];
       
-      // If the View deallocated in the meantime, just abort.
-      if (_layer == nil) {
-        return;
-      }
+      // After we got a new Drawable (from blocking call), make sure we're still valid
+      if (!_isValid) return;
       
 #if DEBUG
       auto start = CFAbsoluteTimeGetCurrent();
 #endif
-      _drawableMutex.lock();
+      std::unique_lock lock(_drawableMutex);
       _currentDrawable = tempDrawable;
-      _drawableMutex.unlock();
+      lock.unlock();
 #if DEBUG
       auto end = CFAbsoluteTimeGetCurrent();
       auto lockTime = (end - start) * 1000;
@@ -117,6 +104,7 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     // Lock Mutex to block the runLoop from overwriting the _currentDrawable
     std::lock_guard lockGuard(_drawableMutex);
     
+    // Get the drawable to keep the reference/retain ownership here.
     id<CAMetalDrawable> currentDrawable = _currentDrawable;
     
     // No Drawable is ready. Abort
@@ -127,7 +115,6 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     // Get & Lock the writeable Texture from the Metal Drawable
     GrMtlTextureInfo fbInfo;
     fbInfo.fTexture.retain((__bridge void*)currentDrawable.texture);
-    
     GrBackendRenderTarget backendRT(_layer.drawableSize.width,
                                     _layer.drawableSize.height,
                                     1,

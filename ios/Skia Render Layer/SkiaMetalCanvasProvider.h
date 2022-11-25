@@ -53,6 +53,8 @@ private:
   id<CAMetalDrawable> _currentDrawable;
   std::mutex _drawableMutex;
   
+  bool _isValid;
+  
 private:
   void runLoop();
 };
