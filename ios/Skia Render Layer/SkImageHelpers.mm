@@ -28,75 +28,139 @@ SkImageHelpers::SkImageHelpers(id<MTLDevice> metalDevice, sk_sp<GrDirectContext>
   }
 }
 
+SkYUVAInfo getSkYUVAInfoForPixelFormat(SkISize imageSize, OSType pixelFormat) {
+  // Create YUV map interpretation
+  //  - PlaneConfig::kY_UV means we have one plane for Y and one for UV (CbCr)
+  //  - Subsampling::k420 means we have a 4:2:0 format for the ratio between Y and UV
+  //  - ColorSpace::kRec709_Limited_SkYUVColorSpace means limited-range (video/luma=[16,235] chroma=[16,240]). 420f would be Full.
+  
+  switch (pixelFormat) {
+      // y420
+    case kCVPixelFormatType_420YpCbCr8Planar:
+      return SkYUVAInfo(imageSize,
+                        SkYUVAInfo::PlaneConfig::kY_UV,
+                        SkYUVAInfo::Subsampling::k420,
+                        SkYUVColorSpace::kRec709_Limited_SkYUVColorSpace);
+      // f420
+    case kCVPixelFormatType_420YpCbCr8PlanarFullRange:
+      return SkYUVAInfo(imageSize,
+                        SkYUVAInfo::PlaneConfig::kY_UV,
+                        SkYUVAInfo::Subsampling::k420,
+                        SkYUVColorSpace::kRec709_Full_SkYUVColorSpace);
+      // 420v
+    case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
+      return SkYUVAInfo(imageSize,
+                        SkYUVAInfo::PlaneConfig::kY_UV,
+                        SkYUVAInfo::Subsampling::k420,
+                        SkYUVColorSpace::kRec709_Limited_SkYUVColorSpace);
+      // 420f
+    case kCVPixelFormatType_420YpCbCr8BiPlanarFullRange:
+      return SkYUVAInfo(imageSize,
+                        SkYUVAInfo::PlaneConfig::kY_UV,
+                        SkYUVAInfo::Subsampling::k420,
+                        SkYUVColorSpace::kRec709_Full_SkYUVColorSpace);
+      // x420 (HDR video)
+    case kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange:
+      return SkYUVAInfo(imageSize,
+                        SkYUVAInfo::PlaneConfig::kY_UV,
+                        SkYUVAInfo::Subsampling::k420,
+                        SkYUVColorSpace::kBT2020_10bit_Limited_SkYUVColorSpace);
+      // xf20 (HDR full)
+    case kCVPixelFormatType_420YpCbCr10BiPlanarFullRange:
+      return SkYUVAInfo(imageSize,
+                        SkYUVAInfo::PlaneConfig::kY_UV,
+                        SkYUVAInfo::Subsampling::k420,
+                        SkYUVColorSpace::kBT2020_10bit_Full_SkYUVColorSpace);
+    default:
+      throw std::runtime_error("Camera pushed a Frame with an unknown Pixel Format! Cannot convert.");
+  }
+}
+
 sk_sp<SkImage> SkImageHelpers::convertCMSampleBufferToSkImage(CMSampleBufferRef sampleBuffer) {
   auto pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
   
   double width = CVPixelBufferGetWidth(pixelBuffer);
   double height = CVPixelBufferGetHeight(pixelBuffer);
   
-  // We assume that the CVPixelBuffer is in YCbCr format, so we have to create 2 textures:
-  //  - for Y
-  //  - for CbCr
-  CVMetalTextureRef cvTextureY;
-  CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
-                                            _textureCache,
-                                            pixelBuffer,
-                                            nil,
-                                            MTLPixelFormatR8Unorm,
-                                            width,
-                                            height,
-                                            0, // plane index 0: Y
-                                            &cvTextureY);
-  GrMtlTextureInfo textureInfoY;
-  auto mtlTextureY = CVMetalTextureGetTexture(cvTextureY);
-  textureInfoY.fTexture.retain((__bridge void*)mtlTextureY);
+  auto format = CVPixelBufferGetPixelFormatType(pixelBuffer);
   
-  
-  CVMetalTextureRef cvTextureCbCr;
-  CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
-                                            _textureCache,
-                                            pixelBuffer,
-                                            nil,
-                                            MTLPixelFormatRG8Unorm,
-                                            width / 2,
-                                            height / 2,
-                                            1, // plane index 1: CbCr
-                                            &cvTextureCbCr);
-  GrMtlTextureInfo textureInfoCbCr;
-  auto mtlTextureCbCr = CVMetalTextureGetTexture(cvTextureCbCr);
-  textureInfoCbCr.fTexture.retain((__bridge void*)mtlTextureCbCr);
+  switch (format) {
+    case kCVPixelFormatType_32BGRA: {
+      // ------------- Format: RGB (BGRA 8888)
+      auto srcBuff = CVPixelBufferGetBaseAddress(pixelBuffer);
+      auto bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer);
+      auto width = CVPixelBufferGetWidth(pixelBuffer);
+      auto height = CVPixelBufferGetHeight(pixelBuffer);
+      auto info = SkImageInfo::Make(width,
+                                    height,
+                                    kBGRA_8888_SkColorType,
+                                    kOpaque_SkAlphaType);
+      auto data = SkData::MakeWithoutCopy(srcBuff, bytesPerRow * height);
+      auto image = SkImage::MakeRasterData(info, data, bytesPerRow);
+      return image;
+    }
+      
+    case kCVPixelFormatType_420YpCbCr8Planar: {
+      // ------------- Format: YUV (420v, 420f, x420)
+      // YCbCr (aka YUV) has two planes, one for Y, and one for CbCr
+      CVMetalTextureRef cvTextureY;
+      CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
+                                                _textureCache,
+                                                pixelBuffer,
+                                                nil,
+                                                MTLPixelFormatR8Unorm,
+                                                width,
+                                                height,
+                                                0, // plane index 0: Y
+                                                &cvTextureY);
+      GrMtlTextureInfo textureInfoY;
+      auto mtlTextureY = CVMetalTextureGetTexture(cvTextureY);
+      textureInfoY.fTexture.retain((__bridge void*)mtlTextureY);
+      
+      CVMetalTextureRef cvTextureCbCr;
+      CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
+                                                _textureCache,
+                                                pixelBuffer,
+                                                nil,
+                                                MTLPixelFormatRG8Unorm,
+                                                width / 2,
+                                                height / 2,
+                                                1, // plane index 1: CbCr
+                                                &cvTextureCbCr);
+      GrMtlTextureInfo textureInfoCbCr;
+      auto mtlTextureCbCr = CVMetalTextureGetTexture(cvTextureCbCr);
+      textureInfoCbCr.fTexture.retain((__bridge void*)mtlTextureCbCr);
 
-  // Combine textures into array
-  GrBackendTexture textures[] {
-    GrBackendTexture(width,
-                     height,
-                     GrMipmapped::kNo,
-                     textureInfoY),
-    GrBackendTexture(width / 2,
-                     height / 2,
-                     GrMipmapped::kNo,
-                     textureInfoCbCr)
-  };
-   
-  // Create YUV map interpretation
-  //  - k420 because we are assuming 420v
-  //  - Y_UV because we have one Y texture, one UV (CbCr) texture
-  //  - Limited YUV Color Space because we are assuming 420v (video). 420f would be Full
-  SkYUVAInfo yuvInfo(SkISize::Make(width, height),
-                     SkYUVAInfo::PlaneConfig::kY_UV,
-                     SkYUVAInfo::Subsampling::k420,
-                     SkYUVColorSpace::kRec709_Limited_SkYUVColorSpace);
-  GrYUVABackendTextures yuvaTextures(yuvInfo,
-                                     textures,
-                                     kTopLeft_GrSurfaceOrigin);
-  
-  
-  auto image = SkImage::MakeFromYUVATextures(_skContext.get(), yuvaTextures);
-  
-  CFRelease(cvTextureY);
-  CFRelease(cvTextureCbCr);
-  
-  return image;
+      // Combine textures into array
+      GrBackendTexture textures[] {
+        GrBackendTexture(width,
+                         height,
+                         GrMipmapped::kNo,
+                         textureInfoY),
+        GrBackendTexture(width / 2,
+                         height / 2,
+                         GrMipmapped::kNo,
+                         textureInfoCbCr)
+      };
+       
+      SkYUVAInfo yuvInfo = getSkYUVAInfoForPixelFormat(SkISize::Make(width, height), format);
+      GrYUVABackendTextures yuvaTextures(yuvInfo,
+                                         textures,
+                                         kTopLeft_GrSurfaceOrigin);
+      
+      
+      auto image = SkImage::MakeFromYUVATextures(_skContext.get(), yuvaTextures);
+      
+      CFRelease(cvTextureY);
+      CFRelease(cvTextureCbCr);
+      
+      return image;
+    }
+      
+    default: {
+      throw std::runtime_error("Camera pushed a Frame with an unknown Pixel Format! Cannot convert to SkImage.");
+    }
+  }
 }
 
 
