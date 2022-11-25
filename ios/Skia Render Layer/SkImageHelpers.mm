@@ -16,6 +16,13 @@
 #import <include/gpu/GrDirectContext.h>
 #import <include/gpu/GrYUVABackendTextures.h>
 
+#include <TargetConditionals.h>
+#if TARGET_RT_BIG_ENDIAN
+#   define FourCC2Str(fourcc) (const char[]){*((char*)&fourcc), *(((char*)&fourcc)+1), *(((char*)&fourcc)+2), *(((char*)&fourcc)+3),0}
+#else
+#   define FourCC2Str(fourcc) (const char[]){*(((char*)&fourcc)+3), *(((char*)&fourcc)+2), *(((char*)&fourcc)+1), *(((char*)&fourcc)+0),0}
+#endif
+
 SkImageHelpers::SkImageHelpers(id<MTLDevice> metalDevice, sk_sp<GrDirectContext> skContext): _metalDevice(metalDevice), _skContext(skContext) {
   // Create a new Texture Cache
   auto result = CVMetalTextureCacheCreate(kCFAllocatorDefault,
@@ -72,7 +79,9 @@ SkYUVAInfo getSkYUVAInfoForPixelFormat(SkISize imageSize, OSType pixelFormat) {
                         SkYUVAInfo::Subsampling::k420,
                         SkYUVColorSpace::kBT2020_10bit_Full_SkYUVColorSpace);
     default:
-      throw std::runtime_error("VisionCamera: Unknown YUV Format, cannot convert to SkYUVAInfo.");
+      auto fourCharCode = @(FourCC2Str(pixelFormat));
+      auto error = std::string("VisionCamera: Unknown YUV Format (") + fourCharCode.UTF8String + std::string(") - cannot convert to SkYUVAInfo.");
+      throw std::runtime_error(error);
   }
 }
 
@@ -163,7 +172,9 @@ sk_sp<SkImage> SkImageHelpers::convertCMSampleBufferToSkImage(CMSampleBufferRef 
     }
       
     default: {
-      throw std::runtime_error("Camera pushed a Frame with an unknown Pixel Format! Cannot convert to SkImage.");
+      auto fourCharCode = @(FourCC2Str(format));
+      auto error = std::string("Camera pushed a Frame with an unknown Pixel Format (") + fourCharCode.UTF8String + std::string(") - cannot convert to SkImage!");
+      throw std::runtime_error(error);
     }
   }
 }
