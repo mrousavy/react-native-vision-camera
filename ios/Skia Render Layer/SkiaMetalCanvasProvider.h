@@ -35,6 +35,7 @@ private:
   float _width = -1;
   float _height = -1;
   float _pixelDensity = 1;
+  
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability-new"
   CAMetalLayer* _layer;
@@ -43,9 +44,10 @@ private:
   CVMetalTextureCacheRef _textureCacheCbCr;
   std::function<void()> _requestRedraw;
 
-  static id<MTLCommandQueue> _commandQueue;
-  static id<MTLDevice> _device;
-  static sk_sp<GrDirectContext> _skContext;
+  id<MTLCommandQueue> _commandQueue;
+  id<MTLDevice> _device;
+  sk_sp<GrDirectContext> _skContext;
+  dispatch_queue_t _runLoopQueue;
   
   std::unique_ptr<SkImageHelpers> _imageHelper;
   

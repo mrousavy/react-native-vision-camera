@@ -11,18 +11,10 @@
 
 #import "SkImageHelpers.h"
 
-// These static class members are used by all Skia Views
-id<MTLDevice> SkiaMetalCanvasProvider::_device = nullptr;
-id<MTLCommandQueue> SkiaMetalCanvasProvider::_commandQueue = nullptr;
-sk_sp<GrDirectContext> SkiaMetalCanvasProvider::_skContext = nullptr;
-
 SkiaMetalCanvasProvider::SkiaMetalCanvasProvider(std::function<void()> requestRedraw): _requestRedraw(requestRedraw) {
-  if (!_device) {
-    _device = MTLCreateSystemDefaultDevice();
-  }
-  if (!_commandQueue) {
-    _commandQueue = id<MTLCommandQueue>(CFRetain((GrMTLHandle)[_device newCommandQueue]));
-  }
+  _device = MTLCreateSystemDefaultDevice();
+  _commandQueue = id<MTLCommandQueue>(CFRetain((GrMTLHandle)[_device newCommandQueue]));
+  _runLoopQueue = dispatch_queue_create("Camera Preview runLoop", DISPATCH_QUEUE_SERIAL);
 
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Wunguarded-availability-new"
@@ -35,15 +27,14 @@ SkiaMetalCanvasProvider::SkiaMetalCanvasProvider(std::function<void()> requestRe
   _layer.contentsScale = getPixelDensity();
   _layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
   
-  auto queue = dispatch_queue_create("Camera Preview runLoop()", DISPATCH_QUEUE_SERIAL);
-  dispatch_async(queue, ^{
+  dispatch_async(_runLoopQueue, ^{
     runLoop();
   });
 }
 
 SkiaMetalCanvasProvider::~SkiaMetalCanvasProvider() {
   if([[NSThread currentThread] isMainThread]) {
-    _layer = NULL;
+    _layer = nil;
   } else {
     __block auto tempLayer = _layer;
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -62,7 +53,14 @@ SkiaMetalCanvasProvider::~SkiaMetalCanvasProvider() {
 void SkiaMetalCanvasProvider::runLoop() {
   while (_layer != nil) {
     @autoreleasepool {
+      // Blocks until the next Frame is ready (16ms at 60 FPS)
       auto tempDrawable = [_layer nextDrawable];
+      
+      // If the View deallocated in the meantime, just abort.
+      if (_layer == nil) {
+        return;
+      }
+      
 #if DEBUG
       auto start = CFAbsoluteTimeGetCurrent();
 #endif
