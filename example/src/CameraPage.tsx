@@ -22,11 +22,9 @@ import { CaptureButton } from './views/CaptureButton';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { examplePlugin } from './frame-processors/ExamplePlugin';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
-import { PaintStyle, SkCanvas, useDrawCallback } from '@shopify/react-native-skia';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -35,37 +33,6 @@ Reanimated.addWhitelistedNativeProps({
 
 const SCALE_FULL_ZOOM = 3;
 const BUTTON_SIZE = 40;
-
-const invertedColorsShader = `
-uniform shader image;
-
-half4 main(vec2 pos) {
-  vec4 color = image.eval(pos);
-  return vec4(1.0 - color.rgb, 1.0);
-}
-`;
-
-const chromaticAberrationShader = `
-uniform shader image;
-
-vec4 chromatic(vec2 pos, float offset) {
-  float r = image.eval(pos).r;
-  float g = image.eval(vec2(pos.x + offset, pos.y)).g;
-  float b = image.eval(vec2(pos.x + offset * 2.0, pos.y)).b;
-  return vec4(r, g, b, 1.0);
-}
-
-half4 main(vec2 pos) {
-  float offset = 50.0;
-  return chromatic(pos, offset);
-}
-`;
-
-const noShader = `
-half4 main(vec2 pos) {
-  return vec4(1.0);
-}
-`;
 
 const faceShader = `
   uniform shader image;
@@ -306,28 +273,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     }
 
     console.log('after');
-
-    // const runtimeEffect = SkiaApi.RuntimeEffect.Make(shaderToUse.value);
-    // if (runtimeEffect == null) throw new Error('Shader failed to compile!');
-
-    // const shaderBuilder = SkiaApi.RuntimeShaderBuilder(runtimeEffect);
-    // const imageFilter = SkiaApi.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
-
-    // const paint = SkiaApi.Paint();
-    // paint.setImageFilter(imageFilter);
-
-    // frame.render();
   }, []);
-
-  // useEffect(() => {
-  //   const i = setInterval(() => {
-  //     console.log('Switching Shader!');
-  //     if (shaderToUse.value === noShader) shaderToUse.value = invertedColorsShader;
-  //     if (shaderToUse.value === invertedColorsShader) shaderToUse.value = chromaticAberrationShader;
-  //     if (shaderToUse.value === chromaticAberrationShader) shaderToUse.value = noShader;
-  //   }, 3000);
-  //   return () => clearInterval(i);
-  // }, [shaderToUse]);
 
   const onFrameProcessorSuggestionAvailable = useCallback((suggestion: FrameProcessorPerformanceSuggestion) => {
     console.log(`Suggestion available! ${suggestion.type}: Can do ${suggestion.suggestedFrameProcessorFps} FPS`);
