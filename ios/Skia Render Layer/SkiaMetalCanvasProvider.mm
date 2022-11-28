@@ -60,25 +60,22 @@ void SkiaMetalCanvasProvider::runLoop() {
 #if DEBUG
       auto end = CFAbsoluteTimeGetCurrent();
       auto lockTime = (end - start) * 1000;
-      if (lockTime > 1) {
-        NSLog(@"The previous draw call took so long that it blocked a new Frame from coming in for %f ms!", lockTime);
+      auto diffTime = lockTime - getFrameTime();
+      if (diffTime > 1) {
+        NSLog(@"The previous draw call took so long that it blocked a new Frame from coming in for %f ms!", diffTime);
       }
 #endif
     }
   }
 }
 
-float SkiaMetalCanvasProvider::getPixelDensity() { return _pixelDensity; }
+float SkiaMetalCanvasProvider::getPixelDensity() {
+  return UIScreen.mainScreen.scale;
+}
 
-/**
- Returns the scaled width of the view
- */
-float SkiaMetalCanvasProvider::getScaledWidth() { return _width * getPixelDensity(); };
-
-/**
- Returns the scaled height of the view
- */
-float SkiaMetalCanvasProvider::getScaledHeight() { return _height * getPixelDensity(); };
+float SkiaMetalCanvasProvider::getFrameTime() {
+  return 1000.0f / UIScreen.mainScreen.maximumFramesPerSecond;
+}
 
 /**
  Render to a canvas
@@ -210,7 +207,6 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
 void SkiaMetalCanvasProvider::setSize(int width, int height) {
   _width = width;
   _height = height;
-  _pixelDensity = [[UIScreen mainScreen] scale];
   _layer.frame = CGRectMake(0, 0, width, height);
   _layer.drawableSize = CGSizeMake(width * getPixelDensity(),
                                    height* getPixelDensity());

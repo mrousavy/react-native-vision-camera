@@ -21,22 +21,14 @@ public:
   SkiaMetalCanvasProvider();
   ~SkiaMetalCanvasProvider();
 
-  float getPixelDensity();
-  float getScaledWidth();
-  float getScaledHeight();
-
   void renderFrameToCanvas(CMSampleBufferRef sampleBuffer, const std::function<void(SkCanvas*)>& drawCallback);
-
-  void setSize(int width, int height);
-
-  CALayer* getLayer();
   
-  std::unique_ptr<SkImageHelpers> _imageHelper;
+  void setSize(int width, int height);
+  CALayer* getLayer();
 
 private:
   float _width = -1;
   float _height = -1;
-  float _pixelDensity = 1;
   
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunguarded-availability-new"
@@ -48,7 +40,6 @@ private:
   sk_sp<GrDirectContext> _skContext;
   dispatch_queue_t _runLoopQueue;
   
-  
   id<CAMetalDrawable> _currentDrawable;
   std::mutex _drawableMutex;
   
@@ -56,5 +47,8 @@ private:
   
 private:
   void runLoop();
+  
+  float getFrameTime();
+  float getPixelDensity();
 };
 
