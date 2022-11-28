@@ -24,7 +24,11 @@ SkiaMetalCanvasProvider::SkiaMetalCanvasProvider(): std::enable_shared_from_this
   _layer.device = _device;
   _layer.opaque = false;
   _layer.contentsScale = getPixelDensity();
+  // TODO: sRGB? Or nah?
   _layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+  if (@available(iOS 11.2, *)) {
+    _layer.maximumDrawableCount = 2;
+  }
   
   _isValid = true;
   
