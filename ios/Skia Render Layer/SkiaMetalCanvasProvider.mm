@@ -26,50 +26,45 @@ SkiaMetalCanvasProvider::SkiaMetalCanvasProvider(): std::enable_shared_from_this
   _layer.contentsScale = getPixelDensity();
   // TODO: sRGB? Or nah?
   _layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
-  if (@available(iOS 11.2, *)) {
-    _layer.maximumDrawableCount = 2;
-  }
   
   _isValid = true;
   
-  dispatch_async(_runLoopQueue, ^{
-    runLoop();
-    NSLog(@"SkiaMetalCanvasProvider: End run loop.");
-  });
+  _displayLink = [[VisionDisplayLink alloc] init];
+  [_displayLink start:[weakThis = weak_from_this()](double time) {
+    auto thiz = weakThis.lock();
+    if (thiz) {
+      thiz->render();
+    }
+  }];
 }
 
 SkiaMetalCanvasProvider::~SkiaMetalCanvasProvider() {
   _isValid = false;
+  [_displayLink stop];
 }
 
-void SkiaMetalCanvasProvider::runLoop() {
-  // We get a shared_ptr for `this` instance so that we can be sure it doesn't get deallocated
-  // in the meantime from another Thread (e.g. if the Main UI Thread destroys the view)
-  auto lockedThis = shared_from_this();
-  
-  while (_isValid && _layer != nil) {
-    @autoreleasepool {
-      // Blocks until the next Frame is ready (16ms at 60 FPS)
-      auto tempDrawable = [_layer nextDrawable];
-      
-      // After we got a new Drawable (from blocking call), make sure we're still valid
-      if (!_isValid) return;
-      
+void SkiaMetalCanvasProvider::render() {
+  @autoreleasepool {
+    // Blocks until the next Frame is ready (16ms at 60 FPS)
+    auto tempDrawable = [_layer nextDrawable];
+    
+    // After we got a new Drawable (from blocking call), make sure we're still valid
+    if (!_isValid) return;
+    
 #if DEBUG
-      auto start = CFAbsoluteTimeGetCurrent();
+    auto start = CFAbsoluteTimeGetCurrent();
 #endif
-      std::unique_lock lock(_drawableMutex);
-      _currentDrawable = tempDrawable;
-      lock.unlock();
+    std::unique_lock lock(_drawableMutex);
+    _currentDrawable = tempDrawable;
+    lock.unlock();
 #if DEBUG
-      auto end = CFAbsoluteTimeGetCurrent();
-      auto lockTime = (end - start) * 1000;
-      auto diffTime = lockTime - getFrameTime();
-      if (diffTime > 1) {
-        NSLog(@"The previous draw call took so long that it blocked a new Frame from coming in for %f ms!", diffTime);
-      }
-#endif
+    auto end = CFAbsoluteTimeGetCurrent();
+    auto lockTime = (end - start) * 1000;
+    auto diffTime = lockTime - getFrameTime();
+    if (diffTime > 1) {
+      NSLog(@"The previous draw call took so long that it blocked a new Frame from coming in for %f ms!", diffTime);
     }
+#endif
   }
 }
 

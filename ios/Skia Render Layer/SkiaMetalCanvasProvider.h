@@ -14,6 +14,8 @@
 #include <mutex>
 #include <memory>
 
+#import "VisionDisplayLink.h"
+
 class SkiaMetalCanvasProvider: public std::enable_shared_from_this<SkiaMetalCanvasProvider> {
 public:
   SkiaMetalCanvasProvider();
@@ -32,6 +34,7 @@ private:
 #pragma clang diagnostic ignored "-Wunguarded-availability-new"
   CAMetalLayer* _layer;
 #pragma clang diagnostic pop
+  VisionDisplayLink* _displayLink;
 
   id<MTLCommandQueue> _commandQueue;
   id<MTLDevice> _device;
@@ -44,7 +47,7 @@ private:
   bool _isValid;
   
 private:
-  void runLoop();
+  void render();
   
   float getFrameTime();
   float getPixelDensity();
