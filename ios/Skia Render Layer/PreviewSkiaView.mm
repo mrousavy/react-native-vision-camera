@@ -15,7 +15,7 @@
 #include <string>
 
 @implementation PreviewSkiaView {
-  std::unique_ptr<SkiaMetalCanvasProvider> _canvasProvider;
+  std::shared_ptr<SkiaMetalCanvasProvider> _canvasProvider;
 }
 
 - (void)drawFrame:(CMSampleBufferRef)buffer {
@@ -42,7 +42,7 @@
   } else {
     // Create implementation view when the parent view is set
     if (_canvasProvider == nullptr) {
-      _canvasProvider = std::make_unique<SkiaMetalCanvasProvider>();
+      _canvasProvider = std::make_shared<SkiaMetalCanvasProvider>();
       [self.layer addSublayer: _canvasProvider->getLayer()];
     }
   }

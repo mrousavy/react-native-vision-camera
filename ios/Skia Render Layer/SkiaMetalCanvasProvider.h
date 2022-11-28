@@ -14,11 +14,11 @@
 #import "SkImage.h"
 #import "SkImageHelpers.h"
 #include <mutex>
+#include <memory>
 
-class SkiaMetalCanvasProvider {
+class SkiaMetalCanvasProvider: public std::enable_shared_from_this<SkiaMetalCanvasProvider> {
 public:
   SkiaMetalCanvasProvider();
-
   ~SkiaMetalCanvasProvider();
 
   float getPixelDensity();

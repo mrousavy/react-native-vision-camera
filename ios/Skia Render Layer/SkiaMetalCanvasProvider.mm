@@ -11,7 +11,7 @@
 
 #import "SkImageHelpers.h"
 
-SkiaMetalCanvasProvider::SkiaMetalCanvasProvider() {
+SkiaMetalCanvasProvider::SkiaMetalCanvasProvider(): std::enable_shared_from_this<SkiaMetalCanvasProvider>() {
   _device = MTLCreateSystemDefaultDevice();
   _commandQueue = id<MTLCommandQueue>(CFRetain((GrMTLHandle)[_device newCommandQueue]));
   _runLoopQueue = dispatch_queue_create("Camera Preview runLoop", DISPATCH_QUEUE_SERIAL);
@@ -40,6 +40,10 @@ SkiaMetalCanvasProvider::~SkiaMetalCanvasProvider() {
 }
 
 void SkiaMetalCanvasProvider::runLoop() {
+  // We get a shared_ptr for `this` instance so that we can be sure it doesn't get deallocated
+  // in the meantime from another Thread (e.g. if the Main UI Thread destroys the view)
+  auto lockedThis = shared_from_this();
+  
   while (_isValid && _layer != nil) {
     @autoreleasepool {
       // Blocks until the next Frame is ready (16ms at 60 FPS)
