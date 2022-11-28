@@ -10,9 +10,7 @@
 #import <AVFoundation/AVFoundation.h>
 
 #include <functional>
-#import <include/gpu/GrDirectContext.h>
-#import "SkImage.h"
-#import "SkImageHelpers.h"
+#include <include/gpu/GrDirectContext.h>
 #include <mutex>
 #include <memory>
 
