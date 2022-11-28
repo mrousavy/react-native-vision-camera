@@ -67,6 +67,38 @@ half4 main(vec2 pos) {
 }
 `;
 
+const faceShader = `
+  uniform shader image;
+  uniform float x;
+  uniform float y;
+  uniform float r;
+  uniform vec2 resolution;
+
+  const float samples = 3.0;
+  const float radius = 40.0;
+  const float weight = 1.0;
+
+  half4 main(vec2 pos) {
+    float delta = pow((pow(pos.x - x, 2) + pow(pos.y - y, 2)), 0.5);
+    if (delta < r) {
+      vec3 sum = vec3(0.0);
+      vec3 accumulation = vec3(0);
+      vec3 weightedsum = vec3(0);
+      for (float deltaX = -samples * radius; deltaX <= samples * radius; deltaX += radius / samples) {
+        for (float deltaY = -samples * radius; deltaY <= samples * radius; deltaY += radius / samples) {
+          accumulation += image.eval(vec2(pos.x + deltaX, pos.y + deltaY)).rgb;
+          weightedsum += weight;
+        }
+      }
+      sum = accumulation / weightedsum;
+      return vec4(sum, 1.0);
+    }
+    else {
+      return image.eval(pos);
+    }
+  }
+`;
+
 type Props = NativeStackScreenProps<Routes, 'CameraPage'>;
 export function CameraPage({ navigation }: Props): React.ReactElement {
   const camera = useRef<Camera>(null);
@@ -229,39 +261,73 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const shaderToUse = useSharedValue(noShader);
+  const frameProcessor = useFrameProcessor((frame) => {
+    'worklet';
 
-  const frameProcessor = useFrameProcessor(
-    (frame) => {
-      'worklet';
+    type FaceDetection = {
+      boundingBox: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+      };
+      score: number;
+    };
 
-      console.log('before');
-      const faces = __detectFaces(frame);
-      console.log('after', faces);
+    console.log('before');
+    const faces = __detectFaces(frame) as FaceDetection[] | undefined;
 
-      const runtimeEffect = SkiaApi.RuntimeEffect.Make(shaderToUse.value);
-      if (runtimeEffect == null) throw new Error('Shader failed to compile!');
+    if (faces != null) {
+      const topResult = faces.sort((a, b) => b.score - a.score)[0];
+      console.log(topResult);
 
-      const shaderBuilder = SkiaApi.RuntimeShaderBuilder(runtimeEffect);
-      const imageFilter = SkiaApi.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
+      if (topResult != null) {
+        const { x: _x, y, width, height } = topResult.boundingBox;
+        const x = frame.width - _x;
+        const centerX = x + width / 2;
+        const centerY = y + height / 2;
 
-      const paint = SkiaApi.Paint();
-      paint.setImageFilter(imageFilter);
+        const runtimeEffect = SkiaApi.RuntimeEffect.Make(faceShader);
+        if (runtimeEffect == null) throw new Error('Shader failed to compile!');
+        const shaderBuilder = SkiaApi.RuntimeShaderBuilder(runtimeEffect);
+        shaderBuilder.setUniform('r', [width]);
+        shaderBuilder.setUniform('x', [centerX]);
+        shaderBuilder.setUniform('y', [centerY]);
+        shaderBuilder.setUniform('resolution', [frame.width, frame.height]);
+        const imageFilter = SkiaApi.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
 
-      //frame.render(paint);
-    },
-    [shaderToUse],
-  );
+        const paint = SkiaApi.Paint();
+        paint.setImageFilter(imageFilter);
 
-  useEffect(() => {
-    const i = setInterval(() => {
-      console.log('Switching Shader!');
-      if (shaderToUse.value === noShader) shaderToUse.value = invertedColorsShader;
-      if (shaderToUse.value === invertedColorsShader) shaderToUse.value = chromaticAberrationShader;
-      if (shaderToUse.value === chromaticAberrationShader) shaderToUse.value = noShader;
-    }, 3000);
-    return () => clearInterval(i);
-  }, [shaderToUse]);
+        frame.render(paint);
+      } else {
+        frame.render();
+      }
+    }
+
+    console.log('after');
+
+    // const runtimeEffect = SkiaApi.RuntimeEffect.Make(shaderToUse.value);
+    // if (runtimeEffect == null) throw new Error('Shader failed to compile!');
+
+    // const shaderBuilder = SkiaApi.RuntimeShaderBuilder(runtimeEffect);
+    // const imageFilter = SkiaApi.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
+
+    // const paint = SkiaApi.Paint();
+    // paint.setImageFilter(imageFilter);
+
+    // frame.render();
+  }, []);
+
+  // useEffect(() => {
+  //   const i = setInterval(() => {
+  //     console.log('Switching Shader!');
+  //     if (shaderToUse.value === noShader) shaderToUse.value = invertedColorsShader;
+  //     if (shaderToUse.value === invertedColorsShader) shaderToUse.value = chromaticAberrationShader;
+  //     if (shaderToUse.value === chromaticAberrationShader) shaderToUse.value = noShader;
+  //   }, 3000);
+  //   return () => clearInterval(i);
+  // }, [shaderToUse]);
 
   const onFrameProcessorSuggestionAvailable = useCallback((suggestion: FrameProcessorPerformanceSuggestion) => {
     console.log(`Suggestion available! ${suggestion.type}: Can do ${suggestion.suggestedFrameProcessorFps} FPS`);
