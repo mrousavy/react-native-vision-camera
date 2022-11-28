@@ -41,7 +41,6 @@ void SkiaMetalCanvasProvider::start() {
   [_displayLink start:[weakThis = weak_from_this()](double time) {
     auto thiz = weakThis.lock();
     if (thiz) {
-      
       thiz->render();
     }
   }];
