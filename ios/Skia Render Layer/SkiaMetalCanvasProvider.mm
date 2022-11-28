@@ -7,7 +7,6 @@
 #import <include/core/SkSurface.h>
 #import <include/core/SkCanvas.h>
 #import <include/gpu/GrDirectContext.h>
-#import <include/gpu/GrYUVABackendTextures.h>
 
 #import "SkImageHelpers.h"
 
@@ -97,9 +96,6 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
                                             (__bridge void*)_commandQueue,
                                             grContextOptions);
   }
-  if (_imageHelper == nil) {
-    _imageHelper = std::make_unique<SkImageHelpers>(_device, _skContext);
-  }
 
   // Wrap in auto release pool since we want the system to clean up after rendering
   // and not wait until later - we've seen some example of memory usage growing very
@@ -149,8 +145,8 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
 #if DEBUG
     auto startConvert = CFAbsoluteTimeGetCurrent();
 #endif
-    // Converts the CMSampleBuffer to an SkImage - YUV or RGB.
-    auto image = _imageHelper->convertCMSampleBufferToSkImage(sampleBuffer);
+    // Converts the CMSampleBuffer to an SkImage - RGB.
+    auto image = SkImageHelpers::convertCMSampleBufferToSkImage(sampleBuffer);
 #if DEBUG
     auto endConvert = CFAbsoluteTimeGetCurrent();
     NSLog(@"CMSampleBuffer -> SkImage conversion took %f ms", (endConvert - startConvert) * 1000);
@@ -162,7 +158,7 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     // Calculate Center Crop (aspectRatio: cover) transform
     auto sourceRect = SkRect::MakeXYWH(0, 0, image->width(), image->height());
     auto destinationRect = SkRect::MakeXYWH(0, 0, surface->width(), surface->height());
-    sourceRect = _imageHelper->createCenterCropRect(sourceRect, destinationRect);
+    sourceRect = SkImageHelpers::createCenterCropRect(sourceRect, destinationRect);
     
     auto offsetX = -sourceRect.left();
     auto offsetY = -sourceRect.top();

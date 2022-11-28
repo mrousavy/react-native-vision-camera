@@ -21,7 +21,6 @@
 
 #import "RNSkPlatformContext.h"
 #import "RNSkiOSPlatformContext.h"
-#import "../Skia Render Layer/SkImageHelpers.h"
 #import <JsiSkCanvas.h>
 
 FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime& runtime, const jsi::Function& value) {
@@ -31,9 +30,9 @@ FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime& 
   
   auto canvasHostObject = std::make_shared<RNSkia::JsiSkCanvas>(platformContext);
   
-  return ^(Frame* frame, void* skCanvas, void* imageHelpers) {
+  return ^(Frame* frame, void* skCanvas) {
     canvasHostObject->setCanvas((SkCanvas*)skCanvas);
-    auto frameHostObject = std::make_shared<FrameHostObject>(frame, canvasHostObject, (SkImageHelpers*)imageHelpers);
+    auto frameHostObject = std::make_shared<FrameHostObject>(frame, canvasHostObject);
     try {
       cb.callWithThis(runtime,
                       cb,

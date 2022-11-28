@@ -70,7 +70,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "render") {
     auto render = [this] (jsi::Runtime& runtime, const jsi::Value&, const jsi::Value* params, size_t size) -> jsi::Value {
       // convert CMSampleBuffer to SkImage
-      auto image = _imageHelpers->convertCMSampleBufferToSkImage(frame.buffer);
+      auto image = SkImageHelpers::convertCMSampleBufferToSkImage(frame.buffer);
       
       // draw SkImage
       if (size > 0) {

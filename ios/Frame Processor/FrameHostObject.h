@@ -21,10 +21,7 @@ using namespace facebook;
 class JSI_EXPORT FrameHostObject: public jsi::HostObject {
 public:
   explicit FrameHostObject(Frame* frame): frame(frame) {}
-  explicit FrameHostObject(Frame* frame,
-                           std::shared_ptr<RNSkia::JsiSkCanvas> canvas,
-                           SkImageHelpers* imageHelpers):
-    frame(frame), canvas(canvas), _imageHelpers(imageHelpers) {}
+  explicit FrameHostObject(Frame* frame, std::shared_ptr<RNSkia::JsiSkCanvas> canvas): frame(frame), canvas(canvas) {}
 
 public:
   jsi::Value get(jsi::Runtime&, const jsi::PropNameID& name) override;
@@ -34,9 +31,6 @@ public:
 public:
   Frame* frame;
   std::shared_ptr<RNSkia::JsiSkCanvas> canvas;
-  
-private:
-  SkImageHelpers* _imageHelpers;
 
 private:
   void assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName);
