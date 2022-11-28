@@ -23,6 +23,7 @@ public:
 
   void renderFrameToCanvas(CMSampleBufferRef sampleBuffer, const std::function<void(SkCanvas*)>& drawCallback);
   
+  void start();
   void setSize(int width, int height);
   CALayer* getLayer();
 

@@ -30,17 +30,21 @@ SkiaMetalCanvasProvider::SkiaMetalCanvasProvider(): std::enable_shared_from_this
   _isValid = true;
   
   _displayLink = [[VisionDisplayLink alloc] init];
-  [_displayLink start:[weakThis = weak_from_this()](double time) {
-    auto thiz = weakThis.lock();
-    if (thiz) {
-      thiz->render();
-    }
-  }];
 }
 
 SkiaMetalCanvasProvider::~SkiaMetalCanvasProvider() {
   _isValid = false;
   [_displayLink stop];
+}
+
+void SkiaMetalCanvasProvider::start() {
+  [_displayLink start:[weakThis = weak_from_this()](double time) {
+    auto thiz = weakThis.lock();
+    if (thiz) {
+      
+      thiz->render();
+    }
+  }];
 }
 
 void SkiaMetalCanvasProvider::render() {

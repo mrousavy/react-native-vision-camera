@@ -44,6 +44,7 @@
     if (_canvasProvider == nullptr) {
       _canvasProvider = std::make_shared<SkiaMetalCanvasProvider>();
       [self.layer addSublayer: _canvasProvider->getLayer()];
+      _canvasProvider->start();
     }
   }
 }
