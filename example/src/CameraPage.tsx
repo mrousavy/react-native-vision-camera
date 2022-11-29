@@ -5,7 +5,6 @@ import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler
 import {
   CameraDeviceFormat,
   CameraRuntimeError,
-  FrameProcessorPerformanceSuggestion,
   PhotoFile,
   sortFormats,
   useCameraDevices,
@@ -275,10 +274,6 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('after');
   }, []);
 
-  const onFrameProcessorSuggestionAvailable = useCallback((suggestion: FrameProcessorPerformanceSuggestion) => {
-    console.log(`Suggestion available! ${suggestion.type}: Can do ${suggestion.suggestedFrameProcessorFps} FPS`);
-  }, []);
-
   console.log(format?.pixelFormat);
 
   return (
@@ -305,8 +300,6 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 audio={hasMicrophonePermission}
                 frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
                 orientation="portrait"
-                frameProcessorFps={1}
-                onFrameProcessorPerformanceSuggestionAvailable={onFrameProcessorSuggestionAvailable}
               />
             </TapGestureHandler>
           </Reanimated.View>

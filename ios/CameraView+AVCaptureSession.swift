@@ -146,9 +146,6 @@ extension CameraView {
       captureSession.addOutput(videoOutput!)
     }
 
-    // set FP
-    previewView.frameProcessorCallback = frameProcessorCallback
-
     onOrientationChanged()
 
     invokeOnInitialized()
