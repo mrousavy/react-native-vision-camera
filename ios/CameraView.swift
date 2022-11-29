@@ -92,7 +92,6 @@ public final class CameraView: UIView {
   internal var isRecording = false
   internal var recordingSession: RecordingSession?
   @objc public var frameProcessorCallback: FrameProcessorCallback?
-  internal var lastFrameProcessorCall = DispatchTime.now().uptimeNanoseconds
   // CameraView+TakePhoto
   internal var photoCaptureDelegates: [PhotoCaptureDelegate] = []
   // CameraView+Zoom
@@ -102,9 +101,6 @@ public final class CameraView: UIView {
   internal let cameraQueue = CameraQueues.cameraQueue
   internal let videoQueue = CameraQueues.videoQueue
   internal let audioQueue = CameraQueues.audioQueue
-
-  /// Specifies whether the frameProcessor() function is currently executing. used to drop late frames.
-  internal var isRunningFrameProcessor = false
 
   internal var previewView: PreviewSkiaView
 
