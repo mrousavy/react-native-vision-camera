@@ -65,7 +65,7 @@ void SkiaMetalCanvasProvider::render() {
     auto diffTime = _displayLink.frameTimeLate;
     if (diffTime > 25) {
       // it is larger than 25ms, which is definitely a noticeable Frame drop. Warn the user.
-      auto message = [NSString stringWithFormat:@"The previous draw call took so long that it blocked a new Frame from coming in for %f ms!", diffTime];
+      auto message = [NSString stringWithFormat:@"The previous draw call took so long that it blocked a new Frame from coming in for %f ms. Optimize your Frame Processor!", diffTime];
       [RCTBridge logToJS:RCTLogLevelWarning message:message];
     }
 #endif
