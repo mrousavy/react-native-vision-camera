@@ -22,6 +22,7 @@ extension CameraView {
     }
   }
   
+  /// Converts a Point in the UI View Layer to a Point in the Camera Frame coordinate system
   func convertLayerPointToFramePoint(layerPoint point: CGPoint) -> CGPoint {
     guard let videoDeviceInput = videoDeviceInput else {
       invokeOnError(.session(.cameraNotReady))
@@ -47,6 +48,18 @@ extension CameraView {
     return CGPoint(x: scaledPoint.x - (overlapX / 2), y: scaledPoint.y - (overlapY / 2))
   }
   
+  /// Converts a Point in the UI View Layer to a Point in the Camera Device Sensor coordinate system (x: [0..1], y: [0..1])
+  func captureDevicePointConverted(fromLayerPoint pointInLayer: CGPoint) -> CGPoint {
+    guard let videoDeviceInput = videoDeviceInput else {
+      invokeOnError(.session(.cameraNotReady))
+      return .zero
+    }
+    let frameSize = rotateFrameSize(frameSize: videoDeviceInput.device.activeFormat.videoDimensions,
+                                    orientation: outputOrientation)
+    let pointInFrame = convertLayerPointToFramePoint(layerPoint: pointInLayer)
+    return CGPoint(x: pointInFrame.x / frameSize.width, y: pointInFrame.y / frameSize.height)
+  }
+  
   func focus(point: CGPoint, promise: Promise) {
     withPromise(promise) {
       guard let device = self.videoDeviceInput?.device else {
@@ -56,7 +69,8 @@ extension CameraView {
         throw CameraError.device(DeviceError.focusNotSupported)
       }
       
-      let normalizedPoint = convertLayerPointToFramePoint(layerPoint: point)
+      // in {0..1} system
+      let normalizedPoint = captureDevicePointConverted(fromLayerPoint: point)
 
       do {
         try device.lockForConfiguration()
