@@ -15,6 +15,7 @@
 #include <memory>
 
 #import "VisionDisplayLink.h"
+#import "SkImageHelpers.h"
 
 class SkiaMetalCanvasProvider: public std::enable_shared_from_this<SkiaMetalCanvasProvider> {
 public:
@@ -26,6 +27,8 @@ public:
   void start();
   void setSize(int width, int height);
   CALayer* getLayer();
+  
+  std::shared_ptr<SkImageHelpers> imageHelpers;
 
 private:
   float _width = -1;

@@ -10,6 +10,8 @@
 
 #import "SkImageHelpers.h"
 
+#include <memory>
+
 SkiaMetalCanvasProvider::SkiaMetalCanvasProvider(): std::enable_shared_from_this<SkiaMetalCanvasProvider>() {
   _device = MTLCreateSystemDefaultDevice();
   _commandQueue = id<MTLCommandQueue>(CFRetain((GrMTLHandle)[_device newCommandQueue]));
@@ -85,15 +87,18 @@ float SkiaMetalCanvasProvider::getFrameTime() {
 void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer, const std::function<void(SkCanvas*)>& drawCallback) {
   auto start = CFAbsoluteTimeGetCurrent();
   
-  if(_width == -1 && _height == -1) {
+  if (_width == -1 && _height == -1) {
     return;
   }
 
-  if(_skContext == nullptr) {
+  if (_skContext == nullptr) {
     GrContextOptions grContextOptions;
     _skContext = GrDirectContext::MakeMetal((__bridge void*)_device,
                                             (__bridge void*)_commandQueue,
                                             grContextOptions);
+  }
+  if (imageHelpers == nullptr) {
+    imageHelpers = std::make_shared<SkImageHelpers>(_device, _skContext);
   }
 
   // Wrap in auto release pool since we want the system to clean up after rendering
@@ -145,7 +150,7 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     auto startConvert = CFAbsoluteTimeGetCurrent();
 #endif
     // Converts the CMSampleBuffer to an SkImage - RGB.
-    auto image = SkImageHelpers::convertCMSampleBufferToSkImage(sampleBuffer);
+    auto image = imageHelpers->convertCMSampleBufferToSkImage(sampleBuffer);
 #if DEBUG
     auto endConvert = CFAbsoluteTimeGetCurrent();
     NSLog(@"CMSampleBuffer -> SkImage conversion took %f ms", (endConvert - startConvert) * 1000);

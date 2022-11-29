@@ -14,6 +14,7 @@
 #import <include/core/SkSurface.h>
 #import <include/core/SkCanvas.h>
 #import <include/core/SkData.h>
+#import <include/gpu/GrRecordingContext.h>
 
 #include <TargetConditionals.h>
 #if TARGET_RT_BIG_ENDIAN
@@ -22,29 +23,60 @@
 #   define FourCC2Str(fourcc) (const char[]){*(((char*)&fourcc)+3), *(((char*)&fourcc)+2), *(((char*)&fourcc)+1), *(((char*)&fourcc)+0),0}
 #endif
 
+SkImageHelpers::SkImageHelpers(id<MTLDevice> device, sk_sp<GrRecordingContext> context): _context(context) {
+  // Create a new Texture Cache
+   auto result = CVMetalTextureCacheCreate(kCFAllocatorDefault,
+                                           nil,
+                                           device,
+                                           nil,
+                                           &_textureCache);
+   if (result != kCVReturnSuccess) {
+     throw std::runtime_error("Failed to create Metal Texture Cache!");
+   }
+}
+
 sk_sp<SkImage> SkImageHelpers::convertCMSampleBufferToSkImage(CMSampleBufferRef sampleBuffer) {
   auto pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
-  
+  double width = CVPixelBufferGetWidth(pixelBuffer);
+  double height = CVPixelBufferGetHeight(pixelBuffer);
+
+  // Make sure the format is RGB (BGRA_8888)
   auto format = CVPixelBufferGetPixelFormatType(pixelBuffer);
-  
   if (format != kCVPixelFormatType_32BGRA) {
     auto fourCharCode = @(FourCC2Str(format));
     auto error = std::string("VisionCamera: Frame has unknown Pixel Format (") + fourCharCode.UTF8String + std::string(") - cannot convert to SkImage!");
     throw std::runtime_error(error);
   }
-  
-  // RGB (BGRA 8888)
-  // [B G R A B G R A B G R A B G R A]
-  auto srcBuff = CVPixelBufferGetBaseAddress(pixelBuffer);
-  auto bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer);
-  double width = CVPixelBufferGetWidth(pixelBuffer);
-  double height = CVPixelBufferGetHeight(pixelBuffer);
-  auto info = SkImageInfo::Make(width,
-                                height,
-                                kBGRA_8888_SkColorType,
-                                kOpaque_SkAlphaType);
-  auto data = SkData::MakeWithoutCopy(srcBuff, bytesPerRow * height);
-  auto image = SkImage::MakeRasterData(info, data, bytesPerRow);
+
+  // Convert CMSampleBuffer* -> CVMetalTexture*
+  CVMetalTextureRef cvTexture;
+  CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
+                                           _textureCache,
+                                           pixelBuffer,
+                                           nil,
+                                           MTLPixelFormatBGRA8Unorm,
+                                           width,
+                                           height,
+                                           0, // plane index
+                                           &cvTexture);
+  GrMtlTextureInfo textureInfo;
+  auto mtlTexture = CVMetalTextureGetTexture(cvTexture);
+  textureInfo.fTexture.retain((__bridge void*)mtlTexture);
+
+  // Wrap it in a GrBackendTexture
+  GrBackendTexture texture(width, height, GrMipmapped::kNo, textureInfo);
+
+  // Create an SkImage from the existing texture
+  auto image = SkImage::MakeFromTexture(_context.get(),
+                                        texture,
+                                        kTopLeft_GrSurfaceOrigin,
+                                        kBGRA_8888_SkColorType,
+                                        kOpaque_SkAlphaType,
+                                        SkColorSpace::MakeSRGB());
+
+  // Release the Texture wrapper (it will still be strong)
+  CFRelease(cvTexture);
+
   return image;
 }
 
@@ -55,7 +87,7 @@ SkRect SkImageHelpers::createCenterCropRect(SkRect sourceRect, SkRect destinatio
   } else {
     src = SkSize::Make((sourceRect.height() * destinationRect.width()) / destinationRect.height(), sourceRect.height());
   }
-  
+
   return inscribe(src, sourceRect);
 }
 
