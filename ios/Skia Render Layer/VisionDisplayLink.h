@@ -27,11 +27,11 @@ typedef void (^block_t)(double);
 // Stop the DisplayLink's runLoop
 - (void)stop;
 
-// The time (in milliseconds) we have until a next Frame is requested. If negative, we are dropping a Frame.
-- (double)timeUntilNextFrame;
-
 // Get the current FPS value
 - (double)currentFps;
+
+// The FPS value this DisplayLink is targeting
+- (double)targetFps;
 
 @end
 

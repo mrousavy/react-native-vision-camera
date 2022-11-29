@@ -52,6 +52,9 @@ void SkiaMetalCanvasProvider::start() {
   }];
 }
 
+/**
+ Callback from the DisplayLink - replaces a new drawable on the screen.
+ */
 void SkiaMetalCanvasProvider::render() {
   @autoreleasepool {
     // Blocks until the next Frame is ready (16ms at 60 FPS)
@@ -63,15 +66,6 @@ void SkiaMetalCanvasProvider::render() {
     std::unique_lock lock(_drawableMutex);
     _currentDrawable = tempDrawable;
     lock.unlock();
-    
-#if DEBUG
-    // time we have left for the next Frame
-    auto timeLeft = _displayLink.timeUntilNextFrame;
-    if (timeLeft < 0) {
-      // we have negative time left for a new frame, meaning we already skipped the next one. warn the user
-      NSLog(@"The previous draw call took so long that it blocked a new Frame from coming in for %f ms. Optimize your Frame Processor!", abs(timeLeft));
-    }
-#endif
   }
 }
 
@@ -80,13 +74,12 @@ float SkiaMetalCanvasProvider::getPixelDensity() {
 }
 
 /**
- Render to a canvas
+ Render to a canvas. This uses the current in-memory drawable (received from the DisplayLink render loop) and pushes updates.
+ If no new drawable is available, it can push to the same drawable multiple times.
+ The buffer is expected to be in RGB (`BGRA_8888`) format.
+ While rendering, `drawCallback` will be invoked with a Skia Canvas instance which can be used for Frame Processing (JS).
  */
 void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer, const std::function<void(SkCanvas*)>& drawCallback) {
-#if DEBUG
-  auto start = CFAbsoluteTimeGetCurrent();
-#endif
-  
   if (_width == -1 && _height == -1) {
     return;
   }
@@ -180,7 +173,8 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
 #if DEBUG_FPS
     // Draw FPS on screen
     int fps = static_cast<int>(round(_displayLink.currentFps));
-    SkString string("FPS: " + std::to_string(fps));
+    int targetFps = static_cast<int>(round(_displayLink.targetFps));
+    SkString string("FPS: " + std::to_string(fps) + " / " + std::to_string(targetFps));
     auto typeface = SkTypeface::MakeFromName("Arial", SkFontStyle::Bold());
     SkFont font(typeface, 32);
     SkPaint paint;
@@ -203,11 +197,6 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     // Unlock the Pixel Buffer again so it can be freed up
     CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
   }
-  
-#if DEBUG
-  auto end = CFAbsoluteTimeGetCurrent();
-  NSLog(@"Draw took %f ms", (end - start) * 1000);
-#endif
 };
 
 void SkiaMetalCanvasProvider::setSize(int width, int height) {

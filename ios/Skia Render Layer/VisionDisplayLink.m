@@ -43,11 +43,8 @@
   _updateBlock(time);
 }
 
-- (double)timeUntilNextFrame {
-  // get the difference between when this frame should already be done (targe time) and now
-  double frameDiff = _displayLink.targetTimestamp - CACurrentMediaTime();
-  // seconds -> milliseconds
-  return frameDiff * 1000;
+- (double)targetFps {
+  return 1.0 / (_displayLink.targetTimestamp - _displayLink.timestamp);
 }
 
 - (double)currentFps {
