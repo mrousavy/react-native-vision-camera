@@ -44,7 +44,7 @@
 }
 
 - (double)targetFps {
-  return 1.0 / (_displayLink.targetTimestamp - _displayLink.timestamp);
+  return 1.0 / _displayLink.duration;
 }
 
 - (double)currentFps {
