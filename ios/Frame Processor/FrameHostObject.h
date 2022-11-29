@@ -14,7 +14,6 @@
 
 #import "SkCanvas.h"
 #import <JsiSkCanvas.h>
-#import "../Skia Render Layer/SkImageHelpers.h"
 
 using namespace facebook;
 
@@ -22,22 +21,18 @@ class JSI_EXPORT FrameHostObject: public jsi::HostObject {
 public:
   explicit FrameHostObject(Frame* frame): frame(frame) {}
   explicit FrameHostObject(Frame* frame,
-                           std::shared_ptr<RNSkia::JsiSkCanvas> canvas,
-                           SkImageHelpers* imageHelpers):
-    frame(frame), canvas(canvas), _imageHelpers(imageHelpers) {}
+                           std::shared_ptr<RNSkia::JsiSkCanvas> canvas):
+                            frame(frame), canvas(canvas) {}
 
 public:
   jsi::Value get(jsi::Runtime&, const jsi::PropNameID& name) override;
   std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime& rt) override;
   void close();
 
+private:
+  void assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName);
+
 public:
   Frame* frame;
   std::shared_ptr<RNSkia::JsiSkCanvas> canvas;
-  
-private:
-  SkImageHelpers* _imageHelpers;
-
-private:
-  void assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName);
 };

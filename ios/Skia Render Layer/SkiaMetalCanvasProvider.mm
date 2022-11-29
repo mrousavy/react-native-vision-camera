@@ -7,9 +7,10 @@
 #import <include/core/SkSurface.h>
 #import <include/core/SkCanvas.h>
 #import <include/gpu/GrDirectContext.h>
-#import <include/gpu/GrYUVABackendTextures.h>
 
 #import "SkImageHelpers.h"
+
+#include <memory>
 
 SkiaMetalCanvasProvider::SkiaMetalCanvasProvider(): std::enable_shared_from_this<SkiaMetalCanvasProvider>() {
   _device = MTLCreateSystemDefaultDevice();
@@ -25,61 +26,60 @@ SkiaMetalCanvasProvider::SkiaMetalCanvasProvider(): std::enable_shared_from_this
   _layer.device = _device;
   _layer.opaque = false;
   _layer.contentsScale = getPixelDensity();
+  // TODO: sRGB? Or nah?
   _layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
   
   _isValid = true;
   
-  dispatch_async(_runLoopQueue, ^{
-    runLoop();
-    NSLog(@"SkiaMetalCanvasProvider: End run loop.");
-  });
+  _displayLink = [[VisionDisplayLink alloc] init];
 }
 
 SkiaMetalCanvasProvider::~SkiaMetalCanvasProvider() {
   _isValid = false;
+  [_displayLink stop];
 }
 
-void SkiaMetalCanvasProvider::runLoop() {
-  // We get a shared_ptr for `this` instance so that we can be sure it doesn't get deallocated
-  // in the meantime from another Thread (e.g. if the Main UI Thread destroys the view)
-  auto lockedThis = shared_from_this();
-  
-  while (_isValid && _layer != nil) {
-    @autoreleasepool {
-      // Blocks until the next Frame is ready (16ms at 60 FPS)
-      auto tempDrawable = [_layer nextDrawable];
-      
-      // After we got a new Drawable (from blocking call), make sure we're still valid
-      if (!_isValid) return;
-      
-#if DEBUG
-      auto start = CFAbsoluteTimeGetCurrent();
-#endif
-      std::unique_lock lock(_drawableMutex);
-      _currentDrawable = tempDrawable;
-      lock.unlock();
-#if DEBUG
-      auto end = CFAbsoluteTimeGetCurrent();
-      auto lockTime = (end - start) * 1000;
-      if (lockTime > 1) {
-        NSLog(@"The previous draw call took so long that it blocked a new Frame from coming in for %f ms!", lockTime);
-      }
-#endif
+void SkiaMetalCanvasProvider::start() {
+  [_displayLink start:[weakThis = weak_from_this()](double time) {
+    auto thiz = weakThis.lock();
+    if (thiz) {
+      thiz->render();
     }
+  }];
+}
+
+void SkiaMetalCanvasProvider::render() {
+  @autoreleasepool {
+    // Blocks until the next Frame is ready (16ms at 60 FPS)
+    auto tempDrawable = [_layer nextDrawable];
+    
+    // After we got a new Drawable (from blocking call), make sure we're still valid
+    if (!_isValid) return;
+    
+#if DEBUG
+    auto start = CFAbsoluteTimeGetCurrent();
+#endif
+    std::unique_lock lock(_drawableMutex);
+    _currentDrawable = tempDrawable;
+    lock.unlock();
+#if DEBUG
+    auto end = CFAbsoluteTimeGetCurrent();
+    auto lockTime = (end - start) * 1000;
+    auto diffTime = lockTime - getFrameTime();
+    if (diffTime > 1) {
+      NSLog(@"The previous draw call took so long that it blocked a new Frame from coming in for %f ms!", diffTime);
+    }
+#endif
   }
 }
 
-float SkiaMetalCanvasProvider::getPixelDensity() { return _pixelDensity; }
+float SkiaMetalCanvasProvider::getPixelDensity() {
+  return UIScreen.mainScreen.scale;
+}
 
-/**
- Returns the scaled width of the view
- */
-float SkiaMetalCanvasProvider::getScaledWidth() { return _width * getPixelDensity(); };
-
-/**
- Returns the scaled height of the view
- */
-float SkiaMetalCanvasProvider::getScaledHeight() { return _height * getPixelDensity(); };
+float SkiaMetalCanvasProvider::getFrameTime() {
+  return 1000.0f / UIScreen.mainScreen.maximumFramesPerSecond;
+}
 
 /**
  Render to a canvas
@@ -87,18 +87,15 @@ float SkiaMetalCanvasProvider::getScaledHeight() { return _height * getPixelDens
 void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer, const std::function<void(SkCanvas*)>& drawCallback) {
   auto start = CFAbsoluteTimeGetCurrent();
   
-  if(_width == -1 && _height == -1) {
+  if (_width == -1 && _height == -1) {
     return;
   }
 
-  if(_skContext == nullptr) {
+  if (_skContext == nullptr) {
     GrContextOptions grContextOptions;
     _skContext = GrDirectContext::MakeMetal((__bridge void*)_device,
                                             (__bridge void*)_commandQueue,
                                             grContextOptions);
-  }
-  if (_imageHelper == nil) {
-    _imageHelper = std::make_unique<SkImageHelpers>(_device, _skContext);
   }
 
   // Wrap in auto release pool since we want the system to clean up after rendering
@@ -149,8 +146,8 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
 #if DEBUG
     auto startConvert = CFAbsoluteTimeGetCurrent();
 #endif
-    // Converts the CMSampleBuffer to an SkImage - YUV or RGB.
-    auto image = _imageHelper->convertCMSampleBufferToSkImage(sampleBuffer);
+    // Converts the CMSampleBuffer to an SkImage - RGB.
+    auto image = SkImageHelpers::convertCMSampleBufferToSkImage(_skContext.get(), sampleBuffer);
 #if DEBUG
     auto endConvert = CFAbsoluteTimeGetCurrent();
     NSLog(@"CMSampleBuffer -> SkImage conversion took %f ms", (endConvert - startConvert) * 1000);
@@ -162,7 +159,7 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     // Calculate Center Crop (aspectRatio: cover) transform
     auto sourceRect = SkRect::MakeXYWH(0, 0, image->width(), image->height());
     auto destinationRect = SkRect::MakeXYWH(0, 0, surface->width(), surface->height());
-    sourceRect = _imageHelper->createCenterCropRect(sourceRect, destinationRect);
+    sourceRect = SkImageHelpers::createCenterCropRect(sourceRect, destinationRect);
     
     auto offsetX = -sourceRect.left();
     auto offsetY = -sourceRect.top();
@@ -214,7 +211,6 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
 void SkiaMetalCanvasProvider::setSize(int width, int height) {
   _width = width;
   _height = height;
-  _pixelDensity = [[UIScreen mainScreen] scale];
   _layer.frame = CGRectMake(0, 0, width, height);
   _layer.drawableSize = CGSizeMake(width * getPixelDensity(),
                                    height* getPixelDensity());

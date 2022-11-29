@@ -27,7 +27,7 @@
     // TODO: Get correct Buffer Orientation here!
     auto frame = [[Frame alloc] initWithBuffer:buffer orientation:UIImageOrientationUp];
     if (self.frameProcessorCallback != nil) {
-      self.frameProcessorCallback(frame, (void*)canvas, (void*)_canvasProvider->_imageHelper.get());
+      self.frameProcessorCallback(frame, (void*)canvas);
     }
   });
 }
@@ -44,6 +44,7 @@
     if (_canvasProvider == nullptr) {
       _canvasProvider = std::make_shared<SkiaMetalCanvasProvider>();
       [self.layer addSublayer: _canvasProvider->getLayer()];
+      _canvasProvider->start();
     }
   }
 }
