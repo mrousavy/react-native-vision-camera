@@ -49,7 +49,6 @@ private:
 private:
   void render();
 
-  float getFrameTime();
   float getPixelDensity();
 };
 

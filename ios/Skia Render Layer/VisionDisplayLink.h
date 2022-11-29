@@ -23,6 +23,8 @@ typedef void (^block_t)(double);
 
 - (void)stop;
 
+- (double)frameTimeLate;
+
 @end
 
 #endif /* VisionDisplayLink_h */

@@ -56,17 +56,15 @@ void SkiaMetalCanvasProvider::render() {
     // After we got a new Drawable (from blocking call), make sure we're still valid
     if (!_isValid) return;
     
-#if DEBUG
-    auto start = CFAbsoluteTimeGetCurrent();
-#endif
     std::unique_lock lock(_drawableMutex);
     _currentDrawable = tempDrawable;
     lock.unlock();
+    
 #if DEBUG
-    auto end = CFAbsoluteTimeGetCurrent();
-    auto lockTime = (end - start) * 1000;
-    auto diffTime = lockTime - getFrameTime();
-    if (diffTime > 1) {
+    // time between now, and when the frame should've already been done
+    auto diffTime = _displayLink.frameTimeLate;
+    if (diffTime > 25) {
+      // it is larger than 25ms, which is definitely a noticeable Frame drop. Warn the user.
       auto message = [NSString stringWithFormat:@"The previous draw call took so long that it blocked a new Frame from coming in for %f ms!", diffTime];
       [RCTBridge logToJS:RCTLogLevelWarning message:message];
     }
@@ -76,10 +74,6 @@ void SkiaMetalCanvasProvider::render() {
 
 float SkiaMetalCanvasProvider::getPixelDensity() {
   return UIScreen.mainScreen.scale;
-}
-
-float SkiaMetalCanvasProvider::getFrameTime() {
-  return 1000.0f / UIScreen.mainScreen.maximumFramesPerSecond;
 }
 
 /**
