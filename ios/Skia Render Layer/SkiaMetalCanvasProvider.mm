@@ -35,6 +35,7 @@ SkiaMetalCanvasProvider::SkiaMetalCanvasProvider(): std::enable_shared_from_this
 
 SkiaMetalCanvasProvider::~SkiaMetalCanvasProvider() {
   _isValid = false;
+  NSLog(@"VisionCamera: Stopping SkiaMetalCanvasProvider DisplayLink...");
   [_displayLink stop];
 }
 
@@ -80,7 +81,9 @@ float SkiaMetalCanvasProvider::getPixelDensity() {
  Render to a canvas
  */
 void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer, const std::function<void(SkCanvas*)>& drawCallback) {
+#if DEBUG
   auto start = CFAbsoluteTimeGetCurrent();
+#endif
   
   if (_width == -1 && _height == -1) {
     return;
@@ -138,15 +141,8 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     // Lock the Frame's PixelBuffer for the duration of the Frame Processor so the user can safely do operations on it
     CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
     
-#if DEBUG
-    auto startConvert = CFAbsoluteTimeGetCurrent();
-#endif
     // Converts the CMSampleBuffer to an SkImage - RGB.
     auto image = SkImageHelpers::convertCMSampleBufferToSkImage(_skContext.get(), sampleBuffer);
-#if DEBUG
-    auto endConvert = CFAbsoluteTimeGetCurrent();
-    NSLog(@"CMSampleBuffer -> SkImage conversion took %f ms", (endConvert - startConvert) * 1000);
-#endif
     
     auto canvas = skSurface->getCanvas();
     auto surface = canvas->getSurface();
@@ -175,14 +171,8 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     // but that'll just overwrite the existing one - no need to worry.
     canvas->drawImage(image, 0, 0);
     
-#if DEBUG
-    auto startJS = CFAbsoluteTimeGetCurrent();
-#endif
+    // Call the JS Frame Processor.
     drawCallback(canvas);
-#if DEBUG
-    auto endJS = CFAbsoluteTimeGetCurrent();
-    NSLog(@"Frame Processor call took %f ms", (endJS - startJS) * 1000);
-#endif
     
     // Restore the scale & transform
     canvas->restore();
@@ -199,8 +189,10 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
   }
   
+#if DEBUG
   auto end = CFAbsoluteTimeGetCurrent();
   NSLog(@"Draw took %f ms", (end - start) * 1000);
+#endif
 };
 
 void SkiaMetalCanvasProvider::setSize(int width, int height) {
