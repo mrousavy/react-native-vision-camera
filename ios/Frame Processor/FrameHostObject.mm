@@ -70,6 +70,9 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
   if (name == "render") {
     auto render = [this] (jsi::Runtime& runtime, const jsi::Value&, const jsi::Value* params, size_t size) -> jsi::Value {
+      if (canvas == nullptr) {
+        throw jsi::JSError(runtime, "Trying to render a Frame without a Skia Canvas! Did you install Skia?");
+      }
       // convert CMSampleBuffer to SkImage
       auto context = canvas->getCanvas()->recordingContext();
       auto image = SkImageHelpers::convertCMSampleBufferToSkImage(context, frame.buffer);

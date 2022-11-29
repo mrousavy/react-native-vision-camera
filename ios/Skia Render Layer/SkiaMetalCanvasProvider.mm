@@ -127,7 +127,7 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
                                                             nullptr,
                                                             nullptr);
     
-    if(skSurface == nullptr || skSurface->getCanvas() == nullptr) {
+    if (skSurface == nullptr || skSurface->getCanvas() == nullptr) {
       throw std::runtime_error("Skia surface could not be created from parameters.");
     }
     
