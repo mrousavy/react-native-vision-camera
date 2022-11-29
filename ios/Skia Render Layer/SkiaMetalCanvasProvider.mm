@@ -97,9 +97,6 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
                                             (__bridge void*)_commandQueue,
                                             grContextOptions);
   }
-  if (imageHelpers == nullptr) {
-    imageHelpers = std::make_shared<SkImageHelpers>(_device, _skContext);
-  }
 
   // Wrap in auto release pool since we want the system to clean up after rendering
   // and not wait until later - we've seen some example of memory usage growing very
@@ -150,7 +147,7 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     auto startConvert = CFAbsoluteTimeGetCurrent();
 #endif
     // Converts the CMSampleBuffer to an SkImage - RGB.
-    auto image = imageHelpers->convertCMSampleBufferToSkImage(sampleBuffer);
+    auto image = SkImageHelpers::convertCMSampleBufferToSkImage(_skContext.get(), sampleBuffer);
 #if DEBUG
     auto endConvert = CFAbsoluteTimeGetCurrent();
     NSLog(@"CMSampleBuffer -> SkImage conversion took %f ms", (endConvert - startConvert) * 1000);

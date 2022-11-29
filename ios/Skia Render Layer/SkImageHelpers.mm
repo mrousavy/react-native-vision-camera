@@ -23,23 +23,23 @@
 #   define FourCC2Str(fourcc) (const char[]){*(((char*)&fourcc)+3), *(((char*)&fourcc)+2), *(((char*)&fourcc)+1), *(((char*)&fourcc)+0),0}
 #endif
 
-SkImageHelpers::SkImageHelpers(id<MTLDevice> device, sk_sp<GrRecordingContext> context): _context(context) {
-  // Create a new Texture Cache
-   auto result = CVMetalTextureCacheCreate(kCFAllocatorDefault,
-                                           nil,
-                                           device,
-                                           nil,
-                                           &_textureCache);
-   if (result != kCVReturnSuccess) {
-     throw std::runtime_error("Failed to create Metal Texture Cache!");
-   }
+CVMetalTextureCacheRef getTextureCache(GrRecordingContext* context) {
+  static CVMetalTextureCacheRef textureCache = nil;
+  if (textureCache == nil) {
+    // Create a new Texture Cache
+     auto result = CVMetalTextureCacheCreate(kCFAllocatorDefault,
+                                             nil,
+                                             MTLCreateSystemDefaultDevice(),
+                                             nil,
+                                             &textureCache);
+     if (result != kCVReturnSuccess || textureCache == nil) {
+       throw std::runtime_error("Failed to create Metal Texture Cache!");
+     }
+  }
+  return textureCache;
 }
 
-SkImageHelpers::~SkImageHelpers() {
-  CFRelease(_textureCache);
-}
-
-sk_sp<SkImage> SkImageHelpers::convertCMSampleBufferToSkImage(CMSampleBufferRef sampleBuffer) {
+sk_sp<SkImage> SkImageHelpers::convertCMSampleBufferToSkImage(GrRecordingContext* context, CMSampleBufferRef sampleBuffer) {
   auto pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
   double width = CVPixelBufferGetWidth(pixelBuffer);
   double height = CVPixelBufferGetHeight(pixelBuffer);
@@ -51,11 +51,13 @@ sk_sp<SkImage> SkImageHelpers::convertCMSampleBufferToSkImage(CMSampleBufferRef 
     auto error = std::string("VisionCamera: Frame has unknown Pixel Format (") + fourCharCode.UTF8String + std::string(") - cannot convert to SkImage!");
     throw std::runtime_error(error);
   }
+  
+  auto textureCache = getTextureCache(context);
 
   // Convert CMSampleBuffer* -> CVMetalTexture*
   CVMetalTextureRef cvTexture;
   CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
-                                           _textureCache,
+                                           textureCache,
                                            pixelBuffer,
                                            nil,
                                            MTLPixelFormatBGRA8Unorm,
@@ -71,7 +73,7 @@ sk_sp<SkImage> SkImageHelpers::convertCMSampleBufferToSkImage(CMSampleBufferRef 
   GrBackendTexture texture(width, height, GrMipmapped::kNo, textureInfo);
 
   // Create an SkImage from the existing texture
-  auto image = SkImage::MakeFromTexture(_context.get(),
+  auto image = SkImage::MakeFromTexture(context,
                                         texture,
                                         kTopLeft_GrSurfaceOrigin,
                                         kBGRA_8888_SkColorType,

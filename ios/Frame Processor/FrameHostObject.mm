@@ -11,6 +11,7 @@
 #import <jsi/jsi.h>
 
 #import "SkCanvas.h"
+#import "../Skia Render Layer/SkImageHelpers.h"
 
 std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt) {
   std::vector<jsi::PropNameID> result;
@@ -69,11 +70,9 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
   if (name == "render") {
     auto render = [this] (jsi::Runtime& runtime, const jsi::Value&, const jsi::Value* params, size_t size) -> jsi::Value {
-      if (_imageHelpers == nullptr) {
-        throw jsi::JSError(runtime, "Trying to render a Frame with no backed Canvas/ImageHelpers!");
-      }
       // convert CMSampleBuffer to SkImage
-      auto image = _imageHelpers->convertCMSampleBufferToSkImage(frame.buffer);
+      auto context = canvas->getCanvas()->recordingContext();
+      auto image = SkImageHelpers::convertCMSampleBufferToSkImage(context, frame.buffer);
       
       // draw SkImage
       if (size > 0) {

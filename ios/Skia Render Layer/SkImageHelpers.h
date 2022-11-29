@@ -11,8 +11,6 @@
 
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
-#import <CoreVideo/CVMetalTextureCache.h>
-#import <Metal/MTLDevice.h>
 #import <include/gpu/GrRecordingContext.h>
 
 #import "SkImage.h"
@@ -21,14 +19,13 @@
 
 class SkImageHelpers {
 public:
-  explicit SkImageHelpers(id<MTLDevice> device, sk_sp<GrRecordingContext> context);
-  ~SkImageHelpers();
+  SkImageHelpers() = delete;
   
 public:
   /**
    Convert a CMSampleBuffer to an SkImage. Format has to be RGB.
    */
-  sk_sp<SkImage> convertCMSampleBufferToSkImage(CMSampleBufferRef sampleBuffer);
+  static sk_sp<SkImage> convertCMSampleBufferToSkImage(GrRecordingContext* context, CMSampleBufferRef sampleBuffer);
   /**
    Creates a Center Crop Transformation Rect so that the source rect fills (aspectRatio: cover) the destination rect.
    The return value should be passed as a sourceRect to a canvas->draw...Rect(..) function, destinationRect should stay the same.
@@ -37,8 +34,6 @@ public:
   
 private:
   static SkRect inscribe(SkSize size, SkRect rect);
-  sk_sp<GrRecordingContext> _context;
-  CVMetalTextureCacheRef _textureCache;
 };
 
 #endif /* SkImageHelpers_h */
