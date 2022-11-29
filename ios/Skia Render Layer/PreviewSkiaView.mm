@@ -24,8 +24,7 @@
   }
 
   _canvasProvider->renderFrameToCanvas(buffer, [buffer, self](SkCanvas* canvas) {
-    // TODO: Call Frame Processor
-    NSLog(@"TODO: Call Frame Processor with Canvas here!");
+    // TODO: Get correct Buffer Orientation here!
     auto frame = [[Frame alloc] initWithBuffer:buffer orientation:UIImageOrientationUp];
     if (self.frameProcessorCallback != nil) {
       self.frameProcessorCallback(frame, (void*)canvas);
@@ -38,19 +37,14 @@
     // Remove implementation view when the parent view is not set
     if (_canvasProvider != nullptr) {
       [_canvasProvider->getLayer() removeFromSuperlayer];
-
       _canvasProvider = nullptr;
     }
   } else {
     // Create implementation view when the parent view is set
     if (_canvasProvider == nullptr) {
-      _canvasProvider = std::make_shared<SkiaMetalCanvasProvider>([]() {
-        // TODO: Implement redraw view
-        NSLog(@"TODO: Redraw View!!");
-        // [self setNeedsLayout];
-      });
-
+      _canvasProvider = std::make_shared<SkiaMetalCanvasProvider>();
       [self.layer addSublayer: _canvasProvider->getLayer()];
+      _canvasProvider->start();
     }
   }
 }

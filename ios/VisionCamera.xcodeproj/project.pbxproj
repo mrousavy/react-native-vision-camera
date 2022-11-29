@@ -57,6 +57,7 @@
 		B88751A725E0102000DB86D6 /* CameraView+Zoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887518225E0102000DB86D6 /* CameraView+Zoom.swift */; };
 		B88751A825E0102000DB86D6 /* CameraError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887518325E0102000DB86D6 /* CameraError.swift */; };
 		B88751A925E0102000DB86D6 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887518425E0102000DB86D6 /* CameraView.swift */; };
+		B88A020D2934FC22009E035A /* VisionDisplayLink.m in Sources */ = {isa = PBXBuildFile; fileRef = B88A020C2934FC22009E035A /* VisionDisplayLink.m */; };
 		B88B47472667C8E00091F538 /* AVCaptureSession+setVideoStabilizationMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B88B47462667C8E00091F538 /* AVCaptureSession+setVideoStabilizationMode.swift */; };
 		B8994E6C263F03E100069589 /* JSIUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8994E6B263F03E100069589 /* JSIUtils.mm */; };
 		B8A751D82609E4B30011C623 /* FrameProcessorRuntimeManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8A751D72609E4B30011C623 /* FrameProcessorRuntimeManager.mm */; };
@@ -147,6 +148,8 @@
 		B887518325E0102000DB86D6 /* CameraError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraError.swift; sourceTree = "<group>"; };
 		B887518425E0102000DB86D6 /* CameraView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		B88873E5263D46C7008B1D0E /* FrameProcessorPlugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorPlugin.h; sourceTree = "<group>"; };
+		B88A020C2934FC22009E035A /* VisionDisplayLink.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VisionDisplayLink.m; sourceTree = "<group>"; };
+		B88A020E2934FC29009E035A /* VisionDisplayLink.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VisionDisplayLink.h; sourceTree = "<group>"; };
 		B88B47462667C8E00091F538 /* AVCaptureSession+setVideoStabilizationMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVCaptureSession+setVideoStabilizationMode.swift"; sourceTree = "<group>"; };
 		B8948BDF26DCEE2B00B430E2 /* FrameProcessorPerformanceDataCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameProcessorPerformanceDataCollector.swift; sourceTree = "<group>"; };
 		B8994E6B263F03E100069589 /* JSIUtils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = JSIUtils.mm; sourceTree = "<group>"; };
@@ -299,6 +302,8 @@
 				B83373B429266A350092E380 /* SkiaMetalCanvasProvider.mm */,
 				B8412630292E41AD001AB448 /* SkImageHelpers.h */,
 				B841262E292E41A1001AB448 /* SkImageHelpers.mm */,
+				B88A020E2934FC29009E035A /* VisionDisplayLink.h */,
+				B88A020C2934FC22009E035A /* VisionDisplayLink.m */,
 			);
 			path = "Skia Render Layer";
 			sourceTree = "<group>";
@@ -310,8 +315,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 58B511EF1A9E6C8500147676 /* Build configuration list for PBXNativeTarget "VisionCamera" */;
 			buildPhases = (
-				B80D6CAB25F770FE006F2CB7 /* Run SwiftFormat */,
-				B81F6C7625E515810008974A /* Run SwiftLint */,
 				58B511D71A9E6C8500147676 /* Sources */,
 				58B511D81A9E6C8500147676 /* Frameworks */,
 				58B511D91A9E6C8500147676 /* CopyFiles */,
@@ -356,45 +359,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		B80D6CAB25F770FE006F2CB7 /* Run SwiftFormat */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Run SwiftFormat";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if which swiftformat >/dev/null; then\n  swiftformat .\nelse\n  echo \"warning: SwiftFormat not installed, download from https://github.com/nicklockwood/SwiftFormat\"\nfi\n";
-		};
-		B81F6C7625E515810008974A /* Run SwiftLint */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Run SwiftLint";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if which swiftlint >/dev/null; then\n  swiftlint --fix && swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		58B511D71A9E6C8500147676 /* Sources */ = {
@@ -441,6 +405,7 @@
 				B8A751D82609E4B30011C623 /* FrameProcessorRuntimeManager.mm in Sources */,
 				B887519A25E0102000DB86D6 /* AVVideoCodecType+descriptor.swift in Sources */,
 				B88751A825E0102000DB86D6 /* CameraError.swift in Sources */,
+				B88A020D2934FC22009E035A /* VisionDisplayLink.m in Sources */,
 				B88751A625E0102000DB86D6 /* CameraViewManager.swift in Sources */,
 				B887519F25E0102000DB86D6 /* AVCaptureDevice.DeviceType+descriptor.swift in Sources */,
 				B8D22CDC2642DB4D00234472 /* AVAssetWriterInputPixelBufferAdaptor+initWithVideoSettings.swift in Sources */,

@@ -11,6 +11,7 @@
 #import <jsi/jsi.h>
 
 #import "SkCanvas.h"
+#import "../Skia Render Layer/SkImageHelpers.h"
 
 std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt) {
   std::vector<jsi::PropNameID> result;
@@ -42,7 +43,7 @@ SkRect inscribe(SkSize size, SkRect rect) {
 
 jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {
   auto name = propName.utf8(runtime);
-
+  
   if (name == "toString") {
     auto toString = [this] (jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t) -> jsi::Value {
       if (this->frame == nil) {
@@ -51,7 +52,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
       auto width = CVPixelBufferGetWidth(imageBuffer);
       auto height = CVPixelBufferGetHeight(imageBuffer);
-
+      
       NSMutableString* string = [NSMutableString stringWithFormat:@"%lu x %lu Frame", width, height];
       return jsi::String::createFromUtf8(runtime, string.UTF8String);
     };
@@ -69,67 +70,26 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
   if (name == "render") {
     auto render = [this] (jsi::Runtime& runtime, const jsi::Value&, const jsi::Value* params, size_t size) -> jsi::Value {
+      // convert CMSampleBuffer to SkImage
+      auto context = canvas->getCanvas()->recordingContext();
+      auto image = SkImageHelpers::convertCMSampleBufferToSkImage(context, frame.buffer);
       
-      CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
-      
-      if (pixelBuffer == nil) {
-        throw std::runtime_error("drawShader: Pixel Buffer is corrupt/empty.");
-      }
-      
-      // assumes BGRA 8888
-      auto srcBuff = CVPixelBufferGetBaseAddress(pixelBuffer);
-      auto bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer);
-      auto width = CVPixelBufferGetWidth(pixelBuffer);
-      auto height = CVPixelBufferGetHeight(pixelBuffer);
-      auto info = SkImageInfo::Make(width,
-                                    height,
-                                    kBGRA_8888_SkColorType,
-                                    kOpaque_SkAlphaType);
-      auto data = SkData::MakeWithoutCopy(srcBuff, bytesPerRow * height);
-      auto image = SkImage::MakeRasterData(info, data, bytesPerRow);
-      
-      SkCanvas* canvas = this->canvas->getCanvas();
-      
-      auto surfaceWidth = canvas->getSurface()->width();
-      auto surfaceHeight = canvas->getSurface()->height();
-      
-      auto sourceRect = SkRect::MakeXYWH(0, 0, width, height);
-      auto destinationRect = SkRect::MakeXYWH(0,
-                                              0,
-                                              surfaceWidth,
-                                              surfaceHeight);
-      
-      SkSize src;
-      if (destinationRect.width() / destinationRect.height() > sourceRect.width() / sourceRect.height()) {
-        src = SkSize::Make(sourceRect.width(), (sourceRect.width() * destinationRect.height()) / destinationRect.width());
-      } else {
-        src = SkSize::Make((sourceRect.height() * destinationRect.width()) / destinationRect.height(), sourceRect.height());
-      }
-      
-      sourceRect = inscribe(src, sourceRect);
-      destinationRect = inscribe(SkSize::Make(destinationRect.width(), destinationRect.height()), destinationRect);
-      
-      
+      // draw SkImage
       if (size > 0) {
+        // ..with paint/shader
         auto paintHostObject = params[0].asObject(runtime).asHostObject<RNSkia::JsiSkPaint>(runtime);
         auto paint = paintHostObject->getObject();
-        canvas->drawImageRect(image,
-                              sourceRect,
-                              destinationRect,
-                              SkSamplingOptions(),
-                              paint.get(),
-                              SkCanvas::kFast_SrcRectConstraint);
+        canvas->getCanvas()->drawImage(image, 0, 0, SkSamplingOptions(), paint.get());
       } else {
-        canvas->drawImageRect(image,
-                              destinationRect,
-                              SkSamplingOptions());
+        // ..without paint/shader
+        canvas->getCanvas()->drawImage(image, 0, 0);
       }
       
       return jsi::Value::undefined();
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "render"), 1, render);
   }
-
+  
   if (name == "isValid") {
     auto isValid = frame != nil && CMSampleBufferIsValid(frame.buffer);
     return jsi::Value(isValid);
@@ -158,7 +118,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
     return jsi::Value((double) planesCount);
   }
-
+  
   if (canvas != nullptr) {
     // fallback to canvas function
     return canvas->get(runtime, std::move(propName));

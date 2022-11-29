@@ -18,7 +18,7 @@
 @property (nullable) FrameProcessorCallback frameProcessorCallback;
 
 // Call to pass a new Frame to be drawn by the Skia Canvas
-- (void) drawFrame:(CMSampleBufferRef)buffer;
+- (void) drawFrame:(_Nonnull CMSampleBufferRef)buffer;
 
 @end
 

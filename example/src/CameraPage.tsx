@@ -22,11 +22,9 @@ import { CaptureButton } from './views/CaptureButton';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { examplePlugin } from './frame-processors/ExamplePlugin';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
-import { PaintStyle, SkCanvas, useDrawCallback } from '@shopify/react-native-skia';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -36,35 +34,36 @@ Reanimated.addWhitelistedNativeProps({
 const SCALE_FULL_ZOOM = 3;
 const BUTTON_SIZE = 40;
 
-const invertedColorsShader = `
-uniform shader image;
+const faceShader = `
+  uniform shader image;
+  uniform float x;
+  uniform float y;
+  uniform float r;
+  uniform vec2 resolution;
 
-half4 main(vec2 pos) {
-  vec4 color = image.eval(pos);
-  return vec4(1.0 - color.rgb, 1.0);
-}
-`;
+  const float samples = 3.0;
+  const float radius = 40.0;
+  const float weight = 1.0;
 
-const chromaticAberrationShader = `
-uniform shader image;
-
-vec4 chromatic(vec2 pos, float offset) {
-  float r = image.eval(pos).r;
-  float g = image.eval(vec2(pos.x + offset, pos.y)).g;
-  float b = image.eval(vec2(pos.x + offset * 2.0, pos.y)).b;
-  return vec4(r, g, b, 1.0);
-}
-
-half4 main(vec2 pos) {
-  float offset = 50.0;
-  return chromatic(pos, offset);
-}
-`;
-
-const noShader = `
-half4 main(vec2 pos) {
-  return vec4(1.0);
-}
+  half4 main(vec2 pos) {
+    float delta = pow((pow(pos.x - x, 2) + pow(pos.y - y, 2)), 0.5);
+    if (delta < r) {
+      vec3 sum = vec3(0.0);
+      vec3 accumulation = vec3(0);
+      vec3 weightedsum = vec3(0);
+      for (float deltaX = -samples * radius; deltaX <= samples * radius; deltaX += radius / samples) {
+        for (float deltaY = -samples * radius; deltaY <= samples * radius; deltaY += radius / samples) {
+          accumulation += image.eval(vec2(pos.x + deltaX, pos.y + deltaY)).rgb;
+          weightedsum += weight;
+        }
+      }
+      sum = accumulation / weightedsum;
+      return vec4(sum, 1.0);
+    }
+    else {
+      return image.eval(pos);
+    }
+  }
 `;
 
 type Props = NativeStackScreenProps<Routes, 'CameraPage'>;
@@ -229,35 +228,52 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const shaderToUse = useSharedValue(noShader);
+  const frameProcessor = useFrameProcessor((frame) => {
+    'worklet';
 
-  const frameProcessor = useFrameProcessor(
-    (frame) => {
-      'worklet';
+    type FaceDetection = {
+      boundingBox: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+      };
+      score: number;
+    };
 
-      const runtimeEffect = SkiaApi.RuntimeEffect.Make(shaderToUse.value);
-      if (runtimeEffect == null) throw new Error('Shader failed to compile!');
+    console.log('before');
+    const faces = __detectFaces(frame) as FaceDetection[] | undefined;
 
-      const shaderBuilder = SkiaApi.RuntimeShaderBuilder(runtimeEffect);
-      const imageFilter = SkiaApi.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
+    if (faces != null) {
+      const topResult = faces.sort((a, b) => b.score - a.score)[0];
+      console.log(topResult);
 
-      const paint = SkiaApi.Paint();
-      paint.setImageFilter(imageFilter);
+      if (topResult != null) {
+        const { x: _x, y, width, height } = topResult.boundingBox;
+        const x = frame.width - _x;
+        const centerX = x + width / 2;
+        const centerY = y + height / 2;
 
-      //frame.render(paint);
-    },
-    [shaderToUse],
-  );
+        const runtimeEffect = SkiaApi.RuntimeEffect.Make(faceShader);
+        if (runtimeEffect == null) throw new Error('Shader failed to compile!');
+        const shaderBuilder = SkiaApi.RuntimeShaderBuilder(runtimeEffect);
+        shaderBuilder.setUniform('r', [width]);
+        shaderBuilder.setUniform('x', [centerX]);
+        shaderBuilder.setUniform('y', [centerY]);
+        shaderBuilder.setUniform('resolution', [frame.width, frame.height]);
+        const imageFilter = SkiaApi.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
 
-  useEffect(() => {
-    const i = setInterval(() => {
-      console.log('Switching Shader!');
-      if (shaderToUse.value === noShader) shaderToUse.value = invertedColorsShader;
-      if (shaderToUse.value === invertedColorsShader) shaderToUse.value = chromaticAberrationShader;
-      if (shaderToUse.value === chromaticAberrationShader) shaderToUse.value = noShader;
-    }, 3000);
-    return () => clearInterval(i);
-  }, [shaderToUse]);
+        const paint = SkiaApi.Paint();
+        paint.setImageFilter(imageFilter);
+
+        frame.render(paint);
+      } else {
+        frame.render();
+      }
+    }
+
+    console.log('after');
+  }, []);
 
   const onFrameProcessorSuggestionAvailable = useCallback((suggestion: FrameProcessorPerformanceSuggestion) => {
     console.log(`Suggestion available! ${suggestion.type}: Can do ${suggestion.suggestedFrameProcessorFps} FPS`);

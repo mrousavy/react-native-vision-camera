@@ -12,6 +12,12 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		44CE4492E94E3AA2DC9F70FE /* libPods-VisionCameraExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7330AFF938A80A2385B7E80E /* libPods-VisionCameraExample.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		8EC5BDF0293112400061AA42 /* face_detection_short_range.tflite in Resources */ = {isa = PBXBuildFile; fileRef = 8EC5BDEF293112400061AA42 /* face_detection_short_range.tflite */; };
+		8EC5BDF4293113DE0061AA42 /* rgbDataFromBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC5BDF3293113DE0061AA42 /* rgbDataFromBuffer.swift */; };
+		8EC5BDF62931146F0061AA42 /* CVPixelBuffer+resized.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC5BDF52931146F0061AA42 /* CVPixelBuffer+resized.swift */; };
+		B8750560292F809800E60F80 /* AverageMaximumSuppression.swift in Sources */ = {isa = PBXBuildFile; fileRef = B875055F292F809800E60F80 /* AverageMaximumSuppression.swift */; };
+		B8C48867292F7B38009CC659 /* FaceDetectorFrameProcessorPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8C48866292F7B38009CC659 /* FaceDetectorFrameProcessorPlugin.swift */; };
+		B8C48869292F7B4F009CC659 /* FaceDetectorFrameProcessorPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = B8C48868292F7B4F009CC659 /* FaceDetectorFrameProcessorPlugin.m */; };
 		B8DB3BD5263DE8B7004C18D7 /* BuildFile in Sources */ = {isa = PBXBuildFile; };
 		B8DB3BDC263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BD8263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m */; };
 		B8DB3BDD263DEA31004C18D7 /* ExamplePluginSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BDA263DEA31004C18D7 /* ExamplePluginSwift.swift */; };
@@ -30,6 +36,12 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = VisionCameraExample/main.m; sourceTree = "<group>"; };
 		7330AFF938A80A2385B7E80E /* libPods-VisionCameraExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VisionCameraExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = VisionCameraExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		8EC5BDEF293112400061AA42 /* face_detection_short_range.tflite */ = {isa = PBXFileReference; lastKnownFileType = file; path = face_detection_short_range.tflite; sourceTree = "<group>"; };
+		8EC5BDF3293113DE0061AA42 /* rgbDataFromBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = rgbDataFromBuffer.swift; sourceTree = "<group>"; };
+		8EC5BDF52931146F0061AA42 /* CVPixelBuffer+resized.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CVPixelBuffer+resized.swift"; sourceTree = "<group>"; };
+		B875055F292F809800E60F80 /* AverageMaximumSuppression.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AverageMaximumSuppression.swift; sourceTree = "<group>"; };
+		B8C48866292F7B38009CC659 /* FaceDetectorFrameProcessorPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceDetectorFrameProcessorPlugin.swift; sourceTree = "<group>"; };
+		B8C48868292F7B4F009CC659 /* FaceDetectorFrameProcessorPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FaceDetectorFrameProcessorPlugin.m; sourceTree = "<group>"; };
 		B8DB3BD8263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExampleFrameProcessorPlugin.m; sourceTree = "<group>"; };
 		B8DB3BDA263DEA31004C18D7 /* ExamplePluginSwift.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExamplePluginSwift.swift; sourceTree = "<group>"; };
 		B8DB3BDB263DEA31004C18D7 /* ExamplePluginSwift.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExamplePluginSwift.m; sourceTree = "<group>"; };
@@ -55,6 +67,8 @@
 		13B07FAE1A68108700A75B9A /* VisionCameraExample */ = {
 			isa = PBXGroup;
 			children = (
+				8EC5BDF2293113CC0061AA42 /* utils */,
+				8EC5BDEF293112400061AA42 /* face_detection_short_range.tflite */,
 				B8DB3BD6263DEA31004C18D7 /* Frame Processor Plugins */,
 				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
@@ -65,6 +79,9 @@
 				13B07FB71A68108700A75B9A /* main.m */,
 				B8F0E10725E0199F00586F16 /* File.swift */,
 				B8F0E10625E0199F00586F16 /* VisionCameraExample-Bridging-Header.h */,
+				B8C48866292F7B38009CC659 /* FaceDetectorFrameProcessorPlugin.swift */,
+				B8C48868292F7B4F009CC659 /* FaceDetectorFrameProcessorPlugin.m */,
+				B875055F292F809800E60F80 /* AverageMaximumSuppression.swift */,
 			);
 			name = VisionCameraExample;
 			sourceTree = "<group>";
@@ -117,6 +134,15 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		8EC5BDF2293113CC0061AA42 /* utils */ = {
+			isa = PBXGroup;
+			children = (
+				8EC5BDF3293113DE0061AA42 /* rgbDataFromBuffer.swift */,
+				8EC5BDF52931146F0061AA42 /* CVPixelBuffer+resized.swift */,
+			);
+			path = utils;
+			sourceTree = "<group>";
+		};
 		B8DB3BD6263DEA31004C18D7 /* Frame Processor Plugins */ = {
 			isa = PBXGroup;
 			children = (
@@ -151,8 +177,6 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "VisionCameraExample" */;
 			buildPhases = (
 				B6A5CD723AF71A803C54DF26 /* [CP] Check Pods Manifest.lock */,
-				B81F12712604CF8800B08949 /* SwiftFormat */,
-				B81F12702604CF6600B08949 /* SwiftLint */,
 				FD10A7F022414F080027D42C /* Start Packager */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
@@ -208,6 +232,7 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				8EC5BDF0293112400061AA42 /* face_detection_short_range.tflite in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -300,42 +325,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		B81F12702604CF6600B08949 /* SwiftLint */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = SwiftLint;
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if which swiftlint >/dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
-		};
-		B81F12712604CF8800B08949 /* SwiftFormat */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = SwiftFormat;
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if which swiftformat >/dev/null; then\n  swiftformat .\nelse\n  echo \"warning: SwiftFormat not installed, download from https://github.com/nicklockwood/SwiftFormat\"\nfi\n";
-		};
 		FD10A7F022414F080027D42C /* Start Packager */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -363,10 +352,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
+				8EC5BDF4293113DE0061AA42 /* rgbDataFromBuffer.swift in Sources */,
+				B8750560292F809800E60F80 /* AverageMaximumSuppression.swift in Sources */,
 				B8DB3BDC263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m in Sources */,
 				B8DB3BD5263DE8B7004C18D7 /* BuildFile in Sources */,
 				B8DB3BDD263DEA31004C18D7 /* ExamplePluginSwift.swift in Sources */,
+				B8C48867292F7B38009CC659 /* FaceDetectorFrameProcessorPlugin.swift in Sources */,
 				B8F0E10825E0199F00586F16 /* File.swift in Sources */,
+				8EC5BDF62931146F0061AA42 /* CVPixelBuffer+resized.swift in Sources */,
+				B8C48869292F7B4F009CC659 /* FaceDetectorFrameProcessorPlugin.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				B8DB3BDE263DEA31004C18D7 /* ExamplePluginSwift.m in Sources */,
 			);
@@ -456,7 +450,7 @@
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "arm64 ";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -517,7 +511,7 @@
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "arm64 ";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;

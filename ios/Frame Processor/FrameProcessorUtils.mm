@@ -26,18 +26,15 @@
 FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime& runtime, const jsi::Function& value) {
   __block auto cb = value.getFunction(runtime);
 
-  
-  jsi::Runtime* rrrrr = &runtime;
-  std::shared_ptr<react::CallInvoker> ccccc = RCTBridge.currentBridge.jsCallInvoker;
-  auto ctx = new RNSkia::RNSkiOSPlatformContext(rrrrr, ccccc);
-  auto platformContext = std::shared_ptr<RNSkia::RNSkPlatformContext>(ctx);
+  std::shared_ptr<RNSkia::RNSkPlatformContext> platformContext = std::make_shared<RNSkia::RNSkiOSPlatformContext>(&runtime, RCTBridge.currentBridge.jsCallInvoker);
   
   auto canvasHostObject = std::make_shared<RNSkia::JsiSkCanvas>(platformContext);
   
   return ^(Frame* frame, void* skCanvas) {
-
     canvasHostObject->setCanvas((SkCanvas*)skCanvas);
-    auto frameHostObject = std::make_shared<FrameHostObject>(frame, canvasHostObject);
+    auto frameHostObject = std::make_shared<FrameHostObject>(frame,
+                                                             canvasHostObject);
+    
     try {
       cb.callWithThis(runtime,
                       cb,
