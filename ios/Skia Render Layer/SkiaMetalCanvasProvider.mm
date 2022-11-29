@@ -65,7 +65,7 @@ void SkiaMetalCanvasProvider::render() {
     // time we have left for the next Frame
     auto timeLeft = _displayLink.timeUntilNextFrame;
     if (timeLeft < 0) {
-      // it is larger than 25ms, which is definitely a noticeable Frame drop. Warn the user.
+      // we have negative time left for a new frame, meaning we already skipped the next one. warn the user
       auto message = [NSString stringWithFormat:@"The previous draw call took so long that it blocked a new Frame from coming in for %f ms. Optimize your Frame Processor!", abs(timeLeft)];
       [RCTBridge logToJS:RCTLogLevelWarning message:message];
     }

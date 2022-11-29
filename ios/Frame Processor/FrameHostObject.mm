@@ -70,9 +70,11 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
   if (name == "render") {
     auto render = [this] (jsi::Runtime& runtime, const jsi::Value&, const jsi::Value* params, size_t size) -> jsi::Value {
+      this->assertIsFrameStrong(runtime, "render");
       if (canvas == nullptr) {
         throw jsi::JSError(runtime, "Trying to render a Frame without a Skia Canvas! Did you install Skia?");
       }
+      
       // convert CMSampleBuffer to SkImage
       auto context = canvas->getCanvas()->recordingContext();
       auto image = SkImageHelpers::convertCMSampleBufferToSkImage(context, frame.buffer);
@@ -138,9 +140,8 @@ void FrameHostObject::assertIsFrameStrong(jsi::Runtime &runtime, const std::stri
 }
 
 void FrameHostObject::close() {
-  if (frame != nil) {
-    CMSampleBufferInvalidate(frame.buffer);
-    // ARC will hopefully delete it lol
-    this->frame = nil;
-  }
+  // Since we are in JS (a garbage collected language), the GC runs at a later point.
+  // We want to delete the object now, so let's remove the reference and ARC will delete it.
+  // The JS Host Object might live longer, but with an invalid Frame.
+  this->frame = nil;
 }

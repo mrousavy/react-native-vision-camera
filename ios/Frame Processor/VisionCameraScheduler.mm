@@ -14,7 +14,7 @@
 // Forward declarations for the Swift classes
 __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
 @interface CameraQueues : NSObject
-@property (nonatomic, class, readonly, strong) dispatch_queue_t _Nonnull frameProcessorQueue;
+@property (nonatomic, class, readonly, strong) dispatch_queue_t _Nonnull videoQueue;
 @end
 
 namespace vision {
@@ -27,7 +27,7 @@ VisionCameraScheduler::VisionCameraScheduler(std::shared_ptr<react::CallInvoker>
 
 // does not schedule on UI thread but rather on Frame Processor Thread
 void VisionCameraScheduler::scheduleOnUI(std::function<void()> job) {
-  dispatch_async(CameraQueues.frameProcessorQueue, ^{
+  dispatch_async(CameraQueues.videoQueue, ^{
     job();
   });
 }

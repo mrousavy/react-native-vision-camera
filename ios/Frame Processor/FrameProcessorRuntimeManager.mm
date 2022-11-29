@@ -45,7 +45,7 @@
 // Forward declarations for the Swift classes
 __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
 @interface CameraQueues : NSObject
-@property (nonatomic, class, readonly, strong) dispatch_queue_t _Nonnull frameProcessorQueue;
+@property (nonatomic, class, readonly, strong) dispatch_queue_t _Nonnull videoQueue;
 @end
 __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 @interface CameraView : UIView
@@ -69,7 +69,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
     auto runtime = vision::makeJSIRuntime();
     reanimated::RuntimeDecorator::decorateRuntime(*runtime, "FRAME_PROCESSOR");
     runtime->global().setProperty(*runtime, "_FRAME_PROCESSOR", jsi::Value(true));
-    
+
     // Install Skia
     auto platformContext = std::make_shared<RNSkia::RNSkiOSPlatformContext>(runtime.get(), bridge.jsCallInvoker);
     auto skiaApi = std::make_shared<RNSkia::JsiSkApi>(*runtime, platformContext);
@@ -154,15 +154,15 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
     NSLog(@"FrameProcessorBindings: Adapting Shareable value from function (conversion to worklet)...");
     auto worklet = reanimated::ShareableValue::adapt(runtime, arguments[1], runtimeManager.get());
     NSLog(@"FrameProcessorBindings: Successfully created worklet!");
-      
-      
+
+
 
     RCTExecuteOnMainQueue([=]() {
       auto currentBridge = [RCTBridge currentBridge];
       auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
       auto view = static_cast<CameraView*>(anonymousView);
 
-      dispatch_async(CameraQueues.frameProcessorQueue, [=]() {
+      dispatch_async(CameraQueues.videoQueue, [=]() {
         NSLog(@"FrameProcessorBindings: Converting worklet to Objective-C callback...");
 
         auto& rt = *runtimeManager->runtime;

@@ -190,6 +190,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   }
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
+    // Draw Frame to Preview View Canvas (and call Frame Processor)
     if captureOutput is AVCaptureVideoDataOutput {
       // Render to PreviewView
       previewView.drawFrame(sampleBuffer) { canvas in
@@ -198,26 +199,32 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         frameProcessor(frame, canvas)
       }
     }
-
-    // Video Recording runs in the same queue
-    if isRecording {
-      guard let recordingSession = recordingSession else {
-        invokeOnError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
+    
+    // Record Video Frame/Audio Sample to File
+    if self.isRecording {
+      guard let recordingSession = self.recordingSession else {
+        self.invokeOnError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
         return
       }
-
+      
+      let start = DispatchTime.now()
       switch captureOutput {
       case is AVCaptureVideoDataOutput:
         recordingSession.appendBuffer(sampleBuffer, type: .video, timestamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
       case is AVCaptureAudioDataOutput:
         let timestamp = CMSyncConvertTime(CMSampleBufferGetPresentationTimeStamp(sampleBuffer),
-                                          from: audioCaptureSession.masterClock!,
-                                          to: captureSession.masterClock!)
+                                          from: self.audioCaptureSession.masterClock!,
+                                          to: self.captureSession.masterClock!)
         recordingSession.appendBuffer(sampleBuffer, type: .audio, timestamp: timestamp)
       default:
         break
       }
+      let end = DispatchTime.now()
+      NSLog("MEEEEM Recording Took %f ms", (end.uptimeNanoseconds - start.uptimeNanoseconds) * 1000000)
     }
+    
+    // Invalidate Buffer
+    CMSampleBufferInvalidate(sampleBuffer)
   }
 
   private func recommendedVideoSettings(videoOutput: AVCaptureVideoDataOutput,
