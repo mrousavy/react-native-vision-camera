@@ -111,7 +111,7 @@ public final class CameraView: UIView {
   internal var actualFrameProcessorFps = 30.0
   internal var lastSuggestedFrameProcessorFps = 0.0
   internal var lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
-  
+
   internal var previewView: PreviewSkiaView
 
   /// Returns whether the AVCaptureSession is currently running (reflected by isActive)
@@ -121,10 +121,10 @@ public final class CameraView: UIView {
 
   // pragma MARK: Setup
   override public init(frame: CGRect) {
-    self.previewView = PreviewSkiaView(frame: frame)
-    
+    previewView = PreviewSkiaView(frame: frame)
+
     super.init(frame: frame)
-    
+
     addSubview(previewView)
 
     NotificationCenter.default.addObserver(self,
@@ -175,10 +175,10 @@ public final class CameraView: UIView {
       onViewReady(nil)
     }
   }
-  
-  public override func layoutSubviews() {
-    self.previewView.frame = self.frame
-    self.previewView.bounds = self.bounds
+
+  override public func layoutSubviews() {
+    previewView.frame = frame
+    previewView.bounds = bounds
   }
 
   // pragma MARK: Props updating
