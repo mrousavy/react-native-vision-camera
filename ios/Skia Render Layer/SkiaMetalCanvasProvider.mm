@@ -169,6 +169,9 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     // Call the JS Frame Processor.
     drawCallback(canvas);
     
+    // Restore the scale & transform
+    canvas->restore();
+    
 #if DEBUG
 #if DEBUG_FPS
     // Draw FPS on screen
@@ -179,12 +182,9 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     SkFont font(typeface, 32);
     SkPaint paint;
     paint.setColor(SkColors::kRed);
-    canvas->drawString(string, 150, 200, font, paint);
+    canvas->drawString(string, 50, 200, font, paint);
 #endif
 #endif
-    
-    // Restore the scale & transform
-    canvas->restore();
     
     // Flush all appended operations on the canvas and commit it to the SkSurface
     canvas->flush();
