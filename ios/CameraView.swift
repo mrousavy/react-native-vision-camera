@@ -161,12 +161,15 @@ public final class CameraView: UIView {
 
   override public func willMove(toSuperview newSuperview: UIView?) {
     super.willMove(toSuperview: newSuperview)
-    if !isMounted {
-      isMounted = true
-      guard let onViewReady = onViewReady else {
-        return
+    
+    if (newSuperview != nil) {
+      if !isMounted {
+        isMounted = true
+        guard let onViewReady = onViewReady else {
+          return
+        }
+        onViewReady(nil)
       }
-      onViewReady(nil)
     }
   }
 
