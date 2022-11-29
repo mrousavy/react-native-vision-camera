@@ -160,6 +160,7 @@
 		B8DB3BC7263DC28C004C18D7 /* AVAssetWriter.Status+descriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAssetWriter.Status+descriptor.swift"; sourceTree = "<group>"; };
 		B8DB3BC9263DC4D8004C18D7 /* RecordingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingSession.swift; sourceTree = "<group>"; };
 		B8DB3BCB263DC97E004C18D7 /* AVFileType+descriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVFileType+descriptor.swift"; sourceTree = "<group>"; };
+		B8F04F96293617A700CC9C52 /* SkiaFrameDrawContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkiaFrameDrawContext.h; sourceTree = "<group>"; };
 		B8F7DDD1266F715D00120533 /* Frame.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Frame.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -304,6 +305,7 @@
 				B841262E292E41A1001AB448 /* SkImageHelpers.mm */,
 				B88A020E2934FC29009E035A /* VisionDisplayLink.h */,
 				B88A020C2934FC22009E035A /* VisionDisplayLink.m */,
+				B8F04F96293617A700CC9C52 /* SkiaFrameDrawContext.h */,
 			);
 			path = "Skia Render Layer";
 			sourceTree = "<group>";
