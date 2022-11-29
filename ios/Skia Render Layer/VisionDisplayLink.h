@@ -19,11 +19,14 @@ typedef void (^block_t)(double);
 
 @property(nonatomic, copy) block_t updateBlock;
 
+// Start the DisplayLink's runLoop
 - (void)start:(block_t)block;
 
+// Stop the DisplayLink's runLoop
 - (void)stop;
 
-- (double)frameTimeLate;
+// The time (in milliseconds) we have until a next Frame is requested. If negative, we are dropping a Frame.
+- (double)timeUntilNextFrame;
 
 @end
 

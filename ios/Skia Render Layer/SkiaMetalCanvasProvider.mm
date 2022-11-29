@@ -62,11 +62,11 @@ void SkiaMetalCanvasProvider::render() {
     lock.unlock();
     
 #if DEBUG
-    // time between now, and when the frame should've already been done
-    auto diffTime = _displayLink.frameTimeLate;
-    if (diffTime > 25) {
+    // time we have left for the next Frame
+    auto timeLeft = _displayLink.timeUntilNextFrame;
+    if (timeLeft < 0) {
       // it is larger than 25ms, which is definitely a noticeable Frame drop. Warn the user.
-      auto message = [NSString stringWithFormat:@"The previous draw call took so long that it blocked a new Frame from coming in for %f ms. Optimize your Frame Processor!", diffTime];
+      auto message = [NSString stringWithFormat:@"The previous draw call took so long that it blocked a new Frame from coming in for %f ms. Optimize your Frame Processor!", abs(timeLeft)];
       [RCTBridge logToJS:RCTLogLevelWarning message:message];
     }
 #endif
