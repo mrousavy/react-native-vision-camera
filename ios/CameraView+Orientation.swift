@@ -16,7 +16,7 @@ extension CameraView {
   }
 
   // Orientation of the output connections (photo, video, frame processor)
-  private var outputOrientation: UIInterfaceOrientation {
+  var outputOrientation: UIInterfaceOrientation {
     if let userOrientation = orientation as String?,
        let parsedOrientation = try? UIInterfaceOrientation(withString: userOrientation) {
       // user is overriding output orientation
