@@ -293,7 +293,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       return .up
     }
 
-    switch UIDevice.current.orientation {
+    switch outputOrientation {
     case .portrait:
       return cameraPosition == .front ? .leftMirrored : .right
 
@@ -306,8 +306,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
     case .landscapeRight:
       return cameraPosition == .front ? .upMirrored : .down
 
-    case .unknown, .faceUp, .faceDown:
-      fallthrough
+    case .unknown:
+      return .up
     @unknown default:
       return .up
     }
