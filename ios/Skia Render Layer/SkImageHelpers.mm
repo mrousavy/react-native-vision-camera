@@ -35,6 +35,10 @@ SkImageHelpers::SkImageHelpers(id<MTLDevice> device, sk_sp<GrRecordingContext> c
    }
 }
 
+SkImageHelpers::~SkImageHelpers() {
+  CFRelease(_textureCache);
+}
+
 sk_sp<SkImage> SkImageHelpers::convertCMSampleBufferToSkImage(CMSampleBufferRef sampleBuffer) {
   auto pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
   double width = CVPixelBufferGetWidth(pixelBuffer);
