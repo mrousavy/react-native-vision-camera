@@ -97,6 +97,7 @@
 		B8248867292644EF00729383 /* PreviewSkiaView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = PreviewSkiaView.mm; sourceTree = "<group>"; };
 		B82FBA942614B69D00909718 /* RCTBridge+runOnJS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RCTBridge+runOnJS.h"; sourceTree = "<group>"; };
 		B82FBA952614B69D00909718 /* RCTBridge+runOnJS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "RCTBridge+runOnJS.mm"; sourceTree = "<group>"; };
+		B8306A5C29365BC3009C59D3 /* RCTBridge+logToJS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RCTBridge+logToJS.h"; sourceTree = "<group>"; };
 		B83373B329266A350092E380 /* SkiaMetalCanvasProvider.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; path = SkiaMetalCanvasProvider.h; sourceTree = "<group>"; };
 		B83373B429266A350092E380 /* SkiaMetalCanvasProvider.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SkiaMetalCanvasProvider.mm; sourceTree = "<group>"; };
 		B841262E292E41A1001AB448 /* SkImageHelpers.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SkImageHelpers.mm; sourceTree = "<group>"; };
@@ -287,6 +288,7 @@
 				B88873E5263D46C7008B1D0E /* FrameProcessorPlugin.h */,
 				B80416F026AB16E8000DEB6A /* VisionCameraScheduler.mm */,
 				B80416F126AB16F3000DEB6A /* VisionCameraScheduler.h */,
+				B8306A5C29365BC3009C59D3 /* RCTBridge+logToJS.h */,
 			);
 			path = "Frame Processor";
 			sourceTree = "<group>";

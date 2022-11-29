@@ -40,7 +40,6 @@ private:
   id<MTLCommandQueue> _commandQueue;
   id<MTLDevice> _device;
   sk_sp<GrDirectContext> _skContext;
-  dispatch_queue_t _runLoopQueue;
 
   id<CAMetalDrawable> _currentDrawable;
   std::mutex _drawableMutex;

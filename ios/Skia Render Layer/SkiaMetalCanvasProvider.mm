@@ -9,13 +9,13 @@
 #import <include/gpu/GrDirectContext.h>
 
 #import "SkImageHelpers.h"
+#import "../Frame Processor/RCTBridge+logToJS.h"
 
 #include <memory>
 
 SkiaMetalCanvasProvider::SkiaMetalCanvasProvider(): std::enable_shared_from_this<SkiaMetalCanvasProvider>() {
   _device = MTLCreateSystemDefaultDevice();
   _commandQueue = id<MTLCommandQueue>(CFRetain((GrMTLHandle)[_device newCommandQueue]));
-  _runLoopQueue = dispatch_queue_create("Camera Preview runLoop", DISPATCH_QUEUE_SERIAL);
 
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Wunguarded-availability-new"
@@ -39,6 +39,7 @@ SkiaMetalCanvasProvider::~SkiaMetalCanvasProvider() {
 }
 
 void SkiaMetalCanvasProvider::start() {
+  NSLog(@"VisionCamera: Starting SkiaMetalCanvasProvider DisplayLink...");
   [_displayLink start:[weakThis = weak_from_this()](double time) {
     auto thiz = weakThis.lock();
     if (thiz) {
@@ -66,7 +67,8 @@ void SkiaMetalCanvasProvider::render() {
     auto lockTime = (end - start) * 1000;
     auto diffTime = lockTime - getFrameTime();
     if (diffTime > 1) {
-      NSLog(@"The previous draw call took so long that it blocked a new Frame from coming in for %f ms!", diffTime);
+      auto message = [NSString stringWithFormat:@"The previous draw call took so long that it blocked a new Frame from coming in for %f ms!", diffTime];
+      [RCTBridge logToJS:RCTLogLevelWarning message:message];
     }
 #endif
   }

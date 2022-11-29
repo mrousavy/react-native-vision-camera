@@ -190,14 +190,13 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   }
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
-    // TODO: Remove this dirty hack
-    previewView.frameProcessorCallback = frameProcessorCallback
-
     if captureOutput is AVCaptureVideoDataOutput {
       // Render to PreviewView
-      print("before drawframe")
-      previewView.drawFrame(sampleBuffer)
-      print("after drawframe")
+      previewView.drawFrame(sampleBuffer) { canvas in
+        guard let frameProcessor = self.frameProcessorCallback else { return }
+        let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
+        frameProcessor(frame, canvas)
+      }
     }
 
     // Video Recording runs in the same queue

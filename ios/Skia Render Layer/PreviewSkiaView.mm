@@ -18,17 +18,13 @@
   std::shared_ptr<SkiaMetalCanvasProvider> _canvasProvider;
 }
 
-- (void)drawFrame:(CMSampleBufferRef)buffer {
+- (void)drawFrame:(CMSampleBufferRef)buffer withCallback:(DrawCallback _Nonnull)callback {
   if (_canvasProvider == nullptr) {
     throw std::runtime_error("Cannot draw new Frame to Canvas when SkiaMetalCanvasProvider is null!");
   }
 
-  _canvasProvider->renderFrameToCanvas(buffer, [buffer, self](SkCanvas* canvas) {
-    // TODO: Get correct Buffer Orientation here!
-    auto frame = [[Frame alloc] initWithBuffer:buffer orientation:UIImageOrientationUp];
-    if (self.frameProcessorCallback != nil) {
-      self.frameProcessorCallback(frame, (void*)canvas);
-    }
+  _canvasProvider->renderFrameToCanvas(buffer, ^(SkCanvas* canvas) {
+    callback((void*)canvas);
   });
 }
 
