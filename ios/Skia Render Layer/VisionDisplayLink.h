@@ -15,6 +15,8 @@
 typedef void (^block_t)(double);
 @interface VisionDisplayLink : NSObject {
   CADisplayLink *_displayLink;
+  double _currentFps;
+  double _previousFrameTimestamp;
 }
 
 @property(nonatomic, copy) block_t updateBlock;
@@ -27,6 +29,9 @@ typedef void (^block_t)(double);
 
 // The time (in milliseconds) we have until a next Frame is requested. If negative, we are dropping a Frame.
 - (double)timeUntilNextFrame;
+
+// Get the current FPS value
+- (double)currentFps;
 
 @end
 

@@ -6,12 +6,15 @@
 #import <include/core/SkColorSpace.h>
 #import <include/core/SkSurface.h>
 #import <include/core/SkCanvas.h>
+#import <include/core/SkFont.h>
 #import <include/gpu/GrDirectContext.h>
 
 #import "SkImageHelpers.h"
-#import "../Frame Processor/RCTBridge+logToJS.h"
 
 #include <memory>
+
+// 1 = show FPS counter in Skia Preview, 0 = don't
+#define DEBUG_FPS 1
 
 SkiaMetalCanvasProvider::SkiaMetalCanvasProvider(): std::enable_shared_from_this<SkiaMetalCanvasProvider>() {
   _device = MTLCreateSystemDefaultDevice();
@@ -66,8 +69,7 @@ void SkiaMetalCanvasProvider::render() {
     auto timeLeft = _displayLink.timeUntilNextFrame;
     if (timeLeft < 0) {
       // we have negative time left for a new frame, meaning we already skipped the next one. warn the user
-      auto message = [NSString stringWithFormat:@"The previous draw call took so long that it blocked a new Frame from coming in for %f ms. Optimize your Frame Processor!", abs(timeLeft)];
-      [RCTBridge logToJS:RCTLogLevelWarning message:message];
+      NSLog(@"The previous draw call took so long that it blocked a new Frame from coming in for %f ms. Optimize your Frame Processor!", abs(timeLeft));
     }
 #endif
   }
@@ -173,6 +175,19 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     
     // Call the JS Frame Processor.
     drawCallback(canvas);
+    
+#if DEBUG
+#if DEBUG_FPS
+    // Draw FPS on screen
+    int fps = static_cast<int>(round(_displayLink.currentFps));
+    SkString string("FPS: " + std::to_string(fps));
+    auto typeface = SkTypeface::MakeFromName("Arial", SkFontStyle::Bold());
+    SkFont font(typeface, 32);
+    SkPaint paint;
+    paint.setColor(SkColors::kRed);
+    canvas->drawString(string, 150, 200, font, paint);
+#endif
+#endif
     
     // Restore the scale & transform
     canvas->restore();

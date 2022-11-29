@@ -35,6 +35,11 @@
 
 - (void)update:(CADisplayLink *)sender {
   double time = sender.timestamp;
+  
+  double diff = time - _previousFrameTimestamp;
+  _currentFps = 1.0 / diff;
+  _previousFrameTimestamp = time;
+  
   _updateBlock(time);
 }
 
@@ -43,6 +48,10 @@
   double frameDiff = _displayLink.targetTimestamp - CACurrentMediaTime();
   // seconds -> milliseconds
   return frameDiff * 1000;
+}
+
+- (double)currentFps {
+  return _currentFps;
 }
 
 @end
