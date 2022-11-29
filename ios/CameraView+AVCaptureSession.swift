@@ -14,31 +14,31 @@ import Foundation
  */
 extension CameraView {
   // pragma MARK: Configure Capture Session
-
+  
   /**
    Configures the Capture Session.
    */
   final func configureCaptureSession() {
     ReactLogger.log(level: .info, message: "Configuring Session...")
     isReady = false
-
-    #if targetEnvironment(simulator)
-      invokeOnError(.device(.notAvailableOnSimulator))
-      return
-    #endif
-
+    
+#if targetEnvironment(simulator)
+    invokeOnError(.device(.notAvailableOnSimulator))
+    return
+#endif
+    
     guard cameraId != nil else {
       invokeOnError(.device(.noDevice))
       return
     }
     let cameraId = self.cameraId! as String
-
+    
     ReactLogger.log(level: .info, message: "Initializing Camera with device \(cameraId)...")
     captureSession.beginConfiguration()
     defer {
       captureSession.commitConfiguration()
     }
-
+    
     // If preset is set, use preset. Otherwise use format.
     if let preset = preset {
       var sessionPreset: AVCaptureSession.Preset?
@@ -60,7 +60,7 @@ extension CameraView {
         }
       }
     }
-
+    
     // pragma MARK: Capture Session Inputs
     // Video Input
     do {
@@ -83,9 +83,9 @@ extension CameraView {
       invokeOnError(.device(.invalid))
       return
     }
-
+    
     // pragma MARK: Capture Session Outputs
-
+    
     // Photo Output
     if let photoOutput = photoOutput {
       captureSession.removeOutput(photoOutput)
@@ -94,7 +94,7 @@ extension CameraView {
     if photo?.boolValue == true {
       ReactLogger.log(level: .info, message: "Adding Photo output...")
       photoOutput = AVCapturePhotoOutput()
-
+      
       if enableHighQualityPhotos?.boolValue == true {
         photoOutput!.isHighResolutionCaptureEnabled = true
         if #available(iOS 13.0, *) {
@@ -119,7 +119,7 @@ extension CameraView {
         photoOutput!.mirror()
       }
     }
-
+    
     // Video Output + Frame Processor
     if let videoOutput = videoOutput {
       captureSession.removeOutput(videoOutput)
@@ -145,19 +145,19 @@ extension CameraView {
       }
       captureSession.addOutput(videoOutput!)
     }
-      
+    
     // set FP
     previewView.frameProcessorCallback = frameProcessorCallback
-
+    
     onOrientationChanged()
-
+    
     invokeOnInitialized()
     isReady = true
     ReactLogger.log(level: .info, message: "Session successfully configured!")
   }
-
+  
   // pragma MARK: Configure Device
-
+  
   /**
    Configures the Video Device with the given FPS, HDR and ColorSpace.
    */
@@ -167,10 +167,10 @@ extension CameraView {
       invokeOnError(.session(.cameraNotReady))
       return
     }
-
+    
     do {
       try device.lockForConfiguration()
-
+      
       if let fps = fps?.int32Value {
         let supportsGivenFps = device.activeFormat.videoSupportedFrameRateRanges.contains { range in
           return range.includes(fps: Double(fps))
@@ -179,7 +179,7 @@ extension CameraView {
           invokeOnError(.format(.invalidFps(fps: Int(fps))))
           return
         }
-
+        
         let duration = CMTimeMake(value: 1, timescale: fps)
         device.activeVideoMinFrameDuration = duration
         device.activeVideoMaxFrameDuration = duration
@@ -215,7 +215,7 @@ extension CameraView {
         }
         device.activeColorSpace = avColorSpace
       }
-
+      
       device.unlockForConfiguration()
       ReactLogger.log(level: .info, message: "Device successfully configured!")
     } catch let error as NSError {
@@ -223,9 +223,9 @@ extension CameraView {
       return
     }
   }
-
+  
   // pragma MARK: Configure Format
-
+  
   /**
    Configures the Video Device to find the best matching Format.
    */
@@ -239,19 +239,19 @@ extension CameraView {
       invokeOnError(.session(.cameraNotReady))
       return
     }
-
+    
     if device.activeFormat.matchesFilter(filter) {
       ReactLogger.log(level: .info, message: "Active format already matches filter.")
       return
     }
-
+    
     // get matching format
     let matchingFormats = device.formats.filter { $0.matchesFilter(filter) }.sorted { $0.isBetterThan($1) }
     guard let format = matchingFormats.first else {
       invokeOnError(.format(.invalidFormat))
       return
     }
-
+    
     do {
       try device.lockForConfiguration()
       device.activeFormat = format
@@ -262,18 +262,18 @@ extension CameraView {
       return
     }
   }
-
+  
   // pragma MARK: Notifications/Interruptions
-
+  
   @objc
   func sessionRuntimeError(notification: Notification) {
     ReactLogger.log(level: .error, message: "Unexpected Camera Runtime Error occured!")
     guard let error = notification.userInfo?[AVCaptureSessionErrorKey] as? AVError else {
       return
     }
-
+    
     invokeOnError(.unknown(message: error._nsError.description), cause: error._nsError)
-
+    
     if isActive {
       // restart capture session after an error occured
       cameraQueue.async {
