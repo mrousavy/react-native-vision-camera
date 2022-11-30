@@ -197,7 +197,7 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     // Unlock the Pixel Buffer again so it can be freed up
     CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
   }
-};
+}
 
 void SkiaMetalCanvasProvider::setSize(int width, int height) {
   _width = width;
