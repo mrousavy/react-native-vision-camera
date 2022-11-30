@@ -172,6 +172,24 @@ public final class CameraView: UIView {
     }
   }
 
+  func setupPreviewView() {
+    if enableFrameProcessor {
+      if previewView is PreviewSkiaView { return }
+      previewView?.removeFromSuperview()
+
+      // If we are using a Frame Processor, set up a Skia context for drawing.
+      previewView = PreviewSkiaView(frame: frame)
+    } else {
+      if previewView is PreviewView { return }
+      previewView?.removeFromSuperview()
+
+      // If not, use the normal iOS Preview View (it's lighter, no need for a Skia Context)
+      previewView = PreviewView(frame: frame, session: captureSession)
+    }
+
+    addSubview(previewView!)
+  }
+
   // pragma MARK: Props updating
   override public final func didSetProps(_ changedProps: [String]!) {
     ReactLogger.log(level: .info, message: "Updating \(changedProps.count) prop(s)...")
@@ -188,10 +206,10 @@ public final class CameraView: UIView {
     let shouldUpdateVideoStabilization = willReconfigure || changedProps.contains("videoStabilizationMode")
     let shouldUpdateOrientation = willReconfigure || changedProps.contains("orientation")
 
-    DispatchQueue.main.async {
-      let previewView = self.enableFrameProcessor ? PreviewSkiaView(frame: self.frame) : PreviewView(frame: self.frame, session: self.captureSession)
-      self.addSubview(previewView)
-      self.previewView = previewView
+    if changedProps.contains("enableFrameProcessor") {
+      DispatchQueue.main.async {
+        self.setupPreviewView()
+      }
     }
 
     if shouldReconfigure ||
