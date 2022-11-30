@@ -14,12 +14,21 @@
 - (void)start:(block_t)block {
   self.updateBlock = block;
   // check whether the loop is already running
-  if(_displayLink == nil) {
+  if (_displayLink == nil) {
     // specify update method
     _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(update:)];
-    
-    // add the display link to the main run loop
-    [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
+
+    // Start a new Queue/Thread that will run the runLoop
+    dispatch_queue_attr_t qos = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, -1);
+    dispatch_queue_t queue = dispatch_queue_create("mrousavy/VisionCamera.preview", qos);
+    dispatch_async(queue, ^{
+      // Add the display link to the current run loop (thread on which we're currently running on)
+      NSRunLoop* loop = [NSRunLoop currentRunLoop];
+      [self->_displayLink addToRunLoop:loop forMode:NSRunLoopCommonModes];
+      // Run the runLoop (blocking)
+      [loop run];
+      NSLog(@"VisionCamera: DisplayLink runLoop ended.");
+    });
   }
 }
 
