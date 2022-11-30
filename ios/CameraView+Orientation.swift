@@ -27,7 +27,7 @@ extension CameraView {
     }
   }
 
-  internal func updateOrientation() {
+  func updateOrientation() {
     // Updates the Orientation for all rotable
     let isMirrored = videoDeviceInput?.device.position == .front
 

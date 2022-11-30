@@ -10,7 +10,7 @@ import Foundation
 
 extension CameraView {
   private func rotateFrameSize(frameSize: CGSize, orientation: UIInterfaceOrientation) -> CGSize {
-    switch (orientation) {
+    switch orientation {
     case .portrait, .portraitUpsideDown, .unknown:
       // swap width and height since the input orientation is rotated
       return CGSize(width: frameSize.height, height: frameSize.width)
@@ -21,9 +21,13 @@ extension CameraView {
       return frameSize
     }
   }
-  
+
   /// Converts a Point in the UI View Layer to a Point in the Camera Frame coordinate system
   func convertLayerPointToFramePoint(layerPoint point: CGPoint) -> CGPoint {
+    guard let previewView = previewView else {
+      invokeOnError(.session(.cameraNotReady))
+      return .zero
+    }
     guard let videoDeviceInput = videoDeviceInput else {
       invokeOnError(.session(.cameraNotReady))
       return .zero
@@ -32,22 +36,22 @@ extension CameraView {
       invokeOnError(.unknown(message: "View has no parent Window!"))
       return .zero
     }
-    
+
     let frameSize = rotateFrameSize(frameSize: videoDeviceInput.device.activeFormat.videoDimensions,
                                     orientation: outputOrientation)
     let viewSize = CGSize(width: previewView.bounds.width * viewScale,
                           height: previewView.bounds.height * viewScale)
     let scale = min(frameSize.width / viewSize.width, frameSize.height / viewSize.height)
     let scaledViewSize = CGSize(width: viewSize.width * scale, height: viewSize.height * scale)
-    
+
     let overlapX = scaledViewSize.width - frameSize.width
     let overlapY = scaledViewSize.height - frameSize.height
-    
+
     let scaledPoint = CGPoint(x: point.x * scale, y: point.y * scale)
-    
+
     return CGPoint(x: scaledPoint.x - (overlapX / 2), y: scaledPoint.y - (overlapY / 2))
   }
-  
+
   /// Converts a Point in the UI View Layer to a Point in the Camera Device Sensor coordinate system (x: [0..1], y: [0..1])
   func captureDevicePointConverted(fromLayerPoint pointInLayer: CGPoint) -> CGPoint {
     guard let videoDeviceInput = videoDeviceInput else {
@@ -59,7 +63,7 @@ extension CameraView {
     let pointInFrame = convertLayerPointToFramePoint(layerPoint: pointInLayer)
     return CGPoint(x: pointInFrame.x / frameSize.width, y: pointInFrame.y / frameSize.height)
   }
-  
+
   func focus(point: CGPoint, promise: Promise) {
     withPromise(promise) {
       guard let device = self.videoDeviceInput?.device else {
@@ -68,7 +72,7 @@ extension CameraView {
       if !device.isFocusPointOfInterestSupported {
         throw CameraError.device(DeviceError.focusNotSupported)
       }
-      
+
       // in {0..1} system
       let normalizedPoint = captureDevicePointConverted(fromLayerPoint: point)
 

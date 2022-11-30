@@ -102,7 +102,7 @@ public final class CameraView: UIView {
   internal let videoQueue = CameraQueues.videoQueue
   internal let audioQueue = CameraQueues.audioQueue
 
-  internal var previewView: PreviewSkiaView
+  internal var previewView: UIView?
 
   /// Returns whether the AVCaptureSession is currently running (reflected by isActive)
   var isRunning: Bool {
@@ -111,11 +111,7 @@ public final class CameraView: UIView {
 
   // pragma MARK: Setup
   override public init(frame: CGRect) {
-    previewView = PreviewSkiaView(frame: frame)
-
     super.init(frame: frame)
-
-    addSubview(previewView)
 
     NotificationCenter.default.addObserver(self,
                                            selector: #selector(sessionRuntimeError),
@@ -157,8 +153,8 @@ public final class CameraView: UIView {
 
   override public func willMove(toSuperview newSuperview: UIView?) {
     super.willMove(toSuperview: newSuperview)
-    
-    if (newSuperview != nil) {
+
+    if newSuperview != nil {
       if !isMounted {
         isMounted = true
         guard let onViewReady = onViewReady else {
@@ -170,8 +166,10 @@ public final class CameraView: UIView {
   }
 
   override public func layoutSubviews() {
-    previewView.frame = frame
-    previewView.bounds = bounds
+    if let previewView = previewView {
+      previewView.frame = frame
+      previewView.bounds = bounds
+    }
   }
 
   // pragma MARK: Props updating
@@ -189,6 +187,12 @@ public final class CameraView: UIView {
     let shouldUpdateZoom = willReconfigure || changedProps.contains("zoom") || shouldCheckActive
     let shouldUpdateVideoStabilization = willReconfigure || changedProps.contains("videoStabilizationMode")
     let shouldUpdateOrientation = willReconfigure || changedProps.contains("orientation")
+
+    DispatchQueue.main.async {
+      let previewView = self.enableFrameProcessor ? PreviewSkiaView(frame: self.frame) : PreviewView(frame: self.frame, session: self.captureSession)
+      self.addSubview(previewView)
+      self.previewView = previewView
+    }
 
     if shouldReconfigure ||
       shouldReconfigureAudioSession ||
