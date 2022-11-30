@@ -39,15 +39,16 @@ private:
 
   id<MTLCommandQueue> _commandQueue;
   id<MTLDevice> _device;
+  id<MTLTexture> _texture;
   sk_sp<GrDirectContext> _skContext;
 
-  id<CAMetalDrawable> _currentDrawable;
-  std::mutex _drawableMutex;
+  std::mutex _textureMutex;
 
   bool _isValid;
 
 private:
   void render();
+  id<MTLTexture> getTexture(int width, int height);
 
   float getPixelDensity();
 };

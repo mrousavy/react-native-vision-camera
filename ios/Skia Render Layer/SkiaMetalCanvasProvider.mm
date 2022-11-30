@@ -52,19 +52,47 @@ void SkiaMetalCanvasProvider::start() {
   }];
 }
 
+id<MTLTexture> SkiaMetalCanvasProvider::getTexture(int width, int height) {
+  // Check if the current in-memory texture is already exactly what we need
+  if (_texture != nil && _texture.width == width && _texture.height == height) {
+    return _texture;
+  }
+  
+  // Create new texture with the given width and height
+  MTLTextureDescriptor* textureDescriptor = [[MTLTextureDescriptor alloc] init];
+  textureDescriptor.pixelFormat = MTLPixelFormatBGRA8Unorm;
+  textureDescriptor.width = width;
+  textureDescriptor.height = height;
+  _texture = [_device newTextureWithDescriptor:textureDescriptor];
+  return _texture;
+}
+
 /**
  Callback from the DisplayLink - replaces a new drawable on the screen.
  */
 void SkiaMetalCanvasProvider::render() {
   @autoreleasepool {
     // Blocks until the next Frame is ready (16ms at 60 FPS)
-    auto tempDrawable = [_layer nextDrawable];
+    auto drawable = [_layer nextDrawable];
     
     // After we got a new Drawable (from blocking call), make sure we're still valid
     if (!_isValid) return;
     
-    std::unique_lock lock(_drawableMutex);
-    _currentDrawable = tempDrawable;
+    std::unique_lock lock(_textureMutex);
+    auto texture = _texture;
+    if (texture == nil) {
+      // We don't have a texture to draw.
+      return;
+    }
+    
+    // TODO: Render `texture` into `drawable`
+    NSLog(@"TODO: Render `texture` into `drawable`");
+    
+    // Pass the drawable into the Metal Command Buffer and submit it to the GPU
+    id<MTLCommandBuffer> commandBuffer([_commandQueue commandBuffer]);
+    [commandBuffer presentDrawable:drawable];
+    [commandBuffer commit];
+    
     lock.unlock();
   }
 }
@@ -87,6 +115,7 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
   if (_skContext == nullptr) {
     GrContextOptions grContextOptions;
     _skContext = GrDirectContext::MakeMetal((__bridge void*)_device,
+                                            // TODO: Use separate command queue for this context?
                                             (__bridge void*)_commandQueue,
                                             grContextOptions);
   }
@@ -95,22 +124,24 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
   // and not wait until later - we've seen some example of memory usage growing very
   // fast in the simulator without this.
   @autoreleasepool {
-    // Lock Mutex to block the runLoop from overwriting the _currentDrawable
-    std::lock_guard lockGuard(_drawableMutex);
-    
-    // Get the drawable to keep the reference/retain ownership here.
-    id<CAMetalDrawable> currentDrawable = _currentDrawable;
-    
-    // No Drawable is ready. Abort
-    if (currentDrawable == nullptr) {
-      return;
+    // Get the Frame's PixelBuffer
+    CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+    if (pixelBuffer == nil) {
+      throw std::runtime_error("drawFrame: Pixel Buffer is corrupt/empty.");
     }
+    
+    // Lock Mutex to block the runLoop from overwriting the _currentDrawable
+    std::lock_guard lockGuard(_textureMutex);
+    
+    // Get the Metal Texture we use for in-memory drawing
+    auto texture = getTexture(CVPixelBufferGetWidth(pixelBuffer),
+                              CVPixelBufferGetHeight(pixelBuffer));
     
     // Get & Lock the writeable Texture from the Metal Drawable
     GrMtlTextureInfo fbInfo;
-    fbInfo.fTexture.retain((__bridge void*)currentDrawable.texture);
-    GrBackendRenderTarget backendRT(_layer.drawableSize.width,
-                                    _layer.drawableSize.height,
+    fbInfo.fTexture.retain((__bridge void*)texture);
+    GrBackendRenderTarget backendRT(texture.width,
+                                    texture.height,
                                     1,
                                     fbInfo);
     
@@ -124,13 +155,6 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     
     if (skSurface == nullptr || skSurface->getCanvas() == nullptr) {
       throw std::runtime_error("Skia surface could not be created from parameters.");
-    }
-    
-    // Get the Frame's PixelBuffer
-    CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
-    
-    if (pixelBuffer == nil) {
-      throw std::runtime_error("drawFrame: Pixel Buffer is corrupt/empty.");
     }
     
     // Lock the Frame's PixelBuffer for the duration of the Frame Processor so the user can safely do operations on it
@@ -150,7 +174,6 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     auto offsetX = -sourceRect.left();
     auto offsetY = -sourceRect.top();
 
-    
     // The Canvas is equal to the View size, where-as the Frame has a different size (e.g. 4k)
     // We scale the Canvas to the exact dimensions of the Frame so that the user can use the Frame as a coordinate system
     canvas->save();
@@ -189,10 +212,11 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     // Flush all appended operations on the canvas and commit it to the SkSurface
     canvas->flush();
     
-    // Pass the drawable into the Metal Command Buffer and submit it to the GPU
+    // TODO: Do I need to commit?
+    /*
     id<MTLCommandBuffer> commandBuffer([_commandQueue commandBuffer]);
-    [commandBuffer presentDrawable:currentDrawable];
     [commandBuffer commit];
+     */
     
     // Unlock the Pixel Buffer again so it can be freed up
     CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
