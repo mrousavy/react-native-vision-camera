@@ -166,6 +166,9 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     auto canvas = skSurface->getCanvas();
     auto surface = canvas->getSurface();
     
+    // Clear anything that's currently on the Texture
+    canvas->clear(SkColors::kBlack);
+    
     // Calculate Center Crop (aspectRatio: cover) transform
     auto sourceRect = SkRect::MakeXYWH(0, 0, image->width(), image->height());
     auto destinationRect = SkRect::MakeXYWH(0, 0, surface->width(), surface->height());
