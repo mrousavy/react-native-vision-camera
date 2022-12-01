@@ -29,7 +29,8 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig = {
     "USE_HEADERMAP" => "YES",
     'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) SK_GL=1 SK_METAL=1',
-    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_TARGET_SRCROOT)\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/boost-for-react-native\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/Headers/Private/React-Core\" \"$(PODS_ROOT)/Headers/Public/react-native-skia/include\" \"$(PODS_ROOT)/Headers/Public/react-native-skia\" "
+    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_TARGET_SRCROOT)\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/boost-for-react-native\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/Headers/Private/React-Core\" \"$(PODS_ROOT)/Headers/Public/react-native-skia/include\" \"$(PODS_ROOT)/Headers/Public/react-native-skia\" ",
+    "METAL_LIBRARY_OUTPUT_DIR" => "${TARGET_BUILD_DIR}/VisionCamera.bundle/"
   }
   s.compiler_flags = folly_compiler_flags + ' ' + boost_compiler_flags
   s.xcconfig = {
@@ -61,6 +62,23 @@ Pod::Spec.new do |s|
   s.preserve_paths = [
     "cpp/**/*.h",
     "ios/**/*.h"
+  ]
+
+  # Create a resource bundle and build the metallib
+  s.resource_bundles = {
+    'VisionCamera' => ['MetalLibPlaceholder']
+  }
+  s.script_phases = [
+    {
+      :name => 'Build Metal Library (metal -> air)',
+      :script => 'xcrun -sdk iphoneos metal -c "${PODS_TARGET_SRCROOT}/ios/Shaders/PassThrough.metal" -o "${PODS_TARGET_SRCROOT}/ios/PassThrough.air"',
+      :execution_position => :after_compile
+    },
+    {
+      :name => 'Build Metal Library (air -> metallib)',
+      :script => 'xcrun -sdk iphoneos metallib "${PODS_TARGET_SRCROOT}/ios/PassThrough.air" -o "${METAL_LIBRARY_OUTPUT_DIR}/PassThrough.metallib" && rm "${PODS_TARGET_SRCROOT}/ios/PassThrough.air"',
+      :execution_position => :after_compile
+    },
   ]
 
   s.dependency "React-callinvoker"
