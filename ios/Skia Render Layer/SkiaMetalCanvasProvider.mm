@@ -59,10 +59,10 @@ id<MTLTexture> SkiaMetalCanvasProvider::getTexture(int width, int height) {
   }
   
   // Create new texture with the given width and height
-  MTLTextureDescriptor* textureDescriptor = [[MTLTextureDescriptor alloc] init];
-  textureDescriptor.pixelFormat = MTLPixelFormatBGRA8Unorm;
-  textureDescriptor.width = width;
-  textureDescriptor.height = height;
+  MTLTextureDescriptor* textureDescriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatBGRA8Unorm
+                                                                                               width:width
+                                                                                              height:height
+                                                                                           mipmapped:NO];
   _texture = [_device newTextureWithDescriptor:textureDescriptor];
   return _texture;
 }
@@ -72,23 +72,70 @@ id<MTLTexture> SkiaMetalCanvasProvider::getTexture(int width, int height) {
  */
 void SkiaMetalCanvasProvider::render() {
   @autoreleasepool {
-    // Blocks until the next Frame is ready (16ms at 60 FPS)
-    auto drawable = [_layer nextDrawable];
-    
     // After we got a new Drawable (from blocking call), make sure we're still valid
     if (!_isValid) return;
     
-    std::unique_lock lock(_textureMutex);
-    auto texture = _texture;
-    if (texture == nil) {
-      // We don't have a texture to draw.
-      return;
+    if (_skContext == nullptr) return;
+    
+    // Create a Skia Surface from the CAMetalLayer (use to draw to the View)
+    GrMTLHandle drawableHandle;
+    auto surface = SkSurface::MakeFromCAMetalLayer(_skContext.get(),
+                                                   (__bridge GrMTLHandle)_layer,
+                                                   kTopLeft_GrSurfaceOrigin,
+                                                   1,
+                                                   kBGRA_8888_SkColorType,
+                                                   nullptr,
+                                                   nullptr,
+                                                   &drawableHandle);
+    if (surface == nullptr || surface->getCanvas() == nullptr) {
+      throw std::runtime_error("Skia surface could not be created from parameters.");
     }
     
-    // TODO: Render `texture` into `drawable`
-    NSLog(@"TODO: Render `texture` into `drawable`");
+    auto canvas = surface->getCanvas();
+    
+    // Get the currently rendered texture
+    std::unique_lock lock(_textureMutex);
+    auto texture = _texture;
+    if (texture == nil) return;
+    
+    // Calculate Center Crop (aspectRatio: cover) transform
+    auto sourceRect = SkRect::MakeXYWH(0, 0, texture.width, texture.height);
+    auto destinationRect = SkRect::MakeXYWH(0, 0, surface->width(), surface->height());
+    sourceRect = SkImageHelpers::createCenterCropRect(sourceRect, destinationRect);
+    auto offsetX = -sourceRect.left();
+    auto offsetY = -sourceRect.top();
+
+    // The Canvas is equal to the View size, where-as the Frame has a different size (e.g. 4k)
+    // We scale the Canvas to the exact dimensions of the Frame so that the user can use the Frame as a coordinate system
+    canvas->save();
+    
+    auto scaleW = static_cast<double>(surface->width()) / texture.width;
+    auto scaleH = static_cast<double>(surface->height()) / texture.height;
+    auto scale = MAX(scaleW, scaleH);
+    canvas->scale(scale, scale);
+    canvas->translate(offsetX, offsetY);
+    
+    // Convert the rendered MTLTexture to an SkImage
+    GrMtlTextureInfo textureInfo;
+    textureInfo.fTexture.retain((__bridge void*)texture);
+    GrBackendTexture backendTexture(texture.width, texture.height, GrMipmapped::kNo, textureInfo);
+    auto image = SkImage::MakeFromTexture(_skContext.get(),
+                                          backendTexture,
+                                          kTopLeft_GrSurfaceOrigin,
+                                          kBGRA_8888_SkColorType,
+                                          kOpaque_SkAlphaType,
+                                          SkColorSpace::MakeSRGB());
+    
+    // Draw the Texture (Frame) to the Canvas
+    canvas->drawImage(image, 0, 0);
+    
+    // Restore the scale & transform
+    canvas->restore();
+    
+    surface->flushAndSubmit();
     
     // Pass the drawable into the Metal Command Buffer and submit it to the GPU
+    id<CAMetalDrawable> drawable = (__bridge id<CAMetalDrawable>)drawableHandle;
     id<MTLCommandBuffer> commandBuffer([_commandQueue commandBuffer]);
     [commandBuffer presentDrawable:drawable];
     [commandBuffer commit];
@@ -146,14 +193,14 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
                                     fbInfo);
     
     // Create a Skia Surface from the writable Texture
-    auto skSurface = SkSurface::MakeFromBackendRenderTarget(_skContext.get(),
-                                                            backendRT,
-                                                            kTopLeft_GrSurfaceOrigin,
-                                                            kBGRA_8888_SkColorType,
-                                                            nullptr,
-                                                            nullptr);
+    auto surface = SkSurface::MakeFromBackendRenderTarget(_skContext.get(),
+                                                          backendRT,
+                                                          kTopLeft_GrSurfaceOrigin,
+                                                          kBGRA_8888_SkColorType,
+                                                          nullptr,
+                                                          nullptr);
     
-    if (skSurface == nullptr || skSurface->getCanvas() == nullptr) {
+    if (surface == nullptr || surface->getCanvas() == nullptr) {
       throw std::runtime_error("Skia surface could not be created from parameters.");
     }
     
@@ -163,26 +210,10 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     // Converts the CMSampleBuffer to an SkImage - RGB.
     auto image = SkImageHelpers::convertCMSampleBufferToSkImage(_skContext.get(), sampleBuffer);
     
-    auto canvas = skSurface->getCanvas();
-    auto surface = canvas->getSurface();
+    auto canvas = surface->getCanvas();
     
-    // Calculate Center Crop (aspectRatio: cover) transform
-    auto sourceRect = SkRect::MakeXYWH(0, 0, image->width(), image->height());
-    auto destinationRect = SkRect::MakeXYWH(0, 0, surface->width(), surface->height());
-    sourceRect = SkImageHelpers::createCenterCropRect(sourceRect, destinationRect);
-    
-    auto offsetX = -sourceRect.left();
-    auto offsetY = -sourceRect.top();
-
-    // The Canvas is equal to the View size, where-as the Frame has a different size (e.g. 4k)
-    // We scale the Canvas to the exact dimensions of the Frame so that the user can use the Frame as a coordinate system
-    canvas->save();
-    
-    auto scaleW = static_cast<double>(surface->width()) / (image->width());
-    auto scaleH = static_cast<double>(surface->height()) / (image->height());
-    auto scale = MAX(scaleW, scaleH);
-    canvas->scale(scale, scale);
-    canvas->translate(offsetX, offsetY);
+    // Clear everything so we keep it at a clean state
+    canvas->clear(SkColors::kBlack);
     
     // Draw the Image into the Frame (aspectRatio: cover)
     // The Frame Processor might draw the Frame again (through render()) to pass a custom paint/shader,
@@ -191,9 +222,6 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     
     // Call the JS Frame Processor.
     drawCallback(canvas);
-    
-    // Restore the scale & transform
-    canvas->restore();
     
 #if DEBUG
 #if DEBUG_FPS
