@@ -53,34 +53,46 @@ void SkiaMetalCanvasProvider::start() {
 }
 
 id<MTLTexture> SkiaMetalCanvasProvider::getTexture(int width, int height) {
-  // Check if the current in-memory texture is already exactly what we need
-  if (_texture != nil && _texture.width == width && _texture.height == height) {
-    return _texture;
+  if (_texture == nil || _texture.width != width || _texture.height != height) {
+    // Create new texture with the given width and height
+    MTLTextureDescriptor* textureDescriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatBGRA8Unorm
+                                                                                                 width:width
+                                                                                                height:height
+                                                                                             mipmapped:NO];
+    textureDescriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+    _texture = [_device newTextureWithDescriptor:textureDescriptor];
   }
-  
-  // Create new texture with the given width and height
-  MTLTextureDescriptor* textureDescriptor = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:MTLPixelFormatBGRA8Unorm
-                                                                                               width:width
-                                                                                              height:height
-                                                                                           mipmapped:NO];
-  textureDescriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
-  _texture = [_device newTextureWithDescriptor:textureDescriptor];
   return _texture;
 }
 
+sk_sp<GrDirectContext> SkiaMetalCanvasProvider::getSkiaContext() {
+  if (_skContext == nullptr) {
+    GrContextOptions grContextOptions;
+    _skContext = GrDirectContext::MakeMetal((__bridge void*)_device,
+                                            (__bridge void*)_commandQueue,
+                                            grContextOptions);
+  }
+  return _skContext;
+}
+
 /**
- Callback from the DisplayLink - replaces a new drawable on the screen.
+ Callback from the DisplayLink - renders the current in-memory off-screen texture to the on-screen CAMetalLayer
  */
 void SkiaMetalCanvasProvider::render() {
+  if (_width == -1 && _height == -1) {
+    return;
+  }
+  
   @autoreleasepool {
-    // After we got a new Drawable (from blocking call), make sure we're still valid
-    if (!_isValid) return;
+    // check if a new frame has been pushed.
+    // Might be the case that we render more often than Frames come in, in that case we can skip rendering here.
+    if (!_hasNewFrame) return;
     
-    if (_skContext == nullptr) return;
+    auto skContext = getSkiaContext();
     
     // Create a Skia Surface from the CAMetalLayer (use to draw to the View)
     GrMTLHandle drawableHandle;
-    auto surface = SkSurface::MakeFromCAMetalLayer(_skContext.get(),
+    auto surface = SkSurface::MakeFromCAMetalLayer(skContext.get(),
                                                    (__bridge GrMTLHandle)_layer,
                                                    kTopLeft_GrSurfaceOrigin,
                                                    1,
@@ -120,7 +132,7 @@ void SkiaMetalCanvasProvider::render() {
     GrMtlTextureInfo textureInfo;
     textureInfo.fTexture.retain((__bridge void*)texture);
     GrBackendTexture backendTexture(texture.width, texture.height, GrMipmapped::kNo, textureInfo);
-    auto image = SkImage::MakeFromTexture(_skContext.get(),
+    auto image = SkImage::MakeFromTexture(skContext.get(),
                                           backendTexture,
                                           kTopLeft_GrSurfaceOrigin,
                                           kBGRA_8888_SkColorType,
@@ -164,22 +176,13 @@ float SkiaMetalCanvasProvider::getPixelDensity() {
 }
 
 /**
- Render to a canvas. This uses the current in-memory drawable (received from the DisplayLink render loop) and pushes updates.
- If no new drawable is available, it can push to the same drawable multiple times.
+ Render to a canvas. This uses the current in-memory off-screen texture and draws to it.
  The buffer is expected to be in RGB (`BGRA_8888`) format.
  While rendering, `drawCallback` will be invoked with a Skia Canvas instance which can be used for Frame Processing (JS).
  */
 void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer, const std::function<void(SkCanvas*)>& drawCallback) {
   if (_width == -1 && _height == -1) {
     return;
-  }
-
-  if (_skContext == nullptr) {
-    GrContextOptions grContextOptions;
-    _skContext = GrDirectContext::MakeMetal((__bridge void*)_device,
-                                            // TODO: Use separate command queue for this context?
-                                            (__bridge void*)_commandQueue,
-                                            grContextOptions);
   }
 
   // Wrap in auto release pool since we want the system to clean up after rendering
@@ -193,7 +196,7 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     }
     
     // Lock Mutex to block the runLoop from overwriting the _currentDrawable
-    std::lock_guard lockGuard(_textureMutex);
+    std::unique_lock lock(_textureMutex);
     
     // Get the Metal Texture we use for in-memory drawing
     auto texture = getTexture(CVPixelBufferGetWidth(pixelBuffer),
@@ -207,8 +210,10 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
                                     1,
                                     fbInfo);
     
+    auto skContext = getSkiaContext();
+    
     // Create a Skia Surface from the writable Texture
-    auto surface = SkSurface::MakeFromBackendRenderTarget(_skContext.get(),
+    auto surface = SkSurface::MakeFromBackendRenderTarget(skContext.get(),
                                                           backendRT,
                                                           kTopLeft_GrSurfaceOrigin,
                                                           kBGRA_8888_SkColorType,
@@ -223,7 +228,7 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
     
     // Converts the CMSampleBuffer to an SkImage - RGB.
-    auto image = SkImageHelpers::convertCMSampleBufferToSkImage(_skContext.get(), sampleBuffer);
+    auto image = SkImageHelpers::convertCMSampleBufferToSkImage(skContext.get(), sampleBuffer);
     
     auto canvas = surface->getCanvas();
     
@@ -241,13 +246,10 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     // Flush all appended operations on the canvas and commit it to the SkSurface
     canvas->flush();
     
-    // TODO: Do I need to commit?
-    /*
-    id<MTLCommandBuffer> commandBuffer([_commandQueue commandBuffer]);
-    [commandBuffer commit];
-     */
+    // Set the flag for a new frame to true, causing the next render() call to draw the texture we just drew to, onto the screen.
+    _hasNewFrame = true;
     
-    // Unlock the Pixel Buffer again so it can be freed up
+    lock.unlock();
     CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
   }
 }
