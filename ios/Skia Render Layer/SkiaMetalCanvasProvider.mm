@@ -19,6 +19,8 @@
 SkiaMetalCanvasProvider::SkiaMetalCanvasProvider(): std::enable_shared_from_this<SkiaMetalCanvasProvider>() {
   _device = MTLCreateSystemDefaultDevice();
   _commandQueue = id<MTLCommandQueue>(CFRetain((GrMTLHandle)[_device newCommandQueue]));
+  _skContext = GrDirectContext::MakeMetal((__bridge void*)_device,
+                                          (__bridge void*)_commandQueue);
 
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Wunguarded-availability-new"
@@ -65,16 +67,6 @@ id<MTLTexture> SkiaMetalCanvasProvider::getTexture(int width, int height) {
   return _texture;
 }
 
-sk_sp<GrDirectContext> SkiaMetalCanvasProvider::getSkiaContext() {
-  if (_skContext == nullptr) {
-    GrContextOptions grContextOptions;
-    _skContext = GrDirectContext::MakeMetal((__bridge void*)_device,
-                                            (__bridge void*)_commandQueue,
-                                            grContextOptions);
-  }
-  return _skContext;
-}
-
 /**
  Callback from the DisplayLink - renders the current in-memory off-screen texture to the on-screen CAMetalLayer
  */
@@ -85,11 +77,9 @@ void SkiaMetalCanvasProvider::render() {
   
   @autoreleasepool {
     
-    auto skContext = getSkiaContext();
-    
     // Create a Skia Surface from the CAMetalLayer (use to draw to the View)
     GrMTLHandle drawableHandle;
-    auto surface = SkSurface::MakeFromCAMetalLayer(skContext.get(),
+    auto surface = SkSurface::MakeFromCAMetalLayer(_skContext.get(),
                                                    (__bridge GrMTLHandle)_layer,
                                                    kTopLeft_GrSurfaceOrigin,
                                                    1,
@@ -132,7 +122,7 @@ void SkiaMetalCanvasProvider::render() {
     GrMtlTextureInfo textureInfo;
     textureInfo.fTexture.retain((__bridge void*)texture);
     GrBackendTexture backendTexture(texture.width, texture.height, GrMipmapped::kNo, textureInfo);
-    auto image = SkImage::MakeFromTexture(skContext.get(),
+    auto image = SkImage::MakeFromTexture(_skContext.get(),
                                           backendTexture,
                                           kTopLeft_GrSurfaceOrigin,
                                           kBGRA_8888_SkColorType,
@@ -210,10 +200,8 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
                                     1,
                                     fbInfo);
     
-    auto skContext = getSkiaContext();
-    
     // Create a Skia Surface from the writable Texture
-    auto surface = SkSurface::MakeFromBackendRenderTarget(skContext.get(),
+    auto surface = SkSurface::MakeFromBackendRenderTarget(_skContext.get(),
                                                           backendRT,
                                                           kTopLeft_GrSurfaceOrigin,
                                                           kBGRA_8888_SkColorType,
@@ -228,7 +216,7 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
     
     // Converts the CMSampleBuffer to an SkImage - RGB.
-    auto image = SkImageHelpers::convertCMSampleBufferToSkImage(skContext.get(), sampleBuffer);
+    auto image = SkImageHelpers::convertCMSampleBufferToSkImage(_skContext.get(), sampleBuffer);
     
     auto canvas = surface->getCanvas();
     

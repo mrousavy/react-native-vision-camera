@@ -49,7 +49,6 @@ private:
 private:
   void render();
   id<MTLTexture> getTexture(int width, int height);
-  sk_sp<GrDirectContext> getSkiaContext();
 
   float getPixelDensity();
 };
