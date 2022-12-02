@@ -197,10 +197,7 @@ public final class CameraView: UIView {
   func setupFpsGraph() {
 #if DEBUG
     if enableFpsGraph {
-      if fpsGraph != nil {
-        // We already created it
-        return
-      }
+      if fpsGraph != nil { return }
       fpsGraph = RCTFPSGraph(frame: CGRect(x: 10, y: 54, width: 75, height: 45), color: .red)
       fpsGraph!.layer.zPosition = 9999.0
       addSubview(fpsGraph!)
