@@ -13,6 +13,7 @@
 #include <include/gpu/GrDirectContext.h>
 #include <mutex>
 #include <memory>
+#include <atomic>
 
 #import "VisionDisplayLink.h"
 
@@ -48,6 +49,7 @@ private:
   std::mutex _textureMutex;
 
   bool _isValid = false;
+  std::atomic<bool> _hasNewFrame = false;
   
 private:
   void render();

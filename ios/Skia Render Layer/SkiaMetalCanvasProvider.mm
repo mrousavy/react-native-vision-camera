@@ -72,6 +72,12 @@ void SkiaMetalCanvasProvider::render() {
     return;
   }
   
+  if (!_hasNewFrame) {
+    // No new Frame has arrived in the meantime.
+    // We don't need to re-draw the texture to the screen if nothing has changed, abort.
+    return;
+  }
+  
   @autoreleasepool {
     // Lock the Mutex so we can operate on the Texture atomically without
     // renderFrameToCanvas() overwriting in between from a different thread
@@ -153,6 +159,8 @@ void SkiaMetalCanvasProvider::render() {
     [commandBuffer presentDrawable:drawable];
     [commandBuffer commit];
     
+    _hasNewFrame = false;
+    
     lock.unlock();
   }
 }
@@ -229,6 +237,8 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     
     // Flush all appended operations on the canvas and commit it to the SkSurface
     surface->flushAndSubmit();
+    
+    _hasNewFrame = true;
     
     lock.unlock();
     CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
