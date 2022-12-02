@@ -232,7 +232,7 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     drawCallback(canvas);
     
     // Flush all appended operations on the canvas and commit it to the SkSurface
-    canvas->flush();
+    surface->flushAndSubmit();
     
     lock.unlock();
     CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
