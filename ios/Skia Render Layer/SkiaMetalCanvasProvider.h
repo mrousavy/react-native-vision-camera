@@ -21,9 +21,12 @@ public:
   SkiaMetalCanvasProvider();
   ~SkiaMetalCanvasProvider();
 
+  // Render a Camera Frame to the off-screen canvas
   void renderFrameToCanvas(CMSampleBufferRef sampleBuffer, const std::function<void(SkCanvas*)>& drawCallback);
 
+  // Start updating the DisplayLink (runLoop @ screen refresh rate) and draw Frames to the Layer
   void start();
+  // Update the size of the View (Layer)
   void setSize(int width, int height);
   CALayer* getLayer();
 
