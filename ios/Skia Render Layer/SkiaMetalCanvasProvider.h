@@ -16,6 +16,7 @@
 #include <atomic>
 
 #import "VisionDisplayLink.h"
+#import "SkiaMetalRenderContext.h"
 
 class SkiaMetalCanvasProvider: public std::enable_shared_from_this<SkiaMetalCanvasProvider> {
 public:
@@ -32,23 +33,18 @@ public:
   CALayer* getLayer();
 
 private:
+  bool _isValid = false;
   float _width = -1;
   float _height = -1;
+  
+  // For rendering Camera Frame -> off-screen MTLTexture
+  OffscreenRenderContext _offscreenContext;
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunguarded-availability-new"
-  CAMetalLayer* _layer;
-#pragma clang diagnostic pop
-  VisionDisplayLink* _displayLink;
-
-  id<MTLCommandQueue> _commandQueue;
-  id<MTLDevice> _device;
-  id<MTLTexture> _texture;
-  sk_sp<GrDirectContext> _skContext;
-
+  // For rendering off-screen MTLTexture -> on-screen CAMetalLayer
+  LayerRenderContext _layerContext;
+  
+  // For synchronization between the two Threads/Contexts
   std::mutex _textureMutex;
-
-  bool _isValid = false;
   std::atomic<bool> _hasNewFrame = false;
   
 private:
