@@ -14,18 +14,42 @@
 #include <exception>
 #include <string>
 
+#if SHOW_FPS
+#import <React/RCTFPSGraph.h>
+#endif
+
 @implementation PreviewSkiaView {
   std::shared_ptr<SkiaMetalCanvasProvider> _canvasProvider;
+#if SHOW_FPS
+  RCTFPSGraph* _fpsGraph;
+#endif
+}
+
+- (instancetype)initWithFrame:(CGRect)frame {
+  if (self = [super initWithFrame:frame]) {
+#if SHOW_FPS
+    double statusBarHeight = UIApplication.sharedApplication.statusBarFrame.size.height;
+    _fpsGraph = [[RCTFPSGraph alloc] initWithFrame:CGRectMake(10, statusBarHeight + 10, 80, 45) color:[UIColor redColor]];
+    [self addSubview:_fpsGraph];
+#endif
+  }
+  return self;
 }
 
 - (void)drawFrame:(CMSampleBufferRef)buffer withCallback:(DrawCallback _Nonnull)callback {
   if (_canvasProvider == nullptr) {
     throw std::runtime_error("Cannot draw new Frame to Canvas when SkiaMetalCanvasProvider is null!");
   }
-
+  
   _canvasProvider->renderFrameToCanvas(buffer, ^(SkCanvas* canvas) {
     callback((void*)canvas);
   });
+  
+#if SHOW_FPS
+  CMTime time = CMSampleBufferGetPresentationTimeStamp(buffer);
+  double seconds = CMTimeGetSeconds(time);
+  [self->_fpsGraph onTick:seconds];
+#endif
 }
 
 - (void) willMoveToSuperview:(UIView *)newWindow {
