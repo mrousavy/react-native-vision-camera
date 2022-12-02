@@ -135,9 +135,8 @@ public final class CameraView: UIView {
     
 #if DEBUG
     if VISION_CAMERA_SHOW_FPS {
-      let top = self.window?.safeAreaInsets.top ?? 0
       fpsGraph = RCTFPSGraph(frame: CGRect(x: 10, y: 54, width: 75, height: 45), color: .red)
-      fpsGraph!.layer.zPosition = 1000.0
+      fpsGraph!.layer.zPosition = 9999.0
       addSubview(fpsGraph!)
     }
 #endif
