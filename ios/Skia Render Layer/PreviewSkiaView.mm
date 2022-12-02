@@ -46,9 +46,9 @@
   });
   
 #if SHOW_FPS
-  CMTime time = CMSampleBufferGetPresentationTimeStamp(buffer);
-  double seconds = CMTimeGetSeconds(time);
-  [self->_fpsGraph onTick:seconds];
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [self->_fpsGraph onTick:CACurrentMediaTime()];
+  });
 #endif
 }
 
