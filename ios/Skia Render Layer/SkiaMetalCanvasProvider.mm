@@ -167,6 +167,9 @@ void SkiaMetalCanvasProvider::render() {
     [commandBuffer presentDrawable:drawable];
     [commandBuffer commit];
     
+    // Set the new Frame flag to false again. If no new Frame comes in until the next render() call, we can skip an unnecessary render.
+    _hasNewFrame = false;
+    
     lock.unlock();
   }
 }
