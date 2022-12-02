@@ -13,9 +13,6 @@
 
 #include <memory>
 
-// 1 = show FPS counter in Skia Preview, 0 = don't
-#define DEBUG_FPS 1
-
 SkiaMetalCanvasProvider::SkiaMetalCanvasProvider(): std::enable_shared_from_this<SkiaMetalCanvasProvider>() {
   _device = MTLCreateSystemDefaultDevice();
   _commandQueue = id<MTLCommandQueue>(CFRetain((GrMTLHandle)[_device newCommandQueue]));

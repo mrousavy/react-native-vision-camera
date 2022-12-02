@@ -20,20 +20,6 @@
 
 @implementation PreviewSkiaView {
   std::shared_ptr<SkiaMetalCanvasProvider> _canvasProvider;
-#if SHOW_FPS
-  RCTFPSGraph* _fpsGraph;
-#endif
-}
-
-- (instancetype)initWithFrame:(CGRect)frame {
-  if (self = [super initWithFrame:frame]) {
-#if SHOW_FPS
-    double statusBarHeight = UIApplication.sharedApplication.statusBarFrame.size.height;
-    _fpsGraph = [[RCTFPSGraph alloc] initWithFrame:CGRectMake(10, statusBarHeight + 10, 80, 45) color:[UIColor redColor]];
-    [self addSubview:_fpsGraph];
-#endif
-  }
-  return self;
 }
 
 - (void)drawFrame:(CMSampleBufferRef)buffer withCallback:(DrawCallback _Nonnull)callback {
@@ -44,12 +30,6 @@
   _canvasProvider->renderFrameToCanvas(buffer, ^(SkCanvas* canvas) {
     callback((void*)canvas);
   });
-  
-#if SHOW_FPS
-  dispatch_async(dispatch_get_main_queue(), ^{
-    [self->_fpsGraph onTick:CACurrentMediaTime()];
-  });
-#endif
 }
 
 - (void) willMoveToSuperview:(UIView *)newWindow {

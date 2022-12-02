@@ -221,9 +221,18 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         break
       }
     }
-
+    
     // Invalidate Buffer
     CMSampleBufferInvalidate(sampleBuffer)
+    
+#if DEBUG
+    // Update FPS Graph per Frame
+    if let fpsGraph = self.fpsGraph {
+      DispatchQueue.main.async {
+        fpsGraph.onTick(CACurrentMediaTime())
+      }
+    }
+#endif
   }
 
   private func recommendedVideoSettings(videoOutput: AVCaptureVideoDataOutput,
