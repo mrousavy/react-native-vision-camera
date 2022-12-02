@@ -76,6 +76,9 @@ void SkiaMetalCanvasProvider::render() {
   }
   
   @autoreleasepool {
+    // Lock the Mutex so we can operate on the Texture atomically without
+    // renderFrameToCanvas() overwriting in between from a different thread
+    std::unique_lock lock(_textureMutex);
     
     // Create a Skia Surface from the CAMetalLayer (use to draw to the View)
     GrMTLHandle drawableHandle;
@@ -92,10 +95,6 @@ void SkiaMetalCanvasProvider::render() {
     }
     
     auto canvas = surface->getCanvas();
-    
-    // Lock the Mutex so we can operate on the Texture atomically without
-    // renderFrameToCanvas() overwriting in between from a different thread
-    std::unique_lock lock(_textureMutex);
     
     // Get the texture
     auto texture = _texture;
