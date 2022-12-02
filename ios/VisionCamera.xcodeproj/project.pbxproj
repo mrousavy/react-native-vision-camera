@@ -85,6 +85,7 @@
 		134814201AA4EA6300B7C361 /* libVisionCamera.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libVisionCamera.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		B80416F026AB16E8000DEB6A /* VisionCameraScheduler.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = VisionCameraScheduler.mm; sourceTree = "<group>"; };
 		B80416F126AB16F3000DEB6A /* VisionCameraScheduler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VisionCameraScheduler.h; sourceTree = "<group>"; };
+		B80A319E293A5C10003EE681 /* SkiaMetalRenderContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkiaMetalRenderContext.h; sourceTree = "<group>"; };
 		B80C0DFE260BDD97001699AB /* FrameProcessorPluginRegistry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorPluginRegistry.h; sourceTree = "<group>"; };
 		B80C0DFF260BDDF7001699AB /* FrameProcessorPluginRegistry.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessorPluginRegistry.mm; sourceTree = "<group>"; };
 		B80D67A825FA25380008FE8D /* FrameProcessorCallback.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorCallback.h; sourceTree = "<group>"; };
@@ -305,6 +306,7 @@
 				B841262E292E41A1001AB448 /* SkImageHelpers.mm */,
 				B88A020E2934FC29009E035A /* VisionDisplayLink.h */,
 				B88A020C2934FC22009E035A /* VisionDisplayLink.m */,
+				B80A319E293A5C10003EE681 /* SkiaMetalRenderContext.h */,
 			);
 			path = "Skia Render Layer";
 			sourceTree = "<group>";

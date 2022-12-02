@@ -103,6 +103,9 @@ public final class CameraView: UIView {
   internal let audioQueue = CameraQueues.audioQueue
 
   internal var previewView: UIView?
+#if DEBUG
+  internal var fpsGraph: RCTFPSGraph? = nil
+#endif
 
   /// Returns whether the AVCaptureSession is currently running (reflected by isActive)
   var isRunning: Bool {
@@ -129,6 +132,14 @@ public final class CameraView: UIView {
                                            selector: #selector(onOrientationChanged),
                                            name: UIDevice.orientationDidChangeNotification,
                                            object: nil)
+    
+#if DEBUG
+    if VISION_CAMERA_SHOW_FPS {
+      fpsGraph = RCTFPSGraph(frame: CGRect(x: 10, y: 54, width: 75, height: 45), color: .red)
+      fpsGraph!.layer.zPosition = 9999.0
+      addSubview(fpsGraph!)
+    }
+#endif
   }
 
   @available(*, unavailable)

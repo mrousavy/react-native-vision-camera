@@ -14,6 +14,10 @@
 #include <exception>
 #include <string>
 
+#if SHOW_FPS
+#import <React/RCTFPSGraph.h>
+#endif
+
 @implementation PreviewSkiaView {
   std::shared_ptr<SkiaMetalCanvasProvider> _canvasProvider;
 }
@@ -22,7 +26,7 @@
   if (_canvasProvider == nullptr) {
     throw std::runtime_error("Cannot draw new Frame to Canvas when SkiaMetalCanvasProvider is null!");
   }
-
+  
   _canvasProvider->renderFrameToCanvas(buffer, ^(SkCanvas* canvas) {
     callback((void*)canvas);
   });
