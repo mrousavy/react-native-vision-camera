@@ -38,13 +38,7 @@ SkiaMetalCanvasProvider::SkiaMetalCanvasProvider(): std::enable_shared_from_this
   _renderPassDescriptor = [[MTLRenderPassDescriptor alloc] init];
   
   // Load the compiled Metal shader (PassThrough.metal)
-  auto baseBundle = [NSBundle mainBundle];
-  auto resourceBundleUrl = [baseBundle URLForResource:@"VisionCamera" withExtension:@"bundle"];
-  auto resourceBundle = [[NSBundle alloc] initWithURL:resourceBundleUrl];
-  auto shaderLibraryUrl = [resourceBundle URLForResource:@"PassThrough" withExtension:@"metallib"];
-  
-  NSError* libLoadError;
-  id<MTLLibrary> defaultLibrary = [_device newLibraryWithURL:shaderLibraryUrl error:&libLoadError];
+  id<MTLLibrary> defaultLibrary = [_device newDefaultLibrary];
   id<MTLFunction> vertexFunction = [defaultLibrary newFunctionWithName:@"vertexPassThrough"];
   id<MTLFunction> fragmentFunction = [defaultLibrary newFunctionWithName:@"fragmentPassThrough"];
   

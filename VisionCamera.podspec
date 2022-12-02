@@ -44,7 +44,7 @@ Pod::Spec.new do |s|
   # All source files that should be publicly visible
   # Note how this does not include headers, since those can nameclash.
   s.source_files = [
-    "ios/**/*.{m,mm,swift,metal}",
+    "ios/**/*.{m,mm,swift}",
     "ios/CameraBridge.h",
     "ios/Skia Render Layer/PreviewSkiaView.h",
     "ios/Frame Processor/Frame.h",
@@ -71,7 +71,7 @@ Pod::Spec.new do |s|
   s.script_phases = [
     {
       :name => 'Build Metal Library (metal -> air)',
-      :script => 'xcrun -sdk iphoneos metal -c "${PODS_TARGET_SRCROOT}/ios/Skia Render Layer/PassThrough.metal" -o "${PODS_TARGET_SRCROOT}/ios/PassThrough.air"',
+      :script => 'xcrun -sdk iphoneos metal -c "${PODS_TARGET_SRCROOT}/ios/Shaders/PassThrough.metal" -o "${PODS_TARGET_SRCROOT}/ios/PassThrough.air"',
       :execution_position => :after_compile
     },
     {
