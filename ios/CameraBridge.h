@@ -21,21 +21,10 @@
 #import "JSConsoleHelper.h"
 #import "PreviewSkiaView.h"
 
-#if DEBUG
-// In debug builds, show Frame Processor FPS graph at the top left to debug FP performance
-#define SHOW_FPS 1
-#endif
-
 #ifdef VISION_CAMERA_DISABLE_FRAME_PROCESSORS
 static bool VISION_CAMERA_ENABLE_FRAME_PROCESSORS = false;
 #else
 static bool VISION_CAMERA_ENABLE_FRAME_PROCESSORS = true;
-#endif
-
-#if SHOW_FPS
-static bool VISION_CAMERA_SHOW_FPS = true;
-#else
-static bool VISION_CAMERA_SHOW_FPS = false;
 #endif
 
 @interface CameraBridge: RCTViewManager

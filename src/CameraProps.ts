@@ -152,6 +152,13 @@ export interface CameraProps extends ViewProps {
    */
   enableHighQualityPhotos?: boolean;
   /**
+   * If `true`, show a debug view to display the FPS of the Camera session.
+   * This is useful for debugging your Frame Processor's speed.
+   *
+   * @default false
+   */
+  enableFpsGraph?: boolean;
+  /**
    * Represents the orientation of all Camera Outputs (Photo, Video, and Frame Processor). If this value is not set, the device orientation is used.
    */
   orientation?: 'portrait' | 'portraitUpsideDown' | 'landscapeLeft' | 'landscapeRight';
