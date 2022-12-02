@@ -34,30 +34,6 @@ SkiaMetalCanvasProvider::SkiaMetalCanvasProvider(): std::enable_shared_from_this
   _isValid = true;
   
   _displayLink = [[VisionDisplayLink alloc] init];
-  
-  _renderPassDescriptor = [[MTLRenderPassDescriptor alloc] init];
-  
-  // Load the compiled Metal shader (PassThrough.metal)
-  id<MTLLibrary> defaultLibrary = [_device newDefaultLibrary];
-  id<MTLFunction> vertexFunction = [defaultLibrary newFunctionWithName:@"vertexPassThrough"];
-  id<MTLFunction> fragmentFunction = [defaultLibrary newFunctionWithName:@"fragmentPassThrough"];
-  
-  if (vertexFunction == nil || fragmentFunction == nil) {
-    throw std::runtime_error("VisionCamera: Failed to load PassThrough.metal shader!");
-  }
-  
-  // Create a Pipeline Descriptor that connects the CPU draw operations to the GPU Metal context
-  auto pipelineDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
-  pipelineDescriptor.label = @"VisionCamera: Frame Texture -> Layer Pipeline";
-  pipelineDescriptor.vertexFunction = vertexFunction;
-  pipelineDescriptor.fragmentFunction = fragmentFunction;
-  pipelineDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
-  
-  NSError* error;
-  _pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineDescriptor error:&error];
-  if (error != nil) {
-    throw std::runtime_error("VisionCamera: Failed to create render pipeline state!");
-  }
 }
 
 SkiaMetalCanvasProvider::~SkiaMetalCanvasProvider() {
@@ -109,23 +85,11 @@ void SkiaMetalCanvasProvider::render() {
       return;
     }
     
+    // TODO: Render `texture` into `drawable`
+    NSLog(@"TODO: Render `texture` into `drawable`");
+    
     // Pass the drawable into the Metal Command Buffer and submit it to the GPU
     id<MTLCommandBuffer> commandBuffer([_commandQueue commandBuffer]);
-    
-    // Assign the Texture containing the Skia Canvas/Frame to the Metal Render Pass
-    MTLRenderPassDescriptor* renderPassDescriptor = [[MTLRenderPassDescriptor alloc] init];
-    renderPassDescriptor.colorAttachments[0].texture = drawable.texture;
-    renderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
-    renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor();
-    
-    // Encode the commands
-    auto renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-    [renderEncoder setLabel:@"VisionCamera: PreviewView Texture -> Layer"];
-    [renderEncoder setRenderPipelineState:_pipelineState];
-    [renderEncoder setFragmentTexture:texture atIndex:0];
-    [renderEncoder endEncoding];
-    
-    // Pass it through to the GPU
     [commandBuffer presentDrawable:drawable];
     [commandBuffer commit];
     

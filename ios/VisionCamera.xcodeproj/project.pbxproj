@@ -63,7 +63,6 @@
 		B8994E6C263F03E100069589 /* JSIUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8994E6B263F03E100069589 /* JSIUtils.mm */; };
 		B8A751D82609E4B30011C623 /* FrameProcessorRuntimeManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8A751D72609E4B30011C623 /* FrameProcessorRuntimeManager.mm */; };
 		B8BD3BA2266E22D2006C80A2 /* Callback.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8BD3BA1266E22D2006C80A2 /* Callback.swift */; };
-		B8C196402938F4DE00BC58A3 /* PassThrough.metal in Sources */ = {isa = PBXBuildFile; fileRef = B8C1963F2938F4DE00BC58A3 /* PassThrough.metal */; };
 		B8D22CDC2642DB4D00234472 /* AVAssetWriterInputPixelBufferAdaptor+initWithVideoSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8D22CDB2642DB4D00234472 /* AVAssetWriterInputPixelBufferAdaptor+initWithVideoSettings.swift */; };
 		B8DB3BC8263DC28C004C18D7 /* AVAssetWriter.Status+descriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BC7263DC28C004C18D7 /* AVAssetWriter.Status+descriptor.swift */; };
 		B8DB3BCA263DC4D8004C18D7 /* RecordingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BC9263DC4D8004C18D7 /* RecordingSession.swift */; };
@@ -158,7 +157,6 @@
 		B8A751D62609E4980011C623 /* FrameProcessorRuntimeManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorRuntimeManager.h; sourceTree = "<group>"; };
 		B8A751D72609E4B30011C623 /* FrameProcessorRuntimeManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessorRuntimeManager.mm; sourceTree = "<group>"; };
 		B8BD3BA1266E22D2006C80A2 /* Callback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Callback.swift; sourceTree = "<group>"; };
-		B8C1963F2938F4DE00BC58A3 /* PassThrough.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = PassThrough.metal; sourceTree = "<group>"; };
 		B8D22CDB2642DB4D00234472 /* AVAssetWriterInputPixelBufferAdaptor+initWithVideoSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAssetWriterInputPixelBufferAdaptor+initWithVideoSettings.swift"; sourceTree = "<group>"; };
 		B8DB3BC7263DC28C004C18D7 /* AVAssetWriter.Status+descriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAssetWriter.Status+descriptor.swift"; sourceTree = "<group>"; };
 		B8DB3BC9263DC4D8004C18D7 /* RecordingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingSession.swift; sourceTree = "<group>"; };
@@ -307,7 +305,6 @@
 				B841262E292E41A1001AB448 /* SkImageHelpers.mm */,
 				B88A020E2934FC29009E035A /* VisionDisplayLink.h */,
 				B88A020C2934FC22009E035A /* VisionDisplayLink.m */,
-				B8C1963F2938F4DE00BC58A3 /* PassThrough.metal */,
 			);
 			path = "Skia Render Layer";
 			sourceTree = "<group>";
@@ -369,7 +366,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B8C196402938F4DE00BC58A3 /* PassThrough.metal in Sources */,
 				B86DC974260E310600FB17B2 /* CameraView+AVAudioSession.swift in Sources */,
 				B887518625E0102000DB86D6 /* CameraView+RecordVideo.swift in Sources */,
 				B81BE1BF26B936FF002696CC /* AVCaptureDevice.Format+videoDimensions.swift in Sources */,

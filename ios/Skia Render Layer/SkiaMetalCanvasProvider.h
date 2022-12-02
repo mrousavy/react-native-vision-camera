@@ -36,8 +36,6 @@ private:
   CAMetalLayer* _layer;
 #pragma clang diagnostic pop
   VisionDisplayLink* _displayLink;
-  MTLRenderPassDescriptor* _renderPassDescriptor;
-  id<MTLRenderPipelineState> _pipelineState;
 
   id<MTLCommandQueue> _commandQueue;
   id<MTLDevice> _device;
