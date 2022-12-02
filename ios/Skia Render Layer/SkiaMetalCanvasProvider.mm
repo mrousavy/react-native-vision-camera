@@ -132,6 +132,20 @@ void SkiaMetalCanvasProvider::render() {
     // Restore the scale & transform
     canvas->restore();
     
+#if DEBUG
+#if DEBUG_FPS
+    // Draw FPS on screen
+    int fps = static_cast<int>(round(_displayLink.currentFps));
+    int targetFps = static_cast<int>(round(_displayLink.targetFps));
+    SkString string("FPS: " + std::to_string(fps) + " / " + std::to_string(targetFps));
+    auto typeface = SkTypeface::MakeFromName("Arial", SkFontStyle::Bold());
+    SkFont font(typeface, 32);
+    SkPaint paint;
+    paint.setColor(SkColors::kRed);
+    canvas->drawString(string, 50, 200, font, paint);
+#endif
+#endif
+    
     surface->flushAndSubmit();
     
     // Pass the drawable into the Metal Command Buffer and submit it to the GPU
@@ -222,20 +236,6 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     
     // Call the JS Frame Processor.
     drawCallback(canvas);
-    
-#if DEBUG
-#if DEBUG_FPS
-    // Draw FPS on screen
-    int fps = static_cast<int>(round(_displayLink.currentFps));
-    int targetFps = static_cast<int>(round(_displayLink.targetFps));
-    SkString string("FPS: " + std::to_string(fps) + " / " + std::to_string(targetFps));
-    auto typeface = SkTypeface::MakeFromName("Arial", SkFontStyle::Bold());
-    SkFont font(typeface, 32);
-    SkPaint paint;
-    paint.setColor(SkColors::kRed);
-    canvas->drawString(string, 50, 200, font, paint);
-#endif
-#endif
     
     // Flush all appended operations on the canvas and commit it to the SkSurface
     canvas->flush();
