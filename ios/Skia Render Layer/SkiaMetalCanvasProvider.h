@@ -45,8 +45,7 @@ private:
   std::mutex _textureMutex;
 
   bool _isValid = false;
-  bool _hasNewFrame = false;
-
+  
 private:
   void render();
   id<MTLTexture> getTexture(int width, int height);

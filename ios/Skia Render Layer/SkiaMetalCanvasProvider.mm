@@ -103,12 +103,9 @@ void SkiaMetalCanvasProvider::render() {
     
     auto canvas = surface->getCanvas();
     
-    // Lock the Mutex so we can operate on the Texture (and _hasNewFrame) atomically without renderFrameToCanvas() overwriting in between
+    // Lock the Mutex so we can operate on the Texture atomically without
+    // renderFrameToCanvas() overwriting in between from a different thread
     std::unique_lock lock(_textureMutex);
-    
-    // check if a new frame has been pushed.
-    // Might be the case that we render more often than Frames come in, in that case we can skip rendering here.
-    if (!_hasNewFrame) return;
     
     // Get the texture
     auto texture = _texture;
@@ -169,9 +166,6 @@ void SkiaMetalCanvasProvider::render() {
     id<MTLCommandBuffer> commandBuffer([_commandQueue commandBuffer]);
     [commandBuffer presentDrawable:drawable];
     [commandBuffer commit];
-    
-    // Set the new Frame flag to false again. If no new Frame comes in until the next render() call, we can skip an unnecessary render.
-    _hasNewFrame = false;
     
     lock.unlock();
   }
@@ -251,9 +245,6 @@ void SkiaMetalCanvasProvider::renderFrameToCanvas(CMSampleBufferRef sampleBuffer
     
     // Flush all appended operations on the canvas and commit it to the SkSurface
     canvas->flush();
-    
-    // Set the flag for a new frame to true, causing the next render() call to draw the texture we just drew to, onto the screen.
-    _hasNewFrame = true;
     
     lock.unlock();
     CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
