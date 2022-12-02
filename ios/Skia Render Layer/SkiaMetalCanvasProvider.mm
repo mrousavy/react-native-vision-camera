@@ -84,9 +84,6 @@ void SkiaMetalCanvasProvider::render() {
   }
   
   @autoreleasepool {
-    // check if a new frame has been pushed.
-    // Might be the case that we render more often than Frames come in, in that case we can skip rendering here.
-    if (!_hasNewFrame) return;
     
     auto skContext = getSkiaContext();
     
@@ -106,8 +103,14 @@ void SkiaMetalCanvasProvider::render() {
     
     auto canvas = surface->getCanvas();
     
-    // Get the currently rendered texture
+    // Lock the Mutex so we can operate on the Texture (and _hasNewFrame) atomically without renderFrameToCanvas() overwriting in between
     std::unique_lock lock(_textureMutex);
+    
+    // check if a new frame has been pushed.
+    // Might be the case that we render more often than Frames come in, in that case we can skip rendering here.
+    if (!_hasNewFrame) return;
+    
+    // Get the texture
     auto texture = _texture;
     if (texture == nil) return;
     
