@@ -63,6 +63,7 @@ id<MTLTexture> SkiaMetalCanvasProvider::getTexture(int width, int height) {
                                                                                                width:width
                                                                                               height:height
                                                                                            mipmapped:NO];
+  textureDescriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
   _texture = [_device newTextureWithDescriptor:textureDescriptor];
   return _texture;
 }
