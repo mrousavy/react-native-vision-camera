@@ -30,6 +30,10 @@
   <img align="right" width="35%" src="docs/static/img/example.png">
 </div>
 
+### ‼️‼️‼️‼️‼️ ✨ VisionCamera V3 ‼️‼️‼️‼️‼️
+
+**See [this discussion](https://github.com/mrousavy/react-native-vision-camera/issues/1376) for the latest upcoming version of VisionCamera**
+
 ### Documentation
 
 * [Guides](https://mrousavy.github.io/react-native-vision-camera/docs/guides)
