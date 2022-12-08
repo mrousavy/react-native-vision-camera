@@ -292,7 +292,7 @@ dependencies {
   implementation "androidx.camera:camera-lifecycle:1.1.0-beta02"
   implementation "androidx.camera:camera-video:1.1.0-beta02"
 
-  implementation "androidx.camera:camera-view:1.1.0-beta02"
+  implementation "androidx.camera:camera-view:1.3.0-alpha02"
   implementation "androidx.camera:camera-extensions:1.1.0-beta02"
 
   implementation "androidx.exifinterface:exifinterface:1.3.3"
