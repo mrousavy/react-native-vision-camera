@@ -27,32 +27,32 @@ val Size35mm = Size(36, 24)
  */
 fun CameraCharacteristics.getDeviceTypes(): ReadableArray {
   // TODO: Check if getDeviceType() works correctly, even for logical multi-cameras
-  val focalLengths = this.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)!!
-  val sensorSize = this.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)!!
+  val focalLengths = this.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
+  val sensorSize = this.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)
 
   // To get valid focal length standards we have to upscale to the 35mm measurement (film standard)
-  val cropFactor = Size35mm.bigger / sensorSize.bigger
+  val cropFactor = Size35mm.bigger / (sensorSize?.bigger?: 1f)
 
   val deviceTypes = Arguments.createArray()
 
-  val containsTelephoto = focalLengths.any { l -> (l * cropFactor) > 35 } // TODO: Telephoto lenses are > 85mm, but we don't have anything between that range..
+  val containsTelephoto = focalLengths?.any { l -> (l * cropFactor) > 35 } // TODO: Telephoto lenses are > 85mm, but we don't have anything between that range..
   // val containsNormalLens = focalLengths.any { l -> (l * cropFactor) > 35 && (l * cropFactor) <= 55 }
-  val containsWideAngle = focalLengths.any { l -> (l * cropFactor) >= 24 && (l * cropFactor) <= 35 }
-  val containsUltraWideAngle = focalLengths.any { l -> (l * cropFactor) < 24 }
+  val containsWideAngle = focalLengths?.any { l -> (l * cropFactor) >= 24 && (l * cropFactor) <= 35 }
+  val containsUltraWideAngle = focalLengths?.any { l -> (l * cropFactor) < 24 }
 
-  if (containsTelephoto)
+  if (containsTelephoto == true)
     deviceTypes.pushString("telephoto-camera")
-  if (containsWideAngle)
+  if (containsWideAngle == true)
     deviceTypes.pushString("wide-angle-camera")
-  if (containsUltraWideAngle)
+  if (containsUltraWideAngle == true)
     deviceTypes.pushString("ultra-wide-angle-camera")
 
   return deviceTypes
 }
 
 fun CameraCharacteristics.getFieldOfView(): Double {
-  val focalLengths = this.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)!!
-  val sensorSize = this.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)!!
+  val focalLengths = this.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
+  val sensorSize = this.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)
 
-  return 2 * atan(sensorSize.bigger / (focalLengths[0] * 2)) * (180 / PI)
+  return 2 * atan((sensorSize?.bigger?: 1f) / ((focalLengths?.get(0)?: 1f) * 2)) * (180 / PI)
 }
