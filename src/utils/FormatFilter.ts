@@ -30,6 +30,15 @@ export const sortDevices = (left: CameraDevice, right: CameraDevice): number => 
   if (leftHasTelephoto) leftPoints -= 2;
   if (rightHasTelephoto) rightPoints -= 2;
 
+  const leftHasUltraWide = left.devices.includes('ultra-wide-angle-camera') && left.devices.length == 2;
+  const rightHasUltraWide = right.devices.includes('ultra-wide-angle-camera') && right.devices.length == 2;
+  if (leftHasUltraWide) {
+    leftPoints -= 2;
+  }
+  if (rightHasUltraWide) {
+    rightPoints -= 2;
+  }
+
   if (left.devices.length > right.devices.length) leftPoints += 1;
   if (right.devices.length > left.devices.length) rightPoints += 1;
 
