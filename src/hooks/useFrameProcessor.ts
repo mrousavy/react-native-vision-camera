@@ -1,11 +1,27 @@
-/* global _setGlobalConsole */
-
 import { DependencyList, useCallback } from 'react';
 import type { Frame } from '../Frame';
 
 type FrameProcessor = (frame: Frame) => void;
 
-const capturableConsole = console;
+// TODO: Use react-native-worklets decorator
+const jsConsole = {
+  log: Worklets.createRunInJsFn((...args: unknown[]) => {
+    'worklet';
+    return console.log(...args);
+  }),
+  warn: Worklets.createRunInJsFn((...args: any[]) => {
+    'worklet';
+    return console.warn(...args);
+  }),
+  error: Worklets.createRunInJsFn((...args: any[]) => {
+    'worklet';
+    return console.error(...args);
+  }),
+  info: Worklets.createRunInJsFn((...args: any[]) => {
+    'worklet';
+    return console.info(...args);
+  }),
+};
 
 /**
  * Returns a memoized Frame Processor function wich you can pass to the `<Camera>`. (See ["Frame Processors"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors))
@@ -28,30 +44,9 @@ export function useFrameProcessor(frameProcessor: FrameProcessor, dependencies: 
   return useCallback((frame: Frame) => {
     'worklet';
 
-    // @ts-expect-error
-    if (global.didSetConsole == null || global.didSetConsole === false) {
-      const console = {
-        // @ts-expect-error __callAsync is injected by native REA
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        debug: capturableConsole.debug.__callAsync,
-        // @ts-expect-error __callAsync is injected by native REA
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        log: capturableConsole.log.__callAsync,
-        // @ts-expect-error __callAsync is injected by native REA
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        warn: capturableConsole.warn.__callAsync,
-        // @ts-expect-error __callAsync is injected by native REA
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        error: capturableConsole.error.__callAsync,
-        // @ts-expect-error __callAsync is injected by native REA
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        info: capturableConsole.info.__callAsync,
-      };
-      // @ts-expect-error _setGlobalConsole is set by RuntimeDecorator::decorateRuntime
-      _setGlobalConsole(console);
-      // @ts-expect-error
-      global.didSetConsole = true;
-    }
+    // @ts-expect-error console is null in this context
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (global.console == null) global.console = jsConsole;
 
     frameProcessor(frame);
     // eslint-disable-next-line react-hooks/exhaustive-deps

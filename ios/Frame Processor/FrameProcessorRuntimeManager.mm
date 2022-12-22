@@ -63,7 +63,16 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                              &runtime,
                              runOnJS,
                              runOnWorklet);
+  
+  // Install global.Worklets API in JS
   RNWorklet::JsiWorkletApi::installApi(runtime);
+  
+  // TODO: Remove this hack, it shouldn't be requried and runOnWorklet is actually wrong.
+  RNWorklet::JsiWorkletContext::getInstance()->initialize("Default",
+                                                          &runtime,
+                                                          runOnJS,
+                                                          runOnWorklet);
+
 
   NSLog(@"FrameProcessorBindings: Worklet Context Created!");
 //
@@ -90,6 +99,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
   }
 
   jsi::Runtime& jsiRuntime = *(jsi::Runtime*)cxxBridge.runtime;
+  
   
   // Install the Worklet Runtime in the main React JS Runtime
   [self setupWorkletContext:jsiRuntime];
