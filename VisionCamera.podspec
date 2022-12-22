@@ -10,6 +10,11 @@ rescue
 end
 rnVersion = reactVersion.split('.')[1]
 
+folly_flags = '-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1 -DRNVERSION=' + rnVersion
+folly_compiler_flags = folly_flags + ' ' + '-Wno-comma -Wno-shorten-64-to-32'
+folly_version = '2021.04.26.00'
+boost_compiler_flags = '-Wno-documentation'
+
 Pod::Spec.new do |s|
   s.name         = "VisionCamera"
   s.version      = package["version"]
@@ -21,16 +26,17 @@ Pod::Spec.new do |s|
   s.platforms    = { :ios => "11.0" }
   s.source       = { :git => "https://github.com/mrousavy/react-native-vision-camera.git", :tag => "#{s.version}" }
 
-  # s.pod_target_xcconfig = {
-    # "USE_HEADERMAP" => "YES",
-    # "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_TARGET_SRCROOT)\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/boost-for-react-native\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/Headers/Private/React-Core\" "
-  # }
-  # s.compiler_flags = folly_compiler_flags + ' ' + boost_compiler_flags
-  # s.xcconfig = {
-    # "CLANG_CXX_LANGUAGE_STANDARD" => "c++17",
-    # "HEADER_SEARCH_PATHS" => "\"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/boost-for-react-native\" \"$(PODS_ROOT)/glog\" \"$(PODS_ROOT)/RCT-Folly\" \"${PODS_ROOT}/Headers/Public/React-hermes\" \"${PODS_ROOT}/Headers/Public/hermes-engine\"",
-    # "OTHER_CFLAGS" => "$(inherited)" + " " + folly_flags
-  # }
+  s.pod_target_xcconfig = {
+    "USE_HEADERMAP" => "YES",
+    'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) SK_GL=1 SK_METAL=1',
+    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_TARGET_SRCROOT)\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/boost-for-react-native\" \"$(PODS_ROOT)/DoubleConversion\" \"$(PODS_ROOT)/Headers/Private/React-Core\" \"$(PODS_ROOT)/Headers/Public/react-native-skia/include\" \"$(PODS_ROOT)/Headers/Public/react-native-skia\" "
+  }
+  s.compiler_flags = folly_compiler_flags + ' ' + boost_compiler_flags
+  s.xcconfig = {
+    "CLANG_CXX_LANGUAGE_STANDARD" => "c++17",
+    "HEADER_SEARCH_PATHS" => "\"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/boost-for-react-native\" \"$(PODS_ROOT)/glog\" \"$(PODS_ROOT)/RCT-Folly\" \"${PODS_ROOT}/Headers/Public/React-hermes\" \"${PODS_ROOT}/Headers/Public/hermes-engine\" \"$(PODS_ROOT)/Headers/Public/react-native-skia/include\" \"$(PODS_ROOT)/Headers/Public/react-native-skia\" ",
+    "OTHER_CFLAGS" => "$(inherited)" + " " + folly_flags
+  }
 
   s.requires_arc = true
 
@@ -47,8 +53,7 @@ Pod::Spec.new do |s|
     "ios/React Utils/RCTBridge+runOnJS.h",
     "ios/React Utils/JSConsoleHelper.h",
     "cpp/**/*.{cpp}",
-    "react-native-worklets/cpp/**/*.{h,cpp}",
-    "react-native-worklets/ios/**/*.{h,m,mm}",
+    "react-native-worklets/cpp/**/*.{cpp}"
   ]
   # Any private headers that are not globally unique should be mentioned here.
   # Otherwise there will be a nameclash, since CocoaPods flattens out any header directories
