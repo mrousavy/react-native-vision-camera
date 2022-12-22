@@ -222,6 +222,10 @@ PODS:
     - react-native-video/Video (= 5.2.0)
   - react-native-video/Video (5.2.0):
     - React-Core
+  - react-native-worklets (0.1.0):
+    - React
+    - React-callinvoker
+    - React-Core
   - React-perflogger (0.66.4)
   - React-RCTActionSheet (0.66.4):
     - React-Core/RCTActionSheetHeaders (= 0.66.4)
@@ -328,6 +332,7 @@ PODS:
     - React
     - React-callinvoker
     - React-Core
+    - react-native-worklets
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -355,6 +360,7 @@ DEPENDENCIES:
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-video (from `../node_modules/react-native-video`)
+  - react-native-worklets (from `../../react-native-worklets`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../node_modules/react-native/Libraries/NativeAnimation`)
@@ -424,6 +430,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/slider"
   react-native-video:
     :path: "../node_modules/react-native-video"
+  react-native-worklets:
+    :path: "../../react-native-worklets"
   React-perflogger:
     :path: "../node_modules/react-native/ReactCommon/reactperflogger"
   React-RCTActionSheet:
@@ -487,6 +495,7 @@ SPEC CHECKSUMS:
   react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
   react-native-slider: 241935e3ea8e47599c317f512f96ee8de607d4cb
   react-native-video: a4c2635d0802f983594b7057e1bce8f442f0ad28
+  react-native-worklets: 06cb4b7b94b67a59a6c78deb5a9734ee282532eb
   React-perflogger: 93075d8931c32cd1fce8a98c15d2d5ccc4d891bd
   React-RCTActionSheet: 7d3041e6761b4f3044a37079ddcb156575fb6d89
   React-RCTAnimation: 743e88b55ac62511ae5c2e22803d4f503f2a3a13
@@ -504,9 +513,9 @@ SPEC CHECKSUMS:
   RNScreens: 40a2cb40a02a609938137a1e0acfbf8fc9eebf19
   RNStaticSafeAreaInsets: 6103cf09647fa427186d30f67b0f5163c1ae8252
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
-  VisionCamera: 1dd4afe9547e2cb6f8010c51bba31f95fc645f6a
+  VisionCamera: b0e31901727ff45d25f9e6481039c5641734c2e1
   Yoga: e7dc4e71caba6472ff48ad7d234389b91dadc280
 
-PODFILE CHECKSUM: 2ecfca9597c23d340a487bd11160e4bb54f55ecf
+PODFILE CHECKSUM: 6966484cbaf8f435ee583a6b70cc41016a3dcc57
 
 COCOAPODS: 1.11.3

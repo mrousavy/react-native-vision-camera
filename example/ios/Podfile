@@ -12,11 +12,12 @@ target 'VisionCameraExample' do
   )
 
   pod 'VisionCamera', :path => '../..'
+  pod 'react-native-worklets', :path => '../../react-native-worklets'
 
   post_install do |installer|
     react_native_post_install(installer)
     __apply_Xcode_12_5_M1_post_install_workaround(installer)
-    
+
     # This is necessary for Xcode 14, because it signs resource bundles by default
     # when building for devices. See https://github.com/facebook/react-native/issues/34673#issuecomment-1259253787
     installer.target_installation_results.pod_target_installation_results
@@ -27,6 +28,6 @@ target 'VisionCameraExample' do
         end
       end
     end
-      
+
   end
 end
