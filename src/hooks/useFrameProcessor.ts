@@ -45,8 +45,7 @@ export function useFrameProcessor(frameProcessor: FrameProcessor, dependencies: 
     'worklet';
 
     // @ts-expect-error console is null in this context
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    if (global.console == null) global.console = jsConsole;
+    global.console = jsConsole;
 
     frameProcessor(frame);
     // eslint-disable-next-line react-hooks/exhaustive-deps
