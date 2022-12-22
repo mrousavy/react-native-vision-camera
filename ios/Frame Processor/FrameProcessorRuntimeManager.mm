@@ -39,16 +39,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 @end
 
 @implementation FrameProcessorRuntimeManager {
-  __weak RCTBridge* weakBridge;
   std::shared_ptr<RNWorklet::JsiWorkletContext> workletContext;
-}
-
-- (instancetype) initWithBridge:(RCTBridge*)bridge {
-  self = [super init];
-  if (self) {
-    // init self idk
-  }
-  return self;
 }
 
 - (void) setupWorkletContext:(jsi::Runtime&)runtime {
@@ -75,31 +66,25 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
   RNWorklet::JsiWorkletApi::installApi(runtime);
 
   NSLog(@"FrameProcessorBindings: Worklet Context Created!");
-  
-  workletContext->invokeOnWorkletThread([=]() {
-    auto& workletRuntime = workletContext->getWorkletRuntime();
-    
-    workletRuntime.global().setProperty(workletRuntime, "_FRAME_PROCESSOR", jsi::Value(true));
-    
-    // Install Skia
-    /*jsi::Runtime* rrr = &workletRuntime;
-    auto platformContext = std::make_shared<RNSkia::RNSkiOSPlatformContext>(rrr, callInvoker);
-    auto skiaApi = std::make_shared<RNSkia::JsiSkApi>(workletRuntime, platformContext);
-    workletRuntime.global().setProperty(workletRuntime,
-                                        "SkiaApi",
-                                        jsi::Object::createFromHostObject(workletRuntime, std::move(skiaApi)));*/
-  });
+//
+//  workletContext->invokeOnWorkletThread([=]() {
+//    auto& workletRuntime = workletContext->getWorkletRuntime();
+//
+//    workletRuntime.global().setProperty(workletRuntime, "_FRAME_PROCESSOR", jsi::Value(true));
+//
+//    // Install Skia
+//    /*jsi::Runtime* rrr = &workletRuntime;
+//    auto platformContext = std::make_shared<RNSkia::RNSkiOSPlatformContext>(rrr, callInvoker);
+//    auto skiaApi = std::make_shared<RNSkia::JsiSkApi>(workletRuntime, platformContext);
+//    workletRuntime.global().setProperty(workletRuntime,
+//                                        "SkiaApi",
+//                                        jsi::Object::createFromHostObject(workletRuntime, std::move(skiaApi)));*/
+//  });
 }
 
 - (void) installFrameProcessorBindings {
-#ifdef ENABLE_FRAME_PROCESSORS
-  if (!weakBridge) {
-    NSLog(@"FrameProcessorBindings: Failed to install Frame Processor Bindings - bridge was null!");
-    return;
-  }
-
   NSLog(@"FrameProcessorBindings: Installing Frame Processor Bindings for Bridge...");
-  RCTCxxBridge *cxxBridge = (RCTCxxBridge *)weakBridge;
+  RCTCxxBridge *cxxBridge = (RCTCxxBridge *)[RCTBridge currentBridge];
   if (!cxxBridge.runtime) {
     return;
   }
@@ -119,7 +104,6 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
     NSLog(@"FrameProcessorBindings: Setting new frame processor...");
     if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: First argument ('viewTag') must be a number!");
     if (!arguments[1].isObject()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
-    if (!runtimeManager || !runtimeManager->runtime) throw jsi::JSError(runtime, "Camera::setFrameProcessor: The RuntimeManager is not yet initialized!");
 
     auto viewTag = arguments[0].asNumber();
     NSLog(@"FrameProcessorBindings: Converting JSI Function to Worklet...");
@@ -132,7 +116,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
       
       NSLog(@"FrameProcessorBindings: Converting worklet to Objective-C callback...");
       
-      view.frameProcessorCallback = convertWorkletToFrameProcessorCallback(rt, worklet);
+      view.frameProcessorCallback = convertWorkletToFrameProcessorCallback(workletContext->getWorkletRuntime(), worklet);
       
       NSLog(@"FrameProcessorBindings: Frame processor set!");
     });
@@ -173,7 +157,6 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                                                                                            unsetFrameProcessor));
 
   NSLog(@"FrameProcessorBindings: Finished installing bindings.");
-#endif
 }
 
 @end

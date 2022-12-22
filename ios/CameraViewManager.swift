@@ -18,12 +18,11 @@ final class CameraViewManager: RCTViewManager {
   override var bridge: RCTBridge! {
     didSet {
       // Install Frame Processor bindings and setup Runtime
-      if VISION_CAMERA_ENABLE_FRAME_PROCESSORS {
-        CameraQueues.frameProcessorQueue.async {
-          self.runtimeManager = FrameProcessorRuntimeManager(bridge: self.bridge)
-          self.bridge.runOnJS {
-            self.runtimeManager!.installFrameProcessorBindings()
-          }
+
+      CameraQueues.frameProcessorQueue.async {
+        self.runtimeManager = FrameProcessorRuntimeManager()
+        self.bridge.runOnJS {
+          self.runtimeManager!.installFrameProcessorBindings()
         }
       }
     }
