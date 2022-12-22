@@ -90,6 +90,9 @@
     "react": "*",
     "react-native": "*"
   },
+  "dependencies": {
+    "react-native-worklets": "./react-native-worklets"
+  },
   "prettier": {
     "bracketSpacing": true,
     "bracketSameLine": true,
