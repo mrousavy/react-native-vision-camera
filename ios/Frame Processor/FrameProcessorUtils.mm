@@ -30,7 +30,7 @@ FrameProcessorCallback convertWorkletToFrameProcessorCallback(jsi::Runtime& runt
     try {
       // Call JS Frame Processor function with boxed Frame Host Object
       auto argument = jsi::Object::createFromHostObject(runtime, frameHostObject);
-      jsi::Value jsValue = static_cast<jsi::Value>(argument);
+      jsi::Value jsValue(std::move(argument));
       worklet->call(runtime, jsi::Value::undefined(), &jsValue, 1);
     } catch (jsi::JSError& jsError) {
       auto stack = std::regex_replace(jsError.getStack(), std::regex("\n"), "\n    ");
