@@ -1,0 +1,3 @@
+[submodule "react-native-worklets"]
+	path = react-native-worklets
+	url = https://github.com/chrfalch/react-native-worklets
