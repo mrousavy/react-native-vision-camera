@@ -29,7 +29,8 @@
     "react-native-screens": "^3.8.0",
     "react-native-static-safe-area-insets": "^2.1.1",
     "react-native-vector-icons": "^8.1.0",
-    "react-native-video": "^5.1.1"
+    "react-native-video": "^5.1.1",
+    "react-native-worklets": "janicduplessis/react-native-worklets#react-native-worklets-v0.1.5-gitpkg"
   },
   "devDependencies": {
     "@babel/core": "^7.15.8",
