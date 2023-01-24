@@ -181,7 +181,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
         val cameraDevices: WritableArray = Arguments.createArray()
 
-        manager.cameraIdList.forEach loop@{ id ->
+        manager.cameraIdList.filter{ id -> id.toIntOrNull() != null }.forEach loop@{ id ->
           val cameraSelector = CameraSelector.Builder().byID(id).build()
 
           val characteristics = manager.getCameraCharacteristics(id)
