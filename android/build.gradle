@@ -50,7 +50,7 @@ def REACT_NATIVE_VERSION = reactProperties.getProperty("VERSION_NAME").split("\\
 def FOR_HERMES = System.getenv("FOR_HERMES") == "True"
 rootProject.getSubprojects().forEach({project ->
   if (project.plugins.hasPlugin("com.android.application")) {
-    FOR_HERMES = project.ext.react.enableHermes
+    FOR_HERMES = REACT_NATIVE_VERSION >= 71 && project.hermesEnabled || project.ext.react.enableHermes
   }
 })
 def jsRuntimeDir = {
@@ -130,6 +130,12 @@ android {
   buildToolsVersion getExtOrDefault('buildToolsVersion')
   ndkVersion getExtOrDefault('ndkVersion')
 
+  if (REACT_NATIVE_VERSION >= 71) {
+    buildFeatures {
+      prefab true
+    }
+  }
+
   defaultConfig {
     minSdkVersion 21
     targetSdkVersion getExtOrIntegerDefault('targetSdkVersion')
@@ -163,7 +169,17 @@ android {
 
   packagingOptions {
     // Exclude all Libraries that are already present in the user's app (through React Native or by him installing REA)
-    excludes = ["**/libc++_shared.so", "**/libfbjni.so", "**/libjsi.so", "**/libreactnativejni.so", "**/libfolly_json.so", "**/libreanimated.so", "**/libjscexecutor.so", "**/libhermes.so", "**/libfolly_runtime.so"]
+    excludes = ["**/libc++_shared.so",
+                "**/libfbjni.so",
+                "**/libjsi.so",
+                "**/libreactnativejni.so",
+                "**/libfolly_json.so",
+                "**/libreanimated.so",
+                "**/libjscexecutor.so",
+                "**/libhermes.so",
+                "**/libfolly_runtime.so",
+                "**/libglog.so",
+    ]
     // META-INF is duplicate by CameraX.
     exclude "META-INF/**"
   }
@@ -261,26 +277,36 @@ repositories {
 def kotlin_version = getExtOrDefault('kotlinVersion')
 
 dependencies {
-  // noinspection GradleDynamicVersion
-  implementation 'com.facebook.react:react-native:+'
+  if (REACT_NATIVE_VERSION >= 71) {
+      implementation "com.facebook.react:react-android:"
+      implementation "com.facebook.react:hermes-android:"
+  } else {
+      // noinspection GradleDynamicVersion
+      implementation 'com.facebook.react:react-native:+'
+  }
 
   if (ENABLE_FRAME_PROCESSORS) {
     implementation project(':react-native-reanimated')
 
-    //noinspection GradleDynamicVersion
-    extractHeaders("com.facebook.fbjni:fbjni:+:headers")
-    //noinspection GradleDynamicVersion
-    extractJNI("com.facebook.fbjni:fbjni:+")
+    if (REACT_NATIVE_VERSION < 71) {
+      //noinspection GradleDynamicVersion
+      extractHeaders("com.facebook.fbjni:fbjni:headers:+")
+      //noinspection GradleDynamicVersion
+      extractJNI("com.facebook.fbjni:fbjni:+")
 
-    def rnAarMatcher = "**/react-native/**/*${resolveBuildType()}.aar"
-    if (REACT_NATIVE_VERSION < 69) {
-      rnAarMatcher = "**/**/*.aar"
+      def rnAarMatcher = "**/react-native/**/*${resolveBuildType()}.aar"
+      if (REACT_NATIVE_VERSION < 69) {
+        rnAarMatcher = "**/**/*.aar"
+      }
+
+      def rnAAR = fileTree("$reactNative/android").matching({ it.include rnAarMatcher }).singleFile
+      def jscAAR = fileTree("${nodeModules}/jsc-android/dist/org/webkit/android-jsc").matching({ it.include "**/**/*.aar" }).singleFile
+      extractJNI(files(rnAAR, jscAAR))
     }
-    def rnAAR = fileTree("$reactNative/android").matching({ it.include rnAarMatcher }).singleFile
-    def jscAAR = fileTree("${nodeModules}/jsc-android/dist/org/webkit/android-jsc").matching({ it.include "**/**/*.aar" }).singleFile
+
     def jsEngine = FOR_HERMES ? "hermes" : "jsc"
     def reaAAR = "${nodeModules}/react-native-reanimated/android/react-native-reanimated-${REACT_NATIVE_VERSION}-${jsEngine}.aar"
-    extractJNI(files(rnAAR, jscAAR, reaAAR))
+    extractJNI(files(reaAAR))
   }
 
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -600,11 +626,13 @@ if (ENABLE_FRAME_PROCESSORS) {
 
   tasks.whenTaskAdded { task ->
     if (!task.name.contains('Clean') && (task.name.contains('externalNative') || task.name.contains('CMake'))) {
-      task.dependsOn(extractAARHeaders)
       task.dependsOn(extractJNIFiles)
-      task.dependsOn(prepareJSC)
-      task.dependsOn(prepareHermes)
-      task.dependsOn(prepareThirdPartyNdkHeaders)
+      if (REACT_NATIVE_VERSION < 71) {
+        task.dependsOn(extractAARHeaders)
+        task.dependsOn(prepareThirdPartyNdkHeaders)
+        task.dependsOn(prepareJSC)
+        task.dependsOn(prepareHermes)
+      }
     }
   }
 }

@@ -1,13 +1,26 @@
+project(VisionCamera)
 cmake_minimum_required(VERSION 3.4.1)
 
 set (CMAKE_VERBOSE_MAKEFILE ON)
 set (CMAKE_CXX_STANDARD 14)
-set (CMAKE_CXX_FLAGS "-DFOLLY_NO_CONFIG=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -DFOLLY_HAVE_MEMRCHR=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_MOBILE=1 -DON_ANDROID -DONANDROID -DFOR_HERMES=${FOR_HERMES}")
+
+if(${REACT_NATIVE_VERSION} GREATER_EQUAL 71)
+        include("${NODE_MODULES_DIR}/react-native/ReactAndroid/cmake-utils/folly-flags.cmake")
+        add_compile_options(${folly_FLAGS})
+else()
+        set (CMAKE_CXX_FLAGS "-DFOLLY_NO_CONFIG=1 -DFOLLY_HAVE_CLOCK_GETTIME=1 -DFOLLY_HAVE_MEMRCHR=1 -DFOLLY_USE_LIBCPP=1 -DFOLLY_MOBILE=1 -DON_ANDROID -DONANDROID -DFOR_HERMES=${FOR_HERMES}")
+endif()
+
 
 set (PACKAGE_NAME "VisionCamera")
 set (BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
-set (RN_SO_DIR ${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni/first-party/react/jni)
-
+if(${REACT_NATIVE_VERSION} GREATER_EQUAL 71)
+        # Consume shared libraries and headers from prefabs
+        find_package(fbjni REQUIRED CONFIG)
+        find_package(ReactAndroid REQUIRED CONFIG)
+else()
+        set (RN_SO_DIR ${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni/first-party/react/jni)
+endif()
 # VisionCamera shared
 
 if(${REACT_NATIVE_VERSION} LESS 66)
@@ -36,64 +49,84 @@ add_library(
 )
 
 # includes
+if(${REACT_NATIVE_VERSION} GREATER_EQUAL 71)
+        target_include_directories(
+                ${PACKAGE_NAME}
+                PRIVATE
+                "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni/react/turbomodule"
+                "${NODE_MODULES_DIR}/react-native/ReactCommon"
+                "${NODE_MODULES_DIR}/react-native/ReactCommon/callinvoker"
+                "${NODE_MODULES_DIR}/react-native/ReactCommon/jsi"
+                "${NODE_MODULES_DIR}/react-native/ReactCommon/react/renderer/graphics/platform/cxx"
+                "${NODE_MODULES_DIR}/react-native/ReactCommon/runtimeexecutor"
+                "${NODE_MODULES_DIR}/react-native/ReactCommon/yoga"
+                # --- Reanimated ---
+                # New
+                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/AnimatedSensor"
+                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/Tools"
+                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/SpecTools"
+                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/SharedItems"
+                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/Registries"
+                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/LayoutAnimations"
+                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/hidden_headers"
+                "src/main/cpp"
+        )
+else()
+        file (GLOB LIBFBJNI_INCLUDE_DIR "${BUILD_DIR}/fbjni-*-headers.jar/")
 
-file (GLOB LIBFBJNI_INCLUDE_DIR "${BUILD_DIR}/fbjni-*-headers.jar/")
+        target_include_directories(
+                ${PACKAGE_NAME}
+                PRIVATE
+                # --- fbjni ---
+                "${LIBFBJNI_INCLUDE_DIR}"
+                # --- Third Party (required by RN) ---
+                "${BUILD_DIR}/third-party-ndk/boost"
+                "${BUILD_DIR}/third-party-ndk/double-conversion"
+                "${BUILD_DIR}/third-party-ndk/folly"
+                "${BUILD_DIR}/third-party-ndk/glog"
+                # --- React Native ---
+                "${NODE_MODULES_DIR}/react-native/React"
+                "${NODE_MODULES_DIR}/react-native/React/Base"
+                "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni"
+                "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni"
+                "${NODE_MODULES_DIR}/react-native/ReactCommon"
+                "${NODE_MODULES_DIR}/react-native/ReactCommon/callinvoker"
+                "${NODE_MODULES_DIR}/react-native/ReactCommon/jsi"
+                "${NODE_MODULES_DIR}/hermes-engine/android/include/"
+                ${INCLUDE_JSI_CPP} # only on older RN versions
+                ${INCLUDE_JSIDYNAMIC_CPP} # only on older RN versions
+                # --- Reanimated ---
+                # Old
+                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/AnimatedSensor"
+                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/Tools"
+                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/SpecTools"
+                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/SharedItems"
+                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/Registries"
+                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/LayoutAnimations"
+                # New
+                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/AnimatedSensor"
+                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/Tools"
+                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/SpecTools"
+                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/SharedItems"
+                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/Registries"
+                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/LayoutAnimations"
+                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/hidden_headers"
+                "src/main/cpp"
+        )
+endif()
 
-target_include_directories(
-        ${PACKAGE_NAME}
-        PRIVATE
-        # --- fbjni ---
-        "${LIBFBJNI_INCLUDE_DIR}"
-        # --- Third Party (required by RN) ---
-        "${BUILD_DIR}/third-party-ndk/boost"
-        "${BUILD_DIR}/third-party-ndk/double-conversion"
-        "${BUILD_DIR}/third-party-ndk/folly"
-        "${BUILD_DIR}/third-party-ndk/glog"
-        # --- React Native ---
-        "${NODE_MODULES_DIR}/react-native/React"
-        "${NODE_MODULES_DIR}/react-native/React/Base"
-        "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni"
-        "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni"
-        "${NODE_MODULES_DIR}/react-native/ReactCommon"
-        "${NODE_MODULES_DIR}/react-native/ReactCommon/callinvoker"
-        "${NODE_MODULES_DIR}/react-native/ReactCommon/jsi"
-        "${NODE_MODULES_DIR}/hermes-engine/android/include/"
-        ${INCLUDE_JSI_CPP} # only on older RN versions
-        ${INCLUDE_JSIDYNAMIC_CPP} # only on older RN versions
-        # --- Reanimated ---
-        # Old
-        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/AnimatedSensor"
-        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/Tools"
-        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/SpecTools"
-        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/SharedItems"
-        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/Registries"
-        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/LayoutAnimations"
-        # New
-        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/AnimatedSensor"
-        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/Tools"
-        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/SpecTools"
-        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/SharedItems"
-        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/Registries"
-        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/LayoutAnimations"
-        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/hidden_headers"
-        "src/main/cpp"
-)
+
 
 # find libraries
 
 file (GLOB LIBRN_DIR "${BUILD_DIR}/react-native-0*/jni/${ANDROID_ABI}")
 
 if(${FOR_HERMES})
-        string(APPEND CMAKE_CXX_FLAGS " -DJS_RUNTIME_HERMES=1")
+        string(APPEND CMAKE_CXX_FLAGS " -DFOR_HERMES=1")
 
-        if(${REACT_NATIVE_VERSION} LESS 69)
-                # From `hermes-engine` npm package
-                target_include_directories(
-                        ${PACKAGE_NAME}
-                        PRIVATE
-                        "${JS_RUNTIME_DIR}/android/include"
-                )
-        else()
+        if(${REACT_NATIVE_VERSION} GREATER_EQUAL 71)
+                find_package(hermes-engine REQUIRED CONFIG)
+        elseif(${REACT_NATIVE_VERSION} GREATER_EQUAL 69)
                 # Bundled Hermes from module `com.facebook.react:hermes-engine` or project `:ReactAndroid:hermes-engine`
                 target_include_directories(
                         ${PACKAGE_NAME}
@@ -101,23 +134,41 @@ if(${FOR_HERMES})
                         "${JS_RUNTIME_DIR}/API"
                         "${JS_RUNTIME_DIR}/public"
                 )
+        else()
+                # From `hermes-engine` npm package
+                target_include_directories(
+                        ${PACKAGE_NAME}
+                        PRIVATE
+                        "${JS_RUNTIME_DIR}/android/include"
+                )
         endif()
 
-        target_link_libraries(
-                ${PACKAGE_NAME}
-                "${BUILD_DIR}/third-party-ndk/hermes/jni/${ANDROID_ABI}/libhermes.so"
-        )
+        if(${REACT_NATIVE_VERSION} GREATER_EQUAL 71)
+                target_link_libraries(
+                        ${PACKAGE_NAME}
+                        "hermes-engine::libhermes"
+                )
+        else()
+                target_link_libraries(
+                        ${PACKAGE_NAME}
+                        "${BUILD_DIR}/third-party-ndk/hermes/jni/${ANDROID_ABI}/libhermes.so"
+                )
+        endif()
         file (GLOB LIBREANIMATED_DIR "${BUILD_DIR}/react-native-reanimated-*-hermes.aar/jni/${ANDROID_ABI}")
 else()
         file (GLOB LIBJSC_DIR "${BUILD_DIR}/android-jsc*.aar/jni/${ANDROID_ABI}")
 
-        # Use JSC
-        find_library(
-                JS_ENGINE_LIB
-                jscexecutor
-                PATHS ${LIBRN_DIR}
-                NO_CMAKE_FIND_ROOT_PATH
-        )
+        if(${REACT_NATIVE_VERSION} GREATER_EQUAL 71)
+                set(JS_ENGINE_LIB ReactAndroid::jscexecutor)
+        else()
+                # Use JSC
+                find_library(
+                        JS_ENGINE_LIB
+                        jscexecutor
+                        PATHS ${LIBRN_DIR}
+                        NO_CMAKE_FIND_ROOT_PATH
+                )
+        endif()
         target_link_libraries(
                 ${PACKAGE_NAME}
                 ${JS_ENGINE_LIB}
@@ -127,12 +178,14 @@ else()
         file (GLOB LIBREANIMATED_DIR "${BUILD_DIR}/react-native-reanimated-*-jsc.aar/jni/${ANDROID_ABI}")
 endif()
 
-find_library(
-        FBJNI_LIB
-        fbjni
-        PATHS ${LIBRN_DIR}
-        NO_CMAKE_FIND_ROOT_PATH
-)
+if(${REACT_NATIVE_VERSION} LESS 71)
+        find_library(
+                FBJNI_LIB
+                fbjni
+                PATHS ${LIBRN_DIR}
+                NO_CMAKE_FIND_ROOT_PATH
+        )
+endif()
 
 if(${REACT_NATIVE_VERSION} LESS 69)
         find_library(
@@ -141,7 +194,7 @@ if(${REACT_NATIVE_VERSION} LESS 69)
                 PATHS ${LIBRN_DIR}
                 NO_CMAKE_FIND_ROOT_PATH
         )
-else()
+elseif(${REACT_NATIVE_VERSION} LESS 71)
         find_library(
                 FOLLY_LIB
                 folly_runtime
@@ -150,14 +203,25 @@ else()
         )
 endif()
 
-find_library(
-        REACT_NATIVE_JNI_LIB
-        reactnativejni
-        PATHS ${LIBRN_DIR}
-        NO_CMAKE_FIND_ROOT_PATH
-)
+if(${REACT_NATIVE_VERSION} LESS 71)
+        find_library(
+                REACT_NATIVE_JNI_LIB
+                reactnativejni
+                PATHS ${LIBRN_DIR}
+                NO_CMAKE_FIND_ROOT_PATH
+        )
+endif()
 
-if(${REACT_NATIVE_VERSION} LESS 66)
+if(${REACT_NATIVE_VERSION} GREATER_EQUAL 71)
+        target_link_libraries(
+                ${PACKAGE_NAME}
+                ReactAndroid::folly_runtime
+                ReactAndroid::glog
+                ReactAndroid::jsi
+                ReactAndroid::reactnativejni
+                fbjni::fbjni
+        )
+elseif(${REACT_NATIVE_VERSION} LESS 66)
         # JSI lib didn't exist on RN 0.65 and before. Simply omit it.
         set (JSI_LIB "")
 else()
