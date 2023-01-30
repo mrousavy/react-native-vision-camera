@@ -84,7 +84,6 @@
     "react-native": "^0.66.0",
     "react-native-builder-bob": "^0.18.1",
     "react-native-reanimated": "^2.3.0-beta.2",
-    "react-native-worklets": "janicduplessis/react-native-worklets#react-native-worklets-v0.1.5-gitpkg",
     "release-it": "^14.11.5",
     "typescript": "^4.4.3"
   },
