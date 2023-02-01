@@ -290,7 +290,7 @@ dependencies {
 
     if (REACT_NATIVE_VERSION < 71) {
       //noinspection GradleDynamicVersion
-      extractHeaders("com.facebook.fbjni:fbjni:headers:+")
+      extractHeaders("com.facebook.fbjni:fbjni:+:headers")
       //noinspection GradleDynamicVersion
       extractJNI("com.facebook.fbjni:fbjni:+")
 
