@@ -20,8 +20,11 @@
 #elif __has_include(<v8runtime/V8RuntimeFactory.h>)
   // V8 (https://github.com/Kudo/react-native-v8)
   #include <v8runtime/V8RuntimeFactory.h>
+#elif __has_include(<React-jsc/JSCRuntime.h>)
+  // JSC with Hermes disabled
+  #include <React-jsc/JSCRuntime.h>
 #else
-  // JSC
+  // JSC with Hermes enabled
   #include <jsi/JSCRuntime.h>
 #endif
 
