@@ -15,7 +15,6 @@ import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
 import com.facebook.react.bridge.JSIModulePackage;
 import com.swmansion.reanimated.ReanimatedJSIModulePackage;
 
-
 public class MainApplication extends Application implements ReactApplication {
 
   private final ReactNativeHost mReactNativeHost =
