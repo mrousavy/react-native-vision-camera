@@ -64,18 +64,8 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                              runOnJS,
                              runOnWorklet);
 
-  // Install global.Worklets API in JS
-  RNWorklet::JsiWorkletApi::installApi(runtime);
-
-  // TODO: Remove this hack, it shouldn't be requried and runOnWorklet is actually wrong.
-  RNWorklet::JsiWorkletContext::getInstance()->initialize("Default",
-                                                          &runtime,
-                                                          runOnJS,
-                                                          runOnWorklet);
-
-
   NSLog(@"FrameProcessorBindings: Worklet Context Created!");
-
+  
   NSLog(@"FrameProcessorBindings: Installing Frame Processor plugins...");
 
   auto& workletRuntime = workletContext->getWorkletRuntime();

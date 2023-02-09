@@ -1,27 +1,9 @@
 import { DependencyList, useCallback } from 'react';
 import type { Frame } from '../Frame';
+// Install RN Worklets by importing it
+import 'react-native-worklets/src';
 
 type FrameProcessor = (frame: Frame) => void;
-
-// TODO: Use react-native-worklets decorator
-const jsConsole = {
-  log: Worklets.createRunInJsFn((...args: unknown[]) => {
-    'worklet';
-    return console.log(...args);
-  }),
-  warn: Worklets.createRunInJsFn((...args: any[]) => {
-    'worklet';
-    return console.warn(...args);
-  }),
-  error: Worklets.createRunInJsFn((...args: any[]) => {
-    'worklet';
-    return console.error(...args);
-  }),
-  info: Worklets.createRunInJsFn((...args: any[]) => {
-    'worklet';
-    return console.info(...args);
-  }),
-};
 
 /**
  * Returns a memoized Frame Processor function wich you can pass to the `<Camera>`. (See ["Frame Processors"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors))
@@ -41,13 +23,6 @@ const jsConsole = {
  * ```
  */
 export function useFrameProcessor(frameProcessor: FrameProcessor, dependencies: DependencyList): FrameProcessor {
-  return useCallback((frame: Frame) => {
-    'worklet';
-
-    // @ts-expect-error console is null in this context
-    global.console = jsConsole;
-
-    frameProcessor(frame);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, dependencies);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  return useCallback(frameProcessor, dependencies);
 }
