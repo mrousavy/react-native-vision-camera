@@ -4,3 +4,5 @@ include ':app'
 
 include ':react-native-vision-camera'
 project(':react-native-vision-camera').projectDir = new File(rootProject.projectDir, '../../android')
+
+includeBuild('../node_modules/react-native-gradle-plugin')
