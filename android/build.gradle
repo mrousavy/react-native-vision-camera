@@ -1,4 +1,6 @@
 buildscript {
+  def kotlin_version = rootProject.ext.has('kotlinVersion') ? rootProject.ext.get('kotlinVersion') : project.properties['VisionCamera_kotlinVersion']
+
   repositories {
     maven {
       url "https://plugins.gradle.org/m2/"
@@ -8,12 +10,10 @@ buildscript {
   }
 
   dependencies {
-    classpath("com.android.tools.build:gradle:7.2.2")
+    classpath "com.android.tools.build:gradle:7.2.2"
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
   }
-}
-
-plugins {
-  id 'kotlin-android'
 }
 
 def ENABLE_FRAME_PROCESSORS = false // TODO: fix
@@ -38,6 +38,7 @@ if (isNewArchitectureEnabled()) {
   apply plugin: 'com.facebook.react'
 }
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
 
 def safeExtGet(prop, fallback) {
   rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
