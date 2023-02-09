@@ -47,7 +47,6 @@ export function useFrameProcessor(frameProcessor: FrameProcessor, dependencies: 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         info: capturableConsole.info.__callAsync,
       };
-      // @ts-expect-error _setGlobalConsole is set by RuntimeDecorator::decorateRuntime
       _setGlobalConsole(console);
       // @ts-expect-error
       global.didSetConsole = true;
