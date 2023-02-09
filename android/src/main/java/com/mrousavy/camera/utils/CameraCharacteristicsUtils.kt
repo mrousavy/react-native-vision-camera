@@ -27,8 +27,8 @@ val Size35mm = Size(36, 24)
  */
 fun CameraCharacteristics.getDeviceTypes(): ReadableArray {
   // TODO: Check if getDeviceType() works correctly, even for logical multi-cameras
-  val focalLengths = this.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)!!
-  val sensorSize = this.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)!!
+  val focalLengths = this.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS) ?: emptyArray()
+  val sensorSize = this.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE) ?: emptyArray()
 
   // To get valid focal length standards we have to upscale to the 35mm measurement (film standard)
   val cropFactor = Size35mm.bigger / sensorSize.bigger
@@ -51,8 +51,8 @@ fun CameraCharacteristics.getDeviceTypes(): ReadableArray {
 }
 
 fun CameraCharacteristics.getFieldOfView(): Double {
-  val focalLengths = this.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)!!
-  val sensorSize = this.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)!!
+  val focalLengths = this.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS) ?: arrayOf(0)
+  val sensorSize = this.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE) ?: arrayOf(0)
 
   return 2 * atan(sensorSize.bigger / (focalLengths[0] * 2)) * (180 / PI)
 }
