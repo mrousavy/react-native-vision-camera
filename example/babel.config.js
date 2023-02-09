@@ -11,7 +11,6 @@ module.exports = {
         globals: ['__example_plugin', '__example_plugin_swift'],
       },
     ],
-    ['react-native-worklets/plugin'],
     [
       'module-resolver',
       {

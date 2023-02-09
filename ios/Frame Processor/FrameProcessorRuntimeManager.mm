@@ -42,6 +42,13 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
   std::shared_ptr<RNWorklet::JsiWorkletContext> workletContext;
 }
 
+- (instancetype)init {
+    if (self = [super init]) {
+        // Initialize self
+    }
+    return self;
+}
+
 - (void) setupWorkletContext:(jsi::Runtime&)runtime {
   NSLog(@"FrameProcessorBindings: Creating Worklet Context...");
 
@@ -68,8 +75,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
   
   NSLog(@"FrameProcessorBindings: Installing Frame Processor plugins...");
 
-  auto& workletRuntime = workletContext->getWorkletRuntime();
-  auto workletGlobal = workletRuntime.global();
+  jsi::Object frameProcessorPlugins(runtime);
 
   // Iterate through all registered plugins (+init)
   for (NSString* pluginKey in [FrameProcessorPluginRegistry frameProcessorPlugins]) {
@@ -101,30 +107,19 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
     };
 
     // Assign it to global.
-    // A FP Plugin called "example_plugin" can be now called from JS using "global.__example_plugin"
-    workletGlobal.setProperty(workletRuntime,
-                              pluginName,
-                              jsi::Function::createFromHostFunction(workletRuntime,
-                                                                    jsi::PropNameID::forAscii(workletRuntime, pluginName),
-                                                                    1, // frame
-                                                                    function));
+    // A FP Plugin called "example_plugin" can be now called from JS using "FrameProcessorPlugins.example_plugin(frame)"
+    frameProcessorPlugins.setProperty(runtime,
+                                      pluginName,
+                                      jsi::Function::createFromHostFunction(runtime,
+                                                                            jsi::PropNameID::forAscii(runtime, pluginName),
+                                                                            1, // frame
+                                                                            function));
   }
+  
+  // global.FrameProcessorPlugins Proxy
+  runtime.global().setProperty(runtime, "FrameProcessorPlugins", frameProcessorPlugins);
 
   NSLog(@"FrameProcessorBindings: Frame Processor plugins installed!");
-  //
-  //  workletContext->invokeOnWorkletThread([=]() {
-  //    auto& workletRuntime = workletContext->getWorkletRuntime();
-  //
-  //    workletRuntime.global().setProperty(workletRuntime, "_FRAME_PROCESSOR", jsi::Value(true));
-  //
-  //    // Install Skia
-  //    /*jsi::Runtime* rrr = &workletRuntime;
-  //    auto platformContext = std::make_shared<RNSkia::RNSkiOSPlatformContext>(rrr, callInvoker);
-  //    auto skiaApi = std::make_shared<RNSkia::JsiSkApi>(workletRuntime, platformContext);
-  //    workletRuntime.global().setProperty(workletRuntime,
-  //                                        "SkiaApi",
-  //                                        jsi::Object::createFromHostObject(workletRuntime, std::move(skiaApi)));*/
-  //  });
 }
 
 - (void) installFrameProcessorBindings {
@@ -135,7 +130,6 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
   }
 
   jsi::Runtime& jsiRuntime = *(jsi::Runtime*)cxxBridge.runtime;
-
 
   // Install the Worklet Runtime in the main React JS Runtime
   [self setupWorkletContext:jsiRuntime];
