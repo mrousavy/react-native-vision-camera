@@ -27,12 +27,7 @@ For the QR Code Scanner, this will be `__scanQRCodes`:
 ```js {6}
 module.exports = {
   plugins: [
-    [
-      'react-native-reanimated/plugin',
-      {
-        globals: ['__scanQRCodes'],
-      },
-    ],
+    ['react-native-worklets/plugin'],
 ```
 
 :::note

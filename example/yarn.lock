@@ -5091,6 +5091,9 @@ react-native-video@^5.2.1:
     prop-types "^15.7.2"
     shaka-player "^2.5.9"
 
+react-native-worklets@../../react-native-worklets:
+  version "0.1.0"
+
 react-native@^0.71.2:
   version "0.71.2"
   resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.71.2.tgz#b6977eda2a6dc10baa006bf4ab1ee08318607ce9"

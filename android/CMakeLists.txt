@@ -40,15 +40,6 @@ target_include_directories(
         "${NODE_MODULES_DIR}/react-native/ReactCommon/react/renderer/graphics/platform/cxx"
         "${NODE_MODULES_DIR}/react-native/ReactCommon/runtimeexecutor"
         "${NODE_MODULES_DIR}/react-native/ReactCommon/yoga"
-        # --- Reanimated ---
-        # New
-        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/AnimatedSensor"
-        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/Tools"
-        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/SpecTools"
-        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/SharedItems"
-        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/Registries"
-        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/LayoutAnimations"
-        "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/hidden_headers"
         "src/main/cpp"
 )
 
@@ -56,29 +47,6 @@ target_include_directories(
 # find libraries
 
 file (GLOB LIBRN_DIR "${BUILD_DIR}/react-native-0*/jni/${ANDROID_ABI}")
-
-if(${FOR_HERMES})
-        string(APPEND CMAKE_CXX_FLAGS " -DFOR_HERMES=1")
-
-        find_package(hermes-engine REQUIRED CONFIG)
-
-        target_link_libraries(
-                ${PACKAGE_NAME}
-                "hermes-engine::libhermes"
-        )
-        file (GLOB LIBREANIMATED_DIR "${BUILD_DIR}/react-native-reanimated-*-hermes.aar/jni/${ANDROID_ABI}")
-else()
-        file (GLOB LIBJSC_DIR "${BUILD_DIR}/android-jsc*.aar/jni/${ANDROID_ABI}")
-
-        set(JS_ENGINE_LIB ReactAndroid::jscexecutor)
-        target_link_libraries(
-                ${PACKAGE_NAME}
-                ${JS_ENGINE_LIB}
-        )
-
-        # Use Reanimated JSC
-        file (GLOB LIBREANIMATED_DIR "${BUILD_DIR}/react-native-reanimated-*-jsc.aar/jni/${ANDROID_ABI}")
-endif()
 
 target_link_libraries(
         ${PACKAGE_NAME}
@@ -90,10 +58,8 @@ target_link_libraries(
 )
 
 find_library(
-        REANIMATED_LIB
-        reanimated
-        PATHS ${LIBREANIMATED_DIR}
-        NO_CMAKE_FIND_ROOT_PATH
+        WORKLETS_LIB
+        worklets
 )
 
 find_library(
@@ -107,7 +73,7 @@ target_link_libraries(
         ${PACKAGE_NAME}
         ${LOG_LIB}
         ${JSI_LIB}
-        ${REANIMATED_LIB}
+        ${WORKLETS_LIB}
         ${REACT_NATIVE_JNI_LIB}
         ${FBJNI_LIB}
         ${FOLLY_LIB}
