@@ -22,8 +22,7 @@
 #import "JsiWorklet.h"
 
 FrameProcessorCallback convertWorkletToFrameProcessorCallback(jsi::Runtime& runtime, std::shared_ptr<RNWorklet::JsiWorklet> worklet) {
-  //__block auto cb = value.getFunction(runtime);
-
+  // Converts a Worklet to a callable Objective-C block function
   return ^(Frame* frame) {
 
     auto frameHostObject = std::make_shared<FrameHostObject>(frame);

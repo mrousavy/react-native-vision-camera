@@ -25,7 +25,6 @@
 
 #import "FrameProcessorUtils.h"
 #import "FrameProcessorCallback.h"
-#import "../React Utils/MakeJSIRuntime.h"
 #import "../React Utils/JSIUtils.h"
 
 // Forward declarations for the Swift classes
@@ -72,7 +71,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                              runOnWorklet);
 
   NSLog(@"FrameProcessorBindings: Worklet Context Created!");
-  
+
   NSLog(@"FrameProcessorBindings: Installing Frame Processor plugins...");
 
   jsi::Object frameProcessorPlugins(runtime);
@@ -115,7 +114,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                                                             1, // frame
                                                                             function));
   }
-  
+
   // global.FrameProcessorPlugins Proxy
   runtime.global().setProperty(runtime, "FrameProcessorPlugins", frameProcessorPlugins);
 
