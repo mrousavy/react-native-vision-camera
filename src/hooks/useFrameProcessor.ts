@@ -1,7 +1,10 @@
 import { DependencyList, useCallback } from 'react';
 import type { Frame } from '../Frame';
+import { Camera } from '..';
 // Install RN Worklets by importing it
 import 'react-native-worklets/src';
+// Install VisionCamera Frame Processor JSI Bindings
+Camera.installFrameProcessorBindings();
 
 type FrameProcessor = (frame: Frame) => void;
 

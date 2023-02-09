@@ -15,18 +15,6 @@ final class CameraViewManager: RCTViewManager {
 
   private var runtimeManager: FrameProcessorRuntimeManager?
 
-  override var bridge: RCTBridge! {
-    didSet {
-      // Install Frame Processor bindings and setup Runtime
-      CameraQueues.frameProcessorQueue.async {
-        self.runtimeManager = FrameProcessorRuntimeManager()
-        self.bridge.runOnJS {
-          self.runtimeManager!.installFrameProcessorBindings()
-        }
-      }
-    }
-  }
-
   override var methodQueue: DispatchQueue! {
     return DispatchQueue.main
   }
@@ -40,6 +28,14 @@ final class CameraViewManager: RCTViewManager {
   }
 
   // pragma MARK: React Functions
+  
+  @objc
+  final func installFrameProcessorBindings() -> NSNumber {
+    // Runs on JS Thread
+    self.runtimeManager = FrameProcessorRuntimeManager()
+    self.runtimeManager!.installFrameProcessorBindings()
+    return NSNumber(booleanLiteral: true)
+  }
 
   @objc
   final func startRecording(_ node: NSNumber, options: NSDictionary, onRecordCallback: @escaping RCTResponseSenderBlock) {
