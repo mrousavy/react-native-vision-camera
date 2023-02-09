@@ -17,3 +17,8 @@ declare var _WORKLET: true | undefined;
  * A native logging function (outputs to Xcode console/Android Logcat)
  */
 declare var _log: (message: string) => void | undefined;
+
+/**
+ * Set a Proxy for global.console in this Runtime
+ */
+declare var _setGlobalConsole: (console: unknown) => void;
