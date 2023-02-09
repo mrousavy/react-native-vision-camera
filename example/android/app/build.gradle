@@ -98,7 +98,7 @@ android {
     ndkVersion rootProject.ext.ndkVersion
     compileSdkVersion rootProject.ext.compileSdkVersion
 
-    namespace "com.mrousavy.camera"
+    namespace "com.mrousavy.camera.example"
     dexOptions {
         javaMaxHeapSize "4g"
     }
