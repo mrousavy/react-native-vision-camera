@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@react-native-community/blur": "^4.3.0",
-    "@react-native-community/cameraroll": "^4.1.1",
+    "@react-native-camera-roll/camera-roll": "^5.2.3",
     "@react-native-community/slider": "^4.4.2",
     "@react-navigation/native": "^6.1.3",
     "@react-navigation/native-stack": "^6.9.9",
