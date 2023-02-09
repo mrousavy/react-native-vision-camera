@@ -50,6 +50,7 @@ def reactNativeArchitectures() {
 }
 
 repositories {
+  google()
   mavenCentral()
 }
 
