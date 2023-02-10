@@ -16,7 +16,7 @@ buildscript {
   }
 }
 
-def ENABLE_FRAME_PROCESSORS = false // TODO: fix
+def ENABLE_FRAME_PROCESSORS = true // TODO: fix
 def kotlin_version = rootProject.ext.has('kotlinVersion') ? rootProject.ext.get('kotlinVersion') : project.properties['VisionCamera_kotlinVersion']
 
 def resolveBuildType() {

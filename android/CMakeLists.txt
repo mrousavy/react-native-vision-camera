@@ -1,20 +1,13 @@
 project(VisionCamera)
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.9.0)
 
-set (CMAKE_VERBOSE_MAKEFILE ON)
-set (CMAKE_CXX_STANDARD 14)
+set(CMAKE_VERBOSE_MAKEFILE ON)
+set(PACKAGE_NAME "VisionCamera")
+set(BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
+set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_CXX_STANDARD 17)
 
-include("${NODE_MODULES_DIR}/react-native/ReactAndroid/cmake-utils/folly-flags.cmake")
-add_compile_options(${folly_FLAGS})
-
-
-set (PACKAGE_NAME "VisionCamera")
-set (BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
-# Consume shared libraries and headers from prefabs
-find_package(fbjni REQUIRED CONFIG)
-find_package(ReactAndroid REQUIRED CONFIG)
-# VisionCamera shared
-
+# Add react-native-vision-camera sources
 add_library(
         ${PACKAGE_NAME}
         SHARED
@@ -33,49 +26,23 @@ add_library(
 target_include_directories(
         ${PACKAGE_NAME}
         PRIVATE
-        "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni/react/turbomodule"
-        "${NODE_MODULES_DIR}/react-native/ReactCommon"
-        "${NODE_MODULES_DIR}/react-native/ReactCommon/callinvoker"
-        "${NODE_MODULES_DIR}/react-native/ReactCommon/jsi"
-        "${NODE_MODULES_DIR}/react-native/ReactCommon/react/renderer/graphics/platform/cxx"
-        "${NODE_MODULES_DIR}/react-native/ReactCommon/runtimeexecutor"
-        "${NODE_MODULES_DIR}/react-native/ReactCommon/yoga"
         "src/main/cpp"
+        "${REACT_NATIVE_DIR}/ReactCommon"
+        "${REACT_NATIVE_DIR}/ReactCommon/callinvoker"
 )
 
-
-# find libraries
-
-file (GLOB LIBRN_DIR "${BUILD_DIR}/react-native-0*/jni/${ANDROID_ABI}")
+find_package(ReactAndroid REQUIRED CONFIG)
+find_package(fbjni REQUIRED CONFIG)
+#find_package(react-native-worklets REQUIRED CONFIG)
+find_library(log-lib log)
 
 target_link_libraries(
         ${PACKAGE_NAME}
-        ReactAndroid::folly_runtime
-        ReactAndroid::glog
-        ReactAndroid::jsi
-        ReactAndroid::reactnativejni
-        fbjni::fbjni
-)
-
-find_library(
-        WORKLETS_LIB
-        worklets
-)
-
-find_library(
-        LOG_LIB
-        log
-)
-
-# linking
-message(WARNING "VisionCamera linking: FOR_HERMES=${FOR_HERMES}")
-target_link_libraries(
-        ${PACKAGE_NAME}
-        ${LOG_LIB}
-        ${JSI_LIB}
-        ${WORKLETS_LIB}
-        ${REACT_NATIVE_JNI_LIB}
-        ${FBJNI_LIB}
-        ${FOLLY_LIB}
-        android
+        worklets                            # <-- RN Worklets
+        ${log-lib}                          # <-- Logcat logger
+        ReactAndroid::jsi                   # <-- JSI
+        ReactAndroid::reactnativejni       # <-- React Native JNI bindings
+        fbjni::fbjni                        # <-- fbjni
+#        react-native-worklets::rnworklets   # <-- RN Worklets
+        android                             # <-- Android JNI core
 )
