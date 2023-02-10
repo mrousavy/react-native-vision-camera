@@ -105,7 +105,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
       return convertObjCObjectToJSIValue(runtime, result);
     };
 
-    // Assign it to global.
+    // Assign it to the Proxy.
     // A FP Plugin called "example_plugin" can be now called from JS using "FrameProcessorPlugins.example_plugin(frame)"
     frameProcessorPlugins.setProperty(runtime,
                                       pluginName,

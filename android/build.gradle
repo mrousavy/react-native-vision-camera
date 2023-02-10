@@ -1,3 +1,5 @@
+import java.nio.file.Paths
+
 buildscript {
   def kotlin_version = rootProject.ext.has('kotlinVersion') ? rootProject.ext.get('kotlinVersion') : project.properties['VisionCamera_kotlinVersion']
 
@@ -49,6 +51,23 @@ def reactNativeArchitectures() {
   return value ? value.split(",") : ["armeabi-v7a", "x86", "x86_64", "arm64-v8a"]
 }
 
+static def findNodeModules(baseDir) {
+  def basePath = baseDir.toPath().normalize()
+  // Node's module resolution algorithm searches up to the root directory,
+  // after which the base path will be null
+  while (basePath) {
+    def nodeModulesPath = Paths.get(basePath.toString(), "node_modules")
+    def reactNativePath = Paths.get(nodeModulesPath.toString(), "react-native")
+    if (nodeModulesPath.toFile().exists() && reactNativePath.toFile().exists()) {
+      return nodeModulesPath.toString()
+    }
+    basePath = basePath.getParent()
+  }
+  throw new GradleException("react-native-worklets: Failed to find node_modules/ path!")
+}
+
+def nodeModules = findNodeModules(projectDir)
+
 repositories {
   google()
   mavenCentral()
@@ -81,7 +100,8 @@ android {
       externalNativeBuild {
         cmake {
           cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all"
-          arguments "-DANDROID_STL=c++_shared"
+          arguments "-DANDROID_STL=c++_shared",
+                  "-DNODE_MODULES_DIR=${nodeModules}"
           abiFilters (*reactNativeArchitectures())
         }
       }

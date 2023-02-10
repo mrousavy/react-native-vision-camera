@@ -27,8 +27,10 @@ target_include_directories(
         ${PACKAGE_NAME}
         PRIVATE
         "src/main/cpp"
-        "${REACT_NATIVE_DIR}/ReactCommon"
-        "${REACT_NATIVE_DIR}/ReactCommon/callinvoker"
+        "${NODE_MODULES_DIR}/react-native/ReactCommon"
+        "${NODE_MODULES_DIR}/react-native/ReactCommon/callinvoker"
+        "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni/react/turbomodule" # <-- CallInvokerHolder JNI wrapper
+        "${NODE_MODULES_DIR}/react-native-worklets/cpp"
 )
 
 find_package(ReactAndroid REQUIRED CONFIG)
@@ -41,7 +43,8 @@ target_link_libraries(
         worklets                            # <-- RN Worklets
         ${log-lib}                          # <-- Logcat logger
         ReactAndroid::jsi                   # <-- JSI
-        ReactAndroid::reactnativejni       # <-- React Native JNI bindings
+        ReactAndroid::reactnativejni        # <-- React Native JNI bindings
+        ReactAndroid::folly_runtime         # <-- For casting JSI <> Java objects
         fbjni::fbjni                        # <-- fbjni
 #        react-native-worklets::rnworklets   # <-- RN Worklets
         android                             # <-- Android JNI core

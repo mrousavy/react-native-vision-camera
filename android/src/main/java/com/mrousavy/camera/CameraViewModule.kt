@@ -165,6 +165,12 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  fun installFrameProcessorBindings(): Boolean {
+    // TODO: Install Frame Processor Bindings
+    return false
+  }
+
   // TODO: This uses the Camera2 API to list all characteristics of a camera device and therefore doesn't work with Camera1. Find a way to use CameraX for this
   // https://issuetracker.google.com/issues/179925896
   @ReactMethod
