@@ -41,7 +41,6 @@ class FrameProcessorRuntimeManager : public jni::HybridClass<FrameProcessorRunti
   std::shared_ptr<RNWorklet::JsiWorkletContext> _workletContext;
 
   jni::global_ref<CameraView::javaobject> findCameraViewById(int viewId);
-  void initializeRuntime();
   void installJSIBindings();
   void registerPlugin(alias_ref<JFrameProcessorPlugin::javaobject> plugin);
   void logErrorToJS(const std::string& message);

@@ -51,8 +51,6 @@ void vision::FrameProcessorRuntimeManager::registerNatives() {
                      FrameProcessorRuntimeManager::initHybrid),
     makeNativeMethod("installJSIBindings",
                      FrameProcessorRuntimeManager::installJSIBindings),
-    makeNativeMethod("initializeRuntime",
-                     FrameProcessorRuntimeManager::initializeRuntime),
     makeNativeMethod("registerPlugin",
                      FrameProcessorRuntimeManager::registerPlugin),
   });
@@ -73,15 +71,6 @@ TSelf vision::FrameProcessorRuntimeManager::initHybrid(
   auto scheduler = std::shared_ptr<VisionCameraScheduler>(androidScheduler->cthis());
 
   return makeCxxInstance(jThis, jsRuntime, jsCallInvoker, scheduler);
-}
-
-void vision::FrameProcessorRuntimeManager::initializeRuntime() {
-  __android_log_write(ANDROID_LOG_INFO, TAG,
-                      "Initializing Vision JS-Runtime...");
-
-
-  __android_log_write(ANDROID_LOG_INFO, TAG,
-                      "Initialized Vision JS-Runtime!");
 }
 
 global_ref<CameraView::javaobject> FrameProcessorRuntimeManager::findCameraViewById(int viewId) {
@@ -127,7 +116,7 @@ void FrameProcessorRuntimeManager::setFrameProcessor(jsi::Runtime& runtime,
 
   _workletContext->invokeOnWorkletThread([=](RNWorklet::JsiWorkletContext*, jsi::Runtime& rt) {
     // Set Frame Processor as callable C++ lambda - this will then call the Worklet
-    cameraView->cthis()->setFrameProcessor([this, &rt](jni::alias_ref<JImageProxy::javaobject> frame) {
+    cameraView->cthis()->setFrameProcessor([this, workletInvoker, &rt](jni::alias_ref<JImageProxy::javaobject> frame) {
       try {
         // create HostObject which holds the Frame (JImageProxy)
         auto frameHostObject = std::make_shared<FrameHostObject>(frame);

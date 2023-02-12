@@ -21,7 +21,6 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext, frameProces
 
     init {
       try {
-        System.loadLibrary("reanimated")
         System.loadLibrary("VisionCamera")
       } catch (e: UnsatisfiedLinkError) {
         Log.w(TAG, "Failed to load Reanimated/VisionCamera C++ library. Frame Processors are disabled!")
@@ -41,18 +40,6 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext, frameProces
       mScheduler = VisionCameraScheduler(frameProcessorThread)
       mContext = WeakReference(context)
       mHybridData = initHybrid(context.javaScriptContextHolder.get(), holder, mScheduler!!)
-      initializeRuntime()
-
-      Log.i(TAG, "Installing Frame Processor Plugins...")
-      Plugins.forEach { plugin ->
-        registerPlugin(plugin)
-      }
-      Log.i(TAG, "Successfully installed ${Plugins.count()} Frame Processor Plugins!")
-
-      Log.i(TAG, "Installing JSI Bindings on JS Thread...")
-      context.runOnJSQueueThread {
-        installJSIBindings()
-      }
     }
   }
 
@@ -67,13 +54,22 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext, frameProces
     return view ?: throw ViewNotFoundError(viewId)
   }
 
+  fun installBindings() {
+    Log.i(TAG, "Installing JSI Bindings on JS Thread...")
+    installJSIBindings()
+    Log.i(TAG, "Installing Frame Processor Plugins...")
+    Plugins.forEach { plugin ->
+      registerPlugin(plugin)
+    }
+    Log.i(TAG, "Successfully installed ${Plugins.count()} Frame Processor Plugins!")
+  }
+
   // private C++ funcs
   private external fun initHybrid(
     jsContext: Long,
     jsCallInvokerHolder: CallInvokerHolderImpl,
     scheduler: VisionCameraScheduler
   ): HybridData
-  private external fun initializeRuntime()
   private external fun registerPlugin(plugin: FrameProcessorPlugin)
   private external fun installJSIBindings()
 }
