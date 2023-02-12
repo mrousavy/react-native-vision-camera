@@ -14,8 +14,8 @@
     "typescript": "tsc --noEmit"
   },
   "dependencies": {
-    "@react-native-community/blur": "^4.3.0",
     "@react-native-camera-roll/camera-roll": "^5.2.3",
+    "@react-native-community/blur": "^4.3.0",
     "@react-native-community/slider": "^4.4.2",
     "@react-navigation/native": "^6.1.3",
     "@react-navigation/native-stack": "^6.9.9",
@@ -29,7 +29,7 @@
     "react-native-static-safe-area-insets": "^2.2.0",
     "react-native-vector-icons": "^9.2.0",
     "react-native-video": "^5.2.1",
-    "react-native-worklets": "janicduplessis/react-native-worklets#react-native-worklets-v0.2.5-gitpkg"
+    "react-native-worklets": "https://github.com/chrfalch/react-native-worklets#c26dea98757dee18b90452c0f1222759b7fe9795"
   },
   "devDependencies": {
     "@babel/core": "^7.20.12",
