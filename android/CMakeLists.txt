@@ -7,11 +7,15 @@ set(BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 17)
 
+# Folly
+include("${NODE_MODULES_DIR}/react-native/ReactAndroid/cmake-utils/folly-flags.cmake")
+add_compile_options(${folly_FLAGS})
+
 # Third party libraries (Prefabs)
 find_package(ReactAndroid REQUIRED CONFIG)
 find_package(fbjni REQUIRED CONFIG)
 find_package(react-native-worklets REQUIRED CONFIG)
-find_library(log REQUIRED CONFIG)
+find_library(LOG_LIB log)
 
 # Add react-native-vision-camera sources
 add_library(
@@ -41,7 +45,7 @@ target_include_directories(
 # Link everything together
 target_link_libraries(
         ${PACKAGE_NAME}
-        log                                 # <-- Logcat logger
+        ${LOG_LIB}                          # <-- Logcat logger
         android                             # <-- Android JNI core
         ReactAndroid::jsi                   # <-- RN: JSI
         ReactAndroid::reactnativejni        # <-- RN: React Native JNI bindings
