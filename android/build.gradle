@@ -18,7 +18,6 @@ buildscript {
   }
 }
 
-def ENABLE_FRAME_PROCESSORS = true // TODO: fix
 def kotlin_version = rootProject.ext.has('kotlinVersion') ? rootProject.ext.get('kotlinVersion') : project.properties['VisionCamera_kotlinVersion']
 
 def resolveBuildType() {
@@ -96,14 +95,12 @@ android {
     versionName "1.0"
     buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
 
-    if (ENABLE_FRAME_PROCESSORS) {
-      externalNativeBuild {
-        cmake {
-          cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all"
-          arguments "-DANDROID_STL=c++_shared",
-                  "-DNODE_MODULES_DIR=${nodeModules}"
-          abiFilters (*reactNativeArchitectures())
-        }
+    externalNativeBuild {
+      cmake {
+        cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all"
+        arguments "-DANDROID_STL=c++_shared",
+                "-DNODE_MODULES_DIR=${nodeModules}"
+        abiFilters (*reactNativeArchitectures())
       }
     }
   }
@@ -113,11 +110,9 @@ android {
     targetCompatibility JavaVersion.VERSION_1_8
   }
 
-  if (ENABLE_FRAME_PROCESSORS) {
-    externalNativeBuild {
-      cmake {
-        path "CMakeLists.txt"
-      }
+  externalNativeBuild {
+    cmake {
+      path "CMakeLists.txt"
     }
   }
   packagingOptions {
