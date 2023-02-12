@@ -11,7 +11,7 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(ReactAndroid REQUIRED CONFIG)
 find_package(fbjni REQUIRED CONFIG)
 find_package(react-native-worklets REQUIRED CONFIG)
-find_library(log)
+find_library(log REQUIRED CONFIG)
 
 # Add react-native-vision-camera sources
 add_library(

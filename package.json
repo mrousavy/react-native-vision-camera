@@ -85,12 +85,10 @@
     "release-it": "^15.6.0",
     "typescript": "^4.9.5"
   },
-  "dependencies": {
-    "react-native-worklets": "janicduplessis/react-native-worklets#react-native-worklets-v0.2.5-gitpkg"
-  },
   "peerDependencies": {
     "react": "*",
-    "react-native": "*"
+    "react-native": "*",
+    "react-native-worklets": "*"
   },
   "prettier": {
     "bracketSpacing": true,
