@@ -20,9 +20,6 @@ import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener
 import com.facebook.react.uimanager.UIManagerHelper
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.turbomodule.core.CallInvokerHolderImpl
-import com.mrousavy.camera.CameraView
-import com.mrousavy.camera.ViewNotFoundError
 import java.util.concurrent.ExecutorService
 import com.mrousavy.camera.frameprocessor.FrameProcessorRuntimeManager
 import com.mrousavy.camera.parsers.*
@@ -55,10 +52,6 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     if (coroutineScope.isActive) {
       coroutineScope.cancel("CameraViewModule has been destroyed.")
     }
-  }
-
-  override fun initialize() {
-    super.initialize()
   }
 
   override fun onCatalystInstanceDestroy() {
