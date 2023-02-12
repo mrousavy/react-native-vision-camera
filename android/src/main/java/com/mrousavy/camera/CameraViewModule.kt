@@ -55,17 +55,10 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     if (coroutineScope.isActive) {
       coroutineScope.cancel("CameraViewModule has been destroyed.")
     }
-    frameProcessorManager = null
   }
 
   override fun initialize() {
     super.initialize()
-
-    if (frameProcessorManager == null) {
-      frameProcessorThread.execute {
-        frameProcessorManager = FrameProcessorRuntimeManager(reactApplicationContext, frameProcessorThread)
-      }
-    }
   }
 
   override fun onCatalystInstanceDestroy() {
@@ -168,6 +161,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   @ReactMethod(isBlockingSynchronousMethod = true)
   fun installFrameProcessorBindings(): Boolean {
     try {
+      frameProcessorManager = FrameProcessorRuntimeManager(reactApplicationContext, frameProcessorThread)
       frameProcessorManager!!.installBindings()
       return true
     } catch (e: Error) {
