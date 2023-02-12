@@ -16,16 +16,19 @@ import java.util.concurrent.ExecutorService
 class FrameProcessorRuntimeManager(context: ReactApplicationContext, frameProcessorThread: ExecutorService) {
   companion object {
     const val TAG = "FrameProcessorRuntime"
-    val Plugins: ArrayList<FrameProcessorPlugin> = ArrayList()
-    var enableFrameProcessors = true
+    private val Plugins: ArrayList<FrameProcessorPlugin> = ArrayList()
 
     init {
       try {
         System.loadLibrary("VisionCamera")
       } catch (e: UnsatisfiedLinkError) {
-        Log.w(TAG, "Failed to load Reanimated/VisionCamera C++ library. Frame Processors are disabled!")
-        enableFrameProcessors = false
+        Log.e(TAG, "Failed to load VisionCamera C++ library!", e)
+        throw e
       }
+    }
+
+    fun addPlugin(plugin: FrameProcessorPlugin) {
+      Plugins.add(plugin)
     }
   }
 
@@ -35,12 +38,11 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext, frameProces
   private var mScheduler: VisionCameraScheduler? = null
 
   init {
-    if (enableFrameProcessors) {
-      val holder = context.catalystInstance.jsCallInvokerHolder as CallInvokerHolderImpl
-      mScheduler = VisionCameraScheduler(frameProcessorThread)
-      mContext = WeakReference(context)
-      mHybridData = initHybrid(context.javaScriptContextHolder.get(), holder, mScheduler!!)
-    }
+    val jsCallInvokerHolder = context.catalystInstance.jsCallInvokerHolder as CallInvokerHolderImpl
+    val jsRuntimeHolder = context.javaScriptContextHolder.get()
+    mScheduler = VisionCameraScheduler(frameProcessorThread)
+    mContext = WeakReference(context)
+    mHybridData = initHybrid(jsRuntimeHolder, jsCallInvokerHolder, mScheduler!!)
   }
 
   @Suppress("unused")
