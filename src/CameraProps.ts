@@ -4,11 +4,6 @@ import type { CameraRuntimeError } from './CameraError';
 import type { CameraPreset } from './CameraPreset';
 import type { Frame } from './Frame';
 
-export interface FrameProcessorPerformanceSuggestion {
-  type: 'can-use-higher-fps' | 'should-use-lower-fps';
-  suggestedFrameProcessorFps: number;
-}
-
 export interface CameraProps extends ViewProps {
   /**
    * The Camera Device to use.
@@ -170,10 +165,6 @@ export interface CameraProps extends ViewProps {
    * Called when the camera was successfully initialized.
    */
   onInitialized?: () => void;
-  /**
-   * Called when a new performance suggestion for a Frame Processor is available - either if your Frame Processor is running too fast and frames are being dropped, or because it is able to run faster. Optionally, you can adjust your `frameProcessorFps` accordingly.
-   */
-  onFrameProcessorPerformanceSuggestionAvailable?: (suggestion: FrameProcessorPerformanceSuggestion) => void;
   /**
    * A worklet which will be called for every frame the Camera "sees". Throttle the Frame Processor's frame rate with {@linkcode frameProcessorFps}.
    *

@@ -49,7 +49,6 @@ RCT_EXPORT_VIEW_PROPERTY(orientation, NSString);
 // Camera View Events
 RCT_EXPORT_VIEW_PROPERTY(onError, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onInitialized, RCTDirectEventBlock);
-RCT_EXPORT_VIEW_PROPERTY(onFrameProcessorPerformanceSuggestionAvailable, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onViewReady, RCTDirectEventBlock);
 
 // Camera View Functions

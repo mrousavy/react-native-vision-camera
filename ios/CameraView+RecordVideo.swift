@@ -222,10 +222,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           CameraQueues.frameProcessorQueue.async {
             self.isRunningFrameProcessor = true
 
-            let perfSample = self.frameProcessorPerformanceDataCollector.beginPerformanceSampleCollection()
             let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
             frameProcessor(frame)
-            perfSample.endPerformanceSampleCollection()
 
             self.isRunningFrameProcessor = false
           }
@@ -235,30 +233,6 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           ReactLogger.log(level: .warning, message: "The Frame Processor took so long to execute that a frame was dropped.")
         }
       }
-
-      if isReadyForNewEvaluation {
-        // last evaluation was more than 1sec ago, evaluate again
-        evaluateNewPerformanceSamples()
-      }
-    }
-  }
-
-  private func evaluateNewPerformanceSamples() {
-    lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
-    guard let videoDevice = videoDeviceInput?.device else { return }
-    guard frameProcessorPerformanceDataCollector.hasEnoughData else { return }
-
-    let maxFrameProcessorFps = Double(videoDevice.activeVideoMinFrameDuration.timescale) * Double(videoDevice.activeVideoMinFrameDuration.value)
-    let averageFps = 1.0 / frameProcessorPerformanceDataCollector.averageExecutionTimeSeconds
-    let suggestedFrameProcessorFps = max(floor(min(averageFps, maxFrameProcessorFps)), 1)
-
-    if frameProcessorFps.intValue == -1 {
-      // frameProcessorFps="auto"
-      actualFrameProcessorFps = suggestedFrameProcessorFps
-    } else {
-      // frameProcessorFps={someCustomFpsValue}
-      invokeOnFrameProcessorPerformanceSuggestionAvailable(currentFps: frameProcessorFps.doubleValue,
-                                                           suggestedFps: suggestedFrameProcessorFps)
     }
   }
 
@@ -268,11 +242,6 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
     } else {
       return videoOutput.recommendedVideoSettingsForAssetWriter(writingTo: fileType)
     }
-  }
-
-  private var isReadyForNewEvaluation: Bool {
-    let lastPerformanceEvaluationElapsedTime = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorPerformanceEvaluation.uptimeNanoseconds
-    return lastPerformanceEvaluationElapsedTime > 1_000_000_000
   }
 
   /**

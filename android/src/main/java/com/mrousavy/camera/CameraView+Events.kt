@@ -31,17 +31,6 @@ fun CameraView.invokeOnError(error: Throwable) {
   reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraError", event)
 }
 
-fun CameraView.invokeOnFrameProcessorPerformanceSuggestionAvailable(currentFps: Double, suggestedFps: Double) {
-  Log.e(CameraView.TAG, "invokeOnFrameProcessorPerformanceSuggestionAvailable(suggestedFps: $suggestedFps):")
-
-  val event = Arguments.createMap()
-  val type = if (suggestedFps > currentFps) "can-use-higher-fps" else "should-use-lower-fps"
-  event.putString("type", type)
-  event.putDouble("suggestedFrameProcessorFps", suggestedFps)
-  val reactContext = context as ReactContext
-  reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraPerformanceSuggestionAvailable", event)
-}
-
 fun CameraView.invokeOnViewReady() {
   val event = Arguments.createMap()
   val reactContext = context as ReactContext
