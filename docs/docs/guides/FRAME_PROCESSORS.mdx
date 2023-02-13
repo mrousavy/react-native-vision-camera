@@ -48,17 +48,13 @@ Frame processors are by far not limited to Hotdog detection, other examples incl
 * Creating scanners for **QR codes**, **Barcodes** or even custom codes such as **Snapchat's SnapCodes** or **Apple's AppClips**
 * Creating **snapchat-like filters**, e.g. draw a dog-mask filter over the user's face
 * Creating **color filters** with depth-detection
+* Drawing boxes, text, overlays, or colors on the screen in realtime
+* Rendering filters and shaders such as Blur, inverted colors, beauty filter, or more on the screen
 
 Because they are written in JS, Frame Processors are **simple**, **powerful**, **extensible** and **easy to create** while still running at **native performance**. (Frame Processors can run up to **1000 times a second**!) Also, you can use **fast-refresh** to quickly see changes while developing or publish [over-the-air updates](https://github.com/microsoft/react-native-code-push) to tweak the Hotdog detector's sensitivity in live apps without pushing a native update.
 
 :::note
-Frame Processors require [**react-native-reanimated**](https://github.com/software-mansion/react-native-reanimated) 2.2.0 or higher. Also make sure to add
-
-```js
-import 'react-native-reanimated'
-```
-
-to the top of the file when using `useFrameProcessor`.
+Frame Processors require [**react-native-worklets**](https://github.com/chrfalch/react-native-worklets) 1.0.0 or higher.
 :::
 
 ### Interacting with Frame Processors
@@ -80,7 +76,7 @@ You can also easily read from, and assign to [**Shared Values**](https://docs.sw
 
 In this example, we detect a cat in the frame - if a cat was found, we assign the `catBounds` Shared Value to the coordinates of the cat (relative to the screen) which we can then use in a `useAnimatedStyle` hook to position the red rectangle surrounding the cat. This updates in realtime on the UI Thread, and can also be smoothly animated with `withSpring` or `withTiming`.
 
-```tsx {6}
+```tsx {7}
 // represents position of the cat on the screen 🐈
 const catBounds = useSharedValue({ top: 0, left: 0, right: 0, bottom: 0 })
 
@@ -108,18 +104,18 @@ return (
 )
 ```
 
-And you can also call back to the React-JS thread by using [`runOnJS`](https://docs.swmansion.com/react-native-reanimated/docs/api/miscellaneous/runOnJS/):
+And you can also call back to the React-JS thread by using `createRunInJsFn(...)`:
 
-```tsx {9}
-const onQRCodeDetected = useCallback((qrCode: string) => {
+```tsx {1}
+const onQRCodeDetected = Worklets.createRunInJsFn((qrCode: string) => {
   navigation.push("ProductPage", { productId: qrCode })
-}, [])
+})
 
 const frameProcessor = useFrameProcessor((frame) => {
   'worklet'
   const qrCodes = scanQRCodes(frame)
   if (qrCodes.length > 0) {
-    runOnJS(onQRCodeDetected)(qrCodes[0])
+    onQRCodeDetected(qrCodes[0])
   }
 }, [onQRCodeDetected])
 ```
@@ -132,23 +128,6 @@ Frame Processor Plugins are distributed through npm. To install the [**vision-ca
 npm i vision-camera-image-labeler
 cd ios && pod install
 ```
-
-Then add it to your `babel.config.js`. For the Image Labeler, this will be `__labelImage`:
-
-```js {6}
-module.exports = {
-  plugins: [
-    [
-      'react-native-reanimated/plugin',
-      {
-        globals: ['__labelImage'],
-      },
-    ],
-```
-
-:::note
-You have to restart metro-bundler for changes in the `babel.config.js` file to take effect.
-:::
 
 That's it! 🎉 Now you can use it:
 
@@ -192,7 +171,7 @@ If you are using the [react-hooks ESLint plugin](https://www.npmjs.com/package/e
 
 #### Frame Processors
 
-**Frame Processors** are JS functions that will be **workletized** using [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated). They are created on a **parallel camera thread** using a separate JavaScript Runtime (_"VisionCamera JS-Runtime"_) and are **invoked synchronously** (using JSI) without ever going over the bridge. In a **Frame Processor** you can write normal JS code, call back to the React-JS Thread (e.g. `setState`), use [Shared Values](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/shared-values/) and call **Frame Processor Plugins**.
+**Frame Processors** are JS functions that will be **workletized** using [react-native-worklets](https://github.com/chrfalch/react-native-worklets). They are created on a **parallel camera thread** using a separate JavaScript Runtime (_"VisionCamera JS-Runtime"_) and are **invoked synchronously** (using JSI) without ever going over the bridge. In a **Frame Processor** you can write normal JS code, call back to the React-JS Thread (e.g. `setState`), use [Shared Values](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/shared-values/) and call **Frame Processor Plugins**.
 
 > See [**the example Frame Processor**](https://github.com/mrousavy/react-native-vision-camera/blob/cf68a4c6476d085ec48fc424a53a96962e0c33f9/example/src/CameraPage.tsx#L199-L203)
 

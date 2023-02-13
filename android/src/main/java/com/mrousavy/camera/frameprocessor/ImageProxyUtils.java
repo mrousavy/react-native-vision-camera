@@ -19,7 +19,7 @@ public class ImageProxyUtils {
             Image image = imageProxy.getImage();
             if (image == null) return false;
             // will throw an exception if the image is already closed
-            imageProxy.getImage().getCropRect();
+            image.getCropRect();
             // no exception thrown, image must still be valid.
             return true;
         } catch (Exception e) {

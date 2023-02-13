@@ -7,17 +7,11 @@
 #include <jni.h>
 #include <utility>
 #include <string>
+#include <JsiWorklet.h>
 
-#include "RuntimeDecorator.h"
-#include "RuntimeManager.h"
-#include "reanimated-headers/AndroidScheduler.h"
-#include "reanimated-headers/AndroidErrorHandler.h"
-
-#include "MakeJSIRuntime.h"
 #include "CameraView.h"
 #include "FrameHostObject.h"
 #include "JSIJNIConversion.h"
-#include "VisionCameraScheduler.h"
 #include "java-bindings/JImageProxy.h"
 #include "java-bindings/JFrameProcessorPlugin.h"
 
@@ -28,6 +22,28 @@ using TSelf = local_ref<HybridClass<vision::FrameProcessorRuntimeManager>::jhybr
 using TJSCallInvokerHolder = jni::alias_ref<facebook::react::CallInvokerHolder::javaobject>;
 using TAndroidScheduler = jni::alias_ref<VisionCameraScheduler::javaobject>;
 
+FrameProcessorRuntimeManager::FrameProcessorRuntimeManager(jni::alias_ref<FrameProcessorRuntimeManager::jhybridobject> jThis,
+                                                                    jsi::Runtime* jsRuntime,
+                                                                    std::shared_ptr<facebook::react::CallInvoker> jsCallInvoker,
+                                                                    std::shared_ptr<vision::VisionCameraScheduler> scheduler) :
+                                                                    javaPart_(jni::make_global(jThis)),
+                                                                    _jsRuntime(jsRuntime) {
+    auto runOnJS = [jsCallInvoker](std::function<void()>&& f) {
+        // Run on React JS Runtime
+        jsCallInvoker->invokeAsync(std::move(f));
+    };
+    auto runOnWorklet = [scheduler](std::function<void()>&& f) {
+        // Run on Frame Processor Worklet Runtime
+        scheduler->dispatchAsync(std::move(f));
+    };
+
+    _workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("VisionCamera");
+    _workletContext->initialize("VisionCamera",
+                                jsRuntime,
+                                runOnJS,
+                                runOnWorklet);
+}
+
 // JNI binding
 void vision::FrameProcessorRuntimeManager::registerNatives() {
   registerHybrid({
@@ -35,8 +51,6 @@ void vision::FrameProcessorRuntimeManager::registerNatives() {
                      FrameProcessorRuntimeManager::initHybrid),
     makeNativeMethod("installJSIBindings",
                      FrameProcessorRuntimeManager::installJSIBindings),
-    makeNativeMethod("initializeRuntime",
-                     FrameProcessorRuntimeManager::initializeRuntime),
     makeNativeMethod("registerPlugin",
                      FrameProcessorRuntimeManager::registerPlugin),
   });
@@ -52,32 +66,11 @@ TSelf vision::FrameProcessorRuntimeManager::initHybrid(
                       "Initializing FrameProcessorRuntimeManager...");
 
   // cast from JNI hybrid objects to C++ instances
-  auto runtime = reinterpret_cast<jsi::Runtime*>(jsRuntimePointer);
+  auto jsRuntime = reinterpret_cast<jsi::Runtime*>(jsRuntimePointer);
   auto jsCallInvoker = jsCallInvokerHolder->cthis()->getCallInvoker();
   auto scheduler = std::shared_ptr<VisionCameraScheduler>(androidScheduler->cthis());
-  scheduler->setJSCallInvoker(jsCallInvoker);
 
-  return makeCxxInstance(jThis, runtime, jsCallInvoker, scheduler);
-}
-
-void vision::FrameProcessorRuntimeManager::initializeRuntime() {
-  __android_log_write(ANDROID_LOG_INFO, TAG,
-                      "Initializing Vision JS-Runtime...");
-
-  // create JSI runtime and decorate it
-  auto runtime = makeJSIRuntime();
-  reanimated::RuntimeDecorator::decorateRuntime(*runtime, "FRAME_PROCESSOR");
-  runtime->global().setProperty(*runtime, "_FRAME_PROCESSOR",
-                                jsi::Value(true));
-
-  // create REA runtime manager
-  auto errorHandler = std::make_shared<reanimated::AndroidErrorHandler>(scheduler_);
-  _runtimeManager = std::make_unique<reanimated::RuntimeManager>(std::move(runtime),
-                                                                 errorHandler,
-                                                                 scheduler_);
-
-  __android_log_write(ANDROID_LOG_INFO, TAG,
-                      "Initialized Vision JS-Runtime!");
+  return makeCxxInstance(jThis, jsRuntime, jsCallInvoker, scheduler);
 }
 
 global_ref<CameraView::javaobject> FrameProcessorRuntimeManager::findCameraViewById(int viewId) {
@@ -87,21 +80,16 @@ global_ref<CameraView::javaobject> FrameProcessorRuntimeManager::findCameraViewB
 }
 
 void FrameProcessorRuntimeManager::logErrorToJS(const std::string& message) {
-  if (!this->jsCallInvoker_) {
+  if (!_workletContext) {
     return;
   }
-
-  this->jsCallInvoker_->invokeAsync([this, message]() {
-    if (this->runtime_ == nullptr) {
-      return;
-    }
-
-    auto& runtime = *this->runtime_;
-    auto consoleError = runtime
-        .global()
-        .getPropertyAsObject(runtime, "console")
-        .getPropertyAsFunction(runtime, "error");
-    consoleError.call(runtime, jsi::String::createFromUtf8(runtime, message));
+  // Call console.error() on JS Thread
+  _workletContext->invokeOnJsThread([message](jsi::Runtime& runtime) {
+      auto consoleError = runtime
+              .global()
+              .getPropertyAsObject(runtime, "console")
+              .getPropertyAsFunction(runtime, "error");
+      consoleError.call(runtime, jsi::String::createFromUtf8(runtime, message));
   });
 }
 
@@ -111,42 +99,38 @@ void FrameProcessorRuntimeManager::setFrameProcessor(jsi::Runtime& runtime,
   __android_log_write(ANDROID_LOG_INFO, TAG,
                       "Setting new Frame Processor...");
 
-  if (!_runtimeManager || !_runtimeManager->runtime) {
+  if (!_workletContext) {
     throw jsi::JSError(runtime,
-                       "setFrameProcessor(..): VisionCamera's RuntimeManager is not yet initialized!");
+                       "setFrameProcessor(..): VisionCamera's Worklet Context is not yet initialized!");
   }
 
   // find camera view
   auto cameraView = findCameraViewById(viewTag);
   __android_log_write(ANDROID_LOG_INFO, TAG, "Found CameraView!");
 
-  // convert jsi::Function to a ShareableValue (can be shared across runtimes)
-  __android_log_write(ANDROID_LOG_INFO, TAG,
-                      "Adapting Shareable value from function (conversion to worklet)...");
-  auto worklet = reanimated::ShareableValue::adapt(runtime,
-                                                   frameProcessor,
-                                                   _runtimeManager.get());
+  // convert jsi::Function to a Worklet (can be shared across runtimes)
+  __android_log_write(ANDROID_LOG_INFO, TAG, "Creating Worklet...");
+  auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, frameProcessor);
+  auto workletInvoker = std::make_shared<RNWorklet::WorkletInvoker>(worklet);
   __android_log_write(ANDROID_LOG_INFO, TAG, "Successfully created worklet!");
 
-  scheduler_->scheduleOnUI([=]() {
-      // cast worklet to a jsi::Function for the new runtime
-      auto& rt = *_runtimeManager->runtime;
-      auto function = std::make_shared<jsi::Function>(worklet->getValue(rt).asObject(rt).asFunction(rt));
-
-      // assign lambda to frame processor
-      cameraView->cthis()->setFrameProcessor([this, &rt, function](jni::alias_ref<JImageProxy::javaobject> frame) {
-          try {
-            // create HostObject which holds the Frame (JImageProxy)
-            auto hostObject = std::make_shared<FrameHostObject>(frame);
-            function->callWithThis(rt, *function, jsi::Object::createFromHostObject(rt, hostObject));
-          } catch (jsi::JSError& jsError) {
-            auto message = "Frame Processor threw an error: " + jsError.getMessage();
-            __android_log_write(ANDROID_LOG_ERROR, TAG, message.c_str());
-            this->logErrorToJS(message);
-          }
-      });
-
-      __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processor set!");
+  _workletContext->invokeOnWorkletThread([=](RNWorklet::JsiWorkletContext*, jsi::Runtime& rt) {
+    // Set Frame Processor as callable C++ lambda - this will then call the Worklet
+    cameraView->cthis()->setFrameProcessor([this, workletInvoker, &rt](jni::alias_ref<JImageProxy::javaobject> frame) {
+      try {
+        // create HostObject which holds the Frame (JImageProxy)
+        auto frameHostObject = std::make_shared<FrameHostObject>(frame);
+        auto argument = jsi::Object::createFromHostObject(rt, frameHostObject);
+        jsi::Value jsValue(std::move(argument));
+        // Call the Worklet on the Worklet Runtime
+        workletInvoker->call(rt, jsi::Value::undefined(), &jsValue, 1);
+      } catch (jsi::JSError& jsError) {
+        // Worklet threw a JS Error, catch it and log it to JS.
+        auto message = "Frame Processor threw an error: " + jsError.getMessage();
+        __android_log_write(ANDROID_LOG_ERROR, TAG, message.c_str());
+        this->logErrorToJS(message);
+      }
+    });
   });
 }
 
@@ -166,13 +150,13 @@ void FrameProcessorRuntimeManager::unsetFrameProcessor(int viewTag) {
 void FrameProcessorRuntimeManager::installJSIBindings() {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Installing JSI bindings...");
 
-  if (runtime_ == nullptr) {
+  if (_jsRuntime == nullptr) {
     __android_log_write(ANDROID_LOG_ERROR, TAG,
                         "JS-Runtime was null, Frame Processor JSI bindings could not be installed!");
     return;
   }
 
-  auto& jsiRuntime = *runtime_;
+  auto& jsiRuntime = *_jsRuntime;
 
   auto setFrameProcessor = [this](jsi::Runtime &runtime,
                                   const jsi::Value &thisValue,
@@ -234,27 +218,26 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
 }
 
 void FrameProcessorRuntimeManager::registerPlugin(alias_ref<JFrameProcessorPlugin::javaobject> plugin) {
-  // _runtimeManager might never be null, but we can never be too sure.
-  if (!_runtimeManager || !_runtimeManager->runtime) {
-    throw std::runtime_error("Tried to register plugin before initializing JS runtime! Call `initializeRuntime()` first.");
-  }
-
-  auto& runtime = *_runtimeManager->runtime;
+  auto& runtime = *_jsRuntime;
 
   // we need a strong reference on the plugin, make_global does that.
   auto pluginGlobal = make_global(plugin);
-  // name is always prefixed with two underscores (__)
-  auto name = "__" + pluginGlobal->getName();
+  auto pluginName = pluginGlobal->getName();
 
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Installing Frame Processor Plugin \"%s\"...", name.c_str());
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Installing Frame Processor Plugin \"%s\"...", pluginName.c_str());
 
-  auto callback = [pluginGlobal](jsi::Runtime& runtime,
+  if (!runtime.global().hasProperty(runtime, "FrameProcessorPlugins")) {
+      runtime.global().setProperty(runtime, "FrameProcessorPlugins", jsi::Object(runtime));
+  }
+  jsi::Object frameProcessorPlugins = runtime.global().getPropertyAsObject(runtime, "FrameProcessorPlugins");
+
+  auto function = [pluginGlobal](jsi::Runtime& runtime,
                                  const jsi::Value& thisValue,
                                  const jsi::Value* arguments,
                                  size_t count) -> jsi::Value {
     // Unbox object and get typed HostObject
     auto boxedHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
-    auto frameHostObject = static_cast<FrameHostObject*>(boxedHostObject.get());
+    auto frameHostObject = dynamic_cast<FrameHostObject*>(boxedHostObject.get());
 
     // parse params - we are offset by `1` because the frame is the first parameter.
     auto params = JArrayClass<jobject>::newArray(count - 1);
@@ -269,10 +252,14 @@ void FrameProcessorRuntimeManager::registerPlugin(alias_ref<JFrameProcessorPlugi
     return JSIJNIConversion::convertJNIObjectToJSIValue(runtime, result);
   };
 
-  runtime.global().setProperty(runtime, name.c_str(), jsi::Function::createFromHostFunction(runtime,
-                                                                                            jsi::PropNameID::forAscii(runtime, name),
-                                                                                            1, // frame
-                                                                                            callback));
+  // Assign it to the Proxy.
+  // A FP Plugin called "example_plugin" can be now called from JS using "FrameProcessorPlugins.example_plugin(frame)"
+  frameProcessorPlugins.setProperty(runtime,
+                                    pluginName.c_str(),
+                                    jsi::Function::createFromHostFunction(runtime,
+                                                                          jsi::PropNameID::forAscii(runtime, pluginName),
+                                                                          1, // frame
+                                                                          function));
 }
 
 } // namespace vision

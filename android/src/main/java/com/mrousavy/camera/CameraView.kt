@@ -210,9 +210,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
     }
 
   init {
-    if (FrameProcessorRuntimeManager.enableFrameProcessors) {
-      mHybridData = initHybrid()
-    }
+    mHybridData = initHybrid()
 
     previewView = PreviewView(context)
     previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)

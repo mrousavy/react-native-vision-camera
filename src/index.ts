@@ -5,6 +5,7 @@ export * from './CameraPosition';
 export * from './CameraPreset';
 export * from './CameraProps';
 export * from './Frame';
+export * from './FrameProcessorPlugins';
 export * from './CameraProps';
 export * from './PhotoFile';
 export * from './Point';

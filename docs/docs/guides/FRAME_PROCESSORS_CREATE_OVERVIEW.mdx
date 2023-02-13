@@ -61,7 +61,7 @@ Returns a `string` in JS:
 ```js
 export function detectObject(frame: Frame): string {
   'worklet'
-  const result = __detectObject(frame)
+  const result = FrameProcessorPlugins.detectObject(frame)
   console.log(result) // <-- "cat"
 }
 ```

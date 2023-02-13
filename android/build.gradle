@@ -1,3 +1,5 @@
+import java.nio.file.Paths
+
 buildscript {
   def kotlin_version = rootProject.ext.has('kotlinVersion') ? rootProject.ext.get('kotlinVersion') : project.properties['VisionCamera_kotlinVersion']
 
@@ -16,7 +18,6 @@ buildscript {
   }
 }
 
-def ENABLE_FRAME_PROCESSORS = false // TODO: fix
 def kotlin_version = rootProject.ext.has('kotlinVersion') ? rootProject.ext.get('kotlinVersion') : project.properties['VisionCamera_kotlinVersion']
 
 def resolveBuildType() {
@@ -49,6 +50,23 @@ def reactNativeArchitectures() {
   return value ? value.split(",") : ["armeabi-v7a", "x86", "x86_64", "arm64-v8a"]
 }
 
+static def findNodeModules(baseDir) {
+  def basePath = baseDir.toPath().normalize()
+  // Node's module resolution algorithm searches up to the root directory,
+  // after which the base path will be null
+  while (basePath) {
+    def nodeModulesPath = Paths.get(basePath.toString(), "node_modules")
+    def reactNativePath = Paths.get(nodeModulesPath.toString(), "react-native")
+    if (nodeModulesPath.toFile().exists() && reactNativePath.toFile().exists()) {
+      return nodeModulesPath.toString()
+    }
+    basePath = basePath.getParent()
+  }
+  throw new GradleException("react-native-worklets: Failed to find node_modules/ path!")
+}
+
+def nodeModules = findNodeModules(projectDir)
+
 repositories {
   google()
   mavenCentral()
@@ -77,13 +95,12 @@ android {
     versionName "1.0"
     buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
 
-    if (ENABLE_FRAME_PROCESSORS) {
-      externalNativeBuild {
-        cmake {
-          cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all"
-          arguments "-DANDROID_STL=c++_shared"
-          abiFilters (*reactNativeArchitectures())
-        }
+    externalNativeBuild {
+      cmake {
+        cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all"
+        arguments "-DANDROID_STL=c++_shared",
+                "-DNODE_MODULES_DIR=${nodeModules}"
+        abiFilters (*reactNativeArchitectures())
       }
     }
   }
@@ -93,11 +110,9 @@ android {
     targetCompatibility JavaVersion.VERSION_1_8
   }
 
-  if (ENABLE_FRAME_PROCESSORS) {
-    externalNativeBuild {
-      cmake {
-        path "CMakeLists.txt"
-      }
+  externalNativeBuild {
+    cmake {
+      path "CMakeLists.txt"
     }
   }
   packagingOptions {
@@ -128,6 +143,8 @@ dependencies {
   implementation "androidx.camera:camera-extensions:1.1.0-beta02"
 
   implementation "androidx.exifinterface:exifinterface:1.3.3"
+
+  implementation project(":react-native-worklets")
 }
 
 // Resolves "LOCAL_SRC_FILES points to a missing file, Check that libfb.so exists or that its path is correct".

@@ -20,9 +20,6 @@ import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener
 import com.facebook.react.uimanager.UIManagerHelper
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.turbomodule.core.CallInvokerHolderImpl
-import com.mrousavy.camera.CameraView
-import com.mrousavy.camera.ViewNotFoundError
 import java.util.concurrent.ExecutorService
 import com.mrousavy.camera.frameprocessor.FrameProcessorRuntimeManager
 import com.mrousavy.camera.parsers.*
@@ -54,17 +51,6 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   private fun cleanup() {
     if (coroutineScope.isActive) {
       coroutineScope.cancel("CameraViewModule has been destroyed.")
-    }
-    frameProcessorManager = null
-  }
-
-  override fun initialize() {
-    super.initialize()
-
-    if (frameProcessorManager == null) {
-      frameProcessorThread.execute {
-        frameProcessorManager = FrameProcessorRuntimeManager(reactApplicationContext, frameProcessorThread)
-      }
     }
   }
 
@@ -162,6 +148,18 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
         view.focus(point)
         return@withPromise null
       }
+    }
+  }
+
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  fun installFrameProcessorBindings(): Boolean {
+    try {
+      frameProcessorManager = FrameProcessorRuntimeManager(reactApplicationContext, frameProcessorThread)
+      frameProcessorManager!!.installBindings()
+      return true
+    } catch (e: Error) {
+      Log.e(TAG, "Failed to install Frame Processor JSI Bindings!", e)
+      return false
     }
   }
 

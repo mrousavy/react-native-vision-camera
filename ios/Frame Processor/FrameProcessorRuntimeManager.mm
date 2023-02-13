@@ -19,25 +19,12 @@
 #import <React/RCTUIManager.h>
 #import <ReactCommon/RCTTurboModuleManager.h>
 
-#ifndef VISION_CAMERA_DISABLE_FRAME_PROCESSORS
-  #if __has_include(<RNReanimated/NativeReanimatedModule.h>)
-    #if __has_include(<RNReanimated/RuntimeManager.h>)
-      #import <RNReanimated/RuntimeManager.h>
-      #import <RNReanimated/RuntimeDecorator.h>
-      #import <RNReanimated/REAIOSErrorHandler.h>
-      #import "VisionCameraScheduler.h"
-      #define ENABLE_FRAME_PROCESSORS
-    #else
-      #warning Your react-native-reanimated version is not compatible with VisionCamera, Frame Processors are disabled. Make sure you're using reanimated 2.2.0 or above!
-    #endif
-  #else
-    #warning The NativeReanimatedModule.h header could not be found, Frame Processors are disabled. If you want to use Frame Processors, make sure you install react-native-reanimated!
-  #endif
-#endif
+#import "JsiWorkletContext.h"
+#import "JsiWorkletApi.h"
+#import "JsiWorklet.h"
 
 #import "FrameProcessorUtils.h"
 #import "FrameProcessorCallback.h"
-#import "../React Utils/MakeJSIRuntime.h"
 #import "../React Utils/JSIUtils.h"
 
 // Forward declarations for the Swift classes
@@ -51,84 +38,101 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 @end
 
 @implementation FrameProcessorRuntimeManager {
-#ifdef ENABLE_FRAME_PROCESSORS
-  std::unique_ptr<reanimated::RuntimeManager> runtimeManager;
-#endif
-  __weak RCTBridge* weakBridge;
+  std::shared_ptr<RNWorklet::JsiWorkletContext> workletContext;
 }
 
-- (instancetype) initWithBridge:(RCTBridge*)bridge {
-  self = [super init];
-  if (self) {
-#ifdef ENABLE_FRAME_PROCESSORS
-    NSLog(@"FrameProcessorBindings: Creating Runtime Manager...");
-    weakBridge = bridge;
-
-    auto runtime = vision::makeJSIRuntime();
-    reanimated::RuntimeDecorator::decorateRuntime(*runtime, "FRAME_PROCESSOR");
-    runtime->global().setProperty(*runtime, "_FRAME_PROCESSOR", jsi::Value(true));
-
-    auto callInvoker = bridge.jsCallInvoker;
-    auto scheduler = std::make_shared<vision::VisionCameraScheduler>(callInvoker);
-    runtimeManager = std::make_unique<reanimated::RuntimeManager>(std::move(runtime),
-                                                                  std::make_shared<reanimated::REAIOSErrorHandler>(scheduler),
-                                                                  scheduler);
-    NSLog(@"FrameProcessorBindings: Runtime Manager created!");
-
-    NSLog(@"FrameProcessorBindings: Installing Frame Processor plugins...");
-    auto& visionRuntime = *runtimeManager->runtime;
-    auto visionGlobal = visionRuntime.global();
-
-    for (NSString* pluginKey in [FrameProcessorPluginRegistry frameProcessorPlugins]) {
-      auto pluginName = [pluginKey UTF8String];
-
-      NSLog(@"FrameProcessorBindings: Installing Frame Processor plugin \"%s\"...", pluginName);
-      FrameProcessorPlugin callback = [[FrameProcessorPluginRegistry frameProcessorPlugins] valueForKey:pluginKey];
-
-      auto function = [callback, callInvoker](jsi::Runtime& runtime,
-                                              const jsi::Value& thisValue,
-                                              const jsi::Value* arguments,
-                                              size_t count) -> jsi::Value {
-        auto frameHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
-        auto frame = static_cast<FrameHostObject*>(frameHostObject.get());
-
-        auto args = convertJSICStyleArrayToNSArray(runtime,
-                                                   arguments + 1, // start at index 1 since first arg = Frame
-                                                   count - 1, // use smaller count
-                                                   callInvoker);
-        id result = callback(frame->frame, args);
-
-        return convertObjCObjectToJSIValue(runtime, result);
-      };
-
-      visionGlobal.setProperty(visionRuntime, pluginName, jsi::Function::createFromHostFunction(visionRuntime,
-                                                                                                jsi::PropNameID::forAscii(visionRuntime, pluginName),
-                                                                                                1, // frame
-                                                                                                function));
+- (instancetype)init {
+    if (self = [super init]) {
+        // Initialize self
     }
+    return self;
+}
 
-    NSLog(@"FrameProcessorBindings: Frame Processor plugins installed!");
-#else
-    NSLog(@"Reanimated not found, Frame Processors are disabled.");
-#endif
+- (void) setupWorkletContext:(jsi::Runtime&)runtime {
+  NSLog(@"FrameProcessorBindings: Creating Worklet Context...");
+
+  auto callInvoker = RCTBridge.currentBridge.jsCallInvoker;
+
+  auto runOnJS = [callInvoker](std::function<void()>&& f) {
+    // Run on React JS Runtime
+    callInvoker->invokeAsync(std::move(f));
+  };
+  auto runOnWorklet = [](std::function<void()>&& f) {
+    // Run on Frame Processor Worklet Runtime
+    dispatch_async(CameraQueues.frameProcessorQueue, [f = std::move(f)](){
+      f();
+    });
+  };
+
+  workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("VisionCamera");
+  workletContext->initialize("VisionCamera",
+                             &runtime,
+                             runOnJS,
+                             runOnWorklet);
+
+  NSLog(@"FrameProcessorBindings: Worklet Context Created!");
+
+  NSLog(@"FrameProcessorBindings: Installing Frame Processor plugins...");
+
+  jsi::Object frameProcessorPlugins(runtime);
+
+  // Iterate through all registered plugins (+init)
+  for (NSString* pluginKey in [FrameProcessorPluginRegistry frameProcessorPlugins]) {
+    auto pluginName = [pluginKey UTF8String];
+
+    NSLog(@"FrameProcessorBindings: Installing Frame Processor plugin \"%s\"...", pluginName);
+    // Get the Plugin callback func
+    FrameProcessorPlugin callback = [[FrameProcessorPluginRegistry frameProcessorPlugins] valueForKey:pluginKey];
+
+    // Create the JSI host function
+    auto function = [callback, callInvoker](jsi::Runtime& runtime,
+                                            const jsi::Value& thisValue,
+                                            const jsi::Value* arguments,
+                                            size_t count) -> jsi::Value {
+      // Get the first parameter, which is always the native Frame Host Object.
+      auto frameHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
+      auto frame = static_cast<FrameHostObject*>(frameHostObject.get());
+
+      // Convert any additional parameters to the Frame Processor to ObjC objects
+      auto args = convertJSICStyleArrayToNSArray(runtime,
+                                                 arguments + 1, // start at index 1 since first arg = Frame
+                                                 count - 1, // use smaller count
+                                                 callInvoker);
+      // Call the FP Plugin, which might return something.
+      id result = callback(frame->frame, args);
+
+      // Convert the return value (or null) to a JS Value and return it to JS
+      return convertObjCObjectToJSIValue(runtime, result);
+    };
+
+    // Assign it to the Proxy.
+    // A FP Plugin called "example_plugin" can be now called from JS using "FrameProcessorPlugins.example_plugin(frame)"
+    frameProcessorPlugins.setProperty(runtime,
+                                      pluginName,
+                                      jsi::Function::createFromHostFunction(runtime,
+                                                                            jsi::PropNameID::forAscii(runtime, pluginName),
+                                                                            1, // frame
+                                                                            function));
   }
-  return self;
+
+  // global.FrameProcessorPlugins Proxy
+  runtime.global().setProperty(runtime, "FrameProcessorPlugins", frameProcessorPlugins);
+
+  NSLog(@"FrameProcessorBindings: Frame Processor plugins installed!");
 }
 
 - (void) installFrameProcessorBindings {
-#ifdef ENABLE_FRAME_PROCESSORS
-  if (!weakBridge) {
-    NSLog(@"FrameProcessorBindings: Failed to install Frame Processor Bindings - bridge was null!");
-    return;
-  }
-
   NSLog(@"FrameProcessorBindings: Installing Frame Processor Bindings for Bridge...");
-  RCTCxxBridge *cxxBridge = (RCTCxxBridge *)weakBridge;
+  RCTCxxBridge *cxxBridge = (RCTCxxBridge *)[RCTBridge currentBridge];
   if (!cxxBridge.runtime) {
     return;
   }
 
   jsi::Runtime& jsiRuntime = *(jsi::Runtime*)cxxBridge.runtime;
+
+  // Install the Worklet Runtime in the main React JS Runtime
+  [self setupWorkletContext:jsiRuntime];
+
   NSLog(@"FrameProcessorBindings: Installing global functions...");
 
   // setFrameProcessor(viewTag: number, frameProcessor: (frame: Frame) => void)
@@ -139,27 +143,21 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
     NSLog(@"FrameProcessorBindings: Setting new frame processor...");
     if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: First argument ('viewTag') must be a number!");
     if (!arguments[1].isObject()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
-    if (!runtimeManager || !runtimeManager->runtime) throw jsi::JSError(runtime, "Camera::setFrameProcessor: The RuntimeManager is not yet initialized!");
 
     auto viewTag = arguments[0].asNumber();
-    NSLog(@"FrameProcessorBindings: Adapting Shareable value from function (conversion to worklet)...");
-    auto worklet = reanimated::ShareableValue::adapt(runtime, arguments[1], runtimeManager.get());
-    NSLog(@"FrameProcessorBindings: Successfully created worklet!");
+    NSLog(@"FrameProcessorBindings: Converting JSI Function to Worklet...");
+    auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, arguments[1]);
 
     RCTExecuteOnMainQueue([=]() {
       auto currentBridge = [RCTBridge currentBridge];
       auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
       auto view = static_cast<CameraView*>(anonymousView);
 
-      dispatch_async(CameraQueues.frameProcessorQueue, [=]() {
-        NSLog(@"FrameProcessorBindings: Converting worklet to Objective-C callback...");
+      NSLog(@"FrameProcessorBindings: Converting worklet to Objective-C callback...");
 
-        auto& rt = *runtimeManager->runtime;
-        auto function = worklet->getValue(rt).asObject(rt).asFunction(rt);
+      view.frameProcessorCallback = convertWorkletToFrameProcessorCallback(workletContext->getWorkletRuntime(), worklet);
 
-        view.frameProcessorCallback = convertJSIFunctionToFrameProcessorCallback(rt, function);
-        NSLog(@"FrameProcessorBindings: Frame processor set!");
-      });
+      NSLog(@"FrameProcessorBindings: Frame processor set!");
     });
 
     return jsi::Value::undefined();
@@ -198,7 +196,6 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                                                                                            unsetFrameProcessor));
 
   NSLog(@"FrameProcessorBindings: Finished installing bindings.");
-#endif
 }
 
 @end

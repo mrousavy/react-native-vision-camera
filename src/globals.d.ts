@@ -1,24 +1,6 @@
 /* eslint-disable no-var */
 
 /**
- * `true` if currently running in a Frame Processor runtime
+ * The global Frame Processor plugins registry - will be initialized after the `installFrameProcessorBindings()` call
  */
-declare var _FRAME_PROCESSOR: true | undefined;
-/**
- * `true` if currently running in a reanimated UI runtime
- */
-declare var _UI: true | undefined;
-/**
- * `true` if currently running in a Worklet runtime (frame processor, multithreading, reanimated)
- */
-declare var _WORKLET: true | undefined;
-
-/**
- * A native logging function (outputs to Xcode console/Android Logcat)
- */
-declare var _log: (message: string) => void | undefined;
-
-/**
- * Set a Proxy for global.console in this Runtime
- */
-declare var _setGlobalConsole: (console: unknown) => void;
+declare var FrameProcessorPlugins: Record<string | symbol, unknown> | undefined;

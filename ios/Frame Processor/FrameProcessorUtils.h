@@ -17,7 +17,9 @@
 #endif
 
 #import <jsi/jsi.h>
+#import "JsiWorklet.h"
+#import <memory>
 
 using namespace facebook;
 
-FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime &runtime, const jsi::Function &value);
+FrameProcessorCallback convertWorkletToFrameProcessorCallback(jsi::Runtime& runtime, std::shared_ptr<RNWorklet::JsiWorklet> worklet);

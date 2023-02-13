@@ -1190,7 +1190,7 @@
   dependencies:
     "@hapi/hoek" "^9.0.0"
 
-"@sideway/formula@^3.0.0":
+"@sideway/formula@^3.0.1":
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/@sideway/formula/-/formula-3.0.1.tgz#80fcbcbaf7ce031e0ef2dd29b1bfc7c3f583611f"
   integrity sha512-/poHZJJVjx3L+zVD6g9KgHfYnb443oi7wLu/XKojDviHy6HOEOA6z1Trk5aR1dGcmPenJEgb2sK2I80LeS3MIg==
@@ -2259,9 +2259,9 @@ ee-first@1.1.1:
   integrity sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==
 
 electron-to-chromium@^1.4.284:
-  version "1.4.292"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.292.tgz#e3a3dca3780c8ce01e2c1866b5ec2fbe31c423e3"
-  integrity sha512-ESWOSyJy5odDlE8wvh5NNAMORv4r6assPwIPGHEMWrWD0SONXcG/xT+9aD9CQyeRwyYDPo6dJT4Bbeg5uevVQQ==
+  version "1.4.294"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.294.tgz#ad80317b85f0859a9454680fbc1c726fefa7e6fd"
+  integrity sha512-PuHZB3jEN7D8WPPjLmBQAsqQz8tWHlkkB4n0E2OYw8RwVdmBYV0Wn+rUFH8JqYyIRb4HQhhedgxlZL163wqLrQ==
 
 eme-encryption-scheme-polyfill@^2.0.1:
   version "2.1.1"
@@ -2884,7 +2884,7 @@ get-caller-file@^2.0.1, get-caller-file@^2.0.5:
   resolved "https://registry.yarnpkg.com/get-caller-file/-/get-caller-file-2.0.5.tgz#4f94412a82db32f36e3b0b9741f8a97feb031f7e"
   integrity sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg==
 
-get-intrinsic@^1.0.2, get-intrinsic@^1.1.1, get-intrinsic@^1.1.3:
+get-intrinsic@^1.0.2, get-intrinsic@^1.1.1, get-intrinsic@^1.1.3, get-intrinsic@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/get-intrinsic/-/get-intrinsic-1.2.0.tgz#7ad1dc0535f3a2904bba075772763e5051f6d05f"
   integrity sha512-L049y6nFOuom5wGyRc3/gdTLO94dySVKRACj1RmJZBQXlbTMhtNIgkWkUHq+jYmZvKf14EW1EoJnnjbmoHij0Q==
@@ -3162,11 +3162,11 @@ inherits@2, inherits@2.0.4, inherits@^2.0.3, inherits@^2.0.4, inherits@~2.0.3:
   integrity sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==
 
 internal-slot@^1.0.3, internal-slot@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/internal-slot/-/internal-slot-1.0.4.tgz#8551e7baf74a7a6ba5f749cfb16aa60722f0d6f3"
-  integrity sha512-tA8URYccNzMo94s5MQZgH8NB/XTa6HsOo0MLfXTKKEnHVVdegzaQoFZ7Jp44bdvLvY2waT5dc+j5ICEswhi7UQ==
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/internal-slot/-/internal-slot-1.0.5.tgz#f2a2ee21f668f8627a4667f309dc0f4fb6674986"
+  integrity sha512-Y+R5hJrzs52QCG2laLn4udYVnxsfny9CpOhNhUvk/SSSVyF6T27FzRbF0sroPidSu3X8oEAkOn2K804mjpt6UQ==
   dependencies:
-    get-intrinsic "^1.1.3"
+    get-intrinsic "^1.2.0"
     has "^1.0.3"
     side-channel "^1.0.4"
 
@@ -3550,14 +3550,14 @@ jest-worker@^27.2.0:
     supports-color "^8.0.0"
 
 joi@^17.2.1:
-  version "17.7.0"
-  resolved "https://registry.yarnpkg.com/joi/-/joi-17.7.0.tgz#591a33b1fe1aca2bc27f290bcad9b9c1c570a6b3"
-  integrity sha512-1/ugc8djfn93rTE3WRKdCzGGt/EtiYKxITMO4Wiv6q5JL1gl9ePt4kBsl1S499nbosspfctIQTpYIhSmHA3WAg==
+  version "17.7.1"
+  resolved "https://registry.yarnpkg.com/joi/-/joi-17.7.1.tgz#854fc85c7fa3cfc47c91124d30bffdbb58e06cec"
+  integrity sha512-teoLhIvWE298R6AeJywcjR4sX2hHjB3/xJX4qPjg+gTg+c0mzUDsziYlqPmLomq9gVsfaMcgPaGc7VxtD/9StA==
   dependencies:
     "@hapi/hoek" "^9.0.0"
     "@hapi/topo" "^5.0.0"
     "@sideway/address" "^4.1.3"
-    "@sideway/formula" "^3.0.0"
+    "@sideway/formula" "^3.0.1"
     "@sideway/pinpoint" "^2.0.0"
 
 js-sdsl@^4.1.4:
@@ -4444,9 +4444,9 @@ minimatch@^5.0.1:
     brace-expansion "^2.0.1"
 
 minimist@^1.2.6:
-  version "1.2.7"
-  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.7.tgz#daa1c4d91f507390437c6a8bc01078e7000c4d18"
-  integrity sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==
+  version "1.2.8"
+  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.8.tgz#c1a464e7693302e082a075cee0c057741ac4772c"
+  integrity sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==
 
 mixin-deep@^1.2.0:
   version "1.3.2"
@@ -4984,9 +4984,9 @@ range-parser@~1.2.1:
   integrity sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==
 
 react-devtools-core@^4.26.1:
-  version "4.27.1"
-  resolved "https://registry.yarnpkg.com/react-devtools-core/-/react-devtools-core-4.27.1.tgz#167aa174383c65786cbb7e965a5b39c702f0a2d3"
-  integrity sha512-qXhcxxDWiFmFAOq48jts9YQYe1+wVoUXzJTlY4jbaATzyio6dd6CUGu3dXBhREeVgpZ+y4kg6vFJzIOZh6vY2w==
+  version "4.27.2"
+  resolved "https://registry.yarnpkg.com/react-devtools-core/-/react-devtools-core-4.27.2.tgz#d20fc57e258c656eedabafc2c851d38b33583148"
+  integrity sha512-8SzmIkpO87alD7Xr6gWIEa1jHkMjawOZ+6egjazlnjB4UUcbnzGDf/vBJ4BzGuWWEM+pzrxuzsPpcMqlQkYK2g==
   dependencies:
     shell-quote "^1.6.1"
     ws "^7"
@@ -5042,10 +5042,10 @@ react-native-pressable-opacity@^1.0.10:
   resolved "https://registry.yarnpkg.com/react-native-pressable-opacity/-/react-native-pressable-opacity-1.0.10.tgz#799df1a913d3b28f42ada765465fe7723eb7166d"
   integrity sha512-Py9YH9TlS3Lv1so5JCj6bgiqkeYYGupF4ZImlpoyhhId/t/RiSqR68LlASOHgdctqQuqVJObQiFfzX8oZI9+6w==
 
-react-native-reanimated@^2.14.4:
-  version "2.14.4"
-  resolved "https://registry.yarnpkg.com/react-native-reanimated/-/react-native-reanimated-2.14.4.tgz#3fa3da4e7b99f5dfb28f86bcf24d9d1024d38836"
-  integrity sha512-DquSbl7P8j4SAmc+kRdd75Ianm8G+IYQ9T4AQ6lrpLVeDkhZmjWI0wkutKWnp6L7c5XNVUrFDUf69dwETLCItQ==
+react-native-reanimated@^3.0.0-rc.10:
+  version "3.0.0-rc.10"
+  resolved "https://registry.yarnpkg.com/react-native-reanimated/-/react-native-reanimated-3.0.0-rc.10.tgz#40e5b628759aa81f94317fd0301231292b4eacf5"
+  integrity sha512-0P2jSO+dXHRxSzqSxNp08VaUy89nqeUIvqBS0wlI8lsli8CJcqulL3pjNqTGzBkxXjt13mGdIzJv4u9lSjHPzg==
   dependencies:
     "@babel/plugin-transform-object-assign" "^7.16.7"
     "@babel/preset-typescript" "^7.16.7"
@@ -5090,6 +5090,10 @@ react-native-video@^5.2.1:
     keymirror "^0.1.1"
     prop-types "^15.7.2"
     shaka-player "^2.5.9"
+
+"react-native-worklets@https://github.com/chrfalch/react-native-worklets#50950aa":
+  version "0.1.0"
+  resolved "https://github.com/chrfalch/react-native-worklets#50950aa1b671a0d8a9e79878e63a3445991e7192"
 
 react-native@^0.71.2:
   version "0.71.2"
