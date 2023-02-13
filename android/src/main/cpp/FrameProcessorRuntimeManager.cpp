@@ -8,6 +8,7 @@
 #include <utility>
 #include <string>
 #include <JsiWorklet.h>
+#include <JsiHostObject.h>
 
 #include "CameraView.h"
 #include "FrameHostObject.h"
@@ -42,6 +43,11 @@ FrameProcessorRuntimeManager::FrameProcessorRuntimeManager(jni::alias_ref<FrameP
                                 jsRuntime,
                                 runOnJS,
                                 runOnWorklet);
+
+    _backgroundWorkletContext = std::make_shared<RNWorklet::JsiWorkletContext>("VisionCamera.background");
+    _backgroundWorkletContext->initialize("VisionCamera.background",
+                                          jsRuntime,
+                                          runOnJS);
 }
 
 // JNI binding
@@ -96,8 +102,7 @@ void FrameProcessorRuntimeManager::logErrorToJS(const std::string& message) {
 void FrameProcessorRuntimeManager::setFrameProcessor(jsi::Runtime& runtime,
                                                      int viewTag,
                                                      const jsi::Value& frameProcessor) {
-  __android_log_write(ANDROID_LOG_INFO, TAG,
-                      "Setting new Frame Processor...");
+  __android_log_write(ANDROID_LOG_INFO, TAG, "Setting new Frame Processor...");
 
   if (!_workletContext) {
     throw jsi::JSError(runtime,
@@ -106,13 +111,10 @@ void FrameProcessorRuntimeManager::setFrameProcessor(jsi::Runtime& runtime,
 
   // find camera view
   auto cameraView = findCameraViewById(viewTag);
-  __android_log_write(ANDROID_LOG_INFO, TAG, "Found CameraView!");
 
   // convert jsi::Function to a Worklet (can be shared across runtimes)
-  __android_log_write(ANDROID_LOG_INFO, TAG, "Creating Worklet...");
   auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, frameProcessor);
   auto workletInvoker = std::make_shared<RNWorklet::WorkletInvoker>(worklet);
-  __android_log_write(ANDROID_LOG_INFO, TAG, "Successfully created worklet!");
 
   _workletContext->invokeOnWorkletThread([=](RNWorklet::JsiWorkletContext*, jsi::Runtime& rt) {
     // Set Frame Processor as callable C++ lambda - this will then call the Worklet
@@ -142,8 +144,6 @@ void FrameProcessorRuntimeManager::unsetFrameProcessor(int viewTag) {
 
   // call Java method to unset frame processor
   cameraView->cthis()->unsetFrameProcessor();
-
-  __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processor removed!");
 }
 
 // actual JSI installer
@@ -158,21 +158,8 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
 
   auto& jsiRuntime = *_jsRuntime;
 
-  auto setFrameProcessor = [this](jsi::Runtime &runtime,
-                                  const jsi::Value &thisValue,
-                                  const jsi::Value *arguments,
-                                  size_t count) -> jsi::Value {
-    __android_log_write(ANDROID_LOG_INFO, TAG,
-                        "Setting new Frame Processor...");
-
-    if (!arguments[0].isNumber()) {
-      throw jsi::JSError(runtime,
-                         "Camera::setFrameProcessor: First argument ('viewTag') must be a number!");
-    }
-    if (!arguments[1].isObject()) {
-      throw jsi::JSError(runtime,
-                         "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
-    }
+  auto setFrameProcessor = JSI_HOST_FUNCTION_LAMBDA {
+    __android_log_write(ANDROID_LOG_INFO, TAG, "Setting new Frame Processor...");
 
     double viewTag = arguments[0].asNumber();
     const jsi::Value& frameProcessor = arguments[1];
@@ -190,15 +177,8 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
                                       setFrameProcessor));
 
 
-  auto unsetFrameProcessor = [this](jsi::Runtime &runtime,
-                                    const jsi::Value &thisValue,
-                                    const jsi::Value *arguments,
-                                    size_t count) -> jsi::Value {
+  auto unsetFrameProcessor = JSI_HOST_FUNCTION_LAMBDA {
     __android_log_write(ANDROID_LOG_INFO, TAG, "Removing Frame Processor...");
-    if (!arguments[0].isNumber()) {
-      throw jsi::JSError(runtime,
-                         "Camera::unsetFrameProcessor: First argument ('viewTag') must be a number!");
-    }
 
     auto viewTag = arguments[0].asNumber();
     this->unsetFrameProcessor(static_cast<int>(viewTag));
@@ -213,6 +193,25 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
                                                                 "unsetFrameProcessor"),
                                       1, // viewTag
                                       unsetFrameProcessor));
+
+  auto runAsyncFrameProcessor = JSI_HOST_FUNCTION_LAMBDA {
+    // Create callable Worklet
+    auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, arguments[0]);
+    auto workletInvoker = std::make_shared<RNWorklet::WorkletInvoker>(worklet);
+
+    _backgroundWorkletContext->invokeOnWorkletThread([=](RNWorklet::JsiWorkletContext *context, jsi::Runtime &runtime) {
+        // Call async frame processor on background context
+        workletInvoker->call(runtime, jsi::Value::undefined(), nullptr, 0);
+    });
+
+    return jsi::Value::undefined();
+  };
+  jsiRuntime.global().setProperty(jsiRuntime,
+                                  "runAsyncFrameProcessor",
+                                  jsi::Function::createFromHostFunction(jsiRuntime,
+                                                                        jsi::PropNameID::forAscii(jsiRuntime, "runAsyncFrameProcessor"),
+                                                                        1,  // function
+                                                                        runAsyncFrameProcessor));
 
   __android_log_write(ANDROID_LOG_INFO, TAG, "Finished installing JSI bindings!");
 }
