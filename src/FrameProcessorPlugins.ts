@@ -12,9 +12,7 @@ type TFrameProcessorPlugins = Record<string, FrameProcessor>;
  */
 export const FrameProcessorPlugins = global.FrameProcessorPlugins as TFrameProcessorPlugins;
 
-const frameProcessorState = {
-  lastFrameProcessorCall: performance.now(),
-};
+const lastFrameProcessorCall = Worklets.createSharedValue(performance.now());
 
 /**
  * Runs the given function at the given target FPS rate.
@@ -44,8 +42,8 @@ const frameProcessorState = {
 export function runAtTargetFps<T>(fps: number, func: () => T): T | undefined {
   'worklet';
   const targetIntervalMs = 1000 / fps; // <-- 60 FPS => 16,6667ms interval
-  const now = global.performance.now();
-  const diffToLastCall = frameProcessorState.lastFrameProcessorCall - now;
+  const now = performance.now();
+  const diffToLastCall = lastFrameProcessorCall.value - now;
   if (diffToLastCall >= targetIntervalMs) {
     // Last Frame Processor call is already so long ago that we want to make a new call
     return func();
