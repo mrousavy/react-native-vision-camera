@@ -31,7 +31,6 @@
 // Forward declarations for the Swift classes
 __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
 @interface CameraQueues : NSObject
-@property (nonatomic, class, readonly, strong) dispatch_queue_t _Nonnull frameProcessorQueue;
 @end
 __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 @interface CameraView : UIView
@@ -60,7 +59,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
   };
   auto runOnWorklet = [](std::function<void()>&& f) {
     // Run on Frame Processor Worklet Runtime
-    dispatch_async(CameraQueues.frameProcessorQueue, [f = std::move(f)](){
+    dispatch_async(CameraQueues.videoQueue, [f = std::move(f)](){
       f();
     });
   };
