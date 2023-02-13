@@ -9,6 +9,7 @@
 #import "FrameHostObject.h"
 #import <Foundation/Foundation.h>
 #import <jsi/jsi.h>
+#import "JsiHostObject.h"
 
 std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt) {
   std::vector<jsi::PropNameID> result;
@@ -27,7 +28,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   auto name = propName.utf8(runtime);
 
   if (name == "toString") {
-    auto toString = [this] (jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t) -> jsi::Value {
+    auto toString = JSI_HOST_FUNCTION_LAMBDA {
       if (this->frame == nil) {
         return jsi::String::createFromUtf8(runtime, "[closed frame]");
       }
@@ -41,7 +42,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
   }
   if (name == "close") {
-    auto close = [this] (jsi::Runtime& runtime, const jsi::Value&, const jsi::Value*, size_t) -> jsi::Value {
+    auto close = JSI_HOST_FUNCTION_LAMBDA {
       if (this->frame == nil) {
         throw jsi::JSError(runtime, "Trying to close an already closed frame! Did you call frame.close() twice?");
       }
