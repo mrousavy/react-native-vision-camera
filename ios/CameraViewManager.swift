@@ -28,12 +28,12 @@ final class CameraViewManager: RCTViewManager {
   }
 
   // pragma MARK: React Functions
-  
+
   @objc
   final func installFrameProcessorBindings() -> NSNumber {
     // Runs on JS Thread
-    self.runtimeManager = FrameProcessorRuntimeManager()
-    self.runtimeManager!.installFrameProcessorBindings()
+    runtimeManager = FrameProcessorRuntimeManager()
+    runtimeManager!.installFrameProcessorBindings()
     return NSNumber(booleanLiteral: true)
   }
 
