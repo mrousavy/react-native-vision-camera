@@ -46,4 +46,12 @@ export interface Frame {
    * ```
    */
   close(): void;
+
+  /**
+   * Number of frame processors currently executing that hold a
+   * strong reference to the Frame.
+   *
+   * This is a private API, do not use this.
+   */
+  refCount: number;
 }

@@ -18,6 +18,7 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("height")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("refCount")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("close")));
   return result;
 }
@@ -78,8 +79,24 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
     return jsi::Value((double) planesCount);
   }
+  if (name == "refCount") {
+    return jsi::Value((double) _refCount);
+  }
 
-  return jsi::Value::undefined();
+  // fallback to base implementation
+  return HostObject::get(runtime, propName);
+}
+
+void FrameHostObject::set(jsi::Runtime& runtime, const jsi::PropNameID& propName, const jsi::Value& value) {
+  auto name = propName.utf8(runtime);
+  
+  if (name == "refCount") {
+    _refCount = (size_t) value.asNumber();
+    return;
+  }
+  
+  // fallback to base implementation
+  HostObject::set(runtime, propName, value);
 }
 
 void FrameHostObject::assertIsFrameStrong(jsi::Runtime &runtime, const std::string &accessedPropName) {
