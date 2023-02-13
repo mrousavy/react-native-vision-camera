@@ -48,6 +48,6 @@ public abstract class FrameProcessorPlugin {
      * @param plugin An instance of a plugin.
      */
     public static void register(@NonNull FrameProcessorPlugin plugin) {
-        FrameProcessorRuntimeManager.Companion.getPlugins().add(plugin);
+        FrameProcessorRuntimeManager.Companion.addPlugin(plugin);
     }
 }

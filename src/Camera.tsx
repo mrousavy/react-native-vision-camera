@@ -316,6 +316,14 @@ export class Camera extends React.PureComponent<CameraProps> {
 
   //#region Static Functions (NativeModule)
   /**
+   * Install JSI Bindings for Frame Processors
+   */
+  public static installFrameProcessorBindings(): void {
+    const result = CameraModule.installFrameProcessorBindings() as unknown;
+    if (result !== true) throw new Error('Failed to install Frame Processor JSI bindings!');
+  }
+
+  /**
    * Get a list of all available camera devices on the current phone.
    *
    * @throws {@linkcode CameraRuntimeError} When any kind of error occured while getting all available camera devices. Use the {@linkcode CameraRuntimeError.code | code} property to get the actual error

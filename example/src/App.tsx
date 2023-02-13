@@ -6,6 +6,7 @@ import { MediaPage } from './MediaPage';
 import { CameraPage } from './CameraPage';
 import type { Routes } from './Routes';
 import { Camera, CameraPermissionStatus } from 'react-native-vision-camera';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const Stack = createNativeStackNavigator<Routes>();
 
@@ -28,24 +29,26 @@ export function App(): React.ReactElement | null {
   const showPermissionsPage = cameraPermission !== 'authorized' || microphonePermission === 'not-determined';
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-          statusBarStyle: 'dark',
-          animationTypeForReplace: 'push',
-        }}
-        initialRouteName={showPermissionsPage ? 'PermissionsPage' : 'CameraPage'}>
-        <Stack.Screen name="PermissionsPage" component={PermissionsPage} />
-        <Stack.Screen name="CameraPage" component={CameraPage} />
-        <Stack.Screen
-          name="MediaPage"
-          component={MediaPage}
-          options={{
-            animation: 'none',
-            presentation: 'transparentModal',
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+            statusBarStyle: 'dark',
+            animationTypeForReplace: 'push',
           }}
-        />
-      </Stack.Navigator>
+          initialRouteName={showPermissionsPage ? 'PermissionsPage' : 'CameraPage'}>
+          <Stack.Screen name="PermissionsPage" component={PermissionsPage} />
+          <Stack.Screen name="CameraPage" component={CameraPage} />
+          <Stack.Screen
+            name="MediaPage"
+            component={MediaPage}
+            options={{
+              animation: 'none',
+              presentation: 'transparentModal',
+            }}
+          />
+        </Stack.Navigator>
+      </GestureHandlerRootView>
     </NavigationContainer>
   );
 }

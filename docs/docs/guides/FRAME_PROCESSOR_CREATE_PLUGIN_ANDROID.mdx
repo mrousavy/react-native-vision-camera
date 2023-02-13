@@ -73,7 +73,7 @@ public class QRCodeFrameProcessorPlugin extends FrameProcessorPlugin {
 ```
 
 :::note
-The JS function name will be equal to the name you pass to the `super(...)` call (with a `__` prefix). Make sure it is unique across other Frame Processor Plugins.
+The Frame Processor Plugin will be exposed to JS through the `FrameProcessorPlugins` object using the name you pass to the `super(...)` call. In this case, it would be `FrameProcessorPlugins.scanQRCodes(...)`.
 :::
 
 4. **Implement your Frame Processing.** See the [Example Plugin (Java)](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/android/app/src/main/java/com/mrousavy/camera/example/ExampleFrameProcessorPlugin.java) for reference.
@@ -137,7 +137,7 @@ class ExampleFrameProcessorPluginKotlin: FrameProcessorPlugin("scanQRCodes") {
 ```
 
 :::note
-The JS function name will be equal to the name you pass to the `FrameProcessorPlugin(...)` call (with a `__` prefix). Make sure it is unique across other Frame Processor Plugins.
+The Frame Processor Plugin will be exposed to JS through the `FrameProcessorPlugins` object using the name you pass to the `FrameProcessorPlugin(...)` call. In this case, it would be `FrameProcessorPlugins.scanQRCodes(...)`.
 :::
 
 4. **Implement your Frame Processing.** See the [Example Plugin (Java)](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/android/app/src/main/java/com/mrousavy/camera/example/ExampleFrameProcessorPlugin.java) for reference.

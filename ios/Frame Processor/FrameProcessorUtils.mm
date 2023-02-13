@@ -19,18 +19,25 @@
 #import "JSConsoleHelper.h"
 #import <ReactCommon/RCTTurboModule.h>
 
-FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime& runtime, const jsi::Function& value) {
-  __block auto cb = value.getFunction(runtime);
+#import "JsiWorklet.h"
 
+FrameProcessorCallback convertWorkletToFrameProcessorCallback(jsi::Runtime& runtime, std::shared_ptr<RNWorklet::JsiWorklet> worklet) {
+  
+  auto workletInvoker = std::make_shared<RNWorklet::WorkletInvoker>(worklet);
+  
+  // Converts a Worklet to a callable Objective-C block function
   return ^(Frame* frame) {
 
     auto frameHostObject = std::make_shared<FrameHostObject>(frame);
     try {
-      cb.callWithThis(runtime, cb, jsi::Object::createFromHostObject(runtime, frameHostObject));
+      // Call JS Frame Processor function with boxed Frame Host Object
+      auto argument = jsi::Object::createFromHostObject(runtime, frameHostObject);
+      jsi::Value jsValue(std::move(argument));
+      workletInvoker->call(runtime, jsi::Value::undefined(), &jsValue, 1);
     } catch (jsi::JSError& jsError) {
       auto stack = std::regex_replace(jsError.getStack(), std::regex("\n"), "\n    ");
       auto message = [NSString stringWithFormat:@"Frame Processor threw an error: %s\nIn: %s", jsError.getMessage().c_str(), stack.c_str()];
-      
+
       RCTBridge* bridge = [RCTBridge currentBridge];
       if (bridge != nil) {
         bridge.jsCallInvoker->invokeAsync([bridge, message]() {

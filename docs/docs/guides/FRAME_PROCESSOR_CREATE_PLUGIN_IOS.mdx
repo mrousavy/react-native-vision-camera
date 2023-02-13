@@ -16,7 +16,7 @@ iOS Frame Processor Plugins can be written in either **Objective-C** or **Swift*
 
 ### Automatic setup
 
-Run [Vision Camera Plugin Builder CLI](https://github.com/mateusz1913/vision-camera-plugin-builder), 
+Run [Vision Camera Plugin Builder CLI](https://github.com/mateusz1913/vision-camera-plugin-builder),
 
 ```sh
 npx vision-camera-plugin-builder ios
@@ -63,7 +63,7 @@ VISION_EXPORT_FRAME_PROCESSOR(scanQRCodes)
 ```
 
 :::note
-The JS function name will be equal to the Objective-C function name you choose (with a `__` prefix). Make sure it is unique across other Frame Processor Plugins.
+The Frame Processor Plugin will be exposed to JS through the `FrameProcessorPlugins` object using the same name as the Objective-C function. In this case, it would be `FrameProcessorPlugins.scanQRCodes(...)`.
 :::
 
 4. **Implement your Frame Processing.** See the [Example Plugin (Objective-C)](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/ios/Frame%20Processor%20Plugins/Example%20Plugin%20%28Objective%2DC%29) for reference.
