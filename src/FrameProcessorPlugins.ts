@@ -1,5 +1,6 @@
 import type { Frame } from './Frame';
 import { Camera } from './Camera';
+import { Worklets } from 'react-native-worklets/src';
 
 // Install VisionCamera Frame Processor JSI Bindings and Plugins
 Camera.installFrameProcessorBindings();
@@ -58,6 +59,7 @@ export function runAtTargetFps<T>(fps: number, func: () => T): T | undefined {
  * while still drawing to the screen at 60 FPS, you can use `runAsync(...)`
  * to offload the face detection algorithm to a separate thread.
  *
+ * @param frame The current Frame of the Frame Processor.
  * @param func The function to execute.
  * @example
  *
@@ -65,7 +67,7 @@ export function runAtTargetFps<T>(fps: number, func: () => T): T | undefined {
  * const frameProcessor = useFrameProcessor((frame) => {
  *   'worklet'
  *   console.log('New Frame')
- *   runAsync(() => {
+ *   runAsync(frame, () => {
  *     'worklet'
  *     const faces = detectFaces(frame)
  *     const face = [faces0]
@@ -74,7 +76,13 @@ export function runAtTargetFps<T>(fps: number, func: () => T): T | undefined {
  * })
  * ```
  */
-export function runAsync(func: () => void): void {
+export function runAsync(frame: Frame, func: () => void): void {
   'worklet';
-  throw new Error('runAsync is not yet implemented!');
+  frame.refCount++;
+
+  // @ts-expect-error JSI functions aren't typed
+  global.runAsyncFrameProcessor(func);
+
+  frame.refCount--;
+  if (frame.refCount <= 0) frame.close();
 }

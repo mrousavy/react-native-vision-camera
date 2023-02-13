@@ -31,6 +31,8 @@
 // Forward declarations for the Swift classes
 __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
 @interface CameraQueues : NSObject
+@property (nonatomic, class, readonly, strong) dispatch_queue_t _Nonnull videoQueue;
+@property (nonatomic, class, readonly, strong) dispatch_queue_t _Nonnull videoBackgroundQueue;
 @end
 __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 @interface CameraView : UIView
@@ -178,6 +180,18 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                                                                                            jsi::PropNameID::forAscii(jsiRuntime, "unsetFrameProcessor"),
                                                                                                            1,  // viewTag
                                                                                                            unsetFrameProcessor));
+
+  auto runAsyncFrameProcessor = JSI_HOST_FUNCTION_LAMBDA {
+    auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, arguments[0]);
+    auto workletInvoker = std::make_shared<RNWorklet::WorkletInvoker>(worklet);
+    workletInvoker->call(runtime, jsi::Value::undefined(), nullptr, 0);
+
+    return jsi::Value::undefined();
+  };
+  jsiRuntime.global().setProperty(jsiRuntime, "runAsyncFrameProcessor", jsi::Function::createFromHostFunction(jsiRuntime,
+                                                                                                           jsi::PropNameID::forAscii(jsiRuntime, "runAsyncFrameProcessor"),
+                                                                                                           1,  // function
+                                                                                                              runAsyncFrameProcessor));
 
   NSLog(@"FrameProcessorBindings: Finished installing bindings.");
 }
