@@ -97,7 +97,6 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   var torch = "off"
   var zoom: Float = 1f // in "factor"
   var orientation: String? = null
-  var frameProcessorFps = 1.0
   var enableZoomGesture = false
     set(value) {
       field = value

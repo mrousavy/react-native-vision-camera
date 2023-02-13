@@ -190,8 +190,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   }
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
-    // Video Recording runs in the same queue
     if isRecording {
+      // Write Video / Audio frame to file
       guard let recordingSession = recordingSession else {
         invokeOnError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
         return
@@ -211,28 +211,9 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
     }
 
     if let frameProcessor = frameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
-      // check if last frame was x nanoseconds ago, effectively throttling FPS
-      let frameTime = UInt64(CMSampleBufferGetPresentationTimeStamp(sampleBuffer).seconds * 1_000_000_000.0)
-      let lastFrameProcessorCallElapsedTime = frameTime - lastFrameProcessorCall
-      let secondsPerFrame = 1.0 / actualFrameProcessorFps
-      let nanosecondsPerFrame = secondsPerFrame * 1_000_000_000.0
-      if lastFrameProcessorCallElapsedTime >= UInt64(nanosecondsPerFrame) {
-        if !isRunningFrameProcessor {
-          // we're not in the middle of executing the Frame Processor, so prepare for next call.
-          CameraQueues.frameProcessorQueue.async {
-            self.isRunningFrameProcessor = true
-
-            let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
-            frameProcessor(frame)
-
-            self.isRunningFrameProcessor = false
-          }
-          lastFrameProcessorCall = frameTime
-        } else {
-          // we're still in the middle of executing a Frame Processor for a previous frame, so a frame was dropped.
-          ReactLogger.log(level: .warning, message: "The Frame Processor took so long to execute that a frame was dropped.")
-        }
-      }
+      // Call the JavaScript Frame Processor func (worklet)
+      let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
+      frameProcessor(frame)
     }
   }
 

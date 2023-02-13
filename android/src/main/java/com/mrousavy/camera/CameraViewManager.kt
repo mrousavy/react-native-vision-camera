@@ -107,13 +107,6 @@ class CameraViewManager(reactContext: ReactApplicationContext) : ViewGroupManage
     view.fps = if (fps > 0) fps else null
   }
 
-  @ReactProp(name = "frameProcessorFps", defaultDouble = 1.0)
-  fun setFrameProcessorFps(view: CameraView, frameProcessorFps: Double) {
-    if (view.frameProcessorFps != frameProcessorFps)
-      addChangedPropToTransaction(view, "frameProcessorFps")
-    view.frameProcessorFps = frameProcessorFps
-  }
-
   @ReactProp(name = "hdr")
   fun setHdr(view: CameraView, hdr: Boolean?) {
     if (view.hdr != hdr)

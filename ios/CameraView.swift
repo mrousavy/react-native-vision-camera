@@ -52,7 +52,6 @@ public final class CameraView: UIView {
   // props that require format reconfiguring
   @objc var format: NSDictionary?
   @objc var fps: NSNumber?
-  @objc var frameProcessorFps: NSNumber = -1.0 // "auto"
   @objc var hdr: NSNumber? // nullable bool
   @objc var lowLightBoost: NSNumber? // nullable bool
   @objc var colorSpace: NSString?
@@ -103,9 +102,6 @@ public final class CameraView: UIView {
   internal let cameraQueue = CameraQueues.cameraQueue
   internal let videoQueue = CameraQueues.videoQueue
   internal let audioQueue = CameraQueues.audioQueue
-
-  /// Specifies whether the frameProcessor() function is currently executing. used to drop late frames.
-  internal var isRunningFrameProcessor = false
 
   /// Returns whether the AVCaptureSession is currently running (reflected by isActive)
   var isRunning: Bool {
@@ -252,16 +248,6 @@ public final class CameraView: UIView {
         audioQueue.async {
           self.configureAudioSession()
         }
-      }
-    }
-
-    // Frame Processor FPS Configuration
-    if changedProps.contains("frameProcessorFps") {
-      if frameProcessorFps.doubleValue == -1 {
-        // "auto"
-        actualFrameProcessorFps = 30.0
-      } else {
-        actualFrameProcessorFps = frameProcessorFps.doubleValue
       }
     }
   }

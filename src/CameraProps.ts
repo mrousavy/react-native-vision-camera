@@ -166,7 +166,7 @@ export interface CameraProps extends ViewProps {
    */
   onInitialized?: () => void;
   /**
-   * A worklet which will be called for every frame the Camera "sees". Throttle the Frame Processor's frame rate with {@linkcode frameProcessorFps}.
+   * A worklet which will be called for every frame the Camera "sees".
    *
    * > See [the Frame Processors documentation](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors) for more information
    *
@@ -184,20 +184,5 @@ export interface CameraProps extends ViewProps {
    * ```
    */
   frameProcessor?: (frame: Frame) => void;
-  /**
-   * Specifies the maximum frame rate the frame processor can use, independent of the Camera's frame rate (`fps` property).
-   *
-   * * A value of `'auto'` (default) indicates that the frame processor should execute as fast as it can, without dropping frames. This is achieved by collecting historical data for previous frame processor calls and adjusting frame rate accordingly.
-   * * A value of `1` indicates that the frame processor gets executed once per second, perfect for code scanning.
-   * * A value of `10` indicates that the frame processor gets executed 10 times per second, perfect for more realtime use-cases.
-   * * A value of `25` indicates that the frame processor gets executed 25 times per second, perfect for high-speed realtime use-cases.
-   * * ...and so on
-   *
-   * If you're using higher values, always check your Xcode/Android Studio Logs to make sure your frame processors are executing fast enough
-   * without blocking the video recording queue.
-   *
-   * @default 'auto'
-   */
-  frameProcessorFps?: number | 'auto';
   //#endregion
 }
