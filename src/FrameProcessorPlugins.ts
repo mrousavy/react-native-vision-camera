@@ -81,11 +81,17 @@ const context = Worklets.createContext('VisionCamera.async');
  */
 export function runAsync(frame: Frame, func: () => void): void {
   'worklet';
+  // Increment ref count by one
   frame.refCount++;
 
-  const fn = Worklets.createRunInContextFn(func, context);
-  fn();
+  const fn = Worklets.createRunInContextFn(() => {
+    'worklet';
+    // Call long-running function
+    func();
 
-  frame.refCount--;
-  if (frame.refCount <= 0) frame.close();
+    // Potentially delete Frame if we were the last ref
+    frame.refCount--;
+    if (frame.refCount <= 0) frame.close();
+  }, context);
+  fn();
 }

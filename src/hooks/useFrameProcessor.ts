@@ -25,13 +25,13 @@ type FrameProcessor = (frame: Frame) => void;
 export function useFrameProcessor(frameProcessor: FrameProcessor, dependencies: DependencyList): FrameProcessor {
   return useCallback((frame: Frame) => {
     'worklet';
-    // Set refCount to 1
+    // Set refCount to 1 (initial)
     frame.refCount = 1;
     // Call sync frame processor
     frameProcessor(frame);
-    // Remove one of ref-count
+
+    // Potentially delete Frame if we were the last ref (no runAsync)
     frame.refCount--;
-    // If no other async frame processors are currently running, close the frame.
     if (frame.refCount <= 0) frame.close();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies);
