@@ -11,3 +11,45 @@ type TFrameProcessorPlugins = Record<string, FrameProcessor>;
  * All natively installed Frame Processor Plugins.
  */
 export const FrameProcessorPlugins = global.FrameProcessorPlugins as TFrameProcessorPlugins;
+
+const frameProcessorState = {
+  lastFrameProcessorCall: performance.now(),
+};
+
+/**
+ * Runs the given function at the given target FPS rate.
+ *
+ * For example, if you want to run a heavy face detection algorithm
+ * only once per second, you can use `runAtTargetFps(1, ...)` to
+ * throttle it to 1 FPS.
+ *
+ * @param fps The target FPS rate at which the given function should be executed
+ * @param func The function to execute.
+ * @returns The result of the function if it was executed, or `undefined` otherwise.
+ * @example
+ *
+ * ```ts
+ * const frameProcessor = useFrameProcessor((frame) => {
+ *   'worklet'
+ *   console.log('New Frame')
+ *   const face = runAtTargetFps(5, () => {
+ *     'worklet'
+ *     const faces = detectFaces(frame)
+ *     return faces[0]
+ *   })
+ *   if (face != null) console.log(`Detected a new face: ${face}`)
+ * })
+ * ```
+ */
+export function runAtTargetFps<T>(fps: number, func: () => T): T | undefined {
+  'worklet';
+  const targetIntervalMs = 1000 / fps; // <-- 60 FPS => 16,6667ms interval
+  const now = global.performance.now();
+  const diffToLastCall = frameProcessorState.lastFrameProcessorCall - now;
+  if (diffToLastCall >= targetIntervalMs) {
+    // Last Frame Processor call is already so long ago that we want to make a new call
+    return func();
+  }
+  return undefined;
+}
+
