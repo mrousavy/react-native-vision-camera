@@ -23,6 +23,7 @@ class JSI_EXPORT FrameHostObject : public jsi::HostObject {
 
  public:
   jsi::Value get(jsi::Runtime &, const jsi::PropNameID &name) override;
+  void set(jsi::Runtime&, const jsi::PropNameID& propName, const jsi::Value& value) override;
   std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime &rt) override;
 
   void close();
@@ -34,6 +35,7 @@ class JSI_EXPORT FrameHostObject : public jsi::HostObject {
   static auto constexpr TAG = "VisionCamera";
 
   void assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName) const; // NOLINT(runtime/references)
+  size_t _refCount = 0;
 };
 
 } // namespace vision
