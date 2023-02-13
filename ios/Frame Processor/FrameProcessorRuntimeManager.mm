@@ -59,7 +59,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
   };
   auto runOnWorklet = [](std::function<void()>&& f) {
     // Run on Frame Processor Worklet Runtime
-    dispatch_async(CameraQueues.frameProcessorQueue, ^{
+    dispatch_async(CameraQueues.frameProcessorQueue, [f = std::move(f)](){
       f();
     });
   };
