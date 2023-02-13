@@ -53,3 +53,30 @@ export function runAtTargetFps<T>(fps: number, func: () => T): T | undefined {
   return undefined;
 }
 
+/**
+ * Runs the given function asynchronously, while keeping a strong reference to the Frame.
+ *
+ * For example, if you want to run a heavy face detection algorithm
+ * while still drawing to the screen at 60 FPS, you can use `runAsync(...)`
+ * to offload the face detection algorithm to a separate thread.
+ *
+ * @param func The function to execute.
+ * @example
+ *
+ * ```ts
+ * const frameProcessor = useFrameProcessor((frame) => {
+ *   'worklet'
+ *   console.log('New Frame')
+ *   runAsync(() => {
+ *     'worklet'
+ *     const faces = detectFaces(frame)
+ *     const face = [faces0]
+ *     console.log(`Detected a new face: ${face}`)
+ *   })
+ * })
+ * ```
+ */
+export function runAsync(func: () => void): void {
+  'worklet';
+  throw new Error('runAsync is not yet implemented!');
+}
