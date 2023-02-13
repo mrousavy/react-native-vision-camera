@@ -32,7 +32,6 @@
 __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
 @interface CameraQueues : NSObject
 @property (nonatomic, class, readonly, strong) dispatch_queue_t _Nonnull videoQueue;
-@property (nonatomic, class, readonly, strong) dispatch_queue_t _Nonnull videoBackgroundQueue;
 @end
 __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 @interface CameraView : UIView
@@ -42,8 +41,6 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 @implementation FrameProcessorRuntimeManager {
   // Running Frame Processors on camera's video thread (synchronously)
   std::shared_ptr<RNWorklet::JsiWorkletContext> workletContext;
-  // Running Frame Processors on a background thread (asynchronously)
-  std::shared_ptr<RNWorklet::JsiWorkletContext> backgroundWorkletContext;
 }
 
 - (instancetype)init {
@@ -68,24 +65,12 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
       f();
     });
   };
-  auto runOnBackgroundWorklet = [](std::function<void()>&& f) {
-    // Run on Frame Processor Background Worklet Runtime
-    dispatch_async(CameraQueues.videoBackgroundQueue, [f = std::move(f)](){
-      f();
-    });
-  };
 
   workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("VisionCamera");
   workletContext->initialize("VisionCamera",
                              &runtime,
                              runOnJS,
                              runOnWorklet);
-  
-  backgroundWorkletContext = std::make_shared<RNWorklet::JsiWorkletContext>("VisionCamera.background");
-  backgroundWorkletContext->initialize("VisionCamera.background",
-                                       &runtime,
-                                       runOnJS,
-                                       runOnBackgroundWorklet);
 
   NSLog(@"FrameProcessorBindings: Worklet Context Created!");
 
@@ -195,22 +180,6 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                                                                                            jsi::PropNameID::forAscii(jsiRuntime, "unsetFrameProcessor"),
                                                                                                            1,  // viewTag
                                                                                                            unsetFrameProcessor));
-
-  auto runAsyncFrameProcessor = JSI_HOST_FUNCTION_LAMBDA {
-    auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, arguments[0]);
-    auto workletInvoker = std::make_shared<RNWorklet::WorkletInvoker>(worklet);
-    
-    backgroundWorkletContext->invokeOnWorkletThread([=](RNWorklet::JsiWorkletContext *context, jsi::Runtime &runtime) {
-        // Call async frame processor on background context
-        workletInvoker->call(runtime, jsi::Value::undefined(), nullptr, 0);
-    });
-
-    return jsi::Value::undefined();
-  };
-  jsiRuntime.global().setProperty(jsiRuntime, "runAsyncFrameProcessor", jsi::Function::createFromHostFunction(jsiRuntime,
-                                                                                                           jsi::PropNameID::forAscii(jsiRuntime, "runAsyncFrameProcessor"),
-                                                                                                           1,  // function
-                                                                                                              runAsyncFrameProcessor));
 
   NSLog(@"FrameProcessorBindings: Finished installing bindings.");
 }

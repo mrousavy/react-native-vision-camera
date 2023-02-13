@@ -53,6 +53,8 @@ export function runAtTargetFps<T>(fps: number, func: () => T): T | undefined {
   return undefined;
 }
 
+const context = Worklets.createContext('VisionCamera.async');
+
 /**
  * Runs the given function asynchronously, while keeping a strong reference to the Frame.
  *
@@ -81,8 +83,8 @@ export function runAsync(frame: Frame, func: () => void): void {
   'worklet';
   frame.refCount++;
 
-  // @ts-expect-error JSI functions aren't typed
-  global.runAsyncFrameProcessor(func);
+  const fn = Worklets.createRunInContextFn(func, context);
+  fn();
 
   frame.refCount--;
   if (frame.refCount <= 0) frame.close();

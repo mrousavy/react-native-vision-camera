@@ -43,11 +43,6 @@ FrameProcessorRuntimeManager::FrameProcessorRuntimeManager(jni::alias_ref<FrameP
                                 jsRuntime,
                                 runOnJS,
                                 runOnWorklet);
-
-    _backgroundWorkletContext = std::make_shared<RNWorklet::JsiWorkletContext>("VisionCamera.background");
-    _backgroundWorkletContext->initialize("VisionCamera.background",
-                                          jsRuntime,
-                                          runOnJS);
 }
 
 // JNI binding
@@ -193,25 +188,6 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
                                                                 "unsetFrameProcessor"),
                                       1, // viewTag
                                       unsetFrameProcessor));
-
-  auto runAsyncFrameProcessor = JSI_HOST_FUNCTION_LAMBDA {
-    // Create callable Worklet
-    auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, arguments[0]);
-    auto workletInvoker = std::make_shared<RNWorklet::WorkletInvoker>(worklet);
-
-    _backgroundWorkletContext->invokeOnWorkletThread([=](RNWorklet::JsiWorkletContext *context, jsi::Runtime &runtime) {
-        // Call async frame processor on background context
-        workletInvoker->call(runtime, jsi::Value::undefined(), nullptr, 0);
-    });
-
-    return jsi::Value::undefined();
-  };
-  jsiRuntime.global().setProperty(jsiRuntime,
-                                  "runAsyncFrameProcessor",
-                                  jsi::Function::createFromHostFunction(jsiRuntime,
-                                                                        jsi::PropNameID::forAscii(jsiRuntime, "runAsyncFrameProcessor"),
-                                                                        1,  // function
-                                                                        runAsyncFrameProcessor));
 
   __android_log_write(ANDROID_LOG_INFO, TAG, "Finished installing JSI bindings!");
 }

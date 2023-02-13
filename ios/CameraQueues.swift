@@ -24,13 +24,6 @@ public class CameraQueues: NSObject {
                                                      autoreleaseFrequency: .inherit,
                                                      target: nil)
 
-  /// The serial execution queue for output processing of videos for asynchronous frame processing (runAsync).
-  @objc public static let videoBackgroundQueue = DispatchQueue(label: "mrousavy/VisionCamera.video-background",
-                                                               qos: .userInteractive,
-                                                               attributes: [],
-                                                               autoreleaseFrequency: .inherit,
-                                                               target: nil)
-
   /// The serial execution queue for output processing of audio buffers.
   @objc public static let audioQueue = DispatchQueue(label: "mrousavy/VisionCamera.audio",
                                                      qos: .userInteractive,
