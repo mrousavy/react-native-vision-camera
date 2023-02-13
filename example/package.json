@@ -29,7 +29,7 @@
     "react-native-static-safe-area-insets": "^2.2.0",
     "react-native-vector-icons": "^9.2.0",
     "react-native-video": "^5.2.1",
-    "react-native-worklets": "https://github.com/chrfalch/react-native-worklets#c26dea98757dee18b90452c0f1222759b7fe9795"
+    "react-native-worklets": "https://github.com/chrfalch/react-native-worklets#50950aa"
   },
   "devDependencies": {
     "@babel/core": "^7.20.12",
