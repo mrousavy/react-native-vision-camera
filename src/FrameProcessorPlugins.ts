@@ -53,6 +53,11 @@ export function runAtTargetFps<T>(fps: number, func: () => T): T | undefined {
   return undefined;
 }
 
+runAtTargetFps.__initData = {
+  code: runAtTargetFps.asString,
+  location: runAtTargetFps.__location,
+};
+
 const context = Worklets.createContext('VisionCamera.async');
 
 /**
@@ -83,8 +88,12 @@ export function runAsync(frame: Frame, func: () => void): void {
   'worklet';
   // Increment ref count by one
   frame.refCount++;
+  func.__initData = {
+    code: func.asString,
+    location: func.__location,
+  };
 
-  const fn = Worklets.createRunInContextFn(() => {
+  const wrapper = () => {
     'worklet';
     // Call long-running function
     func();
@@ -92,6 +101,21 @@ export function runAsync(frame: Frame, func: () => void): void {
     // Potentially delete Frame if we were the last ref
     frame.refCount--;
     if (frame.refCount <= 0) frame.close();
-  }, context);
+  };
+  wrapper.__initData = {
+    code: wrapper.asString,
+    location: wrapper.__location,
+  };
+
+  const fn = Worklets.createRunInContextFn(wrapper, context);
+  fn.__initData = {
+    code: fn.asString,
+    location: fn.__location,
+  };
   fn();
 }
+
+runAsync.__initData = {
+  code: runAsync.asString,
+  location: runAsync.__location,
+};
