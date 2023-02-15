@@ -31,5 +31,5 @@ jobs:
             ,-build/namespaces\
             ,-whitespace/comments\
             ,-build/include_order\
-            ,-build/c++17\
+            ,-build/c++11\
             "
