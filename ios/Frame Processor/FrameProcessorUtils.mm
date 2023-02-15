@@ -41,7 +41,7 @@ FrameProcessorCallback convertWorkletToFrameProcessorCallback(jsi::Runtime& runt
       auto message = [NSString stringWithFormat:@"Frame Processor threw an error: %s\nIn: %s", jsError.getMessage().c_str(), stack.c_str()];
 
       RCTBridge* bridge = [RCTBridge currentBridge];
-      if (bridge != nil) {
+      if (bridge != nil && bridge.jsCallInvoker != nullptr) {
         bridge.jsCallInvoker->invokeAsync([bridge, message]() {
           auto logFn = [JSConsoleHelper getLogFunctionForBridge:bridge];
           logFn(RCTLogLevelError, message);
