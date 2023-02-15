@@ -22,8 +22,6 @@ opt_in_rules:
   - vertical_whitespace_opening_braces
   - vertical_whitespace_closing_braces
   - vertical_parameter_alignment_on_call
-  - unused_import
-  - unused_declaration
   - untyped_error_in_catch
   - unowned_variable_capture
   - unavailable_function
@@ -37,7 +35,10 @@ opt_in_rules:
   - redundant_nil_coalescing
   - attributes
   - convenience_type
+analyzer_rules:
   - explicit_self
+  - unused_declaration
+  - unused_import
 
 excluded: # paths to ignore during linting. Takes precedence over `included`.
   - Pods

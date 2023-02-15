@@ -10,7 +10,6 @@
 
 #include <memory>
 #include <string>
-#include <regex>
 
 namespace vision {
 
