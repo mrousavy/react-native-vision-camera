@@ -1,5 +1,5 @@
 import { DependencyList, useCallback } from 'react';
-import type { Frame } from '../Frame';
+import type { Frame, FrameInternal } from '../Frame';
 // Install RN Worklets by importing it
 import 'react-native-worklets/src';
 
@@ -25,12 +25,15 @@ type FrameProcessor = (frame: Frame) => void;
 export function useFrameProcessor(frameProcessor: FrameProcessor, dependencies: DependencyList): FrameProcessor {
   return useCallback((frame: Frame) => {
     'worklet';
-    // Call sync frame processor
-    frameProcessor(frame);
-
-    // Potentially delete Frame if we were the last ref (no runAsync)
-    frame.refCount.value--;
-    if (frame.refCount.value <= 0) frame.close();
+    // Increment ref-count by one
+    (frame as FrameInternal).incrementRefCount();
+    try {
+      // Call sync frame processor
+      frameProcessor(frame);
+    } finally {
+      // Potentially delete Frame if we were the last ref (no runAsync)
+      (frame as FrameInternal).decrementRefCount();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies);
 }
