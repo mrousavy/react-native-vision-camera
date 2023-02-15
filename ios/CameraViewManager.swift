@@ -34,7 +34,7 @@ final class CameraViewManager: RCTViewManager {
     // Runs on JS Thread
     runtimeManager = FrameProcessorRuntimeManager()
     runtimeManager!.installFrameProcessorBindings()
-    return NSNumber(booleanLiteral: true)
+    return true as NSNumber
   }
 
   @objc

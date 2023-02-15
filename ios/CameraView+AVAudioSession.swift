@@ -144,7 +144,8 @@ extension CameraView {
       } else {
         ReactLogger.log(level: .error, message: "Cannot resume interrupted Audio Session!")
       }
-    @unknown default: ()
+    @unknown default:
+      ()
     }
   }
 }
