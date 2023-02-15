@@ -5,7 +5,9 @@ import { Worklets } from 'react-native-worklets/src';
 // Install VisionCamera Frame Processor JSI Bindings and Plugins
 Camera.installFrameProcessorBindings();
 
-type FrameProcessor = (frame: Frame, ...args: unknown[]) => unknown;
+type BasicParameterType = string | number | boolean | undefined;
+type ParameterType = BasicParameterType | BasicParameterType[] | Record<string, BasicParameterType | undefined>;
+type FrameProcessor = (frame: Frame, parameters?: Record<string, ParameterType | undefined>) => unknown;
 type TFrameProcessorPlugins = Record<string, FrameProcessor>;
 
 /**
