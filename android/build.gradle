@@ -62,7 +62,7 @@ static def findNodeModules(baseDir) {
     }
     basePath = basePath.getParent()
   }
-  throw new GradleException("react-native-worklets: Failed to find node_modules/ path!")
+  throw new GradleException("react-native-vision-camera: Failed to find node_modules/ path!")
 }
 
 def nodeModules = findNodeModules(projectDir)
