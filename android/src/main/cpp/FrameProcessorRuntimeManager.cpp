@@ -37,7 +37,10 @@ FrameProcessorRuntimeManager::FrameProcessorRuntimeManager(jni::alias_ref<FrameP
         // Run on Frame Processor Worklet Runtime
         scheduler->dispatchAsync(std::move(f));
     };
-
+    _workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("VisionCamera",
+                                                                    jsRuntime,
+                                                                    runOnJS,
+                                                                    runOnWorklet);
 }
 
 // JNI binding
@@ -147,10 +150,6 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
   }
 
   auto& jsiRuntime = *_jsRuntime;
-  _workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("VisionCamera",
-                                                                   jsRuntime,
-                                                                   runOnJS,
-                                                                   runOnWorklet);
 
   auto setFrameProcessor = JSI_HOST_FUNCTION_LAMBDA {
     __android_log_write(ANDROID_LOG_INFO, TAG, "Setting new Frame Processor...");
