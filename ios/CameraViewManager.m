@@ -35,7 +35,6 @@ RCT_EXPORT_VIEW_PROPERTY(enableFrameProcessor, BOOL);
 // device format
 RCT_EXPORT_VIEW_PROPERTY(format, NSDictionary);
 RCT_EXPORT_VIEW_PROPERTY(fps, NSNumber);
-RCT_EXPORT_VIEW_PROPERTY(frameProcessorFps, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(hdr, NSNumber); // nullable bool
 RCT_EXPORT_VIEW_PROPERTY(lowLightBoost, NSNumber); // nullable bool
 RCT_EXPORT_VIEW_PROPERTY(colorSpace, NSString);
@@ -49,7 +48,6 @@ RCT_EXPORT_VIEW_PROPERTY(orientation, NSString);
 // Camera View Events
 RCT_EXPORT_VIEW_PROPERTY(onError, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onInitialized, RCTDirectEventBlock);
-RCT_EXPORT_VIEW_PROPERTY(onFrameProcessorPerformanceSuggestionAvailable, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onViewReady, RCTDirectEventBlock);
 
 // Camera View Functions

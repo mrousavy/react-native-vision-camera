@@ -25,7 +25,6 @@ import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.*
 import com.facebook.react.uimanager.events.RCTEventEmitter
-import com.mrousavy.camera.frameprocessor.FrameProcessorPerformanceDataCollector
 import com.mrousavy.camera.frameprocessor.FrameProcessorRuntimeManager
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
@@ -103,13 +102,6 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
       field = value
       setOnTouchListener(if (value) touchEventListener else null)
     }
-  var frameProcessorFps = 1.0
-    set(value) {
-      field = value
-      actualFrameProcessorFps = if (value == -1.0) 30.0 else value
-      lastFrameProcessorPerformanceEvaluation = System.currentTimeMillis()
-      frameProcessorPerformanceDataCollector.clear()
-    }
 
   // private properties
   private var isMounted = false
@@ -165,16 +157,6 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
 
   private var minZoom: Float = 1f
   private var maxZoom: Float = 1f
-
-  private var actualFrameProcessorFps = 30.0
-  private val frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector()
-  private var lastSuggestedFrameProcessorFps = 0.0
-  private var lastFrameProcessorPerformanceEvaluation = System.currentTimeMillis()
-  private val isReadyForNewEvaluation: Boolean
-    get() {
-      val lastPerformanceEvaluationElapsedTime = System.currentTimeMillis() - lastFrameProcessorPerformanceEvaluation
-      return lastPerformanceEvaluationElapsedTime > 1000
-    }
 
   @DoNotStrip
   private var mHybridData: HybridData? = null
@@ -480,21 +462,8 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         Log.i(TAG, "Adding ImageAnalysis use-case...")
         imageAnalysis = imageAnalysisBuilder.build().apply {
           setAnalyzer(cameraExecutor, { image ->
-            val now = System.currentTimeMillis()
-            val intervalMs = (1.0 / actualFrameProcessorFps) * 1000.0
-            if (now - lastFrameProcessorCall > intervalMs) {
-              lastFrameProcessorCall = now
-
-              val perfSample = frameProcessorPerformanceDataCollector.beginPerformanceSampleCollection()
-              frameProcessorCallback(image)
-              perfSample.endPerformanceSampleCollection()
-            }
-            image.close()
-
-            if (isReadyForNewEvaluation) {
-              // last evaluation was more than a second ago, evaluate again
-              evaluateNewPerformanceSamples()
-            }
+            // Call JS Frame Processor
+            frameProcessorCallback(image)
           })
         }
         useCases.add(imageAnalysis!!)
@@ -523,24 +492,6 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
           }
         }
         else -> UnknownCameraError(exc)
-      }
-    }
-  }
-
-  private fun evaluateNewPerformanceSamples() {
-    lastFrameProcessorPerformanceEvaluation = System.currentTimeMillis()
-    val maxFrameProcessorFps = 30 // TODO: Get maxFrameProcessorFps from ImageAnalyser
-    val averageFps = 1.0 / frameProcessorPerformanceDataCollector.averageExecutionTimeSeconds
-    val suggestedFrameProcessorFps = floor(min(averageFps, maxFrameProcessorFps.toDouble()))
-
-    if (frameProcessorFps == -1.0) {
-      // frameProcessorFps="auto"
-      actualFrameProcessorFps = suggestedFrameProcessorFps
-    } else {
-      // frameProcessorFps={someCustomFpsValue}
-      if (suggestedFrameProcessorFps != lastSuggestedFrameProcessorFps && suggestedFrameProcessorFps != frameProcessorFps) {
-        invokeOnFrameProcessorPerformanceSuggestionAvailable(frameProcessorFps, suggestedFrameProcessorFps)
-        lastSuggestedFrameProcessorFps = suggestedFrameProcessorFps
       }
     }
   }

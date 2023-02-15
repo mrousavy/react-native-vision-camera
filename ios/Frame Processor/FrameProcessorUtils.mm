@@ -28,13 +28,15 @@ FrameProcessorCallback convertWorkletToFrameProcessorCallback(jsi::Runtime& runt
   // Converts a Worklet to a callable Objective-C block function
   return ^(Frame* frame) {
 
-    auto frameHostObject = std::make_shared<FrameHostObject>(frame);
     try {
-      // Call JS Frame Processor function with boxed Frame Host Object
+      // Box the Frame to a JS Host Object
+      auto frameHostObject = std::make_shared<FrameHostObject>(frame);
       auto argument = jsi::Object::createFromHostObject(runtime, frameHostObject);
       jsi::Value jsValue(std::move(argument));
+      // Call the Worklet with the Frame JS Host Object as an argument
       workletInvoker->call(runtime, jsi::Value::undefined(), &jsValue, 1);
     } catch (jsi::JSError& jsError) {
+      // JS Error occured, print it to console.
       auto stack = std::regex_replace(jsError.getStack(), std::regex("\n"), "\n    ");
       auto message = [NSString stringWithFormat:@"Frame Processor threw an error: %s\nIn: %s", jsError.getMessage().c_str(), stack.c_str()];
 
@@ -48,11 +50,5 @@ FrameProcessorCallback convertWorkletToFrameProcessorCallback(jsi::Runtime& runt
         NSLog(@"%@", message);
       }
     }
-
-    // Manually free the buffer because:
-    //  1. we are sure we don't need it anymore, the frame processor worklet has finished executing.
-    //  2. we don't know when the JS runtime garbage collects this object, it might be holding it for a few more frames
-    //     which then blocks the camera queue from pushing new frames (memory limit)
-    frameHostObject->close();
   };
 }

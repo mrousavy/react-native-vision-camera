@@ -80,8 +80,9 @@
     "pod-install": "^0.1.38",
     "prettier": "^2.8.4",
     "react": "^18.2.0",
-    "react-native": "^0.71.2",
+    "react-native": "^0.71.3",
     "react-native-builder-bob": "^0.20.3",
+    "react-native-worklets": "https://github.com/chrfalch/react-native-worklets#15d52dd",
     "release-it": "^15.6.0",
     "typescript": "^4.9.5"
   },
