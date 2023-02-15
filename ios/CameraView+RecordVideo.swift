@@ -212,7 +212,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
     if let frameProcessor = frameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
       // Call the JavaScript Frame Processor func (worklet)
-      let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
+      let frame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
       frameProcessor(frame)
     }
   }
