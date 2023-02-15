@@ -11,6 +11,7 @@
 #import <jsi/jsi.h>
 #import <CoreMedia/CMSampleBuffer.h>
 #import "Frame.h"
+#import "JsiSharedValue.h"
 
 using namespace facebook;
 
@@ -29,5 +30,5 @@ public:
 
 private:
   void assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName);
-  size_t _refCount = 0;
+  std::shared_ptr<RNWorklet::JsiSharedValue> _refCount;
 };

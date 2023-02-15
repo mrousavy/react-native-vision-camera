@@ -10,6 +10,7 @@
 #import <Foundation/Foundation.h>
 #import <jsi/jsi.h>
 #import "JsiHostObject.h"
+#import "JsiSharedValue.h"
 
 std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt) {
   std::vector<jsi::PropNameID> result;
@@ -81,7 +82,11 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     return jsi::Value((double) planesCount);
   }
   if (name == "refCount") {
-    return jsi::Value((double) _refCount);
+    if (!_refCount) {
+      _refCount = std::make_shared<RNWorklet::JsiSharedValue>(jsi::Value(0),
+                                                              RNWorklet::JsiWorkletContext::getDefaultInstance());
+    }
+    return jsi::Object::createFromHostObject(runtime, _refCount);
   }
 
   // fallback to base implementation
@@ -90,12 +95,12 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 
 void FrameHostObject::set(jsi::Runtime& runtime, const jsi::PropNameID& propName, const jsi::Value& value) {
   auto name = propName.utf8(runtime);
-  
+
   if (name == "refCount") {
-    _refCount = (size_t) value.asNumber();
+    _refCount = value.asObject(runtime).asHostObject<RNWorklet::JsiSharedValue>(runtime);
     return;
   }
-  
+
   // fallback to base implementation
   HostObject::set(runtime, propName, value);
 }

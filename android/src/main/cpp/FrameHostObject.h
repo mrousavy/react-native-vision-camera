@@ -12,6 +12,8 @@
 
 #include "java-bindings/JImageProxy.h"
 
+#include <JsiSharedValue.h>
+
 namespace vision {
 
 using namespace facebook;
@@ -35,7 +37,7 @@ class JSI_EXPORT FrameHostObject : public jsi::HostObject {
   static auto constexpr TAG = "VisionCamera";
 
   void assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName) const; // NOLINT(runtime/references)
-  size_t _refCount = 0;
+  std::shared_ptr<RNWorklet::JsiSharedValue> _refCount;
 };
 
 } // namespace vision

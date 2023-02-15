@@ -1,3 +1,5 @@
+import type { ISharedValue } from 'react-native-worklets/src';
+
 /**
  * A single frame, as seen by the camera.
  */
@@ -52,5 +54,5 @@ export interface Frame {
    *
    * This is a private API, do not use this.
    */
-  refCount: number;
+  refCount: ISharedValue<number>;
 }
