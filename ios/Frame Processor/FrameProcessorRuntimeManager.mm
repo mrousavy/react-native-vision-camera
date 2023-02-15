@@ -66,11 +66,10 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
     });
   };
 
-  workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("VisionCamera");
-  workletContext->initialize("VisionCamera",
-                             &runtime,
-                             runOnJS,
-                             runOnWorklet);
+  workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("VisionCamera",
+                                                                  &runtime,
+                                                                  runOnJS,
+                                                                  runOnWorklet);
 
   NSLog(@"FrameProcessorBindings: Worklet Context Created!");
 
