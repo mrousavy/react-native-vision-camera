@@ -27,7 +27,6 @@ class CameraViewManager(reactContext: ReactApplicationContext) : ViewGroupManage
       .put("cameraViewReady", MapBuilder.of("registrationName", "onViewReady"))
       .put("cameraInitialized", MapBuilder.of("registrationName", "onInitialized"))
       .put("cameraError", MapBuilder.of("registrationName", "onError"))
-      .put("cameraPerformanceSuggestionAvailable", MapBuilder.of("registrationName", "onFrameProcessorPerformanceSuggestionAvailable"))
       .build()
   }
 
@@ -106,13 +105,6 @@ class CameraViewManager(reactContext: ReactApplicationContext) : ViewGroupManage
     if (view.fps != fps)
       addChangedPropToTransaction(view, "fps")
     view.fps = if (fps > 0) fps else null
-  }
-
-  @ReactProp(name = "frameProcessorFps", defaultDouble = 1.0)
-  fun setFrameProcessorFps(view: CameraView, frameProcessorFps: Double) {
-    if (view.frameProcessorFps != frameProcessorFps)
-      addChangedPropToTransaction(view, "frameProcessorFps")
-    view.frameProcessorFps = frameProcessorFps
   }
 
   @ReactProp(name = "hdr")

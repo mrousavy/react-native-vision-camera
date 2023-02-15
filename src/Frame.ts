@@ -31,19 +31,19 @@ export interface Frame {
    * ```
    */
   toString(): string;
+}
+
+export interface FrameInternal extends Frame {
   /**
-   * Closes and disposes the Frame.
-   * Only close frames that you have created yourself, e.g. by copying the frame you receive in a frame processor.
+   * Increment the Frame Buffer ref-count by one.
    *
-   * @example
-   * ```ts
-   * const frameProcessor = useFrameProcessor((frame) => {
-   *   const smallerCopy = resize(frame, 480, 270)
-   *   // run AI ...
-   *   smallerCopy.close()
-   *   // don't close `frame`!
-   * })
-   * ```
+   * This is a private API, do not use this.
    */
-  close(): void;
+  incrementRefCount(): void;
+  /**
+   * Increment the Frame Buffer ref-count by one.
+   *
+   * This is a private API, do not use this.
+   */
+  decrementRefCount(): void;
 }

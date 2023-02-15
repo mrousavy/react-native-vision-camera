@@ -22,6 +22,7 @@
 #import "JsiWorkletContext.h"
 #import "JsiWorkletApi.h"
 #import "JsiWorklet.h"
+#import "JsiHostObject.h"
 
 #import "FrameProcessorUtils.h"
 #import "FrameProcessorCallback.h"
@@ -30,7 +31,7 @@
 // Forward declarations for the Swift classes
 __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
 @interface CameraQueues : NSObject
-@property (nonatomic, class, readonly, strong) dispatch_queue_t _Nonnull frameProcessorQueue;
+@property (nonatomic, class, readonly, strong) dispatch_queue_t _Nonnull videoQueue;
 @end
 __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 @interface CameraView : UIView
@@ -38,6 +39,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 @end
 
 @implementation FrameProcessorRuntimeManager {
+  // Running Frame Processors on camera's video thread (synchronously)
   std::shared_ptr<RNWorklet::JsiWorkletContext> workletContext;
 }
 
@@ -59,16 +61,15 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
   };
   auto runOnWorklet = [](std::function<void()>&& f) {
     // Run on Frame Processor Worklet Runtime
-    dispatch_async(CameraQueues.frameProcessorQueue, [f = std::move(f)](){
+    dispatch_async(CameraQueues.videoQueue, [f = std::move(f)](){
       f();
     });
   };
 
-  workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("VisionCamera");
-  workletContext->initialize("VisionCamera",
-                             &runtime,
-                             runOnJS,
-                             runOnWorklet);
+  workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("VisionCamera",
+                                                                  &runtime,
+                                                                  runOnJS,
+                                                                  runOnWorklet);
 
   NSLog(@"FrameProcessorBindings: Worklet Context Created!");
 
@@ -136,28 +137,17 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
   NSLog(@"FrameProcessorBindings: Installing global functions...");
 
   // setFrameProcessor(viewTag: number, frameProcessor: (frame: Frame) => void)
-  auto setFrameProcessor = [self](jsi::Runtime& runtime,
-                                  const jsi::Value& thisValue,
-                                  const jsi::Value* arguments,
-                                  size_t count) -> jsi::Value {
+  auto setFrameProcessor = JSI_HOST_FUNCTION_LAMBDA {
     NSLog(@"FrameProcessorBindings: Setting new frame processor...");
-    if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: First argument ('viewTag') must be a number!");
-    if (!arguments[1].isObject()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
-
     auto viewTag = arguments[0].asNumber();
-    NSLog(@"FrameProcessorBindings: Converting JSI Function to Worklet...");
     auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, arguments[1]);
 
-    RCTExecuteOnMainQueue([=]() {
+    RCTExecuteOnMainQueue(^{
       auto currentBridge = [RCTBridge currentBridge];
       auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
       auto view = static_cast<CameraView*>(anonymousView);
-
-      NSLog(@"FrameProcessorBindings: Converting worklet to Objective-C callback...");
-
-      view.frameProcessorCallback = convertWorkletToFrameProcessorCallback(workletContext->getWorkletRuntime(), worklet);
-
-      NSLog(@"FrameProcessorBindings: Frame processor set!");
+      auto callback = convertWorkletToFrameProcessorCallback(self->workletContext->getWorkletRuntime(), worklet);
+      view.frameProcessorCallback = callback;
     });
 
     return jsi::Value::undefined();
@@ -168,12 +158,8 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                                                                                          setFrameProcessor));
 
   // unsetFrameProcessor(viewTag: number)
-  auto unsetFrameProcessor = [](jsi::Runtime& runtime,
-                                const jsi::Value& thisValue,
-                                const jsi::Value* arguments,
-                                size_t count) -> jsi::Value {
+  auto unsetFrameProcessor = JSI_HOST_FUNCTION_LAMBDA {
     NSLog(@"FrameProcessorBindings: Removing frame processor...");
-    if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::unsetFrameProcessor: First argument ('viewTag') must be a number!");
     auto viewTag = arguments[0].asNumber();
 
     RCTExecuteOnMainQueue(^{
@@ -185,7 +171,6 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 
       auto view = static_cast<CameraView*>(anonymousView);
       view.frameProcessorCallback = nil;
-      NSLog(@"FrameProcessorBindings: Frame processor removed!");
     });
 
     return jsi::Value::undefined();
