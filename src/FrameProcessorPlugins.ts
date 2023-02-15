@@ -55,11 +55,6 @@ export function runAtTargetFps<T>(fps: number, func: () => T): T | undefined {
   return undefined;
 }
 
-runAtTargetFps.__initData = {
-  code: runAtTargetFps.asString,
-  location: runAtTargetFps.__location,
-};
-
 const context = Worklets.createContext('VisionCamera.async');
 
 /**
@@ -89,35 +84,20 @@ const context = Worklets.createContext('VisionCamera.async');
 export function runAsync(frame: Frame, func: () => void): void {
   'worklet';
   // Increment ref count by one
-  frame.refCount++;
-  func.__initData = {
-    code: func.asString,
-    location: func.__location,
-  };
+  frame.refCount.value++;
+  console.log(`runAsync 1 / 3 (${frame.refCount.value})`);
 
-  const wrapper = () => {
+  const fn = Worklets.createRunInContextFn(() => {
     'worklet';
+    console.log(`runAsync 2 / 3 (${frame.refCount.value})`);
     // Call long-running function
     func();
 
     // Potentially delete Frame if we were the last ref
-    frame.refCount--;
-    if (frame.refCount <= 0) frame.close();
-  };
-  wrapper.__initData = {
-    code: wrapper.asString,
-    location: wrapper.__location,
-  };
+    frame.refCount.value--;
+    console.log(`runAsync 3 / 3 (${frame.refCount.value})`);
+  }, context);
 
-  const fn = Worklets.createRunInContextFn(wrapper, context);
-  fn.__initData = {
-    code: fn.asString,
-    location: fn.__location,
-  };
+  // Call in separate context
   fn();
 }
-
-runAsync.__initData = {
-  code: runAsync.asString,
-  location: runAsync.__location,
-};
