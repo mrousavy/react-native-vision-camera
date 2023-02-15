@@ -9,13 +9,12 @@
 #include <vector>
 #include <string>
 #include <JsiHostObject.h>
-#include <JsiSharedValue.h>
 
 namespace vision {
 
 using namespace facebook;
 
-FrameHostObject::FrameHostObject(jni::alias_ref<JImageProxy::javaobject> image): frame(make_global(image)) { }
+FrameHostObject::FrameHostObject(jni::alias_ref<JImageProxy::javaobject> image): frame(make_global(image)), _refCount(0) { }
 
 FrameHostObject::~FrameHostObject() {
   // Hermes' Garbage Collector (Hades GC) calls destructors on a separate Thread
@@ -27,14 +26,16 @@ FrameHostObject::~FrameHostObject() {
 
 std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt) {
   std::vector<jsi::PropNameID> result;
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isValid")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("width")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("height")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("refCount")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("close")));
+  // Debugging
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
+  // Ref Management
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isValid")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("incrementRefCount")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("decrementRefCount")));
   return result;
 }
 
@@ -53,71 +54,53 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
   }
-  if (name == "close") {
-    auto close = JSI_HOST_FUNCTION_LAMBDA {
-      if (!this->frame) {
-        throw jsi::JSError(runtime, "Trying to close an already closed frame! Did you call frame.close() twice?");
-      }
-      this->close();
+  if (name == "incrementRefCount") {
+    auto incrementRefCount = JSI_HOST_FUNCTION_LAMBDA {
+      // Increment retain count by one so ARC doesn't destroy the Frame Buffer.
+      std::lock_guard lock(this->_refCountMutex);
+      this->_refCount++;
       return jsi::Value::undefined();
     };
-    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "close"), 0, close);
+    return jsi::Function::createFromHostFunction(runtime,
+                                                 jsi::PropNameID::forUtf8(runtime, "incrementRefCount"),
+                                                 0,
+                                                 incrementRefCount);
+  }
+
+  if (name == "decrementRefCount") {
+    auto decrementRefCount = JSI_HOST_FUNCTION_LAMBDA {
+      // Decrement retain count by one. If the retain count is zero, ARC will destroy the Frame Buffer.
+      std::lock_guard lock(this->_refCountMutex);
+      this->_refCount--;
+      if (_refCount < 1) {
+        this->frame->close();
+      }
+      return jsi::Value::undefined();
+    };
+    return jsi::Function::createFromHostFunction(runtime,
+                                                 jsi::PropNameID::forUtf8(runtime, "decrementRefCount"),
+                                                 0,
+                                                 decrementRefCount);
   }
 
   if (name == "isValid") {
     return jsi::Value(this->frame && this->frame->getIsValid());
   }
   if (name == "width") {
-    this->assertIsFrameStrong(runtime, name);
     return jsi::Value(this->frame->getWidth());
   }
   if (name == "height") {
-    this->assertIsFrameStrong(runtime, name);
     return jsi::Value(this->frame->getHeight());
   }
   if (name == "bytesPerRow") {
-    this->assertIsFrameStrong(runtime, name);
     return jsi::Value(this->frame->getBytesPerRow());
   }
   if (name == "planesCount") {
-    this->assertIsFrameStrong(runtime, name);
     return jsi::Value(this->frame->getPlanesCount());
   }
-  if (name == "refCount") {
-    if (!_refCount) {
-      _refCount = std::make_shared<RNWorklet::JsiSharedValue>(jsi::Value(0),
-                                                              RNWorklet::JsiWorkletContext::getDefaultInstance());
-    }
-    return jsi::Object::createFromHostObject(runtime, _refCount);
-  }
 
   // fallback to base implementation
-  return jsi::Value::undefined();
-}
-
-void FrameHostObject::set(jsi::Runtime& runtime, const jsi::PropNameID& propName, const jsi::Value& value) {
-  auto name = propName.utf8(runtime);
-
-  if (name == "refCount") {
-    _refCount = value.asObject(runtime).asHostObject<RNWorklet::JsiSharedValue>(runtime);
-    return;
-  }
-
-  // fallback to base implementation
-  HostObject::set(runtime, propName, value);
-}
-
-void FrameHostObject::assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName) const {
-  if (!this->frame) {
-    auto message = "Cannot get `" + accessedPropName + "`, frame is already closed!";
-    throw jsi::JSError(runtime, message.c_str());
-  }
-}
-
-void FrameHostObject::close() {
-  if (this->frame) {
-    this->frame->close();
-  }
+  return HostObject::get(runtime, propName);
 }
 
 } // namespace vision
