@@ -5094,7 +5094,7 @@ react-native-video@^5.2.1:
   version "0.1.0"
   resolved "https://github.com/chrfalch/react-native-worklets#cfe1819e18cda062d524ca8e5e4fbef126a4c7c6"
 
-react-native@^0.71.2:
+react-native@^0.71.3:
   version "0.71.3"
   resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.71.3.tgz#0faab799c49e61ba12df9e6525c3ac7d595d673c"
   integrity sha512-RYJXCcQGa4NTfKiPgl92eRDUuQ6JGDnHqFEzRwJSqEx9lWvlvRRIebstJfurzPDKLQWQrvITR7aI7e09E25mLw==
