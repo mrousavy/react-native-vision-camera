@@ -13,6 +13,7 @@ type TFrameProcessorPlugins = Record<string, FrameProcessor>;
 /**
  * All natively installed Frame Processor Plugins.
  */
+// @ts-expect-error The global JSI Proxy object is not typed.
 export const FrameProcessorPlugins = global.FrameProcessorPlugins as TFrameProcessorPlugins;
 
 const lastFrameProcessorCall = Worklets.createSharedValue(performance.now());
