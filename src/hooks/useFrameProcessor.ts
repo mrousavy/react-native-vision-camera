@@ -34,6 +34,7 @@ export function useFrameProcessor(frameProcessor: FrameProcessor, dependencies: 
     // Potentially delete Frame if we were the last ref (no runAsync)
     frame.refCount.value--;
     console.log(`useFrameProcessor 2 / 2 (${frame.refCount.value})`);
+    if (frame.refCount.value <= 0) frame.close();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies);
 }
