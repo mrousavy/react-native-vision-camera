@@ -85,7 +85,6 @@ export function runAsync(frame: Frame, func: () => void): void {
   'worklet';
   // Increment ref count by one
   frame.refCount.value++;
-  console.log(`runAsync 1 / 3 (${frame.refCount.value})`);
 
   const fpContext = Worklets.currentContext;
   const maybeCloseFrame = Worklets.createRunInContextFn(() => {
@@ -95,13 +94,11 @@ export function runAsync(frame: Frame, func: () => void): void {
 
   const fn = Worklets.createRunInContextFn(() => {
     'worklet';
-    console.log(`runAsync 2 / 3 (${frame.refCount.value})`);
     // Call long-running function
     func();
 
     // Potentially delete Frame if we were the last ref
     frame.refCount.value--;
-    console.log(`runAsync 3 / 3 (${frame.refCount.value})`);
     maybeCloseFrame();
   }, context);
 

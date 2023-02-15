@@ -27,13 +27,11 @@ export function useFrameProcessor(frameProcessor: FrameProcessor, dependencies: 
     'worklet';
     // Set refCount to 1 (initial)
     frame.refCount.value = 1;
-    console.log(`useFrameProcessor 1 / 2 (${frame.refCount.value})`);
     // Call sync frame processor
     frameProcessor(frame);
 
     // Potentially delete Frame if we were the last ref (no runAsync)
     frame.refCount.value--;
-    console.log(`useFrameProcessor 2 / 2 (${frame.refCount.value})`);
     if (frame.refCount.value <= 0) frame.close();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies);
