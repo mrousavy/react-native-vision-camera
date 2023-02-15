@@ -1,5 +1,3 @@
-import type { ISharedValue } from 'react-native-worklets/src';
-
 /**
  * A single frame, as seen by the camera.
  */
@@ -33,26 +31,19 @@ export interface Frame {
    * ```
    */
   toString(): string;
-  /**
-   * Closes and disposes the Frame.
-   * Any subsequent calls to the Frame object will fail after calling close.
-   *
-   * @example
-   * ```ts
-   * const frameProcessor = useFrameProcessor((frame) => {
-   *   const smallerCopy = resize(frame, 480, 270)
-   *   // run AI ...
-   *   smallerCopy.close()
-   * })
-   * ```
-   */
-  close(): void;
+}
 
+export interface FrameInternal extends Frame {
   /**
-   * Number of frame processors currently executing that hold a
-   * strong reference to the Frame.
+   * Increment the Frame Buffer ref-count by one.
    *
    * This is a private API, do not use this.
    */
-  refCount: ISharedValue<number>;
+  incrementRefCount(): void;
+  /**
+   * Increment the Frame Buffer ref-count by one.
+   *
+   * This is a private API, do not use this.
+   */
+  decrementRefCount(): void;
 }

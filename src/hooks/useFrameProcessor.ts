@@ -25,8 +25,6 @@ type FrameProcessor = (frame: Frame) => void;
 export function useFrameProcessor(frameProcessor: FrameProcessor, dependencies: DependencyList): FrameProcessor {
   return useCallback((frame: Frame) => {
     'worklet';
-    // Set refCount to 1 (initial)
-    frame.refCount.value = 1;
     // Call sync frame processor
     frameProcessor(frame);
 

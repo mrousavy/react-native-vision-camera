@@ -14,14 +14,16 @@
 
 std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt) {
   std::vector<jsi::PropNameID> result;
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isValid")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("width")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("height")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("refCount")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("close")));
+  // Debugging
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
+  // Ref Management
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isValid")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("incrementRefCount")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("decrementRefCount")));
   return result;
 }
 
@@ -42,80 +44,55 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
   }
-  if (name == "close") {
-    auto close = JSI_HOST_FUNCTION_LAMBDA {
-      if (this->frame == nil) {
-        throw jsi::JSError(runtime, "Trying to close an already closed frame! Did you call frame.close() twice?");
-      }
-      this->close();
+  if (name == "incrementRefCount") {
+    auto incrementRefCount = JSI_HOST_FUNCTION_LAMBDA {
+      // Increment retain count by one so ARC doesn't destroy the Frame Buffer.
+      CFRetain(frame.buffer);
       return jsi::Value::undefined();
     };
-    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "close"), 0, close);
+    return jsi::Function::createFromHostFunction(runtime,
+                                                 jsi::PropNameID::forUtf8(runtime, "incrementRefCount"),
+                                                 0,
+                                                 incrementRefCount);
+  }
+  
+  if (name == "decrementRefCount") {
+    auto decrementRefCount = JSI_HOST_FUNCTION_LAMBDA {
+      // Decrement retain count by one. If the retain count is zero, ARC will destroy the Frame Buffer.
+      CFRelease(frame.buffer);
+      return jsi::Value::undefined();
+    };
+    return jsi::Function::createFromHostFunction(runtime,
+                                                 jsi::PropNameID::forUtf8(runtime, "decrementRefCount"),
+                                                 0,
+                                                 decrementRefCount);
   }
 
   if (name == "isValid") {
-    auto isValid = frame != nil && CMSampleBufferIsValid(frame.buffer);
+    auto isValid = frame != nil && frame.buffer != nil && CFGetRetainCount(frame.buffer) > 0 && CMSampleBufferIsValid(frame.buffer);
     return jsi::Value(isValid);
   }
   if (name == "width") {
-    this->assertIsFrameStrong(runtime, name);
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     auto width = CVPixelBufferGetWidth(imageBuffer);
     return jsi::Value((double) width);
   }
   if (name == "height") {
-    this->assertIsFrameStrong(runtime, name);
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     auto height = CVPixelBufferGetHeight(imageBuffer);
     return jsi::Value((double) height);
   }
   if (name == "bytesPerRow") {
-    this->assertIsFrameStrong(runtime, name);
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     auto bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
     return jsi::Value((double) bytesPerRow);
   }
   if (name == "planesCount") {
-    this->assertIsFrameStrong(runtime, name);
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
     return jsi::Value((double) planesCount);
   }
-  if (name == "refCount") {
-    if (!_refCount) {
-      _refCount = std::make_shared<RNWorklet::JsiSharedValue>(jsi::Value(0),
-                                                              RNWorklet::JsiWorkletContext::getDefaultInstance());
-    }
-    return jsi::Object::createFromHostObject(runtime, _refCount);
-  }
 
   // fallback to base implementation
   return HostObject::get(runtime, propName);
-}
-
-void FrameHostObject::set(jsi::Runtime& runtime, const jsi::PropNameID& propName, const jsi::Value& value) {
-  auto name = propName.utf8(runtime);
-
-  if (name == "refCount") {
-    _refCount = value.asObject(runtime).asHostObject<RNWorklet::JsiSharedValue>(runtime);
-    return;
-  }
-
-  // fallback to base implementation
-  HostObject::set(runtime, propName, value);
-}
-
-void FrameHostObject::assertIsFrameStrong(jsi::Runtime &runtime, const std::string &accessedPropName) {
-  if (frame == nil) {
-    auto message = "Cannot get `" + accessedPropName + "`, frame is already closed!";
-    throw jsi::JSError(runtime, message.c_str());
-  }
-}
-
-void FrameHostObject::close() {
-  if (frame != nil) {
-    CMSampleBufferInvalidate(frame.buffer);
-    // ARC will hopefully delete it lol
-    this->frame = nil;
-  }
 }

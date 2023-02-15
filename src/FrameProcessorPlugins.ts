@@ -1,4 +1,4 @@
-import type { Frame } from './Frame';
+import type { Frame, FrameInternal } from './Frame';
 import { Camera } from './Camera';
 import { Worklets } from 'react-native-worklets/src';
 
@@ -55,7 +55,17 @@ export function runAtTargetFps<T>(fps: number, func: () => T): T | undefined {
   return undefined;
 }
 
-const context = Worklets.createContext('VisionCamera.async');
+const asyncContext = Worklets.createContext('VisionCamera.async');
+const runOnAsyncContext = Worklets.createRunInContextFn((frame: Frame, func: () => void) => {
+  'worklet';
+  try {
+    // Call long-running function
+    func();
+  } finally {
+    // Potentially delete Frame if we were the last ref
+    (frame as FrameInternal).decrementRefCount();
+  }
+}, asyncContext);
 
 /**
  * Runs the given function asynchronously, while keeping a strong reference to the Frame.
@@ -84,24 +94,8 @@ const context = Worklets.createContext('VisionCamera.async');
 export function runAsync(frame: Frame, func: () => void): void {
   'worklet';
   // Increment ref count by one
-  frame.refCount.value++;
+  (frame as FrameInternal).incrementRefCount();
 
-  const fpContext = Worklets.currentContext;
-  const maybeCloseFrame = Worklets.createRunInContextFn(() => {
-    'worklets';
-    if (frame.refCount.value <= 0) frame.close();
-  }, fpContext);
-
-  const fn = Worklets.createRunInContextFn(() => {
-    'worklet';
-    // Call long-running function
-    func();
-
-    // Potentially delete Frame if we were the last ref
-    frame.refCount.value--;
-    maybeCloseFrame();
-  }, context);
-
-  // Call in separate context
-  fn();
+  // Call in separate background context
+  runOnAsyncContext(frame, func);
 }
