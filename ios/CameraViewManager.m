@@ -32,6 +32,7 @@ RCT_EXPORT_VIEW_PROPERTY(photo, NSNumber); // nullable bool
 RCT_EXPORT_VIEW_PROPERTY(video, NSNumber); // nullable bool
 RCT_EXPORT_VIEW_PROPERTY(audio, NSNumber); // nullable bool
 RCT_EXPORT_VIEW_PROPERTY(enableFrameProcessor, BOOL);
+RCT_EXPORT_VIEW_PROPERTY(enableFpsGraph, BOOL);
 // device format
 RCT_EXPORT_VIEW_PROPERTY(format, NSDictionary);
 RCT_EXPORT_VIEW_PROPERTY(fps, NSNumber);

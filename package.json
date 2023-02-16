@@ -87,6 +87,7 @@
     "typescript": "^4.9.5"
   },
   "peerDependencies": {
+    "@shopify/react-native-skia": "*",
     "react": "*",
     "react-native": "*",
     "react-native-worklets": "*"

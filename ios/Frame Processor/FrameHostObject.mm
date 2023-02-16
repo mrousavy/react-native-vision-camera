@@ -12,6 +12,9 @@
 #import "JsiHostObject.h"
 #import "JsiSharedValue.h"
 
+#import "SkCanvas.h"
+#import "../Skia Render Layer/SkImageHelpers.h"
+
 std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt) {
   std::vector<jsi::PropNameID> result;
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("width")));
@@ -24,7 +27,23 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isValid")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("incrementRefCount")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("decrementRefCount")));
+
+  if (canvas != nullptr) {
+    auto canvasPropNames = canvas->getPropertyNames(rt);
+    for (auto& prop : canvasPropNames) {
+      result.push_back(std::move(prop));
+    }
+  }
+
   return result;
+}
+
+SkRect inscribe(SkSize size, SkRect rect) {
+  auto halfWidthDelta = (rect.width() - size.width()) / 2.0;
+  auto halfHeightDelta = (rect.height() - size.height()) / 2.0;
+  return SkRect::MakeXYWH(rect.x() + halfWidthDelta,
+                          rect.y() + halfHeightDelta, size.width(),
+                          size.height());
 }
 
 jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {
