@@ -9,8 +9,7 @@
 #import "FrameHostObject.h"
 #import <Foundation/Foundation.h>
 #import <jsi/jsi.h>
-#import "JsiHostObject.h"
-#import "JsiSharedValue.h"
+#import "WKTJsiHostObject.h"
 
 #import "SkCanvas.h"
 #import "../Skia Render Layer/SkImageHelpers.h"

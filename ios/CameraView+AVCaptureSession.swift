@@ -135,8 +135,8 @@ extension CameraView {
       videoOutput!.setSampleBufferDelegate(self, queue: videoQueue)
       videoOutput!.alwaysDiscardsLateVideoFrames = false
 
-      if enableFrameProcessor {
-        // Frame Processor requires Skia to draw, we always work in RGB colorspace instead of YUV.
+      if previewType == "skia" {
+        // If the PreviewView is a Skia view, we need to use the RGB format since Skia works in the RGB colorspace instead of YUV.
         // This does introduce a performance overhead, but it's inevitable since Skia would internally convert
         // YUV frames to RGB anyways since all Shaders and draw operations operate in the RGB space.
         videoOutput!.videoSettings = [

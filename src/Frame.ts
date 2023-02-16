@@ -33,6 +33,15 @@ export interface Frame extends SkCanvas {
    * ```
    */
   toString(): string;
+  /**
+   * Renders the Frame to the screen.
+   *
+   * By default a Frame has already been rendered to the screen once, so if you call this method again,
+   * previously drawn content will be overwritten.
+   *
+   * @param paint (Optional) A Paint object to use to draw the Frame with. For example, this can contain a Shader (ImageFilter)
+   */
+  render: (paint?: SkPaint) => void;
 }
 
 export interface FrameInternal extends Frame {

@@ -26,7 +26,8 @@ private let propsThatRequireReconfiguration = ["cameraId",
                                                "preset",
                                                "photo",
                                                "video",
-                                               "enableFrameProcessor"]
+                                               "enableFrameProcessor",
+                                               "previewType"]
 private let propsThatRequireDeviceReconfiguration = ["fps",
                                                      "hdr",
                                                      "lowLightBoost",
@@ -49,7 +50,6 @@ public final class CameraView: UIView {
   @objc var video: NSNumber? // nullable bool
   @objc var audio: NSNumber? // nullable bool
   @objc var enableFrameProcessor = false
-  @objc var enableFpsGraph = false
   // props that require format reconfiguring
   @objc var format: NSDictionary?
   @objc var fps: NSNumber?
@@ -61,7 +61,9 @@ public final class CameraView: UIView {
   @objc var isActive = false
   @objc var torch = "off"
   @objc var zoom: NSNumber = 1.0 // in "factor"
+  @objc var enableFpsGraph = false
   @objc var videoStabilizationMode: NSString?
+  @objc var previewType: NSString?
   // events
   @objc var onInitialized: RCTDirectEventBlock?
   @objc var onError: RCTDirectEventBlock?
@@ -133,6 +135,8 @@ public final class CameraView: UIView {
                                            selector: #selector(onOrientationChanged),
                                            name: UIDevice.orientationDidChangeNotification,
                                            object: nil)
+    
+    self.setupPreviewView()
   }
   
   @available(*, unavailable)
@@ -177,17 +181,15 @@ public final class CameraView: UIView {
   }
   
   func setupPreviewView() {
-    if enableFrameProcessor {
+    if previewType == "skia" {
+      // Skia Preview View allows user to draw onto a Frame in a Frame Processor
       if previewView is PreviewSkiaView { return }
       previewView?.removeFromSuperview()
-      
-      // If we are using a Frame Processor, set up a Skia context for drawing.
       previewView = PreviewSkiaView(frame: frame)
     } else {
+      // Normal iOS PreviewView is lighter and more performant (YUV Format, GPU only)
       if previewView is PreviewView { return }
       previewView?.removeFromSuperview()
-      
-      // If not, use the normal iOS Preview View (it's lighter, no need for a Skia Context)
       previewView = PreviewView(frame: frame, session: captureSession)
     }
     
@@ -224,7 +226,7 @@ public final class CameraView: UIView {
     let shouldUpdateVideoStabilization = willReconfigure || changedProps.contains("videoStabilizationMode")
     let shouldUpdateOrientation = willReconfigure || changedProps.contains("orientation")
     
-    if changedProps.contains("enableFrameProcessor") {
+    if changedProps.contains("previewType") {
       DispatchQueue.main.async {
         self.setupPreviewView()
       }

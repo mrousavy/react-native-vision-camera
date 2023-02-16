@@ -187,7 +187,7 @@ export interface CameraProps extends ViewProps {
    * If {@linkcode CameraProps.previewType | previewType} is set to `"skia"`, you can draw content to the `Frame` using the react-native-skia API.
    *
    * Note: If you want to use `video` and `frameProcessor` simultaneously, make sure [`supportsParallelVideoProcessing`](https://mrousavy.github.io/react-native-vision-camera/docs/guides/devices#the-supportsparallelvideoprocessing-prop) is `true`.
-  *
+   *
    * > See [the Frame Processors documentation](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors) for more information
    *
    * @example

@@ -195,10 +195,16 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       if let previewView = previewView as? PreviewSkiaView {
         // Render to PreviewView
         previewView.drawFrame(sampleBuffer) { canvas in
+          // Call JS Frame Processor before passing Frame to GPU - allows user to draw
           guard let frameProcessor = self.frameProcessorCallback else { return }
           let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
           frameProcessor(frame, canvas)
         }
+      } else {
+        // Call JS Frame Processor. User cannot draw, since we don't have a Skia Canvas.
+        guard let frameProcessor = self.frameProcessorCallback else { return }
+        let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
+        frameProcessor(frame, nil)
       }
     }
 

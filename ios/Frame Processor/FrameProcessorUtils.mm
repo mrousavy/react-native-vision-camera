@@ -19,7 +19,7 @@
 #import "JSConsoleHelper.h"
 #import <ReactCommon/RCTTurboModule.h>
 
-#import "JsiWorklet.h"
+#import "WKTJsiWorklet.h"
 
 #import "RNSkPlatformContext.h"
 #import "RNSkiOSPlatformContext.h"
@@ -37,10 +37,13 @@ FrameProcessorCallback convertWorkletToFrameProcessorCallback(jsi::Runtime& runt
   return ^(Frame* frame, void* skiaCanvas) {
 
     try {
-      // Update Canvas
-      canvasHostObject->setCanvas((SkCanvas*)skiaCanvas);
-      // Box the Frame to a JS Host Object
-      auto frameHostObject = std::make_shared<FrameHostObject>(frame, canvasHostObject);
+      std::shared_ptr<FrameHostObject> frameHostObject;
+      if (skiaCanvas != nullptr) {
+        canvasHostObject->setCanvas((SkCanvas*)skiaCanvas);
+        frameHostObject = std::make_shared<FrameHostObject>(frame, canvasHostObject);
+      } else {
+        frameHostObject = std::make_shared<FrameHostObject>(frame);
+      }
       auto argument = jsi::Object::createFromHostObject(runtime, frameHostObject);
       jsi::Value jsValue(std::move(argument));
       // Call the Worklet with the Frame JS Host Object as an argument
