@@ -31,7 +31,7 @@ FrameProcessorCallback convertWorkletToFrameProcessorCallback(jsi::Runtime& runt
   // Create cached Skia Canvas object
   auto callInvoker = RCTBridge.currentBridge.jsCallInvoker;
   auto skiaPlatformContext = std::make_shared<RNSkia::RNSkiOSPlatformContext>(&runtime, callInvoker);
-  auto canvasHostObject = std::make_shared<RNSkia::JsiSkCanvas>(platformContext);
+  auto canvasHostObject = std::make_shared<RNSkia::JsiSkCanvas>(skiaPlatformContext);
 
   // Converts a Worklet to a callable Objective-C block function
   return ^(Frame* frame, void* skiaCanvas) {

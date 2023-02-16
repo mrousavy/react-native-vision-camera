@@ -222,9 +222,6 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       }
     }
     
-    // Invalidate Buffer
-    CMSampleBufferInvalidate(sampleBuffer)
-    
 #if DEBUG
     if captureOutput is AVCaptureVideoDataOutput {
       // Update FPS Graph per Frame

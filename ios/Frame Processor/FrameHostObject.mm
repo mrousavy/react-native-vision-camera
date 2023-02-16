@@ -138,6 +138,11 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
     return jsi::Value((double) planesCount);
   }
+  
+  if (canvas != nullptr) {
+    // If we have a Canvas, try to access the property on there.
+    return canvas->get(runtime, propName);
+  }
 
   // fallback to base implementation
   return HostObject::get(runtime, propName);
