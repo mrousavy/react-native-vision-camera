@@ -44,6 +44,7 @@ Pod::Spec.new do |s|
   s.source_files = [
     "ios/**/*.{m,mm,swift}",
     "ios/CameraBridge.h",
+    "ios/Skia Render Layer/PreviewSkiaView.h",
     "ios/Frame Processor/Frame.h",
     "ios/Frame Processor/FrameProcessorCallback.h",
     "ios/Frame Processor/FrameProcessorRuntimeManager.h",
@@ -65,4 +66,5 @@ Pod::Spec.new do |s|
   s.dependency "React"
   s.dependency "React-Core"
   s.dependency "react-native-worklets"
+  s.dependency "react-native-skia"
 end

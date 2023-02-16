@@ -15,6 +15,7 @@ add_compile_options(${folly_FLAGS})
 find_package(ReactAndroid REQUIRED CONFIG)
 find_package(fbjni REQUIRED CONFIG)
 find_package(react-native-worklets REQUIRED CONFIG)
+find_package(react-native-skia REQUIRED CONFIG)
 find_library(LOG_LIB log)
 
 # Add react-native-vision-camera sources
@@ -52,4 +53,5 @@ target_link_libraries(
         ReactAndroid::folly_runtime         # <-- RN: For casting JSI <> Java objects
         fbjni::fbjni                        # <-- fbjni
         react-native-worklets::rnworklets   # <-- RN Worklets
+        react-native-skia::rnskia           # <-- RN Skia
 )
