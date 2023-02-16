@@ -83,7 +83,7 @@
     "react": "^18.2.0",
     "react-native": "^0.71.3",
     "react-native-builder-bob": "^0.20.3",
-    "react-native-worklets": "https://github.com/chrfalch/react-native-worklets#15d52dd",
+    "react-native-worklets": "https://github.com/chrfalch/react-native-worklets#8d1db5f",
     "release-it": "^15.6.0",
     "typescript": "^4.9.5"
   },
