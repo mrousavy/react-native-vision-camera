@@ -27,6 +27,8 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isValid")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("incrementRefCount")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("decrementRefCount")));
+  // Skia
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("render")));
 
   if (canvas != nullptr) {
     auto canvasPropNames = canvas->getPropertyNames(rt);
@@ -74,7 +76,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
                                                  0,
                                                  incrementRefCount);
   }
-  
+
   if (name == "decrementRefCount") {
     auto decrementRefCount = JSI_HOST_FUNCTION_LAMBDA {
       // Decrement retain count by one. If the retain count is zero, ARC will destroy the Frame Buffer.
@@ -85,6 +87,31 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
                                                  jsi::PropNameID::forUtf8(runtime, "decrementRefCount"),
                                                  0,
                                                  decrementRefCount);
+  }
+  if (name == "render") {
+    auto render = JSI_HOST_FUNCTION_LAMBDA {
+      if (canvas == nullptr) {
+        throw jsi::JSError(runtime, "Trying to render a Frame without a Skia Canvas! Did you install Skia?");
+      }
+
+      // convert CMSampleBuffer to SkImage
+      auto context = canvas->getCanvas()->recordingContext();
+      auto image = SkImageHelpers::convertCMSampleBufferToSkImage(context, frame.buffer);
+
+      // draw SkImage
+      if (count > 0) {
+        // ..with paint/shader
+        auto paintHostObject = arguments[0].asObject(runtime).asHostObject<RNSkia::JsiSkPaint>(runtime);
+        auto paint = paintHostObject->getObject();
+        canvas->getCanvas()->drawImage(image, 0, 0, SkSamplingOptions(), paint.get());
+      } else {
+        // ..without paint/shader
+        canvas->getCanvas()->drawImage(image, 0, 0);
+      }
+
+      return jsi::Value::undefined();
+    };
+    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "render"), 1, render);
   }
 
   if (name == "isValid") {
