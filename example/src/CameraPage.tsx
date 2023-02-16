@@ -25,6 +25,8 @@ import { examplePlugin } from './frame-processors/ExamplePlugin';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
+import { Skia } from '@shopify/react-native-skia';
+import { FACE_SHADER } from './Shaders';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -196,11 +198,33 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const frameProcessor = useFrameProcessor((frame) => {
-    'worklet';
-    const values = examplePlugin(frame);
-    console.log(`Return Values: ${JSON.stringify(values)}`);
-  }, []);
+  const width = 150;
+  const height = 150;
+  const x = 300;
+  const y = 400;
+  const centerX = x + width / 2;
+  const centerY = y + height / 2;
+
+  const runtimeEffect = Skia.RuntimeEffect.Make(FACE_SHADER);
+  if (runtimeEffect == null) throw new Error('Shader failed to compile!');
+  const shaderBuilder = Skia.RuntimeShaderBuilder(runtimeEffect);
+  shaderBuilder.setUniform('r', [width]);
+  shaderBuilder.setUniform('x', [centerX]);
+  shaderBuilder.setUniform('y', [centerY]);
+  shaderBuilder.setUniform('resolution', [1920, 1080]);
+  const imageFilter = Skia.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
+
+  const paint = Skia.Paint();
+  paint.setImageFilter(imageFilter);
+
+  const frameProcessor = useFrameProcessor(
+    (frame) => {
+      'worklet';
+      console.log(`Width: ${frame.width}`);
+      frame.render(paint);
+    },
+    [paint],
+  );
 
   return (
     <View style={styles.container}>
@@ -224,6 +248,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 photo={true}
                 video={true}
                 audio={hasMicrophonePermission}
+                previewType="skia"
                 frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
                 orientation="portrait"
               />
