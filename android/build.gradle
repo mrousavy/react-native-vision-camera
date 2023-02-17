@@ -88,7 +88,6 @@ android {
 
   buildFeatures {
     prefab true
-    viewBinding true
   }
 
   defaultConfig {
