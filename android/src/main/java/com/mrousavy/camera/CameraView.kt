@@ -379,6 +379,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         .setTargetRotation(outputRotation)
         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
         .setBackgroundExecutor(frameProcessorThread)
+        .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888)
 
       if (format == null) {
         // let CameraX automatically find best resolution for the target aspect ratio
