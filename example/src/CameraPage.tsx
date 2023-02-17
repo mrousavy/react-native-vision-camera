@@ -248,6 +248,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 photo={true}
                 video={true}
                 audio={hasMicrophonePermission}
+                enableFpsGraph={true}
                 previewType="skia"
                 frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
                 orientation="portrait"
