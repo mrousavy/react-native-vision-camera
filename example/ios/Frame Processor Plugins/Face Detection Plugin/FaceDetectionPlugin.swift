@@ -51,7 +51,7 @@ public class FaceDetectionPlugin: NSObject, FrameProcessorPluginBase {
     }
 
     let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: imageBuffer,
-                                                    orientation: convertOrientation(frame.orientation),
+                                                    orientation: .up,
                                                     options: requestOptions)
     do {
       try imageRequestHandler.perform(requests)
