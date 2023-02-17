@@ -32,26 +32,28 @@ FrameProcessorCallback convertWorkletToFrameProcessorCallback(jsi::Runtime& runt
   auto callInvoker = RCTBridge.currentBridge.jsCallInvoker;
   auto skiaPlatformContext = std::make_shared<RNSkia::RNSkiOSPlatformContext>(&runtime, callInvoker);
   auto canvasHostObject = std::make_shared<RNSkia::JsiSkCanvas>(skiaPlatformContext);
-  // Create cached Frame object
-  auto frameHostObject = std::make_shared<FrameHostObject>(nil);
 
   // Converts a Worklet to a callable Objective-C block function
   return ^(Frame* frame, void* skiaCanvas) {
 
     try {
-      // Update cached HostObjects
+      // Create cached Frame object
+      auto frameHostObject = std::make_shared<FrameHostObject>(frame);
+      // Update cached Canvas object
       if (skiaCanvas != nullptr) {
         canvasHostObject->setCanvas((SkCanvas*)skiaCanvas);
         frameHostObject->canvas = canvasHostObject;
       } else {
         frameHostObject->canvas = nullptr;
       }
-      frameHostObject->frame = frame;
       
       auto argument = jsi::Object::createFromHostObject(runtime, frameHostObject);
       jsi::Value jsValue(std::move(argument));
       // Call the Worklet with the Frame JS Host Object as an argument
       workletInvoker->call(runtime, jsi::Value::undefined(), &jsValue, 1);
+      
+      // After the sync Frame Processor finished executing, remove the Canvas on that Frame instance. It can no longer draw.
+      frameHostObject->canvas = nullptr;
     } catch (jsi::JSError& jsError) {
       // JS Error occured, print it to console.
       auto stack = std::regex_replace(jsError.getStack(), std::regex("\n"), "\n    ");
