@@ -202,7 +202,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const runtimeEffect = Skia.RuntimeEffect.Make(FACE_SHADER);
   if (runtimeEffect == null) throw new Error('Shader failed to compile!');
 
-  const paint = useMemo(() => Worklets.createSharedValue(Skia.Paint()), []);
+  const faceBoundingBox = useMemo(() => Worklets.createSharedValue<FaceBoundingBox | undefined>(undefined), []);
+  const paint = Skia.Paint();
+  const color = Skia.Color('red');
+  paint.setColor(color);
 
   const frameProcessor = useFrameProcessor(
     (frame) => {
@@ -211,21 +214,20 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
       runAsync(frame, () => {
         'worklet';
         const faces = detectFaces(frame);
-        const faceCoords = faces[0];
-        if (faceCoords != null) {
-          const shaderBuilder = Skia.RuntimeShaderBuilder(runtimeEffect);
-          const radius = Math.max(faceCoords.height * frame.width, faceCoords.width * frame.height);
-          shaderBuilder.setUniform('r', [radius]);
-          shaderBuilder.setUniform('x', [frame.width - faceCoords.y * frame.width]);
-          shaderBuilder.setUniform('y', [faceCoords.x * frame.height]);
-          const imageFilter = Skia.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
-          paint.value.setImageFilter(imageFilter);
-        }
+        faceBoundingBox.value = faces[0];
       });
 
-      frame.render(paint.value);
+      const face = faceBoundingBox.value;
+      if (face != null) {
+        const width = face.width * frame.width;
+        const height = face.height * frame.height;
+        const x = face.x * frame.width;
+        const y = frame.height - face.y * frame.height - height;
+        const rect = Skia.XYWHRect(x, y, width, height);
+        frame.drawRect(rect, paint);
+      }
     },
-    [paint, runtimeEffect],
+    [paint, faceBoundingBox],
   );
 
   return (
