@@ -7,8 +7,8 @@
 #include <jni.h>
 #include <utility>
 #include <string>
-#include <JsiWorklet.h>
-#include <JsiHostObject.h>
+#include <WKTJsiWorklet.h>
+#include <WKTJsiHostObject.h>
 
 #include "CameraView.h"
 #include "FrameHostObject.h"

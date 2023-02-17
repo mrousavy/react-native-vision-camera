@@ -9,7 +9,7 @@
 #include <ReactCommon/CallInvokerHolder.h>
 #include <memory>
 #include <string>
-#include <JsiWorkletContext.h>
+#include <WKTJsiWorkletContext.h>
 
 #include "CameraView.h"
 #include "VisionCameraScheduler.h"
