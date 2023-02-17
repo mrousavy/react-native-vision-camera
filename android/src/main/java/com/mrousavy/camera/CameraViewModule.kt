@@ -172,6 +172,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
       withPromise(promise) {
         val cameraProvider = ProcessCameraProvider.getInstance(reactApplicationContext).await()
         val extensionsManager = ExtensionsManager.getInstanceAsync(reactApplicationContext, cameraProvider).await()
+        ProcessCameraProvider.getInstance(reactApplicationContext).await()
 
         val manager = reactApplicationContext.getSystemService(Context.CAMERA_SERVICE) as? CameraManager
           ?: throw CameraManagerUnavailableError()
