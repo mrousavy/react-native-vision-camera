@@ -40,6 +40,26 @@ export interface Frame extends SkCanvas {
    * previously drawn content will be overwritten.
    *
    * @param paint (Optional) A Paint object to use to draw the Frame with. For example, this can contain a Shader (ImageFilter)
+   * @example
+   * ```ts
+   * const INVERTED_COLORS_SHADER = `
+   *  uniform shader image;
+   *  half4 main(vec2 pos) {
+   *    vec4 color = image.eval(pos);
+   *    return vec4(1.0 - color.rgb, 1.0);
+   * }`
+   * const runtimeEffect = Skia.RuntimeEffect.Make(INVERT_COLORS_SHADER)
+   * if (runtimeEffect == null) throw new Error('Shader failed to compile!')
+   * const shaderBuilder = Skia.RuntimeShaderBuilder(runtimeEffect)
+   * const imageFilter = Skia.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null)
+   * const paint = Skia.Paint()
+   * paint.setImageFilter(imageFilter)
+   *
+   * const frameProcessor = useFrameProcessor((frame) => {
+   *   'worklet'
+   *   frame.render(paint) // <-- draws frame with inverted colors now
+   * }, [paint])
+   * ```
    */
   render: (paint?: SkPaint) => void;
 }
