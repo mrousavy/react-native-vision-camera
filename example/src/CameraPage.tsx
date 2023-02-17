@@ -6,6 +6,7 @@ import {
   CameraDeviceFormat,
   CameraRuntimeError,
   PhotoFile,
+  runAsync,
   sortFormats,
   useCameraDevices,
   useFrameProcessor,
@@ -21,11 +22,11 @@ import { CaptureButton } from './views/CaptureButton';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { examplePlugin } from './frame-processors/ExamplePlugin';
+import { detectFaces, examplePlugin, FaceBoundingBox } from './frame-processors/ExamplePlugin';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
-import { Skia } from '@shopify/react-native-skia';
+import { Skia, SkPaint } from '@shopify/react-native-skia';
 import { FACE_SHADER } from './Shaders';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
@@ -198,32 +199,33 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const width = 150;
-  const height = 150;
-  const x = 300;
-  const y = 400;
-  const centerX = x + width / 2;
-  const centerY = y + height / 2;
-
   const runtimeEffect = Skia.RuntimeEffect.Make(FACE_SHADER);
   if (runtimeEffect == null) throw new Error('Shader failed to compile!');
-  const shaderBuilder = Skia.RuntimeShaderBuilder(runtimeEffect);
-  shaderBuilder.setUniform('r', [width]);
-  shaderBuilder.setUniform('x', [centerX]);
-  shaderBuilder.setUniform('y', [centerY]);
-  shaderBuilder.setUniform('resolution', [1920, 1080]);
-  const imageFilter = Skia.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
 
-  const paint = Skia.Paint();
-  paint.setImageFilter(imageFilter);
+  const paint = useMemo(() => Worklets.createSharedValue(Skia.Paint()), []);
 
   const frameProcessor = useFrameProcessor(
     (frame) => {
       'worklet';
-      console.log(`Width: ${frame.width}`);
-      frame.render(paint);
+
+      runAsync(frame, () => {
+        'worklet';
+        const faces = detectFaces(frame);
+        const faceCoords = faces[0];
+        if (faceCoords != null) {
+          const shaderBuilder = Skia.RuntimeShaderBuilder(runtimeEffect);
+          const radius = Math.max(faceCoords.height * frame.width, faceCoords.width * frame.height);
+          shaderBuilder.setUniform('r', [radius]);
+          shaderBuilder.setUniform('x', [frame.width - faceCoords.y * frame.width]);
+          shaderBuilder.setUniform('y', [faceCoords.x * frame.height]);
+          const imageFilter = Skia.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
+          paint.value.setImageFilter(imageFilter);
+        }
+      });
+
+      frame.render(paint.value);
     },
-    [paint],
+    [paint, runtimeEffect],
   );
 
   return (
@@ -245,12 +247,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 onError={onError}
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
-                photo={true}
-                video={true}
                 audio={hasMicrophonePermission}
                 enableFpsGraph={true}
                 previewType="skia"
-                frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
+                frameProcessor={true ? frameProcessor : undefined}
                 orientation="portrait"
               />
             </TapGestureHandler>

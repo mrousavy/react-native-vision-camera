@@ -1,16 +1,19 @@
 import { FrameProcessorPlugins, Frame } from 'react-native-vision-camera';
 
-export function examplePluginSwift(frame: Frame): string[] {
-  'worklet';
-  // @ts-expect-error because this function is dynamically injected by VisionCamera
-  return FrameProcessorPlugins.example_plugin_swift(frame, 'hello!', 'parameter2', true, 42, { test: 0, second: 'test' }, [
-    'another test',
-    5,
-  ]);
+/**
+ * Represents a Face's bounding box on the screen.
+ *
+ * Values are from 0 to 1.
+ */
+export interface FaceBoundingBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
-export function examplePlugin(frame: Frame): string[] {
+export function detectFaces(frame: Frame): FaceBoundingBox[] {
   'worklet';
   // @ts-expect-error because this function is dynamically injected by VisionCamera
-  return FrameProcessorPlugins.example_plugin(frame, 'hello!', 'parameter2', true, 42, { test: 0, second: 'test' }, ['another test', 5]);
+  return FrameProcessorPlugins.detectFaces(frame);
 }

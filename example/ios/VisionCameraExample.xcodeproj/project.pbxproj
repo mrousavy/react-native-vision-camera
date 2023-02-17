@@ -11,10 +11,9 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		B8DB3BD5263DE8B7004C18D7 /* BuildFile in Sources */ = {isa = PBXBuildFile; };
-		B8DB3BDC263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BD8263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m */; };
-		B8DB3BDD263DEA31004C18D7 /* ExamplePluginSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BDA263DEA31004C18D7 /* ExamplePluginSwift.swift */; };
-		B8DB3BDE263DEA31004C18D7 /* ExamplePluginSwift.m in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BDB263DEA31004C18D7 /* ExamplePluginSwift.m */; };
+		B8DB3BD5263DE8B7004C18D7 /* (null) in Sources */ = {isa = PBXBuildFile; };
+		B8DB3BDD263DEA31004C18D7 /* FaceDetectionPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BDA263DEA31004C18D7 /* FaceDetectionPlugin.swift */; };
+		B8DB3BDE263DEA31004C18D7 /* FaceDetectionPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BDB263DEA31004C18D7 /* FaceDetectionPlugin.m */; };
 		B8F0E10825E0199F00586F16 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F0E10725E0199F00586F16 /* File.swift */; };
 		C0B129659921D2EA967280B2 /* libPods-VisionCameraExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CDCFE89C25C89320B98945E /* libPods-VisionCameraExample.a */; };
 /* End PBXBuildFile section */
@@ -29,9 +28,8 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = VisionCameraExample/main.m; sourceTree = "<group>"; };
 		3CDCFE89C25C89320B98945E /* libPods-VisionCameraExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VisionCameraExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = VisionCameraExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		B8DB3BD8263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExampleFrameProcessorPlugin.m; sourceTree = "<group>"; };
-		B8DB3BDA263DEA31004C18D7 /* ExamplePluginSwift.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExamplePluginSwift.swift; sourceTree = "<group>"; };
-		B8DB3BDB263DEA31004C18D7 /* ExamplePluginSwift.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExamplePluginSwift.m; sourceTree = "<group>"; };
+		B8DB3BDA263DEA31004C18D7 /* FaceDetectionPlugin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FaceDetectionPlugin.swift; sourceTree = "<group>"; };
+		B8DB3BDB263DEA31004C18D7 /* FaceDetectionPlugin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceDetectionPlugin.m; sourceTree = "<group>"; };
 		B8F0E10625E0199F00586F16 /* VisionCameraExample-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VisionCameraExample-Bridging-Header.h"; sourceTree = "<group>"; };
 		B8F0E10725E0199F00586F16 /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
 		C1D342AD8210E7627A632602 /* Pods-VisionCameraExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VisionCameraExample.debug.xcconfig"; path = "Target Support Files/Pods-VisionCameraExample/Pods-VisionCameraExample.debug.xcconfig"; sourceTree = "<group>"; };
@@ -120,27 +118,18 @@
 		B8DB3BD6263DEA31004C18D7 /* Frame Processor Plugins */ = {
 			isa = PBXGroup;
 			children = (
-				B8DB3BD7263DEA31004C18D7 /* Example Plugin (Objective-C) */,
-				B8DB3BD9263DEA31004C18D7 /* Example Plugin (Swift) */,
+				B8DB3BD9263DEA31004C18D7 /* Face Detection Plugin */,
 			);
 			path = "Frame Processor Plugins";
 			sourceTree = "<group>";
 		};
-		B8DB3BD7263DEA31004C18D7 /* Example Plugin (Objective-C) */ = {
+		B8DB3BD9263DEA31004C18D7 /* Face Detection Plugin */ = {
 			isa = PBXGroup;
 			children = (
-				B8DB3BD8263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m */,
+				B8DB3BDA263DEA31004C18D7 /* FaceDetectionPlugin.swift */,
+				B8DB3BDB263DEA31004C18D7 /* FaceDetectionPlugin.m */,
 			);
-			path = "Example Plugin (Objective-C)";
-			sourceTree = "<group>";
-		};
-		B8DB3BD9263DEA31004C18D7 /* Example Plugin (Swift) */ = {
-			isa = PBXGroup;
-			children = (
-				B8DB3BDA263DEA31004C18D7 /* ExamplePluginSwift.swift */,
-				B8DB3BDB263DEA31004C18D7 /* ExamplePluginSwift.m */,
-			);
-			path = "Example Plugin (Swift)";
+			path = "Face Detection Plugin";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -382,12 +371,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
-				B8DB3BDC263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m in Sources */,
-				B8DB3BD5263DE8B7004C18D7 /* BuildFile in Sources */,
-				B8DB3BDD263DEA31004C18D7 /* ExamplePluginSwift.swift in Sources */,
+				B8DB3BD5263DE8B7004C18D7 /* (null) in Sources */,
+				B8DB3BDD263DEA31004C18D7 /* FaceDetectionPlugin.swift in Sources */,
 				B8F0E10825E0199F00586F16 /* File.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
-				B8DB3BDE263DEA31004C18D7 /* ExamplePluginSwift.m in Sources */,
+				B8DB3BDE263DEA31004C18D7 /* FaceDetectionPlugin.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
