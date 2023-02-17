@@ -56,6 +56,7 @@ export function runAtTargetFps<T>(fps: number, func: () => T): T | undefined {
   return undefined;
 }
 
+const isAsyncContextBusy = Worklets.createSharedValue(false);
 const asyncContext = Worklets.createContext('VisionCamera.async');
 const runOnAsyncContext = Worklets.createRunInContextFn((frame: Frame, func: () => void) => {
   'worklet';
@@ -65,6 +66,8 @@ const runOnAsyncContext = Worklets.createRunInContextFn((frame: Frame, func: () 
   } finally {
     // Potentially delete Frame if we were the last ref
     (frame as FrameInternal).decrementRefCount();
+
+    isAsyncContextBusy.value = false;
   }
 }, asyncContext);
 
@@ -94,8 +97,17 @@ const runOnAsyncContext = Worklets.createRunInContextFn((frame: Frame, func: () 
  */
 export function runAsync(frame: Frame, func: () => void): void {
   'worklet';
+
+  if (isAsyncContextBusy.value) {
+    // async context is currently busy, we cannot schedule new work in time.
+    // drop this frame/runAsync call.
+    return;
+  }
+
   // Increment ref count by one
   (frame as FrameInternal).incrementRefCount();
+
+  isAsyncContextBusy.value = true;
 
   // Call in separate background context
   runOnAsyncContext(frame, func);
