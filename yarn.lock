@@ -1689,10 +1689,10 @@
     conventional-recommended-bump "^6.1.0"
     semver "7.3.8"
 
-"@shopify/react-native-skia@^0.1.173":
-  version "0.1.173"
-  resolved "https://registry.yarnpkg.com/@shopify/react-native-skia/-/react-native-skia-0.1.173.tgz#c1001150656c1532d598208b13943451867c71f8"
-  integrity sha512-/MM9DscHez00Vpuuy/5gCxBBLj87oeyoRbvHzWO40dxaA09S3W3OxZL62rgG+wAm4B9+60nRD87RjbmHr6SNmQ==
+"@shopify/react-native-skia@^0.1.175":
+  version "0.1.175"
+  resolved "https://registry.yarnpkg.com/@shopify/react-native-skia/-/react-native-skia-0.1.175.tgz#4fc6b30f7d47d3dc9192791021d99e5d11f75739"
+  integrity sha512-vA5YPGu7GmBi5qliLyMzbpkH9mmCWAZoaoGhM9/g5o9zX8xAmUYcGgg3MOqxtnxCnfTmqFFBj43s+QGgMRTpqg==
   dependencies:
     "@types/pixelmatch" "^5.2.4"
     "@types/pngjs" "^6.0.1"

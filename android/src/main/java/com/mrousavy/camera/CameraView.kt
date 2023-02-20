@@ -123,8 +123,6 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
 
   internal var activeVideoRecording: Recording? = null
 
-  private var lastFrameProcessorCall = System.currentTimeMillis()
-
   private var extensionsManager: ExtensionsManager? = null
 
   private val scaleGestureListener: ScaleGestureDetector.SimpleOnScaleGestureListener
