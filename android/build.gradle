@@ -67,7 +67,7 @@ static def findNodeModules(baseDir) {
 
 def nodeModules = findNodeModules(projectDir)
 def isSkiaInstalled = findProject(":shopify_react-native-skia") != null
-logger.info("react-native-vision-camera: Skia integration is ${isSkiaInstalled ? "enabled" : "disabled"}!")
+logger.warn("react-native-vision-camera: Skia integration is ${isSkiaInstalled ? "enabled" : "disabled"}!")
 
 repositories {
   google()
