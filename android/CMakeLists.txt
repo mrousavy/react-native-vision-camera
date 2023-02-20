@@ -15,8 +15,12 @@ add_compile_options(${folly_FLAGS})
 find_package(ReactAndroid REQUIRED CONFIG)
 find_package(fbjni REQUIRED CONFIG)
 find_package(react-native-worklets REQUIRED CONFIG)
-find_package(shopify_react-native-skia REQUIRED CONFIG)
 find_library(LOG_LIB log)
+
+# Skia is optional, if it's enabled we link it.
+if (ENABLE_SKIA_INTEGRATION EQUALS true)
+    find_package(shopify_react-native-skia REQUIRED CONFIG)
+endif()
 
 # Add react-native-vision-camera sources
 add_library(
@@ -53,5 +57,12 @@ target_link_libraries(
         ReactAndroid::folly_runtime         # <-- RN: For casting JSI <> Java objects
         fbjni::fbjni                        # <-- fbjni
         react-native-worklets::rnworklets   # <-- RN Worklets
-        shopify_react-native-skia::rnskia   # <-- RN Skia
 )
+
+# Skia is optional. If it's enabled, we link it
+if (ENABLE_SKIA_INTEGRATION EQUALS true)
+    target_link_libraries(
+            ${PACKAGE_NAME}
+            shopify_react-native-skia::rnskia   # <-- RN Skia
+    )
+endif()
