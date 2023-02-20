@@ -5094,6 +5094,11 @@ react-native-pressable-opacity@^1.0.10:
   resolved "https://registry.yarnpkg.com/react-native-pressable-opacity/-/react-native-pressable-opacity-1.0.10.tgz#799df1a913d3b28f42ada765465fe7723eb7166d"
   integrity sha512-Py9YH9TlS3Lv1so5JCj6bgiqkeYYGupF4ZImlpoyhhId/t/RiSqR68LlASOHgdctqQuqVJObQiFfzX8oZI9+6w==
 
+react-native-pytorch-core@^0.2.4:
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/react-native-pytorch-core/-/react-native-pytorch-core-0.2.4.tgz#c281ee03ee6b6a833d1e713cef8540ccc79c4288"
+  integrity sha512-9t7RciHm/bSfPJsb95Hc2f/SDojSoQGb9hl6yDqCodrjoL1syTt56ZHc5KPEWR0COrqHqu0ZI/wF6MZKsUfeTw==
+
 "react-native-reanimated@https://github.com/software-mansion/react-native-reanimated#6cf9713a44ec61318bbb12c311f79c08eda95d10":
   version "3.0.0-rc.10"
   resolved "https://github.com/software-mansion/react-native-reanimated#6cf9713a44ec61318bbb12c311f79c08eda95d10"
