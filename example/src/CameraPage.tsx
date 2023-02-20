@@ -6,6 +6,7 @@ import {
   CameraDeviceFormat,
   CameraRuntimeError,
   PhotoFile,
+  runAsync,
   sortFormats,
   useCameraDevices,
   useFrameProcessor,
@@ -21,11 +22,11 @@ import { CaptureButton } from './views/CaptureButton';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { examplePlugin } from './frame-processors/ExamplePlugin';
+import { detectFaces, examplePlugin, FaceBoundingBox } from './frame-processors/ExamplePlugin';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
-import { Skia } from '@shopify/react-native-skia';
+import { Skia, SkPaint } from '@shopify/react-native-skia';
 import { FACE_SHADER } from './Shaders';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
@@ -49,7 +50,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const isForeground = useIsForeground();
   const isActive = isFocussed && isForeground;
 
-  const [cameraPosition, setCameraPosition] = useState<'front' | 'back'>('back');
+  const [cameraPosition, setCameraPosition] = useState<'front' | 'back'>('front');
   const [enableHdr, setEnableHdr] = useState(false);
   const [flash, setFlash] = useState<'off' | 'on'>('off');
   const [enableNightMode, setEnableNightMode] = useState(false);
@@ -198,32 +199,35 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const width = 150;
-  const height = 150;
-  const x = 300;
-  const y = 400;
-  const centerX = x + width / 2;
-  const centerY = y + height / 2;
-
   const runtimeEffect = Skia.RuntimeEffect.Make(FACE_SHADER);
   if (runtimeEffect == null) throw new Error('Shader failed to compile!');
-  const shaderBuilder = Skia.RuntimeShaderBuilder(runtimeEffect);
-  shaderBuilder.setUniform('r', [width]);
-  shaderBuilder.setUniform('x', [centerX]);
-  shaderBuilder.setUniform('y', [centerY]);
-  shaderBuilder.setUniform('resolution', [1920, 1080]);
-  const imageFilter = Skia.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
 
+  const faceBoundingBox = useMemo(() => Worklets.createSharedValue<FaceBoundingBox | undefined>(undefined), []);
   const paint = Skia.Paint();
-  paint.setImageFilter(imageFilter);
+  const color = Skia.Color('red');
+  paint.setColor(color);
 
   const frameProcessor = useFrameProcessor(
     (frame) => {
       'worklet';
-      console.log(`Width: ${frame.width}`);
-      frame.render(paint);
+
+      runAsync(frame, () => {
+        'worklet';
+        const faces = detectFaces(frame);
+        faceBoundingBox.value = faces[0];
+      });
+
+      const face = faceBoundingBox.value;
+      if (face != null) {
+        const width = face.width * frame.width;
+        const height = face.height * frame.height;
+        const x = face.x * frame.width;
+        const y = frame.height - face.y * frame.height - height;
+        const rect = Skia.XYWHRect(x, y, width, height);
+        frame.drawRect(rect, paint);
+      }
     },
-    [paint],
+    [paint, faceBoundingBox],
   );
 
   return (
@@ -245,12 +249,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 onError={onError}
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
-                photo={true}
-                video={true}
                 audio={hasMicrophonePermission}
                 enableFpsGraph={true}
                 previewType="skia"
-                frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
+                frameProcessor={true ? frameProcessor : undefined}
                 orientation="portrait"
               />
             </TapGestureHandler>
