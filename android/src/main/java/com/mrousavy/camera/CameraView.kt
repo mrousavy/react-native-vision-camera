@@ -462,6 +462,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
           setAnalyzer(cameraExecutor) { image ->
             // Call JS Frame Processor
             frameProcessorCallback(image)
+            // frame gets closed in FrameHostObject implementation (JS ref counting)
           }
         }
         useCases.add(imageAnalysis!!)
