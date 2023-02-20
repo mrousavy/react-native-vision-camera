@@ -48,6 +48,7 @@ class SkiaPreviewView(context: Context) : FrameLayout(context), SurfaceHolder.Ca
   }
 
   fun drawImage(image: ImageProxy) {
+    Log.d(TAG, "drawImage: ${image.width}x${image.height}")
     val bitmap = image.toBitmap()
 
     // get & prepare canvas
@@ -58,5 +59,8 @@ class SkiaPreviewView(context: Context) : FrameLayout(context), SurfaceHolder.Ca
     // TODO: Use Skia to draw the remaining operations here
     // flush & submit
     surfaceView.holder.unlockCanvasAndPost(canvas)
+
+    // TODO: Let Frame Processor Close Image. we don't need to do that.
+    image.close()
   }
 }
