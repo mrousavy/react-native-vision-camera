@@ -324,7 +324,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   /**
    * Configures the camera capture session. This should only be called when the camera device changes.
    */
-  @SuppressLint("RestrictedApi")
+  @SuppressLint("RestrictedApi", "UnsafeOptInUsageError")
   private suspend fun configureSession() {
     try {
       val startTime = System.currentTimeMillis()
