@@ -3,6 +3,7 @@ package com.mrousavy.camera.skia
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.Matrix
 import android.graphics.PorterDuff
 import android.util.Log
 import android.view.Surface
@@ -49,10 +50,18 @@ class SkiaPreviewView(context: Context) : FrameLayout(context), SurfaceHolder.Ca
 
   fun drawImage(image: ImageProxy) {
     Log.d(TAG, "drawImage: ${image.width}x${image.height}")
-    val bitmap = image.toBitmap()
+    val matrix = Matrix()
+    matrix.postRotate(90f)
+    val bitmap = Bitmap.createBitmap(image.toBitmap(), 0, 0, image.width, image.height, matrix, true)
+
 
     // get & prepare canvas
     val canvas = surfaceView.holder.lockCanvas()
+
+    val scaleX = canvas.width.toFloat() / bitmap.width.toFloat()
+    val scaleY = canvas.height.toFloat() / bitmap.height.toFloat()
+    canvas.scale(scaleX, scaleY)
+
     // clear canvas
     canvas.drawColor(Color.BLACK, PorterDuff.Mode.CLEAR)
     canvas.drawBitmap(bitmap, 0f, 0f, null)
