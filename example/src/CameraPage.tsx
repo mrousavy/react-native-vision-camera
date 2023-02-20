@@ -27,6 +27,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
 import { Skia } from '@shopify/react-native-skia';
 import { FACE_SHADER } from './Shaders';
+import { media } from 'react-native-pytorch-core';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -218,14 +219,13 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const paint = Skia.Paint();
   paint.setImageFilter(imageFilter);
 
-  const frameProcessor = useFrameProcessor(
-    (frame) => {
-      'worklet';
-      console.log(`Width: ${frame.width}`);
-      frame.render(paint);
-    },
-    [paint],
-  );
+  const frameProcessor = useFrameProcessor((frame) => {
+    'worklet';
+    console.log(`Width: ${frame.width}`);
+    console.log(media);
+    const image = media.imageFromFrame(frame);
+    console.log(`Converted! ${image}`);
+  }, []);
 
   return (
     <View style={styles.container}>

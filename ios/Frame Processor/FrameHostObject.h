@@ -6,6 +6,8 @@
 //  Copyright © 2021 mrousavy. All rights reserved.
 //
 
+#ifdef __cplusplus
+
 #pragma once
 
 #import <jsi/jsi.h>
@@ -33,3 +35,5 @@ public:
   Frame* frame;
   std::shared_ptr<RNSkia::JsiSkCanvas> canvas;
 };
+
+#endif

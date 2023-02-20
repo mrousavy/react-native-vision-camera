@@ -46,6 +46,7 @@ Pod::Spec.new do |s|
     "ios/**/*.{m,mm,swift}",
     "ios/CameraBridge.h",
     "ios/Skia Render Layer/PreviewSkiaView.h",
+    "ios/Frame Processor/FrameHostObject.h",
     "ios/Frame Processor/Frame.h",
     "ios/Frame Processor/FrameProcessorCallback.h",
     "ios/Frame Processor/FrameProcessorRuntimeManager.h",
