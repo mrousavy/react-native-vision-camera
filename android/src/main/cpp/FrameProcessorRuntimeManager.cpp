@@ -16,6 +16,11 @@
 #include "java-bindings/JImageProxy.h"
 #include "java-bindings/JFrameProcessorPlugin.h"
 
+#include <SkiaOpenGLRenderer.h>
+#include <JniPlatformContext.h>
+#include <JsiSkCanvas.h>
+#include <SkCanvas.h>
+
 namespace vision {
 
 // type aliases
@@ -110,11 +115,16 @@ void FrameProcessorRuntimeManager::setFrameProcessor(jsi::Runtime& runtime,
   auto workletInvoker = std::make_shared<RNWorklet::WorkletInvoker>(worklet);
 
   _workletContext->invokeOnWorkletThread([=](RNWorklet::JsiWorkletContext*, jsi::Runtime& rt) {
+    // Cached Surface/Canvas instances
+    std::shared_ptr<RNSkia::RNSkPlatformContext> skiaContext = nullptr; // TODO: get android platform context from java
+
     // Set Frame Processor as callable C++ lambda - this will then call the Worklet
-    cameraView->cthis()->setFrameProcessor([this, workletInvoker, &rt](jni::alias_ref<JImageProxy::javaobject> frame) {
+    cameraView->cthis()->setFrameProcessor([this, workletInvoker, skiaContext, &rt](jni::alias_ref<JImageProxy::javaobject> frame, SkCanvas* canvas) {
       try {
+        auto canvasHostObject = std::make_shared<RNSkia::JsiSkCanvas>(skiaContext, canvas);
+
         // create HostObject which holds the Frame (JImageProxy)
-        auto frameHostObject = std::make_shared<FrameHostObject>(frame);
+        auto frameHostObject = std::make_shared<FrameHostObject>(frame, canvasHostObject);
         auto argument = jsi::Object::createFromHostObject(rt, frameHostObject);
         jsi::Value jsValue(std::move(argument));
         // Call the Worklet on the Worklet Runtime

@@ -20,6 +20,7 @@ import androidx.camera.video.*
 import androidx.camera.video.VideoCapture
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
+import androidx.core.view.children
 import androidx.lifecycle.*
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
@@ -245,7 +246,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   }
 
   private external fun initHybrid(): HybridData
-  private external fun frameProcessorCallback(frame: ImageProxy)
+  private external fun frameProcessorCallback(frame: ImageProxy, surface: Object?)
 
   override fun getLifecycle(): Lifecycle {
     return lifecycleRegistry
@@ -319,6 +320,15 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         invokeOnError(e)
       }
     }
+  }
+
+  private fun findSurfaceView(): SurfaceView? {
+    for (child in children) {
+      if (child is SurfaceView) {
+        return child
+      }
+    }
+    return null
   }
 
   /**
@@ -460,8 +470,12 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         Log.i(TAG, "Adding ImageAnalysis use-case...")
         imageAnalysis = imageAnalysisBuilder.build().apply {
           setAnalyzer(cameraExecutor) { image ->
+
+            val surfaceView = findSurfaceView()
+            val surface = surfaceView?.holder?.surface
+
             // Call JS Frame Processor
-            frameProcessorCallback(image)
+            frameProcessorCallback(image, surface as Object)
             // frame gets closed in FrameHostObject implementation (JS ref counting)
           }
         }

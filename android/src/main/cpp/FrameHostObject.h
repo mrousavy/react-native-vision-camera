@@ -10,8 +10,11 @@
 #include <vector>
 #include <string>
 #include <mutex>
+#include <memory>
 
 #include "java-bindings/JImageProxy.h"
+
+#include <JsiSkCanvas.h>
 
 namespace vision {
 
@@ -19,7 +22,8 @@ using namespace facebook;
 
 class JSI_EXPORT FrameHostObject : public jsi::HostObject {
  public:
-  explicit FrameHostObject(jni::alias_ref<JImageProxy::javaobject> image);
+    explicit FrameHostObject(jni::alias_ref<JImageProxy::javaobject> image);
+    explicit FrameHostObject(jni::alias_ref<JImageProxy::javaobject> image, std::shared_ptr<RNSkia::JsiSkCanvas> canvas);
   ~FrameHostObject();
 
  public:
@@ -34,6 +38,7 @@ class JSI_EXPORT FrameHostObject : public jsi::HostObject {
 
   size_t _refCount;
   std::mutex _refCountMutex;
+  std::shared_ptr<RNSkia::JsiSkCanvas> _canvas;
 };
 
 } // namespace vision
