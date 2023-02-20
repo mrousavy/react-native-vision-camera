@@ -47,30 +47,6 @@ target_include_directories(
         "${NODE_MODULES_DIR}/react-native/ReactCommon"
         "${NODE_MODULES_DIR}/react-native/ReactCommon/callinvoker"
         "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni/react/turbomodule" # <-- CallInvokerHolder JNI wrapper
-
-
-
-        "${NODE_MODULES_DIR}/@shopify/react-native-skia/android/cpp/skia/include/config/"
-        "${NODE_MODULES_DIR}/@shopify/react-native-skia/android/cpp/skia/include/core/"
-        "${NODE_MODULES_DIR}/@shopify/react-native-skia/android/cpp/skia/include/effects/"
-        "${NODE_MODULES_DIR}/@shopify/react-native-skia/android/cpp/skia/include/utils/"
-        "${NODE_MODULES_DIR}/@shopify/react-native-skia/android/cpp/skia/include/pathops/"
-        "${NODE_MODULES_DIR}/@shopify/react-native-skia/android/cpp/skia/modules/"
-        #"${NODE_MODULES_DIR}/@shopify/react-native-skia/android/cpp/skia/modules/skparagraph/include/"
-        "${NODE_MODULES_DIR}/@shopify/react-native-skia/android/cpp/skia/include/"
-        "${NODE_MODULES_DIR}/@shopify/react-native-skia/android/cpp/skia"
-
-        "${NODE_MODULES_DIR}/@shopify/react-native-skia/android/cpp/api"
-        "${NODE_MODULES_DIR}/@shopify/react-native-skia/android/cpp/jsi"
-        "${NODE_MODULES_DIR}/@shopify/react-native-skia/android/cpp/jni/include"
-        "${NODE_MODULES_DIR}/@shopify/react-native-skia/android/cpp/rnskia-android"
-        "${NODE_MODULES_DIR}/@shopify/react-native-skia/android/cpp/rnskia"
-        "${NODE_MODULES_DIR}/@shopify/react-native-skia/android/cpp/rnskia/values"
-        "${NODE_MODULES_DIR}/@shopify/react-native-skia/android/cpp/rnskia/dom"
-        "${NODE_MODULES_DIR}/@shopify/react-native-skia/android/cpp/rnskia/dom/base"
-        "${NODE_MODULES_DIR}/@shopify/react-native-skia/android/cpp/rnskia/dom/nodes"
-        "${NODE_MODULES_DIR}/@shopify/react-native-skia/android/cpp/rnskia/dom/props"
-        "${NODE_MODULES_DIR}/@shopify/react-native-skia/android/cpp/utils"
 )
 
 # Link everything together

@@ -15,8 +15,7 @@ namespace vision {
 
 using namespace facebook;
 
-    FrameHostObject::FrameHostObject(jni::alias_ref<JImageProxy::javaobject> image): frame(make_global(image)), _refCount(0) { }
-    FrameHostObject::FrameHostObject(jni::alias_ref<JImageProxy::javaobject> image, std::shared_ptr<RNSkia::JsiSkCanvas> canvas): frame(make_global(image)), _canvas(canvas), _refCount(0) { }
+FrameHostObject::FrameHostObject(jni::alias_ref<JImageProxy::javaobject> image): frame(make_global(image)), _refCount(0) { }
 
 FrameHostObject::~FrameHostObject() {
   // Hermes' Garbage Collector (Hades GC) calls destructors on a separate Thread
@@ -140,10 +139,6 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
   if (name == "planesCount") {
     return jsi::Value(this->frame->getPlanesCount());
-  }
-
-  if (_canvas != nullptr) {
-    return _canvas->get(runtime, propName);
   }
 
   // fallback to base implementation

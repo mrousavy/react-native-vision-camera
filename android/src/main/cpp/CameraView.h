@@ -11,12 +11,10 @@
 
 #include "java-bindings/JImageProxy.h"
 
-#include <SkCanvas.h>
-
 namespace vision {
 
 using namespace facebook;
-using TFrameProcessor = std::function<void(jni::alias_ref<JImageProxy::javaobject>, SkCanvas*)>;
+using TFrameProcessor = std::function<void(jni::alias_ref<JImageProxy::javaobject>)>;
 
 class CameraView : public jni::HybridClass<CameraView> {
  public:
@@ -34,7 +32,7 @@ class CameraView : public jni::HybridClass<CameraView> {
   jni::global_ref<CameraView::javaobject> javaPart_;
   TFrameProcessor frameProcessor_;
 
-  void frameProcessorCallback(const jni::alias_ref<JImageProxy::javaobject>& frame, jobject surface);
+  void frameProcessorCallback(const jni::alias_ref<JImageProxy::javaobject>& frame);
 
   explicit CameraView(jni::alias_ref<CameraView::jhybridobject> jThis) :
     javaPart_(jni::make_global(jThis)),
