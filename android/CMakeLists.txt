@@ -18,7 +18,7 @@ find_package(react-native-worklets REQUIRED CONFIG)
 find_library(LOG_LIB log)
 
 # Skia is optional, if it's enabled we link it.
-if (ENABLE_SKIA_INTEGRATION EQUALS true)
+if (ENABLE_SKIA_INTEGRATION)
     find_package(shopify_react-native-skia REQUIRED CONFIG)
 endif()
 
@@ -60,7 +60,7 @@ target_link_libraries(
 )
 
 # Skia is optional. If it's enabled, we link it
-if (ENABLE_SKIA_INTEGRATION EQUALS true)
+if (ENABLE_SKIA_INTEGRATION)
     target_link_libraries(
             ${PACKAGE_NAME}
             shopify_react-native-skia::rnskia   # <-- RN Skia
