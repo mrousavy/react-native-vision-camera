@@ -8,7 +8,7 @@
 #include <jni.h>
 #include <vector>
 #include <string>
-#include <JsiHostObject.h>
+#include <WKTJsiHostObject.h>
 
 namespace vision {
 
