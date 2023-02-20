@@ -459,10 +459,10 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
       if (enableFrameProcessor) {
         Log.i(TAG, "Adding ImageAnalysis use-case...")
         imageAnalysis = imageAnalysisBuilder.build().apply {
-          setAnalyzer(cameraExecutor, { image ->
+          setAnalyzer(cameraExecutor) { image ->
             // Call JS Frame Processor
             frameProcessorCallback(image)
-          })
+          }
         }
         useCases.add(imageAnalysis!!)
       }
