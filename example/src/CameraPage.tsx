@@ -198,10 +198,11 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const width = 150;
-  const height = 150;
-  const x = 300;
-  const y = 400;
+  const radius = (format?.videoHeight ?? 1080) * 0.1;
+  const width = radius;
+  const height = radius;
+  const x = (format?.videoHeight ?? 1080) / 2 - radius / 2;
+  const y = (format?.videoWidth ?? 1920) / 2 - radius / 2;
   const centerX = x + width / 2;
   const centerY = y + height / 2;
 
