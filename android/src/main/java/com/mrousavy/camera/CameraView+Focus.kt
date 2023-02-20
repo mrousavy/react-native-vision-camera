@@ -17,7 +17,7 @@ suspend fun CameraView.focus(pointMap: ReadableMap) {
   val y = pointMap.getDouble("y") * dpi
 
   // Getting the point from the previewView needs to be run on the UI thread
-  val point = withContext(coroutineScope.coroutineContext) {
+  /*val point = withContext(coroutineScope.coroutineContext) {
     previewView.meteringPointFactory.createPoint(x.toFloat(), y.toFloat());
   }
 
@@ -25,5 +25,5 @@ suspend fun CameraView.focus(pointMap: ReadableMap) {
     .setAutoCancelDuration(5, TimeUnit.SECONDS) // auto-reset after 5 seconds
     .build()
 
-  cameraControl.startFocusAndMetering(action).await()
+  cameraControl.startFocusAndMetering(action).await()*/
 }

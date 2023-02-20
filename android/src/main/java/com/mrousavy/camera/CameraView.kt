@@ -26,6 +26,7 @@ import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.*
 import com.facebook.react.uimanager.events.RCTEventEmitter
 import com.mrousavy.camera.frameprocessor.FrameProcessorRuntimeManager
+import com.mrousavy.camera.skia.SkiaPreviewView
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.guava.await
@@ -109,7 +110,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
     get() = context as ReactContext
 
   @Suppress("JoinDeclarationAndAssignment")
-  internal val previewView: PreviewView
+  internal val previewView: SkiaPreviewView
   private val cameraExecutor = Executors.newSingleThreadExecutor()
   internal val takePhotoExecutor = Executors.newSingleThreadExecutor()
   internal val recordVideoExecutor = Executors.newSingleThreadExecutor()
@@ -119,7 +120,6 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   internal var imageCapture: ImageCapture? = null
   internal var videoCapture: VideoCapture<Recorder>? = null
   private var imageAnalysis: ImageAnalysis? = null
-  private var preview: Preview? = null
 
   internal var activeVideoRecording: Recording? = null
 
@@ -192,7 +192,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   init {
     mHybridData = initHybrid()
 
-    previewView = PreviewView(context)
+    previewView = SkiaPreviewView(context)
     previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
     previewView.installHierarchyFitter() // If this is not called correctly, view finder will be black/blank
     addView(previewView)
@@ -238,7 +238,6 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
 
   @SuppressLint("RestrictedApi")
   private fun updateOrientation() {
-    preview?.targetRotation = inputRotation
     imageCapture?.targetRotation = outputRotation
     videoCapture?.targetRotation = outputRotation
     imageAnalysis?.targetRotation = outputRotation
@@ -363,9 +362,6 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         }
       }
 
-      val previewBuilder = Preview.Builder()
-        .setTargetRotation(inputRotation)
-
       val imageCaptureBuilder = ImageCapture.Builder()
         .setTargetRotation(outputRotation)
         .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
@@ -382,7 +378,6 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         // let CameraX automatically find best resolution for the target aspect ratio
         Log.i(TAG, "No custom format has been set, CameraX will automatically determine best configuration...")
         val aspectRatio = aspectRatio(previewView.height, previewView.width) // flipped because it's in sensor orientation.
-        previewBuilder.setTargetAspectRatio(aspectRatio)
         imageCaptureBuilder.setTargetAspectRatio(aspectRatio)
         // TODO: Aspect Ratio for Video Recorder?
         imageAnalysisBuilder.setTargetAspectRatio(aspectRatio)
@@ -390,11 +385,6 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         // User has selected a custom format={}. Use that
         val format = DeviceFormat(format!!)
         Log.i(TAG, "Using custom format - photo: ${format.photoSize}, video: ${format.videoSize} @ $fps FPS")
-        if (video == true) {
-          previewBuilder.setTargetResolution(format.videoSize)
-        } else {
-          previewBuilder.setTargetResolution(format.photoSize)
-        }
         imageCaptureBuilder.setTargetResolution(format.photoSize)
         imageAnalysisBuilder.setTargetResolution(format.photoSize)
 
@@ -413,9 +403,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
             val frameDuration = (1.0 / fps.toDouble()).toLong() * 1_000_000_000
 
             Log.i(TAG, "Setting AE_TARGET_FPS_RANGE to $fps-$fps, and SENSOR_FRAME_DURATION to $frameDuration")
-            Camera2Interop.Extender(previewBuilder)
-              .setCaptureRequestOption(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(fps, fps))
-              .setCaptureRequestOption(CaptureRequest.SENSOR_FRAME_DURATION, frameDuration)
+
             // TODO: Frame Rate/FPS for Video Recorder?
           } else {
             throw FpsNotContainedInFormatError(fps)
@@ -461,17 +449,16 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         imageAnalysis = imageAnalysisBuilder.build().apply {
           setAnalyzer(cameraExecutor) { image ->
             // Call JS Frame Processor
-            frameProcessorCallback(image)
+            // frameProcessorCallback(image)
+            previewView.drawImage(image)
             // frame gets closed in FrameHostObject implementation (JS ref counting)
           }
         }
         useCases.add(imageAnalysis!!)
       }
 
-      preview = previewBuilder.build()
       Log.i(TAG, "Attaching ${useCases.size} use-cases...")
-      camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, *useCases.toTypedArray())
-      preview!!.setSurfaceProvider(previewView.surfaceProvider)
+      camera = cameraProvider.bindToLifecycle(this, cameraSelector, *useCases.toTypedArray())
 
       minZoom = camera!!.cameraInfo.zoomState.value?.minZoomRatio ?: 1f
       maxZoom = camera!!.cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
