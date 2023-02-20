@@ -222,9 +222,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
     console.log(`Width: ${frame.width}`);
-    console.log(media);
     const image = media.imageFromFrame(frame);
-    console.log(`Converted! ${image}`);
+    console.log(`Converted!`);
+    console.log(`Converted! ${image.getHeight()}`);
+    console.log(Object.keys(image))
   }, []);
 
   return (
