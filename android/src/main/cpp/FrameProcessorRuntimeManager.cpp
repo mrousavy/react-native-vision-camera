@@ -15,6 +15,7 @@
 #include "JSIJNIConversion.h"
 #include "java-bindings/JImageProxy.h"
 #include "java-bindings/JFrameProcessorPlugin.h"
+#include "JSITypedArray.h"
 
 namespace vision {
 
@@ -150,6 +151,12 @@ void FrameProcessorRuntimeManager::installJSIBindings() {
   }
 
   auto& jsiRuntime = *_jsRuntime;
+
+  // HostObject that attaches the cache to the lifecycle of the Runtime. On Runtime destroy, we destroy the cache.
+  auto propNameCacheObject = std::make_shared<vision::InvalidateCacheOnDestroy>(jsiRuntime);
+  jsiRuntime.global().setProperty(jsiRuntime,
+                                  "__visionCameraPropNameCache",
+                                  jsi::Object::createFromHostObject(jsiRuntime, propNameCacheObject));
 
   auto setFrameProcessor = JSI_HOST_FUNCTION_LAMBDA {
     __android_log_write(ANDROID_LOG_INFO, TAG, "Setting new Frame Processor...");

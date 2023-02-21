@@ -30,6 +30,7 @@ jobs:
             ,-readability/todo\
             ,-build/namespaces\
             ,-whitespace/comments\
+            ,-runtime/references\
             ,-build/include_order\
             ,-build/c++11\
             "
