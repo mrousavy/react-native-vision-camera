@@ -22,7 +22,7 @@ struct JImageProxy : public JavaClass<JImageProxy> {
   bool getIsMirrored() const;
   int getPlanesCount() const;
   int getBytesPerRow() const;
-  long getTimestamp() const;
+  jlong getTimestamp() const;
   local_ref<JString> getOrientation() const;
   local_ref<JArrayByte> toByteArray() const;
   void close();
