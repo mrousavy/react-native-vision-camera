@@ -22,6 +22,7 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("orientation")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isMirrored")));
   // Conversion
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toArrayBuffer")));
@@ -122,23 +123,23 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       auto height = CVPixelBufferGetHeight(pixelBuffer);
       auto buffer = (uint8_t*) CVPixelBufferGetBaseAddress(pixelBuffer);
       auto arraySize = bytesPerRow * height;
-      
+
       static constexpr auto ARRAYBUFFER_CACHE_PROP_NAME = "__frameArrayBufferCache";
       if (!runtime.global().hasProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME)) {
         vision::TypedArray<vision::TypedArrayKind::Uint8ClampedArray> arrayBuffer(runtime, arraySize);
         runtime.global().setProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME, arrayBuffer);
       }
-      
+
       auto arrayBufferCache = runtime.global().getPropertyAsObject(runtime, ARRAYBUFFER_CACHE_PROP_NAME);
       auto arrayBuffer = vision::getTypedArray(runtime, arrayBufferCache).get<vision::TypedArrayKind::Uint8ClampedArray>(runtime);
-      
+
       if (arrayBuffer.size(runtime) != arraySize) {
         arrayBuffer = vision::TypedArray<vision::TypedArrayKind::Uint8ClampedArray>(runtime, arraySize);
         runtime.global().setProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME, arrayBuffer);
       }
-      
+
       arrayBuffer.updateUnsafe(runtime, buffer, arraySize);
-      
+
       return arrayBuffer;
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toArrayBuffer"), 0, toArrayBuffer);
@@ -198,7 +199,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
     return jsi::Value((double) planesCount);
   }
-  
+
   if (canvas != nullptr) {
     // If we have a Canvas, try to access the property on there.
     return canvas->get(runtime, propName);

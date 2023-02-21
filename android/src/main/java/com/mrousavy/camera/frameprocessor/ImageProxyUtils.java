@@ -2,6 +2,7 @@ package com.mrousavy.camera.frameprocessor;
 
 import android.annotation.SuppressLint;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.media.Image;
 
 import androidx.annotation.Keep;
@@ -29,6 +30,27 @@ public class ImageProxyUtils {
             // exception thrown, image has already been closed.
             return false;
         }
+    }
+
+    @DoNotStrip
+    @Keep
+    public static boolean isImageProxyMirrored(ImageProxy imageProxy) {
+        Matrix matrix = imageProxy.getImageInfo().getSensorToBufferTransformMatrix();
+        // TODO: Figure out how to get isMirrored from ImageProxy
+        return false;
+    }
+
+    @DoNotStrip
+    @Keep
+    public static String getOrientation(ImageProxy imageProxy) {
+        int rotation = imageProxy.getImageInfo().getRotationDegrees();
+        if (rotation >= 45 && rotation < 135)
+            return "landscapeRight";
+        if (rotation >= 135 && rotation < 225)
+            return "portraitUpsideDown";
+        if (rotation >= 225 && rotation < 315)
+            return "landscapeLeft";
+        return "portrait";
     }
 
     @DoNotStrip

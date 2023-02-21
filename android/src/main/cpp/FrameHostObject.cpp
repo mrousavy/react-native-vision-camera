@@ -31,6 +31,8 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("height")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("orientation")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isMirrored")));
   // Conversion
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toArrayBuffer")));
@@ -120,6 +122,13 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
   if (name == "height") {
     return jsi::Value(this->frame->getHeight());
+  }
+  if (name == "isMirrored") {
+    return jsi::Value(this->frame->getIsMirrored());
+  }
+  if (name == "orientation") {
+    auto string = this->frame->getOrientation();
+    return jsi::String::createFromUtf8(runtime, string->toStdString());
   }
   if (name == "bytesPerRow") {
     return jsi::Value(this->frame->getBytesPerRow());

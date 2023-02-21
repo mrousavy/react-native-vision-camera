@@ -33,6 +33,18 @@ bool JImageProxy::getIsValid() const {
   return isImageProxyValidMethod(utilsClass, self());
 }
 
+bool JImageProxy::getIsMirrored() const {
+  auto utilsClass = getUtilsClass();
+  static const auto isImageProxyMirroredMethod = utilsClass->getStaticMethod<jboolean(JImageProxy::javaobject)>("isImageProxyMirrored");
+  return isImageProxyMirroredMethod(utilsClass, self());
+}
+
+local_ref<JString> JImageProxy::getOrientation() const {
+  auto utilsClass = getUtilsClass();
+  static const auto getOrientationMethod = utilsClass->getStaticMethod<JString(JImageProxy::javaobject)>("getOrientation");
+  return getOrientationMethod(utilsClass, self());
+}
+
 int JImageProxy::getPlanesCount() const {
   auto utilsClass = getUtilsClass();
   static const auto getPlanesCountMethod = utilsClass->getStaticMethod<jint(JImageProxy::javaobject)>("getPlanesCount");
