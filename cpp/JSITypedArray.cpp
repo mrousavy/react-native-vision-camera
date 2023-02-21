@@ -12,6 +12,11 @@
 #include "JSITypedArray.h"
 
 #include <unordered_map>
+#include <memory>
+#include <utility>
+#include <vector>
+#include <algorithm>
+#include <string>
 
 namespace vision {
 
@@ -97,7 +102,7 @@ TypedArrayKind TypedArrayBase::getKind(jsi::Runtime &runtime) const {
                              .asString(runtime)
                              .utf8(runtime);
   return getTypedArrayKindForName(constructorName);
-};
+}
 
 size_t TypedArrayBase::size(jsi::Runtime &runtime) const {
   return getProperty(runtime, propNameIDCache.get(runtime, Prop::Length)).asNumber();
@@ -191,13 +196,13 @@ void arrayBufferUpdate(
 }
 
 template <TypedArrayKind T>
-TypedArray<T>::TypedArray(jsi::Runtime &runtime, size_t size) : TypedArrayBase(runtime, size, T){};
+TypedArray<T>::TypedArray(jsi::Runtime &runtime, size_t size) : TypedArrayBase(runtime, size, T) {}
 
 template <TypedArrayKind T>
 TypedArray<T>::TypedArray(jsi::Runtime &runtime, std::vector<ContentType<T>> data)
     : TypedArrayBase(runtime, data.size(), T) {
   update(runtime, data);
-};
+}
 
 template <TypedArrayKind T>
 TypedArray<T>::TypedArray(TypedArrayBase &&base) : TypedArrayBase(std::move(base)) {}

@@ -13,6 +13,8 @@
 #pragma once
 
 #include <jsi/jsi.h>
+#include <utility>
+#include <vector>
 
 namespace jsi = facebook::jsi;
 
@@ -77,7 +79,7 @@ struct typedArrayTypeMap<TypedArrayKind::Float64Array> {
 // the cache object is connected to the lifecycle of the js runtime
 class InvalidateCacheOnDestroy : public jsi::HostObject {
  public:
-  InvalidateCacheOnDestroy(jsi::Runtime &runtime);
+  explicit InvalidateCacheOnDestroy(jsi::Runtime &runtime);
   virtual ~InvalidateCacheOnDestroy();
   virtual jsi::Value get(jsi::Runtime &, const jsi::PropNameID &name) {
     return jsi::Value::null();
