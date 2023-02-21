@@ -13,6 +13,7 @@
 
 #import "SkCanvas.h"
 #import "../Skia Render Layer/SkImageHelpers.h"
+#import "../../cpp/JSITypedArray.h"
 
 std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt) {
   std::vector<jsi::PropNameID> result;
@@ -23,6 +24,7 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("orientation")));
   // Conversion
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toArrayBuffer")));
   // Ref Management
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isValid")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("incrementRefCount")));
@@ -112,6 +114,35 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       return jsi::Value::undefined();
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "render"), 1, render);
+  }
+  if (name == "toArrayBuffer") {
+    auto toArrayBuffer = JSI_HOST_FUNCTION_LAMBDA {
+      auto pixelBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
+      auto bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer);
+      auto height = CVPixelBufferGetHeight(pixelBuffer);
+      auto buffer = (uint8_t*) CVPixelBufferGetBaseAddress(pixelBuffer);
+      auto arraySize = bytesPerRow * height;
+      
+      static constexpr auto ARRAYBUFFER_CACHE_PROP_NAME = "__frameArrayBufferCache";
+      if (!runtime.global().hasProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME)) {
+        vision::TypedArray<vision::TypedArrayKind::Uint8ClampedArray> arrayBuffer(runtime, arraySize);
+        runtime.global().setProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME, arrayBuffer);
+      }
+      
+      auto arrayBufferCache = runtime.global().getPropertyAsObject(runtime, ARRAYBUFFER_CACHE_PROP_NAME);
+      auto arrayBuffer = vision::getTypedArray(runtime, arrayBufferCache).get<vision::TypedArrayKind::Uint8ClampedArray>(runtime);
+      
+      if (arrayBuffer.size(runtime) != arraySize) {
+        arrayBuffer = vision::TypedArray<vision::TypedArrayKind::Uint8ClampedArray>(runtime, arraySize);
+        runtime.global().setProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME, arrayBuffer);
+      }
+      
+      std::vector<uint8_t> vector(buffer, buffer + arraySize);
+      arrayBuffer.update(runtime, vector);
+      
+      return arrayBuffer;
+    };
+    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toArrayBuffer"), 0, toArrayBuffer);
   }
 
   if (name == "isValid") {

@@ -38,6 +38,12 @@ export interface Frame extends SkCanvas {
   orientation: Orientation;
 
   /**
+   * Get the underlying data of the Frame as a uint8 array buffer.
+   *
+   * Note that Frames are allocated on the GPU, so calling `toArrayBuffer()` will copy from the GPU to the CPU.
+   */
+  toArrayBuffer(): Uint8ClampedArray;
+  /**
    * Returns a string representation of the frame.
    * @example
    * ```ts
