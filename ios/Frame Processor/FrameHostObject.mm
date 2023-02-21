@@ -20,7 +20,8 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("height")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
-  // Debugging
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("orientation")));
+  // Conversion
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
   // Ref Management
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isValid")));
@@ -126,6 +127,36 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     auto height = CVPixelBufferGetHeight(imageBuffer);
     return jsi::Value((double) height);
+  }
+  if (name == "orientation") {
+    switch (frame.orientation) {
+      case UIImageOrientationUp:
+      case UIImageOrientationUpMirrored:
+        return jsi::String::createFromUtf8(runtime, "portrait");
+      case UIImageOrientationDown:
+      case UIImageOrientationDownMirrored:
+        return jsi::String::createFromUtf8(runtime, "portraitUpsideDown");
+      case UIImageOrientationLeft:
+      case UIImageOrientationLeftMirrored:
+        return jsi::String::createFromUtf8(runtime, "landscapeLeft");
+      case UIImageOrientationRight:
+      case UIImageOrientationRightMirrored:
+        return jsi::String::createFromUtf8(runtime, "landscapeRight");
+    }
+  }
+  if (name == "isMirrored") {
+    switch (frame.orientation) {
+      case UIImageOrientationUp:
+      case UIImageOrientationDown:
+      case UIImageOrientationLeft:
+      case UIImageOrientationRight:
+        return jsi::Value(false);
+      case UIImageOrientationDownMirrored:
+      case UIImageOrientationUpMirrored:
+      case UIImageOrientationLeftMirrored:
+      case UIImageOrientationRightMirrored:
+        return jsi::Value(true);
+    }
   }
   if (name == "bytesPerRow") {
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
