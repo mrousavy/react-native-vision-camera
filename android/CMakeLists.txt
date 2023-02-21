@@ -26,6 +26,7 @@ endif()
 add_library(
         ${PACKAGE_NAME}
         SHARED
+        ../cpp/JSITypedArray.cpp
         src/main/cpp/VisionCamera.cpp
         src/main/cpp/JSIJNIConversion.cpp
         src/main/cpp/FrameHostObject.cpp
@@ -41,6 +42,7 @@ add_library(
 target_include_directories(
         ${PACKAGE_NAME}
         PRIVATE
+        "../cpp"
         "src/main/cpp"
         "${NODE_MODULES_DIR}/react-native/ReactCommon"
         "${NODE_MODULES_DIR}/react-native/ReactCommon/callinvoker"

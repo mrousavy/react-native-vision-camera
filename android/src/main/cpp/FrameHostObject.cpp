@@ -9,6 +9,7 @@
 #include <vector>
 #include <string>
 #include <WKTJsiHostObject.h>
+#include "JSITypedArray.h"
 
 namespace vision {
 
@@ -30,8 +31,9 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("height")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
-  // Debugging
+  // Conversion
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toArrayBuffer")));
   // Ref Management
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isValid")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("incrementRefCount")));
@@ -53,6 +55,33 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       return jsi::String::createFromUtf8(runtime, str);
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
+  }
+  if (name == "toArrayBuffer") {
+    auto toArrayBuffer = JSI_HOST_FUNCTION_LAMBDA {
+      auto buffer = this->frame->toByteArray();
+      auto arraySize = buffer->size();
+
+      static constexpr auto ARRAYBUFFER_CACHE_PROP_NAME = "__frameArrayBufferCache";
+      if (!runtime.global().hasProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME)) {
+        vision::TypedArray<vision::TypedArrayKind::Uint8ClampedArray> arrayBuffer(runtime, arraySize);
+        runtime.global().setProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME, arrayBuffer);
+      }
+
+      // Get from global JS cache
+      auto arrayBufferCache = runtime.global().getPropertyAsObject(runtime, ARRAYBUFFER_CACHE_PROP_NAME);
+      auto arrayBuffer = vision::getTypedArray(runtime, arrayBufferCache).get<vision::TypedArrayKind::Uint8ClampedArray>(runtime);
+      if (arrayBuffer.size(runtime) != arraySize) {
+        arrayBuffer = vision::TypedArray<vision::TypedArrayKind::Uint8ClampedArray>(runtime, arraySize);
+        runtime.global().setProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME, arrayBuffer);
+      }
+
+      // directly write to C++ JSI ArrayBuffer
+      auto dst = (jbyte*)arrayBuffer.data(runtime);
+      buffer->getRegion(0, arraySize, dst);
+
+      return arrayBuffer;
+    };
+    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toArrayBuffer"), 0, toArrayBuffer);
   }
   if (name == "incrementRefCount") {
     auto incrementRefCount = JSI_HOST_FUNCTION_LAMBDA {

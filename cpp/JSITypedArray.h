@@ -148,6 +148,7 @@ class TypedArray : public TypedArrayBase {
   std::vector<ContentType<T>> toVector(jsi::Runtime &runtime);
   void update(jsi::Runtime &runtime, const std::vector<ContentType<T>> &data);
   void updateUnsafe(jsi::Runtime &runtime, ContentType<T> *data, size_t length);
+  uint8_t* data(jsi::Runtime &runtime);
 };
 
 template <TypedArrayKind T>

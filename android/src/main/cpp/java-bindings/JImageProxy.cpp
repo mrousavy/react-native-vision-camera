@@ -45,6 +45,13 @@ int JImageProxy::getBytesPerRow() const {
   return getBytesPerRowMethod(utilsClass, self());
 }
 
+local_ref<JArrayByte> JImageProxy::toByteArray() const {
+  auto utilsClass = getUtilsClass();
+
+  static const auto toByteArrayMethod = utilsClass->getStaticMethod<JArrayByte(JImageProxy::javaobject)>("toByteArray");
+  return toByteArrayMethod(utilsClass, self());
+}
+
 void JImageProxy::close() {
   static const auto closeMethod = getClass()->getMethod<void()>("close");
   closeMethod(self());

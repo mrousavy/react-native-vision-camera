@@ -21,6 +21,7 @@ struct JImageProxy : public JavaClass<JImageProxy> {
   bool getIsValid() const;
   int getPlanesCount() const;
   int getBytesPerRow() const;
+  local_ref<JArrayByte> toByteArray() const;
   void close();
 };
 

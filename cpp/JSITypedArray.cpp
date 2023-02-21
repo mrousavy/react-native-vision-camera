@@ -228,6 +228,11 @@ void TypedArray<T>::updateUnsafe(jsi::Runtime &runtime, ContentType<T> *data, si
   memcpy(rawData, data, length);
 }
 
+template <TypedArrayKind T>
+uint8_t* TypedArray<T>::data(jsi::Runtime &runtime) {
+  return getBuffer(runtime).data(runtime) + byteOffset(runtime);
+}
+
 const jsi::PropNameID &PropNameIDCache::getConstructorNameProp(
     jsi::Runtime &runtime,
     TypedArrayKind kind) {
