@@ -19,6 +19,7 @@
     "@react-native-community/slider": "^4.4.2",
     "@react-navigation/native": "^6.1.3",
     "@react-navigation/native-stack": "^6.9.9",
+    "@shopify/react-native-skia": "^0.1.175",
     "react": "^18.2.0",
     "react-native": "^0.71.3",
     "react-native-gesture-handler": "^2.9.0",
@@ -29,7 +30,7 @@
     "react-native-static-safe-area-insets": "^2.2.0",
     "react-native-vector-icons": "^9.2.0",
     "react-native-video": "^5.2.1",
-    "react-native-worklets": "https://github.com/chrfalch/react-native-worklets#15d52dd"
+    "react-native-worklets": "https://github.com/chrfalch/react-native-worklets#d62d76c"
   },
   "devDependencies": {
     "@babel/core": "^7.20.12",

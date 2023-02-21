@@ -190,8 +190,26 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   }
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
+    // Draw Frame to Preview View Canvas (and call Frame Processor)
+    if captureOutput is AVCaptureVideoDataOutput {
+      if let previewView = previewView as? PreviewSkiaView {
+        // Render to Skia PreviewView
+        previewView.drawFrame(sampleBuffer) { canvas in
+          // Call JS Frame Processor before passing Frame to GPU - allows user to draw
+          guard let frameProcessor = self.frameProcessorCallback else { return }
+          let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
+          frameProcessor(frame, canvas)
+        }
+      } else {
+        // Call JS Frame Processor. User cannot draw, since we don't have a Skia Canvas.
+        guard let frameProcessor = frameProcessorCallback else { return }
+        let frame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
+        frameProcessor(frame, nil)
+      }
+    }
+
+    // Record Video Frame/Audio Sample to File
     if isRecording {
-      // Write Video / Audio frame to file
       guard let recordingSession = recordingSession else {
         invokeOnError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
         return
@@ -210,14 +228,21 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       }
     }
 
-    if let frameProcessor = frameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
-      // Call the JavaScript Frame Processor func (worklet)
-      let frame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
-      frameProcessor(frame)
-    }
+    #if DEBUG
+      if captureOutput is AVCaptureVideoDataOutput {
+        // Update FPS Graph per Frame
+        if let fpsGraph = fpsGraph {
+          DispatchQueue.main.async {
+            fpsGraph.onTick(CACurrentMediaTime())
+          }
+        }
+      }
+    #endif
   }
 
-  private func recommendedVideoSettings(videoOutput: AVCaptureVideoDataOutput, fileType: AVFileType, videoCodec: AVVideoCodecType?) -> [String: Any]? {
+  private func recommendedVideoSettings(videoOutput: AVCaptureVideoDataOutput,
+                                        fileType: AVFileType,
+                                        videoCodec: AVVideoCodecType?) -> [String: Any]? {
     if videoCodec != nil {
       return videoOutput.recommendedVideoSettings(forVideoCodecType: videoCodec!, assetWriterOutputFileType: fileType)
     } else {
@@ -233,7 +258,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       return .up
     }
 
-    switch UIDevice.current.orientation {
+    switch outputOrientation {
     case .portrait:
       return cameraPosition == .front ? .leftMirrored : .right
 
@@ -246,8 +271,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
     case .landscapeRight:
       return cameraPosition == .front ? .upMirrored : .down
 
-    case .unknown, .faceUp, .faceDown:
-      fallthrough
+    case .unknown:
+      return .up
     @unknown default:
       return .up
     }

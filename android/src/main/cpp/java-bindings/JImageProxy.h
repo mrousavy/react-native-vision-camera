@@ -19,8 +19,12 @@ struct JImageProxy : public JavaClass<JImageProxy> {
   int getWidth() const;
   int getHeight() const;
   bool getIsValid() const;
+  bool getIsMirrored() const;
   int getPlanesCount() const;
   int getBytesPerRow() const;
+  jlong getTimestamp() const;
+  local_ref<JString> getOrientation() const;
+  local_ref<JArrayByte> toByteArray() const;
   void close();
 };
 

@@ -123,8 +123,6 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
 
   internal var activeVideoRecording: Recording? = null
 
-  private var lastFrameProcessorCall = System.currentTimeMillis()
-
   private var extensionsManager: ExtensionsManager? = null
 
   private val scaleGestureListener: ScaleGestureDetector.SimpleOnScaleGestureListener
@@ -326,7 +324,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   /**
    * Configures the camera capture session. This should only be called when the camera device changes.
    */
-  @SuppressLint("RestrictedApi")
+  @SuppressLint("RestrictedApi", "UnsafeOptInUsageError")
   private suspend fun configureSession() {
     try {
       val startTime = System.currentTimeMillis()
@@ -461,10 +459,11 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
       if (enableFrameProcessor) {
         Log.i(TAG, "Adding ImageAnalysis use-case...")
         imageAnalysis = imageAnalysisBuilder.build().apply {
-          setAnalyzer(cameraExecutor, { image ->
+          setAnalyzer(cameraExecutor) { image ->
             // Call JS Frame Processor
             frameProcessorCallback(image)
-          })
+            // frame gets closed in FrameHostObject implementation (JS ref counting)
+          }
         }
         useCases.add(imageAnalysis!!)
       }

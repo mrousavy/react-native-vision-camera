@@ -17,7 +17,7 @@
 #endif
 
 #import <jsi/jsi.h>
-#import "JsiWorklet.h"
+#import "WKTJsiWorklet.h"
 #import <memory>
 
 using namespace facebook;
