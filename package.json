@@ -12,6 +12,8 @@
     "lib/commonjs",
     "lib/module",
     "lib/typescript",
+    "cpp/**/*.h",
+    "cpp/**/*.cpp",
     "android/build.gradle",
     "android/gradle.properties",
     "android/CMakeLists.txt",

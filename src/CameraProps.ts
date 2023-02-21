@@ -3,6 +3,7 @@ import type { CameraDevice, CameraDeviceFormat, ColorSpace, VideoStabilizationMo
 import type { CameraRuntimeError } from './CameraError';
 import type { CameraPreset } from './CameraPreset';
 import type { Frame } from './Frame';
+import type { Orientation } from './Orientation';
 
 export interface CameraProps extends ViewProps {
   /**
@@ -161,7 +162,7 @@ export interface CameraProps extends ViewProps {
   /**
    * Represents the orientation of all Camera Outputs (Photo, Video, and Frame Processor). If this value is not set, the device orientation is used.
    */
-  orientation?: 'portrait' | 'portraitUpsideDown' | 'landscapeLeft' | 'landscapeRight';
+  orientation?: Orientation;
   /**
    * Render type of the Camera Preview Layer.
    *
