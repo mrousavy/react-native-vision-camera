@@ -30,6 +30,10 @@ export interface Frame extends SkCanvas {
    */
   isMirrored: boolean;
   /**
+   * Returns the timestamp of the Frame relative to the host sytem's clock.
+   */
+  timestamp: number;
+  /**
    * Represents the orientation of the Frame.
    *
    * Some ML Models are trained for specific orientations, so they need to be taken into

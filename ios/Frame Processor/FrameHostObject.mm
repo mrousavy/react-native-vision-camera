@@ -23,6 +23,7 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("orientation")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isMirrored")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("timestamp")));
   // Conversion
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toArrayBuffer")));
@@ -188,6 +189,11 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       case UIImageOrientationRightMirrored:
         return jsi::Value(true);
     }
+  }
+  if (name == "timestamp") {
+    auto timestamp = CMSampleBufferGetPresentationTimeStamp(frame.buffer);
+    auto seconds = static_cast<double>(CMTimeGetSeconds(timestamp));
+    return jsi::Value(seconds * 1000.0);
   }
   if (name == "bytesPerRow") {
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);

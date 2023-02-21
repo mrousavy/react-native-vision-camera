@@ -39,6 +39,12 @@ bool JImageProxy::getIsMirrored() const {
   return isImageProxyMirroredMethod(utilsClass, self());
 }
 
+jlong JImageProxy::getTimestamp() const {
+    auto utilsClass = getUtilsClass();
+    static const auto getTimestampMethod = utilsClass->getStaticMethod<jlong(JImageProxy::javaobject)>("getTimestamp");
+    return getTimestampMethod(utilsClass, self());
+}
+
 local_ref<JString> JImageProxy::getOrientation() const {
   auto utilsClass = getUtilsClass();
   static const auto getOrientationMethod = utilsClass->getStaticMethod<JString(JImageProxy::javaobject)>("getOrientation");

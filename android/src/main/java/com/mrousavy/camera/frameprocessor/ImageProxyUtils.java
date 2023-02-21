@@ -55,6 +55,12 @@ public class ImageProxyUtils {
 
     @DoNotStrip
     @Keep
+    public static long getTimestamp(ImageProxy imageProxy) {
+        return imageProxy.getImageInfo().getTimestamp();
+    }
+
+    @DoNotStrip
+    @Keep
     public static int getPlanesCount(ImageProxy imageProxy) {
         return imageProxy.getPlanes().length;
     }
