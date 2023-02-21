@@ -46,7 +46,7 @@ export interface Frame extends SkCanvas {
    *
    * Note that Frames are allocated on the GPU, so calling `toArrayBuffer()` will copy from the GPU to the CPU.
    */
-  toArrayBuffer(): Uint8ClampedArray;
+  toArrayBuffer(): Uint8Array;
   /**
    * Returns a string representation of the frame.
    * @example
