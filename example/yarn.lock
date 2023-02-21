@@ -5142,9 +5142,9 @@ react-native-video@^5.2.1:
     prop-types "^15.7.2"
     shaka-player "^2.5.9"
 
-"react-native-worklets@https://github.com/chrfalch/react-native-worklets#bb47d48":
+"react-native-worklets@https://github.com/chrfalch/react-native-worklets#d62d76c":
   version "0.1.0"
-  resolved "https://github.com/chrfalch/react-native-worklets#bb47d48e70beae86fdbb6dfcbd75d63df29ad424"
+  resolved "https://github.com/chrfalch/react-native-worklets#d62d76c20ed7a3bbfebe5623bc976e5c2d9beabd"
 
 react-native@^0.71.3:
   version "0.71.3"
