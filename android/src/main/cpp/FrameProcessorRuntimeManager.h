@@ -45,7 +45,7 @@ class FrameProcessorRuntimeManager : public jni::HybridClass<FrameProcessorRunti
   void registerPlugin(alias_ref<JFrameProcessorPlugin::javaobject> plugin);
   void logErrorToJS(const std::string& message);
 
-  void setFrameProcessor(jsi::Runtime& runtime,                 // NOLINT(runtime/references)
+  void setFrameProcessor(jsi::Runtime& runtime,
                          int viewTag,
                          const jsi::Value& frameProcessor);
   void unsetFrameProcessor(int viewTag);
