@@ -219,6 +219,15 @@ void TypedArray<T>::update(jsi::Runtime &runtime, const std::vector<ContentType<
   std::copy(data.begin(), data.end(), reinterpret_cast<ContentType<T> *>(rawData));
 }
 
+template <TypedArrayKind T>
+void TypedArray<T>::updateUnsafe(jsi::Runtime &runtime, ContentType<T> *data, size_t length) {
+  if (length != size(runtime)) {
+    throw jsi::JSError(runtime, "TypedArray can only be updated with an array of the same size");
+  }
+  uint8_t *rawData = getBuffer(runtime).data(runtime) + byteOffset(runtime);
+  memcpy(rawData, data, length);
+}
+
 const jsi::PropNameID &PropNameIDCache::getConstructorNameProp(
     jsi::Runtime &runtime,
     TypedArrayKind kind) {

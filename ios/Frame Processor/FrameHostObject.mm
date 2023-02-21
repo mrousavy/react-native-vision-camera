@@ -137,8 +137,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
         runtime.global().setProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME, arrayBuffer);
       }
       
-      std::vector<uint8_t> vector(buffer, buffer + arraySize);
-      arrayBuffer.update(runtime, vector);
+      arrayBuffer.updateUnsafe(runtime, buffer, arraySize);
       
       return arrayBuffer;
     };
