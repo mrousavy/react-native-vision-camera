@@ -12,6 +12,7 @@
 
 #import <React/RCTViewManager.h>
 #import <React/RCTUIManager.h>
+#import <React/RCTFPSGraph.h>
 
 #import "FrameProcessorCallback.h"
 #import "FrameProcessorRuntimeManager.h"

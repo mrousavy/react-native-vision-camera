@@ -3,6 +3,7 @@ import type { CameraDevice, CameraDeviceFormat, ColorSpace, VideoStabilizationMo
 import type { CameraRuntimeError } from './CameraError';
 import type { CameraPreset } from './CameraPreset';
 import type { Frame } from './Frame';
+import type { Orientation } from './Orientation';
 
 export interface CameraProps extends ViewProps {
   /**
@@ -152,9 +153,25 @@ export interface CameraProps extends ViewProps {
    */
   enableHighQualityPhotos?: boolean;
   /**
+   * If `true`, show a debug view to display the FPS of the Camera session.
+   * This is useful for debugging your Frame Processor's speed.
+   *
+   * @default false
+   */
+  enableFpsGraph?: boolean;
+  /**
    * Represents the orientation of all Camera Outputs (Photo, Video, and Frame Processor). If this value is not set, the device orientation is used.
    */
-  orientation?: 'portrait' | 'portraitUpsideDown' | 'landscapeLeft' | 'landscapeRight';
+  orientation?: Orientation;
+  /**
+   * Render type of the Camera Preview Layer.
+   *
+   * * `native`: Uses the default platform native preview Layer. Uses less resources and is more efficient.
+   * * `skia`: Uses a Skia Canvas for rendering Camera frames to the screen. This allows you to draw to the screen using the react-native-skia API inside a Frame Processor.
+   *
+   * @default 'native'
+   */
+  previewType?: 'native' | 'skia';
 
   //#region Events
   /**
@@ -168,9 +185,11 @@ export interface CameraProps extends ViewProps {
   /**
    * A worklet which will be called for every frame the Camera "sees".
    *
-   * > See [the Frame Processors documentation](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors) for more information
+   * If {@linkcode CameraProps.previewType | previewType} is set to `"skia"`, you can draw content to the `Frame` using the react-native-skia API.
    *
    * Note: If you want to use `video` and `frameProcessor` simultaneously, make sure [`supportsParallelVideoProcessing`](https://mrousavy.github.io/react-native-vision-camera/docs/guides/devices#the-supportsparallelvideoprocessing-prop) is `true`.
+   *
+   * > See [the Frame Processors documentation](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors) for more information
    *
    * @example
    * ```tsx

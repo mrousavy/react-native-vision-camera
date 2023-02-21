@@ -19,10 +19,10 @@
 #import <React/RCTUIManager.h>
 #import <ReactCommon/RCTTurboModuleManager.h>
 
-#import "JsiWorkletContext.h"
-#import "JsiWorkletApi.h"
-#import "JsiWorklet.h"
-#import "JsiHostObject.h"
+#import "WKTJsiWorkletContext.h"
+#import "WKTJsiWorkletApi.h"
+#import "WKTJsiWorklet.h"
+#import "WKTJsiHostObject.h"
 
 #import "FrameProcessorUtils.h"
 #import "FrameProcessorCallback.h"

@@ -8,7 +8,8 @@
 #include <jni.h>
 #include <vector>
 #include <string>
-#include <JsiHostObject.h>
+#include <WKTJsiHostObject.h>
+#include "JSITypedArray.h"
 
 namespace vision {
 
@@ -30,8 +31,12 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("height")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
-  // Debugging
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("orientation")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isMirrored")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("timestamp")));
+  // Conversion
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toArrayBuffer")));
   // Ref Management
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isValid")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("incrementRefCount")));
@@ -54,9 +59,38 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
   }
+  if (name == "toArrayBuffer") {
+    auto toArrayBuffer = JSI_HOST_FUNCTION_LAMBDA {
+      auto buffer = this->frame->toByteArray();
+      auto arraySize = buffer->size();
+
+      static constexpr auto ARRAYBUFFER_CACHE_PROP_NAME = "__frameArrayBufferCache";
+      if (!runtime.global().hasProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME)) {
+        vision::TypedArray<vision::TypedArrayKind::Uint8ClampedArray> arrayBuffer(runtime, arraySize);
+        runtime.global().setProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME, arrayBuffer);
+      }
+
+      // Get from global JS cache
+      auto arrayBufferCache = runtime.global().getPropertyAsObject(runtime, ARRAYBUFFER_CACHE_PROP_NAME);
+      auto arrayBuffer = vision::getTypedArray(runtime, arrayBufferCache).get<vision::TypedArrayKind::Uint8ClampedArray>(runtime);
+      if (arrayBuffer.size(runtime) != arraySize) {
+        arrayBuffer = vision::TypedArray<vision::TypedArrayKind::Uint8ClampedArray>(runtime, arraySize);
+        runtime.global().setProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME, arrayBuffer);
+      }
+
+      // directly write to C++ JSI ArrayBuffer
+      auto destinationBuffer = arrayBuffer.data(runtime);
+      buffer->getRegion(0,
+                        static_cast<jint>(arraySize),
+                        reinterpret_cast<jbyte*>(destinationBuffer));
+
+      return arrayBuffer;
+    };
+    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toArrayBuffer"), 0, toArrayBuffer);
+  }
   if (name == "incrementRefCount") {
     auto incrementRefCount = JSI_HOST_FUNCTION_LAMBDA {
-      // Increment retain count by one so ARC doesn't destroy the Frame Buffer.
+      // Increment retain count by one.
       std::lock_guard lock(this->_refCountMutex);
       this->_refCount++;
       return jsi::Value::undefined();
@@ -69,7 +103,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 
   if (name == "decrementRefCount") {
     auto decrementRefCount = JSI_HOST_FUNCTION_LAMBDA {
-      // Decrement retain count by one. If the retain count is zero, ARC will destroy the Frame Buffer.
+      // Decrement retain count by one. If the retain count is zero, we close the Frame.
       std::lock_guard lock(this->_refCountMutex);
       this->_refCount--;
       if (_refCount < 1) {
@@ -91,6 +125,16 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
   if (name == "height") {
     return jsi::Value(this->frame->getHeight());
+  }
+  if (name == "isMirrored") {
+    return jsi::Value(this->frame->getIsMirrored());
+  }
+  if (name == "orientation") {
+    auto string = this->frame->getOrientation();
+    return jsi::String::createFromUtf8(runtime, string->toStdString());
+  }
+  if (name == "timestamp") {
+    return jsi::Value(static_cast<double>(this->frame->getTimestamp()));
   }
   if (name == "bytesPerRow") {
     return jsi::Value(this->frame->getBytesPerRow());

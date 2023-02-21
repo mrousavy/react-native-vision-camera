@@ -66,6 +66,8 @@ static def findNodeModules(baseDir) {
 }
 
 def nodeModules = findNodeModules(projectDir)
+def isSkiaInstalled = findProject(":shopify_react-native-skia") != null
+logger.warn("react-native-vision-camera: Skia integration is ${isSkiaInstalled ? "enabled" : "disabled"}!")
 
 repositories {
   google()
@@ -99,7 +101,8 @@ android {
       cmake {
         cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all"
         arguments "-DANDROID_STL=c++_shared",
-                "-DNODE_MODULES_DIR=${nodeModules}"
+                "-DNODE_MODULES_DIR=${nodeModules}",
+                "-DENABLE_SKIA_INTEGRATION=${isSkiaInstalled}"
         abiFilters (*reactNativeArchitectures())
       }
     }
@@ -145,6 +148,10 @@ dependencies {
   implementation "androidx.exifinterface:exifinterface:1.3.3"
 
   implementation project(":react-native-worklets")
+
+  if (isSkiaInstalled) {
+    implementation project(":shopify_react-native-skia")
+  }
 }
 
 // Resolves "LOCAL_SRC_FILES points to a missing file, Check that libfb.so exists or that its path is correct".

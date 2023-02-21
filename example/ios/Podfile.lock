@@ -276,6 +276,35 @@ PODS:
     - RCTTypeSafety
     - React-Core
     - ReactCommon/turbomodule/core
+  - react-native-skia (0.1.175):
+    - React
+    - React-callinvoker
+    - React-Core
+    - react-native-skia/Api (= 0.1.175)
+    - react-native-skia/Jsi (= 0.1.175)
+    - react-native-skia/RNSkia (= 0.1.175)
+    - react-native-skia/SkiaHeaders (= 0.1.175)
+    - react-native-skia/Utils (= 0.1.175)
+  - react-native-skia/Api (0.1.175):
+    - React
+    - React-callinvoker
+    - React-Core
+  - react-native-skia/Jsi (0.1.175):
+    - React
+    - React-callinvoker
+    - React-Core
+  - react-native-skia/RNSkia (0.1.175):
+    - React
+    - React-callinvoker
+    - React-Core
+  - react-native-skia/SkiaHeaders (0.1.175):
+    - React
+    - React-callinvoker
+    - React-Core
+  - react-native-skia/Utils (0.1.175):
+    - React
+    - React-callinvoker
+    - React-Core
   - react-native-slider (4.4.2):
     - React-Core
   - react-native-video (5.2.1):
@@ -407,10 +436,11 @@ PODS:
     - React-Core
   - RNVectorIcons (9.2.0):
     - React-Core
-  - VisionCamera (2.15.4):
+  - VisionCamera (3.0.0-rc.1):
     - React
     - React-callinvoker
     - React-Core
+    - react-native-skia
     - react-native-worklets
   - Yoga (1.14.0)
 
@@ -440,6 +470,7 @@ DEPENDENCIES:
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - "react-native-cameraroll (from `../node_modules/@react-native-camera-roll/camera-roll`)"
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - "react-native-skia (from `../node_modules/@shopify/react-native-skia`)"
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-video (from `../node_modules/react-native-video`)
   - react-native-worklets (from `../node_modules/react-native-worklets`)
@@ -516,6 +547,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-camera-roll/camera-roll"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-skia:
+    :path: "../node_modules/@shopify/react-native-skia"
   react-native-slider:
     :path: "../node_modules/@react-native-community/slider"
   react-native-video:
@@ -589,6 +622,7 @@ SPEC CHECKSUMS:
   react-native-blur: 50c9feabacbc5f49b61337ebc32192c6be7ec3c3
   react-native-cameraroll: 5b25d0be40185d02e522bf2abf8a1ba4e8faa107
   react-native-safe-area-context: 39c2d8be3328df5d437ac1700f4f3a4f75716acc
+  react-native-skia: 51f4a6586c362814f677df4ac4226f13c634bcfa
   react-native-slider: 33b8d190b59d4f67a541061bb91775d53d617d9d
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
   react-native-worklets: c7576ad4ad0f030ff41e8d74ad0077c96054a6c1
@@ -610,7 +644,7 @@ SPEC CHECKSUMS:
   RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
   RNStaticSafeAreaInsets: 055ddbf5e476321720457cdaeec0ff2ba40ec1b8
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
-  VisionCamera: 312151eb95370d1d764720de3b7dad33d8c7fb40
+  VisionCamera: 0d154cd0ab9043a3c8a4908fb57ad65c9e1f3baf
   Yoga: 5ed1699acbba8863755998a4245daa200ff3817b
 
 PODFILE CHECKSUM: d53724fe402c2547f1dd1cc571bbe77d9820e636

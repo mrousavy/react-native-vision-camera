@@ -33,6 +33,24 @@ bool JImageProxy::getIsValid() const {
   return isImageProxyValidMethod(utilsClass, self());
 }
 
+bool JImageProxy::getIsMirrored() const {
+  auto utilsClass = getUtilsClass();
+  static const auto isImageProxyMirroredMethod = utilsClass->getStaticMethod<jboolean(JImageProxy::javaobject)>("isImageProxyMirrored");
+  return isImageProxyMirroredMethod(utilsClass, self());
+}
+
+jlong JImageProxy::getTimestamp() const {
+    auto utilsClass = getUtilsClass();
+    static const auto getTimestampMethod = utilsClass->getStaticMethod<jlong(JImageProxy::javaobject)>("getTimestamp");
+    return getTimestampMethod(utilsClass, self());
+}
+
+local_ref<JString> JImageProxy::getOrientation() const {
+  auto utilsClass = getUtilsClass();
+  static const auto getOrientationMethod = utilsClass->getStaticMethod<JString(JImageProxy::javaobject)>("getOrientation");
+  return getOrientationMethod(utilsClass, self());
+}
+
 int JImageProxy::getPlanesCount() const {
   auto utilsClass = getUtilsClass();
   static const auto getPlanesCountMethod = utilsClass->getStaticMethod<jint(JImageProxy::javaobject)>("getPlanesCount");
@@ -43,6 +61,13 @@ int JImageProxy::getBytesPerRow() const {
   auto utilsClass = getUtilsClass();
   static const auto getBytesPerRowMethod = utilsClass->getStaticMethod<jint(JImageProxy::javaobject)>("getBytesPerRow");
   return getBytesPerRowMethod(utilsClass, self());
+}
+
+local_ref<JArrayByte> JImageProxy::toByteArray() const {
+  auto utilsClass = getUtilsClass();
+
+  static const auto toByteArrayMethod = utilsClass->getStaticMethod<JArrayByte(JImageProxy::javaobject)>("toByteArray");
+  return toByteArrayMethod(utilsClass, self());
 }
 
 void JImageProxy::close() {

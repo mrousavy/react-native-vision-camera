@@ -28,6 +28,7 @@ Pod::Spec.new do |s|
 
   s.pod_target_xcconfig = {
     "USE_HEADERMAP" => "YES",
+    "GCC_PREPROCESSOR_DEFINITIONS" => '$(inherited) SK_GL=1 SK_METAL=1',
     "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_TARGET_SRCROOT)\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/boost-for-react-native\" \"$(PODS_ROOT)/Headers/Private/React-Core\" "
   }
   s.compiler_flags = folly_compiler_flags + ' ' + boost_compiler_flags
@@ -44,6 +45,7 @@ Pod::Spec.new do |s|
   s.source_files = [
     "ios/**/*.{m,mm,swift}",
     "ios/CameraBridge.h",
+    "ios/Skia Render Layer/PreviewSkiaView.h",
     "ios/Frame Processor/Frame.h",
     "ios/Frame Processor/FrameProcessorCallback.h",
     "ios/Frame Processor/FrameProcessorRuntimeManager.h",
@@ -65,4 +67,5 @@ Pod::Spec.new do |s|
   s.dependency "React"
   s.dependency "React-Core"
   s.dependency "react-native-worklets"
+  s.dependency "react-native-skia"
 end

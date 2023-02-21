@@ -17,10 +17,16 @@ find_package(fbjni REQUIRED CONFIG)
 find_package(react-native-worklets REQUIRED CONFIG)
 find_library(LOG_LIB log)
 
+# Skia is optional, if it's enabled we link it.
+if (ENABLE_SKIA_INTEGRATION)
+    find_package(shopify_react-native-skia REQUIRED CONFIG)
+endif()
+
 # Add react-native-vision-camera sources
 add_library(
         ${PACKAGE_NAME}
         SHARED
+        ../cpp/JSITypedArray.cpp
         src/main/cpp/VisionCamera.cpp
         src/main/cpp/JSIJNIConversion.cpp
         src/main/cpp/FrameHostObject.cpp
@@ -36,6 +42,7 @@ add_library(
 target_include_directories(
         ${PACKAGE_NAME}
         PRIVATE
+        "../cpp"
         "src/main/cpp"
         "${NODE_MODULES_DIR}/react-native/ReactCommon"
         "${NODE_MODULES_DIR}/react-native/ReactCommon/callinvoker"
@@ -53,3 +60,11 @@ target_link_libraries(
         fbjni::fbjni                        # <-- fbjni
         react-native-worklets::rnworklets   # <-- RN Worklets
 )
+
+# Skia is optional. If it's enabled, we link it
+if (ENABLE_SKIA_INTEGRATION)
+    target_link_libraries(
+            ${PACKAGE_NAME}
+            shopify_react-native-skia::rnskia   # <-- RN Skia
+    )
+endif()
