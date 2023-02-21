@@ -88,7 +88,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
   if (name == "incrementRefCount") {
     auto incrementRefCount = JSI_HOST_FUNCTION_LAMBDA {
-      // Increment retain count by one so ARC doesn't destroy the Frame Buffer.
+      // Increment retain count by one.
       std::lock_guard lock(this->_refCountMutex);
       this->_refCount++;
       return jsi::Value::undefined();
@@ -101,7 +101,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 
   if (name == "decrementRefCount") {
     auto decrementRefCount = JSI_HOST_FUNCTION_LAMBDA {
-      // Decrement retain count by one. If the retain count is zero, ARC will destroy the Frame Buffer.
+      // Decrement retain count by one. If the retain count is zero, we close the Frame.
       std::lock_guard lock(this->_refCountMutex);
       this->_refCount--;
       if (_refCount < 1) {
