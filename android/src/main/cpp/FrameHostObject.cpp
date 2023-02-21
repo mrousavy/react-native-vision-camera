@@ -79,8 +79,10 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       }
 
       // directly write to C++ JSI ArrayBuffer
-      auto dst = (jbyte*)arrayBuffer.data(runtime);
-      buffer->getRegion(0, arraySize, dst);
+      auto destinationBuffer = arrayBuffer.data(runtime);
+      buffer->getRegion(0,
+                        static_cast<jint>(arraySize),
+                        reinterpret_cast<jbyte*>(destinationBuffer));
 
       return arrayBuffer;
     };
