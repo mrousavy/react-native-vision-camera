@@ -27,6 +27,7 @@
 #import "FrameProcessorUtils.h"
 #import "FrameProcessorCallback.h"
 #import "../React Utils/JSIUtils.h"
+#import "../../cpp/JSITypedArray.h"
 
 // Forward declarations for the Swift classes
 __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
@@ -130,6 +131,12 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
   }
 
   jsi::Runtime& jsiRuntime = *(jsi::Runtime*)cxxBridge.runtime;
+  
+  // HostObject that attaches the cache to the lifecycle of the Runtime. On Runtime destroy, we destroy the cache.
+  auto propNameCacheObject = std::make_shared<vision::InvalidateCacheOnDestroy>(jsiRuntime);
+  jsiRuntime.global().setProperty(jsiRuntime,
+                                  "__visionCameraPropNameCache",
+                                  jsi::Object::createFromHostObject(jsiRuntime, propNameCacheObject));
 
   // Install the Worklet Runtime in the main React JS Runtime
   [self setupWorkletContext:jsiRuntime];
