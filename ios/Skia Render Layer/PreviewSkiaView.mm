@@ -13,6 +13,7 @@
 
 #include <exception>
 #include <string>
+#include <mutex>
 
 #if SHOW_FPS
 #import <React/RCTFPSGraph.h>
@@ -20,9 +21,12 @@
 
 @implementation PreviewSkiaView {
   std::shared_ptr<SkiaMetalCanvasProvider> _canvasProvider;
+  std::mutex _mutex;
 }
 
 - (void)drawFrame:(CMSampleBufferRef)buffer withCallback:(DrawCallback _Nonnull)callback {
+  std::lock_guard lock(_mutex);
+  
   if (_canvasProvider == nullptr) {
     throw std::runtime_error("Cannot draw new Frame to Canvas when SkiaMetalCanvasProvider is null!");
   }
@@ -33,6 +37,8 @@
 }
 
 - (void) willMoveToSuperview:(UIView *)newWindow {
+  std::lock_guard lock(_mutex);
+  
   if (newWindow == NULL) {
     // Remove implementation view when the parent view is not set
     if (_canvasProvider != nullptr) {
