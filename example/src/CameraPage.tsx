@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useRef, useState, useMemo, useCallback } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler';
 import {
   CameraDeviceFormat,
@@ -218,13 +218,16 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const paint = Skia.Paint();
   paint.setImageFilter(imageFilter);
 
+  const isIOS = Platform.OS === 'ios';
   const frameProcessor = useFrameProcessor(
     (frame) => {
       'worklet';
       console.log(`Width: ${frame.width}`);
-      frame.render(paint);
+
+      if (isIOS) frame.render(paint);
+      else console.log('Drawing to the Frame is not yet available on Android. WIP PR');
     },
-    [paint],
+    [isIOS, paint],
   );
 
   return (
