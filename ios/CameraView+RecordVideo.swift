@@ -202,8 +202,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         }
       } else {
         // Call JS Frame Processor. User cannot draw, since we don't have a Skia Canvas.
-        guard let frameProcessor = self.frameProcessorCallback else { return }
-        let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
+        guard let frameProcessor = frameProcessorCallback else { return }
+        let frame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
         frameProcessor(frame, nil)
       }
     }
@@ -227,17 +227,17 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         break
       }
     }
-    
-#if DEBUG
-    if captureOutput is AVCaptureVideoDataOutput {
-      // Update FPS Graph per Frame
-      if let fpsGraph = self.fpsGraph {
-        DispatchQueue.main.async {
-          fpsGraph.onTick(CACurrentMediaTime())
+
+    #if DEBUG
+      if captureOutput is AVCaptureVideoDataOutput {
+        // Update FPS Graph per Frame
+        if let fpsGraph = fpsGraph {
+          DispatchQueue.main.async {
+            fpsGraph.onTick(CACurrentMediaTime())
+          }
         }
       }
-    }
-#endif
+    #endif
   }
 
   private func recommendedVideoSettings(videoOutput: AVCaptureVideoDataOutput,
