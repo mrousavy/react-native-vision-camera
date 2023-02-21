@@ -49,6 +49,7 @@ class SkiaPreviewView(context: Context) : FrameLayout(context), SurfaceHolder.Ca
   }
 
   fun drawImage(image: ImageProxy) {
+    val start = System.currentTimeMillis()
     Log.d(TAG, "drawImage: ${image.width}x${image.height}")
     val matrix = Matrix()
     matrix.postRotate(90f)
@@ -71,5 +72,6 @@ class SkiaPreviewView(context: Context) : FrameLayout(context), SurfaceHolder.Ca
 
     // TODO: Let Frame Processor Close Image. we don't need to do that.
     image.close()
+    Log.d(TAG, "Draw took ${System.currentTimeMillis() - start}ms")
   }
 }
