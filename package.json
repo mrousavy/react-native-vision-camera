@@ -75,7 +75,7 @@
     "@react-native-community/eslint-config": "^3.2.0",
     "@react-native-community/eslint-plugin": "^1.3.0",
     "@release-it/conventional-changelog": "^5.1.1",
-    "@shopify/react-native-skia": "^0.1.173",
+    "@shopify/react-native-skia": "^0.1.175",
     "@types/react": "^18.0.27",
     "@types/react-native": "^0.71.2",
     "eslint": "^8.33.0",
@@ -84,7 +84,7 @@
     "react": "^18.2.0",
     "react-native": "^0.71.3",
     "react-native-builder-bob": "^0.20.3",
-    "react-native-worklets": "https://github.com/chrfalch/react-native-worklets#8d1db5f",
+    "react-native-worklets": "https://github.com/chrfalch/react-native-worklets#bb47d48",
     "release-it": "^15.6.0",
     "typescript": "^4.9.5"
   },
