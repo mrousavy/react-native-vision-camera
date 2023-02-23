@@ -9,6 +9,18 @@ import com.facebook.react.uimanager.annotations.ReactProp
 
 @Suppress("unused")
 class CameraViewManager(reactContext: ReactApplicationContext) : ViewGroupManager<CameraView>() {
+  companion object {
+    const val TAG = "CameraView"
+
+    val cameraViewTransactions: HashMap<CameraView, ArrayList<String>> = HashMap()
+
+    private fun addChangedPropToTransaction(view: CameraView, changedProp: String) {
+      if (cameraViewTransactions[view] == null) {
+        cameraViewTransactions[view] = ArrayList()
+      }
+      cameraViewTransactions[view]!!.add(changedProp)
+    }
+  }
 
   public override fun createViewInstance(context: ThemedReactContext): CameraView {
     val cameraViewModule = context.getNativeModule(CameraViewModule::class.java)!!
@@ -162,18 +174,5 @@ class CameraViewManager(reactContext: ReactApplicationContext) : ViewGroupManage
     if (view.orientation != orientation)
       addChangedPropToTransaction(view, "orientation")
     view.orientation = orientation
-  }
-
-  companion object {
-    const val TAG = "CameraView"
-
-    val cameraViewTransactions: HashMap<CameraView, ArrayList<String>> = HashMap()
-
-    private fun addChangedPropToTransaction(view: CameraView, changedProp: String) {
-      if (cameraViewTransactions[view] == null) {
-        cameraViewTransactions[view] = ArrayList()
-      }
-      cameraViewTransactions[view]!!.add(changedProp)
-    }
   }
 }
