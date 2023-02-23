@@ -469,6 +469,14 @@ export class Camera extends React.PureComponent<CameraProps> {
   public render(): React.ReactNode {
     // We remove the big `device` object from the props because we only need to pass `cameraId` to native.
     const { device, frameProcessor, ...props } = this.props;
+
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (device == null) {
+      throw new Error(
+        'Camera: `device` is null! Select a valid Camera device. See: https://mrousavy.com/react-native-vision-camera/docs/guides/devices',
+      );
+    }
+
     return (
       <NativeCameraView
         {...props}
