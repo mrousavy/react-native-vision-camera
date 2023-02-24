@@ -145,6 +145,8 @@ class CameraDevice(private val cameraManager: CameraManager, private val cameraI
     val map = Arguments.createMap()
     map.putInt("photoHeight", outputSize.height)
     map.putInt("photoWidth", outputSize.width)
+    map.putInt("videoHeight", outputSize.height)
+    map.putInt("videoWidth", outputSize.width)
     map.putBoolean("isHighestPhotoQualitySupported", highResSizes.contains(outputSize))
     map.putInt("maxISO", isoRange.upper)
     map.putInt("minISO", isoRange.lower)
@@ -162,18 +164,13 @@ class CameraDevice(private val cameraManager: CameraManager, private val cameraI
   private fun getFormats(): ReadableArray {
     val array = Arguments.createArray()
 
-    val highSpeedFpsRanges = cameraConfig.highSpeedVideoFpsRanges
     val highSpeedSizes = cameraConfig.highSpeedVideoSizes
-
-    fpsRanges.forEach { Log.d("CameraDevice", "FPS Range: $it") }
 
     val outputFormats = cameraConfig.outputFormats
     outputFormats.forEach { outputFormat ->
-
+      // Normal Video/Photo Sizes
       val outputSizes = cameraConfig.getOutputSizes(outputFormat)
       outputSizes.forEach { outputSize ->
-        // TODO: Stall duration?
-        val stallDuration = cameraConfig.getOutputStallDuration(outputFormat, outputSize)
         val frameDuration = cameraConfig.getOutputMinFrameDuration(outputFormat, outputSize)
         val maxFps = (1.0 / (frameDuration.toDouble() / 1000000000)).toInt()
         val minFps = 1
@@ -182,13 +179,13 @@ class CameraDevice(private val cameraManager: CameraManager, private val cameraI
         array.pushMap(map)
       }
 
+      // High-Speed (Slow Motion) Video Sizes
       highSpeedSizes.forEach { outputSize ->
         val highSpeedRanges = cameraConfig.getHighSpeedVideoFpsRangesFor(outputSize)
 
         val map = buildFormatMap(outputSize, outputFormat, createFrameRateRanges(highSpeedRanges))
         array.pushMap(map)
       }
-
     }
 
     return array
