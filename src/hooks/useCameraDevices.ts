@@ -53,6 +53,8 @@ export function useCameraDevices(deviceType?: PhysicalCameraDeviceType | Logical
       let devices = await Camera.getAvailableCameraDevices();
       if (!isMounted) return;
 
+      console.log(JSON.stringify(devices));
+
       devices = devices.sort(sortDevices);
       if (deviceType != null) {
         devices = devices.filter((d) => {
