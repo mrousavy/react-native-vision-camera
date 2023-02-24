@@ -163,177 +163,20 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
-  // TODO: This uses the Camera2 API to list all characteristics of a camera device and therefore doesn't work with Camera1. Find a way to use CameraX for this
-  // https://issuetracker.google.com/issues/179925896
   @ReactMethod
   fun getAvailableCameraDevices(promise: Promise) {
-    val startTime = System.currentTimeMillis()
     coroutineScope.launch {
       withPromise(promise) {
         val cameraProvider = ProcessCameraProvider.getInstance(reactApplicationContext).await()
         val extensionsManager = ExtensionsManager.getInstanceAsync(reactApplicationContext, cameraProvider).await()
+        val manager = reactApplicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
-        val manager = reactApplicationContext.getSystemService(Context.CAMERA_SERVICE) as? CameraManager
-          ?: throw CameraManagerUnavailableError()
-
-        val cameraDevices: WritableArray = Arguments.createArray()
-
-        manager.cameraIdList.forEach loop@{ id ->
-          val cameraSelector = CameraSelector.Builder().byID(id).build()
-
-          val characteristics = manager.getCameraCharacteristics(id)
-          val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
-
-          val capabilities = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)!!
-          val isMultiCam = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
-            capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA)
-          val deviceTypes = characteristics.getDeviceTypes()
-
-          val cameraConfig = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
-          val lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING)!!
-          val hasFlash = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE)!!
-          val maxScalerZoom = characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM)!!
-          val supportsDepthCapture = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-            capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DEPTH_OUTPUT)
-          val supportsRawCapture = capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW)
-          val isoRange = characteristics.get(CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE)
-          val digitalStabilizationModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES)
-          val opticalStabilizationModes = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_OPTICAL_STABILIZATION)
-          val zoomRange = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-            characteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
-          else null
-          val name = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
-            characteristics.get(CameraCharacteristics.INFO_VERSION)
-          else null
-          val fpsRanges = characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES)!!
-
-          val supportsHdr = extensionsManager.isExtensionAvailable(cameraSelector, ExtensionMode.HDR)
-          val supportsLowLightBoost = extensionsManager.isExtensionAvailable(cameraSelector, ExtensionMode.NIGHT)
-          // see https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture
-          val supportsParallelVideoProcessing = hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY && hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
-
-          val fieldOfView = characteristics.getFieldOfView()
-
-          val map = Arguments.createMap()
-          map.putString("id", id)
-          map.putArray("devices", deviceTypes)
-          map.putString("position", parseLensFacing(lensFacing))
-          map.putString("name", name ?: "${parseLensFacing(lensFacing)} ($id)")
-          map.putBoolean("hasFlash", hasFlash)
-          map.putBoolean("hasTorch", hasFlash)
-          map.putBoolean("isMultiCam", isMultiCam)
-          map.putBoolean("supportsParallelVideoProcessing", supportsParallelVideoProcessing)
-          map.putBoolean("supportsRawCapture", supportsRawCapture)
-          map.putBoolean("supportsDepthCapture", supportsDepthCapture)
-          map.putBoolean("supportsLowLightBoost", supportsLowLightBoost)
-          map.putBoolean("supportsFocus", true) // I believe every device here supports focussing
-          if (zoomRange != null) {
-            map.putDouble("minZoom", zoomRange.lower.toDouble())
-            map.putDouble("maxZoom", zoomRange.upper.toDouble())
-          } else {
-            map.putDouble("minZoom", 1.0)
-            map.putDouble("maxZoom", maxScalerZoom.toDouble())
-          }
-          map.putDouble("neutralZoom", 1.0)
-
-          val supportedVideoResolutions: List<Size>
-          val cameraInfos = cameraSelector.filter(cameraProvider.availableCameraInfos)
-          if (cameraInfos.size > 0) {
-            supportedVideoResolutions = QualitySelector
-              .getSupportedQualities(cameraInfos[0])
-              .map { QualitySelector.getResolution(cameraInfos[0], it)!! }
-          } else {
-            supportedVideoResolutions = emptyList()
-          }
-
-          // TODO: Optimize?
-          val maxImageOutputSize = cameraConfig.outputFormats
-            .flatMap { cameraConfig.getOutputSizes(it).toList() }
-            .maxByOrNull { it.width * it.height }!!
-
-          val formats = Arguments.createArray()
-
-          cameraConfig.outputFormats.forEach { formatId ->
-            val formatName = parseImageFormat(formatId)
-
-            cameraConfig.getOutputSizes(formatId).forEach { size ->
-              val isHighestPhotoQualitySupported = areUltimatelyEqual(size, maxImageOutputSize)
-
-              // Get the number of seconds that each frame will take to process
-              val secondsPerFrame = try {
-                cameraConfig.getOutputMinFrameDuration(formatId, size) / 1_000_000_000.0
-              } catch (error: Throwable) {
-                Log.e(TAG, "Minimum Frame Duration for MediaRecorder Output cannot be calculated, format \"$formatName\" is not supported.")
-                null
-              }
-
-              val frameRateRanges = Arguments.createArray()
-              if (secondsPerFrame != null && secondsPerFrame > 0) {
-                val fps = (1.0 / secondsPerFrame).toInt()
-                val frameRateRange = Arguments.createMap()
-                frameRateRange.putInt("minFrameRate", 1)
-                frameRateRange.putInt("maxFrameRate", fps)
-                frameRateRanges.pushMap(frameRateRange)
-              }
-              fpsRanges.forEach { range ->
-                val frameRateRange = Arguments.createMap()
-                frameRateRange.putInt("minFrameRate", range.lower)
-                frameRateRange.putInt("maxFrameRate", range.upper)
-                frameRateRanges.pushMap(frameRateRange)
-              }
-
-              val colorSpaces = Arguments.createArray()
-              colorSpaces.pushString(formatName)
-
-              val videoStabilizationModes = Arguments.createArray()
-              videoStabilizationModes.pushString("off")
-              if (digitalStabilizationModes != null) {
-                if (digitalStabilizationModes.contains(CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_ON)) {
-                  videoStabilizationModes.pushString("auto")
-                  videoStabilizationModes.pushString("standard")
-                }
-              }
-              if (opticalStabilizationModes != null) {
-                if (opticalStabilizationModes.contains(CameraCharacteristics.LENS_OPTICAL_STABILIZATION_MODE_ON)) {
-                  videoStabilizationModes.pushString("cinematic")
-                }
-              }
-
-              // TODO: Get the pixel format programatically rather than assuming a default of 420v
-              val pixelFormat = "420v"
-
-              val format = Arguments.createMap()
-              format.putDouble("photoHeight", size.height.toDouble())
-              format.putDouble("photoWidth", size.width.toDouble())
-              // since supportedVideoResolutions is sorted from highest resolution to lowest,
-              // videoResolution will be the highest supported video resolution lower than or equal to photo resolution
-              // TODO: Somehow integrate with CamcorderProfileProxy?
-              val videoResolution = supportedVideoResolutions.find { it.width <= size.width && it.height <= size.height }
-              format.putDouble("videoHeight", videoResolution?.height?.toDouble())
-              format.putDouble("videoWidth", videoResolution?.width?.toDouble())
-              format.putBoolean("isHighestPhotoQualitySupported", isHighestPhotoQualitySupported)
-              format.putInt("maxISO", isoRange?.upper)
-              format.putInt("minISO", isoRange?.lower)
-              format.putDouble("fieldOfView", fieldOfView) // TODO: Revisit getAvailableCameraDevices (is fieldOfView accurate?)
-              format.putDouble("maxZoom", (zoomRange?.upper ?: maxScalerZoom).toDouble())
-              format.putArray("colorSpaces", colorSpaces)
-              format.putBoolean("supportsVideoHDR", false) // TODO: supportsVideoHDR
-              format.putBoolean("supportsPhotoHDR", supportsHdr)
-              format.putArray("frameRateRanges", frameRateRanges)
-              format.putString("autoFocusSystem", "none") // TODO: Revisit getAvailableCameraDevices (autoFocusSystem) (CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES or CameraCharacteristics.LENS_INFO_FOCUS_DISTANCE_CALIBRATION)
-              format.putArray("videoStabilizationModes", videoStabilizationModes)
-              format.putString("pixelFormat", pixelFormat)
-              formats.pushMap(format)
-            }
-          }
-
-          map.putArray("formats", formats)
-          cameraDevices.pushMap(map)
+        val devices = Arguments.createArray()
+        manager.cameraIdList.forEach { cameraId ->
+          val device = CameraDevice(manager, extensionsManager, cameraId)
+          devices.pushMap(device.toMap())
         }
-
-        val difference = System.currentTimeMillis() - startTime
-        Log.w(TAG, "CameraViewModule::getAvailableCameraDevices took: $difference ms")
-        return@withPromise cameraDevices
+        promise.resolve(devices)
       }
     }
   }
