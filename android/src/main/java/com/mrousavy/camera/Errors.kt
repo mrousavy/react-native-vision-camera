@@ -1,10 +1,6 @@
 package com.mrousavy.camera
 
 import android.graphics.ImageFormat
-import androidx.camera.video.VideoRecordEvent.Finalize.VideoRecordError
-import com.facebook.react.bridge.Arguments
-import com.facebook.react.bridge.ReadableMap
-import com.facebook.react.bridge.WritableMap
 
 abstract class CameraError(
   /**

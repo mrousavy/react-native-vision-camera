@@ -9,7 +9,6 @@ import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.*
 import com.mrousavy.camera.utils.*
-import kotlinx.coroutines.*
 import java.lang.IllegalArgumentException
 import java.util.concurrent.ExecutorService
 
@@ -78,7 +77,7 @@ class CameraView(private val reactContext: ReactContext, private val frameProces
   }
 
   private external fun initHybrid(): HybridData
-  private external fun frameProcessorCallback(frame: ImageProxy)
+  private external fun frameProcessorCallback(frame: Object)
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()

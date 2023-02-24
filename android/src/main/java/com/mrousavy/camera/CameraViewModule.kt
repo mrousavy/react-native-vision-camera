@@ -3,16 +3,9 @@ package com.mrousavy.camera
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.util.Log
-import android.util.Size
-import androidx.camera.core.CameraSelector
-import androidx.camera.extensions.ExtensionMode
-import androidx.camera.extensions.ExtensionsManager
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.video.QualitySelector
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
@@ -25,7 +18,6 @@ import com.mrousavy.camera.frameprocessor.FrameProcessorRuntimeManager
 import com.mrousavy.camera.parsers.*
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.guava.await
 import java.util.concurrent.Executors
 
 @ReactModule(name = CameraViewModule.TAG)
@@ -165,7 +157,14 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   @ReactMethod
   fun getAvailableCameraDevices(promise: Promise) {
-    throw NotImplementedError("TODO: getAvailableCameraDevices()")
+    val manager = reactApplicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+
+    val devices = Arguments.createArray()
+    manager.cameraIdList.forEach { cameraId ->
+      val device = CameraDevice(manager, cameraId)
+      devices.pushMap(device.toMap())
+    }
+    promise.resolve(devices)
   }
 
   @ReactMethod

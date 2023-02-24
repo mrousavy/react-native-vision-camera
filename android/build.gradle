@@ -142,6 +142,7 @@ dependencies {
   implementation 'com.facebook.react:react-android:+'
 
   implementation "androidx.exifinterface:exifinterface:1.3.3"
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
 
   implementation project(":react-native-worklets")
 }
