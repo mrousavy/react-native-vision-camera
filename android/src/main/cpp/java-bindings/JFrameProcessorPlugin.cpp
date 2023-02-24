@@ -12,9 +12,9 @@ namespace vision {
 using namespace facebook;
 using namespace jni;
 
-using TCallback = jobject(alias_ref<JImageProxy::javaobject>, alias_ref<JArrayClass<jobject>>);
+using TCallback = jobject(alias_ref<JImage::javaobject>, alias_ref<JArrayClass<jobject>>);
 
-local_ref<jobject> JFrameProcessorPlugin::callback(alias_ref<JImageProxy::javaobject> image,
+local_ref<jobject> JFrameProcessorPlugin::callback(alias_ref<JImage::javaobject> image,
                                                    alias_ref<JArrayClass<jobject>> params) const {
   auto callbackMethod = getClass()->getMethod<TCallback>("callback");
 

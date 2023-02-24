@@ -2,11 +2,9 @@ package com.mrousavy.camera.frameprocessor;
 
 import android.annotation.SuppressLint;
 import android.graphics.ImageFormat;
-import android.graphics.Matrix;
 import android.media.Image;
 
 import androidx.annotation.Keep;
-import androidx.camera.core.ImageProxy;
 import com.facebook.proguard.annotations.DoNotStrip;
 
 import java.nio.ByteBuffer;
@@ -14,13 +12,12 @@ import java.nio.ByteBuffer;
 @SuppressWarnings("unused") // used through JNI
 @DoNotStrip
 @Keep
-public class ImageProxyUtils {
+public class ImageUtils {
     @SuppressLint("UnsafeOptInUsageError")
     @DoNotStrip
     @Keep
-    public static boolean isImageProxyValid(ImageProxy imageProxy) {
+    public static boolean isImageValid(Image image) {
         try {
-            Image image = imageProxy.getImage();
             if (image == null) return false;
             // will throw an exception if the image is already closed
             image.getCropRect();
@@ -34,16 +31,15 @@ public class ImageProxyUtils {
 
     @DoNotStrip
     @Keep
-    public static boolean isImageProxyMirrored(ImageProxy imageProxy) {
-        Matrix matrix = imageProxy.getImageInfo().getSensorToBufferTransformMatrix();
-        // TODO: Figure out how to get isMirrored from ImageProxy
+    public static boolean isImageMirrored(Image image) {
+        // TODO: Figure out how to get isMirrored from Image
         return false;
     }
 
     @DoNotStrip
     @Keep
-    public static String getOrientation(ImageProxy imageProxy) {
-        int rotation = imageProxy.getImageInfo().getRotationDegrees();
+    public static String getOrientation(Image image) {
+        int rotation = 45; // TODO: Figure out Rotation image.getImageInfo().getRotationDegrees();
         if (rotation >= 45 && rotation < 135)
             return "landscapeRight";
         if (rotation >= 135 && rotation < 225)
@@ -55,31 +51,31 @@ public class ImageProxyUtils {
 
     @DoNotStrip
     @Keep
-    public static long getTimestamp(ImageProxy imageProxy) {
-        return imageProxy.getImageInfo().getTimestamp();
+    public static long getTimestamp(Image image) {
+        return image.getTimestamp();
     }
 
     @DoNotStrip
     @Keep
-    public static int getPlanesCount(ImageProxy imageProxy) {
-        return imageProxy.getPlanes().length;
+    public static int getPlanesCount(Image image) {
+        return image.getPlanes().length;
     }
 
     @DoNotStrip
     @Keep
-    public static int getBytesPerRow(ImageProxy imageProxy) {
-        return imageProxy.getPlanes()[0].getRowStride();
+    public static int getBytesPerRow(Image image) {
+        return image.getPlanes()[0].getRowStride();
     }
 
     private static byte[] byteArrayCache;
 
     @DoNotStrip
     @Keep
-    public static byte[] toByteArray(ImageProxy imageProxy) {
-        switch (imageProxy.getFormat()) {
+    public static byte[] toByteArray(Image image) {
+        switch (image.getFormat()) {
         case ImageFormat.YUV_420_888:
-            ByteBuffer yBuffer = imageProxy.getPlanes()[0].getBuffer();
-            ByteBuffer vuBuffer = imageProxy.getPlanes()[2].getBuffer();
+            ByteBuffer yBuffer = image.getPlanes()[0].getBuffer();
+            ByteBuffer vuBuffer = image.getPlanes()[2].getBuffer();
             int ySize = yBuffer.remaining();
             int vuSize = vuBuffer.remaining();
 
@@ -92,7 +88,7 @@ public class ImageProxyUtils {
 
             return byteArrayCache;
         default:
-            throw new RuntimeException("Cannot convert Frame with Format " + imageProxy.getFormat() + " to byte array!");
+            throw new RuntimeException("Cannot convert Frame with Format " + image.getFormat() + " to byte array!");
         }
     }
 }

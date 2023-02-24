@@ -21,7 +21,7 @@
 #include <folly/dynamic.h>
 
 #include "FrameHostObject.h"
-#include "java-bindings/JImageProxy.h"
+#include "java-bindings/JImage.h"
 #include "java-bindings/JArrayList.h"
 #include "java-bindings/JHashMap.h"
 
@@ -71,7 +71,7 @@ jobject JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtime &runtime, cons
       auto boxedHostObject = object.getHostObject(runtime);
       auto hostObject = dynamic_cast<FrameHostObject*>(boxedHostObject.get());
       if (hostObject != nullptr) {
-        // return jni local_ref to the JImageProxy
+        // return jni local_ref to the JImage
         return hostObject->frame.get();
       } else {
         // it's different kind of HostObject. We don't support it.
@@ -178,10 +178,10 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
     auto hashMap = toHashMapFunc(object.get());
     return convertJNIObjectToJSIValue(runtime, hashMap);
 
-  } else if (object->isInstanceOf(JImageProxy::javaClassStatic())) {
-    // ImageProxy
+  } else if (object->isInstanceOf(JImage::javaClassStatic())) {
+    // JImage
 
-    auto frame = static_ref_cast<JImageProxy>(object);
+    auto frame = static_ref_cast<JImage>(object);
 
     // box into HostObject
     auto hostObject = std::make_shared<FrameHostObject>(frame);

@@ -55,13 +55,13 @@ For reference see the [CLI's docs](https://github.com/mateusz1913/vision-camera-
 3. Add the following code:
 
 ```java {8}
-import androidx.camera.core.ImageProxy;
+import android.media.Image;
 import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
 
 public class QRCodeFrameProcessorPlugin extends FrameProcessorPlugin {
 
   @Override
-  public Object callback(ImageProxy image, Object[] params) {
+  public Object callback(Image image, Object[] params) {
     // code goes here
     return null;
   }
@@ -124,12 +124,12 @@ public class QRCodeFrameProcessorPluginPackage implements ReactPackage {
 3. Add the following code:
 
 ```kotlin {7}
-import androidx.camera.core.ImageProxy
+import android.media.Image
 import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin
 
 class ExampleFrameProcessorPluginKotlin: FrameProcessorPlugin("scanQRCodes") {
 
-  override fun callback(image: ImageProxy, params: Array<Any>): Any? {
+  override fun callback(image: Image, params: Array<Any>): Any? {
     // code goes here
     return null
   }

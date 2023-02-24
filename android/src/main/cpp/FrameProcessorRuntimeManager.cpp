@@ -13,7 +13,7 @@
 #include "CameraView.h"
 #include "FrameHostObject.h"
 #include "JSIJNIConversion.h"
-#include "java-bindings/JImageProxy.h"
+#include "java-bindings/JImage.h"
 #include "java-bindings/JFrameProcessorPlugin.h"
 #include "JSITypedArray.h"
 
@@ -112,9 +112,9 @@ void FrameProcessorRuntimeManager::setFrameProcessor(jsi::Runtime& runtime,
 
   _workletContext->invokeOnWorkletThread([=](RNWorklet::JsiWorkletContext*, jsi::Runtime& rt) {
     // Set Frame Processor as callable C++ lambda - this will then call the Worklet
-    cameraView->cthis()->setFrameProcessor([this, workletInvoker, &rt](jni::alias_ref<JImageProxy::javaobject> frame) {
+    cameraView->cthis()->setFrameProcessor([this, workletInvoker, &rt](jni::alias_ref<JImage::javaobject> frame) {
       try {
-        // create HostObject which holds the Frame (JImageProxy)
+        // create HostObject which holds the Frame (JImage)
         auto frameHostObject = std::make_shared<FrameHostObject>(frame);
         auto argument = jsi::Object::createFromHostObject(rt, frameHostObject);
         jsi::Value jsValue(std::move(argument));
