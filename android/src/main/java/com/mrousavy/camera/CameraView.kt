@@ -2,6 +2,7 @@ package com.mrousavy.camera
 
 import android.annotation.SuppressLint
 import android.hardware.camera2.*
+import android.media.Image
 import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
@@ -77,7 +78,7 @@ class CameraView(private val reactContext: ReactContext, private val frameProces
   }
 
   private external fun initHybrid(): HybridData
-  private external fun frameProcessorCallback(frame: Object)
+  private external fun frameProcessorCallback(frame: Image)
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
