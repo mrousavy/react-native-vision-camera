@@ -41,7 +41,7 @@ For reference see the [CLI's docs](https://github.com/mateusz1913/vision-camera-
 2. Create an Objective-C source file, for the QR Code Plugin this will be called `QRCodeFrameProcessorPlugin.m`.
 3. Add the following code:
 
-```objc {12}
+```objc
 #import <VisionCamera/FrameProcessorPlugin.h>
 #import <VisionCamera/Frame.h>
 
@@ -89,25 +89,7 @@ The Frame Processor Plugin will be exposed to JS through the `FrameProcessorPlug
 #import <VisionCamera/Frame.h>
 ```
 
-4. Create an Objective-C source file with the same name as the Swift file, for the QR Code Plugin this will be `QRCodeFrameProcessorPlugin.m`. Add the following code:
-
-```objc
-#import <VisionCamera/FrameProcessorPlugin.h>
-
-@interface QRCodeFrameProcessorPlugin : FrameProcessorPlugin
-@end
-
-@interface QRCodeFrameProcessorPluginWrapper : NSObject
-@end
-
-@implementation QRCodeFrameProcessorPluginWrapper
-+ (void) load {
-  [FrameProcessorPlugin registerPlugin:[[QRCodeFrameProcessorPlugin alloc] init]];
-}
-@end
-```
-
-5. In the Swift file, add the following code:
+4. In the Swift file, add the following code:
 
 ```swift
 @objc(QRCodeFrameProcessorPlugin)
@@ -125,7 +107,27 @@ public class QRCodeFrameProcessorPlugin: FrameProcessorPlugin {
 }
 ```
 
-6. **Implement your frame processing.** See [Example Plugin (Swift)](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/ios/Frame%20Processor%20Plugins/Example%20Plugin%20%28Swift%29) for reference.
+5. In your `AppDelegate.m`, add the following imports (you can skip this if your AppDelegate is in Swift):
+
+```objc
+#import "YOUR_XCODE_PROJECT_NAME-Swift.h"
+#import <VisionCamera/FrameProcessorPlugin.h>
+```
+
+6. In your `AppDelegate.m`, add the following code to `application:didFinishLaunchingWithOptions:`:
+
+```objc {5}
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+  ...
+
+  [FrameProcessorPlugin registerPlugin:[[QRCodeFrameProcessorPlugin alloc] init]];
+
+  return [super application:application didFinishLaunchingWithOptions:launchOptions];
+}
+```
+
+7. **Implement your frame processing.** See [Example Plugin (Swift)](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/ios/Frame%20Processor%20Plugins/Example%20Plugin%20%28Swift%29) for reference.
 
 
 </TabItem>
