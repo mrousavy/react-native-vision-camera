@@ -13,7 +13,7 @@ using namespace facebook;
 using namespace jni;
 
 struct JImage : public JavaClass<JImage> {
-  static constexpr auto kJavaDescriptor = "Landroidx/camera/core/Image;";
+  static constexpr auto kJavaDescriptor = "Landroid/media/Image;";
 
  public:
   int getWidth() const;
