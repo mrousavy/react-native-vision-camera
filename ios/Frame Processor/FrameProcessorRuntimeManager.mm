@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "FrameProcessorRuntimeManager.h"
 #import "FrameProcessorPluginRegistry.h"
+#import "FrameProcessorPlugin.h"
 #import "FrameHostObject.h"
 
 #import <memory>
@@ -83,14 +84,14 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
     auto pluginName = [pluginKey UTF8String];
 
     NSLog(@"FrameProcessorBindings: Installing Frame Processor plugin \"%s\"...", pluginName);
-    // Get the Plugin callback func
-    FrameProcessorPlugin callback = [[FrameProcessorPluginRegistry frameProcessorPlugins] valueForKey:pluginKey];
+    // Get the Plugin
+    FrameProcessorPlugin* plugin = [[FrameProcessorPluginRegistry frameProcessorPlugins] valueForKey:pluginKey];
 
     // Create the JSI host function
-    auto function = [callback, callInvoker](jsi::Runtime& runtime,
-                                            const jsi::Value& thisValue,
-                                            const jsi::Value* arguments,
-                                            size_t count) -> jsi::Value {
+    auto function = [plugin, callInvoker](jsi::Runtime& runtime,
+                                          const jsi::Value& thisValue,
+                                          const jsi::Value* arguments,
+                                          size_t count) -> jsi::Value {
       // Get the first parameter, which is always the native Frame Host Object.
       auto frameHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
       auto frame = static_cast<FrameHostObject*>(frameHostObject.get());
@@ -101,7 +102,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                                  count - 1, // use smaller count
                                                  callInvoker);
       // Call the FP Plugin, which might return something.
-      id result = callback(frame->frame, args);
+      id result = [plugin callback:frame->frame withArguments:args];
 
       // Convert the return value (or null) to a JS Value and return it to JS
       return convertObjCObjectToJSIValue(runtime, result);
