@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "postinstall": "yarn install --cwd ..",
     "docusaurus": "docusaurus",
     "start": "TYPEDOC_WATCH=true docusaurus start",
     "build": "docusaurus build",
