@@ -1,6 +1,7 @@
 import type { Frame, FrameInternal } from './Frame';
 import { Camera } from './Camera';
 import { Worklets } from 'react-native-worklets/src';
+import { useMemo } from 'react';
 
 // Install VisionCamera Frame Processor JSI Bindings and Plugins
 Camera.installFrameProcessorBindings();
@@ -15,8 +16,6 @@ type TFrameProcessorPlugins = Record<string, FrameProcessor>;
  */
 // @ts-expect-error The global JSI Proxy object is not typed.
 export const FrameProcessorPlugins = global.FrameProcessorPlugins as TFrameProcessorPlugins;
-
-const lastFrameProcessorCall = Worklets.createSharedValue(performance.now());
 
 /**
  * Runs the given function at the given target FPS rate.
@@ -43,17 +42,23 @@ const lastFrameProcessorCall = Worklets.createSharedValue(performance.now());
  * })
  * ```
  */
-export function runAtTargetFps<T>(fps: number, func: () => T): T | undefined {
-  'worklet';
-  const targetIntervalMs = 1000 / fps; // <-- 60 FPS => 16,6667ms interval
-  const now = performance.now();
-  const diffToLastCall = now - lastFrameProcessorCall.value;
-  if (diffToLastCall >= targetIntervalMs) {
-    lastFrameProcessorCall.value = now;
-    // Last Frame Processor call is already so long ago that we want to make a new call
-    return func();
-  }
-  return undefined;
+
+export function useRunAtTargetFps(): <T>(fps: number, func: () => T) => T | undefined {
+  // set the initial value to 0, so that the first call is always executed
+  const lastFrameProcessorCall = useMemo(() => Worklets.createSharedValue(0), []);
+
+  return (fps, func) => {
+    'worklet';
+    const targetIntervalMs = 1000 / fps; // <-- 60 FPS => 16,6667ms interval
+    const now = performance.now();
+    const diffToLastCall = now - lastFrameProcessorCall.value;
+    if (diffToLastCall >= targetIntervalMs) {
+      lastFrameProcessorCall.value = now;
+      // Last Frame Processor call is already so long ago that we want to make a new call
+      return func();
+    }
+    return undefined;
+  };
 }
 
 const isAsyncContextBusy = Worklets.createSharedValue(false);
