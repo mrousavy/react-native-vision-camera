@@ -16,7 +16,7 @@ extension CameraView {
   }
 
   // Orientation of the output connections (photo, video, frame processor)
-  private var outputOrientation: UIInterfaceOrientation {
+  var outputOrientation: UIInterfaceOrientation {
     if let userOrientation = orientation as String?,
        let parsedOrientation = try? UIInterfaceOrientation(withString: userOrientation) {
       // user is overriding output orientation
@@ -27,12 +27,12 @@ extension CameraView {
     }
   }
 
-  internal func updateOrientation() {
+  func updateOrientation() {
     // Updates the Orientation for all rotable
-    let isMirrored = self.videoDeviceInput?.device.position == .front
+    let isMirrored = videoDeviceInput?.device.position == .front
 
-    let connectionOrientation = self.outputOrientation
-    self.captureSession.outputs.forEach { output in
+    let connectionOrientation = outputOrientation
+    captureSession.outputs.forEach { output in
       output.connections.forEach { connection in
         if connection.isVideoMirroringSupported {
           connection.automaticallyAdjustsVideoMirroring = false

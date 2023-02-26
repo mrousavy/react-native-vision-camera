@@ -9,6 +9,7 @@
 #include <fbjni/fbjni.h>
 #include <vector>
 #include <string>
+#include <mutex>
 
 #include "java-bindings/JImageProxy.h"
 
@@ -25,15 +26,14 @@ class JSI_EXPORT FrameHostObject : public jsi::HostObject {
   jsi::Value get(jsi::Runtime &, const jsi::PropNameID &name) override;
   std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime &rt) override;
 
-  void close();
-
  public:
   jni::global_ref<JImageProxy> frame;
 
  private:
   static auto constexpr TAG = "VisionCamera";
 
-  void assertIsFrameStrong(jsi::Runtime& runtime, const std::string& accessedPropName) const; // NOLINT(runtime/references)
+  size_t _refCount;
+  std::mutex _refCountMutex;
 };
 
 } // namespace vision

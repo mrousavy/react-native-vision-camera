@@ -190,7 +190,25 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   }
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
-    // Video Recording runs in the same queue
+    // Draw Frame to Preview View Canvas (and call Frame Processor)
+    if captureOutput is AVCaptureVideoDataOutput {
+      if let previewView = previewView as? PreviewSkiaView {
+        // Render to Skia PreviewView
+        previewView.drawFrame(sampleBuffer) { canvas in
+          // Call JS Frame Processor before passing Frame to GPU - allows user to draw
+          guard let frameProcessor = self.frameProcessorCallback else { return }
+          let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
+          frameProcessor(frame, canvas)
+        }
+      } else {
+        // Call JS Frame Processor. User cannot draw, since we don't have a Skia Canvas.
+        guard let frameProcessor = self.frameProcessorCallback else { return }
+        let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
+        frameProcessor(frame, nil)
+      }
+    }
+
+    // Record Video Frame/Audio Sample to File
     if isRecording {
       guard let recordingSession = recordingSession else {
         invokeOnError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
@@ -209,70 +227,27 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         break
       }
     }
-
-    if let frameProcessor = frameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
-      // check if last frame was x nanoseconds ago, effectively throttling FPS
-      let frameTime = UInt64(CMSampleBufferGetPresentationTimeStamp(sampleBuffer).seconds * 1_000_000_000.0)
-      let lastFrameProcessorCallElapsedTime = frameTime - lastFrameProcessorCall
-      let secondsPerFrame = 1.0 / actualFrameProcessorFps
-      let nanosecondsPerFrame = secondsPerFrame * 1_000_000_000.0
-      if lastFrameProcessorCallElapsedTime >= UInt64(nanosecondsPerFrame) {
-        if !isRunningFrameProcessor {
-          // we're not in the middle of executing the Frame Processor, so prepare for next call.
-          CameraQueues.frameProcessorQueue.async {
-            self.isRunningFrameProcessor = true
-
-            let perfSample = self.frameProcessorPerformanceDataCollector.beginPerformanceSampleCollection()
-            let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
-            frameProcessor(frame)
-            perfSample.endPerformanceSampleCollection()
-
-            self.isRunningFrameProcessor = false
-          }
-          lastFrameProcessorCall = frameTime
-        } else {
-          // we're still in the middle of executing a Frame Processor for a previous frame, so a frame was dropped.
-          ReactLogger.log(level: .warning, message: "The Frame Processor took so long to execute that a frame was dropped.")
+    
+#if DEBUG
+    if captureOutput is AVCaptureVideoDataOutput {
+      // Update FPS Graph per Frame
+      if let fpsGraph = self.fpsGraph {
+        DispatchQueue.main.async {
+          fpsGraph.onTick(CACurrentMediaTime())
         }
       }
-
-      if isReadyForNewEvaluation {
-        // last evaluation was more than 1sec ago, evaluate again
-        evaluateNewPerformanceSamples()
-      }
     }
+#endif
   }
 
-  private func evaluateNewPerformanceSamples() {
-    lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
-    guard let videoDevice = videoDeviceInput?.device else { return }
-    guard frameProcessorPerformanceDataCollector.hasEnoughData else { return }
-
-    let maxFrameProcessorFps = Double(videoDevice.activeVideoMinFrameDuration.timescale) * Double(videoDevice.activeVideoMinFrameDuration.value)
-    let averageFps = 1.0 / frameProcessorPerformanceDataCollector.averageExecutionTimeSeconds
-    let suggestedFrameProcessorFps = max(floor(min(averageFps, maxFrameProcessorFps)), 1)
-
-    if frameProcessorFps.intValue == -1 {
-      // frameProcessorFps="auto"
-      actualFrameProcessorFps = suggestedFrameProcessorFps
-    } else {
-      // frameProcessorFps={someCustomFpsValue}
-      invokeOnFrameProcessorPerformanceSuggestionAvailable(currentFps: frameProcessorFps.doubleValue,
-                                                           suggestedFps: suggestedFrameProcessorFps)
-    }
-  }
-
-  private func recommendedVideoSettings(videoOutput: AVCaptureVideoDataOutput, fileType: AVFileType, videoCodec: AVVideoCodecType?) -> [String: Any]? {
+  private func recommendedVideoSettings(videoOutput: AVCaptureVideoDataOutput,
+                                        fileType: AVFileType,
+                                        videoCodec: AVVideoCodecType?) -> [String: Any]? {
     if videoCodec != nil {
       return videoOutput.recommendedVideoSettings(forVideoCodecType: videoCodec!, assetWriterOutputFileType: fileType)
     } else {
       return videoOutput.recommendedVideoSettingsForAssetWriter(writingTo: fileType)
     }
-  }
-
-  private var isReadyForNewEvaluation: Bool {
-    let lastPerformanceEvaluationElapsedTime = DispatchTime.now().uptimeNanoseconds - lastFrameProcessorPerformanceEvaluation.uptimeNanoseconds
-    return lastPerformanceEvaluationElapsedTime > 1_000_000_000
   }
 
   /**
@@ -283,7 +258,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       return .up
     }
 
-    switch UIDevice.current.orientation {
+    switch outputOrientation {
     case .portrait:
       return cameraPosition == .front ? .leftMirrored : .right
 
@@ -296,8 +271,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
     case .landscapeRight:
       return cameraPosition == .front ? .upMirrored : .down
 
-    case .unknown, .faceUp, .faceDown:
-      fallthrough
+    case .unknown:
+      return .up
     @unknown default:
       return .up
     }

@@ -19,20 +19,48 @@
 #import "JSConsoleHelper.h"
 #import <ReactCommon/RCTTurboModule.h>
 
-FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime& runtime, const jsi::Function& value) {
-  __block auto cb = value.getFunction(runtime);
+#import "WKTJsiWorklet.h"
 
-  return ^(Frame* frame) {
+#import "RNSkPlatformContext.h"
+#import "RNSkiOSPlatformContext.h"
+#import "JsiSkCanvas.h"
 
-    auto frameHostObject = std::make_shared<FrameHostObject>(frame);
+FrameProcessorCallback convertWorkletToFrameProcessorCallback(jsi::Runtime& runtime, std::shared_ptr<RNWorklet::JsiWorklet> worklet) {
+  // Wrap Worklet call in invoker
+  auto workletInvoker = std::make_shared<RNWorklet::WorkletInvoker>(worklet);
+  // Create cached Skia Canvas object
+  auto callInvoker = RCTBridge.currentBridge.jsCallInvoker;
+  auto skiaPlatformContext = std::make_shared<RNSkia::RNSkiOSPlatformContext>(&runtime, callInvoker);
+  auto canvasHostObject = std::make_shared<RNSkia::JsiSkCanvas>(skiaPlatformContext);
+
+  // Converts a Worklet to a callable Objective-C block function
+  return ^(Frame* frame, void* skiaCanvas) {
+
     try {
-      cb.callWithThis(runtime, cb, jsi::Object::createFromHostObject(runtime, frameHostObject));
+      // Create cached Frame object
+      auto frameHostObject = std::make_shared<FrameHostObject>(frame);
+      // Update cached Canvas object
+      if (skiaCanvas != nullptr) {
+        canvasHostObject->setCanvas((SkCanvas*)skiaCanvas);
+        frameHostObject->canvas = canvasHostObject;
+      } else {
+        frameHostObject->canvas = nullptr;
+      }
+      
+      auto argument = jsi::Object::createFromHostObject(runtime, frameHostObject);
+      jsi::Value jsValue(std::move(argument));
+      // Call the Worklet with the Frame JS Host Object as an argument
+      workletInvoker->call(runtime, jsi::Value::undefined(), &jsValue, 1);
+      
+      // After the sync Frame Processor finished executing, remove the Canvas on that Frame instance. It can no longer draw.
+      frameHostObject->canvas = nullptr;
     } catch (jsi::JSError& jsError) {
+      // JS Error occured, print it to console.
       auto stack = std::regex_replace(jsError.getStack(), std::regex("\n"), "\n    ");
       auto message = [NSString stringWithFormat:@"Frame Processor threw an error: %s\nIn: %s", jsError.getMessage().c_str(), stack.c_str()];
-      
+
       RCTBridge* bridge = [RCTBridge currentBridge];
-      if (bridge != nil) {
+      if (bridge != nil && bridge.jsCallInvoker != nullptr) {
         bridge.jsCallInvoker->invokeAsync([bridge, message]() {
           auto logFn = [JSConsoleHelper getLogFunctionForBridge:bridge];
           logFn(RCTLogLevelError, message);
@@ -41,11 +69,5 @@ FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime& 
         NSLog(@"%@", message);
       }
     }
-
-    // Manually free the buffer because:
-    //  1. we are sure we don't need it anymore, the frame processor worklet has finished executing.
-    //  2. we don't know when the JS runtime garbage collects this object, it might be holding it for a few more frames
-    //     which then blocks the camera queue from pushing new frames (memory limit)
-    frameHostObject->close();
   };
 }

@@ -1,7 +1,9 @@
+import type { SkCanvas, SkPaint } from '@shopify/react-native-skia';
+
 /**
  * A single frame, as seen by the camera.
  */
-export interface Frame {
+export interface Frame extends SkCanvas {
   /**
    * Whether the underlying buffer is still valid or not. The buffer will be released after the frame processor returns, or `close()` is called.
    */
@@ -32,18 +34,47 @@ export interface Frame {
    */
   toString(): string;
   /**
-   * Closes and disposes the Frame.
-   * Only close frames that you have created yourself, e.g. by copying the frame you receive in a frame processor.
+   * Renders the Frame to the screen.
    *
+   * By default a Frame has already been rendered to the screen once, so if you call this method again,
+   * previously drawn content will be overwritten.
+   *
+   * @param paint (Optional) A Paint object to use to draw the Frame with. For example, this can contain a Shader (ImageFilter)
    * @example
    * ```ts
+   * const INVERTED_COLORS_SHADER = `
+   *  uniform shader image;
+   *  half4 main(vec2 pos) {
+   *    vec4 color = image.eval(pos);
+   *    return vec4(1.0 - color.rgb, 1.0);
+   * }`
+   * const runtimeEffect = Skia.RuntimeEffect.Make(INVERT_COLORS_SHADER)
+   * if (runtimeEffect == null) throw new Error('Shader failed to compile!')
+   * const shaderBuilder = Skia.RuntimeShaderBuilder(runtimeEffect)
+   * const imageFilter = Skia.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null)
+   * const paint = Skia.Paint()
+   * paint.setImageFilter(imageFilter)
+   *
    * const frameProcessor = useFrameProcessor((frame) => {
-   *   const smallerCopy = resize(frame, 480, 270)
-   *   // run AI ...
-   *   smallerCopy.close()
-   *   // don't close `frame`!
-   * })
+   *   'worklet'
+   *   frame.render(paint) // <-- draws frame with inverted colors now
+   * }, [paint])
    * ```
    */
-  close(): void;
+  render: (paint?: SkPaint) => void;
+}
+
+export interface FrameInternal extends Frame {
+  /**
+   * Increment the Frame Buffer ref-count by one.
+   *
+   * This is a private API, do not use this.
+   */
+  incrementRefCount(): void;
+  /**
+   * Increment the Frame Buffer ref-count by one.
+   *
+   * This is a private API, do not use this.
+   */
+  decrementRefCount(): void;
 }

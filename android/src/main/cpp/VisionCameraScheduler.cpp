@@ -14,9 +14,9 @@ TSelf VisionCameraScheduler::initHybrid(jni::alias_ref<jhybridobject> jThis) {
   return makeCxxInstance(jThis);
 }
 
-void VisionCameraScheduler::scheduleOnUI(std::function<void()> job) {
+void VisionCameraScheduler::dispatchAsync(std::function<void()> job) {
   // 1. add job to queue
-  uiJobs.push(job);
+  _jobs.push(job);
   scheduleTrigger();
 }
 
@@ -26,16 +26,18 @@ void VisionCameraScheduler::scheduleTrigger() {
   method(javaPart_.get());
 }
 
-void VisionCameraScheduler::triggerUI() {
+void VisionCameraScheduler::trigger() {
+  std::unique_lock<std::mutex> lock(_mutex);
   // 3. call job we enqueued in step 1.
-  auto job = uiJobs.pop();
+  auto job = _jobs.front();
   job();
+  _jobs.pop();
 }
 
 void VisionCameraScheduler::registerNatives() {
   registerHybrid({
     makeNativeMethod("initHybrid", VisionCameraScheduler::initHybrid),
-    makeNativeMethod("triggerUI", VisionCameraScheduler::triggerUI),
+    makeNativeMethod("trigger", VisionCameraScheduler::trigger),
   });
 }
 

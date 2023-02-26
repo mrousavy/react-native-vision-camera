@@ -6,7 +6,7 @@ import { useIsForeground } from './hooks/useIsForeground';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { Alert } from 'react-native';
-import CameraRoll from '@react-native-community/cameraroll';
+import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import { StatusBarBlurBackground } from './views/StatusBarBlurBackground';
 import type { NativeSyntheticEvent } from 'react-native';
 import type { ImageLoadEventData } from 'react-native';

@@ -1,11 +1,9 @@
-/* global _setGlobalConsole */
-
 import { DependencyList, useCallback } from 'react';
-import type { Frame } from '../Frame';
+import type { Frame, FrameInternal } from '../Frame';
+// Install RN Worklets by importing it
+import 'react-native-worklets/src';
 
 type FrameProcessor = (frame: Frame) => void;
-
-const capturableConsole = console;
 
 /**
  * Returns a memoized Frame Processor function wich you can pass to the `<Camera>`. (See ["Frame Processors"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors))
@@ -27,33 +25,15 @@ const capturableConsole = console;
 export function useFrameProcessor(frameProcessor: FrameProcessor, dependencies: DependencyList): FrameProcessor {
   return useCallback((frame: Frame) => {
     'worklet';
-
-    // @ts-expect-error
-    if (global.didSetConsole == null || global.didSetConsole === false) {
-      const console = {
-        // @ts-expect-error __callAsync is injected by native REA
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        debug: capturableConsole.debug.__callAsync,
-        // @ts-expect-error __callAsync is injected by native REA
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        log: capturableConsole.log.__callAsync,
-        // @ts-expect-error __callAsync is injected by native REA
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        warn: capturableConsole.warn.__callAsync,
-        // @ts-expect-error __callAsync is injected by native REA
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        error: capturableConsole.error.__callAsync,
-        // @ts-expect-error __callAsync is injected by native REA
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        info: capturableConsole.info.__callAsync,
-      };
-      // @ts-expect-error _setGlobalConsole is set by RuntimeDecorator::decorateRuntime
-      _setGlobalConsole(console);
-      // @ts-expect-error
-      global.didSetConsole = true;
+    // Increment ref-count by one
+    (frame as FrameInternal).incrementRefCount();
+    try {
+      // Call sync frame processor
+      frameProcessor(frame);
+    } finally {
+      // Potentially delete Frame if we were the last ref (no runAsync)
+      (frame as FrameInternal).decrementRefCount();
     }
-
-    frameProcessor(frame);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies);
 }
