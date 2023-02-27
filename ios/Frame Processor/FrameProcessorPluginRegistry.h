@@ -10,12 +10,11 @@
 
 #import <Foundation/Foundation.h>
 #import "Frame.h"
-
-typedef id (^FrameProcessorPlugin) (Frame* frame, NSArray<id>* arguments);
+#import "FrameProcessorPlugin.h"
 
 @interface FrameProcessorPluginRegistry : NSObject
 
-+ (NSMutableDictionary<NSString*, FrameProcessorPlugin>*)frameProcessorPlugins;
-+ (void) addFrameProcessorPlugin:(NSString*)name callback:(FrameProcessorPlugin)callback;
++ (NSMutableDictionary<NSString*, FrameProcessorPlugin*>*)frameProcessorPlugins;
++ (void) addFrameProcessorPlugin:(FrameProcessorPlugin*)plugin;
 
 @end

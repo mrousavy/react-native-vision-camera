@@ -41,29 +41,35 @@ For reference see the [CLI's docs](https://github.com/mateusz1913/vision-camera-
 2. Create an Objective-C source file, for the QR Code Plugin this will be called `QRCodeFrameProcessorPlugin.m`.
 3. Add the following code:
 
-```objc {12}
+```objc
 #import <VisionCamera/FrameProcessorPlugin.h>
 #import <VisionCamera/Frame.h>
 
-@interface QRCodeFrameProcessorPlugin : NSObject
+@interface QRCodeFrameProcessorPlugin : FrameProcessorPlugin
 @end
 
 @implementation QRCodeFrameProcessorPlugin
 
-static inline id scanQRCodes(Frame* frame, NSArray* args) {
+- (NSString *)name {
+  return @"scanQRCodes";
+}
+
+- (id)callback:(Frame *)frame withArguments:(NSArray<id> *)arguments {
   CMSampleBufferRef buffer = frame.buffer;
   UIImageOrientation orientation = frame.orientation;
   // code goes here
   return @[];
 }
 
-VISION_EXPORT_FRAME_PROCESSOR(scanQRCodes)
++ (void) load {
+  [self registerPlugin:[[ExampleFrameProcessorPlugin alloc] init]];
+}
 
 @end
 ```
 
 :::note
-The Frame Processor Plugin will be exposed to JS through the `FrameProcessorPlugins` object using the same name as the Objective-C function. In this case, it would be `FrameProcessorPlugins.scanQRCodes(...)`.
+The Frame Processor Plugin will be exposed to JS through the `FrameProcessorPlugins` object using the name returned from the `name` getter. In this case, it would be `FrameProcessorPlugins.scanQRCodes(...)`.
 :::
 
 4. **Implement your Frame Processing.** See the [Example Plugin (Objective-C)](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/ios/Frame%20Processor%20Plugins/Example%20Plugin%20%28Objective%2DC%29) for reference.
@@ -83,27 +89,16 @@ The Frame Processor Plugin will be exposed to JS through the `FrameProcessorPlug
 #import <VisionCamera/Frame.h>
 ```
 
-4. Create an Objective-C source file with the same name as the Swift file, for the QR Code Plugin this will be `QRCodeFrameProcessorPlugin.m`. Add the following code:
+4. In the Swift file, add the following code:
 
-```objc
-#import <VisionCamera/FrameProcessorPlugin.h>
-
-@interface VISION_EXPORT_SWIFT_FRAME_PROCESSOR(scanQRCodes, QRCodeFrameProcessorPlugin)
-@end
-```
-
-:::note
-The first parameter in the Macro specifies the JS function name. Make sure it is unique across other Frame Processors.
-:::
-
-5. In the Swift file, add the following code:
-
-```swift {8}
+```swift
 @objc(QRCodeFrameProcessorPlugin)
-public class QRCodeFrameProcessorPlugin: NSObject, FrameProcessorPluginBase {
+public class QRCodeFrameProcessorPlugin: FrameProcessorPlugin {
+  override public func name() -> String! {
+    return "scanQRCodes"
+  }
 
-  @objc
-  public static func callback(_ frame: Frame!, withArgs _: [Any]!) -> Any! {
+  public override func callback(_ frame: Frame!, withArguments arguments: [Any]!) -> Any! {
     let buffer = frame.buffer
     let orientation = frame.orientation
     // code goes here
@@ -112,7 +107,27 @@ public class QRCodeFrameProcessorPlugin: NSObject, FrameProcessorPluginBase {
 }
 ```
 
-6. **Implement your frame processing.** See [Example Plugin (Swift)](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/ios/Frame%20Processor%20Plugins/Example%20Plugin%20%28Swift%29) for reference.
+5. In your `AppDelegate.m`, add the following imports (you can skip this if your AppDelegate is in Swift):
+
+```objc
+#import "YOUR_XCODE_PROJECT_NAME-Swift.h"
+#import <VisionCamera/FrameProcessorPlugin.h>
+```
+
+6. In your `AppDelegate.m`, add the following code to `application:didFinishLaunchingWithOptions:`:
+
+```objc {5}
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+  ...
+
+  [FrameProcessorPlugin registerPlugin:[[QRCodeFrameProcessorPlugin alloc] init]];
+
+  return [super application:application didFinishLaunchingWithOptions:launchOptions];
+}
+```
+
+7. **Implement your frame processing.** See [Example Plugin (Swift)](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/ios/Frame%20Processor%20Plugins/Example%20Plugin%20%28Swift%29) for reference.
 
 
 </TabItem>

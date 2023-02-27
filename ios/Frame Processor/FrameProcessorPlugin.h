@@ -6,57 +6,27 @@
 //  Copyright © 2021 mrousavy. All rights reserved.
 //
 
-#ifndef FrameProcessorPlugin_h
-#define FrameProcessorPlugin_h
+#pragma once
 
 #import <Foundation/Foundation.h>
-#import "FrameProcessorPluginRegistry.h"
 #import "Frame.h"
 
-@protocol FrameProcessorPluginBase
-+ (id) callback:(Frame*)frame withArgs:(NSArray<id>*)args;
+/// The base class for a Frame Processor Plugin which can be called synchronously from a JS Frame Processor.
+///
+/// Subclass this class in a Swift or Objective-C class and override the `callback:withArguments:` method, and
+/// implement your Frame Processing there.
+/// Then, in your App's startup (AppDelegate.m), call `FrameProcessorPluginBase.registerPlugin(YourNewPlugin())`
+@interface FrameProcessorPlugin : NSObject
+
+/// Get the name of the Frame Processor Plugin.
+/// This will be exposed to JS under the `FrameProcessorPlugins` Proxy object.
+- (NSString *)name;
+
+/// The actual callback when calling this plugin. Any Frame Processing should be handled there.
+/// Make sure your code is optimized, as this is a hot path.
+- (id) callback:(Frame*)frame withArguments:(NSArray<id>*)arguments;
+
+/// Register the given plugin in the Plugin Registry. This should be called on App Startup.
++ (void) registerPlugin:(FrameProcessorPlugin*)plugin;
+
 @end
-
-
-#define VISION_CONCAT2(A, B) A##B
-#define VISION_CONCAT(A, B) VISION_CONCAT2(A, B)
-
-/**
- * Use this Macro to register the given function as a Frame Processor.
- * * Make sure the given function is a C-style function with the following signature: static inline id callback(Frame* frame, NSArray* args)
- * * Make sure the given function's name is unique across other frame processor plugins
- * * Make sure your frame processor returns a Value that can be converted to JS
- * * Make sure to use this Macro in an @implementation, not @interface
- *
- * The JS function will have the same name as the given Objective-C function. It can be accessed through the FrameProcessorPlugins object exposed by VisionCamera.
- */
-#define VISION_EXPORT_FRAME_PROCESSOR(frame_processor)                              \
-                                                                                    \
-+(void)load                                                                         \
-{                                                                                   \
-  [FrameProcessorPluginRegistry addFrameProcessorPlugin:@ #frame_processor callback:^id(Frame* frame, NSArray<id>* args) { \
-    return frame_processor(frame, args);                                           \
-  }];                                                                               \
-}
-
-
-/**
- * Same as VISION_EXPORT_FRAME_PROCESSOR, but uses __attribute__((constructor)) for
- * registration. Useful for registering swift classes that forbids use of +(void)load.
- */
-#define VISION_EXPORT_SWIFT_FRAME_PROCESSOR(name, objc_name) \
-objc_name : NSObject<FrameProcessorPluginBase>                                      \
-@end                                                                                \
-                                                                                    \
-@interface objc_name (FrameProcessorPlugin)                                         \
-@end                                                                                \
-@implementation objc_name (FrameProcessorPlugin)                                    \
-                                                                                    \
-+(void)load                                                                          \
-{                                                                                   \
-  [FrameProcessorPluginRegistry addFrameProcessorPlugin:@ #name callback:^id(Frame* frame, NSArray<id>* args) {    \
-    return [objc_name callback:frame withArgs:args];                               \
-  }];                                                                               \
-}
-
-#endif /* FrameProcessorPlugin_h */
