@@ -192,7 +192,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   init {
     mHybridData = initHybrid()
 
-    previewView = SkiaPreviewView(context)
+    previewView = SkiaPreviewView(context, cameraExecutor)
     previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
     previewView.installHierarchyFitter() // If this is not called correctly, view finder will be black/blank
     addView(previewView)
@@ -424,8 +424,12 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
       imageAnalysis = null
       cameraProvider.unbindAll()
 
+      val preview = Preview.Builder().build()
+      preview.setSurfaceProvider(previewView)
+
       // Bind use cases to camera
       val useCases = ArrayList<UseCase>()
+      useCases.add(preview)
       if (video == true) {
         Log.i(TAG, "Adding VideoCapture use-case...")
 

@@ -11,9 +11,12 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.widget.FrameLayout
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.Preview
+import androidx.camera.core.SurfaceRequest
 import com.mrousavy.camera.utils.toBitmap
+import java.util.concurrent.Executor
 
-class SkiaPreviewView(context: Context) : FrameLayout(context), SurfaceHolder.Callback {
+class SkiaPreviewView(context: Context, private val executor: Executor) : FrameLayout(context), SurfaceHolder.Callback, Preview.SurfaceProvider {
   private val TAG = "SkiaPreviewView"
   val surfaceView = SurfaceView(context)
   val surface: Surface?
@@ -73,5 +76,15 @@ class SkiaPreviewView(context: Context) : FrameLayout(context), SurfaceHolder.Ca
     // TODO: Let Frame Processor Close Image. we don't need to do that.
     image.close()
     Log.d(TAG, "Draw took ${System.currentTimeMillis() - start}ms")
+  }
+
+  override fun onSurfaceRequested(request: SurfaceRequest) {
+    if (surfaceView.holder.isCreating) {
+      request.willNotProvideSurface()
+      return
+    }
+
+    surfaceView.holder.setFixedSize(request.resolution.width, request.resolution.height)
+    request.provideSurface(surfaceView.holder.surface, executor) {}
   }
 }
