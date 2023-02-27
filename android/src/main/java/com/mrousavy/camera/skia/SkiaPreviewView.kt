@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.PorterDuff
+import android.opengl.GLSurfaceView
 import android.util.Log
 import android.view.Surface
 import android.view.SurfaceHolder
@@ -18,7 +19,7 @@ import java.util.concurrent.Executor
 
 class SkiaPreviewView(context: Context, private val executor: Executor) : FrameLayout(context), SurfaceHolder.Callback, Preview.SurfaceProvider {
   private val TAG = "SkiaPreviewView"
-  val surfaceView = SurfaceView(context)
+  val surfaceView = GLSurfaceView(context)
   val surface: Surface?
     get() {
       if (surfaceView.holder.isCreating) {
