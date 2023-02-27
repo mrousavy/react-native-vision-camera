@@ -37,7 +37,7 @@ private let propsThatRequireDeviceReconfiguration = ["fps",
 
 public final class CameraView: UIView {
   // pragma MARK: React Properties
-  
+
   // pragma MARK: Exported Properties
   // props that require reconfiguring
   @objc var cameraId: NSString?
@@ -78,7 +78,7 @@ public final class CameraView: UIView {
       }
     }
   }
-  
+
   // pragma MARK: Internal Properties
   internal var isMounted = false
   internal var isReady = false
@@ -100,25 +100,25 @@ public final class CameraView: UIView {
   // CameraView+Zoom
   internal var pinchGestureRecognizer: UIPinchGestureRecognizer?
   internal var pinchScaleOffset: CGFloat = 1.0
-  
+
   internal let cameraQueue = CameraQueues.cameraQueue
   internal let videoQueue = CameraQueues.videoQueue
   internal let audioQueue = CameraQueues.audioQueue
-  
+
   internal var previewView: UIView?
-#if DEBUG
-  internal var fpsGraph: RCTFPSGraph? = nil
-#endif
-  
+  #if DEBUG
+    internal var fpsGraph: RCTFPSGraph?
+  #endif
+
   /// Returns whether the AVCaptureSession is currently running (reflected by isActive)
   var isRunning: Bool {
     return captureSession.isRunning
   }
-  
+
   // pragma MARK: Setup
   override public init(frame: CGRect) {
     super.init(frame: frame)
-    
+
     NotificationCenter.default.addObserver(self,
                                            selector: #selector(sessionRuntimeError),
                                            name: .AVCaptureSessionRuntimeError,
@@ -135,15 +135,15 @@ public final class CameraView: UIView {
                                            selector: #selector(onOrientationChanged),
                                            name: UIDevice.orientationDidChangeNotification,
                                            object: nil)
-    
-    self.setupPreviewView()
+
+    setupPreviewView()
   }
-  
+
   @available(*, unavailable)
   required init?(coder _: NSCoder) {
     fatalError("init(coder:) is not implemented.")
   }
-  
+
   deinit {
     NotificationCenter.default.removeObserver(self,
                                               name: .AVCaptureSessionRuntimeError,
@@ -158,10 +158,10 @@ public final class CameraView: UIView {
                                               name: UIDevice.orientationDidChangeNotification,
                                               object: nil)
   }
-  
+
   override public func willMove(toSuperview newSuperview: UIView?) {
     super.willMove(toSuperview: newSuperview)
-    
+
     if newSuperview != nil {
       if !isMounted {
         isMounted = true
@@ -172,14 +172,14 @@ public final class CameraView: UIView {
       }
     }
   }
-  
+
   override public func layoutSubviews() {
     if let previewView = previewView {
       previewView.frame = frame
       previewView.bounds = bounds
     }
   }
-  
+
   func setupPreviewView() {
     if previewType == "skia" {
       // Skia Preview View allows user to draw onto a Frame in a Frame Processor
@@ -192,24 +192,24 @@ public final class CameraView: UIView {
       previewView?.removeFromSuperview()
       previewView = PreviewView(frame: frame, session: captureSession)
     }
-    
+
     addSubview(previewView!)
   }
-  
+
   func setupFpsGraph() {
-#if DEBUG
-    if enableFpsGraph {
-      if fpsGraph != nil { return }
-      fpsGraph = RCTFPSGraph(frame: CGRect(x: 10, y: 54, width: 75, height: 45), color: .red)
-      fpsGraph!.layer.zPosition = 9999.0
-      addSubview(fpsGraph!)
-    } else {
-      fpsGraph?.removeFromSuperview()
-      fpsGraph = nil
-    }
-#endif
+    #if DEBUG
+      if enableFpsGraph {
+        if fpsGraph != nil { return }
+        fpsGraph = RCTFPSGraph(frame: CGRect(x: 10, y: 54, width: 75, height: 45), color: .red)
+        fpsGraph!.layer.zPosition = 9999.0
+        addSubview(fpsGraph!)
+      } else {
+        fpsGraph?.removeFromSuperview()
+        fpsGraph = nil
+      }
+    #endif
   }
-  
+
   // pragma MARK: Props updating
   override public final func didSetProps(_ changedProps: [String]!) {
     ReactLogger.log(level: .info, message: "Updating \(changedProps.count) prop(s)...")
@@ -217,15 +217,15 @@ public final class CameraView: UIView {
     let shouldReconfigureFormat = shouldReconfigure || changedProps.contains("format")
     let shouldReconfigureDevice = shouldReconfigureFormat || changedProps.contains { propsThatRequireDeviceReconfiguration.contains($0) }
     let shouldReconfigureAudioSession = changedProps.contains("audio")
-    
+
     let willReconfigure = shouldReconfigure || shouldReconfigureFormat || shouldReconfigureDevice
-    
+
     let shouldCheckActive = willReconfigure || changedProps.contains("isActive") || captureSession.isRunning != isActive
     let shouldUpdateTorch = willReconfigure || changedProps.contains("torch") || shouldCheckActive
     let shouldUpdateZoom = willReconfigure || changedProps.contains("zoom") || shouldCheckActive
     let shouldUpdateVideoStabilization = willReconfigure || changedProps.contains("videoStabilizationMode")
     let shouldUpdateOrientation = willReconfigure || changedProps.contains("orientation")
-    
+
     if changedProps.contains("previewType") {
       DispatchQueue.main.async {
         self.setupPreviewView()
@@ -236,16 +236,16 @@ public final class CameraView: UIView {
         self.setupFpsGraph()
       }
     }
-    
+
     if shouldReconfigure ||
-        shouldReconfigureAudioSession ||
-        shouldCheckActive ||
-        shouldUpdateTorch ||
-        shouldUpdateZoom ||
-        shouldReconfigureFormat ||
-        shouldReconfigureDevice ||
-        shouldUpdateVideoStabilization ||
-        shouldUpdateOrientation {
+      shouldReconfigureAudioSession ||
+      shouldCheckActive ||
+      shouldUpdateTorch ||
+      shouldUpdateZoom ||
+      shouldReconfigureFormat ||
+      shouldReconfigureDevice ||
+      shouldUpdateVideoStabilization ||
+      shouldUpdateOrientation {
       // Video Configuration
       cameraQueue.async {
         if shouldReconfigure {
@@ -260,13 +260,13 @@ public final class CameraView: UIView {
         if shouldUpdateVideoStabilization, let videoStabilizationMode = self.videoStabilizationMode as String? {
           self.captureSession.setVideoStabilizationMode(videoStabilizationMode)
         }
-        
+
         if shouldUpdateZoom {
           let zoomClamped = max(min(CGFloat(self.zoom.doubleValue), self.maxAvailableZoom), self.minAvailableZoom)
           self.zoom(factor: zoomClamped, animated: false)
           self.pinchScaleOffset = zoomClamped
         }
-        
+
         if shouldCheckActive && self.captureSession.isRunning != self.isActive {
           if self.isActive {
             ReactLogger.log(level: .info, message: "Starting Session...")
@@ -278,11 +278,11 @@ public final class CameraView: UIView {
             ReactLogger.log(level: .info, message: "Stopped Session!")
           }
         }
-        
+
         if shouldUpdateOrientation {
           self.updateOrientation()
         }
-        
+
         // This is a wack workaround, but if I immediately set torch mode after `startRunning()`, the session isn't quite ready yet and will ignore torch.
         if shouldUpdateTorch {
           self.cameraQueue.asyncAfter(deadline: .now() + 0.1) {
@@ -290,7 +290,7 @@ public final class CameraView: UIView {
           }
         }
       }
-      
+
       // Audio Configuration
       if shouldReconfigureAudioSession {
         audioQueue.async {
@@ -299,7 +299,7 @@ public final class CameraView: UIView {
       }
     }
   }
-  
+
   internal final func setTorchMode(_ torchMode: String) {
     guard let device = videoDeviceInput?.device else {
       invokeOnError(.session(.cameraNotReady))
@@ -338,17 +338,17 @@ public final class CameraView: UIView {
       return
     }
   }
-  
+
   @objc
   func onOrientationChanged() {
     updateOrientation()
   }
-  
+
   // pragma MARK: Event Invokers
   internal final func invokeOnError(_ error: CameraError, cause: NSError? = nil) {
     ReactLogger.log(level: .error, message: "Invoking onError(): \(error.message)")
     guard let onError = onError else { return }
-    
+
     var causeDictionary: [String: Any]?
     if let cause = cause {
       causeDictionary = [
@@ -364,7 +364,7 @@ public final class CameraView: UIView {
       "cause": causeDictionary ?? NSNull(),
     ])
   }
-  
+
   internal final func invokeOnInitialized() {
     ReactLogger.log(level: .info, message: "Camera initialized!")
     guard let onInitialized = onInitialized else { return }

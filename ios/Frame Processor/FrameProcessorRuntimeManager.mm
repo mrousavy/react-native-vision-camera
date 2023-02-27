@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "FrameProcessorRuntimeManager.h"
 #import "FrameProcessorPluginRegistry.h"
+#import "FrameProcessorPlugin.h"
 #import "FrameHostObject.h"
 
 #import <memory>
@@ -27,6 +28,7 @@
 #import "FrameProcessorUtils.h"
 #import "FrameProcessorCallback.h"
 #import "../React Utils/JSIUtils.h"
+#import "../../cpp/JSITypedArray.h"
 
 // Forward declarations for the Swift classes
 __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
@@ -82,14 +84,14 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
     auto pluginName = [pluginKey UTF8String];
 
     NSLog(@"FrameProcessorBindings: Installing Frame Processor plugin \"%s\"...", pluginName);
-    // Get the Plugin callback func
-    FrameProcessorPlugin callback = [[FrameProcessorPluginRegistry frameProcessorPlugins] valueForKey:pluginKey];
+    // Get the Plugin
+    FrameProcessorPlugin* plugin = [[FrameProcessorPluginRegistry frameProcessorPlugins] valueForKey:pluginKey];
 
     // Create the JSI host function
-    auto function = [callback, callInvoker](jsi::Runtime& runtime,
-                                            const jsi::Value& thisValue,
-                                            const jsi::Value* arguments,
-                                            size_t count) -> jsi::Value {
+    auto function = [plugin, callInvoker](jsi::Runtime& runtime,
+                                          const jsi::Value& thisValue,
+                                          const jsi::Value* arguments,
+                                          size_t count) -> jsi::Value {
       // Get the first parameter, which is always the native Frame Host Object.
       auto frameHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
       auto frame = static_cast<FrameHostObject*>(frameHostObject.get());
@@ -100,7 +102,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                                  count - 1, // use smaller count
                                                  callInvoker);
       // Call the FP Plugin, which might return something.
-      id result = callback(frame->frame, args);
+      id result = [plugin callback:frame->frame withArguments:args];
 
       // Convert the return value (or null) to a JS Value and return it to JS
       return convertObjCObjectToJSIValue(runtime, result);
@@ -130,6 +132,12 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
   }
 
   jsi::Runtime& jsiRuntime = *(jsi::Runtime*)cxxBridge.runtime;
+  
+  // HostObject that attaches the cache to the lifecycle of the Runtime. On Runtime destroy, we destroy the cache.
+  auto propNameCacheObject = std::make_shared<vision::InvalidateCacheOnDestroy>(jsiRuntime);
+  jsiRuntime.global().setProperty(jsiRuntime,
+                                  "__visionCameraPropNameCache",
+                                  jsi::Object::createFromHostObject(jsiRuntime, propNameCacheObject));
 
   // Install the Worklet Runtime in the main React JS Runtime
   [self setupWorkletContext:jsiRuntime];
