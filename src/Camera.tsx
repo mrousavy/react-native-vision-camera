@@ -38,7 +38,7 @@ type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>;
 // NativeModules automatically resolves 'CameraView' to 'CameraViewModule'
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 const CameraModule = NativeModules.CameraView;
-if (CameraModule == null) console.error("Camera: Native Module 'CameraView' was null! Did you run pod install?");
+if (CameraModule == null) console.error("Camera: Native Module 'CameraView' was null! Did you run pod install? Or are you running expo start instead of expo run:ios or expo run:android?");
 
 //#region Camera Component
 /**
