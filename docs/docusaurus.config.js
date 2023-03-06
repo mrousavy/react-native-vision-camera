@@ -94,11 +94,23 @@ module.exports = {
       ],
       copyright: `Copyright © ${new Date().getFullYear()} Marc Rousavy`,
     },
+    metadata: [
+      {
+        name: 'keywords',
+        content: 'documentation, coding, docs, guides, camera, react, native, react-native'
+      }
+    ]
   },
   presets: [
     [
       '@docusaurus/preset-classic',
       {
+        sitemap: {
+          changefreq: 'weekly',
+          priority: 1.0,
+          ignorePatterns: ['/tags/**'],
+          filename: 'sitemap.xml',
+        },
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl: 'https://github.com/mrousavy/react-native-vision-camera/edit/main/docs/',
