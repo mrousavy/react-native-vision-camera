@@ -99,7 +99,23 @@ module.exports = {
       {
         name: 'keywords',
         content: 'documentation, coding, docs, guides, camera, react, native, react-native'
-      }
+      },
+      {
+        name: 'og:title',
+        content: 'VisionCamera Documentation'
+      },
+      {
+        name: 'og:type',
+        content: 'application'
+      },
+      {
+        name: 'og:description',
+        content: '📸 The Camera library that sees the vision.'
+      },
+      {
+        name: 'og:image',
+        content: 'https://raw.githubusercontent.com/mrousavy/react-native-vision-camera/main/docs/static/img/11.png'
+      },
     ]
   },
   presets: [
