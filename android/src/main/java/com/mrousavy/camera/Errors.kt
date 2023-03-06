@@ -40,7 +40,7 @@ class NoCameraDeviceError : CameraError("device", "no-device", "No device was se
 class InvalidCameraDeviceError(cause: Throwable) : CameraError("device", "invalid-device", "The given Camera device could not be found for use-case binding!", cause)
 class ParallelVideoProcessingNotSupportedError(cause: Throwable) : CameraError("device", "parallel-video-processing-not-supported", "The given LEGACY Camera device does not support parallel " +
   "video processing (`video={true}` + `frameProcessor={...}`). Disable either `video` or `frameProcessor`. To find out if a device supports parallel video processing, check the `supportsParallelVideoProcessing` property on the CameraDevice. " +
-  "See https://mrousavy.github.io/react-native-vision-camera/docs/guides/devices#the-supportsparallelvideoprocessing-prop for more information.", cause)
+  "See https://react-native-vision-camera.com/docs/guides/devices#the-supportsparallelvideoprocessing-prop for more information.", cause)
 
 class FpsNotContainedInFormatError(fps: Int) : CameraError("format", "invalid-fps", "The given FPS were not valid for the currently selected format. Make sure you select a format which `frameRateRanges` includes $fps FPS!")
 class HdrNotContainedInFormatError() : CameraError(

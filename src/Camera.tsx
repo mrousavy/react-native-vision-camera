@@ -44,7 +44,7 @@ if (CameraModule == null) console.error("Camera: Native Module 'CameraView' was 
 /**
  * ### A powerful `<Camera>` component.
  *
- * Read the [VisionCamera documentation](https://mrousavy.github.io/react-native-vision-camera/) for more information.
+ * Read the [VisionCamera documentation](https://react-native-vision-camera.com/) for more information.
  *
  * The `<Camera>` component's most important (and therefore _required_) properties are:
  *
@@ -428,7 +428,7 @@ export class Camera extends React.PureComponent<CameraProps> {
     if (global.setFrameProcessor == null || global.unsetFrameProcessor == null) {
       throw new CameraRuntimeError(
         'frame-processor/unavailable',
-        'Frame Processors are not enabled. See https://mrousavy.github.io/react-native-vision-camera/docs/guides/troubleshooting',
+        'Frame Processors are not enabled. See https://react-native-vision-camera.com/docs/guides/troubleshooting',
       );
     }
   }

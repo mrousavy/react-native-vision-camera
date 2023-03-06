@@ -64,7 +64,7 @@
   "bugs": {
     "url": "https://github.com/mrousavy/react-native-vision-camera/issues"
   },
-  "homepage": "https://mrousavy.github.io/react-native-vision-camera/",
+  "homepage": "https://react-native-vision-camera.com/",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },

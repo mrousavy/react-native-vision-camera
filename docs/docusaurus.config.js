@@ -2,7 +2,7 @@ module.exports = {
   title: 'VisionCamera',
   tagline: '📸 The Camera library that sees the vision.',
   url: 'https://mrousavy.github.io',
-  baseUrl: '/react-native-vision-camera/',
+  baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'throw',
   favicon: './favicon.ico',
