@@ -95,6 +95,7 @@ module.exports = {
       ],
       copyright: `Copyright © ${new Date().getFullYear()} Marc Rousavy`,
     },
+    image: 'img/11.png',
     metadata: [
       {
         name: 'keywords',
