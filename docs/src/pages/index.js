@@ -58,6 +58,9 @@ function Home() {
     <Layout
       title="VisionCamera Documentation"
       description="📸 The Camera library that sees the vision.">
+      <head>
+        <meta property="og:image" content="img/11.png" />
+      </head>
       <header className={clsx('hero hero--primary', styles.heroBanner)}>
         <div className="container">
           <h1 className="hero__title">{siteConfig.title}</h1>
