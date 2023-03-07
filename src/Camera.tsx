@@ -6,6 +6,7 @@ import type { ErrorWithCause } from './CameraError';
 import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError';
 import type { CameraProps } from './CameraProps';
 import type { Frame } from './Frame';
+import { CameraModule } from './NativeCameraModule';
 import type { PhotoFile, TakePhotoOptions } from './PhotoFile';
 import type { Point } from './Point';
 import type { TakeSnapshotOptions } from './Snapshot';
@@ -29,11 +30,6 @@ type NativeCameraViewProps = Omit<CameraProps, 'device' | 'onInitialized' | 'onE
 };
 type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>;
 //#endregion
-
-// NativeModules automatically resolves 'CameraView' to 'CameraViewModule'
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-const CameraModule = NativeModules.CameraView;
-if (CameraModule == null) console.error("Camera: Native Module 'CameraView' was null! Did you run pod install?");
 
 //#region Camera Component
 /**
