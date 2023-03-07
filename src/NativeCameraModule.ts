@@ -19,7 +19,7 @@ if (CameraModule == null) {
       // We're running Expo Go
       throw new CameraRuntimeError(
         'system/camera-module-not-found',
-        'react-native-vision-camera is not supported in Expo Go! Use EAS (`expo prebuild`) or eject to a bare workflow instead.',
+        `react-native-vision-camera is not supported in Expo Go! Use EAS/expo prebuild instead (\`expo run:${Platform.OS}\`). For more info, see https://docs.expo.dev/workflow/prebuild/.`,
       );
     } else {
       // We're running Expo bare / standalone
