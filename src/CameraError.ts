@@ -50,7 +50,7 @@ export type CaptureError =
   | 'capture/photo-not-enabled'
   | 'capture/aborted'
   | 'capture/unknown';
-export type SystemError = 'system/no-camera-manager' | 'system/view-not-found';
+export type SystemError = 'system/camera-module-not-found' | 'system/no-camera-manager' | 'system/view-not-found';
 export type UnknownError = 'unknown/unknown';
 
 /**
@@ -154,7 +154,7 @@ class CameraError<TCode extends CameraErrorCode> extends Error {
  *
  * See the ["Camera Errors" documentation](https://mrousavy.github.io/react-native-vision-camera/docs/guides/errors) for more information about Camera Errors.
  */
-export class CameraCaptureError extends CameraError<CaptureError> {}
+export class CameraCaptureError extends CameraError<CaptureError> { }
 
 /**
  * Represents any kind of error that occured in the Camera View Module.
@@ -163,7 +163,7 @@ export class CameraCaptureError extends CameraError<CaptureError> {}
  */
 export class CameraRuntimeError extends CameraError<
   PermissionError | ParameterError | DeviceError | FormatError | FrameProcessorError | SessionError | SystemError | UnknownError
-> {}
+> { }
 
 /**
  * Checks if the given `error` is of type {@linkcode ErrorWithCause}
