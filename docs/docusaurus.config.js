@@ -117,7 +117,15 @@ module.exports = {
         name: 'og:image',
         content: 'https://www.react-native-vision-camera.com/img/11.png'
       },
-    ]
+    ],
+    announcementBar: {
+      id: 'support_us',
+      content:
+        '<b>I am currently working on <a target="_blank" href="https://github.com/mrousavy/react-native-vision-camera/issues/1376">VisionCamera V3 ✨</a> which brings a lot of new features and a full rewrite on Android. Please consider <a target="_blank" href="https://github.com/sponsors/mrousavy">sponsoring me on GitHub</a> so I can work on this.</b>',
+      backgroundColor: '#ff5c5c',
+      textColor: '#ffffff',
+      isCloseable: false,
+    },
   },
   presets: [
     [
