@@ -1,7 +1,7 @@
 module.exports = {
   title: 'VisionCamera',
   tagline: '📸 The Camera library that sees the vision.',
-  url: 'https://mrousavy.github.io',
+  url: 'https://react-native-vision-camera.com',
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'throw',
@@ -88,7 +88,7 @@ module.exports = {
             },
             {
               label: 'Marc\'s Portfolio',
-              href: 'https://mrousavy.github.io',
+              href: 'https://mrousavy.com',
             },
           ],
         },
