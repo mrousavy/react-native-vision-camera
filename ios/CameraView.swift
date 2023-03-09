@@ -60,6 +60,7 @@ public final class CameraView: UIView {
   // other props
   @objc var isActive = false
   @objc var torch = "off"
+  @objc var torchLevel: NSNumber = 0.7
   @objc var zoom: NSNumber = 1.0 // in "factor"
   @objc var videoStabilizationMode: NSString?
   // events
@@ -304,7 +305,9 @@ public final class CameraView: UIView {
       try device.lockForConfiguration()
       device.torchMode = torchMode
       if torchMode == .on {
-        try device.setTorchModeOn(level: 0.7)
+        print("torchLevel:" +  self.torchLevel.description)
+        let torchLevel = Float(self.torchLevel)
+        try device.setTorchModeOn(level: torchLevel)
       }
       device.unlockForConfiguration()
     } catch let error as NSError {

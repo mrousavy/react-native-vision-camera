@@ -66,6 +66,12 @@ export interface CameraProps extends ViewProps {
    */
   torch?: 'off' | 'on';
   /**
+   * Set the current torch brightness.
+   *
+   * @default 0.7
+   */
+  torchLevel?: number;
+  /**
    * Specifies the zoom factor of the current camera, in "factor"/scale.
    *
    * This value ranges from `minZoom` (e.g. `1`) to `maxZoom` (e.g. `128`). It is recommended to set this value
