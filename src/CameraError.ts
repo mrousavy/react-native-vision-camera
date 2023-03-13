@@ -50,7 +50,7 @@ export type CaptureError =
   | 'capture/photo-not-enabled'
   | 'capture/aborted'
   | 'capture/unknown';
-export type SystemError = 'system/no-camera-manager' | 'system/view-not-found';
+export type SystemError = 'system/camera-module-not-found' | 'system/no-camera-manager' | 'system/view-not-found';
 export type UnknownError = 'unknown/unknown';
 
 /**
