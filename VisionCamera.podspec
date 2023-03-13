@@ -29,7 +29,19 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig = {
     "USE_HEADERMAP" => "YES",
     "GCC_PREPROCESSOR_DEFINITIONS" => '$(inherited) SK_GL=1 SK_METAL=1',
-    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_TARGET_SRCROOT)\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/boost-for-react-native\" \"$(PODS_ROOT)/Headers/Private/React-Core\" "
+    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" " +
+                              "\"$(PODS_TARGET_SRCROOT)\ " +
+                              "\"$(PODS_ROOT)/RCT-Folly\" " +
+                              "\"$(PODS_ROOT)/boost\" " +
+                              "\"$(PODS_ROOT)/boost-for-react-native\" " +
+                              "\"$(PODS_ROOT)/Headers/Private/React-Core\" " +
+                              "\"$(PODS_ROOT)/../../node_modules/react-native-vision-camera/ios/\" " +
+                              "\"$(PODS_ROOT)/../../node_modules/react-native-vision-camera/ios/Extensions\" " +
+                              "\"$(PODS_ROOT)/../../node_modules/react-native-vision-camera/ios/Frame Processor\" " +
+                              "\"$(PODS_ROOT)/../../node_modules/react-native-vision-camera/ios/Parsers\" " +
+                              "\"$(PODS_ROOT)/../../node_modules/react-native-vision-camera/ios/React Utils\" " +
+                              "\"$(PODS_ROOT)/../../node_modules/react-native-vision-camera/ios/Skia Render Layer\" " +
+                              "\"$(PODS_ROOT)/../../node_modules/react-native-vision-camera/cpp/\" ",
   }
   s.compiler_flags = folly_compiler_flags + ' ' + boost_compiler_flags
   s.xcconfig = {
