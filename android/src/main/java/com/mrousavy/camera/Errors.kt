@@ -106,7 +106,6 @@ class FileSizeLimitReachedError(cause: Throwable?) : CameraError("capture", "fil
 
 class NoRecordingInProgressError : CameraError("capture", "no-recording-in-progress", "No active recording in progress!")
 
-class CameraManagerUnavailableError : CameraError("system", "no-camera-manager", "The Camera manager instance was unavailable for the current Application!")
 class ViewNotFoundError(viewId: Int) : CameraError("system", "view-not-found", "The given view (ID $viewId) was not found in the view manager.")
 
 class UnknownCameraError(cause: Throwable?) : CameraError("unknown", "unknown", cause?.message ?: "An unknown camera error occured.", cause)
