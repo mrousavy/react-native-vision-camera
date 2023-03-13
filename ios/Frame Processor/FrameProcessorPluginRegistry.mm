@@ -11,19 +11,19 @@
 
 @implementation FrameProcessorPluginRegistry
 
-+ (NSMutableDictionary<NSString*, FrameProcessorPlugin>*)frameProcessorPlugins {
-  static NSMutableDictionary<NSString*, FrameProcessorPlugin>* plugins = nil;
++ (NSMutableDictionary<NSString*, FrameProcessorPlugin*>*)frameProcessorPlugins {
+  static NSMutableDictionary<NSString*, FrameProcessorPlugin*>* plugins = nil;
   if (plugins == nil) {
     plugins = [[NSMutableDictionary alloc] init];
   }
   return plugins;
 }
 
-+ (void) addFrameProcessorPlugin:(NSString*)name callback:(FrameProcessorPlugin)callback {
-  BOOL alreadyExists = [[FrameProcessorPluginRegistry frameProcessorPlugins] valueForKey:name] != nil;
-  NSAssert(!alreadyExists, @"Tried to two Frame Processor Plugins with the same name! Either choose unique names, or remove the unused plugin.");
++ (void) addFrameProcessorPlugin:(FrameProcessorPlugin*)plugin {
+  BOOL alreadyExists = [[FrameProcessorPluginRegistry frameProcessorPlugins] valueForKey:plugin.name] != nil;
+  NSAssert(!alreadyExists, @"Tried to add a Frame Processor Plugin with a name that already exists! Either choose unique names, or remove the unused plugin. Name: %@", plugin.name);
 
-  [[FrameProcessorPluginRegistry frameProcessorPlugins] setValue:callback forKey:name];
+  [[FrameProcessorPluginRegistry frameProcessorPlugins] setValue:plugin forKey:plugin.name];
 }
 
 @end

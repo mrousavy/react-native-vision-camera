@@ -11,12 +11,16 @@
 
 // Example for an Objective-C Frame Processor plugin
 
-@interface ExampleFrameProcessorPlugin : NSObject
+@interface ExampleFrameProcessorPlugin : FrameProcessorPlugin
 @end
 
 @implementation ExampleFrameProcessorPlugin
 
-static inline id example_plugin(Frame* frame, NSArray* arguments) {
+- (NSString *)name {
+  return @"example_plugin";
+}
+
+- (id)callback:(Frame *)frame withArguments:(NSArray<id> *)arguments {
   CVPixelBufferRef imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
   NSLog(@"ExamplePlugin: %zu x %zu Image. Logging %lu parameters:", CVPixelBufferGetWidth(imageBuffer), CVPixelBufferGetHeight(imageBuffer), (unsigned long)arguments.count);
   
@@ -36,6 +40,8 @@ static inline id example_plugin(Frame* frame, NSArray* arguments) {
   };
 }
 
-VISION_EXPORT_FRAME_PROCESSOR(example_plugin)
++ (void) load {
+  [self registerPlugin:[[ExampleFrameProcessorPlugin alloc] init]];
+}
 
 @end

@@ -1,11 +1,13 @@
 import React from 'react';
-import { requireNativeComponent, NativeModules, NativeSyntheticEvent, findNodeHandle, NativeMethods, Platform } from 'react-native';
+import { requireNativeComponent, NativeSyntheticEvent, findNodeHandle, NativeMethods, Platform } from 'react-native';
 import type { VideoFileType } from '.';
 import type { CameraDevice } from './CameraDevice';
 import type { ErrorWithCause } from './CameraError';
 import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError';
 import type { CameraProps } from './CameraProps';
 import type { Frame } from './Frame';
+import { assertFrameProcessorsAvailable } from './JSIHelper';
+import { CameraModule } from './NativeCameraModule';
 import type { PhotoFile, TakePhotoOptions } from './PhotoFile';
 import type { Point } from './Point';
 import type { TakeSnapshotOptions } from './Snapshot';
@@ -29,11 +31,6 @@ type NativeCameraViewProps = Omit<CameraProps, 'device' | 'onInitialized' | 'onE
 };
 type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>;
 //#endregion
-
-// NativeModules automatically resolves 'CameraView' to 'CameraViewModule'
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-const CameraModule = NativeModules.CameraView;
-if (CameraModule == null) console.error("Camera: Native Module 'CameraView' was null! Did you run pod install?");
 
 //#region Camera Component
 /**
@@ -419,25 +416,14 @@ export class Camera extends React.PureComponent<CameraProps> {
   //#endregion
 
   //#region Lifecycle
-  /** @internal */
-  private assertFrameProcessorsEnabled(): void {
-    // @ts-expect-error JSI functions aren't typed
-    if (global.setFrameProcessor == null || global.unsetFrameProcessor == null) {
-      throw new CameraRuntimeError(
-        'frame-processor/unavailable',
-        'Frame Processors are not enabled. See https://mrousavy.github.io/react-native-vision-camera/docs/guides/troubleshooting',
-      );
-    }
-  }
-
   private setFrameProcessor(frameProcessor: (frame: Frame) => void): void {
-    this.assertFrameProcessorsEnabled();
+    assertFrameProcessorsAvailable();
     // @ts-expect-error JSI functions aren't typed
     global.setFrameProcessor(this.handle, frameProcessor);
   }
 
   private unsetFrameProcessor(): void {
-    this.assertFrameProcessorsEnabled();
+    assertFrameProcessorsAvailable();
     // @ts-expect-error JSI functions aren't typed
     global.unsetFrameProcessor(this.handle);
   }

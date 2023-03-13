@@ -436,7 +436,7 @@ PODS:
     - React-Core
   - RNVectorIcons (9.2.0):
     - React-Core
-  - VisionCamera (3.0.0-rc.1):
+  - VisionCamera (3.0.0-rc.2):
     - React
     - React-callinvoker
     - React-Core
@@ -644,7 +644,7 @@ SPEC CHECKSUMS:
   RNScreens: 218801c16a2782546d30bd2026bb625c0302d70f
   RNStaticSafeAreaInsets: 055ddbf5e476321720457cdaeec0ff2ba40ec1b8
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
-  VisionCamera: 0d154cd0ab9043a3c8a4908fb57ad65c9e1f3baf
+  VisionCamera: e4f19a6c22cfa146736bdfe8df057e2ed5ca8dd3
   Yoga: 5ed1699acbba8863755998a4245daa200ff3817b
 
 PODFILE CHECKSUM: d53724fe402c2547f1dd1cc571bbe77d9820e636

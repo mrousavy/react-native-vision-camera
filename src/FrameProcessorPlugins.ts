@@ -1,6 +1,9 @@
 import type { Frame, FrameInternal } from './Frame';
 import { Camera } from './Camera';
 import { Worklets } from 'react-native-worklets/src';
+import { assertJSIAvailable } from './JSIHelper';
+
+assertJSIAvailable();
 
 // Install VisionCamera Frame Processor JSI Bindings and Plugins
 Camera.installFrameProcessorBindings();
