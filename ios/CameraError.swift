@@ -261,7 +261,6 @@ enum CameraError: Error {
   case format(_ id: FormatError)
   case session(_ id: SessionError)
   case capture(_ id: CaptureError)
-  case system(_ id: SystemError)
   case unknown(message: String? = nil)
 
   var code: String {
