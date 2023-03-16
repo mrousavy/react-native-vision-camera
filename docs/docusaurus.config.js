@@ -115,7 +115,7 @@ module.exports = {
       },
       {
         name: 'og:image',
-        content: 'https://www.react-native-vision-camera.com/img/11.png'
+        content: '/img/11.png'
       },
     ],
     announcementBar: {
