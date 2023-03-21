@@ -12,7 +12,7 @@
   #include <hermes/hermes.h>
 #else
   // JSC
-  #include <jsi/JSCRuntime.h>
+  #include <jsc/JSCRuntime.h>
 #endif
 
 namespace vision {
