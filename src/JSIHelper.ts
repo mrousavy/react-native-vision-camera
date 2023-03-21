@@ -12,6 +12,8 @@ export function assertJSIAvailable(): void {
 }
 
 export function assertFrameProcessorsAvailable(): void {
+  assertJSIAvailable();
+
   // @ts-expect-error JSI functions aren't typed
   if (global.setFrameProcessor == null || global.unsetFrameProcessor == null) {
     throw new CameraRuntimeError(

@@ -6,7 +6,7 @@ import type { ErrorWithCause } from './CameraError';
 import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError';
 import type { CameraProps } from './CameraProps';
 import type { Frame } from './Frame';
-import { assertFrameProcessorsAvailable } from './JSIHelper';
+import { assertFrameProcessorsAvailable, assertJSIAvailable } from './JSIHelper';
 import { CameraModule } from './NativeCameraModule';
 import type { PhotoFile, TakePhotoOptions } from './PhotoFile';
 import type { Point } from './Point';
@@ -310,6 +310,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    * Install JSI Bindings for Frame Processors
    */
   public static installFrameProcessorBindings(): void {
+    assertJSIAvailable();
     const result = CameraModule.installFrameProcessorBindings() as unknown;
     if (result !== true) throw new Error('Failed to install Frame Processor JSI bindings!');
   }
