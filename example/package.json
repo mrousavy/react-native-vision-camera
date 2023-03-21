@@ -24,7 +24,7 @@
     "react-native": "^0.71.3",
     "react-native-gesture-handler": "^2.9.0",
     "react-native-pressable-opacity": "^1.0.10",
-    "react-native-reanimated": "https://github.com/software-mansion/react-native-reanimated#6cf9713a44ec61318bbb12c311f79c08eda95d10",
+    "react-native-reanimated": "^3.0.2",
     "react-native-safe-area-context": "^4.5.0",
     "react-native-screens": "^3.19.0",
     "react-native-static-safe-area-insets": "^2.2.0",
