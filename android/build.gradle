@@ -323,7 +323,8 @@ dependencies {
 
   implementation "androidx.exifinterface:exifinterface:1.3.3"
 }
-
+// those cahnges basically is jsut a copy/past of reanimated solutions to avoid extra donwloadBoost execution
+// https://github.com/software-mansion/react-native-reanimated/pull/3588/files
 def resolveTaskFactory(String taskName, String artifactLocalName, File reactNativeAndroidDownloadDir, File visionCameraDonwloadDir) {
     return tasks.create(name: taskName, dependsOn: createNativeDepsDirectories, type: Copy) {
         from reactNativeAndroidDownloadDir
