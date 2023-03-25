@@ -74,10 +74,12 @@ extension CameraView {
       }
 
       // in {0..1} system
-      var normalizedPoint = captureDevicePointConverted(fromLayerPoint: point)
+      var normalizedPoint: CGPoint
       if let previewView = previewView as? PreviewView {
         // previewView is of type PreviewView can use the built in captureDevicePointConverted
         normalizedPoint = previewView.videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: point)
+      } else {
+        normalizedPoint = captureDevicePointConverted(fromLayerPoint: point)
       }
 
       do {
