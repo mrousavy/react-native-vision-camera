@@ -74,7 +74,11 @@ extension CameraView {
       }
 
       // in {0..1} system
-      let normalizedPoint = captureDevicePointConverted(fromLayerPoint: point)
+      var normalizedPoint = captureDevicePointConverted(fromLayerPoint: point)
+      if let previewView = previewView as? PreviewView {
+        // previewView is of type PreviewView can use the built in captureDevicePointConverted
+        normalizedPoint = previewView.videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: point)
+      }
 
       do {
         try device.lockForConfiguration()
