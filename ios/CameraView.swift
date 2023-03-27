@@ -95,6 +95,11 @@ public final class CameraView: UIView {
   internal var recordingSession: RecordingSession?
   @objc public var frameProcessorCallback: FrameProcessorCallback?
   internal var lastFrameProcessorCall = DispatchTime.now().uptimeNanoseconds
+  // internal state for pause time offset
+  internal var _discont = false
+  internal var _timeOffset : CMTime!
+  internal var _lastVideo : CMTime!
+  internal var _lastAudio : CMTime!
   // CameraView+TakePhoto
   internal var photoCaptureDelegates: [PhotoCaptureDelegate] = []
   // CameraView+Zoom

@@ -146,12 +146,15 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         return
       }
       self.isRecording = true
+      self._discont = false
+      self._timeOffset = CMTime(value: 0, timescale: 0)
     }
   }
 
   func stopRecording(promise: Promise) {
     cameraQueue.async {
       self.isRecording = false
+      self._discont = false
 
       withPromise(promise) {
         guard let recordingSession = self.recordingSession else {
@@ -171,6 +174,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           throw CameraError.capture(.noRecordingInProgress)
         }
         self.isRecording = false
+        self._discont = true
         return nil
       }
     }
@@ -188,6 +192,22 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       }
     }
   }
+    
+  // taken from https://github.com/ankits16/CVRecorderFinal/blob/main/framework/CVRecorder/CVRecorder/Recorder%20View/CameraEngine.swift
+  func adjustTime(sampleBuffer: CMSampleBuffer, by offset: CMTime) -> CMSampleBuffer? {
+    var out:CMSampleBuffer?
+    var count:CMItemCount = CMSampleBufferGetNumSamples(sampleBuffer)
+    let pInfo = UnsafeMutablePointer<CMSampleTimingInfo>.allocate(capacity: count)
+    CMSampleBufferGetSampleTimingInfoArray(sampleBuffer, entryCount: count, arrayToFill: pInfo, entriesNeededOut: &count)
+    var i = 0
+      while i<count {
+        pInfo[i].decodeTimeStamp = CMTimeSubtract(pInfo[i].decodeTimeStamp, offset)
+        pInfo[i].presentationTimeStamp = CMTimeSubtract(pInfo[i].presentationTimeStamp, offset)
+        i+=1
+      }
+    CMSampleBufferCreateCopyWithNewTiming(allocator: nil, sampleBuffer: sampleBuffer, sampleTimingEntryCount: count, sampleTimingArray: pInfo, sampleBufferOut: &out)
+    return out
+  }
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
     // Video Recording runs in the same queue
@@ -196,15 +216,66 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         invokeOnError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
         return
       }
+      
+      // MARK: - Time Adjustment for when recording is paused and resumed
+      // taken from: https://github.com/ankits16/CVRecorderFinal/blob/main/framework/CVRecorder/CVRecorder/Recorder%20View/CameraEngine.swift
+      var _sampleBuffer = sampleBuffer
+      let bVideo = captureOutput is AVCaptureVideoDataOutput
+
+      if (self._discont) {
+        if (bVideo) {
+          return
+        }
+        self._discont = false
+        
+        // calc adjustment
+        var pts = CMSampleBufferGetPresentationTimeStamp(_sampleBuffer)
+        let last = bVideo ? self._lastVideo : self._lastAudio
+        if (last!.isValid) {
+          if (self._timeOffset.isValid){
+            pts = CMTimeSubtract(pts, self._timeOffset)
+          }
+          let offset = CMTimeSubtract(pts, last!)
+          // this stops us having to set a scale for _timeOffset before we see the first video time
+          if (self._timeOffset.value == 0) {
+            self._timeOffset = offset
+          }else{
+            self._timeOffset = CMTimeAdd(self._timeOffset, offset)
+          }
+          self._lastAudio.flags = []
+          self._lastVideo.flags = []
+          return
+        }
+      }
+      
+      if (self._timeOffset.value > 0) {
+        if let unwrappedAdjustedBuffer = self.adjustTime(sampleBuffer: _sampleBuffer, by: self._timeOffset) {
+          _sampleBuffer = unwrappedAdjustedBuffer
+        }
+      }
+      
+      // record most recent time so we know the length of the pause
+      var pts = CMSampleBufferGetPresentationTimeStamp(_sampleBuffer)
+      let duration = CMSampleBufferGetDuration(_sampleBuffer)
+      if (duration.value > 0) {
+        pts = CMTimeAdd(pts, duration)
+      }
+      
+      if (bVideo) {
+          self._lastVideo = pts
+      } else {
+          self._lastAudio = pts
+      }
+      // end of time adjustment code
 
       switch captureOutput {
       case is AVCaptureVideoDataOutput:
-        recordingSession.appendBuffer(sampleBuffer, type: .video, timestamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
+        recordingSession.appendBuffer(_sampleBuffer, type: .video, timestamp: pts)
       case is AVCaptureAudioDataOutput:
-        let timestamp = CMSyncConvertTime(CMSampleBufferGetPresentationTimeStamp(sampleBuffer),
+        let timestamp = CMSyncConvertTime(pts,
                                           from: audioCaptureSession.masterClock!,
                                           to: captureSession.masterClock!)
-        recordingSession.appendBuffer(sampleBuffer, type: .audio, timestamp: timestamp)
+        recordingSession.appendBuffer(_sampleBuffer, type: .audio, timestamp: timestamp)
       default:
         break
       }
