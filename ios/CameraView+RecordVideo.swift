@@ -223,7 +223,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       let bVideo = captureOutput is AVCaptureVideoDataOutput
 
       if (self._discont) {
-        if (bVideo) {
+        if (!bVideo) {
           return
         }
         self._discont = false
@@ -242,7 +242,9 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           }else{
             self._timeOffset = CMTimeAdd(self._timeOffset, offset)
           }
-          self._lastAudio.flags = []
+          if (_lastAudio != nil) {
+            self._lastAudio.flags = []
+          }
           self._lastVideo.flags = []
           return
         }
