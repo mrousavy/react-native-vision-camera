@@ -248,11 +248,11 @@ export interface CameraDevice {
   /**
    * All available formats for this camera device. Use this to find the best format for your use case and set it to the Camera's {@linkcode CameraProps.format | Camera's .format} property.
    *
-   * See [the Camera Formats documentation](https://mrousavy.github.io/react-native-vision-camera/docs/guides/formats) for more information about Camera Formats.
+   * See [the Camera Formats documentation](https://react-native-vision-camera.com/docs/guides/formats) for more information about Camera Formats.
    */
   formats: CameraDeviceFormat[];
   /**
-   * Whether this camera device supports using Video Recordings (`video={true}`) and Frame Processors (`frameProcessor={...}`) at the same time. See ["The `supportsParallelVideoProcessing` prop"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/devices#the-supportsparallelvideoprocessing-prop) for more information.
+   * Whether this camera device supports using Video Recordings (`video={true}`) and Frame Processors (`frameProcessor={...}`) at the same time. See ["The `supportsParallelVideoProcessing` prop"](https://react-native-vision-camera.com/docs/guides/devices#the-supportsparallelvideoprocessing-prop) for more information.
    *
    * If this property is `false`, you can only enable `video` or add a `frameProcessor`, but not both.
    *
