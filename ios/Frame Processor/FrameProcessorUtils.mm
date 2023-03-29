@@ -37,7 +37,7 @@ FrameProcessorCallback convertWorkletToFrameProcessorCallback(jsi::Runtime& runt
   return ^(Frame* frame, void* skiaCanvas) {
 
     try {
-      // Create cached Frame object
+        // create HostObject which holds the Frame
       auto frameHostObject = std::make_shared<FrameHostObject>(frame);
       // Update cached Canvas object
       if (skiaCanvas != nullptr) {
@@ -46,12 +46,12 @@ FrameProcessorCallback convertWorkletToFrameProcessorCallback(jsi::Runtime& runt
       } else {
         frameHostObject->canvas = nullptr;
       }
-      
+
       auto argument = jsi::Object::createFromHostObject(runtime, frameHostObject);
       jsi::Value jsValue(std::move(argument));
       // Call the Worklet with the Frame JS Host Object as an argument
       workletInvoker->call(runtime, jsi::Value::undefined(), &jsValue, 1);
-      
+
       // After the sync Frame Processor finished executing, remove the Canvas on that Frame instance. It can no longer draw.
       frameHostObject->canvas = nullptr;
     } catch (jsi::JSError& jsError) {
