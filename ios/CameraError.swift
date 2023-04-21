@@ -252,6 +252,23 @@ enum CaptureError {
   }
 }
 
+// MARK: - SystemError
+
+enum SystemError: String {
+  case noManager = "no-camera-manager"
+
+  var code: String {
+    return rawValue
+  }
+
+  var message: String {
+    switch self {
+    case .noManager:
+      return "No Camera Manager was found."
+    }
+  }
+}
+
 // MARK: - CameraError
 
 enum CameraError: Error {
@@ -278,6 +295,8 @@ enum CameraError: Error {
       return "session/\(id.code)"
     case let .capture(id: id):
       return "capture/\(id.code)"
+    case let .system(id: id):
+      return "system/\(id.code)"
     case .unknown:
       return "unknown/unknown"
     }
@@ -296,6 +315,8 @@ enum CameraError: Error {
     case let .session(id: id):
       return id.message
     case let .capture(id: id):
+      return id.message
+    case let .system(id: id):
       return id.message
     case let .unknown(message: message):
       return message ?? "An unexpected error occured."
