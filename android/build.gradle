@@ -82,8 +82,9 @@ buildscript {
     classpath 'com.android.tools.build:gradle:4.2.2'
     classpath 'de.undercouch:gradle-download-task:4.1.2'
     // noinspection DifferentKotlinGradleVersion
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
+    // upgrading the Kotlin Gradle plugin version in the react-native-vision-camera project to version 1.6.20 or higher, which is supported by the Android Gradle plugin version you are using
+     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.20"
+
   }
 }
 
