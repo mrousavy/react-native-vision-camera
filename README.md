@@ -2,7 +2,7 @@
   <img src="./docs/static/img/banner.svg" width="100%" />
 </a>
 
-<h1 align="center">Vision Camera</h1>
+<h1 align="center">Vision Camera Contribution by Vasanth</h1>
 
 <div align="center">
   <img src="docs/static/img/11.png" width="50%">
