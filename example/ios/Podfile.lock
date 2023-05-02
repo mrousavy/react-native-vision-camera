@@ -276,32 +276,7 @@ PODS:
     - RCTTypeSafety
     - React-Core
     - ReactCommon/turbomodule/core
-  - react-native-skia (0.1.175):
-    - React
-    - React-callinvoker
-    - React-Core
-    - react-native-skia/Api (= 0.1.175)
-    - react-native-skia/Jsi (= 0.1.175)
-    - react-native-skia/RNSkia (= 0.1.175)
-    - react-native-skia/SkiaHeaders (= 0.1.175)
-    - react-native-skia/Utils (= 0.1.175)
-  - react-native-skia/Api (0.1.175):
-    - React
-    - React-callinvoker
-    - React-Core
-  - react-native-skia/Jsi (0.1.175):
-    - React
-    - React-callinvoker
-    - React-Core
-  - react-native-skia/RNSkia (0.1.175):
-    - React
-    - React-callinvoker
-    - React-Core
-  - react-native-skia/SkiaHeaders (0.1.175):
-    - React
-    - React-callinvoker
-    - React-Core
-  - react-native-skia/Utils (0.1.175):
+  - react-native-skia (0.1.185):
     - React
     - React-callinvoker
     - React-Core
@@ -622,7 +597,7 @@ SPEC CHECKSUMS:
   react-native-blur: 50c9feabacbc5f49b61337ebc32192c6be7ec3c3
   react-native-cameraroll: 5b25d0be40185d02e522bf2abf8a1ba4e8faa107
   react-native-safe-area-context: 39c2d8be3328df5d437ac1700f4f3a4f75716acc
-  react-native-skia: 51f4a6586c362814f677df4ac4226f13c634bcfa
+  react-native-skia: 8d65fa55196f437b475563b67b06a744f2ad4a0d
   react-native-slider: 33b8d190b59d4f67a541061bb91775d53d617d9d
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
   react-native-worklets: c7576ad4ad0f030ff41e8d74ad0077c96054a6c1
@@ -647,6 +622,6 @@ SPEC CHECKSUMS:
   VisionCamera: a95841d7567ffb852e2765d3c00b7af72852e4ae
   Yoga: d56980c8914db0b51692f55533409e844b66133c
 
-PODFILE CHECKSUM: bd58477b713db59422e816e017e3fbbdd8b7cf60
+PODFILE CHECKSUM: 36353989c3aed582cdc63facf0b9634408970898
 
 COCOAPODS: 1.11.3
