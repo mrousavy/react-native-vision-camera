@@ -2,6 +2,11 @@ require "json"
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
+nodeModules = Dir.exist?(File.join(__dir__, "node_modules")) ? File.join(__dir__, "node_modules") : File.join(__dir__, "..")
+skiaPath = File.join(nodeModules, "@shopify", "react-native-skia")
+hasSkia = File.exist?(skiaPath)
+puts "VisionCamera: Skia integration #{hasSkia ? "enabled" : "disabled"}!"
+
 reactVersion = '0.0.0'
 begin
   reactVersion = JSON.parse(File.read(File.join(__dir__, "..", "react-native", "package.json")))["version"]
@@ -29,12 +34,12 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig = {
     "USE_HEADERMAP" => "YES",
     "GCC_PREPROCESSOR_DEFINITIONS" => '$(inherited) SK_GL=1 SK_METAL=1',
-    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_TARGET_SRCROOT)\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/boost-for-react-native\" \"$(PODS_ROOT)/Headers/Private/React-Core\" "
+    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_TARGET_SRCROOT)\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/boost-for-react-native\" \"$(PODS_ROOT)/Headers/Private/React-Core\" \"#{skiaPath}/cpp/skia/**\" "
   }
   s.compiler_flags = folly_compiler_flags + ' ' + boost_compiler_flags
   s.xcconfig = {
     "CLANG_CXX_LANGUAGE_STANDARD" => "c++17",
-    "HEADER_SEARCH_PATHS" => "\"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/boost-for-react-native\" \"$(PODS_ROOT)/glog\" \"$(PODS_ROOT)/RCT-Folly\" \"${PODS_ROOT}/Headers/Public/React-hermes\" \"${PODS_ROOT}/Headers/Public/hermes-engine\"",
+    "HEADER_SEARCH_PATHS" => "\"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/boost-for-react-native\" \"$(PODS_ROOT)/glog\" \"$(PODS_ROOT)/RCT-Folly\" \"${PODS_ROOT}/Headers/Public/React-hermes\" \"${PODS_ROOT}/Headers/Public/hermes-engine\" \"#{skiaPath}/cpp/skia/**\" ",
     "OTHER_CFLAGS" => "$(inherited)" + " " + folly_flags
   }
 
