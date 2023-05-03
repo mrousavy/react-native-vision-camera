@@ -1184,10 +1184,10 @@
   dependencies:
     nanoid "^3.1.23"
 
-"@shopify/react-native-skia@^0.1.185":
-  version "0.1.185"
-  resolved "https://registry.yarnpkg.com/@shopify/react-native-skia/-/react-native-skia-0.1.185.tgz#ded3478bf4a7d380f3c64bf6b3f8ebbf4e8ecd21"
-  integrity sha512-RD/huxWgRRjZCHaJcpDiOHQ17tUWO2d/XDv59irpwEfWJRi4UNpxOhPvKso9uwt+MlXJnExJbItNt8e7/m/5GQ==
+"@shopify/react-native-skia@^0.1.186":
+  version "0.1.186"
+  resolved "https://registry.yarnpkg.com/@shopify/react-native-skia/-/react-native-skia-0.1.186.tgz#5893e2f5b656b4117c99edd2fbe3b15b76be0098"
+  integrity sha512-YPXoujEt6HhtsjzG6mlWCx+KtkKY6HGaychW6qN/TQ0VB2v6K78QR+WNvR+X8mdcd/p9CdGR0nnrtfzoNyV+Yw==
   dependencies:
     "@types/pixelmatch" "^5.2.4"
     "@types/pngjs" "^6.0.1"
