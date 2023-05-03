@@ -16,6 +16,9 @@
 
 @interface ExampleFrameProcessorPlugin : FrameProcessorPlugin <FaceDetectionDelegate>
 
+
+- (instancetype)init;
+
 @property FaceDetection* faceDetector;
 @property pthread_mutex_t mutex;
 @property NSArray<BoundingBox*>* currentDetections;
@@ -41,7 +44,12 @@
 - (id)callback:(Frame *)frame withArguments:(NSArray<id> *)arguments {
   CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
   CMTime timestamp = CMSampleBufferGetPresentationTimeStamp(frame.buffer);
-  [_faceDetector processVideoFrame:pixelBuffer timestamp:timestamp];
+  @try {
+    [_faceDetector processVideoFrame:pixelBuffer timestamp:timestamp];
+  } @catch (NSException *exception) {
+    NSLog(@"%@", exception.reason);
+  }
+  
   pthread_mutex_lock(&_mutex);
   
   return @{
