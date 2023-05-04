@@ -56,6 +56,16 @@ void mainImage(out vec4 O, vec2 U) {
 }
 `;
 
+/*
+  This contains a very optimised single pass gaussian blur shader with sparse sampling.
+  A few bits of info about why its implemented this way:
+  - With the current setup we cannot do multiple passes as there is no way to render to an additional skImage
+    as a result we need to do the entire blur in a single pass and cannot use the perf. advantages of separable blurs.
+  - We need to use sparse sampling as the blur is very expensive and we need to keep the number of samples down,
+    additionally, if our loops are too big the shader will not compile, see https://groups.google.com/g/skia-discuss/c/RiMdRhnFL0Y
+  - As we don't sample ALL pixels within the radisu we use to compute the gaussian distribution we need to normalise
+    by a factor of the total weight of the gaussian distribution, this is why we have the gaussTotalWeight variable.
+*/
 export const FACE_SHADER = `
 uniform shader image;
 uniform float x;
@@ -64,9 +74,9 @@ uniform float r;
 uniform vec2 resolution;
 
 const float samples = 4.0;
-const float radius = 25.0;
+const float radius = 20.0;
 
-float gauss (float radius, float x) {
+float gauss (float x) {
   float sigma = 0.5 * radius;
   float g = (1.0/sqrt(2.0*3.142*sigma*sigma))*exp(-0.5*(x*x)/(sigma*sigma));
   return g;
@@ -78,20 +88,16 @@ half4 main(vec2 pos) {
 
   // If the distance is less than the radius, blur
   if (delta < r) {
-
-    // vec3 color = image.eval(pos).rgb * gauss(radius, delta);
-
-    // Accumulate the color of the pixels around the current pixel
-
-    vec3 accumulation = vec3(0);
-    float pixelSampleCount = 0;
+    float gaussTotalWeight = 0.0;
+    vec3 color = image.eval(pos).rgb * gauss(0.0);
     for (float deltaX = -radius; deltaX <= radius; deltaX += radius / samples) {
       for (float deltaY = -radius; deltaY <= radius; deltaY += radius / samples) {
-        accumulation += image.eval(vec2(pos.x + deltaX, pos.y + deltaY)).rgb;
-        pixelSampleCount += 1.0;
+        float g = gauss(pow((pow(deltaX, 2) + pow(deltaY, 2)), 0.5));
+        color += image.eval(vec2(pos.x + deltaX, pos.y + deltaY)).rgb * g;
+        gaussTotalWeight += g;
       }
     }
-    return vec4(accumulation / vec3(pixelSampleCount), 1.0);
+    return vec4(color / vec3(gaussTotalWeight), 1.0);
   }
   else {
     // Otherwise, return the original pixel
