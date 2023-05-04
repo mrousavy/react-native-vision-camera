@@ -71,7 +71,6 @@ uniform shader image;
 uniform float x;
 uniform float y;
 uniform float r;
-uniform vec2 resolution;
 
 const float samples = 5.0;
 const float radius = 100.0;
@@ -111,7 +110,6 @@ uniform shader image;
 uniform float x;
 uniform float y;
 uniform float r;
-uniform vec2 resolution;
 
 const float size = 100.0;
 

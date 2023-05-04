@@ -26,6 +26,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
 import { Skia } from '@shopify/react-native-skia';
 import { FACE_PIXELATED_SHADER, FACE_SHADER } from './Shaders';
+import { detectFaces } from './frame-processors/FaceDetection';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -201,25 +202,11 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const radius = (format?.videoHeight ?? 1080) * 0.25;
-  const width = radius;
-  const height = radius;
-  const x = (format?.videoHeight ?? 1080) / 2 - radius / 2;
-  const y = (format?.videoWidth ?? 1920) / 2 - radius / 2;
-  const centerX = x + width / 2;
-  const centerY = y + height / 2;
-
   const runtimeEffect = Skia.RuntimeEffect.Make(FACE_PIXELATED_SHADER);
   if (runtimeEffect == null) throw new Error('Shader failed to compile!');
   const shaderBuilder = Skia.RuntimeShaderBuilder(runtimeEffect);
-  shaderBuilder.setUniform('r', [width]);
-  shaderBuilder.setUniform('x', [centerX]);
-  shaderBuilder.setUniform('y', [centerY]);
-  shaderBuilder.setUniform('resolution', [1920, 1080]);
-  const imageFilter = Skia.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
 
   const paint = Skia.Paint();
-  paint.setImageFilter(imageFilter);
 
   const rectPaint = Skia.Paint();
   rectPaint.setColor(Skia.Color('red'));
@@ -234,13 +221,24 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
       // console.log(faces);
       for (const face of faces) {
         const rect = Skia.XYWHRect(face.x * frame.width, face.y * frame.height, face.width * frame.width, face.height * frame.height);
-        frame.drawRect(rect, rectPaint);
+
+        const centerX = (face.x + face.width / 2) * frame.width;
+        const centerY = (face.y + face.height / 2) * frame.height;
+        const radius = Math.max(face.width * frame.width, face.height * frame.height);
+
+        shaderBuilder.setUniform('x', [centerX]);
+        shaderBuilder.setUniform('y', [centerY]);
+        shaderBuilder.setUniform('r', [radius]);
+        const imageFilter = Skia.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
+        paint.setImageFilter(imageFilter);
+
+        frame.render(paint);
       }
 
       // if (isIOS) frame.render(paint);
       // else console.log('Drawing to the Frame is not yet available on Android. WIP PR');
     },
-    [rectPaint],
+    [paint, shaderBuilder],
   );
 
   return (
