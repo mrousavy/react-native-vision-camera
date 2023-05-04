@@ -25,8 +25,9 @@ import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
 import { Skia } from '@shopify/react-native-skia';
-import { FACE_PIXELATED_SHADER, FACE_SHADER } from './Shaders';
+import { CHROMATIC_ABERRATION_SHADER, FACE_PIXELATED_SHADER, FACE_SHADER, INVERTED_COLORS_SHADER } from './Shaders';
 import { detectFaces } from './frame-processors/FaceDetection';
+import { useSharedValue as useWorkletValue } from 'react-native-worklets/src';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -202,43 +203,85 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const runtimeEffect = Skia.RuntimeEffect.Make(FACE_PIXELATED_SHADER);
-  if (runtimeEffect == null) throw new Error('Shader failed to compile!');
-  const shaderBuilder = Skia.RuntimeShaderBuilder(runtimeEffect);
+  type EffectToUse = 'vhs' | 'invert-colors' | 'face-blur' | 'hand-detection';
+  const effectToUse = useWorkletValue<EffectToUse>('vhs');
 
-  const paint = Skia.Paint();
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log(effectToUse.value);
+      switch (effectToUse.value) {
+        case 'vhs':
+          effectToUse.value = 'invert-colors';
+          break;
+        case 'invert-colors':
+          effectToUse.value = 'face-blur';
+          break;
+        case 'hand-detection':
+          effectToUse.value = 'hand-detection';
+          break;
+        case 'face-blur':
+          effectToUse.value = 'vhs';
+          break;
+      }
+      console.log(`Changed shader to ${effectToUse.value}!`);
+    }, 3000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, [effectToUse]);
 
-  const rectPaint = Skia.Paint();
-  rectPaint.setColor(Skia.Color('red'));
+  // blur face
+  const blurEffect = Skia.RuntimeEffect.Make(FACE_PIXELATED_SHADER);
+  if (blurEffect == null) throw new Error('Shader failed to compile!');
+  const blurShaderBuilder = Skia.RuntimeShaderBuilder(blurEffect);
+  const blurPaint = Skia.Paint();
 
-  const isIOS = Platform.OS === 'ios';
+  // VHS effect
+  const vhsEffect = Skia.RuntimeEffect.Make(CHROMATIC_ABERRATION_SHADER);
+  if (vhsEffect == null) throw new Error('Failed to compile VHS Effect!');
+  const vhsShaderBuilder = Skia.RuntimeShaderBuilder(vhsEffect);
+  const vhsPaint = Skia.Paint();
+  vhsPaint.setImageFilter(Skia.ImageFilter.MakeRuntimeShader(vhsShaderBuilder, null, null));
+
+  // invert colors
+  const invertEffect = Skia.RuntimeEffect.Make(INVERTED_COLORS_SHADER);
+  if (invertEffect == null) throw new Error('Failed to compile Inverted Effect!');
+  const invertedShaderBuilder = Skia.RuntimeShaderBuilder(invertEffect);
+  const invertedPaint = Skia.Paint();
+  invertedPaint.setImageFilter(Skia.ImageFilter.MakeRuntimeShader(invertedShaderBuilder, null, null));
+
   const frameProcessor = useFrameProcessor(
     (frame) => {
       'worklet';
       // console.log(`Width: ${frame.width}`);
 
-      const { faces } = detectFaces(frame);
-      // console.log(faces);
-      for (const face of faces) {
-        const rect = Skia.XYWHRect(face.x * frame.width, face.y * frame.height, face.width * frame.width, face.height * frame.height);
+      if (effectToUse.value === 'vhs') {
+        // VHS
+        frame.render(vhsPaint);
+      } else if (effectToUse.value === 'invert-colors') {
+        // VHS
+        frame.render(invertedPaint);
+      } else if (effectToUse.value === 'face-blur') {
+        const { faces } = detectFaces(frame);
+        // console.log(faces);
+        for (const face of faces) {
+          const rect = Skia.XYWHRect(face.x * frame.width, face.y * frame.height, face.width * frame.width, face.height * frame.height);
 
-        const centerX = (face.x + face.width / 2) * frame.width;
-        const centerY = (face.y + face.height / 2) * frame.height;
-        const radius = Math.max(face.width * frame.width, face.height * frame.height) / 2;
+          const centerX = (face.x + face.width / 2) * frame.width;
+          const centerY = (face.y + face.height / 2) * frame.height;
+          const radius = Math.max(face.width * frame.width, face.height * frame.height) / 2;
 
-        shaderBuilder.setUniform('x', [centerX]);
-        shaderBuilder.setUniform('y', [centerY]);
-        shaderBuilder.setUniform('r', [radius]);
-        const imageFilter = Skia.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
-        paint.setImageFilter(imageFilter);
+          blurShaderBuilder.setUniform('x', [centerX]);
+          blurShaderBuilder.setUniform('y', [centerY]);
+          blurShaderBuilder.setUniform('r', [radius]);
+          const imageFilter = Skia.ImageFilter.MakeRuntimeShader(blurShaderBuilder, null, null);
+          blurPaint.setImageFilter(imageFilter);
 
-        frame.render(paint);
+          frame.render(blurPaint);
+        }
       }
-
-      // if (isIOS) frame.render(paint);
-      // else console.log('Drawing to the Frame is not yet available on Android. WIP PR');
     },
-    [paint, shaderBuilder],
+    [blurPaint, blurShaderBuilder, effectToUse, vhsPaint],
   );
 
   return (
