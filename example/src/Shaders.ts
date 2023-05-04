@@ -105,3 +105,27 @@ half4 main(vec2 pos) {
   }
 }
 `;
+
+export const FACE_PIXELATED_SHADER = `
+uniform shader image;
+uniform float x;
+uniform float y;
+uniform float r;
+uniform vec2 resolution;
+
+const float size = 100.0;
+
+half4 main(vec2 pos) {
+  // Caclulate distance from center of circle (pythag)
+  float delta = pow((pow(pos.x - x, 2) + pow(pos.y - y, 2)), 0.5);
+
+  // If the distance is less than the radius, blur
+  if (delta < r) {
+    vec2 samplingPos = floor(pos / size) * size;
+    return image.eval(samplingPos);
+  }
+  else {
+    // Otherwise, return the original pixel
+    return image.eval(pos);
+  }
+}`;
