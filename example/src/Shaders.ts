@@ -63,26 +63,38 @@ uniform float y;
 uniform float r;
 uniform vec2 resolution;
 
-const float samples = 3.0;
-const float radius = 40.0;
-const float weight = 1.0;
+const float samples = 4.0;
+const float radius = 25.0;
+
+float gauss (float radius, float x) {
+  float sigma = 0.5 * radius;
+  float g = (1.0/sqrt(2.0*3.142*sigma*sigma))*exp(-0.5*(x*x)/(sigma*sigma));
+  return g;
+}
 
 half4 main(vec2 pos) {
+  // Caclulate distance from center of circle (pythag)
   float delta = pow((pow(pos.x - x, 2) + pow(pos.y - y, 2)), 0.5);
+
+  // If the distance is less than the radius, blur
   if (delta < r) {
-    vec3 sum = vec3(0.0);
+
+    // vec3 color = image.eval(pos).rgb * gauss(radius, delta);
+
+    // Accumulate the color of the pixels around the current pixel
+
     vec3 accumulation = vec3(0);
-    vec3 weightedsum = vec3(0);
-    for (float deltaX = -samples * radius; deltaX <= samples * radius; deltaX += radius / samples) {
-      for (float deltaY = -samples * radius; deltaY <= samples * radius; deltaY += radius / samples) {
+    float pixelSampleCount = 0;
+    for (float deltaX = -radius; deltaX <= radius; deltaX += radius / samples) {
+      for (float deltaY = -radius; deltaY <= radius; deltaY += radius / samples) {
         accumulation += image.eval(vec2(pos.x + deltaX, pos.y + deltaY)).rgb;
-        weightedsum += weight;
+        pixelSampleCount += 1.0;
       }
     }
-    sum = accumulation / weightedsum;
-    return vec4(sum, 1.0);
+    return vec4(accumulation / vec3(pixelSampleCount), 1.0);
   }
   else {
+    // Otherwise, return the original pixel
     return image.eval(pos);
   }
 }

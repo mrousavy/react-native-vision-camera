@@ -104,8 +104,12 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
       result = result.filter((f) => f.supportsVideoHDR || f.supportsPhotoHDR);
     }
 
+    result = result.filter((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, fps)));
+
+    // console.log({ result });
+
     // find the first format that includes the given FPS
-    return result.find((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, fps)));
+    return result[0];
   }, [formats, fps, enableHdr]);
 
   //#region Animated Zoom
@@ -198,7 +202,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const radius = (format?.videoHeight ?? 1080) * 0.1;
+  const radius = (format?.videoHeight ?? 1080) * 0.25;
   const width = radius;
   const height = radius;
   const x = (format?.videoHeight ?? 1080) / 2 - radius / 2;
@@ -222,7 +226,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const frameProcessor = useFrameProcessor(
     (frame) => {
       'worklet';
-      console.log(`Width: ${frame.width}`);
+      // console.log(`Width: ${frame.width}`);
 
       if (isIOS) frame.render(paint);
       else console.log('Drawing to the Frame is not yet available on Android. WIP PR');
