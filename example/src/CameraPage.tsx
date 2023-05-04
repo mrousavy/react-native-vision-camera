@@ -274,8 +274,6 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
         const { faces } = detectFaces(frame);
         // console.log(faces);
         for (const face of faces) {
-          const rect = Skia.XYWHRect(face.x * frame.width, face.y * frame.height, face.width * frame.width, face.height * frame.height);
-
           const centerX = (face.x + face.width / 2) * frame.width;
           const centerY = (face.y + face.height / 2) * frame.height;
           const radius = Math.max(face.width * frame.width, face.height * frame.height) / 2;

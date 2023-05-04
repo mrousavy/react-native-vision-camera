@@ -112,10 +112,11 @@ uniform float y;
 uniform float r;
 
 const float size = 100.0;
+const float skew = 0.5;
 
 half4 main(vec2 pos) {
   // Caclulate distance from center of circle (pythag)
-  float delta = pow((pow(pos.x - x, 2) + pow(pos.y - y, 2)), 0.5);
+  float delta = pow((pow(pos.x - x, 2) + (pow(pos.y - y, 2) * skew)), 0.5);
 
   // If the distance is less than the radius, blur
   if (delta < r) {
