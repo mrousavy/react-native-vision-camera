@@ -24,10 +24,11 @@ import IonIcon from 'react-native-vector-icons/Ionicons';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
-import { Skia } from '@shopify/react-native-skia';
+import { PaintStyle, Skia } from '@shopify/react-native-skia';
 import { CHROMATIC_ABERRATION_SHADER, FACE_PIXELATED_SHADER, FACE_SHADER, INVERTED_COLORS_SHADER } from './Shaders';
 import { detectFaces } from './frame-processors/FaceDetection';
 import { useSharedValue as useWorkletValue } from 'react-native-worklets/src';
+import { detectHands } from './frame-processors/HandDetection';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -250,6 +251,13 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const invertedPaint = Skia.Paint();
   invertedPaint.setImageFilter(Skia.ImageFilter.MakeRuntimeShader(invertedShaderBuilder, null, null));
 
+  const handPaint = Skia.Paint();
+  handPaint.setStyle(PaintStyle.Stroke);
+  handPaint.setStrokeWidth(10);
+  handPaint.setColor(Skia.Color('lightgreen'));
+  const dotPaint = Skia.Paint();
+  dotPaint.setColor(Skia.Color('red'));
+
   const frameProcessor = useFrameProcessor(
     (frame) => {
       'worklet';
@@ -279,9 +287,167 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
           frame.render(blurPaint);
         }
+      } else if (effectToUse.value === 'hand-detection') {
+        const { hands } = detectHands(frame);
+
+        for (const hand of hands) {
+          frame.drawLine(
+            hand.wrist.x * frame.width,
+            hand.wrist.y * frame.height,
+            hand.thumb_cmc.x * frame.width,
+            hand.thumb_cmc.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.thumb_cmc.x * frame.width,
+            hand.thumb_cmc.y * frame.height,
+            hand.thumb_mcp.x * frame.width,
+            hand.thumb_mcp.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.thumb_mcp.x * frame.width,
+            hand.thumb_mcp.y * frame.height,
+            hand.thumb_ip.x * frame.width,
+            hand.thumb_ip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.thumb_ip.x * frame.width,
+            hand.thumb_ip.y * frame.height,
+            hand.thumb_tip.x * frame.width,
+            hand.thumb_tip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.wrist.x * frame.width,
+            hand.wrist.y * frame.height,
+            hand.index_finger_mcp.x * frame.width,
+            hand.index_finger_mcp.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.index_finger_mcp.x * frame.width,
+            hand.index_finger_mcp.y * frame.height,
+            hand.index_finger_pip.x * frame.width,
+            hand.index_finger_pip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.index_finger_pip.x * frame.width,
+            hand.index_finger_pip.y * frame.height,
+            hand.index_finger_dip.x * frame.width,
+            hand.index_finger_dip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.index_finger_dip.x * frame.width,
+            hand.index_finger_dip.y * frame.height,
+            hand.index_finger_tip.x * frame.width,
+            hand.index_finger_tip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.index_finger_mcp.x * frame.width,
+            hand.index_finger_mcp.y * frame.height,
+            hand.middle_finger_mcp.x * frame.width,
+            hand.middle_finger_mcp.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.middle_finger_mcp.x * frame.width,
+            hand.middle_finger_mcp.y * frame.height,
+            hand.middle_finger_pip.x * frame.width,
+            hand.middle_finger_pip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.middle_finger_pip.x * frame.width,
+            hand.middle_finger_pip.y * frame.height,
+            hand.middle_finger_dip.x * frame.width,
+            hand.middle_finger_dip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.middle_finger_dip.x * frame.width,
+            hand.middle_finger_dip.y * frame.height,
+            hand.middle_finger_tip.x * frame.width,
+            hand.middle_finger_tip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.middle_finger_mcp.x * frame.width,
+            hand.middle_finger_mcp.y * frame.height,
+            hand.ring_finger_mcp.x * frame.width,
+            hand.ring_finger_mcp.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.ring_finger_mcp.x * frame.width,
+            hand.ring_finger_mcp.y * frame.height,
+            hand.ring_finger_pip.x * frame.width,
+            hand.ring_finger_pip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.ring_finger_pip.x * frame.width,
+            hand.ring_finger_pip.y * frame.height,
+            hand.ring_finger_dip.x * frame.width,
+            hand.ring_finger_dip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.ring_finger_dip.x * frame.width,
+            hand.ring_finger_dip.y * frame.height,
+            hand.ring_finger_tip.x * frame.width,
+            hand.ring_finger_tip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.ring_finger_mcp.x * frame.width,
+            hand.ring_finger_mcp.y * frame.height,
+            hand.pinky_mcp.x * frame.width,
+            hand.pinky_mcp.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.pinky_mcp.x * frame.width,
+            hand.pinky_mcp.y * frame.height,
+            hand.pinky_pip.x * frame.width,
+            hand.pinky_pip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.pinky_pip.x * frame.width,
+            hand.pinky_pip.y * frame.height,
+            hand.pinky_dip.x * frame.width,
+            hand.pinky_dip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.pinky_dip.x * frame.width,
+            hand.pinky_dip.y * frame.height,
+            hand.pinky_tip.x * frame.width,
+            hand.pinky_tip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.wrist.x * frame.width,
+            hand.wrist.y * frame.height,
+            hand.pinky_mcp.x * frame.width,
+            hand.pinky_mcp.y * frame.height,
+            handPaint,
+          );
+
+          const keys = Object.keys(hand);
+          for (const key of keys) {
+            const point = hand[key];
+            frame.drawCircle(point.x, point.y, 5, dotPaint);
+          }
+        }
       }
     },
-    [blurPaint, blurShaderBuilder, effectToUse, vhsPaint],
+    [blurPaint, blurShaderBuilder, dotPaint, effectToUse, handPaint, invertedPaint, vhsPaint],
   );
 
   return (
