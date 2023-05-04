@@ -58,16 +58,6 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     frameProcessorManager = null
   }
 
-  override fun initialize() {
-    super.initialize()
-
-    if (frameProcessorManager == null) {
-      frameProcessorThread.execute {
-        frameProcessorManager = FrameProcessorRuntimeManager(reactApplicationContext, frameProcessorThread)
-      }
-    }
-  }
-
   override fun onCatalystInstanceDestroy() {
     super.onCatalystInstanceDestroy()
     cleanup()
@@ -87,6 +77,20 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     val view = if (reactApplicationContext != null) UIManagerHelper.getUIManager(reactApplicationContext, viewId)?.resolveView(viewId) as CameraView? else null
     Log.d(TAG,  if (reactApplicationContext != null) "Found view $viewId!" else "Couldn't find view $viewId!")
     return view ?: throw ViewNotFoundError(viewId)
+  }
+
+  fun installFrameProcessorBindings(): Boolean {
+    return try {
+      if (frameProcessorManager == null) {
+        frameProcessorThread.execute {
+          frameProcessorManager = FrameProcessorRuntimeManager(reactApplicationContext, frameProcessorThread)
+        }
+      }
+      true;
+    } catch (e: Error) {
+      Log.e(TAG, "Failed to install Frame Processor JSI Bindings!", e)
+      false;
+    }
   }
 
   @ReactMethod

@@ -12,6 +12,7 @@ class CameraViewManager(reactContext: ReactApplicationContext) : ViewGroupManage
 
   public override fun createViewInstance(context: ThemedReactContext): CameraView {
     val cameraViewModule = context.getNativeModule(CameraViewModule::class.java)!!
+    cameraViewModule.installFrameProcessorBindings()
     return CameraView(context, cameraViewModule.frameProcessorThread)
   }
 
