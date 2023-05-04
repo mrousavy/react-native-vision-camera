@@ -218,19 +218,26 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const paint = Skia.Paint();
   paint.setImageFilter(imageFilter);
 
+  const rectPaint = Skia.Paint();
+  rectPaint.setColor(Skia.Color('red'));
+
   const isIOS = Platform.OS === 'ios';
   const frameProcessor = useFrameProcessor(
     (frame) => {
       'worklet';
-      console.log(`Width: ${frame.width}`);
+      // console.log(`Width: ${frame.width}`);
 
       const { faces } = detectFaces(frame);
-      console.log(faces);
+      // console.log(faces);
+      for (const face of faces) {
+        const rect = Skia.XYWHRect(face.x * frame.width, face.y * frame.height, face.width * frame.width, face.height * frame.height);
+        frame.drawRect(rect, rectPaint);
+      }
 
-      if (isIOS) frame.render(paint);
-      else console.log('Drawing to the Frame is not yet available on Android. WIP PR');
+      // if (isIOS) frame.render(paint);
+      // else console.log('Drawing to the Frame is not yet available on Android. WIP PR');
     },
-    [isIOS, paint],
+    [rectPaint],
   );
 
   return (
