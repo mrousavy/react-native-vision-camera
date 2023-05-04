@@ -225,7 +225,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
       console.log(`Width: ${frame.width}`);
 
       const x = examplePlugin(frame);
-      console.log(x);
+      console.log(x.faces);
 
       if (isIOS) frame.render(paint);
       else console.log('Drawing to the Frame is not yet available on Android. WIP PR');

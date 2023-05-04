@@ -47,13 +47,24 @@
   @try {
     [_faceDetector processVideoFrame:pixelBuffer timestamp:timestamp];
   } @catch (NSException *exception) {
-    NSLog(@"%@", exception.reason);
+    NSLog(@"FD ERROR: %@", exception.reason);
   }
   
-  pthread_mutex_lock(&_mutex);
+  NSMutableArray* faces = [NSMutableArray arrayWithCapacity:_currentDetections.count];
+  for (int i = 0; i < _currentDetections.count; i++) {
+    BoundingBox* box = _currentDetections[i];
+    [faces addObject:@{
+      @"x": @(box.x),
+      @"y": @(box.y),
+      @"width": @(box.width),
+      @"height": @(box.height),
+      @"score": @(box.score)
+    }];
+  }
+  
   
   return @{
-    @"detections": @(_currentDetections.count)
+    @"faces": faces
   };
 }
 
@@ -62,8 +73,8 @@
 }
 
 - (void)faceDetection:(FaceDetection *)faceDetection didOutputDetections:(NSArray<BoundingBox *> *)detections {
+  NSLog(@"Face!!! %lu", (unsigned long)detections.count);
   _currentDetections = detections;
-  pthread_mutex_unlock(&_mutex);
 }
 
 @end

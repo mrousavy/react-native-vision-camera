@@ -10,6 +10,7 @@
 @property (nonatomic) float y;
 @property (nonatomic) float width;
 @property (nonatomic) float height;
+@property (nonatomic) float score;
 @end
 
 @protocol FaceDetectionDelegate <NSObject>
