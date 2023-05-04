@@ -1,5 +1,5 @@
 //
-//  FaceDetection.m
+//  FaceDetectionFrameProcessorPlugin.m
 //  VisionCameraExample
 //
 //  Created by Marc Rousavy on 04.05.23.
@@ -9,11 +9,9 @@
 #import <VisionCamera/FrameProcessorPlugin.h>
 #import <VisionCamera/Frame.h>
 
-#import <FaceDetection/FaceDetection.h>
-
+#import <MargeloTracking/FaceDetection.h>
 
 @interface FaceDetectionFrameProcessorPlugin : FrameProcessorPlugin <FaceDetectionDelegate>
-
 
 - (instancetype)init;
 

@@ -4,5 +4,3 @@
 
 #import <VisionCamera/FrameProcessorPlugin.h>
 #import <VisionCamera/Frame.h>
-
-#import <FaceDetection/FaceDetection.h>

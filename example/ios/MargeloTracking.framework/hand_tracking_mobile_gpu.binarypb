@@ -1,0 +1,5 @@
+
+`FlowLimiterCalculatorinput_videoFINISHED:output_video"throttled_input_videoj
+FINISHED
+´HandLandmarkTrackingGpuIMAGE:throttled_input_video"LANDMARKS:hand_landmarks"HANDEDNESS:handedness"PALM_DETECTIONS:palm_detections"2HAND_ROIS_FROM_LANDMARKS:hand_rects_from_landmarks">HAND_ROIS_FROM_PALM_DETECTIONS:hand_rects_from_palm_detections*!MODEL_COMPLEXITY:model_complexity*NUM_HANDS:num_hands
+êHandRendererSubgraphIMAGE:throttled_input_videoDETECTIONS:palm_detectionsLANDMARKS:hand_landmarksHANDEDNESS:handedness,NORM_RECTS:0:hand_rects_from_palm_detections&NORM_RECTS:1:hand_rects_from_landmarks"IMAGE:output_videoRinput_videozoutput_videozhand_landmarks‚	num_hands‚model_complexity
