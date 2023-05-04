@@ -3,6 +3,7 @@ import type { Frame } from 'react-native-vision-camera';
 interface Landmark {
   x: number;
   y: number;
+  z: number;
 }
 
 interface HandLandmarks {

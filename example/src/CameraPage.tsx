@@ -257,6 +257,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   handPaint.setColor(Skia.Color('lightgreen'));
   const dotPaint = Skia.Paint();
   dotPaint.setColor(Skia.Color('red'));
+  dotPaint.setStyle(PaintStyle.Fill);
 
   const frameProcessor = useFrameProcessor(
     (frame) => {
@@ -442,7 +443,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
           const keys = Object.keys(hand);
           for (const key of keys) {
             const point = hand[key];
-            frame.drawCircle(point.x, point.y, 5, dotPaint);
+            frame.drawCircle(point.x * frame.width, point.y * frame.height, 15 - point.z * 35, dotPaint);
           }
         }
       }
