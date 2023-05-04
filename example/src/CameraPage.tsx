@@ -292,6 +292,12 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
         const { hands } = detectHands(frame);
 
         for (const hand of hands) {
+          const dist = Math.sqrt((hand.wrist.x - hand.middle_finger_tip.x) ** 2 + (hand.wrist.y - hand.middle_finger_tip.y) ** 2);
+          const lineWidth = Math.min((dist * frame.width) / 10, frame.width * 0.007);
+          const dotSize = Math.min((dist * frame.width) / 10, frame.width * 0.01);
+
+          handPaint.setStrokeWidth(lineWidth);
+
           frame.drawLine(
             hand.wrist.x * frame.width,
             hand.wrist.y * frame.height,
@@ -443,7 +449,6 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
           const keys = Object.keys(hand);
           for (const key of keys) {
             const point = hand[key];
-            const dotSize = frame.width * 0.01;
             frame.drawCircle(point.x * frame.width, point.y * frame.height, dotSize - point.z * (dotSize * 2), dotPaint);
           }
         }
