@@ -46,6 +46,7 @@
   CMTime timestamp = CMSampleBufferGetPresentationTimeStamp(frame.buffer);
   @try {
     [_faceDetector processVideoFrame:pixelBuffer timestamp:timestamp];
+    // TODO: we don't do any locking for now since this deadlocks - pthread_mutex_lock(&_mutex);
   } @catch (NSException *exception) {
     NSLog(@"FD ERROR: %@", exception.reason);
   }
@@ -73,8 +74,8 @@
 }
 
 - (void)faceDetection:(FaceDetection *)faceDetection didOutputDetections:(NSArray<BoundingBox *> *)detections {
-  NSLog(@"Face!!! %lu", (unsigned long)detections.count);
   _currentDetections = detections;
+  // TODO: we don't do any locking for now since this deadlocks - pthread_mutex_unlock(&_mutex);
 }
 
 @end
