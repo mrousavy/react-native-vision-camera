@@ -24,7 +24,7 @@ import IonIcon from 'react-native-vector-icons/Ionicons';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
-import { Skia } from '@shopify/react-native-skia';
+import { Skia, useFont, useImage } from '@shopify/react-native-skia';
 import { FACE_SHADER } from './Shaders';
 import { detectFaces } from './frame-processors/FaceDetection';
 
@@ -219,25 +219,25 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   paint.setImageFilter(imageFilter);
 
   const rectPaint = Skia.Paint();
-  rectPaint.setColor(Skia.Color('red'));
+  // rectPaint.setColor(Skia.Color('red'));
 
-  const isIOS = Platform.OS === 'ios';
+  const text = Skia.Font();
+  text.setSize(30);
+
+  const image = useImage(require('./assets/joy-emoji.png'));
+
   const frameProcessor = useFrameProcessor(
     (frame) => {
       'worklet';
-      // console.log(`Width: ${frame.width}`);
 
       const { faces } = detectFaces(frame);
-      // console.log(faces);
       for (const face of faces) {
         const rect = Skia.XYWHRect(face.x * frame.width, face.y * frame.height, face.width * frame.width, face.height * frame.height);
-        frame.drawRect(rect, rectPaint);
+        const source = Skia.XYWHRect(0, 0, 120, 120);
+        if (image != null) frame.drawImageRect(image, source, rect, rectPaint);
       }
-
-      // if (isIOS) frame.render(paint);
-      // else console.log('Drawing to the Frame is not yet available on Android. WIP PR');
     },
-    [rectPaint],
+    [image, rectPaint],
   );
 
   return (
