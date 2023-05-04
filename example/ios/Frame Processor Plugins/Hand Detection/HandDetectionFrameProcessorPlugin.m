@@ -58,6 +58,10 @@ NSDictionary* landmarkToDict(Landmark* landmark) {
   for (int i = 0; i < _currentDetections.count; i++) {
     Hand* hand = _currentDetections[i];
     NSArray<Landmark*>* landmarks = hand.landmarks;
+    if (landmarks.count < 21) {
+      // not enough landmarks for us
+      continue;
+    }
     [hands addObject:@{
       @"wrist": landmarkToDict(landmarks[0]),
       @"thumb_cmc": landmarkToDict(landmarks[1]),
