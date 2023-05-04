@@ -292,7 +292,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
         for (const hand of hands) {
           const dist = Math.sqrt((hand.wrist.x - hand.middle_finger_tip.x) ** 2 + (hand.wrist.y - hand.middle_finger_tip.y) ** 2);
           const lineWidth = Math.min((dist * frame.width) / 10, frame.width * 0.007);
-          const dotSize = Math.min((dist * frame.width) / 10, frame.width * 0.01);
+          const dotSize = Math.min((dist * frame.width) / 13, frame.width * 0.006);
 
           handPaint.setStrokeWidth(lineWidth);
 
