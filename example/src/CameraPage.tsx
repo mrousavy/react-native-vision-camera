@@ -215,10 +215,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
           effectToUse.value = 'invert-colors';
           break;
         case 'invert-colors':
-          effectToUse.value = 'face-blur';
+          effectToUse.value = 'hand-detection';
           break;
         case 'hand-detection':
-          effectToUse.value = 'hand-detection';
+          effectToUse.value = 'face-blur';
           break;
         case 'face-blur':
           effectToUse.value = 'vhs';
@@ -443,7 +443,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
           const keys = Object.keys(hand);
           for (const key of keys) {
             const point = hand[key];
-            frame.drawCircle(point.x * frame.width, point.y * frame.height, 15 - point.z * 35, dotPaint);
+            const dotSize = frame.width * 0.01;
+            frame.drawCircle(point.x * frame.width, point.y * frame.height, dotSize - point.z * (dotSize * 2), dotPaint);
           }
         }
       }
