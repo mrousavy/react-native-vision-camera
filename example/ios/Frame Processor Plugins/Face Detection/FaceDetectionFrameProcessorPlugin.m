@@ -1,8 +1,8 @@
 //
-//  ExampleFrameProcessorPlugin.m
+//  FaceDetection.m
 //  VisionCameraExample
 //
-//  Created by Marc Rousavy on 01.05.21.
+//  Created by Marc Rousavy on 04.05.23.
 //
 
 #import <Foundation/Foundation.h>
@@ -10,43 +10,39 @@
 #import <VisionCamera/Frame.h>
 
 #import <FaceDetection/FaceDetection.h>
-#import <pthread.h>
 
-// Example for an Objective-C Frame Processor plugin
 
-@interface ExampleFrameProcessorPlugin : FrameProcessorPlugin <FaceDetectionDelegate>
+@interface FaceDetectionFrameProcessorPlugin : FrameProcessorPlugin <FaceDetectionDelegate>
 
 
 - (instancetype)init;
 
 @property FaceDetection* faceDetector;
-@property pthread_mutex_t mutex;
 @property NSArray<BoundingBox*>* currentDetections;
 
 @end
 
-@implementation ExampleFrameProcessorPlugin
+@implementation FaceDetectionFrameProcessorPlugin
 
 - (instancetype)init {
   if (self = [super init]) {
     _faceDetector = [[FaceDetection alloc] init];
     [_faceDetector startGraph];
     _faceDetector.delegate = self;
-    pthread_mutex_init(&_mutex, NULL);
   }
   return self;
 }
 
 - (NSString *)name {
-  return @"example_plugin";
+  return @"detectFaces";
 }
 
+// callback for the JS Frame Processor
 - (id)callback:(Frame *)frame withArguments:(NSArray<id> *)arguments {
   CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
   CMTime timestamp = CMSampleBufferGetPresentationTimeStamp(frame.buffer);
   @try {
     [_faceDetector processVideoFrame:pixelBuffer timestamp:timestamp];
-    // TODO: we don't do any locking for now since this deadlocks - pthread_mutex_lock(&_mutex);
   } @catch (NSException *exception) {
     NSLog(@"FD ERROR: %@", exception.reason);
   }
@@ -69,13 +65,13 @@
   };
 }
 
-+ (void) load {
-  [self registerPlugin:[[ExampleFrameProcessorPlugin alloc] init]];
-}
-
+// callback for onFacesDetected (invoked on another thread)
 - (void)faceDetection:(FaceDetection *)faceDetection didOutputDetections:(NSArray<BoundingBox *> *)detections {
   _currentDetections = detections;
-  // TODO: we don't do any locking for now since this deadlocks - pthread_mutex_unlock(&_mutex);
+}
+
++ (void) load {
+  [self registerPlugin:[[FaceDetectionFrameProcessorPlugin alloc] init]];
 }
 
 @end

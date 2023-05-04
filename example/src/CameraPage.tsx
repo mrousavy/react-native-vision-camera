@@ -21,12 +21,12 @@ import { CaptureButton } from './views/CaptureButton';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { examplePlugin } from './frame-processors/ExamplePlugin';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
 import { Skia } from '@shopify/react-native-skia';
 import { FACE_SHADER } from './Shaders';
+import { detectFaces } from './frame-processors/FaceDetection';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -224,8 +224,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
       'worklet';
       console.log(`Width: ${frame.width}`);
 
-      const x = examplePlugin(frame);
-      console.log(x.faces);
+      const { faces } = detectFaces(frame);
+      console.log(faces);
 
       if (isIOS) frame.render(paint);
       else console.log('Drawing to the Frame is not yet available on Android. WIP PR');
