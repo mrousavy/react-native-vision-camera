@@ -73,8 +73,8 @@ uniform float y;
 uniform float r;
 uniform vec2 resolution;
 
-const float samples = 4.0;
-const float radius = 20.0;
+const float samples = 5.0;
+const float radius = 100.0;
 
 float gauss (float x) {
   float sigma = 0.5 * radius;

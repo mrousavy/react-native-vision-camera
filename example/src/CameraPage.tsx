@@ -26,7 +26,7 @@ import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
 import { Skia } from '@shopify/react-native-skia';
-import { FACE_SHADER } from './Shaders';
+import { FACE_PIXELATED_SHADER, FACE_SHADER } from './Shaders';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -210,7 +210,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const centerX = x + width / 2;
   const centerY = y + height / 2;
 
-  const runtimeEffect = Skia.RuntimeEffect.Make(FACE_SHADER);
+  const runtimeEffect = Skia.RuntimeEffect.Make(FACE_PIXELATED_SHADER);
   if (runtimeEffect == null) throw new Error('Shader failed to compile!');
   const shaderBuilder = Skia.RuntimeShaderBuilder(runtimeEffect);
   shaderBuilder.setUniform('r', [width]);
