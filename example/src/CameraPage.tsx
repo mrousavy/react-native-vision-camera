@@ -49,7 +49,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const isForeground = useIsForeground();
   const isActive = isFocussed && isForeground;
 
-  const [cameraPosition, setCameraPosition] = useState<'front' | 'back'>('back');
+  const [cameraPosition, setCameraPosition] = useState<'front' | 'back'>('front');
   const [enableHdr, setEnableHdr] = useState(false);
   const [flash, setFlash] = useState<'off' | 'on'>('off');
   const [enableNightMode, setEnableNightMode] = useState(false);
@@ -224,7 +224,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
         const centerX = (face.x + face.width / 2) * frame.width;
         const centerY = (face.y + face.height / 2) * frame.height;
-        const radius = Math.max(face.width * frame.width, face.height * frame.height);
+        const radius = Math.max(face.width * frame.width, face.height * frame.height) / 2;
 
         shaderBuilder.setUniform('x', [centerX]);
         shaderBuilder.setUniform('y', [centerY]);
