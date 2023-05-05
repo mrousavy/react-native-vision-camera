@@ -195,7 +195,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
 
     previewView = SkiaPreviewView(context)
     previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-//    previewView.installHierarchyFitter() // If this is not called correctly, view finder will be black/blank
+    previewView.installHierarchyFitter() // If this is not called correctly, view finder will be black/blank
     addView(previewView)
 
     scaleGestureListener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
