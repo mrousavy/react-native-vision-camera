@@ -2,7 +2,9 @@ package com.mrousavy.camera.preview
 
 import android.content.Context
 import android.graphics.SurfaceTexture
+import android.util.Log
 import android.view.Surface
+import android.view.SurfaceControl
 import android.view.TextureView
 import android.view.TextureView.SurfaceTextureListener
 import android.widget.FrameLayout
@@ -12,11 +14,18 @@ import com.facebook.jni.annotations.DoNotStrip
 @Suppress("KotlinJniMissingFunction")
 class SkiaPreviewView(context: Context): FrameLayout(context) {
   val textureView: TextureView
+  val surface: SurfaceTexture
   @DoNotStrip
   private val mHybridData: HybridData
 
   init {
     mHybridData = initHybrid()
+
+    repeat(5) {
+      val x = createOffscreenTexture(120, 120)
+      Log.d("SKP", x.toString())
+    }
+    surface = SurfaceTexture(createOffscreenTexture(1920, 1080))
 
     textureView = TextureView(context)
     textureView.surfaceTextureListener = object : SurfaceTextureListener {
@@ -48,5 +57,6 @@ class SkiaPreviewView(context: Context): FrameLayout(context) {
   private external fun onSurfaceTextureSizeChanged(surface: Any, width: Int, height: Int)
   private external fun onSurfaceTextureDestroyed(surface: Any)
   private external fun onSurfaceTextureUpdated(surface: Any)
+  private external fun createOffscreenTexture(width: Int, height: Int): Int
 
 }

@@ -29,6 +29,7 @@ void SkiaPreviewView::registerNatives() {
        makeNativeMethod("onSurfaceTextureSizeChanged", SkiaPreviewView::onSurfaceTextureSizeChanged),
        makeNativeMethod("onSurfaceTextureDestroyed", SkiaPreviewView::onSurfaceTextureDestroyed),
        makeNativeMethod("onSurfaceTextureUpdated", SkiaPreviewView::onSurfaceTextureUpdated),
+       makeNativeMethod("createOffscreenTexture", SkiaPreviewView::createOffscreenTexture),
     });
 }
 
@@ -38,7 +39,25 @@ void SkiaPreviewView::onSurfaceTextureAvailable(const facebook::jni::alias_ref<j
                         "onSurfaceTextureAvailable!");
     _width = width;
     _height = height;
-    _skiaRenderer = std::make_unique<RNSkia::SkiaOpenGLRenderer>(surface.get());
+
+
+    // _skiaRenderer = std::make_unique<RNSkia::SkiaOpenGLRenderer>(surface.get());
+}
+
+jint SkiaPreviewView::createOffscreenTexture(jint width, jint height) {
+    // Generate off-screen Skia Surface
+    auto surface =  RNSkia::MakeOffscreenGLSurface(width, height);
+
+    // Get OpenGL Texture ID
+    auto texture = surface->getBackendTexture(SkSurface::kFlushWrite_TextureHandleAccess);
+    if (!texture.isValid()) {
+        throw std::runtime_error("Failed to create Skia OpenGL Surface!");
+    }
+    GrGLTextureInfo info;
+    if (!texture.getGLTextureInfo(&info)) {
+        throw std::runtime_error("Failed to create Skia OpenGL Surface, can't read Texture Info!");
+    }
+    return static_cast<int>(info.fID);
 }
 
 void SkiaPreviewView::onSurfaceTextureDestroyed(const facebook::jni::alias_ref<jobject>& surface) {
