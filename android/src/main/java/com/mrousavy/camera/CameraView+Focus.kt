@@ -16,14 +16,14 @@ suspend fun CameraView.focus(pointMap: ReadableMap) {
   val x = pointMap.getDouble("x") * dpi
   val y = pointMap.getDouble("y") * dpi
 
-  // Getting the point from the previewView needs to be run on the UI thread
-  val point = withContext(coroutineScope.coroutineContext) {
-    previewView.meteringPointFactory.createPoint(x.toFloat(), y.toFloat());
-  }
-
-  val action = FocusMeteringAction.Builder(point, FocusMeteringAction.FLAG_AF or FocusMeteringAction.FLAG_AE)
-    .setAutoCancelDuration(5, TimeUnit.SECONDS) // auto-reset after 5 seconds
-    .build()
-
-  cameraControl.startFocusAndMetering(action).await()
+//  // Getting the point from the previewView needs to be run on the UI thread
+//  val point = withContext(coroutineScope.coroutineContext) {
+//    previewView.meteringPointFactory.createPoint(x.toFloat(), y.toFloat());
+//  }
+//
+//  val action = FocusMeteringAction.Builder(point, FocusMeteringAction.FLAG_AF or FocusMeteringAction.FLAG_AE)
+//    .setAutoCancelDuration(5, TimeUnit.SECONDS) // auto-reset after 5 seconds
+//    .build()
+//
+//  cameraControl.startFocusAndMetering(action).await()
 }

@@ -26,6 +26,7 @@ import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.*
 import com.facebook.react.uimanager.events.RCTEventEmitter
 import com.mrousavy.camera.frameprocessor.FrameProcessorRuntimeManager
+import com.mrousavy.camera.preview.SkiaPreviewView
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.guava.await
@@ -109,7 +110,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
     get() = context as ReactContext
 
   @Suppress("JoinDeclarationAndAssignment")
-  internal val previewView: PreviewView
+  internal val previewView: SkiaPreviewView
   private val cameraExecutor = Executors.newSingleThreadExecutor()
   internal val takePhotoExecutor = Executors.newSingleThreadExecutor()
   internal val recordVideoExecutor = Executors.newSingleThreadExecutor()
@@ -192,9 +193,9 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   init {
     mHybridData = initHybrid()
 
-    previewView = PreviewView(context)
+    previewView = SkiaPreviewView(context)
     previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-    previewView.installHierarchyFitter() // If this is not called correctly, view finder will be black/blank
+//    previewView.installHierarchyFitter() // If this is not called correctly, view finder will be black/blank
     addView(previewView)
 
     scaleGestureListener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
@@ -471,7 +472,23 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
       preview = previewBuilder.build()
       Log.i(TAG, "Attaching ${useCases.size} use-cases...")
       camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, *useCases.toTypedArray())
-      preview!!.setSurfaceProvider(previewView.surfaceProvider)
+
+      val surfaceProvider = Preview.SurfaceProvider { request ->
+        val resolution = request.resolution
+        previewView.textureView.surfaceTexture?.setDefaultBufferSize(resolution.width, resolution.height)
+        if (previewView.textureView.surfaceTexture == null) {
+          request.willNotProvideSurface()
+          return@SurfaceProvider
+        }
+        val surface = Surface(previewView.textureView.surfaceTexture)
+        request.provideSurface(surface, cameraExecutor) { result ->
+          if (result.resultCode != SurfaceRequest.Result.RESULT_SURFACE_USED_SUCCESSFULLY) {
+//            throw RuntimeException("Invalid surface!")
+          }
+        }
+      }
+
+      preview!!.setSurfaceProvider(surfaceProvider)
 
       minZoom = camera!!.cameraInfo.zoomState.value?.minZoomRatio ?: 1f
       maxZoom = camera!!.cameraInfo.zoomState.value?.maxZoomRatio ?: 1f

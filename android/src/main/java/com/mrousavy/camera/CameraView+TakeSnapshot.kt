@@ -23,7 +23,7 @@ suspend fun CameraView.takeSnapshot(options: ReadableMap): WritableMap = corouti
     }
 
     val bitmap = withContext(coroutineScope.coroutineContext) {
-      previewView.bitmap ?: throw CameraNotReadyError()
+//      previewView.bitmap ?: throw CameraNotReadyError()
     }
 
     val quality = if (options.hasKey("quality")) options.getInt("quality") else 100
@@ -34,15 +34,15 @@ suspend fun CameraView.takeSnapshot(options: ReadableMap): WritableMap = corouti
     withContext(Dispatchers.IO) {
       file = File.createTempFile("mrousavy", ".jpg", context.cacheDir).apply { deleteOnExit() }
       FileOutputStream(file).use { stream ->
-        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, stream)
+//        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, stream)
       }
       exif = ExifInterface(file)
     }
 
     val map = Arguments.createMap()
     map.putString("path", file.absolutePath)
-    map.putInt("width", bitmap.width)
-    map.putInt("height", bitmap.height)
+//    map.putInt("width", bitmap.width)
+//    map.putInt("height", bitmap.height)
     map.putBoolean("isRawPhoto", false)
 
     val skipMetadata =
