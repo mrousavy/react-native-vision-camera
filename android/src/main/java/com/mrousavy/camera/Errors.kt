@@ -1,7 +1,6 @@
 package com.mrousavy.camera
 
 import android.graphics.ImageFormat
-import androidx.camera.video.VideoRecordEvent.Finalize.VideoRecordError
 
 abstract class CameraError(
   /**

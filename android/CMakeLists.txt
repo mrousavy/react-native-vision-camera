@@ -17,15 +17,15 @@ find_package(fbjni REQUIRED CONFIG)
 find_package(react-native-worklets REQUIRED CONFIG)
 find_library(LOG_LIB log)
 
-
-set(RNSKIA_PATH ${NODE_MODULES_DIR}/@shopify/react-native-skia)
-if(EXISTS ${RNSKIA_PATH})
-    find_package(shopify_react-native-skia REQUIRED CONFIG)
-    set(SKIA_PACKAGE shopify_react-native-skia::rnskia)
-    message("VisionCamera: Skia integration enabled!")
-else()
-    message("VisionCamera: Skia integration disabled!")
-ENDIF()
+# TODO: Skia?
+# set(RNSKIA_PATH ${NODE_MODULES_DIR}/@shopify/react-native-skia)
+# if(EXISTS ${RNSKIA_PATH})
+#     find_package(shopify_react-native-skia REQUIRED CONFIG)
+#     set(SKIA_PACKAGE shopify_react-native-skia::rnskia)
+#     message("VisionCamera: Skia integration enabled!")
+# else()
+#     message("VisionCamera: Skia integration disabled!")
+# ENDIF()
 
 # Add react-native-vision-camera sources
 add_library(

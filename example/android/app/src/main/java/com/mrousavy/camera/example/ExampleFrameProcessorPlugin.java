@@ -1,7 +1,6 @@
 package com.mrousavy.camera.example;
 
 import android.util.Log;
-import androidx.camera.core.ImageProxy;
 import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
@@ -9,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class ExampleFrameProcessorPlugin extends FrameProcessorPlugin {
     @Override
-    public Object callback(@NotNull ImageProxy image, @NotNull Object[] params) {
+    public Object callback(@NotNull Image image, @NotNull Object[] params) {
         Log.d("ExamplePlugin", image.getWidth() + " x " + image.getHeight() + " Image with format #" + image.getFormat() + ". Logging " + params.length + " parameters:");
 
         for (Object param : params) {

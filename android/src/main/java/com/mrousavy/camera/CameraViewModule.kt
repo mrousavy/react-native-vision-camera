@@ -8,12 +8,6 @@ import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.util.Log
 import android.util.Size
-import androidx.camera.core.CameraSelector
-import androidx.camera.extensions.ExtensionMode
-import androidx.camera.extensions.ExtensionsManager
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.video.QualitySelector
-import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.PermissionAwareActivity
@@ -45,7 +39,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   }
 
   var frameProcessorThread: ExecutorService = Executors.newSingleThreadExecutor()
-  private val coroutineScope = CoroutineScope(Dispatchers.Default) // TODO: or Dispatchers.Main?
+  private val coroutineScope = CoroutineScope(Dispatchers.Default or Main?)
   private var frameProcessorManager: FrameProcessorRuntimeManager? = null
 
   private fun cleanup() {
@@ -165,20 +159,9 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   @ReactMethod
   fun getAvailableCameraDevices(promise: Promise) {
-    coroutineScope.launch {
-      withPromise(promise) {
-        val cameraProvider = ProcessCameraProvider.getInstance(reactApplicationContext).await()
-        val extensionsManager = ExtensionsManager.getInstanceAsync(reactApplicationContext, cameraProvider).await()
-        val manager = reactApplicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-
-        val devices = Arguments.createArray()
-        manager.cameraIdList.forEach { cameraId ->
-          val device = CameraDevice(manager, extensionsManager, cameraId)
-          devices.pushMap(device.toMap())
-        }
-        promise.resolve(devices)
-      }
-    }
+    val devices = Arguments.createArray()
+    // TODO: Find devices!
+    promise.resolve(devices)
   }
 
   @ReactMethod

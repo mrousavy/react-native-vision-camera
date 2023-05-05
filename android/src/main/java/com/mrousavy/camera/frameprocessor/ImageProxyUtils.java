@@ -6,7 +6,6 @@ import android.graphics.Matrix;
 import android.media.Image;
 
 import androidx.annotation.Keep;
-import androidx.camera.core.ImageProxy;
 import com.facebook.proguard.annotations.DoNotStrip;
 
 import java.nio.ByteBuffer;
