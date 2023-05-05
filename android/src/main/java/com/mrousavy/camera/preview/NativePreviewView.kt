@@ -20,17 +20,20 @@ class NativePreviewView(context: Context): PreviewView(context) {
 
   // TODO: Do we need to remove the listener at any point?
   override fun addOnSurfaceChangedListener(callback: (surface: Surface?) -> Unit) {
+    surfaceView.holder.setFixedSize(300, 300)
     surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
       override fun surfaceCreated(holder: SurfaceHolder) {
-        callback(holder.surface)
       }
 
       override fun surfaceDestroyed(holder: SurfaceHolder) {
-        callback(null)
       }
 
       override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        // TODO: Handle size change
+        if (holder.surface != null && width > 0 && height > 0) {
+          callback(holder.surface)
+        } else {
+          callback(null)
+        }
       }
     })
   }

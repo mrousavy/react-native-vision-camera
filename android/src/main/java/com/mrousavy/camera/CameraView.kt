@@ -122,7 +122,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
       }
 
       override fun onDisconnected(camera: CameraDevice) {
-        Log.d(TAG, "Camera " + camera.id + " successfully opened")
+        throw Error("Failed to open Camera! ${camera.id}")
       }
 
       override fun onError(camera: CameraDevice, error: Int) {
@@ -150,7 +150,6 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
     val captureSessionStateCallback = object : CameraCaptureSession.StateCallback() {
       override fun onConfigured(captureSession: CameraCaptureSession) {
         val captureRequestBuilder = captureSession.device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
-        captureRequestBuilder.addTarget(imageReader!!.surface)
         captureRequestBuilder.addTarget(previewSurface)
         val captureRequest = captureRequestBuilder.build()
         captureSession.setRepeatingRequest(captureRequest, null, cameraHandler)
@@ -162,16 +161,14 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
     }
 
     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-      val outputConfigs = mutableListOf<OutputConfiguration>()
-      val outputConfig = OutputConfiguration(imageReader!!.surface)
-      outputConfigs.add(outputConfig)
+      val outputConfigs = mutableListOf<OutputConfiguration>(OutputConfiguration(previewSurface))
 
       val sessionConfig = SessionConfiguration(
         SessionConfiguration.SESSION_REGULAR,
         outputConfigs, frameProcessorThread, captureSessionStateCallback)
       camera.createCaptureSession(sessionConfig)
     } else {
-      camera.createCaptureSession(listOf(imageReader!!.surface), captureSessionStateCallback, cameraHandler)
+      camera.createCaptureSession(listOf(previewSurface), captureSessionStateCallback, cameraHandler)
     }
   }
 
