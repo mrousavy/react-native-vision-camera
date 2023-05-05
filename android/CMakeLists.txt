@@ -64,6 +64,10 @@ target_include_directories(
         "${RNSKIA_PATH}/cpp/skia"
 )
 
+set (SKIA_LIBS_PATH "${NODE_MODULES_DIR}/@shopify/react-native-skia/libs/android/${ANDROID_ABI}")
+add_library(skia STATIC IMPORTED)
+set_property(TARGET skia PROPERTY IMPORTED_LOCATION "${SKIA_LIBS_PATH}/libskia.a")
+
 # Link everything together
 target_link_libraries(
         ${PACKAGE_NAME}
@@ -75,4 +79,8 @@ target_link_libraries(
         fbjni::fbjni                        # <-- fbjni
         react-native-worklets::rnworklets   # <-- RN Worklets
         ${SKIA_PACKAGE}                     # <-- Optional: RN Skia
+        skia
+        -ljnigraphics
+        -lGLESv2
+        -lEGL
 )
