@@ -26,6 +26,7 @@ private:
     friend HybridBase;
     jni::global_ref<SkiaPreviewView::javaobject> _javaPart;
     std::unique_ptr<RNSkia::SkiaOpenGLRenderer> _skiaRenderer;
+    int _width, _height;
 
     void onSurfaceTextureAvailable(const jni::alias_ref<jobject>& surface, jint width, jint height);
     void onSurfaceTextureSizeChanged(const jni::alias_ref<jobject>& surface, jint width, jint height);
