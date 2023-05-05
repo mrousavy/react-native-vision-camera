@@ -1,13 +1,9 @@
 package com.mrousavy.camera
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.util.Log
-import android.util.Size
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
@@ -19,8 +15,6 @@ import java.util.concurrent.ExecutorService
 import com.mrousavy.camera.frameprocessor.FrameProcessorRuntimeManager
 import com.mrousavy.camera.parsers.*
 import com.mrousavy.camera.utils.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.guava.await
 import java.util.concurrent.Executors
 
 @ReactModule(name = CameraViewModule.TAG)
@@ -87,17 +81,15 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   // TODO: startRecording() cannot be awaited, because I can't have a Promise and a onRecordedCallback in the same function. Hopefully TurboModules allows that
   @ReactMethod
   fun startRecording(viewTag: Int, options: ReadableMap, onRecordCallback: Callback) {
-    coroutineScope.launch {
-      val view = findCameraView(viewTag)
-      try {
-        view.startRecording(options, onRecordCallback)
-      } catch (error: CameraError) {
-        val map = makeErrorMap("${error.domain}/${error.id}", error.message, error)
-        onRecordCallback(null, map)
-      } catch (error: Throwable) {
-        val map = makeErrorMap("capture/unknown", "An unknown error occurred while trying to start a video recording!", error)
-        onRecordCallback(null, map)
-      }
+    val view = findCameraView(viewTag)
+    try {
+      view.startRecording(options, onRecordCallback)
+    } catch (error: CameraError) {
+      val map = makeErrorMap("${error.domain}/${error.id}", error.message, error)
+      onRecordCallback(null, map)
+    } catch (error: Throwable) {
+      val map = makeErrorMap("capture/unknown", "An unknown error occurred while trying to start a video recording!", error)
+      onRecordCallback(null, map)
     }
   }
 
@@ -130,12 +122,10 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   @ReactMethod
   fun focus(viewTag: Int, point: ReadableMap, promise: Promise) {
-    coroutineScope.launch {
-      withPromise(promise) {
-        val view = findCameraView(viewTag)
-        view.focus(point)
-        return@withPromise null
-      }
+    withPromise(promise) {
+      val view = findCameraView(viewTag)
+      view.focus(point)
+      return@withPromise null
     }
   }
 

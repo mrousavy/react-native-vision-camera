@@ -62,7 +62,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
 
   }
 
-  fun stopRecording(options: ReadableMap) {
+  fun stopRecording() {
 
   }
 
