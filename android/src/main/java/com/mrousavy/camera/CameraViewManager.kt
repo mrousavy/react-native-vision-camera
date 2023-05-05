@@ -41,6 +41,27 @@ class CameraViewManager(reactContext: ReactApplicationContext) : ViewGroupManage
     view.cameraId = cameraId
   }
 
+  @ReactProp(name = "enableDepthData")
+  fun setEnableDepthData(view: CameraView, enableDepthData: Boolean) {
+    if (view.enableDepthData != enableDepthData)
+      addChangedPropToTransaction(view, "enableDepthData")
+    view.enableDepthData = enableDepthData
+  }
+
+  @ReactProp(name = "enableHighQualityPhotos")
+  fun setEnableHighQualityPhotos(view: CameraView, enableHighQualityPhotos: Boolean?) {
+    if (view.enableHighQualityPhotos != enableHighQualityPhotos)
+      addChangedPropToTransaction(view, "enableHighQualityPhotos")
+    view.enableHighQualityPhotos = enableHighQualityPhotos
+  }
+
+  @ReactProp(name = "enablePortraitEffectsMatteDelivery")
+  fun setEnablePortraitEffectsMatteDelivery(view: CameraView, enablePortraitEffectsMatteDelivery: Boolean) {
+    if (view.enablePortraitEffectsMatteDelivery != enablePortraitEffectsMatteDelivery)
+      addChangedPropToTransaction(view, "enablePortraitEffectsMatteDelivery")
+    view.enablePortraitEffectsMatteDelivery = enablePortraitEffectsMatteDelivery
+  }
+
   @ReactProp(name = "photo")
   fun setPhoto(view: CameraView, photo: Boolean?) {
     if (view.photo != photo)
@@ -67,27 +88,6 @@ class CameraViewManager(reactContext: ReactApplicationContext) : ViewGroupManage
     if (view.enableFrameProcessor != enableFrameProcessor)
       addChangedPropToTransaction(view, "enableFrameProcessor")
     view.enableFrameProcessor = enableFrameProcessor
-  }
-
-  @ReactProp(name = "enableDepthData")
-  fun setEnableDepthData(view: CameraView, enableDepthData: Boolean) {
-    if (view.enableDepthData != enableDepthData)
-      addChangedPropToTransaction(view, "enableDepthData")
-    view.enableDepthData = enableDepthData
-  }
-
-  @ReactProp(name = "enableHighQualityPhotos")
-  fun setEnableHighQualityPhotos(view: CameraView, enableHighQualityPhotos: Boolean?) {
-    if (view.enableHighQualityPhotos != enableHighQualityPhotos)
-      addChangedPropToTransaction(view, "enableHighQualityPhotos")
-    view.enableHighQualityPhotos = enableHighQualityPhotos
-  }
-
-  @ReactProp(name = "enablePortraitEffectsMatteDelivery")
-  fun setEnablePortraitEffectsMatteDelivery(view: CameraView, enablePortraitEffectsMatteDelivery: Boolean) {
-    if (view.enablePortraitEffectsMatteDelivery != enablePortraitEffectsMatteDelivery)
-      addChangedPropToTransaction(view, "enablePortraitEffectsMatteDelivery")
-    view.enablePortraitEffectsMatteDelivery = enablePortraitEffectsMatteDelivery
   }
 
   @ReactProp(name = "format")
@@ -128,6 +128,13 @@ class CameraViewManager(reactContext: ReactApplicationContext) : ViewGroupManage
     view.colorSpace = colorSpace
   }
 
+  @ReactProp(name = "orientation")
+  fun setOrientation(view: CameraView, orientation: String) {
+    if (view.orientation != orientation)
+      addChangedPropToTransaction(view, "orientation")
+    view.orientation = orientation
+  }
+
   @ReactProp(name = "isActive")
   fun setIsActive(view: CameraView, isActive: Boolean) {
     if (view.isActive != isActive)
@@ -150,18 +157,18 @@ class CameraViewManager(reactContext: ReactApplicationContext) : ViewGroupManage
     view.zoom = zoomFloat
   }
 
+  @ReactProp(name = "previewType")
+  fun setPreviewType(view: CameraView, previewType: String) {
+    if (view.previewType != previewType)
+      addChangedPropToTransaction(view, "torch")
+    view.previewType = previewType
+  }
+
   @ReactProp(name = "enableZoomGesture")
   fun setEnableZoomGesture(view: CameraView, enableZoomGesture: Boolean) {
     if (view.enableZoomGesture != enableZoomGesture)
       addChangedPropToTransaction(view, "enableZoomGesture")
     view.enableZoomGesture = enableZoomGesture
-  }
-
-  @ReactProp(name = "orientation")
-  fun setOrientation(view: CameraView, orientation: String) {
-    if (view.orientation != orientation)
-      addChangedPropToTransaction(view, "orientation")
-    view.orientation = orientation
   }
 
   companion object {
