@@ -39,13 +39,10 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   }
 
   var frameProcessorThread: ExecutorService = Executors.newSingleThreadExecutor()
-  private val coroutineScope = CoroutineScope(Dispatchers.Default or Main?)
   private var frameProcessorManager: FrameProcessorRuntimeManager? = null
 
   private fun cleanup() {
-    if (coroutineScope.isActive) {
-      coroutineScope.cancel("CameraViewModule has been destroyed.")
-    }
+    // TODO: clean some stuff up? idk
   }
 
   override fun onCatalystInstanceDestroy() {
@@ -71,22 +68,18 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   @ReactMethod
   fun takePhoto(viewTag: Int, options: ReadableMap, promise: Promise) {
-    coroutineScope.launch {
-      withPromise(promise) {
-        val view = findCameraView(viewTag)
-        view.takePhoto(options)
-      }
+    withPromise(promise) {
+      val view = findCameraView(viewTag)
+      view.takePhoto(options)
     }
   }
 
   @Suppress("unused")
   @ReactMethod
   fun takeSnapshot(viewTag: Int, options: ReadableMap, promise: Promise) {
-    coroutineScope.launch {
-      withPromise(promise) {
-        val view = findCameraView(viewTag)
-        view.takeSnapshot(options)
-      }
+    withPromise(promise) {
+      val view = findCameraView(viewTag)
+      view.takeSnapshot(options)
     }
   }
 
