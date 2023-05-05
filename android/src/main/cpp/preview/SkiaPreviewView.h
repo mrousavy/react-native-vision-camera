@@ -9,7 +9,7 @@
 #include <jni.h>
 #include <fbjni/fbjni.h>
 
-#include <rnskia-android/SkiaOpenGLRenderer.h>
+#include <SkiaOpenGLRenderer.h>
 
 namespace vision {
 
