@@ -3,10 +3,14 @@ package com.mrousavy.camera
 import android.Manifest
 import android.content.Context
 import android.widget.FrameLayout
+import com.facebook.jni.HybridData
+import com.facebook.jni.annotations.DoNotStrip
 import com.facebook.react.bridge.Callback
 import com.facebook.react.bridge.ReadableMap
+import com.mrousavy.camera.frameprocessor.Frame
 import java.util.concurrent.ExecutorService
 
+@Suppress("KotlinJniMissingFunction")
 class CameraView(context: Context, private val frameProcessorThread: ExecutorService) : FrameLayout(context) {
   companion object {
     const val TAG = "CameraView"
@@ -40,9 +44,12 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   // endregion
 
   // Internal
+  @DoNotStrip
+  private var mHybridData: HybridData? = null
+
 
   init {
-//    mHybridData = initHybrid()
+    mHybridData = initHybrid()
   }
 
   fun update(changedProps: ArrayList<String>) {
@@ -79,4 +86,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   }
 
   // endregion
+
+  private external fun initHybrid(): HybridData
+  private external fun frameProcessorCallback(frame: Frame)
 }

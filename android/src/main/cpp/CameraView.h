@@ -23,7 +23,6 @@ class CameraView : public jni::HybridClass<CameraView> {
   static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis);
   static void registerNatives();
 
-  // TODO: Use template<> to avoid heap allocation for std::function<>
   void setFrameProcessor(const TFrameProcessor&& frameProcessor);
   void unsetFrameProcessor();
 
