@@ -2,6 +2,7 @@ package com.mrousavy.camera.preview
 
 import android.content.Context
 import android.graphics.SurfaceTexture
+import android.view.Surface
 import android.view.TextureView
 import android.view.TextureView.SurfaceTextureListener
 import android.widget.FrameLayout
@@ -20,21 +21,21 @@ class SkiaPreviewView(context: Context): FrameLayout(context) {
     textureView = TextureView(context)
     textureView.surfaceTextureListener = object : SurfaceTextureListener {
       override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
-        this@SkiaPreviewView.onSurfaceTextureAvailable(surface, width, height)
+        this@SkiaPreviewView.onSurfaceTextureAvailable(Surface(surface), width, height)
       }
 
       override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
-        this@SkiaPreviewView.onSurfaceTextureSizeChanged(surface, width, height)
+        this@SkiaPreviewView.onSurfaceTextureSizeChanged(Surface(surface), width, height)
       }
 
       override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
-        this@SkiaPreviewView.onSurfaceTextureDestroyed(surface)
+        this@SkiaPreviewView.onSurfaceTextureDestroyed(Surface(surface))
         surface.release()
         return true
       }
 
       override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
-        this@SkiaPreviewView.onSurfaceTextureUpdated(surface)
+        this@SkiaPreviewView.onSurfaceTextureUpdated(Surface(surface))
       }
     }
 
