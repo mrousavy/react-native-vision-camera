@@ -252,16 +252,6 @@ export interface CameraDevice {
    */
   formats: CameraDeviceFormat[];
   /**
-   * Whether this camera device supports using Video Recordings (`video={true}`) and Frame Processors (`frameProcessor={...}`) at the same time. See ["The `supportsParallelVideoProcessing` prop"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/devices#the-supportsparallelvideoprocessing-prop) for more information.
-   *
-   * If this property is `false`, you can only enable `video` or add a `frameProcessor`, but not both.
-   *
-   * * On iOS this value is always `true`.
-   * * On newer Android devices this value is always `true`.
-   * * On older Android devices this value is `false` if the Camera's hardware level is `LEGACY` or `LIMITED`, `true` otherwise. (See [`INFO_SUPPORTED_HARDWARE_LEVEL`](https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL) or [the tables at "Regular capture"](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture))
-   */
-  supportsParallelVideoProcessing: boolean;
-  /**
    * Whether this camera device supports low light boost.
    */
   supportsLowLightBoost: boolean;

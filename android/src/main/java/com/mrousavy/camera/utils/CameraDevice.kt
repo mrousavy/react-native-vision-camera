@@ -36,8 +36,7 @@ class CameraDevice(private val cameraId: String, private val cameraManager: Came
   private val name = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) characteristics.get(CameraCharacteristics.INFO_VERSION) else null) ?: "${parseLensFacing(lensFacing)} (${cameraId})"
 
   // "formats" (all possible configurations for this device)
-  private val zoomRange = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) characteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
-  else null) ?: Range(1f, characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM) ?: 1f)
+  private val zoomRange = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) characteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE) else null) ?: Range(1f, characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM) ?: 1f)
   private val minZoom = zoomRange.lower.toDouble()
   private val maxZoom = zoomRange.upper.toDouble()
 
@@ -47,9 +46,6 @@ class CameraDevice(private val cameraId: String, private val cameraManager: Came
   private val opticalStabilizationModes = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_OPTICAL_STABILIZATION) ?: IntArray(0)
   private val supportsPhotoHdr = extensions.contains(CameraExtensionCharacteristics.EXTENSION_HDR)
   private val supportsVideoHdr = getHasVideoHdr()
-
-  // see https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture
-  private val supportsParallelVideoProcessing = hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY && hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
 
   // get extensions (HDR, Night Mode, ..)
   private fun getSupportedExtensions(): List<Int> {
@@ -105,10 +101,7 @@ class CameraDevice(private val cameraId: String, private val cameraManager: Came
 
   // 35mm is 135 film format, a standard in which focal lengths are usually measured
   private val size35mm = Size(36, 24)
-
   private fun getDeviceTypes(): ReadableArray {
-    // TODO: Check if getDeviceType() works correctly, even for logical multi-cameras
-
     // To get valid focal length standards we have to upscale to the 35mm measurement (film standard)
     val cropFactor = size35mm.bigger / sensorSize.bigger
 
@@ -116,7 +109,6 @@ class CameraDevice(private val cameraId: String, private val cameraManager: Came
 
     // https://en.wikipedia.org/wiki/Telephoto_lens
     val containsTelephoto = focalLengths.any { l -> (l * cropFactor) > 35 } // TODO: Telephoto lenses are > 85mm, but we don't have anything between that range..
-    // val containsNormalLens = focalLengths.any { l -> (l * cropFactor) > 35 && (l * cropFactor) <= 55 }
     // https://en.wikipedia.org/wiki/Wide-angle_lens
     val containsWideAngle = focalLengths.any { l -> (l * cropFactor) >= 24 && (l * cropFactor) <= 35 }
     // https://en.wikipedia.org/wiki/Ultra_wide_angle_lens
@@ -198,7 +190,6 @@ class CameraDevice(private val cameraId: String, private val cameraManager: Came
     map.putBoolean("hasFlash", hasFlash)
     map.putBoolean("hasTorch", hasFlash)
     map.putBoolean("isMultiCam", isMultiCam)
-    map.putBoolean("supportsParallelVideoProcessing", supportsParallelVideoProcessing)
     map.putBoolean("supportsRawCapture", supportsRawCapture)
     map.putBoolean("supportsDepthCapture", supportsDepthCapture)
     map.putBoolean("supportsLowLightBoost", supportsLowLightBoost)
