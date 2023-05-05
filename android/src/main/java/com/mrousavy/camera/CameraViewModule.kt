@@ -1,7 +1,9 @@
 package com.mrousavy.camera
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
+import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
@@ -143,8 +145,13 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   @ReactMethod
   fun getAvailableCameraDevices(promise: Promise) {
+    val cameraManager = reactApplicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+
     val devices = Arguments.createArray()
-    // TODO: Find devices!
+    cameraManager.cameraIdList.forEach { cameraId ->
+      val device = CameraDevice(cameraId, cameraManager)
+      devices.pushMap(device.toMap())
+    }
     promise.resolve(devices)
   }
 
