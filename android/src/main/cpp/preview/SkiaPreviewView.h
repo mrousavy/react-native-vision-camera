@@ -4,8 +4,12 @@
 
 #pragma once
 
+#include <memory>
+
 #include <jni.h>
 #include <fbjni/fbjni.h>
+
+#include <rnskia-android/SkiaOpenGLRenderer.h>
 
 namespace vision {
 
@@ -20,16 +24,15 @@ public:
 
 private:
     friend HybridBase;
-    jni::global_ref<SkiaPreviewView::javaobject> javaPart_;
-    jni::global_ref<jobject> textureView_;
+    jni::global_ref<SkiaPreviewView::javaobject> _javaPart;
+    std::unique_ptr<RNSkia::SkiaOpenGLRenderer> _skiaRenderer;
 
     void onSurfaceTextureAvailable(const jni::alias_ref<jobject>& surface, jint width, jint height);
     void onSurfaceTextureSizeChanged(const jni::alias_ref<jobject>& surface, jint width, jint height);
     void onSurfaceTextureDestroyed(const jni::alias_ref<jobject>& surface);
     void onSurfaceTextureUpdated(const jni::alias_ref<jobject>& surface);
 
-    explicit SkiaPreviewView(jni::alias_ref<SkiaPreviewView::jhybridobject> jThis) : javaPart_(jni::make_global(jThis))
-    {}
+    explicit SkiaPreviewView(jni::alias_ref<SkiaPreviewView::jhybridobject> jThis);
 };
 
 } // namespace vision

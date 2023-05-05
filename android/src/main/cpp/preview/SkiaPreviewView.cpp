@@ -10,6 +10,10 @@ namespace vision {
 
 using TSelf = jni::local_ref<SkiaPreviewView::jhybriddata>;
 
+SkiaPreviewView::SkiaPreviewView(jni::alias_ref<SkiaPreviewView::jhybridobject> jThis)
+    : _javaPart(jni::make_global(jThis)) {
+}
+
 TSelf SkiaPreviewView::initHybrid(jni::alias_ref<jhybridobject> jThis) {
     return makeCxxInstance(jThis);
 }
@@ -24,10 +28,11 @@ void SkiaPreviewView::registerNatives() {
     });
 }
 
-void SkiaPreviewView::onSurfaceTextureAvailable(const facebook::jni::alias_ref<jobject> &surface,
+void SkiaPreviewView::onSurfaceTextureAvailable(const facebook::jni::alias_ref<jobject>& surface,
                                                 jint width, jint height) {
     __android_log_write(ANDROID_LOG_INFO, TAG,
                         "onSurfaceTextureAvailable!");
+    _skiaRenderer = std::make_unique<RNSkia::SkiaOpenGLRenderer>(surface.get());
 }
 
 void SkiaPreviewView::onSurfaceTextureSizeChanged(const facebook::jni::alias_ref<jobject> &surface,
@@ -39,11 +44,16 @@ void SkiaPreviewView::onSurfaceTextureSizeChanged(const facebook::jni::alias_ref
 void SkiaPreviewView::onSurfaceTextureDestroyed(const facebook::jni::alias_ref<jobject> &surface) {
     __android_log_write(ANDROID_LOG_INFO, TAG,
                         "onSurfaceTextureDestroyed!");
+    if (_skiaRenderer != nullptr) {
+        _skiaRenderer->teardown();
+    }
 }
 
 void SkiaPreviewView::onSurfaceTextureUpdated(const facebook::jni::alias_ref<jobject> &surface) {
     __android_log_write(ANDROID_LOG_INFO, TAG,
                         "onSurfaceTextureUpdated!");
+
 }
+
 
 } // namespace vision
