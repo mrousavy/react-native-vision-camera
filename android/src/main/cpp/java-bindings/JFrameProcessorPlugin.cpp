@@ -18,7 +18,7 @@ local_ref<jobject> JFrameProcessorPlugin::callback(alias_ref<JFrame::javaobject>
                                                    alias_ref<JArrayClass<jobject>> params) const {
   auto callbackMethod = getClass()->getMethod<TCallback>("callback");
 
-  auto result = callbackMethod(self(), image, params);
+  auto result = callbackMethod(self(), frame, params);
   return make_local(result);
 }
 
