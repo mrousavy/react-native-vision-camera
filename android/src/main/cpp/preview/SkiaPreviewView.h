@@ -25,7 +25,7 @@ private:
 
     void onSurfaceTextureAvailable(const jni::alias_ref<jobject>& surface, jint width, jint height);
     void onSurfaceTextureSizeChanged(const jni::alias_ref<jobject>& surface, jint width, jint height);
-    jboolean onSurfaceTextureDestroyed(const jni::alias_ref<jobject>& surface);
+    void onSurfaceTextureDestroyed(const jni::alias_ref<jobject>& surface);
     void onSurfaceTextureUpdated(const jni::alias_ref<jobject>& surface);
 
     explicit SkiaPreviewView(jni::alias_ref<SkiaPreviewView::jhybridobject> jThis) : javaPart_(jni::make_global(jThis))
