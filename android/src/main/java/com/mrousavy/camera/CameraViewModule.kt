@@ -8,6 +8,7 @@ import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.util.Log
 import android.util.Size
+import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.PermissionAwareActivity

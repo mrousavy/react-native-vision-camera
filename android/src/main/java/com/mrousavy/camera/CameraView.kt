@@ -3,6 +3,7 @@ package com.mrousavy.camera
 import android.Manifest
 import android.content.Context
 import android.widget.FrameLayout
+import com.facebook.react.bridge.Callback
 import com.facebook.react.bridge.ReadableMap
 import java.util.concurrent.ExecutorService
 
@@ -48,5 +49,34 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
     // TODO: Handle prop updates
   }
 
+  // region CAMERA VIEW METHODS
+  fun takePhoto(options: ReadableMap) {
 
+  }
+
+  fun takeSnapshot(options: ReadableMap) {
+
+  }
+
+  fun startRecording(options: ReadableMap, callback: Callback) {
+
+  }
+
+  fun stopRecording(options: ReadableMap) {
+
+  }
+
+  fun pauseRecording() {
+
+  }
+
+  fun resumeRecording() {
+
+  }
+
+  fun focus(point: ReadableMap) {
+
+  }
+
+  // endregion
 }
