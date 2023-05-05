@@ -8,7 +8,7 @@ import android.view.TextureView
 import com.mrousavy.camera.frameprocessor.Frame
 
 class NativePreviewView(context: Context): PreviewView(context) {
-  private val surfaceView = SurfaceView(context)
+  private val surfaceView = AutoFitSurfaceView(context)
 
   override fun drawFrame(frame: Frame) {
     // TODO: Draw Frame
@@ -20,7 +20,6 @@ class NativePreviewView(context: Context): PreviewView(context) {
 
   // TODO: Do we need to remove the listener at any point?
   override fun addOnSurfaceChangedListener(callback: (surface: Surface?) -> Unit) {
-    surfaceView.holder.setFixedSize(300, 300)
     surfaceView.holder.addCallback(object : SurfaceHolder.Callback {
       override fun surfaceCreated(holder: SurfaceHolder) {
       }
