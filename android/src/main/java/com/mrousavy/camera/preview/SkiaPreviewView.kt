@@ -28,7 +28,9 @@ class SkiaPreviewView(context: Context): FrameLayout(context) {
       }
 
       override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
-        return this@SkiaPreviewView.onSurfaceTextureDestroyed(surface)
+        this@SkiaPreviewView.onSurfaceTextureDestroyed(surface)
+        surface.release()
+        return true
       }
 
       override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
@@ -43,7 +45,7 @@ class SkiaPreviewView(context: Context): FrameLayout(context) {
   private external fun initHybrid(): HybridData
   private external fun onSurfaceTextureAvailable(surface: Any, width: Int, height: Int)
   private external fun onSurfaceTextureSizeChanged(surface: Any, width: Int, height: Int)
-  private external fun onSurfaceTextureDestroyed(surface: Any): Boolean
+  private external fun onSurfaceTextureDestroyed(surface: Any)
   private external fun onSurfaceTextureUpdated(surface: Any)
 
 }

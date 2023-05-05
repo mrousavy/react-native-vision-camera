@@ -36,10 +36,9 @@ void SkiaPreviewView::onSurfaceTextureSizeChanged(const facebook::jni::alias_ref
                         "onSurfaceTextureSizeChanged!");
 }
 
-jboolean SkiaPreviewView::onSurfaceTextureDestroyed(const facebook::jni::alias_ref<jobject> &surface) {
+void SkiaPreviewView::onSurfaceTextureDestroyed(const facebook::jni::alias_ref<jobject> &surface) {
     __android_log_write(ANDROID_LOG_INFO, TAG,
                         "onSurfaceTextureDestroyed!");
-    return false;
 }
 
 void SkiaPreviewView::onSurfaceTextureUpdated(const facebook::jni::alias_ref<jobject> &surface) {
