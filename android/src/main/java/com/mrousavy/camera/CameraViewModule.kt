@@ -149,8 +149,12 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
     val devices = Arguments.createArray()
     cameraManager.cameraIdList.forEach { cameraId ->
-      val device = CameraDevice(cameraId, cameraManager)
-      devices.pushMap(device.toMap())
+      try {
+        val device = CameraDevice(cameraId, cameraManager)
+        devices.pushMap(device.toMap())
+      } catch (e: Error) {
+        Log.e(TAG, "Failed to build Camera Device/Format map!", e)
+      }
     }
     promise.resolve(devices)
   }
