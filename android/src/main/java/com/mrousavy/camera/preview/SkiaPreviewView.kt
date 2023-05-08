@@ -20,8 +20,8 @@ class SkiaPreviewView(context: Context): SurfaceView(context), SurfaceHolder.Cal
   private val mHybridData: HybridData
   private var previewSurface: SkiaPreviewSurface? = null
 
-  val surface: Surface?
-    get() = previewSurface?.imageReader?.surface
+  val surface: Surface
+    get() = Surface(previewSurface!!.surface)
 
   init {
     mHybridData = initHybrid()

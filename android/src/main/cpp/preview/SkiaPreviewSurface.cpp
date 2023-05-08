@@ -21,9 +21,7 @@ SkiaPreviewSurface::SkiaPreviewSurface(jni::alias_ref<SkiaPreviewSurface::jhybri
         : _javaPart(jni::make_global(jThis)) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Creating SkiaPreviewSurface...");
 
-    // Input Surface (camera stream)
-    auto nativeWindow = ANativeWindow_fromSurface(jni::Environment::current(), inputSurface.get());
-    _inputSurface = createSurfaceFromNativeWindow(nativeWindow, inputWidth, inputHeight);
+    _inputSurface = RNSkia::MakeOffscreenGLSurface(inputWidth, inputHeight);
 }
 
 void SkiaPreviewSurface::registerNatives() {
@@ -31,6 +29,7 @@ void SkiaPreviewSurface::registerNatives() {
        makeNativeMethod("initHybrid", SkiaPreviewSurface::initHybrid),
        makeNativeMethod("setOutputSize", SkiaPreviewSurface::setOutputSize),
        makeNativeMethod("setOutputSurface", SkiaPreviewSurface::setOutputSurface),
+       makeNativeMethod("getSurfaceId", SkiaPreviewSurface::getSurfaceId),
        makeNativeMethod("onFrame", SkiaPreviewSurface::onFrame),
     });
 }
@@ -128,16 +127,35 @@ sk_sp<SkSurface> SkiaPreviewSurface::createSurfaceFromNativeWindow(ANativeWindow
     return surface;
 }
 
-void SkiaPreviewSurface::onFrame(jni::alias_ref<JFrame> frame) {
+void SkiaPreviewSurface::onFrame() {
     __android_log_write(ANDROID_LOG_INFO, TAG,
                         "drawFrame(...)");
 
-    _renderer->run([](SkCanvas* canvas) {
+    auto image = _inputSurface->makeImageSnapshot();
+    SkPixmap pixmap;
+    bool success = image->readPixels(pixmap, 0, 0);
+    auto color = pixmap.getColor(100, 100);
+
+    __android_log_print(ANDROID_LOG_INFO, TAG,
+                        "Frame %i x %i Pixel: %i | SUCCESS: %i", image->width(), image->height(), color, success);
+
+    _inputSurface->flushAndSubmit();
+
+    /*_renderer->run([](SkCanvas* canvas) {
         SkPaint paint;
         paint.setColor(SkColors::kRed);
         auto rect = SkRect::MakeXYWH(100, 120, 180, 140);
         canvas->drawRect(rect, paint);
-    }, _outputWidth, _outputHeight);
+
+        //canvas->drawImage(image, 0, 0);
+    }, _outputWidth, _outputHeight);*/
+}
+
+jint SkiaPreviewSurface::getSurfaceId() {
+    auto backend = _inputSurface->getBackendRenderTarget(SkSurface::BackendHandleAccess::kFlushWrite_BackendHandleAccess);
+    GrGLFramebufferInfo info;
+    backend.getGLFramebufferInfo(&info);
+    return static_cast<jint>(info.fFBOID);
 }
 
 } // namespace vision

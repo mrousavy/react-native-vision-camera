@@ -39,7 +39,9 @@ private:
 
     void setOutputSize(jint width, jint height);
     void setOutputSurface(jni::alias_ref<jobject> surface);
-    void onFrame(jni::alias_ref<JFrame> frame);
+    void onFrame();
+
+    jint getSurfaceId();
 
     sk_sp<SkSurface> createSurfaceFromNativeWindow(ANativeWindow* nativeWindow, int width, int height);
 

@@ -21,31 +21,29 @@ class SkiaPreviewSurface(inputSurfaceWidth: Int, inputSurfaceHeight: Int) {
 
   @DoNotStrip
   private val mHybridData: HybridData
-  val imageReader: ImageReader
+  val surface: SurfaceTexture
 
   init {
-    imageReader = ImageReader.newInstance(inputSurfaceWidth, inputSurfaceHeight, ImageFormat.YUV_420_888, 3)
-    imageReader.setOnImageAvailableListener({ reader ->
-      val image = reader.acquireLatestImage()
-      Log.d(TAG, "Frame: ${image.width} x ${image.height}")
-      val timestamp = System.currentTimeMillis()
-      onFrame(Frame(image, Frame.Orientation.PORTRAIT, false, timestamp))
-      image.close()
-    }, null)
-    mHybridData = initHybrid(imageReader.surface, inputSurfaceWidth, inputSurfaceHeight)
+    mHybridData = initHybrid(null, inputSurfaceWidth, inputSurfaceHeight)
+    surface = SurfaceTexture(getSurfaceId())
+    surface.setOnFrameAvailableListener {
+      Log.d(TAG, "Frame Available!!!!")
+      it.updateTexImage()
+      onFrame()
+    }
   }
 
   fun release() {
     mHybridData.resetNative()
-    imageReader.close()
   }
 
   fun setOutputSize(size: Size) {
     setOutputSize(size.width, size.height)
   }
 
-  private external fun initHybrid(inputSurface: Any, inputWidth: Int, inputHeight: Int): HybridData
+  private external fun initHybrid(inputSurface: Any?, inputWidth: Int, inputHeight: Int): HybridData
   private external fun setOutputSize(width: Int, height: Int)
-  private external fun onFrame(frame: Frame)
+  private external fun onFrame()
+  private external fun getSurfaceId(): Int
   external fun setOutputSurface(surface: Any)
 }
