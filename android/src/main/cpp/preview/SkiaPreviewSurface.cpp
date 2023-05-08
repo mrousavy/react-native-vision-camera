@@ -49,7 +49,7 @@ void SkiaPreviewSurface::drawFrame() {
         paint.setColor(SkColors::kRed);
         auto rect = SkRect::MakeXYWH(100, 120, 180, 140);
         canvas->drawRect(rect, paint);
-    }, 400, 700);
+    }, _outputWidth, _outputHeight);
 }
 
 jint SkiaPreviewSurface::getInputSurfaceTextureId() {
@@ -67,7 +67,8 @@ jint SkiaPreviewSurface::getInputSurfaceTextureId() {
 }
 
 void SkiaPreviewSurface::setOutputSize(jint width, jint height) {
-    // TODO: Set output size
+    _outputWidth = width;
+    _outputHeight = height;
 }
 
 
