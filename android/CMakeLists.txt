@@ -40,6 +40,7 @@ add_library(
         src/main/cpp/CameraView.cpp
         src/main/cpp/VisionCameraScheduler.cpp
         src/main/cpp/preview/SkiaPreviewView.cpp
+        src/main/cpp/preview/SkiaPreviewSurface.cpp
         src/main/cpp/java-bindings/JFrameProcessorPlugin.cpp
         src/main/cpp/java-bindings/JImageProxy.cpp
         src/main/cpp/java-bindings/JHashMap.cpp

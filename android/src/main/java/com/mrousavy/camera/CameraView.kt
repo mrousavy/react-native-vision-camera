@@ -474,22 +474,18 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
       camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, *useCases.toTypedArray())
 
       val surfaceProvider = Preview.SurfaceProvider { request ->
-        val resolution = request.resolution
-        val surfaceTexture = previewView.inputSurface
-        if (surfaceTexture == null) {
-          request.willNotProvideSurface()
-          return@SurfaceProvider
-        }
-        surfaceTexture.setDefaultBufferSize(resolution.width, resolution.height)
-        val surface = Surface(surfaceTexture)
-        request.provideSurface(surface, cameraExecutor) { result ->
-          when (result.resultCode) {
-            SurfaceRequest.Result.RESULT_SURFACE_USED_SUCCESSFULLY -> Log.d(TAG, "Surface successfully attached to Camera!")
-            SurfaceRequest.Result.RESULT_INVALID_SURFACE -> throw Error("Cannot attach Surface to Camera, it's an invalid Surface!")
-            SurfaceRequest.Result.RESULT_REQUEST_CANCELLED -> Log.d(TAG, "Canceled attaching Surface to Camera.")
-            else -> Log.d(TAG, "Surface attach request: " + result.resultCode)
+        postDelayed({
+          val surfaceTexture = previewView.previewSurface!!.getInputSurfaceTexture()
+          val surface = Surface(surfaceTexture)
+          request.provideSurface(surface, cameraExecutor) { result ->
+            when (result.resultCode) {
+              SurfaceRequest.Result.RESULT_SURFACE_USED_SUCCESSFULLY -> Log.d(TAG, "Surface successfully attached to Camera!")
+              SurfaceRequest.Result.RESULT_INVALID_SURFACE -> throw Error("Cannot attach Surface to Camera, it's an invalid Surface!")
+              SurfaceRequest.Result.RESULT_REQUEST_CANCELLED -> Log.d(TAG, "Canceled attaching Surface to Camera.")
+              else -> Log.d(TAG, "Surface attach request: " + result.resultCode)
+            }
           }
-        }
+        }, 3000)
       }
 
       preview!!.setSurfaceProvider(surfaceProvider)
