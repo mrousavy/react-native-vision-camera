@@ -27,6 +27,7 @@ class SkiaPreviewSurface(inputSurfaceWidth: Int, inputSurfaceHeight: Int) {
     imageReader = ImageReader.newInstance(inputSurfaceWidth, inputSurfaceHeight, ImageFormat.YUV_420_888, 3)
     imageReader.setOnImageAvailableListener({ reader ->
       val image = reader.acquireLatestImage()
+      Log.d(TAG, "Frame: ${image.width} x ${image.height}")
       val timestamp = System.currentTimeMillis()
       onFrame(Frame(image, Frame.Orientation.PORTRAIT, false, timestamp))
       image.close()
@@ -47,5 +48,4 @@ class SkiaPreviewSurface(inputSurfaceWidth: Int, inputSurfaceHeight: Int) {
   private external fun setOutputSize(width: Int, height: Int)
   private external fun onFrame(frame: Frame)
   external fun setOutputSurface(surface: Any)
-  external fun drawFrame()
 }

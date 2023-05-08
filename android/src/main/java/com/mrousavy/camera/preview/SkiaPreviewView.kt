@@ -26,15 +26,13 @@ class SkiaPreviewView(context: Context): SurfaceView(context), SurfaceHolder.Cal
   init {
     mHybridData = initHybrid()
     this.holder.addCallback(this)
-    previewSurface = SkiaPreviewSurface(400, 700)
+    previewSurface = SkiaPreviewSurface(640, 480)
   }
 
   private external fun initHybrid(): HybridData
   private external fun onSizeChanged(width: Int, height: Int)
 
   private fun drawNextFrame(timestamp: Long) {
-    previewSurface?.drawFrame()
-
     Choreographer.getInstance().postFrameCallback {
       drawNextFrame(it)
     }

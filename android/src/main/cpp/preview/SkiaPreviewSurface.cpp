@@ -87,7 +87,7 @@ sk_sp<SkSurface> SkiaPreviewSurface::createSurfaceFromNativeWindow(ANativeWindow
     }
 
     const EGLint surfaceAttribs[] = {EGL_WIDTH, width, EGL_HEIGHT, height, EGL_NONE};
-    EGLSurface eglSurface = eglCreatePbufferSurface(eglDisplay, eglConfig, surfaceAttribs);
+    EGLSurface eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, nativeWindow, surfaceAttribs);
     if (!eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext)) {
         throw std::runtime_error("Failed to set current surface! " + std::to_string(glGetError()));
     }
@@ -112,7 +112,7 @@ sk_sp<SkSurface> SkiaPreviewSurface::createSurfaceFromNativeWindow(ANativeWindow
 
     GrGLFramebufferInfo fbInfo;
     fbInfo.fFBOID = buffer;
-    fbInfo.fFormat = 0x8058;
+    fbInfo.fFormat = 0x8058; // GR_GL_RGBA8
 
     auto renderTarget = GrBackendRenderTarget(width, height, samples, stencil, fbInfo);
 
