@@ -31,12 +31,9 @@ public:
 private:
     friend HybridBase;
     jni::global_ref<SkiaPreviewSurface::javaobject> _javaPart;
-
-    sk_sp<GrDirectContext> _context;
-
+    std::unique_ptr<RNSkia::SkiaOpenGLRenderer> _renderer;
     sk_sp<SkSurface> _inputSurface;
-    sk_sp<SkSurface> _outputSkiaSurface;
-    EGLSurface _outputGLSurface;
+
 
     jint getInputSurfaceTextureId();
     void setOutputSize(jint width, jint height);
