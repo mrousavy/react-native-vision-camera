@@ -2,61 +2,59 @@ package com.mrousavy.camera.preview
 
 import android.content.Context
 import android.graphics.SurfaceTexture
+import android.opengl.GLES20
+import android.opengl.GLSurfaceView
 import android.util.Log
 import android.view.Surface
-import android.view.SurfaceControl
-import android.view.TextureView
-import android.view.TextureView.SurfaceTextureListener
-import android.widget.FrameLayout
 import com.facebook.jni.HybridData
 import com.facebook.jni.annotations.DoNotStrip
+import javax.microedition.khronos.egl.EGLConfig
+import javax.microedition.khronos.opengles.GL10
 
 @Suppress("KotlinJniMissingFunction")
-class SkiaPreviewView(context: Context): FrameLayout(context) {
-  val textureView: TextureView
-  val surface: SurfaceTexture
+class SkiaPreviewView(context: Context): GLSurfaceView(context), GLSurfaceView.Renderer {
+  companion object {
+    private const val OPEN_GL_VERSION = 2
+    private const val TAG = "SkiaPreviewView"
+  }
+
   @DoNotStrip
-  private val mHybridData: HybridData
+  private var mHybridData: HybridData? = null
+  private var inputTexture: SurfaceTexture? = null
 
   init {
-    mHybridData = initHybrid()
+    setEGLContextClientVersion(OPEN_GL_VERSION)
+    setRenderer(this)
+    renderMode = RENDERMODE_WHEN_DIRTY
+  }
 
-    repeat(5) {
-      val x = createOffscreenTexture(120, 120)
-      Log.d("SKP", x.toString())
-    }
-    surface = SurfaceTexture(createOffscreenTexture(1920, 1080))
-
-    textureView = TextureView(context)
-    textureView.surfaceTextureListener = object : SurfaceTextureListener {
-      override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
-        this@SkiaPreviewView.onSurfaceTextureAvailable(Surface(surface), width, height)
-      }
-
-      override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
-        this@SkiaPreviewView.onSurfaceTextureSizeChanged(Surface(surface), width, height)
-      }
-
-      override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
-        this@SkiaPreviewView.onSurfaceTextureDestroyed(Surface(surface))
-        surface.release()
-        return true
-      }
-
-      override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
-        this@SkiaPreviewView.onSurfaceTextureUpdated(Surface(surface))
-      }
-    }
-
-    textureView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-    addView(textureView)
+  override fun finalize() {
+    super.finalize()
+    inputTexture?.release()
   }
 
   private external fun initHybrid(): HybridData
-  private external fun onSurfaceTextureAvailable(surface: Any, width: Int, height: Int)
-  private external fun onSurfaceTextureSizeChanged(surface: Any, width: Int, height: Int)
-  private external fun onSurfaceTextureDestroyed(surface: Any)
-  private external fun onSurfaceTextureUpdated(surface: Any)
-  private external fun createOffscreenTexture(width: Int, height: Int): Int
+  private external fun createSurface(width: Int, height: Int): Int
+  private external fun onSizeChanged(width: Int, height: Int)
+  private external fun onDrawFrame()
+
+  override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
+    mHybridData = initHybrid()
+    repeat(5) {
+      Log.d(TAG, "onSurfaceCreated()")
+      val textureId = createSurface(400, 700)
+      val surfaceTexture = SurfaceTexture(textureId)
+      val surface = Surface(surfaceTexture)
+      Log.d(TAG, "SurfaceTexture created! isValid: " + surface.isValid)
+    }
+  }
+
+  override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
+    Log.d(TAG, "onSurfaceChanged()")
+  }
+
+  override fun onDrawFrame(gl: GL10?) {
+    Log.d(TAG, "onDrawFrame()")
+  }
 
 }

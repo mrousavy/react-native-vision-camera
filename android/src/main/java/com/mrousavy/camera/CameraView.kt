@@ -195,7 +195,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
 
     previewView = SkiaPreviewView(context)
     previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-    previewView.installHierarchyFitter() // If this is not called correctly, view finder will be black/blank
+    //previewView.installHierarchyFitter() // If this is not called correctly, view finder will be black/blank
     addView(previewView)
 
     scaleGestureListener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
@@ -475,7 +475,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
 
       val surfaceProvider = Preview.SurfaceProvider { request ->
         val resolution = request.resolution
-        previewView.textureView.surfaceTexture?.setDefaultBufferSize(resolution.width, resolution.height)
+        /*previewView.textureView.surfaceTexture?.setDefaultBufferSize(resolution.width, resolution.height)
         if (previewView.textureView.surfaceTexture == null) {
           request.willNotProvideSurface()
           return@SurfaceProvider
@@ -485,7 +485,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
           if (result.resultCode != SurfaceRequest.Result.RESULT_SURFACE_USED_SUCCESSFULLY) {
 //            throw RuntimeException("Invalid surface!")
           }
-        }
+        }*/
       }
 
       preview!!.setSurfaceProvider(surfaceProvider)
