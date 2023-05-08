@@ -30,24 +30,22 @@ class SkiaPreviewSurface(inputSize: Size, outputSurface: Surface) {
   @DoNotStrip
   private val mHybridData: HybridData
 
-  var inputSurface: SurfaceTexture? = null
+  val inputSurface: SurfaceTexture
 
   init {
     mHybridData = initHybrid(inputSize.width, inputSize.height, outputSurface)
+    val inputSurfaceId = getInputSurfaceTextureId()
+    inputSurface = SurfaceTexture(inputSurfaceId)
+    inputSurface.setDefaultBufferSize(inputSize.width, inputSize.height)
   }
 
   fun release() {
     mHybridData.resetNative()
-    inputSurface?.release()
+    inputSurface.release()
   }
 
   fun setOutputSize(size: Size) {
     setOutputSize(size.width, size.height)
-  }
-
-  fun getInputSurfaceTexture(): SurfaceTexture {
-    val id = getInputSurfaceTextureId()
-    return SurfaceTexture(id)
   }
 
   private external fun initHybrid(inputWidth: Int, inputHeight: Int, outputSurface: Any): HybridData

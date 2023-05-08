@@ -44,7 +44,6 @@ class SkiaPreviewView(context: Context): SurfaceView(context), SurfaceHolder.Cal
 
   private fun drawNextFrame(timestamp: Long) {
     previewSurface?.drawFrame()
-    this.invalidate()
 
     Choreographer.getInstance().postFrameCallback {
       drawNextFrame(it)
