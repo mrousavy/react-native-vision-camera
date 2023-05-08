@@ -483,8 +483,11 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         surfaceTexture.setDefaultBufferSize(resolution.width, resolution.height)
         val surface = Surface(surfaceTexture)
         request.provideSurface(surface, cameraExecutor) { result ->
-          if (result.resultCode != SurfaceRequest.Result.RESULT_SURFACE_USED_SUCCESSFULLY) {
-            Log.d(TAG, "Surface request unsuccessful, result code: " + result.resultCode)
+          when (result.resultCode) {
+            SurfaceRequest.Result.RESULT_SURFACE_USED_SUCCESSFULLY -> Log.d(TAG, "Surface successfully attached to Camera!")
+            SurfaceRequest.Result.RESULT_INVALID_SURFACE -> throw Error("Cannot attach Surface to Camera, it's an invalid Surface!")
+            SurfaceRequest.Result.RESULT_REQUEST_CANCELLED -> Log.d(TAG, "Canceled attaching Surface to Camera.")
+            else -> Log.d(TAG, "Surface attach request: " + result.resultCode)
           }
         }
       }
