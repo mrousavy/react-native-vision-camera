@@ -16,6 +16,10 @@ using TSelf = jni::local_ref<SkiaPreviewView::jhybriddata>;
 
 SkiaPreviewView::SkiaPreviewView(jni::alias_ref<SkiaPreviewView::jhybridobject> jThis)
     : _javaPart(jni::make_global(jThis)) {
+    _context = GrDirectContext::MakeGL();
+    if (_context == nullptr) {
+        throw std::runtime_error("Failed to create an OpenGL GrContext!");
+    }
 }
 
 TSelf SkiaPreviewView::initHybrid(jni::alias_ref<jhybridobject> jThis) {
@@ -25,59 +29,43 @@ TSelf SkiaPreviewView::initHybrid(jni::alias_ref<jhybridobject> jThis) {
 void SkiaPreviewView::registerNatives() {
     registerHybrid({
        makeNativeMethod("initHybrid", SkiaPreviewView::initHybrid),
-       makeNativeMethod("onSurfaceTextureAvailable", SkiaPreviewView::onSurfaceTextureAvailable),
-       makeNativeMethod("onSurfaceTextureSizeChanged", SkiaPreviewView::onSurfaceTextureSizeChanged),
-       makeNativeMethod("onSurfaceTextureDestroyed", SkiaPreviewView::onSurfaceTextureDestroyed),
-       makeNativeMethod("onSurfaceTextureUpdated", SkiaPreviewView::onSurfaceTextureUpdated),
-       makeNativeMethod("createOffscreenTexture", SkiaPreviewView::createOffscreenTexture),
+       makeNativeMethod("createSurface", SkiaPreviewView::createSurface),
+       makeNativeMethod("onSizeChanged", SkiaPreviewView::onSizeChanged),
+       makeNativeMethod("onDrawFrame", SkiaPreviewView::onDrawFrame),
     });
 }
 
-void SkiaPreviewView::onSurfaceTextureAvailable(const facebook::jni::alias_ref<jobject>& surface,
-                                                jint width, jint height) {
-    __android_log_write(ANDROID_LOG_INFO, TAG,
-                        "onSurfaceTextureAvailable!");
-    _width = width;
-    _height = height;
+jint SkiaPreviewView::createSurface(jint width, jint height) {
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Creating %i x %i Skia surface...", width, height);
 
+    auto info = SkImageInfo:: Make(width, height, SkColorType::kBGRA_8888_SkColorType, SkAlphaType::kOpaque_SkAlphaType);
+    auto surface = SkSurface::MakeRenderTarget(_context.get(), SkBudgeted::kNo, info);
+    if (!surface) {
+        throw std::runtime_error("Failed to create Skia Surface!");
+    }
 
-    // _skiaRenderer = std::make_unique<RNSkia::SkiaOpenGLRenderer>(surface.get());
+    auto renderTarget = surface->getBackendRenderTarget(SkSurface::BackendHandleAccess::kFlushWrite_BackendHandleAccess);
+    if (!renderTarget.isValid()) {
+        throw std::runtime_error("Skia Surface is not backed by a render target!");
+    }
+    GrGLFramebufferInfo frameBufferInfo;
+    renderTarget.getGLFramebufferInfo(&frameBufferInfo);
+
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Surface created! Texture ID: %i", frameBufferInfo.fFBOID);
+
+    surface.release();
+
+    return frameBufferInfo.fFBOID;
 }
 
-jint SkiaPreviewView::createOffscreenTexture(jint width, jint height) {
-    // Generate off-screen Skia Surface
-    auto surface =  RNSkia::MakeOffscreenGLSurface(width, height);
-
-    // Get OpenGL Texture ID
-    auto texture = surface->getBackendTexture(SkSurface::kFlushWrite_TextureHandleAccess);
-    if (!texture.isValid()) {
-        throw std::runtime_error("Failed to create Skia OpenGL Surface!");
-    }
-    GrGLTextureInfo info;
-    if (!texture.getGLTextureInfo(&info)) {
-        throw std::runtime_error("Failed to create Skia OpenGL Surface, can't read Texture Info!");
-    }
-    return static_cast<int>(info.fID);
-}
-
-void SkiaPreviewView::onSurfaceTextureDestroyed(const facebook::jni::alias_ref<jobject>& surface) {
-    __android_log_write(ANDROID_LOG_INFO, TAG,
-                        "onSurfaceTextureDestroyed!");
-    if (_skiaRenderer != nullptr) {
-        _skiaRenderer->teardown();
-        _skiaRenderer = nullptr;
-    }
-}
-
-void SkiaPreviewView::onSurfaceTextureSizeChanged(const facebook::jni::alias_ref<jobject>& surface,
-                                                  jint width, jint height) {
+void SkiaPreviewView::onSizeChanged(jint width, jint height) {
     __android_log_write(ANDROID_LOG_INFO, TAG,
                         "onSurfaceTextureSizeChanged!");
     _width = width;
     _height = height;
 }
 
-void SkiaPreviewView::onSurfaceTextureUpdated(const facebook::jni::alias_ref<jobject>& surface) {
+void SkiaPreviewView::onDrawFrame() {
     __android_log_write(ANDROID_LOG_INFO, TAG,
                         "onSurfaceTextureUpdated!");
     if (_skiaRenderer != nullptr) {
@@ -90,6 +78,12 @@ void SkiaPreviewView::onSurfaceTextureUpdated(const facebook::jni::alias_ref<job
             canvas->flush();
         }, _width, _height);
     }
+}
+
+
+
+int SkiaPreviewView::createOpenGLContext() {
+
 }
 
 

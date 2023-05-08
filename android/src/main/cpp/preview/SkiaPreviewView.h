@@ -27,12 +27,13 @@ private:
     jni::global_ref<SkiaPreviewView::javaobject> _javaPart;
     std::unique_ptr<RNSkia::SkiaOpenGLRenderer> _skiaRenderer;
     int _width, _height;
+    sk_sp<GrDirectContext> _context;
 
-    void onSurfaceTextureAvailable(const jni::alias_ref<jobject>& surface, jint width, jint height);
-    void onSurfaceTextureSizeChanged(const jni::alias_ref<jobject>& surface, jint width, jint height);
-    void onSurfaceTextureDestroyed(const jni::alias_ref<jobject>& surface);
-    void onSurfaceTextureUpdated(const jni::alias_ref<jobject>& surface);
-    jint createOffscreenTexture(jint width, jint height);
+    int createOpenGLContext();
+
+    jint createSurface(jint width, jint height);
+    void onSizeChanged(jint width, jint height);
+    void onDrawFrame();
 
     explicit SkiaPreviewView(jni::alias_ref<SkiaPreviewView::jhybridobject> jThis);
 };
