@@ -15,10 +15,6 @@ namespace vision {
 
 using namespace facebook;
 
-struct Size {
-    int width, height;
-};
-
 class SkiaPreviewSurface: public jni::HybridClass<SkiaPreviewSurface> {
 public:
     static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/preview/SkiaPreviewSurface;";
@@ -33,6 +29,7 @@ private:
     jni::global_ref<SkiaPreviewSurface::javaobject> _javaPart;
     std::unique_ptr<RNSkia::SkiaOpenGLRenderer> _renderer;
     sk_sp<SkSurface> _inputSurface;
+    int _outputWidth, _outputHeight;
 
 
     jint getInputSurfaceTextureId();
