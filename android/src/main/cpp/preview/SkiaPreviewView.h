@@ -29,9 +29,6 @@ private:
     int _width, _height;
     sk_sp<GrDirectContext> _context;
 
-    int createOpenGLContext();
-
-    jint createSurface(jint width, jint height);
     void onSizeChanged(jint width, jint height);
     void onDrawFrame();
 
