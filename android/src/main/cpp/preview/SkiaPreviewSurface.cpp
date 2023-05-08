@@ -52,18 +52,8 @@ void SkiaPreviewSurface::drawFrame() {
     }, _outputWidth, _outputHeight);
 }
 
-jint SkiaPreviewSurface::getInputSurfaceTextureId() {
-    auto renderTarget = _inputSurface->getBackendRenderTarget(SkSurface::kFlushWrite_BackendHandleAccess);
-    if (!renderTarget.isValid()) {
-        throw std::runtime_error("Tried to get texture ID of an invalid input surface!");
-    }
-    GrGLFramebufferInfo info;
-    info.fFBOID = -1;
-    renderTarget.getGLFramebufferInfo(&info);
-    if (info.fFBOID == -1) {
-        throw std::runtime_error("Input Surface has invalid backend render target ID (-1)!");
-    }
-    return static_cast<jint>(info.fFBOID);
+void SkiaPreviewSurface::setInputSurface(jni::alias_ref<jobject> surface) {
+    auto nativeWindow = ANativeWindow_fromSurface(jni::Environment::current(), surface);
 }
 
 void SkiaPreviewSurface::setOutputSize(jint width, jint height) {

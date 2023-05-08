@@ -1,6 +1,9 @@
 package com.mrousavy.camera.preview
 
+import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
+import android.hardware.HardwareBuffer
+import android.media.ImageReader
 import android.util.Size
 import android.view.Surface
 import com.facebook.jni.HybridData
@@ -15,27 +18,32 @@ class SkiaPreviewSurface(inputSize: Size, outputSurface: Surface) {
 
   @DoNotStrip
   private val mHybridData: HybridData
-
-  val inputSurface: SurfaceTexture
+  private var imageReader: ImageReader? = null
 
   init {
     mHybridData = initHybrid(inputSize.width, inputSize.height, outputSurface)
-    val inputSurfaceId = getInputSurfaceTextureId()
-    inputSurface = SurfaceTexture(inputSurfaceId)
-    inputSurface.setDefaultBufferSize(inputSize.width, inputSize.height)
   }
 
   fun release() {
     mHybridData.resetNative()
-    inputSurface.release()
+    imageReader?.close()
+    imageReader = null
   }
 
   fun setOutputSize(size: Size) {
     setOutputSize(size.width, size.height)
   }
 
+  fun createInputSurface(width: Int, height: Int): Surface {
+    imageReader?.close()
+    imageReader = null
+    // TODO: HardwareBuffer.USAGE_GPU_DATA_BUFFER
+    imageReader = ImageReader.newInstance(width, height, ImageFormat.YUV_420_888, 5)
+    return imageReader!!.surface
+  }
+
   private external fun initHybrid(inputWidth: Int, inputHeight: Int, outputSurface: Any): HybridData
   private external fun setOutputSize(width: Int, height: Int)
-  private external fun getInputSurfaceTextureId(): Int
+  private external fun setInputSurface(surface: Any)
   external fun drawFrame()
 }

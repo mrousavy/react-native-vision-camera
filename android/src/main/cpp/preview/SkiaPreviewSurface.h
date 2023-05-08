@@ -32,7 +32,7 @@ private:
     int _outputWidth, _outputHeight;
 
 
-    jint getInputSurfaceTextureId();
+    void setInputSurface(jni::alias_ref<jobject> surface);
     void setOutputSize(jint width, jint height);
     void drawFrame();
 
