@@ -7,7 +7,11 @@ import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.util.Log
 import android.util.Size
+import android.view.Choreographer
 import android.view.Surface
+import android.view.SurfaceHolder
+import android.view.SurfaceView
+import android.view.TextureView
 import com.facebook.jni.HybridData
 import com.facebook.jni.annotations.DoNotStrip
 import kotlinx.coroutines.CoroutineScope
@@ -21,9 +25,8 @@ import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.suspendCoroutine
 
 @Suppress("KotlinJniMissingFunction")
-class SkiaPreviewView(context: Context): GLSurfaceView(context), GLSurfaceView.Renderer {
+class SkiaPreviewView(context: Context): SurfaceView(context), SurfaceHolder.Callback {
   companion object {
-    private const val OPEN_GL_VERSION = 2
     private const val TAG = "SkiaPreviewView"
   }
 
@@ -33,32 +36,38 @@ class SkiaPreviewView(context: Context): GLSurfaceView(context), GLSurfaceView.R
 
   init {
     mHybridData = initHybrid()
-    setEGLContextClientVersion(OPEN_GL_VERSION)
-    setRenderer(this)
-    renderMode = RENDERMODE_WHEN_DIRTY
-  }
-
-  override fun finalize() {
-    super.finalize()
-    previewSurface?.release()
+    this.holder.addCallback(this)
   }
 
   private external fun initHybrid(): HybridData
   private external fun onSizeChanged(width: Int, height: Int)
-  private external fun onDrawFrame()
 
-  override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-    Log.d(TAG, "onSurfaceCreated()")
-    previewSurface = SkiaPreviewSurface(Size(400, 700), Surface(SurfaceTexture(0)))
+  private fun drawNextFrame(timestamp: Long) {
+    previewSurface?.drawFrame()
+    this.invalidate()
+
+    Choreographer.getInstance().postFrameCallback {
+      drawNextFrame(it)
+    }
   }
 
-  override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
+  override fun surfaceCreated(holder: SurfaceHolder) {
+    Log.d(TAG, "onSurfaceCreated()")
+    previewSurface = SkiaPreviewSurface(Size(400, 700), holder.surface)
+    Choreographer.getInstance().postFrameCallback { timestamp ->
+      drawNextFrame(timestamp)
+    }
+  }
+
+  override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
     Log.d(TAG, "onSurfaceChanged()")
     previewSurface?.setOutputSize(Size(width, height))
   }
 
-  override fun onDrawFrame(gl: GL10?) {
-    Log.d(TAG, "onDrawFrame()")
+  override fun surfaceDestroyed(holder: SurfaceHolder) {
+    Log.d(TAG, "surfaceDestroyed()")
+    previewSurface?.release()
+    previewSurface = null
   }
 
 }

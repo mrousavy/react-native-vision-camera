@@ -195,7 +195,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
 
     previewView = SkiaPreviewView(context)
     previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-    //previewView.installHierarchyFitter() // If this is not called correctly, view finder will be black/blank
+    this.installHierarchyFitter()
     addView(previewView)
 
     scaleGestureListener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
@@ -474,6 +474,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
       camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, *useCases.toTypedArray())
 
       val surfaceProvider = Preview.SurfaceProvider { request ->
+        Log.d(TAG, "Camera requesting Surface...")
         postDelayed({
           val surfaceTexture = previewView.previewSurface!!.getInputSurfaceTexture()
           val surface = Surface(surfaceTexture)

@@ -35,9 +35,12 @@ private:
     sk_sp<GrDirectContext> _context;
 
     sk_sp<SkSurface> _inputSurface;
+    sk_sp<SkSurface> _outputSkiaSurface;
+    EGLSurface _outputGLSurface;
 
     jint getInputSurfaceTextureId();
     void setOutputSize(jint width, jint height);
+    void drawFrame();
 
     explicit SkiaPreviewSurface(jni::alias_ref<SkiaPreviewSurface::jhybridobject> jThis,
                                 jint inputWidth, jint inputHeight,

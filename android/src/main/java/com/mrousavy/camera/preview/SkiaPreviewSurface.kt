@@ -53,4 +53,5 @@ class SkiaPreviewSurface(inputSize: Size, outputSurface: Surface) {
   private external fun initHybrid(inputWidth: Int, inputHeight: Int, outputSurface: Any): HybridData
   private external fun setOutputSize(width: Int, height: Int)
   private external fun getInputSurfaceTextureId(): Int
+  external fun drawFrame()
 }
