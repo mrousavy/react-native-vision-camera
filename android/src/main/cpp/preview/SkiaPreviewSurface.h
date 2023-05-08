@@ -10,6 +10,7 @@
 #include <fbjni/fbjni.h>
 
 #include <SkiaOpenGLRenderer.h>
+#include "../java-bindings/JFrame.h"
 
 namespace vision {
 
@@ -20,25 +21,31 @@ public:
     static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/preview/SkiaPreviewSurface;";
     static auto constexpr TAG = "VisionCamera";
     static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis,
-                                                  jint inputWidth, jint inputHeight,
-                                                  jni::alias_ref<jobject> outputSurface);
+                                                  jni::alias_ref<jobject> inputSurface,
+                                                  jint inputWidth, jint inputHeight) {
+        return makeCxxInstance(jThis, inputSurface, inputWidth, inputHeight);
+    }
     static void registerNatives();
 
 private:
     friend HybridBase;
     jni::global_ref<SkiaPreviewSurface::javaobject> _javaPart;
     std::unique_ptr<RNSkia::SkiaOpenGLRenderer> _renderer;
+
+    sk_sp<GrDirectContext> _context;
     sk_sp<SkSurface> _inputSurface;
     int _outputWidth, _outputHeight;
 
 
-    void setInputSurface(jni::alias_ref<jobject> surface);
     void setOutputSize(jint width, jint height);
-    void drawFrame();
+    void setOutputSurface(jni::alias_ref<jobject> surface);
+    void onFrame(jni::alias_ref<JFrame> frame);
+
+    sk_sp<SkSurface> createSurfaceFromNativeWindow(ANativeWindow* nativeWindow, int width, int height);
 
     explicit SkiaPreviewSurface(jni::alias_ref<SkiaPreviewSurface::jhybridobject> jThis,
-                                jint inputWidth, jint inputHeight,
-                                jni::alias_ref<jobject> outputSurface);
+                                jni::alias_ref<jobject> inputSurface,
+                                jint inputWidth, jint inputHeight);
 };
 
 } // namespace vision

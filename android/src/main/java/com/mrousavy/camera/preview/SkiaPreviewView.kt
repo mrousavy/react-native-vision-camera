@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import android.util.Size
 import android.view.Choreographer
+import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import com.facebook.jni.HybridData
@@ -17,11 +18,15 @@ class SkiaPreviewView(context: Context): SurfaceView(context), SurfaceHolder.Cal
 
   @DoNotStrip
   private val mHybridData: HybridData
-  var previewSurface: SkiaPreviewSurface? = null
+  private var previewSurface: SkiaPreviewSurface? = null
+
+  val surface: Surface?
+    get() = previewSurface?.imageReader?.surface
 
   init {
     mHybridData = initHybrid()
     this.holder.addCallback(this)
+    previewSurface = SkiaPreviewSurface(400, 700)
   }
 
   private external fun initHybrid(): HybridData
@@ -37,7 +42,7 @@ class SkiaPreviewView(context: Context): SurfaceView(context), SurfaceHolder.Cal
 
   override fun surfaceCreated(holder: SurfaceHolder) {
     Log.d(TAG, "onSurfaceCreated()")
-    previewSurface = SkiaPreviewSurface(Size(400, 700), holder.surface)
+    previewSurface?.setOutputSurface(holder.surface)
     Choreographer.getInstance().postFrameCallback { timestamp ->
       drawNextFrame(timestamp)
     }

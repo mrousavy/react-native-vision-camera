@@ -118,7 +118,7 @@ public class Frame {
   }
 
 
-  enum Orientation {
+  public enum Orientation {
     PORTRAIT, PORTRAIT_UPSIDE_DOWN, LANDSCAPE_LEFT, LANDSCAPE_RIGHT;
 
     @NonNull
