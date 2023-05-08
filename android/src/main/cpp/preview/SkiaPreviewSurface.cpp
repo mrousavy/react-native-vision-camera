@@ -13,6 +13,8 @@
 
 namespace vision {
 
+#define EGL_RECORDABLE_ANDROID 0x3142
+
 SkiaPreviewSurface::SkiaPreviewSurface(jni::alias_ref<SkiaPreviewSurface::jhybridobject> jThis,
                                        jni::alias_ref<jobject> inputSurface,
                                        jint inputWidth, jint inputHeight)
@@ -54,22 +56,13 @@ sk_sp<SkSurface> SkiaPreviewSurface::createSurfaceFromNativeWindow(ANativeWindow
         throw std::runtime_error("Failed to initialize EGL! " + std::to_string(glGetError()));
     }
 
-    EGLint att[] = {EGL_RENDERABLE_TYPE,
-                    EGL_OPENGL_ES2_BIT,
-                    EGL_SURFACE_TYPE,
-                    EGL_PBUFFER_BIT,
-                    EGL_ALPHA_SIZE,
-                    8,
-                    EGL_BLUE_SIZE,
-                    8,
-                    EGL_GREEN_SIZE,
-                    8,
-                    EGL_RED_SIZE,
-                    8,
-                    EGL_DEPTH_SIZE,
-                    0,
-                    EGL_STENCIL_SIZE,
-                    0,
+    EGLint att[] = {EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+                    EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+                    EGL_RECORDABLE_ANDROID, 1,
+                    EGL_ALPHA_SIZE, 8,
+                    EGL_BLUE_SIZE, 8,
+                    EGL_GREEN_SIZE, 8,
+                    EGL_RED_SIZE, 8,
                     EGL_NONE};
 
     EGLint numConfigs;
@@ -80,14 +73,15 @@ sk_sp<SkSurface> SkiaPreviewSurface::createSurfaceFromNativeWindow(ANativeWindow
     }
 
     EGLint contextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
-    EGLContext eglContext =
-            eglCreateContext(eglDisplay, eglConfig, nullptr, contextAttribs);
+    EGLContext eglContext = eglCreateContext(eglDisplay,
+                                             eglConfig,
+                                             EGL_NO_CONTEXT,
+                                             contextAttribs);
     if (eglContext == EGL_NO_CONTEXT) {
         throw std::runtime_error("Failed to create a GL Context! " + std::to_string(glGetError()));
     }
 
-    const EGLint surfaceAttribs[] = {EGL_WIDTH, width, EGL_HEIGHT, height, EGL_NONE};
-    EGLSurface eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, nativeWindow, surfaceAttribs);
+    EGLSurface eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, nativeWindow, nullptr);
     if (!eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext)) {
         throw std::runtime_error("Failed to set current surface! " + std::to_string(glGetError()));
     }
