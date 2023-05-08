@@ -34,7 +34,7 @@ TSelf SkiaPreviewSurface::initHybrid(jni::alias_ref<jhybridobject> jThis,
 void SkiaPreviewSurface::registerNatives() {
     registerHybrid({
        makeNativeMethod("initHybrid", SkiaPreviewSurface::initHybrid),
-       makeNativeMethod("getInputSurfaceTextureId", SkiaPreviewSurface::getInputSurfaceTextureId),
+       makeNativeMethod("setInputSurface", SkiaPreviewSurface::setInputSurface),
        makeNativeMethod("setOutputSize", SkiaPreviewSurface::setOutputSize),
        makeNativeMethod("drawFrame", SkiaPreviewSurface::drawFrame),
     });
@@ -53,7 +53,7 @@ void SkiaPreviewSurface::drawFrame() {
 }
 
 void SkiaPreviewSurface::setInputSurface(jni::alias_ref<jobject> surface) {
-    auto nativeWindow = ANativeWindow_fromSurface(jni::Environment::current(), surface);
+    auto nativeWindow = ANativeWindow_fromSurface(jni::Environment::current(), surface.get());
 }
 
 void SkiaPreviewSurface::setOutputSize(jint width, jint height) {
