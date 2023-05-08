@@ -475,17 +475,18 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
 
       val surfaceProvider = Preview.SurfaceProvider { request ->
         val resolution = request.resolution
-        /*previewView.textureView.surfaceTexture?.setDefaultBufferSize(resolution.width, resolution.height)
-        if (previewView.textureView.surfaceTexture == null) {
+        val surfaceTexture = previewView.inputSurface
+        if (surfaceTexture == null) {
           request.willNotProvideSurface()
           return@SurfaceProvider
         }
-        val surface = Surface(previewView.textureView.surfaceTexture)
+        surfaceTexture.setDefaultBufferSize(resolution.width, resolution.height)
+        val surface = Surface(surfaceTexture)
         request.provideSurface(surface, cameraExecutor) { result ->
           if (result.resultCode != SurfaceRequest.Result.RESULT_SURFACE_USED_SUCCESSFULLY) {
-//            throw RuntimeException("Invalid surface!")
+            Log.d(TAG, "Surface request unsuccessful, result code: " + result.resultCode)
           }
-        }*/
+        }
       }
 
       preview!!.setSurfaceProvider(surfaceProvider)

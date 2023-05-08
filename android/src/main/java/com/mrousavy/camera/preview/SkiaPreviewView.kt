@@ -1,5 +1,6 @@
 package com.mrousavy.camera.preview
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.SurfaceTexture
 import android.opengl.GLES20
@@ -20,7 +21,8 @@ class SkiaPreviewView(context: Context): GLSurfaceView(context), GLSurfaceView.R
 
   @DoNotStrip
   private var mHybridData: HybridData? = null
-  private var inputTexture: SurfaceTexture? = null
+
+  var inputSurface: SurfaceTexture? = null
 
   init {
     setEGLContextClientVersion(OPEN_GL_VERSION)
@@ -30,7 +32,7 @@ class SkiaPreviewView(context: Context): GLSurfaceView(context), GLSurfaceView.R
 
   override fun finalize() {
     super.finalize()
-    inputTexture?.release()
+    inputSurface?.release()
   }
 
   private external fun initHybrid(): HybridData
@@ -40,13 +42,11 @@ class SkiaPreviewView(context: Context): GLSurfaceView(context), GLSurfaceView.R
 
   override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
     mHybridData = initHybrid()
-    repeat(5) {
-      Log.d(TAG, "onSurfaceCreated()")
-      val textureId = createSurface(400, 700)
-      val surfaceTexture = SurfaceTexture(textureId)
-      val surface = Surface(surfaceTexture)
-      Log.d(TAG, "SurfaceTexture created! isValid: " + surface.isValid)
-    }
+    Log.d(TAG, "onSurfaceCreated()")
+    val textureId = createSurface(400, 700)
+    @SuppressLint("Recycle") // reference is cleared on C++ side
+    inputSurface = SurfaceTexture(textureId)
+    Log.d(TAG, "SurfaceTexture created! Timestamp: " + inputSurface!!.timestamp)
   }
 
   override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
