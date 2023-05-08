@@ -476,7 +476,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
       val surfaceProvider = Preview.SurfaceProvider { request ->
         Log.d(TAG, "Camera requesting Surface...")
         postDelayed({
-          val surfaceTexture = previewView.previewSurface!!.getInputSurfaceTexture()
+          val surfaceTexture = previewView.previewSurface!!.inputSurface
           val surface = Surface(surfaceTexture)
           request.provideSurface(surface, cameraExecutor) { result ->
             when (result.resultCode) {
