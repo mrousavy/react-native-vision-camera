@@ -1,24 +1,10 @@
 package com.mrousavy.camera.preview
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.graphics.SurfaceTexture
-import android.opengl.GLES20
-import android.opengl.GLSurfaceView
-import android.util.Log
 import android.util.Size
 import android.view.Surface
 import com.facebook.jni.HybridData
 import com.facebook.jni.annotations.DoNotStrip
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import javax.microedition.khronos.egl.EGLConfig
-import javax.microedition.khronos.opengles.GL10
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.coroutineContext
-import kotlin.coroutines.suspendCoroutine
 
 @Suppress("KotlinJniMissingFunction")
 class SkiaPreviewSurface(inputSize: Size, outputSurface: Surface) {
