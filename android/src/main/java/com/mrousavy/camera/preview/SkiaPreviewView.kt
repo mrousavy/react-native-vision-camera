@@ -1,6 +1,9 @@
 package com.mrousavy.camera.preview
 
 import android.content.Context
+import android.graphics.SurfaceTexture
+import android.opengl.GLES20.glGenTextures
+import android.opengl.GLSurfaceView
 import android.util.Log
 import android.util.Size
 import android.view.Choreographer
@@ -9,52 +12,45 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import com.facebook.jni.HybridData
 import com.facebook.jni.annotations.DoNotStrip
+import javax.microedition.khronos.egl.EGLConfig
+import javax.microedition.khronos.opengles.GL10
 
 @Suppress("KotlinJniMissingFunction")
-class SkiaPreviewView(context: Context): SurfaceView(context), SurfaceHolder.Callback {
+class SkiaPreviewView(context: Context): GLSurfaceView(context), GLSurfaceView.Renderer {
   companion object {
     private const val TAG = "SkiaPreviewView"
   }
 
   @DoNotStrip
   private val mHybridData: HybridData
-  private var previewSurface: SkiaPreviewSurface? = null
-
-  val surface: Surface
-    get() = Surface(previewSurface!!.surface)
+  private var surfaceTexture: SkiaPreviewSurface? = null
 
   init {
+    setEGLContextClientVersion(2)
+    setRenderer(this)
+    renderMode = RENDERMODE_WHEN_DIRTY
+
     mHybridData = initHybrid()
-    this.holder.addCallback(this)
-    previewSurface = SkiaPreviewSurface(640, 480)
   }
 
   private external fun initHybrid(): HybridData
   private external fun onSizeChanged(width: Int, height: Int)
 
-  private fun drawNextFrame(timestamp: Long) {
-    Choreographer.getInstance().postFrameCallback {
-      drawNextFrame(it)
-    }
+  override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
+    Log.d(TAG, "onSurfaceCreated(...)")
+    val textures = IntArray(2)
+    glGenTextures(2, textures, 0)
+    surfaceTexture = SkiaPreviewSurface(textures[0])
   }
 
-  override fun surfaceCreated(holder: SurfaceHolder) {
-    Log.d(TAG, "onSurfaceCreated()")
-    previewSurface?.setOutputSurface(holder.surface)
-    Choreographer.getInstance().postFrameCallback { timestamp ->
-      drawNextFrame(timestamp)
-    }
+  override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
+    Log.d(TAG, "onSurfaceChanged(...)")
+    surfaceTexture?.setOutputSize(Size(width, height))
   }
 
-  override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-    Log.d(TAG, "onSurfaceChanged()")
-    previewSurface?.setOutputSize(Size(width, height))
-  }
-
-  override fun surfaceDestroyed(holder: SurfaceHolder) {
-    Log.d(TAG, "surfaceDestroyed()")
-    previewSurface?.release()
-    previewSurface = null
+  override fun onDrawFrame(gl: GL10?) {
+    Log.d(TAG, "onDrawFrame(...)")
+    surfaceTexture?.updateTexImage()
   }
 
 }

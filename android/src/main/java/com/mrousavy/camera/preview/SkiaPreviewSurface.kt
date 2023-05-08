@@ -13,7 +13,7 @@ import com.facebook.jni.annotations.DoNotStrip
 import com.mrousavy.camera.frameprocessor.Frame
 
 @Suppress("KotlinJniMissingFunction")
-class SkiaPreviewSurface(inputSurfaceWidth: Int, inputSurfaceHeight: Int) {
+class SkiaPreviewSurface(textureId: Int): SurfaceTexture(textureId) {
   companion object {
     private const val OPEN_GL_VERSION = 2
     private const val TAG = "SkiaPreviewSurface"
@@ -21,29 +21,22 @@ class SkiaPreviewSurface(inputSurfaceWidth: Int, inputSurfaceHeight: Int) {
 
   @DoNotStrip
   private val mHybridData: HybridData
-  val surface: SurfaceTexture
 
   init {
-    mHybridData = initHybrid(null, inputSurfaceWidth, inputSurfaceHeight)
-    surface = SurfaceTexture(getSurfaceId())
-    surface.setOnFrameAvailableListener {
-      Log.d(TAG, "Frame Available!!!!")
-      it.updateTexImage()
-      onFrame()
-    }
+    mHybridData = initHybrid(Surface(this))
   }
 
-  fun release() {
-    mHybridData.resetNative()
+  override fun updateTexImage() {
+    super.updateTexImage()
+    Log.d(TAG, "Call Skia Frame Processor here!")
+    onFrame()
   }
 
   fun setOutputSize(size: Size) {
     setOutputSize(size.width, size.height)
   }
 
-  private external fun initHybrid(inputSurface: Any?, inputWidth: Int, inputHeight: Int): HybridData
+  private external fun initHybrid(inputSurface: Any): HybridData
   private external fun setOutputSize(width: Int, height: Int)
   private external fun onFrame()
-  private external fun getSurfaceId(): Int
-  external fun setOutputSurface(surface: Any)
 }
