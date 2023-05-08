@@ -25,7 +25,6 @@ void SkiaPreviewView::registerNatives() {
     registerHybrid({
        makeNativeMethod("initHybrid", SkiaPreviewView::initHybrid),
        makeNativeMethod("onSizeChanged", SkiaPreviewView::onSizeChanged),
-       makeNativeMethod("onDrawFrame", SkiaPreviewView::onDrawFrame),
     });
 }
 
@@ -35,23 +34,5 @@ void SkiaPreviewView::onSizeChanged(jint width, jint height) {
     _width = width;
     _height = height;
 }
-
-void SkiaPreviewView::onDrawFrame() {
-    __android_log_write(ANDROID_LOG_INFO, TAG,
-                        "onSurfaceTextureUpdated!");
-    if (_skiaRenderer != nullptr) {
-        _skiaRenderer->run([](SkCanvas* canvas) {
-            __android_log_write(ANDROID_LOG_INFO, TAG,
-                                "draw callback executing...");
-            SkRect rect = SkRect::MakeXYWH(300, 300, 300, 400);
-            SkPaint paint(SkColors::kRed);
-            canvas->drawRect(rect, paint);
-            canvas->flush();
-        }, _width, _height);
-    }
-}
-
-
-
 
 } // namespace vision

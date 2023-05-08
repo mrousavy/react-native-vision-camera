@@ -30,7 +30,6 @@ private:
     sk_sp<GrDirectContext> _context;
 
     void onSizeChanged(jint width, jint height);
-    void onDrawFrame();
 
     explicit SkiaPreviewView(jni::alias_ref<SkiaPreviewView::jhybridobject> jThis);
 };
