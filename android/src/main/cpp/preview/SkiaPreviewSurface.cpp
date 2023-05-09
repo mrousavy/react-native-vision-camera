@@ -16,12 +16,12 @@ namespace vision {
 #define EGL_RECORDABLE_ANDROID 0x3142
 
 SkiaPreviewSurface::SkiaPreviewSurface(jni::alias_ref<SkiaPreviewSurface::jhybridobject> jThis,
-                                       jni::alias_ref<jobject> inputSurface,
-                                       jint inputWidth, jint inputHeight)
+                                       jni::alias_ref<jobject> inputSurface)
         : _javaPart(jni::make_global(jThis)) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Creating SkiaPreviewSurface...");
 
-    _inputSurface = RNSkia::MakeOffscreenGLSurface(inputWidth, inputHeight);
+    auto nativeWindow = ANativeWindow_fromSurface(jni::Environment::current(), inputSurface.get());
+    _inputSurface = createSurfaceFromNativeWindow(nativeWindow, 480, 640);
 }
 
 void SkiaPreviewSurface::registerNatives() {
@@ -41,7 +41,7 @@ void SkiaPreviewSurface::setOutputSize(jint width, jint height) {
 
 
 void SkiaPreviewSurface::setOutputSurface(jni::alias_ref<jobject> surface) {
-    _renderer = std::make_unique<RNSkia::SkiaOpenGLRenderer>(surface.get());
+    // _renderer = std::make_unique<RNSkia::SkiaOpenGLRenderer>(surface.get());
 }
 
 sk_sp<SkSurface> SkiaPreviewSurface::createSurfaceFromNativeWindow(ANativeWindow* nativeWindow, int width, int height) {
@@ -131,6 +131,13 @@ void SkiaPreviewSurface::onFrame() {
     __android_log_write(ANDROID_LOG_INFO, TAG,
                         "drawFrame(...)");
 
+    SkPaint paint;
+    paint.setColor(SkColors::kRed);
+    auto rect = SkRect::MakeXYWH(100, 120, 180, 140);
+    _inputSurface->getCanvas()->drawRect(rect, paint);
+    _inputSurface->flushAndSubmit();
+
+    /*
     auto image = _inputSurface->makeImageSnapshot();
     SkPixmap pixmap;
     bool success = image->readPixels(pixmap, 0, 0);
@@ -139,7 +146,7 @@ void SkiaPreviewSurface::onFrame() {
     __android_log_print(ANDROID_LOG_INFO, TAG,
                         "Frame %i x %i Pixel: %i | SUCCESS: %i", image->width(), image->height(), color, success);
 
-    _inputSurface->flushAndSubmit();
+    _inputSurface->flushAndSubmit();*/
 
     /*_renderer->run([](SkCanvas* canvas) {
         SkPaint paint;

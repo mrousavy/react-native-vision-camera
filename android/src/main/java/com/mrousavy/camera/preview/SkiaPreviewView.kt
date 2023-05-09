@@ -25,6 +25,11 @@ class SkiaPreviewView(context: Context): GLSurfaceView(context), GLSurfaceView.R
   private val mHybridData: HybridData
   private var surfaceTexture: SkiaPreviewSurface? = null
 
+  val surface: Surface
+    get() {
+      return Surface(surfaceTexture!!)
+    }
+
   init {
     setEGLContextClientVersion(2)
     setRenderer(this)
