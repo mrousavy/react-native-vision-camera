@@ -16,20 +16,17 @@ namespace vision {
 #define EGL_RECORDABLE_ANDROID 0x3142
 
 SkiaPreviewSurface::SkiaPreviewSurface(jni::alias_ref<SkiaPreviewSurface::jhybridobject> jThis,
-                                       jni::alias_ref<jobject> inputSurface)
+                                       jint textureId)
         : _javaPart(jni::make_global(jThis)) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Creating SkiaPreviewSurface...");
 
-    auto nativeWindow = ANativeWindow_fromSurface(jni::Environment::current(), inputSurface.get());
-    _inputSurface = createSurfaceFromNativeWindow(nativeWindow, 480, 640);
+    _inputSurface = createSurfaceFromNativeWindow(textureId, 480, 640);
 }
 
 void SkiaPreviewSurface::registerNatives() {
     registerHybrid({
        makeNativeMethod("initHybrid", SkiaPreviewSurface::initHybrid),
        makeNativeMethod("setOutputSize", SkiaPreviewSurface::setOutputSize),
-       makeNativeMethod("setOutputSurface", SkiaPreviewSurface::setOutputSurface),
-       makeNativeMethod("getSurfaceId", SkiaPreviewSurface::getSurfaceId),
        makeNativeMethod("onFrame", SkiaPreviewSurface::onFrame),
     });
 }
@@ -44,7 +41,7 @@ void SkiaPreviewSurface::setOutputSurface(jni::alias_ref<jobject> surface) {
     // _renderer = std::make_unique<RNSkia::SkiaOpenGLRenderer>(surface.get());
 }
 
-sk_sp<SkSurface> SkiaPreviewSurface::createSurfaceFromNativeWindow(ANativeWindow* nativeWindow, int width, int height) {
+sk_sp<SkSurface> SkiaPreviewSurface::createSurfaceFromNativeWindow(int eglTextureId, int width, int height) {
     EGLDisplay eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (eglDisplay == EGL_NO_DISPLAY) {
         throw std::runtime_error("Failed to get EGL Display! " + std::to_string(glGetError()));
@@ -80,10 +77,7 @@ sk_sp<SkSurface> SkiaPreviewSurface::createSurfaceFromNativeWindow(ANativeWindow
         throw std::runtime_error("Failed to create a GL Context! " + std::to_string(glGetError()));
     }
 
-    EGLSurface eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, nativeWindow, nullptr);
-    if (!eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext)) {
-        throw std::runtime_error("Failed to set current surface! " + std::to_string(glGetError()));
-    }
+    glBindTexture(0x00008d65, eglTextureId);
 
     GLint buffer;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &buffer);
@@ -111,16 +105,14 @@ sk_sp<SkSurface> SkiaPreviewSurface::createSurfaceFromNativeWindow(ANativeWindow
 
     struct RenderContext {
         EGLDisplay display;
-        EGLSurface surface;
     };
-    auto ctx = new RenderContext({eglDisplay, eglSurface});
+    auto ctx = new RenderContext({eglDisplay});
 
     auto surface = SkSurface::MakeFromBackendRenderTarget(
             grContext.get(), renderTarget, kBottomLeft_GrSurfaceOrigin,
             kRGBA_8888_SkColorType, nullptr, nullptr,
             [](void *addr) {
                 auto ctx = reinterpret_cast<RenderContext *>(addr);
-                eglDestroySurface(ctx->display, ctx->surface);
                 delete ctx;
             },
             reinterpret_cast<void *>(ctx));

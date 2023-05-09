@@ -21,8 +21,8 @@ public:
     static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/preview/SkiaPreviewSurface;";
     static auto constexpr TAG = "VisionCamera";
     static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis,
-                                                  jni::alias_ref<jobject> inputSurface) {
-        return makeCxxInstance(jThis, inputSurface);
+                                                  jint textureId) {
+        return makeCxxInstance(jThis, textureId);
     }
     static void registerNatives();
 
@@ -42,10 +42,10 @@ private:
 
     jint getSurfaceId();
 
-    sk_sp<SkSurface> createSurfaceFromNativeWindow(ANativeWindow* nativeWindow, int width, int height);
+    sk_sp<SkSurface> createSurfaceFromNativeWindow(int eglTextureId, int width, int height);
 
     explicit SkiaPreviewSurface(jni::alias_ref<SkiaPreviewSurface::jhybridobject> jThis,
-                                jni::alias_ref<jobject> inputSurface);
+                                jint textureId);
 };
 
 } // namespace vision

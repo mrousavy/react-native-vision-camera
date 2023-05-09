@@ -23,7 +23,7 @@ class SkiaPreviewSurface(textureId: Int): SurfaceTexture(textureId) {
   private val mHybridData: HybridData
 
   init {
-    mHybridData = initHybrid(Surface(this))
+    mHybridData = initHybrid(textureId)
   }
 
   override fun updateTexImage() {
@@ -36,7 +36,7 @@ class SkiaPreviewSurface(textureId: Int): SurfaceTexture(textureId) {
     setOutputSize(size.width, size.height)
   }
 
-  private external fun initHybrid(inputSurface: Any): HybridData
+  private external fun initHybrid(textureId: Int): HybridData
   private external fun setOutputSize(width: Int, height: Int)
   private external fun onFrame()
 }
