@@ -83,4 +83,5 @@ target_link_libraries(
         -ljnigraphics
         -lGLESv2
         -lEGL
+        -lmediandk
 )
