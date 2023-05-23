@@ -20,8 +20,6 @@
 #import <ReactCommon/CallInvoker.h>
 #import <React/RCTBridge.h>
 #import <ReactCommon/TurboModuleUtils.h>
-#import "../Frame Processor/Frame.h"
-#import "../Frame Processor/FrameHostObject.h"
 
 using namespace facebook;
 using namespace facebook::react;

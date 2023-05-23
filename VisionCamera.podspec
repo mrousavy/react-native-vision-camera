@@ -44,11 +44,6 @@ Pod::Spec.new do |s|
   s.source_files = [
     "ios/**/*.{m,mm,swift}",
     "ios/CameraBridge.h",
-    "ios/Frame Processor/Frame.h",
-    "ios/Frame Processor/FrameProcessorCallback.h",
-    "ios/Frame Processor/FrameProcessorRuntimeManager.h",
-    "ios/Frame Processor/FrameProcessorPluginRegistry.h",
-    "ios/Frame Processor/FrameProcessorPlugin.h",
     "ios/React Utils/RCTBridge+runOnJS.h",
     "ios/React Utils/JSConsoleHelper.h",
     "cpp/**/*.{cpp}",
