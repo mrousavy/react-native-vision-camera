@@ -209,38 +209,6 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         break
       }
     }
-
-    if let frameProcessor = frameProcessorCallback, captureOutput is AVCaptureVideoDataOutput {
-      // check if last frame was x nanoseconds ago, effectively throttling FPS
-      let frameTime = UInt64(CMSampleBufferGetPresentationTimeStamp(sampleBuffer).seconds * 1_000_000_000.0)
-      let lastFrameProcessorCallElapsedTime = frameTime - lastFrameProcessorCall
-      let secondsPerFrame = 1.0 / actualFrameProcessorFps
-      let nanosecondsPerFrame = secondsPerFrame * 1_000_000_000.0
-      if lastFrameProcessorCallElapsedTime >= UInt64(nanosecondsPerFrame) {
-        if !isRunningFrameProcessor {
-          // we're not in the middle of executing the Frame Processor, so prepare for next call.
-          CameraQueues.frameProcessorQueue.async {
-            self.isRunningFrameProcessor = true
-
-            let perfSample = self.frameProcessorPerformanceDataCollector.beginPerformanceSampleCollection()
-            let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
-            frameProcessor(frame)
-            perfSample.endPerformanceSampleCollection()
-
-            self.isRunningFrameProcessor = false
-          }
-          lastFrameProcessorCall = frameTime
-        } else {
-          // we're still in the middle of executing a Frame Processor for a previous frame, so a frame was dropped.
-          ReactLogger.log(level: .warning, message: "The Frame Processor took so long to execute that a frame was dropped.")
-        }
-      }
-
-      if isReadyForNewEvaluation {
-        // last evaluation was more than 1sec ago, evaluate again
-        evaluateNewPerformanceSamples()
-      }
-    }
   }
 
   private func evaluateNewPerformanceSamples() {

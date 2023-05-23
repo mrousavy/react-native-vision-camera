@@ -13,22 +13,6 @@ import Foundation
 final class CameraViewManager: RCTViewManager {
   // pragma MARK: Properties
 
-  private var runtimeManager: FrameProcessorRuntimeManager?
-
-  override var bridge: RCTBridge! {
-    didSet {
-      // Install Frame Processor bindings and setup Runtime
-      if VISION_CAMERA_ENABLE_FRAME_PROCESSORS {
-        CameraQueues.frameProcessorQueue.async {
-          self.runtimeManager = FrameProcessorRuntimeManager(bridge: self.bridge)
-          self.bridge.runOnJS {
-            self.runtimeManager!.installFrameProcessorBindings()
-          }
-        }
-      }
-    }
-  }
-
   override var methodQueue: DispatchQueue! {
     return DispatchQueue.main
   }
