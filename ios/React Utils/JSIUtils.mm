@@ -153,13 +153,14 @@ id convertJSIValueToObjCObject(jsi::Runtime &runtime, const jsi::Value &value, s
     if (o.isFunction(runtime)) {
       return convertJSIFunctionToCallback(runtime, std::move(o.getFunction(runtime)), jsInvoker);
     }
-    if (o.isHostObject(runtime)) {
-      auto hostObject = o.asHostObject(runtime);
-      auto frame = dynamic_cast<FrameHostObject*>(hostObject.get());
-      if (frame != nullptr) {
-        return frame->frame;
-      }
-    }
+    // Frame disabled because of reanimated
+    // if (o.isHostObject(runtime)) {
+    //   auto hostObject = o.asHostObject(runtime);
+    //   auto frame = dynamic_cast<FrameHostObject*>(hostObject.get());
+    //   if (frame != nullptr) {
+    //     return frame->frame;
+    //   }
+    // }
     return convertJSIObjectToNSDictionary(runtime, o, jsInvoker);
   }
 

@@ -17,11 +17,10 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext, frameProces
   companion object {
     const val TAG = "FrameProcessorRuntime"
     val Plugins: ArrayList<FrameProcessorPlugin> = ArrayList()
-    var enableFrameProcessors = true
+    var enableFrameProcessors = false
 
     init {
       try {
-        System.loadLibrary("reanimated")
         System.loadLibrary("VisionCamera")
       } catch (e: UnsatisfiedLinkError) {
         Log.w(TAG, "Failed to load Reanimated/VisionCamera C++ library. Frame Processors are disabled!")

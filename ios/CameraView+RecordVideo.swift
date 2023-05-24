@@ -212,22 +212,23 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   }
 
   private func evaluateNewPerformanceSamples() {
-    lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
-    guard let videoDevice = videoDeviceInput?.device else { return }
-    guard frameProcessorPerformanceDataCollector.hasEnoughData else { return }
+    // Frame processors - disabled because of reanimated
+    // lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
+    // guard let videoDevice = videoDeviceInput?.device else { return }
+    // guard frameProcessorPerformanceDataCollector.hasEnoughData else { return }
 
-    let maxFrameProcessorFps = Double(videoDevice.activeVideoMinFrameDuration.timescale) * Double(videoDevice.activeVideoMinFrameDuration.value)
-    let averageFps = 1.0 / frameProcessorPerformanceDataCollector.averageExecutionTimeSeconds
-    let suggestedFrameProcessorFps = max(floor(min(averageFps, maxFrameProcessorFps)), 1)
+    // let maxFrameProcessorFps = Double(videoDevice.activeVideoMinFrameDuration.timescale) * Double(videoDevice.activeVideoMinFrameDuration.value)
+    // let averageFps = 1.0 / frameProcessorPerformanceDataCollector.averageExecutionTimeSeconds
+    // let suggestedFrameProcessorFps = max(floor(min(averageFps, maxFrameProcessorFps)), 1)
 
-    if frameProcessorFps.intValue == -1 {
-      // frameProcessorFps="auto"
-      actualFrameProcessorFps = suggestedFrameProcessorFps
-    } else {
-      // frameProcessorFps={someCustomFpsValue}
-      invokeOnFrameProcessorPerformanceSuggestionAvailable(currentFps: frameProcessorFps.doubleValue,
-                                                           suggestedFps: suggestedFrameProcessorFps)
-    }
+    // if frameProcessorFps.intValue == -1 {
+    //   // frameProcessorFps="auto"
+    //   actualFrameProcessorFps = suggestedFrameProcessorFps
+    // } else {
+    //   // frameProcessorFps={someCustomFpsValue}
+    //   invokeOnFrameProcessorPerformanceSuggestionAvailable(currentFps: frameProcessorFps.doubleValue,
+    //                                                        suggestedFps: suggestedFrameProcessorFps)
+    // }
   }
 
   private func recommendedVideoSettings(videoOutput: AVCaptureVideoDataOutput, fileType: AVFileType, videoCodec: AVVideoCodecType?) -> [String: Any]? {

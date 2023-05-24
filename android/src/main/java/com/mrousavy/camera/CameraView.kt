@@ -304,6 +304,11 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   override fun onDetachedFromWindow() {
     super.onDetachedFromWindow()
     updateLifecycleState()
+
+    coroutineScope.launch {
+      val cameraProvider = ProcessCameraProvider.getInstance(reactContext).await()
+      cameraProvider.unbindAll()
+    }
   }
 
   /**

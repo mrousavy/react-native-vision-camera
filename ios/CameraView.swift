@@ -260,14 +260,15 @@ public final class CameraView: UIView {
 
     // Frame Processor FPS Configuration
     if changedProps.contains("frameProcessorFps") {
-      if frameProcessorFps.doubleValue == -1 {
-        // "auto"
-        actualFrameProcessorFps = 30.0
-      } else {
-        actualFrameProcessorFps = frameProcessorFps.doubleValue
-      }
-      lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
-      frameProcessorPerformanceDataCollector.clear()
+      // Frame Processor is disabled because of reanimated
+      // if frameProcessorFps.doubleValue == -1 {
+      //   // "auto"
+      //   actualFrameProcessorFps = 30.0
+      // } else {
+      //   actualFrameProcessorFps = frameProcessorFps.doubleValue
+      // }
+      // lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
+      // frameProcessorPerformanceDataCollector.clear()
     }
   }
 
