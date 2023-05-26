@@ -1,8 +1,9 @@
-import type { ViewProps } from 'react-native';
 import type { CameraDevice, CameraDeviceFormat, ColorSpace, VideoStabilizationMode } from './CameraDevice';
-import type { CameraRuntimeError } from './CameraError';
+
 import type { CameraPreset } from './CameraPreset';
+import type { CameraRuntimeError } from './CameraError';
 import type { Frame } from './Frame';
+import type { ViewProps } from 'react-native';
 
 export interface FrameProcessorPerformanceSuggestion {
   type: 'can-use-higher-fps' | 'should-use-lower-fps';
@@ -159,7 +160,7 @@ export interface CameraProps extends ViewProps {
   /**
    * Represents the orientation of all Camera Outputs (Photo, Video, and Frame Processor). If this value is not set, the device orientation is used.
    */
-  orientation?: 'portrait' | 'portraitUpsideDown' | 'landscapeLeft' | 'landscapeRight';
+  orientation?: 'portrait' | 'portraitUpsideDown' | 'landscapeLeft' | 'landscapeRight' | 'device';
 
   //#region Events
   /**

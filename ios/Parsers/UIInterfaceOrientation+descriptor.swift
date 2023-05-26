@@ -24,6 +24,9 @@ extension UIInterfaceOrientation {
     case "landscapeRight":
       self = .landscapeRight
       return
+    case "device":
+      self = .portrait
+      return
     default:
       throw EnumParserError.invalidValue
     }

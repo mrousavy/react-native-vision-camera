@@ -103,6 +103,9 @@ extension CameraView {
         photoSettings.isAutoContentAwareDistortionCorrectionEnabled = enableAutoDistortionCorrection
       }
 
+      // orientation immediately prior to capture
+      self.updateOrientation()
+
       photoOutput.capturePhoto(with: photoSettings, delegate: PhotoCaptureDelegate(promise: promise))
 
       // Assume that `takePhoto` is always called with the same parameters, so prepare the next call too.
