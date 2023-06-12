@@ -24,13 +24,11 @@ import androidx.lifecycle.*
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.*
-import com.facebook.react.uimanager.events.RCTEventEmitter
 import com.mrousavy.camera.frameprocessor.FrameProcessorPerformanceDataCollector
 import com.mrousavy.camera.frameprocessor.FrameProcessorRuntimeManager
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.guava.await
-import java.lang.IllegalArgumentException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.math.floor
@@ -139,6 +137,9 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   private val scaleGestureDetector: ScaleGestureDetector
   private val touchEventListener: OnTouchListener
 
+  private val orientationListener: OrientationListener
+  private var deviceRotation: Int = Surface.ROTATION_0
+
   private val lifecycleRegistry: LifecycleRegistry
   private var hostLifecycleState: Lifecycle.State
 
@@ -155,6 +156,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
           "landscapeRight" -> Surface.ROTATION_90
           "portraitUpsideDown" -> Surface.ROTATION_180
           "landscapeLeft" -> Surface.ROTATION_270
+          "device" -> deviceRotation
           else -> throw InvalidTypeScriptUnionError("orientation", orientation!!)
         }
       } else {
@@ -228,6 +230,13 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
     }
     scaleGestureDetector = ScaleGestureDetector(context, scaleGestureListener)
     touchEventListener = OnTouchListener { _, event -> return@OnTouchListener scaleGestureDetector.onTouchEvent(event) }
+    orientationListener = object: OrientationListener(context) {
+      override fun onChanged(rotation: Int) {
+        deviceRotation = rotation
+        updateOrientation()
+      }
+    }
+    orientationListener.enable()
 
     hostLifecycleState = Lifecycle.State.INITIALIZED
     lifecycleRegistry = LifecycleRegistry(this)
@@ -249,8 +258,32 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         takePhotoExecutor.shutdown()
         recordVideoExecutor.shutdown()
         reactContext.removeLifecycleEventListener(this)
+        orientationListener.disable()
       }
     })
+  }
+
+  private abstract class OrientationListener(context: Context?) : OrientationEventListener(context) {
+    private var rotation = Surface.ROTATION_0
+    override fun onOrientationChanged(orientation: Int) {
+      val currentRotation = rotation
+      if ((orientation < 35 || orientation > 325) && rotation != Surface.ROTATION_0) { // PORTRAIT
+        rotation = Surface.ROTATION_0
+      } else if (orientation in 146..214 && rotation != Surface.ROTATION_180) { // REVERSE PORTRAIT
+        rotation = Surface.ROTATION_180
+      } else if (orientation in 56..124 && rotation != Surface.ROTATION_270) { // REVERSE LANDSCAPE
+        rotation = Surface.ROTATION_270
+      } else if (orientation in 236..304 && rotation != Surface.ROTATION_90) { //LANDSCAPE
+        rotation = Surface.ROTATION_90
+      }
+
+      if (currentRotation != rotation) {
+        Log.d(TAG, "Orientation change: $rotation")
+        onChanged(rotation)
+      }
+    }
+
+    abstract fun onChanged(rotation: Int)
   }
 
   override fun onConfigurationChanged(newConfig: Configuration?) {
@@ -346,7 +379,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   /**
    * Configures the camera capture session. This should only be called when the camera device changes.
    */
-  @SuppressLint("RestrictedApi")
+  @SuppressLint("RestrictedApi", "UnsafeOptInUsageError")
   private suspend fun configureSession() {
     try {
       val startTime = System.currentTimeMillis()
