@@ -14,9 +14,11 @@ private var delegatesReferences: [NSObject] = []
 
 class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
   private let promise: Promise
+  private let userOrientation: NSString
 
-  required init(promise: Promise) {
+  required init(promise: Promise, userOrientation: NSString) {
     self.promise = promise
+    self.userOrientation = userOrientation
     super.init()
     delegatesReferences.append(self)
   }
@@ -46,8 +48,26 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     do {
       try data.write(to: url)
       let exif = photo.metadata["{Exif}"] as? [String: Any]
-      let width = exif?["PixelXDimension"]
-      let height = exif?["PixelYDimension"]
+      var width = exif?["PixelXDimension"] as? Int
+      var height = exif?["PixelYDimension"] as? Int
+
+        
+      if (self.userOrientation == "device") {
+        switch UIDevice.current.orientation {
+        case .portrait, .portraitUpsideDown:
+          let temp = min(width!, height!)
+          height = max(width!, height!)
+          width = temp;
+          break
+        case .landscapeLeft,  .landscapeRight:
+          let temp = max(width!, height!)
+          height = min(width!, height!)
+          width = temp;
+          break
+        default:
+          break
+        }
+      }
 
       promise.resolve([
         "path": tempFilePath,
