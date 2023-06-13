@@ -69,7 +69,7 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
       }
 
       promise.resolve([
-        "path": url.absoluteString,
+        "path": tempFilePath,
         "width": width as Any,
         "height": height as Any,
         "isRawPhoto": photo.isRawPhoto,
