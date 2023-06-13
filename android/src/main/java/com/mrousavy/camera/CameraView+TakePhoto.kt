@@ -72,8 +72,8 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
       Log.d(CameraView.TAG, "Taking picture...")
       val startCapture = System.nanoTime()
       val pic = imageCapture!!.takePicture(takePhotoExecutor)
-      if(!disableShutterSound) {
-        takePhotoSound!!.play(MediaActionSound.SHUTTER_CLICK)
+      if (!disableShutterSound) {
+        takePhotoSound.play(MediaActionSound.SHUTTER_CLICK)
       }
       val endCapture = System.nanoTime()
       Log.i(CameraView.TAG_PERF, "Finished image capture in ${(endCapture - startCapture) / 1_000_000}ms")
