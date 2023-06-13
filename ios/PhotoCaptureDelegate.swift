@@ -51,7 +51,6 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
       var width = exif?["PixelXDimension"] as? Int
       var height = exif?["PixelYDimension"] as? Int
 
-        
       if (self.userOrientation == "device") {
         switch UIDevice.current.orientation {
         case .portrait, .portraitUpsideDown:
@@ -59,7 +58,7 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
           height = max(width!, height!)
           width = temp;
           break
-        case .landscapeLeft,  .landscapeRight:
+        case .landscapeLeft, .landscapeRight:
           let temp = max(width!, height!)
           height = min(width!, height!)
           width = temp;
@@ -70,7 +69,7 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
       }
 
       promise.resolve([
-        "path": tempFilePath,
+        "path": url.absoluteString,
         "width": width as Any,
         "height": height as Any,
         "isRawPhoto": photo.isRawPhoto,
