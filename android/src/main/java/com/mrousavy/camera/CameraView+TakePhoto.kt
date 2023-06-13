@@ -3,6 +3,7 @@ package com.mrousavy.camera
 import android.annotation.SuppressLint
 import android.hardware.camera2.*
 import android.util.Log
+import android.view.Surface
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
@@ -95,10 +96,28 @@ suspend fun CameraView.takePhoto(options: ReadableMap): WritableMap = coroutineS
     exif = if (skipMetadata) null else ExifInterface(file)
   }
 
+  var width = photo.width
+  var height = photo.height
+
+  if (orientation == "device") {
+    when (deviceRotation) {
+      Surface.ROTATION_0, Surface.ROTATION_180 -> {
+        val temp = Math.min(width, height)
+        height = Math.max(width, height)
+        width = temp;
+      }
+      Surface.ROTATION_90, Surface.ROTATION_270 -> {
+        val temp = Math.max(width, height)
+        height = Math.min(width, height)
+        width = temp;
+      }
+    }
+  }
+
   val map = Arguments.createMap()
   map.putString("path", file.absolutePath)
-  map.putInt("width", photo.width)
-  map.putInt("height", photo.height)
+  map.putInt("width", width)
+  map.putInt("height", height)
   map.putBoolean("isRawPhoto", photo.isRaw)
 
   val metadata = exif?.buildMetadataMap()
