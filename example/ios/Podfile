@@ -34,11 +34,6 @@ target 'VisionCameraExample' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  target 'VisionCameraExampleTests' do
-    inherit! :complete
-    # Pods for testing
-  end
-
   post_install do |installer|
     react_native_post_install(
       installer,
