@@ -25,6 +25,7 @@
       #import <RNReanimated/RuntimeManager.h>
       #import <RNReanimated/RuntimeDecorator.h>
       #import <RNReanimated/REAIOSErrorHandler.h>
+      #import <RNReanimated/Shareables.h>
       #import "VisionCameraScheduler.h"
       #define ENABLE_FRAME_PROCESSORS
     #else
@@ -53,6 +54,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 @implementation FrameProcessorRuntimeManager {
 #ifdef ENABLE_FRAME_PROCESSORS
   std::unique_ptr<reanimated::RuntimeManager> runtimeManager;
+  std::shared_ptr<reanimated::JSRuntimeHelper> runtimeHelper;
 #endif
   __weak RCTBridge* weakBridge;
 }
@@ -73,6 +75,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
     runtimeManager = std::make_unique<reanimated::RuntimeManager>(std::move(runtime),
                                                                   std::make_shared<reanimated::REAIOSErrorHandler>(scheduler),
                                                                   scheduler);
+    
     NSLog(@"FrameProcessorBindings: Runtime Manager created!");
 
     NSLog(@"FrameProcessorBindings: Installing Frame Processor plugins...");
@@ -130,6 +133,13 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 
   jsi::Runtime& jsiRuntime = *(jsi::Runtime*)cxxBridge.runtime;
   NSLog(@"FrameProcessorBindings: Installing global functions...");
+  
+  if (!runtimeManager) {
+    throw std::runtime_error("Runtime Manager cannot be null!");
+  }
+  runtimeHelper = std::make_shared<reanimated::JSRuntimeHelper>(&jsiRuntime,
+                                                                runtimeManager->runtime.get(),
+                                                                runtimeManager->scheduler);
 
   // setFrameProcessor(viewTag: number, frameProcessor: (frame: Frame) => void)
   auto setFrameProcessor = [self](jsi::Runtime& runtime,
@@ -143,7 +153,8 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 
     auto viewTag = arguments[0].asNumber();
     NSLog(@"FrameProcessorBindings: Adapting Shareable value from function (conversion to worklet)...");
-    auto worklet = reanimated::ShareableValue::adapt(runtime, arguments[1], runtimeManager.get());
+    
+    auto worklet = std::make_shared<reanimated::ShareableWorklet>(runtimeHelper, runtime, arguments[1].asObject(runtime));
     NSLog(@"FrameProcessorBindings: Successfully created worklet!");
 
     RCTExecuteOnMainQueue([=]() {
@@ -155,9 +166,10 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
         NSLog(@"FrameProcessorBindings: Converting worklet to Objective-C callback...");
 
         auto& rt = *runtimeManager->runtime;
-        auto function = worklet->getValue(rt).asObject(rt).asFunction(rt);
+        auto function = worklet->toJSValue(rt).asObject(rt).asFunction(rt);
 
         view.frameProcessorCallback = convertJSIFunctionToFrameProcessorCallback(rt, function);
+        
         NSLog(@"FrameProcessorBindings: Frame processor set!");
       });
     });
