@@ -2,12 +2,13 @@
 
 buildscript {
     ext {
-        RNNKotlinVersion = "1.3.61"
-        buildToolsVersion = "30.0.2"
+        RNNKotlinVersion = "1.6.20"
+        buildToolsVersion = "33.0.0"
         minSdkVersion = 21
-        compileSdkVersion = 31
-        targetSdkVersion = 31
-        ndkVersion = "21.4.7075529"
+        compileSdkVersion = 32
+        targetSdkVersion = 32
+        ndkVersion = "23.1.7779620"
+        kotlinVersion = "1.6.20"
     }
     repositories {
         google()
@@ -16,28 +17,17 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.21"
-        classpath("com.android.tools.build:gradle:4.2.2")
-
+        classpath('com.android.tools.build:gradle:7.3.1')
+        classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
-}
 
-allprojects {
-    repositories {
-        mavenCentral()
-        jcenter() // <-- TODO: REMOVE jcenter() WHEN BlurView & Video supports it
-        mavenLocal()
-        maven {
-            // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-            url("$rootDir/../node_modules/react-native/android")
+    allprojects {
+        repositories {
+            jcenter()
         }
-        maven {
-            // Android JSC is installed from npm
-            url("$rootDir/../node_modules/jsc-android/dist")
-        }
-
-        google()
-        maven { url 'https://www.jitpack.io' }
     }
+    
 }

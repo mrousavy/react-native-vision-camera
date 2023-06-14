@@ -155,9 +155,6 @@ android {
     }
   }
 
-  dexOptions {
-    javaMaxHeapSize "4g"
-  }
 
   if (ENABLE_FRAME_PROCESSORS) {
     externalNativeBuild {

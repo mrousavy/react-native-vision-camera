@@ -79,8 +79,8 @@
     "eslint": "^7.32.0",
     "pod-install": "^0.1.27",
     "prettier": "^2.4.1",
-    "react": "^17.0.2",
-    "react-native": "^0.66.0",
+    "react": "18.2.0",
+    "react-native": "0.72.0-rc.6",
     "react-native-builder-bob": "^0.18.1",
     "react-native-reanimated": "^3.1.0",
     "release-it": "^14.11.5",
@@ -88,7 +88,7 @@
   },
   "peerDependencies": {
     "react": "*",
-    "react-native": "*"
+    "react-native": "0.72.0-rc.6"
   },
   "prettier": {
     "bracketSpacing": true,
@@ -104,6 +104,11 @@
     "presets": [
       "module:metro-react-native-babel-preset"
     ]
+  },
+  "codegenConfig": {
+    "name": "CameraNativeComponentSpec",
+    "type": "components",
+    "jsSrcsDir": "src"
   },
   "release-it": {
     "git": {
