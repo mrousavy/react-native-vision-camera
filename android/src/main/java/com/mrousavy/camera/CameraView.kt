@@ -138,7 +138,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   private val touchEventListener: OnTouchListener
 
   private val orientationListener: OrientationListener
-  private var deviceRotation: Int = Surface.ROTATION_0
+  var deviceRotation: Int = Surface.ROTATION_0
 
   private val lifecycleRegistry: LifecycleRegistry
   private var hostLifecycleState: Lifecycle.State
