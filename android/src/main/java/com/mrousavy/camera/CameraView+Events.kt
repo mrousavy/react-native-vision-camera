@@ -4,13 +4,16 @@ import android.util.Log
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.WritableMap
-import com.facebook.react.uimanager.events.RCTEventEmitter
+import com.facebook.react.uimanager.UIManagerHelper
+
 
 fun CameraView.invokeOnInitialized() {
   Log.i(CameraView.TAG, "invokeOnInitialized()")
 
-  val reactContext = context as ReactContext
-  reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraInitialized", null)
+  UIManagerHelper.getEventDispatcherForReactTag(
+    context as ReactContext,
+    id
+  )?.dispatchEvent(CameraEvent(id, "cameraInitialized", Arguments.createMap()))
 }
 
 fun CameraView.invokeOnError(error: Throwable) {
@@ -27,8 +30,11 @@ fun CameraView.invokeOnError(error: Throwable) {
   cameraError.cause?.let { cause ->
     event.putMap("cause", errorToMap(cause))
   }
-  val reactContext = context as ReactContext
-  reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraError", event)
+
+  UIManagerHelper.getEventDispatcherForReactTag(
+    context as ReactContext,
+    id
+  )?.dispatchEvent(CameraEvent(id, "cameraError", event))
 }
 
 fun CameraView.invokeOnFrameProcessorPerformanceSuggestionAvailable(currentFps: Double, suggestedFps: Double) {
@@ -38,14 +44,20 @@ fun CameraView.invokeOnFrameProcessorPerformanceSuggestionAvailable(currentFps: 
   val type = if (suggestedFps > currentFps) "can-use-higher-fps" else "should-use-lower-fps"
   event.putString("type", type)
   event.putDouble("suggestedFrameProcessorFps", suggestedFps)
-  val reactContext = context as ReactContext
-  reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraPerformanceSuggestionAvailable", event)
+
+  UIManagerHelper.getEventDispatcherForReactTag(
+    context as ReactContext,
+    id
+  )?.dispatchEvent(CameraEvent(id, "cameraPerformanceSuggestionAvailable", event))
 }
 
 fun CameraView.invokeOnViewReady() {
   val event = Arguments.createMap()
-  val reactContext = context as ReactContext
-  reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraViewReady", event)
+
+  UIManagerHelper.getEventDispatcherForReactTag(
+    context as ReactContext,
+    id
+  )?.dispatchEvent(CameraEvent(id, "cameraViewReady", event))
 }
 
 private fun errorToMap(error: Throwable): WritableMap {

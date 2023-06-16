@@ -1,18 +1,36 @@
-import type { ViewProps } from 'react-native';
+import type { HostComponent, ViewProps } from 'react-native';
 import type { DirectEventHandler, Double, Int32 } from 'react-native/Libraries/Types/CodegenTypes';
 import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
 import type { ErrorWithCause } from '../CameraError';
-import type { FrameProcessorPerformanceSuggestion } from '../CameraProps';
+import type React from 'react';
+import codegenNativeCommands from 'react-native/Libraries/Utilities/codegenNativeCommands';
 
-interface OnErrorEvent {
-  code: string;
-  message: string;
-  cause?: ErrorWithCause;
+type VisionCameraComponentType = HostComponent<NativeProps>;
+
+// Create an interface whith commands that your component accepts
+interface NativeCommands {
+  takePhoto: (
+    viewRef: React.ElementRef<VisionCameraComponentType>,
+    options?: string, // TODO: FOR NOW I PUT THIS AS STRING SINCE I DON'T THINK CODEGEN SUPPORTS MAPS AS ARGUMENTS
+  ) => void;
+  takeSnapshot: (
+    viewRef: React.ElementRef<VisionCameraComponentType>,
+    options?: string, // TODO: FOR NOW I PUT THIS AS STRING SINCE I DON'T THINK CODEGEN SUPPORTS MAPS AS ARGUMENTS
+  ) => void;
+  startRecording: (
+    viewRef: React.ElementRef<VisionCameraComponentType>,
+    options?: string, // TODO: FOR NOW I PUT THIS AS STRING SINCE I DON'T THINK CODEGEN SUPPORTS MAPS AS ARGUMENTS
+  ) => void;
+  pauseRecording: (viewRef: React.ElementRef<VisionCameraComponentType>) => void;
+  resumeRecording: (viewRef: React.ElementRef<VisionCameraComponentType>) => void;
+  stopRecording: (viewRef: React.ElementRef<VisionCameraComponentType>) => void;
+  focus: (viewRef: React.ElementRef<VisionCameraComponentType>, x?: Double, y?: Double) => void;
+  getAvailableVideoCodecs: (viewRef: React.ElementRef<VisionCameraComponentType>, fileType?: string) => string;
 }
 
 export interface NativeProps extends ViewProps {
   cameraId: string;
-  frameProcessorFps?: Int32; // native cannot use number | string, so we use '-1' for 'auto'
+  frameProcessorFps?: Double; // native cannot use number | string, so we use '-1' for 'auto'
   enableFrameProcessor: boolean;
   isActive: boolean;
   photo?: boolean;
@@ -57,4 +75,17 @@ export interface NativeProps extends ViewProps {
   onViewReady: DirectEventHandler<Readonly<{}>>;
 }
 
-export default codegenNativeComponent<NativeProps>('CameraNativeComponent');
+export const Commands: NativeCommands = codegenNativeCommands<NativeCommands>({
+  supportedCommands: [
+    'takePhoto',
+    'focus',
+    'getAvailableVideoCodecs',
+    'pauseRecording',
+    'resumeRecording',
+    'startRecording',
+    'stopRecording',
+    'takeSnapshot',
+  ],
+});
+
+export default codegenNativeComponent<NativeProps>('CameraView');

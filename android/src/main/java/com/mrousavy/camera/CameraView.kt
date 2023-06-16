@@ -24,7 +24,6 @@ import androidx.lifecycle.*
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.*
-import com.facebook.react.uimanager.events.RCTEventEmitter
 import com.mrousavy.camera.frameprocessor.FrameProcessorPerformanceDataCollector
 import com.mrousavy.camera.frameprocessor.FrameProcessorRuntimeManager
 import com.mrousavy.camera.utils.*

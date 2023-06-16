@@ -13,7 +13,7 @@ import java.util.List;
 import com.mrousavy.camera.CameraPackage;
 import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
 import com.facebook.react.bridge.JSIModulePackage;
-//import com.swmansion.reanimated.ReanimatedJSIModulePackage;
+import com.swmansion.reanimated.ReanimatedPackage;
 
 
 public class MainApplication extends Application implements ReactApplication {
@@ -30,7 +30,7 @@ public class MainApplication extends Application implements ReactApplication {
           @SuppressWarnings("UnnecessaryLocalVariable")
           List<ReactPackage> packages = new PackageList(this).getPackages();
           // Packages that cannot be autolinked yet can be added manually here, for VisionCameraExample:
-          packages.add(new CameraPackage());
+//          packages.add(new CameraPackage());
           return packages;
         }
 
@@ -38,11 +38,6 @@ public class MainApplication extends Application implements ReactApplication {
         protected String getJSMainModuleName() {
           return "index";
         }
-
-//        @Override
-//        protected JSIModulePackage getJSIModulePackage() {
-//          return new ReanimatedJSIModulePackage();
-//        }
 
         @Override
         protected boolean isNewArchEnabled() {

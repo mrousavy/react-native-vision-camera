@@ -1,7 +1,12 @@
 import * as React from 'react';
 import { useRef, useState, useMemo, useCallback } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler';
+import {
+  GestureHandlerRootView,
+  PinchGestureHandler,
+  PinchGestureHandlerGestureEvent,
+  TapGestureHandler,
+} from 'react-native-gesture-handler';
 import {
   CameraDeviceFormat,
   CameraRuntimeError,
@@ -21,7 +26,6 @@ import { CaptureButton } from './views/CaptureButton';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { examplePlugin } from './frame-processors/ExamplePlugin';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';

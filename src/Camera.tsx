@@ -4,8 +4,7 @@ import type { FrameProcessorPerformanceSuggestion } from '.';
 import type { CameraDevice } from './CameraDevice';
 import type { ErrorWithCause } from './CameraError';
 import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError';
-import type { CameraNativeComponentProps } from './specs/CameraNativeComponent';
-import CameraNativeComponent from './specs/CameraNativeComponent';
+import CameraNativeComponent, { Commands } from './specs/CameraNativeComponent';
 import type { CameraProps } from './CameraProps';
 import type { Frame } from './Frame';
 import type { PhotoFile, TakePhotoOptions } from './PhotoFile';
@@ -22,7 +21,7 @@ interface OnErrorEvent {
   message: string;
   cause?: ErrorWithCause;
 }
-type RefType = React.Component<CameraNativeComponentProps> & Readonly<NativeMethods>;
+type RefType = React.Component<CameraProps> & Readonly<NativeMethods>;
 //#endregion
 
 // NativeModules automatically resolves 'CameraView' to 'CameraViewModule'
@@ -108,7 +107,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    */
   public async takePhoto(options: TakePhotoOptions = {}): Promise<PhotoFile> {
     try {
-      return await this.handle.takePhoto(options);
+      Commands.takePhoto(this.handle, JSON.stringify(options));
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -135,7 +134,7 @@ export class Camera extends React.PureComponent<CameraProps> {
       throw new CameraCaptureError('capture/capture-type-not-supported', `'takeSnapshot()' is not available on ${Platform.OS}!`);
 
     try {
-      return await this.handle.takeSnapshot(options);
+      Commands.takeSnapshot(this.handle, JSON.stringify(options));
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -174,7 +173,7 @@ export class Camera extends React.PureComponent<CameraProps> {
     };
 
     try {
-      await this.handle.startRecording(passThroughOptions, onRecordCallback);
+      Commands.startRecording(this.handle, JSON.stringify(options));
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -194,7 +193,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    */
   public async stopRecording(): Promise<void> {
     try {
-      return await this.handle.stopRecording();
+      Commands.stopRecording(this.handle);
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -220,7 +219,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    */
   public async focus(point: Point): Promise<void> {
     try {
-      return await this.handle.focusPoint(point);
+      Commands.focus(this.handle, point.x, point.y);
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -404,7 +403,7 @@ export class Camera extends React.PureComponent<CameraProps> {
         ref={this.ref}
         onViewReady={this.onViewReady}
         onInitialized={this.onInitialized}
-        onError={this.onError}
+        // onError={this.onError}
         onFrameProcessorPerformanceSuggestionAvailable={this.onFrameProcessorPerformanceSuggestionAvailable}
         enableFrameProcessor={frameProcessor != null}
       />
