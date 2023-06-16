@@ -44,30 +44,30 @@ export function useCameraDevices(): CameraDevices;
 export function useCameraDevices(deviceType: PhysicalCameraDeviceType | LogicalCameraDeviceType): CameraDevices;
 
 export function useCameraDevices(deviceType?: PhysicalCameraDeviceType | LogicalCameraDeviceType): CameraDevices {
-  // const [cameraDevices, setCameraDevices] = useState<CameraDevices>(DefaultCameraDevices);
-  // useEffect(() => {
-  //   let isMounted = true;
-  //   const loadDevice = async (): Promise<void> => {
-  //     let devices = await Camera.getAvailableCameraDevices();
-  //     if (!isMounted) return;
-  //     devices = devices.sort(sortDevices);
-  //     if (deviceType != null) {
-  //       devices = devices.filter((d) => {
-  //         const parsedType = parsePhysicalDeviceTypes(d.devices);
-  //         return parsedType === deviceType;
-  //       });
-  //     }
-  //     setCameraDevices({
-  //       back: devices.find((d) => d.position === 'back'),
-  //       external: devices.find((d) => d.position === 'external'),
-  //       front: devices.find((d) => d.position === 'front'),
-  //       unspecified: devices.find((d) => d.position === 'unspecified'),
-  //     });
-  //   };
-  //   loadDevice();
-  //   return () => {
-  //     isMounted = false;
-  //   };
-  // }, [deviceType]);
-  return 'front'; // TODO: Fix, because use state throws an error
+  const [cameraDevices, setCameraDevices] = useState<CameraDevices>(DefaultCameraDevices);
+  useEffect(() => {
+    let isMounted = true;
+    const loadDevice = async (): Promise<void> => {
+      let devices = await Camera.getAvailableCameraDevices();
+      if (!isMounted) return;
+      devices = devices.sort(sortDevices);
+      if (deviceType != null) {
+        devices = devices.filter((d) => {
+          const parsedType = parsePhysicalDeviceTypes(d.devices);
+          return parsedType === deviceType;
+        });
+      }
+      setCameraDevices({
+        back: devices.find((d) => d.position === 'back'),
+        external: devices.find((d) => d.position === 'external'),
+        front: devices.find((d) => d.position === 'front'),
+        unspecified: devices.find((d) => d.position === 'unspecified'),
+      });
+    };
+    loadDevice();
+    return () => {
+      isMounted = false;
+    };
+  }, [deviceType]);
+  return cameraDevices;
 }

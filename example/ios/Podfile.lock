@@ -931,12 +931,39 @@ PODS:
   - React-jsinspector (0.72.0-rc.6)
   - React-logger (0.72.0-rc.6):
     - glog
-  - react-native-blur (0.8.0):
-    - React
+  - react-native-blur (4.3.2):
+    - RCT-Folly
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Codegen
+    - React-Core
+    - React-RCTFabric
+    - ReactCommon/turbomodule/core
   - react-native-cameraroll (4.1.2):
     - React-Core
-  - react-native-safe-area-context (3.4.1):
+  - react-native-safe-area-context (4.5.3):
+    - RCT-Folly
+    - RCTRequired
+    - RCTTypeSafety
     - React-Core
+    - react-native-safe-area-context/common (= 4.5.3)
+    - react-native-safe-area-context/fabric (= 4.5.3)
+    - ReactCommon/turbomodule/core
+  - react-native-safe-area-context/common (4.5.3):
+    - RCT-Folly
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - ReactCommon/turbomodule/core
+  - react-native-safe-area-context/fabric (4.5.3):
+    - RCT-Folly
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Codegen
+    - React-Core
+    - react-native-safe-area-context/common
+    - React-RCTFabric
+    - ReactCommon/turbomodule/core
   - react-native-slider (4.2.1):
     - React-Core
   - react-native-video (5.2.1):
@@ -1374,9 +1401,9 @@ SPEC CHECKSUMS:
   React-jsiexecutor: d67920d4867084a5b623b1d5e0626469a649239f
   React-jsinspector: c99ac821c8d3668addbe9806c67b148248e80828
   React-logger: 51643121d274c21ca716923edee5fd5189428487
-  react-native-blur: cad4d93b364f91e7b7931b3fa935455487e5c33c
+  react-native-blur: 6bcfdad1da9b7ef6cdbe637a502c8883e009cc8b
   react-native-cameraroll: 2957f2bce63ae896a848fbe0d5352c1bd4d20866
-  react-native-safe-area-context: 9e40fb181dac02619414ba1294d6c2a807056ab9
+  react-native-safe-area-context: dc3a6849aadda66f7573c0f1fad5bde757b94999
   react-native-slider: 241935e3ea8e47599c317f512f96ee8de607d4cb
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
   React-NativeModulesApple: 8b5255fe93e8a49ebb53c7f3b508f2a4b0ec8cfc

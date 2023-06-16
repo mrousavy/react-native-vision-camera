@@ -11,10 +11,11 @@
     "pods": "cd ios && bundle exec pod install",
     "lint": "eslint .",
     "lint-ci": "yarn lint -f ../node_modules/@firmnav/eslint-github-actions-formatter/dist/formatter.js",
-    "typescript": "tsc --noEmit"
+    "typescript": "tsc --noEmit",
+    "pod": "cd ios && RCT_NEW_ARCH_ENABLED=1 pod install && cd .."
   },
   "dependencies": {
-    "@react-native-community/blur": "^3.6.0",
+    "@react-native-community/blur": "^4.3.2",
     "@react-native-community/cameraroll": "^4.1.2",
     "@react-native-community/slider": "^4.1.8",
     "@react-navigation/native": "^6.1.6",
@@ -24,7 +25,7 @@
     "react-native-gesture-handler": "^1.10.3",
     "react-native-pressable-opacity": "^1.0.4",
     "react-native-reanimated": "^3.1.0",
-    "react-native-safe-area-context": "^3.3.2",
+    "react-native-safe-area-context": "^4.5.3",
     "react-native-screens": "^3.21.0",
     "react-native-static-safe-area-insets": "^2.2.0",
     "react-native-vector-icons": "^9.2.0",

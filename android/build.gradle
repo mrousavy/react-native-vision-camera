@@ -112,8 +112,8 @@ def resolveBuildType() {
 
 // plugin.js file only exists since REA v2.
 def hasReanimated2 = file("${nodeModules}/react-native-reanimated/plugin.js").exists()
-def disableFrameProcessors = rootProject.ext.has("disableFrameProcessors") ? rootProject.ext.get("disableFrameProcessors").asBoolean() : false
-def ENABLE_FRAME_PROCESSORS = hasReanimated2 && !disableFrameProcessors
+def disableFrameProcessors = true
+def ENABLE_FRAME_PROCESSORS = false
 
 if (ENABLE_FRAME_PROCESSORS) {
   logger.warn("VisionCamera: Frame Processors are enabled! Building C++ part...")
@@ -123,6 +123,10 @@ if (ENABLE_FRAME_PROCESSORS) {
   } else if (!hasReanimated2) {
     logger.warn("VisionCamera: Frame Processors are disabled because REA v2 does not exist. C++ part will not be built.")
   }
+}
+
+if (isNewArchitectureEnabled()) {
+    apply plugin: "com.facebook.react"
 }
 
 android {
@@ -632,4 +636,12 @@ if (ENABLE_FRAME_PROCESSORS) {
       }
     }
   }
+}
+
+if (isNewArchitectureEnabled()) {
+    react {
+        jsRootDir = file("../src/")
+        libraryName = "TestView"
+        codegenJavaPackageName = "com.test"
+    }
 }
