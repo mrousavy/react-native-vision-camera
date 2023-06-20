@@ -126,6 +126,7 @@ if (ENABLE_FRAME_PROCESSORS) {
 }
 
 android {
+  namespace = "com.mrousavy.camera"
   compileSdkVersion getExtOrIntegerDefault('compileSdkVersion')
   buildToolsVersion getExtOrDefault('buildToolsVersion')
   ndkVersion getExtOrDefault('ndkVersion')
