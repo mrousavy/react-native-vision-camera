@@ -29,7 +29,7 @@
     "react-native-screens": "^3.21.0",
     "react-native-static-safe-area-insets": "^2.2.0",
     "react-native-vector-icons": "^9.2.0",
-    "react-native-video": "^5.2.1"
+    "react-native-video": "https://github.com/react-native-yeouido/react-native-video.git#feature/new-arch-fabric"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

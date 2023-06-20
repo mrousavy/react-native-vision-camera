@@ -2,7 +2,6 @@ package com.mrousavy.camera
 
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableMap
-import com.facebook.react.bridge.WritableMap
 import com.facebook.react.common.MapBuilder
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
@@ -10,11 +9,13 @@ import com.facebook.react.uimanager.annotations.ReactProp
 @Suppress("unused")
 class CameraViewManager(reactContext: ReactApplicationContext) : VisionCameraManagerSpec<CameraView>() {
 
-  lateinit var cameraViewModule: CameraViewModule;
+  lateinit var cameraViewModule: CameraModule;
 
   public override fun createViewInstance(context: ThemedReactContext): CameraView {
-    cameraViewModule = context.getNativeModule(CameraViewModule::class.java)!!
-    return CameraView(context, cameraViewModule.frameProcessorThread)
+    cameraViewModule = context.getNativeModule(CameraModule::class.java)!!
+    val view = CameraView(context, cameraViewModule.frameProcessorThread)
+    cameraViewModule.viewInstance = view
+    return view
   }
 
   override fun onAfterUpdateTransaction(view: CameraView) {
@@ -31,61 +32,6 @@ class CameraViewManager(reactContext: ReactApplicationContext) : VisionCameraMan
       .put("topCameraError", MapBuilder.of("registrationName", "onError"))
       .put("topCameraPerformanceSuggestionAvailable", MapBuilder.of("registrationName", "onFrameProcessorPerformanceSuggestionAvailable"))
       .build()
-  }
-
-  override fun getAvailableVideoCodecs(view: CameraView?, fileType: String?) {
-    if(cameraViewModule != null){
-//      cameraViewModule.getAvailableCameraDevices();
-    }
-  }
-
-  override fun focus(view: CameraView?, x: Double, y: Double) {
-    if(cameraViewModule != null){
-//      cameraViewModule.focus(view);
-      System.out.println("FOCUS")
-    }
-  }
-
-  override fun stopRecording(view: CameraView?) {
-    if(cameraViewModule != null){
-//      cameraViewModule.focus(view);
-      System.out.println("STOP RECORDING")
-    }
-  }
-
-  override fun resumeRecording(view: CameraView?) {
-    if(cameraViewModule != null){
-//      cameraViewModule.focus(view);
-      System.out.println("RESUME RECORDING")
-    }
-  }
-
-  override fun pauseRecording(view: CameraView?) {
-    if(cameraViewModule != null){
-//      cameraViewModule.focus(view);
-      System.out.println("PAUSE RECORDING")
-    }
-  }
-
-  override fun startRecording(view: CameraView?, options: String?) {
-    if(cameraViewModule != null){
-//      cameraViewModule.focus(view);
-      System.out.println("START RECORDING")
-    }
-  }
-
-  override fun takeSnapshot(view: CameraView?, options: String?) {
-    if(cameraViewModule != null){
-//      cameraViewModule.focus(view);
-      System.out.println("TAKE SNAPSHOT")
-    }
-  }
-
-  override fun takePhoto(view: CameraView?, options: String?) {
-    if(cameraViewModule != null){
-//      cameraViewModule.focus(view);
-      System.out.println("TAKE PHOTO")
-    }
   }
 
   override fun getName(): String {

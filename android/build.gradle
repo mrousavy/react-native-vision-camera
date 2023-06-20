@@ -655,7 +655,7 @@ if (ENABLE_FRAME_PROCESSORS) {
 if (isNewArchitectureEnabled()) {
     react {
         jsRootDir = file("../src/")
-        libraryName = "TestView"
-        codegenJavaPackageName = "com.test"
+        libraryName = "CameraModule"
+        codegenJavaPackageName = "com.mrousavy.camera"
     }
 }
