@@ -268,7 +268,7 @@ PODS:
     - glog
   - react-native-blur (4.3.2):
     - React-Core
-  - react-native-cameraroll (4.1.2):
+  - react-native-cameraroll (5.6.0):
     - React-Core
   - react-native-safe-area-context (4.5.3):
     - RCT-Folly
@@ -435,7 +435,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
-  - "react-native-cameraroll (from `../node_modules/@react-native-community/cameraroll`)"
+  - "react-native-cameraroll (from `../node_modules/@react-native-camera-roll/camera-roll`)"
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-video (from `../node_modules/react-native-video`)
@@ -509,7 +509,7 @@ EXTERNAL SOURCES:
   react-native-blur:
     :path: "../node_modules/@react-native-community/blur"
   react-native-cameraroll:
-    :path: "../node_modules/@react-native-community/cameraroll"
+    :path: "../node_modules/@react-native-camera-roll/camera-roll"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-slider:
@@ -581,7 +581,7 @@ SPEC CHECKSUMS:
   React-jsinspector: cdc854f8b13abd202afa54bc12578e5afb9cfae1
   React-logger: ef2269b3afa6ba868da90496c3e17a4ec4f4cee0
   react-native-blur: cfdad7b3c01d725ab62a8a729f42ea463998afa2
-  react-native-cameraroll: 2957f2bce63ae896a848fbe0d5352c1bd4d20866
+  react-native-cameraroll: 755bcc628148a90a7c9cf3f817a252be3a601bc5
   react-native-safe-area-context: b8979f5eda6ed5903d4dbc885be3846ea3daa753
   react-native-slider: 33b8d190b59d4f67a541061bb91775d53d617d9d
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253

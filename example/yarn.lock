@@ -1854,15 +1854,15 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
+"@react-native-camera-roll/camera-roll@^5.6.0":
+  version "5.6.0"
+  resolved "https://registry.yarnpkg.com/@react-native-camera-roll/camera-roll/-/camera-roll-5.6.0.tgz#385082d57d694f3fd5ae386f8b8ce24b0969c5f9"
+  integrity sha512-a/GYwnBTxj1yKWB9m/qy8GzjowSocML8NbLT81wdMh0JzZYXCLze51BR2cb8JNDgRPzA9xe7KpD3j9qQOSOjag==
+
 "@react-native-community/blur@^4.3.2":
   version "4.3.2"
   resolved "https://registry.yarnpkg.com/@react-native-community/blur/-/blur-4.3.2.tgz#185a2c7dd03ba168cc95069bc4742e9505fd6c6c"
   integrity sha512-0ID+pyZKdC4RdgC7HePxUQ6JmsbNrgz03u+6SgqYpmBoK/rE+7JffqIw7IEsfoKitLEcRNLGekIBsfwCqiEkew==
-
-"@react-native-community/cameraroll@^4.1.1":
-  version "4.1.2"
-  resolved "https://registry.yarnpkg.com/@react-native-community/cameraroll/-/cameraroll-4.1.2.tgz#489c6bb6137571540d93c543d5fcf8c652b548ec"
-  integrity sha512-jkdhMByMKD2CZ/5MPeBieYn8vkCfC4MOTouPpBpps3I8N6HUYJk+1JnDdktVYl2WINnqXpQptDA2YptVyifYAg==
 
 "@react-native-community/cli-clean@^10.1.1":
   version "10.1.1"
