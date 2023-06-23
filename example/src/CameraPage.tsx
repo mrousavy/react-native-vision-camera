@@ -33,6 +33,8 @@ Reanimated.addWhitelistedNativeProps({
   zoom: true,
 });
 
+const MODEL_PATH = '// TODO: actual require'; // require('./assets/model.tflite');
+
 const SCALE_FULL_ZOOM = 3;
 const BUTTON_SIZE = 40;
 
@@ -198,36 +200,16 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const radius = (format?.videoHeight ?? 1080) * 0.1;
-  const width = radius;
-  const height = radius;
-  const x = (format?.videoHeight ?? 1080) / 2 - radius / 2;
-  const y = (format?.videoWidth ?? 1920) / 2 - radius / 2;
-  const centerX = x + width / 2;
-  const centerY = y + height / 2;
+  const model = global.loadTensorflowModel(MODEL_PATH);
 
-  const runtimeEffect = Skia.RuntimeEffect.Make(FACE_SHADER);
-  if (runtimeEffect == null) throw new Error('Shader failed to compile!');
-  const shaderBuilder = Skia.RuntimeShaderBuilder(runtimeEffect);
-  shaderBuilder.setUniform('r', [width]);
-  shaderBuilder.setUniform('x', [centerX]);
-  shaderBuilder.setUniform('y', [centerY]);
-  shaderBuilder.setUniform('resolution', [1920, 1080]);
-  const imageFilter = Skia.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
-
-  const paint = Skia.Paint();
-  paint.setImageFilter(imageFilter);
-
-  const isIOS = Platform.OS === 'ios';
   const frameProcessor = useFrameProcessor(
     (frame) => {
       'worklet';
       console.log(`Width: ${frame.width}`);
 
-      if (isIOS) frame.render(paint);
-      else console.log('Drawing to the Frame is not yet available on Android. WIP PR');
+      model(frame);
     },
-    [isIOS, paint],
+    [model],
   );
 
   return (
