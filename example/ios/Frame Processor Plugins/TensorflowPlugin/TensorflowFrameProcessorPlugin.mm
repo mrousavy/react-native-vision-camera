@@ -8,7 +8,7 @@
 #import <Foundation/Foundation.h>
 #import <VisionCamera/FrameProcessorPlugin.h>
 #import <VisionCamera/Frame.h>
-#import <TensorFlowLite/TensorFlowLite.h>
+#import <TFLTensorFlowLite.h>
 
 @interface TensorflowFrameProcessorPlugin : FrameProcessorPlugin
 @end

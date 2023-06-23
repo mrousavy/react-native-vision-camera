@@ -30,6 +30,8 @@
 #import "../React Utils/JSIUtils.h"
 #import "../../cpp/JSITypedArray.h"
 
+#import <TensorFlowLiteObjC/TFLTensorFlowLite.h>
+
 // Forward declarations for the Swift classes
 __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
 @interface CameraQueues : NSObject
@@ -120,6 +122,84 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 
   // global.FrameProcessorPlugins Proxy
   runtime.global().setProperty(runtime, "FrameProcessorPlugins", frameProcessorPlugins);
+  
+  
+  
+  
+  auto func = jsi::Function::createFromHostFunction(runtime,
+                                                    jsi::PropNameID::forAscii(runtime, "loadTensorflowModel"),
+                                                    1,
+                                                    [](jsi::Runtime& runtime,
+                                                       const jsi::Value& thisValue,
+                                                       const jsi::Value* arguments,
+                                                       size_t count) -> jsi::Value {
+    auto modelPath = arguments[0].asString(runtime);
+    
+    NSString* modelPath2 = [[NSBundle mainBundle] pathForResource:@"model"
+                                                          ofType:@"tflite"];
+    NSError* error;
+    TFLInterpreter* interpreter = [[TFLInterpreter alloc] initWithModelPath:modelPath2
+                                                                      error:&error];
+    if (error != nil) {
+      std::string str = std::string("Failed to load model \"") + modelPath.utf8(runtime) + "\"! Error: " + [error.description UTF8String];
+      throw jsi::JSError(runtime, str);
+    }
+
+    // Allocate memory for the model's input `TFLTensor`s.
+    [interpreter allocateTensorsWithError:&error];
+    if (error != nil) {
+      std::string str = std::string("Failed to allocate memory for the model's input tensors! Error: ") + [error.description UTF8String];
+      throw jsi::JSError(runtime, str);
+    }
+
+    
+    auto runModel = jsi::Function::createFromHostFunction(runtime,
+                                                          jsi::PropNameID::forAscii(runtime, "loadTensorflowModel"),
+                                                          1,
+                                                          [interpreter](jsi::Runtime& runtime,
+                                                                        const jsi::Value& thisValue,
+                                                                        const jsi::Value* arguments,
+                                                                        size_t count) -> jsi::Value {
+      NSError* error;
+      NSMutableData *inputData;  // Should be initialized
+      // input data preparation...
+
+      // Get the input `TFLTensor`
+      TFLTensor *inputTensor = [interpreter inputTensorAtIndex:0 error:&error];
+      if (error != nil) {
+        throw jsi::JSError(runtime, std::string("Failed to find input sensor for model! Error: ") + [error.description UTF8String]);
+      }
+
+      // Copy the input data to the input `TFLTensor`.
+      [inputTensor copyData:inputData error:&error];
+      if (error != nil) {
+        throw jsi::JSError(runtime, std::string("Failed to copy input data to model! Error: ") + [error.description UTF8String]);
+      }
+      
+      // Run inference by invoking the `TFLInterpreter`.
+      [interpreter invokeWithError:&error];
+      if (error != nil) {
+        throw jsi::JSError(runtime, std::string("Failed to run model! Error: ") + [error.description UTF8String]);
+      }
+
+      // Get the output `TFLTensor`
+      TFLTensor *outputTensor = [interpreter outputTensorAtIndex:0 error:&error];
+      if (error != nil) {
+        throw jsi::JSError(runtime, std::string("Failed to get output sensor for model! Error: ") + [error.description UTF8String]);
+      }
+
+      // Copy output to `NSData` to process the inference results.
+      NSData *outputData = [outputTensor dataWithError:&error];
+      if (error != nil) {
+        throw jsi::JSError(runtime, std::string("Failed to copy output data from model! Error: ") + [error.description UTF8String]);
+      }
+      
+      return jsi::Value(1);
+    });
+    return runModel;
+  });
+  
+  runtime.global().setProperty(runtime, "loadTensorflowModel", func);
 
   NSLog(@"FrameProcessorBindings: Frame Processor plugins installed!");
 }
