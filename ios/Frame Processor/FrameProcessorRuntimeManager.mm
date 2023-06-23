@@ -152,33 +152,57 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
       throw jsi::JSError(runtime, str);
     }
 
+    auto context = [CIContext context];
     
     auto runModel = jsi::Function::createFromHostFunction(runtime,
                                                           jsi::PropNameID::forAscii(runtime, "loadTensorflowModel"),
                                                           1,
-                                                          [interpreter](jsi::Runtime& runtime,
-                                                                        const jsi::Value& thisValue,
-                                                                        const jsi::Value* arguments,
-                                                                        size_t count) -> jsi::Value {
+                                                          [=](jsi::Runtime& runtime,
+                                                              const jsi::Value& thisValue,
+                                                              const jsi::Value* arguments,
+                                                              size_t count) -> jsi::Value {
       auto frame = arguments[0].asObject(runtime).asHostObject<FrameHostObject>(runtime);
       
       auto imageBuffer = CMSampleBufferGetImageBuffer(frame->frame.buffer);
       CVPixelBufferLockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly);
       
+      
       try {
-        auto bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
-        auto height = CVPixelBufferGetHeight(imageBuffer);
-        auto sourceBuffer = CVPixelBufferGetBaseAddress(imageBuffer);
-        auto data = [NSData dataWithBytesNoCopy:sourceBuffer length:bytesPerRow * height];
-        
         NSError* error;
-        // input data preparation...
         
         // Get the input `TFLTensor`
-        TFLTensor *inputTensor = [interpreter inputTensorAtIndex:0 error:&error];
+        TFLTensor* inputTensor = [interpreter inputTensorAtIndex:0 error:&error];
         if (error != nil) {
           throw jsi::JSError(runtime, std::string("Failed to find input sensor for model! Error: ") + [error.description UTF8String]);
         }
+        
+        auto shape = [inputTensor shapeWithError:&error];
+        if (error != nil) {
+          throw jsi::JSError(runtime, std::string("Failed to get input sensor shape! Error: ") + [error.description UTF8String]);
+        }
+        
+        NSNumber* tensorStride = shape[0];
+        NSNumber* tensorWidth = shape[1];
+        NSNumber* tensorHeight = shape[2];
+        NSNumber* tensorPixels = shape[3];
+        
+        auto tensorSize = CGRectMake(0, 0, tensorWidth.doubleValue, tensorHeight.doubleValue);
+        
+        auto ciImage = [CIImage imageWithCVPixelBuffer:imageBuffer];
+
+        auto srcWidth = ciImage.extent.size.width;
+        auto srcHeight = ciImage.extent.size.height;
+
+        auto scaleX = tensorSize.size.width / srcWidth;
+        auto scaleY = tensorSize.size.height / srcHeight;
+
+        auto transform = CGAffineTransformMakeScale(scaleX, scaleY);
+        auto output = [[ciImage imageByApplyingTransform:transform] imageByCroppingToRect:tensorSize];
+        
+        auto outputSize = output.extent;
+        
+        auto uiImage = [UIImage imageWithCIImage:output];
+        auto data = UIImageJPEGRepresentation(uiImage, 1.0f);
         
         // Copy the input data to the input `TFLTensor`.
         [inputTensor copyData:data error:&error];
@@ -193,13 +217,13 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
         }
         
         // Get the output `TFLTensor`
-        TFLTensor *outputTensor = [interpreter outputTensorAtIndex:0 error:&error];
+        TFLTensor* outputTensor = [interpreter outputTensorAtIndex:0 error:&error];
         if (error != nil) {
           throw jsi::JSError(runtime, std::string("Failed to get output sensor for model! Error: ") + [error.description UTF8String]);
         }
         
         // Copy output to `NSData` to process the inference results.
-        NSData *outputData = [outputTensor dataWithError:&error];
+        NSData* outputData = [outputTensor dataWithError:&error];
         if (error != nil) {
           throw jsi::JSError(runtime, std::string("Failed to copy output data from model! Error: ") + [error.description UTF8String]);
         }
