@@ -160,41 +160,55 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                                                         const jsi::Value& thisValue,
                                                                         const jsi::Value* arguments,
                                                                         size_t count) -> jsi::Value {
-      NSError* error;
-      NSMutableData *inputData;  // Should be initialized
-      // input data preparation...
-
-      // Get the input `TFLTensor`
-      TFLTensor *inputTensor = [interpreter inputTensorAtIndex:0 error:&error];
-      if (error != nil) {
-        throw jsi::JSError(runtime, std::string("Failed to find input sensor for model! Error: ") + [error.description UTF8String]);
-      }
-
-      // Copy the input data to the input `TFLTensor`.
-      [inputTensor copyData:inputData error:&error];
-      if (error != nil) {
-        throw jsi::JSError(runtime, std::string("Failed to copy input data to model! Error: ") + [error.description UTF8String]);
-      }
+      auto frame = arguments[0].asObject(runtime).asHostObject<FrameHostObject>(runtime);
       
-      // Run inference by invoking the `TFLInterpreter`.
-      [interpreter invokeWithError:&error];
-      if (error != nil) {
-        throw jsi::JSError(runtime, std::string("Failed to run model! Error: ") + [error.description UTF8String]);
-      }
-
-      // Get the output `TFLTensor`
-      TFLTensor *outputTensor = [interpreter outputTensorAtIndex:0 error:&error];
-      if (error != nil) {
-        throw jsi::JSError(runtime, std::string("Failed to get output sensor for model! Error: ") + [error.description UTF8String]);
-      }
-
-      // Copy output to `NSData` to process the inference results.
-      NSData *outputData = [outputTensor dataWithError:&error];
-      if (error != nil) {
-        throw jsi::JSError(runtime, std::string("Failed to copy output data from model! Error: ") + [error.description UTF8String]);
-      }
+      auto imageBuffer = CMSampleBufferGetImageBuffer(frame->frame.buffer);
+      CVPixelBufferLockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly);
       
-      return jsi::Value(1);
+      try {
+        auto bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
+        auto height = CVPixelBufferGetHeight(imageBuffer);
+        auto sourceBuffer = CVPixelBufferGetBaseAddress(imageBuffer);
+        auto data = [NSData dataWithBytesNoCopy:sourceBuffer length:bytesPerRow * height];
+        
+        NSError* error;
+        // input data preparation...
+        
+        // Get the input `TFLTensor`
+        TFLTensor *inputTensor = [interpreter inputTensorAtIndex:0 error:&error];
+        if (error != nil) {
+          throw jsi::JSError(runtime, std::string("Failed to find input sensor for model! Error: ") + [error.description UTF8String]);
+        }
+        
+        // Copy the input data to the input `TFLTensor`.
+        [inputTensor copyData:data error:&error];
+        if (error != nil) {
+          throw jsi::JSError(runtime, std::string("Failed to copy input data to model! Error: ") + [error.description UTF8String]);
+        }
+        
+        // Run inference by invoking the `TFLInterpreter`.
+        [interpreter invokeWithError:&error];
+        if (error != nil) {
+          throw jsi::JSError(runtime, std::string("Failed to run model! Error: ") + [error.description UTF8String]);
+        }
+        
+        // Get the output `TFLTensor`
+        TFLTensor *outputTensor = [interpreter outputTensorAtIndex:0 error:&error];
+        if (error != nil) {
+          throw jsi::JSError(runtime, std::string("Failed to get output sensor for model! Error: ") + [error.description UTF8String]);
+        }
+        
+        // Copy output to `NSData` to process the inference results.
+        NSData *outputData = [outputTensor dataWithError:&error];
+        if (error != nil) {
+          throw jsi::JSError(runtime, std::string("Failed to copy output data from model! Error: ") + [error.description UTF8String]);
+        }
+        
+        return jsi::Value(1);
+      } catch (...) {
+        CVPixelBufferUnlockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly);
+        throw;
+      }
     });
     return runModel;
   });
