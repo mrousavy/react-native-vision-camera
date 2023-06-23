@@ -49,7 +49,6 @@ using namespace vision;
 @implementation FrameProcessorRuntimeManager {
   // Running Frame Processors on camera's video thread (synchronously)
   std::shared_ptr<RNWorklet::JsiWorkletContext> workletContext;
-  std::shared_ptr<TypedArray<TypedArrayKind::Uint8ClampedArray>> outputBuffer;
 }
 
 - (instancetype)init {
@@ -130,12 +129,10 @@ using namespace vision;
   
   
   
-  __weak FrameProcessorRuntimeManager* weakSelf = self;
-  
   auto func = jsi::Function::createFromHostFunction(runtime,
                                                     jsi::PropNameID::forAscii(runtime, "loadTensorflowModel"),
                                                     1,
-                                                    [=](jsi::Runtime& runtime,
+                                                    [](jsi::Runtime& runtime,
                                                        const jsi::Value& thisValue,
                                                        const jsi::Value* arguments,
                                                        size_t count) -> jsi::Value {
@@ -251,6 +248,11 @@ using namespace vision;
         throw jsi::JSError(runtime, std::string("Failed to get output sensor for model! Error: ") + [error.description UTF8String]);
       }
       
+      auto outputShape = [outputTensor shapeWithError:&error];
+      if (error != nil) {
+        throw jsi::JSError(runtime, std::string("Failed to get output tensor shape! Error: ") + [error.description UTF8String]);
+      }
+      
       // Copy output to `NSData` to process the inference results.
       NSData* outputData = [outputTensor dataWithError:&error];
       if (error != nil) {
@@ -259,13 +261,19 @@ using namespace vision;
       
       CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
       
-      FrameProcessorRuntimeManager* strongSelf = weakSelf;
-      if (strongSelf->outputBuffer == nullptr || strongSelf->outputBuffer->size(runtime) != outputData.length) {
-        strongSelf->outputBuffer = std::make_shared<TypedArray<TypedArrayKind::Uint8ClampedArray>>(runtime, outputData.length);
+      jsi::Array result(runtime, outputShape.count);
+      size_t offset = 0;
+      for (size_t i = 0; i < outputShape.count; i++) {
+        size_t size = outputShape[i].intValue;
+        auto data = TypedArray<TypedArrayKind::Int32Array>(runtime, size);
+        NSData* slice = [outputData subdataWithRange:NSMakeRange(offset, size)];
+        data.updateUnsafe(runtime, (int*)slice.bytes, slice.length);
+        result.setValueAtIndex(runtime, i, data);
+        
+        offset += size;
       }
-      strongSelf->outputBuffer->updateUnsafe(runtime, (uint8_t*)outputData.bytes, outputData.length);
       
-      return strongSelf->outputBuffer->getBuffer(runtime);
+      return result;
     });
     return runModel;
   });
