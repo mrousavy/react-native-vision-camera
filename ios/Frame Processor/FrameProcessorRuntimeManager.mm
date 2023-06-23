@@ -32,6 +32,7 @@
 
 #import <TensorFlowLiteObjC/TFLTensorFlowLite.h>
 #import <Accelerate/Accelerate.h>
+#import "../../cpp/JSITypedArray.h"
 
 // Forward declarations for the Swift classes
 __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
@@ -43,9 +44,12 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 @property (nonatomic, copy) FrameProcessorCallback _Nullable frameProcessorCallback;
 @end
 
+using namespace vision;
+
 @implementation FrameProcessorRuntimeManager {
   // Running Frame Processors on camera's video thread (synchronously)
   std::shared_ptr<RNWorklet::JsiWorkletContext> workletContext;
+  std::shared_ptr<TypedArray<TypedArrayKind::Uint8ClampedArray>> outputBuffer;
 }
 
 - (instancetype)init {
@@ -126,11 +130,12 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
   
   
   
+  __weak FrameProcessorRuntimeManager* weakSelf = self;
   
   auto func = jsi::Function::createFromHostFunction(runtime,
                                                     jsi::PropNameID::forAscii(runtime, "loadTensorflowModel"),
                                                     1,
-                                                    [](jsi::Runtime& runtime,
+                                                    [=](jsi::Runtime& runtime,
                                                        const jsi::Value& thisValue,
                                                        const jsi::Value* arguments,
                                                        size_t count) -> jsi::Value {
@@ -152,18 +157,16 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
       std::string str = std::string("Failed to allocate memory for the model's input tensors! Error: ") + [error.description UTF8String];
       throw jsi::JSError(runtime, str);
     }
-
-    auto context = [CIContext context];
+    
     
     auto runModel = jsi::Function::createFromHostFunction(runtime,
                                                           jsi::PropNameID::forAscii(runtime, "loadTensorflowModel"),
                                                           1,
                                                           [=](jsi::Runtime& runtime,
-                                                              const jsi::Value& thisValue,
-                                                              const jsi::Value* arguments,
-                                                              size_t count) -> jsi::Value {
+                                                                             const jsi::Value& thisValue,
+                                                                             const jsi::Value* arguments,
+                                                                             size_t count) -> jsi::Value {
       auto frame = arguments[0].asObject(runtime).asHostObject<FrameHostObject>(runtime);
-      
       
       NSError* error;
       
@@ -183,32 +186,42 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
       unsigned long tensorHeight = shape[2].unsignedLongValue;
       unsigned long tensorChannels = shape[3].unsignedLongValue;
       
-      auto imageBuffer = CMSampleBufferGetImageBuffer(frame->frame.buffer);
-      CVPixelBufferLockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly);
-      size_t width = CVPixelBufferGetWidth(imageBuffer);
-      size_t height = CVPixelBufferGetHeight(imageBuffer);
-      size_t bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
-      OSType pixelFormatType = CVPixelBufferGetPixelFormatType(imageBuffer);
+      CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(frame->frame.buffer);
+      CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
 
-      size_t tensorBytesPerRow = tensorWidth * tensorChannels * sizeof(float);
-      
-      void* data = malloc(tensorBytesPerRow * height);
+      size_t width = CVPixelBufferGetWidth(pixelBuffer);
+      size_t height = CVPixelBufferGetHeight(pixelBuffer);
+      size_t bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer);
+      OSType pixelFormatType = CVPixelBufferGetPixelFormatType(pixelBuffer);
 
-      void* baseAddress = CVPixelBufferGetBaseAddress(imageBuffer);
-      if (pixelFormatType == kCVPixelFormatType_32BGRA) {
-          vImage_Buffer srcBuffer = { baseAddress, height, width * 4, bytesPerRow };
-          vImage_Buffer destBuffer = { data, tensorHeight, tensorWidth * tensorChannels * sizeof(float), tensorBytesPerRow };
-        vImage_CGImageFormat format =  {
-          .bitsPerComponent = 8,
-          .bitsPerPixel = 32,
-          .colorSpace = CGColorSpaceCreateDeviceRGB(),
-          .bitmapInfo = kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Little,
-          .version = 0,
-          .decode = NULL,
-          .renderingIntent = kCGRenderingIntentDefault
+      size_t tensorBytesPerRow = tensorWidth * tensorChannels;
+
+      // Get a pointer to the pixel buffer data
+      CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
+      void* baseAddress = CVPixelBufferGetBaseAddress(pixelBuffer);
+
+      // Create a vImage buffer referencing the pixel buffer data
+      vImage_Buffer srcBuffer = {
+          .data = baseAddress,
+          .width = width,
+          .height = height,
+          .rowBytes = bytesPerRow
       };
-          vImage_Error error = vImageBuffer_InitWithCVPixelBuffer(&destBuffer, &srcBuffer, NULL, pixelFormatType, NULL, kvImageNoFlags);
-        vImageBuffer_InitWithCVPixelBuffer(&destBuffer, &format, imageBuffer, <#vImageCVImageFormatRef cvImageFormat#>, NULL, kvImageNoFlags);
+      
+      void* data = malloc(tensorBytesPerRow * tensorHeight);
+
+      // Create a vImage buffer for the destination (input tensor) data
+      vImage_Buffer destBuffer = {
+          .data = data,
+          .width = tensorWidth,
+          .height = tensorHeight,
+          .rowBytes = tensorBytesPerRow
+      };
+
+      // Perform the color conversion (if needed) and copy the pixel data to the input tensor buffer
+      if (pixelFormatType == kCVPixelFormatType_32BGRA) {
+          // Convert 32BGRA to RGB
+          vImage_Error error = vImageConvert_BGRA8888toRGB888(&srcBuffer, &destBuffer, kvImageNoFlags);
           
           if (error == kvImageNoError) {
               // Data conversion successful
@@ -220,7 +233,8 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
       }
       
       // Copy the input data to the input `TFLTensor`.
-      [inputTensor copyData:data error:&error];
+      auto nsData = [NSData dataWithBytes:data length:tensorBytesPerRow * tensorHeight];
+      [inputTensor copyData:nsData error:&error];
       if (error != nil) {
         throw jsi::JSError(runtime, std::string("Failed to copy input data to model! Error: ") + [error.description UTF8String]);
       }
@@ -243,9 +257,15 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
         throw jsi::JSError(runtime, std::string("Failed to copy output data from model! Error: ") + [error.description UTF8String]);
       }
       
-      CVPixelBufferUnlockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly);
+      CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
       
-      return jsi::Value(1);
+      FrameProcessorRuntimeManager* strongSelf = weakSelf;
+      if (strongSelf->outputBuffer == nullptr || strongSelf->outputBuffer->size(runtime) != outputData.length) {
+        strongSelf->outputBuffer = std::make_shared<TypedArray<TypedArrayKind::Uint8ClampedArray>>(runtime, outputData.length);
+      }
+      strongSelf->outputBuffer->updateUnsafe(runtime, (uint8_t*)outputData.bytes, outputData.length);
+      
+      return strongSelf->outputBuffer->getBuffer(runtime);
     });
     return runModel;
   });

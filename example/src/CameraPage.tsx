@@ -207,7 +207,9 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
       'worklet';
       console.log(`Width: ${frame.width}`);
 
-      model(frame);
+      const results = model(frame) as ArrayBuffer;
+      const arr = new Uint8ClampedArray(results);
+      console.log(arr.length, arr[0], arr[1]);
     },
     [model],
   );
