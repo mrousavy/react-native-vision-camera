@@ -31,6 +31,7 @@
 #import "../../cpp/JSITypedArray.h"
 
 #import <TensorFlowLiteObjC/TFLTensorFlowLite.h>
+#import <Accelerate/Accelerate.h>
 
 // Forward declarations for the Swift classes
 __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
@@ -163,76 +164,88 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                                               size_t count) -> jsi::Value {
       auto frame = arguments[0].asObject(runtime).asHostObject<FrameHostObject>(runtime);
       
+      
+      NSError* error;
+      
+      // Get the input `TFLTensor`
+      TFLTensor* inputTensor = [interpreter inputTensorAtIndex:0 error:&error];
+      if (error != nil) {
+        throw jsi::JSError(runtime, std::string("Failed to find input sensor for model! Error: ") + [error.description UTF8String]);
+      }
+      
+      auto shape = [inputTensor shapeWithError:&error];
+      if (error != nil) {
+        throw jsi::JSError(runtime, std::string("Failed to get input sensor shape! Error: ") + [error.description UTF8String]);
+      }
+      
+      unsigned long tensorStride_IDK = shape[0].unsignedLongValue;
+      unsigned long tensorWidth = shape[1].unsignedLongValue;
+      unsigned long tensorHeight = shape[2].unsignedLongValue;
+      unsigned long tensorChannels = shape[3].unsignedLongValue;
+      
       auto imageBuffer = CMSampleBufferGetImageBuffer(frame->frame.buffer);
       CVPixelBufferLockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly);
+      size_t width = CVPixelBufferGetWidth(imageBuffer);
+      size_t height = CVPixelBufferGetHeight(imageBuffer);
+      size_t bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
+      OSType pixelFormatType = CVPixelBufferGetPixelFormatType(imageBuffer);
+
+      size_t tensorBytesPerRow = tensorWidth * tensorChannels * sizeof(float);
       
-      
-      try {
-        NSError* error;
-        
-        // Get the input `TFLTensor`
-        TFLTensor* inputTensor = [interpreter inputTensorAtIndex:0 error:&error];
-        if (error != nil) {
-          throw jsi::JSError(runtime, std::string("Failed to find input sensor for model! Error: ") + [error.description UTF8String]);
-        }
-        
-        auto shape = [inputTensor shapeWithError:&error];
-        if (error != nil) {
-          throw jsi::JSError(runtime, std::string("Failed to get input sensor shape! Error: ") + [error.description UTF8String]);
-        }
-        
-        NSNumber* tensorStride = shape[0];
-        NSNumber* tensorWidth = shape[1];
-        NSNumber* tensorHeight = shape[2];
-        NSNumber* tensorPixels = shape[3];
-        
-        auto tensorSize = CGRectMake(0, 0, tensorWidth.doubleValue, tensorHeight.doubleValue);
-        
-        auto ciImage = [CIImage imageWithCVPixelBuffer:imageBuffer];
+      void* data = malloc(tensorBytesPerRow * height);
 
-        auto srcWidth = ciImage.extent.size.width;
-        auto srcHeight = ciImage.extent.size.height;
-
-        auto scaleX = tensorSize.size.width / srcWidth;
-        auto scaleY = tensorSize.size.height / srcHeight;
-
-        auto transform = CGAffineTransformMakeScale(scaleX, scaleY);
-        auto output = [[ciImage imageByApplyingTransform:transform] imageByCroppingToRect:tensorSize];
-        
-        auto outputSize = output.extent;
-        
-        auto uiImage = [UIImage imageWithCIImage:output];
-        auto data = UIImageJPEGRepresentation(uiImage, 1.0f);
-        
-        // Copy the input data to the input `TFLTensor`.
-        [inputTensor copyData:data error:&error];
-        if (error != nil) {
-          throw jsi::JSError(runtime, std::string("Failed to copy input data to model! Error: ") + [error.description UTF8String]);
-        }
-        
-        // Run inference by invoking the `TFLInterpreter`.
-        [interpreter invokeWithError:&error];
-        if (error != nil) {
-          throw jsi::JSError(runtime, std::string("Failed to run model! Error: ") + [error.description UTF8String]);
-        }
-        
-        // Get the output `TFLTensor`
-        TFLTensor* outputTensor = [interpreter outputTensorAtIndex:0 error:&error];
-        if (error != nil) {
-          throw jsi::JSError(runtime, std::string("Failed to get output sensor for model! Error: ") + [error.description UTF8String]);
-        }
-        
-        // Copy output to `NSData` to process the inference results.
-        NSData* outputData = [outputTensor dataWithError:&error];
-        if (error != nil) {
-          throw jsi::JSError(runtime, std::string("Failed to copy output data from model! Error: ") + [error.description UTF8String]);
-        }
-        
-        return jsi::Value(1);
-      } catch (...) {
-        CVPixelBufferUnlockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly);
-        throw;
+      void* baseAddress = CVPixelBufferGetBaseAddress(imageBuffer);
+      if (pixelFormatType == kCVPixelFormatType_32BGRA) {
+          vImage_Buffer srcBuffer = { baseAddress, height, width * 4, bytesPerRow };
+          vImage_Buffer destBuffer = { data, tensorHeight, tensorWidth * tensorChannels * sizeof(float), tensorBytesPerRow };
+        vImage_CGImageFormat format =  {
+          .bitsPerComponent = 8,
+          .bitsPerPixel = 32,
+          .colorSpace = CGColorSpaceCreateDeviceRGB(),
+          .bitmapInfo = kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Little,
+          .version = 0,
+          .decode = NULL,
+          .renderingIntent = kCGRenderingIntentDefault
+      };
+          vImage_Error error = vImageBuffer_InitWithCVPixelBuffer(&destBuffer, &srcBuffer, NULL, pixelFormatType, NULL, kvImageNoFlags);
+        vImageBuffer_InitWithCVPixelBuffer(&destBuffer, &format, imageBuffer, <#vImageCVImageFormatRef cvImageFormat#>, NULL, kvImageNoFlags);
+          
+          if (error == kvImageNoError) {
+              // Data conversion successful
+          } else {
+            throw jsi::JSError(runtime, std::string("Failed to convert Frame to Data! Error: ") + std::to_string(error));
+          }
+      } else {
+        throw jsi::JSError(runtime, std::string("Frame has invalid Pixel Format! Expected: kCVPixelFormatType_32BGRA, received: ") + std::to_string(pixelFormatType));
       }
+      
+      // Copy the input data to the input `TFLTensor`.
+      [inputTensor copyData:data error:&error];
+      if (error != nil) {
+        throw jsi::JSError(runtime, std::string("Failed to copy input data to model! Error: ") + [error.description UTF8String]);
+      }
+      
+      // Run inference by invoking the `TFLInterpreter`.
+      [interpreter invokeWithError:&error];
+      if (error != nil) {
+        throw jsi::JSError(runtime, std::string("Failed to run model! Error: ") + [error.description UTF8String]);
+      }
+      
+      // Get the output `TFLTensor`
+      TFLTensor* outputTensor = [interpreter outputTensorAtIndex:0 error:&error];
+      if (error != nil) {
+        throw jsi::JSError(runtime, std::string("Failed to get output sensor for model! Error: ") + [error.description UTF8String]);
+      }
+      
+      // Copy output to `NSData` to process the inference results.
+      NSData* outputData = [outputTensor dataWithError:&error];
+      if (error != nil) {
+        throw jsi::JSError(runtime, std::string("Failed to copy output data from model! Error: ") + [error.description UTF8String]);
+      }
+      
+      CVPixelBufferUnlockBaseAddress(imageBuffer, kCVPixelBufferLock_ReadOnly);
+      
+      return jsi::Value(1);
     });
     return runModel;
   });
