@@ -43,6 +43,8 @@ using namespace vision;
       }
     }
     
+    // TODO: Make this async / return a Promise
+    
     // Write model to a local temp file
     NSURL* modelUrl = [[NSURL alloc] initWithString:[[NSString alloc] initWithUTF8String:modelPath.c_str()]];
     NSData* modelData = [NSData dataWithContentsOfURL:modelUrl];
