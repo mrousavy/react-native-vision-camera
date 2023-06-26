@@ -17,4 +17,6 @@ export * from './hooks/useCameraDevices';
 export * from './hooks/useCameraFormat';
 export * from './hooks/useFrameProcessor';
 
+export * from './tensorflow/TensorFlowLite';
+
 export * from './utils/FormatFilter';

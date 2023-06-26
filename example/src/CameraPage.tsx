@@ -5,11 +5,11 @@ import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler
 import {
   CameraDeviceFormat,
   CameraRuntimeError,
-  Frame,
   PhotoFile,
   sortFormats,
   useCameraDevices,
   useFrameProcessor,
+  useTensorflowModel,
   VideoFile,
 } from 'react-native-vision-camera';
 import { Camera, frameRateIncluded } from 'react-native-vision-camera';
@@ -30,13 +30,6 @@ const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
   zoom: true,
 });
-
-declare global {
-  type TensorflowPlugin = (frame: Frame) => Float32Array[];
-  const loadTensorflowModel: (path: string, delegate?: 'metal' | 'core-ml') => TensorflowPlugin;
-}
-
-const MODEL_PATH = '// TODO: actual require'; // require('./assets/model.tflite');
 
 const SCALE_FULL_ZOOM = 3;
 const BUTTON_SIZE = 40;
@@ -203,15 +196,18 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const model = loadTensorflowModel(MODEL_PATH);
+  const model = useTensorflowModel(require('../assets/model.tflite'));
 
   const frameProcessor = useFrameProcessor(
     (frame) => {
       'worklet';
-      console.log(`Width: ${frame.width}`);
 
-      const results = model(frame);
-      console.log(results[0]);
+      if (model.status === 'loaded') {
+        const results = model.run(frame);
+        console.log(results[0]);
+      } else {
+        console.log(`Model status ${model.status}`);
+      }
     },
     [model],
   );
