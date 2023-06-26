@@ -11,8 +11,30 @@
 #import <React/RCTViewManager.h>
 #import <React/RCTUtils.h>
 
-@interface RCT_EXTERN_REMAP_MODULE(CameraView, CameraViewManager, RCTViewManager)
+#ifdef RCT_NEW_ARCH_ENABLED
 
+#import "RNCameraView.h"
+
+@interface RNCameraViewViewManager : RCTViewManager
+@end
+
+@implementation RNCameraViewViewManager
+
+RCT_EXPORT_MODULE(RNCameraView)
+
+
+- (UIView *)view {
+  return [[RNCameraView alloc] init];
+}
+
+RCT_EXTERN_METHOD(getCameraPermissionStatus:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject);
+
+@end
+
+
+#else
+
+@interface RCT_EXTERN_REMAP_MODULE(CameraView, CameraViewManager, RCTViewManager)
 // Module Functions
 RCT_EXTERN_METHOD(getCameraPermissionStatus:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject);
 RCT_EXTERN_METHOD(getMicrophonePermissionStatus:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject);
@@ -63,3 +85,9 @@ RCT_EXTERN_METHOD(focus:(nonnull NSNumber *)node point:(NSDictionary *)point res
 RCT_EXTERN_METHOD(getAvailableVideoCodecs:(nonnull NSNumber *)node fileType:(NSString *)fileType resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject);
 
 @end
+
+
+#endif
+
+
+

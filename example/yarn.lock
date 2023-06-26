@@ -1813,10 +1813,10 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@react-native-camera-roll/camera-roll@^5.6.0":
-  version "5.6.0"
-  resolved "https://registry.yarnpkg.com/@react-native-camera-roll/camera-roll/-/camera-roll-5.6.0.tgz#385082d57d694f3fd5ae386f8b8ce24b0969c5f9"
-  integrity sha512-a/GYwnBTxj1yKWB9m/qy8GzjowSocML8NbLT81wdMh0JzZYXCLze51BR2cb8JNDgRPzA9xe7KpD3j9qQOSOjag==
+"@react-native-camera-roll/camera-roll@^5.3.0":
+  version "5.6.1"
+  resolved "https://registry.yarnpkg.com/@react-native-camera-roll/camera-roll/-/camera-roll-5.6.1.tgz#0812b39bf27fcc44863f490b6e7af7a1ba55f464"
+  integrity sha512-wr7E90Xoew4pwfS5tGYkx3d7e+pBubPPYMI2uHQIq9/6bNIItXADmgDf3ghbId/G/gdX4qH/tyjlyF1kAci/Rw==
 
 "@react-native-community/blur@^4.3.2":
   version "4.3.2"

@@ -10,18 +10,18 @@ import AVFoundation
 import Foundation
 
 @objc(CameraViewManager)
-final class CameraViewManager: RCTViewManager {
+final public class CameraViewManager: RCTViewManager {
   // pragma MARK: Properties
 
-  override var methodQueue: DispatchQueue! {
+  override public var methodQueue: DispatchQueue! {
     return DispatchQueue.main
   }
 
-  override static func requiresMainQueueSetup() -> Bool {
+  override public static func requiresMainQueueSetup() -> Bool {
     return true
   }
 
-  override final func view() -> UIView! {
+  override public final func view() -> UIView! {
     return CameraView()
   }
 
@@ -69,7 +69,7 @@ final class CameraViewManager: RCTViewManager {
   }
 
   @objc
-  final func getAvailableVideoCodecs(_ node: NSNumber, fileType: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+  final public func getAvailableVideoCodecs(_ node: NSNumber, fileType: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     withPromise(resolve: resolve, reject: reject) {
       let component = getCameraView(withTag: node)
       guard let videoOutput = component.videoOutput else {
@@ -89,7 +89,7 @@ final class CameraViewManager: RCTViewManager {
   }
 
   @objc
-  final func getAvailableCameraDevices(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+  final public func getAvailableCameraDevices(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     withPromise(resolve: resolve, reject: reject) {
       let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: getAllDeviceTypes(), mediaType: .video, position: .unspecified)
       let devices = discoverySession.devices.filter {

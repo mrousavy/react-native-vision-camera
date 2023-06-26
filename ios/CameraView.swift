@@ -39,36 +39,39 @@ public final class CameraView: UIView {
 
   // pragma MARK: Exported Properties
   // props that require reconfiguring
-  @objc var cameraId: NSString?
-  @objc var enableDepthData = false
-  @objc var enableHighQualityPhotos: NSNumber? // nullable bool
-  @objc var enablePortraitEffectsMatteDelivery = false
-  @objc var preset: String?
+  @objc public var cameraId: NSString?
+  @objc public var enableDepthData = false
+  @objc public var enableHighQualityPhotos: NSNumber? // nullable bool
+  @objc public var enablePortraitEffectsMatteDelivery = false
+  @objc public var preset: String?
   // use cases
-  @objc var photo: NSNumber? // nullable bool
-  @objc var video: NSNumber? // nullable bool
-  @objc var audio: NSNumber? // nullable bool
-  @objc var enableFrameProcessor = false
+  @objc public var photo: NSNumber? // nullable bool
+  @objc public var video: NSNumber? // nullable bool
+  @objc public var audio: NSNumber? // nullable bool
+  @objc public var enableFrameProcessor = false
   // props that require format reconfiguring
-  @objc var format: NSDictionary?
-  @objc var fps: NSNumber?
-  @objc var frameProcessorFps: NSNumber = -1.0 // "auto"
-  @objc var hdr: NSNumber? // nullable bool
-  @objc var lowLightBoost: NSNumber? // nullable bool
-  @objc var colorSpace: NSString?
-  @objc var orientation: NSString?
+  @objc public var format: NSDictionary?
+  @objc public var fps: NSNumber?
+  @objc public var frameProcessorFps: NSNumber = -1.0 // "auto"
+  @objc public var hdr: NSNumber? // nullable bool
+  @objc public var lowLightBoost: NSNumber? // nullable bool
+  @objc public var colorSpace: NSString?
+  @objc public var orientation: NSString?
   // other props
-  @objc var isActive = false
-  @objc var torch = "off"
-  @objc var zoom: NSNumber = 1.0 // in "factor"
-  @objc var videoStabilizationMode: NSString?
+  @objc public var isActive = false
+  @objc public var torch = "off"
+  @objc public var zoom: NSNumber = 1.0 // in "factor"
+  @objc public var videoStabilizationMode: NSString?
+#if !RCT_NEW_ARCH_ENABLED
   // events
   @objc var onInitialized: RCTDirectEventBlock?
   @objc var onError: RCTDirectEventBlock?
   @objc var onFrameProcessorPerformanceSuggestionAvailable: RCTDirectEventBlock?
   @objc var onViewReady: RCTDirectEventBlock?
+#endif
+    
   // zoom
-  @objc var enableZoomGesture = false {
+  @objc public var enableZoomGesture = false {
     didSet {
       if enableZoomGesture {
         addPinchGestureRecognizer()

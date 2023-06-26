@@ -162,7 +162,7 @@
   },
   "codegenConfig": {
     "name": "CameraNativeComponentSpec",
-    "type": "components",
+    "type": "all",
     "jsSrcsDir": "./src/specs"
   }
 }
