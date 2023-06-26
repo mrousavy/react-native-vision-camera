@@ -283,9 +283,11 @@ using namespace vision;
       size_t offset = 0;
       for (size_t i = 0; i < outputShape.count; i++) {
         size_t size = outputShape[i].intValue;
-        auto data = TypedArray<TypedArrayKind::Int32Array>(runtime, size);
+        auto data = TypedArray<TypedArrayKind::Float32Array>(runtime, size);
         NSData* slice = [outputData subdataWithRange:NSMakeRange(offset, size)];
-        data.updateUnsafe(runtime, (int*)slice.bytes, slice.length);
+        
+        float* floatData = const_cast<float*>(static_cast<const float*>(slice.bytes));
+        data.updateUnsafe(runtime, floatData, slice.length);
         result.setValueAtIndex(runtime, i, data);
         
         offset += size;

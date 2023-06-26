@@ -32,7 +32,7 @@ Reanimated.addWhitelistedNativeProps({
 });
 
 declare global {
-  type TensorflowPlugin = (frame: Frame) => ArrayBuffer[];
+  type TensorflowPlugin = (frame: Frame) => Float32Array[];
   const loadTensorflowModel: (path: string, delegate?: 'metal' | 'core-ml') => TensorflowPlugin;
 }
 
