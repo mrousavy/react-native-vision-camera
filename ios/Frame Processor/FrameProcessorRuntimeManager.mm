@@ -171,6 +171,36 @@ using namespace vision;
       throw jsi::JSError(runtime, str);
     }
     
+    // Get the input `TFLTensor`
+    TFLTensor* inputTensor = [interpreter inputTensorAtIndex:0 error:&error];
+    if (error != nil) {
+      throw jsi::JSError(runtime, std::string("Failed to find input sensor for model! Error: ") + [error.description UTF8String]);
+    }
+    
+    auto shape = [inputTensor shapeWithError:&error];
+    if (error != nil) {
+      throw jsi::JSError(runtime, std::string("Failed to get input sensor shape! Error: ") + [error.description UTF8String]);
+    }
+    
+    unsigned long tensorStride_IDK = shape[0].unsignedLongValue;
+    unsigned long tensorWidth = shape[1].unsignedLongValue;
+    unsigned long tensorHeight = shape[2].unsignedLongValue;
+    unsigned long tensorChannels = shape[3].unsignedLongValue;
+    
+    // Get the output `TFLTensor`
+    TFLTensor* outputTensor = [interpreter outputTensorAtIndex:0 error:&error];
+    if (error != nil) {
+      throw jsi::JSError(runtime, std::string("Failed to get output sensor for model! Error: ") + [error.description UTF8String]);
+    }
+    
+    auto outputShape = [outputTensor shapeWithError:&error];
+    if (error != nil) {
+      throw jsi::JSError(runtime, std::string("Failed to get output tensor shape! Error: ") + [error.description UTF8String]);
+    }
+    
+    auto outputDataType = [outputTensor dataType];
+    
+    NSLog(@"Successfully loaded TensorFlowLite Model! Output Data Type: %lu",  static_cast<unsigned long>(outputDataType));
     
     auto runModel = jsi::Function::createFromHostFunction(runtime,
                                                           jsi::PropNameID::forAscii(runtime, "loadTensorflowModel"),
@@ -180,24 +210,6 @@ using namespace vision;
                                                                              const jsi::Value* arguments,
                                                                              size_t count) -> jsi::Value {
       auto frame = arguments[0].asObject(runtime).asHostObject<FrameHostObject>(runtime);
-      
-      NSError* error;
-      
-      // Get the input `TFLTensor`
-      TFLTensor* inputTensor = [interpreter inputTensorAtIndex:0 error:&error];
-      if (error != nil) {
-        throw jsi::JSError(runtime, std::string("Failed to find input sensor for model! Error: ") + [error.description UTF8String]);
-      }
-      
-      auto shape = [inputTensor shapeWithError:&error];
-      if (error != nil) {
-        throw jsi::JSError(runtime, std::string("Failed to get input sensor shape! Error: ") + [error.description UTF8String]);
-      }
-      
-      unsigned long tensorStride_IDK = shape[0].unsignedLongValue;
-      unsigned long tensorWidth = shape[1].unsignedLongValue;
-      unsigned long tensorHeight = shape[2].unsignedLongValue;
-      unsigned long tensorChannels = shape[3].unsignedLongValue;
       
       CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(frame->frame.buffer);
       CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
@@ -245,6 +257,7 @@ using namespace vision;
         throw jsi::JSError(runtime, std::string("Frame has invalid Pixel Format! Expected: kCVPixelFormatType_32BGRA, received: ") + std::to_string(pixelFormatType));
       }
       
+      NSError* error;
       // Copy the input data to the input `TFLTensor`.
       auto nsData = [NSData dataWithBytes:data length:tensorBytesPerRow * tensorHeight];
       [inputTensor copyData:nsData error:&error];
@@ -256,17 +269,6 @@ using namespace vision;
       [interpreter invokeWithError:&error];
       if (error != nil) {
         throw jsi::JSError(runtime, std::string("Failed to run model! Error: ") + [error.description UTF8String]);
-      }
-      
-      // Get the output `TFLTensor`
-      TFLTensor* outputTensor = [interpreter outputTensorAtIndex:0 error:&error];
-      if (error != nil) {
-        throw jsi::JSError(runtime, std::string("Failed to get output sensor for model! Error: ") + [error.description UTF8String]);
-      }
-      
-      auto outputShape = [outputTensor shapeWithError:&error];
-      if (error != nil) {
-        throw jsi::JSError(runtime, std::string("Failed to get output tensor shape! Error: ") + [error.description UTF8String]);
       }
       
       // Copy output to `NSData` to process the inference results.
