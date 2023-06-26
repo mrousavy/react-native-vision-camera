@@ -174,6 +174,7 @@ using namespace vision;
         throw jsi::JSError(runtime, std::string("Failed to copy output data from model! Error: ") + [error.description UTF8String]);
       }
       
+      free(data);
       CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
       
       jsi::Array result(runtime, outputShape.count);
