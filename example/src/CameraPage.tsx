@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { useRef, useState, useMemo, useCallback } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler';
 import {
   CameraDeviceFormat,
   CameraRuntimeError,
+  Frame,
   PhotoFile,
   sortFormats,
   useCameraDevices,
@@ -21,17 +22,19 @@ import { CaptureButton } from './views/CaptureButton';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { examplePlugin } from './frame-processors/ExamplePlugin';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
-import { Skia } from '@shopify/react-native-skia';
-import { FACE_SHADER } from './Shaders';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
   zoom: true,
 });
+
+declare global {
+  type TensorflowPlugin = (frame: Frame) => ArrayBuffer[];
+  const loadTensorflowModel: (path: string, delegate?: 'metal' | 'core-ml') => TensorflowPlugin;
+}
 
 const MODEL_PATH = '// TODO: actual require'; // require('./assets/model.tflite');
 
@@ -200,14 +203,14 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const model = global.loadTensorflowModel(MODEL_PATH);
+  const model = loadTensorflowModel(MODEL_PATH);
 
   const frameProcessor = useFrameProcessor(
     (frame) => {
       'worklet';
       console.log(`Width: ${frame.width}`);
 
-      const results = model(frame) as number[][];
+      const results = model(frame);
       console.log(results[0]);
     },
     [model],

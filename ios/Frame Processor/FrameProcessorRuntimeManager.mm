@@ -31,6 +31,8 @@
 #import "../../cpp/JSITypedArray.h"
 
 #import <TensorFlowLiteObjC/TFLTensorFlowLite.h>
+#import <TensorFlowLiteObjC/TFLMetalDelegate.h>
+#import <TensorFlowLiteObjC/TFLCoreMLDelegate.h>
 #import <Accelerate/Accelerate.h>
 #import "../../cpp/JSITypedArray.h"
 
@@ -138,10 +140,24 @@ using namespace vision;
                                                        size_t count) -> jsi::Value {
     auto modelPath = arguments[0].asString(runtime);
     
+    auto delegates = [[NSMutableArray alloc] init];
+    
+    if (count > 1 && arguments[1].isString()) {
+      // user passed a custom delegate command
+      auto delegate = arguments[1].asString(runtime).utf8(runtime);
+      if (delegate == "core-ml") {
+        [delegates addObject:[[TFLCoreMLDelegate alloc] init]];
+      } else if (delegate == "metal") {
+        [delegates addObject:[[TFLMetalDelegate alloc] init]];
+      }
+    }
+    
     NSString* modelPath2 = [[NSBundle mainBundle] pathForResource:@"model"
                                                           ofType:@"tflite"];
     NSError* error;
     TFLInterpreter* interpreter = [[TFLInterpreter alloc] initWithModelPath:modelPath2
+                                                                    options:[[TFLInterpreterOptions alloc] init]
+                                                                  delegates:delegates
                                                                       error:&error];
     if (error != nil) {
       std::string str = std::string("Failed to load model \"") + modelPath.utf8(runtime) + "\"! Error: " + [error.description UTF8String];

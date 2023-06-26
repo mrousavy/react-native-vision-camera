@@ -414,10 +414,18 @@ PODS:
   - TensorFlowLiteC (2.12.0):
     - TensorFlowLiteC/Core (= 2.12.0)
   - TensorFlowLiteC/Core (2.12.0)
-  - TensorFlowLiteObjC (2.12.0):
-    - TensorFlowLiteObjC/Core (= 2.12.0)
+  - TensorFlowLiteC/CoreML (2.12.0):
+    - TensorFlowLiteC/Core
+  - TensorFlowLiteC/Metal (2.12.0):
+    - TensorFlowLiteC/Core
   - TensorFlowLiteObjC/Core (2.12.0):
     - TensorFlowLiteC (= 2.12.0)
+  - TensorFlowLiteObjC/CoreML (2.12.0):
+    - TensorFlowLiteC/CoreML (= 2.12.0)
+    - TensorFlowLiteObjC/Core (= 2.12.0)
+  - TensorFlowLiteObjC/Metal (2.12.0):
+    - TensorFlowLiteC/Metal (= 2.12.0)
+    - TensorFlowLiteObjC/Core (= 2.12.0)
   - VisionCamera (3.0.0-rc.2):
     - React
     - React-callinvoker
@@ -474,8 +482,8 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNStaticSafeAreaInsets (from `../node_modules/react-native-static-safe-area-insets`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
-  - TensorFlowLiteC
-  - TensorFlowLiteObjC
+  - TensorFlowLiteObjC/CoreML
+  - TensorFlowLiteObjC/Metal
   - VisionCamera (from `../..`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -635,6 +643,6 @@ SPEC CHECKSUMS:
   VisionCamera: 75445eda0090454f5a80786a001e4fb7793fbfe1
   Yoga: d56980c8914db0b51692f55533409e844b66133c
 
-PODFILE CHECKSUM: dc1dcec1be370acf67bb476ce65e954caf9df44d
+PODFILE CHECKSUM: 76345b31b66629d6e86655687109bb10df94f519
 
 COCOAPODS: 1.12.1
