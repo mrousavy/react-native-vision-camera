@@ -109,15 +109,15 @@ TypedArrayBase copyIntoJSBuffer(jsi::Runtime& runtime, TFLTensorDataType dataTyp
       throw jsi::JSError(runtime, std::string("Failed to find input sensor for model! Error: ") + [error.description UTF8String]);
     }
     
-    auto shape = [inputTensor shapeWithError:&error];
+    auto inputShape = [inputTensor shapeWithError:&error];
     if (error != nil) {
       throw jsi::JSError(runtime, std::string("Failed to get input sensor shape! Error: ") + [error.description UTF8String]);
     }
     
-    unsigned long tensorStride_IDK = shape[0].unsignedLongValue;
-    unsigned long tensorWidth = shape[1].unsignedLongValue;
-    unsigned long tensorHeight = shape[2].unsignedLongValue;
-    unsigned long tensorChannels = shape[3].unsignedLongValue;
+    unsigned long tensorStride_IDK = inputShape[0].unsignedLongValue;
+    unsigned long tensorWidth = inputShape[1].unsignedLongValue;
+    unsigned long tensorHeight = inputShape[2].unsignedLongValue;
+    unsigned long tensorChannels = inputShape[3].unsignedLongValue;
     
     // Get the output `TFLTensor`
     TFLTensor* outputTensor = [interpreter outputTensorAtIndex:0 error:&error];
@@ -130,9 +130,8 @@ TypedArrayBase copyIntoJSBuffer(jsi::Runtime& runtime, TFLTensorDataType dataTyp
       throw jsi::JSError(runtime, std::string("Failed to get output tensor shape! Error: ") + [error.description UTF8String]);
     }
     
-    auto outputDataType = [outputTensor dataType];
-    
-    NSLog(@"Successfully loaded TensorFlow Lite Model! Output Data Type: %lu",  static_cast<unsigned long>(outputDataType));
+    NSLog(@"Successfully loaded TensorFlow Lite Model!\n  Input Shape: %@, Type: %lu\n  Output Shape: %@, Type: %lu",
+          inputShape, static_cast<unsigned long>(inputTensor.dataType), outputShape, static_cast<unsigned long>(outputTensor.dataType));
     
     auto runModel = jsi::Function::createFromHostFunction(runtime,
                                                           jsi::PropNameID::forAscii(runtime, "loadTensorflowModel"),
@@ -218,7 +217,7 @@ TypedArrayBase copyIntoJSBuffer(jsi::Runtime& runtime, TFLTensorDataType dataTyp
       for (size_t i = 0; i < outputShape.count; i++) {
         size_t size = outputShape[i].intValue;
         NSData* slice = [outputData subdataWithRange:NSMakeRange(offset, size)];
-        result.setValueAtIndex(runtime, i, copyIntoJSBuffer(runtime, outputDataType, slice.bytes, slice.length));
+        result.setValueAtIndex(runtime, i, copyIntoJSBuffer(runtime, outputTensor.dataType, slice.bytes, slice.length));
         offset += size;
       }
       
