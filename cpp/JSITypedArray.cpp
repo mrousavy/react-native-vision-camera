@@ -205,6 +205,12 @@ TypedArray<T>::TypedArray(jsi::Runtime &runtime, std::vector<ContentType<T>> dat
 }
 
 template <TypedArrayKind T>
+TypedArray<T>::TypedArray(jsi::Runtime &runtime, ContentType<T>* dataToCopy, size_t size)
+    : TypedArrayBase(runtime, size, T) {
+  updateUnsafe(runtime, dataToCopy, size);
+}
+
+template <TypedArrayKind T>
 TypedArray<T>::TypedArray(TypedArrayBase &&base) : TypedArrayBase(std::move(base)) {}
 
 template <TypedArrayKind T>

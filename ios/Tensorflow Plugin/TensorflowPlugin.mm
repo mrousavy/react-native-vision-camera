@@ -22,6 +22,20 @@
 using namespace facebook;
 using namespace vision;
 
+/**
+ Copies the given raw bytes array into a jsi::TypedArray.
+ */
+TypedArrayBase copyIntoJSBuffer(jsi::Runtime& runtime, TFLTensorDataType dataType, const void* buffer, size_t size) {
+  switch (dataType) {
+    case TFLTensorDataTypeUInt8:
+      return TypedArray<TypedArrayKind::Uint8Array>(runtime, (uint8_t*)buffer, size);
+    case TFLTensorDataTypeFloat32:
+      return TypedArray<TypedArrayKind::Float32Array>(runtime, (float*)buffer, size);
+    default:
+      throw jsi::JSError(runtime, std::string("Unsupported output data type! ") + std::to_string(dataType));
+  }
+}
+
 + (void) installToRuntime:(facebook::jsi::Runtime &)runtime {
   auto func = jsi::Function::createFromHostFunction(runtime,
                                                     jsi::PropNameID::forAscii(runtime, "loadTensorflowModel"),
@@ -118,6 +132,7 @@ using namespace vision;
       size_t bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer);
       OSType pixelFormatType = CVPixelBufferGetPixelFormatType(pixelBuffer);
 
+      // TODO: multiply by tensorStride?
       size_t tensorBytesPerRow = tensorWidth * tensorChannels;
 
       // Get a pointer to the pixel buffer data
@@ -183,13 +198,8 @@ using namespace vision;
       size_t offset = 0;
       for (size_t i = 0; i < outputShape.count; i++) {
         size_t size = outputShape[i].intValue;
-        auto data = TypedArray<TypedArrayKind::Float32Array>(runtime, size);
         NSData* slice = [outputData subdataWithRange:NSMakeRange(offset, size)];
-        
-        float* floatData = const_cast<float*>(static_cast<const float*>(slice.bytes));
-        data.updateUnsafe(runtime, floatData, slice.length);
-        result.setValueAtIndex(runtime, i, data);
-        
+        result.setValueAtIndex(runtime, i, copyIntoJSBuffer(runtime, outputDataType, slice.bytes, slice.length));
         offset += size;
       }
       
