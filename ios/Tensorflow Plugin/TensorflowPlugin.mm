@@ -28,9 +28,20 @@ using namespace vision;
 TypedArrayBase copyIntoJSBuffer(jsi::Runtime& runtime, TFLTensorDataType dataType, const void* buffer, size_t size) {
   switch (dataType) {
     case TFLTensorDataTypeUInt8:
-      return TypedArray<TypedArrayKind::Uint8Array>(runtime, (uint8_t*)buffer, size);
+      return TypedArray<TypedArrayKind::Uint8Array>(runtime, (UInt8*)buffer, size);
+    case TFLTensorDataTypeInt8:
+      return TypedArray<TypedArrayKind::Int8Array>(runtime, (int8_t*)buffer, size);
+    case TFLTensorDataTypeInt16:
+      return TypedArray<TypedArrayKind::Int16Array>(runtime, (int16_t*)buffer, size);
+    case TFLTensorDataTypeInt32:
+      return TypedArray<TypedArrayKind::Int32Array>(runtime, (int32_t*)buffer, size);
     case TFLTensorDataTypeFloat32:
-      return TypedArray<TypedArrayKind::Float32Array>(runtime, (float*)buffer, size);
+      return TypedArray<TypedArrayKind::Float32Array>(runtime, (Float32*)buffer, size);
+    case TFLTensorDataTypeFloat64:
+      return TypedArray<TypedArrayKind::Float64Array>(runtime, (Float64*)buffer, size);
+    case TFLTensorDataTypeFloat16:
+    case TFLTensorDataTypeBool:
+    case TFLTensorDataTypeInt64:
     default:
       throw jsi::JSError(runtime, std::string("Unsupported output data type! ") + std::to_string(dataType));
   }
