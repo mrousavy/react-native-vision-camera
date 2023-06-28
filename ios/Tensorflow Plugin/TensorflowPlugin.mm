@@ -39,6 +39,7 @@ TypedArrayBase copyIntoJSBuffer(jsi::Runtime& runtime, TFLTensorDataType dataTyp
       return TypedArray<TypedArrayKind::Float32Array>(runtime, (Float32*)buffer, size);
     case TFLTensorDataTypeFloat64:
       return TypedArray<TypedArrayKind::Float64Array>(runtime, (Float64*)buffer, size);
+      
     case TFLTensorDataTypeFloat16:
     case TFLTensorDataTypeBool:
     case TFLTensorDataTypeInt64:
