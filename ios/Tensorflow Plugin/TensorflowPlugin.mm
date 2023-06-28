@@ -57,19 +57,25 @@ TypedArrayBase copyIntoJSBuffer(jsi::Runtime& runtime, TFLTensorDataType dataTyp
                                                        const jsi::Value* arguments,
                                                        size_t count) -> jsi::Value {
     auto modelPath = arguments[0].asString(runtime).utf8(runtime);
+    NSLog(@"Loading TensorFlow Lite Model from \"%s\"...", modelPath.c_str());
     
     auto delegates = [[NSMutableArray alloc] init];
     if (count > 1 && arguments[1].isString()) {
       // user passed a custom delegate command
       auto delegate = arguments[1].asString(runtime).utf8(runtime);
       if (delegate == "core-ml") {
+        NSLog(@"Using CoreML delegate.");
         [delegates addObject:[[TFLCoreMLDelegate alloc] init]];
       } else if (delegate == "metal") {
+        NSLog(@"Using Metal delegate.");
         [delegates addObject:[[TFLMetalDelegate alloc] init]];
+      } else {
+        NSLog(@"Using standard CPU delegate.");
       }
     }
     
     // TODO: Make this async / return a Promise
+    
     
     // Write model to a local temp file
     NSURL* modelUrl = [[NSURL alloc] initWithString:[[NSString alloc] initWithUTF8String:modelPath.c_str()]];
@@ -78,6 +84,7 @@ TypedArrayBase copyIntoJSBuffer(jsi::Runtime& runtime, TFLTensorDataType dataTyp
     auto tempFileName = [NSString stringWithFormat:@"%@.tflite", [[NSUUID UUID] UUIDString]];
     auto tempFilePath = [tempDirectory URLByAppendingPathComponent:tempFileName].path;
     [modelData writeToFile:tempFilePath atomically:NO];
+    NSLog(@"Model downloaded to \"%@\"! Loading into TensorFlow..", tempFilePath);
     
     NSError* error;
     TFLInterpreter* interpreter = [[TFLInterpreter alloc] initWithModelPath:tempFilePath
@@ -125,7 +132,7 @@ TypedArrayBase copyIntoJSBuffer(jsi::Runtime& runtime, TFLTensorDataType dataTyp
     
     auto outputDataType = [outputTensor dataType];
     
-    NSLog(@"Successfully loaded TensorFlowLite Model! Output Data Type: %lu",  static_cast<unsigned long>(outputDataType));
+    NSLog(@"Successfully loaded TensorFlow Lite Model! Output Data Type: %lu",  static_cast<unsigned long>(outputDataType));
     
     auto runModel = jsi::Function::createFromHostFunction(runtime,
                                                           jsi::PropNameID::forAscii(runtime, "loadTensorflowModel"),
