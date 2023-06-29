@@ -3,7 +3,7 @@ import { Image } from 'react-native';
 import type { Frame } from '../Frame';
 
 declare global {
-  type TensorflowPlugin = (frame: Frame) => Float32Array[];
+  type TensorflowPlugin = (frame: Frame) => ArrayBuffer[];
   /**
    * Loads the Model into memory. Path is fetchable resource, e.g.:
    * http://192.168.8.110:8081/assets/assets/model.tflite?platform=ios&hash=32e9958c83e5db7d0d693633a9f0b175
@@ -15,7 +15,7 @@ type Require = ReturnType<typeof require>;
 
 export type TensorflowPlugin =
   | {
-      run: (frame: Frame) => Float32Array[];
+      run: (frame: Frame) => ArrayBuffer[];
       status: 'loaded';
     }
   | {
