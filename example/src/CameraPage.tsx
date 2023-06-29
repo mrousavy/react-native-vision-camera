@@ -196,20 +196,20 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const model = useTensorflowModel(require('../assets/model.tflite'));
+  const plugin = useTensorflowModel(require('../assets/model.tflite'));
 
   const frameProcessor = useFrameProcessor(
     (frame) => {
       'worklet';
 
-      if (model != null) {
-        const results = model.run(frame);
+      if (plugin.state === 'loaded') {
+        const results = plugin.model.run(frame);
         console.log(results[0]);
       } else {
-        console.log('Model still loading..');
+        console.log(`Model state: ${plugin.state}..`);
       }
     },
-    [model],
+    [plugin],
   );
 
   return (

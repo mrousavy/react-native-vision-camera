@@ -16,26 +16,42 @@ declare global {
 
 type Require = ReturnType<typeof require>;
 
-export function useTensorflowModel(path: Require): TensorflowModel | undefined {
-  const [model, setModel] = useState<TensorflowModel>();
+export type TensorflowPlugin =
+  | {
+      model: TensorflowModel;
+      state: 'loaded';
+    }
+  | {
+      model: undefined;
+      state: 'loading';
+    }
+  | {
+      model: undefined;
+      error: Error;
+      state: 'error';
+    };
+
+export function useTensorflowModel(path: Require): TensorflowPlugin {
+  const [state, setState] = useState<TensorflowPlugin>({ model: undefined, state: 'loading' });
 
   useEffect(() => {
     const load = async (): Promise<void> => {
       try {
+        setState({ model: undefined, state: 'loading' });
         console.log(`Loading new Model: ${path}`);
         const source = Image.resolveAssetSource(path);
         console.log(`Resolved Model path: ${source.uri}`);
         // TODO: Make this async and await this then.
         const m = loadTensorflowModel(source.uri);
-        setModel(m);
+        setState({ model: m, state: 'loaded' });
         console.log('Model loaded!');
       } catch (e) {
         console.error(`Failed to load Tensorflow Model ${path}!`, e);
-        throw e;
+        setState({ model: undefined, state: 'error', error: e as Error });
       }
     };
     load();
   }, [path]);
 
-  return model;
+  return state;
 }
