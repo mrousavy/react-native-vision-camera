@@ -96,11 +96,10 @@ TensorflowPlugin::TensorflowPlugin(jsi::Runtime& runtime, TFLInterpreter* interp
     throw jsi::JSError(runtime, std::string("Failed to get input sensor shape! Error: ") + [error.description UTF8String]);
   }
   
-  _inputWidth = inputShape[1].unsignedLongValue;
-  _inputHeight = inputShape[2].unsignedLongValue;
-  _inputChannels = inputShape[3].unsignedLongValue;
-  _inputDataSize = TensorHelpers::getTFLTensorDataTypeSize(_inputTensor.dataType);
-  _frameResizer = std::make_shared<FrameResizer>(_inputWidth, _inputHeight, _inputChannels, _inputTensor.dataType);
+  auto inputWidth = inputShape[1].unsignedLongValue;
+  auto inputHeight = inputShape[2].unsignedLongValue;
+  auto inputChannels = inputShape[3].unsignedLongValue;
+  _frameResizer = std::make_shared<FrameResizer>(inputWidth, inputHeight, inputChannels, _inputTensor.dataType);
   
   // Get the output `TFLTensor`
   _outputTensor = [interpreter outputTensorAtIndex:0 error:&error];
@@ -108,7 +107,6 @@ TensorflowPlugin::TensorflowPlugin(jsi::Runtime& runtime, TFLInterpreter* interp
     throw jsi::JSError(runtime, std::string("Failed to get output sensor for model! Error: ") + [error.description UTF8String]);
   }
   
-  _outputDataSize = TensorHelpers::getTFLTensorDataTypeSize(_outputTensor.dataType);
   _outputShape = [_outputTensor shapeWithError:&error];
   if (error != nil) {
     throw jsi::JSError(runtime, std::string("Failed to get output tensor shape! Error: ") + [error.description UTF8String]);
