@@ -8,9 +8,11 @@
 
 #pragma once
 
+#import <memory>
 #import <jsi/jsi.h>
 #import <TensorFlowLiteObjC/TFLTensorFlowLite.h>
 #import "../Frame Processor/Frame.h"
+#import "FrameResizer.h"
 
 using namespace facebook;
 
@@ -28,6 +30,7 @@ public:
   static void installToRuntime(jsi::Runtime& runtime);
   
 private:
+  std::shared_ptr<FrameResizer> _frameResizer;
   TFLInterpreter* _interpreter = nil;
   TFLTensor* _inputTensor = nil;
   unsigned long _inputWidth = 0;

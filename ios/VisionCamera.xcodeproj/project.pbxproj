@@ -69,6 +69,7 @@
 		B8DB3BCC263DC97E004C18D7 /* AVFileType+descriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BCB263DC97E004C18D7 /* AVFileType+descriptor.swift */; };
 		B8E16C822A4D97F700D979E7 /* ImageHelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8E16C802A4D97F700D979E7 /* ImageHelpers.mm */; };
 		B8E16C852A4D985F00D979E7 /* TensorHelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8E16C832A4D985F00D979E7 /* TensorHelpers.mm */; };
+		B8E16C882A4DA9D500D979E7 /* FrameResizer.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8E16C862A4DA9D500D979E7 /* FrameResizer.mm */; };
 		B8F48EEC2A49B40300FF95A1 /* TensorflowPlugin.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8F48EEB2A49B40300FF95A1 /* TensorflowPlugin.mm */; };
 /* End PBXBuildFile section */
 
@@ -167,6 +168,8 @@
 		B8E16C812A4D97F700D979E7 /* ImageHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImageHelpers.h; sourceTree = "<group>"; };
 		B8E16C832A4D985F00D979E7 /* TensorHelpers.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TensorHelpers.mm; sourceTree = "<group>"; };
 		B8E16C842A4D985F00D979E7 /* TensorHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TensorHelpers.h; sourceTree = "<group>"; };
+		B8E16C862A4DA9D500D979E7 /* FrameResizer.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameResizer.mm; sourceTree = "<group>"; };
+		B8E16C872A4DA9D500D979E7 /* FrameResizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameResizer.h; sourceTree = "<group>"; };
 		B8F48EEB2A49B40300FF95A1 /* TensorflowPlugin.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TensorflowPlugin.mm; sourceTree = "<group>"; };
 		B8F48EED2A49B40900FF95A1 /* TensorflowPlugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TensorflowPlugin.h; sourceTree = "<group>"; };
 		B8F7DDD1266F715D00120533 /* Frame.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Frame.m; sourceTree = "<group>"; };
@@ -310,6 +313,8 @@
 				B8E16C812A4D97F700D979E7 /* ImageHelpers.h */,
 				B8E16C832A4D985F00D979E7 /* TensorHelpers.mm */,
 				B8E16C842A4D985F00D979E7 /* TensorHelpers.h */,
+				B8E16C862A4DA9D500D979E7 /* FrameResizer.mm */,
+				B8E16C872A4DA9D500D979E7 /* FrameResizer.h */,
 			);
 			path = "Tensorflow Plugin";
 			sourceTree = "<group>";
@@ -444,6 +449,7 @@
 				B887519625E0102000DB86D6 /* Promise.swift in Sources */,
 				B8DB3BC8263DC28C004C18D7 /* AVAssetWriter.Status+descriptor.swift in Sources */,
 				B841262F292E41A1001AB448 /* SkImageHelpers.mm in Sources */,
+				B8E16C882A4DA9D500D979E7 /* FrameResizer.mm in Sources */,
 				B887518725E0102000DB86D6 /* CameraViewManager.m in Sources */,
 				B88751A925E0102000DB86D6 /* CameraView.swift in Sources */,
 				B887519925E0102000DB86D6 /* AVCaptureVideoStabilizationMode+descriptor.swift in Sources */,
