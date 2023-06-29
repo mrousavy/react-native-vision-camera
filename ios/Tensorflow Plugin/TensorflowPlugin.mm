@@ -22,6 +22,18 @@
 using namespace facebook;
 using namespace vision;
 
+#define AdvancePtr( _ptr, _bytes) (__typeof__(_ptr))((uintptr_t)(_ptr) + (size_t)(_bytes))
+
+static inline vImage_Buffer vImageCropBuffer(vImage_Buffer buf, CGRect where, size_t pixelBytes) {
+  // from https://stackoverflow.com/a/74699324/5281431
+  return (vImage_Buffer) {
+    .data = AdvancePtr(buf.data, where.origin.y * buf.rowBytes + where.origin.x * pixelBytes),
+    .height = (unsigned long) where.size.height,
+    .width = (unsigned long) where.size.width,
+    .rowBytes = buf.rowBytes
+  };
+}
+
 /**
  Get the size of a value of the given `TFLTensorDataType`.
  */
@@ -176,7 +188,10 @@ TypedArrayBase copyIntoJSBuffer(jsi::Runtime& runtime, TFLTensorDataType dataTyp
       size_t height = CVPixelBufferGetHeight(pixelBuffer);
       size_t bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer);
       OSType pixelFormatType = CVPixelBufferGetPixelFormatType(pixelBuffer);
-
+      if (pixelFormatType != kCVPixelFormatType_32BGRA) {
+        throw jsi::JSError(runtime, std::string("Frame has invalid Pixel Format! Expected: kCVPixelFormatType_32BGRA, received: ") + std::to_string(pixelFormatType));
+      }
+      
       // Get a pointer to the pixel buffer data
       CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
       void* baseAddress = CVPixelBufferGetBaseAddress(pixelBuffer);
@@ -189,6 +204,18 @@ TypedArrayBase copyIntoJSBuffer(jsi::Runtime& runtime, TFLTensorDataType dataTyp
         .rowBytes = bytesPerRow
       };
       
+      
+      // Crop Input Image buffer to fit tensor input aspect ratio - this is only doing some pointer arithmetic, no copying.
+      CGFloat scaleW = (float)width / (float)tensorWidth;
+      CGFloat scaleH = (float)height / (float)tensorHeight;
+      CGFloat scale = MIN(scaleW, scaleH);
+      CGFloat cropWidth = tensorWidth * scale;
+      CGFloat cropHeight = tensorHeight * scale;
+      CGFloat cropTop = ((float)height - cropHeight) / 2.0f;
+      CGFloat cropLeft = ((float)width - cropWidth) / 2.0f;
+      CGRect cropRect = CGRectMake(cropLeft, cropTop, cropWidth, cropHeight);
+      srcBuffer = vImageCropBuffer(srcBuffer, cropRect, bytesPerRow * height);
+      
       // Downscaled Input Image to match Tensor Size
       void* downscaledBuffer = malloc(bytesPerRow * tensorHeight);
       vImage_Buffer downscaledImageBuffer = {
@@ -197,8 +224,13 @@ TypedArrayBase copyIntoJSBuffer(jsi::Runtime& runtime, TFLTensorDataType dataTyp
         .height = tensorHeight,
         .rowBytes = bytesPerRow
       };
+      // TODO: Use pre-allocated tempBuffer here
+      vImage_Error imageError = vImageScale_ARGB8888(&srcBuffer, &downscaledImageBuffer, nil, kvImageNoFlags);
+      if (imageError != kvImageNoError) {
+        throw jsi::JSError(runtime, std::string("Failed to downscale input frame! Error: ") + std::to_string(imageError));
+      }
       
-      // Correctly transformed image for tensor
+      // Correctly transformed image for tensor pixel size/channels/format
       size_t tensorBytesPerRow = tensorWidth * tensorChannels * tensorDataSize;
       void* data = malloc(tensorBytesPerRow * tensorHeight);
       vImage_Buffer destBuffer = {
@@ -207,33 +239,14 @@ TypedArrayBase copyIntoJSBuffer(jsi::Runtime& runtime, TFLTensorDataType dataTyp
         .height = tensorHeight,
         .rowBytes = tensorBytesPerRow
       };
-
-      // Perform the color conversion (if needed) and copy the pixel data to the input tensor buffer
-      if (pixelFormatType == kCVPixelFormatType_32BGRA) {
-        // Convert 32BGRA to RGB
-        vImage_Error error = vImageScale_ARGB8888(&srcBuffer, &downscaledImageBuffer, nil, kvImageNoFlags);
-        if (error != kvImageNoError) {
-          throw jsi::JSError(runtime, std::string("Failed to downscale input frame! Error: ") + std::to_string(error));
-        }
-        
-        switch (inputTensor.dataType) {
-          case TFLTensorDataTypeFloat32:
-            // Convert [255, 255, 255, 255] to [1.0, 1.0, 1.0, 1.0]
-            error = vImageConvert_16UToF(&downscaledImageBuffer, &destBuffer, 0.0f, 1.0f / 255.0f, kvImageNoFlags);
-            break;
-          case TFLTensorDataTypeUInt8:
-          case TFLTensorDataTypeInt8:
-            // Convert [255, 255, 255, 255] to [255, 255, 255]
-            error = vImageConvert_BGRA8888toRGB888(&downscaledImageBuffer, &destBuffer, kvImageNoFlags);
-            break;
-          default:
-            throw jsi::JSError(runtime, std::string("Unsupported input data type! ") + std::to_string(inputTensor.dataType));
-        }
-        if (error != kvImageNoError) {
-          throw jsi::JSError(runtime, std::string("Failed to convert input frame to input tensor data! Error: ") + std::to_string(error));
-        }
-      } else {
-        throw jsi::JSError(runtime, std::string("Frame has invalid Pixel Format! Expected: kCVPixelFormatType_32BGRA, received: ") + std::to_string(pixelFormatType));
+      // Convert into correct pixel format and data type
+      if (inputTensor.dataType != TFLTensorDataTypeUInt8) {
+        throw jsi::JSError(runtime, std::string("Unsupported input tensor data type! ") + std::to_string(inputTensor.dataType));
+      }
+      // Convert [255, 255, 255, 255] to [255, 255, 255]
+      imageError = vImageConvert_BGRA8888toRGB888(&downscaledImageBuffer, &destBuffer, kvImageNoFlags);
+      if (imageError != kvImageNoError) {
+        throw jsi::JSError(runtime, std::string("Failed to convert input frame to input tensor data! Error: ") + std::to_string(imageError));
       }
       
       NSError* error;
@@ -256,6 +269,7 @@ TypedArrayBase copyIntoJSBuffer(jsi::Runtime& runtime, TFLTensorDataType dataTyp
         throw jsi::JSError(runtime, std::string("Failed to copy output data from model! Error: ") + [error.description UTF8String]);
       }
       
+      free(downscaledBuffer);
       free(data);
       CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
       
