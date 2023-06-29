@@ -16,4 +16,6 @@ public:
    Crop the given image to the target rectangle. This uses pointer arithmetic and does not do any copies.
    */
   static vImage_Buffer vImageCropBuffer(vImage_Buffer buf, CGRect where, size_t pixelBytes);
+  
+  static CGImageRef convertImageBufferToCGImage(vImage_Buffer buffer);
 };

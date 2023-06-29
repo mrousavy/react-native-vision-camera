@@ -19,3 +19,21 @@ vImage_Buffer ImageHelpers::vImageCropBuffer(vImage_Buffer buf, CGRect where, si
     .rowBytes = buf.rowBytes
   };
 }
+
+CGImageRef ImageHelpers::convertImageBufferToCGImage(vImage_Buffer buffer) {
+  CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+  vImage_CGImageFormat format = {
+    .bitsPerComponent = 8,
+    .bitsPerPixel = 24,
+    .colorSpace = colorSpace,
+    .bitmapInfo = kCGImageByteOrderDefault | kCGImageAlphaNone,
+    .version = 0,
+    .decode = NULL,
+    .renderingIntent = kCGRenderingIntentDefault
+  };
+  
+  CGImageRef image = vImageCreateCGImageFromBuffer(&buffer, &format, NULL, NULL, kvImageNoFlags, NULL);
+  
+  CFRelease(colorSpace);
+  return image;
+}
