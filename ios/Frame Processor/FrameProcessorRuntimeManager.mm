@@ -122,7 +122,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
   // global.FrameProcessorPlugins Proxy
   runtime.global().setProperty(runtime, "FrameProcessorPlugins", frameProcessorPlugins);
   
-  [TensorflowPlugin installToRuntime:runtime];
+  TensorflowPlugin::installToRuntime(runtime);
 
   NSLog(@"FrameProcessorBindings: Frame Processor plugins installed!");
 }

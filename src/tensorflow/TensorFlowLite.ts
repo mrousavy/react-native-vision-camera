@@ -3,50 +3,39 @@ import { Image } from 'react-native';
 import type { Frame } from '../Frame';
 
 declare global {
-  type TensorflowPlugin = (frame: Frame) => ArrayBuffer[];
+  interface TensorflowModel {
+    run(frame: Frame): ArrayBuffer[];
+  }
+
   /**
    * Loads the Model into memory. Path is fetchable resource, e.g.:
    * http://192.168.8.110:8081/assets/assets/model.tflite?platform=ios&hash=32e9958c83e5db7d0d693633a9f0b175
    */
-  const loadTensorflowModel: (path: string, delegate?: 'metal' | 'core-ml') => TensorflowPlugin;
+  const loadTensorflowModel: (path: string, delegate?: 'metal' | 'core-ml') => TensorflowModel;
 }
 
 type Require = ReturnType<typeof require>;
 
-export type TensorflowPlugin =
-  | {
-      run: (frame: Frame) => ArrayBuffer[];
-      status: 'loaded';
-    }
-  | {
-      run: undefined;
-      status: 'loading';
-    }
-  | {
-      run: undefined;
-      status: 'error';
-    };
-
-export function useTensorflowModel(model: Require): TensorflowPlugin {
-  const [state, setState] = useState<TensorflowPlugin>({ status: 'loading', run: undefined });
+export function useTensorflowModel(path: Require): TensorflowModel | undefined {
+  const [model, setModel] = useState<TensorflowModel>();
 
   useEffect(() => {
     const load = async (): Promise<void> => {
       try {
-        console.log(`Loading new Model: ${model}`);
-        setState({ status: 'loading', run: undefined });
-        const source = Image.resolveAssetSource(model);
+        console.log(`Loading new Model: ${path}`);
+        const source = Image.resolveAssetSource(path);
         console.log(`Resolved Model path: ${source.uri}`);
         // TODO: Make this async and await this then.
-        const func = loadTensorflowModel(source.uri);
-        setState({ status: 'loaded', run: func });
+        const m = loadTensorflowModel(source.uri);
+        setModel(m);
         console.log('Model loaded!');
       } catch (e) {
-        setState({ status: 'error', run: undefined });
+        console.error(`Failed to load Tensorflow Model ${path}!`, e);
+        throw e;
       }
     };
     load();
-  }, [model]);
+  }, [path]);
 
-  return state;
+  return model;
 }

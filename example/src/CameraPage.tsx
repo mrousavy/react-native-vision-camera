@@ -202,11 +202,11 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     (frame) => {
       'worklet';
 
-      if (model.status === 'loaded') {
+      if (model != null) {
         const results = model.run(frame);
         console.log(results[0]);
       } else {
-        console.log(`Model status ${model.status}`);
+        console.log('Model still loading..');
       }
     },
     [model],
