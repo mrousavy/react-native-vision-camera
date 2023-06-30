@@ -35,7 +35,7 @@ void TensorflowPlugin::installToRuntime(jsi::Runtime& runtime, std::shared_ptr<r
     CFTimeInterval startTime = CACurrentMediaTime();
     auto modelPath = arguments[0].asString(runtime).utf8(runtime);
     NSLog(@"Loading TensorFlow Lite Model from \"%s\"...", modelPath.c_str());
-    
+
     auto delegates = [[NSMutableArray alloc] init];
     Delegate delegate = Delegate::Default;
     if (count > 1 && arguments[1].isString()) {
@@ -54,7 +54,7 @@ void TensorflowPlugin::installToRuntime(jsi::Runtime& runtime, std::shared_ptr<r
         delegate = Delegate::Default;
       }
     }
-    
+
     auto promise = react::createPromiseAsJSIValue(runtime, [=](jsi::Runtime &runtime,
                                                                std::shared_ptr<react::Promise> promise) -> void {
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -66,7 +66,7 @@ void TensorflowPlugin::installToRuntime(jsi::Runtime& runtime, std::shared_ptr<r
         auto tempFilePath = [tempDirectory URLByAppendingPathComponent:tempFileName].path;
         [modelData writeToFile:tempFilePath atomically:NO];
         NSLog(@"Model downloaded to \"%@\"! Loading into TensorFlow..", tempFilePath);
-        
+
         // Load Model into Tensorflow
         NSError* error;
         TFLInterpreter* interpreter = [[TFLInterpreter alloc] initWithModelPath:tempFilePath
@@ -78,15 +78,15 @@ void TensorflowPlugin::installToRuntime(jsi::Runtime& runtime, std::shared_ptr<r
           promise->reject(str);
           return;
         }
-        
+
         // Initialize Model and allocate memory buffers
         auto plugin = std::make_shared<TensorflowPlugin>(interpreter, delegate);
-        
+
         // Resolve Promise back on JS Thread
         callInvoker->invokeAsync([=]() {
           auto hostObject = jsi::Object::createFromHostObject(promise->runtime_, plugin);
           promise->resolve(std::move(hostObject));
-          
+
           CFTimeInterval endTime = CACurrentMediaTime();
           NSLog(@"Successfully loaded Tensorflow Model in %g s!", endTime - startTime);
         });
@@ -94,41 +94,36 @@ void TensorflowPlugin::installToRuntime(jsi::Runtime& runtime, std::shared_ptr<r
     });
     return promise;
   });
-  
+
   runtime.global().setProperty(runtime, "loadTensorflowModel", func);
 }
 
 
 TensorflowPlugin::TensorflowPlugin(TFLInterpreter* interpreter, Delegate delegate): _interpreter(interpreter), _delegate(delegate) {
   NSError* error;
-  
+
   // Allocate memory for the model's input `TFLTensor`s.
   [interpreter allocateTensorsWithError:&error];
   if (error != nil) {
     throw std::runtime_error(std::string("Failed to allocate memory for the model's input tensors! Error: ") + [error.description UTF8String]);
   }
-  
+
   // Get the input `TFLTensor`
   _inputTensor = [interpreter inputTensorAtIndex:0 error:&error];
   if (error != nil) {
     throw std::runtime_error(std::string("Failed to find input sensor for model! Error: ") + [error.description UTF8String]);
   }
-  
+
   auto inputShape = [_inputTensor shapeWithError:&error];
-  if (error != nil) {
-    throw std::runtime_error(std::string("Failed to get input sensor shape! Error: ") + [error.description UTF8String]);
-  }
-  
-  _inputShape = [_inputTensor shapeWithError:&error];
   if (error != nil) {
     throw std::runtime_error(std::string("Failed to get input tensor shape! Error: ") + [error.description UTF8String]);
   }
-  
+
   auto inputWidth = inputShape[1].unsignedLongValue;
   auto inputHeight = inputShape[2].unsignedLongValue;
   auto inputChannels = inputShape[3].unsignedLongValue;
   _frameResizer = std::make_shared<FrameResizer>(inputWidth, inputHeight, inputChannels, _inputTensor.dataType);
-  
+
   NSLog(@"Successfully loaded TensorFlow Lite Model! Input Shape: %@, Type: %lu",
         inputShape, static_cast<unsigned long>(_inputTensor.dataType));
 }
@@ -147,9 +142,9 @@ std::shared_ptr<TypedArrayBase> TensorflowPlugin::getOutputArrayForTensor(jsi::R
 
 jsi::Value TensorflowPlugin::run(jsi::Runtime &runtime, Frame* frame) {
   CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
-  
+
   vImage_Buffer resizedFrame = _frameResizer->resizeFrame(pixelBuffer);
-  
+
   NSError* error;
   // Copy the input data to the input `TFLTensor`.
   auto nsData = [NSData dataWithBytes:resizedFrame.data
@@ -158,32 +153,32 @@ jsi::Value TensorflowPlugin::run(jsi::Runtime &runtime, Frame* frame) {
   if (error != nil) {
     throw jsi::JSError(runtime, std::string("Failed to copy input data to model! Error: ") + [error.description UTF8String]);
   }
-  
-  // Run inference by invoking the `TFLInterpreter`.
-  [_interpreter invokeWithError:&error];
+
+// Run inference by invoking the `TFLInterpreter`.
+[_interpreter invokeWithError:&error];
+if (error != nil) {
+  throw jsi::JSError(runtime, std::string("Failed to run model! Error: ") + [error.description UTF8String]);
+}
+
+// Copy output to `NSData` to process the inference results.
+size_t outputTensorsCount = _interpreter.outputTensorCount;
+jsi::Array result(runtime, outputTensorsCount);
+for (size_t i = 0; i < outputTensorsCount; i++) {
+  TFLTensor* outputTensor = [_interpreter outputTensorAtIndex:i error:&error];
   if (error != nil) {
-    throw jsi::JSError(runtime, std::string("Failed to run model! Error: ") + [error.description UTF8String]);
+    throw jsi::JSError(runtime, std::string("Failed to get output tensor! Error: ") + [error.description UTF8String]);
   }
-  
-  // Copy output to `NSData` to process the inference results.
-  size_t outputTensorsCount = _interpreter.outputTensorCount;
-  jsi::Array result(runtime, outputTensorsCount);
-  for (size_t i = 0; i < outputTensorsCount; i++) {
-    TFLTensor* outputTensor = [_interpreter outputTensorAtIndex:i error:&error];
-    if (error != nil) {
-      throw jsi::JSError(runtime, std::string("Failed to get output tensor! Error: ") + [error.description UTF8String]);
-    }
-    auto outputBuffer = getOutputArrayForTensor(runtime, outputTensor);
-    TensorHelpers::updateJSBuffer(runtime, *outputBuffer, outputTensor);
-    result.setValueAtIndex(runtime, i, *outputBuffer);
-  }
-  return result;
+  auto outputBuffer = getOutputArrayForTensor(runtime, outputTensor);
+  TensorHelpers::updateJSBuffer(runtime, *outputBuffer, outputTensor);
+  result.setValueAtIndex(runtime, i, *outputBuffer);
+}
+return result;
 }
 
 
 jsi::Value TensorflowPlugin::get(jsi::Runtime& runtime, const jsi::PropNameID& propNameId) {
   auto propName = propNameId.utf8(runtime);
-  
+
   if (propName == "run") {
     return jsi::Function::createFromHostFunction(runtime,
                                                  jsi::PropNameID::forAscii(runtime, "runModel"),
@@ -203,7 +198,7 @@ jsi::Value TensorflowPlugin::get(jsi::Runtime& runtime, const jsi::PropNameID& p
       if (error != nil) {
         throw jsi::JSError(runtime, "Failed to get input tensor " + std::to_string(i) + "! " + error.description.UTF8String);
       }
-      
+
       jsi::Object object = TensorHelpers::tensorToJSObject(runtime, tensor);
       tensors.setValueAtIndex(runtime, i, object);
     }
@@ -216,7 +211,7 @@ jsi::Value TensorflowPlugin::get(jsi::Runtime& runtime, const jsi::PropNameID& p
       if (error != nil) {
         throw jsi::JSError(runtime, "Failed to get output tensor " + std::to_string(i) + "! " + error.description.UTF8String);
       }
-      
+
       jsi::Object object = TensorHelpers::tensorToJSObject(runtime, tensor);
       tensors.setValueAtIndex(runtime, i, object);
     }
@@ -231,7 +226,7 @@ jsi::Value TensorflowPlugin::get(jsi::Runtime& runtime, const jsi::PropNameID& p
         return jsi::String::createFromUtf8(runtime, "metal");
     }
   }
-  
+
   return jsi::HostObject::get(runtime, propNameId);
 }
 

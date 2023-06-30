@@ -24,26 +24,25 @@ class TensorflowPlugin: public jsi::HostObject {
 public:
   // TFL Delegate Type
   enum Delegate { Default, Metal, CoreML };
-  
+
 public:
   explicit TensorflowPlugin(TFLInterpreter* interpreter, Delegate delegate);
   ~TensorflowPlugin();
-  
+
   jsi::Value get(jsi::Runtime& runtime, const jsi::PropNameID& name) override;
   std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime& runtime) override;
-  
+
   static void installToRuntime(jsi::Runtime& runtime, std::shared_ptr<react::CallInvoker> callInvoker);
-  
+
 private:
   jsi::Value run(jsi::Runtime& runtime, Frame* frame);
   std::shared_ptr<TypedArrayBase> getOutputArrayForTensor(jsi::Runtime& runtime, TFLTensor* tensor);
-  
+
 private:
   TFLInterpreter* _interpreter = nil;
   std::shared_ptr<FrameResizer> _frameResizer;
   Delegate _delegate = Delegate::Default;
-  
+
   TFLTensor* _inputTensor = nil;
-  NSArray<NSNumber*>* _inputShape = nil;
   std::unordered_map<std::string, std::shared_ptr<TypedArrayBase>> _outputBuffers;
 };
