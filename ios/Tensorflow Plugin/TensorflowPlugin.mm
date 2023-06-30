@@ -32,6 +32,7 @@ void TensorflowPlugin::installToRuntime(jsi::Runtime& runtime, std::shared_ptr<r
                                                         const jsi::Value& thisValue,
                                                         const jsi::Value* arguments,
                                                         size_t count) -> jsi::Value {
+    CFTimeInterval startTime = CACurrentMediaTime();
     auto modelPath = arguments[0].asString(runtime).utf8(runtime);
     NSLog(@"Loading TensorFlow Lite Model from \"%s\"...", modelPath.c_str());
     
@@ -85,6 +86,9 @@ void TensorflowPlugin::installToRuntime(jsi::Runtime& runtime, std::shared_ptr<r
         callInvoker->invokeAsync([=]() {
           auto hostObject = jsi::Object::createFromHostObject(promise->runtime_, plugin);
           promise->resolve(std::move(hostObject));
+          
+          CFTimeInterval endTime = CACurrentMediaTime();
+          NSLog(@"Successfully loaded Tensorflow Model in %g s!", endTime - startTime);
         });
       });
     });
@@ -125,19 +129,8 @@ TensorflowPlugin::TensorflowPlugin(TFLInterpreter* interpreter, Delegate delegat
   auto inputChannels = inputShape[3].unsignedLongValue;
   _frameResizer = std::make_shared<FrameResizer>(inputWidth, inputHeight, inputChannels, _inputTensor.dataType);
   
-  // Get the output `TFLTensor`
-  _outputTensor = [interpreter outputTensorAtIndex:0 error:&error];
-  if (error != nil) {
-    throw std::runtime_error(std::string("Failed to get output sensor for model! Error: ") + [error.description UTF8String]);
-  }
-  
-  _outputShape = [_outputTensor shapeWithError:&error];
-  if (error != nil) {
-    throw std::runtime_error(std::string("Failed to get output tensor shape! Error: ") + [error.description UTF8String]);
-  }
-  
-  NSLog(@"Successfully loaded TensorFlow Lite Model!\n  Input Shape: %@, Type: %lu\n  Output Shape: %@, Type: %lu",
-        inputShape, static_cast<unsigned long>(_inputTensor.dataType), _outputShape, static_cast<unsigned long>(_outputTensor.dataType));
+  NSLog(@"Successfully loaded TensorFlow Lite Model! Input Shape: %@, Type: %lu",
+        inputShape, static_cast<unsigned long>(_inputTensor.dataType));
 }
 
 TensorflowPlugin::~TensorflowPlugin() {
@@ -166,16 +159,20 @@ jsi::Value TensorflowPlugin::run(jsi::Runtime &runtime, Frame* frame) {
   }
   
   // Copy output to `NSData` to process the inference results.
-  NSData* outputData = [_outputTensor dataWithError:&error];
-  if (error != nil) {
-    throw jsi::JSError(runtime, std::string("Failed to copy output data from model! Error: ") + [error.description UTF8String]);
+  size_t outputTensorsCount = [_interpreter outputTensorCount];
+  jsi::Array result(runtime, outputTensorsCount);
+  for (size_t i = 0; i < outputTensorsCount; i++) {
+    TFLTensor* outputTensor = [_interpreter outputTensorAtIndex:i error:&error];
+    if (error != nil) {
+      throw jsi::JSError(runtime, std::string("Failed to get output tensor! Error: ") + [error.description UTF8String]);
+    }
+    NSData* outputData = [outputTensor dataWithError:&error];
+    if (error != nil) {
+      throw jsi::JSError(runtime, std::string("Failed to copy output data from model! Error: ") + [error.description UTF8String]);
+    }
+    TypedArrayBase typedArray = TensorHelpers::copyIntoJSBuffer(runtime, outputTensor.dataType, outputData.bytes, outputData.length);
+    result.setValueAtIndex(runtime, i, typedArray);
   }
-  
-  auto size = outputData.length;
-  
-  jsi::Array result(runtime, _outputShape.count);
-  TypedArrayBase typedArray = TensorHelpers::copyIntoJSBuffer(runtime, _outputTensor.dataType, outputData.bytes, outputData.length);
-  result.setValueAtIndex(runtime, 0, typedArray);
   return result;
 }
 

@@ -42,9 +42,6 @@ private:
   TFLTensor* _inputTensor = nil;
   NSArray<NSNumber*>* _inputShape = nil;
   
-  TFLTensor* _outputTensor = nil;
-  NSArray<NSNumber*>* _outputShape = nil;
-  
   Delegate _delegate = Delegate::Default;
   
 };
