@@ -198,18 +198,16 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
   const plugin = useTensorflowModel(require('../assets/model.tflite'));
 
+  if (plugin.state === 'loaded') console.log(JSON.stringify(plugin.model, null, 2));
+
   const frameProcessor = useFrameProcessor(
     (frame) => {
       'worklet';
 
       if (plugin.state === 'loaded') {
         const results = plugin.model.run(frame);
-        const array = results[0]!;
-
-        const maxValue = array.reduce((p, v) => {
-          return p > v ? p : v;
-        });
-        console.log(maxValue);
+        const array = results[3]!;
+        console.log(array);
       } else {
         console.log(`Model state: ${plugin.state}..`);
       }

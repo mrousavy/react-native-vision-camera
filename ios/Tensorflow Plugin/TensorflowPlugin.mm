@@ -159,7 +159,7 @@ jsi::Value TensorflowPlugin::run(jsi::Runtime &runtime, Frame* frame) {
   }
   
   // Copy output to `NSData` to process the inference results.
-  size_t outputTensorsCount = [_interpreter outputTensorCount];
+  size_t outputTensorsCount = _interpreter.outputTensorCount;
   jsi::Array result(runtime, outputTensorsCount);
   for (size_t i = 0; i < outputTensorsCount; i++) {
     TFLTensor* outputTensor = [_interpreter outputTensorAtIndex:i error:&error];
