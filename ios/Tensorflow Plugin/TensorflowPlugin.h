@@ -9,13 +9,16 @@
 #pragma once
 
 #import <memory>
+#import <unordered_map>
 #import <jsi/jsi.h>
 #import <TensorFlowLiteObjC/TFLTensorFlowLite.h>
 #import "../Frame Processor/Frame.h"
 #import "FrameResizer.h"
 #import <React-callinvoker/ReactCommon/CallInvoker.h>
+#import "../../cpp/JSITypedArray.h"
 
 using namespace facebook;
+using namespace vision;
 
 class TensorflowPlugin: public jsi::HostObject {
 public:
@@ -29,19 +32,18 @@ public:
   jsi::Value get(jsi::Runtime& runtime, const jsi::PropNameID& name) override;
   std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime& runtime) override;
   
-  jsi::Value run(jsi::Runtime& runtime, Frame* frame);
-  
-  
   static void installToRuntime(jsi::Runtime& runtime, std::shared_ptr<react::CallInvoker> callInvoker);
   
 private:
-  std::shared_ptr<FrameResizer> _frameResizer;
+  jsi::Value run(jsi::Runtime& runtime, Frame* frame);
+  std::shared_ptr<TypedArrayBase> getOutputArrayForTensor(jsi::Runtime& runtime, TFLTensor* tensor);
   
+private:
   TFLInterpreter* _interpreter = nil;
+  std::shared_ptr<FrameResizer> _frameResizer;
+  Delegate _delegate = Delegate::Default;
   
   TFLTensor* _inputTensor = nil;
   NSArray<NSNumber*>* _inputShape = nil;
-  
-  Delegate _delegate = Delegate::Default;
-  
+  std::unordered_map<std::string, std::shared_ptr<TypedArrayBase>> _outputBuffers;
 };

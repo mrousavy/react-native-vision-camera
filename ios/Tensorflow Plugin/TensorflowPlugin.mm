@@ -137,6 +137,13 @@ TensorflowPlugin::~TensorflowPlugin() {
   // TODO: Clean up buffers here
 }
 
+std::shared_ptr<TypedArrayBase> TensorflowPlugin::getOutputArrayForTensor(jsi::Runtime& runtime, TFLTensor* tensor) {
+  auto name = std::string(tensor.name.UTF8String);
+  if (_outputBuffers.find(name) == _outputBuffers.end()) {
+    _outputBuffers[name] = std::make_shared<TypedArrayBase>(TensorHelpers::createJSBufferForTensor(runtime, tensor));
+  }
+  return _outputBuffers[name];
+}
 
 jsi::Value TensorflowPlugin::run(jsi::Runtime &runtime, Frame* frame) {
   CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
@@ -166,12 +173,9 @@ jsi::Value TensorflowPlugin::run(jsi::Runtime &runtime, Frame* frame) {
     if (error != nil) {
       throw jsi::JSError(runtime, std::string("Failed to get output tensor! Error: ") + [error.description UTF8String]);
     }
-    NSData* outputData = [outputTensor dataWithError:&error];
-    if (error != nil) {
-      throw jsi::JSError(runtime, std::string("Failed to copy output data from model! Error: ") + [error.description UTF8String]);
-    }
-    TypedArrayBase typedArray = TensorHelpers::copyIntoJSBuffer(runtime, outputTensor.dataType, outputData.bytes, outputData.length);
-    result.setValueAtIndex(runtime, i, typedArray);
+    auto outputBuffer = getOutputArrayForTensor(runtime, outputTensor);
+    TensorHelpers::updateJSBuffer(runtime, *outputBuffer, outputTensor);
+    result.setValueAtIndex(runtime, i, *outputBuffer);
   }
   return result;
 }

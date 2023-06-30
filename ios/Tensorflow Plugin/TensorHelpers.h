@@ -19,16 +19,14 @@ public:
    Get the size of a value of the given `TFLTensorDataType`.
    */
   static size_t getTFLTensorDataTypeSize(TFLTensorDataType dataType);
-  
   /**
-   Copies the given raw bytes array into a jsi::TypedArray.
+   Create a pre-allocated TypedArray for the given TFLTensor.
    */
-  static vision::TypedArrayBase copyIntoJSBuffer(jsi::Runtime& runtime, TFLTensorDataType dataType, const void* buffer, size_t size);
-  
+  static vision::TypedArrayBase createJSBufferForTensor(jsi::Runtime& runtime, TFLTensor* tensor);
   /**
-   Copies the given raw bytes array into a jsi::TypedArray and correctly casts to the given type.
+   Copies the Tensor's data into a jsi::TypedArray and correctly casts to the given type.
    */
-  static void updateJSBuffer(jsi::Runtime& runtime, jsi::Object boxedJSBuffer, TFLTensorDataType dataType, const void* buffer, size_t size);
+  static void updateJSBuffer(jsi::Runtime& runtime, vision::TypedArrayBase& jsBuffer, TFLTensor* tensor);
   
   static jsi::Object tensorToJSObject(jsi::Runtime& runtime, TFLTensor* tensor);
 };

@@ -34,60 +34,92 @@ size_t TensorHelpers::getTFLTensorDataTypeSize(TFLTensorDataType dataType) {
       throw std::runtime_error(std::string("Unsupported output data type! ") + std::to_string(dataType));
   }
 }
+std::string dataTypeToString(TFLTensorDataType dataType);
 
-TypedArrayBase TensorHelpers::copyIntoJSBuffer(jsi::Runtime& runtime, TFLTensorDataType dataType, const void* buffer, size_t size) {
-  size_t dataTypeSize = getTFLTensorDataTypeSize(dataType);
-  switch (dataType) {
+size_t getTensorBufferSize(TFLTensor* tensor) {
+  NSError* error;
+  NSArray<NSNumber*>* shape = [tensor shapeWithError:&error];
+  if (error != nil) {
+    throw std::runtime_error(std::string("Failed to get tensor's shape! ") + error.description.UTF8String);
+  }
+  if (shape.count < 1) {
+    NSLog(@"Warning: Tensor \"%@\" has a shape of [] (zero). There is something wrong with this Tensor..", tensor.name);
+    return 0;
+  }
+  
+  size_t size = 1;
+  for (NSNumber* n in shape) {
+    size *= n.unsignedIntValue;
+  }
+  return size;
+}
+
+vision::TypedArrayBase TensorHelpers::createJSBufferForTensor(jsi::Runtime& runtime, TFLTensor* tensor) {
+  size_t size = getTensorBufferSize(tensor);
+  NSLog(@"Creating %zu buffer of type %s...", size, dataTypeToString(tensor.dataType).c_str());
+  
+  switch (tensor.dataType) {
     case TFLTensorDataTypeUInt8:
-      return TypedArray<TypedArrayKind::Uint8Array>(runtime, (uint8_t*)buffer, size / dataTypeSize);
+      return TypedArray<TypedArrayKind::Uint8Array>(runtime, size);
     case TFLTensorDataTypeInt8:
-      return TypedArray<TypedArrayKind::Int8Array>(runtime, (int8_t*)buffer, size / dataTypeSize);
+      return TypedArray<TypedArrayKind::Int8Array>(runtime, size);
     case TFLTensorDataTypeInt16:
-      return TypedArray<TypedArrayKind::Int16Array>(runtime, (int16_t*)buffer, size / dataTypeSize);
+      return TypedArray<TypedArrayKind::Int16Array>(runtime, size);
     case TFLTensorDataTypeInt32:
-      return TypedArray<TypedArrayKind::Int32Array>(runtime, (int32_t*)buffer, size / dataTypeSize);
+      return TypedArray<TypedArrayKind::Int32Array>(runtime, size);
     case TFLTensorDataTypeFloat32:
-      return TypedArray<TypedArrayKind::Float32Array>(runtime, (float32_t*)buffer, size / dataTypeSize);
+      return TypedArray<TypedArrayKind::Float32Array>(runtime, size);
     case TFLTensorDataTypeFloat64:
-      return TypedArray<TypedArrayKind::Float64Array>(runtime, (float64_t*)buffer, size / dataTypeSize);
+      return TypedArray<TypedArrayKind::Float64Array>(runtime, size);
       
     case TFLTensorDataTypeFloat16:
     case TFLTensorDataTypeBool:
     case TFLTensorDataTypeInt64:
     default:
-      throw jsi::JSError(runtime, std::string("Unsupported output data type! ") + std::to_string(dataType));
+      throw jsi::JSError(runtime, std::string("Unsupported tensor data type! ") + std::to_string(tensor.dataType));
   }
 }
 
-void TensorHelpers::updateJSBuffer(jsi::Runtime& runtime, jsi::Object boxedJSBuffer, TFLTensorDataType dataType, const void* buffer, size_t size) {
-  switch (dataType) {
+
+
+void TensorHelpers::updateJSBuffer(jsi::Runtime& runtime, vision::TypedArrayBase& jsBuffer, TFLTensor* tensor) {
+  NSError* error;
+  NSData* data = [tensor dataWithError:&error];
+  if (error != nil) {
+      throw std::runtime_error(std::string("Failed to get tensor data! ") + error.description.UTF8String);
+  }
+  void* buffer = const_cast<void*>(data.bytes);
+  
+  size_t size = getTensorBufferSize(tensor);
+  
+  switch (tensor.dataType) {
     case TFLTensorDataTypeUInt8:
-      getTypedArray(runtime, boxedJSBuffer)
+      getTypedArray(runtime, jsBuffer)
         .as<TypedArrayKind::Uint8Array>(runtime)
         .updateUnsafe(runtime, (uint8_t*)buffer, size);
       break;
     case TFLTensorDataTypeInt8:
-      getTypedArray(runtime, boxedJSBuffer)
+      getTypedArray(runtime, jsBuffer)
         .as<TypedArrayKind::Int8Array>(runtime)
         .updateUnsafe(runtime, (int8_t*)buffer, size);
       break;
     case TFLTensorDataTypeInt16:
-      getTypedArray(runtime, boxedJSBuffer)
+      getTypedArray(runtime, jsBuffer)
         .as<TypedArrayKind::Int16Array>(runtime)
         .updateUnsafe(runtime, (int16_t*)buffer, size);
       break;
     case TFLTensorDataTypeInt32:
-      getTypedArray(runtime, boxedJSBuffer)
+      getTypedArray(runtime, jsBuffer)
         .as<TypedArrayKind::Int32Array>(runtime)
         .updateUnsafe(runtime, (int32_t*)buffer, size);
       break;
     case TFLTensorDataTypeFloat32:
-      getTypedArray(runtime, boxedJSBuffer)
+      getTypedArray(runtime, jsBuffer)
         .as<TypedArrayKind::Float32Array>(runtime)
         .updateUnsafe(runtime, (float32_t*)buffer, size);
       break;
     case TFLTensorDataTypeFloat64:
-      getTypedArray(runtime, boxedJSBuffer)
+      getTypedArray(runtime, jsBuffer)
         .as<TypedArrayKind::Float64Array>(runtime)
         .updateUnsafe(runtime, (float64_t*)buffer, size);
       break;
@@ -96,7 +128,7 @@ void TensorHelpers::updateJSBuffer(jsi::Runtime& runtime, jsi::Object boxedJSBuf
     case TFLTensorDataTypeBool:
     case TFLTensorDataTypeInt64:
     default:
-      throw jsi::JSError(runtime, std::string("Unsupported output data type! ") + std::to_string(dataType));
+      throw jsi::JSError(runtime, std::string("Unsupported output data type! ") + std::to_string(tensor.dataType));
   }
 }
 
