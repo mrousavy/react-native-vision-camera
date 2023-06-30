@@ -25,6 +25,7 @@ import IonIcon from 'react-native-vector-icons/Ionicons';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
+import { PaintStyle, Skia } from '@shopify/react-native-skia';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -200,20 +201,46 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
   if (plugin.state === 'loaded') console.log(JSON.stringify(plugin.model, null, 2));
 
+  const paint = Skia.Paint();
+  paint.setStyle(PaintStyle.Stroke);
+  paint.setStrokeWidth(20);
+  paint.setColor(Skia.Color('red'));
+
+  const inputShape = plugin.model?.inputs[0]?.shape;
+  const inputFrameSize = {
+    width: inputShape?.[1] ?? 0,
+    height: inputShape?.[2] ?? 0,
+  };
+
   const frameProcessor = useFrameProcessor(
     (frame) => {
       'worklet';
 
       if (plugin.state === 'loaded') {
-        const results = plugin.model.run(frame);
-        console.log(
-          `Detected ${results[3][0]} objects. Bounding box: [${results[0][0]}, ${results[0][1]}, ${results[0][2]}, ${results[0][3]}]`,
-        );
+        const [boundingBoxes, classes, scores, count] = plugin.model.run(frame);
+
+        for (let i = 0; i < scores.length; i++) {
+          const confidence = scores[i] ?? 0;
+          if (confidence > 0.4) {
+            const scale = (1 / frame.width) * frame.height;
+
+            const top = boundingBoxes[i] / scale + 0.25;
+            const left = boundingBoxes[i + 1];
+            const bottom = boundingBoxes[i + 2] / scale + 0.25;
+            const right = boundingBoxes[i + 3];
+
+            frame.drawRect(
+              Skia.XYWHRect(left * frame.width, top * frame.height, (right - left) * frame.width, (bottom - top) * frame.height),
+              paint,
+            );
+            console.log(left, top, right, bottom);
+          }
+        }
       } else {
         console.log(`Model state: ${plugin.state}..`);
       }
     },
-    [plugin],
+    [inputFrameSize.height, paint, plugin.model, plugin.state],
   );
 
   return (
