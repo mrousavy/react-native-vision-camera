@@ -196,7 +196,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const plugin = useTensorflowModel(require('../assets/model.tflite'));
+  const plugin = useTensorflowModel(require('../assets/object_detection_mobile_object_localizer_v1_1_default_1.tflite'));
 
   if (plugin.state === 'loaded') console.log(JSON.stringify(plugin.model, null, 2));
 
@@ -206,8 +206,9 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
       if (plugin.state === 'loaded') {
         const results = plugin.model.run(frame);
-        const array = results[3]!;
-        console.log(array);
+        console.log(
+          `Detected ${results[3][0]} objects. Bounding box: [${results[0][0]}, ${results[0][1]}, ${results[0][2]}, ${results[0][3]}]`,
+        );
       } else {
         console.log(`Model state: ${plugin.state}..`);
       }
