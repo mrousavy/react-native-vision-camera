@@ -13,6 +13,8 @@
 FrameResizer::FrameResizer(size_t targetWidth, size_t targetHeight, size_t channels, TFLTensorDataType dataType) {
   _targetWidth = targetWidth;
   _targetHeight = targetHeight;
+  _targetChannels = channels;
+  _targetDataType = dataType;
   
   // e.g. for RGB 8 bit we have 3 channels with data size of 1 (uint8_t)
   size_t dataSize = TensorHelpers::getTFLTensorDataTypeSize(dataType);
@@ -81,8 +83,34 @@ const vImage_Buffer& FrameResizer::resizeFrame(CVPixelBufferRef pixelBuffer) {
     throw std::runtime_error("Failed to downscale input frame! Error: " + std::to_string(imageError));
   }
   
-  // Convert [255, 255, 255, 255] to [255, 255, 255]
-  imageError = vImageConvert_BGRA8888toRGB888(&_inputDownscaledBuffer, &_inputReformattedBuffer, kvImageNoFlags);
+  switch (_targetDataType) {
+    case TFLTensorDataTypeUInt8:
+    case TFLTensorDataTypeInt8:
+    case TFLTensorDataTypeInt16:
+    case TFLTensorDataTypeInt32:
+      if (_targetChannels == 3) {
+        // Convert [255, 255, 255, 255] to [255, 255, 255]
+        imageError = vImageConvert_BGRA8888toRGB888(&_inputDownscaledBuffer, &_inputReformattedBuffer, kvImageNoFlags);
+      } else if (_targetChannels == 4) {
+        // we are already using a 4-channel image; do nothing, just copy buffer over
+        size_t dataTypeSize = TensorHelpers::getTFLTensorDataTypeSize(_targetDataType);
+        vImageCopyBuffer(&_inputDownscaledBuffer, &_inputReformattedBuffer, dataTypeSize, kvImageNoFlags);
+      } else {
+        throw std::runtime_error("Invalid number of channels! I don't know how to convert a 4-channel frame to " + std::to_string(_targetChannels) + " channels.");
+      }
+      break;
+    case TFLTensorDataTypeFloat32:
+    case TFLTensorDataTypeFloat64:
+      // Convert [255, 255, 255, 255] to [1.0, 1.0, 1.0]
+      imageError = vImageConvert_16UToF(&_inputDownscaledBuffer, &_inputReformattedBuffer, 0.0f, 1.0f / 255.0f, kvImageNoFlags);
+      break;
+      
+    case TFLTensorDataTypeFloat16:
+    case TFLTensorDataTypeBool:
+    case TFLTensorDataTypeInt64:
+    default:
+      throw std::runtime_error(std::string("Unsupported tensor data type! ") + std::to_string(_targetDataType));
+  }
   if (imageError != kvImageNoError) {
     throw std::runtime_error("Failed to convert input frame to input tensor data! Error: " + std::to_string(imageError));
   }

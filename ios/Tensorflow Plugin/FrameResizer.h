@@ -42,7 +42,14 @@ private:
   vImage_Buffer _inputDownscaledBuffer;
   vImage_Buffer _inputReformattedBuffer;
   
+  // target image with (e.g. 192)
   size_t _targetWidth;
+  // target image height (e.g. 192)
   size_t _targetHeight;
+  // target image bytes per row (e.g. 192*192*3)
   size_t _targetBytesPerRow;
+  // target image channels (e.g. 3 for RGB, 4 for RGBA)
+  size_t _targetChannels;
+  // target image data type (e.g. UInt8)
+  TFLTensorDataType _targetDataType;
 };
