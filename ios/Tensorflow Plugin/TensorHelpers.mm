@@ -36,19 +36,20 @@ size_t TensorHelpers::getTFLTensorDataTypeSize(TFLTensorDataType dataType) {
 }
 
 TypedArrayBase TensorHelpers::copyIntoJSBuffer(jsi::Runtime& runtime, TFLTensorDataType dataType, const void* buffer, size_t size) {
+  size_t dataTypeSize = getTFLTensorDataTypeSize(dataType);
   switch (dataType) {
     case TFLTensorDataTypeUInt8:
-      return TypedArray<TypedArrayKind::Uint8Array>(runtime, (uint8_t*)buffer, size);
+      return TypedArray<TypedArrayKind::Uint8Array>(runtime, (uint8_t*)buffer, size / dataTypeSize);
     case TFLTensorDataTypeInt8:
-      return TypedArray<TypedArrayKind::Int8Array>(runtime, (int8_t*)buffer, size);
+      return TypedArray<TypedArrayKind::Int8Array>(runtime, (int8_t*)buffer, size / dataTypeSize);
     case TFLTensorDataTypeInt16:
-      return TypedArray<TypedArrayKind::Int16Array>(runtime, (int16_t*)buffer, size);
+      return TypedArray<TypedArrayKind::Int16Array>(runtime, (int16_t*)buffer, size / dataTypeSize);
     case TFLTensorDataTypeInt32:
-      return TypedArray<TypedArrayKind::Int32Array>(runtime, (int32_t*)buffer, size);
+      return TypedArray<TypedArrayKind::Int32Array>(runtime, (int32_t*)buffer, size / dataTypeSize);
     case TFLTensorDataTypeFloat32:
-      return TypedArray<TypedArrayKind::Float32Array>(runtime, (float32_t*)buffer, size);
+      return TypedArray<TypedArrayKind::Float32Array>(runtime, (float32_t*)buffer, size / dataTypeSize);
     case TFLTensorDataTypeFloat64:
-      return TypedArray<TypedArrayKind::Float64Array>(runtime, (float64_t*)buffer, size);
+      return TypedArray<TypedArrayKind::Float64Array>(runtime, (float64_t*)buffer, size / dataTypeSize);
       
     case TFLTensorDataTypeFloat16:
     case TFLTensorDataTypeBool:

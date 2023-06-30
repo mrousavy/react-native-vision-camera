@@ -171,18 +171,11 @@ jsi::Value TensorflowPlugin::run(jsi::Runtime &runtime, Frame* frame) {
     throw jsi::JSError(runtime, std::string("Failed to copy output data from model! Error: ") + [error.description UTF8String]);
   }
   
-  jsi::Array result(runtime, _outputShape.count);
-  size_t offset = 0;
-  for (size_t i = 0; i < _outputShape.count; i++) {
-    // TODO: Correctly get size for those arrays
-    size_t outputDataSize = TensorHelpers::getTFLTensorDataTypeSize(_outputTensor.dataType);
-    size_t size = _outputShape[i].intValue * outputDataSize;
-    NSData* slice = [outputData subdataWithRange:NSMakeRange(offset, size)];
-    TypedArrayBase typedArray = TensorHelpers::copyIntoJSBuffer(runtime, _outputTensor.dataType, slice.bytes, slice.length / outputDataSize);
-    result.setValueAtIndex(runtime, i, typedArray);
-    offset += size;
-  }
+  auto size = outputData.length;
   
+  jsi::Array result(runtime, _outputShape.count);
+  TypedArrayBase typedArray = TensorHelpers::copyIntoJSBuffer(runtime, _outputTensor.dataType, outputData.bytes, outputData.length);
+  result.setValueAtIndex(runtime, 0, typedArray);
   return result;
 }
 

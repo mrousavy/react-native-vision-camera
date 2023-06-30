@@ -29,7 +29,7 @@ export interface TensorflowModel {
    * Run the Tensorflow Model with the given Camera Frame.
    * The Frame will automatically be resized, cropped and re-sampled to match the input tensor's size.
    */
-  run(frame: Frame): ArrayBuffer[];
+  run(frame: Frame): Uint8Array[];
 
   /**
    * All input tensors of this Tensorflow Model.

@@ -204,7 +204,12 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
       if (plugin.state === 'loaded') {
         const results = plugin.model.run(frame);
-        console.log(results[0]);
+        const array = results[0]!;
+
+        const maxValue = array.reduce((p, v) => {
+          return p > v ? p : v;
+        });
+        console.log(maxValue);
       } else {
         console.log(`Model state: ${plugin.state}..`);
       }
