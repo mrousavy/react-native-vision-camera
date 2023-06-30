@@ -31,8 +31,11 @@ public:
   
 private:
   std::shared_ptr<FrameResizer> _frameResizer;
+  
   TFLInterpreter* _interpreter = nil;
+  
   TFLTensor* _inputTensor = nil;
+  NSArray<NSNumber*>* _inputShape = nil;
   
   TFLTensor* _outputTensor = nil;
   NSArray<NSNumber*>* _outputShape = nil;

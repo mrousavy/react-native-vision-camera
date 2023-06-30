@@ -24,4 +24,11 @@ public:
    Copies the given raw bytes array into a jsi::TypedArray.
    */
   static vision::TypedArrayBase copyIntoJSBuffer(jsi::Runtime& runtime, TFLTensorDataType dataType, const void* buffer, size_t size);
+  
+  /**
+   Copies the given raw bytes array into a jsi::TypedArray and correctly casts to the given type.
+   */
+  static void updateJSBuffer(jsi::Runtime& runtime, jsi::Object boxedJSBuffer, TFLTensorDataType dataType, const void* buffer, size_t size);
+  
+  static jsi::Object tensorToJSObject(jsi::Runtime& runtime, TFLTensor* tensor);
 };

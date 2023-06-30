@@ -96,6 +96,11 @@ TensorflowPlugin::TensorflowPlugin(jsi::Runtime& runtime, TFLInterpreter* interp
     throw jsi::JSError(runtime, std::string("Failed to get input sensor shape! Error: ") + [error.description UTF8String]);
   }
   
+  _inputShape = [_inputTensor shapeWithError:&error];
+  if (error != nil) {
+    throw jsi::JSError(runtime, std::string("Failed to get input tensor shape! Error: ") + [error.description UTF8String]);
+  }
+  
   auto inputWidth = inputShape[1].unsignedLongValue;
   auto inputHeight = inputShape[2].unsignedLongValue;
   auto inputChannels = inputShape[3].unsignedLongValue;
@@ -162,6 +167,7 @@ jsi::Value TensorflowPlugin::run(jsi::Runtime &runtime, Frame* frame) {
   return result;
 }
 
+
 jsi::Value TensorflowPlugin::get(jsi::Runtime& runtime, const jsi::PropNameID& propNameId) {
   auto propName = propNameId.utf8(runtime);
   
@@ -176,6 +182,32 @@ jsi::Value TensorflowPlugin::get(jsi::Runtime& runtime, const jsi::PropNameID& p
       auto frame = arguments[0].asObject(runtime).asHostObject<FrameHostObject>(runtime);
       return this->run(runtime, frame->frame);
     });
+  } else if (propName == "inputs") {
+    jsi::Array tensors(runtime, _interpreter.inputTensorCount);
+    for (size_t i = 0; i < _interpreter.inputTensorCount; i++) {
+      NSError* error;
+      TFLTensor* tensor = [_interpreter inputTensorAtIndex:i error:&error];
+      if (error != nil) {
+        throw jsi::JSError(runtime, "Failed to get input tensor " + std::to_string(i) + "! " + error.description.UTF8String);
+      }
+      
+      jsi::Object object = TensorHelpers::tensorToJSObject(runtime, tensor);
+      tensors.setValueAtIndex(runtime, i, object);
+    }
+    return tensors;
+  } else if (propName == "outputs") {
+    jsi::Array tensors(runtime, _interpreter.outputTensorCount);
+    for (size_t i = 0; i < _interpreter.outputTensorCount; i++) {
+      NSError* error;
+      TFLTensor* tensor = [_interpreter outputTensorAtIndex:i error:&error];
+      if (error != nil) {
+        throw jsi::JSError(runtime, "Failed to get output tensor " + std::to_string(i) + "! " + error.description.UTF8String);
+      }
+      
+      jsi::Object object = TensorHelpers::tensorToJSObject(runtime, tensor);
+      tensors.setValueAtIndex(runtime, i, object);
+    }
+    return tensors;
   }
   
   return jsi::HostObject::get(runtime, propNameId);

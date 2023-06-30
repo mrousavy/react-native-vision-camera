@@ -2,16 +2,26 @@ import { useEffect, useState } from 'react';
 import { Image } from 'react-native';
 import type { Frame } from '../Frame';
 
-declare global {
-  interface TensorflowModel {
-    run(frame: Frame): ArrayBuffer[];
-  }
+export type TensorflowModelDelegate = 'default' | 'metal' | 'core-ml';
 
+interface Tensor {
+  name: string;
+  dataType: 'bool' | 'uint8' | 'int8' | 'int16' | 'int32' | 'int64' | 'float16' | 'float32' | 'float64' | 'invalid';
+  shape: number[];
+}
+
+export interface TensorflowModel {
+  /**
+   * Run the Tensorflow Model with the given Camera Frame.
+   * The Frame will automatically be resized, cropped and re-sampled to match the input tensor's size.
+   */
+
+  shape: number[];
   /**
    * Loads the Model into memory. Path is fetchable resource, e.g.:
    * http://192.168.8.110:8081/assets/assets/model.tflite?platform=ios&hash=32e9958c83e5db7d0d693633a9f0b175
    */
-  const loadTensorflowModel: (path: string, delegate?: 'metal' | 'core-ml') => TensorflowModel;
+  const loadTensorflowModel: (path: string, delegate: TensorflowModelDelegate) => TensorflowModel;
 }
 
 type Require = ReturnType<typeof require>;
