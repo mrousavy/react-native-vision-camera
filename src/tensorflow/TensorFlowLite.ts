@@ -49,7 +49,7 @@ declare global {
    * Loads the Model into memory. Path is fetchable resource, e.g.:
    * http://192.168.8.110:8081/assets/assets/model.tflite?platform=ios&hash=32e9958c83e5db7d0d693633a9f0b175
    */
-  const loadTensorflowModel: (path: string, delegate: TensorflowModelDelegate) => TensorflowModel;
+  const loadTensorflowModel: (path: string, delegate: TensorflowModelDelegate) => Promise<TensorflowModel>;
 }
 
 type Require = ReturnType<typeof require>;
@@ -80,7 +80,7 @@ export function useTensorflowModel(path: Require): TensorflowPlugin {
         const source = Image.resolveAssetSource(path);
         console.log(`Resolved Model path: ${source.uri}`);
         // TODO: Make this async and await this then.
-        const m = loadTensorflowModel(source.uri, 'default');
+        const m = await loadTensorflowModel(source.uri, 'default');
         setState({ model: m, state: 'loaded' });
         console.log('Model loaded!');
       } catch (e) {

@@ -18,19 +18,20 @@
 #import <TensorFlowLiteObjC/TFLMetalDelegate.h>
 #import <TensorFlowLiteObjC/TFLCoreMLDelegate.h>
 #import <Accelerate/Accelerate.h>
+#include <ReactCommon/TurboModuleUtils.h>
 
 using namespace facebook;
 using namespace vision;
 
 
-void TensorflowPlugin::installToRuntime(jsi::Runtime& runtime) {
+void TensorflowPlugin::installToRuntime(jsi::Runtime& runtime, std::shared_ptr<react::CallInvoker> callInvoker) {
   auto func = jsi::Function::createFromHostFunction(runtime,
                                                     jsi::PropNameID::forAscii(runtime, "loadTensorflowModel"),
                                                     1,
-                                                    [](jsi::Runtime& runtime,
-                                                       const jsi::Value& thisValue,
-                                                       const jsi::Value* arguments,
-                                                       size_t count) -> jsi::Value {
+                                                    [=](jsi::Runtime& runtime,
+                                                        const jsi::Value& thisValue,
+                                                        const jsi::Value* arguments,
+                                                        size_t count) -> jsi::Value {
     auto modelPath = arguments[0].asString(runtime).utf8(runtime);
     NSLog(@"Loading TensorFlow Lite Model from \"%s\"...", modelPath.c_str());
     
@@ -53,56 +54,70 @@ void TensorflowPlugin::installToRuntime(jsi::Runtime& runtime) {
       }
     }
     
-    // Write model to a local temp file
-    NSURL* modelUrl = [[NSURL alloc] initWithString:[[NSString alloc] initWithUTF8String:modelPath.c_str()]];
-    NSData* modelData = [NSData dataWithContentsOfURL:modelUrl];
-    auto tempDirectory = [[NSFileManager defaultManager] temporaryDirectory];
-    auto tempFileName = [NSString stringWithFormat:@"%@.tflite", [[NSUUID UUID] UUIDString]];
-    auto tempFilePath = [tempDirectory URLByAppendingPathComponent:tempFileName].path;
-    [modelData writeToFile:tempFilePath atomically:NO];
-    NSLog(@"Model downloaded to \"%@\"! Loading into TensorFlow..", tempFilePath);
-    
-    NSError* error;
-    TFLInterpreter* interpreter = [[TFLInterpreter alloc] initWithModelPath:tempFilePath
-                                                                    options:[[TFLInterpreterOptions alloc] init]
-                                                                  delegates:delegates
-                                                                      error:&error];
-    if (error != nil) {
-      std::string str = std::string("Failed to load model \"") + tempFilePath.UTF8String + "\"! Error: " + [error.description UTF8String];
-      throw jsi::JSError(runtime, str);
-    }
-    
-    auto plugin = std::make_shared<TensorflowPlugin>(runtime, interpreter, delegate);
-    return jsi::Object::createFromHostObject(runtime, plugin);
+    auto promise = react::createPromiseAsJSIValue(runtime, [=](jsi::Runtime &runtime,
+                                                               std::shared_ptr<react::Promise> promise) -> void {
+      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        // Download Model from JS bundle to local file
+        NSURL* modelUrl = [[NSURL alloc] initWithString:[[NSString alloc] initWithUTF8String:modelPath.c_str()]];
+        NSData* modelData = [NSData dataWithContentsOfURL:modelUrl];
+        auto tempDirectory = [[NSFileManager defaultManager] temporaryDirectory];
+        auto tempFileName = [NSString stringWithFormat:@"%@.tflite", [[NSUUID UUID] UUIDString]];
+        auto tempFilePath = [tempDirectory URLByAppendingPathComponent:tempFileName].path;
+        [modelData writeToFile:tempFilePath atomically:NO];
+        NSLog(@"Model downloaded to \"%@\"! Loading into TensorFlow..", tempFilePath);
+        
+        // Load Model into Tensorflow
+        NSError* error;
+        TFLInterpreter* interpreter = [[TFLInterpreter alloc] initWithModelPath:tempFilePath
+                                                                        options:[[TFLInterpreterOptions alloc] init]
+                                                                      delegates:delegates
+                                                                          error:&error];
+        if (error != nil) {
+          std::string str = std::string("Failed to load model \"") + tempFilePath.UTF8String + "\"! Error: " + [error.description UTF8String];
+          promise->reject(str);
+          return;
+        }
+        
+        // Initialize Model and allocate memory buffers
+        auto plugin = std::make_shared<TensorflowPlugin>(interpreter, delegate);
+        
+        // Resolve Promise back on JS Thread
+        callInvoker->invokeAsync([=]() {
+          auto hostObject = jsi::Object::createFromHostObject(promise->runtime_, plugin);
+          promise->resolve(std::move(hostObject));
+        });
+      });
+    });
+    return promise;
   });
   
   runtime.global().setProperty(runtime, "loadTensorflowModel", func);
 }
 
 
-TensorflowPlugin::TensorflowPlugin(jsi::Runtime& runtime, TFLInterpreter* interpreter, Delegate delegate): _interpreter(interpreter), _delegate(delegate) {
+TensorflowPlugin::TensorflowPlugin(TFLInterpreter* interpreter, Delegate delegate): _interpreter(interpreter), _delegate(delegate) {
   NSError* error;
   
   // Allocate memory for the model's input `TFLTensor`s.
   [interpreter allocateTensorsWithError:&error];
   if (error != nil) {
-    throw jsi::JSError(runtime, std::string("Failed to allocate memory for the model's input tensors! Error: ") + [error.description UTF8String]);
+    throw std::runtime_error(std::string("Failed to allocate memory for the model's input tensors! Error: ") + [error.description UTF8String]);
   }
   
   // Get the input `TFLTensor`
   _inputTensor = [interpreter inputTensorAtIndex:0 error:&error];
   if (error != nil) {
-    throw jsi::JSError(runtime, std::string("Failed to find input sensor for model! Error: ") + [error.description UTF8String]);
+    throw std::runtime_error(std::string("Failed to find input sensor for model! Error: ") + [error.description UTF8String]);
   }
   
   auto inputShape = [_inputTensor shapeWithError:&error];
   if (error != nil) {
-    throw jsi::JSError(runtime, std::string("Failed to get input sensor shape! Error: ") + [error.description UTF8String]);
+    throw std::runtime_error(std::string("Failed to get input sensor shape! Error: ") + [error.description UTF8String]);
   }
   
   _inputShape = [_inputTensor shapeWithError:&error];
   if (error != nil) {
-    throw jsi::JSError(runtime, std::string("Failed to get input tensor shape! Error: ") + [error.description UTF8String]);
+    throw std::runtime_error(std::string("Failed to get input tensor shape! Error: ") + [error.description UTF8String]);
   }
   
   auto inputWidth = inputShape[1].unsignedLongValue;
@@ -113,12 +128,12 @@ TensorflowPlugin::TensorflowPlugin(jsi::Runtime& runtime, TFLInterpreter* interp
   // Get the output `TFLTensor`
   _outputTensor = [interpreter outputTensorAtIndex:0 error:&error];
   if (error != nil) {
-    throw jsi::JSError(runtime, std::string("Failed to get output sensor for model! Error: ") + [error.description UTF8String]);
+    throw std::runtime_error(std::string("Failed to get output sensor for model! Error: ") + [error.description UTF8String]);
   }
   
   _outputShape = [_outputTensor shapeWithError:&error];
   if (error != nil) {
-    throw jsi::JSError(runtime, std::string("Failed to get output tensor shape! Error: ") + [error.description UTF8String]);
+    throw std::runtime_error(std::string("Failed to get output tensor shape! Error: ") + [error.description UTF8String]);
   }
   
   NSLog(@"Successfully loaded TensorFlow Lite Model!\n  Input Shape: %@, Type: %lu\n  Output Shape: %@, Type: %lu",

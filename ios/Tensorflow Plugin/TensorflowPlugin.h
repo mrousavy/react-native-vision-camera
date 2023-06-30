@@ -13,6 +13,7 @@
 #import <TensorFlowLiteObjC/TFLTensorFlowLite.h>
 #import "../Frame Processor/Frame.h"
 #import "FrameResizer.h"
+#import <React-callinvoker/ReactCommon/CallInvoker.h>
 
 using namespace facebook;
 
@@ -22,7 +23,7 @@ public:
   enum Delegate { Default, Metal, CoreML };
   
 public:
-  explicit TensorflowPlugin(jsi::Runtime& runtime, TFLInterpreter* interpreter, Delegate delegate);
+  explicit TensorflowPlugin(TFLInterpreter* interpreter, Delegate delegate);
   ~TensorflowPlugin();
   
   jsi::Value get(jsi::Runtime& runtime, const jsi::PropNameID& name) override;
@@ -31,7 +32,7 @@ public:
   jsi::Value run(jsi::Runtime& runtime, Frame* frame);
   
   
-  static void installToRuntime(jsi::Runtime& runtime);
+  static void installToRuntime(jsi::Runtime& runtime, std::shared_ptr<react::CallInvoker> callInvoker);
   
 private:
   std::shared_ptr<FrameResizer> _frameResizer;
