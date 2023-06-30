@@ -5,18 +5,46 @@ import type { Frame } from '../Frame';
 export type TensorflowModelDelegate = 'default' | 'metal' | 'core-ml';
 
 interface Tensor {
+  /**
+   * The name of the Tensor.
+   */
   name: string;
+  /**
+   * The data-type all values of this Tensor are represented in.
+   */
   dataType: 'bool' | 'uint8' | 'int8' | 'int16' | 'int32' | 'int64' | 'float16' | 'float32' | 'float64' | 'invalid';
+  /**
+   * The shape of the data from this tensor.
+   */
   shape: number[];
 }
 
 export interface TensorflowModel {
   /**
+   * The computation delegate used by this Model.
+   * While CoreML and Metal delegates might be faster as they use the GPU, not all models support those delegates.
+   */
+  delegate: TensorflowModelDelegate;
+  /**
    * Run the Tensorflow Model with the given Camera Frame.
    * The Frame will automatically be resized, cropped and re-sampled to match the input tensor's size.
    */
+  run(frame: Frame): ArrayBuffer[];
 
-  shape: number[];
+  /**
+   * All input tensors of this Tensorflow Model.
+   * VisionCamera expects only one input tensor for inputting the Camera Frame.
+   * The most efficient format for the input tensor is RGB in uint8 types.
+   */
+  inputs: Tensor[];
+  /**
+   * All output tensors of this Tensorflow Model.
+   * The user is responsible for correctly interpreting this data.
+   */
+  outputs: Tensor[];
+}
+
+declare global {
   /**
    * Loads the Model into memory. Path is fetchable resource, e.g.:
    * http://192.168.8.110:8081/assets/assets/model.tflite?platform=ios&hash=32e9958c83e5db7d0d693633a9f0b175
@@ -52,7 +80,7 @@ export function useTensorflowModel(path: Require): TensorflowPlugin {
         const source = Image.resolveAssetSource(path);
         console.log(`Resolved Model path: ${source.uri}`);
         // TODO: Make this async and await this then.
-        const m = loadTensorflowModel(source.uri);
+        const m = loadTensorflowModel(source.uri, 'default');
         setState({ model: m, state: 'loaded' });
         console.log('Model loaded!');
       } catch (e) {

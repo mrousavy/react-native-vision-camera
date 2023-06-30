@@ -18,7 +18,11 @@ using namespace facebook;
 
 class TensorflowPlugin: public jsi::HostObject {
 public:
-  explicit TensorflowPlugin(jsi::Runtime& runtime, TFLInterpreter* interpreter);
+  // TFL Delegate Type
+  enum Delegate { Default, Metal, CoreML };
+  
+public:
+  explicit TensorflowPlugin(jsi::Runtime& runtime, TFLInterpreter* interpreter, Delegate delegate);
   ~TensorflowPlugin();
   
   jsi::Value get(jsi::Runtime& runtime, const jsi::PropNameID& name) override;
@@ -39,4 +43,7 @@ private:
   
   TFLTensor* _outputTensor = nil;
   NSArray<NSNumber*>* _outputShape = nil;
+  
+  Delegate _delegate = Delegate::Default;
+  
 };

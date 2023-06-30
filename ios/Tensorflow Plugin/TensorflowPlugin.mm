@@ -35,17 +35,21 @@ void TensorflowPlugin::installToRuntime(jsi::Runtime& runtime) {
     NSLog(@"Loading TensorFlow Lite Model from \"%s\"...", modelPath.c_str());
     
     auto delegates = [[NSMutableArray alloc] init];
+    Delegate delegate = Delegate::Default;
     if (count > 1 && arguments[1].isString()) {
       // user passed a custom delegate command
       auto delegate = arguments[1].asString(runtime).utf8(runtime);
       if (delegate == "core-ml") {
         NSLog(@"Using CoreML delegate.");
         [delegates addObject:[[TFLCoreMLDelegate alloc] init]];
+        delegate = Delegate::CoreML;
       } else if (delegate == "metal") {
         NSLog(@"Using Metal delegate.");
         [delegates addObject:[[TFLMetalDelegate alloc] init]];
+        delegate = Delegate::Metal;
       } else {
         NSLog(@"Using standard CPU delegate.");
+        delegate = Delegate::Default;
       }
     }
     
@@ -68,7 +72,7 @@ void TensorflowPlugin::installToRuntime(jsi::Runtime& runtime) {
       throw jsi::JSError(runtime, str);
     }
     
-    auto plugin = std::make_shared<TensorflowPlugin>(runtime, interpreter);
+    auto plugin = std::make_shared<TensorflowPlugin>(runtime, interpreter, delegate);
     return jsi::Object::createFromHostObject(runtime, plugin);
   });
   
@@ -76,7 +80,7 @@ void TensorflowPlugin::installToRuntime(jsi::Runtime& runtime) {
 }
 
 
-TensorflowPlugin::TensorflowPlugin(jsi::Runtime& runtime, TFLInterpreter* interpreter): _interpreter(interpreter) {
+TensorflowPlugin::TensorflowPlugin(jsi::Runtime& runtime, TFLInterpreter* interpreter, Delegate delegate): _interpreter(interpreter), _delegate(delegate) {
   NSError* error;
   
   // Allocate memory for the model's input `TFLTensor`s.
@@ -208,6 +212,15 @@ jsi::Value TensorflowPlugin::get(jsi::Runtime& runtime, const jsi::PropNameID& p
       tensors.setValueAtIndex(runtime, i, object);
     }
     return tensors;
+  } else if (propName == "delegate") {
+    switch (_delegate) {
+      case Delegate::Default:
+        return jsi::String::createFromUtf8(runtime, "default");
+      case Delegate::CoreML:
+        return jsi::String::createFromUtf8(runtime, "coreml");
+      case Delegate::Metal:
+        return jsi::String::createFromUtf8(runtime, "metal");
+    }
   }
   
   return jsi::HostObject::get(runtime, propNameId);
@@ -217,5 +230,8 @@ jsi::Value TensorflowPlugin::get(jsi::Runtime& runtime, const jsi::PropNameID& p
 std::vector<jsi::PropNameID> TensorflowPlugin::getPropertyNames(jsi::Runtime& runtime) {
   std::vector<jsi::PropNameID> result;
   result.push_back(jsi::PropNameID::forAscii(runtime, "run"));
+  result.push_back(jsi::PropNameID::forAscii(runtime, "inputs"));
+  result.push_back(jsi::PropNameID::forAscii(runtime, "outputs"));
+  result.push_back(jsi::PropNameID::forAscii(runtime, "delegate"));
   return result;
 }
