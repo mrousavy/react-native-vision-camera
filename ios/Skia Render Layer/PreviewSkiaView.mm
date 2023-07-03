@@ -10,6 +10,7 @@
 #import <Foundation/Foundation.h>
 
 #import "SkiaMetalCanvasProvider.h"
+#include <include/core/SkCanvas.h>
 
 #include <exception>
 #include <string>

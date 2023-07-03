@@ -13,7 +13,9 @@
 #import <include/core/SkColorSpace.h>
 #import <include/core/SkSurface.h>
 #import <include/core/SkCanvas.h>
-#import <include/core/SkData.h>
+#import <include/core/SkImage.h>
+#import <include/gpu/ganesh/SkImageGanesh.h>
+#import <include/gpu/mtl/GrMtlTypes.h>
 #import <include/gpu/GrRecordingContext.h>
 
 #include <TargetConditionals.h>
@@ -68,17 +70,17 @@ sk_sp<SkImage> SkImageHelpers::convertCMSampleBufferToSkImage(GrRecordingContext
   GrMtlTextureInfo textureInfo;
   auto mtlTexture = CVMetalTextureGetTexture(cvTexture);
   textureInfo.fTexture.retain((__bridge void*)mtlTexture);
-
+  
   // Wrap it in a GrBackendTexture
   GrBackendTexture texture(width, height, GrMipmapped::kNo, textureInfo);
-
+  
   // Create an SkImage from the existing texture
-  auto image = SkImage::MakeFromTexture(context,
-                                        texture,
-                                        kTopLeft_GrSurfaceOrigin,
-                                        kBGRA_8888_SkColorType,
-                                        kOpaque_SkAlphaType,
-                                        SkColorSpace::MakeSRGB());
+  auto image = SkImages::AdoptTextureFrom(context,
+                                          texture,
+                                          kTopLeft_GrSurfaceOrigin,
+                                          kBGRA_8888_SkColorType,
+                                          kOpaque_SkAlphaType,
+                                          SkColorSpace::MakeSRGB());
 
   // Release the Texture wrapper (it will still be strong)
   CFRelease(cvTexture);
