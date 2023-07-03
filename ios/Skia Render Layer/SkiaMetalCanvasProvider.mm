@@ -7,6 +7,7 @@
 #import <include/core/SkSurface.h>
 #import <include/core/SkCanvas.h>
 #import <include/core/SkFont.h>
+#import <include/gpu/ganesh/SkImageGanesh.h>
 #import <include/gpu/GrDirectContext.h>
 
 #import "SkImageHelpers.h"

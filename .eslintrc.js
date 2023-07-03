@@ -12,7 +12,7 @@ module.exports = {
   },
   ignorePatterns: ['scripts', 'lib', 'docs', 'example', 'app.plugin.js'],
   plugins: ['@typescript-eslint'],
-  extends: ['plugin:@typescript-eslint/recommended', '@react-native-community'],
+  extends: ['plugin:@typescript-eslint/recommended', '@react-native'],
   rules: {
     // eslint
     semi: 'off',
