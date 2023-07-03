@@ -86,6 +86,20 @@ sk_sp<SkImage> SkImageHelpers::convertCMSampleBufferToSkImage(GrRecordingContext
   return image;
 }
 
+sk_sp<SkImage> SkImageHelpers::convertMTLTextureToSkImage(GrRecordingContext* context, id<MTLTexture> texture) {
+  // Convert the rendered MTLTexture to an SkImage
+  GrMtlTextureInfo textureInfo;
+  textureInfo.fTexture.retain((__bridge void*)texture);
+  GrBackendTexture backendTexture(texture.width, texture.height, GrMipmapped::kNo, textureInfo);
+  auto image = SkImages::AdoptTextureFrom(context,
+                                          backendTexture,
+                                          kTopLeft_GrSurfaceOrigin,
+                                          kBGRA_8888_SkColorType,
+                                          kOpaque_SkAlphaType,
+                                          SkColorSpace::MakeSRGB());
+  return image;
+}
+
 SkRect SkImageHelpers::createCenterCropRect(SkRect sourceRect, SkRect destinationRect) {
   SkSize src;
   if (destinationRect.width() / destinationRect.height() > sourceRect.width() / sourceRect.height()) {
