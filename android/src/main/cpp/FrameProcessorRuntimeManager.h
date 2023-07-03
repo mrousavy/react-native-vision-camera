@@ -6,10 +6,10 @@
 
 #include <fbjni/fbjni.h>
 #include <jsi/jsi.h>
-#include <ReactCommon/CallInvokerHolder.h>
 #include <memory>
 #include <string>
-#include <WKTJsiWorkletContext.h>
+#include <ReactCommon/CallInvokerHolder.h>
+#include <react-native-worklets/WKTJsiWorkletContext.h>
 
 #include "CameraView.h"
 #include "VisionCameraScheduler.h"
