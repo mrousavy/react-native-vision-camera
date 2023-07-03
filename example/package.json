@@ -16,7 +16,6 @@
   "dependencies": {
     "@react-native-camera-roll/camera-roll": "^5.7.1",
     "@react-native-community/blur": "^4.3.2",
-    "@react-native-community/slider": "^4.4.2",
     "@react-navigation/native": "^6.1.7",
     "@react-navigation/native-stack": "^6.9.13",
     "@shopify/react-native-skia": "^0.1.197",
