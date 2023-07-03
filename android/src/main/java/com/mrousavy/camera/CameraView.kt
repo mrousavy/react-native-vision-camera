@@ -25,6 +25,7 @@ import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.*
 import com.facebook.react.uimanager.events.RCTEventEmitter
+import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessorRuntimeManager
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
@@ -245,7 +246,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   }
 
   private external fun initHybrid(): HybridData
-  private external fun frameProcessorCallback(frame: ImageProxy)
+  private external fun frameProcessorCallback(frame: Frame)
 
   override fun getLifecycle(): Lifecycle {
     return lifecycleRegistry
@@ -461,7 +462,10 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         imageAnalysis = imageAnalysisBuilder.build().apply {
           setAnalyzer(cameraExecutor) { image ->
             // Call JS Frame Processor
-            frameProcessorCallback(image)
+            // TODO: Correctly get orientation
+            // TODO: Correctly get isMirrored
+            val frame = Frame(image, Frame.Orientation.PORTRAIT, false, image.imageInfo.timestamp)
+            frameProcessorCallback(frame)
             // frame gets closed in FrameHostObject implementation (JS ref counting)
           }
         }

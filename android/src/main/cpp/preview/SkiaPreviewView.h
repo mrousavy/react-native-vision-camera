@@ -14,6 +14,8 @@
 #include <GLES2/gl2.h>
 #include <EGL/egl.h>
 
+#include "../java-bindings/JFrame.h"
+
 namespace vision {
 
 using namespace facebook;
