@@ -1,15 +1,17 @@
 package com.mrousavy.camera.example;
 
+import android.media.Image;
 import android.util.Log;
-import androidx.camera.core.ImageProxy;
 import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
+import com.mrousavy.camera.frameprocessor.Frame;
 import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
 import org.jetbrains.annotations.NotNull;
 
 public class ExampleFrameProcessorPlugin extends FrameProcessorPlugin {
     @Override
-    public Object callback(@NotNull ImageProxy image, @NotNull Object[] params) {
+    public Object callback(@NotNull Frame frame, @NotNull Object[] params) {
+        Image image = frame.getImage();
         Log.d("ExamplePlugin", image.getWidth() + " x " + image.getHeight() + " Image with format #" + image.getFormat() + ". Logging " + params.length + " parameters:");
 
         for (Object param : params) {

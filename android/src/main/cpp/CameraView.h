@@ -9,12 +9,12 @@
 
 #include <memory>
 
-#include "java-bindings/JImageProxy.h"
+#include "java-bindings/JFrame.h"
 
 namespace vision {
 
 using namespace facebook;
-using TFrameProcessor = std::function<void(jni::alias_ref<JImageProxy::javaobject>)>;
+using TFrameProcessor = std::function<void(jni::alias_ref<JFrame::javaobject>)>;
 
 class CameraView : public jni::HybridClass<CameraView> {
  public:
@@ -23,7 +23,6 @@ class CameraView : public jni::HybridClass<CameraView> {
   static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis);
   static void registerNatives();
 
-  // TODO: Use template<> to avoid heap allocation for std::function<>
   void setFrameProcessor(const TFrameProcessor&& frameProcessor);
   void unsetFrameProcessor();
 
@@ -32,7 +31,7 @@ class CameraView : public jni::HybridClass<CameraView> {
   jni::global_ref<CameraView::javaobject> javaPart_;
   TFrameProcessor frameProcessor_;
 
-  void frameProcessorCallback(const jni::alias_ref<JImageProxy::javaobject>& frame);
+  void frameProcessorCallback(const jni::alias_ref<JFrame::javaobject>& frame);
 
   explicit CameraView(jni::alias_ref<CameraView::jhybridobject> jThis) :
     javaPart_(jni::make_global(jThis)),

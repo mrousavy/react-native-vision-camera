@@ -25,7 +25,7 @@ if(EXISTS ${RNSKIA_PATH})
     message("VisionCamera: Skia integration enabled!")
 else()
     message("VisionCamera: Skia integration disabled!")
-ENDIF()
+endif()
 
 # Add react-native-vision-camera sources
 add_library(
@@ -39,7 +39,7 @@ add_library(
         src/main/cpp/CameraView.cpp
         src/main/cpp/VisionCameraScheduler.cpp
         src/main/cpp/java-bindings/JFrameProcessorPlugin.cpp
-        src/main/cpp/java-bindings/JImageProxy.cpp
+        src/main/cpp/java-bindings/JFrame.cpp
         src/main/cpp/java-bindings/JHashMap.cpp
 )
 
