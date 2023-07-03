@@ -6,11 +6,12 @@
 
 #import <MetalKit/MetalKit.h>
 #import <QuartzCore/CAMetalLayer.h>
-
 #import <AVFoundation/AVFoundation.h>
 
-#include <functional>
 #include <include/gpu/GrDirectContext.h>
+#include <include/core/SkCanvas.h>
+
+#include <functional>
 #include <mutex>
 #include <memory>
 #include <atomic>

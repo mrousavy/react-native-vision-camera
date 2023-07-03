@@ -7,6 +7,7 @@
 #import <include/core/SkSurface.h>
 #import <include/core/SkCanvas.h>
 #import <include/core/SkFont.h>
+#import <include/gpu/ganesh/SkImageGanesh.h>
 #import <include/gpu/GrDirectContext.h>
 
 #import "SkImageHelpers.h"
@@ -117,7 +118,15 @@ void SkiaMetalCanvasProvider::render() {
     canvas->translate(offsetX, offsetY);
 
     // Convert the rendered MTLTexture to an SkImage
-    auto image = SkImageHelpers::convertMTLTextureToSkImage(context, texture);
+    GrMtlTextureInfo textureInfo;
+    textureInfo.fTexture.retain((__bridge void*)texture);
+    GrBackendTexture backendTexture(texture.width, texture.height, GrMipmapped::kNo, textureInfo);
+    auto image = SkImages::AdoptTextureFrom(context,
+                                            backendTexture,
+                                            kTopLeft_GrSurfaceOrigin,
+                                            kBGRA_8888_SkColorType,
+                                            kOpaque_SkAlphaType,
+                                            SkColorSpace::MakeSRGB());
 
     // Draw the Texture (Frame) to the Canvas
     canvas->drawImage(image, 0, 0);

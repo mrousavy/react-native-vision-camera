@@ -33,7 +33,7 @@ Pod::Spec.new do |s|
 
   s.pod_target_xcconfig = {
     "USE_HEADERMAP" => "YES",
-    "GCC_PREPROCESSOR_DEFINITIONS" => '$(inherited) SK_GL=1 SK_METAL=1',
+    "GCC_PREPROCESSOR_DEFINITIONS" => '$(inherited) SK_METAL=1 SK_GANESH=1',
     "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/ReactCommon\" \"$(PODS_TARGET_SRCROOT)\" \"$(PODS_ROOT)/RCT-Folly\" \"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/boost-for-react-native\" \"$(PODS_ROOT)/Headers/Private/React-Core\" \"#{skiaPath}/cpp/skia/**\" "
   }
   s.compiler_flags = folly_compiler_flags + ' ' + boost_compiler_flags
