@@ -6,6 +6,7 @@ set(PACKAGE_NAME "VisionCamera")
 set(BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSK_GL -DSK_BUILD_FOR_ANDROID")
 
 # Folly
 include("${NODE_MODULES_DIR}/react-native/ReactAndroid/cmake-utils/folly-flags.cmake")
@@ -16,7 +17,6 @@ find_package(ReactAndroid REQUIRED CONFIG)
 find_package(fbjni REQUIRED CONFIG)
 find_package(react-native-worklets REQUIRED CONFIG)
 find_library(LOG_LIB log)
-
 
 set(RNSKIA_PATH ${NODE_MODULES_DIR}/@shopify/react-native-skia)
 if(EXISTS ${RNSKIA_PATH})
@@ -38,6 +38,8 @@ add_library(
         src/main/cpp/FrameProcessorRuntimeManager.cpp
         src/main/cpp/CameraView.cpp
         src/main/cpp/VisionCameraScheduler.cpp
+        src/main/cpp/preview/SkiaPreviewView.cpp
+        src/main/cpp/preview/SkiaPreviewSurface.cpp
         src/main/cpp/java-bindings/JFrameProcessorPlugin.cpp
         src/main/cpp/java-bindings/JFrame.cpp
         src/main/cpp/java-bindings/JHashMap.cpp
@@ -62,6 +64,10 @@ target_include_directories(
         "${RNSKIA_PATH}/cpp/skia"
 )
 
+set (SKIA_LIBS_PATH "${NODE_MODULES_DIR}/@shopify/react-native-skia/libs/android/${ANDROID_ABI}")
+add_library(skia STATIC IMPORTED)
+set_property(TARGET skia PROPERTY IMPORTED_LOCATION "${SKIA_LIBS_PATH}/libskia.a")
+
 # Link everything together
 target_link_libraries(
         ${PACKAGE_NAME}
@@ -73,4 +79,9 @@ target_link_libraries(
         fbjni::fbjni                        # <-- fbjni
         react-native-worklets::rnworklets   # <-- RN Worklets
         ${SKIA_PACKAGE}                     # <-- Optional: RN Skia
+        skia
+        -ljnigraphics
+        -lGLESv2
+        -lEGL
+        -lmediandk
 )
