@@ -7,8 +7,8 @@
 #include <jni.h>
 #include <utility>
 #include <string>
-#include <WKTJsiWorklet.h>
-#include <WKTJsiHostObject.h>
+#include <react-native-worklets/WKTJsiWorklet.h>
+#include <react-native-worklets/WKTJsiHostObject.h>
 
 #include "CameraView.h"
 #include "FrameHostObject.h"
