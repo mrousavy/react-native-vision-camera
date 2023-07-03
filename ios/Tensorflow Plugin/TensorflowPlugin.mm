@@ -26,7 +26,7 @@ using namespace vision;
 
 void TensorflowPlugin::installToRuntime(jsi::Runtime& runtime, std::shared_ptr<react::CallInvoker> callInvoker) {
   auto func = jsi::Function::createFromHostFunction(runtime,
-                                                    jsi::PropNameID::forAscii(runtime, "loadTensorflowModel"),
+                                                    jsi::PropNameID::forAscii(runtime, "__loadTensorflowModel"),
                                                     1,
                                                     [=](jsi::Runtime& runtime,
                                                         const jsi::Value& thisValue,
@@ -95,7 +95,7 @@ void TensorflowPlugin::installToRuntime(jsi::Runtime& runtime, std::shared_ptr<r
     return promise;
   });
 
-  runtime.global().setProperty(runtime, "loadTensorflowModel", func);
+  runtime.global().setProperty(runtime, "__loadTensorflowModel", func);
 }
 
 

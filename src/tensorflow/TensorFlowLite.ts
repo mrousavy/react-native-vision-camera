@@ -49,7 +49,7 @@ declare global {
    * Loads the Model into memory. Path is fetchable resource, e.g.:
    * http://192.168.8.110:8081/assets/assets/model.tflite?platform=ios&hash=32e9958c83e5db7d0d693633a9f0b175
    */
-  const loadTensorflowModel: (path: string, delegate: TensorflowModelDelegate) => Promise<TensorflowModel>;
+  const __loadTensorflowModel: (path: string, delegate: TensorflowModelDelegate) => Promise<TensorflowModel>;
 }
 
 type Require = ReturnType<typeof require>;
@@ -69,18 +69,33 @@ export type TensorflowPlugin =
       state: 'error';
     };
 
-export function useTensorflowModel(path: Require): TensorflowPlugin {
+/**
+ * Load a Tensorflow Lite Model from the given `.tflite` asset.
+ * @param path The `.tflite` model in form of a `require(..)` statement. Make sure to add `tflite` as an asset extension to `metro.config.js`!
+ * @param delegate The delegate to use for computations. Uses the standard CPU delegate per default. The `core-ml` or `metal` delegates are GPU-accelerated, but don't work on every model.
+ * @returns The loaded Model.
+ */
+export function loadTensorflowModel(path: Require, delegate: TensorflowModelDelegate = 'default'): Promise<TensorflowModel> {
+  console.log(`Loading Tensorflow Lite Model ${path}`);
+  const source = Image.resolveAssetSource(path);
+  console.log(`Resolved Model path: ${source.uri}`);
+  return __loadTensorflowModel(source.uri, delegate);
+}
+
+/**
+ * Load a Tensorflow Lite Model from the given `.tflite` asset into a React State.
+ * @param path The `.tflite` model in form of a `require(..)` statement. Make sure to add `tflite` as an asset extension to `metro.config.js`!
+ * @param delegate The delegate to use for computations. Uses the standard CPU delegate per default. The `core-ml` or `metal` delegates are GPU-accelerated, but don't work on every model.
+ * @returns The state of the Model.
+ */
+export function useTensorflowModel(path: Require, delegate: TensorflowModelDelegate = 'default'): TensorflowPlugin {
   const [state, setState] = useState<TensorflowPlugin>({ model: undefined, state: 'loading' });
 
   useEffect(() => {
     const load = async (): Promise<void> => {
       try {
         setState({ model: undefined, state: 'loading' });
-        console.log(`Loading new Model: ${path}`);
-        const source = Image.resolveAssetSource(path);
-        console.log(`Resolved Model path: ${source.uri}`);
-        // TODO: Make this async and await this then.
-        const m = await loadTensorflowModel(source.uri, 'default');
+        const m = await loadTensorflowModel(path, delegate);
         setState({ model: m, state: 'loaded' });
         console.log('Model loaded!');
       } catch (e) {
@@ -89,7 +104,7 @@ export function useTensorflowModel(path: Require): TensorflowPlugin {
       }
     };
     load();
-  }, [path]);
+  }, [delegate, path]);
 
   return state;
 }

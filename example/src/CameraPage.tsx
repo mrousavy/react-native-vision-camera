@@ -224,9 +224,9 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
           if (confidence > 0.4) {
             const scale = (1 / frame.width) * frame.height;
 
-            const top = boundingBoxes[i] / scale + 0.25;
+            const top = boundingBoxes[i] / scale + 0.22;
             const left = boundingBoxes[i + 1];
-            const bottom = boundingBoxes[i + 2] / scale + 0.25;
+            const bottom = boundingBoxes[i + 2] / scale + 0.22;
             const right = boundingBoxes[i + 3];
 
             frame.drawRect(
