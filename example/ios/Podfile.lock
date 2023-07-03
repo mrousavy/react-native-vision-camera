@@ -328,8 +328,6 @@ PODS:
     - React
     - React-callinvoker
     - React-Core
-  - react-native-slider (4.4.2):
-    - React-Core
   - react-native-video (5.2.1):
     - React-Core
     - react-native-video/Video (= 5.2.1)
@@ -524,7 +522,6 @@ DEPENDENCIES:
   - "react-native-cameraroll (from `../node_modules/@react-native-camera-roll/camera-roll`)"
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-skia (from `../node_modules/@shopify/react-native-skia`)"
-  - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-video (from `../node_modules/react-native-video`)
   - react-native-worklets (from `../node_modules/react-native-worklets`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
@@ -610,8 +607,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-skia:
     :path: "../node_modules/@shopify/react-native-skia"
-  react-native-slider:
-    :path: "../node_modules/@react-native-community/slider"
   react-native-video:
     :path: "../node_modules/react-native-video"
   react-native-worklets:
@@ -693,7 +688,6 @@ SPEC CHECKSUMS:
   react-native-cameraroll: aff50ec1df9d054626dceca9336e6644e153d32f
   react-native-safe-area-context: 36cc67648134e89465663b8172336a19eeda493d
   react-native-skia: e2cb3443442bf7680e3276dc82cd87c97f96b6f9
-  react-native-slider: 33b8d190b59d4f67a541061bb91775d53d617d9d
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
   react-native-worklets: c7576ad4ad0f030ff41e8d74ad0077c96054a6c1
   React-NativeModulesApple: 4f31a812364443cee6ef768d256c594ad3b20f53
