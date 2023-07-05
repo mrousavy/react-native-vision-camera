@@ -21,12 +21,14 @@ import { CaptureButton } from './views/CaptureButton';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { examplePlugin } from './frame-processors/ExamplePlugin';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
-import { Skia } from '@shopify/react-native-skia';
-import { FACE_SHADER } from './Shaders';
+import { PaintStyle, Skia } from '@shopify/react-native-skia';
+import { CHROMATIC_ABERRATION_SHADER, FACE_PIXELATED_SHADER, FACE_SHADER, INVERTED_COLORS_SHADER } from './Shaders';
+import { detectFaces } from './frame-processors/FaceDetection';
+import { useSharedValue as useWorkletValue } from 'react-native-worklets/src';
+import { detectHands } from './frame-processors/HandDetection';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -49,7 +51,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const isForeground = useIsForeground();
   const isActive = isFocussed && isForeground;
 
-  const [cameraPosition, setCameraPosition] = useState<'front' | 'back'>('back');
+  const [cameraPosition, setCameraPosition] = useState<'front' | 'back'>('front');
   const [enableHdr, setEnableHdr] = useState(false);
   const [flash, setFlash] = useState<'off' | 'on'>('off');
   const [enableNightMode, setEnableNightMode] = useState(false);
@@ -104,8 +106,12 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
       result = result.filter((f) => f.supportsVideoHDR || f.supportsPhotoHDR);
     }
 
+    result = result.filter((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, fps)));
+
+    // console.log({ result });
+
     // find the first format that includes the given FPS
-    return result.find((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, fps)));
+    return result[0];
   }, [formats, fps, enableHdr]);
 
   //#region Animated Zoom
@@ -198,36 +204,255 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const radius = (format?.videoHeight ?? 1080) * 0.1;
-  const width = radius;
-  const height = radius;
-  const x = (format?.videoHeight ?? 1080) / 2 - radius / 2;
-  const y = (format?.videoWidth ?? 1920) / 2 - radius / 2;
-  const centerX = x + width / 2;
-  const centerY = y + height / 2;
+  type EffectToUse = 'vhs' | 'invert-colors' | 'face-blur' | 'hand-detection';
+  const effectToUse = useWorkletValue<EffectToUse>('vhs');
 
-  const runtimeEffect = Skia.RuntimeEffect.Make(FACE_SHADER);
-  if (runtimeEffect == null) throw new Error('Shader failed to compile!');
-  const shaderBuilder = Skia.RuntimeShaderBuilder(runtimeEffect);
-  shaderBuilder.setUniform('r', [width]);
-  shaderBuilder.setUniform('x', [centerX]);
-  shaderBuilder.setUniform('y', [centerY]);
-  shaderBuilder.setUniform('resolution', [1920, 1080]);
-  const imageFilter = Skia.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log(effectToUse.value);
+      switch (effectToUse.value) {
+        case 'vhs':
+          effectToUse.value = 'invert-colors';
+          break;
+        case 'invert-colors':
+          effectToUse.value = 'hand-detection';
+          break;
+        case 'hand-detection':
+          effectToUse.value = 'face-blur';
+          break;
+        case 'face-blur':
+          effectToUse.value = 'vhs';
+          break;
+      }
+      console.log(`Changed shader to ${effectToUse.value}!`);
+    }, 3000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, [effectToUse]);
 
-  const paint = Skia.Paint();
-  paint.setImageFilter(imageFilter);
+  // blur face
+  const blurEffect = Skia.RuntimeEffect.Make(FACE_PIXELATED_SHADER);
+  if (blurEffect == null) throw new Error('Shader failed to compile!');
+  const blurShaderBuilder = Skia.RuntimeShaderBuilder(blurEffect);
+  const blurPaint = Skia.Paint();
 
-  const isIOS = Platform.OS === 'ios';
+  // VHS effect
+  const vhsEffect = Skia.RuntimeEffect.Make(CHROMATIC_ABERRATION_SHADER);
+  if (vhsEffect == null) throw new Error('Failed to compile VHS Effect!');
+  const vhsShaderBuilder = Skia.RuntimeShaderBuilder(vhsEffect);
+  const vhsPaint = Skia.Paint();
+  vhsPaint.setImageFilter(Skia.ImageFilter.MakeRuntimeShader(vhsShaderBuilder, null, null));
+
+  // invert colors
+  const invertEffect = Skia.RuntimeEffect.Make(INVERTED_COLORS_SHADER);
+  if (invertEffect == null) throw new Error('Failed to compile Inverted Effect!');
+  const invertedShaderBuilder = Skia.RuntimeShaderBuilder(invertEffect);
+  const invertedPaint = Skia.Paint();
+  invertedPaint.setImageFilter(Skia.ImageFilter.MakeRuntimeShader(invertedShaderBuilder, null, null));
+
+  const handPaint = Skia.Paint();
+  handPaint.setStyle(PaintStyle.Stroke);
+  handPaint.setStrokeWidth(10);
+  handPaint.setColor(Skia.Color('lightgreen'));
+  const dotPaint = Skia.Paint();
+  dotPaint.setColor(Skia.Color('red'));
+  dotPaint.setStyle(PaintStyle.Fill);
+
   const frameProcessor = useFrameProcessor(
     (frame) => {
       'worklet';
-      console.log(`Width: ${frame.width}`);
+      // console.log(`Width: ${frame.width}`);
 
-      if (isIOS) frame.render(paint);
-      else console.log('Drawing to the Frame is not yet available on Android. WIP PR');
+      if (effectToUse.value === 'vhs') {
+        // VHS
+        frame.render(vhsPaint);
+      } else if (effectToUse.value === 'invert-colors') {
+        // VHS
+        frame.render(invertedPaint);
+      } else if (effectToUse.value === 'face-blur') {
+        const { faces } = detectFaces(frame);
+        // console.log(faces);
+        for (const face of faces) {
+          const centerX = (face.x + face.width / 2) * frame.width;
+          const centerY = (face.y + face.height / 2) * frame.height;
+          const radius = Math.max(face.width * frame.width, face.height * frame.height) / 2;
+
+          blurShaderBuilder.setUniform('x', [centerX]);
+          blurShaderBuilder.setUniform('y', [centerY]);
+          blurShaderBuilder.setUniform('r', [radius]);
+          const imageFilter = Skia.ImageFilter.MakeRuntimeShader(blurShaderBuilder, null, null);
+          blurPaint.setImageFilter(imageFilter);
+
+          frame.render(blurPaint);
+        }
+      } else if (effectToUse.value === 'hand-detection') {
+        const { hands } = detectHands(frame);
+
+        for (const hand of hands) {
+          const dist = Math.sqrt((hand.wrist.x - hand.middle_finger_tip.x) ** 2 + (hand.wrist.y - hand.middle_finger_tip.y) ** 2);
+          const lineWidth = Math.min((dist * frame.width) / 10, frame.width * 0.007);
+          const dotSize = Math.min((dist * frame.width) / 13, frame.width * 0.006);
+
+          handPaint.setStrokeWidth(lineWidth);
+
+          frame.drawLine(
+            hand.wrist.x * frame.width,
+            hand.wrist.y * frame.height,
+            hand.thumb_cmc.x * frame.width,
+            hand.thumb_cmc.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.thumb_cmc.x * frame.width,
+            hand.thumb_cmc.y * frame.height,
+            hand.thumb_mcp.x * frame.width,
+            hand.thumb_mcp.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.thumb_mcp.x * frame.width,
+            hand.thumb_mcp.y * frame.height,
+            hand.thumb_ip.x * frame.width,
+            hand.thumb_ip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.thumb_ip.x * frame.width,
+            hand.thumb_ip.y * frame.height,
+            hand.thumb_tip.x * frame.width,
+            hand.thumb_tip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.wrist.x * frame.width,
+            hand.wrist.y * frame.height,
+            hand.index_finger_mcp.x * frame.width,
+            hand.index_finger_mcp.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.index_finger_mcp.x * frame.width,
+            hand.index_finger_mcp.y * frame.height,
+            hand.index_finger_pip.x * frame.width,
+            hand.index_finger_pip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.index_finger_pip.x * frame.width,
+            hand.index_finger_pip.y * frame.height,
+            hand.index_finger_dip.x * frame.width,
+            hand.index_finger_dip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.index_finger_dip.x * frame.width,
+            hand.index_finger_dip.y * frame.height,
+            hand.index_finger_tip.x * frame.width,
+            hand.index_finger_tip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.index_finger_mcp.x * frame.width,
+            hand.index_finger_mcp.y * frame.height,
+            hand.middle_finger_mcp.x * frame.width,
+            hand.middle_finger_mcp.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.middle_finger_mcp.x * frame.width,
+            hand.middle_finger_mcp.y * frame.height,
+            hand.middle_finger_pip.x * frame.width,
+            hand.middle_finger_pip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.middle_finger_pip.x * frame.width,
+            hand.middle_finger_pip.y * frame.height,
+            hand.middle_finger_dip.x * frame.width,
+            hand.middle_finger_dip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.middle_finger_dip.x * frame.width,
+            hand.middle_finger_dip.y * frame.height,
+            hand.middle_finger_tip.x * frame.width,
+            hand.middle_finger_tip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.middle_finger_mcp.x * frame.width,
+            hand.middle_finger_mcp.y * frame.height,
+            hand.ring_finger_mcp.x * frame.width,
+            hand.ring_finger_mcp.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.ring_finger_mcp.x * frame.width,
+            hand.ring_finger_mcp.y * frame.height,
+            hand.ring_finger_pip.x * frame.width,
+            hand.ring_finger_pip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.ring_finger_pip.x * frame.width,
+            hand.ring_finger_pip.y * frame.height,
+            hand.ring_finger_dip.x * frame.width,
+            hand.ring_finger_dip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.ring_finger_dip.x * frame.width,
+            hand.ring_finger_dip.y * frame.height,
+            hand.ring_finger_tip.x * frame.width,
+            hand.ring_finger_tip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.ring_finger_mcp.x * frame.width,
+            hand.ring_finger_mcp.y * frame.height,
+            hand.pinky_mcp.x * frame.width,
+            hand.pinky_mcp.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.pinky_mcp.x * frame.width,
+            hand.pinky_mcp.y * frame.height,
+            hand.pinky_pip.x * frame.width,
+            hand.pinky_pip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.pinky_pip.x * frame.width,
+            hand.pinky_pip.y * frame.height,
+            hand.pinky_dip.x * frame.width,
+            hand.pinky_dip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.pinky_dip.x * frame.width,
+            hand.pinky_dip.y * frame.height,
+            hand.pinky_tip.x * frame.width,
+            hand.pinky_tip.y * frame.height,
+            handPaint,
+          );
+          frame.drawLine(
+            hand.wrist.x * frame.width,
+            hand.wrist.y * frame.height,
+            hand.pinky_mcp.x * frame.width,
+            hand.pinky_mcp.y * frame.height,
+            handPaint,
+          );
+
+          const keys = Object.keys(hand);
+          for (const key of keys) {
+            const point = hand[key];
+            frame.drawCircle(point.x * frame.width, point.y * frame.height, dotSize - point.z * (dotSize * 2), dotPaint);
+          }
+        }
+      }
     },
-    [isIOS, paint],
+    [blurPaint, blurShaderBuilder, dotPaint, effectToUse, handPaint, invertedPaint, vhsPaint],
   );
 
   return (

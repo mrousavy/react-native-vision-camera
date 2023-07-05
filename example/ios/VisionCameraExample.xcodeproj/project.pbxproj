@@ -11,12 +11,29 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		B8DB3BD5263DE8B7004C18D7 /* BuildFile in Sources */ = {isa = PBXBuildFile; };
-		B8DB3BDC263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BD8263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m */; };
+		B8DB3BD5263DE8B7004C18D7 /* (null) in Sources */ = {isa = PBXBuildFile; };
+		B8DB3BDC263DEA31004C18D7 /* FaceDetectionFrameProcessorPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BD8263DEA31004C18D7 /* FaceDetectionFrameProcessorPlugin.m */; };
 		B8DB3BDD263DEA31004C18D7 /* ExamplePluginSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BDA263DEA31004C18D7 /* ExamplePluginSwift.swift */; };
+		B8E93D092A03F86400C79370 /* HandDetectionFrameProcessorPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = B8E93D082A03F86400C79370 /* HandDetectionFrameProcessorPlugin.m */; };
+		B8E93D1C2A04010800C79370 /* MargeloTracking.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8E93D1A2A04010300C79370 /* MargeloTracking.framework */; };
+		B8E93D1D2A04010800C79370 /* MargeloTracking.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B8E93D1A2A04010300C79370 /* MargeloTracking.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B8F0E10825E0199F00586F16 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F0E10725E0199F00586F16 /* File.swift */; };
 		C0B129659921D2EA967280B2 /* libPods-VisionCameraExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CDCFE89C25C89320B98945E /* libPods-VisionCameraExample.a */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B872535A2A02C65E00FAAB0A /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				B8E93D1D2A04010800C79370 /* MargeloTracking.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		008F07F21AC5B25A0029DE68 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
@@ -28,8 +45,10 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = VisionCameraExample/main.m; sourceTree = "<group>"; };
 		3CDCFE89C25C89320B98945E /* libPods-VisionCameraExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VisionCameraExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = VisionCameraExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		B8DB3BD8263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExampleFrameProcessorPlugin.m; sourceTree = "<group>"; };
+		B8DB3BD8263DEA31004C18D7 /* FaceDetectionFrameProcessorPlugin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FaceDetectionFrameProcessorPlugin.m; sourceTree = "<group>"; };
 		B8DB3BDA263DEA31004C18D7 /* ExamplePluginSwift.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExamplePluginSwift.swift; sourceTree = "<group>"; };
+		B8E93D082A03F86400C79370 /* HandDetectionFrameProcessorPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HandDetectionFrameProcessorPlugin.m; sourceTree = "<group>"; };
+		B8E93D1A2A04010300C79370 /* MargeloTracking.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = MargeloTracking.framework; sourceTree = "<group>"; };
 		B8F0E10625E0199F00586F16 /* VisionCameraExample-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VisionCameraExample-Bridging-Header.h"; sourceTree = "<group>"; };
 		B8F0E10725E0199F00586F16 /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
 		C1D342AD8210E7627A632602 /* Pods-VisionCameraExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VisionCameraExample.debug.xcconfig"; path = "Target Support Files/Pods-VisionCameraExample/Pods-VisionCameraExample.debug.xcconfig"; sourceTree = "<group>"; };
@@ -44,6 +63,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C0B129659921D2EA967280B2 /* libPods-VisionCameraExample.a in Frameworks */,
+				B8E93D1C2A04010800C79370 /* MargeloTracking.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,6 +90,7 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B8E93D1A2A04010300C79370 /* MargeloTracking.framework */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				ED2971642150620600B7C4FE /* JavaScriptCore.framework */,
 				3CDCFE89C25C89320B98945E /* libPods-VisionCameraExample.a */,
@@ -115,21 +136,30 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		B8D7F59E2A03DE420053AE41 /* Hand Detection */ = {
+			isa = PBXGroup;
+			children = (
+				B8E93D082A03F86400C79370 /* HandDetectionFrameProcessorPlugin.m */,
+			);
+			path = "Hand Detection";
+			sourceTree = "<group>";
+		};
 		B8DB3BD6263DEA31004C18D7 /* Frame Processor Plugins */ = {
 			isa = PBXGroup;
 			children = (
-				B8DB3BD7263DEA31004C18D7 /* Example Plugin (Objective-C) */,
+				B8D7F59E2A03DE420053AE41 /* Hand Detection */,
+				B8DB3BD7263DEA31004C18D7 /* Face Detection */,
 				B8DB3BD9263DEA31004C18D7 /* Example Plugin (Swift) */,
 			);
 			path = "Frame Processor Plugins";
 			sourceTree = "<group>";
 		};
-		B8DB3BD7263DEA31004C18D7 /* Example Plugin (Objective-C) */ = {
+		B8DB3BD7263DEA31004C18D7 /* Face Detection */ = {
 			isa = PBXGroup;
 			children = (
-				B8DB3BD8263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m */,
+				B8DB3BD8263DEA31004C18D7 /* FaceDetectionFrameProcessorPlugin.m */,
 			);
-			path = "Example Plugin (Objective-C)";
+			path = "Face Detection";
 			sourceTree = "<group>";
 		};
 		B8DB3BD9263DEA31004C18D7 /* Example Plugin (Swift) */ = {
@@ -157,6 +187,7 @@
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				5E303E5293C2545D8F744D87 /* [CP] Copy Pods Resources */,
 				679552FCF377DC1EC4565BD1 /* [CP] Embed Pods Frameworks */,
+				B872535A2A02C65E00FAAB0A /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -379,8 +410,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
-				B8DB3BDC263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m in Sources */,
-				B8DB3BD5263DE8B7004C18D7 /* BuildFile in Sources */,
+				B8E93D092A03F86400C79370 /* HandDetectionFrameProcessorPlugin.m in Sources */,
+				B8DB3BDC263DEA31004C18D7 /* FaceDetectionFrameProcessorPlugin.m in Sources */,
+				B8DB3BD5263DE8B7004C18D7 /* (null) in Sources */,
 				B8DB3BDD263DEA31004C18D7 /* ExamplePluginSwift.swift in Sources */,
 				B8F0E10825E0199F00586F16 /* File.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
@@ -399,6 +431,10 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = CJW62Q77E7;
 				ENABLE_BITCODE = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = VisionCameraExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
@@ -423,6 +459,10 @@
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = CJW62Q77E7;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = VisionCameraExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
