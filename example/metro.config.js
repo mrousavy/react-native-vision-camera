@@ -6,6 +6,7 @@ const escape = require('escape-string-regexp');
 const pak = require('../package.json');
 
 const root = path.resolve(__dirname, '..');
+const reanimated = path.resolve(__dirname, '..', '..', 'react-native-reanimated');
 
 const modules = Object.keys({
   ...pak.peerDependencies,
@@ -13,7 +14,7 @@ const modules = Object.keys({
 
 module.exports = {
   projectRoot: __dirname,
-  watchFolders: [root],
+  watchFolders: [root, reanimated],
 
   // We need to make sure that only one version is loaded for peerDependencies
   // So we blacklist them at the root, and alias them to the versions in example's node_modules
