@@ -38,6 +38,10 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       ReactLogger.log(level: .info, message: "File path: \(tempFilePath)")
       let tempURL = URL(string: "file://\(tempFilePath)")!
 
+      if let isVideoMirrored = options["isVideoMirrored"] as? Bool {
+        self.setVideoMirrored(isVideoMirrored)
+      }
+
       if let flashMode = options["flash"] as? String {
         // use the torch as the video's flash
         self.setTorchMode(flashMode)

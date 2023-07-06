@@ -40,6 +40,13 @@ export interface RecordVideoOptions {
    * @platform iOS
    */
   videoCodec?: CameraVideoCodec;
+  /**
+   * Set the mirror recording of the video
+   *
+   * @default true
+   * @platform iOS
+   */
+  isVideoMirrored?: boolean;
 }
 
 /**

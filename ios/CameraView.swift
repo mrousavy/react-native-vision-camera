@@ -312,6 +312,13 @@ public final class CameraView: UIView {
     }
   }
 
+  internal final func setVideoMirrored(_ isVideoMirrored: Bool) {
+    let updateOrientationOptions: NSDictionary = [
+      "isVideoMirrored": isVideoMirrored,
+    ]
+    updateOrientation(options: updateOrientationOptions)
+  }
+
   @objc
   func onOrientationChanged() {
     updateOrientation()
