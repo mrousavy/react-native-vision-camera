@@ -129,7 +129,6 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       
       // Init Audio (optional)
       if enableAudio {
-        // Activate Audio Session (blocking)
         // Activate Audio Session asynchronously
         CameraQueues.audioQueue.async {
           self.activateAudioSession()
