@@ -8,7 +8,7 @@ hasWorklets = File.exist?(workletsPath)
 puts "[VisionCamera] react-native-worklets #{hasWorklets ? "found" : "not found"}, Frame Processors #{hasWorklets ? "enabled" : "disabled"}!"
 
 skiaPath = File.join(nodeModules, "@shopify", "react-native-skia")
-hasSkia = File.exist?(skiaPath)
+hasSkia = hasWorklets && File.exist?(skiaPath)
 puts "[VisionCamera] react-native-skia #{hasSkia ? "found" : "not found"}, Skia Frame Processors #{hasSkia ? "enabled" : "disabled"}!"
 
 Pod::Spec.new do |s|
