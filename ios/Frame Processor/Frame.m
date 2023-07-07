@@ -11,11 +11,11 @@
 #import <CoreMedia/CMSampleBuffer.h>
 
 @implementation Frame {
-  CMSampleBufferRef buffer;
+  CMSampleBufferRef _Nonnull buffer;
   UIImageOrientation orientation;
 }
 
-- (instancetype) initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation {
+- (instancetype) initWithBuffer:(CMSampleBufferRef _Nonnull)buffer orientation:(UIImageOrientation)orientation {
   self = [super init];
   if (self) {
     _buffer = buffer;

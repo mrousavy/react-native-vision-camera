@@ -11,4 +11,4 @@
 #import <Foundation/Foundation.h>
 #import "Frame.h"
 
-typedef void (^FrameProcessorCallback) (Frame* frame, void* skCanvas);
+typedef void (^FrameProcessorCallback) (Frame* _Nonnull frame, void* _Nullable skCanvas);

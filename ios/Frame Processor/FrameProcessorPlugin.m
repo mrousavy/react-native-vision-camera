@@ -18,13 +18,13 @@
   return nil;
 }
 
-- (id)callback:(Frame *)frame withArguments:(NSArray<id> *)arguments {
+- (id _Nullable)callback:(Frame* _Nonnull)frame withArguments:(NSArray<id>* _Nullable)arguments {
   [NSException raise:NSInternalInconsistencyException
               format:@"Frame Processor Plugin \"%@\" does not override the `callback(frame:withArguments:)` method!", [self name]];
   return nil;
 }
 
-+ (void)registerPlugin:(FrameProcessorPlugin *)plugin {
++ (void)registerPlugin:(FrameProcessorPlugin* _Nonnull)plugin {
   [FrameProcessorPluginRegistry addFrameProcessorPlugin:plugin];
 }
 

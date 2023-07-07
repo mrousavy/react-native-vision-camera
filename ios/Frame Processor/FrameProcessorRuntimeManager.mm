@@ -175,8 +175,6 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
       if (!currentBridge) return;
 
       auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
-      if (!anonymousView) return;
-
       auto view = static_cast<CameraView*>(anonymousView);
       view.frameProcessorCallback = nil;
     });

@@ -15,6 +15,6 @@
 @interface FrameProcessorPluginRegistry : NSObject
 
 + (NSMutableDictionary<NSString*, FrameProcessorPlugin*>*)frameProcessorPlugins;
-+ (void) addFrameProcessorPlugin:(FrameProcessorPlugin*)plugin;
++ (void) addFrameProcessorPlugin:(FrameProcessorPlugin* _Nonnull)plugin;
 
 @end
