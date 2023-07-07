@@ -243,55 +243,57 @@ public final class CameraView: UIView {
       shouldReconfigureFormat ||
       shouldReconfigureDevice ||
       shouldUpdateVideoStabilization ||
-      shouldUpdateOrientation {
-      // Video Configuration
-      if shouldReconfigure {
-        self.configureCaptureSession()
-      }
-      if shouldReconfigureFormat {
-        self.configureFormat()
-      }
-      if shouldReconfigureDevice {
-        self.configureDevice()
-      }
-      if shouldUpdateVideoStabilization, let videoStabilizationMode = self.videoStabilizationMode as String? {
-        self.captureSession.setVideoStabilizationMode(videoStabilizationMode)
-      }
-
-      if shouldUpdateZoom {
-        let zoomClamped = max(min(CGFloat(self.zoom.doubleValue), self.maxAvailableZoom), self.minAvailableZoom)
-        self.zoom(factor: zoomClamped, animated: false)
-        self.pinchScaleOffset = zoomClamped
-      }
-
-      if shouldCheckActive && self.captureSession.isRunning != self.isActive {
-        if self.isActive {
-          ReactLogger.log(level: .info, message: "Starting Session...")
-          self.captureSession.startRunning()
-          ReactLogger.log(level: .info, message: "Started Session!")
-        } else {
-          ReactLogger.log(level: .info, message: "Stopping Session...")
-          self.captureSession.stopRunning()
-          ReactLogger.log(level: .info, message: "Stopped Session!")
+        shouldUpdateOrientation {
+      CameraQueues.cameraQueue {
+        // Video Configuration
+        if shouldReconfigure {
+          self.configureCaptureSession()
+        }
+        if shouldReconfigureFormat {
+          self.configureFormat()
+        }
+        if shouldReconfigureDevice {
+          self.configureDevice()
+        }
+        if shouldUpdateVideoStabilization, let videoStabilizationMode = self.videoStabilizationMode as String? {
+          self.captureSession.setVideoStabilizationMode(videoStabilizationMode)
+        }
+        
+        if shouldUpdateZoom {
+          let zoomClamped = max(min(CGFloat(self.zoom.doubleValue), self.maxAvailableZoom), self.minAvailableZoom)
+          self.zoom(factor: zoomClamped, animated: false)
+          self.pinchScaleOffset = zoomClamped
+        }
+        
+        if shouldCheckActive && self.captureSession.isRunning != self.isActive {
+          if self.isActive {
+            ReactLogger.log(level: .info, message: "Starting Session...")
+            self.captureSession.startRunning()
+            ReactLogger.log(level: .info, message: "Started Session!")
+          } else {
+            ReactLogger.log(level: .info, message: "Stopping Session...")
+            self.captureSession.stopRunning()
+            ReactLogger.log(level: .info, message: "Stopped Session!")
+          }
+        }
+        
+        if shouldUpdateOrientation {
+          self.updateOrientation()
+        }
+        
+        // This is a wack workaround, but if I immediately set torch mode after `startRunning()`, the session isn't quite ready yet and will ignore torch.
+        if shouldUpdateTorch {
+          CameraQueues.cameraQueue.asyncAfter(deadline: .now() + 0.1) {
+            self.setTorchMode(self.torch)
+          }
         }
       }
-
-      if shouldUpdateOrientation {
-        self.updateOrientation()
-      }
-
-      // This is a wack workaround, but if I immediately set torch mode after `startRunning()`, the session isn't quite ready yet and will ignore torch.
-      if shouldUpdateTorch {
-        CameraQueues.cameraQueue.asyncAfter(deadline: .now() + 0.1) {
-          self.setTorchMode(self.torch)
+      
+      // Audio Configuration
+      if shouldReconfigureAudioSession {
+        CameraQueues.audioQueue.async {
+          self.configureAudioSession()
         }
-      }
-    }
-
-    // Audio Configuration
-    if shouldReconfigureAudioSession {
-      CameraQueues.audioQueue.async {
-        self.configureAudioSession()
       }
     }
   }
