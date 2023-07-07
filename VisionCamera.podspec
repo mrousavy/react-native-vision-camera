@@ -40,9 +40,19 @@ Pod::Spec.new do |s|
     "ios/Extensions/*.{m,mm,swift}",
     "ios/Parsers/*.{m,mm,swift}",
     "ios/React Utils/*.{m,mm,swift}",
-
-    # Headers
     "ios/CameraBridge.h",
+
+    # Frame Processors
+    hasWorklets && "ios/Frame Processor/*.{m,mm,swift}",
+    hasWorklets && "ios/Frame Processor/Frame.h",
+    hasWorklets && "ios/Frame Processor/FrameProcessorCallback.h",
+    hasWorklets && "ios/Frame Processor/FrameProcessorRuntimeManager.h",
+    hasWorklets && "ios/Frame Processor/FrameProcessorPlugin.h",
+    hasWorklets && "cpp/**/*.{cpp}",
+
+    # Skia Frame Processors
+    hasSkia && "ios/Skia Render Layer/*.{m,mm,swift}",
+    hasSkia && "ios/Skia Render Layer/SkiaPreviewView.h",
   ]
   # Any private headers that are not globally unique should be mentioned here.
   # Otherwise there will be a nameclash, since CocoaPods flattens out any header directories
@@ -52,53 +62,14 @@ Pod::Spec.new do |s|
     "ios/**/*.h"
   ]
 
-  s.subspec "FrameProcessors" do |spec|
-    spec.dependency "React-callinvoker"
-    spec.dependency "react-native-worklets"
-
-    spec.source_files = [
-      "ios/Frame Processor/*.{m,mm,swift}",
-      "cpp/**/*.{cpp}",
-    ]
-    spec.public_header_files = [
-      "ios/Frame Processor/Frame.h",
-      "ios/Frame Processor/FrameProcessorCallback.h",
-      "ios/Frame Processor/FrameProcessorRuntimeManager.h",
-      "ios/Frame Processor/FrameProcessorPluginRegistry.h",
-      "ios/Frame Processor/FrameProcessorPlugin.h",
-      "ios/React Utils/RCTBridge+runOnJS.h",
-      "ios/React Utils/JSConsoleHelper.h",
-    ]
-    spec.header_dir = "ios/Frame Processor"
-  end
-  s.subspec "SkiaFrameProcessors" do |spec|
-    spec.dependency "react-native-skia"
-    spec.dependency "VisionCamera/FrameProcessors"
-
-    spec.source_files = [
-      "ios/Skia Render Layer/*.{m,mm,swift}",
-      "cpp/**/*.{cpp}",
-    ]
-    spec.public_header_files = [
-      "ios/Frame Processor/Frame.h",
-      "ios/Frame Processor/FrameProcessorCallback.h",
-      "ios/Frame Processor/FrameProcessorRuntimeManager.h",
-      "ios/Frame Processor/FrameProcessorPluginRegistry.h",
-      "ios/Frame Processor/FrameProcessorPlugin.h",
-      "ios/React Utils/RCTBridge+runOnJS.h",
-      "ios/React Utils/JSConsoleHelper.h",
-    ]
-    spec.header_dir = "Skia Render Layer"
-  end
-
   s.dependency "React"
   s.dependency "React-Core"
+  s.dependency "React-callinvoker"
 
-  s.default_subspecs = []
   if hasWorklets
-    s.default_subspecs = ["FrameProcessors"]
+    s.dependency "react-native-worklets"
     if hasSkia
-      s.default_subspecs = ["FrameProcessors", "SkiaFrameProcessors"]
+      s.dependency "react-native-skia"
     end
   end
 end

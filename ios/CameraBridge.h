@@ -15,9 +15,9 @@
 #import <React/RCTFPSGraph.h>
 
 #if VISION_ENABLE_FRAME_PROCESSORS
-#import "Frame Processor/FrameProcessorCallback.h"
-#import "Frame Processor/FrameProcessorRuntimeManager.h"
-#import "Frame Processor/Frame.h"
+#import "FrameProcessorCallback.h"
+#import "FrameProcessorRuntimeManager.h"
+#import "Frame.h"
 #endif
 
 @interface CameraBridge: RCTViewManager

@@ -1,12 +1,12 @@
 //
-//  PreviewSkiaView.mm
+//  SkiaPreviewView.mm
 //  VisionCamera
 //
 //  Created by Marc Rousavy on 17.11.22.
 //  Copyright © 2022 mrousavy. All rights reserved.
 //
 
-#import "PreviewSkiaView.h"
+#import "SkiaPreviewView.h"
 #import <Foundation/Foundation.h>
 
 #import "SkiaMetalCanvasProvider.h"
@@ -19,7 +19,7 @@
 #import <React/RCTFPSGraph.h>
 #endif
 
-@implementation PreviewSkiaView {
+@implementation SkiaPreviewView {
   std::shared_ptr<SkiaMetalCanvasProvider> _canvasProvider;
 }
 
@@ -27,7 +27,7 @@
   if (_canvasProvider == nullptr) {
     throw std::runtime_error("Cannot draw new Frame to Canvas when SkiaMetalCanvasProvider is null!");
   }
-  
+
   _canvasProvider->renderFrameToCanvas(buffer, ^(SkCanvas* canvas) {
     callback((void*)canvas);
   });

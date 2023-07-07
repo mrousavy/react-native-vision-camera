@@ -492,20 +492,6 @@ PODS:
     - React-Core
     - react-native-skia
     - react-native-worklets
-    - VisionCamera/FrameProcessors (= 3.0.0-rc.2)
-    - VisionCamera/SkiaFrameProcessors (= 3.0.0-rc.2)
-  - VisionCamera/FrameProcessors (3.0.0-rc.2):
-    - React
-    - React-callinvoker
-    - React-Core
-    - react-native-skia
-    - react-native-worklets
-  - VisionCamera/SkiaFrameProcessors (3.0.0-rc.2):
-    - React
-    - React-callinvoker
-    - React-Core
-    - react-native-skia
-    - react-native-worklets
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -727,7 +713,7 @@ SPEC CHECKSUMS:
   RNStaticSafeAreaInsets: 055ddbf5e476321720457cdaeec0ff2ba40ec1b8
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  VisionCamera: 781e0aa3b412c3628de1b82333f899b2f8208300
+  VisionCamera: 534b63a553858cf0e0e17d3d3d07a76d2682a3ad
   Yoga: 65286bb6a07edce5e4fe8c90774da977ae8fc009
 
 PODFILE CHECKSUM: ab9c06b18c63e741c04349c0fd630c6d3145081c
