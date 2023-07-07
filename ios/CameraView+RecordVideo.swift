@@ -192,14 +192,19 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
     // Draw Frame to Preview View Canvas (and call Frame Processor)
     if captureOutput is AVCaptureVideoDataOutput {
-      if let previewView = previewView as? SkiaPreviewView {
-        // Render to Skia PreviewView
-        previewView.drawFrame(sampleBuffer) { canvas in
-          // Call JS Frame Processor before passing Frame to GPU - allows user to draw
-          guard let frameProcessor = self.frameProcessorCallback else { return }
-          let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
-          frameProcessor(frame, canvas)
-        }
+      if previewType == "skia" {
+        #if VISION_CAMERA_ENABLE_SKIA
+          let previewView = previewView as! SkiaPreviewView
+          // Render to Skia PreviewView
+          previewView.drawFrame(sampleBuffer) { canvas in
+            // Call JS Frame Processor before passing Frame to GPU - allows user to draw
+            guard let frameProcessor = self.frameProcessorCallback else { return }
+            let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
+            frameProcessor(frame, canvas)
+          }
+        #else
+          invokeOnError(.system(.skiaUnavailable))
+        #endif
       } else {
         // Call JS Frame Processor. User cannot draw, since we don't have a Skia Canvas.
         guard let frameProcessor = frameProcessorCallback else { return }

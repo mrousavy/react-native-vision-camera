@@ -21,16 +21,20 @@
 
 #import "WKTJsiWorklet.h"
 
+#if VISION_CAMERA_ENABLE_SKIA
 #import "RNSkPlatformContext.h"
 #import "RNSkiOSPlatformContext.h"
 #import "JsiSkCanvas.h"
+#endif
 
 FrameProcessorCallback convertWorkletToFrameProcessorCallback(jsi::Runtime& runtime, std::shared_ptr<RNWorklet::JsiWorklet> worklet) {
   // Wrap Worklet call in invoker
   auto workletInvoker = std::make_shared<RNWorklet::WorkletInvoker>(worklet);
+#if VISION_CAMERA_ENABLE_SKIA
   // Create cached Skia Canvas object
   auto skiaPlatformContext = std::make_shared<RNSkia::RNSkiOSPlatformContext>(&runtime, RCTBridge.currentBridge);
   auto canvasHostObject = std::make_shared<RNSkia::JsiSkCanvas>(skiaPlatformContext);
+#endif
 
   // Converts a Worklet to a callable Objective-C block function
   return ^(Frame* frame, void* skiaCanvas) {
@@ -38,6 +42,7 @@ FrameProcessorCallback convertWorkletToFrameProcessorCallback(jsi::Runtime& runt
     try {
         // create HostObject which holds the Frame
       auto frameHostObject = std::make_shared<FrameHostObject>(frame);
+#if VISION_CAMERA_ENABLE_SKIA
       // Update cached Canvas object
       if (skiaCanvas != nullptr) {
         canvasHostObject->setCanvas((SkCanvas*)skiaCanvas);
@@ -45,14 +50,17 @@ FrameProcessorCallback convertWorkletToFrameProcessorCallback(jsi::Runtime& runt
       } else {
         frameHostObject->canvas = nullptr;
       }
+#endif
 
       auto argument = jsi::Object::createFromHostObject(runtime, frameHostObject);
       jsi::Value jsValue(std::move(argument));
       // Call the Worklet with the Frame JS Host Object as an argument
       workletInvoker->call(runtime, jsi::Value::undefined(), &jsValue, 1);
-
+      
+#if VISION_CAMERA_ENABLE_SKIA
       // After the sync Frame Processor finished executing, remove the Canvas on that Frame instance. It can no longer draw.
       frameHostObject->canvas = nullptr;
+#endif
     } catch (jsi::JSError& jsError) {
       // JS Error occured, print it to console.
       auto stack = std::regex_replace(jsError.getStack(), std::regex("\n"), "\n    ");

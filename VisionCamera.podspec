@@ -8,7 +8,7 @@ hasWorklets = File.exist?(workletsPath)
 puts "[VisionCamera] react-native-worklets #{hasWorklets ? "found" : "not found"}, Frame Processors #{hasWorklets ? "enabled" : "disabled"}!"
 
 skiaPath = File.join(nodeModules, "@shopify", "react-native-skia")
-hasSkia = hasWorklets && File.exist?(skiaPath)
+hasSkia = false
 puts "[VisionCamera] react-native-skia #{hasSkia ? "found" : "not found"}, Skia Frame Processors #{hasSkia ? "enabled" : "disabled"}!"
 
 Pod::Spec.new do |s|
@@ -43,16 +43,17 @@ Pod::Spec.new do |s|
     "ios/CameraBridge.h",
 
     # Frame Processors
-    hasWorklets && "ios/Frame Processor/*.{m,mm,swift}",
-    hasWorklets && "ios/Frame Processor/Frame.h",
-    hasWorklets && "ios/Frame Processor/FrameProcessorCallback.h",
-    hasWorklets && "ios/Frame Processor/FrameProcessorRuntimeManager.h",
-    hasWorklets && "ios/Frame Processor/FrameProcessorPlugin.h",
-    hasWorklets && "cpp/**/*.{cpp}",
+    hasWorklets ? "ios/Frame Processor/*.{m,mm,swift}" : "",
+    hasWorklets ? "ios/Frame Processor/Frame.h" : "",
+    hasWorklets ? "ios/Frame Processor/FrameProcessorCallback.h" : "",
+    hasWorklets ? "ios/Frame Processor/FrameProcessorRuntimeManager.h" : "",
+    hasWorklets ? "ios/Frame Processor/FrameProcessorPlugin.h" : "",
+    hasWorklets ? "ios/React Utils/JSConsoleHelper.h" : "",
+    hasWorklets ? "cpp/**/*.{cpp}" : "",
 
     # Skia Frame Processors
-    hasSkia && "ios/Skia Render Layer/*.{m,mm,swift}",
-    hasSkia && "ios/Skia Render Layer/SkiaPreviewView.h",
+    hasSkia ? "ios/Skia Render Layer/*.{m,mm,swift}" : "",
+    hasSkia ? "ios/Skia Render Layer/SkiaPreviewView.h" : "",
   ]
   # Any private headers that are not globally unique should be mentioned here.
   # Otherwise there will be a nameclash, since CocoaPods flattens out any header directories

@@ -33,13 +33,15 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("decrementRefCount")));
   // Skia
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("render")));
-
+  
+#if VISION_CAMERA_ENABLE_SKIA
   if (canvas != nullptr) {
     auto canvasPropNames = canvas->getPropertyNames(rt);
     for (auto& prop : canvasPropNames) {
       result.push_back(std::move(prop));
     }
   }
+#endif
 
   return result;
 }
@@ -92,6 +94,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
                                                  0,
                                                  decrementRefCount);
   }
+#if VISION_CAMERA_ENABLE_SKIA
   if (name == "render") {
     auto render = JSI_HOST_FUNCTION_LAMBDA {
       if (canvas == nullptr) {
@@ -117,6 +120,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "render"), 1, render);
   }
+#endif
   if (name == "toArrayBuffer") {
     auto toArrayBuffer = JSI_HOST_FUNCTION_LAMBDA {
       auto pixelBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
@@ -205,11 +209,13 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
     return jsi::Value((double) planesCount);
   }
-
+  
+#if VISION_CAMERA_ENABLE_SKIA
   if (canvas != nullptr) {
     // If we have a Canvas, try to access the property on there.
     return canvas->get(runtime, propName);
   }
+#endif
 
   // fallback to base implementation
   return HostObject::get(runtime, propName);

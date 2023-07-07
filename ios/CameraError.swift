@@ -256,6 +256,8 @@ enum CaptureError {
 
 enum SystemError: String {
   case noManager = "no-camera-manager"
+  case skiaUnavailable = "skia-unavailable"
+  case frameProcessorsUnavailable = "frame-processors-unavailable"
 
   var code: String {
     return rawValue
@@ -265,6 +267,10 @@ enum SystemError: String {
     switch self {
     case .noManager:
       return "No Camera Manager was found."
+    case .skiaUnavailable:
+      return "Skia Integration is unavailable - is @shopify/react-native-skia installed?"
+    case .frameProcessorsUnavailable:
+      return "Frame Processors are unavailable - is react-native-worklets installed?"
     }
   }
 }

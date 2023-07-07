@@ -183,9 +183,13 @@ public final class CameraView: UIView {
   func setupPreviewView() {
     if previewType == "skia" {
       // Skia Preview View allows user to draw onto a Frame in a Frame Processor
-      if previewView is SkiaPreviewView { return }
-      previewView?.removeFromSuperview()
-      previewView = SkiaPreviewView(frame: frame)
+      #if VISION_CAMERA_ENABLE_SKIA
+        if previewView is SkiaPreviewView { return }
+        previewView?.removeFromSuperview()
+        previewView = SkiaPreviewView(frame: frame)
+      #else
+        invokeOnError(.system(.skiaUnavailable))
+      #endif
     } else {
       // Normal iOS PreviewView is lighter and more performant (YUV Format, GPU only)
       if previewView is PreviewView { return }
