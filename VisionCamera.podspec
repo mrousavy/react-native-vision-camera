@@ -53,6 +53,9 @@ Pod::Spec.new do |s|
   ]
 
   s.subspec "FrameProcessors" do |spec|
+    spec.dependency "React-callinvoker"
+    spec.dependency "react-native-worklets"
+
     spec.source_files = [
       "ios/Frame Processor/*.{m,mm,swift}",
       "cpp/**/*.{cpp}",
@@ -69,6 +72,9 @@ Pod::Spec.new do |s|
     spec.header_dir = "ios/Frame Processor"
   end
   s.subspec "SkiaFrameProcessors" do |spec|
+    spec.dependency "react-native-skia"
+    spec.dependency "VisionCamera/FrameProcessors"
+
     spec.source_files = [
       "ios/Skia Render Layer/*.{m,mm,swift}",
       "cpp/**/*.{cpp}",
@@ -86,15 +92,12 @@ Pod::Spec.new do |s|
   end
 
   s.dependency "React"
-  s.dependency "React-callinvoker"
   s.dependency "React-Core"
 
   s.default_subspecs = []
   if hasWorklets
-    s.dependency "react-native-worklets"
     s.default_subspecs = ["FrameProcessors"]
     if hasSkia
-      s.dependency "react-native-skia"
       s.default_subspecs = ["FrameProcessors", "SkiaFrameProcessors"]
     end
   end
