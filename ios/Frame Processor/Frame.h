@@ -14,7 +14,7 @@
 
 @interface Frame : NSObject
 
-- (instancetype) initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation;
+- (instancetype _Nonnull) initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation;
 
 @property (nonatomic, readonly) CMSampleBufferRef buffer;
 @property (nonatomic, readonly) UIImageOrientation orientation;

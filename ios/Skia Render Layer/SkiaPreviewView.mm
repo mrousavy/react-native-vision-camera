@@ -9,6 +9,7 @@
 #import "SkiaPreviewView.h"
 #import <Foundation/Foundation.h>
 
+#import "SkiaCanvas.h"
 #import "SkiaMetalCanvasProvider.h"
 #include <include/core/SkCanvas.h>
 
@@ -23,13 +24,15 @@
   std::shared_ptr<SkiaMetalCanvasProvider> _canvasProvider;
 }
 
-- (void)drawFrame:(CMSampleBufferRef)buffer withCallback:(DrawCallback _Nonnull)callback {
+- (void)drawFrame:(Frame* _Nonnull)frame withFrameProcessor:(FrameProcessorCallback _Nullable)frameProcessor {
   if (_canvasProvider == nullptr) {
     throw std::runtime_error("Cannot draw new Frame to Canvas when SkiaMetalCanvasProvider is null!");
   }
 
-  _canvasProvider->renderFrameToCanvas(buffer, ^(SkCanvas* canvas) {
-    callback((void*)canvas);
+  _canvasProvider->renderFrameToCanvas(frame.buffer, ^(SkCanvas* canvas) {
+    if (frameProcessor != nil) {
+      frameProcessor(frame, (void*)canvas);
+    }
   });
 }
 

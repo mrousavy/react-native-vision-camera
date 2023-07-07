@@ -5,7 +5,7 @@
 //  Created by Marc Rousavy on 01.05.21.
 //
 
-#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+#if __has_include(<VisionCamera/FrameProcessorPlugin.h>)
 #import <Foundation/Foundation.h>
 #import <VisionCamera/FrameProcessorPlugin.h>
 #import <VisionCamera/Frame.h>

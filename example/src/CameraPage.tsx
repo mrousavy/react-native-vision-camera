@@ -254,7 +254,6 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 audio={hasMicrophonePermission}
                 enableFpsGraph={true}
                 previewType="skia"
-                frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
                 orientation="portrait"
               />
             </TapGestureHandler>

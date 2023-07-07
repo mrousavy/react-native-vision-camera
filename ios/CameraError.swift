@@ -113,7 +113,6 @@ enum FormatError {
   case invalidHdr
   case invalidFormat
   case invalidColorSpace(colorSpace: String)
-  case invalidPreset(preset: String)
 
   var code: String {
     switch self {
@@ -123,8 +122,6 @@ enum FormatError {
       return "invalid-fps"
     case .invalidHdr:
       return "invalid-hdr"
-    case .invalidPreset:
-      return "invalid-preset"
     case .invalidColorSpace:
       return "invalid-color-space"
     }
@@ -141,8 +138,6 @@ enum FormatError {
     case let .invalidColorSpace(colorSpace):
       return "The currently selected format does not support the colorSpace \"\(colorSpace)\"! " +
         "Make sure you select a format which `colorSpaces` includes \"\(colorSpace)\"!"
-    case let .invalidPreset(preset):
-      return "The preset \"\(preset)\" is not available for the current camera device."
     }
   }
 }

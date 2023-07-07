@@ -490,6 +490,8 @@ PODS:
     - React
     - React-callinvoker
     - React-Core
+    - react-native-skia
+    - react-native-worklets
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -711,7 +713,7 @@ SPEC CHECKSUMS:
   RNStaticSafeAreaInsets: 055ddbf5e476321720457cdaeec0ff2ba40ec1b8
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  VisionCamera: c09eafddd5cf66d35387740426bbca2cbfb82270
+  VisionCamera: 3c930caa3ab46b5b571c666005e64fbed2c76698
   Yoga: 65286bb6a07edce5e4fe8c90774da977ae8fc009
 
 PODFILE CHECKSUM: ab9c06b18c63e741c04349c0fd630c6d3145081c

@@ -18,7 +18,7 @@ final class CameraViewManager: RCTViewManager {
   #endif
 
   override var methodQueue: DispatchQueue! {
-    return DispatchQueue.main
+    return CameraQueues.cameraQueue
   }
 
   override static func requiresMainQueueSetup() -> Bool {

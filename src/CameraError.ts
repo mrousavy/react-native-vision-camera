@@ -20,8 +20,7 @@ export type FormatError =
   | 'format/invalid-hdr'
   | 'format/invalid-low-light-boost'
   | 'format/invalid-format'
-  | 'format/invalid-color-space'
-  | 'format/invalid-preset';
+  | 'format/invalid-color-space';
 export type SessionError =
   | 'session/camera-not-ready'
   | 'session/audio-session-setup-failed'

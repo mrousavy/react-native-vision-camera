@@ -72,7 +72,7 @@ extension CameraView {
         invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "audio-output")))
         return
       }
-      audioOutput!.setSampleBufferDelegate(self, queue: audioQueue)
+      audioOutput!.setSampleBufferDelegate(self, queue: CameraQueues.audioQueue)
       audioCaptureSession.addOutput(audioOutput!)
     }
   }
@@ -135,7 +135,7 @@ extension CameraView {
       let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
       if options.contains(.shouldResume) {
         if isRecording {
-          audioQueue.async {
+          CameraQueues.audioQueue.async {
             ReactLogger.log(level: .info, message: "Resuming interrupted Audio Session...")
             // restart audio session because interruption is over
             self.activateAudioSession()

@@ -40,7 +40,6 @@ RCT_EXPORT_VIEW_PROPERTY(lowLightBoost, NSNumber); // nullable bool
 RCT_EXPORT_VIEW_PROPERTY(colorSpace, NSString);
 RCT_EXPORT_VIEW_PROPERTY(videoStabilizationMode, NSString);
 // other props
-RCT_EXPORT_VIEW_PROPERTY(preset, NSString);
 RCT_EXPORT_VIEW_PROPERTY(torch, NSString);
 RCT_EXPORT_VIEW_PROPERTY(previewType, NSString);
 RCT_EXPORT_VIEW_PROPERTY(zoom, NSNumber);

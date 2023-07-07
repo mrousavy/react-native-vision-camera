@@ -15,7 +15,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
    Starts a video + audio recording with a custom Asset Writer.
    */
   func startRecording(options: NSDictionary, callback jsCallbackFunc: @escaping RCTResponseSenderBlock) {
-    cameraQueue.async {
+    CameraQueues.cameraQueue.async {
       ReactLogger.log(level: .info, message: "Starting Video recording...")
       let callback = Callback(jsCallbackFunc)
       
@@ -67,7 +67,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       let onFinish = { (recordingSession: RecordingSession, status: AVAssetWriter.Status, error: Error?) in
         defer {
           if enableAudio {
-            self.audioQueue.async {
+            CameraQueues.audioQueue.async {
               self.deactivateAudioSession()
             }
           }
@@ -150,7 +150,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   }
   
   func stopRecording(promise: Promise) {
-    cameraQueue.async {
+    CameraQueues.cameraQueue.async {
       self.isRecording = false
       
       withPromise(promise) {
@@ -164,7 +164,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   }
   
   func pauseRecording(promise: Promise) {
-    cameraQueue.async {
+    CameraQueues.cameraQueue.async {
       withPromise(promise) {
         guard self.recordingSession != nil else {
           // there's no active recording!
@@ -177,7 +177,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   }
   
   func resumeRecording(promise: Promise) {
-    cameraQueue.async {
+    CameraQueues.cameraQueue.async {
       withPromise(promise) {
         guard self.recordingSession != nil else {
           // there's no active recording!
@@ -190,33 +190,14 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   }
   
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
-    // Draw Frame to Preview View Canvas (and call Frame Processor)
-    if enableFrameProcessor && captureOutput is AVCaptureVideoDataOutput {
-      if previewType == "skia" {
-        // Render to Skia PreviewView
-#if VISION_CAMERA_ENABLE_SKIA
-        let previewView = previewView as! SkiaPreviewView
-        previewView.drawFrame(sampleBuffer) { canvas in
-          // Call JS Frame Processor before passing Frame to GPU - allows user to draw
-          if let frameProcessor = self.frameProcessorCallback {
-            let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
-            frameProcessor(frame, canvas)
-          }
-        }
-#else
-        invokeOnError(.system(.skiaUnavailable))
-#endif
-      } else {
-        // Call JS Frame Processor. User cannot draw, since we don't have a Skia Canvas.
+    if captureOutput is AVCaptureVideoDataOutput {
+      // Draw Frame to Preview View Canvas (and call Frame Processor)
+      let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
-        if let frameProcessor = frameProcessorCallback {
-          let frame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
-          frameProcessor(frame, nil)
-        }
+      previewView?.drawFrame(frame, withFrameProcessor: frameProcessorCallback)
 #else
-        invokeOnError(.system(.frameProcessorsUnavailable))
+      previewView?.drawFrame(frame)
 #endif
-      }
     }
     
     // Record Video Frame/Audio Sample to File
@@ -231,8 +212,8 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         recordingSession.appendBuffer(sampleBuffer, type: .video, timestamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
       case is AVCaptureAudioDataOutput:
         let timestamp = CMSyncConvertTime(CMSampleBufferGetPresentationTimeStamp(sampleBuffer),
-                                          from: audioCaptureSession.masterClock!,
-                                          to: captureSession.masterClock!)
+                                          from: audioCaptureSession.masterClock ?? CMClockGetHostTimeClock(),
+                                          to: captureSession.masterClock ?? CMClockGetHostTimeClock())
         recordingSession.appendBuffer(sampleBuffer, type: .audio, timestamp: timestamp)
       default:
         break
@@ -264,7 +245,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   /**
    Gets the orientation of the CameraView's images (CMSampleBuffers).
    */
-  var bufferOrientation: UIImage.Orientation {
+  private var bufferOrientation: UIImage.Orientation {
     guard let cameraPosition = videoDeviceInput?.device.position else {
       return .up
     }
@@ -272,16 +253,12 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
     switch outputOrientation {
     case .portrait:
       return cameraPosition == .front ? .leftMirrored : .right
-      
     case .landscapeLeft:
       return cameraPosition == .front ? .downMirrored : .up
-      
     case .portraitUpsideDown:
       return cameraPosition == .front ? .rightMirrored : .left
-      
     case .landscapeRight:
       return cameraPosition == .front ? .upMirrored : .down
-      
     case .unknown:
       return .up
     @unknown default:

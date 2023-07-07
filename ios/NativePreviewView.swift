@@ -10,7 +10,7 @@ import AVFoundation
 import Foundation
 import UIKit
 
-class PreviewView: UIView {
+class NativePreviewView: PreviewView {
   /// Convenience wrapper to get layer as its statically known type.
   var videoPreviewLayer: AVCaptureVideoPreviewLayer {
     // swiftlint:disable force_cast
@@ -30,5 +30,9 @@ class PreviewView: UIView {
   @available(*, unavailable)
   required init?(coder _: NSCoder) {
     fatalError("init(coder:) is not implemented!")
+  }
+  
+  override func drawFrame(_ frame: Frame, withFrameProcessor frameProcessor: FrameProcessorCallback? = nil) {
+    // do nothing since AVCaptureVideoPreviewLayer automatically fetches the frame from the AVCaptureSession
   }
 }

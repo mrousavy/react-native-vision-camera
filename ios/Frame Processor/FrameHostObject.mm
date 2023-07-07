@@ -94,9 +94,9 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
                                                  0,
                                                  decrementRefCount);
   }
-#if VISION_CAMERA_ENABLE_SKIA
   if (name == "render") {
     auto render = JSI_HOST_FUNCTION_LAMBDA {
+#if VISION_CAMERA_ENABLE_SKIA
       if (canvas == nullptr) {
         throw jsi::JSError(runtime, "Trying to render a Frame without a Skia Canvas! Did you install Skia?");
       }
@@ -117,10 +117,12 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       }
 
       return jsi::Value::undefined();
+#else
+      throw jsi::JSError(runtime, "Failed to render Frame - Skia Integration is not enabled!");
+#endif
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "render"), 1, render);
   }
-#endif
   if (name == "toArrayBuffer") {
     auto toArrayBuffer = JSI_HOST_FUNCTION_LAMBDA {
       auto pixelBuffer = CMSampleBufferGetImageBuffer(frame.buffer);

@@ -1,7 +1,6 @@
 import type { ViewProps } from 'react-native';
 import type { CameraDevice, CameraDeviceFormat, ColorSpace, VideoStabilizationMode } from './CameraDevice';
 import type { CameraRuntimeError } from './CameraError';
-import type { CameraPreset } from './CameraPreset';
 import type { Frame } from './Frame';
 import type { Orientation } from './Orientation';
 
@@ -85,11 +84,7 @@ export interface CameraProps extends ViewProps {
 
   //#region Format/Preset selection
   /**
-   * Automatically selects a camera format which best matches the given preset. Must be `undefined` when `format` is set!
-   */
-  preset?: CameraPreset;
-  /**
-   * Selects a given format. Must be `undefined` when `preset` is set!
+   * Selects a given format. By default, the best matching format is chosen.
    */
   format?: CameraDeviceFormat;
   /**

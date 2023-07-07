@@ -23,7 +23,6 @@ private let propsThatRequireReconfiguration = ["cameraId",
                                                "enableDepthData",
                                                "enableHighQualityPhotos",
                                                "enablePortraitEffectsMatteDelivery",
-                                               "preset",
                                                "photo",
                                                "video",
                                                "enableFrameProcessor",
@@ -37,14 +36,11 @@ private let propsThatRequireDeviceReconfiguration = ["fps",
 
 public final class CameraView: UIView {
   // pragma MARK: React Properties
-
-  // pragma MARK: Exported Properties
   // props that require reconfiguring
   @objc var cameraId: NSString?
   @objc var enableDepthData = false
   @objc var enableHighQualityPhotos: NSNumber? // nullable bool
   @objc var enablePortraitEffectsMatteDelivery = false
-  @objc var preset: String?
   // use cases
   @objc var photo: NSNumber? // nullable bool
   @objc var video: NSNumber? // nullable bool
@@ -85,7 +81,7 @@ public final class CameraView: UIView {
   // Capture Session
   internal let captureSession = AVCaptureSession()
   internal let audioCaptureSession = AVCaptureSession()
-  // Inputs
+  // Inputs & Outputs
   internal var videoDeviceInput: AVCaptureDeviceInput?
   internal var audioDeviceInput: AVCaptureDeviceInput?
   internal var photoOutput: AVCapturePhotoOutput?
@@ -103,11 +99,7 @@ public final class CameraView: UIView {
   internal var pinchGestureRecognizer: UIPinchGestureRecognizer?
   internal var pinchScaleOffset: CGFloat = 1.0
 
-  internal let cameraQueue = CameraQueues.cameraQueue
-  internal let videoQueue = CameraQueues.videoQueue
-  internal let audioQueue = CameraQueues.audioQueue
-
-  internal var previewView: UIView?
+  internal var previewView: PreviewView?
   #if DEBUG
     internal var fpsGraph: RCTFPSGraph?
   #endif
@@ -194,9 +186,9 @@ public final class CameraView: UIView {
       #endif
     } else {
       // Normal iOS PreviewView is lighter and more performant (YUV Format, GPU only)
-      if previewView is PreviewView { return }
+      if previewView is NativePreviewView { return }
       previewView?.removeFromSuperview()
-      previewView = PreviewView(frame: frame, session: captureSession)
+      previewView = NativePreviewView(frame: frame, session: captureSession)
     }
 
     addSubview(previewView!)
@@ -253,55 +245,53 @@ public final class CameraView: UIView {
       shouldUpdateVideoStabilization ||
       shouldUpdateOrientation {
       // Video Configuration
-      cameraQueue.async {
-        if shouldReconfigure {
-          self.configureCaptureSession()
-        }
-        if shouldReconfigureFormat {
-          self.configureFormat()
-        }
-        if shouldReconfigureDevice {
-          self.configureDevice()
-        }
-        if shouldUpdateVideoStabilization, let videoStabilizationMode = self.videoStabilizationMode as String? {
-          self.captureSession.setVideoStabilizationMode(videoStabilizationMode)
-        }
+      if shouldReconfigure {
+        self.configureCaptureSession()
+      }
+      if shouldReconfigureFormat {
+        self.configureFormat()
+      }
+      if shouldReconfigureDevice {
+        self.configureDevice()
+      }
+      if shouldUpdateVideoStabilization, let videoStabilizationMode = self.videoStabilizationMode as String? {
+        self.captureSession.setVideoStabilizationMode(videoStabilizationMode)
+      }
 
-        if shouldUpdateZoom {
-          let zoomClamped = max(min(CGFloat(self.zoom.doubleValue), self.maxAvailableZoom), self.minAvailableZoom)
-          self.zoom(factor: zoomClamped, animated: false)
-          self.pinchScaleOffset = zoomClamped
-        }
+      if shouldUpdateZoom {
+        let zoomClamped = max(min(CGFloat(self.zoom.doubleValue), self.maxAvailableZoom), self.minAvailableZoom)
+        self.zoom(factor: zoomClamped, animated: false)
+        self.pinchScaleOffset = zoomClamped
+      }
 
-        if shouldCheckActive && self.captureSession.isRunning != self.isActive {
-          if self.isActive {
-            ReactLogger.log(level: .info, message: "Starting Session...")
-            self.captureSession.startRunning()
-            ReactLogger.log(level: .info, message: "Started Session!")
-          } else {
-            ReactLogger.log(level: .info, message: "Stopping Session...")
-            self.captureSession.stopRunning()
-            ReactLogger.log(level: .info, message: "Stopped Session!")
-          }
-        }
-
-        if shouldUpdateOrientation {
-          self.updateOrientation()
-        }
-
-        // This is a wack workaround, but if I immediately set torch mode after `startRunning()`, the session isn't quite ready yet and will ignore torch.
-        if shouldUpdateTorch {
-          self.cameraQueue.asyncAfter(deadline: .now() + 0.1) {
-            self.setTorchMode(self.torch)
-          }
+      if shouldCheckActive && self.captureSession.isRunning != self.isActive {
+        if self.isActive {
+          ReactLogger.log(level: .info, message: "Starting Session...")
+          self.captureSession.startRunning()
+          ReactLogger.log(level: .info, message: "Started Session!")
+        } else {
+          ReactLogger.log(level: .info, message: "Stopping Session...")
+          self.captureSession.stopRunning()
+          ReactLogger.log(level: .info, message: "Stopped Session!")
         }
       }
 
-      // Audio Configuration
-      if shouldReconfigureAudioSession {
-        audioQueue.async {
-          self.configureAudioSession()
+      if shouldUpdateOrientation {
+        self.updateOrientation()
+      }
+
+      // This is a wack workaround, but if I immediately set torch mode after `startRunning()`, the session isn't quite ready yet and will ignore torch.
+      if shouldUpdateTorch {
+        CameraQueues.cameraQueue.asyncAfter(deadline: .now() + 0.1) {
+          self.setTorchMode(self.torch)
         }
+      }
+    }
+
+    // Audio Configuration
+    if shouldReconfigureAudioSession {
+      CameraQueues.audioQueue.async {
+        self.configureAudioSession()
       }
     }
   }

@@ -14,6 +14,8 @@
 #import <React/RCTUIManager.h>
 #import <React/RCTFPSGraph.h>
 
+#import "PreviewView.h"
+
 #if VISION_ENABLE_FRAME_PROCESSORS
 #import "FrameProcessorCallback.h"
 #import "FrameProcessorRuntimeManager.h"
