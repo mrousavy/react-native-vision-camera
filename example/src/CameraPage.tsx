@@ -21,12 +21,12 @@ import { CaptureButton } from './views/CaptureButton';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { examplePlugin } from './frame-processors/ExamplePlugin';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
 import { Skia } from '@shopify/react-native-skia';
-import { FACE_SHADER } from './Shaders';
+import { FACE_PIXELATED_SHADER, FACE_SHADER } from './Shaders';
+import { detectFaces } from './frame-processors/FaceDetection';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -49,7 +49,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const isForeground = useIsForeground();
   const isActive = isFocussed && isForeground;
 
-  const [cameraPosition, setCameraPosition] = useState<'front' | 'back'>('back');
+  const [cameraPosition, setCameraPosition] = useState<'front' | 'back'>('front');
   const [enableHdr, setEnableHdr] = useState(false);
   const [flash, setFlash] = useState<'off' | 'on'>('off');
   const [enableNightMode, setEnableNightMode] = useState(false);
@@ -104,8 +104,12 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
       result = result.filter((f) => f.supportsVideoHDR || f.supportsPhotoHDR);
     }
 
+    result = result.filter((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, fps)));
+
+    // console.log({ result });
+
     // find the first format that includes the given FPS
-    return result.find((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, fps)));
+    return result[0];
   }, [formats, fps, enableHdr]);
 
   //#region Animated Zoom
@@ -198,36 +202,43 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const radius = (format?.videoHeight ?? 1080) * 0.1;
-  const width = radius;
-  const height = radius;
-  const x = (format?.videoHeight ?? 1080) / 2 - radius / 2;
-  const y = (format?.videoWidth ?? 1920) / 2 - radius / 2;
-  const centerX = x + width / 2;
-  const centerY = y + height / 2;
-
-  const runtimeEffect = Skia.RuntimeEffect.Make(FACE_SHADER);
+  const runtimeEffect = Skia.RuntimeEffect.Make(FACE_PIXELATED_SHADER);
   if (runtimeEffect == null) throw new Error('Shader failed to compile!');
   const shaderBuilder = Skia.RuntimeShaderBuilder(runtimeEffect);
-  shaderBuilder.setUniform('r', [width]);
-  shaderBuilder.setUniform('x', [centerX]);
-  shaderBuilder.setUniform('y', [centerY]);
-  shaderBuilder.setUniform('resolution', [1920, 1080]);
-  const imageFilter = Skia.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
 
   const paint = Skia.Paint();
-  paint.setImageFilter(imageFilter);
+
+  const rectPaint = Skia.Paint();
+  rectPaint.setColor(Skia.Color('red'));
 
   const isIOS = Platform.OS === 'ios';
   const frameProcessor = useFrameProcessor(
     (frame) => {
       'worklet';
-      console.log(`Width: ${frame.width}`);
+      // console.log(`Width: ${frame.width}`);
 
-      if (isIOS) frame.render(paint);
-      else console.log('Drawing to the Frame is not yet available on Android. WIP PR');
+      const { faces } = detectFaces(frame);
+      // console.log(faces);
+      for (const face of faces) {
+        const rect = Skia.XYWHRect(face.x * frame.width, face.y * frame.height, face.width * frame.width, face.height * frame.height);
+
+        const centerX = (face.x + face.width / 2) * frame.width;
+        const centerY = (face.y + face.height / 2) * frame.height;
+        const radius = Math.max(face.width * frame.width, face.height * frame.height) / 2;
+
+        shaderBuilder.setUniform('x', [centerX]);
+        shaderBuilder.setUniform('y', [centerY]);
+        shaderBuilder.setUniform('r', [radius]);
+        const imageFilter = Skia.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
+        paint.setImageFilter(imageFilter);
+
+        frame.render(paint);
+      }
+
+      // if (isIOS) frame.render(paint);
+      // else console.log('Drawing to the Frame is not yet available on Android. WIP PR');
     },
-    [isIOS, paint],
+    [paint, shaderBuilder],
   );
 
   return (
