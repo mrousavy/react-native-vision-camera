@@ -23,8 +23,9 @@
 
 @implementation PreviewView
 
-- (void) drawFrame:(Frame *)frame withFrameProcessor:(FrameProcessorCallback)frameProcessor {
-  assert("This needs to be implemented by the user!");
+- (void) drawFrame:(Frame* _Nonnull)frame withFrameProcessor:(FrameProcessorCallback _Nullable)frameProcessor {
+  [NSException raise:NSInternalInconsistencyException
+              format:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)];
 }
 
 @end
