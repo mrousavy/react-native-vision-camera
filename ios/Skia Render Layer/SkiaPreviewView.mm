@@ -11,14 +11,10 @@
 
 #import "SkiaCanvas.h"
 #import "SkiaMetalCanvasProvider.h"
-#include <include/core/SkCanvas.h>
+#import <include/core/SkCanvas.h>
 
-#include <exception>
-#include <string>
-
-#if SHOW_FPS
-#import <React/RCTFPSGraph.h>
-#endif
+#import <exception>
+#import <string>
 
 @implementation SkiaPreviewView {
   std::shared_ptr<SkiaMetalCanvasProvider> _canvasProvider;
@@ -26,7 +22,8 @@
 
 - (void)drawFrame:(Frame* _Nonnull)frame withFrameProcessor:(FrameProcessorCallback _Nullable)frameProcessor {
   if (_canvasProvider == nullptr) {
-    throw std::runtime_error("Cannot draw new Frame to Canvas when SkiaMetalCanvasProvider is null!");
+    NSLog(@"VisionCamera: Dropped a Frame because SkiaPreviewView is not yet fully initialized!");
+    return;
   }
 
   _canvasProvider->renderFrameToCanvas(frame.buffer, ^(SkCanvas* canvas) {
