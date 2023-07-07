@@ -127,10 +127,13 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       recordingSession.initializeVideoWriter(withSettings: videoSettings,
                                              pixelFormat: pixelFormat)
       
-      // Init Audio (optional, async)
+      // Init Audio (optional)
       if enableAudio {
         // Activate Audio Session (blocking)
-        self.activateAudioSession()
+        // Activate Audio Session asynchronously
+        CameraQueues.audioQueue.async {
+          self.activateAudioSession()
+        }
         
         if let audioOutput = self.audioOutput,
            let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: fileType) {
