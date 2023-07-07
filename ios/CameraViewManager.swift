@@ -18,7 +18,7 @@ final class CameraViewManager: RCTViewManager {
   #endif
 
   override var methodQueue: DispatchQueue! {
-    return CameraQueues.cameraQueue
+    return DispatchQueue.main
   }
 
   override static func requiresMainQueueSetup() -> Bool {
@@ -37,8 +37,10 @@ final class CameraViewManager: RCTViewManager {
     // Runs on JS Thread
     runtimeManager = FrameProcessorRuntimeManager()
     runtimeManager!.installFrameProcessorBindings()
-    #endif
     return true as NSNumber
+    #else
+    return false as NSNumber
+    #endif
   }
 
   @objc
