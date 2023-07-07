@@ -244,7 +244,7 @@ public final class CameraView: UIView {
       shouldReconfigureDevice ||
       shouldUpdateVideoStabilization ||
         shouldUpdateOrientation {
-      CameraQueues.cameraQueue {
+      CameraQueues.cameraQueue.async {
         // Video Configuration
         if shouldReconfigure {
           self.configureCaptureSession()
