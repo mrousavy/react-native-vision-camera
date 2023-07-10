@@ -15,6 +15,7 @@ class NativePreviewView: PreviewView {
   var videoPreviewLayer: AVCaptureVideoPreviewLayer {
     // swiftlint:disable force_cast
     return layer as! AVCaptureVideoPreviewLayer
+    // swiftlint:enable force_cast
   }
 
   override public class var layerClass: AnyClass {
