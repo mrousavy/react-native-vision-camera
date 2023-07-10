@@ -200,6 +200,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
     const values = examplePlugin(frame);
+    // @ts-ignore
+    console.log(_WORKLET);
     console.log(`Return Values: ${JSON.stringify(values)}`);
   }, []);
 
