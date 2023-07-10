@@ -91,7 +91,7 @@ public final class CameraView: UIView {
   internal var isRecording = false
   internal var recordingSession: RecordingSession?
   #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
-  @objc public var frameProcessorCallback: FrameProcessorCallback?
+    @objc public var frameProcessorCallback: FrameProcessorCallback?
   #endif
   // CameraView+TakePhoto
   internal var photoCaptureDelegates: [PhotoCaptureDelegate] = []
@@ -243,7 +243,7 @@ public final class CameraView: UIView {
       shouldReconfigureFormat ||
       shouldReconfigureDevice ||
       shouldUpdateVideoStabilization ||
-        shouldUpdateOrientation {
+      shouldUpdateOrientation {
       CameraQueues.cameraQueue.async {
         // Video Configuration
         if shouldReconfigure {
@@ -258,13 +258,13 @@ public final class CameraView: UIView {
         if shouldUpdateVideoStabilization, let videoStabilizationMode = self.videoStabilizationMode as String? {
           self.captureSession.setVideoStabilizationMode(videoStabilizationMode)
         }
-        
+
         if shouldUpdateZoom {
           let zoomClamped = max(min(CGFloat(self.zoom.doubleValue), self.maxAvailableZoom), self.minAvailableZoom)
           self.zoom(factor: zoomClamped, animated: false)
           self.pinchScaleOffset = zoomClamped
         }
-        
+
         if shouldCheckActive && self.captureSession.isRunning != self.isActive {
           if self.isActive {
             ReactLogger.log(level: .info, message: "Starting Session...")
@@ -276,11 +276,11 @@ public final class CameraView: UIView {
             ReactLogger.log(level: .info, message: "Stopped Session!")
           }
         }
-        
+
         if shouldUpdateOrientation {
           self.updateOrientation()
         }
-        
+
         // This is a wack workaround, but if I immediately set torch mode after `startRunning()`, the session isn't quite ready yet and will ignore torch.
         if shouldUpdateTorch {
           CameraQueues.cameraQueue.asyncAfter(deadline: .now() + 0.1) {
@@ -288,7 +288,7 @@ public final class CameraView: UIView {
           }
         }
       }
-      
+
       // Audio Configuration
       if shouldReconfigureAudioSession {
         CameraQueues.audioQueue.async {

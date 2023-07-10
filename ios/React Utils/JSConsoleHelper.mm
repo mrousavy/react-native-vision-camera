@@ -48,9 +48,9 @@
           auto console = runtime.global().getPropertyAsObject(runtime, "console");
           auto log = console.getPropertyAsFunction(runtime, logFunctionName);
           log.call(runtime, facebook::jsi::String::createFromAscii(runtime, [message UTF8String]));
-        } catch (facebook::jsi::JSError& jsError) {
+        } catch (std::runtime_error& error) {
           NSLog(@"%@", message);
-          NSLog(@"Failed to call `console.%s`: %s", logFunctionName, jsError.getMessage().c_str());
+          NSLog(@"Failed to call `console.%s`: %s", logFunctionName, error.what());
         }
       }
     }];

@@ -18,7 +18,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
     CameraQueues.cameraQueue.async {
       ReactLogger.log(level: .info, message: "Starting Video recording...")
       let callback = Callback(jsCallbackFunc)
-      
+
       var fileType = AVFileType.mov
       if let fileTypeOption = options["fileType"] as? String {
         guard let parsed = try? AVFileType(withString: fileTypeOption) else {
@@ -27,22 +27,22 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         }
         fileType = parsed
       }
-      
+
       let errorPointer = ErrorPointer(nilLiteral: ())
       let fileExtension = fileType.descriptor ?? "mov"
       guard let tempFilePath = RCTTempFilePath(fileExtension, errorPointer) else {
         callback.reject(error: .capture(.createTempFileError), cause: errorPointer?.pointee)
         return
       }
-      
+
       ReactLogger.log(level: .info, message: "File path: \(tempFilePath)")
       let tempURL = URL(string: "file://\(tempFilePath)")!
-      
+
       if let flashMode = options["flash"] as? String {
         // use the torch as the video's flash
         self.setTorchMode(flashMode)
       }
-      
+
       guard let videoOutput = self.videoOutput else {
         if self.video?.boolValue == true {
           callback.reject(error: .session(.cameraNotReady))
@@ -56,14 +56,14 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         callback.reject(error: .session(.cameraNotReady))
         return
       }
-      
+
       // TODO: The startRecording() func cannot be async because RN doesn't allow
       //       both a callback and a Promise in a single function. Wait for TurboModules?
       //       This means that any errors that occur in this function have to be delegated through
       //       the callback, but I'd prefer for them to throw for the original function instead.
-      
+
       let enableAudio = self.audio?.boolValue == true
-      
+
       let onFinish = { (recordingSession: RecordingSession, status: AVAssetWriter.Status, error: Error?) in
         defer {
           if enableAudio {
@@ -76,11 +76,11 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
             self.setTorchMode(self.torch)
           }
         }
-        
+
         self.recordingSession = nil
         self.isRecording = false
         ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
-        
+
         if let error = error as NSError? {
           if error.domain == "capture/aborted" {
             callback.reject(error: .capture(.aborted), cause: error)
@@ -98,7 +98,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
           }
         }
       }
-      
+
       let recordingSession: RecordingSession
       do {
         recordingSession = try RecordingSession(url: tempURL,
@@ -109,37 +109,37 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         return
       }
       self.recordingSession = recordingSession
-      
+
       var videoCodec: AVVideoCodecType?
       if let codecString = options["videoCodec"] as? String {
         videoCodec = AVVideoCodecType(withString: codecString)
       }
-      
+
       // Init Video
       guard let videoSettings = self.recommendedVideoSettings(videoOutput: videoOutput, fileType: fileType, videoCodec: videoCodec),
             !videoSettings.isEmpty else {
         callback.reject(error: .capture(.createRecorderError(message: "Failed to get video settings!")))
         return
       }
-      
+
       // get pixel format (420f, 420v, x420)
       let pixelFormat = CMFormatDescriptionGetMediaSubType(videoInput.device.activeFormat.formatDescription)
       recordingSession.initializeVideoWriter(withSettings: videoSettings,
                                              pixelFormat: pixelFormat)
-      
+
       // Init Audio (optional)
       if enableAudio {
         // Activate Audio Session asynchronously
         CameraQueues.audioQueue.async {
           self.activateAudioSession()
         }
-        
+
         if let audioOutput = self.audioOutput,
            let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: fileType) {
           recordingSession.initializeAudioWriter(withSettings: audioSettings)
         }
       }
-      
+
       // start recording session with or without audio.
       do {
         try recordingSession.startAssetWriter()
@@ -150,11 +150,11 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       self.isRecording = true
     }
   }
-  
+
   func stopRecording(promise: Promise) {
     CameraQueues.cameraQueue.async {
       self.isRecording = false
-      
+
       withPromise(promise) {
         guard let recordingSession = self.recordingSession else {
           throw CameraError.capture(.noRecordingInProgress)
@@ -164,7 +164,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       }
     }
   }
-  
+
   func pauseRecording(promise: Promise) {
     CameraQueues.cameraQueue.async {
       withPromise(promise) {
@@ -177,7 +177,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       }
     }
   }
-  
+
   func resumeRecording(promise: Promise) {
     CameraQueues.cameraQueue.async {
       withPromise(promise) {
@@ -190,25 +190,25 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       }
     }
   }
-  
+
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
     if captureOutput is AVCaptureVideoDataOutput {
       // Draw Frame to Preview View Canvas (and call Frame Processor)
-      let frame = Frame(buffer: sampleBuffer, orientation: self.bufferOrientation)
-#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
-      previewView?.drawFrame(frame, withFrameProcessor: frameProcessorCallback)
-#else
-      previewView?.drawFrame(frame)
-#endif
+      let frame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
+      #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+        previewView?.drawFrame(frame, withFrameProcessor: frameProcessorCallback)
+      #else
+        previewView?.drawFrame(frame)
+      #endif
     }
-    
+
     // Record Video Frame/Audio Sample to File
     if isRecording {
       guard let recordingSession = recordingSession else {
         invokeOnError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
         return
       }
-      
+
       switch captureOutput {
       case is AVCaptureVideoDataOutput:
         recordingSession.appendBuffer(sampleBuffer, type: .video, timestamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
@@ -221,19 +221,19 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         break
       }
     }
-    
-#if DEBUG
-    if captureOutput is AVCaptureVideoDataOutput {
-      // Update FPS Graph per Frame
-      if let fpsGraph = fpsGraph {
-        DispatchQueue.main.async {
-          fpsGraph.onTick(CACurrentMediaTime())
+
+    #if DEBUG
+      if captureOutput is AVCaptureVideoDataOutput {
+        // Update FPS Graph per Frame
+        if let fpsGraph = fpsGraph {
+          DispatchQueue.main.async {
+            fpsGraph.onTick(CACurrentMediaTime())
+          }
         }
       }
-    }
-#endif
+    #endif
   }
-  
+
   private func recommendedVideoSettings(videoOutput: AVCaptureVideoDataOutput,
                                         fileType: AVFileType,
                                         videoCodec: AVVideoCodecType?) -> [String: Any]? {
@@ -243,7 +243,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       return videoOutput.recommendedVideoSettingsForAssetWriter(writingTo: fileType)
     }
   }
-  
+
   /**
    Gets the orientation of the CameraView's images (CMSampleBuffers).
    */
@@ -251,7 +251,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
     guard let cameraPosition = videoDeviceInput?.device.position else {
       return .up
     }
-    
+
     switch outputOrientation {
     case .portrait:
       return cameraPosition == .front ? .leftMirrored : .right

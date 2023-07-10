@@ -47,8 +47,6 @@ FrameProcessorCallback convertWorkletToFrameProcessorCallback(jsi::Runtime& runt
       if (skiaCanvas != nullptr) {
         canvasHostObject->setCanvas((SkCanvas*)skiaCanvas);
         frameHostObject->canvas = canvasHostObject;
-      } else {
-        frameHostObject->canvas = nullptr;
       }
 #endif
 

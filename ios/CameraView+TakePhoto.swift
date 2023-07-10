@@ -23,7 +23,7 @@ extension CameraView {
       }
 
       ReactLogger.log(level: .info, message: "Capturing photo...")
-      
+
       var format: [String: Any]?
       // photo codec
       if let photoCodecString = options["photoCodec"] as? String {
