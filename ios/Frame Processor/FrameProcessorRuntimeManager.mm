@@ -260,7 +260,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 
 //    assert(arguments[1].asObject(runtime).getProperty(runtime, "__workletHash").isUndefined() == false);
 //    auto worklet = std::make_shared<reanimated::ShareableWorklet>(runtimeHelper, runtime, arguments[1].asObject(runtime));
-    auto worklet = reanimated::extractShareableOrThrow(runtime, arguments[1].asObject(runtime));
+    auto worklet = reanimated::extractShareableOrThrow<reanimated::ShareableWorklet>(runtime, arguments[1].asObject(runtime));
     NSLog(@"FrameProcessorBindings: Successfully created worklet!");
 
     RCTExecuteOnMainQueue([=]() {
