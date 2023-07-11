@@ -201,8 +201,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     'worklet';
     const values = examplePlugin(frame);
     // @ts-ignore
-    console.log(_WORKLET);
-    console.log(`Return Values: ${JSON.stringify(values)}`);
+    _log(`${JSON.stringify(values)}`);
+    // TODO: install _scheduleOnJS and _makeShareableClone
+    // console.log(_WORKLET);
+    // console.log(`Return Values: ${JSON.stringify(values)}`);
   }, []);
 
   const onFrameProcessorSuggestionAvailable = useCallback((suggestion: FrameProcessorPerformanceSuggestion) => {

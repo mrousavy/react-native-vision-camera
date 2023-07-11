@@ -27,6 +27,7 @@
       #import <RNReanimated/REAIOSErrorHandler.h>
       #import <RNReanimated/Shareables.h>
       #import <RNReanimated/JsiUtils.h>
+      #import <RNReanimated/WorkletRuntime.h>
       #import "VisionCameraScheduler.h"
       #define ENABLE_FRAME_PROCESSORS
     #else
@@ -54,8 +55,9 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 
 @implementation FrameProcessorRuntimeManager {
 #ifdef ENABLE_FRAME_PROCESSORS
-  std::unique_ptr<reanimated::RuntimeManager> runtimeManager;
-  std::shared_ptr<reanimated::JSRuntimeHelper> runtimeHelper;
+  // std::unique_ptr<reanimated::RuntimeManager> runtimeManager;
+  std::shared_ptr<jsi::Runtime> visionRuntime;
+  // std::shared_ptr<reanimated::JSRuntimeHelper> runtimeHelper;
 #endif
   __weak RCTBridge* weakBridge;
 }
@@ -64,52 +66,24 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
   self = [super init];
   if (self) {
 #ifdef ENABLE_FRAME_PROCESSORS
-    NSLog(@"FrameProcessorBindings: Creating Runtime Manager...");
-    weakBridge = bridge;
+     NSLog(@"FrameProcessorBindings: Creating Runtime Manager...");
+     weakBridge = bridge;
 
-    auto runtime = vision::makeJSIRuntime();
-    reanimated::RuntimeDecorator::decorateRuntime(*runtime, "FRAME_PROCESSOR");
-    runtime->global().setProperty(*runtime, "_FRAME_PROCESSOR", jsi::Value(true));
+    // auto runtime = vision::makeJSIRuntime();
+    // reanimated::RuntimeDecorator::decorateRuntime(*runtime, "FRAME_PROCESSOR");
+    // runtime->global().setProperty(*runtime, "_FRAME_PROCESSOR", jsi::Value(true));
 
-    auto callInvoker = bridge.jsCallInvoker;
-    auto scheduler = std::make_shared<vision::VisionCameraScheduler>(callInvoker);
-    runtimeManager = std::make_unique<reanimated::RuntimeManager>(std::move(runtime),
-                                                                  std::make_shared<reanimated::REAIOSErrorHandler>(scheduler),
-                                                                  scheduler);
+    // auto callInvoker = bridge.jsCallInvoker;
+    // auto scheduler = std::make_shared<vision::VisionCameraScheduler>(callInvoker);
+    // runtimeManager = std::make_unique<reanimated::RuntimeManager>(std::move(runtime),
+    //                                                               std::make_shared<reanimated::REAIOSErrorHandler>(scheduler),
+    //                                                               scheduler);
     
-    NSLog(@"FrameProcessorBindings: Runtime Manager created!");
+    // NSLog(@"FrameProcessorBindings: Runtime Manager created!");
 
-    NSLog(@"FrameProcessorBindings: Installing Frame Processor plugins...");
-    auto& visionRuntime = *runtimeManager->runtime;
-    auto visionGlobal = visionRuntime.global();
-
-    for (NSString* pluginKey in [FrameProcessorPluginRegistry frameProcessorPlugins]) {
-      auto pluginName = [pluginKey UTF8String];
-
-      NSLog(@"FrameProcessorBindings: Installing Frame Processor plugin \"%s\"...", pluginName);
-      FrameProcessorPlugin callback = [[FrameProcessorPluginRegistry frameProcessorPlugins] valueForKey:pluginKey];
-
-      auto function = [callback, callInvoker](jsi::Runtime& runtime,
-                                              const jsi::Value& thisValue,
-                                              const jsi::Value* arguments,
-                                              size_t count) -> jsi::Value {
-        auto frameHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
-        auto frame = static_cast<FrameHostObject*>(frameHostObject.get());
-
-        auto args = convertJSICStyleArrayToNSArray(runtime,
-                                                   arguments + 1, // start at index 1 since first arg = Frame
-                                                   count - 1, // use smaller count
-                                                   callInvoker);
-        id result = callback(frame->frame, args);
-
-        return convertObjCObjectToJSIValue(runtime, result);
-      };
-
-      visionGlobal.setProperty(visionRuntime, pluginName, jsi::Function::createFromHostFunction(visionRuntime,
-                                                                                                jsi::PropNameID::forAscii(visionRuntime, pluginName),
-                                                                                                1, // frame
-                                                                                                function));
-    }
+    // NSLog(@"FrameProcessorBindings: Installing Frame Processor plugins...");
+    // auto& visionRuntime = *runtimeManager->runtime;
+    
 
     NSLog(@"FrameProcessorBindings: Frame Processor plugins installed!");
 #else
@@ -135,118 +109,152 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
   jsi::Runtime& jsiRuntime = *(jsi::Runtime*)cxxBridge.runtime;
   NSLog(@"FrameProcessorBindings: Installing global functions...");
   
-  if (!runtimeManager) {
-    throw std::runtime_error("Runtime Manager cannot be null!");
-  }
-  runtimeHelper = std::make_shared<reanimated::JSRuntimeHelper>(&jsiRuntime,
-//                                                                runtimeManager->runtime.get(),
-                                                                runtimeManager->scheduler);
-    auto scheduler = runtimeManager->scheduler;
+//   if (!runtimeManager) {
+//     throw std::runtime_error("Runtime Manager cannot be null!");
+//   }
+//   runtimeHelper = std::make_shared<reanimated::JSRuntimeHelper>(&jsiRuntime,
+// //                                                                runtimeManager->runtime.get(),
+//                                                                 runtimeManager->scheduler);
+//     auto scheduler = runtimeManager->scheduler;
     
-  // inject _scheduleOnJS
-    auto scheduleOnJS = [scheduler, &jsiRuntime](
-                            jsi::Runtime &rt,
-                            const jsi::Value &remoteFun,
-                            const jsi::Value &argsValue) {
-      auto shareableRemoteFun = reanimated::extractShareableOrThrow<reanimated::ShareableRemoteFunction>(
-          rt,
-          remoteFun,
-          "Incompatible object passed to scheduleOnJS. It is only allowed to schedule functions defined on the React Native JS runtime this way.");
-      auto shareableArgs = argsValue.isUndefined()
-          ? nullptr
-          : reanimated::extractShareableOrThrow(rt, argsValue);
-    scheduler->scheduleOnJS([=, &jsiRuntime] {
-        jsi::Runtime &rt = jsiRuntime;
-        auto remoteFun = shareableRemoteFun->getJSValue(rt);
-        if (shareableArgs == nullptr) {
-          // fast path for remote function w/o arguments
-          remoteFun.asObject(rt).asFunction(rt).call(rt);
-        } else {
-          auto argsArray = shareableArgs->getJSValue(rt).asObject(rt).asArray(rt);
-          auto argsSize = argsArray.size(rt);
-          // number of arguments is typically relatively small so it is ok to
-          // to use VLAs here, hence disabling the lint rule
-          jsi::Value args[argsSize]; // NOLINT(runtime/arrays)
-          for (size_t i = 0; i < argsSize; i++) {
-            args[i] = argsArray.getValueAtIndex(rt, i);
-          }
-          remoteFun.asObject(rt).asFunction(rt).call(rt, args, argsSize);
-        }
-      });
-    };
-    reanimated::jsi_utils::installJsiFunction(*runtimeManager->runtime, "_scheduleOnJS", scheduleOnJS);
+//   // inject _scheduleOnJS
+//     auto scheduleOnJS = [scheduler, &jsiRuntime](
+//                             jsi::Runtime &rt,
+//                             const jsi::Value &remoteFun,
+//                             const jsi::Value &argsValue) {
+//       auto shareableRemoteFun = reanimated::extractShareableOrThrow<reanimated::ShareableRemoteFunction>(
+//           rt,
+//           remoteFun,
+//           "Incompatible object passed to scheduleOnJS. It is only allowed to schedule functions defined on the React Native JS runtime this way.");
+//       auto shareableArgs = argsValue.isUndefined()
+//           ? nullptr
+//           : reanimated::extractShareableOrThrow(rt, argsValue);
+//     scheduler->scheduleOnJS([=, &jsiRuntime] {
+//         jsi::Runtime &rt = jsiRuntime;
+//         auto remoteFun = shareableRemoteFun->getJSValue(rt);
+//         if (shareableArgs == nullptr) {
+//           // fast path for remote function w/o arguments
+//           remoteFun.asObject(rt).asFunction(rt).call(rt);
+//         } else {
+//           auto argsArray = shareableArgs->getJSValue(rt).asObject(rt).asArray(rt);
+//           auto argsSize = argsArray.size(rt);
+//           // number of arguments is typically relatively small so it is ok to
+//           // to use VLAs here, hence disabling the lint rule
+//           jsi::Value args[argsSize]; // NOLINT(runtime/arrays)
+//           for (size_t i = 0; i < argsSize; i++) {
+//             args[i] = argsArray.getValueAtIndex(rt, i);
+//           }
+//           remoteFun.asObject(rt).asFunction(rt).call(rt, args, argsSize);
+//         }
+//       });
+//     };
+//     reanimated::jsi_utils::installJsiFunction(*runtimeManager->runtime, "_scheduleOnJS", scheduleOnJS);
 
-    auto rh = runtimeHelper;
-    auto makeShareableClone = [rh](jsi::Runtime &rt, const jsi::Value &value) {
-      auto &runtimeHelper = rh;
-      auto shouldRetainRemote = jsi::Value::undefined();
-      std::shared_ptr<reanimated::Shareable> shareable;
-      if (value.isObject()) {
-        auto object = value.asObject(rt);
-        if (!object.getProperty(rt, "__workletHash").isUndefined()) {
-          shareable = std::make_shared<reanimated::ShareableWorklet>(runtimeHelper, rt, object);
-        } else if (!object.getProperty(rt, "__init").isUndefined()) {
-          shareable = std::make_shared<reanimated::ShareableHandle>(runtimeHelper, rt, object);
-        } else if (object.isFunction(rt)) {
-          auto function = object.asFunction(rt);
-          if (function.isHostFunction(rt)) {
-            shareable =
-                std::make_shared<reanimated::ShareableHostFunction>(rt, std::move(function));
-          } else {
-            shareable = std::make_shared<reanimated::ShareableRemoteFunction>(
-                runtimeHelper, rt, std::move(function));
-          }
-        } else if (object.isArray(rt)) {
-          if (shouldRetainRemote.isBool() && shouldRetainRemote.getBool()) {
-            shareable = std::make_shared<reanimated::RetainingShareable<reanimated::ShareableArray>>(
-                runtimeHelper, rt, object.asArray(rt));
-          } else {
-            shareable = std::make_shared<reanimated::ShareableArray>(rt, object.asArray(rt));
-          }
-        } else if (object.isHostObject(rt)) {
-          shareable = std::make_shared<reanimated::ShareableHostObject>(
-              runtimeHelper, rt, object.getHostObject(rt));
-        } else {
-          if (shouldRetainRemote.isBool() && shouldRetainRemote.getBool()) {
-            shareable = std::make_shared<reanimated::RetainingShareable<reanimated::ShareableObject>>(
-                runtimeHelper, rt, object);
-          } else {
-            shareable = std::make_shared<reanimated::ShareableObject>(rt, object);
-          }
-        }
-      } else if (value.isString()) {
-        shareable = std::make_shared<reanimated::ShareableString>(value.asString(rt).utf8(rt));
-      } else if (value.isUndefined()) {
-        shareable = std::make_shared<reanimated::ShareableScalar>();
-      } else if (value.isNull()) {
-        shareable = std::make_shared<reanimated::ShareableScalar>(nullptr);
-      } else if (value.isBool()) {
-        shareable = std::make_shared<reanimated::ShareableScalar>(value.getBool());
-      } else if (value.isNumber()) {
-        shareable = std::make_shared<reanimated::ShareableScalar>(value.getNumber());
-      } else if (value.isSymbol()) {
-        // TODO: this is only a placeholder implementation, here we replace symbols
-        // with strings in order to make certain objects to be captured. There isn't
-        // yet any usecase for using symbols on the UI runtime so it is fine to keep
-        // it like this for now.
-        shareable =
-            std::make_shared<reanimated::ShareableString>(value.getSymbol(rt).toString(rt));
-      } else {
-        throw std::runtime_error("attempted to convert an unsupported value type");
-      }
-      return reanimated::ShareableJSRef::newHostObject(rt, shareable);
-  };
-    reanimated::jsi_utils::installJsiFunction(*runtimeManager->runtime, "_makeShareableClone", makeShareableClone);
+//     auto rh = runtimeHelper;
+//     auto makeShareableClone = [rh](jsi::Runtime &rt, const jsi::Value &value) {
+//       auto &runtimeHelper = rh;
+//       auto shouldRetainRemote = jsi::Value::undefined();
+//       std::shared_ptr<reanimated::Shareable> shareable;
+//       if (value.isObject()) {
+//         auto object = value.asObject(rt);
+//         if (!object.getProperty(rt, "__workletHash").isUndefined()) {
+//           shareable = std::make_shared<reanimated::ShareableWorklet>(runtimeHelper, rt, object);
+//         } else if (!object.getProperty(rt, "__init").isUndefined()) {
+//           shareable = std::make_shared<reanimated::ShareableHandle>(runtimeHelper, rt, object);
+//         } else if (object.isFunction(rt)) {
+//           auto function = object.asFunction(rt);
+//           if (function.isHostFunction(rt)) {
+//             shareable =
+//                 std::make_shared<reanimated::ShareableHostFunction>(rt, std::move(function));
+//           } else {
+//             shareable = std::make_shared<reanimated::ShareableRemoteFunction>(
+//                 runtimeHelper, rt, std::move(function));
+//           }
+//         } else if (object.isArray(rt)) {
+//           if (shouldRetainRemote.isBool() && shouldRetainRemote.getBool()) {
+//             shareable = std::make_shared<reanimated::RetainingShareable<reanimated::ShareableArray>>(
+//                 runtimeHelper, rt, object.asArray(rt));
+//           } else {
+//             shareable = std::make_shared<reanimated::ShareableArray>(rt, object.asArray(rt));
+//           }
+//         } else if (object.isHostObject(rt)) {
+//           shareable = std::make_shared<reanimated::ShareableHostObject>(
+//               runtimeHelper, rt, object.getHostObject(rt));
+//         } else {
+//           if (shouldRetainRemote.isBool() && shouldRetainRemote.getBool()) {
+//             shareable = std::make_shared<reanimated::RetainingShareable<reanimated::ShareableObject>>(
+//                 runtimeHelper, rt, object);
+//           } else {
+//             shareable = std::make_shared<reanimated::ShareableObject>(rt, object);
+//           }
+//         }
+//       } else if (value.isString()) {
+//         shareable = std::make_shared<reanimated::ShareableString>(value.asString(rt).utf8(rt));
+//       } else if (value.isUndefined()) {
+//         shareable = std::make_shared<reanimated::ShareableScalar>();
+//       } else if (value.isNull()) {
+//         shareable = std::make_shared<reanimated::ShareableScalar>(nullptr);
+//       } else if (value.isBool()) {
+//         shareable = std::make_shared<reanimated::ShareableScalar>(value.getBool());
+//       } else if (value.isNumber()) {
+//         shareable = std::make_shared<reanimated::ShareableScalar>(value.getNumber());
+//       } else if (value.isSymbol()) {
+//         // TODO: this is only a placeholder implementation, here we replace symbols
+//         // with strings in order to make certain objects to be captured. There isn't
+//         // yet any usecase for using symbols on the UI runtime so it is fine to keep
+//         // it like this for now.
+//         shareable =
+//             std::make_shared<reanimated::ShareableString>(value.getSymbol(rt).toString(rt));
+//       } else {
+//         throw std::runtime_error("attempted to convert an unsupported value type");
+//       }
+//       return reanimated::ShareableJSRef::newHostObject(rt, shareable);
+//   };
+//     reanimated::jsi_utils::installJsiFunction(*runtimeManager->runtime, "_makeShareableClone", makeShareableClone);
+
+  // setFrameProcessor(viewTag: number, frameProcessor: (frame: Frame) => void)
 
   // setFrameProcessor(viewTag: number, frameProcessor: (frame: Frame) => void)
   auto setFrameProcessor = [self](jsi::Runtime& runtime,
                                   const jsi::Value& thisValue,
                                   const jsi::Value* arguments,
                                   size_t count) -> jsi::Value {
+    self->visionRuntime = reanimated::runtimeFromValue(runtime, arguments[2].asObject(runtime));
+    auto& visionRuntime = *self->visionRuntime;
+    auto visionGlobal = visionRuntime.global();
+
+    for (NSString* pluginKey in [FrameProcessorPluginRegistry frameProcessorPlugins]) {
+      auto pluginName = [pluginKey UTF8String];
+
+      NSLog(@"FrameProcessorBindings: Installing Frame Processor plugin \"%s\"...", pluginName);
+      FrameProcessorPlugin callback = [[FrameProcessorPluginRegistry frameProcessorPlugins] valueForKey:pluginKey];
+
+      auto function = [callback](jsi::Runtime& runtime,
+                                              const jsi::Value& thisValue,
+                                              const jsi::Value* arguments,
+                                              size_t count) -> jsi::Value {
+        auto frameHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
+        auto frame = static_cast<FrameHostObject*>(frameHostObject.get());
+
+        auto args = convertJSICStyleArrayToNSArray(runtime,
+                                                   arguments + 1, // start at index 1 since first arg = Frame
+                                                   count - 1, // use smaller count
+                                                   nullptr);
+        id result = callback(frame->frame, args);
+
+        return convertObjCObjectToJSIValue(runtime, result);
+      };
+
+      visionGlobal.setProperty(visionRuntime, pluginName, jsi::Function::createFromHostFunction(visionRuntime,
+                                                                                                jsi::PropNameID::forAscii(visionRuntime, pluginName),
+                                                                                                1, // frame
+                                                                                                function));
+    }
+
     NSLog(@"FrameProcessorBindings: Setting new frame processor...");
     if (!arguments[0].isNumber()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: First argument ('viewTag') must be a number!");
     if (!arguments[1].isObject()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
-    if (!runtimeManager || !runtimeManager->runtime) throw jsi::JSError(runtime, "Camera::setFrameProcessor: The RuntimeManager is not yet initialized!");
+    // if (!runtimeManager || !runtimeManager->runtime) throw jsi::JSError(runtime, "Camera::setFrameProcessor: The RuntimeManager is not yet initialized!");
       
 //    const jsi::Value &callGuard = runtime.global().getProperty(runtime, "__callGuard");
 //    assert(callGuard.isObject() && callGuard.asObject(runtime).isFunction(runtime));
@@ -271,8 +279,8 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
       dispatch_async(CameraQueues.frameProcessorQueue, [=]() {
         NSLog(@"FrameProcessorBindings: Converting worklet to Objective-C callback...");
           
-        assert(runtimeManager->runtime != nullptr);
-        auto& rt = *runtimeManager->runtime;
+        // assert(runtimeManager->runtime != nullptr);
+        auto& rt = *self->visionRuntime;
         assert(worklet != nullptr);
         auto function = worklet->getJSValue(rt).asObject(rt).asFunction(rt);
 

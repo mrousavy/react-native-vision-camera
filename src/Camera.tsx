@@ -11,6 +11,8 @@ import type { Point } from './Point';
 import type { TakeSnapshotOptions } from './Snapshot';
 import type { CameraVideoCodec, RecordVideoOptions, VideoFile } from './VideoFile';
 import { makeShareableCloneRecursive } from 'react-native-reanimated/src/reanimated2/shareables';
+import { createWorkletRuntime } from 'react-native-reanimated';
+import { WorkletRuntime } from 'react-native-reanimated/lib/typescript/reanimated2/runtimes';
 
 //#region Types
 export type CameraPermissionStatus = 'authorized' | 'not-determined' | 'denied' | 'restricted';
@@ -78,6 +80,7 @@ export class Camera extends React.PureComponent<CameraProps> {
   displayName = Camera.displayName;
   private lastFrameProcessor: ((frame: Frame) => void) | undefined;
   private isNativeViewMounted = false;
+  private workletRuntime: WorkletRuntime | null = null;
 
   private readonly ref: React.RefObject<RefType>;
 
@@ -434,10 +437,15 @@ export class Camera extends React.PureComponent<CameraProps> {
     }
   }
 
+  private initializeWorkletRuntimeIfNeeded(): void {
+    if (this.workletRuntime === null) this.workletRuntime = createWorkletRuntime('VisionCamera');
+  }
+
   private setFrameProcessor(frameProcessor: (frame: Frame) => void): void {
     this.assertFrameProcessorsEnabled();
+    this.initializeWorkletRuntimeIfNeeded();
     // @ts-expect-error JSI functions aren't typed
-    global.setFrameProcessor(this.handle, makeShareableCloneRecursive(frameProcessor));
+    global.setFrameProcessor(this.handle, makeShareableCloneRecursive(frameProcessor), this.workletRuntime);
   }
 
   private unsetFrameProcessor(): void {
