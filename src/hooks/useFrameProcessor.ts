@@ -35,24 +35,6 @@ const capturableConsole = { ...console };
 export function useFrameProcessor(frameProcessor: FrameProcessor, dependencies: DependencyList): FrameProcessor {
   return useCallback((frame: Frame) => {
     'worklet';
-
-    // @ts-expect-error
-    if (global.didSetConsole == null || global.didSetConsole === false) {
-      if (!IS_CHROME_DEBUGGER) {
-        // @ts-expect-error
-        global.console = {
-          assert: runOnJS(capturableConsole.assert),
-          debug: runOnJS(capturableConsole.debug),
-          log: runOnJS(capturableConsole.log),
-          warn: runOnJS(capturableConsole.warn),
-          error: runOnJS(capturableConsole.error),
-          info: runOnJS(capturableConsole.info),
-        };
-      }
-      // @ts-expect-error
-      global.didSetConsole = true;
-    }
-
     frameProcessor(frame);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies);
