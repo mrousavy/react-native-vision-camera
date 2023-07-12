@@ -107,12 +107,31 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                                                                                 function));
     }
 
+    NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+
+    [notificationCenter addObserver:self
+                          selector:@selector(clearListeners)
+                          name:RCTBridgeDidInvalidateModulesNotification
+                          object:nil];
+
     NSLog(@"FrameProcessorBindings: Frame Processor plugins installed!");
 #else
     NSLog(@"Reanimated not found, Frame Processors are disabled.");
 #endif
   }
   return self;
+}
+
+- (void)clearListeners
+{
+  auto currentBridge = [RCTBridge currentBridge];
+  auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:self.viewTag]];
+    if (!anonymousView) return;
+
+  auto view = static_cast<CameraView*>(anonymousView);
+  view.frameProcessorCallback = nil;
+  NSLog(@"FrameProcessorBindings: Frame processor removed!");
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void) installFrameProcessorBindings {
@@ -141,14 +160,14 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
     if (!arguments[1].isObject()) throw jsi::JSError(runtime, "Camera::setFrameProcessor: Second argument ('frameProcessor') must be a function!");
     if (!runtimeManager || !runtimeManager->runtime) throw jsi::JSError(runtime, "Camera::setFrameProcessor: The RuntimeManager is not yet initialized!");
 
-    auto viewTag = arguments[0].asNumber();
+    self.viewTag = arguments[0].asNumber();
     NSLog(@"FrameProcessorBindings: Adapting Shareable value from function (conversion to worklet)...");
     auto worklet = reanimated::ShareableValue::adapt(runtime, arguments[1], runtimeManager.get());
     NSLog(@"FrameProcessorBindings: Successfully created worklet!");
 
     RCTExecuteOnMainQueue([=]() {
       auto currentBridge = [RCTBridge currentBridge];
-      auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
+      auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:self.viewTag]];
       auto view = static_cast<CameraView*>(anonymousView);
 
       dispatch_async(CameraQueues.frameProcessorQueue, [=]() {
