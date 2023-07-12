@@ -151,6 +151,12 @@ public final class CameraView: UIView {
     NotificationCenter.default.removeObserver(self,
                                               name: UIDevice.orientationDidChangeNotification,
                                               object: nil)
+    CameraQueues.cameraQueue.sync {
+      captureSession.stopRunning()
+    }
+    CameraQueues.audioQueue.sync {
+      audioCaptureSession.stopRunning()
+    }
   }
 
   override public func willMove(toSuperview newSuperview: UIView?) {
