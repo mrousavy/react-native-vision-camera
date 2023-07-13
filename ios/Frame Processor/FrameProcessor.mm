@@ -29,7 +29,7 @@ using namespace facebook;
   return self;
 }
 
-- (void)call:(Frame * _Nonnull)frame {
+- (void)call:(Frame* _Nonnull)frame {
   // Call the Frame Processor on the Worklet Runtime
   jsi::Runtime& runtime = _workletContext->getWorkletRuntime();
   
