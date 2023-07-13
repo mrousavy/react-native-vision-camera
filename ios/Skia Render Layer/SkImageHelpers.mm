@@ -49,8 +49,7 @@ sk_sp<SkImage> SkImageHelpers::convertCMSampleBufferToSkImage(GrRecordingContext
   // Make sure the format is RGB (BGRA_8888)
   auto format = CVPixelBufferGetPixelFormatType(pixelBuffer);
   if (format != kCVPixelFormatType_32BGRA) {
-    auto fourCharCode = @(FourCC2Str(format));
-    auto error = std::string("VisionCamera: Frame has unknown Pixel Format (") + fourCharCode.UTF8String + std::string(") - cannot convert to SkImage!");
+    auto error = std::string("VisionCamera: Frame has unknown Pixel Format (") + FourCC2Str(format) + std::string(") - cannot convert to SkImage!");
     throw std::runtime_error(error);
   }
   
