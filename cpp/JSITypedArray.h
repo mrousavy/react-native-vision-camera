@@ -143,6 +143,7 @@ class TypedArray : public TypedArrayBase {
  public:
   explicit TypedArray(TypedArrayBase &&base);
   TypedArray(jsi::Runtime &runtime, size_t size);
+  TypedArray(jsi::Runtime &runtime, ContentType<T>* dataToCopy, size_t size);
   TypedArray(jsi::Runtime &runtime, std::vector<ContentType<T>> data);
   TypedArray(TypedArray &&) = default;
   TypedArray &operator=(TypedArray &&) = default;

@@ -27,6 +27,7 @@
 
 #import "FrameProcessorUtils.h"
 #import "FrameProcessorCallback.h"
+#import "../Tensorflow Plugin/TensorflowPlugin.h"
 #import "../React Utils/JSIUtils.h"
 #import "../../cpp/JSITypedArray.h"
 
@@ -120,6 +121,8 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 
   // global.FrameProcessorPlugins Proxy
   runtime.global().setProperty(runtime, "FrameProcessorPlugins", frameProcessorPlugins);
+  
+  TensorflowPlugin::installToRuntime(runtime, callInvoker);
 
   NSLog(@"FrameProcessorBindings: Frame Processor plugins installed!");
 }

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useRef, useState, useMemo, useCallback } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler';
 import {
   CameraDeviceFormat,
@@ -9,6 +9,7 @@ import {
   sortFormats,
   useCameraDevices,
   useFrameProcessor,
+  useTensorflowModel,
   VideoFile,
 } from 'react-native-vision-camera';
 import { Camera, frameRateIncluded } from 'react-native-vision-camera';
@@ -21,12 +22,10 @@ import { CaptureButton } from './views/CaptureButton';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { examplePlugin } from './frame-processors/ExamplePlugin';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
-import { Skia } from '@shopify/react-native-skia';
-import { FACE_SHADER } from './Shaders';
+import { PaintStyle, Skia } from '@shopify/react-native-skia';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -198,36 +197,50 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const radius = (format?.videoHeight ?? 1080) * 0.1;
-  const width = radius;
-  const height = radius;
-  const x = (format?.videoHeight ?? 1080) / 2 - radius / 2;
-  const y = (format?.videoWidth ?? 1920) / 2 - radius / 2;
-  const centerX = x + width / 2;
-  const centerY = y + height / 2;
+  const plugin = useTensorflowModel(require('../assets/object_detection_mobile_object_localizer_v1_1_default_1.tflite'));
 
-  const runtimeEffect = Skia.RuntimeEffect.Make(FACE_SHADER);
-  if (runtimeEffect == null) throw new Error('Shader failed to compile!');
-  const shaderBuilder = Skia.RuntimeShaderBuilder(runtimeEffect);
-  shaderBuilder.setUniform('r', [width]);
-  shaderBuilder.setUniform('x', [centerX]);
-  shaderBuilder.setUniform('y', [centerY]);
-  shaderBuilder.setUniform('resolution', [1920, 1080]);
-  const imageFilter = Skia.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
+  if (plugin.state === 'loaded') console.log(JSON.stringify(plugin.model, null, 2));
 
   const paint = Skia.Paint();
-  paint.setImageFilter(imageFilter);
+  paint.setStyle(PaintStyle.Stroke);
+  paint.setStrokeWidth(20);
+  paint.setColor(Skia.Color('red'));
 
-  const isIOS = Platform.OS === 'ios';
+  const inputShape = plugin.model?.inputs[0]?.shape;
+  const inputFrameSize = {
+    width: inputShape?.[1] ?? 0,
+    height: inputShape?.[2] ?? 0,
+  };
+
   const frameProcessor = useFrameProcessor(
     (frame) => {
       'worklet';
-      console.log(`Width: ${frame.width}`);
 
-      if (isIOS) frame.render(paint);
-      else console.log('Drawing to the Frame is not yet available on Android. WIP PR');
+      if (plugin.state === 'loaded') {
+        const [boundingBoxes, classes, scores, count] = plugin.model.run(frame);
+
+        for (let i = 0; i < scores.length; i++) {
+          const confidence = scores[i] ?? 0;
+          if (confidence > 0.4) {
+            const scale = (1 / frame.width) * frame.height;
+
+            const top = boundingBoxes[i] / scale + 0.22;
+            const left = boundingBoxes[i + 1];
+            const bottom = boundingBoxes[i + 2] / scale + 0.22;
+            const right = boundingBoxes[i + 3];
+
+            frame.drawRect(
+              Skia.XYWHRect(left * frame.width, top * frame.height, (right - left) * frame.width, (bottom - top) * frame.height),
+              paint,
+            );
+            console.log(left, top, right, bottom);
+          }
+        }
+      } else {
+        console.log(`Model state: ${plugin.state}..`);
+      }
     },
-    [isIOS, paint],
+    [inputFrameSize.height, paint, plugin.model, plugin.state],
   );
 
   return (
