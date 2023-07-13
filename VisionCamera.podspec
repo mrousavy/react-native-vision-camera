@@ -46,10 +46,9 @@ Pod::Spec.new do |s|
     # Frame Processors
     hasWorklets ? "ios/Frame Processor/*.{m,mm,swift}" : "",
     hasWorklets ? "ios/Frame Processor/Frame.h" : "",
-    hasWorklets ? "ios/Frame Processor/FrameProcessorCallback.h" : "",
+    hasWorklets ? "ios/Frame Processor/FrameProcessor.h" : "",
     hasWorklets ? "ios/Frame Processor/FrameProcessorRuntimeManager.h" : "",
     hasWorklets ? "ios/Frame Processor/FrameProcessorPlugin.h" : "",
-    hasWorklets ? "ios/React Utils/JSConsoleHelper.h" : "",
     hasWorklets ? "cpp/**/*.{cpp}" : "",
 
     # Skia Frame Processors

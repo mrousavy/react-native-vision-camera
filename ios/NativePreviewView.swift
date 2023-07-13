@@ -33,7 +33,7 @@ class NativePreviewView: PreviewView {
     fatalError("init(coder:) is not implemented!")
   }
 
-  override func drawFrame(_: Frame, withFrameProcessor _: FrameProcessorCallback? = nil) {
+  override func drawFrame(_: Frame, with _: FrameProcessor? = nil) {
     // do nothing since AVCaptureVideoPreviewLayer automatically fetches the frame from the AVCaptureSession
   }
 }

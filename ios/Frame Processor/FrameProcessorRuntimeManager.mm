@@ -10,6 +10,7 @@
 #import "FrameProcessorRuntimeManager.h"
 #import "FrameProcessorPluginRegistry.h"
 #import "FrameProcessorPlugin.h"
+#import "FrameProcessor.h"
 #import "FrameHostObject.h"
 
 #import <memory>
@@ -21,12 +22,8 @@
 #import <ReactCommon/RCTTurboModuleManager.h>
 
 #import "WKTJsiWorkletContext.h"
-#import "WKTJsiWorkletApi.h"
 #import "WKTJsiWorklet.h"
-#import "WKTJsiHostObject.h"
 
-#import "FrameProcessorUtils.h"
-#import "FrameProcessorCallback.h"
 #import "../React Utils/JSIUtils.h"
 #import "../../cpp/JSITypedArray.h"
 
@@ -37,11 +34,11 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
 @end
 __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 @interface CameraView : UIView
-@property (nonatomic, copy) FrameProcessorCallback _Nullable frameProcessorCallback;
+@property (nonatomic, copy) FrameProcessor* _Nullable frameProcessor;
 @end
 
 @implementation FrameProcessorRuntimeManager {
-  // Running Frame Processors on camera's video thread (synchronously)
+  // Separate Camera Worklet Context
   std::shared_ptr<RNWorklet::JsiWorkletContext> workletContext;
 }
 
@@ -154,8 +151,9 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
       auto currentBridge = [RCTBridge currentBridge];
       auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
       auto view = static_cast<CameraView*>(anonymousView);
-      auto callback = convertWorkletToFrameProcessorCallback(self->workletContext->getWorkletRuntime(), worklet);
-      view.frameProcessorCallback = callback;
+      auto frameProcessor = [[FrameProcessor alloc] initWithWorklet:self->workletContext
+                                                            worklet:worklet];
+      view.frameProcessor = frameProcessor;
     });
 
     return jsi::Value::undefined();
@@ -176,7 +174,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 
       auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
       auto view = static_cast<CameraView*>(anonymousView);
-      view.frameProcessorCallback = nil;
+      view.frameProcessor = nil;
     });
 
     return jsi::Value::undefined();

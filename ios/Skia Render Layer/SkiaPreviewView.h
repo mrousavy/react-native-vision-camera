@@ -10,7 +10,6 @@
 
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
-#import "FrameProcessorCallback.h"
 #import "PreviewView.h"
 
 typedef void (^DrawCallback) (void* _Nonnull skCanvas);

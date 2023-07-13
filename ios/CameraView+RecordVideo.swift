@@ -196,7 +196,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       // Draw Frame to Preview View Canvas (and call Frame Processor)
       let frame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
       #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
-        previewView?.drawFrame(frame, withFrameProcessor: frameProcessorCallback)
+        previewView?.drawFrame(frame, with: frameProcessor)
       #else
         previewView?.drawFrame(frame)
       #endif

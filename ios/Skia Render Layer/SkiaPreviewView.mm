@@ -20,7 +20,7 @@
   std::shared_ptr<SkiaMetalCanvasProvider> _canvasProvider;
 }
 
-- (void)drawFrame:(Frame* _Nonnull)frame withFrameProcessor:(FrameProcessorCallback _Nullable)frameProcessor {
+- (void)drawFrame:(Frame* _Nonnull)frame withFrameProcessor:(FrameProcessor* _Nullable)frameProcessor {
   if (_canvasProvider == nullptr) {
     NSLog(@"VisionCamera: Dropped a Frame because SkiaPreviewView is not yet fully initialized!");
     return;
@@ -28,7 +28,8 @@
 
   _canvasProvider->renderFrameToCanvas(frame.buffer, ^(SkCanvas* canvas) {
     if (frameProcessor != nil) {
-      frameProcessor(frame, (void*)canvas);
+      // TODO: How to pass SkCanvas here?
+      [frameProcessor call:frame];
     }
   });
 }

@@ -91,7 +91,7 @@ public final class CameraView: UIView {
   internal var isRecording = false
   internal var recordingSession: RecordingSession?
   #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
-    @objc public var frameProcessorCallback: FrameProcessorCallback?
+    @objc public var frameProcessor: FrameProcessor?
   #endif
   // CameraView+TakePhoto
   internal var photoCaptureDelegates: [PhotoCaptureDelegate] = []
