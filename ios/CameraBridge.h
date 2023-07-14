@@ -17,7 +17,7 @@
 
 #import "PreviewView.h"
 
-#if VISION_ENABLE_FRAME_PROCESSORS
+#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
 #import "FrameProcessor.h"
 #import "FrameProcessorRuntimeManager.h"
 #import "Frame.h"
