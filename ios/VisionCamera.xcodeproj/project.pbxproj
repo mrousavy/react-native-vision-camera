@@ -146,6 +146,8 @@
 		B8A751D62609E4980011C623 /* FrameProcessorRuntimeManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorRuntimeManager.h; sourceTree = "<group>"; };
 		B8A751D72609E4B30011C623 /* FrameProcessorRuntimeManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessorRuntimeManager.mm; sourceTree = "<group>"; };
 		B8BD3BA1266E22D2006C80A2 /* Callback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Callback.swift; sourceTree = "<group>"; };
+		B8C1FD222A613607007A06D6 /* SkiaFrameProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkiaFrameProcessor.h; sourceTree = "<group>"; };
+		B8C1FD232A613612007A06D6 /* SkiaFrameProcessor.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SkiaFrameProcessor.mm; sourceTree = "<group>"; };
 		B8D22CDB2642DB4D00234472 /* AVAssetWriterInputPixelBufferAdaptor+initWithVideoSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAssetWriterInputPixelBufferAdaptor+initWithVideoSettings.swift"; sourceTree = "<group>"; };
 		B8DB3BC7263DC28C004C18D7 /* AVAssetWriter.Status+descriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAssetWriter.Status+descriptor.swift"; sourceTree = "<group>"; };
 		B8DB3BC9263DC4D8004C18D7 /* RecordingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingSession.swift; sourceTree = "<group>"; };
@@ -281,6 +283,8 @@
 		B8FCA20C292669B800F1AC82 /* Skia Render Layer */ = {
 			isa = PBXGroup;
 			children = (
+				B8C1FD222A613607007A06D6 /* SkiaFrameProcessor.h */,
+				B8C1FD232A613612007A06D6 /* SkiaFrameProcessor.mm */,
 				B8248866292644E300729383 /* SkiaPreviewView.h */,
 				B8248867292644EF00729383 /* SkiaPreviewView.mm */,
 				B83373B329266A350092E380 /* SkiaMetalCanvasProvider.h */,

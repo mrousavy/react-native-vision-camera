@@ -11,9 +11,12 @@
 #import <jsi/jsi.h>
 #import "WKTJsiHostObject.h"
 
-#import "SkCanvas.h"
-#import "../Skia Render Layer/SkImageHelpers.h"
 #import "../../cpp/JSITypedArray.h"
+
+#if VISION_CAMERA_ENABLE_SKIA
+#import "SkCanvas.h"
+#import "SkImageHelpers.h"
+#endif
 
 std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt) {
   std::vector<jsi::PropNameID> result;
@@ -33,7 +36,7 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("decrementRefCount")));
   // Skia
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("render")));
-  
+
 #if VISION_CAMERA_ENABLE_SKIA
   if (canvas != nullptr) {
     auto canvasPropNames = canvas->getPropertyNames(rt);
@@ -211,7 +214,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
     return jsi::Value((double) planesCount);
   }
-  
+
 #if VISION_CAMERA_ENABLE_SKIA
   if (canvas != nullptr) {
     // If we have a Canvas, try to access the property on there.

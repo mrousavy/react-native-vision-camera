@@ -34,10 +34,11 @@ using namespace facebook;
   jsi::Runtime& runtime = _workletContext->getWorkletRuntime();
   
   try {
+    // Create the Frame Host Object wrapping the internal Frame
     auto frameHostObject = std::make_shared<FrameHostObject>(frame);
-    
     auto argument = jsi::Object::createFromHostObject(runtime, frameHostObject);
     jsi::Value jsValue(std::move(argument));
+    
     // Call the Worklet with the Frame JS Host Object as an argument
     _workletInvoker->call(runtime, jsi::Value::undefined(), &jsValue, 1);
   } catch (jsi::JSError& jsError) {
