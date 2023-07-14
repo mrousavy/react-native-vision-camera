@@ -13,6 +13,7 @@
 #import <React/RCTViewManager.h>
 #import <React/RCTUIManager.h>
 #import <React/RCTFPSGraph.h>
+#import <React/RCTLog.h>
 
 #import "PreviewView.h"
 
@@ -21,7 +22,3 @@
 #import "FrameProcessorRuntimeManager.h"
 #import "Frame.h"
 #endif
-
-@interface CameraBridge: RCTViewManager
-
-@end
