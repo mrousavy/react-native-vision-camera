@@ -193,13 +193,11 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
     if captureOutput is AVCaptureVideoDataOutput {
-      // Draw Frame to Preview View Canvas (and call Frame Processor)
-      let frame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
-      #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
-        previewView?.drawFrame(frame, with: frameProcessor)
-      #else
-        previewView?.drawFrame(frame)
-      #endif
+      if let frameProcessor = frameProcessor {
+        // Call Frame Processor
+        let frame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
+        frameProcessor.call(frame)
+      }
     }
 
     // Record Video Frame/Audio Sample to File
