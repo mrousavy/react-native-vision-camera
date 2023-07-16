@@ -10,6 +10,8 @@
 
 #import <React/RCTViewManager.h>
 #import <React/RCTUtils.h>
+#import <React/RCTBridgeModule.h>
+#import <React/RCTEventEmitter.h>
 
 @interface RCT_EXTERN_REMAP_MODULE(CameraView, CameraViewManager, RCTViewManager)
 
@@ -51,6 +53,10 @@ RCT_EXPORT_VIEW_PROPERTY(onError, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onInitialized, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onFrameProcessorPerformanceSuggestionAvailable, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onViewReady, RCTDirectEventBlock);
+// Camera Event Emitter props
+RCT_EXPORT_VIEW_PROPERTY(iso, NSNumber);
+RCT_EXPORT_VIEW_PROPERTY(exposureTime, NSNumber);
+RCT_EXPORT_VIEW_PROPERTY(cameraMode, NSNumber);
 
 // Camera View Functions
 RCT_EXTERN_METHOD(startRecording:(nonnull NSNumber *)node options:(NSDictionary *)options onRecordCallback:(RCTResponseSenderBlock)onRecordCallback);
@@ -61,5 +67,11 @@ RCT_EXTERN_METHOD(takePhoto:(nonnull NSNumber *)node options:(NSDictionary *)opt
 RCT_EXTERN_METHOD(focus:(nonnull NSNumber *)node point:(NSDictionary *)point resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject);
 
 RCT_EXTERN_METHOD(getAvailableVideoCodecs:(nonnull NSNumber *)node fileType:(NSString *)fileType resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject);
+
+@end
+
+@interface RCT_EXTERN_MODULE(CameraEventEmitter, RCTEventEmitter)
+
+RCT_EXTERN_METHOD(supportedEvents)
 
 @end

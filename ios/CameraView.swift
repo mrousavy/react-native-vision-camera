@@ -57,6 +57,9 @@ public final class CameraView: UIView {
   @objc var lowLightBoost: NSNumber? // nullable bool
   @objc var colorSpace: NSString?
   @objc var orientation: NSString?
+  @objc var iso: NSNumber?
+  @objc var exposureTime: NSNumber?
+  @objc var cameraMode: NSString?
   // other props
   @objc var isActive = false
   @objc var torch = "off"
@@ -111,6 +114,9 @@ public final class CameraView: UIView {
   internal var actualFrameProcessorFps = 30.0
   internal var lastSuggestedFrameProcessorFps = 0.0
   internal var lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
+
+  // CameraEventEmitter
+	internal var cameraObserver: NSKeyValueObservation!;
 
   /// Returns whether the AVCaptureSession is currently running (reflected by isActive)
   var isRunning: Bool {

@@ -210,6 +210,33 @@ extension CameraView {
       invokeOnError(.device(.configureError), cause: error)
       return
     }
+
+    if device.isExposureModeSupported(AVCaptureDevice.ExposureMode.custom) {
+      ReactLogger.log(level: .info, message: "Exposure mode custom");
+      ReactLogger.log(level: .info, message: NSString(format: "min ISO %.2f", device.activeFormat.minISO) as String)
+      ReactLogger.log(level: .info, message: NSString(format: "max ISO%.2f", device.activeFormat.maxISO) as String)
+      ReactLogger.log(level: .info, message: NSString(format: "CURR ISO%.2f", device.iso) as String)
+      ReactLogger.log(level: .info, message: NSString(format: "APERTURE %.2f", device.lensAperture) as String)
+        
+      ReactLogger.log(level: .info, message: NSString(format: "Exposure %.2f", device.exposureDuration.value) as String)
+
+      cameraObserver = device.observe(\AVCaptureDevice.isAdjustingExposure, options: [.initial, .new]) {object, change in
+        
+        ReactLogger.log(level: .info, message: change.newValue ?? false ? "TRUE" : "FALSE")
+        let body: NSDictionary = [
+          "iso": device.iso,
+          "aperture": device.lensAperture,
+          "ev": device.exposureDuration.value,
+          "ev offset": device.exposureTargetOffset,
+          "white balance gains": device.deviceWhiteBalanceGains,
+          "shutterSpeed": device.exposureDuration.value,
+          "exposureBias": device.exposureTargetBias
+        ]
+        if !!change.newValue {
+          RNEventEmitter.emitter.sendEvent(withName: "onFinished", body: body)
+        }
+      }
+    }
   }
 
   // pragma MARK: Configure Format

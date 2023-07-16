@@ -9,6 +9,11 @@ export interface FrameProcessorPerformanceSuggestion {
   suggestedFrameProcessorFps: number;
 }
 
+export enum CameraModeType {
+  AUTO = 'AUTO',
+  MANUAL = 'MANUAL'
+} 
+
 export interface CameraProps extends ViewProps {
   /**
    * The Camera Device to use.
@@ -209,4 +214,25 @@ export interface CameraProps extends ViewProps {
    */
   frameProcessorFps?: number | 'auto';
   //#endregion
+  /**
+   * Custom Props
+   */
+  /**
+   * Specifies a specific ISO value.
+   * 
+   * If the specified ISO is out of range of the Cameras' allowable range it will be automatically
+   * set nearest valid value.
+   */
+  iso?: Number;
+  /**
+   * Manually specify an exposure
+   */
+  exposureTime?: Number;
+  /**
+   * Sets the camera to 'AUTO' or 'MANUAL' mode. Defaults to 'AUTO'.
+   * 
+   * If the Camera is in auto-exposure mode the iso, exposure time and EV will be constantly updated.
+   * Updated values will be returned by the CameraView Event Emitter.
+   */
+  cameraMode?: CameraModeType;
 }
