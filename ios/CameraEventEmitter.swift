@@ -14,7 +14,7 @@ open class CameraEventEmitter: RCTEventEmitter {
 
   override init() {
     super.init()
-    RNEventEmitter.emitter = self
+		CameraEventEmitter.emitter = self
   }
 
   open override func supportedEvents() -> [String] {

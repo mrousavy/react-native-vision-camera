@@ -232,8 +232,9 @@ extension CameraView {
           "shutterSpeed": device.exposureDuration.value,
           "exposureBias": device.exposureTargetBias
         ]
-        if !!change.newValue {
-          RNEventEmitter.emitter.sendEvent(withName: "onFinished", body: body)
+				if !Bool(change.newValue ?? false) {
+					ReactLogger.log(level: .info, message: "Sending event");
+					CameraEventEmitter.emitter.sendEvent(withName: "onChanged", body: body)
         }
       }
     }
