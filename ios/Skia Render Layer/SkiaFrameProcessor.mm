@@ -12,6 +12,7 @@
 
 #import <include/core/SkSurface.h>
 #import <include/core/SkCanvas.h>
+#import <include/core/SkColorSpace.h>
 #import "SkImageHelpers.h"
 
 @implementation SkiaFrameProcessor {
@@ -97,7 +98,7 @@
                                                           backendRT,
                                                           kTopLeft_GrSurfaceOrigin,
                                                           kBGRA_8888_SkColorType,
-                                                          nullptr,
+                                                          SkColorSpace::MakeSRGB(),
                                                           nullptr);
 
     if (surface == nullptr || surface->getCanvas() == nullptr) {

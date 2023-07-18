@@ -12,7 +12,8 @@
 #import <MetalKit/MetalKit.h>
 #import <QuartzCore/CAMetalLayer.h>
 #import <AVFoundation/AVFoundation.h>
-#include <include/gpu/GrDirectContext.h>
+#import <include/gpu/GrDirectContext.h>
+#import "VisionDisplayLink.h"
 
 struct RenderContext {
   id<MTLDevice> device;

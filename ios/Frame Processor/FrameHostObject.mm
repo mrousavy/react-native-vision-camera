@@ -15,7 +15,7 @@
 
 #if VISION_CAMERA_ENABLE_SKIA
 #import "SkCanvas.h"
-#import "SkImageHelpers.h"
+#import "../Skia Render Layer/SkImageHelpers.h"
 #endif
 
 std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt) {

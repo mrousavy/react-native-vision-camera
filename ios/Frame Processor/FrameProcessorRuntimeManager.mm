@@ -133,8 +133,8 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
   // HostObject that attaches the cache to the lifecycle of the Runtime. On Runtime destroy, we destroy the cache.
   auto propNameCacheObject = std::make_shared<vision::InvalidateCacheOnDestroy>(jsiRuntime);
   jsiRuntime.global().setProperty(jsiRuntime,
-                                  "__visionCameraPropNameCache",
                                   jsi::Object::createFromHostObject(jsiRuntime, propNameCacheObject));
+                                 "__arrayBufferCache",
 
   // Install the Worklet Runtime in the main React JS Runtime
   [self setupWorkletContext:jsiRuntime];
