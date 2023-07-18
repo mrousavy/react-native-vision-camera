@@ -53,6 +53,7 @@ Pod::Spec.new do |s|
 
     # Skia Frame Processors
     hasSkia ? "ios/Skia Render Layer/*.{m,mm,swift}" : "",
+    hasSkia ? "ios/Skia Render Layer/SkiaFrameProcessor.h" : "",
     hasSkia ? "ios/Skia Render Layer/SkiaPreviewView.h" : "",
   ]
   # Any private headers that are not globally unique should be mentioned here.

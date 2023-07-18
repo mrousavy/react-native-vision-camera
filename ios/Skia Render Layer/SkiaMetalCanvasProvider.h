@@ -18,14 +18,12 @@
 
 #import "VisionDisplayLink.h"
 #import "SkiaMetalRenderContext.h"
+#import "SkiaFrameProcessor.h"
 
 class SkiaMetalCanvasProvider: public std::enable_shared_from_this<SkiaMetalCanvasProvider> {
 public:
   SkiaMetalCanvasProvider();
   ~SkiaMetalCanvasProvider();
-
-  // Render a Camera Frame to the off-screen canvas
-  void renderFrameToCanvas(CMSampleBufferRef sampleBuffer, const std::function<void(SkCanvas*)>& drawCallback);
 
   // Start updating the DisplayLink (runLoop @ screen refresh rate) and draw Frames to the Layer
   void start();
@@ -37,16 +35,12 @@ private:
   bool _isValid = false;
   float _width = -1;
   float _height = -1;
-  
-  // For rendering Camera Frame -> off-screen MTLTexture
-  OffscreenRenderContext _offscreenContext;
 
   // For rendering off-screen MTLTexture -> on-screen CAMetalLayer
   LayerRenderContext _layerContext;
   
-  // For synchronization between the two Threads/Contexts
-  std::mutex _textureMutex;
-  std::atomic<bool> _hasNewFrame = false;
+  // Frame Processor holds latest frames
+  SkiaFrameProcessor* _frameProcessor;
   
 private:
   void render();

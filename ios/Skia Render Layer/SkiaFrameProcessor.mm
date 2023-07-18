@@ -15,6 +15,8 @@
 #import <include/core/SkColorSpace.h>
 #import "SkImageHelpers.h"
 
+#import "SkiaMetalRenderContext.h"
+
 @implementation SkiaFrameProcessor {
   // Metal/Skia Context
   OffscreenRenderContext _offscreenContext;
@@ -32,12 +34,11 @@
   return self;
 }
 
+- (bool)hasNewFrame {
+  return _hasNewFrame;
+}
+
 - (void)renderLatestFrame:(render_block_t)callback {
-  if (!_hasNewFrame) {
-    // No new Frame has arrived in the meantime, we don't need to render.
-    return;
-  }
-  
   // Lock the Mutex so we can operate on the Texture atomically without
   // renderFrameToCanvas() overwriting in between from a different thread
   std::unique_lock lock(_textureMutex);
@@ -84,18 +85,18 @@
                              height:CVPixelBufferGetHeight(pixelBuffer)];
 
     // Get & Lock the writeable Texture from the Metal Drawable
-    GrMtlTextureInfo fbInfo;
-    fbInfo.fTexture.retain((__bridge void*)texture);
-    GrBackendRenderTarget backendRT((int)texture.width,
-                                    (int)texture.height,
-                                    1,
-                                    fbInfo);
+    GrMtlTextureInfo textureInfo;
+    textureInfo.fTexture.retain((__bridge void*)texture);
+    GrBackendRenderTarget backendRenderTarget((int)texture.width,
+                                              (int)texture.height,
+                                              1,
+                                              textureInfo);
 
     auto context = _offscreenContext.skiaContext.get();
 
     // Create a Skia Surface from the writable Texture
     auto surface = SkSurface::MakeFromBackendRenderTarget(context,
-                                                          backendRT,
+                                                          backendRenderTarget,
                                                           kTopLeft_GrSurfaceOrigin,
                                                           kBGRA_8888_SkColorType,
                                                           SkColorSpace::MakeSRGB(),
@@ -105,10 +106,8 @@
       throw std::runtime_error("Skia surface could not be created from parameters.");
     }
 
-    // Lock the Frame's PixelBuffer for the duration of the Frame Processor so the user can safely do operations on it
-    CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
-
     // Converts the CMSampleBuffer to an SkImage - RGB.
+    CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
     auto image = SkImageHelpers::convertCMSampleBufferToSkImage(context, frame.buffer);
 
     auto canvas = surface->getCanvas();

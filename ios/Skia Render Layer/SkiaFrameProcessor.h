@@ -20,8 +20,8 @@ typedef void (^render_block_t)(const OffscreenRenderContext&);
  Render the latest Frame from the Camera.
  The callback (`render_block_t`) will be invoked with a read-access
  texture that can be used for rendering.
- If no new Frame is available, the callback will not be called.
  */
-- (void)renderLatestFrame:(render_block_t)callback;
+- (void)renderLatestFrame:(render_block_t _Nonnull)callback;
+- (bool)hasNewFrame;
 
 @end

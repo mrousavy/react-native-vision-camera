@@ -4,8 +4,7 @@ import type { VideoFileType } from '.';
 import type { CameraDevice } from './CameraDevice';
 import type { ErrorWithCause } from './CameraError';
 import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError';
-import type { CameraProps } from './CameraProps';
-import type { Frame } from './Frame';
+import type { CameraProps, FrameProcessor } from './CameraProps';
 import { assertFrameProcessorsAvailable, assertJSIAvailable } from './JSIHelper';
 import { CameraModule } from './NativeCameraModule';
 import type { PhotoFile, TakePhotoOptions } from './PhotoFile';
@@ -25,6 +24,7 @@ interface OnErrorEvent {
 type NativeCameraViewProps = Omit<CameraProps, 'device' | 'onInitialized' | 'onError' | 'frameProcessor'> & {
   cameraId: string;
   enableFrameProcessor: boolean;
+  previewType: 'native' | 'skia';
   onInitialized?: (event: NativeSyntheticEvent<void>) => void;
   onError?: (event: NativeSyntheticEvent<OnErrorEvent>) => void;
   onViewReady: () => void;
@@ -67,7 +67,7 @@ export class Camera extends React.PureComponent<CameraProps> {
   static displayName = 'Camera';
   /** @internal */
   displayName = Camera.displayName;
-  private lastFrameProcessor: ((frame: Frame) => void) | undefined;
+  private lastFrameProcessor: FrameProcessor | undefined;
   private isNativeViewMounted = false;
 
   private readonly ref: React.RefObject<RefType>;
@@ -417,7 +417,7 @@ export class Camera extends React.PureComponent<CameraProps> {
   //#endregion
 
   //#region Lifecycle
-  private setFrameProcessor(frameProcessor: (frame: Frame) => void): void {
+  private setFrameProcessor(frameProcessor: FrameProcessor): void {
     assertFrameProcessorsAvailable();
     // @ts-expect-error JSI functions aren't typed
     global.setFrameProcessor(this.handle, frameProcessor);
@@ -473,6 +473,7 @@ export class Camera extends React.PureComponent<CameraProps> {
         onInitialized={this.onInitialized}
         onError={this.onError}
         enableFrameProcessor={frameProcessor != null}
+        previewType={frameProcessor?.type === 'skia-frame-processor' ? 'skia' : 'native'}
       />
     );
   }

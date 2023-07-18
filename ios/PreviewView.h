@@ -10,22 +10,9 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import <AVFoundation/AVFoundation.h>
-#import "Frame.h"
-#import "FrameProcessor.h"
 
 @interface PreviewView : UIView
-
-// Call to pass a new Frame
-- (void) drawFrame:(Frame* _Nonnull)frame withFrameProcessor:(FrameProcessor* _Nullable)frameProcessor;
-
 @end
 
 @implementation PreviewView
-
-- (void) drawFrame:(Frame* _Nonnull)frame withFrameProcessor:(FrameProcessor* _Nullable)frameProcessor {
-  [NSException raise:NSInternalInconsistencyException
-              format:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)];
-}
-
 @end

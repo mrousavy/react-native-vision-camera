@@ -13,8 +13,6 @@
 
 @interface FrameProcessorRuntimeManager : NSObject
 
-- (instancetype) init;
-
 - (void) installFrameProcessorBindings;
 
 @end

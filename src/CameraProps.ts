@@ -4,6 +4,11 @@ import type { CameraRuntimeError } from './CameraError';
 import type { Frame } from './Frame';
 import type { Orientation } from './Orientation';
 
+export interface FrameProcessor {
+  frameProcessor: (frame: Frame) => void;
+  type: 'frame-processor' | 'skia-frame-processor';
+}
+
 export interface CameraProps extends ViewProps {
   /**
    * The Camera Device to use.
@@ -158,15 +163,6 @@ export interface CameraProps extends ViewProps {
    * Represents the orientation of all Camera Outputs (Photo, Video, and Frame Processor). If this value is not set, the device orientation is used.
    */
   orientation?: Orientation;
-  /**
-   * Render type of the Camera Preview Layer.
-   *
-   * * `native`: Uses the default platform native preview Layer. Uses less resources and is more efficient.
-   * * `skia`: Uses a Skia Canvas for rendering Camera frames to the screen. This allows you to draw to the screen using the react-native-skia API inside a Frame Processor.
-   *
-   * @default 'native'
-   */
-  previewType?: 'native' | 'skia';
 
   //#region Events
   /**
@@ -180,7 +176,7 @@ export interface CameraProps extends ViewProps {
   /**
    * A worklet which will be called for every frame the Camera "sees".
    *
-   * If {@linkcode CameraProps.previewType | previewType} is set to `"skia"`, you can draw content to the `Frame` using the react-native-skia API.
+   * If {@linkcode previewType | previewType} is set to `"skia"`, you can draw content to the `Frame` using the react-native-skia API.
    *
    * Note: If you want to use `video` and `frameProcessor` simultaneously, make sure [`supportsParallelVideoProcessing`](https://mrousavy.github.io/react-native-vision-camera/docs/guides/devices#the-supportsparallelvideoprocessing-prop) is `true`.
    *
@@ -197,6 +193,6 @@ export interface CameraProps extends ViewProps {
    * return <Camera {...cameraProps} frameProcessor={frameProcessor} />
    * ```
    */
-  frameProcessor?: (frame: Frame) => void;
+  frameProcessor?: FrameProcessor;
   //#endregion
 }

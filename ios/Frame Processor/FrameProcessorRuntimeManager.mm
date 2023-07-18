@@ -27,6 +27,10 @@
 #import "../React Utils/JSIUtils.h"
 #import "../../cpp/JSITypedArray.h"
 
+#if VISION_CAMERA_ENABLE_SKIA
+#import "../Skia Render Layer/SkiaFrameProcessor.h"
+#endif
+
 // Forward declarations for the Swift classes
 __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
 @interface CameraQueues : NSObject
@@ -40,13 +44,6 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 @implementation FrameProcessorRuntimeManager {
   // Separate Camera Worklet Context
   std::shared_ptr<RNWorklet::JsiWorkletContext> workletContext;
-}
-
-- (instancetype)init {
-    if (self = [super init]) {
-        // Initialize self
-    }
-    return self;
 }
 
 - (void) setupWorkletContext:(jsi::Runtime&)runtime {
@@ -133,8 +130,8 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
   // HostObject that attaches the cache to the lifecycle of the Runtime. On Runtime destroy, we destroy the cache.
   auto propNameCacheObject = std::make_shared<vision::InvalidateCacheOnDestroy>(jsiRuntime);
   jsiRuntime.global().setProperty(jsiRuntime,
+                                  "__visionCameraArrayBufferCache",
                                   jsi::Object::createFromHostObject(jsiRuntime, propNameCacheObject));
-                                 "__arrayBufferCache",
 
   // Install the Worklet Runtime in the main React JS Runtime
   [self setupWorkletContext:jsiRuntime];
@@ -145,15 +142,27 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
   auto setFrameProcessor = JSI_HOST_FUNCTION_LAMBDA {
     NSLog(@"FrameProcessorBindings: Setting new frame processor...");
     auto viewTag = arguments[0].asNumber();
-    auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, arguments[1]);
+    auto object = arguments[1].asObject(runtime);
+    auto frameProcessorType = object.getProperty(runtime, "type").asString(runtime).utf8(runtime);
+    auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, object.getProperty(runtime, "frameProcessor"));
 
     RCTExecuteOnMainQueue(^{
       auto currentBridge = [RCTBridge currentBridge];
       auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
       auto view = static_cast<CameraView*>(anonymousView);
-      auto frameProcessor = [[FrameProcessor alloc] initWithWorklet:self->workletContext
-                                                            worklet:worklet];
-      view.frameProcessor = frameProcessor;
+      if (frameProcessorType == "frame-processor") {
+        view.frameProcessor = [[FrameProcessor alloc] initWithWorklet:self->workletContext
+                                                              worklet:worklet];
+      } else if (frameProcessorType == "skia-frame-processor") {
+#if VISION_CAMERA_ENABLE_SKIA
+        view.frameProcessor = [[SkiaFrameProcessor alloc] initWithWorklet:self->workletContext
+                                                                  worklet:worklet];
+#else
+        throw std::runtime_error("system/skia-unavailable: Skia is not installed!");
+#endif
+      } else {
+        throw std::runtime_error("Unknown FrameProcessor.type passed! Received: " + frameProcessorType);
+      }
     });
 
     return jsi::Value::undefined();

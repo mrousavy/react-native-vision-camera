@@ -18,20 +18,17 @@
 
 @implementation SkiaPreviewView {
   std::shared_ptr<SkiaMetalCanvasProvider> _canvasProvider;
+  SkiaFrameProcessor* _frameProcessor;
 }
 
-- (void)drawFrame:(Frame* _Nonnull)frame withFrameProcessor:(FrameProcessor* _Nullable)frameProcessor {
-  if (_canvasProvider == nullptr) {
-    NSLog(@"VisionCamera: Dropped a Frame because SkiaPreviewView is not yet fully initialized!");
-    return;
+- (void)setFrameProcessor:(FrameProcessor* _Nonnull)frameProcessor {
+  if (![frameProcessor isKindOfClass:[SkiaFrameProcessor class]]) {
+    throw std::runtime_error("Tried to use SkiaPreviewView with a normal Frame Processor! You need a Skia Frame Processor for that.");
   }
-
-  _canvasProvider->renderFrameToCanvas(frame.buffer, ^(SkCanvas* canvas) {
-    if (frameProcessor != nil) {
-      // TODO: How to pass SkCanvas here?
-      [frameProcessor call:frame];
-    }
-  });
+  _frameProcessor = (SkiaFrameProcessor*)frameProcessor;
+  if (_canvasProvider != nullptr) {
+    _canvasProvider->setSkiaFrameProcessor(_frameProcessor);
+  }
 }
 
 - (void) willMoveToSuperview:(UIView *)newWindow {
@@ -45,8 +42,11 @@
     // Create implementation view when the parent view is set
     if (_canvasProvider == nullptr) {
       _canvasProvider = std::make_shared<SkiaMetalCanvasProvider>();
-      [self.layer addSublayer: _canvasProvider->getLayer()];
+      [self.layer addSublayer:_canvasProvider->getLayer()];
       _canvasProvider->start();
+      if (_frameProcessor != nil) {
+        _canvasProvider->setSkiaFrameProcessor(_frameProcessor);
+      }
     }
   }
 }

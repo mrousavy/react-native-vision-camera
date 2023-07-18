@@ -4,7 +4,7 @@ import type { Orientation } from './Orientation';
 /**
  * A single frame, as seen by the camera.
  */
-export interface Frame extends SkCanvas {
+export interface Frame {
   /**
    * Whether the underlying buffer is still valid or not. The buffer will be released after the frame processor returns, or `close()` is called.
    */
@@ -55,6 +55,9 @@ export interface Frame extends SkCanvas {
    * ```
    */
   toString(): string;
+}
+
+export interface DrawableFrame extends Frame, SkCanvas {
   /**
    * Renders the Frame to the screen.
    *
@@ -77,7 +80,7 @@ export interface Frame extends SkCanvas {
    * const paint = Skia.Paint()
    * paint.setImageFilter(imageFilter)
    *
-   * const frameProcessor = useFrameProcessor((frame) => {
+   * const frameProcessor = useSkiaFrameProcessor((frame) => {
    *   'worklet'
    *   frame.render(paint) // <-- draws frame with inverted colors now
    * }, [paint])
@@ -86,7 +89,7 @@ export interface Frame extends SkCanvas {
   render: (paint?: SkPaint) => void;
 }
 
-export interface FrameInternal extends Frame {
+export interface FrameInternal extends Frame, DrawableFrame {
   /**
    * Increment the Frame Buffer ref-count by one.
    *

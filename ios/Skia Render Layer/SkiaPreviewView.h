@@ -11,14 +11,10 @@
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
 #import "PreviewView.h"
-
-typedef void (^DrawCallback) (void* _Nonnull skCanvas);
+#import "SkiaFrameProcessor.h"
 
 @interface SkiaPreviewView: PreviewView
 
-// Call to pass a new Frame to be drawn by the Skia Canvas
-- (void) drawFrame:(_Nonnull CMSampleBufferRef)buffer;
-// overload with custom draw callback
-- (void) drawFrame:(_Nonnull CMSampleBufferRef)buffer withCallback:(DrawCallback _Nullable)callback;
+- (instancetype _Nonnull ) initWithRenderProxy:(SkiaRenderProxy* _Nonnull)renderProxy;
 
 @end

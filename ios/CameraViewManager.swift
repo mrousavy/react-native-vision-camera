@@ -182,12 +182,6 @@ final class CameraViewManager: RCTViewManager {
       deviceTypes.append(.builtInDualWideCamera)
       deviceTypes.append(.builtInUltraWideCamera)
     }
-    if #available(iOS 11.1, *) {
-      deviceTypes.append(.builtInTrueDepthCamera)
-    }
-    if #available(iOS 15.4, *) {
-      deviceTypes.append(.builtInLiDARDepthCamera)
-    }
     deviceTypes.append(.builtInDualCamera)
     deviceTypes.append(.builtInWideAngleCamera)
     deviceTypes.append(.builtInTelephotoCamera)
