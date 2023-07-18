@@ -9,6 +9,7 @@ import {
   sortFormats,
   useCameraDevices,
   useFrameProcessor,
+  useSkiaFrameProcessor,
   VideoFile,
 } from 'react-native-vision-camera';
 import { Camera, frameRateIncluded } from 'react-native-vision-camera';
@@ -218,7 +219,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   paint.setImageFilter(imageFilter);
 
   const isIOS = Platform.OS === 'ios';
-  const frameProcessor = useFrameProcessor(
+  const frameProcessor = useSkiaFrameProcessor(
     (frame) => {
       'worklet';
       console.log(`Width: ${frame.width}`);
@@ -252,8 +253,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 video={true}
                 audio={hasMicrophonePermission}
                 enableFpsGraph={true}
-                previewType="skia"
                 orientation="portrait"
+                frameProcessor={frameProcessor}
               />
             </TapGestureHandler>
           </Reanimated.View>

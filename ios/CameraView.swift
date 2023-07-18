@@ -91,7 +91,13 @@ public final class CameraView: UIView {
   internal var isRecording = false
   internal var recordingSession: RecordingSession?
   #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
-    @objc public var frameProcessor: FrameProcessor?
+  @objc public var frameProcessor: FrameProcessor? {
+    didSet {
+      if let previewView = self.previewView as? SkiaPreviewView {
+        previewView.setFrameProcessor(frameProcessor)
+      }
+    }
+  }
   #endif
   // CameraView+TakePhoto
   internal var photoCaptureDelegates: [PhotoCaptureDelegate] = []
@@ -187,6 +193,9 @@ public final class CameraView: UIView {
         if previewView is SkiaPreviewView { return }
         previewView?.removeFromSuperview()
         previewView = SkiaPreviewView(frame: frame)
+        if let frameProcessor = self.frameProcessor {
+          (previewView as! SkiaPreviewView).setFrameProcessor(frameProcessor)
+        }
       #else
         invokeOnError(.system(.skiaUnavailable))
       #endif

@@ -30,6 +30,8 @@ public:
   // Update the size of the View (Layer)
   void setSize(int width, int height);
   CALayer* getLayer();
+  
+  void setSkiaFrameProcessor(SkiaFrameProcessor* skiaFrameProcessor);
 
 private:
   bool _isValid = false;

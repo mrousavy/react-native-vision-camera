@@ -15,8 +15,6 @@
 #import <include/core/SkColorSpace.h>
 #import "SkImageHelpers.h"
 
-#import "SkiaMetalRenderContext.h"
-
 @implementation SkiaFrameProcessor {
   // Metal/Skia Context
   OffscreenRenderContext _offscreenContext;

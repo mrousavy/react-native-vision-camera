@@ -11,10 +11,10 @@
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
 #import "PreviewView.h"
-#import "SkiaFrameProcessor.h"
+#import "FrameProcessor.h"
 
 @interface SkiaPreviewView: PreviewView
 
-- (instancetype _Nonnull ) initWithRenderProxy:(SkiaRenderProxy* _Nonnull)renderProxy;
+- (void)setFrameProcessor:(FrameProcessor*)frameProcessor;
 
 @end

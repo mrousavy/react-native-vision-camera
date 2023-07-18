@@ -1,5 +1,5 @@
 import { DependencyList, useMemo } from 'react';
-import type { Frame, FrameInternal } from '../Frame';
+import type { DrawableFrame, Frame, FrameInternal } from '../Frame';
 import { FrameProcessor } from '../CameraProps';
 // Install RN Worklets by importing it
 import 'react-native-worklets/src';
@@ -64,7 +64,7 @@ export function useFrameProcessor(frameProcessor: (frame: Frame) => void, depend
  * }, [])
  * ```
  */
-export function useSkiaFrameProcessor(frameProcessor: (frame: Frame) => void, dependencies: DependencyList): FrameProcessor {
+export function useSkiaFrameProcessor(frameProcessor: (frame: DrawableFrame) => void, dependencies: DependencyList): FrameProcessor {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const fp = useFrameProcessor(frameProcessor, dependencies);
   fp.type = 'skia-frame-processor';

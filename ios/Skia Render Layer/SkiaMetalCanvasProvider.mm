@@ -57,6 +57,7 @@ void SkiaMetalCanvasProvider::start() {
   NSLog(@"VisionCamera: Starting SkiaMetalCanvasProvider DisplayLink...");
   [_layerContext.displayLink start:[weakThis = weak_from_this()](double time) {
     auto thiz = weakThis.lock();
+    NSLog(@"Rendering..");
     if (thiz) {
       thiz->render();
     }
@@ -84,60 +85,62 @@ void SkiaMetalCanvasProvider::render() {
   }
 
   auto context = _layerContext.skiaContext.get();
+  
+  @autoreleasepool {
+    // Create a Skia Surface from the CAMetalLayer (use to draw to the View)
+    GrMTLHandle drawableHandle;
+    auto surface = SkSurface::MakeFromCAMetalLayer(context,
+                                                   (__bridge GrMTLHandle)_layerContext.layer,
+                                                   kTopLeft_GrSurfaceOrigin,
+                                                   1,
+                                                   kBGRA_8888_SkColorType,
+                                                   nullptr,
+                                                   nullptr,
+                                                   &drawableHandle);
+    if (surface == nullptr || surface->getCanvas() == nullptr) {
+      throw std::runtime_error("Skia surface could not be created from parameters.");
+    }
 
-  // Create a Skia Surface from the CAMetalLayer (use to draw to the View)
-  GrMTLHandle drawableHandle;
-  auto surface = SkSurface::MakeFromCAMetalLayer(context,
-                                                 (__bridge GrMTLHandle)_layerContext.layer,
-                                                 kTopLeft_GrSurfaceOrigin,
-                                                 1,
-                                                 kBGRA_8888_SkColorType,
-                                                 nullptr,
-                                                 nullptr,
-                                                 &drawableHandle);
-  if (surface == nullptr || surface->getCanvas() == nullptr) {
-    throw std::runtime_error("Skia surface could not be created from parameters.");
+    auto canvas = surface->getCanvas();
+
+    // Render the latest Frame from the Frame Processor. Internally this locks and gives us a texture with the already-drawn-to Frame.
+    [_frameProcessor renderLatestFrame:^(const OffscreenRenderContext& offscreenContext) {
+      auto texture = offscreenContext.texture;
+      if (texture == nil) return;
+      
+      // Calculate Center Crop (aspectRatio: cover) transform
+      auto sourceRect = SkRect::MakeXYWH(0, 0, texture.width, texture.height);
+      auto destinationRect = SkRect::MakeXYWH(0, 0, surface->width(), surface->height());
+      sourceRect = SkImageHelpers::createCenterCropRect(sourceRect, destinationRect);
+      auto offsetX = -sourceRect.left();
+      auto offsetY = -sourceRect.top();
+
+      // The Canvas is equal to the View size, where-as the Frame has a different size (e.g. 4k)
+      // We scale the Canvas to the exact dimensions of the Frame so that the user can use the Frame as a coordinate system
+      canvas->save();
+
+      auto scaleW = static_cast<double>(surface->width()) / texture.width;
+      auto scaleH = static_cast<double>(surface->height()) / texture.height;
+      auto scale = MAX(scaleW, scaleH);
+      canvas->scale(scale, scale);
+      canvas->translate(offsetX, offsetY);
+
+      // Convert the rendered MTLTexture to an SkImage
+      auto image = SkImageHelpers::convertMTLTextureToSkImage(context, texture);
+
+      // Draw the Texture (Frame) to the Canvas
+      canvas->drawImage(image, 0, 0);
+
+      // Restore the scale & transform
+      canvas->restore();
+
+      surface->flushAndSubmit();
+
+      // Pass the drawable into the Metal Command Buffer and submit it to the GPU
+      id<CAMetalDrawable> drawable = (__bridge id<CAMetalDrawable>)drawableHandle;
+      id<MTLCommandBuffer> commandBuffer([_layerContext.commandQueue commandBuffer]);
+      [commandBuffer presentDrawable:drawable];
+      [commandBuffer commit];
+    }];
   }
-
-  auto canvas = surface->getCanvas();
-
-  // Render the latest Frame from the Frame Processor. Internally this locks and gives us a texture with the already-drawn-to Frame.
-  [_frameProcessor renderLatestFrame:^(const OffscreenRenderContext& offscreenContext) {
-    auto texture = offscreenContext.texture;
-    if (texture == nil) return;
-    
-    // Calculate Center Crop (aspectRatio: cover) transform
-    auto sourceRect = SkRect::MakeXYWH(0, 0, texture.width, texture.height);
-    auto destinationRect = SkRect::MakeXYWH(0, 0, surface->width(), surface->height());
-    sourceRect = SkImageHelpers::createCenterCropRect(sourceRect, destinationRect);
-    auto offsetX = -sourceRect.left();
-    auto offsetY = -sourceRect.top();
-
-    // The Canvas is equal to the View size, where-as the Frame has a different size (e.g. 4k)
-    // We scale the Canvas to the exact dimensions of the Frame so that the user can use the Frame as a coordinate system
-    canvas->save();
-
-    auto scaleW = static_cast<double>(surface->width()) / texture.width;
-    auto scaleH = static_cast<double>(surface->height()) / texture.height;
-    auto scale = MAX(scaleW, scaleH);
-    canvas->scale(scale, scale);
-    canvas->translate(offsetX, offsetY);
-
-    // Convert the rendered MTLTexture to an SkImage
-    auto image = SkImageHelpers::convertMTLTextureToSkImage(context, texture);
-
-    // Draw the Texture (Frame) to the Canvas
-    canvas->drawImage(image, 0, 0);
-
-    // Restore the scale & transform
-    canvas->restore();
-
-    surface->flushAndSubmit();
-
-    // Pass the drawable into the Metal Command Buffer and submit it to the GPU
-    id<CAMetalDrawable> drawable = (__bridge id<CAMetalDrawable>)drawableHandle;
-    id<MTLCommandBuffer> commandBuffer([_layerContext.commandQueue commandBuffer]);
-    [commandBuffer presentDrawable:drawable];
-    [commandBuffer commit];
-  }];
 }

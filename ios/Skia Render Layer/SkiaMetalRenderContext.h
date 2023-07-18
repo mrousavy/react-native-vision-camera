@@ -6,8 +6,7 @@
 //  Copyright © 2022 mrousavy. All rights reserved.
 //
 
-#ifndef SkiaMetalRenderContext_h
-#define SkiaMetalRenderContext_h
+#pragma once
 
 #import <MetalKit/MetalKit.h>
 #import <QuartzCore/CAMetalLayer.h>
@@ -38,5 +37,3 @@ struct LayerRenderContext: public RenderContext {
   CAMetalLayer* layer;
   VisionDisplayLink* displayLink;
 };
-
-#endif /* SkiaMetalRenderContext_h */
