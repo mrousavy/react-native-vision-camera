@@ -151,7 +151,7 @@ extension CameraView {
    */
   final func configureDevice() {
     ReactLogger.log(level: .info, message: "Configuring Device...")
-    guard let device = videoDeviceInput?.device else {
+		guard let device: AVCaptureDevice = videoDeviceInput?.device else {
       invokeOnError(.session(.cameraNotReady))
       return
     }
@@ -210,34 +210,10 @@ extension CameraView {
       invokeOnError(.device(.configureError), cause: error)
       return
     }
-
-    if device.isExposureModeSupported(AVCaptureDevice.ExposureMode.custom) {
-      ReactLogger.log(level: .info, message: "Exposure mode custom");
-      ReactLogger.log(level: .info, message: NSString(format: "min ISO %.2f", device.activeFormat.minISO) as String)
-      ReactLogger.log(level: .info, message: NSString(format: "max ISO%.2f", device.activeFormat.maxISO) as String)
-      ReactLogger.log(level: .info, message: NSString(format: "CURR ISO%.2f", device.iso) as String)
-      ReactLogger.log(level: .info, message: NSString(format: "APERTURE %.2f", device.lensAperture) as String)
-        
-      ReactLogger.log(level: .info, message: NSString(format: "Exposure %.2f", device.exposureDuration.value) as String)
-
-      cameraObserver = device.observe(\AVCaptureDevice.isAdjustingExposure, options: [.initial, .new]) {object, change in
-        
-        ReactLogger.log(level: .info, message: change.newValue ?? false ? "TRUE" : "FALSE")
-        let body: NSDictionary = [
-          "iso": device.iso,
-          "aperture": device.lensAperture,
-          "ev": device.exposureDuration.value,
-          "ev offset": device.exposureTargetOffset,
-          "white balance gains": device.deviceWhiteBalanceGains,
-          "shutterSpeed": device.exposureDuration.value,
-          "exposureBias": device.exposureTargetBias
-        ]
-				if !Bool(change.newValue ?? false) {
-					ReactLogger.log(level: .info, message: "Sending event");
-					CameraEventEmitter.emitter.sendEvent(withName: "onChanged", body: body)
-        }
-      }
-    }
+		
+		ReactLogger.log(level: .info, message: "Exposure mode custom is supported.");
+		device.addObserver(self, forKeyPath: "exposureTargetOffset", options: [.new], context: nil)
+		ReactLogger.log(level: .info, message: "Created exposureTargetOffset observer.");
   }
 
   // pragma MARK: Configure Format
@@ -297,4 +273,32 @@ extension CameraView {
       }
     }
   }
+	
+	public override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+
+		guard let key = keyPath, let changes = change else {
+				print("Not calling")
+				return
+		}
+		
+		guard let device: AVCaptureDevice = videoDeviceInput?.device else {
+			invokeOnError(.session(.cameraNotReady))
+			return
+		}
+		
+		if key == "exposureTargetOffset" {
+			ReactLogger.log(level: .info, message: "EV Target Offset Changed")
+			ReactLogger.log(level: .info, message: NSString(format: "%.2f", device.exposureTargetOffset) as String)
+			ReactLogger.log(level: .info, message: NSString(format: "%.2f", device.exposureTargetBias) as String)
+			let body: NSDictionary = [
+				"iso": device.iso,
+				"aperture": device.lensAperture,
+				"ev": device.exposureDuration.value,
+				"evOffset": device.exposureTargetOffset,
+				"shutterSpeed": device.exposureDuration.seconds,
+			]
+			CameraEventEmitter.emitter.sendEvent(withName: "onChanged", body: body)
+		}
+	}
 }
+
