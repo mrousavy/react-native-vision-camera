@@ -15,8 +15,6 @@
 #import <React/RCTFPSGraph.h>
 #import <React/RCTLog.h>
 
-#import "PreviewView.h"
-
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
 #import "FrameProcessor.h"
 #import "FrameProcessorRuntimeManager.h"

@@ -41,7 +41,6 @@ Pod::Spec.new do |s|
     "ios/Parsers/*.{m,mm,swift}",
     "ios/React Utils/*.{m,mm,swift}",
     "ios/CameraBridge.h",
-    "ios/PreviewView.h",
 
     # Frame Processors
     hasWorklets ? "ios/Frame Processor/*.{m,mm,swift}" : "",
