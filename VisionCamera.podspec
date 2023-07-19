@@ -20,7 +20,7 @@ Pod::Spec.new do |s|
   s.license      = package["license"]
   s.authors      = package["author"]
 
-  s.platforms    = { :ios => "12.4" }
+  s.platforms    = { :ios => "13.0" }
   s.source       = { :git => "https://github.com/mrousavy/react-native-vision-camera.git", :tag => "#{s.version}" }
 
   s.pod_target_xcconfig = {
@@ -53,7 +53,7 @@ Pod::Spec.new do |s|
 
     # Skia Frame Processors
     hasSkia ? "ios/Skia Render Layer/*.{m,mm,swift}" : "",
-    hasSkia ? "ios/Skia Render Layer/SkiaPreviewView.h" : "",
+    hasSkia ? "ios/Skia Render Layer/SkiaRenderer.h" : "",
   ]
   # Any private headers that are not globally unique should be mentioned here.
   # Otherwise there will be a nameclash, since CocoaPods flattens out any header directories

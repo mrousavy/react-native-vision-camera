@@ -10,8 +10,6 @@
 		B80C0E00260BDDF7001699AB /* FrameProcessorPluginRegistry.m in Sources */ = {isa = PBXBuildFile; fileRef = B80C0DFF260BDDF7001699AB /* FrameProcessorPluginRegistry.m */; };
 		B80E06A0266632F000728644 /* AVAudioSession+updateCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B80E069F266632F000728644 /* AVAudioSession+updateCategory.swift */; };
 		B81BE1BF26B936FF002696CC /* AVCaptureDevice.Format+videoDimensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B81BE1BE26B936FF002696CC /* AVCaptureDevice.Format+videoDimensions.swift */; };
-		B8248868292644EF00729383 /* SkiaPreviewView.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8248867292644EF00729383 /* SkiaPreviewView.mm */; };
-		B83373B529266A350092E380 /* SkiaMetalCanvasProvider.mm in Sources */ = {isa = PBXBuildFile; fileRef = B83373B429266A350092E380 /* SkiaMetalCanvasProvider.mm */; };
 		B83D5EE729377117000AFD2F /* NativePreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B83D5EE629377117000AFD2F /* NativePreviewView.swift */; };
 		B841262F292E41A1001AB448 /* SkImageHelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = B841262E292E41A1001AB448 /* SkImageHelpers.mm */; };
 		B84760A62608EE7C004C3180 /* FrameHostObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = B84760A52608EE7C004C3180 /* FrameHostObject.mm */; };
@@ -54,7 +52,6 @@
 		B88751A725E0102000DB86D6 /* CameraView+Zoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887518225E0102000DB86D6 /* CameraView+Zoom.swift */; };
 		B88751A825E0102000DB86D6 /* CameraError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887518325E0102000DB86D6 /* CameraError.swift */; };
 		B88751A925E0102000DB86D6 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887518425E0102000DB86D6 /* CameraView.swift */; };
-		B88A020D2934FC22009E035A /* VisionDisplayLink.m in Sources */ = {isa = PBXBuildFile; fileRef = B88A020C2934FC22009E035A /* VisionDisplayLink.m */; };
 		B88B47472667C8E00091F538 /* AVCaptureSession+setVideoStabilizationMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B88B47462667C8E00091F538 /* AVCaptureSession+setVideoStabilizationMode.swift */; };
 		B8994E6C263F03E100069589 /* JSIUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8994E6B263F03E100069589 /* JSIUtils.mm */; };
 		B8A751D82609E4B30011C623 /* FrameProcessorRuntimeManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8A751D72609E4B30011C623 /* FrameProcessorRuntimeManager.mm */; };
@@ -79,17 +76,14 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libVisionCamera.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libVisionCamera.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		B80A319E293A5C10003EE681 /* SkiaMetalRenderContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkiaMetalRenderContext.h; sourceTree = "<group>"; };
+		B80A319E293A5C10003EE681 /* SkiaRenderContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkiaRenderContext.h; sourceTree = "<group>"; };
 		B80C0DFE260BDD97001699AB /* FrameProcessorPluginRegistry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorPluginRegistry.h; sourceTree = "<group>"; };
 		B80C0DFF260BDDF7001699AB /* FrameProcessorPluginRegistry.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FrameProcessorPluginRegistry.m; sourceTree = "<group>"; };
 		B80E069F266632F000728644 /* AVAudioSession+updateCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAudioSession+updateCategory.swift"; sourceTree = "<group>"; };
 		B8103E5725FF56F0007A1684 /* Frame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Frame.h; sourceTree = "<group>"; };
+		B8127E382A68871C00B06972 /* SkiaPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkiaPreviewView.swift; sourceTree = "<group>"; };
 		B81BE1BE26B936FF002696CC /* AVCaptureDevice.Format+videoDimensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVCaptureDevice.Format+videoDimensions.swift"; sourceTree = "<group>"; };
 		B81D41EF263C86F900B041FD /* JSIUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSIUtils.h; sourceTree = "<group>"; };
-		B8248866292644E300729383 /* SkiaPreviewView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkiaPreviewView.h; sourceTree = "<group>"; };
-		B8248867292644EF00729383 /* SkiaPreviewView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SkiaPreviewView.mm; sourceTree = "<group>"; };
-		B83373B329266A350092E380 /* SkiaMetalCanvasProvider.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; path = SkiaMetalCanvasProvider.h; sourceTree = "<group>"; };
-		B83373B429266A350092E380 /* SkiaMetalCanvasProvider.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SkiaMetalCanvasProvider.mm; sourceTree = "<group>"; };
 		B83D5EE629377117000AFD2F /* NativePreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativePreviewView.swift; sourceTree = "<group>"; };
 		B841262E292E41A1001AB448 /* SkImageHelpers.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SkImageHelpers.mm; sourceTree = "<group>"; };
 		B8412630292E41AD001AB448 /* SkImageHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkImageHelpers.h; sourceTree = "<group>"; };
@@ -98,6 +92,7 @@
 		B84760DE2608F57D004C3180 /* CameraQueues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraQueues.swift; sourceTree = "<group>"; };
 		B864004F27849A2400E9D2CA /* UIInterfaceOrientation+descriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIInterfaceOrientation+descriptor.swift"; sourceTree = "<group>"; };
 		B86400512784A23400E9D2CA /* CameraView+Orientation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraView+Orientation.swift"; sourceTree = "<group>"; };
+		B865BC5F2A6888DA0093DF1A /* SkiaPreviewDisplayLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkiaPreviewDisplayLink.swift; sourceTree = "<group>"; };
 		B86DC970260E2D5200FB17B2 /* AVAudioSession+trySetAllowHaptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAudioSession+trySetAllowHaptics.swift"; sourceTree = "<group>"; };
 		B86DC973260E310600FB17B2 /* CameraView+AVAudioSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraView+AVAudioSession.swift"; sourceTree = "<group>"; };
 		B86DC976260E315100FB17B2 /* CameraView+AVCaptureSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraView+AVCaptureSession.swift"; sourceTree = "<group>"; };
@@ -137,12 +132,11 @@
 		B887518325E0102000DB86D6 /* CameraError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraError.swift; sourceTree = "<group>"; };
 		B887518425E0102000DB86D6 /* CameraView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		B88873E5263D46C7008B1D0E /* FrameProcessorPlugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorPlugin.h; sourceTree = "<group>"; };
-		B88A020C2934FC22009E035A /* VisionDisplayLink.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VisionDisplayLink.m; sourceTree = "<group>"; };
-		B88A020E2934FC29009E035A /* VisionDisplayLink.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VisionDisplayLink.h; sourceTree = "<group>"; };
 		B88B47462667C8E00091F538 /* AVCaptureSession+setVideoStabilizationMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVCaptureSession+setVideoStabilizationMode.swift"; sourceTree = "<group>"; };
-		B8965E8A2A584D7400CD2A6D /* SkiaCanvas.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkiaCanvas.h; sourceTree = "<group>"; };
 		B8965E8B2A584DE000CD2A6D /* PreviewView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PreviewView.h; sourceTree = "<group>"; };
 		B8994E6B263F03E100069589 /* JSIUtils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = JSIUtils.mm; sourceTree = "<group>"; };
+		B89A28742A68795E0092207F /* SkiaRenderer.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SkiaRenderer.mm; sourceTree = "<group>"; };
+		B89A28752A68796A0092207F /* SkiaRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SkiaRenderer.h; sourceTree = "<group>"; };
 		B8A751D62609E4980011C623 /* FrameProcessorRuntimeManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorRuntimeManager.h; sourceTree = "<group>"; };
 		B8A751D72609E4B30011C623 /* FrameProcessorRuntimeManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessorRuntimeManager.mm; sourceTree = "<group>"; };
 		B8BD3BA1266E22D2006C80A2 /* Callback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Callback.swift; sourceTree = "<group>"; };
@@ -285,16 +279,13 @@
 			children = (
 				B8C1FD222A613607007A06D6 /* SkiaFrameProcessor.h */,
 				B8C1FD232A613612007A06D6 /* SkiaFrameProcessor.mm */,
-				B8248866292644E300729383 /* SkiaPreviewView.h */,
-				B8248867292644EF00729383 /* SkiaPreviewView.mm */,
-				B83373B329266A350092E380 /* SkiaMetalCanvasProvider.h */,
-				B83373B429266A350092E380 /* SkiaMetalCanvasProvider.mm */,
 				B8412630292E41AD001AB448 /* SkImageHelpers.h */,
 				B841262E292E41A1001AB448 /* SkImageHelpers.mm */,
-				B88A020E2934FC29009E035A /* VisionDisplayLink.h */,
-				B88A020C2934FC22009E035A /* VisionDisplayLink.m */,
-				B80A319E293A5C10003EE681 /* SkiaMetalRenderContext.h */,
-				B8965E8A2A584D7400CD2A6D /* SkiaCanvas.h */,
+				B80A319E293A5C10003EE681 /* SkiaRenderContext.h */,
+				B89A28752A68796A0092207F /* SkiaRenderer.h */,
+				B89A28742A68795E0092207F /* SkiaRenderer.mm */,
+				B8127E382A68871C00B06972 /* SkiaPreviewView.swift */,
+				B865BC5F2A6888DA0093DF1A /* SkiaPreviewDisplayLink.swift */,
 			);
 			path = "Skia Render Layer";
 			sourceTree = "<group>";
@@ -408,7 +399,6 @@
 				B887519725E0102000DB86D6 /* CameraView+TakePhoto.swift in Sources */,
 				B887519825E0102000DB86D6 /* EnumParserError.swift in Sources */,
 				B887518C25E0102000DB86D6 /* AVCaptureDevice+isMultiCam.swift in Sources */,
-				B83373B529266A350092E380 /* SkiaMetalCanvasProvider.mm in Sources */,
 				B887518D25E0102000DB86D6 /* AVCaptureDevice+physicalDevices.swift in Sources */,
 				B887519625E0102000DB86D6 /* Promise.swift in Sources */,
 				B8DB3BC8263DC28C004C18D7 /* AVAssetWriter.Status+descriptor.swift in Sources */,
@@ -417,7 +407,6 @@
 				B88751A925E0102000DB86D6 /* CameraView.swift in Sources */,
 				B887519925E0102000DB86D6 /* AVCaptureVideoStabilizationMode+descriptor.swift in Sources */,
 				B80E06A0266632F000728644 /* AVAudioSession+updateCategory.swift in Sources */,
-				B8248868292644EF00729383 /* SkiaPreviewView.mm in Sources */,
 				B887519425E0102000DB86D6 /* MakeReactError.swift in Sources */,
 				B887519525E0102000DB86D6 /* ReactLogger.swift in Sources */,
 				B86400522784A23400E9D2CA /* CameraView+Orientation.swift in Sources */,
@@ -436,7 +425,6 @@
 				B8A751D82609E4B30011C623 /* FrameProcessorRuntimeManager.mm in Sources */,
 				B887519A25E0102000DB86D6 /* AVVideoCodecType+descriptor.swift in Sources */,
 				B88751A825E0102000DB86D6 /* CameraError.swift in Sources */,
-				B88A020D2934FC22009E035A /* VisionDisplayLink.m in Sources */,
 				B88751A625E0102000DB86D6 /* CameraViewManager.swift in Sources */,
 				B887519F25E0102000DB86D6 /* AVCaptureDevice.DeviceType+descriptor.swift in Sources */,
 				B8D22CDC2642DB4D00234472 /* AVAssetWriterInputPixelBufferAdaptor+initWithVideoSettings.swift in Sources */,
