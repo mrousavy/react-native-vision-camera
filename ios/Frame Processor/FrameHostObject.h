@@ -13,21 +13,11 @@
 
 #import "Frame.h"
 
-#if VISION_CAMERA_ENABLE_SKIA
-#import "SkCanvas.h"
-#import "JsiSkCanvas.h"
-#endif
-
 using namespace facebook;
 
 class JSI_EXPORT FrameHostObject: public jsi::HostObject {
 public:
   explicit FrameHostObject(Frame* frame): frame(frame) {}
-#if VISION_CAMERA_ENABLE_SKIA
-  explicit FrameHostObject(Frame* frame,
-                           std::shared_ptr<RNSkia::JsiSkCanvas> canvas):
-                            frame(frame), canvas(canvas) {}
-#endif
 
 public:
   jsi::Value get(jsi::Runtime&, const jsi::PropNameID& name) override;
@@ -35,7 +25,4 @@ public:
 
 public:
   Frame* frame;
-#if VISION_CAMERA_ENABLE_SKIA
-  std::shared_ptr<RNSkia::JsiSkCanvas> canvas;
-#endif
 };

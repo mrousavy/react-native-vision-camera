@@ -13,7 +13,7 @@
 #import <memory>
 
 #import <jsi/jsi.h>
-#import "../Frame Processor/FrameHostObject.h"
+#import "DrawableFrameHostObject.h"
 
 #import <react-native-skia/JsiSkCanvas.h>
 #import <react-native-skia/RNSkiOSPlatformContext.h>
@@ -42,15 +42,14 @@ using namespace facebook;
   [_skiaRenderer renderCameraFrameToOffscreenCanvas:frame.buffer
                                    withDrawCallback:^(SkiaCanvas _Nonnull canvas) {
     // Create the Frame Host Object wrapping the internal Frame and Skia Canvas
-    auto frameHostObject = std::make_shared<FrameHostObject>(frame);
     self->_skiaCanvas->setCanvas(static_cast<SkCanvas*>(canvas));
-    frameHostObject->canvas = self->_skiaCanvas;
+    auto frameHostObject = std::make_shared<DrawableFrameHostObject>(frame, self->_skiaCanvas);
     
     // Call JS Frame Processor
     [self callWithFrameHostObject:frameHostObject];
     
-    // Remove Skia Canvas from Host Object (runAsync calls might still be trying to access it)
-    frameHostObject->canvas = nullptr;
+    // Remove Skia Canvas from Host Object because it is no longer valid
+    frameHostObject->invalidateCanvas();
   }];
 }
 
