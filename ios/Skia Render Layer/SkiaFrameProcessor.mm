@@ -10,24 +10,47 @@
 #import "SkiaFrameProcessor.h"
 #import "SkiaRenderer.h"
 
+#import <memory>
+
+#import <jsi/jsi.h>
+#import "../Frame Processor/FrameHostObject.h"
+
+#import <react-native-skia/JsiSkCanvas.h>
+#import <react-native-skia/RNSkiOSPlatformContext.h>
+
+using namespace facebook;
+
 @implementation SkiaFrameProcessor {
   SkiaRenderer* _skiaRenderer;
+  std::shared_ptr<RNSkia::JsiSkCanvas> _skiaCanvas;
 }
 
 - (instancetype _Nonnull)initWithWorklet:(std::shared_ptr<RNWorklet::JsiWorkletContext>)context
                                  worklet:(std::shared_ptr<RNWorklet::JsiWorklet>)worklet
-                            skiaRenderer:(SkiaRenderer * _Nonnull)skiaRenderer {
-  if (self = [super initWithWorklet:context worklet:worklet]) {
+                            skiaRenderer:(SkiaRenderer* _Nonnull)skiaRenderer {
+  if (self = [super initWithWorklet:context
+                            worklet:worklet]) {
     _skiaRenderer = skiaRenderer;
+    auto platformContext = std::make_shared<RNSkia::RNSkiOSPlatformContext>(context->getJsRuntime(),
+                                                                            RCTBridge.currentBridge);
+    _skiaCanvas = std::make_shared<RNSkia::JsiSkCanvas>(platformContext);
   }
   return self;
 }
 
 - (void)call:(Frame*)frame {
   [_skiaRenderer renderCameraFrameToOffscreenCanvas:frame.buffer
-                                   withDrawCallback:^(SkiaCanvas _Nonnull) {
-    // TODO: Pass SkiaCanvas along here...
-    [super call:frame];
+                                   withDrawCallback:^(SkiaCanvas _Nonnull canvas) {
+    // Create the Frame Host Object wrapping the internal Frame and Skia Canvas
+    auto frameHostObject = std::make_shared<FrameHostObject>(frame);
+    self->_skiaCanvas->setCanvas(static_cast<SkCanvas*>(canvas));
+    frameHostObject->canvas = self->_skiaCanvas;
+    
+    // Call JS Frame Processor
+    [self callWithFrameHostObject:frameHostObject];
+    
+    // Remove Skia Canvas from Host Object (runAsync calls might still be trying to access it)
+    frameHostObject->canvas = nullptr;
   }];
 }
 

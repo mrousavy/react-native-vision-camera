@@ -14,15 +14,20 @@
 
 #ifdef __cplusplus
 #import "WKTJsiWorklet.h"
+#import <jsi/jsi.h>
+#import "FrameHostObject.h"
+#import <memory.h>
 #endif
 
 @interface FrameProcessor : NSObject
 
 #ifdef __cplusplus
-- (instancetype _Nonnull) initWithWorklet:(std::shared_ptr<RNWorklet::JsiWorkletContext>)context
-                                  worklet:(std::shared_ptr<RNWorklet::JsiWorklet>)worklet;
+- (instancetype _Nonnull)initWithWorklet:(std::shared_ptr<RNWorklet::JsiWorkletContext>)context
+                                 worklet:(std::shared_ptr<RNWorklet::JsiWorklet>)worklet;
+
+- (void)callWithFrameHostObject:(std::shared_ptr<FrameHostObject>)frameHostObject;
 #endif
 
-- (void) call:(Frame* _Nonnull)frame;
+- (void)call:(Frame* _Nonnull)frame;
 
 @end

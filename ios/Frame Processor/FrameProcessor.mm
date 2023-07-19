@@ -30,13 +30,12 @@ using namespace facebook;
   return self;
 }
 
-- (void)call:(Frame* _Nonnull)frame {
+- (void)callWithFrameHostObject:(std::shared_ptr<FrameHostObject>)frameHostObject {
   // Call the Frame Processor on the Worklet Runtime
   jsi::Runtime& runtime = _workletContext->getWorkletRuntime();
   
   try {
-    // Create the Frame Host Object wrapping the internal Frame
-    auto frameHostObject = std::make_shared<FrameHostObject>(frame);
+    // Wrap HostObject as JSI Value
     auto argument = jsi::Object::createFromHostObject(runtime, frameHostObject);
     jsi::Value jsValue(std::move(argument));
     
@@ -51,6 +50,12 @@ using namespace facebook;
       logFn.call(jsRuntime, jsi::String::createFromUtf8(jsRuntime, "Frame Processor threw an error: " + message));
     });
   }
+}
+
+- (void)call:(Frame* _Nonnull)frame {
+  // Create the Frame Host Object wrapping the internal Frame
+  auto frameHostObject = std::make_shared<FrameHostObject>(frame);
+  [self callWithFrameHostObject:frameHostObject];
 }
 
 @end
