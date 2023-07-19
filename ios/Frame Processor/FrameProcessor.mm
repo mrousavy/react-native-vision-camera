@@ -21,7 +21,8 @@ using namespace facebook;
   std::shared_ptr<RNWorklet::WorkletInvoker> _workletInvoker;
 }
 
-- (instancetype)initWithWorklet:(std::shared_ptr<RNWorklet::JsiWorkletContext>)context worklet:(std::shared_ptr<RNWorklet::JsiWorklet>)worklet {
+- (instancetype)initWithWorklet:(std::shared_ptr<RNWorklet::JsiWorkletContext>)context
+                        worklet:(std::shared_ptr<RNWorklet::JsiWorklet>)worklet {
   if (self = [super init]) {
     _workletContext = context;
     _workletInvoker = std::make_shared<RNWorklet::WorkletInvoker>(worklet);

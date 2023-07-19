@@ -10,19 +10,22 @@
 #import "SkiaFrameProcessor.h"
 #import "SkiaRenderer.h"
 
-@implementation SkiaFrameProcessor
+@implementation SkiaFrameProcessor {
+  SkiaRenderer* _skiaRenderer;
+}
 
-- (instancetype)init {
-  if (self = [super init]) {
-    // TODO: init?
+- (instancetype _Nonnull)initWithWorklet:(std::shared_ptr<RNWorklet::JsiWorkletContext>)context
+                                 worklet:(std::shared_ptr<RNWorklet::JsiWorklet>)worklet
+                            skiaRenderer:(SkiaRenderer * _Nonnull)skiaRenderer {
+  if (self = [super initWithWorklet:context worklet:worklet]) {
+    _skiaRenderer = skiaRenderer;
   }
   return self;
 }
 
 - (void)call:(Frame*)frame {
-  // TODO: Get SkiaRenderer somehow...
-  SkiaRenderer* renderer = nil;
-  [renderer renderCameraFrameToOffscreenCanvas:frame.buffer withDrawCallback:^(SkiaCanvas _Nonnull) {
+  [_skiaRenderer renderCameraFrameToOffscreenCanvas:frame.buffer
+                                   withDrawCallback:^(SkiaCanvas _Nonnull) {
     // TODO: Pass SkiaCanvas along here...
     [super call:frame];
   }];

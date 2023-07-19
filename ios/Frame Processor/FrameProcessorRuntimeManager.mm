@@ -39,6 +39,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
 __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 @interface CameraView : UIView
 @property (nonatomic, copy) FrameProcessor* _Nullable frameProcessor;
+- (SkiaRenderer* _Nonnull)getSkiaRenderer;
 @end
 
 @implementation FrameProcessorRuntimeManager {
@@ -153,10 +154,13 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
       if (frameProcessorType == "frame-processor") {
         view.frameProcessor = [[FrameProcessor alloc] initWithWorklet:self->workletContext
                                                               worklet:worklet];
+        
       } else if (frameProcessorType == "skia-frame-processor") {
 #if VISION_CAMERA_ENABLE_SKIA
+        SkiaRenderer* skiaRenderer = [view getSkiaRenderer];
         view.frameProcessor = [[SkiaFrameProcessor alloc] initWithWorklet:self->workletContext
-                                                                  worklet:worklet];
+                                                                  worklet:worklet
+                                                             skiaRenderer:skiaRenderer];
 #else
         throw std::runtime_error("system/skia-unavailable: Skia is not installed!");
 #endif

@@ -91,16 +91,11 @@ public final class CameraView: UIView {
   internal var isRecording = false
   internal var recordingSession: RecordingSession?
   #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
-  @objc public var frameProcessor: FrameProcessor? {
-    didSet {
-      if let previewView = self.previewView as? SkiaPreviewView {
-        previewView.setFrameProcessor(frameProcessor)
-      }
-    }
-  }
+  @objc public var frameProcessor: FrameProcessor?
   #endif
-  // CameraView+TakePhoto
-  internal var photoCaptureDelegates: [PhotoCaptureDelegate] = []
+  #if VISION_CAMERA_ENABLE_SKIA
+  private var skiaRenderer: SkiaRenderer?
+  #endif
   // CameraView+Zoom
   internal var pinchGestureRecognizer: UIPinchGestureRecognizer?
   internal var pinchScaleOffset: CGFloat = 1.0
@@ -171,10 +166,7 @@ public final class CameraView: UIView {
     if newSuperview != nil {
       if !isMounted {
         isMounted = true
-        guard let onViewReady = onViewReady else {
-          return
-        }
-        onViewReady(nil)
+        onViewReady?(nil)
       }
     }
   }
@@ -185,6 +177,15 @@ public final class CameraView: UIView {
       previewView.bounds = bounds
     }
   }
+  
+  #if VISION_CAMERA_ENABLE_SKIA
+  @objc func getSkiaRenderer() -> SkiaRenderer {
+    if skiaRenderer == nil {
+      skiaRenderer = SkiaRenderer()
+    }
+    return skiaRenderer!
+  }
+  #endif
 
   func setupPreviewView() {
     if previewType == "skia" {
@@ -192,10 +193,7 @@ public final class CameraView: UIView {
       #if VISION_CAMERA_ENABLE_SKIA
         if previewView is SkiaPreviewView { return }
         previewView?.removeFromSuperview()
-        previewView = SkiaPreviewView(frame: frame)
-        if let frameProcessor = self.frameProcessor {
-          (previewView as! SkiaPreviewView).setFrameProcessor(frameProcessor)
-        }
+        previewView = SkiaPreviewView(frame: frame, skiaRenderer: getSkiaRenderer())
       #else
         invokeOnError(.system(.skiaUnavailable))
       #endif

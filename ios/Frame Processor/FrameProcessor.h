@@ -19,7 +19,8 @@
 @interface FrameProcessor : NSObject
 
 #ifdef __cplusplus
-- (instancetype _Nonnull) initWithWorklet:(std::shared_ptr<RNWorklet::JsiWorkletContext>)context worklet:(std::shared_ptr<RNWorklet::JsiWorklet>)worklet;
+- (instancetype _Nonnull) initWithWorklet:(std::shared_ptr<RNWorklet::JsiWorkletContext>)context
+                                  worklet:(std::shared_ptr<RNWorklet::JsiWorklet>)worklet;
 #endif
 
 - (void) call:(Frame* _Nonnull)frame;

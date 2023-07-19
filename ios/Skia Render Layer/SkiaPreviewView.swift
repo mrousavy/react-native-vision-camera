@@ -51,6 +51,10 @@ class SkiaPreviewView: PreviewView {
     super.init(frame: frame)
   }
   
+  deinit {
+    self.displayLink.stop()
+  }
+  
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
