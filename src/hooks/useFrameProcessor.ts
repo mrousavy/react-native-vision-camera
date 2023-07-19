@@ -65,8 +65,23 @@ export function useFrameProcessor(frameProcessor: (frame: Frame) => void, depend
  * ```
  */
 export function useSkiaFrameProcessor(frameProcessor: (frame: DrawableFrame) => void, dependencies: DependencyList): FrameProcessor {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fp = useFrameProcessor(frameProcessor, dependencies);
-  fp.type = 'skia-frame-processor';
-  return fp;
+  return useMemo(
+    () => ({
+      frameProcessor: (frame: DrawableFrame) => {
+        'worklet';
+        // Increment ref-count by one
+        (frame as FrameInternal).incrementRefCount();
+        try {
+          // Call sync frame processor
+          frameProcessor(frame);
+        } finally {
+          // Potentially delete Frame if we were the last ref (no runAsync)
+          (frame as FrameInternal).decrementRefCount();
+        }
+      },
+      type: 'skia-frame-processor',
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    dependencies,
+  );
 }
