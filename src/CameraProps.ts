@@ -1,13 +1,18 @@
 import type { ViewProps } from 'react-native';
 import type { CameraDevice, CameraDeviceFormat, ColorSpace, VideoStabilizationMode } from './CameraDevice';
 import type { CameraRuntimeError } from './CameraError';
-import type { Frame } from './Frame';
+import type { DrawableFrame, Frame } from './Frame';
 import type { Orientation } from './Orientation';
 
-export interface FrameProcessor {
-  frameProcessor: (frame: Frame) => void;
-  type: 'frame-processor' | 'skia-frame-processor';
-}
+export type FrameProcessor =
+  | {
+      frameProcessor: (frame: Frame) => void;
+      type: 'frame-processor';
+    }
+  | {
+      frameProcessor: (frame: DrawableFrame) => void;
+      type: 'skia-frame-processor';
+    };
 
 export interface CameraProps extends ViewProps {
   /**

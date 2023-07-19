@@ -35,16 +35,11 @@ class SkiaPreviewView: PreviewView {
     return SkiaPreviewDisplayLink(callback: { [weak self] timestamp in
       // Called everytime to render the screen - e.g. 60 FPS
       if let self = self {
-        self.skiaRenderer.renderLatestFrame(to: self.layer)
+        self.skiaRenderer.renderLatestFrame(to: self.previewLayer)
       }
     })
   }()
-  override final class var layerClass: AnyClass {
-    return SkiaPreviewLayer.self
-  }
-  override var layer: SkiaPreviewLayer {
-      return super.layer as! SkiaPreviewLayer
-  }
+  private let previewLayer = SkiaPreviewLayer()
   
   init(frame: CGRect, skiaRenderer: SkiaRenderer) {
     self.skiaRenderer = skiaRenderer
@@ -61,8 +56,10 @@ class SkiaPreviewView: PreviewView {
   
   override func willMove(toSuperview newSuperview: UIView?) {
     if newSuperview != nil {
+      self.layer.addSublayer(previewLayer)
       self.displayLink.start()
     } else {
+      previewLayer.removeFromSuperlayer()
       self.displayLink.stop()
     }
   }
@@ -70,8 +67,8 @@ class SkiaPreviewView: PreviewView {
   override func layoutSubviews() {
     let width = self.bounds.size.width
     let height = self.bounds.size.height
-    layer.frame = CGRect(x: 0, y: 0, width: width, height: height)
-    layer.drawableSize = CGSizeMake(width * layer.pixelDensity,
-                                    height * layer.pixelDensity)
+    previewLayer.frame = CGRect(x: 0, y: 0, width: width, height: height)
+    previewLayer.drawableSize = CGSizeMake(width * previewLayer.pixelDensity,
+                                           height * previewLayer.pixelDensity)
   }
 }
