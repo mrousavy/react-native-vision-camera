@@ -11,7 +11,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <Metal/Metal.h>
 
-#import "SkiaMetalRenderContext.h"
+#import "SkiaRenderContext.h"
 
 #import <include/core/SkSurface.h>
 #import <include/core/SkCanvas.h>
