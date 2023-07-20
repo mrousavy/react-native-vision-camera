@@ -54,8 +54,8 @@ Pod::Spec.new do |s|
     hasWorklets ? "ios/Frame Processor/*.{m,mm,swift}" : "",
     hasWorklets ? "ios/Frame Processor/Frame.h" : "",
     hasWorklets ? "ios/Frame Processor/FrameProcessor.h" : "",
-    hasWorklets ? "ios/Frame Processor/FrameProcessorRuntimeManager.h" : "",
     hasWorklets ? "ios/Frame Processor/FrameProcessorPlugin.h" : "",
+    hasWorklets ? "ios/Frame Processor/VisionCameraProxy.h" : "",
     hasWorklets ? "cpp/**/*.{cpp}" : "",
 
     # Skia Frame Processors

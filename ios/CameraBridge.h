@@ -17,6 +17,6 @@
 
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
 #import "FrameProcessor.h"
-#import "FrameProcessorRuntimeManager.h"
 #import "Frame.h"
+#import "VisionCameraProxy.h"
 #endif
