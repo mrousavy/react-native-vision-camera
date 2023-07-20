@@ -98,7 +98,7 @@ jobs:
             ${{ runner.os }}-yarn-
       - name: Install node_modules for example/
         run: yarn install --frozen-lockfile --cwd ..
-      - name: Install node_modules for example/
+      - name: Remove react-native-skia
         run: yarn remove @shopify/react-native-skia --cwd ..
 
       - name: Restore buildcache
@@ -159,7 +159,7 @@ jobs:
             ${{ runner.os }}-yarn-
       - name: Install node_modules for example/
         run: yarn install --frozen-lockfile --cwd ..
-      - name: Install node_modules for example/
+      - name: Remove react-native-worklets
         run: yarn remove react-native-worklets --cwd ..
 
       - name: Restore buildcache

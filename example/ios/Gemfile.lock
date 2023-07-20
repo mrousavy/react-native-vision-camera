@@ -34,6 +34,8 @@ GEM
       nap (~> 1.0)
       ruby-macho (>= 1.0, < 3.0)
       xcodeproj (>= 1.21.0, < 2.0)
+    cocoapods-check (1.1.0)
+      cocoapods (~> 1.0)
     cocoapods-core (1.11.3)
       activesupport (>= 5.0, < 7)
       addressable (~> 2.8)
@@ -93,9 +95,10 @@ PLATFORMS
 
 DEPENDENCIES
   cocoapods (>= 1.11.3)
+  cocoapods-check (>= 1.1.0)
 
 RUBY VERSION
    ruby 2.6.10p210
 
 BUNDLED WITH
-   2.2.27
+   2.3.22
