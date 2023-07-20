@@ -61,6 +61,8 @@
 		B8DB3BC8263DC28C004C18D7 /* AVAssetWriter.Status+descriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BC7263DC28C004C18D7 /* AVAssetWriter.Status+descriptor.swift */; };
 		B8DB3BCA263DC4D8004C18D7 /* RecordingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BC9263DC4D8004C18D7 /* RecordingSession.swift */; };
 		B8DB3BCC263DC97E004C18D7 /* AVFileType+descriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BCB263DC97E004C18D7 /* AVFileType+descriptor.swift */; };
+		B8E957CE2A6939A6008F5480 /* CameraView+Preview.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8E957CD2A6939A6008F5480 /* CameraView+Preview.swift */; };
+		B8E957D02A693AD2008F5480 /* CameraView+Torch.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8E957CF2A693AD2008F5480 /* CameraView+Torch.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -149,6 +151,8 @@
 		B8DB3BCB263DC97E004C18D7 /* AVFileType+descriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVFileType+descriptor.swift"; sourceTree = "<group>"; };
 		B8DFBA362A68A17E00941736 /* DrawableFrameHostObject.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DrawableFrameHostObject.mm; sourceTree = "<group>"; };
 		B8DFBA372A68A17E00941736 /* DrawableFrameHostObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DrawableFrameHostObject.h; sourceTree = "<group>"; };
+		B8E957CD2A6939A6008F5480 /* CameraView+Preview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraView+Preview.swift"; sourceTree = "<group>"; };
+		B8E957CF2A693AD2008F5480 /* CameraView+Torch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraView+Torch.swift"; sourceTree = "<group>"; };
 		B8F0825E2A6046FC00C17EB6 /* FrameProcessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessor.h; sourceTree = "<group>"; };
 		B8F0825F2A60491900C17EB6 /* FrameProcessor.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessor.mm; sourceTree = "<group>"; };
 		B8F7DDD1266F715D00120533 /* Frame.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Frame.m; sourceTree = "<group>"; };
@@ -183,8 +187,10 @@
 				B887518425E0102000DB86D6 /* CameraView.swift */,
 				B86DC976260E315100FB17B2 /* CameraView+AVCaptureSession.swift */,
 				B86DC973260E310600FB17B2 /* CameraView+AVAudioSession.swift */,
+				B8E957CF2A693AD2008F5480 /* CameraView+Torch.swift */,
 				B887518025E0102000DB86D6 /* CameraView+Focus.swift */,
 				B887515D25E0102000DB86D6 /* CameraView+RecordVideo.swift */,
+				B8E957CD2A6939A6008F5480 /* CameraView+Preview.swift */,
 				B887517125E0102000DB86D6 /* CameraView+TakePhoto.swift */,
 				B887518225E0102000DB86D6 /* CameraView+Zoom.swift */,
 				B86400512784A23400E9D2CA /* CameraView+Orientation.swift */,
@@ -425,9 +431,11 @@
 				B887518E25E0102000DB86D6 /* AVFrameRateRange+includes.swift in Sources */,
 				B88751A125E0102000DB86D6 /* AVCaptureDevice.Position+descriptor.swift in Sources */,
 				B882721026AEB1A100B14107 /* AVCaptureConnection+setInterfaceOrientation.swift in Sources */,
+				B8E957D02A693AD2008F5480 /* CameraView+Torch.swift in Sources */,
 				B86DC977260E315100FB17B2 /* CameraView+AVCaptureSession.swift in Sources */,
 				B887518A25E0102000DB86D6 /* AVCaptureDevice+neutralZoom.swift in Sources */,
 				B88751A325E0102000DB86D6 /* AVCaptureDevice.FlashMode+descriptor.swift in Sources */,
+				B8E957CE2A6939A6008F5480 /* CameraView+Preview.swift in Sources */,
 				B8A751D82609E4B30011C623 /* FrameProcessorRuntimeManager.mm in Sources */,
 				B887519A25E0102000DB86D6 /* AVVideoCodecType+descriptor.swift in Sources */,
 				B88751A825E0102000DB86D6 /* CameraError.swift in Sources */,

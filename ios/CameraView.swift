@@ -94,7 +94,7 @@ public final class CameraView: UIView {
   @objc public var frameProcessor: FrameProcessor?
   #endif
   #if VISION_CAMERA_ENABLE_SKIA
-  private var skiaRenderer: SkiaRenderer?
+  internal var skiaRenderer: SkiaRenderer?
   #endif
   // CameraView+Zoom
   internal var pinchGestureRecognizer: UIPinchGestureRecognizer?
@@ -176,49 +176,6 @@ public final class CameraView: UIView {
       previewView.frame = frame
       previewView.bounds = bounds
     }
-  }
-  
-  #if VISION_CAMERA_ENABLE_SKIA
-  @objc func getSkiaRenderer() -> SkiaRenderer {
-    if skiaRenderer == nil {
-      skiaRenderer = SkiaRenderer()
-    }
-    return skiaRenderer!
-  }
-  #endif
-
-  func setupPreviewView() {
-    if previewType == "skia" {
-      // Skia Preview View allows user to draw onto a Frame in a Frame Processor
-      #if VISION_CAMERA_ENABLE_SKIA
-        if previewView is SkiaPreviewView { return }
-        previewView?.removeFromSuperview()
-        previewView = SkiaPreviewView(frame: frame, skiaRenderer: getSkiaRenderer())
-      #else
-        invokeOnError(.system(.skiaUnavailable))
-      #endif
-    } else {
-      // Normal iOS PreviewView is lighter and more performant (YUV Format, GPU only)
-      if previewView is NativePreviewView { return }
-      previewView?.removeFromSuperview()
-      previewView = NativePreviewView(frame: frame, session: captureSession)
-    }
-
-    addSubview(previewView!)
-  }
-
-  func setupFpsGraph() {
-    #if DEBUG
-      if enableFpsGraph {
-        if fpsGraph != nil { return }
-        fpsGraph = RCTFPSGraph(frame: CGRect(x: 10, y: 54, width: 75, height: 45), color: .red)
-        fpsGraph!.layer.zPosition = 9999.0
-        addSubview(fpsGraph!)
-      } else {
-        fpsGraph?.removeFromSuperview()
-        fpsGraph = nil
-      }
-    #endif
   }
 
   // pragma MARK: Props updating
@@ -310,46 +267,7 @@ public final class CameraView: UIView {
       }
     }
   }
-
-  internal final func setTorchMode(_ torchMode: String) {
-    guard let device = videoDeviceInput?.device else {
-      invokeOnError(.session(.cameraNotReady))
-      return
-    }
-    guard var torchMode = AVCaptureDevice.TorchMode(withString: torchMode) else {
-      invokeOnError(.parameter(.invalid(unionName: "TorchMode", receivedValue: torch)))
-      return
-    }
-    if !captureSession.isRunning {
-      torchMode = .off
-    }
-    if device.torchMode == torchMode {
-      // no need to run the whole lock/unlock bs
-      return
-    }
-    if !device.hasTorch || !device.isTorchAvailable {
-      if torchMode == .off {
-        // ignore it, when it's off and not supported, it's off.
-        return
-      } else {
-        // torch mode is .auto or .on, but no torch is available.
-        invokeOnError(.device(.torchUnavailable))
-        return
-      }
-    }
-    do {
-      try device.lockForConfiguration()
-      device.torchMode = torchMode
-      if torchMode == .on {
-        try device.setTorchModeOn(level: 1.0)
-      }
-      device.unlockForConfiguration()
-    } catch let error as NSError {
-      invokeOnError(.device(.configureError), cause: error)
-      return
-    }
-  }
-
+  
   @objc
   func onOrientationChanged() {
     updateOrientation()
