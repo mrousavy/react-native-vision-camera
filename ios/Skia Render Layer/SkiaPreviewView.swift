@@ -10,13 +10,12 @@ import Foundation
 
 @available(iOS 13.0, *)
 class SkiaPreviewLayer: CAMetalLayer {
-  override init() {
+  init(device: MTLDevice) {
     super.init()
     
     framebufferOnly = false
-    device = MTLCreateSystemDefaultDevice()
+    self.device = device
     isOpaque = false
-    contentsScale = pixelDensity
     pixelFormat = .bgra8Unorm
   }
   
@@ -24,13 +23,16 @@ class SkiaPreviewLayer: CAMetalLayer {
     fatalError("init(coder:) has not been implemented")
   }
   
-  var pixelDensity: CGFloat {
-    return UIScreen.main.scale
+  func setSize(width: CGFloat, height: CGFloat) {
+    frame = CGRect(x: 0, y: 0, width: width, height: height)
+    drawableSize = CGSizeMake(width * contentsScale,
+                              height * contentsScale)
   }
 }
 
 class SkiaPreviewView: PreviewView {
   private let skiaRenderer: SkiaRenderer
+  private let previewLayer: SkiaPreviewLayer
   private lazy var displayLink = {
     return SkiaPreviewDisplayLink(callback: { [weak self] timestamp in
       // Called everytime to render the screen - e.g. 60 FPS
@@ -39,10 +41,10 @@ class SkiaPreviewView: PreviewView {
       }
     })
   }()
-  private let previewLayer = SkiaPreviewLayer()
   
   init(frame: CGRect, skiaRenderer: SkiaRenderer) {
     self.skiaRenderer = skiaRenderer
+    self.previewLayer = SkiaPreviewLayer(device: skiaRenderer.getMetalDevice())
     super.init(frame: frame)
   }
   
@@ -64,11 +66,13 @@ class SkiaPreviewView: PreviewView {
     }
   }
   
+  override func willMove(toWindow newWindow: UIWindow?) {
+    let scale = newWindow?.screen.scale ?? 1.0
+    previewLayer.contentsScale = scale
+  }
+  
   override func layoutSubviews() {
-    let width = self.bounds.size.width
-    let height = self.bounds.size.height
-    previewLayer.frame = CGRect(x: 0, y: 0, width: width, height: height)
-    previewLayer.drawableSize = CGSizeMake(width * previewLayer.pixelDensity,
-                                           height * previewLayer.pixelDensity)
+    previewLayer.setSize(width: self.bounds.size.width,
+                         height: self.bounds.size.height)
   }
 }

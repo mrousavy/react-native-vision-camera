@@ -47,6 +47,10 @@
   return self;
 }
 
+- (id<MTLDevice>)getMetalDevice {
+  return _layerContext.device;
+}
+
 - (id<MTLTexture>)getTexture:(NSUInteger)width height:(NSUInteger)height {
   if (_texture == nil
       || _texture.width != width

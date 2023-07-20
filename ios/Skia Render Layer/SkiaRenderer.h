@@ -10,6 +10,7 @@
 
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
+#import <Metal/Metal.h>
 
 typedef void* SkiaCanvas;
 typedef void(^draw_callback_t)(SkiaCanvas _Nonnull);
@@ -35,5 +36,10 @@ typedef void(^draw_callback_t)(SkiaCanvas _Nonnull);
  This should be called everytime you want the UI to update, e.g. for 60 FPS; every 16.66ms.
  */
 - (void)renderLatestFrameToLayer:(CALayer* _Nonnull)layer;
+
+/**
+ The Metal Device used for Rendering to the Layer
+ */
+- (id<MTLDevice>)getMetalDevice;
 
 @end
