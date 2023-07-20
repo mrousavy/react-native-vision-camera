@@ -1,4 +1,5 @@
 import type { TemporaryFile } from './TemporaryFile';
+import { CameraPhotoCodec } from './VideoFile';
 
 export interface TakePhotoOptions {
   /**
@@ -36,6 +37,10 @@ export interface TakePhotoOptions {
    * @default false
    */
   enableAutoDistortionCorrection?: boolean;
+  /**
+   * Specifies the photo codec to use for this capture. The provided photo codec has to be supported by the session.
+   */
+  photoCodec?: CameraPhotoCodec;
   /**
    * When set to `true`, metadata reading and mapping will be skipped. ({@linkcode PhotoFile.metadata} will be null)
    *

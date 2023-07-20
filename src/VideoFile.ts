@@ -3,16 +3,8 @@ import type { TemporaryFile } from './TemporaryFile';
 
 export type VideoFileType = 'mov' | 'avci' | 'm4v' | 'mp4';
 
-export type CameraVideoCodec =
-  | 'h264'
-  | 'hevc'
-  | 'hevc-alpha'
-  | 'jpeg'
-  | 'pro-res-4444'
-  | 'pro-res-422'
-  | 'pro-res-422-hq'
-  | 'pro-res-422-lt'
-  | 'pro-res-422-proxy';
+export type CameraVideoCodec = 'h264' | 'hevc' | 'hevc-alpha';
+export type CameraPhotoCodec = 'jpeg' | 'pro-res-4444' | 'pro-res-422' | 'pro-res-422-hq' | 'pro-res-422-lt' | 'pro-res-422-proxy';
 
 export interface RecordVideoOptions {
   /**

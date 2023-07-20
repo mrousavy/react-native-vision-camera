@@ -2,10 +2,22 @@ require "json"
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
-nodeModules = Dir.exist?(File.join(__dir__, "node_modules")) ? File.join(__dir__, "node_modules") : File.join(__dir__, "..")
+nodeModules = File.join(__dir__)
+tries = 0
+while !Dir.exist?(File.join(nodeModules, "node_modules")) && tries < 10
+  nodeModules = File.join(nodeModules, "..")
+  tries += 1
+end
+nodeModules = File.join(nodeModules, "node_modules")
+
+puts("[VisionCamera] node modules #{Dir.exist?(nodeModules) ? "found at #{nodeModules}" : "not found!"}")
+workletsPath = File.join(nodeModules, "react-native-worklets")
+hasWorklets = File.exist?(workletsPath)
+puts "[VisionCamera] react-native-worklets #{hasWorklets ? "found" : "not found"}, Frame Processors #{hasWorklets ? "enabled" : "disabled"}!"
+
 skiaPath = File.join(nodeModules, "@shopify", "react-native-skia")
-hasSkia = File.exist?(skiaPath)
-puts "VisionCamera: Skia integration #{hasSkia ? "enabled" : "disabled"}!"
+hasSkia = hasWorklets && File.exist?(skiaPath)
+puts "[VisionCamera] react-native-skia #{hasSkia ? "found" : "not found"}, Skia Frame Processors #{hasSkia ? "enabled" : "disabled"}!"
 
 Pod::Spec.new do |s|
   s.name         = "VisionCamera"
@@ -16,11 +28,12 @@ Pod::Spec.new do |s|
   s.license      = package["license"]
   s.authors      = package["author"]
 
-  s.platforms    = { :ios => "12.4" }
+  s.platforms    = { :ios => "13.0" }
   s.source       = { :git => "https://github.com/mrousavy/react-native-vision-camera.git", :tag => "#{s.version}" }
 
   s.pod_target_xcconfig = {
-    "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) SK_METAL=1 SK_GANESH=1",
+    "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) SK_METAL=1 SK_GANESH=1 VISION_CAMERA_ENABLE_FRAME_PROCESSORS=#{hasWorklets} VISION_CAMERA_ENABLE_SKIA=#{hasSkia}",
+    "OTHER_SWIFT_FLAGS" => "$(inherited) #{hasWorklets ? "-D VISION_CAMERA_ENABLE_FRAME_PROCESSORS" : ""} #{hasSkia ? "-D VISION_CAMERA_ENABLE_SKIA" : ""}",
     "CLANG_CXX_LANGUAGE_STANDARD" => "c++17",
     "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp/\"/** \"#{skiaPath}/cpp/skia/**\" "
   }
@@ -30,17 +43,24 @@ Pod::Spec.new do |s|
   # All source files that should be publicly visible
   # Note how this does not include headers, since those can nameclash.
   s.source_files = [
-    "ios/**/*.{m,mm,swift}",
+    # Core
+    "ios/*.{m,mm,swift}",
+    "ios/Extensions/*.{m,mm,swift}",
+    "ios/Parsers/*.{m,mm,swift}",
+    "ios/React Utils/*.{m,mm,swift}",
     "ios/CameraBridge.h",
-    "ios/Skia Render Layer/PreviewSkiaView.h",
-    "ios/Frame Processor/Frame.h",
-    "ios/Frame Processor/FrameProcessorCallback.h",
-    "ios/Frame Processor/FrameProcessorRuntimeManager.h",
-    "ios/Frame Processor/FrameProcessorPluginRegistry.h",
-    "ios/Frame Processor/FrameProcessorPlugin.h",
-    "ios/React Utils/RCTBridge+runOnJS.h",
-    "ios/React Utils/JSConsoleHelper.h",
-    "cpp/**/*.{cpp}",
+
+    # Frame Processors
+    hasWorklets ? "ios/Frame Processor/*.{m,mm,swift}" : "",
+    hasWorklets ? "ios/Frame Processor/Frame.h" : "",
+    hasWorklets ? "ios/Frame Processor/FrameProcessor.h" : "",
+    hasWorklets ? "ios/Frame Processor/FrameProcessorRuntimeManager.h" : "",
+    hasWorklets ? "ios/Frame Processor/FrameProcessorPlugin.h" : "",
+    hasWorklets ? "cpp/**/*.{cpp}" : "",
+
+    # Skia Frame Processors
+    hasSkia ? "ios/Skia Render Layer/*.{m,mm,swift}" : "",
+    hasSkia ? "ios/Skia Render Layer/SkiaRenderer.h" : "",
   ]
   # Any private headers that are not globally unique should be mentioned here.
   # Otherwise there will be a nameclash, since CocoaPods flattens out any header directories
@@ -51,8 +71,13 @@ Pod::Spec.new do |s|
   ]
 
   s.dependency "React"
-  s.dependency "React-callinvoker"
   s.dependency "React-Core"
-  s.dependency "react-native-worklets"
-  s.dependency "react-native-skia"
+  s.dependency "React-callinvoker"
+
+  if hasWorklets
+    s.dependency "react-native-worklets"
+    if hasSkia
+      s.dependency "react-native-skia"
+    end
+  end
 end

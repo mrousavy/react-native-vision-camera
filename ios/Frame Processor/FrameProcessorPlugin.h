@@ -20,13 +20,13 @@
 
 /// Get the name of the Frame Processor Plugin.
 /// This will be exposed to JS under the `FrameProcessorPlugins` Proxy object.
-- (NSString *)name;
+- (NSString * _Nonnull)name;
 
 /// The actual callback when calling this plugin. Any Frame Processing should be handled there.
 /// Make sure your code is optimized, as this is a hot path.
-- (id) callback:(Frame*)frame withArguments:(NSArray<id>*)arguments;
+- (id _Nullable) callback:(Frame* _Nonnull)frame withArguments:(NSArray<id>* _Nullable)arguments;
 
 /// Register the given plugin in the Plugin Registry. This should be called on App Startup.
-+ (void) registerPlugin:(FrameProcessorPlugin*)plugin;
++ (void) registerPlugin:(FrameProcessorPlugin* _Nonnull)plugin;
 
 @end

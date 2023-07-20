@@ -13,13 +13,10 @@
 #import <React/RCTViewManager.h>
 #import <React/RCTUIManager.h>
 #import <React/RCTFPSGraph.h>
+#import <React/RCTLog.h>
 
-#import "FrameProcessorCallback.h"
+#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+#import "FrameProcessor.h"
 #import "FrameProcessorRuntimeManager.h"
 #import "Frame.h"
-#import "RCTBridge+runOnJS.h"
-#import "JSConsoleHelper.h"
-
-@interface CameraBridge: RCTViewManager
-
-@end
+#endif

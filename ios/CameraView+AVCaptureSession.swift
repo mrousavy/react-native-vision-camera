@@ -39,28 +39,6 @@ extension CameraView {
       captureSession.commitConfiguration()
     }
 
-    // If preset is set, use preset. Otherwise use format.
-    if let preset = preset {
-      var sessionPreset: AVCaptureSession.Preset?
-      do {
-        sessionPreset = try AVCaptureSession.Preset(withString: preset)
-      } catch let EnumParserError.unsupportedOS(supportedOnOS: os) {
-        invokeOnError(.parameter(.unsupportedOS(unionName: "Preset", receivedValue: preset, supportedOnOs: os)))
-        return
-      } catch {
-        invokeOnError(.parameter(.invalid(unionName: "Preset", receivedValue: preset)))
-        return
-      }
-      if sessionPreset != nil {
-        if captureSession.canSetSessionPreset(sessionPreset!) {
-          captureSession.sessionPreset = sessionPreset!
-        } else {
-          // non-fatal error, so continue with configuration
-          invokeOnError(.format(.invalidPreset(preset: preset)))
-        }
-      }
-    }
-
     // pragma MARK: Capture Session Inputs
     // Video Input
     do {
@@ -132,7 +110,7 @@ extension CameraView {
         invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "video-output")))
         return
       }
-      videoOutput!.setSampleBufferDelegate(self, queue: videoQueue)
+      videoOutput!.setSampleBufferDelegate(self, queue: CameraQueues.videoQueue)
       videoOutput!.alwaysDiscardsLateVideoFrames = false
 
       if previewType == "skia" {
@@ -273,7 +251,7 @@ extension CameraView {
 
     if isActive {
       // restart capture session after an error occured
-      cameraQueue.async {
+      CameraQueues.cameraQueue.async {
         self.captureSession.startRunning()
       }
     }

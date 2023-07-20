@@ -9,6 +9,7 @@
 import AVKit
 import Vision
 
+#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
 @objc
 public class ExamplePluginSwift : FrameProcessorPlugin {
   
@@ -44,3 +45,4 @@ public class ExamplePluginSwift : FrameProcessorPlugin {
       ]
   }
 }
+#endif

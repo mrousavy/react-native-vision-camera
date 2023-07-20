@@ -13,7 +13,9 @@ import Foundation
 final class CameraViewManager: RCTViewManager {
   // pragma MARK: Properties
 
-  private var runtimeManager: FrameProcessorRuntimeManager?
+  #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+    private var runtimeManager: FrameProcessorRuntimeManager?
+  #endif
 
   override var methodQueue: DispatchQueue! {
     return DispatchQueue.main
@@ -31,10 +33,14 @@ final class CameraViewManager: RCTViewManager {
 
   @objc
   final func installFrameProcessorBindings() -> NSNumber {
-    // Runs on JS Thread
-    runtimeManager = FrameProcessorRuntimeManager()
-    runtimeManager!.installFrameProcessorBindings()
-    return true as NSNumber
+    #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+      // Runs on JS Thread
+      runtimeManager = FrameProcessorRuntimeManager()
+      runtimeManager!.installFrameProcessorBindings()
+      return true as NSNumber
+    #else
+      return false as NSNumber
+    #endif
   }
 
   @objc
@@ -101,15 +107,10 @@ final class CameraViewManager: RCTViewManager {
   @objc
   final func getAvailableCameraDevices(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     withPromise(resolve: resolve, reject: reject) {
-      let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: getAllDeviceTypes(), mediaType: .video, position: .unspecified)
-      let devices = discoverySession.devices.filter {
-        if #available(iOS 11.1, *) {
-          // exclude the true-depth camera. The True-Depth camera has YUV and Infrared, can't take photos!
-          return $0.deviceType != .builtInTrueDepthCamera
-        }
-        return true
-      }
-      return devices.map {
+      let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: getAllDeviceTypes(),
+                                                              mediaType: .video,
+                                                              position: .unspecified)
+      return discoverySession.devices.map {
         return [
           "id": $0.uniqueID,
           "devices": $0.physicalDevices.map(\.deviceType.descriptor),
@@ -171,6 +172,7 @@ final class CameraViewManager: RCTViewManager {
   private func getCameraView(withTag tag: NSNumber) -> CameraView {
     // swiftlint:disable force_cast
     return bridge.uiManager.view(forReactTag: tag) as! CameraView
+    // swiftlint:enable force_cast
   }
 
   private final func getAllDeviceTypes() -> [AVCaptureDevice.DeviceType] {
@@ -179,9 +181,6 @@ final class CameraViewManager: RCTViewManager {
       deviceTypes.append(.builtInTripleCamera)
       deviceTypes.append(.builtInDualWideCamera)
       deviceTypes.append(.builtInUltraWideCamera)
-    }
-    if #available(iOS 11.1, *) {
-      deviceTypes.append(.builtInTrueDepthCamera)
     }
     deviceTypes.append(.builtInDualCamera)
     deviceTypes.append(.builtInWideAngleCamera)
