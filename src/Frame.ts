@@ -55,6 +55,11 @@ export interface Frame {
    * ```
    */
   toString(): string;
+  /**
+   * Whether the Frame can be drawn onto using Skia.
+   * Always false for `useFrameProcessor`. Use `useSkiaFrameProcessor` instead.
+   */
+  isDrawable: boolean;
 }
 
 export interface DrawableFrame extends Frame, SkCanvas {

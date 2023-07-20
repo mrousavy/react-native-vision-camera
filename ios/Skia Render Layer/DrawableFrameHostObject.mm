@@ -62,6 +62,9 @@ jsi::Value DrawableFrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNa
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "render"), 1, render);
   }
+  if (name == "isDrawable") {
+    return jsi::Value(_canvas != nullptr);
+  }
 
   if (_canvas != nullptr) {
     // If we have a Canvas, try to access the property on there.

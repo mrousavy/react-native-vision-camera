@@ -8,7 +8,6 @@ import {
   PhotoFile,
   sortFormats,
   useCameraDevices,
-  useFrameProcessor,
   useSkiaFrameProcessor,
   VideoFile,
 } from 'react-native-vision-camera';
@@ -224,8 +223,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
       'worklet';
       console.log(`Width: ${frame.width}`);
 
-      if (isIOS) frame.render(paint);
-      else console.log('Drawing to the Frame is not yet available on Android. WIP PR');
+      if (frame.isDrawable) frame.render(paint);
     },
     [isIOS, paint],
   );
