@@ -40,6 +40,6 @@ typedef void(^draw_callback_t)(SkiaCanvas _Nonnull);
 /**
  The Metal Device used for Rendering to the Layer
  */
-- (id<MTLDevice>)getMetalDevice;
+@property (nonatomic, readonly) id<MTLDevice> _Nonnull metalDevice;
 
 @end

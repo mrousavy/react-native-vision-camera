@@ -44,7 +44,7 @@ class SkiaPreviewView: PreviewView {
   
   init(frame: CGRect, skiaRenderer: SkiaRenderer) {
     self.skiaRenderer = skiaRenderer
-    self.previewLayer = SkiaPreviewLayer(device: skiaRenderer.getMetalDevice())
+    self.previewLayer = SkiaPreviewLayer(device: skiaRenderer.metalDevice)
     super.init(frame: frame)
   }
   
