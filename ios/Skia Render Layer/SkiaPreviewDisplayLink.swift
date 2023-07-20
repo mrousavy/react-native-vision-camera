@@ -27,7 +27,12 @@ class SkiaPreviewDisplayLink {
   func start() {
     if displayLink == nil {
       let displayLink = CADisplayLink(target: self, selector: #selector(update))
-      CameraQueues.previewQueue.async {
+      let queue = DispatchQueue(label: "mrousavy/VisionCamera.preview",
+                                qos: .userInteractive,
+                                attributes: [],
+                                autoreleaseFrequency: .inherit,
+                                target: nil)
+      queue.async {
         displayLink.add(to: .current, forMode: .common)
         self.displayLink = displayLink
         

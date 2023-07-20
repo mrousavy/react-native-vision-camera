@@ -30,11 +30,4 @@ public class CameraQueues: NSObject {
                                                      attributes: [],
                                                      autoreleaseFrequency: .inherit,
                                                      target: nil)
-  
-  /// The serial execution queue for rendering the Skia preview.
-  @objc public static let previewQueue = DispatchQueue(label: "mrousavy/VisionCamera.preview",
-                                                       qos: .userInteractive,
-                                                       attributes: [],
-                                                       autoreleaseFrequency: .inherit,
-                                                       target: nil)
 }
