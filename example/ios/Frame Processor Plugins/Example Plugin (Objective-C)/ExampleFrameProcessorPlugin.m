@@ -5,6 +5,7 @@
 //  Created by Marc Rousavy on 01.05.21.
 //
 
+#if __has_include(<VisionCamera/FrameProcessorPlugin.h>)
 #import <Foundation/Foundation.h>
 #import <VisionCamera/FrameProcessorPlugin.h>
 #import <VisionCamera/Frame.h>
@@ -45,3 +46,4 @@
 }
 
 @end
+#endif

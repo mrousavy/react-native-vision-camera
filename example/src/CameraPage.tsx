@@ -8,7 +8,7 @@ import {
   PhotoFile,
   sortFormats,
   useCameraDevices,
-  useFrameProcessor,
+  useSkiaFrameProcessor,
   VideoFile,
 } from 'react-native-vision-camera';
 import { Camera, frameRateIncluded } from 'react-native-vision-camera';
@@ -21,7 +21,6 @@ import { CaptureButton } from './views/CaptureButton';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { examplePlugin } from './frame-processors/ExamplePlugin';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
@@ -219,13 +218,12 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   paint.setImageFilter(imageFilter);
 
   const isIOS = Platform.OS === 'ios';
-  const frameProcessor = useFrameProcessor(
+  const frameProcessor = useSkiaFrameProcessor(
     (frame) => {
       'worklet';
       console.log(`Width: ${frame.width}`);
 
-      if (isIOS) frame.render(paint);
-      else console.log('Drawing to the Frame is not yet available on Android. WIP PR');
+      if (frame.isDrawable) frame.render(paint);
     },
     [isIOS, paint],
   );
@@ -253,9 +251,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 video={true}
                 audio={hasMicrophonePermission}
                 enableFpsGraph={true}
-                previewType="skia"
-                frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
                 orientation="portrait"
+                frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
               />
             </TapGestureHandler>
           </Reanimated.View>

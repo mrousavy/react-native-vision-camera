@@ -23,7 +23,6 @@ private let propsThatRequireReconfiguration = ["cameraId",
                                                "enableDepthData",
                                                "enableHighQualityPhotos",
                                                "enablePortraitEffectsMatteDelivery",
-                                               "preset",
                                                "photo",
                                                "video",
                                                "enableFrameProcessor",
@@ -37,14 +36,11 @@ private let propsThatRequireDeviceReconfiguration = ["fps",
 
 public final class CameraView: UIView {
   // pragma MARK: React Properties
-
-  // pragma MARK: Exported Properties
   // props that require reconfiguring
   @objc var cameraId: NSString?
   @objc var enableDepthData = false
   @objc var enableHighQualityPhotos: NSNumber? // nullable bool
   @objc var enablePortraitEffectsMatteDelivery = false
-  @objc var preset: String?
   // use cases
   @objc var photo: NSNumber? // nullable bool
   @objc var video: NSNumber? // nullable bool
@@ -85,27 +81,26 @@ public final class CameraView: UIView {
   // Capture Session
   internal let captureSession = AVCaptureSession()
   internal let audioCaptureSession = AVCaptureSession()
-  // Inputs
+  // Inputs & Outputs
   internal var videoDeviceInput: AVCaptureDeviceInput?
   internal var audioDeviceInput: AVCaptureDeviceInput?
   internal var photoOutput: AVCapturePhotoOutput?
   internal var videoOutput: AVCaptureVideoDataOutput?
   internal var audioOutput: AVCaptureAudioDataOutput?
-  // CameraView+RecordView (+ FrameProcessorDelegate.mm)
+  // CameraView+RecordView (+ Frame Processor)
   internal var isRecording = false
   internal var recordingSession: RecordingSession?
-  @objc public var frameProcessorCallback: FrameProcessorCallback?
-  // CameraView+TakePhoto
-  internal var photoCaptureDelegates: [PhotoCaptureDelegate] = []
+  #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+    @objc public var frameProcessor: FrameProcessor?
+  #endif
+  #if VISION_CAMERA_ENABLE_SKIA
+    internal var skiaRenderer: SkiaRenderer?
+  #endif
   // CameraView+Zoom
   internal var pinchGestureRecognizer: UIPinchGestureRecognizer?
   internal var pinchScaleOffset: CGFloat = 1.0
 
-  internal let cameraQueue = CameraQueues.cameraQueue
-  internal let videoQueue = CameraQueues.videoQueue
-  internal let audioQueue = CameraQueues.audioQueue
-
-  internal var previewView: UIView?
+  internal var previewView: PreviewView?
   #if DEBUG
     internal var fpsGraph: RCTFPSGraph?
   #endif
@@ -165,10 +160,7 @@ public final class CameraView: UIView {
     if newSuperview != nil {
       if !isMounted {
         isMounted = true
-        guard let onViewReady = onViewReady else {
-          return
-        }
-        onViewReady(nil)
+        onViewReady?(nil)
       }
     }
   }
@@ -178,36 +170,6 @@ public final class CameraView: UIView {
       previewView.frame = frame
       previewView.bounds = bounds
     }
-  }
-
-  func setupPreviewView() {
-    if previewType == "skia" {
-      // Skia Preview View allows user to draw onto a Frame in a Frame Processor
-      if previewView is PreviewSkiaView { return }
-      previewView?.removeFromSuperview()
-      previewView = PreviewSkiaView(frame: frame)
-    } else {
-      // Normal iOS PreviewView is lighter and more performant (YUV Format, GPU only)
-      if previewView is PreviewView { return }
-      previewView?.removeFromSuperview()
-      previewView = PreviewView(frame: frame, session: captureSession)
-    }
-
-    addSubview(previewView!)
-  }
-
-  func setupFpsGraph() {
-    #if DEBUG
-      if enableFpsGraph {
-        if fpsGraph != nil { return }
-        fpsGraph = RCTFPSGraph(frame: CGRect(x: 10, y: 54, width: 75, height: 45), color: .red)
-        fpsGraph!.layer.zPosition = 9999.0
-        addSubview(fpsGraph!)
-      } else {
-        fpsGraph?.removeFromSuperview()
-        fpsGraph = nil
-      }
-    #endif
   }
 
   // pragma MARK: Props updating
@@ -246,8 +208,8 @@ public final class CameraView: UIView {
       shouldReconfigureDevice ||
       shouldUpdateVideoStabilization ||
       shouldUpdateOrientation {
-      // Video Configuration
-      cameraQueue.async {
+      CameraQueues.cameraQueue.async {
+        // Video Configuration
         if shouldReconfigure {
           self.configureCaptureSession()
         }
@@ -285,7 +247,7 @@ public final class CameraView: UIView {
 
         // This is a wack workaround, but if I immediately set torch mode after `startRunning()`, the session isn't quite ready yet and will ignore torch.
         if shouldUpdateTorch {
-          self.cameraQueue.asyncAfter(deadline: .now() + 0.1) {
+          CameraQueues.cameraQueue.asyncAfter(deadline: .now() + 0.1) {
             self.setTorchMode(self.torch)
           }
         }
@@ -293,49 +255,10 @@ public final class CameraView: UIView {
 
       // Audio Configuration
       if shouldReconfigureAudioSession {
-        audioQueue.async {
+        CameraQueues.audioQueue.async {
           self.configureAudioSession()
         }
       }
-    }
-  }
-
-  internal final func setTorchMode(_ torchMode: String) {
-    guard let device = videoDeviceInput?.device else {
-      invokeOnError(.session(.cameraNotReady))
-      return
-    }
-    guard var torchMode = AVCaptureDevice.TorchMode(withString: torchMode) else {
-      invokeOnError(.parameter(.invalid(unionName: "TorchMode", receivedValue: torch)))
-      return
-    }
-    if !captureSession.isRunning {
-      torchMode = .off
-    }
-    if device.torchMode == torchMode {
-      // no need to run the whole lock/unlock bs
-      return
-    }
-    if !device.hasTorch || !device.isTorchAvailable {
-      if torchMode == .off {
-        // ignore it, when it's off and not supported, it's off.
-        return
-      } else {
-        // torch mode is .auto or .on, but no torch is available.
-        invokeOnError(.device(.torchUnavailable))
-        return
-      }
-    }
-    do {
-      try device.lockForConfiguration()
-      device.torchMode = torchMode
-      if torchMode == .on {
-        try device.setTorchModeOn(level: 1.0)
-      }
-      device.unlockForConfiguration()
-    } catch let error as NSError {
-      invokeOnError(.device(.configureError), cause: error)
-      return
     }
   }
 

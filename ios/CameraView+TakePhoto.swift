@@ -8,23 +8,9 @@
 
 import AVFoundation
 
-// MARK: - TakePhotoOptions
-
-struct TakePhotoOptions {
-  init(fromDictionary dictionary: NSDictionary) {
-    if let videoCodec = dictionary.value(forKey: "videoCodec") as? String {
-      self.videoCodec = AVVideoCodecType(withString: videoCodec)
-    }
-    qualityPrioritization = dictionary.value(forKey: "qualityPrioritization") as? String
-  }
-
-  var videoCodec: AVVideoCodecType?
-  var qualityPrioritization: String?
-}
-
 extension CameraView {
   func takePhoto(options: NSDictionary, promise: Promise) {
-    cameraQueue.async {
+    CameraQueues.cameraQueue.async {
       guard let photoOutput = self.photoOutput,
             let videoDeviceInput = self.videoDeviceInput else {
         if self.photo?.boolValue == true {

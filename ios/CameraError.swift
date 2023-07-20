@@ -113,7 +113,6 @@ enum FormatError {
   case invalidHdr
   case invalidFormat
   case invalidColorSpace(colorSpace: String)
-  case invalidPreset(preset: String)
 
   var code: String {
     switch self {
@@ -123,8 +122,6 @@ enum FormatError {
       return "invalid-fps"
     case .invalidHdr:
       return "invalid-hdr"
-    case .invalidPreset:
-      return "invalid-preset"
     case .invalidColorSpace:
       return "invalid-color-space"
     }
@@ -141,8 +138,6 @@ enum FormatError {
     case let .invalidColorSpace(colorSpace):
       return "The currently selected format does not support the colorSpace \"\(colorSpace)\"! " +
         "Make sure you select a format which `colorSpaces` includes \"\(colorSpace)\"!"
-    case let .invalidPreset(preset):
-      return "The preset \"\(preset)\" is not available for the current camera device."
     }
   }
 }
@@ -256,6 +251,8 @@ enum CaptureError {
 
 enum SystemError: String {
   case noManager = "no-camera-manager"
+  case skiaUnavailable = "skia-unavailable"
+  case frameProcessorsUnavailable = "frame-processors-unavailable"
 
   var code: String {
     return rawValue
@@ -265,6 +262,10 @@ enum SystemError: String {
     switch self {
     case .noManager:
       return "No Camera Manager was found."
+    case .skiaUnavailable:
+      return "Skia Integration is unavailable - is @shopify/react-native-skia installed?"
+    case .frameProcessorsUnavailable:
+      return "Frame Processors are unavailable - is react-native-worklets installed?"
     }
   }
 }

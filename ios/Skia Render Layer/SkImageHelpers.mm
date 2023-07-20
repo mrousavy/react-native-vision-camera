@@ -25,18 +25,18 @@
 #   define FourCC2Str(fourcc) (const char[]){*(((char*)&fourcc)+3), *(((char*)&fourcc)+2), *(((char*)&fourcc)+1), *(((char*)&fourcc)+0),0}
 #endif
 
-CVMetalTextureCacheRef getTextureCache(GrRecordingContext* context) {
+inline CVMetalTextureCacheRef getTextureCache() {
   static CVMetalTextureCacheRef textureCache = nil;
   if (textureCache == nil) {
     // Create a new Texture Cache
-     auto result = CVMetalTextureCacheCreate(kCFAllocatorDefault,
-                                             nil,
-                                             MTLCreateSystemDefaultDevice(),
-                                             nil,
-                                             &textureCache);
-     if (result != kCVReturnSuccess || textureCache == nil) {
-       throw std::runtime_error("Failed to create Metal Texture Cache!");
-     }
+    auto result = CVMetalTextureCacheCreate(kCFAllocatorDefault,
+                                            nil,
+                                            MTLCreateSystemDefaultDevice(),
+                                            nil,
+                                            &textureCache);
+    if (result != kCVReturnSuccess || textureCache == nil) {
+      throw std::runtime_error("Failed to create Metal Texture Cache!");
+    }
   }
   return textureCache;
 }
@@ -45,46 +45,34 @@ sk_sp<SkImage> SkImageHelpers::convertCMSampleBufferToSkImage(GrRecordingContext
   auto pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
   double width = CVPixelBufferGetWidth(pixelBuffer);
   double height = CVPixelBufferGetHeight(pixelBuffer);
-
+  
   // Make sure the format is RGB (BGRA_8888)
   auto format = CVPixelBufferGetPixelFormatType(pixelBuffer);
   if (format != kCVPixelFormatType_32BGRA) {
-    auto fourCharCode = @(FourCC2Str(format));
-    auto error = std::string("VisionCamera: Frame has unknown Pixel Format (") + fourCharCode.UTF8String + std::string(") - cannot convert to SkImage!");
+    auto error = std::string("VisionCamera: Frame has unknown Pixel Format (") + FourCC2Str(format) + std::string(") - cannot convert to SkImage!");
     throw std::runtime_error(error);
   }
   
-  auto textureCache = getTextureCache(context);
-
+  auto textureCache = getTextureCache();
+  
   // Convert CMSampleBuffer* -> CVMetalTexture*
   CVMetalTextureRef cvTexture;
   CVMetalTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
-                                           textureCache,
-                                           pixelBuffer,
-                                           nil,
-                                           MTLPixelFormatBGRA8Unorm,
-                                           width,
-                                           height,
-                                           0, // plane index
-                                           &cvTexture);
-  GrMtlTextureInfo textureInfo;
+                                            textureCache,
+                                            pixelBuffer,
+                                            nil,
+                                            MTLPixelFormatBGRA8Unorm,
+                                            width,
+                                            height,
+                                            0, // plane index
+                                            &cvTexture);
   auto mtlTexture = CVMetalTextureGetTexture(cvTexture);
-  textureInfo.fTexture.retain((__bridge void*)mtlTexture);
   
-  // Wrap it in a GrBackendTexture
-  GrBackendTexture texture(width, height, GrMipmapped::kNo, textureInfo);
+  auto image = convertMTLTextureToSkImage(context, mtlTexture);
   
-  // Create an SkImage from the existing texture
-  auto image = SkImages::AdoptTextureFrom(context,
-                                          texture,
-                                          kTopLeft_GrSurfaceOrigin,
-                                          kBGRA_8888_SkColorType,
-                                          kOpaque_SkAlphaType,
-                                          SkColorSpace::MakeSRGB());
-
   // Release the Texture wrapper (it will still be strong)
   CFRelease(cvTexture);
-
+  
   return image;
 }
 
@@ -92,7 +80,11 @@ sk_sp<SkImage> SkImageHelpers::convertMTLTextureToSkImage(GrRecordingContext* co
   // Convert the rendered MTLTexture to an SkImage
   GrMtlTextureInfo textureInfo;
   textureInfo.fTexture.retain((__bridge void*)texture);
-  GrBackendTexture backendTexture(texture.width, texture.height, GrMipmapped::kNo, textureInfo);
+  GrBackendTexture backendTexture((int)texture.width,
+                                  (int)texture.height,
+                                  GrMipmapped::kNo,
+                                  textureInfo);
+  // TODO: Adopt or Borrow?
   auto image = SkImages::AdoptTextureFrom(context,
                                           backendTexture,
                                           kTopLeft_GrSurfaceOrigin,
@@ -109,7 +101,7 @@ SkRect SkImageHelpers::createCenterCropRect(SkRect sourceRect, SkRect destinatio
   } else {
     src = SkSize::Make((sourceRect.height() * destinationRect.width()) / destinationRect.height(), sourceRect.height());
   }
-
+  
   return inscribe(src, sourceRect);
 }
 

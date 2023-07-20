@@ -2,7 +2,6 @@ export * from './Camera';
 export * from './CameraDevice';
 export * from './CameraError';
 export * from './CameraPosition';
-export * from './CameraPreset';
 export * from './CameraProps';
 export { Frame } from './Frame';
 export * from './FrameProcessorPlugins';
