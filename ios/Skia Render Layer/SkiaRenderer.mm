@@ -26,9 +26,9 @@
 
 @implementation SkiaRenderer {
   // The context we draw each Frame on
-  RenderContext _offscreenContext;
+  std::unique_ptr<RenderContext> _offscreenContext;
   // The context the preview runs on
-  RenderContext _layerContext;
+  std::unique_ptr<RenderContext> _layerContext;
   // The texture holding the drawn-to Frame
   id<MTLTexture> _texture;
   
@@ -39,8 +39,8 @@
 
 - (instancetype)init {
   if (self = [super init]) {
-    _offscreenContext = RenderContext();
-    _layerContext = RenderContext();
+    _offscreenContext = std::make_unique<RenderContext>();
+    _layerContext = std::make_unique<RenderContext>();
     _texture = nil;
     _hasNewFrame = false;
   }
@@ -48,7 +48,7 @@
 }
 
 - (id<MTLDevice>)metalDevice {
-  return _layerContext.device;
+  return _layerContext->device;
 }
 
 - (id<MTLTexture>)getTexture:(NSUInteger)width height:(NSUInteger)height {
@@ -61,7 +61,7 @@
                                                                                                 height:height
                                                                                              mipmapped:NO];
     textureDescriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
-    _texture = [_offscreenContext.device newTextureWithDescriptor:textureDescriptor];
+    _texture = [_offscreenContext->device newTextureWithDescriptor:textureDescriptor];
   }
   return _texture;
 }
@@ -90,7 +90,7 @@
                                               1,
                                               textureInfo);
 
-    auto context = _offscreenContext.skiaContext.get();
+    auto context = _offscreenContext->skiaContext.get();
 
     // Create a Skia Surface from the writable Texture
     auto surface = SkSurface::MakeFromBackendRenderTarget(context,
@@ -139,7 +139,7 @@
   }
 
   @autoreleasepool {
-    auto context = _layerContext.skiaContext.get();
+    auto context = _layerContext->skiaContext.get();
     
     // Create a Skia Surface from the CAMetalLayer (use to draw to the View)
     GrMTLHandle drawableHandle;
@@ -194,7 +194,7 @@
 
     // Pass the drawable into the Metal Command Buffer and submit it to the GPU
     id<CAMetalDrawable> drawable = (__bridge id<CAMetalDrawable>)drawableHandle;
-    id<MTLCommandBuffer> commandBuffer([_layerContext.commandQueue commandBuffer]);
+    id<MTLCommandBuffer> commandBuffer([_layerContext->commandQueue commandBuffer]);
     [commandBuffer presentDrawable:drawable];
     [commandBuffer commit];
     
