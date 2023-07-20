@@ -10,6 +10,10 @@ import Foundation
 
 @available(iOS 13.0, *)
 class SkiaPreviewLayer: CAMetalLayer {
+  private var pixelRatio: CGFloat {
+    return UIScreen.main.scale
+  }
+  
   init(device: MTLDevice) {
     super.init()
     
@@ -17,6 +21,7 @@ class SkiaPreviewLayer: CAMetalLayer {
     self.device = device
     isOpaque = false
     pixelFormat = .bgra8Unorm
+    contentsScale = pixelRatio
   }
   
   required init?(coder: NSCoder) {
@@ -25,8 +30,8 @@ class SkiaPreviewLayer: CAMetalLayer {
   
   func setSize(width: CGFloat, height: CGFloat) {
     frame = CGRect(x: 0, y: 0, width: width, height: height)
-    drawableSize = CGSizeMake(width * contentsScale,
-                              height * contentsScale)
+    drawableSize = CGSizeMake(width * pixelRatio,
+                              height * pixelRatio)
   }
 }
 
@@ -64,11 +69,6 @@ class SkiaPreviewView: PreviewView {
       previewLayer.removeFromSuperlayer()
       self.displayLink.stop()
     }
-  }
-  
-  override func willMove(toWindow newWindow: UIWindow?) {
-    let scale = newWindow?.screen.scale ?? 1.0
-    previewLayer.contentsScale = scale
   }
   
   override func layoutSubviews() {
