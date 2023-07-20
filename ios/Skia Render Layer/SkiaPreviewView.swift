@@ -19,7 +19,7 @@ class SkiaPreviewLayer: CAMetalLayer {
   init(device: MTLDevice) {
     super.init()
 
-    framebufferOnly = false
+    framebufferOnly = true
     self.device = device
     isOpaque = false
     pixelFormat = .bgra8Unorm
