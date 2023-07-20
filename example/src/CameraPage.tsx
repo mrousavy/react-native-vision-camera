@@ -254,7 +254,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 audio={hasMicrophonePermission}
                 enableFpsGraph={true}
                 orientation="portrait"
-                frameProcessor={frameProcessor}
+                frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
               />
             </TapGestureHandler>
           </Reanimated.View>
