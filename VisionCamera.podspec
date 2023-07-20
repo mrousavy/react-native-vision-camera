@@ -2,7 +2,15 @@ require "json"
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
-nodeModules = Dir.exist?(File.join(__dir__, "node_modules")) ? File.join(__dir__, "node_modules") : File.join(__dir__, "..")
+nodeModules = File.join(__dir__)
+tries = 0
+while !Dir.exist?(File.join(nodeModules, "node_modules")) && tries < 10
+  nodeModules = File.join(nodeModules, "..")
+  tries += 1
+end
+nodeModules = File.join(nodeModules, "node_modules")
+
+puts("[VisionCamera] node modules #{Dir.exist?(nodeModules) ? "found at #{nodeModules}" : "not found!"}")
 workletsPath = File.join(nodeModules, "react-native-worklets")
 hasWorklets = File.exist?(workletsPath)
 puts "[VisionCamera] react-native-worklets #{hasWorklets ? "found" : "not found"}, Frame Processors #{hasWorklets ? "enabled" : "disabled"}!"
