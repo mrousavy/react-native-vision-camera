@@ -6,17 +6,18 @@
 //  Copyright © 2023 mrousavy. All rights reserved.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 
 extension CameraView {
   #if VISION_CAMERA_ENABLE_SKIA
-  @objc func getSkiaRenderer() -> SkiaRenderer {
-    if skiaRenderer == nil {
-      skiaRenderer = SkiaRenderer()
+    @objc
+    func getSkiaRenderer() -> SkiaRenderer {
+      if skiaRenderer == nil {
+        skiaRenderer = SkiaRenderer()
+      }
+      return skiaRenderer!
     }
-    return skiaRenderer!
-  }
   #endif
 
   public func setupPreviewView() {

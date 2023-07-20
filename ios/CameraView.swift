@@ -91,10 +91,10 @@ public final class CameraView: UIView {
   internal var isRecording = false
   internal var recordingSession: RecordingSession?
   #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
-  @objc public var frameProcessor: FrameProcessor?
+    @objc public var frameProcessor: FrameProcessor?
   #endif
   #if VISION_CAMERA_ENABLE_SKIA
-  internal var skiaRenderer: SkiaRenderer?
+    internal var skiaRenderer: SkiaRenderer?
   #endif
   // CameraView+Zoom
   internal var pinchGestureRecognizer: UIPinchGestureRecognizer?
@@ -261,7 +261,7 @@ public final class CameraView: UIView {
       }
     }
   }
-  
+
   @objc
   func onOrientationChanged() {
     updateOrientation()

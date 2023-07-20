@@ -6,11 +6,11 @@
 //  Copyright © 2023 mrousavy. All rights reserved.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 
 extension CameraView {
-  internal final func setTorchMode(_ torchMode: String) {
+  final func setTorchMode(_ torchMode: String) {
     guard let device = videoDeviceInput?.device else {
       invokeOnError(.session(.cameraNotReady))
       return
