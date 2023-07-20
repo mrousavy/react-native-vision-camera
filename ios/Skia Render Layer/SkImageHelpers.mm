@@ -25,7 +25,7 @@
 #   define FourCC2Str(fourcc) (const char[]){*(((char*)&fourcc)+3), *(((char*)&fourcc)+2), *(((char*)&fourcc)+1), *(((char*)&fourcc)+0),0}
 #endif
 
-CVMetalTextureCacheRef getTextureCache() {
+inline CVMetalTextureCacheRef getTextureCache() {
   static CVMetalTextureCacheRef textureCache = nil;
   if (textureCache == nil) {
     // Create a new Texture Cache
