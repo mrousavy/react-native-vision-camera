@@ -47,7 +47,7 @@
   return self;
 }
 
-- (id<MTLDevice>)getMetalDevice {
+- (id<MTLDevice>)metalDevice {
   return _layerContext.device;
 }
 
