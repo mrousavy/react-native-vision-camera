@@ -4,30 +4,16 @@ import android.annotation.SuppressLint;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.media.Image;
-
-import androidx.annotation.Keep;
 import androidx.camera.core.ImageProxy;
-
-import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
-
 import java.nio.ByteBuffer;
-import java.util.concurrent.ExecutorService;
 
-@SuppressWarnings("JavaJniMissingFunction") // using fbjni here
 public class Frame {
-    @SuppressWarnings({"unused", "FieldCanBeLocal"})
-    @DoNotStrip
-    private final HybridData mHybridData;
     private final ImageProxy imageProxy;
 
     public Frame(ImageProxy imageProxy) {
         this.imageProxy = imageProxy;
-        mHybridData = initHybrid();
     }
-
-    private native HybridData initHybrid();
-
 
     @SuppressWarnings("unused")
     @DoNotStrip

@@ -8,6 +8,7 @@ import {
   PhotoFile,
   sortFormats,
   useCameraDevices,
+  useFrameProcessor,
   useSkiaFrameProcessor,
   VideoFile,
 } from 'react-native-vision-camera';
@@ -218,15 +219,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   paint.setImageFilter(imageFilter);
 
   const isIOS = Platform.OS === 'ios';
-  const frameProcessor = useSkiaFrameProcessor(
-    (frame) => {
-      'worklet';
-      console.log(`Width: ${frame.width}`);
-
-      if (frame.isDrawable) frame.render(paint);
-    },
-    [isIOS, paint],
-  );
+  const frameProcessor = useFrameProcessor((frame) => {
+    'worklet';
+    console.log(`Width: ${frame.width}`);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -247,12 +243,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 onError={onError}
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
-                photo={true}
-                video={true}
                 audio={hasMicrophonePermission}
                 enableFpsGraph={true}
                 orientation="portrait"
-                frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
+                frameProcessor={frameProcessor}
               />
             </TapGestureHandler>
           </Reanimated.View>
