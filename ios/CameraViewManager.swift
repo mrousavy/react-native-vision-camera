@@ -13,10 +13,6 @@ import Foundation
 final class CameraViewManager: RCTViewManager {
   // pragma MARK: Properties
 
-  #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
-    private var runtimeManager: FrameProcessorRuntimeManager?
-  #endif
-
   override var methodQueue: DispatchQueue! {
     return DispatchQueue.main
   }
@@ -34,10 +30,9 @@ final class CameraViewManager: RCTViewManager {
   @objc
   final func installFrameProcessorBindings() -> NSNumber {
     #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
-      // Runs on JS Thread
-      runtimeManager = FrameProcessorRuntimeManager()
-      runtimeManager!.installFrameProcessorBindings()
-      return true as NSNumber
+      // Called on JS Thread (blocking sync method)
+      let result = VisionCameraInstaller.install(to: bridge)
+      return NSNumber(value: result)
     #else
       return false as NSNumber
     #endif

@@ -1,5 +1,5 @@
 //
-//  JSIUtils.mm
+//  JSINSObjectConversion.mm
 //  VisionCamera
 //
 //  Forked and Adjusted by Marc Rousavy on 02.05.21.
@@ -14,7 +14,7 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-#import "JSIUtils.h"
+#import "JSINSObjectConversion.h"
 #import <Foundation/Foundation.h>
 #import <jsi/jsi.h>
 #import <ReactCommon/CallInvoker.h>

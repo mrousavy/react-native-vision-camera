@@ -8,6 +8,7 @@
 #if __has_include(<VisionCamera/FrameProcessorPlugin.h>)
 #import <Foundation/Foundation.h>
 #import <VisionCamera/FrameProcessorPlugin.h>
+#import <VisionCamera/FrameProcessorPluginRegistry.h>
 #import <VisionCamera/Frame.h>
 
 // Example for an Objective-C Frame Processor plugin
@@ -17,18 +18,14 @@
 
 @implementation ExampleFrameProcessorPlugin
 
-- (NSString *)name {
-  return @"example_plugin";
-}
-
 - (id)callback:(Frame *)frame withArguments:(NSArray<id> *)arguments {
   CVPixelBufferRef imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
   NSLog(@"ExamplePlugin: %zu x %zu Image. Logging %lu parameters:", CVPixelBufferGetWidth(imageBuffer), CVPixelBufferGetHeight(imageBuffer), (unsigned long)arguments.count);
-  
+
   for (id param in arguments) {
     NSLog(@"ExamplePlugin:   -> %@ (%@)", param == nil ? @"(nil)" : [param description], NSStringFromClass([param classForCoder]));
   }
-  
+
   return @{
     @"example_str": @"Test",
     @"example_bool": @true,
@@ -42,7 +39,10 @@
 }
 
 + (void) load {
-  [self registerPlugin:[[ExampleFrameProcessorPlugin alloc] init]];
+  [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"example_plugin"
+                                        withInitializer:^FrameProcessorPlugin*(NSDictionary* options) {
+    return [[ExampleFrameProcessorPlugin alloc] initWithOptions:options];
+  }];
 }
 
 @end
