@@ -18,18 +18,18 @@ namespace vision {
 using namespace facebook;
 
 class JSI_EXPORT FrameHostObject : public jsi::HostObject {
- public:
   explicit FrameHostObject(const jni::alias_ref<JFrame::javaobject>& frame);
+public:
   ~FrameHostObject();
 
- public:
+public:
   jsi::Value get(jsi::Runtime &, const jsi::PropNameID &name) override;
   std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime &rt) override;
 
- public:
+public:
   jni::global_ref<JFrame> frame;
 
- private:
+private:
   static auto constexpr TAG = "VisionCamera";
 
   size_t _refCount;
