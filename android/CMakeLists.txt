@@ -37,11 +37,11 @@ add_library(
         src/main/cpp/JSIJNIConversion.cpp
         src/main/cpp/VisionCamera.cpp
         src/main/cpp/VisionCameraProxy.cpp
-        src/main/cpp/java-bindings/JCameraView.cpp
         src/main/cpp/java-bindings/JFrame.cpp
         src/main/cpp/java-bindings/JFrameProcessor.cpp
         src/main/cpp/java-bindings/JFrameProcessorPlugin.cpp
         src/main/cpp/java-bindings/JHashMap.cpp
+        src/main/cpp/java-bindings/JVisionCameraProxy.cpp
         src/main/cpp/java-bindings/JVisionCameraScheduler.cpp
 )
 

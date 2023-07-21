@@ -24,10 +24,6 @@ struct JFrameProcessorPlugin : public JavaClass<JFrameProcessorPlugin> {
    */
   local_ref<jobject> callback(alias_ref<JFrame::javaobject> frame,
                               alias_ref<jobject> params) const;
-  /**
-   * Get the user-defined name of the Frame Processor Plugin
-   */
-  std::string getName() const;
 };
 
 } // namespace vision

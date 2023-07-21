@@ -23,12 +23,12 @@ int JFrame::getHeight() const {
 }
 
 bool JFrame::getIsValid() const {
-  static const auto getIsValidMethod = getClass()->getMethod<jbool()>("getIsValid");
+  static const auto getIsValidMethod = getClass()->getMethod<jboolean()>("getIsValid");
   return getIsValidMethod(self());
 }
 
 bool JFrame::getIsMirrored() const {
-  static const auto getIsMirroredMethod = getClass()->getMethod<jbool()>("getIsMirrored");
+  static const auto getIsMirroredMethod = getClass()->getMethod<jboolean()>("getIsMirrored");
   return getIsMirroredMethod(self());
 }
 

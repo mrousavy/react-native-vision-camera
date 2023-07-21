@@ -13,6 +13,7 @@
 #include <react-native-worklets/WKTJsiHostObject.h>
 
 #include "JFrame.h"
+#include "FrameHostObject.h"
 
 namespace vision {
 
@@ -21,20 +22,28 @@ using namespace facebook;
 struct JFrameProcessor : public jni::HybridClass<JFrameProcessor> {
 public:
   static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/FrameProcessor;";
-  static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis);
   static void registerNatives();
-  explicit JFrameProcessor(std::shared_ptr<RNWorklet::JsiWorklet> worklet,
-                           std::shared_ptr<RNWorklet::JsiWorkletContext> context);
+  static jni::local_ref<JFrameProcessor::javaobject> create(std::shared_ptr<RNWorklet::JsiWorklet> worklet,
+                                                            std::shared_ptr<RNWorklet::JsiWorkletContext> context);
 
 public:
   /**
    * Call the JS Frame Processor.
    */
-  void call(alias_ref<JFrame::javaobject> frame) const;
+  void call(alias_ref<JFrame::javaobject> frame);
+
+private:
+  // Private constructor. Use `create(..)` to create new instances.
+  explicit JFrameProcessor(std::shared_ptr<RNWorklet::JsiWorklet> worklet,
+                           std::shared_ptr<RNWorklet::JsiWorkletContext> context);
+
+private:
+  void callWithFrameHostObject(std::shared_ptr<FrameHostObject> frameHostObject) const;
 
 private:
   friend HybridBase;
-  jni::global_ref<JFrameProcessor::javaobject> javaPart_;
+  std::shared_ptr<RNWorklet::WorkletInvoker> _workletInvoker;
+  std::shared_ptr<RNWorklet::JsiWorkletContext> _workletContext;
 };
 
 } // namespace vision

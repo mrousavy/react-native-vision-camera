@@ -15,6 +15,7 @@ import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener
 import com.facebook.react.uimanager.UIManagerHelper
 import com.facebook.react.bridge.ReactApplicationContext
+import com.mrousavy.camera.frameprocessor.VisionCameraInstaller
 import java.util.concurrent.ExecutorService
 import com.mrousavy.camera.frameprocessor.VisionCameraProxy
 import com.mrousavy.camera.parsers.*
@@ -55,13 +56,13 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
 
   @ReactMethod(isBlockingSynchronousMethod = true)
   fun installFrameProcessorBindings(): Boolean {
-    try {
-      frameProcessorManager = VisionCameraProxy(reactApplicationContext, frameProcessorThread)
-      frameProcessorManager!!.installBindings()
-      return true
+    return try {
+      val proxy = VisionCameraProxy(reactApplicationContext, frameProcessorThread)
+      VisionCameraInstaller.install(proxy)
+      true
     } catch (e: Error) {
       Log.e(TAG, "Failed to install Frame Processor JSI Bindings!", e)
-      return false
+      false
     }
   }
 

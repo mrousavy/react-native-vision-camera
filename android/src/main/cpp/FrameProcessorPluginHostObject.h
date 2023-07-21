@@ -16,8 +16,8 @@ using namespace facebook;
 
 class FrameProcessorPluginHostObject: public jsi::HostObject {
 public:
-    explicit FrameProcessorPluginHostObject(jni::global_ref<vision::JFrameProcessorPlugin::javaobject> plugin):
-            _plugin(plugin) { }
+    explicit FrameProcessorPluginHostObject(jni::alias_ref<JFrameProcessorPlugin::javaobject> plugin):
+            _plugin(make_global(plugin)) { }
     ~FrameProcessorPluginHostObject() { }
 
 public:
@@ -25,7 +25,7 @@ public:
     jsi::Value get(jsi::Runtime& runtime, const jsi::PropNameID& name) override;
 
 private:
-    jni::global_ref<vision::JFrameProcessorPlugin::javaobject> _plugin;
+    jni::global_ref<JFrameProcessorPlugin::javaobject> _plugin;
 };
 
 } // namespace vision

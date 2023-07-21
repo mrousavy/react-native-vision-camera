@@ -22,9 +22,4 @@ local_ref<jobject> JFrameProcessorPlugin::callback(alias_ref<JFrame::javaobject>
   return make_local(result);
 }
 
-std::string JFrameProcessorPlugin::getName() const {
-  auto getNameMethod = getClass()->getMethod<jstring()>("getName");
-  return getNameMethod(self())->toStdString();
-}
-
 } // namespace vision

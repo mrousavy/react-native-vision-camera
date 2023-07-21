@@ -1,9 +1,6 @@
 package com.mrousavy.camera.frameprocessor;
 
-import com.mrousavy.camera.CameraViewModule;
-
+@SuppressWarnings("JavaJniMissingFunction") // we use fbjni
 public class VisionCameraInstaller {
-    private native void install() {
-
-    }
+    public static native void install(VisionCameraProxy proxy);
 }

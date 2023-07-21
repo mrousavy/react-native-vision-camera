@@ -12,11 +12,11 @@ import com.mrousavy.camera.ViewNotFoundError
 import java.lang.ref.WeakReference
 import java.util.concurrent.ExecutorService
 
-@Suppress("KotlinJniMissingFunction") // I use fbjni, Android Studio is not smart enough to realize that.
+
+@Suppress("KotlinJniMissingFunction") // we use fbjni.
 class VisionCameraProxy(context: ReactApplicationContext, frameProcessorThread: ExecutorService) {
   companion object {
     const val TAG = "VisionCameraProxy"
-
     init {
       try {
         System.loadLibrary("VisionCamera")
@@ -26,47 +26,50 @@ class VisionCameraProxy(context: ReactApplicationContext, frameProcessorThread: 
       }
     }
   }
-
-  @DoNotStrip
-  private var mHybridData: HybridData? = null
-  private var mContext: WeakReference<ReactApplicationContext>? = null
-  private var mScheduler: VisionCameraScheduler? = null
+  private var _hybridData: HybridData
+  private var _context: WeakReference<ReactApplicationContext>
+  private var _scheduler: VisionCameraScheduler
 
   init {
     val jsCallInvokerHolder = context.catalystInstance.jsCallInvokerHolder as CallInvokerHolderImpl
     val jsRuntimeHolder = context.javaScriptContextHolder.get()
-    mScheduler = VisionCameraScheduler(frameProcessorThread)
-    mContext = WeakReference(context)
-    mHybridData = initHybrid(jsRuntimeHolder, jsCallInvokerHolder, mScheduler!!)
+    _scheduler = VisionCameraScheduler(frameProcessorThread)
+    _context = WeakReference(context)
+    _hybridData = initHybrid(jsRuntimeHolder, jsCallInvokerHolder, _scheduler)
   }
 
-  @Suppress("unused")
-  @DoNotStrip
-  @Keep
-  fun findCameraViewById(viewId: Int): CameraView {
+  private fun findCameraViewById(viewId: Int): CameraView {
     Log.d(TAG, "Finding view $viewId...")
-    val ctx = mContext?.get()
+    val ctx = _context.get()
     val view = if (ctx != null) UIManagerHelper.getUIManager(ctx, viewId)?.resolveView(viewId) as CameraView? else null
     Log.d(TAG,  if (view != null) "Found view $viewId!" else "Couldn't find view $viewId!")
     return view ?: throw ViewNotFoundError(viewId)
   }
 
-  fun installBindings() {
-    Log.i(TAG, "Installing JSI Bindings on JS Thread...")
-    installJSIBindings()
-    Log.i(TAG, "Installing Frame Processor Plugins...")
-    Plugins.forEach { plugin ->
-      registerPlugin(plugin)
-    }
-    Log.i(TAG, "Successfully installed ${Plugins.count()} Frame Processor Plugins!")
+  @DoNotStrip
+  @Keep
+  fun setFrameProcessor(viewId: Int, frameProcessor: FrameProcessor) {
+    val view = findCameraViewById(viewId)
+    view.frameProcessor = frameProcessor
+  }
+
+  @DoNotStrip
+  @Keep
+  fun removeFrameProcessor(viewId: Int) {
+    val view = findCameraViewById(viewId)
+    view.frameProcessor = null
+  }
+
+  @DoNotStrip
+  @Keep
+  fun getFrameProcessorPlugin(name: String, options: Any): FrameProcessorPlugin {
+    return FrameProcessorPluginRegistry.getPlugin(name, options)
   }
 
   // private C++ funcs
   private external fun initHybrid(
-    jsContext: Long,
-    jsCallInvokerHolder: CallInvokerHolderImpl,
-    scheduler: VisionCameraScheduler
+          jsContext: Long,
+          jsCallInvokerHolder: CallInvokerHolderImpl,
+          scheduler: VisionCameraScheduler
   ): HybridData
-  private external fun registerPlugin(plugin: FrameProcessorPlugin)
-  private external fun installJSIBindings()
 }
