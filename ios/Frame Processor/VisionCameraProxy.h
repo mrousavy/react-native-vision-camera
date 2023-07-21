@@ -23,16 +23,16 @@ public:
   explicit VisionCameraProxy(jsi::Runtime& runtime,
                              std::shared_ptr<react::CallInvoker> callInvoker);
   ~VisionCameraProxy();
-  
+
 public:
   std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime& runtime) override;
   jsi::Value get(jsi::Runtime& runtime, const jsi::PropNameID& name) override;
-  
+
 private:
   void setFrameProcessor(jsi::Runtime& runtime, int viewTag, const jsi::Object& frameProcessor);
   void removeFrameProcessor(jsi::Runtime& runtime, int viewTag);
   jsi::Value getFrameProcessorPlugin(jsi::Runtime& runtime, std::string name, const jsi::Object& options);
-  
+
 private:
   std::shared_ptr<RNWorklet::JsiWorkletContext> _workletContext;
   std::shared_ptr<react::CallInvoker> _callInvoker;

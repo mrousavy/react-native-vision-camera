@@ -14,7 +14,7 @@
 #import "FrameProcessorPluginHostObject.h"
 #import "FrameProcessor.h"
 #import "FrameHostObject.h"
-#import "../React Utils/JSIUtils.h"
+#import "JSINSObjectConversion.h"
 #import "../../cpp/JSITypedArray.h"
 #import "WKTJsiWorklet.h"
 
@@ -48,7 +48,7 @@ using namespace facebook;
 VisionCameraProxy::VisionCameraProxy(jsi::Runtime& runtime,
                                      std::shared_ptr<react::CallInvoker> callInvoker) {
   _callInvoker = callInvoker;
-  
+
   NSLog(@"VisionCameraProxy: Creating Worklet Context...");
   auto runOnJS = [callInvoker](std::function<void()>&& f) {
     // Run on React JS Runtime
@@ -60,7 +60,7 @@ VisionCameraProxy::VisionCameraProxy(jsi::Runtime& runtime,
       f();
     });
   };
-  
+
   _workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("VisionCamera",
                                                                    &runtime,
                                                                    runOnJS,
@@ -87,7 +87,7 @@ std::vector<jsi::PropNameID> VisionCameraProxy::getPropertyNames(jsi::Runtime& r
 void VisionCameraProxy::setFrameProcessor(jsi::Runtime& runtime, int viewTag, const jsi::Object& object) {
   auto frameProcessorType = object.getProperty(runtime, "type").asString(runtime).utf8(runtime);
   auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, object.getProperty(runtime, "frameProcessor"));
-  
+
   RCTExecuteOnMainQueue(^{
     auto currentBridge = [RCTBridge currentBridge];
     auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
@@ -95,7 +95,7 @@ void VisionCameraProxy::setFrameProcessor(jsi::Runtime& runtime, int viewTag, co
     if (frameProcessorType == "frame-processor") {
       view.frameProcessor = [[FrameProcessor alloc] initWithWorklet:worklet
                                                             context:_workletContext];
-      
+
     } else if (frameProcessorType == "skia-frame-processor") {
 #if VISION_CAMERA_ENABLE_SKIA
       SkiaRenderer* skiaRenderer = [view getSkiaRenderer];
@@ -122,19 +122,19 @@ void VisionCameraProxy::removeFrameProcessor(jsi::Runtime& runtime, int viewTag)
 
 jsi::Value VisionCameraProxy::getFrameProcessorPlugin(jsi::Runtime& runtime, std::string name, const jsi::Object& options) {
   NSString* key = [NSString stringWithUTF8String:name.c_str()];
-  NSDictionary* optionsObjc = convertJSIObjectToNSDictionary(runtime, options, _callInvoker);
+  NSDictionary* optionsObjc = JSINSObjectConversion::convertJSIObjectToNSDictionary(runtime, options, _callInvoker);
   FrameProcessorPlugin* plugin = [FrameProcessorPluginRegistry getPlugin:key withOptions:optionsObjc];
   if (plugin == nil) {
     return jsi::Value::undefined();
   }
-  
+
   auto pluginHostObject = std::make_shared<FrameProcessorPluginHostObject>(plugin, _callInvoker);
   return jsi::Object::createFromHostObject(runtime, pluginHostObject);
 }
 
 jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {
   auto name = propName.utf8(runtime);
-  
+
   if (name == "isSkiaEnabled") {
 #ifdef VISION_CAMERA_ENABLE_SKIA
     return jsi::Value(true);
@@ -182,11 +182,11 @@ jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& 
       }
       auto pluginName = arguments[0].asString(runtime).utf8(runtime);
       auto options = count > 1 ? arguments[1].asObject(runtime) : jsi::Object(runtime);
-      
+
       return this->getFrameProcessorPlugin(runtime, pluginName, options);
     });
   }
-  
+
   return jsi::Value::undefined();
 }
 
@@ -197,15 +197,15 @@ jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& 
   if (!cxxBridge.runtime) {
     return NO;
   }
-  
+
   jsi::Runtime& runtime = *(jsi::Runtime*)cxxBridge.runtime;
-  
+
   // global.VisionCameraProxy
   auto visionCameraProxy = std::make_shared<VisionCameraProxy>(runtime, bridge.jsCallInvoker);
   runtime.global().setProperty(runtime,
                                "VisionCameraProxy",
                                jsi::Object::createFromHostObject(runtime, visionCameraProxy));
-  
+
   return YES;
 }
 @end

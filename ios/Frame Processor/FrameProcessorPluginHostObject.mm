@@ -10,7 +10,7 @@
 #import <Foundation/Foundation.h>
 #import <vector>
 #import "FrameHostObject.h"
-#import "../React Utils/JSIUtils.h"
+#import "JSINSObjectConversion.h"
 
 std::vector<jsi::PropNameID> FrameProcessorPluginHostObject::getPropertyNames(jsi::Runtime& runtime) {
   std::vector<jsi::PropNameID> result;
@@ -32,21 +32,21 @@ jsi::Value FrameProcessorPluginHostObject::get(jsi::Runtime& runtime, const jsi:
       // Frame is first argument
       auto frameHostObject = arguments[0].asObject(runtime).asHostObject<FrameHostObject>(runtime);
       Frame* frame = frameHostObject->frame;
-      
+
       // Options are second argument (possibly undefined)
       NSDictionary* options = nil;
       if (count > 1) {
         auto optionsObject = arguments[1].asObject(runtime);
-        options = convertJSIObjectToNSDictionary(runtime, optionsObject, _callInvoker);
+        options = JSINSObjectConversion::convertJSIObjectToNSDictionary(runtime, optionsObject, _callInvoker);
       }
-      
+
       // Call actual Frame Processor Plugin
       id result = [_plugin callback:frame withArguments:nil];
-      
+
       // Convert result value to jsi::Value (possibly undefined)
-      return convertObjCObjectToJSIValue(runtime, result);
+      return JSINSObjectConversion::convertObjCObjectToJSIValue(runtime, result);
     });
   }
-  
+
   return jsi::Value::undefined();
 }

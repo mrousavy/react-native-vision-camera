@@ -1,5 +1,5 @@
 //
-//  JSIUtils.h
+//  JSINSObjectConversion.h
 //  VisionCamera
 //
 //  Created by Marc Rousavy on 30.04.21.
@@ -11,6 +11,8 @@
 #import <jsi/jsi.h>
 #import <ReactCommon/CallInvoker.h>
 #import <React/RCTBridgeModule.h>
+
+namespace JSINSObjectConversion {
 
 using namespace facebook;
 using namespace facebook::react;
@@ -53,3 +55,5 @@ id convertJSIValueToObjCObject(jsi::Runtime& runtime, const jsi::Value& value, s
 
 // (any...) => any -> (void)(id, id)
 RCTResponseSenderBlock convertJSIFunctionToCallback(jsi::Runtime& runtime, const jsi::Function& value, std::shared_ptr<CallInvoker> jsInvoker);
+
+} // namespace JSINSObjectConversion
