@@ -3,16 +3,11 @@ package com.mrousavy.camera
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.util.Log
-import android.util.Size
-import androidx.camera.core.CameraSelector
-import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.video.QualitySelector
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
@@ -20,8 +15,9 @@ import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener
 import com.facebook.react.uimanager.UIManagerHelper
 import com.facebook.react.bridge.ReactApplicationContext
+import com.mrousavy.camera.frameprocessor.VisionCameraInstaller
 import java.util.concurrent.ExecutorService
-import com.mrousavy.camera.frameprocessor.FrameProcessorRuntimeManager
+import com.mrousavy.camera.frameprocessor.VisionCameraProxy
 import com.mrousavy.camera.parsers.*
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
@@ -30,38 +26,21 @@ import java.util.concurrent.Executors
 
 @ReactModule(name = CameraViewModule.TAG)
 @Suppress("unused")
-class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJavaModule(reactContext) {
   companion object {
     const val TAG = "CameraView"
     var RequestCode = 10
-
-    fun parsePermissionStatus(status: Int): String {
-      return when (status) {
-        PackageManager.PERMISSION_DENIED -> "denied"
-        PackageManager.PERMISSION_GRANTED -> "authorized"
-        else -> "not-determined"
-      }
-    }
   }
 
   var frameProcessorThread: ExecutorService = Executors.newSingleThreadExecutor()
   private val coroutineScope = CoroutineScope(Dispatchers.Default) // TODO: or Dispatchers.Main?
-  private var frameProcessorManager: FrameProcessorRuntimeManager? = null
-
-  private fun cleanup() {
-    if (coroutineScope.isActive) {
-      coroutineScope.cancel("CameraViewModule has been destroyed.")
-    }
-  }
-
-  override fun onCatalystInstanceDestroy() {
-    super.onCatalystInstanceDestroy()
-    cleanup()
-  }
 
   override fun invalidate() {
     super.invalidate()
-    cleanup()
+    frameProcessorThread.shutdown()
+    if (coroutineScope.isActive) {
+      coroutineScope.cancel("CameraViewModule has been destroyed.")
+    }
   }
 
   override fun getName(): String {
@@ -73,6 +52,18 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     val view = if (reactApplicationContext != null) UIManagerHelper.getUIManager(reactApplicationContext, viewId)?.resolveView(viewId) as CameraView? else null
     Log.d(TAG,  if (reactApplicationContext != null) "Found view $viewId!" else "Couldn't find view $viewId!")
     return view ?: throw ViewNotFoundError(viewId)
+  }
+
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  fun installFrameProcessorBindings(): Boolean {
+    return try {
+      val proxy = VisionCameraProxy(reactApplicationContext, frameProcessorThread)
+      VisionCameraInstaller.install(proxy)
+      true
+    } catch (e: Error) {
+      Log.e(TAG, "Failed to install Frame Processor JSI Bindings!", e)
+      false
+    }
   }
 
   @ReactMethod
@@ -148,18 +139,6 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
         view.focus(point)
         return@withPromise null
       }
-    }
-  }
-
-  @ReactMethod(isBlockingSynchronousMethod = true)
-  fun installFrameProcessorBindings(): Boolean {
-    try {
-      frameProcessorManager = FrameProcessorRuntimeManager(reactApplicationContext, frameProcessorThread)
-      frameProcessorManager!!.installBindings()
-      return true
-    } catch (e: Error) {
-      Log.e(TAG, "Failed to install Frame Processor JSI Bindings!", e)
-      return false
     }
   }
 

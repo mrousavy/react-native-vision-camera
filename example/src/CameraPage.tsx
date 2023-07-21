@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useRef, useState, useMemo, useCallback } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler';
 import {
   CameraDeviceFormat,
@@ -8,7 +8,7 @@ import {
   PhotoFile,
   sortFormats,
   useCameraDevices,
-  useSkiaFrameProcessor,
+  useFrameProcessor,
   VideoFile,
 } from 'react-native-vision-camera';
 import { Camera, frameRateIncluded } from 'react-native-vision-camera';
@@ -26,6 +26,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
 import { Skia } from '@shopify/react-native-skia';
 import { FACE_SHADER } from './Shaders';
+import { examplePlugin } from './frame-processors/ExamplePlugin';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -217,16 +218,13 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const paint = Skia.Paint();
   paint.setImageFilter(imageFilter);
 
-  const isIOS = Platform.OS === 'ios';
-  const frameProcessor = useSkiaFrameProcessor(
-    (frame) => {
-      'worklet';
-      console.log(`Width: ${frame.width}`);
+  const frameProcessor = useFrameProcessor((frame) => {
+    'worklet';
 
-      if (frame.isDrawable) frame.render(paint);
-    },
-    [isIOS, paint],
-  );
+    console.log(`Width: ${frame.width}`);
+    const result = examplePlugin(frame);
+    console.log('Example Plugin: ', result);
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -247,12 +245,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 onError={onError}
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
-                photo={true}
-                video={true}
                 audio={hasMicrophonePermission}
                 enableFpsGraph={true}
                 orientation="portrait"
-                frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
+                frameProcessor={frameProcessor}
               />
             </TapGestureHandler>
           </Reanimated.View>

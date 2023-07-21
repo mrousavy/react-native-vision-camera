@@ -1,5 +1,5 @@
 //
-// Created by Marc on 19/06/2021.
+// Created by Marc on 21.07.2023.
 //
 
 #pragma once
@@ -12,8 +12,8 @@ namespace vision {
 using namespace facebook;
 using namespace jni;
 
-struct JImageProxy : public JavaClass<JImageProxy> {
-  static constexpr auto kJavaDescriptor = "Landroidx/camera/core/ImageProxy;";
+struct JFrame : public JavaClass<JFrame> {
+  static constexpr auto kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/Frame;";
 
  public:
   int getWidth() const;

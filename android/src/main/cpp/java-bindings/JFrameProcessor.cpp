@@ -1,0 +1,65 @@
+//
+// Created by Marc Rousavy on 29.09.21.
+//
+
+#include "JFrameProcessor.h"
+
+#include <jni.h>
+#include <fbjni/fbjni.h>
+
+#include <utility>
+#include "JFrame.h"
+
+namespace vision {
+
+using namespace facebook;
+using namespace jni;
+
+void JFrameProcessor::registerNatives() {
+  registerHybrid({
+    makeNativeMethod("call", JFrameProcessor::call)
+  });
+}
+
+using TSelf = jni::local_ref<JFrameProcessor::javaobject>;
+
+JFrameProcessor::JFrameProcessor(std::shared_ptr<RNWorklet::JsiWorklet> worklet,
+                                 std::shared_ptr<RNWorklet::JsiWorkletContext> context) {
+  _workletContext = std::move(context);
+  _workletInvoker = std::make_shared<RNWorklet::WorkletInvoker>(worklet);
+}
+
+TSelf JFrameProcessor::create(const std::shared_ptr<RNWorklet::JsiWorklet>& worklet,
+                              const std::shared_ptr<RNWorklet::JsiWorkletContext>& context) {
+  return JFrameProcessor::newObjectCxxArgs(worklet, context);
+}
+
+void JFrameProcessor::callWithFrameHostObject(const std::shared_ptr<FrameHostObject>& frameHostObject) const {
+  // Call the Frame Processor on the Worklet Runtime
+  jsi::Runtime& runtime = _workletContext->getWorkletRuntime();
+
+  try {
+    // Wrap HostObject as JSI Value
+    auto argument = jsi::Object::createFromHostObject(runtime, frameHostObject);
+    jsi::Value jsValue(std::move(argument));
+
+    // Call the Worklet with the Frame JS Host Object as an argument
+    _workletInvoker->call(runtime, jsi::Value::undefined(), &jsValue, 1);
+  } catch (jsi::JSError& jsError) {
+    // JS Error occured, print it to console.
+    const std::string& message = jsError.getMessage();
+
+    _workletContext->invokeOnJsThread([message](jsi::Runtime& jsRuntime) {
+    auto logFn = jsRuntime.global().getPropertyAsObject(jsRuntime, "console").getPropertyAsFunction(jsRuntime, "error");
+    logFn.call(jsRuntime, jsi::String::createFromUtf8(jsRuntime, "Frame Processor threw an error: " + message));
+    });
+  }
+}
+
+void JFrameProcessor::call(jni::alias_ref<JFrame::javaobject> frame) {
+  // Create the Frame Host Object wrapping the internal Frame
+  auto frameHostObject = std::make_shared<FrameHostObject>(frame);
+  callWithFrameHostObject(frameHostObject);
+}
+
+} // namespace vision

@@ -7,8 +7,9 @@
 #include <jni.h>
 #include <fbjni/fbjni.h>
 #include <string>
+#include <react/jni/ReadableNativeMap.h>
 
-#include "JImageProxy.h"
+#include "JFrame.h"
 
 namespace vision {
 
@@ -22,12 +23,8 @@ struct JFrameProcessorPlugin : public JavaClass<JFrameProcessorPlugin> {
   /**
    * Call the plugin.
    */
-  local_ref<jobject> callback(alias_ref<JImageProxy::javaobject> image,
-                              alias_ref<JArrayClass<jobject>> params) const;
-  /**
-   * Get the user-defined name of the Frame Processor Plugin
-   */
-  std::string getName() const;
+  local_ref<jobject> callback(const alias_ref<JFrame::javaobject>& frame,
+                              const alias_ref<react::ReadableNativeMap::javaobject>& params) const;
 };
 
 } // namespace vision

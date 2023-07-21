@@ -43,12 +43,12 @@ class ParallelVideoProcessingNotSupportedError(cause: Throwable) : CameraError("
   "See https://mrousavy.github.io/react-native-vision-camera/docs/guides/devices#the-supportsparallelvideoprocessing-prop for more information.", cause)
 
 class FpsNotContainedInFormatError(fps: Int) : CameraError("format", "invalid-fps", "The given FPS were not valid for the currently selected format. Make sure you select a format which `frameRateRanges` includes $fps FPS!")
-class HdrNotContainedInFormatError() : CameraError(
+class HdrNotContainedInFormatError : CameraError(
   "format", "invalid-hdr",
   "The currently selected format does not support HDR capture! " +
     "Make sure you select a format which `frameRateRanges` includes `supportsPhotoHDR`!"
 )
-class LowLightBoostNotContainedInFormatError() : CameraError(
+class LowLightBoostNotContainedInFormatError : CameraError(
   "format", "invalid-low-light-boost",
   "The currently selected format does not support low-light boost (night mode)! " +
     "Make sure you select a format which includes `supportsLowLightBoost`."

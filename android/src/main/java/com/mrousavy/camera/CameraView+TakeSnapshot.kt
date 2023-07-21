@@ -14,7 +14,7 @@ import java.io.FileOutputStream
 import kotlinx.coroutines.guava.await
 
 suspend fun CameraView.takeSnapshot(options: ReadableMap): WritableMap = coroutineScope {
-  val camera = camera ?: throw com.mrousavy.camera.CameraNotReadyError()
+  val camera = camera ?: throw CameraNotReadyError()
   val enableFlash = options.getString("flash") == "on"
 
   try {
