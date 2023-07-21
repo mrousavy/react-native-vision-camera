@@ -6,6 +6,7 @@
 #include <vector>
 #include "FrameHostObject.h"
 #include "JSIJNIConversion.h"
+#include <string>
 
 namespace vision {
 

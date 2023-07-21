@@ -15,6 +15,10 @@
 #include "JSITypedArray.h"
 #include "FrameProcessorPluginHostObject.h"
 
+#include <vector>
+#include <string>
+#include <memory>
+
 namespace vision {
 
 using namespace facebook;
@@ -26,7 +30,7 @@ VisionCameraProxy::VisionCameraProxy(const jni::alias_ref<JVisionCameraProxy::ja
 VisionCameraProxy::~VisionCameraProxy() {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Destroying Context...");
   // Destroy ArrayBuffer cache for both the JS and the Worklet Runtime.
-	auto workletContext = _javaProxy->cthis()->getWorkletContext();
+  auto workletContext = _javaProxy->cthis()->getWorkletContext();
   invalidateArrayBufferCache(*workletContext->getJsRuntime());
   invalidateArrayBufferCache(workletContext->getWorkletRuntime());
 }
@@ -58,11 +62,11 @@ void VisionCameraProxy::setFrameProcessor(int viewTag, jsi::Runtime& runtime, co
     throw std::runtime_error("Unknown FrameProcessor.type passed! Received: " + frameProcessorType);
   }
 
-	_javaProxy->cthis()->setFrameProcessor(viewTag, make_global(frameProcessor));
+  _javaProxy->cthis()->setFrameProcessor(viewTag, make_global(frameProcessor));
 }
 
 void VisionCameraProxy::removeFrameProcessor(int viewTag) {
-	_javaProxy->cthis()->removeFrameProcessor(viewTag);
+  _javaProxy->cthis()->removeFrameProcessor(viewTag);
 }
 
 jsi::Value VisionCameraProxy::getFrameProcessorPlugin(jsi::Runtime& runtime,
@@ -136,7 +140,7 @@ jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& 
 
 
 void VisionCameraInstaller::install(jni::alias_ref<jni::JClass>,
-																		jni::alias_ref<JVisionCameraProxy::javaobject> proxy) {
+                                    jni::alias_ref<JVisionCameraProxy::javaobject> proxy) {
   // global.VisionCameraProxy
   auto visionCameraProxy = std::make_shared<VisionCameraProxy>(proxy);
   jsi::Runtime& runtime = *proxy->cthis()->getWorkletContext()->getJsRuntime();
@@ -145,4 +149,4 @@ void VisionCameraInstaller::install(jni::alias_ref<jni::JClass>,
                                jsi::Object::createFromHostObject(runtime, visionCameraProxy));
 }
 
-}
+} // namespace vision

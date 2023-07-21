@@ -9,23 +9,24 @@
 #include <memory>
 #include <ReactCommon/CallInvoker.h>
 #include <fbjni/fbjni.h>
+#include <vector>
 
 namespace vision {
 
 using namespace facebook;
 
 class FrameProcessorPluginHostObject: public jsi::HostObject {
-public:
-    explicit FrameProcessorPluginHostObject(jni::alias_ref<JFrameProcessorPlugin::javaobject> plugin):
+ public:
+  explicit FrameProcessorPluginHostObject(jni::alias_ref<JFrameProcessorPlugin::javaobject> plugin):
             _plugin(make_global(plugin)) { }
-    ~FrameProcessorPluginHostObject() { }
+  ~FrameProcessorPluginHostObject() { }
 
-public:
-    std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime& runtime) override;
-    jsi::Value get(jsi::Runtime& runtime, const jsi::PropNameID& name) override;
+ public:
+  std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime& runtime) override;
+  jsi::Value get(jsi::Runtime& runtime, const jsi::PropNameID& name) override;
 
-private:
-    jni::global_ref<JFrameProcessorPlugin::javaobject> _plugin;
+ private:
+  jni::global_ref<JFrameProcessorPlugin::javaobject> _plugin;
 };
 
 } // namespace vision
