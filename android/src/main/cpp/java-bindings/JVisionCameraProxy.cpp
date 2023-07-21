@@ -5,6 +5,7 @@
 #include "JVisionCameraProxy.h"
 
 #include <memory>
+#include <utility>
 #include <jsi/jsi.h>
 #include <react-native-worklets/WKTJsiWorklet.h>
 #include <react-native-worklets/WKTJsiWorkletContext.h>
@@ -18,10 +19,10 @@ using TJSCallInvokerHolder = jni::alias_ref<facebook::react::CallInvokerHolder::
 using TScheduler = jni::alias_ref<JVisionCameraScheduler::javaobject>;
 using TOptions = jni::local_ref<react::ReadableNativeMap::javaobject>;
 
-JVisionCameraProxy::JVisionCameraProxy(jni::alias_ref<JVisionCameraProxy::jhybridobject> javaThis,
+JVisionCameraProxy::JVisionCameraProxy(const jni::alias_ref<JVisionCameraProxy::jhybridobject>& javaThis,
 																			 jsi::Runtime* runtime,
-																			 std::shared_ptr<facebook::react::CallInvoker> callInvoker,
-																			 jni::global_ref<JVisionCameraScheduler::javaobject> scheduler) {
+																			 const std::shared_ptr<facebook::react::CallInvoker>& callInvoker,
+																			 const jni::global_ref<JVisionCameraScheduler::javaobject>& scheduler) {
 	_javaPart = make_global(javaThis);
 
 	__android_log_write(ANDROID_LOG_INFO, TAG, "Creating Worklet Context...");
@@ -46,7 +47,7 @@ JVisionCameraProxy::JVisionCameraProxy(jni::alias_ref<JVisionCameraProxy::jhybri
 
 
 void JVisionCameraProxy::setFrameProcessor(int viewTag,
-																					 alias_ref<JFrameProcessor::javaobject> frameProcessor) {
+																					 const alias_ref<JFrameProcessor::javaobject>& frameProcessor) {
 	auto setFrameProcessorMethod = javaClassLocal()->getMethod<void(int, alias_ref<JFrameProcessor::javaobject>)>("setFrameProcessor");
 	setFrameProcessorMethod(_javaPart, viewTag, frameProcessor);
 }
@@ -56,10 +57,10 @@ void JVisionCameraProxy::removeFrameProcessor(int viewTag) {
 	removeFrameProcessorMethod(_javaPart, viewTag);
 }
 
-local_ref<JFrameProcessorPlugin::javaobject> JVisionCameraProxy::getFrameProcessorPlugin(std::string name,
+local_ref<JFrameProcessorPlugin::javaobject> JVisionCameraProxy::getFrameProcessorPlugin(const std::string& name,
 																																												 TOptions options) {
-	auto getFrameProcessorPluginMethod = javaClassLocal()->getMethod<JFrameProcessorPlugin(local_ref<jstring>, TOptions)>("setFrameProcessor");
-	return getFrameProcessorPluginMethod(_javaPart, make_jstring(name), options);
+	auto getFrameProcessorPluginMethod = javaClassLocal()->getMethod<JFrameProcessorPlugin(local_ref<jstring>, TOptions)>("getFrameProcessorPlugin");
+	return getFrameProcessorPluginMethod(_javaPart, make_jstring(name), std::move(options));
 }
 
 void JVisionCameraProxy::registerNatives() {
@@ -72,7 +73,7 @@ TSelf JVisionCameraProxy::initHybrid(
 		alias_ref<jhybridobject> jThis,
 		jlong jsRuntimePointer,
 		TJSCallInvokerHolder jsCallInvokerHolder,
-		TScheduler scheduler) {
+		const TScheduler& scheduler) {
 	__android_log_write(ANDROID_LOG_INFO, TAG, "Initializing VisionCameraProxy...");
 
 	// cast from JNI hybrid objects to C++ instances

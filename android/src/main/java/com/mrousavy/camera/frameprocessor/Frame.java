@@ -15,21 +15,25 @@ public class Frame {
         this.imageProxy = imageProxy;
     }
 
+    public ImageProxy getImageProxy() {
+        return imageProxy;
+    }
+
     @SuppressWarnings("unused")
     @DoNotStrip
-    private int getWidth() {
+    public int getWidth() {
         return imageProxy.getWidth();
     }
 
     @SuppressWarnings("unused")
     @DoNotStrip
-    private int getHeight() {
+    public int getHeight() {
         return imageProxy.getHeight();
     }
 
     @SuppressWarnings("unused")
     @DoNotStrip
-    private boolean getIsValid() {
+    public boolean getIsValid() {
         try {
             @SuppressLint("UnsafeOptInUsageError")
             Image image = imageProxy.getImage();
@@ -46,7 +50,7 @@ public class Frame {
 
     @SuppressWarnings("unused")
     @DoNotStrip
-    private boolean getIsMirrored() {
+    public boolean getIsMirrored() {
         Matrix matrix = imageProxy.getImageInfo().getSensorToBufferTransformMatrix();
         // TODO: Figure out how to get isMirrored from ImageProxy
         return false;
@@ -54,13 +58,13 @@ public class Frame {
 
     @SuppressWarnings("unused")
     @DoNotStrip
-    private long getTimestamp() {
+    public long getTimestamp() {
         return imageProxy.getImageInfo().getTimestamp();
     }
 
     @SuppressWarnings("unused")
     @DoNotStrip
-    private String getOrientation() {
+    public String getOrientation() {
         int rotation = imageProxy.getImageInfo().getRotationDegrees();
         if (rotation >= 45 && rotation < 135)
             return "landscapeRight";
@@ -73,13 +77,13 @@ public class Frame {
 
     @SuppressWarnings("unused")
     @DoNotStrip
-    private int getPlanesCount() {
+    public int getPlanesCount() {
         return imageProxy.getPlanes().length;
     }
 
     @SuppressWarnings("unused")
     @DoNotStrip
-    private int getBytesPerRow() {
+    public int getBytesPerRow() {
         return imageProxy.getPlanes()[0].getRowStride();
     }
 
@@ -87,7 +91,7 @@ public class Frame {
 
     @SuppressWarnings("unused")
     @DoNotStrip
-    private byte[] toByteArray() {
+    public byte[] toByteArray() {
         switch (imageProxy.getFormat()) {
             case ImageFormat.YUV_420_888:
                 ByteBuffer yBuffer = imageProxy.getPlanes()[0].getBuffer();

@@ -23,8 +23,8 @@ struct JFrameProcessorPlugin : public JavaClass<JFrameProcessorPlugin> {
   /**
    * Call the plugin.
    */
-  local_ref<jobject> callback(alias_ref<JFrame::javaobject> frame,
-                              alias_ref<react::ReadableNativeMap::javaobject> params) const;
+  local_ref<jobject> callback(const alias_ref<JFrame::javaobject>& frame,
+                              const alias_ref<react::ReadableNativeMap::javaobject>& params) const;
 };
 
 } // namespace vision

@@ -22,9 +22,9 @@ public:
 	static void registerNatives();
 
 	void setFrameProcessor(int viewTag,
-												 jni::alias_ref<JFrameProcessor::javaobject> frameProcessor);
+												 const jni::alias_ref<JFrameProcessor::javaobject>& frameProcessor);
 	void removeFrameProcessor(int viewTag);
-	jni::local_ref<JFrameProcessorPlugin::javaobject> getFrameProcessorPlugin(std::string name,
+	jni::local_ref<JFrameProcessorPlugin::javaobject> getFrameProcessorPlugin(const std::string& name,
 																																						jni::local_ref<react::ReadableNativeMap::javaobject> options);
 
 public:
@@ -39,14 +39,14 @@ private:
 	static auto constexpr TAG = "VisionCameraProxy";
 	static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/VisionCameraProxy;";
 
-	explicit JVisionCameraProxy(jni::alias_ref<JVisionCameraProxy::jhybridobject> javaThis,
+	explicit JVisionCameraProxy(const jni::alias_ref<JVisionCameraProxy::jhybridobject>& javaThis,
 															jsi::Runtime* jsRuntime,
-															std::shared_ptr<facebook::react::CallInvoker> jsCallInvoker,
-															jni::global_ref<JVisionCameraScheduler::javaobject> scheduler);
+															const std::shared_ptr<facebook::react::CallInvoker>& jsCallInvoker,
+															const jni::global_ref<JVisionCameraScheduler::javaobject>& scheduler);
 	static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> javaThis,
 																								jlong jsRuntimePointer,
 																								jni::alias_ref<facebook::react::CallInvokerHolder::javaobject> jsCallInvokerHolder,
-																								jni::alias_ref<JVisionCameraScheduler::javaobject> scheduler);
+																								const jni::alias_ref<JVisionCameraScheduler::javaobject>& scheduler);
 };
 
 }

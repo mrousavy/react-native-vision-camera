@@ -19,7 +19,7 @@ using namespace facebook;
 
 class JSI_EXPORT FrameHostObject : public jsi::HostObject {
  public:
-  explicit FrameHostObject(jni::alias_ref<JFrame::javaobject> frame);
+  explicit FrameHostObject(const jni::alias_ref<JFrame::javaobject>& frame);
   ~FrameHostObject();
 
  public:

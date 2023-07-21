@@ -19,7 +19,7 @@ namespace vision {
 
 using namespace facebook;
 
-VisionCameraProxy::VisionCameraProxy(jni::alias_ref<JVisionCameraProxy::javaobject> javaProxy) {
+VisionCameraProxy::VisionCameraProxy(const jni::alias_ref<JVisionCameraProxy::javaobject>& javaProxy) {
   _javaProxy = make_global(javaProxy);
 }
 
@@ -65,7 +65,9 @@ void VisionCameraProxy::removeFrameProcessor(int viewTag) {
 	_javaProxy->cthis()->removeFrameProcessor(viewTag);
 }
 
-jsi::Value VisionCameraProxy::getFrameProcessorPlugin(jsi::Runtime& runtime, std::string name, const jsi::Object& jsOptions) {
+jsi::Value VisionCameraProxy::getFrameProcessorPlugin(jsi::Runtime& runtime,
+                                                      const std::string& name,
+                                                      const jsi::Object& jsOptions) {
   auto options = JSIJNIConversion::convertJSIObjectToJNIMap(runtime, jsOptions);
 
   auto plugin = _javaProxy->cthis()->getFrameProcessorPlugin(name, options);

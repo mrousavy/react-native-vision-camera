@@ -27,6 +27,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
 import { Skia } from '@shopify/react-native-skia';
 import { FACE_SHADER } from './Shaders';
+import { examplePlugin } from './frame-processors/ExamplePlugin';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 Reanimated.addWhitelistedNativeProps({
@@ -218,10 +219,12 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const paint = Skia.Paint();
   paint.setImageFilter(imageFilter);
 
-  const isIOS = Platform.OS === 'ios';
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
+
     console.log(`Width: ${frame.width}`);
+    const result = examplePlugin(frame);
+    console.log('Example Plugin: ', result);
   }, []);
 
   return (

@@ -6,6 +6,8 @@
 
 #include <jni.h>
 #include <fbjni/fbjni.h>
+
+#include <utility>
 #include "JFrame.h"
 
 namespace vision {
@@ -23,16 +25,16 @@ using TSelf = jni::local_ref<JFrameProcessor::javaobject>;
 
 JFrameProcessor::JFrameProcessor(std::shared_ptr<RNWorklet::JsiWorklet> worklet,
                                  std::shared_ptr<RNWorklet::JsiWorkletContext> context) {
-  _workletContext = context;
+  _workletContext = std::move(context);
   _workletInvoker = std::make_shared<RNWorklet::WorkletInvoker>(worklet);
 }
 
-TSelf JFrameProcessor::create(std::shared_ptr<RNWorklet::JsiWorklet> worklet,
-                              std::shared_ptr<RNWorklet::JsiWorkletContext> context) {
+TSelf JFrameProcessor::create(const std::shared_ptr<RNWorklet::JsiWorklet>& worklet,
+                              const std::shared_ptr<RNWorklet::JsiWorkletContext>& context) {
   return JFrameProcessor::newObjectCxxArgs(worklet, context);
 }
 
-void JFrameProcessor::callWithFrameHostObject(std::shared_ptr<FrameHostObject> frameHostObject) const {
+void JFrameProcessor::callWithFrameHostObject(const std::shared_ptr<FrameHostObject>& frameHostObject) const {
   // Call the Frame Processor on the Worklet Runtime
   jsi::Runtime& runtime = _workletContext->getWorkletRuntime();
 

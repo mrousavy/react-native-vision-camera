@@ -14,7 +14,7 @@ TSelf JVisionCameraScheduler::initHybrid(jni::alias_ref<jhybridobject> jThis) {
   return makeCxxInstance(jThis);
 }
 
-void JVisionCameraScheduler::dispatchAsync(std::function<void()> job) {
+void JVisionCameraScheduler::dispatchAsync(const std::function<void()>& job) {
   // 1. add job to queue
   _jobs.push(job);
   scheduleTrigger();

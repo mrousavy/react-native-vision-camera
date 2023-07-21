@@ -30,7 +30,7 @@ class JVisionCameraScheduler : public jni::HybridClass<JVisionCameraScheduler> {
   static void registerNatives();
 
   // schedules the given job to be run on the VisionCamera FP Thread at some future point in time
-  void dispatchAsync(std::function<void()> job);
+  void dispatchAsync(const std::function<void()>& job);
 
  private:
   friend HybridBase;
