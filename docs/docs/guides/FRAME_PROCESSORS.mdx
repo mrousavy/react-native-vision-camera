@@ -120,6 +120,36 @@ const frameProcessor = useFrameProcessor((frame) => {
 }, [onQRCodeDetected])
 ```
 
+### Running asynchronously
+
+Since Frame Processors run synchronously with the Camera Pipeline, anything taking longer than one Frame interval might block the Camera from streaming new Frames. To avoid this, you can use `runAsync` to run code asynchronously on a different Thread:
+
+```ts
+const frameProcessor = useFrameProcessor((frame) => {
+  'worklet'
+  console.log('I'm running synchronously at 60 FPS!')
+  runAsync(() => {
+    'worklet'
+    console.log('I'm running asynchronously, possibly at a lower FPS rate!')
+  })
+}, [])
+```
+
+### Running at a throttled FPS rate
+
+Some Frame Processor Plugins don't need to run on every Frame, for example a Frame Processor that detects the brightness in a Frame only needs to run twice per second:
+
+```ts
+const frameProcessor = useFrameProcessor((frame) => {
+  'worklet'
+  console.log('I'm running synchronously at 60 FPS!')
+  runAtTargetFps(2, () => {
+    'worklet'
+    console.log('I'm running synchronously at 2 FPS!')
+  })
+}, [])
+```
+
 ### Using Frame Processor Plugins
 
 Frame Processor Plugins are distributed through npm. To install the [**vision-camera-image-labeler**](https://github.com/mrousavy/vision-camera-image-labeler) plugin, run:
@@ -204,7 +234,7 @@ The Frame Processor API spawns a secondary JavaScript Runtime which consumes a s
 
 Inside your `gradle.properties` file, add the `disableFrameProcessors` flag:
 
-```
+```groovy
 disableFrameProcessors=true
 ```
 
@@ -212,17 +242,11 @@ Then, clean and rebuild your project.
 
 #### iOS
 
-Inside your `project.pbxproj`, find the `GCC_PREPROCESSOR_DEFINITIONS` group and add the flag:
+Inside your `Podfile`, add the `VCDisableFrameProcessors` flag:
 
-```txt {3}
-GCC_PREPROCESSOR_DEFINITIONS = (
-  "DEBUG=1",
-  "VISION_CAMERA_DISABLE_FRAME_PROCESSORS=1",
-  "$(inherited)",
-);
+```ruby
+$VCDisableFrameProcessors = true
 ```
-
-Make sure to add this to your Debug-, as well as your Release-configuration.
 
 </TabItem>
 

@@ -10,7 +10,7 @@ import TabItem from '@theme/TabItem';
 ## Creating a Frame Processor Plugin for iOS
 
 The Frame Processor Plugin API is built to be as extensible as possible, which allows you to create custom Frame Processor Plugins.
-In this guide we will create a custom QR Code Scanner Plugin which can be used from JS.
+In this guide we will create a custom Face Detector Plugin which can be used from JS.
 
 iOS Frame Processor Plugins can be written in either **Objective-C** or **Swift**.
 
@@ -23,7 +23,7 @@ npx vision-camera-plugin-builder ios
 ```
 
 :::info
-The CLI will ask you for the path to project's .xcodeproj file, name of the plugin (e.g. `QRCodeFrameProcessor`), name of the exposed method (e.g. `scanQRCodes`) and language you want to use for plugin development (Objective-C, Objective-C++ or Swift).
+The CLI will ask you for the path to project's .xcodeproj file, name of the plugin (e.g. `FaceDetectorFrameProcessorPlugin`), name of the exposed method (e.g. `detectFaces`) and language you want to use for plugin development (Objective-C, Objective-C++ or Swift).
 For reference see the [CLI's docs](https://github.com/mateusz1913/vision-camera-plugin-builder#%EF%B8%8F-options).
 :::
 
@@ -38,23 +38,25 @@ For reference see the [CLI's docs](https://github.com/mateusz1913/vision-camera-
 <TabItem value="objc">
 
 1. Open your Project in Xcode
-2. Create an Objective-C source file, for the QR Code Plugin this will be called `QRCodeFrameProcessorPlugin.m`.
+2. Create an Objective-C source file, for the Face Detector Plugin this will be called `FaceDetectorFrameProcessorPlugin.m`.
 3. Add the following code:
 
 ```objc
 #import <VisionCamera/FrameProcessorPlugin.h>
+#import <VisionCamera/FrameProcessorPluginRegistry.h>
 #import <VisionCamera/Frame.h>
 
-@interface QRCodeFrameProcessorPlugin : FrameProcessorPlugin
+@interface FaceDetectorFrameProcessorPlugin : FrameProcessorPlugin
 @end
 
-@implementation QRCodeFrameProcessorPlugin
+@implementation FaceDetectorFrameProcessorPlugin
 
-- (NSString *)name {
-  return @"scanQRCodes";
+- (instancetype) initWithOptions:(NSDictionary*)options; {
+  self = [super init];
+  return self;
 }
 
-- (id)callback:(Frame *)frame withArguments:(NSArray<id> *)arguments {
+- (id)callback:(Frame*)frame withArguments:(NSDictionary*)arguments {
   CMSampleBufferRef buffer = frame.buffer;
   UIImageOrientation orientation = frame.orientation;
   // code goes here
@@ -62,14 +64,17 @@ For reference see the [CLI's docs](https://github.com/mateusz1913/vision-camera-
 }
 
 + (void) load {
-  [self registerPlugin:[[ExampleFrameProcessorPlugin alloc] init]];
+  [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"detectFaces"
+                                        withInitializer:^FrameProcessorPlugin*(NSDictionary* options) {
+    return [[FaceDetectorFrameProcessorPlugin alloc] initWithOptions:options];
+  }];
 }
 
 @end
 ```
 
 :::note
-The Frame Processor Plugin will be exposed to JS through the `FrameProcessorPlugins` object using the name returned from the `name` getter. In this case, it would be `FrameProcessorPlugins.scanQRCodes(...)`.
+The Frame Processor Plugin will be exposed to JS through the `VisionCameraProxy` object. In this case, it would be `VisionCameraProxy.getFrameProcessorPlugin("detectFaces")`.
 :::
 
 4. **Implement your Frame Processing.** See the [Example Plugin (Objective-C)](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/ios/Frame%20Processor%20Plugins/Example%20Plugin%20%28Objective%2DC%29) for reference.
@@ -78,7 +83,7 @@ The Frame Processor Plugin will be exposed to JS through the `FrameProcessorPlug
 <TabItem value="swift">
 
 1. Open your Project in Xcode
-2. Create a Swift file, for the QR Code Plugin this will be `QRCodeFrameProcessorPlugin.swift`. If Xcode asks you to create a Bridging Header, press **create**.
+2. Create a Swift file, for the Face Detector Plugin this will be `FaceDetectorFrameProcessorPlugin.swift`. If Xcode asks you to create a Bridging Header, press **create**.
 
 ![Xcode "Create Bridging Header" alert](https://docs-assets.developer.apple.com/published/7ebca7212c/2a065d1a-7e53-4907-a889-b7fa4f2206c9.png)
 
@@ -92,13 +97,9 @@ The Frame Processor Plugin will be exposed to JS through the `FrameProcessorPlug
 4. In the Swift file, add the following code:
 
 ```swift
-@objc(QRCodeFrameProcessorPlugin)
-public class QRCodeFrameProcessorPlugin: FrameProcessorPlugin {
-  override public func name() -> String! {
-    return "scanQRCodes"
-  }
-
-  public override func callback(_ frame: Frame!, withArguments arguments: [Any]!) -> Any! {
+@objc(FaceDetectorFrameProcessorPlugin)
+public class FaceDetectorFrameProcessorPlugin: FrameProcessorPlugin {
+  public override func callback(_ frame: Frame!, withArguments arguments: [String:Any]) -> Any {
     let buffer = frame.buffer
     let orientation = frame.orientation
     // code goes here
@@ -107,11 +108,12 @@ public class QRCodeFrameProcessorPlugin: FrameProcessorPlugin {
 }
 ```
 
-5. In your `AppDelegate.m`, add the following imports (you can skip this if your AppDelegate is in Swift):
+5. In your `AppDelegate.m`, add the following imports:
 
 ```objc
 #import "YOUR_XCODE_PROJECT_NAME-Swift.h"
 #import <VisionCamera/FrameProcessorPlugin.h>
+#import <VisionCamera/FrameProcessorPluginRegistry.h>
 ```
 
 6. In your `AppDelegate.m`, add the following code to `application:didFinishLaunchingWithOptions:`:
@@ -121,7 +123,10 @@ public class QRCodeFrameProcessorPlugin: FrameProcessorPlugin {
 {
   ...
 
-  [FrameProcessorPlugin registerPlugin:[[QRCodeFrameProcessorPlugin alloc] init]];
+  [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"detectFaces"
+                                        withInitializer:^FrameProcessorPlugin*(NSDictionary* options) {
+    return [[FaceDetectorFrameProcessorPlugin alloc] initWithOptions:options];
+  }];
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }

@@ -73,10 +73,8 @@ class PropNameIDCache {
 
 PropNameIDCache propNameIDCache;
 
-InvalidateCacheOnDestroy::InvalidateCacheOnDestroy(jsi::Runtime &runtime) {
-  key = reinterpret_cast<uintptr_t>(&runtime);
-}
-InvalidateCacheOnDestroy::~InvalidateCacheOnDestroy() {
+void invalidateArrayBufferCache(jsi::Runtime& runtime) {
+  auto key = reinterpret_cast<uintptr_t>(&runtime);
   propNameIDCache.invalidate(key);
 }
 

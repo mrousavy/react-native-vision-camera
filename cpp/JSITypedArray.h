@@ -74,24 +74,7 @@ struct typedArrayTypeMap<TypedArrayKind::Float64Array> {
   typedef double type;
 };
 
-// Instance of this class will invalidate PropNameIDCache when destructor is called.
-// Attach this object to global in specific jsi::Runtime to make sure lifecycle of
-// the cache object is connected to the lifecycle of the js runtime
-class InvalidateCacheOnDestroy : public jsi::HostObject {
- public:
-  explicit InvalidateCacheOnDestroy(jsi::Runtime &runtime);
-  virtual ~InvalidateCacheOnDestroy();
-  virtual jsi::Value get(jsi::Runtime &, const jsi::PropNameID &name) {
-    return jsi::Value::null();
-  }
-  virtual void set(jsi::Runtime &, const jsi::PropNameID &name, const jsi::Value &value) {}
-  virtual std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime &rt) {
-    return {};
-  }
-
- private:
-  uintptr_t key;
-};
+void invalidateArrayBufferCache(jsi::Runtime& runtime);
 
 class TypedArrayBase : public jsi::Object {
  public:

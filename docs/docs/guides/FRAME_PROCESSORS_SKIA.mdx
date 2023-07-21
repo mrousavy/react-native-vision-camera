@@ -1,0 +1,110 @@
+---
+id: frame-processors-skia
+title: Skia Frame Processors
+sidebar_label: Skia Frame Processors
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+<div>
+  <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535" style={{ float: 'right' }}>
+    <image href={useBaseUrl("img/frame-processors.gif")} x="18" y="33" width="247" height="469"  />
+    <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
+  </svg>
+</div>
+
+### What are Skia Frame Processors?
+
+Skia Frame Processors are [Frame Processors](frame-processors) that allow you to draw onto the Frame using [react-native-skia](https://github.com/Shopify/react-native-skia).
+
+For example, you might want to draw a rectangle around a user's face **without writing any native code**, while still **achieving native performance**:
+
+```jsx
+function App() {
+  const frameProcessor = useSkiaFrameProcessor((frame) => {
+    'worklet'
+    const faces = detectFaces(frame)
+    faces.forEach((face) => {
+      frame.drawRect(face.rectangle, redPaint)
+    })
+  }, [])
+
+  return (
+    <Camera
+      {...cameraProps}
+      frameProcessor={frameProcessor}
+    />
+  )
+}
+```
+
+With Skia, you can also implement realtime filters, blurring, shaders, and much more. For example, this is how you invert the colors in a Frame:
+
+```jsx
+const INVERTED_COLORS_SHADER = `
+uniform shader image;
+
+half4 main(vec2 pos) {
+  vec4 color = image.eval(pos);
+  return vec4(1.0 - color.rgb, 1.0);
+}
+`;
+
+function App() {
+  const imageFilter = Skia.ImageFilter.MakeRuntimeShader(/* INVERTED_COLORS_SHADER */)
+  const paint = Skia.Paint()
+  paint.setImageFilter(imageFilter)
+
+  const frameProcessor = useSkiaFrameProcessor((frame) => {
+    'worklet'
+    frame.render(paint)
+  }, [])
+
+  return (
+    <Camera
+      {...cameraProps}
+      frameProcessor={frameProcessor}
+    />
+  )
+}
+```
+
+### Rendered outputs
+
+The rendered results of the Skia Frame Processor are rendered to an offscreen context and will be displayed in the Camera Preview, recorded to a video file (`startRecording()`) and captured in a photo (`takePhoto()`). In other words, you draw into the Frame, not just ontop of it.
+
+### Performance
+
+VisionCamera sets up an additional Skia rendering context which requires a few resources.
+
+On iOS, Metal is used for GPU Acceleration. On Android, OpenGL is used for GPU Acceleration.
+C++/JSI is used for highly efficient communication between JS and Skia.
+
+### Disabling Skia Frame Processors
+
+Skia Frame Processors ship with additional C++ files which might slightly increase the app's build time. If you're not using Skia Frame Processors at all, you can disable them:
+
+#### Android
+
+Inside your `gradle.properties` file, add the `disableSkia` flag:
+
+```groovy
+disableSkia=true
+```
+
+Then, clean and rebuild your project.
+
+#### iOS
+
+Inside your `Podfile`, add the `VCDisableSkia` flag:
+
+```ruby
+$VCDisableSkia = true
+```
+
+
+<br />
+
+#### 🚀 Next section: [Zooming](/docs/guides/zooming) (or [creating a Frame Processor Plugin](/docs/guides/frame-processors-plugins-overview))

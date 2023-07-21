@@ -19,8 +19,8 @@
 @interface SkiaFrameProcessor: FrameProcessor
 
 #ifdef __cplusplus
-- (instancetype _Nonnull) initWithWorklet:(std::shared_ptr<RNWorklet::JsiWorkletContext>)context
-                                  worklet:(std::shared_ptr<RNWorklet::JsiWorklet>)worklet
+- (instancetype _Nonnull) initWithWorklet:(std::shared_ptr<RNWorklet::JsiWorklet>)worklet
+                                  context:(std::shared_ptr<RNWorklet::JsiWorkletContext>)context
                              skiaRenderer:(SkiaRenderer* _Nonnull)skiaRenderer;
 #endif
 

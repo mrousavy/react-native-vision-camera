@@ -1,25 +1,49 @@
 import type { Frame, FrameInternal } from './Frame';
+import type { FrameProcessor } from './CameraProps';
 import { Camera } from './Camera';
 import { Worklets } from 'react-native-worklets/src';
+import { CameraRuntimeError } from './CameraError';
 
-// Install VisionCamera Frame Processor JSI Bindings and Plugins
+type BasicParameterType = string | number | boolean | undefined;
+type ParameterType = BasicParameterType | BasicParameterType[] | Record<string, BasicParameterType | undefined>;
+
+interface FrameProcessorPlugin {
+  /**
+   * Call the native Frame Processor Plugin with the given Frame and options.
+   * @param frame The Frame from the Frame Processor.
+   * @param options (optional) Additional options. Options will be converted to a native dictionary
+   * @returns (optional) A value returned from the native Frame Processor Plugin (or undefined)
+   */
+  call: (frame: Frame, options?: Record<string, ParameterType>) => ParameterType;
+}
+
+interface TVisionCameraProxy {
+  setFrameProcessor: (viewTag: number, frameProcessor: FrameProcessor) => void;
+  removeFrameProcessor: (viewTag: number) => void;
+  /**
+   * Creates a new instance of a Frame Processor Plugin.
+   * The Plugin has to be registered on the native side, otherwise this returns `undefined`
+   */
+  getFrameProcessorPlugin: (name: string) => FrameProcessorPlugin | undefined;
+  isSkiaEnabled: boolean;
+}
+
 Camera.installFrameProcessorBindings();
+
+// @ts-expect-error global is untyped, it's a C++ host-object
+export const VisionCameraProxy = global.VisionCameraProxy as TVisionCameraProxy;
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+if (VisionCameraProxy == null) {
+  throw new CameraRuntimeError(
+    'system/frame-processors-unavailable',
+    'Failed to install VisionCameraProxy. Are Frame Processors properly enabled?',
+  );
+}
 
 declare global {
   // eslint-disable-next-line no-var
   var __frameProcessorRunAtTargetFpsMap: Record<string, number | undefined> | undefined;
 }
-
-type BasicParameterType = string | number | boolean | undefined;
-type ParameterType = BasicParameterType | BasicParameterType[] | Record<string, BasicParameterType | undefined>;
-type FrameProcessor = (frame: Frame, parameters?: Record<string, ParameterType | undefined>) => unknown;
-type TFrameProcessorPlugins = Record<string, FrameProcessor>;
-
-/**
- * All natively installed Frame Processor Plugins.
- */
-// @ts-expect-error The global JSI Proxy object is not typed.
-export const FrameProcessorPlugins = global.FrameProcessorPlugins as TFrameProcessorPlugins;
 
 function getLastFrameProcessorCall(frameProcessorFuncId: string): number {
   'worklet';

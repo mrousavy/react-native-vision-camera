@@ -4,6 +4,25 @@ import { FrameProcessor } from '../CameraProps';
 // Install RN Worklets by importing it
 import 'react-native-worklets/src';
 
+export function createFrameProcessor(frameProcessor: FrameProcessor['frameProcessor'], type: FrameProcessor['type']): FrameProcessor {
+  return {
+    frameProcessor: (frame: Frame | DrawableFrame) => {
+      'worklet';
+      // Increment ref-count by one
+      (frame as FrameInternal).incrementRefCount();
+      try {
+        // Call sync frame processor
+        // @ts-expect-error the frame type is ambiguous here
+        frameProcessor(frame);
+      } finally {
+        // Potentially delete Frame if we were the last ref (no runAsync)
+        (frame as FrameInternal).decrementRefCount();
+      }
+    },
+    type: type,
+  };
+}
+
 /**
  * Returns a memoized Frame Processor function wich you can pass to the `<Camera>`.
  * (See ["Frame Processors"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors))
@@ -23,25 +42,8 @@ import 'react-native-worklets/src';
  * ```
  */
 export function useFrameProcessor(frameProcessor: (frame: Frame) => void, dependencies: DependencyList): FrameProcessor {
-  return useMemo(
-    () => ({
-      frameProcessor: (frame: Frame) => {
-        'worklet';
-        // Increment ref-count by one
-        (frame as FrameInternal).incrementRefCount();
-        try {
-          // Call sync frame processor
-          frameProcessor(frame);
-        } finally {
-          // Potentially delete Frame if we were the last ref (no runAsync)
-          (frame as FrameInternal).decrementRefCount();
-        }
-      },
-      type: 'frame-processor',
-    }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    dependencies,
-  );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  return useMemo(() => createFrameProcessor(frameProcessor, 'frame-processor'), dependencies);
 }
 
 /**
@@ -65,23 +67,6 @@ export function useFrameProcessor(frameProcessor: (frame: Frame) => void, depend
  * ```
  */
 export function useSkiaFrameProcessor(frameProcessor: (frame: DrawableFrame) => void, dependencies: DependencyList): FrameProcessor {
-  return useMemo(
-    () => ({
-      frameProcessor: (frame: DrawableFrame) => {
-        'worklet';
-        // Increment ref-count by one
-        (frame as FrameInternal).incrementRefCount();
-        try {
-          // Call sync frame processor
-          frameProcessor(frame);
-        } finally {
-          // Potentially delete Frame if we were the last ref (no runAsync)
-          (frame as FrameInternal).decrementRefCount();
-        }
-      },
-      type: 'skia-frame-processor',
-    }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    dependencies,
-  );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  return useMemo(() => createFrameProcessor(frameProcessor, 'skia-frame-processor'), dependencies);
 }
