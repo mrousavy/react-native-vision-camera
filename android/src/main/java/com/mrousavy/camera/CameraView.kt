@@ -176,10 +176,6 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
             return true
           } else {
             if (video == true && enableFrameProcessor) {
-              FrameProcessorPluginRegistry.addFrameProcessorPlugin("") { options ->
-                FrameProcessorPlugin()
-              }
-
               // Camera supports max. 2 use-cases, but both are occupied by `frameProcessor` and `video`
               return true
             } else {
