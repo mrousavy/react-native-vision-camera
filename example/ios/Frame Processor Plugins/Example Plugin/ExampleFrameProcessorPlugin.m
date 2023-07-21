@@ -18,7 +18,7 @@
 
 @implementation ExampleFrameProcessorPlugin
 
-- (NSString *)name {
++ (NSString *)name {
   return @"example_plugin";
 }
 
