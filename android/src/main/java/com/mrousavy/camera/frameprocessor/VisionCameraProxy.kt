@@ -13,10 +13,9 @@ import java.lang.ref.WeakReference
 import java.util.concurrent.ExecutorService
 
 @Suppress("KotlinJniMissingFunction") // I use fbjni, Android Studio is not smart enough to realize that.
-class FrameProcessorRuntimeManager(context: ReactApplicationContext, frameProcessorThread: ExecutorService) {
+class VisionCameraProxy(context: ReactApplicationContext, frameProcessorThread: ExecutorService) {
   companion object {
-    const val TAG = "FrameProcessorRuntime"
-    private val Plugins: ArrayList<FrameProcessorPlugin> = ArrayList()
+    const val TAG = "VisionCameraProxy"
 
     init {
       try {
@@ -25,10 +24,6 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext, frameProces
         Log.e(TAG, "Failed to load VisionCamera C++ library!", e)
         throw e
       }
-    }
-
-    fun addPlugin(plugin: FrameProcessorPlugin) {
-      Plugins.add(plugin)
     }
   }
 

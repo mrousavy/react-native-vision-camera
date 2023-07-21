@@ -8,7 +8,7 @@
 #include <fbjni/fbjni.h>
 #include <string>
 
-#include "JImageProxy.h"
+#include "JFrame.h"
 
 namespace vision {
 
@@ -22,8 +22,8 @@ struct JFrameProcessorPlugin : public JavaClass<JFrameProcessorPlugin> {
   /**
    * Call the plugin.
    */
-  local_ref<jobject> callback(alias_ref<JImageProxy::javaobject> image,
-                              alias_ref<JArrayClass<jobject>> params) const;
+  local_ref<jobject> callback(alias_ref<JFrame::javaobject> frame,
+                              alias_ref<jobject> params) const;
   /**
    * Get the user-defined name of the Frame Processor Plugin
    */

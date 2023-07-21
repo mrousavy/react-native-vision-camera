@@ -12,6 +12,8 @@
 #import "FrameHostObject.h"
 #import "JSINSObjectConversion.h"
 
+using namespace facebook;
+
 std::vector<jsi::PropNameID> FrameProcessorPluginHostObject::getPropertyNames(jsi::Runtime& runtime) {
   std::vector<jsi::PropNameID> result;
   result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("call")));
