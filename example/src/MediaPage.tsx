@@ -40,13 +40,15 @@ export function MediaPage({ navigation, route }: Props): React.ReactElement {
   const [savingState, setSavingState] = useState<'none' | 'saving' | 'saved'>('none');
 
   const onMediaLoad = useCallback((event: OnLoadData | NativeSyntheticEvent<ImageLoadEventData>) => {
-    if (isVideoOnLoadEvent(event)) {
-      console.log(
-        `Video loaded. Size: ${event.naturalSize.width}x${event.naturalSize.height} (${event.naturalSize.orientation}, ${event.duration} seconds)`,
-      );
-    } else {
-      console.log(`Image loaded. Size: ${event.nativeEvent.source.width}x${event.nativeEvent.source.height}`);
-    }
+    console.log('On media load', event);
+    // Something is wrong with on media load end event
+    // if (isVideoOnLoadEvent(event)) {
+    //   console.log(
+    //     `Video loaded. Size: ${event.naturalSize.width}x${event.naturalSize.height} (${event.naturalSize.orientation}, ${event.duration} seconds)`,
+    //   );
+    // } else {
+    //   console.log(`Image loaded. Size: ${event.nativeEvent.source.width}x${event.nativeEvent.source.height}`);
+    // }
   }, []);
   const onMediaLoadEnd = useCallback(() => {
     console.log('media has loaded.');
@@ -77,6 +79,7 @@ export function MediaPage({ navigation, route }: Props): React.ReactElement {
   }, [path, type]);
 
   const source = useMemo(() => ({ uri: `file://${path}` }), [path]);
+  console.log(source);
 
   const screenStyle = useMemo(() => ({ opacity: hasMediaLoaded ? 1 : 0 }), [hasMediaLoaded]);
 

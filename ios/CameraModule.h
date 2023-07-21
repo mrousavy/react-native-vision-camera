@@ -2,7 +2,7 @@
 #import <React/RCTViewManager.h>
 #import <AVFoundation/AVCaptureAudioDataOutput.h>
 #import <AVFoundation/AVCaptureVideoDataOutput.h>
-#import <CameraNativeComponentSpec/CameraNativeComponentSpec.h>
+#import "CameraNativeComponentSpec.h"
 #import "VisionCamera-Swift.h"
 
 NS_ASSUME_NONNULL_BEGIN

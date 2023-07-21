@@ -65,7 +65,7 @@ Pod::Spec.new do |s|
       s.pod_target_xcconfig    = {
           "HEADER_SEARCH_PATHS" => "\"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/boost-for-react-native\" \"$(PODS_ROOT)/glog\" \"$(PODS_ROOT)/RCT-Folly\" \"${PODS_ROOT}/Headers/Public/React-hermes\" \"${PODS_ROOT}/Headers/Public/hermes-engine\"",
           "OTHER_CPLUSPLUSFLAGS" => "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
-          "OTHER_SWIFT_FLAGS" => "-DNEW_ARCH_ENABLED_SWIFT"
+          "OTHER_SWIFT_FLAGS" => "-DRCT_NEW_ARCH_ENABLED"
       }
 
       s.dependency "React-RCTFabric"

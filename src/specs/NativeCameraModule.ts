@@ -3,9 +3,7 @@ import { TurboModuleRegistry } from 'react-native';
 import type { Double } from 'react-native/Libraries/Types/CodegenTypes';
 
 export interface Spec extends TurboModule {
-  //   readonly getConstants: () => {};
-
-  takePhoto: (
+  takePhoto(
     options?: Readonly<{
       qualityPrioritization?: string;
       flash?: string;
@@ -14,7 +12,7 @@ export interface Spec extends TurboModule {
       enableAutoDistortionCorrection?: boolean;
       skipMetadata?: boolean;
     }>,
-  ) => Promise<
+  ): Promise<
     Readonly<{
       path: string;
       width: Double;
@@ -22,13 +20,13 @@ export interface Spec extends TurboModule {
       isRawPhoto: boolean;
     }>
   >;
-  takeSnapshot: (
+  takeSnapshot(
     options?: Readonly<{
       quality?: number;
       flash?: string;
       skipMetadata?: boolean;
     }>,
-  ) => Promise<
+  ): Promise<
     Readonly<{
       path: string;
       width: Double;
@@ -36,7 +34,7 @@ export interface Spec extends TurboModule {
       isRawPhoto: boolean;
     }>
   >;
-  startRecording: (
+  startRecording(
     options?: Readonly<{
       flash?: string;
       fileType?: string;
@@ -49,17 +47,17 @@ export interface Spec extends TurboModule {
       }>,
       error?: Readonly<{ code: string; message: string; cause?: string }>,
     ) => void,
-  ) => void;
-  pauseRecording: () => Promise<void>;
-  resumeRecording: () => Promise<void>;
-  stopRecording: () => Promise<void>;
-  focus: (point: Readonly<{ x: Double; y: Double }>) => Promise<void>;
-  getAvailableVideoCodecs: (fileType?: string) => Promise<ReadonlyArray<string>>;
-  getAvailableCameraDevices: () => Promise<ReadonlyArray<string>>;
-  getCameraPermissionStatus: () => Promise<string>;
-  getMicrophonePermissionStatus: () => Promise<string>;
-  requestCameraPermission: () => Promise<string>;
-  requestMicrophonePermission: () => Promise<string>;
+  ): void;
+  pauseRecording(): Promise<void>;
+  resumeRecording(): Promise<void>;
+  stopRecording(): Promise<void>;
+  focus(point: Readonly<{ x: Double; y: Double }>): Promise<void>;
+  getAvailableVideoCodecs(fileType?: string): Promise<ReadonlyArray<string>>;
+  getAvailableCameraDevices(): Promise<ReadonlyArray<string>>;
+  getCameraPermissionStatus(): Promise<string>;
+  getMicrophonePermissionStatus(): Promise<string>;
+  requestCameraPermission(): Promise<string>;
+  requestMicrophonePermission(): Promise<string>;
 }
 
-export default TurboModuleRegistry.getEnforcing<Spec>('CameraModule');
+export default TurboModuleRegistry.get<Spec>('CameraModule') as Spec | null;

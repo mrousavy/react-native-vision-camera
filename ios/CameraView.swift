@@ -50,7 +50,7 @@ public final class CameraView: UIView {
   @objc public var audio: NSNumber? // nullable bool
   @objc public var enableFrameProcessor = false
   // props that require format reconfiguring
-  @objc public var format: NSDictionary?
+  @objc public var format: NSMutableDictionary?
   @objc public var fps: NSNumber?
   @objc public var frameProcessorFps: NSNumber = -1.0 // "auto"
   @objc public var hdr: NSNumber? // nullable bool
@@ -62,13 +62,15 @@ public final class CameraView: UIView {
   @objc public var torch = "off"
   @objc public var zoom: NSNumber = 1.0 // in "factor"
   @objc public var videoStabilizationMode: NSString?
-#if !RCT_NEW_ARCH_ENABLED
+  #if RCT_NEW_ARCH_ENABLED
+  @objc public var delegate: RNCameraViewDirectEventDelegate?
+  #else
   // events
   @objc var onInitialized: RCTDirectEventBlock?
   @objc var onError: RCTDirectEventBlock?
   @objc var onFrameProcessorPerformanceSuggestionAvailable: RCTDirectEventBlock?
   @objc var onViewReady: RCTDirectEventBlock?
-#endif
+  #endif
     
   // zoom
   @objc public var enableZoomGesture = false {
@@ -131,6 +133,7 @@ public final class CameraView: UIView {
   // pragma MARK: Setup
   override public init(frame: CGRect) {
     super.init(frame: frame)
+    print("TESTING INIT IN CAMERA")
     videoPreviewLayer.session = captureSession
     videoPreviewLayer.videoGravity = .resizeAspectFill
     videoPreviewLayer.frame = layer.bounds
@@ -177,15 +180,23 @@ public final class CameraView: UIView {
     super.willMove(toSuperview: newSuperview)
     if !isMounted {
       isMounted = true
+    #if RCT_NEW_ARCH_ENABLED
+        guard let delegate = delegate else {
+          return
+        }
+        delegate.onViewReady();
+    #else
       guard let onViewReady = onViewReady else {
         return
       }
       onViewReady(nil)
+    #endif
     }
   }
 
   // pragma MARK: Props updating
   override public final func didSetProps(_ changedProps: [String]!) {
+      print("TESTING DIS SET PROPS IN CAMERA", changedProps.count, isRunning)
     ReactLogger.log(level: .info, message: "Updating \(changedProps.count) prop(s)...")
     let shouldReconfigure = changedProps.contains { propsThatRequireReconfiguration.contains($0) }
     let shouldReconfigureFormat = shouldReconfigure || changedProps.contains("format")
@@ -228,9 +239,12 @@ public final class CameraView: UIView {
           self.zoom(factor: zoomClamped, animated: false)
           self.pinchScaleOffset = zoomClamped
         }
+          
+          print("TESTING BEFORE CHECK ", shouldCheckActive, self.isActive)
 
         if shouldCheckActive && self.captureSession.isRunning != self.isActive {
           if self.isActive {
+              print("TESTING STARTING SESSION")
             ReactLogger.log(level: .info, message: "Starting Session...")
             self.captureSession.startRunning()
             ReactLogger.log(level: .info, message: "Started Session!")
@@ -321,8 +335,9 @@ public final class CameraView: UIView {
 
   // pragma MARK: Event Invokers
   internal final func invokeOnError(_ error: CameraError, cause: NSError? = nil) {
+      print("TESTIGN ON ERROR")
     ReactLogger.log(level: .error, message: "Invoking onError(): \(error.message)")
-    guard let onError = onError else { return }
+
 
     var causeDictionary: [String: Any]?
     if let cause = cause {
@@ -333,21 +348,40 @@ public final class CameraView: UIView {
         "details": cause.userInfo,
       ]
     }
+    #if RCT_NEW_ARCH_ENABLED
+      guard let delegate = delegate else {
+        return
+      }
+      print("TESTING ERROR", error.code, error.message)
+      delegate.onError()
+    #else
+    guard let onError = onError else { return }
     onError([
       "code": error.code,
       "message": error.message,
       "cause": causeDictionary ?? NSNull(),
     ])
+    #endif
   }
 
   internal final func invokeOnInitialized() {
     ReactLogger.log(level: .info, message: "Camera initialized!")
+    #if RCT_NEW_ARCH_ENABLED
+      guard let delegate = delegate else {
+        return
+      }
+      delegate.onInitialized()
+    #else
     guard let onInitialized = onInitialized else { return }
     onInitialized([String: Any]())
+    #endif
   }
 
   internal final func invokeOnFrameProcessorPerformanceSuggestionAvailable(currentFps: Double, suggestedFps: Double) {
     ReactLogger.log(level: .info, message: "Frame Processor Performance Suggestion available!")
+    #if RCT_NEW_ARCH_ENABLED
+     // Nothing
+    #else
     guard let onFrameProcessorPerformanceSuggestionAvailable = onFrameProcessorPerformanceSuggestionAvailable else { return }
 
     if lastSuggestedFrameProcessorFps == suggestedFps { return }
@@ -358,5 +392,14 @@ public final class CameraView: UIView {
       "suggestedFrameProcessorFps": suggestedFps,
     ])
     lastSuggestedFrameProcessorFps = suggestedFps
+    #endif
   }
 }
+
+
+@objc public protocol RNCameraViewDirectEventDelegate: AnyObject { //TODO: Move to a separate file
+    func onInitialized()
+    func onError()
+    func onViewReady()
+}
+

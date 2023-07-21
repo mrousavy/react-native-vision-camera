@@ -1,5 +1,5 @@
 import React from 'react';
-import { NativeModules, NativeSyntheticEvent, NativeMethods, Platform } from 'react-native';
+import { NativeSyntheticEvent, NativeMethods, Platform } from 'react-native';
 import type { FrameProcessorPerformanceSuggestion } from '.';
 import type { CameraDevice } from './CameraDevice';
 import type { ErrorWithCause } from './CameraError';
@@ -103,7 +103,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    */
   public async takePhoto(options: TakePhotoOptions = {}): Promise<PhotoFile> {
     try {
-      return await CameraTurboModule.takePhoto(options);
+      return await CameraTurboModule?.takePhoto(options);
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -130,7 +130,7 @@ export class Camera extends React.PureComponent<CameraProps> {
       throw new CameraCaptureError('capture/capture-type-not-supported', `'takeSnapshot()' is not available on ${Platform.OS}!`);
 
     try {
-      return await CameraTurboModule.takeSnapshot(options);
+      return await CameraTurboModule?.takeSnapshot(options);
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -169,7 +169,7 @@ export class Camera extends React.PureComponent<CameraProps> {
     };
 
     try {
-      return await CameraTurboModule.startRecording({ ...passThroughOptions }, onRecordCallback);
+      return await CameraTurboModule?.startRecording({ ...passThroughOptions }, onRecordCallback);
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -189,7 +189,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    */
   public async stopRecording(): Promise<void> {
     try {
-      return await CameraTurboModule.stopRecording();
+      return await CameraTurboModule?.stopRecording();
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -215,7 +215,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    */
   public async focus(point: Point): Promise<void> {
     try {
-      return await CameraTurboModule.focus(point);
+      return await CameraTurboModule?.focus(point);
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -240,7 +240,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    */
   public static async getAvailableCameraDevices(): Promise<CameraDevice[]> {
     try {
-      return await CameraTurboModule.getAvailableCameraDevices();
+      return await CameraTurboModule?.getAvailableCameraDevices();
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -255,7 +255,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    */
   public static async getCameraPermissionStatus(): Promise<CameraPermissionStatus> {
     try {
-      return await CameraTurboModule.getCameraPermissionStatus();
+      return await CameraTurboModule?.getCameraPermissionStatus();
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -270,7 +270,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    */
   public static async getMicrophonePermissionStatus(): Promise<CameraPermissionStatus> {
     try {
-      return await CameraTurboModule.getMicrophonePermissionStatus();
+      return await CameraTurboModule?.getMicrophonePermissionStatus();
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -285,7 +285,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    */
   public static async requestCameraPermission(): Promise<CameraPermissionRequestResult> {
     try {
-      return await CameraTurboModule.requestCameraPermission();
+      return await CameraTurboModule?.requestCameraPermission();
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -300,7 +300,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    */
   public static async requestMicrophonePermission(): Promise<CameraPermissionRequestResult> {
     try {
-      return await CameraTurboModule.requestMicrophonePermission();
+      return await CameraTurboModule?.requestMicrophonePermission();
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -391,6 +391,7 @@ export class Camera extends React.PureComponent<CameraProps> {
   public render(): React.ReactNode {
     // We remove the big `device` object from the props because we only need to pass `cameraId` to native.
     const { device, frameProcessor, frameProcessorFps, ...props } = this.props;
+    console.log('IS ACTIVE', this.props.preset);
     return (
       <CameraNativeComponent
         {...props}

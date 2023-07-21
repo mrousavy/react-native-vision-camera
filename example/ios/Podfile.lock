@@ -942,7 +942,7 @@ PODS:
     - React-Core
     - React-RCTFabric
     - ReactCommon/turbomodule/core
-  - react-native-cameraroll (5.6.1):
+  - react-native-cameraroll (5.7.2):
     - RCT-Folly
     - RCTRequired
     - RCTTypeSafety
@@ -1449,7 +1449,7 @@ SPEC CHECKSUMS:
   React-jsinspector: c99ac821c8d3668addbe9806c67b148248e80828
   React-logger: 51643121d274c21ca716923edee5fd5189428487
   react-native-blur: 6bcfdad1da9b7ef6cdbe637a502c8883e009cc8b
-  react-native-cameraroll: 4f043b7e10410f482231f2b6830ecc3588b0d858
+  react-native-cameraroll: 5d9523136a929b58f092fd7f0a9a13367a4b46e3
   react-native-safe-area-context: dc3a6849aadda66f7573c0f1fad5bde757b94999
   react-native-slider: 241935e3ea8e47599c317f512f96ee8de607d4cb
   react-native-video: 38e1b731de8e0a947027484d45abb97224fe0b5b
@@ -1472,12 +1472,12 @@ SPEC CHECKSUMS:
   React-utils: d60ffef504983522e67ea57af91b9b06221e016f
   ReactCommon: 60d83b96ccf3ee5921a1ca908afcf686691f306c
   RNGestureHandler: d8224aad6d7081834ae6e6cf925397059485b69e
-  RNReanimated: 3ce2aec600ad2ef47a5927abf2742329d7a190e9
+  RNReanimated: eb4f2c517f18d0cef18ccd4099686ff7cf30bfbb
   RNScreens: 8e13360d58411c3f6ef6ee6592f19a89655dfc57
   RNStaticSafeAreaInsets: 055ddbf5e476321720457cdaeec0ff2ba40ec1b8
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
-  VisionCamera: fca2d782b82b32607b606323188faecaae5c94d6
+  VisionCamera: 82890eeea4e7a86e018c2ab27a9f523d79dc20c7
   Yoga: 92ab64929c1f79204763209c223497c6c8d3ac1e
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 

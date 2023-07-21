@@ -1,5 +1,5 @@
 import type { HostComponent, ViewProps } from 'react-native';
-import type { DirectEventHandler, Double, Int32 } from 'react-native/Libraries/Types/CodegenTypes';
+import type { DirectEventHandler, Double, Int32, WithDefault } from 'react-native/Libraries/Types/CodegenTypes';
 import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
 
 export type VisionCameraComponentType = HostComponent<NativeProps>;
@@ -29,10 +29,10 @@ export interface NativeProps extends ViewProps {
     colorSpaces: string[];
     supportsVideoHDR: boolean;
     supportsPhotoHDR: boolean;
-    // frameRateRanges: ReadonlyArray<{
-    //   minFrameRate: number;
-    //   maxFrameRate: number;
-    // }>;
+    frameRateRanges: ReadonlyArray<{
+      minFrameRate: Int32;
+      maxFrameRate: Int32;
+    }>;
     autoFocusSystem: string;
     videoStabilizationModes: string[];
     pixelFormat: string;
@@ -47,7 +47,7 @@ export interface NativeProps extends ViewProps {
   enableHighQualityPhotos?: boolean;
   orientation?: string;
   onInitialized?: DirectEventHandler<Readonly<{}>>;
-  onError?: DirectEventHandler<Readonly<{}>>;
+  onError?: DirectEventHandler<Readonly<{}>>; // TODO: extend arguments
   onViewReady: DirectEventHandler<Readonly<{}>>;
 }
 
