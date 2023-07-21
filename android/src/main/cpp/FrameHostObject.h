@@ -11,15 +11,15 @@
 #include <string>
 #include <mutex>
 
-#include "java-bindings/JImageProxy.h"
+#include "java-bindings/JFrame.h"
 
 namespace vision {
 
 using namespace facebook;
 
 class JSI_EXPORT FrameHostObject : public jsi::HostObject {
+  explicit FrameHostObject(const jni::alias_ref<JFrame::javaobject>& frame);
  public:
-  explicit FrameHostObject(jni::alias_ref<JImageProxy::javaobject> image);
   ~FrameHostObject();
 
  public:
@@ -27,7 +27,7 @@ class JSI_EXPORT FrameHostObject : public jsi::HostObject {
   std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime &rt) override;
 
  public:
-  jni::global_ref<JImageProxy> frame;
+  jni::global_ref<JFrame> frame;
 
  private:
   static auto constexpr TAG = "VisionCamera";

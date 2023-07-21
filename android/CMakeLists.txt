@@ -32,15 +32,17 @@ add_library(
         ${PACKAGE_NAME}
         SHARED
         ../cpp/JSITypedArray.cpp
-        src/main/cpp/VisionCamera.cpp
-        src/main/cpp/JSIJNIConversion.cpp
         src/main/cpp/FrameHostObject.cpp
-        src/main/cpp/FrameProcessorRuntimeManager.cpp
-        src/main/cpp/CameraView.cpp
-        src/main/cpp/VisionCameraScheduler.cpp
+        src/main/cpp/FrameProcessorPluginHostObject.cpp
+        src/main/cpp/JSIJNIConversion.cpp
+        src/main/cpp/VisionCamera.cpp
+        src/main/cpp/VisionCameraProxy.cpp
+        src/main/cpp/java-bindings/JFrame.cpp
+        src/main/cpp/java-bindings/JFrameProcessor.cpp
         src/main/cpp/java-bindings/JFrameProcessorPlugin.cpp
-        src/main/cpp/java-bindings/JImageProxy.cpp
         src/main/cpp/java-bindings/JHashMap.cpp
+        src/main/cpp/java-bindings/JVisionCameraProxy.cpp
+        src/main/cpp/java-bindings/JVisionCameraScheduler.cpp
 )
 
 # Header Search Paths (includes)

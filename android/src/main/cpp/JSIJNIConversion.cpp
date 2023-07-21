@@ -21,7 +21,7 @@
 #include <folly/dynamic.h>
 
 #include "FrameHostObject.h"
-#include "java-bindings/JImageProxy.h"
+#include "java-bindings/JFrame.h"
 #include "java-bindings/JArrayList.h"
 #include "java-bindings/JHashMap.h"
 
@@ -29,75 +29,9 @@ namespace vision {
 
 using namespace facebook;
 
-jobject JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtime &runtime, const jsi::Value &value) {
-  if (value.isBool()) {
-    // jsi::Bool
-
-    auto boolean = jni::JBoolean::valueOf(value.getBool());
-    return boolean.release();
-
-  } else if (value.isNumber()) {
-    // jsi::Number
-
-    auto number = jni::JDouble::valueOf(value.getNumber());
-    return number.release();
-
-  } else if (value.isNull() || value.isUndefined()) {
-    // jsi::undefined
-
-    return nullptr;
-
-  } else if (value.isString()) {
-    // jsi::String
-
-    auto string = jni::make_jstring(value.getString(runtime).utf8(runtime));
-    return string.release();
-
-  } else if (value.isObject()) {
-    // jsi::Object
-
-    auto object = value.asObject(runtime);
-
-    if (object.isArray(runtime)) {
-      // jsi::Array
-
-      auto dynamic = jsi::dynamicFromValue(runtime, value);
-      auto nativeArray = react::ReadableNativeArray::newObjectCxxArgs(std::move(dynamic));
-      return nativeArray.release();
-
-    } else if (object.isHostObject(runtime)) {
-      // jsi::HostObject
-
-      auto boxedHostObject = object.getHostObject(runtime);
-      auto hostObject = dynamic_cast<FrameHostObject*>(boxedHostObject.get());
-      if (hostObject != nullptr) {
-        // return jni local_ref to the JImageProxy
-        return hostObject->frame.get();
-      } else {
-        // it's different kind of HostObject. We don't support it.
-        throw std::runtime_error("Received an unknown HostObject! Cannot convert to a JNI value.");
-      }
-
-    } else if (object.isFunction(runtime)) {
-      // jsi::Function
-
-      // TODO: Convert Function to Callback
-      throw std::runtime_error("Cannot convert a JS Function to a JNI value (yet)!");
-
-    } else {
-      // jsi::Object
-
-      auto dynamic = jsi::dynamicFromValue(runtime, value);
-      auto map = react::ReadableNativeMap::createWithContents(std::move(dynamic));
-      return map.release();
-    }
-  } else {
-    // unknown jsi type!
-
-    auto stringRepresentation = value.toString(runtime).utf8(runtime);
-    auto message = "Received unknown JSI value! (" + stringRepresentation + ") Cannot convert to a JNI value.";
-    throw std::runtime_error(message);
-  }
+jni::local_ref<react::ReadableNativeMap::javaobject> JSIJNIConversion::convertJSIObjectToJNIMap(jsi::Runtime& runtime, const jsi::Object& object) {
+  auto dynamic = jsi::dynamicFromValue(runtime, jsi::Value(runtime, object));
+  return react::ReadableNativeMap::createWithContents(std::move(dynamic));
 }
 
 jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, const jni::local_ref<jobject>& object) {
@@ -178,10 +112,9 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
     auto hashMap = toHashMapFunc(object.get());
     return convertJNIObjectToJSIValue(runtime, hashMap);
 
-  } else if (object->isInstanceOf(JImageProxy::javaClassStatic())) {
-    // ImageProxy
-
-    auto frame = static_ref_cast<JImageProxy>(object);
+  } else if (object->isInstanceOf(JFrame::javaClassStatic())) {
+    // Frame
+    auto frame = static_ref_cast<JFrame>(object);
 
     // box into HostObject
     auto hostObject = std::make_shared<FrameHostObject>(frame);

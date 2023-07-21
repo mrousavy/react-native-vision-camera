@@ -18,7 +18,7 @@ suspend fun CameraView.focus(pointMap: ReadableMap) {
 
   // Getting the point from the previewView needs to be run on the UI thread
   val point = withContext(coroutineScope.coroutineContext) {
-    previewView.meteringPointFactory.createPoint(x.toFloat(), y.toFloat());
+    previewView.meteringPointFactory.createPoint(x.toFloat(), y.toFloat())
   }
 
   val action = FocusMeteringAction.Builder(point, FocusMeteringAction.FLAG_AF or FocusMeteringAction.FLAG_AE)

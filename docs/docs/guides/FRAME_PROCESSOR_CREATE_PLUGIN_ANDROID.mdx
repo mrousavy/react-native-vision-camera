@@ -55,20 +55,15 @@ For reference see the [CLI's docs](https://github.com/mateusz1913/vision-camera-
 3. Add the following code:
 
 ```java {8}
-import androidx.camera.core.ImageProxy;
+import com.mrousavy.camera.frameprocessor.Frame;
 import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
 
 public class FaceDetectorFrameProcessorPlugin extends FrameProcessorPlugin {
 
   @Override
-  public Object callback(ImageProxy image, ReadableNativeMap arguments) {
+  public Object callback(Frame frame, ReadableNativeMap arguments) {
     // code goes here
     return null;
-  }
-
-  @Override
-  public String getName() {
-    return "detectFaces";
   }
 }
 ```
@@ -86,13 +81,14 @@ import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
 import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
+import com.mrousavy.camera.frameprocessor.FrameProcessorPluginRegistry;
 import javax.annotation.Nonnull;
 
 public class FaceDetectorFrameProcessorPluginPackage implements ReactPackage {
   @NonNull
   @Override
   public List<NativeModule> createNativeModules(@NonNull ReactApplicationContext reactContext) {
-    FrameProcessorPlugin.register(new FaceDetectorFrameProcessorPlugin());
+    FrameProcessorPluginRegistry.addFrameProcessorPlugin("detectFaces", options -> new FaceDetectorFrameProcessorPlugin());
     return Collections.emptyList();
   }
 
@@ -125,18 +121,14 @@ public class FaceDetectorFrameProcessorPluginPackage implements ReactPackage {
 3. Add the following code:
 
 ```kotlin {7}
-import androidx.camera.core.ImageProxy
+import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin
 
 class FaceDetectorFrameProcessorPlugin: FrameProcessorPlugin() {
 
-  override fun callback(image: ImageProxy, arguments: ReadableNativeMap): Any? {
+  override fun callback(frame: Frame, arguments: ReadableNativeMap): Any? {
     // code goes here
     return null
-  }
-
-  override fun getName(): String {
-    return "detectFaces"
   }
 }
 ```
@@ -157,7 +149,9 @@ import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin
 
 class FaceDetectorFrameProcessorPluginPackage : ReactPackage {
   override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
-    FrameProcessorPlugin.register(FaceDetectorFrameProcessorPlugin())
+    FrameProcessorPluginRegistry.addFrameProcessorPlugin("detectFaces") { options ->
+      FaceDetectorFrameProcessorPlugin()
+    }
     return emptyList()
   }
 

@@ -1,19 +1,30 @@
 package com.mrousavy.camera.example;
 
 import android.util.Log;
+
 import androidx.camera.core.ImageProxy;
+
+import com.facebook.react.bridge.ReadableNativeMap;
 import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
+import com.mrousavy.camera.frameprocessor.Frame;
 import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
 
 public class ExampleFrameProcessorPlugin extends FrameProcessorPlugin {
     @Override
-    public Object callback(@NotNull ImageProxy image, @NotNull Object[] params) {
-        Log.d("ExamplePlugin", image.getWidth() + " x " + image.getHeight() + " Image with format #" + image.getFormat() + ". Logging " + params.length + " parameters:");
+    public Object callback(@NotNull Frame frame, @Nullable ReadableNativeMap params) {
+        HashMap<String, Object> hashMap = params != null ? params.toHashMap() : new HashMap<>();
+        ImageProxy image = frame.getImageProxy();
 
-        for (Object param : params) {
-            Log.d("ExamplePlugin", "  -> " + (param == null ? "(null)" : param.toString() + " (" + param.getClass().getName() + ")"));
+        Log.d("ExamplePlugin", image.getWidth() + " x " + image.getHeight() + " Image with format #" + image.getFormat() + ". Logging " + hashMap.size() + " parameters:");
+
+        for (String key : hashMap.keySet()) {
+            Object value = hashMap.get(key);
+            Log.d("ExamplePlugin", "  -> " + (value == null ? "(null)" : value.toString() + " (" + value.getClass().getName() + ")"));
         }
 
         WritableNativeMap map = new WritableNativeMap();
@@ -31,6 +42,6 @@ public class ExampleFrameProcessorPlugin extends FrameProcessorPlugin {
     }
 
     ExampleFrameProcessorPlugin() {
-        super("example_plugin");
+
     }
 }

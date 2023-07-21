@@ -18,7 +18,7 @@ namespace vision {
 
 using namespace facebook;
 
-FrameHostObject::FrameHostObject(jni::alias_ref<JImageProxy::javaobject> image): frame(make_global(image)), _refCount(0) { }
+FrameHostObject::FrameHostObject(const jni::alias_ref<JFrame::javaobject>& frame): frame(make_global(frame)), _refCount(0) { }
 
 FrameHostObject::~FrameHostObject() {
   // Hermes' Garbage Collector (Hades GC) calls destructors on a separate Thread

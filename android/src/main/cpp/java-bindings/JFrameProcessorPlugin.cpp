@@ -12,19 +12,14 @@ namespace vision {
 using namespace facebook;
 using namespace jni;
 
-using TCallback = jobject(alias_ref<JImageProxy::javaobject>, alias_ref<JArrayClass<jobject>>);
+using TCallback = jobject(alias_ref<JFrame::javaobject>, alias_ref<react::ReadableNativeMap::javaobject> params);
 
-local_ref<jobject> JFrameProcessorPlugin::callback(alias_ref<JImageProxy::javaobject> image,
-                                                   alias_ref<JArrayClass<jobject>> params) const {
+local_ref<jobject> JFrameProcessorPlugin::callback(const alias_ref<JFrame::javaobject>& frame,
+                                                   const alias_ref<react::ReadableNativeMap::javaobject>& params) const {
   auto callbackMethod = getClass()->getMethod<TCallback>("callback");
 
-  auto result = callbackMethod(self(), image, params);
+  auto result = callbackMethod(self(), frame, params);
   return make_local(result);
-}
-
-std::string JFrameProcessorPlugin::getName() const {
-  auto getNameMethod = getClass()->getMethod<jstring()>("getName");
-  return getNameMethod(self())->toStdString();
 }
 
 } // namespace vision

@@ -24,15 +24,16 @@ import androidx.lifecycle.*
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.*
-import com.facebook.react.uimanager.events.RCTEventEmitter
-import com.mrousavy.camera.frameprocessor.FrameProcessorRuntimeManager
+import com.mrousavy.camera.frameprocessor.Frame
+import com.mrousavy.camera.frameprocessor.FrameProcessor
+import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin
+import com.mrousavy.camera.frameprocessor.FrameProcessorPluginRegistry
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.guava.await
 import java.lang.IllegalArgumentException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 
@@ -118,8 +119,9 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   internal var camera: Camera? = null
   internal var imageCapture: ImageCapture? = null
   internal var videoCapture: VideoCapture<Recorder>? = null
-  private var imageAnalysis: ImageAnalysis? = null
+  public var frameProcessor: FrameProcessor? = null
   private var preview: Preview? = null
+  private var imageAnalysis: ImageAnalysis? = null
 
   internal var activeVideoRecording: Recording? = null
 
@@ -156,10 +158,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
   private var minZoom: Float = 1f
   private var maxZoom: Float = 1f
 
-  @DoNotStrip
-  private var mHybridData: HybridData? = null
-
-  @Suppress("LiftReturnOrAssignment", "RedundantIf")
+  @Suppress("RedundantIf")
   internal val fallbackToSnapshot: Boolean
     @SuppressLint("UnsafeOptInUsageError")
     get() {
@@ -190,8 +189,6 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
     }
 
   init {
-    mHybridData = initHybrid()
-
     previewView = PreviewView(context)
     previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
     previewView.installHierarchyFitter() // If this is not called correctly, view finder will be black/blank
@@ -243,9 +240,6 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
     videoCapture?.targetRotation = outputRotation
     imageAnalysis?.targetRotation = outputRotation
   }
-
-  private external fun initHybrid(): HybridData
-  private external fun frameProcessorCallback(frame: ImageProxy)
 
   override fun getLifecycle(): Lifecycle {
     return lifecycleRegistry
@@ -461,8 +455,9 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
         imageAnalysis = imageAnalysisBuilder.build().apply {
           setAnalyzer(cameraExecutor) { image ->
             // Call JS Frame Processor
-            frameProcessorCallback(image)
-            // frame gets closed in FrameHostObject implementation (JS ref counting)
+            val frame = Frame(image)
+            frameProcessor?.call(frame)
+            // ...frame gets closed in FrameHostObject implementation via JS ref counting
           }
         }
         useCases.add(imageAnalysis!!)

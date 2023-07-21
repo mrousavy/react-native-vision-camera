@@ -1,16 +1,14 @@
 //
-//  FrameProcessorPluginHostObject.mm
-//  VisionCamera
-//
-//  Created by Marc Rousavy on 21.07.23.
-//  Copyright © 2023 mrousavy. All rights reserved.
+// Created by Marc Rousavy on 21.07.23.
 //
 
-#import "FrameProcessorPluginHostObject.h"
-#import <Foundation/Foundation.h>
-#import <vector>
-#import "FrameHostObject.h"
-#import "JSINSObjectConversion.h"
+#include "FrameProcessorPluginHostObject.h"
+#include <vector>
+#include "FrameHostObject.h"
+#include "JSIJNIConversion.h"
+#include <string>
+
+namespace vision {
 
 using namespace facebook;
 
@@ -27,28 +25,29 @@ jsi::Value FrameProcessorPluginHostObject::get(jsi::Runtime& runtime, const jsi:
     return jsi::Function::createFromHostFunction(runtime,
                                                  jsi::PropNameID::forUtf8(runtime, "call"),
                                                  2,
-                                                 [=](jsi::Runtime& runtime,
-                                                     const jsi::Value& thisValue,
-                                                     const jsi::Value* arguments,
+                                                 [=](jsi::Runtime &runtime,
+                                                     const jsi::Value &thisValue,
+                                                     const jsi::Value *arguments,
                                                      size_t count) -> jsi::Value {
       // Frame is first argument
       auto frameHostObject = arguments[0].asObject(runtime).asHostObject<FrameHostObject>(runtime);
-      Frame* frame = frameHostObject->frame;
+      auto frame = frameHostObject->frame;
 
       // Options are second argument (possibly undefined)
-      NSDictionary* options = nil;
+      local_ref<react::ReadableNativeMap::javaobject> options = nullptr;
       if (count > 1) {
-        auto optionsObject = arguments[1].asObject(runtime);
-        options = JSINSObjectConversion::convertJSIObjectToNSDictionary(runtime, optionsObject, _callInvoker);
+        options = JSIJNIConversion::convertJSIObjectToJNIMap(runtime, arguments[1].asObject(runtime));
       }
 
-      // Call actual Frame Processor Plugin
-      id result = [_plugin callback:frame withArguments:nil];
+      // Call actual plugin
+      auto result = _plugin->callback(frame, options);
 
       // Convert result value to jsi::Value (possibly undefined)
-      return JSINSObjectConversion::convertObjCObjectToJSIValue(runtime, result);
+      return JSIJNIConversion::convertJNIObjectToJSIValue(runtime, result);
     });
   }
 
   return jsi::Value::undefined();
 }
+
+} // namespace vision

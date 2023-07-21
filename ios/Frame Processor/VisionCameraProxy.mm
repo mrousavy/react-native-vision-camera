@@ -177,7 +177,7 @@ jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& 
                                                         const jsi::Value& thisValue,
                                                         const jsi::Value* arguments,
                                                         size_t count) -> jsi::Value {
-      if (count != 1 || !arguments[0].isString()) {
+      if (count < 1 || !arguments[0].isString()) {
         throw jsi::JSError(runtime, "First argument needs to be a string (pluginName)!");
       }
       auto pluginName = arguments[0].asString(runtime).utf8(runtime);
