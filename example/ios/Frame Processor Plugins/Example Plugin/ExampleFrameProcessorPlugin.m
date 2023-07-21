@@ -8,6 +8,7 @@
 #if __has_include(<VisionCamera/FrameProcessorPlugin.h>)
 #import <Foundation/Foundation.h>
 #import <VisionCamera/FrameProcessorPlugin.h>
+#import <VisionCamera/FrameProcessorPluginRegistry.h>
 #import <VisionCamera/Frame.h>
 
 // Example for an Objective-C Frame Processor plugin
@@ -42,7 +43,10 @@
 }
 
 + (void) load {
-  [self registerPlugin:[[ExampleFrameProcessorPlugin alloc] init]];
+  [FrameProcessorPluginRegistry addFrameProcessorPlugin:[ExampleFrameProcessorPlugin name]
+                                        withInitializer:^FrameProcessorPlugin*(NSDictionary* options) {
+    return [[ExampleFrameProcessorPlugin alloc] initWithOptions:options];
+  }];
 }
 
 @end

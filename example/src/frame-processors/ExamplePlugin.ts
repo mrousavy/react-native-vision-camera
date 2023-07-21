@@ -1,16 +1,17 @@
-import { FrameProcessorPlugins, Frame } from 'react-native-vision-camera';
+import { VisionCameraProxy, Frame } from 'react-native-vision-camera';
 
-export function examplePluginSwift(frame: Frame): string[] {
-  'worklet';
-  // @ts-expect-error because this function is dynamically injected by VisionCamera
-  return FrameProcessorPlugins.example_plugin_swift(frame, 'hello!', 'parameter2', true, 42, { test: 0, second: 'test' }, [
-    'another test',
-    5,
-  ]);
-}
+const plugin = VisionCameraProxy.getFrameProcessorPlugin('example_plugin');
 
 export function examplePlugin(frame: Frame): string[] {
   'worklet';
-  // @ts-expect-error because this function is dynamically injected by VisionCamera
-  return FrameProcessorPlugins.example_plugin(frame, 'hello!', 'parameter2', true, 42, { test: 0, second: 'test' }, ['another test', 5]);
+
+  if (plugin == null) throw new Error('Failed to load Frame Processor Plugin "example_plugin"!');
+
+  return plugin.call(frame, {
+    someString: 'hello!',
+    someBoolean: true,
+    someNumber: 42,
+    someObject: { test: 0, second: 'test' },
+    someArray: ['another test', 5],
+  }) as string[];
 }

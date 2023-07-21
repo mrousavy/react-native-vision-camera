@@ -1,16 +1,16 @@
 import React from 'react';
 import { requireNativeComponent, NativeSyntheticEvent, findNodeHandle, NativeMethods, Platform } from 'react-native';
-import type { VideoFileType } from '.';
 import type { CameraDevice } from './CameraDevice';
 import type { ErrorWithCause } from './CameraError';
 import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError';
 import type { CameraProps, FrameProcessor } from './CameraProps';
-import { assertFrameProcessorsAvailable, assertJSIAvailable } from './JSIHelper';
+import { assertJSIAvailable } from './JSIHelper';
 import { CameraModule } from './NativeCameraModule';
 import type { PhotoFile, TakePhotoOptions } from './PhotoFile';
 import type { Point } from './Point';
 import type { TakeSnapshotOptions } from './Snapshot';
-import type { CameraVideoCodec, RecordVideoOptions, VideoFile } from './VideoFile';
+import type { CameraVideoCodec, RecordVideoOptions, VideoFile, VideoFileType } from './VideoFile';
+import { VisionCameraProxy } from './FrameProcessorPlugins';
 
 //#region Types
 export type CameraPermissionStatus = 'authorized' | 'not-determined' | 'denied' | 'restricted';
@@ -82,7 +82,7 @@ export class Camera extends React.PureComponent<CameraProps> {
     this.lastFrameProcessor = undefined;
   }
 
-  private get handle(): number | null {
+  private get handle(): number {
     const nodeHandle = findNodeHandle(this.ref.current);
     if (nodeHandle == null || nodeHandle === -1) {
       throw new CameraRuntimeError(
@@ -312,7 +312,8 @@ export class Camera extends React.PureComponent<CameraProps> {
   public static installFrameProcessorBindings(): void {
     assertJSIAvailable();
     const result = CameraModule.installFrameProcessorBindings() as unknown;
-    if (result !== true) throw new Error('Failed to install Frame Processor JSI bindings!');
+    if (result !== true)
+      throw new CameraRuntimeError('system/frame-processors-unavailable', 'Failed to install Frame Processor JSI bindings!');
   }
 
   /**
@@ -418,15 +419,11 @@ export class Camera extends React.PureComponent<CameraProps> {
 
   //#region Lifecycle
   private setFrameProcessor(frameProcessor: FrameProcessor): void {
-    assertFrameProcessorsAvailable();
-    // @ts-expect-error JSI functions aren't typed
-    global.setFrameProcessor(this.handle, frameProcessor);
+    VisionCameraProxy.setFrameProcessor(this.handle, frameProcessor);
   }
 
   private unsetFrameProcessor(): void {
-    assertFrameProcessorsAvailable();
-    // @ts-expect-error JSI functions aren't typed
-    global.unsetFrameProcessor(this.handle);
+    VisionCameraProxy.removeFrameProcessor(this.handle);
   }
 
   private onViewReady(): void {

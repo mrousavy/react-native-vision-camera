@@ -11,6 +11,7 @@
 #import <jsi/jsi.h>
 
 #import "FrameProcessorPluginRegistry.h"
+#import "FrameProcessorPluginHostObject.h"
 #import "FrameProcessor.h"
 #import "FrameHostObject.h"
 #import "../React Utils/JSIUtils.h"
@@ -30,12 +31,12 @@
 
 // Swift forward-declarations
 __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
-@interface CameraQueues : NSObject
+@interface CameraQueues: NSObject
 @property (nonatomic, class, readonly, strong) dispatch_queue_t _Nonnull videoQueue;
 @end
 
 __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
-@interface CameraView : UIView
+@interface CameraView: UIView
 @property (nonatomic, copy) FrameProcessor* _Nullable frameProcessor;
 #if VISION_CAMERA_ENABLE_SKIA
 - (SkiaRenderer* _Nonnull)getSkiaRenderer;
@@ -119,35 +120,16 @@ void VisionCameraProxy::removeFrameProcessor(jsi::Runtime& runtime, int viewTag)
   });
 }
 
-jsi::Value VisionCameraProxy::getFrameProcessorPlugin(jsi::Runtime& runtime, std::string name) {
+jsi::Value VisionCameraProxy::getFrameProcessorPlugin(jsi::Runtime& runtime, std::string name, const jsi::Object& options) {
   NSString* key = [NSString stringWithUTF8String:name.c_str()];
-  FrameProcessorPlugin* plugin = [FrameProcessorPluginRegistry.frameProcessorPlugins objectForKey:key];
+  NSDictionary* optionsObjc = convertJSIObjectToNSDictionary(runtime, options, _callInvoker);
+  FrameProcessorPlugin* plugin = [FrameProcessorPluginRegistry getPlugin:key withOptions:optionsObjc];
   if (plugin == nil) {
     return jsi::Value::undefined();
   }
   
-  return jsi::Function::createFromHostFunction(runtime,
-                                               jsi::PropNameID::forUtf8(runtime, name),
-                                               2,
-                                               [plugin, this](jsi::Runtime& runtime,
-                                                              const jsi::Value& thisValue,
-                                                              const jsi::Value* arguments,
-                                                              size_t count) -> jsi::Value {
-    // Get the first parameter, which is always the native Frame Host Object.
-    auto frameHostObject = arguments[0].asObject(runtime).asHostObject(runtime);
-    auto frame = static_cast<FrameHostObject*>(frameHostObject.get());
-    
-    // Convert any additional parameters to the Frame Processor to ObjC objects
-    auto args = convertJSICStyleArrayToNSArray(runtime,
-                                               arguments + 1, // start at index 1 since first arg = Frame
-                                               count - 1, // use smaller count
-                                               _callInvoker);
-    // Call the FP Plugin, which might return something.
-    id result = [plugin callback:frame->frame withArguments:args];
-    
-    // Convert the return value (or null) to a JS Value and return it to JS
-    return convertObjCObjectToJSIValue(runtime, result);
-  });
+  auto pluginHostObject = std::make_shared<FrameProcessorPluginHostObject>(plugin, _callInvoker);
+  return jsi::Object::createFromHostObject(runtime, pluginHostObject);
 }
 
 jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {
@@ -199,8 +181,9 @@ jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& 
         throw jsi::JSError(runtime, "First argument needs to be a string (pluginName)!");
       }
       auto pluginName = arguments[0].asString(runtime).utf8(runtime);
+      auto options = count > 1 ? arguments[1].asObject(runtime) : jsi::Object(runtime);
       
-      return this->getFrameProcessorPlugin(runtime, pluginName);
+      return this->getFrameProcessorPlugin(runtime, pluginName, options);
     });
   }
   

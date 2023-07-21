@@ -12,20 +12,21 @@
 
 @implementation FrameProcessorPlugin
 
-- (NSString *)name {
+- (instancetype _Nonnull) initWithOptions:(NSDictionary* _Nullable)options {
+  self = [super init];
+  return self;
+}
+
++ (NSString*)name {
   [NSException raise:NSInternalInconsistencyException
-              format:@"Frame Processor Plugin \"%@\" does not override the `name` getter!", [self name]];
+              format:@"Frame Processor Plugin does not override the `name` getter!"];
   return nil;
 }
 
-- (id _Nullable)callback:(Frame* _Nonnull)frame withArguments:(NSArray<id>* _Nullable)arguments {
+- (id _Nullable)callback:(Frame* _Nonnull)frame withArguments:(NSDictionary* _Nullable)arguments {
   [NSException raise:NSInternalInconsistencyException
-              format:@"Frame Processor Plugin \"%@\" does not override the `callback(frame:withArguments:)` method!", [self name]];
+              format:@"Frame Processor Plugin does not override the `callback(frame:withArguments:)` method!"];
   return nil;
-}
-
-+ (void)registerPlugin:(FrameProcessorPlugin* _Nonnull)plugin {
-  [FrameProcessorPluginRegistry addFrameProcessorPlugin:plugin];
 }
 
 @end
