@@ -11,13 +11,13 @@ namespace vision {
 
 using namespace facebook;
 
-std::vector<jsi::PropNameID> FrameProcessorPluginHostObject::getPropertyNames(jsi::Runtime &runtime) {
+std::vector<jsi::PropNameID> FrameProcessorPluginHostObject::getPropertyNames(jsi::Runtime& runtime) {
   std::vector<jsi::PropNameID> result;
   result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("call")));
   return result;
 }
 
-jsi::Value FrameProcessorPluginHostObject::get(jsi::Runtime &runtime, const jsi::PropNameID &propName) {
+jsi::Value FrameProcessorPluginHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {
   auto name = propName.utf8(runtime);
 
   if (name == "call") {
@@ -33,9 +33,9 @@ jsi::Value FrameProcessorPluginHostObject::get(jsi::Runtime &runtime, const jsi:
       auto frame = frameHostObject->frame;
 
       // Options are second argument (possibly undefined)
-      jobject options = nullptr;
+      local_ref<react::ReadableNativeMap::javaobject> options = nullptr;
       if (count > 1) {
-        options = JSIJNIConversion::convertJSIValueToJNIObject(runtime, arguments[1]);
+        options = JSIJNIConversion::convertJSIObjectToJNIMap(runtime, arguments[1].asObject(runtime));
       }
 
       // Call actual plugin

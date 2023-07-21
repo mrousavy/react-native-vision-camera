@@ -9,12 +9,14 @@
 #include <react-native-worklets/WKTJsiWorklet.h>
 #include <react-native-worklets/WKTJsiWorkletContext.h>
 #include "FrameProcessorPluginHostObject.h"
+#include <react/jni/ReadableNativeMap.h>
 
 namespace vision {
 
 using TSelf = local_ref<HybridClass<JVisionCameraProxy>::jhybriddata>;
 using TJSCallInvokerHolder = jni::alias_ref<facebook::react::CallInvokerHolder::javaobject>;
 using TScheduler = jni::alias_ref<JVisionCameraScheduler::javaobject>;
+using TOptions = jni::local_ref<react::ReadableNativeMap::javaobject>;
 
 JVisionCameraProxy::JVisionCameraProxy(jni::alias_ref<JVisionCameraProxy::jhybridobject> javaThis,
 																			 jsi::Runtime* runtime,
@@ -55,8 +57,8 @@ void JVisionCameraProxy::removeFrameProcessor(int viewTag) {
 }
 
 local_ref<JFrameProcessorPlugin::javaobject> JVisionCameraProxy::getFrameProcessorPlugin(std::string name,
-																																												 jobject options) {
-	auto getFrameProcessorPluginMethod = javaClassLocal()->getMethod<JFrameProcessorPlugin(local_ref<jstring>, jobject)>("setFrameProcessor");
+																																												 TOptions options) {
+	auto getFrameProcessorPluginMethod = javaClassLocal()->getMethod<JFrameProcessorPlugin(local_ref<jstring>, TOptions)>("setFrameProcessor");
 	return getFrameProcessorPluginMethod(_javaPart, make_jstring(name), options);
 }
 

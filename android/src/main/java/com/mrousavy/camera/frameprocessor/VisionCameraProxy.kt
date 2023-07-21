@@ -5,6 +5,7 @@ import androidx.annotation.Keep
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReadableNativeMap
 import com.facebook.react.turbomodule.core.CallInvokerHolderImpl
 import com.facebook.react.uimanager.UIManagerHelper
 import com.mrousavy.camera.CameraView
@@ -26,21 +27,23 @@ class VisionCameraProxy(context: ReactApplicationContext, frameProcessorThread: 
       }
     }
   }
-  private var _hybridData: HybridData
-  private var _context: WeakReference<ReactApplicationContext>
-  private var _scheduler: VisionCameraScheduler
+  @DoNotStrip
+  @Keep
+  private var mHybridData: HybridData
+  private var mContext: WeakReference<ReactApplicationContext>
+  private var mScheduler: VisionCameraScheduler
 
   init {
     val jsCallInvokerHolder = context.catalystInstance.jsCallInvokerHolder as CallInvokerHolderImpl
     val jsRuntimeHolder = context.javaScriptContextHolder.get()
-    _scheduler = VisionCameraScheduler(frameProcessorThread)
-    _context = WeakReference(context)
-    _hybridData = initHybrid(jsRuntimeHolder, jsCallInvokerHolder, _scheduler)
+    mScheduler = VisionCameraScheduler(frameProcessorThread)
+    mContext = WeakReference(context)
+    mHybridData = initHybrid(jsRuntimeHolder, jsCallInvokerHolder, mScheduler)
   }
 
   private fun findCameraViewById(viewId: Int): CameraView {
     Log.d(TAG, "Finding view $viewId...")
-    val ctx = _context.get()
+    val ctx = mContext.get()
     val view = if (ctx != null) UIManagerHelper.getUIManager(ctx, viewId)?.resolveView(viewId) as CameraView? else null
     Log.d(TAG,  if (view != null) "Found view $viewId!" else "Couldn't find view $viewId!")
     return view ?: throw ViewNotFoundError(viewId)
@@ -62,7 +65,7 @@ class VisionCameraProxy(context: ReactApplicationContext, frameProcessorThread: 
 
   @DoNotStrip
   @Keep
-  fun getFrameProcessorPlugin(name: String, options: Any): FrameProcessorPlugin {
+  fun getFrameProcessorPlugin(name: String, options: ReadableNativeMap): FrameProcessorPlugin {
     return FrameProcessorPluginRegistry.getPlugin(name, options)
   }
 

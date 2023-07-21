@@ -15,7 +15,7 @@ using namespace jni;
 using TCallback = jobject(alias_ref<JFrame::javaobject>, alias_ref<jobject>);
 
 local_ref<jobject> JFrameProcessorPlugin::callback(alias_ref<JFrame::javaobject> frame,
-                                                   alias_ref<jobject> params) const {
+                                                   alias_ref<react::ReadableNativeMap::javaobject> params) const {
   auto callbackMethod = getClass()->getMethod<TCallback>("callback");
 
   auto result = callbackMethod(self(), frame, params);

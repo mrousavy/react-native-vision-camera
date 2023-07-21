@@ -53,7 +53,7 @@ int JFrame::getBytesPerRow() const {
 }
 
 local_ref<JArrayByte> JFrame::toByteArray() const {
-  static const auto toByteArrayMethodMethod = getClass()->getMethod<JArrayByte()>("toByteArray");
+  static const auto toByteArrayMethod = getClass()->getMethod<JArrayByte()>("toByteArray");
   return toByteArrayMethod(self());
 }
 

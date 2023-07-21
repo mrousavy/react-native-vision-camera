@@ -65,8 +65,8 @@ void VisionCameraProxy::removeFrameProcessor(int viewTag) {
 	_javaProxy->cthis()->removeFrameProcessor(viewTag);
 }
 
-jsi::Value VisionCameraProxy::getFrameProcessorPlugin(jsi::Runtime& runtime, std::string name, jsi::Value jsOptions) {
-  auto options = JSIJNIConversion::convertJSIValueToJNIObject(runtime, jsOptions);
+jsi::Value VisionCameraProxy::getFrameProcessorPlugin(jsi::Runtime& runtime, std::string name, const jsi::Object& jsOptions) {
+  auto options = JSIJNIConversion::convertJSIObjectToJNIMap(runtime, jsOptions);
 
   auto plugin = _javaProxy->cthis()->getFrameProcessorPlugin(name, options);
 
@@ -123,9 +123,9 @@ jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& 
         throw jsi::JSError(runtime, "First argument needs to be a string (pluginName)!");
       }
       auto pluginName = arguments[0].asString(runtime).utf8(runtime);
-      auto options = jsi::Value(runtime, arguments[1]);
+      auto options = count > 1 ? arguments[1].asObject(runtime) : jsi::Object(runtime);
 
-      return this->getFrameProcessorPlugin(runtime, pluginName, std::move(options));
+      return this->getFrameProcessorPlugin(runtime, pluginName, options);
     });
   }
 

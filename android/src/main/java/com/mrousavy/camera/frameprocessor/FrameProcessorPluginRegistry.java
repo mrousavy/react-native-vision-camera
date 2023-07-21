@@ -1,8 +1,10 @@
 package com.mrousavy.camera.frameprocessor;
 
 import androidx.annotation.Keep;
+import androidx.annotation.Nullable;
 
 import com.facebook.proguard.annotations.DoNotStrip;
+import com.facebook.react.bridge.ReadableNativeMap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,22 +12,20 @@ import java.util.Map;
 @DoNotStrip
 @Keep
 public class FrameProcessorPluginRegistry {
-    private static final Map<String, PluginInitializer> _plugins = new HashMap<>();
+    private static final Map<String, PluginInitializer> Plugins = new HashMap<>();
 
     @DoNotStrip
     @Keep
-    public static void addFrameProcessorPlugin(String name, PluginInitializer pluginInitializer) throws Exception {
-        if (_plugins.containsKey(name)) {
-            throw new Exception("Tried to add a Frame Processor Plugin with a name that already exists! " +
-                    "Either choose unique names, or remove the unused plugin. Name: " + name);
-        }
-        _plugins.put(name, pluginInitializer);
+    public static void addFrameProcessorPlugin(String name, PluginInitializer pluginInitializer) {
+        assert !Plugins.containsKey(name) : "Tried to add a Frame Processor Plugin with a name that already exists! " +
+                "Either choose unique names, or remove the unused plugin. Name: ";
+        Plugins.put(name, pluginInitializer);
     }
 
     @DoNotStrip
     @Keep
-    public static FrameProcessorPlugin getPlugin(String name, Object options) {
-        PluginInitializer initializer = _plugins.get(name);
+    public static FrameProcessorPlugin getPlugin(String name, ReadableNativeMap options) {
+        PluginInitializer initializer = Plugins.get(name);
         if (initializer == null) {
             return null;
         }
@@ -33,6 +33,6 @@ public class FrameProcessorPluginRegistry {
     }
 
     public interface PluginInitializer {
-        FrameProcessorPlugin initializePlugin(Object options);
+        FrameProcessorPlugin initializePlugin(@Nullable ReadableNativeMap options);
     }
 }

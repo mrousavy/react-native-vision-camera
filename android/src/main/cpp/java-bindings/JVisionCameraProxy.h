@@ -7,6 +7,7 @@
 #include <fbjni/fbjni.h>
 #include <jsi/jsi.h>
 #include <react-native-worklets/WKTJsiWorkletContext.h>
+#include <react/jni/ReadableNativeMap.h>
 
 #include "JFrameProcessorPlugin.h"
 #include "JVisionCameraScheduler.h"
@@ -24,7 +25,7 @@ public:
 												 jni::alias_ref<JFrameProcessor::javaobject> frameProcessor);
 	void removeFrameProcessor(int viewTag);
 	jni::local_ref<JFrameProcessorPlugin::javaobject> getFrameProcessorPlugin(std::string name,
-																																						jobject options);
+																																						jni::local_ref<react::ReadableNativeMap::javaobject> options);
 
 public:
 	std::shared_ptr<RNWorklet::JsiWorkletContext> getWorkletContext() { return _workletContext; }

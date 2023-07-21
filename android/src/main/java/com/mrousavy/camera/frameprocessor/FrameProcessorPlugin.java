@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.ImageProxy;
 import com.facebook.proguard.annotations.DoNotStrip;
+import com.facebook.react.bridge.ReadableNativeMap;
 
 /**
  * Declares a Frame Processor Plugin.
@@ -21,5 +22,5 @@ public abstract class FrameProcessorPlugin {
      */
     @DoNotStrip
     @Keep
-    public abstract @Nullable Object callback(@NonNull ImageProxy image, @NonNull Object params);
+    public abstract @Nullable Object callback(@NonNull ImageProxy image, @Nullable ReadableNativeMap params);
 }
