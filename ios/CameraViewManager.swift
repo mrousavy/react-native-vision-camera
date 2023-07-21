@@ -32,7 +32,7 @@ final class CameraViewManager: RCTViewManager {
     #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
       // Called on JS Thread (blocking sync method)
       let result = VisionCameraInstaller.install(to: bridge)
-      return NSNumber(booleanLiteral: result)
+      return NSNumber(value: result)
     #else
       return false as NSNumber
     #endif

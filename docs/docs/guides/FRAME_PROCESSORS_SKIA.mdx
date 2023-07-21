@@ -86,15 +86,6 @@ C++/JSI is used for highly efficient communication between JS and Skia.
 
 Skia Frame Processors ship with additional C++ files which might slightly increase the app's build time. If you're not using Skia Frame Processors at all, you can disable them:
 
-<Tabs
-  groupId="environment"
-  defaultValue="rn"
-  values={[
-    {label: 'React Native', value: 'rn'},
-    {label: 'Expo', value: 'expo'}
-  ]}>
-<TabItem value="rn">
-
 #### Android
 
 Inside your `gradle.properties` file, add the `disableSkia` flag:
@@ -112,30 +103,6 @@ Inside your `Podfile`, add the `VCDisableSkia` flag:
 ```ruby
 $VCDisableSkia = true
 ```
-
-</TabItem>
-
-<TabItem value="expo">
-
-Inside your Expo config (`app.json`, `app.config.json` or `app.config.js`), add the `disableSkia` flag to the `react-native-vision-camera` plugin:
-
-```json
-{
-  "name": "my app",
-  "plugins": [
-    [
-      "react-native-vision-camera",
-      {
-        // ...
-        "disableSkia": true
-      }
-    ]
-  ]
-}
-```
-
-</TabItem>
-</Tabs>
 
 
 <br />
