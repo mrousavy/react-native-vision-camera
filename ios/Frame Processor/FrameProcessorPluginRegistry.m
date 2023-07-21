@@ -1,5 +1,5 @@
 //
-//  FrameProcessorPluginRegistry.mm
+//  FrameProcessorPluginRegistry.m
 //  VisionCamera
 //
 //  Created by Marc Rousavy on 24.03.21.

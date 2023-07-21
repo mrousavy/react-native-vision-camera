@@ -56,10 +56,6 @@ For reference see the [CLI's docs](https://github.com/mateusz1913/vision-camera-
   return self;
 }
 
-+ (NSString *)name {
-  return @"detectFaces";
-}
-
 - (id)callback:(Frame*)frame withArguments:(NSDictionary*)arguments {
   CMSampleBufferRef buffer = frame.buffer;
   UIImageOrientation orientation = frame.orientation;
@@ -68,7 +64,7 @@ For reference see the [CLI's docs](https://github.com/mateusz1913/vision-camera-
 }
 
 + (void) load {
-  [FrameProcessorPluginRegistry addFrameProcessorPlugin:[FaceDetectorFrameProcessorPlugin name]
+  [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"detectFaces"
                                         withInitializer:^FrameProcessorPlugin*(NSDictionary* options) {
     return [[FaceDetectorFrameProcessorPlugin alloc] initWithOptions:options];
   }];
@@ -103,10 +99,6 @@ The Frame Processor Plugin will be exposed to JS through the `VisionCameraProxy`
 ```swift
 @objc(FaceDetectorFrameProcessorPlugin)
 public class FaceDetectorFrameProcessorPlugin: FrameProcessorPlugin {
-  override public static func name() -> String! {
-    return "detectFaces"
-  }
-
   public override func callback(_ frame: Frame!, withArguments arguments: [String:Any]) -> Any {
     let buffer = frame.buffer
     let orientation = frame.orientation
@@ -131,7 +123,7 @@ public class FaceDetectorFrameProcessorPlugin: FrameProcessorPlugin {
 {
   ...
 
-  [FrameProcessorPluginRegistry addFrameProcessorPlugin:[FaceDetectorFrameProcessorPlugin name]
+  [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"detectFaces"
                                         withInitializer:^FrameProcessorPlugin*(NSDictionary* options) {
     return [[FaceDetectorFrameProcessorPlugin alloc] initWithOptions:options];
   }];

@@ -93,14 +93,14 @@ void VisionCameraProxy::setFrameProcessor(jsi::Runtime& runtime, int viewTag, co
     auto anonymousView = [currentBridge.uiManager viewForReactTag:[NSNumber numberWithDouble:viewTag]];
     auto view = static_cast<CameraView*>(anonymousView);
     if (frameProcessorType == "frame-processor") {
-      view.frameProcessor = [[FrameProcessor alloc] initWithWorklet:_workletContext
-                                                            worklet:worklet];
+      view.frameProcessor = [[FrameProcessor alloc] initWithWorklet:worklet
+                                                            context:_workletContext];
       
     } else if (frameProcessorType == "skia-frame-processor") {
 #if VISION_CAMERA_ENABLE_SKIA
       SkiaRenderer* skiaRenderer = [view getSkiaRenderer];
-      view.frameProcessor = [[SkiaFrameProcessor alloc] initWithWorklet:_workletContext
-                                                                worklet:worklet
+      view.frameProcessor = [[SkiaFrameProcessor alloc] initWithWorklet:worklet
+                                                                context:_workletContext
                                                            skiaRenderer:skiaRenderer];
 #else
       throw std::runtime_error("system/skia-unavailable: Skia is not installed!");

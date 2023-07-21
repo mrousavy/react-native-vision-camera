@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B80C0E00260BDDF7001699AB /* FrameProcessorPluginRegistry.mm in Sources */ = {isa = PBXBuildFile; fileRef = B80C0DFF260BDDF7001699AB /* FrameProcessorPluginRegistry.mm */; };
+		B80C0E00260BDDF7001699AB /* FrameProcessorPluginRegistry.m in Sources */ = {isa = PBXBuildFile; fileRef = B80C0DFF260BDDF7001699AB /* FrameProcessorPluginRegistry.m */; };
 		B80E06A0266632F000728644 /* AVAudioSession+updateCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B80E069F266632F000728644 /* AVAudioSession+updateCategory.swift */; };
 		B81BE1BF26B936FF002696CC /* AVCaptureDevice.Format+videoDimensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B81BE1BE26B936FF002696CC /* AVCaptureDevice.Format+videoDimensions.swift */; };
 		B82F3A0B2A6896E3002BB804 /* PreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B82F3A0A2A6896E3002BB804 /* PreviewView.swift */; };
@@ -82,7 +82,7 @@
 		B80C02EB2A6A954D001975E2 /* FrameProcessorPluginHostObject.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessorPluginHostObject.mm; sourceTree = "<group>"; };
 		B80C02EC2A6A9552001975E2 /* FrameProcessorPluginHostObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorPluginHostObject.h; sourceTree = "<group>"; };
 		B80C0DFE260BDD97001699AB /* FrameProcessorPluginRegistry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorPluginRegistry.h; sourceTree = "<group>"; };
-		B80C0DFF260BDDF7001699AB /* FrameProcessorPluginRegistry.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessorPluginRegistry.mm; sourceTree = "<group>"; };
+		B80C0DFF260BDDF7001699AB /* FrameProcessorPluginRegistry.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FrameProcessorPluginRegistry.m; sourceTree = "<group>"; };
 		B80E069F266632F000728644 /* AVAudioSession+updateCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAudioSession+updateCategory.swift"; sourceTree = "<group>"; };
 		B8103E5725FF56F0007A1684 /* Frame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Frame.h; sourceTree = "<group>"; };
 		B8127E382A68871C00B06972 /* SkiaPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkiaPreviewView.swift; sourceTree = "<group>"; };
@@ -101,7 +101,6 @@
 		B86DC970260E2D5200FB17B2 /* AVAudioSession+trySetAllowHaptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAudioSession+trySetAllowHaptics.swift"; sourceTree = "<group>"; };
 		B86DC973260E310600FB17B2 /* CameraView+AVAudioSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraView+AVAudioSession.swift"; sourceTree = "<group>"; };
 		B86DC976260E315100FB17B2 /* CameraView+AVCaptureSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraView+AVCaptureSession.swift"; sourceTree = "<group>"; };
-		B86F803429A90DBD00205E48 /* FrameProcessorPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FrameProcessorPlugin.m; sourceTree = "<group>"; };
 		B882720F26AEB1A100B14107 /* AVCaptureConnection+setInterfaceOrientation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVCaptureConnection+setInterfaceOrientation.swift"; sourceTree = "<group>"; };
 		B887515C25E0102000DB86D6 /* PhotoCaptureDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoCaptureDelegate.swift; sourceTree = "<group>"; };
 		B887515D25E0102000DB86D6 /* CameraView+RecordVideo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CameraView+RecordVideo.swift"; sourceTree = "<group>"; };
@@ -275,9 +274,8 @@
 				B84760A22608EE38004C3180 /* FrameHostObject.h */,
 				B84760A52608EE7C004C3180 /* FrameHostObject.mm */,
 				B80C0DFE260BDD97001699AB /* FrameProcessorPluginRegistry.h */,
-				B80C0DFF260BDDF7001699AB /* FrameProcessorPluginRegistry.mm */,
+				B80C0DFF260BDDF7001699AB /* FrameProcessorPluginRegistry.m */,
 				B88873E5263D46C7008B1D0E /* FrameProcessorPlugin.h */,
-				B86F803429A90DBD00205E48 /* FrameProcessorPlugin.m */,
 				B8E8467D2A696F44000D6A11 /* VisionCameraProxy.h */,
 				B8E8467E2A696F4D000D6A11 /* VisionCameraProxy.mm */,
 				B80C02EC2A6A9552001975E2 /* FrameProcessorPluginHostObject.h */,
@@ -450,7 +448,7 @@
 				B88751A425E0102000DB86D6 /* AVCaptureDevice.Format.AutoFocusSystem+descriptor.swift in Sources */,
 				B8DB3BCC263DC97E004C18D7 /* AVFileType+descriptor.swift in Sources */,
 				B88751A025E0102000DB86D6 /* AVAuthorizationStatus+descriptor.swift in Sources */,
-				B80C0E00260BDDF7001699AB /* FrameProcessorPluginRegistry.mm in Sources */,
+				B80C0E00260BDDF7001699AB /* FrameProcessorPluginRegistry.m in Sources */,
 				B887519C25E0102000DB86D6 /* AVCaptureDevice.TorchMode+descriptor.swift in Sources */,
 				B8994E6C263F03E100069589 /* JSIUtils.mm in Sources */,
 				B88751A525E0102000DB86D6 /* CameraView+Focus.swift in Sources */,

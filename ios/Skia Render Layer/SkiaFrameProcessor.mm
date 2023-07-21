@@ -25,11 +25,11 @@ using namespace facebook;
   std::shared_ptr<RNSkia::JsiSkCanvas> _skiaCanvas;
 }
 
-- (instancetype _Nonnull)initWithWorklet:(std::shared_ptr<RNWorklet::JsiWorkletContext>)context
-                                 worklet:(std::shared_ptr<RNWorklet::JsiWorklet>)worklet
+- (instancetype _Nonnull)initWithWorklet:(std::shared_ptr<RNWorklet::JsiWorklet>)worklet
+                                context:(std::shared_ptr<RNWorklet::JsiWorkletContext>)context
                             skiaRenderer:(SkiaRenderer* _Nonnull)skiaRenderer {
-  if (self = [super initWithWorklet:context
-                            worklet:worklet]) {
+  if (self = [super initWithWorklet:worklet
+                            context:context]) {
     _skiaRenderer = skiaRenderer;
     auto platformContext = std::make_shared<RNSkia::RNSkiOSPlatformContext>(context->getJsRuntime(),
                                                                             RCTBridge.currentBridge);
