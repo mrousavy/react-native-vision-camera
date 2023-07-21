@@ -19,7 +19,7 @@ using namespace jni;
 struct JFrameProcessorPlugin : public JavaClass<JFrameProcessorPlugin> {
   static constexpr auto kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/FrameProcessorPlugin;";
 
- public:
+public:
   /**
    * Call the plugin.
    */
