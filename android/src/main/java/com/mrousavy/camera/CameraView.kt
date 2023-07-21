@@ -26,6 +26,8 @@ import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.*
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
+import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin
+import com.mrousavy.camera.frameprocessor.FrameProcessorPluginRegistry
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.guava.await
@@ -174,6 +176,10 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
             return true
           } else {
             if (video == true && enableFrameProcessor) {
+              FrameProcessorPluginRegistry.addFrameProcessorPlugin("") { options ->
+                FrameProcessorPlugin()
+              }
+
               // Camera supports max. 2 use-cases, but both are occupied by `frameProcessor` and `video`
               return true
             } else {
