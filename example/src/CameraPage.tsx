@@ -229,7 +229,6 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 orientation="portrait"
                 frameProcessorFps={1}
                 onFrameProcessorPerformanceSuggestionAvailable={onFrameProcessorSuggestionAvailable}
-                preset={'high'}
               />
             </TapGestureHandler>
           </Reanimated.View>

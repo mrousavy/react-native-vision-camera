@@ -59,91 +59,83 @@ return self;
     
     NSMutableArray* changedProps = [[NSMutableArray alloc] init];
     
-    NSLog(@"TESTING SETTING IS ACTIVE %i", newViewProps.isActive);
-    if(_view.isActive != newViewProps.isActive){
+    if(oldViewProps.isActive != newViewProps.isActive){
         _view.isActive = newViewProps.isActive;
         [changedProps addObject:@"isActive"];
     }
-    
-    if(_view.cameraId != RCTNSStringFromString(newViewProps.cameraId) && RCTNSStringFromString(newViewProps.cameraId).length > 0){
+    if(oldViewProps.cameraId != newViewProps.cameraId){
         _view.cameraId = RCTNSStringFromString(newViewProps.cameraId);
         [changedProps addObject:@"cameraId"];
     }
-    if(_view.enableDepthData != newViewProps.enableDepthData){
+    if(oldViewProps.enableDepthData != newViewProps.enableDepthData){
         _view.enableDepthData = newViewProps.enableDepthData;
         [changedProps addObject:@"enableDepthData"];
     }
-    if(_view.enableHighQualityPhotos != [NSNumber numberWithBool:newViewProps.enableHighQualityPhotos]){
+    if(oldViewProps.enableHighQualityPhotos != newViewProps.enableHighQualityPhotos){
         _view.enableHighQualityPhotos = [NSNumber numberWithBool:newViewProps.enableHighQualityPhotos];
         [changedProps addObject:@"enableHighQualityPhotos"];
     }
-    if(_view.enablePortraitEffectsMatteDelivery != newViewProps.enablePortraitEffectsMatteDelivery){
+    if(oldViewProps.enablePortraitEffectsMatteDelivery != newViewProps.enablePortraitEffectsMatteDelivery){
         _view.enablePortraitEffectsMatteDelivery = newViewProps.enablePortraitEffectsMatteDelivery;
         [changedProps addObject:@"enablePortraitEffectsMatteDelivery"];
     }
-    if(_view.photo != [NSNumber numberWithBool:newViewProps.photo]){
+    if(oldViewProps.photo != newViewProps.photo){
         _view.photo = [NSNumber numberWithBool:newViewProps.photo];
         [changedProps addObject:@"photo"];
     }
-    if(_view.video != [NSNumber numberWithBool:newViewProps.video]){
+    if(oldViewProps.video != newViewProps.video){
         _view.video = [NSNumber numberWithBool:newViewProps.video];
         [changedProps addObject:@"video"];
     }
-    if(_view.audio != [NSNumber numberWithBool:newViewProps.audio]){
+    if(oldViewProps.audio != newViewProps.audio){
         _view.audio = [NSNumber numberWithBool:newViewProps.audio];
         [changedProps addObject:@"audio"];
     }
-    if(_view.enableFrameProcessor != newViewProps.enableFrameProcessor){
+    if(oldViewProps.enableFrameProcessor != newViewProps.enableFrameProcessor){
         _view.enableFrameProcessor = newViewProps.enableFrameProcessor;
         [changedProps addObject:@"enableFrameProcessor"];
     }
-
-    if(_view.fps != [NSNumber numberWithInt:newViewProps.fps]){
+    if(oldViewProps.fps != newViewProps.fps){
         _view.fps = [NSNumber numberWithInt:newViewProps.fps];
         [changedProps addObject:@"fps"];
     }
-    if(_view.frameProcessorFps != [NSNumber numberWithInt:newViewProps.frameProcessorFps]){
+    if(oldViewProps.frameProcessorFps != newViewProps.frameProcessorFps){
         _view.frameProcessorFps = [NSNumber numberWithInt:newViewProps.frameProcessorFps];
         [changedProps addObject:@"frameProcessorFps"];
     }
-    if(_view.hdr != [NSNumber numberWithInt:newViewProps.hdr]){
+    if(oldViewProps.hdr != newViewProps.hdr){
         _view.hdr = [NSNumber numberWithInt:newViewProps.hdr];
         [changedProps addObject:@"hdr"];
     }
-    if(_view.lowLightBoost != [NSNumber numberWithInt:newViewProps.lowLightBoost]){
+    if(oldViewProps.lowLightBoost != newViewProps.lowLightBoost){
         _view.lowLightBoost = [NSNumber numberWithInt:newViewProps.lowLightBoost];
         [changedProps addObject:@"lowLightBoost"];
     }
-    if(_view.colorSpace != RCTNSStringFromString(newViewProps.colorSpace) && RCTNSStringFromString(newViewProps.colorSpace).length > 0){
+    if(oldViewProps.colorSpace != newViewProps.colorSpace){
         _view.colorSpace = RCTNSStringFromString(newViewProps.colorSpace);
         [changedProps addObject:@"colorSpace"];
     }
-    if(_view.videoStabilizationMode != RCTNSStringFromString(newViewProps.videoStabilizationMode) && RCTNSStringFromString(newViewProps.videoStabilizationMode).length > 0){
+    if(oldViewProps.videoStabilizationMode != newViewProps.videoStabilizationMode){
         _view.videoStabilizationMode = RCTNSStringFromString(newViewProps.videoStabilizationMode);
         [changedProps addObject:@"videoStabilizationMode"];
     }
-    
-    if(_view.preset != RCTNSStringFromString(newViewProps.preset) && RCTNSStringFromString(newViewProps.preset).length > 0){ // Empty preset string breaks starting of the session
+    if(oldViewProps.preset != newViewProps.preset){ // Empty preset string breaks starting of the session
         _view.preset = RCTNSStringFromString(newViewProps.preset);
         [changedProps addObject:@"preset"];
     }
-
-    if(_view.torch != RCTNSStringFromString(newViewProps.torch) && RCTNSStringFromString(newViewProps.torch).length > 0){
+    if(oldViewProps.torch != newViewProps.torch){
         _view.torch = RCTNSStringFromString(newViewProps.torch);
         [changedProps addObject:@"torch"];
     }
-
-    if(_view.orientation != RCTNSStringFromString(newViewProps.orientation) && RCTNSStringFromString(newViewProps.orientation).length > 0){
+    if(oldViewProps.orientation != newViewProps.orientation){
         _view.orientation = RCTNSStringFromString(newViewProps.orientation);
         [changedProps addObject:@"orientation"];
     }
-    
-    if(_view.zoom != [NSNumber numberWithDouble:newViewProps.zoom]){
+    if(oldViewProps.zoom != newViewProps.zoom){
         _view.zoom = [NSNumber numberWithDouble:newViewProps.zoom];
         [changedProps addObject:@"zoom"];
     }
-    
-    if(_view.enableZoomGesture != newViewProps.enableZoomGesture){
+    if(oldViewProps.enableZoomGesture != newViewProps.enableZoomGesture){
         _view.enableZoomGesture = newViewProps.enableZoomGesture;
         [changedProps addObject:@"enableZoomGesture"];
     }
@@ -154,20 +146,22 @@ return self;
 //        NSLog(@"TESTING UPDATING FORMAT");
 //    }
     
+        
     if(_view.format == nil){
         _view.format =[ [NSMutableDictionary alloc] init];
     }
     
     //Checking format props, TODO: find cleaner way to do it
-    if([_view.format valueForKey:@"autoFocusSystem"] != RCTNSStringFromString(newViewProps.format.autoFocusSystem)){
+    if(oldViewProps.format.autoFocusSystem != newViewProps.format.autoFocusSystem){
         [_view.format setValue:RCTNSStringFromString(newViewProps.format.autoFocusSystem) forKey:@"autoFocusSystem"];
+        NSLog(@" TESTING CHANGED FORMAT autoFocusSystem");
         [changedProps addObject:@"format"];
     }
-    if([_view.format valueForKey:@"pixelFormat"] != RCTNSStringFromString(newViewProps.format.pixelFormat)){
+    if(oldViewProps.format.pixelFormat != newViewProps.format.pixelFormat){
         [_view.format setValue:RCTNSStringFromString(newViewProps.format.pixelFormat) forKey:@"pixelFormat"];
+        NSLog(@" TESTING CHANGED FORMAT pixelFormat");
         [changedProps addObject:@"format"];
     }
-    
     
     if(oldViewProps.format.videoStabilizationModes.size() != newViewProps.format.videoStabilizationModes.size()){
         NSMutableArray* newVideoStabilizationModes = [[NSMutableArray alloc] init];
@@ -175,6 +169,7 @@ return self;
             [newVideoStabilizationModes addObject:RCTNSStringFromString(newViewProps.format.videoStabilizationModes.at(i))];
         }
         [_view.format setValue:newVideoStabilizationModes forKey:@"videoStabilizationModes"];
+        NSLog(@" TESTING CHANGED FORMAT videoStabilizationModes");
         [changedProps addObject:@"format"];
     }
     
@@ -184,6 +179,7 @@ return self;
             [newColorSpaces addObject:RCTNSStringFromString(newViewProps.format.colorSpaces.at(i))];
         }
         [_view.format setValue:newColorSpaces forKey:@"colorSpaces"];
+        NSLog(@" TESTING CHANGED FORMAT colorSpaces");
         [changedProps addObject:@"format"];
     }
     
@@ -193,62 +189,64 @@ return self;
             [newFrameRateRanges addObject:@{@"minFrameRate": [NSNumber numberWithInt:newViewProps.format.frameRateRanges.at(i).minFrameRate], @"maxFrameRate": [NSNumber numberWithInt:newViewProps.format.frameRateRanges.at(i).maxFrameRate]}];
         }
         [_view.format setValue:newFrameRateRanges forKey:@"frameRateRanges"];
+        NSLog(@" TESTING CHANGED FORMAT frameRateRanges");
         [changedProps addObject:@"format"];
     }
     
-    if([_view.format valueForKey:@"photoHeight"] != [NSNumber numberWithDouble:newViewProps.format.photoHeight]){
+    if(oldViewProps.format.photoHeight != newViewProps.format.photoHeight){
         [_view.format setValue:[NSNumber numberWithDouble:newViewProps.format.photoHeight] forKey:@"photoHeight"];
+        NSLog(@" TESTING CHANGED FORMAT photoHeight");
         [changedProps addObject:@"format"];
     }
-    if([_view.format valueForKey:@"photoWidth"] != [NSNumber numberWithDouble:newViewProps.format.photoWidth]){
+    if(oldViewProps.format.photoWidth != newViewProps.format.photoWidth){
         [_view.format setValue:[NSNumber numberWithDouble:newViewProps.format.photoWidth] forKey:@"photoWidth"];
+        NSLog(@" TESTING CHANGED FORMAT photoWidth");
         [changedProps addObject:@"format"];
     }
-    if([_view.format valueForKey:@"videoHeight"] != [NSNumber numberWithDouble:newViewProps.format.videoHeight]){
+    if(oldViewProps.format.videoHeight != newViewProps.format.videoHeight){
         [_view.format setValue:[NSNumber numberWithDouble:newViewProps.format.videoHeight] forKey:@"videoHeight"];
+        NSLog(@" TESTING CHANGED FORMAT videoHeight");
         [changedProps addObject:@"format"];
     }
-    if([_view.format valueForKey:@"videoWidth"] != [NSNumber numberWithDouble:newViewProps.format.videoWidth]){
+    if(oldViewProps.format.videoWidth != newViewProps.format.videoWidth){
         [_view.format setValue:[NSNumber numberWithDouble:newViewProps.format.videoWidth] forKey:@"videoWidth"];
+        NSLog(@" TESTING CHANGED FORMAT videoWidth");
         [changedProps addObject:@"format"];
     }
-    if([_view.format valueForKey:@"maxISO"] != [NSNumber numberWithDouble:newViewProps.format.maxISO]){
+    if(oldViewProps.format.maxISO != newViewProps.format.maxISO){
         [_view.format setValue:[NSNumber numberWithDouble:newViewProps.format.maxISO] forKey:@"maxISO"];
+        NSLog(@" TESTING CHANGED FORMAT maxISO");
         [changedProps addObject:@"format"];
     }
-    if([_view.format valueForKey:@"minISO"] != [NSNumber numberWithDouble:newViewProps.format.minISO]){
+    if(oldViewProps.format.minISO != newViewProps.format.minISO){
         [_view.format setValue:[NSNumber numberWithDouble:newViewProps.format.minISO] forKey:@"minISO"];
+        NSLog(@" TESTING CHANGED FORMAT minISO");
         [changedProps addObject:@"format"];
     }
-    if([_view.format valueForKey:@"fieldOfView"] != [NSNumber numberWithDouble:newViewProps.format.fieldOfView]){
+    if(oldViewProps.format.fieldOfView != newViewProps.format.fieldOfView){
         [_view.format setValue:[NSNumber numberWithDouble:newViewProps.format.fieldOfView] forKey:@"fieldOfView"];
+        NSLog(@" TESTING CHANGED FORMAT fieldOfView");
         [changedProps addObject:@"format"];
     }
-    if([_view.format valueForKey:@"maxZoom"] != [NSNumber numberWithDouble:newViewProps.format.maxZoom]){
+    if(oldViewProps.format.maxZoom != newViewProps.format.maxZoom){
         [_view.format setValue:[NSNumber numberWithDouble:newViewProps.format.maxZoom] forKey:@"maxZoom"];
+        NSLog(@" TESTING CHANGED FORMAT maxZoom");
         [changedProps addObject:@"format"];
     }
-    NSNumber* isHighestPhotoQualitySupported = newViewProps.format.isHighestPhotoQualitySupported ? @1 : @0;
-    if([_view.format valueForKey:@"isHighestPhotoQualitySupported"] != isHighestPhotoQualitySupported){
+    
+    if(oldViewProps.format.isHighestPhotoQualitySupported != newViewProps.format.isHighestPhotoQualitySupported){
+        NSNumber* isHighestPhotoQualitySupported = newViewProps.format.isHighestPhotoQualitySupported ? @1 : @0;
         [_view.format setValue:isHighestPhotoQualitySupported forKey:@"isHighestPhotoQualitySupported"];
+        NSLog(@" TESTING CHANGED FORMAT isHighestPhotoQualitySupported");
         [changedProps addObject:@"format"];
     }
-    NSNumber* supportsVideoHDR = newViewProps.format.supportsVideoHDR ? @1 : @0;
-    if([_view.format valueForKey:@"supportsVideoHDR"] != supportsVideoHDR){
+
+    if(oldViewProps.format.supportsVideoHDR != newViewProps.format.supportsVideoHDR){
+        NSNumber* supportsVideoHDR = newViewProps.format.supportsVideoHDR ? @1 : @0;
         [_view.format setValue:supportsVideoHDR forKey:@"supportsVideoHDR"];
+        NSLog(@" TESTING CHANGED FORMAT supportsVideoHDR");
         [changedProps addObject:@"format"];
     }
-    NSNumber* supportsPhotoHDR = newViewProps.format.supportsPhotoHDR ? @1 : @0;
-    if([_view.format valueForKey:@"supportsPhotoHDR"] != supportsPhotoHDR){
-        [_view.format setValue:supportsPhotoHDR forKey:@"supportsPhotoHDR"];
-        [changedProps addObject:@"format"];
-    }
-    
-    
-//    if([_view.format valueForKey:@"autoFocusSystem"] != RCTNSStringFromString(newViewProps.format.autoFocusSystem)){
-//        [_view.format setValue:RCTNSStringFromString(newViewProps.format.autoFocusSystem) forKey:@"autoFocusSystem"];
-//        [changedProps addObject:@"format"];
-//    }
 
     [_view didSetProps:changedProps];
 

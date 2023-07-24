@@ -1472,7 +1472,7 @@ SPEC CHECKSUMS:
   React-utils: d60ffef504983522e67ea57af91b9b06221e016f
   ReactCommon: 60d83b96ccf3ee5921a1ca908afcf686691f306c
   RNGestureHandler: d8224aad6d7081834ae6e6cf925397059485b69e
-  RNReanimated: eb4f2c517f18d0cef18ccd4099686ff7cf30bfbb
+  RNReanimated: 3ce2aec600ad2ef47a5927abf2742329d7a190e9
   RNScreens: 8e13360d58411c3f6ef6ee6592f19a89655dfc57
   RNStaticSafeAreaInsets: 055ddbf5e476321720457cdaeec0ff2ba40ec1b8
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
