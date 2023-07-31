@@ -6,8 +6,7 @@
 //  Copyright © 2022 mrousavy. All rights reserved.
 //
 
-#ifndef SkImageHelpers_h
-#define SkImageHelpers_h
+#pragma once
 
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
@@ -22,7 +21,7 @@
 class SkImageHelpers {
 public:
   SkImageHelpers() = delete;
-  
+
 public:
   /**
    Convert a CMSampleBuffer to an SkImage. Format has to be RGB.
@@ -37,9 +36,7 @@ public:
    The return value should be passed as a sourceRect to a canvas->draw...Rect(..) function, destinationRect should stay the same.
    */
   static SkRect createCenterCropRect(SkRect source, SkRect destination);
-  
+
 private:
   static SkRect inscribe(SkSize size, SkRect rect);
 };
-
-#endif /* SkImageHelpers_h */
