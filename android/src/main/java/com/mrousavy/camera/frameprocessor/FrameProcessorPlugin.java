@@ -16,7 +16,7 @@ public abstract class FrameProcessorPlugin {
      * The actual Frame Processor plugin callback. Called for every frame the ImageAnalyzer receives.
      * @param frame The Frame from the Camera. Don't call .close() on this, as VisionCamera handles that.
      * @return You can return any primitive, map or array you want. See the
-     * <a href="https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors-plugins-overview#types">Types</a>
+     * <a href="https://react-native-vision-camera.com/docs/guides/frame-processors-plugins-overview#types">Types</a>
      * table for a list of supported types.
      */
     @DoNotStrip

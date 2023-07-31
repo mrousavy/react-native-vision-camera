@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: Troubleshooting Guide
-    url: https://mrousavy.github.io/react-native-vision-camera/docs/guides/troubleshooting
+    url: https://react-native-vision-camera.com/docs/guides/troubleshooting
     about: Please read the Troubleshooting Guide before opening an issue.
   - name: VisionCamera Discussions
     url: https://github.com/mrousavy/react-native-vision-camera/discussions

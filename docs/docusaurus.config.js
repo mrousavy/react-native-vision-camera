@@ -1,16 +1,17 @@
 module.exports = {
   title: 'VisionCamera',
   tagline: '📸 The Camera library that sees the vision.',
-  url: 'https://mrousavy.github.io',
-  baseUrl: '/react-native-vision-camera/',
+  url: 'https://react-native-vision-camera.com',
+  baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'throw',
-  favicon: './favicon.ico',
+  favicon: '/favicon.ico',
   organizationName: 'mrousavy',
   projectName: 'react-native-vision-camera',
   themeConfig: {
     algolia: {
-      apiKey: 'ab7f44570bb62d0e07c0f7d92312ed1a',
+      appId: 'HBHXBT6T9E',
+      apiKey: '64bc77eda92b7efcb7003b56815f1113',
       indexName: 'react-native-vision-camera',
     },
     prism: {
@@ -87,24 +88,65 @@ module.exports = {
             },
             {
               label: 'Marc\'s Portfolio',
-              href: 'https://mrousavy.github.io',
+              href: 'https://mrousavy.com',
             },
           ],
         },
       ],
       copyright: `Copyright © ${new Date().getFullYear()} Marc Rousavy`,
     },
+    image: 'img/11.png',
+    metadata: [
+      {
+        name: 'keywords',
+        content: 'documentation, coding, docs, guides, camera, react, native, react-native'
+      },
+      {
+        name: 'og:title',
+        content: 'VisionCamera Documentation'
+      },
+      {
+        name: 'og:type',
+        content: 'application'
+      },
+      {
+        name: 'og:description',
+        content: '📸 The Camera library that sees the vision.'
+      },
+      {
+        name: 'og:image',
+        content: '/img/11.png'
+      },
+    ],
+    announcementBar: {
+      id: 'support_us',
+      content:
+        '<b>I am currently working on <a target="_blank" href="https://github.com/mrousavy/react-native-vision-camera/issues/1376">VisionCamera V3 ✨</a> which brings a lot of new features and a full rewrite on Android. Please consider <a target="_blank" href="https://github.com/sponsors/mrousavy">sponsoring me on GitHub</a> so I can work on this.</b>',
+      backgroundColor: '#ff5c5c',
+      textColor: '#ffffff',
+      isCloseable: false,
+    },
   },
   presets: [
     [
       '@docusaurus/preset-classic',
       {
+        sitemap: {
+          changefreq: 'weekly',
+          priority: 1.0,
+          ignorePatterns: ['/tags/**'],
+          filename: 'sitemap.xml',
+        },
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl: 'https://github.com/mrousavy/react-native-vision-camera/edit/main/docs/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
+        },
+        gtag: {
+          trackingID: 'G-FX9Q0YKV7S',
+          anonymizeIP: false,
         },
       },
     ],

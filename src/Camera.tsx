@@ -36,7 +36,7 @@ type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>;
 /**
  * ### A powerful `<Camera>` component.
  *
- * Read the [VisionCamera documentation](https://mrousavy.github.io/react-native-vision-camera/) for more information.
+ * Read the [VisionCamera documentation](https://react-native-vision-camera.com/) for more information.
  *
  * The `<Camera>` component's most important (and therefore _required_) properties are:
  *
