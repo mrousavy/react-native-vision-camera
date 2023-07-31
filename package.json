@@ -79,7 +79,7 @@
     "@shopify/react-native-skia": "^0.1.197",
     "@types/react": "^18.2.17",
     "@types/react-native": "^0.72.2",
-    "eslint": "^8.46.0",
+    "eslint": "^8.45.0",
     "pod-install": "^0.1.38",
     "prettier": "^3.0.0",
     "react": "^18.2.0",
