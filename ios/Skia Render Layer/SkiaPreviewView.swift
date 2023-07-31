@@ -10,7 +10,6 @@ import Foundation
 
 // MARK: - SkiaPreviewLayer
 
-@available(iOS 13.0, *)
 class SkiaPreviewLayer: CAMetalLayer {
   private var pixelRatio: CGFloat {
     return UIScreen.main.scale
