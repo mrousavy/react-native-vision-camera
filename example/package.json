@@ -42,7 +42,8 @@
     "@types/react-native-vector-icons": "^6.4.13",
     "@types/react-native-video": "^5.0.15",
     "babel-plugin-module-resolver": "^5.0.0",
-    "eslint": "^8.45.0",
+    "eslint": "^8.46.0",
+    "eslint-plugin-prettier": "^5.0.0",
     "metro-react-native-babel-preset": "^0.77.0",
     "prettier": "^3.0.0",
     "typescript": "^5.1.6"
