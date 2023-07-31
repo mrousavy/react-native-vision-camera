@@ -6,12 +6,14 @@ on:
       - main
     paths:
       - '.github/workflows/build-ios.yml'
+      - 'cpp/**'
       - 'ios/**'
       - '*.podspec'
       - 'example/ios/**'
   pull_request:
     paths:
       - '.github/workflows/build-ios.yml'
+      - 'cpp/**'
       - 'ios/**'
       - '*.podspec'
       - 'example/ios/**'
@@ -76,6 +78,7 @@ jobs:
           -destination 'platform=iOS Simulator,name=iPhone 11 Pro' \
           build \
           CODE_SIGNING_ALLOWED=NO | xcpretty"
+
   build-no-skia:
     name: Build iOS Example App without Skia
     runs-on: macOS-latest
@@ -137,6 +140,7 @@ jobs:
           -destination 'platform=iOS Simulator,name=iPhone 11 Pro' \
           build \
           CODE_SIGNING_ALLOWED=NO | xcpretty"
+
   build-no-frame-processors:
     name: Build iOS Example App without Frame Processors
     runs-on: macOS-latest
