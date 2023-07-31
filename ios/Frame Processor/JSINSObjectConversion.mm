@@ -27,6 +27,8 @@
 using namespace facebook;
 using namespace facebook::react;
 
+namespace JSINSObjectConversion {
+
 jsi::Value convertNSNumberToJSIBoolean(jsi::Runtime &runtime, NSNumber *value)
 {
   return jsi::Value((bool)[value boolValue]);
@@ -167,7 +169,7 @@ id convertJSIValueToObjCObject(jsi::Runtime &runtime, const jsi::Value &value, s
     }
     return convertJSIObjectToNSDictionary(runtime, o, jsInvoker);
   }
-
+  
   throw std::runtime_error("Unsupported jsi::jsi::Value kind");
 }
 
@@ -180,35 +182,37 @@ RCTResponseSenderBlock convertJSIFunctionToCallback(jsi::Runtime &runtime, const
       strongWrapper->destroy();
     }
   }];
-
+  
   BOOL __block wrapperWasCalled = NO;
   RCTResponseSenderBlock callback = ^(NSArray *responses) {
     if (wrapperWasCalled) {
       throw std::runtime_error("callback arg cannot be called more than once");
     }
-
+    
     auto strongWrapper = weakWrapper.lock();
     if (!strongWrapper) {
       return;
     }
-
+    
     strongWrapper->jsInvoker().invokeAsync([weakWrapper, responses, blockGuard]() {
       auto strongWrapper2 = weakWrapper.lock();
       if (!strongWrapper2) {
         return;
       }
-
+      
       const jsi::Value* args = convertNSArrayToJSICStyleArray(strongWrapper2->runtime(), responses);
       strongWrapper2->callback().call(strongWrapper2->runtime(), args, static_cast<size_t>(responses.count));
       strongWrapper2->destroy();
       delete[] args;
-
+      
       // Delete the CallbackWrapper when the block gets dealloced without being invoked.
       (void)blockGuard;
     });
-
+    
     wrapperWasCalled = YES;
   };
-
+  
   return [callback copy];
 }
+
+} // namespace JSIJNIObjectConversion
