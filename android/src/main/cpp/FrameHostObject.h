@@ -18,8 +18,8 @@ namespace vision {
 using namespace facebook;
 
 class JSI_EXPORT FrameHostObject : public jsi::HostObject {
-  explicit FrameHostObject(const jni::alias_ref<JFrame::javaobject>& frame);
  public:
+  explicit FrameHostObject(const jni::alias_ref<JFrame::javaobject>& frame);
   ~FrameHostObject();
 
  public:
