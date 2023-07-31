@@ -41,7 +41,7 @@
 + (void) load {
   [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"example_plugin"
                                         withInitializer:^FrameProcessorPlugin*(NSDictionary* options) {
-    return [[ExampleFrameProcessorPlugin alloc] initWithOptions:options];
+    return [[ExampleFrameProcessorPlugin alloc] init];
   }];
 }
 
