@@ -219,19 +219,20 @@ class CameraView(context: Context) : FrameLayout(context) {
   private suspend fun configureCamera(camera: CameraDevice) {
     val imageReader = ImageReader.newInstance(1920, 1080, ImageFormat.YUV_420_888, 2)
 
+    val characteristics = cameraManager.getCameraCharacteristics(camera.id)
+    val isMirrored = characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
+
     imageReader.setOnImageAvailableListener({ reader ->
       Log.d(TAG, "New Image available!")
       val image = reader.acquireNextImage()
       if (image == null) {
         Log.e(TAG, "Failed to get new Image from ImageReader, dropping it...")
       }
-      // TODO: Rotation
-      // TODO: isMirrored
-      val frame = Frame(image, System.currentTimeMillis(), Surface.ROTATION_0, false)
+      val frame = Frame(image, System.currentTimeMillis(), inputRotation, isMirrored)
       frameProcessor?.call(frame)
     }, CameraQueues.videoQueue.handler)
 
-    val frameProcessorOutput = SurfaceOutput(imageReader.surface)
+    val frameProcessorOutput = SurfaceOutput(imageReader.surface, isMirrored)
     val outputs = listOf(frameProcessorOutput)
     val session = camera.createCaptureSession(SessionType.REGULAR, outputs, CameraQueues.cameraQueue)
 

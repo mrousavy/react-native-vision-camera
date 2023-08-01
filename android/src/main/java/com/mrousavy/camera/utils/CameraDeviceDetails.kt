@@ -1,6 +1,8 @@
 package com.mrousavy.camera.utils
 
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraExtensionCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.params.DynamicRangeProfiles
@@ -17,23 +19,23 @@ import com.mrousavy.camera.parsers.parseVideoStabilizationMode
 import kotlin.math.PI
 import kotlin.math.atan
 
-class CameraDevice(private val cameraManager: CameraManager, private val cameraId: String) {
-  private val characteristics = cameraManager.getCameraCharacteristics(cameraId)
+class CameraDeviceDetails(private val cameraManager: CameraManager, private val cameraDevice: CameraDevice) {
+  private val characteristics = cameraManager.getCameraCharacteristics(cameraDevice.id)
   private val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL) ?: CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
   private val capabilities = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES) ?: IntArray(0)
   private val extensions = getSupportedExtensions()
 
   // device characteristics
-  private val isMultiCam = capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA)
-  private val supportsDepthCapture = capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DEPTH_OUTPUT)
+  private val isMultiCam = capabilities.contains(11 /* TODO: CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA */)
+  private val supportsDepthCapture = capabilities.contains(8 /* TODO: CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DEPTH_OUTPUT */)
   private val supportsRawCapture = capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW)
-  private val supportsLowLightBoost = false // TODO: supportsLowLightBoost
+  private val supportsLowLightBoost = extensions.contains(4 /* TODO: CameraExtensionCharacteristics.EXTENSION_NIGHT */)
   private val lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING)!!
   private val hasFlash = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) ?: false
   private val focalLengths = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS) ?: FloatArray(0)
   private val sensorSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)!!
   private val name = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) characteristics.get(CameraCharacteristics.INFO_VERSION)
-                      else null) ?: "${parseLensFacing(lensFacing)} (${cameraId})"
+                      else null) ?: "${parseLensFacing(lensFacing)} (${cameraDevice.id})"
 
   // "formats" (all possible configurations for this device)
   private val zoomRange = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) characteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
@@ -45,7 +47,7 @@ class CameraDevice(private val cameraManager: CameraManager, private val cameraI
   private val isoRange = characteristics.get(CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE) ?: Range(0, 0)
   private val digitalStabilizationModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES) ?: IntArray(0)
   private val opticalStabilizationModes = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_OPTICAL_STABILIZATION) ?: IntArray(0)
-  private val supportsPhotoHdr = false // TODO: supportsPhotoHdr
+  private val supportsPhotoHdr = extensions.contains(3 /* TODO: CameraExtensionCharacteristics.EXTENSION_HDR */)
   private val supportsVideoHdr = getHasVideoHdr()
 
   // see https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture
@@ -54,7 +56,7 @@ class CameraDevice(private val cameraManager: CameraManager, private val cameraI
   // get extensions (HDR, Night Mode, ..)
   private fun getSupportedExtensions(): List<Int> {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-      val extensions = cameraManager.getCameraExtensionCharacteristics(cameraId)
+      val extensions = cameraManager.getCameraExtensionCharacteristics(cameraDevice.id)
       extensions.supportedExtensions
     } else {
       emptyList()
@@ -191,7 +193,7 @@ class CameraDevice(private val cameraManager: CameraManager, private val cameraI
   // convert to React Native JS object (map)
   fun toMap(): ReadableMap {
     val map = Arguments.createMap()
-    map.putString("id", cameraId)
+    map.putString("id", cameraDevice.id)
     map.putArray("devices", getDeviceTypes())
     map.putString("position", parseLensFacing(lensFacing))
     map.putString("name", name)
