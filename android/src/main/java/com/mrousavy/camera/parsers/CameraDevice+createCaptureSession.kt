@@ -14,8 +14,8 @@ import kotlin.coroutines.suspendCoroutine
 
 data class SurfaceOutput(val surface: Surface,
                          val isMirrored: Boolean = false,
-                         val streamUseCase: Long = 0x0 /* DEFAULT */,
-                         val dynamicRangeProfile: Long = 0 /* STANDARD */)
+                         val streamUseCase: Long? = null,
+                         val dynamicRangeProfile: Long? = null)
 
 enum class SessionType {
   REGULAR,
@@ -49,9 +49,9 @@ suspend fun CameraDevice.createCaptureSession(sessionType: SessionType, outputs:
       val outputConfigurations = outputs.map {
         val result = OutputConfiguration(it.surface)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-          result.mirrorMode = if (it.isMirrored) OutputConfiguration.MIRROR_MODE_H else OutputConfiguration.MIRROR_MODE_NONE
-          result.dynamicRangeProfile = it.dynamicRangeProfile
-          result.streamUseCase = it.streamUseCase
+          if (it.isMirrored) result.mirrorMode = OutputConfiguration.MIRROR_MODE_H
+          if (it.dynamicRangeProfile != null) result.dynamicRangeProfile = it.dynamicRangeProfile
+          if (it.streamUseCase != null) result.streamUseCase = it.streamUseCase
         }
         return@map result
       }

@@ -221,12 +221,15 @@ class CameraView(context: Context) : FrameLayout(context) {
 
     imageReader.setOnImageAvailableListener({ reader ->
       Log.d(TAG, "New Image available!")
-      val image = reader.acquireLatestImage()
+      val image = reader.acquireNextImage()
+      if (image == null) {
+        Log.e(TAG, "Failed to get new Image from ImageReader, dropping it...")
+      }
       // TODO: Rotation
       // TODO: isMirrored
       val frame = Frame(image, System.currentTimeMillis(), Surface.ROTATION_0, false)
       frameProcessor?.call(frame)
-    }, null)
+    }, CameraQueues.videoQueue.handler)
 
     val frameProcessorOutput = SurfaceOutput(imageReader.surface)
     val outputs = listOf(frameProcessorOutput)
