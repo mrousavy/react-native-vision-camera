@@ -2,6 +2,7 @@ package com.mrousavy.camera.parsers
 
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
 import android.os.Build
@@ -12,24 +13,42 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
-data class SurfaceOutput(val surface: Surface,
-                         val isMirrored: Boolean = false,
-                         val streamUseCase: Long? = null,
-                         val dynamicRangeProfile: Long? = null)
-
 enum class SessionType {
   REGULAR,
-  HIGH_SPEED,
-  VENDOR;
+  HIGH_SPEED;
 
   fun toSessionType(): Int {
     // TODO: Use actual enum when we are on API Level 28
     return when(this) {
       REGULAR -> 0 /* CameraDevice.SESSION_OPERATION_MODE_NORMAL */
       HIGH_SPEED -> 1 /* CameraDevice.SESSION_OPERATION_MODE_CONSTRAINED_HIGH_SPEED */
-      VENDOR -> 0x8000 /* CameraDevice.SESSION_OPERATION_MODE_VENDOR_START */
     }
   }
+}
+
+enum class OutputType {
+  PHOTO,
+  VIDEO,
+  PREVIEW,
+  VIDEO_AND_PREVIEW;
+
+  fun toOutputType(): Long {
+    // TODO: Use actual enum when we are on API Level 28
+    return when(this) {
+      PHOTO -> 0x2 /* CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE */
+      VIDEO -> 0x3 /* CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD */
+      PREVIEW -> 0x1 /* CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW */
+      VIDEO_AND_PREVIEW -> 0x4 /* CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL */
+    }
+  }
+}
+
+data class SurfaceOutput(val surface: Surface,
+                         val isMirrored: Boolean = false,
+                         val outputType: OutputType? = null,
+                         val dynamicRangeProfile: Long? = null) {
+  val isRepeating: Boolean
+    get() = outputType == OutputType.VIDEO || outputType == OutputType.PREVIEW || outputType == OutputType.VIDEO_AND_PREVIEW
 }
 
 suspend fun CameraDevice.createCaptureSession(sessionType: SessionType, outputs: List<SurfaceOutput>, queue: CameraQueues.CameraQueue): CameraCaptureSession {
@@ -51,7 +70,7 @@ suspend fun CameraDevice.createCaptureSession(sessionType: SessionType, outputs:
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
           if (it.isMirrored) result.mirrorMode = OutputConfiguration.MIRROR_MODE_H
           if (it.dynamicRangeProfile != null) result.dynamicRangeProfile = it.dynamicRangeProfile
-          if (it.streamUseCase != null) result.streamUseCase = it.streamUseCase
+          if (it.outputType != null) result.streamUseCase = it.outputType.toOutputType()
         }
         return@map result
       }

@@ -10,8 +10,10 @@ import android.hardware.camera2.*
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
+import android.hardware.camera2.params.StreamConfigurationMap
 import android.media.ImageReader
 import android.media.ImageReader.OnImageAvailableListener
+import android.media.MediaRecorder
 import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
@@ -23,10 +25,12 @@ import androidx.lifecycle.*
 import com.facebook.react.bridge.*
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
+import com.mrousavy.camera.parsers.OutputType
 import com.mrousavy.camera.parsers.SessionType
 import com.mrousavy.camera.parsers.SurfaceOutput
 import com.mrousavy.camera.parsers.createCaptureSession
 import com.mrousavy.camera.parsers.parseCameraError
+import com.mrousavy.camera.parsers.parseImageFormat
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import java.lang.IllegalArgumentException
@@ -90,6 +94,7 @@ class CameraView(context: Context) : FrameLayout(context) {
   var hdr: Boolean? = null // nullable bool
   var colorSpace: String? = null
   var lowLightBoost: Boolean? = null // nullable bool
+  var previewType: String = "native"
   // other props
   var isActive = false
   var torch = "off"
@@ -103,6 +108,7 @@ class CameraView(context: Context) : FrameLayout(context) {
   // session
   private var cameraSession: CameraCaptureSession? = null
   private val previewView = SurfaceView(context)
+  private var isPreviewSurfaceReady = false
 
   public var frameProcessor: FrameProcessor? = null
 
@@ -136,6 +142,7 @@ class CameraView(context: Context) : FrameLayout(context) {
     previewView.holder.addCallback(object : SurfaceHolder.Callback {
       override fun surfaceCreated(holder: SurfaceHolder) {
         Log.i(TAG, "PreviewView Surface created!")
+        isPreviewSurfaceReady = true
         if (cameraId != null) configureSession()
       }
 
@@ -145,6 +152,7 @@ class CameraView(context: Context) : FrameLayout(context) {
 
       override fun surfaceDestroyed(holder: SurfaceHolder) {
         Log.i(TAG, "PreviewView Surface destroyed!")
+        isPreviewSurfaceReady = false
       }
     })
     addView(previewView)
@@ -230,40 +238,99 @@ class CameraView(context: Context) : FrameLayout(context) {
         invokeOnError(CameraCannotBeOpenedError(cameraId, parseCameraError(error)))
       }
     }, null)
-
-    // TODO: minZoom = camera!!.cameraInfo.zoomState.value?.minZoomRatio ?: 1f
-    // TODO: maxZoom = camera!!.cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
   }
 
   private suspend fun configureCamera(camera: CameraDevice) {
-    val imageReader = ImageReader.newInstance(1920, 1080, ImageFormat.YUV_420_888, 2)
+    if (cameraSession != null) {
+      // Close any existing Session
+      cameraSession?.close()
+    }
 
     val characteristics = cameraManager.getCameraCharacteristics(camera.id)
     val isMirrored = characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
+    val config = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
 
-    // Setting up Video / Frame Processor
-    imageReader.setOnImageAvailableListener({ reader ->
-      Log.d(TAG, "New Image available!")
-      val image = reader.acquireNextImage()
-      if (image == null) {
-        Log.e(TAG, "Failed to get new Image from ImageReader, dropping it...")
-      }
-      val frame = Frame(image, System.currentTimeMillis(), inputRotation, isMirrored)
-      frameProcessor?.call(frame)
-    }, CameraQueues.videoQueue.handler)
+    // TODO: minZoom = camera!!.cameraInfo.zoomState.value?.minZoomRatio ?: 1f
+    // TODO: maxZoom = camera!!.cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
 
-    val frameProcessorOutput = SurfaceOutput(imageReader.surface, isMirrored)
-    val previewOutput = SurfaceOutput(previewView.holder.surface, isMirrored)
-    val outputs = listOf(frameProcessorOutput, previewOutput)
+    val outputs = arrayListOf<SurfaceOutput>()
+
+    if (photo == true) {
+      // Photo output: High quality still images
+      val format = ImageFormat.JPEG
+      // TODO: Let user configure photoSize with format (or new builder API)
+      val photoSize = config.getOutputSizes(format).maxBy { it.height * it.width }
+      val imageReader = ImageReader.newInstance(photoSize.width, photoSize.height, format, 1)
+      imageReader.setOnImageAvailableListener({ reader ->
+        val image = reader.acquireNextImage()
+        Log.d(TAG, "Photo captured! ${image.width} x ${image.height}")
+        image.close()
+      }, CameraQueues.cameraQueue.handler)
+
+      Log.i(TAG, "Creating ${photoSize.width}x${photoSize.height} photo output. (Format: $format)")
+      val photoOutput = SurfaceOutput(imageReader.surface, isMirrored, OutputType.PHOTO)
+      outputs.add(photoOutput)
+    }
+
+    if (video == true || enableFrameProcessor) {
+      // Video or Frame Processor output: High resolution repeating images
+      val format = getVideoFormat(config)
+      // TODO: Let user configure videoSize with format (or new builder API)
+      val videoSize = config.getOutputSizes(format).maxBy { it.height * it.width }
+      val imageReader = ImageReader.newInstance(videoSize.width, videoSize.height, format, 2)
+      imageReader.setOnImageAvailableListener({ reader ->
+        val image = reader.acquireNextImage()
+        if (image == null) {
+          Log.w(TAG, "Failed to get new Image from ImageReader, dropping a Frame...")
+          return@setOnImageAvailableListener
+        }
+        val frame = Frame(image, System.currentTimeMillis(), inputRotation, isMirrored)
+        onFrame(frame)
+      }, CameraQueues.videoQueue.handler)
+
+      Log.i(TAG, "Creating ${videoSize.width}x${videoSize.height} video output. (Format: $format)")
+      val videoOutput = SurfaceOutput(imageReader.surface, isMirrored, OutputType.VIDEO)
+      outputs.add(videoOutput)
+    }
+
+    if (previewType == "native") {
+      // Preview output: Low resolution repeating images
+      val previewOutput = SurfaceOutput(previewView.holder.surface, isMirrored, OutputType.PREVIEW)
+      outputs.add(previewOutput)
+    }
+
     cameraSession = camera.createCaptureSession(SessionType.REGULAR, outputs, CameraQueues.cameraQueue)
 
-    // Start Video / Frame Processor
+    // Start all repeating requests (Video, Frame Processor, Preview)
     val captureRequest = camera.createCaptureRequest(CameraDevice.TEMPLATE_MANUAL)
-    captureRequest.addTarget(imageReader.surface)
-    captureRequest.addTarget(previewView.holder.surface)
+    outputs.forEach { output ->
+      if (output.isRepeating) captureRequest.addTarget(output.surface)
+    }
     cameraSession!!.setRepeatingRequest(captureRequest.build(), null, null)
 
     Log.i(TAG, "Successfully configured Camera Session!")
     invokeOnInitialized()
+  }
+
+  private fun getVideoFormat(config: StreamConfigurationMap): Int {
+    val formats = config.outputFormats
+    if (formats.contains(ImageFormat.YUV_420_888)) {
+      return ImageFormat.YUV_420_888
+    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      if (formats.contains(ImageFormat.YUV_422_888)) {
+        return ImageFormat.YUV_422_888
+      }
+      if (formats.contains(ImageFormat.YUV_444_888)) {
+        return ImageFormat.YUV_444_888
+      }
+      if (formats.contains(ImageFormat.FLEX_RGB_888)) {
+        return ImageFormat.FLEX_RGB_888
+      }
+      if (formats.contains(ImageFormat.FLEX_RGBA_8888)) {
+        return ImageFormat.FLEX_RGBA_8888
+      }
+    }
+    return formats[0]
   }
 }

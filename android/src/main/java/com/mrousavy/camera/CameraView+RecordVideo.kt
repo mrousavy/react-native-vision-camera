@@ -3,8 +3,11 @@ package com.mrousavy.camera
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.media.Image
+import android.util.Log
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
+import com.mrousavy.camera.frameprocessor.Frame
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -43,4 +46,13 @@ fun CameraView.resumeRecording() {
 fun CameraView.stopRecording() {
   // TODO: stopRecording()
   // TODO: disable torch again
+}
+
+fun CameraView.onFrame(frame: Frame) {
+  Log.d(CameraView.TAG, "New Frame available!")
+  if (frameProcessor != null) {
+    frameProcessor?.call(frame)
+  }
+
+  // TODO: Record Video here using MediaCodec
 }
