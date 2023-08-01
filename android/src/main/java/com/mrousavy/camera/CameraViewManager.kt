@@ -150,13 +150,6 @@ class CameraViewManager(reactContext: ReactApplicationContext) : ViewGroupManage
     view.zoom = zoomFloat
   }
 
-  @ReactProp(name = "enableZoomGesture")
-  fun setEnableZoomGesture(view: CameraView, enableZoomGesture: Boolean) {
-    if (view.enableZoomGesture != enableZoomGesture)
-      addChangedPropToTransaction(view, "enableZoomGesture")
-    view.enableZoomGesture = enableZoomGesture
-  }
-
   @ReactProp(name = "orientation")
   fun setOrientation(view: CameraView, orientation: String) {
     if (view.orientation != orientation)

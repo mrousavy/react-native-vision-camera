@@ -1,16 +1,12 @@
 package com.mrousavy.camera.utils
 
 import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraExtensionCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.params.DynamicRangeProfiles
 import android.os.Build
 import android.util.Range
 import android.util.Size
-import androidx.camera.core.CameraSelector
-import androidx.camera.extensions.ExtensionMode
-import androidx.camera.extensions.ExtensionsManager
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
@@ -21,8 +17,7 @@ import com.mrousavy.camera.parsers.parseVideoStabilizationMode
 import kotlin.math.PI
 import kotlin.math.atan
 
-class CameraDevice(private val cameraManager: CameraManager, extensionsManager: ExtensionsManager, private val cameraId: String) {
-  private val cameraSelector = CameraSelector.Builder().byID(cameraId).build()
+class CameraDevice(private val cameraManager: CameraManager, private val cameraId: String) {
   private val characteristics = cameraManager.getCameraCharacteristics(cameraId)
   private val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL) ?: CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
   private val capabilities = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES) ?: IntArray(0)
@@ -32,7 +27,7 @@ class CameraDevice(private val cameraManager: CameraManager, extensionsManager: 
   private val isMultiCam = capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA)
   private val supportsDepthCapture = capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DEPTH_OUTPUT)
   private val supportsRawCapture = capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW)
-  private val supportsLowLightBoost = extensionsManager.isExtensionAvailable(cameraSelector, ExtensionMode.NIGHT) || extensions.contains(CameraExtensionCharacteristics.EXTENSION_NIGHT)
+  private val supportsLowLightBoost = false // TODO: supportsLowLightBoost
   private val lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING)!!
   private val hasFlash = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) ?: false
   private val focalLengths = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS) ?: FloatArray(0)
@@ -50,7 +45,7 @@ class CameraDevice(private val cameraManager: CameraManager, extensionsManager: 
   private val isoRange = characteristics.get(CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE) ?: Range(0, 0)
   private val digitalStabilizationModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES) ?: IntArray(0)
   private val opticalStabilizationModes = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_OPTICAL_STABILIZATION) ?: IntArray(0)
-  private val supportsPhotoHdr = extensionsManager.isExtensionAvailable(cameraSelector, ExtensionMode.HDR) || extensions.contains(CameraExtensionCharacteristics.EXTENSION_HDR)
+  private val supportsPhotoHdr = false // TODO: supportsPhotoHdr
   private val supportsVideoHdr = getHasVideoHdr()
 
   // see https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture

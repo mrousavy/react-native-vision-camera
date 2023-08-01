@@ -1,8 +1,7 @@
 package com.mrousavy.camera.example;
 
+import android.media.Image;
 import android.util.Log;
-
-import androidx.camera.core.ImageProxy;
 
 import com.facebook.react.bridge.ReadableNativeMap;
 import com.facebook.react.bridge.WritableNativeArray;
@@ -18,7 +17,7 @@ public class ExampleFrameProcessorPlugin extends FrameProcessorPlugin {
     @Override
     public Object callback(@NotNull Frame frame, @Nullable ReadableNativeMap params) {
         HashMap<String, Object> hashMap = params != null ? params.toHashMap() : new HashMap<>();
-        ImageProxy image = frame.getImageProxy();
+        Image image = frame.getImage();
 
         Log.d("ExamplePlugin", image.getWidth() + " x " + image.getHeight() + " Image with format #" + image.getFormat() + ". Logging " + hashMap.size() + " parameters:");
 

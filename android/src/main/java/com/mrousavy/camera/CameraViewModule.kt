@@ -6,8 +6,6 @@ import android.content.pm.PackageManager
 import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.util.Log
-import androidx.camera.extensions.ExtensionsManager
-import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
 import com.facebook.react.module.annotations.ReactModule
@@ -146,13 +144,11 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
   fun getAvailableCameraDevices(promise: Promise) {
     coroutineScope.launch {
       withPromise(promise) {
-        val cameraProvider = ProcessCameraProvider.getInstance(reactApplicationContext).await()
-        val extensionsManager = ExtensionsManager.getInstanceAsync(reactApplicationContext, cameraProvider).await()
         val manager = reactApplicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
         val devices = Arguments.createArray()
         manager.cameraIdList.forEach { cameraId ->
-          val device = CameraDevice(manager, extensionsManager, cameraId)
+          val device = CameraDevice(manager, cameraId)
           devices.pushMap(device.toMap())
         }
         promise.resolve(devices)
