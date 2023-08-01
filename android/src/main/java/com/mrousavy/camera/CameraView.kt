@@ -5,18 +5,33 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.graphics.ImageFormat
 import android.hardware.camera2.*
+import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.params.OutputConfiguration
+import android.hardware.camera2.params.SessionConfiguration
+import android.media.ImageReader
+import android.media.ImageReader.OnImageAvailableListener
+import android.os.Build
+import android.os.Handler
+import android.os.HandlerThread
 import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.*
 import com.facebook.react.bridge.*
+import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
+import com.mrousavy.camera.parsers.SessionType
+import com.mrousavy.camera.parsers.SurfaceOutput
+import com.mrousavy.camera.parsers.createCaptureSession
+import com.mrousavy.camera.parsers.parseCameraError
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import java.lang.IllegalArgumentException
 import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import kotlin.math.max
 import kotlin.math.min
 
@@ -49,8 +64,8 @@ import kotlin.math.min
 // TODO: takePhoto() return with jsi::Value Image reference for faster capture
 
 @Suppress("KotlinJniMissingFunction") // I use fbjni, Android Studio is not smart enough to realize that.
-@SuppressLint("ClickableViewAccessibility", "ViewConstructor")
-class CameraView(context: Context, private val frameProcessorThread: ExecutorService) : FrameLayout(context) {
+@SuppressLint("ClickableViewAccessibility", "ViewConstructor", "MissingPermission")
+class CameraView(context: Context) : FrameLayout(context) {
   companion object {
     const val TAG = "CameraView"
     const val TAG_PERF = "CameraView.performance"
@@ -84,6 +99,7 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
 
   // private properties
   private var isMounted = false
+  private val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
   public var frameProcessor: FrameProcessor? = null
 
@@ -169,35 +185,58 @@ class CameraView(context: Context, private val frameProcessorThread: ExecutorSer
    * Configures the camera capture session. This should only be called when the camera device changes.
    */
   private fun configureSession() {
-    try {
-      val startTime = System.currentTimeMillis()
-      Log.i(TAG, "Configuring session...")
-      if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-        throw CameraPermissionError()
-      }
-      if (cameraId == null) {
-        throw NoCameraDeviceError()
-      }
-
-      // TODO: minZoom = camera!!.cameraInfo.zoomState.value?.minZoomRatio ?: 1f
-      // TODO: maxZoom = camera!!.cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
-
-      val duration = System.currentTimeMillis() - startTime
-      Log.i(TAG_PERF, "Session configured in $duration ms!")
-      invokeOnInitialized()
-    } catch (exc: Throwable) {
-      Log.e(TAG, "Failed to configure session: ${exc.message}")
-      throw when (exc) {
-        is CameraError -> exc
-        is IllegalArgumentException -> {
-          if (exc.message?.contains("too many use cases") == true) {
-            ParallelVideoProcessingNotSupportedError(exc)
-          } else {
-            InvalidCameraDeviceError(exc)
-          }
-        }
-        else -> UnknownCameraError(exc)
-      }
+    val startTime = System.currentTimeMillis()
+    Log.i(TAG, "Configuring session...")
+    if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+      throw CameraPermissionError()
     }
+    val cameraId = cameraId ?: throw NoCameraDeviceError()
+
+    Log.i(TAG, "Opening Camera $cameraId...")
+    cameraManager.openCamera(cameraId, object: CameraDevice.StateCallback() {
+      override fun onOpened(camera: CameraDevice) {
+        Log.i(TAG, "Successfully opened Camera Device $cameraId!")
+        CameraQueues.cameraQueue.coroutineScope.launch {
+          configureCamera(camera)
+        }
+      }
+
+      override fun onDisconnected(camera: CameraDevice) {
+        Log.i(TAG, "Camera Device $cameraId has been disconnected! Waiting for reconnect to continue session..")
+        invokeOnError(CameraDisconnectedError(cameraId))
+      }
+
+      override fun onError(camera: CameraDevice, error: Int) {
+        Log.e(TAG, "Failed to open Camera Device $cameraId! Error: $error (${parseCameraError(error)})")
+        invokeOnError(CameraCannotBeOpenedError(cameraId, parseCameraError(error)))
+      }
+    }, null)
+
+    // TODO: minZoom = camera!!.cameraInfo.zoomState.value?.minZoomRatio ?: 1f
+    // TODO: maxZoom = camera!!.cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
+  }
+
+  private suspend fun configureCamera(camera: CameraDevice) {
+    val imageReader = ImageReader.newInstance(1920, 1080, ImageFormat.YUV_420_888, 2)
+
+    imageReader.setOnImageAvailableListener({ reader ->
+      Log.d(TAG, "New Image available!")
+      val image = reader.acquireLatestImage()
+      // TODO: Rotation
+      // TODO: isMirrored
+      val frame = Frame(image, System.currentTimeMillis(), Surface.ROTATION_0, false)
+      frameProcessor?.call(frame)
+    }, null)
+
+    val frameProcessorOutput = SurfaceOutput(imageReader.surface)
+    val outputs = listOf(frameProcessorOutput)
+    val session = camera.createCaptureSession(SessionType.REGULAR, outputs, CameraQueues.cameraQueue)
+
+    val captureRequest = camera.createCaptureRequest(CameraDevice.TEMPLATE_MANUAL)
+    captureRequest.addTarget(imageReader.surface)
+    session.setRepeatingRequest(captureRequest.build(), null, null)
+
+    Log.i(TAG, "Successfully configured Camera Session!")
+    invokeOnInitialized()
   }
 }

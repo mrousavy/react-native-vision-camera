@@ -54,6 +54,8 @@ class LowLightBoostNotContainedInFormatError : CameraError(
 )
 
 class CameraNotReadyError : CameraError("session", "camera-not-ready", "The Camera is not ready yet! Wait for the onInitialized() callback!")
+class CameraCannotBeOpenedError(cameraId: String, error: String) : CameraError("session", "camera-cannot-be-opened", "The given Camera device (id: $cameraId) could not be opened! Error: $error")
+class CameraDisconnectedError(cameraId: String) : CameraError("session", "camera-has-been-disconnected", "The given Camera device (id: $cameraId) has been disconnected!")
 
 class VideoNotEnabledError : CameraError("capture", "video-not-enabled", "Video capture is disabled! Pass `video={true}` to enable video recordings.")
 class PhotoNotEnabledError : CameraError("capture", "photo-not-enabled", "Photo capture is disabled! Pass `photo={true}` to enable photo capture.")

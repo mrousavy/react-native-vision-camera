@@ -30,12 +30,10 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
     var RequestCode = 10
   }
 
-  var frameProcessorThread: ExecutorService = Executors.newSingleThreadExecutor()
   private val coroutineScope = CoroutineScope(Dispatchers.Default) // TODO: or Dispatchers.Main?
 
   override fun invalidate() {
     super.invalidate()
-    frameProcessorThread.shutdown()
     if (coroutineScope.isActive) {
       coroutineScope.cancel("CameraViewModule has been destroyed.")
     }
@@ -55,7 +53,7 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
   @ReactMethod(isBlockingSynchronousMethod = true)
   fun installFrameProcessorBindings(): Boolean {
     return try {
-      val proxy = VisionCameraProxy(reactApplicationContext, frameProcessorThread)
+      val proxy = VisionCameraProxy(reactApplicationContext)
       VisionCameraInstaller.install(proxy)
       true
     } catch (e: Error) {

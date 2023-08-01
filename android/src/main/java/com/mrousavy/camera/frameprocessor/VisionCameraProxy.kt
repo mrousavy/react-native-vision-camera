@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutorService
 
 
 @Suppress("KotlinJniMissingFunction") // we use fbjni.
-class VisionCameraProxy(context: ReactApplicationContext, frameProcessorThread: ExecutorService) {
+class VisionCameraProxy(context: ReactApplicationContext) {
   companion object {
     const val TAG = "VisionCameraProxy"
     init {
@@ -38,7 +38,7 @@ class VisionCameraProxy(context: ReactApplicationContext, frameProcessorThread: 
   init {
     val jsCallInvokerHolder = context.catalystInstance.jsCallInvokerHolder as CallInvokerHolderImpl
     val jsRuntimeHolder = context.javaScriptContextHolder.get()
-    mScheduler = VisionCameraScheduler(frameProcessorThread)
+    mScheduler = VisionCameraScheduler()
     mContext = WeakReference(context)
     mHybridData = initHybrid(jsRuntimeHolder, jsCallInvokerHolder, mScheduler)
   }

@@ -11,8 +11,7 @@ import com.facebook.react.uimanager.annotations.ReactProp
 class CameraViewManager(reactContext: ReactApplicationContext) : ViewGroupManager<CameraView>() {
 
   public override fun createViewInstance(context: ThemedReactContext): CameraView {
-    val cameraViewModule = context.getNativeModule(CameraViewModule::class.java)!!
-    return CameraView(context, cameraViewModule.frameProcessorThread)
+    return CameraView(context)
   }
 
   override fun onAfterUpdateTransaction(view: CameraView) {

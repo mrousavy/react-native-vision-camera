@@ -23,6 +23,8 @@ export type FormatError =
   | 'format/invalid-color-space';
 export type SessionError =
   | 'session/camera-not-ready'
+  | 'session/camera-cannot-be-opened'
+  | 'session/camera-has-been-disconnected'
   | 'session/audio-session-setup-failed'
   | 'session/audio-in-use-by-other-app'
   | 'session/audio-session-failed-to-activate';
