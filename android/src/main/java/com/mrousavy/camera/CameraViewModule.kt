@@ -146,7 +146,7 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
 
         val devices = Arguments.createArray()
         manager.cameraIdList.forEach { cameraId ->
-          val device = CameraDevice(manager, cameraId)
+          val device = CameraDeviceDetails(manager, cameraId)
           devices.pushMap(device.toMap())
         }
         promise.resolve(devices)

@@ -68,7 +68,6 @@ import kotlin.math.min
 class CameraView(context: Context) : FrameLayout(context) {
   companion object {
     const val TAG = "CameraView"
-    const val TAG_PERF = "CameraView.performance"
 
     private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "fps", "hdr", "lowLightBoost", "photo", "video", "enableFrameProcessor")
     private val arrayListOfZoom = arrayListOf("zoom")
@@ -101,6 +100,10 @@ class CameraView(context: Context) : FrameLayout(context) {
   private var isMounted = false
   private val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
+  // session
+  private var cameraSession: CameraCaptureSession? = null
+  private val previewView = SurfaceView(context)
+
   public var frameProcessor: FrameProcessor? = null
 
   private val inputRotation: Int
@@ -128,6 +131,23 @@ class CameraView(context: Context) : FrameLayout(context) {
   private var maxZoom: Float = 1f
 
   init {
+    this.installHierarchyFitter()
+    previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+    previewView.holder.addCallback(object : SurfaceHolder.Callback {
+      override fun surfaceCreated(holder: SurfaceHolder) {
+        Log.i(TAG, "PreviewView Surface created!")
+        if (cameraId != null) configureSession()
+      }
+
+      override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+        Log.i(TAG, "PreviewView Surface resized!")
+      }
+
+      override fun surfaceDestroyed(holder: SurfaceHolder) {
+        Log.i(TAG, "PreviewView Surface destroyed!")
+      }
+    })
+    addView(previewView)
   }
 
   override fun onConfigurationChanged(newConfig: Configuration?) {
@@ -163,7 +183,7 @@ class CameraView(context: Context) : FrameLayout(context) {
         // TODO: updateLifecycleState()
       }
       if (shouldReconfigureSession) {
-        configureSession()
+        // configureSession()
       }
       if (shouldReconfigureZoom) {
         val zoomClamped = max(min(zoom, maxZoom), minZoom)
@@ -185,7 +205,6 @@ class CameraView(context: Context) : FrameLayout(context) {
    * Configures the camera capture session. This should only be called when the camera device changes.
    */
   private fun configureSession() {
-    val startTime = System.currentTimeMillis()
     Log.i(TAG, "Configuring session...")
     if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
       throw CameraPermissionError()
@@ -222,6 +241,7 @@ class CameraView(context: Context) : FrameLayout(context) {
     val characteristics = cameraManager.getCameraCharacteristics(camera.id)
     val isMirrored = characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
 
+    // Setting up Video / Frame Processor
     imageReader.setOnImageAvailableListener({ reader ->
       Log.d(TAG, "New Image available!")
       val image = reader.acquireNextImage()
@@ -233,12 +253,15 @@ class CameraView(context: Context) : FrameLayout(context) {
     }, CameraQueues.videoQueue.handler)
 
     val frameProcessorOutput = SurfaceOutput(imageReader.surface, isMirrored)
-    val outputs = listOf(frameProcessorOutput)
-    val session = camera.createCaptureSession(SessionType.REGULAR, outputs, CameraQueues.cameraQueue)
+    val previewOutput = SurfaceOutput(previewView.holder.surface, isMirrored)
+    val outputs = listOf(frameProcessorOutput, previewOutput)
+    cameraSession = camera.createCaptureSession(SessionType.REGULAR, outputs, CameraQueues.cameraQueue)
 
+    // Start Video / Frame Processor
     val captureRequest = camera.createCaptureRequest(CameraDevice.TEMPLATE_MANUAL)
     captureRequest.addTarget(imageReader.surface)
-    session.setRepeatingRequest(captureRequest.build(), null, null)
+    captureRequest.addTarget(previewView.holder.surface)
+    cameraSession!!.setRepeatingRequest(captureRequest.build(), null, null)
 
     Log.i(TAG, "Successfully configured Camera Session!")
     invokeOnInitialized()

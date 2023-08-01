@@ -19,8 +19,8 @@ import com.mrousavy.camera.parsers.parseVideoStabilizationMode
 import kotlin.math.PI
 import kotlin.math.atan
 
-class CameraDeviceDetails(private val cameraManager: CameraManager, private val cameraDevice: CameraDevice) {
-  private val characteristics = cameraManager.getCameraCharacteristics(cameraDevice.id)
+class CameraDeviceDetails(private val cameraManager: CameraManager, private val cameraId: String) {
+  private val characteristics = cameraManager.getCameraCharacteristics(cameraId)
   private val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL) ?: CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
   private val capabilities = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES) ?: IntArray(0)
   private val extensions = getSupportedExtensions()
@@ -35,7 +35,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
   private val focalLengths = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS) ?: FloatArray(0)
   private val sensorSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)!!
   private val name = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) characteristics.get(CameraCharacteristics.INFO_VERSION)
-                      else null) ?: "${parseLensFacing(lensFacing)} (${cameraDevice.id})"
+                      else null) ?: "${parseLensFacing(lensFacing)} (${cameraId})"
 
   // "formats" (all possible configurations for this device)
   private val zoomRange = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) characteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
@@ -56,7 +56,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
   // get extensions (HDR, Night Mode, ..)
   private fun getSupportedExtensions(): List<Int> {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-      val extensions = cameraManager.getCameraExtensionCharacteristics(cameraDevice.id)
+      val extensions = cameraManager.getCameraExtensionCharacteristics(cameraId)
       extensions.supportedExtensions
     } else {
       emptyList()
@@ -193,7 +193,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
   // convert to React Native JS object (map)
   fun toMap(): ReadableMap {
     val map = Arguments.createMap()
-    map.putString("id", cameraDevice.id)
+    map.putString("id", cameraId)
     map.putArray("devices", getDeviceTypes())
     map.putString("position", parseLensFacing(lensFacing))
     map.putString("name", name)
