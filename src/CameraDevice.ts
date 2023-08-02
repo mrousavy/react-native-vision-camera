@@ -120,12 +120,6 @@ export interface CameraDeviceFormat {
    */
   videoWidth: number;
   /**
-   * A boolean value specifying whether this format supports the highest possible photo quality that can be delivered on the current platform.
-   *
-   * @platform iOS 13.0+
-   */
-  isHighestPhotoQualitySupported?: boolean;
-  /**
    * Maximum supported ISO value
    */
   maxISO: number;

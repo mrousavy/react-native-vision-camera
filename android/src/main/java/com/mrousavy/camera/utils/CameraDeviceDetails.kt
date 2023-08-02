@@ -125,14 +125,11 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
   }
 
   private fun buildFormatMap(outputSize: Size, outputFormat: Int, fpsRange: Range<Int>): ReadableMap {
-    val highResSizes = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) cameraConfig.getHighResolutionOutputSizes(outputFormat) else null) ?: emptyArray()
-
     val map = Arguments.createMap()
     map.putInt("photoHeight", outputSize.height)
     map.putInt("photoWidth", outputSize.width)
     map.putInt("videoHeight", outputSize.height)
     map.putInt("videoWidth", outputSize.width)
-    map.putBoolean("isHighestPhotoQualitySupported", highResSizes.contains(outputSize))
     map.putInt("maxISO", isoRange.upper)
     map.putInt("minISO", isoRange.lower)
     map.putDouble("fieldOfView", getFieldOfView())

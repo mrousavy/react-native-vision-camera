@@ -53,10 +53,6 @@ extension AVCaptureDevice.Format {
       "pixelFormat": CMFormatDescriptionGetMediaSubType(formatDescription).toString(),
     ]
 
-    if #available(iOS 13.0, *) {
-      dict["isHighestPhotoQualitySupported"] = self.isHighestPhotoQualitySupported
-    }
-
     return dict
   }
 }
