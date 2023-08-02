@@ -6,17 +6,11 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.ImageFormat
+import android.graphics.PixelFormat
 import android.hardware.camera2.*
 import android.hardware.camera2.CameraDevice
-import android.hardware.camera2.params.OutputConfiguration
-import android.hardware.camera2.params.SessionConfiguration
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.media.ImageReader
-import android.media.ImageReader.OnImageAvailableListener
-import android.media.MediaRecorder
-import android.os.Build
-import android.os.Handler
-import android.os.HandlerThread
 import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
@@ -25,17 +19,13 @@ import androidx.lifecycle.*
 import com.facebook.react.bridge.*
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
-import com.mrousavy.camera.parsers.OutputType
-import com.mrousavy.camera.parsers.SessionType
-import com.mrousavy.camera.parsers.SurfaceOutput
-import com.mrousavy.camera.parsers.createCaptureSession
+import com.mrousavy.camera.utils.OutputType
+import com.mrousavy.camera.utils.SessionType
+import com.mrousavy.camera.utils.SurfaceOutput
+import com.mrousavy.camera.utils.createCaptureSession
 import com.mrousavy.camera.parsers.parseCameraError
-import com.mrousavy.camera.parsers.parseImageFormat
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
-import java.lang.IllegalArgumentException
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 import kotlin.math.max
 import kotlin.math.min
 
@@ -299,7 +289,7 @@ class CameraView(context: Context) : FrameLayout(context) {
       outputs.add(previewOutput)
     }
 
-    cameraSession = camera.createCaptureSession(SessionType.REGULAR, outputs, CameraQueues.cameraQueue)
+    cameraSession = camera.createCaptureSession(cameraManager, SessionType.REGULAR, outputs, CameraQueues.cameraQueue)
 
     // Start all repeating requests (Video, Frame Processor, Preview)
     val captureRequest = camera.createCaptureRequest(CameraDevice.TEMPLATE_MANUAL)
@@ -317,20 +307,11 @@ class CameraView(context: Context) : FrameLayout(context) {
     if (formats.contains(ImageFormat.YUV_420_888)) {
       return ImageFormat.YUV_420_888
     }
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-      if (formats.contains(ImageFormat.YUV_422_888)) {
-        return ImageFormat.YUV_422_888
-      }
-      if (formats.contains(ImageFormat.YUV_444_888)) {
-        return ImageFormat.YUV_444_888
-      }
-      if (formats.contains(ImageFormat.FLEX_RGB_888)) {
-        return ImageFormat.FLEX_RGB_888
-      }
-      if (formats.contains(ImageFormat.FLEX_RGBA_8888)) {
-        return ImageFormat.FLEX_RGBA_8888
-      }
+    if (formats.contains(PixelFormat.RGB_888)) {
+      return PixelFormat.RGB_888;
     }
+    Log.w(TAG, "Couldn't find YUV_420_888 or RGB_888 format for Video " +
+      "Recording, using unknown format instead.. (${formats[0]})")
     return formats[0]
   }
 }

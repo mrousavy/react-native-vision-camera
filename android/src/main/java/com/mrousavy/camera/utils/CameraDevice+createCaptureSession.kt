@@ -1,14 +1,17 @@
-package com.mrousavy.camera.parsers
+package com.mrousavy.camera.utils
 
 import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
-import android.hardware.camera2.CameraMetadata
+import android.hardware.camera2.CameraManager
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
 import android.os.Build
+import android.util.Log
 import android.view.Surface
 import com.mrousavy.camera.CameraQueues
-import java.util.concurrent.Executor
+import com.mrousavy.camera.CameraView
+import com.mrousavy.camera.parsers.parseHardwareLevel
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -51,7 +54,7 @@ data class SurfaceOutput(val surface: Surface,
     get() = outputType == OutputType.VIDEO || outputType == OutputType.PREVIEW || outputType == OutputType.VIDEO_AND_PREVIEW
 }
 
-suspend fun CameraDevice.createCaptureSession(sessionType: SessionType, outputs: List<SurfaceOutput>, queue: CameraQueues.CameraQueue): CameraCaptureSession {
+suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager, sessionType: SessionType, outputs: List<SurfaceOutput>, queue: CameraQueues.CameraQueue): CameraCaptureSession {
   return suspendCoroutine { continuation ->
 
     val callback = object : CameraCaptureSession.StateCallback() {
@@ -63,6 +66,10 @@ suspend fun CameraDevice.createCaptureSession(sessionType: SessionType, outputs:
         continuation.resumeWithException(RuntimeException("Failed to configure the Camera Session!"))
       }
     }
+
+    val characteristics = cameraManager.getCameraCharacteristics(this.id)
+    val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
+    Log.i(CameraView.TAG, "Creating Capture Session on ${parseHardwareLevel(hardwareLevel)} device...")
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
       val outputConfigurations = outputs.map {

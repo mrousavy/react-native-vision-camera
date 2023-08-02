@@ -13,6 +13,7 @@ import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.parsers.bigger
+import com.mrousavy.camera.parsers.parseHardwareLevel
 import com.mrousavy.camera.parsers.parseImageFormat
 import com.mrousavy.camera.parsers.parseLensFacing
 import com.mrousavy.camera.parsers.parseVideoStabilizationMode
@@ -208,6 +209,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     map.putDouble("minZoom", minZoom)
     map.putDouble("maxZoom", maxZoom)
     map.putDouble("neutralZoom", 1.0) // Zoom is always relative to 1.0 on Android
+    map.putString("hardwareLevel", parseHardwareLevel(hardwareLevel))
 
     map.putArray("formats", getFormats())
 

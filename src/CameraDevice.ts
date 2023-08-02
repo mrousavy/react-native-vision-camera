@@ -281,4 +281,10 @@ export interface CameraDevice {
    * Specifies whether this device supports focusing ({@linkcode Camera.focus | Camera.focus(...)})
    */
   supportsFocus: boolean;
+  /**
+   * The hardware level of the Camera.
+   * - On Android, some older devices are running at a `legacy` or `limited` level which means they are running in a backwards compatible mode.
+   * - On iOS, all devices are `full`.
+   */
+  hardwareLevel: 'legacy' | 'limited' | 'full';
 }
