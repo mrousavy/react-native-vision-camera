@@ -19,8 +19,7 @@ import UIKit
 // CameraView+TakePhoto
 // TODO: Photo HDR
 
-private let propsThatRequireReconfiguration = ["cameraId",
-                                               "enableDepthData",
+private let propsThatRequireReconfiguration = ["enableDepthData",
                                                "enableHighQualityPhotos",
                                                "enablePortraitEffectsMatteDelivery",
                                                "photo",
@@ -173,12 +172,13 @@ public final class CameraView: UIView {
   // pragma MARK: Props updating
   override public final func didSetProps(_ changedProps: [String]!) {
     ReactLogger.log(level: .info, message: "Updating \(changedProps.count) prop(s)...")
-    let shouldReconfigure = changedProps.contains { propsThatRequireReconfiguration.contains($0) }
-    let shouldReconfigureFormat = shouldReconfigure || changedProps.contains("format")
+    let shouldReconfigure = changedProps.contains("cameraId")
+    let shouldReconfigureSession = shouldReconfigure || changedProps.contains { propsThatRequireReconfiguration.contains($0) }
+    let shouldReconfigureFormat = shouldReconfigureSession || changedProps.contains("format")
     let shouldReconfigureDevice = shouldReconfigureFormat || changedProps.contains { propsThatRequireDeviceReconfiguration.contains($0) }
     let shouldReconfigureAudioSession = changedProps.contains("audio")
 
-    let willReconfigure = shouldReconfigure || shouldReconfigureFormat || shouldReconfigureDevice
+    let willReconfigure = shouldReconfigureSession || shouldReconfigureFormat || shouldReconfigureDevice
 
     let shouldCheckActive = willReconfigure || changedProps.contains("isActive") || captureSession.isRunning != isActive
     let shouldUpdateTorch = willReconfigure || changedProps.contains("torch") || shouldCheckActive
@@ -197,7 +197,7 @@ public final class CameraView: UIView {
       }
     }
 
-    if shouldReconfigure ||
+    if shouldReconfigureSession ||
       shouldReconfigureAudioSession ||
       shouldCheckActive ||
       shouldUpdateTorch ||
@@ -209,6 +209,9 @@ public final class CameraView: UIView {
       CameraQueues.cameraQueue.async {
         // Video Configuration
         if shouldReconfigure {
+          self.configureCameraInput()
+        }
+        if shouldReconfigureSession {
           self.configureCaptureSession()
         }
         if shouldReconfigureFormat {

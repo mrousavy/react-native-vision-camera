@@ -14,32 +14,19 @@ import Foundation
  */
 extension CameraView {
   // pragma MARK: Configure Capture Session
-
-  /**
-   Configures the Capture Session.
-   */
-  final func configureCaptureSession() {
-    ReactLogger.log(level: .info, message: "Configuring Session...")
-    isReady = false
-
-    #if targetEnvironment(simulator)
-      invokeOnError(.device(.notAvailableOnSimulator))
-      return
-    #endif
-
-    guard cameraId != nil else {
+  
+  final func configureCameraInput() {
+    guard let cameraId = cameraId as? String else {
       invokeOnError(.device(.noDevice))
       return
     }
-    let cameraId = self.cameraId! as String
 
     ReactLogger.log(level: .info, message: "Initializing Camera with device \(cameraId)...")
     captureSession.beginConfiguration()
     defer {
       captureSession.commitConfiguration()
     }
-
-    // pragma MARK: Capture Session Inputs
+    
     // Video Input
     do {
       if let videoDeviceInput = videoDeviceInput {
@@ -60,6 +47,24 @@ extension CameraView {
     } catch {
       invokeOnError(.device(.invalid))
       return
+    }
+  }
+
+  /**
+   Configures the Capture Session.
+   */
+  final func configureCaptureSession() {
+    ReactLogger.log(level: .info, message: "Configuring Session...")
+    isReady = false
+
+    #if targetEnvironment(simulator)
+      invokeOnError(.device(.notAvailableOnSimulator))
+      return
+    #endif
+    
+    captureSession.beginConfiguration()
+    defer {
+      captureSession.commitConfiguration()
     }
 
     // pragma MARK: Capture Session Outputs
