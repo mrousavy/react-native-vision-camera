@@ -200,6 +200,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
     const values = examplePlugin(frame);
+    console.log(Math.random(), _WORKLET);
     console.log(JSON.stringify(values));
   }, []);
 

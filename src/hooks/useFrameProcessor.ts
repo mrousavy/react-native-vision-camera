@@ -1,19 +1,7 @@
-/* global _setGlobalConsole */
-
 import { DependencyList, useCallback } from 'react';
 import type { Frame } from '../Frame';
-import { runOnJS } from 'react-native-reanimated';
-
-function isChromeDebugger(): boolean {
-  // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-  return !(global as any).nativeCallSyncHook || (global as any).__REMOTEDEV__;
-}
-
-const IS_CHROME_DEBUGGER = isChromeDebugger();
 
 type FrameProcessor = (frame: Frame) => void;
-
-const capturableConsole = { ...console };
 
 /**
  * Returns a memoized Frame Processor function wich you can pass to the `<Camera>`. (See ["Frame Processors"](https://react-native-vision-camera.com/docs/guides/frame-processors))
