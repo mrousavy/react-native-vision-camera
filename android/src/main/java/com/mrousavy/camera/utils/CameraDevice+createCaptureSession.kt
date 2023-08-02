@@ -80,8 +80,8 @@ fun supportsOutputType(characteristics: CameraCharacteristics, outputType: Outpu
 fun getMaxRecordResolution(cameraId: String): Size {
   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
     val profiles = CamcorderProfile.getAll(cameraId, CamcorderProfile.QUALITY_HIGH)
-    if (profiles != null) {
-      val highestProfile = profiles.videoProfiles.maxBy { it.width * it.height }
+    val highestProfile = profiles?.videoProfiles?.maxBy { it.width * it.height }
+    if (highestProfile != null) {
       return Size(highestProfile.width, highestProfile.height)
     }
   }

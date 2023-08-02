@@ -147,7 +147,8 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
       val outputSizes = cameraConfig.getOutputSizes(outputFormat).toMutableList()
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
         // High resolution Photo sizes that are not able to run at 20FPS+
-        outputSizes.addAll(cameraConfig.getHighResolutionOutputSizes(outputFormat))
+        val highResSizes = cameraConfig.getHighResolutionOutputSizes(outputFormat)
+        if (highResSizes != null) outputSizes.addAll(highResSizes)
       }
       outputSizes.forEach { outputSize ->
         val frameDuration = cameraConfig.getOutputMinFrameDuration(outputFormat, outputSize)
