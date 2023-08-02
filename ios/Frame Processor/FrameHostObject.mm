@@ -23,6 +23,7 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isMirrored")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("timestamp")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isDrawable")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("pixelFormat")));
   // Conversion
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toArrayBuffer")));
@@ -153,6 +154,19 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     auto timestamp = CMSampleBufferGetPresentationTimeStamp(frame.buffer);
     auto seconds = static_cast<double>(CMTimeGetSeconds(timestamp));
     return jsi::Value(seconds * 1000.0);
+  }
+  if (name == "pixelFormat") {
+    auto format = CMSampleBufferGetFormatDescription(frame.buffer);
+    auto mediaType = CMFormatDescriptionGetMediaSubType(format);
+    switch (mediaType) {
+      case kCVPixelFormatType_32BGRA:
+        return jsi::String::createFromUtf8(runtime, "rgb");
+      case kCVPixelFormatType_420YpCbCr8BiPlanarFullRange:
+      case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
+        return jsi::String::createFromUtf8(runtime, "yuv");
+      default:
+        return jsi::String::createFromUtf8(runtime, "unknown");
+    }
   }
   if (name == "bytesPerRow") {
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);

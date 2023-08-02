@@ -11,6 +11,7 @@ import android.hardware.camera2.*
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.media.ImageReader
+import android.os.Build
 import android.util.Log
 import android.view.*
 import android.widget.FrameLayout
@@ -265,6 +266,7 @@ class CameraView(context: Context) : FrameLayout(context) {
     if (video == true || enableFrameProcessor) {
       // Video or Frame Processor output: High resolution repeating images
       val format = getVideoFormat(config)
+      config.inputFormats
       // TODO: Let user configure videoSize with format (or new builder API)
       val videoSize = config.getOutputSizes(format).maxBy { it.height * it.width }
       val imageReader = ImageReader.newInstance(videoSize.width, videoSize.height, format, 2)
@@ -304,6 +306,7 @@ class CameraView(context: Context) : FrameLayout(context) {
 
   private fun getVideoFormat(config: StreamConfigurationMap): Int {
     val formats = config.outputFormats
+    Log.i(TAG, "Device supports ${formats.size} output formats: ${formats.joinToString(", ")}")
     if (formats.contains(ImageFormat.YUV_420_888)) {
       return ImageFormat.YUV_420_888
     }

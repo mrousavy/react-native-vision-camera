@@ -1,5 +1,6 @@
 import type { SkCanvas, SkPaint } from '@shopify/react-native-skia';
 import type { Orientation } from './Orientation';
+import { PixelFormat } from './PixelFormat';
 
 /**
  * A single frame, as seen by the camera.
@@ -40,6 +41,10 @@ export interface Frame {
    * consideration when running a frame processor. See also: `isMirrored`
    */
   orientation: Orientation;
+  /**
+   * Represents the pixel-format of the Frame.
+   */
+  pixelFormat: PixelFormat;
 
   /**
    * Get the underlying data of the Frame as a uint8 array buffer.

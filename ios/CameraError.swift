@@ -132,9 +132,9 @@ enum FormatError {
     case .invalidFormat:
       return "The given format was invalid. Did you check if the current device supports the given format by using `getAvailableCameraDevices(...)`?"
     case let .invalidFps(fps):
-      return "The given FPS were not valid for the currently selected format. Make sure you select a format which `frameRateRanges` includes \(fps) FPS!"
+      return "The given format cannot run at \(fps) FPS! Make sure your FPS is lower than `format.maxFps` but higher than `format.minFps`."
     case .invalidHdr:
-      return "The currently selected format does not support HDR capture! Make sure you select a format which `frameRateRanges` includes `supportsPhotoHDR`!"
+      return "The currently selected format does not support HDR capture! Make sure you select a format which includes `supportsPhotoHDR`!"
     case let .invalidColorSpace(colorSpace):
       return "The currently selected format does not support the colorSpace \"\(colorSpace)\"! " +
         "Make sure you select a format which `colorSpaces` includes \"\(colorSpace)\"!"

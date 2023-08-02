@@ -99,11 +99,6 @@ export type AutoFocusSystem = 'contrast-detection' | 'phase-detection' | 'none';
  */
 export type VideoStabilizationMode = 'off' | 'standard' | 'cinematic' | 'cinematic-extended' | 'auto';
 
-export interface FrameRateRange {
-  minFrameRate: number;
-  maxFrameRate: number;
-}
-
 /**
  * A Camera Device's video format. Do not create instances of this type yourself, only use {@linkcode Camera.getAvailableCameraDevices | Camera.getAvailableCameraDevices()}.
  */
@@ -161,9 +156,13 @@ export interface CameraDeviceFormat {
    */
   supportsPhotoHDR: boolean;
   /**
-   * All available frame rate ranges. You can query this to find the highest frame rate available
+   * The minum frame rate this Format needs to run at. High resolution formats often run at lower frame rates.
    */
-  frameRateRanges: FrameRateRange[];
+  minFps: number;
+  /**
+   * The maximum frame rate this Format is able to run at. High resolution formats often run at lower frame rates.
+   */
+  maxFps: number;
   /**
    * Specifies this format's auto focus system.
    */

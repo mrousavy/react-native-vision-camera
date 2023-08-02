@@ -20,6 +20,18 @@ extension AVCaptureDevice.Format {
   var videoStabilizationModes: [AVCaptureVideoStabilizationMode] {
     return getAllVideoStabilizationModes().filter { self.isVideoStabilizationModeSupported($0) }
   }
+  var minFrameRate: Float64 {
+    let maxRange = videoSupportedFrameRateRanges.max { l, r in
+      return l.maxFrameRate < r.maxFrameRate
+    }
+    return maxRange?.maxFrameRate ?? 0
+  }
+  var maxFrameRate: Float64 {
+    let maxRange = videoSupportedFrameRateRanges.max { l, r in
+      return l.maxFrameRate < r.maxFrameRate
+    }
+    return maxRange?.maxFrameRate ?? 0
+  }
 
   func toDictionary() -> [String: Any] {
     var dict: [String: Any] = [
@@ -36,12 +48,8 @@ extension AVCaptureDevice.Format {
       "colorSpaces": supportedColorSpaces.map(\.descriptor),
       "supportsVideoHDR": isVideoHDRSupported,
       "supportsPhotoHDR": false,
-      "frameRateRanges": videoSupportedFrameRateRanges.map {
-        [
-          "minFrameRate": $0.minFrameRate,
-          "maxFrameRate": $0.maxFrameRate,
-        ]
-      },
+      "minFps": minFrameRate,
+      "maxFps": maxFrameRate,
       "pixelFormat": CMFormatDescriptionGetMediaSubType(formatDescription).toString(),
     ]
 

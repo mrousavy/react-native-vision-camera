@@ -1,6 +1,9 @@
 package com.mrousavy.camera.frameprocessor;
 
+import static com.mrousavy.camera.parsers.ImageFormat_StringKt.parseImageFormat;
+
 import android.graphics.ImageFormat;
+import android.graphics.PixelFormat;
 import android.media.Image;
 import com.facebook.proguard.annotations.DoNotStrip;
 import java.nio.ByteBuffer;
@@ -72,6 +75,12 @@ public class Frame {
         if (rotation >= 225 && rotation < 315)
             return "landscapeLeft";
         return "portrait";
+    }
+
+    @SuppressWarnings("unused")
+    @DoNotStrip
+    public String getPixelFormat() {
+        return parseImageFormat(image.getFormat());
     }
 
     @SuppressWarnings("unused")

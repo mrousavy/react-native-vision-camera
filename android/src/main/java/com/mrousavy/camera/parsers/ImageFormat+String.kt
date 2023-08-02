@@ -1,6 +1,7 @@
 package com.mrousavy.camera.parsers
 
 import android.graphics.ImageFormat
+import android.graphics.PixelFormat
 
 /**
  * Parses ImageFormat/PixelFormat int to a string representation useable for the TypeScript types.
@@ -8,6 +9,10 @@ import android.graphics.ImageFormat
 fun parseImageFormat(imageFormat: Int): String {
   return when (imageFormat) {
     ImageFormat.YUV_420_888 -> "yuv"
+    ImageFormat.JPEG -> "rgb"
+    PixelFormat.RGB_888 -> "rgb"
+    else -> "unknown"
+    /*
     ImageFormat.YUV_422_888 -> "yuv"
     ImageFormat.YUV_444_888 -> "yuv"
     ImageFormat.JPEG -> "jpeg"
@@ -17,8 +22,6 @@ fun parseImageFormat(imageFormat: Int): String {
     ImageFormat.HEIC -> "heic"
     ImageFormat.PRIVATE -> "private"
     ImageFormat.DEPTH16 -> "depth-16"
-    else -> "unknown"
-    /*
     ImageFormat.UNKNOWN -> "TODOFILL"
     ImageFormat.RGB_565 -> "TODOFILL"
     ImageFormat.YV12 -> "TODOFILL"

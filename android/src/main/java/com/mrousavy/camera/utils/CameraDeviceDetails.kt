@@ -75,21 +75,6 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     return false
   }
 
-  private fun createFrameRateRanges(ranges: Array<Range<Int>>): ReadableArray {
-    val array = Arguments.createArray()
-    ranges.forEach { range ->
-      val map = Arguments.createMap()
-      map.putInt("minFrameRate", range.lower)
-      map.putInt("maxFrameRate", range.upper)
-      array.pushMap(map)
-    }
-    return array
-  }
-
-  private fun createFrameRateRanges(minFps: Int, maxFps: Int): ReadableArray {
-    return createFrameRateRanges(arrayOf(Range(minFps, maxFps)))
-  }
-
   private fun createColorSpaces(): ReadableArray {
     val array = Arguments.createArray()
     array.pushString("yuv")
@@ -139,7 +124,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     return 2 * atan(sensorSize.bigger / (focalLengths[0] * 2)) * (180 / PI)
   }
 
-  private fun buildFormatMap(outputSize: Size, outputFormat: Int, fpsRanges: ReadableArray): ReadableMap {
+  private fun buildFormatMap(outputSize: Size, outputFormat: Int, fpsRange: Range<Int>): ReadableMap {
     val highResSizes = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) cameraConfig.getHighResolutionOutputSizes(outputFormat) else null) ?: emptyArray()
 
     val map = Arguments.createMap()
@@ -157,36 +142,32 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     map.putString("autoFocusSystem", "contrast-detection") // TODO: Is this wrong?
     map.putArray("videoStabilizationModes", createStabilizationModes())
     map.putString("pixelFormat", parseImageFormat(outputFormat))
-    map.putArray("frameRateRanges", fpsRanges)
+    map.putInt("minFps", fpsRange.lower)
+    map.putInt("maxFps", fpsRange.upper)
     return map
   }
 
   private fun getFormats(): ReadableArray {
     val array = Arguments.createArray()
 
-    val highSpeedSizes = cameraConfig.highSpeedVideoSizes
-
     val outputFormats = cameraConfig.outputFormats
     outputFormats.forEach { outputFormat ->
       // Normal Video/Photo Sizes
-      val outputSizes = cameraConfig.getOutputSizes(outputFormat)
+      val outputSizes = cameraConfig.getOutputSizes(outputFormat).toMutableList()
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        // High resolution Photo sizes that are not able to run at 20FPS+
+        outputSizes.addAll(cameraConfig.getHighResolutionOutputSizes(outputFormat))
+      }
       outputSizes.forEach { outputSize ->
         val frameDuration = cameraConfig.getOutputMinFrameDuration(outputFormat, outputSize)
         val maxFps = (1.0 / (frameDuration.toDouble() / 1000000000)).toInt()
-        val minFps = 1
 
-        val map = buildFormatMap(outputSize, outputFormat, createFrameRateRanges(minFps, maxFps))
-        array.pushMap(map)
-      }
-
-      // High-Speed (Slow Motion) Video Sizes
-      highSpeedSizes.forEach { outputSize ->
-        val highSpeedRanges = cameraConfig.getHighSpeedVideoFpsRangesFor(outputSize)
-
-        val map = buildFormatMap(outputSize, outputFormat, createFrameRateRanges(highSpeedRanges))
+        val map = buildFormatMap(outputSize, outputFormat, Range(1, maxFps))
         array.pushMap(map)
       }
     }
+
+    // TODO: Add high-speed video ranges (high-fps / slow-motion)
 
     return array
   }

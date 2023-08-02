@@ -1,5 +1,5 @@
 import { Dimensions } from 'react-native';
-import type { CameraDevice, CameraDeviceFormat, FrameRateRange } from '../CameraDevice';
+import type { CameraDevice, CameraDeviceFormat } from '../CameraDevice';
 
 /**
  * Compares two devices by the following criteria:
@@ -69,17 +69,3 @@ export const sortFormats = (left: CameraDeviceFormat, right: CameraDeviceFormat)
 
   return rightPoints - leftPoints;
 };
-
-/**
- * Returns `true` if the given Frame Rate Range (`range`) contains the given frame rate (`fps`)
- *
- * @param {FrameRateRange} range The range to check if the given `fps` are included in
- * @param {number} fps The FPS to check if the given `range` supports.
- * @example
- * ```ts
- * // get all formats that support 60 FPS
- * const formatsWithHighFps = useMemo(() => device.formats.filter((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, 60))), [device.formats])
- * ```
- * @method
- */
-export const frameRateIncluded = (range: FrameRateRange, fps: number): boolean => fps >= range.minFrameRate && fps <= range.maxFrameRate;

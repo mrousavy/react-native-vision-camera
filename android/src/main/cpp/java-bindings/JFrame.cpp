@@ -42,6 +42,11 @@ local_ref<JString> JFrame::getOrientation() const {
   return getOrientationMethod(self());
 }
 
+local_ref<JString> JFrame::getPixelFormat() const {
+  static const auto getPixelFormatMethod = getClass()->getMethod<JString()>("getPixelFormat");
+  return getPixelFormatMethod(self());
+}
+
 int JFrame::getPlanesCount() const {
   static const auto getPlanesCountMethod = getClass()->getMethod<jint()>("getPlanesCount");
   return getPlanesCountMethod(self());
