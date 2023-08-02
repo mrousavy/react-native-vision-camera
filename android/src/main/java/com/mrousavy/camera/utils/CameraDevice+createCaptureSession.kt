@@ -54,6 +54,23 @@ data class SurfaceOutput(val surface: Surface,
     get() = outputType == OutputType.VIDEO || outputType == OutputType.PREVIEW || outputType == OutputType.VIDEO_AND_PREVIEW
 }
 
+fun supportsOutputType(characteristics: CameraCharacteristics, outputType: OutputType): Boolean {
+  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    val availableUseCases = characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES)
+    if (availableUseCases != null) {
+      if (availableUseCases.contains(outputType.toOutputType())) {
+        return true
+      }
+    }
+  }
+  val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
+  if (hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3 || hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL) {
+    return true
+  }
+
+  return false
+}
+
 suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager, sessionType: SessionType, outputs: List<SurfaceOutput>, queue: CameraQueues.CameraQueue): CameraCaptureSession {
   return suspendCoroutine { continuation ->
 
@@ -77,7 +94,9 @@ suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager, sess
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
           if (it.isMirrored) result.mirrorMode = OutputConfiguration.MIRROR_MODE_H
           if (it.dynamicRangeProfile != null) result.dynamicRangeProfile = it.dynamicRangeProfile
-          if (it.outputType != null) result.streamUseCase = it.outputType.toOutputType()
+          if (it.outputType != null && supportsOutputType(characteristics, it.outputType)) {
+            result.streamUseCase = it.outputType.toOutputType()
+          }
         }
         return@map result
       }
