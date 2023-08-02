@@ -233,12 +233,11 @@ class CameraView(context: Context) : FrameLayout(context) {
   }
 
   private suspend fun configureCamera(camera: CameraDevice, isSecondTryAfterConfigureError: Boolean = false) {
-    if (cameraSession != null) {
-      // Close any existing Session
-      cameraSession?.close()
-    }
+    // Close any existing Session
+    cameraSession?.close()
 
     val characteristics = cameraManager.getCameraCharacteristics(camera.id)
+    // TODO: Mirroring is probably done automatically, can we remove this flag?
     val isMirrored = characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
     val config = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
 
@@ -275,7 +274,7 @@ class CameraView(context: Context) : FrameLayout(context) {
         onFrame(frame)
       }, CameraQueues.videoQueue.handler)
 
-      Log.i(TAG, "Creating ${videoSize.width}x${videoSize.height} video output. (Format: $videoPixelFormat)")
+      Log.i(TAG, "Adding ${videoSize.width}x${videoSize.height} video output. (Format: $videoPixelFormat)")
       val videoOutput = SurfaceOutput(imageReader.surface, OutputType.VIDEO, isMirrored)
       outputs.add(videoOutput)
       // TODO: Use reprocessable YUV capture session for more efficient Skia Frame Processing
@@ -290,7 +289,7 @@ class CameraView(context: Context) : FrameLayout(context) {
         image.close()
       }, CameraQueues.cameraQueue.handler)
 
-      Log.i(TAG, "Creating ${photoSize.width}x${photoSize.height} photo output. (Format: $photoPixelFormat)")
+      Log.i(TAG, "Adding ${photoSize.width}x${photoSize.height} photo output. (Format: $photoPixelFormat)")
       val photoOutput = SurfaceOutput(imageReader.surface, OutputType.PHOTO, isMirrored)
       outputs.add(photoOutput)
     }
@@ -298,6 +297,7 @@ class CameraView(context: Context) : FrameLayout(context) {
     if (previewType == "native") {
       // Preview output: Low resolution repeating images
       val previewOutput = SurfaceOutput(previewView.holder.surface, OutputType.PREVIEW, isMirrored)
+      Log.i(TAG, "Adding native preview view output.")
       outputs.add(previewOutput)
     }
 
@@ -315,8 +315,12 @@ class CameraView(context: Context) : FrameLayout(context) {
       invokeOnInitialized()
     } catch (e: IllegalArgumentException) {
       if (!isSecondTryAfterConfigureError) {
+        // See https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture
+        // According to the Android Documentation, it is not guaranteed that a device can stream Images in maximum resolution
+        // for both photo capture (JPEG) and video (YUV) capture at the same time.
+        // If this is the case, a compromise has to be made. We try to configure the session with a lower photo resolution.
         Log.e(TAG, "Failed to configure Camera: Caught Illegal Argument exception (\"${e.message}\")! " +
-          "Retrying once with lower resolution...", e)
+          "Retrying once with lower photo resolution...", e)
         return configureCamera(camera, true)
       }
       throw e
@@ -329,11 +333,8 @@ class CameraView(context: Context) : FrameLayout(context) {
     if (formats.contains(ImageFormat.YUV_420_888)) {
       return ImageFormat.YUV_420_888
     }
-    if (formats.contains(PixelFormat.RGB_888)) {
-      return PixelFormat.RGB_888;
-    }
-    Log.w(TAG, "Couldn't find YUV_420_888 or RGB_888 format for Video " +
-      "Recording, using unknown format instead.. (${formats[0]})")
+    Log.w(TAG, "Couldn't find YUV_420_888 format for Video Streams, " +
+      "using unknown format instead.. (${formats[0]})")
     return formats[0]
   }
 }
