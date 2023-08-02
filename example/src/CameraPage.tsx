@@ -224,6 +224,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log(frame.timestamp, frame.toString(), frame.pixelFormat);
   }, []);
 
+  console.log(JSON.stringify(device));
+
   return (
     <View style={styles.container}>
       {device != null && (
