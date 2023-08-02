@@ -192,7 +192,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   if (device != null && format != null) {
     console.log(
       `Re-rendering camera page with ${isActive ? 'active' : 'inactive'} camera. ` +
-        `Device: "${device.name}" (${format.photoWidth}x${format.photoHeight} @ ${fps}fps)`,
+        `Device: "${device.name}" (${format.photoWidth}x${format.photoHeight} photo / ${format.videoWidth}x${format.videoHeight} video @ ${fps}fps)`,
     );
   } else {
     console.log('re-rendering camera page without active camera');
@@ -223,8 +223,6 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
     console.log(frame.timestamp, frame.toString(), frame.pixelFormat);
   }, []);
-
-  console.log(JSON.stringify(device));
 
   return (
     <View style={styles.container}>

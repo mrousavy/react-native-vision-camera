@@ -77,35 +77,6 @@ fun supportsOutputType(characteristics: CameraCharacteristics, outputType: Outpu
   return false
 }
 
-fun getMaxRecordResolution(cameraId: String): Size {
-  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-    val profiles = CamcorderProfile.getAll(cameraId, CamcorderProfile.QUALITY_HIGH)
-    val highestProfile = profiles?.videoProfiles?.maxBy { it.width * it.height }
-    if (highestProfile != null) {
-      return Size(highestProfile.width, highestProfile.height)
-    }
-  }
-  // fallback: old API
-  val cameraIdInt = cameraId.toIntOrNull()
-  val camcorderProfile = if (cameraIdInt != null) {
-    CamcorderProfile.get(cameraIdInt, CamcorderProfile.QUALITY_HIGH)
-  } else {
-    CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH)
-  }
-  return Size(camcorderProfile.videoFrameWidth, camcorderProfile.videoFrameHeight)
-}
-
-fun getMaxPreviewResolution(): Size {
-  val display = Resources.getSystem().displayMetrics
-  // According to Android documentation, "PREVIEW" size is always limited to 1920x1080
-  return Size(1920.coerceAtMost(display.widthPixels), 1080.coerceAtMost(display.widthPixels))
-}
-
-fun getMaxMaximumResolution(format: Int, characteristics: CameraCharacteristics): Size {
-  val config = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
-  return config.getOutputSizes(format).maxBy { it.width * it.height }
-}
-
 suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager, sessionType: SessionType, outputs: List<SurfaceOutput>, queue: CameraQueues.CameraQueue): CameraCaptureSession {
   return suspendCoroutine { continuation ->
 
@@ -118,9 +89,6 @@ suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager, sess
         continuation.resumeWithException(RuntimeException("Failed to configure the Camera Session!"))
       }
     }
-
-    val recordSize = getMaxRecordResolution(this.id)
-    val previewSize = getMaxPreviewResolution()
 
     val characteristics = cameraManager.getCameraCharacteristics(this.id)
     val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
@@ -135,6 +103,7 @@ suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager, sess
           if (it.dynamicRangeProfile != null) result.dynamicRangeProfile = it.dynamicRangeProfile
           if (supportsOutputType(characteristics, it.outputType)) {
             result.streamUseCase = it.outputType.toOutputType()
+            Log.i(CameraView.TAG, "Using optimized stream use case \"${it.outputType.name}\" (${result.streamUseCase})..")
           }
         }
         return@map result
