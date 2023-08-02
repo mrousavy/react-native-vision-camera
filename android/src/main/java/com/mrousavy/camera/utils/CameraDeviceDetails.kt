@@ -33,7 +33,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
   private val supportsLowLightBoost = extensions.contains(4 /* TODO: CameraExtensionCharacteristics.EXTENSION_NIGHT */)
   private val lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING)!!
   private val hasFlash = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) ?: false
-  private val focalLengths = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS) ?: FloatArray(0)
+  private val focalLengths = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS) ?: floatArrayOf(35f /* 35mm default */)
   private val sensorSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)!!
   private val name = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) characteristics.get(CameraCharacteristics.INFO_VERSION)
                       else null) ?: "${parseLensFacing(lensFacing)} (${cameraId})"
@@ -70,6 +70,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
         val availableProfiles = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES)
           ?: DynamicRangeProfiles(LongArray(0))
         return availableProfiles.supportedProfiles.contains(DynamicRangeProfiles.HLG10)
+          || availableProfiles.supportedProfiles.contains(DynamicRangeProfiles.HDR10)
       }
     }
     return false
