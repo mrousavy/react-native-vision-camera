@@ -120,13 +120,6 @@ class CameraViewManager(reactContext: ReactApplicationContext) : ViewGroupManage
     view.lowLightBoost = lowLightBoost
   }
 
-  @ReactProp(name = "colorSpace")
-  fun setColorSpace(view: CameraView, colorSpace: String?) {
-    if (view.colorSpace != colorSpace)
-      addChangedPropToTransaction(view, "colorSpace")
-    view.colorSpace = colorSpace
-  }
-
   @ReactProp(name = "isActive")
   fun setIsActive(view: CameraView, isActive: Boolean) {
     if (view.isActive != isActive)

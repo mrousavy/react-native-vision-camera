@@ -1,5 +1,5 @@
 import type { ViewProps } from 'react-native';
-import type { CameraDevice, CameraDeviceFormat, ColorSpace, VideoStabilizationMode } from './CameraDevice';
+import type { CameraDevice, CameraDeviceFormat, VideoStabilizationMode } from './CameraDevice';
 import type { CameraRuntimeError } from './CameraError';
 import type { DrawableFrame, Frame } from './Frame';
 import type { Orientation } from './Orientation';
@@ -115,12 +115,6 @@ export interface CameraProps extends ViewProps {
    * Requires `format` to be set.
    */
   lowLightBoost?: boolean;
-  /**
-   * Specifies the color space to use for this camera device. Make sure the given `format` contains the given `colorSpace`.
-   *
-   * Requires `format` to be set.
-   */
-  colorSpace?: ColorSpace;
   /**
    * Specifies the video stabilization mode to use for this camera device. Make sure the given `format` contains the given `videoStabilizationMode`.
    *

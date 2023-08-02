@@ -40,7 +40,6 @@ import kotlin.math.min
 // TODO: configureSession() enableDepthData
 // TODO: configureSession() enableHighQualityPhotos
 // TODO: configureSession() enablePortraitEffectsMatteDelivery
-// TODO: configureSession() colorSpace
 
 // CameraView+RecordVideo
 // TODO: Better startRecording()/stopRecording() (promise + callback, wait for TurboModules/JSI)
@@ -83,7 +82,6 @@ class CameraView(context: Context) : FrameLayout(context) {
   var format: ReadableMap? = null
   var fps: Int? = null
   var hdr: Boolean? = null // nullable bool
-  var colorSpace: String? = null
   var lowLightBoost: Boolean? = null // nullable bool
   var previewType: String = "native"
   // other props

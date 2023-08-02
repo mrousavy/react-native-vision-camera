@@ -54,13 +54,6 @@ extension AVCaptureDevice.Format {
         return false
       }
     }
-    if let colorSpaces = filter.value(forKey: "colorSpaces") as? [String] {
-      let avColorSpaces = colorSpaces.map { try? AVCaptureColorSpace(string: $0) }
-      let allColorSpacesIncluded = supportedColorSpaces.allSatisfy { avColorSpaces.contains($0) }
-      if !allColorSpacesIncluded {
-        return false
-      }
-    }
     if let minFps = filter.value(forKey: "minFps") as? NSNumber {
       if minFrameRate != Float64(minFps.doubleValue) {
         return false

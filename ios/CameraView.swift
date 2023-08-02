@@ -29,8 +29,7 @@ private let propsThatRequireReconfiguration = ["cameraId",
                                                "previewType"]
 private let propsThatRequireDeviceReconfiguration = ["fps",
                                                      "hdr",
-                                                     "lowLightBoost",
-                                                     "colorSpace"]
+                                                     "lowLightBoost"]
 
 // MARK: - CameraView
 
@@ -51,7 +50,6 @@ public final class CameraView: UIView {
   @objc var fps: NSNumber?
   @objc var hdr: NSNumber? // nullable bool
   @objc var lowLightBoost: NSNumber? // nullable bool
-  @objc var colorSpace: NSString?
   @objc var orientation: NSString?
   // other props
   @objc var isActive = false

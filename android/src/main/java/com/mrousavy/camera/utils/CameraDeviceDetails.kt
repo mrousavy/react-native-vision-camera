@@ -75,12 +75,6 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     return false
   }
 
-  private fun createColorSpaces(): ReadableArray {
-    val array = Arguments.createArray()
-    array.pushString("yuv")
-    return array
-  }
-
   private fun createStabilizationModes(): ReadableArray {
     val array = Arguments.createArray()
     val videoStabilizationModes = digitalStabilizationModes.plus(opticalStabilizationModes)
@@ -130,17 +124,16 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     map.putInt("photoWidth", outputSize.width)
     map.putInt("videoHeight", outputSize.height)
     map.putInt("videoWidth", outputSize.width)
-    map.putInt("maxISO", isoRange.upper)
     map.putInt("minISO", isoRange.lower)
+    map.putInt("maxISO", isoRange.upper)
+    map.putInt("minFps", fpsRange.lower)
+    map.putInt("maxFps", fpsRange.upper)
     map.putDouble("fieldOfView", getFieldOfView())
-    map.putArray("colorSpaces", createColorSpaces())
     map.putBoolean("supportsVideoHDR", supportsVideoHdr)
     map.putBoolean("supportsPhotoHDR", supportsPhotoHdr)
     map.putString("autoFocusSystem", "contrast-detection") // TODO: Is this wrong?
     map.putArray("videoStabilizationModes", createStabilizationModes())
     map.putString("pixelFormat", parseImageFormat(outputFormat))
-    map.putInt("minFps", fpsRange.lower)
-    map.putInt("maxFps", fpsRange.upper)
     return map
   }
 

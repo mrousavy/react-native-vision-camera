@@ -134,7 +134,7 @@ extension CameraView {
   // pragma MARK: Configure Device
 
   /**
-   Configures the Video Device with the given FPS, HDR and ColorSpace.
+   Configures the Video Device with the given FPS and HDR modes.
    */
   final func configureDevice() {
     ReactLogger.log(level: .info, message: "Configuring Device...")
@@ -181,14 +181,6 @@ extension CameraView {
         if device.automaticallyEnablesLowLightBoostWhenAvailable != lowLightBoost!.boolValue {
           device.automaticallyEnablesLowLightBoostWhenAvailable = lowLightBoost!.boolValue
         }
-      }
-      if let colorSpace = colorSpace as String? {
-        guard let avColorSpace = try? AVCaptureColorSpace(string: colorSpace),
-              device.activeFormat.supportedColorSpaces.contains(avColorSpace) else {
-          invokeOnError(.format(.invalidColorSpace(colorSpace: colorSpace)))
-          return
-        }
-        device.activeColorSpace = avColorSpace
       }
 
       device.unlockForConfiguration()

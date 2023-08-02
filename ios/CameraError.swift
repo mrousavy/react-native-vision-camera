@@ -112,7 +112,6 @@ enum FormatError {
   case invalidFps(fps: Int)
   case invalidHdr
   case invalidFormat
-  case invalidColorSpace(colorSpace: String)
 
   var code: String {
     switch self {
@@ -122,8 +121,6 @@ enum FormatError {
       return "invalid-fps"
     case .invalidHdr:
       return "invalid-hdr"
-    case .invalidColorSpace:
-      return "invalid-color-space"
     }
   }
 
@@ -135,9 +132,6 @@ enum FormatError {
       return "The given format cannot run at \(fps) FPS! Make sure your FPS is lower than `format.maxFps` but higher than `format.minFps`."
     case .invalidHdr:
       return "The currently selected format does not support HDR capture! Make sure you select a format which includes `supportsPhotoHDR`!"
-    case let .invalidColorSpace(colorSpace):
-      return "The currently selected format does not support the colorSpace \"\(colorSpace)\"! " +
-        "Make sure you select a format which `colorSpaces` includes \"\(colorSpace)\"!"
     }
   }
 }

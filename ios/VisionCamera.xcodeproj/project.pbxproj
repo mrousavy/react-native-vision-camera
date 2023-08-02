@@ -46,7 +46,6 @@
 		B887519F25E0102000DB86D6 /* AVCaptureDevice.DeviceType+descriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887517A25E0102000DB86D6 /* AVCaptureDevice.DeviceType+descriptor.swift */; };
 		B88751A025E0102000DB86D6 /* AVAuthorizationStatus+descriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887517B25E0102000DB86D6 /* AVAuthorizationStatus+descriptor.swift */; };
 		B88751A125E0102000DB86D6 /* AVCaptureDevice.Position+descriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887517C25E0102000DB86D6 /* AVCaptureDevice.Position+descriptor.swift */; };
-		B88751A225E0102000DB86D6 /* AVCaptureColorSpace+descriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887517D25E0102000DB86D6 /* AVCaptureColorSpace+descriptor.swift */; };
 		B88751A325E0102000DB86D6 /* AVCaptureDevice.FlashMode+descriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887517E25E0102000DB86D6 /* AVCaptureDevice.FlashMode+descriptor.swift */; };
 		B88751A425E0102000DB86D6 /* AVCaptureDevice.Format.AutoFocusSystem+descriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887517F25E0102000DB86D6 /* AVCaptureDevice.Format.AutoFocusSystem+descriptor.swift */; };
 		B88751A525E0102000DB86D6 /* CameraView+Focus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887518025E0102000DB86D6 /* CameraView+Focus.swift */; };
@@ -129,7 +128,6 @@
 		B887517A25E0102000DB86D6 /* AVCaptureDevice.DeviceType+descriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AVCaptureDevice.DeviceType+descriptor.swift"; sourceTree = "<group>"; };
 		B887517B25E0102000DB86D6 /* AVAuthorizationStatus+descriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AVAuthorizationStatus+descriptor.swift"; sourceTree = "<group>"; };
 		B887517C25E0102000DB86D6 /* AVCaptureDevice.Position+descriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AVCaptureDevice.Position+descriptor.swift"; sourceTree = "<group>"; };
-		B887517D25E0102000DB86D6 /* AVCaptureColorSpace+descriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AVCaptureColorSpace+descriptor.swift"; sourceTree = "<group>"; };
 		B887517E25E0102000DB86D6 /* AVCaptureDevice.FlashMode+descriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AVCaptureDevice.FlashMode+descriptor.swift"; sourceTree = "<group>"; };
 		B887517F25E0102000DB86D6 /* AVCaptureDevice.Format.AutoFocusSystem+descriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AVCaptureDevice.Format.AutoFocusSystem+descriptor.swift"; sourceTree = "<group>"; };
 		B887518025E0102000DB86D6 /* CameraView+Focus.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CameraView+Focus.swift"; sourceTree = "<group>"; };
@@ -255,7 +253,6 @@
 				B887517A25E0102000DB86D6 /* AVCaptureDevice.DeviceType+descriptor.swift */,
 				B887517B25E0102000DB86D6 /* AVAuthorizationStatus+descriptor.swift */,
 				B887517C25E0102000DB86D6 /* AVCaptureDevice.Position+descriptor.swift */,
-				B887517D25E0102000DB86D6 /* AVCaptureColorSpace+descriptor.swift */,
 				B887517E25E0102000DB86D6 /* AVCaptureDevice.FlashMode+descriptor.swift */,
 				B887517F25E0102000DB86D6 /* AVCaptureDevice.Format.AutoFocusSystem+descriptor.swift */,
 				B8DB3BCB263DC97E004C18D7 /* AVFileType+descriptor.swift */,
@@ -407,7 +404,6 @@
 				B887518625E0102000DB86D6 /* CameraView+RecordVideo.swift in Sources */,
 				B81BE1BF26B936FF002696CC /* AVCaptureDevice.Format+videoDimensions.swift in Sources */,
 				B8DB3BCA263DC4D8004C18D7 /* RecordingSession.swift in Sources */,
-				B88751A225E0102000DB86D6 /* AVCaptureColorSpace+descriptor.swift in Sources */,
 				B83D5EE729377117000AFD2F /* NativePreviewView.swift in Sources */,
 				B887518925E0102000DB86D6 /* Collection+safe.swift in Sources */,
 				B887519125E0102000DB86D6 /* AVCaptureDevice.Format+toDictionary.swift in Sources */,
