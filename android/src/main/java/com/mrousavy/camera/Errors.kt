@@ -37,9 +37,6 @@ class InvalidTypeScriptUnionError(unionName: String, unionValue: String) : Camer
 
 class NoCameraDeviceError : CameraError("device", "no-device", "No device was set! Use `getAvailableCameraDevices()` to select a suitable Camera device.")
 class InvalidCameraDeviceError(cause: Throwable) : CameraError("device", "invalid-device", "The given Camera device could not be found for use-case binding!", cause)
-class ParallelVideoProcessingNotSupportedError(cause: Throwable) : CameraError("device", "parallel-video-processing-not-supported", "The given LEGACY Camera device does not support parallel " +
-  "video processing (`video={true}` + `frameProcessor={...}`). Disable either `video` or `frameProcessor`. To find out if a device supports parallel video processing, check the `supportsParallelVideoProcessing` property on the CameraDevice. " +
-  "See https://react-native-vision-camera.com/docs/guides/devices#the-supportsparallelvideoprocessing-prop for more information.", cause)
 
 class FpsNotContainedInFormatError(fps: Int) : CameraError("format", "invalid-fps", "The given format cannot run at $fps FPS! Make sure your FPS is lower than `format.maxFps` but higher than `format.minFps`.")
 class HdrNotContainedInFormatError : CameraError(

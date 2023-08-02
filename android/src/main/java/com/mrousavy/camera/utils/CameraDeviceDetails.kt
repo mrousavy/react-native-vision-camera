@@ -51,9 +51,6 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
   private val supportsPhotoHdr = extensions.contains(3 /* TODO: CameraExtensionCharacteristics.EXTENSION_HDR */)
   private val supportsVideoHdr = getHasVideoHdr()
 
-  // see https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture
-  private val supportsParallelVideoProcessing = hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY && hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
-
   // get extensions (HDR, Night Mode, ..)
   private fun getSupportedExtensions(): List<Int> {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -174,7 +171,6 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     map.putBoolean("hasFlash", hasFlash)
     map.putBoolean("hasTorch", hasFlash)
     map.putBoolean("isMultiCam", isMultiCam)
-    map.putBoolean("supportsParallelVideoProcessing", supportsParallelVideoProcessing)
     map.putBoolean("supportsRawCapture", supportsRawCapture)
     map.putBoolean("supportsDepthCapture", supportsDepthCapture)
     map.putBoolean("supportsLowLightBoost", supportsLowLightBoost)

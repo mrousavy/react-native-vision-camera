@@ -46,7 +46,6 @@ The most important properties are:
 * `neutralZoom`: The zoom factor where the camera is "neutral". For any wide-angle cameras this property might be the same as `minZoom`, where as for ultra-wide-angle cameras ("fish-eye") this might be a value higher than `minZoom` (e.g. `2`). It is recommended that you always start at `neutralZoom` and let the user manually zoom out to `minZoom` on demand.
 * `maxZoom`: The maximum available zoom factor. When you pass `zoom={1}` to the Camera, the `maxZoom` factor will be applied.
 * `formats`: A list of all available formats (See [Camera Formats](formats))
-* `supportsParallelVideoProcessing`: Determines whether this camera devices supports using Video Recordings and Frame Processors at the same time. (See [`supportsParallelVideoProcessing`](#the-supportsparallelvideoprocessing-prop))
 * `supportsFocus`: Determines whether this camera device supports focusing (See [Focusing](focusing))
 
 :::note
@@ -112,27 +111,6 @@ function App() {
   )
 }
 ```
-
-### The `supportsParallelVideoProcessing` prop
-
-Camera devices provide the [`supportsParallelVideoProcessing` property](/docs/api/interfaces/CameraDevice#supportsparallelvideoprocessing) which determines whether the device supports using Video Recordings (`video={true}`) and Frame Processors (`frameProcessor={...}`) at the same time.
-
-If this property is `false`, you can either enable `video`, or add a `frameProcessor`, but not both.
-
-* On iOS this value is always `true`.
-* On newer Android devices this value is always `true`.
-* On older Android devices this value is `false` if the Camera's hardware level is `LEGACY` or `LIMITED`, `true` otherwise. (See [`INFO_SUPPORTED_HARDWARE_LEVEL`](https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL) or [the tables at "Regular capture"](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture))
-
-#### Examples
-
-* An app that only supports **taking photos** (e.g. a vintage Polaroid Camera app) works on every Camera device because the `supportsParallelVideoProcessing` only affects _video processing_.
-* An app that supports **taking photos** and **videos** (e.g. a Camera app) works on every Camera device because only a single _video processing_ feature is used (`video`).
-* An app that only uses **Frame Processors** (e.g. the "Hotdog/Not Hotdog detector" app) (no taking photos or videos) works on every Camera device because it only uses a single _video processing_ feature (`frameProcessor`).
-* An app that uses **Frame Processors** and supports **taking photos** and **videos** (e.g. Snapchat, Instagram) only works on Camera devices where `supportsParallelVideoProcessing` is `true`. (iPhones and newer Android Phones)
-
-:::note
-Actually the limitation also affects the `photo` feature, but VisionCamera will automatically fall-back to **Snapshot capture** if you are trying to use multiple features (`photo` + `video` + `frameProcessor`) and they are not natively supported. (See ["Taking Snapshots"](/docs/guides/capturing#taking-snapshots))
-:::
 
 <br />
 

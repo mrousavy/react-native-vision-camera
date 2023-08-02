@@ -52,7 +52,7 @@ export interface CameraProps extends ViewProps {
   /**
    * Enables **video capture** with the `startRecording` function (see ["Recording Videos"](https://react-native-vision-camera.com/docs/guides/capturing/#recording-videos))
    *
-   * Note: If you want to use `video` and `frameProcessor` simultaneously, make sure [`supportsParallelVideoProcessing`](https://react-native-vision-camera.com/docs/guides/devices#the-supportsparallelvideoprocessing-prop) is `true`.
+   * Note: If both the `photo` and `video` properties are enabled at the same time and the device is running at a `hardwareLevel` of `'legacy'` or `'limited'`, VisionCamera _might_ use a lower resolution for video capture due to hardware constraints.
    */
   video?: boolean;
   /**
@@ -176,8 +176,6 @@ export interface CameraProps extends ViewProps {
    * A worklet which will be called for every frame the Camera "sees".
    *
    * If {@linkcode previewType | previewType} is set to `"skia"`, you can draw content to the `Frame` using the react-native-skia API.
-   *
-   * Note: If you want to use `video` and `frameProcessor` simultaneously, make sure [`supportsParallelVideoProcessing`](https://react-native-vision-camera.com/docs/guides/devices#the-supportsparallelvideoprocessing-prop) is `true`.
    *
    * > See [the Frame Processors documentation](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors) for more information
    *
