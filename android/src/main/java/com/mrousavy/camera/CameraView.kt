@@ -13,6 +13,7 @@ import android.hardware.camera2.params.StreamConfigurationMap
 import android.media.ImageReader
 import android.os.Build
 import android.util.Log
+import android.util.Size
 import android.view.*
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
@@ -25,6 +26,7 @@ import com.mrousavy.camera.utils.SessionType
 import com.mrousavy.camera.utils.SurfaceOutput
 import com.mrousavy.camera.utils.createCaptureSession
 import com.mrousavy.camera.parsers.parseCameraError
+import com.mrousavy.camera.parsers.parseHardwareLevel
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import kotlin.math.max
@@ -238,6 +240,12 @@ class CameraView(context: Context) : FrameLayout(context) {
     val characteristics = cameraManager.getCameraCharacteristics(camera.id)
     val isMirrored = characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
     val config = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
+    val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
+    val supports3UseCases = hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+      && hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+    // If both photo and video/frame-processor is enabled but the Camera device only supports one of those use-cases,
+    // we need to fall back to Snapshot capture instead of actual photo capture since we cannot attach both photo and video.
+    val useSnapshotForPhotoCapture = !supports3UseCases && (photo == true && (video == true || enableFrameProcessor))
 
     // TODO: minZoom = camera!!.cameraInfo.zoomState.value?.minZoomRatio ?: 1f
     // TODO: maxZoom = camera!!.cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
@@ -245,29 +253,36 @@ class CameraView(context: Context) : FrameLayout(context) {
     val outputs = arrayListOf<SurfaceOutput>()
 
     if (photo == true) {
-      // Photo output: High quality still images
-      val format = ImageFormat.JPEG
-      // TODO: Let user configure photoSize with format (or new builder API)
-      val photoSize = config.getOutputSizes(format).maxBy { it.height * it.width }
-      val imageReader = ImageReader.newInstance(photoSize.width, photoSize.height, format, 1)
-      imageReader.setOnImageAvailableListener({ reader ->
-        val image = reader.acquireNextImage()
-        Log.d(TAG, "Photo captured! ${image.width} x ${image.height}")
-        image.close()
-      }, CameraQueues.cameraQueue.handler)
+      if (useSnapshotForPhotoCapture) {
+        Log.i(TAG, "The Camera Device ${camera.id} is running at hardware-level ${parseHardwareLevel(hardwareLevel)}. " +
+          "It does not support running both a photo and a video pipeline at the same time, so instead of adding a photo pipeline " +
+          "VisionCamera will just take snapshots of the video pipeline when calling takePhoto().")
+      } else {
+        // Photo output: High quality still images
+        val pixelFormat = ImageFormat.JPEG
+        val format = this.format
+        val targetSize = if (format != null) Size(format.getInt("photoWidth"), format.getInt("photoHeight")) else null
+        val photoSize = config.getOutputSizes(pixelFormat).closestToOrMax(targetSize)
+        val imageReader = ImageReader.newInstance(photoSize.width, photoSize.height, pixelFormat, 1)
+        imageReader.setOnImageAvailableListener({ reader ->
+          val image = reader.acquireNextImage()
+          Log.d(TAG, "Photo captured! ${image.width} x ${image.height}")
+          image.close()
+        }, CameraQueues.cameraQueue.handler)
 
-      Log.i(TAG, "Creating ${photoSize.width}x${photoSize.height} photo output. (Format: $format)")
-      val photoOutput = SurfaceOutput(imageReader.surface, isMirrored, OutputType.PHOTO)
-      outputs.add(photoOutput)
+        Log.i(TAG, "Creating ${photoSize.width}x${photoSize.height} photo output. (Format: $pixelFormat)")
+        val photoOutput = SurfaceOutput(imageReader.surface, OutputType.PHOTO, isMirrored)
+        outputs.add(photoOutput)
+      }
     }
 
     if (video == true || enableFrameProcessor) {
       // Video or Frame Processor output: High resolution repeating images
-      val format = getVideoFormat(config)
-      config.inputFormats
-      // TODO: Let user configure videoSize with format (or new builder API)
-      val videoSize = config.getOutputSizes(format).maxBy { it.height * it.width }
-      val imageReader = ImageReader.newInstance(videoSize.width, videoSize.height, format, 2)
+      val pixelFormat = getVideoFormat(config)
+      val format = this.format
+      val targetSize = if (format != null) Size(format.getInt("videoWidth"), format.getInt("videoHeight")) else null
+      val videoSize = config.getOutputSizes(pixelFormat).closestToOrMax(targetSize)
+      val imageReader = ImageReader.newInstance(videoSize.width, videoSize.height, pixelFormat, 2)
       imageReader.setOnImageAvailableListener({ reader ->
         val image = reader.acquireNextImage()
         if (image == null) {
@@ -278,14 +293,14 @@ class CameraView(context: Context) : FrameLayout(context) {
         onFrame(frame)
       }, CameraQueues.videoQueue.handler)
 
-      Log.i(TAG, "Creating ${videoSize.width}x${videoSize.height} video output. (Format: $format)")
-      val videoOutput = SurfaceOutput(imageReader.surface, isMirrored, OutputType.VIDEO)
+      Log.i(TAG, "Creating ${videoSize.width}x${videoSize.height} video output. (Format: $pixelFormat)")
+      val videoOutput = SurfaceOutput(imageReader.surface, OutputType.VIDEO, isMirrored)
       outputs.add(videoOutput)
     }
 
     if (previewType == "native") {
       // Preview output: Low resolution repeating images
-      val previewOutput = SurfaceOutput(previewView.holder.surface, isMirrored, OutputType.PREVIEW)
+      val previewOutput = SurfaceOutput(previewView.holder.surface, OutputType.PREVIEW, isMirrored)
       outputs.add(previewOutput)
     }
 

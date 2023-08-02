@@ -1,13 +1,16 @@
 package com.mrousavy.camera.utils
 
+import android.content.res.Resources
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
+import android.media.CamcorderProfile
 import android.os.Build
 import android.util.Log
+import android.util.Size
 import android.view.Surface
 import com.mrousavy.camera.CameraQueues
 import com.mrousavy.camera.CameraView
@@ -47,8 +50,8 @@ enum class OutputType {
 }
 
 data class SurfaceOutput(val surface: Surface,
+                         val outputType: OutputType,
                          val isMirrored: Boolean = false,
-                         val outputType: OutputType? = null,
                          val dynamicRangeProfile: Long? = null) {
   val isRepeating: Boolean
     get() = outputType == OutputType.VIDEO || outputType == OutputType.PREVIEW || outputType == OutputType.VIDEO_AND_PREVIEW
@@ -63,12 +66,44 @@ fun supportsOutputType(characteristics: CameraCharacteristics, outputType: Outpu
       }
     }
   }
+  // See https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture
+  // According to the Android Documentation, devices with LEVEL_3 or FULL support can do 4 use-cases.
+  // LIMITED or LEGACY devices can't do it.
   val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
   if (hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3 || hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL) {
     return true
   }
 
   return false
+}
+
+fun getMaxRecordResolution(cameraId: String): Size {
+  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+    val profiles = CamcorderProfile.getAll(cameraId, CamcorderProfile.QUALITY_HIGH)
+    if (profiles != null) {
+      val highestProfile = profiles.videoProfiles.maxBy { it.width * it.height }
+      return Size(highestProfile.width, highestProfile.height)
+    }
+  }
+  // fallback: old API
+  val cameraIdInt = cameraId.toIntOrNull()
+  val camcorderProfile = if (cameraIdInt != null) {
+    CamcorderProfile.get(cameraIdInt, CamcorderProfile.QUALITY_HIGH)
+  } else {
+    CamcorderProfile.get(CamcorderProfile.QUALITY_HIGH)
+  }
+  return Size(camcorderProfile.videoFrameWidth, camcorderProfile.videoFrameHeight)
+}
+
+fun getMaxPreviewResolution(): Size {
+  val display = Resources.getSystem().displayMetrics
+  // According to Android documentation, "PREVIEW" size is always limited to 1920x1080
+  return Size(1920.coerceAtMost(display.widthPixels), 1080.coerceAtMost(display.widthPixels))
+}
+
+fun getMaxMaximumResolution(format: Int, characteristics: CameraCharacteristics): Size {
+  val config = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
+  return config.getOutputSizes(format).maxBy { it.width * it.height }
 }
 
 suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager, sessionType: SessionType, outputs: List<SurfaceOutput>, queue: CameraQueues.CameraQueue): CameraCaptureSession {
@@ -84,6 +119,9 @@ suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager, sess
       }
     }
 
+    val recordSize = getMaxRecordResolution(this.id)
+    val previewSize = getMaxPreviewResolution()
+
     val characteristics = cameraManager.getCameraCharacteristics(this.id)
     val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
     Log.i(CameraView.TAG, "Creating Capture Session on ${parseHardwareLevel(hardwareLevel)} device...")
@@ -91,10 +129,11 @@ suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager, sess
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
       val outputConfigurations = outputs.map {
         val result = OutputConfiguration(it.surface)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
           if (it.isMirrored) result.mirrorMode = OutputConfiguration.MIRROR_MODE_H
           if (it.dynamicRangeProfile != null) result.dynamicRangeProfile = it.dynamicRangeProfile
-          if (it.outputType != null && supportsOutputType(characteristics, it.outputType)) {
+          if (supportsOutputType(characteristics, it.outputType)) {
             result.streamUseCase = it.outputType.toOutputType()
           }
         }
