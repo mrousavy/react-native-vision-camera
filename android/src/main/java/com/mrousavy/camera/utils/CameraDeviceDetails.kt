@@ -1,5 +1,7 @@
 package com.mrousavy.camera.utils
 
+import android.graphics.ImageFormat
+import android.graphics.PixelFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraExtensionCharacteristics
@@ -50,6 +52,9 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
   private val opticalStabilizationModes = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_OPTICAL_STABILIZATION) ?: IntArray(0)
   private val supportsPhotoHdr = extensions.contains(3 /* TODO: CameraExtensionCharacteristics.EXTENSION_HDR */)
   private val supportsVideoHdr = getHasVideoHdr()
+
+  private val videoFormat = ImageFormat.YUV_420_888
+  private val imageFormat = ImageFormat.JPEG
 
   // get extensions (HDR, Night Mode, ..)
   private fun getSupportedExtensions(): List<Int> {
@@ -116,12 +121,12 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     return 2 * atan(sensorSize.bigger / (focalLengths[0] * 2)) * (180 / PI)
   }
 
-  private fun buildFormatMap(outputSize: Size, outputFormat: Int, fpsRange: Range<Int>): ReadableMap {
+  private fun buildFormatMap(photoSize: Size, videoSize: Size, outputFormat: Int, fpsRange: Range<Int>): ReadableMap {
     val map = Arguments.createMap()
-    map.putInt("photoHeight", outputSize.height)
-    map.putInt("photoWidth", outputSize.width)
-    map.putInt("videoHeight", outputSize.height)
-    map.putInt("videoWidth", outputSize.width)
+    map.putInt("photoHeight", photoSize.height)
+    map.putInt("photoWidth", photoSize.width)
+    map.putInt("videoHeight", videoSize.height)
+    map.putInt("videoWidth", videoSize.width)
     map.putInt("minISO", isoRange.lower)
     map.putInt("maxISO", isoRange.upper)
     map.putInt("minFps", fpsRange.lower)
@@ -135,23 +140,31 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     return map
   }
 
+  private fun getVideoSizes(): Array<Size> {
+    return cameraConfig.getOutputSizes(ImageFormat.YUV_420_888) ?: emptyArray()
+  }
+  private fun getPhotoSizes(): Array<Size> {
+    val sizes = cameraConfig.getOutputSizes(ImageFormat.JPEG) ?: emptyArray()
+    val highResSizes = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      cameraConfig.getHighResolutionOutputSizes(ImageFormat.JPEG)
+    } else {
+      null
+    } ?: emptyArray()
+    return sizes.plus(highResSizes)
+  }
+
   private fun getFormats(): ReadableArray {
     val array = Arguments.createArray()
 
-    val outputFormats = cameraConfig.outputFormats
-    outputFormats.forEach { outputFormat ->
-      // Normal Video/Photo Sizes
-      val outputSizes = cameraConfig.getOutputSizes(outputFormat).toMutableList()
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        // High resolution Photo sizes that are not able to run at 20FPS+
-        val highResSizes = cameraConfig.getHighResolutionOutputSizes(outputFormat)
-        if (highResSizes != null) outputSizes.addAll(highResSizes)
-      }
-      outputSizes.forEach { outputSize ->
-        val frameDuration = cameraConfig.getOutputMinFrameDuration(outputFormat, outputSize)
-        val maxFps = (1.0 / (frameDuration.toDouble() / 1000000000)).toInt()
+    val videoSizes = getVideoSizes()
+    val photoSizes = getPhotoSizes()
 
-        val map = buildFormatMap(outputSize, outputFormat, Range(1, maxFps))
+    videoSizes.forEach { videoSize ->
+      val frameDuration = cameraConfig.getOutputMinFrameDuration(videoFormat, videoSize)
+      val maxFps = (1.0 / (frameDuration.toDouble() / 1000000000)).toInt()
+
+      photoSizes.forEach { photoSize ->
+        val map = buildFormatMap(photoSize, videoSize, videoFormat, Range(1, maxFps))
         array.pushMap(map)
       }
     }

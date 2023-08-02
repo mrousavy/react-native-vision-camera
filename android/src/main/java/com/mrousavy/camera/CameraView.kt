@@ -29,6 +29,7 @@ import com.mrousavy.camera.parsers.parseCameraError
 import com.mrousavy.camera.parsers.parseHardwareLevel
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
+import java.lang.IllegalArgumentException
 import kotlin.math.max
 import kotlin.math.min
 
@@ -231,7 +232,7 @@ class CameraView(context: Context) : FrameLayout(context) {
     }, null)
   }
 
-  private suspend fun configureCamera(camera: CameraDevice) {
+  private suspend fun configureCamera(camera: CameraDevice, isSecondTryAfterConfigureError: Boolean = false) {
     if (cameraSession != null) {
       // Close any existing Session
       cameraSession?.close()
@@ -240,49 +241,30 @@ class CameraView(context: Context) : FrameLayout(context) {
     val characteristics = cameraManager.getCameraCharacteristics(camera.id)
     val isMirrored = characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
     val config = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
-    val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
-    val supports3UseCases = hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
-      && hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
-    // If both photo and video/frame-processor is enabled but the Camera device only supports one of those use-cases,
-    // we need to fall back to Snapshot capture instead of actual photo capture since we cannot attach both photo and video.
-    val useSnapshotForPhotoCapture = !supports3UseCases && (photo == true && (video == true || enableFrameProcessor))
 
     // TODO: minZoom = camera!!.cameraInfo.zoomState.value?.minZoomRatio ?: 1f
     // TODO: maxZoom = camera!!.cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
 
-    val outputs = arrayListOf<SurfaceOutput>()
+    val format = this.format
 
-    if (photo == true) {
-      if (useSnapshotForPhotoCapture) {
-        Log.i(TAG, "The Camera Device ${camera.id} is running at hardware-level ${parseHardwareLevel(hardwareLevel)}. " +
-          "It does not support running both a photo and a video pipeline at the same time, so instead of adding a photo pipeline " +
-          "VisionCamera will just take snapshots of the video pipeline when calling takePhoto().")
-      } else {
-        // Photo output: High quality still images
-        val pixelFormat = ImageFormat.JPEG
-        val format = this.format
-        val targetSize = if (format != null) Size(format.getInt("photoWidth"), format.getInt("photoHeight")) else null
-        val photoSize = config.getOutputSizes(pixelFormat).closestToOrMax(targetSize)
-        val imageReader = ImageReader.newInstance(photoSize.width, photoSize.height, pixelFormat, 1)
-        imageReader.setOnImageAvailableListener({ reader ->
-          val image = reader.acquireNextImage()
-          Log.d(TAG, "Photo captured! ${image.width} x ${image.height}")
-          image.close()
-        }, CameraQueues.cameraQueue.handler)
+    val videoPixelFormat = getVideoFormat(config)
+    val targetVideoSize = if (format != null) Size(format.getInt("videoWidth"), format.getInt("videoHeight")) else null
+    val videoSize = config.getOutputSizes(videoPixelFormat).closestToOrMax(targetVideoSize)
 
-        Log.i(TAG, "Creating ${photoSize.width}x${photoSize.height} photo output. (Format: $pixelFormat)")
-        val photoOutput = SurfaceOutput(imageReader.surface, OutputType.PHOTO, isMirrored)
-        outputs.add(photoOutput)
-      }
+    // TODO: Let user configure .JPEG, .RAW_SENSOR, .HEIC
+    val photoPixelFormat = ImageFormat.JPEG
+    val targetPhotoSize = if (format != null) Size(format.getInt("photoWidth"), format.getInt("photoHeight")) else null
+    var photoSize = config.getOutputSizes(photoPixelFormat).closestToOrMax(targetPhotoSize)
+    if (isSecondTryAfterConfigureError) {
+      Log.i(TAG, "Trying to configure Camera now with RECORD resolution..")
+      photoSize = videoSize
     }
+
+    val outputs = arrayListOf<SurfaceOutput>()
 
     if (video == true || enableFrameProcessor) {
       // Video or Frame Processor output: High resolution repeating images
-      val pixelFormat = getVideoFormat(config)
-      val format = this.format
-      val targetSize = if (format != null) Size(format.getInt("videoWidth"), format.getInt("videoHeight")) else null
-      val videoSize = config.getOutputSizes(pixelFormat).closestToOrMax(targetSize)
-      val imageReader = ImageReader.newInstance(videoSize.width, videoSize.height, pixelFormat, 2)
+      val imageReader = ImageReader.newInstance(videoSize.width, videoSize.height, videoPixelFormat, 2)
       imageReader.setOnImageAvailableListener({ reader ->
         val image = reader.acquireNextImage()
         if (image == null) {
@@ -293,9 +275,24 @@ class CameraView(context: Context) : FrameLayout(context) {
         onFrame(frame)
       }, CameraQueues.videoQueue.handler)
 
-      Log.i(TAG, "Creating ${videoSize.width}x${videoSize.height} video output. (Format: $pixelFormat)")
+      Log.i(TAG, "Creating ${videoSize.width}x${videoSize.height} video output. (Format: $videoPixelFormat)")
       val videoOutput = SurfaceOutput(imageReader.surface, OutputType.VIDEO, isMirrored)
       outputs.add(videoOutput)
+      // TODO: Use reprocessable YUV capture session for more efficient Skia Frame Processing
+    }
+
+    if (photo == true) {
+      // Photo output: High quality still images
+      val imageReader = ImageReader.newInstance(photoSize.width, photoSize.height, photoPixelFormat, 1)
+      imageReader.setOnImageAvailableListener({ reader ->
+        val image = reader.acquireLatestImage()
+        Log.d(TAG, "Photo captured! ${image.width} x ${image.height}")
+        image.close()
+      }, CameraQueues.cameraQueue.handler)
+
+      Log.i(TAG, "Creating ${photoSize.width}x${photoSize.height} photo output. (Format: $photoPixelFormat)")
+      val photoOutput = SurfaceOutput(imageReader.surface, OutputType.PHOTO, isMirrored)
+      outputs.add(photoOutput)
     }
 
     if (previewType == "native") {
@@ -304,17 +301,26 @@ class CameraView(context: Context) : FrameLayout(context) {
       outputs.add(previewOutput)
     }
 
-    cameraSession = camera.createCaptureSession(cameraManager, SessionType.REGULAR, outputs, CameraQueues.cameraQueue)
+    try {
+      cameraSession = camera.createCaptureSession(cameraManager, SessionType.REGULAR, outputs, CameraQueues.cameraQueue)
 
-    // Start all repeating requests (Video, Frame Processor, Preview)
-    val captureRequest = camera.createCaptureRequest(CameraDevice.TEMPLATE_MANUAL)
-    outputs.forEach { output ->
-      if (output.isRepeating) captureRequest.addTarget(output.surface)
+      // Start all repeating requests (Video, Frame Processor, Preview)
+      val captureRequest = camera.createCaptureRequest(CameraDevice.TEMPLATE_MANUAL)
+      outputs.forEach { output ->
+        if (output.isRepeating) captureRequest.addTarget(output.surface)
+      }
+      cameraSession!!.setRepeatingRequest(captureRequest.build(), null, null)
+
+      Log.i(TAG, "Successfully configured Camera Session!")
+      invokeOnInitialized()
+    } catch (e: IllegalArgumentException) {
+      if (!isSecondTryAfterConfigureError) {
+        Log.e(TAG, "Failed to configure Camera: Caught Illegal Argument exception (\"${e.message}\")! " +
+          "Retrying once with lower resolution...", e)
+        return configureCamera(camera, true)
+      }
+      throw e
     }
-    cameraSession!!.setRepeatingRequest(captureRequest.build(), null, null)
-
-    Log.i(TAG, "Successfully configured Camera Session!")
-    invokeOnInitialized()
   }
 
   private fun getVideoFormat(config: StreamConfigurationMap): Int {

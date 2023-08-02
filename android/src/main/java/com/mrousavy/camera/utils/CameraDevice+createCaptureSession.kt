@@ -140,15 +140,15 @@ suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager, sess
         return@map result
       }
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        // API >28
+        // API >=28
         val config = SessionConfiguration(sessionType.toSessionType(), outputConfigurations, queue.executor, callback)
         this.createCaptureSession(config)
       } else {
-        // API >24
+        // API >=24
         this.createCaptureSessionByOutputConfigurations(outputConfigurations, callback, queue.handler)
       }
     } else {
-      // API <23
+      // API <24
       this.createCaptureSession(outputs.map { it.surface }, callback, queue.handler)
     }
   }
