@@ -13,23 +13,31 @@ import android.hardware.camera2.params.StreamConfigurationMap
 import android.media.ImageReader
 import android.os.Build
 import android.util.Log
+import android.util.Range
 import android.util.Size
 import android.view.*
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.lifecycle.*
 import com.facebook.react.bridge.*
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
+import com.mrousavy.camera.parsers.getVideoStabilizationMode
 import com.mrousavy.camera.utils.OutputType
 import com.mrousavy.camera.utils.SessionType
 import com.mrousavy.camera.utils.SurfaceOutput
 import com.mrousavy.camera.utils.createCaptureSession
 import com.mrousavy.camera.parsers.parseCameraError
 import com.mrousavy.camera.parsers.parseHardwareLevel
+import com.mrousavy.camera.parsers.parseVideoStabilizationMode
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import java.lang.IllegalArgumentException
+import kotlin.coroutines.coroutineContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 import kotlin.math.max
 import kotlin.math.min
 
@@ -60,13 +68,14 @@ import kotlin.math.min
 // TODO: takePhoto() enableAutoDistortionCorrection
 // TODO: takePhoto() return with jsi::Value Image reference for faster capture
 
-@Suppress("KotlinJniMissingFunction") // I use fbjni, Android Studio is not smart enough to realize that.
 @SuppressLint("ClickableViewAccessibility", "ViewConstructor", "MissingPermission")
 class CameraView(context: Context) : FrameLayout(context) {
   companion object {
     const val TAG = "CameraView"
 
-    private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "fps", "hdr", "lowLightBoost", "photo", "video", "enableFrameProcessor")
+    private val propsThatRequireDeviceReconfiguration = arrayListOf("cameraId")
+    private val propsThatRequireSessionReconfiguration = arrayListOf("format", "photo", "video", "enableFrameProcessor")
+    private val propsThatRequireFormatReconfiguration = arrayListOf("fps", "hdr", "videoStabilizationMode", "lowLightBoost")
     private val arrayListOfZoom = arrayListOf("zoom")
   }
 
@@ -84,6 +93,7 @@ class CameraView(context: Context) : FrameLayout(context) {
   // props that require format reconfiguring
   var format: ReadableMap? = null
   var fps: Int? = null
+  var videoStabilizationMode: String? = null
   var hdr: Boolean? = null // nullable bool
   var lowLightBoost: Boolean? = null // nullable bool
   var previewType: String = "native"
@@ -98,7 +108,8 @@ class CameraView(context: Context) : FrameLayout(context) {
   private val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
   // session
-  private var cameraSession: CameraCaptureSession? = null
+  private var cameraDevice: CameraDevice? = null
+  private var cameraSession: CameraSession? = null
   private val previewView = SurfaceView(context)
   private var isPreviewSurfaceReady = false
 
@@ -135,7 +146,6 @@ class CameraView(context: Context) : FrameLayout(context) {
       override fun surfaceCreated(holder: SurfaceHolder) {
         Log.i(TAG, "PreviewView Surface created!")
         isPreviewSurfaceReady = true
-        if (cameraId != null) configureSession()
       }
 
       override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
@@ -157,16 +167,16 @@ class CameraView(context: Context) : FrameLayout(context) {
 
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
-    // TODO: updateLifecycleState()
     if (!isMounted) {
       isMounted = true
       invokeOnViewReady()
     }
+    updateLifecycle()
   }
 
   override fun onDetachedFromWindow() {
     super.onDetachedFromWindow()
-    // TODO: updateLifecycleState()
+    updateLifecycle()
   }
 
   /**
@@ -174,17 +184,34 @@ class CameraView(context: Context) : FrameLayout(context) {
    */
   fun update(changedProps: ArrayList<String>) {
     try {
-      val shouldReconfigureSession = changedProps.containsAny(propsThatRequireSessionReconfiguration)
-      val shouldReconfigureZoom = shouldReconfigureSession || changedProps.contains("zoom")
-      val shouldReconfigureTorch = shouldReconfigureSession || changedProps.contains("torch")
-      val shouldUpdateOrientation = shouldReconfigureSession ||  changedProps.contains("orientation")
+      val shouldReconfigureDevice = changedProps.containsAny(propsThatRequireDeviceReconfiguration)
+      val shouldReconfigureSession =  shouldReconfigureDevice || changedProps.containsAny(propsThatRequireSessionReconfiguration)
+      val shouldReconfigureFormat = shouldReconfigureSession || changedProps.containsAny(propsThatRequireFormatReconfiguration)
+      val shouldReconfigureZoom = /* TODO: When should we reconfigure this? */ shouldReconfigureSession || changedProps.contains("zoom")
+      val shouldReconfigureTorch = /* TODO: When should we reconfigure this? */ shouldReconfigureSession || changedProps.contains("torch")
+      val shouldUpdateOrientation = /* TODO: When should we reconfigure this? */ shouldReconfigureSession ||  changedProps.contains("orientation")
+      val shouldCheckActive = shouldReconfigureFormat || changedProps.contains("isActive")
 
-      if (changedProps.contains("isActive")) {
-        // TODO: updateLifecycleState()
+      CameraQueues.cameraQueue.coroutineScope.launch {
+        try {
+          if (shouldReconfigureDevice) {
+            configureDevice()
+          }
+          if (shouldReconfigureSession) {
+            configureSession()
+          }
+          if (shouldReconfigureFormat) {
+            configureFormat()
+          }
+          if (shouldCheckActive) {
+            updateLifecycle()
+          }
+        } catch (e: Throwable) {
+          Log.e(TAG, "Failed to configure Camera!", e)
+          invokeOnError(e)
+        }
       }
-      if (shouldReconfigureSession) {
-        // configureSession()
-      }
+
       if (shouldReconfigureZoom) {
         val zoomClamped = max(min(zoom, maxZoom), minZoom)
         // TODO: camera!!.cameraControl.setZoomRatio(zoomClamped)
@@ -202,139 +229,59 @@ class CameraView(context: Context) : FrameLayout(context) {
   }
 
   /**
-   * Configures the camera capture session. This should only be called when the camera device changes.
+   * Prepares the hardware Camera Device. (cameraId)
    */
-  private fun configureSession() {
-    Log.i(TAG, "Configuring session...")
+  private suspend fun configureDevice() {
+    Log.i(TAG, "Configuring Camera Device...")
     if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
       throw CameraPermissionError()
     }
     val cameraId = cameraId ?: throw NoCameraDeviceError()
 
-    Log.i(TAG, "Opening Camera $cameraId...")
-    cameraManager.openCamera(cameraId, object: CameraDevice.StateCallback() {
-      override fun onOpened(camera: CameraDevice) {
-        Log.i(TAG, "Successfully opened Camera Device $cameraId!")
-        CameraQueues.cameraQueue.coroutineScope.launch {
-          configureCamera(camera)
-        }
-      }
-
-      override fun onDisconnected(camera: CameraDevice) {
-        Log.i(TAG, "Camera Device $cameraId has been disconnected! Waiting for reconnect to continue session..")
-        invokeOnError(CameraDisconnectedError(cameraId))
-      }
-
-      override fun onError(camera: CameraDevice, error: Int) {
-        Log.e(TAG, "Failed to open Camera Device $cameraId! Error: $error (${parseCameraError(error)})")
-        invokeOnError(CameraCannotBeOpenedError(cameraId, parseCameraError(error)))
-      }
-    }, null)
+    cameraDevice = cameraManager.openCamera(cameraId)
   }
 
-  private suspend fun configureCamera(camera: CameraDevice, isSecondTryAfterConfigureError: Boolean = false) {
-    // Close any existing Session
-    cameraSession?.close()
+  private suspend fun configureSession() {
+    val cameraDevice = cameraDevice
+    if (cameraDevice == null) {
+      Log.w(TAG, "Tried to call configureSession() without a CameraDevice! Returning...")
+      return
+    }
 
-    val characteristics = cameraManager.getCameraCharacteristics(camera.id)
-    // TODO: Mirroring is probably done automatically, can we remove this flag?
-    val isMirrored = characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
-    val config = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
-
-    // TODO: minZoom = camera!!.cameraInfo.zoomState.value?.minZoomRatio ?: 1f
-    // TODO: maxZoom = camera!!.cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
-
-    val format = this.format
-
-    val videoPixelFormat = getVideoFormat(config)
+    val format = format
     val targetVideoSize = if (format != null) Size(format.getInt("videoWidth"), format.getInt("videoHeight")) else null
-    val videoSize = config.getOutputSizes(videoPixelFormat).closestToOrMax(targetVideoSize)
-
-    // TODO: Let user configure .JPEG, .RAW_SENSOR, .HEIC
-    val photoPixelFormat = ImageFormat.JPEG
     val targetPhotoSize = if (format != null) Size(format.getInt("photoWidth"), format.getInt("photoHeight")) else null
-    var photoSize = config.getOutputSizes(photoPixelFormat).closestToOrMax(targetPhotoSize)
-    if (isSecondTryAfterConfigureError) {
-      Log.i(TAG, "Trying to configure Camera now with RECORD resolution..")
-      photoSize = videoSize
-    }
+    val previewSurface = if (previewType == "native") previewView.holder.surface else null
 
-    val outputs = arrayListOf<SurfaceOutput>()
-
-    if (video == true || enableFrameProcessor) {
-      // Video or Frame Processor output: High resolution repeating images
-      val imageReader = ImageReader.newInstance(videoSize.width, videoSize.height, videoPixelFormat, 2)
-      imageReader.setOnImageAvailableListener({ reader ->
-        val image = reader.acquireNextImage()
-        if (image == null) {
-          Log.w(TAG, "Failed to get new Image from ImageReader, dropping a Frame...")
-          return@setOnImageAvailableListener
-        }
-        val frame = Frame(image, System.currentTimeMillis(), inputRotation, isMirrored)
+    cameraSession = CameraSession.createCameraSession(
+      cameraDevice,
+      cameraManager,
+      // Photo Pipeline
+      PipelineConfiguration(video == true, {
+        Log.i(TAG, "Captured an Image!")
+      }, targetPhotoSize),
+      // Video Pipeline
+      PipelineConfiguration(photo == true, { image ->
+        val frame = Frame(image, System.currentTimeMillis(), inputRotation, false)
         onFrame(frame)
-      }, CameraQueues.videoQueue.handler)
-
-      Log.i(TAG, "Adding ${videoSize.width}x${videoSize.height} video output. (Format: $videoPixelFormat)")
-      val videoOutput = SurfaceOutput(imageReader.surface, OutputType.VIDEO, isMirrored)
-      outputs.add(videoOutput)
-      // TODO: Use reprocessable YUV capture session for more efficient Skia Frame Processing
-    }
-
-    if (photo == true) {
-      // Photo output: High quality still images
-      val imageReader = ImageReader.newInstance(photoSize.width, photoSize.height, photoPixelFormat, 1)
-      imageReader.setOnImageAvailableListener({ reader ->
-        val image = reader.acquireLatestImage()
-        Log.d(TAG, "Photo captured! ${image.width} x ${image.height}")
-        image.close()
-      }, CameraQueues.cameraQueue.handler)
-
-      Log.i(TAG, "Adding ${photoSize.width}x${photoSize.height} photo output. (Format: $photoPixelFormat)")
-      val photoOutput = SurfaceOutput(imageReader.surface, OutputType.PHOTO, isMirrored)
-      outputs.add(photoOutput)
-    }
-
-    if (previewType == "native") {
-      // Preview output: Low resolution repeating images
-      val previewOutput = SurfaceOutput(previewView.holder.surface, OutputType.PREVIEW, isMirrored)
-      Log.i(TAG, "Adding native preview view output.")
-      outputs.add(previewOutput)
-    }
-
-    try {
-      cameraSession = camera.createCaptureSession(cameraManager, SessionType.REGULAR, outputs, CameraQueues.cameraQueue)
-
-      // Start all repeating requests (Video, Frame Processor, Preview)
-      val captureRequest = camera.createCaptureRequest(CameraDevice.TEMPLATE_MANUAL)
-      outputs.forEach { output ->
-        if (output.isRepeating) captureRequest.addTarget(output.surface)
-      }
-      cameraSession!!.setRepeatingRequest(captureRequest.build(), null, null)
-
-      Log.i(TAG, "Successfully configured Camera Session!")
-      invokeOnInitialized()
-    } catch (e: IllegalArgumentException) {
-      if (!isSecondTryAfterConfigureError) {
-        // See https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture
-        // According to the Android Documentation, it is not guaranteed that a device can stream Images in maximum resolution
-        // for both photo capture (JPEG) and video (YUV) capture at the same time.
-        // If this is the case, a compromise has to be made. We try to configure the session with a lower photo resolution.
-        Log.e(TAG, "Failed to configure Camera: Caught Illegal Argument exception (\"${e.message}\")! " +
-          "Retrying once with lower photo resolution...", e)
-        return configureCamera(camera, true)
-      }
-      throw e
-    }
+      }, targetVideoSize),
+      // Preview Pipeline
+      previewSurface
+    )
   }
 
-  private fun getVideoFormat(config: StreamConfigurationMap): Int {
-    val formats = config.outputFormats
-    Log.i(TAG, "Device supports ${formats.size} output formats: ${formats.joinToString(", ")}")
-    if (formats.contains(ImageFormat.YUV_420_888)) {
-      return ImageFormat.YUV_420_888
+  private fun configureFormat() {
+    cameraSession?.configureFormat(fps, videoStabilizationMode, hdr, lowLightBoost)
+  }
+
+  private fun updateLifecycle() {
+    val cameraSession = cameraSession
+    if (isActive && isAttachedToWindow && cameraSession != null) {
+      Log.i(TAG, "Starting Camera Session...")
+      cameraSession.startRunning()
+    } else {
+      Log.i(TAG, "Stopping Camera Session...")
+      cameraSession?.stopRunning()
     }
-    Log.w(TAG, "Couldn't find YUV_420_888 format for Video Streams, " +
-      "using unknown format instead.. (${formats[0]})")
-    return formats[0]
   }
 }

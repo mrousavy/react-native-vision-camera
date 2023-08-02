@@ -116,10 +116,9 @@ export interface CameraProps extends ViewProps {
    */
   lowLightBoost?: boolean;
   /**
-   * Specifies the video stabilization mode to use for this camera device. Make sure the given `format` contains the given `videoStabilizationMode`.
+   * Specifies the video stabilization mode to use.
    *
-   * Requires `format` to be set.
-   * @platform iOS
+   * Requires a `format` to be set that contains the given `videoStabilizationMode`.
    */
   videoStabilizationMode?: VideoStabilizationMode;
   //#endregion

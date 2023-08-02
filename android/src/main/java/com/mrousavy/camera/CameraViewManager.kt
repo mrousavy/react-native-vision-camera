@@ -75,6 +75,20 @@ class CameraViewManager(reactContext: ReactApplicationContext) : ViewGroupManage
     view.enableDepthData = enableDepthData
   }
 
+  @ReactProp(name = "videoStabilizationMode")
+  fun setVideoStabilizationMode(view: CameraView, videoStabilizationMode: String?) {
+    if (view.videoStabilizationMode != videoStabilizationMode)
+      addChangedPropToTransaction(view, "videoStabilizationMode")
+    view.videoStabilizationMode = videoStabilizationMode
+  }
+
+  @ReactProp(name = "previewType")
+  fun setPreviewType(view: CameraView, previewType: String?) {
+    if (view.previewType != previewType)
+      addChangedPropToTransaction(view, "previewType")
+    view.previewType = previewType ?: "native"
+  }
+
   @ReactProp(name = "enableHighQualityPhotos")
   fun setEnableHighQualityPhotos(view: CameraView, enableHighQualityPhotos: Boolean?) {
     if (view.enableHighQualityPhotos != enableHighQualityPhotos)

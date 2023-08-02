@@ -15,6 +15,9 @@ import android.view.Surface
 import com.mrousavy.camera.CameraQueues
 import com.mrousavy.camera.CameraView
 import com.mrousavy.camera.parsers.parseHardwareLevel
+import kotlinx.coroutines.android.asCoroutineDispatcher
+import kotlinx.coroutines.asExecutor
+import java.util.concurrent.Executor
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine

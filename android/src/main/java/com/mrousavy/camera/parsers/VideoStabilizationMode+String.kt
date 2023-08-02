@@ -10,3 +10,12 @@ fun parseVideoStabilizationMode(stabiliazionMode: Int): String {
     else -> "off"
   }
 }
+
+fun getVideoStabilizationMode(stabiliazionMode: String): Int {
+  return when (stabiliazionMode) {
+    "off" -> CONTROL_VIDEO_STABILIZATION_MODE_OFF
+    "standard" -> CONTROL_VIDEO_STABILIZATION_MODE_ON
+    "cinematic" -> 2 /* TODO: CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION */
+    else -> CONTROL_VIDEO_STABILIZATION_MODE_OFF
+  }
+}
