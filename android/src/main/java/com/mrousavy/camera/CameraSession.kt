@@ -168,15 +168,16 @@ class CameraSession(private val cameraManager: CameraManager,
                                                                          flashMode,
                                                                          enableRedEyeReduction,
                                                                          enableAutoStabilization)
-    Log.i(TAG, "Capturing Photo...")
+    Log.i(TAG, "Photo capture 0/2 - starting capture...")
     val result = captureSession.capture(captureRequest)
-    Log.i(TAG, "Photo captured! Awaiting image data..")
     val timestamp = result[CaptureResult.SENSOR_TIMESTAMP]!!
+    Log.i(TAG, "Photo capture 1/2 complete - received metadata with timestamp $timestamp")
     try {
       val image = photoOutputSynchronizer[timestamp].await()
       // TODO: Correctly get rotationDegrees and isMirrored
       val rotation = ExifUtils.computeExifOrientation(0, false)
 
+      Log.i(TAG, "Photo capture 2/2 complete - received ${image.width} x ${image.height} image.")
       return CapturedPhoto(image, result, rotation, image.format)
     } catch (e: CancellationException) {
       throw CaptureAbortedError(false)
