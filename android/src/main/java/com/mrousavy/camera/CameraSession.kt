@@ -25,11 +25,21 @@ import kotlinx.coroutines.launch
 import java.io.Closeable
 import java.lang.IllegalStateException
 
-
-
-
 // TODO: Use reprocessable YUV capture session for more efficient Skia Frame Processing
 
+/**
+ * A Camera Session.
+ * Flow:
+ *
+ * 1. [cameraDevice] gets rebuilt everytime [cameraId] changes
+ * 2. [outputs] get rebuilt everytime [photoOutput], [videoOutput], [previewOutput] or [cameraDevice] changes.
+ * 3. [captureSession] gets rebuilt everytime [outputs] changes.
+ * 4. [startRunning]/[stopRunning] gets called everytime [isActive] or [captureSession] changes.
+ *
+ * Examples:
+ * - Changing [cameraId] causes everything to be rebuilt.
+ * - Changing [videoOutput] causes all [outputs] to be rebuilt, which later causes the [captureSession] to be rebuilt.
+ */
 class CameraSession(private val cameraManager: CameraManager,
                      private val onError: (e: Throwable) -> Unit): Closeable, CameraManager.AvailabilityCallback() {
   companion object {
@@ -60,6 +70,7 @@ class CameraSession(private val cameraManager: CameraManager,
   private var hdr: Boolean? = null
 
   private val outputs = arrayListOf<SurfaceOutput>()
+  private var cameraDevice: CameraDevice? = null
   private var captureRequest: CaptureRequest? = null
   private var captureSession: CameraCaptureSession? = null
 
@@ -117,6 +128,7 @@ class CameraSession(private val cameraManager: CameraManager,
    * Starts or stops the Camera.
    */
   fun setIsActive(isActive: Boolean) {
+    Log.i(TAG, "setIsActive($isActive)")
     if (this.isActive == isActive) {
       // We're already active/inactive.
       return
@@ -176,23 +188,12 @@ class CameraSession(private val cameraManager: CameraManager,
   }
 
   private fun onCameraInitialized(camera: CameraDevice) {
-    CameraQueues.cameraQueue.coroutineScope.launch {
-      Log.i(TAG, "Creating CameraCaptureSession for Camera ${camera.id}...")
-      captureSession?.close()
-
-      captureSession = camera.createCaptureSession(
-        cameraManager,
-        SessionType.REGULAR,
-        outputs,
-        CameraQueues.cameraQueue
-      )
-      Log.i(TAG, "Successfully created CameraCaptureSession for Camera ${camera.id}!")
-
-      prepareOutputs()
-    }
+    cameraDevice = camera
+    prepareSession()
   }
 
   private fun onCameraDisconnected() {
+    cameraDevice = null
     captureSession?.close()
     captureSession = null
   }
@@ -260,8 +261,34 @@ class CameraSession(private val cameraManager: CameraManager,
     }
 
     Log.i(TAG, "Prepared ${outputs.size} Outputs for Camera $cameraId!")
+
+    // Outputs changed, re-create session
+    if (cameraDevice != null) prepareSession()
   }
 
+  /**
+   * Creates the [CameraCaptureSession].
+   * Call this whenever [cameraDevice] or [outputs] changes.
+   */
+  private fun prepareSession() {
+    CameraQueues.cameraQueue.coroutineScope.launch {
+      val camera = cameraDevice ?: return@launch
+      if (outputs.isEmpty()) return@launch
+
+      Log.i(TAG, "Creating CameraCaptureSession for Camera ${camera.id}...")
+      captureSession?.close()
+
+      captureSession = camera.createCaptureSession(
+        cameraManager,
+        SessionType.REGULAR,
+        outputs,
+        CameraQueues.cameraQueue
+      )
+      Log.i(TAG, "Successfully created CameraCaptureSession for Camera ${camera.id}!")
+
+      prepareCaptureRequest()
+    }
+  }
 
   /**
    * Prepares the repeating capture request which will be sent to the Camera.
