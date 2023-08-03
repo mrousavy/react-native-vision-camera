@@ -2,8 +2,9 @@ package com.mrousavy.camera
 
 import android.os.Handler
 import android.os.HandlerThread
+import kotlinx.coroutines.android.asCoroutineDispatcher
+import kotlinx.coroutines.asExecutor
 import java.util.concurrent.Executor
-import java.util.concurrent.Executors
 
 class CameraQueues {
   companion object {
@@ -20,7 +21,8 @@ class CameraQueues {
       thread = HandlerThread(name)
       thread.start()
       handler = Handler(thread.looper)
-      executor = Executors.newSingleThreadExecutor()
+      val coroutineDispatcher = handler.asCoroutineDispatcher(name)
+      executor = coroutineDispatcher.asExecutor()
     }
 
     protected fun finalize() {
