@@ -54,7 +54,6 @@ enum class OutputType {
 
 data class SurfaceOutput(val surface: Surface,
                          val outputType: OutputType,
-                         val isMirrored: Boolean = false,
                          val dynamicRangeProfile: Long? = null) {
   val isRepeating: Boolean
     get() = outputType == OutputType.VIDEO || outputType == OutputType.PREVIEW || outputType == OutputType.VIDEO_AND_PREVIEW
@@ -80,6 +79,8 @@ fun supportsOutputType(characteristics: CameraCharacteristics, outputType: Outpu
   return false
 }
 
+private const val TAG = "CreateCaptureSession"
+
 fun CameraDevice.createCaptureSession(cameraManager: CameraManager,
                                       sessionType: SessionType,
                                       outputs: List<SurfaceOutput>,
@@ -87,22 +88,29 @@ fun CameraDevice.createCaptureSession(cameraManager: CameraManager,
                                       queue: CameraQueues.CameraQueue) {
   val characteristics = cameraManager.getCameraCharacteristics(this.id)
   val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
-  Log.i(CameraView.TAG, "Creating Capture Session on ${parseHardwareLevel(hardwareLevel)} device...")
+  Log.i(TAG, "Creating Capture Session on ${parseHardwareLevel(hardwareLevel)} device...")
 
   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
     // API >= 24
-    val outputConfigurations = outputs.map {
-      val result = OutputConfiguration(it.surface)
+    val outputConfigurations = arrayListOf<OutputConfiguration>()
+    for (output in outputs) {
+      if (!output.surface.isValid) {
+        Log.w(TAG, "Tried to add ${output.outputType} output, but Surface was invalid! Skipping this output..")
+        continue
+      }
+      val result = OutputConfiguration(output.surface)
 
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        if (it.isMirrored) result.mirrorMode = OutputConfiguration.MIRROR_MODE_H
-        if (it.dynamicRangeProfile != null) result.dynamicRangeProfile = it.dynamicRangeProfile
-        if (supportsOutputType(characteristics, it.outputType)) {
-          result.streamUseCase = it.outputType.toOutputType()
-          Log.i(CameraView.TAG, "Using optimized stream use case \"${it.outputType.name}\" (${result.streamUseCase})..")
+        if (output.dynamicRangeProfile != null) {
+          result.dynamicRangeProfile = output.dynamicRangeProfile
+          Log.i(TAG, "Using dynamic range profile ${result.dynamicRangeProfile} for ${output.outputType} output.")
+        }
+        if (supportsOutputType(characteristics, output.outputType)) {
+          result.streamUseCase = output.outputType.toOutputType()
+          Log.i(TAG, "Using optimized stream use case ${result.streamUseCase} for ${output.outputType} output.")
         }
       }
-      return@map result
+      outputConfigurations.add(result)
     }
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
