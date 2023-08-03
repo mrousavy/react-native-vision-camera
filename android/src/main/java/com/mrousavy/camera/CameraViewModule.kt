@@ -21,6 +21,9 @@ import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.guava.await
 import java.util.concurrent.Executors
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 @ReactModule(name = CameraViewModule.TAG)
 @Suppress("unused")
@@ -43,11 +46,16 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
     return TAG
   }
 
-  private fun findCameraView(viewId: Int): CameraView {
-    Log.d(TAG, "Finding view $viewId...")
-    val view = if (reactApplicationContext != null) UIManagerHelper.getUIManager(reactApplicationContext, viewId)?.resolveView(viewId) as CameraView? else null
-    Log.d(TAG,  if (reactApplicationContext != null) "Found view $viewId!" else "Couldn't find view $viewId!")
-    return view ?: throw ViewNotFoundError(viewId)
+  private suspend fun findCameraView(viewId: Int): CameraView {
+    return suspendCoroutine { continuation ->
+      UiThreadUtil.runOnUiThread {
+        Log.d(TAG, "Finding view $viewId...")
+        val view = if (reactApplicationContext != null) UIManagerHelper.getUIManager(reactApplicationContext, viewId)?.resolveView(viewId) as CameraView? else null
+        Log.d(TAG,  if (reactApplicationContext != null) "Found view $viewId!" else "Couldn't find view $viewId!")
+        if (view != null) continuation.resume(view)
+        else continuation.resumeWithException(ViewNotFoundError(viewId))
+      }
+    }
   }
 
   @ReactMethod(isBlockingSynchronousMethod = true)
@@ -65,8 +73,8 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
   @ReactMethod
   fun takePhoto(viewTag: Int, options: ReadableMap, promise: Promise) {
     coroutineScope.launch {
+      val view = findCameraView(viewTag)
       withPromise(promise) {
-        val view = findCameraView(viewTag)
         view.takePhoto(options)
       }
     }
@@ -76,8 +84,8 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
   @ReactMethod
   fun takeSnapshot(viewTag: Int, options: ReadableMap, promise: Promise) {
     coroutineScope.launch {
+      val view = findCameraView(viewTag)
       withPromise(promise) {
-        val view = findCameraView(viewTag)
         view.takeSnapshot(options)
       }
     }
@@ -102,36 +110,42 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
 
   @ReactMethod
   fun pauseRecording(viewTag: Int, promise: Promise) {
-    withPromise(promise) {
-      val view = findCameraView(viewTag)
-      view.pauseRecording()
-      return@withPromise null
+    coroutineScope.launch {
+      withPromise(promise) {
+        val view = findCameraView(viewTag)
+        view.pauseRecording()
+        return@withPromise null
+      }
     }
   }
 
   @ReactMethod
   fun resumeRecording(viewTag: Int, promise: Promise) {
-    withPromise(promise) {
+    coroutineScope.launch {
       val view = findCameraView(viewTag)
-      view.resumeRecording()
-      return@withPromise null
+      withPromise(promise) {
+        view.resumeRecording()
+        return@withPromise null
+      }
     }
   }
 
   @ReactMethod
   fun stopRecording(viewTag: Int, promise: Promise) {
-    withPromise(promise) {
+    coroutineScope.launch {
       val view = findCameraView(viewTag)
-      view.stopRecording()
-      return@withPromise null
+      withPromise(promise) {
+        view.stopRecording()
+        return@withPromise null
+      }
     }
   }
 
   @ReactMethod
   fun focus(viewTag: Int, point: ReadableMap, promise: Promise) {
     coroutineScope.launch {
+      val view = findCameraView(viewTag)
       withPromise(promise) {
-        val view = findCameraView(viewTag)
         view.focus(point)
         return@withPromise null
       }
