@@ -67,7 +67,11 @@ class CameraSession(private val cameraManager: CameraManager,
   data class CapturedPhoto(val image: Image,
                            val metadata: TotalCaptureResult,
                            val orientation: Int,
-                           val format: Int)
+                           val format: Int): Closeable {
+    override fun close() {
+      image.close()
+    }
+  }
 
   // setInput(..)
   private var cameraId: String? = null

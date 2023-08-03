@@ -44,23 +44,25 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap = corouti
                                       enableAutoRedEyeReduction,
                                       enableAutoStabilization)
 
-  Log.i(TAG, "Successfully captured ${photo.image.width} x ${photo.image.height} photo!")
+  photo.use {
+    Log.i(TAG, "Successfully captured ${photo.image.width} x ${photo.image.height} photo!")
 
-  val cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId!!)
+    val cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId!!)
 
-  val path = savePhotoToFile(context, cameraCharacteristics, photo)
+    val path = savePhotoToFile(context, cameraCharacteristics, photo)
 
-  Log.i(TAG, "Successfully saved photo to file! $path")
+    Log.i(TAG, "Successfully saved photo to file! $path")
 
-  val map = Arguments.createMap()
-  map.putString("path", path)
-  map.putInt("width", photo.image.width)
-  map.putInt("height", photo.image.height)
-  map.putBoolean("isRawPhoto", photo.format == ImageFormat.RAW_SENSOR)
+    val map = Arguments.createMap()
+    map.putString("path", path)
+    map.putInt("width", photo.image.width)
+    map.putInt("height", photo.image.height)
+    map.putBoolean("isRawPhoto", photo.format == ImageFormat.RAW_SENSOR)
 
-  // TODO: Add metadata prop to resulting photo
+    // TODO: Add metadata prop to resulting photo
 
-  return@coroutineScope map
+    return@coroutineScope map
+  }
 }
 
 private suspend fun savePhotoToFile(context: Context,
