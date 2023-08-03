@@ -20,6 +20,7 @@ import com.mrousavy.camera.utils.SurfaceOutput
 import com.mrousavy.camera.utils.closestToOrMax
 import com.mrousavy.camera.utils.createCaptureSession
 import java.io.Closeable
+import java.lang.IllegalStateException
 
 data class PipelineConfiguration(val enabled: Boolean,
                                  val callback: (image: Image) -> Unit,
@@ -62,12 +63,22 @@ class CameraSession(private val device: CameraDevice,
 
 
   fun startRunning() {
-    // Start all repeating requests (Video, Frame Processor, Preview)
-    captureSession.setRepeatingRequest(captureRequest, null, null)
+    Log.i(TAG, "Starting Camera Session...")
+    try {
+      // Start all repeating requests (Video, Frame Processor, Preview)
+      captureSession.setRepeatingRequest(captureRequest, null, null)
+    } catch (e: IllegalStateException) {
+      Log.w(TAG, "Failed to start Camera Session, this session is already closed.")
+    }
   }
 
   fun stopRunning() {
-    captureSession.stopRepeating()
+    Log.i(TAG, "Stopping Camera Session...")
+    try {
+      captureSession.stopRepeating()
+    } catch (e: IllegalStateException) {
+      Log.w(TAG, "Failed to stop Camera Session, this session is already closed.")
+    }
   }
 
   override fun close() {
@@ -76,6 +87,7 @@ class CameraSession(private val device: CameraDevice,
   }
 
   companion object {
+    private const val TAG = "CameraSession"
     suspend fun createCameraSession(device: CameraDevice,
                                     cameraManager: CameraManager,
                                     photoPipeline: PipelineConfiguration? = null,

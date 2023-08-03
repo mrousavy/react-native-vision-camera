@@ -5,39 +5,23 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.graphics.ImageFormat
-import android.graphics.PixelFormat
-import android.hardware.camera2.*
-import android.hardware.camera2.CameraDevice
-import android.hardware.camera2.params.StreamConfigurationMap
-import android.media.ImageReader
-import android.os.Build
+import android.hardware.camera2.CameraManager
 import android.util.Log
-import android.util.Range
 import android.util.Size
-import android.view.*
+import android.view.Surface
+import android.view.SurfaceView
+import android.view.View
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
-import androidx.lifecycle.*
-import com.facebook.react.bridge.*
+import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
-import com.mrousavy.camera.parsers.getVideoStabilizationMode
-import com.mrousavy.camera.utils.OutputType
-import com.mrousavy.camera.utils.SessionType
-import com.mrousavy.camera.utils.SurfaceOutput
-import com.mrousavy.camera.utils.createCaptureSession
-import com.mrousavy.camera.parsers.parseCameraError
-import com.mrousavy.camera.parsers.parseHardwareLevel
-import com.mrousavy.camera.parsers.parseVideoStabilizationMode
-import com.mrousavy.camera.utils.*
-import kotlinx.coroutines.*
-import java.lang.IllegalArgumentException
-import kotlin.coroutines.coroutineContext
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
+import com.mrousavy.camera.hooks.UseCameraDevice
+import com.mrousavy.camera.hooks.UseSurfaceViewSurface
+import com.mrousavy.camera.utils.containsAny
+import com.mrousavy.camera.utils.displayRotation
+import com.mrousavy.camera.utils.installHierarchyFitter
+import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.math.min
 
@@ -73,15 +57,19 @@ class CameraView(context: Context) : FrameLayout(context) {
   companion object {
     const val TAG = "CameraView"
 
-    private val propsThatRequireDeviceReconfiguration = arrayListOf("cameraId")
-    private val propsThatRequireSessionReconfiguration = arrayListOf("format", "photo", "video", "enableFrameProcessor")
+    private val propsThatRequirePreviewReconfiguration = arrayListOf("cameraId", "previewType")
+    private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "photo", "video", "enableFrameProcessor")
     private val propsThatRequireFormatReconfiguration = arrayListOf("fps", "hdr", "videoStabilizationMode", "lowLightBoost")
     private val arrayListOfZoom = arrayListOf("zoom")
   }
 
   // react properties
   // props that require reconfiguring
-  var cameraId: String? = null // this is actually not a react prop directly, but the result of setting device={}
+  var cameraId: String? = null
+    set(value) {
+      field = value
+      if (value != null) configureDevice()
+    }
   var enableDepthData = false
   var enableHighQualityPhotos: Boolean? = null
   var enablePortraitEffectsMatteDelivery = false
@@ -108,10 +96,10 @@ class CameraView(context: Context) : FrameLayout(context) {
   private val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
   // session
-  private var cameraDevice: CameraDevice? = null
+  private var cameraDevice: UseCameraDevice? = null
   private var cameraSession: CameraSession? = null
-  private val previewView = SurfaceView(context)
-  private var isPreviewSurfaceReady = false
+  private var previewView: View? = null
+  private var previewSurface: UseSurfaceViewSurface? = null
 
   public var frameProcessor: FrameProcessor? = null
 
@@ -141,27 +129,7 @@ class CameraView(context: Context) : FrameLayout(context) {
 
   init {
     this.installHierarchyFitter()
-    previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-    previewView.holder.addCallback(object : SurfaceHolder.Callback {
-      override fun surfaceCreated(holder: SurfaceHolder) {
-        Log.i(TAG, "PreviewView Surface created!")
-        isPreviewSurfaceReady = true
-        reconfigureAll()
-      }
-
-      override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        Log.i(TAG, "PreviewView Surface resized!")
-        isPreviewSurfaceReady = true
-        reconfigureAll()
-      }
-
-      override fun surfaceDestroyed(holder: SurfaceHolder) {
-        Log.i(TAG, "PreviewView Surface destroyed!")
-        isPreviewSurfaceReady = false
-        reconfigureAll()
-      }
-    })
-    addView(previewView)
+    setupPreviewView()
   }
 
   override fun onConfigurationChanged(newConfig: Configuration?) {
@@ -183,24 +151,41 @@ class CameraView(context: Context) : FrameLayout(context) {
     updateLifecycle()
   }
 
-  /**
-   * Invalidate all React Props and reconfigure the device
-   */
+  private fun setupPreviewView() {
+    val cameraId = cameraId ?: return
+
+    if (previewType == "native") {
+      if (this.previewView is SurfaceView) return
+      removeView(this.previewView)
+
+      val previewView = NativePreviewView(cameraManager, cameraId, context)
+      previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+      previewSurface = UseSurfaceViewSurface(previewView) {
+        Log.i(TAG, "PreviewView Surface changed!")
+        reconfigureAll()
+      }
+      addView(previewView)
+      this.previewView = previewView
+    } else {
+      throw Error("Skia is not yet implemented on Android!")
+    }
+  }
+
   fun update(changedProps: ArrayList<String>) {
     try {
-      val shouldReconfigureDevice = changedProps.containsAny(propsThatRequireDeviceReconfiguration)
-      val shouldReconfigureSession =  shouldReconfigureDevice || changedProps.containsAny(propsThatRequireSessionReconfiguration)
+      val shouldReconfigurePreview = changedProps.containsAny(propsThatRequirePreviewReconfiguration)
+      val shouldReconfigureSession =  shouldReconfigurePreview || changedProps.containsAny(propsThatRequireSessionReconfiguration)
       val shouldReconfigureFormat = shouldReconfigureSession || changedProps.containsAny(propsThatRequireFormatReconfiguration)
       val shouldReconfigureZoom = /* TODO: When should we reconfigure this? */ shouldReconfigureSession || changedProps.contains("zoom")
       val shouldReconfigureTorch = /* TODO: When should we reconfigure this? */ shouldReconfigureSession || changedProps.contains("torch")
       val shouldUpdateOrientation = /* TODO: When should we reconfigure this? */ shouldReconfigureSession ||  changedProps.contains("orientation")
       val shouldCheckActive = shouldReconfigureFormat || changedProps.contains("isActive")
 
+      if (shouldReconfigurePreview) {
+        setupPreviewView()
+      }
       CameraQueues.cameraQueue.coroutineScope.launch {
         try {
-          if (shouldReconfigureDevice) {
-            configureDevice()
-          }
           if (shouldReconfigureSession) {
             configureSession()
           }
@@ -232,36 +217,30 @@ class CameraView(context: Context) : FrameLayout(context) {
     }
   }
 
-  /**
-   * Prepares the hardware Camera Device. (cameraId)
-   */
-  private suspend fun configureDevice() {
+  private fun configureDevice() {
     Log.i(TAG, "Configuring Camera Device...")
     if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
       throw CameraPermissionError()
     }
     val cameraId = cameraId ?: throw NoCameraDeviceError()
 
-    cameraDevice = cameraManager.openCamera(cameraId) {
-      Log.i(TAG, "Camera Closed!")
-      cameraSession?.close()
-      cameraSession = null
-      cameraDevice = null
+    cameraDevice = UseCameraDevice(cameraManager, cameraId) { device ->
+      Log.i(TAG, "Camera Device changed! $device")
+      reconfigureAll()
     }
   }
 
   private suspend fun configureSession() {
-    val cameraDevice = cameraDevice
-    if (cameraDevice == null) {
-      Log.w(TAG, "Tried to call configureSession() without a CameraDevice! Returning...")
-      return
-    }
+    val cameraDevice = cameraDevice?.currentValue ?: return
+    val previewSurface = previewSurface?.currentValue ?: return
 
     val format = format
     val targetVideoSize = if (format != null) Size(format.getInt("videoWidth"), format.getInt("videoHeight")) else null
     val targetPhotoSize = if (format != null) Size(format.getInt("photoWidth"), format.getInt("photoHeight")) else null
-    val previewSurface = if (previewType == "native") previewView.holder.surface else null
 
+    // Close existing session if there is one
+    cameraSession?.close()
+    // Start new session
     cameraSession = CameraSession.createCameraSession(
       cameraDevice,
       cameraManager,
@@ -280,23 +259,23 @@ class CameraView(context: Context) : FrameLayout(context) {
   }
 
   private fun configureFormat() {
-    cameraSession?.configureFormat(fps, videoStabilizationMode, hdr, lowLightBoost)
+    val cameraSession = cameraSession ?: return
+
+    cameraSession.configureFormat(fps, videoStabilizationMode, hdr, lowLightBoost)
   }
 
   private fun updateLifecycle() {
-    val cameraSession = cameraSession
-    if (isActive && isAttachedToWindow && cameraSession != null) {
-      Log.i(TAG, "Starting Camera Session...")
+    val cameraSession = cameraSession ?: return
+
+    if (isActive && isAttachedToWindow) {
       cameraSession.startRunning()
     } else {
-      Log.i(TAG, "Stopping Camera Session...")
-      cameraSession?.stopRunning()
+      cameraSession.stopRunning()
     }
   }
 
   private fun reconfigureAll() {
     CameraQueues.cameraQueue.coroutineScope.launch {
-      configureDevice()
       configureSession()
       configureFormat()
       updateLifecycle()
