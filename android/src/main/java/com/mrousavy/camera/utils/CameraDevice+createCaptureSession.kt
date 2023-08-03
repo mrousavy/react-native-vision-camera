@@ -58,13 +58,6 @@ fun supportsOutputType(characteristics: CameraCharacteristics, outputType: Outpu
       }
     }
   }
-  // See https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture
-  // According to the Android Documentation, devices with LEVEL_3 or FULL support can do 4 use-cases.
-  // LIMITED or LEGACY devices can't do it.
-  val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
-  if (hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3 || hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL) {
-    return true
-  }
 
   return false
 }
