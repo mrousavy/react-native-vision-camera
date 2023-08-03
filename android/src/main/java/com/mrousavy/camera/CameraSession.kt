@@ -22,7 +22,6 @@ import com.mrousavy.camera.utils.SessionType
 import com.mrousavy.camera.utils.SurfaceOutput
 import com.mrousavy.camera.utils.closestToOrMax
 import com.mrousavy.camera.utils.createCaptureSession
-import kotlinx.coroutines.launch
 import java.io.Closeable
 import java.lang.IllegalStateException
 
@@ -72,9 +71,8 @@ class CameraSession(private val cameraManager: CameraManager,
 
   private val outputs = arrayListOf<SurfaceOutput>()
   private var cameraDevice: CameraDevice? = null
-  private var captureRequest: CaptureRequest? = null
   private var captureSession: CameraCaptureSession? = null
-
+  private var cameraIdCurrentlyOpening: String? = null
 
   init {
     cameraManager.registerAvailabilityCallback(this, CameraQueues.cameraQueue.handler)
@@ -122,7 +120,6 @@ class CameraSession(private val cameraManager: CameraManager,
     this.videoStabilizationMode = videoStabilizationMode
     this.hdr = hdr
     this.lowLightBoost = lowLightBoost
-    prepareCaptureRequest()
   }
 
   /**
@@ -156,6 +153,9 @@ class CameraSession(private val cameraManager: CameraManager,
 
   @SuppressLint("MissingPermission")
   private fun openCamera(cameraId: String) {
+    if (cameraIdCurrentlyOpening == cameraId) return
+    cameraIdCurrentlyOpening = cameraId
+
     if (captureSession?.device?.id == cameraId) {
       Log.i(TAG, "Tried to open Camera $cameraId, but we already have a Capture Session running with that Camera. Skipping...")
       return
@@ -207,14 +207,14 @@ class CameraSession(private val cameraManager: CameraManager,
    * Call this whenever [cameraId], [photoOutput], [videoOutput], or [previewOutput] changes.
    */
   private fun prepareOutputs() {
+    outputs.clear()
+
     val cameraId = cameraId ?: return
     val videoOutput = videoOutput
     val photoOutput = photoOutput
     val previewOutput = previewOutput
 
     Log.i(TAG, "Preparing Outputs for Camera $cameraId...")
-
-    outputs.clear()
 
     val characteristics = cameraManager.getCameraCharacteristics(cameraId)
     val config = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
@@ -290,7 +290,7 @@ class CameraSession(private val cameraManager: CameraManager,
           override fun onConfigured(session: CameraCaptureSession) {
             Log.d(TAG, "$session Successfully configured Capture Session for Camera ${camera.id}")
             captureSession = session
-            prepareCaptureRequest()
+            if (isActive) startRunning()
           }
 
           override fun onConfigureFailed(session: CameraCaptureSession) {
@@ -316,55 +316,38 @@ class CameraSession(private val cameraManager: CameraManager,
     }
   }
 
-  /**
-   * Prepares the repeating capture request which will be sent to the Camera.
-   * Call this whenever [captureSession], [fps], [videoStabilizationMode], [hdr], or [lowLightBoost] changes.
-   */
-  private fun prepareCaptureRequest() {
-    val captureSession = captureSession ?: return
-    val fps = fps
-    val videoStabilizationMode = videoStabilizationMode
-    val hdr = hdr
-    val lowLightBoost = lowLightBoost
-
-    Log.i(TAG, "Preparing repeating Capture Request...")
-
-    val captureRequest = captureSession.device.createCaptureRequest(CameraDevice.TEMPLATE_MANUAL)
-    outputs.forEach { output ->
-      if (output.isRepeating) {
-        Log.i(TAG, "Adding output surface ${output.outputType}..")
-        captureRequest.addTarget(output.surface)
-      }
-    }
-
-    if (fps != null) {
-      captureRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(fps, fps))
-    }
-    if (videoStabilizationMode != null) {
-      captureRequest.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, getVideoStabilizationMode(videoStabilizationMode))
-    }
-    if (lowLightBoost == true) {
-      captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_NIGHT)
-    }
-    if (hdr == true) {
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-        captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_HDR)
-      }
-    }
-    this.captureRequest = captureRequest.build()
-
-    // Capture Request changed, restart it
-    if (isActive) startRunning()
-  }
-
   private fun startRunning() {
     val captureSession = captureSession ?: return
-    val captureRequest = captureRequest ?: return
 
     Log.i(TAG, "Starting Camera Session...")
     try {
+      Log.i(TAG, "Preparing repeating Capture Request...")
+
+      val captureRequest = captureSession.device.createCaptureRequest(CameraDevice.TEMPLATE_MANUAL)
+      outputs.forEach { output ->
+        if (output.isRepeating) {
+          Log.i(TAG, "Adding output surface ${output.outputType}..")
+          captureRequest.addTarget(output.surface)
+        }
+      }
+
+      fps?.let { fps ->
+        captureRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(fps, fps))
+      }
+      videoStabilizationMode?.let { videoStabilizationMode ->
+        captureRequest.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, getVideoStabilizationMode(videoStabilizationMode))
+      }
+      if (lowLightBoost == true) {
+        captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_NIGHT)
+      }
+      if (hdr == true) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+          captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_HDR)
+        }
+      }
+
       // Start all repeating requests (Video, Frame Processor, Preview)
-      captureSession.setRepeatingRequest(captureRequest, null, null)
+      captureSession.setRepeatingRequest(captureRequest.build(), null, null)
       Log.i(TAG, "Camera Session started!")
     } catch (e: IllegalStateException) {
       Log.w(TAG, "Failed to start Camera Session, this session is already closed.")
