@@ -238,6 +238,8 @@ class CameraSession(private val cameraManager: CameraManager,
 
         if (didOpen) {
           onError(CameraDisconnectedError(camera.id))
+        } else {
+          onError(CameraCannotBeOpenedError(camera.id, "camera-disconnected"))
         }
 
         onCameraDisconnected()
@@ -249,9 +251,9 @@ class CameraSession(private val cameraManager: CameraManager,
         Log.i(TAG, "onError(${camera.id}) $errorCode")
 
         if (didOpen) {
-          val errorString = parseCameraError(errorCode)
-          onError(CameraCannotBeOpenedError(cameraId, errorString))
-          Log.e(TAG, "Camera $cameraId: error! ($errorCode: $errorString)")
+          onError(CameraDisconnectedError(camera.id))
+        } else {
+          onError(CameraCannotBeOpenedError(camera.id, parseCameraError(errorCode)))
         }
 
         onCameraDisconnected()
