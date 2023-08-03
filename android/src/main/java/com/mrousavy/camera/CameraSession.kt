@@ -97,7 +97,11 @@ class CameraSession(private val cameraManager: CameraManager,
   private val photoOutputSynchronizer = PhotoOutputSynchronizer()
 
   init {
-    cameraManager.registerAvailabilityCallback(this, CameraQueues.cameraQueue.handler)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      cameraManager.registerAvailabilityCallback(CameraQueues.cameraQueue.executor, this)
+    } else {
+      cameraManager.registerAvailabilityCallback(this, CameraQueues.cameraQueue.handler)
+    }
   }
 
   override fun close() {
