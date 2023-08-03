@@ -56,8 +56,8 @@ class CameraDisconnectedError(cameraId: String) : CameraError("session", "camera
 
 class VideoNotEnabledError : CameraError("capture", "video-not-enabled", "Video capture is disabled! Pass `video={true}` to enable video recordings.")
 class PhotoNotEnabledError : CameraError("capture", "photo-not-enabled", "Photo capture is disabled! Pass `photo={true}` to enable photo capture.")
-
-class InvalidFormatError(format: Int) : CameraError("capture", "invalid-photo-format", "The Photo has an invalid format! Expected ${ImageFormat.YUV_420_888}, actual: $format")
+class CaptureAbortedError(wasImageCaptured: Boolean) : CameraError("capture", "aborted", "The image capture was aborted! Was Image captured: $wasImageCaptured")
+class UnknownCaptureError(wasImageCaptured: Boolean) : CameraError("capture", "unknown", "An unknown error occurred while trying to capture an Image! Was Image captured: $wasImageCaptured")
 
 class VideoEncoderError(cause: Throwable?) : CameraError("capture", "encoder-error", "The recording failed while encoding.\n" +
   "This error may be generated when the video or audio codec encounters an error during encoding. " +

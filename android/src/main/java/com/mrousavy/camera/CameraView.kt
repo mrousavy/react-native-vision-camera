@@ -89,10 +89,10 @@ class CameraView(context: Context) : FrameLayout(context) {
 
   // private properties
   private var isMounted = false
-  private val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+  internal val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
   // session
-  private var cameraSession: CameraSession
+  internal val cameraSession: CameraSession
   private var previewView: View? = null
   private var previewSurface: Surface? = null
 
@@ -125,9 +125,11 @@ class CameraView(context: Context) : FrameLayout(context) {
   init {
     this.installHierarchyFitter()
     setupPreviewView()
-    cameraSession = CameraSession(cameraManager) { error ->
+    cameraSession = CameraSession(cameraManager, {
+      invokeOnInitialized()
+    }, { error ->
       invokeOnError(error)
-    }
+    })
   }
 
   override fun onConfigurationChanged(newConfig: Configuration?) {
@@ -230,16 +232,15 @@ class CameraView(context: Context) : FrameLayout(context) {
     if (!previewSurface.isValid) return
 
     cameraSession.setOutputs(
-      // Photo Pipeline
-      CameraSession.Output(video == true, {
-        Log.i(TAG, "Captured an Image!")
-      }, targetPhotoSize),
-      // Video Pipeline
-      CameraSession.Output(photo == true, { image ->
+      // Photo Output
+      CameraSession.PhotoOutput(photo == true, targetPhotoSize),
+      // Video Output
+      CameraSession.VideoOutput(video == true, { image ->
         val frame = Frame(image, System.currentTimeMillis(), inputRotation, false)
         onFrame(frame)
       }, targetVideoSize),
-      previewSurface
+      // Preview Output
+      CameraSession.PreviewOutput(true, previewSurface)
     )
   }
 

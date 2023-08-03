@@ -8,6 +8,8 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.CaptureResult
+import android.hardware.camera2.TotalCaptureResult
 import android.media.Image
 import android.media.ImageReader
 import android.os.Build
@@ -17,13 +19,19 @@ import android.util.Size
 import android.view.Surface
 import com.mrousavy.camera.parsers.getVideoStabilizationMode
 import com.mrousavy.camera.parsers.parseCameraError
+import com.mrousavy.camera.utils.ExifUtils
+import com.mrousavy.camera.utils.FlashMode
 import com.mrousavy.camera.utils.OutputType
+import com.mrousavy.camera.utils.PhotoOutputSynchronizer
+import com.mrousavy.camera.utils.QualityPrioritization
 import com.mrousavy.camera.utils.SessionType
 import com.mrousavy.camera.utils.SurfaceOutput
+import com.mrousavy.camera.utils.capture
 import com.mrousavy.camera.utils.closestToOrMax
 import com.mrousavy.camera.utils.createCaptureSession
+import com.mrousavy.camera.utils.createPhotoCaptureRequest
 import java.io.Closeable
-import java.lang.IllegalStateException
+import java.util.concurrent.CancellationException
 
 // TODO: Use reprocessable YUV capture session for more efficient Skia Frame Processing
 
@@ -41,24 +49,33 @@ import java.lang.IllegalStateException
  * - Changing [videoOutput] causes all [outputs] to be rebuilt, which later causes the [captureSession] to be rebuilt.
  */
 class CameraSession(private val cameraManager: CameraManager,
-                     private val onError: (e: Throwable) -> Unit): Closeable, CameraManager.AvailabilityCallback() {
+                    private val onInitialized: () -> Unit,
+                    private val onError: (e: Throwable) -> Unit): Closeable, CameraManager.AvailabilityCallback() {
   companion object {
     private const val TAG = "CameraSession"
+    private const val PHOTO_OUTPUT_BUFFER_SIZE = 3
+    private const val VIDEO_OUTPUT_BUFFER_SIZE = 2
   }
-  /**
-   * Represents any kind of output for the Camera that delivers Images. Can either be Video or Photo.
-   */
-  data class Output(val enabled: Boolean,
-                    val callback: (image: Image) -> Unit,
-                    val targetSize: Size? = null)
+  data class VideoOutput(val enabled: Boolean,
+                         val callback: (image: Image) -> Unit,
+                         val targetSize: Size? = null)
+  data class PhotoOutput(val enabled: Boolean,
+                         val targetSize: Size? = null)
+  data class PreviewOutput(val enabled: Boolean,
+                           val surface: Surface)
+
+  data class CapturedPhoto(val image: Image,
+                           val metadata: TotalCaptureResult,
+                           val orientation: Int,
+                           val format: Int)
 
   // setInput(..)
   private var cameraId: String? = null
 
   // setOutputs(..)
-  private var photoOutput: Output? = null
-  private var videoOutput: Output? = null
-  private var previewOutput: Surface? = null
+  private var photoOutput: PhotoOutput? = null
+  private var videoOutput: VideoOutput? = null
+  private var previewOutput: PreviewOutput? = null
 
   // setIsActive(..)
   private var isActive = false
@@ -73,6 +90,7 @@ class CameraSession(private val cameraManager: CameraManager,
   private var cameraDevice: CameraDevice? = null
   private var captureSession: CameraCaptureSession? = null
   private var cameraIdCurrentlyOpening: String? = null
+  private val photoOutputSynchronizer = PhotoOutputSynchronizer()
 
   init {
     cameraManager.registerAvailabilityCallback(this, CameraQueues.cameraQueue.handler)
@@ -99,9 +117,9 @@ class CameraSession(private val cameraManager: CameraManager,
   /**
    * Configure the outputs of the Camera.
    */
-  fun setOutputs(photoOutput: Output? = null,
-                 videoOutput: Output? = null,
-                 previewOutput: Surface? = null) {
+  fun setOutputs(photoOutput: PhotoOutput? = null,
+                 videoOutput: VideoOutput? = null,
+                 previewOutput: PreviewOutput? = null) {
     this.photoOutput = photoOutput
     this.videoOutput = videoOutput
     this.previewOutput = previewOutput
@@ -135,6 +153,35 @@ class CameraSession(private val cameraManager: CameraManager,
     this.isActive = isActive
     if (isActive) startRunning()
     else stopRunning()
+  }
+
+  suspend fun takePhoto(qualityPrioritization: QualityPrioritization,
+                        flashMode: FlashMode,
+                        enableRedEyeReduction: Boolean,
+                        enableAutoStabilization: Boolean): CapturedPhoto {
+    val captureSession = captureSession ?: throw CameraNotReadyError()
+
+    val captureRequest = captureSession.device.createPhotoCaptureRequest(cameraManager,
+                                                                         qualityPrioritization,
+                                                                         flashMode,
+                                                                         enableRedEyeReduction,
+                                                                         enableAutoStabilization)
+    val result = captureSession.capture(captureRequest)
+    val timestamp = result[CaptureResult.SENSOR_TIMESTAMP]!!
+    try {
+      val image = photoOutputSynchronizer[timestamp].await()
+      // TODO: Correctly get rotationDegrees and isMirrored
+      val rotation = ExifUtils.computeExifOrientation(0, false)
+
+      return CapturedPhoto(image, result, rotation, image.format)
+    } catch (e: CancellationException) {
+      throw CaptureAbortedError(false)
+    }
+  }
+
+  private fun onPhotoCaptured(image: Image) {
+    Log.i(CameraView.TAG, "Photo captured! ${image.width} x ${image.height}")
+    photoOutputSynchronizer.set(image.timestamp, image)
   }
 
   override fun onCameraAvailable(cameraId: String) {
@@ -219,12 +266,15 @@ class CameraSession(private val cameraManager: CameraManager,
     val characteristics = cameraManager.getCameraCharacteristics(cameraId)
     val config = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
 
-    if (videoOutput != null) {
+    if (videoOutput != null && videoOutput.enabled) {
       // Video or Frame Processor output: High resolution repeating images
       val pixelFormat = ImageFormat.YUV_420_888
       val videoSize = config.getOutputSizes(pixelFormat).closestToOrMax(videoOutput.targetSize)
 
-      val imageReader = ImageReader.newInstance(videoSize.width, videoSize.height, pixelFormat, 2)
+      val imageReader = ImageReader.newInstance(videoSize.width,
+                                                videoSize.height,
+                                                pixelFormat,
+                                                VIDEO_OUTPUT_BUFFER_SIZE)
       imageReader.setOnImageAvailableListener({ reader ->
         val image = reader.acquireNextImage()
         if (image == null) {
@@ -239,28 +289,28 @@ class CameraSession(private val cameraManager: CameraManager,
       outputs.add(SurfaceOutput(imageReader.surface, OutputType.VIDEO))
     }
 
-    if (photoOutput != null) {
+    if (photoOutput != null && photoOutput.enabled) {
       // Photo output: High quality still images
       val pixelFormat = ImageFormat.JPEG
       val photoSize = config.getOutputSizes(pixelFormat).closestToOrMax(photoOutput.targetSize)
 
-      val imageReader = ImageReader.newInstance(photoSize.width, photoSize.height, pixelFormat, 1)
+      val imageReader = ImageReader.newInstance(photoSize.width,
+                                                photoSize.height,
+                                                pixelFormat,
+                                                PHOTO_OUTPUT_BUFFER_SIZE)
       imageReader.setOnImageAvailableListener({ reader ->
         val image = reader.acquireLatestImage()
-        image.use {
-          Log.d(CameraView.TAG, "Photo captured! ${image.width} x ${image.height}")
-          photoOutput.callback(image)
-        }
+        onPhotoCaptured(image)
       }, CameraQueues.cameraQueue.handler)
 
       Log.i(CameraView.TAG, "Adding ${photoSize.width}x${photoSize.height} photo output. (Format: $pixelFormat)")
       outputs.add(SurfaceOutput(imageReader.surface, OutputType.PHOTO))
     }
 
-    if (previewOutput != null) {
+    if (previewOutput != null && previewOutput.enabled) {
       // Preview output: Low resolution repeating images
       Log.i(CameraView.TAG, "Adding native preview view output.")
-      outputs.add(SurfaceOutput(previewOutput, OutputType.PREVIEW))
+      outputs.add(SurfaceOutput(previewOutput.surface, OutputType.PREVIEW))
     }
 
     Log.i(TAG, "Prepared ${outputs.size} Outputs for Camera $cameraId!")
@@ -280,6 +330,7 @@ class CameraSession(private val cameraManager: CameraManager,
     Log.i(TAG, "Creating CameraCaptureSession for Camera ${camera.id}...")
     captureSession?.close()
     captureSession = null
+    photoOutputSynchronizer.clear()
 
     try {
       camera.createCaptureSession(
@@ -335,7 +386,9 @@ class CameraSession(private val cameraManager: CameraManager,
         captureRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(fps, fps))
       }
       videoStabilizationMode?.let { videoStabilizationMode ->
-        captureRequest.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, getVideoStabilizationMode(videoStabilizationMode))
+        val stabilizationMode = getVideoStabilizationMode(videoStabilizationMode)
+        captureRequest.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, stabilizationMode.digitalMode)
+        captureRequest.set(CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE, stabilizationMode.opticalMode)
       }
       if (lowLightBoost == true) {
         captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_NIGHT)
@@ -349,6 +402,8 @@ class CameraSession(private val cameraManager: CameraManager,
       // Start all repeating requests (Video, Frame Processor, Preview)
       captureSession.setRepeatingRequest(captureRequest.build(), null, null)
       Log.i(TAG, "Camera Session started!")
+
+      onInitialized()
     } catch (e: IllegalStateException) {
       Log.w(TAG, "Failed to start Camera Session, this session is already closed.")
     }

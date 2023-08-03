@@ -9,7 +9,6 @@ export interface TakePhotoOptions {
    * * `"balanced"` Indicates that photo quality and speed of delivery are balanced in priority
    * * `"speed"` Indicates that speed of photo delivery is most important, even at the expense of quality
    *
-   * @platform iOS 13.0+
    * @default "balanced"
    */
   qualityPrioritization?: 'quality' | 'balanced' | 'speed';
@@ -32,13 +31,17 @@ export interface TakePhotoOptions {
    */
   enableAutoStabilization?: boolean;
   /**
-   * Specifies whether the photo output should use content aware distortion correction on this photo request (at its discretion).
+   * Specifies whether the photo output should use content aware distortion correction on this photo request.
+   * For example, the algorithm may not apply correction to faces in the center of a photo, but may apply it to faces near the photo’s edges.
    *
+   * @platform iOS
    * @default false
    */
   enableAutoDistortionCorrection?: boolean;
   /**
    * Specifies the photo codec to use for this capture. The provided photo codec has to be supported by the session.
+   *
+   * @platform iOS
    */
   photoCodec?: CameraPhotoCodec;
   /**
@@ -69,7 +72,7 @@ export interface PhotoFile extends TemporaryFile {
    * @see [AVCapturePhoto.metadata](https://developer.apple.com/documentation/avfoundation/avcapturephoto/2873982-metadata)
    * @see [AndroidX ExifInterface](https://developer.android.com/reference/androidx/exifinterface/media/ExifInterface)
    */
-  metadata: {
+  metadata?: {
     Orientation: number;
     /**
      * @platform iOS

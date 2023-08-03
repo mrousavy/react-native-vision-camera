@@ -52,12 +52,12 @@ export const parsePhysicalDeviceTypes = (
 export type AutoFocusSystem = 'contrast-detection' | 'phase-detection' | 'none';
 
 /**
- * Indicates a format's supported video stabilization mode
+ * Indicates a format's supported video stabilization mode. Enabling video stabilization may introduce additional latency into the video capture pipeline.
  *
- * * `"off"`: Indicates that video should not be stabilized
- * * `"standard"`: Indicates that video should be stabilized using the standard video stabilization algorithm introduced with iOS 5.0. Standard video stabilization has a reduced field of view. Enabling video stabilization may introduce additional latency into the video capture pipeline
- * * `"cinematic"`: Indicates that video should be stabilized using the cinematic stabilization algorithm for more dramatic results. Cinematic video stabilization has a reduced field of view compared to standard video stabilization. Enabling cinematic video stabilization introduces much more latency into the video capture pipeline than standard video stabilization and consumes significantly more system memory. Use narrow or identical min and max frame durations in conjunction with this mode
- * * `"cinematic-extended"`: Indicates that the video should be stabilized using the extended cinematic stabilization algorithm. Enabling extended cinematic stabilization introduces longer latency into the video capture pipeline compared to the AVCaptureVideoStabilizationModeCinematic and consumes more memory, but yields improved stability. It is recommended to use identical or similar min and max frame durations in conjunction with this mode (iOS 13.0+)
+ * * `"off"`: No video stabilization. Indicates that video should not be stabilized
+ * * `"standard"`: Standard software-based video stabilization. Standard video stabilization reduces the field of view by about 10%.
+ * * `"cinematic"`: Advanced software-based video stabilization. This applies more aggressive cropping or transformations than standard.
+ * * `"cinematic-extended"`: Extended software- and hardware-based stabilization that aggressively crops and transforms the video to apply a smooth cinematic stabilization.
  * * `"auto"`: Indicates that the most appropriate video stabilization mode for the device and format should be chosen automatically
  */
 export type VideoStabilizationMode = 'off' | 'standard' | 'cinematic' | 'cinematic-extended' | 'auto';
