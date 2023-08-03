@@ -3,8 +3,6 @@ package com.mrousavy.camera.utils
 import android.graphics.ImageFormat
 import android.graphics.PixelFormat
 import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraDevice
-import android.hardware.camera2.CameraExtensionCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.params.DynamicRangeProfiles
@@ -14,7 +12,6 @@ import android.util.Size
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
-import com.mrousavy.camera.parsers.bigger
 import com.mrousavy.camera.parsers.parseHardwareLevel
 import com.mrousavy.camera.parsers.parseImageFormat
 import com.mrousavy.camera.parsers.parseLensFacing
