@@ -14,37 +14,38 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 @SuppressLint("MissingPermission")
-suspend fun CameraManager.openCamera(cameraId: String): CameraDevice {
+suspend fun CameraManager.openCamera(cameraId: String, onClosed: () -> Unit): CameraDevice {
   return suspendCoroutine { continuation ->
     var didRun = false
-    val runOnce = { block: () -> Unit ->
-      if (!didRun) {
-        block()
-        didRun = true
-      }
-    }
     Log.i(CameraView.TAG, "Opening Camera $cameraId...")
 
 
     this.openCamera(cameraId, object: CameraDevice.StateCallback() {
       override fun onOpened(device: CameraDevice) {
         Log.i(CameraView.TAG, "Successfully opened Camera Device $cameraId!")
-        runOnce {
+        if (!didRun) {
           continuation.resume(device)
+          didRun = true
         }
       }
 
       override fun onDisconnected(camera: CameraDevice) {
         Log.w(CameraView.TAG, "Camera Device $cameraId has been disconnected! Closing Camera..")
-        runOnce {
+        if (!didRun) {
           continuation.resumeWithException(CameraDisconnectedError(cameraId))
+          didRun = true
+        } else {
+          onClosed()
         }
       }
 
       override fun onError(camera: CameraDevice, errorCode: Int) {
         Log.e(CameraView.TAG, "Failed to open Camera Device $cameraId! Closing Camera.. Error: $errorCode (${parseCameraError(errorCode)})")
-        runOnce {
+        if (!didRun) {
           continuation.resumeWithException(CameraCannotBeOpenedError(cameraId, parseCameraError(errorCode)))
+          didRun = true
+        } else {
+          onClosed()
         }
       }
     }, CameraQueues.cameraQueue.handler)

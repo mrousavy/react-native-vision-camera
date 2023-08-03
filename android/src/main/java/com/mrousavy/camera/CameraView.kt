@@ -146,15 +146,19 @@ class CameraView(context: Context) : FrameLayout(context) {
       override fun surfaceCreated(holder: SurfaceHolder) {
         Log.i(TAG, "PreviewView Surface created!")
         isPreviewSurfaceReady = true
+        reconfigureAll()
       }
 
       override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
         Log.i(TAG, "PreviewView Surface resized!")
+        isPreviewSurfaceReady = true
+        reconfigureAll()
       }
 
       override fun surfaceDestroyed(holder: SurfaceHolder) {
         Log.i(TAG, "PreviewView Surface destroyed!")
         isPreviewSurfaceReady = false
+        reconfigureAll()
       }
     })
     addView(previewView)
@@ -238,7 +242,12 @@ class CameraView(context: Context) : FrameLayout(context) {
     }
     val cameraId = cameraId ?: throw NoCameraDeviceError()
 
-    cameraDevice = cameraManager.openCamera(cameraId)
+    cameraDevice = cameraManager.openCamera(cameraId) {
+      Log.i(TAG, "Camera Closed!")
+      cameraSession?.close()
+      cameraSession = null
+      cameraDevice = null
+    }
   }
 
   private suspend fun configureSession() {
@@ -282,6 +291,15 @@ class CameraView(context: Context) : FrameLayout(context) {
     } else {
       Log.i(TAG, "Stopping Camera Session...")
       cameraSession?.stopRunning()
+    }
+  }
+
+  private fun reconfigureAll() {
+    CameraQueues.cameraQueue.coroutineScope.launch {
+      configureDevice()
+      configureSession()
+      configureFormat()
+      updateLifecycle()
     }
   }
 }
