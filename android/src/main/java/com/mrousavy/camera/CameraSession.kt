@@ -2,6 +2,7 @@ package com.mrousavy.camera
 
 import android.annotation.SuppressLint
 import android.graphics.ImageFormat
+import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
@@ -280,30 +281,39 @@ class CameraSession(private val cameraManager: CameraManager,
     captureSession?.close()
     captureSession = null
 
-    camera.createCaptureSession(
-      cameraManager,
-      SessionType.REGULAR,
-      outputs,
-      object: CameraCaptureSession.StateCallback() {
-        override fun onConfigured(session: CameraCaptureSession) {
-          Log.d(TAG, "$session Successfully configured Capture Session for Camera ${camera.id}")
-          captureSession = session
-          prepareCaptureRequest()
-        }
+    try {
+      camera.createCaptureSession(
+        cameraManager,
+        SessionType.REGULAR,
+        outputs,
+        object : CameraCaptureSession.StateCallback() {
+          override fun onConfigured(session: CameraCaptureSession) {
+            Log.d(TAG, "$session Successfully configured Capture Session for Camera ${camera.id}")
+            captureSession = session
+            prepareCaptureRequest()
+          }
 
-        override fun onConfigureFailed(session: CameraCaptureSession) {
-          Log.d(TAG, "$session Failed to configure Capture Session for Camera ${camera.id}!")
-          onError(CameraCannotBeOpenedError(camera.id, "session-configuration-failed"))
-        }
+          override fun onConfigureFailed(session: CameraCaptureSession) {
+            Log.d(TAG, "$session Failed to configure Capture Session for Camera ${camera.id}!")
+            onError(CameraCannotBeOpenedError(camera.id, "session-configuration-failed"))
+          }
 
-        override fun onClosed(session: CameraCaptureSession) {
-          super.onClosed(session)
-          Log.d(TAG, "$session Capture Session for Camera ${camera.id} closed!")
-          captureSession = null
-        }
-      },
-      CameraQueues.cameraQueue
-    )
+          override fun onClosed(session: CameraCaptureSession) {
+            super.onClosed(session)
+            Log.d(TAG, "$session Capture Session for Camera ${camera.id} closed!")
+            try {
+              session.close()
+            } catch (_: Throwable) {
+            }
+            captureSession = null
+          }
+        },
+        CameraQueues.cameraQueue
+      )
+    } catch (e: CameraAccessException) {
+      Log.e(TAG, "Camera Access Exception!", e)
+      onError(CameraCannotBeOpenedError(camera.id, "camera-not-connected-anymore"))
+    }
   }
 
   /**
@@ -355,6 +365,7 @@ class CameraSession(private val cameraManager: CameraManager,
     try {
       // Start all repeating requests (Video, Frame Processor, Preview)
       captureSession.setRepeatingRequest(captureRequest, null, null)
+      Log.i(TAG, "Camera Session started!")
     } catch (e: IllegalStateException) {
       Log.w(TAG, "Failed to start Camera Session, this session is already closed.")
     }
@@ -363,7 +374,9 @@ class CameraSession(private val cameraManager: CameraManager,
   private fun stopRunning() {
     Log.i(TAG, "Stopping Camera Session...")
     try {
-      captureSession?.stopRepeating()
+      val captureSession = captureSession ?: return
+      captureSession.stopRepeating()
+      Log.i(TAG, "Camera Session stopped!")
     } catch (e: IllegalStateException) {
       Log.w(TAG, "Failed to stop Camera Session, this session is already closed.")
     }

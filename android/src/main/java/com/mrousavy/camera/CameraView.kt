@@ -225,7 +225,9 @@ class CameraView(context: Context) : FrameLayout(context) {
     val format = format
     val targetVideoSize = if (format != null) Size(format.getInt("videoWidth"), format.getInt("videoHeight")) else null
     val targetPhotoSize = if (format != null) Size(format.getInt("photoWidth"), format.getInt("photoHeight")) else null
-    val previewSurface = if (previewSurface?.isValid == true) previewSurface else null
+    val previewSurface = previewSurface ?: return
+
+    if (!previewSurface.isValid) return
 
     cameraSession.setOutputs(
       // Photo Pipeline
