@@ -80,60 +80,41 @@ fun supportsOutputType(characteristics: CameraCharacteristics, outputType: Outpu
   return false
 }
 
-private val TAG = "CreateCaptureSession"
+fun CameraDevice.createCaptureSession(cameraManager: CameraManager,
+                                      sessionType: SessionType,
+                                      outputs: List<SurfaceOutput>,
+                                      callback: CameraCaptureSession.StateCallback,
+                                      queue: CameraQueues.CameraQueue) {
+  val characteristics = cameraManager.getCameraCharacteristics(this.id)
+  val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
+  Log.i(CameraView.TAG, "Creating Capture Session on ${parseHardwareLevel(hardwareLevel)} device...")
 
-suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager,
-                                              sessionType: SessionType,
-                                              outputs: List<SurfaceOutput>,
-                                              queue: CameraQueues.CameraQueue): CameraCaptureSession {
-  return suspendCoroutine { continuation ->
+  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+    // API >= 24
+    val outputConfigurations = outputs.map {
+      val result = OutputConfiguration(it.surface)
 
-    val callback = object : CameraCaptureSession.StateCallback() {
-      override fun onConfigured(session: CameraCaptureSession) {
-        Log.i(TAG, "Successfully created Capture Session $session (${session.device.id})!")
-        continuation.resume(session)
-      }
-
-      override fun onConfigureFailed(session: CameraCaptureSession) {
-        Log.e(TAG, "Failed to create Capture Session $session (${session.device.id})!")
-        continuation.resumeWithException(RuntimeException("Failed to configure the Camera Session!"))
-      }
-
-      override fun onClosed(session: CameraCaptureSession) {
-        Log.i(TAG, "Capture Session $session (${session.device.id}) has been closed.")
-        super.onClosed(session)
-      }
-    }
-
-    val characteristics = cameraManager.getCameraCharacteristics(this.id)
-    val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
-    Log.i(CameraView.TAG, "Creating Capture Session on ${parseHardwareLevel(hardwareLevel)} device...")
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-      val outputConfigurations = outputs.map {
-        val result = OutputConfiguration(it.surface)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-          if (it.isMirrored) result.mirrorMode = OutputConfiguration.MIRROR_MODE_H
-          if (it.dynamicRangeProfile != null) result.dynamicRangeProfile = it.dynamicRangeProfile
-          if (supportsOutputType(characteristics, it.outputType)) {
-            result.streamUseCase = it.outputType.toOutputType()
-            Log.i(CameraView.TAG, "Using optimized stream use case \"${it.outputType.name}\" (${result.streamUseCase})..")
-          }
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (it.isMirrored) result.mirrorMode = OutputConfiguration.MIRROR_MODE_H
+        if (it.dynamicRangeProfile != null) result.dynamicRangeProfile = it.dynamicRangeProfile
+        if (supportsOutputType(characteristics, it.outputType)) {
+          result.streamUseCase = it.outputType.toOutputType()
+          Log.i(CameraView.TAG, "Using optimized stream use case \"${it.outputType.name}\" (${result.streamUseCase})..")
         }
-        return@map result
       }
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        // API >=28
-        val config = SessionConfiguration(sessionType.toSessionType(), outputConfigurations, queue.executor, callback)
-        this.createCaptureSession(config)
-      } else {
-        // API >=24
-        this.createCaptureSessionByOutputConfigurations(outputConfigurations, callback, queue.handler)
-      }
-    } else {
-      // API <24
-      this.createCaptureSession(outputs.map { it.surface }, callback, queue.handler)
+      return@map result
     }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      // API >=28
+      val config = SessionConfiguration(sessionType.toSessionType(), outputConfigurations, queue.executor, callback)
+      this.createCaptureSession(config)
+    } else {
+      // API >=24
+      this.createCaptureSessionByOutputConfigurations(outputConfigurations, callback, queue.handler)
+    }
+  } else {
+    // API <24
+    this.createCaptureSession(outputs.map { it.surface }, callback, queue.handler)
   }
 }

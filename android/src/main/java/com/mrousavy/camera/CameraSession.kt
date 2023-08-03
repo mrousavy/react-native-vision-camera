@@ -160,6 +160,8 @@ class CameraSession(private val cameraManager: CameraManager,
       return
     }
 
+    Log.i(TAG, "Opening Camera $cameraId...")
+
     cameraManager.openCamera(cameraId, object: CameraDevice.StateCallback() {
       // When Camera is successfully opened (called once)
       override fun onOpened(camera: CameraDevice) {
@@ -271,23 +273,37 @@ class CameraSession(private val cameraManager: CameraManager,
    * Call this whenever [cameraDevice] or [outputs] changes.
    */
   private fun prepareSession() {
-    CameraQueues.cameraQueue.coroutineScope.launch {
-      val camera = cameraDevice ?: return@launch
-      if (outputs.isEmpty()) return@launch
+    val camera = cameraDevice ?: return
+    if (outputs.isEmpty()) return
 
-      Log.i(TAG, "Creating CameraCaptureSession for Camera ${camera.id}...")
-      captureSession?.close()
+    Log.i(TAG, "Creating CameraCaptureSession for Camera ${camera.id}...")
+    captureSession?.close()
+    captureSession = null
 
-      captureSession = camera.createCaptureSession(
-        cameraManager,
-        SessionType.REGULAR,
-        outputs,
-        CameraQueues.cameraQueue
-      )
-      Log.i(TAG, "Successfully created CameraCaptureSession for Camera ${camera.id}!")
+    camera.createCaptureSession(
+      cameraManager,
+      SessionType.REGULAR,
+      outputs,
+      object: CameraCaptureSession.StateCallback() {
+        override fun onConfigured(session: CameraCaptureSession) {
+          Log.d(TAG, "$session Successfully configured Capture Session for Camera ${camera.id}")
+          captureSession = session
+          prepareCaptureRequest()
+        }
 
-      prepareCaptureRequest()
-    }
+        override fun onConfigureFailed(session: CameraCaptureSession) {
+          Log.d(TAG, "$session Failed to configure Capture Session for Camera ${camera.id}!")
+          onError(CameraCannotBeOpenedError(camera.id, "session-configuration-failed"))
+        }
+
+        override fun onClosed(session: CameraCaptureSession) {
+          super.onClosed(session)
+          Log.d(TAG, "$session Capture Session for Camera ${camera.id} closed!")
+          captureSession = null
+        }
+      },
+      CameraQueues.cameraQueue
+    )
   }
 
   /**
