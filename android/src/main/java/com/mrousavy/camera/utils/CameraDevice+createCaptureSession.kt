@@ -78,7 +78,7 @@ fun CameraDevice.createCaptureSession(cameraManager: CameraManager,
                                       queue: CameraQueues.CameraQueue) {
   val characteristics = cameraManager.getCameraCharacteristics(this.id)
   val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
-  Log.i(TAG, "Creating Capture Session on ${parseHardwareLevel(hardwareLevel)} device...")
+  Log.i(TAG, "Creating Capture Session.. Hardware Level: ${parseHardwareLevel(hardwareLevel)}")
 
   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
     // API >= 24
