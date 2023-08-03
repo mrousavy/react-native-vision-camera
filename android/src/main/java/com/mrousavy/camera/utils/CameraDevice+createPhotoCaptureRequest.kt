@@ -5,6 +5,7 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
+import android.view.Surface
 
 
 enum class FlashMode { OFF, ON, AUTO }
@@ -18,6 +19,7 @@ private fun supportsDeviceZsl(capabilities: IntArray): Boolean {
 }
 
 fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
+                                           surface: Surface,
                                            qualityPrioritization: QualityPrioritization,
                                            flashMode: FlashMode,
                                            enableRedEyeReduction: Boolean,
@@ -83,6 +85,8 @@ fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
       // no stabilization is supported. ignore it
     }
   }
+
+  captureRequest.addTarget(surface)
 
   return captureRequest.build()
 }

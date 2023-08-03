@@ -161,7 +161,9 @@ class CameraSession(private val cameraManager: CameraManager,
                         enableAutoStabilization: Boolean): CapturedPhoto {
     val captureSession = captureSession ?: throw CameraNotReadyError()
 
+    val photoOutput = outputs.find { it.outputType == OutputType.PHOTO } ?: throw PhotoNotEnabledError()
     val captureRequest = captureSession.device.createPhotoCaptureRequest(cameraManager,
+                                                                         photoOutput.surface,
                                                                          qualityPrioritization,
                                                                          flashMode,
                                                                          enableRedEyeReduction,
