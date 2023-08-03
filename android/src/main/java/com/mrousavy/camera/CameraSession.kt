@@ -223,10 +223,12 @@ class CameraSession(private val cameraManager: CameraManager,
 
     Log.i(TAG, "Opening Camera $cameraId...")
 
+    var didOpen = false
     cameraManager.openCamera(cameraId, object: CameraDevice.StateCallback() {
       // When Camera is successfully opened (called once)
       override fun onOpened(camera: CameraDevice) {
         Log.i(TAG, "Camera $cameraId: opened!")
+        didOpen = true
         onCameraInitialized(camera)
       }
 
@@ -234,15 +236,23 @@ class CameraSession(private val cameraManager: CameraManager,
       override fun onDisconnected(camera: CameraDevice) {
         Log.i(TAG, "Camera $cameraId: disconnected!")
 
+        if (didOpen) {
+          onError(CameraDisconnectedError(camera.id))
+        }
+
         onCameraDisconnected()
         camera.close()
       }
 
       // When Camera has been encountered an Error (either called on init, or later)
       override fun onError(camera: CameraDevice, errorCode: Int) {
-        val errorString = parseCameraError(errorCode)
-        onError(CameraCannotBeOpenedError(cameraId, errorString))
-        Log.e(TAG, "Camera $cameraId: error! ($errorCode: $errorString)")
+        Log.i(TAG, "onError(${camera.id}) $errorCode")
+
+        if (didOpen) {
+          val errorString = parseCameraError(errorCode)
+          onError(CameraCannotBeOpenedError(cameraId, errorString))
+          Log.e(TAG, "Camera $cameraId: error! ($errorCode: $errorString)")
+        }
 
         onCameraDisconnected()
         camera.close()
