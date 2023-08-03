@@ -1,7 +1,10 @@
 package com.mrousavy.camera.parsers
 
-import android.hardware.camera2.CameraMetadata.*
-import android.os.Build
+import android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_OFF
+import android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_ON
+import android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
+import android.hardware.camera2.CameraMetadata.LENS_OPTICAL_STABILIZATION_MODE_OFF
+import android.hardware.camera2.CameraMetadata.LENS_OPTICAL_STABILIZATION_MODE_ON
 
 data class VideoStabilizationMode(val digitalMode: Int,
                                   val opticalMode: Int)

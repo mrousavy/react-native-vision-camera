@@ -3,7 +3,6 @@ package com.mrousavy.camera
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.media.Image
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*

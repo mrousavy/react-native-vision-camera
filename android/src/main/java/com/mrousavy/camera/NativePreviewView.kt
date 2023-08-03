@@ -3,7 +3,6 @@ package com.mrousavy.camera
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Resources
-import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.util.Log
@@ -13,7 +12,6 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import com.mrousavy.camera.utils.bigger
 import com.mrousavy.camera.utils.smaller
-import kotlin.math.max
 import kotlin.math.roundToInt
 
 /**

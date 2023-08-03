@@ -12,15 +12,11 @@ import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener
 import com.facebook.react.uimanager.UIManagerHelper
-import com.facebook.react.bridge.ReactApplicationContext
 import com.mrousavy.camera.frameprocessor.VisionCameraInstaller
-import java.util.concurrent.ExecutorService
 import com.mrousavy.camera.frameprocessor.VisionCameraProxy
 import com.mrousavy.camera.parsers.*
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.guava.await
-import java.util.concurrent.Executors
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine

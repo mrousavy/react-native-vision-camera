@@ -13,7 +13,6 @@ import com.facebook.react.uimanager.UIManagerHelper
 import com.mrousavy.camera.CameraView
 import com.mrousavy.camera.ViewNotFoundError
 import java.lang.ref.WeakReference
-import java.util.concurrent.ExecutorService
 
 
 @Suppress("KotlinJniMissingFunction") // we use fbjni.

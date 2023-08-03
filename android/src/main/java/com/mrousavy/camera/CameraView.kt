@@ -9,7 +9,6 @@ import android.hardware.camera2.CameraManager
 import android.util.Log
 import android.util.Size
 import android.view.Surface
-import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
 import android.widget.FrameLayout
@@ -17,12 +16,9 @@ import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
-import com.mrousavy.camera.hooks.UseCameraDevice
-import com.mrousavy.camera.hooks.UseSurfaceViewSurface
 import com.mrousavy.camera.utils.containsAny
 import com.mrousavy.camera.utils.displayRotation
 import com.mrousavy.camera.utils.installHierarchyFitter
-import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.math.min
 

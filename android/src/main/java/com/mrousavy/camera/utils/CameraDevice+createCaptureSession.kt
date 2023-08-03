@@ -1,26 +1,16 @@
 package com.mrousavy.camera.utils
 
-import android.content.res.Resources
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
-import android.media.CamcorderProfile
 import android.os.Build
 import android.util.Log
-import android.util.Size
 import android.view.Surface
 import com.mrousavy.camera.CameraQueues
-import com.mrousavy.camera.CameraView
 import com.mrousavy.camera.parsers.parseHardwareLevel
-import kotlinx.coroutines.android.asCoroutineDispatcher
-import kotlinx.coroutines.asExecutor
-import java.util.concurrent.Executor
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 enum class SessionType {
   REGULAR,

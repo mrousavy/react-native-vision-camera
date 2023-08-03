@@ -4,12 +4,8 @@ import android.os.Handler
 import android.os.HandlerThread
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.asCoroutineDispatcher
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.asExecutor
 import java.util.concurrent.Executor
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import kotlin.coroutines.CoroutineContext
 
 class CameraQueues {
   companion object {

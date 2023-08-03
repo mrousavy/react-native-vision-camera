@@ -7,15 +7,10 @@ import android.hardware.camera2.*
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
-import com.mrousavy.camera.parsers.getVideoStabilizationMode
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
-import java.nio.file.Files
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @SuppressLint("UnsafeOptInUsageError")
 suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap = coroutineScope {

@@ -1,7 +1,5 @@
 package com.mrousavy.camera
 
-import android.graphics.ImageFormat
-
 abstract class CameraError(
   /**
    * The domain of the error. Error domains are used to group errors.
