@@ -80,16 +80,28 @@ fun supportsOutputType(characteristics: CameraCharacteristics, outputType: Outpu
   return false
 }
 
-suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager, sessionType: SessionType, outputs: List<SurfaceOutput>, queue: CameraQueues.CameraQueue): CameraCaptureSession {
+private val TAG = "CreateCaptureSession"
+
+suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager,
+                                              sessionType: SessionType,
+                                              outputs: List<SurfaceOutput>,
+                                              queue: CameraQueues.CameraQueue): CameraCaptureSession {
   return suspendCoroutine { continuation ->
 
     val callback = object : CameraCaptureSession.StateCallback() {
       override fun onConfigured(session: CameraCaptureSession) {
+        Log.i(TAG, "Successfully created Capture Session $session (${session.device.id})!")
         continuation.resume(session)
       }
 
       override fun onConfigureFailed(session: CameraCaptureSession) {
+        Log.e(TAG, "Failed to create Capture Session $session (${session.device.id})!")
         continuation.resumeWithException(RuntimeException("Failed to configure the Camera Session!"))
+      }
+
+      override fun onClosed(session: CameraCaptureSession) {
+        Log.i(TAG, "Capture Session $session (${session.device.id}) has been closed.")
+        super.onClosed(session)
       }
     }
 

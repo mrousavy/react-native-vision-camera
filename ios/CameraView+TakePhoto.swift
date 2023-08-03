@@ -44,6 +44,7 @@ extension CameraView {
 
       // default, overridable settings if high quality capture was enabled
       if self.enableHighQualityPhotos?.boolValue == true {
+        // TODO: On iOS 16+ this will be removed in favor of maxPhotoDimensions.
         photoSettings.isHighResolutionPhotoEnabled = true
         if #available(iOS 13.0, *) {
           photoSettings.photoQualityPrioritization = .quality

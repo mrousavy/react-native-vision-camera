@@ -1,6 +1,7 @@
 package com.mrousavy.camera.utils
 
 import android.util.Size
+import android.util.SizeF
 import android.view.Surface
 import kotlin.math.abs
 import kotlin.math.max
@@ -32,6 +33,12 @@ val Size.bigger: Int
 val Size.smaller: Int
   get() = min(width, height)
 
+val SizeF.bigger: Float
+  get() = max(this.width, this.height)
+val SizeF.smaller: Float
+  get() = min(this.width, this.height)
+
 operator fun Size.compareTo(other: Size): Int {
   return (this.width * this.height).compareTo(other.width * other.height)
 }
+

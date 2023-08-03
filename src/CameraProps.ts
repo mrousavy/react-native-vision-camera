@@ -14,6 +14,11 @@ export type FrameProcessor =
       type: 'skia-frame-processor';
     };
 
+// TODO: Replace `enableHighQualityPhotos: boolean` in favor of `priorization: 'photo' | 'video'`
+// TODO: Use RCT_ENUM_PARSER for stuff like previewType, torch, videoStabilizationMode, and orientation
+// TODO: Use Photo HostObject for stuff like depthData, portraitEffects, etc.
+// TODO: Add RAW capture support
+
 export interface CameraProps extends ViewProps {
   /**
    * The Camera Device to use.

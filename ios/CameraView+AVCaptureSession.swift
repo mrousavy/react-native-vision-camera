@@ -74,8 +74,10 @@ extension CameraView {
       photoOutput = AVCapturePhotoOutput()
 
       if enableHighQualityPhotos?.boolValue == true {
+        // TODO: In iOS 16 this will be removed in favor of maxPhotoDimensions.
         photoOutput!.isHighResolutionCaptureEnabled = true
         if #available(iOS 13.0, *) {
+          // TODO: Test if this actually does any fusion or if this just calls the captureOutput twice. If the latter, remove it.
           photoOutput!.isVirtualDeviceConstituentPhotoDeliveryEnabled = photoOutput!.isVirtualDeviceConstituentPhotoDeliverySupported
           photoOutput!.maxPhotoQualityPrioritization = .quality
         } else {
