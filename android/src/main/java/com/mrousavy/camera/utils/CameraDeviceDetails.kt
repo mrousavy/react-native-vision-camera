@@ -12,10 +12,11 @@ import android.util.Size
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
+import com.mrousavy.camera.parsers.parseDigitalVideoStabilizationMode
 import com.mrousavy.camera.parsers.parseHardwareLevel
 import com.mrousavy.camera.parsers.parseImageFormat
 import com.mrousavy.camera.parsers.parseLensFacing
-import com.mrousavy.camera.parsers.parseVideoStabilizationMode
+import com.mrousavy.camera.parsers.parseOpticalVideoStabilizationMode
 import kotlin.math.PI
 import kotlin.math.atan
 
@@ -77,9 +78,11 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
 
   private fun createStabilizationModes(): ReadableArray {
     val array = Arguments.createArray()
-    val videoStabilizationModes = digitalStabilizationModes.plus(opticalStabilizationModes)
-    videoStabilizationModes.forEach { videoStabilizationMode ->
-      array.pushString(parseVideoStabilizationMode(videoStabilizationMode))
+    digitalStabilizationModes.forEach { videoStabilizationMode ->
+      array.pushString(parseDigitalVideoStabilizationMode(videoStabilizationMode))
+    }
+    opticalStabilizationModes.forEach { videoStabilizationMode ->
+      array.pushString(parseOpticalVideoStabilizationMode(videoStabilizationMode))
     }
     return array
   }
