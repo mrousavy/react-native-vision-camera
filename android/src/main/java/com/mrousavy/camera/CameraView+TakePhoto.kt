@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.ImageFormat
 import android.hardware.camera2.*
+import android.util.Log
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
@@ -12,10 +13,12 @@ import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 
+private const val TAG = "CameraView.takePhoto"
+
 @SuppressLint("UnsafeOptInUsageError")
 suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap = coroutineScope {
-  // TODO: takePhoto()
   val options = optionsMap.toHashMap()
+  Log.i(TAG, "Taking photo... Options: $options")
 
   val qualityPrioritization = options["qualityPrioritization"] as? String
   val flash = options["flash"] as? String
@@ -41,9 +44,13 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap = corouti
                                       enableAutoRedEyeReduction,
                                       enableAutoStabilization)
 
+  Log.i(TAG, "Successfully captured ${photo.image.width} x ${photo.image.height} photo!")
+
   val cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId!!)
 
   val path = savePhotoToFile(context, cameraCharacteristics, photo)
+
+  Log.i(TAG, "Successfully saved photo to file! $path")
 
   val map = Arguments.createMap()
   map.putString("path", path)

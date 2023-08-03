@@ -168,7 +168,9 @@ class CameraSession(private val cameraManager: CameraManager,
                                                                          flashMode,
                                                                          enableRedEyeReduction,
                                                                          enableAutoStabilization)
+    Log.i(TAG, "Capturing Photo...")
     val result = captureSession.capture(captureRequest)
+    Log.i(TAG, "Photo captured! Awaiting image data..")
     val timestamp = result[CaptureResult.SENSOR_TIMESTAMP]!!
     try {
       val image = photoOutputSynchronizer[timestamp].await()
@@ -248,6 +250,7 @@ class CameraSession(private val cameraManager: CameraManager,
     cameraDevice = null
     captureSession?.close()
     captureSession = null
+    photoOutputSynchronizer.clear()
   }
 
 
@@ -359,6 +362,7 @@ class CameraSession(private val cameraManager: CameraManager,
             } catch (_: Throwable) {
             }
             captureSession = null
+            photoOutputSynchronizer.clear()
           }
         },
         CameraQueues.cameraQueue
