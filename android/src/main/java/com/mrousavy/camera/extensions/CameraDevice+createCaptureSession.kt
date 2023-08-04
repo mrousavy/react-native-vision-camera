@@ -11,7 +11,11 @@ import android.os.Build
 import android.util.Log
 import android.view.Surface
 import com.mrousavy.camera.CameraQueues
+import com.mrousavy.camera.CameraSessionCannotBeConfiguredError
 import com.mrousavy.camera.parsers.parseHardwareLevel
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 enum class SessionType {
   REGULAR,
@@ -53,6 +57,14 @@ class ImageReaderOutput(val imageReader: ImageReader,
                         outputType: OutputType,
                         dynamicRangeProfile: Long? = null): SurfaceOutput(imageReader.surface, outputType, dynamicRangeProfile)
 
+
+fun outputsToString(outputs: List<SurfaceOutput>): String {
+  return outputs.joinToString(separator = ", ") { output ->
+    if (output is ImageReaderOutput) "${output.outputType} (${output.imageReader.width}x${output.imageReader.height} @${output.imageReader.imageFormat})"
+    else "${output.outputType}"
+  }
+}
+
 fun supportsOutputType(characteristics: CameraCharacteristics, outputType: OutputType): Boolean {
   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
     val availableUseCases = characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES)
@@ -67,49 +79,75 @@ fun supportsOutputType(characteristics: CameraCharacteristics, outputType: Outpu
 }
 
 private const val TAG = "CreateCaptureSession"
+private var sessionId = 1000
 
-fun CameraDevice.createCaptureSession(cameraManager: CameraManager,
-                                      sessionType: SessionType,
-                                      outputs: List<SurfaceOutput>,
-                                      callback: CameraCaptureSession.StateCallback,
-                                      queue: CameraQueues.CameraQueue) {
-  val characteristics = cameraManager.getCameraCharacteristics(this.id)
-  val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
-  Log.i(TAG, "Creating Capture Session.. Hardware Level: ${parseHardwareLevel(hardwareLevel)}")
+suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager,
+                                              sessionType: SessionType,
+                                              outputs: List<SurfaceOutput>,
+                                              onClosed: (session: CameraCaptureSession) -> Unit,
+                                              queue: CameraQueues.CameraQueue): CameraCaptureSession {
+  return suspendCancellableCoroutine { continuation ->
+    val characteristics = cameraManager.getCameraCharacteristics(id)
+    val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
+    val sessionId = sessionId++
+    Log.i(TAG, "Camera $id: Creating Capture Session #$sessionId... " +
+      "Hardware Level: ${parseHardwareLevel(hardwareLevel)} | Outputs: ${outputsToString(outputs)}")
 
-  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-    // API >= 24
-    val outputConfigurations = arrayListOf<OutputConfiguration>()
-    for (output in outputs) {
-      if (!output.surface.isValid) {
-        Log.w(TAG, "Tried to add ${output.outputType} output, but Surface was invalid! Skipping this output..")
-        continue
+    val callback = object: CameraCaptureSession.StateCallback() {
+      override fun onConfigured(session: CameraCaptureSession) {
+        Log.i(TAG, "Camera $id: Opening Capture Session #$sessionId...")
+        continuation.resume(session)
       }
-      val result = OutputConfiguration(output.surface)
 
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        if (output.dynamicRangeProfile != null) {
-          result.dynamicRangeProfile = output.dynamicRangeProfile
-          Log.i(TAG, "Using dynamic range profile ${result.dynamicRangeProfile} for ${output.outputType} output.")
-        }
-        if (supportsOutputType(characteristics, output.outputType)) {
-          result.streamUseCase = output.outputType.toOutputType()
-          Log.i(TAG, "Using optimized stream use case ${result.streamUseCase} for ${output.outputType} output.")
-        }
+      override fun onConfigureFailed(session: CameraCaptureSession) {
+        Log.e(TAG, "Camera $id: Failed to configure Capture Session #$sessionId!")
+        continuation.resumeWithException(CameraSessionCannotBeConfiguredError(id, outputs))
       }
-      outputConfigurations.add(result)
+
+      override fun onClosed(session: CameraCaptureSession) {
+        super.onClosed(session)
+        Log.i(TAG, "Camera $id: Capture Session #$sessionId closed!")
+        onClosed(session)
+      }
     }
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-      // API >=28
-      val config = SessionConfiguration(sessionType.toSessionType(), outputConfigurations, queue.executor, callback)
-      this.createCaptureSession(config)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+      // API >= 24
+      val outputConfigurations = arrayListOf<OutputConfiguration>()
+      for (output in outputs) {
+        if (!output.surface.isValid) {
+          Log.w(TAG, "Tried to add ${output.outputType} output, but Surface was invalid! Skipping this output..")
+          continue
+        }
+        val result = OutputConfiguration(output.surface)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+          if (output.dynamicRangeProfile != null) {
+            result.dynamicRangeProfile = output.dynamicRangeProfile
+            Log.i(TAG, "Using dynamic range profile ${result.dynamicRangeProfile} for ${output.outputType} output.")
+          }
+          if (supportsOutputType(characteristics, output.outputType)) {
+            result.streamUseCase = output.outputType.toOutputType()
+            Log.i(TAG, "Using optimized stream use case ${result.streamUseCase} for ${output.outputType} output.")
+          }
+        }
+        outputConfigurations.add(result)
+      }
+
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        // API >=28
+        Log.i(TAG, "Using new API (>=28)")
+        val config = SessionConfiguration(sessionType.toSessionType(), outputConfigurations, queue.executor, callback)
+        this.createCaptureSession(config)
+      } else {
+        // API >=24
+        Log.i(TAG, "Using legacy API (<28)")
+        this.createCaptureSessionByOutputConfigurations(outputConfigurations, callback, queue.handler)
+      }
     } else {
-      // API >=24
-      this.createCaptureSessionByOutputConfigurations(outputConfigurations, callback, queue.handler)
+      // API <24
+      Log.i(TAG, "Using legacy API (<24)")
+      this.createCaptureSession(outputs.map { it.surface }, callback, queue.handler)
     }
-  } else {
-    // API <24
-    this.createCaptureSession(outputs.map { it.surface }, callback, queue.handler)
   }
 }

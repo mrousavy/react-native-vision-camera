@@ -33,6 +33,8 @@ import com.mrousavy.camera.utils.ExifUtils
 import com.mrousavy.camera.utils.PhotoOutputSynchronizer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.Closeable
 import java.util.concurrent.CancellationException
 
@@ -98,6 +100,7 @@ class CameraSession(private val cameraManager: CameraManager,
   private var captureSession: CameraCaptureSession? = null
   private var cameraIdCurrentlyOpening: String? = null
   private val photoOutputSynchronizer = PhotoOutputSynchronizer()
+  private val mutex = Mutex()
 
   init {
     cameraManager.registerAvailabilityCallback(this, CameraQueues.cameraQueue.handler)
@@ -133,8 +136,11 @@ class CameraSession(private val cameraManager: CameraManager,
     this.photoOutput = photoOutput
     this.videoOutput = videoOutput
     this.previewOutput = previewOutput
-    // outputs changed, prepare them.
-    prepareOutputs()
+
+    CoroutineScope(CameraQueues.cameraQueue.coroutineDispatcher).launch {
+      // outputs changed, prepare them.
+      prepareOutputs()
+    }
   }
 
   /**
@@ -222,6 +228,7 @@ class CameraSession(private val cameraManager: CameraManager,
     cameraDevice = null
 
     val camera = cameraManager.openCamera(cameraId, { camera, disconnectReason ->
+      this.isActive = false
       if (cameraDevice == camera) {
         cameraDevice = null
       }
@@ -231,6 +238,7 @@ class CameraSession(private val cameraManager: CameraManager,
     }, CameraQueues.cameraQueue)
 
     cameraDevice = camera
+    prepareSession()
   }
 
 
@@ -238,80 +246,84 @@ class CameraSession(private val cameraManager: CameraManager,
    * Prepares the Image Reader and Surface outputs.
    * Call this whenever [cameraId], [photoOutput], [videoOutput], or [previewOutput] changes.
    */
-  private fun prepareOutputs() {
-    outputs.forEach { output ->
-      if (output is ImageReaderOutput) {
-        Log.i(TAG, "Closing ImageReader for ${output.outputType} output..")
-        output.imageReader.close()
-      }
-    }
-    outputs.clear()
+  private suspend fun prepareOutputs() {
+    mutex.withLock {
+      val cameraId = cameraId ?: return
+      val videoOutput = videoOutput
+      val photoOutput = photoOutput
+      val previewOutput = previewOutput
 
-    val cameraId = cameraId ?: return
-    val videoOutput = videoOutput
-    val photoOutput = photoOutput
-    val previewOutput = previewOutput
+      val characteristics = cameraManager.getCameraCharacteristics(cameraId)
+      val config = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
 
-    Log.i(TAG, "Preparing Outputs for Camera $cameraId...")
-
-    val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-    val config = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
-
-    if (videoOutput != null && videoOutput.enabled) {
-      // Video or Frame Processor output: High resolution repeating images
-      val pixelFormat = ImageFormat.YUV_420_888
-      val videoSize = config.getOutputSizes(pixelFormat).closestToOrMax(videoOutput.targetSize)
-
-      val imageReader = ImageReader.newInstance(videoSize.width,
-                                                videoSize.height,
-                                                pixelFormat,
-                                                VIDEO_OUTPUT_BUFFER_SIZE)
-      imageReader.setOnImageAvailableListener({ reader ->
-        val image = reader.acquireNextImage()
-        if (image == null) {
-          Log.w(CameraView.TAG, "Failed to get new Image from ImageReader, dropping a Frame...")
-          return@setOnImageAvailableListener
+      outputs.forEach { output ->
+        if (output is ImageReaderOutput) {
+          Log.i(TAG, "Closing ImageReader for ${output.outputType} output..")
+          output.imageReader.close()
         }
+      }
+      outputs.clear()
 
-        videoOutput.callback(image)
-      }, CameraQueues.videoQueue.handler)
+      Log.i(TAG, "Preparing Outputs for Camera $cameraId...")
 
-      Log.i(CameraView.TAG, "Adding ${videoSize.width}x${videoSize.height} video output. (Format: $pixelFormat)")
-      outputs.add(ImageReaderOutput(imageReader, OutputType.VIDEO))
+      if (videoOutput != null && videoOutput.enabled) {
+        // Video or Frame Processor output: High resolution repeating images
+        val pixelFormat = ImageFormat.YUV_420_888
+        val videoSize = config.getOutputSizes(pixelFormat).closestToOrMax(videoOutput.targetSize)
+
+        val imageReader = ImageReader.newInstance(videoSize.width,
+                                                  videoSize.height,
+                                                  pixelFormat,
+                                                  VIDEO_OUTPUT_BUFFER_SIZE)
+        imageReader.setOnImageAvailableListener({ reader ->
+          val image = reader.acquireNextImage()
+          if (image == null) {
+            Log.w(CameraView.TAG, "Failed to get new Image from ImageReader, dropping a Frame...")
+            return@setOnImageAvailableListener
+          }
+
+          videoOutput.callback(image)
+        }, CameraQueues.videoQueue.handler)
+
+        Log.i(CameraView.TAG, "Adding ${videoSize.width}x${videoSize.height} video output. (Format: $pixelFormat)")
+        outputs.add(ImageReaderOutput(imageReader, OutputType.VIDEO))
+      }
+
+      if (photoOutput != null && photoOutput.enabled) {
+        // Photo output: High quality still images
+        val pixelFormat = ImageFormat.JPEG
+        val photoSize = config.getOutputSizes(pixelFormat).closestToOrMax(photoOutput.targetSize)
+
+        val imageReader = ImageReader.newInstance(photoSize.width,
+                                                  photoSize.height,
+                                                  pixelFormat,
+                                                  PHOTO_OUTPUT_BUFFER_SIZE)
+        imageReader.setOnImageAvailableListener({ reader ->
+          val image = reader.acquireLatestImage()
+          onPhotoCaptured(image)
+        }, CameraQueues.cameraQueue.handler)
+
+        Log.i(CameraView.TAG, "Adding ${photoSize.width}x${photoSize.height} photo output. (Format: $pixelFormat)")
+        outputs.add(ImageReaderOutput(imageReader, OutputType.PHOTO))
+      }
+
+      if (previewOutput != null && previewOutput.enabled) {
+        // Preview output: Low resolution repeating images
+        Log.i(CameraView.TAG, "Adding native preview view output.")
+        outputs.add(SurfaceOutput(previewOutput.surface, OutputType.PREVIEW))
+      }
+
+      Log.i(TAG, "Prepared ${outputs.size} Outputs for Camera $cameraId!")
     }
 
-    if (photoOutput != null && photoOutput.enabled) {
-      // Photo output: High quality still images
-      val pixelFormat = ImageFormat.JPEG
-      val photoSize = config.getOutputSizes(pixelFormat).closestToOrMax(photoOutput.targetSize)
-
-      val imageReader = ImageReader.newInstance(photoSize.width,
-                                                photoSize.height,
-                                                pixelFormat,
-                                                PHOTO_OUTPUT_BUFFER_SIZE)
-      imageReader.setOnImageAvailableListener({ reader ->
-        val image = reader.acquireLatestImage()
-        onPhotoCaptured(image)
-      }, CameraQueues.cameraQueue.handler)
-
-      Log.i(CameraView.TAG, "Adding ${photoSize.width}x${photoSize.height} photo output. (Format: $pixelFormat)")
-      outputs.add(ImageReaderOutput(imageReader, OutputType.PHOTO))
-    }
-
-    if (previewOutput != null && previewOutput.enabled) {
-      // Preview output: Low resolution repeating images
-      Log.i(CameraView.TAG, "Adding native preview view output.")
-      outputs.add(SurfaceOutput(previewOutput.surface, OutputType.PREVIEW))
-    }
-
-    Log.i(TAG, "Prepared ${outputs.size} Outputs for Camera $cameraId!")
+    prepareSession()
   }
 
   /**
    * Creates the [CameraCaptureSession].
    * Call this whenever [cameraDevice] or [outputs] changes.
    */
-  private fun prepareSession() {
+  private suspend fun prepareSession() {
     val camera = cameraDevice ?: return
     if (outputs.isEmpty()) return
 
@@ -321,35 +333,19 @@ class CameraSession(private val cameraManager: CameraManager,
     photoOutputSynchronizer.clear()
 
     try {
-      camera.createCaptureSession(
-        cameraManager,
-        SessionType.REGULAR,
-        outputs,
-        object : CameraCaptureSession.StateCallback() {
-          override fun onConfigured(session: CameraCaptureSession) {
-            Log.d(TAG, "$session Successfully configured Capture Session for Camera ${camera.id}")
-            captureSession = session
-            if (isActive) startRunning()
-          }
+      // Start up the Capture Session on the Camera
+      val session = camera.createCaptureSession(cameraManager, SessionType.REGULAR, outputs, { session ->
+        if (captureSession == session) {
+          captureSession?.close()
+          captureSession = null
+        }
+        isActive = false
+        Log.i(TAG, "Camera Session closed.")
+      }, CameraQueues.cameraQueue)
 
-          override fun onConfigureFailed(session: CameraCaptureSession) {
-            Log.d(TAG, "$session Failed to configure Capture Session for Camera ${camera.id}!")
-            onError(CameraCannotBeOpenedError(camera.id, "session-configuration-failed"))
-          }
+      captureSession = session
 
-          override fun onClosed(session: CameraCaptureSession) {
-            super.onClosed(session)
-            Log.d(TAG, "$session Capture Session for Camera ${camera.id} closed!")
-            try {
-              session.close()
-            } catch (_: Throwable) {
-            }
-            captureSession = null
-            photoOutputSynchronizer.clear()
-          }
-        },
-        CameraQueues.cameraQueue
-      )
+      if (isActive) startRunning()
     } catch (e: CameraAccessException) {
       Log.e(TAG, "Camera Access Exception!", e)
       onError(CameraCannotBeOpenedError(camera.id, "camera-not-connected-anymore"))
