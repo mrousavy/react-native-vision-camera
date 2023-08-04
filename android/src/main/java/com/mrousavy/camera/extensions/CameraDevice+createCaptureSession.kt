@@ -95,7 +95,7 @@ suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager,
 
     val callback = object: CameraCaptureSession.StateCallback() {
       override fun onConfigured(session: CameraCaptureSession) {
-        Log.i(TAG, "Camera $id: Opening Capture Session #$sessionId...")
+        Log.i(TAG, "Camera $id: Capture Session #$sessionId configured!")
         continuation.resume(session)
       }
 
