@@ -36,6 +36,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.Closeable
 import java.util.concurrent.CancellationException
+import kotlin.coroutines.CoroutineContext
 
 // TODO: Use reprocessable YUV capture session for more efficient Skia Frame Processing
 
@@ -54,7 +55,7 @@ import java.util.concurrent.CancellationException
  */
 class CameraSession(private val cameraManager: CameraManager,
                     private val onInitialized: () -> Unit,
-                    private val onError: (e: Throwable) -> Unit): Closeable, CameraManager.AvailabilityCallback() {
+                    private val onError: (e: Throwable) -> Unit): CoroutineScope, Closeable, CameraManager.AvailabilityCallback() {
   companion object {
     private const val TAG = "CameraSession"
     private const val PHOTO_OUTPUT_BUFFER_SIZE = 3
@@ -101,6 +102,8 @@ class CameraSession(private val cameraManager: CameraManager,
   private val mutex = Mutex()
   private var isRunning = false
 
+  override val coroutineContext: CoroutineContext = CameraQueues.cameraQueue.coroutineDispatcher
+
   init {
     cameraManager.registerAvailabilityCallback(this, CameraQueues.cameraQueue.handler)
   }
@@ -121,7 +124,9 @@ class CameraSession(private val cameraManager: CameraManager,
   fun setInputDevice(cameraId: String) {
     Log.i(TAG, "Setting Input Device to Camera $cameraId...")
     this.cameraId = cameraId
-    checkActive()
+    launch {
+      startRunning()
+    }
   }
 
   /**
@@ -134,7 +139,9 @@ class CameraSession(private val cameraManager: CameraManager,
     this.photoOutput = photoOutput
     this.videoOutput = videoOutput
     this.previewOutput = previewOutput
-    checkActive()
+    launch {
+      startRunning()
+    }
   }
 
   /**
@@ -149,7 +156,9 @@ class CameraSession(private val cameraManager: CameraManager,
     this.videoStabilizationMode = videoStabilizationMode
     this.hdr = hdr
     this.lowLightBoost = lowLightBoost
-    checkActive()
+    launch {
+      startRunning()
+    }
   }
 
   /**
@@ -165,7 +174,7 @@ class CameraSession(private val cameraManager: CameraManager,
     Log.i(TAG, "checkActive() isActive: $isActive | isRunning: $isRunning")
     if (isActive == isRunning) return
 
-    CoroutineScope(CameraQueues.cameraQueue.coroutineDispatcher).launch {
+    launch {
       if (isActive) {
         startRunning()
       } else {

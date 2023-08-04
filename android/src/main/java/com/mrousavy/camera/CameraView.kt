@@ -222,9 +222,7 @@ class CameraView(context: Context) : FrameLayout(context) {
     val format = format
     val targetVideoSize = if (format != null) Size(format.getInt("videoWidth"), format.getInt("videoHeight")) else null
     val targetPhotoSize = if (format != null) Size(format.getInt("photoWidth"), format.getInt("photoHeight")) else null
-    val previewSurface = previewSurface ?: return
-
-    if (!previewSurface.isValid) return
+    val previewSurface = previewSurface
 
     cameraSession.setOutputs(
       // Photo Output
@@ -235,7 +233,7 @@ class CameraView(context: Context) : FrameLayout(context) {
         onFrame(frame)
       }, targetVideoSize),
       // Preview Output
-      CameraSession.PreviewOutput(true, previewSurface)
+      if (previewSurface?.isValid == true) CameraSession.PreviewOutput(true, previewSurface) else null
     )
   }
 
