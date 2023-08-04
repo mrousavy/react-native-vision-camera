@@ -177,7 +177,7 @@ class CameraSession(private val cameraManager: CameraManager,
     val timestamp = result[CaptureResult.SENSOR_TIMESTAMP]!!
     Log.i(TAG, "Photo capture 1/2 complete - received metadata with timestamp $timestamp")
     try {
-      val image = photoOutputSynchronizer[timestamp].await()
+      val image = photoOutputSynchronizer.await(timestamp)
       // TODO: Correctly get rotationDegrees and isMirrored
       val rotation = ExifUtils.computeExifOrientation(0, false)
 
