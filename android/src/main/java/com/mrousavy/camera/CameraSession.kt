@@ -107,7 +107,11 @@ class CameraSession(private val cameraManager: CameraManager,
 
   override fun close() {
     cameraManager.unregisterAvailabilityCallback(this)
-    destroyAsync()
+    photoOutputSynchronizer.clear()
+    captureSession?.close()
+    cameraDevice?.tryClose()
+    outputs.clear()
+    isRunning = false
   }
 
   /**
@@ -214,32 +218,53 @@ class CameraSession(private val cameraManager: CameraManager,
     Log.i(TAG, "Camera became un-available: $cameraId")
   }
 
-  private suspend fun destroy() {
-    mutex.withLock {
-      Log.i(TAG, "Destryoing Session...")
-      isRunning = false
-      cameraDevice?.tryClose()
-      cameraDevice = null
-      captureSession?.close()
-      captureSession = null
-      outputs.forEach { output ->
-        if (output is ImageReaderOutput) {
-          Log.i(TAG, "Closing ImageReader for ${output.outputType} output..")
-          output.imageReader.close()
-        }
+  private fun destroy() {
+    Log.i(TAG, "Destroying Session...")
+    isRunning = false
+    cameraDevice?.tryClose()
+    cameraDevice = null
+    captureSession?.close()
+    captureSession = null
+    outputs.forEach { output ->
+      if (output is ImageReaderOutput) {
+        Log.i(TAG, "Closing ImageReader for ${output.outputType} output..")
+        output.imageReader.close()
       }
-      outputs.clear()
-      photoOutputSynchronizer.clear()
     }
-  }
-  private fun destroyAsync() {
-    CoroutineScope(CameraQueues.cameraQueue.coroutineDispatcher).launch {
-      destroy()
-    }
+    outputs.clear()
+    photoOutputSynchronizer.clear()
+    Log.i(TAG, "Session destroyed!")
   }
 
+  /**
+   * Opens a [CameraDevice]. If there already is an open Camera for the given [cameraId], use that.
+   */
+  private suspend fun getCameraDevice(cameraId: String, onClosed: (error: Throwable) -> Unit): CameraDevice {
+    val currentDevice = cameraDevice
+    if (currentDevice?.id == cameraId) {
+      // We already opened that device
+      return currentDevice
+    }
+    // Close previous device
+    cameraDevice?.tryClose()
+    cameraDevice = null
 
-  private fun prepareOutputs(cameraId: String): ArrayList<SurfaceOutput> {
+    val device = cameraManager.openCamera(cameraId, { camera, reason ->
+      if (cameraDevice == camera) {
+        // The current CameraDevice has been closed, handle that!
+        onClosed(reason)
+        cameraDevice = null
+      } else {
+        // A new CameraDevice has been opened, we don't care about this one anymore.
+      }
+    }, CameraQueues.cameraQueue)
+
+    // Cache device in memory
+    cameraDevice = device
+    return device
+  }
+
+  private fun getOutputs(cameraId: String): ArrayList<SurfaceOutput> {
     val videoOutput = videoOutput
     val photoOutput = photoOutput
     val previewOutput = previewOutput
@@ -303,8 +328,34 @@ class CameraSession(private val cameraManager: CameraManager,
     return outputs
   }
 
-  private fun preparePreviewCaptureRequest(captureSession: CameraCaptureSession,
-                                           outputs: List<SurfaceOutput>): CaptureRequest {
+  private suspend fun getCaptureSession(cameraDevice: CameraDevice, outputs: List<SurfaceOutput>, onClosed: () -> Unit): CameraCaptureSession {
+    val currentSession = captureSession
+    // TODO: Also compare outputs!!
+    if (currentSession?.device == cameraDevice) {
+      // We already opened a CameraCaptureSession on this device
+      return currentSession
+    }
+    captureSession?.close()
+    // TODO: Call abortCaptures() as well?
+    captureSession = null
+
+    val session = cameraDevice.createCaptureSession(cameraManager, SessionType.REGULAR, outputs, { session ->
+      if (captureSession == session) {
+        // The current CameraCaptureSession has been closed, handle that!
+        onClosed()
+        captureSession = null
+      } else {
+        // A new CameraCaptureSession has been opened, we don't care about this one anymore.
+      }
+    }, CameraQueues.cameraQueue)
+
+    // Cache session in memory
+    captureSession = session
+    return session
+  }
+
+  private fun getPreviewCaptureRequest(captureSession: CameraCaptureSession,
+                                       outputs: List<SurfaceOutput>): CaptureRequest {
     val hasVideoOutput = outputs.any { it.outputType == OutputType.VIDEO }
     val template = if (hasVideoOutput) CameraDevice.TEMPLATE_RECORD else CameraDevice.TEMPLATE_PREVIEW
     val captureRequest = captureSession.device.createCaptureRequest(template)
@@ -335,34 +386,31 @@ class CameraSession(private val cameraManager: CameraManager,
   }
 
   private suspend fun startRunning() {
+    isRunning = false
     val cameraId = cameraId ?: return
-
-    // 0. Delete everything we have right now
-    destroy()
 
     Log.i(TAG, "Starting Camera Session...")
 
     try {
       mutex.withLock {
         // 1. Create outputs for device (PREVIEW, PHOTO, VIDEO)
-        val outputs = prepareOutputs(cameraId)
+        val outputs = getOutputs(cameraId)
         if (outputs.isEmpty()) return
 
         // 2. Open Camera Device
-        val camera = cameraManager.openCamera(cameraId, { camera, reason ->
+        val camera = getCameraDevice(cameraId) { reason ->
           isRunning = false
-          if (cameraDevice == camera) destroyAsync()
           onError(reason)
-        }, CameraQueues.cameraQueue)
+        }
 
         // 3. Create capture session with outputs
-        val session = camera.createCaptureSession(cameraManager, SessionType.REGULAR, outputs, { session ->
-            isRunning = false
-            if (captureSession == session) destroyAsync()
-          }, CameraQueues.cameraQueue)
+        val session = getCaptureSession(camera, outputs) {
+          isRunning = false
+          onError(CameraDisconnectedError(cameraId, "session-closed"))
+        }
 
         // 4. Create repeating request (configures FPS, HDR, etc.)
-        val repeatingRequest = preparePreviewCaptureRequest(session, outputs)
+        val repeatingRequest = getPreviewCaptureRequest(session, outputs)
 
         // 5. Start repeating request
         session.setRepeatingRequest(repeatingRequest, null, null)
