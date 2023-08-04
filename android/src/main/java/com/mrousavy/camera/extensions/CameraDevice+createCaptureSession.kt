@@ -45,18 +45,17 @@ enum class OutputType {
       VIDEO_AND_PREVIEW -> 0x4 /* CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL */
     }
   }
+
+  val isRepeating: Boolean
+    get() = arrayOf(VIDEO, PREVIEW, VIDEO_AND_PREVIEW).contains(this)
 }
 
 open class SurfaceOutput(val surface: Surface,
                          val outputType: OutputType,
-                         val dynamicRangeProfile: Long? = null) {
-  val isRepeating: Boolean
-    get() = outputType == OutputType.VIDEO || outputType == OutputType.PREVIEW || outputType == OutputType.VIDEO_AND_PREVIEW
-}
+                         val dynamicRangeProfile: Long? = null)
 class ImageReaderOutput(val imageReader: ImageReader,
                         outputType: OutputType,
                         dynamicRangeProfile: Long? = null): SurfaceOutput(imageReader.surface, outputType, dynamicRangeProfile)
-
 
 fun outputsToString(outputs: List<SurfaceOutput>): String {
   return outputs.joinToString(", ", "[", "]") { output ->
@@ -65,7 +64,7 @@ fun outputsToString(outputs: List<SurfaceOutput>): String {
   }
 }
 
-fun supportsOutputType(characteristics: CameraCharacteristics, outputType: OutputType): Boolean {
+private fun supportsOutputType(characteristics: CameraCharacteristics, outputType: OutputType): Boolean {
   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
     val availableUseCases = characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES)
     if (availableUseCases != null) {
