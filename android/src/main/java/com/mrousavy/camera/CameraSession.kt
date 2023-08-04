@@ -100,6 +100,7 @@ class CameraSession(private val cameraManager: CameraManager,
   private var outputs = ArrayList<SurfaceOutput>()
   private val photoOutputSynchronizer = PhotoOutputSynchronizer()
   private val mutex = Mutex()
+  private var didOutputsChange = false
   private var isRunning = false
 
   override val coroutineContext: CoroutineContext = CameraQueues.cameraQueue.coroutineDispatcher
@@ -139,6 +140,7 @@ class CameraSession(private val cameraManager: CameraManager,
     this.photoOutput = photoOutput
     this.videoOutput = videoOutput
     this.previewOutput = previewOutput
+    didOutputsChange = true
     launch {
       startRunning()
     }
@@ -339,8 +341,7 @@ class CameraSession(private val cameraManager: CameraManager,
 
   private suspend fun getCaptureSession(cameraDevice: CameraDevice, outputs: List<SurfaceOutput>, onClosed: () -> Unit): CameraCaptureSession {
     val currentSession = captureSession
-    // TODO: Also compare outputs!!
-    if (currentSession?.device == cameraDevice) {
+    if (currentSession?.device == cameraDevice && !didOutputsChange) {
       // We already opened a CameraCaptureSession on this device
       return currentSession
     }
