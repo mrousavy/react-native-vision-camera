@@ -1,7 +1,6 @@
 package com.mrousavy.camera
 
 import android.graphics.ImageFormat
-import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
@@ -95,10 +94,9 @@ class CameraSession(private val cameraManager: CameraManager,
   private var lowLightBoost: Boolean? = null
   private var hdr: Boolean? = null
 
-  private val outputs = arrayListOf<SurfaceOutput>()
-  private var cameraDevice: CameraDevice? = null
   private var captureSession: CameraCaptureSession? = null
-  private var cameraIdCurrentlyOpening: String? = null
+  private var cameraDevice: CameraDevice? = null
+  private var outputs = ArrayList<SurfaceOutput>()
   private val photoOutputSynchronizer = PhotoOutputSynchronizer()
   private val mutex = Mutex()
   private var isRunning = false
@@ -109,7 +107,7 @@ class CameraSession(private val cameraManager: CameraManager,
 
   override fun close() {
     cameraManager.unregisterAvailabilityCallback(this)
-    captureSession?.close()
+    destroyAsync()
   }
 
   /**
@@ -119,13 +117,7 @@ class CameraSession(private val cameraManager: CameraManager,
   fun setInputDevice(cameraId: String) {
     Log.i(TAG, "Setting Input Device to Camera $cameraId...")
     this.cameraId = cameraId
-
-    CoroutineScope(CameraQueues.cameraQueue.coroutineDispatcher).launch {
-      openCamera(cameraId)
-
-      // cameraId changed, prepare outputs.
-      prepareOutputs()
-    }
+    checkActive()
   }
 
   /**
@@ -134,14 +126,11 @@ class CameraSession(private val cameraManager: CameraManager,
   fun setOutputs(photoOutput: PhotoOutput? = null,
                  videoOutput: VideoOutput? = null,
                  previewOutput: PreviewOutput? = null) {
+    Log.i(TAG, "Setting Outputs...")
     this.photoOutput = photoOutput
     this.videoOutput = videoOutput
     this.previewOutput = previewOutput
-
-    CoroutineScope(CameraQueues.cameraQueue.coroutineDispatcher).launch {
-      // outputs changed, prepare them.
-      prepareOutputs()
-    }
+    checkActive()
   }
 
   /**
@@ -151,25 +140,34 @@ class CameraSession(private val cameraManager: CameraManager,
                       videoStabilizationMode: String? = null,
                       hdr: Boolean? = null,
                       lowLightBoost: Boolean? = null) {
+    Log.i(TAG, "Setting Format (fps: $fps | videoStabilization: $videoStabilizationMode | hdr: $hdr | lowLightBoost: $lowLightBoost)...")
     this.fps = fps
     this.videoStabilizationMode = videoStabilizationMode
     this.hdr = hdr
     this.lowLightBoost = lowLightBoost
+    checkActive()
   }
 
   /**
    * Starts or stops the Camera.
    */
   fun setIsActive(isActive: Boolean) {
-    Log.i(TAG, "setIsActive($isActive)")
-    if (isRunning == isActive) {
-      // We're already active/inactive.
-      return
-    }
-
+    Log.i(TAG, "Setting isActive: $isActive")
     this.isActive = isActive
-    if (isActive) startRunning()
-    else stopRunning()
+    checkActive()
+  }
+
+  private fun checkActive() {
+    Log.i(TAG, "checkActive() isActive: $isActive | isRunning: $isRunning")
+    if (isActive == isRunning) return
+
+    CoroutineScope(CameraQueues.cameraQueue.coroutineDispatcher).launch {
+      if (isActive) {
+        startRunning()
+      } else {
+        stopRunning()
+      }
+    }
   }
 
   suspend fun takePhoto(qualityPrioritization: QualityPrioritization,
@@ -216,48 +214,14 @@ class CameraSession(private val cameraManager: CameraManager,
     Log.i(TAG, "Camera became un-available: $cameraId")
   }
 
-  private suspend fun openCamera(cameraId: String) {
-    if (cameraIdCurrentlyOpening == cameraId) return
-    cameraIdCurrentlyOpening = cameraId
-
-    if (captureSession?.device?.id == cameraId) {
-      Log.i(TAG, "Tried to open Camera $cameraId, but we already have a Capture Session running with that Camera. Skipping...")
-      return
-    }
-
-    cameraDevice?.tryClose()
-    cameraDevice = null
-
-    val camera = cameraManager.openCamera(cameraId, { camera, disconnectReason ->
-      this.isActive = false
-      if (cameraDevice == camera) {
-        cameraDevice = null
-      }
-      isRunning = false
-      cameraIdCurrentlyOpening = null
-      // TODO: Handle a disconnect and try to re-connect if possible?
-      onError(disconnectReason)
-    }, CameraQueues.cameraQueue)
-
-    cameraDevice = camera
-    prepareSession()
-  }
-
-
-  /**
-   * Prepares the Image Reader and Surface outputs.
-   * Call this whenever [cameraId], [photoOutput], [videoOutput], or [previewOutput] changes.
-   */
-  private suspend fun prepareOutputs() {
+  private suspend fun destroy() {
     mutex.withLock {
-      val cameraId = cameraId ?: return
-      val videoOutput = videoOutput
-      val photoOutput = photoOutput
-      val previewOutput = previewOutput
-
-      val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-      val config = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
-
+      Log.i(TAG, "Destryoing Session...")
+      isRunning = false
+      cameraDevice?.tryClose()
+      cameraDevice = null
+      captureSession?.close()
+      captureSession = null
       outputs.forEach { output ->
         if (output is ImageReaderOutput) {
           Log.i(TAG, "Closing ImageReader for ${output.outputType} output..")
@@ -265,146 +229,165 @@ class CameraSession(private val cameraManager: CameraManager,
         }
       }
       outputs.clear()
-
-      Log.i(TAG, "Preparing Outputs for Camera $cameraId...")
-
-      if (videoOutput != null && videoOutput.enabled) {
-        // Video or Frame Processor output: High resolution repeating images
-        val pixelFormat = ImageFormat.YUV_420_888
-        val videoSize = config.getOutputSizes(pixelFormat).closestToOrMax(videoOutput.targetSize)
-
-        val imageReader = ImageReader.newInstance(videoSize.width,
-                                                  videoSize.height,
-                                                  pixelFormat,
-                                                  VIDEO_OUTPUT_BUFFER_SIZE)
-        imageReader.setOnImageAvailableListener({ reader ->
-          val image = reader.acquireNextImage()
-          if (image == null) {
-            Log.w(CameraView.TAG, "Failed to get new Image from ImageReader, dropping a Frame...")
-            return@setOnImageAvailableListener
-          }
-
-          videoOutput.callback(image)
-        }, CameraQueues.videoQueue.handler)
-
-        Log.i(CameraView.TAG, "Adding ${videoSize.width}x${videoSize.height} video output. (Format: $pixelFormat)")
-        outputs.add(ImageReaderOutput(imageReader, OutputType.VIDEO))
-      }
-
-      if (photoOutput != null && photoOutput.enabled) {
-        // Photo output: High quality still images
-        val pixelFormat = ImageFormat.JPEG
-        val photoSize = config.getOutputSizes(pixelFormat).closestToOrMax(photoOutput.targetSize)
-
-        val imageReader = ImageReader.newInstance(photoSize.width,
-                                                  photoSize.height,
-                                                  pixelFormat,
-                                                  PHOTO_OUTPUT_BUFFER_SIZE)
-        imageReader.setOnImageAvailableListener({ reader ->
-          val image = reader.acquireLatestImage()
-          onPhotoCaptured(image)
-        }, CameraQueues.cameraQueue.handler)
-
-        Log.i(CameraView.TAG, "Adding ${photoSize.width}x${photoSize.height} photo output. (Format: $pixelFormat)")
-        outputs.add(ImageReaderOutput(imageReader, OutputType.PHOTO))
-      }
-
-      if (previewOutput != null && previewOutput.enabled) {
-        // Preview output: Low resolution repeating images
-        Log.i(CameraView.TAG, "Adding native preview view output.")
-        outputs.add(SurfaceOutput(previewOutput.surface, OutputType.PREVIEW))
-      }
-
-      Log.i(TAG, "Prepared ${outputs.size} Outputs for Camera $cameraId!")
+      photoOutputSynchronizer.clear()
     }
-
-    prepareSession()
+  }
+  private fun destroyAsync() {
+    CoroutineScope(CameraQueues.cameraQueue.coroutineDispatcher).launch {
+      destroy()
+    }
   }
 
-  /**
-   * Creates the [CameraCaptureSession].
-   * Call this whenever [cameraDevice] or [outputs] changes.
-   */
-  private suspend fun prepareSession() {
-    val camera = cameraDevice ?: return
-    if (outputs.isEmpty()) return
 
-    Log.i(TAG, "Creating CameraCaptureSession for Camera ${camera.id}...")
-    captureSession?.close()
-    captureSession = null
-    photoOutputSynchronizer.clear()
+  private fun prepareOutputs(cameraId: String): ArrayList<SurfaceOutput> {
+    val videoOutput = videoOutput
+    val photoOutput = photoOutput
+    val previewOutput = previewOutput
 
-    try {
-      // Start up the Capture Session on the Camera
-      val session = camera.createCaptureSession(cameraManager, SessionType.REGULAR, outputs, { session ->
-        if (captureSession == session) {
-          captureSession?.close()
-          captureSession = null
+    val characteristics = cameraManager.getCameraCharacteristics(cameraId)
+    val config = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
+
+    val outputs = arrayListOf<SurfaceOutput>()
+
+    Log.i(TAG, "Preparing Outputs for Camera $cameraId...")
+
+    if (videoOutput != null && videoOutput.enabled) {
+      // Video or Frame Processor output: High resolution repeating images
+      val pixelFormat = ImageFormat.YUV_420_888
+      val videoSize = config.getOutputSizes(pixelFormat).closestToOrMax(videoOutput.targetSize)
+
+      val imageReader = ImageReader.newInstance(videoSize.width,
+                                                videoSize.height,
+                                                pixelFormat,
+                                                VIDEO_OUTPUT_BUFFER_SIZE)
+      imageReader.setOnImageAvailableListener({ reader ->
+        val image = reader.acquireNextImage()
+        if (image == null) {
+          Log.w(CameraView.TAG, "Failed to get new Image from ImageReader, dropping a Frame...")
+          return@setOnImageAvailableListener
         }
-        isRunning = false
-        Log.i(TAG, "Camera Session closed.")
-      }, CameraQueues.cameraQueue)
 
-      captureSession = session
+        videoOutput.callback(image)
+      }, CameraQueues.videoQueue.handler)
 
-      if (isActive) startRunning()
-    } catch (e: CameraAccessException) {
-      Log.e(TAG, "Camera Access Exception!", e)
-      onError(CameraCannotBeOpenedError(camera.id, "camera-not-connected-anymore"))
+      Log.i(CameraView.TAG, "Adding ${videoSize.width}x${videoSize.height} video output. (Format: $pixelFormat)")
+      outputs.add(ImageReaderOutput(imageReader, OutputType.VIDEO))
     }
+
+    if (photoOutput != null && photoOutput.enabled) {
+      // Photo output: High quality still images
+      val pixelFormat = ImageFormat.JPEG
+      val photoSize = config.getOutputSizes(pixelFormat).closestToOrMax(photoOutput.targetSize)
+
+      val imageReader = ImageReader.newInstance(photoSize.width,
+                                                photoSize.height,
+                                                pixelFormat,
+                                                PHOTO_OUTPUT_BUFFER_SIZE)
+      imageReader.setOnImageAvailableListener({ reader ->
+        val image = reader.acquireLatestImage()
+        onPhotoCaptured(image)
+      }, CameraQueues.cameraQueue.handler)
+
+      Log.i(CameraView.TAG, "Adding ${photoSize.width}x${photoSize.height} photo output. (Format: $pixelFormat)")
+      outputs.add(ImageReaderOutput(imageReader, OutputType.PHOTO))
+    }
+
+    if (previewOutput != null && previewOutput.enabled) {
+      // Preview output: Low resolution repeating images
+      Log.i(CameraView.TAG, "Adding native preview view output.")
+      outputs.add(SurfaceOutput(previewOutput.surface, OutputType.PREVIEW))
+    }
+
+    Log.i(TAG, "Prepared ${outputs.size} Outputs for Camera $cameraId!")
+
+    return outputs
   }
 
-  private fun startRunning() {
-    val captureSession = captureSession ?: return
+  private fun preparePreviewCaptureRequest(captureSession: CameraCaptureSession,
+                                           outputs: List<SurfaceOutput>): CaptureRequest {
+    val hasVideoOutput = outputs.any { it.outputType == OutputType.VIDEO }
+    val template = if (hasVideoOutput) CameraDevice.TEMPLATE_RECORD else CameraDevice.TEMPLATE_PREVIEW
+    val captureRequest = captureSession.device.createCaptureRequest(template)
+    outputs.forEach { output ->
+      if (output.outputType.isRepeating) {
+        Log.i(TAG, "Adding output surface ${output.outputType}..")
+        captureRequest.addTarget(output.surface)
+      }
+    }
+
+    fps?.let { fps ->
+      captureRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(fps, fps))
+    }
+    videoStabilizationMode?.let { videoStabilizationMode ->
+      val stabilizationMode = getVideoStabilizationMode(videoStabilizationMode)
+      captureRequest.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, stabilizationMode.digitalMode)
+      captureRequest.set(CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE, stabilizationMode.opticalMode)
+    }
+    if (lowLightBoost == true) {
+      captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_NIGHT)
+    }
+    if (hdr == true) {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+        captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_HDR)
+      }
+    }
+    return captureRequest.build()
+  }
+
+  private suspend fun startRunning() {
+    val cameraId = cameraId ?: return
+
+    // 0. Delete everything we have right now
+    destroy()
 
     Log.i(TAG, "Starting Camera Session...")
+
     try {
-      Log.i(TAG, "Preparing repeating Capture Request...")
+      mutex.withLock {
+        // 1. Create outputs for device (PREVIEW, PHOTO, VIDEO)
+        val outputs = prepareOutputs(cameraId)
+        if (outputs.isEmpty()) return
 
-      val hasVideoOutput = outputs.any { it.outputType == OutputType.VIDEO }
-      val template = if (hasVideoOutput) CameraDevice.TEMPLATE_RECORD else CameraDevice.TEMPLATE_PREVIEW
-      val captureRequest = captureSession.device.createCaptureRequest(template)
-      outputs.forEach { output ->
-        if (output.outputType.isRepeating) {
-          Log.i(TAG, "Adding output surface ${output.outputType}..")
-          captureRequest.addTarget(output.surface)
-        }
-      }
+        // 2. Open Camera Device
+        val camera = cameraManager.openCamera(cameraId, { camera, reason ->
+          isRunning = false
+          if (cameraDevice == camera) destroyAsync()
+          onError(reason)
+        }, CameraQueues.cameraQueue)
 
-      fps?.let { fps ->
-        captureRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(fps, fps))
-      }
-      videoStabilizationMode?.let { videoStabilizationMode ->
-        val stabilizationMode = getVideoStabilizationMode(videoStabilizationMode)
-        captureRequest.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, stabilizationMode.digitalMode)
-        captureRequest.set(CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE, stabilizationMode.opticalMode)
-      }
-      if (lowLightBoost == true) {
-        captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_NIGHT)
-      }
-      if (hdr == true) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-          captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_HDR)
-        }
-      }
+        // 3. Create capture session with outputs
+        val session = camera.createCaptureSession(cameraManager, SessionType.REGULAR, outputs, { session ->
+            isRunning = false
+            if (captureSession == session) destroyAsync()
+          }, CameraQueues.cameraQueue)
 
-      // Start all repeating requests (Video, Frame Processor, Preview)
-      captureSession.setRepeatingRequest(captureRequest.build(), null, null)
-      Log.i(TAG, "Camera Session started!")
-      isRunning = true
+        // 4. Create repeating request (configures FPS, HDR, etc.)
+        val repeatingRequest = preparePreviewCaptureRequest(session, outputs)
 
-      onInitialized()
+        // 5. Start repeating request
+        session.setRepeatingRequest(repeatingRequest, null, null)
+
+        Log.i(TAG, "Camera Session started!")
+        isRunning = true
+        this.captureSession = session
+        this.outputs = outputs
+        this.cameraDevice = camera
+
+        onInitialized()
+      }
     } catch (e: IllegalStateException) {
       Log.w(TAG, "Failed to start Camera Session, this session is already closed.")
     }
   }
 
-  private fun stopRunning() {
+  private suspend fun stopRunning() {
     Log.i(TAG, "Stopping Camera Session...")
     try {
-      val captureSession = captureSession ?: return
-      captureSession.stopRepeating()
-      Log.i(TAG, "Camera Session stopped!")
+      mutex.withLock {
+        val captureSession = captureSession ?: return
+        captureSession.stopRepeating()
+        Log.i(TAG, "Camera Session stopped!")
+      }
     } catch (e: IllegalStateException) {
       Log.w(TAG, "Failed to stop Camera Session, this session is already closed.")
     }
