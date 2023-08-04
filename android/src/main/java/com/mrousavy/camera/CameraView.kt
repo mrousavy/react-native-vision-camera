@@ -16,9 +16,9 @@ import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
-import com.mrousavy.camera.utils.containsAny
-import com.mrousavy.camera.utils.displayRotation
-import com.mrousavy.camera.utils.installHierarchyFitter
+import com.mrousavy.camera.extensions.containsAny
+import com.mrousavy.camera.extensions.displayRotation
+import com.mrousavy.camera.extensions.installHierarchyFitter
 import kotlin.math.max
 import kotlin.math.min
 

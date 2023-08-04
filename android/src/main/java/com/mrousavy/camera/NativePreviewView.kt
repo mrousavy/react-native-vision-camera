@@ -10,8 +10,8 @@ import android.util.Size
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import com.mrousavy.camera.utils.bigger
-import com.mrousavy.camera.utils.smaller
+import com.mrousavy.camera.extensions.bigger
+import com.mrousavy.camera.extensions.smaller
 import kotlin.math.roundToInt
 
 /**

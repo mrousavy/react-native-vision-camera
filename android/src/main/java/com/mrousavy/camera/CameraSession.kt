@@ -17,19 +17,19 @@ import android.util.Log
 import android.util.Range
 import android.util.Size
 import android.view.Surface
+import com.mrousavy.camera.extensions.FlashMode
+import com.mrousavy.camera.extensions.OutputType
+import com.mrousavy.camera.extensions.QualityPrioritization
+import com.mrousavy.camera.extensions.SessionType
+import com.mrousavy.camera.extensions.SurfaceOutput
+import com.mrousavy.camera.extensions.capture
+import com.mrousavy.camera.extensions.closestToOrMax
+import com.mrousavy.camera.extensions.createCaptureSession
+import com.mrousavy.camera.extensions.createPhotoCaptureRequest
 import com.mrousavy.camera.parsers.getVideoStabilizationMode
 import com.mrousavy.camera.parsers.parseCameraError
 import com.mrousavy.camera.utils.ExifUtils
-import com.mrousavy.camera.utils.FlashMode
-import com.mrousavy.camera.utils.OutputType
 import com.mrousavy.camera.utils.PhotoOutputSynchronizer
-import com.mrousavy.camera.utils.QualityPrioritization
-import com.mrousavy.camera.utils.SessionType
-import com.mrousavy.camera.utils.SurfaceOutput
-import com.mrousavy.camera.utils.capture
-import com.mrousavy.camera.utils.closestToOrMax
-import com.mrousavy.camera.utils.createCaptureSession
-import com.mrousavy.camera.utils.createPhotoCaptureRequest
 import java.io.Closeable
 import java.util.concurrent.CancellationException
 
@@ -97,11 +97,7 @@ class CameraSession(private val cameraManager: CameraManager,
   private val photoOutputSynchronizer = PhotoOutputSynchronizer()
 
   init {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-      cameraManager.registerAvailabilityCallback(CameraQueues.cameraQueue.executor, this)
-    } else {
-      cameraManager.registerAvailabilityCallback(this, CameraQueues.cameraQueue.handler)
-    }
+    cameraManager.registerAvailabilityCallback(this, CameraQueues.cameraQueue.handler)
   }
 
   override fun close() {

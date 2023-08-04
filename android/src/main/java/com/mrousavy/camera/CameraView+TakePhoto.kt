@@ -8,6 +8,8 @@ import android.util.Log
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
+import com.mrousavy.camera.extensions.FlashMode
+import com.mrousavy.camera.extensions.QualityPrioritization
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import java.io.File

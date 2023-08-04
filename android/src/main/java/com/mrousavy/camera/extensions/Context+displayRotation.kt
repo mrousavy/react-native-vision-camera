@@ -1,4 +1,4 @@
-package com.mrousavy.camera.utils
+package com.mrousavy.camera.extensions
 
 import android.content.Context
 import android.os.Build

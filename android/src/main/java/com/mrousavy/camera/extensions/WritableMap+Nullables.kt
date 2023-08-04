@@ -1,4 +1,4 @@
-package com.mrousavy.camera.utils
+package com.mrousavy.camera.extensions
 
 import com.facebook.react.bridge.WritableMap
 

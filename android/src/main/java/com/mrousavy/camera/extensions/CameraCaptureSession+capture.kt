@@ -1,4 +1,4 @@
-package com.mrousavy.camera.utils
+package com.mrousavy.camera.extensions
 
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureFailure

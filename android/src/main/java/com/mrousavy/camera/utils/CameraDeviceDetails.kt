@@ -12,6 +12,7 @@ import android.util.Size
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
+import com.mrousavy.camera.extensions.bigger
 import com.mrousavy.camera.parsers.parseDigitalVideoStabilizationMode
 import com.mrousavy.camera.parsers.parseHardwareLevel
 import com.mrousavy.camera.parsers.parseImageFormat
