@@ -20,7 +20,7 @@ suspend fun CameraManager.openCamera(cameraId: String,
                                      onDisconnected: (camera: CameraDevice, reason: Throwable) -> Unit,
                                      queue: CameraQueues.CameraQueue): CameraDevice {
   return suspendCancellableCoroutine { continuation ->
-    Log.i(TAG, "Camera #$cameraId: Opening...")
+    Log.i(TAG, "Camera $cameraId: Opening...")
 
     val callback = object: CameraDevice.StateCallback() {
       override fun onOpened(camera: CameraDevice) {
@@ -29,7 +29,7 @@ suspend fun CameraManager.openCamera(cameraId: String,
       }
 
       override fun onDisconnected(camera: CameraDevice) {
-        Log.i(TAG, "Camera #$cameraId: Disconnected!")
+        Log.i(TAG, "Camera $cameraId: Disconnected!")
         val errorCode = "disconnected"
         if (continuation.isActive) {
           continuation.resumeWithException(CameraCannotBeOpenedError(cameraId, errorCode))
@@ -40,7 +40,7 @@ suspend fun CameraManager.openCamera(cameraId: String,
       }
 
       override fun onError(camera: CameraDevice, errorCode: Int) {
-        Log.e(TAG, "Camera #$cameraId: Error! $errorCode")
+        Log.e(TAG, "Camera $cameraId: Error! $errorCode")
         if (continuation.isActive) {
           continuation.resumeWithException(CameraCannotBeOpenedError(cameraId, parseCameraError(errorCode)))
         } else {
@@ -60,9 +60,9 @@ suspend fun CameraManager.openCamera(cameraId: String,
 
 fun CameraDevice.tryClose() {
   try {
-    Log.i(TAG, "Camera #$id: Closing...")
+    Log.i(TAG, "Camera $id: Closing...")
     this.close()
   } catch (e: Throwable) {
-    Log.e(TAG, "Camera #$id: Failed to close!", e)
+    Log.e(TAG, "Camera $id: Failed to close!", e)
   }
 }
