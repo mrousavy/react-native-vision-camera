@@ -101,6 +101,7 @@ class CameraSession(private val cameraManager: CameraManager,
   private var cameraIdCurrentlyOpening: String? = null
   private val photoOutputSynchronizer = PhotoOutputSynchronizer()
   private val mutex = Mutex()
+  private var isRunning = false
 
   init {
     cameraManager.registerAvailabilityCallback(this, CameraQueues.cameraQueue.handler)
@@ -161,7 +162,7 @@ class CameraSession(private val cameraManager: CameraManager,
    */
   fun setIsActive(isActive: Boolean) {
     Log.i(TAG, "setIsActive($isActive)")
-    if (this.isActive == isActive) {
+    if (isRunning == isActive) {
       // We're already active/inactive.
       return
     }
@@ -232,6 +233,7 @@ class CameraSession(private val cameraManager: CameraManager,
       if (cameraDevice == camera) {
         cameraDevice = null
       }
+      isRunning = false
       cameraIdCurrentlyOpening = null
       // TODO: Handle a disconnect and try to re-connect if possible?
       onError(disconnectReason)
@@ -339,7 +341,7 @@ class CameraSession(private val cameraManager: CameraManager,
           captureSession?.close()
           captureSession = null
         }
-        isActive = false
+        isRunning = false
         Log.i(TAG, "Camera Session closed.")
       }, CameraQueues.cameraQueue)
 
@@ -389,6 +391,7 @@ class CameraSession(private val cameraManager: CameraManager,
       // Start all repeating requests (Video, Frame Processor, Preview)
       captureSession.setRepeatingRequest(captureRequest.build(), null, null)
       Log.i(TAG, "Camera Session started!")
+      isRunning = true
 
       onInitialized()
     } catch (e: IllegalStateException) {
