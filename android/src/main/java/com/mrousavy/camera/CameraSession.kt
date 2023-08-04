@@ -361,6 +361,7 @@ class CameraSession(private val cameraManager: CameraManager,
 
     // Cache session in memory
     captureSession = session
+    didOutputsChange = false
     return session
   }
 
