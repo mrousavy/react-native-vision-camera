@@ -9,16 +9,15 @@ import android.hardware.camera2.CameraManager
 import android.util.Log
 import android.util.Size
 import android.view.Surface
-import android.view.SurfaceView
 import android.view.View
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.ReadableMap
-import com.mrousavy.camera.frameprocessor.Frame
-import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.extensions.containsAny
 import com.mrousavy.camera.extensions.displayRotation
 import com.mrousavy.camera.extensions.installHierarchyFitter
+import com.mrousavy.camera.frameprocessor.Frame
+import com.mrousavy.camera.frameprocessor.FrameProcessor
 import kotlin.math.max
 import kotlin.math.min
 
@@ -151,7 +150,6 @@ class CameraView(context: Context) : FrameLayout(context) {
     val cameraId = cameraId ?: return
 
     if (previewType == "native") {
-      if (this.previewView is SurfaceView) return
       removeView(this.previewView)
 
       val previewView = NativePreviewView(cameraManager, cameraId, context) { surface ->
@@ -167,6 +165,7 @@ class CameraView(context: Context) : FrameLayout(context) {
   }
 
   fun update(changedProps: ArrayList<String>) {
+    Log.i(TAG, "Props changed: $changedProps")
     try {
       val shouldReconfigurePreview = changedProps.containsAny(propsThatRequirePreviewReconfiguration)
       val shouldReconfigureDevice = changedProps.contains("cameraId")
