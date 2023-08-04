@@ -60,7 +60,7 @@ class ImageReaderOutput(val imageReader: ImageReader,
 
 fun outputsToString(outputs: List<SurfaceOutput>): String {
   return outputs.joinToString(separator = ", ") { output ->
-    if (output is ImageReaderOutput) "${output.outputType} (${output.imageReader.width}x${output.imageReader.height} @${output.imageReader.imageFormat})"
+    if (output is ImageReaderOutput) "${output.outputType} (${output.imageReader.width} x ${output.imageReader.height} in format #${output.imageReader.imageFormat})"
     else "${output.outputType}"
   }
 }
