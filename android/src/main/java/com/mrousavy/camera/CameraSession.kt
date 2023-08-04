@@ -359,7 +359,7 @@ class CameraSession(private val cameraManager: CameraManager,
     try {
       Log.i(TAG, "Preparing repeating Capture Request...")
 
-      val captureRequest = captureSession.device.createCaptureRequest(CameraDevice.TEMPLATE_MANUAL)
+      val captureRequest = captureSession.device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
       outputs.forEach { output ->
         if (output.isRepeating) {
           Log.i(TAG, "Adding output surface ${output.outputType}..")
