@@ -2,6 +2,7 @@ package com.mrousavy.camera
 
 import android.os.Handler
 import android.os.HandlerThread
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.asExecutor
 import java.util.concurrent.Executor
@@ -16,12 +17,13 @@ class CameraQueues {
     val handler: Handler
     private val thread: HandlerThread
     val executor: Executor
+    val coroutineDispatcher: CoroutineDispatcher
 
     init {
       thread = HandlerThread(name)
       thread.start()
       handler = Handler(thread.looper)
-      val coroutineDispatcher = handler.asCoroutineDispatcher(name)
+      coroutineDispatcher = handler.asCoroutineDispatcher(name)
       executor = coroutineDispatcher.asExecutor()
     }
 

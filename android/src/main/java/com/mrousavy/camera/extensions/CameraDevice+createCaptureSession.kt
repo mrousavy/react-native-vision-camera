@@ -6,6 +6,7 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
+import android.media.ImageReader
 import android.os.Build
 import android.util.Log
 import android.view.Surface
@@ -42,12 +43,15 @@ enum class OutputType {
   }
 }
 
-data class SurfaceOutput(val surface: Surface,
+open class SurfaceOutput(val surface: Surface,
                          val outputType: OutputType,
                          val dynamicRangeProfile: Long? = null) {
   val isRepeating: Boolean
     get() = outputType == OutputType.VIDEO || outputType == OutputType.PREVIEW || outputType == OutputType.VIDEO_AND_PREVIEW
 }
+class ImageReaderOutput(val imageReader: ImageReader,
+                        outputType: OutputType,
+                        dynamicRangeProfile: Long? = null): SurfaceOutput(imageReader.surface, outputType, dynamicRangeProfile)
 
 fun supportsOutputType(characteristics: CameraCharacteristics, outputType: OutputType): Boolean {
   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

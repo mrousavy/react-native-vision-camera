@@ -1,6 +1,5 @@
 package com.mrousavy.camera
 
-import android.annotation.SuppressLint
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCaptureSession
@@ -18,6 +17,7 @@ import android.util.Range
 import android.util.Size
 import android.view.Surface
 import com.mrousavy.camera.extensions.FlashMode
+import com.mrousavy.camera.extensions.ImageReaderOutput
 import com.mrousavy.camera.extensions.OutputType
 import com.mrousavy.camera.extensions.QualityPrioritization
 import com.mrousavy.camera.extensions.SessionType
@@ -26,10 +26,13 @@ import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.closestToOrMax
 import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.createPhotoCaptureRequest
+import com.mrousavy.camera.extensions.openCamera
+import com.mrousavy.camera.extensions.tryClose
 import com.mrousavy.camera.parsers.getVideoStabilizationMode
-import com.mrousavy.camera.parsers.parseCameraError
 import com.mrousavy.camera.utils.ExifUtils
 import com.mrousavy.camera.utils.PhotoOutputSynchronizer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.io.Closeable
 import java.util.concurrent.CancellationException
 
@@ -113,9 +116,12 @@ class CameraSession(private val cameraManager: CameraManager,
     Log.i(TAG, "Setting Input Device to Camera $cameraId...")
     this.cameraId = cameraId
 
-    openCamera(cameraId)
-    // cameraId changed, prepare outputs.
-    prepareOutputs()
+    CoroutineScope(CameraQueues.cameraQueue.coroutineDispatcher).launch {
+      openCamera(cameraId)
+
+      // cameraId changed, prepare outputs.
+      prepareOutputs()
+    }
   }
 
   /**
@@ -196,10 +202,6 @@ class CameraSession(private val cameraManager: CameraManager,
   override fun onCameraAvailable(cameraId: String) {
     super.onCameraAvailable(cameraId)
     Log.i(TAG, "Camera became available: $cameraId")
-    if (cameraId == this.cameraId) {
-      // The Camera we are trying to use just became available, open it!
-      openCamera(cameraId)
-    }
   }
 
   override fun onCameraUnavailable(cameraId: String) {
@@ -207,8 +209,7 @@ class CameraSession(private val cameraManager: CameraManager,
     Log.i(TAG, "Camera became un-available: $cameraId")
   }
 
-  @SuppressLint("MissingPermission")
-  private fun openCamera(cameraId: String) {
+  private suspend fun openCamera(cameraId: String) {
     if (cameraIdCurrentlyOpening == cameraId) return
     cameraIdCurrentlyOpening = cameraId
 
@@ -217,57 +218,19 @@ class CameraSession(private val cameraManager: CameraManager,
       return
     }
 
-    Log.i(TAG, "Opening Camera $cameraId...")
-
-    var didOpen = false
-    cameraManager.openCamera(cameraId, object: CameraDevice.StateCallback() {
-      // When Camera is successfully opened (called once)
-      override fun onOpened(camera: CameraDevice) {
-        Log.i(TAG, "Camera $cameraId: opened!")
-        didOpen = true
-        onCameraInitialized(camera)
-      }
-
-      // When Camera has been disconnected (either called on init, or later)
-      override fun onDisconnected(camera: CameraDevice) {
-        Log.i(TAG, "Camera $cameraId: disconnected!")
-
-        if (didOpen) {
-          onError(CameraDisconnectedError(camera.id))
-        } else {
-          onError(CameraCannotBeOpenedError(camera.id, "camera-disconnected"))
-        }
-
-        onCameraDisconnected()
-        camera.close()
-      }
-
-      // When Camera has been encountered an Error (either called on init, or later)
-      override fun onError(camera: CameraDevice, errorCode: Int) {
-        Log.i(TAG, "onError(${camera.id}) $errorCode")
-
-        if (didOpen) {
-          onError(CameraDisconnectedError(camera.id))
-        } else {
-          onError(CameraCannotBeOpenedError(camera.id, parseCameraError(errorCode)))
-        }
-
-        onCameraDisconnected()
-        camera.close()
-      }
-    }, CameraQueues.cameraQueue.handler)
-  }
-
-  private fun onCameraInitialized(camera: CameraDevice) {
-    cameraDevice = camera
-    prepareSession()
-  }
-
-  private fun onCameraDisconnected() {
+    cameraDevice?.tryClose()
     cameraDevice = null
-    captureSession?.close()
-    captureSession = null
-    photoOutputSynchronizer.clear()
+
+    val camera = cameraManager.openCamera(cameraId, { camera, disconnectReason ->
+      if (cameraDevice == camera) {
+        cameraDevice = null
+      }
+      cameraIdCurrentlyOpening = null
+      // TODO: Handle a disconnect and try to re-connect if possible?
+      onError(disconnectReason)
+    }, CameraQueues.cameraQueue)
+
+    cameraDevice = camera
   }
 
 
@@ -276,6 +239,12 @@ class CameraSession(private val cameraManager: CameraManager,
    * Call this whenever [cameraId], [photoOutput], [videoOutput], or [previewOutput] changes.
    */
   private fun prepareOutputs() {
+    outputs.forEach { output ->
+      if (output is ImageReaderOutput) {
+        Log.i(TAG, "Closing ImageReader for ${output.outputType} output..")
+        output.imageReader.close()
+      }
+    }
     outputs.clear()
 
     val cameraId = cameraId ?: return
@@ -308,7 +277,7 @@ class CameraSession(private val cameraManager: CameraManager,
       }, CameraQueues.videoQueue.handler)
 
       Log.i(CameraView.TAG, "Adding ${videoSize.width}x${videoSize.height} video output. (Format: $pixelFormat)")
-      outputs.add(SurfaceOutput(imageReader.surface, OutputType.VIDEO))
+      outputs.add(ImageReaderOutput(imageReader, OutputType.VIDEO))
     }
 
     if (photoOutput != null && photoOutput.enabled) {
@@ -326,7 +295,7 @@ class CameraSession(private val cameraManager: CameraManager,
       }, CameraQueues.cameraQueue.handler)
 
       Log.i(CameraView.TAG, "Adding ${photoSize.width}x${photoSize.height} photo output. (Format: $pixelFormat)")
-      outputs.add(SurfaceOutput(imageReader.surface, OutputType.PHOTO))
+      outputs.add(ImageReaderOutput(imageReader, OutputType.PHOTO))
     }
 
     if (previewOutput != null && previewOutput.enabled) {
@@ -336,9 +305,6 @@ class CameraSession(private val cameraManager: CameraManager,
     }
 
     Log.i(TAG, "Prepared ${outputs.size} Outputs for Camera $cameraId!")
-
-    // Outputs changed, re-create session
-    if (cameraDevice != null) prepareSession()
   }
 
   /**
