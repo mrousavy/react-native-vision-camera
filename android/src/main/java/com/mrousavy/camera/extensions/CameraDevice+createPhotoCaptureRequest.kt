@@ -4,19 +4,11 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
-import android.os.Build
 import android.view.Surface
-
 
 enum class FlashMode { OFF, ON, AUTO }
 
 enum class QualityPrioritization { SPEED, BALANCED, QUALITY }
-
-private fun supportsDeviceZsl(capabilities: IntArray): Boolean {
-  if (capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING)) return true
-  if (capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING)) return true
-  return false
-}
 
 fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
                                            surface: Surface,
@@ -24,20 +16,11 @@ fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
                                            flashMode: FlashMode,
                                            enableRedEyeReduction: Boolean,
                                            enableAutoStabilization: Boolean): CaptureRequest {
-  val cameraCharacteristics = cameraManager.getCameraCharacteristics(this.id)
-  val capabilities = cameraCharacteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)!!
-
   val captureRequest = when (qualityPrioritization) {
-    // If speed, create application-specific Zero-Shutter-Lag template
-    QualityPrioritization.SPEED -> this.createCaptureRequest(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG)
+    // If speed, use snapshot template for fast capture
+    QualityPrioritization.SPEED -> this.createCaptureRequest(CameraDevice.TEMPLATE_VIDEO_SNAPSHOT)
     // Otherwise create standard still image capture template
     else -> this.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
-  }
-  if (qualityPrioritization == QualityPrioritization.SPEED) {
-    // Some devices also support hardware Zero-Shutter-Lag, try enabling that
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && supportsDeviceZsl(capabilities)) {
-      captureRequest[CaptureRequest.CONTROL_ENABLE_ZSL] = true
-    }
   }
 
   // TODO: Maybe we can even expose that prop directly?
@@ -45,8 +28,8 @@ fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
     QualityPrioritization.SPEED -> 85
     QualityPrioritization.BALANCED -> 92
     QualityPrioritization.QUALITY -> 100
-  }.toByte()
-  captureRequest[CaptureRequest.JPEG_QUALITY] = jpegQuality
+  }
+  captureRequest[CaptureRequest.JPEG_QUALITY] = jpegQuality.toByte()
 
   // TODO: CaptureRequest.JPEG_ORIENTATION maybe?
 
@@ -70,6 +53,7 @@ fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
   }
 
   if (enableAutoStabilization) {
+    val cameraCharacteristics = cameraManager.getCameraCharacteristics(this.id)
     // Enable optical or digital image stabilization
     val digitalStabilization = cameraCharacteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES)
     val hasDigitalStabilization = digitalStabilization?.contains(CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_ON) ?: false
