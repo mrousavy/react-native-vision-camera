@@ -76,7 +76,7 @@ class CameraView(context: Context) : FrameLayout(context) {
   var videoStabilizationMode: String? = null
   var hdr: Boolean? = null // nullable bool
   var lowLightBoost: Boolean? = null // nullable bool
-  var previewType: String = "native"
+  var previewType: String = "none"
   // other props
   var isActive = false
   var torch = "off"
@@ -148,19 +148,26 @@ class CameraView(context: Context) : FrameLayout(context) {
   }
 
   private fun setupPreviewView() {
-    if (previewType == "native") {
-      removeView(this.previewView)
-
-      val cameraId = cameraId ?: throw NoCameraDeviceError()
-      val previewView = NativePreviewView(cameraManager, cameraId, context) { surface ->
-        previewSurface = surface
-        configureSession()
+    when (previewType) {
+      "none" -> {
+        removeView(this.previewView)
+        this.previewView = null
       }
-      previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-      addView(previewView)
-      this.previewView = previewView
-    } else {
-      throw Error("Skia is not yet implemented on Android!")
+      "native" -> {
+        removeView(this.previewView)
+
+        val cameraId = cameraId ?: throw NoCameraDeviceError()
+        val previewView = NativePreviewView(cameraManager, cameraId, context) { surface ->
+          previewSurface = surface
+          configureSession()
+        }
+        previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        addView(previewView)
+        this.previewView = previewView
+      }
+      "skia" -> {
+        throw Error("Skia is not yet implemented on Android!")
+      }
     }
   }
 
