@@ -100,7 +100,6 @@ class CameraSession(private val cameraManager: CameraManager,
   private var outputs = ArrayList<SurfaceOutput>()
   private val photoOutputSynchronizer = PhotoOutputSynchronizer()
   private val mutex = Mutex()
-  private var didOutputsChange = false
   private var isRunning = false
 
   override val coroutineContext: CoroutineContext = CameraQueues.cameraQueue.coroutineDispatcher
@@ -140,7 +139,6 @@ class CameraSession(private val cameraManager: CameraManager,
     this.photoOutput = photoOutput
     this.videoOutput = videoOutput
     this.previewOutput = previewOutput
-    didOutputsChange = true
     launch {
       startRunning()
     }
@@ -342,7 +340,7 @@ class CameraSession(private val cameraManager: CameraManager,
                                         outputs: List<SurfaceOutput>,
                                         onClosed: () -> Unit): CameraCaptureSession {
     val currentSession = captureSession
-    if (currentSession?.device == cameraDevice && !didOutputsChange) {
+    if (currentSession?.device == cameraDevice && false) {
       // We already opened a CameraCaptureSession on this device
       return currentSession
     }
@@ -362,7 +360,6 @@ class CameraSession(private val cameraManager: CameraManager,
 
     // Cache session in memory
     captureSession = session
-    didOutputsChange = false
     return session
   }
 
@@ -418,6 +415,11 @@ class CameraSession(private val cameraManager: CameraManager,
         val lowLightBoost = lowLightBoost
         val hdr = hdr
 
+        if (previewOutput == null) {
+          cameraDevice?.tryClose()
+          return@withLock
+        }
+
         // 1. Create outputs for device (PREVIEW, PHOTO, VIDEO)
         val outputs = getOutputs(cameraId, videoOutput, photoOutput, previewOutput)
         if (outputs.isEmpty()) return
@@ -449,7 +451,7 @@ class CameraSession(private val cameraManager: CameraManager,
         onInitialized()
       }
     } catch (e: IllegalStateException) {
-      Log.w(TAG, "Failed to start Camera Session, this session is already closed.")
+      Log.e(TAG, "Failed to start Camera Session, this session is already closed.", e)
     }
   }
 
@@ -457,12 +459,12 @@ class CameraSession(private val cameraManager: CameraManager,
     Log.i(TAG, "Stopping Camera Session...")
     try {
       mutex.withLock {
-        val captureSession = captureSession ?: return
-        captureSession.stopRepeating()
+        val camera = cameraDevice ?: return
+        camera.close()
         Log.i(TAG, "Camera Session stopped!")
       }
     } catch (e: IllegalStateException) {
-      Log.w(TAG, "Failed to stop Camera Session, this session is already closed.")
+      Log.e(TAG, "Failed to stop Camera Session, this session is already closed.", e)
     }
   }
 }
