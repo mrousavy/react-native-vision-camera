@@ -13,8 +13,8 @@ import type { CameraVideoCodec, RecordVideoOptions, VideoFile, VideoFileType } f
 import { VisionCameraProxy } from './FrameProcessorPlugins';
 
 //#region Types
-export type CameraPermissionStatus = 'authorized' | 'not-determined' | 'denied' | 'restricted';
-export type CameraPermissionRequestResult = 'authorized' | 'denied';
+export type CameraPermissionStatus = 'granted' | 'not-determined' | 'denied' | 'restricted';
+export type CameraPermissionRequestResult = 'granted' | 'denied';
 
 interface OnErrorEvent {
   code: string;

@@ -169,7 +169,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   }, [neutralZoom, zoom]);
 
   useEffect(() => {
-    Camera.getMicrophonePermissionStatus().then((status) => setHasMicrophonePermission(status === 'authorized'));
+    Camera.getMicrophonePermissionStatus().then((status) => setHasMicrophonePermission(status === 'granted'));
   }, []);
   //#endregion
 

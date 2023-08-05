@@ -1,0 +1,18 @@
+package com.mrousavy.camera.parsers
+
+enum class QualityPrioritization(override val unionValue: String): JSUnionValue {
+  SPEED("speed"),
+  BALANCED("balanced"),
+  QUALITY("quality");
+
+  companion object: JSUnionValue.Companion<QualityPrioritization> {
+    override fun fromUnionValue(unionValue: String?): QualityPrioritization {
+      return when (unionValue) {
+        "speed" -> SPEED
+        "balanced" -> BALANCED
+        "quality" -> QUALITY
+        else -> BALANCED
+      }
+    }
+  }
+}

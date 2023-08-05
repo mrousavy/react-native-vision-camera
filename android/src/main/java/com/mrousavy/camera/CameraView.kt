@@ -18,6 +18,10 @@ import com.mrousavy.camera.extensions.displayRotation
 import com.mrousavy.camera.extensions.installHierarchyFitter
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
+import com.mrousavy.camera.parsers.Orientation
+import com.mrousavy.camera.parsers.PreviewType
+import com.mrousavy.camera.parsers.Torch
+import com.mrousavy.camera.parsers.VideoStabilizationMode
 import com.mrousavy.camera.utils.CameraOutputs
 import kotlin.math.max
 import kotlin.math.min
@@ -73,15 +77,15 @@ class CameraView(context: Context) : FrameLayout(context) {
   // props that require format reconfiguring
   var format: ReadableMap? = null
   var fps: Int? = null
-  var videoStabilizationMode: String? = null
+  var videoStabilizationMode: VideoStabilizationMode? = null
   var hdr: Boolean? = null // nullable bool
   var lowLightBoost: Boolean? = null // nullable bool
-  var previewType: String = "none"
+  var previewType: PreviewType = PreviewType.NONE
   // other props
   var isActive = false
-  var torch = "off"
+  var torch: Torch = Torch.OFF
   var zoom: Float = 1f // in "factor"
-  var orientation: String? = null
+  var orientation: Orientation? = null
 
   // private properties
   private var isMounted = false
@@ -95,25 +99,9 @@ class CameraView(context: Context) : FrameLayout(context) {
   var frameProcessor: FrameProcessor? = null
 
   private val inputRotation: Int
-    get() {
-      return context.displayRotation
-    }
+    get() = context.displayRotation
   private val outputRotation: Int
-    get() {
-      if (orientation != null) {
-        // user is overriding output orientation
-        return when (orientation!!) {
-          "portrait" -> Surface.ROTATION_0
-          "landscapeRight" -> Surface.ROTATION_90
-          "portraitUpsideDown" -> Surface.ROTATION_180
-          "landscapeLeft" -> Surface.ROTATION_270
-          else -> throw InvalidTypeScriptUnionError("orientation", orientation!!)
-        }
-      } else {
-        // use same as input rotation
-        return inputRotation
-      }
-    }
+    get() = orientation?.toSurfaceRotation() ?: inputRotation
 
   private var minZoom: Float = 1f
   private var maxZoom: Float = 1f
@@ -149,11 +137,11 @@ class CameraView(context: Context) : FrameLayout(context) {
 
   private fun setupPreviewView() {
     when (previewType) {
-      "none" -> {
+      PreviewType.NONE -> {
         removeView(this.previewView)
         this.previewView = null
       }
-      "native" -> {
+      PreviewType.NATIVE -> {
         removeView(this.previewView)
 
         val cameraId = cameraId ?: throw NoCameraDeviceError()
@@ -165,7 +153,7 @@ class CameraView(context: Context) : FrameLayout(context) {
         addView(previewView)
         this.previewView = previewView
       }
-      "skia" -> {
+      PreviewType.SKIA -> {
         throw Error("Skia is not yet implemented on Android!")
       }
     }
@@ -230,7 +218,7 @@ class CameraView(context: Context) : FrameLayout(context) {
     } else null
     val videoOutput = if (video == true) {
       CameraOutputs.VideoOutput({ image ->
-        val frame = Frame(image, System.currentTimeMillis(), inputRotation, false)
+        val frame = Frame(image, System.currentTimeMillis(), Orientation.fromRotationDegrees(inputRotation), false)
         onFrame(frame)
       }, targetVideoSize)
     } else null

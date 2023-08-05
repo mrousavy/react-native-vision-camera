@@ -26,7 +26,7 @@ export function App(): React.ReactElement | null {
     return null;
   }
 
-  const showPermissionsPage = cameraPermission !== 'authorized' || microphonePermission === 'not-determined';
+  const showPermissionsPage = cameraPermission !== 'granted' || microphonePermission === 'not-determined';
   return (
     <NavigationContainer>
       <GestureHandlerRootView style={{ flex: 1 }}>

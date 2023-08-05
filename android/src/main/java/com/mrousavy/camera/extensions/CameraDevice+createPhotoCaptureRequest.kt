@@ -5,15 +5,13 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.view.Surface
-
-enum class FlashMode { OFF, ON, AUTO }
-
-enum class QualityPrioritization { SPEED, BALANCED, QUALITY }
+import com.mrousavy.camera.parsers.Flash
+import com.mrousavy.camera.parsers.QualityPrioritization
 
 fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
                                            surface: Surface,
                                            qualityPrioritization: QualityPrioritization,
-                                           flashMode: FlashMode,
+                                           flashMode: Flash,
                                            enableRedEyeReduction: Boolean,
                                            enableAutoStabilization: Boolean): CaptureRequest {
   val captureRequest = when (qualityPrioritization) {
@@ -35,15 +33,15 @@ fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
 
   when (flashMode) {
     // Set the Flash Mode
-    FlashMode.OFF -> {
+    Flash.OFF -> {
       captureRequest[CaptureRequest.FLASH_MODE] = CaptureRequest.FLASH_MODE_OFF
       captureRequest[CaptureRequest.CONTROL_AE_MODE] = CaptureRequest.CONTROL_AE_MODE_ON
     }
-    FlashMode.ON -> {
+    Flash.ON -> {
       captureRequest[CaptureRequest.FLASH_MODE] = CaptureRequest.FLASH_MODE_SINGLE
       captureRequest[CaptureRequest.CONTROL_AE_MODE] = CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH
     }
-    FlashMode.AUTO -> {
+    Flash.AUTO -> {
       if (enableRedEyeReduction) {
         captureRequest[CaptureRequest.CONTROL_AE_MODE] = CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH_REDEYE
       } else {

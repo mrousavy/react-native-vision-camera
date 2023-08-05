@@ -10,15 +10,16 @@ import android.media.Image
 import android.os.Build
 import android.util.Log
 import android.util.Range
-import com.mrousavy.camera.extensions.FlashMode
-import com.mrousavy.camera.extensions.QualityPrioritization
 import com.mrousavy.camera.extensions.SessionType
 import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.createPhotoCaptureRequest
 import com.mrousavy.camera.extensions.openCamera
 import com.mrousavy.camera.extensions.tryClose
-import com.mrousavy.camera.parsers.getVideoStabilizationMode
+import com.mrousavy.camera.parsers.CameraDeviceError
+import com.mrousavy.camera.parsers.Flash
+import com.mrousavy.camera.parsers.QualityPrioritization
+import com.mrousavy.camera.parsers.VideoStabilizationMode
 import com.mrousavy.camera.utils.CameraOutputs
 import com.mrousavy.camera.utils.ExifUtils
 import com.mrousavy.camera.utils.PhotoOutputSynchronizer
@@ -59,7 +60,7 @@ class CameraSession(private val cameraManager: CameraManager,
 
   // configureFormat(..)
   private var fps: Int? = null
-  private var videoStabilizationMode: String? = null
+  private var videoStabilizationMode: VideoStabilizationMode? = null
   private var lowLightBoost: Boolean? = null
   private var hdr: Boolean? = null
 
@@ -122,7 +123,7 @@ class CameraSession(private val cameraManager: CameraManager,
    * Configures various format settings such as FPS, Video Stabilization, HDR or Night Mode.
    */
   fun configureFormat(fps: Int? = null,
-                      videoStabilizationMode: String? = null,
+                      videoStabilizationMode: VideoStabilizationMode? = null,
                       hdr: Boolean? = null,
                       lowLightBoost: Boolean? = null) {
     Log.i(TAG, "Setting Format (fps: $fps | videoStabilization: $videoStabilizationMode | hdr: $hdr | lowLightBoost: $lowLightBoost)...")
@@ -153,7 +154,7 @@ class CameraSession(private val cameraManager: CameraManager,
   }
 
   suspend fun takePhoto(qualityPrioritization: QualityPrioritization,
-                        flashMode: FlashMode,
+                        flashMode: Flash,
                         enableRedEyeReduction: Boolean,
                         enableAutoStabilization: Boolean): CapturedPhoto {
     val captureSession = captureSession ?: throw CameraNotReadyError()
@@ -259,7 +260,7 @@ class CameraSession(private val cameraManager: CameraManager,
   private fun getPreviewCaptureRequest(captureSession: CameraCaptureSession,
                                        outputs: CameraOutputs,
                                        fps: Int? = null,
-                                       videoStabilizationMode: String? = null,
+                                       videoStabilizationMode: VideoStabilizationMode? = null,
                                        lowLightBoost: Boolean? = null,
                                        hdr: Boolean? = null): CaptureRequest {
     val template = if (outputs.videoOutput != null) CameraDevice.TEMPLATE_RECORD else CameraDevice.TEMPLATE_PREVIEW
@@ -277,9 +278,8 @@ class CameraSession(private val cameraManager: CameraManager,
       captureRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(fps, fps))
     }
     if (videoStabilizationMode != null) {
-      val stabilizationMode = getVideoStabilizationMode(videoStabilizationMode)
-      captureRequest.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, stabilizationMode.digitalMode)
-      captureRequest.set(CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE, stabilizationMode.opticalMode)
+      captureRequest.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, videoStabilizationMode.toDigitalStabilizationMode())
+      captureRequest.set(CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE, videoStabilizationMode.toOpticalStabilizationMode())
     }
     if (lowLightBoost == true) {
       captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_NIGHT)
@@ -333,7 +333,7 @@ class CameraSession(private val cameraManager: CameraManager,
         // 3. Create capture session with outputs
         val session = getCaptureSession(camera, outputs) {
           isRunning = false
-          onError(CameraDisconnectedError(cameraId, "session-closed"))
+          onError(CameraDisconnectedError(cameraId, CameraDeviceError.DISCONNECTED))
         }
 
         // 4. Create repeating request (configures FPS, HDR, etc.)

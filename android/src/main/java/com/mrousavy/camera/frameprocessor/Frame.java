@@ -1,20 +1,20 @@
 package com.mrousavy.camera.frameprocessor;
 
-import static com.mrousavy.camera.parsers.ImageFormat_StringKt.parseImageFormat;
-
 import android.graphics.ImageFormat;
-import android.graphics.PixelFormat;
 import android.media.Image;
 import com.facebook.proguard.annotations.DoNotStrip;
+import com.mrousavy.camera.parsers.Format;
+import com.mrousavy.camera.parsers.Orientation;
+
 import java.nio.ByteBuffer;
 
 public class Frame {
     private final Image image;
     private final boolean isMirrored;
     private final long timestamp;
-    private final int orientation;
+    private final Orientation orientation;
 
-    public Frame(Image image, long timestamp, int orientation, boolean isMirrored) {
+    public Frame(Image image, long timestamp, Orientation orientation, boolean isMirrored) {
         this.image = image;
         this.timestamp = timestamp;
         this.orientation = orientation;
@@ -66,21 +66,14 @@ public class Frame {
     @SuppressWarnings("unused")
     @DoNotStrip
     public String getOrientation() {
-        // TODO: Check if this works as expected
-        int rotation = orientation;
-        if (rotation >= 45 && rotation < 135)
-            return "landscapeRight";
-        if (rotation >= 135 && rotation < 225)
-            return "portraitUpsideDown";
-        if (rotation >= 225 && rotation < 315)
-            return "landscapeLeft";
-        return "portrait";
+        return orientation.getUnionValue();
     }
 
     @SuppressWarnings("unused")
     @DoNotStrip
     public String getPixelFormat() {
-        return parseImageFormat(image.getFormat());
+        Format format = Format.Companion.fromImageFormat(image.getFormat());
+        return format.getUnionValue();
     }
 
     @SuppressWarnings("unused")

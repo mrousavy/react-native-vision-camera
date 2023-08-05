@@ -12,7 +12,7 @@ extension AVAuthorizationStatus {
   var descriptor: String {
     switch self {
     case .authorized:
-      return "authorized"
+      return "granted"
     case .denied:
       return "denied"
     case .notDetermined:

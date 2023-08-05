@@ -13,17 +13,16 @@ import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.extensions.bigger
-import com.mrousavy.camera.parsers.parseDigitalVideoStabilizationMode
-import com.mrousavy.camera.parsers.parseHardwareLevel
-import com.mrousavy.camera.parsers.parseImageFormat
-import com.mrousavy.camera.parsers.parseLensFacing
-import com.mrousavy.camera.parsers.parseOpticalVideoStabilizationMode
+import com.mrousavy.camera.parsers.Format
+import com.mrousavy.camera.parsers.HardwareLevel
+import com.mrousavy.camera.parsers.LensFacing
+import com.mrousavy.camera.parsers.VideoStabilizationMode
 import kotlin.math.PI
 import kotlin.math.atan
 
 class CameraDeviceDetails(private val cameraManager: CameraManager, private val cameraId: String) {
   private val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-  private val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL) ?: CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+  private val hardwareLevel = HardwareLevel.fromCameraCharacteristics(characteristics)
   private val capabilities = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES) ?: IntArray(0)
   private val extensions = getSupportedExtensions()
 
@@ -32,12 +31,12 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
   private val supportsDepthCapture = capabilities.contains(8 /* TODO: CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DEPTH_OUTPUT */)
   private val supportsRawCapture = capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW)
   private val supportsLowLightBoost = extensions.contains(4 /* TODO: CameraExtensionCharacteristics.EXTENSION_NIGHT */)
-  private val lensFacing = characteristics.get(CameraCharacteristics.LENS_FACING)!!
+  private val lensFacing = LensFacing.fromCameraCharacteristics(characteristics)
   private val hasFlash = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) ?: false
   private val focalLengths = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS) ?: floatArrayOf(35f /* 35mm default */)
   private val sensorSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)!!
   private val name = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) characteristics.get(CameraCharacteristics.INFO_VERSION)
-                      else null) ?: "${parseLensFacing(lensFacing)} (${cameraId})"
+                      else null) ?: "$lensFacing (${cameraId})"
 
   // "formats" (all possible configurations for this device)
   private val zoomRange = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) characteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
@@ -53,7 +52,6 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
   private val supportsVideoHdr = getHasVideoHdr()
 
   private val videoFormat = ImageFormat.YUV_420_888
-  private val imageFormat = ImageFormat.JPEG
 
   // get extensions (HDR, Night Mode, ..)
   private fun getSupportedExtensions(): List<Int> {
@@ -80,10 +78,12 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
   private fun createStabilizationModes(): ReadableArray {
     val array = Arguments.createArray()
     digitalStabilizationModes.forEach { videoStabilizationMode ->
-      array.pushString(parseDigitalVideoStabilizationMode(videoStabilizationMode))
+      val mode = VideoStabilizationMode.fromDigitalVideoStabilizationMode(videoStabilizationMode)
+      array.pushString(mode.unionValue)
     }
     opticalStabilizationModes.forEach { videoStabilizationMode ->
-      array.pushString(parseOpticalVideoStabilizationMode(videoStabilizationMode))
+      val mode = VideoStabilizationMode.fromOpticalVideoStabilizationMode(videoStabilizationMode)
+      array.pushString(mode.unionValue)
     }
     return array
   }
@@ -122,7 +122,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     return 2 * atan(sensorSize.bigger / (focalLengths[0] * 2)) * (180 / PI)
   }
 
-  private fun buildFormatMap(photoSize: Size, videoSize: Size, outputFormat: Int, fpsRange: Range<Int>): ReadableMap {
+  private fun buildFormatMap(photoSize: Size, videoSize: Size, outputFormat: Format, fpsRange: Range<Int>): ReadableMap {
     val map = Arguments.createMap()
     map.putInt("photoHeight", photoSize.height)
     map.putInt("photoWidth", photoSize.width)
@@ -137,7 +137,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     map.putBoolean("supportsPhotoHDR", supportsPhotoHdr)
     map.putString("autoFocusSystem", "contrast-detection") // TODO: Is this wrong?
     map.putArray("videoStabilizationModes", createStabilizationModes())
-    map.putString("pixelFormat", parseImageFormat(outputFormat))
+    map.putString("pixelFormat", outputFormat.unionValue)
     return map
   }
 
@@ -165,7 +165,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
       val maxFps = (1.0 / (frameDuration.toDouble() / 1000000000)).toInt()
 
       photoSizes.forEach { photoSize ->
-        val map = buildFormatMap(photoSize, videoSize, videoFormat, Range(1, maxFps))
+        val map = buildFormatMap(photoSize, videoSize, Format.fromImageFormat(videoFormat), Range(1, maxFps))
         array.pushMap(map)
       }
     }
@@ -180,7 +180,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     val map = Arguments.createMap()
     map.putString("id", cameraId)
     map.putArray("devices", getDeviceTypes())
-    map.putString("position", parseLensFacing(lensFacing))
+    map.putString("position", lensFacing.unionValue)
     map.putString("name", name)
     map.putBoolean("hasFlash", hasFlash)
     map.putBoolean("hasTorch", hasFlash)
@@ -192,7 +192,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     map.putDouble("minZoom", minZoom)
     map.putDouble("maxZoom", maxZoom)
     map.putDouble("neutralZoom", 1.0) // Zoom is always relative to 1.0 on Android
-    map.putString("hardwareLevel", parseHardwareLevel(hardwareLevel))
+    map.putString("hardwareLevel", hardwareLevel.unionValue)
 
     val array = Arguments.createArray()
     cameraConfig.outputFormats.forEach { f ->

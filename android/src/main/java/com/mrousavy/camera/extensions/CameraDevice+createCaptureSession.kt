@@ -14,7 +14,6 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import com.mrousavy.camera.CameraQueues
 import com.mrousavy.camera.CameraSessionCannotBeConfiguredError
-import com.mrousavy.camera.parsers.parseHardwareLevel
 import com.mrousavy.camera.utils.CameraOutputs
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.Closeable
@@ -105,7 +104,7 @@ suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager,
     val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
     val sessionId = sessionId++
     Log.i(TAG, "Camera $id: Creating Capture Session #$sessionId... " +
-      "Hardware Level: ${parseHardwareLevel(hardwareLevel)} | Outputs: $outputs")
+      "Hardware Level: $hardwareLevel} | Outputs: $outputs")
 
     val callback = object: CameraCaptureSession.StateCallback() {
       override fun onConfigured(session: CameraCaptureSession) {

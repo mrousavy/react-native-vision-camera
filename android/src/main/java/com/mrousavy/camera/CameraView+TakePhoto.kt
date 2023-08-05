@@ -8,8 +8,8 @@ import android.util.Log
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
-import com.mrousavy.camera.extensions.FlashMode
-import com.mrousavy.camera.extensions.QualityPrioritization
+import com.mrousavy.camera.parsers.Flash
+import com.mrousavy.camera.parsers.QualityPrioritization
 import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import java.io.File
@@ -22,24 +22,14 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap = corouti
   val options = optionsMap.toHashMap()
   Log.i(TAG, "Taking photo... Options: $options")
 
-  val qualityPrioritization = options["qualityPrioritization"] as? String
-  val flash = options["flash"] as? String
+  val qualityPrioritization = options["qualityPrioritization"] as? String ?: "balanced"
+  val flash = options["flash"] as? String ?: "off"
   val enableAutoRedEyeReduction = options["enableAutoRedEyeReduction"] == true
   val enableAutoStabilization = options["enableAutoStabilization"] == true
   val skipMetadata = options["skipMetadata"] == true
 
-  val flashMode = when (flash) {
-    "off" -> FlashMode.OFF
-    "on" -> FlashMode.ON
-    "auto" -> FlashMode.AUTO
-    else -> FlashMode.AUTO
-  }
-  val qualityPrioritizationMode = when (qualityPrioritization) {
-    "speed" -> QualityPrioritization.SPEED
-    "balanced" -> QualityPrioritization.BALANCED
-    "quality" -> QualityPrioritization.QUALITY
-    else -> QualityPrioritization.BALANCED
-  }
+  val flashMode = Flash.fromUnionValue(flash)
+  val qualityPrioritizationMode = QualityPrioritization.fromUnionValue(qualityPrioritization)
 
   val photo = cameraSession.takePhoto(qualityPrioritizationMode,
                                       flashMode,

@@ -166,21 +166,24 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
 
   @ReactMethod
   fun getCameraPermissionStatus(promise: Promise) {
+
     val status = ContextCompat.checkSelfPermission(reactApplicationContext, Manifest.permission.CAMERA)
-    promise.resolve(parsePermissionStatus(status))
+    val parsed = PermissionStatus.fromPermissionStatus(status)
+    promise.resolve(parsed.unionValue)
   }
 
   @ReactMethod
   fun getMicrophonePermissionStatus(promise: Promise) {
     val status = ContextCompat.checkSelfPermission(reactApplicationContext, Manifest.permission.RECORD_AUDIO)
-    promise.resolve(parsePermissionStatus(status))
+    val parsed = PermissionStatus.fromPermissionStatus(status)
+    promise.resolve(parsed.unionValue)
   }
 
   @ReactMethod
   fun requestCameraPermission(promise: Promise) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
       // API 21 and below always grants permission on app install
-      return promise.resolve("authorized")
+      return promise.resolve(PermissionStatus.GRANTED.unionValue)
     }
 
     val activity = reactApplicationContext.currentActivity
@@ -189,7 +192,8 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
       val listener = PermissionListener { requestCode: Int, _: Array<String>, grantResults: IntArray ->
         if (requestCode == currentRequestCode) {
           val permissionStatus = if (grantResults.isNotEmpty()) grantResults[0] else PackageManager.PERMISSION_DENIED
-          promise.resolve(parsePermissionStatus(permissionStatus))
+          val parsed = PermissionStatus.fromPermissionStatus(permissionStatus)
+          promise.resolve(parsed.unionValue)
           return@PermissionListener true
         }
         return@PermissionListener false
@@ -204,7 +208,7 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
   fun requestMicrophonePermission(promise: Promise) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
       // API 21 and below always grants permission on app install
-      return promise.resolve("authorized")
+      return promise.resolve(PermissionStatus.GRANTED.unionValue)
     }
 
     val activity = reactApplicationContext.currentActivity
@@ -213,7 +217,8 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
       val listener = PermissionListener { requestCode: Int, _: Array<String>, grantResults: IntArray ->
         if (requestCode == currentRequestCode) {
           val permissionStatus = if (grantResults.isNotEmpty()) grantResults[0] else PackageManager.PERMISSION_DENIED
-          promise.resolve(parsePermissionStatus(permissionStatus))
+          val parsed = PermissionStatus.fromPermissionStatus(permissionStatus)
+          promise.resolve(parsed.unionValue)
           return@PermissionListener true
         }
         return@PermissionListener false
