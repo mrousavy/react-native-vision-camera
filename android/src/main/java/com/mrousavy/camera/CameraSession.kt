@@ -96,26 +96,23 @@ class CameraSession(private val cameraManager: CameraManager,
     }
   }
 
-  /**
-   * Configure the outputs of the Camera.
-   */
-  fun setOutputs(preview: CameraOutputs.PreviewOutput? = null,
-                 photo: CameraOutputs.PhotoOutput? = null,
-                 video: CameraOutputs.VideoOutput? = null) {
-    Log.i(TAG, "Setting Outputs...")
-    val cameraId = cameraId ?: throw NoCameraDeviceError()
-    val newOutputs = CameraOutputs(cameraId,
+  fun configureSession(cameraId: String,
+                       preview: CameraOutputs.PreviewOutput? = null,
+                       photo: CameraOutputs.PhotoOutput? = null,
+                       video: CameraOutputs.VideoOutput? = null) {
+    Log.i(TAG, "Configuring Session for Camera $cameraId...")
+    val outputs = CameraOutputs(cameraId,
       cameraManager,
       preview,
       photo,
       video,
       this)
-    if (this.outputs == newOutputs) {
-      Log.i(TAG, "Outputs didn't change, skipping restart..")
-      return
+    if (this.cameraId == cameraId && this.outputs == outputs && isActive == isRunning) {
+      Log.i(TAG, "Nothing changed in configuration, canceling..")
     }
 
-    this.outputs = newOutputs
+    this.cameraId = cameraId
+    this.outputs = outputs
     launch {
       startRunning()
     }

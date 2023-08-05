@@ -148,11 +148,10 @@ class CameraView(context: Context) : FrameLayout(context) {
   }
 
   private fun setupPreviewView() {
-    val cameraId = cameraId ?: return
-
     if (previewType == "native") {
       removeView(this.previewView)
 
+      val cameraId = cameraId ?: throw NoCameraDeviceError()
       val previewView = NativePreviewView(cameraManager, cameraId, context) { surface ->
         previewSurface = surface
         configureSession()
@@ -169,7 +168,6 @@ class CameraView(context: Context) : FrameLayout(context) {
     Log.i(TAG, "Props changed: $changedProps")
     try {
       val shouldReconfigurePreview = changedProps.containsAny(propsThatRequirePreviewReconfiguration)
-      val shouldReconfigureDevice = changedProps.contains("cameraId")
       val shouldReconfigureSession =  shouldReconfigurePreview || changedProps.containsAny(propsThatRequireSessionReconfiguration)
       val shouldReconfigureFormat = shouldReconfigureSession || changedProps.containsAny(propsThatRequireFormatReconfiguration)
       val shouldReconfigureZoom = /* TODO: When should we reconfigure this? */ shouldReconfigureSession || changedProps.contains("zoom")
@@ -179,9 +177,6 @@ class CameraView(context: Context) : FrameLayout(context) {
 
       if (shouldReconfigurePreview) {
         setupPreviewView()
-      }
-      if (shouldReconfigureDevice) {
-        configureDevice()
       }
       if (shouldReconfigureSession) {
         configureSession()
@@ -209,17 +204,14 @@ class CameraView(context: Context) : FrameLayout(context) {
     }
   }
 
-  private fun configureDevice() {
+  private fun configureSession() {
     Log.i(TAG, "Configuring Camera Device...")
+
     if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
       throw CameraPermissionError()
     }
     val cameraId = cameraId ?: throw NoCameraDeviceError()
 
-    cameraSession.setInputDevice(cameraId)
-  }
-
-  private fun configureSession() {
     val format = format
     val targetVideoSize = if (format != null) Size(format.getInt("videoWidth"), format.getInt("videoHeight")) else null
     val targetPhotoSize = if (format != null) Size(format.getInt("photoWidth"), format.getInt("photoHeight")) else null
@@ -236,7 +228,7 @@ class CameraView(context: Context) : FrameLayout(context) {
       }, targetVideoSize)
     } else null
 
-    cameraSession.setOutputs(previewOutput, photoOutput, videoOutput)
+    cameraSession.configureSession(cameraId, previewOutput, photoOutput, videoOutput)
   }
 
   private fun configureFormat() {
