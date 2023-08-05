@@ -295,6 +295,18 @@ class CameraSession(private val cameraManager: CameraManager,
     return captureRequest.build()
   }
 
+  private fun destroy() {
+    Log.i(TAG, "Destroying session..")
+    captureSession?.stopRepeating()
+    captureSession?.close()
+    captureSession = null
+
+    cameraDevice?.close()
+    cameraDevice = null
+
+    isRunning = false
+  }
+
   private suspend fun startRunning() {
     isRunning = false
     val cameraId = cameraId ?: return
@@ -310,7 +322,9 @@ class CameraSession(private val cameraManager: CameraManager,
         val outputs = outputs
 
         if (outputs?.preview == null) {
-          throw Error("CameraSession doesn't have a Preview!")
+          Log.i(TAG, "CameraSession doesn't have a Preview, canceling..")
+          destroy()
+          return@withLock
         }
 
         // 2. Open Camera Device
@@ -348,17 +362,7 @@ class CameraSession(private val cameraManager: CameraManager,
     Log.i(TAG, "Stopping Camera Session...")
     try {
       mutex.withLock {
-        captureSession?.stopRepeating()
-        captureSession?.close()
-        captureSession = null
-
-        outputs?.close()
-        outputs = null
-
-        cameraDevice?.close()
-        cameraDevice = null
-
-        isRunning = false
+        destroy()
         Log.i(TAG, "Camera Session stopped!")
       }
     } catch (e: IllegalStateException) {
