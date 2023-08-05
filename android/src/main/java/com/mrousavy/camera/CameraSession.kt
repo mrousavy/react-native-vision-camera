@@ -275,11 +275,10 @@ class CameraSession(private val cameraManager: CameraManager,
     return device
   }
 
-  private fun getOutputs(cameraId: String): ArrayList<SurfaceOutput> {
-    val videoOutput = videoOutput
-    val photoOutput = photoOutput
-    val previewOutput = previewOutput
-
+  private fun getOutputs(cameraId: String,
+                         videoOutput: VideoOutput? = null,
+                         photoOutput: PhotoOutput? = null,
+                         previewOutput: PreviewOutput? = null): ArrayList<SurfaceOutput> {
     val characteristics = cameraManager.getCameraCharacteristics(cameraId)
     val config = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
 
@@ -339,7 +338,9 @@ class CameraSession(private val cameraManager: CameraManager,
     return outputs
   }
 
-  private suspend fun getCaptureSession(cameraDevice: CameraDevice, outputs: List<SurfaceOutput>, onClosed: () -> Unit): CameraCaptureSession {
+  private suspend fun getCaptureSession(cameraDevice: CameraDevice,
+                                        outputs: List<SurfaceOutput>,
+                                        onClosed: () -> Unit): CameraCaptureSession {
     val currentSession = captureSession
     if (currentSession?.device == cameraDevice && !didOutputsChange) {
       // We already opened a CameraCaptureSession on this device
@@ -366,7 +367,11 @@ class CameraSession(private val cameraManager: CameraManager,
   }
 
   private fun getPreviewCaptureRequest(captureSession: CameraCaptureSession,
-                                       outputs: List<SurfaceOutput>): CaptureRequest {
+                                       outputs: List<SurfaceOutput>,
+                                       fps: Int? = null,
+                                       videoStabilizationMode: String? = null,
+                                       lowLightBoost: Boolean? = null,
+                                       hdr: Boolean? = null): CaptureRequest {
     val hasVideoOutput = outputs.any { it.outputType == OutputType.VIDEO }
     val template = if (hasVideoOutput) CameraDevice.TEMPLATE_RECORD else CameraDevice.TEMPLATE_PREVIEW
     val captureRequest = captureSession.device.createCaptureRequest(template)
@@ -377,10 +382,11 @@ class CameraSession(private val cameraManager: CameraManager,
       }
     }
 
-    fps?.let { fps ->
+
+    if (fps != null) {
       captureRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(fps, fps))
     }
-    videoStabilizationMode?.let { videoStabilizationMode ->
+    if (videoStabilizationMode != null) {
       val stabilizationMode = getVideoStabilizationMode(videoStabilizationMode)
       captureRequest.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, stabilizationMode.digitalMode)
       captureRequest.set(CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE, stabilizationMode.opticalMode)
@@ -404,8 +410,16 @@ class CameraSession(private val cameraManager: CameraManager,
 
     try {
       mutex.withLock {
+        val videoOutput = videoOutput
+        val photoOutput = photoOutput
+        val previewOutput = previewOutput
+        val fps = fps
+        val videoStabilizationMode = videoStabilizationMode
+        val lowLightBoost = lowLightBoost
+        val hdr = hdr
+
         // 1. Create outputs for device (PREVIEW, PHOTO, VIDEO)
-        val outputs = getOutputs(cameraId)
+        val outputs = getOutputs(cameraId, videoOutput, photoOutput, previewOutput)
         if (outputs.isEmpty()) return
 
         // 2. Open Camera Device
@@ -421,7 +435,7 @@ class CameraSession(private val cameraManager: CameraManager,
         }
 
         // 4. Create repeating request (configures FPS, HDR, etc.)
-        val repeatingRequest = getPreviewCaptureRequest(session, outputs)
+        val repeatingRequest = getPreviewCaptureRequest(session, outputs, fps, videoStabilizationMode, lowLightBoost, hdr)
 
         // 5. Start repeating request
         session.setRepeatingRequest(repeatingRequest, null, null)
