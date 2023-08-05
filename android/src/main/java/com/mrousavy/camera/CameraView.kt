@@ -18,6 +18,7 @@ import com.mrousavy.camera.extensions.displayRotation
 import com.mrousavy.camera.extensions.installHierarchyFitter
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
+import com.mrousavy.camera.utils.CameraOutputs
 import kotlin.math.max
 import kotlin.math.min
 
@@ -222,19 +223,20 @@ class CameraView(context: Context) : FrameLayout(context) {
     val format = format
     val targetVideoSize = if (format != null) Size(format.getInt("videoWidth"), format.getInt("videoHeight")) else null
     val targetPhotoSize = if (format != null) Size(format.getInt("photoWidth"), format.getInt("photoHeight")) else null
-    val previewSurface = previewSurface
+    val previewSurface = previewSurface ?: return
 
-    cameraSession.setOutputs(
-      // Photo Output
-      CameraSession.PhotoOutput(photo == true, targetPhotoSize),
-      // Video Output
-      CameraSession.VideoOutput(video == true, { image ->
+    val previewOutput = CameraOutputs.PreviewOutput(previewSurface)
+    val photoOutput = if (photo == true) {
+      CameraOutputs.PhotoOutput(targetPhotoSize)
+    } else null
+    val videoOutput = if (video == true) {
+      CameraOutputs.VideoOutput({ image ->
         val frame = Frame(image, System.currentTimeMillis(), inputRotation, false)
         onFrame(frame)
-      }, targetVideoSize),
-      // Preview Output
-      if (previewSurface?.isValid == true) CameraSession.PreviewOutput(true, previewSurface) else null
-    )
+      }, targetVideoSize)
+    } else null
+
+    cameraSession.setOutputs(previewOutput, photoOutput, videoOutput)
   }
 
   private fun configureFormat() {

@@ -1,8 +1,6 @@
 package com.mrousavy.camera
 
-import com.mrousavy.camera.extensions.ImageReaderOutput
-import com.mrousavy.camera.extensions.SurfaceOutput
-import com.mrousavy.camera.extensions.outputsToString
+import com.mrousavy.camera.utils.CameraOutputs
 
 abstract class CameraError(
   /**
@@ -54,7 +52,7 @@ class LowLightBoostNotContainedInFormatError : CameraError(
 
 class CameraNotReadyError : CameraError("session", "camera-not-ready", "The Camera is not ready yet! Wait for the onInitialized() callback!")
 class CameraCannotBeOpenedError(cameraId: String, error: String? = "(none)") : CameraError("session", "camera-cannot-be-opened", "The given Camera device (id: $cameraId) could not be opened! Error: $error")
-class CameraSessionCannotBeConfiguredError(cameraId: String, outputs: List<SurfaceOutput>) : CameraError("session", "cannot-create-session", "Failed to create a Camera Session for Camera $cameraId! Outputs: ${outputsToString(outputs)}")
+class CameraSessionCannotBeConfiguredError(cameraId: String, outputs: CameraOutputs) : CameraError("session", "cannot-create-session", "Failed to create a Camera Session for Camera $cameraId! Outputs: $outputs")
 class CameraDisconnectedError(cameraId: String, error: String? = "(none)") : CameraError("session", "camera-has-been-disconnected", "The given Camera device (id: $cameraId) has been disconnected! Error: $error")
 
 class VideoNotEnabledError : CameraError("capture", "video-not-enabled", "Video capture is disabled! Pass `video={true}` to enable video recordings.")
