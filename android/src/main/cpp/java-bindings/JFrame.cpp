@@ -62,6 +62,16 @@ local_ref<JArrayByte> JFrame::toByteArray() const {
   return toByteArrayMethod(self());
 }
 
+void JFrame::incrementRefCount() {
+  static const auto incrementRefCountMethod = getClass()->getMethod<void()>("incrementRefCount");
+  incrementRefCountMethod(self());
+}
+
+void JFrame::decrementRefCount() {
+  static const auto decrementRefCountMethod = getClass()->getMethod<void()>("decrementRefCount");
+  decrementRefCountMethod(self());
+}
+
 void JFrame::close() {
   static const auto closeMethod = getClass()->getMethod<void()>("close");
   closeMethod(self());

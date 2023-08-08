@@ -7,12 +7,14 @@ import com.mrousavy.camera.parsers.Format;
 import com.mrousavy.camera.parsers.Orientation;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Frame {
     private final Image image;
     private final boolean isMirrored;
     private final long timestamp;
     private final Orientation orientation;
+    private int refCount = 0;
 
     public Frame(Image image, long timestamp, Orientation orientation, boolean isMirrored) {
         this.image = image;
@@ -110,6 +112,26 @@ public class Frame {
                 return byteArrayCache;
             default:
                 throw new RuntimeException("Cannot convert Frame with Format " + image.getFormat() + " to byte array!");
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @DoNotStrip
+    public void incrementRefCount() {
+        synchronized (this) {
+            refCount++;
+        }
+    }
+
+    @SuppressWarnings("unused")
+    @DoNotStrip
+    public void decrementRefCount() {
+        synchronized (this) {
+            refCount--;
+            if (refCount <= 0) {
+                // If no reference is held on this Image, close it.
+                image.close();
+            }
         }
     }
 

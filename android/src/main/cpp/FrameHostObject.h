@@ -9,7 +9,6 @@
 #include <fbjni/fbjni.h>
 #include <vector>
 #include <string>
-#include <mutex>
 
 #include "java-bindings/JFrame.h"
 
@@ -31,9 +30,6 @@ class JSI_EXPORT FrameHostObject : public jsi::HostObject {
 
  private:
   static auto constexpr TAG = "VisionCamera";
-
-  size_t _refCount;
-  std::mutex _refCountMutex;
 };
 
 } // namespace vision

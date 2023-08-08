@@ -18,7 +18,7 @@ namespace vision {
 
 using namespace facebook;
 
-FrameHostObject::FrameHostObject(const jni::alias_ref<JFrame::javaobject>& frame): frame(make_global(frame)), _refCount(0) { }
+FrameHostObject::FrameHostObject(const jni::alias_ref<JFrame::javaobject>& frame): frame(make_global(frame)) { }
 
 FrameHostObject::~FrameHostObject() {
   // Hermes' Garbage Collector (Hades GC) calls destructors on a separate Thread
@@ -95,8 +95,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "incrementRefCount") {
     auto incrementRefCount = JSI_HOST_FUNCTION_LAMBDA {
       // Increment retain count by one.
-      std::lock_guard lock(this->_refCountMutex);
-      this->_refCount++;
+      this->frame->incrementRefCount();
       return jsi::Value::undefined();
     };
     return jsi::Function::createFromHostFunction(runtime,
@@ -107,12 +106,8 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 
   if (name == "decrementRefCount") {
     auto decrementRefCount = JSI_HOST_FUNCTION_LAMBDA {
-      // Decrement retain count by one. If the retain count is zero, we close the Frame.
-      std::lock_guard lock(this->_refCountMutex);
-      this->_refCount--;
-      if (_refCount < 1) {
-        this->frame->close();
-      }
+      // Decrement retain count by one. If the retain count is zero, the Frame gets closed.
+      this->frame->decrementRefCount();
       return jsi::Value::undefined();
     };
     return jsi::Function::createFromHostFunction(runtime,

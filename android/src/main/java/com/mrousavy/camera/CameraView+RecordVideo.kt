@@ -48,10 +48,12 @@ fun CameraView.stopRecording() {
 }
 
 fun CameraView.onFrame(frame: Frame) {
+  frame.incrementRefCount()
+
   Log.d(CameraView.TAG, "New Frame available!")
   if (frameProcessor != null) {
     frameProcessor?.call(frame)
   }
 
-  // TODO: Record Video here using MediaCodec
+  frame.decrementRefCount()
 }
