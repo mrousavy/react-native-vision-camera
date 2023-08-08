@@ -45,6 +45,7 @@ class CameraSession(private val cameraManager: CameraManager,
   data class CapturedPhoto(val image: Image,
                            val metadata: TotalCaptureResult,
                            val orientation: Orientation,
+                           val isMirrored: Boolean,
                            val format: Int): Closeable {
     override fun close() {
       image.close()
@@ -189,8 +190,10 @@ class CameraSession(private val cameraManager: CameraManager,
     try {
       val image = photoOutputSynchronizer.await(timestamp)
 
+      val isMirrored = cameraCharacteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
+
       Log.i(TAG, "Photo capture 2/2 complete - received ${image.width} x ${image.height} image.")
-      return CapturedPhoto(image, result, orientation, image.format)
+      return CapturedPhoto(image, result, orientation, isMirrored, image.format)
     } catch (e: CancellationException) {
       throw CaptureAbortedError(false)
     }

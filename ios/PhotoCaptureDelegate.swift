@@ -48,7 +48,7 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
       let exif = photo.metadata["{Exif}"] as? [String: Any]
       let width = exif?["PixelXDimension"]
       let height = exif?["PixelYDimension"]
-      let exifOrientation = exif?["Orientation"] as? Int ?? 0
+      let exifOrientation = photo.metadata[kCGImagePropertyOrientation as String] as? Int ?? 0
       let orientation = getOrientation(forExifOrientation: exifOrientation)
       let isMirrored = getIsMirrored(forExifOrientation: exifOrientation)
 
@@ -94,7 +94,7 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
   
   private func getIsMirrored(forExifOrientation exifOrientation: Int) -> Bool {
     switch (exifOrientation) {
-    case 2, 4, 6, 8:
+    case 2, 4, 5, 7:
       return true
     default:
       return false

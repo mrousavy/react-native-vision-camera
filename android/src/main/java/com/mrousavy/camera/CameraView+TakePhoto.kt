@@ -52,6 +52,7 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap = corouti
     map.putInt("height", photo.image.height)
     map.putString("orientation", photo.orientation.unionValue)
     map.putBoolean("isRawPhoto", photo.format == ImageFormat.RAW_SENSOR)
+    map.putBoolean("isMirrored", photo.isMirrored)
 
     // TODO: Add metadata prop to resulting photo
 

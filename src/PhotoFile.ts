@@ -63,10 +63,28 @@ export interface TakePhotoOptions {
  * Related: {@linkcode Camera.takePhoto | Camera.takePhoto()}, {@linkcode Camera.takeSnapshot | Camera.takeSnapshot()}
  */
 export interface PhotoFile extends TemporaryFile {
+  /**
+   * The width of the photo, in pixels.
+   */
   width: number;
+  /**
+   * The height of the photo, in pixels.
+   */
   height: number;
+  /**
+   * Whether this photo is in RAW format or not.
+   */
   isRawPhoto: boolean;
+  /**
+   * Display orientation of the photo, relative to the Camera's sensor orientation.
+   *
+   * Note that Camera sensors are landscape, so e.g. "portrait" photos will have a value of "landscape-left", etc.
+   */
   orientation: Orientation;
+  /**
+   * Whether this photo is mirrored (selfies) or not.
+   */
+  isMirrored: boolean;
   thumbnail?: Record<string, unknown>;
   /**
    * Metadata information describing the captured image.
@@ -75,6 +93,18 @@ export interface PhotoFile extends TemporaryFile {
    * @see [AndroidX ExifInterface](https://developer.android.com/reference/androidx/exifinterface/media/ExifInterface)
    */
   metadata?: {
+    /**
+     * Orientation of the EXIF Image.
+     *
+     * * 1 = 0 degrees: the correct orientation, no adjustment is required.
+     * * 2 = 0 degrees, mirrored: image has been flipped back-to-front.
+     * * 3 = 180 degrees: image is upside down.
+     * * 4 = 180 degrees, mirrored: image has been flipped back-to-front and is upside down.
+     * * 5 = 90 degrees: image has been flipped back-to-front and is on its side.
+     * * 6 = 90 degrees, mirrored: image is on its side.
+     * * 7 = 270 degrees: image has been flipped back-to-front and is on its far side.
+     * * 8 = 270 degrees, mirrored: image is on its far side.
+     */
     Orientation: number;
     /**
      * @platform iOS
