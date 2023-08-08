@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { StyleSheet, View, Image, ActivityIndicator, PermissionsAndroid, Platform } from 'react-native';
+import { StyleSheet, View, ActivityIndicator, PermissionsAndroid, Platform } from 'react-native';
 import Video, { LoadError, OnLoadData } from 'react-native-video';
 import { SAFE_AREA_PADDING } from './Constants';
 import { useIsForeground } from './hooks/useIsForeground';
@@ -8,11 +8,10 @@ import IonIcon from 'react-native-vector-icons/Ionicons';
 import { Alert } from 'react-native';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import { StatusBarBlurBackground } from './views/StatusBarBlurBackground';
-import type { NativeSyntheticEvent } from 'react-native';
-import type { ImageLoadEventData } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { Routes } from './Routes';
 import { useIsFocused } from '@react-navigation/core';
+import FastImage, { OnLoadEvent } from 'react-native-fast-image';
 
 const requestSavePermission = async (): Promise<boolean> => {
   if (Platform.OS !== 'android') return true;
@@ -27,8 +26,7 @@ const requestSavePermission = async (): Promise<boolean> => {
   return hasPermission;
 };
 
-const isVideoOnLoadEvent = (event: OnLoadData | NativeSyntheticEvent<ImageLoadEventData>): event is OnLoadData =>
-  'duration' in event && 'naturalSize' in event;
+const isVideoOnLoadEvent = (event: OnLoadData | OnLoadEvent): event is OnLoadData => 'duration' in event && 'naturalSize' in event;
 
 type Props = NativeStackScreenProps<Routes, 'MediaPage'>;
 export function MediaPage({ navigation, route }: Props): React.ReactElement {
@@ -39,13 +37,13 @@ export function MediaPage({ navigation, route }: Props): React.ReactElement {
   const isVideoPaused = !isForeground || !isScreenFocused;
   const [savingState, setSavingState] = useState<'none' | 'saving' | 'saved'>('none');
 
-  const onMediaLoad = useCallback((event: OnLoadData | NativeSyntheticEvent<ImageLoadEventData>) => {
+  const onMediaLoad = useCallback((event: OnLoadData | OnLoadEvent) => {
     if (isVideoOnLoadEvent(event)) {
       console.log(
         `Video loaded. Size: ${event.naturalSize.width}x${event.naturalSize.height} (${event.naturalSize.orientation}, ${event.duration} seconds)`,
       );
     } else {
-      console.log(`Image loaded. Size: ${event.nativeEvent.source.width}x${event.nativeEvent.source.height}`);
+      console.log(`Image loaded. Size: ${event.nativeEvent.width}x${event.nativeEvent.height}`);
     }
   }, []);
   const onMediaLoadEnd = useCallback(() => {
@@ -83,7 +81,7 @@ export function MediaPage({ navigation, route }: Props): React.ReactElement {
   return (
     <View style={[styles.container, screenStyle]}>
       {type === 'photo' && (
-        <Image source={source} style={StyleSheet.absoluteFill} resizeMode="cover" onLoadEnd={onMediaLoadEnd} onLoad={onMediaLoad} />
+        <FastImage source={source} style={StyleSheet.absoluteFill} resizeMode="cover" onLoadEnd={onMediaLoadEnd} onLoad={onMediaLoad} />
       )}
       {type === 'video' && (
         <Video
