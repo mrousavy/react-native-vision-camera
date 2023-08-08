@@ -24,6 +24,9 @@ export const sortDevices = (left: CameraDevice, right: CameraDevice): number => 
   if (leftHasWideAngle) leftPoints += 2;
   if (rightHasWideAngle) rightPoints += 2;
 
+  if (left.isMultiCam) leftPoints += 2;
+  if (right.isMultiCam) rightPoints += 2;
+
   const leftMaxResolution = left.formats.reduce(
     (prev, curr) => Math.max(prev, curr.videoHeight * curr.videoWidth + curr.photoHeight * curr.photoWidth),
     0,
