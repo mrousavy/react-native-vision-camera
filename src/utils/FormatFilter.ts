@@ -24,6 +24,17 @@ export const sortDevices = (left: CameraDevice, right: CameraDevice): number => 
   if (leftHasWideAngle) leftPoints += 2;
   if (rightHasWideAngle) rightPoints += 2;
 
+  const leftMaxResolution = left.formats.reduce(
+    (prev, curr) => Math.max(prev, curr.videoHeight * curr.videoWidth + curr.photoHeight * curr.photoWidth),
+    0,
+  );
+  const rightMaxResolution = right.formats.reduce(
+    (prev, curr) => Math.max(prev, curr.videoHeight * curr.videoWidth + curr.photoHeight * curr.photoWidth),
+    0,
+  );
+  if (leftMaxResolution > rightMaxResolution) leftPoints += 3;
+  if (rightMaxResolution > leftMaxResolution) rightPoints += 3;
+
   // telephoto cameras often have very poor quality.
   const leftHasTelephoto = left.devices.includes('telephoto-camera');
   const rightHasTelephoto = right.devices.includes('telephoto-camera');
