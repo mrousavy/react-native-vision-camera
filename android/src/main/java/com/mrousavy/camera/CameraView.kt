@@ -6,9 +6,11 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.hardware.camera2.CameraManager
+import android.opengl.GLES32
 import android.util.Log
 import android.util.Size
 import android.view.Surface
+import android.view.SurfaceView
 import android.view.View
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
@@ -108,11 +110,14 @@ class CameraView(context: Context) : FrameLayout(context) {
   init {
     this.installHierarchyFitter()
     setupPreviewView()
-    cameraSession = CameraSession(cameraManager, {
-      invokeOnInitialized()
-    }, { error ->
-      invokeOnError(error)
-    })
+    cameraSession = CameraSession(context,
+                                  cameraManager,
+                                  {
+                                    invokeOnInitialized()
+                                  },
+                                  { error ->
+                                    invokeOnError(error)
+                                  })
   }
 
   override fun onConfigurationChanged(newConfig: Configuration?) {

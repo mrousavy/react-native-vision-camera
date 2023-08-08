@@ -15,6 +15,10 @@ fun Array<Size>.closestToOrMax(size: Size?): Size {
   }
 }
 
+fun Collection<Size>.closestTo(size: Size): Size {
+  return this.minBy { abs(it.width - size.width) + abs(it.height - size.height) }
+}
+
 /**
  * Rotate by a given Surface Rotation
  */

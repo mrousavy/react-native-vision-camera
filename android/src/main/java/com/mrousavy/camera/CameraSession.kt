@@ -1,5 +1,6 @@
 package com.mrousavy.camera
 
+import android.content.Context
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
@@ -7,14 +8,19 @@ import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
+import android.media.CamcorderProfile
 import android.media.Image
+import android.media.MediaRecorder
 import android.os.Build
+import android.provider.MediaStore.Audio.Media
 import android.util.Log
 import android.util.Range
+import android.util.Size
 import com.mrousavy.camera.extensions.SessionType
 import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.createPhotoCaptureRequest
+import com.mrousavy.camera.extensions.getCamcorderQualityForSize
 import com.mrousavy.camera.extensions.openCamera
 import com.mrousavy.camera.extensions.tryClose
 import com.mrousavy.camera.parsers.CameraDeviceError
@@ -35,7 +41,8 @@ import kotlin.coroutines.CoroutineContext
 
 // TODO: Use reprocessable YUV capture session for more efficient Skia Frame Processing
 
-class CameraSession(private val cameraManager: CameraManager,
+class CameraSession(val context: Context,
+                    private val cameraManager: CameraManager,
                     private val onInitialized: () -> Unit,
                     private val onError: (e: Throwable) -> Unit): CoroutineScope, Closeable, CameraOutputs.Callback, CameraManager.AvailabilityCallback() {
   companion object {
@@ -72,6 +79,7 @@ class CameraSession(private val cameraManager: CameraManager,
   private val photoOutputSynchronizer = PhotoOutputSynchronizer()
   private val mutex = Mutex()
   private var isRunning = false
+  private val mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(context) else MediaRecorder()
 
   override val coroutineContext: CoroutineContext = CameraQueues.cameraQueue.coroutineDispatcher
 
@@ -96,18 +104,6 @@ class CameraSession(private val cameraManager: CameraManager,
       return Orientation.fromRotationDegrees(sensorRotation)
     }
 
-  /**
-   * Set the Camera to be used as an input device.
-   * Calling this with the same ID twice will not re-open the Camera device.
-   */
-  fun setInputDevice(cameraId: String) {
-    Log.i(TAG, "Setting Input Device to Camera $cameraId...")
-    this.cameraId = cameraId
-    launch {
-      startRunning()
-    }
-  }
-
   fun configureSession(cameraId: String,
                        preview: CameraOutputs.PreviewOutput? = null,
                        photo: CameraOutputs.PhotoOutput? = null,
@@ -130,9 +126,6 @@ class CameraSession(private val cameraManager: CameraManager,
     }
   }
 
-  /**
-   * Configures various format settings such as FPS, Video Stabilization, HDR or Night Mode.
-   */
   fun configureFormat(fps: Int? = null,
                       videoStabilizationMode: VideoStabilizationMode? = null,
                       hdr: Boolean? = null,
@@ -202,6 +195,79 @@ class CameraSession(private val cameraManager: CameraManager,
   override fun onPhotoCaptured(image: Image) {
     Log.i(CameraView.TAG, "Photo captured! ${image.width} x ${image.height}")
     photoOutputSynchronizer.set(image.timestamp, image)
+  }
+
+  fun startRecording(enableAudio: Boolean) {
+    val cameraId = cameraId ?: throw CameraNotReadyError()
+    val outputs = outputs ?: throw CameraNotReadyError()
+    val videoOutput = outputs.video ?: throw VideoNotEnabledError()
+
+    // TODO: Get video size!!
+    val size = Size(0, 0)
+    // TODO: Get video FPS
+    val fps = fps ?: 30
+    val targetQuality = getCamcorderQualityForSize(size)
+
+    val cameraIdInt = cameraId.toIntOrNull() ?: throw Error("Cannot record with this Camera!")
+    val profile = CamcorderProfile.get(cameraIdInt, targetQuality)
+
+    mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE)
+
+    if (enableAudio) {
+      mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER)
+    }
+
+    mediaRecorder.setOutputFormat(profile.fileFormat)
+
+    // TODO: Make sure the dimensions are rotated properly!
+    mediaRecorder.setVideoSize(size.width, size.height)
+    mediaRecorder.setVideoFrameRate(fps)
+    mediaRecorder.setVideoEncoder(profile.videoCodec)
+    mediaRecorder.setVideoEncodingBitRate(profile.videoBitRate)
+
+    if (enableAudio) {
+      mediaRecorder.setAudioChannels(profile.audioChannels)
+      mediaRecorder.setAudioSamplingRate(profile.audioSampleRate)
+      mediaRecorder.setAudioEncoder(profile.audioCodec)
+      mediaRecorder.setAudioEncodingBitRate(profile.audioBitRate)
+    }
+
+    // TODO: Create file here!
+    mediaRecorder.setOutputFile("")
+    mediaRecorder.setOrientationHint(orientation.toDegrees())
+    mediaRecorder.setOnInfoListener { _, what, extra ->
+      when (what) {
+        MediaRecorder.MEDIA_RECORDER_INFO_UNKNOWN -> {
+          Log.i(TAG, "MediaRecorder: Unknown Info: $extra")
+        }
+        MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED -> {
+          Log.i(TAG, "MediaRecorder: Reached maximum duration! $extra")
+        }
+        MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_APPROACHING -> {
+          Log.i(TAG, "MediaRecorder: About to hit maximum filesize... $extra")
+        }
+        MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED -> {
+          Log.i(TAG, "MediaRecorder: Reached maximum filesize! $extra")
+        }
+        MediaRecorder.MEDIA_RECORDER_INFO_NEXT_OUTPUT_FILE_STARTED -> {
+          Log.i(TAG, "MediaRecorder: Started next output file! $extra")
+        }
+      }
+    }
+    mediaRecorder.setOnErrorListener { _, what, extra ->
+      when (what) {
+        MediaRecorder.MEDIA_ERROR_SERVER_DIED -> {
+          Log.e(TAG, "MediaRecorder: Server died! $extra")
+        }
+        MediaRecorder.MEDIA_RECORDER_ERROR_UNKNOWN -> {
+          Log.e(TAG, "MediaRecorder: Unknown error! $extra")
+        }
+      }
+    }
+
+    Log.i(TAG, "Preparing MediaRecorder...")
+    mediaRecorder.prepare()
+    Log.i(TAG, "MediaRecorder prepared!")
   }
 
   override fun onCameraAvailable(cameraId: String) {
