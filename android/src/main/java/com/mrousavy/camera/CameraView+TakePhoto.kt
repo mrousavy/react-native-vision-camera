@@ -34,7 +34,8 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap = corouti
   val photo = cameraSession.takePhoto(qualityPrioritizationMode,
                                       flashMode,
                                       enableAutoRedEyeReduction,
-                                      enableAutoStabilization)
+                                      enableAutoStabilization,
+                                      outputOrientation)
 
   photo.use {
     Log.i(TAG, "Successfully captured ${photo.image.width} x ${photo.image.height} photo!")
@@ -49,6 +50,7 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap = corouti
     map.putString("path", path)
     map.putInt("width", photo.image.width)
     map.putInt("height", photo.image.height)
+    map.putString("orientation", photo.orientation.unionValue)
     map.putBoolean("isRawPhoto", photo.format == ImageFormat.RAW_SENSOR)
 
     // TODO: Add metadata prop to resulting photo

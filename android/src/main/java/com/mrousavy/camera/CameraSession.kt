@@ -1,6 +1,7 @@
 package com.mrousavy.camera
 
 import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
@@ -18,6 +19,7 @@ import com.mrousavy.camera.extensions.openCamera
 import com.mrousavy.camera.extensions.tryClose
 import com.mrousavy.camera.parsers.CameraDeviceError
 import com.mrousavy.camera.parsers.Flash
+import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.QualityPrioritization
 import com.mrousavy.camera.parsers.VideoStabilizationMode
 import com.mrousavy.camera.utils.CameraOutputs
@@ -42,7 +44,7 @@ class CameraSession(private val cameraManager: CameraManager,
 
   data class CapturedPhoto(val image: Image,
                            val metadata: TotalCaptureResult,
-                           val orientation: Int,
+                           val orientation: Orientation,
                            val format: Int): Closeable {
     override fun close() {
       image.close()
@@ -84,6 +86,14 @@ class CameraSession(private val cameraManager: CameraManager,
     outputs?.close()
     isRunning = false
   }
+
+  val orientation: Orientation
+    get() {
+      val cameraId = cameraId ?: return Orientation.PORTRAIT
+      val characteristics = cameraManager.getCameraCharacteristics(cameraId)
+      val sensorRotation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
+      return Orientation.fromRotationDegrees(sensorRotation)
+    }
 
   /**
    * Set the Camera to be used as an input device.
@@ -156,28 +166,31 @@ class CameraSession(private val cameraManager: CameraManager,
   suspend fun takePhoto(qualityPrioritization: QualityPrioritization,
                         flashMode: Flash,
                         enableRedEyeReduction: Boolean,
-                        enableAutoStabilization: Boolean): CapturedPhoto {
+                        enableAutoStabilization: Boolean,
+                        outputOrientation: Orientation): CapturedPhoto {
     val captureSession = captureSession ?: throw CameraNotReadyError()
     val outputs = outputs ?: throw CameraNotReadyError()
 
     val photoOutput = outputs.photoOutput ?: throw PhotoNotEnabledError()
+
+    val cameraCharacteristics = cameraManager.getCameraCharacteristics(captureSession.device.id)
+    val orientation = outputOrientation.toSensorRelativeOrientation(cameraCharacteristics)
     val captureRequest = captureSession.device.createPhotoCaptureRequest(cameraManager,
                                                                          photoOutput.surface,
                                                                          qualityPrioritization,
                                                                          flashMode,
                                                                          enableRedEyeReduction,
-                                                                         enableAutoStabilization)
+                                                                         enableAutoStabilization,
+                                                                         orientation)
     Log.i(TAG, "Photo capture 0/2 - starting capture...")
     val result = captureSession.capture(captureRequest)
     val timestamp = result[CaptureResult.SENSOR_TIMESTAMP]!!
     Log.i(TAG, "Photo capture 1/2 complete - received metadata with timestamp $timestamp")
     try {
       val image = photoOutputSynchronizer.await(timestamp)
-      // TODO: Correctly get rotationDegrees and isMirrored
-      val rotation = ExifUtils.computeExifOrientation(0, false)
 
       Log.i(TAG, "Photo capture 2/2 complete - received ${image.width} x ${image.height} image.")
-      return CapturedPhoto(image, result, rotation, image.format)
+      return CapturedPhoto(image, result, orientation, image.format)
     } catch (e: CancellationException) {
       throw CaptureAbortedError(false)
     }

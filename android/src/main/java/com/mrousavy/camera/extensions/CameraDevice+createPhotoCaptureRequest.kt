@@ -6,6 +6,7 @@ import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.view.Surface
 import com.mrousavy.camera.parsers.Flash
+import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.QualityPrioritization
 
 fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
@@ -13,7 +14,10 @@ fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
                                            qualityPrioritization: QualityPrioritization,
                                            flashMode: Flash,
                                            enableRedEyeReduction: Boolean,
-                                           enableAutoStabilization: Boolean): CaptureRequest {
+                                           enableAutoStabilization: Boolean,
+                                           orientation: Orientation): CaptureRequest {
+  val cameraCharacteristics = cameraManager.getCameraCharacteristics(this.id)
+
   val captureRequest = when (qualityPrioritization) {
     // If speed, use snapshot template for fast capture
     QualityPrioritization.SPEED -> this.createCaptureRequest(CameraDevice.TEMPLATE_VIDEO_SNAPSHOT)
@@ -29,7 +33,7 @@ fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
   }
   captureRequest[CaptureRequest.JPEG_QUALITY] = jpegQuality.toByte()
 
-  // TODO: CaptureRequest.JPEG_ORIENTATION maybe?
+  captureRequest.set(CaptureRequest.JPEG_ORIENTATION, orientation.toDegrees())
 
   when (flashMode) {
     // Set the Flash Mode
@@ -51,7 +55,6 @@ fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
   }
 
   if (enableAutoStabilization) {
-    val cameraCharacteristics = cameraManager.getCameraCharacteristics(this.id)
     // Enable optical or digital image stabilization
     val digitalStabilization = cameraCharacteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES)
     val hasDigitalStabilization = digitalStabilization?.contains(CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_ON) ?: false

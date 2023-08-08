@@ -14,7 +14,6 @@ import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.extensions.containsAny
-import com.mrousavy.camera.extensions.displayRotation
 import com.mrousavy.camera.extensions.installHierarchyFitter
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
@@ -98,10 +97,10 @@ class CameraView(context: Context) : FrameLayout(context) {
 
   var frameProcessor: FrameProcessor? = null
 
-  private val inputRotation: Int
-    get() = context.displayRotation
-  private val outputRotation: Int
-    get() = orientation?.toSurfaceRotation() ?: inputRotation
+  private val inputOrientation: Orientation
+    get() = cameraSession.orientation
+  internal val outputOrientation: Orientation
+    get() = orientation ?: inputOrientation
 
   private var minZoom: Float = 1f
   private var maxZoom: Float = 1f
@@ -218,7 +217,7 @@ class CameraView(context: Context) : FrameLayout(context) {
     } else null
     val videoOutput = if (video == true) {
       CameraOutputs.VideoOutput({ image ->
-        val frame = Frame(image, System.currentTimeMillis(), Orientation.fromRotationDegrees(inputRotation), false)
+        val frame = Frame(image, System.currentTimeMillis(), outputOrientation, false)
         onFrame(frame)
       }, targetVideoSize)
     } else null
