@@ -2,7 +2,10 @@ package com.mrousavy.camera
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.ImageFormat
+import android.graphics.Matrix
 import android.hardware.camera2.*
 import android.util.Log
 import com.facebook.react.bridge.Arguments
@@ -14,6 +17,7 @@ import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
+import java.io.OutputStream
 
 private const val TAG = "CameraView.takePhoto"
 
@@ -60,6 +64,18 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap = corouti
   }
 }
 
+private fun writeImageToStream(imageBytes: ByteArray, stream: OutputStream, isMirrored: Boolean) {
+  if (isMirrored) {
+    val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+    val matrix = Matrix()
+    matrix.preScale(-1f, 1f)
+    val processedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, false)
+    processedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+  } else {
+    stream.write(imageBytes)
+  }
+}
+
 private suspend fun savePhotoToFile(context: Context,
                                     cameraCharacteristics: CameraCharacteristics,
                                     photo: CameraSession.CapturedPhoto): String {
@@ -71,7 +87,7 @@ private suspend fun savePhotoToFile(context: Context,
         val bytes = ByteArray(buffer.remaining()).apply { buffer.get(this) }
         val file = createFile(context, ".jpg")
         FileOutputStream(file).use { stream ->
-          stream.write(bytes)
+          writeImageToStream(bytes, stream, photo.isMirrored)
         }
         return@withContext file.absolutePath
       }
@@ -81,6 +97,7 @@ private suspend fun savePhotoToFile(context: Context,
         val dngCreator = DngCreator(cameraCharacteristics, photo.metadata)
         val file = createFile(context, ".dng")
         FileOutputStream(file).use { stream ->
+          // TODO: Make sure orientation is loaded properly here?
           dngCreator.writeImage(stream, photo.image)
         }
         return@withContext file.absolutePath
