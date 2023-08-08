@@ -21,7 +21,7 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     delegatesReferences.append(self)
   }
 
-  func photoOutput(_: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+  func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
     defer {
       delegatesReferences.removeAll(where: { $0 == self })
     }
@@ -48,11 +48,13 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
       let exif = photo.metadata["{Exif}"] as? [String: Any]
       let width = exif?["PixelXDimension"]
       let height = exif?["PixelYDimension"]
+      let orientation = exif?["Orientation"]
 
       promise.resolve([
         "path": tempFilePath,
         "width": width as Any,
         "height": height as Any,
+        "orientation": photo,
         "isRawPhoto": photo.isRawPhoto,
         "metadata": photo.metadata,
         "thumbnail": photo.embeddedThumbnailPhotoFormat as Any,

@@ -1,1 +1,1 @@
-export type Orientation = 'portrait' | 'portraitUpsideDown' | 'landscapeLeft' | 'landscapeRight';
+export type Orientation = 'portrait' | 'portrait-upside-down' | 'landscape-left' | 'landscape-right';

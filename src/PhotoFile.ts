@@ -1,3 +1,4 @@
+import { Orientation } from './Orientation';
 import type { TemporaryFile } from './TemporaryFile';
 import { CameraPhotoCodec } from './VideoFile';
 
@@ -65,6 +66,7 @@ export interface PhotoFile extends TemporaryFile {
   width: number;
   height: number;
   isRawPhoto: boolean;
+  orientation: Orientation;
   thumbnail?: Record<string, unknown>;
   /**
    * Metadata information describing the captured image.

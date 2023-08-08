@@ -15,13 +15,13 @@ extension UIInterfaceOrientation {
     case "portrait":
       self = .portrait
       return
-    case "portraitUpsideDown":
+    case "portrait-upside-down":
       self = .portraitUpsideDown
       return
-    case "landscapeLeft":
+    case "landscape-left":
       self = .landscapeLeft
       return
-    case "landscapeRight":
+    case "landscape-right":
       self = .landscapeRight
       return
     default:

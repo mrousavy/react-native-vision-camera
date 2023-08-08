@@ -127,13 +127,13 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
         return jsi::String::createFromUtf8(runtime, "portrait");
       case UIImageOrientationDown:
       case UIImageOrientationDownMirrored:
-        return jsi::String::createFromUtf8(runtime, "portraitUpsideDown");
+        return jsi::String::createFromUtf8(runtime, "portrait-upside-down");
       case UIImageOrientationLeft:
       case UIImageOrientationLeftMirrored:
-        return jsi::String::createFromUtf8(runtime, "landscapeLeft");
+        return jsi::String::createFromUtf8(runtime, "landscape-left");
       case UIImageOrientationRight:
       case UIImageOrientationRightMirrored:
-        return jsi::String::createFromUtf8(runtime, "landscapeRight");
+        return jsi::String::createFromUtf8(runtime, "landscape-right");
     }
   }
   if (name == "isMirrored") {
