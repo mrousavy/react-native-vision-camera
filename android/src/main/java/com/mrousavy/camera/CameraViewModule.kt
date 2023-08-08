@@ -171,7 +171,6 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
 
   @ReactMethod
   fun getCameraPermissionStatus(promise: Promise) {
-
     val status = ContextCompat.checkSelfPermission(reactApplicationContext, Manifest.permission.CAMERA)
     var parsed = PermissionStatus.fromPermissionStatus(status)
     if (parsed == PermissionStatus.DENIED && canRequestPermission(Manifest.permission.CAMERA)) {
