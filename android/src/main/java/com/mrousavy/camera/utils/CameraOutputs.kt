@@ -14,6 +14,7 @@ import com.mrousavy.camera.extensions.OutputType
 import com.mrousavy.camera.extensions.SurfaceOutput
 import com.mrousavy.camera.extensions.closestToOrMax
 import java.io.Closeable
+import java.lang.IllegalStateException
 
 class CameraOutputs(val cameraId: String,
                     cameraManager: CameraManager,
@@ -123,8 +124,12 @@ class CameraOutputs(val cameraId: String,
 
       val imageReader = ImageReader.newInstance(size.width, size.height, video.format, VIDEO_OUTPUT_BUFFER_SIZE)
       imageReader.setOnImageAvailableListener({ reader ->
-        val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
-        video.onFrame(image)
+        try {
+          val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
+          video.onFrame(image)
+        } catch (e: IllegalStateException) {
+          Log.e(TAG, "Failed to acquire a new Image, dropping a Frame.. The Frame Processor cannot keep up with the Camera's FPS!", e)
+        }
       }, CameraQueues.videoQueue.handler)
 
       Log.i(TAG, "Adding ${size.width}x${size.height} video output. (Format: $video.format)")
