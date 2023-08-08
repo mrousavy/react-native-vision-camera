@@ -69,7 +69,7 @@ private suspend fun savePhotoToFile(context: Context,
       ImageFormat.JPEG, ImageFormat.DEPTH_JPEG -> {
         val buffer = photo.image.planes[0].buffer
         val bytes = ByteArray(buffer.remaining()).apply { buffer.get(this) }
-        val file = createFile(context, "jpg")
+        val file = createFile(context, ".jpg")
         FileOutputStream(file).use { stream ->
           stream.write(bytes)
         }
@@ -79,7 +79,7 @@ private suspend fun savePhotoToFile(context: Context,
       // When the format is RAW we use the DngCreator utility library
       ImageFormat.RAW_SENSOR -> {
         val dngCreator = DngCreator(cameraCharacteristics, photo.metadata)
-        val file = createFile(context, "dng")
+        val file = createFile(context, ".dng")
         FileOutputStream(file).use { stream ->
           dngCreator.writeImage(stream, photo.image)
         }
