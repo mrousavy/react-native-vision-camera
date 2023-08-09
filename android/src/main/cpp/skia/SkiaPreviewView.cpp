@@ -50,6 +50,8 @@ void SkiaPreviewView::initOpenGL() {
 }
 
 int SkiaPreviewView::createTexture() {
+  eglMakeCurrent(_display, EGL_NO_SURFACE, EGL_NO_SURFACE, _context);
+
   GLuint textures[1];
   glGenTextures(1, textures);
   if (glGetError() != GL_NO_ERROR) throw OpenGLError("Failed to generate an OpenGL Texture!");
@@ -57,6 +59,8 @@ int SkiaPreviewView::createTexture() {
 }
 
 void SkiaPreviewView::destroyTexture(int textureId) {
+  eglMakeCurrent(_display, EGL_NO_SURFACE, EGL_NO_SURFACE, _context);
+
   GLuint textures[1];
   textures[0] = textureId;
   eglDestroySurface(_display, textures);

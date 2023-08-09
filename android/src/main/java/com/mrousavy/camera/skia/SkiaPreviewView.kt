@@ -29,6 +29,7 @@ class SkiaPreviewView(context: Context): GLSurfaceView(context), Closeable {
     initOpenGL()
     Log.i(TAG, "SkiaPreviewView initialized!")
     textureId = createTexture()
+    Log.i(TAG, "Preview Textured created: $textureId")
     surfaceTexture = SurfaceTexture(textureId)
     surface = Surface(surfaceTexture)
   }
