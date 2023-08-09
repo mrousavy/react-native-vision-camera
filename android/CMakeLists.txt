@@ -6,6 +6,7 @@ set(PACKAGE_NAME "VisionCamera")
 set(BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSK_GL -DSK_GANESH -DSK_BUILD_FOR_ANDROID")
 
 # Folly
 include("${NODE_MODULES_DIR}/react-native/ReactAndroid/cmake-utils/folly-flags.cmake")
@@ -17,7 +18,6 @@ find_package(fbjni REQUIRED CONFIG)
 find_package(react-native-worklets REQUIRED CONFIG)
 find_library(LOG_LIB log)
 
-
 set(RNSKIA_PATH ${NODE_MODULES_DIR}/@shopify/react-native-skia)
 if(EXISTS ${RNSKIA_PATH})
     find_package(shopify_react-native-skia REQUIRED CONFIG)
@@ -26,6 +26,14 @@ if(EXISTS ${RNSKIA_PATH})
 else()
     message("VisionCamera: Skia integration disabled!")
 ENDIF()
+
+set (SKIA_LIBS_PATH "${RNSKIA_PATH}/libs/android/${ANDROID_ABI}")
+add_library(skia STATIC IMPORTED)
+set_property(TARGET skia PROPERTY IMPORTED_LOCATION "${SKIA_LIBS_PATH}/libskia.a")
+add_library(svg STATIC IMPORTED)
+set_property(TARGET svg PROPERTY IMPORTED_LOCATION "${SKIA_LIBS_PATH}/libsvg.a")
+add_library(skshaper STATIC IMPORTED)
+set_property(TARGET skshaper PROPERTY IMPORTED_LOCATION "${SKIA_LIBS_PATH}/libskshaper.a")
 
 # Add react-native-vision-camera sources
 add_library(
@@ -63,6 +71,16 @@ target_include_directories(
         #  just one directory. HOWEVER, skia itself uses relative paths in
         #  their include statements, and so we have to include the path to skia)
         "${RNSKIA_PATH}/cpp/skia"
+
+        "${RNSKIA_PATH}/cpp/skia/include/config/"
+        "${RNSKIA_PATH}/cpp/skia/include/core/"
+        "${RNSKIA_PATH}/cpp/skia/include/effects/"
+        "${RNSKIA_PATH}/cpp/skia/include/utils/"
+        "${RNSKIA_PATH}/cpp/skia/include/pathops/"
+        "${RNSKIA_PATH}/cpp/skia/modules/"
+        # "${RNSKIA_PATH}/cpp/skia/modules/skparagraph/include/"
+        "${RNSKIA_PATH}/cpp/skia/include/"
+        "${RNSKIA_PATH}/cpp/skia"
 )
 
 # Link everything together
@@ -78,4 +96,8 @@ target_link_libraries(
         GLESv2                              # <-- Optional: OpenGL (for Skia)
         EGL                                 # <-- Optional: OpenGL (EGL) (for Skia)
         ${SKIA_PACKAGE}                     # <-- Optional: RN Skia
+        jnigraphics
+        skia
+        svg
+        skshaper
 )
