@@ -5,6 +5,8 @@
 #include "SkiaPreviewView.h"
 #include <GLES2/gl2.h>
 #include <EGL/egl.h>
+#include <android/native_window.h>
+#include <android/native_window_jni.h>
 
 namespace vision {
 
@@ -67,15 +69,21 @@ void SkiaPreviewView::destroyTexture(int textureId) {
 }
 
 void SkiaPreviewView::destroy() {
-  if (_display == nullptr || _display == EGL_NO_DISPLAY) return;
-  if (_context == nullptr || _context == EGL_NO_CONTEXT) return;
+  destroyPreviewSurface();
 
-  eglMakeCurrent(_display, EGL_NO_SURFACE, EGL_NO_DISPLAY, EGL_NO_CONTEXT);
-  eglDestroyContext(_display, _context);
-  _context = nullptr;
-  eglReleaseThread();
-  eglTerminate(_display);
-  _display = nullptr;
+  if (_display != nullptr || _context != nullptr) {
+    eglMakeCurrent(_display, EGL_NO_SURFACE, EGL_NO_DISPLAY, EGL_NO_CONTEXT);
+    eglDestroyContext(_display, _context);
+    _context = nullptr;
+    eglReleaseThread();
+    eglTerminate(_display);
+    _display = nullptr;
+  }
+}
+
+void SkiaPreviewView::onDrawFrame() {
+  glClearColor(1.0f, 0.0f, 0.0f, 1.0f);  // Clear the screen with black color
+  glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void SkiaPreviewView::registerNatives() {
@@ -85,6 +93,7 @@ void SkiaPreviewView::registerNatives() {
     makeNativeMethod("destroy", SkiaPreviewView::destroy),
     makeNativeMethod("createTexture", SkiaPreviewView::createTexture),
     makeNativeMethod("destroyTexture", SkiaPreviewView::destroyTexture),
+    makeNativeMethod("onDrawFrame", SkiaPreviewView::onDrawFrame),
   });
 }
 

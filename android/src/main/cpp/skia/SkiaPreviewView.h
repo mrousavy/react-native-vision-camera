@@ -7,6 +7,7 @@
 #include <jni.h>
 #include <fbjni/fbjni.h>
 #include <EGL/egl.h>
+#include <string>
 
 namespace vision {
 
@@ -30,12 +31,14 @@ class SkiaPreviewView : public jni::HybridClass<SkiaPreviewView> {
   int createTexture();
   void destroyTexture(int textureId);
 
+  void onDrawFrame();
+
   explicit SkiaPreviewView(jni::alias_ref<SkiaPreviewView::jhybridobject> jThis): javaPart_(jni::make_global(jThis)) {}
 };
 
 class OpenGLError: public std::runtime_error {
  public:
-  OpenGLError(const std::string&&);
+  explicit OpenGLError(const std::string&&);
 };
 
 } // namespace vision
