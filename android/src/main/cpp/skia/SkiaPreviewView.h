@@ -8,6 +8,7 @@
 #include <fbjni/fbjni.h>
 #include <EGL/egl.h>
 #include <string>
+#include "OpenGLError.h"
 
 namespace vision {
 
@@ -20,25 +21,36 @@ class SkiaPreviewView : public jni::HybridClass<SkiaPreviewView> {
   static void registerNatives();
 
  private:
+  // JNI Setup
   friend HybridBase;
   jni::global_ref<SkiaPreviewView::javaobject> javaPart_;
+  explicit SkiaPreviewView(jni::alias_ref<SkiaPreviewView::jhybridobject> jThis): javaPart_(jni::make_global(jThis)) {}
+
+ private:
+  // OpenGL Setup
   EGLDisplay _display;
   EGLContext _context;
+  int _surfaceWidth, _surfaceHeight;
 
-  void initOpenGL();
+  GLuint _vertexBuffer;
+  GLuint _program;
+  GLint _aPosition;
+  GLint _aTexCoord;
+
   void destroy();
 
-  int createTexture();
-  void destroyTexture(int textureId);
+  void onDrawFrame(int texture, int textureWidth, int textureHeight);
+  void onSurfaceCreated();
+  void setSurfaceSize(int width, int height);
 
-  void onDrawFrame();
+  static const GLfloat* VertexData();
+  static const GLushort* VertexIndices();
 
-  explicit SkiaPreviewView(jni::alias_ref<SkiaPreviewView::jhybridobject> jThis): javaPart_(jni::make_global(jThis)) {}
-};
+  static const char* VertexShaderCode();
+  static const char* FragmentShaderCode();
 
-class OpenGLError: public std::runtime_error {
- public:
-  explicit OpenGLError(const std::string&&);
+  static GLuint LoadShader(GLenum shaderType, const char* shaderCode);
+  static GLuint CreateProgram(const char* vertexShaderCode, const char* fragmentShaderCode);
 };
 
 } // namespace vision

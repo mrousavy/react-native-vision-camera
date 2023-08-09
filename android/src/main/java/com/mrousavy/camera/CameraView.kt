@@ -161,9 +161,10 @@ class CameraView(context: Context) : FrameLayout(context) {
       PreviewType.SKIA -> {
         removeView(this.previewView)
 
-        val previewView = SkiaPreviewView(context)
-        previewSurface = previewView.surface
-        configureSession()
+        val previewView = SkiaPreviewView(context) { surface ->
+          previewSurface = surface
+          configureSession()
+        }
         previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         addView(previewView)
         this.previewView = previewView
