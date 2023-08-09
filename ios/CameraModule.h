@@ -3,12 +3,12 @@
 #import <AVFoundation/AVCaptureAudioDataOutput.h>
 #import <AVFoundation/AVCaptureVideoDataOutput.h>
 #import "CameraNativeComponentSpec.h"
-#import "VisionCamera-Swift.h"
+
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface CameraModule : NSObject <NativeCameraModuleSpec>
-    +(void) setCurrentCamera:(CameraView*)view;
+    +(void) setCurrentCamera:(UIView*)view;
 @end
 
 NS_ASSUME_NONNULL_END

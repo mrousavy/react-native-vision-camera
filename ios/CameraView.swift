@@ -133,7 +133,6 @@ public final class CameraView: UIView {
   // pragma MARK: Setup
   override public init(frame: CGRect) {
     super.init(frame: frame)
-    print("TESTING INIT IN CAMERA")
     videoPreviewLayer.session = captureSession
     videoPreviewLayer.videoGravity = .resizeAspectFill
     videoPreviewLayer.frame = layer.bounds
@@ -196,7 +195,6 @@ public final class CameraView: UIView {
 
   // pragma MARK: Props updating
   override public final func didSetProps(_ changedProps: [String]!) {
-      print("TESTING DIS SET PROPS IN CAMERA", changedProps.count, isRunning)
     ReactLogger.log(level: .info, message: "Updating \(changedProps.count) prop(s)...")
     let shouldReconfigure = changedProps.contains { propsThatRequireReconfiguration.contains($0) }
     let shouldReconfigureFormat = shouldReconfigure || changedProps.contains("format")
@@ -239,12 +237,9 @@ public final class CameraView: UIView {
           self.zoom(factor: zoomClamped, animated: false)
           self.pinchScaleOffset = zoomClamped
         }
-          
-          print("TESTING BEFORE CHECK ", shouldCheckActive, self.isActive)
 
         if shouldCheckActive && self.captureSession.isRunning != self.isActive {
           if self.isActive {
-              print("TESTING STARTING SESSION")
             ReactLogger.log(level: .info, message: "Starting Session...")
             self.captureSession.startRunning()
             ReactLogger.log(level: .info, message: "Started Session!")
@@ -335,7 +330,6 @@ public final class CameraView: UIView {
 
   // pragma MARK: Event Invokers
   internal final func invokeOnError(_ error: CameraError, cause: NSError? = nil) {
-      print("TESTIGN ON ERROR")
     ReactLogger.log(level: .error, message: "Invoking onError(): \(error.message)")
 
 
@@ -352,8 +346,11 @@ public final class CameraView: UIView {
       guard let delegate = delegate else {
         return
       }
-      print("TESTING ERROR", error.code, error.message)
-      delegate.onError()
+      delegate.onError(error:[
+        "code": error.code,
+        "message": error.message,
+        "cause": causeDictionary ?? NSNull(),
+      ])
     #else
     guard let onError = onError else { return }
     onError([
@@ -399,7 +396,7 @@ public final class CameraView: UIView {
 
 @objc public protocol RNCameraViewDirectEventDelegate: AnyObject { //TODO: Move to a separate file
     func onInitialized()
-    func onError()
+    func onError(error: NSDictionary)
     func onViewReady()
 }
 

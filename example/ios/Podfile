@@ -63,6 +63,12 @@ target 'VisionCameraExample' do
         end
       end
     end
+      # This is to resolve "'shared_timed_mutex' is unavailable: introduced in iOS 10.0" error
+  installer.pods_project.targets.each do |t|
+    t.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+    end
+  end
       
   end
 end

@@ -47,7 +47,13 @@ export interface NativeProps extends ViewProps {
   enableHighQualityPhotos?: boolean;
   orientation?: string;
   onInitialized?: DirectEventHandler<Readonly<{}>>;
-  onError?: DirectEventHandler<Readonly<{}>>; // TODO: extend arguments
+  onError?: DirectEventHandler<
+    Readonly<{
+      code: string;
+      message: string;
+      cause: Readonly<{ code: string; domain: string; message: string; details: string }>;
+    }>
+  >;
   onViewReady: DirectEventHandler<Readonly<{}>>;
 }
 
