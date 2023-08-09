@@ -8,7 +8,6 @@ export * from './FrameProcessorPlugins';
 export * from './CameraProps';
 export * from './PhotoFile';
 export * from './Point';
-export * from './Snapshot';
 export * from './TemporaryFile';
 export * from './VideoFile';
 
