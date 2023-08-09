@@ -36,12 +36,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.Closeable
+import java.io.File
 import java.util.concurrent.CancellationException
 import kotlin.coroutines.CoroutineContext
 
 // TODO: Use reprocessable YUV capture session for more efficient Skia Frame Processing
 
-class CameraSession(val context: Context,
+class CameraSession(private val context: Context,
                     private val cameraManager: CameraManager,
                     private val onInitialized: () -> Unit,
                     private val onError: (e: Throwable) -> Unit): CoroutineScope, Closeable, CameraOutputs.Callback, CameraManager.AvailabilityCallback() {
@@ -79,7 +80,7 @@ class CameraSession(val context: Context,
   private val photoOutputSynchronizer = PhotoOutputSynchronizer()
   private val mutex = Mutex()
   private var isRunning = false
-  private val mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(context) else MediaRecorder()
+  private var mediaRecorder: MediaRecorder? = null
 
   override val coroutineContext: CoroutineContext = CameraQueues.cameraQueue.coroutineDispatcher
 
@@ -197,77 +198,99 @@ class CameraSession(val context: Context,
     photoOutputSynchronizer.set(image.timestamp, image)
   }
 
-  fun startRecording(enableAudio: Boolean) {
-    val cameraId = cameraId ?: throw CameraNotReadyError()
-    val outputs = outputs ?: throw CameraNotReadyError()
-    val videoOutput = outputs.video ?: throw VideoNotEnabledError()
+  suspend fun startRecording(enableAudio: Boolean, path: String) {
+    mutex.withLock {
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) throw Error("Video Recording is only supported on Devices running Android version 23 (M) or newer.")
+      val cameraId = cameraId ?: throw CameraNotReadyError()
+      val outputs = outputs ?: throw CameraNotReadyError()
+      val videoOutput = outputs.videoOutput ?: throw VideoNotEnabledError()
+      if (mediaRecorder != null) throw RecordingInProgressError()
 
-    // TODO: Get video size!!
-    val size = Size(0, 0)
-    // TODO: Get video FPS
-    val fps = fps ?: 30
-    val targetQuality = getCamcorderQualityForSize(size)
+      val mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(context) else MediaRecorder()
 
-    val cameraIdInt = cameraId.toIntOrNull() ?: throw Error("Cannot record with this Camera!")
-    val profile = CamcorderProfile.get(cameraIdInt, targetQuality)
+      val size = Size(videoOutput.imageReader.width, videoOutput.imageReader.height)
+      val targetQuality = getCamcorderQualityForSize(size)
 
-    mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE)
+      val cameraIdInt = cameraId.toIntOrNull() ?: throw Error("Cannot record with this Camera!")
+      val profile = CamcorderProfile.get(cameraIdInt, targetQuality)
 
-    if (enableAudio) {
-      mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER)
-    }
+      mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE)
 
-    mediaRecorder.setOutputFormat(profile.fileFormat)
+      if (enableAudio) {
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER)
+      }
 
-    // TODO: Make sure the dimensions are rotated properly!
-    mediaRecorder.setVideoSize(size.width, size.height)
-    mediaRecorder.setVideoFrameRate(fps)
-    mediaRecorder.setVideoEncoder(profile.videoCodec)
-    mediaRecorder.setVideoEncodingBitRate(profile.videoBitRate)
+      mediaRecorder.setOutputFormat(profile.fileFormat)
 
-    if (enableAudio) {
-      mediaRecorder.setAudioChannels(profile.audioChannels)
-      mediaRecorder.setAudioSamplingRate(profile.audioSampleRate)
-      mediaRecorder.setAudioEncoder(profile.audioCodec)
-      mediaRecorder.setAudioEncodingBitRate(profile.audioBitRate)
-    }
+      // TODO: Make sure the dimensions are rotated properly!
+      mediaRecorder.setVideoSize(size.width, size.height)
+      if (fps != null) mediaRecorder.setVideoFrameRate(fps!!)
+      mediaRecorder.setVideoEncoder(profile.videoCodec)
+      mediaRecorder.setVideoEncodingBitRate(profile.videoBitRate)
 
-    // TODO: Create file here!
-    mediaRecorder.setOutputFile("")
-    mediaRecorder.setOrientationHint(orientation.toDegrees())
-    mediaRecorder.setOnInfoListener { _, what, extra ->
-      when (what) {
-        MediaRecorder.MEDIA_RECORDER_INFO_UNKNOWN -> {
-          Log.i(TAG, "MediaRecorder: Unknown Info: $extra")
-        }
-        MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED -> {
-          Log.i(TAG, "MediaRecorder: Reached maximum duration! $extra")
-        }
-        MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_APPROACHING -> {
-          Log.i(TAG, "MediaRecorder: About to hit maximum filesize... $extra")
-        }
-        MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED -> {
-          Log.i(TAG, "MediaRecorder: Reached maximum filesize! $extra")
-        }
-        MediaRecorder.MEDIA_RECORDER_INFO_NEXT_OUTPUT_FILE_STARTED -> {
-          Log.i(TAG, "MediaRecorder: Started next output file! $extra")
+      if (enableAudio) {
+        mediaRecorder.setAudioChannels(profile.audioChannels)
+        mediaRecorder.setAudioSamplingRate(profile.audioSampleRate)
+        mediaRecorder.setAudioEncoder(profile.audioCodec)
+        mediaRecorder.setAudioEncodingBitRate(profile.audioBitRate)
+      }
+
+      mediaRecorder.setOutputFile(path)
+      mediaRecorder.setOrientationHint(orientation.toDegrees())
+      mediaRecorder.setOnInfoListener { _, what, extra ->
+        when (what) {
+          MediaRecorder.MEDIA_RECORDER_INFO_UNKNOWN -> {
+            Log.i(TAG, "MediaRecorder: Unknown Info: $extra")
+          }
+
+          MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED -> {
+            Log.i(TAG, "MediaRecorder: Reached maximum duration! $extra")
+          }
+
+          MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_APPROACHING -> {
+            Log.i(TAG, "MediaRecorder: About to hit maximum filesize... $extra")
+          }
+
+          MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED -> {
+            Log.i(TAG, "MediaRecorder: Reached maximum filesize! $extra")
+          }
+
+          MediaRecorder.MEDIA_RECORDER_INFO_NEXT_OUTPUT_FILE_STARTED -> {
+            Log.i(TAG, "MediaRecorder: Started next output file! $extra")
+          }
         }
       }
-    }
-    mediaRecorder.setOnErrorListener { _, what, extra ->
-      when (what) {
-        MediaRecorder.MEDIA_ERROR_SERVER_DIED -> {
-          Log.e(TAG, "MediaRecorder: Server died! $extra")
-        }
-        MediaRecorder.MEDIA_RECORDER_ERROR_UNKNOWN -> {
-          Log.e(TAG, "MediaRecorder: Unknown error! $extra")
+      mediaRecorder.setOnErrorListener { _, what, extra ->
+        when (what) {
+          MediaRecorder.MEDIA_ERROR_SERVER_DIED -> {
+            Log.e(TAG, "MediaRecorder: Server died! $extra")
+          }
+
+          MediaRecorder.MEDIA_RECORDER_ERROR_UNKNOWN -> {
+            Log.e(TAG, "MediaRecorder: Unknown error! $extra")
+          }
         }
       }
-    }
 
-    Log.i(TAG, "Preparing MediaRecorder...")
-    mediaRecorder.prepare()
-    Log.i(TAG, "MediaRecorder prepared!")
+      mediaRecorder.setInputSurface(videoOutput.surface)
+
+      Log.i(TAG, "Preparing MediaRecorder...")
+      mediaRecorder.prepare()
+      Log.i(TAG, "MediaRecorder prepared!")
+      mediaRecorder.start()
+      Log.i(TAG, "MediaRecorder started!")
+      this.mediaRecorder = mediaRecorder
+    }
+  }
+
+  suspend fun stopRecording() {
+    mutex.withLock {
+      val mediaRecorder = mediaRecorder ?: throw NoRecordingInProgressError()
+
+      mediaRecorder.stop()
+      mediaRecorder.reset()
+      this.mediaRecorder = null
+    }
   }
 
   override fun onCameraAvailable(cameraId: String) {

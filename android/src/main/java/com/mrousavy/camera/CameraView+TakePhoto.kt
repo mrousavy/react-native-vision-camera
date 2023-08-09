@@ -22,7 +22,7 @@ import java.io.OutputStream
 private const val TAG = "CameraView.takePhoto"
 
 @SuppressLint("UnsafeOptInUsageError")
-suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap = coroutineScope {
+suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
   val options = optionsMap.toHashMap()
   Log.i(TAG, "Taking photo... Options: $options")
 
@@ -60,7 +60,7 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap = corouti
 
     // TODO: Add metadata prop to resulting photo
 
-    return@coroutineScope map
+    return map
   }
 }
 

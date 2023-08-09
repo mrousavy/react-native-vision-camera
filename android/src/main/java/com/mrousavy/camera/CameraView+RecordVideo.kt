@@ -11,7 +11,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
-fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Callback) {
+suspend fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Callback) {
   // check audio permission
   if (audio == true) {
     if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
@@ -28,7 +28,7 @@ fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Callback) 
   val id = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
   val file = File.createTempFile("VisionCamera-${id}", ".mp4")
 
-  // TODO: startRecording()
+  cameraSession.startRecording(audio == true, file.absolutePath)
 }
 
 @SuppressLint("RestrictedApi")
@@ -42,8 +42,8 @@ fun CameraView.resumeRecording() {
 }
 
 @SuppressLint("RestrictedApi")
-fun CameraView.stopRecording() {
-  // TODO: stopRecording()
+suspend fun CameraView.stopRecording() {
+  cameraSession.stopRecording()
   // TODO: disable torch again
 }
 

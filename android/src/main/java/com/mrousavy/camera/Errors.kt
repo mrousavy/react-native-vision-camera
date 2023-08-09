@@ -104,7 +104,8 @@ class FileSizeLimitReachedError(cause: Throwable?) : CameraError("capture", "fil
   "The file size limitation will refer to OutputOptions.getFileSizeLimit(). The output file will still be generated with this error.",
   cause)
 
-class NoRecordingInProgressError : CameraError("capture", "no-recording-in-progress", "No active recording in progress!")
+class NoRecordingInProgressError : CameraError("capture", "no-recording-in-progress", "There was no active video recording in progress! Did you call stopRecording() twice?")
+class RecordingInProgressError : CameraError("capture", "recording-in-progress", "There is already an active video recording in progress! Did you call startRecording() twice?")
 
 class ViewNotFoundError(viewId: Int) : CameraError("system", "view-not-found", "The given view (ID $viewId) was not found in the view manager.")
 
