@@ -3,6 +3,7 @@ package com.mrousavy.camera.utils
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
+import android.hardware.camera2.params.DynamicRangeProfiles
 import android.media.Image
 import android.media.ImageReader
 import android.util.Log
@@ -33,7 +34,8 @@ class CameraOutputs(val cameraId: String,
                          val format: Int = ImageFormat.JPEG)
   data class VideoOutput(val onFrame: (image: Image) -> Unit,
                          val targetSize: Size? = null,
-                         val format: Int = ImageFormat.YUV_420_888)
+                         val format: Int = ImageFormat.YUV_420_888,
+                         val hdrProfile: Long? = null /* DynamicRangeProfiles */)
 
   interface Callback {
     fun onPhotoCaptured(image: Image)

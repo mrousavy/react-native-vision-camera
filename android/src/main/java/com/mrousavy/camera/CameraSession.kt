@@ -8,11 +8,14 @@ import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
+import android.media.AudioPresentation
 import android.media.CamcorderProfile
 import android.media.Image
+import android.media.MediaCodec
+import android.media.MediaCodecInfo
+import android.media.MediaFormat
 import android.media.MediaRecorder
 import android.os.Build
-import android.provider.MediaStore.Audio.Media
 import android.util.Log
 import android.util.Range
 import android.util.Size
@@ -22,6 +25,7 @@ import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.createPhotoCaptureRequest
 import com.mrousavy.camera.extensions.getCamcorderQualityForSize
 import com.mrousavy.camera.extensions.openCamera
+import com.mrousavy.camera.extensions.setDynamicRangeProfile
 import com.mrousavy.camera.extensions.tryClose
 import com.mrousavy.camera.parsers.CameraDeviceError
 import com.mrousavy.camera.parsers.Flash
@@ -29,14 +33,12 @@ import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.QualityPrioritization
 import com.mrousavy.camera.parsers.VideoStabilizationMode
 import com.mrousavy.camera.utils.CameraOutputs
-import com.mrousavy.camera.utils.ExifUtils
 import com.mrousavy.camera.utils.PhotoOutputSynchronizer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.Closeable
-import java.io.File
 import java.util.concurrent.CancellationException
 import kotlin.coroutines.CoroutineContext
 
@@ -48,6 +50,10 @@ class CameraSession(private val context: Context,
                     private val onError: (e: Throwable) -> Unit): CoroutineScope, Closeable, CameraOutputs.Callback, CameraManager.AvailabilityCallback() {
   companion object {
     private const val TAG = "CameraSession"
+    // bytes per second
+    private const val RECORDER_VIDEO_BITRATE = 10_000_000
+    // key frames interval - once per second
+    private const val IFRAME_INTERVAL = 1
   }
 
   data class CapturedPhoto(val image: Image,
@@ -80,7 +86,7 @@ class CameraSession(private val context: Context,
   private val photoOutputSynchronizer = PhotoOutputSynchronizer()
   private val mutex = Mutex()
   private var isRunning = false
-  private var mediaRecorder: MediaRecorder? = null
+  private var mediaCodec: MediaCodec? = null
 
   override val coroutineContext: CoroutineContext = CameraQueues.cameraQueue.coroutineDispatcher
 
@@ -201,95 +207,55 @@ class CameraSession(private val context: Context,
   suspend fun startRecording(enableAudio: Boolean, path: String) {
     mutex.withLock {
       if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) throw Error("Video Recording is only supported on Devices running Android version 23 (M) or newer.")
-      val cameraId = cameraId ?: throw CameraNotReadyError()
       val outputs = outputs ?: throw CameraNotReadyError()
+      val videoInput = outputs.video ?: throw VideoNotEnabledError()
       val videoOutput = outputs.videoOutput ?: throw VideoNotEnabledError()
-      if (mediaRecorder != null) throw RecordingInProgressError()
+      if (mediaCodec != null) throw RecordingInProgressError()
 
-      val mediaRecorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(context) else MediaRecorder()
+      val hdrProfile = videoInput.hdrProfile
+      val mimeType = if (hdrProfile != null) MediaFormat.MIMETYPE_VIDEO_HEVC else MediaFormat.MIMETYPE_VIDEO_AVC
 
-      val size = Size(videoOutput.imageReader.width, videoOutput.imageReader.height)
-      val targetQuality = getCamcorderQualityForSize(size)
+      val format = MediaFormat.createVideoFormat(mimeType, videoOutput.imageReader.width, videoOutput.imageReader.height)
 
-      val cameraIdInt = cameraId.toIntOrNull() ?: throw Error("Cannot record with this Camera!")
-      val profile = CamcorderProfile.get(cameraIdInt, targetQuality)
+      format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
+      format.setInteger(MediaFormat.KEY_BIT_RATE, RECORDER_VIDEO_BITRATE)
+      format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL)
+      if (fps != null) format.setInteger(MediaFormat.KEY_FRAME_RATE, fps!!)
+      if (hdrProfile != null) format.setDynamicRangeProfile(hdrProfile)
 
-      mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE)
-
-      if (enableAudio) {
-        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER)
-      }
-
-      mediaRecorder.setOutputFormat(profile.fileFormat)
-
-      // TODO: Make sure the dimensions are rotated properly!
-      mediaRecorder.setVideoSize(size.width, size.height)
-      if (fps != null) mediaRecorder.setVideoFrameRate(fps!!)
-      mediaRecorder.setVideoEncoder(profile.videoCodec)
-      mediaRecorder.setVideoEncodingBitRate(profile.videoBitRate)
-
-      if (enableAudio) {
-        mediaRecorder.setAudioChannels(profile.audioChannels)
-        mediaRecorder.setAudioSamplingRate(profile.audioSampleRate)
-        mediaRecorder.setAudioEncoder(profile.audioCodec)
-        mediaRecorder.setAudioEncodingBitRate(profile.audioBitRate)
-      }
-
-      mediaRecorder.setOutputFile(path)
-      mediaRecorder.setOrientationHint(orientation.toDegrees())
-      mediaRecorder.setOnInfoListener { _, what, extra ->
-        when (what) {
-          MediaRecorder.MEDIA_RECORDER_INFO_UNKNOWN -> {
-            Log.i(TAG, "MediaRecorder: Unknown Info: $extra")
-          }
-
-          MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED -> {
-            Log.i(TAG, "MediaRecorder: Reached maximum duration! $extra")
-          }
-
-          MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_APPROACHING -> {
-            Log.i(TAG, "MediaRecorder: About to hit maximum filesize... $extra")
-          }
-
-          MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED -> {
-            Log.i(TAG, "MediaRecorder: Reached maximum filesize! $extra")
-          }
-
-          MediaRecorder.MEDIA_RECORDER_INFO_NEXT_OUTPUT_FILE_STARTED -> {
-            Log.i(TAG, "MediaRecorder: Started next output file! $extra")
-          }
+      val mediaCodec = MediaCodec.createEncoderByType(mimeType)
+      mediaCodec.setCallback(object : MediaCodec.Callback() {
+        override fun onInputBufferAvailable(codec: MediaCodec, index: Int) {
+          Log.i(TAG, "onInputBufferAvailable($index)")
         }
-      }
-      mediaRecorder.setOnErrorListener { _, what, extra ->
-        when (what) {
-          MediaRecorder.MEDIA_ERROR_SERVER_DIED -> {
-            Log.e(TAG, "MediaRecorder: Server died! $extra")
-          }
 
-          MediaRecorder.MEDIA_RECORDER_ERROR_UNKNOWN -> {
-            Log.e(TAG, "MediaRecorder: Unknown error! $extra")
-          }
+        override fun onOutputBufferAvailable(codec: MediaCodec, index: Int, info: MediaCodec.BufferInfo) {
+          Log.i(TAG, "onOutputBufferAvailable($index)")
         }
-      }
 
-      mediaRecorder.setInputSurface(videoOutput.surface)
+        override fun onError(codec: MediaCodec, e: MediaCodec.CodecException) {
+          Log.e(TAG, "MediaCodec encountered an error! $e", e)
+        }
 
-      Log.i(TAG, "Preparing MediaRecorder...")
-      mediaRecorder.prepare()
-      Log.i(TAG, "MediaRecorder prepared!")
-      mediaRecorder.start()
-      Log.i(TAG, "MediaRecorder started!")
-      this.mediaRecorder = mediaRecorder
+        override fun onOutputFormatChanged(codec: MediaCodec, format: MediaFormat) {
+          Log.i(TAG, "onOutputFormatChanged(...)")
+        }
+      })
+      mediaCodec.createInputSurface()
+      mediaCodec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
+      mediaCodec.start()
+      // TODO: Start MediaMuxer to actually write to a file
+      this.mediaCodec = mediaCodec
     }
   }
 
   suspend fun stopRecording() {
     mutex.withLock {
-      val mediaRecorder = mediaRecorder ?: throw NoRecordingInProgressError()
+      val mediaCodec = mediaCodec ?: throw NoRecordingInProgressError()
 
-      mediaRecorder.stop()
-      mediaRecorder.reset()
-      this.mediaRecorder = null
+      mediaCodec.stop()
+      mediaCodec.reset()
+      this.mediaCodec = null
     }
   }
 
