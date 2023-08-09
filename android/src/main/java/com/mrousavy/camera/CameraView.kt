@@ -23,6 +23,7 @@ import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.PreviewType
 import com.mrousavy.camera.parsers.Torch
 import com.mrousavy.camera.parsers.VideoStabilizationMode
+import com.mrousavy.camera.skia.SkiaPreviewView
 import com.mrousavy.camera.utils.CameraOutputs
 import kotlin.math.max
 import kotlin.math.min
@@ -158,7 +159,14 @@ class CameraView(context: Context) : FrameLayout(context) {
         this.previewView = previewView
       }
       PreviewType.SKIA -> {
-        throw Error("Skia is not yet implemented on Android!")
+        removeView(this.previewView)
+
+        val previewView = SkiaPreviewView(context)
+        previewSurface = previewView.surface
+        configureSession()
+        previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        addView(previewView)
+        this.previewView = previewView
       }
     }
   }

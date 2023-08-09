@@ -20,7 +20,7 @@ class SkiaPreviewView(context: Context): GLSurfaceView(context), Closeable {
 
   private val textureId: Int
   private val surfaceTexture: SurfaceTexture
-  private val surface: Surface
+  val surface: Surface
 
   init {
     Log.i(TAG, "Initializing SkiaPreviewView...")
