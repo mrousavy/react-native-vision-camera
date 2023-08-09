@@ -8,7 +8,6 @@ import { assertJSIAvailable } from './JSIHelper';
 import { CameraModule } from './NativeCameraModule';
 import type { PhotoFile, TakePhotoOptions } from './PhotoFile';
 import type { Point } from './Point';
-import type { TakeSnapshotOptions } from './Snapshot';
 import type { CameraVideoCodec, RecordVideoOptions, VideoFile, VideoFileType } from './VideoFile';
 import { VisionCameraProxy } from './FrameProcessorPlugins';
 
@@ -111,33 +110,6 @@ export class Camera extends React.PureComponent<CameraProps> {
   public async takePhoto(options?: TakePhotoOptions): Promise<PhotoFile> {
     try {
       return await CameraModule.takePhoto(this.handle, options ?? {});
-    } catch (e) {
-      throw tryParseNativeCameraError(e);
-    }
-  }
-
-  /**
-   * Take a snapshot of the current preview view.
-   *
-   * This can be used as an alternative to {@linkcode Camera.takePhoto | takePhoto()} if speed is more important than quality
-   *
-   * @throws {@linkcode CameraCaptureError} When any kind of error occured while taking a snapshot. Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
-   *
-   * @platform Android
-   * @example
-   * ```ts
-   * const photo = await camera.current.takeSnapshot({
-   *   quality: 85,
-   *   skipMetadata: true
-   * })
-   * ```
-   */
-  public async takeSnapshot(options?: TakeSnapshotOptions): Promise<PhotoFile> {
-    if (Platform.OS !== 'android')
-      throw new CameraCaptureError('capture/capture-type-not-supported', `'takeSnapshot()' is not available on ${Platform.OS}!`);
-
-    try {
-      return await CameraModule.takeSnapshot(this.handle, options ?? {});
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }

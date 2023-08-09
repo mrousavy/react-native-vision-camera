@@ -60,7 +60,7 @@ export interface TakePhotoOptions {
 /**
  * Represents a Photo taken by the Camera written to the local filesystem.
  *
- * Related: {@linkcode Camera.takePhoto | Camera.takePhoto()}, {@linkcode Camera.takeSnapshot | Camera.takeSnapshot()}
+ * See {@linkcode Camera.takePhoto | Camera.takePhoto()}
  */
 export interface PhotoFile extends TemporaryFile {
   /**
