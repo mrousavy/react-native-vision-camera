@@ -6,6 +6,7 @@
 
 #include <jni.h>
 #include <fbjni/fbjni.h>
+#include <EGL/egl.h>
 
 namespace vision {
 
@@ -20,9 +21,21 @@ class SkiaPreviewView : public jni::HybridClass<SkiaPreviewView> {
  private:
   friend HybridBase;
   jni::global_ref<SkiaPreviewView::javaobject> javaPart_;
+  EGLDisplay _display;
+  EGLContext _context;
 
-  explicit SkiaPreviewView(jni::alias_ref<SkiaPreviewView::jhybridobject> jThis):
-  javaPart_(jni::make_global(jThis)) {}
+  void initOpenGL();
+  void destroy();
+
+  int createTexture();
+  void destroyTexture(int textureId);
+
+  explicit SkiaPreviewView(jni::alias_ref<SkiaPreviewView::jhybridobject> jThis): javaPart_(jni::make_global(jThis)) {}
+};
+
+class OpenGLError: public std::runtime_error {
+ public:
+  OpenGLError(const std::string&&);
 };
 
 } // namespace vision

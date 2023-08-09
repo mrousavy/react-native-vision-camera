@@ -75,5 +75,7 @@ target_link_libraries(
         ReactAndroid::folly_runtime         # <-- RN: For casting JSI <> Java objects
         fbjni::fbjni                        # <-- fbjni
         react-native-worklets::rnworklets   # <-- RN Worklets
+        GLESv2                              # <-- Optional: OpenGL (for Skia)
+        EGL                                 # <-- Optional: OpenGL (EGL) (for Skia)
         ${SKIA_PACKAGE}                     # <-- Optional: RN Skia
 )
