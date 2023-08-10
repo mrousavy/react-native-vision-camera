@@ -35,6 +35,7 @@ class SkiaPreviewView(context: Context,
   private var inputTexture: InputTexture? = null
   private var isAlive = true
   private val thread = CameraQueues.previewQueue.handler
+  private var hasNewFrame = false
 
   init {
     Log.i(TAG, "Initializing SkiaPreviewView...")
@@ -49,7 +50,10 @@ class SkiaPreviewView(context: Context,
 
   private fun startLooping(choreographer: Choreographer) {
     choreographer.postFrameCallback {
-      if (isAlive) onPreviewFrame()
+      if (isAlive && hasNewFrame) {
+        onPreviewFrame()
+        hasNewFrame = false
+      }
       startLooping(choreographer)
     }
   }
@@ -64,6 +68,7 @@ class SkiaPreviewView(context: Context,
     val surfaceTexture = SurfaceTexture(textureId)
     surfaceTexture.setOnFrameAvailableListener { texture ->
       texture.updateTexImage()
+      hasNewFrame = true
       onCameraFrame()
     }
     val surface = Surface(surfaceTexture)
