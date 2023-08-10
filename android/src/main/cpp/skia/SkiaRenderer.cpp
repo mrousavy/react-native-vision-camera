@@ -110,7 +110,6 @@ SkiaContext SkiaRenderer::createSkiaContext() {
 }
 
 int SkiaRenderer::createTexture() const {
-  eglMakeCurrent(_gl.display, EGL_NO_SURFACE, EGL_NO_SURFACE, _gl.context);
   GLuint textures[1];
   glGenTextures(1, textures);
   return static_cast<int>(textures[0]);

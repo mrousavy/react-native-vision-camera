@@ -40,7 +40,7 @@ class SkiaRenderer {
   OpenGLContext _gl;
   SkiaContext _skia;
   PassThroughShader _shader;
-  EGLSurface _previewSurface;
+  EGLSurface _previewSurface = EGL_NO_SURFACE;
 
   static OpenGLContext createOpenGLContext();
   static PassThroughShader createPassThroughShader();

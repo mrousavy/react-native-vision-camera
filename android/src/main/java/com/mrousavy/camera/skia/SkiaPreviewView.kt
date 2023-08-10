@@ -104,6 +104,11 @@ class SkiaPreviewView(context: Context,
   private external fun destroy()
 
   /**
+   * Creates an OpenGL Texture for the Camera to stream Frames into
+   */
+  private external fun createTexture(): Int
+
+  /**
    * Re-renders the Preview View UI (60 FPS)
    */
   private external fun onPreviewFrame()
@@ -115,5 +120,4 @@ class SkiaPreviewView(context: Context,
   private external fun onSurfaceCreated(surface: Any)
   private external fun onSurfaceResized(surfaceWidth: Int, surfaceHeight: Int)
   private external fun onSurfaceDestroyed()
-  private external fun createTexture(): Int
 }
