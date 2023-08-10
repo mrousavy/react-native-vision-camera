@@ -2,12 +2,11 @@ package com.mrousavy.camera.skia
 
 import android.graphics.SurfaceTexture
 import android.view.Surface
-import com.facebook.jni.HybridClassBase
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 
 @Suppress("KotlinJniMissingFunction")
-class SkiaRenderer: HybridClassBase() {
+class SkiaRenderer {
   data class InputTexture(val textureId: Int, val surfaceTexture: SurfaceTexture, val surface: Surface)
 
   @DoNotStrip
@@ -19,9 +18,9 @@ class SkiaRenderer: HybridClassBase() {
     get() = inputTexture.surface
 
   init {
-      mHybridData = initHybrid()
+    mHybridData = initHybrid()
 
-    // Create Java part (Surface)
+    // Create Java Surface from C++ GLTexture
     val textureId = getInputTexture()
     val surfaceTexture = SurfaceTexture(textureId)
     surfaceTexture.setOnFrameAvailableListener { texture ->

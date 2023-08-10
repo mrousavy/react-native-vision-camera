@@ -16,22 +16,6 @@ namespace vision {
 
 using namespace facebook;
 
-struct OpenGLContext {
-  EGLDisplay display = EGL_NO_DISPLAY;
-  EGLContext context = EGL_NO_CONTEXT;
-  EGLSurface surface = EGL_NO_SURFACE;
-  EGLConfig config = nullptr;
-};
-struct SkiaContext {
-  sk_sp<GrDirectContext> context;
-};
-struct PassThroughShader {
-  GLuint vertexBuffer;
-  GLuint program;
-  GLint aPosition;
-  GLint aTexCoord;
-};
-
 class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
   // JNI Stuff
  public:
@@ -65,32 +49,23 @@ class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
   void renderCameraFrameToOffscreenCanvas();
 
  private:
-  OpenGLContext _gl;
-  SkiaContext _skia;
-  PassThroughShader _shader;
+  // OpenGL Context
+  EGLContext _glContext = EGL_NO_CONTEXT;
+  EGLDisplay _glDisplay = EGL_NO_DISPLAY;
+  EGLSurface _glSurface = EGL_NO_SURFACE;
+  EGLConfig  _glConfig  = nullptr;
+  // Skia Context
+  sk_sp<GrDirectContext> _skiaContext;
+
+  // Input Texture (Camera/Offscreen)
   int _inputTextureId;
+  // Output Texture (Surface/Preview)
   ANativeWindow* _previewSurface;
   int _previewWidth, _previewHeight;
 
   void ensureOpenGL() const;
 
-  static OpenGLContext createOpenGLContext(ANativeWindow* previewSurface);
-  static void destroyOpenGLContext(OpenGLContext& context);
-
-  static PassThroughShader createPassThroughShader();
-  static SkiaContext createSkiaContext();
-
   static auto constexpr TAG = "SkiaRenderer";
-
-  // Pass-through Shader
-  static const GLfloat* VertexData();
-  static const GLushort* VertexIndices();
-
-  static const char* VertexShaderCode();
-  static const char* FragmentShaderCode();
-
-  static GLuint LoadShader(GLenum shaderType, const char* shaderCode);
-  static GLuint CreateProgram(const char* vertexShaderCode, const char* fragmentShaderCode);
 };
 
 } // namespace vision
