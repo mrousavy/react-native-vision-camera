@@ -52,23 +52,24 @@ class SkiaPreviewView(context: Context,
   override fun surfaceCreated(holder: SurfaceHolder) {
     isAlive = true
     Log.i(TAG, "onSurfaceCreated(..)")
-    // Create C++ part (OpenGL/Skia context)
-    onSurfaceCreated(holder.surface)
-    // Create Java part (Surface)
-    val textureId = getInputTextureId()
-    val surfaceTexture = SurfaceTexture(textureId)
-    surfaceTexture.setOnFrameAvailableListener { texture ->
-      texture.updateTexImage()
-      hasNewFrame = true
-      onCameraFrame()
-    }
-    val surface = Surface(surfaceTexture)
-    inputTexture = InputTexture(textureId, surfaceTexture, surface)
-    // Notify Camera that we now have a Surface - Camera will start writing Frames
-    onSurfaceChanged(surface)
 
-    // Start updating the Preview View (~60 FPS)
     thread.post {
+      // Create C++ part (OpenGL/Skia context)
+      onSurfaceCreated(holder.surface)
+      // Create Java part (Surface)
+      val textureId = getInputTextureId()
+      val surfaceTexture = SurfaceTexture(textureId)
+      surfaceTexture.setOnFrameAvailableListener { texture ->
+        texture.updateTexImage()
+        hasNewFrame = true
+        onCameraFrame()
+      }
+      val surface = Surface(surfaceTexture)
+      inputTexture = InputTexture(textureId, surfaceTexture, surface)
+      // Notify Camera that we now have a Surface - Camera will start writing Frames
+      onSurfaceChanged(surface)
+
+      // Start updating the Preview View (~60 FPS)
       startLooping(Choreographer.getInstance())
     }
   }

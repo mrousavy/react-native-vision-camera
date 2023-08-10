@@ -31,7 +31,6 @@ class SkiaRenderer {
  public:
   explicit SkiaRenderer(ANativeWindow* previewSurface);
   ~SkiaRenderer();
-  void ensureOpenGL() const;
 
   void onPreviewSurfaceSizeChanged(int width, int height);
 
@@ -55,6 +54,8 @@ class SkiaRenderer {
   int _inputTextureId;
   ANativeWindow* _previewSurface;
   int _previewWidth, _previewHeight;
+
+  void ensureOpenGL() const;
 
   static OpenGLContext createOpenGLContext(ANativeWindow* previewSurface);
 

@@ -8,6 +8,10 @@
 
 #include <gpu/gl/GrGLInterface.h>
 #include <gpu/GrDirectContext.h>
+#include <gpu/GrBackendSurface.h>
+#include <gpu/ganesh/SkSurfaceGanesh.h>
+#include <core/SkColorSpace.h>
+#include <core/SkCanvas.h>
 
 namespace vision {
 
@@ -158,6 +162,45 @@ int SkiaRenderer::getInputTexture() const {
 }
 
 void SkiaRenderer::onPreviewFrame() {
+  ensureOpenGL();
+  _skia.context->resetContext();
+
+  SkColorType colorType;
+  // setup surface for fbo0
+  GrGLFramebufferInfo fboInfo;
+  fboInfo.fFBOID = _inputTextureId;
+  fboInfo.fFormat = 0x8058;
+  colorType = kN32_SkColorType;
+
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Backend Render Target...");
+  GrBackendRenderTarget backendRT(1280, 720, 0, 8, fboInfo);
+
+  SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
+
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Surface...");
+  sk_sp<SkSurface> renderTarget(SkSurfaces::WrapBackendRenderTarget(
+      _skia.context.get(), backendRT,
+      kBottomLeft_GrSurfaceOrigin, colorType, nullptr, &props));
+
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Canvas");
+  auto canvas = renderTarget->getCanvas();
+
+  // TODO: Run Skia Frame Processor
+  auto rect = SkRect::MakeXYWH(150, 250, 150, 50);
+  auto paint = SkPaint();
+  paint.setColor(SkColors::kRed);
+  canvas->drawRect(rect, paint);
+
+  // Flush
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Flush...");
+  canvas->flush();
+  __android_log_print(ANDROID_LOG_INFO, TAG, "eglSwap");
+
+  bool successful = eglSwapBuffers(_gl.display, _gl.surface);
+  if (!successful) throw OpenGLError("Failed to swap OpenGL buffers!");
+
+  return;
+
   glBindTexture(GL_TEXTURE_2D, _inputTextureId);
 
   int viewportX = 0;
