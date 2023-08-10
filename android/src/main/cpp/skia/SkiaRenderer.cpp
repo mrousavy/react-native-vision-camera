@@ -185,6 +185,8 @@ void SkiaRenderer::onPreviewFrame() {
   __android_log_print(ANDROID_LOG_INFO, TAG, "Canvas");
   auto canvas = surface->getCanvas();
 
+  canvas->clear(SkColors::kBlack);
+
   // TODO: Run Skia Frame Processor
   auto rect = SkRect::MakeXYWH(150, 250, 150, 50);
   auto paint = SkPaint();
