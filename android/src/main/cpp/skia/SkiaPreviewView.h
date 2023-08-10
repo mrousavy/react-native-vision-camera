@@ -17,6 +17,7 @@ using namespace facebook;
 class SkiaPreviewView : public jni::HybridClass<SkiaPreviewView> {
  public:
   static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/skia/SkiaPreviewView;";
+  static auto constexpr TAG = "SkiaPreviewView (C++)";
   static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis);
   static void registerNatives();
 
@@ -28,9 +29,9 @@ class SkiaPreviewView : public jni::HybridClass<SkiaPreviewView> {
 
  private:
   // OpenGL Setup
-  EGLDisplay _display;
-  EGLContext _context;
-  int _surfaceWidth, _surfaceHeight;
+  EGLDisplay _display = EGL_NO_DISPLAY;
+  EGLContext _context = EGL_NO_CONTEXT;
+  int _surfaceWidth = 0, _surfaceHeight = 0;
 
   GLuint _vertexBuffer;
   GLuint _program;

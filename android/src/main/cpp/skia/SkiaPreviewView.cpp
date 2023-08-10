@@ -15,6 +15,8 @@
 #include <gpu/GrDirectContext.h>
 #include <core/SkSurface.h>
 
+#include <android/log.h>
+
 // Defined in <gpu/ganesh/gl/GrGLDefines.h>
 #define GR_GL_RGBA8 0x8058
 
@@ -25,19 +27,60 @@ jni::local_ref<SkiaPreviewView::jhybriddata> SkiaPreviewView::initHybrid(jni::al
 }
 
 void SkiaPreviewView::destroy() {
-  return;
-
-  if (_display != nullptr || _context != nullptr) {
-    eglMakeCurrent(_display, EGL_NO_SURFACE, EGL_NO_DISPLAY, EGL_NO_CONTEXT);
-    eglDestroyContext(_display, _context);
-    _context = nullptr;
-    eglReleaseThread();
+  if (_display != EGL_NO_DISPLAY) {
+    if (_context != EGL_NO_CONTEXT) {
+      __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying OpenGL Context...");
+      eglDestroyContext(_display, _context);
+      _context = EGL_NO_CONTEXT;
+    }
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying OpenGL Display...");
     eglTerminate(_display);
-    _display = nullptr;
+    _display = EGL_NO_DISPLAY;
   }
 }
 
 void SkiaPreviewView::onSurfaceCreated() {
+  destroy();
+
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing OpenGL Context...");
+
+  _display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+  if (_display == EGL_NO_DISPLAY) throw OpenGLError("Failed to get default OpenGL Display!");
+
+  EGLint major;
+  EGLint minor;
+  bool successful = eglInitialize(_display, &major, &minor);
+  if (!successful) throw OpenGLError("Failed to initialize OpenGL!");
+
+  EGLint attributes[] = {EGL_RENDERABLE_TYPE,
+                         EGL_OPENGL_ES2_BIT,
+                         EGL_SURFACE_TYPE,
+                         EGL_WINDOW_BIT,
+                         EGL_ALPHA_SIZE,
+                         8,
+                         EGL_BLUE_SIZE,
+                         8,
+                         EGL_GREEN_SIZE,
+                         8,
+                         EGL_RED_SIZE,
+                         8,
+                         EGL_DEPTH_SIZE,
+                         0,
+                         EGL_STENCIL_SIZE,
+                         0,
+                         EGL_NONE};
+  EGLint numConfigs;
+  EGLConfig config;
+  successful = eglChooseConfig(_display, attributes, &config, 1, &numConfigs);
+  if (!successful || numConfigs == 0) throw OpenGLError("Failed to choose OpenGL config!");
+
+  EGLint contextAttributes[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
+  _context = eglCreateContext(_display, config, nullptr, contextAttributes);
+  if (_context == EGL_NO_CONTEXT) throw OpenGLError("Failed to create OpenGL context!");
+
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Successfully initialized OpenGL Context!");
+
+
   return;
 
   glGenBuffers(1, &_vertexBuffer);
