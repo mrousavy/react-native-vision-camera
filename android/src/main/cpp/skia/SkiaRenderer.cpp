@@ -4,29 +4,35 @@
 
 #include "SkiaRenderer.h"
 #include <android/log.h>
-#include <gpu/gl/GrGLInterface.h>
-#include <gpu/GrBackendSurface.h>
-#include <gpu/gl/GrGLTypes.h>
-#include <gpu/gl/GrGLInterface.h>
-#include <gpu/GrDirectContext.h>
 #include "OpenGLError.h"
 
-#include <android/native_window_jni.h>
-#include <android/surface_texture_jni.h>
-#include <android/hardware_buffer_jni.h>
+#include <gpu/gl/GrGLInterface.h>
+#include <gpu/GrDirectContext.h>
 
 namespace vision {
 
 SkiaRenderer::SkiaRenderer(ANativeWindow* previewSurface) {
   __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing SkiaRenderer...");
-  __android_log_print(ANDROID_LOG_INFO, TAG, "...OpenGL");
+
   _previewSurface = previewSurface;
+  _previewWidth = 0;
+  _previewHeight = 0;
+
+  __android_log_print(ANDROID_LOG_INFO, TAG, "...OpenGL");
   _gl = createOpenGLContext(previewSurface);
   ensureOpenGL();
+
+  __android_log_print(ANDROID_LOG_INFO, TAG, "...Input Texture");
+  GLuint textures[1];
+  glGenTextures(1, textures);
+  _inputTextureId = static_cast<int>(textures[0]);
+
   __android_log_print(ANDROID_LOG_INFO, TAG, "...Shaders");
   _shader = createPassThroughShader();
+
   __android_log_print(ANDROID_LOG_INFO, TAG, "...Skia");
   _skia = createSkiaContext();
+
   __android_log_print(ANDROID_LOG_INFO, TAG, "Successfully initialized SkiaRenderer!");
 }
 
@@ -105,6 +111,11 @@ void SkiaRenderer::ensureOpenGL() const {
   eglMakeCurrent(_gl.display, _gl.surface, _gl.surface, _gl.context);
 }
 
+void SkiaRenderer::onPreviewSurfaceSizeChanged(int width, int height) {
+  _previewWidth = width;
+  _previewHeight = height;
+}
+
 PassThroughShader SkiaRenderer::createPassThroughShader() {
   GLuint vertexBuffer;
   glGenBuffers(1, &vertexBuffer);
@@ -141,44 +152,42 @@ SkiaContext SkiaRenderer::createSkiaContext() {
   };
 }
 
-int SkiaRenderer::createTexture() const {
-  ensureOpenGL();
-  GLuint textures[1];
-  glGenTextures(1, textures);
-  return static_cast<int>(textures[0]);
+int SkiaRenderer::getInputTexture() const {
+  return _inputTextureId;
 }
 
-void SkiaRenderer::drawFrame() {
-  throw std::runtime_error("Not yet implemented!");
-  /*
-  glBindTexture(GL_TEXTURE_2D, texture);
+void SkiaRenderer::onPreviewFrame() {
+  glBindTexture(GL_TEXTURE_2D, _inputTextureId);
 
   int viewportX = 0;
   int viewportY = 0;
-  int viewportWidth = _surfaceWidth;
-  int viewportHeight = _surfaceHeight;
+  int viewportWidth = _previewWidth;
+  int viewportHeight = _previewHeight;
+  int textureWidth = 1280;
+  int textureHeight = 720;
 
-  int candidateWidth = (int) (((float) textureWidth / (float) textureHeight) * (float)_surfaceHeight);
-  int candidateHeight = (int) (((float) textureHeight / (float) textureWidth) * (float)_surfaceWidth);
+  int candidateWidth = (int) (((float) textureWidth / (float) textureHeight) * (float)_previewHeight);
+  int candidateHeight = (int) (((float) textureHeight / (float) textureWidth) * (float)_previewWidth);
 
-  if (candidateWidth > _surfaceWidth) {
-    viewportX = -1 * (candidateWidth - _surfaceWidth) / 2;
+  if (candidateWidth > _previewWidth) {
+    viewportX = -1 * (candidateWidth - _previewWidth) / 2;
     viewportWidth = candidateWidth;
-  } else if (candidateHeight > _surfaceHeight) {
-    viewportY = -1 * (candidateHeight - _surfaceHeight) / 2;
+  } else if (candidateHeight > _previewHeight) {
+    viewportY = -1 * (candidateHeight - _previewHeight) / 2;
     viewportHeight = candidateHeight;
   }
 
   glViewport(viewportX, viewportY, viewportWidth, viewportHeight);
 
-  glUseProgram(_program);
-  glVertexAttribPointer(_aPosition, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid*) (0 * sizeof(GLfloat)));
-  glEnableVertexAttribArray(_aPosition);
-  glVertexAttribPointer(_aTexCoord, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid*) (4 * sizeof(GLfloat)));
-  glEnableVertexAttribArray(_aTexCoord);
-  glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
+  glUseProgram(_shader.program);
+  glVertexAttribPointer(_shader.aPosition, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid*) (0 * sizeof(GLfloat)));
+  glEnableVertexAttribArray(_shader.aPosition);
+  glVertexAttribPointer(_shader.aTexCoord, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid*) (4 * sizeof(GLfloat)));
+  glEnableVertexAttribArray(_shader.aTexCoord);
+  glBindBuffer(GL_ARRAY_BUFFER, _shader.vertexBuffer);
   glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, VertexIndices());
 
+  /*
   auto surface = createSkiaSurface(0, 1280, 720);
   auto canvas = surface->getCanvas();
   auto rect = SkRect::MakeXYWH(50, 150, 30, 50);
@@ -187,13 +196,16 @@ void SkiaRenderer::drawFrame() {
   canvas->drawRect(rect, paint);
   canvas->flush();
   surface->flushAndSubmit();
+   */
 
   glFlush();
-   */
+  // eglSwapBuffers(_gl.display, _gl.surface);
 }
 
 
+void SkiaRenderer::onCameraFrame() {
 
+}
 
 
 

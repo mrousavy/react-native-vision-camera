@@ -12,47 +12,44 @@ jni::local_ref<SkiaPreviewView::jhybriddata> SkiaPreviewView::initHybrid(jni::al
   return makeCxxInstance(jThis);
 }
 
-void SkiaPreviewView::destroy() {
-  _renderer = nullptr;
-}
-
 void SkiaPreviewView::onSurfaceCreated(jobject surface) {
   ANativeWindow* previewSurface = ANativeWindow_fromSurface(jni::Environment::current(), surface);
   _renderer = std::make_unique<SkiaRenderer>(previewSurface);
 }
 
 void SkiaPreviewView::onSurfaceResized(int width, int height) {
-  this->_surfaceWidth = width;
-  this->_surfaceHeight = height;
+  if (_renderer == nullptr) throw std::runtime_error("SkiaRenderer was not yet initialized! Call onSurfaceCreated() first.");
+  _renderer->onPreviewSurfaceSizeChanged(width, height);
 }
 
 void SkiaPreviewView::onSurfaceDestroyed() {
-  destroy();
+  _renderer = nullptr;
 }
 
-int SkiaPreviewView::createTexture() {
+int SkiaPreviewView::getInputTextureId() {
   if (_renderer == nullptr) throw std::runtime_error("SkiaRenderer was not yet initialized! Call onSurfaceCreated() first.");
-  return _renderer->createTexture();
+  return _renderer->getInputTexture();
 }
 
 void SkiaPreviewView::onCameraFrame() {
   __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering Camera Frame...");
+  _renderer->onCameraFrame();
 }
 
 void SkiaPreviewView::onPreviewFrame() {
   __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering Preview UI...");
+  _renderer->onPreviewFrame();
 }
 
 void SkiaPreviewView::registerNatives() {
   registerHybrid({
     makeNativeMethod("initHybrid", SkiaPreviewView::initHybrid),
-    makeNativeMethod("destroy", SkiaPreviewView::destroy),
     makeNativeMethod("onCameraFrame", SkiaPreviewView::onCameraFrame),
     makeNativeMethod("onPreviewFrame", SkiaPreviewView::onPreviewFrame),
     makeNativeMethod("onSurfaceResized", SkiaPreviewView::onSurfaceResized),
     makeNativeMethod("onSurfaceCreated", SkiaPreviewView::onSurfaceCreated),
     makeNativeMethod("onSurfaceDestroyed", SkiaPreviewView::onSurfaceDestroyed),
-    makeNativeMethod("createTexture", SkiaPreviewView::createTexture),
+    makeNativeMethod("getInputTextureId", SkiaPreviewView::getInputTextureId),
   });
 }
 

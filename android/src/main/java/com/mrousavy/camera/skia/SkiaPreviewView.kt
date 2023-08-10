@@ -23,7 +23,7 @@ class SkiaPreviewView(context: Context,
                       cameraManager: CameraManager,
                       cameraId: String,
                       private val onSurfaceChanged: (surface: Surface?) -> Unit) :
-  SurfaceView(context), SurfaceHolder.Callback, Closeable {
+  SurfaceView(context), SurfaceHolder.Callback {
   companion object {
     private const val TAG = "SkiaPreviewView"
   }
@@ -43,11 +43,6 @@ class SkiaPreviewView(context: Context,
     holder.addCallback(this)
   }
 
-  override fun close() {
-    isAlive = false
-    destroy()
-  }
-
   private fun startLooping(choreographer: Choreographer) {
     choreographer.postFrameCallback {
       if (isAlive && hasNewFrame) {
@@ -64,7 +59,7 @@ class SkiaPreviewView(context: Context,
     // Create C++ part (OpenGL/Skia context)
     onSurfaceCreated(holder.surface)
     // Create Java part (Surface)
-    val textureId = createTexture()
+    val textureId = getInputTextureId()
     val surfaceTexture = SurfaceTexture(textureId)
     surfaceTexture.setOnFrameAvailableListener { texture ->
       texture.updateTexImage()
@@ -104,9 +99,9 @@ class SkiaPreviewView(context: Context,
   private external fun destroy()
 
   /**
-   * Creates an OpenGL Texture for the Camera to stream Frames into
+   * Gets the OpenGL Texture which the Camera can dump Frames into
    */
-  private external fun createTexture(): Int
+  private external fun getInputTextureId(): Int
 
   /**
    * Re-renders the Preview View UI (60 FPS)

@@ -31,16 +31,30 @@ class SkiaRenderer {
  public:
   explicit SkiaRenderer(ANativeWindow* previewSurface);
   ~SkiaRenderer();
-
-  int createTexture() const;
-  void drawFrame();
   void ensureOpenGL() const;
+
+  void onPreviewSurfaceSizeChanged(int width, int height);
+
+  /**
+   * Gets the input OpenGL Texture which the Camera can dump Frames into.
+   */
+  int getInputTexture() const;
+  /**
+   * Renders the latest Camera Frame from the Input Texture onto the Preview Surface. (60 FPS)
+   */
+  void onPreviewFrame();
+  /**
+   * Renders the latest Camera Frame into it's Input Texture and run the Skia Frame Processor (1..240 FPS)
+   */
+  void onCameraFrame();
 
  private:
   OpenGLContext _gl;
   SkiaContext _skia;
   PassThroughShader _shader;
+  int _inputTextureId;
   ANativeWindow* _previewSurface;
+  int _previewWidth, _previewHeight;
 
   static OpenGLContext createOpenGLContext(ANativeWindow* previewSurface);
 

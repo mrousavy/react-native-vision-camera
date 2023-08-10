@@ -29,9 +29,6 @@ class SkiaPreviewView : public jni::HybridClass<SkiaPreviewView> {
 
  private:
   std::unique_ptr<SkiaRenderer> _renderer;
-  int _surfaceWidth = 0, _surfaceHeight = 0;
-
-  void destroy();
 
   // Update the Preview View UI (60 FPS)
   void onPreviewFrame();
@@ -42,7 +39,7 @@ class SkiaPreviewView : public jni::HybridClass<SkiaPreviewView> {
   void onSurfaceResized(int width, int height);
   void onSurfaceDestroyed();
 
-  int createTexture();
+  int getInputTextureId();
 };
 
 } // namespace vision
