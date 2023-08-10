@@ -5,6 +5,7 @@ import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.util.Log
 import android.util.Size
+import android.view.SurfaceView
 
 private fun getMaximumPreviewSize(): Size {
   // See https://developer.android.com/reference/android/hardware/camera2/params/StreamConfigurationMap
@@ -18,13 +19,11 @@ private fun getMaximumPreviewSize(): Size {
 }
 
 /**
- * Gets the maximum Preview Resolution this device is capable of streaming at.
- *
- * [format] should either be [ImageFormat.PRIVATE] or [ImageFormat.YUV_420_888].
+ * Gets the maximum Preview Resolution this device is capable of streaming at. (For [SurfaceView])
  */
-fun CameraCharacteristics.getPreviewSize(format: Int): Size {
+fun CameraCharacteristics.getPreviewSize(): Size {
   val config = this.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
   val previewSize = getMaximumPreviewSize()
-  val outputSizes = config.getOutputSizes(format).sortedByDescending { it.width * it.height }
+  val outputSizes = config.getOutputSizes(SurfaceView::class.java).sortedByDescending { it.width * it.height }
   return outputSizes.first { it.bigger <= previewSize.bigger && it.smaller <= previewSize.smaller }
 }

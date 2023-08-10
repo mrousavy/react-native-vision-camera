@@ -7,6 +7,7 @@
 #include <GLES2/gl2.h>
 #include <EGL/egl.h>
 #include <include/core/SkSurface.h>
+#include <android/native_window.h>
 
 namespace vision {
 
@@ -33,10 +34,13 @@ class SkiaRenderer {
   int createTexture() const;
   void drawFrame();
 
+  void setPreviewSurface(ANativeWindow* nativeWindow);
+
  private:
   OpenGLContext _gl;
   SkiaContext _skia;
   PassThroughShader _shader;
+  EGLSurface _previewSurface;
 
   static OpenGLContext createOpenGLContext();
   static PassThroughShader createPassThroughShader();

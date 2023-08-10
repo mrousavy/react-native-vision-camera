@@ -26,7 +26,7 @@ class NativePreviewView(context: Context,
 
   init {
     val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-    targetSize = characteristics.getPreviewSize(34 /* ImageFormat.PRIVATE */)
+    targetSize = characteristics.getPreviewSize()
 
     Log.i(TAG, "Using Preview Size ${targetSize.width} x ${targetSize.height}.")
     holder.setFixedSize(targetSize.width, targetSize.height)

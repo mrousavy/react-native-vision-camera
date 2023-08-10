@@ -35,35 +35,16 @@ class SkiaPreviewView(context: Context,
   private var inputTexture: InputTexture? = null
   private var isAlive = true
   private val thread = CameraQueues.previewQueue.handler
-  private val previewStreamSize: Size
 
   init {
     Log.i(TAG, "Initializing SkiaPreviewView...")
     mHybridData = initHybrid()
     holder.addCallback(this)
-
-    val cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId)
-    previewStreamSize = cameraCharacteristics.getPreviewSize(ImageFormat.YUV_420_888)
   }
 
   override fun close() {
     isAlive = false
     destroy()
-  }
-
-  /**
-   * Re-renders the Preview View UI (60 FPS)
-   */
-  private fun onPreviewFrame() {
-    Log.i(TAG, "Render new Frame for Preview UI!")
-  }
-
-  /**
-   * Renders a new Camera Frame (1..240 FPS)
-   */
-  private fun onCameraFrame(texture: SurfaceTexture) {
-    Log.i(TAG, "New Frame arrived from Camera!")
-    texture.updateTexImage()
   }
 
   private fun startLooping(choreographer: Choreographer) {
@@ -77,12 +58,14 @@ class SkiaPreviewView(context: Context,
     isAlive = true
     Log.i(TAG, "onSurfaceCreated(..)")
     // Create C++ part (OpenGL/Skia context)
-    onSurfaceCreated()
+    onSurfaceCreated(holder.surface)
     // Create Java part (Surface)
     val textureId = createTexture()
     val surfaceTexture = SurfaceTexture(textureId)
-    surfaceTexture.setDefaultBufferSize(previewStreamSize.width, previewStreamSize.height)
-    surfaceTexture.setOnFrameAvailableListener { texture -> onCameraFrame(texture) }
+    surfaceTexture.setOnFrameAvailableListener { texture ->
+      texture.updateTexImage()
+      onCameraFrame()
+    }
     val surface = Surface(surfaceTexture)
     inputTexture = InputTexture(textureId, surfaceTexture, surface)
     // Notify Camera that we now have a Surface - Camera will start writing Frames
@@ -92,6 +75,11 @@ class SkiaPreviewView(context: Context,
     thread.post {
       startLooping(Choreographer.getInstance())
     }
+  }
+
+  override fun surfaceChanged(holder: SurfaceHolder, format: Int, w: Int, h: Int) {
+    Log.i(TAG, "surfaceChanged($w, $h)")
+    onSurfaceResized(w, h)
   }
 
   override fun surfaceDestroyed(holder: SurfaceHolder) {
@@ -107,16 +95,19 @@ class SkiaPreviewView(context: Context,
     inputTexture = null
   }
 
-  override fun surfaceChanged(holder: SurfaceHolder, format: Int, w: Int, h: Int) {
-    Log.i(TAG, "surfaceChanged($w, $h)")
-    onSurfaceResized(w, h)
-  }
-
   private external fun initHybrid(): HybridData
   private external fun destroy()
 
-  private external fun onDrawFrame(textureId: Int, textureWidth: Int, textureHeight: Int)
-  private external fun onSurfaceCreated()
+  /**
+   * Re-renders the Preview View UI (60 FPS)
+   */
+  private external fun onPreviewFrame()
+
+  /**
+   * Renders a new Camera Frame (1..240 FPS)
+   */
+  private external fun onCameraFrame()
+  private external fun onSurfaceCreated(surface: Any)
   private external fun onSurfaceResized(surfaceWidth: Int, surfaceHeight: Int)
   private external fun onSurfaceDestroyed()
   private external fun createTexture(): Int

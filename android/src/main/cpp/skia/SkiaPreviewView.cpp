@@ -3,22 +3,8 @@
 //
 
 #include "SkiaPreviewView.h"
-#include <GLES2/gl2.h>
-#include <EGL/egl.h>
-
-#include <include/gpu/GrBackendSurface.h>
-#include <include/gpu/ganesh/SkSurfaceGanesh.h>
-#include <include/core/SkColorSpace.h>
-#include <include/core/SkCanvas.h>
-#include <gpu/gl/GrGLTypes.h>
-#include <gpu/gl/GrGLInterface.h>
-#include <gpu/GrDirectContext.h>
-#include <core/SkSurface.h>
-
 #include <android/log.h>
-
-// Defined in <gpu/ganesh/gl/GrGLDefines.h>
-#define GR_GL_RGBA8 0x8058
+#include <android/native_window_jni.h>
 
 namespace vision {
 
@@ -30,8 +16,15 @@ void SkiaPreviewView::destroy() {
   _renderer = nullptr;
 }
 
-void SkiaPreviewView::onSurfaceCreated() {
+void SkiaPreviewView::onSurfaceCreated(jobject surface) {
   _renderer = std::make_unique<SkiaRenderer>();
+
+  auto nativeWindow = ANativeWindow_fromSurface(jni::Environment::current(), surface);
+}
+
+void SkiaPreviewView::onSurfaceResized(int width, int height) {
+  this->_surfaceWidth = width;
+  this->_surfaceHeight = height;
 }
 
 void SkiaPreviewView::onSurfaceDestroyed() {
@@ -43,24 +36,20 @@ int SkiaPreviewView::createTexture() {
   return _renderer->createTexture();
 }
 
-sk_sp<SkSurface> createSkiaSurface(int textureId, int width, int height) {
-  return nullptr;
+void SkiaPreviewView::onCameraFrame() {
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering Camera Frame...");
 }
 
-void SkiaPreviewView::onDrawFrame(int texture, int textureWidth, int textureHeight) {
-  return;
-}
-
-void SkiaPreviewView::onSurfaceResized(int width, int height) {
-  this->_surfaceWidth = width;
-  this->_surfaceHeight = height;
+void SkiaPreviewView::onPreviewFrame() {
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering Preview UI...");
 }
 
 void SkiaPreviewView::registerNatives() {
   registerHybrid({
     makeNativeMethod("initHybrid", SkiaPreviewView::initHybrid),
     makeNativeMethod("destroy", SkiaPreviewView::destroy),
-    makeNativeMethod("onDrawFrame", SkiaPreviewView::onDrawFrame),
+    makeNativeMethod("onCameraFrame", SkiaPreviewView::onCameraFrame),
+    makeNativeMethod("onPreviewFrame", SkiaPreviewView::onPreviewFrame),
     makeNativeMethod("onSurfaceResized", SkiaPreviewView::onSurfaceResized),
     makeNativeMethod("onSurfaceCreated", SkiaPreviewView::onSurfaceCreated),
     makeNativeMethod("onSurfaceDestroyed", SkiaPreviewView::onSurfaceDestroyed),

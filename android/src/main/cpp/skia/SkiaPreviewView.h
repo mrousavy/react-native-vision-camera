@@ -33,8 +33,12 @@ class SkiaPreviewView : public jni::HybridClass<SkiaPreviewView> {
 
   void destroy();
 
-  void onDrawFrame(int texture, int textureWidth, int textureHeight);
-  void onSurfaceCreated();
+  // Update the Preview View UI (60 FPS)
+  void onPreviewFrame();
+  // Render the Camera Frame (1..240 FPS)
+  void onCameraFrame();
+
+  void onSurfaceCreated(jobject surface);
   void onSurfaceResized(int width, int height);
   void onSurfaceDestroyed();
 

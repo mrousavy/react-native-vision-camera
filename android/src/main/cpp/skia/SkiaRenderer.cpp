@@ -116,6 +116,13 @@ int SkiaRenderer::createTexture() const {
   return static_cast<int>(textures[0]);
 }
 
+void SkiaRenderer::setPreviewSurface(ANativeWindow* nativeWindow) {
+  if (_previewSurface != EGL_NO_SURFACE) {
+    eglDestroySurface(_gl.display, _previewSurface);
+  }
+  _previewSurface = eglCreateWindowSurface(_gl.display, _gl.config, nativeWindow, nullptr);
+}
+
 void SkiaRenderer::drawFrame() {
   throw std::runtime_error("Not yet implemented!");
   /*
