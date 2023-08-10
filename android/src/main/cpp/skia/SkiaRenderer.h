@@ -4,12 +4,17 @@
 
 #pragma once
 
+#include <jni.h>
+#include <fbjni/fbjni.h>
+
 #include <GLES2/gl2.h>
 #include <EGL/egl.h>
 #include <include/core/SkSurface.h>
 #include <android/native_window.h>
 
 namespace vision {
+
+using namespace facebook;
 
 struct OpenGLContext {
   EGLDisplay display = EGL_NO_DISPLAY;
@@ -27,25 +32,37 @@ struct PassThroughShader {
   GLint aTexCoord;
 };
 
-class SkiaRenderer {
+class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
+  // JNI Stuff
  public:
-  explicit SkiaRenderer(ANativeWindow* previewSurface);
+  static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/skia/SkiaRenderer;";
+  static void registerNatives();
+ private:
+  friend HybridBase;
+  jni::global_ref<SkiaRenderer::javaobject> _javaPart;
+  explicit SkiaRenderer(const jni::alias_ref<jhybridobject>& javaPart);
+
+ public:
+  static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> javaPart);
   ~SkiaRenderer();
 
-  void onPreviewSurfaceSizeChanged(int width, int height);
+ private:
+  void setPreviewSurface(jobject previewSurface);
+  void destroyPreviewSurface();
+  void setPreviewSurfaceSize(int width, int height);
 
   /**
    * Gets the input OpenGL Texture which the Camera can dump Frames into.
    */
-  int getInputTexture() const;
+  int getInputTexture();
   /**
    * Renders the latest Camera Frame from the Input Texture onto the Preview Surface. (60 FPS)
    */
-  void onPreviewFrame();
+  void renderLatestFrameToPreview();
   /**
    * Renders the latest Camera Frame into it's Input Texture and run the Skia Frame Processor (1..240 FPS)
    */
-  void onCameraFrame();
+  void renderCameraFrameToOffscreenCanvas();
 
  private:
   OpenGLContext _gl;
@@ -58,6 +75,7 @@ class SkiaRenderer {
   void ensureOpenGL() const;
 
   static OpenGLContext createOpenGLContext(ANativeWindow* previewSurface);
+  static void destroyOpenGLContext(OpenGLContext& context);
 
   static PassThroughShader createPassThroughShader();
   static SkiaContext createSkiaContext();

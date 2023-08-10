@@ -2,49 +2,34 @@ package com.mrousavy.camera.skia
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.SurfaceTexture
-import android.hardware.camera2.CameraManager
 import android.util.Log
 import android.view.Choreographer
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import com.facebook.jni.HybridData
-import com.facebook.proguard.annotations.DoNotStrip
 import com.mrousavy.camera.CameraQueues
 
 @SuppressLint("ViewConstructor")
-@Suppress("KotlinJniMissingFunction")
 class SkiaPreviewView(context: Context,
-                      cameraManager: CameraManager,
-                      cameraId: String,
-                      private val onSurfaceChanged: (surface: Surface?) -> Unit) :
-  SurfaceView(context), SurfaceHolder.Callback {
+                      private val skiaRenderer: SkiaRenderer,
+                      private val onSurfaceChanged: (surface: Surface?) -> Unit): SurfaceView(context), SurfaceHolder.Callback {
   companion object {
     private const val TAG = "SkiaPreviewView"
   }
 
-  data class InputTexture(val textureId: Int, val surfaceTexture: SurfaceTexture, val surface: Surface)
-
-  @DoNotStrip
-  private var mHybridData: HybridData
-  private var inputTexture: InputTexture? = null
   private var isAlive = true
   private val thread = CameraQueues.previewQueue.handler
-  private var hasNewFrame = false
 
   init {
-    Log.i(TAG, "Initializing SkiaPreviewView...")
-    mHybridData = initHybrid()
     holder.addCallback(this)
   }
 
   private fun startLooping(choreographer: Choreographer) {
     choreographer.postFrameCallback {
-      if (isAlive && hasNewFrame) {
-        onPreviewFrame()
-        hasNewFrame = false
-      }
+      if (!isAlive) return@postFrameCallback
+
+      // Refresh UI (60 FPS)
+      skiaRenderer.onPreviewFrame()
       startLooping(choreographer)
     }
   }
@@ -55,19 +40,9 @@ class SkiaPreviewView(context: Context,
 
     thread.post {
       // Create C++ part (OpenGL/Skia context)
-      onSurfaceCreated(holder.surface)
-      // Create Java part (Surface)
-      val textureId = getInputTextureId()
-      val surfaceTexture = SurfaceTexture(textureId)
-      surfaceTexture.setOnFrameAvailableListener { texture ->
-        texture.updateTexImage()
-        hasNewFrame = true
-        onCameraFrame()
-      }
-      val surface = Surface(surfaceTexture)
-      inputTexture = InputTexture(textureId, surfaceTexture, surface)
+      skiaRenderer.setPreviewSurface(holder.surface)
       // Notify Camera that we now have a Surface - Camera will start writing Frames
-      onSurfaceChanged(surface)
+      onSurfaceChanged(holder.surface)
 
       // Start updating the Preview View (~60 FPS)
       startLooping(Choreographer.getInstance())
@@ -78,7 +53,8 @@ class SkiaPreviewView(context: Context,
     Log.i(TAG, "surfaceChanged($w, $h)")
 
     thread.post {
-      onSurfaceResized(w, h)
+      // Update C++ OpenGL Surface size
+      skiaRenderer.setPreviewSurfaceSize(w, h)
     }
   }
 
@@ -90,30 +66,7 @@ class SkiaPreviewView(context: Context,
       // Notify Camera that we no longer have a Surface - Camera will stop writing Frames
       onSurfaceChanged(null)
       // Clean up C++ part (OpenGL/Skia context)
-      onSurfaceDestroyed()
-      // Clean up Java part (Surface)
-      inputTexture?.surface?.release()
-      inputTexture?.surfaceTexture?.release()
-      inputTexture = null
+      skiaRenderer.destroyPreviewSurface()
     }
   }
-
-  private external fun initHybrid(): HybridData
-  /**
-   * Gets the OpenGL Texture which the Camera can dump Frames into
-   */
-  private external fun getInputTextureId(): Int
-
-  /**
-   * Re-renders the Preview View UI (60 FPS)
-   */
-  private external fun onPreviewFrame()
-
-  /**
-   * Renders a new Camera Frame (1..240 FPS)
-   */
-  private external fun onCameraFrame()
-  private external fun onSurfaceCreated(surface: Any)
-  private external fun onSurfaceResized(surfaceWidth: Int, surfaceHeight: Int)
-  private external fun onSurfaceDestroyed()
 }

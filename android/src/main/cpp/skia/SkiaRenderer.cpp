@@ -13,55 +13,56 @@
 #include <core/SkColorSpace.h>
 #include <core/SkCanvas.h>
 
+#include <android/native_window_jni.h>
+
 namespace vision {
 
-SkiaRenderer::SkiaRenderer(ANativeWindow* previewSurface) {
+
+jni::local_ref<SkiaRenderer::jhybriddata> SkiaRenderer::initHybrid(jni::alias_ref<jhybridobject> javaPart) {
+  return makeCxxInstance(javaPart);
+}
+
+SkiaRenderer::SkiaRenderer(const jni::alias_ref<jhybridobject>& javaPart) {
+  _javaPart = jni::make_global(javaPart);
+
   __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing SkiaRenderer...");
 
-  _previewSurface = previewSurface;
+  _previewSurface = nullptr;
   _previewWidth = 0;
   _previewHeight = 0;
 
-  __android_log_print(ANDROID_LOG_INFO, TAG, "...OpenGL");
-  _gl = createOpenGLContext(previewSurface);
-  ensureOpenGL();
-
-  __android_log_print(ANDROID_LOG_INFO, TAG, "...Input Texture");
   GLuint textures[1];
   glGenTextures(1, textures);
   _inputTextureId = static_cast<int>(textures[0]);
-
-  __android_log_print(ANDROID_LOG_INFO, TAG, "...Shaders");
-  _shader = createPassThroughShader();
-
-  __android_log_print(ANDROID_LOG_INFO, TAG, "...Skia");
-  _skia = createSkiaContext();
 
   __android_log_print(ANDROID_LOG_INFO, TAG, "Successfully initialized SkiaRenderer!");
 }
 
 SkiaRenderer::~SkiaRenderer() {
-  ANativeWindow_release(_previewSurface);
-
   if (_skia.context != nullptr) {
     // TODO: Do abandonContext()?
     __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying Skia Context...");
     _skia.context = nullptr;
   }
-  if (_gl.display != EGL_NO_DISPLAY) {
-    if (_gl.surface != EGL_NO_SURFACE) {
+  destroyOpenGLContext(_gl);
+  destroyPreviewSurface();
+}
+
+void SkiaRenderer::destroyOpenGLContext(OpenGLContext &context) {
+  if (context.display != EGL_NO_DISPLAY) {
+    if (context.surface != EGL_NO_SURFACE) {
       __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying OpenGL Surface...");
-      eglDestroySurface(_gl.display, _gl.surface);
-      _gl.surface = EGL_NO_SURFACE;
+      eglDestroySurface(context.display, context.surface);
+      context.surface = EGL_NO_SURFACE;
     }
-    if (_gl.context != EGL_NO_CONTEXT) {
+    if (context.context != EGL_NO_CONTEXT) {
       __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying OpenGL Context...");
-      eglDestroyContext(_gl.display, _gl.context);
-      _gl.context = EGL_NO_CONTEXT;
+      eglDestroyContext(context.display, context.context);
+      context.context = EGL_NO_CONTEXT;
     }
     __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying OpenGL Display...");
-    eglTerminate(_gl.display);
-    _gl.display = EGL_NO_DISPLAY;
+    eglTerminate(context.display);
+    context.display = EGL_NO_DISPLAY;
   }
 }
 
@@ -113,10 +114,24 @@ OpenGLContext SkiaRenderer::createOpenGLContext(ANativeWindow* previewSurface) {
 }
 
 void SkiaRenderer::ensureOpenGL() const {
-  eglMakeCurrent(_gl.display, _gl.surface, _gl.surface, _gl.context);
+  bool successful = eglMakeCurrent(_gl.display, _gl.surface, _gl.surface, _gl.context);
+  if (!successful || eglGetError() != GL_NO_ERROR) throw OpenGLError("Failed to use current OpenGL context!");
 }
 
-void SkiaRenderer::onPreviewSurfaceSizeChanged(int width, int height) {
+void SkiaRenderer::setPreviewSurface(jobject previewSurface) {
+  destroyPreviewSurface();
+
+  _previewSurface = ANativeWindow_fromSurface(jni::Environment::current(), previewSurface);
+  _gl = createOpenGLContext(_previewSurface);
+  ensureOpenGL();
+}
+
+void SkiaRenderer::destroyPreviewSurface() {
+  if (_previewSurface != nullptr) ANativeWindow_release(_previewSurface);
+  if (_gl.surface != EGL_NO_SURFACE) eglDestroySurface(_gl.display, _gl.surface);
+}
+
+void SkiaRenderer::setPreviewSurfaceSize(int width, int height) {
   _previewWidth = width;
   _previewHeight = height;
 }
@@ -157,11 +172,14 @@ SkiaContext SkiaRenderer::createSkiaContext() {
   };
 }
 
-int SkiaRenderer::getInputTexture() const {
+int SkiaRenderer::getInputTexture() {
   return _inputTextureId;
 }
 
-void SkiaRenderer::onPreviewFrame() {
+void SkiaRenderer::renderLatestFrameToPreview() {
+  if (_skia.context == nullptr) {
+    _skia = createSkiaContext();
+  }
   ensureOpenGL();
 
   // FBO #0 is the currently active OpenGL Surface
@@ -187,8 +205,11 @@ void SkiaRenderer::onPreviewFrame() {
 
   canvas->clear(SkColors::kBlack);
 
+  auto duration = std::chrono::system_clock::now().time_since_epoch();
+  auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+
   // TODO: Run Skia Frame Processor
-  auto rect = SkRect::MakeXYWH(150, 250, 150, 50);
+  auto rect = SkRect::MakeXYWH(150, 250, millis % 3000 / 10, millis % 3000 / 10);
   auto paint = SkPaint();
   paint.setColor(SkColors::kRed);
   canvas->drawRect(rect, paint);
@@ -249,7 +270,7 @@ void SkiaRenderer::onPreviewFrame() {
 }
 
 
-void SkiaRenderer::onCameraFrame() {
+void SkiaRenderer::renderCameraFrameToOffscreenCanvas() {
 
 }
 
@@ -342,5 +363,16 @@ GLuint SkiaRenderer::CreateProgram(const char* vertexShaderCode, const char* fra
   return program;
 }
 
+void SkiaRenderer::registerNatives() {
+  registerHybrid({
+     makeNativeMethod("initHybrid", SkiaRenderer::initHybrid),
+     makeNativeMethod("setPreviewSurface", SkiaRenderer::setPreviewSurface),
+     makeNativeMethod("destroyPreviewSurface", SkiaRenderer::setPreviewSurface),
+     makeNativeMethod("setPreviewSurfaceSize", SkiaRenderer::setPreviewSurfaceSize),
+     makeNativeMethod("getInputTexture", SkiaRenderer::getInputTexture),
+     makeNativeMethod("renderLatestFrameToPreview", SkiaRenderer::renderLatestFrameToPreview),
+     makeNativeMethod("renderCameraFrameToOffscreenCanvas", SkiaRenderer::renderCameraFrameToOffscreenCanvas),
+  });
+}
 
 } // namespace vision

@@ -24,6 +24,7 @@ import com.mrousavy.camera.parsers.PreviewType
 import com.mrousavy.camera.parsers.Torch
 import com.mrousavy.camera.parsers.VideoStabilizationMode
 import com.mrousavy.camera.skia.SkiaPreviewView
+import com.mrousavy.camera.skia.SkiaRenderer
 import com.mrousavy.camera.utils.CameraOutputs
 import kotlin.math.max
 import kotlin.math.min
@@ -99,6 +100,7 @@ class CameraView(context: Context) : FrameLayout(context) {
   private var previewSurface: Surface? = null
 
   var frameProcessor: FrameProcessor? = null
+  var skiaRenderer: SkiaRenderer? = null
 
   private val inputOrientation: Orientation
     get() = cameraSession.orientation
@@ -111,14 +113,7 @@ class CameraView(context: Context) : FrameLayout(context) {
   init {
     this.installHierarchyFitter()
     setupPreviewView()
-    cameraSession = CameraSession(context,
-                                  cameraManager,
-                                  {
-                                    invokeOnInitialized()
-                                  },
-                                  { error ->
-                                    invokeOnError(error)
-                                  })
+    cameraSession = CameraSession(context, cameraManager, { invokeOnInitialized() }, { error -> invokeOnError(error) })
   }
 
   override fun onConfigurationChanged(newConfig: Configuration?) {
@@ -161,8 +156,8 @@ class CameraView(context: Context) : FrameLayout(context) {
       PreviewType.SKIA -> {
         removeView(this.previewView)
 
-        val cameraId = cameraId ?: throw NoCameraDeviceError()
-        val previewView = SkiaPreviewView(context, cameraManager, cameraId) { surface ->
+        if (skiaRenderer == null) skiaRenderer = SkiaRenderer()
+        val previewView = SkiaPreviewView(context, skiaRenderer!!) { surface ->
           previewSurface = surface
           configureSession()
         }
