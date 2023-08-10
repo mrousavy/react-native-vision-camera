@@ -6,9 +6,9 @@
 
 #include <jni.h>
 #include <fbjni/fbjni.h>
-#include <EGL/egl.h>
 #include <string>
-#include "OpenGLError.h"
+#include <memory>
+#include "SkiaRenderer.h"
 
 namespace vision {
 
@@ -28,15 +28,8 @@ class SkiaPreviewView : public jni::HybridClass<SkiaPreviewView> {
   explicit SkiaPreviewView(jni::alias_ref<SkiaPreviewView::jhybridobject> jThis): javaPart_(jni::make_global(jThis)) {}
 
  private:
-  // OpenGL Setup
-  EGLDisplay _display = EGL_NO_DISPLAY;
-  EGLContext _context = EGL_NO_CONTEXT;
+  std::unique_ptr<SkiaRenderer> _renderer;
   int _surfaceWidth = 0, _surfaceHeight = 0;
-
-  GLuint _vertexBuffer;
-  GLuint _program;
-  GLint _aPosition;
-  GLint _aTexCoord;
 
   void destroy();
 
@@ -45,14 +38,7 @@ class SkiaPreviewView : public jni::HybridClass<SkiaPreviewView> {
   void onSurfaceResized(int width, int height);
   void onSurfaceDestroyed();
 
-  static const GLfloat* VertexData();
-  static const GLushort* VertexIndices();
-
-  static const char* VertexShaderCode();
-  static const char* FragmentShaderCode();
-
-  static GLuint LoadShader(GLenum shaderType, const char* shaderCode);
-  static GLuint CreateProgram(const char* vertexShaderCode, const char* fragmentShaderCode);
+  int createTexture();
 };
 
 } // namespace vision

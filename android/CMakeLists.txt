@@ -46,6 +46,7 @@ add_library(
         src/main/cpp/VisionCamera.cpp
         src/main/cpp/VisionCameraProxy.cpp
         src/main/cpp/skia/SkiaPreviewView.cpp
+        src/main/cpp/skia/SkiaRenderer.cpp
         src/main/cpp/java-bindings/JFrame.cpp
         src/main/cpp/java-bindings/JFrameProcessor.cpp
         src/main/cpp/java-bindings/JFrameProcessorPlugin.cpp

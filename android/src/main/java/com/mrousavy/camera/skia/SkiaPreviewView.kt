@@ -53,14 +53,24 @@ class SkiaPreviewView(context: Context,
     destroy()
   }
 
-  private fun onFrame() {
-    Log.i(TAG, "New Frame!")
+  /**
+   * Re-renders the Preview View UI (60 FPS)
+   */
+  private fun onPreviewFrame() {
+    Log.i(TAG, "Render new Frame for Preview UI!")
+  }
+
+  /**
+   * Renders a new Camera Frame (1..240 FPS)
+   */
+  private fun onCameraFrame(texture: SurfaceTexture) {
+    Log.i(TAG, "New Frame arrived from Camera!")
+    texture.updateTexImage()
   }
 
   private fun startLooping(choreographer: Choreographer) {
     choreographer.postFrameCallback {
-      if (isAlive)
-      onFrame()
+      if (isAlive) onPreviewFrame()
       startLooping(choreographer)
     }
   }
@@ -68,7 +78,18 @@ class SkiaPreviewView(context: Context,
   override fun surfaceCreated(holder: SurfaceHolder) {
     isAlive = true
     Log.i(TAG, "onSurfaceCreated(..)")
+    // Create C++ part (OpenGL/Skia context)
     onSurfaceCreated()
+    // Create Java part (Surface)
+    val textureId = createTexture()
+    val surfaceTexture = SurfaceTexture(textureId)
+    surfaceTexture.setOnFrameAvailableListener { texture -> onCameraFrame(texture) }
+    val surface = Surface(surfaceTexture)
+    inputTexture = InputTexture(textureId, surfaceTexture, surface)
+    // Notify Camera that we now have a Surface - Camera will start writing Frames
+    onSurfaceChanged(surface)
+
+    // Start updating the Preview View (~60 FPS)
     this.thread.post {
       startLooping(Choreographer.getInstance())
     }
@@ -77,7 +98,14 @@ class SkiaPreviewView(context: Context,
   override fun surfaceDestroyed(holder: SurfaceHolder) {
     isAlive = false
     Log.i(TAG, "surfaceDestroyed(..)")
+    // Notify Camera that we no longer have a Surface - Camera will stop writing Frames
+    onSurfaceChanged(null)
+    // Clean up C++ part (OpenGL/Skia context)
     onSurfaceDestroyed()
+    // Clean up Java part (Surface)
+    inputTexture?.surface?.release()
+    inputTexture?.surfaceTexture?.release()
+    inputTexture = null
   }
 
   override fun surfaceChanged(holder: SurfaceHolder, format: Int, w: Int, h: Int) {
@@ -138,4 +166,5 @@ class SkiaPreviewView(context: Context,
   private external fun onSurfaceCreated()
   private external fun onSurfaceResized(surfaceWidth: Int, surfaceHeight: Int)
   private external fun onSurfaceDestroyed()
+  private external fun createTexture(): Int
 }
