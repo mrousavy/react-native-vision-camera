@@ -11,27 +11,51 @@
 #include <gpu/GrDirectContext.h>
 #include "OpenGLError.h"
 
+#include <android/native_window_jni.h>
+#include <android/surface_texture_jni.h>
+#include <android/hardware_buffer_jni.h>
+
 namespace vision {
 
-SkiaRenderer::SkiaRenderer() {
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing OpenGL Context...");
-
-  _gl = createOpenGLContext();
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Successfully initialized OpenGL Context!");
-
-  auto pbuffer = eglCreatePbufferSurface(_gl.display, _gl.config, nullptr);
-  if (glGetError() != GL_NO_ERROR) throw OpenGLError("Failed to create pixelbuffer surface!");
-
-  eglMakeCurrent(_gl.display, pbuffer, pbuffer, _gl.context);
-  if (glGetError() != GL_NO_ERROR) throw OpenGLError("Failed to set current OpenGL context!");
-  /*_shader = createPassThroughShader();
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Successfully loaded OpenGL pass-through Shader!");*/
-
+SkiaRenderer::SkiaRenderer(ANativeWindow* previewSurface) {
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing SkiaRenderer...");
+  __android_log_print(ANDROID_LOG_INFO, TAG, "...OpenGL");
+  _previewSurface = previewSurface;
+  _gl = createOpenGLContext(previewSurface);
+  ensureOpenGL();
+  __android_log_print(ANDROID_LOG_INFO, TAG, "...Shaders");
+  _shader = createPassThroughShader();
+  __android_log_print(ANDROID_LOG_INFO, TAG, "...Skia");
   _skia = createSkiaContext();
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Successfully created Skia Context!");
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Successfully initialized SkiaRenderer!");
 }
 
-OpenGLContext SkiaRenderer::createOpenGLContext() {
+SkiaRenderer::~SkiaRenderer() {
+  ANativeWindow_release(_previewSurface);
+
+  if (_skia.context != nullptr) {
+    // TODO: Do abandonContext()?
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying Skia Context...");
+    _skia.context = nullptr;
+  }
+  if (_gl.display != EGL_NO_DISPLAY) {
+    if (_gl.surface != EGL_NO_SURFACE) {
+      __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying OpenGL Surface...");
+      eglDestroySurface(_gl.display, _gl.surface);
+      _gl.surface = EGL_NO_SURFACE;
+    }
+    if (_gl.context != EGL_NO_CONTEXT) {
+      __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying OpenGL Context...");
+      eglDestroyContext(_gl.display, _gl.context);
+      _gl.context = EGL_NO_CONTEXT;
+    }
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying OpenGL Display...");
+    eglTerminate(_gl.display);
+    _gl.display = EGL_NO_DISPLAY;
+  }
+}
+
+OpenGLContext SkiaRenderer::createOpenGLContext(ANativeWindow* previewSurface) {
   auto display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
   if (display == EGL_NO_DISPLAY) throw OpenGLError("Failed to get default OpenGL Display!");
 
@@ -66,11 +90,19 @@ OpenGLContext SkiaRenderer::createOpenGLContext() {
   auto context = eglCreateContext(display, config, nullptr, contextAttributes);
   if (context == EGL_NO_CONTEXT) throw OpenGLError("Failed to create OpenGL context!");
 
+  auto surface = eglCreateWindowSurface(display, config, previewSurface, nullptr);
+  if (surface == EGL_NO_SURFACE) throw OpenGLError("Failed to create OpenGL Surface!");
+
   return {
-    .display = display,
-    .context = context,
-    .config = config
+      .display = display,
+      .context = context,
+      .surface = surface,
+      .config = config,
   };
+}
+
+void SkiaRenderer::ensureOpenGL() const {
+  eglMakeCurrent(_gl.display, _gl.surface, _gl.surface, _gl.context);
 }
 
 PassThroughShader SkiaRenderer::createPassThroughShader() {
@@ -110,16 +142,10 @@ SkiaContext SkiaRenderer::createSkiaContext() {
 }
 
 int SkiaRenderer::createTexture() const {
+  ensureOpenGL();
   GLuint textures[1];
   glGenTextures(1, textures);
   return static_cast<int>(textures[0]);
-}
-
-void SkiaRenderer::setPreviewSurface(ANativeWindow* nativeWindow) {
-  if (_previewSurface != EGL_NO_SURFACE) {
-    eglDestroySurface(_gl.display, _previewSurface);
-  }
-  _previewSurface = eglCreateWindowSurface(_gl.display, _gl.config, nativeWindow, nullptr);
 }
 
 void SkiaRenderer::drawFrame() {
@@ -164,24 +190,6 @@ void SkiaRenderer::drawFrame() {
 
   glFlush();
    */
-}
-
-SkiaRenderer::~SkiaRenderer() {
-  if (_skia.context != nullptr) {
-    // TODO: Do abandonContext()?
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying Skia Context...");
-    _skia.context = nullptr;
-  }
-  if (_gl.display != EGL_NO_DISPLAY) {
-    if (_gl.context != EGL_NO_CONTEXT) {
-      __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying OpenGL Context...");
-      eglDestroyContext(_gl.display, _gl.context);
-      _gl.context = EGL_NO_CONTEXT;
-    }
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying OpenGL Display...");
-    eglTerminate(_gl.display);
-    _gl.display = EGL_NO_DISPLAY;
-  }
 }
 
 

@@ -17,9 +17,8 @@ void SkiaPreviewView::destroy() {
 }
 
 void SkiaPreviewView::onSurfaceCreated(jobject surface) {
-  _renderer = std::make_unique<SkiaRenderer>();
-
-  auto nativeWindow = ANativeWindow_fromSurface(jni::Environment::current(), surface);
+  ANativeWindow* previewSurface = ANativeWindow_fromSurface(jni::Environment::current(), surface);
+  _renderer = std::make_unique<SkiaRenderer>(previewSurface);
 }
 
 void SkiaPreviewView::onSurfaceResized(int width, int height) {

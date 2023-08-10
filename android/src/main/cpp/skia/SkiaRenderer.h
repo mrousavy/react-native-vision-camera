@@ -12,9 +12,10 @@
 namespace vision {
 
 struct OpenGLContext {
-  EGLDisplay display;
-  EGLContext context;
-  EGLConfig config;
+  EGLDisplay display = EGL_NO_DISPLAY;
+  EGLContext context = EGL_NO_CONTEXT;
+  EGLSurface surface = EGL_NO_SURFACE;
+  EGLConfig config = nullptr;
 };
 struct SkiaContext {
   sk_sp<GrDirectContext> context;
@@ -28,21 +29,21 @@ struct PassThroughShader {
 
 class SkiaRenderer {
  public:
-  explicit SkiaRenderer();
+  explicit SkiaRenderer(ANativeWindow* previewSurface);
   ~SkiaRenderer();
 
   int createTexture() const;
   void drawFrame();
-
-  void setPreviewSurface(ANativeWindow* nativeWindow);
+  void ensureOpenGL() const;
 
  private:
   OpenGLContext _gl;
   SkiaContext _skia;
   PassThroughShader _shader;
-  EGLSurface _previewSurface = EGL_NO_SURFACE;
+  ANativeWindow* _previewSurface;
 
-  static OpenGLContext createOpenGLContext();
+  static OpenGLContext createOpenGLContext(ANativeWindow* previewSurface);
+
   static PassThroughShader createPassThroughShader();
   static SkiaContext createSkiaContext();
 
