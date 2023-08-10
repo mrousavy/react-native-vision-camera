@@ -171,7 +171,7 @@ void SkiaRenderer::onPreviewFrame() {
   fboInfo.fProtected = skgpu::Protected::kNo;
 
   __android_log_print(ANDROID_LOG_INFO, TAG, "Backend Render Target...");
-  GrBackendRenderTarget backendRT(1280, 720, 0, 8, fboInfo);
+  GrBackendRenderTarget backendRT(_previewWidth, _previewHeight, 0, 8, fboInfo);
 
   __android_log_print(ANDROID_LOG_INFO, TAG, "Surface...");
   SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
