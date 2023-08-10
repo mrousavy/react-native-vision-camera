@@ -163,27 +163,27 @@ int SkiaRenderer::getInputTexture() const {
 
 void SkiaRenderer::onPreviewFrame() {
   ensureOpenGL();
-  _skia.context->resetContext();
 
-  SkColorType colorType;
-  // setup surface for fbo0
+  // FBO #0 is the currently active OpenGL Surface
   GrGLFramebufferInfo fboInfo;
-  fboInfo.fFBOID = _inputTextureId;
+  fboInfo.fFBOID = 0;
   fboInfo.fFormat = 0x8058;
-  colorType = kN32_SkColorType;
+  fboInfo.fProtected = skgpu::Protected::kNo;
 
   __android_log_print(ANDROID_LOG_INFO, TAG, "Backend Render Target...");
   GrBackendRenderTarget backendRT(1280, 720, 0, 8, fboInfo);
 
-  SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-
   __android_log_print(ANDROID_LOG_INFO, TAG, "Surface...");
-  sk_sp<SkSurface> renderTarget(SkSurfaces::WrapBackendRenderTarget(
-      _skia.context.get(), backendRT,
-      kBottomLeft_GrSurfaceOrigin, colorType, nullptr, &props));
+  SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
+  sk_sp<SkSurface> surface = SkSurfaces::WrapBackendRenderTarget(_skia.context.get(),
+                                                                 backendRT,
+                                                                 kTopLeft_GrSurfaceOrigin,
+                                                                 kN32_SkColorType,
+                                                                 nullptr,
+                                                                 &props);
 
   __android_log_print(ANDROID_LOG_INFO, TAG, "Canvas");
-  auto canvas = renderTarget->getCanvas();
+  auto canvas = surface->getCanvas();
 
   // TODO: Run Skia Frame Processor
   auto rect = SkRect::MakeXYWH(150, 250, 150, 50);
@@ -197,7 +197,7 @@ void SkiaRenderer::onPreviewFrame() {
   __android_log_print(ANDROID_LOG_INFO, TAG, "eglSwap");
 
   bool successful = eglSwapBuffers(_gl.display, _gl.surface);
-  if (!successful) throw OpenGLError("Failed to swap OpenGL buffers!");
+  if (!successful || glGetError() != GL_NO_ERROR) throw OpenGLError("Failed to swap OpenGL buffers!");
 
   return;
 

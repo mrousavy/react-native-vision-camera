@@ -76,20 +76,26 @@ class SkiaPreviewView(context: Context,
 
   override fun surfaceChanged(holder: SurfaceHolder, format: Int, w: Int, h: Int) {
     Log.i(TAG, "surfaceChanged($w, $h)")
-    onSurfaceResized(w, h)
+
+    thread.post {
+      onSurfaceResized(w, h)
+    }
   }
 
   override fun surfaceDestroyed(holder: SurfaceHolder) {
     isAlive = false
     Log.i(TAG, "surfaceDestroyed(..)")
-    // Notify Camera that we no longer have a Surface - Camera will stop writing Frames
-    onSurfaceChanged(null)
-    // Clean up C++ part (OpenGL/Skia context)
-    onSurfaceDestroyed()
-    // Clean up Java part (Surface)
-    inputTexture?.surface?.release()
-    inputTexture?.surfaceTexture?.release()
-    inputTexture = null
+
+    thread.post {
+      // Notify Camera that we no longer have a Surface - Camera will stop writing Frames
+      onSurfaceChanged(null)
+      // Clean up C++ part (OpenGL/Skia context)
+      onSurfaceDestroyed()
+      // Clean up Java part (Surface)
+      inputTexture?.surface?.release()
+      inputTexture?.surfaceTexture?.release()
+      inputTexture = null
+    }
   }
 
   private external fun initHybrid(): HybridData
