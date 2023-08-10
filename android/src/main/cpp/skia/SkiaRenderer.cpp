@@ -69,6 +69,7 @@ OpenGLContext SkiaRenderer::createOpenGLContext(ANativeWindow* previewSurface) {
   EGLint minor;
   bool successful = eglInitialize(display, &major, &minor);
   if (!successful) throw OpenGLError("Failed to initialize OpenGL!");
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Using OpenGLES %i.%i", major, minor);
 
   EGLint attributes[] = {EGL_RENDERABLE_TYPE,
                          EGL_OPENGL_ES2_BIT,
