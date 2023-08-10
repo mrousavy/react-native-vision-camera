@@ -64,21 +64,11 @@ SkiaRenderer::SkiaRenderer(const jni::alias_ref<jhybridobject>& javaPart) {
   _glContext = eglCreateContext(_glDisplay, _glConfig, nullptr, contextAttributes);
   if (_glContext == EGL_NO_CONTEXT) throw OpenGLError("Failed to create OpenGL context!");
 
-  EGLint surfaceAttributes[] = {EGL_WIDTH, 1,
-                                EGL_HEIGHT, 1,
-                                EGL_NONE};
-  _glSurface = eglCreatePbufferSurface(_glDisplay, _glConfig, surfaceAttributes);
-  if (_glSurface == EGL_NO_SURFACE) throw OpenGLError("Failed to create 1x1 OpenGL surface!");
-
-  successful = eglMakeCurrent(_glDisplay, _glSurface, _glSurface, _glContext);
-  if (!successful) throw OpenGLError("Failed to switch to current OpenGL context!");
-
-  _skiaContext = GrDirectContext::MakeGL();
-
   __android_log_print(ANDROID_LOG_INFO, TAG, "glGenTextures...");
-  GLuint textures[1];
+  GLuint textures[1] = {0};
   glGenTextures(1, textures);
   _inputTextureId = static_cast<int>(textures[0]);
+  if (glGetError() != GL_NO_ERROR) throw OpenGLError("Failed to generate OpenGL input Texture for the Camera!");
 
   __android_log_print(ANDROID_LOG_INFO, TAG, "Successfully initialized SkiaRenderer! %i", _inputTextureId);
 }
@@ -108,17 +98,16 @@ void SkiaRenderer::ensureOpenGL() const {
 }
 
 void SkiaRenderer::setPreviewSurface(jobject previewSurface) {
-  ensureOpenGL();
-  destroyPreviewSurface();
+  if (_glSurface != EGL_NO_SURFACE) eglDestroySurface(_glDisplay, _glSurface);
+  if (_previewSurface != nullptr) ANativeWindow_release(_previewSurface);
 
   _previewSurface = ANativeWindow_fromSurface(jni::Environment::current(), previewSurface);
-  _glSurface = eglCreateWindowSurface(_glDisplay, _glConfig, _previewSurface, nullptr);
-  ensureOpenGL();
+  _glSurface = EGL_NO_SURFACE;
 }
 
 void SkiaRenderer::destroyPreviewSurface() {
-  if (_previewSurface != nullptr) ANativeWindow_release(_previewSurface);
   if (_glSurface != EGL_NO_SURFACE) eglDestroySurface(_glDisplay, _glSurface);
+  if (_previewSurface != nullptr) ANativeWindow_release(_previewSurface);
 }
 
 void SkiaRenderer::setPreviewSurfaceSize(int width, int height) {
@@ -131,7 +120,10 @@ int SkiaRenderer::getInputTexture() {
 }
 
 void SkiaRenderer::renderLatestFrameToPreview() {
-  ensureOpenGL();
+  if (_glSurface == EGL_NO_SURFACE) {
+    _glSurface = eglCreateWindowSurface(_glDisplay, _glConfig, _previewSurface, nullptr);
+  }
+  eglMakeCurrent(_glDisplay, _glSurface, _glSurface, _glContext);
   // TODO: Do I need to do that reset?
   _skiaContext->resetContext();
 

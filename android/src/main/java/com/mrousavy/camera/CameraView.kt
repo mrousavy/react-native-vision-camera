@@ -156,14 +156,16 @@ class CameraView(context: Context) : FrameLayout(context) {
       PreviewType.SKIA -> {
         removeView(this.previewView)
 
-        if (skiaRenderer == null) skiaRenderer = SkiaRenderer()
-        val previewView = SkiaPreviewView(context, skiaRenderer!!) { surface ->
-          previewSurface = surface
-          configureSession()
+        CameraQueues.previewQueue.handler.post {
+          if (skiaRenderer == null) skiaRenderer = SkiaRenderer()
+          val previewView = SkiaPreviewView(context, skiaRenderer!!) { surface ->
+            previewSurface = surface
+            configureSession()
+          }
+          previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+          addView(previewView)
+          this.previewView = previewView
         }
-        previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-        addView(previewView)
-        this.previewView = previewView
       }
     }
   }
