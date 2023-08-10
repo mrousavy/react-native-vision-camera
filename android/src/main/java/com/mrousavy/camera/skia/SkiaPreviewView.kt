@@ -2,11 +2,9 @@ package com.mrousavy.camera.skia
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraManager
 import android.util.Log
-import android.util.Size
 import android.view.Choreographer
 import android.view.Surface
 import android.view.SurfaceHolder
@@ -14,8 +12,6 @@ import android.view.SurfaceView
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.mrousavy.camera.CameraQueues
-import com.mrousavy.camera.extensions.getPreviewSize
-import java.io.Closeable
 
 @SuppressLint("ViewConstructor")
 @Suppress("KotlinJniMissingFunction")
@@ -96,8 +92,6 @@ class SkiaPreviewView(context: Context,
   }
 
   private external fun initHybrid(): HybridData
-  private external fun destroy()
-
   /**
    * Gets the OpenGL Texture which the Camera can dump Frames into
    */
