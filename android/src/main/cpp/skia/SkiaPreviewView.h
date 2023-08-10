@@ -41,7 +41,8 @@ class SkiaPreviewView : public jni::HybridClass<SkiaPreviewView> {
 
   void onDrawFrame(int texture, int textureWidth, int textureHeight);
   void onSurfaceCreated();
-  void setSurfaceSize(int width, int height);
+  void onSurfaceResized(int width, int height);
+  void onSurfaceDestroyed();
 
   static const GLfloat* VertexData();
   static const GLushort* VertexIndices();

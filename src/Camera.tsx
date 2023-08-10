@@ -442,7 +442,7 @@ export class Camera extends React.PureComponent<CameraProps> {
         onInitialized={this.onInitialized}
         onError={this.onError}
         enableFrameProcessor={frameProcessor != null}
-        previewType={frameProcessor?.type === 'skia-frame-processor' ? 'skia' : 'native'}
+        previewType={'skia'}
       />
     );
   }

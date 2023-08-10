@@ -5,8 +5,18 @@
 #include "SkiaPreviewView.h"
 #include <GLES2/gl2.h>
 #include <EGL/egl.h>
-#include <android/native_window.h>
-#include <android/native_window_jni.h>
+
+#include <include/gpu/GrBackendSurface.h>
+#include <include/gpu/ganesh/SkSurfaceGanesh.h>
+#include <include/core/SkColorSpace.h>
+#include <include/core/SkCanvas.h>
+#include <gpu/gl/GrGLTypes.h>
+#include <gpu/gl/GrGLInterface.h>
+#include <gpu/GrDirectContext.h>
+#include <core/SkSurface.h>
+
+// Defined in <gpu/ganesh/gl/GrGLDefines.h>
+#define GR_GL_RGBA8 0x8058
 
 namespace vision {
 
@@ -15,6 +25,8 @@ jni::local_ref<SkiaPreviewView::jhybriddata> SkiaPreviewView::initHybrid(jni::al
 }
 
 void SkiaPreviewView::destroy() {
+  return;
+
   if (_display != nullptr || _context != nullptr) {
     eglMakeCurrent(_display, EGL_NO_SURFACE, EGL_NO_DISPLAY, EGL_NO_CONTEXT);
     eglDestroyContext(_display, _context);
@@ -26,6 +38,8 @@ void SkiaPreviewView::destroy() {
 }
 
 void SkiaPreviewView::onSurfaceCreated() {
+  return;
+
   glGenBuffers(1, &_vertexBuffer);
   glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
   glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(GLfloat), VertexData(), GL_STATIC_DRAW);
@@ -55,7 +69,36 @@ void SkiaPreviewView::onSurfaceCreated() {
   this->_aTexCoord = aTexCoord;
 }
 
+void SkiaPreviewView::onSurfaceDestroyed() {
+
+}
+
+sk_sp<SkSurface> createSkiaSurface(int textureId, int width, int height) {
+  return nullptr;
+
+  // Create the Skia backend context
+  auto backendInterface = GrGLMakeNativeInterface();
+  auto grContext = GrDirectContext::MakeGL(backendInterface);
+  if (grContext == nullptr) throw OpenGLError("Failed to create Skia Context!");
+
+  GrGLFramebufferInfo fbInfo;
+  fbInfo.fFBOID = 0;
+  fbInfo.fFormat = GR_GL_RGBA8;
+
+  auto renderTarget = GrBackendRenderTarget(width, height, 0, 8, fbInfo);
+
+  auto surface = SkSurfaces::WrapBackendRenderTarget(
+      grContext.get(), renderTarget, kBottomLeft_GrSurfaceOrigin,
+      kRGBA_8888_SkColorType, nullptr, nullptr,
+      nullptr,
+      nullptr);
+
+  return surface;
+}
+
 void SkiaPreviewView::onDrawFrame(int texture, int textureWidth, int textureHeight) {
+  return;
+
   glBindTexture(GL_TEXTURE_2D, texture);
 
   int viewportX = 0;
@@ -83,10 +126,20 @@ void SkiaPreviewView::onDrawFrame(int texture, int textureWidth, int textureHeig
   glEnableVertexAttribArray(_aTexCoord);
   glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
   glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, VertexIndices());
+
+  auto surface = createSkiaSurface(0, 1280, 720);
+  auto canvas = surface->getCanvas();
+  auto rect = SkRect::MakeXYWH(50, 150, 30, 50);
+  auto paint = SkPaint();
+  paint.setColor(SkColors::kRed);
+  canvas->drawRect(rect, paint);
+  canvas->flush();
+  surface->flushAndSubmit();
+
   glFlush();
 }
 
-void SkiaPreviewView::setSurfaceSize(int width, int height) {
+void SkiaPreviewView::onSurfaceResized(int width, int height) {
   this->_surfaceWidth = width;
   this->_surfaceHeight = height;
 }
@@ -96,8 +149,9 @@ void SkiaPreviewView::registerNatives() {
     makeNativeMethod("initHybrid", SkiaPreviewView::initHybrid),
     makeNativeMethod("destroy", SkiaPreviewView::destroy),
     makeNativeMethod("onDrawFrame", SkiaPreviewView::onDrawFrame),
-    makeNativeMethod("setSurfaceSize", SkiaPreviewView::setSurfaceSize),
+    makeNativeMethod("onSurfaceResized", SkiaPreviewView::onSurfaceResized),
     makeNativeMethod("onSurfaceCreated", SkiaPreviewView::onSurfaceCreated),
+    makeNativeMethod("onSurfaceDestroyed", SkiaPreviewView::onSurfaceDestroyed),
   });
 }
 

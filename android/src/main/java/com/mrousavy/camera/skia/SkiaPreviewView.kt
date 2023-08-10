@@ -1,16 +1,21 @@
 package com.mrousavy.camera.skia
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.SurfaceTexture
 import android.opengl.EGL14
 import android.opengl.GLES11Ext
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
+import android.os.HandlerThread
 import android.util.Log
+import android.view.Choreographer
 import android.view.Surface
 import android.view.SurfaceHolder
+import android.view.SurfaceView
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
+import com.mrousavy.camera.CameraQueues
 import java.io.Closeable
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -20,42 +25,67 @@ import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL
 import javax.microedition.khronos.opengles.GL10
 
+@SuppressLint("ViewConstructor")
 @Suppress("KotlinJniMissingFunction")
 class SkiaPreviewView(context: Context,
-                      private val onSurfaceChanged: (surface: Surface?) -> Unit): GLSurfaceView(context), GLSurfaceView.Renderer, Closeable {
+                      private val onSurfaceChanged: (surface: Surface?) -> Unit) :
+  SurfaceView(context), SurfaceHolder.Callback, Closeable {
   companion object {
     private val TAG = "SkiaPreviewView"
   }
 
-  @DoNotStrip
-  private var mHybridData: HybridData
-
   data class InputTexture(val textureId: Int, val surfaceTexture: SurfaceTexture, val surface: Surface)
 
+  @DoNotStrip
+  private var mHybridData: HybridData
   private var inputTexture: InputTexture? = null
+  private var isAlive = true
+  private val thread = CameraQueues.previewQueue.handler
 
   init {
     Log.i(TAG, "Initializing SkiaPreviewView...")
     mHybridData = initHybrid()
-    setEGLContextClientVersion(2)
-    setRenderer(this)
+    holder.addCallback(this)
+  }
+
+  override fun close() {
+    isAlive = false
+    destroy()
+  }
+
+  private fun onFrame() {
+    Log.i(TAG, "New Frame!")
+  }
+
+  private fun startLooping(choreographer: Choreographer) {
+    choreographer.postFrameCallback {
+      if (isAlive)
+      onFrame()
+      startLooping(choreographer)
+    }
   }
 
   override fun surfaceCreated(holder: SurfaceHolder) {
-    super.surfaceCreated(holder)
+    isAlive = true
     Log.i(TAG, "onSurfaceCreated(..)")
+    onSurfaceCreated()
+    this.thread.post {
+      startLooping(Choreographer.getInstance())
+    }
   }
 
   override fun surfaceDestroyed(holder: SurfaceHolder) {
-    super.surfaceDestroyed(holder)
+    isAlive = false
     Log.i(TAG, "surfaceDestroyed(..)")
+    onSurfaceDestroyed()
   }
 
   override fun surfaceChanged(holder: SurfaceHolder, format: Int, w: Int, h: Int) {
-    super.surfaceChanged(holder, format, w, h)
     Log.i(TAG, "surfaceChanged($w, $h)")
+    onSurfaceResized(w, h)
   }
 
+  /*
   override fun onSurfaceCreated(gl: GL10, config: EGLConfig?) {
     destroyInputTexture(gl)
 
@@ -79,11 +109,6 @@ class SkiaPreviewView(context: Context,
     onSurfaceCreated()
   }
 
-  override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
-    Log.i(TAG, "onSurfaceChanged($width, $height)")
-    setSurfaceSize(width, height)
-  }
-
   override fun onDrawFrame(gl: GL10) {
     // PREVIEW - Drawing at 60 FPS
     Log.i(TAG, "onDrawFrame(..)")
@@ -104,16 +129,13 @@ class SkiaPreviewView(context: Context,
     inputTexture.surfaceTexture.release()
     gl?.glDeleteTextures(1, intArrayOf(inputTexture.textureId), 0)
   }
-
-  override fun close() {
-    destroyInputTexture()
-    destroy()
-  }
+   */
 
   private external fun initHybrid(): HybridData
   private external fun destroy()
 
   private external fun onDrawFrame(textureId: Int, textureWidth: Int, textureHeight: Int)
-  private external fun setSurfaceSize(surfaceWidth: Int, surfaceHeight: Int)
   private external fun onSurfaceCreated()
+  private external fun onSurfaceResized(surfaceWidth: Int, surfaceHeight: Int)
+  private external fun onSurfaceDestroyed()
 }
