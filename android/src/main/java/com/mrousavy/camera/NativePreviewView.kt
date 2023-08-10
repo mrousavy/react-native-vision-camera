@@ -2,16 +2,13 @@ package com.mrousavy.camera
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.res.Resources
-import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.util.Log
 import android.util.Size
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import com.mrousavy.camera.extensions.bigger
-import com.mrousavy.camera.extensions.smaller
+import com.mrousavy.camera.extensions.getPreviewSize
 import kotlin.math.roundToInt
 
 /**
@@ -19,31 +16,17 @@ import kotlin.math.roundToInt
  * performs center-crop transformation of input frames.
  */
 @SuppressLint("ViewConstructor")
-class NativePreviewView(cameraManager: CameraManager,
+class NativePreviewView(context: Context,
+                        cameraManager: CameraManager,
                         cameraId: String,
-                        context: Context,
                         private val onSurfaceChanged: (surface: Surface?) -> Unit): SurfaceView(context) {
   private val targetSize: Size
   private val aspectRatio: Float
     get() = targetSize.width.toFloat() / targetSize.height.toFloat()
 
-  private fun getMaximumPreviewSize(): Size {
-    // See https://developer.android.com/reference/android/hardware/camera2/params/StreamConfigurationMap
-    // According to the Android Developer documentation, PREVIEW streams can have a resolution
-    // of up to the phone's display's resolution, with a maximum of 1920x1080.
-    val display1080p = Size(1920, 1080)
-    val displaySize = Size(Resources.getSystem().displayMetrics.widthPixels, Resources.getSystem().displayMetrics.heightPixels)
-    val isHighResScreen = displaySize.bigger >= display1080p.bigger || displaySize.smaller >= display1080p.smaller
-    Log.i(TAG, "Phone has a ${displaySize.width} x ${displaySize.height} screen.")
-    return if (isHighResScreen) display1080p else displaySize
-  }
-
   init {
     val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-    val config = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
-    val previewSize = getMaximumPreviewSize()
-    val outputSizes = config.getOutputSizes(34 /* TODO: ImageFormat.PRIVATE */).sortedByDescending { it.width * it.height }
-    targetSize = outputSizes.first { it.bigger <= previewSize.bigger && it.smaller <= previewSize.smaller }
+    targetSize = characteristics.getPreviewSize(34 /* ImageFormat.PRIVATE */)
 
     Log.i(TAG, "Using Preview Size ${targetSize.width} x ${targetSize.height}.")
     holder.setFixedSize(targetSize.width, targetSize.height)

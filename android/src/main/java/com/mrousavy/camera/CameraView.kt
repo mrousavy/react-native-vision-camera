@@ -150,7 +150,7 @@ class CameraView(context: Context) : FrameLayout(context) {
         removeView(this.previewView)
 
         val cameraId = cameraId ?: throw NoCameraDeviceError()
-        val previewView = NativePreviewView(cameraManager, cameraId, context) { surface ->
+        val previewView = NativePreviewView(context, cameraManager, cameraId) { surface ->
           previewSurface = surface
           configureSession()
         }
@@ -161,7 +161,8 @@ class CameraView(context: Context) : FrameLayout(context) {
       PreviewType.SKIA -> {
         removeView(this.previewView)
 
-        val previewView = SkiaPreviewView(context) { surface ->
+        val cameraId = cameraId ?: throw NoCameraDeviceError()
+        val previewView = SkiaPreviewView(context, cameraManager, cameraId) { surface ->
           previewSurface = surface
           configureSession()
         }
