@@ -168,27 +168,29 @@ void SkiaRenderer::renderLatestFrameToPreview() {
   textureInfo.fTarget = GR_GL_TEXTURE_2D;
   textureInfo.fFormat = GR_GL_RGBA8; // <-- TODO: The input texture is YUV!
   textureInfo.fProtected = skgpu::Protected::kNo;
-  GrBackendTexture backendTexture(1280,
-                                  720,
-                                  GrMipMapped::kNo,
-                                  textureInfo);
+  GrBackendTexture texture(1280,
+                           720,
+                           GrMipMapped::kNo,
+                           textureInfo);
   auto frame = SkImages::AdoptTextureFrom(_skiaContext.get(),
-                                                         backendTexture,
-                                                         kTopLeft_GrSurfaceOrigin,
-                                                         SkColorType::kN32_SkColorType,
-                                                         SkAlphaType::kOpaque_SkAlphaType);
+                                          texture,
+                                          kTopLeft_GrSurfaceOrigin,
+                                          kN32_SkColorType,
+                                          kOpaque_SkAlphaType);
 
   // FBO #0 is the currently active OpenGL Surface
   GrGLFramebufferInfo fboInfo;
   fboInfo.fFBOID = ACTIVE_SURFACE_ID;
   fboInfo.fFormat = GR_GL_RGBA8;
   fboInfo.fProtected = skgpu::Protected::kNo;
-
-  GrBackendRenderTarget backendRT(_previewWidth, _previewHeight, 0, 8, fboInfo);
-
+  GrBackendRenderTarget renderTarget(_previewWidth,
+                                     _previewHeight,
+                                     0,
+                                     8,
+                                     fboInfo);
   SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
   sk_sp<SkSurface> surface = SkSurfaces::WrapBackendRenderTarget(_skiaContext.get(),
-                                                                 backendRT,
+                                                                 renderTarget,
                                                                  kTopLeft_GrSurfaceOrigin,
                                                                  kN32_SkColorType,
                                                                  nullptr,
