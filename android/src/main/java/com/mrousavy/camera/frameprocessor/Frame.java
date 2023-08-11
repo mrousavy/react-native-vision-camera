@@ -110,6 +110,16 @@ public class Frame {
                 vuBuffer.get(byteArrayCache, ySize, vuSize);
 
                 return byteArrayCache;
+            case ImageFormat.JPEG:
+                ByteBuffer rgbBuffer = image.getPlanes()[0].getBuffer();
+                int size = rgbBuffer.remaining();
+
+                if (byteArrayCache == null || byteArrayCache.length != size) {
+                    byteArrayCache = new byte[size];
+                }
+                rgbBuffer.get(byteArrayCache);
+
+                return byteArrayCache;
             default:
                 throw new RuntimeException("Cannot convert Frame with Format " + image.getFormat() + " to byte array!");
         }
