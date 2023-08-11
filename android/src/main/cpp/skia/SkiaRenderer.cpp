@@ -173,26 +173,29 @@ void SkiaRenderer::renderLatestFrameToPreview() {
   }
   _skiaContext->resetContext();
 
-  GrGLTextureInfo textureInfo;
-  textureInfo.fID = _inputSurfaceTextureId;
-  textureInfo.fTarget = GR_GL_TEXTURE_EXTERNAL;
-  textureInfo.fFormat = GR_GL_RGBA8; // <-- TODO: The input texture is YUV!
-  textureInfo.fProtected = skgpu::Protected::kNo;
+  GrGLTextureInfo textureInfo {
+    // OpenGL will automatically convert YUV -> RGB because it's an EXTERNAL texture
+    .fTarget = GR_GL_TEXTURE_EXTERNAL,
+    .fID = _inputSurfaceTextureId,
+    .fFormat = GR_GL_RGBA8,
+    .fProtected = skgpu::Protected::kNo,
+  };
   GrBackendTexture texture(4000,
                            2256,
                            GrMipMapped::kNo,
                            textureInfo);
-  auto frame = SkImages::AdoptTextureFrom(_skiaContext.get(),
-                                          texture,
-                                          kTopLeft_GrSurfaceOrigin,
-                                          kN32_SkColorType,
-                                          kOpaque_SkAlphaType);
+  sk_sp<SkImage> frame = SkImages::AdoptTextureFrom(_skiaContext.get(),
+                                                    texture,
+                                                    kTopLeft_GrSurfaceOrigin,
+                                                    kN32_SkColorType,
+                                                    kOpaque_SkAlphaType);
 
-  // FBO #0 is the currently active OpenGL Surface
-  GrGLFramebufferInfo fboInfo;
-  fboInfo.fFBOID = ACTIVE_SURFACE_ID;
-  fboInfo.fFormat = GR_GL_RGBA8;
-  fboInfo.fProtected = skgpu::Protected::kNo;
+  GrGLFramebufferInfo fboInfo {
+    // FBO #0 is the currently active OpenGL Surface (eglMakeCurrent)
+    .fFBOID = ACTIVE_SURFACE_ID,
+    .fFormat = GR_GL_RGBA8,
+    .fProtected = skgpu::Protected::kNo,
+  };;
   GrBackendRenderTarget renderTarget(_previewWidth,
                                      _previewHeight,
                                      0,
