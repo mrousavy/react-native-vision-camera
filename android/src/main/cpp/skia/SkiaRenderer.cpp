@@ -38,7 +38,7 @@ SkiaRenderer::SkiaRenderer(const jni::alias_ref<jhybridobject>& javaPart) {
   _previewSurface = nullptr;
   _previewWidth = 0;
   _previewHeight = 0;
-
+  _inputSurfaceTextureId = 0;
 }
 
 SkiaRenderer::~SkiaRenderer() {
