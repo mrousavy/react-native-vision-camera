@@ -3,6 +3,7 @@ package com.mrousavy.camera.skia
 import android.graphics.SurfaceTexture
 import android.os.Build
 import android.os.Looper
+import android.util.Log
 import android.view.Surface
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
@@ -10,6 +11,8 @@ import com.mrousavy.camera.CameraError
 import com.mrousavy.camera.CameraQueues
 import com.mrousavy.camera.UnknownCameraError
 import java.io.Closeable
+import java.lang.RuntimeException
+import java.util.concurrent.locks.ReentrantLock
 
 @Suppress("KotlinJniMissingFunction")
 class SkiaRenderer: Closeable {
@@ -35,39 +38,67 @@ class SkiaRenderer: Closeable {
 
     val surfaceTexture = SurfaceTexture(false)
     surfaceTexture.setOnFrameAvailableListener({ texture ->
-      if (!didAttachInputTextureToOpenGL) return@setOnFrameAvailableListener
-      texture.updateTexImage()
-      renderCameraFrameToOffscreenCanvas()
-      hasNewFrame = true
+      synchronized(this) {
+        if (!didAttachInputTextureToOpenGL) return@setOnFrameAvailableListener
+        texture.updateTexImage()
+        renderCameraFrameToOffscreenCanvas()
+        hasNewFrame = true
+      }
     }, thread)
     val surface = Surface(surfaceTexture)
     inputTexture = InputTexture(surfaceTexture, surface)
   }
 
   override fun close() {
-    didAttachInputTextureToOpenGL = false
-    hasNewFrame = false
-    inputTexture.surfaceTexture.release()
-    inputTexture.surface.release()
-    thread.post {
-      destroyPreviewSurface()
-      mHybridData.resetNative()
+    synchronized(this) {
+      didAttachInputTextureToOpenGL = false
+      hasNewFrame = false
+      inputTexture.surfaceTexture.release()
+      inputTexture.surface.release()
+      thread.post {
+        destroyOutputSurface()
+        mHybridData.resetNative()
+      }
     }
   }
 
-  external fun setPreviewSurface(surface: Any)
-  external fun setPreviewSurfaceSize(width: Int, height: Int)
-  external fun destroyPreviewSurface()
+  fun setPreviewSurface(surface: Surface) {
+    synchronized(this) {
+      if (didAttachInputTextureToOpenGL) {
+        inputTexture.surfaceTexture.detachFromGLContext()
+        didAttachInputTextureToOpenGL = false
+      }
+      setOutputSurface(surface)
+    }
+  }
+
+  fun setPreviewSurfaceSize(width: Int, height: Int) {
+    synchronized(this) {
+      setOutputSurfaceSize(width, height)
+    }
+  }
+
+  fun destroyPreviewSurface() {
+    synchronized(this) {
+      if (didAttachInputTextureToOpenGL) {
+        inputTexture.surfaceTexture.detachFromGLContext()
+        didAttachInputTextureToOpenGL = false
+      }
+      destroyOutputSurface()
+    }
+  }
 
   fun onPreviewFrame() {
-    if (!didAttachInputTextureToOpenGL) {
-      val glTextureId = prepareInputTexture()
-      inputTexture.surfaceTexture.attachToGLContext(glTextureId)
-      didAttachInputTextureToOpenGL = true
+    synchronized(this) {
+      if (!didAttachInputTextureToOpenGL) {
+        Log.i("SkiaRenderer", "Attaching input Surface to OpenGL Context...")
+        val glTextureId = prepareInputTexture()
+        inputTexture.surfaceTexture.attachToGLContext(glTextureId)
+        didAttachInputTextureToOpenGL = true
+      }
+      renderLatestFrameToPreview()
+      hasNewFrame = false
     }
-    if (!hasNewFrame) return
-    renderLatestFrameToPreview()
-    hasNewFrame = false
   }
 
   private external fun initHybrid(): HybridData
@@ -75,4 +106,7 @@ class SkiaRenderer: Closeable {
   private external fun renderCameraFrameToOffscreenCanvas()
   private external fun renderLatestFrameToPreview()
   private external fun prepareInputTexture(): Int
+  private external fun setOutputSurface(surface: Any)
+  private external fun setOutputSurfaceSize(width: Int, height: Int)
+  private external fun destroyOutputSurface()
 }

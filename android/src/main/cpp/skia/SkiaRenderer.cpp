@@ -58,7 +58,11 @@ SkiaRenderer::~SkiaRenderer() {
     eglTerminate(_glDisplay);
     _glDisplay = EGL_NO_DISPLAY;
   }
-  destroyPreviewSurface();
+  if (_skiaContext != nullptr) {
+    _skiaContext->abandonContext();
+    _skiaContext = nullptr;
+  }
+  destroyOutputSurface();
 }
 
 void SkiaRenderer::ensureOpenGL(ANativeWindow* surface) {
@@ -104,25 +108,30 @@ void SkiaRenderer::ensureOpenGL(ANativeWindow* surface) {
   if (_glSurface == EGL_NO_SURFACE) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing EGLSurface..");
     _glSurface = eglCreateWindowSurface(_glDisplay, _glConfig, surface, nullptr);
+    _skiaContext = GrDirectContext::MakeGL();
   }
 
   successful = eglMakeCurrent(_glDisplay, _glSurface, _glSurface, _glContext);
   if (!successful || eglGetError() != EGL_SUCCESS) throw OpenGLError("Failed to use current OpenGL context!");
 }
 
-void SkiaRenderer::setPreviewSurface(jobject previewSurface) {
+void SkiaRenderer::setOutputSurface(jobject previewSurface) {
   __android_log_print(ANDROID_LOG_INFO, TAG, "setPreviewSurface()");
-  destroyPreviewSurface();
+  destroyOutputSurface();
 
   _previewSurface = ANativeWindow_fromSurface(jni::Environment::current(), previewSurface);
   _glSurface = EGL_NO_SURFACE;
   __android_log_print(ANDROID_LOG_INFO, TAG, "Set Preview Surface!");
 }
 
-void SkiaRenderer::destroyPreviewSurface() {
+void SkiaRenderer::destroyOutputSurface() {
   if (_glSurface != EGL_NO_SURFACE) {
     eglDestroySurface(_glDisplay, _glSurface);
     _glSurface = EGL_NO_SURFACE;
+    if (_skiaContext != nullptr) {
+      _skiaContext->abandonContext();
+      _skiaContext = nullptr;
+    }
   }
   if (_previewSurface != nullptr) {
     ANativeWindow_release(_previewSurface);
@@ -130,7 +139,7 @@ void SkiaRenderer::destroyPreviewSurface() {
   }
 }
 
-void SkiaRenderer::setPreviewSurfaceSize(int width, int height) {
+void SkiaRenderer::setOutputSurfaceSize(int width, int height) {
   _previewWidth = width;
   _previewHeight = height;
 }
@@ -162,6 +171,7 @@ void SkiaRenderer::renderLatestFrameToPreview() {
   if (_skiaContext == nullptr) {
     _skiaContext = GrDirectContext::MakeGL();
   }
+  _skiaContext->resetContext();
 
   GrGLTextureInfo textureInfo;
   textureInfo.fID = _inputSurfaceTextureId;
@@ -228,9 +238,9 @@ void SkiaRenderer::registerNatives() {
   registerHybrid({
      makeNativeMethod("initHybrid", SkiaRenderer::initHybrid),
      makeNativeMethod("prepareInputTexture", SkiaRenderer::prepareInputTexture),
-     makeNativeMethod("setPreviewSurface", SkiaRenderer::setPreviewSurface),
-     makeNativeMethod("destroyPreviewSurface", SkiaRenderer::destroyPreviewSurface),
-     makeNativeMethod("setPreviewSurfaceSize", SkiaRenderer::setPreviewSurfaceSize),
+     makeNativeMethod("setOutputSurface", SkiaRenderer::setOutputSurface),
+     makeNativeMethod("destroyOutputSurface", SkiaRenderer::destroyOutputSurface),
+     makeNativeMethod("setOutputSurfaceSize", SkiaRenderer::setOutputSurfaceSize),
      makeNativeMethod("renderLatestFrameToPreview", SkiaRenderer::renderLatestFrameToPreview),
      makeNativeMethod("renderCameraFrameToOffscreenCanvas", SkiaRenderer::renderCameraFrameToOffscreenCanvas),
   });

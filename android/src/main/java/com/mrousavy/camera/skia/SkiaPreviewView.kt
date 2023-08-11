@@ -24,26 +24,30 @@ class SkiaPreviewView(context: Context,
 
   private fun startLooping(choreographer: Choreographer) {
     choreographer.postFrameCallback {
-      if (!isAlive) return@postFrameCallback
+      synchronized(this) {
+        if (!isAlive) return@synchronized
 
-      Log.i(TAG, "tick..")
+        Log.i(TAG, "tick..")
 
-      // Refresh UI (60 FPS)
-      skiaRenderer.onPreviewFrame()
-      startLooping(choreographer)
+        // Refresh UI (60 FPS)
+        skiaRenderer.onPreviewFrame()
+        startLooping(choreographer)
+      }
     }
   }
 
   override fun surfaceCreated(holder: SurfaceHolder) {
-    isAlive = true
-    Log.i(TAG, "onSurfaceCreated(..)")
+    synchronized(this) {
+      isAlive = true
+      Log.i(TAG, "onSurfaceCreated(..)")
 
-    skiaRenderer.thread.post {
-      // Create C++ part (OpenGL/Skia context)
-      skiaRenderer.setPreviewSurface(holder.surface)
+      skiaRenderer.thread.post {
+        // Create C++ part (OpenGL/Skia context)
+        skiaRenderer.setPreviewSurface(holder.surface)
 
-      // Start updating the Preview View (~60 FPS)
-      startLooping(Choreographer.getInstance())
+        // Start updating the Preview View (~60 FPS)
+        startLooping(Choreographer.getInstance())
+      }
     }
   }
 
@@ -57,12 +61,14 @@ class SkiaPreviewView(context: Context,
   }
 
   override fun surfaceDestroyed(holder: SurfaceHolder) {
-    isAlive = false
-    Log.i(TAG, "surfaceDestroyed(..)")
+    synchronized(this) {
+      isAlive = false
+      Log.i(TAG, "surfaceDestroyed(..)")
 
-    skiaRenderer.thread.post {
-      // Clean up C++ part (OpenGL/Skia context)
-      skiaRenderer.destroyPreviewSurface()
+      skiaRenderer.thread.post {
+        // Clean up C++ part (OpenGL/Skia context)
+        skiaRenderer.destroyPreviewSurface()
+      }
     }
   }
 }

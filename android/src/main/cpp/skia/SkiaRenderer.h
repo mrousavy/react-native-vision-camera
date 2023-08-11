@@ -34,9 +34,9 @@ class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
   // Input Texture (Camera)
   int prepareInputTexture();
   // Output Surface (Preview)
-  void setPreviewSurface(jobject previewSurface);
-  void destroyPreviewSurface();
-  void setPreviewSurfaceSize(int width, int height);
+  void setOutputSurface(jobject previewSurface);
+  void destroyOutputSurface();
+  void setOutputSurfaceSize(int width, int height);
 
   /**
    * Renders the latest Camera Frame from the Input Texture onto the Preview Surface. (60 FPS)
