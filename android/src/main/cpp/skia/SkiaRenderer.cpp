@@ -20,6 +20,8 @@
 
 // from <gpu/ganesh/gl/GrGLDefines.h>
 #define GR_GL_TEXTURE_2D 0x0DE1
+#define GR_GL_TEXTURE_EXTERNAL 0x8D65
+#define GR_GL_TEXTURE_BINDING_EXTERNAL 0x8D67
 #define GR_GL_RGBA8 0x8058
 #define ACTIVE_SURFACE_ID 0
 
@@ -175,11 +177,11 @@ void SkiaRenderer::renderLatestFrameToPreview() {
 
   GrGLTextureInfo textureInfo;
   textureInfo.fID = _inputSurfaceTextureId;
-  textureInfo.fTarget = GR_GL_TEXTURE_2D;
+  textureInfo.fTarget = GR_GL_TEXTURE_EXTERNAL;
   textureInfo.fFormat = GR_GL_RGBA8; // <-- TODO: The input texture is YUV!
   textureInfo.fProtected = skgpu::Protected::kNo;
-  GrBackendTexture texture(1280,
-                           720,
+  GrBackendTexture texture(4000,
+                           2256,
                            GrMipMapped::kNo,
                            textureInfo);
   auto frame = SkImages::AdoptTextureFrom(_skiaContext.get(),
@@ -205,6 +207,8 @@ void SkiaRenderer::renderLatestFrameToPreview() {
                                                                  kN32_SkColorType,
                                                                  nullptr,
                                                                  &props);
+
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering %ix%i Frame to %ix%i Preview..", frame->width(), frame->height(), surface->width(), surface->height());
 
   auto canvas = surface->getCanvas();
 

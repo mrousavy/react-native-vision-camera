@@ -103,7 +103,7 @@ class CameraOutputs(val cameraId: String,
     // Preview output: Low resolution repeating images (SurfaceView)
     if (preview != null) {
       Log.i(TAG, "Adding native preview view output.")
-      previewOutput = SurfaceOutput(preview.surface, OutputType.PREVIEW)
+      previewOutput = SurfaceOutput(preview.surface, OutputType.VIDEO)
     }
 
     // Photo output: High quality still images (takePhoto())
@@ -118,24 +118,6 @@ class CameraOutputs(val cameraId: String,
 
       Log.i(TAG, "Adding ${size.width}x${size.height} photo output. (Format: $photo.format)")
       photoOutput = ImageReaderOutput(imageReader, OutputType.PHOTO)
-    }
-
-    // Video output: High resolution repeating images (startRecording() or useFrameProcessor())
-    if (video != null) {
-      val size = config.getOutputSizes(video.format).closestToOrMax(video.targetSize)
-
-      val imageReader = ImageReader.newInstance(size.width, size.height, video.format, VIDEO_OUTPUT_BUFFER_SIZE)
-      imageReader.setOnImageAvailableListener({ reader ->
-        try {
-          val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
-          video.onFrame(image)
-        } catch (e: IllegalStateException) {
-          Log.e(TAG, "Failed to acquire a new Image, dropping a Frame.. The Frame Processor cannot keep up with the Camera's FPS!", e)
-        }
-      }, CameraQueues.videoQueue.handler)
-
-      Log.i(TAG, "Adding ${size.width}x${size.height} video output. (Format: $video.format)")
-      videoOutput = ImageReaderOutput(imageReader, OutputType.VIDEO)
     }
 
     Log.i(TAG, "Prepared $size Outputs for Camera $cameraId!")
