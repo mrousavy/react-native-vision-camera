@@ -21,6 +21,7 @@
 // from <gpu/ganesh/gl/GrGLDefines.h>
 #define GR_GL_TEXTURE_2D 0x0DE1
 #define GR_GL_RGBA8 0x8058
+#define ACTIVE_SURFACE_ID 0
 
 namespace vision {
 
@@ -161,14 +162,11 @@ void SkiaRenderer::renderLatestFrameToPreview() {
   if (_skiaContext == nullptr) {
     _skiaContext = GrDirectContext::MakeGL();
   }
-  // TODO: Do I need to do that reset?
-  _skiaContext->resetContext();
 
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Texture...");
   GrGLTextureInfo textureInfo;
   textureInfo.fID = _inputSurfaceTextureId;
   textureInfo.fTarget = GR_GL_TEXTURE_2D;
-  textureInfo.fFormat = 0x8058; // <-- TODO: YUV?
+  textureInfo.fFormat = GR_GL_RGBA8; // <-- TODO: The input texture is YUV!
   textureInfo.fProtected = skgpu::Protected::kNo;
   GrBackendTexture backendTexture(1280,
                                   720,
@@ -182,14 +180,12 @@ void SkiaRenderer::renderLatestFrameToPreview() {
 
   // FBO #0 is the currently active OpenGL Surface
   GrGLFramebufferInfo fboInfo;
-  fboInfo.fFBOID = 0;
-  fboInfo.fFormat = 0x8058;
+  fboInfo.fFBOID = ACTIVE_SURFACE_ID;
+  fboInfo.fFormat = GR_GL_RGBA8;
   fboInfo.fProtected = skgpu::Protected::kNo;
 
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Backend Render Target...");
   GrBackendRenderTarget backendRT(_previewWidth, _previewHeight, 0, 8, fboInfo);
 
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Surface...");
   SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
   sk_sp<SkSurface> surface = SkSurfaces::WrapBackendRenderTarget(_skiaContext.get(),
                                                                  backendRT,
@@ -198,7 +194,6 @@ void SkiaRenderer::renderLatestFrameToPreview() {
                                                                  nullptr,
                                                                  &props);
 
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Canvas");
   auto canvas = surface->getCanvas();
 
   canvas->clear(SkColors::kBlack);
@@ -215,9 +210,7 @@ void SkiaRenderer::renderLatestFrameToPreview() {
   canvas->drawRect(rect, paint);
 
   // Flush
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Flush...");
   canvas->flush();
-  __android_log_print(ANDROID_LOG_INFO, TAG, "eglSwap");
 
   bool successful = eglSwapBuffers(_glDisplay, _glSurface);
   if (!successful || eglGetError() != EGL_SUCCESS) throw OpenGLError("Failed to swap OpenGL buffers!");
