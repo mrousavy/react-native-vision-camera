@@ -232,6 +232,7 @@ void SkiaRenderer::renderLatestFrameToPreview() {
 void SkiaRenderer::renderCameraFrameToOffscreenCanvas(jni::JByteBuffer yBuffer,
                                                       jni::JByteBuffer uBuffer,
                                                       jni::JByteBuffer vBuffer) {
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Begin render...");
   ensureOpenGL(_previewSurface);
   if (_skiaContext == nullptr) {
     _skiaContext = GrDirectContext::MakeGL();
@@ -258,6 +259,56 @@ void SkiaRenderer::renderCameraFrameToOffscreenCanvas(jni::JByteBuffer yBuffer,
   SkYUVAPixmaps pixmaps = SkYUVAPixmaps::FromExternalPixmaps(info, externalPixmaps);
 
   sk_sp<SkImage> image = SkImages::TextureFromYUVAPixmaps(_skiaContext.get(), pixmaps);
+
+
+
+
+
+
+
+
+  GrGLFramebufferInfo fboInfo {
+      // FBO #0 is the currently active OpenGL Surface (eglMakeCurrent)
+      .fFBOID = ACTIVE_SURFACE_ID,
+      .fFormat = GR_GL_RGBA8,
+      .fProtected = skgpu::Protected::kNo,
+  };;
+  GrBackendRenderTarget renderTarget(_previewWidth,
+                                     _previewHeight,
+                                     0,
+                                     8,
+                                     fboInfo);
+  SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
+  sk_sp<SkSurface> surface = SkSurfaces::WrapBackendRenderTarget(_skiaContext.get(),
+                                                                 renderTarget,
+                                                                 kTopLeft_GrSurfaceOrigin,
+                                                                 kN32_SkColorType,
+                                                                 nullptr,
+                                                                 &props);
+
+  auto canvas = surface->getCanvas();
+
+  canvas->clear(SkColors::kBlack);
+
+  auto duration = std::chrono::system_clock::now().time_since_epoch();
+  auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+
+  canvas->drawImage(image, 0, 0);
+
+  // TODO: Run Skia Frame Processor
+  auto rect = SkRect::MakeXYWH(150, 250, millis % 3000 / 10, millis % 3000 / 10);
+  auto paint = SkPaint();
+  paint.setColor(SkColors::kRed);
+  canvas->drawRect(rect, paint);
+
+  // Flush
+  canvas->flush();
+
+  bool successful = eglSwapBuffers(_glDisplay, _glSurface);
+  if (!successful || eglGetError() != EGL_SUCCESS) throw OpenGLError("Failed to swap OpenGL buffers!");
+
+
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Rendered!");
 }
 
 
