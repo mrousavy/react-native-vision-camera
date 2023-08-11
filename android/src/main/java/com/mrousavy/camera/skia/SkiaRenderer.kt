@@ -1,18 +1,22 @@
 package com.mrousavy.camera.skia
 
 import android.graphics.SurfaceTexture
+import android.os.Build
 import android.view.Surface
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
+import com.mrousavy.camera.CameraError
+import com.mrousavy.camera.UnknownCameraError
 
 @Suppress("KotlinJniMissingFunction")
 class SkiaRenderer {
-  data class InputTexture(val textureId: Int, val surfaceTexture: SurfaceTexture, val surface: Surface)
+  data class InputTexture(val surfaceTexture: SurfaceTexture, val surface: Surface)
 
   @DoNotStrip
   private var mHybridData: HybridData
   private var hasNewFrame = false
   private val inputTexture: InputTexture
+  private var didAttachInputTextureToOpenGL = false
 
   val inputSurface: Surface
     get() = inputTexture.surface
@@ -20,16 +24,19 @@ class SkiaRenderer {
   init {
     mHybridData = initHybrid()
 
-    // Create Java Surface from C++ GLTexture
-    val textureId = getInputTexture()
-    val surfaceTexture = SurfaceTexture(textureId)
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+      throw Error("VisionCamera Skia integration is only available on Android API 26 and above!")
+    }
+
+    val surfaceTexture = SurfaceTexture(false)
     surfaceTexture.setOnFrameAvailableListener { texture ->
+      if (!didAttachInputTextureToOpenGL) return@setOnFrameAvailableListener
       texture.updateTexImage()
-      hasNewFrame = true
       renderCameraFrameToOffscreenCanvas()
+      hasNewFrame = true
     }
     val surface = Surface(surfaceTexture)
-    inputTexture = InputTexture(textureId, surfaceTexture, surface)
+    inputTexture = InputTexture(surfaceTexture, surface)
   }
 
   external fun setPreviewSurface(surface: Any)
@@ -37,13 +44,19 @@ class SkiaRenderer {
   external fun destroyPreviewSurface()
 
   fun onPreviewFrame() {
+    if (!didAttachInputTextureToOpenGL) {
+      val glTextureId = prepareInputTexture()
+      inputTexture.surfaceTexture.attachToGLContext(glTextureId)
+      didAttachInputTextureToOpenGL = true
+    }
     if (!hasNewFrame) return
     renderLatestFrameToPreview()
+    hasNewFrame = false
   }
 
   private external fun initHybrid(): HybridData
 
-  private external fun getInputTexture(): Int
   private external fun renderCameraFrameToOffscreenCanvas()
   private external fun renderLatestFrameToPreview()
+  private external fun prepareInputTexture(): Int
 }

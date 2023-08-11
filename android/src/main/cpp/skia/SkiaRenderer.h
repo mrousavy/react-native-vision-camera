@@ -31,14 +31,13 @@ class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
   ~SkiaRenderer();
 
  private:
+  // Input Texture (Camera)
+  int prepareInputTexture();
+  // Output Surface (Preview)
   void setPreviewSurface(jobject previewSurface);
   void destroyPreviewSurface();
   void setPreviewSurfaceSize(int width, int height);
 
-  /**
-   * Gets the input OpenGL Texture which the Camera can dump Frames into.
-   */
-  int getInputTexture();
   /**
    * Renders the latest Camera Frame from the Input Texture onto the Preview Surface. (60 FPS)
    */
@@ -58,12 +57,12 @@ class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
   sk_sp<GrDirectContext> _skiaContext;
 
   // Input Texture (Camera/Offscreen)
-  int _inputTextureId;
+  GLuint _inputSurfaceTextureId;
   // Output Texture (Surface/Preview)
   ANativeWindow* _previewSurface;
   int _previewWidth, _previewHeight;
 
-  void ensureOpenGL() const;
+  void ensureOpenGL(ANativeWindow* surface);
 
   static auto constexpr TAG = "SkiaRenderer";
 };

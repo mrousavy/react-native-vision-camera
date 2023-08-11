@@ -14,6 +14,7 @@
 #include <core/SkCanvas.h>
 
 #include <android/native_window_jni.h>
+#include <android/surface_texture_jni.h>
 
 namespace vision {
 
@@ -31,50 +32,11 @@ SkiaRenderer::SkiaRenderer(const jni::alias_ref<jhybridobject>& javaPart) {
   _previewWidth = 0;
   _previewHeight = 0;
 
-  _glDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-  if (_glDisplay == EGL_NO_DISPLAY) throw OpenGLError("Failed to get default OpenGL Display!");
-
-  EGLint major;
-  EGLint minor;
-  bool successful = eglInitialize(_glDisplay, &major, &minor);
-  if (!successful) throw OpenGLError("Failed to initialize OpenGL!");
-
-  EGLint attributes[] = {EGL_RENDERABLE_TYPE,
-                         EGL_OPENGL_ES2_BIT,
-                         EGL_SURFACE_TYPE,
-                         EGL_WINDOW_BIT,
-                         EGL_ALPHA_SIZE,
-                         8,
-                         EGL_BLUE_SIZE,
-                         8,
-                         EGL_GREEN_SIZE,
-                         8,
-                         EGL_RED_SIZE,
-                         8,
-                         EGL_DEPTH_SIZE,
-                         0,
-                         EGL_STENCIL_SIZE,
-                         0,
-                         EGL_NONE};
-  EGLint numConfigs;
-  successful = eglChooseConfig(_glDisplay, attributes, &_glConfig, 1, &numConfigs);
-  if (!successful || numConfigs == 0) throw OpenGLError("Failed to choose OpenGL config!");
-
-  EGLint contextAttributes[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
-  _glContext = eglCreateContext(_glDisplay, _glConfig, nullptr, contextAttributes);
-  if (_glContext == EGL_NO_CONTEXT) throw OpenGLError("Failed to create OpenGL context!");
-
-  __android_log_print(ANDROID_LOG_INFO, TAG, "glGenTextures...");
-  GLuint textures[1] = {0};
-  glGenTextures(1, textures);
-  _inputTextureId = static_cast<int>(textures[0]);
-  if (glGetError() != GL_NO_ERROR) throw OpenGLError("Failed to generate OpenGL input Texture for the Camera!");
-
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Successfully initialized SkiaRenderer! %i", _inputTextureId);
 }
 
 SkiaRenderer::~SkiaRenderer() {
   if (_glDisplay != EGL_NO_DISPLAY) {
+    eglMakeCurrent(_glDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     if (_glSurface != EGL_NO_SURFACE) {
       __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying OpenGL Surface...");
       eglDestroySurface(_glDisplay, _glSurface);
@@ -92,14 +54,58 @@ SkiaRenderer::~SkiaRenderer() {
   destroyPreviewSurface();
 }
 
-void SkiaRenderer::ensureOpenGL() const {
-  bool successful = eglMakeCurrent(_glDisplay, _glSurface, _glSurface, _glContext);
+void SkiaRenderer::ensureOpenGL(ANativeWindow* surface) {
+  bool successful;
+  // EGLDisplay
+  if (_glDisplay == EGL_NO_DISPLAY) {
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing EGLDisplay..");
+    _glDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    if (_glDisplay == EGL_NO_DISPLAY) throw OpenGLError("Failed to get default OpenGL Display!");
+
+    EGLint major;
+    EGLint minor;
+    successful = eglInitialize(_glDisplay, &major, &minor);
+    if (!successful) throw OpenGLError("Failed to initialize OpenGL!");
+  }
+
+  // EGLConfig
+  if (_glConfig == nullptr) {
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing EGLConfig..");
+    EGLint attributes[] = {EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+                           EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+                           EGL_ALPHA_SIZE, 8,
+                           EGL_BLUE_SIZE, 8,
+                           EGL_GREEN_SIZE, 8,
+                           EGL_RED_SIZE, 8,
+                           EGL_DEPTH_SIZE, 0,
+                           EGL_STENCIL_SIZE, 0,
+                           EGL_NONE};
+    EGLint numConfigs;
+    successful = eglChooseConfig(_glDisplay, attributes, &_glConfig, 1, &numConfigs);
+    if (!successful || numConfigs == 0) throw OpenGLError("Failed to choose OpenGL config!");
+  }
+
+  // EGLContext
+  if (_glContext == EGL_NO_CONTEXT) {
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing EGLContext..");
+    EGLint contextAttributes[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
+    _glContext = eglCreateContext(_glDisplay, _glConfig, nullptr, contextAttributes);
+    if (_glContext == EGL_NO_CONTEXT) throw OpenGLError("Failed to create OpenGL context!");
+  }
+
+  // EGLSurface
+  if (_glSurface == EGL_NO_SURFACE) {
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing EGLSurface..");
+    _glSurface = eglCreateWindowSurface(_glDisplay, _glConfig, surface, nullptr);
+  }
+
+  successful = eglMakeCurrent(_glDisplay, _glSurface, _glSurface, _glContext);
   if (!successful || eglGetError() != EGL_SUCCESS) throw OpenGLError("Failed to use current OpenGL context!");
 }
 
 void SkiaRenderer::setPreviewSurface(jobject previewSurface) {
-  if (_glSurface != EGL_NO_SURFACE) eglDestroySurface(_glDisplay, _glSurface);
-  if (_previewSurface != nullptr) ANativeWindow_release(_previewSurface);
+  __android_log_print(ANDROID_LOG_INFO, TAG, "setPreviewSurface()");
+  destroyPreviewSurface();
 
   _previewSurface = ANativeWindow_fromSurface(jni::Environment::current(), previewSurface);
   _glSurface = EGL_NO_SURFACE;
@@ -107,8 +113,14 @@ void SkiaRenderer::setPreviewSurface(jobject previewSurface) {
 }
 
 void SkiaRenderer::destroyPreviewSurface() {
-  if (_glSurface != EGL_NO_SURFACE) eglDestroySurface(_glDisplay, _glSurface);
-  if (_previewSurface != nullptr) ANativeWindow_release(_previewSurface);
+  if (_glSurface != EGL_NO_SURFACE) {
+    eglDestroySurface(_glDisplay, _glSurface);
+    _glSurface = EGL_NO_SURFACE;
+  }
+  if (_previewSurface != nullptr) {
+    ANativeWindow_release(_previewSurface);
+    _previewSurface = nullptr;
+  }
 }
 
 void SkiaRenderer::setPreviewSurfaceSize(int width, int height) {
@@ -116,15 +128,33 @@ void SkiaRenderer::setPreviewSurfaceSize(int width, int height) {
   _previewHeight = height;
 }
 
-int SkiaRenderer::getInputTexture() {
-  return _inputTextureId;
+int SkiaRenderer::prepareInputTexture() {
+  __android_log_print(ANDROID_LOG_INFO, TAG, "prepareInputTexture()");
+  if (_previewSurface == nullptr) {
+    throw std::runtime_error("Cannot prepare input texture without an output texture! "
+                             "prepareInputTexture() needs to be called after setPreviewSurface().");
+  }
+  ensureOpenGL(_previewSurface);
+
+  GLuint textures[1] {0};
+  glGenTextures(1, textures);
+  if (glGetError() != GL_NO_ERROR) throw OpenGLError("Failed to create OpenGL Texture!");
+  _inputSurfaceTextureId = textures[0];
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Created input texture ID! %i", _inputSurfaceTextureId);
+  return static_cast<int>(_inputSurfaceTextureId);
 }
 
 void SkiaRenderer::renderLatestFrameToPreview() {
-  if (_glSurface == EGL_NO_SURFACE) {
-    _glSurface = eglCreateWindowSurface(_glDisplay, _glConfig, _previewSurface, nullptr);
+  __android_log_print(ANDROID_LOG_INFO, TAG, "renderLatestFrameToPreview()");
+  if (_previewSurface == nullptr) {
+    throw std::runtime_error("Cannot render latest frame to preview without a preview surface! "
+                             "renderLatestFrameToPreview() needs to be called after setPreviewSurface().");
   }
-  eglMakeCurrent(_glDisplay, _glSurface, _glSurface, _glContext);
+  ensureOpenGL(_previewSurface);
+
+  if (_skiaContext == nullptr) {
+    _skiaContext = GrDirectContext::MakeGL();
+  }
   // TODO: Do I need to do that reset?
   _skiaContext->resetContext();
 
@@ -171,17 +201,17 @@ void SkiaRenderer::renderLatestFrameToPreview() {
 
 
 void SkiaRenderer::renderCameraFrameToOffscreenCanvas() {
-
+  __android_log_print(ANDROID_LOG_INFO, TAG, "renderCameraFrameToOffscreenCanvas()");
 }
 
 
 void SkiaRenderer::registerNatives() {
   registerHybrid({
      makeNativeMethod("initHybrid", SkiaRenderer::initHybrid),
+     makeNativeMethod("prepareInputTexture", SkiaRenderer::prepareInputTexture),
      makeNativeMethod("setPreviewSurface", SkiaRenderer::setPreviewSurface),
      makeNativeMethod("destroyPreviewSurface", SkiaRenderer::destroyPreviewSurface),
      makeNativeMethod("setPreviewSurfaceSize", SkiaRenderer::setPreviewSurfaceSize),
-     makeNativeMethod("getInputTexture", SkiaRenderer::getInputTexture),
      makeNativeMethod("renderLatestFrameToPreview", SkiaRenderer::renderLatestFrameToPreview),
      makeNativeMethod("renderCameraFrameToOffscreenCanvas", SkiaRenderer::renderCameraFrameToOffscreenCanvas),
   });

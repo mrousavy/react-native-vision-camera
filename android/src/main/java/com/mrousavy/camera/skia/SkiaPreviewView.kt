@@ -30,6 +30,8 @@ class SkiaPreviewView(context: Context,
     choreographer.postFrameCallback {
       if (!isAlive) return@postFrameCallback
 
+      Log.i(TAG, "tick..")
+
       // Refresh UI (60 FPS)
       skiaRenderer.onPreviewFrame()
       startLooping(choreographer)

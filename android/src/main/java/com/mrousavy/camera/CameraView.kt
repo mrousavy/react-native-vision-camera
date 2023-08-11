@@ -159,9 +159,9 @@ class CameraView(context: Context) : FrameLayout(context) {
         CameraQueues.previewQueue.handler.post {
           if (skiaRenderer == null) skiaRenderer = SkiaRenderer()
           val previewView = SkiaPreviewView(context, skiaRenderer!!) { surface ->
-            previewSurface = surface
-            configureSession()
           }
+          previewSurface = skiaRenderer!!.inputSurface
+          configureSession()
           previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
           addView(previewView)
           this.previewView = previewView
