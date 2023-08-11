@@ -16,13 +16,15 @@ import java.util.concurrent.locks.ReentrantLock
 
 @Suppress("KotlinJniMissingFunction")
 class SkiaRenderer: Closeable {
-  data class InputTexture(val surfaceTexture: SurfaceTexture, val surface: Surface)
+  companion object {
+    private const val TAG = "SkiaRenderer"
+  }
+  data class InputTexture(var isAttached: Boolean, val surfaceTexture: SurfaceTexture, val surface: Surface)
 
   @DoNotStrip
   private var mHybridData: HybridData
   private var hasNewFrame = false
   private val inputTexture: InputTexture
-  private var didAttachInputTextureToOpenGL = false
 
   val inputSurface: Surface
     get() = inputTexture.surface
@@ -38,24 +40,19 @@ class SkiaRenderer: Closeable {
 
     val surfaceTexture = SurfaceTexture(false)
     surfaceTexture.setOnFrameAvailableListener({ texture ->
-      synchronized(this) {
-        if (!didAttachInputTextureToOpenGL) return@setOnFrameAvailableListener
-        texture.updateTexImage()
-        renderCameraFrameToOffscreenCanvas()
-        hasNewFrame = true
-      }
+      onCameraFrame(texture)
     }, thread)
     val surface = Surface(surfaceTexture)
-    inputTexture = InputTexture(surfaceTexture, surface)
+    inputTexture = InputTexture(false, surfaceTexture, surface)
   }
 
   override fun close() {
-    synchronized(this) {
-      didAttachInputTextureToOpenGL = false
-      hasNewFrame = false
-      inputTexture.surfaceTexture.release()
-      inputTexture.surface.release()
-      thread.post {
+    hasNewFrame = false
+    thread.post {
+      synchronized(this) {
+        if (inputTexture.isAttached) detachInputTexture()
+        inputTexture.surface.release()
+        inputTexture.surfaceTexture.release()
         destroyOutputSurface()
         mHybridData.resetNative()
       }
@@ -64,10 +61,7 @@ class SkiaRenderer: Closeable {
 
   fun setPreviewSurface(surface: Surface) {
     synchronized(this) {
-      if (didAttachInputTextureToOpenGL) {
-        inputTexture.surfaceTexture.detachFromGLContext()
-        didAttachInputTextureToOpenGL = false
-      }
+      if (inputTexture.isAttached) detachInputTexture()
       setOutputSurface(surface)
     }
   }
@@ -80,25 +74,45 @@ class SkiaRenderer: Closeable {
 
   fun destroyPreviewSurface() {
     synchronized(this) {
-      if (didAttachInputTextureToOpenGL) {
-        inputTexture.surfaceTexture.detachFromGLContext()
-        didAttachInputTextureToOpenGL = false
-      }
+      if (inputTexture.isAttached) detachInputTexture()
       destroyOutputSurface()
     }
   }
 
+  /**
+   * Called on every Camera Frame (1..240 FPS)
+   */
+  private fun onCameraFrame(texture: SurfaceTexture) {
+    synchronized(this) {
+      if (!inputTexture.isAttached) return
+      texture.updateTexImage()
+      renderCameraFrameToOffscreenCanvas()
+      hasNewFrame = true
+    }
+  }
+
+  /**
+   * Called on every UI Frame (60 FPS)
+   */
   fun onPreviewFrame() {
     synchronized(this) {
-      if (!didAttachInputTextureToOpenGL) {
-        Log.i("SkiaRenderer", "Attaching input Surface to OpenGL Context...")
-        val glTextureId = prepareInputTexture()
-        inputTexture.surfaceTexture.attachToGLContext(glTextureId)
-        didAttachInputTextureToOpenGL = true
-      }
+      if (!inputTexture.isAttached) attachInputTexture()
       renderLatestFrameToPreview()
       hasNewFrame = false
     }
+  }
+
+  private fun detachInputTexture() {
+    Log.i(TAG, "Detaching input Surface from OpenGL Context...")
+    inputTexture.surfaceTexture.detachFromGLContext()
+    inputTexture.isAttached = false
+  }
+
+  private fun attachInputTexture() {
+    Log.i(TAG, "Attaching input Surface to OpenGL Context...")
+    val glTextureId = prepareInputTexture()
+    inputTexture.surfaceTexture.attachToGLContext(glTextureId)
+    inputTexture.isAttached = true
   }
 
   private external fun initHybrid(): HybridData

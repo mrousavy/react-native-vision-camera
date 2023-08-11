@@ -101,7 +101,7 @@ class CameraView(context: Context) : FrameLayout(context) {
   private var previewSurface: Surface? = null
 
   var frameProcessor: FrameProcessor? = null
-  var skiaRenderer: SkiaRenderer? = null
+  private var skiaRenderer: SkiaRenderer? = null
 
   private val inputOrientation: Orientation
     get() = cameraSession.orientation
