@@ -27,6 +27,7 @@ class SkiaRenderer: Closeable {
   private var hasNewFrame = false
 
   val thread = CameraQueues.previewQueue.handler
+  var hasOutputSurface = false
 
   init {
     mHybridData = initHybrid()
@@ -45,6 +46,7 @@ class SkiaRenderer: Closeable {
   fun setPreviewSurface(surface: Surface) {
     synchronized(this) {
       setOutputSurface(surface)
+      hasOutputSurface = true
     }
   }
 
@@ -57,6 +59,7 @@ class SkiaRenderer: Closeable {
   fun destroyPreviewSurface() {
     synchronized(this) {
       destroyOutputSurface()
+      hasOutputSurface = false
     }
   }
 
@@ -71,6 +74,7 @@ class SkiaRenderer: Closeable {
    */
   fun onCameraFrame(frame: Frame) {
     synchronized(this) {
+      if (!hasOutputSurface) return
       val (y, u, v) = frame.image.planes
       renderCameraFrameToOffscreenCanvas(y.buffer, u.buffer, v.buffer)
       hasNewFrame = true
