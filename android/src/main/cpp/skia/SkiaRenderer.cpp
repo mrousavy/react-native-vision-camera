@@ -6,15 +6,21 @@
 #include <android/log.h>
 #include "OpenGLError.h"
 
+#include <core/SkColorSpace.h>
+#include <core/SkCanvas.h>
+
 #include <gpu/gl/GrGLInterface.h>
 #include <gpu/GrDirectContext.h>
 #include <gpu/GrBackendSurface.h>
 #include <gpu/ganesh/SkSurfaceGanesh.h>
-#include <core/SkColorSpace.h>
-#include <core/SkCanvas.h>
+#include <gpu/ganesh/SkImageGanesh.h>
 
 #include <android/native_window_jni.h>
 #include <android/surface_texture_jni.h>
+
+// from <gpu/ganesh/gl/GrGLDefines.h>
+#define GR_GL_TEXTURE_2D 0x0DE1
+#define GR_GL_RGBA8 0x8058
 
 namespace vision {
 
@@ -158,6 +164,22 @@ void SkiaRenderer::renderLatestFrameToPreview() {
   // TODO: Do I need to do that reset?
   _skiaContext->resetContext();
 
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Texture...");
+  GrGLTextureInfo textureInfo;
+  textureInfo.fID = _inputSurfaceTextureId;
+  textureInfo.fTarget = GR_GL_TEXTURE_2D;
+  textureInfo.fFormat = 0x8058; // <-- TODO: YUV?
+  textureInfo.fProtected = skgpu::Protected::kNo;
+  GrBackendTexture backendTexture(1280,
+                                  720,
+                                  GrMipMapped::kNo,
+                                  textureInfo);
+  auto frame = SkImages::AdoptTextureFrom(_skiaContext.get(),
+                                                         backendTexture,
+                                                         kTopLeft_GrSurfaceOrigin,
+                                                         SkColorType::kN32_SkColorType,
+                                                         SkAlphaType::kOpaque_SkAlphaType);
+
   // FBO #0 is the currently active OpenGL Surface
   GrGLFramebufferInfo fboInfo;
   fboInfo.fFBOID = 0;
@@ -183,6 +205,8 @@ void SkiaRenderer::renderLatestFrameToPreview() {
 
   auto duration = std::chrono::system_clock::now().time_since_epoch();
   auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+
+  canvas->drawImage(frame, 0, 0);
 
   // TODO: Run Skia Frame Processor
   auto rect = SkRect::MakeXYWH(150, 250, millis % 3000 / 10, millis % 3000 / 10);
