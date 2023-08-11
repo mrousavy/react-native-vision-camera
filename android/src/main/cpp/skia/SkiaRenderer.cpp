@@ -19,9 +19,7 @@
 #include <android/surface_texture_jni.h>
 
 // from <gpu/ganesh/gl/GrGLDefines.h>
-#define GR_GL_TEXTURE_2D 0x0DE1
 #define GR_GL_TEXTURE_EXTERNAL 0x8D65
-#define GR_GL_TEXTURE_BINDING_EXTERNAL 0x8D67
 #define GR_GL_RGBA8 0x8058
 #define ACTIVE_SURFACE_ID 0
 
