@@ -35,6 +35,7 @@ class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
  private:
   // Input Texture (Camera)
   int prepareInputTexture();
+  void setInputTextureSize(int width, int height);
   // Output Surface (Preview)
   void setOutputSurface(jobject previewSurface);
   void destroyOutputSurface();
@@ -60,6 +61,7 @@ class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
 
   // Input Texture (Camera/Offscreen)
   GLuint _inputSurfaceTextureId = NO_INPUT_TEXTURE;
+  int _inputWidth, _inputHeight;
   // Output Texture (Surface/Preview)
   ANativeWindow* _previewSurface;
   int _previewWidth, _previewHeight;

@@ -4,10 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import android.view.Choreographer
-import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import com.mrousavy.camera.CameraQueues
 import com.mrousavy.camera.extensions.postAndWait
 
 @SuppressLint("ViewConstructor")

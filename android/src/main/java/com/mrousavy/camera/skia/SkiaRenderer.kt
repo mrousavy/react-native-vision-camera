@@ -79,6 +79,12 @@ class SkiaRenderer: Closeable {
     }
   }
 
+  fun setInputSurfaceSize(width: Int, height: Int) {
+    synchronized(this) {
+      setInputTextureSize(width, height)
+    }
+  }
+
   /**
    * Called on every Camera Frame (1..240 FPS)
    */
@@ -120,6 +126,7 @@ class SkiaRenderer: Closeable {
   private external fun renderCameraFrameToOffscreenCanvas()
   private external fun renderLatestFrameToPreview()
   private external fun prepareInputTexture(): Int
+  private external fun setInputTextureSize(width: Int, height: Int)
   private external fun setOutputSurface(surface: Any)
   private external fun setOutputSurfaceSize(width: Int, height: Int)
   private external fun destroyOutputSurface()

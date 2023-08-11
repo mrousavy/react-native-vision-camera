@@ -144,6 +144,11 @@ void SkiaRenderer::setOutputSurfaceSize(int width, int height) {
   _previewHeight = height;
 }
 
+void SkiaRenderer::setInputTextureSize(int width, int height) {
+  _inputWidth = width;
+  _inputHeight = height;
+}
+
 int SkiaRenderer::prepareInputTexture() {
   __android_log_print(ANDROID_LOG_INFO, TAG, "prepareInputTexture()");
   if (_previewSurface == nullptr) {
@@ -190,8 +195,8 @@ void SkiaRenderer::renderLatestFrameToPreview() {
     .fFormat = GR_GL_RGBA8,
     .fProtected = skgpu::Protected::kNo,
   };
-  GrBackendTexture texture(4000,
-                           2256,
+  GrBackendTexture texture(_inputWidth,
+                           _inputHeight,
                            GrMipMapped::kNo,
                            textureInfo);
   sk_sp<SkImage> frame = SkImages::AdoptTextureFrom(_skiaContext.get(),
@@ -253,6 +258,7 @@ void SkiaRenderer::registerNatives() {
   registerHybrid({
      makeNativeMethod("initHybrid", SkiaRenderer::initHybrid),
      makeNativeMethod("prepareInputTexture", SkiaRenderer::prepareInputTexture),
+     makeNativeMethod("setInputTextureSize", SkiaRenderer::setInputTextureSize),
      makeNativeMethod("setOutputSurface", SkiaRenderer::setOutputSurface),
      makeNativeMethod("destroyOutputSurface", SkiaRenderer::destroyOutputSurface),
      makeNativeMethod("setOutputSurfaceSize", SkiaRenderer::setOutputSurfaceSize),
