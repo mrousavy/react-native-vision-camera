@@ -48,7 +48,7 @@ class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
   /**
    * Renders the latest Camera Frame into it's Input Texture and run the Skia Frame Processor (1..240 FPS)
    */
-  void renderCameraFrameToOffscreenCanvas(jni::JByteBuffer yBuffer, jni::JByteBuffer uvBuffer);
+  void renderCameraFrameToOffscreenCanvas(jni::JByteBuffer yBuffer, jni::JByteBuffer uBuffer, jni::JByteBuffer vBuffer);
 
  private:
   // OpenGL Context
