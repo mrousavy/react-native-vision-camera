@@ -8,6 +8,7 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import com.mrousavy.camera.CameraQueues
+import com.mrousavy.camera.extensions.postAndWait
 
 @SuppressLint("ViewConstructor")
 class SkiaPreviewView(context: Context,
@@ -41,7 +42,7 @@ class SkiaPreviewView(context: Context,
       isAlive = true
       Log.i(TAG, "onSurfaceCreated(..)")
 
-      skiaRenderer.thread.post {
+      skiaRenderer.thread.postAndWait {
         // Create C++ part (OpenGL/Skia context)
         skiaRenderer.setPreviewSurface(holder.surface)
 
@@ -52,11 +53,13 @@ class SkiaPreviewView(context: Context,
   }
 
   override fun surfaceChanged(holder: SurfaceHolder, format: Int, w: Int, h: Int) {
-    Log.i(TAG, "surfaceChanged($w, $h)")
+    synchronized(this) {
+      Log.i(TAG, "surfaceChanged($w, $h)")
 
-    skiaRenderer.thread.post {
-      // Update C++ OpenGL Surface size
-      skiaRenderer.setPreviewSurfaceSize(w, h)
+      skiaRenderer.thread.postAndWait {
+        // Update C++ OpenGL Surface size
+        skiaRenderer.setPreviewSurfaceSize(w, h)
+      }
     }
   }
 
@@ -65,7 +68,7 @@ class SkiaPreviewView(context: Context,
       isAlive = false
       Log.i(TAG, "surfaceDestroyed(..)")
 
-      skiaRenderer.thread.post {
+      skiaRenderer.thread.postAndWait {
         // Clean up C++ part (OpenGL/Skia context)
         skiaRenderer.destroyPreviewSurface()
       }
