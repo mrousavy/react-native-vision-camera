@@ -38,7 +38,7 @@ SkiaRenderer::SkiaRenderer(const jni::alias_ref<jhybridobject>& javaPart) {
   _previewSurface = nullptr;
   _previewWidth = 0;
   _previewHeight = 0;
-  _inputSurfaceTextureId = 0;
+  _inputSurfaceTextureId = NO_INPUT_TEXTURE;
 }
 
 SkiaRenderer::~SkiaRenderer() {
@@ -116,15 +116,15 @@ void SkiaRenderer::ensureOpenGL(ANativeWindow* surface) {
 }
 
 void SkiaRenderer::setOutputSurface(jobject previewSurface) {
-  __android_log_print(ANDROID_LOG_INFO, TAG, "setPreviewSurface()");
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Setting Output Surface..");
   destroyOutputSurface();
 
   _previewSurface = ANativeWindow_fromSurface(jni::Environment::current(), previewSurface);
   _glSurface = EGL_NO_SURFACE;
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Set Preview Surface!");
 }
 
 void SkiaRenderer::destroyOutputSurface() {
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying Output Surface..");
   if (_glSurface != EGL_NO_SURFACE) {
     eglDestroySurface(_glDisplay, _glSurface);
     _glSurface = EGL_NO_SURFACE;
@@ -152,7 +152,13 @@ int SkiaRenderer::prepareInputTexture() {
   }
   ensureOpenGL(_previewSurface);
 
-  GLuint textures[1] {0};
+  if (_inputSurfaceTextureId != NO_INPUT_TEXTURE) {
+    GLuint textures[1] {_inputSurfaceTextureId};
+    glDeleteTextures(1, textures);
+    _inputSurfaceTextureId = NO_INPUT_TEXTURE;
+  }
+
+  GLuint textures[1] {NO_INPUT_TEXTURE};
   glGenTextures(1, textures);
   if (glGetError() != GL_NO_ERROR) throw OpenGLError("Failed to create OpenGL Texture!");
   _inputSurfaceTextureId = textures[0];
@@ -165,6 +171,10 @@ void SkiaRenderer::renderLatestFrameToPreview() {
   if (_previewSurface == nullptr) {
     throw std::runtime_error("Cannot render latest frame to preview without a preview surface! "
                              "renderLatestFrameToPreview() needs to be called after setPreviewSurface().");
+  }
+  if (_inputSurfaceTextureId == NO_INPUT_TEXTURE) {
+    throw std::runtime_error("Cannot render latest frame to preview without an input texture! "
+                             "renderLatestFrameToPreview() needs to be called after prepareInputTexture().");
   }
   ensureOpenGL(_previewSurface);
 

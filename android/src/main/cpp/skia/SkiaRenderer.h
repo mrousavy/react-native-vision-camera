@@ -16,6 +16,8 @@ namespace vision {
 
 using namespace facebook;
 
+#define NO_INPUT_TEXTURE 7654321
+
 class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
   // JNI Stuff
  public:
@@ -57,7 +59,7 @@ class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
   sk_sp<GrDirectContext> _skiaContext;
 
   // Input Texture (Camera/Offscreen)
-  GLuint _inputSurfaceTextureId;
+  GLuint _inputSurfaceTextureId = NO_INPUT_TEXTURE;
   // Output Texture (Surface/Preview)
   ANativeWindow* _previewSurface;
   int _previewWidth, _previewHeight;
