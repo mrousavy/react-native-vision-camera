@@ -239,12 +239,7 @@ void SkiaRenderer::renderCameraFrameToOffscreenCanvas(jni::JByteBuffer yBuffer,
   }
   _skiaContext->resetContext();
 
-  SkYUVAInfo info(SkISize::Make(_inputWidth, _inputHeight),
-                  SkYUVAInfo::PlaneConfig::kY_U_V,
-                  SkYUVAInfo::Subsampling::k420,
-                  SkYUVColorSpace::kRec709_Limited_SkYUVColorSpace);
   size_t bytesPerRow = sizeof(uint8_t) * _inputWidth;
-  SkYUVAPixmapInfo pixmapInfo(info, SkYUVAPixmapInfo::DataType::kUnorm8, &bytesPerRow);
 
   SkImageInfo yInfo = SkImageInfo::MakeA8(_inputWidth, _inputHeight);
   SkPixmap yPixmap(yInfo, yBuffer.getDirectAddress(), bytesPerRow);
@@ -255,6 +250,10 @@ void SkiaRenderer::renderCameraFrameToOffscreenCanvas(jni::JByteBuffer yBuffer,
   SkImageInfo vInfo = SkImageInfo::MakeA8(_inputWidth / 2, _inputHeight / 2);
   SkPixmap vPixmap(vInfo, vBuffer.getDirectAddress(), bytesPerRow / 2);
 
+  SkYUVAInfo info(SkISize::Make(_inputWidth, _inputHeight),
+                  SkYUVAInfo::PlaneConfig::kY_U_V,
+                  SkYUVAInfo::Subsampling::k420,
+                  SkYUVColorSpace::kRec709_Limited_SkYUVColorSpace);
   SkPixmap externalPixmaps[3] = { yPixmap, uPixmap, vPixmap };
   SkYUVAPixmaps pixmaps = SkYUVAPixmaps::FromExternalPixmaps(info, externalPixmaps);
 
