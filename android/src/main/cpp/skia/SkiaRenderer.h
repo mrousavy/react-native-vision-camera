@@ -6,6 +6,7 @@
 
 #include <jni.h>
 #include <fbjni/fbjni.h>
+#include <fbjni/ByteBuffer.h>
 
 #include <GLES2/gl2.h>
 #include <EGL/egl.h>
@@ -34,7 +35,6 @@ class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
 
  private:
   // Input Texture (Camera)
-  int prepareInputTexture();
   void setInputTextureSize(int width, int height);
   // Output Surface (Preview)
   void setOutputSurface(jobject previewSurface);
@@ -48,7 +48,7 @@ class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
   /**
    * Renders the latest Camera Frame into it's Input Texture and run the Skia Frame Processor (1..240 FPS)
    */
-  void renderCameraFrameToOffscreenCanvas();
+  void renderCameraFrameToOffscreenCanvas(jni::JByteBuffer yBuffer, jni::JByteBuffer uvBuffer);
 
  private:
   // OpenGL Context

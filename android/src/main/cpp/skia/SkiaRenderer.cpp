@@ -8,6 +8,7 @@
 
 #include <core/SkColorSpace.h>
 #include <core/SkCanvas.h>
+#include <core/SkYUVAPixmaps.h>
 
 #include <gpu/gl/GrGLInterface.h>
 #include <gpu/GrDirectContext.h>
@@ -149,34 +150,13 @@ void SkiaRenderer::setInputTextureSize(int width, int height) {
   _inputHeight = height;
 }
 
-int SkiaRenderer::prepareInputTexture() {
-  __android_log_print(ANDROID_LOG_INFO, TAG, "prepareInputTexture()");
-  if (_previewSurface == nullptr) {
-    throw std::runtime_error("Cannot prepare input texture without an output texture! "
-                             "prepareInputTexture() needs to be called after setPreviewSurface().");
-  }
-  ensureOpenGL(_previewSurface);
-
-  if (_inputSurfaceTextureId != NO_INPUT_TEXTURE) {
-    GLuint textures[1] {_inputSurfaceTextureId};
-    glDeleteTextures(1, textures);
-    _inputSurfaceTextureId = NO_INPUT_TEXTURE;
-  }
-
-  GLuint textures[1] {NO_INPUT_TEXTURE};
-  glGenTextures(1, textures);
-  if (glGetError() != GL_NO_ERROR) throw OpenGLError("Failed to create OpenGL Texture!");
-  _inputSurfaceTextureId = textures[0];
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Created input texture ID! %i", _inputSurfaceTextureId);
-  return static_cast<int>(_inputSurfaceTextureId);
-}
-
 void SkiaRenderer::renderLatestFrameToPreview() {
   __android_log_print(ANDROID_LOG_INFO, TAG, "renderLatestFrameToPreview()");
   if (_previewSurface == nullptr) {
     throw std::runtime_error("Cannot render latest frame to preview without a preview surface! "
                              "renderLatestFrameToPreview() needs to be called after setPreviewSurface().");
   }
+  return;
   if (_inputSurfaceTextureId == NO_INPUT_TEXTURE) {
     throw std::runtime_error("Cannot render latest frame to preview without an input texture! "
                              "renderLatestFrameToPreview() needs to be called after prepareInputTexture().");
@@ -249,15 +229,42 @@ void SkiaRenderer::renderLatestFrameToPreview() {
 }
 
 
-void SkiaRenderer::renderCameraFrameToOffscreenCanvas() {
+void SkiaRenderer::renderCameraFrameToOffscreenCanvas(jni::JByteBuffer yBuffer, jni::JByteBuffer uvBuffer) {
   __android_log_print(ANDROID_LOG_INFO, TAG, "renderCameraFrameToOffscreenCanvas()");
+
+  ensureOpenGL(_previewSurface);
+  if (_skiaContext == nullptr) {
+    _skiaContext = GrDirectContext::MakeGL();
+  }
+  _skiaContext->resetContext();
+
+  SkYUVAInfo info(SkISize::Make(_inputWidth, _inputHeight),
+                  SkYUVAInfo::PlaneConfig::kY_UV,
+                  SkYUVAInfo::Subsampling::k420,
+                  SkYUVColorSpace::kRec709_Limited_SkYUVColorSpace);
+  size_t bytesPerRow = sizeof(uint8_t) * _inputWidth;
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Creating image... %i x %i @ %i bpr", _inputWidth, _inputHeight, bytesPerRow);
+  SkYUVAPixmapInfo pixmapInfo(info, SkYUVAPixmapInfo::DataType::kUnorm8, &bytesPerRow);
+
+  SkImageInfo yInfo = SkImageInfo::MakeA8(_inputWidth, _inputHeight);
+  SkPixmap yPixmap(yInfo, yBuffer.getDirectAddress(), bytesPerRow);
+
+  SkImageInfo uvInfo = SkImageInfo::MakeA8(_inputWidth / 2, _inputHeight / 2);
+  SkPixmap uvPixmap(uvInfo, uvBuffer.getDirectAddress(), bytesPerRow / 2);
+
+  SkPixmap externalPixmaps[2] = { yPixmap, uvPixmap };
+  SkYUVAPixmaps pixmaps = SkYUVAPixmaps::FromExternalPixmaps(info, externalPixmaps);
+
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Got pixmaps! %i", pixmaps.isValid());
+  sk_sp<SkImage> image = SkImages::TextureFromYUVAPixmaps(_skiaContext.get(), pixmaps);
+
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Got image! %i x %i", image->width(), image->height());
 }
 
 
 void SkiaRenderer::registerNatives() {
   registerHybrid({
      makeNativeMethod("initHybrid", SkiaRenderer::initHybrid),
-     makeNativeMethod("prepareInputTexture", SkiaRenderer::prepareInputTexture),
      makeNativeMethod("setInputTextureSize", SkiaRenderer::setInputTextureSize),
      makeNativeMethod("setOutputSurface", SkiaRenderer::setOutputSurface),
      makeNativeMethod("destroyOutputSurface", SkiaRenderer::destroyOutputSurface),
