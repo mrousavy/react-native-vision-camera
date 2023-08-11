@@ -22,6 +22,8 @@ class SkiaPreviewView(context: Context,
 
   init {
     holder.addCallback(this)
+    // Notify Camera that we now have a Surface - Camera will start writing Frames
+    onSurfaceChanged(skiaRenderer.inputSurface)
   }
 
   private fun startLooping(choreographer: Choreographer) {
@@ -41,8 +43,6 @@ class SkiaPreviewView(context: Context,
     thread.post {
       // Create C++ part (OpenGL/Skia context)
       skiaRenderer.setPreviewSurface(holder.surface)
-      // Notify Camera that we now have a Surface - Camera will start writing Frames
-      onSurfaceChanged(holder.surface)
 
       // Start updating the Preview View (~60 FPS)
       startLooping(Choreographer.getInstance())

@@ -94,7 +94,7 @@ SkiaRenderer::~SkiaRenderer() {
 
 void SkiaRenderer::ensureOpenGL() const {
   bool successful = eglMakeCurrent(_glDisplay, _glSurface, _glSurface, _glContext);
-  if (!successful || eglGetError() != GL_NO_ERROR) throw OpenGLError("Failed to use current OpenGL context!");
+  if (!successful || eglGetError() != EGL_SUCCESS) throw OpenGLError("Failed to use current OpenGL context!");
 }
 
 void SkiaRenderer::setPreviewSurface(jobject previewSurface) {
@@ -103,6 +103,7 @@ void SkiaRenderer::setPreviewSurface(jobject previewSurface) {
 
   _previewSurface = ANativeWindow_fromSurface(jni::Environment::current(), previewSurface);
   _glSurface = EGL_NO_SURFACE;
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Set Preview Surface!");
 }
 
 void SkiaRenderer::destroyPreviewSurface() {
@@ -165,7 +166,7 @@ void SkiaRenderer::renderLatestFrameToPreview() {
   __android_log_print(ANDROID_LOG_INFO, TAG, "eglSwap");
 
   bool successful = eglSwapBuffers(_glDisplay, _glSurface);
-  if (!successful || glGetError() != GL_NO_ERROR) throw OpenGLError("Failed to swap OpenGL buffers!");
+  if (!successful || eglGetError() != EGL_SUCCESS) throw OpenGLError("Failed to swap OpenGL buffers!");
 }
 
 
