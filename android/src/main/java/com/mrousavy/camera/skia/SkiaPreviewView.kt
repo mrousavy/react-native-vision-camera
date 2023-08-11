@@ -11,19 +11,15 @@ import com.mrousavy.camera.CameraQueues
 
 @SuppressLint("ViewConstructor")
 class SkiaPreviewView(context: Context,
-                      private val skiaRenderer: SkiaRenderer,
-                      private val onSurfaceChanged: (surface: Surface?) -> Unit): SurfaceView(context), SurfaceHolder.Callback {
+                      private val skiaRenderer: SkiaRenderer): SurfaceView(context), SurfaceHolder.Callback {
   companion object {
     private const val TAG = "SkiaPreviewView"
   }
 
   private var isAlive = true
-  private val thread = CameraQueues.previewQueue.handler
 
   init {
     holder.addCallback(this)
-    // Notify Camera that we now have a Surface - Camera will start writing Frames
-    onSurfaceChanged(skiaRenderer.inputSurface)
   }
 
   private fun startLooping(choreographer: Choreographer) {
@@ -42,7 +38,7 @@ class SkiaPreviewView(context: Context,
     isAlive = true
     Log.i(TAG, "onSurfaceCreated(..)")
 
-    thread.post {
+    skiaRenderer.thread.post {
       // Create C++ part (OpenGL/Skia context)
       skiaRenderer.setPreviewSurface(holder.surface)
 
@@ -54,7 +50,7 @@ class SkiaPreviewView(context: Context,
   override fun surfaceChanged(holder: SurfaceHolder, format: Int, w: Int, h: Int) {
     Log.i(TAG, "surfaceChanged($w, $h)")
 
-    thread.post {
+    skiaRenderer.thread.post {
       // Update C++ OpenGL Surface size
       skiaRenderer.setPreviewSurfaceSize(w, h)
     }
@@ -64,9 +60,7 @@ class SkiaPreviewView(context: Context,
     isAlive = false
     Log.i(TAG, "surfaceDestroyed(..)")
 
-    thread.post {
-      // Notify Camera that we no longer have a Surface - Camera will stop writing Frames
-      onSurfaceChanged(null)
+    skiaRenderer.thread.post {
       // Clean up C++ part (OpenGL/Skia context)
       skiaRenderer.destroyPreviewSurface()
     }

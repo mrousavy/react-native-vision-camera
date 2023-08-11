@@ -26,6 +26,7 @@ import com.mrousavy.camera.parsers.VideoStabilizationMode
 import com.mrousavy.camera.skia.SkiaPreviewView
 import com.mrousavy.camera.skia.SkiaRenderer
 import com.mrousavy.camera.utils.CameraOutputs
+import java.io.Closeable
 import kotlin.math.max
 import kotlin.math.min
 
@@ -136,14 +137,16 @@ class CameraView(context: Context) : FrameLayout(context) {
   }
 
   private fun setupPreviewView() {
+    this.previewView?.let { previewView ->
+      removeView(previewView)
+      if (previewView is Closeable) previewView.close()
+    }
+
     when (previewType) {
       PreviewType.NONE -> {
-        removeView(this.previewView)
         this.previewView = null
       }
       PreviewType.NATIVE -> {
-        removeView(this.previewView)
-
         val cameraId = cameraId ?: throw NoCameraDeviceError()
         val previewView = NativePreviewView(context, cameraManager, cameraId) { surface ->
           previewSurface = surface
@@ -154,18 +157,13 @@ class CameraView(context: Context) : FrameLayout(context) {
         this.previewView = previewView
       }
       PreviewType.SKIA -> {
-        removeView(this.previewView)
-
-        CameraQueues.previewQueue.handler.post {
-          if (skiaRenderer == null) skiaRenderer = SkiaRenderer()
-          val previewView = SkiaPreviewView(context, skiaRenderer!!) { surface ->
-          }
-          previewSurface = skiaRenderer!!.inputSurface
-          configureSession()
-          previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-          addView(previewView)
-          this.previewView = previewView
-        }
+        if (skiaRenderer == null) skiaRenderer = SkiaRenderer()
+        val previewView = SkiaPreviewView(context, skiaRenderer!!)
+        previewSurface = skiaRenderer!!.inputSurface
+        configureSession()
+        previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        addView(previewView)
+        this.previewView = previewView
       }
     }
   }
