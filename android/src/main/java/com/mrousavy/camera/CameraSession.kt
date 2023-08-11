@@ -354,8 +354,8 @@ class CameraSession(private val context: Context,
         val hdr = hdr
         val outputs = outputs
 
-        if (outputs?.preview == null) {
-          Log.i(TAG, "CameraSession doesn't have a Preview, canceling..")
+        if (outputs == null) {
+          Log.i(TAG, "CameraSession doesn't have any Outputs, canceling..")
           destroy()
           return@withLock
         }
