@@ -71,13 +71,8 @@ class SkiaRenderer: Closeable {
    */
   fun onCameraFrame(frame: Frame) {
     synchronized(this) {
-      val yBuffer = frame.image.planes[0].buffer
-      val uBuffer = frame.image.planes[1].buffer
-      val vBuffer = frame.image.planes[2].buffer
-      Log.i(TAG, "Y Buffer: rowStride: ${frame.image.planes[0].rowStride} | pixelStride: ${frame.image.planes[0].pixelStride}")
-      Log.i(TAG, "U Buffer: rowStride: ${frame.image.planes[1].rowStride} | pixelStride: ${frame.image.planes[1].pixelStride}")
-      Log.i(TAG, "V Buffer: rowStride: ${frame.image.planes[2].rowStride} | pixelStride: ${frame.image.planes[2].pixelStride}")
-      renderCameraFrameToOffscreenCanvas(yBuffer, uBuffer, vBuffer)
+      val (y, u, v) = frame.image.planes
+      renderCameraFrameToOffscreenCanvas(y.buffer, u.buffer, v.buffer)
       hasNewFrame = true
     }
   }
@@ -94,7 +89,9 @@ class SkiaRenderer: Closeable {
 
   private external fun initHybrid(): HybridData
 
-  private external fun renderCameraFrameToOffscreenCanvas(yBuffer: ByteBuffer, uBuffer: ByteBuffer, vBuffer: ByteBuffer)
+  private external fun renderCameraFrameToOffscreenCanvas(yBuffer: ByteBuffer,
+                                                          uBuffer: ByteBuffer,
+                                                          vBuffer: ByteBuffer)
   private external fun renderLatestFrameToPreview()
   private external fun setInputTextureSize(width: Int, height: Int)
   private external fun setOutputSurface(surface: Any)

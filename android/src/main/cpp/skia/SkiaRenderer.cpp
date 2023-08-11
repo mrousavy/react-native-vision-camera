@@ -229,9 +229,9 @@ void SkiaRenderer::renderLatestFrameToPreview() {
 }
 
 
-void SkiaRenderer::renderCameraFrameToOffscreenCanvas(jni::JByteBuffer yBuffer, jni::JByteBuffer uBuffer, jni::JByteBuffer vBuffer) {
-  __android_log_print(ANDROID_LOG_INFO, TAG, "renderCameraFrameToOffscreenCanvas()");
-
+void SkiaRenderer::renderCameraFrameToOffscreenCanvas(jni::JByteBuffer yBuffer,
+                                                      jni::JByteBuffer uBuffer,
+                                                      jni::JByteBuffer vBuffer) {
   ensureOpenGL(_previewSurface);
   if (_skiaContext == nullptr) {
     _skiaContext = GrDirectContext::MakeGL();
@@ -243,7 +243,6 @@ void SkiaRenderer::renderCameraFrameToOffscreenCanvas(jni::JByteBuffer yBuffer, 
                   SkYUVAInfo::Subsampling::k420,
                   SkYUVColorSpace::kRec709_Limited_SkYUVColorSpace);
   size_t bytesPerRow = sizeof(uint8_t) * _inputWidth;
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Creating image... %i x %i @ %i bpr", _inputWidth, _inputHeight, bytesPerRow);
   SkYUVAPixmapInfo pixmapInfo(info, SkYUVAPixmapInfo::DataType::kUnorm8, &bytesPerRow);
 
   SkImageInfo yInfo = SkImageInfo::MakeA8(_inputWidth, _inputHeight);
@@ -258,10 +257,7 @@ void SkiaRenderer::renderCameraFrameToOffscreenCanvas(jni::JByteBuffer yBuffer, 
   SkPixmap externalPixmaps[3] = { yPixmap, uPixmap, vPixmap };
   SkYUVAPixmaps pixmaps = SkYUVAPixmaps::FromExternalPixmaps(info, externalPixmaps);
 
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Got pixmaps! %i", pixmaps.isValid());
   sk_sp<SkImage> image = SkImages::TextureFromYUVAPixmaps(_skiaContext.get(), pixmaps);
-
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Got image! %i x %i", image->width(), image->height());
 }
 
 
