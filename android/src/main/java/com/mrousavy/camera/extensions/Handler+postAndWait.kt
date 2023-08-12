@@ -8,7 +8,7 @@ import java.util.concurrent.Semaphore
  */
 fun Handler.postAndWait(job: () -> Unit) {
   val semaphore = Semaphore(1)
-  semaphore.acquire()
+  semaphore.drainPermits()
 
   this.post {
     try {

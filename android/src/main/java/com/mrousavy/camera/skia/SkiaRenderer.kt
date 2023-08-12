@@ -1,33 +1,21 @@
 package com.mrousavy.camera.skia
 
-import android.graphics.SurfaceTexture
-import android.os.Build
-import android.os.Looper
-import android.util.Log
 import android.view.Surface
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
-import com.mrousavy.camera.CameraError
 import com.mrousavy.camera.CameraQueues
-import com.mrousavy.camera.UnknownCameraError
 import com.mrousavy.camera.frameprocessor.Frame
 import java.io.Closeable
-import java.lang.RuntimeException
 import java.nio.ByteBuffer
-import java.util.concurrent.locks.ReentrantLock
 
 @Suppress("KotlinJniMissingFunction")
 class SkiaRenderer: Closeable {
-  companion object {
-    private const val TAG = "SkiaRenderer"
-  }
-
   @DoNotStrip
   private var mHybridData: HybridData
   private var hasNewFrame = false
+  private var hasOutputSurface = false
 
   val thread = CameraQueues.previewQueue.handler
-  var hasOutputSurface = false
 
   init {
     mHybridData = initHybrid()
@@ -86,6 +74,8 @@ class SkiaRenderer: Closeable {
    */
   fun onPreviewFrame() {
     synchronized(this) {
+      if (!hasOutputSurface) return
+      if (!hasNewFrame) return
       renderLatestFrameToPreview()
       hasNewFrame = false
     }
