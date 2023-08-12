@@ -1,5 +1,6 @@
 package com.mrousavy.camera.skia
 
+import android.graphics.ImageFormat
 import android.view.Surface
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
@@ -63,6 +64,9 @@ class SkiaRenderer: Closeable {
   fun onCameraFrame(frame: Frame) {
     synchronized(this) {
       if (!hasOutputSurface) return
+      if (frame.image.format != ImageFormat.YUV_420_888) {
+        throw Error("Failed to render Camera Frame! Expected Image format #${ImageFormat.YUV_420_888} (ImageFormat.YUV_420_888), received #${frame.image.format}.")
+      }
       val (y, u, v) = frame.image.planes
       renderCameraFrameToOffscreenCanvas(y.buffer, u.buffer, v.buffer)
       hasNewFrame = true

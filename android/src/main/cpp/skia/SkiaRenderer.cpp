@@ -245,11 +245,11 @@ void SkiaRenderer::renderCameraFrameToOffscreenCanvas(jni::JByteBuffer yBuffer,
   SkImageInfo yInfo = SkImageInfo::MakeA8(_inputWidth, _inputHeight);
   SkPixmap yPixmap(yInfo, yBuffer.getDirectAddress(), bytesPerRow);
 
-  SkImageInfo uInfo = SkImageInfo::MakeA8(_inputWidth / 4, _inputHeight / 2);
-  SkPixmap uPixmap(uInfo, uBuffer.getDirectAddress(), bytesPerRow / 4);
+  SkImageInfo uInfo = SkImageInfo::MakeA8(_inputWidth / 2, _inputHeight / 2);
+  SkPixmap uPixmap(uInfo, uBuffer.getDirectAddress(), bytesPerRow / 2);
 
-  SkImageInfo vInfo = SkImageInfo::MakeA8(_inputWidth / 4, _inputHeight / 2);
-  SkPixmap vPixmap(vInfo, vBuffer.getDirectAddress(), bytesPerRow / 4);
+  SkImageInfo vInfo = SkImageInfo::MakeA8(_inputWidth / 2, _inputHeight / 2);
+  SkPixmap vPixmap(vInfo, vBuffer.getDirectAddress(), bytesPerRow / 2);
 
   SkYUVAInfo info(SkISize::Make(_inputWidth, _inputHeight),
                   SkYUVAInfo::PlaneConfig::kY_U_V,
