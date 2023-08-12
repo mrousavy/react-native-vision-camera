@@ -239,16 +239,17 @@ void SkiaRenderer::renderCameraFrameToOffscreenCanvas(jni::JByteBuffer yBuffer,
   }
   _skiaContext->resetContext();
 
+  // See https://en.wikipedia.org/wiki/Chroma_subsampling - we're in 4:2:0
   size_t bytesPerRow = sizeof(uint8_t) * _inputWidth;
 
   SkImageInfo yInfo = SkImageInfo::MakeA8(_inputWidth, _inputHeight);
   SkPixmap yPixmap(yInfo, yBuffer.getDirectAddress(), bytesPerRow);
 
-  SkImageInfo uInfo = SkImageInfo::MakeA8(_inputWidth / 2, _inputHeight / 2);
-  SkPixmap uPixmap(uInfo, uBuffer.getDirectAddress(), bytesPerRow / 2);
+  SkImageInfo uInfo = SkImageInfo::MakeA8(_inputWidth / 4, _inputHeight / 2);
+  SkPixmap uPixmap(uInfo, uBuffer.getDirectAddress(), bytesPerRow / 4);
 
-  SkImageInfo vInfo = SkImageInfo::MakeA8(_inputWidth / 2, _inputHeight / 2);
-  SkPixmap vPixmap(vInfo, vBuffer.getDirectAddress(), bytesPerRow / 2);
+  SkImageInfo vInfo = SkImageInfo::MakeA8(_inputWidth / 4, _inputHeight / 2);
+  SkPixmap vPixmap(vInfo, vBuffer.getDirectAddress(), bytesPerRow / 4);
 
   SkYUVAInfo info(SkISize::Make(_inputWidth, _inputHeight),
                   SkYUVAInfo::PlaneConfig::kY_U_V,
