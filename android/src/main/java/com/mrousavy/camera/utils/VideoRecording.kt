@@ -6,6 +6,7 @@ import android.media.MediaFormat
 import android.os.Build
 import android.util.Log
 import android.util.Size
+import android.view.Surface
 import com.mrousavy.camera.extensions.setDynamicRangeProfile
 
 class VideoRecording(videoSize: Size,
@@ -20,10 +21,14 @@ class VideoRecording(videoSize: Size,
   }
 
   private val mediaCodec: MediaCodec
-  val mimeType = if (hdrProfile != null) MediaFormat.MIMETYPE_VIDEO_HEVC else MediaFormat.MIMETYPE_VIDEO_AVC
+  private val mimeType = if (hdrProfile != null) MediaFormat.MIMETYPE_VIDEO_HEVC else MediaFormat.MIMETYPE_VIDEO_AVC
+
+  val surface: Surface
 
   init {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) throw Error("Video Recording is only supported on Devices running Android version 23 (M) or newer.")
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+      throw Error("Video Recording is only supported on Devices running Android version 23 (M) or newer.")
+    }
 
     val format = MediaFormat.createVideoFormat(mimeType, videoSize.width, videoSize.height)
 
@@ -37,6 +42,7 @@ class VideoRecording(videoSize: Size,
     mediaCodec.setCallback(this)
     mediaCodec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
     // TODO: Get surface through mediaCodec.createInputSurface() + attach it to Camera
+    surface = mediaCodec.createInputSurface()
   }
 
   fun start() {
