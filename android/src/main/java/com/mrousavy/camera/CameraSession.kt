@@ -346,7 +346,7 @@ class CameraSession(private val context: Context,
         val hdr = hdr
         val outputs = outputs
 
-        if (outputs == null) {
+        if (outputs == null || outputs.size == 0) {
           Log.i(TAG, "CameraSession doesn't have any Outputs, canceling..")
           destroy()
           return@withLock
