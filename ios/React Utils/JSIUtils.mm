@@ -20,8 +20,6 @@
 #import <ReactCommon/CallInvoker.h>
 #import <React/RCTBridge.h>
 #import <ReactCommon/TurboModuleUtils.h>
-#import "../Frame Processor/Frame.h"
-#import "../Frame Processor/FrameHostObject.h"
 
 using namespace facebook;
 using namespace facebook::react;
@@ -76,10 +74,8 @@ jsi::Value convertObjCObjectToJSIValue(jsi::Runtime &runtime, id value)
     return convertNSArrayToJSIArray(runtime, (NSArray *)value);
   } else if (value == (id)kCFNull) {
     return jsi::Value::null();
-  } else if ([value isKindOfClass:[Frame class]]) {
-    auto frameHostObject = std::make_shared<FrameHostObject>((Frame*)value);
-    return jsi::Object::createFromHostObject(runtime, frameHostObject);
   }
+
   return jsi::Value::undefined();
 }
 
@@ -157,13 +153,14 @@ id convertJSIValueToObjCObject(jsi::Runtime &runtime, const jsi::Value &value, s
     if (o.isFunction(runtime)) {
       return convertJSIFunctionToCallback(runtime, std::move(o.getFunction(runtime)), jsInvoker);
     }
-    if (o.isHostObject(runtime)) {
-      auto hostObject = o.asHostObject(runtime);
-      auto frame = dynamic_cast<FrameHostObject*>(hostObject.get());
-      if (frame != nullptr) {
-        return frame->frame;
-      }
-    }
+    // Frame disabled because of reanimated
+    // if (o.isHostObject(runtime)) {
+    //   auto hostObject = o.asHostObject(runtime);
+    //   auto frame = dynamic_cast<FrameHostObject*>(hostObject.get());
+    //   if (frame != nullptr) {
+    //     return frame->frame;
+    //   }
+    // }
     return convertJSIObjectToNSDictionary(runtime, o, jsInvoker);
   }
 

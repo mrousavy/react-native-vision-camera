@@ -39,36 +39,41 @@ public final class CameraView: UIView {
 
   // pragma MARK: Exported Properties
   // props that require reconfiguring
-  @objc var cameraId: NSString?
-  @objc var enableDepthData = false
-  @objc var enableHighQualityPhotos: NSNumber? // nullable bool
-  @objc var enablePortraitEffectsMatteDelivery = false
-  @objc var preset: String?
+  @objc public var cameraId: NSString?
+  @objc public var enableDepthData = false
+  @objc public var enableHighQualityPhotos: NSNumber? // nullable bool
+  @objc public var enablePortraitEffectsMatteDelivery = false
+  @objc public var preset: String?
   // use cases
-  @objc var photo: NSNumber? // nullable bool
-  @objc var video: NSNumber? // nullable bool
-  @objc var audio: NSNumber? // nullable bool
-  @objc var enableFrameProcessor = false
+  @objc public var photo: NSNumber? // nullable bool
+  @objc public var video: NSNumber? // nullable bool
+  @objc public var audio: NSNumber? // nullable bool
+  @objc public var enableFrameProcessor = false
   // props that require format reconfiguring
-  @objc var format: NSDictionary?
-  @objc var fps: NSNumber?
-  @objc var frameProcessorFps: NSNumber = -1.0 // "auto"
-  @objc var hdr: NSNumber? // nullable bool
-  @objc var lowLightBoost: NSNumber? // nullable bool
-  @objc var colorSpace: NSString?
-  @objc var orientation: NSString?
+  @objc public var format: NSMutableDictionary?
+  @objc public var fps: NSNumber?
+  @objc public var frameProcessorFps: NSNumber = -1.0 // "auto"
+  @objc public var hdr: NSNumber? // nullable bool
+  @objc public var lowLightBoost: NSNumber? // nullable bool
+  @objc public var colorSpace: NSString?
+  @objc public var orientation: NSString?
   // other props
-  @objc var isActive = false
-  @objc var torch = "off"
-  @objc var zoom: NSNumber = 1.0 // in "factor"
-  @objc var videoStabilizationMode: NSString?
+  @objc public var isActive = false
+  @objc public var torch = "off"
+  @objc public var zoom: NSNumber = 1.0 // in "factor"
+  @objc public var videoStabilizationMode: NSString?
+  #if RCT_NEW_ARCH_ENABLED
+  @objc public var delegate: RNCameraViewDirectEventDelegate?
+  #else
   // events
   @objc var onInitialized: RCTDirectEventBlock?
   @objc var onError: RCTDirectEventBlock?
   @objc var onFrameProcessorPerformanceSuggestionAvailable: RCTDirectEventBlock?
   @objc var onViewReady: RCTDirectEventBlock?
+  #endif
+    
   // zoom
-  @objc var enableZoomGesture = false {
+  @objc public var enableZoomGesture = false {
     didSet {
       if enableZoomGesture {
         addPinchGestureRecognizer()
@@ -93,7 +98,6 @@ public final class CameraView: UIView {
   // CameraView+RecordView (+ FrameProcessorDelegate.mm)
   internal var isRecording = false
   internal var recordingSession: RecordingSession?
-  @objc public var frameProcessorCallback: FrameProcessorCallback?
   internal var lastFrameProcessorCall = DispatchTime.now().uptimeNanoseconds
   // CameraView+TakePhoto
   internal var photoCaptureDelegates: [PhotoCaptureDelegate] = []
@@ -107,7 +111,6 @@ public final class CameraView: UIView {
 
   /// Specifies whether the frameProcessor() function is currently executing. used to drop late frames.
   internal var isRunningFrameProcessor = false
-  internal let frameProcessorPerformanceDataCollector = FrameProcessorPerformanceDataCollector()
   internal var actualFrameProcessorFps = 30.0
   internal var lastSuggestedFrameProcessorFps = 0.0
   internal var lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
@@ -176,10 +179,17 @@ public final class CameraView: UIView {
     super.willMove(toSuperview: newSuperview)
     if !isMounted {
       isMounted = true
+    #if RCT_NEW_ARCH_ENABLED
+        guard let delegate = delegate else {
+          return
+        }
+        delegate.onViewReady();
+    #else
       guard let onViewReady = onViewReady else {
         return
       }
       onViewReady(nil)
+    #endif
     }
   }
 
@@ -262,14 +272,15 @@ public final class CameraView: UIView {
 
     // Frame Processor FPS Configuration
     if changedProps.contains("frameProcessorFps") {
-      if frameProcessorFps.doubleValue == -1 {
-        // "auto"
-        actualFrameProcessorFps = 30.0
-      } else {
-        actualFrameProcessorFps = frameProcessorFps.doubleValue
-      }
-      lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
-      frameProcessorPerformanceDataCollector.clear()
+      // Frame Processor is disabled because of reanimated
+      // if frameProcessorFps.doubleValue == -1 {
+      //   // "auto"
+      //   actualFrameProcessorFps = 30.0
+      // } else {
+      //   actualFrameProcessorFps = frameProcessorFps.doubleValue
+      // }
+      // lastFrameProcessorPerformanceEvaluation = DispatchTime.now()
+      // frameProcessorPerformanceDataCollector.clear()
     }
   }
 
@@ -320,7 +331,7 @@ public final class CameraView: UIView {
   // pragma MARK: Event Invokers
   internal final func invokeOnError(_ error: CameraError, cause: NSError? = nil) {
     ReactLogger.log(level: .error, message: "Invoking onError(): \(error.message)")
-    guard let onError = onError else { return }
+
 
     var causeDictionary: [String: Any]?
     if let cause = cause {
@@ -331,21 +342,43 @@ public final class CameraView: UIView {
         "details": cause.userInfo,
       ]
     }
+    #if RCT_NEW_ARCH_ENABLED
+      guard let delegate = delegate else {
+        return
+      }
+      delegate.onError(error:[
+        "code": error.code,
+        "message": error.message,
+        "cause": causeDictionary ?? NSNull(),
+      ])
+    #else
+    guard let onError = onError else { return }
     onError([
       "code": error.code,
       "message": error.message,
       "cause": causeDictionary ?? NSNull(),
     ])
+    #endif
   }
 
   internal final func invokeOnInitialized() {
     ReactLogger.log(level: .info, message: "Camera initialized!")
+    #if RCT_NEW_ARCH_ENABLED
+      guard let delegate = delegate else {
+        return
+      }
+      delegate.onInitialized()
+    #else
     guard let onInitialized = onInitialized else { return }
     onInitialized([String: Any]())
+    #endif
   }
 
   internal final func invokeOnFrameProcessorPerformanceSuggestionAvailable(currentFps: Double, suggestedFps: Double) {
     ReactLogger.log(level: .info, message: "Frame Processor Performance Suggestion available!")
+    #if RCT_NEW_ARCH_ENABLED
+     // Nothing
+    #else
     guard let onFrameProcessorPerformanceSuggestionAvailable = onFrameProcessorPerformanceSuggestionAvailable else { return }
 
     if lastSuggestedFrameProcessorFps == suggestedFps { return }
@@ -356,5 +389,14 @@ public final class CameraView: UIView {
       "suggestedFrameProcessorFps": suggestedFps,
     ])
     lastSuggestedFrameProcessorFps = suggestedFps
+    #endif
   }
 }
+
+
+@objc public protocol RNCameraViewDirectEventDelegate: AnyObject { //TODO: Move to a separate file
+    func onInitialized()
+    func onError(error: NSDictionary)
+    func onViewReady()
+}
+

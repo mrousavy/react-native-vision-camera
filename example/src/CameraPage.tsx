@@ -1,7 +1,12 @@
 import * as React from 'react';
 import { useRef, useState, useMemo, useCallback } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler';
+import {
+  GestureHandlerRootView,
+  PinchGestureHandler,
+  PinchGestureHandlerGestureEvent,
+  TapGestureHandler,
+} from 'react-native-gesture-handler';
 import {
   CameraDeviceFormat,
   CameraRuntimeError,
@@ -9,7 +14,6 @@ import {
   PhotoFile,
   sortFormats,
   useCameraDevices,
-  useFrameProcessor,
   VideoFile,
 } from 'react-native-vision-camera';
 import { Camera, frameRateIncluded } from 'react-native-vision-camera';
@@ -22,7 +26,6 @@ import { CaptureButton } from './views/CaptureButton';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { examplePlugin } from './frame-processors/ExamplePlugin';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
@@ -129,7 +132,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     [isPressingButton],
   );
   // Camera callbacks
-  const onError = useCallback((error: CameraRuntimeError) => {
+  const onError = useCallback((error) => {
     console.error(error);
   }, []);
   const onInitialized = useCallback(() => {
@@ -197,12 +200,6 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const frameProcessor = useFrameProcessor((frame) => {
-    'worklet';
-    const values = examplePlugin(frame);
-    console.log(`Return Values: ${JSON.stringify(values)}`);
-  }, []);
-
   const onFrameProcessorSuggestionAvailable = useCallback((suggestion: FrameProcessorPerformanceSuggestion) => {
     console.log(`Suggestion available! ${suggestion.type}: Can do ${suggestion.suggestedFrameProcessorFps} FPS`);
   }, []);
@@ -229,7 +226,6 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 photo={true}
                 video={true}
                 audio={hasMicrophonePermission}
-                frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
                 orientation="portrait"
                 frameProcessorFps={1}
                 onFrameProcessorPerformanceSuggestionAvailable={onFrameProcessorSuggestionAvailable}

@@ -44,11 +44,6 @@ Pod::Spec.new do |s|
   s.source_files = [
     "ios/**/*.{m,mm,swift}",
     "ios/CameraBridge.h",
-    "ios/Frame Processor/Frame.h",
-    "ios/Frame Processor/FrameProcessorCallback.h",
-    "ios/Frame Processor/FrameProcessorRuntimeManager.h",
-    "ios/Frame Processor/FrameProcessorPluginRegistry.h",
-    "ios/Frame Processor/FrameProcessorPlugin.h",
     "ios/React Utils/RCTBridge+runOnJS.h",
     "ios/React Utils/JSConsoleHelper.h",
     "cpp/**/*.{cpp}",
@@ -64,4 +59,20 @@ Pod::Spec.new do |s|
   s.dependency "React-callinvoker"
   s.dependency "React"
   s.dependency "React-Core"
+  
+  if ENV['RCT_NEW_ARCH_ENABLED'] == '1' then
+      s.compiler_flags = folly_compiler_flags + " -DRCT_NEW_ARCH_ENABLED=1"
+      s.pod_target_xcconfig    = {
+          "HEADER_SEARCH_PATHS" => "\"$(PODS_ROOT)/boost\" \"$(PODS_ROOT)/boost-for-react-native\" \"$(PODS_ROOT)/glog\" \"$(PODS_ROOT)/RCT-Folly\" \"${PODS_ROOT}/Headers/Public/React-hermes\" \"${PODS_ROOT}/Headers/Public/hermes-engine\"",
+          "OTHER_CPLUSPLUSFLAGS" => "-DFOLLY_NO_CONFIG -DFOLLY_MOBILE=1 -DFOLLY_USE_LIBCPP=1",
+          "OTHER_SWIFT_FLAGS" => "-DRCT_NEW_ARCH_ENABLED"
+      }
+
+      s.dependency "React-RCTFabric"
+      s.dependency "React-Codegen"
+      s.dependency "RCT-Folly"
+      s.dependency "RCTRequired"
+      s.dependency "RCTTypeSafety"
+      s.dependency "ReactCommon/turbomodule/core"
+  end
 end

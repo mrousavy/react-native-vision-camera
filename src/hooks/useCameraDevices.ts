@@ -45,14 +45,11 @@ export function useCameraDevices(deviceType: PhysicalCameraDeviceType | LogicalC
 
 export function useCameraDevices(deviceType?: PhysicalCameraDeviceType | LogicalCameraDeviceType): CameraDevices {
   const [cameraDevices, setCameraDevices] = useState<CameraDevices>(DefaultCameraDevices);
-
   useEffect(() => {
     let isMounted = true;
-
     const loadDevice = async (): Promise<void> => {
       let devices = await Camera.getAvailableCameraDevices();
       if (!isMounted) return;
-
       devices = devices.sort(sortDevices);
       if (deviceType != null) {
         devices = devices.filter((d) => {
@@ -68,11 +65,9 @@ export function useCameraDevices(deviceType?: PhysicalCameraDeviceType | Logical
       });
     };
     loadDevice();
-
     return () => {
       isMounted = false;
     };
   }, [deviceType]);
-
   return cameraDevices;
 }

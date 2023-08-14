@@ -92,12 +92,22 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   @ReactMethod
   fun takePhoto(viewTag: Int, options: ReadableMap, promise: Promise) {
     coroutineScope.launch {
+        withPromise(promise) {
+          val view = findCameraView(viewTag)
+          view.takePhoto(options)
+        }
+    }
+  }
+
+  // Fabric implementation
+  fun takePhoto(view: CameraView, options: ReadableMap, promise: Promise) {
+    coroutineScope.launch {
       withPromise(promise) {
-        val view = findCameraView(viewTag)
         view.takePhoto(options)
       }
     }
   }
+
 
   @Suppress("unused")
   @ReactMethod
@@ -105,6 +115,14 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     coroutineScope.launch {
       withPromise(promise) {
         val view = findCameraView(viewTag)
+        view.takeSnapshot(options)
+      }
+    }
+  }
+
+  fun takeSnapshot(view: CameraView, options: ReadableMap, promise: Promise) {
+    coroutineScope.launch {
+      withPromise(promise) {
         view.takeSnapshot(options)
       }
     }
@@ -127,10 +145,31 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
+  fun startRecording(view: CameraView, options: ReadableMap, onRecordCallback: Callback) {
+    coroutineScope.launch {
+      try {
+        view.startRecording(options, onRecordCallback)
+      } catch (error: CameraError) {
+        val map = makeErrorMap("${error.domain}/${error.id}", error.message, error)
+        onRecordCallback(null, map)
+      } catch (error: Throwable) {
+        val map = makeErrorMap("capture/unknown", "An unknown error occurred while trying to start a video recording!", error)
+        onRecordCallback(null, map)
+      }
+    }
+  }
+
   @ReactMethod
   fun pauseRecording(viewTag: Int, promise: Promise) {
     withPromise(promise) {
       val view = findCameraView(viewTag)
+      view.pauseRecording()
+      return@withPromise null
+    }
+  }
+
+  fun pauseRecording(view: CameraView, promise: Promise) {
+    withPromise(promise) {
       view.pauseRecording()
       return@withPromise null
     }
@@ -145,6 +184,13 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
+  fun resumeRecording(view: CameraView, promise: Promise) {
+    withPromise(promise) {
+      view.resumeRecording()
+      return@withPromise null
+    }
+  }
+
   @ReactMethod
   fun stopRecording(viewTag: Int, promise: Promise) {
     withPromise(promise) {
@@ -154,14 +200,41 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
+  fun stopRecording(view: CameraView, promise: Promise) {
+    withPromise(promise) {
+      view.stopRecording()
+      return@withPromise null
+    }
+  }
+
   @ReactMethod
-  fun focus(viewTag: Int, point: ReadableMap, promise: Promise) {
+  fun focus(viewTag: Int, point: ReadableMap, promise: Promise?) {
     coroutineScope.launch {
-      withPromise(promise) {
+      if(promise != null){
+        withPromise(promise) {
+          val view = findCameraView(viewTag)
+          view.focus(point)
+          return@withPromise null
+        }
+      }else{
         val view = findCameraView(viewTag)
         view.focus(point)
-        return@withPromise null
       }
+
+    }
+  }
+
+  fun focus(view: CameraView, point: ReadableMap, promise: Promise?) {
+    coroutineScope.launch {
+      if(promise != null){
+        withPromise(promise) {
+          view.focus(point)
+          return@withPromise null
+        }
+      }else{
+        view.focus(point)
+      }
+
     }
   }
 
