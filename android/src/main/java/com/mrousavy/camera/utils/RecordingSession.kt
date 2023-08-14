@@ -30,6 +30,8 @@ class RecordingSession(videoSize: Size,
       throw Error("Video Recording is only supported on Devices running Android version 23 (M) or newer.")
     }
 
+    surface = MediaCodec.createPersistentInputSurface()
+
     val format = MediaFormat.createVideoFormat(mimeType, videoSize.width, videoSize.height)
 
     format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
@@ -41,7 +43,7 @@ class RecordingSession(videoSize: Size,
     mediaCodec = MediaCodec.createEncoderByType(mimeType)
     mediaCodec.setCallback(this)
     mediaCodec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
-    surface = mediaCodec.createInputSurface()
+    mediaCodec.setInputSurface(surface)
   }
 
   fun start() {

@@ -223,7 +223,7 @@ class CameraView(context: Context) : FrameLayout(context) {
 
     if (targetVideoSize != null) skiaRenderer?.setInputSurfaceSize(targetVideoSize.width, targetVideoSize.height)
 
-    val previewOutput =CameraOutputs.PreviewOutput(previewSurface)
+    val previewOutput = CameraOutputs.PreviewOutput(previewSurface)
     val photoOutput = if (photo == true) {
       CameraOutputs.PhotoOutput(targetPhotoSize)
     } else null
