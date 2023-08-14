@@ -9,6 +9,19 @@ import com.mrousavy.camera.parsers.Flash
 import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.QualityPrioritization
 
+private fun supportsSnapshotCapture(cameraCharacteristics: CameraCharacteristics): Boolean {
+  // As per CameraDevice.TEMPLATE_VIDEO_SNAPSHOT in documentation:
+  val hardwareLevel = cameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
+  if (hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY) return false
+
+  val capabilities = cameraCharacteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)!!
+  val hasDepth = capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DEPTH_OUTPUT)
+  val isBackwardsCompatible = !capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE)
+  if (hasDepth && !isBackwardsCompatible) return false
+
+  return true
+}
+
 fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
                                            surface: Surface,
                                            qualityPrioritization: QualityPrioritization,
@@ -18,12 +31,12 @@ fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
                                            orientation: Orientation): CaptureRequest {
   val cameraCharacteristics = cameraManager.getCameraCharacteristics(this.id)
 
-  val captureRequest = when (qualityPrioritization) {
-    // If speed, use snapshot template for fast capture
-    QualityPrioritization.SPEED -> this.createCaptureRequest(CameraDevice.TEMPLATE_VIDEO_SNAPSHOT)
-    // Otherwise create standard still image capture template
-    else -> this.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
+  val template = if (qualityPrioritization == QualityPrioritization.SPEED && supportsSnapshotCapture(cameraCharacteristics)) {
+    CameraDevice.TEMPLATE_VIDEO_SNAPSHOT
+  } else {
+    CameraDevice.TEMPLATE_STILL_CAPTURE
   }
+  val captureRequest = this.createCaptureRequest(template)
 
   // TODO: Maybe we can even expose that prop directly?
   val jpegQuality = when (qualityPrioritization) {
