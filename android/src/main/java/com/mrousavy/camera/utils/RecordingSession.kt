@@ -14,7 +14,7 @@ class RecordingSession(videoSize: Size,
                        hdrProfile: Long? = null): MediaCodec.Callback() {
   companion object {
     private const val TAG = "RecordingSession"
-    // bytes per second
+    // bits per second
     private const val RECORDER_VIDEO_BITRATE = 10_000_000
     // key frames interval - once per second
     private const val IFRAME_INTERVAL = 1
@@ -41,16 +41,17 @@ class RecordingSession(videoSize: Size,
     mediaCodec = MediaCodec.createEncoderByType(mimeType)
     mediaCodec.setCallback(this)
     mediaCodec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
-    // TODO: Get surface through mediaCodec.createInputSurface() + attach it to Camera
     surface = mediaCodec.createInputSurface()
   }
 
   fun start() {
+    Log.i(TAG, "Starting RecordingSession..")
     mediaCodec.start()
     // TODO: Start MediaMuxer to actually write the file + audio
   }
 
   fun stop() {
+    Log.i(TAG, "Stopping RecordingSession..")
     mediaCodec.stop()
     mediaCodec.release()
   }
