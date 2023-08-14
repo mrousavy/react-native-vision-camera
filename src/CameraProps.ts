@@ -115,6 +115,27 @@ export interface CameraProps extends ViewProps {
    */
   lowLightBoost?: boolean;
   /**
+   * Only Android
+   * Add exposure -100 .. 100 range (It will be cast to posible range)
+   *
+   * https://developer.android.com/reference/kotlin/androidx/camera/core/CameraControl#setexposurecompensationindex
+   */
+  exposure?: number;
+  /**
+   * Only IOS
+   *
+   * Release param ISO. Out of range casting IOS to value = 400
+   * https://developer.apple.com/documentation/avfoundation/avcapturedevice/1624646-setexposuremodecustom
+   */
+  iso?: number;
+  /**
+   * Only IOS
+   *
+   * Release param shooting time.
+   * https://developer.apple.com/documentation/avfoundation/avcapturedevice/1624646-setexposuremodecustom
+   */
+  shootingTime?: number;
+  /**
    * Specifies the color space to use for this camera device. Make sure the given `format` contains the given `colorSpace`.
    *
    * Requires `format` to be set.
