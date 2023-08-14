@@ -1,6 +1,7 @@
 package com.mrousavy.camera.skia
 
 import android.graphics.ImageFormat
+import android.os.Build
 import android.view.Surface
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
@@ -64,11 +65,14 @@ class SkiaRenderer: Closeable {
   fun onCameraFrame(frame: Frame) {
     synchronized(this) {
       if (!hasOutputSurface) return
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+        throw Error("Failed to render Camera Frame! Skia Frame Processors are only available on Android API 28 or higher.")
+      }
       if (frame.image.format != ImageFormat.YUV_420_888) {
         throw Error("Failed to render Camera Frame! Expected Image format #${ImageFormat.YUV_420_888} (ImageFormat.YUV_420_888), received #${frame.image.format}.")
       }
-      val (y, u, v) = frame.image.planes
-      renderCameraFrameToOffscreenCanvas(y.buffer, u.buffer, v.buffer)
+      val hardwareBuffer = frame.image.hardwareBuffer ?: throw Error("Frame does not have a HardwareBuffer attached!")
+      renderCameraFrameToOffscreenCanvas(hardwareBuffer)
       hasNewFrame = true
     }
   }
@@ -87,9 +91,7 @@ class SkiaRenderer: Closeable {
 
   private external fun initHybrid(): HybridData
 
-  private external fun renderCameraFrameToOffscreenCanvas(yBuffer: ByteBuffer,
-                                                          uBuffer: ByteBuffer,
-                                                          vBuffer: ByteBuffer)
+  private external fun renderCameraFrameToOffscreenCanvas(frameHardwareBuffer: Any)
   private external fun renderLatestFrameToPreview()
   private external fun setInputTextureSize(width: Int, height: Int)
   private external fun setOutputSurface(surface: Any)

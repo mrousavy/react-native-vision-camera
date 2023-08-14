@@ -15,9 +15,10 @@
 #include <gpu/GrBackendSurface.h>
 #include <gpu/ganesh/SkSurfaceGanesh.h>
 #include <gpu/ganesh/SkImageGanesh.h>
+#include <include/android/SkImageAndroid.h>
 
 #include <android/native_window_jni.h>
-#include <android/surface_texture_jni.h>
+#include <android/hardware_buffer_jni.h>
 
 // from <gpu/ganesh/gl/GrGLDefines.h>
 #define GR_GL_TEXTURE_EXTERNAL 0x8D65
@@ -229,9 +230,7 @@ void SkiaRenderer::renderLatestFrameToPreview() {
 }
 
 
-void SkiaRenderer::renderCameraFrameToOffscreenCanvas(jni::JByteBuffer yBuffer,
-                                                      jni::JByteBuffer uBuffer,
-                                                      jni::JByteBuffer vBuffer) {
+void SkiaRenderer::renderCameraFrameToOffscreenCanvas(jobject frameHardwareBuffer) {
   __android_log_print(ANDROID_LOG_INFO, TAG, "Begin render...");
   ensureOpenGL(_previewSurface);
   if (_skiaContext == nullptr) {
@@ -239,30 +238,11 @@ void SkiaRenderer::renderCameraFrameToOffscreenCanvas(jni::JByteBuffer yBuffer,
   }
   _skiaContext->resetContext();
 
-  // See https://en.wikipedia.org/wiki/Chroma_subsampling - we're in 4:2:0
-  size_t bytesPerRow = sizeof(uint8_t) * _inputWidth;
-
-  SkImageInfo yInfo = SkImageInfo::MakeA8(_inputWidth, _inputHeight);
-  SkPixmap yPixmap(yInfo, yBuffer.getDirectAddress(), bytesPerRow);
-
-  SkImageInfo uInfo = SkImageInfo::MakeA8(_inputWidth / 2, _inputHeight / 2);
-  SkPixmap uPixmap(uInfo, uBuffer.getDirectAddress(), bytesPerRow / 2);
-
-  SkImageInfo vInfo = SkImageInfo::MakeA8(_inputWidth / 2, _inputHeight / 2);
-  SkPixmap vPixmap(vInfo, vBuffer.getDirectAddress(), bytesPerRow / 2);
-
-  SkYUVAInfo info(SkISize::Make(_inputWidth, _inputHeight),
-                  SkYUVAInfo::PlaneConfig::kY_U_V,
-                  SkYUVAInfo::Subsampling::k420,
-                  SkYUVColorSpace::kRec709_Limited_SkYUVColorSpace);
-  SkPixmap externalPixmaps[3] = { yPixmap, uPixmap, vPixmap };
-  SkYUVAPixmaps pixmaps = SkYUVAPixmaps::FromExternalPixmaps(info, externalPixmaps);
-
-  sk_sp<SkImage> image = SkImages::TextureFromYUVAPixmaps(_skiaContext.get(), pixmaps);
-
-
-
-
+  AHardwareBuffer* hardwareBuffer = AHardwareBuffer_fromHardwareBuffer(jni::Environment::current(), frameHardwareBuffer);
+  auto image = SkImages::DeferredFromAHardwareBuffer(hardwareBuffer,
+                                                     kOpaque_SkAlphaType,
+                                                     nullptr,
+                                                     kTopLeft_GrSurfaceOrigin);
 
 
 
