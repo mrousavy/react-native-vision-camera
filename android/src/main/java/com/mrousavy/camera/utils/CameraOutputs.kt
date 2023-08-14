@@ -116,7 +116,7 @@ class CameraOutputs(val cameraId: String,
         callback.onPhotoCaptured(image)
       }, CameraQueues.cameraQueue.handler)
 
-      Log.i(TAG, "Adding ${size.width}x${size.height} photo output. (Format: $photo.format)")
+      Log.i(TAG, "Adding ${size.width}x${size.height} photo output. (Format: ${photo.format})")
       photoOutput = ImageReaderOutput(imageReader, OutputType.PHOTO)
     }
 
@@ -134,7 +134,7 @@ class CameraOutputs(val cameraId: String,
         }
       }, CameraQueues.videoQueue.handler)
 
-      Log.i(TAG, "Adding ${size.width}x${size.height} video output. (Format: $video.format)")
+      Log.i(TAG, "Adding ${size.width}x${size.height} video output. (Format: ${video.format} | HDR: ${video.hdrProfile})")
       videoOutput = ImageReaderOutput(imageReader, OutputType.VIDEO)
     }
 
