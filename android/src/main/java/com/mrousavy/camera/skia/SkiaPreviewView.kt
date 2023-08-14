@@ -37,12 +37,12 @@ class SkiaPreviewView(context: Context,
 
   override fun surfaceCreated(holder: SurfaceHolder) {
     synchronized(this) {
-      isAlive = true
       Log.i(TAG, "onSurfaceCreated(..)")
 
       skiaRenderer.thread.postAndWait {
         // Create C++ part (OpenGL/Skia context)
         skiaRenderer.setPreviewSurface(holder.surface)
+        isAlive = true
 
         // Start updating the Preview View (~60 FPS)
         startLooping(Choreographer.getInstance())

@@ -141,30 +141,29 @@ class CameraView(context: Context) : FrameLayout(context) {
       removeView(previewView)
       if (previewView is Closeable) previewView.close()
     }
+    this.previewSurface = null
 
     when (previewType) {
       PreviewType.NONE -> {
-        this.previewView = null
+        // Do nothing.
       }
       PreviewType.NATIVE -> {
         val cameraId = cameraId ?: throw NoCameraDeviceError()
-        val previewView = NativePreviewView(context, cameraManager, cameraId) { surface ->
+        this.previewView = NativePreviewView(context, cameraManager, cameraId) { surface ->
           previewSurface = surface
           configureSession()
         }
-        previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-        addView(previewView)
-        this.previewView = previewView
       }
       PreviewType.SKIA -> {
         if (skiaRenderer == null) skiaRenderer = SkiaRenderer()
-        val previewView = SkiaPreviewView(context, skiaRenderer!!)
-        previewSurface = skiaRenderer!!.inputSurface
+        this.previewView = SkiaPreviewView(context, skiaRenderer!!)
         configureSession()
-        previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-        addView(previewView)
-        this.previewView = previewView
       }
+    }
+
+    this.previewView?.let { previewView ->
+      previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+      addView(previewView)
     }
   }
 
@@ -219,17 +218,20 @@ class CameraView(context: Context) : FrameLayout(context) {
     val format = format
     val targetVideoSize = if (format != null) Size(format.getInt("videoWidth"), format.getInt("videoHeight")) else null
     val targetPhotoSize = if (format != null) Size(format.getInt("photoWidth"), format.getInt("photoHeight")) else null
-    val previewSurface = previewSurface ?: return
+    val previewSurface = previewSurface
 
     if (targetVideoSize != null) skiaRenderer?.setInputSurfaceSize(targetVideoSize.width, targetVideoSize.height)
 
-    val previewOutput = CameraOutputs.PreviewOutput(previewSurface)
+    val previewOutput = if (previewSurface != null) {
+      CameraOutputs.PreviewOutput(previewSurface)
+    } else null
     val photoOutput = if (photo == true) {
       CameraOutputs.PhotoOutput(targetPhotoSize)
     } else null
     val videoOutput = if (video == true) {
       CameraOutputs.VideoOutput({ image ->
         val frame = Frame(image, System.currentTimeMillis(), outputOrientation, false)
+        skiaRenderer?.onCameraFrame(frame)
         onFrame(frame)
       }, targetVideoSize)
     } else null

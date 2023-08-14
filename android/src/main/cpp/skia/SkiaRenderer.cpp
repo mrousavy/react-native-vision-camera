@@ -8,6 +8,7 @@
 
 #include <core/SkColorSpace.h>
 #include <core/SkCanvas.h>
+#include <core/SkYUVAPixmaps.h>
 
 #include <gpu/gl/GrGLInterface.h>
 #include <gpu/GrDirectContext.h>
@@ -149,34 +150,13 @@ void SkiaRenderer::setInputTextureSize(int width, int height) {
   _inputHeight = height;
 }
 
-int SkiaRenderer::prepareInputTexture() {
-  __android_log_print(ANDROID_LOG_INFO, TAG, "prepareInputTexture()");
-  if (_previewSurface == nullptr) {
-    throw std::runtime_error("Cannot prepare input texture without an output texture! "
-                             "prepareInputTexture() needs to be called after setPreviewSurface().");
-  }
-  ensureOpenGL(_previewSurface);
-
-  if (_inputSurfaceTextureId != NO_INPUT_TEXTURE) {
-    GLuint textures[1] {_inputSurfaceTextureId};
-    glDeleteTextures(1, textures);
-    _inputSurfaceTextureId = NO_INPUT_TEXTURE;
-  }
-
-  GLuint textures[1] {NO_INPUT_TEXTURE};
-  glGenTextures(1, textures);
-  if (glGetError() != GL_NO_ERROR) throw OpenGLError("Failed to create OpenGL Texture!");
-  _inputSurfaceTextureId = textures[0];
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Created input texture ID! %i", _inputSurfaceTextureId);
-  return static_cast<int>(_inputSurfaceTextureId);
-}
-
 void SkiaRenderer::renderLatestFrameToPreview() {
   __android_log_print(ANDROID_LOG_INFO, TAG, "renderLatestFrameToPreview()");
   if (_previewSurface == nullptr) {
     throw std::runtime_error("Cannot render latest frame to preview without a preview surface! "
                              "renderLatestFrameToPreview() needs to be called after setPreviewSurface().");
   }
+  return;
   if (_inputSurfaceTextureId == NO_INPUT_TEXTURE) {
     throw std::runtime_error("Cannot render latest frame to preview without an input texture! "
                              "renderLatestFrameToPreview() needs to be called after prepareInputTexture().");
@@ -249,15 +229,92 @@ void SkiaRenderer::renderLatestFrameToPreview() {
 }
 
 
-void SkiaRenderer::renderCameraFrameToOffscreenCanvas() {
-  __android_log_print(ANDROID_LOG_INFO, TAG, "renderCameraFrameToOffscreenCanvas()");
+void SkiaRenderer::renderCameraFrameToOffscreenCanvas(jni::JByteBuffer yBuffer,
+                                                      jni::JByteBuffer uBuffer,
+                                                      jni::JByteBuffer vBuffer) {
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Begin render...");
+  ensureOpenGL(_previewSurface);
+  if (_skiaContext == nullptr) {
+    _skiaContext = GrDirectContext::MakeGL();
+  }
+  _skiaContext->resetContext();
+
+  // See https://en.wikipedia.org/wiki/Chroma_subsampling - we're in 4:2:0
+  size_t bytesPerRow = sizeof(uint8_t) * _inputWidth;
+
+  SkImageInfo yInfo = SkImageInfo::MakeA8(_inputWidth, _inputHeight);
+  SkPixmap yPixmap(yInfo, yBuffer.getDirectAddress(), bytesPerRow);
+
+  SkImageInfo uInfo = SkImageInfo::MakeA8(_inputWidth / 2, _inputHeight / 2);
+  SkPixmap uPixmap(uInfo, uBuffer.getDirectAddress(), bytesPerRow / 2);
+
+  SkImageInfo vInfo = SkImageInfo::MakeA8(_inputWidth / 2, _inputHeight / 2);
+  SkPixmap vPixmap(vInfo, vBuffer.getDirectAddress(), bytesPerRow / 2);
+
+  SkYUVAInfo info(SkISize::Make(_inputWidth, _inputHeight),
+                  SkYUVAInfo::PlaneConfig::kY_U_V,
+                  SkYUVAInfo::Subsampling::k420,
+                  SkYUVColorSpace::kRec709_Limited_SkYUVColorSpace);
+  SkPixmap externalPixmaps[3] = { yPixmap, uPixmap, vPixmap };
+  SkYUVAPixmaps pixmaps = SkYUVAPixmaps::FromExternalPixmaps(info, externalPixmaps);
+
+  sk_sp<SkImage> image = SkImages::TextureFromYUVAPixmaps(_skiaContext.get(), pixmaps);
+
+
+
+
+
+
+
+
+  GrGLFramebufferInfo fboInfo {
+      // FBO #0 is the currently active OpenGL Surface (eglMakeCurrent)
+      .fFBOID = ACTIVE_SURFACE_ID,
+      .fFormat = GR_GL_RGBA8,
+      .fProtected = skgpu::Protected::kNo,
+  };;
+  GrBackendRenderTarget renderTarget(_previewWidth,
+                                     _previewHeight,
+                                     0,
+                                     8,
+                                     fboInfo);
+  SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
+  sk_sp<SkSurface> surface = SkSurfaces::WrapBackendRenderTarget(_skiaContext.get(),
+                                                                 renderTarget,
+                                                                 kTopLeft_GrSurfaceOrigin,
+                                                                 kN32_SkColorType,
+                                                                 nullptr,
+                                                                 &props);
+
+  auto canvas = surface->getCanvas();
+
+  canvas->clear(SkColors::kBlack);
+
+  auto duration = std::chrono::system_clock::now().time_since_epoch();
+  auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+
+  canvas->drawImage(image, 0, 0);
+
+  // TODO: Run Skia Frame Processor
+  auto rect = SkRect::MakeXYWH(150, 250, millis % 3000 / 10, millis % 3000 / 10);
+  auto paint = SkPaint();
+  paint.setColor(SkColors::kRed);
+  canvas->drawRect(rect, paint);
+
+  // Flush
+  canvas->flush();
+
+  bool successful = eglSwapBuffers(_glDisplay, _glSurface);
+  if (!successful || eglGetError() != EGL_SUCCESS) throw OpenGLError("Failed to swap OpenGL buffers!");
+
+
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Rendered!");
 }
 
 
 void SkiaRenderer::registerNatives() {
   registerHybrid({
      makeNativeMethod("initHybrid", SkiaRenderer::initHybrid),
-     makeNativeMethod("prepareInputTexture", SkiaRenderer::prepareInputTexture),
      makeNativeMethod("setInputTextureSize", SkiaRenderer::setInputTextureSize),
      makeNativeMethod("setOutputSurface", SkiaRenderer::setOutputSurface),
      makeNativeMethod("destroyOutputSurface", SkiaRenderer::destroyOutputSurface),
