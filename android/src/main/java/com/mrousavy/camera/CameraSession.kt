@@ -8,13 +8,7 @@ import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
-import android.media.AudioPresentation
-import android.media.CamcorderProfile
 import android.media.Image
-import android.media.MediaCodec
-import android.media.MediaCodecInfo
-import android.media.MediaFormat
-import android.media.MediaRecorder
 import android.os.Build
 import android.util.Log
 import android.util.Range
@@ -23,9 +17,7 @@ import com.mrousavy.camera.extensions.SessionType
 import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.createPhotoCaptureRequest
-import com.mrousavy.camera.extensions.getCamcorderQualityForSize
 import com.mrousavy.camera.extensions.openCamera
-import com.mrousavy.camera.extensions.setDynamicRangeProfile
 import com.mrousavy.camera.extensions.tryClose
 import com.mrousavy.camera.parsers.CameraDeviceError
 import com.mrousavy.camera.parsers.Flash
@@ -34,7 +26,7 @@ import com.mrousavy.camera.parsers.QualityPrioritization
 import com.mrousavy.camera.parsers.VideoStabilizationMode
 import com.mrousavy.camera.utils.CameraOutputs
 import com.mrousavy.camera.utils.PhotoOutputSynchronizer
-import com.mrousavy.camera.utils.VideoRecording
+import com.mrousavy.camera.utils.RecordingSession
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -83,7 +75,7 @@ class CameraSession(private val context: Context,
   private val photoOutputSynchronizer = PhotoOutputSynchronizer()
   private val mutex = Mutex()
   private var isRunning = false
-  private var recording: VideoRecording? = null
+  private var recording: RecordingSession? = null
 
   override val coroutineContext: CoroutineContext = CameraQueues.cameraQueue.coroutineDispatcher
 

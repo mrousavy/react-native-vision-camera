@@ -9,11 +9,11 @@ import android.util.Size
 import android.view.Surface
 import com.mrousavy.camera.extensions.setDynamicRangeProfile
 
-class VideoRecording(videoSize: Size,
-                     fps: Int? = null,
-                     hdrProfile: Long? = null): MediaCodec.Callback() {
+class RecordingSession(videoSize: Size,
+                       fps: Int? = null,
+                       hdrProfile: Long? = null): MediaCodec.Callback() {
   companion object {
-    private const val TAG = "VideoRecording"
+    private const val TAG = "RecordingSession"
     // bytes per second
     private const val RECORDER_VIDEO_BITRATE = 10_000_000
     // key frames interval - once per second
