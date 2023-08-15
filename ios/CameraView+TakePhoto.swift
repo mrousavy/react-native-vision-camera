@@ -47,6 +47,15 @@ extension CameraView {
         }
         if photoOutput.availablePhotoCodecTypes.contains(photoCodec) {
           format = [AVVideoCodecKey: photoCodec]
+          if (photoCodec == AVVideoCodecType.jpeg) {
+            if let jpegQuality = options["jpegQuality"] as? Float {
+              guard jpegQuality >= 0.0 && jpegQuality <= 1.0 else {
+                promise.reject(error: .parameter(.invalid(unionName: "JpegQuality", receivedValue: jpegQuality)))
+                return
+              }
+              format![AVVideoQualityKey] = jpegQuality
+            }
+          }
         } else {
           promise.reject(error: .capture(.invalidPhotoCodec))
           return

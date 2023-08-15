@@ -172,6 +172,16 @@ class CameraViewManager(reactContext: ReactApplicationContext) : ViewGroupManage
     view.orientation = orientation
   }
 
+  // TODO: Change when TurboModules release.
+  // We're treating 0 as "null" here, because when I make the jpegQuality parameter
+  // of type "Int?" the react bridge throws an error.
+  @ReactProp(name = "jpegQuality", defaultInt = 0)
+  fun setJpegQuality(view: CameraView, jpegQuality: Int) {
+    if (view.jpegQuality != jpegQuality)
+      addChangedPropToTransaction(view, "jpegQuality")
+    view.jpegQuality = jpegQuality
+  }
+
   companion object {
     const val TAG = "CameraView"
 

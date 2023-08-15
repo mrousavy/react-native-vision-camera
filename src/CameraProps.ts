@@ -161,6 +161,15 @@ export interface CameraProps extends ViewProps {
    */
   orientation?: 'portrait' | 'portraitUpsideDown' | 'landscapeLeft' | 'landscapeRight';
 
+  /**
+   * Specifies the compression quality of the photo. The value ranges from `1` (lowest quality) to `100` (highest quality).
+   * 
+   * @platform Android
+   * @default 0 - not set, in which case it uses [`95`](https://developer.android.com/reference/kotlin/androidx/camera/core/ImageCapture.Builder#setjpegquality)
+   * 
+   */
+  jpegQuality?: number;
+
   //#region Events
   /**
    * Called when any kind of runtime error occured.
