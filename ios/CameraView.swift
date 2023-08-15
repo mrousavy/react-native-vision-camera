@@ -197,7 +197,7 @@ public final class CameraView: UIView {
     let shouldUpdateTorch = willReconfigure || changedProps.contains("torch") || shouldCheckActive
     let shouldUpdateZoom = willReconfigure || changedProps.contains("zoom") || shouldCheckActive
     let shouldUpdateVideoStabilization = willReconfigure || changedProps.contains("videoStabilizationMode")
-    let shouldUpdateOrientation = changedProps.contains("orientation")
+    let shouldUpdateOrientation = changedProps.contains("orientation") && self.orientation != "device"
 
     if shouldReconfigure ||
       shouldReconfigureAudioSession ||
@@ -314,6 +314,11 @@ public final class CameraView: UIView {
 
   @objc
   func onOrientationChanged() {
+    if let userOrientation = orientation as String?,
+      userOrientation == "device" {
+      return
+    }
+
     updateOrientation()
   }
 

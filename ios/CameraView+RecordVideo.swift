@@ -115,6 +115,9 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         videoCodec = AVVideoCodecType(withString: codecString)
       }
 
+      // orientation immediately prior to capture
+      self.updateOrientation()
+
       // Init Video
       guard let videoSettings = self.recommendedVideoSettings(videoOutput: videoOutput, fileType: fileType, videoCodec: videoCodec),
             !videoSettings.isEmpty else {
