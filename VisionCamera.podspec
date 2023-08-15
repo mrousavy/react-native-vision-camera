@@ -2,13 +2,20 @@ require "json"
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
-nodeModules = File.join(__dir__)
+basePath = File.join(__dir__)
+
+nodeModules = ''
 tries = 0
-while !Dir.exist?(File.join(nodeModules, "node_modules")) && tries < 10
-  nodeModules = File.join(nodeModules, "..")
+while tries < 10
+  nodeModulesPath = File.join(basePath, "node_modules")
+  reactNativePath = File.join(nodeModulesPath, "react-native")
+  if Dir.exist?(nodeModulesPath) && Dir.exist?(reactNativePath)
+    nodeModules = nodeModulesPath
+    break
+  end
+  basePath = File.expand_path('..', basePath)
   tries += 1
 end
-nodeModules = File.join(nodeModules, "node_modules")
 
 forceDisableFrameProcessors = false
 if defined?($VCDisableFrameProcessors)
