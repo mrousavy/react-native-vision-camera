@@ -13,6 +13,7 @@ import com.mrousavy.camera.extensions.setDynamicRangeProfile
 import java.io.File
 
 class RecordingSession(context: Context,
+                       enableAudio: Boolean,
                        videoSize: Size,
                        fps: Int? = null,
                        hdrProfile: Long? = null): MediaCodec.Callback() {
@@ -42,8 +43,9 @@ class RecordingSession(context: Context,
 
     recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(context) else MediaRecorder()
 
-    recorder.setAudioSource(MediaRecorder.AudioSource.MIC)
+    if (enableAudio) recorder.setAudioSource(MediaRecorder.AudioSource.MIC)
     recorder.setVideoSource(MediaRecorder.VideoSource.SURFACE)
+
     recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
     recorder.setOutputFile(outputFile.absolutePath)
     recorder.setVideoEncodingBitRate(VIDEO_BIT_RATE)
@@ -51,9 +53,11 @@ class RecordingSession(context: Context,
     recorder.setVideoSize(videoSize.width, videoSize.height)
 
     recorder.setVideoEncoder(encoder)
-    recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-    recorder.setAudioEncodingBitRate(AUDIO_BIT_RATE)
-    recorder.setAudioSamplingRate(AUDIO_SAMPLING_RATE)
+    if (enableAudio) {
+      recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+      recorder.setAudioEncodingBitRate(AUDIO_BIT_RATE)
+      recorder.setAudioSamplingRate(AUDIO_SAMPLING_RATE)
+    }
     recorder.setInputSurface(surface)
 
     recorder.setOnErrorListener { _, what, extra ->

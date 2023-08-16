@@ -25,20 +25,17 @@ suspend fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Ca
     // TODO: Enable torch for flash
   }
 
-  val id = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-  val file = File.createTempFile("VisionCamera-${id}", ".mp4")
-
-  cameraSession.startRecording(audio == true, file.absolutePath)
+  cameraSession.startRecording(audio == true)
 }
 
 @SuppressLint("RestrictedApi")
-fun CameraView.pauseRecording() {
-  // TODO: pauseRecording()
+suspend fun CameraView.pauseRecording() {
+  cameraSession.pauseRecording()
 }
 
 @SuppressLint("RestrictedApi")
-fun CameraView.resumeRecording() {
-  // TODO: resumeRecording()
+suspend fun CameraView.resumeRecording() {
+  cameraSession.resumeRecording()
 }
 
 @SuppressLint("RestrictedApi")
