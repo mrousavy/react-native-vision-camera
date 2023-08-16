@@ -29,7 +29,7 @@ suspend fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Ca
     val map = Arguments.createMap()
     map.putString("path", video.path)
     map.putDouble("duration", video.durationMs.toDouble() / 1000.0)
-    onRecordCallback()
+    onRecordCallback(map, null)
   }
   cameraSession.startRecording(audio == true, callback)
 }

@@ -52,7 +52,7 @@ open class SurfaceOutput(val surface: Surface,
   }
 
   override fun toString(): String {
-    return "$outputType"
+    return "$outputType (${size.width} x ${size.height})"
   }
 
   override fun close() {
