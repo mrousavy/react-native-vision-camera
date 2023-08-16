@@ -11,12 +11,14 @@ import android.util.Size
 import android.view.Surface
 import com.mrousavy.camera.extensions.setDynamicRangeProfile
 import java.io.File
+import java.util.Timer
 
 class RecordingSession(context: Context,
                        enableAudio: Boolean,
                        videoSize: Size,
                        fps: Int? = null,
-                       hdrProfile: Long? = null) {
+                       hdrProfile: Long? = null,
+                       private val callback: (video: Video) -> Unit) {
   companion object {
     private const val TAG = "RecordingSession"
     // bits per second
@@ -25,11 +27,14 @@ class RecordingSession(context: Context,
     private const val AUDIO_BIT_RATE = 16
   }
 
+  data class Video(val path: String, val durationMs: Long)
+
   val surface: Surface
 
   private val recorder: MediaRecorder
   private val encoder = if (hdrProfile != null) MediaRecorder.VideoEncoder.HEVC else MediaRecorder.VideoEncoder.H264
   private val outputFile: File
+  private var startTime: Long? = null
 
 
   init {
@@ -62,6 +67,7 @@ class RecordingSession(context: Context,
 
     recorder.setOnErrorListener { _, what, extra ->
       Log.e(TAG, "MediaRecorder Error: $what ($extra)")
+      stop()
     }
     recorder.setOnInfoListener { _, what, extra ->
       Log.i(TAG, "MediaRecorder Info: $what ($extra)")
@@ -72,11 +78,20 @@ class RecordingSession(context: Context,
     Log.i(TAG, "Starting RecordingSession..")
     recorder.prepare()
     recorder.start()
+    startTime = System.currentTimeMillis()
   }
 
   fun stop() {
     Log.i(TAG, "Stopping RecordingSession..")
-    recorder.stop()
+    try {
+      recorder.stop()
+    } catch (e: Error) {
+      Log.e(TAG, "Failed to stop MediaRecorder!", e)
+    }
+
+    val stopTime = System.currentTimeMillis()
+    val durationMs = stopTime - (startTime ?: stopTime)
+    callback(Video(outputFile.absolutePath, durationMs))
   }
 
   fun pause() {

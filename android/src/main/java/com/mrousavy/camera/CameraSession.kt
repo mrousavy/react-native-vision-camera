@@ -193,7 +193,7 @@ class CameraSession(private val context: Context,
     photoOutputSynchronizer.set(image.timestamp, image)
   }
 
-  suspend fun startRecording(enableAudio: Boolean) {
+  suspend fun startRecording(enableAudio: Boolean, callback: (video: RecordingSession.Video) -> Unit) {
     mutex.withLock {
       if (recording != null) throw RecordingInProgressError()
       val outputs = outputs ?: throw CameraNotReadyError()
@@ -201,7 +201,7 @@ class CameraSession(private val context: Context,
       val videoOutput = outputs.videoOutput ?: throw VideoNotEnabledError()
 
       val size = Size(videoOutput.imageReader.width, videoOutput.imageReader.height)
-      val recording = RecordingSession(context, enableAudio, size, fps, videoInput.hdrProfile)
+      val recording = RecordingSession(context, enableAudio, size, fps, videoInput.hdrProfile, callback)
       recording.start()
       this.recording = recording
     }

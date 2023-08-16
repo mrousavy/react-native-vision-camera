@@ -8,8 +8,7 @@ import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.parsers.Torch
-import java.io.File
-import java.text.SimpleDateFormat
+import com.mrousavy.camera.utils.RecordingSession
 import java.util.*
 
 suspend fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Callback) {
@@ -26,7 +25,13 @@ suspend fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Ca
     cameraSession.setTorchMode(enableFlash)
   }
 
-  cameraSession.startRecording(audio == true)
+  val callback = { video: RecordingSession.Video ->
+    val map = Arguments.createMap()
+    map.putString("path", video.path)
+    map.putDouble("duration", video.durationMs.toDouble() / 1000.0)
+    onRecordCallback()
+  }
+  cameraSession.startRecording(audio == true, callback)
 }
 
 @SuppressLint("RestrictedApi")
