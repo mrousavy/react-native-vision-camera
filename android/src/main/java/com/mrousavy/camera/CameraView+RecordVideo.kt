@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
 import com.mrousavy.camera.frameprocessor.Frame
+import com.mrousavy.camera.parsers.Torch
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -22,7 +23,7 @@ suspend fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Ca
   if (options.hasKey("flash")) {
     val enableFlash = options.getString("flash") == "on"
     // overrides current torch mode value to enable flash while recording
-    // TODO: Enable torch for flash
+    cameraSession.setTorchMode(enableFlash)
   }
 
   cameraSession.startRecording(audio == true)
@@ -41,7 +42,7 @@ suspend fun CameraView.resumeRecording() {
 @SuppressLint("RestrictedApi")
 suspend fun CameraView.stopRecording() {
   cameraSession.stopRecording()
-  // TODO: disable torch again
+  cameraSession.setTorchMode(torch == Torch.ON)
 }
 
 fun CameraView.onFrame(frame: Frame) {

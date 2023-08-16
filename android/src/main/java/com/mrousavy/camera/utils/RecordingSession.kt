@@ -16,7 +16,7 @@ class RecordingSession(context: Context,
                        enableAudio: Boolean,
                        videoSize: Size,
                        fps: Int? = null,
-                       hdrProfile: Long? = null): MediaCodec.Callback() {
+                       hdrProfile: Long? = null) {
   companion object {
     private const val TAG = "RecordingSession"
     // bits per second
@@ -93,21 +93,5 @@ class RecordingSession(context: Context,
     }
     Log.i(TAG, "Resuming Recording Session..")
     recorder.resume()
-  }
-
-  override fun onInputBufferAvailable(codec: MediaCodec, index: Int) {
-    Log.i(TAG, "onInputBufferAvailable($index)")
-  }
-
-  override fun onOutputBufferAvailable(codec: MediaCodec, index: Int, info: MediaCodec.BufferInfo) {
-    Log.i(TAG, "onOutputBufferAvailable($index)")
-  }
-
-  override fun onError(codec: MediaCodec, e: MediaCodec.CodecException) {
-    Log.e(TAG, "MediaCodec encountered an error! $e", e)
-  }
-
-  override fun onOutputFormatChanged(codec: MediaCodec, format: MediaFormat) {
-    Log.i(TAG, "onOutputFormatChanged(...)")
   }
 }

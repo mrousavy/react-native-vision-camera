@@ -230,6 +230,13 @@ class CameraSession(private val context: Context,
     }
   }
 
+  fun setTorchMode(enableTorch: Boolean) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      val cameraId = cameraId ?: throw NoCameraDeviceError()
+      cameraManager.setTorchMode(cameraId, enableTorch)
+    }
+  }
+
   override fun onCameraAvailable(cameraId: String) {
     super.onCameraAvailable(cameraId)
     Log.i(TAG, "Camera became available: $cameraId")
