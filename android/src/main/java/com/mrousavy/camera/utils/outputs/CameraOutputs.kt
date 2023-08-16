@@ -41,6 +41,7 @@ class CameraOutputs(val cameraId: String,
 
   interface Callback {
     fun onPhotoCaptured(image: Image)
+    fun onVideoFrameCaptured(image: Image)
   }
 
   var previewOutput: SurfaceOutput? = null
@@ -121,30 +122,18 @@ class CameraOutputs(val cameraId: String,
     if (video != null) {
       val size = config.getOutputSizes(video.format).closestToOrMax(video.targetSize)
 
-      if (video.frameProcessor != null) {
-        val imageReader = ImageReader.newInstance(size.width, size.height, video.format, VIDEO_OUTPUT_BUFFER_SIZE)
-        imageReader.setOnImageAvailableListener({ reader ->
-          try {
-            val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
-            // TODO: Correctly get orientation and everything
-            val frame = Frame(image, System.currentTimeMillis(), Orientation.PORTRAIT, false)
-            frame.incrementRefCount()
-            video.frameProcessor.call(frame)
-            // TODO: if video.recordingSession exists, also record here somehow (OpenGL pass-through)
-            frame.decrementRefCount()
-          } catch (e: IllegalStateException) {
-            Log.e(TAG, "Failed to acquire a new Image, dropping a Frame.. The Frame Processor cannot keep up with the Camera's FPS!", e)
-          }
-        }, CameraQueues.videoQueue.handler)
+      val imageReader = ImageReader.newInstance(size.width, size.height, video.format, VIDEO_OUTPUT_BUFFER_SIZE)
+      imageReader.setOnImageAvailableListener({ reader ->
+        try {
+          val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
+          callback.onVideoFrameCaptured(image)
+        } catch (e: IllegalStateException) {
+          Log.e(TAG, "Failed to acquire a new Image, dropping a Frame.. The Frame Processor cannot keep up with the Camera's FPS!", e)
+        }
+      }, CameraQueues.videoQueue.handler)
 
-        Log.i(TAG, "Adding ${size.width}x${size.height} video output with Frame Processor. (Format: ${video.format} | HDR: ${video.hdrProfile})")
-        videoOutput = ImageReaderOutput(imageReader, SurfaceOutput.OutputType.VIDEO)
-      } else if (video.enableRecording) {
-        Log.i(TAG, "Adding ${size.width}x${size.height} video output without Frame Processor. (Format: ${video.format} | HDR: ${video.hdrProfile})")
-        videoOutput = SurfaceOutput(MediaCodec.createPersistentInputSurface(), size, SurfaceOutput.OutputType.VIDEO, null, true)
-      } else {
-        Log.w(TAG, "Neither a Frame Processor nor a RecordingSession exists but video was enabled. This shouldn't happen.")
-      }
+      Log.i(TAG, "Adding ${size.width}x${size.height} video output. (Format: ${video.format} | HDR: ${video.hdrProfile})")
+      videoOutput = ImageReaderOutput(imageReader, SurfaceOutput.OutputType.VIDEO)
     }
 
     Log.i(TAG, "Prepared $size Outputs for Camera $cameraId!")

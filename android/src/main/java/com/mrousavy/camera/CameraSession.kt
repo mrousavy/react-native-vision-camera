@@ -19,6 +19,7 @@ import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.createPhotoCaptureRequest
 import com.mrousavy.camera.extensions.openCamera
 import com.mrousavy.camera.extensions.tryClose
+import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.parsers.CameraDeviceError
 import com.mrousavy.camera.parsers.Flash
 import com.mrousavy.camera.parsers.Orientation
@@ -193,6 +194,22 @@ class CameraSession(private val context: Context,
     photoOutputSynchronizer.set(image.timestamp, image)
   }
 
+  override fun onVideoFrameCaptured(image: Image) {
+    val video = outputs?.video ?: throw CameraNotReadyError()
+
+    // TODO: Correctly get orientation and everything
+    val frame = Frame(image, System.currentTimeMillis(), Orientation.PORTRAIT, false)
+    frame.incrementRefCount()
+
+    // Call (Skia-) Frame Processor
+    video.frameProcessor?.call(frame)
+
+    // Write Image to the Recording
+    recording?.appendImage(image)
+
+    frame.decrementRefCount()
+  }
+
   suspend fun startRecording(enableAudio: Boolean, callback: (video: RecordingSession.Video) -> Unit) {
     mutex.withLock {
       if (recording != null) throw RecordingInProgressError()
@@ -200,9 +217,7 @@ class CameraSession(private val context: Context,
       val videoInput = outputs.video ?: throw VideoNotEnabledError()
       val videoOutput = outputs.videoOutput ?: throw VideoNotEnabledError()
 
-      // TODO: If Frame Processor is enabled, we need a pass-through surface instead
-      val surface = videoOutput.surface
-      val recording = RecordingSession(context, surface, enableAudio, videoOutput.size, fps, videoInput.hdrProfile, callback)
+      val recording = RecordingSession(context, enableAudio, videoOutput.size, fps, videoInput.hdrProfile, callback)
       recording.start()
       this.recording = recording
     }

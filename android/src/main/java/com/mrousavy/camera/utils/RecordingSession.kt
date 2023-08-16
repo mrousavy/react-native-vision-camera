@@ -1,6 +1,8 @@
 package com.mrousavy.camera.utils
 
 import android.content.Context
+import android.media.Image
+import android.media.MediaCodec
 import android.media.MediaRecorder
 import android.os.Build
 import android.util.Log
@@ -10,7 +12,6 @@ import java.io.Closeable
 import java.io.File
 
 class RecordingSession(context: Context,
-                       val surface: Surface,
                        private val enableAudio: Boolean,
                        private val videoSize: Size,
                        private val fps: Int? = null,
@@ -29,11 +30,14 @@ class RecordingSession(context: Context,
   private val recorder: MediaRecorder
   private val outputFile: File
   private var startTime: Long? = null
+  val surface: Surface
 
   init {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
       throw Error("Video Recording is only supported on Devices running Android version 23 (M) or newer.")
     }
+
+    surface = MediaCodec.createPersistentInputSurface()
 
     outputFile = File.createTempFile("mrousavy", ".mp4", context.cacheDir)
 
@@ -124,6 +128,10 @@ class RecordingSession(context: Context,
       stop()
       recorder.release()
     }
+  }
+
+  fun appendImage(image: Image) {
+    // TODO: Write this Image to the RecordingSession now!
   }
 
   override fun toString(): String {
