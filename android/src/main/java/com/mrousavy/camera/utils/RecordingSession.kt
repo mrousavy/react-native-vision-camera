@@ -37,6 +37,8 @@ class RecordingSession(context: Context,
 
     outputFile = File.createTempFile("mrousavy", ".mp4", context.cacheDir)
 
+    Log.i(TAG, "Creating RecordingSession for ${outputFile.absolutePath}")
+
     recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(context) else MediaRecorder()
 
     if (enableAudio) recorder.setAudioSource(MediaRecorder.AudioSource.MIC)
@@ -50,10 +52,13 @@ class RecordingSession(context: Context,
 
     if (hdrProfile != null) {
       recorder.setVideoEncoder(MediaRecorder.VideoEncoder.HEVC)
+      Log.i(TAG, "Using HDR HEVC encoder..")
     } else {
+      Log.i(TAG, "Using standard H264 encoder..")
       recorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264)
     }
     if (enableAudio) {
+      Log.i(TAG, "Adding Audio Channel..")
       recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
       recorder.setAudioEncodingBitRate(AUDIO_BIT_RATE)
       recorder.setAudioSamplingRate(AUDIO_SAMPLING_RATE)
