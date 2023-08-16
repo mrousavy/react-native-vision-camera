@@ -1,61 +1,94 @@
 package com.mrousavy.camera.utils
 
+import android.content.Context
 import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import android.media.MediaFormat
+import android.media.MediaRecorder
 import android.os.Build
 import android.util.Log
 import android.util.Size
 import android.view.Surface
 import com.mrousavy.camera.extensions.setDynamicRangeProfile
+import java.io.File
 
-class RecordingSession(videoSize: Size,
+class RecordingSession(context: Context,
+                       videoSize: Size,
                        fps: Int? = null,
                        hdrProfile: Long? = null): MediaCodec.Callback() {
   companion object {
     private const val TAG = "RecordingSession"
     // bits per second
-    private const val RECORDER_VIDEO_BITRATE = 10_000_000
-    // key frames interval - once per second
-    private const val IFRAME_INTERVAL = 1
+    private const val VIDEO_BIT_RATE = 10_000_000
+    private const val AUDIO_SAMPLING_RATE = 44100
+    private const val AUDIO_BIT_RATE = 16
   }
 
-  private val mediaCodec: MediaCodec
-  private val mimeType = if (hdrProfile != null) MediaFormat.MIMETYPE_VIDEO_HEVC else MediaFormat.MIMETYPE_VIDEO_AVC
-
   val surface: Surface
+
+  private val recorder: MediaRecorder
+  private val encoder = if (hdrProfile != null) MediaRecorder.VideoEncoder.HEVC else MediaRecorder.VideoEncoder.H264
+  private val outputFile: File
+
 
   init {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
       throw Error("Video Recording is only supported on Devices running Android version 23 (M) or newer.")
     }
 
+    outputFile = File.createTempFile("mrousavy", ".mp4", context.cacheDir)
+
     surface = MediaCodec.createPersistentInputSurface()
 
-    val format = MediaFormat.createVideoFormat(mimeType, videoSize.width, videoSize.height)
+    recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(context) else MediaRecorder()
 
-    format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
-    format.setInteger(MediaFormat.KEY_BIT_RATE, RECORDER_VIDEO_BITRATE)
-    format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, IFRAME_INTERVAL)
-    if (fps != null) format.setInteger(MediaFormat.KEY_FRAME_RATE, fps)
-    if (hdrProfile != null) format.setDynamicRangeProfile(hdrProfile)
+    recorder.setAudioSource(MediaRecorder.AudioSource.MIC)
+    recorder.setVideoSource(MediaRecorder.VideoSource.SURFACE)
+    recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+    recorder.setOutputFile(outputFile.absolutePath)
+    recorder.setVideoEncodingBitRate(VIDEO_BIT_RATE)
+    if (fps != null) recorder.setVideoFrameRate(fps)
+    recorder.setVideoSize(videoSize.width, videoSize.height)
 
-    mediaCodec = MediaCodec.createEncoderByType(mimeType)
-    mediaCodec.setCallback(this)
-    mediaCodec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
-    mediaCodec.setInputSurface(surface)
+    recorder.setVideoEncoder(encoder)
+    recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+    recorder.setAudioEncodingBitRate(AUDIO_BIT_RATE)
+    recorder.setAudioSamplingRate(AUDIO_SAMPLING_RATE)
+    recorder.setInputSurface(surface)
+
+    recorder.setOnErrorListener { _, what, extra ->
+      Log.e(TAG, "MediaRecorder Error: $what ($extra)")
+    }
+    recorder.setOnInfoListener { _, what, extra ->
+      Log.i(TAG, "MediaRecorder Info: $what ($extra)")
+    }
   }
 
   fun start() {
     Log.i(TAG, "Starting RecordingSession..")
-    mediaCodec.start()
-    // TODO: Start MediaMuxer to actually write the file + audio
+    recorder.prepare()
+    recorder.start()
   }
 
   fun stop() {
     Log.i(TAG, "Stopping RecordingSession..")
-    mediaCodec.stop()
-    mediaCodec.release()
+    recorder.stop()
+  }
+
+  fun pause() {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+      throw Error("Pausing a recording is only supported on Devices running Android version 24 (N) or newer.")
+    }
+    Log.i(TAG, "Pausing Recording Session..")
+    recorder.pause()
+  }
+
+  fun resume() {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+      throw Error("Resuming a recording is only supported on Devices running Android version 24 (N) or newer.")
+    }
+    Log.i(TAG, "Resuming Recording Session..")
+    recorder.resume()
   }
 
   override fun onInputBufferAvailable(codec: MediaCodec, index: Int) {

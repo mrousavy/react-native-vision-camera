@@ -201,7 +201,7 @@ class CameraSession(private val context: Context,
       val videoOutput = outputs.videoOutput ?: throw VideoNotEnabledError()
 
       val size = Size(videoOutput.imageReader.width, videoOutput.imageReader.height)
-      val recording = RecordingSession(size, fps, videoInput.hdrProfile)
+      val recording = RecordingSession(context, size, fps, videoInput.hdrProfile)
       recording.start()
       this.recording = recording
     }
