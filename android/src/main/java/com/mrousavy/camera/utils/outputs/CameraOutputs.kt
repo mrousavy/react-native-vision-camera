@@ -1,19 +1,20 @@
-package com.mrousavy.camera.utils
+package com.mrousavy.camera.utils.outputs
 
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
-import android.hardware.camera2.params.DynamicRangeProfiles
 import android.media.Image
 import android.media.ImageReader
+import android.media.MediaCodec
 import android.util.Log
 import android.util.Size
 import android.view.Surface
 import com.mrousavy.camera.CameraQueues
-import com.mrousavy.camera.extensions.ImageReaderOutput
-import com.mrousavy.camera.extensions.OutputType
-import com.mrousavy.camera.extensions.SurfaceOutput
 import com.mrousavy.camera.extensions.closestToOrMax
+import com.mrousavy.camera.extensions.getPreviewSize
+import com.mrousavy.camera.frameprocessor.Frame
+import com.mrousavy.camera.frameprocessor.FrameProcessor
+import com.mrousavy.camera.parsers.Orientation
 import java.io.Closeable
 import java.lang.IllegalStateException
 
@@ -32,8 +33,9 @@ class CameraOutputs(val cameraId: String,
   data class PreviewOutput(val surface: Surface)
   data class PhotoOutput(val targetSize: Size? = null,
                          val format: Int = ImageFormat.JPEG)
-  data class VideoOutput(val onFrame: (image: Image) -> Unit,
-                         val targetSize: Size? = null,
+  data class VideoOutput(val targetSize: Size? = null,
+                         val enableRecording: Boolean = false,
+                         val frameProcessor: FrameProcessor? = null,
                          val format: Int = ImageFormat.YUV_420_888,
                          val hdrProfile: Long? = null /* DynamicRangeProfiles */)
 
@@ -45,7 +47,7 @@ class CameraOutputs(val cameraId: String,
     private set
   var photoOutput: ImageReaderOutput? = null
     private set
-  var videoOutput: ImageReaderOutput? = null
+  var videoOutput: SurfaceOutput? = null
     private set
 
   val size: Int
@@ -63,6 +65,7 @@ class CameraOutputs(val cameraId: String,
       && (this.preview == null) == (other.preview == null)
       && this.photo?.targetSize == other.photo?.targetSize
       && this.photo?.format == other.photo?.format
+      && this.video?.enableRecording == other.video?.enableRecording
       && this.video?.targetSize == other.video?.targetSize
       && this.video?.format == other.video?.format
   }
@@ -82,15 +85,9 @@ class CameraOutputs(val cameraId: String,
 
   override fun toString(): String {
     val strings = arrayListOf<String>()
-    photoOutput?.let {
-      strings.add("${it.outputType} (${it.imageReader.width} x ${it.imageReader.height} in format #${it.imageReader.imageFormat})")
-    }
-    videoOutput?.let {
-      strings.add("${it.outputType} (${it.imageReader.width} x ${it.imageReader.height} in format #${it.imageReader.imageFormat})")
-    }
-    previewOutput?.let {
-      strings.add("${it.outputType}")
-    }
+    previewOutput?.let { strings.add(it.toString()) }
+    photoOutput?.let { strings.add(it.toString()) }
+    videoOutput?.let { strings.add(it.toString()) }
     return strings.joinToString(", ", "[", "]")
   }
 
@@ -103,7 +100,7 @@ class CameraOutputs(val cameraId: String,
     // Preview output: Low resolution repeating images (SurfaceView)
     if (preview != null) {
       Log.i(TAG, "Adding native preview view output.")
-      previewOutput = SurfaceOutput(preview.surface, OutputType.PREVIEW)
+      previewOutput = SurfaceOutput(preview.surface, characteristics.getPreviewSize(), SurfaceOutput.OutputType.PREVIEW)
     }
 
     // Photo output: High quality still images (takePhoto())
@@ -117,25 +114,37 @@ class CameraOutputs(val cameraId: String,
       }, CameraQueues.cameraQueue.handler)
 
       Log.i(TAG, "Adding ${size.width}x${size.height} photo output. (Format: ${photo.format})")
-      photoOutput = ImageReaderOutput(imageReader, OutputType.PHOTO)
+      photoOutput = ImageReaderOutput(imageReader, SurfaceOutput.OutputType.PHOTO)
     }
 
     // Video output: High resolution repeating images (startRecording() or useFrameProcessor())
     if (video != null) {
       val size = config.getOutputSizes(video.format).closestToOrMax(video.targetSize)
 
-      val imageReader = ImageReader.newInstance(size.width, size.height, video.format, VIDEO_OUTPUT_BUFFER_SIZE)
-      imageReader.setOnImageAvailableListener({ reader ->
-        try {
-          val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
-          video.onFrame(image)
-        } catch (e: IllegalStateException) {
-          Log.e(TAG, "Failed to acquire a new Image, dropping a Frame.. The Frame Processor cannot keep up with the Camera's FPS!", e)
-        }
-      }, CameraQueues.videoQueue.handler)
+      if (video.frameProcessor != null) {
+        val imageReader = ImageReader.newInstance(size.width, size.height, video.format, VIDEO_OUTPUT_BUFFER_SIZE)
+        imageReader.setOnImageAvailableListener({ reader ->
+          try {
+            val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
+            // TODO: Correctly get orientation and everything
+            val frame = Frame(image, System.currentTimeMillis(), Orientation.PORTRAIT, false)
+            frame.incrementRefCount()
+            video.frameProcessor.call(frame)
+            // TODO: if video.recordingSession exists, also record here somehow (OpenGL pass-through)
+            frame.decrementRefCount()
+          } catch (e: IllegalStateException) {
+            Log.e(TAG, "Failed to acquire a new Image, dropping a Frame.. The Frame Processor cannot keep up with the Camera's FPS!", e)
+          }
+        }, CameraQueues.videoQueue.handler)
 
-      Log.i(TAG, "Adding ${size.width}x${size.height} video output. (Format: ${video.format} | HDR: ${video.hdrProfile})")
-      videoOutput = ImageReaderOutput(imageReader, OutputType.VIDEO)
+        Log.i(TAG, "Adding ${size.width}x${size.height} video output with Frame Processor. (Format: ${video.format} | HDR: ${video.hdrProfile})")
+        videoOutput = ImageReaderOutput(imageReader, SurfaceOutput.OutputType.VIDEO)
+      } else if (video.enableRecording) {
+        Log.i(TAG, "Adding ${size.width}x${size.height} video output without Frame Processor. (Format: ${video.format} | HDR: ${video.hdrProfile})")
+        videoOutput = SurfaceOutput(MediaCodec.createPersistentInputSurface(), size, SurfaceOutput.OutputType.VIDEO, null, true)
+      } else {
+        Log.w(TAG, "Neither a Frame Processor nor a RecordingSession exists but video was enabled. This shouldn't happen.")
+      }
     }
 
     Log.i(TAG, "Prepared $size Outputs for Camera $cameraId!")

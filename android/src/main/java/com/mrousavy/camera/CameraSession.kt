@@ -24,9 +24,9 @@ import com.mrousavy.camera.parsers.Flash
 import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.QualityPrioritization
 import com.mrousavy.camera.parsers.VideoStabilizationMode
-import com.mrousavy.camera.utils.CameraOutputs
 import com.mrousavy.camera.utils.PhotoOutputSynchronizer
 import com.mrousavy.camera.utils.RecordingSession
+import com.mrousavy.camera.utils.outputs.CameraOutputs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -200,8 +200,9 @@ class CameraSession(private val context: Context,
       val videoInput = outputs.video ?: throw VideoNotEnabledError()
       val videoOutput = outputs.videoOutput ?: throw VideoNotEnabledError()
 
-      val size = Size(videoOutput.imageReader.width, videoOutput.imageReader.height)
-      val recording = RecordingSession(context, enableAudio, size, fps, videoInput.hdrProfile, callback)
+      // TODO: If Frame Processor is enabled, we need a pass-through surface instead
+      val surface = videoOutput.surface
+      val recording = RecordingSession(context, surface, enableAudio, videoOutput.size, fps, videoInput.hdrProfile, callback)
       recording.start()
       this.recording = recording
     }
@@ -233,7 +234,9 @@ class CameraSession(private val context: Context,
   fun setTorchMode(enableTorch: Boolean) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
       val cameraId = cameraId ?: throw NoCameraDeviceError()
-      cameraManager.setTorchMode(cameraId, enableTorch)
+      try {
+        //cameraManager.setTorchMode(cameraId, enableTorch)
+      } catch (_: Error) { }
     }
   }
 

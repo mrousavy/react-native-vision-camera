@@ -1,24 +1,21 @@
 package com.mrousavy.camera.utils
 
 import android.content.Context
-import android.media.MediaCodec
-import android.media.MediaCodecInfo
-import android.media.MediaFormat
 import android.media.MediaRecorder
 import android.os.Build
 import android.util.Log
 import android.util.Size
 import android.view.Surface
-import com.mrousavy.camera.extensions.setDynamicRangeProfile
+import java.io.Closeable
 import java.io.File
-import java.util.Timer
 
 class RecordingSession(context: Context,
-                       enableAudio: Boolean,
-                       videoSize: Size,
-                       fps: Int? = null,
-                       hdrProfile: Long? = null,
-                       private val callback: (video: Video) -> Unit) {
+                       val surface: Surface,
+                       private val enableAudio: Boolean,
+                       private val videoSize: Size,
+                       private val fps: Int? = null,
+                       private val hdrProfile: Long? = null,
+                       private val callback: (video: Video) -> Unit): Closeable {
   companion object {
     private const val TAG = "RecordingSession"
     // bits per second
@@ -29,12 +26,9 @@ class RecordingSession(context: Context,
 
   data class Video(val path: String, val durationMs: Long)
 
-  val surface: Surface
-
   private val recorder: MediaRecorder
   private val outputFile: File
   private var startTime: Long? = null
-
 
   init {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -42,8 +36,6 @@ class RecordingSession(context: Context,
     }
 
     outputFile = File.createTempFile("mrousavy", ".mp4", context.cacheDir)
-
-    surface = MediaCodec.createPersistentInputSurface()
 
     recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(context) else MediaRecorder()
 
@@ -78,38 +70,60 @@ class RecordingSession(context: Context,
   }
 
   fun start() {
-    Log.i(TAG, "Starting RecordingSession..")
-    recorder.prepare()
-    recorder.start()
-    startTime = System.currentTimeMillis()
+    synchronized(this) {
+      Log.i(TAG, "Starting RecordingSession..")
+      recorder.prepare()
+      recorder.start()
+      startTime = System.currentTimeMillis()
+    }
   }
 
   fun stop() {
-    Log.i(TAG, "Stopping RecordingSession..")
-    try {
-      recorder.stop()
-    } catch (e: Error) {
-      Log.e(TAG, "Failed to stop MediaRecorder!", e)
-    }
+    synchronized(this) {
+      Log.i(TAG, "Stopping RecordingSession..")
+      try {
+        recorder.stop()
+        // TODO: Re-configure the session now.
+      } catch (e: Error) {
+        Log.e(TAG, "Failed to stop MediaRecorder!", e)
+      }
 
-    val stopTime = System.currentTimeMillis()
-    val durationMs = stopTime - (startTime ?: stopTime)
-    callback(Video(outputFile.absolutePath, durationMs))
+      val stopTime = System.currentTimeMillis()
+      val durationMs = stopTime - (startTime ?: stopTime)
+      callback(Video(outputFile.absolutePath, durationMs))
+    }
   }
 
   fun pause() {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-      throw Error("Pausing a recording is only supported on Devices running Android version 24 (N) or newer.")
+    synchronized(this) {
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+        throw Error("Pausing a recording is only supported on Devices running Android version 24 (N) or newer.")
+      }
+      Log.i(TAG, "Pausing Recording Session..")
+      recorder.pause()
     }
-    Log.i(TAG, "Pausing Recording Session..")
-    recorder.pause()
   }
 
   fun resume() {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-      throw Error("Resuming a recording is only supported on Devices running Android version 24 (N) or newer.")
+    synchronized(this) {
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+        throw Error("Resuming a recording is only supported on Devices running Android version 24 (N) or newer.")
+      }
+      Log.i(TAG, "Resuming Recording Session..")
+      recorder.resume()
     }
-    Log.i(TAG, "Resuming Recording Session..")
-    recorder.resume()
+  }
+
+  override fun close() {
+    synchronized(this) {
+      stop()
+      recorder.release()
+    }
+  }
+
+  override fun toString(): String {
+    val hdr = if (hdrProfile != null) "HDR" else "SDR"
+    val audio = if (enableAudio) "with audio" else "without audio"
+    return "${videoSize.width} x ${videoSize.height} @ $fps FPS $hdr RecordingSession ($audio)"
   }
 }
