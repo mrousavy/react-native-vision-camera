@@ -32,7 +32,6 @@ class RecordingSession(context: Context,
   val surface: Surface
 
   private val recorder: MediaRecorder
-  private val encoder = if (hdrProfile != null) MediaRecorder.VideoEncoder.HEVC else MediaRecorder.VideoEncoder.H264
   private val outputFile: File
   private var startTime: Long? = null
 
@@ -54,10 +53,14 @@ class RecordingSession(context: Context,
     recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
     recorder.setOutputFile(outputFile.absolutePath)
     recorder.setVideoEncodingBitRate(VIDEO_BIT_RATE)
-    if (fps != null) recorder.setVideoFrameRate(fps)
     recorder.setVideoSize(videoSize.width, videoSize.height)
+    if (fps != null) recorder.setVideoFrameRate(fps)
 
-    recorder.setVideoEncoder(encoder)
+    if (hdrProfile != null) {
+      recorder.setVideoEncoder(MediaRecorder.VideoEncoder.HEVC)
+    } else {
+      recorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264)
+    }
     if (enableAudio) {
       recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
       recorder.setAudioEncodingBitRate(AUDIO_BIT_RATE)
