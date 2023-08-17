@@ -213,31 +213,36 @@ class CameraView(context: Context) : FrameLayout(context) {
   }
 
   private fun configureSession() {
-    Log.i(TAG, "Configuring Camera Device...")
+    try {
+      Log.i(TAG, "Configuring Camera Device...")
 
-    if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-      throw CameraPermissionError()
+      if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+        throw CameraPermissionError()
+      }
+      val cameraId = cameraId ?: throw NoCameraDeviceError()
+      val cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId)
+
+      val format = format
+      val targetVideoSize = if (format != null) Size(format.getInt("videoWidth"), format.getInt("videoHeight")) else null
+      val targetPhotoSize = if (format != null) Size(format.getInt("photoWidth"), format.getInt("photoHeight")) else null
+      // TODO: Allow previewSurface to be null/none
+      val previewSurface = previewSurface ?: return
+
+      if (targetVideoSize != null) skiaRenderer?.setInputSurfaceSize(targetVideoSize.width, targetVideoSize.height)
+
+      val previewOutput = CameraOutputs.PreviewOutput(previewSurface)
+      val photoOutput = if (photo == true) {
+        CameraOutputs.PhotoOutput(targetPhotoSize)
+      } else null
+      val videoOutput = if (video == true || enableFrameProcessor) {
+        CameraOutputs.VideoOutput(targetVideoSize, video == true, enableFrameProcessor, pixelFormat.toImageFormat(cameraCharacteristics))
+      } else null
+
+      cameraSession.configureSession(cameraId, previewOutput, photoOutput, videoOutput)
+    } catch (e: Throwable) {
+      Log.e(TAG, "Failed to configure session: ${e.message}", e)
+      invokeOnError(e)
     }
-    val cameraId = cameraId ?: throw NoCameraDeviceError()
-    val cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId)
-
-    val format = format
-    val targetVideoSize = if (format != null) Size(format.getInt("videoWidth"), format.getInt("videoHeight")) else null
-    val targetPhotoSize = if (format != null) Size(format.getInt("photoWidth"), format.getInt("photoHeight")) else null
-    // TODO: Allow previewSurface to be null/none
-    val previewSurface = previewSurface ?: return
-
-    if (targetVideoSize != null) skiaRenderer?.setInputSurfaceSize(targetVideoSize.width, targetVideoSize.height)
-
-    val previewOutput = CameraOutputs.PreviewOutput(previewSurface)
-    val photoOutput = if (photo == true) {
-      CameraOutputs.PhotoOutput(targetPhotoSize)
-    } else null
-    val videoOutput = if (video == true || enableFrameProcessor) {
-      CameraOutputs.VideoOutput(targetVideoSize, video == true, enableFrameProcessor, pixelFormat.toImageFormat(cameraCharacteristics))
-    } else null
-
-    cameraSession.configureSession(cameraId, previewOutput, photoOutput, videoOutput)
   }
 
   private fun configureFormat() {
