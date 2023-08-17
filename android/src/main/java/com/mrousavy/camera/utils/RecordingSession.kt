@@ -25,8 +25,8 @@ class RecordingSession(context: Context,
     private const val TAG = "RecordingSession"
     // bits per second
     private const val VIDEO_BIT_RATE = 10_000_000
-    private const val AUDIO_SAMPLING_RATE = 44100
-    private const val AUDIO_BIT_RATE = 16
+    private const val AUDIO_SAMPLING_RATE = 44_100
+    private const val AUDIO_BIT_RATE = 16 * AUDIO_SAMPLING_RATE
   }
 
   data class Video(val path: String, val durationMs: Long)
@@ -76,6 +76,8 @@ class RecordingSession(context: Context,
     recorder.setOnInfoListener { _, what, extra ->
       Log.i(TAG, "MediaRecorder Info: $what ($extra)")
     }
+
+    Log.i(TAG, "Created $this!")
   }
 
   fun start() {
