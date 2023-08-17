@@ -32,7 +32,9 @@ enum class Format(override val unionValue: String): JSUnionValue {
         }
       }
       RGB -> {
-        if (formats.contains(PixelFormat.RGB_888)) {
+        if (formats.contains(ImageFormat.JPEG)) {
+          ImageFormat.JPEG
+        } else if (formats.contains(PixelFormat.RGB_888)) {
           PixelFormat.RGB_888
         } else {
           null
