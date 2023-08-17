@@ -50,7 +50,7 @@ class RecordingSession(context: Context,
 
     recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(context) else MediaRecorder()
 
-    if (enableAudio) recorder.setAudioSource(MediaRecorder.AudioSource.MIC)
+    if (enableAudio) recorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER)
     recorder.setVideoSource(MediaRecorder.VideoSource.SURFACE)
 
     recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
