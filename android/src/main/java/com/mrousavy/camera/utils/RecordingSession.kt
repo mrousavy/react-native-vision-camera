@@ -18,7 +18,7 @@ class RecordingSession(context: Context,
                        private val videoSize: Size,
                        private val fps: Int? = null,
                        private val hdrProfile: Long? = null,
-                       private val callback: (video: Video) -> Unit): Closeable {
+                       private val callback: (video: Video) -> Unit) {
   companion object {
     private const val TAG = "RecordingSession"
     // bits per second
@@ -95,7 +95,12 @@ class RecordingSession(context: Context,
       Log.i(TAG, "Stopping RecordingSession..")
       try {
         recorder.stop()
-        // TODO: Re-configure the session now.
+        recorder.release()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+          imageWriter?.close()
+          imageWriter = null
+        }
       } catch (e: Error) {
         Log.e(TAG, "Failed to stop MediaRecorder!", e)
       }
@@ -125,19 +130,6 @@ class RecordingSession(context: Context,
       recorder.resume()
     }
   }
-
-  override fun close() {
-    synchronized(this) {
-      stop()
-      recorder.release()
-
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        imageWriter?.close()
-        imageWriter = null
-      }
-    }
-  }
-
 
   fun appendImage(image: Image) {
     synchronized(this) {
