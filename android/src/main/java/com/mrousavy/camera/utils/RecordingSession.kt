@@ -9,6 +9,7 @@ import android.os.Build
 import android.util.Log
 import android.util.Size
 import android.view.Surface
+import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.VideoCodec
 import com.mrousavy.camera.parsers.VideoFileType
 import com.mrousavy.camera.utils.outputs.CameraOutputs
@@ -19,7 +20,8 @@ class RecordingSession(context: Context,
                        private val videoSize: Size,
                        private val fps: Int? = null,
                        private val codec: VideoCodec = VideoCodec.H264,
-                       fileType: VideoFileType = VideoFileType.MP4,
+                       private val orientation: Orientation,
+                       private val fileType: VideoFileType = VideoFileType.MP4,
                        private val callback: (video: Video) -> Unit) {
   companion object {
     private const val TAG = "RecordingSession"
@@ -70,6 +72,7 @@ class RecordingSession(context: Context,
       recorder.setAudioChannels(AUDIO_CHANNELS)
     }
     recorder.setInputSurface(surface)
+    recorder.setOrientationHint(orientation.toDegrees())
 
     recorder.setOnErrorListener { _, what, extra ->
       Log.e(TAG, "MediaRecorder Error: $what ($extra)")
@@ -148,6 +151,6 @@ class RecordingSession(context: Context,
 
   override fun toString(): String {
     val audio = if (enableAudio) "with audio" else "without audio"
-    return "${videoSize.width} x ${videoSize.height} @ $fps FPS $codec RecordingSession ($audio)"
+    return "${videoSize.width} x ${videoSize.height} @ $fps FPS $codec $fileType $orientation RecordingSession ($audio)"
   }
 }
