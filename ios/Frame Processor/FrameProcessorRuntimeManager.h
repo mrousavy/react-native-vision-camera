@@ -12,6 +12,7 @@
 #import <React/RCTBridge.h>
 
 @interface FrameProcessorRuntimeManager : NSObject
+@property (nonatomic) int viewTag;
 
 - (instancetype)init NS_UNAVAILABLE;
 
