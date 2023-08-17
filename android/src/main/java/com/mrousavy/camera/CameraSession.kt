@@ -24,6 +24,8 @@ import com.mrousavy.camera.parsers.CameraDeviceError
 import com.mrousavy.camera.parsers.Flash
 import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.QualityPrioritization
+import com.mrousavy.camera.parsers.VideoCodec
+import com.mrousavy.camera.parsers.VideoFileType
 import com.mrousavy.camera.parsers.VideoStabilizationMode
 import com.mrousavy.camera.utils.PhotoOutputSynchronizer
 import com.mrousavy.camera.utils.RecordingSession
@@ -210,14 +212,16 @@ class CameraSession(private val context: Context,
     frame.decrementRefCount()
   }
 
-  suspend fun startRecording(enableAudio: Boolean, callback: (video: RecordingSession.Video) -> Unit) {
+  suspend fun startRecording(enableAudio: Boolean,
+                             codec: VideoCodec,
+                             fileType: VideoFileType,
+                             callback: (video: RecordingSession.Video) -> Unit) {
     mutex.withLock {
       if (recording != null) throw RecordingInProgressError()
       val outputs = outputs ?: throw CameraNotReadyError()
-      val videoInput = outputs.video ?: throw VideoNotEnabledError()
       val videoOutput = outputs.videoOutput ?: throw VideoNotEnabledError()
 
-      val recording = RecordingSession(context, enableAudio, videoOutput.size, fps, videoInput.hdrProfile, callback)
+      val recording = RecordingSession(context, enableAudio, videoOutput.size, fps, codec, fileType, callback)
       recording.start()
       this.recording = recording
     }

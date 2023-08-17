@@ -8,6 +8,8 @@ import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.parsers.Torch
+import com.mrousavy.camera.parsers.VideoCodec
+import com.mrousavy.camera.parsers.VideoFileType
 import com.mrousavy.camera.utils.RecordingSession
 import java.util.*
 
@@ -24,6 +26,14 @@ suspend fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Ca
     // overrides current torch mode value to enable flash while recording
     cameraSession.setTorchMode(enableFlash)
   }
+  var codec = VideoCodec.H264
+  if (options.hasKey("videoCodec")) {
+    codec = VideoCodec.fromUnionValue(options.getString("videoCodec"))
+  }
+  var fileType = VideoFileType.MP4
+  if (options.hasKey("fileType")) {
+    fileType = VideoFileType.fromUnionValue(options.getString("fileType"))
+  }
 
   val callback = { video: RecordingSession.Video ->
     val map = Arguments.createMap()
@@ -31,7 +41,7 @@ suspend fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Ca
     map.putDouble("duration", video.durationMs.toDouble() / 1000.0)
     onRecordCallback(map, null)
   }
-  cameraSession.startRecording(audio == true, callback)
+  cameraSession.startRecording(audio == true, codec, fileType, callback)
 }
 
 @SuppressLint("RestrictedApi")

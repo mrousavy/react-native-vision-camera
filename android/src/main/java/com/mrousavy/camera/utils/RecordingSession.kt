@@ -9,15 +9,17 @@ import android.os.Build
 import android.util.Log
 import android.util.Size
 import android.view.Surface
+import com.mrousavy.camera.parsers.VideoCodec
+import com.mrousavy.camera.parsers.VideoFileType
 import com.mrousavy.camera.utils.outputs.CameraOutputs
-import java.io.Closeable
 import java.io.File
 
 class RecordingSession(context: Context,
                        private val enableAudio: Boolean,
                        private val videoSize: Size,
                        private val fps: Int? = null,
-                       private val hdrProfile: Long? = null,
+                       private val codec: VideoCodec = VideoCodec.H264,
+                       fileType: VideoFileType = VideoFileType.MP4,
                        private val callback: (video: Video) -> Unit) {
   companion object {
     private const val TAG = "RecordingSession"
@@ -42,7 +44,7 @@ class RecordingSession(context: Context,
 
     surface = MediaCodec.createPersistentInputSurface()
 
-    outputFile = File.createTempFile("mrousavy", ".mp4", context.cacheDir)
+    outputFile = File.createTempFile("mrousavy", fileType.toExtension(), context.cacheDir)
 
     Log.i(TAG, "Creating RecordingSession for ${outputFile.absolutePath}")
 
@@ -57,13 +59,8 @@ class RecordingSession(context: Context,
     recorder.setVideoSize(videoSize.width, videoSize.height)
     if (fps != null) recorder.setVideoFrameRate(fps)
 
-    if (hdrProfile != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-      recorder.setVideoEncoder(MediaRecorder.VideoEncoder.HEVC)
-      Log.i(TAG, "Using HDR HEVC encoder..")
-    } else {
-      Log.i(TAG, "Using standard H264 encoder..")
-      recorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264)
-    }
+    Log.i(TAG, "Using $codec Video Codec..")
+    recorder.setVideoEncoder(codec.toVideoCodec())
     if (enableAudio) {
       Log.i(TAG, "Adding Audio Channel..")
       recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
@@ -146,8 +143,7 @@ class RecordingSession(context: Context,
   }
 
   override fun toString(): String {
-    val hdr = if (hdrProfile != null) "HDR" else "SDR"
     val audio = if (enableAudio) "with audio" else "without audio"
-    return "${videoSize.width} x ${videoSize.height} @ $fps FPS $hdr RecordingSession ($audio)"
+    return "${videoSize.width} x ${videoSize.height} @ $fps FPS $codec RecordingSession ($audio)"
   }
 }
