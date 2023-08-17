@@ -1,5 +1,5 @@
 import React from 'react';
-import { requireNativeComponent, NativeSyntheticEvent, findNodeHandle, NativeMethods, Platform } from 'react-native';
+import { requireNativeComponent, NativeSyntheticEvent, findNodeHandle, NativeMethods } from 'react-native';
 import type { CameraDevice } from './CameraDevice';
 import type { ErrorWithCause } from './CameraError';
 import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError';
@@ -8,7 +8,7 @@ import { assertJSIAvailable } from './JSIHelper';
 import { CameraModule } from './NativeCameraModule';
 import type { PhotoFile, TakePhotoOptions } from './PhotoFile';
 import type { Point } from './Point';
-import type { CameraVideoCodec, RecordVideoOptions, VideoFile, VideoFileType } from './VideoFile';
+import type { RecordVideoOptions, VideoFile } from './VideoFile';
 import { VisionCameraProxy } from './FrameProcessorPlugins';
 
 //#region Types
@@ -257,25 +257,6 @@ export class Camera extends React.PureComponent<CameraProps> {
     }
   }
   //#endregion
-
-  /**
-   * Get a list of video codecs the current camera supports for a given file type.  Returned values are ordered by efficiency (descending).
-   * @example
-   * ```ts
-   * const codecs = await camera.current.getAvailableVideoCodecs("mp4")
-   * ```
-   * @throws {@linkcode CameraRuntimeError} When any kind of error occured while getting available video codecs. Use the {@linkcode ParameterError.code | code} property to get the actual error
-   * @platform iOS
-   */
-  public async getAvailableVideoCodecs(fileType?: VideoFileType): Promise<CameraVideoCodec[]> {
-    if (Platform.OS !== 'ios') return []; // no video codecs supported on other platforms.
-
-    try {
-      return await CameraModule.getAvailableVideoCodecs(this.handle, fileType);
-    } catch (e) {
-      throw tryParseNativeCameraError(e);
-    }
-  }
 
   //#region Static Functions (NativeModule)
   /**
