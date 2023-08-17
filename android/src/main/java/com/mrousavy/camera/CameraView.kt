@@ -99,8 +99,12 @@ class CameraView(context: Context) : FrameLayout(context) {
   private var previewView: View? = null
   private var previewSurface: Surface? = null
 
-  var frameProcessor: FrameProcessor? = null
   private var skiaRenderer: SkiaRenderer? = null
+  internal var frameProcessor: FrameProcessor? = null
+    set(value) {
+      field = value
+      cameraSession.setFrameProcessor(frameProcessor)
+    }
 
   private val inputOrientation: Orientation
     get() = cameraSession.orientation
@@ -227,7 +231,7 @@ class CameraView(context: Context) : FrameLayout(context) {
       CameraOutputs.PhotoOutput(targetPhotoSize)
     } else null
     val videoOutput = if (video == true || enableFrameProcessor) {
-      CameraOutputs.VideoOutput(targetVideoSize, video == true, frameProcessor)
+      CameraOutputs.VideoOutput(targetVideoSize, video == true, enableFrameProcessor)
     } else null
 
     cameraSession.configureSession(cameraId, previewOutput, photoOutput, videoOutput)

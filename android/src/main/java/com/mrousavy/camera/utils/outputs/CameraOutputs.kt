@@ -36,7 +36,7 @@ class CameraOutputs(val cameraId: String,
                          val format: Int = ImageFormat.JPEG)
   data class VideoOutput(val targetSize: Size? = null,
                          val enableRecording: Boolean = false,
-                         val frameProcessor: FrameProcessor? = null,
+                         val enableFrameProcessor: Boolean? = false,
                          val format: Int = ImageFormat.PRIVATE,
                          val hdrProfile: Long? = null /* DynamicRangeProfiles */)
 

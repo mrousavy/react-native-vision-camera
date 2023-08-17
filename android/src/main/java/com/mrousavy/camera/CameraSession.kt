@@ -20,6 +20,7 @@ import com.mrousavy.camera.extensions.createPhotoCaptureRequest
 import com.mrousavy.camera.extensions.openCamera
 import com.mrousavy.camera.extensions.tryClose
 import com.mrousavy.camera.frameprocessor.Frame
+import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.parsers.CameraDeviceError
 import com.mrousavy.camera.parsers.Flash
 import com.mrousavy.camera.parsers.Orientation
@@ -79,8 +80,9 @@ class CameraSession(private val context: Context,
   private val photoOutputSynchronizer = PhotoOutputSynchronizer()
   private val mutex = Mutex()
   private var isRunning = false
-  private var recording: RecordingSession? = null
   private var enableTorch = false
+  private var recording: RecordingSession? = null
+  private var frameProcessor: FrameProcessor? = null
 
   override val coroutineContext: CoroutineContext = CameraQueues.cameraQueue.coroutineDispatcher
 
@@ -158,6 +160,10 @@ class CameraSession(private val context: Context,
     }
   }
 
+  fun setFrameProcessor(frameProcessor: FrameProcessor?) {
+    this.frameProcessor = frameProcessor
+  }
+
   suspend fun takePhoto(qualityPrioritization: QualityPrioritization,
                         flashMode: Flash,
                         enableRedEyeReduction: Boolean,
@@ -199,14 +205,12 @@ class CameraSession(private val context: Context,
   }
 
   override fun onVideoFrameCaptured(image: Image) {
-    val video = outputs?.video ?: throw CameraNotReadyError()
-
     // TODO: Correctly get orientation and everything
     val frame = Frame(image, System.currentTimeMillis(), Orientation.PORTRAIT, false)
     frame.incrementRefCount()
 
     // Call (Skia-) Frame Processor
-    video.frameProcessor?.call(frame)
+    frameProcessor?.call(frame)
 
     // Write Image to the Recording
     recording?.appendImage(image)
