@@ -3,12 +3,12 @@ package com.mrousavy.camera
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
-import com.mrousavy.camera.frameprocessor.Frame
-import java.io.File
-import java.text.SimpleDateFormat
+import com.mrousavy.camera.parsers.Torch
+import com.mrousavy.camera.parsers.VideoCodec
+import com.mrousavy.camera.parsers.VideoFileType
+import com.mrousavy.camera.utils.RecordingSession
 import java.util.*
 
 suspend fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Callback) {
@@ -22,38 +22,38 @@ suspend fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Ca
   if (options.hasKey("flash")) {
     val enableFlash = options.getString("flash") == "on"
     // overrides current torch mode value to enable flash while recording
-    // TODO: Enable torch for flash
+    cameraSession.setTorchMode(enableFlash)
+  }
+  var codec = VideoCodec.H264
+  if (options.hasKey("videoCodec")) {
+    codec = VideoCodec.fromUnionValue(options.getString("videoCodec"))
+  }
+  var fileType = VideoFileType.MP4
+  if (options.hasKey("fileType")) {
+    fileType = VideoFileType.fromUnionValue(options.getString("fileType"))
   }
 
-  val id = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-  val file = File.createTempFile("VisionCamera-${id}", ".mp4")
-
-  cameraSession.startRecording(audio == true, file.absolutePath)
+  val callback = { video: RecordingSession.Video ->
+    val map = Arguments.createMap()
+    map.putString("path", video.path)
+    map.putDouble("duration", video.durationMs.toDouble() / 1000.0)
+    onRecordCallback(map, null)
+  }
+  cameraSession.startRecording(audio == true, codec, fileType, callback)
 }
 
 @SuppressLint("RestrictedApi")
-fun CameraView.pauseRecording() {
-  // TODO: pauseRecording()
+suspend fun CameraView.pauseRecording() {
+  cameraSession.pauseRecording()
 }
 
 @SuppressLint("RestrictedApi")
-fun CameraView.resumeRecording() {
-  // TODO: resumeRecording()
+suspend fun CameraView.resumeRecording() {
+  cameraSession.resumeRecording()
 }
 
 @SuppressLint("RestrictedApi")
 suspend fun CameraView.stopRecording() {
   cameraSession.stopRecording()
-  // TODO: disable torch again
-}
-
-fun CameraView.onFrame(frame: Frame) {
-  frame.incrementRefCount()
-
-  Log.d(CameraView.TAG, "New Frame available!")
-  if (frameProcessor != null) {
-    frameProcessor?.call(frame)
-  }
-
-  frame.decrementRefCount()
+  cameraSession.setTorchMode(torch == Torch.ON)
 }

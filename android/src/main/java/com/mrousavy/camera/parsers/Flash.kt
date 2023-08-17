@@ -1,5 +1,7 @@
 package com.mrousavy.camera.parsers
 
+import com.mrousavy.camera.InvalidTypeScriptUnionError
+
 enum class Flash(override val unionValue: String): JSUnionValue {
   OFF("off"),
   ON("on"),
@@ -11,7 +13,7 @@ enum class Flash(override val unionValue: String): JSUnionValue {
         "off" -> OFF
         "on" -> ON
         "auto" -> AUTO
-        else -> OFF
+        else -> throw InvalidTypeScriptUnionError("flash", unionValue ?: "(null)")
       }
     }
   }

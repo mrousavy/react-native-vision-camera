@@ -1,19 +1,21 @@
-package com.mrousavy.camera.utils
+package com.mrousavy.camera.utils.outputs
 
 import android.graphics.ImageFormat
+import android.hardware.HardwareBuffer
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
-import android.hardware.camera2.params.DynamicRangeProfiles
 import android.media.Image
 import android.media.ImageReader
+import android.media.MediaCodec
 import android.util.Log
 import android.util.Size
 import android.view.Surface
 import com.mrousavy.camera.CameraQueues
-import com.mrousavy.camera.extensions.ImageReaderOutput
-import com.mrousavy.camera.extensions.OutputType
-import com.mrousavy.camera.extensions.SurfaceOutput
 import com.mrousavy.camera.extensions.closestToOrMax
+import com.mrousavy.camera.extensions.getPreviewSize
+import com.mrousavy.camera.frameprocessor.Frame
+import com.mrousavy.camera.frameprocessor.FrameProcessor
+import com.mrousavy.camera.parsers.Orientation
 import java.io.Closeable
 import java.lang.IllegalStateException
 
@@ -25,27 +27,29 @@ class CameraOutputs(val cameraId: String,
                     val callback: Callback): Closeable {
   companion object {
     private const val TAG = "CameraOutputs"
-    private const val VIDEO_OUTPUT_BUFFER_SIZE = 3
-    private const val PHOTO_OUTPUT_BUFFER_SIZE = 3
+    const val VIDEO_OUTPUT_BUFFER_SIZE = 3
+    const val PHOTO_OUTPUT_BUFFER_SIZE = 3
   }
 
   data class PreviewOutput(val surface: Surface)
   data class PhotoOutput(val targetSize: Size? = null,
                          val format: Int = ImageFormat.JPEG)
-  data class VideoOutput(val onFrame: (image: Image) -> Unit,
-                         val targetSize: Size? = null,
-                         val format: Int = ImageFormat.YUV_420_888,
+  data class VideoOutput(val targetSize: Size? = null,
+                         val enableRecording: Boolean = false,
+                         val frameProcessor: FrameProcessor? = null,
+                         val format: Int = ImageFormat.PRIVATE,
                          val hdrProfile: Long? = null /* DynamicRangeProfiles */)
 
   interface Callback {
     fun onPhotoCaptured(image: Image)
+    fun onVideoFrameCaptured(image: Image)
   }
 
   var previewOutput: SurfaceOutput? = null
     private set
   var photoOutput: ImageReaderOutput? = null
     private set
-  var videoOutput: ImageReaderOutput? = null
+  var videoOutput: SurfaceOutput? = null
     private set
 
   val size: Int
@@ -63,6 +67,7 @@ class CameraOutputs(val cameraId: String,
       && (this.preview == null) == (other.preview == null)
       && this.photo?.targetSize == other.photo?.targetSize
       && this.photo?.format == other.photo?.format
+      && this.video?.enableRecording == other.video?.enableRecording
       && this.video?.targetSize == other.video?.targetSize
       && this.video?.format == other.video?.format
   }
@@ -82,15 +87,9 @@ class CameraOutputs(val cameraId: String,
 
   override fun toString(): String {
     val strings = arrayListOf<String>()
-    photoOutput?.let {
-      strings.add("${it.outputType} (${it.imageReader.width} x ${it.imageReader.height} in format #${it.imageReader.imageFormat})")
-    }
-    videoOutput?.let {
-      strings.add("${it.outputType} (${it.imageReader.width} x ${it.imageReader.height} in format #${it.imageReader.imageFormat})")
-    }
-    previewOutput?.let {
-      strings.add("${it.outputType}")
-    }
+    previewOutput?.let { strings.add(it.toString()) }
+    photoOutput?.let { strings.add(it.toString()) }
+    videoOutput?.let { strings.add(it.toString()) }
     return strings.joinToString(", ", "[", "]")
   }
 
@@ -103,7 +102,7 @@ class CameraOutputs(val cameraId: String,
     // Preview output: Low resolution repeating images (SurfaceView)
     if (preview != null) {
       Log.i(TAG, "Adding native preview view output.")
-      previewOutput = SurfaceOutput(preview.surface, OutputType.PREVIEW)
+      previewOutput = SurfaceOutput(preview.surface, characteristics.getPreviewSize(), SurfaceOutput.OutputType.PREVIEW)
     }
 
     // Photo output: High quality still images (takePhoto())
@@ -116,26 +115,27 @@ class CameraOutputs(val cameraId: String,
         callback.onPhotoCaptured(image)
       }, CameraQueues.cameraQueue.handler)
 
-      Log.i(TAG, "Adding ${size.width}x${size.height} photo output. (Format: $photo.format)")
-      photoOutput = ImageReaderOutput(imageReader, OutputType.PHOTO)
+      Log.i(TAG, "Adding ${size.width}x${size.height} photo output. (Format: ${photo.format})")
+      photoOutput = ImageReaderOutput(imageReader, SurfaceOutput.OutputType.PHOTO)
     }
 
     // Video output: High resolution repeating images (startRecording() or useFrameProcessor())
     if (video != null) {
       val size = config.getOutputSizes(video.format).closestToOrMax(video.targetSize)
 
-      val imageReader = ImageReader.newInstance(size.width, size.height, video.format, VIDEO_OUTPUT_BUFFER_SIZE)
+      val flags = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or HardwareBuffer.USAGE_VIDEO_ENCODE
+      val imageReader = ImageReader.newInstance(size.width, size.height, video.format, VIDEO_OUTPUT_BUFFER_SIZE, flags)
       imageReader.setOnImageAvailableListener({ reader ->
         try {
           val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
-          video.onFrame(image)
+          callback.onVideoFrameCaptured(image)
         } catch (e: IllegalStateException) {
           Log.e(TAG, "Failed to acquire a new Image, dropping a Frame.. The Frame Processor cannot keep up with the Camera's FPS!", e)
         }
       }, CameraQueues.videoQueue.handler)
 
-      Log.i(TAG, "Adding ${size.width}x${size.height} video output. (Format: $video.format)")
-      videoOutput = ImageReaderOutput(imageReader, OutputType.VIDEO)
+      Log.i(TAG, "Adding ${size.width}x${size.height} video output. (Format: ${video.format} | HDR: ${video.hdrProfile})")
+      videoOutput = ImageReaderOutput(imageReader, SurfaceOutput.OutputType.VIDEO)
     }
 
     Log.i(TAG, "Prepared $size Outputs for Camera $cameraId!")

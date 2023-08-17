@@ -8,13 +8,7 @@ import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
-import android.media.AudioPresentation
-import android.media.CamcorderProfile
 import android.media.Image
-import android.media.MediaCodec
-import android.media.MediaCodecInfo
-import android.media.MediaFormat
-import android.media.MediaRecorder
 import android.os.Build
 import android.util.Log
 import android.util.Range
@@ -23,23 +17,25 @@ import com.mrousavy.camera.extensions.SessionType
 import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.createPhotoCaptureRequest
-import com.mrousavy.camera.extensions.getCamcorderQualityForSize
 import com.mrousavy.camera.extensions.openCamera
-import com.mrousavy.camera.extensions.setDynamicRangeProfile
 import com.mrousavy.camera.extensions.tryClose
+import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.parsers.CameraDeviceError
 import com.mrousavy.camera.parsers.Flash
 import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.QualityPrioritization
+import com.mrousavy.camera.parsers.VideoCodec
+import com.mrousavy.camera.parsers.VideoFileType
 import com.mrousavy.camera.parsers.VideoStabilizationMode
-import com.mrousavy.camera.utils.CameraOutputs
 import com.mrousavy.camera.utils.PhotoOutputSynchronizer
-import com.mrousavy.camera.utils.VideoRecording
+import com.mrousavy.camera.utils.RecordingSession
+import com.mrousavy.camera.utils.outputs.CameraOutputs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.Closeable
+import java.lang.IllegalArgumentException
 import java.util.concurrent.CancellationException
 import kotlin.coroutines.CoroutineContext
 
@@ -83,7 +79,7 @@ class CameraSession(private val context: Context,
   private val photoOutputSynchronizer = PhotoOutputSynchronizer()
   private val mutex = Mutex()
   private var isRunning = false
-  private var recording: VideoRecording? = null
+  private var recording: RecordingSession? = null
 
   override val coroutineContext: CoroutineContext = CameraQueues.cameraQueue.coroutineDispatcher
 
@@ -201,15 +197,32 @@ class CameraSession(private val context: Context,
     photoOutputSynchronizer.set(image.timestamp, image)
   }
 
-  suspend fun startRecording(enableAudio: Boolean, path: String) {
+  override fun onVideoFrameCaptured(image: Image) {
+    val video = outputs?.video ?: throw CameraNotReadyError()
+
+    // TODO: Correctly get orientation and everything
+    val frame = Frame(image, System.currentTimeMillis(), Orientation.PORTRAIT, false)
+    frame.incrementRefCount()
+
+    // Call (Skia-) Frame Processor
+    video.frameProcessor?.call(frame)
+
+    // Write Image to the Recording
+    recording?.appendImage(image)
+
+    frame.decrementRefCount()
+  }
+
+  suspend fun startRecording(enableAudio: Boolean,
+                             codec: VideoCodec,
+                             fileType: VideoFileType,
+                             callback: (video: RecordingSession.Video) -> Unit) {
     mutex.withLock {
       if (recording != null) throw RecordingInProgressError()
       val outputs = outputs ?: throw CameraNotReadyError()
-      val videoInput = outputs.video ?: throw VideoNotEnabledError()
       val videoOutput = outputs.videoOutput ?: throw VideoNotEnabledError()
 
-      val size = Size(videoOutput.imageReader.width, videoOutput.imageReader.height)
-      val recording = VideoRecording(size, fps, videoInput.hdrProfile)
+      val recording = RecordingSession(context, enableAudio, videoOutput.size, fps, codec, fileType, callback)
       recording.start()
       this.recording = recording
     }
@@ -221,6 +234,32 @@ class CameraSession(private val context: Context,
 
       recording.stop()
       this.recording = null
+    }
+  }
+
+  suspend fun pauseRecording() {
+    mutex.withLock {
+      val recording = recording ?: throw NoRecordingInProgressError()
+      recording.pause()
+    }
+  }
+
+  suspend fun resumeRecording() {
+    mutex.withLock {
+      val recording = recording ?: throw NoRecordingInProgressError()
+      recording.resume()
+    }
+  }
+
+  fun setTorchMode(enableTorch: Boolean) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      val cameraId = cameraId ?: throw NoCameraDeviceError()
+      try {
+        cameraManager.setTorchMode(cameraId, enableTorch)
+      } catch (_: IllegalArgumentException) {
+        // Camera does not have a Flash.
+        throw NoFlashAvailableError()
+      }
     }
   }
 
@@ -354,7 +393,7 @@ class CameraSession(private val context: Context,
         val hdr = hdr
         val outputs = outputs
 
-        if (outputs == null) {
+        if (outputs == null || outputs.size == 0) {
           Log.i(TAG, "CameraSession doesn't have any Outputs, canceling..")
           destroy()
           return@withLock

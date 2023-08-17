@@ -32,7 +32,7 @@ extension CameraView {
         return
       } else {
         // torch mode is .auto or .on, but no torch is available.
-        invokeOnError(.device(.torchUnavailable))
+        invokeOnError(.device(.flashUnavailable))
         return
       }
     }

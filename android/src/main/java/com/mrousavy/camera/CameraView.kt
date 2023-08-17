@@ -6,18 +6,16 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.hardware.camera2.CameraManager
-import android.opengl.GLES32
+import android.media.MediaCodec
 import android.util.Log
 import android.util.Size
 import android.view.Surface
-import android.view.SurfaceView
 import android.view.View
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.extensions.containsAny
 import com.mrousavy.camera.extensions.installHierarchyFitter
-import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.PreviewType
@@ -25,7 +23,8 @@ import com.mrousavy.camera.parsers.Torch
 import com.mrousavy.camera.parsers.VideoStabilizationMode
 import com.mrousavy.camera.skia.SkiaPreviewView
 import com.mrousavy.camera.skia.SkiaRenderer
-import com.mrousavy.camera.utils.CameraOutputs
+import com.mrousavy.camera.utils.RecordingSession
+import com.mrousavy.camera.utils.outputs.CameraOutputs
 import java.io.Closeable
 import kotlin.math.max
 import kotlin.math.min
@@ -218,22 +217,17 @@ class CameraView(context: Context) : FrameLayout(context) {
     val format = format
     val targetVideoSize = if (format != null) Size(format.getInt("videoWidth"), format.getInt("videoHeight")) else null
     val targetPhotoSize = if (format != null) Size(format.getInt("photoWidth"), format.getInt("photoHeight")) else null
-    val previewSurface = previewSurface
+    // TODO: Allow previewSurface to be null/none
+    val previewSurface = previewSurface ?: return
 
     if (targetVideoSize != null) skiaRenderer?.setInputSurfaceSize(targetVideoSize.width, targetVideoSize.height)
 
-    val previewOutput = if (previewSurface != null) {
-      CameraOutputs.PreviewOutput(previewSurface)
-    } else null
+    val previewOutput = CameraOutputs.PreviewOutput(previewSurface)
     val photoOutput = if (photo == true) {
       CameraOutputs.PhotoOutput(targetPhotoSize)
     } else null
-    val videoOutput = if (video == true) {
-      CameraOutputs.VideoOutput({ image ->
-        val frame = Frame(image, System.currentTimeMillis(), outputOrientation, false)
-        skiaRenderer?.onCameraFrame(frame)
-        onFrame(frame)
-      }, targetVideoSize)
+    val videoOutput = if (video == true || enableFrameProcessor) {
+      CameraOutputs.VideoOutput(targetVideoSize, video == true, frameProcessor)
     } else null
 
     cameraSession.configureSession(cameraId, previewOutput, photoOutput, videoOutput)

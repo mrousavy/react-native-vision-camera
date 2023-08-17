@@ -1,10 +1,10 @@
 package com.mrousavy.camera.extensions
 
 import android.content.res.Resources
-import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.util.Log
 import android.util.Size
+import android.view.SurfaceHolder
 import android.view.SurfaceView
 
 private fun getMaximumPreviewSize(): Size {
@@ -24,6 +24,6 @@ private fun getMaximumPreviewSize(): Size {
 fun CameraCharacteristics.getPreviewSize(): Size {
   val config = this.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
   val previewSize = getMaximumPreviewSize()
-  val outputSizes = config.getOutputSizes(SurfaceView::class.java).sortedByDescending { it.width * it.height }
+  val outputSizes = config.getOutputSizes(SurfaceHolder::class.java).sortedByDescending { it.width * it.height }
   return outputSizes.first { it.bigger <= previewSize.bigger && it.smaller <= previewSize.smaller }
 }
