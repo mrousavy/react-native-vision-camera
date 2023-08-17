@@ -148,6 +148,7 @@ class RecordingSession(context: Context,
       if (imageWriter == null) {
         imageWriter = ImageWriter.newInstance(surface, CameraOutputs.VIDEO_OUTPUT_BUFFER_SIZE)
       }
+      image.timestamp = System.nanoTime()
       imageWriter!!.queueInputImage(image)
     }
   }

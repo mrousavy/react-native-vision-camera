@@ -1,6 +1,7 @@
 package com.mrousavy.camera.utils.outputs
 
 import android.graphics.ImageFormat
+import android.hardware.HardwareBuffer
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.media.Image
@@ -36,7 +37,7 @@ class CameraOutputs(val cameraId: String,
   data class VideoOutput(val targetSize: Size? = null,
                          val enableRecording: Boolean = false,
                          val frameProcessor: FrameProcessor? = null,
-                         val format: Int = ImageFormat.YUV_420_888,
+                         val format: Int = ImageFormat.PRIVATE,
                          val hdrProfile: Long? = null /* DynamicRangeProfiles */)
 
   interface Callback {
@@ -122,7 +123,7 @@ class CameraOutputs(val cameraId: String,
     if (video != null) {
       val size = config.getOutputSizes(video.format).closestToOrMax(video.targetSize)
 
-      val imageReader = ImageReader.newInstance(size.width, size.height, video.format, VIDEO_OUTPUT_BUFFER_SIZE)
+      val imageReader = ImageReader.newInstance(size.width, size.height, video.format, VIDEO_OUTPUT_BUFFER_SIZE, HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE)
       imageReader.setOnImageAvailableListener({ reader ->
         try {
           val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
