@@ -252,9 +252,9 @@ class CameraSession(private val context: Context,
     }
   }
 
-  fun setTorchMode(enableTorch: Boolean) {
-    this.enableTorch = enableTorch
-    launch {
+  suspend fun setTorchMode(enableTorch: Boolean) {
+    if (this.enableTorch != enableTorch) {
+      this.enableTorch = enableTorch
       startRunning()
     }
   }
