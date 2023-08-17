@@ -64,6 +64,20 @@ export interface CameraProps extends ViewProps {
    * Enables **audio capture** for video recordings (see ["Recording Videos"](https://react-native-vision-camera.com/docs/guides/capturing/#recording-videos))
    */
   audio?: boolean;
+  /**
+   * Specifies the pixel format for the video pipeline.
+   *
+   * Frames from a [Frame Processor](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors) will be streamed in the pixel format specified here.
+   *
+   * While `native` and `yuv` are the most efficient formats, some ML models (such as MLKit Barcode detection) require input Frames to be in RGB colorspace, otherwise they just output nonsense.
+   *
+   * - `native`: The hardware native GPU buffer format. This is the most efficient format. (`PRIVATE` on Android, sometimes YUV on iOS)
+   * - `yuv`: The YUV (Y'CbCr 4:2:0 or NV21, 8-bit) format, either video- or full-range, depending on hardware capabilities. This is the second most efficient format.
+   * - `rgb`: The RGB (RGB, RGBA or ABGRA, 8-bit) format. This is least efficient and requires explicit conversion.
+   *
+   * @default `native`
+   */
+  pixelFormat?: 'native' | 'yuv' | 'rgb';
   //#endregion
 
   //#region Common Props (torch, zoom)

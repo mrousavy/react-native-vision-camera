@@ -1,11 +1,13 @@
 package com.mrousavy.camera
 
+import android.graphics.PixelFormat
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.common.MapBuilder
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.ViewGroupManager
 import com.facebook.react.uimanager.annotations.ReactProp
+import com.mrousavy.camera.parsers.Format
 import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.PreviewType
 import com.mrousavy.camera.parsers.Torch
@@ -70,6 +72,14 @@ class CameraViewManager(reactContext: ReactApplicationContext) : ViewGroupManage
     if (view.enableFrameProcessor != enableFrameProcessor)
       addChangedPropToTransaction(view, "enableFrameProcessor")
     view.enableFrameProcessor = enableFrameProcessor
+  }
+
+  @ReactProp(name = "pixelFormat")
+  fun setPixelFormat(view: CameraView, pixelFormat: String?) {
+    val newPixelFormat = Format.fromUnionValue(pixelFormat)
+    if (view.pixelFormat != newPixelFormat)
+      addChangedPropToTransaction(view, "pixelFormat")
+    view.pixelFormat = newPixelFormat ?: Format.NATIVE
   }
 
   @ReactProp(name = "enableDepthData")

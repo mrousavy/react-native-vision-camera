@@ -9,9 +9,9 @@ export type DeviceError =
   | 'device/configuration-error'
   | 'device/no-device'
   | 'device/invalid-device'
-  | 'device/parallel-video-processing-not-supported'
   | 'device/torch-unavailable'
   | 'device/microphone-unavailable'
+  | 'device/pixel-format-not-supported'
   | 'device/low-light-boost-not-supported'
   | 'device/focus-not-supported'
   | 'device/camera-not-available-on-simulator';

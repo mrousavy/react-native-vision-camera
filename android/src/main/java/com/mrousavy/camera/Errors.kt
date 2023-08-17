@@ -38,6 +38,7 @@ class InvalidTypeScriptUnionError(unionName: String, unionValue: String) : Camer
 
 class NoCameraDeviceError : CameraError("device", "no-device", "No device was set! Use `getAvailableCameraDevices()` to select a suitable Camera device.")
 class NoFlashAvailableError : CameraError("device", "flash-unavailable", "The Camera Device does not have a flash unit! Make sure you select a device where `hasFlash`/`hasTorch` is true!")
+class PixelFormatNotSupportedError(format: String) : CameraError("device", "pixel-format-not-supported", "The pixelFormat $format is not supported on the given Camera Device!")
 
 class FpsNotContainedInFormatError(fps: Int) : CameraError("format", "invalid-fps", "The given format cannot run at $fps FPS! Make sure your FPS is lower than `format.maxFps` but higher than `format.minFps`.")
 class HdrNotContainedInFormatError : CameraError(
