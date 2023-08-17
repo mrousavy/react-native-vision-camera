@@ -74,7 +74,7 @@ enum DeviceError: String {
   case configureError = "configuration-error"
   case noDevice = "no-device"
   case invalid = "invalid-device"
-  case torchUnavailable = "torch-unavailable"
+  case flashUnavailable = "flash-unavailable"
   case microphoneUnavailable = "microphone-unavailable"
   case lowLightBoostNotSupported = "low-light-boost-not-supported"
   case focusNotSupported = "focus-not-supported"
@@ -92,8 +92,8 @@ enum DeviceError: String {
       return "No device was set! Use `getAvailableCameraDevices()` to select a suitable Camera device."
     case .invalid:
       return "The given Camera device was invalid. Use `getAvailableCameraDevices()` to select a suitable Camera device."
-    case .torchUnavailable:
-      return "The current camera device does not have a torch."
+    case .flashUnavailable:
+      return "The Camera Device does not have a flash unit! Make sure you select a device where `hasFlash`/`hasTorch` is true!"
     case .lowLightBoostNotSupported:
       return "The currently selected camera device does not support low-light boost! Make sure you select a device where `supportsLowLightBoost` is true!"
     case .focusNotSupported:

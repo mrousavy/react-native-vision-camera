@@ -35,6 +35,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.Closeable
+import java.lang.IllegalArgumentException
 import java.util.concurrent.CancellationException
 import kotlin.coroutines.CoroutineContext
 
@@ -254,8 +255,11 @@ class CameraSession(private val context: Context,
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
       val cameraId = cameraId ?: throw NoCameraDeviceError()
       try {
-        //cameraManager.setTorchMode(cameraId, enableTorch)
-      } catch (_: Error) { }
+        cameraManager.setTorchMode(cameraId, enableTorch)
+      } catch (_: IllegalArgumentException) {
+        // Camera does not have a Flash.
+        throw NoFlashAvailableError()
+      }
     }
   }
 

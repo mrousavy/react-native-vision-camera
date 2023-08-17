@@ -3,10 +3,8 @@ package com.mrousavy.camera
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
-import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.parsers.Torch
 import com.mrousavy.camera.parsers.VideoCodec
 import com.mrousavy.camera.parsers.VideoFileType
@@ -58,15 +56,4 @@ suspend fun CameraView.resumeRecording() {
 suspend fun CameraView.stopRecording() {
   cameraSession.stopRecording()
   cameraSession.setTorchMode(torch == Torch.ON)
-}
-
-fun CameraView.onFrame(frame: Frame) {
-  frame.incrementRefCount()
-
-  Log.d(CameraView.TAG, "New Frame available!")
-  if (frameProcessor != null) {
-    frameProcessor?.call(frame)
-  }
-
-  frame.decrementRefCount()
 }
