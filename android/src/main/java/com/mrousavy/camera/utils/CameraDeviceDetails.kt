@@ -162,7 +162,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
 
     videoSizes.forEach { videoSize ->
       val frameDuration = cameraConfig.getOutputMinFrameDuration(videoFormat, videoSize)
-      val maxFps = (1.0 / (frameDuration.toDouble() / 1000000000)).toInt()
+      val maxFps = (1.0 / (frameDuration.toDouble() / 1_000_000_000)).toInt()
 
       photoSizes.forEach { photoSize ->
         val map = buildFormatMap(photoSize, videoSize, Format.fromImageFormat(videoFormat), Range(1, maxFps))
