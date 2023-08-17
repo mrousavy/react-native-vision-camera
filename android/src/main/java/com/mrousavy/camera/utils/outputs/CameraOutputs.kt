@@ -123,7 +123,8 @@ class CameraOutputs(val cameraId: String,
     if (video != null) {
       val size = config.getOutputSizes(video.format).closestToOrMax(video.targetSize)
 
-      val imageReader = ImageReader.newInstance(size.width, size.height, video.format, VIDEO_OUTPUT_BUFFER_SIZE, HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE)
+      val flags = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or HardwareBuffer.USAGE_VIDEO_ENCODE
+      val imageReader = ImageReader.newInstance(size.width, size.height, video.format, VIDEO_OUTPUT_BUFFER_SIZE, flags)
       imageReader.setOnImageAvailableListener({ reader ->
         try {
           val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
