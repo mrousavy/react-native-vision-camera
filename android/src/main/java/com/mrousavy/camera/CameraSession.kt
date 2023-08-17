@@ -80,6 +80,7 @@ class CameraSession(private val context: Context,
   private val mutex = Mutex()
   private var isRunning = false
   private var recording: RecordingSession? = null
+  private var enableTorch = false
 
   override val coroutineContext: CoroutineContext = CameraQueues.cameraQueue.coroutineDispatcher
 
@@ -252,14 +253,9 @@ class CameraSession(private val context: Context,
   }
 
   fun setTorchMode(enableTorch: Boolean) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-      val cameraId = cameraId ?: throw NoCameraDeviceError()
-      try {
-        cameraManager.setTorchMode(cameraId, enableTorch)
-      } catch (_: IllegalArgumentException) {
-        // Camera does not have a Flash.
-        throw NoFlashAvailableError()
-      }
+    this.enableTorch = enableTorch
+    launch {
+      startRunning()
     }
   }
 
@@ -312,7 +308,6 @@ class CameraSession(private val context: Context,
       return currentSession
     }
     captureSession?.close()
-    // TODO: Call abortCaptures() as well?
     captureSession = null
 
     val session = cameraDevice.createCaptureSession(cameraManager, SessionType.REGULAR, outputs, { session ->
@@ -337,7 +332,8 @@ class CameraSession(private val context: Context,
                                        fps: Int? = null,
                                        videoStabilizationMode: VideoStabilizationMode? = null,
                                        lowLightBoost: Boolean? = null,
-                                       hdr: Boolean? = null): CaptureRequest {
+                                       hdr: Boolean? = null,
+                                       torch: Boolean? = null): CaptureRequest {
     val template = if (outputs.videoOutput != null) CameraDevice.TEMPLATE_RECORD else CameraDevice.TEMPLATE_PREVIEW
     val captureRequest = captureSession.device.createCaptureRequest(template)
     outputs.previewOutput?.let { output ->
@@ -364,6 +360,10 @@ class CameraSession(private val context: Context,
         captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_HDR)
       }
     }
+
+    val torchMode = if (torch == true) CaptureRequest.FLASH_MODE_TORCH else CaptureRequest.FLASH_MODE_OFF
+    captureRequest.set(CaptureRequest.FLASH_MODE, torchMode)
+
     return captureRequest.build()
   }
 
