@@ -27,6 +27,7 @@ class RecordingSession(context: Context,
     private const val VIDEO_BIT_RATE = 10_000_000
     private const val AUDIO_SAMPLING_RATE = 44_100
     private const val AUDIO_BIT_RATE = 16 * AUDIO_SAMPLING_RATE
+    private const val AUDIO_CHANNELS = 1
   }
 
   data class Video(val path: String, val durationMs: Long)
@@ -66,6 +67,7 @@ class RecordingSession(context: Context,
       recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
       recorder.setAudioEncodingBitRate(AUDIO_BIT_RATE)
       recorder.setAudioSamplingRate(AUDIO_SAMPLING_RATE)
+      recorder.setAudioChannels(AUDIO_CHANNELS)
     }
     recorder.setInputSurface(surface)
 
