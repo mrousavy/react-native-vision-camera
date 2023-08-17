@@ -2,12 +2,14 @@ package com.mrousavy.camera.utils
 
 import android.content.Context
 import android.media.Image
+import android.media.ImageWriter
 import android.media.MediaCodec
 import android.media.MediaRecorder
 import android.os.Build
 import android.util.Log
 import android.util.Size
 import android.view.Surface
+import com.mrousavy.camera.utils.outputs.CameraOutputs
 import java.io.Closeable
 import java.io.File
 
@@ -30,6 +32,7 @@ class RecordingSession(context: Context,
   private val recorder: MediaRecorder
   private val outputFile: File
   private var startTime: Long? = null
+  private var imageWriter: ImageWriter? = null
   val surface: Surface
 
   init {
@@ -54,7 +57,7 @@ class RecordingSession(context: Context,
     recorder.setVideoSize(videoSize.width, videoSize.height)
     if (fps != null) recorder.setVideoFrameRate(fps)
 
-    if (hdrProfile != null) {
+    if (hdrProfile != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
       recorder.setVideoEncoder(MediaRecorder.VideoEncoder.HEVC)
       Log.i(TAG, "Using HDR HEVC encoder..")
     } else {
@@ -127,11 +130,26 @@ class RecordingSession(context: Context,
     synchronized(this) {
       stop()
       recorder.release()
+
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        imageWriter?.close()
+        imageWriter = null
+      }
     }
   }
 
+
   fun appendImage(image: Image) {
-    // TODO: Write this Image to the RecordingSession now!
+    synchronized(this) {
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+        throw Error("Video Recording is only supported on Devices running Android version 23 (M) or newer.")
+      }
+
+      if (imageWriter == null) {
+        imageWriter = ImageWriter.newInstance(surface, CameraOutputs.VIDEO_OUTPUT_BUFFER_SIZE)
+      }
+      imageWriter!!.queueInputImage(image)
+    }
   }
 
   override fun toString(): String {

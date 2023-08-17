@@ -26,8 +26,8 @@ class CameraOutputs(val cameraId: String,
                     val callback: Callback): Closeable {
   companion object {
     private const val TAG = "CameraOutputs"
-    private const val VIDEO_OUTPUT_BUFFER_SIZE = 3
-    private const val PHOTO_OUTPUT_BUFFER_SIZE = 3
+    const val VIDEO_OUTPUT_BUFFER_SIZE = 3
+    const val PHOTO_OUTPUT_BUFFER_SIZE = 3
   }
 
   data class PreviewOutput(val surface: Surface)
