@@ -6,7 +6,6 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.params.DynamicRangeProfiles
-import android.media.CamcorderProfile
 import android.os.Build
 import android.util.Range
 import android.util.Size
@@ -14,6 +13,8 @@ import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.extensions.bigger
+import com.mrousavy.camera.extensions.getPhotoSizes
+import com.mrousavy.camera.extensions.getVideoSizes
 import com.mrousavy.camera.parsers.Format
 import com.mrousavy.camera.parsers.HardwareLevel
 import com.mrousavy.camera.parsers.LensFacing
@@ -123,41 +124,11 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     return 2 * atan(sensorSize.bigger / (focalLengths[0] * 2)) * (180 / PI)
   }
 
-  /**
-   * Get the maximum size this Camera Device can record in, as advertised by [CamcorderProfile].
-   * Note: Some sizes might be advertised by [cameraConfig] but not supported when actually trying to record a video.
-   */
-  private fun getMaximumVideoSize(): Size {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-      val profiles = CamcorderProfile.getAll(cameraId, CamcorderProfile.QUALITY_HIGH)
-      if (profiles != null) {
-        val largestProfile = profiles.videoProfiles.maxBy { it.width * it.height }
-        return Size(largestProfile.width, largestProfile.height)
-      }
-    }
-
-    val cameraIdInt = cameraId.toIntOrNull()
-    if (cameraIdInt != null) {
-      val profile = CamcorderProfile.get(cameraIdInt, CamcorderProfile.QUALITY_HIGH)
-      return Size(profile.videoFrameWidth, profile.videoFrameHeight)
-    }
-
-    return cameraConfig.getOutputSizes(videoFormat).maxBy { it.width * it.height }
-  }
-
   private fun getVideoSizes(): List<Size> {
-    val maxSize = getMaximumVideoSize()
-    val sizes = cameraConfig.getOutputSizes(videoFormat) ?: emptyArray()
-    return sizes.filter { it.bigger < maxSize.bigger }
+    return characteristics.getVideoSizes(cameraId, videoFormat)
   }
-  private fun getPhotoSizes(): Array<Size> {
-    val sizes = cameraConfig.getOutputSizes(ImageFormat.JPEG) ?: emptyArray()
-    val highResSizes = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-      cameraConfig.getHighResolutionOutputSizes(ImageFormat.JPEG)
-    } else {
-      null
-    } ?: emptyArray()
-    return sizes.plus(highResSizes)
+  private fun getPhotoSizes(): List<Size> {
+    return characteristics.getPhotoSizes(ImageFormat.JPEG)
   }
 
   private fun getFormats(): ReadableArray {
