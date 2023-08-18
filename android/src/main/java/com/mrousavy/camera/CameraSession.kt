@@ -318,13 +318,13 @@ class CameraSession(private val context: Context,
   }
 
   // Caches the result of outputs.hashCode() of the last getCaptureSession call
-  private var outputsCache: Int? = null
+  private var lastOutputsHashCode: Int? = null
 
   private suspend fun getCaptureSession(cameraDevice: CameraDevice,
                                         outputs: CameraOutputs,
                                         onClosed: () -> Unit): CameraCaptureSession {
     val currentSession = captureSession
-    if (currentSession?.device == cameraDevice && outputs.hashCode() == outputsCache) {
+    if (currentSession?.device == cameraDevice && outputs.hashCode() == lastOutputsHashCode) {
       // We already opened a CameraCaptureSession on this device
       return currentSession
     }
@@ -344,7 +344,7 @@ class CameraSession(private val context: Context,
 
     // Cache session in memory
     captureSession = session
-    outputsCache = outputs.hashCode()
+    lastOutputsHashCode = outputs.hashCode()
     return session
   }
 
