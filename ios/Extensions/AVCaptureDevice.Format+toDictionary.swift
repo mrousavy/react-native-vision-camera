@@ -34,6 +34,9 @@ extension AVCaptureDevice.Format {
   }
 
   func toDictionary() -> [String: Any] {
+    let mediaSubType = CMFormatDescriptionGetMediaSubType(formatDescription)
+    let pixelFormat = PixelFormat(mediaSubType: mediaSubType)
+    
     var dict: [String: Any] = [
       "videoStabilizationModes": videoStabilizationModes.map(\.descriptor),
       "autoFocusSystem": autoFocusSystem.descriptor,
@@ -49,7 +52,7 @@ extension AVCaptureDevice.Format {
       "supportsPhotoHDR": false,
       "minFps": minFrameRate,
       "maxFps": maxFrameRate,
-      "pixelFormat": CMFormatDescriptionGetMediaSubType(formatDescription).toString(),
+      "pixelFormats": [pixelFormat.unionValue],
     ]
 
     return dict

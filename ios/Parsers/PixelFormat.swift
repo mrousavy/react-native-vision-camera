@@ -16,6 +16,21 @@ enum PixelFormat {
   case native
   case unknown
   
+  var unionValue: String {
+    switch(self) {
+    case .yuv:
+      return "yuv"
+    case .rgb:
+      return "rgb"
+    case .dng:
+      return "dng"
+    case .native:
+      return "native"
+    case .unknown:
+      return "unknown"
+    }
+  }
+  
   init(unionValue: String) throws {
     switch(unionValue) {
     case "yuv":
@@ -33,7 +48,7 @@ enum PixelFormat {
     }
   }
   
-  init(mediaSubType: OSType) throws {
+  init(mediaSubType: OSType) {
     switch(mediaSubType) {
     case kCVPixelFormatType_420YpCbCr8BiPlanarFullRange:
       self = .yuv

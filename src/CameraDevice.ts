@@ -123,11 +123,10 @@ export interface CameraDeviceFormat {
    */
   videoStabilizationModes: VideoStabilizationMode[];
   /**
-   * Specifies this format's pixel format. The pixel format specifies how the individual pixels are interpreted as a visual image.
-   *
-   * The most common format is `420v`. Some formats (like `x420`) are not compatible with some frame processor plugins (e.g. MLKit)
+   * Specifies this format's supported pixel-formats.
+   * In most cases, this is `['native', 'yuv']`.
    */
-  pixelFormat: PixelFormat;
+  pixelFormats: PixelFormat[];
 }
 
 /**

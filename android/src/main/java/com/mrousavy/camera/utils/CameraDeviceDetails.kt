@@ -141,7 +141,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
       val maxFps = (1.0 / (frameDuration.toDouble() / 1_000_000_000)).toInt()
 
       photoSizes.forEach { photoSize ->
-        val map = buildFormatMap(photoSize, videoSize, PixelFormat.fromImageFormat(videoFormat), Range(1, maxFps))
+        val map = buildFormatMap(photoSize, videoSize, Range(1, maxFps))
         array.pushMap(map)
       }
     }
@@ -151,7 +151,21 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     return array
   }
 
-  private fun buildFormatMap(photoSize: Size, videoSize: Size, outputFormat: PixelFormat, fpsRange: Range<Int>): ReadableMap {
+  // Get available pixel formats for the given Size
+  private fun createPixelFormats(size: Size): ReadableArray {
+    val formats = cameraConfig.outputFormats
+    val array = Arguments.createArray()
+    formats.forEach { format ->
+      val sizes = cameraConfig.getOutputSizes(format)
+      val hasSize = sizes.any { it.width == size.width && it.height == size.height }
+      if (hasSize) {
+        array.pushString(PixelFormat.fromImageFormat(format).unionValue)
+      }
+    }
+    return array
+  }
+
+  private fun buildFormatMap(photoSize: Size, videoSize: Size, fpsRange: Range<Int>): ReadableMap {
     val map = Arguments.createMap()
     map.putInt("photoHeight", photoSize.height)
     map.putInt("photoWidth", photoSize.width)
@@ -166,7 +180,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     map.putBoolean("supportsPhotoHDR", supportsPhotoHdr)
     map.putString("autoFocusSystem", "contrast-detection") // TODO: Is this wrong?
     map.putArray("videoStabilizationModes", createStabilizationModes())
-    map.putString("pixelFormat", outputFormat.unionValue)
+    map.putArray("pixelFormats", createPixelFormats(videoSize))
     return map
   }
 
