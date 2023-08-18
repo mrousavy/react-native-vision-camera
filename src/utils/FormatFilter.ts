@@ -27,6 +27,14 @@ export const sortDevices = (left: CameraDevice, right: CameraDevice): number => 
   if (left.isMultiCam) leftPoints += 2;
   if (right.isMultiCam) rightPoints += 2;
 
+  if (left.hardwareLevel === 'full') leftPoints += 3;
+  if (right.hardwareLevel === 'full') rightPoints += 3;
+  if (left.hardwareLevel === 'limited') leftPoints += 1;
+  if (right.hardwareLevel === 'limited') rightPoints += 1;
+
+  if (left.hasFlash) leftPoints += 1;
+  if (right.hasFlash) rightPoints += 1;
+
   const leftMaxResolution = left.formats.reduce(
     (prev, curr) => Math.max(prev, curr.videoHeight * curr.videoWidth + curr.photoHeight * curr.photoWidth),
     0,
