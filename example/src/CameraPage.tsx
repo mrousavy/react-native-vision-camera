@@ -222,6 +222,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     'worklet';
 
     console.log(frame.timestamp, frame.toString(), frame.pixelFormat);
+    examplePlugin(frame);
   }, []);
 
   return (
