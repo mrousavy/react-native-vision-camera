@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.hardware.camera2.CameraManager
-import android.media.MediaCodec
 import android.util.Log
 import android.util.Size
 import android.view.Surface
@@ -24,37 +23,27 @@ import com.mrousavy.camera.parsers.Torch
 import com.mrousavy.camera.parsers.VideoStabilizationMode
 import com.mrousavy.camera.skia.SkiaPreviewView
 import com.mrousavy.camera.skia.SkiaRenderer
-import com.mrousavy.camera.utils.RecordingSession
 import com.mrousavy.camera.utils.outputs.CameraOutputs
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.Closeable
-import kotlin.math.max
-import kotlin.math.min
 
 //
 // TODOs for the CameraView which are currently too hard to implement either because of CameraX' limitations, or my brain capacity.
 //
 // CameraView
-// TODO: Actually use correct sizes for video and photo (currently it's both the video size)
-// TODO: Configurable FPS higher than 30
 // TODO: High-speed video recordings (export in CameraViewModule::getAvailableVideoDevices(), and set in CameraView::configurePreview()) (120FPS+)
 // TODO: configureSession() enableDepthData
-// TODO: configureSession() enableHighQualityPhotos
 // TODO: configureSession() enablePortraitEffectsMatteDelivery
 
 // CameraView+RecordVideo
 // TODO: Better startRecording()/stopRecording() (promise + callback, wait for TurboModules/JSI)
-// TODO: videoStabilizationMode
-// TODO: Return Video size/duration
 
 // CameraView+TakePhoto
-// TODO: Mirror selfie images
 // TODO: takePhoto() depth data
 // TODO: takePhoto() raw capture
 // TODO: takePhoto() photoCodec ("hevc" | "jpeg" | "raw")
-// TODO: takePhoto() qualityPrioritization
-// TODO: takePhoto() enableAutoRedEyeReduction
-// TODO: takePhoto() enableAutoStabilization
-// TODO: takePhoto() enableAutoDistortionCorrection
 // TODO: takePhoto() return with jsi::Value Image reference for faster capture
 
 @SuppressLint("ClickableViewAccessibility", "ViewConstructor", "MissingPermission")
@@ -197,11 +186,10 @@ class CameraView(context: Context) : FrameLayout(context) {
       }
 
       if (shouldReconfigureZoom) {
-        val zoomClamped = max(min(zoom, maxZoom), minZoom)
-        // TODO: camera!!.cameraControl.setZoomRatio(zoomClamped)
+        updateZoom()
       }
       if (shouldReconfigureTorch) {
-        // TODO: camera!!.cameraControl.enableTorch(torch == "on")
+        updateTorch()
       }
       if (shouldUpdateOrientation) {
         // TODO: updateOrientation()
@@ -251,5 +239,15 @@ class CameraView(context: Context) : FrameLayout(context) {
 
   private fun updateLifecycle() {
     cameraSession.setIsActive(isActive && isAttachedToWindow)
+  }
+
+  private fun updateZoom() {
+    cameraSession.setZoom(zoom)
+  }
+
+  private fun updateTorch() {
+    CoroutineScope(Dispatchers.Default).launch {
+      cameraSession.setTorchMode(torch == Torch.ON)
+    }
   }
 }

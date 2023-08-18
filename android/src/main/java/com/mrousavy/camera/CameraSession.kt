@@ -1,6 +1,7 @@
 package com.mrousavy.camera
 
 import android.content.Context
+import android.graphics.Rect
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
@@ -19,6 +20,7 @@ import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.createPhotoCaptureRequest
 import com.mrousavy.camera.extensions.openCamera
 import com.mrousavy.camera.extensions.tryClose
+import com.mrousavy.camera.extensions.zoomed
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.parsers.CameraDeviceError
@@ -75,6 +77,9 @@ class CameraSession(private val context: Context,
   private var videoStabilizationMode: VideoStabilizationMode? = null
   private var lowLightBoost: Boolean? = null
   private var hdr: Boolean? = null
+
+  // zoom(..)
+  private var zoom: Float = 1.0f
 
   private var captureSession: CameraCaptureSession? = null
   private var cameraDevice: CameraDevice? = null
@@ -264,6 +269,15 @@ class CameraSession(private val context: Context,
     }
   }
 
+  fun setZoom(zoom: Float) {
+    if (this.zoom != zoom) {
+      this.zoom = zoom
+      launch {
+        startRunning()
+      }
+    }
+  }
+
   override fun onCameraAvailable(cameraId: String) {
     super.onCameraAvailable(cameraId)
     Log.i(TAG, "Camera became available: $cameraId")
@@ -370,6 +384,13 @@ class CameraSession(private val context: Context,
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
         captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_HDR)
       }
+    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+      captureRequest.set(CaptureRequest.CONTROL_ZOOM_RATIO, zoom)
+    } else {
+      val cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId!!)
+      val size = cameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)!!
+      captureRequest.set(CaptureRequest.SCALER_CROP_REGION, size.zoomed(zoom))
     }
 
     val torchMode = if (torch == true) CaptureRequest.FLASH_MODE_TORCH else CaptureRequest.FLASH_MODE_OFF
