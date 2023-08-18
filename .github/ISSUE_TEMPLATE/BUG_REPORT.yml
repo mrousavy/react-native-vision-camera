@@ -27,6 +27,11 @@ body:
       label: Relevant log output
       description: Please copy and paste any relevant log output (Xcode Logs/Android Studio Logcat). This will be automatically formatted into code, so no need for backticks.
       render: shell
+  - type: textarea
+    attributes:
+      label: Camera Device
+      description: Please paste the JSON Camera `device` that was used here. (`console.log(JSON.stringify(device, null, 2))`) This will be automatically formatted into code, so no need for backticks.
+      render: shell
   - type: input
     attributes:
       label: Device
