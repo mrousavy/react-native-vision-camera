@@ -4,6 +4,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
+import android.os.Build
 import android.view.Surface
 import com.mrousavy.camera.parsers.Flash
 import com.mrousavy.camera.parsers.Orientation
@@ -24,6 +25,7 @@ private fun supportsSnapshotCapture(cameraCharacteristics: CameraCharacteristics
 
 fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
                                            surface: Surface,
+                                           zoom: Float,
                                            qualityPrioritization: QualityPrioritization,
                                            flashMode: Flash,
                                            enableRedEyeReduction: Boolean,
@@ -82,6 +84,13 @@ fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
     } else {
       // no stabilization is supported. ignore it
     }
+  }
+
+  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+    captureRequest[CaptureRequest.CONTROL_ZOOM_RATIO] = zoom
+  } else {
+    val size = cameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)!!
+    captureRequest.set(CaptureRequest.SCALER_CROP_REGION, size.zoomed(zoom))
   }
 
   captureRequest.addTarget(surface)

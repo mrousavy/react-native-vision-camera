@@ -184,6 +184,7 @@ class CameraSession(private val context: Context,
     val orientation = outputOrientation.toSensorRelativeOrientation(cameraCharacteristics)
     val captureRequest = captureSession.device.createPhotoCaptureRequest(cameraManager,
                                                                          photoOutput.surface,
+                                                                         zoom,
                                                                          qualityPrioritization,
                                                                          flashMode,
                                                                          enableRedEyeReduction,
