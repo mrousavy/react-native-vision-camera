@@ -415,6 +415,7 @@ class CameraSession(private val context: Context,
   private suspend fun startRunning() {
     isRunning = false
     val cameraId = cameraId ?: return
+    if (!isActive) return
 
     Log.i(TAG, "Starting Camera Session...")
 
