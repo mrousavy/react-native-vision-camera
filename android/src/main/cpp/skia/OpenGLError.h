@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <string>
 #include <stdexcept>
 #include <GLES2/gl2.h>
 
@@ -19,7 +20,7 @@ inline std::string getEglErrorIfAny() {
 
 class OpenGLError: public std::runtime_error {
  public:
-  OpenGLError(const std::string&& message): std::runtime_error(message + getEglErrorIfAny()) {}
+  explicit OpenGLError(const std::string&& message): std::runtime_error(message + getEglErrorIfAny()) {}
 };
 
 } // namespace vision

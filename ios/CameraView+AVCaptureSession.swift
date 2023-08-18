@@ -118,7 +118,7 @@ extension CameraView {
       if let pixelFormat = pixelFormat as? String {
         let defaultFormat = CMFormatDescriptionGetMediaSubType(videoDeviceInput!.device.activeFormat.formatDescription)
         var pixelFormatType: OSType = defaultFormat
-        switch(pixelFormat) {
+        switch pixelFormat {
         case "yuv":
           pixelFormatType = kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
         case "rgb":
@@ -129,7 +129,7 @@ extension CameraView {
           invokeOnError(.parameter(.invalid(unionName: "pixelFormat", receivedValue: pixelFormat)))
         }
         videoOutput!.videoSettings = [
-          String(kCVPixelBufferPixelFormatTypeKey): pixelFormatType
+          String(kCVPixelBufferPixelFormatTypeKey): pixelFormatType,
         ]
       }
       captureSession.addOutput(videoOutput!)

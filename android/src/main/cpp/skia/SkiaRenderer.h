@@ -24,6 +24,7 @@ class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
  public:
   static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/skia/SkiaRenderer;";
   static void registerNatives();
+
  private:
   friend HybridBase;
   jni::global_ref<SkiaRenderer::javaobject> _javaPart;

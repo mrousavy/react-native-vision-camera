@@ -6,8 +6,8 @@
 //  Copyright © 2023 mrousavy. All rights reserved.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 
 enum PixelFormat {
   case yuv
@@ -15,9 +15,9 @@ enum PixelFormat {
   case dng
   case native
   case unknown
-  
+
   var unionValue: String {
-    switch(self) {
+    switch self {
     case .yuv:
       return "yuv"
     case .rgb:
@@ -30,9 +30,9 @@ enum PixelFormat {
       return "unknown"
     }
   }
-  
+
   init(unionValue: String) throws {
-    switch(unionValue) {
+    switch unionValue {
     case "yuv":
       self = .yuv
     case "rgb":
@@ -47,9 +47,9 @@ enum PixelFormat {
       throw CameraError.parameter(.invalid(unionName: "pixelFormat", receivedValue: unionValue))
     }
   }
-  
+
   init(mediaSubType: OSType) {
-    switch(mediaSubType) {
+    switch mediaSubType {
     case kCVPixelFormatType_420YpCbCr8BiPlanarFullRange:
       self = .yuv
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:

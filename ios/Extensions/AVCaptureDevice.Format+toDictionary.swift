@@ -20,12 +20,14 @@ extension AVCaptureDevice.Format {
   var videoStabilizationModes: [AVCaptureVideoStabilizationMode] {
     return getAllVideoStabilizationModes().filter { self.isVideoStabilizationModeSupported($0) }
   }
+
   var minFrameRate: Float64 {
     let maxRange = videoSupportedFrameRateRanges.max { l, r in
       return l.maxFrameRate < r.maxFrameRate
     }
     return maxRange?.maxFrameRate ?? 0
   }
+
   var maxFrameRate: Float64 {
     let maxRange = videoSupportedFrameRateRanges.max { l, r in
       return l.maxFrameRate < r.maxFrameRate
@@ -36,7 +38,7 @@ extension AVCaptureDevice.Format {
   func toDictionary() -> [String: Any] {
     let mediaSubType = CMFormatDescriptionGetMediaSubType(formatDescription)
     let pixelFormat = PixelFormat(mediaSubType: mediaSubType)
-    
+
     var dict: [String: Any] = [
       "videoStabilizationModes": videoStabilizationModes.map(\.descriptor),
       "autoFocusSystem": autoFocusSystem.descriptor,

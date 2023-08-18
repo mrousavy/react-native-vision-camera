@@ -21,7 +21,7 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     delegatesReferences.append(self)
   }
 
-  func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+  func photoOutput(_: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
     defer {
       delegatesReferences.removeAll(where: { $0 == self })
     }
@@ -76,9 +76,9 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
       return
     }
   }
-  
+
   private func getOrientation(forExifOrientation exifOrientation: Int) -> String {
-    switch (exifOrientation) {
+    switch exifOrientation {
     case 1, 2:
       return "portrait"
     case 3, 4:
@@ -91,9 +91,9 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
       return "portrait"
     }
   }
-  
+
   private func getIsMirrored(forExifOrientation exifOrientation: Int) -> Bool {
-    switch (exifOrientation) {
+    switch exifOrientation {
     case 2, 4, 5, 7:
       return true
     default:
