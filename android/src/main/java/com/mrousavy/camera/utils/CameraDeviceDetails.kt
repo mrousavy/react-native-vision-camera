@@ -1,7 +1,6 @@
 package com.mrousavy.camera.utils
 
 import android.graphics.ImageFormat
-import android.graphics.PixelFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
@@ -15,7 +14,7 @@ import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.extensions.bigger
 import com.mrousavy.camera.extensions.getPhotoSizes
 import com.mrousavy.camera.extensions.getVideoSizes
-import com.mrousavy.camera.parsers.Format
+import com.mrousavy.camera.parsers.PixelFormat
 import com.mrousavy.camera.parsers.HardwareLevel
 import com.mrousavy.camera.parsers.LensFacing
 import com.mrousavy.camera.parsers.VideoStabilizationMode
@@ -142,7 +141,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
       val maxFps = (1.0 / (frameDuration.toDouble() / 1_000_000_000)).toInt()
 
       photoSizes.forEach { photoSize ->
-        val map = buildFormatMap(photoSize, videoSize, Format.fromImageFormat(videoFormat), Range(1, maxFps))
+        val map = buildFormatMap(photoSize, videoSize, PixelFormat.fromImageFormat(videoFormat), Range(1, maxFps))
         array.pushMap(map)
       }
     }
@@ -152,7 +151,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     return array
   }
 
-  private fun buildFormatMap(photoSize: Size, videoSize: Size, outputFormat: Format, fpsRange: Range<Int>): ReadableMap {
+  private fun buildFormatMap(photoSize: Size, videoSize: Size, outputFormat: PixelFormat, fpsRange: Range<Int>): ReadableMap {
     val map = Arguments.createMap()
     map.putInt("photoHeight", photoSize.height)
     map.putInt("photoWidth", photoSize.width)
@@ -210,9 +209,6 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
         ImageFormat.RAW_SENSOR -> "RAW_SENSOR"
         ImageFormat.RAW10 -> "RAW10"
         ImageFormat.RAW12 -> "RAW12"
-        PixelFormat.RGB_888 -> "RGB_888"
-        PixelFormat.RGBA_8888 -> "RGBA_8888"
-        PixelFormat.RGBX_8888 -> "RGBX_8888"
         ImageFormat.NV16 -> "NV16"
         ImageFormat.NV21 -> "NV21"
         ImageFormat.UNKNOWN -> "UNKNOWN"

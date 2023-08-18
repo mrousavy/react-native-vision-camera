@@ -16,7 +16,7 @@ import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.extensions.containsAny
 import com.mrousavy.camera.extensions.installHierarchyFitter
 import com.mrousavy.camera.frameprocessor.FrameProcessor
-import com.mrousavy.camera.parsers.Format
+import com.mrousavy.camera.parsers.PixelFormat
 import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.PreviewType
 import com.mrousavy.camera.parsers.Torch
@@ -67,7 +67,7 @@ class CameraView(context: Context) : FrameLayout(context) {
   var video: Boolean? = null
   var audio: Boolean? = null
   var enableFrameProcessor = false
-  var pixelFormat: Format = Format.NATIVE
+  var pixelFormat: PixelFormat = PixelFormat.NATIVE
   // props that require format reconfiguring
   var format: ReadableMap? = null
   var fps: Int? = null
@@ -208,7 +208,6 @@ class CameraView(context: Context) : FrameLayout(context) {
         throw CameraPermissionError()
       }
       val cameraId = cameraId ?: throw NoCameraDeviceError()
-      val cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId)
 
       val format = format
       val targetVideoSize = if (format != null) Size(format.getInt("videoWidth"), format.getInt("videoHeight")) else null
@@ -223,7 +222,7 @@ class CameraView(context: Context) : FrameLayout(context) {
         CameraOutputs.PhotoOutput(targetPhotoSize)
       } else null
       val videoOutput = if (video == true || enableFrameProcessor) {
-        CameraOutputs.VideoOutput(targetVideoSize, video == true, enableFrameProcessor, pixelFormat.toImageFormat(cameraCharacteristics))
+        CameraOutputs.VideoOutput(targetVideoSize, video == true, enableFrameProcessor, pixelFormat.toImageFormat())
       } else null
 
       cameraSession.configureSession(cameraId, previewOutput, photoOutput, videoOutput)

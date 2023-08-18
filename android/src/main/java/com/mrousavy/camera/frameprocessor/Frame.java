@@ -3,11 +3,10 @@ package com.mrousavy.camera.frameprocessor;
 import android.graphics.ImageFormat;
 import android.media.Image;
 import com.facebook.proguard.annotations.DoNotStrip;
-import com.mrousavy.camera.parsers.Format;
+import com.mrousavy.camera.parsers.PixelFormat;
 import com.mrousavy.camera.parsers.Orientation;
 
 import java.nio.ByteBuffer;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Frame {
     private final Image image;
@@ -74,7 +73,7 @@ public class Frame {
     @SuppressWarnings("unused")
     @DoNotStrip
     public String getPixelFormat() {
-        Format format = Format.Companion.fromImageFormat(image.getFormat());
+        PixelFormat format = PixelFormat.Companion.fromImageFormat(image.getFormat());
         return format.getUnionValue();
     }
 
