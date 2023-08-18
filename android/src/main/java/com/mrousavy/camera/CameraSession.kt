@@ -39,6 +39,7 @@ import java.io.Closeable
 import java.lang.IllegalArgumentException
 import java.util.concurrent.CancellationException
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.min
 
 // TODO: Use reprocessable YUV capture session for more efficient Skia Frame Processing
 
@@ -352,7 +353,11 @@ class CameraSession(private val context: Context,
     }
 
     if (fps != null) {
-      captureRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(fps, fps))
+      // TODO: Samsung advertises 60 FPS but only allows 30 FPS for some reason.
+      val isSamsung = Build.MANUFACTURER == "samsung"
+      val targetFps = if (isSamsung) 30 else fps
+
+      captureRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(targetFps, targetFps))
     }
     if (videoStabilizationMode != null) {
       captureRequest.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, videoStabilizationMode.toDigitalStabilizationMode())
