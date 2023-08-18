@@ -141,6 +141,8 @@ class RecordingSession(context: Context,
         throw Error("Video Recording is only supported on Devices running Android version 23 (M) or newer.")
       }
 
+      // TODO: Correctly mirror/flip Image in OpenGL pipeline, otherwise flipping camera while recording results in inverted frames
+
       if (imageWriter == null) {
         imageWriter = ImageWriter.newInstance(surface, CameraOutputs.VIDEO_OUTPUT_BUFFER_SIZE)
       }
