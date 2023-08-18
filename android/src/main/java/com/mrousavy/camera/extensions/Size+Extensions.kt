@@ -7,7 +7,7 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
-fun Array<Size>.closestToOrMax(size: Size?): Size {
+fun List<Size>.closestToOrMax(size: Size?): Size {
   return if (size != null) {
     this.minBy { abs(it.width - size.width) + abs(it.height - size.height) }
   } else {

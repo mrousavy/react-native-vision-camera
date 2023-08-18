@@ -12,7 +12,9 @@ import android.util.Size
 import android.view.Surface
 import com.mrousavy.camera.CameraQueues
 import com.mrousavy.camera.extensions.closestToOrMax
+import com.mrousavy.camera.extensions.getPhotoSizes
 import com.mrousavy.camera.extensions.getPreviewSize
+import com.mrousavy.camera.extensions.getVideoSizes
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.parsers.Orientation
@@ -107,7 +109,7 @@ class CameraOutputs(val cameraId: String,
 
     // Photo output: High quality still images (takePhoto())
     if (photo != null) {
-      val size = config.getOutputSizes(photo.format).closestToOrMax(photo.targetSize)
+      val size = characteristics.getPhotoSizes(photo.format).closestToOrMax(photo.targetSize)
 
       val imageReader = ImageReader.newInstance(size.width, size.height, photo.format, PHOTO_OUTPUT_BUFFER_SIZE)
       imageReader.setOnImageAvailableListener({ reader ->
@@ -121,7 +123,7 @@ class CameraOutputs(val cameraId: String,
 
     // Video output: High resolution repeating images (startRecording() or useFrameProcessor())
     if (video != null) {
-      val size = config.getOutputSizes(video.format).closestToOrMax(video.targetSize)
+      val size = characteristics.getVideoSizes(cameraId, video.format).closestToOrMax(video.targetSize)
 
       val flags = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or HardwareBuffer.USAGE_VIDEO_ENCODE
       val imageReader = ImageReader.newInstance(size.width, size.height, video.format, VIDEO_OUTPUT_BUFFER_SIZE, flags)
