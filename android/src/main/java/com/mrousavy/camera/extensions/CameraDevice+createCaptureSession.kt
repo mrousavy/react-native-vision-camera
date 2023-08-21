@@ -75,6 +75,14 @@ suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager,
       outputs.videoOutput?.let { output ->
         outputConfigurations.add(output.toOutputConfiguration(characteristics))
       }
+      if (outputs.enableHdr == true && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        val supportedProfiles = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES)
+        val hdrProfile = supportedProfiles?.bestProfile
+        if (hdrProfile != null) {
+          Log.i(TAG, "Camera $id: Using HDR Profile $hdrProfile...")
+          outputConfigurations.forEach { it.dynamicRangeProfile = hdrProfile }
+        }
+      }
 
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
         // API >=28

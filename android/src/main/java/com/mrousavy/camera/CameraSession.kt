@@ -116,6 +116,7 @@ class CameraSession(private val context: Context,
       preview,
       photo,
       video,
+      hdr == true,
       this)
     if (this.cameraId == cameraId && this.outputs == outputs && isActive == isRunning) {
       Log.i(TAG, "Nothing changed in configuration, canceling..")
@@ -137,6 +138,18 @@ class CameraSession(private val context: Context,
     this.videoStabilizationMode = videoStabilizationMode
     this.hdr = hdr
     this.lowLightBoost = lowLightBoost
+
+    val currentOutputs = outputs
+    if (currentOutputs != null && currentOutputs.enableHdr != hdr) {
+      // Update existing HDR for Outputs
+      this.outputs = CameraOutputs(currentOutputs.cameraId,
+        cameraManager,
+        currentOutputs.preview,
+        currentOutputs.photo,
+        currentOutputs.video,
+        hdr,
+        this)
+    }
     launch {
       startRunning()
     }

@@ -21,6 +21,7 @@ class CameraOutputs(val cameraId: String,
                     val preview: PreviewOutput? = null,
                     val photo: PhotoOutput? = null,
                     val video: VideoOutput? = null,
+                    val enableHdr: Boolean? = false,
                     val callback: Callback): Closeable {
   companion object {
     private const val TAG = "CameraOutputs"
@@ -34,8 +35,7 @@ class CameraOutputs(val cameraId: String,
   data class VideoOutput(val targetSize: Size? = null,
                          val enableRecording: Boolean = false,
                          val enableFrameProcessor: Boolean? = false,
-                         val format: Int = ImageFormat.PRIVATE,
-                         val hdrProfile: Long? = null /* DynamicRangeProfiles */)
+                         val format: Int = ImageFormat.PRIVATE)
 
   interface Callback {
     fun onPhotoCaptured(image: Image)
@@ -61,12 +61,13 @@ class CameraOutputs(val cameraId: String,
   override fun equals(other: Any?): Boolean {
     if (other !is CameraOutputs) return false
     return this.cameraId == other.cameraId
-      && (this.preview == null) == (other.preview == null)
+      && this.preview?.surface == other.preview?.surface
       && this.photo?.targetSize == other.photo?.targetSize
       && this.photo?.format == other.photo?.format
       && this.video?.enableRecording == other.video?.enableRecording
       && this.video?.targetSize == other.video?.targetSize
       && this.video?.format == other.video?.format
+      && this.enableHdr == other.enableHdr
   }
 
   override fun hashCode(): Int {
@@ -132,7 +133,7 @@ class CameraOutputs(val cameraId: String,
         }
       }, CameraQueues.videoQueue.handler)
 
-      Log.i(TAG, "Adding ${size.width}x${size.height} video output. (Format: ${video.format} | HDR: ${video.hdrProfile})")
+      Log.i(TAG, "Adding ${size.width}x${size.height} video output. (Format: ${video.format})")
       videoOutput = ImageReaderOutput(imageReader, SurfaceOutput.OutputType.VIDEO)
     }
 
