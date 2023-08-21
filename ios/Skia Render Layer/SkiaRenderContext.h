@@ -10,6 +10,7 @@
 
 #import <MetalKit/MetalKit.h>
 #import <include/gpu/GrDirectContext.h>
+#import <include/gpu/mtl/GrMtlTypes.h>
 
 struct RenderContext {
   id<MTLDevice> device;
