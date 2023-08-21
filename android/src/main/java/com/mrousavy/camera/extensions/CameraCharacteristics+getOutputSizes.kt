@@ -1,9 +1,7 @@
 package com.mrousavy.camera.extensions
 
 import android.content.res.Resources
-import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.params.StreamConfigurationMap
 import android.media.CamcorderProfile
 import android.os.Build
 import android.util.Log

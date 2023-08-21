@@ -1,7 +1,6 @@
 package com.mrousavy.camera
 
 import android.content.Context
-import android.graphics.Rect
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
@@ -13,7 +12,6 @@ import android.media.Image
 import android.os.Build
 import android.util.Log
 import android.util.Range
-import android.util.Size
 import com.mrousavy.camera.extensions.SessionType
 import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession
@@ -23,7 +21,6 @@ import com.mrousavy.camera.extensions.tryClose
 import com.mrousavy.camera.extensions.zoomed
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
-import com.mrousavy.camera.parsers.CameraDeviceError
 import com.mrousavy.camera.parsers.Flash
 import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.QualityPrioritization
@@ -38,12 +35,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.Closeable
-import java.lang.IllegalArgumentException
 import java.util.concurrent.CancellationException
 import kotlin.coroutines.CoroutineContext
-import kotlin.math.min
-
-// TODO: Use reprocessable YUV capture session for more efficient Skia Frame Processing
 
 class CameraSession(private val context: Context,
                     private val cameraManager: CameraManager,

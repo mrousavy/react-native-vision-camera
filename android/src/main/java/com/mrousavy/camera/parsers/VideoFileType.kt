@@ -1,6 +1,5 @@
 package com.mrousavy.camera.parsers
 
-import android.media.MediaRecorder
 import com.mrousavy.camera.InvalidTypeScriptUnionError
 
 enum class VideoFileType(override val unionValue: String): JSUnionValue {

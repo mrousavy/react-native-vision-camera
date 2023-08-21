@@ -6,7 +6,6 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.media.Image
 import android.media.ImageReader
-import android.media.MediaCodec
 import android.util.Log
 import android.util.Size
 import android.view.Surface
@@ -15,11 +14,7 @@ import com.mrousavy.camera.extensions.closestToOrMax
 import com.mrousavy.camera.extensions.getPhotoSizes
 import com.mrousavy.camera.extensions.getPreviewSize
 import com.mrousavy.camera.extensions.getVideoSizes
-import com.mrousavy.camera.frameprocessor.Frame
-import com.mrousavy.camera.frameprocessor.FrameProcessor
-import com.mrousavy.camera.parsers.Orientation
 import java.io.Closeable
-import java.lang.IllegalStateException
 
 class CameraOutputs(val cameraId: String,
                     cameraManager: CameraManager,
