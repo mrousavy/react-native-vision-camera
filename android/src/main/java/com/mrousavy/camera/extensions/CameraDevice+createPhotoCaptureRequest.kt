@@ -53,11 +53,9 @@ fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
   when (flashMode) {
     // Set the Flash Mode
     Flash.OFF -> {
-      captureRequest[CaptureRequest.FLASH_MODE] = CaptureRequest.FLASH_MODE_OFF
       captureRequest[CaptureRequest.CONTROL_AE_MODE] = CaptureRequest.CONTROL_AE_MODE_ON
     }
     Flash.ON -> {
-      captureRequest[CaptureRequest.FLASH_MODE] = CaptureRequest.FLASH_MODE_SINGLE
       captureRequest[CaptureRequest.CONTROL_AE_MODE] = CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH
     }
     Flash.AUTO -> {
