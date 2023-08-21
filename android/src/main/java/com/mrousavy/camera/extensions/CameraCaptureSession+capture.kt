@@ -4,6 +4,7 @@ import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
+import android.media.MediaActionSound
 import com.mrousavy.camera.CameraQueues
 import com.mrousavy.camera.CaptureAbortedError
 import com.mrousavy.camera.UnknownCaptureError
@@ -11,7 +12,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
-suspend fun CameraCaptureSession.capture(captureRequest: CaptureRequest): TotalCaptureResult {
+suspend fun CameraCaptureSession.capture(captureRequest: CaptureRequest, enableShutterSound: Boolean): TotalCaptureResult {
   return suspendCoroutine { continuation ->
     this.capture(captureRequest, object: CameraCaptureSession.CaptureCallback() {
       override fun onCaptureCompleted(
@@ -20,7 +21,17 @@ suspend fun CameraCaptureSession.capture(captureRequest: CaptureRequest): TotalC
         result: TotalCaptureResult
       ) {
         super.onCaptureCompleted(session, request, result)
+
         continuation.resume(result)
+      }
+
+      override fun onCaptureStarted(session: CameraCaptureSession, request: CaptureRequest, timestamp: Long, frameNumber: Long) {
+        super.onCaptureStarted(session, request, timestamp, frameNumber)
+
+        if (enableShutterSound) {
+          val mediaActionSound = MediaActionSound()
+          mediaActionSound.play(MediaActionSound.SHUTTER_CLICK)
+        }
       }
 
       override fun onCaptureFailed(

@@ -30,12 +30,14 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
   val flash = options["flash"] as? String ?: "off"
   val enableAutoRedEyeReduction = options["enableAutoRedEyeReduction"] == true
   val enableAutoStabilization = options["enableAutoStabilization"] == true
+  val enableShutterSound = options["enableShutterSound"] as? Boolean ?: true
 
   val flashMode = Flash.fromUnionValue(flash)
   val qualityPrioritizationMode = QualityPrioritization.fromUnionValue(qualityPrioritization)
 
   val photo = cameraSession.takePhoto(qualityPrioritizationMode,
                                       flashMode,
+                                      enableShutterSound,
                                       enableAutoRedEyeReduction,
                                       enableAutoStabilization,
                                       outputOrientation)
