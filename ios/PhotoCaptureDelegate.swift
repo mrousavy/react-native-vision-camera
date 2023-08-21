@@ -22,8 +22,8 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     super.init()
     delegatesReferences.append(self)
   }
-  
-  func photoOutput(_ output: AVCapturePhotoOutput, willCapturePhotoFor resolvedSettings: AVCaptureResolvedPhotoSettings) {
+
+  func photoOutput(_: AVCapturePhotoOutput, willCapturePhotoFor _: AVCaptureResolvedPhotoSettings) {
     if !enableShutterSound {
       // disable system shutter sound (see https://stackoverflow.com/a/55235949/5281431)
       AudioServicesDisposeSystemSoundID(1108)

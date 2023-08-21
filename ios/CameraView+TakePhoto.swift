@@ -44,7 +44,7 @@ extension CameraView {
         }
         photoSettings.flashMode = flashMode
       }
-      
+
       // shutter sound
       let enableShutterSound = options["enableShutterSound"] as? Bool ?? true
 
