@@ -442,7 +442,6 @@ class CameraSession(private val context: Context,
         // 3. Create capture session with outputs
         val session = getCaptureSession(camera, outputs) {
           isRunning = false
-          onError(CameraDisconnectedError(cameraId, CameraDeviceError.DISCONNECTED))
         }
 
         // 4. Create repeating request (configures FPS, HDR, etc.)
