@@ -30,11 +30,8 @@ extension AVCaptureDevice.Format {
     }
 
     // compare max fps
-    if let leftMaxFps = videoSupportedFrameRateRanges.max(by: { $0.maxFrameRate > $1.maxFrameRate }),
-       let rightMaxFps = other.videoSupportedFrameRateRanges.max(by: { $0.maxFrameRate > $1.maxFrameRate }) {
-      if leftMaxFps.maxFrameRate > rightMaxFps.maxFrameRate {
-        return true
-      }
+    if maxFrameRate > other.maxFrameRate {
+      return true
     }
 
     return false

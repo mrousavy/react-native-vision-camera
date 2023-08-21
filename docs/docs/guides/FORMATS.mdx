@@ -39,13 +39,6 @@ You can also manually get all camera devices and decide which device to use base
 This example shows how you would pick the format with the _highest frame rate_:
 
 ```tsx
-function getMaxFps(format: CameraDeviceFormat): number {
-  return format.frameRateRanges.reduce((prev, curr) => {
-    if (curr.maxFrameRate > prev) return curr.maxFrameRate
-    else return prev
-  }, 0)
-}
-
 function App() {
   const devices = useCameraDevices('wide-angle-camera')
   const device = devices.back
@@ -53,7 +46,7 @@ function App() {
   const format = useMemo(() => {
     return device?.formats.reduce((prev, curr) => {
       if (prev == null) return curr
-      if (getMaxFps(curr) > getMaxFps(prev)) return curr
+      if (curr.maxFps > prev.maxFps) return curr
       else return prev
     }, undefined)
   }, [device?.formats])
@@ -127,7 +120,6 @@ Other props that depend on the `format`:
 * `fps`: Specifies the frame rate to use
 * `hdr`: Enables HDR photo or video capture and preview
 * `lowLightBoost`: Enables a night-mode/low-light-boost for photo or video capture and preview
-* `colorSpace`: Uses the specified color-space for photo or video capture and preview (iOS only since Android only uses `YUV`)
 * `videoStabilizationMode`: Specifies the video stabilization mode to use for this camera device
 
 

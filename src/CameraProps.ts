@@ -1,5 +1,5 @@
 import type { ViewProps } from 'react-native';
-import type { CameraDevice, CameraDeviceFormat, ColorSpace, VideoStabilizationMode } from './CameraDevice';
+import type { CameraDevice, CameraDeviceFormat, VideoStabilizationMode } from './CameraDevice';
 import type { CameraRuntimeError } from './CameraError';
 import type { DrawableFrame, Frame } from './Frame';
 import type { Orientation } from './Orientation';
@@ -13,6 +13,11 @@ export type FrameProcessor =
       frameProcessor: (frame: DrawableFrame) => void;
       type: 'skia-frame-processor';
     };
+
+// TODO: Replace `enableHighQualityPhotos: boolean` in favor of `priorization: 'photo' | 'video'`
+// TODO: Use RCT_ENUM_PARSER for stuff like previewType, torch, videoStabilizationMode, and orientation
+// TODO: Use Photo HostObject for stuff like depthData, portraitEffects, etc.
+// TODO: Add RAW capture support
 
 export interface CameraProps extends ViewProps {
   /**
@@ -52,13 +57,27 @@ export interface CameraProps extends ViewProps {
   /**
    * Enables **video capture** with the `startRecording` function (see ["Recording Videos"](https://react-native-vision-camera.com/docs/guides/capturing/#recording-videos))
    *
-   * Note: If you want to use `video` and `frameProcessor` simultaneously, make sure [`supportsParallelVideoProcessing`](https://react-native-vision-camera.com/docs/guides/devices#the-supportsparallelvideoprocessing-prop) is `true`.
+   * Note: If both the `photo` and `video` properties are enabled at the same time and the device is running at a `hardwareLevel` of `'legacy'` or `'limited'`, VisionCamera _might_ use a lower resolution for video capture due to hardware constraints.
    */
   video?: boolean;
   /**
    * Enables **audio capture** for video recordings (see ["Recording Videos"](https://react-native-vision-camera.com/docs/guides/capturing/#recording-videos))
    */
   audio?: boolean;
+  /**
+   * Specifies the pixel format for the video pipeline.
+   *
+   * Frames from a [Frame Processor](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors) will be streamed in the pixel format specified here.
+   *
+   * While `native` and `yuv` are the most efficient formats, some ML models (such as MLKit Barcode detection) require input Frames to be in RGB colorspace, otherwise they just output nonsense.
+   *
+   * - `native`: The hardware native GPU buffer format. This is the most efficient format. (`PRIVATE` on Android, sometimes YUV on iOS)
+   * - `yuv`: The YUV (Y'CbCr 4:2:0 or NV21, 8-bit) format, either video- or full-range, depending on hardware capabilities. This is the second most efficient format.
+   * - `rgb`: The RGB (RGB, RGBA or ABGRA, 8-bit) format. This is least efficient and requires explicit conversion.
+   *
+   * @default `native`
+   */
+  pixelFormat?: 'native' | 'yuv' | 'rgb';
   //#endregion
 
   //#region Common Props (torch, zoom)
@@ -116,16 +135,9 @@ export interface CameraProps extends ViewProps {
    */
   lowLightBoost?: boolean;
   /**
-   * Specifies the color space to use for this camera device. Make sure the given `format` contains the given `colorSpace`.
+   * Specifies the video stabilization mode to use.
    *
-   * Requires `format` to be set.
-   */
-  colorSpace?: ColorSpace;
-  /**
-   * Specifies the video stabilization mode to use for this camera device. Make sure the given `format` contains the given `videoStabilizationMode`.
-   *
-   * Requires `format` to be set.
-   * @platform iOS
+   * Requires a `format` to be set that contains the given `videoStabilizationMode`.
    */
   videoStabilizationMode?: VideoStabilizationMode;
   //#endregion
@@ -182,8 +194,6 @@ export interface CameraProps extends ViewProps {
    * A worklet which will be called for every frame the Camera "sees".
    *
    * If {@linkcode previewType | previewType} is set to `"skia"`, you can draw content to the `Frame` using the react-native-skia API.
-   *
-   * Note: If you want to use `video` and `frameProcessor` simultaneously, make sure [`supportsParallelVideoProcessing`](https://react-native-vision-camera.com/docs/guides/devices#the-supportsparallelvideoprocessing-prop) is `true`.
    *
    * > See [the Frame Processors documentation](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors) for more information
    *

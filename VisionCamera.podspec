@@ -22,9 +22,9 @@ if defined?($VCDisableSkia)
 end
 
 Pod::UI.puts("[VisionCamera] node modules #{Dir.exist?(nodeModules) ? "found at #{nodeModules}" : "not found!"}")
-workletsPath = File.join(nodeModules, "react-native-worklets")
+workletsPath = File.join(nodeModules, "react-native-worklets-core")
 hasWorklets = File.exist?(workletsPath) && !forceDisableFrameProcessors
-Pod::UI.puts("[VisionCamera] react-native-worklets #{hasWorklets ? "found" : "not found"}, Frame Processors #{hasWorklets ? "enabled" : "disabled"}!")
+Pod::UI.puts("[VisionCamera] react-native-worklets-core #{hasWorklets ? "found" : "not found"}, Frame Processors #{hasWorklets ? "enabled" : "disabled"}!")
 
 skiaPath = File.join(nodeModules, "@shopify", "react-native-skia")
 hasSkia = hasWorklets && File.exist?(skiaPath) && !forceDisableSkia
@@ -87,7 +87,7 @@ Pod::Spec.new do |s|
   s.dependency "React-callinvoker"
 
   if hasWorklets
-    s.dependency "react-native-worklets"
+    s.dependency "react-native-worklets-core"
     if hasSkia
       s.dependency "react-native-skia"
     end

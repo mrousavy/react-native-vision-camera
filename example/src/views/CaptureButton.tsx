@@ -19,7 +19,7 @@ import Reanimated, {
   useSharedValue,
   withRepeat,
 } from 'react-native-reanimated';
-import type { Camera, PhotoFile, TakePhotoOptions, TakeSnapshotOptions, VideoFile } from 'react-native-vision-camera';
+import type { Camera, PhotoFile, TakePhotoOptions, VideoFile } from 'react-native-vision-camera';
 import { CAPTURE_BUTTON_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH } from './../Constants';
 
 const PAN_GESTURE_HANDLER_FAIL_X = [-SCREEN_WIDTH, SCREEN_WIDTH];
@@ -58,7 +58,7 @@ const _CaptureButton: React.FC<Props> = ({
   const pressDownDate = useRef<Date | undefined>(undefined);
   const isRecording = useRef(false);
   const recordingProgress = useSharedValue(0);
-  const takePhotoOptions = useMemo<TakePhotoOptions & TakeSnapshotOptions>(
+  const takePhotoOptions = useMemo<TakePhotoOptions>(
     () => ({
       photoCodec: 'jpeg',
       qualityPrioritization: 'speed',

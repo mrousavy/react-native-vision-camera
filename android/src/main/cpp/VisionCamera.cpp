@@ -4,6 +4,7 @@
 #include "java-bindings/JFrameProcessor.h"
 #include "java-bindings/JVisionCameraProxy.h"
 #include "VisionCameraProxy.h"
+#include "skia/SkiaRenderer.h"
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *) {
   return facebook::jni::initialize(vm, [] {
@@ -11,5 +12,6 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *) {
     vision::JFrameProcessor::registerNatives();
     vision::JVisionCameraProxy::registerNatives();
     vision::JVisionCameraScheduler::registerNatives();
+    vision::SkiaRenderer::registerNatives();
   });
 }

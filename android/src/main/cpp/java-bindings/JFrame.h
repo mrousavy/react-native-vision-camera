@@ -24,7 +24,10 @@ struct JFrame : public JavaClass<JFrame> {
   int getBytesPerRow() const;
   jlong getTimestamp() const;
   local_ref<JString> getOrientation() const;
+  local_ref<JString> getPixelFormat() const;
   local_ref<JArrayByte> toByteArray() const;
+  void incrementRefCount();
+  void decrementRefCount();
   void close();
 };
 

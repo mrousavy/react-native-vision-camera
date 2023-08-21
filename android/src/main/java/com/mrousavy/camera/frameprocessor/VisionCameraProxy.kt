@@ -2,20 +2,21 @@ package com.mrousavy.camera.frameprocessor
 
 import android.util.Log
 import androidx.annotation.Keep
+import androidx.annotation.UiThread
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableNativeMap
+import com.facebook.react.bridge.UiThreadUtil
 import com.facebook.react.turbomodule.core.CallInvokerHolderImpl
 import com.facebook.react.uimanager.UIManagerHelper
 import com.mrousavy.camera.CameraView
 import com.mrousavy.camera.ViewNotFoundError
 import java.lang.ref.WeakReference
-import java.util.concurrent.ExecutorService
 
 
 @Suppress("KotlinJniMissingFunction") // we use fbjni.
-class VisionCameraProxy(context: ReactApplicationContext, frameProcessorThread: ExecutorService) {
+class VisionCameraProxy(context: ReactApplicationContext) {
   companion object {
     const val TAG = "VisionCameraProxy"
     init {
@@ -36,11 +37,12 @@ class VisionCameraProxy(context: ReactApplicationContext, frameProcessorThread: 
   init {
     val jsCallInvokerHolder = context.catalystInstance.jsCallInvokerHolder as CallInvokerHolderImpl
     val jsRuntimeHolder = context.javaScriptContextHolder.get()
-    mScheduler = VisionCameraScheduler(frameProcessorThread)
+    mScheduler = VisionCameraScheduler()
     mContext = WeakReference(context)
     mHybridData = initHybrid(jsRuntimeHolder, jsCallInvokerHolder, mScheduler)
   }
 
+  @UiThread
   private fun findCameraViewById(viewId: Int): CameraView {
     Log.d(TAG, "Finding view $viewId...")
     val ctx = mContext.get()
@@ -52,15 +54,19 @@ class VisionCameraProxy(context: ReactApplicationContext, frameProcessorThread: 
   @DoNotStrip
   @Keep
   fun setFrameProcessor(viewId: Int, frameProcessor: FrameProcessor) {
-    val view = findCameraViewById(viewId)
-    view.frameProcessor = frameProcessor
+    UiThreadUtil.runOnUiThread {
+      val view = findCameraViewById(viewId)
+      view.frameProcessor = frameProcessor
+    }
   }
 
   @DoNotStrip
   @Keep
   fun removeFrameProcessor(viewId: Int) {
-    val view = findCameraViewById(viewId)
-    view.frameProcessor = null
+    UiThreadUtil.runOnUiThread {
+      val view = findCameraViewById(viewId)
+      view.frameProcessor = null
+    }
   }
 
   @DoNotStrip

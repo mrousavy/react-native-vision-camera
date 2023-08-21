@@ -1,7 +1,7 @@
 package com.mrousavy.camera
 
-import android.graphics.ImageFormat
-import androidx.camera.video.VideoRecordEvent.Finalize.VideoRecordError
+import com.mrousavy.camera.parsers.CameraDeviceError
+import com.mrousavy.camera.utils.outputs.CameraOutputs
 
 abstract class CameraError(
   /**
@@ -37,16 +37,14 @@ class CameraPermissionError : CameraError("permission", "camera-permission-denie
 class InvalidTypeScriptUnionError(unionName: String, unionValue: String) : CameraError("parameter", "invalid-parameter", "The given value for $unionName could not be parsed! (Received: $unionValue)")
 
 class NoCameraDeviceError : CameraError("device", "no-device", "No device was set! Use `getAvailableCameraDevices()` to select a suitable Camera device.")
-class InvalidCameraDeviceError(cause: Throwable) : CameraError("device", "invalid-device", "The given Camera device could not be found for use-case binding!", cause)
-class ParallelVideoProcessingNotSupportedError(cause: Throwable) : CameraError("device", "parallel-video-processing-not-supported", "The given LEGACY Camera device does not support parallel " +
-  "video processing (`video={true}` + `frameProcessor={...}`). Disable either `video` or `frameProcessor`. To find out if a device supports parallel video processing, check the `supportsParallelVideoProcessing` property on the CameraDevice. " +
-  "See https://react-native-vision-camera.com/docs/guides/devices#the-supportsparallelvideoprocessing-prop for more information.", cause)
+class NoFlashAvailableError : CameraError("device", "flash-unavailable", "The Camera Device does not have a flash unit! Make sure you select a device where `hasFlash`/`hasTorch` is true!")
+class PixelFormatNotSupportedError(format: String) : CameraError("device", "pixel-format-not-supported", "The pixelFormat $format is not supported on the given Camera Device!")
 
-class FpsNotContainedInFormatError(fps: Int) : CameraError("format", "invalid-fps", "The given FPS were not valid for the currently selected format. Make sure you select a format which `frameRateRanges` includes $fps FPS!")
+class FpsNotContainedInFormatError(fps: Int) : CameraError("format", "invalid-fps", "The given format cannot run at $fps FPS! Make sure your FPS is lower than `format.maxFps` but higher than `format.minFps`.")
 class HdrNotContainedInFormatError : CameraError(
   "format", "invalid-hdr",
   "The currently selected format does not support HDR capture! " +
-    "Make sure you select a format which `frameRateRanges` includes `supportsPhotoHDR`!"
+    "Make sure you select a format which includes `supportsPhotoHDR`!"
 )
 class LowLightBoostNotContainedInFormatError : CameraError(
   "format", "invalid-low-light-boost",
@@ -55,11 +53,14 @@ class LowLightBoostNotContainedInFormatError : CameraError(
 )
 
 class CameraNotReadyError : CameraError("session", "camera-not-ready", "The Camera is not ready yet! Wait for the onInitialized() callback!")
+class CameraCannotBeOpenedError(cameraId: String, error: CameraDeviceError) : CameraError("session", "camera-cannot-be-opened", "The given Camera device (id: $cameraId) could not be opened! Error: $error")
+class CameraSessionCannotBeConfiguredError(cameraId: String, outputs: CameraOutputs) : CameraError("session", "cannot-create-session", "Failed to create a Camera Session for Camera $cameraId! Outputs: $outputs")
+class CameraDisconnectedError(cameraId: String, error: CameraDeviceError) : CameraError("session", "camera-has-been-disconnected", "The given Camera device (id: $cameraId) has been disconnected! Error: $error")
 
 class VideoNotEnabledError : CameraError("capture", "video-not-enabled", "Video capture is disabled! Pass `video={true}` to enable video recordings.")
 class PhotoNotEnabledError : CameraError("capture", "photo-not-enabled", "Photo capture is disabled! Pass `photo={true}` to enable photo capture.")
-
-class InvalidFormatError(format: Int) : CameraError("capture", "invalid-photo-format", "The Photo has an invalid format! Expected ${ImageFormat.YUV_420_888}, actual: $format")
+class CaptureAbortedError(wasImageCaptured: Boolean) : CameraError("capture", "aborted", "The image capture was aborted! Was Image captured: $wasImageCaptured")
+class UnknownCaptureError(wasImageCaptured: Boolean) : CameraError("capture", "unknown", "An unknown error occurred while trying to capture an Image! Was Image captured: $wasImageCaptured")
 
 class VideoEncoderError(cause: Throwable?) : CameraError("capture", "encoder-error", "The recording failed while encoding.\n" +
   "This error may be generated when the video or audio codec encounters an error during encoding. " +
@@ -104,8 +105,10 @@ class FileSizeLimitReachedError(cause: Throwable?) : CameraError("capture", "fil
   "The file size limitation will refer to OutputOptions.getFileSizeLimit(). The output file will still be generated with this error.",
   cause)
 
-class NoRecordingInProgressError : CameraError("capture", "no-recording-in-progress", "No active recording in progress!")
+class NoRecordingInProgressError : CameraError("capture", "no-recording-in-progress", "There was no active video recording in progress! Did you call stopRecording() twice?")
+class RecordingInProgressError : CameraError("capture", "recording-in-progress", "There is already an active video recording in progress! Did you call startRecording() twice?")
 
 class ViewNotFoundError(viewId: Int) : CameraError("system", "view-not-found", "The given view (ID $viewId) was not found in the view manager.")
 
 class UnknownCameraError(cause: Throwable?) : CameraError("unknown", "unknown", cause?.message ?: "An unknown camera error occured.", cause)
+

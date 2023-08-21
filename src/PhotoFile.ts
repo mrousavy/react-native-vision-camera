@@ -1,5 +1,5 @@
+import { Orientation } from './Orientation';
 import type { TemporaryFile } from './TemporaryFile';
-import { CameraPhotoCodec } from './VideoFile';
 
 export interface TakePhotoOptions {
   /**
@@ -9,7 +9,6 @@ export interface TakePhotoOptions {
    * * `"balanced"` Indicates that photo quality and speed of delivery are balanced in priority
    * * `"speed"` Indicates that speed of photo delivery is most important, even at the expense of quality
    *
-   * @platform iOS 13.0+
    * @default "balanced"
    */
   qualityPrioritization?: 'quality' | 'balanced' | 'speed';
@@ -32,15 +31,13 @@ export interface TakePhotoOptions {
    */
   enableAutoStabilization?: boolean;
   /**
-   * Specifies whether the photo output should use content aware distortion correction on this photo request (at its discretion).
+   * Specifies whether the photo output should use content aware distortion correction on this photo request.
+   * For example, the algorithm may not apply correction to faces in the center of a photo, but may apply it to faces near the photo’s edges.
    *
+   * @platform iOS
    * @default false
    */
   enableAutoDistortionCorrection?: boolean;
-  /**
-   * Specifies the photo codec to use for this capture. The provided photo codec has to be supported by the session.
-   */
-  photoCodec?: CameraPhotoCodec;
   /**
    * When set to `true`, metadata reading and mapping will be skipped. ({@linkcode PhotoFile.metadata} will be null)
    *
@@ -56,12 +53,31 @@ export interface TakePhotoOptions {
 /**
  * Represents a Photo taken by the Camera written to the local filesystem.
  *
- * Related: {@linkcode Camera.takePhoto | Camera.takePhoto()}, {@linkcode Camera.takeSnapshot | Camera.takeSnapshot()}
+ * See {@linkcode Camera.takePhoto | Camera.takePhoto()}
  */
 export interface PhotoFile extends TemporaryFile {
+  /**
+   * The width of the photo, in pixels.
+   */
   width: number;
+  /**
+   * The height of the photo, in pixels.
+   */
   height: number;
+  /**
+   * Whether this photo is in RAW format or not.
+   */
   isRawPhoto: boolean;
+  /**
+   * Display orientation of the photo, relative to the Camera's sensor orientation.
+   *
+   * Note that Camera sensors are landscape, so e.g. "portrait" photos will have a value of "landscape-left", etc.
+   */
+  orientation: Orientation;
+  /**
+   * Whether this photo is mirrored (selfies) or not.
+   */
+  isMirrored: boolean;
   thumbnail?: Record<string, unknown>;
   /**
    * Metadata information describing the captured image.
@@ -69,7 +85,19 @@ export interface PhotoFile extends TemporaryFile {
    * @see [AVCapturePhoto.metadata](https://developer.apple.com/documentation/avfoundation/avcapturephoto/2873982-metadata)
    * @see [AndroidX ExifInterface](https://developer.android.com/reference/androidx/exifinterface/media/ExifInterface)
    */
-  metadata: {
+  metadata?: {
+    /**
+     * Orientation of the EXIF Image.
+     *
+     * * 1 = 0 degrees: the correct orientation, no adjustment is required.
+     * * 2 = 0 degrees, mirrored: image has been flipped back-to-front.
+     * * 3 = 180 degrees: image is upside down.
+     * * 4 = 180 degrees, mirrored: image has been flipped back-to-front and is upside down.
+     * * 5 = 90 degrees: image has been flipped back-to-front and is on its side.
+     * * 6 = 90 degrees, mirrored: image is on its side.
+     * * 7 = 270 degrees: image has been flipped back-to-front and is on its far side.
+     * * 8 = 270 degrees, mirrored: image is on its far side.
+     */
     Orientation: number;
     /**
      * @platform iOS

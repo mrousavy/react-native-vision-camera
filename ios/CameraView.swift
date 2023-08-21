@@ -26,11 +26,11 @@ private let propsThatRequireReconfiguration = ["cameraId",
                                                "photo",
                                                "video",
                                                "enableFrameProcessor",
+                                               "pixelFormat",
                                                "previewType"]
 private let propsThatRequireDeviceReconfiguration = ["fps",
                                                      "hdr",
-                                                     "lowLightBoost",
-                                                     "colorSpace"]
+                                                     "lowLightBoost"]
 
 // MARK: - CameraView
 
@@ -46,12 +46,12 @@ public final class CameraView: UIView {
   @objc var video: NSNumber? // nullable bool
   @objc var audio: NSNumber? // nullable bool
   @objc var enableFrameProcessor = false
+  @objc var pixelFormat: NSString?
   // props that require format reconfiguring
   @objc var format: NSDictionary?
   @objc var fps: NSNumber?
   @objc var hdr: NSNumber? // nullable bool
   @objc var lowLightBoost: NSNumber? // nullable bool
-  @objc var colorSpace: NSString?
   @objc var orientation: NSString?
   // other props
   @objc var isActive = false
@@ -59,7 +59,7 @@ public final class CameraView: UIView {
   @objc var zoom: NSNumber = 1.0 // in "factor"
   @objc var enableFpsGraph = false
   @objc var videoStabilizationMode: NSString?
-  @objc var previewType: NSString?
+  @objc var previewType: NSString = "none"
   // events
   @objc var onInitialized: RCTDirectEventBlock?
   @objc var onError: RCTDirectEventBlock?

@@ -3,16 +3,20 @@ package com.mrousavy.camera
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.common.MapBuilder
-import com.facebook.react.uimanager.ViewGroupManager
 import com.facebook.react.uimanager.ThemedReactContext
+import com.facebook.react.uimanager.ViewGroupManager
 import com.facebook.react.uimanager.annotations.ReactProp
+import com.mrousavy.camera.parsers.PixelFormat
+import com.mrousavy.camera.parsers.Orientation
+import com.mrousavy.camera.parsers.PreviewType
+import com.mrousavy.camera.parsers.Torch
+import com.mrousavy.camera.parsers.VideoStabilizationMode
 
 @Suppress("unused")
 class CameraViewManager(reactContext: ReactApplicationContext) : ViewGroupManager<CameraView>() {
 
   public override fun createViewInstance(context: ThemedReactContext): CameraView {
-    val cameraViewModule = context.getNativeModule(CameraViewModule::class.java)!!
-    return CameraView(context, cameraViewModule.frameProcessorThread)
+    return CameraView(context)
   }
 
   override fun onAfterUpdateTransaction(view: CameraView) {
@@ -69,11 +73,35 @@ class CameraViewManager(reactContext: ReactApplicationContext) : ViewGroupManage
     view.enableFrameProcessor = enableFrameProcessor
   }
 
+  @ReactProp(name = "pixelFormat")
+  fun setPixelFormat(view: CameraView, pixelFormat: String?) {
+    val newPixelFormat = PixelFormat.fromUnionValue(pixelFormat)
+    if (view.pixelFormat != newPixelFormat)
+      addChangedPropToTransaction(view, "pixelFormat")
+    view.pixelFormat = newPixelFormat ?: PixelFormat.NATIVE
+  }
+
   @ReactProp(name = "enableDepthData")
   fun setEnableDepthData(view: CameraView, enableDepthData: Boolean) {
     if (view.enableDepthData != enableDepthData)
       addChangedPropToTransaction(view, "enableDepthData")
     view.enableDepthData = enableDepthData
+  }
+
+  @ReactProp(name = "videoStabilizationMode")
+  fun setVideoStabilizationMode(view: CameraView, videoStabilizationMode: String?) {
+    val newMode = VideoStabilizationMode.fromUnionValue(videoStabilizationMode)
+    if (view.videoStabilizationMode != newMode)
+      addChangedPropToTransaction(view, "videoStabilizationMode")
+    view.videoStabilizationMode = newMode
+  }
+
+  @ReactProp(name = "previewType")
+  fun setPreviewType(view: CameraView, previewType: String) {
+    val newMode = PreviewType.fromUnionValue(previewType)
+    if (view.previewType != newMode)
+      addChangedPropToTransaction(view, "previewType")
+    view.previewType = newMode
   }
 
   @ReactProp(name = "enableHighQualityPhotos")
@@ -121,13 +149,6 @@ class CameraViewManager(reactContext: ReactApplicationContext) : ViewGroupManage
     view.lowLightBoost = lowLightBoost
   }
 
-  @ReactProp(name = "colorSpace")
-  fun setColorSpace(view: CameraView, colorSpace: String?) {
-    if (view.colorSpace != colorSpace)
-      addChangedPropToTransaction(view, "colorSpace")
-    view.colorSpace = colorSpace
-  }
-
   @ReactProp(name = "isActive")
   fun setIsActive(view: CameraView, isActive: Boolean) {
     if (view.isActive != isActive)
@@ -137,9 +158,10 @@ class CameraViewManager(reactContext: ReactApplicationContext) : ViewGroupManage
 
   @ReactProp(name = "torch")
   fun setTorch(view: CameraView, torch: String) {
-    if (view.torch != torch)
+    val newMode = Torch.fromUnionValue(torch)
+    if (view.torch != newMode)
       addChangedPropToTransaction(view, "torch")
-    view.torch = torch
+    view.torch = newMode
   }
 
   @ReactProp(name = "zoom")
@@ -150,18 +172,12 @@ class CameraViewManager(reactContext: ReactApplicationContext) : ViewGroupManage
     view.zoom = zoomFloat
   }
 
-  @ReactProp(name = "enableZoomGesture")
-  fun setEnableZoomGesture(view: CameraView, enableZoomGesture: Boolean) {
-    if (view.enableZoomGesture != enableZoomGesture)
-      addChangedPropToTransaction(view, "enableZoomGesture")
-    view.enableZoomGesture = enableZoomGesture
-  }
-
   @ReactProp(name = "orientation")
-  fun setOrientation(view: CameraView, orientation: String) {
-    if (view.orientation != orientation)
+  fun setOrientation(view: CameraView, orientation: String?) {
+    val newMode = Orientation.fromUnionValue(orientation)
+    if (view.orientation != newMode)
       addChangedPropToTransaction(view, "orientation")
-    view.orientation = orientation
+    view.orientation = newMode
   }
 
   companion object {

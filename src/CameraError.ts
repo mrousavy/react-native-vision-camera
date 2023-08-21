@@ -9,9 +9,9 @@ export type DeviceError =
   | 'device/configuration-error'
   | 'device/no-device'
   | 'device/invalid-device'
-  | 'device/parallel-video-processing-not-supported'
   | 'device/torch-unavailable'
   | 'device/microphone-unavailable'
+  | 'device/pixel-format-not-supported'
   | 'device/low-light-boost-not-supported'
   | 'device/focus-not-supported'
   | 'device/camera-not-available-on-simulator';
@@ -23,6 +23,8 @@ export type FormatError =
   | 'format/invalid-color-space';
 export type SessionError =
   | 'session/camera-not-ready'
+  | 'session/camera-cannot-be-opened'
+  | 'session/camera-has-been-disconnected'
   | 'session/audio-session-setup-failed'
   | 'session/audio-in-use-by-other-app'
   | 'session/audio-session-failed-to-activate';

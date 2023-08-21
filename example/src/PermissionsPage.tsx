@@ -34,7 +34,7 @@ export function PermissionsPage({ navigation }: Props): React.ReactElement {
   }, []);
 
   useEffect(() => {
-    if (cameraPermissionStatus === 'authorized' && microphonePermissionStatus === 'authorized') navigation.replace('CameraPage');
+    if (cameraPermissionStatus === 'granted' && microphonePermissionStatus === 'granted') navigation.replace('CameraPage');
   }, [cameraPermissionStatus, microphonePermissionStatus, navigation]);
 
   return (
@@ -42,7 +42,7 @@ export function PermissionsPage({ navigation }: Props): React.ReactElement {
       <Image source={BANNER_IMAGE} style={styles.banner} />
       <Text style={styles.welcome}>Welcome to{'\n'}Vision Camera.</Text>
       <View style={styles.permissionsContainer}>
-        {cameraPermissionStatus !== 'authorized' && (
+        {cameraPermissionStatus !== 'granted' && (
           <Text style={styles.permissionText}>
             Vision Camera needs <Text style={styles.bold}>Camera permission</Text>.{' '}
             <Text style={styles.hyperlink} onPress={requestCameraPermission}>
@@ -50,7 +50,7 @@ export function PermissionsPage({ navigation }: Props): React.ReactElement {
             </Text>
           </Text>
         )}
-        {microphonePermissionStatus !== 'authorized' && (
+        {microphonePermissionStatus !== 'granted' && (
           <Text style={styles.permissionText}>
             Vision Camera needs <Text style={styles.bold}>Microphone permission</Text>.{' '}
             <Text style={styles.hyperlink} onPress={requestMicrophonePermission}>

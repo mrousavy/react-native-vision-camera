@@ -50,29 +50,17 @@ extension AVCaptureDevice.Format {
       }
     }
     if let maxZoom = filter.value(forKey: "maxZoom") as? NSNumber {
-      if videoMaxZoomFactor != CGFloat(maxZoom.floatValue) {
+      if videoMaxZoomFactor != CGFloat(maxZoom.doubleValue) {
         return false
       }
     }
-    if let colorSpaces = filter.value(forKey: "colorSpaces") as? [String] {
-      let avColorSpaces = colorSpaces.map { try? AVCaptureColorSpace(string: $0) }
-      let allColorSpacesIncluded = supportedColorSpaces.allSatisfy { avColorSpaces.contains($0) }
-      if !allColorSpacesIncluded {
+    if let minFps = filter.value(forKey: "minFps") as? NSNumber {
+      if minFrameRate != Float64(minFps.doubleValue) {
         return false
       }
     }
-    if let frameRateRanges = filter.value(forKey: "frameRateRanges") as? [NSDictionary] {
-      let allFrameRateRangesIncluded = videoSupportedFrameRateRanges.allSatisfy { range -> Bool in
-        frameRateRanges.contains { dict -> Bool in
-          guard let max = dict.value(forKey: "maxFrameRate") as? NSNumber,
-                let min = dict.value(forKey: "minFrameRate") as? NSNumber
-          else {
-            return false
-          }
-          return range.maxFrameRate == max.doubleValue && range.minFrameRate == min.doubleValue
-        }
-      }
-      if !allFrameRateRangesIncluded {
+    if let maxFps = filter.value(forKey: "maxFps") as? NSNumber {
+      if maxFrameRate != Float64(maxFps.doubleValue) {
         return false
       }
     }
@@ -87,14 +75,6 @@ extension AVCaptureDevice.Format {
       let allStabilizationModesIncluded = self.videoStabilizationModes.allSatisfy { avVideoStabilizationModes.contains($0) }
       if !allStabilizationModesIncluded {
         return false
-      }
-    }
-
-    if #available(iOS 13.0, *) {
-      if let isHighestPhotoQualitySupported = filter.value(forKey: "isHighestPhotoQualitySupported") as? Bool {
-        if self.isHighestPhotoQualitySupported != isHighestPhotoQualitySupported {
-          return false
-        }
       }
     }
 

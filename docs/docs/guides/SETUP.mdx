@@ -44,7 +44,7 @@ expo install react-native-vision-camera
 
 VisionCamera requires **iOS 11 or higher**, and **Android-SDK version 21 or higher**. See [Troubleshooting](/docs/guides/troubleshooting) if you're having installation issues.
 
-> **(Optional)** If you want to use [**Frame Processors**](/docs/guides/frame-processors), you need to install [**react-native-worklets**](https://github.com/chrfalch/react-native-worklets) 1.0.0 or higher.
+> **(Optional)** If you want to use [**Frame Processors**](/docs/guides/frame-processors), you need to install [**react-native-worklets-core**](https://github.com/chrfalch/react-native-worklets-core) 1.0.0 or higher.
 
 ## Updating manifests
 
@@ -138,7 +138,7 @@ const microphonePermission = await Camera.getMicrophonePermissionStatus()
 
 A permission status can have the following values:
 
-* `authorized`: Your app is authorized to use said permission. Continue with [**using the `<Camera>` view**](#use-the-camera-view).
+* `granted`: Your app is authorized to use said permission. Continue with [**using the `<Camera>` view**](#use-the-camera-view).
 * `not-determined`: Your app has not yet requested permission from the user. [Continue by calling the **request** functions.](#requesting-permissions)
 * `denied`: Your app has already requested permissions from the user, but was explicitly denied. You cannot use the **request** functions again, but you can use the [`Linking` API](https://reactnative.dev/docs/linking#opensettings) to redirect the user to the Settings App where he can manually grant the permission.
 * `restricted`: (iOS only) Your app cannot use the Camera or Microphone because that functionality has been restricted, possibly due to active restrictions such as parental controls being in place.
@@ -158,7 +158,7 @@ const newMicrophonePermission = await Camera.requestMicrophonePermission()
 
 The permission request status can have the following values:
 
-* `authorized`: Your app is authorized to use said permission. Continue with [**using the `<Camera>` view**](#use-the-camera-view).
+* `granted`: Your app is authorized to use said permission. Continue with [**using the `<Camera>` view**](#use-the-camera-view).
 * `denied`: The user explicitly denied the permission request alert. You cannot use the **request** functions again, but you can use the [`Linking` API](https://reactnative.dev/docs/linking#opensettings) to redirect the user to the Settings App where he can manually grant the permission.
 * `restricted`: (iOS only) Your app cannot use the Camera or Microphone because that functionality has been restricted, possibly due to active restrictions such as parental controls being in place.
 

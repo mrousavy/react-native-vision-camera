@@ -80,26 +80,6 @@ final class CameraViewManager: RCTViewManager {
   }
 
   @objc
-  final func getAvailableVideoCodecs(_ node: NSNumber, fileType: String?, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    withPromise(resolve: resolve, reject: reject) {
-      let component = getCameraView(withTag: node)
-      guard let videoOutput = component.videoOutput else {
-        throw CameraError.session(SessionError.cameraNotReady)
-      }
-
-      var parsedFileType = AVFileType.mov
-      if fileType != nil {
-        guard let parsed = try? AVFileType(withString: fileType!) else {
-          throw CameraError.parameter(ParameterError.invalid(unionName: "fileType", receivedValue: fileType!))
-        }
-        parsedFileType = parsed
-      }
-
-      return videoOutput.availableVideoCodecTypesForAssetWriter(writingTo: parsedFileType).map(\.descriptor)
-    }
-  }
-
-  @objc
   final func getAvailableCameraDevices(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     withPromise(resolve: resolve, reject: reject) {
       let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: getAllDeviceTypes(),
@@ -117,11 +97,11 @@ final class CameraViewManager: RCTViewManager {
           "neutralZoom": $0.neutralZoomFactor,
           "maxZoom": $0.maxAvailableVideoZoomFactor,
           "isMultiCam": $0.isMultiCam,
-          "supportsParallelVideoProcessing": true,
           "supportsDepthCapture": false, // TODO: supportsDepthCapture
           "supportsRawCapture": false, // TODO: supportsRawCapture
           "supportsLowLightBoost": $0.isLowLightBoostSupported,
           "supportsFocus": $0.isFocusPointOfInterestSupported,
+          "hardwareLevel": "full",
           "formats": $0.formats.map { format -> [String: Any] in
             format.toDictionary()
           },

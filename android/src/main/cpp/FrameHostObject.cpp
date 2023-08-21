@@ -8,7 +8,7 @@
 #include <fbjni/fbjni.h>
 #include <jni.h>
 
-#include <react-native-worklets/WKTJsiHostObject.h>
+#include <react-native-worklets-core/WKTJsiHostObject.h>
 #include "JSITypedArray.h"
 
 #include <vector>
@@ -18,7 +18,7 @@ namespace vision {
 
 using namespace facebook;
 
-FrameHostObject::FrameHostObject(const jni::alias_ref<JFrame::javaobject>& frame): frame(make_global(frame)), _refCount(0) { }
+FrameHostObject::FrameHostObject(const jni::alias_ref<JFrame::javaobject>& frame): frame(make_global(frame)) { }
 
 FrameHostObject::~FrameHostObject() {
   // Hermes' Garbage Collector (Hades GC) calls destructors on a separate Thread
@@ -37,6 +37,7 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("orientation")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isMirrored")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("timestamp")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("pixelFormat")));
   // Conversion
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toArrayBuffer")));
@@ -94,8 +95,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "incrementRefCount") {
     auto incrementRefCount = JSI_HOST_FUNCTION_LAMBDA {
       // Increment retain count by one.
-      std::lock_guard lock(this->_refCountMutex);
-      this->_refCount++;
+      this->frame->incrementRefCount();
       return jsi::Value::undefined();
     };
     return jsi::Function::createFromHostFunction(runtime,
@@ -106,12 +106,8 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 
   if (name == "decrementRefCount") {
     auto decrementRefCount = JSI_HOST_FUNCTION_LAMBDA {
-      // Decrement retain count by one. If the retain count is zero, we close the Frame.
-      std::lock_guard lock(this->_refCountMutex);
-      this->_refCount--;
-      if (_refCount < 1) {
-        this->frame->close();
-      }
+      // Decrement retain count by one. If the retain count is zero, the Frame gets closed.
+      this->frame->decrementRefCount();
       return jsi::Value::undefined();
     };
     return jsi::Function::createFromHostFunction(runtime,
@@ -134,6 +130,10 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
   if (name == "orientation") {
     auto string = this->frame->getOrientation();
+    return jsi::String::createFromUtf8(runtime, string->toStdString());
+  }
+  if (name == "pixelFormat") {
+    auto string = this->frame->getPixelFormat();
     return jsi::String::createFromUtf8(runtime, string->toStdString());
   }
   if (name == "timestamp") {

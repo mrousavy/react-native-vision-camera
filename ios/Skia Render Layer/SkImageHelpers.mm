@@ -16,7 +16,7 @@
 #import <include/core/SkImage.h>
 #import <include/gpu/ganesh/SkImageGanesh.h>
 #import <include/gpu/mtl/GrMtlTypes.h>
-#import <include/gpu/GrRecordingContext.h>
+#import <include/gpu/GrBackendSurface.h>
 
 #include <TargetConditionals.h>
 #if TARGET_RT_BIG_ENDIAN

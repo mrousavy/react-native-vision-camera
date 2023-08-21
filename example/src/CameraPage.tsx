@@ -11,7 +11,7 @@ import {
   useFrameProcessor,
   VideoFile,
 } from 'react-native-vision-camera';
-import { Camera, frameRateIncluded } from 'react-native-vision-camera';
+import { Camera } from 'react-native-vision-camera';
 import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING } from './Constants';
 import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated';
 import { useEffect } from 'react';
@@ -72,13 +72,13 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
       return 30;
     }
 
-    const supportsHdrAt60Fps = formats.some((f) => f.supportsVideoHDR && f.frameRateRanges.some((r) => frameRateIncluded(r, 60)));
+    const supportsHdrAt60Fps = formats.some((f) => f.supportsVideoHDR && f.maxFps >= 60);
     if (enableHdr && !supportsHdrAt60Fps) {
       // User has enabled HDR, but HDR is not supported at 60 FPS.
       return 30;
     }
 
-    const supports60Fps = formats.some((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, 60)));
+    const supports60Fps = formats.some((f) => f.maxFps >= 60);
     if (!supports60Fps) {
       // 60 FPS is not supported by any format.
       return 30;
@@ -90,7 +90,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const supportsCameraFlipping = useMemo(() => devices.back != null && devices.front != null, [devices.back, devices.front]);
   const supportsFlash = device?.hasFlash ?? false;
   const supportsHdr = useMemo(() => formats.some((f) => f.supportsVideoHDR || f.supportsPhotoHDR), [formats]);
-  const supports60Fps = useMemo(() => formats.some((f) => f.frameRateRanges.some((rate) => frameRateIncluded(rate, 60))), [formats]);
+  const supports60Fps = useMemo(() => formats.some((f) => f.maxFps >= 60), [formats]);
   const canToggleNightMode = enableNightMode
     ? true // it's enabled so you have to be able to turn it off again
     : (device?.supportsLowLightBoost ?? false) || fps > 30; // either we have native support, or we can lower the FPS
@@ -105,7 +105,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     }
 
     // find the first format that includes the given FPS
-    return result.find((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, fps)));
+    return result.find((f) => f.maxFps >= fps);
   }, [formats, fps, enableHdr]);
 
   //#region Animated Zoom
@@ -169,7 +169,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   }, [neutralZoom, zoom]);
 
   useEffect(() => {
-    Camera.getMicrophonePermissionStatus().then((status) => setHasMicrophonePermission(status === 'authorized'));
+    Camera.getMicrophonePermissionStatus().then((status) => setHasMicrophonePermission(status === 'granted'));
   }, []);
   //#endregion
 
@@ -192,7 +192,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   if (device != null && format != null) {
     console.log(
       `Re-rendering camera page with ${isActive ? 'active' : 'inactive'} camera. ` +
-        `Device: "${device.name}" (${format.photoWidth}x${format.photoHeight} @ ${fps}fps)`,
+        `Device: "${device.name}" (${format.photoWidth}x${format.photoHeight} photo / ${format.videoWidth}x${format.videoHeight} video @ ${fps}fps)`,
     );
   } else {
     console.log('re-rendering camera page without active camera');
@@ -221,9 +221,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
 
-    console.log(`Width: ${frame.width}`);
-    const result = examplePlugin(frame);
-    console.log('Example Plugin: ', result);
+    console.log(frame.timestamp, frame.toString(), frame.pixelFormat);
+    examplePlugin(frame);
   }, []);
 
   return (
@@ -245,9 +244,11 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 onError={onError}
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
-                audio={hasMicrophonePermission}
                 enableFpsGraph={true}
                 orientation="portrait"
+                photo={true}
+                video={true}
+                audio={hasMicrophonePermission}
                 frameProcessor={frameProcessor}
               />
             </TapGestureHandler>

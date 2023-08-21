@@ -169,7 +169,6 @@ dependencies {
     }
 
     implementation project(':react-native-vision-camera')
-    implementation "androidx.camera:camera-core:1.1.0-alpha08"
 }
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)

@@ -163,8 +163,8 @@ jobs:
             ${{ runner.os }}-yarn-
       - name: Install node_modules for example/
         run: yarn install --frozen-lockfile --cwd ..
-      - name: Remove react-native-worklets
-        run: yarn remove react-native-worklets --cwd ..
+      - name: Remove react-native-worklets-core
+        run: yarn remove react-native-worklets-core --cwd ..
 
       - name: Restore buildcache
         uses: mikehardy/buildcache-action@v1

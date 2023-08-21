@@ -21,7 +21,24 @@ extension AVCaptureDevice.Format {
     return getAllVideoStabilizationModes().filter { self.isVideoStabilizationModeSupported($0) }
   }
 
+  var minFrameRate: Float64 {
+    let maxRange = videoSupportedFrameRateRanges.max { l, r in
+      return l.maxFrameRate < r.maxFrameRate
+    }
+    return maxRange?.maxFrameRate ?? 0
+  }
+
+  var maxFrameRate: Float64 {
+    let maxRange = videoSupportedFrameRateRanges.max { l, r in
+      return l.maxFrameRate < r.maxFrameRate
+    }
+    return maxRange?.maxFrameRate ?? 0
+  }
+
   func toDictionary() -> [String: Any] {
+    let mediaSubType = CMFormatDescriptionGetMediaSubType(formatDescription)
+    let pixelFormat = PixelFormat(mediaSubType: mediaSubType)
+
     var dict: [String: Any] = [
       "videoStabilizationModes": videoStabilizationModes.map(\.descriptor),
       "autoFocusSystem": autoFocusSystem.descriptor,
@@ -33,21 +50,12 @@ extension AVCaptureDevice.Format {
       "minISO": minISO,
       "fieldOfView": videoFieldOfView,
       "maxZoom": videoMaxZoomFactor,
-      "colorSpaces": supportedColorSpaces.map(\.descriptor),
       "supportsVideoHDR": isVideoHDRSupported,
       "supportsPhotoHDR": false,
-      "frameRateRanges": videoSupportedFrameRateRanges.map {
-        [
-          "minFrameRate": $0.minFrameRate,
-          "maxFrameRate": $0.maxFrameRate,
-        ]
-      },
-      "pixelFormat": CMFormatDescriptionGetMediaSubType(formatDescription).toString(),
+      "minFps": minFrameRate,
+      "maxFps": maxFrameRate,
+      "pixelFormats": [pixelFormat.unionValue],
     ]
-
-    if #available(iOS 13.0, *) {
-      dict["isHighestPhotoQualitySupported"] = self.isHighestPhotoQualitySupported
-    }
 
     return dict
   }

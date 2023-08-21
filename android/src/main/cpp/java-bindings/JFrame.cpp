@@ -42,6 +42,11 @@ local_ref<JString> JFrame::getOrientation() const {
   return getOrientationMethod(self());
 }
 
+local_ref<JString> JFrame::getPixelFormat() const {
+  static const auto getPixelFormatMethod = getClass()->getMethod<JString()>("getPixelFormat");
+  return getPixelFormatMethod(self());
+}
+
 int JFrame::getPlanesCount() const {
   static const auto getPlanesCountMethod = getClass()->getMethod<jint()>("getPlanesCount");
   return getPlanesCountMethod(self());
@@ -55,6 +60,16 @@ int JFrame::getBytesPerRow() const {
 local_ref<JArrayByte> JFrame::toByteArray() const {
   static const auto toByteArrayMethod = getClass()->getMethod<JArrayByte()>("toByteArray");
   return toByteArrayMethod(self());
+}
+
+void JFrame::incrementRefCount() {
+  static const auto incrementRefCountMethod = getClass()->getMethod<void()>("incrementRefCount");
+  incrementRefCountMethod(self());
+}
+
+void JFrame::decrementRefCount() {
+  static const auto decrementRefCountMethod = getClass()->getMethod<void()>("decrementRefCount");
+  decrementRefCountMethod(self());
 }
 
 void JFrame::close() {

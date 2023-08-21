@@ -16,8 +16,12 @@
 #import <include/core/SkSurface.h>
 #import <include/core/SkCanvas.h>
 #import <include/core/SkColorSpace.h>
-#import <include/gpu/ganesh/SkImageGanesh.h>
-#import <include/gpu/GrDirectContext.h>
+
+#import <include/gpu/mtl/GrMtlTypes.h>
+#import <include/gpu/GrBackendSurface.h>
+#import <include/gpu/ganesh/SkSurfaceGanesh.h>
+#import <include/gpu/ganesh/mtl/SkSurfaceMetal.h>
+
 #import "SkImageHelpers.h"
 
 #import <system_error>
@@ -83,6 +87,7 @@
                              height:CVPixelBufferGetHeight(pixelBuffer)];
 
     // Get & Lock the writeable Texture from the Metal Drawable
+    
     GrMtlTextureInfo textureInfo;
     textureInfo.fTexture.retain((__bridge void*)texture);
     GrBackendRenderTarget backendRenderTarget((int)texture.width,
@@ -93,12 +98,12 @@
     auto context = _offscreenContext->skiaContext.get();
 
     // Create a Skia Surface from the writable Texture
-    auto surface = SkSurface::MakeFromBackendRenderTarget(context,
-                                                          backendRenderTarget,
-                                                          kTopLeft_GrSurfaceOrigin,
-                                                          kBGRA_8888_SkColorType,
-                                                          SkColorSpace::MakeSRGB(),
-                                                          nullptr);
+    auto surface = SkSurfaces::WrapBackendRenderTarget(context,
+                                                       backendRenderTarget,
+                                                       kTopLeft_GrSurfaceOrigin,
+                                                       kBGRA_8888_SkColorType,
+                                                       SkColorSpace::MakeSRGB(),
+                                                       nullptr);
 
     if (surface == nullptr || surface->getCanvas() == nullptr) {
       throw std::runtime_error("Skia surface could not be created from parameters.");
@@ -143,14 +148,14 @@
     
     // Create a Skia Surface from the CAMetalLayer (use to draw to the View)
     GrMTLHandle drawableHandle;
-    auto surface = SkSurface::MakeFromCAMetalLayer(context,
-                                                   (__bridge GrMTLHandle)layer,
-                                                   kTopLeft_GrSurfaceOrigin,
-                                                   1,
-                                                   kBGRA_8888_SkColorType,
-                                                   nullptr,
-                                                   nullptr,
-                                                   &drawableHandle);
+    auto surface = SkSurfaces::WrapCAMetalLayer(context,
+                                                (__bridge GrMTLHandle)layer,
+                                                kTopLeft_GrSurfaceOrigin,
+                                                1,
+                                                kBGRA_8888_SkColorType,
+                                                nullptr,
+                                                nullptr,
+                                                &drawableHandle);
     if (surface == nullptr || surface->getCanvas() == nullptr) {
       throw std::runtime_error("Skia surface could not be created from parameters.");
     }

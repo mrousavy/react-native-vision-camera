@@ -34,7 +34,6 @@ function App() {
 The most important actions are:
 
 * [Taking Photos](#taking-photos)
-  - [Taking Snapshots](#taking-snapshots)
 * [Recording Videos](#recording-videos)
 
 ## Taking Photos
@@ -56,25 +55,6 @@ const photo = await camera.current.takePhoto({
 You can customize capture options such as [automatic red-eye reduction](/docs/api/interfaces/TakePhotoOptions#enableautoredeyereduction), [automatic image stabilization](/docs/api/interfaces/TakePhotoOptions#enableautostabilization), [combining images from constituent physical camera devices](/docs/api/interfaces/TakePhotoOptions#enablevirtualdevicefusion) to create a single high quality fused image, [enable flash](/docs/api/interfaces/TakePhotoOptions#flash), [prioritize speed over quality](/docs/api/interfaces/TakePhotoOptions#qualityprioritization) and more using the `options` parameter. (See [`TakePhotoOptions`](/docs/api/interfaces/TakePhotoOptions))
 
 This function returns a [`PhotoFile`](/docs/api/interfaces/PhotoFile) which contains a [`path`](/docs/api/interfaces/PhotoFile#path) property you can display in your App using an `<Image>` or `<FastImage>`.
-
-### Taking Snapshots
-
-Compared to iOS, Cameras on Android tend to be slower in image capture. If you care about speed, you can use the Camera's [`takeSnapshot(...)`](/docs/api/classes/Camera#takesnapshot) function (Android only) which simply takes a snapshot of the Camera View instead of actually taking a photo through the Camera lens.
-
-```ts
-const snapshot = await camera.current.takeSnapshot({
-  quality: 85,
-  skipMetadata: true
-})
-```
-
-:::note
-While taking snapshots is faster than taking photos, the resulting image has way lower quality. You can combine both functions to create a snapshot to present to the user at first, then deliver the actual high-res photo afterwards.
-:::
-
-:::note
-The `takeSnapshot` function also works with `photo={false}`. For this reason VisionCamera will automatically fall-back to snapshot capture if you are trying to use more use-cases than the Camera natively supports. (see ["The `supportsParallelVideoProcessing` prop"](/docs/guides/devices#the-supportsparallelvideoprocessing-prop))
-:::
 
 ## Recording Videos
 

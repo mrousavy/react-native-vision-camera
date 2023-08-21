@@ -1,5 +1,5 @@
 import React from 'react';
-import { requireNativeComponent, NativeSyntheticEvent, findNodeHandle, NativeMethods, Platform } from 'react-native';
+import { requireNativeComponent, NativeSyntheticEvent, findNodeHandle, NativeMethods } from 'react-native';
 import type { CameraDevice } from './CameraDevice';
 import type { ErrorWithCause } from './CameraError';
 import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError';
@@ -8,13 +8,12 @@ import { assertJSIAvailable } from './JSIHelper';
 import { CameraModule } from './NativeCameraModule';
 import type { PhotoFile, TakePhotoOptions } from './PhotoFile';
 import type { Point } from './Point';
-import type { TakeSnapshotOptions } from './Snapshot';
-import type { CameraVideoCodec, RecordVideoOptions, VideoFile, VideoFileType } from './VideoFile';
+import type { RecordVideoOptions, VideoFile } from './VideoFile';
 import { VisionCameraProxy } from './FrameProcessorPlugins';
 
 //#region Types
-export type CameraPermissionStatus = 'authorized' | 'not-determined' | 'denied' | 'restricted';
-export type CameraPermissionRequestResult = 'authorized' | 'denied';
+export type CameraPermissionStatus = 'granted' | 'not-determined' | 'denied' | 'restricted';
+export type CameraPermissionRequestResult = 'granted' | 'denied';
 
 interface OnErrorEvent {
   code: string;
@@ -24,7 +23,7 @@ interface OnErrorEvent {
 type NativeCameraViewProps = Omit<CameraProps, 'device' | 'onInitialized' | 'onError' | 'frameProcessor'> & {
   cameraId: string;
   enableFrameProcessor: boolean;
-  previewType: 'native' | 'skia';
+  previewType: 'native' | 'skia' | 'none';
   onInitialized?: (event: NativeSyntheticEvent<void>) => void;
   onError?: (event: NativeSyntheticEvent<OnErrorEvent>) => void;
   onViewReady: () => void;
@@ -111,33 +110,6 @@ export class Camera extends React.PureComponent<CameraProps> {
   public async takePhoto(options?: TakePhotoOptions): Promise<PhotoFile> {
     try {
       return await CameraModule.takePhoto(this.handle, options ?? {});
-    } catch (e) {
-      throw tryParseNativeCameraError(e);
-    }
-  }
-
-  /**
-   * Take a snapshot of the current preview view.
-   *
-   * This can be used as an alternative to {@linkcode Camera.takePhoto | takePhoto()} if speed is more important than quality
-   *
-   * @throws {@linkcode CameraCaptureError} When any kind of error occured while taking a snapshot. Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
-   *
-   * @platform Android
-   * @example
-   * ```ts
-   * const photo = await camera.current.takeSnapshot({
-   *   quality: 85,
-   *   skipMetadata: true
-   * })
-   * ```
-   */
-  public async takeSnapshot(options?: TakeSnapshotOptions): Promise<PhotoFile> {
-    if (Platform.OS !== 'android')
-      throw new CameraCaptureError('capture/capture-type-not-supported', `'takeSnapshot()' is not available on ${Platform.OS}!`);
-
-    try {
-      return await CameraModule.takeSnapshot(this.handle, options ?? {});
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
@@ -285,25 +257,6 @@ export class Camera extends React.PureComponent<CameraProps> {
     }
   }
   //#endregion
-
-  /**
-   * Get a list of video codecs the current camera supports for a given file type.  Returned values are ordered by efficiency (descending).
-   * @example
-   * ```ts
-   * const codecs = await camera.current.getAvailableVideoCodecs("mp4")
-   * ```
-   * @throws {@linkcode CameraRuntimeError} When any kind of error occured while getting available video codecs. Use the {@linkcode ParameterError.code | code} property to get the actual error
-   * @platform iOS
-   */
-  public async getAvailableVideoCodecs(fileType?: VideoFileType): Promise<CameraVideoCodec[]> {
-    if (Platform.OS !== 'ios') return []; // no video codecs supported on other platforms.
-
-    try {
-      return await CameraModule.getAvailableVideoCodecs(this.handle, fileType);
-    } catch (e) {
-      throw tryParseNativeCameraError(e);
-    }
-  }
 
   //#region Static Functions (NativeModule)
   /**

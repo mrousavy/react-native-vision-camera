@@ -74,8 +74,10 @@ extension CameraView {
       photoOutput = AVCapturePhotoOutput()
 
       if enableHighQualityPhotos?.boolValue == true {
+        // TODO: In iOS 16 this will be removed in favor of maxPhotoDimensions.
         photoOutput!.isHighResolutionCaptureEnabled = true
         if #available(iOS 13.0, *) {
+          // TODO: Test if this actually does any fusion or if this just calls the captureOutput twice. If the latter, remove it.
           photoOutput!.isVirtualDeviceConstituentPhotoDeliveryEnabled = photoOutput!.isVirtualDeviceConstituentPhotoDeliverySupported
           photoOutput!.maxPhotoQualityPrioritization = .quality
         } else {
@@ -113,12 +115,21 @@ extension CameraView {
       videoOutput!.setSampleBufferDelegate(self, queue: CameraQueues.videoQueue)
       videoOutput!.alwaysDiscardsLateVideoFrames = false
 
-      if previewType == "skia" {
-        // If the PreviewView is a Skia view, we need to use the RGB format since Skia works in the RGB colorspace instead of YUV.
-        // This does introduce a performance overhead, but it's inevitable since Skia would internally convert
-        // YUV frames to RGB anyways since all Shaders and draw operations operate in the RGB space.
+      if let pixelFormat = pixelFormat as? String {
+        let defaultFormat = CMFormatDescriptionGetMediaSubType(videoDeviceInput!.device.activeFormat.formatDescription)
+        var pixelFormatType: OSType = defaultFormat
+        switch pixelFormat {
+        case "yuv":
+          pixelFormatType = kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
+        case "rgb":
+          pixelFormatType = kCVPixelFormatType_32BGRA
+        case "native":
+          pixelFormatType = defaultFormat
+        default:
+          invokeOnError(.parameter(.invalid(unionName: "pixelFormat", receivedValue: pixelFormat)))
+        }
         videoOutput!.videoSettings = [
-          String(kCVPixelBufferPixelFormatTypeKey): kCVPixelFormatType_32BGRA, // default: kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
+          String(kCVPixelBufferPixelFormatTypeKey): pixelFormatType,
         ]
       }
       captureSession.addOutput(videoOutput!)
@@ -134,7 +145,7 @@ extension CameraView {
   // pragma MARK: Configure Device
 
   /**
-   Configures the Video Device with the given FPS, HDR and ColorSpace.
+   Configures the Video Device with the given FPS and HDR modes.
    */
   final func configureDevice() {
     ReactLogger.log(level: .info, message: "Configuring Device...")
@@ -181,14 +192,6 @@ extension CameraView {
         if device.automaticallyEnablesLowLightBoostWhenAvailable != lowLightBoost!.boolValue {
           device.automaticallyEnablesLowLightBoostWhenAvailable = lowLightBoost!.boolValue
         }
-      }
-      if let colorSpace = colorSpace as String? {
-        guard let avColorSpace = try? AVCaptureColorSpace(string: colorSpace),
-              device.activeFormat.supportedColorSpaces.contains(avColorSpace) else {
-          invokeOnError(.format(.invalidColorSpace(colorSpace: colorSpace)))
-          return
-        }
-        device.activeColorSpace = avColorSpace
       }
 
       device.unlockForConfiguration()

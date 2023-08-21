@@ -24,26 +24,12 @@ extension CameraView {
 
       ReactLogger.log(level: .info, message: "Capturing photo...")
 
-      var format: [String: Any]?
-      // photo codec
-      if let photoCodecString = options["photoCodec"] as? String {
-        guard let photoCodec = AVVideoCodecType(withString: photoCodecString) else {
-          promise.reject(error: .parameter(.invalid(unionName: "PhotoCodec", receivedValue: photoCodecString)))
-          return
-        }
-        if photoOutput.availablePhotoCodecTypes.contains(photoCodec) {
-          format = [AVVideoCodecKey: photoCodec]
-        } else {
-          promise.reject(error: .capture(.invalidPhotoCodec))
-          return
-        }
-      }
-
       // Create photo settings
-      let photoSettings = AVCapturePhotoSettings(format: format)
+      let photoSettings = AVCapturePhotoSettings()
 
       // default, overridable settings if high quality capture was enabled
       if self.enableHighQualityPhotos?.boolValue == true {
+        // TODO: On iOS 16+ this will be removed in favor of maxPhotoDimensions.
         photoSettings.isHighResolutionPhotoEnabled = true
         if #available(iOS 13.0, *) {
           photoSettings.photoQualityPrioritization = .quality

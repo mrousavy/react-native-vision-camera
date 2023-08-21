@@ -1,7 +1,7 @@
 import type { Frame, FrameInternal } from './Frame';
 import type { FrameProcessor } from './CameraProps';
 import { Camera } from './Camera';
-import { Worklets } from 'react-native-worklets/src';
+import { Worklets } from 'react-native-worklets-core';
 import { CameraRuntimeError } from './CameraError';
 
 type BasicParameterType = string | number | boolean | undefined;

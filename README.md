@@ -42,7 +42,7 @@
 
 ### Features
 
-* Photo, Video and Snapshot capture
+* Photo and Video capture
 * Customizable devices and multi-cameras (smoothly zoom out to "fish-eye" camera)
 * Customizable FPS
 * [Frame Processors](https://react-native-vision-camera.com/docs/guides/frame-processors) (JS worklets to run QR-Code scanning, facial recognition, AI object detection, realtime video chats, ...)

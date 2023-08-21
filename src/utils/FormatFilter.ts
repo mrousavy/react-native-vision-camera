@@ -1,5 +1,5 @@
 import { Dimensions } from 'react-native';
-import type { CameraDevice, CameraDeviceFormat, FrameRateRange } from '../CameraDevice';
+import type { CameraDevice, CameraDeviceFormat } from '../CameraDevice';
 
 /**
  * Compares two devices by the following criteria:
@@ -23,6 +23,28 @@ export const sortDevices = (left: CameraDevice, right: CameraDevice): number => 
   const rightHasWideAngle = right.devices.includes('wide-angle-camera');
   if (leftHasWideAngle) leftPoints += 2;
   if (rightHasWideAngle) rightPoints += 2;
+
+  if (left.isMultiCam) leftPoints += 2;
+  if (right.isMultiCam) rightPoints += 2;
+
+  if (left.hardwareLevel === 'full') leftPoints += 3;
+  if (right.hardwareLevel === 'full') rightPoints += 3;
+  if (left.hardwareLevel === 'limited') leftPoints += 1;
+  if (right.hardwareLevel === 'limited') rightPoints += 1;
+
+  if (left.hasFlash) leftPoints += 1;
+  if (right.hasFlash) rightPoints += 1;
+
+  const leftMaxResolution = left.formats.reduce(
+    (prev, curr) => Math.max(prev, curr.videoHeight * curr.videoWidth + curr.photoHeight * curr.photoWidth),
+    0,
+  );
+  const rightMaxResolution = right.formats.reduce(
+    (prev, curr) => Math.max(prev, curr.videoHeight * curr.videoWidth + curr.photoHeight * curr.photoWidth),
+    0,
+  );
+  if (leftMaxResolution > rightMaxResolution) leftPoints += 3;
+  if (rightMaxResolution > leftMaxResolution) rightPoints += 3;
 
   // telephoto cameras often have very poor quality.
   const leftHasTelephoto = left.devices.includes('telephoto-camera');
@@ -69,17 +91,3 @@ export const sortFormats = (left: CameraDeviceFormat, right: CameraDeviceFormat)
 
   return rightPoints - leftPoints;
 };
-
-/**
- * Returns `true` if the given Frame Rate Range (`range`) contains the given frame rate (`fps`)
- *
- * @param {FrameRateRange} range The range to check if the given `fps` are included in
- * @param {number} fps The FPS to check if the given `range` supports.
- * @example
- * ```ts
- * // get all formats that support 60 FPS
- * const formatsWithHighFps = useMemo(() => device.formats.filter((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, 60))), [device.formats])
- * ```
- * @method
- */
-export const frameRateIncluded = (range: FrameRateRange, fps: number): boolean => fps >= range.minFrameRate && fps <= range.maxFrameRate;

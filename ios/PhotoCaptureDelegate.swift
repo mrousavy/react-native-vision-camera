@@ -48,11 +48,16 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
       let exif = photo.metadata["{Exif}"] as? [String: Any]
       let width = exif?["PixelXDimension"]
       let height = exif?["PixelYDimension"]
+      let exifOrientation = photo.metadata[kCGImagePropertyOrientation as String] as? Int ?? 0
+      let orientation = getOrientation(forExifOrientation: exifOrientation)
+      let isMirrored = getIsMirrored(forExifOrientation: exifOrientation)
 
       promise.resolve([
         "path": tempFilePath,
         "width": width as Any,
         "height": height as Any,
+        "orientation": orientation,
+        "isMirrored": isMirrored,
         "isRawPhoto": photo.isRawPhoto,
         "metadata": photo.metadata,
         "thumbnail": photo.embeddedThumbnailPhotoFormat as Any,
@@ -69,6 +74,30 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     if let error = error as NSError? {
       promise.reject(error: .capture(.unknown(message: error.description)), cause: error)
       return
+    }
+  }
+
+  private func getOrientation(forExifOrientation exifOrientation: Int) -> String {
+    switch exifOrientation {
+    case 1, 2:
+      return "portrait"
+    case 3, 4:
+      return "portrait-upside-down"
+    case 5, 6:
+      return "landscape-left"
+    case 7, 8:
+      return "landscape-right"
+    default:
+      return "portrait"
+    }
+  }
+
+  private func getIsMirrored(forExifOrientation exifOrientation: Int) -> Bool {
+    switch exifOrientation {
+    case 2, 4, 5, 7:
+      return true
+    default:
+      return false
     }
   }
 }

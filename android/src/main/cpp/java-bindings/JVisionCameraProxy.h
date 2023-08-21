@@ -6,7 +6,7 @@
 
 #include <fbjni/fbjni.h>
 #include <jsi/jsi.h>
-#include <react-native-worklets/WKTJsiWorkletContext.h>
+#include <react-native-worklets-core/WKTJsiWorkletContext.h>
 #include <react/jni/ReadableNativeMap.h>
 
 #include "JFrameProcessorPlugin.h"

@@ -43,43 +43,6 @@ export const parsePhysicalDeviceTypes = (
 };
 
 /**
- * Indicates a format's color space.
- *
- * #### The following colorspaces are available on iOS:
- * * `"srgb"`: The sGRB color space.
- * * `"p3-d65"`: The P3 D65 wide color space which uses Illuminant D65 as the white point
- * * `"hlg-bt2020"`: The BT2020 wide color space which uses Illuminant D65 as the white point and Hybrid Log-Gamma as the transfer function
- *
- * > See ["AVCaptureColorSpace"](https://developer.apple.com/documentation/avfoundation/avcapturecolorspace) for more information.
- *
- * #### The following colorspaces are available on Android:
- * * `"yuv"`: The Multi-plane Android YCbCr color space. (YUV 420_888, 422_888 or 444_888)
- * * `"jpeg"`: The compressed JPEG color space.
- * * `"jpeg-depth"`: The compressed JPEG color space including depth data.
- * * `"raw"`: The Camera's RAW sensor color space. (Single-channel Bayer-mosaic image, usually 16 bit)
- * * `"heic"`: The compressed HEIC color space.
- * * `"private"`: The Android private opaque image format. (The choices of the actual format and pixel data layout are entirely up to the device-specific and framework internal implementations, and may vary depending on use cases even for the same device. These buffers are not directly accessible to the application)
- * * `"depth-16"`: The Android dense depth image format (16 bit)
- * * `"unknown"`: Placeholder for an unknown image/pixel format. [Edit this file](https://github.com/mrousavy/react-native-vision-camera/edit/main/android/src/main/java/com/mrousavy/camera/parsers/ImageFormat+String.kt) to add a name for the unknown format.
- *
- * > See ["Android Color Formats"](https://jbit.net/Android_Colors/) for more information.
- */
-export type ColorSpace =
-  // ios
-  | 'hlg-bt2020'
-  | 'p3-d65'
-  | 'srgb'
-  // android
-  | 'yuv'
-  | 'jpeg'
-  | 'jpeg-depth'
-  | 'raw'
-  | 'heic'
-  | 'private'
-  | 'depth-16'
-  | 'unknown';
-
-/**
  * Indicates a format's autofocus system.
  *
  * * `"none"`: Indicates that autofocus is not available
@@ -89,20 +52,15 @@ export type ColorSpace =
 export type AutoFocusSystem = 'contrast-detection' | 'phase-detection' | 'none';
 
 /**
- * Indicates a format's supported video stabilization mode
+ * Indicates a format's supported video stabilization mode. Enabling video stabilization may introduce additional latency into the video capture pipeline.
  *
- * * `"off"`: Indicates that video should not be stabilized
- * * `"standard"`: Indicates that video should be stabilized using the standard video stabilization algorithm introduced with iOS 5.0. Standard video stabilization has a reduced field of view. Enabling video stabilization may introduce additional latency into the video capture pipeline
- * * `"cinematic"`: Indicates that video should be stabilized using the cinematic stabilization algorithm for more dramatic results. Cinematic video stabilization has a reduced field of view compared to standard video stabilization. Enabling cinematic video stabilization introduces much more latency into the video capture pipeline than standard video stabilization and consumes significantly more system memory. Use narrow or identical min and max frame durations in conjunction with this mode
- * * `"cinematic-extended"`: Indicates that the video should be stabilized using the extended cinematic stabilization algorithm. Enabling extended cinematic stabilization introduces longer latency into the video capture pipeline compared to the AVCaptureVideoStabilizationModeCinematic and consumes more memory, but yields improved stability. It is recommended to use identical or similar min and max frame durations in conjunction with this mode (iOS 13.0+)
+ * * `"off"`: No video stabilization. Indicates that video should not be stabilized
+ * * `"standard"`: Standard software-based video stabilization. Standard video stabilization reduces the field of view by about 10%.
+ * * `"cinematic"`: Advanced software-based video stabilization. This applies more aggressive cropping or transformations than standard.
+ * * `"cinematic-extended"`: Extended software- and hardware-based stabilization that aggressively crops and transforms the video to apply a smooth cinematic stabilization.
  * * `"auto"`: Indicates that the most appropriate video stabilization mode for the device and format should be chosen automatically
  */
 export type VideoStabilizationMode = 'off' | 'standard' | 'cinematic' | 'cinematic-extended' | 'auto';
-
-export interface FrameRateRange {
-  minFrameRate: number;
-  maxFrameRate: number;
-}
 
 /**
  * A Camera Device's video format. Do not create instances of this type yourself, only use {@linkcode Camera.getAvailableCameraDevices | Camera.getAvailableCameraDevices()}.
@@ -125,12 +83,6 @@ export interface CameraDeviceFormat {
    */
   videoWidth: number;
   /**
-   * A boolean value specifying whether this format supports the highest possible photo quality that can be delivered on the current platform.
-   *
-   * @platform iOS 13.0+
-   */
-  isHighestPhotoQualitySupported?: boolean;
-  /**
    * Maximum supported ISO value
    */
   maxISO: number;
@@ -147,12 +99,6 @@ export interface CameraDeviceFormat {
    */
   maxZoom: number;
   /**
-   * The available color spaces.
-   *
-   * Note: On Android, this will always be only `["yuv"]`
-   */
-  colorSpaces: ColorSpace[];
-  /**
    * Specifies whether this format supports HDR mode for video capture
    */
   supportsVideoHDR: boolean;
@@ -161,9 +107,13 @@ export interface CameraDeviceFormat {
    */
   supportsPhotoHDR: boolean;
   /**
-   * All available frame rate ranges. You can query this to find the highest frame rate available
+   * The minum frame rate this Format needs to run at. High resolution formats often run at lower frame rates.
    */
-  frameRateRanges: FrameRateRange[];
+  minFps: number;
+  /**
+   * The maximum frame rate this Format is able to run at. High resolution formats often run at lower frame rates.
+   */
+  maxFps: number;
   /**
    * Specifies this format's auto focus system.
    */
@@ -173,11 +123,10 @@ export interface CameraDeviceFormat {
    */
   videoStabilizationModes: VideoStabilizationMode[];
   /**
-   * Specifies this format's pixel format. The pixel format specifies how the individual pixels are interpreted as a visual image.
-   *
-   * The most common format is `420v`. Some formats (like `x420`) are not compatible with some frame processor plugins (e.g. MLKit)
+   * Specifies this format's supported pixel-formats.
+   * In most cases, this is `['native', 'yuv']`.
    */
-  pixelFormat: PixelFormat;
+  pixelFormats: PixelFormat[];
 }
 
 /**
@@ -252,16 +201,6 @@ export interface CameraDevice {
    */
   formats: CameraDeviceFormat[];
   /**
-   * Whether this camera device supports using Video Recordings (`video={true}`) and Frame Processors (`frameProcessor={...}`) at the same time. See ["The `supportsParallelVideoProcessing` prop"](https://react-native-vision-camera.com/docs/guides/devices#the-supportsparallelvideoprocessing-prop) for more information.
-   *
-   * If this property is `false`, you can only enable `video` or add a `frameProcessor`, but not both.
-   *
-   * * On iOS this value is always `true`.
-   * * On newer Android devices this value is always `true`.
-   * * On older Android devices this value is `false` if the Camera's hardware level is `LEGACY` or `LIMITED`, `true` otherwise. (See [`INFO_SUPPORTED_HARDWARE_LEVEL`](https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL) or [the tables at "Regular capture"](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture))
-   */
-  supportsParallelVideoProcessing: boolean;
-  /**
    * Whether this camera device supports low light boost.
    */
   supportsLowLightBoost: boolean;
@@ -281,4 +220,10 @@ export interface CameraDevice {
    * Specifies whether this device supports focusing ({@linkcode Camera.focus | Camera.focus(...)})
    */
   supportsFocus: boolean;
+  /**
+   * The hardware level of the Camera.
+   * - On Android, some older devices are running at a `legacy` or `limited` level which means they are running in a backwards compatible mode.
+   * - On iOS, all devices are `full`.
+   */
+  hardwareLevel: 'legacy' | 'limited' | 'full';
 }

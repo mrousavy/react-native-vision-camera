@@ -127,8 +127,8 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Install node_modules for example/
         run: yarn install --frozen-lockfile --cwd example
-      - name: Remove react-native-worklets
-        run: yarn remove react-native-worklets --cwd example
+      - name: Remove react-native-worklets-core
+        run: yarn remove react-native-worklets-core --cwd example
 
       - name: Restore Gradle cache
         uses: actions/cache@v2
