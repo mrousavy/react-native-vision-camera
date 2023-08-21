@@ -64,6 +64,7 @@ const _CaptureButton: React.FC<Props> = ({
       qualityPrioritization: 'speed',
       flash: flash,
       quality: 90,
+      enableShutterSound: false,
     }),
     [flash],
   );

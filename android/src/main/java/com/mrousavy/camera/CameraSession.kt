@@ -178,6 +178,7 @@ class CameraSession(private val context: Context,
 
   suspend fun takePhoto(qualityPrioritization: QualityPrioritization,
                         flashMode: Flash,
+                        enableShutterSound: Boolean,
                         enableRedEyeReduction: Boolean,
                         enableAutoStabilization: Boolean,
                         outputOrientation: Orientation): CapturedPhoto {
@@ -197,7 +198,7 @@ class CameraSession(private val context: Context,
                                                                          enableAutoStabilization,
                                                                          orientation)
     Log.i(TAG, "Photo capture 0/2 - starting capture...")
-    val result = captureSession.capture(captureRequest)
+    val result = captureSession.capture(captureRequest, enableShutterSound)
     val timestamp = result[CaptureResult.SENSOR_TIMESTAMP]!!
     Log.i(TAG, "Photo capture 1/2 complete - received metadata with timestamp $timestamp")
     try {

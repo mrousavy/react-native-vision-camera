@@ -38,6 +38,12 @@ export interface TakePhotoOptions {
    * @default false
    */
   enableAutoDistortionCorrection?: boolean;
+  /**
+   * Whether to play the default shutter "click" sound when taking a picture or not.
+   *
+   * @default true
+   */
+  enableShutterSound?: boolean;
 }
 
 /**
