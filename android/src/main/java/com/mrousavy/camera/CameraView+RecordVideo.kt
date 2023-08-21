@@ -9,6 +9,7 @@ import com.mrousavy.camera.parsers.Torch
 import com.mrousavy.camera.parsers.VideoCodec
 import com.mrousavy.camera.parsers.VideoFileType
 import com.mrousavy.camera.utils.RecordingSession
+import com.mrousavy.camera.utils.makeErrorMap
 import java.util.*
 
 suspend fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Callback) {
@@ -39,7 +40,11 @@ suspend fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Ca
     map.putDouble("duration", video.durationMs.toDouble() / 1000.0)
     onRecordCallback(map, null)
   }
-  cameraSession.startRecording(audio == true, codec, fileType, callback)
+  val onError = { error: RecorderError ->
+    val errorMap = makeErrorMap(error.code, error.message)
+    onRecordCallback(null, errorMap)
+  }
+  cameraSession.startRecording(audio == true, codec, fileType, callback, onError)
 }
 
 @SuppressLint("RestrictedApi")

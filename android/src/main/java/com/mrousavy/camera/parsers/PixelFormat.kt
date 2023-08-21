@@ -11,13 +11,6 @@ enum class PixelFormat(override val unionValue: String): JSUnionValue {
   NATIVE("native"),
   UNKNOWN("unknown");
 
-  private fun bestMatch(formats: IntArray, targetFormats: Array<Int>): Int? {
-    targetFormats.forEach { format ->
-      if (formats.contains(format)) return format
-    }
-    return null
-  }
-
   fun toImageFormat(): Int {
     val result = when (this) {
       YUV -> ImageFormat.YUV_420_888

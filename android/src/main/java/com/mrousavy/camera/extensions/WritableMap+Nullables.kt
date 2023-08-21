@@ -15,10 +15,3 @@ fun WritableMap.putDouble(key: String, value: Double?) {
   else
     this.putDouble(key, value)
 }
-
-fun WritableMap.putBoolean(key: String, value: Boolean?) {
-  if (value == null)
-    this.putNull(key)
-  else
-    this.putBoolean(key, value)
-}

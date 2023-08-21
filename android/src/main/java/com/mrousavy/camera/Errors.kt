@@ -40,16 +40,10 @@ class NoCameraDeviceError : CameraError("device", "no-device", "No device was se
 class NoFlashAvailableError : CameraError("device", "flash-unavailable", "The Camera Device does not have a flash unit! Make sure you select a device where `hasFlash`/`hasTorch` is true!")
 class PixelFormatNotSupportedError(format: String) : CameraError("device", "pixel-format-not-supported", "The pixelFormat $format is not supported on the given Camera Device!")
 
-class FpsNotContainedInFormatError(fps: Int) : CameraError("format", "invalid-fps", "The given format cannot run at $fps FPS! Make sure your FPS is lower than `format.maxFps` but higher than `format.minFps`.")
 class HdrNotContainedInFormatError : CameraError(
   "format", "invalid-hdr",
   "The currently selected format does not support HDR capture! " +
     "Make sure you select a format which includes `supportsPhotoHDR`!"
-)
-class LowLightBoostNotContainedInFormatError : CameraError(
-  "format", "invalid-low-light-boost",
-  "The currently selected format does not support low-light boost (night mode)! " +
-    "Make sure you select a format which includes `supportsLowLightBoost`."
 )
 
 class CameraNotReadyError : CameraError("session", "camera-not-ready", "The Camera is not ready yet! Wait for the onInitialized() callback!")
@@ -62,48 +56,7 @@ class PhotoNotEnabledError : CameraError("capture", "photo-not-enabled", "Photo 
 class CaptureAbortedError(wasImageCaptured: Boolean) : CameraError("capture", "aborted", "The image capture was aborted! Was Image captured: $wasImageCaptured")
 class UnknownCaptureError(wasImageCaptured: Boolean) : CameraError("capture", "unknown", "An unknown error occurred while trying to capture an Image! Was Image captured: $wasImageCaptured")
 
-class VideoEncoderError(cause: Throwable?) : CameraError("capture", "encoder-error", "The recording failed while encoding.\n" +
-  "This error may be generated when the video or audio codec encounters an error during encoding. " +
-  "When this happens and the output file is generated, the output file is not properly constructed. " +
-  "The application will need to clean up the output file, such as deleting the file.",
-  cause)
-
-class InvalidVideoOutputOptionsError(cause: Throwable?) : CameraError("capture", "invalid-video-options",
-  "The recording failed due to invalid output options.\n" +
-  "This error is generated when invalid output options have been used while preparing a recording",
-  cause)
-
-class RecorderError(cause: Throwable?) : CameraError("capture", "recorder-error",
-  "The recording failed because the Recorder is in an unrecoverable error state.\n" +
-  "When this happens and the output file is generated, the output file is not properly constructed. " +
-  "The application will need to clean up the output file, such as deleting the file. " +
-  "Such an error will usually require creating a new Recorder object to start a new recording.",
-  cause)
-
-class NoValidDataError(cause: Throwable?) : CameraError("capture", "no-valid-data",
-  "The recording failed because no valid data was produced to be recorded.\n" +
-  "This error is generated when the essential data for a recording to be played correctly is missing, for example, " +
-  "a recording must contain at least one key frame. The application will need to clean up the output file, such as deleting the file.",
-  cause)
-
-class InactiveSourceError(cause: Throwable?) : CameraError("capture", "inactive-source",
-  "The recording failed because the source becomes inactive and stops sending frames.\n" +
-  "One case is that if camera is closed due to lifecycle stopped, the active recording will be finalized with this error, " +
-  "and the output will be generated, containing the frames produced before camera closing. " +
-  "Attempting to start a new recording will be finalized immediately if the source remains inactive and no output will be generated.",
-  cause)
-
-class InsufficientStorageError(cause: Throwable?) : CameraError("capture", "insufficient-storage",
-  "The recording failed due to insufficient storage space.\n" +
-  "There are two possible cases that will cause this error.\n" +
-  "1. The storage is already full before the recording starts, so no output file will be generated.\n" +
-  "2. The storage becomes full during recording, so the output file will be generated.",
-  cause)
-
-class FileSizeLimitReachedError(cause: Throwable?) : CameraError("capture", "file-size-limit-reached",
-  "The recording failed due to file size limitation.\n" +
-  "The file size limitation will refer to OutputOptions.getFileSizeLimit(). The output file will still be generated with this error.",
-  cause)
+class RecorderError(name: String, extra: Int) : CameraError("capture", "recorder-error", "An error occured while recording a video! $name $extra")
 
 class NoRecordingInProgressError : CameraError("capture", "no-recording-in-progress", "There was no active video recording in progress! Did you call stopRecording() twice?")
 class RecordingInProgressError : CameraError("capture", "recording-in-progress", "There is already an active video recording in progress! Did you call startRecording() twice?")

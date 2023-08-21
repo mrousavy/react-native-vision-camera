@@ -1,6 +1,5 @@
 package com.mrousavy.camera
 
-import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.common.MapBuilder
 import com.facebook.react.uimanager.ThemedReactContext
@@ -13,7 +12,7 @@ import com.mrousavy.camera.parsers.Torch
 import com.mrousavy.camera.parsers.VideoStabilizationMode
 
 @Suppress("unused")
-class CameraViewManager(reactContext: ReactApplicationContext) : ViewGroupManager<CameraView>() {
+class CameraViewManager() : ViewGroupManager<CameraView>() {
 
   public override fun createViewInstance(context: ThemedReactContext): CameraView {
     return CameraView(context)

@@ -2,10 +2,10 @@ package com.mrousavy.camera.utils.outputs
 
 import android.graphics.ImageFormat
 import android.hardware.HardwareBuffer
-import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.media.Image
 import android.media.ImageReader
+import android.os.Build
 import android.util.Log
 import android.util.Size
 import android.view.Surface
@@ -92,7 +92,6 @@ class CameraOutputs(val cameraId: String,
 
   init {
     val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-    val config = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
 
     Log.i(TAG, "Preparing Outputs for Camera $cameraId...")
 
@@ -118,6 +117,8 @@ class CameraOutputs(val cameraId: String,
 
     // Video output: High resolution repeating images (startRecording() or useFrameProcessor())
     if (video != null) {
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) throw Error("Video Recordings and/or Frame Processors are only available on API 29 and above!")
+
       val size = characteristics.getVideoSizes(cameraId, video.format).closestToOrMax(video.targetSize)
 
       val flags = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or HardwareBuffer.USAGE_VIDEO_ENCODE

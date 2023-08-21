@@ -9,6 +9,7 @@ import android.os.Build
 import android.util.Log
 import android.util.Size
 import android.view.Surface
+import com.mrousavy.camera.RecorderError
 import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.VideoCodec
 import com.mrousavy.camera.parsers.VideoFileType
@@ -22,7 +23,8 @@ class RecordingSession(context: Context,
                        private val codec: VideoCodec = VideoCodec.H264,
                        private val orientation: Orientation,
                        private val fileType: VideoFileType = VideoFileType.MP4,
-                       private val callback: (video: Video) -> Unit) {
+                       private val callback: (video: Video) -> Unit,
+                       private val onError: (error: RecorderError) -> Unit) {
   companion object {
     private const val TAG = "RecordingSession"
     // bits per second
@@ -77,6 +79,12 @@ class RecordingSession(context: Context,
     recorder.setOnErrorListener { _, what, extra ->
       Log.e(TAG, "MediaRecorder Error: $what ($extra)")
       stop()
+      val name = when (what) {
+        MediaRecorder.MEDIA_RECORDER_ERROR_UNKNOWN -> "unknown"
+        MediaRecorder.MEDIA_ERROR_SERVER_DIED -> "server-died"
+        else -> "unknown"
+      }
+      onError(RecorderError(name, extra))
     }
     recorder.setOnInfoListener { _, what, extra ->
       Log.i(TAG, "MediaRecorder Info: $what ($extra)")

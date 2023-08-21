@@ -38,16 +38,6 @@ export interface TakePhotoOptions {
    * @default false
    */
   enableAutoDistortionCorrection?: boolean;
-  /**
-   * When set to `true`, metadata reading and mapping will be skipped. ({@linkcode PhotoFile.metadata} will be null)
-   *
-   * This might result in a faster capture, as metadata reading and mapping requires File IO.
-   *
-   * @default false
-   *
-   * @platform Android
-   */
-  skipMetadata?: boolean;
 }
 
 /**
@@ -80,10 +70,11 @@ export interface PhotoFile extends TemporaryFile {
   isMirrored: boolean;
   thumbnail?: Record<string, unknown>;
   /**
-   * Metadata information describing the captured image.
+   * Metadata information describing the captured image. (iOS only)
    *
    * @see [AVCapturePhoto.metadata](https://developer.apple.com/documentation/avfoundation/avcapturephoto/2873982-metadata)
-   * @see [AndroidX ExifInterface](https://developer.android.com/reference/androidx/exifinterface/media/ExifInterface)
+   *
+   * @platform iOS
    */
   metadata?: {
     /**

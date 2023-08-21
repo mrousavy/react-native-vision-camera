@@ -221,13 +221,14 @@ class CameraSession(private val context: Context,
   suspend fun startRecording(enableAudio: Boolean,
                              codec: VideoCodec,
                              fileType: VideoFileType,
-                             callback: (video: RecordingSession.Video) -> Unit) {
+                             callback: (video: RecordingSession.Video) -> Unit,
+                             onError: (error: RecorderError) -> Unit) {
     mutex.withLock {
       if (recording != null) throw RecordingInProgressError()
       val outputs = outputs ?: throw CameraNotReadyError()
       val videoOutput = outputs.videoOutput ?: throw VideoNotEnabledError()
 
-      val recording = RecordingSession(context, enableAudio, videoOutput.size, fps, codec, orientation, fileType, callback)
+      val recording = RecordingSession(context, enableAudio, videoOutput.size, fps, codec, orientation, fileType, callback, onError)
       recording.start()
       this.recording = recording
     }

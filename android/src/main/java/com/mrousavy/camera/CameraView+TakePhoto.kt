@@ -30,7 +30,6 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
   val flash = options["flash"] as? String ?: "off"
   val enableAutoRedEyeReduction = options["enableAutoRedEyeReduction"] == true
   val enableAutoStabilization = options["enableAutoStabilization"] == true
-  val skipMetadata = options["skipMetadata"] == true
 
   val flashMode = Flash.fromUnionValue(flash)
   val qualityPrioritizationMode = QualityPrioritization.fromUnionValue(qualityPrioritization)
@@ -57,8 +56,6 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
     map.putString("orientation", photo.orientation.unionValue)
     map.putBoolean("isRawPhoto", photo.format == ImageFormat.RAW_SENSOR)
     map.putBoolean("isMirrored", photo.isMirrored)
-
-    // TODO: Add metadata prop to resulting photo
 
     return map
   }
