@@ -259,7 +259,7 @@ enum SystemError: String {
     case .skiaUnavailable:
       return "Skia Integration is unavailable - is @shopify/react-native-skia installed?"
     case .frameProcessorsUnavailable:
-      return "Frame Processors are unavailable - is react-native-worklets installed?"
+      return "Frame Processors are unavailable - is react-native-worklets-core installed?"
     }
   }
 }

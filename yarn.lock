@@ -6791,9 +6791,10 @@ react-native-builder-bob@^0.21.3:
   optionalDependencies:
     jetifier "^2.0.0"
 
-"react-native-worklets@https://github.com/chrfalch/react-native-worklets#3ac2fbb":
-  version "0.1.0"
-  resolved "https://github.com/chrfalch/react-native-worklets#3ac2fbb223ece84308a97b797825f882e3e64002"
+react-native-worklets-core@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/react-native-worklets-core/-/react-native-worklets-core-0.2.0.tgz#6dae14c40fdaf709d5d54851cc24d5deaecfd4a1"
+  integrity sha512-gxpfl3KnoRmDtBBVs08K7Ru3xaOrBTGXKQtcjwDzgIcaiNhPfKiJdUz1AIa3SX+M2I/f/7fgWK2W9OFYae/AzA==
 
 react-native@^0.72.3:
   version "0.72.3"

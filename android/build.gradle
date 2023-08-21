@@ -148,7 +148,7 @@ dependencies {
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2"
   implementation "androidx.exifinterface:exifinterface:1.3.6"
 
-  implementation project(":react-native-worklets")
+  implementation project(":react-native-worklets-core")
   implementation project(":shopify_react-native-skia")
 }
 

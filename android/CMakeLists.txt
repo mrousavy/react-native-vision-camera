@@ -15,7 +15,7 @@ add_compile_options(${folly_FLAGS})
 # Third party libraries (Prefabs)
 find_package(ReactAndroid REQUIRED CONFIG)
 find_package(fbjni REQUIRED CONFIG)
-find_package(react-native-worklets REQUIRED CONFIG)
+find_package(react-native-worklets-core REQUIRED CONFIG)
 find_library(LOG_LIB log)
 
 set(RNSKIA_PATH ${NODE_MODULES_DIR}/@shopify/react-native-skia)
@@ -92,7 +92,7 @@ target_link_libraries(
         ReactAndroid::reactnativejni        # <-- RN: React Native JNI bindings
         ReactAndroid::folly_runtime         # <-- RN: For casting JSI <> Java objects
         fbjni::fbjni                        # <-- fbjni
-        react-native-worklets::rnworklets   # <-- RN Worklets
+        react-native-worklets-core::rnworklets   # <-- RN Worklets
         GLESv2                              # <-- Optional: OpenGL (for Skia)
         EGL                                 # <-- Optional: OpenGL (EGL) (for Skia)
         ${SKIA_PACKAGE}                     # <-- Optional: RN Skia

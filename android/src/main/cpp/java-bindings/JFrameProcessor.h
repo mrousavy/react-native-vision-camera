@@ -9,8 +9,8 @@
 #include <jni.h>
 #include <fbjni/fbjni.h>
 
-#include <react-native-worklets/WKTJsiWorklet.h>
-#include <react-native-worklets/WKTJsiHostObject.h>
+#include <react-native-worklets-core/WKTJsiWorklet.h>
+#include <react-native-worklets-core/WKTJsiHostObject.h>
 
 #include "JFrame.h"
 #include "FrameHostObject.h"

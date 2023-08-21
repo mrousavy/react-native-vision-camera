@@ -8,7 +8,7 @@
 #include <fbjni/fbjni.h>
 #include <jni.h>
 
-#include <react-native-worklets/WKTJsiHostObject.h>
+#include <react-native-worklets-core/WKTJsiHostObject.h>
 #include "JSITypedArray.h"
 
 #include <vector>
