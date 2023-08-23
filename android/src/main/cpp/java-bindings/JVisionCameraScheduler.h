@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <ReactCommon/CallInvokerHolder.h>
 #include <jni.h>
 #include <fbjni/fbjni.h>
 #include <queue>

@@ -7,7 +7,6 @@
 #include <jsi/jsi.h>
 #include "java-bindings/JFrameProcessorPlugin.h"
 #include <memory>
-#include <ReactCommon/CallInvoker.h>
 #include <fbjni/fbjni.h>
 #include <vector>
 
