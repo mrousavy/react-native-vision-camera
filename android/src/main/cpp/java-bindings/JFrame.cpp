@@ -6,6 +6,7 @@
 
 #include <jni.h>
 #include <fbjni/fbjni.h>
+#include <fbjni/ByteBuffer.h>
 
 namespace vision {
 
@@ -60,7 +61,6 @@ int JFrame::getBytesPerRow() const {
 local_ref<JByteBuffer> JFrame::toByteBuffer() const {
   static const auto toByteBufferMethod = getClass()->getMethod<JByteBuffer()>("toByteBuffer");
   return toByteBufferMethod(self());
-}
 }
 
 void JFrame::incrementRefCount() {

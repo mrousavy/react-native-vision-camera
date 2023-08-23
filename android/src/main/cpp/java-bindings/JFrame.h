@@ -6,6 +6,7 @@
 
 #include <jni.h>
 #include <fbjni/fbjni.h>
+#include <fbjni/ByteBuffer.h>
 
 namespace vision {
 
