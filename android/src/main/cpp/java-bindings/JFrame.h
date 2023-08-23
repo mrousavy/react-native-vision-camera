@@ -25,7 +25,7 @@ struct JFrame : public JavaClass<JFrame> {
   jlong getTimestamp() const;
   local_ref<JString> getOrientation() const;
   local_ref<JString> getPixelFormat() const;
-  local_ref<JArrayByte> toByteArray() const;
+  local_ref<JByteBuffer> toByteBuffer() const;
   void incrementRefCount();
   void decrementRefCount();
   void close();

@@ -89,36 +89,31 @@ public class Frame {
         return image.getPlanes()[0].getRowStride();
     }
 
-    private static byte[] byteArrayCache;
+    private static ByteBuffer byteArrayCache;
 
     @SuppressWarnings("unused")
     @DoNotStrip
-    public byte[] toByteArray() {
+    public ByteBuffer toByteBuffer() {
         switch (image.getFormat()) {
             case ImageFormat.YUV_420_888:
                 ByteBuffer yBuffer = image.getPlanes()[0].getBuffer();
-                ByteBuffer vuBuffer = image.getPlanes()[2].getBuffer();
+                ByteBuffer uBuffer = image.getPlanes()[1].getBuffer();
+                ByteBuffer vBuffer = image.getPlanes()[2].getBuffer();
                 int ySize = yBuffer.remaining();
-                int vuSize = vuBuffer.remaining();
+                int uSize = uBuffer.remaining();
+                int vSize = vBuffer.remaining();
+                int totalSize = ySize + uSize + vSize;
 
-                if (byteArrayCache == null || byteArrayCache.length != ySize + vuSize) {
-                    byteArrayCache = new byte[ySize + vuSize];
+                if (byteArrayCache == null) {
+                    byteArrayCache = ByteBuffer.allocate(totalSize);
                 }
 
-                yBuffer.get(byteArrayCache, 0, ySize);
-                vuBuffer.get(byteArrayCache, ySize, vuSize);
+                byteArrayCache.rewind();
+                byteArrayCache.put(yBuffer).put(uBuffer).put(vBuffer);
 
                 return byteArrayCache;
             case ImageFormat.JPEG:
-                ByteBuffer rgbBuffer = image.getPlanes()[0].getBuffer();
-                int size = rgbBuffer.remaining();
-
-                if (byteArrayCache == null || byteArrayCache.length != size) {
-                    byteArrayCache = new byte[size];
-                }
-                rgbBuffer.get(byteArrayCache);
-
-                return byteArrayCache;
+                return image.getPlanes()[0].getBuffer();
             default:
                 throw new RuntimeException("Cannot convert Frame with Format " + image.getFormat() + " to byte array!");
         }

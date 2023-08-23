@@ -98,28 +98,29 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
                                               const jsi::Value& thisArg,
                                               const jsi::Value* args,
                                               size_t count) -> jsi::Value {
-      auto buffer = this->frame->toByteArray();
-      auto arraySize = buffer->size();
+      auto buffer = this->frame->toByteBuffer();
+      if (!buffer->isDirect()) {
+        throw std::runtime_error("Failed to get byte content of Frame - array is not direct ByteBuffer!");
+      }
+      auto size = buffer->getDirectSize();
 
       static constexpr auto ARRAYBUFFER_CACHE_PROP_NAME = "__frameArrayBufferCache";
       if (!runtime.global().hasProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME)) {
-        vision::TypedArray<vision::TypedArrayKind::Uint8ClampedArray> arrayBuffer(runtime, arraySize);
+        vision::TypedArray<vision::TypedArrayKind::Uint8ClampedArray> arrayBuffer(runtime, size);
         runtime.global().setProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME, arrayBuffer);
       }
 
       // Get from global JS cache
       auto arrayBufferCache = runtime.global().getPropertyAsObject(runtime, ARRAYBUFFER_CACHE_PROP_NAME);
       auto arrayBuffer = vision::getTypedArray(runtime, arrayBufferCache).get<vision::TypedArrayKind::Uint8ClampedArray>(runtime);
-      if (arrayBuffer.size(runtime) != arraySize) {
-        arrayBuffer = vision::TypedArray<vision::TypedArrayKind::Uint8ClampedArray>(runtime, arraySize);
+      if (arrayBuffer.size(runtime) != size) {
+        arrayBuffer = vision::TypedArray<vision::TypedArrayKind::Uint8ClampedArray>(runtime, size);
         runtime.global().setProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME, arrayBuffer);
       }
 
       // directly write to C++ JSI ArrayBuffer
       auto destinationBuffer = arrayBuffer.data(runtime);
-      buffer->getRegion(0,
-                        static_cast<jint>(arraySize),
-                        reinterpret_cast<jbyte*>(destinationBuffer));
+      memcpy(destinationBuffer, buffer->getDirectAddress(), sizeof(uint8_t) * size);
 
       return arrayBuffer;
     };
