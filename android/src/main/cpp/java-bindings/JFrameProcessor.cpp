@@ -51,8 +51,8 @@ void JFrameProcessor::callWithFrameHostObject(const std::shared_ptr<FrameHostObj
     const std::string& message = jsError.getMessage();
 
     _workletContext->invokeOnJsThread([message](jsi::Runtime& jsRuntime) {
-    auto logFn = jsRuntime.global().getPropertyAsObject(jsRuntime, "console").getPropertyAsFunction(jsRuntime, "error");
-    logFn.call(jsRuntime, jsi::String::createFromUtf8(jsRuntime, "Frame Processor threw an error: " + message));
+      auto logFn = jsRuntime.global().getPropertyAsObject(jsRuntime, "console").getPropertyAsFunction(jsRuntime, "error");
+      logFn.call(jsRuntime, jsi::String::createFromUtf8(jsRuntime, "Frame Processor threw an error: " + message));
     });
   }
 }
