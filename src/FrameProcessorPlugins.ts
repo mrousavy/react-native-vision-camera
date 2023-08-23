@@ -1,8 +1,10 @@
 import type { Frame, FrameInternal } from './Frame';
 import type { FrameProcessor } from './CameraProps';
 import { Camera } from './Camera';
-import { Worklets } from 'react-native-worklets-core';
 import { CameraRuntimeError } from './CameraError';
+
+// only import typescript types
+import type TWorklets from 'react-native-worklets-core';
 
 type BasicParameterType = string | number | boolean | undefined;
 type ParameterType = BasicParameterType | BasicParameterType[] | Record<string, BasicParameterType | undefined>;
@@ -28,17 +30,48 @@ interface TVisionCameraProxy {
   isSkiaEnabled: boolean;
 }
 
-Camera.installFrameProcessorBindings();
+let isAsyncContextBusy = { value: false };
+let runOnAsyncContext = (_frame: Frame, _func: () => void): void => {
+  throw new CameraRuntimeError(
+    'system/frame-processors-unavailable',
+    'Frame Processors are not available, react-native-worklets-core is not installed!',
+  );
+};
+
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { Worklets } = require('react-native-worklets-core') as typeof TWorklets;
+
+  // Install native Frame Processor Runtime Manager
+  Camera.installFrameProcessorBindings();
+  // @ts-expect-error global is untyped, it's a C++ host-object
+  if (global.VisionCameraProxy == null) {
+    throw new CameraRuntimeError(
+      'system/frame-processors-unavailable',
+      'Failed to install VisionCameraProxy. Are Frame Processors properly enabled?',
+    );
+  }
+
+  isAsyncContextBusy = Worklets.createSharedValue(false);
+  const asyncContext = Worklets.createContext('VisionCamera.async');
+  runOnAsyncContext = Worklets.createRunInContextFn((frame: Frame, func: () => void) => {
+    'worklet';
+    try {
+      // Call long-running function
+      func();
+    } finally {
+      // Potentially delete Frame if we were the last ref
+      (frame as FrameInternal).decrementRefCount();
+
+      isAsyncContextBusy.value = false;
+    }
+  }, asyncContext);
+} catch (e) {
+  // Worklets are not installed, so Frame Processors are disabled.
+}
 
 // @ts-expect-error global is untyped, it's a C++ host-object
 export const VisionCameraProxy = global.VisionCameraProxy as TVisionCameraProxy;
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-if (VisionCameraProxy == null) {
-  throw new CameraRuntimeError(
-    'system/frame-processors-unavailable',
-    'Failed to install VisionCameraProxy. Are Frame Processors properly enabled?',
-  );
-}
 
 declare global {
   // eslint-disable-next-line no-var
@@ -95,21 +128,6 @@ export function runAtTargetFps<T>(fps: number, func: () => T): T | undefined {
   }
   return undefined;
 }
-
-const isAsyncContextBusy = Worklets.createSharedValue(false);
-const asyncContext = Worklets.createContext('VisionCamera.async');
-const runOnAsyncContext = Worklets.createRunInContextFn((frame: Frame, func: () => void) => {
-  'worklet';
-  try {
-    // Call long-running function
-    func();
-  } finally {
-    // Potentially delete Frame if we were the last ref
-    (frame as FrameInternal).decrementRefCount();
-
-    isAsyncContextBusy.value = false;
-  }
-}, asyncContext);
 
 /**
  * Runs the given function asynchronously, while keeping a strong reference to the Frame.

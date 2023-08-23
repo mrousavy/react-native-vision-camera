@@ -4,6 +4,8 @@
 
 #pragma once
 
+#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+
 #include <string>
 #include <memory>
 #include <jni.h>
@@ -47,3 +49,5 @@ struct JFrameProcessor : public jni::HybridClass<JFrameProcessor> {
 };
 
 } // namespace vision
+
+#endif

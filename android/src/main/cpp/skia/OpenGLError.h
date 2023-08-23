@@ -4,6 +4,8 @@
 
 #pragma once
 
+#if VISION_CAMERA_ENABLE_SKIA
+
 #include <string>
 #include <stdexcept>
 #include <GLES2/gl2.h>
@@ -24,3 +26,5 @@ class OpenGLError: public std::runtime_error {
 };
 
 } // namespace vision
+
+#endif

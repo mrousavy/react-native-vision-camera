@@ -4,6 +4,8 @@
 
 #pragma once
 
+#if VISION_CAMERA_ENABLE_SKIA
+
 #include <jni.h>
 #include <fbjni/fbjni.h>
 #include <fbjni/ByteBuffer.h>
@@ -75,3 +77,5 @@ class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
 };
 
 } // namespace vision
+
+#endif

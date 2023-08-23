@@ -1,8 +1,6 @@
 import { DependencyList, useMemo } from 'react';
 import type { DrawableFrame, Frame, FrameInternal } from '../Frame';
 import { FrameProcessor } from '../CameraProps';
-// Install RN Worklets by importing it
-import 'react-native-worklets-core';
 
 export function createFrameProcessor(frameProcessor: FrameProcessor['frameProcessor'], type: FrameProcessor['type']): FrameProcessor {
   return {

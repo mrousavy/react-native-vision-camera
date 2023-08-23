@@ -2,8 +2,9 @@
 // Created by Marc Rousavy on 29.09.21.
 //
 
-#include "JFrameProcessor.h"
+#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
 
+#include "JFrameProcessor.h"
 #include <jni.h>
 #include <fbjni/fbjni.h>
 
@@ -50,8 +51,8 @@ void JFrameProcessor::callWithFrameHostObject(const std::shared_ptr<FrameHostObj
     const std::string& message = jsError.getMessage();
 
     _workletContext->invokeOnJsThread([message](jsi::Runtime& jsRuntime) {
-    auto logFn = jsRuntime.global().getPropertyAsObject(jsRuntime, "console").getPropertyAsFunction(jsRuntime, "error");
-    logFn.call(jsRuntime, jsi::String::createFromUtf8(jsRuntime, "Frame Processor threw an error: " + message));
+      auto logFn = jsRuntime.global().getPropertyAsObject(jsRuntime, "console").getPropertyAsFunction(jsRuntime, "error");
+      logFn.call(jsRuntime, jsi::String::createFromUtf8(jsRuntime, "Frame Processor threw an error: " + message));
     });
   }
 }
@@ -63,3 +64,5 @@ void JFrameProcessor::call(jni::alias_ref<JFrame::javaobject> frame) {
 }
 
 } // namespace vision
+
+#endif

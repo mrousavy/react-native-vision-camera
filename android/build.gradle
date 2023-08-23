@@ -65,6 +65,12 @@ static def findNodeModules(baseDir) {
 
 def nodeModules = findNodeModules(projectDir)
 
+def hasWorklets = !safeExtGet("VisionCamera_disableFrameProcessors", false) && findProject(":react-native-worklets-core") != null
+def hasSkia = !safeExtGet("VisionCamera_disableSkia", false) && findProject(":shopify_react-native-skia") != null
+
+logger.warn("[VisionCamera] react-native-worklets-core ${hasWorklets ? "found" : "not found"}, Frame Processors ${hasWorklets ? "enabled" : "disabled"}!")
+logger.warn("[VisionCamera] react-native-skia ${hasSkia ? "found" : "not found"}, Skia Frame Processors ${hasSkia ? "enabled" : "disabled"}!")
+
 repositories {
   google()
   mavenCentral()
@@ -98,7 +104,9 @@ android {
       cmake {
         cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all"
         arguments "-DANDROID_STL=c++_shared",
-                "-DNODE_MODULES_DIR=${nodeModules}"
+                "-DNODE_MODULES_DIR=${nodeModules}",
+                "-DENABLE_FRAME_PROCESSORS=${hasWorklets}",
+                "-DENABLE_SKIA=${hasWorklets && hasSkia}"
         abiFilters (*reactNativeArchitectures())
       }
     }
@@ -141,11 +149,15 @@ dependencies {
   implementation 'com.facebook.react:react-android:+'
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2"
 
-  // Frame Processor integration (optional)
-  implementation project(":react-native-worklets-core")
+  if (hasWorklets) {
+    // Frame Processor integration (optional)
+    implementation project(":react-native-worklets-core")
 
-  // Skia Frame Processor integration (optional)
-  implementation project(":shopify_react-native-skia")
+    if (hasSkia) {
+      // Skia Frame Processor integration (optional)
+      implementation project(":shopify_react-native-skia")
+    }
+  }
 }
 
 // Resolves "LOCAL_SRC_FILES points to a missing file, Check that libfb.so exists or that its path is correct".

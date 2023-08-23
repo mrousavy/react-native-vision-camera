@@ -11,10 +11,13 @@
 #include <jsi/jsi.h>
 #include <react/jni/ReadableNativeMap.h>
 
+#include "FrameProcessorPluginHostObject.h"
+#include "JSITypedArray.h"
+
+#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
 #include <react-native-worklets-core/WKTJsiWorklet.h>
 #include <react-native-worklets-core/WKTJsiWorkletContext.h>
-
-#include "FrameProcessorPluginHostObject.h"
+#endif
 
 namespace vision {
 
@@ -28,7 +31,9 @@ JVisionCameraProxy::JVisionCameraProxy(const jni::alias_ref<JVisionCameraProxy::
                                        const std::shared_ptr<facebook::react::CallInvoker>& callInvoker,
                                        const jni::global_ref<JVisionCameraScheduler::javaobject>& scheduler) {
   _javaPart = make_global(javaThis);
+  _runtime = runtime;
 
+#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
   __android_log_write(ANDROID_LOG_INFO, TAG, "Creating Worklet Context...");
 
   auto runOnJS = [callInvoker](std::function<void()>&& f) {
@@ -46,14 +51,53 @@ JVisionCameraProxy::JVisionCameraProxy(const jni::alias_ref<JVisionCameraProxy::
                                                                    runOnJS,
                                                                    runOnWorklet);
   __android_log_write(ANDROID_LOG_INFO, TAG, "Worklet Context created!");
+#else
+  __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processors are disabled!");
+#endif
+
+#ifdef VISION_CAMERA_ENABLE_SKIA
+  __android_log_write(ANDROID_LOG_INFO, TAG, "Skia is enabled!");
+#else
+  __android_log_write(ANDROID_LOG_INFO, TAG, "Skia is disabled!");
+#endif
+}
+
+JVisionCameraProxy::~JVisionCameraProxy() {
+#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+  __android_log_write(ANDROID_LOG_INFO, TAG, "Destroying Context...");
+  // Destroy ArrayBuffer cache for both the JS and the Worklet Runtime.
+  invalidateArrayBufferCache(*_workletContext->getJsRuntime());
+  invalidateArrayBufferCache(_workletContext->getWorkletRuntime());
+#endif
 }
 
 
 
 void JVisionCameraProxy::setFrameProcessor(int viewTag,
-                                           const alias_ref<JFrameProcessor::javaobject>& frameProcessor) {
+                                           jsi::Runtime& runtime,
+                                           const jsi::Object& frameProcessorObject) {
+#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+  auto frameProcessorType = frameProcessorObject.getProperty(runtime, "type").asString(runtime).utf8(runtime);
+  auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, frameProcessorObject.getProperty(runtime, "frameProcessor"));
+
+  jni::local_ref<JFrameProcessor::javaobject> frameProcessor;
+  if (frameProcessorType == "frame-processor") {
+    frameProcessor = JFrameProcessor::create(worklet, _workletContext);
+  } else if (frameProcessorType == "skia-frame-processor") {
+#if VISION_CAMERA_ENABLE_SKIA
+    throw std::runtime_error("system/skia-unavailable: Skia is not yet implemented on Android!");
+#else
+    throw std::runtime_error("system/skia-unavailable: Skia is not installed!");
+#endif
+  } else {
+    throw std::runtime_error("Unknown FrameProcessor.type passed! Received: " + frameProcessorType);
+  }
+
   auto setFrameProcessorMethod = javaClassLocal()->getMethod<void(int, alias_ref<JFrameProcessor::javaobject>)>("setFrameProcessor");
   setFrameProcessorMethod(_javaPart, viewTag, frameProcessor);
+#else
+  throw std::runtime_error("system/frame-processors-unavailable: Frame Processors are disabled!");
+#endif
 }
 
 void JVisionCameraProxy::removeFrameProcessor(int viewTag) {

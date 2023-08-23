@@ -34,8 +34,10 @@ private fun getMaximumVideoSize(cameraId: String): Size? {
   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
     val profiles = CamcorderProfile.getAll(cameraId, CamcorderProfile.QUALITY_HIGH)
     if (profiles != null) {
-      val largestProfile = profiles.videoProfiles.maxBy { it.width * it.height }
-      return Size(largestProfile.width, largestProfile.height)
+      val largestProfile = profiles.videoProfiles.filterNotNull().maxByOrNull { it.width * it.height }
+      if (largestProfile != null) {
+        return Size(largestProfile.width, largestProfile.height)
+      }
     }
   }
 

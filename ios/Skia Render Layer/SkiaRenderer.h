@@ -20,7 +20,7 @@ typedef void(^draw_callback_t)(SkiaCanvas _Nonnull);
  It provides two Contexts, one offscreen and one onscreen.
  - Offscreen Context: Allows you to render a Frame into a Skia Canvas and draw onto it using Skia commands
  - Onscreen Context: Allows you to render a Frame from the offscreen context onto a Layer allowing it to be displayed for Preview.
- 
+
  The two contexts may run at different Frame Rates.
  */
 @interface SkiaRenderer : NSObject

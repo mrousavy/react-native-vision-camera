@@ -6,8 +6,8 @@
 
 #include <fbjni/fbjni.h>
 #include <jsi/jsi.h>
-#include <react-native-worklets-core/WKTJsiWorkletContext.h>
 #include <react/jni/ReadableNativeMap.h>
+#include <ReactCommon/CallInvokerHolder.h>
 
 #include "JFrameProcessorPlugin.h"
 #include "JVisionCameraScheduler.h"
@@ -16,29 +16,36 @@
 #include <string>
 #include <memory>
 
+#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+#include <react-native-worklets-core/WKTJsiWorkletContext.h>
+#endif
+
 namespace vision {
 
 using namespace facebook;
 
 class JVisionCameraProxy : public jni::HybridClass<JVisionCameraProxy> {
  public:
+  ~JVisionCameraProxy();
   static void registerNatives();
 
   void setFrameProcessor(int viewTag,
-                         const jni::alias_ref<JFrameProcessor::javaobject>& frameProcessor);
+                         jsi::Runtime& runtime,
+                         const jsi::Object& frameProcessor);
   void removeFrameProcessor(int viewTag);
   jni::local_ref<JFrameProcessorPlugin::javaobject> getFrameProcessorPlugin(const std::string& name,
                                                                             jni::local_ref<react::ReadableNativeMap::javaobject> options);
 
- public:
-  std::shared_ptr<RNWorklet::JsiWorkletContext> getWorkletContext() { return _workletContext; }
-
- private:
-  std::shared_ptr<RNWorklet::JsiWorkletContext> _workletContext;
+  jsi::Runtime* getJSRuntime() { return _runtime; }
 
  private:
   friend HybridBase;
   jni::global_ref<JVisionCameraProxy::javaobject> _javaPart;
+  jsi::Runtime* _runtime;
+#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+  std::shared_ptr<RNWorklet::JsiWorkletContext> _workletContext;
+#endif
+
   static auto constexpr TAG = "VisionCameraProxy";
   static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/VisionCameraProxy;";
 
