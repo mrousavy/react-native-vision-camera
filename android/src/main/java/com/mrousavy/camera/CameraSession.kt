@@ -139,6 +139,7 @@ class CameraSession(private val context: Context,
     this.hdr = hdr
     this.lowLightBoost = lowLightBoost
 
+    var needsReconfiguration = false
     val currentOutputs = outputs
     if (currentOutputs != null && currentOutputs.enableHdr != hdr) {
       // Update existing HDR for Outputs
@@ -149,9 +150,11 @@ class CameraSession(private val context: Context,
         currentOutputs.video,
         hdr,
         this)
+      needsReconfiguration = true
     }
     launch {
-      startRunning()
+      if (needsReconfiguration) startRunning()
+      else updateRepeatingRequest()
     }
   }
 
@@ -274,7 +277,7 @@ class CameraSession(private val context: Context,
   suspend fun setTorchMode(enableTorch: Boolean) {
     if (this.enableTorch != enableTorch) {
       this.enableTorch = enableTorch
-      startRunning()
+      updateRepeatingRequest()
     }
   }
 
@@ -282,7 +285,7 @@ class CameraSession(private val context: Context,
     if (this.zoom != zoom) {
       this.zoom = zoom
       launch {
-        startRunning()
+        updateRepeatingRequest()
       }
     }
   }
@@ -354,6 +357,8 @@ class CameraSession(private val context: Context,
     // Cache session in memory
     captureSession = session
     lastOutputsHashCode = outputs.hashCode()
+    // New session initialized
+    onInitialized()
     return session
   }
 
@@ -429,12 +434,7 @@ class CameraSession(private val context: Context,
 
     try {
       mutex.withLock {
-        val fps = fps
-        val videoStabilizationMode = videoStabilizationMode
-        val lowLightBoost = lowLightBoost
-        val hdr = hdr
         val outputs = outputs
-
         if (outputs == null || outputs.size == 0) {
           Log.i(TAG, "CameraSession doesn't have any Outputs, canceling..")
           destroy()
@@ -452,22 +452,39 @@ class CameraSession(private val context: Context,
           isRunning = false
         }
 
-        // 4. Create repeating request (configures FPS, HDR, etc.)
-        val repeatingRequest = getPreviewCaptureRequest(session, outputs, fps, videoStabilizationMode, lowLightBoost, hdr)
-
-        // 5. Start repeating request
-        session.setRepeatingRequest(repeatingRequest, null, null)
-
-        Log.i(TAG, "Camera Session started!")
+        Log.i(TAG, "Camera Session initialized! Starting repeating request..")
         isRunning = true
         this.captureSession = session
-        this.outputs = outputs
         this.cameraDevice = camera
-
-        onInitialized()
       }
+
+      updateRepeatingRequest()
     } catch (e: IllegalStateException) {
       Log.e(TAG, "Failed to start Camera Session, this session is already closed.", e)
+    }
+  }
+
+  private suspend fun updateRepeatingRequest() {
+    mutex.withLock {
+      val session = captureSession
+      if (session == null) {
+        // Not yet ready. Start session first, then it will update repeating request.
+        startRunning()
+        return
+      }
+
+      val fps = fps
+      val videoStabilizationMode = videoStabilizationMode
+      val lowLightBoost = lowLightBoost
+      val hdr = hdr
+      val outputs = outputs
+      if (outputs == null || outputs.size == 0) {
+        Log.i(TAG, "CameraSession doesn't have any Outputs, canceling..")
+        return
+      }
+
+      val repeatingRequest = getPreviewCaptureRequest(session, outputs, fps, videoStabilizationMode, lowLightBoost, hdr)
+      session.setRepeatingRequest(repeatingRequest, null, null)
     }
   }
 
