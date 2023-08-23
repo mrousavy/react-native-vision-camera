@@ -18,6 +18,49 @@ find_library(LOG_LIB log)
 
 add_definitions(-DVISION_CAMERA_ENABLE_FRAME_PROCESSORS=${ENABLE_FRAME_PROCESSORS} -DVISION_CAMERA_ENABLE_SKIA=${ENABLE_SKIA})
 
+
+# Add react-native-vision-camera sources
+add_library(
+        ${PACKAGE_NAME}
+        SHARED
+        ../cpp/JSITypedArray.cpp
+        src/main/cpp/FrameHostObject.cpp
+        src/main/cpp/FrameProcessorPluginHostObject.cpp
+        src/main/cpp/JSIJNIConversion.cpp
+        src/main/cpp/VisionCamera.cpp
+        src/main/cpp/VisionCameraProxy.cpp
+        src/main/cpp/skia/SkiaRenderer.cpp
+        src/main/cpp/java-bindings/JFrame.cpp
+        src/main/cpp/java-bindings/JFrameProcessor.cpp
+        src/main/cpp/java-bindings/JFrameProcessorPlugin.cpp
+        src/main/cpp/java-bindings/JHashMap.cpp
+        src/main/cpp/java-bindings/JVisionCameraProxy.cpp
+        src/main/cpp/java-bindings/JVisionCameraScheduler.cpp
+)
+
+# Header Search Paths (includes)
+target_include_directories(
+        ${PACKAGE_NAME}
+        PRIVATE
+        "../cpp"
+        "src/main/cpp"
+        "${NODE_MODULES_DIR}/react-native/ReactCommon"
+        "${NODE_MODULES_DIR}/react-native/ReactCommon/callinvoker"
+        "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni/react/turbomodule" # <-- CallInvokerHolder JNI wrapper
+)
+
+# Link everything together
+target_link_libraries(
+        ${PACKAGE_NAME}
+        ${LOG_LIB}                          # <-- Logcat logger
+        android                             # <-- Android JNI core
+        ReactAndroid::jsi                   # <-- RN: JSI
+        ReactAndroid::reactnativejni        # <-- RN: React Native JNI bindings
+        ReactAndroid::folly_runtime         # <-- RN: For casting JSI <> Java objects
+        fbjni::fbjni                        # <-- fbjni
+)
+
+# Optionally also add Frame Processors here
 if(ENABLE_FRAME_PROCESSORS)
     find_package(react-native-worklets-core REQUIRED CONFIG)
     target_link_libraries(
@@ -26,6 +69,7 @@ if(ENABLE_FRAME_PROCESSORS)
     )
     message("VisionCamera: Frame Processors enabled!")
 
+    # Optionally also add Skia Integration here
     if(ENABLE_SKIA)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSK_GL -DSK_GANESH -DSK_BUILD_FOR_ANDROID")
 
@@ -76,46 +120,3 @@ if(ENABLE_FRAME_PROCESSORS)
         message("VisionCamera: Skia enabled!")
     endif()
 endif()
-
-
-
-# Add react-native-vision-camera sources
-add_library(
-        ${PACKAGE_NAME}
-        SHARED
-        ../cpp/JSITypedArray.cpp
-        src/main/cpp/FrameHostObject.cpp
-        src/main/cpp/FrameProcessorPluginHostObject.cpp
-        src/main/cpp/JSIJNIConversion.cpp
-        src/main/cpp/VisionCamera.cpp
-        src/main/cpp/VisionCameraProxy.cpp
-        src/main/cpp/skia/SkiaRenderer.cpp
-        src/main/cpp/java-bindings/JFrame.cpp
-        src/main/cpp/java-bindings/JFrameProcessor.cpp
-        src/main/cpp/java-bindings/JFrameProcessorPlugin.cpp
-        src/main/cpp/java-bindings/JHashMap.cpp
-        src/main/cpp/java-bindings/JVisionCameraProxy.cpp
-        src/main/cpp/java-bindings/JVisionCameraScheduler.cpp
-)
-
-# Header Search Paths (includes)
-target_include_directories(
-        ${PACKAGE_NAME}
-        PRIVATE
-        "../cpp"
-        "src/main/cpp"
-        "${NODE_MODULES_DIR}/react-native/ReactCommon"
-        "${NODE_MODULES_DIR}/react-native/ReactCommon/callinvoker"
-        "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni/react/turbomodule" # <-- CallInvokerHolder JNI wrapper
-)
-
-# Link everything together
-target_link_libraries(
-        ${PACKAGE_NAME}
-        ${LOG_LIB}                          # <-- Logcat logger
-        android                             # <-- Android JNI core
-        ReactAndroid::jsi                   # <-- RN: JSI
-        ReactAndroid::reactnativejni        # <-- RN: React Native JNI bindings
-        ReactAndroid::folly_runtime         # <-- RN: For casting JSI <> Java objects
-        fbjni::fbjni                        # <-- fbjni
-)
