@@ -2,7 +2,7 @@
 // Created by Marc Rousavy on 29.09.21.
 //
 
-#ifdef VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
 
 #include "JFrameProcessor.h"
 #include <jni.h>

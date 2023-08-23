@@ -4,7 +4,7 @@
 
 #pragma once
 
-#ifdef VISION_CAMERA_ENABLE_SKIA
+#if VISION_CAMERA_ENABLE_SKIA
 
 #include <jni.h>
 #include <fbjni/fbjni.h>
