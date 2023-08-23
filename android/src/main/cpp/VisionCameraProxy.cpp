@@ -19,6 +19,10 @@
 #include <string>
 #include <memory>
 
+#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+#include <react-native-worklets-core/WKTJsiWorkletContext.h>
+#endif
+
 namespace vision {
 
 using namespace facebook;
@@ -28,11 +32,6 @@ VisionCameraProxy::VisionCameraProxy(const jni::alias_ref<JVisionCameraProxy::ja
 }
 
 VisionCameraProxy::~VisionCameraProxy() {
-  __android_log_write(ANDROID_LOG_INFO, TAG, "Destroying Context...");
-  // Destroy ArrayBuffer cache for both the JS and the Worklet Runtime.
-  auto workletContext = _javaProxy->cthis()->getWorkletContext();
-  invalidateArrayBufferCache(*workletContext->getJsRuntime());
-  invalidateArrayBufferCache(workletContext->getWorkletRuntime());
 }
 
 std::vector<jsi::PropNameID> VisionCameraProxy::getPropertyNames(jsi::Runtime& runtime) {
@@ -45,24 +44,7 @@ std::vector<jsi::PropNameID> VisionCameraProxy::getPropertyNames(jsi::Runtime& r
 }
 
 void VisionCameraProxy::setFrameProcessor(int viewTag, jsi::Runtime& runtime, const jsi::Object& object) {
-  auto frameProcessorType = object.getProperty(runtime, "type").asString(runtime).utf8(runtime);
-  auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, object.getProperty(runtime, "frameProcessor"));
-  auto workletContext = _javaProxy->cthis()->getWorkletContext();
-
-  jni::local_ref<JFrameProcessor::javaobject> frameProcessor;
-  if (frameProcessorType == "frame-processor") {
-    frameProcessor = JFrameProcessor::create(worklet, workletContext);
-  } else if (frameProcessorType == "skia-frame-processor") {
-#if VISION_CAMERA_ENABLE_SKIA
-    throw std::runtime_error("system/skia-unavailable: Skia is not yet implemented on Android!");
-#else
-    throw std::runtime_error("system/skia-unavailable: Skia is not installed!");
-#endif
-  } else {
-    throw std::runtime_error("Unknown FrameProcessor.type passed! Received: " + frameProcessorType);
-  }
-
-  _javaProxy->cthis()->setFrameProcessor(viewTag, make_global(frameProcessor));
+  _javaProxy->cthis()->setFrameProcessor(viewTag, runtime, object);
 }
 
 void VisionCameraProxy::removeFrameProcessor(int viewTag) {
@@ -143,7 +125,7 @@ void VisionCameraInstaller::install(jni::alias_ref<jni::JClass>,
                                     jni::alias_ref<JVisionCameraProxy::javaobject> proxy) {
   // global.VisionCameraProxy
   auto visionCameraProxy = std::make_shared<VisionCameraProxy>(proxy);
-  jsi::Runtime& runtime = *proxy->cthis()->getWorkletContext()->getJsRuntime();
+  jsi::Runtime& runtime = *proxy->cthis()->getJSRuntime();
   runtime.global().setProperty(runtime,
                                "VisionCameraProxy",
                                jsi::Object::createFromHostObject(runtime, visionCameraProxy));

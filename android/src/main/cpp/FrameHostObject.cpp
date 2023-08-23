@@ -8,7 +8,6 @@
 #include <fbjni/fbjni.h>
 #include <jni.h>
 
-#include <react-native-worklets-core/WKTJsiHostObject.h>
 #include "JSITypedArray.h"
 
 #include <vector>
@@ -52,7 +51,10 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   auto name = propName.utf8(runtime);
 
   if (name == "toString") {
-    auto toString = JSI_HOST_FUNCTION_LAMBDA {
+    jsi::HostFunctionType toString = [=](jsi::Runtime& runtime,
+                                         const jsi::Value& thisArg,
+                                         const jsi::Value* args,
+                                         size_t count) -> jsi::Value {
       if (!this->frame) {
         return jsi::String::createFromUtf8(runtime, "[closed frame]");
       }
@@ -64,7 +66,10 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
   }
   if (name == "toArrayBuffer") {
-    auto toArrayBuffer = JSI_HOST_FUNCTION_LAMBDA {
+    jsi::HostFunctionType toArrayBuffer = [=](jsi::Runtime& runtime,
+                                              const jsi::Value& thisArg,
+                                              const jsi::Value* args,
+                                              size_t count) -> jsi::Value {
       auto buffer = this->frame->toByteArray();
       auto arraySize = buffer->size();
 
@@ -93,7 +98,10 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toArrayBuffer"), 0, toArrayBuffer);
   }
   if (name == "incrementRefCount") {
-    auto incrementRefCount = JSI_HOST_FUNCTION_LAMBDA {
+    jsi::HostFunctionType incrementRefCount = [=](jsi::Runtime& runtime,
+                                                  const jsi::Value& thisArg,
+                                                  const jsi::Value* args,
+                                                  size_t count) -> jsi::Value {
       // Increment retain count by one.
       this->frame->incrementRefCount();
       return jsi::Value::undefined();
@@ -105,7 +113,10 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
 
   if (name == "decrementRefCount") {
-    auto decrementRefCount = JSI_HOST_FUNCTION_LAMBDA {
+    auto decrementRefCount = [=](jsi::Runtime& runtime,
+                                 const jsi::Value& thisArg,
+                                 const jsi::Value* args,
+                                 size_t count) -> jsi::Value {
       // Decrement retain count by one. If the retain count is zero, the Frame gets closed.
       this->frame->decrementRefCount();
       return jsi::Value::undefined();
