@@ -37,15 +37,15 @@ class JVisionCameraProxy : public jni::HybridClass<JVisionCameraProxy> {
                                                                             jni::local_ref<react::ReadableNativeMap::javaobject> options);
 
   jsi::Runtime* getJSRuntime() { return _runtime; }
-#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
- private:
-  std::shared_ptr<RNWorklet::JsiWorkletContext> _workletContext;
-#endif
 
  private:
   friend HybridBase;
   jni::global_ref<JVisionCameraProxy::javaobject> _javaPart;
   jsi::Runtime* _runtime;
+#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+  std::shared_ptr<RNWorklet::JsiWorkletContext> _workletContext;
+#endif
+
   static auto constexpr TAG = "VisionCameraProxy";
   static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/VisionCameraProxy;";
 
