@@ -18,7 +18,6 @@
 #include <react-native-worklets-core/WKTJsiWorkletContext.h>
 #endif
 
-
 namespace vision {
 
 using TSelf = local_ref<HybridClass<JVisionCameraProxy>::jhybriddata>;
@@ -51,6 +50,14 @@ JVisionCameraProxy::JVisionCameraProxy(const jni::alias_ref<JVisionCameraProxy::
                                                                    runOnJS,
                                                                    runOnWorklet);
   __android_log_write(ANDROID_LOG_INFO, TAG, "Worklet Context created!");
+#else
+  __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processors are disabled!");
+#endif
+
+#ifdef VISION_CAMERA_ENABLE_SKIA
+  __android_log_write(ANDROID_LOG_INFO, TAG, "Skia is enabled!");
+#else
+  __android_log_write(ANDROID_LOG_INFO, TAG, "Skia is disabled!");
 #endif
 }
 
