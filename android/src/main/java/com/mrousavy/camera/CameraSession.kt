@@ -1,6 +1,7 @@
 package com.mrousavy.camera
 
 import android.content.Context
+import android.graphics.Point
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
@@ -16,6 +17,7 @@ import com.mrousavy.camera.extensions.SessionType
 import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.createPhotoCaptureRequest
+import com.mrousavy.camera.extensions.focus
 import com.mrousavy.camera.extensions.openCamera
 import com.mrousavy.camera.extensions.tryClose
 import com.mrousavy.camera.extensions.zoomed
@@ -288,6 +290,16 @@ class CameraSession(private val context: Context,
         updateRepeatingRequest()
       }
     }
+  }
+
+  suspend fun focus(x: Int, y: Int) {
+    val captureSession = captureSession ?: throw CameraNotReadyError()
+    val characteristics = cameraManager.getCameraCharacteristics(captureSession.device.id)
+    val sensorSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)!!
+    val point = Point(x * sensorSize.width(), y * sensorSize.height())
+
+    Log.i(TAG, "Focusing ($x, $y)...")
+    captureSession.focus(point, characteristics)
   }
 
   override fun onCameraAvailable(cameraId: String) {
