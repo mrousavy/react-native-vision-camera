@@ -50,6 +50,34 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
 jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {
   auto name = propName.utf8(runtime);
 
+  if (name == "incrementRefCount") {
+    jsi::HostFunctionType incrementRefCount = [=](jsi::Runtime& runtime,
+                                                  const jsi::Value& thisArg,
+                                                  const jsi::Value* args,
+                                                  size_t count) -> jsi::Value {
+      // Increment retain count by one.
+      this->frame->incrementRefCount();
+      return jsi::Value::undefined();
+    };
+    return jsi::Function::createFromHostFunction(runtime,
+                                                 jsi::PropNameID::forUtf8(runtime, "incrementRefCount"),
+                                                 0,
+                                                 incrementRefCount);
+  }
+  if (name == "decrementRefCount") {
+    auto decrementRefCount = [=](jsi::Runtime& runtime,
+                                 const jsi::Value& thisArg,
+                                 const jsi::Value* args,
+                                 size_t count) -> jsi::Value {
+      // Decrement retain count by one. If the retain count is zero, the Frame gets closed.
+      this->frame->decrementRefCount();
+      return jsi::Value::undefined();
+    };
+    return jsi::Function::createFromHostFunction(runtime,
+                                                 jsi::PropNameID::forUtf8(runtime, "decrementRefCount"),
+                                                 0,
+                                                 decrementRefCount);
+  }
   if (name == "toString") {
     jsi::HostFunctionType toString = [=](jsi::Runtime& runtime,
                                          const jsi::Value& thisArg,
@@ -96,35 +124,6 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       return arrayBuffer;
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toArrayBuffer"), 0, toArrayBuffer);
-  }
-  if (name == "incrementRefCount") {
-    jsi::HostFunctionType incrementRefCount = [=](jsi::Runtime& runtime,
-                                                  const jsi::Value& thisArg,
-                                                  const jsi::Value* args,
-                                                  size_t count) -> jsi::Value {
-      // Increment retain count by one.
-      this->frame->incrementRefCount();
-      return jsi::Value::undefined();
-    };
-    return jsi::Function::createFromHostFunction(runtime,
-                                                 jsi::PropNameID::forUtf8(runtime, "incrementRefCount"),
-                                                 0,
-                                                 incrementRefCount);
-  }
-
-  if (name == "decrementRefCount") {
-    auto decrementRefCount = [=](jsi::Runtime& runtime,
-                                 const jsi::Value& thisArg,
-                                 const jsi::Value* args,
-                                 size_t count) -> jsi::Value {
-      // Decrement retain count by one. If the retain count is zero, the Frame gets closed.
-      this->frame->decrementRefCount();
-      return jsi::Value::undefined();
-    };
-    return jsi::Function::createFromHostFunction(runtime,
-                                                 jsi::PropNameID::forUtf8(runtime, "decrementRefCount"),
-                                                 0,
-                                                 decrementRefCount);
   }
 
   if (name == "isValid") {
