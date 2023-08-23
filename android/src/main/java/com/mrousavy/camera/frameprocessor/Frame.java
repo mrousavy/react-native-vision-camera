@@ -105,7 +105,7 @@ public class Frame {
                 int totalSize = ySize + uSize + vSize;
 
                 if (byteArrayCache == null) {
-                    byteArrayCache = ByteBuffer.allocate(totalSize);
+                    byteArrayCache = ByteBuffer.allocateDirect(totalSize);
                 }
 
                 byteArrayCache.rewind();
