@@ -16,6 +16,8 @@ find_package(ReactAndroid REQUIRED CONFIG)
 find_package(fbjni REQUIRED CONFIG)
 find_library(LOG_LIB log)
 
+add_definitions(-DVISION_CAMERA_ENABLE_FRAME_PROCESSORS=${ENABLE_FRAME_PROCESSORS} -DVISION_CAMERA_ENABLE_SKIA=${ENABLE_SKIA})
+
 if(ENABLE_FRAME_PROCESSORS)
     find_package(react-native-worklets-core REQUIRED CONFIG)
     target_link_libraries(
@@ -23,10 +25,9 @@ if(ENABLE_FRAME_PROCESSORS)
             react-native-worklets-core::rnworklets
     )
     message("VisionCamera: Frame Processors enabled!")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVISION_CAMERA_ENABLE_FRAME_PROCESSORS")
 
     if(ENABLE_SKIA)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSK_GL -DSK_GANESH -DSK_BUILD_FOR_ANDROID -DVISION_CAMERA_ENABLE_SKIA")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSK_GL -DSK_GANESH -DSK_BUILD_FOR_ANDROID")
 
         find_package(shopify_react-native-skia REQUIRED CONFIG)
 

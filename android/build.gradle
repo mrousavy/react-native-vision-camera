@@ -105,8 +105,8 @@ android {
         cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all"
         arguments "-DANDROID_STL=c++_shared",
                 "-DNODE_MODULES_DIR=${nodeModules}",
-                "-DVISION_CAMERA_ENABLE_FRAME_PROCESSORS=${hasWorklets}",
-                "-DVISION_CAMERA_ENABLE_SKIA=${hasWorklets && hasSkia}"
+                "-DENABLE_FRAME_PROCESSORS=${hasWorklets}",
+                "-DENABLE_SKIA=${hasWorklets && hasSkia}"
         abiFilters (*reactNativeArchitectures())
       }
     }
