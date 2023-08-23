@@ -8,6 +8,7 @@ import android.content.res.Configuration
 import android.hardware.camera2.CameraManager
 import android.util.Log
 import android.util.Size
+import android.view.ScaleGestureDetector
 import android.view.Surface
 import android.view.View
 import android.widget.FrameLayout
@@ -16,8 +17,8 @@ import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.extensions.containsAny
 import com.mrousavy.camera.extensions.installHierarchyFitter
 import com.mrousavy.camera.frameprocessor.FrameProcessor
-import com.mrousavy.camera.parsers.PixelFormat
 import com.mrousavy.camera.parsers.Orientation
+import com.mrousavy.camera.parsers.PixelFormat
 import com.mrousavy.camera.parsers.PreviewType
 import com.mrousavy.camera.parsers.Torch
 import com.mrousavy.camera.parsers.VideoStabilizationMode
@@ -80,6 +81,7 @@ class CameraView(context: Context) : FrameLayout(context) {
   var torch: Torch = Torch.OFF
   var zoom: Float = 1f // in "factor"
   var orientation: Orientation? = null
+  var enableZoomGesture: Boolean = false
 
   // private properties
   private var isMounted = false
@@ -101,9 +103,6 @@ class CameraView(context: Context) : FrameLayout(context) {
     get() = cameraSession.orientation
   internal val outputOrientation: Orientation
     get() = orientation ?: inputOrientation
-
-  private var minZoom: Float = 1f
-  private var maxZoom: Float = 1f
 
   init {
     this.installHierarchyFitter()
@@ -167,10 +166,11 @@ class CameraView(context: Context) : FrameLayout(context) {
       val shouldReconfigurePreview = changedProps.containsAny(propsThatRequirePreviewReconfiguration)
       val shouldReconfigureSession =  shouldReconfigurePreview || changedProps.containsAny(propsThatRequireSessionReconfiguration)
       val shouldReconfigureFormat = shouldReconfigureSession || changedProps.containsAny(propsThatRequireFormatReconfiguration)
-      val shouldReconfigureZoom = /* TODO: When should we reconfigure this? */ shouldReconfigureSession || changedProps.contains("zoom")
-      val shouldReconfigureTorch = /* TODO: When should we reconfigure this? */ shouldReconfigureSession || changedProps.contains("torch")
+      val shouldReconfigureZoom = shouldReconfigureSession || changedProps.contains("zoom")
+      val shouldReconfigureTorch = shouldReconfigureSession || changedProps.contains("torch")
       val shouldUpdateOrientation = /* TODO: When should we reconfigure this? */ shouldReconfigureSession ||  changedProps.contains("orientation")
       val shouldCheckActive = shouldReconfigureFormat || changedProps.contains("isActive")
+      val shouldReconfigureZoomGesture = changedProps.contains("enableZoomGesture")
 
       if (shouldReconfigurePreview) {
         setupPreviewView()
@@ -193,6 +193,9 @@ class CameraView(context: Context) : FrameLayout(context) {
       }
       if (shouldUpdateOrientation) {
         // TODO: updateOrientation()
+      }
+      if (shouldReconfigureZoomGesture) {
+        updateZoomGesture()
       }
     } catch (e: Throwable) {
       Log.e(TAG, "update() threw: ${e.message}")
@@ -247,6 +250,24 @@ class CameraView(context: Context) : FrameLayout(context) {
   private fun updateTorch() {
     CoroutineScope(Dispatchers.Default).launch {
       cameraSession.setTorchMode(torch == Torch.ON)
+    }
+  }
+
+  @SuppressLint("ClickableViewAccessibility")
+  private fun updateZoomGesture() {
+    if (enableZoomGesture) {
+      val scaleGestureDetector = ScaleGestureDetector(context, object: ScaleGestureDetector.SimpleOnScaleGestureListener() {
+        override fun onScale(detector: ScaleGestureDetector): Boolean {
+          zoom *= detector.scaleFactor
+          cameraSession.setZoom(zoom)
+          return true
+        }
+      })
+      setOnTouchListener { _, event ->
+        scaleGestureDetector.onTouchEvent(event)
+      }
+    } else {
+      setOnTouchListener(null)
     }
   }
 }

@@ -87,6 +87,13 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
     view.enableDepthData = enableDepthData
   }
 
+  @ReactProp(name = "enableZoomGesture")
+  fun setEnableZoomGesture(view: CameraView, enableZoomGesture: Boolean) {
+    if (view.enableZoomGesture != enableZoomGesture)
+      addChangedPropToTransaction(view, "enableZoomGesture")
+    view.enableZoomGesture = enableZoomGesture
+  }
+
   @ReactProp(name = "videoStabilizationMode")
   fun setVideoStabilizationMode(view: CameraView, videoStabilizationMode: String?) {
     val newMode = VideoStabilizationMode.fromUnionValue(videoStabilizationMode)
