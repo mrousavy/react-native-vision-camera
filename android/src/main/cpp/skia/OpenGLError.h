@@ -4,7 +4,7 @@
 
 #pragma once
 
-#if VISION_CAMERA_ENABLE_SKIA
+#ifdef VISION_CAMERA_ENABLE_SKIA
 
 #include <string>
 #include <stdexcept>

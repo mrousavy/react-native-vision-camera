@@ -11,10 +11,10 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *) {
     vision::VisionCameraInstaller::registerNatives();
     vision::JVisionCameraProxy::registerNatives();
     vision::JVisionCameraScheduler::registerNatives();
-#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+#ifdef VISION_CAMERA_ENABLE_FRAME_PROCESSORS
     vision::JFrameProcessor::registerNatives();
 #endif
-#if VISION_CAMERA_ENABLE_SKIA
+#ifdef VISION_CAMERA_ENABLE_SKIA
     vision::SkiaRenderer::registerNatives();
 #endif
   });

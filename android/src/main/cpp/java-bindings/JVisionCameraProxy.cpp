@@ -13,7 +13,7 @@
 
 #include "FrameProcessorPluginHostObject.h"
 
-#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+#ifdef VISION_CAMERA_ENABLE_FRAME_PROCESSORS
 #include <react-native-worklets-core/WKTJsiWorklet.h>
 #include <react-native-worklets-core/WKTJsiWorkletContext.h>
 #endif
@@ -33,7 +33,7 @@ JVisionCameraProxy::JVisionCameraProxy(const jni::alias_ref<JVisionCameraProxy::
   _javaPart = make_global(javaThis);
   _runtime = runtime;
 
-#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+#ifdef VISION_CAMERA_ENABLE_FRAME_PROCESSORS
   __android_log_write(ANDROID_LOG_INFO, TAG, "Creating Worklet Context...");
 
   auto runOnJS = [callInvoker](std::function<void()>&& f) {
@@ -55,7 +55,7 @@ JVisionCameraProxy::JVisionCameraProxy(const jni::alias_ref<JVisionCameraProxy::
 }
 
 JVisionCameraProxy::~JVisionCameraProxy() noexcept {
-#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+#ifdef VISION_CAMERA_ENABLE_FRAME_PROCESSORS
   __android_log_write(ANDROID_LOG_INFO, TAG, "Destroying Context...");
   // Destroy ArrayBuffer cache for both the JS and the Worklet Runtime.
   invalidateArrayBufferCache(*_workletContext->getJsRuntime());
@@ -68,7 +68,7 @@ JVisionCameraProxy::~JVisionCameraProxy() noexcept {
 void JVisionCameraProxy::setFrameProcessor(int viewTag,
                                            jsi::Runtime& runtime,
                                            const jsi::Object& frameProcessorObject) {
-#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+#ifdef VISION_CAMERA_ENABLE_FRAME_PROCESSORS
   auto frameProcessorType = frameProcessorObject.getProperty(runtime, "type").asString(runtime).utf8(runtime);
   auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, frameProcessorObject.getProperty(runtime, "frameProcessor"));
 
@@ -76,7 +76,7 @@ void JVisionCameraProxy::setFrameProcessor(int viewTag,
   if (frameProcessorType == "frame-processor") {
     frameProcessor = JFrameProcessor::create(worklet, _workletContext);
   } else if (frameProcessorType == "skia-frame-processor") {
-#if VISION_CAMERA_ENABLE_SKIA
+#ifdef VISION_CAMERA_ENABLE_SKIA
     throw std::runtime_error("system/skia-unavailable: Skia is not yet implemented on Android!");
 #else
     throw std::runtime_error("system/skia-unavailable: Skia is not installed!");

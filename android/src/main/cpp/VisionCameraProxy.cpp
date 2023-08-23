@@ -19,7 +19,7 @@
 #include <string>
 #include <memory>
 
-#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+#ifdef VISION_CAMERA_ENABLE_FRAME_PROCESSORS
 #include <react-native-worklets-core/WKTJsiWorkletContext.h>
 #endif
 

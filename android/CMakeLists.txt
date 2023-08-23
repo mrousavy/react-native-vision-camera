@@ -22,11 +22,11 @@ if(ENABLE_FRAME_PROCESSORS)
             ${PACKAGE_NAME}
             react-native-worklets-core::rnworklets
     )
-    add_compile_definitions(-DVISION_CAMERA_ENABLE_FRAME_PROCESSORS=1)
     message("VisionCamera: Frame Processors enabled!")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVISION_CAMERA_ENABLE_FRAME_PROCESSORS")
 
     if(ENABLE_SKIA)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSK_GL -DSK_GANESH -DSK_BUILD_FOR_ANDROID")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSK_GL -DSK_GANESH -DSK_BUILD_FOR_ANDROID -DVISION_CAMERA_ENABLE_SKIA")
 
         find_package(shopify_react-native-skia REQUIRED CONFIG)
 
@@ -71,7 +71,6 @@ if(ENABLE_FRAME_PROCESSORS)
                 svg
                 skshaper
         )
-        add_compile_definitions(-DVISION_CAMERA_ENABLE_SKIA=1)
 
         message("VisionCamera: Skia enabled!")
     endif()

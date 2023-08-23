@@ -2,7 +2,7 @@
 // Created by Marc Rousavy on 10.08.23.
 //
 
-#if VISION_CAMERA_ENABLE_SKIA
+#ifdef VISION_CAMERA_ENABLE_SKIA
 
 #include "SkiaRenderer.h"
 #include <android/log.h>

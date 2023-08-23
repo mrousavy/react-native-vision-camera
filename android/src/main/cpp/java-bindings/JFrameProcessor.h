@@ -4,7 +4,7 @@
 
 #pragma once
 
-#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+#ifdef VISION_CAMERA_ENABLE_FRAME_PROCESSORS
 
 #include <string>
 #include <memory>

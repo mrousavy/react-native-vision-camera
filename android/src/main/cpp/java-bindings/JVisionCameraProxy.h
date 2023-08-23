@@ -16,7 +16,7 @@
 #include <string>
 #include <memory>
 
-#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+#ifdef VISION_CAMERA_ENABLE_FRAME_PROCESSORS
 #include <react-native-worklets-core/WKTJsiWorkletContext.h>
 #endif
 
@@ -37,7 +37,7 @@ class JVisionCameraProxy : public jni::HybridClass<JVisionCameraProxy> {
                                                                             jni::local_ref<react::ReadableNativeMap::javaobject> options);
 
   jsi::Runtime* getJSRuntime() { return _runtime; }
-#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+#ifdef VISION_CAMERA_ENABLE_FRAME_PROCESSORS
  private:
   std::shared_ptr<RNWorklet::JsiWorkletContext> _workletContext;
 #endif
