@@ -6,6 +6,9 @@
 
 #include <jni.h>
 #include <fbjni/fbjni.h>
+#include <fbjni/ByteBuffer.h>
+#include <android/hardware_buffer.h>
+#include <android/hardware_buffer_jni.h>
 
 namespace vision {
 
@@ -61,6 +64,11 @@ local_ref<JByteBuffer> JFrame::toByteBuffer() const {
   static const auto toByteBufferMethod = getClass()->getMethod<JByteBuffer()>("toByteBuffer");
   return toByteBufferMethod(self());
 }
+
+AHardwareBuffer* JFrame::getHardwareBuffer() const {
+  static const auto getHardwareBufferMethod = getClass()->getMethod<jobject()>("getHardwareBuffer");
+  auto boxed = getHardwareBufferMethod(self());
+  return AHardwareBuffer_fromHardwareBuffer(jni::Environment::current(), boxed.get());
 }
 
 void JFrame::incrementRefCount() {

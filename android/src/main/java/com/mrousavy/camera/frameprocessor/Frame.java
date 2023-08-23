@@ -1,7 +1,12 @@
 package com.mrousavy.camera.frameprocessor;
 
 import android.graphics.ImageFormat;
+import android.hardware.HardwareBuffer;
 import android.media.Image;
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
 import com.facebook.proguard.annotations.DoNotStrip;
 import com.mrousavy.camera.parsers.PixelFormat;
 import com.mrousavy.camera.parsers.Orientation;
@@ -14,6 +19,7 @@ public class Frame {
     private final long timestamp;
     private final Orientation orientation;
     private int refCount = 0;
+    private HardwareBuffer hardwareBuffer;
 
     public Frame(Image image, long timestamp, Orientation orientation, boolean isMirrored) {
         this.image = image;
@@ -89,6 +95,17 @@ public class Frame {
         return image.getPlanes()[0].getRowStride();
     }
 
+    @SuppressWarnings("unused")
+    @DoNotStrip
+    public Object getHardwareBuffer() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            if (hardwareBuffer == null) hardwareBuffer = image.getHardwareBuffer();
+            return hardwareBuffer;
+        } else {
+            throw new RuntimeException("Hardware Buffers are only available on Android API 28 or above!");
+        }
+    }
+
     private static ByteBuffer byteArrayCache;
 
     @SuppressWarnings("unused")
@@ -143,5 +160,6 @@ public class Frame {
     @DoNotStrip
     private void close() {
         image.close();
+        if (hardwareBuffer != null) hardwareBuffer.close();
     }
 }

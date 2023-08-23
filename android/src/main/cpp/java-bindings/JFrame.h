@@ -6,6 +6,8 @@
 
 #include <jni.h>
 #include <fbjni/fbjni.h>
+#include <fbjni/ByteBuffer.h>
+#include <android/hardware_buffer.h>
 
 namespace vision {
 
@@ -26,6 +28,7 @@ struct JFrame : public JavaClass<JFrame> {
   local_ref<JString> getOrientation() const;
   local_ref<JString> getPixelFormat() const;
   local_ref<JByteBuffer> toByteBuffer() const;
+  AHardwareBuffer* getHardwareBuffer() const;
   void incrementRefCount();
   void decrementRefCount();
   void close();

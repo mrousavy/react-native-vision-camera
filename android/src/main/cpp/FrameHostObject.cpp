@@ -98,11 +98,13 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
                                               const jsi::Value& thisArg,
                                               const jsi::Value* args,
                                               size_t count) -> jsi::Value {
-      auto buffer = this->frame->toByteBuffer();
-      if (!buffer->isDirect()) {
-        throw std::runtime_error("Failed to get byte content of Frame - array is not direct ByteBuffer!");
-      }
-      auto size = buffer->getDirectSize();
+      auto hardwareBuffer = this->frame->getHardwareBuffer();
+
+      AHardwareBuffer_Desc bufferDescription;
+      AHardwareBuffer_describe(hardwareBuffer, &bufferDescription);
+      __android_log_print(ANDROID_LOG_INFO, "Frame", "Buffer %i x %i @ %i", bufferDescription.width, bufferDescription.height, bufferDescription.stride);
+      size_t size = bufferDescription.width * bufferDescription.height * (bufferDescription.width / bufferDescription.stride);
+
 
       static constexpr auto ARRAYBUFFER_CACHE_PROP_NAME = "__frameArrayBufferCache";
       if (!runtime.global().hasProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME)) {
@@ -118,11 +120,18 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
         runtime.global().setProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME, arrayBuffer);
       }
 
+      void* buffer;
+      AHardwareBuffer_lock(hardwareBuffer, AHARDWAREBUFFER_USAGE_CPU_READ_MASK, -1, nullptr, &buffer);
+
       // directly write to C++ JSI ArrayBuffer
       auto destinationBuffer = arrayBuffer.data(runtime);
-      memcpy(destinationBuffer, buffer->getDirectAddress(), sizeof(uint8_t) * size);
+      memcpy(destinationBuffer, buffer, sizeof(uint8_t) * size);
+
+      AHardwareBuffer_unlock(hardwareBuffer, nullptr);
+      AHardwareBuffer_release(hardwareBuffer);
 
       return arrayBuffer;
+
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toArrayBuffer"), 0, toArrayBuffer);
   }
