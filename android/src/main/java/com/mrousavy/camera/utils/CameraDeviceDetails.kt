@@ -3,7 +3,6 @@ package com.mrousavy.camera.utils
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
-import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.params.DynamicRangeProfiles
 import android.os.Build
 import android.util.Range
@@ -11,17 +10,20 @@ import android.util.Size
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
+import com.mrousavy.camera.extensions.bestProfile
 import com.mrousavy.camera.extensions.bigger
 import com.mrousavy.camera.extensions.getPhotoSizes
 import com.mrousavy.camera.extensions.getVideoSizes
 import com.mrousavy.camera.parsers.HardwareLevel
 import com.mrousavy.camera.parsers.LensFacing
+import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.PixelFormat
 import com.mrousavy.camera.parsers.VideoStabilizationMode
+import com.mrousavy.camera.utils.outputs.SurfaceOutput
 import kotlin.math.PI
 import kotlin.math.atan
 
-class CameraDeviceDetails(private val cameraManager: CameraManager, private val cameraId: String) {
+class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId: String) {
   private val characteristics = cameraManager.getCameraCharacteristics(cameraId)
   val hardwareLevel by lazy { HardwareLevel.fromCameraCharacteristics(characteristics) }
   val capabilities by lazy { characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES) ?: IntArray(0) }
@@ -40,16 +42,44 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
   val zoomRange by lazy { getZoomRange() }
   val minZoom by lazy { zoomRange.lower.toDouble() }
   val maxZoom by lazy { zoomRange.upper.toDouble() }
-  val orientation by lazy { characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0 }
+  val orientation by lazy { Orientation.fromRotationDegrees(characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0) }
 
   val configurations by lazy { characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!! }
   val isoRange by lazy { characteristics.get(CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE) ?: Range(0, 0) }
   val digitalStabilizationModes by lazy { characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES) ?: IntArray(0) }
   val opticalStabilizationModes by lazy { characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_OPTICAL_STABILIZATION) ?: IntArray(0) }
+  val hdrProfiles by lazy { getHdrProfiles() }
+  val bestHdrMode by lazy { hdrProfiles?.bestProfile }
   val supportsPhotoHdr by lazy { extensions.contains(3 /* TODO: CameraExtensionCharacteristics.EXTENSION_HDR */) }
-  val supportsVideoHdr by lazy { getHasVideoHdr() }
+  val supportsVideoHdr by lazy { bestHdrMode != null }
 
   private val videoFormat = ImageFormat.YUV_420_888
+
+  override fun toString(): String {
+    return "Camera $cameraId (${lensFacing.unionValue})"
+  }
+
+  override fun hashCode(): Int {
+    return cameraId.hashCode()
+  }
+
+  override fun equals(other: Any?): Boolean {
+    if (other !is CameraDeviceDetails) return false
+    return this.cameraId == other.cameraId
+  }
+
+  fun supportsOutputType(outputType: SurfaceOutput.OutputType): Boolean {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      val availableUseCases = characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES)
+      if (availableUseCases != null) {
+        if (availableUseCases.contains(outputType.toOutputType().toLong())) {
+          return true
+        }
+      }
+    }
+
+    return false
+  }
 
   // get extensions (HDR, Night Mode, ..)
   private fun getSupportedExtensions(): List<Int> {
@@ -78,16 +108,11 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     return Range(1f, maxZoom)
   }
 
-  private fun getHasVideoHdr(): Boolean {
+  private fun getHdrProfiles(): DynamicRangeProfiles? {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-      if (capabilities.contains(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT)) {
-        val availableProfiles = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES)
-          ?: DynamicRangeProfiles(LongArray(0))
-        return availableProfiles.supportedProfiles.contains(DynamicRangeProfiles.HLG10)
-          || availableProfiles.supportedProfiles.contains(DynamicRangeProfiles.HDR10)
-      }
+      return characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES)
     }
-    return false
+    return null
   }
 
   private fun createStabilizationModes(): ReadableArray {
