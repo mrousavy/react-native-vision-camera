@@ -14,9 +14,10 @@ import com.mrousavy.camera.extensions.closestToOrMax
 import com.mrousavy.camera.extensions.getPhotoSizes
 import com.mrousavy.camera.extensions.getPreviewSize
 import com.mrousavy.camera.extensions.getVideoSizes
+import com.mrousavy.camera.utils.CameraDeviceDetails
 import java.io.Closeable
 
-class CameraOutputs(val cameraId: String,
+class CameraOutputs(val cameraDeviceDetails: CameraDeviceDetails,
                     cameraManager: CameraManager,
                     val preview: PreviewOutput? = null,
                     val photo: PhotoOutput? = null,
@@ -60,7 +61,7 @@ class CameraOutputs(val cameraId: String,
 
   override fun equals(other: Any?): Boolean {
     if (other !is CameraOutputs) return false
-    return this.cameraId == other.cameraId
+    return this.cameraDeviceDetails == other.cameraDeviceDetails
       && this.preview?.surface == other.preview?.surface
       && this.photo?.targetSize == other.photo?.targetSize
       && this.photo?.format == other.photo?.format
@@ -71,7 +72,7 @@ class CameraOutputs(val cameraId: String,
   }
 
   override fun hashCode(): Int {
-    var result = cameraId.hashCode()
+    var result = cameraDeviceDetails.hashCode()
     result += (preview?.hashCode() ?: 0)
     result += (photo?.hashCode() ?: 0)
     result += (video?.hashCode() ?: 0)
@@ -92,9 +93,7 @@ class CameraOutputs(val cameraId: String,
   }
 
   init {
-    val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-
-    Log.i(TAG, "Preparing Outputs for Camera $cameraId...")
+    Log.i(TAG, "Preparing Outputs for Camera $cameraDeviceDetails...")
 
     // Preview output: Low resolution repeating images (SurfaceView)
     if (preview != null) {

@@ -24,6 +24,7 @@ import com.mrousavy.camera.parsers.Torch
 import com.mrousavy.camera.parsers.VideoStabilizationMode
 import com.mrousavy.camera.skia.SkiaPreviewView
 import com.mrousavy.camera.skia.SkiaRenderer
+import com.mrousavy.camera.utils.CameraDeviceDetails
 import com.mrousavy.camera.utils.outputs.CameraOutputs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -91,6 +92,12 @@ class CameraView(context: Context) : FrameLayout(context) {
   internal val cameraSession: CameraSession
   private var previewView: View? = null
   private var previewSurface: Surface? = null
+  internal var cameraDevice: CameraDeviceDetails? = null
+    get() {
+      val cameraId = cameraId ?: return null
+      if (field?.cameraId != cameraId) field = CameraDeviceDetails(cameraManager, cameraId)
+      return field
+    }
 
   private var skiaRenderer: SkiaRenderer? = null
   internal var frameProcessor: FrameProcessor? = null

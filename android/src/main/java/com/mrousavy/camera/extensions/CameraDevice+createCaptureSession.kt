@@ -12,6 +12,7 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import com.mrousavy.camera.CameraQueues
 import com.mrousavy.camera.CameraSessionCannotBeConfiguredError
+import com.mrousavy.camera.utils.CameraDeviceDetails
 import com.mrousavy.camera.utils.outputs.CameraOutputs
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
@@ -33,17 +34,15 @@ enum class SessionType {
 private const val TAG = "CreateCaptureSession"
 private var sessionId = 1000
 
-suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager,
+suspend fun CameraDevice.createCaptureSession(device: CameraDeviceDetails,
                                               sessionType: SessionType,
                                               outputs: CameraOutputs,
                                               onClosed: (session: CameraCaptureSession) -> Unit,
                                               queue: CameraQueues.CameraQueue): CameraCaptureSession {
   return suspendCancellableCoroutine { continuation ->
-    val characteristics = cameraManager.getCameraCharacteristics(id)
-    val hardwareLevel = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)!!
     val sessionId = sessionId++
     Log.i(TAG, "Camera $id: Creating Capture Session #$sessionId... " +
-      "Hardware Level: $hardwareLevel} | Outputs: $outputs")
+      "Hardware Level: ${device.hardwareLevel}} | Outputs: $outputs")
 
     val callback = object: CameraCaptureSession.StateCallback() {
       override fun onConfigured(session: CameraCaptureSession) {
@@ -67,13 +66,13 @@ suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager,
       // API >= 24
       val outputConfigurations = arrayListOf<OutputConfiguration>()
       outputs.previewOutput?.let { output ->
-        outputConfigurations.add(output.toOutputConfiguration(characteristics))
+        outputConfigurations.add(output.toOutputConfiguration(device))
       }
       outputs.photoOutput?.let { output ->
-        outputConfigurations.add(output.toOutputConfiguration(characteristics))
+        outputConfigurations.add(output.toOutputConfiguration(device))
       }
       outputs.videoOutput?.let { output ->
-        outputConfigurations.add(output.toOutputConfiguration(characteristics))
+        outputConfigurations.add(output.toOutputConfiguration(device))
       }
       if (outputs.enableHdr == true && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         val supportedProfiles = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES)

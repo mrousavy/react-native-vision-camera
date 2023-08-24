@@ -8,6 +8,7 @@ import android.util.Log
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
+import com.mrousavy.camera.utils.CameraDeviceDetails
 import java.io.Closeable
 
 /**
@@ -20,30 +21,17 @@ open class SurfaceOutput(val surface: Surface,
                          private val closeSurfaceOnEnd: Boolean = false): Closeable {
   companion object {
     const val TAG = "SurfaceOutput"
-
-    private fun supportsOutputType(characteristics: CameraCharacteristics, outputType: OutputType): Boolean {
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        val availableUseCases = characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_STREAM_USE_CASES)
-        if (availableUseCases != null) {
-          if (availableUseCases.contains(outputType.toOutputType().toLong())) {
-            return true
-          }
-        }
-      }
-
-      return false
-    }
   }
 
   @RequiresApi(Build.VERSION_CODES.N)
-  fun toOutputConfiguration(characteristics: CameraCharacteristics): OutputConfiguration {
+  fun toOutputConfiguration(device: CameraDeviceDetails): OutputConfiguration {
     val result = OutputConfiguration(surface)
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
       if (dynamicRangeProfile != null) {
         result.dynamicRangeProfile = dynamicRangeProfile
         Log.i(TAG, "Using dynamic range profile ${result.dynamicRangeProfile} for $outputType output.")
       }
-      if (supportsOutputType(characteristics, outputType)) {
+      if (device.supportsOutputType(outputType)) {
         result.streamUseCase = outputType.toOutputType().toLong()
         Log.i(TAG, "Using optimized stream use case ${result.streamUseCase} for $outputType output.")
       }

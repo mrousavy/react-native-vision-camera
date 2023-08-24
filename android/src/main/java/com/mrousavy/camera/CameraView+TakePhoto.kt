@@ -23,6 +23,7 @@ private const val TAG = "CameraView.takePhoto"
 
 @SuppressLint("UnsafeOptInUsageError")
 suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
+  val cameraDevice = cameraDevice ?: throw NoCameraDeviceError()
   val options = optionsMap.toHashMap()
   Log.i(TAG, "Taking photo... Options: $options")
 
@@ -45,9 +46,7 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
   photo.use {
     Log.i(TAG, "Successfully captured ${photo.image.width} x ${photo.image.height} photo!")
 
-    val cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId!!)
-
-    val path = savePhotoToFile(context, cameraCharacteristics, photo)
+    val path = savePhotoToFile(context, cameraDevice, photo)
 
     Log.i(TAG, "Successfully saved photo to file! $path")
 
@@ -76,7 +75,7 @@ private fun writeImageToStream(imageBytes: ByteArray, stream: OutputStream, isMi
 }
 
 private suspend fun savePhotoToFile(context: Context,
-                                    cameraCharacteristics: CameraCharacteristics,
+                                    cameraDevice: CameraDeviceDetails,
                                     photo: CameraSession.CapturedPhoto): String {
   return withContext(Dispatchers.IO) {
     when (photo.format) {

@@ -21,7 +21,7 @@ private val bestProfiles = setOf(
 )
 
 val DynamicRangeProfiles.bestProfile: Long?
-  @RequiresApi(Build.VERSION_CODES.TIRAMISU)
   get() {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return null
     return supportedProfiles.firstMatch(bestProfiles)
   }

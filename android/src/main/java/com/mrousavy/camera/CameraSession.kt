@@ -31,6 +31,7 @@ import com.mrousavy.camera.parsers.QualityPrioritization
 import com.mrousavy.camera.parsers.VideoCodec
 import com.mrousavy.camera.parsers.VideoFileType
 import com.mrousavy.camera.parsers.VideoStabilizationMode
+import com.mrousavy.camera.utils.CameraDeviceDetails
 import com.mrousavy.camera.utils.PhotoOutputSynchronizer
 import com.mrousavy.camera.utils.RecordingSession
 import com.mrousavy.camera.utils.outputs.CameraOutputs
@@ -64,7 +65,7 @@ class CameraSession(private val context: Context,
   }
 
   // setInput(..)
-  private var cameraId: String? = null
+  private var cameraDeviceDetails: CameraDeviceDetails? = null
 
   // setOutputs(..)
   private var outputs: CameraOutputs? = null
@@ -107,30 +108,25 @@ class CameraSession(private val context: Context,
   }
 
   val orientation: Orientation
-    get() {
-      val cameraId = cameraId ?: return Orientation.PORTRAIT
-      val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-      val sensorRotation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
-      return Orientation.fromRotationDegrees(sensorRotation)
-    }
+    get() = cameraDeviceDetails?.orientation ?: Orientation.PORTRAIT
 
-  fun configureSession(cameraId: String,
+  fun configureSession(cameraDeviceDetails: CameraDeviceDetails,
                        preview: CameraOutputs.PreviewOutput? = null,
                        photo: CameraOutputs.PhotoOutput? = null,
                        video: CameraOutputs.VideoOutput? = null) {
-    Log.i(TAG, "Configuring Session for Camera $cameraId...")
-    val outputs = CameraOutputs(cameraId,
+    Log.i(TAG, "Configuring Session for Camera $cameraDeviceDetails...")
+    val outputs = CameraOutputs(cameraDeviceDetails,
       cameraManager,
       preview,
       photo,
       video,
       hdr == true,
       this)
-    if (this.cameraId == cameraId && this.outputs == outputs && isActive == isRunning) {
+    if (this.cameraDeviceDetails == cameraDeviceDetails && this.outputs == outputs && isActive == isRunning) {
       Log.i(TAG, "Nothing changed in configuration, canceling..")
     }
 
-    this.cameraId = cameraId
+    this.cameraDeviceDetails = cameraDeviceDetails
     this.outputs = outputs
     launch {
       startRunning()
