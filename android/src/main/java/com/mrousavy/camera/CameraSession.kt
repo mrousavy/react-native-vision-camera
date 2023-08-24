@@ -46,6 +46,9 @@ class CameraSession(private val context: Context,
                     private val onError: (e: Throwable) -> Unit): CoroutineScope, Closeable, CameraOutputs.Callback, CameraManager.AvailabilityCallback() {
   companion object {
     private const val TAG = "CameraSession"
+
+    // TODO: Samsung advertises 60 FPS but only allows 30 FPS for some reason.
+    private val CAN_SET_FPS = Build.MANUFACTURER != "samsung"
   }
 
   data class CapturedPhoto(val image: Image,
@@ -78,6 +81,7 @@ class CameraSession(private val context: Context,
 
   private var captureSession: CameraCaptureSession? = null
   private var cameraDevice: CameraDevice? = null
+  private var previewRequest: CaptureRequest.Builder? = null
   private val photoOutputSynchronizer = PhotoOutputSynchronizer()
   private val mutex = Mutex()
   private var isRunning = false
@@ -374,43 +378,27 @@ class CameraSession(private val context: Context,
     return session
   }
 
-  private fun getPreviewCaptureRequest(captureSession: CameraCaptureSession,
-                                       outputs: CameraOutputs,
-                                       fps: Int? = null,
+  private fun getPreviewCaptureRequest(fps: Int? = null,
                                        videoStabilizationMode: VideoStabilizationMode? = null,
                                        lowLightBoost: Boolean? = null,
                                        hdr: Boolean? = null,
                                        torch: Boolean? = null): CaptureRequest {
-    val template = if (outputs.videoOutput != null) CameraDevice.TEMPLATE_RECORD else CameraDevice.TEMPLATE_PREVIEW
-    val captureRequest = captureSession.device.createCaptureRequest(template)
-    outputs.previewOutput?.let { output ->
-      Log.i(TAG, "Adding output surface ${output.outputType}..")
-      captureRequest.addTarget(output.surface)
-    }
-    outputs.videoOutput?.let { output ->
-      Log.i(TAG, "Adding output surface ${output.outputType}..")
-      captureRequest.addTarget(output.surface)
-    }
+    val captureRequest = previewRequest ?: throw CameraNotReadyError()
 
-    if (fps != null) {
-      // TODO: Samsung advertises 60 FPS but only allows 30 FPS for some reason.
-      val isSamsung = Build.MANUFACTURER == "samsung"
-      val targetFps = if (isSamsung) 30 else fps
+    // FPS
+    val fpsRange = if (fps != null && CAN_SET_FPS) Range(fps, fps) else null
+    captureRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, fpsRange)
 
-      captureRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(targetFps, targetFps))
-    }
-    if (videoStabilizationMode != null) {
-      captureRequest.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, videoStabilizationMode.toDigitalStabilizationMode())
-      captureRequest.set(CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE, videoStabilizationMode.toOpticalStabilizationMode())
-    }
-    if (lowLightBoost == true) {
-      captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_NIGHT)
-    }
-    if (hdr == true) {
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-        captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_HDR)
-      }
-    }
+    // Video Stabilization
+    captureRequest.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, videoStabilizationMode?.toDigitalStabilizationMode())
+    captureRequest.set(CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE, videoStabilizationMode?.toOpticalStabilizationMode())
+
+    // Night/HDR Mode
+    val sceneMode = if (hdr == true) CaptureRequest.CONTROL_SCENE_MODE_HDR else if (lowLightBoost == true) CaptureRequest.CONTROL_SCENE_MODE_NIGHT else null
+    captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, sceneMode)
+    captureRequest.set(CaptureRequest.CONTROL_MODE, if (sceneMode != null) CaptureRequest.CONTROL_MODE_USE_SCENE_MODE else null)
+
+    // Zoom
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
       captureRequest.set(CaptureRequest.CONTROL_ZOOM_RATIO, zoom)
     } else {
@@ -419,6 +407,7 @@ class CameraSession(private val context: Context,
       captureRequest.set(CaptureRequest.SCALER_CROP_REGION, size.zoomed(zoom))
     }
 
+    // Torch Mode
     val torchMode = if (torch == true) CaptureRequest.FLASH_MODE_TORCH else CaptureRequest.FLASH_MODE_OFF
     captureRequest.set(CaptureRequest.FLASH_MODE, torchMode)
 
@@ -453,19 +442,32 @@ class CameraSession(private val context: Context,
           return@withLock
         }
 
-        // 2. Open Camera Device
+        // 1. Open Camera Device
         val camera = getCameraDevice(cameraId) { reason ->
           isRunning = false
           onError(reason)
         }
 
-        // 3. Create capture session with outputs
+        // 2. Create capture session with outputs
         val session = getCaptureSession(camera, outputs) {
           isRunning = false
         }
 
+        // 3. Create request template
+        val template = if (outputs.videoOutput != null) CameraDevice.TEMPLATE_RECORD else CameraDevice.TEMPLATE_PREVIEW
+        val captureRequest = camera.createCaptureRequest(template)
+        outputs.previewOutput?.let { output ->
+          Log.i(TAG, "Adding output surface ${output.outputType}..")
+          captureRequest.addTarget(output.surface)
+        }
+        outputs.videoOutput?.let { output ->
+          Log.i(TAG, "Adding output surface ${output.outputType}..")
+          captureRequest.addTarget(output.surface)
+        }
+
         Log.i(TAG, "Camera Session initialized! Starting repeating request..")
         isRunning = true
+        this.previewRequest = captureRequest
         this.captureSession = session
         this.cameraDevice = camera
       }
@@ -489,13 +491,9 @@ class CameraSession(private val context: Context,
       val videoStabilizationMode = videoStabilizationMode
       val lowLightBoost = lowLightBoost
       val hdr = hdr
-      val outputs = outputs
-      if (outputs == null || outputs.size == 0) {
-        Log.i(TAG, "CameraSession doesn't have any Outputs, canceling..")
-        return
-      }
 
-      val repeatingRequest = getPreviewCaptureRequest(session, outputs, fps, videoStabilizationMode, lowLightBoost, hdr)
+      val repeatingRequest = getPreviewCaptureRequest(fps, videoStabilizationMode, lowLightBoost, hdr)
+      Log.d(TAG, "Setting Repeating Request..")
       session.setRepeatingRequest(repeatingRequest, null, null)
     }
   }
