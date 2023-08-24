@@ -31,6 +31,7 @@ interface TVisionCameraProxy {
   isSkiaEnabled: boolean;
 }
 
+let hasWorklets = false;
 let isAsyncContextBusy = { value: false };
 let runOnAsyncContext = (_frame: Frame, _func: () => void): void => {
   throw new CameraRuntimeError(
@@ -44,19 +45,6 @@ try {
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { Worklets } = require('react-native-worklets-core') as typeof TWorklets;
-
-  // Install native Frame Processor Runtime Manager
-  const result = CameraModule.installFrameProcessorBindings() as unknown;
-  if (result !== true)
-    throw new CameraRuntimeError('system/frame-processors-unavailable', 'Failed to install Frame Processor JSI bindings!');
-
-  // @ts-expect-error global is untyped, it's a C++ host-object
-  if (global.VisionCameraProxy == null) {
-    throw new CameraRuntimeError(
-      'system/frame-processors-unavailable',
-      'Failed to install VisionCameraProxy. Are Frame Processors properly enabled?',
-    );
-  }
 
   isAsyncContextBusy = Worklets.createSharedValue(false);
   const asyncContext = Worklets.createContext('VisionCamera.async');
@@ -72,12 +60,41 @@ try {
       isAsyncContextBusy.value = false;
     }
   }, asyncContext);
+  hasWorklets = true;
 } catch (e) {
   // Worklets are not installed, so Frame Processors are disabled.
 }
 
-// @ts-expect-error global is untyped, it's a C++ host-object
-export const VisionCameraProxy = global.VisionCameraProxy as TVisionCameraProxy;
+let proxy: TVisionCameraProxy = {
+  isSkiaEnabled: false,
+  getFrameProcessorPlugin: () => {
+    throw new CameraRuntimeError('system/frame-processors-unavailable', 'Frame Processors are not enabled!');
+  },
+  removeFrameProcessor: () => {
+    throw new CameraRuntimeError('system/frame-processors-unavailable', 'Frame Processors are not enabled!');
+  },
+  setFrameProcessor: () => {
+    throw new CameraRuntimeError('system/frame-processors-unavailable', 'Frame Processors are not enabled!');
+  },
+};
+if (hasWorklets) {
+  // Install native Frame Processor Runtime Manager
+  const result = CameraModule.installFrameProcessorBindings() as unknown;
+  if (result !== true)
+    throw new CameraRuntimeError('system/frame-processors-unavailable', 'Failed to install Frame Processor JSI bindings!');
+
+  // @ts-expect-error global is untyped, it's a C++ host-object
+  proxy = global.VisionCameraProxy as TVisionCameraProxy;
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  if (proxy == null) {
+    throw new CameraRuntimeError(
+      'system/frame-processors-unavailable',
+      'Failed to install VisionCameraProxy. Are Frame Processors properly enabled?',
+    );
+  }
+}
+
+export const VisionCameraProxy = proxy;
 
 declare global {
   // eslint-disable-next-line no-var
