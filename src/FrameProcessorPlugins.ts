@@ -1,10 +1,11 @@
 import type { Frame, FrameInternal } from './Frame';
 import type { FrameProcessor } from './CameraProps';
-import { Camera } from './Camera';
 import { CameraRuntimeError } from './CameraError';
 
 // only import typescript types
 import type TWorklets from 'react-native-worklets-core';
+import { CameraModule } from './NativeCameraModule';
+import { assertJSIAvailable } from './JSIHelper';
 
 type BasicParameterType = string | number | boolean | undefined;
 type ParameterType = BasicParameterType | BasicParameterType[] | Record<string, BasicParameterType | undefined>;
@@ -39,11 +40,16 @@ let runOnAsyncContext = (_frame: Frame, _func: () => void): void => {
 };
 
 try {
+  assertJSIAvailable();
+
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { Worklets } = require('react-native-worklets-core') as typeof TWorklets;
 
   // Install native Frame Processor Runtime Manager
-  Camera.installFrameProcessorBindings();
+  const result = CameraModule.installFrameProcessorBindings() as unknown;
+  if (result !== true)
+    throw new CameraRuntimeError('system/frame-processors-unavailable', 'Failed to install Frame Processor JSI bindings!');
+
   // @ts-expect-error global is untyped, it's a C++ host-object
   if (global.VisionCameraProxy == null) {
     throw new CameraRuntimeError(

@@ -4,7 +4,6 @@ import type { CameraDevice } from './CameraDevice';
 import type { ErrorWithCause } from './CameraError';
 import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError';
 import type { CameraProps, FrameProcessor } from './CameraProps';
-import { assertJSIAvailable } from './JSIHelper';
 import { CameraModule } from './NativeCameraModule';
 import type { PhotoFile, TakePhotoOptions } from './PhotoFile';
 import type { Point } from './Point';
@@ -259,15 +258,6 @@ export class Camera extends React.PureComponent<CameraProps> {
   //#endregion
 
   //#region Static Functions (NativeModule)
-  /**
-   * Install JSI Bindings for Frame Processors
-   */
-  public static installFrameProcessorBindings(): void {
-    assertJSIAvailable();
-    const result = CameraModule.installFrameProcessorBindings() as unknown;
-    if (result !== true)
-      throw new CameraRuntimeError('system/frame-processors-unavailable', 'Failed to install Frame Processor JSI bindings!');
-  }
 
   /**
    * Get a list of all available camera devices on the current phone.
