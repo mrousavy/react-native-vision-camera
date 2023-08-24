@@ -38,6 +38,7 @@ RCT_EXPORT_VIEW_PROPERTY(fps, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(hdr, NSNumber); // nullable bool
 RCT_EXPORT_VIEW_PROPERTY(lowLightBoost, NSNumber); // nullable bool
 RCT_EXPORT_VIEW_PROPERTY(videoStabilizationMode, NSString);
+RCT_EXPORT_VIEW_PROPERTY(pixelFormat, NSString);
 // other props
 RCT_EXPORT_VIEW_PROPERTY(torch, NSString);
 RCT_EXPORT_VIEW_PROPERTY(previewType, NSString);
