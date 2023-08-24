@@ -6,7 +6,6 @@ import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import android.view.Surface
-import com.mrousavy.camera.parsers.Flash
 import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.QualityPrioritization
 
@@ -27,17 +26,13 @@ fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
                                            surface: Surface,
                                            zoom: Float,
                                            qualityPrioritization: QualityPrioritization,
-                                           flashMode: Flash,
-                                           enableRedEyeReduction: Boolean,
+                                           autoExposureMode: Int,
                                            enableAutoStabilization: Boolean,
                                            orientation: Orientation): CaptureRequest {
   val cameraCharacteristics = cameraManager.getCameraCharacteristics(this.id)
 
-  val template = if (qualityPrioritization == QualityPrioritization.SPEED && supportsSnapshotCapture(cameraCharacteristics)) {
-    CameraDevice.TEMPLATE_VIDEO_SNAPSHOT
-  } else {
-    CameraDevice.TEMPLATE_STILL_CAPTURE
-  }
+  val useSnapshot = qualityPrioritization == QualityPrioritization.SPEED && supportsSnapshotCapture(cameraCharacteristics)
+  val template = if (useSnapshot) CameraDevice.TEMPLATE_VIDEO_SNAPSHOT else CameraDevice.TEMPLATE_STILL_CAPTURE
   val captureRequest = this.createCaptureRequest(template)
 
   // TODO: Maybe we can even expose that prop directly?
@@ -46,26 +41,11 @@ fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
     QualityPrioritization.BALANCED -> 92
     QualityPrioritization.QUALITY -> 100
   }
-  captureRequest[CaptureRequest.JPEG_QUALITY] = jpegQuality.toByte()
-
+  captureRequest.set(CaptureRequest.JPEG_QUALITY, jpegQuality.toByte())
   captureRequest.set(CaptureRequest.JPEG_ORIENTATION, orientation.toDegrees())
 
-  when (flashMode) {
-    // Set the Flash Mode
-    Flash.OFF -> {
-      captureRequest[CaptureRequest.CONTROL_AE_MODE] = CaptureRequest.CONTROL_AE_MODE_ON
-    }
-    Flash.ON -> {
-      captureRequest[CaptureRequest.CONTROL_AE_MODE] = CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH
-    }
-    Flash.AUTO -> {
-      if (enableRedEyeReduction) {
-        captureRequest[CaptureRequest.CONTROL_AE_MODE] = CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH_REDEYE
-      } else {
-        captureRequest[CaptureRequest.CONTROL_AE_MODE] = CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
-      }
-    }
-  }
+  // Auto-Exposure setting for Flash
+  captureRequest.set(CaptureRequest.CONTROL_AE_MODE, autoExposureMode)
 
   if (enableAutoStabilization) {
     // Enable optical or digital image stabilization
@@ -75,17 +55,17 @@ fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
     val opticalStabilization = cameraCharacteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_OPTICAL_STABILIZATION)
     val hasOpticalStabilization = opticalStabilization?.contains(CameraCharacteristics.LENS_OPTICAL_STABILIZATION_MODE_ON) ?: false
     if (hasOpticalStabilization) {
-      captureRequest[CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE] = CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_OFF
-      captureRequest[CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE] = CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE_ON
+      captureRequest.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_OFF)
+      captureRequest.set(CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE, CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE_ON)
     } else if (hasDigitalStabilization) {
-      captureRequest[CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE] = CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_ON
+      captureRequest.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_ON)
     } else {
       // no stabilization is supported. ignore it
     }
   }
 
   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-    captureRequest[CaptureRequest.CONTROL_ZOOM_RATIO] = zoom
+    captureRequest.set(CaptureRequest.CONTROL_ZOOM_RATIO, zoom)
   } else {
     val size = cameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)!!
     captureRequest.set(CaptureRequest.SCALER_CROP_REGION, size.zoomed(zoom))
