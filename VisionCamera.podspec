@@ -2,13 +2,7 @@ require "json"
 
 package = JSON.parse(File.read(File.join(__dir__, "package.json")))
 
-nodeModules = File.join(__dir__)
-tries = 0
-while !Dir.exist?(File.join(nodeModules, "node_modules")) && tries < 10
-  nodeModules = File.join(nodeModules, "..")
-  tries += 1
-end
-nodeModules = File.join(nodeModules, "node_modules")
+nodeModules = File.join(File.dirname(`cd "#{Pod::Config.instance.installation_root.to_s}" && node --print "require.resolve('react-native/package.json')"`), '..')
 
 forceDisableFrameProcessors = false
 if defined?($VCDisableFrameProcessors)
