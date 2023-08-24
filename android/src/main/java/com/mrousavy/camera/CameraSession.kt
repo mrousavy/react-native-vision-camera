@@ -6,18 +6,20 @@ import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
+import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
+import android.hardware.camera2.params.MeteringRectangle
 import android.media.Image
 import android.os.Build
 import android.util.Log
 import android.util.Range
+import android.util.Size
 import com.mrousavy.camera.extensions.SessionType
 import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.createPhotoCaptureRequest
-import com.mrousavy.camera.extensions.focus
 import com.mrousavy.camera.extensions.openCamera
 import com.mrousavy.camera.extensions.tryClose
 import com.mrousavy.camera.extensions.zoomed
@@ -298,12 +300,16 @@ class CameraSession(private val context: Context,
 
   suspend fun focus(x: Int, y: Int) {
     val captureSession = captureSession ?: throw CameraNotReadyError()
+    val previewOutput = outputs?.previewOutput ?: throw CameraNotReadyError()
     val characteristics = cameraManager.getCameraCharacteristics(captureSession.device.id)
     val sensorSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)!!
-    val point = Point(x * sensorSize.width(), y * sensorSize.height())
+    val previewSize = previewOutput.size
+    val pX = x.toDouble() / previewSize.width * sensorSize.height()
+    val pY = y.toDouble() / previewSize.height * sensorSize.width()
+    val point = Point(pX.toInt(), pY.toInt())
 
-    Log.i(TAG, "Focusing ($x, $y)...")
-    captureSession.focus(point, characteristics)
+    Log.i(TAG, "Focusing (${point.x}, ${point.y})...")
+    focus(point)
   }
 
   override fun onCameraAvailable(cameraId: String) {
@@ -314,6 +320,39 @@ class CameraSession(private val context: Context,
   override fun onCameraUnavailable(cameraId: String) {
     super.onCameraUnavailable(cameraId)
     Log.i(TAG, "Camera became un-available: $cameraId")
+  }
+
+  private suspend fun focus(point: Point) {
+    mutex.withLock {
+      val captureSession = captureSession ?: throw CameraNotReadyError()
+      val request = previewRequest ?: throw CameraNotReadyError()
+
+      val weight = MeteringRectangle.METERING_WEIGHT_MAX - 1
+      val focusAreaTouch = MeteringRectangle(point, Size(150, 150), weight)
+
+      // Quickly pause preview
+      captureSession.stopRepeating()
+
+      request.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_CANCEL)
+      request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF)
+      captureSession.capture(request.build(), null, null)
+
+      // Add AF trigger with focus region
+      val characteristics = cameraManager.getCameraCharacteristics(captureSession.device.id)
+      val maxSupportedFocusRegions = characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AE) ?: 0
+      if (maxSupportedFocusRegions >= 1) {
+        request.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(focusAreaTouch))
+      }
+      request.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
+      request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
+      request.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_START)
+
+      captureSession.capture(request.build(), false)
+
+      // Resume preview
+      request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE)
+      captureSession.setRepeatingRequest(request.build(), null, null)
+    }
   }
 
   /**
