@@ -386,7 +386,7 @@ class CameraSession(private val context: Context,
     val captureRequest = previewRequest ?: throw CameraNotReadyError()
 
     // FPS
-    val fpsRange = if (fps != null && CAN_SET_FPS) Range(fps, fps) else null
+    val fpsRange = if (fps != null && CAN_SET_FPS) Range(fps, fps) else Range(30, 30)
     captureRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, fpsRange)
 
     // Video Stabilization
