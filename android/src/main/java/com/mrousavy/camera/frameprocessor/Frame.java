@@ -104,11 +104,11 @@ public class Frame {
                 int vSize = vBuffer.remaining();
                 int totalSize = ySize + uSize + vSize;
 
-                if (byteArrayCache == null) {
+                if (byteArrayCache != null) byteArrayCache.rewind();
+                if (byteArrayCache == null || byteArrayCache.remaining() != totalSize) {
                     byteArrayCache = ByteBuffer.allocateDirect(totalSize);
                 }
 
-                byteArrayCache.rewind();
                 byteArrayCache.put(yBuffer).put(uBuffer).put(vBuffer);
 
                 return byteArrayCache;
