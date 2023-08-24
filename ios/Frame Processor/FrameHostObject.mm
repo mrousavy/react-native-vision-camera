@@ -79,7 +79,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       auto pixelBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
       auto bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer);
       auto height = CVPixelBufferGetHeight(pixelBuffer);
-      auto buffer = (uint8_t*) CVPixelBufferGetBaseAddress(pixelBuffer);
+
       auto arraySize = bytesPerRow * height;
 
       static constexpr auto ARRAYBUFFER_CACHE_PROP_NAME = "__frameArrayBufferCache";
@@ -96,7 +96,10 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
         runtime.global().setProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME, arrayBuffer);
       }
 
+      CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
+      auto buffer = (uint8_t*) CVPixelBufferGetBaseAddress(pixelBuffer);
       arrayBuffer.updateUnsafe(runtime, buffer, arraySize);
+      CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
 
       return arrayBuffer;
     };
