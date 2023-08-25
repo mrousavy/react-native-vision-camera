@@ -7,6 +7,7 @@
 #include <jni.h>
 #include <fbjni/fbjni.h>
 #include <EGL/egl.h>
+#include <android/native_window.h>
 
 namespace vision {
 
@@ -19,6 +20,16 @@ struct GLContext {
   EGLConfig config = nullptr;
 };
 
+struct RecordingSessionOutput {
+  ANativeWindow* surface = nullptr;
+  int width = 0;
+  int height = 0;
+};
+
+struct FrameProcessorOutput {
+  ANativeWindow* surface = nullptr;
+};
+
 class VideoPipeline: public jni::HybridClass<VideoPipeline> {
  public:
   static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/utils/VideoPipeline;";
@@ -27,8 +38,12 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
 
  public:
   ~VideoPipeline();
+  void onBeforeFrame();
+  void onFrame();
   void setFrameProcessorOutputSurface(jobject surface);
+  void removeFrameProcessorOutputSurface();
   void setRecordingSessionOutputSurface(jobject surface, jint width, jint height);
+  void removeRecordingSessionOutputSurface();
 
  private:
   // Private constructor. Use `create(..)` to create new instances.
@@ -42,6 +57,8 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
   GLContext _context;
   int _width = 0;
   int _height = 0;
+  FrameProcessorOutput _frameProcessorOutput;
+  RecordingSessionOutput _recordingSessionOutput;
 
  private:
   friend HybridBase;

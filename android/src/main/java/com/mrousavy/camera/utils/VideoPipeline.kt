@@ -58,10 +58,24 @@ class VideoPipeline(val width: Int,
   }
 
   override fun onFrameAvailable(surfaceTexture: SurfaceTexture) {
-    // TODO: Check if this SurfaceTexture is already attached to our OpenGL context, if not, attach it
-    // TODO: Do updateTexImage()
-    // TODO: Render the Frame to [recordingSession]
-    // TODO: Render the Frame to [ImageWriter] and then call [frameProcessor]
+    onBeforeFrame()
+    surfaceTexture.updateTexImage()
+    onFrame()
+  }
+
+  private fun getImageReader(): ImageReader {
+    val imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES)
+    imageReader.setOnImageAvailableListener({ reader ->
+      Log.i("VideoPipeline", "ImageReader::onImageAvailable!")
+      val image = reader.acquireLatestImage()
+
+      // TODO: Get correct orientation and isMirrored
+      val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, false)
+      frame.incrementRefCount()
+      frameProcessor?.call(frame)
+      frame.decrementRefCount()
+    }, null)
+    return imageReader
   }
 
   /**
@@ -74,36 +88,20 @@ class VideoPipeline(val width: Int,
     this.frameProcessor = frameProcessor
 
     if (frameProcessor != null) {
-      // 1. Close previous ImageReader
-      this.imageReader?.close()
+      if (this.imageReader == null) {
+        // 1. Create new ImageReader that just calls the Frame Processor
+        this.imageReader = getImageReader()
+      }
 
-      // 2. Create new ImageReader that just calls FrameProcessor whenever an Image is available
-      val imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES)
-      imageReader.setOnImageAvailableListener({ reader ->
-        Log.i("VideoPipeline", "ImageReader::onImageAvailable!")
-        val image = reader.acquireLatestImage()
-
-        // TODO: Get correct orientation and isMirrored
-        val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, false)
-        frame.incrementRefCount()
-        frameProcessor.call(frame)
-        frame.decrementRefCount()
-      }, null)
-
-      // 3. Configure OpenGL pipeline to stream Frames into the ImageReader's surface
-      setFrameProcessorOutputSurface(imageReader.surface)
-
-      this.imageReader = imageReader
-      this.frameProcessor = frameProcessor
+      // 2. Configure OpenGL pipeline to stream Frames into the ImageReader's surface
+      setFrameProcessorOutputSurface(imageReader!!.surface)
     } else {
       // 1. Configure OpenGL pipeline to stop streaming Frames into the ImageReader's surface
-      setFrameProcessorOutputSurface(null)
+      removeFrameProcessorOutputSurface()
 
       // 2. Close the ImageReader
       this.imageReader?.close()
-
       this.imageReader = null
-      this.frameProcessor = null
     }
   }
 
@@ -119,13 +117,16 @@ class VideoPipeline(val width: Int,
       this.recordingSession = recordingSession
     } else {
       // Configure OpenGL pipeline to stop streaming Frames into the Recording Session's surface
-      setRecordingSessionOutputSurface(null, null, null)
+      removeRecordingSessionOutputSurface()
       this.recordingSession = null
     }
   }
 
-
-  private external fun setFrameProcessorOutputSurface(surface: Any?)
-  private external fun setRecordingSessionOutputSurface(surface: Any?, width: Int?, height: Int?)
+  private external fun onBeforeFrame()
+  private external fun onFrame()
+  private external fun setFrameProcessorOutputSurface(surface: Any)
+  private external fun removeFrameProcessorOutputSurface()
+  private external fun setRecordingSessionOutputSurface(surface: Any, width: Int, height: Int)
+  private external fun removeRecordingSessionOutputSurface()
   private external fun initHybrid(): HybridData
 }

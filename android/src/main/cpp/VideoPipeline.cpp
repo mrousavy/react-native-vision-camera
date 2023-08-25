@@ -14,6 +14,8 @@ jni::local_ref<VideoPipeline::jhybriddata> VideoPipeline::initHybrid(jni::alias_
 VideoPipeline::VideoPipeline(jni::alias_ref<jhybridobject> jThis): _javaPart(jni::make_global(jThis)) { }
 
 VideoPipeline::~VideoPipeline() {
+  removeFrameProcessorOutputSurface();
+  removeRecordingSessionOutputSurface();
   if (_context.display != EGL_NO_DISPLAY) {
     eglMakeCurrent(_context.display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     if (_context.surface != EGL_NO_SURFACE) {
@@ -112,19 +114,65 @@ GLContext& VideoPipeline::getGLContext() {
   return _context;
 }
 
-void VideoPipeline::setFrameProcessorOutputSurface(jobject surface) {
+void VideoPipeline::removeFrameProcessorOutputSurface() {
+  if (_frameProcessorOutput.surface != nullptr) {
+    ANativeWindow_release(_frameProcessorOutput.surface);
+    _frameProcessorOutput = {
+        .surface = nullptr
+    };
+  }
+}
 
+void VideoPipeline::setFrameProcessorOutputSurface(jobject surface) {
+  // 1. Delete existing output surface
+  removeFrameProcessorOutputSurface();
+
+  // 2. Set new output surface if it is not null
+  _frameProcessorOutput = {
+      .surface = ANativeWindow_fromSurface(jni::Environment::current(), surface)
+  };
+}
+
+void VideoPipeline::removeRecordingSessionOutputSurface() {
+  if (_recordingSessionOutput.surface != nullptr) {
+    ANativeWindow_release(_recordingSessionOutput.surface);
+    _recordingSessionOutput = {
+        .surface = nullptr,
+        .width = 0,
+        .height = 0
+    };
+  }
 }
 
 void VideoPipeline::setRecordingSessionOutputSurface(jobject surface, jint width, jint height) {
+  // 1. Delete existing output surface
+  removeRecordingSessionOutputSurface();
 
+  // 2. Set new output surface if it is not null
+  _recordingSessionOutput = {
+      .surface = ANativeWindow_fromSurface(jni::Environment::current(), surface),
+      .width = width,
+      .height = height
+  };
+}
+
+void VideoPipeline::onBeforeFrame() {
+  // TODO: Prepare for updateTexImage() call
+}
+
+void VideoPipeline::onFrame() {
+  // TODO: Write image to pbuffer surface
 }
 
 void VideoPipeline::registerNatives() {
   registerHybrid({
     makeNativeMethod("initHybrid", VideoPipeline::initHybrid),
     makeNativeMethod("setFrameProcessorOutputSurface", VideoPipeline::setFrameProcessorOutputSurface),
+    makeNativeMethod("removeFrameProcessorOutputSurface", VideoPipeline::removeFrameProcessorOutputSurface),
     makeNativeMethod("setRecordingSessionOutputSurface", VideoPipeline::setRecordingSessionOutputSurface),
+    makeNativeMethod("removeRecordingSessionOutputSurface", VideoPipeline::removeRecordingSessionOutputSurface),
+    makeNativeMethod("onBeforeFrame", VideoPipeline::onBeforeFrame),
+    makeNativeMethod("onFrame", VideoPipeline::onFrame),
   });
 }
 
