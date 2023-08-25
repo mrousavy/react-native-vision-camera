@@ -253,7 +253,7 @@ class CameraSession(private val context: Context,
       val outputs = outputs ?: throw CameraNotReadyError()
       val videoOutput = outputs.videoOutput ?: throw VideoNotEnabledError()
 
-      val recording = RecordingSession(context, enableAudio, videoOutput.size, fps, codec, orientation, fileType, callback, onError)
+      val recording = RecordingSession(context, videoOutput.size, enableAudio, fps, codec, orientation, fileType, callback, onError)
       recording.start()
       this.recording = recording
     }

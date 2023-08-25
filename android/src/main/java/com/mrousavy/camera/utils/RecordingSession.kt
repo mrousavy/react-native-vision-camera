@@ -17,8 +17,8 @@ import com.mrousavy.camera.utils.outputs.CameraOutputs
 import java.io.File
 
 class RecordingSession(context: Context,
+                       val size: Size,
                        private val enableAudio: Boolean,
-                       private val videoSize: Size,
                        private val fps: Int? = null,
                        private val codec: VideoCodec = VideoCodec.H264,
                        private val orientation: Orientation,
@@ -61,7 +61,7 @@ class RecordingSession(context: Context,
     recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
     recorder.setOutputFile(outputFile.absolutePath)
     recorder.setVideoEncodingBitRate(VIDEO_BIT_RATE)
-    recorder.setVideoSize(videoSize.width, videoSize.height)
+    recorder.setVideoSize(size.width, size.height)
     if (fps != null) recorder.setVideoFrameRate(fps)
 
     Log.i(TAG, "Using $codec Video Codec..")
@@ -161,6 +161,6 @@ class RecordingSession(context: Context,
 
   override fun toString(): String {
     val audio = if (enableAudio) "with audio" else "without audio"
-    return "${videoSize.width} x ${videoSize.height} @ $fps FPS $codec $fileType $orientation RecordingSession ($audio)"
+    return "${size.width} x ${size.height} @ $fps FPS $codec $fileType $orientation RecordingSession ($audio)"
   }
 }
