@@ -66,10 +66,10 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
 
     return jsi::String::createFromUtf8(runtime, object->toString());
 
-  } else if (object->isInstanceOf(JArrayList<jobject>::javaClassStatic())) {
-    // ArrayList<E>
+  } else if (object->isInstanceOf(JList<jobject>::javaClassStatic())) {
+    // List<E>
 
-    auto arrayList = static_ref_cast<JArrayList<jobject>>(object);
+    auto arrayList = static_ref_cast<JList<jobject>>(object);
     auto size = arrayList->size();
 
     auto result = jsi::Array(runtime, size);
@@ -80,17 +80,8 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
     }
     return result;
 
-  } else if (object->isInstanceOf(react::ReadableArray::javaClassStatic())) {
-    // ReadableArray
-
-    static const auto toArrayListFunc = react::ReadableArray::javaClassLocal()->getMethod<JArrayList<jobject>()>("toArrayList");
-
-    // call recursive, this time ArrayList<E>
-    auto array = toArrayListFunc(object.get());
-    return convertJNIObjectToJSIValue(runtime, array);
-
-  } else if (object->isInstanceOf(JHashMap<jstring, jobject>::javaClassStatic())) {
-    // HashMap<K, V>
+  } else if (object->isInstanceOf(JMap<jstring, jobject>::javaClassStatic())) {
+    // Map<K, V>
 
     auto map = static_ref_cast<JHashMap<jstring, jobject>>(object);
 
@@ -103,16 +94,7 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
     }
     return result;
 
-  } else if (object->isInstanceOf(react::ReadableMap::javaClassStatic())) {
-    // ReadableMap
-
-    static const auto toHashMapFunc = react::ReadableMap::javaClassLocal()->getMethod<JHashMap<jstring, jobject>()>("toHashMap");
-
-    // call recursive, this time HashMap<K, V>
-    auto hashMap = toHashMapFunc(object.get());
-    return convertJNIObjectToJSIValue(runtime, hashMap);
-
-  } else if (object->isInstanceOf(JFrame::javaClassStatic())) {
+  } if (object->isInstanceOf(JFrame::javaClassStatic())) {
     // Frame
     auto frame = static_ref_cast<JFrame>(object);
 
