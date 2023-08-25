@@ -1,7 +1,6 @@
 package com.mrousavy.camera.utils.outputs
 
 import android.graphics.ImageFormat
-import android.hardware.HardwareBuffer
 import android.hardware.camera2.CameraManager
 import android.media.Image
 import android.media.ImageReader
@@ -14,6 +13,7 @@ import com.mrousavy.camera.extensions.closestToOrMax
 import com.mrousavy.camera.extensions.getPhotoSizes
 import com.mrousavy.camera.extensions.getPreviewSize
 import com.mrousavy.camera.extensions.getVideoSizes
+import com.mrousavy.camera.utils.VideoPipeline
 import java.io.Closeable
 
 class CameraOutputs(val cameraId: String,
@@ -46,7 +46,7 @@ class CameraOutputs(val cameraId: String,
     private set
   var photoOutput: ImageReaderOutput? = null
     private set
-  var videoOutput: SurfaceOutput? = null
+  var videoOutput: VideoPipelineOutput? = null
     private set
 
   val size: Int
@@ -118,23 +118,11 @@ class CameraOutputs(val cameraId: String,
 
     // Video output: High resolution repeating images (startRecording() or useFrameProcessor())
     if (video != null) {
-      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) throw Error("Video Recordings and/or Frame Processors are only available on API 29 and above!")
-
       val size = characteristics.getVideoSizes(cameraId, video.format).closestToOrMax(video.targetSize)
-
-      val flags = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or HardwareBuffer.USAGE_VIDEO_ENCODE
-      val imageReader = ImageReader.newInstance(size.width, size.height, video.format, VIDEO_OUTPUT_BUFFER_SIZE, flags)
-      imageReader.setOnImageAvailableListener({ reader ->
-        try {
-          val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
-          callback.onVideoFrameCaptured(image)
-        } catch (e: IllegalStateException) {
-          Log.e(TAG, "Failed to acquire a new Image, dropping a Frame.. The Frame Processor cannot keep up with the Camera's FPS!", e)
-        }
-      }, CameraQueues.videoQueue.handler)
+      val videoPipeline = VideoPipeline(size.width, size.height, video.format)
 
       Log.i(TAG, "Adding ${size.width}x${size.height} video output. (Format: ${video.format})")
-      videoOutput = ImageReaderOutput(imageReader, SurfaceOutput.OutputType.VIDEO)
+      videoOutput = VideoPipelineOutput(videoPipeline, SurfaceOutput.OutputType.VIDEO)
     }
 
     Log.i(TAG, "Prepared $size Outputs for Camera $cameraId!")
