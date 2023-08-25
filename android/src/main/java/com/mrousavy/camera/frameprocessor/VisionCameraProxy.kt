@@ -12,8 +12,6 @@ import com.facebook.react.uimanager.UIManagerHelper
 import com.mrousavy.camera.CameraView
 import com.mrousavy.camera.ViewNotFoundError
 import java.lang.ref.WeakReference
-import java.util.Map
-
 
 @Suppress("KotlinJniMissingFunction") // we use fbjni.
 class VisionCameraProxy(context: ReactApplicationContext) {
@@ -71,7 +69,7 @@ class VisionCameraProxy(context: ReactApplicationContext) {
 
   @DoNotStrip
   @Keep
-  fun getFrameProcessorPlugin(name: String, options: Map<String, Object>): FrameProcessorPlugin {
+  fun getFrameProcessorPlugin(name: String, options: Map<String, Any>): FrameProcessorPlugin {
     return FrameProcessorPluginRegistry.getPlugin(name, options)
   }
 

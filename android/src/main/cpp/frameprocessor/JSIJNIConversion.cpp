@@ -13,11 +13,8 @@
 #include <utility>
 #include <memory>
 
-#include <jsi/JSIDynamic.h>
-#include <folly/dynamic.h>
-
 #include "FrameHostObject.h"
-#include "java-bindings/JFrame.h"
+#include "JFrame.h"
 
 namespace vision {
 
@@ -30,7 +27,7 @@ jni::local_ref<jni::JMap<jstring, jobject>> JSIJNIConversion::convertJSIObjectTo
 
   for (size_t i = 0; i < size; i++) {
     auto propName = propertyNames.getValueAtIndex(runtime, i).asString(runtime);
-    auto key = make_jstring(propName.utf8(runtime));
+    auto key = jni::make_jstring(propName.utf8(runtime));
     auto value = object.getProperty(runtime, propName);
 
     if (value.isNull() || value.isUndefined()) {
@@ -42,19 +39,19 @@ jni::local_ref<jni::JMap<jstring, jobject>> JSIJNIConversion::convertJSIObjectTo
       // Boolean
 
       auto boolean = value.getBool();
-      hashMap->put(key, JBoolean::valueOf(boolean));
+      hashMap->put(key, jni::JBoolean::valueOf(boolean));
 
     } else if (value.isNumber()) {
       // Double
 
       auto number = value.getNumber();
-      hashMap->put(key, JDouble::valueOf(number));
+      hashMap->put(key, jni::JDouble::valueOf(number));
 
     } else if (value.isString()) {
       // String
 
-      auto str = value.getString(runtime);
-      hashMap->put(key, JDouble::valueOf(value.getNumber()));
+      auto str = value.getString(runtime).utf8(runtime);
+      hashMap->put(key, jni::make_jstring(str));
 
     } else if (value.isObject()) {
       // Object

@@ -16,14 +16,14 @@ import java.util.Map;
 public class ExampleFrameProcessorPlugin extends FrameProcessorPlugin {
     @Override
     public Object callback(@NotNull Frame frame, @Nullable Map<String, Object> params) {
-        HashMap<String, Object> hashMap = params != null ? params.toHashMap() : new HashMap<>();
+        if (params == null) return null;
         Image image = frame.getImage();
 
-        Log.d("ExamplePlugin", image.getWidth() + " x " + image.getHeight() + " Image with format #" + image.getFormat() + ". Logging " + hashMap.size() + " parameters:");
+        Log.d("ExamplePlugin", image.getWidth() + " x " + image.getHeight() + " Image with format #" + image.getFormat() + ". Logging " + params.size() + " parameters:");
 
-        for (String key : hashMap.keySet()) {
-            Object value = hashMap.get(key);
-            Log.d("ExamplePlugin", "  -> " + (value == null ? "(null)" : value.toString() + " (" + value.getClass().getName() + ")"));
+        for (String key : params.keySet()) {
+            Object value = params.get(key);
+            Log.d("ExamplePlugin", "  -> " + (value == null ? "(null)" : value + " (" + value.getClass().getName() + ")"));
         }
 
         Map<String, Object> map = new HashMap<>();

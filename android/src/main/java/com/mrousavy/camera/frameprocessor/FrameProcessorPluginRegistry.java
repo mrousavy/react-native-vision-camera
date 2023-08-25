@@ -4,9 +4,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.Nullable;
 import com.facebook.proguard.annotations.DoNotStrip;
 import java.util.Map;
-
 import java.util.HashMap;
-import java.util.Map;
 
 @DoNotStrip
 @Keep

@@ -1,10 +1,10 @@
 #include <jni.h>
 #include <fbjni/fbjni.h>
-#include "frameprocessor/java-bindings/JVisionCameraScheduler.h"
-#include "frameprocessor/java-bindings/JFrameProcessor.h"
-#include "frameprocessor/java-bindings/JVisionCameraProxy.h"
-#include "frameprocessor/VisionCameraProxy.h"
-#include "skia/SkiaRenderer.h"
+#include "JVisionCameraScheduler.h"
+#include "JFrameProcessor.h"
+#include "JVisionCameraProxy.h"
+#include "VisionCameraProxy.h"
+#include "SkiaRenderer.h"
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *) {
   return facebook::jni::initialize(vm, [] {

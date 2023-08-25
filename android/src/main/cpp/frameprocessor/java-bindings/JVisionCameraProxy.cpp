@@ -23,7 +23,7 @@ namespace vision {
 using TSelf = local_ref<HybridClass<JVisionCameraProxy>::jhybriddata>;
 using TJSCallInvokerHolder = jni::alias_ref<facebook::react::CallInvokerHolder::javaobject>;
 using TScheduler = jni::alias_ref<JVisionCameraScheduler::javaobject>;
-using TOptions = jni::local_ref<JMap<String, Object>>;
+using TOptions = jni::local_ref<JMap<jstring, jobject>>;
 
 JVisionCameraProxy::JVisionCameraProxy(const jni::alias_ref<JVisionCameraProxy::jhybridobject>& javaThis,
                                        jsi::Runtime* runtime,
