@@ -10,6 +10,7 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import com.facebook.jni.HybridData
 import com.mrousavy.camera.frameprocessor.FrameProcessor
+import java.io.Closeable
 
 /**
  * An OpenGL pipeline for streaming Camera Frames to one or more outputs.
@@ -23,7 +24,7 @@ import com.mrousavy.camera.frameprocessor.FrameProcessor
 @RequiresApi(Build.VERSION_CODES.O)
 class VideoPipeline(val width: Int,
                     val height: Int,
-                    val format: Int? = null): SurfaceTexture.OnFrameAvailableListener {
+                    val format: Int? = null): SurfaceTexture.OnFrameAvailableListener, Closeable {
   private val mHybridData: HybridData
 
   // Output 1
@@ -42,6 +43,14 @@ class VideoPipeline(val width: Int,
     surfaceTexture = SurfaceTexture(false)
     surfaceTexture.setOnFrameAvailableListener(this)
     surface = Surface(surfaceTexture)
+  }
+
+  override fun close() {
+    imageWriter?.close()
+    imageWriter = null
+    frameProcessor = null
+    recordingSession = null
+    // TODO: Destroy OpenGL context here
   }
 
   override fun onFrameAvailable(surfaceTexture: SurfaceTexture) {
