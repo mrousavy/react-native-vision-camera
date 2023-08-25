@@ -61,7 +61,7 @@ import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
 public class FaceDetectorFrameProcessorPlugin extends FrameProcessorPlugin {
 
   @Override
-  public Object callback(Frame frame, ReadableNativeMap arguments) {
+  public Object callback(Frame frame, Map<String, Object> arguments) {
     // code goes here
     return null;
   }
@@ -126,7 +126,7 @@ import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin
 
 class FaceDetectorFrameProcessorPlugin: FrameProcessorPlugin() {
 
-  override fun callback(frame: Frame, arguments: ReadableNativeMap): Any? {
+  override fun callback(frame: Frame, arguments: Map<String, Object>): Any? {
     // code goes here
     return null
   }

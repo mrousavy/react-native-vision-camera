@@ -12,10 +12,10 @@ namespace vision {
 using namespace facebook;
 using namespace jni;
 
-using TCallback = jobject(alias_ref<JFrame::javaobject>, alias_ref<react::ReadableNativeMap::javaobject> params);
+using TCallback = jobject(alias_ref<JFrame::javaobject>, alias_ref<JMap<String, Object>> params);
 
 local_ref<jobject> JFrameProcessorPlugin::callback(const alias_ref<JFrame::javaobject>& frame,
-                                                   const alias_ref<react::ReadableNativeMap::javaobject>& params) const {
+                                                   const alias_ref<JMap<String, Object>>& params) const {
   auto callbackMethod = getClass()->getMethod<TCallback>("callback");
 
   auto result = callbackMethod(self(), frame, params);

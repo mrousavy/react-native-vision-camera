@@ -33,7 +33,6 @@ add_library(
         src/main/cpp/frameprocessor/java-bindings/JFrame.cpp
         src/main/cpp/frameprocessor/java-bindings/JFrameProcessor.cpp
         src/main/cpp/frameprocessor/java-bindings/JFrameProcessorPlugin.cpp
-        src/main/cpp/frameprocessor/java-bindings/JHashMap.cpp
         src/main/cpp/frameprocessor/java-bindings/JVisionCameraProxy.cpp
         src/main/cpp/frameprocessor/java-bindings/JVisionCameraScheduler.cpp
         # Skia Frame Processor
