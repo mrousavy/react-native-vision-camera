@@ -25,6 +25,11 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
   static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis);
   static void registerNatives();
 
+ public:
+  ~VideoPipeline();
+  void setFrameProcessorOutputSurface(jobject surface);
+  void setRecordingSessionOutputSurface(jobject surface, jint width, jint height);
+
  private:
   // Private constructor. Use `create(..)` to create new instances.
   explicit VideoPipeline(jni::alias_ref<jhybridobject> jThis);

@@ -13,6 +13,25 @@ jni::local_ref<VideoPipeline::jhybriddata> VideoPipeline::initHybrid(jni::alias_
 
 VideoPipeline::VideoPipeline(jni::alias_ref<jhybridobject> jThis): _javaPart(jni::make_global(jThis)) { }
 
+VideoPipeline::~VideoPipeline() {
+  if (_context.display != EGL_NO_DISPLAY) {
+    eglMakeCurrent(_context.display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    if (_context.surface != EGL_NO_SURFACE) {
+      __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying OpenGL Surface...");
+      eglDestroySurface(_context.display, _context.surface);
+      _context.surface = EGL_NO_SURFACE;
+    }
+    if (_context.context != EGL_NO_CONTEXT) {
+      __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying OpenGL Context...");
+      eglDestroyContext(_context.display, _context.context);
+      _context.context = EGL_NO_CONTEXT;
+    }
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying OpenGL Display...");
+    eglTerminate(_context.display);
+    _context.display = EGL_NO_DISPLAY;
+  }
+}
+
 void VideoPipeline::setSize(int width, int height) {
   _width = width;
   _height = height;
@@ -93,9 +112,19 @@ GLContext& VideoPipeline::getGLContext() {
   return _context;
 }
 
+void VideoPipeline::setFrameProcessorOutputSurface(jobject surface) {
+
+}
+
+void VideoPipeline::setRecordingSessionOutputSurface(jobject surface, jint width, jint height) {
+
+}
+
 void VideoPipeline::registerNatives() {
   registerHybrid({
-     makeNativeMethod("initHybrid", VideoPipeline::initHybrid),
+    makeNativeMethod("initHybrid", VideoPipeline::initHybrid),
+    makeNativeMethod("setFrameProcessorOutputSurface", VideoPipeline::setFrameProcessorOutputSurface),
+    makeNativeMethod("setRecordingSessionOutputSurface", VideoPipeline::setRecordingSessionOutputSurface),
   });
 }
 

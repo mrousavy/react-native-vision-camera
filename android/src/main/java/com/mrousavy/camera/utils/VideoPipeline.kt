@@ -1,15 +1,16 @@
 package com.mrousavy.camera.utils
 
 import android.graphics.ImageFormat
-import android.graphics.PixelFormat
 import android.graphics.SurfaceTexture
+import android.media.ImageReader
 import android.media.ImageWriter
 import android.media.MediaRecorder
-import android.os.Build
+import android.util.Log
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import com.facebook.jni.HybridData
+import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
+import com.mrousavy.camera.parsers.Orientation
 import java.io.Closeable
 
 /**
@@ -23,12 +24,16 @@ import java.io.Closeable
 @Suppress("KotlinJniMissingFunction")
 class VideoPipeline(val width: Int,
                     val height: Int,
-                    val format: Int? = null): SurfaceTexture.OnFrameAvailableListener, Closeable {
+                    val format: Int = ImageFormat.PRIVATE): SurfaceTexture.OnFrameAvailableListener, Closeable {
+  companion object {
+    private const val MAX_IMAGES = 5
+  }
+
   private val mHybridData: HybridData
 
   // Output 1
   private var frameProcessor: FrameProcessor? = null
-  private var imageWriter: ImageWriter? = null
+  private var imageReader: ImageReader? = null
 
   // Output 2
   private var recordingSession: RecordingSession? = null
@@ -45,11 +50,11 @@ class VideoPipeline(val width: Int,
   }
 
   override fun close() {
-    imageWriter?.close()
-    imageWriter = null
+    imageReader?.close()
+    imageReader = null
     frameProcessor = null
     recordingSession = null
-    // TODO: Destroy OpenGL context here
+    mHybridData.resetNative()
   }
 
   override fun onFrameAvailable(surfaceTexture: SurfaceTexture) {
@@ -66,23 +71,38 @@ class VideoPipeline(val width: Int,
    * using an [ImageWriter] and call the [FrameProcessor] with those Frames.
    */
   fun setFrameProcessorOutput(frameProcessor: FrameProcessor?) {
-    if (this.frameProcessor == frameProcessor) return
+    this.frameProcessor = frameProcessor
 
     if (frameProcessor != null) {
-      this.imageWriter?.close()
+      // 1. Close previous ImageReader
+      this.imageReader?.close()
 
+      // 2. Create new ImageReader that just calls FrameProcessor whenever an Image is available
+      val imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES)
+      imageReader.setOnImageAvailableListener({ reader ->
+        Log.i("VideoPipeline", "ImageReader::onImageAvailable!")
+        val image = reader.acquireLatestImage()
+
+        // TODO: Get correct orientation and isMirrored
+        val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, false)
+        frame.incrementRefCount()
+        frameProcessor.call(frame)
+        frame.decrementRefCount()
+      }, null)
+
+      // 3. Configure OpenGL pipeline to stream Frames into the ImageReader's surface
+      setFrameProcessorOutputSurface(imageReader.surface)
+
+      this.imageReader = imageReader
       this.frameProcessor = frameProcessor
-      if (format == null) {
-        // TODO: Get a Surface from OpenGL here...
-        this.imageWriter = ImageWriter.newInstance(null, MAX_IMAGES)
-      } else {
-        // TODO: Get a Surface from OpenGL here...
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) throw Error("Setting ImageWriter PixelFormat requires API 29 or higher!")
-        this.imageWriter = ImageWriter.newInstance(null, MAX_IMAGES, format)
-      }
     } else {
-      this.imageWriter?.close()
-      this.imageWriter = null
+      // 1. Configure OpenGL pipeline to stop streaming Frames into the ImageReader's surface
+      setFrameProcessorOutputSurface(null)
+
+      // 2. Close the ImageReader
+      this.imageReader?.close()
+
+      this.imageReader = null
       this.frameProcessor = null
     }
   }
@@ -93,13 +113,19 @@ class VideoPipeline(val width: Int,
    * * If the [surface] is not `null`, the [VideoPipeline] will write Frames to this Surface.
    */
   fun setRecordingSessionOutput(recordingSession: RecordingSession?) {
-    this.recordingSession = recordingSession
+    if (recordingSession != null) {
+      // Configure OpenGL pipeline to stream Frames into the Recording Session's surface
+      setRecordingSessionOutputSurface(recordingSession.surface, recordingSession.size.width, recordingSession.size.height)
+      this.recordingSession = recordingSession
+    } else {
+      // Configure OpenGL pipeline to stop streaming Frames into the Recording Session's surface
+      setRecordingSessionOutputSurface(null, null, null)
+      this.recordingSession = null
+    }
   }
 
 
+  private external fun setFrameProcessorOutputSurface(surface: Any?)
+  private external fun setRecordingSessionOutputSurface(surface: Any?, width: Int?, height: Int?)
   private external fun initHybrid(): HybridData
-
-  companion object {
-    private const val MAX_IMAGES = 5
-  }
 }
