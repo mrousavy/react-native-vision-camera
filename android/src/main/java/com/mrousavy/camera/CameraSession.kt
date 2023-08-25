@@ -23,7 +23,6 @@ import com.mrousavy.camera.extensions.createPhotoCaptureRequest
 import com.mrousavy.camera.extensions.openCamera
 import com.mrousavy.camera.extensions.tryClose
 import com.mrousavy.camera.extensions.zoomed
-import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.parsers.Flash
 import com.mrousavy.camera.parsers.Orientation
@@ -88,8 +87,17 @@ class CameraSession(private val context: Context,
   private val mutex = Mutex()
   private var isRunning = false
   private var enableTorch = false
+  // Video Outputs
   private var recording: RecordingSession? = null
+    set(value) {
+      field = value
+      updateVideoOutputs()
+    }
   private var frameProcessor: FrameProcessor? = null
+    set(value) {
+      field = value
+      updateVideoOutputs()
+    }
 
   override val coroutineContext: CoroutineContext = CameraQueues.cameraQueue.coroutineDispatcher
 
@@ -183,6 +191,12 @@ class CameraSession(private val context: Context,
     }
   }
 
+  private fun updateVideoOutputs() {
+    val videoPipeline = outputs?.videoOutput?.videoPipeline ?: return
+    videoPipeline.setRecordingSessionOutput(this.recording)
+    videoPipeline.setFrameProcessorOutput(this.frameProcessor)
+  }
+
   fun setFrameProcessor(frameProcessor: FrameProcessor?) {
     this.frameProcessor = frameProcessor
   }
@@ -227,20 +241,6 @@ class CameraSession(private val context: Context,
   override fun onPhotoCaptured(image: Image) {
     Log.i(CameraView.TAG, "Photo captured! ${image.width} x ${image.height}")
     photoOutputSynchronizer.set(image.timestamp, image)
-  }
-
-  override fun onVideoFrameCaptured(image: Image) {
-    // TODO: Correctly get orientation and everything
-    val frame = Frame(image, System.currentTimeMillis(), Orientation.PORTRAIT, false)
-    frame.incrementRefCount()
-
-    // Call (Skia-) Frame Processor
-    frameProcessor?.call(frame)
-
-    // Write Image to the Recording
-    recording?.appendImage(image)
-
-    frame.decrementRefCount()
   }
 
   suspend fun startRecording(enableAudio: Boolean,

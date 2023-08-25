@@ -1,16 +1,14 @@
 package com.mrousavy.camera.utils.outputs
 
-import android.os.Build
 import android.util.Log
 import android.util.Size
-import androidx.annotation.RequiresApi
 import com.mrousavy.camera.utils.VideoPipeline
 import java.io.Closeable
 
 /**
  * A [SurfaceOutput] that uses a [VideoPipeline] as it's surface.
  */
-class VideoPipelineOutput(private val videoPipeline: VideoPipeline,
+class VideoPipelineOutput(val videoPipeline: VideoPipeline,
                           outputType: OutputType,
                           dynamicRangeProfile: Long? = null): Closeable, SurfaceOutput(videoPipeline.surface, Size(videoPipeline.width, videoPipeline.height), outputType, dynamicRangeProfile) {
   override fun close() {

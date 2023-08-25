@@ -4,7 +4,6 @@ import android.graphics.ImageFormat
 import android.hardware.camera2.CameraManager
 import android.media.Image
 import android.media.ImageReader
-import android.os.Build
 import android.util.Log
 import android.util.Size
 import android.view.Surface
@@ -25,7 +24,6 @@ class CameraOutputs(val cameraId: String,
                     val callback: Callback): Closeable {
   companion object {
     private const val TAG = "CameraOutputs"
-    const val VIDEO_OUTPUT_BUFFER_SIZE = 3
     const val PHOTO_OUTPUT_BUFFER_SIZE = 3
   }
 
@@ -39,7 +37,6 @@ class CameraOutputs(val cameraId: String,
 
   interface Callback {
     fun onPhotoCaptured(image: Image)
-    fun onVideoFrameCaptured(image: Image)
   }
 
   var previewOutput: SurfaceOutput? = null

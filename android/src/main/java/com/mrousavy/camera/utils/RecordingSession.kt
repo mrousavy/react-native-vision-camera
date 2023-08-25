@@ -1,7 +1,6 @@
 package com.mrousavy.camera.utils
 
 import android.content.Context
-import android.media.Image
 import android.media.ImageWriter
 import android.media.MediaCodec
 import android.media.MediaRecorder
@@ -13,7 +12,6 @@ import com.mrousavy.camera.RecorderError
 import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.VideoCodec
 import com.mrousavy.camera.parsers.VideoFileType
-import com.mrousavy.camera.utils.outputs.CameraOutputs
 import java.io.File
 
 class RecordingSession(context: Context,
@@ -127,18 +125,6 @@ class RecordingSession(context: Context,
     synchronized(this) {
       Log.i(TAG, "Resuming Recording Session..")
       recorder.resume()
-    }
-  }
-
-  fun appendImage(image: Image) {
-    synchronized(this) {
-      // TODO: Correctly mirror/flip Image in OpenGL pipeline, otherwise flipping camera while recording results in inverted frames
-
-      if (imageWriter == null) {
-        imageWriter = ImageWriter.newInstance(surface, CameraOutputs.VIDEO_OUTPUT_BUFFER_SIZE)
-      }
-      image.timestamp = System.nanoTime()
-      imageWriter!!.queueInputImage(image)
     }
   }
 
