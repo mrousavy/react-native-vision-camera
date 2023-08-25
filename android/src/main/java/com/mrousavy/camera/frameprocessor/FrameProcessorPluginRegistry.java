@@ -2,12 +2,9 @@ package com.mrousavy.camera.frameprocessor;
 
 import androidx.annotation.Keep;
 import androidx.annotation.Nullable;
-
 import com.facebook.proguard.annotations.DoNotStrip;
-import com.facebook.react.bridge.ReadableNativeMap;
-
-import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
 
 @DoNotStrip
 @Keep
@@ -24,7 +21,7 @@ public class FrameProcessorPluginRegistry {
 
     @DoNotStrip
     @Keep
-    public static FrameProcessorPlugin getPlugin(String name, ReadableNativeMap options) {
+    public static FrameProcessorPlugin getPlugin(String name, Map<String, Object> options) {
         PluginInitializer initializer = Plugins.get(name);
         if (initializer == null) {
             return null;
@@ -33,6 +30,6 @@ public class FrameProcessorPluginRegistry {
     }
 
     public interface PluginInitializer {
-        FrameProcessorPlugin initializePlugin(@Nullable ReadableNativeMap options);
+        FrameProcessorPlugin initializePlugin(@Nullable Map<String, Object> options);
     }
 }

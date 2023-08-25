@@ -7,7 +7,6 @@
 #include <jni.h>
 #include <fbjni/fbjni.h>
 #include <string>
-#include <react/jni/ReadableNativeMap.h>
 
 #include "JFrame.h"
 
@@ -24,7 +23,7 @@ struct JFrameProcessorPlugin : public JavaClass<JFrameProcessorPlugin> {
    * Call the plugin.
    */
   local_ref<jobject> callback(const alias_ref<JFrame::javaobject>& frame,
-                              const alias_ref<react::ReadableNativeMap::javaobject>& params) const;
+                              const alias_ref<JMap<jstring, jobject>>& params) const;
 };
 
 } // namespace vision

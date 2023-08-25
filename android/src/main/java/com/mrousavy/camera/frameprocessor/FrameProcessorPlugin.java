@@ -4,7 +4,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.facebook.proguard.annotations.DoNotStrip;
-import com.facebook.react.bridge.ReadableNativeMap;
+import java.util.Map;
 
 /**
  * Declares a Frame Processor Plugin.
@@ -21,5 +21,5 @@ public abstract class FrameProcessorPlugin {
      */
     @DoNotStrip
     @Keep
-    public abstract @Nullable Object callback(@NonNull Frame frame, @Nullable ReadableNativeMap params);
+    public abstract @Nullable Object callback(@NonNull Frame frame, @Nullable Map<String, Object> params);
 }

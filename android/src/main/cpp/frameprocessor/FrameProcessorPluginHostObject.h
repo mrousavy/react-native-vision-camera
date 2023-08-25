@@ -5,7 +5,7 @@
 #pragma once
 
 #include <jsi/jsi.h>
-#include "java-bindings/JFrameProcessorPlugin.h"
+#include "JFrameProcessorPlugin.h"
 #include <memory>
 #include <fbjni/fbjni.h>
 #include <vector>

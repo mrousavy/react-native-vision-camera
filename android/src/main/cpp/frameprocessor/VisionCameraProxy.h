@@ -6,8 +6,8 @@
 
 #include <jsi/jsi.h>
 
-#include "java-bindings/JVisionCameraScheduler.h"
-#include "java-bindings/JVisionCameraProxy.h"
+#include "JVisionCameraScheduler.h"
+#include "JVisionCameraProxy.h"
 
 #include <vector>
 #include <string>

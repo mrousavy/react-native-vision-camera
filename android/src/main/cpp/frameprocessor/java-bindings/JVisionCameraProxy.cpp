@@ -9,7 +9,6 @@
 #include <string>
 
 #include <jsi/jsi.h>
-#include <react/jni/ReadableNativeMap.h>
 
 #include "FrameProcessorPluginHostObject.h"
 #include "JSITypedArray.h"
@@ -24,7 +23,7 @@ namespace vision {
 using TSelf = local_ref<HybridClass<JVisionCameraProxy>::jhybriddata>;
 using TJSCallInvokerHolder = jni::alias_ref<facebook::react::CallInvokerHolder::javaobject>;
 using TScheduler = jni::alias_ref<JVisionCameraScheduler::javaobject>;
-using TOptions = jni::local_ref<react::ReadableNativeMap::javaobject>;
+using TOptions = jni::local_ref<JMap<jstring, jobject>>;
 
 JVisionCameraProxy::JVisionCameraProxy(const jni::alias_ref<JVisionCameraProxy::jhybridobject>& javaThis,
                                        jsi::Runtime* runtime,

@@ -5,8 +5,8 @@
 #include "VisionCameraProxy.h"
 #include <jsi/jsi.h>
 
-#include "java-bindings/JFrameProcessor.h"
-#include "java-bindings/JFrameProcessorPlugin.h"
+#include "JFrameProcessor.h"
+#include "JFrameProcessorPlugin.h"
 #include "JSIJNIConversion.h"
 
 #include <android/log.h>

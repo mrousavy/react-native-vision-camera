@@ -13,25 +13,71 @@
 #include <utility>
 #include <memory>
 
-#include <react/jni/NativeMap.h>
-#include <react/jni/ReadableNativeMap.h>
-#include <react/jni/WritableNativeMap.h>
-
-#include <jsi/JSIDynamic.h>
-#include <folly/dynamic.h>
-
 #include "FrameHostObject.h"
-#include "java-bindings/JFrame.h"
-#include "java-bindings/JArrayList.h"
-#include "java-bindings/JHashMap.h"
+#include "JFrame.h"
 
 namespace vision {
 
 using namespace facebook;
 
-jni::local_ref<react::ReadableNativeMap::javaobject> JSIJNIConversion::convertJSIObjectToJNIMap(jsi::Runtime& runtime, const jsi::Object& object) {
-  auto dynamic = jsi::dynamicFromValue(runtime, jsi::Value(runtime, object));
-  return react::ReadableNativeMap::createWithContents(std::move(dynamic));
+jni::local_ref<jni::JMap<jstring, jobject>> JSIJNIConversion::convertJSIObjectToJNIMap(jsi::Runtime& runtime, const jsi::Object& object) {
+  auto propertyNames = object.getPropertyNames(runtime);
+  auto size = propertyNames.size(runtime);
+  auto hashMap = jni::JHashMap<jstring, jobject>::create();
+
+  for (size_t i = 0; i < size; i++) {
+    auto propName = propertyNames.getValueAtIndex(runtime, i).asString(runtime);
+    auto key = jni::make_jstring(propName.utf8(runtime));
+    auto value = object.getProperty(runtime, propName);
+
+    if (value.isNull() || value.isUndefined()) {
+      // null
+
+      hashMap->put(key, nullptr);
+
+    } else if (value.isBool()) {
+      // Boolean
+
+      auto boolean = value.getBool();
+      hashMap->put(key, jni::JBoolean::valueOf(boolean));
+
+    } else if (value.isNumber()) {
+      // Double
+
+      auto number = value.getNumber();
+      hashMap->put(key, jni::JDouble::valueOf(number));
+
+    } else if (value.isString()) {
+      // String
+
+      auto str = value.getString(runtime).utf8(runtime);
+      hashMap->put(key, jni::make_jstring(str));
+
+    } else if (value.isObject()) {
+      // Object
+
+      auto valueAsObject = value.getObject(runtime);
+
+      if (valueAsObject.isArray(runtime)) {
+        // List<Object>
+
+      } else if (valueAsObject.isHostObject(runtime)) {
+        throw std::runtime_error("You can't pass HostObjects here.");
+      } else {
+        // Map<String, Object>
+
+        auto map = convertJSIObjectToJNIMap(runtime, valueAsObject);
+        hashMap->put(key, map);
+
+      }
+
+    } else {
+      auto stringRepresentation = value.toString(runtime).utf8(runtime);
+      throw std::runtime_error("Failed to convert jsi::Value to JNI value - unsupported type!" + stringRepresentation);
+    }
+  }
+
+  return hashMap;
 }
 
 jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, const jni::local_ref<jobject>& object) {
@@ -66,10 +112,10 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
 
     return jsi::String::createFromUtf8(runtime, object->toString());
 
-  } else if (object->isInstanceOf(JArrayList<jobject>::javaClassStatic())) {
-    // ArrayList<E>
+  } else if (object->isInstanceOf(JList<jobject>::javaClassStatic())) {
+    // List<E>
 
-    auto arrayList = static_ref_cast<JArrayList<jobject>>(object);
+    auto arrayList = static_ref_cast<JList<jobject>>(object);
     auto size = arrayList->size();
 
     auto result = jsi::Array(runtime, size);
@@ -80,19 +126,10 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
     }
     return result;
 
-  } else if (object->isInstanceOf(react::ReadableArray::javaClassStatic())) {
-    // ReadableArray
+  } else if (object->isInstanceOf(JMap<jstring, jobject>::javaClassStatic())) {
+    // Map<K, V>
 
-    static const auto toArrayListFunc = react::ReadableArray::javaClassLocal()->getMethod<JArrayList<jobject>()>("toArrayList");
-
-    // call recursive, this time ArrayList<E>
-    auto array = toArrayListFunc(object.get());
-    return convertJNIObjectToJSIValue(runtime, array);
-
-  } else if (object->isInstanceOf(JHashMap<jstring, jobject>::javaClassStatic())) {
-    // HashMap<K, V>
-
-    auto map = static_ref_cast<JHashMap<jstring, jobject>>(object);
+    auto map = static_ref_cast<JMap<jstring, jobject>>(object);
 
     auto result = jsi::Object(runtime);
     for (const auto& entry : *map) {
@@ -103,16 +140,7 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
     }
     return result;
 
-  } else if (object->isInstanceOf(react::ReadableMap::javaClassStatic())) {
-    // ReadableMap
-
-    static const auto toHashMapFunc = react::ReadableMap::javaClassLocal()->getMethod<JHashMap<jstring, jobject>()>("toHashMap");
-
-    // call recursive, this time HashMap<K, V>
-    auto hashMap = toHashMapFunc(object.get());
-    return convertJNIObjectToJSIValue(runtime, hashMap);
-
-  } else if (object->isInstanceOf(JFrame::javaClassStatic())) {
+  } if (object->isInstanceOf(JFrame::javaClassStatic())) {
     // Frame
     auto frame = static_ref_cast<JFrame>(object);
 

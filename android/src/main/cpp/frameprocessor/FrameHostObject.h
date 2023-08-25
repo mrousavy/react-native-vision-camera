@@ -10,7 +10,7 @@
 #include <vector>
 #include <string>
 
-#include "java-bindings/JFrame.h"
+#include "JFrame.h"
 
 namespace vision {
 

@@ -6,14 +6,12 @@ import androidx.annotation.UiThread
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReadableNativeMap
 import com.facebook.react.bridge.UiThreadUtil
 import com.facebook.react.turbomodule.core.CallInvokerHolderImpl
 import com.facebook.react.uimanager.UIManagerHelper
 import com.mrousavy.camera.CameraView
 import com.mrousavy.camera.ViewNotFoundError
 import java.lang.ref.WeakReference
-
 
 @Suppress("KotlinJniMissingFunction") // we use fbjni.
 class VisionCameraProxy(context: ReactApplicationContext) {
@@ -71,7 +69,7 @@ class VisionCameraProxy(context: ReactApplicationContext) {
 
   @DoNotStrip
   @Keep
-  fun getFrameProcessorPlugin(name: String, options: ReadableNativeMap): FrameProcessorPlugin {
+  fun getFrameProcessorPlugin(name: String, options: Map<String, Any>): FrameProcessorPlugin {
     return FrameProcessorPluginRegistry.getPlugin(name, options)
   }
 

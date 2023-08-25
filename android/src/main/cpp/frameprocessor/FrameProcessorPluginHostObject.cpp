@@ -34,7 +34,7 @@ jsi::Value FrameProcessorPluginHostObject::get(jsi::Runtime& runtime, const jsi:
       auto frame = frameHostObject->frame;
 
       // Options are second argument (possibly undefined)
-      local_ref<react::ReadableNativeMap::javaobject> options = nullptr;
+      local_ref<JMap<jstring, jobject>> options = nullptr;
       if (count > 1) {
         options = JSIJNIConversion::convertJSIObjectToJNIMap(runtime, arguments[1].asObject(runtime));
       }

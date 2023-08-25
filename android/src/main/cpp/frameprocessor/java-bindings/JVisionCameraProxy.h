@@ -6,7 +6,6 @@
 
 #include <fbjni/fbjni.h>
 #include <jsi/jsi.h>
-#include <react/jni/ReadableNativeMap.h>
 #include <ReactCommon/CallInvokerHolder.h>
 
 #include "JFrameProcessorPlugin.h"
@@ -34,7 +33,7 @@ class JVisionCameraProxy : public jni::HybridClass<JVisionCameraProxy> {
                          const jsi::Object& frameProcessor);
   void removeFrameProcessor(int viewTag);
   jni::local_ref<JFrameProcessorPlugin::javaobject> getFrameProcessorPlugin(const std::string& name,
-                                                                            jni::local_ref<react::ReadableNativeMap::javaobject> options);
+                                                                            jni::local_ref<JMap<jstring, jobject>> options);
 
   jsi::Runtime* getJSRuntime() { return _runtime; }
 
