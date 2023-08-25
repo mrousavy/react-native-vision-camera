@@ -1,9 +1,9 @@
 #include <jni.h>
 #include <fbjni/fbjni.h>
-#include "java-bindings/JVisionCameraScheduler.h"
-#include "java-bindings/JFrameProcessor.h"
-#include "java-bindings/JVisionCameraProxy.h"
-#include "VisionCameraProxy.h"
+#include "frameprocessor/java-bindings/JVisionCameraScheduler.h"
+#include "frameprocessor/java-bindings/JFrameProcessor.h"
+#include "frameprocessor/java-bindings/JVisionCameraProxy.h"
+#include "frameprocessor/VisionCameraProxy.h"
 #include "skia/SkiaRenderer.h"
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *) {
