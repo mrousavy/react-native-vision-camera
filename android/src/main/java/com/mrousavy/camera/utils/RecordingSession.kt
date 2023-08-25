@@ -40,14 +40,9 @@ class RecordingSession(context: Context,
   private val outputFile: File
   private var startTime: Long? = null
   private var imageWriter: ImageWriter? = null
-  val surface: Surface
+  val surface: Surface = MediaCodec.createPersistentInputSurface()
 
   init {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-      throw Error("Video Recording is only supported on Devices running Android version 23 (M) or newer.")
-    }
-
-    surface = MediaCodec.createPersistentInputSurface()
 
     outputFile = File.createTempFile("mrousavy", fileType.toExtension(), context.cacheDir)
 
@@ -109,10 +104,8 @@ class RecordingSession(context: Context,
         recorder.stop()
         recorder.release()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-          imageWriter?.close()
-          imageWriter = null
-        }
+        imageWriter?.close()
+        imageWriter = null
       } catch (e: Error) {
         Log.e(TAG, "Failed to stop MediaRecorder!", e)
       }
@@ -125,9 +118,6 @@ class RecordingSession(context: Context,
 
   fun pause() {
     synchronized(this) {
-      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-        throw Error("Pausing a recording is only supported on Devices running Android version 24 (N) or newer.")
-      }
       Log.i(TAG, "Pausing Recording Session..")
       recorder.pause()
     }
@@ -135,9 +125,6 @@ class RecordingSession(context: Context,
 
   fun resume() {
     synchronized(this) {
-      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-        throw Error("Resuming a recording is only supported on Devices running Android version 24 (N) or newer.")
-      }
       Log.i(TAG, "Resuming Recording Session..")
       recorder.resume()
     }
@@ -145,10 +132,6 @@ class RecordingSession(context: Context,
 
   fun appendImage(image: Image) {
     synchronized(this) {
-      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-        throw Error("Video Recording is only supported on Devices running Android version 23 (M) or newer.")
-      }
-
       // TODO: Correctly mirror/flip Image in OpenGL pipeline, otherwise flipping camera while recording results in inverted frames
 
       if (imageWriter == null) {

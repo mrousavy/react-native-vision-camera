@@ -21,7 +21,6 @@ import java.io.Closeable
  * @param [format] The format of the Frames to stream. ([ImageFormat.PRIVATE], [ImageFormat.YUV_420_888] or [ImageFormat.JPEG])
  */
 @Suppress("KotlinJniMissingFunction")
-@RequiresApi(Build.VERSION_CODES.O)
 class VideoPipeline(val width: Int,
                     val height: Int,
                     val format: Int? = null): SurfaceTexture.OnFrameAvailableListener, Closeable {

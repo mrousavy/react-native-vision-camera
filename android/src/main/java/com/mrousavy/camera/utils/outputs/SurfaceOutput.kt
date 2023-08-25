@@ -35,7 +35,6 @@ open class SurfaceOutput(val surface: Surface,
     }
   }
 
-  @RequiresApi(Build.VERSION_CODES.N)
   fun toOutputConfiguration(characteristics: CameraCharacteristics): OutputConfiguration {
     val result = OutputConfiguration(surface)
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
