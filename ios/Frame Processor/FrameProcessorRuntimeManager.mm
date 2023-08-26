@@ -91,7 +91,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
                                   const jsi::Value* arguments,
                                   size_t count) -> jsi::Value {
     self->workletRuntime = reanimated::extractWorkletRuntime(rnRuntime, arguments[2].asObject(rnRuntime));
-    jsi::Runtime &visionRuntime = self->workletRuntime->getRuntime();
+    jsi::Runtime &visionRuntime = self->workletRuntime->getJSIRuntime();
 
     // TODO: call vision::makeJSIRuntime();
     // TODO: call reanimated::RuntimeDecorator::decorateRuntime(*runtime, "FRAME_PROCESSOR");
@@ -143,7 +143,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
       dispatch_async(CameraQueues.frameProcessorQueue, [=]() {
         NSLog(@"FrameProcessorBindings: Converting worklet to Objective-C callback...");
 
-        jsi::Runtime& rt = self->workletRuntime->getRuntime();
+        jsi::Runtime& rt = self->workletRuntime->getJSIRuntime();
         auto function = worklet->getJSValue(rt).asObject(rt).asFunction(rt);
 
         view.frameProcessorCallback = convertJSIFunctionToFrameProcessorCallback(rt, function);
