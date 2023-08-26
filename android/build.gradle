@@ -111,9 +111,10 @@ def resolveBuildType() {
 }
 
 // plugin.js file only exists since REA v2.
-def hasReanimated2 = file("${nodeModules}/react-native-reanimated/plugin.js").exists()
-def disableFrameProcessors = rootProject.ext.has("disableFrameProcessors") ? rootProject.ext.get("disableFrameProcessors").asBoolean() : false
-def ENABLE_FRAME_PROCESSORS = hasReanimated2 && !disableFrameProcessors
+// def hasReanimated2 = file("${nodeModules}/react-native-reanimated/plugin.js").exists()
+// def disableFrameProcessors = rootProject.ext.has("disableFrameProcessors") ? rootProject.ext.get("disableFrameProcessors").asBoolean() : false
+// def ENABLE_FRAME_PROCESSORS = hasReanimated2 && !disableFrameProcessors
+def ENABLE_FRAME_PROCESSORS = true
 
 if (ENABLE_FRAME_PROCESSORS) {
   logger.warn("VisionCamera: Frame Processors are enabled! Building C++ part...")
@@ -303,10 +304,6 @@ dependencies {
       def jscAAR = fileTree("${nodeModules}/jsc-android/dist/org/webkit/android-jsc").matching({ it.include "**/**/*.aar" }).singleFile
       extractJNI(files(rnAAR, jscAAR))
     }
-
-    def jsEngine = FOR_HERMES ? "hermes" : "jsc"
-    def reaAAR = "${nodeModules}/react-native-reanimated/android/react-native-reanimated-${REACT_NATIVE_VERSION}-${jsEngine}.aar"
-    extractJNI(files(reaAAR))
   }
 
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"

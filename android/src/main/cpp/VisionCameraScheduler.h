@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "Scheduler.h"
+#include "UIScheduler.h"
 #include <ReactCommon/CallInvokerHolder.h>
 #include <jni.h>
 #include <fbjni/fbjni.h>
@@ -13,7 +13,7 @@ namespace vision {
 
 using namespace facebook;
 
-class VisionCameraScheduler : public reanimated::Scheduler, public jni::HybridClass<VisionCameraScheduler> {
+class VisionCameraScheduler : public reanimated::UIScheduler, public jni::HybridClass<VisionCameraScheduler> {
 public:
   static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/VisionCameraScheduler;";
   static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis);
