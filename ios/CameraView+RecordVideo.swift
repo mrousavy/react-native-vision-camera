@@ -177,31 +177,22 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
         ReactLogger.log(level: .info, message: "recordingStartTimestamp:  \(recordingStartTimestamp)")
         self.recordingTimestamps.actualRecordingStartedAt = NSDate().timeIntervalSince1970
         
-        print("torchControl: \(options["torchControl"])")
-        if let torchControl = options["torchControl"] as? TorchControl {
-             DispatchQueue.main.asyncAfter(deadline: .now() + torchControl.torchDelay) {
+        print("torchDelay:", self.torchDelay)
+        print("torchDuration:", self.torchDuration)
+        var torchDelay = DispatchTimeInterval.milliseconds(Int(self.torchDelay))
+        var torchEnd = DispatchTimeInterval.milliseconds(Int(self.torchDelay) + Int(self.torchDuration))
+        if Int(self.torchDuration) > 0 {
+             DispatchQueue.main.asyncAfter(deadline: .now() + torchDelay) {
                  self.recordingTimestamps.requestTorchOnAt = NSDate().timeIntervalSince1970
                  self.setTorchMode("on")
                  self.recordingTimestamps.actualTorchOnAt = NSDate().timeIntervalSince1970
              }
              
-             DispatchQueue.main.asyncAfter(deadline: .now() + torchControl.torchDuration) {
+             DispatchQueue.main.asyncAfter(deadline: .now() + torchEnd) {
                  self.recordingTimestamps.requestTorchOffAt = NSDate().timeIntervalSince1970
                  self.setTorchMode("off")
                  self.recordingTimestamps.actualTorchOffAt = NSDate().timeIntervalSince1970
              }
-        } else {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                self.recordingTimestamps.requestTorchOnAt = NSDate().timeIntervalSince1970
-                self.setTorchMode("on")
-                self.recordingTimestamps.actualTorchOnAt = NSDate().timeIntervalSince1970
-            }
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 7) {
-                self.recordingTimestamps.requestTorchOffAt = NSDate().timeIntervalSince1970
-                self.setTorchMode("off")
-                self.recordingTimestamps.actualTorchOffAt = NSDate().timeIntervalSince1970
-            }
         }
     }
   }
