@@ -93,7 +93,7 @@ class CameraSession(private val context: Context,
       field = value
       updateVideoOutputs()
     }
-  private var frameProcessor: FrameProcessor? = null
+  var frameProcessor: FrameProcessor? = null
     set(value) {
       field = value
       updateVideoOutputs()
@@ -195,10 +195,6 @@ class CameraSession(private val context: Context,
     val videoPipeline = outputs?.videoOutput?.videoPipeline ?: return
     videoPipeline.setRecordingSessionOutput(this.recording)
     videoPipeline.setFrameProcessorOutput(this.frameProcessor)
-  }
-
-  fun setFrameProcessor(frameProcessor: FrameProcessor?) {
-    this.frameProcessor = frameProcessor
   }
 
   suspend fun takePhoto(qualityPrioritization: QualityPrioritization,
