@@ -15,13 +15,20 @@ class PassThroughShader {
   explicit PassThroughShader();
   ~PassThroughShader();
 
+  // Program ID for useProgram
   GLuint getProgramId() const;
+  // Positions for arguments in Program
+  GLint aPosition() const;
+  GLint aTexCoord() const;
+  GLint uTransformMatrix() const;
+  GLint uRotationMatrix() const;
 
   const GLfloat* getVertexData() const;
   const GLushort* getVertexIndices() const;
 
  private:
   GLuint _programId;
+  GLint _aPosition, _aTexCoord, _uTransformMatrix, _uRotationMatrix;
   GLuint loadShader(GLenum shaderType, const char* shaderCode);
   GLuint createProgram();
 

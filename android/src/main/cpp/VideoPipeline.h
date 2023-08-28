@@ -8,6 +8,7 @@
 #include <fbjni/fbjni.h>
 #include <EGL/egl.h>
 #include <android/native_window.h>
+#include "PassThroughShader.h"
 
 namespace vision {
 
@@ -39,11 +40,13 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
  public:
   ~VideoPipeline();
   void onBeforeFrame();
-  void onFrame();
+  void onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrix, jni::alias_ref<jni::JArrayFloat> rotationMatrix);
   void setFrameProcessorOutputSurface(jobject surface);
   void removeFrameProcessorOutputSurface();
   void setRecordingSessionOutputSurface(jobject surface, jint width, jint height);
   void removeRecordingSessionOutputSurface();
+
+  int getInputTextureId();
 
  private:
   // Private constructor. Use `create(..)` to create new instances.
@@ -55,10 +58,14 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
 
  private:
   GLContext _context;
+  GLuint _inputTextureId;
   int _width = 0;
   int _height = 0;
   FrameProcessorOutput _frameProcessorOutput;
   RecordingSessionOutput _recordingSessionOutput;
+  PassThroughShader* _passThroughShader;
+  GLuint _vertexBuffer;
+  static auto constexpr MATRIX_SIZE = 16;
 
  private:
   friend HybridBase;

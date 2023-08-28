@@ -5,6 +5,7 @@ import android.graphics.SurfaceTexture
 import android.media.ImageReader
 import android.media.ImageWriter
 import android.media.MediaRecorder
+import android.opengl.Matrix
 import android.util.Log
 import android.view.Surface
 import com.facebook.jni.HybridData
@@ -30,6 +31,9 @@ class VideoPipeline(val width: Int,
   }
 
   private val mHybridData: HybridData
+  private val transformMatrix = FloatArray(16)
+  private val rotationMatrix = FloatArray(16)
+  private var openGLTextureId: Int? = null
 
   // Output 1
   private var frameProcessor: FrameProcessor? = null
@@ -58,9 +62,23 @@ class VideoPipeline(val width: Int,
   }
 
   override fun onFrameAvailable(surfaceTexture: SurfaceTexture) {
+    // 1. Attach Surface to OpenGL context
+    if (openGLTextureId == null) {
+      openGLTextureId = getInputTextureId()
+      surfaceTexture.attachToGLContext(openGLTextureId!!)
+    }
+    // 2. ???
     onBeforeFrame()
+    // 3. Update the OpenGL texture
     surfaceTexture.updateTexImage()
-    onFrame()
+    // 4. Draw it with applied matrix
+    surfaceTexture.getTransformMatrix(transformMatrix)
+    onFrame(transformMatrix, rotationMatrix)
+  }
+
+  fun setRotation(rotationDegrees: Int) {
+    Matrix.setIdentityM(rotationMatrix, 0)
+    Matrix.rotateM(rotationMatrix, 0, rotationDegrees.toFloat(), 0f, 0f, 1f)
   }
 
   private fun getImageReader(): ImageReader {
@@ -122,8 +140,9 @@ class VideoPipeline(val width: Int,
     }
   }
 
+  private external fun getInputTextureId(): Int
   private external fun onBeforeFrame()
-  private external fun onFrame()
+  private external fun onFrame(transformMatrix: FloatArray, rotationMatrix: FloatArray)
   private external fun setFrameProcessorOutputSurface(surface: Any)
   private external fun removeFrameProcessorOutputSurface()
   private external fun setRecordingSessionOutputSurface(surface: Any, width: Int, height: Int)

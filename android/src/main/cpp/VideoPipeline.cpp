@@ -6,6 +6,9 @@
 #include "OpenGLError.h"
 
 #include <android/native_window_jni.h>
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+#include <EGL/egl.h>
 
 namespace vision {
 
@@ -16,8 +19,20 @@ jni::local_ref<VideoPipeline::jhybriddata> VideoPipeline::initHybrid(jni::alias_
 VideoPipeline::VideoPipeline(jni::alias_ref<jhybridobject> jThis): _javaPart(jni::make_global(jThis)) { }
 
 VideoPipeline::~VideoPipeline() {
+  // 1. Remove output surfaces
   removeFrameProcessorOutputSurface();
   removeRecordingSessionOutputSurface();
+  // 2. Delete the pass-through shader
+  delete _passThroughShader;
+  if (_vertexBuffer != 0) {
+    glDeleteBuffers(1, &_vertexBuffer);
+    _vertexBuffer = 0;
+  }
+  // 3. Delete the input textures
+  if (_inputTextureId != 0) {
+    glDeleteTextures(1, &_inputTextureId);
+  }
+  // 4. Delete the OpenGL context
   if (_context.display != EGL_NO_DISPLAY) {
     eglMakeCurrent(_context.display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     if (_context.surface != EGL_NO_SURFACE) {
@@ -158,12 +173,54 @@ void VideoPipeline::setRecordingSessionOutputSurface(jobject surface, jint width
   };
 }
 
+int VideoPipeline::getInputTextureId() {
+  GLContext& context = getGLContext();
+
+  if (_inputTextureId != 0) return static_cast<int>(_inputTextureId);
+
+  GLuint textureId;
+  glGenTextures(1, &textureId);
+  _inputTextureId = textureId;
+
+  return static_cast<int>(_inputTextureId);
+}
+
 void VideoPipeline::onBeforeFrame() {
   // TODO: Prepare for updateTexImage() call
 }
 
-void VideoPipeline::onFrame() {
-  // TODO: Write image to pbuffer surface
+void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixParam, jni::alias_ref<jni::JArrayFloat> rotationMatrixParam) {
+  GLContext& context = getGLContext();
+
+  if (_passThroughShader == nullptr) {
+    _passThroughShader = new PassThroughShader();
+
+    glGenBuffers(1, &_vertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(GLfloat), _passThroughShader->getVertexData(), GL_STATIC_DRAW);
+  }
+
+  glViewport(0, 0, _width, _height);
+
+  glDisable(GL_BLEND);
+  glBindTexture(GL_TEXTURE_EXTERNAL_OES, _inputTextureId);
+
+
+  glUseProgram(_passThroughShader->getProgramId());
+
+  float transformMatrix[MATRIX_SIZE];
+  transformMatrixParam->getRegion(0, MATRIX_SIZE - 1, transformMatrix);
+  glUniformMatrix4fv(_passThroughShader->uTransformMatrix(), 1, GL_FALSE, transformMatrix);
+  float rotationMatrix[MATRIX_SIZE];
+  rotationMatrixParam->getRegion(0, MATRIX_SIZE - 1, rotationMatrix);
+  glUniformMatrix4fv(_passThroughShader->uRotationMatrix(), 1, GL_FALSE, rotationMatrix);
+
+  glVertexAttribPointer(_passThroughShader->aPosition(), 4, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid*) (0 * sizeof(GLfloat)));
+  glEnableVertexAttribArray(_passThroughShader->aPosition());
+  glVertexAttribPointer(_passThroughShader->aTexCoord(), 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid*) (4 * sizeof(GLfloat)));
+  glEnableVertexAttribArray(_passThroughShader->aTexCoord());
+  glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
+  glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, _passThroughShader->getVertexIndices());
 }
 
 void VideoPipeline::registerNatives() {
@@ -173,6 +230,7 @@ void VideoPipeline::registerNatives() {
     makeNativeMethod("removeFrameProcessorOutputSurface", VideoPipeline::removeFrameProcessorOutputSurface),
     makeNativeMethod("setRecordingSessionOutputSurface", VideoPipeline::setRecordingSessionOutputSurface),
     makeNativeMethod("removeRecordingSessionOutputSurface", VideoPipeline::removeRecordingSessionOutputSurface),
+    makeNativeMethod("getInputTextureId", VideoPipeline::getInputTextureId),
     makeNativeMethod("onBeforeFrame", VideoPipeline::onBeforeFrame),
     makeNativeMethod("onFrame", VideoPipeline::onFrame),
   });

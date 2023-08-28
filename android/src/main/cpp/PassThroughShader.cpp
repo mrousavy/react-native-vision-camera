@@ -13,6 +13,13 @@ namespace vision {
 
 PassThroughShader::PassThroughShader() {
   _programId = createProgram();
+
+  glUseProgram(_programId);
+
+  _aPosition = glGetAttribLocation(_programId, "aPosition");
+  _aTexCoord = glGetAttribLocation(_programId, "aTexCoord");
+  _uTransformMatrix = glGetUniformLocation(_programId, "uTransformMatrix");
+  _uRotationMatrix = glGetUniformLocation(_programId, "uRotationMatrix");
 }
 
 PassThroughShader::~PassThroughShader() {
@@ -21,6 +28,22 @@ PassThroughShader::~PassThroughShader() {
 
 GLuint PassThroughShader::getProgramId() const {
   return _programId;
+}
+
+GLint PassThroughShader::aPosition() const {
+  return _aPosition;
+}
+
+GLint PassThroughShader::aTexCoord() const {
+  return _aTexCoord;
+}
+
+GLint PassThroughShader::uTransformMatrix() const {
+  return _uTransformMatrix;
+}
+
+GLint PassThroughShader::uRotationMatrix() const {
+  return _uRotationMatrix;
 }
 
 const GLfloat* PassThroughShader::getVertexData() const {
