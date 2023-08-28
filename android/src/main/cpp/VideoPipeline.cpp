@@ -5,6 +5,8 @@
 #include "VideoPipeline.h"
 #include "OpenGLError.h"
 
+#include <android/native_window_jni.h>
+
 namespace vision {
 
 jni::local_ref<VideoPipeline::jhybriddata> VideoPipeline::initHybrid(jni::alias_ref<jhybridobject> jThis) {
