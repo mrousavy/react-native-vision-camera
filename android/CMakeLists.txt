@@ -22,6 +22,7 @@ add_library(
         ../cpp/JSITypedArray.cpp
         src/main/cpp/VisionCamera.cpp
         src/main/cpp/VideoPipeline.cpp
+        src/main/cpp/PassThroughShader.cpp
         # Frame Processor
         src/main/cpp/frameprocessor/FrameHostObject.cpp
         src/main/cpp/frameprocessor/FrameProcessorPluginHostObject.cpp
