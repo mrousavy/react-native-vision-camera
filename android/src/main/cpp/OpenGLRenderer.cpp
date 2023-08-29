@@ -36,14 +36,6 @@ OpenGLRenderer::~OpenGLRenderer() {
   destroy();
 }
 
-int OpenGLRenderer::getWidth() const {
-  return _width;
-}
-
-int OpenGLRenderer::getHeight() const {
-  return _height;
-}
-
 void OpenGLRenderer::destroy() {
   if (_context != nullptr && _surface != EGL_NO_DISPLAY) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying OpenGL Surface...");

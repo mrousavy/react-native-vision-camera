@@ -30,11 +30,6 @@ class OpenGLRenderer {
   ~OpenGLRenderer();
 
   /**
-   * Activate the OpenGL context and make it "current". This will lazily create the context, surface and display.
-   */
-  void use();
-
-  /**
    * Renders the given Texture ID to the Surface
    */
   void renderTextureToSurface(GLuint textureId, float* transformMatrix);
@@ -44,9 +39,6 @@ class OpenGLRenderer {
    * After calling `destroy()`, it is legal to call `use()` again, which will re-construct everything.
    */
   void destroy();
-
-  int getWidth() const;
-  int getHeight() const;
 
  private:
   explicit OpenGLRenderer(std::shared_ptr<OpenGLContext> context, ANativeWindow* surface);
