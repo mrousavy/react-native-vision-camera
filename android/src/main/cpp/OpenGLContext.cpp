@@ -141,7 +141,7 @@ void OpenGLContext::use() {
   if (!successful || eglGetError() != EGL_SUCCESS) throw OpenGLError("Failed to use current OpenGL context!");
 }
 
-void OpenGLContext::renderTextureToSurface(GLuint textureId, float rotationDegrees, bool isMirrored) {
+void OpenGLContext::renderTextureToSurface(GLuint textureId, float* transformMatrix) {
   // 1. Activate current OpenGL context (eglMakeCurrent)
   this->use();
 
@@ -156,7 +156,7 @@ void OpenGLContext::renderTextureToSurface(GLuint textureId, float rotationDegre
   glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
   // 4. Draw it using the pass-through shader which also applies transforms
-  _passThroughShader.draw(textureId, rotationDegrees, isMirrored);
+  _passThroughShader.draw(textureId, transformMatrix);
 
   // 5. Swap buffers to pass it to the window surface
   eglSwapBuffers(display, surface);

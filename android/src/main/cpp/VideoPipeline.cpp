@@ -108,10 +108,12 @@ void VideoPipeline::onBeforeFrame() {
   glBindTexture(GL_TEXTURE_EXTERNAL_OES, _inputTextureId);
 }
 
-void VideoPipeline::onFrame(float rotationDegrees, bool isMirrored) {
+void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixParam) {
   if (_context == nullptr) throw std::runtime_error("Failed to render a Frame: The context is not yet ready.");
 
-  _context->renderTextureToSurface(_inputTextureId, rotationDegrees, isMirrored);
+  float transformMatrix[16];
+  transformMatrixParam->getRegion(0, 16, transformMatrix);
+  _context->renderTextureToSurface(_inputTextureId, transformMatrix);
 }
 
 void VideoPipeline::registerNatives() {

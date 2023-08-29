@@ -24,8 +24,7 @@ import java.io.Closeable
 @Suppress("KotlinJniMissingFunction")
 class VideoPipeline(val width: Int,
                     val height: Int,
-                    val format: Int = ImageFormat.PRIVATE,
-                    val isMirrored: Boolean = false): SurfaceTexture.OnFrameAvailableListener, Closeable {
+                    val format: Int = ImageFormat.PRIVATE): SurfaceTexture.OnFrameAvailableListener, Closeable {
   companion object {
     private const val MAX_IMAGES = 5
     private const val TAG = "VideoPipeline"
@@ -33,7 +32,7 @@ class VideoPipeline(val width: Int,
 
   private val mHybridData: HybridData
   private var openGLTextureId: Int? = null
-  private var rotationDegrees: Float = 0f
+  private var transformMatrix = FloatArray(16)
 
   // Output 1
   private var frameProcessor: FrameProcessor? = null
@@ -76,12 +75,12 @@ class VideoPipeline(val width: Int,
     onBeforeFrame()
     // 3. Update the OpenGL texture
     surfaceTexture.updateTexImage()
-    // 4. Draw it with applied rotation/mirroring
-    onFrame(rotationDegrees, isMirrored)
-  }
 
-  fun setRotationDegrees(rotationDegrees: Float) {
-    this.rotationDegrees = rotationDegrees
+    surfaceTexture.getTransformMatrix(transformMatrix)
+    Log.i(TAG, transformMatrix.joinToString(", ", "[", "]"))
+
+    // 4. Draw it with applied rotation/mirroring
+    onFrame(transformMatrix)
   }
 
   private fun getImageReader(): ImageReader {
@@ -158,7 +157,7 @@ class VideoPipeline(val width: Int,
 
   private external fun getInputTextureId(): Int
   private external fun onBeforeFrame()
-  private external fun onFrame(rotationDegrees: Float, isMirrored: Boolean)
+  private external fun onFrame(transformMatrix: FloatArray)
   private external fun setFrameProcessorOutputSurface(surface: Any)
   private external fun removeFrameProcessorOutputSurface()
   private external fun setRecordingSessionOutputSurface(surface: Any)

@@ -11,6 +11,12 @@ namespace vision {
 
 #define NO_SHADER 0
 #define NO_POSITION 0
+#define NO_BUFFER 0
+
+struct Vertex {
+  GLfloat position[2];
+  GLfloat texCoord[2];
+};
 
 class PassThroughShader {
 
@@ -21,7 +27,7 @@ class PassThroughShader {
   /**
    * Draw the texture using this shader.
    */
-  void draw(GLuint textureId, float rotationDegrees, bool isMirrored);
+  void draw(GLuint textureId, float* transformMatrix);
 
   private:
   // Loading
@@ -31,62 +37,44 @@ class PassThroughShader {
  private:
   // Parameters
   GLuint _programId = NO_SHADER;
+  GLuint _vertexBuffer = NO_BUFFER;
   struct VertexParameters {
-    GLint inPosition = NO_POSITION;
-    GLint inTexCoord = NO_POSITION;
-    GLint rotationAngle = NO_POSITION;
-    GLint isMirrored = NO_POSITION;
+    GLint aPosition = NO_POSITION;
+    GLint aTexCoord = NO_POSITION;
+    GLint uTransformMatrix = NO_POSITION;
   } _vertexParameters;
   struct FragmentParameters {
-    GLint textureSampler = NO_POSITION;
+    GLint uTexture = NO_POSITION;
   } _fragmentParameters;
 
  private:
   // Statics
-  static constexpr GLfloat VERTEX_INDICES[] = {
-      -1.0f, -1.0f,
-      1.0f, -1.0f,
-      -1.0f,  1.0f,
-      1.0f,  1.0f,
-  };
-  static constexpr GLfloat TEXTURE_COORDINATES[] = {
-      0.0f, 0.0f,
-      1.0f, 0.0f,
-      0.0f, 1.0f,
-      1.0f, 1.0f,
+  static constexpr Vertex VERTICES[] = {
+      {{-1.0f, -1.0f}, {0.0f, 0.0f}}, // bottom-left
+      {{1.0f, -1.0f}, {1.0f, 0.0f}},  // bottom-right
+      {{-1.0f, 1.0f}, {0.0f, 1.0f}},  // top-left
+      {{1.0f, 1.0f}, {1.0f, 1.0f}}    // top-right
   };
 
   static constexpr char VERTEX_SHADER[] = R"(
-    attribute vec2 inPosition;
-    attribute vec2 inTexCoord;
-    uniform float rotationAngle;
-    uniform bool isMirrored;
-
-    varying vec2 fragTexCoord;
-
-    mat2 rotationMatrix2D(float angle) {
-      float c = cos(angle);
-      float s = sin(angle);
-      return mat2(c, -s, s, c);
-    }
+    attribute vec4 aPosition;
+    attribute vec2 aTexCoord;
+    uniform mat4 uTransformMatrix;
+    varying vec2 vTexCoord;
 
     void main() {
-      gl_Position = vec4(rotationMatrix2D(rotationAngle) * inPosition, 0.0, 1.0);
-      if (isMirrored) {
-          fragTexCoord = vec2(inTexCoord.x, 1.0 - inTexCoord.y);
-      } else {
-          fragTexCoord = inTexCoord;
-      }
+        gl_Position = aPosition;
+        vTexCoord = (uTransformMatrix * vec4(aTexCoord, 0.0, 1.0)).xy;
     }
   )";
   static constexpr char FRAGMENT_SHADER[] = R"(
     #extension GL_OES_EGL_image_external : require
     precision mediump float;
-    varying vec2 fragTexCoord;
-    uniform samplerExternalOES textureSampler;
+    varying vec2 vTexCoord;
+    uniform samplerExternalOES uTexture;
 
     void main() {
-        gl_FragColor = texture2D(textureSampler, fragTexCoord);
+        gl_FragColor = texture2D(uTexture, vTexCoord);
     }
   )";
 };
