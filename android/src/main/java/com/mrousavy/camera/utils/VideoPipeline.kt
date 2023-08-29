@@ -71,6 +71,7 @@ class VideoPipeline(val width: Int,
     if (openGLTextureId == null) {
       openGLTextureId = getInputTextureId()
       surfaceTexture.attachToGLContext(openGLTextureId!!)
+      Log.i(TAG, "Attached Texture to Context $openGLTextureId")
     }
     // 2. ???
     onBeforeFrame()

@@ -131,6 +131,7 @@ int VideoPipeline::getInputTextureId() {
 
   GLuint textureId;
   glGenTextures(1, &textureId);
+  glBindTexture(GL_TEXTURE_EXTERNAL_OES, textureId);
   _inputTextureId = textureId;
 
   return static_cast<int>(_inputTextureId);
@@ -160,21 +161,24 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
   // Shader sources
   const char* vertexShaderSource = R"(
     attribute vec2 inPosition;
-    attribute vec2 inTexCoord;
-    varying vec2 fragTexCoord;
+    attribute vec2 inTexCoord;  // Added attribute for texture coordinates
+    varying vec2 fragTexCoord;  // Varying variable for passing texture coordinates to fragment shader
+
     void main() {
         gl_Position = vec4(inPosition, 0.0, 1.0);
-        fragTexCoord = inTexCoord;
+        fragTexCoord = inTexCoord;  // Pass texture coordinates to fragment shader
     }
 )";
 
   const char* fragmentShaderSource = R"(
-    precision mediump float;
-    varying vec2 fragTexCoord;
-    uniform sampler2D textureSampler;
-    void main() {
-        gl_FragColor = texture2D(textureSampler, fragTexCoord);
-    }
+#extension GL_OES_EGL_image_external : require
+precision mediump float;
+varying vec2 fragTexCoord;
+uniform samplerExternalOES textureSampler;  // Use samplerExternalOES for GL_TEXTURE_EXTERNAL_OES
+
+void main() {
+    gl_FragColor = texture2D(textureSampler, fragTexCoord);
+}
 )";
 
   GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
