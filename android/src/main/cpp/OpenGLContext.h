@@ -22,6 +22,8 @@ class OpenGLContext {
   /**
    * Create a new instance of the OpenGLContext that draws to an on-screen window surface.
    * This will not perform any OpenGL operations yet, and is therefore safe to call from any Thread.
+   *
+   * Note: The `surface` is considered moved, and the OpenGL context will release it when it is being deleted.
    */
   static std::unique_ptr<OpenGLContext> CreateWithWindowSurface(ANativeWindow* surface);
   /**

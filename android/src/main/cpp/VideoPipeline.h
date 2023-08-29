@@ -22,7 +22,7 @@ using namespace facebook;
 class VideoPipeline: public jni::HybridClass<VideoPipeline> {
  public:
   static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/utils/VideoPipeline;";
-  static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis);
+  static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis, int width, int height);
   static void registerNatives();
 
  public:
@@ -30,7 +30,6 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
 
   // -> SurfaceTexture input
   int getInputTextureId();
-  void setSize(int width, int height);
 
   // <- Frame Processor output
   void setFrameProcessorOutputSurface(jobject surface);
@@ -50,7 +49,7 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
 
  private:
   // Private constructor. Use `create(..)` to create new instances.
-  explicit VideoPipeline(jni::alias_ref<jhybridobject> jThis);
+  explicit VideoPipeline(jni::alias_ref<jhybridobject> jThis, int width, int height);
 
  private:
   // Input Surface Texture
@@ -58,13 +57,11 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
   int _width = 0;
   int _height = 0;
 
-  // Outputs
-  ANativeWindow* _frameProcessorOutput = nullptr;
-  ANativeWindow* _recordingSessionOutput = nullptr;
-  ANativeWindow* _previewOutput = nullptr;
-
-  // Context
-  std::unique_ptr<OpenGLContext> _context = nullptr;
+  // Output Contexts
+  std::unique_ptr<OpenGLContext> _offscreenContextOutput = nullptr;
+  std::unique_ptr<OpenGLContext> _frameProcessorOutput = nullptr;
+  std::unique_ptr<OpenGLContext> _recordingSessionOutput = nullptr;
+  std::unique_ptr<OpenGLContext> _previewOutput = nullptr;
 
   // OpenGL rendering
   GLuint _offscreenFrameBuffer = NO_FRAME_BUFFER;

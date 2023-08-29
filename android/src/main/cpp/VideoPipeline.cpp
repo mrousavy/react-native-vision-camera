@@ -12,11 +12,15 @@
 
 namespace vision {
 
-jni::local_ref<VideoPipeline::jhybriddata> VideoPipeline::initHybrid(jni::alias_ref<jhybridobject> jThis) {
-  return makeCxxInstance(jThis);
+jni::local_ref<VideoPipeline::jhybriddata> VideoPipeline::initHybrid(jni::alias_ref<jhybridobject> jThis, int width, int height) {
+  return makeCxxInstance(jThis, width, height);
 }
 
-VideoPipeline::VideoPipeline(jni::alias_ref<jhybridobject> jThis): _javaPart(jni::make_global(jThis)) { }
+VideoPipeline::VideoPipeline(jni::alias_ref<jhybridobject> jThis, int width, int height): _javaPart(jni::make_global(jThis)) {
+  _width = width;
+  _height = height;
+  _offscreenContextOutput = OpenGLContext::CreateWithOffscreenSurface(width, height);
+}
 
 VideoPipeline::~VideoPipeline() {
   // 1. Remove output surfaces
@@ -33,20 +37,15 @@ VideoPipeline::~VideoPipeline() {
     _offscreenFrameBuffer = NO_FRAME_BUFFER;
   }
   // 4. Destroy the OpenGL context
-  if (_context != nullptr) {
-    _context->destroy();
-  }
-}
-
-void VideoPipeline::setSize(int width, int height) {
-  _width = width;
-  _height = height;
+  _offscreenContextOutput = nullptr;
+  _previewOutput = nullptr;
+  _frameProcessorOutput = nullptr;
+  _recordingSessionOutput = nullptr;
 }
 
 void VideoPipeline::removeFrameProcessorOutputSurface() {
-  if (_frameProcessorOutput != nullptr) {
-    ANativeWindow_release(_frameProcessorOutput);
-  }
+  if (_frameProcessorOutput) _frameProcessorOutput->destroy();
+  _frameProcessorOutput = nullptr;
 }
 
 void VideoPipeline::setFrameProcessorOutputSurface(jobject surface) {
@@ -54,13 +53,13 @@ void VideoPipeline::setFrameProcessorOutputSurface(jobject surface) {
   removeFrameProcessorOutputSurface();
 
   // 2. Set new output surface if it is not null
-  _frameProcessorOutput = ANativeWindow_fromSurface(jni::Environment::current(), surface);
+  ANativeWindow* window = ANativeWindow_fromSurface(jni::Environment::current(), surface);
+  _frameProcessorOutput = OpenGLContext::CreateWithWindowSurface(window);
 }
 
 void VideoPipeline::removeRecordingSessionOutputSurface() {
-  if (_recordingSessionOutput != nullptr) {
-    ANativeWindow_release(_recordingSessionOutput);
-  }
+  if (_recordingSessionOutput) _recordingSessionOutput->destroy();
+  _recordingSessionOutput = nullptr;
 }
 
 void VideoPipeline::setRecordingSessionOutputSurface(jobject surface) {
@@ -68,14 +67,13 @@ void VideoPipeline::setRecordingSessionOutputSurface(jobject surface) {
   removePreviewOutputSurface();
 
   // 2. Set new output surface if it is not null
-  _previewOutput = ANativeWindow_fromSurface(jni::Environment::current(), surface);
+  ANativeWindow* window = ANativeWindow_fromSurface(jni::Environment::current(), surface);
+  _recordingSessionOutput = OpenGLContext::CreateWithWindowSurface(window);
 }
 
 void VideoPipeline::removePreviewOutputSurface() {
-  if (_previewOutput != nullptr) {
-    ANativeWindow_release(_previewOutput);
-    _context = nullptr;
-  }
+  if (_previewOutput) _previewOutput->destroy();
+  _previewOutput = nullptr;
 }
 
 void VideoPipeline::setPreviewOutputSurface(jobject surface) {
@@ -83,13 +81,12 @@ void VideoPipeline::setPreviewOutputSurface(jobject surface) {
   removeRecordingSessionOutputSurface();
 
   // 2. Set new output surface if it is not null
-  _previewOutput = ANativeWindow_fromSurface(jni::Environment::current(), surface);
-  _context = OpenGLContext::CreateWithWindowSurface(_previewOutput);
+  ANativeWindow* window = ANativeWindow_fromSurface(jni::Environment::current(), surface);
+  _previewOutput = OpenGLContext::CreateWithWindowSurface(window);
 }
 
 int VideoPipeline::getInputTextureId() {
-  if (_context == nullptr) throw std::runtime_error("Failed to get input texture ID: The context is not yet ready.");
-  _context->use();
+  _offscreenContextOutput->use();
 
   if (_inputTextureId != NO_TEXTURE) return static_cast<int>(_inputTextureId);
 
@@ -102,18 +99,17 @@ int VideoPipeline::getInputTextureId() {
 }
 
 void VideoPipeline::onBeforeFrame() {
-  if (_context == nullptr) throw std::runtime_error("Failed to render a Frame: The context is not yet ready.");
-  _context->use();
+  _offscreenContextOutput->use();
 
   glBindTexture(GL_TEXTURE_EXTERNAL_OES, _inputTextureId);
 }
 
 void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixParam) {
-  if (_context == nullptr) throw std::runtime_error("Failed to render a Frame: The context is not yet ready.");
+  _offscreenContextOutput->use();
 
   float transformMatrix[16];
   transformMatrixParam->getRegion(0, 16, transformMatrix);
-  _context->renderTextureToSurface(_inputTextureId, transformMatrix);
+  _offscreenContextOutput->renderTextureToSurface(_inputTextureId, transformMatrix);
 }
 
 void VideoPipeline::registerNatives() {
