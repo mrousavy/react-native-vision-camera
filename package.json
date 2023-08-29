@@ -96,6 +96,14 @@
     "react-native": "*",
     "react-native-worklets-core": "*"
   },
+  "peerDependenciesMeta": {
+    "@shopify/react-native-skia": {
+      "optional": true
+    },
+    "react-native-worklets-core": {
+      "optional": true
+    }
+  },
   "prettier": {
     "bracketSpacing": true,
     "bracketSameLine": true,
