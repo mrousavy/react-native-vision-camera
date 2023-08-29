@@ -39,7 +39,7 @@ void PassThroughShader::draw(GLuint textureId, float* transformMatrix) {
   }
 
   // Pass indices/coordinates
-  glVertexAttribPointer(_vertexParameters.inPosition, 2, GL_FLOAT, GL_FALSE, 0, VERTEX_INDICES);
+  glVertexAttribPointer(_vertexParameters.inPosition, 2, GL_FLOAT, GL_FALSE, 0, VERTICES);
   glVertexAttribPointer(_vertexParameters.inTexCoord, 2, GL_FLOAT, GL_FALSE, 0, TEXTURE_COORDINATES);
 
   glEnableVertexAttribArray(_vertexParameters.inPosition);

@@ -42,7 +42,7 @@ class PassThroughShader {
 
  private:
   // Statics
-  static constexpr GLfloat VERTEX_INDICES[] = {
+  static constexpr GLfloat VERTICES[] = {
       -1.0f, -1.0f,
       1.0f, -1.0f,
       -1.0f,  1.0f,
