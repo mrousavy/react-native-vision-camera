@@ -15,7 +15,6 @@
 namespace vision {
 
 class OpenGLRenderer {
-
  public:
   /**
    * Create a new instance of the OpenGLRenderer that draws to an on-screen window surface.
@@ -56,5 +55,4 @@ class OpenGLRenderer {
   static constexpr auto TAG = "OpenGLRenderer";
 };
 
-} // vision
-
+} // namespace vision

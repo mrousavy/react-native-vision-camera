@@ -130,4 +130,4 @@ void VideoPipeline::registerNatives() {
   });
 }
 
-} // vision
+} // namespace vision

@@ -130,4 +130,4 @@ GLuint OpenGLContext::createTexture() {
   return textureId;
 }
 
-} // vision
+} // namespace vision

@@ -69,5 +69,4 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
   static constexpr auto TAG = "VideoPipeline";
 };
 
-} // vision
-
+} // namespace vision

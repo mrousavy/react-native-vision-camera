@@ -19,9 +19,8 @@ struct Vertex {
 };
 
 class PassThroughShader {
-
  public:
-  explicit PassThroughShader();
+  PassThroughShader() = default;
   ~PassThroughShader();
 
   /**
@@ -29,7 +28,7 @@ class PassThroughShader {
    */
   void draw(GLuint textureId, float* transformMatrix);
 
-  private:
+ private:
   // Loading
   static GLuint loadShader(GLenum shaderType, const char* shaderCode);
   static GLuint createProgram();
@@ -79,5 +78,4 @@ class PassThroughShader {
   )";
 };
 
-} // vision
-
+} // namespace vision

@@ -68,7 +68,6 @@ jni::local_ref<jni::JMap<jstring, jobject>> JSIJNIConversion::convertJSIObjectTo
 
         auto map = convertJSIObjectToJNIMap(runtime, valueAsObject);
         hashMap->put(key, map);
-
       }
 
     } else {
@@ -139,8 +138,7 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
       result.setProperty(runtime, key.c_str(), jsiValue);
     }
     return result;
-
-  } if (object->isInstanceOf(JFrame::javaClassStatic())) {
+  } else if (object->isInstanceOf(JFrame::javaClassStatic())) {
     // Frame
     auto frame = static_ref_cast<JFrame>(object);
 

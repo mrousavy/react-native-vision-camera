@@ -19,7 +19,6 @@ namespace vision {
  * By default, it creates an off-screen PixelBuffer surface.
  */
 class OpenGLContext {
-
  public:
   /**
    * Create a new instance of the OpenGLContext that draws to an off-screen PixelBuffer surface.
@@ -66,5 +65,4 @@ class OpenGLContext {
   static constexpr auto TAG = "OpenGLContext";
 };
 
-} // vision
-
+} // namespace vision

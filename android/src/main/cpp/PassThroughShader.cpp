@@ -12,9 +12,6 @@
 
 namespace vision {
 
-
-PassThroughShader::PassThroughShader() = default;
-
 PassThroughShader::~PassThroughShader() {
   if (_programId != NO_SHADER) {
     glDeleteProgram(_programId);
@@ -55,10 +52,20 @@ void PassThroughShader::draw(GLuint textureId, float* transformMatrix) {
 
   // 3. Pass all uniforms/attributes for vertex shader
   glEnableVertexAttribArray(_vertexParameters.aPosition);
-  glVertexAttribPointer(_vertexParameters.aPosition, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
+  glVertexAttribPointer(_vertexParameters.aPosition,
+                        2,
+                        GL_FLOAT,
+                        GL_FALSE,
+                        sizeof(Vertex),
+                        reinterpret_cast<void*>(offsetof(Vertex, position)));
 
   glEnableVertexAttribArray(_vertexParameters.aTexCoord);
-  glVertexAttribPointer(_vertexParameters.aTexCoord, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
+  glVertexAttribPointer(_vertexParameters.aTexCoord,
+                        2,
+                        GL_FLOAT,
+                        GL_FALSE,
+                        sizeof(Vertex),
+                        reinterpret_cast<void*>(offsetof(Vertex, texCoord)));
 
   glUniformMatrix4fv(_vertexParameters.uTransformMatrix, 1, GL_FALSE, transformMatrix);
 
@@ -109,6 +116,4 @@ GLuint PassThroughShader::createProgram() {
   return program;
 }
 
-
-
-} // vision
+} // namespace vision

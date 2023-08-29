@@ -71,4 +71,4 @@ void OpenGLRenderer::renderTextureToSurface(GLuint textureId, float* transformMa
   eglSwapBuffers(_context->display, _surface);
 }
 
-} // vision
+} // namespace vision
