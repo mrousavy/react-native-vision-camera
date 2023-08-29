@@ -20,7 +20,7 @@ PassThroughShader::~PassThroughShader() {
   _programId = NO_SHADER;
 }
 
-void PassThroughShader::draw(GLuint textureId, float rotationDegrees, bool isMirrored) {
+void PassThroughShader::draw(GLuint textureId, float* transformMatrix) {
   if (_programId == NO_SHADER) {
     _programId = createProgram();
   }
@@ -31,23 +31,22 @@ void PassThroughShader::draw(GLuint textureId, float rotationDegrees, bool isMir
     _vertexParameters = {
         .inPosition = glGetAttribLocation(_programId, "inPosition"),
         .inTexCoord = glGetAttribLocation(_programId, "inTexCoord"),
-        .rotationAngle = glGetUniformLocation(_programId, "rotationAngle"),
-        .isMirrored = glGetUniformLocation(_programId, "isMirrored"),
+        .transformMatrix = glGetUniformLocation(_programId, "transformMatrix"),
     };
     _fragmentParameters = {
         .textureSampler = glGetUniformLocation(_programId, "textureSampler"),
     };
   }
 
-  float angleRadians = rotationDegrees * 3.14159f / 180.0f;  // Convert to radians
-  glUniform1f(_vertexParameters.rotationAngle, angleRadians);
-  glUniform1i(_vertexParameters.isMirrored, isMirrored);
-
+  // Pass indices/coordinates
   glVertexAttribPointer(_vertexParameters.inPosition, 2, GL_FLOAT, GL_FALSE, 0, VERTEX_INDICES);
   glVertexAttribPointer(_vertexParameters.inTexCoord, 2, GL_FLOAT, GL_FALSE, 0, TEXTURE_COORDINATES);
 
   glEnableVertexAttribArray(_vertexParameters.inPosition);
   glEnableVertexAttribArray(_vertexParameters.inTexCoord);
+
+  // Apply matrix transformation from Camera
+  glUniformMatrix4fv(_vertexParameters.transformMatrix, 1, GL_FALSE, transformMatrix);
 
   // Use GL_TEXTURE_EXTERNAL_OES for the shader
   glActiveTexture(GL_TEXTURE0);

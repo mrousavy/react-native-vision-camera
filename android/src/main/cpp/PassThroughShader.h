@@ -21,7 +21,7 @@ class PassThroughShader {
   /**
    * Draw the texture using this shader.
    */
-  void draw(GLuint textureId, float rotationDegrees, bool isMirrored);
+  void draw(GLuint textureId, float* transformMatrix);
 
   private:
   // Loading
@@ -34,8 +34,7 @@ class PassThroughShader {
   struct VertexParameters {
     GLint inPosition = NO_POSITION;
     GLint inTexCoord = NO_POSITION;
-    GLint rotationAngle = NO_POSITION;
-    GLint isMirrored = NO_POSITION;
+    GLint transformMatrix = NO_POSITION;
   } _vertexParameters;
   struct FragmentParameters {
     GLint textureSampler = NO_POSITION;
@@ -59,24 +58,13 @@ class PassThroughShader {
   static constexpr char VERTEX_SHADER[] = R"(
     attribute vec2 inPosition;
     attribute vec2 inTexCoord;
-    uniform float rotationAngle;
-    uniform bool isMirrored;
+    uniform mat4 transformMatrix;
 
     varying vec2 fragTexCoord;
 
-    mat2 rotationMatrix2D(float angle) {
-      float c = cos(angle);
-      float s = sin(angle);
-      return mat2(c, -s, s, c);
-    }
-
     void main() {
-      gl_Position = vec4(rotationMatrix2D(rotationAngle) * inPosition, 0.0, 1.0);
-      if (isMirrored) {
-          fragTexCoord = vec2(inTexCoord.x, 1.0 - inTexCoord.y);
-      } else {
-          fragTexCoord = inTexCoord;
-      }
+      gl_Position = transformMatrix * vec4(inPosition, 0.0, 1.0);
+      fragTexCoord = inTexCoord;
     }
   )";
   static constexpr char FRAGMENT_SHADER[] = R"(

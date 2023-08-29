@@ -46,7 +46,7 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
 
   // Frame callbacks
   void onBeforeFrame();
-  void onFrame(float rotationDegrees, bool isMirrored);
+  void onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrix);
 
  private:
   // Private constructor. Use `create(..)` to create new instances.

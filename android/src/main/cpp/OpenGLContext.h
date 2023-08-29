@@ -42,7 +42,7 @@ class OpenGLContext {
   /**
    * Renders the given Texture ID to the Surface
    */
-  void renderTextureToSurface(GLuint textureId, float rotationDegrees, bool isMirrored);
+  void renderTextureToSurface(GLuint textureId, float* transformMatrix);
 
   /**
    * Destroys the OpenGL context. This needs to be called on the same thread that `use()` was called.
