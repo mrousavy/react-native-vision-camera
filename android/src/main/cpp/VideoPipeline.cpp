@@ -143,7 +143,7 @@ void VideoPipeline::onBeforeFrame() {
 void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixParam, jni::alias_ref<jni::JArrayFloat> rotationMatrixParam) {
   if (_context == nullptr) throw std::runtime_error("Failed to render a Frame: The context is not yet ready.");
 
-  float rotationDegrees = 45.0f;
+  float rotationDegrees = 90.0f;
   bool isMirrored = true;
   _context->renderTextureToSurface(_inputTextureId, rotationDegrees, isMirrored);
 }

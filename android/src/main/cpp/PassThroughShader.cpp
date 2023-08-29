@@ -31,11 +31,11 @@ void PassThroughShader::draw(GLuint textureId, float rotationDegrees, bool isMir
     _vertexParameters = {
         .inPosition = glGetAttribLocation(_programId, "inPosition"),
         .inTexCoord = glGetAttribLocation(_programId, "inTexCoord"),
-        .rotationAngle = glGetAttribLocation(_programId, "rotationAngle"),
-        .isMirrored = glGetAttribLocation(_programId, "isMirrored"),
+        .rotationAngle = glGetUniformLocation(_programId, "rotationAngle"),
+        .isMirrored = glGetUniformLocation(_programId, "isMirrored"),
     };
     _fragmentParameters = {
-        .textureSampler = glGetAttribLocation(_programId, "textureSampler"),
+        .textureSampler = glGetUniformLocation(_programId, "textureSampler"),
     };
   }
 
