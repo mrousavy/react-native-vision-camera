@@ -9,59 +9,86 @@
 
 namespace vision {
 
+#define NO_SHADER 0
+#define NO_POSITION 0
+
 class PassThroughShader {
 
  public:
   explicit PassThroughShader();
   ~PassThroughShader();
 
-  // Program ID for useProgram
-  GLuint getProgramId() const;
-  // Positions for arguments in Program
-  GLint aPosition() const;
-  GLint aTexCoord() const;
-  GLint uTransformMatrix() const;
-  GLint uRotationMatrix() const;
+  /**
+   * Draw the texture using this shader.
+   */
+  void draw(GLuint textureId, float rotationDegrees, bool isMirrored);
 
-  const GLfloat* getVertexData() const;
-  const GLushort* getVertexIndices() const;
-
- private:
-  GLuint _programId;
-  GLint _aPosition, _aTexCoord, _uTransformMatrix, _uRotationMatrix;
-  GLuint loadShader(GLenum shaderType, const char* shaderCode);
-  GLuint createProgram();
+  private:
+  // Loading
+  static GLuint loadShader(GLenum shaderType, const char* shaderCode);
+  static GLuint createProgram();
 
  private:
-  static constexpr GLfloat VERTEX_DATA[] = {
-      -1.0f, -1.0f, 0.0, 1.0, 0.0f, 0.0f,
-      +1.0f, -1.0f, 0.0, 1.0, 1.0f, 0.0f,
-      -1.0f, +1.0f, 0.0, 1.0, 0.0f, 1.0f,
-      +1.0f, +1.0f, 0.0, 1.0, 1.0f, 1.0f,
+  // Parameters
+  GLuint _programId = NO_SHADER;
+  struct VertexParameters {
+    GLint inPosition = NO_POSITION;
+    GLint inTexCoord = NO_POSITION;
+    GLint rotationAngle = NO_POSITION;
+    GLint isMirrored = NO_POSITION;
+  } _vertexParameters;
+  struct FragmentParameters {
+    GLint textureSampler = NO_POSITION;
+  } _fragmentParameters;
+
+ private:
+  // Statics
+  static constexpr GLfloat VERTEX_INDICES[] = {
+      -1.0f, -1.0f,
+      1.0f, -1.0f,
+      -1.0f,  1.0f,
+      1.0f,  1.0f,
   };
-  static constexpr GLushort VERTEX_INDICES[] = {
-      0, 1, 2, 3
+  static constexpr GLfloat TEXTURE_COORDINATES[] = {
+      0.0f, 0.0f,
+      1.0f, 0.0f,
+      0.0f, 1.0f,
+      1.0f, 1.0f,
   };
 
-  static constexpr char VERTEX_SHADER[] =
-      "uniform mat4 uTransformMatrix;\n"
-      "uniform mat4 uRotationMatrix;\n"
-      "attribute vec4 aPosition;\n"
-      "attribute vec4 aTexCoord;\n"
-      "varying vec2 vTexCoord;\n"
-      "void main() {\n"
-      "    gl_Position = uRotationMatrix * aPosition;\n"
-      "    vTexCoord = (uTransformMatrix * aTexCoord).xy;\n"
-      "}\n";
-  static constexpr char FRAGMENT_SHADER[] =
-      "#extension GL_OES_EGL_image_external:require\n"
-      "precision mediump float;\n"
-      "uniform samplerExternalOES uTexture;\n"
-      "varying vec2 vTexCoord;\n"
-      "void main() {\n"
-      "    gl_FragColor = texture2D(uTexture, vTexCoord);\n"
-      "}\n";
+  static constexpr char VERTEX_SHADER[] = R"(
+    attribute vec2 inPosition;
+    attribute vec2 inTexCoord;
+    uniform float rotationAngle;
+    uniform bool isMirrored;
 
+    varying vec2 fragTexCoord;
+
+    mat2 rotationMatrix2D(float angle) {
+      float c = cos(angle);
+      float s = sin(angle);
+      return mat2(c, -s, s, c);
+    }
+
+    void main() {
+      gl_Position = vec4(rotationMatrix2D(rotationAngle) * inPosition, 0.0, 1.0);
+      if (isMirrored) {
+          fragTexCoord = vec2(inTexCoord.x, 1.0 - inTexCoord.y);
+      } else {
+          fragTexCoord = inTexCoord;
+      }
+    }
+  )";
+  static constexpr char FRAGMENT_SHADER[] = R"(
+    #extension GL_OES_EGL_image_external : require
+    precision mediump float;
+    varying vec2 fragTexCoord;
+    uniform samplerExternalOES textureSampler;
+
+    void main() {
+        gl_FragColor = texture2D(textureSampler, fragTexCoord);
+    }
+  )";
 };
 
 } // vision

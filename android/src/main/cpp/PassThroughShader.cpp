@@ -4,6 +4,8 @@
 
 #include "PassThroughShader.h"
 #include <EGL/egl.h>
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
 #include <memory>
 #include "OpenGLError.h"
 #include <string>
@@ -11,47 +13,48 @@
 namespace vision {
 
 
-PassThroughShader::PassThroughShader() {
-  _programId = createProgram();
-
-  glUseProgram(_programId);
-
-  _aPosition = glGetAttribLocation(_programId, "aPosition");
-  _aTexCoord = glGetAttribLocation(_programId, "aTexCoord");
-  _uTransformMatrix = glGetUniformLocation(_programId, "uTransformMatrix");
-  _uRotationMatrix = glGetUniformLocation(_programId, "uRotationMatrix");
-}
+PassThroughShader::PassThroughShader() = default;
 
 PassThroughShader::~PassThroughShader() {
   glDeleteProgram(_programId);
+  _programId = NO_SHADER;
 }
 
-GLuint PassThroughShader::getProgramId() const {
-  return _programId;
-}
+void PassThroughShader::draw(GLuint textureId, float rotationDegrees, bool isMirrored) {
+  if (_programId == NO_SHADER) {
+    _programId = createProgram();
+  }
 
-GLint PassThroughShader::aPosition() const {
-  return _aPosition;
-}
+  glUseProgram(_programId);
 
-GLint PassThroughShader::aTexCoord() const {
-  return _aTexCoord;
-}
+  if (_vertexParameters.inPosition == NO_POSITION) {
+    _vertexParameters = {
+        .inPosition = glGetAttribLocation(_programId, "inPosition"),
+        .inTexCoord = glGetAttribLocation(_programId, "inTexCoord"),
+        .rotationAngle = glGetAttribLocation(_programId, "rotationAngle"),
+        .isMirrored = glGetAttribLocation(_programId, "isMirrored"),
+    };
+    _fragmentParameters = {
+        .textureSampler = glGetAttribLocation(_programId, "textureSampler"),
+    };
+  }
 
-GLint PassThroughShader::uTransformMatrix() const {
-  return _uTransformMatrix;
-}
+  float angleRadians = rotationDegrees * 3.14159f / 180.0f;  // Convert to radians
+  glUniform1f(_vertexParameters.rotationAngle, angleRadians);
+  glUniform1i(_vertexParameters.isMirrored, isMirrored);
 
-GLint PassThroughShader::uRotationMatrix() const {
-  return _uRotationMatrix;
-}
+  glVertexAttribPointer(_vertexParameters.inPosition, 2, GL_FLOAT, GL_FALSE, 0, VERTEX_INDICES);
+  glVertexAttribPointer(_vertexParameters.inTexCoord, 2, GL_FLOAT, GL_FALSE, 0, TEXTURE_COORDINATES);
 
-const GLfloat* PassThroughShader::getVertexData() const {
-  return VERTEX_DATA;
-}
+  glEnableVertexAttribArray(_vertexParameters.inPosition);
+  glEnableVertexAttribArray(_vertexParameters.inTexCoord);
 
-const GLushort* PassThroughShader::getVertexIndices() const {
-  return VERTEX_INDICES;
+  // Use GL_TEXTURE_EXTERNAL_OES for the shader
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_EXTERNAL_OES, textureId);
+  glUniform1i(_fragmentParameters.textureSampler, 0);
+
+  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
 GLuint PassThroughShader::loadShader(GLenum shaderType, const char* shaderCode) {

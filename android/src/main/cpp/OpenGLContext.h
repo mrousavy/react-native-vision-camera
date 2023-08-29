@@ -5,8 +5,10 @@
 #pragma once
 
 #include <EGL/egl.h>
+#include <GLES2/gl2.h>
 #include <android/native_window.h>
 #include <memory>
+#include "PassThroughShader.h"
 
 namespace vision {
 
@@ -38,13 +40,18 @@ class OpenGLContext {
   void use();
 
   /**
+   * Renders the given Texture ID to the Surface
+   */
+  void renderTextureToSurface(GLuint textureId, float rotationDegrees, bool isMirrored);
+
+  /**
    * Destroys the OpenGL context. This needs to be called on the same thread that `use()` was called.
    * After calling `destroy()`, it is legal to call `use()` again, which will re-construct everything.
    */
   void destroy();
 
-  int getWidth();
-  int getHeight();
+  int getWidth() const;
+  int getHeight() const;
 
  public:
   EGLDisplay display = EGL_NO_DISPLAY;
@@ -55,10 +62,14 @@ class OpenGLContext {
   GLContextType contextType;
 
  private:
+  // Constructors
   ANativeWindow* _outputSurface;
   int _width = 0, _height = 0;
   explicit OpenGLContext(ANativeWindow* surface);
   explicit OpenGLContext(int width, int height);
+
+ private:
+  PassThroughShader _passThroughShader;
 
  private:
   static constexpr auto TAG = "OpenGLContext";

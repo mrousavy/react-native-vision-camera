@@ -5,6 +5,9 @@
 #include "OpenGLContext.h"
 
 #include <EGL/egl.h>
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+
 #include <android/native_window.h>
 #include <android/log.h>
 
@@ -41,11 +44,11 @@ OpenGLContext::~OpenGLContext() {
   destroy();
 }
 
-int OpenGLContext::getWidth() {
+int OpenGLContext::getWidth() const {
   return _width;
 }
 
-int OpenGLContext::getHeight() {
+int OpenGLContext::getHeight() const {
   return _height;
 }
 
@@ -135,6 +138,27 @@ void OpenGLContext::use() {
 
   successful = eglMakeCurrent(display, surface, surface, context);
   if (!successful || eglGetError() != EGL_SUCCESS) throw OpenGLError("Failed to use current OpenGL context!");
+}
+
+void OpenGLContext::renderTextureToSurface(GLuint textureId, float rotationDegrees, bool isMirrored) {
+  // 1. Activate current OpenGL context (eglMakeCurrent)
+  this->use();
+
+  // 2. Set the viewport for rendering
+  glViewport(0, 0, _width, _height);
+
+  // 3. Bind the input texture
+  glBindTexture(GL_TEXTURE_EXTERNAL_OES, textureId);
+  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+  // 4. Draw it using the pass-through shader which also applies transforms
+  _passThroughShader.draw(textureId, rotationDegrees, isMirrored);
+
+  // 5. Swap buffers to pass it to the window surface
+  eglSwapBuffers(display, surface);
 }
 
 } // vision
