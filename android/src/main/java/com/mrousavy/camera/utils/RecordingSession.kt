@@ -1,7 +1,6 @@
 package com.mrousavy.camera.utils
 
 import android.content.Context
-import android.media.Image
 import android.media.ImageWriter
 import android.media.MediaCodec
 import android.media.MediaRecorder
@@ -13,12 +12,11 @@ import com.mrousavy.camera.RecorderError
 import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.VideoCodec
 import com.mrousavy.camera.parsers.VideoFileType
-import com.mrousavy.camera.utils.outputs.CameraOutputs
 import java.io.File
 
 class RecordingSession(context: Context,
+                       val size: Size,
                        private val enableAudio: Boolean,
-                       private val videoSize: Size,
                        private val fps: Int? = null,
                        private val codec: VideoCodec = VideoCodec.H264,
                        private val orientation: Orientation,
@@ -40,14 +38,9 @@ class RecordingSession(context: Context,
   private val outputFile: File
   private var startTime: Long? = null
   private var imageWriter: ImageWriter? = null
-  val surface: Surface
+  val surface: Surface = MediaCodec.createPersistentInputSurface()
 
   init {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-      throw Error("Video Recording is only supported on Devices running Android version 23 (M) or newer.")
-    }
-
-    surface = MediaCodec.createPersistentInputSurface()
 
     outputFile = File.createTempFile("mrousavy", fileType.toExtension(), context.cacheDir)
 
@@ -61,7 +54,7 @@ class RecordingSession(context: Context,
     recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
     recorder.setOutputFile(outputFile.absolutePath)
     recorder.setVideoEncodingBitRate(VIDEO_BIT_RATE)
-    recorder.setVideoSize(videoSize.width, videoSize.height)
+    recorder.setVideoSize(size.height, size.width)
     if (fps != null) recorder.setVideoFrameRate(fps)
 
     Log.i(TAG, "Using $codec Video Codec..")
@@ -74,7 +67,7 @@ class RecordingSession(context: Context,
       recorder.setAudioChannels(AUDIO_CHANNELS)
     }
     recorder.setInputSurface(surface)
-    recorder.setOrientationHint(orientation.toDegrees())
+    //recorder.setOrientationHint(orientation.toDegrees())
 
     recorder.setOnErrorListener { _, what, extra ->
       Log.e(TAG, "MediaRecorder Error: $what ($extra)")
@@ -109,10 +102,8 @@ class RecordingSession(context: Context,
         recorder.stop()
         recorder.release()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-          imageWriter?.close()
-          imageWriter = null
-        }
+        imageWriter?.close()
+        imageWriter = null
       } catch (e: Error) {
         Log.e(TAG, "Failed to stop MediaRecorder!", e)
       }
@@ -125,9 +116,6 @@ class RecordingSession(context: Context,
 
   fun pause() {
     synchronized(this) {
-      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-        throw Error("Pausing a recording is only supported on Devices running Android version 24 (N) or newer.")
-      }
       Log.i(TAG, "Pausing Recording Session..")
       recorder.pause()
     }
@@ -135,32 +123,13 @@ class RecordingSession(context: Context,
 
   fun resume() {
     synchronized(this) {
-      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-        throw Error("Resuming a recording is only supported on Devices running Android version 24 (N) or newer.")
-      }
       Log.i(TAG, "Resuming Recording Session..")
       recorder.resume()
     }
   }
 
-  fun appendImage(image: Image) {
-    synchronized(this) {
-      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-        throw Error("Video Recording is only supported on Devices running Android version 23 (M) or newer.")
-      }
-
-      // TODO: Correctly mirror/flip Image in OpenGL pipeline, otherwise flipping camera while recording results in inverted frames
-
-      if (imageWriter == null) {
-        imageWriter = ImageWriter.newInstance(surface, CameraOutputs.VIDEO_OUTPUT_BUFFER_SIZE)
-      }
-      image.timestamp = System.nanoTime()
-      imageWriter!!.queueInputImage(image)
-    }
-  }
-
   override fun toString(): String {
     val audio = if (enableAudio) "with audio" else "without audio"
-    return "${videoSize.width} x ${videoSize.height} @ $fps FPS $codec $fileType $orientation RecordingSession ($audio)"
+    return "${size.width} x ${size.height} @ $fps FPS $codec $fileType $orientation RecordingSession ($audio)"
   }
 }

@@ -96,7 +96,7 @@ class CameraView(context: Context) : FrameLayout(context) {
   internal var frameProcessor: FrameProcessor? = null
     set(value) {
       field = value
-      cameraSession.setFrameProcessor(frameProcessor)
+      cameraSession.frameProcessor = frameProcessor
     }
 
   private val inputOrientation: Orientation

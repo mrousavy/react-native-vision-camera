@@ -22,8 +22,8 @@ void JVisionCameraScheduler::dispatchAsync(const std::function<void()>& job) {
 
 void JVisionCameraScheduler::scheduleTrigger() {
   // 2. schedule `triggerUI` to be called on the java thread
-  static auto method = javaPart_->getClass()->getMethod<void()>("scheduleTrigger");
-  method(javaPart_.get());
+  static auto method = _javaPart->getClass()->getMethod<void()>("scheduleTrigger");
+  method(_javaPart.get());
 }
 
 void JVisionCameraScheduler::trigger() {

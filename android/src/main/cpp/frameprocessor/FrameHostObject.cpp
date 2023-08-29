@@ -4,7 +4,6 @@
 
 #include "FrameHostObject.h"
 
-#include <android/log.h>
 #include <fbjni/fbjni.h>
 #include <jni.h>
 

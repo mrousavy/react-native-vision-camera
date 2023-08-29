@@ -33,12 +33,12 @@ class JVisionCameraScheduler : public jni::HybridClass<JVisionCameraScheduler> {
 
  private:
   friend HybridBase;
-  jni::global_ref<JVisionCameraScheduler::javaobject> javaPart_;
+  jni::global_ref<JVisionCameraScheduler::javaobject> _javaPart;
   std::queue<std::function<void()>> _jobs;
   std::mutex _mutex;
 
   explicit JVisionCameraScheduler(jni::alias_ref<JVisionCameraScheduler::jhybridobject> jThis):
-    javaPart_(jni::make_global(jThis)) {}
+    _javaPart(jni::make_global(jThis)) {}
 
   // Schedules a call to `trigger` on the VisionCamera FP Thread
   void scheduleTrigger();

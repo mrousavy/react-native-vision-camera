@@ -63,10 +63,6 @@ fun CameraCharacteristics.getVideoSizes(cameraId: String, format: Int): List<Siz
 fun CameraCharacteristics.getPhotoSizes(format: Int): List<Size> {
   val config = this.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
   val sizes = config.getOutputSizes(format) ?: emptyArray()
-  val highResSizes = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-    config.getHighResolutionOutputSizes(format)
-  } else {
-    null
-  } ?: emptyArray()
+  val highResSizes = config.getHighResolutionOutputSizes(format) ?: emptyArray()
   return sizes.plus(highResSizes).toList()
 }

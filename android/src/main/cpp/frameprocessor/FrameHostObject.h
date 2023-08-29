@@ -27,9 +27,6 @@ class JSI_EXPORT FrameHostObject : public jsi::HostObject {
 
  public:
   jni::global_ref<JFrame> frame;
-
- private:
-  static auto constexpr TAG = "VisionCamera";
 };
 
 } // namespace vision

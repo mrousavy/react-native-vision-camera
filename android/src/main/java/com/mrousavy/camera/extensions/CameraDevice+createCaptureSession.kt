@@ -8,7 +8,6 @@ import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
 import android.os.Build
 import android.util.Log
-import android.view.Surface
 import androidx.annotation.RequiresApi
 import com.mrousavy.camera.CameraQueues
 import com.mrousavy.camera.CameraSessionCannotBeConfiguredError
@@ -63,47 +62,35 @@ suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager,
       }
     }
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-      // API >= 24
-      val outputConfigurations = arrayListOf<OutputConfiguration>()
-      outputs.previewOutput?.let { output ->
-        outputConfigurations.add(output.toOutputConfiguration(characteristics))
-      }
-      outputs.photoOutput?.let { output ->
-        outputConfigurations.add(output.toOutputConfiguration(characteristics))
-      }
-      outputs.videoOutput?.let { output ->
-        outputConfigurations.add(output.toOutputConfiguration(characteristics))
-      }
-      if (outputs.enableHdr == true && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        val supportedProfiles = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES)
-        val hdrProfile = supportedProfiles?.bestProfile ?: supportedProfiles?.supportedProfiles?.firstOrNull()
-        if (hdrProfile != null) {
-          Log.i(TAG, "Camera $id: Using HDR Profile $hdrProfile...")
-          outputConfigurations.forEach { it.dynamicRangeProfile = hdrProfile }
-        } else {
-          Log.w(TAG, "Camera $id: HDR was enabled, but the device does not support any matching HDR profile!")
-        }
-      }
-
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        // API >=28
-        Log.i(TAG, "Using new API (>=28)")
-        val config = SessionConfiguration(sessionType.toSessionType(), outputConfigurations, queue.executor, callback)
-        this.createCaptureSession(config)
+    val outputConfigurations = arrayListOf<OutputConfiguration>()
+    outputs.previewOutput?.let { output ->
+      // TODO: add here again?
+      // outputConfigurations.add(output.toOutputConfiguration(characteristics))
+    }
+    outputs.photoOutput?.let { output ->
+      outputConfigurations.add(output.toOutputConfiguration(characteristics))
+    }
+    outputs.videoOutput?.let { output ->
+      outputConfigurations.add(output.toOutputConfiguration(characteristics))
+    }
+    if (outputs.enableHdr == true && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      val supportedProfiles = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES)
+      val hdrProfile = supportedProfiles?.bestProfile ?: supportedProfiles?.supportedProfiles?.firstOrNull()
+      if (hdrProfile != null) {
+        Log.i(TAG, "Camera $id: Using HDR Profile $hdrProfile...")
+        outputConfigurations.forEach { it.dynamicRangeProfile = hdrProfile }
       } else {
-        // API >=24
-        Log.i(TAG, "Using legacy API (<28)")
-        this.createCaptureSessionByOutputConfigurations(outputConfigurations, callback, queue.handler)
+        Log.w(TAG, "Camera $id: HDR was enabled, but the device does not support any matching HDR profile!")
       }
+    }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      Log.i(TAG, "Using new API (>=28)")
+      val config = SessionConfiguration(sessionType.toSessionType(), outputConfigurations, queue.executor, callback)
+      this.createCaptureSession(config)
     } else {
-      // API <24
-      Log.i(TAG, "Using legacy API (<24)")
-      val surfaces = arrayListOf<Surface>()
-      outputs.previewOutput?.let { surfaces.add(it.surface) }
-      outputs.photoOutput?.let { surfaces.add(it.surface) }
-      outputs.videoOutput?.let { surfaces.add(it.surface) }
-      this.createCaptureSession(surfaces, callback, queue.handler)
+      Log.i(TAG, "Using legacy API (<28)")
+      this.createCaptureSessionByOutputConfigurations(outputConfigurations, callback, queue.handler)
     }
   }
 }

@@ -7,10 +7,6 @@ set(BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 17)
 
-# Folly
-include("${NODE_MODULES_DIR}/react-native/ReactAndroid/cmake-utils/folly-flags.cmake")
-add_compile_options(${folly_FLAGS})
-
 # Third party libraries (Prefabs)
 find_package(ReactAndroid REQUIRED CONFIG)
 find_package(fbjni REQUIRED CONFIG)
@@ -25,6 +21,10 @@ add_library(
         SHARED
         ../cpp/JSITypedArray.cpp
         src/main/cpp/VisionCamera.cpp
+        src/main/cpp/VideoPipeline.cpp
+        src/main/cpp/PassThroughShader.cpp
+        src/main/cpp/OpenGLContext.cpp
+        src/main/cpp/OpenGLRenderer.cpp
         # Frame Processor
         src/main/cpp/frameprocessor/FrameHostObject.cpp
         src/main/cpp/frameprocessor/FrameProcessorPluginHostObject.cpp
@@ -60,7 +60,6 @@ target_link_libraries(
         android                             # <-- Android JNI core
         ReactAndroid::jsi                   # <-- RN: JSI
         ReactAndroid::reactnativejni        # <-- RN: React Native JNI bindings
-        ReactAndroid::folly_runtime         # <-- RN: For casting JSI <> Java objects
         fbjni::fbjni                        # <-- fbjni
 )
 

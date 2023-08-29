@@ -23,7 +23,6 @@ import com.mrousavy.camera.extensions.createPhotoCaptureRequest
 import com.mrousavy.camera.extensions.openCamera
 import com.mrousavy.camera.extensions.tryClose
 import com.mrousavy.camera.extensions.zoomed
-import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.parsers.Flash
 import com.mrousavy.camera.parsers.Orientation
@@ -88,8 +87,17 @@ class CameraSession(private val context: Context,
   private val mutex = Mutex()
   private var isRunning = false
   private var enableTorch = false
+  // Video Outputs
   private var recording: RecordingSession? = null
-  private var frameProcessor: FrameProcessor? = null
+    set(value) {
+      field = value
+      updateVideoOutputs()
+    }
+  var frameProcessor: FrameProcessor? = null
+    set(value) {
+      field = value
+      updateVideoOutputs()
+    }
 
   override val coroutineContext: CoroutineContext = CameraQueues.cameraQueue.coroutineDispatcher
 
@@ -130,8 +138,14 @@ class CameraSession(private val context: Context,
       Log.i(TAG, "Nothing changed in configuration, canceling..")
     }
 
-    this.cameraId = cameraId
+    // 1. Close previous outputs
+    this.outputs?.close()
+    // 2. Assign new outputs
     this.outputs = outputs
+    // 3. Update with existing render targets (surfaces)
+    updateVideoOutputs()
+
+    this.cameraId = cameraId
     launch {
       startRunning()
     }
@@ -183,8 +197,12 @@ class CameraSession(private val context: Context,
     }
   }
 
-  fun setFrameProcessor(frameProcessor: FrameProcessor?) {
-    this.frameProcessor = frameProcessor
+  private fun updateVideoOutputs() {
+    val videoPipeline = outputs?.videoOutput?.videoPipeline ?: return
+    val previewOutput = outputs?.previewOutput
+    videoPipeline.setRecordingSessionOutput(this.recording)
+    videoPipeline.setFrameProcessorOutput(this.frameProcessor)
+    videoPipeline.setPreviewOutput(previewOutput?.surface)
   }
 
   suspend fun takePhoto(qualityPrioritization: QualityPrioritization,
@@ -229,20 +247,6 @@ class CameraSession(private val context: Context,
     photoOutputSynchronizer.set(image.timestamp, image)
   }
 
-  override fun onVideoFrameCaptured(image: Image) {
-    // TODO: Correctly get orientation and everything
-    val frame = Frame(image, System.currentTimeMillis(), Orientation.PORTRAIT, false)
-    frame.incrementRefCount()
-
-    // Call (Skia-) Frame Processor
-    frameProcessor?.call(frame)
-
-    // Write Image to the Recording
-    recording?.appendImage(image)
-
-    frame.decrementRefCount()
-  }
-
   suspend fun startRecording(enableAudio: Boolean,
                              codec: VideoCodec,
                              fileType: VideoFileType,
@@ -253,7 +257,7 @@ class CameraSession(private val context: Context,
       val outputs = outputs ?: throw CameraNotReadyError()
       val videoOutput = outputs.videoOutput ?: throw VideoNotEnabledError()
 
-      val recording = RecordingSession(context, enableAudio, videoOutput.size, fps, codec, orientation, fileType, callback, onError)
+      val recording = RecordingSession(context, videoOutput.size, enableAudio, fps, codec, orientation, fileType, callback, onError)
       recording.start()
       this.recording = recording
     }
@@ -497,7 +501,8 @@ class CameraSession(private val context: Context,
         val captureRequest = camera.createCaptureRequest(template)
         outputs.previewOutput?.let { output ->
           Log.i(TAG, "Adding output surface ${output.outputType}..")
-          captureRequest.addTarget(output.surface)
+          // TODO: Add here again?
+          // captureRequest.addTarget(output.surface)
         }
         outputs.videoOutput?.let { output ->
           Log.i(TAG, "Adding output surface ${output.outputType}..")
