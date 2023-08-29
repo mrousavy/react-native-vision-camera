@@ -31,7 +31,6 @@
         android:launchMode="singleTask"
         android:windowSoftInputMode="adjustResize"
         android:screenOrientation="fullUser"
-        android:rotationAnimation="seamless"
         android:fitsSystemWindows="false"
         android:exported="true">
         <intent-filter>
