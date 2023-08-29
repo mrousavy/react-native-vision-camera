@@ -24,13 +24,18 @@ VideoPipeline::~VideoPipeline() {
   removeRecordingSessionOutputSurface();
   // 2. Delete the pass-through shader
   delete _passThroughShader;
-  if (_vertexBuffer != 0) {
+  if (_vertexBuffer != NO_BUFFER) {
     glDeleteBuffers(1, &_vertexBuffer);
-    _vertexBuffer = 0;
+    _vertexBuffer = NO_BUFFER;
   }
   // 3. Delete the input textures
-  if (_inputTextureId != 0) {
+  if (_inputTextureId != NO_TEXTURE) {
     glDeleteTextures(1, &_inputTextureId);
+    _inputTextureId = NO_TEXTURE;
+  }
+  if (_offscreenFrameBuffer != NO_FRAME_BUFFER) {
+    glDeleteFramebuffers(1, &_offscreenFrameBuffer);
+    _offscreenFrameBuffer = NO_FRAME_BUFFER;
   }
   // 4. Delete the OpenGL context
   if (_context.display != EGL_NO_DISPLAY) {
@@ -135,7 +140,9 @@ void VideoPipeline::removeFrameProcessorOutputSurface() {
   if (_frameProcessorOutput.surface != nullptr) {
     ANativeWindow_release(_frameProcessorOutput.surface);
     _frameProcessorOutput = {
-        .surface = nullptr
+        .surface = nullptr,
+        .width = 0,
+        .height = 0
     };
   }
 }
@@ -146,7 +153,9 @@ void VideoPipeline::setFrameProcessorOutputSurface(jobject surface) {
 
   // 2. Set new output surface if it is not null
   _frameProcessorOutput = {
-      .surface = ANativeWindow_fromSurface(jni::Environment::current(), surface)
+      .surface = ANativeWindow_fromSurface(jni::Environment::current(), surface),
+      .width = _width,
+      .height = _height
   };
 }
 
@@ -163,6 +172,29 @@ void VideoPipeline::removeRecordingSessionOutputSurface() {
 
 void VideoPipeline::setRecordingSessionOutputSurface(jobject surface, jint width, jint height) {
   // 1. Delete existing output surface
+  removePreviewOutputSurface();
+
+  // 2. Set new output surface if it is not null
+  _previewOutput = {
+      .surface = ANativeWindow_fromSurface(jni::Environment::current(), surface),
+      .width = width,
+      .height = height
+  };
+}
+
+void VideoPipeline::removePreviewOutputSurface() {
+  if (_previewOutput.surface != nullptr) {
+    ANativeWindow_release(_previewOutput.surface);
+    _previewOutput = {
+        .surface = nullptr,
+        .width = 0,
+        .height = 0
+    };
+  }
+}
+
+void VideoPipeline::setPreviewOutputSurface(jobject surface, jint width, jint height) {
+  // 1. Delete existing output surface
   removeRecordingSessionOutputSurface();
 
   // 2. Set new output surface if it is not null
@@ -176,7 +208,7 @@ void VideoPipeline::setRecordingSessionOutputSurface(jobject surface, jint width
 int VideoPipeline::getInputTextureId() {
   GLContext& context = getGLContext();
 
-  if (_inputTextureId != 0) return static_cast<int>(_inputTextureId);
+  if (_inputTextureId != NO_TEXTURE) return static_cast<int>(_inputTextureId);
 
   GLuint textureId;
   glGenTextures(1, &textureId);
@@ -194,11 +226,21 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
 
   if (_passThroughShader == nullptr) {
     _passThroughShader = new PassThroughShader();
-
-    glGenBuffers(1, &_vertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(GLfloat), _passThroughShader->getVertexData(), GL_STATIC_DRAW);
   }
+  if (_vertexBuffer == NO_BUFFER) {
+    glGenBuffers(1, &_vertexBuffer);
+  }
+  if (_offscreenFrameBuffer == NO_FRAME_BUFFER) {
+    glGenFramebuffers(1, &_offscreenFrameBuffer);
+  }
+
+  glBindFramebuffer(GL_FRAMEBUFFER, _offscreenFrameBuffer);
+  if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+    throw std::runtime_error("Cannot render to offscreen Frame Buffer, it is not properly configured!");
+  }
+
+  glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
+  glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(GLfloat), _passThroughShader->getVertexData(), GL_STATIC_DRAW);
 
   glViewport(0, 0, _width, _height);
 
@@ -230,6 +272,8 @@ void VideoPipeline::registerNatives() {
     makeNativeMethod("removeFrameProcessorOutputSurface", VideoPipeline::removeFrameProcessorOutputSurface),
     makeNativeMethod("setRecordingSessionOutputSurface", VideoPipeline::setRecordingSessionOutputSurface),
     makeNativeMethod("removeRecordingSessionOutputSurface", VideoPipeline::removeRecordingSessionOutputSurface),
+    makeNativeMethod("setPreviewOutputSurface", VideoPipeline::setPreviewOutputSurface),
+    makeNativeMethod("removePreviewOutputSurface", VideoPipeline::removePreviewOutputSurface),
     makeNativeMethod("getInputTextureId", VideoPipeline::getInputTextureId),
     makeNativeMethod("onBeforeFrame", VideoPipeline::onBeforeFrame),
     makeNativeMethod("onFrame", VideoPipeline::onFrame),

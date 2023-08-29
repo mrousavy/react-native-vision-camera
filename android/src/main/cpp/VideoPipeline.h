@@ -12,6 +12,10 @@
 
 namespace vision {
 
+#define NO_FRAME_BUFFER 0
+#define NO_TEXTURE 0
+#define NO_BUFFER 0
+
 using namespace facebook;
 
 struct GLContext {
@@ -21,14 +25,10 @@ struct GLContext {
   EGLConfig config = nullptr;
 };
 
-struct RecordingSessionOutput {
+struct SurfaceOutput {
   ANativeWindow* surface = nullptr;
   int width = 0;
   int height = 0;
-};
-
-struct FrameProcessorOutput {
-  ANativeWindow* surface = nullptr;
 };
 
 class VideoPipeline: public jni::HybridClass<VideoPipeline> {
@@ -39,14 +39,26 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
 
  public:
   ~VideoPipeline();
-  void onBeforeFrame();
-  void onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrix, jni::alias_ref<jni::JArrayFloat> rotationMatrix);
+
+  // -> SurfaceTexture input
+  int getInputTextureId();
+  void setSize(int width, int height);
+
+  // <- Frame Processor output
   void setFrameProcessorOutputSurface(jobject surface);
   void removeFrameProcessorOutputSurface();
+
+  // <- MediaRecorder output
   void setRecordingSessionOutputSurface(jobject surface, jint width, jint height);
   void removeRecordingSessionOutputSurface();
 
-  int getInputTextureId();
+  // <- Preview output
+  void setPreviewOutputSurface(jobject surface, jint width, jint height);
+  void removePreviewOutputSurface();
+
+  // Frame callbacks
+  void onBeforeFrame();
+  void onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrix, jni::alias_ref<jni::JArrayFloat> rotationMatrix);
 
  private:
   // Private constructor. Use `create(..)` to create new instances.
@@ -54,17 +66,24 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
 
  private:
   GLContext& getGLContext();
-  void setSize(int width, int height);
 
  private:
-  GLContext _context;
-  GLuint _inputTextureId;
+  // Input Surface Texture
+  GLuint _inputTextureId = NO_TEXTURE;
   int _width = 0;
   int _height = 0;
-  FrameProcessorOutput _frameProcessorOutput;
-  RecordingSessionOutput _recordingSessionOutput;
+
+  // Outputs
+  SurfaceOutput _frameProcessorOutput;
+  SurfaceOutput _recordingSessionOutput;
+  SurfaceOutput _previewOutput;
+
+  // OpenGL rendering
+  GLContext _context;
+  GLuint _offscreenFrameBuffer = NO_FRAME_BUFFER;
+  GLuint _vertexBuffer = NO_BUFFER;
   PassThroughShader* _passThroughShader;
-  GLuint _vertexBuffer;
+
   static auto constexpr MATRIX_SIZE = 16;
 
  private:

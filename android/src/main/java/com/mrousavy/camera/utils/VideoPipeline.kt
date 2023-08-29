@@ -28,6 +28,7 @@ class VideoPipeline(val width: Int,
                     val format: Int = ImageFormat.PRIVATE): SurfaceTexture.OnFrameAvailableListener, Closeable {
   companion object {
     private const val MAX_IMAGES = 5
+    private const val TAG = "VideoPipeline"
   }
 
   private val mHybridData: HybridData
@@ -41,6 +42,9 @@ class VideoPipeline(val width: Int,
 
   // Output 2
   private var recordingSession: RecordingSession? = null
+
+  // Output 3
+  private var previewSurface: Surface? = null
 
   // Input
   private val surfaceTexture: SurfaceTexture
@@ -62,6 +66,7 @@ class VideoPipeline(val width: Int,
   }
 
   override fun onFrameAvailable(surfaceTexture: SurfaceTexture) {
+    Log.i(TAG, "Frame available!")
     // 1. Attach Surface to OpenGL context
     if (openGLTextureId == null) {
       openGLTextureId = getInputTextureId()
@@ -77,6 +82,7 @@ class VideoPipeline(val width: Int,
   }
 
   fun setRotation(rotationDegrees: Int) {
+    Log.i(TAG, "Setting rotation to $rotationDegrees°...")
     Matrix.setIdentityM(rotationMatrix, 0)
     Matrix.rotateM(rotationMatrix, 0, rotationDegrees.toFloat(), 0f, 0f, 1f)
   }
@@ -103,6 +109,7 @@ class VideoPipeline(val width: Int,
    * using an [ImageWriter] and call the [FrameProcessor] with those Frames.
    */
   fun setFrameProcessorOutput(frameProcessor: FrameProcessor?) {
+    Log.i(TAG, "Setting $width x $height FrameProcessor Output...")
     this.frameProcessor = frameProcessor
 
     if (frameProcessor != null) {
@@ -129,6 +136,7 @@ class VideoPipeline(val width: Int,
    * * If the [surface] is not `null`, the [VideoPipeline] will write Frames to this Surface.
    */
   fun setRecordingSessionOutput(recordingSession: RecordingSession?) {
+    Log.i(TAG, "Setting $width x $height RecordingSession Output...")
     if (recordingSession != null) {
       // Configure OpenGL pipeline to stream Frames into the Recording Session's surface
       setRecordingSessionOutputSurface(recordingSession.surface, recordingSession.size.width, recordingSession.size.height)
@@ -140,6 +148,17 @@ class VideoPipeline(val width: Int,
     }
   }
 
+  fun setPreviewOutput(surface: Surface?, width: Int, height: Int) {
+    Log.i(TAG, "Setting $width x $height Preview Output...")
+    if (surface != null) {
+      setPreviewOutputSurface(surface, width, height)
+      this.previewSurface = surface
+    } else {
+      removePreviewOutputSurface()
+      this.previewSurface = null
+    }
+  }
+
   private external fun getInputTextureId(): Int
   private external fun onBeforeFrame()
   private external fun onFrame(transformMatrix: FloatArray, rotationMatrix: FloatArray)
@@ -147,5 +166,7 @@ class VideoPipeline(val width: Int,
   private external fun removeFrameProcessorOutputSurface()
   private external fun setRecordingSessionOutputSurface(surface: Any, width: Int, height: Int)
   private external fun removeRecordingSessionOutputSurface()
+  private external fun setPreviewOutputSurface(surface: Any, width: Int, height: Int)
+  private external fun removePreviewOutputSurface()
   private external fun initHybrid(): HybridData
 }

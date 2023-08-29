@@ -193,8 +193,10 @@ class CameraSession(private val context: Context,
 
   private fun updateVideoOutputs() {
     val videoPipeline = outputs?.videoOutput?.videoPipeline ?: return
-    videoPipeline.setRecordingSessionOutput(this.recording)
-    videoPipeline.setFrameProcessorOutput(this.frameProcessor)
+    val previewOutput = outputs?.previewOutput ?: return
+    // videoPipeline.setRecordingSessionOutput(this.recording)
+    // videoPipeline.setFrameProcessorOutput(this.frameProcessor)
+    videoPipeline.setPreviewOutput(previewOutput.surface, previewOutput.size.width, previewOutput.size.height)
   }
 
   suspend fun takePhoto(qualityPrioritization: QualityPrioritization,
