@@ -52,6 +52,7 @@ class VideoPipeline(val width: Int,
   init {
     mHybridData = initHybrid()
     surfaceTexture = SurfaceTexture(false)
+    surfaceTexture.setDefaultBufferSize(width, height)
     surfaceTexture.setOnFrameAvailableListener(this)
     surface = Surface(surfaceTexture)
   }
