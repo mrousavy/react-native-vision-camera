@@ -161,25 +161,32 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
   // Shader sources
   const char* vertexShaderSource = R"(
     attribute vec2 inPosition;
-    attribute vec2 inTexCoord;  // Added attribute for texture coordinates
-    varying vec2 fragTexCoord;  // Varying variable for passing texture coordinates to fragment shader
+    attribute vec2 inTexCoord;
+    varying vec2 fragTexCoord;
+    uniform float rotationAngle;
+
+    mat2 rotationMatrix2D(float angle) {
+      float c = cos(angle);
+      float s = sin(angle);
+      return mat2(c, -s, s, c);
+    }
 
     void main() {
-        gl_Position = vec4(inPosition, 0.0, 1.0);
-        fragTexCoord = inTexCoord;  // Pass texture coordinates to fragment shader
+      gl_Position = vec4(rotationMatrix2D(rotationAngle) * inPosition, 0.0, 1.0);
+      fragTexCoord = inTexCoord;
     }
-)";
+  )";
 
   const char* fragmentShaderSource = R"(
-#extension GL_OES_EGL_image_external : require
-precision mediump float;
-varying vec2 fragTexCoord;
-uniform samplerExternalOES textureSampler;  // Use samplerExternalOES for GL_TEXTURE_EXTERNAL_OES
+    #extension GL_OES_EGL_image_external : require
+    precision mediump float;
+    varying vec2 fragTexCoord;
+    uniform samplerExternalOES textureSampler;  // Use samplerExternalOES for GL_TEXTURE_EXTERNAL_OES
 
-void main() {
-    gl_FragColor = texture2D(textureSampler, fragTexCoord);
-}
-)";
+    void main() {
+        gl_FragColor = texture2D(textureSampler, fragTexCoord);
+    }
+  )";
 
   GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
   GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -195,8 +202,6 @@ void main() {
   glAttachShader(shaderProgram, fragmentShader);
   glLinkProgram(shaderProgram);
   glUseProgram(shaderProgram);
-
-  GLint textureLocation = glGetUniformLocation(shaderProgram, "textureSampler");
 
 
   glBindTexture(GL_TEXTURE_EXTERNAL_OES, _inputTextureId);
@@ -242,6 +247,13 @@ void main() {
   // Set vertex attributes directly (no need for VAO)
   GLint posAttrib = glGetAttribLocation(shaderProgram, "inPosition");
   GLint texAttrib = glGetAttribLocation(shaderProgram, "inTexCoord");
+  GLint textureLocation = glGetUniformLocation(shaderProgram, "textureSampler");
+
+  float angleDegrees = 90.0f;  // Rotate by 45 degrees
+  float angleRadians = angleDegrees * 3.14159f / 180.0f;  // Convert to radians
+  GLint rotationAngleLocation = glGetUniformLocation(shaderProgram, "rotationAngle");
+  glUniform1f(rotationAngleLocation, angleRadians);
+
 
   glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, vertices);
   glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 0, texCoords);
@@ -258,77 +270,6 @@ void main() {
 
 
   eglSwapBuffers(_context->display, _context->surface);
-
-
-
-
-
-
-
-
-  return;
-  float transformMatrix[MATRIX_SIZE];
-  transformMatrixParam->getRegion(0, MATRIX_SIZE - 1, transformMatrix);
-
-  float rotationMatrix[MATRIX_SIZE];
-  rotationMatrixParam->getRegion(0, MATRIX_SIZE - 1, rotationMatrix);
-
-
-
-  GLuint vertexBuffer;
-
-  // In ctor
-
-  glBindTexture(GL_TEXTURE_EXTERNAL_OES, _inputTextureId);
-  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-  glGenBuffers(1, &vertexBuffer);
-  glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-  glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(GLfloat), VertexData(), GL_STATIC_DRAW);
-
-  GLuint program = CreateProgram(VertexShaderCode(), FragmentShaderCode());
-  if (!program) {
-    throw std::runtime_error("Failed to create Shader!");
-  }
-
-  glUseProgram(program);
-
-  GLint aPosition = glGetAttribLocation(program, "aPosition");
-  GLint aTexCoord = glGetAttribLocation(program, "aTexCoord");
-  GLint uTransformMatrix = glGetUniformLocation(program, "uTransformMatrix");
-  GLint uRotationMatrix = glGetUniformLocation(program, "uRotationMatrix");
-
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-  if (glGetError() != GL_NO_ERROR) {
-    glDeleteProgram(program);
-    throw std::runtime_error("Program error!");
-  }
-
-  // in setSize
-
-
-
-  glViewport(0, 0, _width, _height);
-
-  glDisable(GL_BLEND);
-  glBindTexture(GL_TEXTURE_EXTERNAL_OES, _inputTextureId);
-
-  glUseProgram(program);
-  glUniformMatrix4fv(uTransformMatrix, 1, GL_FALSE, transformMatrix);
-  glUniformMatrix4fv(uRotationMatrix, 1, GL_FALSE, rotationMatrix);
-  glVertexAttribPointer(aPosition, 4, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid*) (0 * sizeof(GLfloat)));
-  glEnableVertexAttribArray(aPosition);
-  glVertexAttribPointer(aTexCoord, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (const GLvoid*) (4 * sizeof(GLfloat)));
-  glEnableVertexAttribArray(aTexCoord);
-  glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-  glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, VertexIndices());
-
-  eglSwapBuffers(_context->display, _context->surface);
-  return;
 }
 
 void VideoPipeline::registerNatives() {
