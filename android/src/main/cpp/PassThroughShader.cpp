@@ -21,38 +21,46 @@ PassThroughShader::~PassThroughShader() {
 }
 
 void PassThroughShader::draw(GLuint textureId, float* transformMatrix) {
+  // 1. Set up Shader Program
   if (_programId == NO_SHADER) {
     _programId = createProgram();
   }
 
   glUseProgram(_programId);
 
-  if (_vertexParameters.inPosition == NO_POSITION) {
+  if (_vertexParameters.aPosition == NO_POSITION) {
     _vertexParameters = {
-        .inPosition = glGetAttribLocation(_programId, "inPosition"),
-        .inTexCoord = glGetAttribLocation(_programId, "inTexCoord"),
-        .transformMatrix = glGetUniformLocation(_programId, "transformMatrix"),
+        .aPosition = glGetAttribLocation(_programId, "aPosition"),
+        .aTexCoord = glGetAttribLocation(_programId, "aTexCoord"),
+        .uTransformMatrix = glGetUniformLocation(_programId, "uTransformMatrix"),
     };
     _fragmentParameters = {
-        .textureSampler = glGetUniformLocation(_programId, "textureSampler"),
+        .uTexture = glGetUniformLocation(_programId, "uTexture"),
     };
   }
 
-  // Pass indices/coordinates
-  glVertexAttribPointer(_vertexParameters.inPosition, 2, GL_FLOAT, GL_FALSE, 0, VERTICES);
-  glVertexAttribPointer(_vertexParameters.inTexCoord, 2, GL_FLOAT, GL_FALSE, 0, TEXTURE_COORDINATES);
+  // 2. Set up Vertices Buffer
+  if (_vertexBuffer == NO_BUFFER) {
+    glGenBuffers(1, &_vertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(VERTICES), VERTICES, GL_STATIC_DRAW);
+  }
 
-  glEnableVertexAttribArray(_vertexParameters.inPosition);
-  glEnableVertexAttribArray(_vertexParameters.inTexCoord);
+  // 3. Pass all uniforms/attributes for vertex shader
+  glEnableVertexAttribArray(_vertexParameters.aPosition);
+  glVertexAttribPointer(_vertexParameters.aPosition, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
 
-  // Apply matrix transformation from Camera
-  glUniformMatrix4fv(_vertexParameters.transformMatrix, 1, GL_FALSE, transformMatrix);
+  glEnableVertexAttribArray(_vertexParameters.aTexCoord);
+  glVertexAttribPointer(_vertexParameters.aTexCoord, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
 
-  // Use GL_TEXTURE_EXTERNAL_OES for the shader
+  glUniformMatrix4fv(_vertexParameters.uTransformMatrix, 1, GL_FALSE, transformMatrix);
+
+  // 4. Pass texture to fragment shader
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_EXTERNAL_OES, textureId);
-  glUniform1i(_fragmentParameters.textureSampler, 0);
+  glUniform1i(_fragmentParameters.uTexture, 0);
 
+  // 5. Draw!
   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
