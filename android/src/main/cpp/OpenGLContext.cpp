@@ -147,6 +147,7 @@ void OpenGLContext::renderTextureToSurface(GLuint textureId, float* transformMat
 
   // 2. Set the viewport for rendering
   glViewport(0, 0, _width, _height);
+  glDisable(GL_BLEND);
 
   // 3. Bind the input texture
   glBindTexture(GL_TEXTURE_EXTERNAL_OES, textureId);

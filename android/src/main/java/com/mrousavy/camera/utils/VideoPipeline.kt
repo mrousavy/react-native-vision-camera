@@ -12,6 +12,7 @@ import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.parsers.Orientation
 import java.io.Closeable
+import kotlin.system.measureTimeMillis
 
 /**
  * An OpenGL pipeline for streaming Camera Frames to one or more outputs.
@@ -64,23 +65,25 @@ class VideoPipeline(val width: Int,
   }
 
   override fun onFrameAvailable(surfaceTexture: SurfaceTexture) {
-    Log.i(TAG, "Frame available!")
-    // 1. Attach Surface to OpenGL context
-    if (openGLTextureId == null) {
-      openGLTextureId = getInputTextureId()
-      surfaceTexture.attachToGLContext(openGLTextureId!!)
-      Log.i(TAG, "Attached Texture to Context $openGLTextureId")
+    val time = measureTimeMillis {
+      // 1. Attach Surface to OpenGL context
+      if (openGLTextureId == null) {
+        openGLTextureId = getInputTextureId()
+        surfaceTexture.attachToGLContext(openGLTextureId!!)
+        Log.i(TAG, "Attached Texture to Context $openGLTextureId")
+      }
+      // 2. Prepare the OpenGL context (eglMakeCurrent)
+      onBeforeFrame()
+      // 3. Update the OpenGL texture
+      surfaceTexture.updateTexImage()
+
+      // 4. Get the transform matrix from the SurfaceTexture (rotations/scales applied by Camera)
+      surfaceTexture.getTransformMatrix(transformMatrix)
+
+      // 5. Draw it with applied rotation/mirroring
+      onFrame(transformMatrix)
     }
-    // 2. Prepare the OpenGL context (eglMakeCurrent)
-    onBeforeFrame()
-    // 3. Update the OpenGL texture
-    surfaceTexture.updateTexImage()
-
-    // 4. Get the transform matrix from the SurfaceTexture (rotations/scales applied by Camera)
-    surfaceTexture.getTransformMatrix(transformMatrix)
-
-    // 5. Draw it with applied rotation/mirroring
-    onFrame(transformMatrix)
+    Log.d(TAG, "VideoPipeline rendered in $time ms!")
   }
 
   private fun getImageReader(): ImageReader {

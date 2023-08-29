@@ -16,8 +16,15 @@ namespace vision {
 PassThroughShader::PassThroughShader() = default;
 
 PassThroughShader::~PassThroughShader() {
-  glDeleteProgram(_programId);
-  _programId = NO_SHADER;
+  if (_programId != NO_SHADER) {
+    glDeleteProgram(_programId);
+    _programId = NO_SHADER;
+  }
+
+  if (_vertexBuffer != NO_BUFFER) {
+    glDeleteBuffers(1, &_vertexBuffer);
+    _vertexBuffer = NO_BUFFER;
+  }
 }
 
 void PassThroughShader::draw(GLuint textureId, float* transformMatrix) {
