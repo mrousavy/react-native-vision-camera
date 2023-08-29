@@ -61,7 +61,7 @@ void VideoPipeline::removeRecordingSessionOutputSurface() {
 
 void VideoPipeline::setRecordingSessionOutputSurface(jobject surface) {
   // 1. Delete existing output surface
-  removePreviewOutputSurface();
+  removeRecordingSessionOutputSurface();
 
   // 2. Set new output surface if it is not null
   ANativeWindow* window = ANativeWindow_fromSurface(jni::Environment::current(), surface);
@@ -75,7 +75,7 @@ void VideoPipeline::removePreviewOutputSurface() {
 
 void VideoPipeline::setPreviewOutputSurface(jobject surface) {
   // 1. Delete existing output surface
-  removeRecordingSessionOutputSurface();
+  removePreviewOutputSurface();
 
   // 2. Set new output surface if it is not null
   ANativeWindow* window = ANativeWindow_fromSurface(jni::Environment::current(), surface);
