@@ -43,6 +43,9 @@ class OpenGLContext {
    */
   void destroy();
 
+  int getWidth();
+  int getHeight();
+
  public:
   EGLDisplay display = EGL_NO_DISPLAY;
   EGLSurface surface = EGL_NO_SURFACE;

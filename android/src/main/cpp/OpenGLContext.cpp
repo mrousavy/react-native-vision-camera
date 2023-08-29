@@ -41,6 +41,14 @@ OpenGLContext::~OpenGLContext() {
   destroy();
 }
 
+int OpenGLContext::getWidth() {
+  return _width;
+}
+
+int OpenGLContext::getHeight() {
+  return _height;
+}
+
 void OpenGLContext::destroy() {
   if (display != EGL_NO_DISPLAY) {
     eglMakeCurrent(display, surface, surface, context);
