@@ -10,8 +10,6 @@
 #include <GLES2/gl2ext.h>
 #include <EGL/egl.h>
 
-#include <chrono>
-
 namespace vision {
 
 jni::local_ref<VideoPipeline::jhybriddata> VideoPipeline::initHybrid(jni::alias_ref<jhybridobject> jThis) {
@@ -104,7 +102,7 @@ void VideoPipeline::removePreviewOutputSurface() {
         .width = 0,
         .height = 0
     };
-    delete _context;
+    _context = nullptr;
   }
 }
 
@@ -118,9 +116,7 @@ void VideoPipeline::setPreviewOutputSurface(jobject surface, jint width, jint he
       .width = width,
       .height = height
   };
-
-  delete _context;
-  _context = new OpenGLContext(_previewOutput.surface);
+  _context = OpenGLContext::CreateWithWindowSurface(_previewOutput.surface);
 }
 
 int VideoPipeline::getInputTextureId() {
@@ -147,16 +143,6 @@ void VideoPipeline::onBeforeFrame() {
 void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixParam, jni::alias_ref<jni::JArrayFloat> rotationMatrixParam) {
   if (_context == nullptr) throw std::runtime_error("Failed to render a Frame: The context is not yet ready.");
   _context->use();
-
-  auto duration = std::chrono::system_clock::now().time_since_epoch();
-  auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-  double percent = millis % 2000;
-  float red = (float) percent / (float)2000;
-
-  glClearColor(red, 0.0f, 0.0f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT);
-
-
 
   // Shader sources
   const char* vertexShaderSource = R"(
@@ -229,25 +215,6 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
       0.0f, 1.0f,
       1.0f, 1.0f,
   };
-
-  // Create and bind vertex array object (VAO)
-  /*GLuint vaoID, vboID;
-  glGenVertexArrays(1, &vaoID);
-  glBindVertexArray(vaoID);
-
-  glGenBuffers(1, &vboID);
-  glBindBuffer(GL_ARRAY_BUFFER, vboID);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices) + sizeof(texCoords), nullptr, GL_STATIC_DRAW);
-  glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-  glBufferSubData(GL_ARRAY_BUFFER, sizeof(vertices), sizeof(texCoords), texCoords);
-
-  GLint posAttrib = glGetAttribLocation(shaderProgram, "inPosition");
-  glEnableVertexAttribArray(posAttrib);
-  glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
-
-  GLint texAttrib = glGetAttribLocation(shaderProgram, "inTexCoord");
-  glEnableVertexAttribArray(texAttrib);
-  glVertexAttribPointer(texAttrib, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *)sizeof(vertices));*/
 
   // Set vertex attributes directly (no need for VAO)
   GLint posAttrib = glGetAttribLocation(shaderProgram, "inPosition");

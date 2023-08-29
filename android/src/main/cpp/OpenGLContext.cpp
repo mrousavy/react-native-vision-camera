@@ -12,12 +12,32 @@
 
 namespace vision {
 
+std::unique_ptr<OpenGLContext> OpenGLContext::CreateWithWindowSurface(ANativeWindow* surface) {
+  return std::unique_ptr<OpenGLContext>(new OpenGLContext(surface));
+}
+
+std::unique_ptr<OpenGLContext> OpenGLContext::CreateWithOffscreenSurface(int width, int height) {
+  return std::unique_ptr<OpenGLContext>(new OpenGLContext(width, height));
+}
+
 OpenGLContext::OpenGLContext(ANativeWindow *surface) {
+  contextType = GLContextType::Window;
   _outputSurface = surface;
+  _width = ANativeWindow_getWidth(surface);
+  _height = ANativeWindow_getHeight(surface);
+}
+
+OpenGLContext::OpenGLContext(int width, int height) {
+  contextType = GLContextType::Offscreen;
+  _outputSurface = nullptr;
+  _width = width;
+  _height = height;
 }
 
 OpenGLContext::~OpenGLContext() {
-  ANativeWindow_release(_outputSurface);
+  if (_outputSurface != nullptr) {
+    ANativeWindow_release(_outputSurface);
+  }
   destroy();
 }
 
@@ -58,8 +78,9 @@ void OpenGLContext::use() {
   // EGLConfig
   if (config == nullptr) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing EGLConfig..");
+    auto surfaceType = contextType == GLContextType::Window ? EGL_WINDOW_BIT : EGL_PBUFFER_BIT;
     EGLint attributes[] = {EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-                           EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+                           EGL_SURFACE_TYPE, surfaceType,
                            EGL_ALPHA_SIZE, 8,
                            EGL_BLUE_SIZE, 8,
                            EGL_GREEN_SIZE, 8,
@@ -83,8 +104,24 @@ void OpenGLContext::use() {
   // EGLSurface
   if (surface == EGL_NO_SURFACE) {
     // If we don't have a surface at all
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing EGLSurface..");
-    surface = eglCreateWindowSurface(display, config, _outputSurface, nullptr);
+    switch (contextType) {
+      case GLContextType::Window: {
+        __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing %i x %i window EGLSurface..", _width, _height);
+        surface = eglCreateWindowSurface(display, config, _outputSurface, nullptr);
+        break;
+      }
+      case GLContextType::Offscreen: {
+        __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing %i x %i offscreen pbuffer EGLSurface..", _width, _height);
+        EGLint attributes[] = {EGL_WIDTH, _width,
+                               EGL_HEIGHT, _height,
+                               EGL_NONE};
+        surface = eglCreatePbufferSurface(display, config, attributes);
+        break;
+      }
+      default: {
+        throw std::runtime_error("Invalid contextType!");
+      }
+    }
     if (surface == EGL_NO_SURFACE) throw OpenGLError("Failed to create OpenGL Surface!");
   }
 

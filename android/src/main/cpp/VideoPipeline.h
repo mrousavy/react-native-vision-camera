@@ -10,6 +10,7 @@
 #include <android/native_window.h>
 #include "PassThroughShader.h"
 #include "OpenGLContext.h"
+#include <memory>
 
 namespace vision {
 
@@ -70,7 +71,7 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
   SurfaceOutput _previewOutput;
 
   // Context
-  OpenGLContext* _context = nullptr;
+  std::unique_ptr<OpenGLContext> _context = nullptr;
 
   // OpenGL rendering
   GLuint _offscreenFrameBuffer = NO_FRAME_BUFFER;
