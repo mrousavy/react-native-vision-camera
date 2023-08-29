@@ -76,10 +76,10 @@ class VideoPipeline(val width: Int,
     // 3. Update the OpenGL texture
     surfaceTexture.updateTexImage()
 
+    // 4. Get the transform matrix from the SurfaceTexture (rotations/scales applied by Camera)
     surfaceTexture.getTransformMatrix(transformMatrix)
-    Log.i(TAG, transformMatrix.joinToString(", ", "[", "]"))
 
-    // 4. Draw it with applied rotation/mirroring
+    // 5. Draw it with applied rotation/mirroring
     onFrame(transformMatrix)
   }
 
