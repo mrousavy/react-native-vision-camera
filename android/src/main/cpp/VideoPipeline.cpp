@@ -105,11 +105,27 @@ void VideoPipeline::onBeforeFrame() {
 }
 
 void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixParam) {
-  _offscreenContextOutput->use();
-
+  // Get the OpenGL transform Matrix (transforms, scales, rotations)
   float transformMatrix[16];
   transformMatrixParam->getRegion(0, 16, transformMatrix);
-  _offscreenContextOutput->renderTextureToSurface(_inputTextureId, transformMatrix);
+
+  if (_offscreenContextOutput) {
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Offscreen..");
+    _offscreenContextOutput->renderTextureToSurface(_inputTextureId, transformMatrix);
+  }
+  if (_previewOutput) {
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Preview..");
+    _previewOutput->renderTextureToSurface(_inputTextureId, transformMatrix);
+  }
+  if (_frameProcessorOutput) {
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to FrameProcessor..");
+    _frameProcessorOutput->renderTextureToSurface(_inputTextureId, transformMatrix);
+  }
+  if (_recordingSessionOutput) {
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to RecordingSession..");
+    _recordingSessionOutput->renderTextureToSurface(_inputTextureId, transformMatrix);
+  }
+
 }
 
 void VideoPipeline::registerNatives() {

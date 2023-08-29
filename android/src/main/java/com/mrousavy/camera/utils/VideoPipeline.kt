@@ -50,7 +50,7 @@ class VideoPipeline(val width: Int,
   val surface: Surface
 
   init {
-    mHybridData = initHybrid()
+    mHybridData = initHybrid(width, height)
     surfaceTexture = SurfaceTexture(false)
     surfaceTexture.setDefaultBufferSize(width, height)
     surfaceTexture.setOnFrameAvailableListener(this)
@@ -168,5 +168,5 @@ class VideoPipeline(val width: Int,
   private external fun removeRecordingSessionOutputSurface()
   private external fun setPreviewOutputSurface(surface: Any)
   private external fun removePreviewOutputSurface()
-  private external fun initHybrid(): HybridData
+  private external fun initHybrid(width: Int, height: Int): HybridData
 }
