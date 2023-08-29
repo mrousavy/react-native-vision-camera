@@ -12,7 +12,6 @@ import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.parsers.Orientation
 import java.io.Closeable
-import kotlin.system.measureTimeMillis
 
 /**
  * An OpenGL pipeline for streaming Camera Frames to one or more outputs.
@@ -34,6 +33,7 @@ class VideoPipeline(val width: Int,
   private val mHybridData: HybridData
   private var openGLTextureId: Int? = null
   private var transformMatrix = FloatArray(16)
+  private var isActive = true
 
   // Output 1
   private var frameProcessor: FrameProcessor? = null
@@ -58,24 +58,31 @@ class VideoPipeline(val width: Int,
   }
 
   override fun close() {
-    imageReader?.close()
-    imageReader = null
-    frameProcessor = null
-    recordingSession = null
-    surfaceTexture.release()
-    mHybridData.resetNative()
+    synchronized(this) {
+      isActive = false
+      imageReader?.close()
+      imageReader = null
+      frameProcessor = null
+      recordingSession = null
+      surfaceTexture.release()
+      mHybridData.resetNative()
+    }
   }
 
   override fun onFrameAvailable(surfaceTexture: SurfaceTexture) {
-    val time = measureTimeMillis {
+    synchronized(this) {
+      if (!isActive) return@synchronized
+
       // 1. Attach Surface to OpenGL context
       if (openGLTextureId == null) {
         openGLTextureId = getInputTextureId()
         surfaceTexture.attachToGLContext(openGLTextureId!!)
         Log.i(TAG, "Attached Texture to Context $openGLTextureId")
       }
+
       // 2. Prepare the OpenGL context (eglMakeCurrent)
       onBeforeFrame()
+
       // 3. Update the OpenGL texture
       surfaceTexture.updateTexImage()
 
@@ -85,14 +92,13 @@ class VideoPipeline(val width: Int,
       // 5. Draw it with applied rotation/mirroring
       onFrame(transformMatrix)
     }
-    Log.d(TAG, "VideoPipeline rendered in $time ms!")
   }
 
   private fun getImageReader(): ImageReader {
     val imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES)
     imageReader.setOnImageAvailableListener({ reader ->
       Log.i("VideoPipeline", "ImageReader::onImageAvailable!")
-      val image = reader.acquireLatestImage()
+      val image = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
 
       // TODO: Get correct orientation and isMirrored
       val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, false)
@@ -110,24 +116,26 @@ class VideoPipeline(val width: Int,
    * using an [ImageWriter] and call the [FrameProcessor] with those Frames.
    */
   fun setFrameProcessorOutput(frameProcessor: FrameProcessor?) {
-    Log.i(TAG, "Setting $width x $height FrameProcessor Output...")
-    this.frameProcessor = frameProcessor
+    synchronized(this) {
+      Log.i(TAG, "Setting $width x $height FrameProcessor Output...")
+      this.frameProcessor = frameProcessor
 
-    if (frameProcessor != null) {
-      if (this.imageReader == null) {
-        // 1. Create new ImageReader that just calls the Frame Processor
-        this.imageReader = getImageReader()
+      if (frameProcessor != null) {
+        if (this.imageReader == null) {
+          // 1. Create new ImageReader that just calls the Frame Processor
+          this.imageReader = getImageReader()
+        }
+
+        // 2. Configure OpenGL pipeline to stream Frames into the ImageReader's surface
+        setFrameProcessorOutputSurface(imageReader!!.surface)
+      } else {
+        // 1. Configure OpenGL pipeline to stop streaming Frames into the ImageReader's surface
+        removeFrameProcessorOutputSurface()
+
+        // 2. Close the ImageReader
+        this.imageReader?.close()
+        this.imageReader = null
       }
-
-      // 2. Configure OpenGL pipeline to stream Frames into the ImageReader's surface
-      setFrameProcessorOutputSurface(imageReader!!.surface)
-    } else {
-      // 1. Configure OpenGL pipeline to stop streaming Frames into the ImageReader's surface
-      removeFrameProcessorOutputSurface()
-
-      // 2. Close the ImageReader
-      this.imageReader?.close()
-      this.imageReader = null
     }
   }
 
@@ -137,26 +145,30 @@ class VideoPipeline(val width: Int,
    * * If the [surface] is not `null`, the [VideoPipeline] will write Frames to this Surface.
    */
   fun setRecordingSessionOutput(recordingSession: RecordingSession?) {
-    Log.i(TAG, "Setting $width x $height RecordingSession Output...")
-    if (recordingSession != null) {
-      // Configure OpenGL pipeline to stream Frames into the Recording Session's surface
-      setRecordingSessionOutputSurface(recordingSession.surface)
-      this.recordingSession = recordingSession
-    } else {
-      // Configure OpenGL pipeline to stop streaming Frames into the Recording Session's surface
-      removeRecordingSessionOutputSurface()
-      this.recordingSession = null
+    synchronized(this) {
+      Log.i(TAG, "Setting $width x $height RecordingSession Output...")
+      if (recordingSession != null) {
+        // Configure OpenGL pipeline to stream Frames into the Recording Session's surface
+        setRecordingSessionOutputSurface(recordingSession.surface)
+        this.recordingSession = recordingSession
+      } else {
+        // Configure OpenGL pipeline to stop streaming Frames into the Recording Session's surface
+        removeRecordingSessionOutputSurface()
+        this.recordingSession = null
+      }
     }
   }
 
-  fun setPreviewOutput(surface: Surface?, width: Int, height: Int) {
-    Log.i(TAG, "Setting $width x $height Preview Output...")
-    if (surface != null) {
-      setPreviewOutputSurface(surface)
-      this.previewSurface = surface
-    } else {
-      removePreviewOutputSurface()
-      this.previewSurface = null
+  fun setPreviewOutput(surface: Surface?) {
+    synchronized(this) {
+      Log.i(TAG, "Setting Preview Output...")
+      if (surface != null) {
+        setPreviewOutputSurface(surface)
+        this.previewSurface = surface
+      } else {
+        removePreviewOutputSurface()
+        this.previewSurface = null
+      }
     }
   }
 

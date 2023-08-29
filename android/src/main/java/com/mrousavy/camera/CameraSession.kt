@@ -138,8 +138,14 @@ class CameraSession(private val context: Context,
       Log.i(TAG, "Nothing changed in configuration, canceling..")
     }
 
-    this.cameraId = cameraId
+    // 1. Close previous outputs
+    this.outputs?.close()
+    // 2. Assign new outputs
     this.outputs = outputs
+    // 3. Update with existing render targets (surfaces)
+    updateVideoOutputs()
+
+    this.cameraId = cameraId
     launch {
       startRunning()
     }
@@ -193,10 +199,10 @@ class CameraSession(private val context: Context,
 
   private fun updateVideoOutputs() {
     val videoPipeline = outputs?.videoOutput?.videoPipeline ?: return
-    val previewOutput = outputs?.previewOutput ?: return
+    val previewOutput = outputs?.previewOutput
     videoPipeline.setRecordingSessionOutput(this.recording)
     videoPipeline.setFrameProcessorOutput(this.frameProcessor)
-    videoPipeline.setPreviewOutput(previewOutput.surface, previewOutput.size.width, previewOutput.size.height)
+    videoPipeline.setPreviewOutput(previewOutput?.surface)
   }
 
   suspend fun takePhoto(qualityPrioritization: QualityPrioritization,

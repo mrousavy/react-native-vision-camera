@@ -21,8 +21,8 @@ std::unique_ptr<OpenGLRenderer> OpenGLRenderer::CreateWithWindowSurface(std::sha
   return std::unique_ptr<OpenGLRenderer>(new OpenGLRenderer(std::move(context), surface));
 }
 
-OpenGLRenderer::OpenGLRenderer(std::shared_ptr<OpenGLContext> context, ANativeWindow *surface) {
   // TODO: Do I need to acquire that ref? ANativeWindow_acquire(surface);
+OpenGLRenderer::OpenGLRenderer(std::shared_ptr<OpenGLContext> context, ANativeWindow* surface) {
   _context = std::move(context);
   _outputSurface = surface;
   _width = ANativeWindow_getWidth(surface);
