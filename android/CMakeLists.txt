@@ -24,6 +24,7 @@ add_library(
         src/main/cpp/VideoPipeline.cpp
         src/main/cpp/PassThroughShader.cpp
         src/main/cpp/OpenGLContext.cpp
+        src/main/cpp/OpenGLRenderer.cpp
         # Frame Processor
         src/main/cpp/frameprocessor/FrameHostObject.cpp
         src/main/cpp/frameprocessor/FrameProcessorPluginHostObject.cpp

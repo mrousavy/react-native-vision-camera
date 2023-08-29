@@ -15,51 +15,26 @@
 
 namespace vision {
 
-std::unique_ptr<OpenGLContext> OpenGLContext::CreateWithWindowSurface(ANativeWindow* surface) {
-  return std::unique_ptr<OpenGLContext>(new OpenGLContext(surface));
-}
-
-std::unique_ptr<OpenGLContext> OpenGLContext::CreateWithOffscreenSurface(int width, int height) {
+std::shared_ptr<OpenGLContext> OpenGLContext::CreateWithOffscreenSurface(int width, int height) {
   return std::unique_ptr<OpenGLContext>(new OpenGLContext(width, height));
 }
 
-OpenGLContext::OpenGLContext(ANativeWindow *surface) {
-  contextType = GLContextType::Window;
-  // TODO: Do I need to acquire that ref? ANativeWindow_acquire(surface);
-  _outputSurface = surface;
-  _width = ANativeWindow_getWidth(surface);
-  _height = ANativeWindow_getHeight(surface);
-}
-
 OpenGLContext::OpenGLContext(int width, int height) {
-  contextType = GLContextType::Offscreen;
-  _outputSurface = nullptr;
   _width = width;
   _height = height;
 }
 
 OpenGLContext::~OpenGLContext() {
-  if (_outputSurface != nullptr) {
-    ANativeWindow_release(_outputSurface);
-  }
   destroy();
-}
-
-int OpenGLContext::getWidth() const {
-  return _width;
-}
-
-int OpenGLContext::getHeight() const {
-  return _height;
 }
 
 void OpenGLContext::destroy() {
   if (display != EGL_NO_DISPLAY) {
-    eglMakeCurrent(display, surface, surface, context);
-    if (surface != EGL_NO_SURFACE) {
+    eglMakeCurrent(display, offscreenSurface, offscreenSurface, context);
+    if (offscreenSurface != EGL_NO_SURFACE) {
       __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying OpenGL Surface...");
-      eglDestroySurface(display, surface);
-      surface = EGL_NO_SURFACE;
+      eglDestroySurface(display, offscreenSurface);
+      offscreenSurface = EGL_NO_SURFACE;
     }
     if (context != EGL_NO_CONTEXT) {
       __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying OpenGL Context...");
@@ -73,7 +48,7 @@ void OpenGLContext::destroy() {
   }
 }
 
-void OpenGLContext::use() {
+void OpenGLContext::ensureOpenGL() {
   bool successful;
   // EGLDisplay
   if (display == EGL_NO_DISPLAY) {
@@ -90,9 +65,8 @@ void OpenGLContext::use() {
   // EGLConfig
   if (config == nullptr) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing EGLConfig..");
-    auto surfaceType = contextType == GLContextType::Window ? EGL_WINDOW_BIT : EGL_PBUFFER_BIT;
     EGLint attributes[] = {EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-                           EGL_SURFACE_TYPE, surfaceType,
+                           EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
                            EGL_ALPHA_SIZE, 8,
                            EGL_BLUE_SIZE, 8,
                            EGL_GREEN_SIZE, 8,
@@ -114,53 +88,46 @@ void OpenGLContext::use() {
   }
 
   // EGLSurface
-  if (surface == EGL_NO_SURFACE) {
+  if (offscreenSurface == EGL_NO_SURFACE) {
     // If we don't have a surface at all
-    switch (contextType) {
-      case GLContextType::Window: {
-        __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing %i x %i window EGLSurface..", _width, _height);
-        surface = eglCreateWindowSurface(display, config, _outputSurface, nullptr);
-        break;
-      }
-      case GLContextType::Offscreen: {
-        __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing %i x %i offscreen pbuffer EGLSurface..", _width, _height);
-        EGLint attributes[] = {EGL_WIDTH, _width,
-                               EGL_HEIGHT, _height,
-                               EGL_NONE};
-        surface = eglCreatePbufferSurface(display, config, attributes);
-        break;
-      }
-      default: {
-        throw std::runtime_error("Invalid contextType!");
-      }
-    }
-    if (surface == EGL_NO_SURFACE) throw OpenGLError("Failed to create OpenGL Surface!");
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing %i x %i offscreen pbuffer EGLSurface..", _width, _height);
+    EGLint attributes[] = {EGL_WIDTH, _width,
+                           EGL_HEIGHT, _height,
+                           EGL_NONE};
+    offscreenSurface = eglCreatePbufferSurface(display, config, attributes);
+    if (offscreenSurface == EGL_NO_SURFACE) throw OpenGLError("Failed to create OpenGL Surface!");
   }
-
-  successful = eglMakeCurrent(display, surface, surface, context);
-  if (!successful || eglGetError() != EGL_SUCCESS) throw OpenGLError("Failed to use current OpenGL context!");
 }
 
-void OpenGLContext::renderTextureToSurface(GLuint textureId, float* transformMatrix) {
-  // 1. Activate current OpenGL context (eglMakeCurrent)
-  this->use();
+void OpenGLContext::use() {
+  this->use(offscreenSurface);
+}
 
-  // 2. Set the viewport for rendering
-  glViewport(0, 0, _width, _height);
-  glDisable(GL_BLEND);
+void OpenGLContext::use(EGLSurface surface) {
+  if (surface == EGL_NO_SURFACE) throw OpenGLError("Cannot render to a null Surface!");
 
-  // 3. Bind the input texture
-  glBindTexture(GL_TEXTURE_EXTERNAL_OES, textureId);
-  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  // 1. Make sure the OpenGL context is initialized
+  this->ensureOpenGL();
 
-  // 4. Draw it using the pass-through shader which also applies transforms
-  _passThroughShader.draw(textureId, transformMatrix);
+  // 2. Make the OpenGL context current
+  bool successful = eglMakeCurrent(display, surface, surface, context);
+  if (!successful || eglGetError() != EGL_SUCCESS) throw OpenGLError("Failed to use current OpenGL context!");
 
-  // 5. Swap buffers to pass it to the window surface
-  eglSwapBuffers(display, surface);
+  // 3. Caller can now render to this surface
+}
+
+GLuint OpenGLContext::createTexture() {
+  // 1. Make sure the OpenGL context is initialized
+  this->ensureOpenGL();
+
+  // 2. Make the OpenGL context current
+  bool successful = eglMakeCurrent(display, offscreenSurface, offscreenSurface, context);
+  if (!successful || eglGetError() != EGL_SUCCESS) throw OpenGLError("Failed to use current OpenGL context!");
+
+  GLuint textureId;
+  glGenTextures(1, &textureId);
+
+  return textureId;
 }
 
 } // vision

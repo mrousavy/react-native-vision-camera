@@ -9,6 +9,7 @@
 #include <EGL/egl.h>
 #include <android/native_window.h>
 #include "PassThroughShader.h"
+#include "OpenGLRenderer.h"
 #include "OpenGLContext.h"
 #include <memory>
 
@@ -58,13 +59,10 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
   int _height = 0;
 
   // Output Contexts
-  std::unique_ptr<OpenGLContext> _offscreenContextOutput = nullptr;
-  std::unique_ptr<OpenGLContext> _frameProcessorOutput = nullptr;
-  std::unique_ptr<OpenGLContext> _recordingSessionOutput = nullptr;
-  std::unique_ptr<OpenGLContext> _previewOutput = nullptr;
-
-  // OpenGL rendering
-  GLuint _offscreenFrameBuffer = NO_FRAME_BUFFER;
+  std::shared_ptr<OpenGLContext> _context = nullptr;
+  std::unique_ptr<OpenGLRenderer> _frameProcessorOutput = nullptr;
+  std::unique_ptr<OpenGLRenderer> _recordingSessionOutput = nullptr;
+  std::unique_ptr<OpenGLRenderer> _previewOutput = nullptr;
 
  private:
   friend HybridBase;

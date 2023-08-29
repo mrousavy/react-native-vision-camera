@@ -19,7 +19,7 @@ jni::local_ref<VideoPipeline::jhybriddata> VideoPipeline::initHybrid(jni::alias_
 VideoPipeline::VideoPipeline(jni::alias_ref<jhybridobject> jThis, int width, int height): _javaPart(jni::make_global(jThis)) {
   _width = width;
   _height = height;
-  _offscreenContextOutput = OpenGLContext::CreateWithOffscreenSurface(width, height);
+  _context = OpenGLContext::CreateWithOffscreenSurface(width, height);
 }
 
 VideoPipeline::~VideoPipeline() {
@@ -32,15 +32,12 @@ VideoPipeline::~VideoPipeline() {
     glDeleteTextures(1, &_inputTextureId);
     _inputTextureId = NO_TEXTURE;
   }
-  if (_offscreenFrameBuffer != NO_FRAME_BUFFER) {
-    glDeleteFramebuffers(1, &_offscreenFrameBuffer);
-    _offscreenFrameBuffer = NO_FRAME_BUFFER;
-  }
-  // 4. Destroy the OpenGL context
-  _offscreenContextOutput = nullptr;
+  // 4. Destroy all surfaces
   _previewOutput = nullptr;
   _frameProcessorOutput = nullptr;
   _recordingSessionOutput = nullptr;
+  // 5. Destroy the OpenGL context
+  _context = nullptr;
 }
 
 void VideoPipeline::removeFrameProcessorOutputSurface() {
@@ -54,7 +51,7 @@ void VideoPipeline::setFrameProcessorOutputSurface(jobject surface) {
 
   // 2. Set new output surface if it is not null
   ANativeWindow* window = ANativeWindow_fromSurface(jni::Environment::current(), surface);
-  _frameProcessorOutput = OpenGLContext::CreateWithWindowSurface(window);
+  _frameProcessorOutput = OpenGLRenderer::CreateWithWindowSurface(_context, window);
 }
 
 void VideoPipeline::removeRecordingSessionOutputSurface() {
@@ -68,7 +65,7 @@ void VideoPipeline::setRecordingSessionOutputSurface(jobject surface) {
 
   // 2. Set new output surface if it is not null
   ANativeWindow* window = ANativeWindow_fromSurface(jni::Environment::current(), surface);
-  _recordingSessionOutput = OpenGLContext::CreateWithWindowSurface(window);
+  _recordingSessionOutput = OpenGLRenderer::CreateWithWindowSurface(_context, window);
 }
 
 void VideoPipeline::removePreviewOutputSurface() {
@@ -82,24 +79,19 @@ void VideoPipeline::setPreviewOutputSurface(jobject surface) {
 
   // 2. Set new output surface if it is not null
   ANativeWindow* window = ANativeWindow_fromSurface(jni::Environment::current(), surface);
-  _previewOutput = OpenGLContext::CreateWithWindowSurface(window);
+  _previewOutput = OpenGLRenderer::CreateWithWindowSurface(_context, window);
 }
 
 int VideoPipeline::getInputTextureId() {
-  _offscreenContextOutput->use();
-
   if (_inputTextureId != NO_TEXTURE) return static_cast<int>(_inputTextureId);
 
-  GLuint textureId;
-  glGenTextures(1, &textureId);
-  glBindTexture(GL_TEXTURE_EXTERNAL_OES, textureId);
-  _inputTextureId = textureId;
+  _inputTextureId = _context->createTexture();
 
   return static_cast<int>(_inputTextureId);
 }
 
 void VideoPipeline::onBeforeFrame() {
-  _offscreenContextOutput->use();
+  _context->use();
 
   glBindTexture(GL_TEXTURE_EXTERNAL_OES, _inputTextureId);
 }
@@ -109,10 +101,6 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
   float transformMatrix[16];
   transformMatrixParam->getRegion(0, 16, transformMatrix);
 
-  if (_offscreenContextOutput) {
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Offscreen..");
-    _offscreenContextOutput->renderTextureToSurface(_inputTextureId, transformMatrix);
-  }
   if (_previewOutput) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Preview..");
     _previewOutput->renderTextureToSurface(_inputTextureId, transformMatrix);
@@ -125,7 +113,6 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
     __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to RecordingSession..");
     _recordingSessionOutput->renderTextureToSurface(_inputTextureId, transformMatrix);
   }
-
 }
 
 void VideoPipeline::registerNatives() {
