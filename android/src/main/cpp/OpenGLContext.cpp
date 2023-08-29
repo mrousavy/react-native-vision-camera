@@ -25,6 +25,7 @@ std::unique_ptr<OpenGLContext> OpenGLContext::CreateWithOffscreenSurface(int wid
 
 OpenGLContext::OpenGLContext(ANativeWindow *surface) {
   contextType = GLContextType::Window;
+  ANativeWindow_acquire(surface);
   _outputSurface = surface;
   _width = ANativeWindow_getWidth(surface);
   _height = ANativeWindow_getHeight(surface);

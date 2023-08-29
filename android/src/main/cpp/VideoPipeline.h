@@ -16,15 +16,8 @@ namespace vision {
 
 #define NO_FRAME_BUFFER 0
 #define NO_TEXTURE 0
-#define NO_BUFFER 0
 
 using namespace facebook;
-
-struct SurfaceOutput {
-  ANativeWindow* surface = nullptr;
-  int width = 0;
-  int height = 0;
-};
 
 class VideoPipeline: public jni::HybridClass<VideoPipeline> {
  public:
@@ -44,16 +37,16 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
   void removeFrameProcessorOutputSurface();
 
   // <- MediaRecorder output
-  void setRecordingSessionOutputSurface(jobject surface, jint width, jint height);
+  void setRecordingSessionOutputSurface(jobject surface);
   void removeRecordingSessionOutputSurface();
 
   // <- Preview output
-  void setPreviewOutputSurface(jobject surface, jint width, jint height);
+  void setPreviewOutputSurface(jobject surface);
   void removePreviewOutputSurface();
 
   // Frame callbacks
   void onBeforeFrame();
-  void onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrix, jni::alias_ref<jni::JArrayFloat> rotationMatrix);
+  void onFrame(float rotationDegrees, bool isMirrored);
 
  private:
   // Private constructor. Use `create(..)` to create new instances.
@@ -66,29 +59,15 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
   int _height = 0;
 
   // Outputs
-  SurfaceOutput _frameProcessorOutput;
-  SurfaceOutput _recordingSessionOutput;
-  SurfaceOutput _previewOutput;
+  ANativeWindow* _frameProcessorOutput = nullptr;
+  ANativeWindow* _recordingSessionOutput = nullptr;
+  ANativeWindow* _previewOutput = nullptr;
 
   // Context
   std::unique_ptr<OpenGLContext> _context = nullptr;
 
   // OpenGL rendering
   GLuint _offscreenFrameBuffer = NO_FRAME_BUFFER;
-  GLuint _vertexBuffer = NO_BUFFER;
-  PassThroughShader* _passThroughShader;
-
-  static auto constexpr MATRIX_SIZE = 16;
-
-  // Shader stuff
-  static const GLfloat* VertexData();
-  static const GLushort* VertexIndices();
-
-  static const char* VertexShaderCode();
-  static const char* FragmentShaderCode();
-
-  static GLuint LoadShader(GLenum shaderType, const char* shaderCode);
-  static GLuint CreateProgram(const char* vertexShaderCode, const char* fragmentShaderCode);
 
  private:
   friend HybridBase;

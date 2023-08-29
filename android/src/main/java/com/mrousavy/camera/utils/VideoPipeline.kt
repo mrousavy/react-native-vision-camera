@@ -5,7 +5,6 @@ import android.graphics.SurfaceTexture
 import android.media.ImageReader
 import android.media.ImageWriter
 import android.media.MediaRecorder
-import android.opengl.Matrix
 import android.util.Log
 import android.view.Surface
 import com.facebook.jni.HybridData
@@ -25,16 +24,16 @@ import java.io.Closeable
 @Suppress("KotlinJniMissingFunction")
 class VideoPipeline(val width: Int,
                     val height: Int,
-                    val format: Int = ImageFormat.PRIVATE): SurfaceTexture.OnFrameAvailableListener, Closeable {
+                    val format: Int = ImageFormat.PRIVATE,
+                    val isMirrored: Boolean = false): SurfaceTexture.OnFrameAvailableListener, Closeable {
   companion object {
     private const val MAX_IMAGES = 5
     private const val TAG = "VideoPipeline"
   }
 
   private val mHybridData: HybridData
-  private val transformMatrix = FloatArray(16)
-  private val rotationMatrix = FloatArray(16)
   private var openGLTextureId: Int? = null
+  private var rotationDegrees: Float = 0f
 
   // Output 1
   private var frameProcessor: FrameProcessor? = null
@@ -73,19 +72,16 @@ class VideoPipeline(val width: Int,
       surfaceTexture.attachToGLContext(openGLTextureId!!)
       Log.i(TAG, "Attached Texture to Context $openGLTextureId")
     }
-    // 2. ???
+    // 2. Prepare the OpenGL context (eglMakeCurrent)
     onBeforeFrame()
     // 3. Update the OpenGL texture
     surfaceTexture.updateTexImage()
-    // 4. Draw it with applied matrix
-    surfaceTexture.getTransformMatrix(transformMatrix)
-    onFrame(transformMatrix, rotationMatrix)
+    // 4. Draw it with applied rotation/mirroring
+    onFrame(rotationDegrees, isMirrored)
   }
 
-  fun setRotation(rotationDegrees: Int) {
-    Log.i(TAG, "Setting rotation to $rotationDegrees°...")
-    Matrix.setIdentityM(rotationMatrix, 0)
-    Matrix.rotateM(rotationMatrix, 0, rotationDegrees.toFloat(), 0f, 0f, 1f)
+  fun setRotationDegrees(rotationDegrees: Float) {
+    this.rotationDegrees = rotationDegrees
   }
 
   private fun getImageReader(): ImageReader {
@@ -140,7 +136,7 @@ class VideoPipeline(val width: Int,
     Log.i(TAG, "Setting $width x $height RecordingSession Output...")
     if (recordingSession != null) {
       // Configure OpenGL pipeline to stream Frames into the Recording Session's surface
-      setRecordingSessionOutputSurface(recordingSession.surface, recordingSession.size.width, recordingSession.size.height)
+      setRecordingSessionOutputSurface(recordingSession.surface)
       this.recordingSession = recordingSession
     } else {
       // Configure OpenGL pipeline to stop streaming Frames into the Recording Session's surface
@@ -152,7 +148,7 @@ class VideoPipeline(val width: Int,
   fun setPreviewOutput(surface: Surface?, width: Int, height: Int) {
     Log.i(TAG, "Setting $width x $height Preview Output...")
     if (surface != null) {
-      setPreviewOutputSurface(surface, width, height)
+      setPreviewOutputSurface(surface)
       this.previewSurface = surface
     } else {
       removePreviewOutputSurface()
@@ -162,12 +158,12 @@ class VideoPipeline(val width: Int,
 
   private external fun getInputTextureId(): Int
   private external fun onBeforeFrame()
-  private external fun onFrame(transformMatrix: FloatArray, rotationMatrix: FloatArray)
+  private external fun onFrame(rotationDegrees: Float, isMirrored: Boolean)
   private external fun setFrameProcessorOutputSurface(surface: Any)
   private external fun removeFrameProcessorOutputSurface()
-  private external fun setRecordingSessionOutputSurface(surface: Any, width: Int, height: Int)
+  private external fun setRecordingSessionOutputSurface(surface: Any)
   private external fun removeRecordingSessionOutputSurface()
-  private external fun setPreviewOutputSurface(surface: Any, width: Int, height: Int)
+  private external fun setPreviewOutputSurface(surface: Any)
   private external fun removePreviewOutputSurface()
   private external fun initHybrid(): HybridData
 }

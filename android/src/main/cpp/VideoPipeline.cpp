@@ -23,12 +23,7 @@ VideoPipeline::~VideoPipeline() {
   removeFrameProcessorOutputSurface();
   removeRecordingSessionOutputSurface();
   removePreviewOutputSurface();
-  // 2. Delete the pass-through shader
-  if (_vertexBuffer != NO_BUFFER) {
-    glDeleteBuffers(1, &_vertexBuffer);
-    _vertexBuffer = NO_BUFFER;
-  }
-  // 3. Delete the input textures
+  // 2. Delete the input textures
   if (_inputTextureId != NO_TEXTURE) {
     glDeleteTextures(1, &_inputTextureId);
     _inputTextureId = NO_TEXTURE;
@@ -49,13 +44,8 @@ void VideoPipeline::setSize(int width, int height) {
 }
 
 void VideoPipeline::removeFrameProcessorOutputSurface() {
-  if (_frameProcessorOutput.surface != nullptr) {
-    ANativeWindow_release(_frameProcessorOutput.surface);
-    _frameProcessorOutput = {
-        .surface = nullptr,
-        .width = 0,
-        .height = 0
-    };
+  if (_frameProcessorOutput != nullptr) {
+    ANativeWindow_release(_frameProcessorOutput);
   }
 }
 
@@ -64,59 +54,37 @@ void VideoPipeline::setFrameProcessorOutputSurface(jobject surface) {
   removeFrameProcessorOutputSurface();
 
   // 2. Set new output surface if it is not null
-  _frameProcessorOutput = {
-      .surface = ANativeWindow_fromSurface(jni::Environment::current(), surface),
-      .width = _width,
-      .height = _height
-  };
+  _frameProcessorOutput = ANativeWindow_fromSurface(jni::Environment::current(), surface);
 }
 
 void VideoPipeline::removeRecordingSessionOutputSurface() {
-  if (_recordingSessionOutput.surface != nullptr) {
-    ANativeWindow_release(_recordingSessionOutput.surface);
-    _recordingSessionOutput = {
-        .surface = nullptr,
-        .width = 0,
-        .height = 0
-    };
+  if (_recordingSessionOutput != nullptr) {
+    ANativeWindow_release(_recordingSessionOutput);
   }
 }
 
-void VideoPipeline::setRecordingSessionOutputSurface(jobject surface, jint width, jint height) {
+void VideoPipeline::setRecordingSessionOutputSurface(jobject surface) {
   // 1. Delete existing output surface
   removePreviewOutputSurface();
 
   // 2. Set new output surface if it is not null
-  _previewOutput = {
-      .surface = ANativeWindow_fromSurface(jni::Environment::current(), surface),
-      .width = width,
-      .height = height
-  };
+  _previewOutput = ANativeWindow_fromSurface(jni::Environment::current(), surface);
 }
 
 void VideoPipeline::removePreviewOutputSurface() {
-  if (_previewOutput.surface != nullptr) {
-    ANativeWindow_release(_previewOutput.surface);
-    _previewOutput = {
-        .surface = nullptr,
-        .width = 0,
-        .height = 0
-    };
+  if (_previewOutput != nullptr) {
+    ANativeWindow_release(_previewOutput);
     _context = nullptr;
   }
 }
 
-void VideoPipeline::setPreviewOutputSurface(jobject surface, jint width, jint height) {
+void VideoPipeline::setPreviewOutputSurface(jobject surface) {
   // 1. Delete existing output surface
   removeRecordingSessionOutputSurface();
 
   // 2. Set new output surface if it is not null
-  _previewOutput = {
-      .surface = ANativeWindow_fromSurface(jni::Environment::current(), surface),
-      .width = width,
-      .height = height
-  };
-  _context = OpenGLContext::CreateWithWindowSurface(_previewOutput.surface);
+  _previewOutput = ANativeWindow_fromSurface(jni::Environment::current(), surface);
+  _context = OpenGLContext::CreateWithWindowSurface(_previewOutput);
 }
 
 int VideoPipeline::getInputTextureId() {
@@ -140,11 +108,9 @@ void VideoPipeline::onBeforeFrame() {
   glBindTexture(GL_TEXTURE_EXTERNAL_OES, _inputTextureId);
 }
 
-void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixParam, jni::alias_ref<jni::JArrayFloat> rotationMatrixParam) {
+void VideoPipeline::onFrame(float rotationDegrees, bool isMirrored) {
   if (_context == nullptr) throw std::runtime_error("Failed to render a Frame: The context is not yet ready.");
 
-  float rotationDegrees = 90.0f;
-  bool isMirrored = true;
   _context->renderTextureToSurface(_inputTextureId, rotationDegrees, isMirrored);
 }
 
