@@ -62,6 +62,7 @@ class VideoPipeline(val width: Int,
     imageReader = null
     frameProcessor = null
     recordingSession = null
+    surfaceTexture.release()
     mHybridData.resetNative()
   }
 
