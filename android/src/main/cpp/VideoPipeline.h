@@ -79,6 +79,16 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
 
   static auto constexpr MATRIX_SIZE = 16;
 
+  // Shader stuff
+  static const GLfloat* VertexData();
+  static const GLushort* VertexIndices();
+
+  static const char* VertexShaderCode();
+  static const char* FragmentShaderCode();
+
+  static GLuint LoadShader(GLenum shaderType, const char* shaderCode);
+  static GLuint CreateProgram(const char* vertexShaderCode, const char* fragmentShaderCode);
+
  private:
   friend HybridBase;
   jni::global_ref<javaobject> _javaPart;
