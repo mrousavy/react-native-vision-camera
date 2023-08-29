@@ -199,7 +199,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
 
-    console.log(frame.timestamp, frame.toString(), frame.pixelFormat);
+    console.log(`${frame.timestamp}: ${frame.width}x${frame.height} ${frame.pixelFormat} Frame (${frame.orientation})`);
     examplePlugin(frame);
   }, []);
 

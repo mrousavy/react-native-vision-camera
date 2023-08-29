@@ -110,7 +110,7 @@ class VideoPipeline(val width: Int,
    * Configures the Pipeline to also call the given [FrameProcessor].
    * * If the [frameProcessor] is `null`, this output channel will be removed.
    * * If the [frameProcessor] is not `null`, the [VideoPipeline] will create Frames
-   * using an [ImageWriter] and call the [FrameProcessor] with those Frames.
+   *   using an [ImageWriter] and call the [FrameProcessor] with those Frames.
    */
   fun setFrameProcessorOutput(frameProcessor: FrameProcessor?) {
     synchronized(this) {
