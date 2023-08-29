@@ -30,7 +30,7 @@
         android:configChanges="keyboard|keyboardHidden|orientation|screenSize|uiMode"
         android:launchMode="singleTask"
         android:windowSoftInputMode="adjustResize"
-        android:screenOrientation="portrait"
+        android:screenOrientation="portrait|landscape"
         android:fitsSystemWindows="false"
         android:exported="true">
         <intent-filter>
