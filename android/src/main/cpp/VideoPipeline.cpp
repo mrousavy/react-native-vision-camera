@@ -164,6 +164,7 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
     attribute vec2 inTexCoord;
     varying vec2 fragTexCoord;
     uniform float rotationAngle;
+    uniform bool isMirrored;
 
     mat2 rotationMatrix2D(float angle) {
       float c = cos(angle);
@@ -173,7 +174,11 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
 
     void main() {
       gl_Position = vec4(rotationMatrix2D(rotationAngle) * inPosition, 0.0, 1.0);
-      fragTexCoord = inTexCoord;
+      if (isMirrored) {
+          fragTexCoord = vec2(inTexCoord.x, 1.0 - inTexCoord.y);
+      } else {
+          fragTexCoord = inTexCoord;
+      }
     }
   )";
 
@@ -248,11 +253,14 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
   GLint posAttrib = glGetAttribLocation(shaderProgram, "inPosition");
   GLint texAttrib = glGetAttribLocation(shaderProgram, "inTexCoord");
   GLint textureLocation = glGetUniformLocation(shaderProgram, "textureSampler");
+  GLint mirrorLocation = glGetUniformLocation(shaderProgram, "isMirrored");
 
   float angleDegrees = 90.0f;  // Rotate by 45 degrees
   float angleRadians = angleDegrees * 3.14159f / 180.0f;  // Convert to radians
   GLint rotationAngleLocation = glGetUniformLocation(shaderProgram, "rotationAngle");
   glUniform1f(rotationAngleLocation, angleRadians);
+
+  glUniform1i(mirrorLocation, true);
 
 
   glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, vertices);
