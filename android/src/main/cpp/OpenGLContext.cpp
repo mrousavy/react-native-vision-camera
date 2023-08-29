@@ -18,9 +18,12 @@ OpenGLContext::OpenGLContext(ANativeWindow *surface) {
 
 OpenGLContext::~OpenGLContext() {
   ANativeWindow_release(_outputSurface);
+  destroy();
+}
 
+void OpenGLContext::destroy() {
   if (display != EGL_NO_DISPLAY) {
-    eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    eglMakeCurrent(display, surface, surface, context);
     if (surface != EGL_NO_SURFACE) {
       __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying OpenGL Surface...");
       eglDestroySurface(display, surface);
@@ -34,6 +37,7 @@ OpenGLContext::~OpenGLContext() {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying OpenGL Display...");
     eglTerminate(display);
     display = EGL_NO_DISPLAY;
+    config = nullptr;
   }
 }
 
@@ -55,7 +59,7 @@ void OpenGLContext::use() {
   if (config == nullptr) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing EGLConfig..");
     EGLint attributes[] = {EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-                           EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
+                           EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
                            EGL_ALPHA_SIZE, 8,
                            EGL_BLUE_SIZE, 8,
                            EGL_GREEN_SIZE, 8,

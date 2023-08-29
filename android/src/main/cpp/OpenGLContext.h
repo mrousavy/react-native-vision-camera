@@ -23,9 +23,15 @@ class OpenGLContext {
   ~OpenGLContext();
 
   /**
-   * Activate the current OpenGL context. This will lazily create the context, surface and display.
+   * Activate the OpenGL context and make it "current". This will lazily create the context, surface and display.
    */
   void use();
+
+  /**
+   * Destroys the OpenGL context. This needs to be called on the same thread that `use()` was called.
+   * After calling `destroy()`, it is legal to call `use()` again, which will re-construct everything.
+   */
+  void destroy();
 
  public:
   EGLDisplay display = EGL_NO_DISPLAY;

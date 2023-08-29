@@ -8,7 +8,6 @@ import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
 import android.os.Build
 import android.util.Log
-import android.view.Surface
 import androidx.annotation.RequiresApi
 import com.mrousavy.camera.CameraQueues
 import com.mrousavy.camera.CameraSessionCannotBeConfiguredError
@@ -65,7 +64,8 @@ suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager,
 
     val outputConfigurations = arrayListOf<OutputConfiguration>()
     outputs.previewOutput?.let { output ->
-      outputConfigurations.add(output.toOutputConfiguration(characteristics))
+      // TODO: add here again?
+      // outputConfigurations.add(output.toOutputConfiguration(characteristics))
     }
     outputs.photoOutput?.let { output ->
       outputConfigurations.add(output.toOutputConfiguration(characteristics))

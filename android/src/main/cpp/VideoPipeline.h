@@ -9,6 +9,7 @@
 #include <EGL/egl.h>
 #include <android/native_window.h>
 #include "PassThroughShader.h"
+#include "OpenGLContext.h"
 
 namespace vision {
 
@@ -17,13 +18,6 @@ namespace vision {
 #define NO_BUFFER 0
 
 using namespace facebook;
-
-struct GLContext {
-  EGLDisplay display = EGL_NO_DISPLAY;
-  EGLSurface surface = EGL_NO_SURFACE;
-  EGLContext context = EGL_NO_CONTEXT;
-  EGLConfig config = nullptr;
-};
 
 struct SurfaceOutput {
   ANativeWindow* surface = nullptr;
@@ -65,9 +59,6 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
   explicit VideoPipeline(jni::alias_ref<jhybridobject> jThis);
 
  private:
-  GLContext& getGLContext();
-
- private:
   // Input Surface Texture
   GLuint _inputTextureId = NO_TEXTURE;
   int _width = 0;
@@ -78,8 +69,10 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
   SurfaceOutput _recordingSessionOutput;
   SurfaceOutput _previewOutput;
 
+  // Context
+  OpenGLContext* _context = nullptr;
+
   // OpenGL rendering
-  GLContext _context;
   GLuint _offscreenFrameBuffer = NO_FRAME_BUFFER;
   GLuint _vertexBuffer = NO_BUFFER;
   PassThroughShader* _passThroughShader;

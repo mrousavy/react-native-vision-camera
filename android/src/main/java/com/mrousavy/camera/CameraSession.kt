@@ -495,7 +495,8 @@ class CameraSession(private val context: Context,
         val captureRequest = camera.createCaptureRequest(template)
         outputs.previewOutput?.let { output ->
           Log.i(TAG, "Adding output surface ${output.outputType}..")
-          captureRequest.addTarget(output.surface)
+          // TODO: Add here again?
+          // captureRequest.addTarget(output.surface)
         }
         outputs.videoOutput?.let { output ->
           Log.i(TAG, "Adding output surface ${output.outputType}..")
