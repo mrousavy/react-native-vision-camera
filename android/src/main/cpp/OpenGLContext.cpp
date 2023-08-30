@@ -132,12 +132,20 @@ OpenGLTexture OpenGLContext::createTexture(OpenGLTexture::Type type, int width, 
   GLuint textureId;
   glGenTextures(1, &textureId);
 
-  GLenum target = type == OpenGLTexture::Type::ExternalOES ? GL_TEXTURE_EXTERNAL_OES : GL_TEXTURE_2D;
+  GLenum target;
+  switch (type) {
+    case OpenGLTexture::Type::ExternalOES:
+      target = GL_TEXTURE_EXTERNAL_OES;
+      break;
+    case OpenGLTexture::Type::Texture2D:
+      target = GL_TEXTURE_2D;
+      break;
+    default:
+      throw std::runtime_error("Invalid OpenGL Texture Type!");
+  }
   glBindTexture(target, textureId);
   glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
   return {
     .id = textureId,
