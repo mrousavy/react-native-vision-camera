@@ -117,7 +117,7 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
     auto skia = _skiaRenderer->cthis();
     auto newTexture = skia->renderFrame(*_context, texture);
 
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendered from %i -> %i!", texture.id, newTexture.id);
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendered from Texture #%i -> Texture #%i!", texture.id, newTexture.id);
     texture = newTexture;
   }
 
