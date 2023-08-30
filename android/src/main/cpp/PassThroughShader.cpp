@@ -27,11 +27,11 @@ PassThroughShader::~PassThroughShader() {
 
 void PassThroughShader::draw(const OpenGLTexture& texture, float* transformMatrix) {
   // 1. Set up Shader Program
-  if (_programId == NO_SHADER) {
+  if (_programId == NO_SHADER || _shaderTarget != texture.target) {
     if (_programId != NO_SHADER) {
       glDeleteProgram(_programId);
     }
-    _programId = createProgram();
+    _programId = createProgram(texture.target);
     glUseProgram(_programId);
     _vertexParameters = {
         .aPosition = glGetAttribLocation(_programId, "aPosition"),
@@ -41,6 +41,7 @@ void PassThroughShader::draw(const OpenGLTexture& texture, float* transformMatri
     _fragmentParameters = {
         .uTexture = glGetUniformLocation(_programId, "uTexture"),
     };
+    _shaderTarget = texture.target;
   }
 
   glUseProgram(_programId);
@@ -99,9 +100,10 @@ GLuint PassThroughShader::loadShader(GLenum shaderType, const char* shaderCode) 
   return shader;
 }
 
-GLuint PassThroughShader::createProgram() {
+GLuint PassThroughShader::createProgram(GLenum textureTarget) {
   GLuint vertexShader = loadShader(GL_VERTEX_SHADER, VERTEX_SHADER);
-  GLuint fragmentShader = loadShader(GL_FRAGMENT_SHADER, FRAGMENT_SHADER);
+  auto fragmentShaderCode = textureTarget == GL_TEXTURE_EXTERNAL_OES ? FRAGMENT_SHADER_EXTERNAL_TEXTURE : FRAGMENT_SHADER;
+  GLuint fragmentShader = loadShader(GL_FRAGMENT_SHADER, FRAGMENT_SHADER_EXTERNAL_TEXTURE);
 
   GLuint program = glCreateProgram();
   if (program == 0) throw OpenGLError("Failed to create pass-through program!");
