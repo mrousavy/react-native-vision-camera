@@ -103,7 +103,7 @@ GLuint PassThroughShader::loadShader(GLenum shaderType, const char* shaderCode) 
 GLuint PassThroughShader::createProgram(GLenum textureTarget) {
   GLuint vertexShader = loadShader(GL_VERTEX_SHADER, VERTEX_SHADER);
   auto fragmentShaderCode = textureTarget == GL_TEXTURE_EXTERNAL_OES ? FRAGMENT_SHADER_EXTERNAL_TEXTURE : FRAGMENT_SHADER;
-  GLuint fragmentShader = loadShader(GL_FRAGMENT_SHADER, FRAGMENT_SHADER_EXTERNAL_TEXTURE);
+  GLuint fragmentShader = loadShader(GL_FRAGMENT_SHADER, fragmentShaderCode);
 
   GLuint program = glCreateProgram();
   if (program == 0) throw OpenGLError("Failed to create pass-through program!");
