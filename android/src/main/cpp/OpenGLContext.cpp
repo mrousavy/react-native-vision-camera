@@ -131,6 +131,11 @@ GLuint OpenGLContext::createTexture() {
 
   GLuint textureId;
   glGenTextures(1, &textureId);
+  glBindTexture(GL_TEXTURE_EXTERNAL_OES, textureId);
+  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
   return textureId;
 }

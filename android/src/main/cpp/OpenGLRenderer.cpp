@@ -59,16 +59,13 @@ void OpenGLRenderer::renderTextureToSurface(GLuint textureId, float* transformMa
 
   // 3. Bind the input texture
   glBindTexture(GL_TEXTURE_EXTERNAL_OES, textureId);
-  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
   // 4. Draw it using the pass-through shader which also applies transforms
   _passThroughShader.draw(textureId, transformMatrix);
 
   // 5. Swap buffers to pass it to the window surface
   _context->flush();
+  OpenGLError::checkIfError("Failed to render Frame to Surface!");
 }
 
 } // namespace vision

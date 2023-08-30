@@ -84,7 +84,7 @@ void JVisionCameraProxy::setFrameProcessor(int viewTag,
     frameProcessor = JFrameProcessor::create(worklet, _workletContext);
   } else if (frameProcessorType == "skia-frame-processor") {
 #if VISION_CAMERA_ENABLE_SKIA
-    throw std::runtime_error("system/skia-unavailable: Skia is not yet implemented on Android!");
+    frameProcessor = JFrameProcessor::create(worklet, _workletContext);
 #else
     throw std::runtime_error("system/skia-unavailable: Skia is not installed!");
 #endif

@@ -101,10 +101,10 @@ GLuint PassThroughShader::createProgram() {
   if (program == 0) throw OpenGLError("Failed to create pass-through program!");
 
   glAttachShader(program, vertexShader);
-  if (glGetError() != GL_NO_ERROR) throw OpenGLError("Failed to attach Vertex Shader!");
+  OpenGLError::checkIfError("Failed to attach Vertex Shader!");
 
   glAttachShader(program, fragmentShader);
-  if (glGetError() != GL_NO_ERROR) throw OpenGLError("Failed to attach Fragment Shader!");
+  OpenGLError::checkIfError("Failed to attach Fragment Shader!");
 
   glLinkProgram(program);
   GLint linkStatus = GL_FALSE;

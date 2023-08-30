@@ -32,6 +32,11 @@ VideoPipeline::~VideoPipeline() {
     glDeleteTextures(1, &_inputTextureId);
     _inputTextureId = NO_TEXTURE;
   }
+  // 3. Delete the Frame Buffer if we have a separate one
+  if (_framebuffer != DEFAULT_FRAMEBUFFER) {
+    glDeleteFramebuffers(1, &_framebuffer);
+    _framebuffer = DEFAULT_FRAMEBUFFER;
+  }
   // 4. Destroy all surfaces
   _previewOutput = nullptr;
   _frameProcessorOutput = nullptr;
@@ -96,28 +101,36 @@ void VideoPipeline::onBeforeFrame() {
   glBindTexture(GL_TEXTURE_EXTERNAL_OES, _inputTextureId);
 }
 
-static GLuint fbo = 0;
-
 void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixParam) {
-  // Get the OpenGL transform Matrix (transforms, scales, rotations)
+  // 1. Activate the offscreen context
+  _context->use();
+
+  // 2. Get the OpenGL transform Matrix (transforms, scales, rotations)
   float transformMatrix[16];
   transformMatrixParam->getRegion(0, 16, transformMatrix);
 
+  // 3. (Optional) If we have Skia, render to a separate offscreen framebuffer which the outputs will then read from
   if (_skiaRenderer != nullptr) {
-    auto skia = _skiaRenderer->cthis();
-
-    if (fbo == 0) {
-      glGenFramebuffers(1, &fbo);
+    if (_framebuffer == DEFAULT_FRAMEBUFFER) {
+      glGenFramebuffers(1, &_framebuffer);
     }
-    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+    glBindTexture(GL_TEXTURE_EXTERNAL_OES, _inputTextureId);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_EXTERNAL_OES, _inputTextureId, 0);
+
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
       throw std::runtime_error("Frame Buffer is invalid!");
     }
 
     __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Skia Context..");
-    skia->renderFrame(*_context, _inputTextureId, _width, _height, fbo, _width, _height);
+    auto skia = _skiaRenderer->cthis();
+    skia->renderFrame(*_context, _inputTextureId, _width, _height, _framebuffer, _width, _height);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, DEFAULT_FRAMEBUFFER);
   }
 
+  // 4. Render to all outputs
   if (_previewOutput) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Preview..");
     _previewOutput->renderTextureToSurface(_inputTextureId, transformMatrix);
