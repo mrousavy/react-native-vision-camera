@@ -44,9 +44,14 @@ class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
    * @param glContext The OpenGL context to use for rendering
    * @param texture The input texture (from `glGenTextures`) that holds the Camera frame.
    *
-   * @returns A reference to the texture that this call was rendered to.
+   * @returns The resulting Frame.
    */
-  OpenGLTexture renderFrame(OpenGLContext& glContext, OpenGLTexture& texture);
+  sk_sp<SkImage> renderFrame(OpenGLContext& glContext, OpenGLTexture& texture);
+
+  /**
+   * Renders the given image to the target output surface.
+   */
+  void renderTextureToOutputSurface(OpenGLContext& glContext, sk_sp<SkImage> image, EGLSurface outputSurface);
 
  private:
   // Skia Context
@@ -54,6 +59,9 @@ class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
 
   sk_sp<SkSurface> _offscreenSurface;
   GLuint _offscreenSurfaceTextureId = NO_TEXTURE;
+
+  sk_sp<SkSurface> getSkiaSurface(GLuint frameBufferId, int width, int height);
+  sk_sp<SkImage> getSkiaTexture(OpenGLTexture& texture);
 
   static auto constexpr TAG = "SkiaRenderer";
 };

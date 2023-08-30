@@ -117,9 +117,19 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
     auto skia = _skiaRenderer->cthis();
     auto newTexture = skia->renderFrame(*_context, texture);
 
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendered from Texture #%i -> Texture #%i!", texture.id, newTexture.id);
-    texture = newTexture;
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendered from Texture #%i -> Texture #%i!", texture.id, 2);
+
+    if (_previewOutput != nullptr) {
+      __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Preview..");
+      skia->renderTextureToOutputSurface(*_context, newTexture, _previewOutput->getSurface());
+    }
+    if (_recordingSessionOutput != nullptr) {
+      __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to RecordingSession..");
+      skia->renderTextureToOutputSurface(*_context, newTexture, _recordingSessionOutput->getSurface());
+    }
   }
+
+  return;
 
   glBindTexture(texture.target, texture.id);
   glBindFramebuffer(GL_FRAMEBUFFER, DEFAULT_FRAMEBUFFER);

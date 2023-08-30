@@ -39,6 +39,8 @@ class OpenGLRenderer {
    */
   void destroy();
 
+  EGLSurface getSurface();
+
  private:
   explicit OpenGLRenderer(std::shared_ptr<OpenGLContext> context, ANativeWindow* surface);
 

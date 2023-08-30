@@ -47,19 +47,66 @@ SkiaRenderer::~SkiaRenderer() {
   }
 }
 
-OpenGLTexture SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture& texture) {
-  // 1. Activate the OpenGL context (eglMakeCurrent)
+sk_sp<SkSurface> SkiaRenderer::getSkiaSurface(GLuint frameBufferId, int width, int height) {
+  GrGLFramebufferInfo frameBufferInfo {
+      .fFBOID = frameBufferId,
+      .fFormat = GR_GL_RGBA8,
+  };
+
+  GLint sampleCnt;
+  glGetIntegerv(GL_SAMPLES, &sampleCnt);
+  GLint stencilBits;
+  glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
+
+  GrBackendRenderTarget renderTarget(width,
+                                     height,
+                                     sampleCnt,
+                                     stencilBits,
+                                     frameBufferInfo);
+  SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
+  sk_sp<SkSurface> surface = SkSurfaces::WrapBackendRenderTarget(_skiaContext.get(),
+                                                                 renderTarget,
+                                                                 kBottomLeft_GrSurfaceOrigin,
+                                                                 SkColorType::kN32_SkColorType,
+                                                                 nullptr,
+                                                                 &props,
+                                                                 nullptr);
+  return surface;
+}
+
+sk_sp<SkImage> SkiaRenderer::getSkiaTexture(OpenGLTexture& texture) {
+  GrGLTextureInfo textureInfo {
+      // OpenGL will automatically convert YUV -> RGB if it's an EXTERNAL texture
+      .fTarget = texture.target,
+      .fID = texture.id,
+      .fFormat = GR_GL_RGBA8,
+      .fProtected = skgpu::Protected::kNo,
+  };
+  GrBackendTexture skiaTexture(texture.width,
+                               texture.height,
+                               GrMipMapped::kNo,
+                               textureInfo);
+  sk_sp<SkImage> image = SkImages::BorrowTextureFrom(_skiaContext.get(),
+                                                     skiaTexture,
+                                                     kBottomLeft_GrSurfaceOrigin,
+                                                     kN32_SkColorType,
+                                                     kOpaque_SkAlphaType,
+                                                     nullptr,
+                                                     nullptr);
+  return image;
+}
+
+sk_sp<SkImage> SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture& texture) {
+  // 1. Activate the OpenGL context w/ 1x1 pbuffer surface (eglMakeCurrent)
   glContext.use();
 
   // 2. Initialize Skia
   if (_skiaContext == nullptr) {
-    GrContextOptions options;
-    // TODO: Set this to true or not? idk
-    options.fDisableGpuYUVConversion = false;
-    _skiaContext = GrDirectContext::MakeGL(options);
+    _skiaContext = GrDirectContext::MakeGL();
   }
-  // TODO: use this later kRenderTarget_GrGLBackendState | kTextureBinding_GrGLBackendState
+  // TODO: Do I need that?
   _skiaContext->resetContext();
+  _skiaContext->resetGLTextureBindings();
 
   // 3. Create the offscreen Skia Surface
   if (_offscreenSurface == nullptr) {
@@ -71,42 +118,15 @@ OpenGLTexture SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture&
     GrGLTextureInfo info;
     skiaTex.getGLTextureInfo(&info);
     _offscreenSurfaceTextureId = info.fID;
-
-    SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-    _offscreenSurface = SkSurfaces::WrapBackendTexture(_skiaContext.get(),
-                                                       skiaTex,
-                                                       kBottomLeft_GrSurfaceOrigin,
-                                                       0,
-                                                       SkColorType::kN32_SkColorType,
-                                                       nullptr,
-                                                       &props,
-                                                       // TODO: Delete texture!
-                                                       nullptr);
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Created Texture %i!", info.fID);
+    _offscreenSurface = getSkiaSurface(info.fID, texture.width, texture.height);
   }
 
-  GrGLTextureInfo textureInfo {
-      // OpenGL will automatically convert YUV -> RGB because it's an EXTERNAL texture
-      .fTarget = texture.target,
-      .fID = texture.id,
-      .fFormat = GR_GL_RGBA8,
-      .fProtected = skgpu::Protected::kNo,
-  };
-  GrBackendTexture skiaTexture(texture.width,
-                               texture.height,
-                               GrMipMapped::kNo,
-                               textureInfo);
-  sk_sp<SkImage> frame = SkImages::BorrowTextureFrom(_skiaContext.get(),
-                                                     skiaTexture,
-                                                     kBottomLeft_GrSurfaceOrigin,
-                                                     kN32_SkColorType,
-                                                     kOpaque_SkAlphaType,
-                                                     nullptr,
-                                                     nullptr);
-
+  sk_sp<SkImage> frame = getSkiaTexture(texture);
 
   SkCanvas* canvas = _offscreenSurface->getCanvas();
 
-  canvas->clear(SkColors::kCyan);
+  //canvas->clear(SkColors::kCyan);
 
   auto duration = std::chrono::system_clock::now().time_since_epoch();
   auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
@@ -114,20 +134,54 @@ OpenGLTexture SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture&
   canvas->drawImage(frame, 0, 0);
 
   // TODO: Run Skia Frame Processor
+  SkRect rect = SkRect::MakeXYWH(150, 250, millis % 2000 / 10, millis % 2000 / 10);
+  SkPaint paint;
+  paint.setColor(SkColors::kRed);
+  canvas->drawRect(rect, paint);
+
+  _offscreenSurface->flushAndSubmit();
+
+  // TODO: Do I need eglSwapBuffer for the 1x1 pbuffer?
+  glContext.flush();
+
+  return _offscreenSurface->makeImageSnapshot();
+}
+
+
+void SkiaRenderer::renderTextureToOutputSurface(OpenGLContext& glContext, sk_sp<SkImage> image, EGLSurface outputSurface) {
+  // 1. Activate the OpenGL context for the given output surface (eglMakeCurrent)
+  glContext.use(outputSurface);
+
+  // 2. Initialize Skia
+  if (_skiaContext == nullptr) {
+    _skiaContext = GrDirectContext::MakeGL();
+  }
+  // TODO: use this later kRenderTarget_GrGLBackendState | kTextureBinding_GrGLBackendState
+  _skiaContext->resetContext();
+  _skiaContext->resetGLTextureBindings();
+
+  // 3. Wrap the target output surface (FBO0 on this glContext)
+  sk_sp<SkSurface> surface = getSkiaSurface(0, image->width(), image->height());
+
+  SkCanvas* canvas = surface->getCanvas();
+
+  //canvas->clear(SkColors::kCyan);
+
+  canvas->drawImage(image, 0, 0);
+
+  // TODO: Remove this
+  auto duration = std::chrono::system_clock::now().time_since_epoch();
+  auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
   SkRect rect = SkRect::MakeXYWH(150, 250, millis % 3000 / 10, millis % 3000 / 10);
   SkPaint paint;
   paint.setColor(SkColors::kGreen);
   canvas->drawRect(rect, paint);
 
-  _offscreenSurface->flushAndSubmit();
+  // This does eglSwapBuffers()
+  _skiaContext->flushAndSubmit();
 
-  OpenGLTexture result {
-    .id = _offscreenSurfaceTextureId,
-    .target = GL_TEXTURE_2D,
-    .width = texture.width,
-    .height = texture.height,
-  };
-  return result;
+  // does eglSwapBuffers
+  glContext.flush();
 }
 
 void SkiaRenderer::registerNatives() {

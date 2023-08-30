@@ -43,12 +43,18 @@ void OpenGLRenderer::destroy() {
   }
 }
 
-void OpenGLRenderer::renderTextureToSurface(const OpenGLTexture& texture, float* transformMatrix) {
+EGLSurface OpenGLRenderer::getSurface() {
   if (_surface == EGL_NO_SURFACE) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Creating Window Surface...");
     _context->use();
     _surface = eglCreateWindowSurface(_context->display, _context->config, _outputSurface, nullptr);
   }
+  return _surface;
+}
+
+void OpenGLRenderer::renderTextureToSurface(const OpenGLTexture& texture, float* transformMatrix) {
+  // 0. Make sure the surface is created
+  getSurface();
 
   // 1. Activate the OpenGL context for this surface
   _context->use(_surface);
