@@ -20,7 +20,7 @@
 
 namespace vision {
 
-#define NO_FRAMEBUFFER 0
+#define NO_TEXTURE 0
 
 using namespace facebook;
 
@@ -46,15 +46,14 @@ class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
    *
    * @returns A reference to the texture that this call was rendered to.
    */
-  OpenGLTexture& renderFrame(OpenGLContext& glContext, OpenGLTexture& texture);
+  OpenGLTexture renderFrame(OpenGLContext& glContext, OpenGLTexture& texture);
 
  private:
   // Skia Context
   sk_sp<GrDirectContext> _skiaContext;
-  // An OpenGL 2D Texture, used as a render-target
-  std::optional<OpenGLTexture> _offscreenTexture = std::nullopt;
-  // The OpenGL Frame Buffer used as a render-target
-  GLuint _framebuffer = NO_FRAMEBUFFER;
+
+  sk_sp<SkSurface> _offscreenSurface;
+  GLuint _offscreenSurfaceTextureId = NO_TEXTURE;
 
   static auto constexpr TAG = "SkiaRenderer";
 };
