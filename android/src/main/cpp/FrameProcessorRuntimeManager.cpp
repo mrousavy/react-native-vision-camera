@@ -8,7 +8,6 @@
 #include <utility>
 #include <string>
 
-#include "MakeJSIRuntime.h"
 #include "CameraView.h"
 #include "FrameHostObject.h"
 #include "JSIJNIConversion.h"

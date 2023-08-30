@@ -35,7 +35,6 @@
 
 #import "FrameProcessorUtils.h"
 #import "FrameProcessorCallback.h"
-#import "../React Utils/MakeJSIRuntime.h"
 #import "../React Utils/JSIUtils.h"
 
 // Forward declarations for the Swift classes
@@ -93,7 +92,6 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
     self->workletRuntime = reanimated::extractWorkletRuntime(rnRuntime, arguments[2].asObject(rnRuntime));
     jsi::Runtime &visionRuntime = self->workletRuntime->getJSIRuntime();
 
-    // TODO: call vision::makeJSIRuntime();
     // TODO: call reanimated::RuntimeDecorator::decorateRuntime(*runtime, "FRAME_PROCESSOR");
     visionRuntime.global().setProperty(visionRuntime, "_FRAME_PROCESSOR", jsi::Value(true));
 
