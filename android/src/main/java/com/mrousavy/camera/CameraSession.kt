@@ -208,7 +208,7 @@ class CameraSession(private val context: Context,
     val previewOutput = outputs?.previewOutput
     videoPipeline.setRecordingSessionOutput(recording)
     videoPipeline.setFrameProcessorOutput(frameProcessor)
-    videoPipeline.setSkiaRenderer(skiaRenderer)
+    videoPipeline.setSkia(skiaRenderer)
     videoPipeline.setPreviewOutput(previewOutput?.surface)
   }
 

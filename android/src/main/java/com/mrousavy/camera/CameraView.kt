@@ -22,7 +22,6 @@ import com.mrousavy.camera.parsers.PixelFormat
 import com.mrousavy.camera.parsers.PreviewType
 import com.mrousavy.camera.parsers.Torch
 import com.mrousavy.camera.parsers.VideoStabilizationMode
-import com.mrousavy.camera.skia.SkiaPreviewView
 import com.mrousavy.camera.skia.SkiaRenderer
 import com.mrousavy.camera.utils.outputs.CameraOutputs
 import kotlinx.coroutines.CoroutineScope
@@ -139,22 +138,19 @@ class CameraView(context: Context) : FrameLayout(context) {
       if (previewView is Closeable) previewView.close()
     }
     this.previewSurface = null
+    if (previewType == PreviewType.SKIA)
+      if (skiaRenderer == null) skiaRenderer = SkiaRenderer()
 
     when (previewType) {
       PreviewType.NONE -> {
         // Do nothing.
       }
-      PreviewType.NATIVE -> {
+      PreviewType.NATIVE, PreviewType.SKIA -> {
         val cameraId = cameraId ?: throw NoCameraDeviceError()
         this.previewView = NativePreviewView(context, cameraManager, cameraId) { surface ->
           previewSurface = surface
           configureSession()
         }
-      }
-      PreviewType.SKIA -> {
-        if (skiaRenderer == null) skiaRenderer = SkiaRenderer()
-        this.previewView = SkiaPreviewView(context, skiaRenderer!!)
-        configureSession()
       }
     }
 

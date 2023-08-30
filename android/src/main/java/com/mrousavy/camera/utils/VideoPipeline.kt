@@ -173,7 +173,7 @@ class VideoPipeline(val width: Int,
     }
   }
 
-  fun setSkiaRenderer(skiaRenderer: SkiaRenderer?) {
+  fun setSkia(skiaRenderer: SkiaRenderer?) {
     if (skiaRenderer != null) {
       setSkiaRenderer(skiaRenderer)
     } else {
