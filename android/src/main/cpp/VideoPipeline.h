@@ -18,7 +18,6 @@
 
 namespace vision {
 
-#define NO_TEXTURE 0
 #define DEFAULT_FRAMEBUFFER 0
 
 using namespace facebook;
