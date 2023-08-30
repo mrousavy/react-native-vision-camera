@@ -67,7 +67,24 @@ OpenGLTexture& SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture
     glBindTexture(_offscreenTexture->target, _offscreenTexture->id);
     // 2.3. Resize it to the target width/height
     glTexImage2D(_offscreenTexture->target, 0, GL_RGBA, texture.width, texture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+    // 2.4. If we already have a previous frame buffer, delete it.
+    if (_framebuffer != NO_FRAMEBUFFER) {
+      glDeleteFramebuffers(1, &_framebuffer);
+    }
+    // 2.5. Create a Frame Buffer that will be used to render into this texture
+    glGenFramebuffers(1, &_framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+    // 2.6. Bind the texture to the Frame Buffer
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, _offscreenTexture->target, _offscreenTexture->id, 0);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+      throw std::runtime_error("Failed to create Skia Frame Buffer to render into!");
+    }
   }
+  // 4. Bind the texture that holds the Camera image
+  glBindTexture(texture.target, texture.id);
+  // 5. Bind the offscreen framebuffer we want to render the Camera image into
+  glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
 
   // 2. Initialize Skia
   if (_skiaContext == nullptr) {
@@ -100,24 +117,29 @@ OpenGLTexture& SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture
                                                      nullptr);
 
   // 7. Create an SkSurface (render target) from the OpenGL offscreen Frame Buffer that we want to render to
-  GrGLTextureInfo targetTextureInfo {
-    .fTarget = _offscreenTexture->target,
-    .fID = _offscreenTexture->id,
-    .fFormat = GR_GL_RGBA8
-  };
-  GrBackendTexture targetTexture(_offscreenTexture->width,
-                                 _offscreenTexture->height,
-                                 GrMipMapped::kNo,
-                                 targetTextureInfo);
+  GLint samples;
+  glGetIntegerv(GL_SAMPLES, &samples);
+  GLint stencil;
+  glGetIntegerv(GL_STENCIL_BITS, &stencil);
+  GrGLFramebufferInfo fboInfo {
+      .fFBOID = _framebuffer,
+      .fFormat = GR_GL_RGBA8,
+  };;
+  GrBackendRenderTarget renderTarget(texture.width,
+                                     texture.height,
+                                     samples,
+                                     stencil,
+                                     fboInfo);
   SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-  sk_sp<SkSurface> surface = SkSurfaces::WrapBackendTexture(_skiaContext.get(),
-                                                            targetTexture,
-                                                            kBottomLeft_GrSurfaceOrigin,
-                                                            0,
-                                                            kN32_SkColorType,
-                                                            nullptr,
-                                                            &props,
-                                                            nullptr);
+  sk_sp<SkSurface> surface = SkSurfaces::WrapBackendRenderTarget(_skiaContext.get(),
+                                                                 renderTarget,
+                                                                 kBottomLeft_GrSurfaceOrigin,
+                                                                 kN32_SkColorType,
+                                                                 nullptr,
+                                                                 &props);
+
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering %ix%i (#%i) Texture to %ix%i (#%i) output Frame Buffer..",
+                      frame->width(), frame->height(), texture.id, surface->width(), surface->height(), _framebuffer);
 
   // 8. Prepare for Skia drawing
   auto canvas = surface->getCanvas();
