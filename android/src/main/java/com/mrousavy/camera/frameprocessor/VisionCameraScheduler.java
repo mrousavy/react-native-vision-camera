@@ -17,11 +17,10 @@ public class VisionCameraScheduler {
     }
 
     private native HybridData initHybrid();
-    private native void triggerUI();
 
     @SuppressWarnings("unused")
     @DoNotStrip
-    private void scheduleTrigger() {
-        frameProcessorThread.submit(this::triggerUI);
+    private void scheduleOnUI(Runnable runnable) {
+        frameProcessorThread.submit(runnable);
     }
 }

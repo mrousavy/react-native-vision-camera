@@ -12,7 +12,7 @@ namespace vision {
 using namespace facebook;
 
 class VisionCameraScheduler : public jni::HybridClass<VisionCameraScheduler> {
-public:
+ public:
   static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/VisionCameraScheduler;";
   static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis);
   static void registerNatives();
@@ -20,18 +20,12 @@ public:
   // schedules the given job to be run on the VisionCamera FP Thread at some future point in time
   void scheduleOnUI(std::function<void()> job);
 
-private:
+ private:
   friend HybridBase;
   jni::global_ref<VisionCameraScheduler::javaobject> javaPart_;
-  std::function<void()> job_;
 
   explicit VisionCameraScheduler(jni::alias_ref<VisionCameraScheduler::jhybridobject> jThis):
     javaPart_(jni::make_global(jThis)) {}
-
-  // Schedules a call to `triggerUI` on the VisionCamera FP Thread
-  void scheduleTrigger();
-  // Calls the latest job in the job queue
-  void triggerUI();
 };
 
 } // namespace vision
