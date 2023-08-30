@@ -71,7 +71,7 @@ void PassThroughShader::draw(GLuint textureId, float* transformMatrix) {
 
   // 4. Pass texture to fragment shader
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_EXTERNAL_OES, textureId);
+  glBindTexture(GL_TEXTURE_2D, textureId);
   glUniform1i(_fragmentParameters.uTexture, 0);
 
   // 5. Draw!

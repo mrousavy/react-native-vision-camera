@@ -52,13 +52,14 @@ void OpenGLRenderer::renderTextureToSurface(GLuint textureId, float* transformMa
 
   // 1. Activate the OpenGL context for this surface
   _context->use(_surface);
+  OpenGLError::checkIfError("Failed to use context!");
 
   // 2. Set the viewport for rendering
   glViewport(0, 0, _width, _height);
   glDisable(GL_BLEND);
 
   // 3. Bind the input texture
-  glBindTexture(GL_TEXTURE_EXTERNAL_OES, textureId);
+  glBindTexture(GL_TEXTURE_2D, textureId);
 
   // 4. Draw it using the pass-through shader which also applies transforms
   _passThroughShader.draw(textureId, transformMatrix);

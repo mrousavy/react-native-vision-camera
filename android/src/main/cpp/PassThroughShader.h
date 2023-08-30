@@ -70,7 +70,7 @@ class PassThroughShader {
     #extension GL_OES_EGL_image_external : require
     precision mediump float;
     varying vec2 vTexCoord;
-    uniform samplerExternalOES uTexture;
+    uniform sampler2D uTexture;
 
     void main() {
         gl_FragColor = texture2D(uTexture, vTexCoord);

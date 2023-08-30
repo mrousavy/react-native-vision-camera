@@ -47,8 +47,6 @@ SkiaRenderer::~SkiaRenderer() {
 void SkiaRenderer::renderFrame(const OpenGLContext& glContext,
                                GLuint inputTextureId, int inputWidth, int inputHeight,
                                GLuint outputFrameBufferId, int outputWidth, int outputHeight) {
-  __android_log_print(ANDROID_LOG_INFO, TAG, "renderLatestFrameToPreview()");
-
   // 1. Initialize Skia
   if (_skiaContext == nullptr) {
     _skiaContext = GrDirectContext::MakeGL();
@@ -87,17 +85,18 @@ void SkiaRenderer::renderFrame(const OpenGLContext& glContext,
   SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
   sk_sp<SkSurface> surface = SkSurfaces::WrapBackendRenderTarget(_skiaContext.get(),
                                                                  renderTarget,
-                                                                 kTopLeft_GrSurfaceOrigin,
+                                                                 kBottomLeft_GrSurfaceOrigin,
                                                                  kN32_SkColorType,
-                                                                 nullptr,
-                                                                 &props);
+                                                                 SkColorSpace::MakeSRGB(),
+                                                                 nullptr);
 
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering %ix%i Frame to %ix%i Preview..", frame->width(), frame->height(), surface->width(), surface->height());
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering %ix%i (#%i) Texture to %ix%i (#%i) output Frame Buffer..",
+                      frame->width(), frame->height(), inputTextureId, surface->width(), surface->height(), outputFrameBufferId);
 
   // 4. Prepare for Skia drawing
   auto canvas = surface->getCanvas();
 
-  canvas->clear(SkColors::kBlack);
+  canvas->clear(SkColors::kRed);
 
   auto duration = std::chrono::system_clock::now().time_since_epoch();
   auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
@@ -113,10 +112,10 @@ void SkiaRenderer::renderFrame(const OpenGLContext& glContext,
   canvas->drawRect(rect, paint);
 
   // 7. Flush Skia operations to OpenGL
-  canvas->flush();
+  _skiaContext->flushAndSubmit();
 
   // 8. Flush OpenGL operations to GPU
-  glContext.flush();
+  //_skiaContext->flush();
 }
 
 void SkiaRenderer::registerNatives() {

@@ -101,6 +101,8 @@ void VideoPipeline::onBeforeFrame() {
   glBindTexture(GL_TEXTURE_EXTERNAL_OES, _inputTextureId);
 }
 
+static GLuint middleManId = 0;
+
 void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixParam) {
   // 1. Activate the offscreen context
   _context->use();
@@ -113,35 +115,50 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
   if (_skiaRenderer != nullptr) {
     if (_framebuffer == DEFAULT_FRAMEBUFFER) {
       glGenFramebuffers(1, &_framebuffer);
+      glGenTextures(1, &middleManId);
+
+      glBindTexture(GL_TEXTURE_2D, middleManId);
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+      glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+      glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, middleManId, 0);
+
+      if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        throw std::runtime_error("Frame Buffer is invalid!");
+      }
     }
 
+
+    glBindTexture(GL_TEXTURE_2D, middleManId);
+
     glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
-    glBindTexture(GL_TEXTURE_EXTERNAL_OES, _inputTextureId);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_EXTERNAL_OES, _inputTextureId, 0);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
       throw std::runtime_error("Frame Buffer is invalid!");
     }
 
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Skia Context..");
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Skia Context (%i -> %i #%i)..", _inputTextureId, middleManId, _framebuffer);
     auto skia = _skiaRenderer->cthis();
+    glBindTexture(GL_TEXTURE_EXTERNAL_OES, _inputTextureId);
     skia->renderFrame(*_context, _inputTextureId, _width, _height, _framebuffer, _width, _height);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, DEFAULT_FRAMEBUFFER);
   }
+
+  glBindTexture(GL_TEXTURE_2D, middleManId);
+  glBindFramebuffer(GL_FRAMEBUFFER, DEFAULT_FRAMEBUFFER);
 
   // 4. Render to all outputs
   if (_previewOutput) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Preview..");
-    _previewOutput->renderTextureToSurface(_inputTextureId, transformMatrix);
+    _previewOutput->renderTextureToSurface(middleManId, transformMatrix);
   }
   if (_frameProcessorOutput) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to FrameProcessor..");
-    _frameProcessorOutput->renderTextureToSurface(_inputTextureId, transformMatrix);
+    _frameProcessorOutput->renderTextureToSurface(middleManId, transformMatrix);
   }
   if (_recordingSessionOutput) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to RecordingSession..");
-    _recordingSessionOutput->renderTextureToSurface(_inputTextureId, transformMatrix);
+    _recordingSessionOutput->renderTextureToSurface(middleManId, transformMatrix);
   }
 }
 
