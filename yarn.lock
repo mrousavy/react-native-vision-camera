@@ -8250,9 +8250,9 @@ react-native-gradle-plugin@^0.71.19:
   resolved "https://registry.yarnpkg.com/react-native-gradle-plugin/-/react-native-gradle-plugin-0.71.19.tgz#3379e28341fcd189bc1f4691cefc84c1a4d7d232"
   integrity sha512-1dVk9NwhoyKHCSxcrM6vY6cxmojeATsBobDicX0ZKr7DgUF2cBQRTKsimQFvzH8XhOVXyH8p4HyDSZNIFI8OlQ==
 
-react-native-reanimated@software-mansion/react-native-reanimated#@tomekzaw/prefab:
+react-native-reanimated@software-mansion/react-native-reanimated#7cca58c5100c7896549939db159c81dabf6417e3:
   version "3.4.0"
-  resolved "https://codeload.github.com/software-mansion/react-native-reanimated/tar.gz/dd95a9c121cd6a1f8c85674106ad8352a017d463"
+  resolved "https://codeload.github.com/software-mansion/react-native-reanimated/tar.gz/7cca58c5100c7896549939db159c81dabf6417e3"
   dependencies:
     "@babel/plugin-transform-object-assign" "^7.16.7"
     "@babel/preset-typescript" "^7.16.7"

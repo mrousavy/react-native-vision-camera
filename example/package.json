@@ -23,7 +23,7 @@
     "react-native": "^0.71.10",
     "react-native-gesture-handler": "^2.12.0",
     "react-native-pressable-opacity": "^1.0.10",
-    "react-native-reanimated": "software-mansion/react-native-reanimated#@tomekzaw/prefab",
+    "react-native-reanimated": "software-mansion/react-native-reanimated#7cca58c5100c7896549939db159c81dabf6417e3",
     "react-native-safe-area-context": "^4.5.3",
     "react-native-screens": "^3.21.0",
     "react-native-static-safe-area-insets": "^2.2.0",

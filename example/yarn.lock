@@ -5757,9 +5757,9 @@ react-native-pressable-opacity@^1.0.10:
   resolved "https://registry.yarnpkg.com/react-native-pressable-opacity/-/react-native-pressable-opacity-1.0.10.tgz#799df1a913d3b28f42ada765465fe7723eb7166d"
   integrity sha512-Py9YH9TlS3Lv1so5JCj6bgiqkeYYGupF4ZImlpoyhhId/t/RiSqR68LlASOHgdctqQuqVJObQiFfzX8oZI9+6w==
 
-react-native-reanimated@software-mansion/react-native-reanimated#@tomekzaw/prefab:
+react-native-reanimated@software-mansion/react-native-reanimated#7cca58c5100c7896549939db159c81dabf6417e3:
   version "3.4.0"
-  resolved "https://codeload.github.com/software-mansion/react-native-reanimated/tar.gz/dd95a9c121cd6a1f8c85674106ad8352a017d463"
+  resolved "https://codeload.github.com/software-mansion/react-native-reanimated/tar.gz/7cca58c5100c7896549939db159c81dabf6417e3"
   dependencies:
     "@babel/plugin-transform-object-assign" "^7.16.7"
     "@babel/preset-typescript" "^7.16.7"
