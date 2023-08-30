@@ -56,7 +56,7 @@ void OpenGLRenderer::renderTextureToSurface(const OpenGLTexture& texture, float*
 
   // 2. Set the viewport for rendering
   glViewport(0, 0, _width, _height);
-  //glDisable(GL_BLEND);
+  glDisable(GL_BLEND);
   glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
 
