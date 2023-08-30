@@ -6,6 +6,7 @@
 
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
+#include "OpenGLTexture.h"
 
 #include <memory>
 #include <functional>
@@ -49,7 +50,7 @@ class OpenGLContext {
   /**
    * Create a new texture on this context
    */
-  GLuint createTexture();
+  OpenGLTexture createTexture(OpenGLTexture::Type type);
 
  public:
   EGLDisplay display = EGL_NO_DISPLAY;

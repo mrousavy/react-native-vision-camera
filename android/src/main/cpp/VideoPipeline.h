@@ -14,6 +14,7 @@
 #include <memory>
 
 #include "SkiaRenderer.h"
+#include "OpenGLTexture.h"
 
 namespace vision {
 
@@ -60,14 +61,9 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
 
  private:
   // Input Surface Texture
-  GLuint _inputTextureId = NO_TEXTURE;
+  std::optional<OpenGLTexture> _inputTexture;
   int _width = 0;
   int _height = 0;
-
-  // Frame Buffer we're rendering to
-  //   (per default it's FBO0, aka the onscreen buffer)
-  //   (if we have a Skia context, it's a separate offscreen buffer)
-  GLuint _framebuffer = DEFAULT_FRAMEBUFFER;
 
   // Output Contexts
   std::shared_ptr<OpenGLContext> _context = nullptr;

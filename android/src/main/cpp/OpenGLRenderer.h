@@ -29,9 +29,9 @@ class OpenGLRenderer {
   ~OpenGLRenderer();
 
   /**
-   * Renders the given Texture ID to the Surface
+   * Renders the given Texture to the Surface
    */
-  void renderTextureToSurface(GLuint textureId, float* transformMatrix);
+  void renderTextureToSurface(const OpenGLTexture& texture, float* transformMatrix);
 
   /**
    * Destroys the OpenGL context. This needs to be called on the same thread that `use()` was called.

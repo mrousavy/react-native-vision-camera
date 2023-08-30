@@ -16,8 +16,11 @@
 #include <android/native_window.h>
 
 #include "OpenGLContext.h"
+#include "OpenGLTexture.h"
 
 namespace vision {
+
+#define NO_FRAMEBUFFER 0
 
 using namespace facebook;
 
@@ -39,22 +42,22 @@ class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
   /**
    * Renders a Frame (`inputTextureId`) to a given output Frame Buffer (`outputFrameBufferId`) using Skia.
    * @param glContext The OpenGL context to use for rendering
-   * @param inputTextureId The input texture (from `glGenTextures`) that holds the Camera frame.
-   * @param inputWidth The width of the input texture
-   * @param inputHeight The height of the input texture
-   * @param outputFrameBufferId The output Frame Buffer (from `glGenFrameBuffers`) that will be used as a render target
-   * @param outputWidth The width of the output Frame Buffer
-   * @param outputHeight The height of the output Frame Buffer
+   * @param inputTexture The input texture (from `glGenTextures`) that holds the Camera frame.
+   * @param width The width of the input texture
+   * @param height The height of the input texture
+   *
+   * @returns A reference to the texture that this call was rendered to.
    */
-  void renderFrame(const OpenGLContext& glContext,
-                   GLuint inputTextureId, int inputWidth, int inputHeight,
-                   GLuint outputFrameBufferId, int outputWidth, int outputHeight);
+  OpenGLTexture& renderFrame(OpenGLContext& glContext,
+                             OpenGLTexture& inputTexture, int width, int height);
 
  private:
-  // OpenGL Context
-  std::shared_ptr<OpenGLContext> _glContext;
   // Skia Context
   sk_sp<GrDirectContext> _skiaContext;
+  // An OpenGL 2D Texture, used as a render-target
+  std::optional<OpenGLTexture> _offscreenTexture = std::nullopt;
+  // The OpenGL Frame Buffer used as a render-target
+  GLuint _framebuffer = NO_FRAMEBUFFER;
 
   static auto constexpr TAG = "SkiaRenderer";
 };

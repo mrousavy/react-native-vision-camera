@@ -121,7 +121,7 @@ void OpenGLContext::flush() const {
   if (!successful || eglGetError() != EGL_SUCCESS) throw OpenGLError("Failed to swap OpenGL buffers!");
 }
 
-GLuint OpenGLContext::createTexture() {
+OpenGLTexture OpenGLContext::createTexture(OpenGLTexture::Type type) {
   // 1. Make sure the OpenGL context is initialized
   this->ensureOpenGL();
 
@@ -131,13 +131,20 @@ GLuint OpenGLContext::createTexture() {
 
   GLuint textureId;
   glGenTextures(1, &textureId);
-  glBindTexture(GL_TEXTURE_EXTERNAL_OES, textureId);
-  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-  return textureId;
+  GLenum target = type == OpenGLTexture::Type::ExternalOES ? GL_TEXTURE_EXTERNAL_OES : GL_TEXTURE_2D;
+  glBindTexture(target, textureId);
+  glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+  return {
+    .id = textureId,
+    .target = target,
+    .width = 0,
+    .height = 0
+  };
 }
 
 } // namespace vision
