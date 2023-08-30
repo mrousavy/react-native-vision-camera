@@ -154,9 +154,6 @@ OpenGLTexture& SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture
   // 9. Flush Skia operations to OpenGL
   _skiaContext->flushAndSubmit();
 
-  // 10. Flush OpenGL operations to GPU
-  //_skiaContext->flush();
-
   return _offscreenTexture.value();
 }
 
