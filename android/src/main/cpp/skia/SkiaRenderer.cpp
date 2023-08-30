@@ -91,8 +91,12 @@ OpenGLTexture& SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture
     }
   }
 
-  // 4. Create an SkImage from the OpenGL Texture containing the Camera Frame
+  // 4. Bind the texture that holds the Camera image
   glBindTexture(texture.target, texture.id);
+  // 5. Bind the offscreen framebuffer we want to render the Camera image into
+  glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+
+  // 6. Create an SkImage from the OpenGL Texture containing the Camera Frame
   GrGLTextureInfo textureInfo {
     // OpenGL will automatically convert YUV -> RGB because it's an EXTERNAL texture
     .fTarget = texture.target,
@@ -110,30 +114,32 @@ OpenGLTexture& SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture
                                                     kN32_SkColorType,
                                                     kOpaque_SkAlphaType);
 
-  // 5. Create an SkSurface (render target) from the OpenGL offscreen Frame Buffer that we want to render to
-  glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
+  // 7. Create an SkSurface (render target) from the OpenGL offscreen Frame Buffer that we want to render to
+  GLint samples;
+  glGetIntegerv(GL_SAMPLES, &samples);
+  GLint stencil;
+  glGetIntegerv(GL_STENCIL_BITS, &stencil);
   GrGLFramebufferInfo fboInfo {
     .fFBOID = _framebuffer,
     .fFormat = GR_GL_RGBA8,
-    .fProtected = skgpu::Protected::kNo,
   };;
   GrBackendRenderTarget renderTarget(texture.width,
                                      texture.height,
-                                     0,
-                                     8,
+                                     samples,
+                                     stencil,
                                      fboInfo);
   SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
   sk_sp<SkSurface> surface = SkSurfaces::WrapBackendRenderTarget(_skiaContext.get(),
                                                                  renderTarget,
                                                                  kBottomLeft_GrSurfaceOrigin,
                                                                  kN32_SkColorType,
-                                                                 SkColorSpace::MakeSRGB(),
+                                                                 nullptr,
                                                                  &props);
 
   __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering %ix%i (#%i) Texture to %ix%i (#%i) output Frame Buffer..",
                       frame->width(), frame->height(), texture.id, surface->width(), surface->height(), _framebuffer);
 
-  // 6. Prepare for Skia drawing
+  // 8. Prepare for Skia drawing
   auto canvas = surface->getCanvas();
 
   canvas->clear(SkColors::kRed);
@@ -141,17 +147,17 @@ OpenGLTexture& SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture
   auto duration = std::chrono::system_clock::now().time_since_epoch();
   auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 
-  // 7. Always draw the Image
+  // 9. Always draw the Image
   canvas->drawImage(frame, 0, 0);
 
-  // 8. Run Skia Frame Processor
+  // 10. Run Skia Frame Processor
   // TODO: Run Skia Frame Processor
   auto rect = SkRect::MakeXYWH(150, 250, millis % 3000 / 10, millis % 3000 / 10);
   auto paint = SkPaint();
   paint.setColor(SkColors::kRed);
   canvas->drawRect(rect, paint);
 
-  // 9. Flush Skia operations to OpenGL
+  // 11. Flush Skia operations to OpenGL
   _skiaContext->flushAndSubmit();
 
   return _offscreenTexture.value();
