@@ -9,8 +9,6 @@
 #import <Foundation/Foundation.h>
 #import "VisionCameraScheduler.h"
 
-#import <React-callinvoker/ReactCommon/CallInvoker.h>
-
 // Forward declarations for the Swift classes
 __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
 @interface CameraQueues : NSObject
@@ -19,21 +17,11 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
 
 namespace vision {
 
-using namespace facebook;
-
-VisionCameraScheduler::VisionCameraScheduler(std::shared_ptr<react::CallInvoker> jsInvoker) {
-  this->jsCallInvoker_ = jsInvoker;
-}
-
 // does not schedule on UI thread but rather on Frame Processor Thread
 void VisionCameraScheduler::scheduleOnUI(std::function<void()> job) {
   dispatch_async(CameraQueues.frameProcessorQueue, ^{
     job();
   });
 }
-
-VisionCameraScheduler::~VisionCameraScheduler(){
-}
-
 
 } // namespace vision
