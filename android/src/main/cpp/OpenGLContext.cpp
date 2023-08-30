@@ -121,7 +121,7 @@ void OpenGLContext::flush() const {
   if (!successful || eglGetError() != EGL_SUCCESS) throw OpenGLError("Failed to swap OpenGL buffers!");
 }
 
-OpenGLTexture OpenGLContext::createTexture(OpenGLTexture::Type type) {
+OpenGLTexture OpenGLContext::createTexture(OpenGLTexture::Type type, int width, int height) {
   // 1. Make sure the OpenGL context is initialized
   this->ensureOpenGL();
 
@@ -142,8 +142,8 @@ OpenGLTexture OpenGLContext::createTexture(OpenGLTexture::Type type) {
   return {
     .id = textureId,
     .target = target,
-    .width = 0,
-    .height = 0
+    .width = width,
+    .height = height
   };
 }
 

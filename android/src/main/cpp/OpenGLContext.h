@@ -50,7 +50,7 @@ class OpenGLContext {
   /**
    * Create a new texture on this context
    */
-  OpenGLTexture createTexture(OpenGLTexture::Type type);
+  OpenGLTexture createTexture(OpenGLTexture::Type type, int width, int height);
 
  public:
   EGLDisplay display = EGL_NO_DISPLAY;

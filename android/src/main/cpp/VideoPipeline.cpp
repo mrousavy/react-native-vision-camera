@@ -32,7 +32,6 @@ VideoPipeline::~VideoPipeline() {
   // 2. Delete the input textures
   if (_inputTexture != std::nullopt) {
     glDeleteTextures(1, &_inputTexture->id);
-    _inputTexture = std::nullopt;
   }
   // 3. Destroy all surfaces
   _previewOutput = nullptr;
@@ -87,9 +86,7 @@ void VideoPipeline::setPreviewOutputSurface(jobject surface) {
 
 int VideoPipeline::getInputTextureId() {
   if (_inputTexture == std::nullopt) {
-    _inputTexture = _context->createTexture(OpenGLTexture::Type::ExternalOES);
-    _inputTexture->width = _width;
-    _inputTexture->height = _height;
+    _inputTexture = _context->createTexture(OpenGLTexture::Type::ExternalOES, width, height);
   }
   return static_cast<int>(_inputTexture->id);
 }

@@ -66,12 +66,10 @@ OpenGLTexture& SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture
       glDeleteTextures(1, &_offscreenTexture->id);
     }
     // 2.2. Create a new 2D texture
-    _offscreenTexture = glContext.createTexture(OpenGLTexture::Texture2D);
+    _offscreenTexture = glContext.createTexture(OpenGLTexture::Texture2D, width, height);
     glBindTexture(_offscreenTexture->target, _offscreenTexture->id);
     // 2.3. Resize it to the target width/height
     glTexImage2D(_offscreenTexture->target, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    _offscreenTexture->width = width;
-    _offscreenTexture->height = height;
 
     // 2.4. If we already have a previous frame buffer, delete it.
     if (_framebuffer != NO_FRAMEBUFFER) {
