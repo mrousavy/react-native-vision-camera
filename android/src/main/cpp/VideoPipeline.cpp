@@ -86,15 +86,18 @@ void VideoPipeline::setPreviewOutputSurface(jobject surface) {
 
 int VideoPipeline::getInputTextureId() {
   if (_inputTexture == std::nullopt) {
-    _inputTexture = _context->createTexture(OpenGLTexture::Type::ExternalOES, width, height);
+    _inputTexture = _context->createTexture(OpenGLTexture::Type::ExternalOES, _width, _height);
   }
   return static_cast<int>(_inputTexture->id);
 }
 
 void VideoPipeline::onBeforeFrame() {
+  // 1. Activate the offscreen context
   _context->use();
 
-  glBindTexture(GL_TEXTURE_EXTERNAL_OES, _inputTexture->id);
+  // 2. Prepare the external texture so the Camera can render into it
+  OpenGLTexture& texture = _inputTexture.value();
+  glBindTexture(texture.target, texture.id);
 }
 
 void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixParam) {
@@ -112,7 +115,7 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
   if (_skiaRenderer != nullptr) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Skia Context..");
     auto skia = _skiaRenderer->cthis();
-    auto newTexture = skia->renderFrame(*_context, texture, _width, _height);
+    auto newTexture = skia->renderFrame(*_context, texture);
 
     __android_log_print(ANDROID_LOG_INFO, TAG, "Rendered from %i -> %i!", texture.id, newTexture.id);
     texture = newTexture;

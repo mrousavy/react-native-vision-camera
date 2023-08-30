@@ -16,7 +16,7 @@ struct OpenGLTexture {
   // GL_TEXTURE_2D or GL_TEXTURE_EXTERNAL_OES
   GLenum target;
 
-  // Width and height of the texture (always 0 until you modify it)
+  // Width and height of the texture
   int width = 0;
   int height = 0;
 };

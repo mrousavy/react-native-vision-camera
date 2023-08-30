@@ -52,24 +52,30 @@ SkiaRenderer::~SkiaRenderer() {
   }
 }
 
-OpenGLTexture& SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture& inputTexture, int width, int height) {
-  // 1. Initialize Skia
+OpenGLTexture& SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture& texture) {
+  // 1. Activate the OpenGL context (eglMakeCurrent)
+  glContext.use();
+
+  // 2. Initialize Skia
   if (_skiaContext == nullptr) {
-    _skiaContext = GrDirectContext::MakeGL();
+    GrContextOptions options;
+    // TODO: Set this to true or not? idk
+    options.fDisableGpuYUVConversion = false;
+    _skiaContext = GrDirectContext::MakeGL(options);
   }
   _skiaContext->resetContext();
 
-  // 2. Create a 2D texture that we're going to render into
-  if (_framebuffer == NO_FRAMEBUFFER || _offscreenTexture == std::nullopt || _offscreenTexture->width != width || _offscreenTexture->height != height) {
+  // 3. Create a 2D texture that we're going to render into
+  if (_framebuffer == NO_FRAMEBUFFER || _offscreenTexture == std::nullopt || _offscreenTexture->width != texture.width || _offscreenTexture->height != texture.height) {
     // 2.1. If we already have a previous texture, delete it.
     if (_offscreenTexture != std::nullopt) {
       glDeleteTextures(1, &_offscreenTexture->id);
     }
     // 2.2. Create a new 2D texture
-    _offscreenTexture = glContext.createTexture(OpenGLTexture::Texture2D, width, height);
+    _offscreenTexture = glContext.createTexture(OpenGLTexture::Texture2D, texture.width, texture.height);
     glBindTexture(_offscreenTexture->target, _offscreenTexture->id);
     // 2.3. Resize it to the target width/height
-    glTexImage2D(_offscreenTexture->target, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(_offscreenTexture->target, 0, GL_RGBA, texture.width, texture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
     // 2.4. If we already have a previous frame buffer, delete it.
     if (_framebuffer != NO_FRAMEBUFFER) {
@@ -85,34 +91,34 @@ OpenGLTexture& SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture
     }
   }
 
-  // 3. Create an SkImage from the OpenGL Texture containing the Camera Frame
-  glBindTexture(inputTexture.target, inputTexture.id);
+  // 4. Create an SkImage from the OpenGL Texture containing the Camera Frame
+  glBindTexture(texture.target, texture.id);
   GrGLTextureInfo textureInfo {
     // OpenGL will automatically convert YUV -> RGB because it's an EXTERNAL texture
-    .fTarget = inputTexture.target,
-    .fID = inputTexture.id,
+    .fTarget = texture.target,
+    .fID = texture.id,
     .fFormat = GR_GL_RGBA8,
     .fProtected = skgpu::Protected::kNo,
   };
-  GrBackendTexture texture(width,
-                           height,
-                           GrMipMapped::kNo,
-                           textureInfo);
+  GrBackendTexture skiaTexture(texture.width,
+                               texture.height,
+                               GrMipMapped::kNo,
+                               textureInfo);
   sk_sp<SkImage> frame = SkImages::AdoptTextureFrom(_skiaContext.get(),
-                                                    texture,
+                                                    skiaTexture,
                                                     kTopLeft_GrSurfaceOrigin,
                                                     kN32_SkColorType,
                                                     kOpaque_SkAlphaType);
 
-  // 4. Create an SkSurface (render target) from the OpenGL offscreen Frame Buffer that we want to render to
+  // 5. Create an SkSurface (render target) from the OpenGL offscreen Frame Buffer that we want to render to
   glBindFramebuffer(GL_FRAMEBUFFER, _framebuffer);
   GrGLFramebufferInfo fboInfo {
     .fFBOID = _framebuffer,
     .fFormat = GR_GL_RGBA8,
     .fProtected = skgpu::Protected::kNo,
   };;
-  GrBackendRenderTarget renderTarget(width,
-                                     height,
+  GrBackendRenderTarget renderTarget(texture.width,
+                                     texture.height,
                                      0,
                                      8,
                                      fboInfo);
@@ -122,12 +128,12 @@ OpenGLTexture& SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture
                                                                  kBottomLeft_GrSurfaceOrigin,
                                                                  kN32_SkColorType,
                                                                  SkColorSpace::MakeSRGB(),
-                                                                 nullptr);
+                                                                 &props);
 
   __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering %ix%i (#%i) Texture to %ix%i (#%i) output Frame Buffer..",
-                      frame->width(), frame->height(), inputTexture.id, surface->width(), surface->height(), _framebuffer);
+                      frame->width(), frame->height(), texture.id, surface->width(), surface->height(), _framebuffer);
 
-  // 5. Prepare for Skia drawing
+  // 6. Prepare for Skia drawing
   auto canvas = surface->getCanvas();
 
   canvas->clear(SkColors::kRed);
@@ -135,20 +141,20 @@ OpenGLTexture& SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture
   auto duration = std::chrono::system_clock::now().time_since_epoch();
   auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
 
-  // 6. Always draw the Image
+  // 7. Always draw the Image
   canvas->drawImage(frame, 0, 0);
 
-  // 7. Run Skia Frame Processor
+  // 8. Run Skia Frame Processor
   // TODO: Run Skia Frame Processor
   auto rect = SkRect::MakeXYWH(150, 250, millis % 3000 / 10, millis % 3000 / 10);
   auto paint = SkPaint();
   paint.setColor(SkColors::kRed);
   canvas->drawRect(rect, paint);
 
-  // 8. Flush Skia operations to OpenGL
+  // 9. Flush Skia operations to OpenGL
   _skiaContext->flushAndSubmit();
 
-  // 9. Flush OpenGL operations to GPU
+  // 10. Flush OpenGL operations to GPU
   //_skiaContext->flush();
 
   return _offscreenTexture.value();
