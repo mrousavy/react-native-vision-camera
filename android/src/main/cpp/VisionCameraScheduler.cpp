@@ -15,20 +15,17 @@ TSelf VisionCameraScheduler::initHybrid(jni::alias_ref<jhybridobject> jThis) {
 }
 
 void VisionCameraScheduler::scheduleOnUI(std::function<void()> job) {
-  // 1. add job to queue
-  uiJobs_.push(job);
+  job_ = std::move(job);
   scheduleTrigger();
 }
 
 void VisionCameraScheduler::scheduleTrigger() {
-  // 2. schedule `triggerUI` to be called on the java thread
   static auto method = javaPart_->getClass()->getMethod<void()>("scheduleTrigger");
   method(javaPart_.get());
 }
 
 void VisionCameraScheduler::triggerUI() {
-  // 3. call job we enqueued in step 1.
-  auto job = uiJobs_.pop();
+  auto job = std::move(job_);
   job();
 }
 
