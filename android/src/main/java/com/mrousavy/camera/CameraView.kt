@@ -93,10 +93,14 @@ class CameraView(context: Context) : FrameLayout(context) {
   private var previewSurface: Surface? = null
 
   private var skiaRenderer: SkiaRenderer? = null
+    set(value) {
+      field = value
+      cameraSession.skiaRenderer = value
+    }
   internal var frameProcessor: FrameProcessor? = null
     set(value) {
       field = value
-      cameraSession.frameProcessor = frameProcessor
+      cameraSession.frameProcessor = value
     }
 
   private val inputOrientation: Orientation
@@ -217,8 +221,6 @@ class CameraView(context: Context) : FrameLayout(context) {
       val targetPhotoSize = if (format != null) Size(format.getInt("photoWidth"), format.getInt("photoHeight")) else null
       // TODO: Allow previewSurface to be null/none
       val previewSurface = previewSurface ?: return
-
-      if (targetVideoSize != null) skiaRenderer?.setInputSurfaceSize(targetVideoSize.width, targetVideoSize.height)
 
       val previewOutput = CameraOutputs.PreviewOutput(previewSurface)
       val photoOutput = if (photo == true) {

@@ -96,10 +96,27 @@ void VideoPipeline::onBeforeFrame() {
   glBindTexture(GL_TEXTURE_EXTERNAL_OES, _inputTextureId);
 }
 
+static GLuint fbo = 0;
+
 void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixParam) {
   // Get the OpenGL transform Matrix (transforms, scales, rotations)
   float transformMatrix[16];
   transformMatrixParam->getRegion(0, 16, transformMatrix);
+
+  if (_skiaRenderer != nullptr) {
+    auto skia = _skiaRenderer->cthis();
+
+    if (fbo == 0) {
+      glGenFramebuffers(1, &fbo);
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+      throw std::runtime_error("Frame Buffer is invalid!");
+    }
+
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Skia Context..");
+    skia->renderFrame(*_context, _inputTextureId, _width, _height, fbo, _width, _height);
+  }
 
   if (_previewOutput) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Preview..");
@@ -115,6 +132,14 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
   }
 }
 
+void VideoPipeline::setSkiaRenderer(jni::alias_ref<SkiaRenderer::javaobject> skiaRenderer) {
+  this->_skiaRenderer = jni::make_global(skiaRenderer);
+}
+
+void VideoPipeline::removeSkiaRenderer() {
+  this->_skiaRenderer = nullptr;
+}
+
 void VideoPipeline::registerNatives() {
   registerHybrid({
     makeNativeMethod("initHybrid", VideoPipeline::initHybrid),
@@ -127,6 +152,8 @@ void VideoPipeline::registerNatives() {
     makeNativeMethod("getInputTextureId", VideoPipeline::getInputTextureId),
     makeNativeMethod("onBeforeFrame", VideoPipeline::onBeforeFrame),
     makeNativeMethod("onFrame", VideoPipeline::onFrame),
+    makeNativeMethod("setSkiaRenderer", VideoPipeline::setSkiaRenderer),
+    makeNativeMethod("removeSkiaRenderer", VideoPipeline::removeSkiaRenderer),
   });
 }
 

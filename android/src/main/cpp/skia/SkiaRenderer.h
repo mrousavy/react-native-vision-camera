@@ -15,14 +15,13 @@
 #include <include/core/SkSurface.h>
 #include <android/native_window.h>
 
+#include "OpenGLContext.h"
+
 namespace vision {
 
 using namespace facebook;
 
-#define NO_INPUT_TEXTURE 7654321
-
 class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
-  // JNI Stuff
  public:
   static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/skia/SkiaRenderer;";
   static void registerNatives();
@@ -36,42 +35,26 @@ class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
   static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> javaPart);
   ~SkiaRenderer();
 
- private:
-  // Input Texture (Camera)
-  void setInputTextureSize(int width, int height);
-  // Output Surface (Preview)
-  void setOutputSurface(jobject previewSurface);
-  void destroyOutputSurface();
-  void setOutputSurfaceSize(int width, int height);
-
+ public:
   /**
-   * Renders the latest Camera Frame from the Input Texture onto the Preview Surface. (60 FPS)
+   * Renders a Frame (`inputTextureId`) to a given output Frame Buffer (`outputFrameBufferId`) using Skia.
+   * @param glContext The OpenGL context to use for rendering
+   * @param inputTextureId The input texture (from `glGenTextures`) that holds the Camera frame.
+   * @param inputWidth The width of the input texture
+   * @param inputHeight The height of the input texture
+   * @param outputFrameBufferId The output Frame Buffer (from `glGenFrameBuffers`) that will be used as a render target
+   * @param outputWidth The width of the output Frame Buffer
+   * @param outputHeight The height of the output Frame Buffer
    */
-  void renderLatestFrameToPreview();
-  /**
-   * Renders the latest Camera Frame into it's Input Texture and run the Skia Frame Processor (1..240 FPS)
-   */
-  void renderCameraFrameToOffscreenCanvas(jni::JByteBuffer yBuffer,
-                                          jni::JByteBuffer uBuffer,
-                                          jni::JByteBuffer vBuffer);
+  void renderFrame(const OpenGLContext& glContext,
+                   GLuint inputTextureId, int inputWidth, int inputHeight,
+                   GLuint outputFrameBufferId, int outputWidth, int outputHeight);
 
  private:
   // OpenGL Context
-  EGLContext _glContext = EGL_NO_CONTEXT;
-  EGLDisplay _glDisplay = EGL_NO_DISPLAY;
-  EGLSurface _glSurface = EGL_NO_SURFACE;
-  EGLConfig  _glConfig  = nullptr;
+  std::shared_ptr<OpenGLContext> _glContext;
   // Skia Context
   sk_sp<GrDirectContext> _skiaContext;
-
-  // Input Texture (Camera/Offscreen)
-  GLuint _inputSurfaceTextureId = NO_INPUT_TEXTURE;
-  int _inputWidth, _inputHeight;
-  // Output Texture (Surface/Preview)
-  ANativeWindow* _previewSurface;
-  int _previewWidth, _previewHeight;
-
-  void ensureOpenGL(ANativeWindow* surface);
 
   static auto constexpr TAG = "SkiaRenderer";
 };

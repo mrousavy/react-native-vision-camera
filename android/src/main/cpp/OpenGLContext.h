@@ -42,6 +42,11 @@ class OpenGLContext {
   void use();
 
   /**
+   * Flushes all drawing operations by swapping the buffers and submitting the Frame to the GPU
+   */
+  void flush() const;
+
+  /**
    * Create a new texture on this context
    */
   GLuint createTexture();

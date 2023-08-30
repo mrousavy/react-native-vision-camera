@@ -116,6 +116,11 @@ void OpenGLContext::use(EGLSurface surface) {
   // 3. Caller can now render to this surface
 }
 
+void OpenGLContext::flush() const {
+  bool successful = eglSwapBuffers(display, eglGetCurrentSurface(EGL_DRAW));
+  if (!successful || eglGetError() != EGL_SUCCESS) throw OpenGLError("Failed to swap OpenGL buffers!");
+}
+
 GLuint OpenGLContext::createTexture() {
   // 1. Make sure the OpenGL context is initialized
   this->ensureOpenGL();

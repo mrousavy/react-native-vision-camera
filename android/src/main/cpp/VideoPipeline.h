@@ -13,6 +13,8 @@
 #include "OpenGLContext.h"
 #include <memory>
 
+#include "SkiaRenderer.h"
+
 namespace vision {
 
 #define NO_TEXTURE 0
@@ -47,6 +49,10 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
   void onBeforeFrame();
   void onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrix);
 
+  // Skia integration (acts as middleman)
+  void setSkiaRenderer(jni::alias_ref<SkiaRenderer::javaobject> skiaRenderer);
+  void removeSkiaRenderer();
+
  private:
   // Private constructor. Use `create(..)` to create new instances.
   explicit VideoPipeline(jni::alias_ref<jhybridobject> jThis, int width, int height);
@@ -62,6 +68,7 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
   std::unique_ptr<OpenGLRenderer> _frameProcessorOutput = nullptr;
   std::unique_ptr<OpenGLRenderer> _recordingSessionOutput = nullptr;
   std::unique_ptr<OpenGLRenderer> _previewOutput = nullptr;
+  jni::global_ref<SkiaRenderer::javaobject> _skiaRenderer = nullptr;
 
  private:
   friend HybridBase;

@@ -30,6 +30,7 @@ import com.mrousavy.camera.parsers.QualityPrioritization
 import com.mrousavy.camera.parsers.VideoCodec
 import com.mrousavy.camera.parsers.VideoFileType
 import com.mrousavy.camera.parsers.VideoStabilizationMode
+import com.mrousavy.camera.skia.SkiaRenderer
 import com.mrousavy.camera.utils.PhotoOutputSynchronizer
 import com.mrousavy.camera.utils.RecordingSession
 import com.mrousavy.camera.utils.outputs.CameraOutputs
@@ -94,6 +95,11 @@ class CameraSession(private val context: Context,
       updateVideoOutputs()
     }
   var frameProcessor: FrameProcessor? = null
+    set(value) {
+      field = value
+      updateVideoOutputs()
+    }
+  var skiaRenderer: SkiaRenderer? = null
     set(value) {
       field = value
       updateVideoOutputs()
@@ -200,8 +206,9 @@ class CameraSession(private val context: Context,
   private fun updateVideoOutputs() {
     val videoPipeline = outputs?.videoOutput?.videoPipeline ?: return
     val previewOutput = outputs?.previewOutput
-    videoPipeline.setRecordingSessionOutput(this.recording)
-    videoPipeline.setFrameProcessorOutput(this.frameProcessor)
+    videoPipeline.setRecordingSessionOutput(recording)
+    videoPipeline.setFrameProcessorOutput(frameProcessor)
+    videoPipeline.setSkiaRenderer(skiaRenderer)
     videoPipeline.setPreviewOutput(previewOutput?.surface)
   }
 

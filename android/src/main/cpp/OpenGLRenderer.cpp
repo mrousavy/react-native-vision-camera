@@ -68,7 +68,7 @@ void OpenGLRenderer::renderTextureToSurface(GLuint textureId, float* transformMa
   _passThroughShader.draw(textureId, transformMatrix);
 
   // 5. Swap buffers to pass it to the window surface
-  eglSwapBuffers(_context->display, _surface);
+  _context->flush();
 }
 
 } // namespace vision
