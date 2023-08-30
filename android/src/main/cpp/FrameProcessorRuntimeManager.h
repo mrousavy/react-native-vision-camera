@@ -10,7 +10,6 @@
 #include <memory>
 #include <string>
 
-#include "AndroidUIScheduler.h"
 #include "WorkletRuntime.h"
 
 #include "CameraView.h"
