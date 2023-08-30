@@ -10,6 +10,8 @@
 #include "OpenGLError.h"
 #include <string>
 
+#include <android/log.h>
+
 namespace vision {
 
 PassThroughShader::~PassThroughShader() {
@@ -30,12 +32,7 @@ void PassThroughShader::draw(const OpenGLTexture& texture, float* transformMatri
       glDeleteProgram(_programId);
     }
     _programId = createProgram(texture.target);
-    _shaderTarget = texture.target;
-  }
-
-  glUseProgram(_programId);
-
-  if (_vertexParameters.aPosition == NO_POSITION) {
+    glUseProgram(_programId);
     _vertexParameters = {
         .aPosition = glGetAttribLocation(_programId, "aPosition"),
         .aTexCoord = glGetAttribLocation(_programId, "aTexCoord"),
@@ -44,14 +41,18 @@ void PassThroughShader::draw(const OpenGLTexture& texture, float* transformMatri
     _fragmentParameters = {
         .uTexture = glGetUniformLocation(_programId, "uTexture"),
     };
+    _shaderTarget = texture.target;
   }
+
+  glUseProgram(_programId);
 
   // 2. Set up Vertices Buffer
   if (_vertexBuffer == NO_BUFFER) {
     glGenBuffers(1, &_vertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(VERTICES), VERTICES, GL_STATIC_DRAW);
   }
+
+  glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(VERTICES), VERTICES, GL_STATIC_DRAW);
 
   // 3. Pass all uniforms/attributes for vertex shader
   glEnableVertexAttribArray(_vertexParameters.aPosition);
@@ -71,6 +72,9 @@ void PassThroughShader::draw(const OpenGLTexture& texture, float* transformMatri
                         reinterpret_cast<void*>(offsetof(Vertex, texCoord)));
 
   glUniformMatrix4fv(_vertexParameters.uTransformMatrix, 1, GL_FALSE, transformMatrix);
+
+  bool isT= glIsTexture(texture.id);
+  __android_log_print(ANDROID_LOG_INFO, "PassThroughshader", "Tex ID %i %b", texture.id, isT);
 
   // 4. Pass texture to fragment shader
   glActiveTexture(GL_TEXTURE0);
