@@ -63,6 +63,7 @@ OpenGLTexture& SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture
     options.fDisableGpuYUVConversion = false;
     _skiaContext = GrDirectContext::MakeGL(options);
   }
+  // TODO: use this later kRenderTarget_GrGLBackendState | kTextureBinding_GrGLBackendState
   _skiaContext->resetContext();
 
   // 3. Create a 2D texture that we're going to render into
@@ -108,11 +109,13 @@ OpenGLTexture& SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture
                                texture.height,
                                GrMipMapped::kNo,
                                textureInfo);
-  sk_sp<SkImage> frame = SkImages::AdoptTextureFrom(_skiaContext.get(),
-                                                    skiaTexture,
-                                                    kTopLeft_GrSurfaceOrigin,
-                                                    kN32_SkColorType,
-                                                    kOpaque_SkAlphaType);
+  sk_sp<SkImage> frame = SkImages::BorrowTextureFrom(_skiaContext.get(),
+                                                     skiaTexture,
+                                                     kBottomLeft_GrSurfaceOrigin,
+                                                     kN32_SkColorType,
+                                                     kOpaque_SkAlphaType,
+                                                     nullptr,
+                                                     nullptr);
 
   // 7. Create an SkSurface (render target) from the OpenGL offscreen Frame Buffer that we want to render to
   GLint samples;
