@@ -56,16 +56,6 @@ OpenGLTexture& SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture
   // 1. Activate the OpenGL context (eglMakeCurrent)
   glContext.use();
 
-  // 2. Initialize Skia
-  if (_skiaContext == nullptr) {
-    GrContextOptions options;
-    // TODO: Set this to true or not? idk
-    options.fDisableGpuYUVConversion = false;
-    _skiaContext = GrDirectContext::MakeGL(options);
-  }
-  // TODO: use this later kRenderTarget_GrGLBackendState | kTextureBinding_GrGLBackendState
-  _skiaContext->resetContext();
-
   // 3. Create a 2D texture that we're going to render into
   if (_offscreenTexture == std::nullopt || _offscreenTexture->width != texture.width || _offscreenTexture->height != texture.height) {
     // 2.1. If we already have a previous texture, delete it.
@@ -78,6 +68,36 @@ OpenGLTexture& SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture
     // 2.3. Resize it to the target width/height
     glTexImage2D(_offscreenTexture->target, 0, GL_RGBA, texture.width, texture.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
   }
+
+  // 2. Initialize Skia
+  if (_skiaContext == nullptr) {
+    GrContextOptions options;
+    // TODO: Set this to true or not? idk
+    options.fDisableGpuYUVConversion = false;
+    _skiaContext = GrDirectContext::MakeGL(options);
+  }
+  // TODO: use this later kRenderTarget_GrGLBackendState | kTextureBinding_GrGLBackendState
+  _skiaContext->resetContext();
+
+  // 6. Create an SkImage from the OpenGL Texture containing the Camera Frame
+  GrGLTextureInfo textureInfo {
+      // OpenGL will automatically convert YUV -> RGB because it's an EXTERNAL texture
+      .fTarget = texture.target,
+      .fID = texture.id,
+      .fFormat = GR_GL_RGBA8,
+      .fProtected = skgpu::Protected::kNo,
+  };
+  GrBackendTexture skiaTexture(texture.width,
+                               texture.height,
+                               GrMipMapped::kNo,
+                               textureInfo);
+  sk_sp<SkImage> frame = SkImages::BorrowTextureFrom(_skiaContext.get(),
+                                                     skiaTexture,
+                                                     kBottomLeft_GrSurfaceOrigin,
+                                                     kN32_SkColorType,
+                                                     kOpaque_SkAlphaType,
+                                                     nullptr,
+                                                     nullptr);
 
   // 7. Create an SkSurface (render target) from the OpenGL offscreen Frame Buffer that we want to render to
   GrGLTextureInfo targetTextureInfo {
@@ -106,6 +126,8 @@ OpenGLTexture& SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture
 
   auto duration = std::chrono::system_clock::now().time_since_epoch();
   auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+
+  canvas->drawImage(frame, 0, 0);
 
   // 10. Run Skia Frame Processor
   // TODO: Run Skia Frame Processor
