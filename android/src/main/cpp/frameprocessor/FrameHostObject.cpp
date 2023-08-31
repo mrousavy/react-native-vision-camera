@@ -109,8 +109,6 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       void* cpuBuffer;
       AHardwareBuffer_lock(buffer, AHARDWAREBUFFER_USAGE_CPU_READ_MASK, -1, nullptr, &cpuBuffer);
 
-      AHardwareBuffer_release(buffer);
-
       static constexpr auto ARRAYBUFFER_CACHE_PROP_NAME = "__frameArrayBufferCache";
       if (!runtime.global().hasProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME)) {
         vision::TypedArray<vision::TypedArrayKind::Uint8ClampedArray> arrayBuffer(runtime, size);

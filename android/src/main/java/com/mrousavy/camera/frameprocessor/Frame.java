@@ -89,16 +89,20 @@ public class Frame {
         return image.getPlanes()[0].getRowStride();
     }
 
+    private HardwareBuffer cachedHardwareBuffer;
+
     public HardwareBuffer getHardwareBuffer() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
             throw new RuntimeException("Frame Processors require API Level 28!");
         }
 
-        HardwareBuffer buffer = image.getHardwareBuffer();
-        if (buffer == null) {
-            throw new RuntimeException("The Frame's Hardware Buffer was null!");
+        if (cachedHardwareBuffer == null) {
+            cachedHardwareBuffer = image.getHardwareBuffer();
+            if (cachedHardwareBuffer == null) {
+                throw new RuntimeException("The Frame's Hardware Buffer was null!");
+            }
         }
-        return buffer;
+        return cachedHardwareBuffer;
     }
 
     @SuppressWarnings("unused")
@@ -131,6 +135,7 @@ public class Frame {
     @SuppressWarnings("unused")
     @DoNotStrip
     private void close() {
+        if (cachedHardwareBuffer != null) cachedHardwareBuffer.close();
         image.close();
     }
 }
