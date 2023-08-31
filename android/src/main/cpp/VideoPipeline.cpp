@@ -116,7 +116,7 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
     auto drawCallback = [=](SkCanvas* canvas) {
       auto rect = SkRect::MakeXYWH(150, 150, 300, 300);
       SkPaint paint;
-      paint.setColor(0xff0000);
+      paint.setColor(SkColors::kRed);
       canvas->drawRect(rect, paint);
     };
 
