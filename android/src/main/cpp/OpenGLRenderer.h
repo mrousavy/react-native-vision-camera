@@ -39,6 +39,12 @@ class OpenGLRenderer {
    */
   void destroy();
 
+  /**
+   * Ensures that we have a valid eglSurface in the renderer
+   * @return
+   */
+  EGLSurface getOrCreateEglSurface();
+
  private:
   explicit OpenGLRenderer(std::shared_ptr<OpenGLContext> context, ANativeWindow* surface);
 

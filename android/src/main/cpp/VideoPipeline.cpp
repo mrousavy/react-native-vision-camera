@@ -115,27 +115,31 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
   if (_skiaRenderer != nullptr) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Skia Context..");
     auto skia = _skiaRenderer->cthis();
-    auto newTexture = skia->renderFrame(*_context, texture);
+    auto newTexture = skia->renderFrame(*_context, texture, transformMatrix);
 
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendered from Texture #%i -> Texture #%i!", texture.id, newTexture.id);
-    texture = newTexture;
-  }
+    if (_previewOutput) {
+      __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Preview..");
+      auto glSurface = _previewOutput->getOrCreateEglSurface();
+      skia->renderToSurface(*_context, newTexture, glSurface);
+    }
 
-  glBindTexture(texture.target, texture.id);
-  glBindFramebuffer(GL_FRAMEBUFFER, DEFAULT_FRAMEBUFFER);
+  } else {
+    glBindTexture(texture.target, texture.id);
+    glBindFramebuffer(GL_FRAMEBUFFER, DEFAULT_FRAMEBUFFER);
 
-  // 5. Render to all outputs
-  if (_previewOutput) {
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Preview..");
-    _previewOutput->renderTextureToSurface(texture, transformMatrix);
-  }
-  if (_frameProcessorOutput) {
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to FrameProcessor..");
-    _frameProcessorOutput->renderTextureToSurface(texture, transformMatrix);
-  }
-  if (_recordingSessionOutput) {
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to RecordingSession..");
-    _recordingSessionOutput->renderTextureToSurface(texture, transformMatrix);
+    // 5. Render to all outputs
+    if (_previewOutput) {
+      __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Preview..");
+      _previewOutput->renderTextureToSurface(texture, transformMatrix);
+    }
+    if (_frameProcessorOutput) {
+      __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to FrameProcessor..");
+      _frameProcessorOutput->renderTextureToSurface(texture, transformMatrix);
+    }
+    if (_recordingSessionOutput) {
+      __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to RecordingSession..");
+      _recordingSessionOutput->renderTextureToSurface(texture, transformMatrix);
+    }
   }
 }
 

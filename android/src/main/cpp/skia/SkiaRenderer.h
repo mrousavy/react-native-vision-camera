@@ -42,11 +42,13 @@ class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
   /**
    * Renders a Frame (`inputTextureId`) to a given output Frame Buffer (`outputFrameBufferId`) using Skia.
    * @param glContext The OpenGL context to use for rendering
-   * @param texture The input texture (from `glGenTextures`) that holds the Camera frame.
+   * @param inputTexture The input inputTexture (from `glGenTextures`) that holds the Camera frame.
    *
-   * @returns A reference to the texture that this call was rendered to.
+   * @returns A reference to the inputTexture that this call was rendered to.
    */
-  OpenGLTexture renderFrame(OpenGLContext& glContext, OpenGLTexture& texture);
+  OpenGLTexture renderFrame(OpenGLContext& glContext, OpenGLTexture& inputTexture, float* transformMatrix);
+
+  void renderToSurface(OpenGLContext& glContext, OpenGLTexture& texture, EGLSurface glSurface);
 
  private:
   // Skia Context
