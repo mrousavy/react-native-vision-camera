@@ -15,13 +15,8 @@
 
 namespace vision {
 
-std::shared_ptr<OpenGLContext> OpenGLContext::CreateWithOffscreenSurface(int width, int height) {
-  return std::unique_ptr<OpenGLContext>(new OpenGLContext(width, height));
-}
-
-OpenGLContext::OpenGLContext(int width, int height) {
-  _width = width;
-  _height = height;
+std::shared_ptr<OpenGLContext> OpenGLContext::CreateWithOffscreenSurface() {
+  return std::unique_ptr<OpenGLContext>(new OpenGLContext());
 }
 
 OpenGLContext::~OpenGLContext() {
@@ -90,9 +85,9 @@ void OpenGLContext::ensureOpenGL() {
   // EGLSurface
   if (offscreenSurface == EGL_NO_SURFACE) {
     // If we don't have a surface at all
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing %i x %i offscreen pbuffer EGLSurface..", _width, _height);
-    EGLint attributes[] = {EGL_WIDTH, _width,
-                           EGL_HEIGHT, _height,
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing 1x1 offscreen pbuffer EGLSurface..");
+    EGLint attributes[] = {EGL_WIDTH, 1,
+                           EGL_HEIGHT, 1,
                            EGL_NONE};
     offscreenSurface = eglCreatePbufferSurface(display, config, attributes);
     if (offscreenSurface == EGL_NO_SURFACE) throw OpenGLError("Failed to create OpenGL Surface!");

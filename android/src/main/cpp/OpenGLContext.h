@@ -25,7 +25,7 @@ class OpenGLContext {
    * Create a new instance of the OpenGLContext that draws to an off-screen PixelBuffer surface.
    * This will not perform any OpenGL operations yet, and is therefore safe to call from any Thread.
    */
-  static std::shared_ptr<OpenGLContext> CreateWithOffscreenSurface(int width, int height);
+  static std::shared_ptr<OpenGLContext> CreateWithOffscreenSurface();
   /**
    * Destroy the OpenGL Context. This needs to be called on the same thread that `use()` was called.
    */
@@ -59,8 +59,7 @@ class OpenGLContext {
   EGLConfig config = nullptr;
 
  private:
-  int _width = 0, _height = 0;
-  explicit OpenGLContext(int width, int height);
+  explicit OpenGLContext() = default;
   void destroy();
   void ensureOpenGL();
 

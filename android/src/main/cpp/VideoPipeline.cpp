@@ -21,7 +21,7 @@ jni::local_ref<VideoPipeline::jhybriddata> VideoPipeline::initHybrid(jni::alias_
 VideoPipeline::VideoPipeline(jni::alias_ref<jhybridobject> jThis, int width, int height): _javaPart(jni::make_global(jThis)) {
   _width = width;
   _height = height;
-  _context = OpenGLContext::CreateWithOffscreenSurface(width, height);
+  _context = OpenGLContext::CreateWithOffscreenSurface();
 }
 
 VideoPipeline::~VideoPipeline() {
