@@ -58,59 +58,129 @@ sk_sp<GrDirectContext> SkiaRenderer::getSkiaContext() {
   return _skiaContext;
 }
 
-OpenGLTexture SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture& texture) {
-  // 1. Activate the OpenGL context (eglMakeCurrent)
-  glContext.use();
-
-  // 2. Initialize Skia
-  auto skiaContext = getSkiaContext();
-  // TODO: use this later kRenderTarget_GrGLBackendState | kTextureBinding_GrGLBackendState
-  skiaContext->resetContext();
-
-  // 3. Create the offscreen Skia Surface
-  if (_offscreenSurface == nullptr) {
-    GrBackendTexture skiaTex = skiaContext->createBackendTexture(texture.width,
-                                                                 texture.height,
-                                                                 SkColorType::kN32_SkColorType,
-                                                                 GrMipMapped::kNo,
-                                                                 GrRenderable::kYes);
-    GrGLTextureInfo info;
-    skiaTex.getGLTextureInfo(&info);
-    _offscreenSurfaceTextureId = info.fID;
-
-    SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-    _offscreenSurface = SkSurfaces::WrapBackendTexture(skiaContext.get(),
-                                                       skiaTex,
-                                                       kBottomLeft_GrSurfaceOrigin,
-                                                       0,
-                                                       SkColorType::kN32_SkColorType,
-                                                       nullptr,
-                                                       &props,
-                                                       // TODO: Delete texture!
-                                                       nullptr);
-  }
-
+sk_sp<SkImage> SkiaRenderer::wrapTextureAsImage(OpenGLTexture &texture) {
   GrGLTextureInfo textureInfo {
-      // OpenGL will automatically convert YUV -> RGB because it's an EXTERNAL texture
+      // OpenGL will automatically convert YUV -> RGB - if it's an EXTERNAL texture
       .fTarget = texture.target,
       .fID = texture.id,
       .fFormat = GR_GL_RGBA8,
-      .fProtected = skgpu::Protected::kNo,
   };
   GrBackendTexture skiaTexture(texture.width,
                                texture.height,
                                GrMipMapped::kNo,
                                textureInfo);
-  sk_sp<SkImage> frame = SkImages::BorrowTextureFrom(skiaContext.get(),
+  sk_sp<SkImage> image = SkImages::BorrowTextureFrom(_skiaContext.get(),
                                                      skiaTexture,
                                                      kBottomLeft_GrSurfaceOrigin,
                                                      kN32_SkColorType,
                                                      kOpaque_SkAlphaType,
                                                      nullptr,
                                                      nullptr);
+  if (image == nullptr) {
+    [[unlikely]];
+    throw std::runtime_error("Failed to create Skia Image! Cannot wrap input texture (frame) using Skia.");
+  }
+  return image;
+}
 
+sk_sp<SkSurface> SkiaRenderer::wrapFrameBufferAsSurface(GLuint frameBufferId, int width, int height) {
+  GLint sampleCnt;
+  glGetIntegerv(GL_SAMPLES, &sampleCnt);
+  GLint stencilBits;
+  glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
+  GrGLFramebufferInfo fboInfo {
+      .fFBOID = frameBufferId,
+      .fFormat = GR_GL_RGBA8
+  };
+  GrBackendRenderTarget renderTarget(width,
+                                     height,
+                                     sampleCnt,
+                                     stencilBits,
+                                     fboInfo);
+  SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
+  sk_sp<SkSurface> surface = SkSurfaces::WrapBackendRenderTarget(_skiaContext.get(),
+                                                                 renderTarget,
+                                                                 kBottomLeft_GrSurfaceOrigin,
+                                                                 kN32_SkColorType,
+                                                                 nullptr,
+                                                                 &props,
+                                                                 nullptr,
+                                                                 nullptr);
+  if (surface == nullptr) {
+    [[unlikely]];
+    throw std::runtime_error("Failed to create Skia Surface! Cannot wrap EGLSurface/FrameBuffer using Skia.");
+  }
+  return surface;
+}
 
+sk_sp<SkSurface> SkiaRenderer::getOffscreenSurface(int width, int height) {
+  if (_offscreenSurface == nullptr) {
+    // 1. Get Skia Context
+    auto skiaContext = getSkiaContext();
+
+    // 2. Create a backend texture (TEXTURE_2D + Frame Buffer)
+    GrBackendTexture backendTexture = skiaContext->createBackendTexture(width,
+                                                                        height,
+                                                                        SkColorType::kN32_SkColorType,
+                                                                        GrMipMapped::kNo,
+                                                                        GrRenderable::kYes);
+
+    // 3. Get it's Texture ID
+    GrGLTextureInfo info;
+    backendTexture.getGLTextureInfo(&info);
+    _offscreenSurfaceTextureId = info.fID;
+
+    struct ReleaseContext {
+      GrDirectContext* context;
+      GrBackendTexture texture;
+    };
+
+    SkSurfaces::TextureReleaseProc releaseProc = [] (void* address) {
+      auto releaseCtx = reinterpret_cast<ReleaseContext*>(address);
+      releaseCtx->context->deleteBackendTexture(releaseCtx->texture);
+    };
+
+    auto releaseCtx = new ReleaseContext(
+        {skiaContext.get(), backendTexture});
+
+    SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
+    _offscreenSurface = SkSurfaces::WrapBackendTexture(skiaContext.get(),
+                                                       backendTexture,
+                                                       kBottomLeft_GrSurfaceOrigin,
+                                                       0,
+                                                       SkColorType::kN32_SkColorType,
+                                                       nullptr,
+                                                       &props,
+                                                       releaseProc,
+                                                       releaseCtx);
+    if (_offscreenSurface == nullptr) {
+      [[unlikely]];
+      throw std::runtime_error("Failed to create offscreen Skia Surface!");
+    }
+  }
+
+  return _offscreenSurface;
+}
+
+OpenGLTexture SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture& texture) {
+  // 1. Activate the OpenGL context (eglMakeCurrent)
+  glContext.use();
+
+  // 2. Initialize Skia
+  sk_sp<GrDirectContext> skiaContext = getSkiaContext();
+
+  // 3. Create the offscreen Skia Surface
+  sk_sp<SkSurface> surface = getOffscreenSurface(texture.width, texture.height);
+
+  // 4. Wrap the input texture as an image so we can draw it to the surface
+  sk_sp<SkImage> frame = wrapTextureAsImage(texture);
+
+  // 5. Draw it!
   SkCanvas* canvas = _offscreenSurface->getCanvas();
+  if (canvas == nullptr) {
+    [[unlikely]];
+    throw std::runtime_error("Failed to get Skia Canvas!");
+  }
 
   canvas->clear(SkColors::kCyan);
 
@@ -125,6 +195,7 @@ OpenGLTexture SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture&
   paint.setColor(SkColors::kGreen);
   canvas->drawRect(rect, paint);
 
+  // 6. Flush all Skia operations to OpenGL
   _offscreenSurface->flushAndSubmit();
 
   return OpenGLTexture {
@@ -140,58 +211,13 @@ void SkiaRenderer::renderTextureToSurface(OpenGLContext &glContext, OpenGLTextur
   glContext.use(surface);
 
   // 2. Initialize Skia
-  auto skiaContext = getSkiaContext();
+  sk_sp<GrDirectContext> skiaContext = getSkiaContext();
 
   // 3. Wrap the output EGLSurface in a Skia SkSurface
-  GLint samples;
-  glGetIntegerv(GL_SAMPLES, &samples);
-  GLint stencil;
-  glGetIntegerv(GL_STENCIL_BITS, &stencil);
-  GrGLFramebufferInfo fboInfo {
-      .fFBOID = DEFAULT_FBO,
-      .fFormat = GR_GL_RGBA8
-  };
-  GrBackendRenderTarget renderTarget(texture.width,
-                                     texture.height,
-                                     samples,
-                                     stencil,
-                                     fboInfo);
-  SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-  sk_sp<SkSurface> skSurface = SkSurfaces::WrapBackendRenderTarget(_skiaContext.get(),
-                                                                   renderTarget,
-                                                                   kBottomLeft_GrSurfaceOrigin,
-                                                                   kN32_SkColorType,
-                                                                   nullptr,
-                                                                   &props,
-                                                                   nullptr,
-                                                                   nullptr);
-  if (skSurface == nullptr) {
-    [[unlikely]];
-    throw std::runtime_error("Failed to create Skia Surface! Cannot wrap EGLSurface/FBO0 using Skia.");
-  }
+  sk_sp<SkSurface> skSurface = wrapFrameBufferAsSurface(DEFAULT_FBO, texture.width, texture.height);
 
   // 4. Wrap the input texture in a Skia SkImage
-  GrGLTextureInfo textureInfo {
-      // OpenGL will automatically convert YUV -> RGB - if it's an EXTERNAL texture
-      .fTarget = texture.target,
-      .fID = texture.id,
-      .fFormat = GR_GL_RGBA8,
-  };
-  GrBackendTexture skiaTexture(texture.width,
-                               texture.height,
-                               GrMipMapped::kNo,
-                               textureInfo);
-  sk_sp<SkImage> frame = SkImages::BorrowTextureFrom(_skiaContext.get(),
-                                                     skiaTexture,
-                                                     kBottomLeft_GrSurfaceOrigin,
-                                                     kN32_SkColorType,
-                                                     kOpaque_SkAlphaType,
-                                                     nullptr,
-                                                     nullptr);
-  if (frame == nullptr) {
-    [[unlikely]];
-    throw std::runtime_error("Failed to create Skia Image! Cannot wrap input texture (frame) using Skia.");
-  }
+  sk_sp<SkImage> frame = wrapTextureAsImage(texture);
 
   // 5. Prepare the Canvas!
   SkCanvas* canvas = skSurface->getCanvas();

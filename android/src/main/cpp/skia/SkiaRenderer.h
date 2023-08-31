@@ -42,7 +42,7 @@ class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
   /**
    * Renders the given Texture (might be a Camera Frame) to a cached offscreen Texture using Skia.
    *
-   * @returns A reference to the texture that was rendered to.
+   * @returns The texture that was rendered to.
    */
   OpenGLTexture renderFrame(OpenGLContext& glContext, OpenGLTexture& texture);
 
@@ -52,7 +52,14 @@ class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
   void renderTextureToSurface(OpenGLContext& glContext, OpenGLTexture& texture, EGLSurface surface);
 
  private:
+  // Gets or creates the Skia context.
   sk_sp<GrDirectContext> getSkiaContext();
+  // Wraps a Texture as an SkImage allowing you to draw it
+  sk_sp<SkImage> wrapTextureAsImage(OpenGLTexture& texture);
+  // Wraps a Frame Buffer as an SkSurface allowing you to draw into it
+  sk_sp<SkSurface> wrapFrameBufferAsSurface(GLuint frameBufferId, int width, int height);
+  // Gets or creates an off-screen surface that you can draw into
+  sk_sp<SkSurface> getOffscreenSurface(int width, int height);
 
  private:
   // Skia Context
