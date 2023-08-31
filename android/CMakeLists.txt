@@ -102,6 +102,7 @@ if(ENABLE_FRAME_PROCESSORS)
                 PRIVATE
                 "${RNSKIA_PATH}/cpp/api/"
                 "${RNSKIA_PATH}/cpp/jsi/"
+                "${RNSKIA_PATH}/cpp/rnskia/"
                 "${RNSKIA_PATH}/cpp/skia"
                 "${RNSKIA_PATH}/cpp/skia/include/"
                 "${RNSKIA_PATH}/cpp/skia/include/config/"

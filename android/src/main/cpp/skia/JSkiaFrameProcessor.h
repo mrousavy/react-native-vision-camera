@@ -19,6 +19,8 @@
 #include "SkiaRenderer.h"
 #include "JFrameProcessor.h"
 
+#include <JsiSkCanvas.h>
+
 namespace vision {
 
 using namespace facebook;
@@ -29,24 +31,23 @@ class JSkiaFrameProcessor : public jni::HybridClass<JSkiaFrameProcessor, JFrameP
   static void registerNatives();
   static jni::local_ref<JSkiaFrameProcessor::javaobject> create(const std::shared_ptr<RNWorklet::JsiWorklet>& worklet,
                                                                 const std::shared_ptr<RNWorklet::JsiWorkletContext>& context,
-                                                                const std::shared_ptr<SkiaRenderer>& skiaRenderer);
+                                                                const std::shared_ptr<react::CallInvoker>& callInvoker);
  public:
   /**
-   * Call the JS Frame Processor with the given Skia context applied.
+   * Call the JS Frame Processor with the given valid Canvas to draw on.
    */
-  void call(alias_ref<JFrame::javaobject> frame);
+  void call(alias_ref<JFrame::javaobject> frame,
+            SkCanvas* canvas);
 
  protected:
   friend HybridBase;
   // Private constructor. Use `create(..)` to create new instances.
-  explicit JSkiaFrameProcessor(std::shared_ptr<RNWorklet::JsiWorklet> worklet,
-                               std::shared_ptr<RNWorklet::JsiWorkletContext> context,
-                               std::shared_ptr<SkiaRenderer> skiaRenderer);
+  explicit JSkiaFrameProcessor(const std::shared_ptr<RNWorklet::JsiWorklet>& worklet,
+                               const std::shared_ptr<RNWorklet::JsiWorkletContext>& context,
+                               const std::shared_ptr<react::CallInvoker>& callInvoker);
 
  private:
-  std::shared_ptr<RNWorklet::WorkletInvoker> _workletInvoker;
-  std::shared_ptr<RNWorklet::JsiWorkletContext> _workletContext;
-  std::shared_ptr<SkiaRenderer> _skiaRenderer;
+  std::shared_ptr<RNSkia::JsiSkCanvas> _jsiCanvas;
 };
 
 } // namespace vision

@@ -127,10 +127,10 @@ class VideoPipeline(val width: Int,
         }
 
         // 2. Configure OpenGL pipeline to stream Frames into the ImageReader's surface
-        setFrameProcessorOutputSurface(imageReader!!.surface)
+        setFrameProcessor(frameProcessor)
       } else {
         // 1. Configure OpenGL pipeline to stop streaming Frames into the ImageReader's surface
-        removeFrameProcessorOutputSurface()
+        removeFrameProcessor()
 
         // 2. Close the ImageReader
         this.imageReader?.close()
@@ -175,8 +175,8 @@ class VideoPipeline(val width: Int,
   private external fun getInputTextureId(): Int
   private external fun onBeforeFrame()
   private external fun onFrame(transformMatrix: FloatArray)
-  private external fun setFrameProcessorOutputSurface(surface: Any)
-  private external fun removeFrameProcessorOutputSurface()
+  private external fun setFrameProcessor(frameProcessor: FrameProcessor)
+  private external fun removeFrameProcessor()
   private external fun setRecordingSessionOutputSurface(surface: Any)
   private external fun removeRecordingSessionOutputSurface()
   private external fun setPreviewOutputSurface(surface: Any)
