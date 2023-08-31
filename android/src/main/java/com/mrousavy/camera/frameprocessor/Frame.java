@@ -1,12 +1,12 @@
 package com.mrousavy.camera.frameprocessor;
 
-import android.graphics.ImageFormat;
+import android.hardware.HardwareBuffer;
 import android.media.Image;
+import android.os.Build;
+
 import com.facebook.proguard.annotations.DoNotStrip;
 import com.mrousavy.camera.parsers.PixelFormat;
 import com.mrousavy.camera.parsers.Orientation;
-
-import java.nio.ByteBuffer;
 
 public class Frame {
     private final Image image;
@@ -89,35 +89,24 @@ public class Frame {
         return image.getPlanes()[0].getRowStride();
     }
 
-    private static ByteBuffer byteArrayCache;
+    public HardwareBuffer getHardwareBuffer() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            throw new RuntimeException("Frame Processors require API Level 28!");
+        }
+
+        HardwareBuffer buffer = image.getHardwareBuffer();
+        if (buffer == null) {
+            throw new RuntimeException("The Frame's Hardware Buffer was null!");
+        }
+        return buffer;
+    }
 
     @SuppressWarnings("unused")
     @DoNotStrip
-    public ByteBuffer toByteBuffer() {
-        switch (image.getFormat()) {
-            case ImageFormat.YUV_420_888:
-                ByteBuffer yBuffer = image.getPlanes()[0].getBuffer();
-                ByteBuffer uBuffer = image.getPlanes()[1].getBuffer();
-                ByteBuffer vBuffer = image.getPlanes()[2].getBuffer();
-                int ySize = yBuffer.remaining();
-                int uSize = uBuffer.remaining();
-                int vSize = vBuffer.remaining();
-                int totalSize = ySize + uSize + vSize;
-
-                if (byteArrayCache != null) byteArrayCache.rewind();
-                if (byteArrayCache == null || byteArrayCache.remaining() != totalSize) {
-                    byteArrayCache = ByteBuffer.allocateDirect(totalSize);
-                }
-
-                byteArrayCache.put(yBuffer).put(uBuffer).put(vBuffer);
-
-                return byteArrayCache;
-            case ImageFormat.JPEG:
-                return image.getPlanes()[0].getBuffer();
-            default:
-                throw new RuntimeException("Cannot convert Frame with Format " + image.getFormat() + " to byte array!");
-        }
+    private Object getHardwareBufferBoxed() {
+        return getHardwareBuffer();
     }
+
 
     @SuppressWarnings("unused")
     @DoNotStrip

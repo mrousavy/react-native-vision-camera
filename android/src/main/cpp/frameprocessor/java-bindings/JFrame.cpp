@@ -58,9 +58,10 @@ int JFrame::getBytesPerRow() const {
   return getBytesPerRowMethod(self());
 }
 
-local_ref<JByteBuffer> JFrame::toByteBuffer() const {
-  static const auto toByteBufferMethod = getClass()->getMethod<JByteBuffer()>("toByteBuffer");
-  return toByteBufferMethod(self());
+AHardwareBuffer* JFrame::getHardwareBuffer() {
+  static const auto getHardwareBufferMethod = getClass()->getMethod<jobject()>("getHardwareBufferBoxed");
+  auto boxed = getHardwareBufferMethod(self());
+  return AHardwareBuffer_fromHardwareBuffer(jni::Environment::current(), boxed.get());
 }
 
 void JFrame::incrementRefCount() {

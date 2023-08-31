@@ -67,7 +67,7 @@ void VideoPipeline::removePreviewOutputSurface() {
 }
 
 jni::local_ref<JFrame> VideoPipeline::createFrame() {
-  static const auto createFrameMethod = javaClassLocal()->getMethod<jni::alias_ref<JFrame>()>("createFrame");
+  static const auto createFrameMethod = javaClassLocal()->getMethod<JFrame()>("createFrame");
   return createFrameMethod(_javaPart);
 }
 
