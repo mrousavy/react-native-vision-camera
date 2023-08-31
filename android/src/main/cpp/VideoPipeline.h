@@ -13,7 +13,6 @@
 #include "OpenGLRenderer.h"
 #include "OpenGLContext.h"
 
-#include "SkiaRenderer.h"
 #include "OpenGLTexture.h"
 #include "JFrameProcessor.h"
 
@@ -70,7 +69,6 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
   std::shared_ptr<OpenGLContext> _context = nullptr;
   std::unique_ptr<OpenGLRenderer> _recordingSessionOutput = nullptr;
   std::unique_ptr<OpenGLRenderer> _previewOutput = nullptr;
-  std::shared_ptr<SkiaRenderer> _skiaRenderer = nullptr;
 
  private:
   friend HybridBase;

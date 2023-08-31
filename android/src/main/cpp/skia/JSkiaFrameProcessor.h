@@ -40,6 +40,8 @@ class JSkiaFrameProcessor : public jni::HybridClass<JSkiaFrameProcessor, JFrameP
   void call(alias_ref<JFrame::javaobject> frame,
             SkCanvas* canvas);
 
+  SkiaRenderer& getSkiaRenderer() { return *_skiaRenderer; }
+
  protected:
   friend HybridBase;
   // Private constructor. Use `create(..)` to create new instances.
@@ -49,6 +51,7 @@ class JSkiaFrameProcessor : public jni::HybridClass<JSkiaFrameProcessor, JFrameP
 
  private:
   std::shared_ptr<RNSkia::JsiSkCanvas> _jsiCanvas;
+  std::shared_ptr<SkiaRenderer> _skiaRenderer;
 };
 
 } // namespace vision

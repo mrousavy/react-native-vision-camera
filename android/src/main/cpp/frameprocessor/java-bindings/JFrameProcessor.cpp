@@ -17,9 +17,6 @@ using namespace facebook;
 using namespace jni;
 
 void JFrameProcessor::registerNatives() {
-  registerHybrid({
-    makeNativeMethod("call", JFrameProcessor::call)
-  });
 }
 
 using TSelf = jni::local_ref<JFrameProcessor::javaobject>;

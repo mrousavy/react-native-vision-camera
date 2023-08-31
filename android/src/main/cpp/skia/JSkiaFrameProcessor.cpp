@@ -34,6 +34,7 @@ JSkiaFrameProcessor::JSkiaFrameProcessor(const std::shared_ptr<RNWorklet::JsiWor
                                                                        callInvoker,
                                                                        1.0f);
   _jsiCanvas = std::make_shared<RNSkia::JsiSkCanvas>(skiaPlatformContext);
+  _skiaRenderer = std::make_shared<SkiaRenderer>();
 }
 
 TSelf JSkiaFrameProcessor::create(const std::shared_ptr<RNWorklet::JsiWorklet>& worklet,

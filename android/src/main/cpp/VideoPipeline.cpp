@@ -112,26 +112,29 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
   if (isSkiaFrameProcessor) {
     // 4.1. If we have a Skia Frame Processor, prepare to render to an offscreen surface using Skia
     auto skiaFrameProcessor = static_ref_cast<JSkiaFrameProcessor::javaobject>(_frameProcessor);
+    auto skiaRenderer = skiaFrameProcessor->cthis()->getSkiaRenderer();
     auto drawCallback = [=](SkCanvas* canvas) {
-      auto frame = createFrame();
-      skiaFrameProcessor->cthis()->call(frame, canvas);
+      auto rect = SkRect::MakeXYWH(150, 150, 300, 300);
+      SkPaint paint;
+      paint.setColor(0xff0000);
+      canvas->drawRect(rect, paint);
     };
 
     // 4.2. Render to the offscreen surface using Skia
     __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering using Skia..");
-    OpenGLTexture offscreenTexture = _skiaRenderer->renderTextureToOffscreenSurface(*_context,
-                                                                                    texture,
-                                                                                    transformMatrix,
-                                                                                    drawCallback);
+    OpenGLTexture offscreenTexture = skiaRenderer.renderTextureToOffscreenSurface(*_context,
+                                                                                  texture,
+                                                                                  transformMatrix,
+                                                                                  drawCallback);
 
     // 4.3. Now render the result of the offscreen surface to all output surfaces!
     if (_previewOutput) {
       __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Preview..");
-      _skiaRenderer->renderTextureToSurface(*_context, offscreenTexture, _previewOutput->getEGLSurface());
+      skiaRenderer.renderTextureToSurface(*_context, offscreenTexture, _previewOutput->getEGLSurface());
     }
     if (_recordingSessionOutput) {
       __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to RecordingSession..");
-      _skiaRenderer->renderTextureToSurface(*_context, offscreenTexture, _recordingSessionOutput->getEGLSurface());
+      skiaRenderer.renderTextureToSurface(*_context, offscreenTexture, _recordingSessionOutput->getEGLSurface());
     }
   } else {
     // 4.1. If we have a Frame Processor, call it
