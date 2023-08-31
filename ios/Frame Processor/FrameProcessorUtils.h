@@ -17,7 +17,11 @@
 #endif
 
 #import <jsi/jsi.h>
+#import <RNReanimated/WorkletRuntime.h>
+#import <RNReanimated/Shareables.h>
 
 using namespace facebook;
 
-FrameProcessorCallback convertJSIFunctionToFrameProcessorCallback(jsi::Runtime& runtime, const jsi::Function& value);
+FrameProcessorCallback convertReanimatedWorkletToFrameProcessorCallback(
+    const std::shared_ptr<reanimated::WorkletRuntime> &workletRuntime,
+    const std::shared_ptr<reanimated::ShareableWorklet> &shareableWorklet);

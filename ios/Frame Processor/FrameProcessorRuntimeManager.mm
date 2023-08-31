@@ -141,10 +141,7 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
       dispatch_async(CameraQueues.frameProcessorQueue, [=]() {
         NSLog(@"FrameProcessorBindings: Converting worklet to Objective-C callback...");
 
-        jsi::Runtime& rt = self->workletRuntime->getJSIRuntime();
-        auto function = worklet->getJSValue(rt).asObject(rt).asFunction(rt);
-
-        view.frameProcessorCallback = convertJSIFunctionToFrameProcessorCallback(rt, function);
+        view.frameProcessorCallback = convertReanimatedWorkletToFrameProcessorCallback(self->workletRuntime, worklet);
         
         NSLog(@"FrameProcessorBindings: Frame processor set!");
       });
