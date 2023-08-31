@@ -10,9 +10,9 @@ import type { PhotoFile, TakePhotoOptions } from './PhotoFile';
 import type { Point } from './Point';
 import type { TakeSnapshotOptions } from './Snapshot';
 import type { CameraVideoCodec, RecordVideoOptions, VideoFile } from './VideoFile';
-import { makeShareableCloneRecursive } from 'react-native-reanimated/src/reanimated2/shareables';
+import type { WorkletRuntime } from 'react-native-reanimated';
 import { createWorkletRuntime } from 'react-native-reanimated';
-import { WorkletRuntime } from 'react-native-reanimated/lib/typescript/reanimated2/runtimes';
+import { makeShareableCloneRecursive } from 'react-native-reanimated/src/reanimated2/shareables';
 
 //#region Types
 export type CameraPermissionStatus = 'authorized' | 'not-determined' | 'denied' | 'restricted';
