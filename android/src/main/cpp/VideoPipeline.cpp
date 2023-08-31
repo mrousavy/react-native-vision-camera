@@ -66,7 +66,7 @@ void VideoPipeline::removePreviewOutputSurface() {
   _previewOutput = nullptr;
 }
 
-jni::alias_ref<JFrame> VideoPipeline::createFrame() {
+jni::local_ref<JFrame> VideoPipeline::createFrame() {
   static const auto createFrameMethod = javaClassLocal()->getMethod<jni::alias_ref<JFrame>()>("createFrame");
   return createFrameMethod(_javaPart);
 }
@@ -111,13 +111,13 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
   auto isSkiaFrameProcessor = _frameProcessor != nullptr && _frameProcessor->isInstanceOf(JSkiaFrameProcessor::javaClassStatic());
   if (isSkiaFrameProcessor) {
     // 4.1. If we have a Skia Frame Processor, prepare to render to an offscreen surface using Skia
-    auto skiaFrameProcessor = static_ref_cast<JSkiaFrameProcessor::javaobject>(_frameProcessor);
-    auto skiaRenderer = skiaFrameProcessor->cthis()->getSkiaRenderer();
+    jni::global_ref<JSkiaFrameProcessor::javaobject> skiaFrameProcessor = static_ref_cast<JSkiaFrameProcessor::javaobject>(_frameProcessor);
+    SkiaRenderer& skiaRenderer = skiaFrameProcessor->cthis()->getSkiaRenderer();
     auto drawCallback = [=](SkCanvas* canvas) {
-      auto rect = SkRect::MakeXYWH(150, 150, 300, 300);
-      SkPaint paint;
-      paint.setColor(SkColors::kRed);
-      canvas->drawRect(rect, paint);
+      auto frame = createFrame();
+      frame->incrementRefCount();
+      skiaFrameProcessor->cthis()->call(frame, canvas);
+      frame->decrementRefCount();
     };
 
     // 4.2. Render to the offscreen surface using Skia
