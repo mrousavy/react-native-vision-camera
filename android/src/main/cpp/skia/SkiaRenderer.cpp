@@ -29,14 +29,6 @@
 
 namespace vision {
 
-jni::local_ref<SkiaRenderer::jhybriddata> SkiaRenderer::initHybrid(jni::alias_ref<jhybridobject> javaPart) {
-  return makeCxxInstance(javaPart);
-}
-
-SkiaRenderer::SkiaRenderer(const jni::alias_ref<jhybridobject>& javaPart) {
-  _javaPart = jni::make_global(javaPart);
-}
-
 SkiaRenderer::~SkiaRenderer() {
   _offscreenSurface = nullptr;
   _offscreenSurfaceTextureId = NO_TEXTURE;
@@ -163,7 +155,10 @@ sk_sp<SkSurface> SkiaRenderer::getOffscreenSurface(int width, int height) {
   return _offscreenSurface;
 }
 
-OpenGLTexture SkiaRenderer::renderTextureToOffscreenSurface(OpenGLContext& glContext, OpenGLTexture& texture, float* transformMatrix) {
+OpenGLTexture SkiaRenderer::renderTextureToOffscreenSurface(OpenGLContext& glContext,
+                                                            OpenGLTexture& texture,
+                                                            float* transformMatrix,
+                                                            const DrawCallback& drawCallback) {
   // 1. Activate the OpenGL context (eglMakeCurrent)
   glContext.use();
 
@@ -186,19 +181,11 @@ OpenGLTexture SkiaRenderer::renderTextureToOffscreenSurface(OpenGLContext& glCon
   // TODO: Apply Matrix. No idea how though.
   SkM44 matrix = SkM44::ColMajor(transformMatrix);
 
-
-
   // 6. Render it!
   canvas->clear(SkColors::kBlack);
   canvas->drawImage(frame, 0, 0);
 
-  // 7. Call JS Skia Frame Processor for additional drawing operations
-  auto duration = std::chrono::system_clock::now().time_since_epoch();
-  auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-  SkRect rect = SkRect::MakeXYWH(150, 250, millis % 3000 / 10, millis % 3000 / 10);
-  SkPaint paint;
-  paint.setColor(SkColors::kGreen);
-  canvas->drawRect(rect, paint);
+  drawCallback(canvas);
 
   // 8. Flush all Skia operations to OpenGL
   _offscreenSurface->flushAndSubmit();
@@ -240,12 +227,6 @@ void SkiaRenderer::renderTextureToSurface(OpenGLContext &glContext, OpenGLTextur
 
   // 8. Swap the buffers so the onscreen surface gets updated.
   glContext.flush();
-}
-
-void SkiaRenderer::registerNatives() {
-  registerHybrid({
-     makeNativeMethod("initHybrid", SkiaRenderer::initHybrid),
-  });
 }
 
 } // namespace vision

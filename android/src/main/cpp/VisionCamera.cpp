@@ -4,7 +4,7 @@
 #include "JFrameProcessor.h"
 #include "JVisionCameraProxy.h"
 #include "VisionCameraProxy.h"
-#include "SkiaRenderer.h"
+#include "JSkiaFrameProcessor.h"
 #include "VideoPipeline.h"
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *) {
@@ -17,7 +17,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *) {
     vision::JFrameProcessor::registerNatives();
 #endif
 #if VISION_CAMERA_ENABLE_SKIA
-    vision::SkiaRenderer::registerNatives();
+    vision::JSkiaFrameProcessor::registerNatives();
 #endif
   });
 }

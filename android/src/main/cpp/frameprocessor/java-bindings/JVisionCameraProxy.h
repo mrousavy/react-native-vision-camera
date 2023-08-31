@@ -36,11 +36,13 @@ class JVisionCameraProxy : public jni::HybridClass<JVisionCameraProxy> {
                                                                             jni::local_ref<JMap<jstring, jobject>> options);
 
   jsi::Runtime* getJSRuntime() { return _runtime; }
+  std::shared_ptr<react::CallInvoker> getCallInvoker() { return _callInvoker; }
 
  private:
   friend HybridBase;
   jni::global_ref<JVisionCameraProxy::javaobject> _javaPart;
   jsi::Runtime* _runtime;
+  std::shared_ptr<react::CallInvoker> _callInvoker;
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
   std::shared_ptr<RNWorklet::JsiWorkletContext> _workletContext;
 #endif

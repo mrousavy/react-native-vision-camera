@@ -222,8 +222,12 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const frameProcessor = useSkiaFrameProcessor((frame) => {
     'worklet';
 
+    const rect = Skia.XYWHRect(150, 150, 300, 300);
+    const paint = Skia.Paint();
+    paint.setColor(Skia.Color('red'));
+    frame.drawRect(rect, paint);
+
     console.log(frame.timestamp, frame.toString(), frame.pixelFormat);
-    examplePlugin(frame);
   }, []);
 
   return (

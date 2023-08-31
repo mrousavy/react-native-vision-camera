@@ -11,6 +11,8 @@
 #include <EGL/egl.h>
 
 #include "OpenGLTexture.h"
+#include "JFrameProcessor.h"
+#include "JSkiaFrameProcessor.h"
 
 namespace vision {
 
@@ -26,34 +28,23 @@ VideoPipeline::VideoPipeline(jni::alias_ref<jhybridobject> jThis, int width, int
 
 VideoPipeline::~VideoPipeline() {
   // 1. Remove output surfaces
-  removeFrameProcessorOutputSurface();
+  removeFrameProcessor();
   removeRecordingSessionOutputSurface();
   removePreviewOutputSurface();
   // 2. Delete the input textures
   if (_inputTexture != std::nullopt) {
     glDeleteTextures(1, &_inputTexture->id);
   }
-  // 3. Destroy all surfaces
-  _previewOutput = nullptr;
-  _frameProcessorOutput = nullptr;
-  _recordingSessionOutput = nullptr;
-  _skiaRenderer = nullptr;
-  // 4. Destroy the OpenGL context
+  // 3. Destroy the OpenGL context
   _context = nullptr;
 }
 
-void VideoPipeline::removeFrameProcessorOutputSurface() {
-  if (_frameProcessorOutput) _frameProcessorOutput->destroy();
-  _frameProcessorOutput = nullptr;
+void VideoPipeline::removeFrameProcessor() {
+  _frameProcessor = nullptr;
 }
 
-void VideoPipeline::setFrameProcessorOutputSurface(jobject surface) {
-  // 1. Delete existing output surface
-  removeFrameProcessorOutputSurface();
-
-  // 2. Set new output surface if it is not null
-  ANativeWindow* window = ANativeWindow_fromSurface(jni::Environment::current(), surface);
-  _frameProcessorOutput = OpenGLRenderer::CreateWithWindowSurface(_context, window);
+void VideoPipeline::setFrameProcessor(jni::alias_ref<JFrameProcessor::javaobject> frameProcessor) {
+  _frameProcessor = jni::make_global(frameProcessor);
 }
 
 void VideoPipeline::removeRecordingSessionOutputSurface() {
@@ -73,6 +64,11 @@ void VideoPipeline::setRecordingSessionOutputSurface(jobject surface) {
 void VideoPipeline::removePreviewOutputSurface() {
   if (_previewOutput) _previewOutput->destroy();
   _previewOutput = nullptr;
+}
+
+jni::local_ref<JFrame> VideoPipeline::createFrame() {
+  static const auto createFrameMethod = javaClassLocal()->getMethod<JFrame()>("createFrame");
+  return createFrameMethod(_javaPart);
 }
 
 void VideoPipeline::setPreviewOutputSurface(jobject surface) {
@@ -112,36 +108,48 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
   OpenGLTexture& texture = _inputTexture.value();
 
   // 4. Render to all outputs!
-  if (_skiaRenderer != nullptr) {
-    // 4.1. If we have a Skia Frame Processor, render Skia stuff
-    //      to a separate offscreen framebuffer which the outputs will then read from
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering using Skia..");
-    SkiaRenderer* skia = _skiaRenderer->cthis();
-    OpenGLTexture offscreenTexture = skia->renderTextureToOffscreenSurface(*_context, texture, transformMatrix);
+  auto isSkiaFrameProcessor = _frameProcessor != nullptr && _frameProcessor->isInstanceOf(JSkiaFrameProcessor::javaClassStatic());
+  if (isSkiaFrameProcessor) {
+    // 4.1. If we have a Skia Frame Processor, prepare to render to an offscreen surface using Skia
+    jni::global_ref<JSkiaFrameProcessor::javaobject> skiaFrameProcessor = static_ref_cast<JSkiaFrameProcessor::javaobject>(_frameProcessor);
+    SkiaRenderer& skiaRenderer = skiaFrameProcessor->cthis()->getSkiaRenderer();
+    auto drawCallback = [=](SkCanvas* canvas) {
+      auto frame = createFrame();
+      frame->incrementRefCount();
+      skiaFrameProcessor->cthis()->call(frame, canvas);
+      frame->decrementRefCount();
+    };
 
-    // 4.2. Now render to all output surfaces!
+    // 4.2. Render to the offscreen surface using Skia
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering using Skia..");
+    OpenGLTexture offscreenTexture = skiaRenderer.renderTextureToOffscreenSurface(*_context,
+                                                                                  texture,
+                                                                                  transformMatrix,
+                                                                                  drawCallback);
+
+    // 4.3. Now render the result of the offscreen surface to all output surfaces!
     if (_previewOutput) {
       __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Preview..");
-      skia->renderTextureToSurface(*_context, offscreenTexture, _previewOutput->getEGLSurface());
-    }
-    if (_frameProcessorOutput) {
-      __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to FrameProcessor..");
-      skia->renderTextureToSurface(*_context, offscreenTexture, _frameProcessorOutput->getEGLSurface());
+      skiaRenderer.renderTextureToSurface(*_context, offscreenTexture, _previewOutput->getEGLSurface());
     }
     if (_recordingSessionOutput) {
       __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to RecordingSession..");
-      skia->renderTextureToSurface(*_context, offscreenTexture, _recordingSessionOutput->getEGLSurface());
+      skiaRenderer.renderTextureToSurface(*_context, offscreenTexture, _recordingSessionOutput->getEGLSurface());
     }
   } else {
-    // 4.1. Simply pass-through shader to render the texture to all output EGLSurfaces
+    // 4.1. If we have a Frame Processor, call it
+    if (_frameProcessor != nullptr) {
+      auto frame = createFrame();
+      frame->incrementRefCount();
+      _frameProcessor->cthis()->call(frame);
+      frame->decrementRefCount();
+    }
+
+    // 4.2. Simply pass-through shader to render the texture to all output EGLSurfaces
     __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering using pass-through OpenGL Shader..");
     if (_previewOutput) {
       __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Preview..");
       _previewOutput->renderTextureToSurface(texture, transformMatrix);
-    }
-    if (_frameProcessorOutput) {
-      __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to FrameProcessor..");
-      _frameProcessorOutput->renderTextureToSurface(texture, transformMatrix);
     }
     if (_recordingSessionOutput) {
       __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to RecordingSession..");
@@ -150,28 +158,18 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
   }
 }
 
-void VideoPipeline::setSkiaRenderer(jni::alias_ref<SkiaRenderer::javaobject> skiaRenderer) {
-  this->_skiaRenderer = jni::make_global(skiaRenderer);
-}
-
-void VideoPipeline::removeSkiaRenderer() {
-  this->_skiaRenderer = nullptr;
-}
-
 void VideoPipeline::registerNatives() {
   registerHybrid({
     makeNativeMethod("initHybrid", VideoPipeline::initHybrid),
-    makeNativeMethod("setFrameProcessorOutputSurface", VideoPipeline::setFrameProcessorOutputSurface),
-    makeNativeMethod("removeFrameProcessorOutputSurface", VideoPipeline::removeFrameProcessorOutputSurface),
-    makeNativeMethod("setRecordingSessionOutputSurface", VideoPipeline::setRecordingSessionOutputSurface),
-    makeNativeMethod("removeRecordingSessionOutputSurface", VideoPipeline::removeRecordingSessionOutputSurface),
+    makeNativeMethod("getInputTextureId", VideoPipeline::getInputTextureId),
+    makeNativeMethod("setFrameProcessor", VideoPipeline::setFrameProcessor),
+    makeNativeMethod("removeFrameProcessor", VideoPipeline::removeFrameProcessor),
     makeNativeMethod("setPreviewOutputSurface", VideoPipeline::setPreviewOutputSurface),
     makeNativeMethod("removePreviewOutputSurface", VideoPipeline::removePreviewOutputSurface),
-    makeNativeMethod("getInputTextureId", VideoPipeline::getInputTextureId),
+    makeNativeMethod("setRecordingSessionOutputSurface", VideoPipeline::setRecordingSessionOutputSurface),
+    makeNativeMethod("removeRecordingSessionOutputSurface", VideoPipeline::removeRecordingSessionOutputSurface),
     makeNativeMethod("onBeforeFrame", VideoPipeline::onBeforeFrame),
     makeNativeMethod("onFrame", VideoPipeline::onFrame),
-    makeNativeMethod("setSkiaRenderer", VideoPipeline::setSkiaRenderer),
-    makeNativeMethod("removeSkiaRenderer", VideoPipeline::removeSkiaRenderer),
   });
 }
 
