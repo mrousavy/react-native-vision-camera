@@ -16,6 +16,17 @@ FrameFactory::FrameFactory(size_t frameWidth,
   _maxFrames = maxFrames;
 }
 
+FrameFactory::~FrameFactory() {
+  std::unique_lock lock(_mutex);
+  
+  for (size_t i = 0; i < _frames.size(); i++) {
+    auto frame = _frames.back();
+    if (frame.frame != nullptr) frame.frame->cthis()->close();
+    delete[] frame.buffer;
+    _frames.pop_back();
+  }
+}
+
 jni::local_ref<JFrame::javaobject> FrameFactory::createFrame() {
   std::unique_lock lock(_mutex);
 
@@ -32,7 +43,7 @@ jni::local_ref<JFrame::javaobject> FrameFactory::createFrame() {
   // 1. Get last Frame
   FrameWithBuffer lastFrame = _frames.back();
   // 2. Close the old frame that was in there, marking it invalid for further use
-  lastFrame.frame->cthis()->close();
+  if (lastFrame.frame != nullptr) lastFrame.frame->cthis()->close();
   // 3. Remove it from the Queue
   _frames.pop_back();
 

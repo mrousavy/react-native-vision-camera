@@ -22,6 +22,7 @@ class FrameFactory {
                size_t frameHeight,
                size_t bytesPerRow,
                size_t maxFrames = 3);
+  ~FrameFactory();
 
   jni::local_ref<JFrame::javaobject> createFrame();
 
