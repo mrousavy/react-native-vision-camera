@@ -115,7 +115,7 @@ sk_sp<SkSurface> SkiaRenderer::wrapEglSurfaceAsSurface(EGLSurface eglSurface) {
 }
 
 sk_sp<SkSurface> SkiaRenderer::getOffscreenSurface(int width, int height) {
-  if (_offscreenSurface == nullptr) {
+  if (_offscreenSurface == nullptr || _offscreenSurface->width() != width || _offscreenSurface->height() != height) {
     // 1. Get Skia Context
     sk_sp<GrDirectContext> skiaContext = getSkiaContext();
 
