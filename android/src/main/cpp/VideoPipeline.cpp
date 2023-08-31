@@ -12,6 +12,8 @@
 #include <EGL/eglext.h>
 #include <GLES/gl.h>
 
+#include <chrono>
+
 #include "OpenGLTexture.h"
 #include "JFrameProcessor.h"
 #include "JSkiaFrameProcessor.h"
@@ -115,7 +117,12 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
     SkiaRenderer& skiaRenderer = skiaFrameProcessor->cthis()->getSkiaRenderer();
     auto drawCallback = [=](SkCanvas* canvas) {
       // Create a JFrame instance (this uses queues/recycling)
-      auto frame = _frameFactory->createFrame();
+      auto frame = JFrame::create(texture.width,
+                                  texture.height,
+                                  texture.width * 4,
+                                  _context->getCurrentPresentationTime(),
+                                  "portrait",
+                                  false);
 
       // Fill the Frame with the contents of the GL surface
       _context->getPixelsOfTexture(texture,
@@ -148,7 +155,12 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
     // 4.1. If we have a Frame Processor, call it
     if (_frameProcessor != nullptr) {
       // Create a JFrame instance (this uses queues/recycling)
-      auto frame = _frameFactory->createFrame();
+      auto frame = JFrame::create(texture.width,
+                                  texture.height,
+                                  texture.width * 4,
+                                  _context->getCurrentPresentationTime(),
+                                  "portrait",
+                                  false);
 
       // Fill the Frame with the contents of the GL surface
       _context->getPixelsOfTexture(texture,

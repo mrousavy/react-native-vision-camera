@@ -10,6 +10,7 @@
 
 #include <android/native_window.h>
 #include <android/log.h>
+#include <chrono>
 
 #include "OpenGLError.h"
 
@@ -156,6 +157,13 @@ void OpenGLContext::getPixelsOfTexture(const OpenGLTexture& texture, size_t* out
   glReadPixels(0, 0, texture.width, texture.height, GL_RGBA, GL_UNSIGNED_BYTE, *outPixels);
   // height * width * components per pixel (4 for RGBA) * size of one number (byte)
   *outSize = texture.height * texture.width * 4 * sizeof(uint8_t);
+}
+
+long OpenGLContext::getCurrentPresentationTime() {
+  auto now = std::chrono::steady_clock::now();
+  auto duration = now.time_since_epoch();
+  long long milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+  return static_cast<long>(milliseconds);
 }
 
 } // namespace vision
