@@ -183,22 +183,14 @@ OpenGLTexture SkiaRenderer::renderTextureToOffscreenSurface(OpenGLContext& glCon
     throw std::runtime_error("Failed to get Skia Canvas!");
   }
 
-  SkM44 matrix(
-      transformMatrix[0], transformMatrix[4], transformMatrix[8], transformMatrix[12],
-      transformMatrix[1], transformMatrix[5], transformMatrix[9], transformMatrix[13],
-      transformMatrix[2], transformMatrix[6], transformMatrix[10], transformMatrix[14],
-      transformMatrix[3], transformMatrix[7], transformMatrix[11], transformMatrix[15]
-  );
-  auto prevMatrix = canvas->getLocalToDevice();
+  // TODO: Apply Matrix. No idea how though.
+  SkM44 matrix = SkM44::ColMajor(transformMatrix);
+
+
 
   // 6. Render it!
   canvas->clear(SkColors::kBlack);
-
-  canvas->setMatrix(matrix);
-
   canvas->drawImage(frame, 0, 0);
-
-  canvas->setMatrix(prevMatrix);
 
   // 7. Call JS Skia Frame Processor for additional drawing operations
   auto duration = std::chrono::system_clock::now().time_since_epoch();
