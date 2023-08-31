@@ -73,9 +73,6 @@ void PassThroughShader::draw(const OpenGLTexture& texture, float* transformMatri
 
   glUniformMatrix4fv(_vertexParameters.uTransformMatrix, 1, GL_FALSE, transformMatrix);
 
-  bool isT= glIsTexture(texture.id);
-  __android_log_print(ANDROID_LOG_INFO, "PassThroughshader", "Tex ID %i %b", texture.id, isT);
-
   // 4. Pass texture to fragment shader
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(texture.target, texture.id);

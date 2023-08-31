@@ -111,31 +111,42 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
   // 3. Prepare the texture we are going to render
   OpenGLTexture& texture = _inputTexture.value();
 
-  // 4. (Optional) If we have Skia, render to a separate offscreen framebuffer which the outputs will then read from
+  // 4. Render to all outputs!
   if (_skiaRenderer != nullptr) {
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Skia Context..");
-    auto skia = _skiaRenderer->cthis();
-    auto newTexture = skia->renderFrame(*_context, texture);
+    // 4.1. If we have a Skia Frame Processor, render Skia stuff
+    //      to a separate offscreen framebuffer which the outputs will then read from
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering using Skia..");
+    SkiaRenderer* skia = _skiaRenderer->cthis();
+    OpenGLTexture newTexture = skia->renderFrame(*_context, texture);
 
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendered from Texture #%i -> Texture #%i!", texture.id, newTexture.id);
-    texture = newTexture;
-  }
-
-  glBindTexture(texture.target, texture.id);
-  glBindFramebuffer(GL_FRAMEBUFFER, DEFAULT_FRAMEBUFFER);
-
-  // 5. Render to all outputs
-  if (_previewOutput) {
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Preview..");
-    _previewOutput->renderTextureToSurface(texture, transformMatrix);
-  }
-  if (_frameProcessorOutput) {
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to FrameProcessor..");
-    _frameProcessorOutput->renderTextureToSurface(texture, transformMatrix);
-  }
-  if (_recordingSessionOutput) {
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to RecordingSession..");
-    _recordingSessionOutput->renderTextureToSurface(texture, transformMatrix);
+    // 4.2. Now render to all output surfaces!
+    if (_previewOutput) {
+      __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Preview..");
+      skia->renderTextureToSurface(*_context, newTexture, _previewOutput->getEGLSurface());
+    }
+    if (_frameProcessorOutput) {
+      __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to FrameProcessor..");
+      skia->renderTextureToSurface(*_context, newTexture, _frameProcessorOutput->getEGLSurface());
+    }
+    if (_recordingSessionOutput) {
+      __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to RecordingSession..");
+      skia->renderTextureToSurface(*_context, newTexture, _recordingSessionOutput->getEGLSurface());
+    }
+  } else {
+    // 4.1. Simply pass-through shader to render the texture to all output EGLSurfaces
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering using pass-through OpenGL Shader..");
+    if (_previewOutput) {
+      __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Preview..");
+      _previewOutput->renderTextureToSurface(texture, transformMatrix);
+    }
+    if (_frameProcessorOutput) {
+      __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to FrameProcessor..");
+      _frameProcessorOutput->renderTextureToSurface(texture, transformMatrix);
+    }
+    if (_recordingSessionOutput) {
+      __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to RecordingSession..");
+      _recordingSessionOutput->renderTextureToSurface(texture, transformMatrix);
+    }
   }
 }
 

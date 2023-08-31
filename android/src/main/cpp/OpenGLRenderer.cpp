@@ -43,30 +43,33 @@ void OpenGLRenderer::destroy() {
   }
 }
 
-void OpenGLRenderer::renderTextureToSurface(const OpenGLTexture& texture, float* transformMatrix) {
+EGLSurface OpenGLRenderer::getEGLSurface() {
   if (_surface == EGL_NO_SURFACE) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Creating Window Surface...");
     _context->use();
     _surface = eglCreateWindowSurface(_context->display, _context->config, _outputSurface, nullptr);
   }
+  return _surface;
+}
 
-  // 1. Activate the OpenGL context for this surface
-  _context->use(_surface);
+void OpenGLRenderer::renderTextureToSurface(const OpenGLTexture& texture, float* transformMatrix) {
+  // 1. Get (or create) the OpenGL EGLSurface which is the window render target (Android Surface)
+  EGLSurface surface = getEGLSurface();
+
+  // 2. Activate the OpenGL context for this surface
+  _context->use(surface);
   OpenGLError::checkIfError("Failed to use context!");
 
-  // 2. Set the viewport for rendering
+  // 3. Set the viewport for rendering
   glViewport(0, 0, _width, _height);
   glDisable(GL_BLEND);
   glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
 
-  // 3. Bind the input texture
-  //glBindTexture(texture.type, texture.id);
-
-  // 4. Draw it using the pass-through shader which also applies transforms
+  // 4. Draw it using the pass-through shader which binds the texture and applies transforms
   _passThroughShader.draw(texture, transformMatrix);
 
-  // 5. Swap buffers to pass it to the window surface
+  // 5 Swap buffers to pass it to the window surface
   _context->flush();
   OpenGLError::checkIfError("Failed to render Frame to Surface!");
 }

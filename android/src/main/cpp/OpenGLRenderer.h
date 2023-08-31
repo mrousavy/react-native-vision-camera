@@ -39,6 +39,11 @@ class OpenGLRenderer {
    */
   void destroy();
 
+  /**
+   * Gets the EGLSurface (window surface) that this OpenGL renderer is configured to render to.
+   */
+  EGLSurface getEGLSurface();
+
  private:
   explicit OpenGLRenderer(std::shared_ptr<OpenGLContext> context, ANativeWindow* surface);
 
