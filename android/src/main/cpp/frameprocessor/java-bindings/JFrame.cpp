@@ -31,17 +31,13 @@ jni::local_ref<JFrame::javaobject> JFrame::create(int width,
                                                   int bytesPerRow,
                                                   long timestamp,
                                                   const std::string& orientation,
-                                                  bool isMirrored,
-                                                  uint8_t* pixels,
-                                                  size_t pixelsSize) {
+                                                  bool isMirrored) {
   return newObjectCxxArgs(width,
     height,
     bytesPerRow,
     timestamp,
     orientation,
-    isMirrored,
-    pixels,
-    pixelsSize);
+    isMirrored);
 }
 
 JFrame::JFrame(int width,
@@ -49,18 +45,16 @@ JFrame::JFrame(int width,
                int bytesPerRow,
                long timestamp,
                const std::string& orientation,
-               bool isMirrored,
-               uint8_t* pixels,
-               size_t pixelsSize) {
+               bool isMirrored) {
   _width = width;
   _height = height;
   _bytesPerRow = bytesPerRow;
   _timestamp = timestamp;
   _orientation = orientation;
   _isMirrored = isMirrored;
-  _refCount = 1;
-  this->pixels = pixels;
-  this->pixelsSize = pixelsSize;
+  _refCount = 0;
+  pixelsSize = height * bytesPerRow;
+  pixels = (uint8_t*) malloc(pixelsSize);
 }
 
 JFrame::~JFrame() noexcept {
@@ -94,6 +88,8 @@ void JFrame::decrementRefCount() {
 
 void JFrame::close() {
   _isClosed = true;
+  free(pixels);
+  pixels = nullptr;
 }
 
 } // namespace vision

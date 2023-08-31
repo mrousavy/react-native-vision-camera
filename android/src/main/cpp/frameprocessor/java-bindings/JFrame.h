@@ -24,9 +24,7 @@ class JFrame : public jni::HybridClass<JFrame> {
                                                    int bytesPerRow,
                                                    long timestamp,
                                                    const std::string& orientation,
-                                                   bool isMirrored,
-                                                   uint8_t* pixels,
-                                                   size_t pixelsSize);
+                                                   bool isMirrored);
 
   ~JFrame() noexcept;
 
@@ -37,9 +35,7 @@ class JFrame : public jni::HybridClass<JFrame> {
                   int bytesPerRow,
                   long timestamp,
                   const std::string& orientation,
-                  bool isMirrored,
-                  uint8_t* pixels,
-                  size_t pixelsSize);
+                  bool isMirrored);
 
  public:
   int getWidth() { return _width; }

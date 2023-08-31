@@ -28,17 +28,12 @@ FrameFactory::~FrameFactory() {
 }
 
 jni::local_ref<JFrame::javaobject> FrameFactory::createFrame() {
-  auto bufferSize = _frameHeight * _bytesPerRow;
-  auto buffer = (uint8_t*) malloc(bufferSize);
   return JFrame::create(_frameWidth,
                         _frameHeight,
                         _bytesPerRow,
                         0,
                         "portrait",
-                        false,
-                        buffer,
-                        bufferSize);
+                        false);
 }
-
 
 } // namespace vision
