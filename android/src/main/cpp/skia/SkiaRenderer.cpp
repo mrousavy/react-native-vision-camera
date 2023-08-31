@@ -68,7 +68,7 @@ sk_sp<SkImage> SkiaRenderer::wrapTextureAsImage(OpenGLTexture &texture) {
                                textureInfo);
   sk_sp<SkImage> image = SkImages::BorrowTextureFrom(_skiaContext.get(),
                                                      skiaTexture,
-                                                     kBottomLeft_GrSurfaceOrigin,
+                                                     kTopLeft_GrSurfaceOrigin,
                                                      kN32_SkColorType,
                                                      kOpaque_SkAlphaType,
                                                      nullptr,
@@ -97,7 +97,7 @@ sk_sp<SkSurface> SkiaRenderer::wrapFrameBufferAsSurface(GLuint frameBufferId, in
   SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
   sk_sp<SkSurface> surface = SkSurfaces::WrapBackendRenderTarget(_skiaContext.get(),
                                                                  renderTarget,
-                                                                 kBottomLeft_GrSurfaceOrigin,
+                                                                 kTopLeft_GrSurfaceOrigin,
                                                                  kN32_SkColorType,
                                                                  nullptr,
                                                                  &props,
@@ -143,7 +143,7 @@ sk_sp<SkSurface> SkiaRenderer::getOffscreenSurface(int width, int height) {
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
     _offscreenSurface = SkSurfaces::WrapBackendTexture(skiaContext.get(),
                                                        backendTexture,
-                                                       kBottomLeft_GrSurfaceOrigin,
+                                                       kTopLeft_GrSurfaceOrigin,
                                                        0,
                                                        SkColorType::kN32_SkColorType,
                                                        nullptr,
@@ -179,9 +179,22 @@ OpenGLTexture SkiaRenderer::renderTextureToOffscreenSurface(OpenGLContext& glCon
     throw std::runtime_error("Failed to get Skia Canvas!");
   }
 
+  SkM44 matrix(
+      transformMatrix[0], transformMatrix[4], transformMatrix[8], transformMatrix[12],
+      transformMatrix[1], transformMatrix[5], transformMatrix[9], transformMatrix[13],
+      transformMatrix[2], transformMatrix[6], transformMatrix[10], transformMatrix[14],
+      transformMatrix[3], transformMatrix[7], transformMatrix[11], transformMatrix[15]
+  );
+  auto prevMatrix = canvas->getLocalToDevice();
+
   // 6. Render it!
   canvas->clear(SkColors::kBlack);
+
+  canvas->setMatrix(matrix);
+
   canvas->drawImage(frame, 0, 0);
+
+  canvas->setMatrix(prevMatrix);
 
   // 7. Call JS Skia Frame Processor for additional drawing operations
   auto duration = std::chrono::system_clock::now().time_since_epoch();
