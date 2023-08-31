@@ -439,7 +439,7 @@ class CameraSession(private val context: Context,
     // Night/HDR Mode
     val sceneMode = if (hdr == true) CaptureRequest.CONTROL_SCENE_MODE_HDR else if (lowLightBoost == true) CaptureRequest.CONTROL_SCENE_MODE_NIGHT else null
     captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, sceneMode)
-    captureRequest.set(CaptureRequest.CONTROL_MODE, if (sceneMode != null) CaptureRequest.CONTROL_MODE_USE_SCENE_MODE else null)
+    captureRequest.set(CaptureRequest.CONTROL_MODE, if (sceneMode != null) CaptureRequest.CONTROL_MODE_USE_SCENE_MODE else CaptureRequest.CONTROL_MODE_AUTO)
 
     // Zoom
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
