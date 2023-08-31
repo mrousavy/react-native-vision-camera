@@ -29,14 +29,6 @@
 
 namespace vision {
 
-jni::local_ref<SkiaRenderer::jhybriddata> SkiaRenderer::initHybrid(jni::alias_ref<jhybridobject> javaPart) {
-  return makeCxxInstance(javaPart);
-}
-
-SkiaRenderer::SkiaRenderer(const jni::alias_ref<jhybridobject>& javaPart) {
-  _javaPart = jni::make_global(javaPart);
-}
-
 SkiaRenderer::~SkiaRenderer() {
   _offscreenSurface = nullptr;
   _offscreenSurfaceTextureId = NO_TEXTURE;
@@ -240,12 +232,6 @@ void SkiaRenderer::renderTextureToSurface(OpenGLContext &glContext, OpenGLTextur
 
   // 8. Swap the buffers so the onscreen surface gets updated.
   glContext.flush();
-}
-
-void SkiaRenderer::registerNatives() {
-  registerHybrid({
-     makeNativeMethod("initHybrid", SkiaRenderer::initHybrid),
-  });
 }
 
 } // namespace vision
