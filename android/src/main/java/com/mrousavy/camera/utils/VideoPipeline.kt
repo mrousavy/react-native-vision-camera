@@ -11,7 +11,6 @@ import com.facebook.jni.HybridData
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.parsers.Orientation
-import com.mrousavy.camera.skia.SkiaRenderer
 import java.io.Closeable
 
 /**
@@ -173,14 +172,6 @@ class VideoPipeline(val width: Int,
     }
   }
 
-  fun setSkia(skiaRenderer: SkiaRenderer?) {
-    if (skiaRenderer != null) {
-      setSkiaRenderer(skiaRenderer)
-    } else {
-      removeSkiaRenderer()
-    }
-  }
-
   private external fun getInputTextureId(): Int
   private external fun onBeforeFrame()
   private external fun onFrame(transformMatrix: FloatArray)
@@ -190,7 +181,5 @@ class VideoPipeline(val width: Int,
   private external fun removeRecordingSessionOutputSurface()
   private external fun setPreviewOutputSurface(surface: Any)
   private external fun removePreviewOutputSurface()
-  private external fun setSkiaRenderer(skiaRenderer: SkiaRenderer)
-  private external fun removeSkiaRenderer()
   private external fun initHybrid(width: Int, height: Int): HybridData
 }

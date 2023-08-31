@@ -37,6 +37,8 @@ add_library(
         src/main/cpp/frameprocessor/java-bindings/JVisionCameraScheduler.cpp
         # Skia Frame Processor
         src/main/cpp/skia/SkiaRenderer.cpp
+        src/main/cpp/skia/JSkiaFrameProcessor.cpp
+        src/main/cpp/skia/DrawableFrameHostObject.cpp
 )
 
 # Header Search Paths (includes)
@@ -48,6 +50,7 @@ target_include_directories(
         "src/main/cpp/frameprocessor"
         "src/main/cpp/frameprocessor/java-bindings"
         "src/main/cpp/skia"
+        "src/main/cpp/skia/java-bindings"
         "${NODE_MODULES_DIR}/react-native/ReactCommon"
         "${NODE_MODULES_DIR}/react-native/ReactCommon/callinvoker"
         "${NODE_MODULES_DIR}/react-native/ReactAndroid/src/main/jni/react/turbomodule" # <-- CallInvokerHolder JNI wrapper
@@ -97,16 +100,16 @@ if(ENABLE_FRAME_PROCESSORS)
         target_include_directories(
                 ${PACKAGE_NAME}
                 PRIVATE
+                "${RNSKIA_PATH}/cpp/api/"
+                "${RNSKIA_PATH}/cpp/jsi/"
                 "${RNSKIA_PATH}/cpp/skia"
+                "${RNSKIA_PATH}/cpp/skia/include/"
                 "${RNSKIA_PATH}/cpp/skia/include/config/"
                 "${RNSKIA_PATH}/cpp/skia/include/core/"
                 "${RNSKIA_PATH}/cpp/skia/include/effects/"
                 "${RNSKIA_PATH}/cpp/skia/include/utils/"
                 "${RNSKIA_PATH}/cpp/skia/include/pathops/"
                 "${RNSKIA_PATH}/cpp/skia/modules/"
-                # "${RNSKIA_PATH}/cpp/skia/modules/skparagraph/include/"
-                "${RNSKIA_PATH}/cpp/skia/include/"
-                "${RNSKIA_PATH}/cpp/skia"
         )
 
         target_link_libraries(

@@ -18,6 +18,10 @@
 #include <react-native-worklets-core/WKTJsiWorkletContext.h>
 #endif
 
+#if VISION_CAMERA_ENABLE_SKIA
+#include "JSkiaFrameProcessor.h"
+#endif
+
 namespace vision {
 
 using TSelf = local_ref<HybridClass<JVisionCameraProxy>::jhybriddata>;
