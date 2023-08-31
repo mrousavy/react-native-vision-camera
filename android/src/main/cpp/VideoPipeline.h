@@ -60,7 +60,6 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
 
   // (Optional) Frame Processor that processes frames before they go into output
   jni::global_ref<JFrameProcessor::javaobject> _frameProcessor = nullptr;
-  std::shared_ptr<FrameFactory> _frameFactory = nullptr;
 
   // Output Contexts
   std::shared_ptr<OpenGLContext> _context = nullptr;
