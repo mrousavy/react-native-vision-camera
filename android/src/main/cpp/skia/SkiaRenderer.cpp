@@ -116,7 +116,7 @@ sk_sp<SkSurface> SkiaRenderer::wrapFrameBufferAsSurface(GLuint frameBufferId, in
 sk_sp<SkSurface> SkiaRenderer::getOffscreenSurface(int width, int height) {
   if (_offscreenSurface == nullptr) {
     // 1. Get Skia Context
-    auto skiaContext = getSkiaContext();
+    sk_sp<GrDirectContext> skiaContext = getSkiaContext();
 
     // 2. Create a backend texture (TEXTURE_2D + Frame Buffer)
     GrBackendTexture backendTexture = skiaContext->createBackendTexture(width,
@@ -134,15 +134,15 @@ sk_sp<SkSurface> SkiaRenderer::getOffscreenSurface(int width, int height) {
       GrDirectContext* context;
       GrBackendTexture texture;
     };
-
+    auto releaseCtx = new ReleaseContext(
+        {skiaContext.get(), backendTexture});
     SkSurfaces::TextureReleaseProc releaseProc = [] (void* address) {
+      // 5. Once done using, delete the backend OpenGL texture.
       auto releaseCtx = reinterpret_cast<ReleaseContext*>(address);
       releaseCtx->context->deleteBackendTexture(releaseCtx->texture);
     };
 
-    auto releaseCtx = new ReleaseContext(
-        {skiaContext.get(), backendTexture});
-
+    // 4. Wrap the newly created texture as an SkSurface
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
     _offscreenSurface = SkSurfaces::WrapBackendTexture(skiaContext.get(),
                                                        backendTexture,
@@ -175,27 +175,26 @@ OpenGLTexture SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture&
   // 4. Wrap the input texture as an image so we can draw it to the surface
   sk_sp<SkImage> frame = wrapTextureAsImage(texture);
 
-  // 5. Draw it!
+  // 5. Prepare the Canvas
   SkCanvas* canvas = _offscreenSurface->getCanvas();
   if (canvas == nullptr) {
     [[unlikely]];
     throw std::runtime_error("Failed to get Skia Canvas!");
   }
 
-  canvas->clear(SkColors::kCyan);
-
-  auto duration = std::chrono::system_clock::now().time_since_epoch();
-  auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-
+  // 6. Render it!
+  canvas->clear(SkColors::kBlack);
   canvas->drawImage(frame, 0, 0);
 
-  // TODO: Run Skia Frame Processor
+  // 7. Call JS Skia Frame Processor for additional drawing operations
+  auto duration = std::chrono::system_clock::now().time_since_epoch();
+  auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
   SkRect rect = SkRect::MakeXYWH(150, 250, millis % 3000 / 10, millis % 3000 / 10);
   SkPaint paint;
   paint.setColor(SkColors::kGreen);
   canvas->drawRect(rect, paint);
 
-  // 6. Flush all Skia operations to OpenGL
+  // 8. Flush all Skia operations to OpenGL
   _offscreenSurface->flushAndSubmit();
 
   return OpenGLTexture {

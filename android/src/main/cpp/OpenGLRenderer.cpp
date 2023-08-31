@@ -63,7 +63,7 @@ void OpenGLRenderer::renderTextureToSurface(const OpenGLTexture& texture, float*
   // 3. Set the viewport for rendering
   glViewport(0, 0, _width, _height);
   glDisable(GL_BLEND);
-  glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
 
   // 4. Draw it using the pass-through shader which binds the texture and applies transforms
