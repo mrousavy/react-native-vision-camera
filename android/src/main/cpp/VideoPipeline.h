@@ -15,11 +15,8 @@
 
 #include "OpenGLTexture.h"
 #include "JFrameProcessor.h"
-#include "FrameFactory.h"
 
 namespace vision {
-
-#define DEFAULT_FRAMEBUFFER 0
 
 using namespace facebook;
 
