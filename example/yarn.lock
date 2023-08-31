@@ -5757,9 +5757,15 @@ react-native-pressable-opacity@^1.0.10:
   resolved "https://registry.yarnpkg.com/react-native-pressable-opacity/-/react-native-pressable-opacity-1.0.10.tgz#799df1a913d3b28f42ada765465fe7723eb7166d"
   integrity sha512-Py9YH9TlS3Lv1so5JCj6bgiqkeYYGupF4ZImlpoyhhId/t/RiSqR68LlASOHgdctqQuqVJObQiFfzX8oZI9+6w==
 
-"react-native-reanimated@link:../../react-native-reanimated":
-  version "0.0.0"
-  uid ""
+react-native-reanimated@^3.5.0-nightly-20230830-fda18504c:
+  version "3.5.0-nightly-20230830-fda18504c"
+  resolved "https://registry.yarnpkg.com/react-native-reanimated/-/react-native-reanimated-3.5.0-nightly-20230830-fda18504c.tgz#ecf237ef6d21fb47c09fda00115aad85a0c9683f"
+  integrity sha512-stuZbBGuruHmerplex9fqrcCycjr2lGNLzS+9PwsS/YL+iUvF4edSDEt7mWDuEsXcxCkATdKLCbKa3Ppby+zOg==
+  dependencies:
+    "@babel/plugin-transform-object-assign" "^7.16.7"
+    "@babel/preset-typescript" "^7.16.7"
+    convert-source-map "^2.0.0"
+    invariant "^2.2.4"
 
 react-native-safe-area-context@^4.5.3:
   version "4.7.1"

@@ -8250,9 +8250,15 @@ react-native-gradle-plugin@^0.71.19:
   resolved "https://registry.yarnpkg.com/react-native-gradle-plugin/-/react-native-gradle-plugin-0.71.19.tgz#3379e28341fcd189bc1f4691cefc84c1a4d7d232"
   integrity sha512-1dVk9NwhoyKHCSxcrM6vY6cxmojeATsBobDicX0ZKr7DgUF2cBQRTKsimQFvzH8XhOVXyH8p4HyDSZNIFI8OlQ==
 
-"react-native-reanimated@link:../react-native-reanimated":
-  version "0.0.0"
-  uid ""
+react-native-reanimated@^3.5.0-nightly-20230830-fda18504c:
+  version "3.5.0-nightly-20230830-fda18504c"
+  resolved "https://registry.yarnpkg.com/react-native-reanimated/-/react-native-reanimated-3.5.0-nightly-20230830-fda18504c.tgz#ecf237ef6d21fb47c09fda00115aad85a0c9683f"
+  integrity sha512-stuZbBGuruHmerplex9fqrcCycjr2lGNLzS+9PwsS/YL+iUvF4edSDEt7mWDuEsXcxCkATdKLCbKa3Ppby+zOg==
+  dependencies:
+    "@babel/plugin-transform-object-assign" "^7.16.7"
+    "@babel/preset-typescript" "^7.16.7"
+    convert-source-map "^2.0.0"
+    invariant "^2.2.4"
 
 react-native@^0.71.10:
   version "0.71.10"
