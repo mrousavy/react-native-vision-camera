@@ -140,7 +140,7 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
     return result;
   } else if (object->isInstanceOf(JFrame::javaClassStatic())) {
     // Frame
-    auto frame = static_ref_cast<JFrame>(object);
+    auto frame = static_ref_cast<JFrame::javaobject>(object);
 
     // box into HostObject
     auto hostObject = std::make_shared<FrameHostObject>(frame);
