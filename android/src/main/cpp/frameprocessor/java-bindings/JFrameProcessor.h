@@ -32,15 +32,13 @@ class JFrameProcessor : public jni::HybridClass<JFrameProcessor> {
   /**
    * Wrap the Frame in a HostObject and call the Frame Processor.
    */
-  void call(alias_ref<JFrame::javaobject> frame);
+  void call(jni::alias_ref<JFrame::javaobject> frame);
 
  protected:
   friend HybridBase;
   // C++ only constructor. Use `create(..)` to create new instances.
   explicit JFrameProcessor(std::shared_ptr<RNWorklet::JsiWorklet> worklet,
                            std::shared_ptr<RNWorklet::JsiWorkletContext> context);
-  JFrameProcessor(const JFrameProcessor &) = delete;
-  JFrameProcessor &operator=(const JFrameProcessor &) = delete;
 
  protected:
   /**

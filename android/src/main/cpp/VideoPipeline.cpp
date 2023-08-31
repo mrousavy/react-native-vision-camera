@@ -9,6 +9,8 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #include <EGL/egl.h>
+#include <EGL/eglext.h>
+#include <GLES/gl.h>
 
 #include "OpenGLTexture.h"
 #include "JFrameProcessor.h"
@@ -41,10 +43,13 @@ VideoPipeline::~VideoPipeline() {
 
 void VideoPipeline::removeFrameProcessor() {
   _frameProcessor = nullptr;
+  _frameFactory = nullptr;
 }
 
 void VideoPipeline::setFrameProcessor(jni::alias_ref<JFrameProcessor::javaobject> frameProcessor) {
   _frameProcessor = jni::make_global(frameProcessor);
+  size_t pixelSize = 4; // RGBA
+  _frameFactory = std::make_shared<FrameFactory>(_width, _height, _width * pixelSize);
 }
 
 void VideoPipeline::removeRecordingSessionOutputSurface() {
@@ -64,11 +69,6 @@ void VideoPipeline::setRecordingSessionOutputSurface(jobject surface) {
 void VideoPipeline::removePreviewOutputSurface() {
   if (_previewOutput) _previewOutput->destroy();
   _previewOutput = nullptr;
-}
-
-jni::local_ref<JFrame> VideoPipeline::createFrame() {
-  static const auto createFrameMethod = javaClassLocal()->getMethod<JFrame()>("createFrame");
-  return createFrameMethod(_javaPart);
 }
 
 void VideoPipeline::setPreviewOutputSurface(jobject surface) {
@@ -114,10 +114,15 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
     jni::global_ref<JSkiaFrameProcessor::javaobject> skiaFrameProcessor = static_ref_cast<JSkiaFrameProcessor::javaobject>(_frameProcessor);
     SkiaRenderer& skiaRenderer = skiaFrameProcessor->cthis()->getSkiaRenderer();
     auto drawCallback = [=](SkCanvas* canvas) {
-      auto frame = createFrame();
-      frame->incrementRefCount();
+      auto frame = _frameFactory->createFrame();
+
+      void* targetBuffer = frame->cthis()->pixels;
+      glGetTexImage(GL_TEXTURE_2D, texture.id, 0, GL_RGBA, GL_UNSIGNED_BYTE, &targetBuffer);
+      glGetTexImage
+
+      frame->cthis()->incrementRefCount();
       skiaFrameProcessor->cthis()->call(frame, canvas);
-      frame->decrementRefCount();
+      frame->cthis()->decrementRefCount();
     };
 
     // 4.2. Render to the offscreen surface using Skia
@@ -139,10 +144,10 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
   } else {
     // 4.1. If we have a Frame Processor, call it
     if (_frameProcessor != nullptr) {
-      auto frame = createFrame();
-      frame->incrementRefCount();
+      auto frame = _frameFactory->createFrame();
+      frame->cthis()->incrementRefCount();
       _frameProcessor->cthis()->call(frame);
-      frame->decrementRefCount();
+      frame->cthis()->decrementRefCount();
     }
 
     // 4.2. Simply pass-through shader to render the texture to all output EGLSurfaces

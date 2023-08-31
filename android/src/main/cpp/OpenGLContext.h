@@ -52,6 +52,11 @@ class OpenGLContext {
    */
   OpenGLTexture createTexture(OpenGLTexture::Type type, int width, int height);
 
+  /**
+   * Gets the pixels as CPU accessible memory of the given input texture
+   */
+  void getPixelsOfTexture(OpenGLTexture& texture, size_t* outSize, uint8_t** outPixels);
+
  public:
   EGLDisplay display = EGL_NO_DISPLAY;
   EGLContext context = EGL_NO_CONTEXT;

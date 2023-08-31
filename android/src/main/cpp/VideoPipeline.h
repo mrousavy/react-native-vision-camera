@@ -15,6 +15,7 @@
 
 #include "OpenGLTexture.h"
 #include "JFrameProcessor.h"
+#include "FrameFactory.h"
 
 namespace vision {
 
@@ -53,8 +54,6 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
  private:
   // Private constructor. Use `create(..)` to create new instances.
   explicit VideoPipeline(jni::alias_ref<jhybridobject> jThis, int width, int height);
-  // Creates a new Frame instance which should be filled with data.
-  jni::local_ref<JFrame> createFrame();
 
  private:
   // Input Surface Texture
@@ -64,6 +63,7 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
 
   // (Optional) Frame Processor that processes frames before they go into output
   jni::global_ref<JFrameProcessor::javaobject> _frameProcessor = nullptr;
+  std::shared_ptr<FrameFactory> _frameFactory = nullptr;
 
   // Output Contexts
   std::shared_ptr<OpenGLContext> _context = nullptr;

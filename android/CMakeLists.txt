@@ -12,7 +12,7 @@ find_package(ReactAndroid REQUIRED CONFIG)
 find_package(fbjni REQUIRED CONFIG)
 find_library(LOG_LIB log)
 
-add_definitions(-DVISION_CAMERA_ENABLE_FRAME_PROCESSORS=${ENABLE_FRAME_PROCESSORS} -DVISION_CAMERA_ENABLE_SKIA=${ENABLE_SKIA})
+add_definitions(-DVISION_CAMERA_ENABLE_FRAME_PROCESSORS=${ENABLE_FRAME_PROCESSORS} -DVISION_CAMERA_ENABLE_SKIA=${ENABLE_SKIA} -DEGL_EGLEXT_PROTOTYPES=1)
 
 
 # Add react-native-vision-camera sources
@@ -30,6 +30,7 @@ add_library(
         src/main/cpp/frameprocessor/FrameProcessorPluginHostObject.cpp
         src/main/cpp/frameprocessor/JSIJNIConversion.cpp
         src/main/cpp/frameprocessor/VisionCameraProxy.cpp
+        src/main/cpp/frameprocessor/FrameFactory.cpp
         src/main/cpp/frameprocessor/java-bindings/JFrame.cpp
         src/main/cpp/frameprocessor/java-bindings/JFrameProcessor.cpp
         src/main/cpp/frameprocessor/java-bindings/JFrameProcessorPlugin.cpp

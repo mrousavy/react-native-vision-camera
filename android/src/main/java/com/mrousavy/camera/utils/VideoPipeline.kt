@@ -7,9 +7,7 @@ import android.media.MediaRecorder
 import android.util.Log
 import android.view.Surface
 import com.facebook.jni.HybridData
-import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
-import com.mrousavy.camera.parsers.Orientation
 import java.io.Closeable
 
 /**
@@ -38,7 +36,6 @@ class VideoPipeline(val width: Int,
 
   // Processing input texture
   private var frameProcessor: FrameProcessor? = null
-  private var imageCreator: ImageCreator? = null
 
   // Output 1
   private var recordingSession: RecordingSession? = null
@@ -61,8 +58,6 @@ class VideoPipeline(val width: Int,
   override fun close() {
     synchronized(this) {
       isActive = false
-      imageCreator?.close()
-      imageCreator = null
       frameProcessor = null
       recordingSession = null
       surfaceTexture.release()
@@ -107,17 +102,11 @@ class VideoPipeline(val width: Int,
       this.frameProcessor = frameProcessor
 
       if (frameProcessor != null) {
-        // 1. Set up an image creator
-
-        // 2. Configure OpenGL pipeline to stream Frames into the ImageReader's surface
+        // Configure OpenGL pipeline to stream Frames into the Frame Processor (CPU pixel access)
         setFrameProcessor(frameProcessor)
       } else {
-        // 1. Configure OpenGL pipeline to stop streaming Frames into the ImageReader's surface
+        // Configure OpenGL pipeline to stop streaming Frames into a Frame Processor
         removeFrameProcessor()
-
-        // 2. Close the ImageReader
-        this.imageCreator?.close()
-        this.imageCreator = null
       }
     }
   }
@@ -153,16 +142,6 @@ class VideoPipeline(val width: Int,
         this.previewSurface = null
       }
     }
-  }
-
-  fun createFrame(): Frame {
-    if (imageCreator == null) {
-      imageCreator = ImageCreator(width, height, format, MAX_IMAGES)
-    }
-    val image = imageCreator!!.createImage()
-    // TODO: Get correct timestamp/orientation/isMirrored
-    val frame = Frame(image, System.currentTimeMillis(), Orientation.PORTRAIT, false)
-    return frame
   }
 
   private external fun getInputTextureId(): Int
