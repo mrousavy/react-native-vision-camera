@@ -45,13 +45,10 @@ VideoPipeline::~VideoPipeline() {
 
 void VideoPipeline::removeFrameProcessor() {
   _frameProcessor = nullptr;
-  _frameFactory = nullptr;
 }
 
 void VideoPipeline::setFrameProcessor(jni::alias_ref<JFrameProcessor::javaobject> frameProcessor) {
   _frameProcessor = jni::make_global(frameProcessor);
-  size_t pixelSize = 4; // RGBA
-  _frameFactory = std::make_shared<FrameFactory>(_width, _height, _width * pixelSize);
 }
 
 void VideoPipeline::removeRecordingSessionOutputSurface() {
