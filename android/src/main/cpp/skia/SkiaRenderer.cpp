@@ -159,7 +159,7 @@ sk_sp<SkSurface> SkiaRenderer::getOffscreenSurface(int width, int height) {
   return _offscreenSurface;
 }
 
-OpenGLTexture SkiaRenderer::renderFrame(OpenGLContext& glContext, OpenGLTexture& texture) {
+OpenGLTexture SkiaRenderer::renderTextureToOffscreenSurface(OpenGLContext& glContext, OpenGLTexture& texture, float* transformMatrix) {
   // 1. Activate the OpenGL context (eglMakeCurrent)
   glContext.use();
 

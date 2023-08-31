@@ -44,7 +44,7 @@ class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
    *
    * @returns The texture that was rendered to.
    */
-  OpenGLTexture renderFrame(OpenGLContext& glContext, OpenGLTexture& texture);
+  OpenGLTexture renderTextureToOffscreenSurface(OpenGLContext& glContext, OpenGLTexture& texture, float* transformMatrix);
 
   /**
    * Renders the given texture to the target output surface using Skia.

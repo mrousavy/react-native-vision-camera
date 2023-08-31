@@ -117,20 +117,20 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
     //      to a separate offscreen framebuffer which the outputs will then read from
     __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering using Skia..");
     SkiaRenderer* skia = _skiaRenderer->cthis();
-    OpenGLTexture newTexture = skia->renderFrame(*_context, texture);
+    OpenGLTexture offscreenTexture = skia->renderTextureToOffscreenSurface(*_context, texture, transformMatrix);
 
     // 4.2. Now render to all output surfaces!
     if (_previewOutput) {
       __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Preview..");
-      skia->renderTextureToSurface(*_context, newTexture, _previewOutput->getEGLSurface());
+      skia->renderTextureToSurface(*_context, offscreenTexture, _previewOutput->getEGLSurface());
     }
     if (_frameProcessorOutput) {
       __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to FrameProcessor..");
-      skia->renderTextureToSurface(*_context, newTexture, _frameProcessorOutput->getEGLSurface());
+      skia->renderTextureToSurface(*_context, offscreenTexture, _frameProcessorOutput->getEGLSurface());
     }
     if (_recordingSessionOutput) {
       __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to RecordingSession..");
-      skia->renderTextureToSurface(*_context, newTexture, _recordingSessionOutput->getEGLSurface());
+      skia->renderTextureToSurface(*_context, offscreenTexture, _recordingSessionOutput->getEGLSurface());
     }
   } else {
     // 4.1. Simply pass-through shader to render the texture to all output EGLSurfaces

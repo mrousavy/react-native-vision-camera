@@ -39,15 +39,15 @@ using namespace facebook;
 }
 
 - (void)call:(Frame*)frame {
-  [_skiaRenderer renderCameraFrameToOffscreenCanvas:frame.buffer
+  [_skiaRenderer renderCameraFrameToOffscreenSurface:frame.buffer
                                    withDrawCallback:^(SkiaCanvas _Nonnull canvas) {
     // Create the Frame Host Object wrapping the internal Frame and Skia Canvas
     self->_skiaCanvas->setCanvas(static_cast<SkCanvas*>(canvas));
     auto frameHostObject = std::make_shared<DrawableFrameHostObject>(frame, self->_skiaCanvas);
-    
+
     // Call JS Frame Processor
     [self callWithFrameHostObject:frameHostObject];
-    
+
     // Remove Skia Canvas from Host Object because it is no longer valid
     frameHostObject->invalidateCanvas();
   }];

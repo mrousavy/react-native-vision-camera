@@ -30,7 +30,7 @@ typedef void(^draw_callback_t)(SkiaCanvas _Nonnull);
  The given callback will be executed with a reference to the Skia Canvas
  for the user to perform draw operations on (in this case, through a JS Frame Processor)
  */
-- (void)renderCameraFrameToOffscreenCanvas:(CMSampleBufferRef _Nonnull)sampleBuffer withDrawCallback:(draw_callback_t _Nonnull)callback;
+- (void)renderCameraFrameToOffscreenSurface:(CMSampleBufferRef _Nonnull)sampleBuffer withDrawCallback:(draw_callback_t _Nonnull)callback;
 /**
  Renders the latest Frame to the onscreen Layer.
  This should be called everytime you want the UI to update, e.g. for 60 FPS; every 16.66ms.
