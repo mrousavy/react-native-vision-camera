@@ -55,7 +55,7 @@ class OpenGLContext {
   /**
    * Gets the pixels as CPU accessible memory of the given input texture
    */
-  void getPixelsOfTexture(OpenGLTexture& texture, size_t* outSize, uint8_t** outPixels);
+  void getPixelsOfTexture(const OpenGLTexture& texture, size_t* outSize, uint8_t** outPixels);
 
  public:
   EGLDisplay display = EGL_NO_DISPLAY;

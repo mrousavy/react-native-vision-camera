@@ -114,12 +114,15 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
     jni::global_ref<JSkiaFrameProcessor::javaobject> skiaFrameProcessor = jni::static_ref_cast<JSkiaFrameProcessor::javaobject>(_frameProcessor);
     SkiaRenderer& skiaRenderer = skiaFrameProcessor->cthis()->getSkiaRenderer();
     auto drawCallback = [=](SkCanvas* canvas) {
+      // Create a JFrame instance (this uses queues/recycling)
       auto frame = _frameFactory->createFrame();
 
-      void* targetBuffer = frame->cthis()->pixels;
-      // TODO: Check if this actually works.
-      glReadPixels(0, 0, _width, _height, GL_RGBA, GL_UNSIGNED_BYTE, targetBuffer);
+      // Fill the Frame with the contents of the GL surface
+      _context->getPixelsOfTexture(texture,
+                                   &frame->cthis()->pixelsSize,
+                                   &frame->cthis()->pixels);
 
+      // Call the Frame processor with the Frame
       frame->cthis()->incrementRefCount();
       skiaFrameProcessor->cthis()->call(frame, canvas);
       frame->cthis()->decrementRefCount();
@@ -144,11 +147,15 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
   } else {
     // 4.1. If we have a Frame Processor, call it
     if (_frameProcessor != nullptr) {
+      // Create a JFrame instance (this uses queues/recycling)
       auto frame = _frameFactory->createFrame();
-      void* targetBuffer = frame->cthis()->pixels;
-      // TODO: Check if this actually works.
-      glReadPixels(0, 0, _width, _height, GL_RGBA, GL_UNSIGNED_BYTE, targetBuffer);
 
+      // Fill the Frame with the contents of the GL surface
+      _context->getPixelsOfTexture(texture,
+                                   &frame->cthis()->pixelsSize,
+                                   &frame->cthis()->pixels);
+
+      // Call the Frame processor with the Frame
       frame->cthis()->incrementRefCount();
       _frameProcessor->cthis()->call(frame);
       frame->cthis()->decrementRefCount();

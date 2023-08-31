@@ -150,4 +150,12 @@ OpenGLTexture OpenGLContext::createTexture(OpenGLTexture::Type type, int width, 
   };
 }
 
+void OpenGLContext::getPixelsOfTexture(const OpenGLTexture& texture, size_t* outSize, uint8_t** outPixels) {
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(texture.target, texture.id);
+  glReadPixels(0, 0, texture.width, texture.height, GL_RGBA, GL_UNSIGNED_BYTE, *outPixels);
+  // height * width * components per pixel (4 for RGBA) * size of one number (byte)
+  *outSize = texture.height * texture.width * 4 * sizeof(uint8_t);
+}
+
 } // namespace vision
