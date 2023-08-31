@@ -50,10 +50,7 @@ SkiaRenderer::~SkiaRenderer() {
 
 sk_sp<GrDirectContext> SkiaRenderer::getSkiaContext() {
   if (_skiaContext == nullptr) {
-    GrContextOptions options;
-    // TODO: Set this to true or not? idk
-    options.fDisableGpuYUVConversion = false;
-    _skiaContext = GrDirectContext::MakeGL(options);
+    _skiaContext = GrDirectContext::MakeGL();
   }
   return _skiaContext;
 }
