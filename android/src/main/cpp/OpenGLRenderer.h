@@ -7,6 +7,7 @@
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
 #include <android/native_window.h>
+#include <android/hardware_buffer.h>
 #include <memory>
 #include "PassThroughShader.h"
 
@@ -22,7 +23,8 @@ class OpenGLRenderer {
    *
    * Note: The `surface` is considered moved, and the OpenGL context will release it when it is being deleted.
    */
-  static std::unique_ptr<OpenGLRenderer> CreateWithWindowSurface(std::shared_ptr<OpenGLContext> context, ANativeWindow* surface);
+  static std::unique_ptr<OpenGLRenderer> CreateWithWindowSurface(std::shared_ptr<OpenGLContext> context,
+                                                                 ANativeWindow* surface);
   /**
    * Destroy the OpenGL Context. This needs to be called on the same thread that `use()` was called.
    */
@@ -31,7 +33,15 @@ class OpenGLRenderer {
   /**
    * Renders the given Texture to the Surface
    */
-  void renderTextureToSurface(const OpenGLTexture& texture, float* transformMatrix);
+  void renderTextureToSurface(const OpenGLTexture& texture,
+                              float* transformMatrix);
+
+  /**
+   * Renders the given Texture to the given AHardwareBuffer.
+   */
+  void renderTextureToHardwareBuffer(const OpenGLTexture& texture,
+                                     AHardwareBuffer* hardwareBuffer,
+                                     float* transformMatrix);
 
   /**
    * Destroys the OpenGL context. This needs to be called on the same thread that `use()` was called.
@@ -45,7 +55,8 @@ class OpenGLRenderer {
   EGLSurface getEGLSurface();
 
  private:
-  explicit OpenGLRenderer(std::shared_ptr<OpenGLContext> context, ANativeWindow* surface);
+  explicit OpenGLRenderer(std::shared_ptr<OpenGLContext> context,
+                          ANativeWindow* surface);
 
  private:
   int _width = 0, _height = 0;
