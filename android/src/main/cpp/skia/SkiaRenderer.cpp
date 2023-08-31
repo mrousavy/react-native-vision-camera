@@ -68,7 +68,7 @@ sk_sp<SkImage> SkiaRenderer::wrapTextureAsImage(OpenGLTexture &texture) {
                                textureInfo);
   sk_sp<SkImage> image = SkImages::BorrowTextureFrom(_skiaContext.get(),
                                                      skiaTexture,
-                                                     kTopLeft_GrSurfaceOrigin,
+                                                     kBottomLeft_GrSurfaceOrigin,
                                                      kN32_SkColorType,
                                                      kOpaque_SkAlphaType,
                                                      nullptr,
@@ -97,7 +97,7 @@ sk_sp<SkSurface> SkiaRenderer::wrapFrameBufferAsSurface(GLuint frameBufferId, in
   SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
   sk_sp<SkSurface> surface = SkSurfaces::WrapBackendRenderTarget(_skiaContext.get(),
                                                                  renderTarget,
-                                                                 kTopLeft_GrSurfaceOrigin,
+                                                                 kBottomLeft_GrSurfaceOrigin,
                                                                  kN32_SkColorType,
                                                                  nullptr,
                                                                  &props,
@@ -143,7 +143,7 @@ sk_sp<SkSurface> SkiaRenderer::getOffscreenSurface(int width, int height) {
     SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
     _offscreenSurface = SkSurfaces::WrapBackendTexture(skiaContext.get(),
                                                        backendTexture,
-                                                       kTopLeft_GrSurfaceOrigin,
+                                                       kBottomLeft_GrSurfaceOrigin,
                                                        0,
                                                        SkColorType::kN32_SkColorType,
                                                        nullptr,
