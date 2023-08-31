@@ -111,14 +111,14 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
   auto isSkiaFrameProcessor = _frameProcessor != nullptr && _frameProcessor->isInstanceOf(JSkiaFrameProcessor::javaClassStatic());
   if (isSkiaFrameProcessor) {
     // 4.1. If we have a Skia Frame Processor, prepare to render to an offscreen surface using Skia
-    jni::global_ref<JSkiaFrameProcessor::javaobject> skiaFrameProcessor = static_ref_cast<JSkiaFrameProcessor::javaobject>(_frameProcessor);
+    jni::global_ref<JSkiaFrameProcessor::javaobject> skiaFrameProcessor = jni::static_ref_cast<JSkiaFrameProcessor::javaobject>(_frameProcessor);
     SkiaRenderer& skiaRenderer = skiaFrameProcessor->cthis()->getSkiaRenderer();
     auto drawCallback = [=](SkCanvas* canvas) {
       auto frame = _frameFactory->createFrame();
 
       void* targetBuffer = frame->cthis()->pixels;
-      glGetTexImage(GL_TEXTURE_2D, texture.id, 0, GL_RGBA, GL_UNSIGNED_BYTE, &targetBuffer);
-      glGetTexImage
+      // TODO: Check if this actually works.
+      glReadPixels(0, 0, _width, _height, GL_RGBA, GL_UNSIGNED_BYTE, targetBuffer);
 
       frame->cthis()->incrementRefCount();
       skiaFrameProcessor->cthis()->call(frame, canvas);
@@ -145,6 +145,10 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
     // 4.1. If we have a Frame Processor, call it
     if (_frameProcessor != nullptr) {
       auto frame = _frameFactory->createFrame();
+      void* targetBuffer = frame->cthis()->pixels;
+      // TODO: Check if this actually works.
+      glReadPixels(0, 0, _width, _height, GL_RGBA, GL_UNSIGNED_BYTE, targetBuffer);
+
       frame->cthis()->incrementRefCount();
       _frameProcessor->cthis()->call(frame);
       frame->cthis()->decrementRefCount();
