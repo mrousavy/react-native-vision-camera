@@ -13,8 +13,7 @@
 #include "DrawableFrameHostObject.h"
 
 #include <RNSkPlatformContext.h>
-#include <RNSkAndroidPlatformContext.h>
-#include <JniPlatformContext.h>
+#include "VisionCameraSkiaContext.h"
 
 namespace vision {
 
@@ -30,12 +29,11 @@ JSkiaFrameProcessor::JSkiaFrameProcessor(const std::shared_ptr<RNWorklet::JsiWor
                                          const std::shared_ptr<RNWorklet::JsiWorkletContext>& context,
                                          const std::shared_ptr<react::CallInvoker>& callInvoker)
                                          : JSkiaFrameProcessor::HybridBase(worklet, context) {
-  // TODO: Pass correct JNI platform context
-  //auto platformContext = std::make_shared<RNSkia::RNSkAndroidPlatformContext>(nullptr,
-  //                                                                            context->getJsRuntime(),
-  //                                                                            callInvoker);
-  // TODO: Can I pass a nullptr as context here?
-  _jsiCanvas = std::make_shared<RNSkia::JsiSkCanvas>(nullptr);
+  // TODO: Can I use the Android Platform Context from react-native-skia here?
+  auto skiaPlatformContext = std::make_shared<VisionCameraSkiaContext>(context->getJsRuntime(),
+                                                                       callInvoker,
+                                                                       1.0f);
+  _jsiCanvas = std::make_shared<RNSkia::JsiSkCanvas>(skiaPlatformContext);
 }
 
 TSelf JSkiaFrameProcessor::create(const std::shared_ptr<RNWorklet::JsiWorklet>& worklet,

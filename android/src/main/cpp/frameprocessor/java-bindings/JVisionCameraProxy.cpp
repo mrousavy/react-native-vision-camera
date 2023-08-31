@@ -35,6 +35,7 @@ JVisionCameraProxy::JVisionCameraProxy(const jni::alias_ref<JVisionCameraProxy::
                                        const jni::global_ref<JVisionCameraScheduler::javaobject>& scheduler) {
   _javaPart = make_global(javaThis);
   _runtime = runtime;
+  _callInvoker = callInvoker;
 
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
   __android_log_write(ANDROID_LOG_INFO, TAG, "Creating Worklet Context...");

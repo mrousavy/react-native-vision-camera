@@ -2,7 +2,6 @@ package com.mrousavy.camera.utils
 
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
-import android.media.ImageReader
 import android.media.ImageWriter
 import android.media.MediaRecorder
 import android.util.Log
@@ -26,23 +25,25 @@ class VideoPipeline(val width: Int,
                     val height: Int,
                     val format: Int = ImageFormat.PRIVATE): SurfaceTexture.OnFrameAvailableListener, Closeable {
   companion object {
-    private const val MAX_IMAGES = 5
+    private const val MAX_IMAGES = 3
     private const val TAG = "VideoPipeline"
   }
 
   private val mHybridData: HybridData
-  private var openGLTextureId: Int? = null
-  private var transformMatrix = FloatArray(16)
   private var isActive = true
 
-  // Output 1
-  private var frameProcessor: FrameProcessor? = null
-  private var imageReader: ImageReader? = null
+  // Input Texture
+  private var openGLTextureId: Int? = null
+  private var transformMatrix = FloatArray(16)
 
-  // Output 2
+  // Processing input texture
+  private var frameProcessor: FrameProcessor? = null
+  private var imageCreator: ImageCreator? = null
+
+  // Output 1
   private var recordingSession: RecordingSession? = null
 
-  // Output 3
+  // Output 2
   private var previewSurface: Surface? = null
 
   // Input
@@ -60,8 +61,8 @@ class VideoPipeline(val width: Int,
   override fun close() {
     synchronized(this) {
       isActive = false
-      imageReader?.close()
-      imageReader = null
+      imageCreator?.close()
+      imageCreator = null
       frameProcessor = null
       recordingSession = null
       surfaceTexture.release()
@@ -94,21 +95,6 @@ class VideoPipeline(val width: Int,
     }
   }
 
-  private fun getImageReader(): ImageReader {
-    val imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES)
-    imageReader.setOnImageAvailableListener({ reader ->
-      Log.i("VideoPipeline", "ImageReader::onImageAvailable!")
-      val image = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
-
-      // TODO: Get correct orientation and isMirrored
-      val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, false)
-      frame.incrementRefCount()
-      frameProcessor?.call(frame)
-      frame.decrementRefCount()
-    }, null)
-    return imageReader
-  }
-
   /**
    * Configures the Pipeline to also call the given [FrameProcessor].
    * * If the [frameProcessor] is `null`, this output channel will be removed.
@@ -121,10 +107,7 @@ class VideoPipeline(val width: Int,
       this.frameProcessor = frameProcessor
 
       if (frameProcessor != null) {
-        if (this.imageReader == null) {
-          // 1. Create new ImageReader that just calls the Frame Processor
-          this.imageReader = getImageReader()
-        }
+        // 1. Set up an image creator
 
         // 2. Configure OpenGL pipeline to stream Frames into the ImageReader's surface
         setFrameProcessor(frameProcessor)
@@ -133,8 +116,8 @@ class VideoPipeline(val width: Int,
         removeFrameProcessor()
 
         // 2. Close the ImageReader
-        this.imageReader?.close()
-        this.imageReader = null
+        this.imageCreator?.close()
+        this.imageCreator = null
       }
     }
   }
@@ -170,6 +153,16 @@ class VideoPipeline(val width: Int,
         this.previewSurface = null
       }
     }
+  }
+
+  fun createFrame(): Frame {
+    if (imageCreator == null) {
+      imageCreator = ImageCreator(width, height, format, MAX_IMAGES)
+    }
+    val image = imageCreator!!.createImage()
+    // TODO: Get correct timestamp/orientation/isMirrored
+    val frame = Frame(image, System.currentTimeMillis(), Orientation.PORTRAIT, false)
+    return frame
   }
 
   private external fun getInputTextureId(): Int

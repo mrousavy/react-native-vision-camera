@@ -39,6 +39,7 @@ add_library(
         src/main/cpp/skia/SkiaRenderer.cpp
         src/main/cpp/skia/JSkiaFrameProcessor.cpp
         src/main/cpp/skia/DrawableFrameHostObject.cpp
+        src/main/cpp/skia/VisionCameraSkiaContext.cpp
 )
 
 # Header Search Paths (includes)

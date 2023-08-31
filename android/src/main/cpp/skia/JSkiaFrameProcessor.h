@@ -20,6 +20,7 @@
 #include "JFrameProcessor.h"
 
 #include <JsiSkCanvas.h>
+#include <RNSkPlatformContext.h>
 
 namespace vision {
 

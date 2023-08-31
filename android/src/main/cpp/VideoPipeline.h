@@ -54,6 +54,8 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
  private:
   // Private constructor. Use `create(..)` to create new instances.
   explicit VideoPipeline(jni::alias_ref<jhybridobject> jThis, int width, int height);
+  // Creates a new Frame instance which should be filled with data.
+  jni::alias_ref<JFrame> createFrame();
 
  private:
   // Input Surface Texture
