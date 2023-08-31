@@ -56,8 +56,8 @@ class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
   sk_sp<GrDirectContext> getSkiaContext();
   // Wraps a Texture as an SkImage allowing you to draw it
   sk_sp<SkImage> wrapTextureAsImage(OpenGLTexture& texture);
-  // Wraps a Frame Buffer as an SkSurface allowing you to draw into it
-  sk_sp<SkSurface> wrapFrameBufferAsSurface(GLuint frameBufferId, int width, int height);
+  // Wraps an EGLSurface as an SkSurface allowing you to draw into it
+  sk_sp<SkSurface> wrapEglSurfaceAsSurface(EGLSurface eglSurface);
   // Gets or creates an off-screen surface that you can draw into
   sk_sp<SkSurface> getOffscreenSurface(int width, int height);
 

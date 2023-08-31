@@ -41,7 +41,6 @@ class RecordingSession(context: Context,
   val surface: Surface = MediaCodec.createPersistentInputSurface()
 
   init {
-
     outputFile = File.createTempFile("mrousavy", fileType.toExtension(), context.cacheDir)
 
     Log.i(TAG, "Creating RecordingSession for ${outputFile.absolutePath}")
@@ -54,7 +53,7 @@ class RecordingSession(context: Context,
     recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
     recorder.setOutputFile(outputFile.absolutePath)
     recorder.setVideoEncodingBitRate(VIDEO_BIT_RATE)
-    recorder.setVideoSize(size.height, size.width)
+    recorder.setVideoSize(size.width, size.height)
     if (fps != null) recorder.setVideoFrameRate(fps)
 
     Log.i(TAG, "Using $codec Video Codec..")
@@ -67,7 +66,7 @@ class RecordingSession(context: Context,
       recorder.setAudioChannels(AUDIO_CHANNELS)
     }
     recorder.setInputSurface(surface)
-    //recorder.setOrientationHint(orientation.toDegrees())
+    recorder.setOrientationHint(orientation.toDegrees())
 
     recorder.setOnErrorListener { _, what, extra ->
       Log.e(TAG, "MediaRecorder Error: $what ($extra)")

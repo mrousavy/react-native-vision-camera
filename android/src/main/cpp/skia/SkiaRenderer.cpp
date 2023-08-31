@@ -80,15 +80,19 @@ sk_sp<SkImage> SkiaRenderer::wrapTextureAsImage(OpenGLTexture &texture) {
   return image;
 }
 
-sk_sp<SkSurface> SkiaRenderer::wrapFrameBufferAsSurface(GLuint frameBufferId, int width, int height) {
+sk_sp<SkSurface> SkiaRenderer::wrapEglSurfaceAsSurface(EGLSurface eglSurface) {
   GLint sampleCnt;
   glGetIntegerv(GL_SAMPLES, &sampleCnt);
   GLint stencilBits;
   glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
   GrGLFramebufferInfo fboInfo {
-      .fFBOID = frameBufferId,
-      .fFormat = GR_GL_RGBA8
+    // DEFAULT_FBO is FBO0, meaning the default on-screen FBO for that given surface
+    .fFBOID = DEFAULT_FBO,
+    .fFormat = GR_GL_RGBA8
   };
+  EGLint width = 0, height = 0;
+  eglQuerySurface(eglGetCurrentDisplay(), eglSurface, EGL_WIDTH, &width);
+  eglQuerySurface(eglGetCurrentDisplay(), eglSurface, EGL_HEIGHT, &height);
   GrBackendRenderTarget renderTarget(width,
                                      height,
                                      sampleCnt,
@@ -223,7 +227,7 @@ void SkiaRenderer::renderTextureToSurface(OpenGLContext &glContext, OpenGLTextur
   sk_sp<GrDirectContext> skiaContext = getSkiaContext();
 
   // 3. Wrap the output EGLSurface in a Skia SkSurface
-  sk_sp<SkSurface> skSurface = wrapFrameBufferAsSurface(DEFAULT_FBO, texture.width, texture.height);
+  sk_sp<SkSurface> skSurface = wrapEglSurfaceAsSurface(surface);
 
   // 4. Wrap the input texture in a Skia SkImage
   sk_sp<SkImage> frame = wrapTextureAsImage(texture);
