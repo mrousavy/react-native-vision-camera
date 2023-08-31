@@ -41,20 +41,7 @@ jsi::Value DrawableFrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNa
           throw jsi::JSError(runtime, "Trying to render a Frame without a Skia Canvas! Did you install Skia?");
         }
 
-        // convert CMSampleBuffer to SkImage
-        auto context = _canvas->getCanvas()->recordingContext();
-        auto image = SkImageHelpers::convertCMSampleBufferToSkImage(context, frame.buffer);
-
-        // draw SkImage
-        if (count > 0) {
-          // ..with paint/shader
-          auto paintHostObject = arguments[0].asObject(runtime).asHostObject<RNSkia::JsiSkPaint>(runtime);
-          auto paint = paintHostObject->getObject();
-          _canvas->getCanvas()->drawImage(image, 0, 0, SkSamplingOptions(), paint.get());
-        } else {
-          // ..without paint/shader
-          _canvas->getCanvas()->drawImage(image, 0, 0);
-        }
+        throw std::runtime_error("render() is not yet implemented!");
 
         return jsi::Value::undefined();
     };

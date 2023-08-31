@@ -36,13 +36,17 @@ class SkiaRenderer {
    *
    * @returns The texture that was rendered to.
    */
-  OpenGLTexture renderTextureToOffscreenSurface(OpenGLContext& glContext, OpenGLTexture& texture,
-                                                float* transformMatrix, DrawCallback drawCallback);
+  OpenGLTexture renderTextureToOffscreenSurface(OpenGLContext& glContext,
+                                                OpenGLTexture& texture,
+                                                float* transformMatrix,
+                                                const DrawCallback& drawCallback);
 
   /**
    * Renders the given texture to the target output surface using Skia.
    */
-  void renderTextureToSurface(OpenGLContext& glContext, OpenGLTexture& texture, EGLSurface surface);
+  void renderTextureToSurface(OpenGLContext& glContext,
+                              OpenGLTexture& texture,
+                              EGLSurface surface);
 
  private:
   // Gets or creates the Skia context.

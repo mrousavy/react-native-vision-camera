@@ -112,6 +112,7 @@ if(ENABLE_FRAME_PROCESSORS)
                 "${RNSKIA_PATH}/cpp/skia/include/utils/"
                 "${RNSKIA_PATH}/cpp/skia/include/pathops/"
                 "${RNSKIA_PATH}/cpp/skia/modules/"
+                "${RNSKIA_PATH}/cpp/utils/"
         )
 
         target_link_libraries(
