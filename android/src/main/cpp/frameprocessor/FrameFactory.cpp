@@ -18,11 +18,11 @@ FrameFactory::FrameFactory(size_t frameWidth,
 
 FrameFactory::~FrameFactory() {
   std::unique_lock lock(_mutex);
-  
+
   for (size_t i = 0; i < _frames.size(); i++) {
     auto frame = _frames.back();
     if (frame.frame != nullptr) frame.frame->cthis()->close();
-    delete[] frame.buffer;
+    free(frame.buffer);
     _frames.pop_back();
   }
 }
