@@ -6,11 +6,11 @@ on:
       - main
     paths:
       - '.github/workflows/validate-ios.yml'
-      - 'ios/**'
+      - 'package/ios/**'
   pull_request:
     paths:
       - '.github/workflows/validate-ios.yml'
-      - 'ios/**'
+      - 'package/ios/**'
 
 jobs:
   SwiftLint:

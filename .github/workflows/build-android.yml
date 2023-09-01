@@ -6,19 +6,19 @@ on:
       - main
     paths:
       - '.github/workflows/build-android.yml'
-      - 'cpp/**'
-      - 'android/**'
-      - 'example/android/**'
-      - 'yarn.lock'
-      - 'example/yarn.lock'
+      - 'package/cpp/**'
+      - 'package/android/**'
+      - 'package/example/android/**'
+      - 'package/yarn.lock'
+      - 'package/example/yarn.lock'
   pull_request:
     paths:
       - '.github/workflows/build-android.yml'
-      - 'cpp/**'
-      - 'android/**'
-      - 'example/android/**'
-      - 'yarn.lock'
-      - 'example/yarn.lock'
+      - 'package/cpp/**'
+      - 'package/android/**'
+      - 'package/example/android/**'
+      - 'package/yarn.lock'
+      - 'package/example/yarn.lock'
 
 jobs:
   build:

@@ -6,17 +6,17 @@ on:
       - main
     paths:
       - '.github/workflows/build-ios.yml'
-      - 'cpp/**'
-      - 'ios/**'
-      - '*.podspec'
-      - 'example/ios/**'
+      - 'package/cpp/**'
+      - 'package/ios/**'
+      - 'package/*.podspec'
+      - 'package/example/ios/**'
   pull_request:
     paths:
       - '.github/workflows/build-ios.yml'
-      - 'cpp/**'
-      - 'ios/**'
-      - '*.podspec'
-      - 'example/ios/**'
+      - 'package/cpp/**'
+      - 'package/ios/**'
+      - 'package/*.podspec'
+      - 'package/example/ios/**'
 
 jobs:
   build:
