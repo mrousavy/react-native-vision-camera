@@ -37,7 +37,7 @@ class JSkiaFrameProcessor : public jni::HybridClass<JSkiaFrameProcessor, JFrameP
   /**
    * Call the JS Frame Processor with the given valid Canvas to draw on.
    */
-  void call(alias_ref<JFrame::javaobject> frame,
+  void call(jni::alias_ref<JFrame::javaobject> frame,
             SkCanvas* canvas);
 
   SkiaRenderer& getSkiaRenderer() { return *_skiaRenderer; }

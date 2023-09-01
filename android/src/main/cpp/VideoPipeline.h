@@ -18,8 +18,6 @@
 
 namespace vision {
 
-#define DEFAULT_FRAMEBUFFER 0
-
 using namespace facebook;
 
 class VideoPipeline: public jni::HybridClass<VideoPipeline> {

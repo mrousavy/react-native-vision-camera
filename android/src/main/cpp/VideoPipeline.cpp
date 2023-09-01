@@ -9,6 +9,10 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #include <EGL/egl.h>
+#include <EGL/eglext.h>
+#include <GLES/gl.h>
+
+#include <chrono>
 
 #include "OpenGLTexture.h"
 #include "JFrameProcessor.h"
@@ -111,13 +115,26 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
   auto isSkiaFrameProcessor = _frameProcessor != nullptr && _frameProcessor->isInstanceOf(JSkiaFrameProcessor::javaClassStatic());
   if (isSkiaFrameProcessor) {
     // 4.1. If we have a Skia Frame Processor, prepare to render to an offscreen surface using Skia
-    jni::global_ref<JSkiaFrameProcessor::javaobject> skiaFrameProcessor = static_ref_cast<JSkiaFrameProcessor::javaobject>(_frameProcessor);
+    jni::global_ref<JSkiaFrameProcessor::javaobject> skiaFrameProcessor = jni::static_ref_cast<JSkiaFrameProcessor::javaobject>(_frameProcessor);
     SkiaRenderer& skiaRenderer = skiaFrameProcessor->cthis()->getSkiaRenderer();
     auto drawCallback = [=](SkCanvas* canvas) {
-      auto frame = createFrame();
-      frame->incrementRefCount();
+      // Create a JFrame instance (this uses queues/recycling)
+      auto frame = JFrame::create(texture.width,
+                                  texture.height,
+                                  texture.width * 4,
+                                  _context->getCurrentPresentationTime(),
+                                  "portrait",
+                                  false);
+
+      // Fill the Frame with the contents of the GL surface
+      _context->getPixelsOfTexture(texture,
+                                   &frame->cthis()->pixelsSize,
+                                   &frame->cthis()->pixels);
+
+      // Call the Frame processor with the Frame
+      frame->cthis()->incrementRefCount();
       skiaFrameProcessor->cthis()->call(frame, canvas);
-      frame->decrementRefCount();
+      frame->cthis()->decrementRefCount();
     };
 
     // 4.2. Render to the offscreen surface using Skia
@@ -139,10 +156,23 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
   } else {
     // 4.1. If we have a Frame Processor, call it
     if (_frameProcessor != nullptr) {
-      auto frame = createFrame();
-      frame->incrementRefCount();
+      // Create a JFrame instance (this uses queues/recycling)
+      auto frame = JFrame::create(texture.width,
+                                  texture.height,
+                                  texture.width * 4,
+                                  _context->getCurrentPresentationTime(),
+                                  "portrait",
+                                  false);
+
+      // Fill the Frame with the contents of the GL surface
+      _context->getPixelsOfTexture(texture,
+                                   &frame->cthis()->pixelsSize,
+                                   &frame->cthis()->pixels);
+
+      // Call the Frame processor with the Frame
+      frame->cthis()->incrementRefCount();
       _frameProcessor->cthis()->call(frame);
-      frame->decrementRefCount();
+      frame->cthis()->decrementRefCount();
     }
 
     // 4.2. Simply pass-through shader to render the texture to all output EGLSurfaces

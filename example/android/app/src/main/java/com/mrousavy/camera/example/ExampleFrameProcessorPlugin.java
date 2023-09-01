@@ -17,9 +17,8 @@ public class ExampleFrameProcessorPlugin extends FrameProcessorPlugin {
     @Override
     public Object callback(@NotNull Frame frame, @Nullable Map<String, Object> params) {
         if (params == null) return null;
-        Image image = frame.getImage();
 
-        Log.d("ExamplePlugin", image.getWidth() + " x " + image.getHeight() + " Image with format #" + image.getFormat() + ". Logging " + params.size() + " parameters:");
+        Log.d("ExamplePlugin", frame.getWidth() + " x " + frame.getHeight() + " Image with format #" + frame.getPixelFormat() + ". Logging " + params.size() + " parameters:");
 
         for (String key : params.keySet()) {
             Object value = params.get(key);

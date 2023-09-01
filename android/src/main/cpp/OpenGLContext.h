@@ -10,6 +10,7 @@
 
 #include <memory>
 #include <functional>
+#include <chrono>
 
 #include "PassThroughShader.h"
 
@@ -52,6 +53,16 @@ class OpenGLContext {
    */
   OpenGLTexture createTexture(OpenGLTexture::Type type, int width, int height);
 
+  /**
+   * Gets the pixels as CPU accessible memory of the given input texture
+   */
+  void getPixelsOfTexture(const OpenGLTexture& texture, size_t* outSize, uint8_t** outPixels);
+
+  /**
+   * Gets the current presentation time for this OpenGL surface.
+   */
+  long getCurrentPresentationTime();
+
  public:
   EGLDisplay display = EGL_NO_DISPLAY;
   EGLContext context = EGL_NO_CONTEXT;
@@ -65,6 +76,7 @@ class OpenGLContext {
 
  private:
   PassThroughShader _passThroughShader;
+  std::chrono::time_point<std::chrono::system_clock> _startTime;
 
  private:
   static constexpr auto TAG = "OpenGLContext";

@@ -32,7 +32,7 @@ class JFrameProcessor : public jni::HybridClass<JFrameProcessor> {
   /**
    * Wrap the Frame in a HostObject and call the Frame Processor.
    */
-  void call(alias_ref<JFrame::javaobject> frame);
+  void call(jni::alias_ref<JFrame::javaobject> frame);
 
  protected:
   friend HybridBase;
