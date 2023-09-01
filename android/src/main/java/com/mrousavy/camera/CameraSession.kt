@@ -21,6 +21,7 @@ import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.createPhotoCaptureRequest
 import com.mrousavy.camera.extensions.openCamera
+import com.mrousavy.camera.extensions.triggerFlashAE
 import com.mrousavy.camera.extensions.tryClose
 import com.mrousavy.camera.extensions.zoomed
 import com.mrousavy.camera.frameprocessor.FrameProcessor
@@ -213,24 +214,37 @@ class CameraSession(private val context: Context,
                         outputOrientation: Orientation): CapturedPhoto {
     val captureSession = captureSession ?: throw CameraNotReadyError()
     val outputs = outputs ?: throw CameraNotReadyError()
-
+    val previewRequest = previewRequest ?: throw CameraNotReadyError()
     val photoOutput = outputs.photoOutput ?: throw PhotoNotEnabledError()
 
     val cameraCharacteristics = cameraManager.getCameraCharacteristics(captureSession.device.id)
-    val orientation = outputOrientation.toSensorRelativeOrientation(cameraCharacteristics)
-    val captureRequest = captureSession.device.createPhotoCaptureRequest(cameraManager,
-                                                                         photoOutput.surface,
-                                                                         zoom,
-                                                                         qualityPrioritization,
-                                                                         flashMode,
-                                                                         enableRedEyeReduction,
-                                                                         enableAutoStabilization,
-                                                                         orientation)
-    Log.i(TAG, "Photo capture 0/2 - starting capture...")
-    val result = captureSession.capture(captureRequest, enableShutterSound)
-    val timestamp = result[CaptureResult.SENSOR_TIMESTAMP]!!
-    Log.i(TAG, "Photo capture 1/2 complete - received metadata with timestamp $timestamp")
+    val supportedAeModes = cameraCharacteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES)!!
+
+    // Update auto-exposure mode for repeating request so that it has time to focus
+    val aeMode = flashMode.toControlAeMode(enableRedEyeReduction)
+    if (flashMode != Flash.OFF) {
+      if (!supportedAeModes.contains(aeMode)) throw NoFlashAvailableError()
+      previewRequest.set(CaptureRequest.CONTROL_AE_MODE, aeMode)
+      updateRepeatingRequest()
+
+      // Flash once to adjust auto-exposure (AE)
+      captureSession.triggerFlashAE(flashMode, previewRequest)
+    }
+
     try {
+      val orientation = outputOrientation.toSensorRelativeOrientation(cameraCharacteristics)
+      val captureRequest = captureSession.device.createPhotoCaptureRequest(cameraManager,
+        photoOutput.surface,
+        zoom,
+        qualityPrioritization,
+        aeMode,
+        enableAutoStabilization,
+        orientation)
+      Log.i(TAG, "Photo capture 0/2 - starting capture...")
+      val result = captureSession.capture(captureRequest, enableShutterSound)
+      val timestamp = result[CaptureResult.SENSOR_TIMESTAMP]!!
+      Log.i(TAG, "Photo capture 1/2 complete - received metadata with timestamp $timestamp")
+
       val image = photoOutputSynchronizer.await(timestamp)
 
       val isMirrored = cameraCharacteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
@@ -238,7 +252,14 @@ class CameraSession(private val context: Context,
       Log.i(TAG, "Photo capture 2/2 complete - received ${image.width} x ${image.height} image.")
       return CapturedPhoto(image, result, orientation, isMirrored, image.format)
     } catch (e: CancellationException) {
+      // Photo was never
       throw CaptureAbortedError(false)
+    } finally {
+      // Reset auto-exposure mode for repeating request so that it doesn't adjust focus for flash anymore
+      if (flashMode != Flash.OFF) {
+        previewRequest.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON)
+        updateRepeatingRequest()
+      }
     }
   }
 
@@ -451,8 +472,8 @@ class CameraSession(private val context: Context,
     }
 
     // Torch Mode
-    val torchMode = if (torch == true) CaptureRequest.FLASH_MODE_TORCH else CaptureRequest.FLASH_MODE_OFF
-    captureRequest.set(CaptureRequest.FLASH_MODE, torchMode)
+    // val torchMode = if (torch == true) CaptureRequest.FLASH_MODE_TORCH else CaptureRequest.FLASH_MODE_OFF
+    // captureRequest.set(CaptureRequest.FLASH_MODE, torchMode)
 
     return captureRequest.build()
   }
