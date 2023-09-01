@@ -18,5 +18,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           collapsibleThreshold: '25'
           failOnDowngrade: 'false'
-          path: 'yarn.lock'
+          path: 'package/yarn.lock'
           updateComment: 'true'
