@@ -15,12 +15,6 @@ PointerAlignment: Left
 ReferenceAlignment: Left
 ReflowComments: true
 
-# Alignment options
-AlignTrailingComments: true
-AlignConsecutiveAssignments: true
-AlignConsecutiveDeclarations: false
-AlignOperands: true
-
 # Line breaking options
 BreakBeforeBraces: Attach
 BreakConstructorInitializers: BeforeColon
