@@ -20,8 +20,7 @@ using namespace facebook;
 
 class VisionCameraProxy : public jsi::HostObject {
 public:
-  explicit VisionCameraProxy(jsi::Runtime& runtime,
-                             std::shared_ptr<react::CallInvoker> callInvoker);
+  explicit VisionCameraProxy(jsi::Runtime& runtime, std::shared_ptr<react::CallInvoker> callInvoker);
   ~VisionCameraProxy();
 
 public:
@@ -31,8 +30,7 @@ public:
 private:
   void setFrameProcessor(jsi::Runtime& runtime, int viewTag, const jsi::Object& frameProcessor);
   void removeFrameProcessor(jsi::Runtime& runtime, int viewTag);
-  jsi::Value getFrameProcessorPlugin(jsi::Runtime& runtime, std::string name,
-                                     const jsi::Object& options);
+  jsi::Value getFrameProcessorPlugin(jsi::Runtime& runtime, std::string name, const jsi::Object& options);
 
 private:
   std::shared_ptr<RNWorklet::JsiWorkletContext> _workletContext;

@@ -97,8 +97,7 @@ bool isTypedArray(jsi::Runtime& runtime, const jsi::Object& jsObj);
 TypedArrayBase getTypedArray(jsi::Runtime& runtime, const jsi::Object& jsObj);
 
 std::vector<uint8_t> arrayBufferToVector(jsi::Runtime& runtime, jsi::Object& jsObj);
-void arrayBufferUpdate(jsi::Runtime& runtime, jsi::ArrayBuffer& buffer, std::vector<uint8_t> data,
-                       size_t offset);
+void arrayBufferUpdate(jsi::Runtime& runtime, jsi::ArrayBuffer& buffer, std::vector<uint8_t> data, size_t offset);
 
 template <TypedArrayKind T> class TypedArray : public TypedArrayBase {
 public:

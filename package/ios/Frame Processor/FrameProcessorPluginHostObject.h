@@ -17,8 +17,7 @@ using namespace facebook;
 
 class FrameProcessorPluginHostObject : public jsi::HostObject {
 public:
-  explicit FrameProcessorPluginHostObject(FrameProcessorPlugin* plugin,
-                                          std::shared_ptr<react::CallInvoker> callInvoker)
+  explicit FrameProcessorPluginHostObject(FrameProcessorPlugin* plugin, std::shared_ptr<react::CallInvoker> callInvoker)
       : _plugin(plugin), _callInvoker(callInvoker) {}
   ~FrameProcessorPluginHostObject() {}
 

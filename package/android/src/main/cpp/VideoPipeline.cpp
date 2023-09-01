@@ -19,13 +19,11 @@
 
 namespace vision {
 
-jni::local_ref<VideoPipeline::jhybriddata>
-VideoPipeline::initHybrid(jni::alias_ref<jhybridobject> jThis, int width, int height) {
+jni::local_ref<VideoPipeline::jhybriddata> VideoPipeline::initHybrid(jni::alias_ref<jhybridobject> jThis, int width, int height) {
   return makeCxxInstance(jThis, width, height);
 }
 
-VideoPipeline::VideoPipeline(jni::alias_ref<jhybridobject> jThis, int width, int height)
-    : _javaPart(jni::make_global(jThis)) {
+VideoPipeline::VideoPipeline(jni::alias_ref<jhybridobject> jThis, int width, int height) : _javaPart(jni::make_global(jThis)) {
   _width = width;
   _height = height;
   _context = OpenGLContext::CreateWithOffscreenSurface();
@@ -108,14 +106,10 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
 void VideoPipeline::registerNatives() {
   registerHybrid({
       makeNativeMethod("initHybrid", VideoPipeline::initHybrid),
-      makeNativeMethod("setFrameProcessorOutputSurface",
-                       VideoPipeline::setFrameProcessorOutputSurface),
-      makeNativeMethod("removeFrameProcessorOutputSurface",
-                       VideoPipeline::removeFrameProcessorOutputSurface),
-      makeNativeMethod("setRecordingSessionOutputSurface",
-                       VideoPipeline::setRecordingSessionOutputSurface),
-      makeNativeMethod("removeRecordingSessionOutputSurface",
-                       VideoPipeline::removeRecordingSessionOutputSurface),
+      makeNativeMethod("setFrameProcessorOutputSurface", VideoPipeline::setFrameProcessorOutputSurface),
+      makeNativeMethod("removeFrameProcessorOutputSurface", VideoPipeline::removeFrameProcessorOutputSurface),
+      makeNativeMethod("setRecordingSessionOutputSurface", VideoPipeline::setRecordingSessionOutputSurface),
+      makeNativeMethod("removeRecordingSessionOutputSurface", VideoPipeline::removeRecordingSessionOutputSurface),
       makeNativeMethod("getInputTextureId", VideoPipeline::getInputTextureId),
       makeNativeMethod("onBeforeFrame", VideoPipeline::onBeforeFrame),
       makeNativeMethod("onFrame", VideoPipeline::onFrame),

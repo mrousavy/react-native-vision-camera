@@ -22,8 +22,7 @@ inline std::string getEglErrorIfAny() {
 
 class OpenGLError : public std::runtime_error {
 public:
-  explicit OpenGLError(const std::string&& message)
-      : std::runtime_error(message + getEglErrorIfAny()) {}
+  explicit OpenGLError(const std::string&& message) : std::runtime_error(message + getEglErrorIfAny()) {}
 
   static inline void checkIfError(const std::string&& message) {
     auto error = getEglErrorIfAny();

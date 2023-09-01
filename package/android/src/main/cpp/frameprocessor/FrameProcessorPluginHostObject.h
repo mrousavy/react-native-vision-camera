@@ -16,8 +16,7 @@ using namespace facebook;
 
 class FrameProcessorPluginHostObject : public jsi::HostObject {
 public:
-  explicit FrameProcessorPluginHostObject(jni::alias_ref<JFrameProcessorPlugin::javaobject> plugin)
-      : _plugin(make_global(plugin)) {}
+  explicit FrameProcessorPluginHostObject(jni::alias_ref<JFrameProcessorPlugin::javaobject> plugin) : _plugin(make_global(plugin)) {}
   ~FrameProcessorPluginHostObject() {}
 
 public:

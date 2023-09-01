@@ -17,9 +17,7 @@
 
 namespace vision {
 
-std::unique_ptr<OpenGLRenderer>
-OpenGLRenderer::CreateWithWindowSurface(std::shared_ptr<OpenGLContext> context,
-                                        ANativeWindow* surface) {
+std::unique_ptr<OpenGLRenderer> OpenGLRenderer::CreateWithWindowSurface(std::shared_ptr<OpenGLContext> context, ANativeWindow* surface) {
   return std::unique_ptr<OpenGLRenderer>(new OpenGLRenderer(std::move(context), surface));
 }
 

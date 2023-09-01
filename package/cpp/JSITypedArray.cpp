@@ -81,16 +81,14 @@ void invalidateArrayBufferCache(jsi::Runtime& runtime) {
 TypedArrayKind getTypedArrayKindForName(const std::string& name);
 
 TypedArrayBase::TypedArrayBase(jsi::Runtime& runtime, size_t size, TypedArrayKind kind)
-    : TypedArrayBase(
-          runtime, runtime.global()
-                       .getProperty(runtime, propNameIDCache.getConstructorNameProp(runtime, kind))
-                       .asObject(runtime)
-                       .asFunction(runtime)
-                       .callAsConstructor(runtime, {static_cast<double>(size)})
-                       .asObject(runtime)) {}
+    : TypedArrayBase(runtime, runtime.global()
+                                  .getProperty(runtime, propNameIDCache.getConstructorNameProp(runtime, kind))
+                                  .asObject(runtime)
+                                  .asFunction(runtime)
+                                  .callAsConstructor(runtime, {static_cast<double>(size)})
+                                  .asObject(runtime)) {}
 
-TypedArrayBase::TypedArrayBase(jsi::Runtime& runtime, const jsi::Object& obj)
-    : jsi::Object(jsi::Value(runtime, obj).asObject(runtime)) {}
+TypedArrayBase::TypedArrayBase(jsi::Runtime& runtime, const jsi::Object& obj) : jsi::Object(jsi::Value(runtime, obj).asObject(runtime)) {}
 
 TypedArrayKind TypedArrayBase::getKind(jsi::Runtime& runtime) const {
   auto constructorName = this->getProperty(runtime, propNameIDCache.get(runtime, Prop::Constructor))
@@ -174,13 +172,11 @@ std::vector<uint8_t> arrayBufferToVector(jsi::Runtime& runtime, jsi::Object& jsO
   auto jsArrayBuffer = jsObj.getArrayBuffer(runtime);
 
   uint8_t* dataBlock = jsArrayBuffer.data(runtime);
-  size_t blockSize =
-      jsArrayBuffer.getProperty(runtime, propNameIDCache.get(runtime, Prop::ByteLength)).asNumber();
+  size_t blockSize = jsArrayBuffer.getProperty(runtime, propNameIDCache.get(runtime, Prop::ByteLength)).asNumber();
   return std::vector<uint8_t>(dataBlock, dataBlock + blockSize);
 }
 
-void arrayBufferUpdate(jsi::Runtime& runtime, jsi::ArrayBuffer& buffer, std::vector<uint8_t> data,
-                       size_t offset) {
+void arrayBufferUpdate(jsi::Runtime& runtime, jsi::ArrayBuffer& buffer, std::vector<uint8_t> data, size_t offset) {
   uint8_t* dataBlock = buffer.data(runtime);
   size_t blockSize = buffer.size(runtime);
   if (data.size() > blockSize) {
@@ -189,28 +185,22 @@ void arrayBufferUpdate(jsi::Runtime& runtime, jsi::ArrayBuffer& buffer, std::vec
   std::copy(data.begin(), data.end(), dataBlock + offset);
 }
 
-template <TypedArrayKind T>
-TypedArray<T>::TypedArray(jsi::Runtime& runtime, size_t size) : TypedArrayBase(runtime, size, T) {}
+template <TypedArrayKind T> TypedArray<T>::TypedArray(jsi::Runtime& runtime, size_t size) : TypedArrayBase(runtime, size, T) {}
 
 template <TypedArrayKind T>
-TypedArray<T>::TypedArray(jsi::Runtime& runtime, std::vector<ContentType<T>> data)
-    : TypedArrayBase(runtime, data.size(), T) {
+TypedArray<T>::TypedArray(jsi::Runtime& runtime, std::vector<ContentType<T>> data) : TypedArrayBase(runtime, data.size(), T) {
   update(runtime, data);
 }
 
-template <TypedArrayKind T>
-TypedArray<T>::TypedArray(TypedArrayBase&& base) : TypedArrayBase(std::move(base)) {}
+template <TypedArrayKind T> TypedArray<T>::TypedArray(TypedArrayBase&& base) : TypedArrayBase(std::move(base)) {}
 
-template <TypedArrayKind T>
-std::vector<ContentType<T>> TypedArray<T>::toVector(jsi::Runtime& runtime) {
-  auto start =
-      reinterpret_cast<ContentType<T>*>(getBuffer(runtime).data(runtime) + byteOffset(runtime));
+template <TypedArrayKind T> std::vector<ContentType<T>> TypedArray<T>::toVector(jsi::Runtime& runtime) {
+  auto start = reinterpret_cast<ContentType<T>*>(getBuffer(runtime).data(runtime) + byteOffset(runtime));
   auto end = start + size(runtime);
   return std::vector<ContentType<T>>(start, end);
 }
 
-template <TypedArrayKind T>
-void TypedArray<T>::update(jsi::Runtime& runtime, const std::vector<ContentType<T>>& data) {
+template <TypedArrayKind T> void TypedArray<T>::update(jsi::Runtime& runtime, const std::vector<ContentType<T>>& data) {
   if (data.size() != size(runtime)) {
     throw jsi::JSError(runtime, "TypedArray can only be updated with a vector of the same size");
   }
@@ -218,8 +208,7 @@ void TypedArray<T>::update(jsi::Runtime& runtime, const std::vector<ContentType<
   std::copy(data.begin(), data.end(), reinterpret_cast<ContentType<T>*>(rawData));
 }
 
-template <TypedArrayKind T>
-void TypedArray<T>::updateUnsafe(jsi::Runtime& runtime, ContentType<T>* data, size_t length) {
+template <TypedArrayKind T> void TypedArray<T>::updateUnsafe(jsi::Runtime& runtime, ContentType<T>* data, size_t length) {
   if (length != size(runtime)) {
     throw jsi::JSError(runtime, "TypedArray can only be updated with an array of the same size");
   }
@@ -231,8 +220,7 @@ template <TypedArrayKind T> uint8_t* TypedArray<T>::data(jsi::Runtime& runtime) 
   return getBuffer(runtime).data(runtime) + byteOffset(runtime);
 }
 
-const jsi::PropNameID& PropNameIDCache::getConstructorNameProp(jsi::Runtime& runtime,
-                                                               TypedArrayKind kind) {
+const jsi::PropNameID& PropNameIDCache::getConstructorNameProp(jsi::Runtime& runtime, TypedArrayKind kind) {
   switch (kind) {
     case TypedArrayKind::Int8Array:
       return get(runtime, Prop::Int8Array);
@@ -256,9 +244,7 @@ const jsi::PropNameID& PropNameIDCache::getConstructorNameProp(jsi::Runtime& run
 }
 
 jsi::PropNameID PropNameIDCache::createProp(jsi::Runtime& runtime, Prop prop) {
-  auto create = [&](const std::string& propName) {
-    return jsi::PropNameID::forUtf8(runtime, propName);
-  };
+  auto create = [&](const std::string& propName) { return jsi::PropNameID::forUtf8(runtime, propName); };
   switch (prop) {
     case Prop::Buffer:
       return create("buffer");

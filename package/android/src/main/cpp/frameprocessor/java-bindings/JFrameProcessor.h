@@ -25,9 +25,8 @@ struct JFrameProcessor : public jni::HybridClass<JFrameProcessor> {
 public:
   static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/FrameProcessor;";
   static void registerNatives();
-  static jni::local_ref<JFrameProcessor::javaobject>
-  create(const std::shared_ptr<RNWorklet::JsiWorklet>& worklet,
-         const std::shared_ptr<RNWorklet::JsiWorkletContext>& context);
+  static jni::local_ref<JFrameProcessor::javaobject> create(const std::shared_ptr<RNWorklet::JsiWorklet>& worklet,
+                                                            const std::shared_ptr<RNWorklet::JsiWorkletContext>& context);
 
 public:
   /**
@@ -37,8 +36,7 @@ public:
 
 private:
   // Private constructor. Use `create(..)` to create new instances.
-  explicit JFrameProcessor(std::shared_ptr<RNWorklet::JsiWorklet> worklet,
-                           std::shared_ptr<RNWorklet::JsiWorkletContext> context);
+  explicit JFrameProcessor(std::shared_ptr<RNWorklet::JsiWorklet> worklet, std::shared_ptr<RNWorklet::JsiWorkletContext> context);
 
 private:
   void callWithFrameHostObject(const std::shared_ptr<FrameHostObject>& frameHostObject) const;

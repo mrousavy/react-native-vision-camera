@@ -22,8 +22,7 @@ void JFrameProcessor::registerNatives() {
 
 using TSelf = jni::local_ref<JFrameProcessor::javaobject>;
 
-JFrameProcessor::JFrameProcessor(std::shared_ptr<RNWorklet::JsiWorklet> worklet,
-                                 std::shared_ptr<RNWorklet::JsiWorkletContext> context) {
+JFrameProcessor::JFrameProcessor(std::shared_ptr<RNWorklet::JsiWorklet> worklet, std::shared_ptr<RNWorklet::JsiWorkletContext> context) {
   _workletContext = std::move(context);
   _workletInvoker = std::make_shared<RNWorklet::WorkletInvoker>(worklet);
 }
@@ -33,8 +32,7 @@ TSelf JFrameProcessor::create(const std::shared_ptr<RNWorklet::JsiWorklet>& work
   return JFrameProcessor::newObjectCxxArgs(worklet, context);
 }
 
-void JFrameProcessor::callWithFrameHostObject(
-    const std::shared_ptr<FrameHostObject>& frameHostObject) const {
+void JFrameProcessor::callWithFrameHostObject(const std::shared_ptr<FrameHostObject>& frameHostObject) const {
   // Call the Frame Processor on the Worklet Runtime
   jsi::Runtime& runtime = _workletContext->getWorkletRuntime();
 
@@ -50,11 +48,8 @@ void JFrameProcessor::callWithFrameHostObject(
     const std::string& message = jsError.getMessage();
 
     _workletContext->invokeOnJsThread([message](jsi::Runtime& jsRuntime) {
-      auto logFn = jsRuntime.global()
-                       .getPropertyAsObject(jsRuntime, "console")
-                       .getPropertyAsFunction(jsRuntime, "error");
-      logFn.call(jsRuntime, jsi::String::createFromUtf8(
-                                jsRuntime, "Frame Processor threw an error: " + message));
+      auto logFn = jsRuntime.global().getPropertyAsObject(jsRuntime, "console").getPropertyAsFunction(jsRuntime, "error");
+      logFn.call(jsRuntime, jsi::String::createFromUtf8(jsRuntime, "Frame Processor threw an error: " + message));
     });
   }
 }

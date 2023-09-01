@@ -16,15 +16,13 @@ using namespace facebook;
 using namespace jni;
 
 struct JFrameProcessorPlugin : public JavaClass<JFrameProcessorPlugin> {
-  static constexpr auto kJavaDescriptor =
-      "Lcom/mrousavy/camera/frameprocessor/FrameProcessorPlugin;";
+  static constexpr auto kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/FrameProcessorPlugin;";
 
 public:
   /**
    * Call the plugin.
    */
-  local_ref<jobject> callback(const alias_ref<JFrame::javaobject>& frame,
-                              const alias_ref<JMap<jstring, jobject>>& params) const;
+  local_ref<jobject> callback(const alias_ref<JFrame::javaobject>& frame, const alias_ref<JMap<jstring, jobject>>& params) const;
 };
 
 } // namespace vision

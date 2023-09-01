@@ -14,33 +14,28 @@
 
 using namespace facebook;
 
-std::vector<jsi::PropNameID>
-FrameProcessorPluginHostObject::getPropertyNames(jsi::Runtime& runtime) {
+std::vector<jsi::PropNameID> FrameProcessorPluginHostObject::getPropertyNames(jsi::Runtime& runtime) {
   std::vector<jsi::PropNameID> result;
   result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("call")));
   return result;
 }
 
-jsi::Value FrameProcessorPluginHostObject::get(jsi::Runtime& runtime,
-                                               const jsi::PropNameID& propName) {
+jsi::Value FrameProcessorPluginHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {
   auto name = propName.utf8(runtime);
 
   if (name == "call") {
     return jsi::Function::createFromHostFunction(
         runtime, jsi::PropNameID::forUtf8(runtime, "call"), 2,
-        [=](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments,
-            size_t count) -> jsi::Value {
+        [=](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
           // Frame is first argument
-          auto frameHostObject =
-              arguments[0].asObject(runtime).asHostObject<FrameHostObject>(runtime);
+          auto frameHostObject = arguments[0].asObject(runtime).asHostObject<FrameHostObject>(runtime);
           Frame* frame = frameHostObject->frame;
 
           // Options are second argument (possibly undefined)
           NSDictionary* options = nil;
           if (count > 1) {
             auto optionsObject = arguments[1].asObject(runtime);
-            options = JSINSObjectConversion::convertJSIObjectToNSDictionary(runtime, optionsObject,
-                                                                            _callInvoker);
+            options = JSINSObjectConversion::convertJSIObjectToNSDictionary(runtime, optionsObject, _callInvoker);
           }
 
           // Call actual Frame Processor Plugin

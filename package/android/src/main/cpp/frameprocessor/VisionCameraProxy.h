@@ -28,8 +28,7 @@ public:
 private:
   void setFrameProcessor(int viewTag, jsi::Runtime& runtime, const jsi::Object& frameProcessor);
   void removeFrameProcessor(int viewTag);
-  jsi::Value getFrameProcessorPlugin(jsi::Runtime& runtime, const std::string& name,
-                                     const jsi::Object& options);
+  jsi::Value getFrameProcessorPlugin(jsi::Runtime& runtime, const std::string& name, const jsi::Object& options);
 
 private:
   jni::global_ref<JVisionCameraProxy::javaobject> _javaProxy;
@@ -38,14 +37,11 @@ private:
 
 class VisionCameraInstaller : public jni::JavaClass<VisionCameraInstaller> {
 public:
-  static auto constexpr kJavaDescriptor =
-      "Lcom/mrousavy/camera/frameprocessor/VisionCameraInstaller;";
+  static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/VisionCameraInstaller;";
   static void registerNatives() {
-    javaClassStatic()->registerNatives(
-        {makeNativeMethod("install", VisionCameraInstaller::install)});
+    javaClassStatic()->registerNatives({makeNativeMethod("install", VisionCameraInstaller::install)});
   }
-  static void install(jni::alias_ref<jni::JClass> clazz,
-                      jni::alias_ref<JVisionCameraProxy::javaobject> proxy);
+  static void install(jni::alias_ref<jni::JClass> clazz, jni::alias_ref<JVisionCameraProxy::javaobject> proxy);
 };
 
 } // namespace vision

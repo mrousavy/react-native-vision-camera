@@ -25,10 +25,9 @@ using TJSCallInvokerHolder = jni::alias_ref<facebook::react::CallInvokerHolder::
 using TScheduler = jni::alias_ref<JVisionCameraScheduler::javaobject>;
 using TOptions = jni::local_ref<JMap<jstring, jobject>>;
 
-JVisionCameraProxy::JVisionCameraProxy(
-    const jni::alias_ref<JVisionCameraProxy::jhybridobject>& javaThis, jsi::Runtime* runtime,
-    const std::shared_ptr<facebook::react::CallInvoker>& callInvoker,
-    const jni::global_ref<JVisionCameraScheduler::javaobject>& scheduler) {
+JVisionCameraProxy::JVisionCameraProxy(const jni::alias_ref<JVisionCameraProxy::jhybridobject>& javaThis, jsi::Runtime* runtime,
+                                       const std::shared_ptr<facebook::react::CallInvoker>& callInvoker,
+                                       const jni::global_ref<JVisionCameraScheduler::javaobject>& scheduler) {
   _javaPart = make_global(javaThis);
   _runtime = runtime;
 
@@ -43,8 +42,7 @@ JVisionCameraProxy::JVisionCameraProxy(
     // Run on Frame Processor Worklet Runtime
     scheduler->cthis()->dispatchAsync([f = std::move(f)]() { f(); });
   };
-  _workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("VisionCamera", runtime, runOnJS,
-                                                                   runOnWorklet);
+  _workletContext = std::make_shared<RNWorklet::JsiWorkletContext>("VisionCamera", runtime, runOnJS, runOnWorklet);
   __android_log_write(ANDROID_LOG_INFO, TAG, "Worklet Context created!");
 #else
   __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processors are disabled!");
@@ -60,13 +58,10 @@ JVisionCameraProxy::~JVisionCameraProxy() {
 #endif
 }
 
-void JVisionCameraProxy::setFrameProcessor(int viewTag, jsi::Runtime& runtime,
-                                           const jsi::Object& frameProcessorObject) {
+void JVisionCameraProxy::setFrameProcessor(int viewTag, jsi::Runtime& runtime, const jsi::Object& frameProcessorObject) {
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
-  auto frameProcessorType =
-      frameProcessorObject.getProperty(runtime, "type").asString(runtime).utf8(runtime);
-  auto worklet = std::make_shared<RNWorklet::JsiWorklet>(
-      runtime, frameProcessorObject.getProperty(runtime, "frameProcessor"));
+  auto frameProcessorType = frameProcessorObject.getProperty(runtime, "type").asString(runtime).utf8(runtime);
+  auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, frameProcessorObject.getProperty(runtime, "frameProcessor"));
 
   jni::local_ref<JFrameProcessor::javaobject> frameProcessor;
   if (frameProcessorType == "frame-processor") {
@@ -75,9 +70,7 @@ void JVisionCameraProxy::setFrameProcessor(int viewTag, jsi::Runtime& runtime,
     throw std::runtime_error("Unknown FrameProcessor.type passed! Received: " + frameProcessorType);
   }
 
-  auto setFrameProcessorMethod =
-      javaClassLocal()->getMethod<void(int, alias_ref<JFrameProcessor::javaobject>)>(
-          "setFrameProcessor");
+  auto setFrameProcessorMethod = javaClassLocal()->getMethod<void(int, alias_ref<JFrameProcessor::javaobject>)>("setFrameProcessor");
   setFrameProcessorMethod(_javaPart, viewTag, frameProcessor);
 #else
   throw std::runtime_error("system/frame-processors-unavailable: Frame Processors are disabled!");
@@ -89,11 +82,9 @@ void JVisionCameraProxy::removeFrameProcessor(int viewTag) {
   removeFrameProcessorMethod(_javaPart, viewTag);
 }
 
-local_ref<JFrameProcessorPlugin::javaobject>
-JVisionCameraProxy::getFrameProcessorPlugin(const std::string& name, TOptions options) {
+local_ref<JFrameProcessorPlugin::javaobject> JVisionCameraProxy::getFrameProcessorPlugin(const std::string& name, TOptions options) {
   auto getFrameProcessorPluginMethod =
-      javaClassLocal()->getMethod<JFrameProcessorPlugin(local_ref<jstring>, TOptions)>(
-          "getFrameProcessorPlugin");
+      javaClassLocal()->getMethod<JFrameProcessorPlugin(local_ref<jstring>, TOptions)>("getFrameProcessorPlugin");
   return getFrameProcessorPluginMethod(_javaPart, make_jstring(name), std::move(options));
 }
 
@@ -101,8 +92,7 @@ void JVisionCameraProxy::registerNatives() {
   registerHybrid({makeNativeMethod("initHybrid", JVisionCameraProxy::initHybrid)});
 }
 
-TSelf JVisionCameraProxy::initHybrid(alias_ref<jhybridobject> jThis, jlong jsRuntimePointer,
-                                     TJSCallInvokerHolder jsCallInvokerHolder,
+TSelf JVisionCameraProxy::initHybrid(alias_ref<jhybridobject> jThis, jlong jsRuntimePointer, TJSCallInvokerHolder jsCallInvokerHolder,
                                      const TScheduler& scheduler) {
   __android_log_write(ANDROID_LOG_INFO, TAG, "Initializing VisionCameraProxy...");
 

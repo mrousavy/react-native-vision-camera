@@ -25,8 +25,7 @@ using namespace facebook;
  */
 class JVisionCameraScheduler : public jni::HybridClass<JVisionCameraScheduler> {
 public:
-  static auto constexpr kJavaDescriptor =
-      "Lcom/mrousavy/camera/frameprocessor/VisionCameraScheduler;";
+  static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/VisionCameraScheduler;";
   static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis);
   static void registerNatives();
 
@@ -39,8 +38,7 @@ private:
   std::queue<std::function<void()>> _jobs;
   std::mutex _mutex;
 
-  explicit JVisionCameraScheduler(jni::alias_ref<JVisionCameraScheduler::jhybridobject> jThis)
-      : _javaPart(jni::make_global(jThis)) {}
+  explicit JVisionCameraScheduler(jni::alias_ref<JVisionCameraScheduler::jhybridobject> jThis) : _javaPart(jni::make_global(jThis)) {}
 
   // Schedules a call to `trigger` on the VisionCamera FP Thread
   void scheduleTrigger();

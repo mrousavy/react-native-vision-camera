@@ -16,8 +16,7 @@ namespace vision {
 
 using namespace facebook;
 
-FrameHostObject::FrameHostObject(const jni::alias_ref<JFrame::javaobject>& frame)
-    : frame(make_global(frame)) {}
+FrameHostObject::FrameHostObject(const jni::alias_ref<JFrame::javaobject>& frame) : frame(make_global(frame)) {}
 
 FrameHostObject::~FrameHostObject() {
   // Hermes' Garbage Collector (Hades GC) calls destructors on a separate Thread
@@ -51,29 +50,25 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   auto name = propName.utf8(runtime);
 
   if (name == "incrementRefCount") {
-    jsi::HostFunctionType incrementRefCount = [=](jsi::Runtime& runtime, const jsi::Value& thisArg,
-                                                  const jsi::Value* args,
+    jsi::HostFunctionType incrementRefCount = [=](jsi::Runtime& runtime, const jsi::Value& thisArg, const jsi::Value* args,
                                                   size_t count) -> jsi::Value {
       // Increment retain count by one.
       this->frame->incrementRefCount();
       return jsi::Value::undefined();
     };
-    return jsi::Function::createFromHostFunction(
-        runtime, jsi::PropNameID::forUtf8(runtime, "incrementRefCount"), 0, incrementRefCount);
+    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "incrementRefCount"), 0, incrementRefCount);
   }
   if (name == "decrementRefCount") {
-    auto decrementRefCount = [=](jsi::Runtime& runtime, const jsi::Value& thisArg,
-                                 const jsi::Value* args, size_t count) -> jsi::Value {
+    auto decrementRefCount = [=](jsi::Runtime& runtime, const jsi::Value& thisArg, const jsi::Value* args, size_t count) -> jsi::Value {
       // Decrement retain count by one. If the retain count is zero, the Frame gets closed.
       this->frame->decrementRefCount();
       return jsi::Value::undefined();
     };
-    return jsi::Function::createFromHostFunction(
-        runtime, jsi::PropNameID::forUtf8(runtime, "decrementRefCount"), 0, decrementRefCount);
+    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "decrementRefCount"), 0, decrementRefCount);
   }
   if (name == "toString") {
-    jsi::HostFunctionType toString = [=](jsi::Runtime& runtime, const jsi::Value& thisArg,
-                                         const jsi::Value* args, size_t count) -> jsi::Value {
+    jsi::HostFunctionType toString = [=](jsi::Runtime& runtime, const jsi::Value& thisArg, const jsi::Value* args,
+                                         size_t count) -> jsi::Value {
       if (!this->frame) {
         return jsi::String::createFromUtf8(runtime, "[closed frame]");
       }
@@ -82,16 +77,14 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       auto str = std::to_string(width) + " x " + std::to_string(height) + " Frame";
       return jsi::String::createFromUtf8(runtime, str);
     };
-    return jsi::Function::createFromHostFunction(
-        runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
+    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
   }
   if (name == "toArrayBuffer") {
-    jsi::HostFunctionType toArrayBuffer = [=](jsi::Runtime& runtime, const jsi::Value& thisArg,
-                                              const jsi::Value* args, size_t count) -> jsi::Value {
+    jsi::HostFunctionType toArrayBuffer = [=](jsi::Runtime& runtime, const jsi::Value& thisArg, const jsi::Value* args,
+                                              size_t count) -> jsi::Value {
       auto buffer = this->frame->toByteBuffer();
       if (!buffer->isDirect()) {
-        throw std::runtime_error(
-            "Failed to get byte content of Frame - array is not direct ByteBuffer!");
+        throw std::runtime_error("Failed to get byte content of Frame - array is not direct ByteBuffer!");
       }
       auto size = buffer->getDirectSize();
 
@@ -102,10 +95,8 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       }
 
       // Get from global JS cache
-      auto arrayBufferCache =
-          runtime.global().getPropertyAsObject(runtime, ARRAYBUFFER_CACHE_PROP_NAME);
-      auto arrayBuffer = vision::getTypedArray(runtime, arrayBufferCache)
-                             .get<vision::TypedArrayKind::Uint8ClampedArray>(runtime);
+      auto arrayBufferCache = runtime.global().getPropertyAsObject(runtime, ARRAYBUFFER_CACHE_PROP_NAME);
+      auto arrayBuffer = vision::getTypedArray(runtime, arrayBufferCache).get<vision::TypedArrayKind::Uint8ClampedArray>(runtime);
       if (arrayBuffer.size(runtime) != size) {
         arrayBuffer = vision::TypedArray<vision::TypedArrayKind::Uint8ClampedArray>(runtime, size);
         runtime.global().setProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME, arrayBuffer);
@@ -117,8 +108,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 
       return arrayBuffer;
     };
-    return jsi::Function::createFromHostFunction(
-        runtime, jsi::PropNameID::forUtf8(runtime, "toArrayBuffer"), 0, toArrayBuffer);
+    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toArrayBuffer"), 0, toArrayBuffer);
   }
 
   if (name == "isValid") {

@@ -24,8 +24,7 @@ public:
    * Note: The `surface` is considered moved, and the OpenGL context will release it when it is
    * being deleted.
    */
-  static std::unique_ptr<OpenGLRenderer>
-  CreateWithWindowSurface(std::shared_ptr<OpenGLContext> context, ANativeWindow* surface);
+  static std::unique_ptr<OpenGLRenderer> CreateWithWindowSurface(std::shared_ptr<OpenGLContext> context, ANativeWindow* surface);
   /**
    * Destroy the OpenGL Context. This needs to be called on the same thread that `use()` was called.
    */

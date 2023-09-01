@@ -6,7 +6,7 @@ Standard: c++14
 
 # Indentation
 IndentWidth: 2
-ColumnLimit: 100
+ColumnLimit: 140
 
 # Includes
 SortIncludes: true

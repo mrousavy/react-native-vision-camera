@@ -19,10 +19,8 @@
   return plugins;
 }
 
-+ (void)addFrameProcessorPlugin:(NSString*)name
-                withInitializer:(PluginInitializerFunction)pluginInitializer {
-  BOOL alreadyExists =
-      [[FrameProcessorPluginRegistry frameProcessorPlugins] valueForKey:name] != nil;
++ (void)addFrameProcessorPlugin:(NSString*)name withInitializer:(PluginInitializerFunction)pluginInitializer {
+  BOOL alreadyExists = [[FrameProcessorPluginRegistry frameProcessorPlugins] valueForKey:name] != nil;
   NSAssert(!alreadyExists,
            @"Tried to add a Frame Processor Plugin with a name that already exists! Either choose "
            @"unique names, or "
@@ -32,10 +30,8 @@
   [[FrameProcessorPluginRegistry frameProcessorPlugins] setValue:pluginInitializer forKey:name];
 }
 
-+ (FrameProcessorPlugin*)getPlugin:(NSString* _Nonnull)name
-                       withOptions:(NSDictionary* _Nullable)options {
-  PluginInitializerFunction initializer =
-      [[FrameProcessorPluginRegistry frameProcessorPlugins] objectForKey:name];
++ (FrameProcessorPlugin*)getPlugin:(NSString* _Nonnull)name withOptions:(NSDictionary* _Nullable)options {
+  PluginInitializerFunction initializer = [[FrameProcessorPluginRegistry frameProcessorPlugins] objectForKey:name];
   if (initializer == nil) {
     return nil;
   }

@@ -15,8 +15,7 @@
   UIImageOrientation orientation;
 }
 
-- (instancetype)initWithBuffer:(CMSampleBufferRef _Nonnull)buffer
-                   orientation:(UIImageOrientation)orientation {
+- (instancetype)initWithBuffer:(CMSampleBufferRef _Nonnull)buffer orientation:(UIImageOrientation)orientation {
   self = [super init];
   if (self) {
     _buffer = buffer;

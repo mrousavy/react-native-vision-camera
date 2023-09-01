@@ -85,8 +85,8 @@ NSString* convertJSIStringToNSString(jsi::Runtime& runtime, const jsi::String& v
   return [NSString stringWithUTF8String:value.utf8(runtime).c_str()];
 }
 
-NSArray* convertJSICStyleArrayToNSArray(jsi::Runtime& runtime, const jsi::Value* array,
-                                        size_t length, std::shared_ptr<CallInvoker> jsInvoker) {
+NSArray* convertJSICStyleArrayToNSArray(jsi::Runtime& runtime, const jsi::Value* array, size_t length,
+                                        std::shared_ptr<CallInvoker> jsInvoker) {
   if (length < 1)
     return @[];
   NSMutableArray* result = [NSMutableArray new];
@@ -105,21 +105,17 @@ jsi::Value* convertNSArrayToJSICStyleArray(jsi::Runtime& runtime, NSArray* array
   return result;
 }
 
-NSArray* convertJSIArrayToNSArray(jsi::Runtime& runtime, const jsi::Array& value,
-                                  std::shared_ptr<CallInvoker> jsInvoker) {
+NSArray* convertJSIArrayToNSArray(jsi::Runtime& runtime, const jsi::Array& value, std::shared_ptr<CallInvoker> jsInvoker) {
   size_t size = value.size(runtime);
   NSMutableArray* result = [NSMutableArray new];
   for (size_t i = 0; i < size; i++) {
     // Insert kCFNull when it's `undefined` value to preserve the indices.
-    [result
-        addObject:convertJSIValueToObjCObject(runtime, value.getValueAtIndex(runtime, i), jsInvoker)
-                      ?: (id)kCFNull];
+    [result addObject:convertJSIValueToObjCObject(runtime, value.getValueAtIndex(runtime, i), jsInvoker) ?: (id)kCFNull];
   }
   return [result copy];
 }
 
-NSDictionary* convertJSIObjectToNSDictionary(jsi::Runtime& runtime, const jsi::Object& value,
-                                             std::shared_ptr<CallInvoker> jsInvoker) {
+NSDictionary* convertJSIObjectToNSDictionary(jsi::Runtime& runtime, const jsi::Object& value, std::shared_ptr<CallInvoker> jsInvoker) {
   jsi::Array propertyNames = value.getPropertyNames(runtime);
   size_t size = propertyNames.size(runtime);
   NSMutableDictionary* result = [NSMutableDictionary new];
@@ -134,8 +130,7 @@ NSDictionary* convertJSIObjectToNSDictionary(jsi::Runtime& runtime, const jsi::O
   return [result copy];
 }
 
-id convertJSIValueToObjCObject(jsi::Runtime& runtime, const jsi::Value& value,
-                               std::shared_ptr<CallInvoker> jsInvoker) {
+id convertJSIValueToObjCObject(jsi::Runtime& runtime, const jsi::Value& value, std::shared_ptr<CallInvoker> jsInvoker) {
   if (value.isUndefined() || value.isNull()) {
     return nil;
   }
@@ -169,8 +164,7 @@ id convertJSIValueToObjCObject(jsi::Runtime& runtime, const jsi::Value& value,
   throw std::runtime_error("Unsupported jsi::jsi::Value kind");
 }
 
-RCTResponseSenderBlock convertJSIFunctionToCallback(jsi::Runtime& runtime,
-                                                    const jsi::Function& value,
+RCTResponseSenderBlock convertJSIFunctionToCallback(jsi::Runtime& runtime, const jsi::Function& value,
                                                     std::shared_ptr<CallInvoker> jsInvoker) {
   auto weakWrapper = CallbackWrapper::createWeak(value.getFunction(runtime), runtime, jsInvoker);
   RCTBlockGuard* blockGuard = [[RCTBlockGuard alloc] initWithCleanup:^() {
@@ -198,8 +192,7 @@ RCTResponseSenderBlock convertJSIFunctionToCallback(jsi::Runtime& runtime,
       }
 
       const jsi::Value* args = convertNSArrayToJSICStyleArray(strongWrapper2->runtime(), responses);
-      strongWrapper2->callback().call(strongWrapper2->runtime(), args,
-                                      static_cast<size_t>(responses.count));
+      strongWrapper2->callback().call(strongWrapper2->runtime(), args, static_cast<size_t>(responses.count));
       strongWrapper2->destroy();
       delete[] args;
 

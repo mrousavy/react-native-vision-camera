@@ -39,27 +39,23 @@ jsi::Value convertObjCObjectToJSIValue(jsi::Runtime& runtime, id value);
 NSString* convertJSIStringToNSString(jsi::Runtime& runtime, const jsi::String& value);
 
 // any... -> NSArray
-NSArray* convertJSICStyleArrayToNSArray(jsi::Runtime& runtime, const jsi::Value* array,
-                                        size_t length, std::shared_ptr<CallInvoker> jsInvoker);
+NSArray* convertJSICStyleArrayToNSArray(jsi::Runtime& runtime, const jsi::Value* array, size_t length,
+                                        std::shared_ptr<CallInvoker> jsInvoker);
 
 // NSArray -> any...
 jsi::Value* convertNSArrayToJSICStyleArray(jsi::Runtime& runtime, NSArray* array);
 
 // [] -> NSArray
-NSArray* convertJSIArrayToNSArray(jsi::Runtime& runtime, const jsi::Array& value,
-                                  std::shared_ptr<CallInvoker> jsInvoker);
+NSArray* convertJSIArrayToNSArray(jsi::Runtime& runtime, const jsi::Array& value, std::shared_ptr<CallInvoker> jsInvoker);
 
 // {} -> NSDictionary
-NSDictionary* convertJSIObjectToNSDictionary(jsi::Runtime& runtime, const jsi::Object& value,
-                                             std::shared_ptr<CallInvoker> jsInvoker);
+NSDictionary* convertJSIObjectToNSDictionary(jsi::Runtime& runtime, const jsi::Object& value, std::shared_ptr<CallInvoker> jsInvoker);
 
 // any -> id
-id convertJSIValueToObjCObject(jsi::Runtime& runtime, const jsi::Value& value,
-                               std::shared_ptr<CallInvoker> jsInvoker);
+id convertJSIValueToObjCObject(jsi::Runtime& runtime, const jsi::Value& value, std::shared_ptr<CallInvoker> jsInvoker);
 
 // (any...) => any -> (void)(id, id)
-RCTResponseSenderBlock convertJSIFunctionToCallback(jsi::Runtime& runtime,
-                                                    const jsi::Function& value,
+RCTResponseSenderBlock convertJSIFunctionToCallback(jsi::Runtime& runtime, const jsi::Function& value,
                                                     std::shared_ptr<CallInvoker> jsInvoker);
 
 } // namespace JSINSObjectConversion
