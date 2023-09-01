@@ -107,9 +107,9 @@ public final class CameraView: UIView {
 
   // pragma MARK: Setup
   override public init(frame: CGRect) {
-    self.previewView = PreviewView(frame: frame, session: captureSession)
+    previewView = PreviewView(frame: frame, session: captureSession)
     super.init(frame: frame)
-    
+
     addSubview(previewView)
 
     NotificationCenter.default.addObserver(self,
@@ -243,7 +243,7 @@ public final class CameraView: UIView {
       }
     }
   }
-  
+
   func setupFpsGraph() {
     #if DEBUG
       if enableFpsGraph {

@@ -123,7 +123,7 @@ extension CameraView {
         case "yuv":
           if supportedPixelFormats.contains(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange) {
             pixelFormatType = kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
-          } else if (supportedPixelFormats.contains(kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange)) {
+          } else if supportedPixelFormats.contains(kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange) {
             pixelFormatType = kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
           } else {
             invokeOnError(.device(.pixelFormatNotSupported))
@@ -149,7 +149,7 @@ extension CameraView {
     if outputOrientation != .portrait {
       updateOrientation()
     }
-    
+
     invokeOnInitialized()
     isReady = true
     ReactLogger.log(level: .info, message: "Session successfully configured!")
