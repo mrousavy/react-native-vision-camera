@@ -19,6 +19,16 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 Skia Frame Processors are [Frame Processors](frame-processors) that allow you to draw onto the Frame using [react-native-skia](https://github.com/Shopify/react-native-skia).
 
+Skia Frame Processors were introduced in VisionCamera V3 RC.0, but were removed again after VisionCamera V3 RC.9 due to the significantly increased complexity of the video pipeline in the codebase.
+
+```
+yarn add react-native-vision-camera@rc.9
+```
+
+They worked perfectly fine for those RCs with some minor inconsistencies (landscape orientation didn't work on Android), which proves the concept. If you want to learn more about Skia Frame Processors, we at [Margelo](https://margelo.io) can build a custom solution for your company to implement drawable Frame Processors (e.g. filters, blurring, masks, colors, etc). See [PR #1740](https://github.com/mrousavy/react-native-vision-camera/pull/1740) for more details.
+
+### Documentation
+
 For example, you might want to draw a rectangle around a user's face **without writing any native code**, while still **achieving native performance**:
 
 ```jsx
