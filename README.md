@@ -1,4 +1,4 @@
-[![GitHub-Mark-Light](./docs/static/img/banner-dark.png#gh-dark-mode-only)![GitHub-Mark-Dark](./docs/static/img/banner-light.png#gh-light-mode-only)](https://margelo.io)
+![VisionCamera](./docs/static/img/banner-dark.png#gh-dark-mode-only)![VisionCamera](./docs/static/img/banner-light.png#gh-light-mode-only)
 
 <br />
 
