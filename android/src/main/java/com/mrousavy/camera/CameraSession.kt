@@ -202,7 +202,6 @@ class CameraSession(private val context: Context,
     val previewOutput = outputs?.previewOutput
     videoPipeline.setRecordingSessionOutput(this.recording)
     videoPipeline.setFrameProcessorOutput(this.frameProcessor)
-    videoPipeline.setPreviewOutput(previewOutput?.surface)
   }
 
   suspend fun takePhoto(qualityPrioritization: QualityPrioritization,
@@ -501,8 +500,7 @@ class CameraSession(private val context: Context,
         val captureRequest = camera.createCaptureRequest(template)
         outputs.previewOutput?.let { output ->
           Log.i(TAG, "Adding output surface ${output.outputType}..")
-          // TODO: Add here again?
-          // captureRequest.addTarget(output.surface)
+          captureRequest.addTarget(output.surface)
         }
         outputs.videoOutput?.let { output ->
           Log.i(TAG, "Adding output surface ${output.outputType}..")
