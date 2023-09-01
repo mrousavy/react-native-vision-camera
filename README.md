@@ -12,7 +12,7 @@
   <img align="right" width="35%" src="docs/static/img/example.png">
 </div>
 
-### Features
+### react-native-vision-camera
 
 VisionCamera is a powerful and fast Camera component for React Native. It features:
 
