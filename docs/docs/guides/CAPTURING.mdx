@@ -88,6 +88,14 @@ await camera.current.stopRecording()
 
 Once a recording has been stopped, the `onRecordingFinished` callback passed to the `startRecording` function will be invoked with a [`VideoFile`](/docs/api/interfaces/VideoFile) which you can then use to display in a [`<Video>`](https://github.com/react-native-video/react-native-video) component.
 
+To pause/resume the recordings, you can use `pauseRecording()` and `resumeRecording()`:
+
+```ts
+await camera.current.pauseRecording()
+...
+await camera.current.resumeRecording()
+```
+
 <br />
 
 #### 🚀 Next section: [Frame Processors](frame-processors)
