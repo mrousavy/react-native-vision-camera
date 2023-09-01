@@ -73,4 +73,4 @@ If you're integrating VisionCamera in a production app, consider [funding this p
 
 <br />
 
-[🐦 Follow me on Twitter for updates](https://twitter.com/mrousavy)
+🐦 [Follow me on Twitter](https://twitter.com/mrousavy) for updates
