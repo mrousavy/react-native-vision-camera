@@ -54,7 +54,7 @@ Frame processors are by far not limited to Hotdog detection, other examples incl
 Because they are written in JS, Frame Processors are **simple**, **powerful**, **extensible** and **easy to create** while still running at **native performance**. (Frame Processors can run up to **1000 times a second**!) Also, you can use **fast-refresh** to quickly see changes while developing or publish [over-the-air updates](https://github.com/microsoft/react-native-code-push) to tweak the Hotdog detector's sensitivity in live apps without pushing a native update.
 
 :::note
-Frame Processors require [**react-native-worklets-core**](https://github.com/chrfalch/react-native-worklets-core) 1.0.0 or higher.
+Frame Processors require [**react-native-worklets-core**](https://github.com/margelo/react-native-worklets-core) 1.0.0 or higher.
 :::
 
 ### Interacting with Frame Processors
@@ -127,10 +127,10 @@ Since Frame Processors run synchronously with the Camera Pipeline, anything taki
 ```ts
 const frameProcessor = useFrameProcessor((frame) => {
   'worklet'
-  console.log('I'm running synchronously at 60 FPS!')
+  console.log("I'm running synchronously at 60 FPS!")
   runAsync(() => {
     'worklet'
-    console.log('I'm running asynchronously, possibly at a lower FPS rate!')
+    console.log("I'm running asynchronously, possibly at a lower FPS rate!")
   })
 }, [])
 ```
@@ -142,10 +142,10 @@ Some Frame Processor Plugins don't need to run on every Frame, for example a Fra
 ```ts
 const frameProcessor = useFrameProcessor((frame) => {
   'worklet'
-  console.log('I'm running synchronously at 60 FPS!')
+  console.log("I'm running synchronously at 60 FPS!")
   runAtTargetFps(2, () => {
     'worklet'
-    console.log('I'm running synchronously at 2 FPS!')
+    console.log("I'm running synchronously at 2 FPS!")
   })
 }, [])
 ```
@@ -201,7 +201,7 @@ If you are using the [react-hooks ESLint plugin](https://www.npmjs.com/package/e
 
 #### Frame Processors
 
-**Frame Processors** are JS functions that will be **workletized** using [react-native-worklets-core](https://github.com/chrfalch/react-native-worklets-core). They are created on a **parallel camera thread** using a separate JavaScript Runtime (_"VisionCamera JS-Runtime"_) and are **invoked synchronously** (using JSI) without ever going over the bridge. In a **Frame Processor** you can write normal JS code, call back to the React-JS Thread (e.g. `setState`), use [Shared Values](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/shared-values/) and call **Frame Processor Plugins**.
+**Frame Processors** are JS functions that will be **workletized** using [react-native-worklets-core](https://github.com/margelo/react-native-worklets-core). They are created on a **parallel camera thread** using a separate JavaScript Runtime (_"VisionCamera JS-Runtime"_) and are **invoked synchronously** (using JSI) without ever going over the bridge. In a **Frame Processor** you can write normal JS code, call back to the React-JS Thread (e.g. `setState`), use [Shared Values](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/shared-values/) and call **Frame Processor Plugins**.
 
 > See [**the example Frame Processor**](https://github.com/mrousavy/react-native-vision-camera/blob/cf68a4c6476d085ec48fc424a53a96962e0c33f9/example/src/CameraPage.tsx#L199-L203)
 
