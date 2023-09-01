@@ -6,6 +6,9 @@ contact_links:
   - name: VisionCamera Discussions
     url: https://github.com/mrousavy/react-native-vision-camera/discussions
     about: Please ask and answer questions here.
-  - name: Google's CameraX Issue Tracker
+  - name: Margelo Community Discord
+    url: https://discord.gg/6CSHz2qAvA
+    about: Discuss and chat about react-native-vision-camera or other Margelo libraries with our team or other community members
+  - name: CameraX Issue Tracker
     url: https://issuetracker.google.com/issues?q=componentid:618491%20status:open#
-    about: Please post issues about the native Android Camera Library (CameraX) here.
+    about: If you experience an issue on Android, browsing through CameraX issues often leads to a solution that we can implement in VisionCamera as well.
