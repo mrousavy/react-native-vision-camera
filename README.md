@@ -76,4 +76,4 @@ If you're integrating VisionCamera in a production app, consider [funding this p
 * 🐦 [**Follow me on Twitter**](https://twitter.com/mrousavy) for updates
 * 📝 [**Check out my blog**](https://mrousavy.com/blog) for examples and experiments
 * 💖 [**Sponsor me on GitHub**](https://github.com/sponsors/mrousavy) to support my work
-* ☕ [**Buy me a Ko-Fi**](https://ko-fi.com/mrousavy) to support my work
+* 🍪 [**Buy me a Ko-Fi**](https://ko-fi.com/mrousavy) to support my work
