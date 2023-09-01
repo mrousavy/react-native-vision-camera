@@ -1,4 +1,4 @@
-package com.mrousavy.camera.utils;
+package com.mrousavy.camera.core;
 
 import android.media.Image
 import kotlinx.coroutines.CompletableDeferred

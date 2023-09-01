@@ -1,4 +1,4 @@
-package com.mrousavy.camera.utils.outputs
+package com.mrousavy.camera.core.outputs
 
 import android.media.ImageReader
 import android.util.Log

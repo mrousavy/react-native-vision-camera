@@ -24,10 +24,6 @@ extension CameraView {
 
   /// Converts a Point in the UI View Layer to a Point in the Camera Frame coordinate system
   private func convertLayerPointToFramePoint(layerPoint point: CGPoint) -> CGPoint {
-    guard let previewView = previewView else {
-      invokeOnError(.session(.cameraNotReady))
-      return .zero
-    }
     guard let videoDeviceInput = videoDeviceInput else {
       invokeOnError(.session(.cameraNotReady))
       return .zero

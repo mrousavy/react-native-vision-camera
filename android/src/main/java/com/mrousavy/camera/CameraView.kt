@@ -14,6 +14,8 @@ import android.view.View
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.ReadableMap
+import com.mrousavy.camera.core.CameraSession
+import com.mrousavy.camera.core.PreviewView
 import com.mrousavy.camera.extensions.containsAny
 import com.mrousavy.camera.extensions.installHierarchyFitter
 import com.mrousavy.camera.frameprocessor.FrameProcessor
@@ -21,19 +23,16 @@ import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.PixelFormat
 import com.mrousavy.camera.parsers.Torch
 import com.mrousavy.camera.parsers.VideoStabilizationMode
-import com.mrousavy.camera.utils.outputs.CameraOutputs
+import com.mrousavy.camera.core.outputs.CameraOutputs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.Closeable
 
 //
 // TODOs for the CameraView which are currently too hard to implement either because of CameraX' limitations, or my brain capacity.
 //
 // CameraView
 // TODO: High-speed video recordings (export in CameraViewModule::getAvailableVideoDevices(), and set in CameraView::configurePreview()) (120FPS+)
-// TODO: configureSession() enableDepthData
-// TODO: configureSession() enablePortraitEffectsMatteDelivery
 
 // CameraView+RecordVideo
 // TODO: Better startRecording()/stopRecording() (promise + callback, wait for TurboModules/JSI)
@@ -41,7 +40,6 @@ import java.io.Closeable
 // CameraView+TakePhoto
 // TODO: takePhoto() depth data
 // TODO: takePhoto() raw capture
-// TODO: takePhoto() photoCodec ("hevc" | "jpeg" | "raw")
 // TODO: takePhoto() return with jsi::Value Image reference for faster capture
 
 @SuppressLint("ClickableViewAccessibility", "ViewConstructor", "MissingPermission")
@@ -129,7 +127,7 @@ class CameraView(context: Context) : FrameLayout(context) {
     this.previewSurface = null
 
     val cameraId = cameraId ?: return
-    val previewView = NativePreviewView(context, cameraManager, cameraId) { surface ->
+    val previewView = PreviewView(context, cameraManager, cameraId) { surface ->
       previewSurface = surface
       configureSession()
     }

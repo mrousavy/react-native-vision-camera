@@ -20,7 +20,7 @@ using namespace facebook;
 
 class VideoPipeline : public jni::HybridClass<VideoPipeline> {
 public:
-  static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/utils/VideoPipeline;";
+  static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/core/VideoPipeline;";
   static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis, int width,
                                                 int height);
   static void registerNatives();

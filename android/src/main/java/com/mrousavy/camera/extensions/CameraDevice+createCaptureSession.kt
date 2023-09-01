@@ -11,7 +11,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import com.mrousavy.camera.CameraQueues
 import com.mrousavy.camera.CameraSessionCannotBeConfiguredError
-import com.mrousavy.camera.utils.outputs.CameraOutputs
+import com.mrousavy.camera.core.outputs.CameraOutputs
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
