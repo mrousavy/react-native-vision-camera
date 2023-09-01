@@ -115,24 +115,18 @@ void FrameProcessorRuntimeManager::setFrameProcessor(jsi::Runtime& rnRuntime,
   // convert jsi::Function to a ShareableValue (can be shared across runtimes)
   __android_log_write(ANDROID_LOG_INFO, TAG,
                       "Adapting Shareable value from function (conversion to worklet)...");
-  auto worklet = reanimated::extractShareableOrThrow<reanimated::ShareableWorklet>(rnRuntime, frameProcessor);
+  auto shareableWorklet = reanimated::extractShareableOrThrow<reanimated::ShareableWorklet>(rnRuntime, frameProcessor);
   __android_log_write(ANDROID_LOG_INFO, TAG, "Successfully created worklet!");
 
   scheduler_->scheduleOnUI([=]() {
       // cast worklet to a jsi::Function for the new runtime
       // assign lambda to frame processor
       cameraView->cthis()->setFrameProcessor([=](jni::alias_ref<JImageProxy::javaobject> frame) {
-          try {
-            // create HostObject which holds the Frame (JImageProxy)
-            auto hostObject = std::make_shared<FrameHostObject>(frame);
-            jsi::Runtime& rt = workletRuntime_->getJSIRuntime();
-            auto function = worklet->getJSValue(rt).asObject(rt).asFunction(rt);
-            function.callWithThis(rt, function, jsi::Object::createFromHostObject(rt, hostObject));
-          } catch (jsi::JSError& jsError) {
-            auto message = "Frame Processor threw an error: " + jsError.getMessage();
-            __android_log_write(ANDROID_LOG_ERROR, TAG, message.c_str());
-            this->logErrorToJS(message);
-          }
+          // create HostObject which holds the Frame (JImageProxy)
+          auto frameHostObject = std::make_shared<FrameHostObject>(frame);
+          jsi::Runtime &runtime = workletRuntime_->getJSIRuntime();
+          auto hostObject = jsi::Object::createFromHostObject(runtime, frameHostObject);
+          workletRuntime_->runGuarded(shareableWorklet, hostObject);
       });
 
       __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processor set!");
