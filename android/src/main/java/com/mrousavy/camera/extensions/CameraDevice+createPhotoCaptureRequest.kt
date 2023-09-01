@@ -46,23 +46,23 @@ fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
     QualityPrioritization.BALANCED -> 92
     QualityPrioritization.QUALITY -> 100
   }
-  captureRequest[CaptureRequest.JPEG_QUALITY] = jpegQuality.toByte()
+  captureRequest.set(CaptureRequest.JPEG_QUALITY, jpegQuality.toByte())
 
   captureRequest.set(CaptureRequest.JPEG_ORIENTATION, orientation.toDegrees())
 
   when (flashMode) {
     // Set the Flash Mode
     Flash.OFF -> {
-      captureRequest[CaptureRequest.CONTROL_AE_MODE] = CaptureRequest.CONTROL_AE_MODE_ON
+      captureRequest.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON)
     }
     Flash.ON -> {
-      captureRequest[CaptureRequest.CONTROL_AE_MODE] = CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH
+      captureRequest.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH)
     }
     Flash.AUTO -> {
       if (enableRedEyeReduction) {
-        captureRequest[CaptureRequest.CONTROL_AE_MODE] = CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH_REDEYE
+        captureRequest.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH_REDEYE)
       } else {
-        captureRequest[CaptureRequest.CONTROL_AE_MODE] = CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
+        captureRequest.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)
       }
     }
   }
@@ -75,17 +75,17 @@ fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
     val opticalStabilization = cameraCharacteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_OPTICAL_STABILIZATION)
     val hasOpticalStabilization = opticalStabilization?.contains(CameraCharacteristics.LENS_OPTICAL_STABILIZATION_MODE_ON) ?: false
     if (hasOpticalStabilization) {
-      captureRequest[CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE] = CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_OFF
-      captureRequest[CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE] = CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE_ON
+      captureRequest.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_OFF)
+      captureRequest.set(CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE, CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE_ON)
     } else if (hasDigitalStabilization) {
-      captureRequest[CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE] = CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_ON
+      captureRequest.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_ON)
     } else {
       // no stabilization is supported. ignore it
     }
   }
 
   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-    captureRequest[CaptureRequest.CONTROL_ZOOM_RATIO] = zoom
+    captureRequest.set(CaptureRequest.CONTROL_ZOOM_RATIO, zoom)
   } else {
     val size = cameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)!!
     captureRequest.set(CaptureRequest.SCALER_CROP_REGION, size.zoomed(zoom))

@@ -79,6 +79,7 @@ enum DeviceError: String {
   case lowLightBoostNotSupported = "low-light-boost-not-supported"
   case focusNotSupported = "focus-not-supported"
   case notAvailableOnSimulator = "camera-not-available-on-simulator"
+  case pixelFormatNotSupported = "pixel-format-not-supported"
 
   var code: String {
     return rawValue
@@ -102,6 +103,8 @@ enum DeviceError: String {
       return "The microphone was unavailable."
     case .notAvailableOnSimulator:
       return "The Camera is not available on the iOS Simulator!"
+    case .pixelFormatNotSupported:
+      return "The given pixelFormat is not supported on the given Camera Device!"
     }
   }
 }

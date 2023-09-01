@@ -56,7 +56,7 @@ class CameraSession(private val context: Context,
     private const val TAG = "CameraSession"
 
     // TODO: Samsung advertises 60 FPS but only allows 30 FPS for some reason.
-    private val CAN_SET_FPS = Build.MANUFACTURER != "samsung"
+    private val CAN_SET_FPS = !Build.MANUFACTURER.equals("samsung", true)
   }
 
   data class CapturedPhoto(val image: Image,

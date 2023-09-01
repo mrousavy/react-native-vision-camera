@@ -24,9 +24,10 @@ import java.io.Closeable
 @Suppress("KotlinJniMissingFunction")
 class VideoPipeline(val width: Int,
                     val height: Int,
-                    val format: Int = ImageFormat.PRIVATE): SurfaceTexture.OnFrameAvailableListener, Closeable {
+                    val format: Int = ImageFormat.PRIVATE,
+                    private val isMirrored: Boolean = false): SurfaceTexture.OnFrameAvailableListener, Closeable {
   companion object {
-    private const val MAX_IMAGES = 5
+    private const val MAX_IMAGES = 3
     private const val TAG = "VideoPipeline"
   }
 
@@ -98,7 +99,7 @@ class VideoPipeline(val width: Int,
       val image = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
 
       // TODO: Get correct orientation and isMirrored
-      val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, false)
+      val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, isMirrored)
       frame.incrementRefCount()
       frameProcessor?.call(frame)
       frame.decrementRefCount()
@@ -110,7 +111,7 @@ class VideoPipeline(val width: Int,
    * Configures the Pipeline to also call the given [FrameProcessor].
    * * If the [frameProcessor] is `null`, this output channel will be removed.
    * * If the [frameProcessor] is not `null`, the [VideoPipeline] will create Frames
-   * using an [ImageWriter] and call the [FrameProcessor] with those Frames.
+   *   using an [ImageWriter] and call the [FrameProcessor] with those Frames.
    */
   fun setFrameProcessorOutput(frameProcessor: FrameProcessor?) {
     synchronized(this) {

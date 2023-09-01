@@ -107,7 +107,10 @@ public final class CameraView: UIView {
 
   // pragma MARK: Setup
   override public init(frame: CGRect) {
+    previewView = PreviewView(frame: frame, session: captureSession)
     super.init(frame: frame)
+
+    addSubview(previewView)
 
     NotificationCenter.default.addObserver(self,
                                            selector: #selector(sessionRuntimeError),
@@ -121,13 +124,6 @@ public final class CameraView: UIView {
                                            selector: #selector(audioSessionInterrupted),
                                            name: AVAudioSession.interruptionNotification,
                                            object: AVAudioSession.sharedInstance)
-    NotificationCenter.default.addObserver(self,
-                                           selector: #selector(onOrientationChanged),
-                                           name: UIDevice.orientationDidChangeNotification,
-                                           object: nil)
-    
-    previewView = PreviewView(frame: frame, session: captureSession)
-    addSubview(previewView)
   }
 
   @available(*, unavailable)
@@ -145,9 +141,6 @@ public final class CameraView: UIView {
     NotificationCenter.default.removeObserver(self,
                                               name: AVAudioSession.interruptionNotification,
                                               object: AVAudioSession.sharedInstance)
-    NotificationCenter.default.removeObserver(self,
-                                              name: UIDevice.orientationDidChangeNotification,
-                                              object: nil)
   }
 
   override public func willMove(toSuperview newSuperview: UIView?) {
@@ -250,7 +243,7 @@ public final class CameraView: UIView {
       }
     }
   }
-  
+
   func setupFpsGraph() {
     #if DEBUG
       if enableFpsGraph {
@@ -263,11 +256,6 @@ public final class CameraView: UIView {
         fpsGraph = nil
       }
     #endif
-  }
-
-  @objc
-  func onOrientationChanged() {
-    updateOrientation()
   }
 
   // pragma MARK: Event Invokers

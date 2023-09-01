@@ -116,13 +116,24 @@ extension CameraView {
       videoOutput!.alwaysDiscardsLateVideoFrames = false
 
       if let pixelFormat = pixelFormat as? String {
-        let defaultFormat = CMFormatDescriptionGetMediaSubType(videoDeviceInput!.device.activeFormat.formatDescription)
+        let supportedPixelFormats = videoOutput!.availableVideoPixelFormatTypes
+        let defaultFormat = supportedPixelFormats.first! // first value is always the most efficient format
         var pixelFormatType: OSType = defaultFormat
         switch pixelFormat {
         case "yuv":
-          pixelFormatType = kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
+          if supportedPixelFormats.contains(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange) {
+            pixelFormatType = kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
+          } else if supportedPixelFormats.contains(kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange) {
+            pixelFormatType = kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
+          } else {
+            invokeOnError(.device(.pixelFormatNotSupported))
+          }
         case "rgb":
-          pixelFormatType = kCVPixelFormatType_32BGRA
+          if supportedPixelFormats.contains(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange) {
+            pixelFormatType = kCVPixelFormatType_32BGRA
+          } else {
+            invokeOnError(.device(.pixelFormatNotSupported))
+          }
         case "native":
           pixelFormatType = defaultFormat
         default:
@@ -135,7 +146,9 @@ extension CameraView {
       captureSession.addOutput(videoOutput!)
     }
 
-    onOrientationChanged()
+    if outputOrientation != .portrait {
+      updateOrientation()
+    }
 
     invokeOnInitialized()
     isReady = true
