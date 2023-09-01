@@ -73,6 +73,9 @@ jobs:
   lint:
     name: Lint JS (eslint, prettier)
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./package
     steps:
     - uses: actions/checkout@v2
 
