@@ -29,7 +29,6 @@ import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.createPhotoCaptureRequest
 import com.mrousavy.camera.extensions.openCamera
-import com.mrousavy.camera.extensions.tryClose
 import com.mrousavy.camera.extensions.zoomed
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.parsers.Flash
