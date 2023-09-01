@@ -32,6 +32,7 @@
     "typescript": "tsc --noEmit",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",
     "lint-ci": "yarn lint -f ./node_modules/@firmnav/eslint-github-actions-formatter/dist/formatter.js",
+    "start": "cd example && yarn start",
     "build": "bob build",
     "release": "release-it",
     "pods": "cd example && yarn pods",
@@ -43,8 +44,7 @@
     "check-all": "scripts/check-all.sh",
     "clean-ios": "scripts/clean-ios.sh",
     "clean-android": "scripts/clean-android.sh",
-    "clean-js": "scripts/clean-js.sh",
-    "docs": "cd docs && yarn build"
+    "clean-js": "scripts/clean-js.sh"
   },
   "keywords": [
     "react-native",
