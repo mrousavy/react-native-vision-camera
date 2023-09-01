@@ -26,6 +26,13 @@ VisionCamera is a powerful and fast Camera component for React Native. It featur
 * HDR & Night modes
 * Custom C++/GPU accelerated video pipeline (OpenGL)
 
+Get started by installing VisionCamera from npm:
+
+```sh
+yarn add react-native-vision-camera
+cd ios && pod install
+```
+
 ### Documentation
 
 * [Guides](https://react-native-vision-camera.com/docs/guides)
