@@ -156,9 +156,9 @@ module.exports = {
       'docusaurus-plugin-typedoc',
       {
         name: 'VisionCamera',
-        entryPoints: ['../src'],
-        exclude: "../src/index.ts",
-        tsconfig: '../tsconfig.json',
+        entryPoints: ['../package/src'],
+        exclude: "../package/src/index.ts",
+        tsconfig: '../package/tsconfig.json',
         watch: process.env.TYPEDOC_WATCH,
         excludePrivate: true,
         excludeProtected: true,

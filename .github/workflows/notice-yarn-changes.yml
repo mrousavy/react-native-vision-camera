@@ -4,6 +4,9 @@ on: [pull_request]
 jobs:
   check:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./package
     permissions:
       pull-requests: write
     steps:

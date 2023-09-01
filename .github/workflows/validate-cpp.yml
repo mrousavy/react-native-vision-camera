@@ -6,20 +6,23 @@ on:
       - main
     paths:
       - '.github/workflows/validate-cpp.yml'
-      - 'cpp/**'
-      - 'android/src/main/cpp/**'
-      - 'ios/**'
+      - 'package/cpp/**'
+      - 'package/android/src/main/cpp/**'
+      - 'package/ios/**'
   pull_request:
     paths:
       - '.github/workflows/validate-cpp.yml'
-      - 'cpp/**'
-      - 'android/src/main/cpp/**'
-      - 'ios/**'
+      - 'package/cpp/**'
+      - 'package/android/src/main/cpp/**'
+      - 'package/ios/**'
 
 jobs:
   lint:
     name: Check clang-format
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./package
     strategy:
       matrix:
         path:
