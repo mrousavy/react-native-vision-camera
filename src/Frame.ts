@@ -23,6 +23,10 @@ export interface Frame {
    */
   bytesPerRow: number;
   /**
+   * Returns the number of planes this frame contains.
+   */
+  planesCount: number;
+  /**
    * Returns whether the Frame is mirrored (selfie camera) or not.
    */
   isMirrored: boolean;

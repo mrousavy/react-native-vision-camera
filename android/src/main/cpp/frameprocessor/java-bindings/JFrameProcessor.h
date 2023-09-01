@@ -21,7 +21,7 @@ namespace vision {
 
 using namespace facebook;
 
-class JFrameProcessor : public jni::HybridClass<JFrameProcessor> {
+struct JFrameProcessor : public jni::HybridClass<JFrameProcessor> {
  public:
   static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/FrameProcessor;";
   static void registerNatives();
@@ -30,25 +30,20 @@ class JFrameProcessor : public jni::HybridClass<JFrameProcessor> {
 
  public:
   /**
-   * Wrap the Frame in a HostObject and call the Frame Processor.
+   * Call the JS Frame Processor.
    */
-  void call(jni::alias_ref<JFrame::javaobject> frame);
+  void call(alias_ref<JFrame::javaobject> frame);
 
- protected:
-  friend HybridBase;
-  // C++ only constructor. Use `create(..)` to create new instances.
+ private:
+  // Private constructor. Use `create(..)` to create new instances.
   explicit JFrameProcessor(std::shared_ptr<RNWorklet::JsiWorklet> worklet,
                            std::shared_ptr<RNWorklet::JsiWorkletContext> context);
-  JFrameProcessor(const JFrameProcessor &) = delete;
-  JFrameProcessor &operator=(const JFrameProcessor &) = delete;
 
- protected:
-  /**
-   * Call the JS Frame Processor with the given Frame Host Object.
-   */
+ private:
   void callWithFrameHostObject(const std::shared_ptr<FrameHostObject>& frameHostObject) const;
 
  private:
+  friend HybridBase;
   std::shared_ptr<RNWorklet::WorkletInvoker> _workletInvoker;
   std::shared_ptr<RNWorklet::JsiWorkletContext> _workletContext;
 };

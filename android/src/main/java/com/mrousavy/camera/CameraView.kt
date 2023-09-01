@@ -19,12 +19,16 @@ import com.mrousavy.camera.extensions.installHierarchyFitter
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.PixelFormat
+import com.mrousavy.camera.parsers.PreviewType
 import com.mrousavy.camera.parsers.Torch
 import com.mrousavy.camera.parsers.VideoStabilizationMode
+import com.mrousavy.camera.skia.SkiaPreviewView
+import com.mrousavy.camera.skia.SkiaRenderer
 import com.mrousavy.camera.utils.outputs.CameraOutputs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.Closeable
 
 //
 // TODOs for the CameraView which are currently too hard to implement either because of CameraX' limitations, or my brain capacity.
@@ -48,7 +52,7 @@ class CameraView(context: Context) : FrameLayout(context) {
   companion object {
     const val TAG = "CameraView"
 
-    private val propsThatRequirePreviewReconfiguration = arrayListOf("cameraId")
+    private val propsThatRequirePreviewReconfiguration = arrayListOf("cameraId", "previewType")
     private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "photo", "video", "enableFrameProcessor", "pixelFormat")
     private val propsThatRequireFormatReconfiguration = arrayListOf("fps", "hdr", "videoStabilizationMode", "lowLightBoost")
   }
@@ -71,6 +75,7 @@ class CameraView(context: Context) : FrameLayout(context) {
   var videoStabilizationMode: VideoStabilizationMode? = null
   var hdr: Boolean? = null // nullable bool
   var lowLightBoost: Boolean? = null // nullable bool
+  var previewType: PreviewType = PreviewType.NONE
   // other props
   var isActive = false
   var torch: Torch = Torch.OFF
@@ -87,10 +92,11 @@ class CameraView(context: Context) : FrameLayout(context) {
   private var previewView: View? = null
   private var previewSurface: Surface? = null
 
+  private var skiaRenderer: SkiaRenderer? = null
   internal var frameProcessor: FrameProcessor? = null
     set(value) {
       field = value
-      cameraSession.frameProcessor = value
+      cameraSession.frameProcessor = frameProcessor
     }
 
   private val inputOrientation: Orientation
@@ -124,17 +130,34 @@ class CameraView(context: Context) : FrameLayout(context) {
   }
 
   private fun setupPreviewView() {
-    removeView(previewView)
+    this.previewView?.let { previewView ->
+      removeView(previewView)
+      if (previewView is Closeable) previewView.close()
+    }
     this.previewSurface = null
 
-    val cameraId = cameraId ?: return
-    val previewView = NativePreviewView(context, cameraManager, cameraId) { surface ->
-      previewSurface = surface
-      configureSession()
+    when (previewType) {
+      PreviewType.NONE -> {
+        // Do nothing.
+      }
+      PreviewType.NATIVE -> {
+        val cameraId = cameraId ?: throw NoCameraDeviceError()
+        this.previewView = NativePreviewView(context, cameraManager, cameraId) { surface ->
+          previewSurface = surface
+          configureSession()
+        }
+      }
+      PreviewType.SKIA -> {
+        if (skiaRenderer == null) skiaRenderer = SkiaRenderer()
+        this.previewView = SkiaPreviewView(context, skiaRenderer!!)
+        configureSession()
+      }
     }
-    previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-    addView(previewView)
-    this.previewView = previewView
+
+    this.previewView?.let { previewView ->
+      previewView.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+      addView(previewView)
+    }
   }
 
   fun update(changedProps: ArrayList<String>) {
@@ -194,6 +217,8 @@ class CameraView(context: Context) : FrameLayout(context) {
       val targetPhotoSize = if (format != null) Size(format.getInt("photoWidth"), format.getInt("photoHeight")) else null
       // TODO: Allow previewSurface to be null/none
       val previewSurface = previewSurface ?: return
+
+      if (targetVideoSize != null) skiaRenderer?.setInputSurfaceSize(targetVideoSize.width, targetVideoSize.height)
 
       val previewOutput = CameraOutputs.PreviewOutput(previewSurface)
       val photoOutput = if (photo == true) {
