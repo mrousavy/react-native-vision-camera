@@ -11,6 +11,7 @@ import android.util.Log
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
+import com.mrousavy.camera.core.CameraSession
 import com.mrousavy.camera.parsers.Flash
 import com.mrousavy.camera.parsers.QualityPrioritization
 import com.mrousavy.camera.utils.*

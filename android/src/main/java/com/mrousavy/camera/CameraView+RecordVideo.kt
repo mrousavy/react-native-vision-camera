@@ -8,7 +8,7 @@ import com.facebook.react.bridge.*
 import com.mrousavy.camera.parsers.Torch
 import com.mrousavy.camera.parsers.VideoCodec
 import com.mrousavy.camera.parsers.VideoFileType
-import com.mrousavy.camera.utils.RecordingSession
+import com.mrousavy.camera.core.RecordingSession
 import com.mrousavy.camera.utils.makeErrorMap
 import java.util.*
 

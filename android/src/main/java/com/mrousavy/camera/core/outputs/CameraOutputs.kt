@@ -1,4 +1,4 @@
-package com.mrousavy.camera.utils.outputs
+package com.mrousavy.camera.core.outputs
 
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraManager
@@ -12,7 +12,7 @@ import com.mrousavy.camera.extensions.closestToOrMax
 import com.mrousavy.camera.extensions.getPhotoSizes
 import com.mrousavy.camera.extensions.getPreviewSize
 import com.mrousavy.camera.extensions.getVideoSizes
-import com.mrousavy.camera.utils.VideoPipeline
+import com.mrousavy.camera.core.VideoPipeline
 import java.io.Closeable
 
 class CameraOutputs(val cameraId: String,
@@ -21,7 +21,8 @@ class CameraOutputs(val cameraId: String,
                     val photo: PhotoOutput? = null,
                     val video: VideoOutput? = null,
                     val enableHdr: Boolean? = false,
-                    val callback: Callback): Closeable {
+                    val callback: Callback
+): Closeable {
   companion object {
     private const val TAG = "CameraOutputs"
     const val PHOTO_OUTPUT_BUFFER_SIZE = 3

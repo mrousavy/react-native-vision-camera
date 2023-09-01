@@ -1,4 +1,4 @@
-package com.mrousavy.camera
+package com.mrousavy.camera.core
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -11,15 +11,11 @@ import android.view.SurfaceView
 import com.mrousavy.camera.extensions.getPreviewSize
 import kotlin.math.roundToInt
 
-/**
- * A [SurfaceView] that can be adjusted to a specified aspect ratio and
- * performs center-crop transformation of input frames.
- */
 @SuppressLint("ViewConstructor")
-class NativePreviewView(context: Context,
-                        cameraManager: CameraManager,
-                        cameraId: String,
-                        private val onSurfaceChanged: (surface: Surface?) -> Unit): SurfaceView(context) {
+class PreviewView(context: Context,
+                  cameraManager: CameraManager,
+                  cameraId: String,
+                  private val onSurfaceChanged: (surface: Surface?) -> Unit): SurfaceView(context) {
   private val targetSize: Size
   private val aspectRatio: Float
     get() = targetSize.width.toFloat() / targetSize.height.toFloat()

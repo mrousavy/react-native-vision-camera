@@ -1,8 +1,8 @@
-package com.mrousavy.camera.utils.outputs
+package com.mrousavy.camera.core.outputs
 
 import android.util.Log
 import android.util.Size
-import com.mrousavy.camera.utils.VideoPipeline
+import com.mrousavy.camera.core.VideoPipeline
 import java.io.Closeable
 
 /**

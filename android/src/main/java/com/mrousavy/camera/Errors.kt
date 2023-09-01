@@ -1,7 +1,7 @@
 package com.mrousavy.camera
 
 import com.mrousavy.camera.parsers.CameraDeviceError
-import com.mrousavy.camera.utils.outputs.CameraOutputs
+import com.mrousavy.camera.core.outputs.CameraOutputs
 
 abstract class CameraError(
   /**

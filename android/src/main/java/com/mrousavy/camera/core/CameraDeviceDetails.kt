@@ -1,4 +1,4 @@
-package com.mrousavy.camera.utils
+package com.mrousavy.camera.core
 
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
