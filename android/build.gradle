@@ -66,10 +66,7 @@ static def findNodeModules(baseDir) {
 def nodeModules = findNodeModules(projectDir)
 
 def hasWorklets = !safeExtGet("VisionCamera_disableFrameProcessors", false) && findProject(":react-native-worklets-core") != null
-def hasSkia = !safeExtGet("VisionCamera_disableSkia", false) && findProject(":shopify_react-native-skia") != null
-
 logger.warn("[VisionCamera] react-native-worklets-core ${hasWorklets ? "found" : "not found"}, Frame Processors ${hasWorklets ? "enabled" : "disabled"}!")
-logger.warn("[VisionCamera] react-native-skia ${hasSkia ? "found" : "not found"}, Skia Frame Processors ${hasSkia ? "enabled" : "disabled"}!")
 
 repositories {
   google()
@@ -105,8 +102,7 @@ android {
         cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all"
         arguments "-DANDROID_STL=c++_shared",
                 "-DNODE_MODULES_DIR=${nodeModules}",
-                "-DENABLE_FRAME_PROCESSORS=${hasWorklets}",
-                "-DENABLE_SKIA=${hasWorklets && hasSkia}"
+                "-DENABLE_FRAME_PROCESSORS=${hasWorklets}"
         abiFilters (*reactNativeArchitectures())
       }
     }
@@ -152,11 +148,6 @@ dependencies {
   if (hasWorklets) {
     // Frame Processor integration (optional)
     implementation project(":react-native-worklets-core")
-
-    if (hasSkia) {
-      // Skia Frame Processor integration (optional)
-      implementation project(":shopify_react-native-skia")
-    }
   }
 }
 

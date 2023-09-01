@@ -9,20 +9,11 @@ if defined?($VCDisableFrameProcessors)
   Pod::UI.puts "[VisionCamera] $VCDisableFrameProcesors is set to #{$VCDisableFrameProcessors}!"
   forceDisableFrameProcessors = $VCDisableFrameProcessors
 end
-forceDisableSkia = false
-if defined?($VCDisableSkia)
-  Pod::UI.puts "[VisionCamera] $VCDisableSkia is set to #{$VCDisableSkia}!"
-  forceDisableSkia = $VCDisableSkia
-end
 
 Pod::UI.puts("[VisionCamera] node modules #{Dir.exist?(nodeModules) ? "found at #{nodeModules}" : "not found!"}")
 workletsPath = File.join(nodeModules, "react-native-worklets-core")
 hasWorklets = File.exist?(workletsPath) && !forceDisableFrameProcessors
 Pod::UI.puts("[VisionCamera] react-native-worklets-core #{hasWorklets ? "found" : "not found"}, Frame Processors #{hasWorklets ? "enabled" : "disabled"}!")
-
-skiaPath = File.join(nodeModules, "@shopify", "react-native-skia")
-hasSkia = hasWorklets && File.exist?(skiaPath) && !forceDisableSkia
-Pod::UI.puts("[VisionCamera] react-native-skia #{hasSkia ? "found" : "not found"}, Skia Frame Processors #{hasSkia ? "enabled" : "disabled"}!")
 
 Pod::Spec.new do |s|
   s.name         = "VisionCamera"
@@ -37,10 +28,10 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/mrousavy/react-native-vision-camera.git", :tag => "#{s.version}" }
 
   s.pod_target_xcconfig = {
-    "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) SK_METAL=1 SK_GANESH=1 VISION_CAMERA_ENABLE_FRAME_PROCESSORS=#{hasWorklets} VISION_CAMERA_ENABLE_SKIA=#{hasSkia}",
-    "OTHER_SWIFT_FLAGS" => "$(inherited) #{hasWorklets ? "-D VISION_CAMERA_ENABLE_FRAME_PROCESSORS" : ""} #{hasSkia ? "-D VISION_CAMERA_ENABLE_SKIA" : ""}",
+    "GCC_PREPROCESSOR_DEFINITIONS" => "$(inherited) SK_METAL=1 SK_GANESH=1 VISION_CAMERA_ENABLE_FRAME_PROCESSORS=#{hasWorklets}",
+    "OTHER_SWIFT_FLAGS" => "$(inherited) #{hasWorklets ? "-D VISION_CAMERA_ENABLE_FRAME_PROCESSORS" : ""}",
     "CLANG_CXX_LANGUAGE_STANDARD" => "c++17",
-    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp/\"/** \"#{skiaPath}/cpp/skia/**\" "
+    "HEADER_SEARCH_PATHS" => "\"$(PODS_TARGET_SRCROOT)/cpp/\"/** "
   }
 
   s.requires_arc = true
@@ -63,10 +54,6 @@ Pod::Spec.new do |s|
     hasWorklets ? "ios/Frame Processor/FrameProcessorPluginRegistry.h" : "",
     hasWorklets ? "ios/Frame Processor/VisionCameraProxy.h" : "",
     hasWorklets ? "cpp/**/*.{cpp}" : "",
-
-    # Skia Frame Processors
-    hasSkia ? "ios/Skia Render Layer/*.{m,mm,swift}" : "",
-    hasSkia ? "ios/Skia Render Layer/SkiaRenderer.h" : "",
   ]
   # Any private headers that are not globally unique should be mentioned here.
   # Otherwise there will be a nameclash, since CocoaPods flattens out any header directories
@@ -82,8 +69,5 @@ Pod::Spec.new do |s|
 
   if hasWorklets
     s.dependency "react-native-worklets-core"
-    if hasSkia
-      s.dependency "react-native-skia"
-    end
   end
 end

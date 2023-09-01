@@ -76,7 +76,6 @@
     "@react-native/eslint-config": "^0.72.2",
     "@react-native/typescript-config": "^0.73.0",
     "@release-it/conventional-changelog": "^7.0.0",
-    "@shopify/react-native-skia": "^0.1.200",
     "@types/react": "^18.2.19",
     "@types/react-native": "^0.72.2",
     "eslint": "^8.46.0",
@@ -91,15 +90,11 @@
     "typescript": "^5.1.6"
   },
   "peerDependencies": {
-    "@shopify/react-native-skia": "*",
     "react": "*",
     "react-native": "*",
     "react-native-worklets-core": "*"
   },
   "peerDependenciesMeta": {
-    "@shopify/react-native-skia": {
-      "optional": true
-    },
     "react-native-worklets-core": {
       "optional": true
     }
