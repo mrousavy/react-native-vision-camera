@@ -59,7 +59,7 @@ class OpenGLContext {
   EGLConfig config = nullptr;
 
  private:
-  explicit OpenGLContext() = default;
+  OpenGLContext() = default;
   void destroy();
   void ensureOpenGL();
 
