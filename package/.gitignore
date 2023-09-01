@@ -68,3 +68,5 @@ docs/docs/api
 # External native build folder generated in Android Studio 2.2 and later
 .externalNativeBuild
 .cxx/
+
+example/ios/vendor
