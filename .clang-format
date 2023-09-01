@@ -1,6 +1,6 @@
 # Standard
-BasedOnStyle: "llvm"
-Standard: "C++14"
+BasedOnStyle: llvm
+Standard: c++14
 
 # Indentation
 IndentWidth: 2
