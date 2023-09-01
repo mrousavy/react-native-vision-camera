@@ -36,4 +36,5 @@ jobs:
         with:
           clang-format-version: '16'
           check-path: ${{ matrix.path }}
+          fallback-style: file:cpp/.clang-format
 
