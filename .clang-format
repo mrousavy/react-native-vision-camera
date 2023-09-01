@@ -22,7 +22,7 @@ AlignConsecutiveDeclarations: true
 AlignOperands: true
 
 # Line breaking options
-BreakBeforeBraces: Stroustrup
+BreakBeforeBraces: Attach
 BreakConstructorInitializers: BeforeColon
 AllowShortFunctionsOnASingleLine: Empty
 IndentCaseLabels: true
