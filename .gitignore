@@ -3,4 +3,4 @@
 # no yarn/npm in the root repo!
 ./package-lock.json
 ./yarn.lock
-./node_modules/
+**/node_modules/
