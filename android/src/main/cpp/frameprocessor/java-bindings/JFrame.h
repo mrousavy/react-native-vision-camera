@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <jni.h>
-#include <fbjni/fbjni.h>
 #include <fbjni/ByteBuffer.h>
+#include <fbjni/fbjni.h>
+#include <jni.h>
 
 namespace vision {
 
@@ -16,7 +16,7 @@ using namespace jni;
 struct JFrame : public JavaClass<JFrame> {
   static constexpr auto kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/Frame;";
 
- public:
+public:
   int getWidth() const;
   int getHeight() const;
   bool getIsValid() const;

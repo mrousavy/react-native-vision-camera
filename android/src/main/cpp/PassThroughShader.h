@@ -21,7 +21,7 @@ struct Vertex {
 };
 
 class PassThroughShader {
- public:
+public:
   PassThroughShader() = default;
   ~PassThroughShader();
 
@@ -31,12 +31,12 @@ class PassThroughShader {
    */
   void draw(const OpenGLTexture& texture, float* transformMatrix);
 
- private:
+private:
   // Loading
   static GLuint loadShader(GLenum shaderType, const char* shaderCode);
   static GLuint createProgram();
 
- private:
+private:
   // Parameters
   GLuint _programId = NO_SHADER;
   GLuint _vertexBuffer = NO_BUFFER;
@@ -49,7 +49,7 @@ class PassThroughShader {
     GLint uTexture = NO_POSITION;
   } _fragmentParameters;
 
- private:
+private:
   // Statics
   static constexpr Vertex VERTICES[] = {
       {{-1.0f, -1.0f}, {0.0f, 0.0f}}, // bottom-left

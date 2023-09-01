@@ -36,8 +36,8 @@ void JVisionCameraScheduler::trigger() {
 
 void JVisionCameraScheduler::registerNatives() {
   registerHybrid({
-    makeNativeMethod("initHybrid", JVisionCameraScheduler::initHybrid),
-    makeNativeMethod("trigger", JVisionCameraScheduler::trigger),
+      makeNativeMethod("initHybrid", JVisionCameraScheduler::initHybrid),
+      makeNativeMethod("trigger", JVisionCameraScheduler::trigger),
   });
 }
 

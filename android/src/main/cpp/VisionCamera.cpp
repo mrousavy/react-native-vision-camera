@@ -1,12 +1,12 @@
-#include <jni.h>
-#include <fbjni/fbjni.h>
-#include "JVisionCameraScheduler.h"
 #include "JFrameProcessor.h"
 #include "JVisionCameraProxy.h"
-#include "VisionCameraProxy.h"
+#include "JVisionCameraScheduler.h"
 #include "VideoPipeline.h"
+#include "VisionCameraProxy.h"
+#include <fbjni/fbjni.h>
+#include <jni.h>
 
-JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *) {
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*) {
   return facebook::jni::initialize(vm, [] {
     vision::VisionCameraInstaller::registerNatives();
     vision::JVisionCameraProxy::registerNatives();

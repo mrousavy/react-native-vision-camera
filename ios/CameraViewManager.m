@@ -8,18 +8,28 @@
 
 #import <Foundation/Foundation.h>
 
-#import <React/RCTViewManager.h>
 #import <React/RCTUtils.h>
+#import <React/RCTViewManager.h>
 
-@interface RCT_EXTERN_REMAP_MODULE(CameraView, CameraViewManager, RCTViewManager)
+@interface RCT_EXTERN_REMAP_MODULE (CameraView, CameraViewManager, RCTViewManager)
 
 // Module Functions
-RCT_EXTERN_METHOD(getCameraPermissionStatus:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject);
-RCT_EXTERN_METHOD(getMicrophonePermissionStatus:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject);
-RCT_EXTERN_METHOD(requestCameraPermission:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject);
-RCT_EXTERN_METHOD(requestMicrophonePermission:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject);
+RCT_EXTERN_METHOD(getCameraPermissionStatus
+                  : (RCTPromiseResolveBlock)resolve reject
+                  : (RCTPromiseRejectBlock)reject);
+RCT_EXTERN_METHOD(getMicrophonePermissionStatus
+                  : (RCTPromiseResolveBlock)resolve reject
+                  : (RCTPromiseRejectBlock)reject);
+RCT_EXTERN_METHOD(requestCameraPermission
+                  : (RCTPromiseResolveBlock)resolve reject
+                  : (RCTPromiseRejectBlock)reject);
+RCT_EXTERN_METHOD(requestMicrophonePermission
+                  : (RCTPromiseResolveBlock)resolve reject
+                  : (RCTPromiseRejectBlock)reject);
 
-RCT_EXTERN_METHOD(getAvailableCameraDevices:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject);
+RCT_EXTERN_METHOD(getAvailableCameraDevices
+                  : (RCTPromiseResolveBlock)resolve reject
+                  : (RCTPromiseRejectBlock)reject);
 
 // Camera View Properties
 RCT_EXPORT_VIEW_PROPERTY(isActive, BOOL);
@@ -35,7 +45,7 @@ RCT_EXPORT_VIEW_PROPERTY(enableFrameProcessor, BOOL);
 // device format
 RCT_EXPORT_VIEW_PROPERTY(format, NSDictionary);
 RCT_EXPORT_VIEW_PROPERTY(fps, NSNumber);
-RCT_EXPORT_VIEW_PROPERTY(hdr, NSNumber); // nullable bool
+RCT_EXPORT_VIEW_PROPERTY(hdr, NSNumber);           // nullable bool
 RCT_EXPORT_VIEW_PROPERTY(lowLightBoost, NSNumber); // nullable bool
 RCT_EXPORT_VIEW_PROPERTY(videoStabilizationMode, NSString);
 RCT_EXPORT_VIEW_PROPERTY(pixelFormat, NSString);
@@ -51,12 +61,32 @@ RCT_EXPORT_VIEW_PROPERTY(onInitialized, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onViewReady, RCTDirectEventBlock);
 
 // Camera View Functions
-RCT_EXTERN_METHOD(startRecording:(nonnull NSNumber *)node options:(NSDictionary *)options onRecordCallback:(RCTResponseSenderBlock)onRecordCallback);
-RCT_EXTERN_METHOD(pauseRecording:(nonnull NSNumber *)node resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject);
-RCT_EXTERN_METHOD(resumeRecording:(nonnull NSNumber *)node resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject);
-RCT_EXTERN_METHOD(stopRecording:(nonnull NSNumber *)node resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject);
-RCT_EXTERN_METHOD(takePhoto:(nonnull NSNumber *)node options:(NSDictionary *)options resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject);
-RCT_EXTERN_METHOD(focus:(nonnull NSNumber *)node point:(NSDictionary *)point resolve:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject);
+RCT_EXTERN_METHOD(startRecording
+                  : (nonnull NSNumber*)node options
+                  : (NSDictionary*)options onRecordCallback
+                  : (RCTResponseSenderBlock)onRecordCallback);
+RCT_EXTERN_METHOD(pauseRecording
+                  : (nonnull NSNumber*)node resolve
+                  : (RCTPromiseResolveBlock)resolve reject
+                  : (RCTPromiseRejectBlock)reject);
+RCT_EXTERN_METHOD(resumeRecording
+                  : (nonnull NSNumber*)node resolve
+                  : (RCTPromiseResolveBlock)resolve reject
+                  : (RCTPromiseRejectBlock)reject);
+RCT_EXTERN_METHOD(stopRecording
+                  : (nonnull NSNumber*)node resolve
+                  : (RCTPromiseResolveBlock)resolve reject
+                  : (RCTPromiseRejectBlock)reject);
+RCT_EXTERN_METHOD(takePhoto
+                  : (nonnull NSNumber*)node options
+                  : (NSDictionary*)options resolve
+                  : (RCTPromiseResolveBlock)resolve reject
+                  : (RCTPromiseRejectBlock)reject);
+RCT_EXTERN_METHOD(focus
+                  : (nonnull NSNumber*)node point
+                  : (NSDictionary*)point resolve
+                  : (RCTPromiseResolveBlock)resolve reject
+                  : (RCTPromiseRejectBlock)reject);
 
 // Static Methods
 RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(installFrameProcessorBindings);

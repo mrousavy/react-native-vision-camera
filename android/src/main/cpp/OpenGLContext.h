@@ -7,11 +7,11 @@
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
 
-#include <memory>
 #include <functional>
+#include <memory>
 
-#include "PassThroughShader.h"
 #include "OpenGLTexture.h"
+#include "PassThroughShader.h"
 
 namespace vision {
 
@@ -20,7 +20,7 @@ namespace vision {
  * By default, it creates an off-screen PixelBuffer surface.
  */
 class OpenGLContext {
- public:
+public:
   /**
    * Create a new instance of the OpenGLContext that draws to an off-screen PixelBuffer surface.
    * This will not perform any OpenGL operations yet, and is therefore safe to call from any Thread.
@@ -52,21 +52,21 @@ class OpenGLContext {
    */
   OpenGLTexture createTexture(OpenGLTexture::Type type, int width, int height);
 
- public:
+public:
   EGLDisplay display = EGL_NO_DISPLAY;
   EGLContext context = EGL_NO_CONTEXT;
   EGLSurface offscreenSurface = EGL_NO_SURFACE;
   EGLConfig config = nullptr;
 
- private:
+private:
   OpenGLContext() = default;
   void destroy();
   void ensureOpenGL();
 
- private:
+private:
   PassThroughShader _passThroughShader;
 
- private:
+private:
   static constexpr auto TAG = "OpenGLContext";
 };
 

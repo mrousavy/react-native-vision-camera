@@ -5,25 +5,27 @@
 #include "VideoPipeline.h"
 #include "OpenGLError.h"
 
-#include <android/native_window_jni.h>
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <GLES/gl.h>
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+#include <android/native_window_jni.h>
 
 #include <chrono>
 
-#include "OpenGLTexture.h"
 #include "JFrameProcessor.h"
+#include "OpenGLTexture.h"
 
 namespace vision {
 
-jni::local_ref<VideoPipeline::jhybriddata> VideoPipeline::initHybrid(jni::alias_ref<jhybridobject> jThis, int width, int height) {
+jni::local_ref<VideoPipeline::jhybriddata>
+VideoPipeline::initHybrid(jni::alias_ref<jhybridobject> jThis, int width, int height) {
   return makeCxxInstance(jThis, width, height);
 }
 
-VideoPipeline::VideoPipeline(jni::alias_ref<jhybridobject> jThis, int width, int height): _javaPart(jni::make_global(jThis)) {
+VideoPipeline::VideoPipeline(jni::alias_ref<jhybridobject> jThis, int width, int height)
+    : _javaPart(jni::make_global(jThis)) {
   _width = width;
   _height = height;
   _context = OpenGLContext::CreateWithOffscreenSurface();
@@ -43,7 +45,8 @@ VideoPipeline::~VideoPipeline() {
 }
 
 void VideoPipeline::removeFrameProcessorOutputSurface() {
-  if (_frameProcessorOutput) _frameProcessorOutput->destroy();
+  if (_frameProcessorOutput)
+    _frameProcessorOutput->destroy();
   _frameProcessorOutput = nullptr;
 }
 
@@ -57,7 +60,8 @@ void VideoPipeline::setFrameProcessorOutputSurface(jobject surface) {
 }
 
 void VideoPipeline::removeRecordingSessionOutputSurface() {
-  if (_recordingSessionOutput) _recordingSessionOutput->destroy();
+  if (_recordingSessionOutput)
+    _recordingSessionOutput->destroy();
   _recordingSessionOutput = nullptr;
 }
 
@@ -103,14 +107,18 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
 
 void VideoPipeline::registerNatives() {
   registerHybrid({
-    makeNativeMethod("initHybrid", VideoPipeline::initHybrid),
-    makeNativeMethod("setFrameProcessorOutputSurface", VideoPipeline::setFrameProcessorOutputSurface),
-    makeNativeMethod("removeFrameProcessorOutputSurface", VideoPipeline::removeFrameProcessorOutputSurface),
-    makeNativeMethod("setRecordingSessionOutputSurface", VideoPipeline::setRecordingSessionOutputSurface),
-    makeNativeMethod("removeRecordingSessionOutputSurface", VideoPipeline::removeRecordingSessionOutputSurface),
-    makeNativeMethod("getInputTextureId", VideoPipeline::getInputTextureId),
-    makeNativeMethod("onBeforeFrame", VideoPipeline::onBeforeFrame),
-    makeNativeMethod("onFrame", VideoPipeline::onFrame),
+      makeNativeMethod("initHybrid", VideoPipeline::initHybrid),
+      makeNativeMethod("setFrameProcessorOutputSurface",
+                       VideoPipeline::setFrameProcessorOutputSurface),
+      makeNativeMethod("removeFrameProcessorOutputSurface",
+                       VideoPipeline::removeFrameProcessorOutputSurface),
+      makeNativeMethod("setRecordingSessionOutputSurface",
+                       VideoPipeline::setRecordingSessionOutputSurface),
+      makeNativeMethod("removeRecordingSessionOutputSurface",
+                       VideoPipeline::removeRecordingSessionOutputSurface),
+      makeNativeMethod("getInputTextureId", VideoPipeline::getInputTextureId),
+      makeNativeMethod("onBeforeFrame", VideoPipeline::onBeforeFrame),
+      makeNativeMethod("onFrame", VideoPipeline::onFrame),
   });
 }
 

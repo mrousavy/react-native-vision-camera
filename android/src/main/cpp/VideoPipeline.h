@@ -4,13 +4,13 @@
 
 #pragma once
 
-#include <jni.h>
-#include <fbjni/fbjni.h>
+#include "OpenGLContext.h"
+#include "OpenGLRenderer.h"
+#include "PassThroughShader.h"
 #include <EGL/egl.h>
 #include <android/native_window.h>
-#include "PassThroughShader.h"
-#include "OpenGLRenderer.h"
-#include "OpenGLContext.h"
+#include <fbjni/fbjni.h>
+#include <jni.h>
 #include <memory>
 #include <optional>
 
@@ -18,13 +18,14 @@ namespace vision {
 
 using namespace facebook;
 
-class VideoPipeline: public jni::HybridClass<VideoPipeline> {
- public:
+class VideoPipeline : public jni::HybridClass<VideoPipeline> {
+public:
   static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/utils/VideoPipeline;";
-  static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis, int width, int height);
+  static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis, int width,
+                                                int height);
   static void registerNatives();
 
- public:
+public:
   ~VideoPipeline();
 
   // -> SurfaceTexture input
@@ -42,11 +43,11 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
   void onBeforeFrame();
   void onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrix);
 
- private:
+private:
   // Private constructor. Use `create(..)` to create new instances.
   explicit VideoPipeline(jni::alias_ref<jhybridobject> jThis, int width, int height);
 
- private:
+private:
   // Input Surface Texture
   std::optional<OpenGLTexture> _inputTexture = std::nullopt;
   int _width = 0;
@@ -57,7 +58,7 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
   std::unique_ptr<OpenGLRenderer> _frameProcessorOutput = nullptr;
   std::unique_ptr<OpenGLRenderer> _recordingSessionOutput = nullptr;
 
- private:
+private:
   friend HybridBase;
   jni::global_ref<javaobject> _javaPart;
   static constexpr auto TAG = "VideoPipeline";

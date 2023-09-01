@@ -5,11 +5,11 @@
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
 
 #include "JFrameProcessor.h"
-#include <jni.h>
 #include <fbjni/fbjni.h>
+#include <jni.h>
 
-#include <utility>
 #include "JFrame.h"
+#include <utility>
 
 namespace vision {
 
@@ -17,9 +17,7 @@ using namespace facebook;
 using namespace jni;
 
 void JFrameProcessor::registerNatives() {
-  registerHybrid({
-    makeNativeMethod("call", JFrameProcessor::call)
-  });
+  registerHybrid({makeNativeMethod("call", JFrameProcessor::call)});
 }
 
 using TSelf = jni::local_ref<JFrameProcessor::javaobject>;
@@ -35,7 +33,8 @@ TSelf JFrameProcessor::create(const std::shared_ptr<RNWorklet::JsiWorklet>& work
   return JFrameProcessor::newObjectCxxArgs(worklet, context);
 }
 
-void JFrameProcessor::callWithFrameHostObject(const std::shared_ptr<FrameHostObject>& frameHostObject) const {
+void JFrameProcessor::callWithFrameHostObject(
+    const std::shared_ptr<FrameHostObject>& frameHostObject) const {
   // Call the Frame Processor on the Worklet Runtime
   jsi::Runtime& runtime = _workletContext->getWorkletRuntime();
 
@@ -51,8 +50,11 @@ void JFrameProcessor::callWithFrameHostObject(const std::shared_ptr<FrameHostObj
     const std::string& message = jsError.getMessage();
 
     _workletContext->invokeOnJsThread([message](jsi::Runtime& jsRuntime) {
-      auto logFn = jsRuntime.global().getPropertyAsObject(jsRuntime, "console").getPropertyAsFunction(jsRuntime, "error");
-      logFn.call(jsRuntime, jsi::String::createFromUtf8(jsRuntime, "Frame Processor threw an error: " + message));
+      auto logFn = jsRuntime.global()
+                       .getPropertyAsObject(jsRuntime, "console")
+                       .getPropertyAsFunction(jsRuntime, "error");
+      logFn.call(jsRuntime, jsi::String::createFromUtf8(
+                                jsRuntime, "Frame Processor threw an error: " + message));
     });
   }
 }

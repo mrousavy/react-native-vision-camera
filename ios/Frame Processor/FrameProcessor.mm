@@ -6,13 +6,13 @@
 //  Copyright © 2023 mrousavy. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import "FrameProcessor.h"
+#import <Foundation/Foundation.h>
 
-#import <memory>
-#import <jsi/jsi.h>
-#import "WKTJsiWorklet.h"
 #import "FrameHostObject.h"
+#import "WKTJsiWorklet.h"
+#import <jsi/jsi.h>
+#import <memory>
 
 using namespace facebook;
 
@@ -33,21 +33,24 @@ using namespace facebook;
 - (void)callWithFrameHostObject:(std::shared_ptr<FrameHostObject>)frameHostObject {
   // Call the Frame Processor on the Worklet Runtime
   jsi::Runtime& runtime = _workletContext->getWorkletRuntime();
-  
+
   try {
     // Wrap HostObject as JSI Value
     auto argument = jsi::Object::createFromHostObject(runtime, frameHostObject);
     jsi::Value jsValue(std::move(argument));
-    
+
     // Call the Worklet with the Frame JS Host Object as an argument
     _workletInvoker->call(runtime, jsi::Value::undefined(), &jsValue, 1);
   } catch (jsi::JSError& jsError) {
     // JS Error occured, print it to console.
     auto message = jsError.getMessage();
-    
+
     _workletContext->invokeOnJsThread([message](jsi::Runtime& jsRuntime) {
-      auto logFn = jsRuntime.global().getPropertyAsObject(jsRuntime, "console").getPropertyAsFunction(jsRuntime, "error");
-      logFn.call(jsRuntime, jsi::String::createFromUtf8(jsRuntime, "Frame Processor threw an error: " + message));
+      auto logFn = jsRuntime.global()
+                       .getPropertyAsObject(jsRuntime, "console")
+                       .getPropertyAsFunction(jsRuntime, "error");
+      logFn.call(jsRuntime, jsi::String::createFromUtf8(
+                                jsRuntime, "Frame Processor threw an error: " + message));
     });
   }
 }

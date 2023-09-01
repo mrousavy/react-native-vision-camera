@@ -12,8 +12,10 @@
 @implementation FrameProcessorPlugin
 
 - (id _Nullable)callback:(Frame* _Nonnull)frame withArguments:(NSDictionary* _Nullable)arguments {
-  [NSException raise:NSInternalInconsistencyException
-              format:@"Frame Processor Plugin does not override the `callback(frame:withArguments:)` method!"];
+  [NSException
+       raise:NSInternalInconsistencyException
+      format:
+          @"Frame Processor Plugin does not override the `callback(frame:withArguments:)` method!"];
   return nil;
 }
 

@@ -3,11 +3,11 @@
 //
 
 #include "PassThroughShader.h"
+#include "OpenGLError.h"
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #include <memory>
-#include "OpenGLError.h"
 #include <string>
 
 namespace vision {
@@ -30,12 +30,12 @@ void PassThroughShader::draw(const OpenGLTexture& texture, float* transformMatri
     _programId = createProgram();
     glUseProgram(_programId);
     _vertexParameters = {
-      .aPosition = glGetAttribLocation(_programId, "aPosition"),
-      .aTexCoord = glGetAttribLocation(_programId, "aTexCoord"),
-      .uTransformMatrix = glGetUniformLocation(_programId, "uTransformMatrix"),
+        .aPosition = glGetAttribLocation(_programId, "aPosition"),
+        .aTexCoord = glGetAttribLocation(_programId, "aTexCoord"),
+        .uTransformMatrix = glGetUniformLocation(_programId, "uTransformMatrix"),
     };
     _fragmentParameters = {
-      .uTexture = glGetUniformLocation(_programId, "uTexture"),
+        .uTexture = glGetUniformLocation(_programId, "uTexture"),
     };
   }
 
@@ -50,19 +50,11 @@ void PassThroughShader::draw(const OpenGLTexture& texture, float* transformMatri
 
   // 3. Pass all uniforms/attributes for vertex shader
   glEnableVertexAttribArray(_vertexParameters.aPosition);
-  glVertexAttribPointer(_vertexParameters.aPosition,
-                        2,
-                        GL_FLOAT,
-                        GL_FALSE,
-                        sizeof(Vertex),
+  glVertexAttribPointer(_vertexParameters.aPosition, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                         reinterpret_cast<void*>(offsetof(Vertex, position)));
 
   glEnableVertexAttribArray(_vertexParameters.aTexCoord);
-  glVertexAttribPointer(_vertexParameters.aTexCoord,
-                        2,
-                        GL_FLOAT,
-                        GL_FALSE,
-                        sizeof(Vertex),
+  glVertexAttribPointer(_vertexParameters.aTexCoord, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                         reinterpret_cast<void*>(offsetof(Vertex, texCoord)));
 
   glUniformMatrix4fv(_vertexParameters.uTransformMatrix, 1, GL_FALSE, transformMatrix);
@@ -78,7 +70,8 @@ void PassThroughShader::draw(const OpenGLTexture& texture, float* transformMatri
 
 GLuint PassThroughShader::loadShader(GLenum shaderType, const char* shaderCode) {
   GLuint shader = glCreateShader(shaderType);
-  if (shader == 0) throw OpenGLError("Failed to load shader!");
+  if (shader == 0)
+    throw OpenGLError("Failed to load shader!");
 
   glShaderSource(shader, 1, &shaderCode, nullptr);
   glCompileShader(shader);
@@ -96,7 +89,8 @@ GLuint PassThroughShader::createProgram() {
   GLuint fragmentShader = loadShader(GL_FRAGMENT_SHADER, FRAGMENT_SHADER);
 
   GLuint program = glCreateProgram();
-  if (program == 0) throw OpenGLError("Failed to create pass-through program!");
+  if (program == 0)
+    throw OpenGLError("Failed to create pass-through program!");
 
   glAttachShader(program, vertexShader);
   OpenGLError::checkIfError("Failed to attach Vertex Shader!");

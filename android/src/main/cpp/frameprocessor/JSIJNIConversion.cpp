@@ -4,14 +4,14 @@
 
 #include "JSIJNIConversion.h"
 
-#include <jsi/jsi.h>
-#include <jni.h>
-#include <fbjni/fbjni.h>
 #include <android/log.h>
+#include <fbjni/fbjni.h>
+#include <jni.h>
+#include <jsi/jsi.h>
 
+#include <memory>
 #include <string>
 #include <utility>
-#include <memory>
 
 #include "FrameHostObject.h"
 #include "JFrame.h"
@@ -20,7 +20,8 @@ namespace vision {
 
 using namespace facebook;
 
-jni::local_ref<jni::JMap<jstring, jobject>> JSIJNIConversion::convertJSIObjectToJNIMap(jsi::Runtime& runtime, const jsi::Object& object) {
+jni::local_ref<jni::JMap<jstring, jobject>>
+JSIJNIConversion::convertJSIObjectToJNIMap(jsi::Runtime& runtime, const jsi::Object& object) {
   auto propertyNames = object.getPropertyNames(runtime);
   auto size = propertyNames.size(runtime);
   auto hashMap = jni::JHashMap<jstring, jobject>::create();
@@ -34,25 +35,21 @@ jni::local_ref<jni::JMap<jstring, jobject>> JSIJNIConversion::convertJSIObjectTo
       // null
 
       hashMap->put(key, nullptr);
-
     } else if (value.isBool()) {
       // Boolean
 
       auto boolean = value.getBool();
       hashMap->put(key, jni::JBoolean::valueOf(boolean));
-
     } else if (value.isNumber()) {
       // Double
 
       auto number = value.getNumber();
       hashMap->put(key, jni::JDouble::valueOf(number));
-
     } else if (value.isString()) {
       // String
 
       auto str = value.getString(runtime).utf8(runtime);
       hashMap->put(key, jni::make_jstring(str));
-
     } else if (value.isObject()) {
       // Object
 
@@ -60,7 +57,6 @@ jni::local_ref<jni::JMap<jstring, jobject>> JSIJNIConversion::convertJSIObjectTo
 
       if (valueAsObject.isArray(runtime)) {
         // List<Object>
-
       } else if (valueAsObject.isHostObject(runtime)) {
         throw std::runtime_error("You can't pass HostObjects here.");
       } else {
@@ -69,48 +65,47 @@ jni::local_ref<jni::JMap<jstring, jobject>> JSIJNIConversion::convertJSIObjectTo
         auto map = convertJSIObjectToJNIMap(runtime, valueAsObject);
         hashMap->put(key, map);
       }
-
     } else {
       auto stringRepresentation = value.toString(runtime).utf8(runtime);
-      throw std::runtime_error("Failed to convert jsi::Value to JNI value - unsupported type!" + stringRepresentation);
+      throw std::runtime_error("Failed to convert jsi::Value to JNI value - unsupported type!" +
+                               stringRepresentation);
     }
   }
 
   return hashMap;
 }
 
-jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, const jni::local_ref<jobject>& object) {
+jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime& runtime,
+                                                        const jni::local_ref<jobject>& object) {
   if (object == nullptr) {
     // null
 
     return jsi::Value::undefined();
-
   } else if (object->isInstanceOf(jni::JBoolean::javaClassStatic())) {
     // Boolean
 
-    static const auto getBooleanFunc = jni::findClassLocal("java/lang/Boolean")->getMethod<jboolean()>("booleanValue");
+    static const auto getBooleanFunc =
+        jni::findClassLocal("java/lang/Boolean")->getMethod<jboolean()>("booleanValue");
     auto boolean = getBooleanFunc(object.get());
     return jsi::Value(boolean == true);
-
   } else if (object->isInstanceOf(jni::JDouble::javaClassStatic())) {
     // Double
 
-    static const auto getDoubleFunc = jni::findClassLocal("java/lang/Double")->getMethod<jdouble()>("doubleValue");
+    static const auto getDoubleFunc =
+        jni::findClassLocal("java/lang/Double")->getMethod<jdouble()>("doubleValue");
     auto d = getDoubleFunc(object.get());
     return jsi::Value(d);
-
   } else if (object->isInstanceOf(jni::JInteger::javaClassStatic())) {
     // Integer
 
-    static const auto getIntegerFunc = jni::findClassLocal("java/lang/Integer")->getMethod<jint()>("intValue");
+    static const auto getIntegerFunc =
+        jni::findClassLocal("java/lang/Integer")->getMethod<jint()>("intValue");
     auto i = getIntegerFunc(object.get());
     return jsi::Value(i);
-
   } else if (object->isInstanceOf(jni::JString::javaClassStatic())) {
     // String
 
     return jsi::String::createFromUtf8(runtime, object->toString());
-
   } else if (object->isInstanceOf(JList<jobject>::javaClassStatic())) {
     // List<E>
 
@@ -124,7 +119,6 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
       i++;
     }
     return result;
-
   } else if (object->isInstanceOf(JMap<jstring, jobject>::javaClassStatic())) {
     // Map<K, V>
 

@@ -7,15 +7,16 @@
 //
 
 #import "Frame.h"
-#import <Foundation/Foundation.h>
 #import <CoreMedia/CMSampleBuffer.h>
+#import <Foundation/Foundation.h>
 
 @implementation Frame {
   CMSampleBufferRef _Nonnull buffer;
   UIImageOrientation orientation;
 }
 
-- (instancetype) initWithBuffer:(CMSampleBufferRef _Nonnull)buffer orientation:(UIImageOrientation)orientation {
+- (instancetype)initWithBuffer:(CMSampleBufferRef _Nonnull)buffer
+                   orientation:(UIImageOrientation)orientation {
   self = [super init];
   if (self) {
     _buffer = buffer;
