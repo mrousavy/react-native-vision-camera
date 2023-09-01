@@ -22,8 +22,7 @@ class CameraOutputs(val cameraId: String,
                     val photo: PhotoOutput? = null,
                     val video: VideoOutput? = null,
                     val enableHdr: Boolean? = false,
-                    val callback: Callback
-): Closeable {
+                    val callback: Callback): Closeable {
   companion object {
     private const val TAG = "CameraOutputs"
     const val PHOTO_OUTPUT_BUFFER_SIZE = 3

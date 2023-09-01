@@ -5,9 +5,6 @@ import android.util.Log
 import android.util.Size
 import java.io.Closeable
 
-/**
- * A [SurfaceOutput] that uses an [ImageReader] as it's surface.
- */
 class ImageReaderOutput(private val imageReader: ImageReader,
                         outputType: OutputType,
                         dynamicRangeProfile: Long? = null): Closeable, SurfaceOutput(imageReader.surface, Size(imageReader.width, imageReader.height), outputType, dynamicRangeProfile) {

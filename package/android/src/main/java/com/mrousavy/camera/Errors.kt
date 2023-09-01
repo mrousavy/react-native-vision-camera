@@ -37,14 +37,7 @@ class CameraPermissionError : CameraError("permission", "camera-permission-denie
 class InvalidTypeScriptUnionError(unionName: String, unionValue: String) : CameraError("parameter", "invalid-parameter", "The given value for $unionName could not be parsed! (Received: $unionValue)")
 
 class NoCameraDeviceError : CameraError("device", "no-device", "No device was set! Use `getAvailableCameraDevices()` to select a suitable Camera device.")
-class NoFlashAvailableError : CameraError("device", "flash-unavailable", "The Camera Device does not have a flash unit! Make sure you select a device where `hasFlash`/`hasTorch` is true!")
 class PixelFormatNotSupportedError(format: String) : CameraError("device", "pixel-format-not-supported", "The pixelFormat $format is not supported on the given Camera Device!")
-
-class HdrNotContainedInFormatError : CameraError(
-  "format", "invalid-hdr",
-  "The currently selected format does not support HDR capture! " +
-    "Make sure you select a format which includes `supportsPhotoHDR`!"
-)
 
 class CameraNotReadyError : CameraError("session", "camera-not-ready", "The Camera is not ready yet! Wait for the onInitialized() callback!")
 class CameraCannotBeOpenedError(cameraId: String, error: CameraDeviceError) : CameraError("session", "camera-cannot-be-opened", "The given Camera device (id: $cameraId) could not be opened! Error: $error")

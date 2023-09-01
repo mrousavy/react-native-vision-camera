@@ -15,9 +15,6 @@ fun List<Size>.closestToOrMax(size: Size?): Size {
   }
 }
 
-/**
- * Rotate by a given Surface Rotation
- */
 fun Size.rotated(surfaceRotation: Int): Size {
   return when (surfaceRotation) {
     Surface.ROTATION_0 -> Size(width, height)

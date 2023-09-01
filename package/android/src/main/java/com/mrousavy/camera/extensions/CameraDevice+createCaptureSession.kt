@@ -16,24 +16,10 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-enum class SessionType {
-  REGULAR,
-  HIGH_SPEED;
-
-  @RequiresApi(Build.VERSION_CODES.P)
-  fun toSessionType(): Int {
-    return when(this) {
-      REGULAR -> SessionConfiguration.SESSION_REGULAR
-      HIGH_SPEED -> SessionConfiguration.SESSION_HIGH_SPEED
-    }
-  }
-}
-
 private const val TAG = "CreateCaptureSession"
 private var sessionId = 1000
 
 suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager,
-                                              sessionType: SessionType,
                                               outputs: CameraOutputs,
                                               onClosed: (session: CameraCaptureSession) -> Unit,
                                               queue: CameraQueues.CameraQueue): CameraCaptureSession {
@@ -85,7 +71,7 @@ suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager,
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
       Log.i(TAG, "Using new API (>=28)")
-      val config = SessionConfiguration(sessionType.toSessionType(), outputConfigurations, queue.executor, callback)
+      val config = SessionConfiguration(SessionConfiguration.SESSION_REGULAR, outputConfigurations, queue.executor, callback)
       this.createCaptureSession(config)
     } else {
       Log.i(TAG, "Using legacy API (<28)")

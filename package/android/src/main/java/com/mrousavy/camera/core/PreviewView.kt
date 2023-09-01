@@ -66,6 +66,6 @@ class PreviewView(context: Context,
   }
 
   companion object {
-    private const val TAG = "NativePreviewView"
+    private const val TAG = "PreviewView"
   }
 }

@@ -25,7 +25,6 @@ import com.mrousavy.camera.PhotoNotEnabledError
 import com.mrousavy.camera.RecorderError
 import com.mrousavy.camera.RecordingInProgressError
 import com.mrousavy.camera.VideoNotEnabledError
-import com.mrousavy.camera.extensions.SessionType
 import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.createPhotoCaptureRequest
@@ -116,7 +115,7 @@ class CameraSession(private val context: Context,
     cameraManager.unregisterAvailabilityCallback(this)
     photoOutputSynchronizer.clear()
     captureSession?.close()
-    cameraDevice?.tryClose()
+    cameraDevice?.close()
     outputs?.close()
     isRunning = false
   }
@@ -206,7 +205,6 @@ class CameraSession(private val context: Context,
 
   private fun updateVideoOutputs() {
     val videoPipeline = outputs?.videoOutput?.videoPipeline ?: return
-    val previewOutput = outputs?.previewOutput
     videoPipeline.setRecordingSessionOutput(this.recording)
     videoPipeline.setFrameProcessorOutput(this.frameProcessor)
   }
@@ -377,7 +375,7 @@ class CameraSession(private val context: Context,
       return currentDevice
     }
     // Close previous device
-    cameraDevice?.tryClose()
+    cameraDevice?.close()
     cameraDevice = null
 
     val device = cameraManager.openCamera(cameraId, { camera, reason ->
@@ -410,7 +408,7 @@ class CameraSession(private val context: Context,
     captureSession?.close()
     captureSession = null
 
-    val session = cameraDevice.createCaptureSession(cameraManager, SessionType.REGULAR, outputs, { session ->
+    val session = cameraDevice.createCaptureSession(cameraManager, outputs, { session ->
       Log.d(TAG, "Capture Session Closed ($captureSession == $session)")
       if (captureSession == session) {
         // The current CameraCaptureSession has been closed, handle that!
