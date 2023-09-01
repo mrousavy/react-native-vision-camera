@@ -8,7 +8,7 @@ import { CONTENT_SPACING, SAFE_AREA_PADDING } from './Constants';
 import type { Routes } from './Routes';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const BANNER_IMAGE = require('../../docs/static/img/11.png') as ImageRequireSource;
+const BANNER_IMAGE = require('./img/11.png') as ImageRequireSource;
 
 type Props = NativeStackScreenProps<Routes, 'PermissionsPage'>;
 export function PermissionsPage({ navigation }: Props): React.ReactElement {
