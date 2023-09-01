@@ -5,9 +5,9 @@ labels: [🐛 bug]
 body:
   - type: textarea
     attributes:
-      label: What were you trying to do?
-      description: Explain what you are trying to do.
-      placeholder: I wanted to take a picture.
+      label: What's happening?
+      description: Explain what you are trying to do and what happened instead. Be as precise as possible, I can't help you if I don't understand your issue.
+      placeholder: I wanted to take a picture, but the method failed with this error "[capture/photo-not-enabled] Failed to take photo, photo is not enabled!"
     validations:
       required: true
   - type: textarea
@@ -15,13 +15,6 @@ body:
       label: Reproduceable Code
       description: Share a small reproduceable code snippet here (or the entire file if necessary). This will be automatically formatted into code, so no need for backticks.
       render: tsx
-  - type: textarea
-    attributes:
-      label: What happened instead?
-      description: Explain what happened instead of the desired outcome. Did something crash?
-      placeholder: The app crashes with an `InvalidPhotoCodec` error.
-    validations:
-      required: true
   - type: textarea
     attributes:
       label: Relevant log output
@@ -43,15 +36,25 @@ body:
     attributes:
       label: VisionCamera Version
       description: Which version of react-native-vision-camera are you using?
-      placeholder: ex. 2.0.1-beta.1
+      placeholder: ex. 3.1.6
     validations:
       required: true
+  - type: checkboxes
+    attributes:
+      label: Can you reproduce this issue in the VisionCamera Example app?
+      description: Run the example app (`package/example/`) and see if the issue is reproduceable here.
+      options:
+      - label: I can reproduce the issue in the VisionCamera Example app.
+  - type: checkboxes
+    attributes:
+      label: Are you using Expo?
+      options:
+      - label: I am using Expo
   - type: checkboxes
     attributes:
       label: Additional information
       description: Please check all the boxes that apply
       options:
-        - label: I am using Expo
         - label: I have read the [Troubleshooting Guide](https://react-native-vision-camera.com/docs/guides/troubleshooting)
           required: true
         - label: I agree to follow this project's [Code of Conduct](https://github.com/mrousavy/react-native-vision-camera/blob/main/CODE_OF_CONDUCT.md)
