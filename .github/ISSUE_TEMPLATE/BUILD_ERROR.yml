@@ -15,6 +15,8 @@ body:
       label: Full build logs
       description: Share the full build logs that appear in the console. Make sure you don't just paste the last few lines here, but rather everything from start to end.
       render: tsx
+    validations:
+      required: true
   - type: textarea
     attributes:
       label: Project dependencies
