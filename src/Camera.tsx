@@ -437,15 +437,10 @@ export class Camera extends React.PureComponent<CameraProps> {
     }
   }
 
-  private initializeWorkletRuntimeIfNeeded(): void {
-    if (this.workletRuntime === null) this.workletRuntime = createWorkletRuntime('VisionCamera');
-  }
-
   private setFrameProcessor(frameProcessor: (frame: Frame) => void): void {
     this.assertFrameProcessorsEnabled();
-    this.initializeWorkletRuntimeIfNeeded();
     // @ts-expect-error JSI functions aren't typed
-    global.setFrameProcessor(this.handle, makeShareableCloneRecursive(frameProcessor), this.workletRuntime);
+    global.setFrameProcessor(this.handle, makeShareableCloneRecursive(frameProcessor), createWorkletRuntime('VisionCamera'));
   }
 
   private unsetFrameProcessor(): void {

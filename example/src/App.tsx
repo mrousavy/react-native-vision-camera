@@ -1,54 +1,84 @@
-import { NavigationContainer } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { PermissionsPage } from './PermissionsPage';
-import { MediaPage } from './MediaPage';
-import { CameraPage } from './CameraPage';
-import type { Routes } from './Routes';
-import { Camera, CameraPermissionStatus } from 'react-native-vision-camera';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import * as React from 'react';
 
-const Stack = createNativeStackNavigator<Routes>();
+import { BarcodeFormat, scanBarcodes } from 'vision-camera-code-scanner';
+import { Camera, useFrameProcessor } from 'react-native-vision-camera';
+import { Canvas, Points, vec } from '@shopify/react-native-skia';
+import { StyleSheet, Text, View } from 'react-native';
 
-export function App(): React.ReactElement | null {
-  const [cameraPermission, setCameraPermission] = useState<CameraPermissionStatus>();
-  const [microphonePermission, setMicrophonePermission] = useState<CameraPermissionStatus>();
+import { runOnJS } from 'react-native-reanimated';
+import { useCameraDevices } from 'react-native-vision-camera';
 
-  useEffect(() => {
-    Camera.getCameraPermissionStatus().then(setCameraPermission);
-    Camera.getMicrophonePermissionStatus().then(setMicrophonePermission);
+export function App() {
+  const [hasPermission, setHasPermission] = React.useState(false);
+  const devices = useCameraDevices();
+  const device = devices.back;
+
+  const [barcodes, setBarcodes] = React.useState<BarcodeFormat[]>([]); // [BarcodeFormat.QR_CODE
+
+  const frameProcessor = useFrameProcessor((frame) => {
+    'worklet';
+    const detectedBarcodes = scanBarcodes(frame, [BarcodeFormat.ALL_FORMATS], { checkInverted: true });
+    // console.log(new Date(), JSON.stringify(detectedBarcodes));
+    runOnJS(setBarcodes)(detectedBarcodes);
   }, []);
 
-  console.log(`Re-rendering Navigator. Camera: ${cameraPermission} | Microphone: ${microphonePermission}`);
+  React.useEffect(() => {
+    (async () => {
+      const status = await Camera.requestCameraPermission();
+      setHasPermission(status === 'authorized');
+    })();
+  }, []);
 
-  if (cameraPermission == null || microphonePermission == null) {
-    // still loading
-    return null;
-  }
+  const X_SCALE = 390 / 1080;
+  const Y_SCALE = 824 / 1920;
 
-  const showPermissionsPage = cameraPermission !== 'authorized' || microphonePermission === 'not-determined';
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={{
-            headerShown: false,
-            statusBarStyle: 'dark',
-            animationTypeForReplace: 'push',
-          }}
-          initialRouteName={showPermissionsPage ? 'PermissionsPage' : 'CameraPage'}>
-          <Stack.Screen name="PermissionsPage" component={PermissionsPage} />
-          <Stack.Screen name="CameraPage" component={CameraPage} />
-          <Stack.Screen
-            name="MediaPage"
-            component={MediaPage}
-            options={{
-              animation: 'none',
-              presentation: 'transparentModal',
-            }}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </GestureHandlerRootView>
+    device != null &&
+    hasPermission && (
+      <>
+        <Camera style={StyleSheet.absoluteFill} device={device} isActive={true} frameProcessor={frameProcessor} frameProcessorFps={30} />
+        <Canvas style={{ flex: 1 }}>
+          {barcodes.map((barcode, idx) => {
+            const points = barcode.cornerPoints
+              .filter((point) => !isNaN(point.x) && !isNaN(point.y))
+              .map((point) => vec(point.x * X_SCALE, point.y * Y_SCALE));
+            points.push(points[0]);
+            return <Points key={idx} points={points} mode="polygon" color="lime" strokeWidth={5} strokeCap="square" />;
+          })}
+        </Canvas>
+        {barcodes.map((barcode, idx) => {
+          const x = barcode.cornerPoints[0].x;
+          const y = barcode.cornerPoints[0].y;
+          if (isNaN(x) || isNaN(y)) {
+            return <View />;
+          }
+          return (
+            <Text
+              key={idx}
+              style={{
+                position: 'absolute',
+                textAlign: 'center',
+                alignItems: 'center',
+                justifyContent: 'center',
+                left: x * X_SCALE,
+                top: y * Y_SCALE,
+                color: 'white',
+                fontWeight: 'bold',
+                fontSize: 20,
+              }}>
+              {barcode.displayValue}
+            </Text>
+          );
+        })}
+      </>
+    )
   );
 }
+
+const styles = StyleSheet.create({
+  barcodeTextURL: {
+    fontSize: 20,
+    color: 'white',
+    fontWeight: 'bold',
+  },
+});
