@@ -20,15 +20,12 @@ jobs:
   lint:
     name: Check clang-format
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./package
     strategy:
       matrix:
         path:
-          - 'cpp'
-          - 'android/src/main/cpp'
-          - 'ios'
+          - 'package/cpp'
+          - 'package/android/src/main/cpp'
+          - 'package/ios'
     steps:
       - uses: actions/checkout@v2
       - name: Run clang-format style check
