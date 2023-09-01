@@ -22,7 +22,7 @@ You can check if the camera is a logical multi-camera by using the `isMultiCam` 
 
 #### Defined in
 
-[CameraDevice.ts:199](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraDevice.ts#L199)
+[CameraDevice.ts:149](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L149)
 
 ___
 
@@ -36,7 +36,21 @@ See [the Camera Formats documentation](https://react-native-vision-camera.com/do
 
 #### Defined in
 
-[CameraDevice.ts:253](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraDevice.ts#L253)
+[CameraDevice.ts:203](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L203)
+
+___
+
+### hardwareLevel
+
+• **hardwareLevel**: ``"legacy"`` \| ``"limited"`` \| ``"full"``
+
+The hardware level of the Camera.
+- On Android, some older devices are running at a `legacy` or `limited` level which means they are running in a backwards compatible mode.
+- On iOS, all devices are `full`.
+
+#### Defined in
+
+[CameraDevice.ts:229](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L229)
 
 ___
 
@@ -48,7 +62,7 @@ Specifies whether this camera supports enabling flash for photo capture.
 
 #### Defined in
 
-[CameraDevice.ts:211](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraDevice.ts#L211)
+[CameraDevice.ts:161](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L161)
 
 ___
 
@@ -60,7 +74,7 @@ Specifies whether this camera supports continuously enabling the flash to act li
 
 #### Defined in
 
-[CameraDevice.ts:215](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraDevice.ts#L215)
+[CameraDevice.ts:165](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L165)
 
 ___
 
@@ -72,7 +86,7 @@ The native ID of the camera device instance.
 
 #### Defined in
 
-[CameraDevice.ts:190](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraDevice.ts#L190)
+[CameraDevice.ts:140](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L140)
 
 ___
 
@@ -88,7 +102,7 @@ Examples:
 
 #### Defined in
 
-[CameraDevice.ts:223](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraDevice.ts#L223)
+[CameraDevice.ts:173](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L173)
 
 ___
 
@@ -100,7 +114,7 @@ Maximum available zoom factor (e.g. `128`)
 
 #### Defined in
 
-[CameraDevice.ts:231](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraDevice.ts#L231)
+[CameraDevice.ts:181](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L181)
 
 ___
 
@@ -112,7 +126,7 @@ Minimum available zoom factor (e.g. `1`)
 
 #### Defined in
 
-[CameraDevice.ts:227](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraDevice.ts#L227)
+[CameraDevice.ts:177](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L177)
 
 ___
 
@@ -124,7 +138,7 @@ A friendly localized name describing the camera.
 
 #### Defined in
 
-[CameraDevice.ts:207](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraDevice.ts#L207)
+[CameraDevice.ts:157](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L157)
 
 ___
 
@@ -152,7 +166,7 @@ const cameraProps = useAnimatedProps(() => ({
 
 #### Defined in
 
-[CameraDevice.ts:247](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraDevice.ts#L247)
+[CameraDevice.ts:197](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L197)
 
 ___
 
@@ -164,7 +178,20 @@ Specifies the physical position of this camera. (back or front)
 
 #### Defined in
 
-[CameraDevice.ts:203](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraDevice.ts#L203)
+[CameraDevice.ts:153](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L153)
+
+___
+
+### sensorOrientation
+
+• **sensorOrientation**: `Orientation`
+
+Represents the sensor's orientation relative to the phone.
+For most phones this will be landscape, as Camera sensors are usually always rotated by 90 degrees (i.e. width and height are flipped).
+
+#### Defined in
+
+[CameraDevice.ts:234](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L234)
 
 ___
 
@@ -178,7 +205,7 @@ Whether this camera supports taking photos with depth data.
 
 #### Defined in
 
-[CameraDevice.ts:273](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraDevice.ts#L273)
+[CameraDevice.ts:213](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L213)
 
 ___
 
@@ -190,7 +217,7 @@ Specifies whether this device supports focusing ([`Camera.focus(...)`](../classe
 
 #### Defined in
 
-[CameraDevice.ts:283](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraDevice.ts#L283)
+[CameraDevice.ts:223](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L223)
 
 ___
 
@@ -202,25 +229,7 @@ Whether this camera device supports low light boost.
 
 #### Defined in
 
-[CameraDevice.ts:267](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraDevice.ts#L267)
-
-___
-
-### supportsParallelVideoProcessing
-
-• **supportsParallelVideoProcessing**: `boolean`
-
-Whether this camera device supports using Video Recordings (`video={true}`) and Frame Processors (`frameProcessor={...}`) at the same time. See ["The `supportsParallelVideoProcessing` prop"](https://react-native-vision-camera.com/docs/guides/devices#the-supportsparallelvideoprocessing-prop) for more information.
-
-If this property is `false`, you can only enable `video` or add a `frameProcessor`, but not both.
-
-* On iOS this value is always `true`.
-* On newer Android devices this value is always `true`.
-* On older Android devices this value is `false` if the Camera's hardware level is `LEGACY` or `LIMITED`, `true` otherwise. (See [`INFO_SUPPORTED_HARDWARE_LEVEL`](https://developer.android.com/reference/android/hardware/camera2/CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL) or [the tables at "Regular capture"](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#regular-capture))
-
-#### Defined in
-
-[CameraDevice.ts:263](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraDevice.ts#L263)
+[CameraDevice.ts:207](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L207)
 
 ___
 
@@ -234,4 +243,4 @@ Whether this camera supports taking photos in RAW format
 
 #### Defined in
 
-[CameraDevice.ts:279](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraDevice.ts#L279)
+[CameraDevice.ts:219](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L219)

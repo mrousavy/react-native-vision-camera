@@ -11,7 +11,7 @@ See the ["Camera Errors" documentation](https://react-native-vision-camera.com/d
 
 ## Hierarchy
 
-- `CameraError`<[`PermissionError`](../#permissionerror) \| [`ParameterError`](../#parametererror) \| [`DeviceError`](../#deviceerror) \| [`FormatError`](../#formaterror) \| [`FrameProcessorError`](../#frameprocessorerror) \| [`SessionError`](../#sessionerror) \| [`SystemError`](../#systemerror) \| [`UnknownError`](../#unknownerror)\>
+- `CameraError`<[`PermissionError`](../#permissionerror) \| [`ParameterError`](../#parametererror) \| [`DeviceError`](../#deviceerror) \| [`FormatError`](../#formaterror) \| [`SessionError`](../#sessionerror) \| [`SystemError`](../#systemerror) \| [`UnknownError`](../#unknownerror)\>
 
   ↳ **`CameraRuntimeError`**
 
@@ -31,7 +31,7 @@ CameraError.cause
 
 #### Defined in
 
-[CameraError.ts:129](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraError.ts#L129)
+[CameraError.ts:132](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraError.ts#L132)
 
 ___
 
@@ -49,7 +49,7 @@ CameraError.code
 
 #### Defined in
 
-[CameraError.ts:123](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraError.ts#L123)
+[CameraError.ts:126](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraError.ts#L126)
 
 ___
 
@@ -67,7 +67,7 @@ CameraError.message
 
 #### Defined in
 
-[CameraError.ts:126](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraError.ts#L126)
+[CameraError.ts:129](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraError.ts#L129)
 
 ## Methods
 
@@ -85,4 +85,4 @@ CameraError.toString
 
 #### Defined in
 
-[CameraError.ts:147](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraError.ts#L147)
+[CameraError.ts:150](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraError.ts#L150)

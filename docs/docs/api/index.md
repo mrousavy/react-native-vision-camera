@@ -18,14 +18,10 @@ custom_edit_url: null
 - [CameraDeviceFormat](interfaces/CameraDeviceFormat.md)
 - [CameraProps](interfaces/CameraProps.md)
 - [ErrorWithCause](interfaces/ErrorWithCause.md)
-- [Frame](interfaces/Frame.md)
-- [FrameProcessorPerformanceSuggestion](interfaces/FrameProcessorPerformanceSuggestion.md)
-- [FrameRateRange](interfaces/FrameRateRange.md)
 - [PhotoFile](interfaces/PhotoFile.md)
 - [Point](interfaces/Point.md)
 - [RecordVideoOptions](interfaces/RecordVideoOptions.md)
 - [TakePhotoOptions](interfaces/TakePhotoOptions.md)
-- [TakeSnapshotOptions](interfaces/TakeSnapshotOptions.md)
 - [TemporaryFile](interfaces/TemporaryFile.md)
 - [VideoFile](interfaces/VideoFile.md)
 
@@ -43,7 +39,7 @@ Indicates a format's autofocus system.
 
 #### Defined in
 
-[CameraDevice.ts:89](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraDevice.ts#L89)
+[CameraDevice.ts:53](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L53)
 
 ___
 
@@ -53,27 +49,27 @@ ___
 
 #### Defined in
 
-[hooks/useCameraDevices.ts:7](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/hooks/useCameraDevices.ts#L7)
+[hooks/useCameraDevices.ts:7](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/hooks/useCameraDevices.ts#L7)
 
 ___
 
 ### CameraPermissionRequestResult
 
-Ƭ **CameraPermissionRequestResult**: ``"authorized"`` \| ``"denied"``
+Ƭ **CameraPermissionRequestResult**: ``"granted"`` \| ``"denied"``
 
 #### Defined in
 
-[Camera.tsx:16](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/Camera.tsx#L16)
+[Camera.tsx:15](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L15)
 
 ___
 
 ### CameraPermissionStatus
 
-Ƭ **CameraPermissionStatus**: ``"authorized"`` \| ``"not-determined"`` \| ``"denied"`` \| ``"restricted"``
+Ƭ **CameraPermissionStatus**: ``"granted"`` \| ``"not-determined"`` \| ``"denied"`` \| ``"restricted"``
 
 #### Defined in
 
-[Camera.tsx:15](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/Camera.tsx#L15)
+[Camera.tsx:14](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L14)
 
 ___
 
@@ -94,42 +90,7 @@ Represents the camera device position.
 
 #### Defined in
 
-[CameraPosition.ts:13](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraPosition.ts#L13)
-
-___
-
-### CameraPreset
-
-Ƭ **CameraPreset**: ``"cif-352x288"`` \| ``"hd-1280x720"`` \| ``"hd-1920x1080"`` \| ``"hd-3840x2160"`` \| ``"high"`` \| ``"iframe-1280x720"`` \| ``"iframe-960x540"`` \| ``"input-priority"`` \| ``"low"`` \| ``"medium"`` \| ``"photo"`` \| ``"vga-640x480"``
-
-Indicates the quality level or bit rate of the output.
-
-* `"cif-352x288"`: Specifies capture settings suitable for CIF quality (352 x 288 pixel) video output
-* `"hd-1280x720"`: Specifies capture settings suitable for 720p quality (1280 x 720 pixel) video output.
-* `"hd-1920x1080"`: Capture settings suitable for 1080p-quality (1920 x 1080 pixels) video output.
-* `"hd-3840x2160"`: Capture settings suitable for 2160p-quality (3840 x 2160 pixels, "4k") video output.
-* `"high"`: Specifies capture settings suitable for high-quality video and audio output.
-* `"iframe-1280x720"`: Specifies capture settings to achieve 1280 x 720 quality iFrame H.264 video at about 40 Mbits/sec with AAC audio.
-* `"iframe-960x540"`: Specifies capture settings to achieve 960 x 540 quality iFrame H.264 video at about 30 Mbits/sec with AAC audio.
-* `"input-priority"`: Specifies that the capture session does not control audio and video output settings.
-* `"low"`: Specifies capture settings suitable for output video and audio bit rates suitable for sharing over 3G.
-* `"medium"`: Specifies capture settings suitable for output video and audio bit rates suitable for sharing over WiFi.
-* `"photo"`: Specifies capture settings suitable for high-resolution photo quality output.
-* `"vga-640x480"`: Specifies capture settings suitable for VGA quality (640 x 480 pixel) video output.
-
-#### Defined in
-
-[CameraPreset.ts:17](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraPreset.ts#L17)
-
-___
-
-### CameraVideoCodec
-
-Ƭ **CameraVideoCodec**: ``"h264"`` \| ``"hevc"`` \| ``"hevc-alpha"`` \| ``"jpeg"`` \| ``"pro-res-4444"`` \| ``"pro-res-422"`` \| ``"pro-res-422-hq"`` \| ``"pro-res-422-lt"`` \| ``"pro-res-422-proxy"``
-
-#### Defined in
-
-[VideoFile.ts:6](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/VideoFile.ts#L6)
+[CameraPosition.ts:13](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraPosition.ts#L13)
 
 ___
 
@@ -139,68 +100,44 @@ ___
 
 #### Defined in
 
-[CameraError.ts:31](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraError.ts#L31)
-
-___
-
-### ColorSpace
-
-Ƭ **ColorSpace**: ``"hlg-bt2020"`` \| ``"p3-d65"`` \| ``"srgb"`` \| ``"yuv"`` \| ``"jpeg"`` \| ``"jpeg-depth"`` \| ``"raw"`` \| ``"heic"`` \| ``"private"`` \| ``"depth-16"`` \| ``"unknown"``
-
-Indicates a format's color space.
-
-#### The following colorspaces are available on iOS:
-* `"srgb"`: The sGRB color space.
-* `"p3-d65"`: The P3 D65 wide color space which uses Illuminant D65 as the white point
-* `"hlg-bt2020"`: The BT2020 wide color space which uses Illuminant D65 as the white point and Hybrid Log-Gamma as the transfer function
-
-> See ["AVCaptureColorSpace"](https://developer.apple.com/documentation/avfoundation/avcapturecolorspace) for more information.
-
-#### The following colorspaces are available on Android:
-* `"yuv"`: The Multi-plane Android YCbCr color space. (YUV 420_888, 422_888 or 444_888)
-* `"jpeg"`: The compressed JPEG color space.
-* `"jpeg-depth"`: The compressed JPEG color space including depth data.
-* `"raw"`: The Camera's RAW sensor color space. (Single-channel Bayer-mosaic image, usually 16 bit)
-* `"heic"`: The compressed HEIC color space.
-* `"private"`: The Android private opaque image format. (The choices of the actual format and pixel data layout are entirely up to the device-specific and framework internal implementations, and may vary depending on use cases even for the same device. These buffers are not directly accessible to the application)
-* `"depth-16"`: The Android dense depth image format (16 bit)
-* `"unknown"`: Placeholder for an unknown image/pixel format. [Edit this file](https://github.com/mrousavy/react-native-vision-camera/edit/main/android/src/main/java/com/mrousavy/camera/parsers/ImageFormat+String.kt) to add a name for the unknown format.
-
-> See ["Android Color Formats"](https://jbit.net/Android_Colors/) for more information.
-
-#### Defined in
-
-[CameraDevice.ts:67](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraDevice.ts#L67)
+[CameraError.ts:31](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraError.ts#L31)
 
 ___
 
 ### DeviceError
 
-Ƭ **DeviceError**: ``"device/configuration-error"`` \| ``"device/no-device"`` \| ``"device/invalid-device"`` \| ``"device/parallel-video-processing-not-supported"`` \| ``"device/torch-unavailable"`` \| ``"device/microphone-unavailable"`` \| ``"device/low-light-boost-not-supported"`` \| ``"device/focus-not-supported"`` \| ``"device/camera-not-available-on-simulator"``
+Ƭ **DeviceError**: ``"device/configuration-error"`` \| ``"device/no-device"`` \| ``"device/invalid-device"`` \| ``"device/torch-unavailable"`` \| ``"device/microphone-unavailable"`` \| ``"device/pixel-format-not-supported"`` \| ``"device/low-light-boost-not-supported"`` \| ``"device/focus-not-supported"`` \| ``"device/camera-not-available-on-simulator"``
 
 #### Defined in
 
-[CameraError.ts:8](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraError.ts#L8)
+[CameraError.ts:8](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraError.ts#L8)
 
 ___
 
 ### FormatError
 
-Ƭ **FormatError**: ``"format/invalid-fps"`` \| ``"format/invalid-hdr"`` \| ``"format/invalid-low-light-boost"`` \| ``"format/invalid-format"`` \| ``"format/invalid-color-space"`` \| ``"format/invalid-preset"``
+Ƭ **FormatError**: ``"format/invalid-fps"`` \| ``"format/invalid-hdr"`` \| ``"format/invalid-low-light-boost"`` \| ``"format/invalid-format"`` \| ``"format/invalid-color-space"``
 
 #### Defined in
 
-[CameraError.ts:19](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraError.ts#L19)
+[CameraError.ts:18](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraError.ts#L18)
 
 ___
 
-### FrameProcessorError
+### FrameProcessor
 
-Ƭ **FrameProcessorError**: ``"frame-processor/unavailable"``
+Ƭ **FrameProcessor**: `Object`
+
+#### Type declaration
+
+| Name | Type |
+| :------ | :------ |
+| `frameProcessor` | (`frame`: `Frame`) => `void` |
+| `type` | ``"frame-processor"`` |
 
 #### Defined in
 
-[CameraError.ts:18](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraError.ts#L18)
+[CameraProps.ts:7](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraProps.ts#L7)
 
 ___
 
@@ -216,7 +153,7 @@ Indentifiers for a logical camera (Combinations of multiple physical cameras to 
 
 #### Defined in
 
-[CameraDevice.ts:20](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraDevice.ts#L20)
+[CameraDevice.ts:21](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L21)
 
 ___
 
@@ -226,7 +163,7 @@ ___
 
 #### Defined in
 
-[CameraError.ts:2](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraError.ts#L2)
+[CameraError.ts:2](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraError.ts#L2)
 
 ___
 
@@ -236,7 +173,7 @@ ___
 
 #### Defined in
 
-[CameraError.ts:1](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraError.ts#L1)
+[CameraError.ts:1](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraError.ts#L1)
 
 ___
 
@@ -252,27 +189,27 @@ Indentifiers for a physical camera (one that actually exists on the back/front o
 
 #### Defined in
 
-[CameraDevice.ts:11](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraDevice.ts#L11)
+[CameraDevice.ts:12](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L12)
 
 ___
 
 ### SessionError
 
-Ƭ **SessionError**: ``"session/camera-not-ready"`` \| ``"session/audio-session-setup-failed"`` \| ``"session/audio-in-use-by-other-app"`` \| ``"session/audio-session-failed-to-activate"``
+Ƭ **SessionError**: ``"session/camera-not-ready"`` \| ``"session/camera-cannot-be-opened"`` \| ``"session/camera-has-been-disconnected"`` \| ``"session/audio-session-setup-failed"`` \| ``"session/audio-in-use-by-other-app"`` \| ``"session/audio-session-failed-to-activate"``
 
 #### Defined in
 
-[CameraError.ts:26](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraError.ts#L26)
+[CameraError.ts:24](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraError.ts#L24)
 
 ___
 
 ### SystemError
 
-Ƭ **SystemError**: ``"system/no-camera-manager"`` \| ``"system/view-not-found"``
+Ƭ **SystemError**: ``"system/camera-module-not-found"`` \| ``"system/no-camera-manager"`` \| ``"system/frame-processors-unavailable"`` \| ``"system/view-not-found"``
 
 #### Defined in
 
-[CameraError.ts:53](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraError.ts#L53)
+[CameraError.ts:53](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraError.ts#L53)
 
 ___
 
@@ -282,17 +219,7 @@ ___
 
 #### Defined in
 
-[CameraError.ts:54](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraError.ts#L54)
-
-___
-
-### VideoFileType
-
-Ƭ **VideoFileType**: ``"mov"`` \| ``"avci"`` \| ``"m4v"`` \| ``"mp4"``
-
-#### Defined in
-
-[VideoFile.ts:4](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/VideoFile.ts#L4)
+[CameraError.ts:58](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraError.ts#L58)
 
 ___
 
@@ -300,49 +227,55 @@ ___
 
 Ƭ **VideoStabilizationMode**: ``"off"`` \| ``"standard"`` \| ``"cinematic"`` \| ``"cinematic-extended"`` \| ``"auto"``
 
-Indicates a format's supported video stabilization mode
+Indicates a format's supported video stabilization mode. Enabling video stabilization may introduce additional latency into the video capture pipeline.
 
-* `"off"`: Indicates that video should not be stabilized
-* `"standard"`: Indicates that video should be stabilized using the standard video stabilization algorithm introduced with iOS 5.0. Standard video stabilization has a reduced field of view. Enabling video stabilization may introduce additional latency into the video capture pipeline
-* `"cinematic"`: Indicates that video should be stabilized using the cinematic stabilization algorithm for more dramatic results. Cinematic video stabilization has a reduced field of view compared to standard video stabilization. Enabling cinematic video stabilization introduces much more latency into the video capture pipeline than standard video stabilization and consumes significantly more system memory. Use narrow or identical min and max frame durations in conjunction with this mode
-* `"cinematic-extended"`: Indicates that the video should be stabilized using the extended cinematic stabilization algorithm. Enabling extended cinematic stabilization introduces longer latency into the video capture pipeline compared to the AVCaptureVideoStabilizationModeCinematic and consumes more memory, but yields improved stability. It is recommended to use identical or similar min and max frame durations in conjunction with this mode (iOS 13.0+)
+* `"off"`: No video stabilization. Indicates that video should not be stabilized
+* `"standard"`: Standard software-based video stabilization. Standard video stabilization reduces the field of view by about 10%.
+* `"cinematic"`: Advanced software-based video stabilization. This applies more aggressive cropping or transformations than standard.
+* `"cinematic-extended"`: Extended software- and hardware-based stabilization that aggressively crops and transforms the video to apply a smooth cinematic stabilization.
 * `"auto"`: Indicates that the most appropriate video stabilization mode for the device and format should be chosen automatically
 
 #### Defined in
 
-[CameraDevice.ts:100](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraDevice.ts#L100)
+[CameraDevice.ts:64](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L64)
 
-## Functions
+## Variables
 
-### frameRateIncluded
+### VisionCameraProxy
 
-▸ **frameRateIncluded**(`range`, `fps`): `boolean`
-
-Returns `true` if the given Frame Rate Range (`range`) contains the given frame rate (`fps`)
-
-**`Example`**
-
-```ts
-// get all formats that support 60 FPS
-const formatsWithHighFps = useMemo(() => device.formats.filter((f) => f.frameRateRanges.some((r) => frameRateIncluded(r, 60))), [device.formats])
-```
-
-**`Method`**
-
-#### Parameters
-
-| Name | Type | Description |
-| :------ | :------ | :------ |
-| `range` | [`FrameRateRange`](interfaces/FrameRateRange.md) | The range to check if the given `fps` are included in |
-| `fps` | `number` | The FPS to check if the given `range` supports. |
-
-#### Returns
-
-`boolean`
+• `Const` **VisionCameraProxy**: `TVisionCameraProxy` = `proxy`
 
 #### Defined in
 
-[utils/FormatFilter.ts:85](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/utils/FormatFilter.ts#L85)
+[FrameProcessorPlugins.ts:95](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/FrameProcessorPlugins.ts#L95)
+
+## Functions
+
+### createFrameProcessor
+
+▸ **createFrameProcessor**(`frameProcessor`, `type`): [`FrameProcessor`](#frameprocessor)
+
+Create a new Frame Processor function which you can pass to the `<Camera>`.
+(See ["Frame Processors"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors))
+
+Make sure to add the `'worklet'` directive to the top of the Frame Processor function, otherwise it will not get compiled into a worklet.
+
+Also make sure to memoize the returned object, so that the Camera doesn't reset the Frame Processor Context each time.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `frameProcessor` | (`frame`: `Frame`) => `void` |
+| `type` | ``"frame-processor"`` |
+
+#### Returns
+
+[`FrameProcessor`](#frameprocessor)
+
+#### Defined in
+
+[hooks/useFrameProcessor.ts:13](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/hooks/useFrameProcessor.ts#L13)
 
 ___
 
@@ -366,7 +299,7 @@ error is ErrorWithCause
 
 #### Defined in
 
-[CameraError.ts:173](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraError.ts#L173)
+[CameraError.ts:176](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraError.ts#L176)
 
 ___
 
@@ -390,7 +323,98 @@ Parses an array of physical device types into a single [`PhysicalCameraDeviceTyp
 
 #### Defined in
 
-[CameraDevice.ts:26](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraDevice.ts#L26)
+[CameraDevice.ts:27](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L27)
+
+___
+
+### runAsync
+
+▸ **runAsync**(`frame`, `func`): `void`
+
+Runs the given function asynchronously, while keeping a strong reference to the Frame.
+
+For example, if you want to run a heavy face detection algorithm
+while still drawing to the screen at 60 FPS, you can use `runAsync(...)`
+to offload the face detection algorithm to a separate thread.
+
+**`Example`**
+
+```ts
+const frameProcessor = useFrameProcessor((frame) => {
+  'worklet'
+  console.log('New Frame')
+  runAsync(frame, () => {
+    'worklet'
+    const faces = detectFaces(frame)
+    const face = [faces0]
+    console.log(`Detected a new face: ${face}`)
+  })
+})
+```
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `frame` | `Frame` | The current Frame of the Frame Processor. |
+| `func` | () => `void` | The function to execute. |
+
+#### Returns
+
+`void`
+
+#### Defined in
+
+[FrameProcessorPlugins.ts:177](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/FrameProcessorPlugins.ts#L177)
+
+___
+
+### runAtTargetFps
+
+▸ **runAtTargetFps**<`T`\>(`fps`, `func`): `T` \| `undefined`
+
+Runs the given function at the given target FPS rate.
+
+For example, if you want to run a heavy face detection algorithm
+only once per second, you can use `runAtTargetFps(1, ...)` to
+throttle it to 1 FPS.
+
+**`Example`**
+
+```ts
+const frameProcessor = useFrameProcessor((frame) => {
+  'worklet'
+  console.log('New Frame')
+  runAtTargetFps(5, () => {
+    'worklet'
+    const faces = detectFaces(frame)
+    console.log(`Detected a new face: ${faces[0]}`)
+  })
+})
+```
+
+#### Type parameters
+
+| Name |
+| :------ |
+| `T` |
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `fps` | `number` | The target FPS rate at which the given function should be executed |
+| `func` | () => `T` | The function to execute. |
+
+#### Returns
+
+`T` \| `undefined`
+
+The result of the function if it was executed, or `undefined` otherwise.
+
+#### Defined in
+
+[FrameProcessorPlugins.ts:136](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/FrameProcessorPlugins.ts#L136)
 
 ___
 
@@ -426,7 +450,7 @@ const bestDevice = devices[0]
 
 #### Defined in
 
-[utils/FormatFilter.ts:18](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/utils/FormatFilter.ts#L18)
+[utils/FormatFilter.ts:18](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/utils/FormatFilter.ts#L18)
 
 ___
 
@@ -451,7 +475,7 @@ Sort formats by resolution and aspect ratio difference (to the Screen size).
 
 #### Defined in
 
-[utils/FormatFilter.ts:50](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/utils/FormatFilter.ts#L50)
+[utils/FormatFilter.ts:72](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/utils/FormatFilter.ts#L72)
 
 ___
 
@@ -483,7 +507,7 @@ A [`CameraRuntimeError`](classes/CameraRuntimeError.md) or [`CameraCaptureError`
 
 #### Defined in
 
-[CameraError.ts:199](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraError.ts#L199)
+[CameraError.ts:202](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraError.ts#L202)
 
 ___
 
@@ -513,7 +537,7 @@ The best matching [`CameraDevice`](interfaces/CameraDevice.md).
 
 #### Defined in
 
-[hooks/useCameraDevices.ts:29](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/hooks/useCameraDevices.ts#L29)
+[hooks/useCameraDevices.ts:29](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/hooks/useCameraDevices.ts#L29)
 
 ▸ **useCameraDevices**(`deviceType`): [`CameraDevices`](#cameradevices)
 
@@ -545,7 +569,7 @@ A [`CameraDevice`](interfaces/CameraDevice.md) for the requested device type.
 
 #### Defined in
 
-[hooks/useCameraDevices.ts:44](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/hooks/useCameraDevices.ts#L44)
+[hooks/useCameraDevices.ts:44](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/hooks/useCameraDevices.ts#L44)
 
 ___
 
@@ -571,15 +595,16 @@ The best matching format for the given camera device, or `undefined` if the came
 
 #### Defined in
 
-[hooks/useCameraFormat.ts:14](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/hooks/useCameraFormat.ts#L14)
+[hooks/useCameraFormat.ts:14](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/hooks/useCameraFormat.ts#L14)
 
 ___
 
 ### useFrameProcessor
 
-▸ **useFrameProcessor**(`frameProcessor`, `dependencies`): `FrameProcessor`
+▸ **useFrameProcessor**(`frameProcessor`, `dependencies`): [`FrameProcessor`](#frameprocessor)
 
-Returns a memoized Frame Processor function wich you can pass to the `<Camera>`. (See ["Frame Processors"](https://react-native-vision-camera.com/docs/guides/frame-processors))
+Returns a memoized Frame Processor function wich you can pass to the `<Camera>`.
+(See ["Frame Processors"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors))
 
 Make sure to add the `'worklet'` directive to the top of the Frame Processor function, otherwise it will not get compiled into a worklet.
 
@@ -597,15 +622,15 @@ const frameProcessor = useFrameProcessor((frame) => {
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `frameProcessor` | `FrameProcessor` | The Frame Processor |
+| `frameProcessor` | (`frame`: `Frame`) => `void` | The Frame Processor |
 | `dependencies` | `DependencyList` | The React dependencies which will be copied into the VisionCamera JS-Runtime. |
 
 #### Returns
 
-`FrameProcessor`
+[`FrameProcessor`](#frameprocessor)
 
 The memoized Frame Processor.
 
 #### Defined in
 
-[hooks/useFrameProcessor.ts:27](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/hooks/useFrameProcessor.ts#L27)
+[hooks/useFrameProcessor.ts:49](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/hooks/useFrameProcessor.ts#L49)

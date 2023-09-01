@@ -11,7 +11,12 @@ custom_edit_url: null
 
 • `Optional` **enableAutoDistortionCorrection**: `boolean`
 
-Specifies whether the photo output should use content aware distortion correction on this photo request (at its discretion).
+Specifies whether the photo output should use content aware distortion correction on this photo request.
+For example, the algorithm may not apply correction to faces in the center of a photo, but may apply it to faces near the photo’s edges.
+
+**`Platform`**
+
+iOS
 
 **`Default`**
 
@@ -19,7 +24,7 @@ false
 
 #### Defined in
 
-[PhotoFile.ts:38](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/PhotoFile.ts#L38)
+[PhotoFile.ts:40](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L40)
 
 ___
 
@@ -35,7 +40,7 @@ false
 
 #### Defined in
 
-[PhotoFile.ts:26](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/PhotoFile.ts#L26)
+[PhotoFile.ts:26](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L26)
 
 ___
 
@@ -51,7 +56,23 @@ false
 
 #### Defined in
 
-[PhotoFile.ts:32](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/PhotoFile.ts#L32)
+[PhotoFile.ts:32](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L32)
+
+___
+
+### enableShutterSound
+
+• `Optional` **enableShutterSound**: `boolean`
+
+Whether to play the default shutter "click" sound when taking a picture or not.
+
+**`Default`**
+
+true
+
+#### Defined in
+
+[PhotoFile.ts:46](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L46)
 
 ___
 
@@ -67,7 +88,7 @@ Whether the Flash should be enabled or disabled
 
 #### Defined in
 
-[PhotoFile.ts:20](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/PhotoFile.ts#L20)
+[PhotoFile.ts:20](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L20)
 
 ___
 
@@ -81,36 +102,10 @@ Indicates how photo quality should be prioritized against speed.
 * `"balanced"` Indicates that photo quality and speed of delivery are balanced in priority
 * `"speed"` Indicates that speed of photo delivery is most important, even at the expense of quality
 
-**`Platform`**
-
-iOS 13.0+
-
 **`Default`**
 
 "balanced"
 
 #### Defined in
 
-[PhotoFile.ts:14](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/PhotoFile.ts#L14)
-
-___
-
-### skipMetadata
-
-• `Optional` **skipMetadata**: `boolean`
-
-When set to `true`, metadata reading and mapping will be skipped. ([`metadata`](PhotoFile.md#metadata) will be null)
-
-This might result in a faster capture, as metadata reading and mapping requires File IO.
-
-**`Default`**
-
-false
-
-**`Platform`**
-
-Android
-
-#### Defined in
-
-[PhotoFile.ts:48](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/PhotoFile.ts#L48)
+[PhotoFile.ts:14](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L14)

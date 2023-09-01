@@ -7,7 +7,7 @@ custom_edit_url: null
 
 Represents a Photo taken by the Camera written to the local filesystem.
 
-Related: [`Camera.takePhoto()`](../classes/Camera.md#takephoto), [`Camera.takeSnapshot()`](../classes/Camera.md#takesnapshot)
+See [`Camera.takePhoto()`](../classes/Camera.md#takephoto)
 
 ## Hierarchy
 
@@ -21,9 +21,23 @@ Related: [`Camera.takePhoto()`](../classes/Camera.md#takephoto), [`Camera.takeSn
 
 • **height**: `number`
 
+The height of the photo, in pixels.
+
 #### Defined in
 
-[PhotoFile.ts:58](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/PhotoFile.ts#L58)
+[PhotoFile.ts:62](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L62)
+
+___
+
+### isMirrored
+
+• **isMirrored**: `boolean`
+
+Whether this photo is mirrored (selfies) or not.
+
+#### Defined in
+
+[PhotoFile.ts:76](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L76)
 
 ___
 
@@ -31,22 +45,27 @@ ___
 
 • **isRawPhoto**: `boolean`
 
+Whether this photo is in RAW format or not.
+
 #### Defined in
 
-[PhotoFile.ts:59](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/PhotoFile.ts#L59)
+[PhotoFile.ts:66](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L66)
 
 ___
 
 ### metadata
 
-• **metadata**: `Object`
+• `Optional` **metadata**: `Object`
 
-Metadata information describing the captured image.
+Metadata information describing the captured image. (iOS only)
 
 **`See`**
 
- - [AVCapturePhoto.metadata](https://developer.apple.com/documentation/avfoundation/avcapturephoto/2873982-metadata)
- - [AndroidX ExifInterface](https://developer.android.com/reference/androidx/exifinterface/media/ExifInterface)
+[AVCapturePhoto.metadata](https://developer.apple.com/documentation/avfoundation/avcapturephoto/2873982-metadata)
+
+**`Platform`**
+
+iOS
 
 #### Type declaration
 
@@ -54,7 +73,7 @@ Metadata information describing the captured image.
 | :------ | :------ | :------ |
 | `DPIHeight` | `number` | **`Platform`** iOS |
 | `DPIWidth` | `number` | **`Platform`** iOS |
-| `Orientation` | `number` | - |
+| `Orientation` | `number` | Orientation of the EXIF Image. * 1 = 0 degrees: the correct orientation, no adjustment is required. * 2 = 0 degrees, mirrored: image has been flipped back-to-front. * 3 = 180 degrees: image is upside down. * 4 = 180 degrees, mirrored: image has been flipped back-to-front and is upside down. * 5 = 90 degrees: image has been flipped back-to-front and is on its side. * 6 = 90 degrees, mirrored: image is on its side. * 7 = 270 degrees: image has been flipped back-to-front and is on its far side. * 8 = 270 degrees, mirrored: image is on its far side. |
 | `{Exif}` | { `ApertureValue`: `number` ; `BrightnessValue`: `number` ; `ColorSpace`: `number` ; `DateTimeDigitized`: `string` ; `DateTimeOriginal`: `string` ; `ExifVersion`: `string` ; `ExposureBiasValue`: `number` ; `ExposureMode`: `number` ; `ExposureProgram`: `number` ; `ExposureTime`: `number` ; `FNumber`: `number` ; `Flash`: `number` ; `FocalLenIn35mmFilm`: `number` ; `FocalLength`: `number` ; `ISOSpeedRatings`: `number`[] ; `LensMake`: `string` ; `LensModel`: `string` ; `LensSpecification`: `number`[] ; `MeteringMode`: `number` ; `OffsetTime`: `string` ; `OffsetTimeDigitized`: `string` ; `OffsetTimeOriginal`: `string` ; `PixelXDimension`: `number` ; `PixelYDimension`: `number` ; `SceneType`: `number` ; `SensingMethod`: `number` ; `ShutterSpeedValue`: `number` ; `SubjectArea`: `number`[] ; `SubsecTimeDigitized`: `string` ; `SubsecTimeOriginal`: `string` ; `WhiteBalance`: `number`  } | - |
 | `{Exif}.ApertureValue` | `number` | - |
 | `{Exif}.BrightnessValue` | `number` | - |
@@ -100,7 +119,21 @@ Metadata information describing the captured image.
 
 #### Defined in
 
-[PhotoFile.ts:67](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/PhotoFile.ts#L67)
+[PhotoFile.ts:85](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L85)
+
+___
+
+### orientation
+
+• **orientation**: `Orientation`
+
+Display orientation of the photo, relative to the Camera's sensor orientation.
+
+Note that Camera sensors are landscape, so e.g. "portrait" photos will have a value of "landscape-left", etc.
+
+#### Defined in
+
+[PhotoFile.ts:72](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L72)
 
 ___
 
@@ -120,7 +153,7 @@ The path of the file.
 
 #### Defined in
 
-[TemporaryFile.ts:12](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/TemporaryFile.ts#L12)
+[TemporaryFile.ts:12](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/TemporaryFile.ts#L12)
 
 ___
 
@@ -130,7 +163,7 @@ ___
 
 #### Defined in
 
-[PhotoFile.ts:60](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/PhotoFile.ts#L60)
+[PhotoFile.ts:77](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L77)
 
 ___
 
@@ -138,6 +171,8 @@ ___
 
 • **width**: `number`
 
+The width of the photo, in pixels.
+
 #### Defined in
 
-[PhotoFile.ts:57](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/PhotoFile.ts#L57)
+[PhotoFile.ts:58](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L58)

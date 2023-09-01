@@ -17,7 +17,7 @@ The X coordinate of this Point. (double)
 
 #### Defined in
 
-[Point.ts:8](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/Point.ts#L8)
+[Point.ts:8](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Point.ts#L8)
 
 ___
 
@@ -29,4 +29,4 @@ The Y coordinate of this Point. (double)
 
 #### Defined in
 
-[Point.ts:12](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/Point.ts#L12)
+[Point.ts:12](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Point.ts#L12)

@@ -9,17 +9,13 @@ custom_edit_url: null
 
 ### fileType
 
-• `Optional` **fileType**: [`VideoFileType`](../#videofiletype)
+• `Optional` **fileType**: ``"mov"`` \| ``"mp4"``
 
-Sets the file type to use for the Video Recording.
-
-**`Default`**
-
-"mov"
+Specifies the output file type to record videos into.
 
 #### Defined in
 
-[VideoFile.ts:26](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/VideoFile.ts#L26)
+[VideoFile.ts:12](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/VideoFile.ts#L12)
 
 ___
 
@@ -31,7 +27,7 @@ Set the video flash mode. Natively, this just enables the torch while recording.
 
 #### Defined in
 
-[VideoFile.ts:21](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/VideoFile.ts#L21)
+[VideoFile.ts:8](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/VideoFile.ts#L8)
 
 ___
 
@@ -57,7 +53,7 @@ Called when there was an unexpected runtime error while recording the video.
 
 #### Defined in
 
-[VideoFile.ts:30](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/VideoFile.ts#L30)
+[VideoFile.ts:16](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/VideoFile.ts#L16)
 
 ___
 
@@ -83,25 +79,18 @@ Called when the recording has been successfully saved to file.
 
 #### Defined in
 
-[VideoFile.ts:34](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/VideoFile.ts#L34)
+[VideoFile.ts:20](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/VideoFile.ts#L20)
 
 ___
 
 ### videoCodec
 
-• `Optional` **videoCodec**: [`CameraVideoCodec`](../#cameravideocodec)
+• `Optional` **videoCodec**: ``"h265"``
 
-Set the video codec to record in. Different video codecs affect video quality and video size.
-To get a list of all available video codecs use the `getAvailableVideoCodecs()` function.
-
-**`Default`**
-
-undefined
-
-**`Platform`**
-
-iOS
+The Video Codec to record in.
+- `h264`: Widely supported, but might be less efficient, especially with larger sizes or framerates.
+- `h265`: The HEVC (High-Efficient-Video-Codec) for higher efficient video recordings.
 
 #### Defined in
 
-[VideoFile.ts:42](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/VideoFile.ts#L42)
+[VideoFile.ts:26](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/VideoFile.ts#L26)

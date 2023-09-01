@@ -20,7 +20,7 @@ Optional additional cause for nested errors
 
 #### Defined in
 
-[CameraError.ts:101](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraError.ts#L101)
+[CameraError.ts:105](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraError.ts#L105)
 
 ___
 
@@ -35,7 +35,7 @@ The native error's code.
 
 #### Defined in
 
-[CameraError.ts:66](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraError.ts#L66)
+[CameraError.ts:70](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraError.ts#L70)
 
 ___
 
@@ -50,7 +50,7 @@ Optional additional details
 
 #### Defined in
 
-[CameraError.ts:87](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraError.ts#L87)
+[CameraError.ts:91](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraError.ts#L91)
 
 ___
 
@@ -65,7 +65,7 @@ The native error's domain.
 
 #### Defined in
 
-[CameraError.ts:73](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraError.ts#L73)
+[CameraError.ts:77](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraError.ts#L77)
 
 ___
 
@@ -80,7 +80,7 @@ The native error description
 
 #### Defined in
 
-[CameraError.ts:80](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraError.ts#L80)
+[CameraError.ts:84](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraError.ts#L84)
 
 ___
 
@@ -95,4 +95,4 @@ Optional Java stacktrace
 
 #### Defined in
 
-[CameraError.ts:94](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraError.ts#L94)
+[CameraError.ts:98](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraError.ts#L98)

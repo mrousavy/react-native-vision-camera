@@ -73,43 +73,7 @@ await camera.current.focus({
 
 #### Defined in
 
-[Camera.tsx:289](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/Camera.tsx#L289)
-
-___
-
-### getAvailableVideoCodecs
-
-▸ **getAvailableVideoCodecs**(`fileType?`): `Promise`<[`CameraVideoCodec`](../#cameravideocodec)[]\>
-
-Get a list of video codecs the current camera supports for a given file type.  Returned values are ordered by efficiency (descending).
-
-**`Example`**
-
-```ts
-const codecs = await camera.current.getAvailableVideoCodecs("mp4")
-```
-
-**`Throws`**
-
-[`CameraRuntimeError`](CameraRuntimeError.md) When any kind of error occured while getting available video codecs. Use the ParameterError.code | code property to get the actual error
-
-**`Platform`**
-
-iOS
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `fileType?` | [`VideoFileType`](../#videofiletype) |
-
-#### Returns
-
-`Promise`<[`CameraVideoCodec`](../#cameravideocodec)[]\>
-
-#### Defined in
-
-[Camera.tsx:307](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/Camera.tsx#L307)
+[Camera.tsx:250](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L250)
 
 ___
 
@@ -145,7 +109,7 @@ const video = await camera.current.stopRecording()
 
 #### Defined in
 
-[Camera.tsx:214](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/Camera.tsx#L214)
+[Camera.tsx:175](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L175)
 
 ___
 
@@ -181,7 +145,7 @@ const video = await camera.current.stopRecording()
 
 #### Defined in
 
-[Camera.tsx:242](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/Camera.tsx#L242)
+[Camera.tsx:203](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L203)
 
 ___
 
@@ -227,7 +191,7 @@ setTimeout(() => {
 
 #### Defined in
 
-[Camera.tsx:177](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/Camera.tsx#L177)
+[Camera.tsx:138](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L138)
 
 ___
 
@@ -256,7 +220,7 @@ setTimeout(async () => {
 
 #### Defined in
 
-[Camera.tsx:263](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/Camera.tsx#L263)
+[Camera.tsx:224](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L224)
 
 ___
 
@@ -292,48 +256,7 @@ const photo = await camera.current.takePhoto({
 
 #### Defined in
 
-[Camera.tsx:120](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/Camera.tsx#L120)
-
-___
-
-### takeSnapshot
-
-▸ **takeSnapshot**(`options?`): `Promise`<[`PhotoFile`](../interfaces/PhotoFile.md)\>
-
-Take a snapshot of the current preview view.
-
-This can be used as an alternative to [`takePhoto()`](Camera.md#takephoto) if speed is more important than quality
-
-**`Throws`**
-
-[`CameraCaptureError`](CameraCaptureError.md) When any kind of error occured while taking a snapshot. Use the [`code`](CameraCaptureError.md#code) property to get the actual error
-
-**`Platform`**
-
-Android
-
-**`Example`**
-
-```ts
-const photo = await camera.current.takeSnapshot({
-  quality: 85,
-  skipMetadata: true
-})
-```
-
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `options?` | [`TakeSnapshotOptions`](../interfaces/TakeSnapshotOptions.md) |
-
-#### Returns
-
-`Promise`<[`PhotoFile`](../interfaces/PhotoFile.md)\>
-
-#### Defined in
-
-[Camera.tsx:144](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/Camera.tsx#L144)
+[Camera.tsx:108](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L108)
 
 ___
 
@@ -365,7 +288,7 @@ return {
 
 #### Defined in
 
-[Camera.tsx:333](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/Camera.tsx#L333)
+[Camera.tsx:276](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L276)
 
 ___
 
@@ -388,7 +311,7 @@ To actually prompt the user for camera permission, use [`requestCameraPermission
 
 #### Defined in
 
-[Camera.tsx:348](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/Camera.tsx#L348)
+[Camera.tsx:291](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L291)
 
 ___
 
@@ -411,7 +334,7 @@ To actually prompt the user for microphone permission, use [`requestMicrophonePe
 
 #### Defined in
 
-[Camera.tsx:363](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/Camera.tsx#L363)
+[Camera.tsx:306](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L306)
 
 ___
 
@@ -434,7 +357,7 @@ and `"denied"` will be returned.
 
 #### Defined in
 
-[Camera.tsx:378](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/Camera.tsx#L378)
+[Camera.tsx:321](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L321)
 
 ___
 
@@ -457,4 +380,4 @@ and `"denied"` will be returned.
 
 #### Defined in
 
-[Camera.tsx:393](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/Camera.tsx#L393)
+[Camera.tsx:336](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L336)

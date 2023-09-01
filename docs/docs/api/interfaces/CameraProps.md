@@ -21,21 +21,7 @@ Enables **audio capture** for video recordings (see ["Recording Videos"](https:/
 
 #### Defined in
 
-[CameraProps.ts:56](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L56)
-
-___
-
-### colorSpace
-
-• `Optional` **colorSpace**: [`ColorSpace`](../#colorspace)
-
-Specifies the color space to use for this camera device. Make sure the given `format` contains the given `colorSpace`.
-
-Requires `format` to be set.
-
-#### Defined in
-
-[CameraProps.ts:122](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L122)
+[CameraProps.ts:61](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraProps.ts#L61)
 
 ___
 
@@ -64,7 +50,7 @@ return (
 
 #### Defined in
 
-[CameraProps.ts:32](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L32)
+[CameraProps.ts:37](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraProps.ts#L37)
 
 ___
 
@@ -80,7 +66,24 @@ false
 
 #### Defined in
 
-[CameraProps.ts:137](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L137)
+[CameraProps.ts:145](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraProps.ts#L145)
+
+___
+
+### enableFpsGraph
+
+• `Optional` **enableFpsGraph**: `boolean`
+
+If `true`, show a debug view to display the FPS of the Camera session.
+This is useful for debugging your Frame Processor's speed.
+
+**`Default`**
+
+false
+
+#### Defined in
+
+[CameraProps.ts:173](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraProps.ts#L173)
 
 ___
 
@@ -102,7 +105,7 @@ false
 
 #### Defined in
 
-[CameraProps.ts:158](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L158)
+[CameraProps.ts:166](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraProps.ts#L166)
 
 ___
 
@@ -124,7 +127,7 @@ false
 
 #### Defined in
 
-[CameraProps.ts:146](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L146)
+[CameraProps.ts:154](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraProps.ts#L154)
 
 ___
 
@@ -142,7 +145,7 @@ false
 
 #### Defined in
 
-[CameraProps.ts:87](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L87)
+[CameraProps.ts:106](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraProps.ts#L106)
 
 ___
 
@@ -150,11 +153,11 @@ ___
 
 • `Optional` **format**: [`CameraDeviceFormat`](CameraDeviceFormat.md)
 
-Selects a given format. Must be `undefined` when `preset` is set!
+Selects a given format. By default, the best matching format is chosen.
 
 #### Defined in
 
-[CameraProps.ts:98](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L98)
+[CameraProps.ts:113](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraProps.ts#L113)
 
 ___
 
@@ -168,23 +171,17 @@ Requires `format` to be set.
 
 #### Defined in
 
-[CameraProps.ts:104](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L104)
+[CameraProps.ts:119](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraProps.ts#L119)
 
 ___
 
 ### frameProcessor
 
-• `Optional` **frameProcessor**: (`frame`: [`Frame`](Frame.md)) => `void`
+• `Optional` **frameProcessor**: [`FrameProcessor`](../#frameprocessor)
 
-#### Type declaration
+A worklet which will be called for every frame the Camera "sees".
 
-▸ (`frame`): `void`
-
-A worklet which will be called for every frame the Camera "sees". Throttle the Frame Processor's frame rate with [`frameProcessorFps`](CameraProps.md#frameprocessorfps).
-
-> See [the Frame Processors documentation](https://react-native-vision-camera.com/docs/guides/frame-processors) for more information
-
-Note: If you want to use `video` and `frameProcessor` simultaneously, make sure [`supportsParallelVideoProcessing`](https://react-native-vision-camera.com/docs/guides/devices#the-supportsparallelvideoprocessing-prop) is `true`.
+> See [the Frame Processors documentation](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors) for more information
 
 **`Example`**
 
@@ -198,44 +195,9 @@ const frameProcessor = useFrameProcessor((frame) => {
 return <Camera {...cameraProps} frameProcessor={frameProcessor} />
 ```
 
-##### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `frame` | [`Frame`](Frame.md) |
-
-##### Returns
-
-`void`
-
 #### Defined in
 
-[CameraProps.ts:195](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L195)
-
-___
-
-### frameProcessorFps
-
-• `Optional` **frameProcessorFps**: `number` \| ``"auto"``
-
-Specifies the maximum frame rate the frame processor can use, independent of the Camera's frame rate (`fps` property).
-
-* A value of `'auto'` (default) indicates that the frame processor should execute as fast as it can, without dropping frames. This is achieved by collecting historical data for previous frame processor calls and adjusting frame rate accordingly.
-* A value of `1` indicates that the frame processor gets executed once per second, perfect for code scanning.
-* A value of `10` indicates that the frame processor gets executed 10 times per second, perfect for more realtime use-cases.
-* A value of `25` indicates that the frame processor gets executed 25 times per second, perfect for high-speed realtime use-cases.
-* ...and so on
-
-If you're using higher values, always check your Xcode/Android Studio Logs to make sure your frame processors are executing fast enough
-without blocking the video recording queue.
-
-**`Default`**
-
-'auto'
-
-#### Defined in
-
-[CameraProps.ts:210](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L210)
+[CameraProps.ts:204](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraProps.ts#L204)
 
 ___
 
@@ -249,7 +211,7 @@ Requires `format` to be set.
 
 #### Defined in
 
-[CameraProps.ts:110](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L110)
+[CameraProps.ts:125](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraProps.ts#L125)
 
 ___
 
@@ -265,7 +227,7 @@ This can be compared to a Video component, where `isActive` specifies whether th
 
 #### Defined in
 
-[CameraProps.ts:40](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L40)
+[CameraProps.ts:45](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraProps.ts#L45)
 
 ___
 
@@ -279,7 +241,7 @@ Requires `format` to be set.
 
 #### Defined in
 
-[CameraProps.ts:116](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L116)
+[CameraProps.ts:131](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraProps.ts#L131)
 
 ___
 
@@ -305,33 +267,7 @@ Called when any kind of runtime error occured.
 
 #### Defined in
 
-[CameraProps.ts:168](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L168)
-
-___
-
-### onFrameProcessorPerformanceSuggestionAvailable
-
-• `Optional` **onFrameProcessorPerformanceSuggestionAvailable**: (`suggestion`: [`FrameProcessorPerformanceSuggestion`](FrameProcessorPerformanceSuggestion.md)) => `void`
-
-#### Type declaration
-
-▸ (`suggestion`): `void`
-
-Called when a new performance suggestion for a Frame Processor is available - either if your Frame Processor is running too fast and frames are being dropped, or because it is able to run faster. Optionally, you can adjust your `frameProcessorFps` accordingly.
-
-##### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `suggestion` | [`FrameProcessorPerformanceSuggestion`](FrameProcessorPerformanceSuggestion.md) |
-
-##### Returns
-
-`void`
-
-#### Defined in
-
-[CameraProps.ts:176](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L176)
+[CameraProps.ts:183](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraProps.ts#L183)
 
 ___
 
@@ -351,19 +287,19 @@ Called when the camera was successfully initialized.
 
 #### Defined in
 
-[CameraProps.ts:172](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L172)
+[CameraProps.ts:187](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraProps.ts#L187)
 
 ___
 
 ### orientation
 
-• `Optional` **orientation**: ``"portrait"`` \| ``"portraitUpsideDown"`` \| ``"landscapeLeft"`` \| ``"landscapeRight"``
+• `Optional` **orientation**: `Orientation`
 
 Represents the orientation of all Camera Outputs (Photo, Video, and Frame Processor). If this value is not set, the device orientation is used.
 
 #### Defined in
 
-[CameraProps.ts:162](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L162)
+[CameraProps.ts:177](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraProps.ts#L177)
 
 ___
 
@@ -375,19 +311,31 @@ Enables **photo capture** with the `takePhoto` function (see ["Taking Photos"](h
 
 #### Defined in
 
-[CameraProps.ts:46](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L46)
+[CameraProps.ts:51](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraProps.ts#L51)
 
 ___
 
-### preset
+### pixelFormat
 
-• `Optional` **preset**: [`CameraPreset`](../#camerapreset)
+• `Optional` **pixelFormat**: ``"yuv"`` \| ``"rgb"`` \| ``"native"``
 
-Automatically selects a camera format which best matches the given preset. Must be `undefined` when `format` is set!
+Specifies the pixel format for the video pipeline.
+
+Frames from a [Frame Processor](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors) will be streamed in the pixel format specified here.
+
+While `native` and `yuv` are the most efficient formats, some ML models (such as MLKit Barcode detection) require input Frames to be in RGB colorspace, otherwise they just output nonsense.
+
+- `native`: The hardware native GPU buffer format. This is the most efficient format. (`PRIVATE` on Android, sometimes YUV on iOS)
+- `yuv`: The YUV (Y'CbCr 4:2:0 or NV21, 8-bit) format, either video- or full-range, depending on hardware capabilities. This is the second most efficient format.
+- `rgb`: The RGB (RGB, RGBA or ABGRA, 8-bit) format. This is least efficient and requires explicit conversion.
+
+**`Default`**
+
+`native`
 
 #### Defined in
 
-[CameraProps.ts:94](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L94)
+[CameraProps.ts:75](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraProps.ts#L75)
 
 ___
 
@@ -405,7 +353,7 @@ Note: The torch is only available on `"back"` cameras, and isn't supported by ev
 
 #### Defined in
 
-[CameraProps.ts:67](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L67)
+[CameraProps.ts:86](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraProps.ts#L86)
 
 ___
 
@@ -415,11 +363,11 @@ ___
 
 Enables **video capture** with the `startRecording` function (see ["Recording Videos"](https://react-native-vision-camera.com/docs/guides/capturing/#recording-videos))
 
-Note: If you want to use `video` and `frameProcessor` simultaneously, make sure [`supportsParallelVideoProcessing`](https://react-native-vision-camera.com/docs/guides/devices#the-supportsparallelvideoprocessing-prop) is `true`.
+Note: If both the `photo` and `video` properties are enabled at the same time and the device is running at a `hardwareLevel` of `'legacy'` or `'limited'`, VisionCamera _might_ use a lower resolution for video capture due to hardware constraints.
 
 #### Defined in
 
-[CameraProps.ts:52](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L52)
+[CameraProps.ts:57](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraProps.ts#L57)
 
 ___
 
@@ -427,17 +375,13 @@ ___
 
 • `Optional` **videoStabilizationMode**: [`VideoStabilizationMode`](../#videostabilizationmode)
 
-Specifies the video stabilization mode to use for this camera device. Make sure the given `format` contains the given `videoStabilizationMode`.
+Specifies the video stabilization mode to use.
 
-Requires `format` to be set.
-
-**`Platform`**
-
-iOS
+Requires a `format` to be set that contains the given `videoStabilizationMode`.
 
 #### Defined in
 
-[CameraProps.ts:129](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L129)
+[CameraProps.ts:137](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraProps.ts#L137)
 
 ___
 
@@ -459,4 +403,4 @@ on demand (if available)
 
 #### Defined in
 
-[CameraProps.ts:79](https://github.com/mrousavy/react-native-vision-camera/blob/c2fb5bf1/src/CameraProps.ts#L79)
+[CameraProps.ts:98](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraProps.ts#L98)
