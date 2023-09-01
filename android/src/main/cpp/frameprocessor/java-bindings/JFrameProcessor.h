@@ -39,6 +39,8 @@ class JFrameProcessor : public jni::HybridClass<JFrameProcessor> {
   // C++ only constructor. Use `create(..)` to create new instances.
   explicit JFrameProcessor(std::shared_ptr<RNWorklet::JsiWorklet> worklet,
                            std::shared_ptr<RNWorklet::JsiWorkletContext> context);
+  JFrameProcessor(const JFrameProcessor &) = delete;
+  JFrameProcessor &operator=(const JFrameProcessor &) = delete;
 
  protected:
   /**

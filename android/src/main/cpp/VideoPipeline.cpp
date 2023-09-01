@@ -70,6 +70,11 @@ void VideoPipeline::removePreviewOutputSurface() {
   _previewOutput = nullptr;
 }
 
+jni::local_ref<JFrame> VideoPipeline::createFrame() {
+  static const auto createFrameMethod = javaClassLocal()->getMethod<JFrame()>("createFrame");
+  return createFrameMethod(_javaPart);
+}
+
 void VideoPipeline::setPreviewOutputSurface(jobject surface) {
   // 1. Delete existing output surface
   removePreviewOutputSurface();
