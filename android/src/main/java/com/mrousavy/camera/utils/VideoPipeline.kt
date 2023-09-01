@@ -42,9 +42,6 @@ class VideoPipeline(val width: Int,
   // Output 2
   private var recordingSession: RecordingSession? = null
 
-  // Output 3
-  private var previewSurface: Surface? = null
-
   // Input
   private val surfaceTexture: SurfaceTexture
   val surface: Surface
@@ -159,19 +156,6 @@ class VideoPipeline(val width: Int,
     }
   }
 
-  fun setPreviewOutput(surface: Surface?) {
-    synchronized(this) {
-      Log.i(TAG, "Setting Preview Output...")
-      if (surface != null) {
-        setPreviewOutputSurface(surface)
-        this.previewSurface = surface
-      } else {
-        removePreviewOutputSurface()
-        this.previewSurface = null
-      }
-    }
-  }
-
   private external fun getInputTextureId(): Int
   private external fun onBeforeFrame()
   private external fun onFrame(transformMatrix: FloatArray)
@@ -179,7 +163,5 @@ class VideoPipeline(val width: Int,
   private external fun removeFrameProcessorOutputSurface()
   private external fun setRecordingSessionOutputSurface(surface: Any)
   private external fun removeRecordingSessionOutputSurface()
-  private external fun setPreviewOutputSurface(surface: Any)
-  private external fun removePreviewOutputSurface()
   private external fun initHybrid(width: Int, height: Int): HybridData
 }

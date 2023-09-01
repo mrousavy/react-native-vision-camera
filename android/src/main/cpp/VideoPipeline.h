@@ -16,8 +16,6 @@
 
 namespace vision {
 
-#define NO_TEXTURE 0
-
 using namespace facebook;
 
 class VideoPipeline: public jni::HybridClass<VideoPipeline> {
@@ -40,10 +38,6 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
   void setRecordingSessionOutputSurface(jobject surface);
   void removeRecordingSessionOutputSurface();
 
-  // <- Preview output
-  void setPreviewOutputSurface(jobject surface);
-  void removePreviewOutputSurface();
-
   // Frame callbacks
   void onBeforeFrame();
   void onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrix);
@@ -62,7 +56,6 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
   std::shared_ptr<OpenGLContext> _context = nullptr;
   std::unique_ptr<OpenGLRenderer> _frameProcessorOutput = nullptr;
   std::unique_ptr<OpenGLRenderer> _recordingSessionOutput = nullptr;
-  std::unique_ptr<OpenGLRenderer> _previewOutput = nullptr;
 
  private:
   friend HybridBase;
