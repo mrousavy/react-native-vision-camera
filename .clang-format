@@ -4,7 +4,7 @@ Standard: c++14
 
 # Indentation
 IndentWidth: 2
-ColumnLimit: 120
+ColumnLimit: 100
 
 # Includes
 SortIncludes: true
@@ -18,7 +18,7 @@ ReflowComments: true
 # Alignment options
 AlignTrailingComments: true
 AlignConsecutiveAssignments: true
-AlignConsecutiveDeclarations: true
+AlignConsecutiveDeclarations: false
 AlignOperands: true
 
 # Line breaking options
