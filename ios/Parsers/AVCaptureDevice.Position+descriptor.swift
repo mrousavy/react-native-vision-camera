@@ -1,5 +1,5 @@
 //
-//  AVCaptureDevice.Position+String.swift
+//  AVCaptureDevice.Position+descriptor.swift
 //  mrousavy
 //
 //  Created by Marc Rousavy on 15.12.20.
