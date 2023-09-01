@@ -1,5 +1,30 @@
-BasedOnStyle: LLVM
+# Standard
+BasedOnStyle: "llvm"
+Standard: "C++14"
+
+# Indentation
 IndentWidth: 2
-ColumnLimit: 140
+ColumnLimit: 120
+
+# Includes
+SortIncludes: true
+SortUsingDeclarations: true
+
+# Pointer and reference alignment
 PointerAlignment: Left
 ReferenceAlignment: Left
+ReflowComments: true
+
+# Alignment options
+AlignTrailingComments: true
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AlignOperands: true
+
+# Line breaking options
+BreakBeforeBraces: Stroustrup
+BreakConstructorInitializers: BeforeColon
+AllowShortFunctionsOnASingleLine: Empty
+IndentCaseLabels: true
+NamespaceIndentation: Inner
+
