@@ -1,3 +1,5 @@
+# Config for clang-format version 16
+
 # Standard
 BasedOnStyle: llvm
 Standard: c++14
