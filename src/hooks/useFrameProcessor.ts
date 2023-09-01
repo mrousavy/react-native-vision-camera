@@ -2,6 +2,14 @@ import { DependencyList, useMemo } from 'react';
 import type { Frame, FrameInternal } from '../Frame';
 import { FrameProcessor } from '../CameraProps';
 
+/**
+ * Create a new Frame Processor function which you can pass to the `<Camera>`.
+ * (See ["Frame Processors"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors))
+ *
+ * Make sure to add the `'worklet'` directive to the top of the Frame Processor function, otherwise it will not get compiled into a worklet.
+ *
+ * Also make sure to memoize the returned object, so that the Camera doesn't reset the Frame Processor Context each time.
+ */
 export function createFrameProcessor(frameProcessor: FrameProcessor['frameProcessor'], type: FrameProcessor['type']): FrameProcessor {
   return {
     frameProcessor: (frame: Frame) => {
