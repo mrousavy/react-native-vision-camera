@@ -95,7 +95,7 @@ public final class CameraView: UIView {
   var pinchGestureRecognizer: UIPinchGestureRecognizer?
   var pinchScaleOffset: CGFloat = 1.0
 
-  var previewView: PreviewView?
+  var previewView: PreviewView
   #if DEBUG
     var fpsGraph: RCTFPSGraph?
   #endif
@@ -125,8 +125,9 @@ public final class CameraView: UIView {
                                            selector: #selector(onOrientationChanged),
                                            name: UIDevice.orientationDidChangeNotification,
                                            object: nil)
-
-    setupPreviewView()
+    
+    previewView = PreviewView(frame: frame, session: captureSession)
+    addSubview(previewView)
   }
 
   @available(*, unavailable)
@@ -161,10 +162,8 @@ public final class CameraView: UIView {
   }
 
   override public func layoutSubviews() {
-    if let previewView = previewView {
-      previewView.frame = frame
-      previewView.bounds = bounds
-    }
+    previewView.frame = frame
+    previewView.bounds = bounds
   }
 
   // pragma MARK: Props updating
@@ -250,6 +249,20 @@ public final class CameraView: UIView {
         }
       }
     }
+  }
+  
+  func setupFpsGraph() {
+    #if DEBUG
+      if enableFpsGraph {
+        if fpsGraph != nil { return }
+        fpsGraph = RCTFPSGraph(frame: CGRect(x: 10, y: 54, width: 75, height: 45), color: .red)
+        fpsGraph!.layer.zPosition = 9999.0
+        addSubview(fpsGraph!)
+      } else {
+        fpsGraph?.removeFromSuperview()
+        fpsGraph = nil
+      }
+    #endif
   }
 
   @objc
