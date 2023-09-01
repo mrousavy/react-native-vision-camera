@@ -35,7 +35,7 @@
     "build": "bob build",
     "release": "release-it",
     "pods": "cd example && yarn pods",
-    "bootstrap": "yarn && cd example && yarn && yarn setup && yarn pods",
+    "bootstrap": "yarn && cd example && yarn && yarn pods",
     "check-android": "scripts/ktlint.sh && scripts/clang-format.sh",
     "check-ios": "scripts/swiftlint.sh && scripts/swiftformat.sh && scripts/clang-format.sh",
     "check-js": "yarn lint --fix && yarn typescript",
