@@ -71,6 +71,7 @@ VisionCamera is provided _as is_, I work on it in my free time.
 
 If you're integrating VisionCamera in a production app, consider [funding this project](https://github.com/sponsors/mrousavy) and <a href="mailto:me@mrousavy.com?subject=Adopting VisionCamera at scale">contact me</a> to receive premium enterprise support, help with issues, prioritize bugfixes, request features, help at integrating VisionCamera and/or Frame Processors, and more.
 
-<br />
+### Socials
 
-🐦 [Follow me on Twitter](https://twitter.com/mrousavy) for updates
+* 🐦 [**Follow me on Twitter**](https://twitter.com/mrousavy) for updates
+* 📝 [**Check out my blog**](https://mrousavy.com/blog) for examples and experiments
