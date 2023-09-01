@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./android
+        working-directory: ./package/android
     steps:
       - uses: actions/checkout@v2
       - name: Setup JDK 11

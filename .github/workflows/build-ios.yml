@@ -24,7 +24,7 @@ jobs:
     runs-on: macOS-latest
     defaults:
       run:
-        working-directory: example/ios
+        working-directory: package/example/ios
     steps:
       - uses: actions/checkout@v2
 
@@ -84,7 +84,7 @@ jobs:
     runs-on: macOS-latest
     defaults:
       run:
-        working-directory: example/ios
+        working-directory: package/example/ios
     steps:
       - uses: actions/checkout@v2
 

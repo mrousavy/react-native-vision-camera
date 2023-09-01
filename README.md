@@ -39,7 +39,7 @@ cd ios && pod install
 
 * [Guides](https://react-native-vision-camera.com/docs/guides)
 * [API](https://react-native-vision-camera.com/docs/api)
-* [Example](./example/)
+* [Example](./package/example/)
 * [Frame Processor Plugins](https://react-native-vision-camera.com/docs/guides/frame-processor-plugin-list)
 
 ### Example
@@ -60,7 +60,7 @@ function App() {
 }
 ```
 
-> See the [example](./example/) app
+> See the [example](./package/example/) app
 
 ### Adopting at scale
 

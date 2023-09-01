@@ -24,6 +24,9 @@ jobs:
   build:
     name: Build Android Example App
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./package
     steps:
       - uses: actions/checkout@v2
 
@@ -63,6 +66,9 @@ jobs:
   build-no-frame-processors:
     name: Build Android Example App (without Frame Processors)
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./package
     steps:
       - uses: actions/checkout@v2
 
