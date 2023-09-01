@@ -14,60 +14,93 @@ Before opening an issue, make sure you try the following:
 
 ## iOS
 
-1. Try cleaning and rebuilding **everything**:
+### Build Issues
+
+1. Try building through Xcode instead of the commandline. The error panel should give you more information about any build errors.
+2. Try cleaning and rebuilding **everything**:
    ```sh
    rm -rf package-lock.json && rm -rf yarn.lock && rm -rf node_modules
    rm -rf ios/Podfile.lock && rm -rf ios/Pods
    npm i  # or "yarn"
    cd ios && pod repo update && pod update && pod install
    ```
-2. Check your minimum iOS version. VisionCamera requires a minimum iOS version of **11.0**.
+3. Check your minimum iOS version. VisionCamera requires a minimum iOS version of **12.4**.
    1. Open your `Podfile`
-   2. Make sure `platform :ios` is set to `11.0` or higher
-   3. Make sure `iOS Deployment Target` is set to `11.0` or higher (`IPHONEOS_DEPLOYMENT_TARGET` in `project.pbxproj`)
-3. Check your Swift version. VisionCamera requires a minimum Swift version of **5.2**.
+   2. Make sure `platform :ios` is set to `12.4` or higher
+   3. Make sure `iOS Deployment Target` is set to `12.4` or higher (`IPHONEOS_DEPLOYMENT_TARGET` in `project.pbxproj`)
+4. Check your Swift version. VisionCamera requires a minimum Swift version of **5.2**.
    1. Open `project.pbxproj` in a Text Editor
    2. If the `LIBRARY_SEARCH_PATH` value is set, make sure there is no explicit reference to Swift-5.0. If there is, remove it. See [this StackOverflow answer](https://stackoverflow.com/a/66281846/1123156).
    3. If the `SWIFT_VERSION` value is set, make sure it is set to `5.2` or higher.
-4. Make sure you have created a Swift bridging header in your project.
+5. Make sure you have created a Swift bridging header in your project.
    1. Open your project (`.xcworkspace`) in Xcode
    2. Press **File** > **New** > **File** (<kbd>⌘</kbd>+<kbd>N</kbd>)
    3. Select **Swift File** and press **Next**
    4. Choose whatever name you want, e.g. `File.swift` and press **Create**
    5. Press **Create Bridging Header** when promted.
-5. If you're having runtime issues, check the logs in Xcode to find out more. In Xcode, go to **View** > **Debug Area** > **Activate Console**  (<kbd>⇧</kbd>+<kbd>⌘</kbd>+<kbd>C</kbd>).
+6. Try building without Frame Processors. Set `$VCDisableFrameProcessors = true` in the top of your Podfile, and try rebuilding.
+
+### Runtime Issues
+
+1. Check the logs in Xcode to find out more. In Xcode, go to **View** > **Debug Area** > **Activate Console**  (<kbd>⇧</kbd>+<kbd>⌘</kbd>+<kbd>C</kbd>).
    * For errors without messages, there's often an error code attached. Look up the error code on [osstatus.com](https://www.osstatus.com) to get more information about a specific error.
-6. If your Frame Processor is not running, make sure you check the native Xcode logs to find out why. Also make sure you are not using a remote JS debugger such as Google Chrome, since those don't work with JSI.
+2. If your Frame Processor is not running, make sure you check the native Xcode logs. There is useful information about the Frame Processor Runtime that will tell you if something goes wrong.
+3. If your Frame Processor is not running, make sure you are not using a remote JS debugger such as Google Chrome, since those don't work with JSI.
+4. If you are experiencing black-screens, try removing all properties such as `fps`, `hdr` or `format` on the `<Camera>` component except for the required ones:
+   ```tsx
+   <Camera device={device} isActive={true} style={{ width: 500, height: 500 }} />
+   ```
+5. Investigate the camera devices this phone has and make sure you're using a valid one. Look for properties such as `pixelFormats`, `id`, and `hardwareLevel`.
+   ```tsx
+   Camera.getAvailableCameraDevices().then((d) => console.log(JSON.stringify(d, null, 2)))
+   ```
 
 ## Android
 
-1. Try cleaning and rebuilding **everything**:
+### Build Issues
+
+1. Try building through Android Studio instead of the commandline. The error panel should give you more information about any build errors.
+2. Scroll up in the build output to make sure you're not missing any errors. Remember: "Build failed" is not an error message. Scroll further up.
+3. Try cleaning and rebuilding **everything**:
    ```sh
    ./android/gradlew clean
-   rm -rf package-lock.json && rm -rf yarn.lock && rm -rf node_modules
-   npm i  # or "yarn"
+   rm -rf android/.gradle android/.idea android/app/build android/build
+   rm -rf package-lock.json yarn.lock node_modules
+   yarn   # or `npm i`
    ```
-2. Since the Android implementation uses the not-yet fully stable **CameraX** API, make sure you've browsed the [CameraX issue tracker](https://issuetracker.google.com/issues?q=componentid:618491%20status:open) to find out if your issue is a limitation by the **CameraX** library even I cannot get around.
-3. Make sure you have installed the [Android NDK](https://developer.android.com/ndk).
-4. Make sure your minimum SDK version is **21 or higher**, and target SDK version is **31 or higher**. See [the example's `build.gradle`](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/android/build.gradle#L5-L10) for reference.
+4. Make sure you have installed the [Android NDK](https://developer.android.com/ndk).
+5. Make sure your minimum SDK version is **21 or higher**, and target SDK version is **33 or higher**. See [the example's `build.gradle`](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/example/android/build.gradle#L5-L10) for reference.
    1. Open your `build.gradle`
-   2. Set `buildToolsVersion` to `30.0.0` or higher
-   3. Set `compileSdkVersion` to `31` or higher
-   4. Set `targetSdkVersion` to `31` or higher
-   5. Set `minSdkVersion` to `21` or higher
-   6. Set `ndkVersion` to `"20.1.5948944"` or higher
-   7. Update the Gradle Build-Tools version to `4.1.2` or higher:
+   2. Set `buildToolsVersion` to `33.0.0` or higher
+   3. Set `compileSdkVersion` to `33` or higher
+   4. Set `targetSdkVersion` to `33` or higher
+   5. Set `minSdkVersion` to `26` or higher
+   6. Set `ndkVersion` to `"23.1.7779620"` or higher
+   7. Update the Gradle Build-Tools version to `7.3.1` or higher:
       ```
-      classpath("com.android.tools.build:gradle:4.1.2")
+      classpath("com.android.tools.build:gradle:7.3.1")
       ```
-4. Make sure your Gradle Wrapper version is `6.5` or higher. In `gradle-wrapper.properties`, set:
+6. Make sure your Gradle Wrapper version is `7.5.1` or higher. In `gradle-wrapper.properties`, set:
    ```
-   distributionUrl=https\://services.gradle.org/distributions/gradle-6.5-all.zip
+   distributionUrl=https\://services.gradle.org/distributions/gradle-7.5.1-all.zip
    ```
-5. If you're having runtime issues, check the logs in Android Studio/Logcat to find out more. In Android Studio, go to **View** > **Tool Windows** > **Logcat** (<kbd>⌘</kbd>+<kbd>6</kbd>) or run `adb logcat` in Terminal.
-6. If a camera device is not being returned by [`Camera.getAvailableCameraDevices()`](/docs/api/classes/Camera#getavailablecameradevices), make sure it is a Camera2 compatible device. See [this section in the Android docs](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#reprocessing) for more information.
-7. If your Frame Processor is not running, make sure you check the native Android Studio/Logcat logs to find out why. Also make sure you are not using a remote JS debugger such as Google Chrome, since those don't work with JSI.
+7. Try building without Frame Processors. Set `VisionCamera_disableFrameProcessors = true` in your `gradle.properties`, and try rebuilding.
+
+### Runtime Issues
+
+1. Check the logs in Android Studio/Logcat to find out more. In Android Studio, go to **View** > **Tool Windows** > **Logcat** (<kbd>⌘</kbd>+<kbd>6</kbd>) or run `adb logcat` in Terminal.
+2. If a camera device is not being returned by [`Camera.getAvailableCameraDevices()`](/docs/api/classes/Camera#getavailablecameradevices), make sure it is a Camera2 compatible device. See [this section in the Android docs](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#reprocessing) for more information.
+3. If your Frame Processor is not running, make sure you check the native Android Studio/Logcat logs. There is useful information about the Frame Processor Runtime that will tell you if something goes wrong.
+4. If your Frame Processor is not running, make sure you are not using a remote JS debugger such as Google Chrome, since those don't work with JSI.
+5. If you are experiencing black-screens, try removing all properties such as `fps`, `hdr` or `format` on the `<Camera>` component except for the required ones:
+   ```tsx
+   <Camera device={device} isActive={true} style={{ width: 500, height: 500 }} />
+   ```
+6. Investigate the camera devices this phone has and make sure you're using a valid one. Look for properties such as `pixelFormats`, `id`, and `hardwareLevel`.
+   ```tsx
+   Camera.getAvailableCameraDevices().then((d) => console.log(JSON.stringify(d, null, 2)))
+   ```
 
 ## Issues
 
-If nothing has helped so far, try browsing the [GitHub issues](https://github.com/mrousavy/react-native-vision-camera/issues?q=is%3Aissue). If your issue doesn't exist, [create a new one](https://github.com/mrousavy/react-native-vision-camera/issues/new/choose). Make sure to fill out the template and include as many details as possible. Also try to reproduce the issue in the [example app](https://github.com/mrousavy/react-native-vision-camera/blob/main/example).
+If nothing has helped so far, try browsing the [GitHub issues](https://github.com/mrousavy/react-native-vision-camera/issues?q=is%3Aissue). If your issue doesn't exist, [create a new one](https://github.com/mrousavy/react-native-vision-camera/issues/new/choose). Make sure to fill out the template and include as many details as possible. Also try to reproduce the issue in the [example app](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/example).

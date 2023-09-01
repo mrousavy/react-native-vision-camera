@@ -15,9 +15,9 @@ module.exports = {
           'guides/frame-processors-plugins-ios',
           'guides/frame-processors-plugins-android',
           'guides/frame-processors-plugins-final',
-          'guides/frame-processor-plugin-list'
         ]
       },
+      'guides/frame-processor-plugin-list',
       'guides/zooming',
       'guides/focusing',
       'guides/errors',

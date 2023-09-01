@@ -6,12 +6,14 @@ on:
       - main
     paths:
       - '.github/workflows/build-ios.yml'
+      - 'cpp/**'
       - 'ios/**'
       - '*.podspec'
       - 'example/ios/**'
   pull_request:
     paths:
       - '.github/workflows/build-ios.yml'
+      - 'cpp/**'
       - 'ios/**'
       - '*.podspec'
       - 'example/ios/**'
@@ -22,7 +24,7 @@ jobs:
     runs-on: macOS-latest
     defaults:
       run:
-        working-directory: example/ios
+        working-directory: package/example/ios
     steps:
       - uses: actions/checkout@v2
 
@@ -47,9 +49,8 @@ jobs:
       - name: Setup Ruby (bundle)
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.6
+          ruby-version: 2.6.10
           bundler-cache: true
-          working-directory: example/ios
 
       - name: Restore Pods cache
         uses: actions/cache@v2
@@ -62,7 +63,68 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pods-
       - name: Install Pods
-        run: bundle exec pod check || bundle exec pod install
+        run: pod install
+      - name: Install xcpretty
+        run: gem install xcpretty
+      - name: Build App
+        run: "set -o pipefail && xcodebuild \
+          CC=clang CPLUSPLUS=clang++ LD=clang LDPLUSPLUS=clang++ \
+          -derivedDataPath build -UseModernBuildSystem=YES \
+          -workspace VisionCameraExample.xcworkspace \
+          -scheme VisionCameraExample \
+          -sdk iphonesimulator \
+          -configuration Debug \
+          -destination 'platform=iOS Simulator,name=iPhone 11 Pro' \
+          build \
+          CODE_SIGNING_ALLOWED=NO | xcpretty"
+
+  build-no-frame-processors:
+    name: Build iOS Example App without Frame Processors
+    runs-on: macOS-latest
+    defaults:
+      run:
+        working-directory: package/example/ios
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - name: Restore node_modules from cache
+        uses: actions/cache@v2
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Install node_modules for example/
+        run: yarn install --frozen-lockfile --cwd ..
+      - name: Remove react-native-worklets-core
+        run: yarn remove react-native-worklets-core --cwd ..
+
+      - name: Restore buildcache
+        uses: mikehardy/buildcache-action@v1
+        continue-on-error: true
+
+      - name: Setup Ruby (bundle)
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6.10
+          bundler-cache: true
+
+      - name: Restore Pods cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            example/ios/Pods
+            ~/Library/Caches/CocoaPods
+            ~/.cocoapods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+      - name: Install Pods
+        run: pod install
       - name: Install xcpretty
         run: gem install xcpretty
       - name: Build App

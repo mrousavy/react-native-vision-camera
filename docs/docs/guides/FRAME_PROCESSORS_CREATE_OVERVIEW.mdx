@@ -12,14 +12,14 @@ import TabItem from '@theme/TabItem';
 
 Frame Processor Plugins are **native functions** which can be directly called from a JS Frame Processor. (See ["Frame Processors"](frame-processors))
 
-They **receive a frame from the Camera** as an input and can return any kind of output. For example, a `scanQRCodes` function returns an array of detected QR code strings in the frame:
+They **receive a frame from the Camera** as an input and can return any kind of output. For example, a `detectFaces` function returns an array of detected faces in the frame:
 
 ```tsx {4-5}
 function App() {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet'
-    const qrCodes = scanQRCodes(frame)
-    console.log(`QR Codes in Frame: ${qrCodes}`)
+    const faces = detectFaces(frame)
+    console.log(`Faces in Frame: ${faces}`)
   }, [])
 
   return (
@@ -28,7 +28,7 @@ function App() {
 }
 ```
 
-To achieve **maximum performance**, the `scanQRCodes` function is written in a native language (e.g. Objective-C), but it will be directly called from the VisionCamera Frame Processor JavaScript-Runtime.
+To achieve **maximum performance**, the `detectFaces` function is written in a native language (e.g. Objective-C), but it will be directly called from the VisionCamera Frame Processor JavaScript-Runtime.
 
 ### Types
 
@@ -39,11 +39,11 @@ Similar to a TurboModule, the Frame Processor Plugin Registry API automatically 
 | `number`             | `NSNumber*` (double)          | `Double`                   |
 | `boolean`            | `NSNumber*` (boolean)         | `Boolean`                  |
 | `string`             | `NSString*`                   | `String`                   |
-| `[]`                 | `NSArray*`                    | `ReadableNativeArray`      |
-| `{}`                 | `NSDictionary*`               | `ReadableNativeMap`        |
+| `[]`                 | `NSArray*`                    | `List<Object>`             |
+| `{}`                 | `NSDictionary*`               | `Map<String, Object>`      |
 | `undefined` / `null` | `nil`                         | `null`                     |
 | `(any, any) => void` | [`RCTResponseSenderBlock`][4] | `(Object, Object) -> void` |
-| [`Frame`][1]         | [`Frame*`][2]                 | [`ImageProxy`][3]          |
+| [`Frame`][1]         | [`Frame*`][2]                 | [`Frame`][3]               |
 
 ### Return values
 
@@ -51,7 +51,7 @@ Return values will automatically be converted to JS values, assuming they are re
 
 ```java
 @Override
-public Object callback(ImageProxy image, Object[] params) {
+public Object callback(Frame frame, Object[] params) {
   return "cat";
 }
 ```
@@ -61,22 +61,22 @@ Returns a `string` in JS:
 ```js
 export function detectObject(frame: Frame): string {
   'worklet'
-  const result = __detectObject(frame)
+  const result = FrameProcessorPlugins.detectObject(frame)
   console.log(result) // <-- "cat"
 }
 ```
 
-You can also manipulate the buffer and return it (or a copy of it) by returning a [`Frame`][2]/[`ImageProxy`][3] instance:
+You can also manipulate the buffer and return it (or a copy of it) by returning a [`Frame`][2]/[`Frame`][3] instance:
 
 ```java
 @Override
-public Object callback(ImageProxy image, Object[] params) {
-  ImageProxy resizedImage = new ImageProxy(/* ... */);
-  return resizedImage;
+public Object callback(Frame frame, Object[] params) {
+  Frame resizedFrame = new Frame(/* ... */);
+  return resizedFrame;
 }
 ```
 
-Which returns a [`Frame`](https://github.com/mrousavy/react-native-vision-camera/blob/main/src/Frame.ts) in JS:
+Which returns a [`Frame`](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/src/Frame.ts) in JS:
 
 ```js
 const frameProcessor = useFrameProcessor((frame) => {
@@ -97,16 +97,7 @@ Frame Processors can also accept parameters, following the same type convention 
 ```ts
 const frameProcessor = useFrameProcessor((frame) => {
   'worklet'
-  const codes = scanCodes(frame, ['qr', 'barcode'])
-}, [])
-```
-
-Or with multiple ("variadic") parameters:
-
-```ts
-const frameProcessor = useFrameProcessor((frame) => {
-  'worklet'
-  const codes = scanCodes(frame, true, 'hello-world', 42)
+  const codes = scanCodes(frame, { codes: ['qr', 'barcode'] })
 }, [])
 ```
 
@@ -116,7 +107,7 @@ To let the user know that something went wrong you can use Exceptions:
 
 ```java
 @Override
-public Object callback(ImageProxy image, Object[] params) {
+public Object callback(Frame frame, Object[] params) {
   if (params[0] instanceof String) {
     // ...
   } else {
@@ -140,7 +131,7 @@ const frameProcessor = useFrameProcessor((frame) => {
 
 ## What's possible?
 
-You can run any native code you want in a Frame Processor Plugin. Just like in the native iOS and Android Camera APIs, you will receive a frame (`CMSampleBuffer` on iOS, `ImageProxy` on Android) which you can use however you want. In other words; **everything is possible**.
+You can run any native code you want in a Frame Processor Plugin. Just like in the native iOS and Android Camera APIs, you will receive a frame ([`CMSampleBuffer`][5] on iOS, [`ImageProxy`][6] on Android) which you can use however you want. In other words; **everything is possible**.
 
 ## Implementations
 
@@ -152,13 +143,13 @@ For example, a realtime video chat application might use WebRTC to send the fram
 
 ```java
 @Override
-public Object callback(ImageProxy image, Object[] params) {
+public Object callback(Frame frame, Object[] params) {
   String serverURL = (String)params[0];
-  ImageProxy imageCopy = new ImageProxy(/* ... */);
+  Frame frameCopy = new Frame(/* ... */);
 
   uploaderQueue.runAsync(() -> {
-    WebRTC.uploadImage(imageCopy, serverURL);
-    imageCopy.close();
+    WebRTC.uploadImage(frameCopy, serverURL);
+    frameCopy.close();
   });
 
   return null;
@@ -195,20 +186,15 @@ This way you can handle queueing up the frames yourself and asynchronously call 
 
 ### Benchmarking Frame Processor Plugins
 
-Your Frame Processor Plugins have to be fast. VisionCamera automatically detects slow Frame Processors and outputs relevant information in the native console (Xcode: **Debug Area**, Android Studio: **Logcat**):
-
-<div align="center">
-  <img src={useBaseUrl("img/slow-log.png")} width="80%" />
-</div>
-<div align="center">
-  <img src={useBaseUrl("img/slow-log-2.png")} width="80%" />
-</div>
+Your Frame Processor Plugins have to be fast. Use the FPS Graph (`enableFpsGraph`) to see how fast your Camera is running, if it is not running at the target FPS, your Frame Processor is too slow.
 
 <br />
 
 #### 🚀 Create your first Frame Processor Plugin for [iOS](frame-processors-plugins-ios) or [Android](frame-processors-plugins-android)!
 
-[1]: https://github.com/mrousavy/react-native-vision-camera/blob/main/src/Frame.ts
-[2]: https://github.com/mrousavy/react-native-vision-camera/blob/main/ios/Frame%20Processor/Frame.h
-[3]: https://developer.android.com/reference/androidx/camera/core/ImageProxy
+[1]: https://github.com/mrousavy/react-native-vision-camera/blob/main/package/src/Frame.ts
+[2]: https://github.com/mrousavy/react-native-vision-camera/blob/main/package/ios/Frame%20Processor/Frame.h
+[3]: https://github.com/mrousavy/react-native-vision-camera/blob/main/package/android/src/main/java/com/mrousavy/camera/frameprocessor/Frame.java
 [4]: https://github.com/facebook/react-native/blob/9a43eac7a32a6ba3164a048960101022a92fcd5a/React/Base/RCTBridgeModule.h#L20-L24
+[5]: https://developer.apple.com/documentation/coremedia/cmsamplebuffer
+[6]: https://developer.android.com/reference/androidx/camera/core/ImageProxy

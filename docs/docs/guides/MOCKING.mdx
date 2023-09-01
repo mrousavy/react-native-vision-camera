@@ -39,69 +39,69 @@ module.exports = {
 
 ### Create proxy for original and mocked modules
 
-   1. Create a new folder `vision-camera` anywhere in your project.
-   2. Inside that folder, create `vision-camera.js` and `vision-camera.e2e.js`.
-   3. Inside `vision-camera.js`, export the original react native modules you need to mock, and
-   inside `vision-camera.e2e.js` export the mocked modules.
+1. Create a new folder `vision-camera` anywhere in your project.
+2. Inside that folder, create `vision-camera.js` and `vision-camera.e2e.js`.
+3. Inside `vision-camera.js`, export the original react native modules you need to mock, and
+inside `vision-camera.e2e.js` export the mocked modules.
 
-   In this example, several functions of the modules `Camera` and `sortDevices` are mocked.
-   Define your mocks following the [original definitions](https://github.com/mrousavy/react-native-vision-camera/tree/main/src).
+In this example, several functions of the modules `Camera` and `sortDevices` are mocked.
+Define your mocks following the [original definitions](https://github.com/mrousavy/react-native-vision-camera/tree/main/package/src).
 
-   ```js
-    // vision-camera.js
+```js
+// vision-camera.js
 
-    import { Camera, sortDevices } from 'react-native-vision-camera';
+import { Camera, sortDevices } from 'react-native-vision-camera';
 
-    export const VisionCamera = Camera;
-    export const visionCameraSortDevices = sortDevices;
-   ```
+export const VisionCamera = Camera;
+export const visionCameraSortDevices = sortDevices;
+```
 
-   ```js
-    // vision-camera.e2e.js
+```js
+// vision-camera.e2e.js
 
-    import React from 'react';
-    import RNFS, { writeFile } from 'react-native-fs';
+import React from 'react';
+import RNFS, { writeFile } from 'react-native-fs';
 
-    console.log('[DETOX] Using mocked react-native-vision-camera');
+console.log('[DETOX] Using mocked react-native-vision-camera');
 
-    export class VisionCamera extends React.PureComponent {
-      static async getAvailableCameraDevices() {
-        return (
-          [
-            {
-              position: 'back',
-            },
-          ]
-        );
-      }
+export class VisionCamera extends React.PureComponent {
+  static async getAvailableCameraDevices() {
+    return (
+      [
+        {
+          position: 'back',
+        },
+      ]
+    );
+  }
 
-      static async getCameraPermissionStatus() {
-        return 'authorized';
-      }
+  static async getCameraPermissionStatus() {
+    return 'granted';
+  }
 
-      static async requestCameraPermission() {
-        return 'authorized';
-      }
+  static async requestCameraPermission() {
+    return 'granted';
+  }
 
-      async takePhoto() {
-        const writePath = `${RNFS.DocumentDirectoryPath}/simulated_camera_photo.png`;
+  async takePhoto() {
+    const writePath = `${RNFS.DocumentDirectoryPath}/simulated_camera_photo.png`;
 
-        const imageDataBase64 = 'some_large_base_64_encoded_simulated_camera_photo';
-        await writeFile(writePath, imageDataBase64, 'base64');
+    const imageDataBase64 = 'some_large_base_64_encoded_simulated_camera_photo';
+    await writeFile(writePath, imageDataBase64, 'base64');
 
-        return { path: writePath };
-      }
+    return { path: writePath };
+  }
 
-      render() {
-        return null;
-      }
-    }
+  render() {
+    return null;
+  }
+}
 
-    export const visionCameraSortDevices = (_left, _right) => 1;
-   ```
+export const visionCameraSortDevices = (_left, _right) => 1;
+```
 
-   These mocked modules allows us to get authorized camera permissions, get one back camera
-   available and take a fake photo, while the component doesn't render when instantiated.
+These mocked modules allows us to get granted camera permissions, get one back camera
+available and take a fake photo, while the component doesn't render when instantiated.
 
 ### Use proxy module
 

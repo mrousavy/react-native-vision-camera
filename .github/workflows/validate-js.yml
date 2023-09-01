@@ -6,32 +6,35 @@ on:
       - main
     paths:
       - '.github/workflows/validate-js.yml'
-      - 'src/**'
-      - '*.json'
-      - '*.js'
-      - '*.lock'
-      - 'example/src/**'
-      - 'example/*.json'
-      - 'example/*.js'
-      - 'example/*.lock'
-      - 'example/*.tsx'
+      - 'package/src/**'
+      - 'package/*.json'
+      - 'package/*.js'
+      - 'package/*.lock'
+      - 'package/example/src/**'
+      - 'package/example/*.json'
+      - 'package/example/*.js'
+      - 'package/example/*.lock'
+      - 'package/example/*.tsx'
   pull_request:
     paths:
       - '.github/workflows/validate-js.yml'
-      - 'src/**'
-      - '*.json'
-      - '*.js'
-      - '*.lock'
-      - 'example/src/**'
-      - 'example/*.json'
-      - 'example/*.js'
-      - 'example/*.lock'
-      - 'example/*.tsx'
+      - 'package/src/**'
+      - 'package/*.json'
+      - 'package/*.js'
+      - 'package/*.lock'
+      - 'package/example/src/**'
+      - 'package/example/*.json'
+      - 'package/example/*.js'
+      - 'package/example/*.lock'
+      - 'package/example/*.tsx'
 
 jobs:
   compile:
     name: Compile JS (tsc)
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./package
     steps:
     - uses: actions/checkout@v2
 
@@ -70,6 +73,9 @@ jobs:
   lint:
     name: Lint JS (eslint, prettier)
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./package
     steps:
     - uses: actions/checkout@v2
 

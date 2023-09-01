@@ -6,30 +6,32 @@ on:
       - main
     paths:
       - '.github/workflows/validate-cpp.yml'
-      - 'cpp/**'
-      - 'android/src/main/cpp/**'
+      - 'package/cpp/**'
+      - 'package/android/src/main/cpp/**'
+      - 'package/ios/**'
   pull_request:
     paths:
       - '.github/workflows/validate-cpp.yml'
-      - 'cpp/**'
-      - 'android/src/main/cpp/**'
+      - 'package/cpp/**'
+      - 'package/android/src/main/cpp/**'
+      - 'package/ios/**'
 
 jobs:
   lint:
-    name: cpplint
+    name: Check clang-format
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        path:
+          - 'package/cpp'
+          - 'package/android/src/main/cpp'
+          - 'package/ios'
     steps:
       - uses: actions/checkout@v2
-      - uses: reviewdog/action-cpplint@master
+      - name: Run clang-format style check
+        uses: mrousavy/clang-format-action@v1
         with:
-          github_token: ${{ secrets.github_token }}
-          reporter: github-pr-review
-          flags: --linelength=230 --exclude "android/src/main/cpp/reanimated-headers"
-          targets: --recursive cpp android/src/main/cpp
-          filter: "-legal/copyright\
-            ,-readability/todo\
-            ,-build/namespaces\
-            ,-whitespace/comments\
-            ,-build/include_order\
-            ,-build/c++11\
-            "
+          clang-format-version: '16'
+          check-path: ${{ matrix.path }}
+          clang-format-style-path: package/cpp/.clang-format
+

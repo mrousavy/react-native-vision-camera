@@ -18,34 +18,6 @@ Each camera device (see [Camera Devices](devices)) provides a number of capture 
 
 If you don't want to specify the best format for your camera device, you don't have to. The Camera _automatically chooses the best matching format_ for the current camera device. This is why the Camera's `format` property is _optional_.
 
-If you don't want to do a lot of filtering, but still want to let the camera know what your intentions are, you can use the Camera's `preset` property.
-
-For example, use the `'medium'` preset if you want to create a video-chat application that shouldn't excessively use mobile data:
-
-```tsx
-function App() {
-  const devices = useCameraDevices()
-  const device = devices.back
-
-  if (device == null) return <LoadingView />
-  return (
-    <Camera
-      style={StyleSheet.absoluteFill}
-      device={device}
-      preset="medium"
-    />
-  )
-}
-```
-
-:::note
-See the [CameraPreset.ts](https://github.com/mrousavy/react-native-vision-camera/blob/main/src/CameraPreset.ts) type for more information about presets
-:::
-
-:::warning
-You cannot set `preset` and `format` at the same time; if `format` is set, `preset` must be `undefined` and vice versa!
-:::
-
 ### What you need to know about cameras
 
 To understand a bit more about camera formats, you first need to understand a few "general camera basics":
@@ -67,13 +39,6 @@ You can also manually get all camera devices and decide which device to use base
 This example shows how you would pick the format with the _highest frame rate_:
 
 ```tsx
-function getMaxFps(format: CameraDeviceFormat): number {
-  return format.frameRateRanges.reduce((prev, curr) => {
-    if (curr.maxFrameRate > prev) return curr.maxFrameRate
-    else return prev
-  }, 0)
-}
-
 function App() {
   const devices = useCameraDevices('wide-angle-camera')
   const device = devices.back
@@ -81,7 +46,7 @@ function App() {
   const format = useMemo(() => {
     return device?.formats.reduce((prev, curr) => {
       if (prev == null) return curr
-      if (getMaxFps(curr) > getMaxFps(prev)) return curr
+      if (curr.maxFps > prev.maxFps) return curr
       else return prev
     }, undefined)
   }, [device?.formats])
@@ -110,7 +75,7 @@ export const sortFormatsByResolution = (left: CameraDeviceFormat, right: CameraD
   // in this case, points aren't "normalized" (e.g. higher resolution = 1 point, lower resolution = -1 points)
   let leftPoints = left.photoHeight * left.photoWidth
   let rightPoints = right.photoHeight * right.photoWidth
-  
+
   // we also care about video dimensions, not only photo.
   leftPoints += left.videoWidth * left.videoHeight
   rightPoints += right.videoWidth * right.videoHeight
@@ -155,7 +120,6 @@ Other props that depend on the `format`:
 * `fps`: Specifies the frame rate to use
 * `hdr`: Enables HDR photo or video capture and preview
 * `lowLightBoost`: Enables a night-mode/low-light-boost for photo or video capture and preview
-* `colorSpace`: Uses the specified color-space for photo or video capture and preview (iOS only since Android only uses `YUV`)
 * `videoStabilizationMode`: Specifies the video stabilization mode to use for this camera device
 
 

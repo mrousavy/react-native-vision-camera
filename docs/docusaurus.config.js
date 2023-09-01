@@ -35,7 +35,7 @@ module.exports = {
           position: 'left'
         },
         {
-          href: 'https://github.com/mrousavy/react-native-vision-camera/tree/main/example',
+          href: 'https://github.com/mrousavy/react-native-vision-camera/tree/main/package/example',
           label: 'Example App',
           position: 'left'
         },
@@ -62,7 +62,7 @@ module.exports = {
             },
             {
               label: 'Example App',
-              href: 'https://github.com/mrousavy/react-native-vision-camera/tree/main/example',
+              href: 'https://github.com/mrousavy/react-native-vision-camera/tree/main/package/example',
             },
           ],
         },
@@ -156,9 +156,9 @@ module.exports = {
       'docusaurus-plugin-typedoc',
       {
         name: 'VisionCamera',
-        entryPoints: ['../src'],
-        exclude: "../src/index.ts",
-        tsconfig: '../tsconfig.json',
+        entryPoints: ['../package/src'],
+        exclude: "../package/src/index.ts",
+        tsconfig: '../package/tsconfig.json',
         watch: process.env.TYPEDOC_WATCH,
         excludePrivate: true,
         excludeProtected: true,

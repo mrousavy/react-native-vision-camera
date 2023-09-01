@@ -1,0 +1,64 @@
+name: 🔧 Build Error
+description: File a build error bug report
+title: "🔧 "
+labels: [🔧 build error]
+body:
+  - type: textarea
+    attributes:
+      label: How were you trying to build the app?
+      description: Explain how you tried to build the app, through Xcode, `yarn ios`, a CI, or other. Be as precise as possible, I can't help you if I don't understand your issue.
+      placeholder: I tried to build my app with react-native-vision-camera using the `yarn ios` command, and it failed.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Full build logs
+      description: Share the full build logs that appear in the console. Make sure you don't just paste the last few lines here, but rather everything from start to end.
+      render: tsx
+  - type: textarea
+    attributes:
+      label: Project dependencies
+      description: Share all of your project's dependencies including their versions from `package.json`. This is useful if there are any other conflicting libraries.
+      render: tsx
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Target platforms
+      description: Select the platforms where the build error occurs.
+      multiple: true
+      options:
+        - iOS
+        - Android
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Operating system
+      description: Select your operating system that you are trying to build on.
+      multiple: true
+      options:
+        - MacOS
+        - Windows
+        - Linux
+    validations:
+      required: true
+  - type: checkboxes
+    attributes:
+      label: Can you build the VisionCamera Example app?
+      description: Try to build the example app (`package/example/`) and see if the issue is reproduceable here.
+      options:
+      - label: I can build the VisionCamera Example app.
+  - type: checkboxes
+    attributes:
+      label: Additional information
+      description: Please check all the boxes that apply
+      options:
+        - label: I am using Expo
+        - label: I have enabled Frame Processors (react-native-worklets-core)
+        - label: I have read the [Troubleshooting Guide](https://react-native-vision-camera.com/docs/guides/troubleshooting)
+          required: true
+        - label: I agree to follow this project's [Code of Conduct](https://github.com/mrousavy/react-native-vision-camera/blob/main/CODE_OF_CONDUCT.md)
+          required: true
+        - label: I searched for [similar issues in this repository](https://github.com/mrousavy/react-native-vision-camera/issues) and found none.
+          required: true

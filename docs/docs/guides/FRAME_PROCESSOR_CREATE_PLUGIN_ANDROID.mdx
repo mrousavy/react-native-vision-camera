@@ -10,7 +10,7 @@ import TabItem from '@theme/TabItem';
 ## Creating a Frame Processor Plugin for Android
 
 The Frame Processor Plugin API is built to be as extensible as possible, which allows you to create custom Frame Processor Plugins.
-In this guide we will create a custom QR Code Scanner Plugin which can be used from JS.
+In this guide we will create a custom Face Detector Plugin which can be used from JS.
 
 Android Frame Processor Plugins can be written in either **Java**, **Kotlin** or **C++ (JNI)**.
 
@@ -23,7 +23,7 @@ npx vision-camera-plugin-builder android
 ```
 
 :::info
-The CLI will ask you for the path to project's Android Manifest file, name of the plugin (e.g. `QRCodeFrameProcessor`), name of the exposed method (e.g. `scanQRCodes`) and language you want to use for plugin development (Java or Kotlin).
+The CLI will ask you for the path to project's Android Manifest file, name of the plugin (e.g. `FaceDetectorFrameProcessorPlugin`), name of the exposed method (e.g. `detectFaces`) and language you want to use for plugin development (Java or Kotlin).
 For reference see the [CLI's docs](https://github.com/mateusz1913/vision-camera-plugin-builder#%EF%B8%8F-options).
 :::
 
@@ -35,7 +35,7 @@ For reference see the [CLI's docs](https://github.com/mateusz1913/vision-camera-
           @SuppressWarnings("UnnecessaryLocalVariable")
           List<ReactPackage> packages = new PackageList(this).getPackages();
           ...
-          packages.add(new QRCodeFrameProcessorPluginPackage()); // <- add
+          packages.add(new FaceDetectorFrameProcessorPluginPackage()); // <- add
           return packages;
         }
 ```
@@ -51,33 +51,29 @@ For reference see the [CLI's docs](https://github.com/mateusz1913/vision-camera-
 <TabItem value="java">
 
 1. Open your Project in Android Studio
-2. Create a Java source file, for the QR Code Plugin this will be called `QRCodeFrameProcessorPlugin.java`.
+2. Create a Java source file, for the Face Detector Plugin this will be called `FaceDetectorFrameProcessorPlugin.java`.
 3. Add the following code:
 
 ```java {8}
-import androidx.camera.core.ImageProxy;
+import com.mrousavy.camera.frameprocessor.Frame;
 import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
 
-public class QRCodeFrameProcessorPlugin extends FrameProcessorPlugin {
+public class FaceDetectorFrameProcessorPlugin extends FrameProcessorPlugin {
 
   @Override
-  public Object callback(ImageProxy image, Object[] params) {
+  public Object callback(Frame frame, Map<String, Object> arguments) {
     // code goes here
     return null;
-  }
-
-  QRCodeFrameProcessorPlugin() {
-    super("scanQRCodes");
   }
 }
 ```
 
 :::note
-The JS function name will be equal to the name you pass to the `super(...)` call (with a `__` prefix). Make sure it is unique across other Frame Processor Plugins.
+The Frame Processor Plugin will be exposed to JS through the `VisionCameraProxy` object. In this case, it would be `VisionCameraProxy.getFrameProcessorPlugin("detectFaces")`.
 :::
 
-4. **Implement your Frame Processing.** See the [Example Plugin (Java)](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/android/app/src/main/java/com/mrousavy/camera/example/ExampleFrameProcessorPlugin.java) for reference.
-5. Create a new Java file which registers the Frame Processor Plugin in a React Package, for the QR Code Scanner plugin this file will be called `QRCodeFrameProcessorPluginPackage.java`:
+4. **Implement your Frame Processing.** See the [Example Plugin (Java)](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/example/android/app/src/main/java/com/mrousavy/camera/example/ExampleFrameProcessorPlugin.java) for reference.
+5. Create a new Java file which registers the Frame Processor Plugin in a React Package, for the Face Detector plugin this file will be called `FaceDetectorFrameProcessorPluginPackage.java`:
 
 ```java {12}
 import com.facebook.react.ReactPackage;
@@ -85,13 +81,14 @@ import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.uimanager.ViewManager;
 import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
+import com.mrousavy.camera.frameprocessor.FrameProcessorPluginRegistry;
 import javax.annotation.Nonnull;
 
-public class QRCodeFrameProcessorPluginPackage implements ReactPackage {
+public class FaceDetectorFrameProcessorPluginPackage implements ReactPackage {
   @NonNull
   @Override
   public List<NativeModule> createNativeModules(@NonNull ReactApplicationContext reactContext) {
-    FrameProcessorPlugin.register(new QRCodeFrameProcessorPlugin());
+    FrameProcessorPluginRegistry.addFrameProcessorPlugin("detectFaces", options -> new FaceDetectorFrameProcessorPlugin());
     return Collections.emptyList();
   }
 
@@ -111,7 +108,7 @@ public class QRCodeFrameProcessorPluginPackage implements ReactPackage {
           @SuppressWarnings("UnnecessaryLocalVariable")
           List<ReactPackage> packages = new PackageList(this).getPackages();
           ...
-          packages.add(new QRCodeFrameProcessorPluginPackage()); // <- add
+          packages.add(new FaceDetectorFrameProcessorPluginPackage()); // <- add
           return packages;
         }
 ```
@@ -120,16 +117,16 @@ public class QRCodeFrameProcessorPluginPackage implements ReactPackage {
 <TabItem value="kotlin">
 
 1. Open your Project in Android Studio
-2. Create a Kotlin source file, for the QR Code Plugin this will be called `QRCodeFrameProcessorPlugin.kt`.
+2. Create a Kotlin source file, for the Face Detector Plugin this will be called `FaceDetectorFrameProcessorPlugin.kt`.
 3. Add the following code:
 
 ```kotlin {7}
-import androidx.camera.core.ImageProxy
+import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin
 
-class ExampleFrameProcessorPluginKotlin: FrameProcessorPlugin("scanQRCodes") {
+class FaceDetectorFrameProcessorPlugin: FrameProcessorPlugin() {
 
-  override fun callback(image: ImageProxy, params: Array<Any>): Any? {
+  override fun callback(frame: Frame, arguments: Map<String, Object>): Any? {
     // code goes here
     return null
   }
@@ -137,11 +134,11 @@ class ExampleFrameProcessorPluginKotlin: FrameProcessorPlugin("scanQRCodes") {
 ```
 
 :::note
-The JS function name will be equal to the name you pass to the `FrameProcessorPlugin(...)` call (with a `__` prefix). Make sure it is unique across other Frame Processor Plugins.
+The Frame Processor Plugin will be exposed to JS through the `VisionCameraProxy` object. In this case, it would be `VisionCameraProxy.getFrameProcessorPlugin("detectFaces")`.
 :::
 
-4. **Implement your Frame Processing.** See the [Example Plugin (Java)](https://github.com/mrousavy/react-native-vision-camera/blob/main/example/android/app/src/main/java/com/mrousavy/camera/example/ExampleFrameProcessorPlugin.java) for reference.
-5. Create a new Kotlin file which registers the Frame Processor Plugin in a React Package, for the QR Code Scanner plugin this file will be called `QRCodeFrameProcessorPluginPackage.kt`:
+4. **Implement your Frame Processing.** See the [Example Plugin (Java)](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/example/android/app/src/main/java/com/mrousavy/camera/example/ExampleFrameProcessorPlugin.java) for reference.
+5. Create a new Kotlin file which registers the Frame Processor Plugin in a React Package, for the Face Detector plugin this file will be called `FaceDetectorFrameProcessorPluginPackage.kt`:
 
 ```kotlin {9}
 import com.facebook.react.ReactPackage
@@ -150,9 +147,11 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.uimanager.ViewManager
 import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin
 
-class QRCodeFrameProcessorPluginPackage : ReactPackage {
+class FaceDetectorFrameProcessorPluginPackage : ReactPackage {
   override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
-    FrameProcessorPlugin.register(ExampleFrameProcessorPluginKotlin())
+    FrameProcessorPluginRegistry.addFrameProcessorPlugin("detectFaces") { options ->
+      FaceDetectorFrameProcessorPlugin()
+    }
     return emptyList()
   }
 
@@ -170,7 +169,7 @@ class QRCodeFrameProcessorPluginPackage : ReactPackage {
           @SuppressWarnings("UnnecessaryLocalVariable")
           List<ReactPackage> packages = new PackageList(this).getPackages();
           ...
-          packages.add(new QRCodeFrameProcessorPluginPackage()); // <- add
+          packages.add(new FaceDetectorFrameProcessorPluginPackage()); // <- add
           return packages;
         }
 ```
