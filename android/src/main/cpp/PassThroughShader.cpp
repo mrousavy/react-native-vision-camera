@@ -24,24 +24,22 @@ PassThroughShader::~PassThroughShader() {
   }
 }
 
-void PassThroughShader::draw(GLuint textureId, float* transformMatrix) {
+void PassThroughShader::draw(const OpenGLTexture& texture, float* transformMatrix) {
   // 1. Set up Shader Program
   if (_programId == NO_SHADER) {
     _programId = createProgram();
+    glUseProgram(_programId);
+    _vertexParameters = {
+      .aPosition = glGetAttribLocation(_programId, "aPosition"),
+      .aTexCoord = glGetAttribLocation(_programId, "aTexCoord"),
+      .uTransformMatrix = glGetUniformLocation(_programId, "uTransformMatrix"),
+    };
+    _fragmentParameters = {
+      .uTexture = glGetUniformLocation(_programId, "uTexture"),
+    };
   }
 
   glUseProgram(_programId);
-
-  if (_vertexParameters.aPosition == NO_POSITION) {
-    _vertexParameters = {
-        .aPosition = glGetAttribLocation(_programId, "aPosition"),
-        .aTexCoord = glGetAttribLocation(_programId, "aTexCoord"),
-        .uTransformMatrix = glGetUniformLocation(_programId, "uTransformMatrix"),
-    };
-    _fragmentParameters = {
-        .uTexture = glGetUniformLocation(_programId, "uTexture"),
-    };
-  }
 
   // 2. Set up Vertices Buffer
   if (_vertexBuffer == NO_BUFFER) {
@@ -71,7 +69,7 @@ void PassThroughShader::draw(GLuint textureId, float* transformMatrix) {
 
   // 4. Pass texture to fragment shader
   glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_EXTERNAL_OES, textureId);
+  glBindTexture(texture.target, texture.id);
   glUniform1i(_fragmentParameters.uTexture, 0);
 
   // 5. Draw!
@@ -101,10 +99,10 @@ GLuint PassThroughShader::createProgram() {
   if (program == 0) throw OpenGLError("Failed to create pass-through program!");
 
   glAttachShader(program, vertexShader);
-  if (glGetError() != GL_NO_ERROR) throw OpenGLError("Failed to attach Vertex Shader!");
+  OpenGLError::checkIfError("Failed to attach Vertex Shader!");
 
   glAttachShader(program, fragmentShader);
-  if (glGetError() != GL_NO_ERROR) throw OpenGLError("Failed to attach Fragment Shader!");
+  OpenGLError::checkIfError("Failed to attach Fragment Shader!");
 
   glLinkProgram(program);
   GLint linkStatus = GL_FALSE;

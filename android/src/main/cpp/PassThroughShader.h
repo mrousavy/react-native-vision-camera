@@ -7,6 +7,8 @@
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
 
+#include "OpenGLTexture.h"
+
 namespace vision {
 
 #define NO_SHADER 0
@@ -25,8 +27,9 @@ class PassThroughShader {
 
   /**
    * Draw the texture using this shader.
+   * Note: At the moment, only EXTERNAL textures are supported by the Shader.
    */
-  void draw(GLuint textureId, float* transformMatrix);
+  void draw(const OpenGLTexture& texture, float* transformMatrix);
 
  private:
   // Loading

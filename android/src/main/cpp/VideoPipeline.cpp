@@ -26,7 +26,7 @@ jni::local_ref<VideoPipeline::jhybriddata> VideoPipeline::initHybrid(jni::alias_
 VideoPipeline::VideoPipeline(jni::alias_ref<jhybridobject> jThis, int width, int height): _javaPart(jni::make_global(jThis)) {
   _width = width;
   _height = height;
-  _context = OpenGLContext::CreateWithOffscreenSurface(width, height);
+  _context = OpenGLContext::CreateWithOffscreenSurface();
 }
 
 VideoPipeline::~VideoPipeline() {
@@ -35,9 +35,9 @@ VideoPipeline::~VideoPipeline() {
   removeRecordingSessionOutputSurface();
   removePreviewOutputSurface();
   // 2. Delete the input textures
-  if (_inputTextureId != NO_TEXTURE) {
-    glDeleteTextures(1, &_inputTextureId);
-    _inputTextureId = NO_TEXTURE;
+  if (_inputTexture != std::nullopt) {
+    glDeleteTextures(1, &_inputTexture->id);
+    _inputTexture = std::nullopt;
   }
   // 4. Destroy all surfaces
   _previewOutput = nullptr;
@@ -90,17 +90,17 @@ void VideoPipeline::setPreviewOutputSurface(jobject surface) {
 }
 
 int VideoPipeline::getInputTextureId() {
-  if (_inputTextureId != NO_TEXTURE) return static_cast<int>(_inputTextureId);
+  if (_inputTexture == std::nullopt) {
+    _inputTexture = _context->createTexture(OpenGLTexture::Type::ExternalOES, _width, _height);
+  }
 
-  _inputTextureId = _context->createTexture();
-
-  return static_cast<int>(_inputTextureId);
+  return static_cast<int>(_inputTexture->id);
 }
 
 void VideoPipeline::onBeforeFrame() {
   _context->use();
 
-  glBindTexture(GL_TEXTURE_EXTERNAL_OES, _inputTextureId);
+  glBindTexture(_inputTexture->target, _inputTexture->id);
 }
 
 void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixParam) {
@@ -108,17 +108,19 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
   float transformMatrix[16];
   transformMatrixParam->getRegion(0, 16, transformMatrix);
 
+  OpenGLTexture& texture = _inputTexture.value();
+
   if (_previewOutput) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to Preview..");
-    _previewOutput->renderTextureToSurface(_inputTextureId, transformMatrix);
+    _previewOutput->renderTextureToSurface(texture, transformMatrix);
   }
   if (_frameProcessorOutput) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to FrameProcessor..");
-    _frameProcessorOutput->renderTextureToSurface(_inputTextureId, transformMatrix);
+    _frameProcessorOutput->renderTextureToSurface(texture, transformMatrix);
   }
   if (_recordingSessionOutput) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to RecordingSession..");
-    _recordingSessionOutput->renderTextureToSurface(_inputTextureId, transformMatrix);
+    _recordingSessionOutput->renderTextureToSurface(texture, transformMatrix);
   }
 }
 

@@ -11,6 +11,7 @@
 #include <functional>
 
 #include "PassThroughShader.h"
+#include "OpenGLTexture.h"
 
 namespace vision {
 
@@ -24,7 +25,7 @@ class OpenGLContext {
    * Create a new instance of the OpenGLContext that draws to an off-screen PixelBuffer surface.
    * This will not perform any OpenGL operations yet, and is therefore safe to call from any Thread.
    */
-  static std::shared_ptr<OpenGLContext> CreateWithOffscreenSurface(int width, int height);
+  static std::shared_ptr<OpenGLContext> CreateWithOffscreenSurface();
   /**
    * Destroy the OpenGL Context. This needs to be called on the same thread that `use()` was called.
    */
@@ -42,9 +43,14 @@ class OpenGLContext {
   void use();
 
   /**
+   * Flushes all drawing operations by swapping the buffers and submitting the Frame to the GPU
+   */
+  void flush() const;
+
+  /**
    * Create a new texture on this context
    */
-  GLuint createTexture();
+  OpenGLTexture createTexture(OpenGLTexture::Type type, int width, int height);
 
  public:
   EGLDisplay display = EGL_NO_DISPLAY;
@@ -53,8 +59,7 @@ class OpenGLContext {
   EGLConfig config = nullptr;
 
  private:
-  int _width = 0, _height = 0;
-  explicit OpenGLContext(int width, int height);
+  explicit OpenGLContext() = default;
   void destroy();
   void ensureOpenGL();
 

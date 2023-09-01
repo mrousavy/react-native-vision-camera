@@ -12,6 +12,7 @@
 #include "OpenGLRenderer.h"
 #include "OpenGLContext.h"
 #include <memory>
+#include <optional>
 
 namespace vision {
 
@@ -53,7 +54,7 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
 
  private:
   // Input Surface Texture
-  GLuint _inputTextureId = NO_TEXTURE;
+  std::optional<OpenGLTexture> _inputTexture = std::nullopt;
   int _width = 0;
   int _height = 0;
 
