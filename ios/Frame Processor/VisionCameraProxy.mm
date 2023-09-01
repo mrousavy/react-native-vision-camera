@@ -24,11 +24,6 @@
 #import <React/RCTUIManager.h>
 #import <ReactCommon/RCTTurboModuleManager.h>
 
-#if VISION_CAMERA_ENABLE_SKIA
-#import "SkiaRenderer.h"
-#import "../Skia Render Layer/SkiaFrameProcessor.h"
-#endif
-
 // Swift forward-declarations
 __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
 @interface CameraQueues: NSObject
@@ -38,9 +33,6 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera12CameraQueues")))
 __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
 @interface CameraView: UIView
 @property (nonatomic, copy) FrameProcessor* _Nullable frameProcessor;
-#if VISION_CAMERA_ENABLE_SKIA
-- (SkiaRenderer* _Nonnull)getSkiaRenderer;
-#endif
 @end
 
 using namespace facebook;
@@ -80,7 +72,6 @@ std::vector<jsi::PropNameID> VisionCameraProxy::getPropertyNames(jsi::Runtime& r
   result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("setFrameProcessor")));
   result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("removeFrameProcessor")));
   result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("getFrameProcessorPlugin")));
-  result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("isSkiaEnabled")));
   return result;
 }
 
@@ -96,15 +87,6 @@ void VisionCameraProxy::setFrameProcessor(jsi::Runtime& runtime, int viewTag, co
       view.frameProcessor = [[FrameProcessor alloc] initWithWorklet:worklet
                                                             context:_workletContext];
 
-    } else if (frameProcessorType == "skia-frame-processor") {
-#if VISION_CAMERA_ENABLE_SKIA
-      SkiaRenderer* skiaRenderer = [view getSkiaRenderer];
-      view.frameProcessor = [[SkiaFrameProcessor alloc] initWithWorklet:worklet
-                                                                context:_workletContext
-                                                           skiaRenderer:skiaRenderer];
-#else
-      throw std::runtime_error("system/skia-unavailable: Skia is not installed!");
-#endif
     } else {
       throw std::runtime_error("Unknown FrameProcessor.type passed! Received: " + frameProcessorType);
     }
@@ -135,13 +117,6 @@ jsi::Value VisionCameraProxy::getFrameProcessorPlugin(jsi::Runtime& runtime, std
 jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {
   auto name = propName.utf8(runtime);
 
-  if (name == "isSkiaEnabled") {
-#ifdef VISION_CAMERA_ENABLE_SKIA
-    return jsi::Value(true);
-#else
-    return jsi::Value(false);
-#endif
-  }
   if (name == "setFrameProcessor") {
     return jsi::Function::createFromHostFunction(runtime,
                                                  jsi::PropNameID::forUtf8(runtime, "setFrameProcessor"),

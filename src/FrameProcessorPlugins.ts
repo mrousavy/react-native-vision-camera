@@ -28,7 +28,6 @@ interface TVisionCameraProxy {
    * The Plugin has to be registered on the native side, otherwise this returns `undefined`
    */
   getFrameProcessorPlugin: (name: string) => FrameProcessorPlugin | undefined;
-  isSkiaEnabled: boolean;
 }
 
 let hasWorklets = false;
@@ -66,7 +65,6 @@ try {
 }
 
 let proxy: TVisionCameraProxy = {
-  isSkiaEnabled: false,
   getFrameProcessorPlugin: () => {
     throw new CameraRuntimeError('system/frame-processors-unavailable', 'Frame Processors are not enabled!');
   },

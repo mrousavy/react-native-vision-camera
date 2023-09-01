@@ -1,21 +1,16 @@
 import type { ViewProps } from 'react-native';
 import type { CameraDevice, CameraDeviceFormat, VideoStabilizationMode } from './CameraDevice';
 import type { CameraRuntimeError } from './CameraError';
-import type { DrawableFrame, Frame } from './Frame';
+import type { Frame } from './Frame';
 import type { Orientation } from './Orientation';
 
-export type FrameProcessor =
-  | {
-      frameProcessor: (frame: Frame) => void;
-      type: 'frame-processor';
-    }
-  | {
-      frameProcessor: (frame: DrawableFrame) => void;
-      type: 'skia-frame-processor';
-    };
+export type FrameProcessor = {
+  frameProcessor: (frame: Frame) => void;
+  type: 'frame-processor';
+};
 
 // TODO: Replace `enableHighQualityPhotos: boolean` in favor of `priorization: 'photo' | 'video'`
-// TODO: Use RCT_ENUM_PARSER for stuff like previewType, torch, videoStabilizationMode, and orientation
+// TODO: Use RCT_ENUM_PARSER for stuff like torch, videoStabilizationMode, and orientation
 // TODO: Use Photo HostObject for stuff like depthData, portraitEffects, etc.
 // TODO: Add RAW capture support
 
@@ -192,8 +187,6 @@ export interface CameraProps extends ViewProps {
   onInitialized?: () => void;
   /**
    * A worklet which will be called for every frame the Camera "sees".
-   *
-   * If {@linkcode previewType | previewType} is set to `"skia"`, you can draw content to the `Frame` using the react-native-skia API.
    *
    * > See [the Frame Processors documentation](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors) for more information
    *

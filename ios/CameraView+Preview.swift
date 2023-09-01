@@ -10,41 +10,10 @@ import AVFoundation
 import Foundation
 
 extension CameraView {
-  #if VISION_CAMERA_ENABLE_SKIA
-    @objc
-    func getSkiaRenderer() -> SkiaRenderer {
-      if skiaRenderer == nil {
-        skiaRenderer = SkiaRenderer()
-      }
-      return skiaRenderer!
-    }
-  #endif
-
   public func setupPreviewView() {
-    switch previewType {
-    case "none":
-      previewView?.removeFromSuperview()
-      previewView = nil
-    case "native":
-      // Normal iOS PreviewView is lighter and more performant (YUV Format, GPU only)
-      if previewView is NativePreviewView { return }
-      previewView?.removeFromSuperview()
-      previewView = NativePreviewView(frame: frame, session: captureSession)
-      addSubview(previewView!)
-    case "skia":
-      // Skia Preview View allows user to draw onto a Frame in a Frame Processor
-      #if VISION_CAMERA_ENABLE_SKIA
-        if previewView is SkiaPreviewView { return }
-        previewView?.removeFromSuperview()
-        previewView = SkiaPreviewView(frame: frame, skiaRenderer: getSkiaRenderer())
-        addSubview(previewView!)
-      #else
-        invokeOnError(.system(.skiaUnavailable))
-        return
-      #endif
-    default:
-      invokeOnError(.parameter(.invalid(unionName: "previewType", receivedValue: previewType as String)))
-    }
+    previewView?.removeFromSuperview()
+    previewView = NativePreviewView(frame: frame, session: captureSession)
+    addSubview(previewView!)
   }
 
   internal func setupFpsGraph() {

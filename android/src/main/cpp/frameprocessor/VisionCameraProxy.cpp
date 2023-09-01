@@ -39,7 +39,6 @@ std::vector<jsi::PropNameID> VisionCameraProxy::getPropertyNames(jsi::Runtime& r
   result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("setFrameProcessor")));
   result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("removeFrameProcessor")));
   result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("getFrameProcessorPlugin")));
-  result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("isSkiaEnabled")));
   return result;
 }
 
@@ -65,13 +64,6 @@ jsi::Value VisionCameraProxy::getFrameProcessorPlugin(jsi::Runtime& runtime,
 jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {
   auto name = propName.utf8(runtime);
 
-  if (name == "isSkiaEnabled") {
-#ifdef VISION_CAMERA_ENABLE_SKIA
-    return jsi::Value(true);
-#else
-    return jsi::Value(false);
-#endif
-  }
   if (name == "setFrameProcessor") {
     return jsi::Function::createFromHostFunction(runtime,
                                                  jsi::PropNameID::forUtf8(runtime, "setFrameProcessor"),

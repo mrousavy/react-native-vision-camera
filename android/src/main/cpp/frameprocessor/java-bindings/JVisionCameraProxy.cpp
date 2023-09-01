@@ -53,12 +53,6 @@ JVisionCameraProxy::JVisionCameraProxy(const jni::alias_ref<JVisionCameraProxy::
 #else
   __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processors are disabled!");
 #endif
-
-#ifdef VISION_CAMERA_ENABLE_SKIA
-  __android_log_write(ANDROID_LOG_INFO, TAG, "Skia is enabled!");
-#else
-  __android_log_write(ANDROID_LOG_INFO, TAG, "Skia is disabled!");
-#endif
 }
 
 JVisionCameraProxy::~JVisionCameraProxy() {
@@ -82,12 +76,6 @@ void JVisionCameraProxy::setFrameProcessor(int viewTag,
   jni::local_ref<JFrameProcessor::javaobject> frameProcessor;
   if (frameProcessorType == "frame-processor") {
     frameProcessor = JFrameProcessor::create(worklet, _workletContext);
-  } else if (frameProcessorType == "skia-frame-processor") {
-#if VISION_CAMERA_ENABLE_SKIA
-    throw std::runtime_error("system/skia-unavailable: Skia is not yet implemented on Android!");
-#else
-    throw std::runtime_error("system/skia-unavailable: Skia is not installed!");
-#endif
   } else {
     throw std::runtime_error("Unknown FrameProcessor.type passed! Received: " + frameProcessorType);
   }

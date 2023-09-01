@@ -54,7 +54,6 @@ export type SystemError =
   | 'system/camera-module-not-found'
   | 'system/no-camera-manager'
   | 'system/frame-processors-unavailable'
-  | 'system/skia-unavailable'
   | 'system/view-not-found';
 export type UnknownError = 'unknown/unknown';
 

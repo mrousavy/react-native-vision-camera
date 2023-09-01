@@ -22,7 +22,6 @@ interface OnErrorEvent {
 type NativeCameraViewProps = Omit<CameraProps, 'device' | 'onInitialized' | 'onError' | 'frameProcessor'> & {
   cameraId: string;
   enableFrameProcessor: boolean;
-  previewType: 'native' | 'skia' | 'none';
   onInitialized?: (event: NativeSyntheticEvent<void>) => void;
   onError?: (event: NativeSyntheticEvent<OnErrorEvent>) => void;
   onViewReady: () => void;
@@ -413,7 +412,6 @@ export class Camera extends React.PureComponent<CameraProps> {
         onInitialized={this.onInitialized}
         onError={this.onError}
         enableFrameProcessor={frameProcessor != null}
-        previewType={frameProcessor?.type === 'skia-frame-processor' ? 'skia' : 'native'}
       />
     );
   }
