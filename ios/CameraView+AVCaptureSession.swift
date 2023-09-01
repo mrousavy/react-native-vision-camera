@@ -135,7 +135,9 @@ extension CameraView {
       captureSession.addOutput(videoOutput!)
     }
 
-    updateOrientation()
+    if outputOrientation != .portrait {
+      updateOrientation()
+    }
     
     invokeOnInitialized()
     isReady = true
