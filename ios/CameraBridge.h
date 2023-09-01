@@ -10,13 +10,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import <React/RCTViewManager.h>
-#import <React/RCTUIManager.h>
 #import <React/RCTFPSGraph.h>
 #import <React/RCTLog.h>
+#import <React/RCTUIManager.h>
+#import <React/RCTViewManager.h>
 
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
-#import "FrameProcessor.h"
 #import "Frame.h"
+#import "FrameProcessor.h"
 #import "VisionCameraProxy.h"
 #endif

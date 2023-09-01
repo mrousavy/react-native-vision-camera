@@ -1,5 +1,5 @@
 //
-//  PreviewView.swift
+//  NativePreviewView.swift
 //  VisionCamera
 //
 //  Created by Marc Rousavy on 30.11.22.

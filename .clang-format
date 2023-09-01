@@ -1,0 +1,26 @@
+# Config for clang-format version 16
+
+# Standard
+BasedOnStyle: llvm
+Standard: c++14
+
+# Indentation
+IndentWidth: 2
+ColumnLimit: 100
+
+# Includes
+SortIncludes: true
+SortUsingDeclarations: true
+
+# Pointer and reference alignment
+PointerAlignment: Left
+ReferenceAlignment: Left
+ReflowComments: true
+
+# Line breaking options
+BreakBeforeBraces: Attach
+BreakConstructorInitializers: BeforeColon
+AllowShortFunctionsOnASingleLine: Empty
+IndentCaseLabels: true
+NamespaceIndentation: Inner
+

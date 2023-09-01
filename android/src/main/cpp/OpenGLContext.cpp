@@ -8,8 +8,8 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
-#include <android/native_window.h>
 #include <android/log.h>
+#include <android/native_window.h>
 
 #include "OpenGLError.h"
 
@@ -49,29 +49,40 @@ void OpenGLContext::ensureOpenGL() {
   if (display == EGL_NO_DISPLAY) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing EGLDisplay..");
     display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-    if (display == EGL_NO_DISPLAY) throw OpenGLError("Failed to get default OpenGL Display!");
+    if (display == EGL_NO_DISPLAY)
+      throw OpenGLError("Failed to get default OpenGL Display!");
 
     EGLint major;
     EGLint minor;
     successful = eglInitialize(display, &major, &minor);
-    if (!successful) throw OpenGLError("Failed to initialize OpenGL!");
+    if (!successful)
+      throw OpenGLError("Failed to initialize OpenGL!");
   }
 
   // EGLConfig
   if (config == nullptr) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing EGLConfig..");
-    EGLint attributes[] = {EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-                           EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-                           EGL_RED_SIZE, 8,
-                           EGL_GREEN_SIZE, 8,
-                           EGL_BLUE_SIZE, 8,
-                           EGL_ALPHA_SIZE, 8,
-                           EGL_DEPTH_SIZE, 0,
-                           EGL_STENCIL_SIZE, 0,
+    EGLint attributes[] = {EGL_RENDERABLE_TYPE,
+                           EGL_OPENGL_ES2_BIT,
+                           EGL_SURFACE_TYPE,
+                           EGL_WINDOW_BIT,
+                           EGL_RED_SIZE,
+                           8,
+                           EGL_GREEN_SIZE,
+                           8,
+                           EGL_BLUE_SIZE,
+                           8,
+                           EGL_ALPHA_SIZE,
+                           8,
+                           EGL_DEPTH_SIZE,
+                           0,
+                           EGL_STENCIL_SIZE,
+                           0,
                            EGL_NONE};
     EGLint numConfigs;
     successful = eglChooseConfig(display, attributes, &config, 1, &numConfigs);
-    if (!successful || numConfigs == 0) throw OpenGLError("Failed to choose OpenGL config!");
+    if (!successful || numConfigs == 0)
+      throw OpenGLError("Failed to choose OpenGL config!");
   }
 
   // EGLContext
@@ -79,18 +90,18 @@ void OpenGLContext::ensureOpenGL() {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing EGLContext..");
     EGLint contextAttributes[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
     context = eglCreateContext(display, config, nullptr, contextAttributes);
-    if (context == EGL_NO_CONTEXT) throw OpenGLError("Failed to create OpenGL context!");
+    if (context == EGL_NO_CONTEXT)
+      throw OpenGLError("Failed to create OpenGL context!");
   }
 
   // EGLSurface
   if (offscreenSurface == EGL_NO_SURFACE) {
     // If we don't have a surface at all
     __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing 1x1 offscreen pbuffer EGLSurface..");
-    EGLint attributes[] = {EGL_WIDTH, 1,
-                           EGL_HEIGHT, 1,
-                           EGL_NONE};
+    EGLint attributes[] = {EGL_WIDTH, 1, EGL_HEIGHT, 1, EGL_NONE};
     offscreenSurface = eglCreatePbufferSurface(display, config, attributes);
-    if (offscreenSurface == EGL_NO_SURFACE) throw OpenGLError("Failed to create OpenGL Surface!");
+    if (offscreenSurface == EGL_NO_SURFACE)
+      throw OpenGLError("Failed to create OpenGL Surface!");
   }
 }
 
@@ -99,21 +110,24 @@ void OpenGLContext::use() {
 }
 
 void OpenGLContext::use(EGLSurface surface) {
-  if (surface == EGL_NO_SURFACE) throw OpenGLError("Cannot render to a null Surface!");
+  if (surface == EGL_NO_SURFACE)
+    throw OpenGLError("Cannot render to a null Surface!");
 
   // 1. Make sure the OpenGL context is initialized
   this->ensureOpenGL();
 
   // 2. Make the OpenGL context current
   bool successful = eglMakeCurrent(display, surface, surface, context);
-  if (!successful || eglGetError() != EGL_SUCCESS) throw OpenGLError("Failed to use current OpenGL context!");
+  if (!successful || eglGetError() != EGL_SUCCESS)
+    throw OpenGLError("Failed to use current OpenGL context!");
 
   // 3. Caller can now render to this surface
 }
 
 void OpenGLContext::flush() const {
   bool successful = eglSwapBuffers(display, eglGetCurrentSurface(EGL_DRAW));
-  if (!successful || eglGetError() != EGL_SUCCESS) throw OpenGLError("Failed to swap OpenGL buffers!");
+  if (!successful || eglGetError() != EGL_SUCCESS)
+    throw OpenGLError("Failed to swap OpenGL buffers!");
 }
 
 OpenGLTexture OpenGLContext::createTexture(OpenGLTexture::Type type, int width, int height) {
@@ -122,7 +136,8 @@ OpenGLTexture OpenGLContext::createTexture(OpenGLTexture::Type type, int width, 
 
   // 2. Make the OpenGL context current
   bool successful = eglMakeCurrent(display, offscreenSurface, offscreenSurface, context);
-  if (!successful || eglGetError() != EGL_SUCCESS) throw OpenGLError("Failed to use current OpenGL context!");
+  if (!successful || eglGetError() != EGL_SUCCESS)
+    throw OpenGLError("Failed to use current OpenGL context!");
 
   GLuint textureId;
   glGenTextures(1, &textureId);
@@ -142,12 +157,7 @@ OpenGLTexture OpenGLContext::createTexture(OpenGLTexture::Type type, int width, 
   glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-  return {
-    .id = textureId,
-    .target = target,
-    .width = width,
-    .height = height
-  };
+  return {.id = textureId, .target = target, .width = width, .height = height};
 }
 
 } // namespace vision

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <jni.h>
 #include <fbjni/fbjni.h>
+#include <jni.h>
 #include <string>
 
 #include "JFrame.h"
@@ -16,9 +16,10 @@ using namespace facebook;
 using namespace jni;
 
 struct JFrameProcessorPlugin : public JavaClass<JFrameProcessorPlugin> {
-  static constexpr auto kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/FrameProcessorPlugin;";
+  static constexpr auto kJavaDescriptor =
+      "Lcom/mrousavy/camera/frameprocessor/FrameProcessorPlugin;";
 
- public:
+public:
   /**
    * Call the plugin.
    */

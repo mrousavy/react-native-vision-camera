@@ -8,8 +8,8 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
-#include <android/native_window.h>
 #include <android/log.h>
+#include <android/native_window.h>
 
 #include <utility>
 
@@ -17,7 +17,9 @@
 
 namespace vision {
 
-std::unique_ptr<OpenGLRenderer> OpenGLRenderer::CreateWithWindowSurface(std::shared_ptr<OpenGLContext> context, ANativeWindow* surface) {
+std::unique_ptr<OpenGLRenderer>
+OpenGLRenderer::CreateWithWindowSurface(std::shared_ptr<OpenGLContext> context,
+                                        ANativeWindow* surface) {
   return std::unique_ptr<OpenGLRenderer>(new OpenGLRenderer(std::move(context), surface));
 }
 

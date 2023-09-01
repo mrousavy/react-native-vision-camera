@@ -8,16 +8,16 @@
 
 #pragma once
 
-#import <jsi/jsi.h>
 #import <CoreMedia/CMSampleBuffer.h>
+#import <jsi/jsi.h>
 
 #import "Frame.h"
 
 using namespace facebook;
 
-class JSI_EXPORT FrameHostObject: public jsi::HostObject {
+class JSI_EXPORT FrameHostObject : public jsi::HostObject {
 public:
-  explicit FrameHostObject(Frame* frame): frame(frame) {}
+  explicit FrameHostObject(Frame* frame) : frame(frame) {}
 
 public:
   jsi::Value get(jsi::Runtime&, const jsi::PropNameID& name) override;

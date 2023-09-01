@@ -24,7 +24,6 @@ import IonIcon from 'react-native-vector-icons/Ionicons';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
-import { FACE_SHADER } from './Shaders';
 import { examplePlugin } from './frame-processors/ExamplePlugin';
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);

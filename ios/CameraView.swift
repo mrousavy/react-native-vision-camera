@@ -74,30 +74,30 @@ public final class CameraView: UIView {
   }
 
   // pragma MARK: Internal Properties
-  internal var isMounted = false
-  internal var isReady = false
+  var isMounted = false
+  var isReady = false
   // Capture Session
-  internal let captureSession = AVCaptureSession()
-  internal let audioCaptureSession = AVCaptureSession()
+  let captureSession = AVCaptureSession()
+  let audioCaptureSession = AVCaptureSession()
   // Inputs & Outputs
-  internal var videoDeviceInput: AVCaptureDeviceInput?
-  internal var audioDeviceInput: AVCaptureDeviceInput?
-  internal var photoOutput: AVCapturePhotoOutput?
-  internal var videoOutput: AVCaptureVideoDataOutput?
-  internal var audioOutput: AVCaptureAudioDataOutput?
+  var videoDeviceInput: AVCaptureDeviceInput?
+  var audioDeviceInput: AVCaptureDeviceInput?
+  var photoOutput: AVCapturePhotoOutput?
+  var videoOutput: AVCaptureVideoDataOutput?
+  var audioOutput: AVCaptureAudioDataOutput?
   // CameraView+RecordView (+ Frame Processor)
-  internal var isRecording = false
-  internal var recordingSession: RecordingSession?
+  var isRecording = false
+  var recordingSession: RecordingSession?
   #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
     @objc public var frameProcessor: FrameProcessor?
   #endif
   // CameraView+Zoom
-  internal var pinchGestureRecognizer: UIPinchGestureRecognizer?
-  internal var pinchScaleOffset: CGFloat = 1.0
+  var pinchGestureRecognizer: UIPinchGestureRecognizer?
+  var pinchScaleOffset: CGFloat = 1.0
 
-  internal var previewView: PreviewView?
+  var previewView: PreviewView?
   #if DEBUG
-    internal var fpsGraph: RCTFPSGraph?
+    var fpsGraph: RCTFPSGraph?
   #endif
 
   /// Returns whether the AVCaptureSession is currently running (reflected by isActive)
@@ -258,7 +258,7 @@ public final class CameraView: UIView {
   }
 
   // pragma MARK: Event Invokers
-  internal final func invokeOnError(_ error: CameraError, cause: NSError? = nil) {
+  final func invokeOnError(_ error: CameraError, cause: NSError? = nil) {
     ReactLogger.log(level: .error, message: "Invoking onError(): \(error.message)")
     guard let onError = onError else { return }
 
@@ -278,7 +278,7 @@ public final class CameraView: UIView {
     ])
   }
 
-  internal final func invokeOnInitialized() {
+  final func invokeOnInitialized() {
     ReactLogger.log(level: .info, message: "Camera initialized!")
     guard let onInitialized = onInitialized else { return }
     onInitialized([String: Any]())

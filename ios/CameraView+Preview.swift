@@ -16,7 +16,7 @@ extension CameraView {
     addSubview(previewView!)
   }
 
-  internal func setupFpsGraph() {
+  func setupFpsGraph() {
     #if DEBUG
       if enableFpsGraph {
         if fpsGraph != nil { return }

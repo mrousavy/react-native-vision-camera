@@ -7,9 +7,9 @@
 //
 
 #import "FrameHostObject.h"
+#import "WKTJsiHostObject.h"
 #import <Foundation/Foundation.h>
 #import <jsi/jsi.h>
-#import "WKTJsiHostObject.h"
 
 #import "../../cpp/JSITypedArray.h"
 
@@ -46,10 +46,12 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       auto width = CVPixelBufferGetWidth(imageBuffer);
       auto height = CVPixelBufferGetHeight(imageBuffer);
 
-      NSMutableString* string = [NSMutableString stringWithFormat:@"%lu x %lu Frame", width, height];
+      NSMutableString* string =
+          [NSMutableString stringWithFormat:@"%lu x %lu Frame", width, height];
       return jsi::String::createFromUtf8(runtime, string.UTF8String);
     };
-    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
+    return jsi::Function::createFromHostFunction(
+        runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
   }
   if (name == "incrementRefCount") {
     auto incrementRefCount = JSI_HOST_FUNCTION_LAMBDA {
@@ -57,21 +59,18 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       CFRetain(frame.buffer);
       return jsi::Value::undefined();
     };
-    return jsi::Function::createFromHostFunction(runtime,
-                                                 jsi::PropNameID::forUtf8(runtime, "incrementRefCount"),
-                                                 0,
-                                                 incrementRefCount);
+    return jsi::Function::createFromHostFunction(
+        runtime, jsi::PropNameID::forUtf8(runtime, "incrementRefCount"), 0, incrementRefCount);
   }
   if (name == "decrementRefCount") {
     auto decrementRefCount = JSI_HOST_FUNCTION_LAMBDA {
-      // Decrement retain count by one. If the retain count is zero, ARC will destroy the Frame Buffer.
+      // Decrement retain count by one. If the retain count is zero, ARC will destroy the Frame
+      // Buffer.
       CFRelease(frame.buffer);
       return jsi::Value::undefined();
     };
-    return jsi::Function::createFromHostFunction(runtime,
-                                                 jsi::PropNameID::forUtf8(runtime, "decrementRefCount"),
-                                                 0,
-                                                 decrementRefCount);
+    return jsi::Function::createFromHostFunction(
+        runtime, jsi::PropNameID::forUtf8(runtime, "decrementRefCount"), 0, decrementRefCount);
   }
   if (name == "toArrayBuffer") {
     auto toArrayBuffer = JSI_HOST_FUNCTION_LAMBDA {
@@ -83,41 +82,47 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 
       static constexpr auto ARRAYBUFFER_CACHE_PROP_NAME = "__frameArrayBufferCache";
       if (!runtime.global().hasProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME)) {
-        vision::TypedArray<vision::TypedArrayKind::Uint8ClampedArray> arrayBuffer(runtime, arraySize);
+        vision::TypedArray<vision::TypedArrayKind::Uint8ClampedArray> arrayBuffer(runtime,
+                                                                                  arraySize);
         runtime.global().setProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME, arrayBuffer);
       }
 
-      auto arrayBufferCache = runtime.global().getPropertyAsObject(runtime, ARRAYBUFFER_CACHE_PROP_NAME);
-      auto arrayBuffer = vision::getTypedArray(runtime, arrayBufferCache).get<vision::TypedArrayKind::Uint8ClampedArray>(runtime);
+      auto arrayBufferCache =
+          runtime.global().getPropertyAsObject(runtime, ARRAYBUFFER_CACHE_PROP_NAME);
+      auto arrayBuffer = vision::getTypedArray(runtime, arrayBufferCache)
+                             .get<vision::TypedArrayKind::Uint8ClampedArray>(runtime);
 
       if (arrayBuffer.size(runtime) != arraySize) {
-        arrayBuffer = vision::TypedArray<vision::TypedArrayKind::Uint8ClampedArray>(runtime, arraySize);
+        arrayBuffer =
+            vision::TypedArray<vision::TypedArrayKind::Uint8ClampedArray>(runtime, arraySize);
         runtime.global().setProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME, arrayBuffer);
       }
 
       CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
-      auto buffer = (uint8_t*) CVPixelBufferGetBaseAddress(pixelBuffer);
+      auto buffer = (uint8_t*)CVPixelBufferGetBaseAddress(pixelBuffer);
       arrayBuffer.updateUnsafe(runtime, buffer, arraySize);
       CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
 
       return arrayBuffer;
     };
-    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toArrayBuffer"), 0, toArrayBuffer);
+    return jsi::Function::createFromHostFunction(
+        runtime, jsi::PropNameID::forUtf8(runtime, "toArrayBuffer"), 0, toArrayBuffer);
   }
 
   if (name == "isValid") {
-    auto isValid = frame != nil && frame.buffer != nil && CFGetRetainCount(frame.buffer) > 0 && CMSampleBufferIsValid(frame.buffer);
+    auto isValid = frame != nil && frame.buffer != nil && CFGetRetainCount(frame.buffer) > 0 &&
+                   CMSampleBufferIsValid(frame.buffer);
     return jsi::Value(isValid);
   }
   if (name == "width") {
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     auto width = CVPixelBufferGetWidth(imageBuffer);
-    return jsi::Value((double) width);
+    return jsi::Value((double)width);
   }
   if (name == "height") {
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     auto height = CVPixelBufferGetHeight(imageBuffer);
-    return jsi::Value((double) height);
+    return jsi::Value((double)height);
   }
   if (name == "orientation") {
     switch (frame.orientation) {
@@ -170,12 +175,12 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "bytesPerRow") {
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     auto bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
-    return jsi::Value((double) bytesPerRow);
+    return jsi::Value((double)bytesPerRow);
   }
   if (name == "planesCount") {
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
-    return jsi::Value((double) planesCount);
+    return jsi::Value((double)planesCount);
   }
 
   // fallback to base implementation

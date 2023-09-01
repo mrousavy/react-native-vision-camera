@@ -8,29 +8,29 @@ on:
       - '.github/workflows/validate-cpp.yml'
       - 'cpp/**'
       - 'android/src/main/cpp/**'
+      - 'ios/**'
   pull_request:
     paths:
       - '.github/workflows/validate-cpp.yml'
       - 'cpp/**'
       - 'android/src/main/cpp/**'
+      - 'ios/**'
 
 jobs:
   lint:
-    name: cpplint
+    name: Check clang-format
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        path:
+          - 'cpp'
+          - 'android/src/main/cpp'
+          - 'ios'
     steps:
       - uses: actions/checkout@v2
-      - uses: reviewdog/action-cpplint@master
+      - name: Run clang-format style check
+        uses: jidicula/clang-format-action@v4.11.0
         with:
-          github_token: ${{ secrets.github_token }}
-          reporter: github-pr-review
-          flags: --linelength=230
-          targets: --recursive cpp android/src/main/cpp
-          filter: "-legal/copyright\
-            ,-readability/todo\
-            ,-build/namespaces\
-            ,-whitespace/comments\
-            ,-runtime/references\
-            ,-build/include_order\
-            ,-build/c++11\
-            "
+          clang-format-version: '16'
+          check-path: ${{ matrix.path }}
+

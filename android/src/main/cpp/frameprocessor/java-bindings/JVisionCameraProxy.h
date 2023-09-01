@@ -4,16 +4,16 @@
 
 #pragma once
 
+#include <ReactCommon/CallInvokerHolder.h>
 #include <fbjni/fbjni.h>
 #include <jsi/jsi.h>
-#include <ReactCommon/CallInvokerHolder.h>
 
+#include "JFrameProcessor.h"
 #include "JFrameProcessorPlugin.h"
 #include "JVisionCameraScheduler.h"
-#include "JFrameProcessor.h"
 
-#include <string>
 #include <memory>
+#include <string>
 
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
 #include <react-native-worklets-core/WKTJsiWorkletContext.h>
@@ -24,20 +24,20 @@ namespace vision {
 using namespace facebook;
 
 class JVisionCameraProxy : public jni::HybridClass<JVisionCameraProxy> {
- public:
+public:
   ~JVisionCameraProxy();
   static void registerNatives();
 
-  void setFrameProcessor(int viewTag,
-                         jsi::Runtime& runtime,
-                         const jsi::Object& frameProcessor);
+  void setFrameProcessor(int viewTag, jsi::Runtime& runtime, const jsi::Object& frameProcessor);
   void removeFrameProcessor(int viewTag);
-  jni::local_ref<JFrameProcessorPlugin::javaobject> getFrameProcessorPlugin(const std::string& name,
-                                                                            jni::local_ref<JMap<jstring, jobject>> options);
+  jni::local_ref<JFrameProcessorPlugin::javaobject>
+  getFrameProcessorPlugin(const std::string& name, jni::local_ref<JMap<jstring, jobject>> options);
 
-  jsi::Runtime* getJSRuntime() { return _runtime; }
+  jsi::Runtime* getJSRuntime() {
+    return _runtime;
+  }
 
- private:
+private:
   friend HybridBase;
   jni::global_ref<JVisionCameraProxy::javaobject> _javaPart;
   jsi::Runtime* _runtime;
@@ -52,10 +52,10 @@ class JVisionCameraProxy : public jni::HybridClass<JVisionCameraProxy> {
                               jsi::Runtime* jsRuntime,
                               const std::shared_ptr<facebook::react::CallInvoker>& jsCallInvoker,
                               const jni::global_ref<JVisionCameraScheduler::javaobject>& scheduler);
-  static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> javaThis,
-                                                jlong jsRuntimePointer,
-                                                jni::alias_ref<facebook::react::CallInvokerHolder::javaobject> jsCallInvokerHolder,
-                                                const jni::alias_ref<JVisionCameraScheduler::javaobject>& scheduler);
+  static jni::local_ref<jhybriddata>
+  initHybrid(jni::alias_ref<jhybridobject> javaThis, jlong jsRuntimePointer,
+             jni::alias_ref<facebook::react::CallInvokerHolder::javaobject> jsCallInvokerHolder,
+             const jni::alias_ref<JVisionCameraScheduler::javaobject>& scheduler);
 };
 
 } // namespace vision

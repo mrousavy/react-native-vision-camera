@@ -4,9 +4,9 @@
 
 #include "JFrame.h"
 
-#include <jni.h>
-#include <fbjni/fbjni.h>
 #include <fbjni/ByteBuffer.h>
+#include <fbjni/fbjni.h>
+#include <jni.h>
 
 namespace vision {
 
