@@ -26,7 +26,7 @@ class VideoPipeline(val width: Int,
                     val height: Int,
                     val format: Int = ImageFormat.PRIVATE): SurfaceTexture.OnFrameAvailableListener, Closeable {
   companion object {
-    private const val MAX_IMAGES = 5
+    private const val MAX_IMAGES = 3
     private const val TAG = "VideoPipeline"
   }
 
