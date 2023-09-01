@@ -26,8 +26,7 @@ private let propsThatRequireReconfiguration = ["cameraId",
                                                "photo",
                                                "video",
                                                "enableFrameProcessor",
-                                               "pixelFormat",
-                                               "previewType"]
+                                               "pixelFormat"]
 private let propsThatRequireDeviceReconfiguration = ["fps",
                                                      "hdr",
                                                      "lowLightBoost"]
@@ -59,7 +58,6 @@ public final class CameraView: UIView {
   @objc var zoom: NSNumber = 1.0 // in "factor"
   @objc var enableFpsGraph = false
   @objc var videoStabilizationMode: NSString?
-  @objc var previewType: NSString = "none"
   // events
   @objc var onInitialized: RCTDirectEventBlock?
   @objc var onError: RCTDirectEventBlock?
@@ -92,9 +90,6 @@ public final class CameraView: UIView {
   internal var recordingSession: RecordingSession?
   #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
     @objc public var frameProcessor: FrameProcessor?
-  #endif
-  #if VISION_CAMERA_ENABLE_SKIA
-    internal var skiaRenderer: SkiaRenderer?
   #endif
   // CameraView+Zoom
   internal var pinchGestureRecognizer: UIPinchGestureRecognizer?
@@ -188,11 +183,6 @@ public final class CameraView: UIView {
     let shouldUpdateVideoStabilization = willReconfigure || changedProps.contains("videoStabilizationMode")
     let shouldUpdateOrientation = willReconfigure || changedProps.contains("orientation")
 
-    if changedProps.contains("previewType") {
-      DispatchQueue.main.async {
-        self.setupPreviewView()
-      }
-    }
     if changedProps.contains("enableFpsGraph") {
       DispatchQueue.main.async {
         self.setupFpsGraph()

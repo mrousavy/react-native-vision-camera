@@ -18,10 +18,6 @@
 #include <react-native-worklets-core/WKTJsiWorkletContext.h>
 #endif
 
-#if VISION_CAMERA_ENABLE_SKIA
-#include "JSkiaFrameProcessor.h"
-#endif
-
 namespace vision {
 
 using TSelf = local_ref<HybridClass<JVisionCameraProxy>::jhybriddata>;
@@ -35,7 +31,6 @@ JVisionCameraProxy::JVisionCameraProxy(const jni::alias_ref<JVisionCameraProxy::
                                        const jni::global_ref<JVisionCameraScheduler::javaobject>& scheduler) {
   _javaPart = make_global(javaThis);
   _runtime = runtime;
-  _callInvoker = callInvoker;
 
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
   __android_log_write(ANDROID_LOG_INFO, TAG, "Creating Worklet Context...");
@@ -57,12 +52,6 @@ JVisionCameraProxy::JVisionCameraProxy(const jni::alias_ref<JVisionCameraProxy::
   __android_log_write(ANDROID_LOG_INFO, TAG, "Worklet Context created!");
 #else
   __android_log_write(ANDROID_LOG_INFO, TAG, "Frame Processors are disabled!");
-#endif
-
-#ifdef VISION_CAMERA_ENABLE_SKIA
-  __android_log_write(ANDROID_LOG_INFO, TAG, "Skia is enabled!");
-#else
-  __android_log_write(ANDROID_LOG_INFO, TAG, "Skia is disabled!");
 #endif
 }
 
@@ -87,12 +76,6 @@ void JVisionCameraProxy::setFrameProcessor(int viewTag,
   jni::local_ref<JFrameProcessor::javaobject> frameProcessor;
   if (frameProcessorType == "frame-processor") {
     frameProcessor = JFrameProcessor::create(worklet, _workletContext);
-  } else if (frameProcessorType == "skia-frame-processor") {
-#if VISION_CAMERA_ENABLE_SKIA
-    frameProcessor = JSkiaFrameProcessor::create(worklet, _workletContext, _callInvoker);
-#else
-    throw std::runtime_error("system/skia-unavailable: Skia is not installed!");
-#endif
   } else {
     throw std::runtime_error("Unknown FrameProcessor.type passed! Received: " + frameProcessorType);
   }

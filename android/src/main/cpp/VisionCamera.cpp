@@ -4,7 +4,6 @@
 #include "JFrameProcessor.h"
 #include "JVisionCameraProxy.h"
 #include "VisionCameraProxy.h"
-#include "JSkiaFrameProcessor.h"
 #include "VideoPipeline.h"
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *) {
@@ -15,9 +14,6 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *) {
     vision::VideoPipeline::registerNatives();
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
     vision::JFrameProcessor::registerNatives();
-#endif
-#if VISION_CAMERA_ENABLE_SKIA
-    vision::JSkiaFrameProcessor::registerNatives();
 #endif
   });
 }

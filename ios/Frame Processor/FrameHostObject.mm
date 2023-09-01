@@ -18,10 +18,10 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("width")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("height")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
+  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("orientation")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isMirrored")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("timestamp")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isDrawable")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("pixelFormat")));
   // Conversion
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
@@ -105,9 +105,6 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toArrayBuffer"), 0, toArrayBuffer);
   }
 
-  if (name == "isDrawable") {
-    return jsi::Value(false);
-  }
   if (name == "isValid") {
     auto isValid = frame != nil && frame.buffer != nil && CFGetRetainCount(frame.buffer) > 0 && CMSampleBufferIsValid(frame.buffer);
     return jsi::Value(isValid);
@@ -174,6 +171,11 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     auto bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
     return jsi::Value((double) bytesPerRow);
+  }
+  if (name == "planesCount") {
+    auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
+    auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
+    return jsi::Value((double) planesCount);
   }
 
   // fallback to base implementation

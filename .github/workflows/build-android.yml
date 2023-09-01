@@ -60,47 +60,6 @@ jobs:
       - name: Run Gradle Build for example/android/
         run: cd example/android && ./gradlew assembleDebug --build-cache && cd ../..
 
-  build-no-skia:
-    name: Build Android Example App (without Skia)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup JDK 11
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
-
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-      - name: Restore node_modules from cache
-        uses: actions/cache@v2
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: Install node_modules
-        run: yarn install --frozen-lockfile
-      - name: Install node_modules for example/
-        run: yarn install --frozen-lockfile --cwd example
-      - name: Remove react-native-skia
-        run: yarn remove @shopify/react-native-skia --cwd example
-
-      - name: Restore Gradle cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - name: Run Gradle Build for example/android/
-        run: cd example/android && ./gradlew assembleDebug --build-cache && cd ../..
-
   build-no-frame-processors:
     name: Build Android Example App (without Frame Processors)
     runs-on: ubuntu-latest

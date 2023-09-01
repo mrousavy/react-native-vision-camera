@@ -41,7 +41,6 @@ RCT_EXPORT_VIEW_PROPERTY(videoStabilizationMode, NSString);
 RCT_EXPORT_VIEW_PROPERTY(pixelFormat, NSString);
 // other props
 RCT_EXPORT_VIEW_PROPERTY(torch, NSString);
-RCT_EXPORT_VIEW_PROPERTY(previewType, NSString);
 RCT_EXPORT_VIEW_PROPERTY(zoom, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(enableZoomGesture, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(enableFpsGraph, BOOL);

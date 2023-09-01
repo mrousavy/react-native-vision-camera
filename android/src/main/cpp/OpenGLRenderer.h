@@ -11,6 +11,7 @@
 #include "PassThroughShader.h"
 
 #include "OpenGLContext.h"
+#include "OpenGLTexture.h"
 
 namespace vision {
 
@@ -38,11 +39,6 @@ class OpenGLRenderer {
    * After calling `destroy()`, it is legal to call `use()` again, which will re-construct everything.
    */
   void destroy();
-
-  /**
-   * Gets the EGLSurface (window surface) that this OpenGL renderer is configured to render to.
-   */
-  EGLSurface getEGLSurface();
 
  private:
   explicit OpenGLRenderer(std::shared_ptr<OpenGLContext> context, ANativeWindow* surface);

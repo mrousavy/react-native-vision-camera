@@ -25,6 +25,7 @@ import com.mrousavy.camera.utils.outputs.CameraOutputs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.Closeable
 
 //
 // TODOs for the CameraView which are currently too hard to implement either because of CameraX' limitations, or my brain capacity.
@@ -90,7 +91,7 @@ class CameraView(context: Context) : FrameLayout(context) {
   internal var frameProcessor: FrameProcessor? = null
     set(value) {
       field = value
-      cameraSession.frameProcessor = value
+      cameraSession.frameProcessor = frameProcessor
     }
 
   private val inputOrientation: Orientation

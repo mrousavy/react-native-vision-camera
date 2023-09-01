@@ -10,38 +10,33 @@
 #include "OpenGLError.h"
 #include <string>
 
-#include <android/log.h>
-
 namespace vision {
 
 PassThroughShader::~PassThroughShader() {
-  if (_vertexBuffer != NO_BUFFER) {
-    glDeleteBuffers(1, &_vertexBuffer);
-    _vertexBuffer = NO_BUFFER;
-  }
   if (_programId != NO_SHADER) {
     glDeleteProgram(_programId);
     _programId = NO_SHADER;
+  }
+
+  if (_vertexBuffer != NO_BUFFER) {
+    glDeleteBuffers(1, &_vertexBuffer);
+    _vertexBuffer = NO_BUFFER;
   }
 }
 
 void PassThroughShader::draw(const OpenGLTexture& texture, float* transformMatrix) {
   // 1. Set up Shader Program
-  if (_programId == NO_SHADER || _shaderTarget != texture.target) {
-    if (_programId != NO_SHADER) {
-      glDeleteProgram(_programId);
-    }
-    _programId = createProgram(texture.target);
+  if (_programId == NO_SHADER) {
+    _programId = createProgram();
     glUseProgram(_programId);
     _vertexParameters = {
-        .aPosition = glGetAttribLocation(_programId, "aPosition"),
-        .aTexCoord = glGetAttribLocation(_programId, "aTexCoord"),
-        .uTransformMatrix = glGetUniformLocation(_programId, "uTransformMatrix"),
+      .aPosition = glGetAttribLocation(_programId, "aPosition"),
+      .aTexCoord = glGetAttribLocation(_programId, "aTexCoord"),
+      .uTransformMatrix = glGetUniformLocation(_programId, "uTransformMatrix"),
     };
     _fragmentParameters = {
-        .uTexture = glGetUniformLocation(_programId, "uTexture"),
+      .uTexture = glGetUniformLocation(_programId, "uTexture"),
     };
-    _shaderTarget = texture.target;
   }
 
   glUseProgram(_programId);
@@ -49,10 +44,9 @@ void PassThroughShader::draw(const OpenGLTexture& texture, float* transformMatri
   // 2. Set up Vertices Buffer
   if (_vertexBuffer == NO_BUFFER) {
     glGenBuffers(1, &_vertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(VERTICES), VERTICES, GL_STATIC_DRAW);
   }
-
-  glBindBuffer(GL_ARRAY_BUFFER, _vertexBuffer);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(VERTICES), VERTICES, GL_STATIC_DRAW);
 
   // 3. Pass all uniforms/attributes for vertex shader
   glEnableVertexAttribArray(_vertexParameters.aPosition);
@@ -97,10 +91,9 @@ GLuint PassThroughShader::loadShader(GLenum shaderType, const char* shaderCode) 
   return shader;
 }
 
-GLuint PassThroughShader::createProgram(GLenum textureTarget) {
+GLuint PassThroughShader::createProgram() {
   GLuint vertexShader = loadShader(GL_VERTEX_SHADER, VERTEX_SHADER);
-  auto fragmentShaderCode = textureTarget == GL_TEXTURE_EXTERNAL_OES ? FRAGMENT_SHADER_EXTERNAL_TEXTURE : FRAGMENT_SHADER;
-  GLuint fragmentShader = loadShader(GL_FRAGMENT_SHADER, fragmentShaderCode);
+  GLuint fragmentShader = loadShader(GL_FRAGMENT_SHADER, FRAGMENT_SHADER);
 
   GLuint program = glCreateProgram();
   if (program == 0) throw OpenGLError("Failed to create pass-through program!");

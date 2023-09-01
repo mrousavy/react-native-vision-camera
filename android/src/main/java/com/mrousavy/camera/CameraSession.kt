@@ -200,9 +200,8 @@ class CameraSession(private val context: Context,
   private fun updateVideoOutputs() {
     val videoPipeline = outputs?.videoOutput?.videoPipeline ?: return
     val previewOutput = outputs?.previewOutput
-    videoPipeline.setRecordingSessionOutput(recording)
-    videoPipeline.setFrameProcessorOutput(frameProcessor)
-    videoPipeline.setPreviewOutput(previewOutput?.surface)
+    videoPipeline.setRecordingSessionOutput(this.recording)
+    videoPipeline.setFrameProcessorOutput(this.frameProcessor)
   }
 
   suspend fun takePhoto(qualityPrioritization: QualityPrioritization,
@@ -216,6 +215,8 @@ class CameraSession(private val context: Context,
 
     val photoOutput = outputs.photoOutput ?: throw PhotoNotEnabledError()
 
+    Log.i(TAG, "Photo capture 0/3 - preparing capture request (${photoOutput.size.width}x${photoOutput.size.height})...")
+
     val cameraCharacteristics = cameraManager.getCameraCharacteristics(captureSession.device.id)
     val orientation = outputOrientation.toSensorRelativeOrientation(cameraCharacteristics)
     val captureRequest = captureSession.device.createPhotoCaptureRequest(cameraManager,
@@ -226,16 +227,16 @@ class CameraSession(private val context: Context,
                                                                          enableRedEyeReduction,
                                                                          enableAutoStabilization,
                                                                          orientation)
-    Log.i(TAG, "Photo capture 0/2 - starting capture...")
+    Log.i(TAG, "Photo capture 1/3 - starting capture...")
     val result = captureSession.capture(captureRequest, enableShutterSound)
     val timestamp = result[CaptureResult.SENSOR_TIMESTAMP]!!
-    Log.i(TAG, "Photo capture 1/2 complete - received metadata with timestamp $timestamp")
+    Log.i(TAG, "Photo capture 2/3 complete - received metadata with timestamp $timestamp")
     try {
       val image = photoOutputSynchronizer.await(timestamp)
 
       val isMirrored = cameraCharacteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
 
-      Log.i(TAG, "Photo capture 2/2 complete - received ${image.width} x ${image.height} image.")
+      Log.i(TAG, "Photo capture 3/3 complete - received ${image.width} x ${image.height} image.")
       return CapturedPhoto(image, result, orientation, isMirrored, image.format)
     } catch (e: CancellationException) {
       throw CaptureAbortedError(false)
@@ -501,8 +502,7 @@ class CameraSession(private val context: Context,
         val captureRequest = camera.createCaptureRequest(template)
         outputs.previewOutput?.let { output ->
           Log.i(TAG, "Adding output surface ${output.outputType}..")
-          // TODO: Add here again?
-          // captureRequest.addTarget(output.surface)
+          captureRequest.addTarget(output.surface)
         }
         outputs.videoOutput?.let { output ->
           Log.i(TAG, "Adding output surface ${output.outputType}..")

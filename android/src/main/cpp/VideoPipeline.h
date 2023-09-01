@@ -8,13 +8,11 @@
 #include <fbjni/fbjni.h>
 #include <EGL/egl.h>
 #include <android/native_window.h>
-#include <memory>
-
+#include "PassThroughShader.h"
 #include "OpenGLRenderer.h"
 #include "OpenGLContext.h"
-
-#include "OpenGLTexture.h"
-#include "JFrameProcessor.h"
+#include <memory>
+#include <optional>
 
 namespace vision {
 
@@ -33,16 +31,12 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
   int getInputTextureId();
 
   // <- Frame Processor output
-  void setFrameProcessor(jni::alias_ref<JFrameProcessor::javaobject> frameProcessor);
-  void removeFrameProcessor();
+  void setFrameProcessorOutputSurface(jobject surface);
+  void removeFrameProcessorOutputSurface();
 
   // <- MediaRecorder output
   void setRecordingSessionOutputSurface(jobject surface);
   void removeRecordingSessionOutputSurface();
-
-  // <- Preview output
-  void setPreviewOutputSurface(jobject surface);
-  void removePreviewOutputSurface();
 
   // Frame callbacks
   void onBeforeFrame();
@@ -51,22 +45,17 @@ class VideoPipeline: public jni::HybridClass<VideoPipeline> {
  private:
   // Private constructor. Use `create(..)` to create new instances.
   explicit VideoPipeline(jni::alias_ref<jhybridobject> jThis, int width, int height);
-  // Creates a new Frame instance which should be filled with data.
-  jni::local_ref<JFrame> createFrame();
 
  private:
   // Input Surface Texture
-  std::optional<OpenGLTexture> _inputTexture;
+  std::optional<OpenGLTexture> _inputTexture = std::nullopt;
   int _width = 0;
   int _height = 0;
 
-  // (Optional) Frame Processor that processes frames before they go into output
-  jni::global_ref<JFrameProcessor::javaobject> _frameProcessor = nullptr;
-
   // Output Contexts
   std::shared_ptr<OpenGLContext> _context = nullptr;
+  std::unique_ptr<OpenGLRenderer> _frameProcessorOutput = nullptr;
   std::unique_ptr<OpenGLRenderer> _recordingSessionOutput = nullptr;
-  std::unique_ptr<OpenGLRenderer> _previewOutput = nullptr;
 
  private:
   friend HybridBase;

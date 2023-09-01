@@ -9,7 +9,6 @@ import {
   sortFormats,
   useCameraDevices,
   useFrameProcessor,
-  useSkiaFrameProcessor,
   VideoFile,
 } from 'react-native-vision-camera';
 import { Camera } from 'react-native-vision-camera';
@@ -25,7 +24,6 @@ import IonIcon from 'react-native-vector-icons/Ionicons';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
-import { Skia } from '@shopify/react-native-skia';
 import { FACE_SHADER } from './Shaders';
 import { examplePlugin } from './frame-processors/ExamplePlugin';
 
@@ -199,35 +197,11 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('re-rendering camera page without active camera');
   }
 
-  const radius = (format?.videoHeight ?? 1080) * 0.1;
-  const width = radius;
-  const height = radius;
-  const x = (format?.videoHeight ?? 1080) / 2 - radius / 2;
-  const y = (format?.videoWidth ?? 1920) / 2 - radius / 2;
-  const centerX = x + width / 2;
-  const centerY = y + height / 2;
-
-  const runtimeEffect = Skia.RuntimeEffect.Make(FACE_SHADER);
-  if (runtimeEffect == null) throw new Error('Shader failed to compile!');
-  const shaderBuilder = Skia.RuntimeShaderBuilder(runtimeEffect);
-  shaderBuilder.setUniform('r', [width]);
-  shaderBuilder.setUniform('x', [centerX]);
-  shaderBuilder.setUniform('y', [centerY]);
-  shaderBuilder.setUniform('resolution', [1920, 1080]);
-  const imageFilter = Skia.ImageFilter.MakeRuntimeShader(shaderBuilder, null, null);
-
-  const paint = Skia.Paint();
-  paint.setImageFilter(imageFilter);
-
-  const frameProcessor = useSkiaFrameProcessor((frame) => {
+  const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
 
-    const rect = Skia.XYWHRect(150, 150, 300, 300);
-    const paint = Skia.Paint();
-    paint.setColor(Skia.Color('red'));
-    frame.drawRect(rect, paint);
-
     console.log(frame.timestamp, frame.toString(), frame.pixelFormat);
+    examplePlugin(frame);
   }, []);
 
   return (

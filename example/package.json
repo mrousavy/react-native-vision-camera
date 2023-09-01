@@ -18,7 +18,6 @@
     "@react-native-community/blur": "^4.3.2",
     "@react-navigation/native": "^6.1.7",
     "@react-navigation/native-stack": "^6.9.13",
-    "@shopify/react-native-skia": "^0.1.200",
     "react": "^18.2.0",
     "react-native": "^0.72.3",
     "react-native-fast-image": "^8.6.3",

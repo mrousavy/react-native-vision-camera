@@ -333,10 +333,6 @@ PODS:
     - React-Core
   - react-native-safe-area-context (4.7.1):
     - React-Core
-  - react-native-skia (0.1.200):
-    - React
-    - React-callinvoker
-    - React-Core
   - react-native-video (5.2.1):
     - React-Core
     - react-native-video/Video (= 5.2.1)
@@ -505,11 +501,10 @@ PODS:
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.10)
   - SocketRocket (0.6.1)
-  - VisionCamera (3.0.0-rc.6):
+  - VisionCamera (3.0.0-rc.8):
     - React
     - React-callinvoker
     - React-Core
-    - react-native-skia
     - react-native-worklets-core
   - Yoga (1.14.0)
 
@@ -540,7 +535,6 @@ DEPENDENCIES:
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - "react-native-cameraroll (from `../node_modules/@react-native-camera-roll/camera-roll`)"
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
-  - "react-native-skia (from `../node_modules/@shopify/react-native-skia`)"
   - react-native-video (from `../node_modules/react-native-video`)
   - react-native-worklets-core (from `../node_modules/react-native-worklets-core`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
@@ -628,8 +622,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-camera-roll/camera-roll"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
-  react-native-skia:
-    :path: "../node_modules/@shopify/react-native-skia"
   react-native-video:
     :path: "../node_modules/react-native-video"
   react-native-worklets-core:
@@ -713,7 +705,6 @@ SPEC CHECKSUMS:
   react-native-blur: cfdad7b3c01d725ab62a8a729f42ea463998afa2
   react-native-cameraroll: 134805127580aed23403b8c2cb1548920dd77b3a
   react-native-safe-area-context: 9697629f7b2cda43cf52169bb7e0767d330648c2
-  react-native-skia: d0b0aab6bb1f146eb6f379fb671b719deabd20fb
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
   react-native-worklets-core: 7ad416a8965086b98b07964f7f6932560a54a14c
   React-NativeModulesApple: c57f3efe0df288a6532b726ad2d0322a9bf38472
@@ -742,7 +733,7 @@ SPEC CHECKSUMS:
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  VisionCamera: 35a762f77816462a4d59a580ca197ffa29954112
+  VisionCamera: 5bd7961602a7db4de21fdc3588df6ce01d693d37
   Yoga: 8796b55dba14d7004f980b54bcc9833ee45b28ce
 
 PODFILE CHECKSUM: ab9c06b18c63e741c04349c0fd630c6d3145081c

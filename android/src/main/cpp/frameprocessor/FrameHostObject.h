@@ -26,7 +26,7 @@ class JSI_EXPORT FrameHostObject : public jsi::HostObject {
   std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime &rt) override;
 
  public:
-  jni::global_ref<JFrame::javaobject> frame;
+  jni::global_ref<JFrame> frame;
 };
 
 } // namespace vision

@@ -64,8 +64,7 @@ suspend fun CameraDevice.createCaptureSession(cameraManager: CameraManager,
 
     val outputConfigurations = arrayListOf<OutputConfiguration>()
     outputs.previewOutput?.let { output ->
-      // TODO: add here again?
-      // outputConfigurations.add(output.toOutputConfiguration(characteristics))
+      outputConfigurations.add(output.toOutputConfiguration(characteristics))
     }
     outputs.photoOutput?.let { output ->
       outputConfigurations.add(output.toOutputConfiguration(characteristics))
