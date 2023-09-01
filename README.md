@@ -24,7 +24,7 @@ VisionCamera is a powerful and fast Camera component for React Native. It featur
 * Smooth zooming (Reanimated)
 * Fast pause and resume
 * HDR & Night modes
-* Custom C++/GPU accelerated video pipelines
+* Custom C++/GPU accelerated video pipeline (OpenGL)
 
 ### Documentation
 
