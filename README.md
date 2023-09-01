@@ -1,10 +1,4 @@
-<a href="https://margelo.io">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./docs/static/img/banner-dark.png" />
-    <source media="(prefers-color-scheme: light)" srcset="./docs/static/img/banner-light.png" />
-    <img alt="VisionCamera" src="./docs/static/img/banner-light.png" />
-  </picture>
-</a>
+[![GitHub-Mark-Light](./docs/static/img/banner-dark.png#gh-dark-mode-only)![GitHub-Mark-Dark](./docs/static/img/banner-light.png#gh-light-mode-only)](https://margelo.io)
 
 <br />
 
