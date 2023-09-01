@@ -1,6 +1,7 @@
 package com.mrousavy.camera.core.outputs
 
 import android.graphics.ImageFormat
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.media.Image
 import android.media.ImageReader
@@ -91,6 +92,7 @@ class CameraOutputs(val cameraId: String,
 
   init {
     val characteristics = cameraManager.getCameraCharacteristics(cameraId)
+    val isMirrored = characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
 
     Log.i(TAG, "Preparing Outputs for Camera $cameraId...")
 
@@ -117,7 +119,7 @@ class CameraOutputs(val cameraId: String,
     // Video output: High resolution repeating images (startRecording() or useFrameProcessor())
     if (video != null) {
       val size = characteristics.getVideoSizes(cameraId, video.format).closestToOrMax(video.targetSize)
-      val videoPipeline = VideoPipeline(size.width, size.height, video.format)
+      val videoPipeline = VideoPipeline(size.width, size.height, video.format, isMirrored)
 
       Log.i(TAG, "Adding ${size.width}x${size.height} video output. (Format: ${video.format})")
       videoOutput = VideoPipelineOutput(videoPipeline, SurfaceOutput.OutputType.VIDEO)
