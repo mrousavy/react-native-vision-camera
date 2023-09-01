@@ -64,15 +64,22 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
   }
 }
 
-private fun writeImageToStream(imageBytes: ByteArray, stream: OutputStream, isMirrored: Boolean) {
-  if (isMirrored) {
+private fun writePhotoToFile(photo: CameraSession.CapturedPhoto, file: File) {
+  val byteBuffer = photo.image.planes[0].buffer
+  if (photo.isMirrored) {
+    val imageBytes = ByteArray(byteBuffer.remaining()).apply { byteBuffer.get(this) }
     val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
     val matrix = Matrix()
     matrix.preScale(-1f, 1f)
-    val processedBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, false)
-    processedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+    val processedBitmap =
+      Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, false)
+    FileOutputStream(file).use { stream ->
+      processedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+    }
   } else {
-    stream.write(imageBytes)
+    val channel = FileOutputStream(file).channel
+    channel.write(byteBuffer)
+    channel.close()
   }
 }
 
@@ -83,12 +90,8 @@ private suspend fun savePhotoToFile(context: Context,
     when (photo.format) {
       // When the format is JPEG or DEPTH JPEG we can simply save the bytes as-is
       ImageFormat.JPEG, ImageFormat.DEPTH_JPEG -> {
-        val buffer = photo.image.planes[0].buffer
-        val bytes = ByteArray(buffer.remaining()).apply { buffer.get(this) }
         val file = createFile(context, ".jpg")
-        FileOutputStream(file).use { stream ->
-          writeImageToStream(bytes, stream, photo.isMirrored)
-        }
+        writePhotoToFile(photo, file)
         return@withContext file.absolutePath
       }
 
