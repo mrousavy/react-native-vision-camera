@@ -47,14 +47,11 @@ body:
       - label: I can reproduce the issue in the VisionCamera Example app.
   - type: checkboxes
     attributes:
-      label: Are you using Expo?
-      options:
-      - label: I am using Expo
-  - type: checkboxes
-    attributes:
       label: Additional information
       description: Please check all the boxes that apply
       options:
+        - label: I am using Expo
+        - label: I have enabled Frame Processors (react-native-worklets-core)
         - label: I have read the [Troubleshooting Guide](https://react-native-vision-camera.com/docs/guides/troubleshooting)
           required: true
         - label: I agree to follow this project's [Code of Conduct](https://github.com/mrousavy/react-native-vision-camera/blob/main/CODE_OF_CONDUCT.md)
