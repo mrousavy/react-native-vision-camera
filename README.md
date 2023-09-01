@@ -6,41 +6,11 @@
   </picture>
 </a>
 
-<div align="center">
-  <img src="docs/static/img/11.png" width="50%">
-  <br />
-  <br />
-  <blockquote><b>📸 The Camera library that sees the vision.</b></blockquote>
-  <pre align="center">npm i <a href="https://www.npmjs.com/package/react-native-vision-camera">react-native-vision-camera</a><br/>npx pod-install                 </pre>
-  <a align="center" href='https://ko-fi.com/F1F8CLXG' target='_blank'>
-    <img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi2.png?v=0' border='0' alt='Buy Me a Coffee at ko-fi.com' />
-  </a>
-  <br/>
-  <a align="center" href="https://github.com/mrousavy?tab=followers">
-    <img src="https://img.shields.io/github/followers/mrousavy?label=Follow%20%40mrousavy&style=social" />
-  </a>
-  <br />
-  <a align="center" href="https://twitter.com/mrousavy">
-    <img src="https://img.shields.io/twitter/follow/mrousavy?label=Follow%20%40mrousavy&style=social" />
-  </a>
-</div>
-
-<br/>
-<br/>
+<br />
 
 <div>
   <img align="right" width="35%" src="docs/static/img/example.png">
 </div>
-
-### ‼️‼️‼️‼️‼️ ✨ VisionCamera V3 ‼️‼️‼️‼️‼️
-
-**See [this discussion](https://github.com/mrousavy/react-native-vision-camera/issues/1376) for the latest upcoming version of VisionCamera**
-
-### Documentation
-
-* [Guides](https://react-native-vision-camera.com/docs/guides)
-* [API](https://react-native-vision-camera.com/docs/api)
-* [Example](./example/)
 
 ### Features
 
@@ -52,7 +22,11 @@
 * Fast pause and resume
 * HDR & Night modes
 
-> See the [example](./example/) app
+### Documentation
+
+* [Guides](https://react-native-vision-camera.com/docs/guides)
+* [API](https://react-native-vision-camera.com/docs/api)
+* [Example](./example/)
 
 ### Example
 
@@ -71,6 +45,8 @@ function App() {
   )
 }
 ```
+
+> See the [example](./example/) app
 
 ### Adopting at scale
 
