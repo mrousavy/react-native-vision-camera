@@ -1,4 +1,5 @@
 import type { CameraPosition } from './CameraPosition';
+import { Orientation } from './Orientation';
 import type { PixelFormat } from './PixelFormat';
 
 /**
@@ -226,4 +227,9 @@ export interface CameraDevice {
    * - On iOS, all devices are `full`.
    */
   hardwareLevel: 'legacy' | 'limited' | 'full';
+  /**
+   * Represents the sensor's orientation relative to the phone.
+   * For most phones this will be landscape, as Camera sensors are usually always rotated by 90 degrees (i.e. width and height are flipped).
+   */
+  sensorOrientation: Orientation;
 }

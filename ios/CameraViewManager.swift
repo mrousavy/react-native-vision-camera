@@ -102,6 +102,7 @@ final class CameraViewManager: RCTViewManager {
           "supportsLowLightBoost": $0.isLowLightBoostSupported,
           "supportsFocus": $0.isFocusPointOfInterestSupported,
           "hardwareLevel": "full",
+          "sensorOrientation": "portrait", // TODO: Sensor Orientation?
           "formats": $0.formats.map { format -> [String: Any] in
             format.toDictionary()
           },

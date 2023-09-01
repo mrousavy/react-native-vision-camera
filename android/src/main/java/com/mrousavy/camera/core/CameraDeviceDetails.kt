@@ -17,6 +17,7 @@ import com.mrousavy.camera.extensions.getVideoSizes
 import com.mrousavy.camera.parsers.PixelFormat
 import com.mrousavy.camera.parsers.HardwareLevel
 import com.mrousavy.camera.parsers.LensFacing
+import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.VideoStabilizationMode
 import kotlin.math.PI
 import kotlin.math.atan
@@ -36,6 +37,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
   private val hasFlash = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) ?: false
   private val focalLengths = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS) ?: floatArrayOf(35f /* 35mm default */)
   private val sensorSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)!!
+  private val sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)!!
   private val name = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) characteristics.get(CameraCharacteristics.INFO_VERSION)
                       else null) ?: "$lensFacing (${cameraId})"
 
@@ -202,6 +204,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     map.putDouble("maxZoom", maxZoom)
     map.putDouble("neutralZoom", 1.0) // Zoom is always relative to 1.0 on Android
     map.putString("hardwareLevel", hardwareLevel.unionValue)
+    map.putString("sensorOrientation", Orientation.fromRotationDegrees(sensorOrientation).unionValue)
 
     val array = Arguments.createArray()
     cameraConfig.outputFormats.forEach { f ->
