@@ -12,25 +12,9 @@
   <img align="right" width="35%" src="docs/static/img/example.png">
 </div>
 
-VisionCamera is a powerful and fast Camera component for React Native, used by many production apps.
-
-```tsx
-function App() {
-  const devices = useCameraDevices('wide-angle-camera')
-  const device = devices.back
-
-  if (device == null) return <LoadingView />
-  return (
-    <Camera
-      style={StyleSheet.absoluteFill}
-      device={device}
-      isActive={true}
-    />
-  )
-}
-```
-
 ### Features
+
+VisionCamera is a powerful and fast Camera component for React Native. It features:
 
 * Photo and Video capture
 * Customizable devices and multi-cameras ("fish-eye" zoom)
@@ -47,6 +31,24 @@ function App() {
 * [Guides](https://react-native-vision-camera.com/docs/guides)
 * [API](https://react-native-vision-camera.com/docs/api)
 * [Example](./example/)
+
+### Example
+
+```tsx
+function App() {
+  const devices = useCameraDevices('wide-angle-camera')
+  const device = devices.back
+
+  if (device == null) return <LoadingView />
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      device={device}
+      isActive={true}
+    />
+  )
+}
+```
 
 > See the [example](./example/) app
 
