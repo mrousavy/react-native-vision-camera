@@ -19,9 +19,8 @@ int JFrame::getWidth() const {
 }
 
 int JFrame::getHeight() const {
-  static const
-  auto getWidthMethod = getClass()->getMethod<jint()>("getHeight");
-  return     getWidthMethod(self());
+  static const auto getWidthMethod = getClass()->getMethod<jint()>("getHeight");
+  return getWidthMethod(self());
 }
 
 bool JFrame::getIsValid() const {
