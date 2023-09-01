@@ -91,7 +91,6 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     return array
   }
 
-
   // 35mm is 135 film format, a standard in which focal lengths are usually measured
   private val size35mm = Size(36, 24)
 
@@ -153,7 +152,6 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     return array
   }
 
-  // Get available pixel formats for the given Size
   private fun createPixelFormats(size: Size): ReadableArray {
     val formats = cameraConfig.outputFormats
     val array = Arguments.createArray()
@@ -186,7 +184,6 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     return map
   }
 
-  // convert to React Native JS object (map)
   fun toMap(): ReadableMap {
     val map = Arguments.createMap()
     map.putString("id", cameraId)
@@ -205,39 +202,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     map.putDouble("neutralZoom", 1.0) // Zoom is always relative to 1.0 on Android
     map.putString("hardwareLevel", hardwareLevel.unionValue)
     map.putString("sensorOrientation", Orientation.fromRotationDegrees(sensorOrientation).unionValue)
-
-    val array = Arguments.createArray()
-    cameraConfig.outputFormats.forEach { f ->
-      val str = when (f) {
-        ImageFormat.YUV_420_888 -> "YUV_420_888"
-        ImageFormat.YUV_422_888 -> "YUV_422_888"
-        ImageFormat.YUV_444_888 -> "YUV_444_888"
-        ImageFormat.JPEG -> "JPEG"
-        ImageFormat.DEPTH16 -> "DEPTH16"
-        ImageFormat.DEPTH_JPEG -> "DEPTH_JPEG"
-        ImageFormat.FLEX_RGBA_8888 -> "FLEX_RGBA_8888"
-        ImageFormat.FLEX_RGB_888 -> "FLEX_RGB_888"
-        ImageFormat.YUY2 -> "YUY2"
-        ImageFormat.Y8 -> "Y8"
-        ImageFormat.YV12 -> "YV12"
-        ImageFormat.HEIC -> "HEIC"
-        ImageFormat.PRIVATE -> "PRIVATE"
-        ImageFormat.RAW_PRIVATE -> "RAW_PRIVATE"
-        ImageFormat.RAW_SENSOR -> "RAW_SENSOR"
-        ImageFormat.RAW10 -> "RAW10"
-        ImageFormat.RAW12 -> "RAW12"
-        ImageFormat.NV16 -> "NV16"
-        ImageFormat.NV21 -> "NV21"
-        ImageFormat.UNKNOWN -> "UNKNOWN"
-        ImageFormat.YCBCR_P010 -> "YCBCR_P010"
-        else -> "unknown ($f)"
-      }
-      array.pushString(str)
-    }
-    map.putArray("pixelFormats", array)
-
     map.putArray("formats", getFormats())
-
     return map
   }
 }

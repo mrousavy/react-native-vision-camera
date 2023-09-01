@@ -6,13 +6,13 @@ on:
       - main
     paths:
       - '.github/workflows/validate-android.yml'
-      - 'android/**'
-      - '.editorconfig'
+      - 'package/android/**'
+      - 'package/.editorconfig'
   pull_request:
     paths:
       - '.github/workflows/validate-android.yml'
-      - 'android/**'
-      - '.editorconfig'
+      - 'package/android/**'
+      - 'package/.editorconfig'
 
 jobs:
   lint:

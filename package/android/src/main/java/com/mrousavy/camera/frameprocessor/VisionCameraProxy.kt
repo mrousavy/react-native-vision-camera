@@ -74,9 +74,7 @@ class VisionCameraProxy(context: ReactApplicationContext) {
   }
 
   // private C++ funcs
-  private external fun initHybrid(
-          jsContext: Long,
-          jsCallInvokerHolder: CallInvokerHolderImpl,
-          scheduler: VisionCameraScheduler
-  ): HybridData
+  private external fun initHybrid(jsContext: Long,
+                                  jsCallInvokerHolder: CallInvokerHolderImpl,
+                                  scheduler: VisionCameraScheduler): HybridData
 }

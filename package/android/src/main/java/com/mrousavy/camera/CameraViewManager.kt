@@ -12,7 +12,6 @@ import com.mrousavy.camera.parsers.VideoStabilizationMode
 
 @Suppress("unused")
 class CameraViewManager : ViewGroupManager<CameraView>() {
-
   public override fun createViewInstance(context: ThemedReactContext): CameraView {
     return CameraView(context)
   }

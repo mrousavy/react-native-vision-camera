@@ -3,8 +3,7 @@ package com.mrousavy.camera.extensions
 import android.view.View
 import android.view.ViewGroup
 
-// React does not trigger onLayout events for dynamically added views (`addView`).
-// This fixes that.
+// React does not trigger onLayout events for dynamically added views (`addView`). This fixes that.
 // https://github.com/facebook/react-native/issues/17968#issuecomment-633308615
 fun ViewGroup.installHierarchyFitter() {
   setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {

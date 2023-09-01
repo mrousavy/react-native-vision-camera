@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.hardware.camera2.CameraManager
 import android.util.Log
 import android.util.Size
@@ -31,13 +30,8 @@ import kotlinx.coroutines.launch
 //
 // TODOs for the CameraView which are currently too hard to implement either because of CameraX' limitations, or my brain capacity.
 //
-// CameraView
 // TODO: High-speed video recordings (export in CameraViewModule::getAvailableVideoDevices(), and set in CameraView::configurePreview()) (120FPS+)
-
-// CameraView+RecordVideo
 // TODO: Better startRecording()/stopRecording() (promise + callback, wait for TurboModules/JSI)
-
-// CameraView+TakePhoto
 // TODO: takePhoto() depth data
 // TODO: takePhoto() raw capture
 // TODO: takePhoto() return with jsi::Value Image reference for faster capture
@@ -103,11 +97,6 @@ class CameraView(context: Context) : FrameLayout(context) {
     cameraSession = CameraSession(context, cameraManager, { invokeOnInitialized() }, { error -> invokeOnError(error) })
   }
 
-  override fun onConfigurationChanged(newConfig: Configuration?) {
-    super.onConfigurationChanged(newConfig)
-    // TODO: updateOrientation()
-  }
-
   override fun onAttachedToWindow() {
     super.onAttachedToWindow()
     if (!isMounted) {
@@ -144,7 +133,6 @@ class CameraView(context: Context) : FrameLayout(context) {
       val shouldReconfigureFormat = shouldReconfigureSession || changedProps.containsAny(propsThatRequireFormatReconfiguration)
       val shouldReconfigureZoom = shouldReconfigureSession || changedProps.contains("zoom")
       val shouldReconfigureTorch = shouldReconfigureSession || changedProps.contains("torch")
-      val shouldUpdateOrientation = /* TODO: When should we reconfigure this? */ shouldReconfigureSession ||  changedProps.contains("orientation")
       val shouldCheckActive = shouldReconfigureFormat || changedProps.contains("isActive")
       val shouldReconfigureZoomGesture = changedProps.contains("enableZoomGesture")
 
@@ -166,9 +154,6 @@ class CameraView(context: Context) : FrameLayout(context) {
       }
       if (shouldReconfigureTorch) {
         updateTorch()
-      }
-      if (shouldUpdateOrientation) {
-        // TODO: updateOrientation()
       }
       if (shouldReconfigureZoomGesture) {
         updateZoomGesture()

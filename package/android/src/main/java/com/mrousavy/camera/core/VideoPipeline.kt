@@ -108,10 +108,7 @@ class VideoPipeline(val width: Int,
   }
 
   /**
-   * Configures the Pipeline to also call the given [FrameProcessor].
-   * * If the [frameProcessor] is `null`, this output channel will be removed.
-   * * If the [frameProcessor] is not `null`, the [VideoPipeline] will create Frames
-   *   using an [ImageWriter] and call the [FrameProcessor] with those Frames.
+   * Configures the Pipeline to also call the given [FrameProcessor] (or null).
    */
   fun setFrameProcessorOutput(frameProcessor: FrameProcessor?) {
     synchronized(this) {
@@ -138,9 +135,7 @@ class VideoPipeline(val width: Int,
   }
 
   /**
-   * Configures the Pipeline to also write Frames to a Surface from a [MediaRecorder].
-   * * If the [surface] is `null`, this output channel will be removed.
-   * * If the [surface] is not `null`, the [VideoPipeline] will write Frames to this Surface.
+   * Configures the Pipeline to also write Frames to a Surface from a [MediaRecorder] (or null)
    */
   fun setRecordingSessionOutput(recordingSession: RecordingSession?) {
     synchronized(this) {

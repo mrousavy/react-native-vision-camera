@@ -10,9 +10,6 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import java.io.Closeable
 
-/**
- * A general-purpose Camera Output that writes to a [Surface]
- */
 open class SurfaceOutput(val surface: Surface,
                          val size: Size,
                          val outputType: OutputType,

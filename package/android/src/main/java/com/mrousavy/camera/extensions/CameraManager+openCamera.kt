@@ -35,7 +35,7 @@ suspend fun CameraManager.openCamera(cameraId: String,
         } else {
           onDisconnected(camera, CameraDisconnectedError(cameraId, CameraDeviceError.DISCONNECTED))
         }
-        camera.tryClose()
+        camera.close()
       }
 
       override fun onError(camera: CameraDevice, errorCode: Int) {
@@ -46,7 +46,7 @@ suspend fun CameraManager.openCamera(cameraId: String,
         } else {
           onDisconnected(camera, CameraDisconnectedError(cameraId, error))
         }
-        camera.tryClose()
+        camera.close()
       }
     }
 
@@ -55,14 +55,5 @@ suspend fun CameraManager.openCamera(cameraId: String,
     } else {
       this.openCamera(cameraId, callback, queue.handler)
     }
-  }
-}
-
-fun CameraDevice.tryClose() {
-  try {
-    Log.i(TAG, "Camera $id: Closing...")
-    this.close()
-  } catch (e: Throwable) {
-    Log.e(TAG, "Camera $id: Failed to close!", e)
   }
 }

@@ -5,9 +5,6 @@ import android.util.Size
 import com.mrousavy.camera.core.VideoPipeline
 import java.io.Closeable
 
-/**
- * A [SurfaceOutput] that uses a [VideoPipeline] as it's surface.
- */
 class VideoPipelineOutput(val videoPipeline: VideoPipeline,
                           outputType: OutputType,
                           dynamicRangeProfile: Long? = null): Closeable, SurfaceOutput(videoPipeline.surface, Size(videoPipeline.width, videoPipeline.height), outputType, dynamicRangeProfile) {
