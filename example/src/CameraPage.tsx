@@ -9,6 +9,7 @@ import {
   sortFormats,
   useCameraDevices,
   useFrameProcessor,
+  useSkiaFrameProcessor,
   VideoFile,
 } from 'react-native-vision-camera';
 import { Camera } from 'react-native-vision-camera';
@@ -218,11 +219,15 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const paint = Skia.Paint();
   paint.setImageFilter(imageFilter);
 
-  const frameProcessor = useFrameProcessor((frame) => {
+  const frameProcessor = useSkiaFrameProcessor((frame) => {
     'worklet';
 
+    const rect = Skia.XYWHRect(150, 150, 300, 300);
+    const paint = Skia.Paint();
+    paint.setColor(Skia.Color('red'));
+    frame.drawRect(rect, paint);
+
     console.log(frame.timestamp, frame.toString(), frame.pixelFormat);
-    examplePlugin(frame);
   }, []);
 
   return (

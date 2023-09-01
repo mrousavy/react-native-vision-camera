@@ -35,7 +35,7 @@
   std::unique_ptr<RenderContext> _layerContext;
   // The texture holding the drawn-to Frame
   id<MTLTexture> _texture;
-  
+
   // For synchronization between the two Threads/Contexts
   std::mutex _textureMutex;
   std::atomic<bool> _hasNewFrame;
@@ -70,7 +70,7 @@
   return _texture;
 }
 
-- (void)renderCameraFrameToOffscreenCanvas:(CMSampleBufferRef)sampleBuffer withDrawCallback:(draw_callback_t)callback {
+- (void)renderCameraFrameToOffscreenSurface:(CMSampleBufferRef)sampleBuffer withDrawCallback:(draw_callback_t)callback {
   // Wrap in auto release pool since we want the system to clean up after rendering
   @autoreleasepool {
     // Get the Frame's PixelBuffer
@@ -87,7 +87,7 @@
                              height:CVPixelBufferGetHeight(pixelBuffer)];
 
     // Get & Lock the writeable Texture from the Metal Drawable
-    
+
     GrMtlTextureInfo textureInfo;
     textureInfo.fTexture.retain((__bridge void*)texture);
     GrBackendRenderTarget backendRenderTarget((int)texture.width,
@@ -122,7 +122,7 @@
     // The Frame Processor might draw the Frame again (through render()) to pass a custom paint/shader,
     // but that'll just overwrite the existing one - no need to worry.
     canvas->drawImage(image, 0, 0);
-    
+
     // Call the draw callback - probably a JS Frame Processor.
     callback(static_cast<void*>(canvas));
 
@@ -145,7 +145,7 @@
 
   @autoreleasepool {
     auto context = _layerContext->skiaContext.get();
-    
+
     // Create a Skia Surface from the CAMetalLayer (use to draw to the View)
     GrMTLHandle drawableHandle;
     auto surface = SkSurfaces::WrapCAMetalLayer(context,
@@ -161,14 +161,14 @@
     }
 
     auto canvas = surface->getCanvas();
-    
+
     // Lock the Mutex so we can operate on the Texture atomically without
     // renderFrameToCanvas() overwriting in between from a different thread
     std::unique_lock lock(_textureMutex);
 
     auto texture = _texture;
     if (texture == nil) return;
-    
+
     // Calculate Center Crop (aspectRatio: cover) transform
     auto sourceRect = SkRect::MakeXYWH(0, 0, texture.width, texture.height);
     auto destinationRect = SkRect::MakeXYWH(0, 0, surface->width(), surface->height());
@@ -202,7 +202,7 @@
     id<MTLCommandBuffer> commandBuffer([_layerContext->commandQueue commandBuffer]);
     [commandBuffer presentDrawable:drawable];
     [commandBuffer commit];
-    
+
     // Set flag back to false
     _hasNewFrame = false;
     lock.unlock();

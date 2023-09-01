@@ -11,71 +11,85 @@
 namespace vision {
 
 using namespace facebook;
-using namespace jni;
 
-int JFrame::getWidth() const {
-  static const auto getWidthMethod = getClass()->getMethod<jint()>("getWidth");
-  return getWidthMethod(self());
+void JFrame::registerNatives() {
+  registerHybrid({
+    makeNativeMethod("getWidth", JFrame::getWidth),
+    makeNativeMethod("getHeight", JFrame::getHeight),
+    makeNativeMethod("getBytesPerRow", JFrame::getBytesPerRow),
+    makeNativeMethod("getTimestamp", JFrame::getTimestamp),
+    makeNativeMethod("getOrientation", JFrame::getOrientation),
+    makeNativeMethod("getIsMirrored", JFrame::getIsMirrored),
+    makeNativeMethod("getPixelFormat", JFrame::getPixelFormat),
+    makeNativeMethod("getByteBuffer", JFrame::getByteBuffer),
+    makeNativeMethod("getIsValid", JFrame::getIsValid),
+  });
 }
 
-int JFrame::getHeight() const {
-  static const auto getWidthMethod = getClass()->getMethod<jint()>("getHeight");
-  return getWidthMethod(self());
+jni::local_ref<JFrame::javaobject> JFrame::create(int width,
+                                                  int height,
+                                                  int bytesPerRow,
+                                                  long timestamp,
+                                                  const std::string& orientation,
+                                                  bool isMirrored) {
+  return newObjectCxxArgs(width,
+    height,
+    bytesPerRow,
+    timestamp,
+    orientation,
+    isMirrored);
 }
 
-bool JFrame::getIsValid() const {
-  static const auto getIsValidMethod = getClass()->getMethod<jboolean()>("getIsValid");
-  return getIsValidMethod(self());
+JFrame::JFrame(int width,
+               int height,
+               int bytesPerRow,
+               long timestamp,
+               const std::string& orientation,
+               bool isMirrored) {
+  _width = width;
+  _height = height;
+  _bytesPerRow = bytesPerRow;
+  _timestamp = timestamp;
+  _orientation = orientation;
+  _isMirrored = isMirrored;
+  _refCount = 0;
+  pixelsSize = height * bytesPerRow;
+  pixels = (uint8_t*) malloc(pixelsSize);
 }
 
-bool JFrame::getIsMirrored() const {
-  static const auto getIsMirroredMethod = getClass()->getMethod<jboolean()>("getIsMirrored");
-  return getIsMirroredMethod(self());
+JFrame::~JFrame() noexcept {
+  close();
 }
 
-jlong JFrame::getTimestamp() const {
-  static const auto getTimestampMethod = getClass()->getMethod<jlong()>("getTimestamp");
-  return getTimestampMethod(self());
+bool JFrame::getIsValid() {
+  return _refCount > 0 && !_isClosed;
 }
 
-local_ref<JString> JFrame::getOrientation() const {
-  static const auto getOrientationMethod = getClass()->getMethod<JString()>("getOrientation");
-  return getOrientationMethod(self());
-}
-
-local_ref<JString> JFrame::getPixelFormat() const {
-  static const auto getPixelFormatMethod = getClass()->getMethod<JString()>("getPixelFormat");
-  return getPixelFormatMethod(self());
-}
-
-int JFrame::getPlanesCount() const {
-  static const auto getPlanesCountMethod = getClass()->getMethod<jint()>("getPlanesCount");
-  return getPlanesCountMethod(self());
-}
-
-int JFrame::getBytesPerRow() const {
-  static const auto getBytesPerRowMethod = getClass()->getMethod<jint()>("getBytesPerRow");
-  return getBytesPerRowMethod(self());
-}
-
-local_ref<JByteBuffer> JFrame::toByteBuffer() const {
-  static const auto toByteBufferMethod = getClass()->getMethod<JByteBuffer()>("toByteBuffer");
-  return toByteBufferMethod(self());
+jni::local_ref<jni::JByteBuffer> JFrame::getByteBuffer() {
+  if (!getIsValid()) {
+    [[unlikely]]
+    throw std::runtime_error("Frame is no longer valid, cannot access getByteBuffer!");
+  }
+  return jni::JByteBuffer::wrapBytes(pixels, pixelsSize);
 }
 
 void JFrame::incrementRefCount() {
-  static const auto incrementRefCountMethod = getClass()->getMethod<void()>("incrementRefCount");
-  incrementRefCountMethod(self());
+  std::unique_lock lock(_mutex);
+  _refCount++;
 }
 
 void JFrame::decrementRefCount() {
-  static const auto decrementRefCountMethod = getClass()->getMethod<void()>("decrementRefCount");
-  decrementRefCountMethod(self());
+  std::unique_lock lock(_mutex);
+  _refCount--;
+  if (_refCount <= 0) {
+    this->close();
+  }
 }
 
 void JFrame::close() {
-  static const auto closeMethod = getClass()->getMethod<void()>("close");
-  closeMethod(self());
+  _isClosed = true;
+  free(pixels);
+  pixels = nullptr;
 }
 
 } // namespace vision

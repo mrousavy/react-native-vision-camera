@@ -10,18 +10,14 @@
 
 #include <android/native_window.h>
 #include <android/log.h>
+#include <chrono>
 
 #include "OpenGLError.h"
 
 namespace vision {
 
-std::shared_ptr<OpenGLContext> OpenGLContext::CreateWithOffscreenSurface(int width, int height) {
-  return std::unique_ptr<OpenGLContext>(new OpenGLContext(width, height));
-}
-
-OpenGLContext::OpenGLContext(int width, int height) {
-  _width = width;
-  _height = height;
+std::shared_ptr<OpenGLContext> OpenGLContext::CreateWithOffscreenSurface() {
+  return std::unique_ptr<OpenGLContext>(new OpenGLContext());
 }
 
 OpenGLContext::~OpenGLContext() {
@@ -67,10 +63,10 @@ void OpenGLContext::ensureOpenGL() {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing EGLConfig..");
     EGLint attributes[] = {EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
                            EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-                           EGL_ALPHA_SIZE, 8,
-                           EGL_BLUE_SIZE, 8,
-                           EGL_GREEN_SIZE, 8,
                            EGL_RED_SIZE, 8,
+                           EGL_GREEN_SIZE, 8,
+                           EGL_BLUE_SIZE, 8,
+                           EGL_ALPHA_SIZE, 8,
                            EGL_DEPTH_SIZE, 0,
                            EGL_STENCIL_SIZE, 0,
                            EGL_NONE};
@@ -90,9 +86,9 @@ void OpenGLContext::ensureOpenGL() {
   // EGLSurface
   if (offscreenSurface == EGL_NO_SURFACE) {
     // If we don't have a surface at all
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing %i x %i offscreen pbuffer EGLSurface..", _width, _height);
-    EGLint attributes[] = {EGL_WIDTH, _width,
-                           EGL_HEIGHT, _height,
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing 1x1 offscreen pbuffer EGLSurface..");
+    EGLint attributes[] = {EGL_WIDTH, 1,
+                           EGL_HEIGHT, 1,
                            EGL_NONE};
     offscreenSurface = eglCreatePbufferSurface(display, config, attributes);
     if (offscreenSurface == EGL_NO_SURFACE) throw OpenGLError("Failed to create OpenGL Surface!");
@@ -116,7 +112,12 @@ void OpenGLContext::use(EGLSurface surface) {
   // 3. Caller can now render to this surface
 }
 
-GLuint OpenGLContext::createTexture() {
+void OpenGLContext::flush() const {
+  bool successful = eglSwapBuffers(display, eglGetCurrentSurface(EGL_DRAW));
+  if (!successful || eglGetError() != EGL_SUCCESS) throw OpenGLError("Failed to swap OpenGL buffers!");
+}
+
+OpenGLTexture OpenGLContext::createTexture(OpenGLTexture::Type type, int width, int height) {
   // 1. Make sure the OpenGL context is initialized
   this->ensureOpenGL();
 
@@ -127,7 +128,42 @@ GLuint OpenGLContext::createTexture() {
   GLuint textureId;
   glGenTextures(1, &textureId);
 
-  return textureId;
+  GLenum target;
+  switch (type) {
+    case OpenGLTexture::Type::ExternalOES:
+      target = GL_TEXTURE_EXTERNAL_OES;
+      break;
+    case OpenGLTexture::Type::Texture2D:
+      target = GL_TEXTURE_2D;
+      break;
+    default:
+      throw std::runtime_error("Invalid OpenGL Texture Type!");
+  }
+  glBindTexture(target, textureId);
+  glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  return {
+    .id = textureId,
+    .target = target,
+    .width = width,
+    .height = height
+  };
+}
+
+void OpenGLContext::getPixelsOfTexture(const OpenGLTexture& texture, size_t* outSize, uint8_t** outPixels) {
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(texture.target, texture.id);
+  glReadPixels(0, 0, texture.width, texture.height, GL_RGBA, GL_UNSIGNED_BYTE, *outPixels);
+  // height * width * components per pixel (4 for RGBA) * size of one number (byte)
+  *outSize = texture.height * texture.width * 4 * sizeof(uint8_t);
+}
+
+long OpenGLContext::getCurrentPresentationTime() {
+  auto now = std::chrono::steady_clock::now();
+  auto duration = now.time_since_epoch();
+  long long milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+  return static_cast<long>(milliseconds);
 }
 
 } // namespace vision

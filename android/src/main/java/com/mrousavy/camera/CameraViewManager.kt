@@ -7,7 +7,6 @@ import com.facebook.react.uimanager.ViewGroupManager
 import com.facebook.react.uimanager.annotations.ReactProp
 import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.PixelFormat
-import com.mrousavy.camera.parsers.PreviewType
 import com.mrousavy.camera.parsers.Torch
 import com.mrousavy.camera.parsers.VideoStabilizationMode
 
@@ -100,14 +99,6 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
     if (view.videoStabilizationMode != newMode)
       addChangedPropToTransaction(view, "videoStabilizationMode")
     view.videoStabilizationMode = newMode
-  }
-
-  @ReactProp(name = "previewType")
-  fun setPreviewType(view: CameraView, previewType: String) {
-    val newMode = PreviewType.fromUnionValue(previewType)
-    if (view.previewType != newMode)
-      addChangedPropToTransaction(view, "previewType")
-    view.previewType = newMode
   }
 
   @ReactProp(name = "enableHighQualityPhotos")

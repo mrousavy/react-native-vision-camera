@@ -7,11 +7,14 @@
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
 
+#include "OpenGLTexture.h"
+
 namespace vision {
 
 #define NO_SHADER 0
 #define NO_POSITION 0
 #define NO_BUFFER 0
+#define NO_SHADER_TARGET 0
 
 struct Vertex {
   GLfloat position[2];
@@ -26,15 +29,16 @@ class PassThroughShader {
   /**
    * Draw the texture using this shader.
    */
-  void draw(GLuint textureId, float* transformMatrix);
+  void draw(const OpenGLTexture& texture, float* transformMatrix);
 
  private:
   // Loading
   static GLuint loadShader(GLenum shaderType, const char* shaderCode);
-  static GLuint createProgram();
+  static GLuint createProgram(GLenum textureTarget);
 
  private:
-  // Parameters
+  // Shader program in memory
+  GLenum _shaderTarget = NO_SHADER_TARGET;
   GLuint _programId = NO_SHADER;
   GLuint _vertexBuffer = NO_BUFFER;
   struct VertexParameters {
@@ -67,7 +71,17 @@ class PassThroughShader {
     }
   )";
   static constexpr char FRAGMENT_SHADER[] = R"(
+    precision mediump float;
+    varying vec2 vTexCoord;
+    uniform sampler2D uTexture;
+
+    void main() {
+        gl_FragColor = texture2D(uTexture, vTexCoord);
+    }
+  )";
+  static constexpr char FRAGMENT_SHADER_EXTERNAL_TEXTURE[] = R"(
     #extension GL_OES_EGL_image_external : require
+
     precision mediump float;
     varying vec2 vTexCoord;
     uniform samplerExternalOES uTexture;

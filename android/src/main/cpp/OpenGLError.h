@@ -4,8 +4,6 @@
 
 #pragma once
 
-#if VISION_CAMERA_ENABLE_SKIA
-
 #include <string>
 #include <stdexcept>
 #include <GLES2/gl2.h>
@@ -23,8 +21,11 @@ inline std::string getEglErrorIfAny() {
 class OpenGLError: public std::runtime_error {
  public:
   explicit OpenGLError(const std::string&& message): std::runtime_error(message + getEglErrorIfAny()) {}
+
+  static inline void checkIfError(const std::string&& message) {
+    auto error = getEglErrorIfAny();
+    if (error.length() > 0) throw std::runtime_error(message + error);
+  }
 };
 
 } // namespace vision
-
-#endif

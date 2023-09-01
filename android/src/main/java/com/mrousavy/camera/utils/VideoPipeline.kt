@@ -2,15 +2,12 @@ package com.mrousavy.camera.utils
 
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
-import android.media.ImageReader
 import android.media.ImageWriter
 import android.media.MediaRecorder
 import android.util.Log
 import android.view.Surface
 import com.facebook.jni.HybridData
-import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
-import com.mrousavy.camera.parsers.Orientation
 import java.io.Closeable
 
 /**
@@ -26,23 +23,24 @@ class VideoPipeline(val width: Int,
                     val height: Int,
                     val format: Int = ImageFormat.PRIVATE): SurfaceTexture.OnFrameAvailableListener, Closeable {
   companion object {
-    private const val MAX_IMAGES = 5
+    private const val MAX_IMAGES = 3
     private const val TAG = "VideoPipeline"
   }
 
   private val mHybridData: HybridData
-  private var openGLTextureId: Int? = null
-  private var transformMatrix = FloatArray(16)
   private var isActive = true
 
-  // Output 1
-  private var frameProcessor: FrameProcessor? = null
-  private var imageReader: ImageReader? = null
+  // Input Texture
+  private var openGLTextureId: Int? = null
+  private var transformMatrix = FloatArray(16)
 
-  // Output 2
+  // Processing input texture
+  private var frameProcessor: FrameProcessor? = null
+
+  // Output 1
   private var recordingSession: RecordingSession? = null
 
-  // Output 3
+  // Output 2
   private var previewSurface: Surface? = null
 
   // Input
@@ -60,8 +58,6 @@ class VideoPipeline(val width: Int,
   override fun close() {
     synchronized(this) {
       isActive = false
-      imageReader?.close()
-      imageReader = null
       frameProcessor = null
       recordingSession = null
       surfaceTexture.release()
@@ -94,21 +90,6 @@ class VideoPipeline(val width: Int,
     }
   }
 
-  private fun getImageReader(): ImageReader {
-    val imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES)
-    imageReader.setOnImageAvailableListener({ reader ->
-      Log.i("VideoPipeline", "ImageReader::onImageAvailable!")
-      val image = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
-
-      // TODO: Get correct orientation and isMirrored
-      val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, false)
-      frame.incrementRefCount()
-      frameProcessor?.call(frame)
-      frame.decrementRefCount()
-    }, null)
-    return imageReader
-  }
-
   /**
    * Configures the Pipeline to also call the given [FrameProcessor].
    * * If the [frameProcessor] is `null`, this output channel will be removed.
@@ -121,20 +102,11 @@ class VideoPipeline(val width: Int,
       this.frameProcessor = frameProcessor
 
       if (frameProcessor != null) {
-        if (this.imageReader == null) {
-          // 1. Create new ImageReader that just calls the Frame Processor
-          this.imageReader = getImageReader()
-        }
-
-        // 2. Configure OpenGL pipeline to stream Frames into the ImageReader's surface
-        setFrameProcessorOutputSurface(imageReader!!.surface)
+        // Configure OpenGL pipeline to stream Frames into the Frame Processor (CPU pixel access)
+        setFrameProcessor(frameProcessor)
       } else {
-        // 1. Configure OpenGL pipeline to stop streaming Frames into the ImageReader's surface
-        removeFrameProcessorOutputSurface()
-
-        // 2. Close the ImageReader
-        this.imageReader?.close()
-        this.imageReader = null
+        // Configure OpenGL pipeline to stop streaming Frames into a Frame Processor
+        removeFrameProcessor()
       }
     }
   }
@@ -175,8 +147,8 @@ class VideoPipeline(val width: Int,
   private external fun getInputTextureId(): Int
   private external fun onBeforeFrame()
   private external fun onFrame(transformMatrix: FloatArray)
-  private external fun setFrameProcessorOutputSurface(surface: Any)
-  private external fun removeFrameProcessorOutputSurface()
+  private external fun setFrameProcessor(frameProcessor: FrameProcessor)
+  private external fun removeFrameProcessor()
   private external fun setRecordingSessionOutputSurface(surface: Any)
   private external fun removeRecordingSessionOutputSurface()
   private external fun setPreviewOutputSurface(surface: Any)

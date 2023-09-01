@@ -200,8 +200,8 @@ class CameraSession(private val context: Context,
   private fun updateVideoOutputs() {
     val videoPipeline = outputs?.videoOutput?.videoPipeline ?: return
     val previewOutput = outputs?.previewOutput
-    videoPipeline.setRecordingSessionOutput(this.recording)
-    videoPipeline.setFrameProcessorOutput(this.frameProcessor)
+    videoPipeline.setRecordingSessionOutput(recording)
+    videoPipeline.setFrameProcessorOutput(frameProcessor)
     videoPipeline.setPreviewOutput(previewOutput?.surface)
   }
 

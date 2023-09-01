@@ -31,7 +31,6 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("width")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("height")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("orientation")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isMirrored")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("timestamp")));
@@ -55,7 +54,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
                                                   const jsi::Value* args,
                                                   size_t count) -> jsi::Value {
       // Increment retain count by one.
-      this->frame->incrementRefCount();
+      this->frame->cthis()->incrementRefCount();
       return jsi::Value::undefined();
     };
     return jsi::Function::createFromHostFunction(runtime,
@@ -69,7 +68,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
                                  const jsi::Value* args,
                                  size_t count) -> jsi::Value {
       // Decrement retain count by one. If the retain count is zero, the Frame gets closed.
-      this->frame->decrementRefCount();
+      this->frame->cthis()->decrementRefCount();
       return jsi::Value::undefined();
     };
     return jsi::Function::createFromHostFunction(runtime,
@@ -85,8 +84,8 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       if (!this->frame) {
         return jsi::String::createFromUtf8(runtime, "[closed frame]");
       }
-      auto width = this->frame->getWidth();
-      auto height = this->frame->getHeight();
+      auto width = this->frame->cthis()->getWidth();
+      auto height = this->frame->cthis()->getHeight();
       auto str = std::to_string(width) + " x " + std::to_string(height) + " Frame";
       return jsi::String::createFromUtf8(runtime, str);
     };
@@ -97,11 +96,8 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
                                               const jsi::Value& thisArg,
                                               const jsi::Value* args,
                                               size_t count) -> jsi::Value {
-      auto buffer = this->frame->toByteBuffer();
-      if (!buffer->isDirect()) {
-        throw std::runtime_error("Failed to get byte content of Frame - array is not direct ByteBuffer!");
-      }
-      auto size = buffer->getDirectSize();
+      size_t size = frame->cthis()->pixelsSize;
+      uint8_t* pixels = frame->cthis()->pixels;
 
       static constexpr auto ARRAYBUFFER_CACHE_PROP_NAME = "__frameArrayBufferCache";
       if (!runtime.global().hasProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME)) {
@@ -119,7 +115,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 
       // directly write to C++ JSI ArrayBuffer
       auto destinationBuffer = arrayBuffer.data(runtime);
-      memcpy(destinationBuffer, buffer->getDirectAddress(), sizeof(uint8_t) * size);
+      memcpy(destinationBuffer, pixels, sizeof(uint8_t) * size);
 
       return arrayBuffer;
     };
@@ -127,33 +123,30 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
 
   if (name == "isValid") {
-    return jsi::Value(this->frame && this->frame->getIsValid());
+    return jsi::Value(this->frame && this->frame->cthis()->getIsValid());
   }
   if (name == "width") {
-    return jsi::Value(this->frame->getWidth());
+    return jsi::Value(this->frame->cthis()->getWidth());
   }
   if (name == "height") {
-    return jsi::Value(this->frame->getHeight());
+    return jsi::Value(this->frame->cthis()->getHeight());
   }
   if (name == "isMirrored") {
-    return jsi::Value(this->frame->getIsMirrored());
+    return jsi::Value(this->frame->cthis()->getIsMirrored());
   }
   if (name == "orientation") {
-    auto string = this->frame->getOrientation();
+    auto string = this->frame->cthis()->getOrientation();
     return jsi::String::createFromUtf8(runtime, string->toStdString());
   }
   if (name == "pixelFormat") {
-    auto string = this->frame->getPixelFormat();
+    auto string = this->frame->cthis()->getPixelFormat();
     return jsi::String::createFromUtf8(runtime, string->toStdString());
   }
   if (name == "timestamp") {
-    return jsi::Value(static_cast<double>(this->frame->getTimestamp()));
+    return jsi::Value(static_cast<double>(this->frame->cthis()->getTimestamp()));
   }
   if (name == "bytesPerRow") {
-    return jsi::Value(this->frame->getBytesPerRow());
-  }
-  if (name == "planesCount") {
-    return jsi::Value(this->frame->getPlanesCount());
+    return jsi::Value(this->frame->cthis()->getBytesPerRow());
   }
 
   // fallback to base implementation

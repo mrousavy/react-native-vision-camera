@@ -8,6 +8,8 @@
 #include <android/log.h>
 #include "OpenGLError.h"
 
+#include <GLES2/gl2ext.h>
+
 #include <core/SkColorSpace.h>
 #include <core/SkCanvas.h>
 #include <core/SkYUVAPixmaps.h>
@@ -22,308 +24,209 @@
 #include <android/surface_texture_jni.h>
 
 // from <gpu/ganesh/gl/GrGLDefines.h>
-#define GR_GL_TEXTURE_EXTERNAL 0x8D65
 #define GR_GL_RGBA8 0x8058
-#define ACTIVE_SURFACE_ID 0
+#define DEFAULT_FBO 0
 
 namespace vision {
 
-
-jni::local_ref<SkiaRenderer::jhybriddata> SkiaRenderer::initHybrid(jni::alias_ref<jhybridobject> javaPart) {
-  return makeCxxInstance(javaPart);
-}
-
-SkiaRenderer::SkiaRenderer(const jni::alias_ref<jhybridobject>& javaPart) {
-  _javaPart = jni::make_global(javaPart);
-
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing SkiaRenderer...");
-
-  _previewSurface = nullptr;
-  _previewWidth = 0;
-  _previewHeight = 0;
-  _inputSurfaceTextureId = NO_INPUT_TEXTURE;
-}
-
 SkiaRenderer::~SkiaRenderer() {
-  if (_glDisplay != EGL_NO_DISPLAY) {
-    eglMakeCurrent(_glDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-    if (_glSurface != EGL_NO_SURFACE) {
-      __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying OpenGL Surface...");
-      eglDestroySurface(_glDisplay, _glSurface);
-      _glSurface = EGL_NO_SURFACE;
-    }
-    if (_glContext != EGL_NO_CONTEXT) {
-      __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying OpenGL Context...");
-      eglDestroyContext(_glDisplay, _glContext);
-      _glContext = EGL_NO_CONTEXT;
-    }
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying OpenGL Display...");
-    eglTerminate(_glDisplay);
-    _glDisplay = EGL_NO_DISPLAY;
-  }
+  _offscreenSurface = nullptr;
+  _offscreenSurfaceTextureId = NO_TEXTURE;
+
+  // 3. Delete the Skia context
   if (_skiaContext != nullptr) {
     _skiaContext->abandonContext();
     _skiaContext = nullptr;
   }
-  destroyOutputSurface();
 }
 
-void SkiaRenderer::ensureOpenGL(ANativeWindow* surface) {
-  bool successful;
-  // EGLDisplay
-  if (_glDisplay == EGL_NO_DISPLAY) {
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing EGLDisplay..");
-    _glDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-    if (_glDisplay == EGL_NO_DISPLAY) throw OpenGLError("Failed to get default OpenGL Display!");
-
-    EGLint major;
-    EGLint minor;
-    successful = eglInitialize(_glDisplay, &major, &minor);
-    if (!successful) throw OpenGLError("Failed to initialize OpenGL!");
-  }
-
-  // EGLConfig
-  if (_glConfig == nullptr) {
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing EGLConfig..");
-    EGLint attributes[] = {EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
-                           EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
-                           EGL_ALPHA_SIZE, 8,
-                           EGL_BLUE_SIZE, 8,
-                           EGL_GREEN_SIZE, 8,
-                           EGL_RED_SIZE, 8,
-                           EGL_DEPTH_SIZE, 0,
-                           EGL_STENCIL_SIZE, 0,
-                           EGL_NONE};
-    EGLint numConfigs;
-    successful = eglChooseConfig(_glDisplay, attributes, &_glConfig, 1, &numConfigs);
-    if (!successful || numConfigs == 0) throw OpenGLError("Failed to choose OpenGL config!");
-  }
-
-  // EGLContext
-  if (_glContext == EGL_NO_CONTEXT) {
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing EGLContext..");
-    EGLint contextAttributes[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
-    _glContext = eglCreateContext(_glDisplay, _glConfig, nullptr, contextAttributes);
-    if (_glContext == EGL_NO_CONTEXT) throw OpenGLError("Failed to create OpenGL context!");
-  }
-
-  // EGLSurface
-  if (_glSurface == EGL_NO_SURFACE) {
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Initializing EGLSurface..");
-    _glSurface = eglCreateWindowSurface(_glDisplay, _glConfig, surface, nullptr);
+sk_sp<GrDirectContext> SkiaRenderer::getSkiaContext() {
+  if (_skiaContext == nullptr) {
     _skiaContext = GrDirectContext::MakeGL();
   }
-
-  successful = eglMakeCurrent(_glDisplay, _glSurface, _glSurface, _glContext);
-  if (!successful || eglGetError() != EGL_SUCCESS) throw OpenGLError("Failed to use current OpenGL context!");
+  return _skiaContext;
 }
 
-void SkiaRenderer::setOutputSurface(jobject previewSurface) {
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Setting Output Surface..");
-  destroyOutputSurface();
-
-  _previewSurface = ANativeWindow_fromSurface(jni::Environment::current(), previewSurface);
-  _glSurface = EGL_NO_SURFACE;
+sk_sp<SkImage> SkiaRenderer::wrapTextureAsImage(OpenGLTexture &texture) {
+  GrGLTextureInfo textureInfo {
+      // OpenGL will automatically convert YUV -> RGB - if it's an EXTERNAL texture
+      .fTarget = texture.target,
+      .fID = texture.id,
+      .fFormat = GR_GL_RGBA8,
+  };
+  GrBackendTexture skiaTexture(texture.width,
+                               texture.height,
+                               GrMipMapped::kNo,
+                               textureInfo);
+  sk_sp<SkImage> image = SkImages::BorrowTextureFrom(_skiaContext.get(),
+                                                     skiaTexture,
+                                                     kBottomLeft_GrSurfaceOrigin,
+                                                     kN32_SkColorType,
+                                                     kOpaque_SkAlphaType,
+                                                     nullptr,
+                                                     nullptr);
+  if (image == nullptr) {
+    [[unlikely]];
+    throw std::runtime_error("Failed to create Skia Image! Cannot wrap input texture (frame) using Skia.");
+  }
+  return image;
 }
 
-void SkiaRenderer::destroyOutputSurface() {
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Destroying Output Surface..");
-  if (_glSurface != EGL_NO_SURFACE) {
-    eglDestroySurface(_glDisplay, _glSurface);
-    _glSurface = EGL_NO_SURFACE;
-    if (_skiaContext != nullptr) {
-      _skiaContext->abandonContext();
-      _skiaContext = nullptr;
+sk_sp<SkSurface> SkiaRenderer::wrapEglSurfaceAsSurface(EGLSurface eglSurface) {
+  GLint sampleCnt;
+  glGetIntegerv(GL_SAMPLES, &sampleCnt);
+  GLint stencilBits;
+  glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
+  GrGLFramebufferInfo fboInfo {
+    // DEFAULT_FBO is FBO0, meaning the default on-screen FBO for that given surface
+    .fFBOID = DEFAULT_FBO,
+    .fFormat = GR_GL_RGBA8
+  };
+  EGLint width = 0, height = 0;
+  eglQuerySurface(eglGetCurrentDisplay(), eglSurface, EGL_WIDTH, &width);
+  eglQuerySurface(eglGetCurrentDisplay(), eglSurface, EGL_HEIGHT, &height);
+  GrBackendRenderTarget renderTarget(width,
+                                     height,
+                                     sampleCnt,
+                                     stencilBits,
+                                     fboInfo);
+  SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
+  sk_sp<SkSurface> surface = SkSurfaces::WrapBackendRenderTarget(_skiaContext.get(),
+                                                                 renderTarget,
+                                                                 kBottomLeft_GrSurfaceOrigin,
+                                                                 kN32_SkColorType,
+                                                                 nullptr,
+                                                                 &props,
+                                                                 nullptr,
+                                                                 nullptr);
+  if (surface == nullptr) {
+    [[unlikely]];
+    throw std::runtime_error("Failed to create Skia Surface! Cannot wrap EGLSurface/FrameBuffer using Skia.");
+  }
+  return surface;
+}
+
+sk_sp<SkSurface> SkiaRenderer::getOffscreenSurface(int width, int height) {
+  if (_offscreenSurface == nullptr || _offscreenSurface->width() != width || _offscreenSurface->height() != height) {
+    // 1. Get Skia Context
+    sk_sp<GrDirectContext> skiaContext = getSkiaContext();
+
+    // 2. Create a backend texture (TEXTURE_2D + Frame Buffer)
+    GrBackendTexture backendTexture = skiaContext->createBackendTexture(width,
+                                                                        height,
+                                                                        SkColorType::kN32_SkColorType,
+                                                                        GrMipMapped::kNo,
+                                                                        GrRenderable::kYes);
+
+    // 3. Get it's Texture ID
+    GrGLTextureInfo info;
+    backendTexture.getGLTextureInfo(&info);
+    _offscreenSurfaceTextureId = info.fID;
+
+    struct ReleaseContext {
+      GrDirectContext* context;
+      GrBackendTexture texture;
+    };
+    auto releaseCtx = new ReleaseContext(
+        {skiaContext.get(), backendTexture});
+    SkSurfaces::TextureReleaseProc releaseProc = [] (void* address) {
+      // 5. Once done using, delete the backend OpenGL texture.
+      auto releaseCtx = reinterpret_cast<ReleaseContext*>(address);
+      releaseCtx->context->deleteBackendTexture(releaseCtx->texture);
+    };
+
+    // 4. Wrap the newly created texture as an SkSurface
+    SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
+    _offscreenSurface = SkSurfaces::WrapBackendTexture(skiaContext.get(),
+                                                       backendTexture,
+                                                       kBottomLeft_GrSurfaceOrigin,
+                                                       0,
+                                                       SkColorType::kN32_SkColorType,
+                                                       nullptr,
+                                                       &props,
+                                                       releaseProc,
+                                                       releaseCtx);
+    if (_offscreenSurface == nullptr) {
+      [[unlikely]];
+      throw std::runtime_error("Failed to create offscreen Skia Surface!");
     }
   }
-  if (_previewSurface != nullptr) {
-    ANativeWindow_release(_previewSurface);
-    _previewSurface = nullptr;
-  }
+
+  return _offscreenSurface;
 }
 
-void SkiaRenderer::setOutputSurfaceSize(int width, int height) {
-  _previewWidth = width;
-  _previewHeight = height;
-}
+OpenGLTexture SkiaRenderer::renderTextureToOffscreenSurface(OpenGLContext& glContext,
+                                                            OpenGLTexture& texture,
+                                                            float* transformMatrix,
+                                                            const DrawCallback& drawCallback) {
+  // 1. Activate the OpenGL context (eglMakeCurrent)
+  glContext.use();
 
-void SkiaRenderer::setInputTextureSize(int width, int height) {
-  _inputWidth = width;
-  _inputHeight = height;
-}
+  // 2. Initialize Skia
+  sk_sp<GrDirectContext> skiaContext = getSkiaContext();
 
-void SkiaRenderer::renderLatestFrameToPreview() {
-  __android_log_print(ANDROID_LOG_INFO, TAG, "renderLatestFrameToPreview()");
-  if (_previewSurface == nullptr) {
-    throw std::runtime_error("Cannot render latest frame to preview without a preview surface! "
-                             "renderLatestFrameToPreview() needs to be called after setPreviewSurface().");
+  // 3. Create the offscreen Skia Surface
+  sk_sp<SkSurface> surface = getOffscreenSurface(texture.width, texture.height);
+
+  // 4. Wrap the input texture as an image so we can draw it to the surface
+  sk_sp<SkImage> frame = wrapTextureAsImage(texture);
+
+  // 5. Prepare the Canvas
+  SkCanvas* canvas = _offscreenSurface->getCanvas();
+  if (canvas == nullptr) {
+    [[unlikely]];
+    throw std::runtime_error("Failed to get Skia Canvas!");
   }
-  return;
-  if (_inputSurfaceTextureId == NO_INPUT_TEXTURE) {
-    throw std::runtime_error("Cannot render latest frame to preview without an input texture! "
-                             "renderLatestFrameToPreview() needs to be called after prepareInputTexture().");
-  }
-  ensureOpenGL(_previewSurface);
 
-  if (_skiaContext == nullptr) {
-    _skiaContext = GrDirectContext::MakeGL();
-  }
-  _skiaContext->resetContext();
+  // TODO: Apply Matrix. No idea how though.
+  SkM44 matrix = SkM44::ColMajor(transformMatrix);
 
-  GrGLTextureInfo textureInfo {
-    // OpenGL will automatically convert YUV -> RGB because it's an EXTERNAL texture
-    .fTarget = GR_GL_TEXTURE_EXTERNAL,
-    .fID = _inputSurfaceTextureId,
-    .fFormat = GR_GL_RGBA8,
-    .fProtected = skgpu::Protected::kNo,
-  };
-  GrBackendTexture texture(_inputWidth,
-                           _inputHeight,
-                           GrMipMapped::kNo,
-                           textureInfo);
-  sk_sp<SkImage> frame = SkImages::AdoptTextureFrom(_skiaContext.get(),
-                                                    texture,
-                                                    kTopLeft_GrSurfaceOrigin,
-                                                    kN32_SkColorType,
-                                                    kOpaque_SkAlphaType);
-
-  GrGLFramebufferInfo fboInfo {
-    // FBO #0 is the currently active OpenGL Surface (eglMakeCurrent)
-    .fFBOID = ACTIVE_SURFACE_ID,
-    .fFormat = GR_GL_RGBA8,
-    .fProtected = skgpu::Protected::kNo,
-  };;
-  GrBackendRenderTarget renderTarget(_previewWidth,
-                                     _previewHeight,
-                                     0,
-                                     8,
-                                     fboInfo);
-  SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-  sk_sp<SkSurface> surface = SkSurfaces::WrapBackendRenderTarget(_skiaContext.get(),
-                                                                 renderTarget,
-                                                                 kTopLeft_GrSurfaceOrigin,
-                                                                 kN32_SkColorType,
-                                                                 nullptr,
-                                                                 &props);
-
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering %ix%i Frame to %ix%i Preview..", frame->width(), frame->height(), surface->width(), surface->height());
-
-  auto canvas = surface->getCanvas();
-
+  // 6. Render it!
   canvas->clear(SkColors::kBlack);
-
-  auto duration = std::chrono::system_clock::now().time_since_epoch();
-  auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
-
   canvas->drawImage(frame, 0, 0);
 
-  // TODO: Run Skia Frame Processor
-  auto rect = SkRect::MakeXYWH(150, 250, millis % 3000 / 10, millis % 3000 / 10);
-  auto paint = SkPaint();
-  paint.setColor(SkColors::kRed);
-  canvas->drawRect(rect, paint);
+  drawCallback(canvas);
 
-  // Flush
-  canvas->flush();
+  // 8. Flush all Skia operations to OpenGL
+  _offscreenSurface->flushAndSubmit();
 
-  bool successful = eglSwapBuffers(_glDisplay, _glSurface);
-  if (!successful || eglGetError() != EGL_SUCCESS) throw OpenGLError("Failed to swap OpenGL buffers!");
+  return OpenGLTexture {
+      .id = _offscreenSurfaceTextureId,
+      .target = GL_TEXTURE_2D,
+      .width = texture.width,
+      .height = texture.height,
+  };
 }
 
+void SkiaRenderer::renderTextureToSurface(OpenGLContext &glContext, OpenGLTexture &texture, EGLSurface surface) {
+  // 1. Activate the OpenGL context (eglMakeCurrent)
+  glContext.use(surface);
 
-void SkiaRenderer::renderCameraFrameToOffscreenCanvas(jni::JByteBuffer yBuffer,
-                                                      jni::JByteBuffer uBuffer,
-                                                      jni::JByteBuffer vBuffer) {
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Begin render...");
-  ensureOpenGL(_previewSurface);
-  if (_skiaContext == nullptr) {
-    _skiaContext = GrDirectContext::MakeGL();
+  // 2. Initialize Skia
+  sk_sp<GrDirectContext> skiaContext = getSkiaContext();
+
+  // 3. Wrap the output EGLSurface in a Skia SkSurface
+  sk_sp<SkSurface> skSurface = wrapEglSurfaceAsSurface(surface);
+
+  // 4. Wrap the input texture in a Skia SkImage
+  sk_sp<SkImage> frame = wrapTextureAsImage(texture);
+
+  // 5. Prepare the Canvas!
+  SkCanvas* canvas = skSurface->getCanvas();
+  if (canvas == nullptr) {
+    [[unlikely]];
+    throw std::runtime_error("Failed to get Skia Canvas!");
   }
-  _skiaContext->resetContext();
 
-  // See https://en.wikipedia.org/wiki/Chroma_subsampling - we're in 4:2:0
-  size_t bytesPerRow = sizeof(uint8_t) * _inputWidth;
-
-  SkImageInfo yInfo = SkImageInfo::MakeA8(_inputWidth, _inputHeight);
-  SkPixmap yPixmap(yInfo, yBuffer.getDirectAddress(), bytesPerRow);
-
-  SkImageInfo uInfo = SkImageInfo::MakeA8(_inputWidth / 2, _inputHeight / 2);
-  SkPixmap uPixmap(uInfo, uBuffer.getDirectAddress(), bytesPerRow / 2);
-
-  SkImageInfo vInfo = SkImageInfo::MakeA8(_inputWidth / 2, _inputHeight / 2);
-  SkPixmap vPixmap(vInfo, vBuffer.getDirectAddress(), bytesPerRow / 2);
-
-  SkYUVAInfo info(SkISize::Make(_inputWidth, _inputHeight),
-                  SkYUVAInfo::PlaneConfig::kY_U_V,
-                  SkYUVAInfo::Subsampling::k420,
-                  SkYUVColorSpace::kRec709_Limited_SkYUVColorSpace);
-  SkPixmap externalPixmaps[3] = { yPixmap, uPixmap, vPixmap };
-  SkYUVAPixmaps pixmaps = SkYUVAPixmaps::FromExternalPixmaps(info, externalPixmaps);
-
-  sk_sp<SkImage> image = SkImages::TextureFromYUVAPixmaps(_skiaContext.get(), pixmaps);
-
-
-
-
-
-
-
-
-  GrGLFramebufferInfo fboInfo {
-      // FBO #0 is the currently active OpenGL Surface (eglMakeCurrent)
-      .fFBOID = ACTIVE_SURFACE_ID,
-      .fFormat = GR_GL_RGBA8,
-      .fProtected = skgpu::Protected::kNo,
-  };;
-  GrBackendRenderTarget renderTarget(_previewWidth,
-                                     _previewHeight,
-                                     0,
-                                     8,
-                                     fboInfo);
-  SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-  sk_sp<SkSurface> surface = SkSurfaces::WrapBackendRenderTarget(_skiaContext.get(),
-                                                                 renderTarget,
-                                                                 kTopLeft_GrSurfaceOrigin,
-                                                                 kN32_SkColorType,
-                                                                 nullptr,
-                                                                 &props);
-
-  auto canvas = surface->getCanvas();
-
+  // 6. Render it!
   canvas->clear(SkColors::kBlack);
+  canvas->drawImage(frame, 0, 0);
 
-  auto duration = std::chrono::system_clock::now().time_since_epoch();
-  auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+  // 7. Flush all Skia operations to OpenGL
+  skSurface->flushAndSubmit();
 
-  canvas->drawImage(image, 0, 0);
-
-  // TODO: Run Skia Frame Processor
-  auto rect = SkRect::MakeXYWH(150, 250, millis % 3000 / 10, millis % 3000 / 10);
-  auto paint = SkPaint();
-  paint.setColor(SkColors::kRed);
-  canvas->drawRect(rect, paint);
-
-  // Flush
-  canvas->flush();
-
-  bool successful = eglSwapBuffers(_glDisplay, _glSurface);
-  if (!successful || eglGetError() != EGL_SUCCESS) throw OpenGLError("Failed to swap OpenGL buffers!");
-
-
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Rendered!");
-}
-
-
-void SkiaRenderer::registerNatives() {
-  registerHybrid({
-     makeNativeMethod("initHybrid", SkiaRenderer::initHybrid),
-     makeNativeMethod("setInputTextureSize", SkiaRenderer::setInputTextureSize),
-     makeNativeMethod("setOutputSurface", SkiaRenderer::setOutputSurface),
-     makeNativeMethod("destroyOutputSurface", SkiaRenderer::destroyOutputSurface),
-     makeNativeMethod("setOutputSurfaceSize", SkiaRenderer::setOutputSurfaceSize),
-     makeNativeMethod("renderLatestFrameToPreview", SkiaRenderer::renderLatestFrameToPreview),
-     makeNativeMethod("renderCameraFrameToOffscreenCanvas", SkiaRenderer::renderCameraFrameToOffscreenCanvas),
-  });
+  // 8. Swap the buffers so the onscreen surface gets updated.
+  glContext.flush();
 }
 
 } // namespace vision

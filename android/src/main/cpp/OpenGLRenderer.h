@@ -29,15 +29,20 @@ class OpenGLRenderer {
   ~OpenGLRenderer();
 
   /**
-   * Renders the given Texture ID to the Surface
+   * Renders the given Texture to the Surface
    */
-  void renderTextureToSurface(GLuint textureId, float* transformMatrix);
+  void renderTextureToSurface(const OpenGLTexture& texture, float* transformMatrix);
 
   /**
    * Destroys the OpenGL context. This needs to be called on the same thread that `use()` was called.
    * After calling `destroy()`, it is legal to call `use()` again, which will re-construct everything.
    */
   void destroy();
+
+  /**
+   * Gets the EGLSurface (window surface) that this OpenGL renderer is configured to render to.
+   */
+  EGLSurface getEGLSurface();
 
  private:
   explicit OpenGLRenderer(std::shared_ptr<OpenGLContext> context, ANativeWindow* surface);

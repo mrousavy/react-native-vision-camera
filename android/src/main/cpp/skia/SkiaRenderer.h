@@ -6,72 +6,63 @@
 
 #if VISION_CAMERA_ENABLE_SKIA
 
-#include <jni.h>
-#include <fbjni/fbjni.h>
-#include <fbjni/ByteBuffer.h>
-
 #include <GLES2/gl2.h>
 #include <EGL/egl.h>
-#include <include/core/SkSurface.h>
 #include <android/native_window.h>
+
+#include <include/core/SkSurface.h>
+#include <include/gpu/GrDirectContext.h>
+
+#include "OpenGLContext.h"
+#include "OpenGLTexture.h"
 
 namespace vision {
 
-using namespace facebook;
+#define NO_TEXTURE 0
 
-#define NO_INPUT_TEXTURE 7654321
+using DrawCallback = std::function<void(SkCanvas*)>;
 
-class SkiaRenderer: public jni::HybridClass<SkiaRenderer> {
-  // JNI Stuff
+class SkiaRenderer {
  public:
-  static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/skia/SkiaRenderer;";
-  static void registerNatives();
-
- private:
-  friend HybridBase;
-  jni::global_ref<SkiaRenderer::javaobject> _javaPart;
-  explicit SkiaRenderer(const jni::alias_ref<jhybridobject>& javaPart);
-
- public:
-  static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> javaPart);
+  /**
+   * Create a new Skia renderer. You need to use OpenGL outside of this context to make sure the
+   * Skia renderer can use the global OpenGL context.
+   */
+  explicit SkiaRenderer() {};
   ~SkiaRenderer();
 
- private:
-  // Input Texture (Camera)
-  void setInputTextureSize(int width, int height);
-  // Output Surface (Preview)
-  void setOutputSurface(jobject previewSurface);
-  void destroyOutputSurface();
-  void setOutputSurfaceSize(int width, int height);
+  /**
+   * Renders the given Texture (might be a Camera Frame) to a cached offscreen Texture using Skia.
+   *
+   * @returns The texture that was rendered to.
+   */
+  OpenGLTexture renderTextureToOffscreenSurface(OpenGLContext& glContext,
+                                                OpenGLTexture& texture,
+                                                float* transformMatrix,
+                                                const DrawCallback& drawCallback);
 
   /**
-   * Renders the latest Camera Frame from the Input Texture onto the Preview Surface. (60 FPS)
+   * Renders the given texture to the target output surface using Skia.
    */
-  void renderLatestFrameToPreview();
-  /**
-   * Renders the latest Camera Frame into it's Input Texture and run the Skia Frame Processor (1..240 FPS)
-   */
-  void renderCameraFrameToOffscreenCanvas(jni::JByteBuffer yBuffer,
-                                          jni::JByteBuffer uBuffer,
-                                          jni::JByteBuffer vBuffer);
+  void renderTextureToSurface(OpenGLContext& glContext,
+                              OpenGLTexture& texture,
+                              EGLSurface surface);
 
  private:
-  // OpenGL Context
-  EGLContext _glContext = EGL_NO_CONTEXT;
-  EGLDisplay _glDisplay = EGL_NO_DISPLAY;
-  EGLSurface _glSurface = EGL_NO_SURFACE;
-  EGLConfig  _glConfig  = nullptr;
+  // Gets or creates the Skia context.
+  sk_sp<GrDirectContext> getSkiaContext();
+  // Wraps a Texture as an SkImage allowing you to draw it
+  sk_sp<SkImage> wrapTextureAsImage(OpenGLTexture& texture);
+  // Wraps an EGLSurface as an SkSurface allowing you to draw into it
+  sk_sp<SkSurface> wrapEglSurfaceAsSurface(EGLSurface eglSurface);
+  // Gets or creates an off-screen surface that you can draw into
+  sk_sp<SkSurface> getOffscreenSurface(int width, int height);
+
+ private:
   // Skia Context
-  sk_sp<GrDirectContext> _skiaContext;
-
-  // Input Texture (Camera/Offscreen)
-  GLuint _inputSurfaceTextureId = NO_INPUT_TEXTURE;
-  int _inputWidth, _inputHeight;
-  // Output Texture (Surface/Preview)
-  ANativeWindow* _previewSurface;
-  int _previewWidth, _previewHeight;
-
-  void ensureOpenGL(ANativeWindow* surface);
+  sk_sp<GrDirectContext> _skiaContext = nullptr;
+  sk_sp<SkSurface> _offscreenSurface = nullptr;
+  GLuint _offscreenSurfaceTextureId = NO_TEXTURE;
 
   static auto constexpr TAG = "SkiaRenderer";
 };

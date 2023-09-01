@@ -8,15 +8,9 @@ import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
 
 /**
- * Represents a JS Frame Processor
+ * Represents a JS Frame Processor. It's actual implementation is in NDK/C++.
  */
-@SuppressWarnings("JavaJniMissingFunction") // we're using fbjni.
-public final class FrameProcessor {
-    /**
-     * Call the JS Frame Processor function with the given Frame
-     */
-    public native void call(Frame frame);
-
+public class FrameProcessor {
     @DoNotStrip
     @Keep
     private final HybridData mHybridData;

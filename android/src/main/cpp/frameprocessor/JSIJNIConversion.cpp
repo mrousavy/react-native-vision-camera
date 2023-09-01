@@ -111,10 +111,10 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
 
     return jsi::String::createFromUtf8(runtime, object->toString());
 
-  } else if (object->isInstanceOf(JList<jobject>::javaClassStatic())) {
+  } else if (object->isInstanceOf(jni::JList<jobject>::javaClassStatic())) {
     // List<E>
 
-    auto arrayList = static_ref_cast<JList<jobject>>(object);
+    auto arrayList = jni::static_ref_cast<jni::JList<jobject>>(object);
     auto size = arrayList->size();
 
     auto result = jsi::Array(runtime, size);
@@ -125,10 +125,10 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
     }
     return result;
 
-  } else if (object->isInstanceOf(JMap<jstring, jobject>::javaClassStatic())) {
+  } else if (object->isInstanceOf(jni::JMap<jstring, jobject>::javaClassStatic())) {
     // Map<K, V>
 
-    auto map = static_ref_cast<JMap<jstring, jobject>>(object);
+    auto map = jni::static_ref_cast<jni::JMap<jstring, jobject>>(object);
 
     auto result = jsi::Object(runtime);
     for (const auto& entry : *map) {
@@ -140,7 +140,7 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime &runtime, c
     return result;
   } else if (object->isInstanceOf(JFrame::javaClassStatic())) {
     // Frame
-    auto frame = static_ref_cast<JFrame>(object);
+    auto frame = jni::static_ref_cast<JFrame::javaobject>(object);
 
     // box into HostObject
     auto hostObject = std::make_shared<FrameHostObject>(frame);
