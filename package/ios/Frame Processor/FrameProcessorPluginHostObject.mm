@@ -39,7 +39,7 @@ jsi::Value FrameProcessorPluginHostObject::get(jsi::Runtime& runtime, const jsi:
           }
 
           // Call actual Frame Processor Plugin
-          id result = [_plugin callback:frame withArguments:nil];
+          id result = [_plugin callback:frame withArguments:options];
 
           // Convert result value to jsi::Value (possibly undefined)
           return JSINSObjectConversion::convertObjCObjectToJSIValue(runtime, result);
