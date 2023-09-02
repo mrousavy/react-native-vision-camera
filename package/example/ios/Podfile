@@ -46,5 +46,48 @@ target 'VisionCameraExample' do
       :mac_catalyst_enabled => false
     )
     __apply_Xcode_12_5_M1_post_install_workaround(installer)
+    # Define Swift flag if frame processor are enabled
+    enable_frame_processor_swift_flag_in_example_project(installer)
   end
+end
+
+# In order to compile the project with disabled frame processors mode
+# the code base of example swift frame processor plugin needs to be put
+# behind the swift flag
+# 
+# Let's set the flag based on the same logic like in library's podspec file
+def enable_frame_processor_swift_flag_in_example_project(installer)
+  forceDisableFrameProcessors = false
+  if defined?($VCDisableFrameProcessors)
+    forceDisableFrameProcessors = true
+  end
+  has_worklets = installer.pods_project.pod_group("react-native-worklets-core") != nil && !forceDisableFrameProcessors
+  installer.aggregate_targets
+    .map{ |t| t.user_project }
+    .uniq{ |p| p.path }
+    .push(installer.pods_project)
+    .each do |project|
+      project.build_configurations.each do |config|
+        key = "OTHER_SWIFT_FLAGS"
+        flag = "-DVISION_CAMERA_ENABLE_FRAME_PROCESSORS"
+
+        current_other_swift_flag_setting = config.build_settings[key] ? config.build_settings[key] : "$(inherited)"
+
+        if current_other_swift_flag_setting.kind_of?(Array)
+          current_other_swift_flag_setting = current_other_swift_flag_setting
+            .map { |s| s.gsub('"', '') }
+            .map { |s| s.gsub('\"', '') }
+            .join(" ")
+        end
+
+        if has_worklets && !current_other_swift_flag_setting.include?(flag)
+          current_other_swift_flag_setting = "#{current_other_swift_flag_setting} #{flag}"
+        elsif !has_worklets && current_other_swift_flag_setting.include?(flag)
+          current_other_swift_flag_setting.slice! flag
+        end
+
+        config.build_settings[key] = current_other_swift_flag_setting
+      end
+      project.save()
+    end
 end
