@@ -18,7 +18,6 @@ import com.mrousavy.camera.utils.*
 import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
-import java.io.OutputStream
 
 private const val TAG = "CameraView.takePhoto"
 
@@ -64,7 +63,7 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
   }
 }
 
-private fun writePhotoToFile(photo: CameraSession.CapturedPhoto, file: File) {
+private fun writePhotoToFile(photo: CameraSession.CapturedPhoto, file: File): Int {
   val byteBuffer = photo.image.planes[0].buffer
   if (photo.isMirrored) {
     val imageBytes = ByteArray(byteBuffer.remaining()).apply { byteBuffer.get(this) }
@@ -74,12 +73,19 @@ private fun writePhotoToFile(photo: CameraSession.CapturedPhoto, file: File) {
     val processedBitmap =
       Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, false)
     FileOutputStream(file).use { stream ->
-      processedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+      val didSucceed = processedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+      stream.close()
+      return if (didSucceed) imageBytes.size else 0
     }
   } else {
     val channel = FileOutputStream(file).channel
-    channel.write(byteBuffer)
+    val isReadyForWriting = byteBuffer.position() == 0
+    if (!isReadyForWriting) {
+      byteBuffer.flip()
+    }
+    val numOfBytesWritten = channel.write(byteBuffer)
     channel.close()
+    return numOfBytesWritten
   }
 }
 
