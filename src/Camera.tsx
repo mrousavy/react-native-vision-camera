@@ -80,7 +80,6 @@ export class Camera extends React.PureComponent<CameraProps> {
   displayName = Camera.displayName;
   private lastFrameProcessor: ((frame: Frame) => void) | undefined;
   private isNativeViewMounted = false;
-  private workletRuntime: WorkletRuntime | null = null;
 
   private readonly ref: React.RefObject<RefType>;
 
