@@ -59,7 +59,7 @@ jobs:
       - name: Parse Gradle Lint Report
         uses: yutailang0119/action-android-lint@v3
         with:
-          report-path: build/reports/*.xml
+          report-path: package/android/build/reports/*.xml
   # ktlint:
   #   name: Kotlin Lint
   #   runs-on: ubuntu-latest
