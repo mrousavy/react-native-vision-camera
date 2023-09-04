@@ -119,7 +119,7 @@ class CameraSession(private val context: Context,
     isRunning = false
   }
 
-  val orientation: Orientation
+  val sensorOrientation: Orientation
     get() {
       val cameraId = cameraId ?: return Orientation.PORTRAIT
       val characteristics = cameraManager.getCameraCharacteristics(cameraId)
@@ -213,6 +213,7 @@ class CameraSession(private val context: Context,
                         enableShutterSound: Boolean,
                         enableRedEyeReduction: Boolean,
                         enableAutoStabilization: Boolean,
+                        imageDataNeedsToBeRotatedByDegrees: Int,
                         outputOrientation: Orientation): CapturedPhoto {
     val captureSession = captureSession ?: throw CameraNotReadyError()
     val outputs = outputs ?: throw CameraNotReadyError()
@@ -222,7 +223,6 @@ class CameraSession(private val context: Context,
     Log.i(TAG, "Photo capture 0/3 - preparing capture request (${photoOutput.size.width}x${photoOutput.size.height})...")
 
     val cameraCharacteristics = cameraManager.getCameraCharacteristics(captureSession.device.id)
-    val orientation = outputOrientation.toSensorRelativeOrientation(cameraCharacteristics)
     val captureRequest = captureSession.device.createPhotoCaptureRequest(cameraManager,
                                                                          photoOutput.surface,
                                                                          zoom,
@@ -230,7 +230,7 @@ class CameraSession(private val context: Context,
                                                                          flashMode,
                                                                          enableRedEyeReduction,
                                                                          enableAutoStabilization,
-                                                                         orientation)
+                                                                         imageDataNeedsToBeRotatedByDegrees)
     Log.i(TAG, "Photo capture 1/3 - starting capture...")
     val result = captureSession.capture(captureRequest, enableShutterSound)
     val timestamp = result[CaptureResult.SENSOR_TIMESTAMP]!!
@@ -241,6 +241,8 @@ class CameraSession(private val context: Context,
       val isMirrored = cameraCharacteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
 
       Log.i(TAG, "Photo capture 3/3 complete - received ${image.width} x ${image.height} image.")
+      val orientation = outputOrientation.toSensorRelativeOrientation(cameraCharacteristics)
+
       return CapturedPhoto(image, result, orientation, isMirrored, image.format)
     } catch (e: CancellationException) {
       throw CaptureAbortedError(false)
@@ -262,7 +264,7 @@ class CameraSession(private val context: Context,
       val outputs = outputs ?: throw CameraNotReadyError()
       val videoOutput = outputs.videoOutput ?: throw VideoNotEnabledError()
 
-      val recording = RecordingSession(context, videoOutput.size, enableAudio, fps, codec, orientation, fileType, callback, onError)
+      val recording = RecordingSession(context, videoOutput.size, enableAudio, fps, codec, sensorOrientation, fileType, callback, onError)
       recording.start()
       this.recording = recording
     }

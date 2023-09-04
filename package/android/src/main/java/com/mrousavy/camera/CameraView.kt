@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.core.CameraSession
 import com.mrousavy.camera.core.PreviewView
+import com.mrousavy.camera.core.outputs.CameraOutputs
 import com.mrousavy.camera.extensions.containsAny
 import com.mrousavy.camera.extensions.installHierarchyFitter
 import com.mrousavy.camera.frameprocessor.FrameProcessor
@@ -22,7 +23,7 @@ import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.PixelFormat
 import com.mrousavy.camera.parsers.Torch
 import com.mrousavy.camera.parsers.VideoStabilizationMode
-import com.mrousavy.camera.core.outputs.CameraOutputs
+import com.mrousavy.camera.utils.DeviceRotationLiveData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -79,6 +80,7 @@ class CameraView(context: Context) : FrameLayout(context) {
   internal val cameraSession: CameraSession
   private var previewView: View? = null
   private var previewSurface: Surface? = null
+  private lateinit var deviceRotation: DeviceRotationLiveData
 
   internal var frameProcessor: FrameProcessor? = null
     set(value) {
@@ -87,9 +89,21 @@ class CameraView(context: Context) : FrameLayout(context) {
     }
 
   private val inputOrientation: Orientation
-    get() = cameraSession.orientation
+    get() = cameraSession.sensorOrientation
   internal val outputOrientation: Orientation
     get() = orientation ?: inputOrientation
+
+  internal val imageDataNeedsToBeRotatedByDegrees: Int
+    get() {
+      val cameraId = cameraId ?: return 0
+
+      val cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId)
+      return deviceRotation.computeCompensatingRotation(cameraCharacteristics)
+    }
+
+  private val onDeviceOrientationUpdated: (Int) -> Unit = {
+    // DeviceRotationLiveData itself listens to the device rotation and only updates when it changes.
+  }
 
   init {
     this.installHierarchyFitter()
@@ -101,6 +115,12 @@ class CameraView(context: Context) : FrameLayout(context) {
     super.onAttachedToWindow()
     if (!isMounted) {
       isMounted = true
+      if (!::deviceRotation.isInitialized) {
+        deviceRotation =
+          DeviceRotationLiveData(context).apply {
+            observeForever(onDeviceOrientationUpdated)
+          }
+      }
       invokeOnViewReady()
     }
     updateLifecycle()
@@ -108,6 +128,7 @@ class CameraView(context: Context) : FrameLayout(context) {
 
   override fun onDetachedFromWindow() {
     super.onDetachedFromWindow()
+    deviceRotation.removeObserver(onDeviceOrientationUpdated)
     updateLifecycle()
   }
 

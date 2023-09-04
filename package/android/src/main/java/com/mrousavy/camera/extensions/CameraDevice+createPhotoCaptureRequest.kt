@@ -7,7 +7,6 @@ import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import android.view.Surface
 import com.mrousavy.camera.parsers.Flash
-import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.QualityPrioritization
 
 private fun supportsSnapshotCapture(cameraCharacteristics: CameraCharacteristics): Boolean {
@@ -30,7 +29,7 @@ fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
                                            flashMode: Flash,
                                            enableRedEyeReduction: Boolean,
                                            enableAutoStabilization: Boolean,
-                                           orientation: Orientation): CaptureRequest {
+                                           imageDataNeedsToBeRotatedByDegrees: Int): CaptureRequest {
   val cameraCharacteristics = cameraManager.getCameraCharacteristics(this.id)
 
   val template = if (qualityPrioritization == QualityPrioritization.SPEED && supportsSnapshotCapture(cameraCharacteristics)) {
@@ -48,7 +47,8 @@ fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
   }
   captureRequest.set(CaptureRequest.JPEG_QUALITY, jpegQuality.toByte())
 
-  captureRequest.set(CaptureRequest.JPEG_ORIENTATION, orientation.toDegrees())
+  // https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#JPEG_ORIENTATION
+  captureRequest.set(CaptureRequest.JPEG_ORIENTATION, imageDataNeedsToBeRotatedByDegrees)
 
   when (flashMode) {
     // Set the Flash Mode

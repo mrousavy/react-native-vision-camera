@@ -40,6 +40,7 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
                                       enableShutterSound,
                                       enableAutoRedEyeReduction,
                                       enableAutoStabilization,
+                                      imageDataNeedsToBeRotatedByDegrees,
                                       outputOrientation)
 
   photo.use {

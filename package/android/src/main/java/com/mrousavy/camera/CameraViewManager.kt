@@ -182,10 +182,7 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
     val cameraViewTransactions: HashMap<CameraView, ArrayList<String>> = HashMap()
 
     private fun addChangedPropToTransaction(view: CameraView, changedProp: String) {
-      if (cameraViewTransactions[view] == null) {
-        cameraViewTransactions[view] = ArrayList()
-      }
-      cameraViewTransactions[view]!!.add(changedProp)
+      cameraViewTransactions.getOrPut(view) { ArrayList() }.add(changedProp)
     }
   }
 }
