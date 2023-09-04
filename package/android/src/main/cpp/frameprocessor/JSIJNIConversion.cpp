@@ -29,7 +29,7 @@ jni::local_ref<jobject> JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtim
     // Boolean
 
     bool boolean = value.getBool();
-    return JBoolean::valueOf( boolean);
+    return JBoolean::valueOf(boolean);
   } else if (value.isNumber()) {
     // Double
 
