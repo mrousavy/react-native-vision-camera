@@ -10,7 +10,6 @@ import type { PhotoFile, TakePhotoOptions } from './PhotoFile';
 import type { Point } from './Point';
 import type { TakeSnapshotOptions } from './Snapshot';
 import type { CameraVideoCodec, RecordVideoOptions, VideoFile } from './VideoFile';
-import type { WorkletRuntime } from 'react-native-reanimated';
 import { createWorkletRuntime } from 'react-native-reanimated';
 import { makeShareableCloneRecursive } from 'react-native-reanimated/src/reanimated2/shareables';
 
