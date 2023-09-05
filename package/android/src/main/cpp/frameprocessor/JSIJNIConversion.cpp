@@ -71,6 +71,7 @@ jni::local_ref<jobject> JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtim
         jni::local_ref<jobject> jniItem = convertJSIValueToJNIObject(runtime, item);
         hashMap->put(key, jniItem);
       }
+      return hashMap;
     }
   } else {
     auto stringRepresentation = value.toString(runtime).utf8(runtime);
