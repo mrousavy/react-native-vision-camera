@@ -20,54 +20,76 @@ namespace vision {
 
 using namespace facebook;
 
+jni::local_ref<jobject> JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtime& runtime, const jsi::Value& value) {
+  if (value.isNull() || value.isUndefined()) {
+    // null
+
+    return nullptr;
+  } else if (value.isBool()) {
+    // Boolean
+
+    bool boolean = value.getBool();
+    return JBoolean::valueOf(boolean);
+  } else if (value.isNumber()) {
+    // Double
+
+    double number = value.getNumber();
+    return jni::JDouble::valueOf(number);
+  } else if (value.isString()) {
+    // String
+
+    std::string string = value.getString(runtime).utf8(runtime);
+    return jni::make_jstring(string);
+  } else if (value.isObject()) {
+    // Object
+
+    auto valueAsObject = value.getObject(runtime);
+    if (valueAsObject.isArray(runtime)) {
+      // List<Object>
+
+      jsi::Array array = valueAsObject.getArray(runtime);
+      size_t size = array.size(runtime);
+      jni::local_ref<JArrayList<jobject>> arrayList = jni::JArrayList<jobject>::create(static_cast<int>(size));
+      for (size_t i = 0; i < size; i++) {
+        jsi::Value item = array.getValueAtIndex(runtime, i);
+        jni::local_ref<jobject> jniItem = convertJSIValueToJNIObject(runtime, item);
+        arrayList->add(jniItem);
+      }
+      return arrayList;
+    } else if (valueAsObject.isHostObject(runtime)) {
+      throw std::runtime_error("You can't pass HostObjects here.");
+    } else {
+      // Map<String, Object>
+
+      jsi::Array propertyNames = valueAsObject.getPropertyNames(runtime);
+      size_t size = propertyNames.size(runtime);
+      jni::local_ref<JHashMap<jstring, jobject>> hashMap = jni::JHashMap<jstring, jobject>::create();
+      for (size_t i = 0; i < size; i++) {
+        jsi::String propName = propertyNames.getValueAtIndex(runtime, i).asString(runtime);
+        jsi::Value item = valueAsObject.getProperty(runtime, propName);
+        jni::local_ref<jstring> key = jni::make_jstring(propName.utf8(runtime));
+        jni::local_ref<jobject> jniItem = convertJSIValueToJNIObject(runtime, item);
+        hashMap->put(key, jniItem);
+      }
+      return hashMap;
+    }
+  } else {
+    auto stringRepresentation = value.toString(runtime).utf8(runtime);
+    throw std::runtime_error("Failed to convert jsi::Value to JNI value - unsupported type!" + stringRepresentation);
+  }
+}
+
 jni::local_ref<jni::JMap<jstring, jobject>> JSIJNIConversion::convertJSIObjectToJNIMap(jsi::Runtime& runtime, const jsi::Object& object) {
   auto propertyNames = object.getPropertyNames(runtime);
   auto size = propertyNames.size(runtime);
   auto hashMap = jni::JHashMap<jstring, jobject>::create();
 
   for (size_t i = 0; i < size; i++) {
-    auto propName = propertyNames.getValueAtIndex(runtime, i).asString(runtime);
-    auto key = jni::make_jstring(propName.utf8(runtime));
-    auto value = object.getProperty(runtime, propName);
-
-    if (value.isNull() || value.isUndefined()) {
-      // null
-
-      hashMap->put(key, nullptr);
-    } else if (value.isBool()) {
-      // Boolean
-
-      auto boolean = value.getBool();
-      hashMap->put(key, jni::JBoolean::valueOf(boolean));
-    } else if (value.isNumber()) {
-      // Double
-
-      auto number = value.getNumber();
-      hashMap->put(key, jni::JDouble::valueOf(number));
-    } else if (value.isString()) {
-      // String
-
-      auto str = value.getString(runtime).utf8(runtime);
-      hashMap->put(key, jni::make_jstring(str));
-    } else if (value.isObject()) {
-      // Object
-
-      auto valueAsObject = value.getObject(runtime);
-
-      if (valueAsObject.isArray(runtime)) {
-        // List<Object>
-      } else if (valueAsObject.isHostObject(runtime)) {
-        throw std::runtime_error("You can't pass HostObjects here.");
-      } else {
-        // Map<String, Object>
-
-        auto map = convertJSIObjectToJNIMap(runtime, valueAsObject);
-        hashMap->put(key, map);
-      }
-    } else {
-      auto stringRepresentation = value.toString(runtime).utf8(runtime);
-      throw std::runtime_error("Failed to convert jsi::Value to JNI value - unsupported type!" + stringRepresentation);
-    }
+    jsi::String propName = propertyNames.getValueAtIndex(runtime, i).asString(runtime);
+    jsi::Value value = object.getProperty(runtime, propName);
+    jni::local_ref<jstring> key = jni::make_jstring(propName.utf8(runtime));
+    jni::local_ref<jobject> jniValue = convertJSIValueToJNIObject(runtime, value);
+    hashMap->put(key, jniValue);
   }
 
   return hashMap;
