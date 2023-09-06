@@ -57,9 +57,9 @@ jobs:
         run: ./gradlew lint --build-cache
 
       - name: Parse Gradle Lint Report
-        uses: yutailang0119/action-android-lint@v1.0.2
+        uses: yutailang0119/action-android-lint@v3
         with:
-          xml_path: android/build/reports/lint-results.xml
+          report-path: package/android/build/reports/*.xml
   # ktlint:
   #   name: Kotlin Lint
   #   runs-on: ubuntu-latest
