@@ -110,6 +110,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
         l in 24f..43f -> deviceTypes.pushString("wide-angle-camera")
         // https://en.wikipedia.org/wiki/Telephoto_lens
         l > 43f -> deviceTypes.pushString("telephoto-camera")
+        else -> throw Error("Invalid focal length! (${focalLength}mm)")
       }
     }
 
