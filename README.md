@@ -16,15 +16,15 @@
 
 VisionCamera is a powerful and fast Camera component for React Native. It features:
 
-* Photo and Video capture
-* Customizable devices and multi-cameras ("fish-eye" zoom)
-* Customizable resolutions and aspect-ratios (4k/8k images)
-* Customizable FPS (30..240 FPS)
-* [Frame Processors](https://react-native-vision-camera.com/docs/guides/frame-processors) (JS worklets to run QR-Code scanning, facial recognition, AI object detection, realtime video chats, ...)
-* Smooth zooming (Reanimated)
-* Fast pause and resume
-* HDR & Night modes
-* Custom C++/GPU accelerated video pipeline (OpenGL)
+* 📸 Photo and Video capture
+* 📱 Customizable devices and multi-cameras ("fish-eye" zoom)
+* 🎞️ Customizable resolutions and aspect-ratios (4k/8k images)
+* ⏱️ Customizable FPS (30..240 FPS)
+* 🧩 [Frame Processors](https://react-native-vision-camera.com/docs/guides/frame-processors) (JS worklets to run QR-Code scanning, facial recognition, AI object detection, realtime video chats, ...)
+* 🔍 Smooth zooming (Reanimated)
+* ⏯️ Fast pause and resume
+* 🌓 HDR & Night modes
+* ⚡ Custom C++/GPU accelerated video pipeline (OpenGL)
 
 Install VisionCamera from npm:
 
