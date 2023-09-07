@@ -1,6 +1,7 @@
 ---
 id: "Camera"
-title: "Camera"
+title: "Class: Camera"
+sidebar_label: "Camera"
 sidebar_position: 0
 custom_edit_url: null
 ---
@@ -48,19 +49,6 @@ function App() {
 
 Focus the camera to a specific point in the coordinate system.
 
-**`Throws`**
-
-[`CameraRuntimeError`](CameraRuntimeError.md) When any kind of error occured while focussing. Use the [`code`](CameraRuntimeError.md#code) property to get the actual error
-
-**`Example`**
-
-```ts
-await camera.current.focus({
-  x: tapEvent.x,
-  y: tapEvent.y
-})
-```
-
 #### Parameters
 
 | Name | Type | Description |
@@ -71,9 +59,22 @@ await camera.current.focus({
 
 `Promise`<`void`\>
 
+**`Throws`**
+
+[`CameraRuntimeError`](CameraRuntimeError.md) When any kind of error occured while focussing. Use the [`code`](CameraCaptureError.md#code) property to get the actual error
+
+**`Example`**
+
+```ts
+await camera.current.focus({
+  x: tapEvent.x,
+  y: tapEvent.y
+})
+```
+
 #### Defined in
 
-[Camera.tsx:250](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L250)
+[Camera.tsx:250](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L250)
 
 ___
 
@@ -82,6 +83,10 @@ ___
 ▸ **pauseRecording**(): `Promise`<`void`\>
 
 Pauses the current video recording.
+
+#### Returns
+
+`Promise`<`void`\>
 
 **`Throws`**
 
@@ -103,13 +108,9 @@ await timeout(2000)
 const video = await camera.current.stopRecording()
 ```
 
-#### Returns
-
-`Promise`<`void`\>
-
 #### Defined in
 
-[Camera.tsx:175](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L175)
+[Camera.tsx:175](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L175)
 
 ___
 
@@ -118,6 +119,10 @@ ___
 ▸ **resumeRecording**(): `Promise`<`void`\>
 
 Resumes a currently paused video recording.
+
+#### Returns
+
+`Promise`<`void`\>
 
 **`Throws`**
 
@@ -139,13 +144,9 @@ await timeout(2000)
 const video = await camera.current.stopRecording()
 ```
 
-#### Returns
-
-`Promise`<`void`\>
-
 #### Defined in
 
-[Camera.tsx:203](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L203)
+[Camera.tsx:203](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L203)
 
 ___
 
@@ -158,6 +159,16 @@ Start a new video recording.
 Records in the following formats:
 * **iOS**: QuickTime (`.mov`)
 * **Android**: MPEG4 (`.mp4`)
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `options` | [`RecordVideoOptions`](../interfaces/RecordVideoOptions.md) |
+
+#### Returns
+
+`void`
 
 **`Blocking`**
 
@@ -179,19 +190,9 @@ setTimeout(() => {
 }, 5000)
 ```
 
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `options` | [`RecordVideoOptions`](../interfaces/RecordVideoOptions.md) |
-
-#### Returns
-
-`void`
-
 #### Defined in
 
-[Camera.tsx:138](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L138)
+[Camera.tsx:138](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L138)
 
 ___
 
@@ -200,6 +201,10 @@ ___
 ▸ **stopRecording**(): `Promise`<`void`\>
 
 Stop the current video recording.
+
+#### Returns
+
+`Promise`<`void`\>
 
 **`Throws`**
 
@@ -214,13 +219,9 @@ setTimeout(async () => {
 }, 5000)
 ```
 
-#### Returns
-
-`Promise`<`void`\>
-
 #### Defined in
 
-[Camera.tsx:224](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L224)
+[Camera.tsx:224](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L224)
 
 ___
 
@@ -229,6 +230,16 @@ ___
 ▸ **takePhoto**(`options?`): `Promise`<[`PhotoFile`](../interfaces/PhotoFile.md)\>
 
 Take a single photo and write it's content to a temporary file.
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `options?` | [`TakePhotoOptions`](../interfaces/TakePhotoOptions.md) |
+
+#### Returns
+
+`Promise`<[`PhotoFile`](../interfaces/PhotoFile.md)\>
 
 **`Throws`**
 
@@ -244,19 +255,9 @@ const photo = await camera.current.takePhoto({
 })
 ```
 
-#### Parameters
-
-| Name | Type |
-| :------ | :------ |
-| `options?` | [`TakePhotoOptions`](../interfaces/TakePhotoOptions.md) |
-
-#### Returns
-
-`Promise`<[`PhotoFile`](../interfaces/PhotoFile.md)\>
-
 #### Defined in
 
-[Camera.tsx:108](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L108)
+[Camera.tsx:108](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L108)
 
 ___
 
@@ -266,9 +267,13 @@ ___
 
 Get a list of all available camera devices on the current phone.
 
+#### Returns
+
+`Promise`<[`CameraDevice`](../interfaces/CameraDevice.md)[]\>
+
 **`Throws`**
 
-[`CameraRuntimeError`](CameraRuntimeError.md) When any kind of error occured while getting all available camera devices. Use the [`code`](CameraRuntimeError.md#code) property to get the actual error
+[`CameraRuntimeError`](CameraRuntimeError.md) When any kind of error occured while getting all available camera devices. Use the [`code`](CameraCaptureError.md#code) property to get the actual error
 
 **`Example`**
 
@@ -282,13 +287,9 @@ return {
 }
 ```
 
-#### Returns
-
-`Promise`<[`CameraDevice`](../interfaces/CameraDevice.md)[]\>
-
 #### Defined in
 
-[Camera.tsx:276](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L276)
+[Camera.tsx:276](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L276)
 
 ___
 
@@ -301,17 +302,17 @@ the user has permitted the app to use the camera.
 
 To actually prompt the user for camera permission, use [`requestCameraPermission()`](Camera.md#requestcamerapermission).
 
-**`Throws`**
-
-[`CameraRuntimeError`](CameraRuntimeError.md) When any kind of error occured while getting the current permission status. Use the [`code`](CameraRuntimeError.md#code) property to get the actual error
-
 #### Returns
 
 `Promise`<[`CameraPermissionStatus`](../#camerapermissionstatus)\>
 
+**`Throws`**
+
+[`CameraRuntimeError`](CameraRuntimeError.md) When any kind of error occured while getting the current permission status. Use the [`code`](CameraCaptureError.md#code) property to get the actual error
+
 #### Defined in
 
-[Camera.tsx:291](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L291)
+[Camera.tsx:291](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L291)
 
 ___
 
@@ -324,17 +325,17 @@ the user has permitted the app to use the microphone.
 
 To actually prompt the user for microphone permission, use [`requestMicrophonePermission()`](Camera.md#requestmicrophonepermission).
 
-**`Throws`**
-
-[`CameraRuntimeError`](CameraRuntimeError.md) When any kind of error occured while getting the current permission status. Use the [`code`](CameraRuntimeError.md#code) property to get the actual error
-
 #### Returns
 
 `Promise`<[`CameraPermissionStatus`](../#camerapermissionstatus)\>
 
+**`Throws`**
+
+[`CameraRuntimeError`](CameraRuntimeError.md) When any kind of error occured while getting the current permission status. Use the [`code`](CameraCaptureError.md#code) property to get the actual error
+
 #### Defined in
 
-[Camera.tsx:306](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L306)
+[Camera.tsx:306](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L306)
 
 ___
 
@@ -347,17 +348,17 @@ Shows a "request permission" alert to the user, and resolves with the new camera
 If the user has previously blocked the app from using the camera, the alert will not be shown
 and `"denied"` will be returned.
 
-**`Throws`**
-
-[`CameraRuntimeError`](CameraRuntimeError.md) When any kind of error occured while requesting permission. Use the [`code`](CameraRuntimeError.md#code) property to get the actual error
-
 #### Returns
 
 `Promise`<[`CameraPermissionRequestResult`](../#camerapermissionrequestresult)\>
 
+**`Throws`**
+
+[`CameraRuntimeError`](CameraRuntimeError.md) When any kind of error occured while requesting permission. Use the [`code`](CameraCaptureError.md#code) property to get the actual error
+
 #### Defined in
 
-[Camera.tsx:321](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L321)
+[Camera.tsx:321](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L321)
 
 ___
 
@@ -370,14 +371,14 @@ Shows a "request permission" alert to the user, and resolves with the new microp
 If the user has previously blocked the app from using the microphone, the alert will not be shown
 and `"denied"` will be returned.
 
-**`Throws`**
-
-[`CameraRuntimeError`](CameraRuntimeError.md) When any kind of error occured while requesting permission. Use the [`code`](CameraRuntimeError.md#code) property to get the actual error
-
 #### Returns
 
 `Promise`<[`CameraPermissionRequestResult`](../#camerapermissionrequestresult)\>
 
+**`Throws`**
+
+[`CameraRuntimeError`](CameraRuntimeError.md) When any kind of error occured while requesting permission. Use the [`code`](CameraCaptureError.md#code) property to get the actual error
+
 #### Defined in
 
-[Camera.tsx:336](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/Camera.tsx#L336)
+[Camera.tsx:336](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L336)

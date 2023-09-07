@@ -1,6 +1,7 @@
 ---
 id: "RecordVideoOptions"
-title: "RecordVideoOptions"
+title: "Interface: RecordVideoOptions"
+sidebar_label: "RecordVideoOptions"
 sidebar_position: 0
 custom_edit_url: null
 ---
@@ -15,7 +16,7 @@ Specifies the output file type to record videos into.
 
 #### Defined in
 
-[VideoFile.ts:12](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/VideoFile.ts#L12)
+[VideoFile.ts:12](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/VideoFile.ts#L12)
 
 ___
 
@@ -27,7 +28,7 @@ Set the video flash mode. Natively, this just enables the torch while recording.
 
 #### Defined in
 
-[VideoFile.ts:8](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/VideoFile.ts#L8)
+[VideoFile.ts:8](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/VideoFile.ts#L8)
 
 ___
 
@@ -53,7 +54,7 @@ Called when there was an unexpected runtime error while recording the video.
 
 #### Defined in
 
-[VideoFile.ts:16](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/VideoFile.ts#L16)
+[VideoFile.ts:16](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/VideoFile.ts#L16)
 
 ___
 
@@ -79,7 +80,7 @@ Called when the recording has been successfully saved to file.
 
 #### Defined in
 
-[VideoFile.ts:20](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/VideoFile.ts#L20)
+[VideoFile.ts:20](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/VideoFile.ts#L20)
 
 ___
 
@@ -93,4 +94,4 @@ The Video Codec to record in.
 
 #### Defined in
 
-[VideoFile.ts:26](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/VideoFile.ts#L26)
+[VideoFile.ts:26](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/VideoFile.ts#L26)

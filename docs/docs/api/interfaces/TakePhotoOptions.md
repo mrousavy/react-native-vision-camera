@@ -1,6 +1,7 @@
 ---
 id: "TakePhotoOptions"
-title: "TakePhotoOptions"
+title: "Interface: TakePhotoOptions"
+sidebar_label: "TakePhotoOptions"
 sidebar_position: 0
 custom_edit_url: null
 ---
@@ -20,11 +21,13 @@ iOS
 
 **`Default`**
 
+```ts
 false
+```
 
 #### Defined in
 
-[PhotoFile.ts:40](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L40)
+[PhotoFile.ts:40](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/PhotoFile.ts#L40)
 
 ___
 
@@ -36,11 +39,13 @@ Specifies whether red-eye reduction should be applied automatically on flash cap
 
 **`Default`**
 
+```ts
 false
+```
 
 #### Defined in
 
-[PhotoFile.ts:26](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L26)
+[PhotoFile.ts:26](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/PhotoFile.ts#L26)
 
 ___
 
@@ -52,11 +57,13 @@ Indicates whether still image stabilization will be employed when capturing the 
 
 **`Default`**
 
+```ts
 false
+```
 
 #### Defined in
 
-[PhotoFile.ts:32](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L32)
+[PhotoFile.ts:32](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/PhotoFile.ts#L32)
 
 ___
 
@@ -68,11 +75,13 @@ Whether to play the default shutter "click" sound when taking a picture or not.
 
 **`Default`**
 
+```ts
 true
+```
 
 #### Defined in
 
-[PhotoFile.ts:46](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L46)
+[PhotoFile.ts:46](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/PhotoFile.ts#L46)
 
 ___
 
@@ -84,11 +93,13 @@ Whether the Flash should be enabled or disabled
 
 **`Default`**
 
+```ts
 "auto"
+```
 
 #### Defined in
 
-[PhotoFile.ts:20](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L20)
+[PhotoFile.ts:20](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/PhotoFile.ts#L20)
 
 ___
 
@@ -104,8 +115,10 @@ Indicates how photo quality should be prioritized against speed.
 
 **`Default`**
 
+```ts
 "balanced"
+```
 
 #### Defined in
 
-[PhotoFile.ts:14](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L14)
+[PhotoFile.ts:14](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/PhotoFile.ts#L14)

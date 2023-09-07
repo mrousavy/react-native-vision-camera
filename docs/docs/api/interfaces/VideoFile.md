@@ -1,6 +1,7 @@
 ---
 id: "VideoFile"
-title: "VideoFile"
+title: "Interface: VideoFile"
+sidebar_label: "VideoFile"
 sidebar_position: 0
 custom_edit_url: null
 ---
@@ -25,7 +26,7 @@ Represents the duration of the video, in seconds.
 
 #### Defined in
 
-[VideoFile.ts:38](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/VideoFile.ts#L38)
+[VideoFile.ts:38](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/VideoFile.ts#L38)
 
 ___
 
@@ -45,4 +46,4 @@ The path of the file.
 
 #### Defined in
 
-[TemporaryFile.ts:12](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/TemporaryFile.ts#L12)
+[TemporaryFile.ts:12](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/TemporaryFile.ts#L12)

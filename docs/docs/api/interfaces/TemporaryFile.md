@@ -1,6 +1,7 @@
 ---
 id: "TemporaryFile"
-title: "TemporaryFile"
+title: "Interface: TemporaryFile"
+sidebar_label: "TemporaryFile"
 sidebar_position: 0
 custom_edit_url: null
 ---
@@ -29,4 +30,4 @@ The path of the file.
 
 #### Defined in
 
-[TemporaryFile.ts:12](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/TemporaryFile.ts#L12)
+[TemporaryFile.ts:12](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/TemporaryFile.ts#L12)

@@ -1,6 +1,7 @@
 ---
 id: "PhotoFile"
-title: "PhotoFile"
+title: "Interface: PhotoFile"
+sidebar_label: "PhotoFile"
 sidebar_position: 0
 custom_edit_url: null
 ---
@@ -25,7 +26,7 @@ The height of the photo, in pixels.
 
 #### Defined in
 
-[PhotoFile.ts:62](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L62)
+[PhotoFile.ts:62](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/PhotoFile.ts#L62)
 
 ___
 
@@ -37,7 +38,7 @@ Whether this photo is mirrored (selfies) or not.
 
 #### Defined in
 
-[PhotoFile.ts:76](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L76)
+[PhotoFile.ts:76](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/PhotoFile.ts#L76)
 
 ___
 
@@ -49,7 +50,7 @@ Whether this photo is in RAW format or not.
 
 #### Defined in
 
-[PhotoFile.ts:66](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L66)
+[PhotoFile.ts:66](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/PhotoFile.ts#L66)
 
 ___
 
@@ -119,7 +120,7 @@ iOS
 
 #### Defined in
 
-[PhotoFile.ts:85](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L85)
+[PhotoFile.ts:85](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/PhotoFile.ts#L85)
 
 ___
 
@@ -133,7 +134,7 @@ Note that Camera sensors are landscape, so e.g. "portrait" photos will have a va
 
 #### Defined in
 
-[PhotoFile.ts:72](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L72)
+[PhotoFile.ts:72](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/PhotoFile.ts#L72)
 
 ___
 
@@ -153,7 +154,7 @@ The path of the file.
 
 #### Defined in
 
-[TemporaryFile.ts:12](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/TemporaryFile.ts#L12)
+[TemporaryFile.ts:12](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/TemporaryFile.ts#L12)
 
 ___
 
@@ -163,7 +164,7 @@ ___
 
 #### Defined in
 
-[PhotoFile.ts:77](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L77)
+[PhotoFile.ts:77](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/PhotoFile.ts#L77)
 
 ___
 
@@ -175,4 +176,4 @@ The width of the photo, in pixels.
 
 #### Defined in
 
-[PhotoFile.ts:58](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/PhotoFile.ts#L58)
+[PhotoFile.ts:58](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/PhotoFile.ts#L58)

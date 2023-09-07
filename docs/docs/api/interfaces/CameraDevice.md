@@ -1,6 +1,7 @@
 ---
 id: "CameraDevice"
-title: "CameraDevice"
+title: "Interface: CameraDevice"
+sidebar_label: "CameraDevice"
 sidebar_position: 0
 custom_edit_url: null
 ---
@@ -22,7 +23,7 @@ You can check if the camera is a logical multi-camera by using the `isMultiCam` 
 
 #### Defined in
 
-[CameraDevice.ts:149](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L149)
+[CameraDevice.ts:149](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L149)
 
 ___
 
@@ -36,7 +37,7 @@ See [the Camera Formats documentation](https://react-native-vision-camera.com/do
 
 #### Defined in
 
-[CameraDevice.ts:203](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L203)
+[CameraDevice.ts:203](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L203)
 
 ___
 
@@ -50,7 +51,7 @@ The hardware level of the Camera.
 
 #### Defined in
 
-[CameraDevice.ts:229](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L229)
+[CameraDevice.ts:229](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L229)
 
 ___
 
@@ -62,7 +63,7 @@ Specifies whether this camera supports enabling flash for photo capture.
 
 #### Defined in
 
-[CameraDevice.ts:161](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L161)
+[CameraDevice.ts:161](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L161)
 
 ___
 
@@ -74,7 +75,7 @@ Specifies whether this camera supports continuously enabling the flash to act li
 
 #### Defined in
 
-[CameraDevice.ts:165](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L165)
+[CameraDevice.ts:165](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L165)
 
 ___
 
@@ -86,7 +87,7 @@ The native ID of the camera device instance.
 
 #### Defined in
 
-[CameraDevice.ts:140](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L140)
+[CameraDevice.ts:140](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L140)
 
 ___
 
@@ -102,7 +103,7 @@ Examples:
 
 #### Defined in
 
-[CameraDevice.ts:173](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L173)
+[CameraDevice.ts:173](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L173)
 
 ___
 
@@ -114,7 +115,7 @@ Maximum available zoom factor (e.g. `128`)
 
 #### Defined in
 
-[CameraDevice.ts:181](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L181)
+[CameraDevice.ts:181](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L181)
 
 ___
 
@@ -126,7 +127,7 @@ Minimum available zoom factor (e.g. `1`)
 
 #### Defined in
 
-[CameraDevice.ts:177](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L177)
+[CameraDevice.ts:177](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L177)
 
 ___
 
@@ -138,7 +139,7 @@ A friendly localized name describing the camera.
 
 #### Defined in
 
-[CameraDevice.ts:157](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L157)
+[CameraDevice.ts:157](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L157)
 
 ___
 
@@ -166,7 +167,7 @@ const cameraProps = useAnimatedProps(() => ({
 
 #### Defined in
 
-[CameraDevice.ts:197](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L197)
+[CameraDevice.ts:197](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L197)
 
 ___
 
@@ -178,7 +179,7 @@ Specifies the physical position of this camera. (back or front)
 
 #### Defined in
 
-[CameraDevice.ts:153](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L153)
+[CameraDevice.ts:153](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L153)
 
 ___
 
@@ -191,7 +192,7 @@ For most phones this will be landscape, as Camera sensors are usually always rot
 
 #### Defined in
 
-[CameraDevice.ts:234](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L234)
+[CameraDevice.ts:234](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L234)
 
 ___
 
@@ -205,7 +206,7 @@ Whether this camera supports taking photos with depth data.
 
 #### Defined in
 
-[CameraDevice.ts:213](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L213)
+[CameraDevice.ts:213](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L213)
 
 ___
 
@@ -217,7 +218,7 @@ Specifies whether this device supports focusing ([`Camera.focus(...)`](../classe
 
 #### Defined in
 
-[CameraDevice.ts:223](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L223)
+[CameraDevice.ts:223](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L223)
 
 ___
 
@@ -229,7 +230,7 @@ Whether this camera device supports low light boost.
 
 #### Defined in
 
-[CameraDevice.ts:207](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L207)
+[CameraDevice.ts:207](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L207)
 
 ___
 
@@ -243,4 +244,4 @@ Whether this camera supports taking photos in RAW format
 
 #### Defined in
 
-[CameraDevice.ts:219](https://github.com/mrousavy/react-native-vision-camera/blob/c66550ed/package/src/CameraDevice.ts#L219)
+[CameraDevice.ts:219](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L219)
