@@ -19,7 +19,6 @@
     "@react-native-community/slider": "^4.4.2",
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/native-stack": "^6.9.12",
-    "@shopify/react-native-skia": "^0.1.202",
     "react": "^18.2.0",
     "react-native": "^0.71.10",
     "react-native-gesture-handler": "^2.12.0",
@@ -29,8 +28,7 @@
     "react-native-screens": "^3.21.0",
     "react-native-static-safe-area-insets": "^2.2.0",
     "react-native-vector-icons": "^9.2.0",
-    "react-native-video": "^5.2.1",
-    "vision-camera-code-scanner": "^0.2.0"
+    "react-native-video": "^5.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.22.5",
