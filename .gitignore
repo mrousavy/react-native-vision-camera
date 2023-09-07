@@ -76,5 +76,5 @@ docs/docs/api
 .cxx/
 
 .cxx/
-34	*.keystore
-35	!debug.keystore
+*.keystore
+!debug.keystore
