@@ -200,9 +200,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
     const values = examplePlugin(frame);
-    console.log(_WORKLET);
-    console.log(Math.random());
-    console.log(JSON.stringify(values));
+    console.log(`Return Values: ${JSON.stringify(values)}`);
   }, []);
 
   const onFrameProcessorSuggestionAvailable = useCallback((suggestion: FrameProcessorPerformanceSuggestion) => {
@@ -229,9 +227,9 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
                 photo={true}
-                // video={true}
+                video={true}
                 audio={hasMicrophonePermission}
-                frameProcessor={frameProcessor}
+                frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : null}
                 orientation="portrait"
                 frameProcessorFps={1}
                 onFrameProcessorPerformanceSuggestionAvailable={onFrameProcessorSuggestionAvailable}
