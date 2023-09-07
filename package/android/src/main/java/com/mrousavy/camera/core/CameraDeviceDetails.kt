@@ -100,19 +100,18 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
 
     val deviceTypes = Arguments.createArray()
 
-    // https://en.wikipedia.org/wiki/Telephoto_lens
-    val containsTelephoto = focalLengths.any { l -> (l * cropFactor) > 43 } // TODO: Telephoto lenses are > 85mm, but we don't have anything between that range..
-    // https://en.wikipedia.org/wiki/Wide-angle_lens
-    val containsWideAngle = focalLengths.any { l -> (l * cropFactor) >= 24 && (l * cropFactor) <= 43 }
-    // https://en.wikipedia.org/wiki/Ultra_wide_angle_lens
-    val containsUltraWideAngle = focalLengths.any { l -> (l * cropFactor) < 24 }
-
-    if (containsTelephoto)
-      deviceTypes.pushString("telephoto-camera")
-    if (containsWideAngle)
-      deviceTypes.pushString("wide-angle-camera")
-    if (containsUltraWideAngle)
-      deviceTypes.pushString("ultra-wide-angle-camera")
+    focalLengths.forEach { focalLength ->
+      // scale to the 35mm film standard
+      val l = focalLength * cropFactor
+      when {
+        // https://en.wikipedia.org/wiki/Ultra_wide_angle_lens
+        l < 24 -> deviceTypes.pushString("ultra-wide-angle-camera")
+        // https://en.wikipedia.org/wiki/Wide-angle_lens
+        l in 24..43 -> deviceTypes.pushString("wide-angle-camera")
+        // https://en.wikipedia.org/wiki/Telephoto_lens
+        l > 43 -> deviceTypes.pushString("telephoto-camera")
+      }
+    }
 
     return deviceTypes
   }
