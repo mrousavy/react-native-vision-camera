@@ -105,11 +105,11 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
       val l = focalLength * cropFactor
       when {
         // https://en.wikipedia.org/wiki/Ultra_wide_angle_lens
-        l < 24 -> deviceTypes.pushString("ultra-wide-angle-camera")
+        l < 24f -> deviceTypes.pushString("ultra-wide-angle-camera")
         // https://en.wikipedia.org/wiki/Wide-angle_lens
-        l in 24..43 -> deviceTypes.pushString("wide-angle-camera")
+        l in 24f..43f -> deviceTypes.pushString("wide-angle-camera")
         // https://en.wikipedia.org/wiki/Telephoto_lens
-        l > 43 -> deviceTypes.pushString("telephoto-camera")
+        l > 43f -> deviceTypes.pushString("telephoto-camera")
       }
     }
 
