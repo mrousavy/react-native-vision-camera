@@ -12,14 +12,6 @@ import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.parsers.Orientation
 import java.io.Closeable
 
-/**
- * A pipeline for streaming Camera Frames to one or more outputs powered by ImageWriter.
- * Currently, [VideoPipeline] can stream to a [FrameProcessor] and a [MediaRecorder].
- *
- * @param [width] The width of the Frames to stream (> 0)
- * @param [height] The height of the Frames to stream (> 0)
- * @param [format] The format of the Frames to stream. ([ImageFormat.PRIVATE], [ImageFormat.YUV_420_888] or [ImageFormat.JPEG])
- */
 @Suppress("JoinDeclarationAndAssignment")
 class VideoPipeline(val width: Int,
                     val height: Int,
@@ -29,8 +21,6 @@ class VideoPipeline(val width: Int,
     private const val MAX_IMAGES = 3
     private const val TAG = "VideoPipeline"
   }
-
-  private var isActive = true
 
   // Output 1
   private var frameProcessor: FrameProcessor? = null
@@ -51,7 +41,6 @@ class VideoPipeline(val width: Int,
 
   override fun close() {
     synchronized(this) {
-      isActive = false
       imageReader.close()
       frameProcessor = null
       recordingSessionImageWriter?.close()
@@ -60,25 +49,19 @@ class VideoPipeline(val width: Int,
     }
   }
 
-  /**
-   * Configures the Pipeline to also call the given [FrameProcessor] (or null).
-   */
   fun setFrameProcessorOutput(frameProcessor: FrameProcessor?) {
     this.frameProcessor = frameProcessor
   }
 
-  /**
-   * Configures the Pipeline to also write Frames to a Surface from a [MediaRecorder] (or null)
-   */
   fun setRecordingSessionOutput(recordingSession: RecordingSession?) {
-    this.recordingSessionImageWriter?.close()
-
-    if (recordingSession != null) {
-      this.recordingSession = recordingSession
-      this.recordingSessionImageWriter = ImageWriter.newInstance(recordingSession.surface, MAX_IMAGES)
-    } else {
+    synchronized(this) {
+      this.recordingSessionImageWriter?.close()
       this.recordingSessionImageWriter = null
-      this.recordingSession = null
+      this.recordingSession = recordingSession
+
+      if (recordingSession != null) {
+        this.recordingSessionImageWriter = ImageWriter.newInstance(recordingSession.surface, MAX_IMAGES)
+      }
     }
   }
 
