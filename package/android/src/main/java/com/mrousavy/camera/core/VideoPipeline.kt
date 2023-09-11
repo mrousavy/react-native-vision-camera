@@ -13,7 +13,7 @@ import com.mrousavy.camera.parsers.Orientation
 import java.io.Closeable
 
 /**
- * An OpenGL pipeline for streaming Camera Frames to one or more outputs.
+ * A pipeline for streaming Camera Frames to one or more outputs powered by ImageWriter.
  * Currently, [VideoPipeline] can stream to a [FrameProcessor] and a [MediaRecorder].
  *
  * @param [width] The width of the Frames to stream (> 0)
