@@ -18,7 +18,7 @@ Specifies this format's auto focus system.
 
 #### Defined in
 
-[CameraDevice.ts:121](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L121)
+[CameraDevice.ts:121](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraDevice.ts#L121)
 
 ___
 
@@ -30,7 +30,7 @@ The video field of view in degrees
 
 #### Defined in
 
-[CameraDevice.ts:97](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L97)
+[CameraDevice.ts:97](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraDevice.ts#L97)
 
 ___
 
@@ -42,7 +42,7 @@ The maximum frame rate this Format is able to run at. High resolution formats of
 
 #### Defined in
 
-[CameraDevice.ts:117](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L117)
+[CameraDevice.ts:117](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraDevice.ts#L117)
 
 ___
 
@@ -54,7 +54,7 @@ Maximum supported ISO value
 
 #### Defined in
 
-[CameraDevice.ts:89](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L89)
+[CameraDevice.ts:89](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraDevice.ts#L89)
 
 ___
 
@@ -66,7 +66,7 @@ The maximum zoom factor (e.g. `128`)
 
 #### Defined in
 
-[CameraDevice.ts:101](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L101)
+[CameraDevice.ts:101](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraDevice.ts#L101)
 
 ___
 
@@ -78,7 +78,7 @@ The minum frame rate this Format needs to run at. High resolution formats often 
 
 #### Defined in
 
-[CameraDevice.ts:113](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L113)
+[CameraDevice.ts:113](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraDevice.ts#L113)
 
 ___
 
@@ -90,7 +90,7 @@ Minimum supported ISO value
 
 #### Defined in
 
-[CameraDevice.ts:93](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L93)
+[CameraDevice.ts:93](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraDevice.ts#L93)
 
 ___
 
@@ -102,7 +102,7 @@ The height of the highest resolution a still image (photo) can be produced in
 
 #### Defined in
 
-[CameraDevice.ts:73](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L73)
+[CameraDevice.ts:73](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraDevice.ts#L73)
 
 ___
 
@@ -114,7 +114,7 @@ The width of the highest resolution a still image (photo) can be produced in
 
 #### Defined in
 
-[CameraDevice.ts:77](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L77)
+[CameraDevice.ts:77](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraDevice.ts#L77)
 
 ___
 
@@ -127,7 +127,7 @@ In most cases, this is `['native', 'yuv']`.
 
 #### Defined in
 
-[CameraDevice.ts:130](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L130)
+[CameraDevice.ts:130](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraDevice.ts#L130)
 
 ___
 
@@ -139,7 +139,7 @@ Specifies whether this format supports HDR mode for photo capture
 
 #### Defined in
 
-[CameraDevice.ts:109](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L109)
+[CameraDevice.ts:109](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraDevice.ts#L109)
 
 ___
 
@@ -151,7 +151,7 @@ Specifies whether this format supports HDR mode for video capture
 
 #### Defined in
 
-[CameraDevice.ts:105](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L105)
+[CameraDevice.ts:105](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraDevice.ts#L105)
 
 ___
 
@@ -163,7 +163,7 @@ The video resolutions's height
 
 #### Defined in
 
-[CameraDevice.ts:81](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L81)
+[CameraDevice.ts:81](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraDevice.ts#L81)
 
 ___
 
@@ -175,7 +175,7 @@ All supported video stabilization modes
 
 #### Defined in
 
-[CameraDevice.ts:125](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L125)
+[CameraDevice.ts:125](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraDevice.ts#L125)
 
 ___
 
@@ -187,4 +187,4 @@ The video resolution's width
 
 #### Defined in
 
-[CameraDevice.ts:85](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L85)
+[CameraDevice.ts:85](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraDevice.ts#L85)

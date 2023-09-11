@@ -32,7 +32,7 @@ CameraError.cause
 
 #### Defined in
 
-[CameraError.ts:132](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraError.ts#L132)
+[CameraError.ts:132](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraError.ts#L132)
 
 ___
 
@@ -50,7 +50,7 @@ CameraError.code
 
 #### Defined in
 
-[CameraError.ts:126](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraError.ts#L126)
+[CameraError.ts:126](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraError.ts#L126)
 
 ___
 
@@ -68,7 +68,7 @@ CameraError.message
 
 #### Defined in
 
-[CameraError.ts:129](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraError.ts#L129)
+[CameraError.ts:129](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraError.ts#L129)
 
 ## Methods
 
@@ -86,4 +86,4 @@ CameraError.toString
 
 #### Defined in
 
-[CameraError.ts:150](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraError.ts#L150)
+[CameraError.ts:150](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraError.ts#L150)

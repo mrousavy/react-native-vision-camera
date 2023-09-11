@@ -74,7 +74,7 @@ await camera.current.focus({
 
 #### Defined in
 
-[Camera.tsx:250](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L250)
+[Camera.tsx:250](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/Camera.tsx#L250)
 
 ___
 
@@ -110,7 +110,7 @@ const video = await camera.current.stopRecording()
 
 #### Defined in
 
-[Camera.tsx:175](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L175)
+[Camera.tsx:175](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/Camera.tsx#L175)
 
 ___
 
@@ -146,7 +146,7 @@ const video = await camera.current.stopRecording()
 
 #### Defined in
 
-[Camera.tsx:203](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L203)
+[Camera.tsx:203](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/Camera.tsx#L203)
 
 ___
 
@@ -192,7 +192,7 @@ setTimeout(() => {
 
 #### Defined in
 
-[Camera.tsx:138](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L138)
+[Camera.tsx:138](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/Camera.tsx#L138)
 
 ___
 
@@ -221,7 +221,7 @@ setTimeout(async () => {
 
 #### Defined in
 
-[Camera.tsx:224](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L224)
+[Camera.tsx:224](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/Camera.tsx#L224)
 
 ___
 
@@ -257,7 +257,7 @@ const photo = await camera.current.takePhoto({
 
 #### Defined in
 
-[Camera.tsx:108](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L108)
+[Camera.tsx:108](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/Camera.tsx#L108)
 
 ___
 
@@ -289,7 +289,7 @@ return {
 
 #### Defined in
 
-[Camera.tsx:276](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L276)
+[Camera.tsx:276](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/Camera.tsx#L276)
 
 ___
 
@@ -312,7 +312,7 @@ To actually prompt the user for camera permission, use [`requestCameraPermission
 
 #### Defined in
 
-[Camera.tsx:291](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L291)
+[Camera.tsx:291](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/Camera.tsx#L291)
 
 ___
 
@@ -335,7 +335,7 @@ To actually prompt the user for microphone permission, use [`requestMicrophonePe
 
 #### Defined in
 
-[Camera.tsx:306](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L306)
+[Camera.tsx:306](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/Camera.tsx#L306)
 
 ___
 
@@ -358,7 +358,7 @@ and `"denied"` will be returned.
 
 #### Defined in
 
-[Camera.tsx:321](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L321)
+[Camera.tsx:321](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/Camera.tsx#L321)
 
 ___
 
@@ -381,4 +381,4 @@ and `"denied"` will be returned.
 
 #### Defined in
 
-[Camera.tsx:336](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L336)
+[Camera.tsx:336](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/Camera.tsx#L336)

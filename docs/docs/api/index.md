@@ -39,7 +39,7 @@ Indicates a format's autofocus system.
 
 #### Defined in
 
-[CameraDevice.ts:53](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L53)
+[CameraDevice.ts:53](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraDevice.ts#L53)
 
 ___
 
@@ -49,7 +49,7 @@ ___
 
 #### Defined in
 
-[hooks/useCameraDevices.ts:7](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/hooks/useCameraDevices.ts#L7)
+[hooks/useCameraDevices.ts:7](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/hooks/useCameraDevices.ts#L7)
 
 ___
 
@@ -59,7 +59,7 @@ ___
 
 #### Defined in
 
-[Camera.tsx:15](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L15)
+[Camera.tsx:15](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/Camera.tsx#L15)
 
 ___
 
@@ -69,7 +69,7 @@ ___
 
 #### Defined in
 
-[Camera.tsx:14](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/Camera.tsx#L14)
+[Camera.tsx:14](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/Camera.tsx#L14)
 
 ___
 
@@ -90,7 +90,7 @@ Represents the camera device position.
 
 #### Defined in
 
-[CameraPosition.ts:13](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraPosition.ts#L13)
+[CameraPosition.ts:13](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraPosition.ts#L13)
 
 ___
 
@@ -100,7 +100,7 @@ ___
 
 #### Defined in
 
-[CameraError.ts:31](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraError.ts#L31)
+[CameraError.ts:31](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraError.ts#L31)
 
 ___
 
@@ -110,7 +110,7 @@ ___
 
 #### Defined in
 
-[CameraError.ts:8](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraError.ts#L8)
+[CameraError.ts:8](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraError.ts#L8)
 
 ___
 
@@ -120,7 +120,7 @@ ___
 
 #### Defined in
 
-[CameraError.ts:18](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraError.ts#L18)
+[CameraError.ts:18](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraError.ts#L18)
 
 ___
 
@@ -137,7 +137,7 @@ ___
 
 #### Defined in
 
-[CameraProps.ts:7](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraProps.ts#L7)
+[CameraProps.ts:7](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraProps.ts#L7)
 
 ___
 
@@ -153,7 +153,7 @@ Indentifiers for a logical camera (Combinations of multiple physical cameras to 
 
 #### Defined in
 
-[CameraDevice.ts:21](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L21)
+[CameraDevice.ts:21](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraDevice.ts#L21)
 
 ___
 
@@ -163,7 +163,7 @@ ___
 
 #### Defined in
 
-[CameraError.ts:2](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraError.ts#L2)
+[CameraError.ts:2](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraError.ts#L2)
 
 ___
 
@@ -173,7 +173,7 @@ ___
 
 #### Defined in
 
-[CameraError.ts:1](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraError.ts#L1)
+[CameraError.ts:1](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraError.ts#L1)
 
 ___
 
@@ -189,7 +189,7 @@ Indentifiers for a physical camera (one that actually exists on the back/front o
 
 #### Defined in
 
-[CameraDevice.ts:12](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L12)
+[CameraDevice.ts:12](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraDevice.ts#L12)
 
 ___
 
@@ -199,7 +199,7 @@ ___
 
 #### Defined in
 
-[CameraError.ts:24](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraError.ts#L24)
+[CameraError.ts:24](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraError.ts#L24)
 
 ___
 
@@ -209,7 +209,7 @@ ___
 
 #### Defined in
 
-[CameraError.ts:53](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraError.ts#L53)
+[CameraError.ts:53](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraError.ts#L53)
 
 ___
 
@@ -219,7 +219,7 @@ ___
 
 #### Defined in
 
-[CameraError.ts:58](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraError.ts#L58)
+[CameraError.ts:58](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraError.ts#L58)
 
 ___
 
@@ -237,7 +237,7 @@ Indicates a format's supported video stabilization mode. Enabling video stabiliz
 
 #### Defined in
 
-[CameraDevice.ts:64](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L64)
+[CameraDevice.ts:64](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraDevice.ts#L64)
 
 ## Variables
 
@@ -247,7 +247,7 @@ Indicates a format's supported video stabilization mode. Enabling video stabiliz
 
 #### Defined in
 
-[FrameProcessorPlugins.ts:95](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/FrameProcessorPlugins.ts#L95)
+[FrameProcessorPlugins.ts:95](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/FrameProcessorPlugins.ts#L95)
 
 ## Functions
 
@@ -275,7 +275,7 @@ Also make sure to memoize the returned object, so that the Camera doesn't reset 
 
 #### Defined in
 
-[hooks/useFrameProcessor.ts:13](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/hooks/useFrameProcessor.ts#L13)
+[hooks/useFrameProcessor.ts:13](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/hooks/useFrameProcessor.ts#L13)
 
 ___
 
@@ -299,7 +299,7 @@ error is ErrorWithCause
 
 #### Defined in
 
-[CameraError.ts:176](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraError.ts#L176)
+[CameraError.ts:176](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraError.ts#L176)
 
 ___
 
@@ -323,7 +323,7 @@ Parses an array of physical device types into a single [`PhysicalCameraDeviceTyp
 
 #### Defined in
 
-[CameraDevice.ts:27](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraDevice.ts#L27)
+[CameraDevice.ts:27](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraDevice.ts#L27)
 
 ___
 
@@ -365,7 +365,7 @@ const frameProcessor = useFrameProcessor((frame) => {
 
 #### Defined in
 
-[FrameProcessorPlugins.ts:177](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/FrameProcessorPlugins.ts#L177)
+[FrameProcessorPlugins.ts:177](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/FrameProcessorPlugins.ts#L177)
 
 ___
 
@@ -414,7 +414,7 @@ const frameProcessor = useFrameProcessor((frame) => {
 
 #### Defined in
 
-[FrameProcessorPlugins.ts:136](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/FrameProcessorPlugins.ts#L136)
+[FrameProcessorPlugins.ts:136](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/FrameProcessorPlugins.ts#L136)
 
 ___
 
@@ -450,7 +450,7 @@ const bestDevice = devices[0]
 
 #### Defined in
 
-[utils/FormatFilter.ts:18](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/utils/FormatFilter.ts#L18)
+[utils/FormatFilter.ts:18](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/utils/FormatFilter.ts#L18)
 
 ___
 
@@ -475,7 +475,7 @@ Sort formats by resolution and aspect ratio difference (to the Screen size).
 
 #### Defined in
 
-[utils/FormatFilter.ts:72](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/utils/FormatFilter.ts#L72)
+[utils/FormatFilter.ts:72](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/utils/FormatFilter.ts#L72)
 
 ___
 
@@ -507,7 +507,7 @@ A [`CameraRuntimeError`](classes/CameraRuntimeError.md) or [`CameraCaptureError`
 
 #### Defined in
 
-[CameraError.ts:202](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraError.ts#L202)
+[CameraError.ts:202](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraError.ts#L202)
 
 ___
 
@@ -537,7 +537,7 @@ return <Camera device={device} />
 
 #### Defined in
 
-[hooks/useCameraDevices.ts:29](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/hooks/useCameraDevices.ts#L29)
+[hooks/useCameraDevices.ts:29](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/hooks/useCameraDevices.ts#L29)
 
 ▸ **useCameraDevices**(`deviceType`): [`CameraDevices`](#cameradevices)
 
@@ -569,7 +569,7 @@ return <Camera device={device} />
 
 #### Defined in
 
-[hooks/useCameraDevices.ts:44](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/hooks/useCameraDevices.ts#L44)
+[hooks/useCameraDevices.ts:44](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/hooks/useCameraDevices.ts#L44)
 
 ___
 
@@ -595,7 +595,7 @@ The best matching format for the given camera device, or `undefined` if the came
 
 #### Defined in
 
-[hooks/useCameraFormat.ts:14](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/hooks/useCameraFormat.ts#L14)
+[hooks/useCameraFormat.ts:14](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/hooks/useCameraFormat.ts#L14)
 
 ___
 
@@ -633,4 +633,4 @@ const frameProcessor = useFrameProcessor((frame) => {
 
 #### Defined in
 
-[hooks/useFrameProcessor.ts:49](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/hooks/useFrameProcessor.ts#L49)
+[hooks/useFrameProcessor.ts:49](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/hooks/useFrameProcessor.ts#L49)

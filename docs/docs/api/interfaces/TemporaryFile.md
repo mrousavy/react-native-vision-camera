@@ -30,4 +30,4 @@ The path of the file.
 
 #### Defined in
 
-[TemporaryFile.ts:12](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/TemporaryFile.ts#L12)
+[TemporaryFile.ts:12](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/TemporaryFile.ts#L12)

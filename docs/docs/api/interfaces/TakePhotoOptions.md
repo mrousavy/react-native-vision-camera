@@ -27,7 +27,7 @@ false
 
 #### Defined in
 
-[PhotoFile.ts:40](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/PhotoFile.ts#L40)
+[PhotoFile.ts:40](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/PhotoFile.ts#L40)
 
 ___
 
@@ -45,7 +45,7 @@ false
 
 #### Defined in
 
-[PhotoFile.ts:26](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/PhotoFile.ts#L26)
+[PhotoFile.ts:26](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/PhotoFile.ts#L26)
 
 ___
 
@@ -63,7 +63,7 @@ false
 
 #### Defined in
 
-[PhotoFile.ts:32](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/PhotoFile.ts#L32)
+[PhotoFile.ts:32](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/PhotoFile.ts#L32)
 
 ___
 
@@ -81,7 +81,7 @@ true
 
 #### Defined in
 
-[PhotoFile.ts:46](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/PhotoFile.ts#L46)
+[PhotoFile.ts:46](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/PhotoFile.ts#L46)
 
 ___
 
@@ -99,7 +99,7 @@ Whether the Flash should be enabled or disabled
 
 #### Defined in
 
-[PhotoFile.ts:20](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/PhotoFile.ts#L20)
+[PhotoFile.ts:20](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/PhotoFile.ts#L20)
 
 ___
 
@@ -121,4 +121,4 @@ Indicates how photo quality should be prioritized against speed.
 
 #### Defined in
 
-[PhotoFile.ts:14](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/PhotoFile.ts#L14)
+[PhotoFile.ts:14](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/PhotoFile.ts#L14)

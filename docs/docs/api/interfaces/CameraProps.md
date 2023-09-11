@@ -22,7 +22,7 @@ Enables **audio capture** for video recordings (see ["Recording Videos"](https:/
 
 #### Defined in
 
-[CameraProps.ts:61](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraProps.ts#L61)
+[CameraProps.ts:61](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraProps.ts#L61)
 
 ___
 
@@ -51,7 +51,7 @@ return (
 
 #### Defined in
 
-[CameraProps.ts:37](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraProps.ts#L37)
+[CameraProps.ts:37](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraProps.ts#L37)
 
 ___
 
@@ -69,7 +69,7 @@ false
 
 #### Defined in
 
-[CameraProps.ts:145](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraProps.ts#L145)
+[CameraProps.ts:145](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraProps.ts#L145)
 
 ___
 
@@ -88,7 +88,7 @@ false
 
 #### Defined in
 
-[CameraProps.ts:173](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraProps.ts#L173)
+[CameraProps.ts:173](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraProps.ts#L173)
 
 ___
 
@@ -112,7 +112,7 @@ false
 
 #### Defined in
 
-[CameraProps.ts:166](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraProps.ts#L166)
+[CameraProps.ts:166](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraProps.ts#L166)
 
 ___
 
@@ -136,7 +136,7 @@ false
 
 #### Defined in
 
-[CameraProps.ts:154](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraProps.ts#L154)
+[CameraProps.ts:154](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraProps.ts#L154)
 
 ___
 
@@ -156,7 +156,7 @@ false
 
 #### Defined in
 
-[CameraProps.ts:106](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraProps.ts#L106)
+[CameraProps.ts:106](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraProps.ts#L106)
 
 ___
 
@@ -168,7 +168,7 @@ Selects a given format. By default, the best matching format is chosen.
 
 #### Defined in
 
-[CameraProps.ts:113](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraProps.ts#L113)
+[CameraProps.ts:113](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraProps.ts#L113)
 
 ___
 
@@ -182,7 +182,7 @@ Requires `format` to be set.
 
 #### Defined in
 
-[CameraProps.ts:119](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraProps.ts#L119)
+[CameraProps.ts:119](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraProps.ts#L119)
 
 ___
 
@@ -208,7 +208,7 @@ return <Camera {...cameraProps} frameProcessor={frameProcessor} />
 
 #### Defined in
 
-[CameraProps.ts:204](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraProps.ts#L204)
+[CameraProps.ts:204](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraProps.ts#L204)
 
 ___
 
@@ -222,7 +222,7 @@ Requires `format` to be set.
 
 #### Defined in
 
-[CameraProps.ts:125](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraProps.ts#L125)
+[CameraProps.ts:125](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraProps.ts#L125)
 
 ___
 
@@ -238,7 +238,7 @@ This can be compared to a Video component, where `isActive` specifies whether th
 
 #### Defined in
 
-[CameraProps.ts:45](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraProps.ts#L45)
+[CameraProps.ts:45](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraProps.ts#L45)
 
 ___
 
@@ -252,7 +252,7 @@ Requires `format` to be set.
 
 #### Defined in
 
-[CameraProps.ts:131](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraProps.ts#L131)
+[CameraProps.ts:131](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraProps.ts#L131)
 
 ___
 
@@ -278,7 +278,7 @@ Called when any kind of runtime error occured.
 
 #### Defined in
 
-[CameraProps.ts:183](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraProps.ts#L183)
+[CameraProps.ts:183](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraProps.ts#L183)
 
 ___
 
@@ -298,7 +298,7 @@ Called when the camera was successfully initialized.
 
 #### Defined in
 
-[CameraProps.ts:187](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraProps.ts#L187)
+[CameraProps.ts:187](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraProps.ts#L187)
 
 ___
 
@@ -310,7 +310,7 @@ Represents the orientation of all Camera Outputs (Photo, Video, and Frame Proces
 
 #### Defined in
 
-[CameraProps.ts:177](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraProps.ts#L177)
+[CameraProps.ts:177](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraProps.ts#L177)
 
 ___
 
@@ -322,7 +322,7 @@ Enables **photo capture** with the `takePhoto` function (see ["Taking Photos"](h
 
 #### Defined in
 
-[CameraProps.ts:51](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraProps.ts#L51)
+[CameraProps.ts:51](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraProps.ts#L51)
 
 ___
 
@@ -346,7 +346,7 @@ While `native` and `yuv` are the most efficient formats, some ML models (such as
 
 #### Defined in
 
-[CameraProps.ts:75](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraProps.ts#L75)
+[CameraProps.ts:75](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraProps.ts#L75)
 
 ___
 
@@ -366,7 +366,7 @@ Note: The torch is only available on `"back"` cameras, and isn't supported by ev
 
 #### Defined in
 
-[CameraProps.ts:86](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraProps.ts#L86)
+[CameraProps.ts:86](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraProps.ts#L86)
 
 ___
 
@@ -380,7 +380,7 @@ Note: If both the `photo` and `video` properties are enabled at the same time an
 
 #### Defined in
 
-[CameraProps.ts:57](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraProps.ts#L57)
+[CameraProps.ts:57](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraProps.ts#L57)
 
 ___
 
@@ -394,7 +394,7 @@ Requires a `format` to be set that contains the given `videoStabilizationMode`.
 
 #### Defined in
 
-[CameraProps.ts:137](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraProps.ts#L137)
+[CameraProps.ts:137](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraProps.ts#L137)
 
 ___
 
@@ -418,4 +418,4 @@ on demand (if available)
 
 #### Defined in
 
-[CameraProps.ts:98](https://github.com/mrousavy/react-native-vision-camera/blob/7bf5e382/package/src/CameraProps.ts#L98)
+[CameraProps.ts:98](https://github.com/mrousavy/react-native-vision-camera/blob/251f9dec/package/src/CameraProps.ts#L98)
