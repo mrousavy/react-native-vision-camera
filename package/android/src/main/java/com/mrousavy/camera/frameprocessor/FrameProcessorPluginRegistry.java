@@ -15,7 +15,7 @@ public class FrameProcessorPluginRegistry {
     @Keep
     public static void addFrameProcessorPlugin(String name, PluginInitializer pluginInitializer) {
         assert !Plugins.containsKey(name) : "Tried to add a Frame Processor Plugin with a name that already exists! " +
-                "Either choose unique names, or remove the unused plugin. Name: ";
+                "Either choose unique names, or remove the unused plugin. Name: " + name;
         Plugins.put(name, pluginInitializer);
     }
 
