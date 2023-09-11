@@ -7,6 +7,7 @@ export { Frame } from './Frame';
 export * from './FrameProcessorPlugins';
 export * from './CameraProps';
 export * from './PhotoFile';
+export * from './PixelFormat';
 export * from './Point';
 export * from './TemporaryFile';
 export * from './VideoFile';
