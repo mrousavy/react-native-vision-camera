@@ -25,14 +25,14 @@ private fun getMaximumPreviewSize(): Size {
  * Gets the maximum Preview Resolution this device is capable of streaming at. (For [SurfaceView])
  * If a [targetAspectRatio] is set, instead find a preview size closest matching to the target aspect ratio.
  */
-fun CameraCharacteristics.getPreviewSize(targetAspectRatio: Int? = null): Size {
+fun CameraCharacteristics.getPreviewSize(targetAspectRatio: Double? = null): Size {
   val config = this.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
   val previewSize = getMaximumPreviewSize()
   var outputSizes = config.getOutputSizes(SurfaceHolder::class.java).sortedByDescending { it.width * it.height }
   outputSizes = outputSizes.filter { it.bigger <= previewSize.bigger && it.smaller <= previewSize.smaller }
   if (targetAspectRatio != null) {
     outputSizes = outputSizes.subList(0, outputSizes.size / 2)
-    outputSizes = outputSizes.sortedByDescending { abs((it.width / it.height) - targetAspectRatio) }
+    outputSizes = outputSizes.sortedByDescending { abs((it.width.toDouble() / it.height.toDouble()) - targetAspectRatio) }
   }
   return outputSizes.first()
 }

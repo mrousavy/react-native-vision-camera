@@ -27,7 +27,7 @@ class PreviewView(context: Context,
     if (format != null) {
       val videoWidth = format.getInt("videoWidth")
       val videoHeight = format.getInt("videoHeight")
-      val targetAspectRatio = videoWidth / videoHeight
+      val targetAspectRatio = videoWidth.toDouble() / videoHeight.toDouble()
       targetSize = characteristics.getPreviewSize(targetAspectRatio)
     } else {
       targetSize = characteristics.getPreviewSize()
