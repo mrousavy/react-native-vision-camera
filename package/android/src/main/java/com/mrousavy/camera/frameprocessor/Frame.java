@@ -8,7 +8,7 @@ import com.mrousavy.camera.parsers.Orientation;
 
 import java.nio.ByteBuffer;
 
-public class Frame {
+public final class Frame {
     private final Image image;
     private final boolean isMirrored;
     private final long timestamp;
