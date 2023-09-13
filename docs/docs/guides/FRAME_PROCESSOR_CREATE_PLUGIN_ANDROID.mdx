@@ -85,10 +85,15 @@ import com.mrousavy.camera.frameprocessor.FrameProcessorPluginRegistry;
 import javax.annotation.Nonnull;
 
 public class FaceDetectorFrameProcessorPluginPackage implements ReactPackage {
+  private boolean added = false;
+  
   @NonNull
   @Override
   public List<NativeModule> createNativeModules(@NonNull ReactApplicationContext reactContext) {
-    FrameProcessorPluginRegistry.addFrameProcessorPlugin("detectFaces", options -> new FaceDetectorFrameProcessorPlugin());
+    if (!added) {
+      FrameProcessorPluginRegistry.addFrameProcessorPlugin("detectFaces", options -> new FaceDetectorFrameProcessorPlugin());
+      added = true;
+    }
     return Collections.emptyList();
   }
 
@@ -148,9 +153,14 @@ import com.facebook.react.uimanager.ViewManager
 import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin
 
 class FaceDetectorFrameProcessorPluginPackage : ReactPackage {
+  private var added = false
+
   override fun createNativeModules(reactContext: ReactApplicationContext): List<NativeModule> {
-    FrameProcessorPluginRegistry.addFrameProcessorPlugin("detectFaces") { options ->
-      FaceDetectorFrameProcessorPlugin()
+    if (!added) {
+      FrameProcessorPluginRegistry.addFrameProcessorPlugin("detectFaces") { options ->
+        FaceDetectorFrameProcessorPlugin()
+      }
+      added = true
     }
     return emptyList()
   }
