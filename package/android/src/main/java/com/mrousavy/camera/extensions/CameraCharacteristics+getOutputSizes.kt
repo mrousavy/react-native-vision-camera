@@ -32,7 +32,7 @@ fun CameraCharacteristics.getPreviewSize(targetAspectRatio: Double? = null): Siz
   outputSizes = outputSizes.filter { it.bigger <= previewSize.bigger && it.smaller <= previewSize.smaller }
   if (targetAspectRatio != null) {
     outputSizes = outputSizes.subList(0, outputSizes.size / 2)
-    outputSizes = outputSizes.sortedByDescending { abs((it.width.toDouble() / it.height.toDouble()) - targetAspectRatio) }
+    outputSizes = outputSizes.sortedBy { abs((it.width.toDouble() / it.height.toDouble()) - targetAspectRatio) }
   }
   return outputSizes.first()
 }
