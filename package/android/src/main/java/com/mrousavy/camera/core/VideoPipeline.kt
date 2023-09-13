@@ -1,6 +1,7 @@
 package com.mrousavy.camera.core
 
 import android.graphics.ImageFormat
+import android.media.Image
 import android.media.ImageReader
 import android.media.ImageWriter
 import android.util.Log
@@ -16,7 +17,7 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
   ImageReader.OnImageAvailableListener,
   Closeable {
   companion object {
-    private const val MAX_IMAGES = 3
+    private const val MAX_IMAGES = 5
     private const val TAG = "VideoPipeline"
   }
 
@@ -64,9 +65,15 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
   }
 
   override fun onImageAvailable(reader: ImageReader) {
-    val image = reader.acquireLatestImage()
-    if (image == null) {
-      Log.w(TAG, "ImageReader failed to acquire a new image!")
+    val image: Image?
+    try {
+      image = reader.acquireLatestImage()
+      if (image == null) {
+        Log.w(TAG, "ImageReader failed to acquire a new image!")
+        return
+      }
+    } catch (e: Throwable) {
+      Log.w(TAG, "Failed to acquire a new Image, previous calls might be taking too long! Dropping a Frame..")
       return
     }
 
