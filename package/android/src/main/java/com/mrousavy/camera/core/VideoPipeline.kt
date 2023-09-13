@@ -78,19 +78,14 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
     }
 
     val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, isMirrored)
+    frame.incrementRefCount()
 
     // If we have a Frame Processor, call it
-    frameProcessor?.let { fp ->
-      frame.incrementRefCount()
-      fp.call(frame)
-      frame.decrementRefCount()
-    }
+    frameProcessor?.call(frame)
 
     // If we have a RecordingSession, pass the image through
-    recordingSessionImageWriter?.let { recorder ->
-      frame.incrementRefCount()
-      recorder.queueInputImage(frame.image)
-      frame.decrementRefCount()
-    }
+    recordingSessionImageWriter?.queueInputImage(frame.image)
+    
+    frame.decrementRefCount()
   }
 }
