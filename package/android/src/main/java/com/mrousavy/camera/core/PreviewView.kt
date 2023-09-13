@@ -8,6 +8,7 @@ import android.util.Size
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.extensions.getPreviewSize
 import kotlin.math.roundToInt
 
@@ -15,6 +16,7 @@ import kotlin.math.roundToInt
 class PreviewView(context: Context,
                   cameraManager: CameraManager,
                   cameraId: String,
+                  format: ReadableMap? = null,
                   private val onSurfaceChanged: (surface: Surface?) -> Unit): SurfaceView(context) {
   private val targetSize: Size
   private val aspectRatio: Float
@@ -22,7 +24,14 @@ class PreviewView(context: Context,
 
   init {
     val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-    targetSize = characteristics.getPreviewSize()
+    if (format != null) {
+      val videoWidth = format.getInt("videoWidth")
+      val videoHeight = format.getInt("videoHeight")
+      val targetAspectRatio = videoWidth / videoHeight
+      targetSize = characteristics.getPreviewSize(targetAspectRatio)
+    } else {
+      targetSize = characteristics.getPreviewSize()
+    }
 
     Log.i(TAG, "Using Preview Size ${targetSize.width} x ${targetSize.height}.")
     holder.setFixedSize(targetSize.width, targetSize.height)

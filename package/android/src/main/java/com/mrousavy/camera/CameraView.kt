@@ -41,7 +41,7 @@ class CameraView(context: Context) : FrameLayout(context) {
   companion object {
     const val TAG = "CameraView"
 
-    private val propsThatRequirePreviewReconfiguration = arrayListOf("cameraId")
+    private val propsThatRequirePreviewReconfiguration = arrayListOf("cameraId", "format")
     private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "photo", "video", "enableFrameProcessor", "pixelFormat")
     private val propsThatRequireFormatReconfiguration = arrayListOf("fps", "hdr", "videoStabilizationMode", "lowLightBoost")
   }
@@ -116,7 +116,7 @@ class CameraView(context: Context) : FrameLayout(context) {
     this.previewSurface = null
 
     val cameraId = cameraId ?: return
-    val previewView = PreviewView(context, cameraManager, cameraId) { surface ->
+    val previewView = PreviewView(context, cameraManager, cameraId, format) { surface ->
       previewSurface = surface
       configureSession()
     }
