@@ -49,8 +49,9 @@ body:
         Paste the JSON Camera `device` that was used here.
         Make sure to leave out the `formats` prop as that is too long for the issue.
         
-        ```ts
+        ```
         device.formats = undefined
+        
         console.log(JSON.stringify(device, null, 2))
         ```
         
