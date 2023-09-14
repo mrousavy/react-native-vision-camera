@@ -49,11 +49,11 @@ body:
         Paste the JSON Camera `device` that was used here.
         Make sure to leave out the `formats` prop as that is too long for the issue.
         
-        ```
-        device.formats = undefined
         
-        console.log(JSON.stringify(device, null, 2))
-        ```
+          device.formats = undefined
+        
+          console.log(JSON.stringify(device, null, 2))
+        
         
         This will be automatically formatted into code, so no need for backticks.
       render: json
