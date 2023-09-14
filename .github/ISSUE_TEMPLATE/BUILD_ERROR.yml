@@ -53,8 +53,8 @@ body:
         **Note:** If you don't try to build the example app, I most likely won't help you with your issue.
       multiple: true
       options:
-        - Yes
-        - No
+        - "Yes"
+        - "No"
         - I didn''t try (your issue might get ignored & closed if you don''t try this)
     validations:
       required: true
