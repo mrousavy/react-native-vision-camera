@@ -20,6 +20,8 @@ body:
       render: tsx
       placeholder: >
         const device = useCameraDevices()
+
+        // ...
       
         <Camera
           style={StyleSheet.absoluteFill}
@@ -49,7 +51,30 @@ body:
         console.log(JSON.stringify(device, null, 2))
         ```
         This will be automatically formatted into code, so no need for backticks.
-      render: shell
+      render: json
+      placeholder: >
+        {
+          "id": "com.apple.avfoundation.avcapturedevice.built-in_video:6",
+          "devices": [
+            "ultra-wide-angle-camera",
+            "wide-angle-camera"
+          ],
+          "formats": null,
+          "hardwareLevel": "full",
+          "hasFlash": true,
+          "hasTorch": true,
+          "isMultiCam": true,
+          "minZoom": 1,
+          "neutralZoom": 2,
+          "maxZoom": 123.75,
+          "name": "Back Dual Wide Camera",
+          "position": "back",
+          "supportsDepthCapture": false,
+          "supportsFocus": true,
+          "supportsLowLightBoost": false,
+          "supportsParallelVideoProcessing": true,
+          "supportsRawCapture": false
+        }
     validations:
       required: true
   - type: input
