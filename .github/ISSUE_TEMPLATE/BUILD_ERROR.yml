@@ -53,7 +53,7 @@ body:
       options:
         - Yes
         - No
-        - I didn't try (your issue might get ignored & closed if you don't try this)
+        - "I didn't try (your issue might get ignored & closed if you don't try this)"
     validations:
       required: true
   - type: checkboxes
