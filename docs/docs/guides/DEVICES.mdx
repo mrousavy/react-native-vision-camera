@@ -57,17 +57,6 @@ For debugging purposes you can use the `id` or `name` properties to log and comp
 * For a single Wide-Angle camera, this would be `["wide-angle-camera"]`
 * For a Triple-Camera, this would be `["wide-angle-camera", "ultra-wide-angle-camera", "telephoto-camera"]`
 
-You can use the helper function `parsePhysicalDeviceTypes` to convert a list of physical devices to a single device descriptor type which can also describe virtual devices:
-
-```ts
-console.log(device.devices)
-//  --> ["wide-angle-camera", "ultra-wide-angle-camera", "telephoto-camera"]
-
-const deviceType = parsePhysicalDeviceTypes(device.devices)
-console.log(deviceType)
-//  --> "triple-camera"
-```
-
 Always choose a camera device that is best fitted for your use-case; so you might filter out any cameras that do not support flash, have low zoom values, are not on the back side of the phone, do not contain a format with high resolution or fps, and more.
 
 :::caution
