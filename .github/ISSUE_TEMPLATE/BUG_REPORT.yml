@@ -13,18 +13,25 @@ body:
   - type: textarea
     attributes:
       label: Reproduceable Code
-      description: Share a small reproduceable code snippet here (or the entire file if necessary). This will be automatically formatted into code, so no need for backticks.
+      description: Share a small reproduceable code snippet here (or the entire file if necessary). Most importantly, share how you use the `<Camera>` component and what props you pass to it. This will be automatically formatted into code, so no need for backticks.
       render: tsx
+    validations:
+      required: true
   - type: textarea
     attributes:
       label: Relevant log output
-      description: Please copy and paste any relevant log output (Xcode Logs/Android Studio Logcat). This will be automatically formatted into code, so no need for backticks.
+      description: Paste any relevant **native log output** (Xcode Logs/Android Studio Logcat) here. This will be automatically formatted into code, so no need for backticks.
+      For iOS, run the project through Xcode and copy the logs from the log window. For Android, either open the project through Android Studio and paste the logs from the logcat window, or run `adb logcat` in terminal.
       render: shell
+    validations:
+      required: true
   - type: textarea
     attributes:
       label: Camera Device
-      description: Please paste the JSON Camera `device` that was used here. (`console.log(JSON.stringify(device, null, 2))`) This will be automatically formatted into code, so no need for backticks.
+      description: Please paste the JSON Camera `device` that was used here. Make sure to leave out the `formats` prop as that is too long for the issue. (`device.formats = undefined` -> `console.log(JSON.stringify(device, null, 2))`) This will be automatically formatted into code, so no need for backticks.
       render: shell
+    validations:
+      required: true
   - type: input
     attributes:
       label: Device
