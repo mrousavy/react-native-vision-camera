@@ -20,8 +20,7 @@ body:
   - type: textarea
     attributes:
       label: Relevant log output
-      description: Paste any relevant **native log output** (Xcode Logs/Android Studio Logcat) here. This will be automatically formatted into code, so no need for backticks.
-        For iOS, run the project through Xcode and copy the logs from the log window. For Android, either open the project through Android Studio and paste the logs from the logcat window, or run `adb logcat` in terminal.
+      description: Paste any relevant **native log output** (Xcode Logs/Android Studio Logcat) here. This will be automatically formatted into code, so no need for backticks. For iOS, run the project through Xcode and copy the logs from the log window. For Android, either open the project through Android Studio and paste the logs from the logcat window, or run `adb logcat` in terminal.
       render: shell
     validations:
       required: true
