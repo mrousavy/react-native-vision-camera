@@ -55,7 +55,7 @@ body:
       options:
         - Yes, I can successfully build the Example app here
         - No, I cannot build the Example app either
-        - I didn''t try (your issue might get ignored & closed if you don''t try this)
+        - I didn't try (**your issue might get ignored & closed if you don't try this**)
     validations:
       required: true
   - type: checkboxes
