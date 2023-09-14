@@ -24,6 +24,13 @@ body:
       render: tsx
     validations:
       required: true
+  - type: input
+    attributes:
+      label: VisionCamera Version
+      description: Which version of react-native-vision-camera are you using?
+      placeholder: ex. 3.1.6
+    validations:
+      required: true
   - type: dropdown
     attributes:
       label: Target platforms
