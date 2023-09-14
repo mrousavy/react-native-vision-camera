@@ -45,12 +45,17 @@ body:
         - Linux
     validations:
       required: true
-  - type: checkboxes
+  - type: dropdown
     attributes:
       label: Can you build the VisionCamera Example app?
-      description: Try to build the example app (`package/example/`) and see if the issue is reproduceable here.
+      description: Try to build the example app (`package/example/`) and see if the issue is reproduceable here. Note: If you don't try to build the example app, I most likely won't help you with your issue.
+      multiple: true
       options:
-      - label: I can build the VisionCamera Example app.
+        - Yes
+        - No
+        - I didn't try (your issue might get ignored & closed if you don't try this)
+    validations:
+      required: true
   - type: checkboxes
     attributes:
       label: Additional information
