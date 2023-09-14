@@ -48,12 +48,12 @@ body:
   - type: dropdown
     attributes:
       label: Can you build the VisionCamera Example app?
-      description: Try to build the example app (`package/example/`) and see if the issue is reproduceable here. Note: If you don\'t try to build the example app, I most likely won\'t help you with your issue.
+      description: "Try to build the example app (`package/example/`) and see if the issue is reproduceable here. Note: If you don't try to build the example app, I most likely won't help you with your issue."
       multiple: true
       options:
         - Yes
         - No
-        - I didn\'t try (your issue might get ignored & closed if you don\'t try this)
+        - "I didn't try (your issue might get ignored & closed if you don't try this)"
     validations:
       required: true
   - type: checkboxes
