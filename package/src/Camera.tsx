@@ -264,7 +264,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    * @throws {@linkcode CameraRuntimeError} When any kind of error occured while getting all available camera devices. Use the {@linkcode CameraRuntimeError.code | code} property to get the actual error
    * @example
    * ```ts
-   * const devices = await Camera.getAvailableCameraDevices()
+   * const devices = Camera.getAvailableCameraDevices()
    * const filtered = devices.filter((d) => matchesMyExpectations(d))
    * const sorted = devices.sort(sortDevicesByAmountOfCameras)
    * return {
@@ -273,9 +273,9 @@ export class Camera extends React.PureComponent<CameraProps> {
    * }
    * ```
    */
-  public static async getAvailableCameraDevices(): Promise<CameraDevice[]> {
+  public static getAvailableCameraDevices(): CameraDevice[] {
     try {
-      return await CameraModule.getAvailableCameraDevices();
+      return CameraModule.getAvailableCameraDevices();
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }

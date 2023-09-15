@@ -18,8 +18,8 @@ export interface DeviceFilter {
  * @param filter The filter you want to use. The device that matches your filter the closest will be returned.
  * @returns The device that matches your filter the closest.
  */
-export async function getCameraDevice(position: CameraPosition, filter: DeviceFilter): Promise<CameraDevice> {
-  const devices = await Camera.getAvailableCameraDevices();
+export function getCameraDevice(position: CameraPosition, filter: DeviceFilter): CameraDevice {
+  const devices = Camera.getAvailableCameraDevices();
 
   const filtered = devices.filter((d) => d.position === position);
   const sortedDevices = filtered.sort((left, right) => {

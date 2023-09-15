@@ -137,20 +137,16 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
     }
   }
 
-  @ReactMethod
-  fun getAvailableCameraDevices(promise: Promise) {
-    coroutineScope.launch {
-      withPromise(promise) {
-        val manager = reactApplicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  fun getAvailableCameraDevices(): ReadableMap {
+    val manager = reactApplicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
-        val devices = Arguments.createArray()
-        manager.cameraIdList.forEach { cameraId ->
-          val device = CameraDeviceDetails(manager, cameraId)
-          devices.pushMap(device.toMap())
-        }
-        promise.resolve(devices)
-      }
+    val devices = Arguments.createArray()
+    manager.cameraIdList.forEach { cameraId ->
+      val device = CameraDeviceDetails(manager, cameraId)
+      devices.pushMap(device.toMap())
     }
+    promise.resolve(devices)
   }
 
   private fun canRequestPermission(permission: String): Boolean {
