@@ -5,12 +5,23 @@ import { CameraRuntimeError } from '../CameraError';
 export interface DeviceFilter {
   /**
    * The desired physical devices your camera device should have.
-   * For example, if you only want a simple `wide-angle-camera` device, devices with more physical devices will be ignored.
+   *
+   * Many modern phones have multiple Camera devices on one side and can combine those physical camera devices to one logical camera device.
+   * For example, the iPhone 11 has two physical camera devices, the `ultra-wide-angle-camera` ("fish-eye") and the normal `wide-angle-camera`. You can either use one of those devices individually, or use a combined logical camera device which can smoothly switch over between the two physical cameras depending on the current `zoom` level.
+   * When the user is at 0.5x-1x zoom, the `ultra-wide-angle-camera` can be used to offer a fish-eye zoom-out effect, and anything above 1x will smoothly switch over to the `wide-angle-camera`.
    *
    * **Note:** Devices with less phyiscal devices (`['wide-angle-camera']`) are usually faster to start-up than more complex
    * devices (`['ultra-wide-angle-camera', 'wide-angle-camera', 'telephoto-camera']`), but don't offer zoom switch-over capabilities.
+   *
+   * @example
+   * ```ts
+   * // This device is simpler, so it starts up faster.
+   * getCameraDevice({ physicalDevices: ['wide-angle-camera'] })
+   * // This device is more complex, so it starts up slower, but you can switch between devices on 0.5x, 1x and 2x zoom.
+   * getCameraDevice({ physicalDevices: ['ultra-wide-angle-camera', 'wide-angle-camera', 'telephoto-camera'] })
+   * ```
    */
-  devices?: PhysicalCameraDeviceType[];
+  physicalDevices?: PhysicalCameraDeviceType[];
 }
 
 /**
@@ -26,16 +37,40 @@ export function getCameraDevice(position: CameraPosition, filter: DeviceFilter):
     let leftPoints = 0;
     let rightPoints = 0;
 
-    if (left.hardwareLevel === 'full') leftPoints += 2;
-    if (right.hardwareLevel === 'full') rightPoints += 2;
+    // prefer higher hardware-level
+    if (left.hardwareLevel === 'full') leftPoints += 4;
+    if (right.hardwareLevel === 'full') rightPoints += 4;
 
-    if (filter.devices != null) {
+    // devices that support flash are prefered
+    if (left.hasFlash) leftPoints++;
+    if (right.hasFlash) rightPoints++;
+
+    // devices that support flash are prefered
+    if (left.supportsDepthCapture) leftPoints++;
+    if (right.supportsDepthCapture) rightPoints++;
+
+    // devices that support focus are prefered
+    if (left.supportsFocus) leftPoints++;
+    if (right.supportsFocus) rightPoints++;
+
+    // devices that support low-light-boost are prefered
+    if (left.supportsLowLightBoost) leftPoints++;
+    if (right.supportsLowLightBoost) rightPoints++;
+
+    // devices that support RAW capture are prefered
+    if (left.supportsRawCapture) leftPoints++;
+    if (right.supportsRawCapture) rightPoints++;
+
+    // compare devices. two possible scenarios:
+    // 1. user wants all cameras ([ultra-wide, wide, tele]) to zoom. prefer those devices that have all 3 cameras.
+    // 2. user wants only one ([wide]) for faster performance. prefer those devices that only have one camera, if they have more, we rank them lower.
+    if (filter.physicalDevices != null) {
       for (const device of left.devices) {
-        if (filter.devices.includes(device)) leftPoints += 1;
+        if (filter.physicalDevices.includes(device)) leftPoints += 1;
         else leftPoints -= 1;
       }
       for (const device of right.devices) {
-        if (filter.devices.includes(device)) rightPoints += 1;
+        if (filter.physicalDevices.includes(device)) rightPoints += 1;
         else rightPoints -= 1;
       }
     }
