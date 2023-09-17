@@ -23,7 +23,7 @@ export interface RecordVideoOptions {
    * - `h264`: Widely supported, but might be less efficient, especially with larger sizes or framerates.
    * - `h265`: The HEVC (High-Efficient-Video-Codec) for higher efficient video recordings.
    */
-  videoCodec?: 'h265' | 'h265';
+  videoCodec?: 'h264' | 'h265';
 }
 
 /**
