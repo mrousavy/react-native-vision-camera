@@ -60,15 +60,6 @@ if(${REACT_NATIVE_VERSION} GREATER_EQUAL 71)
                 "${NODE_MODULES_DIR}/react-native/ReactCommon/react/renderer/graphics/platform/cxx"
                 "${NODE_MODULES_DIR}/react-native/ReactCommon/runtimeexecutor"
                 "${NODE_MODULES_DIR}/react-native/ReactCommon/yoga"
-                # --- Reanimated ---
-                # New
-                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/AnimatedSensor"
-                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/Tools"
-                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/SpecTools"
-                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/SharedItems"
-                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/Registries"
-                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/LayoutAnimations"
-                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/hidden_headers"
                 "src/main/cpp"
         )
 else()
@@ -95,22 +86,6 @@ else()
                 "${NODE_MODULES_DIR}/hermes-engine/android/include/"
                 ${INCLUDE_JSI_CPP} # only on older RN versions
                 ${INCLUDE_JSIDYNAMIC_CPP} # only on older RN versions
-                # --- Reanimated ---
-                # Old
-                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/AnimatedSensor"
-                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/Tools"
-                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/SpecTools"
-                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/SharedItems"
-                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/Registries"
-                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/headers/LayoutAnimations"
-                # New
-                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/AnimatedSensor"
-                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/Tools"
-                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/SpecTools"
-                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/SharedItems"
-                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/Registries"
-                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/LayoutAnimations"
-                "${NODE_MODULES_DIR}/react-native-reanimated/Common/cpp/hidden_headers"
                 "src/main/cpp"
         )
 endif()
@@ -154,7 +129,6 @@ if(${FOR_HERMES})
                         "${BUILD_DIR}/third-party-ndk/hermes/jni/${ANDROID_ABI}/libhermes.so"
                 )
         endif()
-        file (GLOB LIBREANIMATED_DIR "${BUILD_DIR}/react-native-reanimated-*-hermes.aar/jni/${ANDROID_ABI}")
 else()
         file (GLOB LIBJSC_DIR "${BUILD_DIR}/android-jsc*.aar/jni/${ANDROID_ABI}")
 
@@ -173,9 +147,6 @@ else()
                 ${PACKAGE_NAME}
                 ${JS_ENGINE_LIB}
         )
-
-        # Use Reanimated JSC
-        file (GLOB LIBREANIMATED_DIR "${BUILD_DIR}/react-native-reanimated-*-jsc.aar/jni/${ANDROID_ABI}")
 endif()
 
 if(${REACT_NATIVE_VERSION} LESS 71)
@@ -234,12 +205,7 @@ else()
         )
 endif()
 
-find_library(
-        REANIMATED_LIB
-        reanimated
-        PATHS ${LIBREANIMATED_DIR}
-        NO_CMAKE_FIND_ROOT_PATH
-)
+find_package(react-native-reanimated REQUIRED CONFIG)
 
 find_library(
         LOG_LIB
@@ -252,7 +218,7 @@ target_link_libraries(
         ${PACKAGE_NAME}
         ${LOG_LIB}
         ${JSI_LIB}
-        ${REANIMATED_LIB}
+        react-native-reanimated::reanimated
         ${REACT_NATIVE_JNI_LIB}
         ${FBJNI_LIB}
         ${FOLLY_LIB}

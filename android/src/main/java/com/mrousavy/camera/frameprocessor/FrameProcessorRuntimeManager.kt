@@ -43,12 +43,6 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext, frameProces
       mHybridData = initHybrid(context.javaScriptContextHolder.get(), holder, mScheduler!!)
       initializeRuntime()
 
-      Log.i(TAG, "Installing Frame Processor Plugins...")
-      Plugins.forEach { plugin ->
-        registerPlugin(plugin)
-      }
-      Log.i(TAG, "Successfully installed ${Plugins.count()} Frame Processor Plugins!")
-
       Log.i(TAG, "Installing JSI Bindings on JS Thread...")
       context.runOnJSQueueThread {
         installJSIBindings()
@@ -65,6 +59,17 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext, frameProces
     val view = if (ctx != null) UIManagerHelper.getUIManager(ctx, viewId)?.resolveView(viewId) as CameraView? else null
     Log.d(TAG,  if (view != null) "Found view $viewId!" else "Couldn't find view $viewId!")
     return view ?: throw ViewNotFoundError(viewId)
+  }
+
+  @Suppress("unused")
+  @DoNotStrip
+  @Keep
+  fun registerPlugins() {
+    Log.i(TAG, "Installing Frame Processor Plugins...")
+    Plugins.forEach { plugin ->
+      registerPlugin(plugin)
+    }
+    Log.i(TAG, "Successfully installed ${Plugins.count()} Frame Processor Plugins!")
   }
 
   // private C++ funcs

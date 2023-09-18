@@ -10,8 +10,7 @@
 #include <memory>
 #include <string>
 
-#include "RuntimeManager.h"
-#include "reanimated-headers/AndroidScheduler.h"
+#include "WorkletRuntime.h"
 
 #include "CameraView.h"
 #include "VisionCameraScheduler.h"
@@ -46,10 +45,11 @@ class FrameProcessorRuntimeManager : public jni::HybridClass<FrameProcessorRunti
   jni::global_ref<FrameProcessorRuntimeManager::javaobject> javaPart_;
   jsi::Runtime* runtime_;
   std::shared_ptr<facebook::react::CallInvoker> jsCallInvoker_;
-  std::shared_ptr<reanimated::RuntimeManager> _runtimeManager;
+  std::shared_ptr<reanimated::WorkletRuntime> workletRuntime_;
   std::shared_ptr<vision::VisionCameraScheduler> scheduler_;
 
   jni::global_ref<CameraView::javaobject> findCameraViewById(int viewId);
+  void registerPlugins();
   void initializeRuntime();
   void installJSIBindings();
   void registerPlugin(alias_ref<JFrameProcessorPlugin::javaobject> plugin);
@@ -57,7 +57,8 @@ class FrameProcessorRuntimeManager : public jni::HybridClass<FrameProcessorRunti
 
   void setFrameProcessor(jsi::Runtime& runtime,                 // NOLINT(runtime/references)
                          int viewTag,
-                         const jsi::Value& frameProcessor);
+                         const jsi::Value& frameProcessor,
+                         const jsi::Value& workletRuntimeValue);
   void unsetFrameProcessor(int viewTag);
 };
 

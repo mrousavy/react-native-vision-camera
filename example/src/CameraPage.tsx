@@ -229,7 +229,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 photo={true}
                 video={true}
                 audio={hasMicrophonePermission}
-                frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : undefined}
+                frameProcessor={device.supportsParallelVideoProcessing ? frameProcessor : null}
                 orientation="portrait"
                 frameProcessorFps={1}
                 onFrameProcessorPerformanceSuggestionAvailable={onFrameProcessorSuggestionAvailable}

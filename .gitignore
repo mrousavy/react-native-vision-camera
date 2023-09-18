@@ -20,6 +20,8 @@ build/
 *.perspectivev3
 !default.perspectivev3
 xcuserdata
+ios/.xcode.env.local
+
 *.xccheckout
 *.moved-aside
 DerivedData
@@ -39,6 +41,10 @@ android.iml
 # Cocoapods
 #
 example/ios/Pods
+/vendor/bundle/
+
+# Temporary files created by Metro to check the health of the file watcher
+.metro-health-check*
 
 # node.js
 #
@@ -68,3 +74,7 @@ docs/docs/api
 # External native build folder generated in Android Studio 2.2 and later
 .externalNativeBuild
 .cxx/
+
+.cxx/
+*.keystore
+!debug.keystore
