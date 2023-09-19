@@ -26,14 +26,13 @@
       #import "VisionCameraScheduler.h"
       #define ENABLE_FRAME_PROCESSORS
     #else
-      #warning Your react-native-reanimated version is not compatible with VisionCamera, Frame Processors are disabled. Make sure you're using reanimated 2.2.0 or above!
+      #warning Your react-native-reanimated version is not compatible with VisionCamera, Frame Processors are disabled. Make sure you're using react-native-reanimated 3.5.0 or above!
     #endif
   #else
-    #warning The NativeReanimatedModule.h header could not be found, Frame Processors are disabled. If you want to use Frame Processors, make sure you install react-native-reanimated!
+    #warning NativeReanimatedModule.h header could not be found, Frame Processors are disabled. If you want to use Frame Processors, make sure you install react-native-reanimated 3.5.0 or above!
   #endif
 #endif
 
-#import "FrameProcessorUtils.h"
 #import "FrameProcessorCallback.h"
 #import "../React Utils/JSIUtils.h"
 
@@ -141,8 +140,28 @@ __attribute__((objc_runtime_name("_TtC12VisionCamera10CameraView")))
       dispatch_async(CameraQueues.frameProcessorQueue, [=]() {
         NSLog(@"FrameProcessorBindings: Converting worklet to Objective-C callback...");
 
-        view.frameProcessorCallback = convertReanimatedWorkletToFrameProcessorCallback(self->workletRuntime, worklet);
-        
+        std::weak_ptr<reanimated::WorkletRuntime> weakWorkletRuntime = workletRuntime;
+        std::weak_ptr<reanimated::ShareableWorklet> weakShareableWorklet = worklet;
+
+        view.frameProcessorCallback = ^(Frame* frame) {
+          auto workletRuntime = weakWorkletRuntime.lock();
+          auto shareableWorklet = weakShareableWorklet.lock();
+          if (workletRuntime == nullptr || shareableWorklet == nullptr) {
+            return;
+          }
+
+          auto frameHostObject = std::make_shared<FrameHostObject>(frame);
+          jsi::Runtime &runtime = workletRuntime->getJSIRuntime();
+          auto hostObject = jsi::Object::createFromHostObject(runtime, frameHostObject);
+          workletRuntime->runGuarded(shareableWorklet, hostObject);
+
+          // Manually free the buffer because:
+          //  1. we are sure we don't need it anymore, the frame processor worklet has finished executing.
+          //  2. we don't know when the JS runtime garbage collects this object, it might be holding it for a few more frames
+          //     which then blocks the camera queue from pushing new frames (memory limit)
+          frameHostObject->close();
+        };
+
         NSLog(@"FrameProcessorBindings: Frame processor set!");
       });
     });
