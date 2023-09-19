@@ -59,9 +59,10 @@ body:
         Try to build the example app (`package/example/`) and see if the issue is reproduceable here.
         **Note:** If you don't try to build the example app, I most likely won't help you with your issue.
       options:
+        - I didn't try (⚠️ your issue might get ignored & closed if you don't try this)
         - Yes, I can successfully build the Example app here
         - No, I cannot build the Example app either
-        - I didn't try (⚠️ your issue might get ignored & closed if you don't try this)
+      default: 0
     validations:
       required: true
   - type: checkboxes
