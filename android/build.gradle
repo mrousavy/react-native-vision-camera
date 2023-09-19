@@ -110,19 +110,18 @@ def resolveBuildType() {
     return buildType
 }
 
-// plugin.js file only exists since REA v2.
-// def hasReanimated2 = file("${nodeModules}/react-native-reanimated/plugin.js").exists()
-// def disableFrameProcessors = rootProject.ext.has("disableFrameProcessors") ? rootProject.ext.get("disableFrameProcessors").asBoolean() : false
-// def ENABLE_FRAME_PROCESSORS = hasReanimated2 && !disableFrameProcessors
-def ENABLE_FRAME_PROCESSORS = true
+// WorkletRuntime.h file only exists since Reanimated 3.5.0.
+def hasReanimated3 = file("${nodeModules}/react-native-reanimated/Common/cpp/ReanimatedRuntime/WorkletRuntime.h").exists()
+def disableFrameProcessors = rootProject.ext.has("disableFrameProcessors") ? rootProject.ext.get("disableFrameProcessors").asBoolean() : false
+def ENABLE_FRAME_PROCESSORS = hasReanimated3 && !disableFrameProcessors
 
 if (ENABLE_FRAME_PROCESSORS) {
   logger.warn("VisionCamera: Frame Processors are enabled! Building C++ part...")
 } else {
   if (disableFrameProcessors) {
     logger.warn("VisionCamera: Frame Processors are disabled because the user explicitly disabled it ('disableFrameProcessors=${disableFrameProcessors}'). C++ part will not be built.")
-  } else if (!hasReanimated2) {
-    logger.warn("VisionCamera: Frame Processors are disabled because REA v2 does not exist. C++ part will not be built.")
+  } else if (!hasReanimated3) {
+    logger.warn("VisionCamera: Frame Processors are disabled because Reanimated 3.5.0+ is not installed. C++ part will not be built.")
   }
 }
 
