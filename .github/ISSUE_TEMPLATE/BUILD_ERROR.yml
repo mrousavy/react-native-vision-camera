@@ -19,6 +19,7 @@ body:
         $ react-native run-android
 
         > Configure project :react-native-vision-camera
+
         [VisionCamera] react-native-worklets-core found, Frame Processors enabled!
 
         ...

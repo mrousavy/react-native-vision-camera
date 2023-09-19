@@ -42,8 +42,11 @@ body:
       render: shell
       placeholder: >
         09:03:46 I ReactNativeJS: Running "VisionCameraExample" with {"rootTag":11}
+
         09:03:47 I ReactNativeJS: Re-rendering App. Camera: undefined | Microphone: undefined
+
         09:03:47 I VisionCamera: Installing JSI bindings...
+
         09:03:47 I VisionCamera: Finished installing JSI bindings!
         ...
     validations:
