@@ -10,7 +10,6 @@ export * from './Point';
 export * from './VideoFile';
 
 export * from './hooks/useCameraDevice';
+export * from './hooks/useCameraFormat';
 export * from './devices/getCameraFormat';
 export * from './hooks/useFrameProcessor';
-
-export * from './utils/FormatFilter';

@@ -12,12 +12,12 @@ export interface FormatFilter {
    * The target resolution of the video (and frame processor) output pipeline.
    * If no format supports the given resolution, the format closest to this value will be used.
    */
-  targetVideoResolution?: Filter<Size>;
+  videoResolution?: Filter<Size>;
   /**
    * The target resolution of the photo output pipeline.
    * If no format supports the given resolution, the format closest to this value will be used.
    */
-  targetPhotoResolution?: Filter<Size>;
+  photoResolution?: Filter<Size>;
   /**
    * The target aspect ratio of the video (and preview) output, expressed as a factor: `width / height`.
    *
@@ -29,7 +29,7 @@ export interface FormatFilter {
    * targetVideoAspectRatio: screen.width / screen.height
    * ```
    */
-  targetVideoAspectRatio?: Filter<number>;
+  videoAspectRatio?: Filter<number>;
   /**
    * The target aspect ratio of the photo output, expressed as a factor: `width / height`.
    *
@@ -42,17 +42,17 @@ export interface FormatFilter {
    * targetPhotoAspectRatio: screen.width / screen.height
    * ```
    */
-  targetPhotoAspectRatio?: Filter<number>;
+  photoAspectRatio?: Filter<number>;
   /**
    * The target FPS you want to record video at.
    * If the FPS requirements can not be met, the format closest to this value will be used.
    */
-  targetFps?: Filter<number>;
+  fps?: Filter<number>;
   /**
    * The target video stabilization mode you want to use.
    * If no format supports the target video stabilization mode, the best other matching format will be used.
    */
-  targetVideoStabilizationMode?: Filter<VideoStabilizationMode>;
+  videoStabilizationMode?: Filter<VideoStabilizationMode>;
 }
 
 /**
@@ -68,59 +68,59 @@ export function getCameraFormat(device: CameraDevice, filter: FormatFilter): Cam
     let rightPoints = 0;
 
     // Find closest video resolution (ignoring orientation)
-    if (filter.targetVideoResolution != null) {
+    if (filter.videoResolution != null) {
       const leftResolution = left.videoWidth * left.videoHeight;
       const rightResolution = right.videoWidth * right.videoHeight;
-      const targetResolution = filter.targetVideoResolution.target.width * filter.targetVideoResolution.target.height;
+      const targetResolution = filter.videoResolution.target.width * filter.videoResolution.target.height;
       const leftDiff = Math.abs(leftResolution - targetResolution);
       const rightDiff = Math.abs(rightResolution - targetResolution);
-      if (leftDiff < rightDiff) leftPoints++;
-      else if (rightDiff < leftDiff) rightPoints++;
+      if (leftDiff < rightDiff) leftPoints += filter.videoResolution.priority;
+      else if (rightDiff < leftDiff) rightPoints += filter.videoResolution.priority;
     }
 
     // Find closest photo resolution (ignoring orientation)
-    if (filter.targetPhotoResolution != null) {
+    if (filter.photoResolution != null) {
       const leftResolution = left.photoWidth * left.photoHeight;
       const rightResolution = right.photoWidth * right.photoHeight;
-      const targetResolution = filter.targetPhotoResolution.target.width * filter.targetPhotoResolution.target.height;
+      const targetResolution = filter.photoResolution.target.width * filter.photoResolution.target.height;
       const leftDiff = Math.abs(leftResolution - targetResolution);
       const rightDiff = Math.abs(rightResolution - targetResolution);
-      if (leftDiff < rightDiff) leftPoints++;
-      else if (rightDiff < leftDiff) rightPoints++;
+      if (leftDiff < rightDiff) leftPoints += filter.photoResolution.priority;
+      else if (rightDiff < leftDiff) rightPoints += filter.photoResolution.priority;
     }
 
     // Find closest aspect ratio (video)
-    if (filter.targetVideoAspectRatio != null) {
+    if (filter.videoAspectRatio != null) {
       const leftAspect = left.videoWidth / right.videoHeight;
       const rightAspect = right.videoWidth / right.videoHeight;
-      const leftDiff = Math.abs(leftAspect - filter.targetVideoAspectRatio.target);
-      const rightDiff = Math.abs(rightAspect - filter.targetVideoAspectRatio.target);
-      if (leftDiff < rightDiff) leftPoints++;
-      else if (rightDiff < leftDiff) rightPoints++;
+      const leftDiff = Math.abs(leftAspect - filter.videoAspectRatio.target);
+      const rightDiff = Math.abs(rightAspect - filter.videoAspectRatio.target);
+      if (leftDiff < rightDiff) leftPoints += filter.videoAspectRatio.priority;
+      else if (rightDiff < leftDiff) rightPoints += filter.videoAspectRatio.priority;
     }
 
     // Find closest aspect ratio (photo)
-    if (filter.targetPhotoAspectRatio != null) {
+    if (filter.photoAspectRatio != null) {
       const leftAspect = left.photoWidth / right.photoHeight;
       const rightAspect = right.photoWidth / right.photoHeight;
-      const leftDiff = Math.abs(leftAspect - filter.targetPhotoAspectRatio.target);
-      const rightDiff = Math.abs(rightAspect - filter.targetPhotoAspectRatio.target);
-      if (leftDiff < rightDiff) leftPoints++;
-      else if (rightDiff < leftDiff) rightPoints++;
+      const leftDiff = Math.abs(leftAspect - filter.photoAspectRatio.target);
+      const rightDiff = Math.abs(rightAspect - filter.photoAspectRatio.target);
+      if (leftDiff < rightDiff) leftPoints += filter.photoAspectRatio.priority;
+      else if (rightDiff < leftDiff) rightPoints += filter.photoAspectRatio.priority;
     }
 
     // Find closest max FPS
-    if (filter.targetFps != null) {
-      const leftDiff = Math.abs(left.maxFps - filter.targetFps.target);
-      const rightDiff = Math.abs(right.maxFps - filter.targetFps.target);
-      if (leftDiff < rightDiff) leftPoints++;
-      else if (rightDiff < leftDiff) rightPoints++;
+    if (filter.fps != null) {
+      const leftDiff = Math.abs(left.maxFps - filter.fps.target);
+      const rightDiff = Math.abs(right.maxFps - filter.fps.target);
+      if (leftDiff < rightDiff) leftPoints += filter.fps.priority;
+      else if (rightDiff < leftDiff) rightPoints += filter.fps.priority;
     }
 
     // Find video stabilization mode
-    if (filter.targetVideoStabilizationMode != null) {
-      if (left.videoStabilizationModes.includes(filter.targetVideoStabilizationMode.target)) leftPoints++;
-      if (right.videoStabilizationModes.includes(filter.targetVideoStabilizationMode.target)) rightPoints++;
+    if (filter.videoStabilizationMode != null) {
+      if (left.videoStabilizationModes.includes(filter.videoStabilizationMode.target)) leftPoints++;
+      if (right.videoStabilizationModes.includes(filter.videoStabilizationMode.target)) rightPoints++;
     }
 
     return rightPoints - leftPoints;

@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { CameraDevice, CameraPosition } from '../CameraDevice';
 import { getCameraDevice, DeviceFilter } from '../devices/getCameraDevice';
+import { Camera } from '../Camera';
 
 /**
  * Get the best matching Camera device that best satisfies your requirements using a sorting filter.
@@ -13,17 +14,14 @@ import { getCameraDevice, DeviceFilter } from '../devices/getCameraDevice';
  * const device = useCameraDevice(position, { devices: ['wide-angle-camera'] })
  * ```
  */
-export function useCameraDevice(position: CameraPosition, filter: DeviceFilter): CameraDevice | undefined {
-  const [device, setDevice] = useState<CameraDevice>();
+export function useCameraDevice(position: CameraPosition, filter?: DeviceFilter): CameraDevice | undefined {
+  const [devices, setDevices] = useState(() => Camera.getAvailableCameraDevices());
 
-  useEffect(() => {
-    const load = async (): Promise<void> => {
-      const d = await getCameraDevice(position, filter);
-      setDevice(d);
-    };
-    load();
+  const device = useMemo(
+    () => getCameraDevice(devices, position, filter),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [position, JSON.stringify(filter)]);
+    [devices, position, JSON.stringify(filter)],
+  );
 
   return device;
 }

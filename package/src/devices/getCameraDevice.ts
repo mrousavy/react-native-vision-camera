@@ -1,4 +1,3 @@
-import { Camera } from '../Camera';
 import { CameraDevice, CameraPosition, PhysicalCameraDeviceType } from '../CameraDevice';
 import { CameraRuntimeError } from '../CameraError';
 
@@ -26,12 +25,11 @@ export interface DeviceFilter {
 
 /**
  * Get the best matching Camera device that satisfies your requirements using a sorting filter.
+ * @param devices All available Camera Devices this function will use for filtering. To get devices, use `Camera.getAvailableCameraDevices()`.
  * @param filter The filter you want to use. The device that matches your filter the closest will be returned.
  * @returns The device that matches your filter the closest.
  */
-export function getCameraDevice(position: CameraPosition, filter: DeviceFilter): CameraDevice {
-  const devices = Camera.getAvailableCameraDevices();
-
+export function getCameraDevice(devices: CameraDevice[], position: CameraPosition, filter: DeviceFilter = {}): CameraDevice {
   const filtered = devices.filter((d) => d.position === position);
   const sortedDevices = filtered.sort((left, right) => {
     let leftPoints = 0;
@@ -40,26 +38,6 @@ export function getCameraDevice(position: CameraPosition, filter: DeviceFilter):
     // prefer higher hardware-level
     if (left.hardwareLevel === 'full') leftPoints += 4;
     if (right.hardwareLevel === 'full') rightPoints += 4;
-
-    // devices that support flash are prefered
-    if (left.hasFlash) leftPoints++;
-    if (right.hasFlash) rightPoints++;
-
-    // devices that support flash are prefered
-    if (left.supportsDepthCapture) leftPoints++;
-    if (right.supportsDepthCapture) rightPoints++;
-
-    // devices that support focus are prefered
-    if (left.supportsFocus) leftPoints++;
-    if (right.supportsFocus) rightPoints++;
-
-    // devices that support low-light-boost are prefered
-    if (left.supportsLowLightBoost) leftPoints++;
-    if (right.supportsLowLightBoost) rightPoints++;
-
-    // devices that support RAW capture are prefered
-    if (left.supportsRawCapture) leftPoints++;
-    if (right.supportsRawCapture) rightPoints++;
 
     // compare devices. two possible scenarios:
     // 1. user wants all cameras ([ultra-wide, wide, tele]) to zoom. prefer those devices that have all 3 cameras.
