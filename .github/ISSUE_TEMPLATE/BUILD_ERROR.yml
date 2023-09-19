@@ -15,13 +15,28 @@ body:
       label: Full build logs
       description: Share the full build logs that appear in the console. Make sure you don't just paste the last few lines here, but rather everything from start to end.
       render: tsx
+      placeholder: >
+        $ react-native run-android
+
+        > Configure project :react-native-vision-camera
+        [VisionCamera] react-native-worklets-core found, Frame Processors enabled!
+
+        ...
     validations:
       required: true
   - type: textarea
     attributes:
       label: Project dependencies
       description: Share all of your project's dependencies including their versions from `package.json`. This is useful if there are any other conflicting libraries.
-      render: tsx
+      render: json
+      placeholder: >
+        "dependencies": {
+          "react-native": "^0.72.3",
+          "react-native-reanimated": "^3.4.2",
+          "react-native-vision-camera": "^3.0.0",
+          "react-native-worklets-core": "^0.2.0",
+          ...
+        },
     validations:
       required: true
   - type: input
