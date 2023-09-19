@@ -28,7 +28,7 @@ class CameraOutputs(val cameraId: String,
     const val PHOTO_OUTPUT_BUFFER_SIZE = 3
   }
 
-  data class PreviewOutput(val surface: Surface)
+  data class PreviewOutput(val surface: Surface, val aspectRatio: Double? = null)
   data class PhotoOutput(val targetSize: Size? = null,
                          val format: Int = ImageFormat.JPEG)
   data class VideoOutput(val targetSize: Size? = null,
@@ -60,6 +60,7 @@ class CameraOutputs(val cameraId: String,
     if (other !is CameraOutputs) return false
     return this.cameraId == other.cameraId
       && this.preview?.surface == other.preview?.surface
+      && this.preview?.aspectRatio == other.preview?.aspectRatio
       && this.photo?.targetSize == other.photo?.targetSize
       && this.photo?.format == other.photo?.format
       && this.video?.enableRecording == other.video?.enableRecording
@@ -98,7 +99,7 @@ class CameraOutputs(val cameraId: String,
     // Preview output: Low resolution repeating images (SurfaceView)
     if (preview != null) {
       Log.i(TAG, "Adding native preview view output.")
-      previewOutput = SurfaceOutput(preview.surface, characteristics.getPreviewSize(), SurfaceOutput.OutputType.PREVIEW)
+      previewOutput = SurfaceOutput(preview.surface, characteristics.getPreviewSize(preview.aspectRatio), SurfaceOutput.OutputType.PREVIEW)
     }
 
     // Photo output: High quality still images (takePhoto())

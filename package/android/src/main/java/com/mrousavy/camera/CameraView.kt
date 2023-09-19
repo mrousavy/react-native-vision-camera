@@ -23,6 +23,9 @@ import com.mrousavy.camera.parsers.PixelFormat
 import com.mrousavy.camera.parsers.Torch
 import com.mrousavy.camera.parsers.VideoStabilizationMode
 import com.mrousavy.camera.core.outputs.CameraOutputs
+import com.mrousavy.camera.extensions.bigger
+import com.mrousavy.camera.extensions.getPreviewSize
+import com.mrousavy.camera.extensions.smaller
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -41,7 +44,7 @@ class CameraView(context: Context) : FrameLayout(context) {
   companion object {
     const val TAG = "CameraView"
 
-    private val propsThatRequirePreviewReconfiguration = arrayListOf("cameraId")
+    private val propsThatRequirePreviewReconfiguration = arrayListOf("cameraId", "format")
     private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "photo", "video", "enableFrameProcessor", "pixelFormat")
     private val propsThatRequireFormatReconfiguration = arrayListOf("fps", "hdr", "videoStabilizationMode", "lowLightBoost")
   }
@@ -79,6 +82,7 @@ class CameraView(context: Context) : FrameLayout(context) {
   internal val cameraSession: CameraSession
   private var previewView: View? = null
   private var previewSurface: Surface? = null
+  private var previewSize: Size? = null
 
   internal var frameProcessor: FrameProcessor? = null
     set(value) {
@@ -111,12 +115,26 @@ class CameraView(context: Context) : FrameLayout(context) {
     updateLifecycle()
   }
 
+  private fun getPreviewSize(): Size {
+    val cameraId = cameraId ?: throw NoCameraDeviceError()
+
+    val format = format
+    val targetPhotoSize = if (format != null) Size(format.getInt("photoWidth"), format.getInt("photoHeight")) else null
+    val formatAspectRatio = if (targetPhotoSize != null) targetPhotoSize.bigger.toDouble() / targetPhotoSize.smaller else null
+
+    return this.cameraManager.getCameraCharacteristics(cameraId).getPreviewSize(formatAspectRatio)
+  }
+
   private fun setupPreviewView() {
     removeView(previewView)
     this.previewSurface = null
 
     val cameraId = cameraId ?: return
-    val previewView = PreviewView(context, cameraManager, cameraId) { surface ->
+
+    val previewSize = this.getPreviewSize()
+    this.previewSize = previewSize
+
+    val previewView = PreviewView(context, previewSize) { surface ->
       previewSurface = surface
       configureSession()
     }
@@ -173,13 +191,15 @@ class CameraView(context: Context) : FrameLayout(context) {
       }
       val cameraId = cameraId ?: throw NoCameraDeviceError()
 
+      val previewSize = previewSize ?: return
+
       val format = format
       val targetVideoSize = if (format != null) Size(format.getInt("videoWidth"), format.getInt("videoHeight")) else null
       val targetPhotoSize = if (format != null) Size(format.getInt("photoWidth"), format.getInt("photoHeight")) else null
       // TODO: Allow previewSurface to be null/none
       val previewSurface = previewSurface ?: return
 
-      val previewOutput = CameraOutputs.PreviewOutput(previewSurface)
+      val previewOutput = CameraOutputs.PreviewOutput(previewSurface, previewSize.width.toDouble() / previewSize.height)
       val photoOutput = if (photo == true) {
         CameraOutputs.PhotoOutput(targetPhotoSize)
       } else null

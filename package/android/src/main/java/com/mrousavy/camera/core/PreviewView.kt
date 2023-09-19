@@ -8,22 +8,19 @@ import android.util.Size
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import com.mrousavy.camera.extensions.bigger
 import com.mrousavy.camera.extensions.getPreviewSize
+import com.mrousavy.camera.extensions.smaller
 import kotlin.math.roundToInt
 
 @SuppressLint("ViewConstructor")
 class PreviewView(context: Context,
-                  cameraManager: CameraManager,
-                  cameraId: String,
+                  private val targetSize: Size,
                   private val onSurfaceChanged: (surface: Surface?) -> Unit): SurfaceView(context) {
-  private val targetSize: Size
-  private val aspectRatio: Float
-    get() = targetSize.width.toFloat() / targetSize.height.toFloat()
+  private val aspectRatio: Double
+    get() = targetSize.smaller.toDouble() / targetSize.bigger
 
   init {
-    val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-    targetSize = characteristics.getPreviewSize()
-
     Log.i(TAG, "Using Preview Size ${targetSize.width} x ${targetSize.height}.")
     holder.setFixedSize(targetSize.width, targetSize.height)
     holder.addCallback(object: SurfaceHolder.Callback {
@@ -45,23 +42,25 @@ class PreviewView(context: Context,
 
   override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
     super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-    val width = MeasureSpec.getSize(widthMeasureSpec)
-    val height = MeasureSpec.getSize(heightMeasureSpec)
-    Log.d(TAG, "onMeasure($width, $height)")
+    val viewWidth = MeasureSpec.getSize(widthMeasureSpec)
+    val viewHeight = MeasureSpec.getSize(heightMeasureSpec)
+    val viewAspectRatio = viewWidth.toDouble() / viewHeight
 
-    // Performs center-crop transformation of the camera frames
-    val newWidth: Int
-    val newHeight: Int
-    val actualRatio = if (width > height) aspectRatio else 1f / aspectRatio
-    if (width < height * actualRatio) {
-      newHeight = height
-      newWidth = (height * actualRatio).roundToInt()
+    if (viewAspectRatio.isNaN()) {
+      return
+    }
+    Log.d(TAG, "onMeasure($viewWidth, $viewHeight) $viewAspectRatio")
+
+    var newWidth: Int = viewWidth
+    var newHeight: Int = viewHeight
+
+    if (viewAspectRatio > aspectRatio) {
+      newWidth = (viewHeight * aspectRatio).roundToInt()
     } else {
-      newWidth = width
-      newHeight = (width / actualRatio).roundToInt()
+      newHeight = (viewWidth / aspectRatio).roundToInt()
     }
 
-    Log.d(TAG, "Measured dimensions set: $newWidth x $newHeight")
+    Log.d(TAG, "Fitted dimensions set: $newWidth x $newHeight")
     setMeasuredDimension(newWidth, newHeight)
   }
 
