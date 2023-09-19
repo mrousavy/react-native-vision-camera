@@ -5,9 +5,9 @@ import android.hardware.camera2.CameraCharacteristics
 enum class HardwareLevel(override val unionValue: String): JSUnionValue {
   LEGACY("legacy"),
   LIMITED("limited"),
-  EXTERNAL("external"),
+  EXTERNAL("limited"),
   FULL("full"),
-  LEVEL_3("level-3");
+  LEVEL_3("full");
 
   companion object {
     fun fromCameraCharacteristics(cameraCharacteristics: CameraCharacteristics): HardwareLevel {
