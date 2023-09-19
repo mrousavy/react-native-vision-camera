@@ -111,6 +111,7 @@ body:
         - Yes, I can reproduce the same issue in the Example app here
         - No, I cannot reproduce the issue in the Example app
         - I didn't try (⚠️ your issue might get ignored & closed if you don't try this)
+      default: 0
     validations:
       required: true
   - type: checkboxes
