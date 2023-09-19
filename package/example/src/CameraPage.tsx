@@ -46,7 +46,12 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
   // camera format settings
   const device = useCameraDevice(cameraPosition);
-  const format = useCameraFormat(device, {});
+  const format = useCameraFormat(device, {
+    fps: {
+      target: 60,
+      priority: 1,
+    },
+  });
 
   //#region Memos
   const [is60Fps, setIs60Fps] = useState(true);
