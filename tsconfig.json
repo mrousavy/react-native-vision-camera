@@ -3,6 +3,7 @@
   "compilerOptions": {
     "types": ["react-native"],
     "allowJs": false,
+    "noEmit": false,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "esModuleInterop": true,
