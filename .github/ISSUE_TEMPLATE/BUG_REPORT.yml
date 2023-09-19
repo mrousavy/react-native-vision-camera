@@ -107,7 +107,6 @@ body:
       description: >
         Try to build the example app (`package/example/`) and see if the issue is reproduceable here.
         **Note:** If you don't try this in the example app, I most likely won't help you with your issue.
-      multiple: true
       options:
         - Yes, I can reproduce the same issue in the Example app here
         - No, I cannot reproduce the issue in the Example app
