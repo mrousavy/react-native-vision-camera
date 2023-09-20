@@ -11,6 +11,7 @@ const constants = CameraDevicesManager.getConstants();
 let devices = constants.availableCameraDevices;
 
 const DEVICES_CHANGED_NAME = 'CameraDevicesChanged';
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const eventEmitter = new NativeEventEmitter(CameraDevicesManager as any);
 eventEmitter.addListener(DEVICES_CHANGED_NAME, (newDevices: CameraDevice[]) => {
   devices = newDevices;
