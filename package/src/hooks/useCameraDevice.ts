@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { CameraDevice, CameraPosition } from '../CameraDevice';
 import { getCameraDevice, DeviceFilter } from '../devices/getCameraDevice';
-import { Camera } from '../Camera';
+import { useCameraDevices } from './useCameraDevices';
 
 /**
  * Get the best matching Camera device that best satisfies your requirements using a sorting filter.
@@ -15,7 +15,7 @@ import { Camera } from '../Camera';
  * ```
  */
 export function useCameraDevice(position: CameraPosition, filter?: DeviceFilter): CameraDevice | undefined {
-  const [devices, setDevices] = useState(() => Camera.getAvailableCameraDevices());
+  const devices = useCameraDevices();
 
   const device = useMemo(
     () => getCameraDevice(devices, position, filter),

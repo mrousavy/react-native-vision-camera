@@ -9,6 +9,8 @@ import type { PhotoFile, TakePhotoOptions } from './PhotoFile';
 import type { Point } from './Point';
 import type { RecordVideoOptions, VideoFile } from './VideoFile';
 import { VisionCameraProxy } from './FrameProcessorPlugins';
+import { CameraDevices } from './CameraDevices';
+import type { EmitterSubscription } from 'react-native';
 
 //#region Types
 export type CameraPermissionStatus = 'granted' | 'not-determined' | 'denied' | 'restricted';
@@ -37,7 +39,7 @@ type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>;
  *
  * The `<Camera>` component's most important (and therefore _required_) properties are:
  *
- * * {@linkcode CameraProps.device | device}: Specifies the {@linkcode CameraDevice} to use. Get a {@linkcode CameraDevice} by using the {@linkcode useCameraDevices | useCameraDevices()} hook, or manually by using the {@linkcode Camera.getAvailableCameraDevices Camera.getAvailableCameraDevices()} function.
+ * * {@linkcode CameraProps.device | device}: Specifies the {@linkcode CameraDevice} to use. Get a {@linkcode CameraDevice} by using the {@linkcode useCameraDevice | useCameraDevice()} hook, or manually by using the {@linkcode CameraDevices.getAvailableCameraDevices CameraDevices.getAvailableCameraDevices()} function.
  * * {@linkcode CameraProps.isActive | isActive}: A boolean value that specifies whether the Camera should actively stream video frames or not. This can be compared to a Video component, where `isActive` specifies whether the video is paused or not. If you fully unmount the `<Camera>` component instead of using `isActive={false}`, the Camera will take a bit longer to start again.
  *
  * @example
@@ -261,16 +263,13 @@ export class Camera extends React.PureComponent<CameraProps> {
   /**
    * Get a list of all available camera devices on the current phone.
    *
-   * @throws {@linkcode CameraRuntimeError} When any kind of error occured while getting all available camera devices. Use the {@linkcode CameraRuntimeError.code | code} property to get the actual error
+   * If you use Hooks, use the `useCameraDevices()` hook instead.
+   *
    * @example
    * ```ts
    * const devices = Camera.getAvailableCameraDevices()
-   * const filtered = devices.filter((d) => matchesMyExpectations(d))
-   * const sorted = devices.sort(sortDevicesByAmountOfCameras)
-   * return {
-   *   back: sorted.find((d) => d.position === "back"),
-   *   front: sorted.find((d) => d.position === "front")
-   * }
+   * const backCameras = devices.filter((d) => d.position === "back")
+   * const frontCameras = devices.filter((d) => d.position === "front")
    * ```
    */
   public static getAvailableCameraDevices(): CameraDevice[] {
@@ -279,6 +278,14 @@ export class Camera extends React.PureComponent<CameraProps> {
     } catch (e) {
       throw tryParseNativeCameraError(e);
     }
+  }
+
+  /**
+   * Adds a listener that gets called everytime the Camera Devices change, for example
+   * when an external Camera Device (USB or continuity Camera) gets plugged in or plugged out.
+   */
+  public static addCameraDevicesChangedListener(listener: (newDevices: CameraDevice[]) => void): EmitterSubscription {
+    return CameraDevices.addCameraDevicesChangedListener(listener);
   }
   /**
    * Gets the current Camera Permission Status. Check this before mounting the Camera to ensure

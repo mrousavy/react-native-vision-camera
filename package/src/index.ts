@@ -9,6 +9,7 @@ export * from './PixelFormat';
 export * from './Point';
 export * from './VideoFile';
 
+export * from './hooks/useCameraDevices';
 export * from './hooks/useCameraDevice';
 export * from './hooks/useCameraFormat';
 export * from './devices/getCameraFormat';

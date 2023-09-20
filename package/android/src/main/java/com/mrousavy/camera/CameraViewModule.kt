@@ -1,9 +1,7 @@
 package com.mrousavy.camera
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
-import android.hardware.camera2.CameraManager
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
@@ -11,7 +9,6 @@ import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener
 import com.facebook.react.uimanager.UIManagerHelper
-import com.mrousavy.camera.core.CameraDeviceDetails
 import com.mrousavy.camera.frameprocessor.VisionCameraInstaller
 import com.mrousavy.camera.frameprocessor.VisionCameraProxy
 import com.mrousavy.camera.parsers.*
@@ -135,18 +132,6 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
         return@withPromise null
       }
     }
-  }
-
-  @ReactMethod(isBlockingSynchronousMethod = true)
-  fun getAvailableCameraDevices(): ReadableMap {
-    val manager = reactApplicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-
-    val devices = Arguments.createArray()
-    manager.cameraIdList.forEach { cameraId ->
-      val device = CameraDeviceDetails(manager, cameraId)
-      devices.pushMap(device.toMap())
-    }
-    promise.resolve(devices)
   }
 
   private fun canRequestPermission(permission: String): Boolean {
