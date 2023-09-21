@@ -54,8 +54,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   });
 
   //#region Memos
-  const [is60Fps, setIs60Fps] = useState(true);
-  const fps = Math.min(format?.maxFps ?? 1, 60);
+  const [targetFps, setTargetFps] = useState(30);
+  const fps = Math.min(format?.maxFps ?? 1, targetFps);
 
   const supportsFlash = device?.hasFlash ?? false;
   const supportsHdr = format?.supportsPhotoHDR;
@@ -215,11 +215,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
           </PressableOpacity>
         )}
         {supports60Fps && (
-          <PressableOpacity style={styles.button} onPress={() => setIs60Fps(!is60Fps)}>
-            <Text style={styles.text}>
-              {is60Fps ? '60' : '30'}
-              {'\n'}FPS
-            </Text>
+          <PressableOpacity style={styles.button} onPress={() => setTargetFps(targetFps === 30 ? 60 : 30)}>
+            <Text style={styles.text}>{`${targetFps} FPS`}</Text>
           </PressableOpacity>
         )}
         {supportsHdr && (
