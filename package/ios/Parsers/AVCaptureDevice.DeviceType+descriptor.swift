@@ -12,27 +12,19 @@ import Foundation
 extension AVCaptureDevice.DeviceType {
   var descriptor: String {
     if #available(iOS 13.0, *) {
-      switch self {
-      case .builtInDualWideCamera:
-        return "dual-wide-camera"
-      case .builtInTripleCamera:
-        return "triple-camera"
-      case .builtInUltraWideCamera:
+      if self == .builtInUltraWideCamera {
         return "ultra-wide-angle-camera"
-      default:
-        break
       }
     }
     switch self {
-    case .builtInDualCamera:
-      return "dual-camera"
     case .builtInTelephotoCamera:
       return "telephoto-camera"
     case .builtInWideAngleCamera:
       return "wide-angle-camera"
     default:
       // e.g. `.builtInTrueDepthCamera`
-      fatalError("AVCaptureDevice.Position has unknown state.")
+      ReactLogger.log(level: .error, message: "Unknown AVCaptureDevice.DeviceType (\(self.rawValue))! Falling back to wide-angle-camera..")
+      return "wide-angle-camera"
     }
   }
 }
