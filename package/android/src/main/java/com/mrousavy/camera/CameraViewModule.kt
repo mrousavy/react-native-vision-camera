@@ -167,15 +167,16 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   }
 
   @ReactMethod
-  fun requestCameraPermission(promise: Promise) {
+  fun requestCameraPermission(promise: Promise)
+{
     val activity = reactApplicationContext.currentActivity
     if (activity is PermissionAwareActivity) {
       val currentRequestCode = sharedRequestCode++
       val listener = PermissionListener { requestCode: Int, _: Array<String>, grantResults: IntArray ->
         if (requestCode == currentRequestCode) {
-          val permissionStatus = if (grantResults.isNotEmpty()) grantResults[0] else PackageManager.PERMISSION_DENIED
+                val permissionStatus = if (grantResults.isNotEmpty()) grantResults[0] else PackageManager.PERMISSION_DENIED
           val parsed = PermissionStatus.fromPermissionStatus(permissionStatus)
-          promise.resolve(parsed.unionValue)
+            promise.resolve(parsed.unionValue)
           return@PermissionListener true
         }
         return@PermissionListener false
