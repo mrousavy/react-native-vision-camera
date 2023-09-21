@@ -29,14 +29,16 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
   private val extensions = getSupportedExtensions()
 
   // device characteristics
-  private val isMultiCam = capabilities.contains(11 /* TODO: CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA */)
-  private val supportsDepthCapture = capabilities.contains(8 /* TODO: CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DEPTH_OUTPUT */)
+  private val isMultiCam = capabilities.contains(11) // TODO: CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
+  private val supportsDepthCapture = capabilities.contains(8) // TODO: CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DEPTH_OUTPUT
   private val supportsRawCapture = capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW)
-  private val supportsLowLightBoost = extensions.contains(4 /* TODO: CameraExtensionCharacteristics.EXTENSION_NIGHT */)
+  private val supportsLowLightBoost = extensions.contains(4) // TODO: CameraExtensionCharacteristics.EXTENSION_NIGHT
   private val lensFacing = LensFacing.fromCameraCharacteristics(characteristics)
   private val hasFlash = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) ?: false
   private val focalLengths =
-    characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS) ?: floatArrayOf(35f /* 35mm default */)
+    characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
+      // 35mm is the film standard sensor size
+      ?: floatArrayOf(35f)
   private val sensorSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)!!
   private val sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)!!
   private val name = (
@@ -64,7 +66,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES) ?: IntArray(0)
   private val opticalStabilizationModes =
     characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_OPTICAL_STABILIZATION) ?: IntArray(0)
-  private val supportsPhotoHdr = extensions.contains(3 /* TODO: CameraExtensionCharacteristics.EXTENSION_HDR */)
+  private val supportsPhotoHdr = extensions.contains(3) // TODO: CameraExtensionCharacteristics.EXTENSION_HDR
   private val supportsVideoHdr = getHasVideoHdr()
 
   private val videoFormat = ImageFormat.YUV_420_888

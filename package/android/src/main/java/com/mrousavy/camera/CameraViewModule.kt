@@ -23,7 +23,7 @@ import kotlinx.coroutines.*
 class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
   companion object {
     const val TAG = "CameraView"
-    var RequestCode = 10
+    var sharedRequestCode = 10
   }
 
   private val coroutineScope = CoroutineScope(Dispatchers.Default) // TODO: or Dispatchers.Main?
@@ -170,7 +170,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   fun requestCameraPermission(promise: Promise) {
     val activity = reactApplicationContext.currentActivity
     if (activity is PermissionAwareActivity) {
-      val currentRequestCode = RequestCode++
+      val currentRequestCode = sharedRequestCode++
       val listener = PermissionListener { requestCode: Int, _: Array<String>, grantResults: IntArray ->
         if (requestCode == currentRequestCode) {
           val permissionStatus = if (grantResults.isNotEmpty()) grantResults[0] else PackageManager.PERMISSION_DENIED
@@ -190,7 +190,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   fun requestMicrophonePermission(promise: Promise) {
     val activity = reactApplicationContext.currentActivity
     if (activity is PermissionAwareActivity) {
-      val currentRequestCode = RequestCode++
+      val currentRequestCode = sharedRequestCode++
       val listener = PermissionListener { requestCode: Int, _: Array<String>, grantResults: IntArray ->
         if (requestCode == currentRequestCode) {
           val permissionStatus = if (grantResults.isNotEmpty()) grantResults[0] else PackageManager.PERMISSION_DENIED
