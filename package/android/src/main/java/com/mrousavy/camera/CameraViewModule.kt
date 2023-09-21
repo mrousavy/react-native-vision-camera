@@ -13,14 +13,14 @@ import com.mrousavy.camera.frameprocessor.VisionCameraInstaller
 import com.mrousavy.camera.frameprocessor.VisionCameraProxy
 import com.mrousavy.camera.parsers.*
 import com.mrousavy.camera.utils.*
-import kotlinx.coroutines.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import kotlinx.coroutines.*
 
 @ReactModule(name = CameraViewModule.TAG)
 @Suppress("unused")
-class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJavaModule(reactContext) {
+class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
   companion object {
     const val TAG = "CameraView"
     var RequestCode = 10
@@ -35,25 +35,32 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
     }
   }
 
-  override fun getName(): String {
-    return TAG
-  }
+  override fun getName(): String = TAG
 
-  private suspend fun findCameraView(viewId: Int): CameraView {
-    return suspendCoroutine { continuation ->
+  private suspend fun findCameraView(viewId: Int): CameraView =
+    suspendCoroutine { continuation ->
       UiThreadUtil.runOnUiThread {
         Log.d(TAG, "Finding view $viewId...")
-        val view = if (reactApplicationContext != null) UIManagerHelper.getUIManager(reactApplicationContext, viewId)?.resolveView(viewId) as CameraView? else null
-        Log.d(TAG,  if (reactApplicationContext != null) "Found view $viewId!" else "Couldn't find view $viewId!")
-        if (view != null) continuation.resume(view)
-        else continuation.resumeWithException(ViewNotFoundError(viewId))
+        val view = if (reactApplicationContext != null) {
+          UIManagerHelper.getUIManager(
+            reactApplicationContext,
+            viewId
+          )?.resolveView(viewId) as CameraView?
+        } else {
+          null
+        }
+        Log.d(TAG, if (reactApplicationContext != null) "Found view $viewId!" else "Couldn't find view $viewId!")
+        if (view != null) {
+          continuation.resume(view)
+        } else {
+          continuation.resumeWithException(ViewNotFoundError(viewId))
+        }
       }
     }
-  }
 
   @ReactMethod(isBlockingSynchronousMethod = true)
-  fun installFrameProcessorBindings(): Boolean {
-    return try {
+  fun installFrameProcessorBindings(): Boolean =
+    try {
       val proxy = VisionCameraProxy(reactApplicationContext)
       VisionCameraInstaller.install(proxy)
       true
@@ -61,7 +68,6 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
       Log.e(TAG, "Failed to install Frame Processor JSI Bindings!", e)
       false
     }
-  }
 
   @ReactMethod
   fun takePhoto(viewTag: Int, options: ReadableMap, promise: Promise) {
@@ -84,7 +90,8 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
         val map = makeErrorMap("${error.domain}/${error.id}", error.message, error)
         onRecordCallback(null, map)
       } catch (error: Throwable) {
-        val map = makeErrorMap("capture/unknown", "An unknown error occurred while trying to start a video recording! ${error.message}", error)
+        val map =
+          makeErrorMap("capture/unknown", "An unknown error occurred while trying to start a video recording! ${error.message}", error)
         onRecordCallback(null, map)
       }
     }

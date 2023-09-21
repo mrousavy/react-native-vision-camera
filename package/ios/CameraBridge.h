@@ -10,11 +10,11 @@
 
 #import <Foundation/Foundation.h>
 
+#import <React/RCTEventEmitter.h>
 #import <React/RCTFPSGraph.h>
 #import <React/RCTLog.h>
 #import <React/RCTUIManager.h>
 #import <React/RCTViewManager.h>
-#import <React/RCTEventEmitter.h>
 
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
 #import "Frame.h"

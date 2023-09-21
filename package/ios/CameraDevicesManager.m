@@ -7,8 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <React/RCTUtils.h>
 #import <React/RCTEventEmitter.h>
+#import <React/RCTUtils.h>
 
 @interface RCT_EXTERN_REMAP_MODULE (CameraDevices, CameraDevicesManager, RCTEventEmitter)
 

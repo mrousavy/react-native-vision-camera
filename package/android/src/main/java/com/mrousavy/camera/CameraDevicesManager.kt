@@ -5,31 +5,29 @@ import android.hardware.camera2.CameraManager
 import android.util.Log
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.mrousavy.camera.core.CameraDeviceDetails
 
-class CameraDevicesManager(private val reactContext: ReactApplicationContext): ReactContextBaseJavaModule(reactContext) {
+class CameraDevicesManager(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
   companion object {
     private const val TAG = "CameraDevices"
   }
   private val cameraManager = reactContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
-  private val callback = object: CameraManager.AvailabilityCallback() {
+  private val callback = object : CameraManager.AvailabilityCallback() {
     private var devices = cameraManager.cameraIdList.toMutableList()
 
     // Check if device is still physically connected (even if onCameraUnavailable() is called)
-    private fun isDeviceConnected(cameraId: String): Boolean {
-      return try {
+    private fun isDeviceConnected(cameraId: String): Boolean =
+      try {
         cameraManager.getCameraCharacteristics(cameraId)
         true
       } catch (_: Throwable) {
         false
       }
-    }
 
     override fun onCameraAvailable(cameraId: String) {
       Log.i(TAG, "Camera #$cameraId: Available!")
@@ -48,9 +46,7 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext): R
     }
   }
 
-  override fun getName(): String {
-    return TAG
-  }
+  override fun getName(): String = TAG
 
   override fun initialize() {
     cameraManager.registerAvailabilityCallback(callback, null)
@@ -75,17 +71,14 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext): R
     eventEmitter.emit("CameraDevicesChanged", getDevicesJson())
   }
 
-  override fun hasConstants(): Boolean {
-    return true
-  }
+  override fun hasConstants(): Boolean = true
 
-  override fun getConstants(): MutableMap<String, Any> {
-    return mutableMapOf("availableCameraDevices" to getDevicesJson())
-  }
+  override fun getConstants(): MutableMap<String, Any> = mutableMapOf("availableCameraDevices" to getDevicesJson())
 
   // Required for NativeEventEmitter, this is just a dummy implementation:
   @ReactMethod
   fun addListener(eventName: String) {}
+
   @ReactMethod
   fun removeListeners(count: Int) {}
 }

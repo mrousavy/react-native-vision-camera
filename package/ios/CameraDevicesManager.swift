@@ -12,30 +12,30 @@ class CameraDevicesManager: RCTEventEmitter {
   private let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: getAllDeviceTypes(),
                                                                   mediaType: .video,
                                                                   position: .unspecified)
-  private var observer: NSKeyValueObservation? = nil
+  private var observer: NSKeyValueObservation?
   private let devicesChangedEventName = "CameraDevicesChanged"
-  
+
   override init() {
     super.init()
-    observer = discoverySession.observe(\.devices) { discoverySession, change in
+    observer = discoverySession.observe(\.devices) { _, _ in
       self.sendEvent(withName: self.devicesChangedEventName, body: self.getDevicesJson())
     }
   }
-  
+
   override func invalidate() {
     observer?.invalidate()
   }
-  
+
   override func supportedEvents() -> [String]! {
     return [devicesChangedEventName]
   }
-  
-  override func constantsToExport() -> [AnyHashable : Any]! {
+
+  override func constantsToExport() -> [AnyHashable: Any]! {
     return [
-      "availableCameraDevices": getDevicesJson()
+      "availableCameraDevices": getDevicesJson(),
     ]
   }
-  
+
   private func getDevicesJson() -> [[String: Any]] {
     return discoverySession.devices.map {
       return [
@@ -61,7 +61,7 @@ class CameraDevicesManager: RCTEventEmitter {
       ]
     }
   }
-  
+
   private static func getAllDeviceTypes() -> [AVCaptureDevice.DeviceType] {
     var deviceTypes: [AVCaptureDevice.DeviceType] = []
     if #available(iOS 13.0, *) {

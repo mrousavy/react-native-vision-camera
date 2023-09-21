@@ -4,7 +4,7 @@ import android.graphics.ImageFormat
 import com.mrousavy.camera.PixelFormatNotSupportedError
 
 @Suppress("FoldInitializerAndIfToElvis")
-enum class PixelFormat(override val unionValue: String): JSUnionValue {
+enum class PixelFormat(override val unionValue: String) : JSUnionValue {
   YUV("yuv"),
   RGB("rgb"),
   DNG("dng"),
@@ -25,19 +25,18 @@ enum class PixelFormat(override val unionValue: String): JSUnionValue {
     return result
   }
 
-  companion object: JSUnionValue.Companion<PixelFormat> {
-    fun fromImageFormat(imageFormat: Int): PixelFormat {
-      return when (imageFormat) {
+  companion object : JSUnionValue.Companion<PixelFormat> {
+    fun fromImageFormat(imageFormat: Int): PixelFormat =
+      when (imageFormat) {
         ImageFormat.YUV_420_888 -> YUV
         ImageFormat.JPEG, ImageFormat.DEPTH_JPEG -> RGB
         ImageFormat.RAW_SENSOR -> DNG
         ImageFormat.PRIVATE -> NATIVE
         else -> UNKNOWN
       }
-    }
 
-    override fun fromUnionValue(unionValue: String?): PixelFormat? {
-      return when (unionValue) {
+    override fun fromUnionValue(unionValue: String?): PixelFormat? =
+      when (unionValue) {
         "yuv" -> YUV
         "rgb" -> RGB
         "dng" -> DNG
@@ -45,6 +44,5 @@ enum class PixelFormat(override val unionValue: String): JSUnionValue {
         "unknown" -> UNKNOWN
         else -> null
       }
-    }
   }
 }

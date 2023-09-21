@@ -2,7 +2,7 @@ package com.mrousavy.camera.parsers
 
 import android.hardware.camera2.CameraDevice
 
-enum class CameraDeviceError(override val unionValue: String): JSUnionValue {
+enum class CameraDeviceError(override val unionValue: String) : JSUnionValue {
   CAMERA_ALREADY_IN_USE("camera-already-in-use"),
   TOO_MANY_OPEN_CAMERAS("too-many-open-cameras"),
   CAMERA_IS_DISABLED_BY_ANDROID("camera-is-disabled-by-android"),
@@ -11,8 +11,8 @@ enum class CameraDeviceError(override val unionValue: String): JSUnionValue {
   DISCONNECTED("camera-has-been-disconnected");
 
   companion object {
-    fun fromCameraDeviceError(cameraDeviceError: Int): CameraDeviceError {
-      return when (cameraDeviceError) {
+    fun fromCameraDeviceError(cameraDeviceError: Int): CameraDeviceError =
+      when (cameraDeviceError) {
         CameraDevice.StateCallback.ERROR_CAMERA_IN_USE -> CAMERA_ALREADY_IN_USE
         CameraDevice.StateCallback.ERROR_MAX_CAMERAS_IN_USE -> TOO_MANY_OPEN_CAMERAS
         CameraDevice.StateCallback.ERROR_CAMERA_DISABLED -> CAMERA_IS_DISABLED_BY_ANDROID
@@ -20,6 +20,5 @@ enum class CameraDeviceError(override val unionValue: String): JSUnionValue {
         CameraDevice.StateCallback.ERROR_CAMERA_SERVICE -> UNKNOWN_FATAL_CAMERA_SERVICE_ERROR
         else -> UNKNOWN_CAMERA_DEVICE_ERROR
       }
-    }
   }
 }

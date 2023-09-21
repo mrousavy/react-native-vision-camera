@@ -10,11 +10,13 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import java.io.Closeable
 
-open class SurfaceOutput(val surface: Surface,
-                         val size: Size,
-                         val outputType: OutputType,
-                         private val dynamicRangeProfile: Long? = null,
-                         private val closeSurfaceOnEnd: Boolean = false): Closeable {
+open class SurfaceOutput(
+  val surface: Surface,
+  val size: Size,
+  val outputType: OutputType,
+  private val dynamicRangeProfile: Long? = null,
+  private val closeSurfaceOnEnd: Boolean = false
+) : Closeable {
   companion object {
     const val TAG = "SurfaceOutput"
 
@@ -47,9 +49,7 @@ open class SurfaceOutput(val surface: Surface,
     return result
   }
 
-  override fun toString(): String {
-    return "$outputType (${size.width} x ${size.height})"
-  }
+  override fun toString(): String = "$outputType (${size.width} x ${size.height})"
 
   override fun close() {
     if (closeSurfaceOnEnd) {
@@ -64,13 +64,12 @@ open class SurfaceOutput(val surface: Surface,
     VIDEO_AND_PREVIEW;
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    fun toOutputType(): Int {
-      return when(this) {
+    fun toOutputType(): Int =
+      when (this) {
         PHOTO -> CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_STILL_CAPTURE
         VIDEO -> CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD
         PREVIEW -> CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW
         VIDEO_AND_PREVIEW -> CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW_VIDEO_STILL
       }
-    }
   }
 }

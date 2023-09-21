@@ -15,10 +15,9 @@ import com.mrousavy.camera.core.CameraSession
 import com.mrousavy.camera.parsers.Flash
 import com.mrousavy.camera.parsers.QualityPrioritization
 import com.mrousavy.camera.utils.*
-import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
-import java.io.OutputStream
+import kotlinx.coroutines.*
 
 private const val TAG = "CameraView.takePhoto"
 
@@ -36,12 +35,14 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
   val flashMode = Flash.fromUnionValue(flash)
   val qualityPrioritizationMode = QualityPrioritization.fromUnionValue(qualityPrioritization)
 
-  val photo = cameraSession.takePhoto(qualityPrioritizationMode,
-                                      flashMode,
-                                      enableShutterSound,
-                                      enableAutoRedEyeReduction,
-                                      enableAutoStabilization,
-                                      outputOrientation)
+  val photo = cameraSession.takePhoto(
+    qualityPrioritizationMode,
+    flashMode,
+    enableShutterSound,
+    enableAutoRedEyeReduction,
+    enableAutoStabilization,
+    outputOrientation
+  )
 
   photo.use {
     Log.i(TAG, "Successfully captured ${photo.image.width} x ${photo.image.height} photo!")
@@ -83,10 +84,12 @@ private fun writePhotoToFile(photo: CameraSession.CapturedPhoto, file: File) {
   }
 }
 
-private suspend fun savePhotoToFile(context: Context,
-                                    cameraCharacteristics: CameraCharacteristics,
-                                    photo: CameraSession.CapturedPhoto): String {
-  return withContext(Dispatchers.IO) {
+private suspend fun savePhotoToFile(
+  context: Context,
+  cameraCharacteristics: CameraCharacteristics,
+  photo: CameraSession.CapturedPhoto
+): String =
+  withContext(Dispatchers.IO) {
     when (photo.format) {
       // When the format is JPEG or DEPTH JPEG we can simply save the bytes as-is
       ImageFormat.JPEG, ImageFormat.DEPTH_JPEG -> {
@@ -111,8 +114,8 @@ private suspend fun savePhotoToFile(context: Context,
       }
     }
   }
-}
 
-private fun createFile(context: Context, extension: String): File {
-  return File.createTempFile("mrousavy", extension, context.cacheDir).apply { deleteOnExit() }
-}
+private fun createFile(context: Context, extension: String): File =
+  File.createTempFile("mrousavy", extension, context.cacheDir).apply {
+    deleteOnExit()
+  }

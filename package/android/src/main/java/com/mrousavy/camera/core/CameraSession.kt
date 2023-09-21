@@ -25,6 +25,7 @@ import com.mrousavy.camera.PhotoNotEnabledError
 import com.mrousavy.camera.RecorderError
 import com.mrousavy.camera.RecordingInProgressError
 import com.mrousavy.camera.VideoNotEnabledError
+import com.mrousavy.camera.core.outputs.CameraOutputs
 import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.createPhotoCaptureRequest
@@ -37,19 +38,23 @@ import com.mrousavy.camera.parsers.QualityPrioritization
 import com.mrousavy.camera.parsers.VideoCodec
 import com.mrousavy.camera.parsers.VideoFileType
 import com.mrousavy.camera.parsers.VideoStabilizationMode
-import com.mrousavy.camera.core.outputs.CameraOutputs
+import java.io.Closeable
+import java.util.concurrent.CancellationException
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.io.Closeable
-import java.util.concurrent.CancellationException
-import kotlin.coroutines.CoroutineContext
 
-class CameraSession(private val context: Context,
-                    private val cameraManager: CameraManager,
-                    private val onInitialized: () -> Unit,
-                    private val onError: (e: Throwable) -> Unit): CoroutineScope, Closeable, CameraOutputs.Callback, CameraManager.AvailabilityCallback() {
+class CameraSession(
+  private val context: Context,
+  private val cameraManager: CameraManager,
+  private val onInitialized: () -> Unit,
+  private val onError: (e: Throwable) -> Unit
+) : CameraManager.AvailabilityCallback(),
+  CoroutineScope,
+  Closeable,
+  CameraOutputs.Callback {
   companion object {
     private const val TAG = "CameraSession"
 
@@ -57,11 +62,13 @@ class CameraSession(private val context: Context,
     private val CAN_SET_FPS = !Build.MANUFACTURER.equals("samsung", true)
   }
 
-  data class CapturedPhoto(val image: Image,
-                           val metadata: TotalCaptureResult,
-                           val orientation: Orientation,
-                           val isMirrored: Boolean,
-                           val format: Int): Closeable {
+  data class CapturedPhoto(
+    val image: Image,
+    val metadata: TotalCaptureResult,
+    val orientation: Orientation,
+    val isMirrored: Boolean,
+    val format: Int
+  ) : Closeable {
     override fun close() {
       image.close()
     }
@@ -92,6 +99,7 @@ class CameraSession(private val context: Context,
   private val mutex = Mutex()
   private var isRunning = false
   private var enableTorch = false
+
   // Video Outputs
   private var recording: RecordingSession? = null
     set(value) {
@@ -127,18 +135,22 @@ class CameraSession(private val context: Context,
       return Orientation.fromRotationDegrees(sensorRotation)
     }
 
-  fun configureSession(cameraId: String,
-                       preview: CameraOutputs.PreviewOutput? = null,
-                       photo: CameraOutputs.PhotoOutput? = null,
-                       video: CameraOutputs.VideoOutput? = null) {
+  fun configureSession(
+    cameraId: String,
+    preview: CameraOutputs.PreviewOutput? = null,
+    photo: CameraOutputs.PhotoOutput? = null,
+    video: CameraOutputs.VideoOutput? = null
+  ) {
     Log.i(TAG, "Configuring Session for Camera $cameraId...")
-    val outputs = CameraOutputs(cameraId,
+    val outputs = CameraOutputs(
+      cameraId,
       cameraManager,
       preview,
       photo,
       video,
       hdr == true,
-      this)
+      this
+    )
     if (this.cameraId == cameraId && this.outputs == outputs && isActive == isRunning) {
       Log.i(TAG, "Nothing changed in configuration, canceling..")
     }
@@ -156,10 +168,12 @@ class CameraSession(private val context: Context,
     }
   }
 
-  fun configureFormat(fps: Int? = null,
-                      videoStabilizationMode: VideoStabilizationMode? = null,
-                      hdr: Boolean? = null,
-                      lowLightBoost: Boolean? = null) {
+  fun configureFormat(
+    fps: Int? = null,
+    videoStabilizationMode: VideoStabilizationMode? = null,
+    hdr: Boolean? = null,
+    lowLightBoost: Boolean? = null
+  ) {
     Log.i(TAG, "Setting Format (fps: $fps | videoStabilization: $videoStabilizationMode | hdr: $hdr | lowLightBoost: $lowLightBoost)...")
     this.fps = fps
     this.videoStabilizationMode = videoStabilizationMode
@@ -170,18 +184,23 @@ class CameraSession(private val context: Context,
     val currentOutputs = outputs
     if (currentOutputs != null && currentOutputs.enableHdr != hdr) {
       // Update existing HDR for Outputs
-      this.outputs = CameraOutputs(currentOutputs.cameraId,
+      this.outputs = CameraOutputs(
+        currentOutputs.cameraId,
         cameraManager,
         currentOutputs.preview,
         currentOutputs.photo,
         currentOutputs.video,
         hdr,
-        this)
+        this
+      )
       needsReconfiguration = true
     }
     launch {
-      if (needsReconfiguration) startRunning()
-      else updateRepeatingRequest()
+      if (needsReconfiguration) {
+        startRunning()
+      } else {
+        updateRepeatingRequest()
+      }
     }
   }
 
@@ -208,12 +227,14 @@ class CameraSession(private val context: Context,
     videoPipeline.setFrameProcessorOutput(this.frameProcessor)
   }
 
-  suspend fun takePhoto(qualityPrioritization: QualityPrioritization,
-                        flashMode: Flash,
-                        enableShutterSound: Boolean,
-                        enableRedEyeReduction: Boolean,
-                        enableAutoStabilization: Boolean,
-                        outputOrientation: Orientation): CapturedPhoto {
+  suspend fun takePhoto(
+    qualityPrioritization: QualityPrioritization,
+    flashMode: Flash,
+    enableShutterSound: Boolean,
+    enableRedEyeReduction: Boolean,
+    enableAutoStabilization: Boolean,
+    outputOrientation: Orientation
+  ): CapturedPhoto {
     val captureSession = captureSession ?: throw CameraNotReadyError()
     val outputs = outputs ?: throw CameraNotReadyError()
 
@@ -223,14 +244,16 @@ class CameraSession(private val context: Context,
 
     val cameraCharacteristics = cameraManager.getCameraCharacteristics(captureSession.device.id)
     val orientation = outputOrientation.toSensorRelativeOrientation(cameraCharacteristics)
-    val captureRequest = captureSession.device.createPhotoCaptureRequest(cameraManager,
-                                                                         photoOutput.surface,
-                                                                         zoom,
-                                                                         qualityPrioritization,
-                                                                         flashMode,
-                                                                         enableRedEyeReduction,
-                                                                         enableAutoStabilization,
-                                                                         orientation)
+    val captureRequest = captureSession.device.createPhotoCaptureRequest(
+      cameraManager,
+      photoOutput.surface,
+      zoom,
+      qualityPrioritization,
+      flashMode,
+      enableRedEyeReduction,
+      enableAutoStabilization,
+      orientation
+    )
     Log.i(TAG, "Photo capture 1/3 - starting capture...")
     val result = captureSession.capture(captureRequest, enableShutterSound)
     val timestamp = result[CaptureResult.SENSOR_TIMESTAMP]!!
@@ -252,11 +275,13 @@ class CameraSession(private val context: Context,
     photoOutputSynchronizer.set(image.timestamp, image)
   }
 
-  suspend fun startRecording(enableAudio: Boolean,
-                             codec: VideoCodec,
-                             fileType: VideoFileType,
-                             callback: (video: RecordingSession.Video) -> Unit,
-                             onError: (error: RecorderError) -> Unit) {
+  suspend fun startRecording(
+    enableAudio: Boolean,
+    codec: VideoCodec,
+    fileType: VideoFileType,
+    callback: (video: RecordingSession.Video) -> Unit,
+    onError: (error: RecorderError) -> Unit
+  ) {
     mutex.withLock {
       if (recording != null) throw RecordingInProgressError()
       val outputs = outputs ?: throw CameraNotReadyError()
@@ -396,9 +421,7 @@ class CameraSession(private val context: Context,
   // Caches the result of outputs.hashCode() of the last getCaptureSession call
   private var lastOutputsHashCode: Int? = null
 
-  private suspend fun getCaptureSession(cameraDevice: CameraDevice,
-                                        outputs: CameraOutputs,
-                                        onClosed: () -> Unit): CameraCaptureSession {
+  private suspend fun getCaptureSession(cameraDevice: CameraDevice, outputs: CameraOutputs, onClosed: () -> Unit): CameraCaptureSession {
     val currentSession = captureSession
     if (currentSession?.device == cameraDevice && outputs.hashCode() == lastOutputsHashCode) {
       // We already opened a CameraCaptureSession on this device
@@ -426,11 +449,13 @@ class CameraSession(private val context: Context,
     return session
   }
 
-  private fun getPreviewCaptureRequest(fps: Int? = null,
-                                       videoStabilizationMode: VideoStabilizationMode? = null,
-                                       lowLightBoost: Boolean? = null,
-                                       hdr: Boolean? = null,
-                                       torch: Boolean? = null): CaptureRequest {
+  private fun getPreviewCaptureRequest(
+    fps: Int? = null,
+    videoStabilizationMode: VideoStabilizationMode? = null,
+    lowLightBoost: Boolean? = null,
+    hdr: Boolean? = null,
+    torch: Boolean? = null
+  ): CaptureRequest {
     val captureRequest = previewRequest ?: throw CameraNotReadyError()
 
     // FPS
@@ -442,9 +467,16 @@ class CameraSession(private val context: Context,
     captureRequest.set(CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE, videoStabilizationMode?.toOpticalStabilizationMode())
 
     // Night/HDR Mode
-    val sceneMode = if (hdr == true) CaptureRequest.CONTROL_SCENE_MODE_HDR else if (lowLightBoost == true) CaptureRequest.CONTROL_SCENE_MODE_NIGHT else null
+    val sceneMode = if (hdr ==
+      true
+    ) {
+      CaptureRequest.CONTROL_SCENE_MODE_HDR
+    } else if (lowLightBoost == true) CaptureRequest.CONTROL_SCENE_MODE_NIGHT else null
     captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, sceneMode)
-    captureRequest.set(CaptureRequest.CONTROL_MODE, if (sceneMode != null) CaptureRequest.CONTROL_MODE_USE_SCENE_MODE else CaptureRequest.CONTROL_MODE_AUTO)
+    captureRequest.set(
+      CaptureRequest.CONTROL_MODE,
+      if (sceneMode != null) CaptureRequest.CONTROL_MODE_USE_SCENE_MODE else CaptureRequest.CONTROL_MODE_AUTO
+    )
 
     // Zoom
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
