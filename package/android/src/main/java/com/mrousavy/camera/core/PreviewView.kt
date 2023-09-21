@@ -15,10 +15,10 @@ import kotlin.math.roundToInt
 
 @SuppressLint("ViewConstructor")
 class PreviewView(context: Context,
-                  private val targetSize: Size,
+                  val targetSize: Size,
                   private val onSurfaceChanged: (surface: Surface?) -> Unit): SurfaceView(context) {
   private val aspectRatio: Double
-    get() = targetSize.smaller.toDouble() / targetSize.bigger
+    get() = targetSize.bigger.toDouble() / targetSize.smaller
 
   init {
     Log.i(TAG, "Using Preview Size ${targetSize.width} x ${targetSize.height}.")
@@ -55,9 +55,9 @@ class PreviewView(context: Context,
     var newHeight: Int = viewHeight
 
     if (viewAspectRatio > aspectRatio) {
-      newWidth = (viewHeight * aspectRatio).roundToInt()
+      newWidth = (viewHeight / aspectRatio).roundToInt()
     } else {
-      newHeight = (viewWidth / aspectRatio).roundToInt()
+      newHeight = (viewWidth * aspectRatio).roundToInt()
     }
 
     Log.d(TAG, "Fitted dimensions set: $newWidth x $newHeight")
