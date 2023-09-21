@@ -76,5 +76,5 @@ jobs:
         continue-on-error: true
       - uses: yutailang0119/action-ktlint@v3
         with:
-          report-path: build/*.xml
+          report-path: ./package/android/build/*.xml
         continue-on-error: false
