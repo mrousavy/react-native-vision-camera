@@ -63,14 +63,12 @@ jobs:
   ktlint:
     name: Kotlin Lint
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./package/android
     steps:
       - uses: actions/checkout@v3
       - run: |
           curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.0.0/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
       - name: run ktlint
+        working-directory: ./package/android/
         run: |
           ktlint --reporter=checkstyle,output=build/ktlint-report.xml --relative --editorconfig=./.editorconfig
         continue-on-error: true
@@ -81,5 +79,5 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: ktlint-report
-          path: build/*.xml
+          path: ./package/android/build/*.xml
 
