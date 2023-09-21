@@ -215,7 +215,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
           </PressableOpacity>
         )}
         {supports60Fps && (
-          <PressableOpacity style={styles.button} onPress={() => setTargetFps(targetFps === 30 ? 60 : 30)}>
+          <PressableOpacity style={styles.button} onPress={() => setTargetFps((t) => (t === 30 ? 60 : 30))}>
             <Text style={styles.text}>{`${targetFps} FPS`}</Text>
           </PressableOpacity>
         )}
