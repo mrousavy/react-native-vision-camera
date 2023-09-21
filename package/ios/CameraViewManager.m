@@ -28,6 +28,7 @@ RCT_EXPORT_VIEW_PROPERTY(cameraId, NSString);
 RCT_EXPORT_VIEW_PROPERTY(enableDepthData, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(enableHighQualityPhotos, NSNumber); // nullable bool
 RCT_EXPORT_VIEW_PROPERTY(enablePortraitEffectsMatteDelivery, BOOL);
+RCT_EXPORT_VIEW_PROPERTY(enableBufferCompression, BOOL);
 // use cases
 RCT_EXPORT_VIEW_PROPERTY(photo, NSNumber); // nullable bool
 RCT_EXPORT_VIEW_PROPERTY(video, NSNumber); // nullable bool

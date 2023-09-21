@@ -403,6 +403,8 @@ export class Camera extends React.PureComponent<CameraProps> {
       );
     }
 
+    const shouldEnableBufferCompression = props.video === true && frameProcessor == null;
+
     return (
       <NativeCameraView
         {...props}
@@ -412,6 +414,7 @@ export class Camera extends React.PureComponent<CameraProps> {
         onInitialized={this.onInitialized}
         onError={this.onError}
         enableFrameProcessor={frameProcessor != null}
+        enableBufferCompression={props.enableBufferCompression ?? shouldEnableBufferCompression}
       />
     );
   }
