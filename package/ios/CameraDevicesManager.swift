@@ -8,6 +8,7 @@
 
 import Foundation
 
+@objc(CameraDevicesManager)
 class CameraDevicesManager: RCTEventEmitter {
   private let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: getAllDeviceTypes(),
                                                                   mediaType: .video,
