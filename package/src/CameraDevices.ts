@@ -19,7 +19,7 @@ eventEmitter.addListener(DEVICES_CHANGED_NAME, (newDevices: CameraDevice[]) => {
 });
 
 export const CameraDevices = {
-  userPreferredCameraDevice: () => constants.userPreferredCameraDevice,
+  userPreferredCameraDevice: constants.userPreferredCameraDevice,
   getAvailableCameraDevices: () => devices,
   addCameraDevicesChangedListener: (callback: (newDevices: CameraDevice[]) => void) => {
     return eventEmitter.addListener(DEVICES_CHANGED_NAME, callback);
