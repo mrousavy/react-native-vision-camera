@@ -124,6 +124,27 @@ export interface CameraProps extends ViewProps {
    */
   hdr?: boolean;
   /**
+   * Enables or disables lossless buffer compression for the video stream.
+   * If you only use {@linkcode video} or a {@linkcode frameProcessor}, this
+   * can increase the efficiency and lower memory usage of the Camera.
+   *
+   * If buffer compression is enabled, the video pipeline will try to use a
+   * lossless-compressed pixel format instead of the normal one.
+   *
+   * If you use a {@linkcode frameProcessor}, you might need to change how pixels
+   * are read inside your native frame processor function as this is different
+   * from the usual `yuv` or `rgb` layout.
+   *
+   * If buffer compression is not available but this property is enabled, the normal
+   * pixel formats will be used and no error will be thrown.
+   *
+   * @platform iOS
+   * @default
+   * - true // if video={true} and frameProcessor={undefined}
+   * - false // otherwise
+   */
+  enableBufferCompression?: boolean;
+  /**
    * Enables or disables low-light boost on this camera device. Make sure the given `format` supports low-light boost.
    *
    * Requires `format` to be set.

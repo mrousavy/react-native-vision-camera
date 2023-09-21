@@ -154,9 +154,15 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     auto mediaType = CMFormatDescriptionGetMediaSubType(format);
     switch (mediaType) {
       case kCVPixelFormatType_32BGRA:
+      case kCVPixelFormatType_Lossless_32BGRA:
         return jsi::String::createFromUtf8(runtime, "rgb");
       case kCVPixelFormatType_420YpCbCr8BiPlanarFullRange:
       case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
+      case kCVPixelFormatType_420YpCbCr10BiPlanarFullRange:
+      case kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange:
+      case kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarFullRange:
+      case kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarVideoRange:
+      case kCVPixelFormatType_Lossless_420YpCbCr10PackedBiPlanarVideoRange:
         return jsi::String::createFromUtf8(runtime, "yuv");
       default:
         return jsi::String::createFromUtf8(runtime, "unknown");

@@ -18,6 +18,7 @@ export type DeviceError =
 export type FormatError =
   | 'format/invalid-fps'
   | 'format/invalid-hdr'
+  | 'format/incompatible-pixel-format-with-hdr-setting'
   | 'format/invalid-low-light-boost'
   | 'format/invalid-format'
   | 'format/invalid-color-space';

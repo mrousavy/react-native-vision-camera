@@ -85,7 +85,6 @@ body:
           "maxZoom": 123.75,
           "name": "Back Dual Wide Camera",
           "position": "back",
-          "supportsDepthCapture": false,
           "supportsFocus": true,
           "supportsLowLightBoost": false,
           "supportsParallelVideoProcessing": true,

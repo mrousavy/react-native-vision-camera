@@ -37,47 +37,55 @@ class CameraDevicesManager: RCTEventEmitter {
   }
 
   override func constantsToExport() -> [AnyHashable: Any]! {
+    let devices = getDevicesJson()
+    let preferredDevice: [String: Any]
+    // TODO: Remove this #if once Xcode 15 is rolled out
+    #if swift(>=5.9)
+      if #available(iOS 17.0, *),
+         let userPreferred = AVCaptureDevice.userPreferredCamera {
+        preferredDevice = userPreferred.toDictionary()
+      } else {
+        preferredDevice = devices[0]
+      }
+    #else
+      preferredDevice = devices[0]
+    #endif
+
     return [
-      "availableCameraDevices": getDevicesJson(),
+      "availableCameraDevices": devices,
+      "userPreferredCameraDevice": preferredDevice,
     ]
   }
 
   private func getDevicesJson() -> [[String: Any]] {
     return discoverySession.devices.map {
-      return [
-        "id": $0.uniqueID,
-        "devices": $0.physicalDevices.map(\.deviceType.descriptor),
-        "position": $0.position.descriptor,
-        "name": $0.localizedName,
-        "hasFlash": $0.hasFlash,
-        "hasTorch": $0.hasTorch,
-        "minZoom": $0.minAvailableVideoZoomFactor,
-        "neutralZoom": $0.neutralZoomFactor,
-        "maxZoom": $0.maxAvailableVideoZoomFactor,
-        "isMultiCam": $0.isMultiCam,
-        "supportsDepthCapture": false, // TODO: supportsDepthCapture
-        "supportsRawCapture": false, // TODO: supportsRawCapture
-        "supportsLowLightBoost": $0.isLowLightBoostSupported,
-        "supportsFocus": $0.isFocusPointOfInterestSupported,
-        "hardwareLevel": "full",
-        "sensorOrientation": "portrait", // TODO: Sensor Orientation?
-        "formats": $0.formats.map { format -> [String: Any] in
-          format.toDictionary()
-        },
-      ]
+      return $0.toDictionary()
     }
   }
 
   private static func getAllDeviceTypes() -> [AVCaptureDevice.DeviceType] {
     var deviceTypes: [AVCaptureDevice.DeviceType] = []
+    deviceTypes.append(.builtInDualCamera)
+    deviceTypes.append(.builtInWideAngleCamera)
+    deviceTypes.append(.builtInTelephotoCamera)
+    deviceTypes.append(.builtInTrueDepthCamera)
     if #available(iOS 13.0, *) {
       deviceTypes.append(.builtInTripleCamera)
       deviceTypes.append(.builtInDualWideCamera)
       deviceTypes.append(.builtInUltraWideCamera)
     }
-    deviceTypes.append(.builtInDualCamera)
-    deviceTypes.append(.builtInWideAngleCamera)
-    deviceTypes.append(.builtInTelephotoCamera)
+    if #available(iOS 15.4, *) {
+      deviceTypes.append(.builtInLiDARDepthCamera)
+    }
+
+    // iOS 17 specifics:
+    //  This is only reported if `NSCameraUseExternalDeviceType` is set to true in Info.plist,
+    //  otherwise external devices are just reported as wide-angle-cameras
+    // deviceTypes.append(.external)
+    //  This is only reported if `NSCameraUseContinuityCameraDeviceType` is set to true in Info.plist,
+    //  otherwise continuity camera devices are just reported as wide-angle-cameras
+    // deviceTypes.append(.continuityCamera)
+
     return deviceTypes
   }
 }

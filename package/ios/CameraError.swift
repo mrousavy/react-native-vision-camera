@@ -115,6 +115,7 @@ enum FormatError {
   case invalidFps(fps: Int)
   case invalidHdr
   case invalidFormat
+  case incompatiblePixelFormatWithHDR
 
   var code: String {
     switch self {
@@ -124,6 +125,8 @@ enum FormatError {
       return "invalid-fps"
     case .invalidHdr:
       return "invalid-hdr"
+    case .incompatiblePixelFormatWithHDR:
+      return "incompatible-pixel-format-with-hdr-setting"
     }
   }
 
@@ -134,7 +137,9 @@ enum FormatError {
     case let .invalidFps(fps):
       return "The given format cannot run at \(fps) FPS! Make sure your FPS is lower than `format.maxFps` but higher than `format.minFps`."
     case .invalidHdr:
-      return "The currently selected format does not support HDR capture! Make sure you select a format which includes `supportsPhotoHDR`!"
+      return "The currently selected format does not support HDR capture! Make sure you select a format which includes `supportsPhotoHDR`/`supportsVideoHDR`!"
+    case .incompatiblePixelFormatWithHDR:
+      return "The currently selected pixelFormat is not compatible with HDR! HDR only works with the `yuv` pixelFormat."
     }
   }
 }
