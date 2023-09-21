@@ -30,6 +30,10 @@ class CameraDevicesManager: RCTEventEmitter {
   override func supportedEvents() -> [String]! {
     return [devicesChangedEventName]
   }
+  
+  override class func requiresMainQueueSetup() -> Bool {
+    return false
+  }
 
   override func constantsToExport() -> [AnyHashable: Any]! {
     return [
