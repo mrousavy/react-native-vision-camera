@@ -32,7 +32,7 @@ jobs:
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
       - name: Restore node_modules from cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -45,7 +45,7 @@ jobs:
         run: yarn install --frozen-lockfile --cwd ../example
 
       - name: Restore Gradle cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.gradle/caches

@@ -32,7 +32,7 @@ jobs:
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
       - name: Restore node_modules from cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -53,7 +53,7 @@ jobs:
           bundler-cache: true
 
       - name: Restore Pods cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             example/ios/Pods
@@ -91,7 +91,7 @@ jobs:
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
       - name: Restore node_modules from cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -114,7 +114,7 @@ jobs:
           bundler-cache: true
 
       - name: Restore Pods cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             example/ios/Pods
