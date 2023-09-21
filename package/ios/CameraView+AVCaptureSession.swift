@@ -117,34 +117,10 @@ extension CameraView {
       videoOutput!.setSampleBufferDelegate(self, queue: CameraQueues.videoQueue)
       videoOutput!.alwaysDiscardsLateVideoFrames = false
 
-      if let pixelFormat = pixelFormat as? String {
-        let supportedPixelFormats = videoOutput!.availableVideoPixelFormatTypes
-        let defaultFormat = supportedPixelFormats.first! // first value is always the most efficient format
-        var pixelFormatType: OSType = defaultFormat
-        switch pixelFormat {
-        case "yuv":
-          if supportedPixelFormats.contains(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange) {
-            pixelFormatType = kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
-          } else if supportedPixelFormats.contains(kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange) {
-            pixelFormatType = kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
-          } else {
-            invokeOnError(.device(.pixelFormatNotSupported))
-          }
-        case "rgb":
-          if supportedPixelFormats.contains(kCVPixelFormatType_32BGRA) {
-            pixelFormatType = kCVPixelFormatType_32BGRA
-          } else {
-            invokeOnError(.device(.pixelFormatNotSupported))
-          }
-        case "native":
-          pixelFormatType = defaultFormat
-        default:
-          invokeOnError(.parameter(.invalid(unionName: "pixelFormat", receivedValue: pixelFormat)))
-        }
-        videoOutput!.videoSettings = [
-          String(kCVPixelBufferPixelFormatTypeKey): pixelFormatType,
-        ]
-      }
+      let pixelFormatType = getPixelFormat(videoOutput: videoOutput!)
+      videoOutput!.videoSettings = [
+        String(kCVPixelBufferPixelFormatTypeKey): pixelFormatType,
+      ]
       captureSession.addOutput(videoOutput!)
     }
 
@@ -155,6 +131,64 @@ extension CameraView {
     invokeOnInitialized()
     isReady = true
     ReactLogger.log(level: .info, message: "Session successfully configured!")
+  }
+
+  /**
+   Returns the pixel format that should be used for the AVCaptureVideoDataOutput.
+   If HDR is enabled, this will return YUV 4:2:0 10-bit.
+   If HDR is disabled, this will return whatever the user specified as a pixelFormat, or the most efficient format as a fallback.
+   */
+  private func getPixelFormat(videoOutput: AVCaptureVideoDataOutput) -> OSType {
+    let supportedPixelFormats = videoOutput.availableVideoPixelFormatTypes
+    // as per documentation, the first value is always the most efficient format
+    let defaultFormat = supportedPixelFormats.first!
+
+    // If the user enabled HDR, we can only use the YUV 4:2:0 10-bit pixel format.
+    if hdr == true {
+      guard pixelFormat == nil || pixelFormat == "yuv" else {
+        invokeOnError(.format(.incompatiblePixelFormatWithHDR))
+        return defaultFormat
+      }
+      guard supportedPixelFormats.contains(kCVPixelFormatType_420YpCbCr10BiPlanarFullRange) else {
+        invokeOnError(.format(.invalidHdr))
+        return defaultFormat
+      }
+      // YUV 4:2:0 10-bit
+      return kCVPixelFormatType_420YpCbCr10BiPlanarFullRange
+    }
+
+    // If the user didn't specify a custom pixelFormat, just return the default one.
+    guard let pixelFormat = pixelFormat else {
+      return defaultFormat
+    }
+
+    // If we don't use HDR, we can use any other custom pixel format.
+    switch pixelFormat {
+    case "yuv":
+      if supportedPixelFormats.contains(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange) {
+        // YUV 4:2:0 8-bit (full video colors)
+        return kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
+      } else if supportedPixelFormats.contains(kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange) {
+        // YUV 4:2:0 8-bit (limited video colors)
+        return kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
+      } else {
+        invokeOnError(.device(.pixelFormatNotSupported))
+        return defaultFormat
+      }
+    case "rgb":
+      if supportedPixelFormats.contains(kCVPixelFormatType_32BGRA) {
+        // RGBA 8-bit
+        return kCVPixelFormatType_32BGRA
+      } else {
+        invokeOnError(.device(.pixelFormatNotSupported))
+        return defaultFormat
+      }
+    case "native":
+      return defaultFormat
+    default:
+      invokeOnError(.parameter(.invalid(unionName: "pixelFormat", receivedValue: pixelFormat as String)))
+      return defaultFormat
+    }
   }
 
   // pragma MARK: Configure Device
@@ -187,17 +221,6 @@ extension CameraView {
       } else {
         device.activeVideoMinFrameDuration = CMTime.invalid
         device.activeVideoMaxFrameDuration = CMTime.invalid
-      }
-      if hdr != nil {
-        if hdr == true && !device.activeFormat.isVideoHDRSupported {
-          invokeOnError(.format(.invalidHdr))
-          return
-        }
-        if !device.automaticallyAdjustsVideoHDREnabled {
-          if device.isVideoHDREnabled != hdr!.boolValue {
-            device.isVideoHDREnabled = hdr!.boolValue
-          }
-        }
       }
       if lowLightBoost != nil {
         if lowLightBoost == true && !device.isLowLightBoostSupported {

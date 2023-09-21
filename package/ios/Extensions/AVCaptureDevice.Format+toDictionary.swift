@@ -50,7 +50,7 @@ extension AVCaptureDevice.Format {
       "minISO": minISO,
       "fieldOfView": videoFieldOfView,
       "maxZoom": videoMaxZoomFactor,
-      "supportsVideoHDR": isVideoHDRSupported,
+      "supportsVideoHDR": availablePixelFormats.contains(kCVPixelFormatType_420YpCbCr10BiPlanarFullRange),
       "supportsPhotoHDR": false,
       "minFps": minFrameRate,
       "maxFps": maxFrameRate,
