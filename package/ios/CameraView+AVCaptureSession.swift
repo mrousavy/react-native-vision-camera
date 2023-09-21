@@ -130,7 +130,7 @@ extension CameraView {
     isReady = true
     ReactLogger.log(level: .info, message: "Session successfully configured!")
   }
-  
+
   /**
    Returns the pixel format that should be used for the AVCaptureVideoDataOutput.
    If HDR is enabled, this will return YUV 4:2:0 10-bit.
@@ -140,7 +140,7 @@ extension CameraView {
     let supportedPixelFormats = videoOutput.availableVideoPixelFormatTypes
     // as per documentation, the first value is always the most efficient format
     let defaultFormat = supportedPixelFormats.first!
-    
+
     // If the user enabled HDR, we can only use the YUV 4:2:0 10-bit pixel format.
     if hdr == true {
       guard pixelFormat == nil || pixelFormat == "yuv" else {
@@ -154,12 +154,12 @@ extension CameraView {
       // YUV 4:2:0 10-bit
       return kCVPixelFormatType_420YpCbCr10BiPlanarFullRange
     }
-    
+
     // If the user didn't specify a custom pixelFormat, just return the default one.
     guard let pixelFormat = pixelFormat else {
       return defaultFormat
     }
-    
+
     // If we don't use HDR, we can use any other custom pixel format.
     switch pixelFormat {
     case "yuv":
