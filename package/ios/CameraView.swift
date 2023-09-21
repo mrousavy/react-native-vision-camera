@@ -40,6 +40,7 @@ public final class CameraView: UIView {
   @objc var enableDepthData = false
   @objc var enableHighQualityPhotos: NSNumber? // nullable bool
   @objc var enablePortraitEffectsMatteDelivery = false
+  @objc var enableBufferCompression = false
   // use cases
   @objc var photo: NSNumber? // nullable bool
   @objc var video: NSNumber? // nullable bool

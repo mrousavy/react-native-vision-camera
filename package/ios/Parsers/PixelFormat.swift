@@ -50,11 +50,15 @@ enum PixelFormat {
 
   init(mediaSubType: OSType) {
     switch mediaSubType {
-    case kCVPixelFormatType_420YpCbCr8BiPlanarFullRange:
+    case kCVPixelFormatType_420YpCbCr8BiPlanarFullRange,
+         kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange,
+         kCVPixelFormatType_420YpCbCr10BiPlanarFullRange,
+         kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange,
+         kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarFullRange,
+         kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarVideoRange,
+         kCVPixelFormatType_Lossless_420YpCbCr10PackedBiPlanarVideoRange:
       self = .yuv
-    case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
-      self = .yuv
-    case kCVPixelFormatType_32BGRA:
+    case kCVPixelFormatType_32BGRA, kCVPixelFormatType_Lossless_32BGRA:
       self = .rgb
     default:
       self = .unknown

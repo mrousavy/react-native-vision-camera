@@ -139,9 +139,8 @@ extension CameraView {
    If HDR is disabled, this will return whatever the user specified as a pixelFormat, or the most efficient format as a fallback.
    */
   private func getPixelFormat(videoOutput: AVCaptureVideoDataOutput) -> OSType {
-    let supportedPixelFormats = videoOutput.availableVideoPixelFormatTypes
     // as per documentation, the first value is always the most efficient format
-    let defaultFormat = supportedPixelFormats.first!
+    let defaultFormat = videoOutput.availableVideoPixelFormatTypes.first!
 
     // If the user enabled HDR, we can only use the YUV 4:2:0 10-bit pixel format.
     if hdr == true {
@@ -149,12 +148,21 @@ extension CameraView {
         invokeOnError(.format(.incompatiblePixelFormatWithHDR))
         return defaultFormat
       }
-      guard supportedPixelFormats.contains(kCVPixelFormatType_420YpCbCr10BiPlanarFullRange) else {
+
+      var targetFormats = [kCVPixelFormatType_420YpCbCr10BiPlanarFullRange,
+                           kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange]
+      if enableBufferCompression {
+        // If we enable buffer compression, try to use a lossless compressed YUV format first, otherwise fall back to the others.
+        targetFormats.insert(kCVPixelFormatType_Lossless_420YpCbCr10PackedBiPlanarVideoRange, at: 0)
+      }
+
+      // Find the best matching format
+      guard let format = videoOutput.findPixelFormat(firstOf: targetFormats) else {
         invokeOnError(.format(.invalidHdr))
         return defaultFormat
       }
-      // YUV 4:2:0 10-bit
-      return kCVPixelFormatType_420YpCbCr10BiPlanarFullRange
+      // YUV 4:2:0 10-bit (compressed/uncompressed)
+      return format
     }
 
     // If the user didn't specify a custom pixelFormat, just return the default one.
@@ -165,24 +173,31 @@ extension CameraView {
     // If we don't use HDR, we can use any other custom pixel format.
     switch pixelFormat {
     case "yuv":
-      if supportedPixelFormats.contains(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange) {
-        // YUV 4:2:0 8-bit (full video colors)
-        return kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
-      } else if supportedPixelFormats.contains(kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange) {
-        // YUV 4:2:0 8-bit (limited video colors)
-        return kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
-      } else {
+      // YUV 4:2:0 8-bit (full/limited video colors; uncompressed)
+      var targetFormats = [kCVPixelFormatType_420YpCbCr8BiPlanarFullRange,
+                           kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange]
+      if enableBufferCompression {
+        // YUV 4:2:0 8-bit (full/limited video colors; compressed)
+        targetFormats.insert(kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarVideoRange, at: 0)
+        targetFormats.insert(kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarFullRange, at: 0)
+      }
+      guard let format = videoOutput.findPixelFormat(firstOf: targetFormats) else {
         invokeOnError(.device(.pixelFormatNotSupported))
         return defaultFormat
       }
+      return format
     case "rgb":
-      if supportedPixelFormats.contains(kCVPixelFormatType_32BGRA) {
-        // RGBA 8-bit
-        return kCVPixelFormatType_32BGRA
-      } else {
+      // RGBA 8-bit (uncompressed)
+      var targetFormats = [kCVPixelFormatType_32BGRA]
+      if enableBufferCompression {
+        // RGBA 8-bit (compressed)
+        targetFormats.insert(kCVPixelFormatType_Lossless_32BGRA, at: 0)
+      }
+      guard let format = videoOutput.findPixelFormat(firstOf: targetFormats) else {
         invokeOnError(.device(.pixelFormatNotSupported))
         return defaultFormat
       }
+      return format
     case "native":
       return defaultFormat
     default:
