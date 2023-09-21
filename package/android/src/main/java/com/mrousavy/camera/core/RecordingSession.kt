@@ -39,7 +39,8 @@ class RecordingSession(
   private val recorder: MediaRecorder
   private val outputFile: File
   private var startTime: Long? = null
-  val surface: Surface = MediaCodec.createPersistentInputSurface()
+  val surface: Surface
+    get() = recorder.surface
 
   init {
 
@@ -67,6 +68,7 @@ class RecordingSession(
       recorder.setAudioSamplingRate(AUDIO_SAMPLING_RATE)
       recorder.setAudioChannels(AUDIO_CHANNELS)
     }
+    val surface = MediaCodec.createPersistentInputSurface()
     recorder.setInputSurface(surface)
     // recorder.setOrientationHint(orientation.toDegrees())
 
