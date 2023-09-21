@@ -183,6 +183,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     map.putDouble("fieldOfView", getFieldOfView())
     map.putBoolean("supportsVideoHDR", supportsVideoHdr)
     map.putBoolean("supportsPhotoHDR", supportsPhotoHdr)
+    map.putBoolean("supportsDepthCapture", supportsDepthCapture)
     map.putString("autoFocusSystem", "contrast-detection") // TODO: Is this wrong?
     map.putArray("videoStabilizationModes", createStabilizationModes())
     map.putArray("pixelFormats", createPixelFormats(videoSize))
@@ -199,7 +200,6 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     map.putBoolean("hasTorch", hasFlash)
     map.putBoolean("isMultiCam", isMultiCam)
     map.putBoolean("supportsRawCapture", supportsRawCapture)
-    map.putBoolean("supportsDepthCapture", supportsDepthCapture)
     map.putBoolean("supportsLowLightBoost", supportsLowLightBoost)
     map.putBoolean("supportsFocus", true) // I believe every device here supports focussing
     map.putDouble("minZoom", minZoom)

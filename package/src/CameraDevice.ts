@@ -90,6 +90,10 @@ export interface CameraDeviceFormat {
    */
   supportsPhotoHDR: boolean;
   /**
+   * Specifies whether this format supports delivering depth data for photo or video capture.
+   */
+  supportsDepthCapture: boolean;
+  /**
    * The minum frame rate this Format needs to run at. High resolution formats often run at lower frame rates.
    */
   minFps: number;
@@ -187,12 +191,6 @@ export interface CameraDevice {
    * Whether this camera device supports low light boost.
    */
   supportsLowLightBoost: boolean;
-  /**
-   * Whether this camera supports taking photos with depth data.
-   *
-   * **! Work in Progress !**
-   */
-  supportsDepthCapture: boolean;
   /**
    * Whether this camera supports taking photos in RAW format
    *
