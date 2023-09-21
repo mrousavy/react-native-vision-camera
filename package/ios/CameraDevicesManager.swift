@@ -81,14 +81,15 @@ class CameraDevicesManager: RCTEventEmitter {
     if #available(iOS 15.4, *) {
       deviceTypes.append(.builtInLiDARDepthCamera)
     }
-    if #available(iOS 17.0, *) {
-      // This is only reported if `NSCameraUseExternalDeviceType` is set to true in Info.plist,
-      // otherwise external devices are just reported as wide-angle-cameras
-      // deviceTypes.append(.external)
-      // This is only reported if `NSCameraUseContinuityCameraDeviceType` is set to true in Info.plist,
-      // otherwise continuity camera devices are just reported as wide-angle-cameras
-      // deviceTypes.append(.continuityCamera)
-    }
+
+    // iOS 17 specifics:
+    //  This is only reported if `NSCameraUseExternalDeviceType` is set to true in Info.plist,
+    //  otherwise external devices are just reported as wide-angle-cameras
+    // deviceTypes.append(.external)
+    //  This is only reported if `NSCameraUseContinuityCameraDeviceType` is set to true in Info.plist,
+    //  otherwise continuity camera devices are just reported as wide-angle-cameras
+    // deviceTypes.append(.continuityCamera)
+
     return deviceTypes
   }
 }
