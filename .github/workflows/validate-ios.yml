@@ -19,7 +19,7 @@ jobs:
       run:
         working-directory: ./package
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Run SwiftLint GitHub Action (--strict)
         uses: norio-nomura/action-swiftlint@master
         with:
@@ -32,7 +32,7 @@ jobs:
       run:
         working-directory: ./package/ios
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Install SwiftFormat
         run: brew install swiftformat

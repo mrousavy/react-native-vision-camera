@@ -26,7 +26,7 @@ jobs:
       run:
         working-directory: package/example/ios
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -85,7 +85,7 @@ jobs:
       run:
         working-directory: package/example/ios
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
