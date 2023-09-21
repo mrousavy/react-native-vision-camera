@@ -72,7 +72,7 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
         Log.w(TAG, "ImageReader failed to acquire a new image!")
         return
       }
-    } catch (e: Throwable) {
+    } catch (e: IllegalStateException) {
       Log.w(TAG, "Failed to acquire a new Image, previous calls might be taking too long! Dropping a Frame..")
       return
     }
@@ -85,7 +85,7 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
 
     // If we have a RecordingSession, pass the image through
     recordingSessionImageWriter?.queueInputImage(frame.image)
-    
+
     frame.decrementRefCount()
   }
 }
