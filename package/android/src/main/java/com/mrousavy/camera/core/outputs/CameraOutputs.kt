@@ -11,7 +11,7 @@ import android.view.Surface
 import com.mrousavy.camera.CameraQueues
 import com.mrousavy.camera.extensions.closestToOrMax
 import com.mrousavy.camera.extensions.getPhotoSizes
-import com.mrousavy.camera.extensions.getPreviewSize
+import com.mrousavy.camera.extensions.getPreviewTargetSize
 import com.mrousavy.camera.extensions.getVideoSizes
 import com.mrousavy.camera.core.VideoPipeline
 import com.mrousavy.camera.extensions.bigger
@@ -104,7 +104,7 @@ class CameraOutputs(val cameraId: String,
       val previewSizeAspectRatio = if (preview.targetSize != null) preview.targetSize.bigger.toDouble() / preview.targetSize.smaller else null
       previewOutput = SurfaceOutput(
         preview.surface,
-        characteristics.getPreviewSize(previewSizeAspectRatio),
+        characteristics.getPreviewTargetSize(previewSizeAspectRatio),
         SurfaceOutput.OutputType.PREVIEW)
     }
 

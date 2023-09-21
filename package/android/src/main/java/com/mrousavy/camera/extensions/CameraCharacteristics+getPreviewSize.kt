@@ -38,7 +38,7 @@ fun CameraCharacteristics.getAutomaticPreviewSize(): Size {
   return outputSizes.first { it.bigger <= maximumPreviewSize.bigger && it.smaller <= maximumPreviewSize.smaller }
 }
 
-fun CameraCharacteristics.getPreviewSize(aspectRatio: Double?): Size {
+fun CameraCharacteristics.getPreviewTargetSize(aspectRatio: Double?): Size {
   return if (aspectRatio != null) {
     getPreviewSizeFromAspectRatio(aspectRatio)
   } else {

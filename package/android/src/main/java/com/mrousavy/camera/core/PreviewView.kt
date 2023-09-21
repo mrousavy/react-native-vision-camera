@@ -2,23 +2,21 @@ package com.mrousavy.camera.core
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.hardware.camera2.CameraManager
 import android.util.Log
 import android.util.Size
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import com.mrousavy.camera.extensions.bigger
-import com.mrousavy.camera.extensions.getPreviewSize
 import com.mrousavy.camera.extensions.smaller
+import com.mrousavy.camera.parsers.ResizeMode
 import kotlin.math.roundToInt
 
 @SuppressLint("ViewConstructor")
 class PreviewView(context: Context,
                   val targetSize: Size,
+                  private val resizeMode: ResizeMode,
                   private val onSurfaceChanged: (surface: Surface?) -> Unit): SurfaceView(context) {
-  private val aspectRatio: Double
-    get() = targetSize.bigger.toDouble() / targetSize.smaller
 
   init {
     Log.i(TAG, "Using Preview Size ${targetSize.width} x ${targetSize.height}.")
@@ -40,28 +38,54 @@ class PreviewView(context: Context,
     })
   }
 
+  private fun coverSize(contentSize: Size, containerWidth: Int, containerHeight: Int): Size {
+    val contentAspectRatio = contentSize.height.toDouble() / contentSize.width
+    val containerAspectRatio = containerWidth.toDouble() / containerHeight
+
+    Log.d(TAG, "coverSize :: $contentSize ($contentAspectRatio), ${containerWidth}x${containerHeight} ($containerAspectRatio)")
+
+    return if (contentAspectRatio > containerAspectRatio) {
+      // Scale by width to cover height
+      val scaledWidth = containerHeight * contentAspectRatio
+      Size(scaledWidth.roundToInt(), containerHeight)
+    } else {
+      // Scale by height to cover width
+      val scaledHeight = containerWidth / contentAspectRatio
+      Size(containerWidth, scaledHeight.roundToInt())
+    }
+  }
+
+  private fun containSize(contentSize: Size, containerWidth: Int, containerHeight: Int): Size {
+    val contentAspectRatio = contentSize.height.toDouble() / contentSize.width
+    val containerAspectRatio = containerWidth.toDouble() / containerHeight
+
+    Log.d(TAG, "containSize :: $contentSize ($contentAspectRatio), ${containerWidth}x${containerHeight} ($containerAspectRatio)")
+
+    return if (contentAspectRatio > containerAspectRatio) {
+      // Scale by height to fit within width
+      val scaledHeight = containerWidth / contentAspectRatio
+      return Size(containerWidth, scaledHeight.roundToInt())
+    } else {
+      // Scale by width to fit within height
+      val scaledWidth = containerHeight * contentAspectRatio
+      return Size(scaledWidth.roundToInt(), containerHeight)
+    }
+  }
+
   override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
     super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     val viewWidth = MeasureSpec.getSize(widthMeasureSpec)
     val viewHeight = MeasureSpec.getSize(heightMeasureSpec)
-    val viewAspectRatio = viewWidth.toDouble() / viewHeight
 
-    if (viewAspectRatio.isNaN()) {
-      return
-    }
-    Log.d(TAG, "onMeasure($viewWidth, $viewHeight) $viewAspectRatio")
+    Log.d(TAG, "onMeasure($viewWidth, $viewHeight)")
 
-    var newWidth: Int = viewWidth
-    var newHeight: Int = viewHeight
-
-    if (viewAspectRatio > aspectRatio) {
-      newWidth = (viewHeight / aspectRatio).roundToInt()
-    } else {
-      newHeight = (viewWidth * aspectRatio).roundToInt()
+    val fittedSize = when (resizeMode) {
+        ResizeMode.COVER -> this.coverSize(targetSize, viewWidth, viewHeight)
+        ResizeMode.CONTAIN -> this.containSize(targetSize, viewWidth, viewHeight)
     }
 
-    Log.d(TAG, "Fitted dimensions set: $newWidth x $newHeight")
-    setMeasuredDimension(newWidth, newHeight)
+    Log.d(TAG, "Fitted dimensions set: $fittedSize")
+    setMeasuredDimension(fittedSize.width, fittedSize.height)
   }
 
   companion object {
