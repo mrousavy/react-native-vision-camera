@@ -55,6 +55,7 @@ extension AVCaptureDevice.Format {
       "minFps": minFrameRate,
       "maxFps": maxFrameRate,
       "pixelFormats": pixelFormats.map(\.unionValue),
+      "supportsDepthCapture": !supportedDepthDataFormats.isEmpty,
     ]
   }
 }

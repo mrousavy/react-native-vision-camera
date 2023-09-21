@@ -84,6 +84,8 @@ extension CameraView {
           photoOutput!.isDualCameraDualPhotoDeliveryEnabled = photoOutput!.isDualCameraDualPhotoDeliverySupported
         }
       }
+      // TODO: Enable isResponsiveCaptureEnabled? (iOS 17+)
+      // TODO: Enable isFastCapturePrioritizationEnabled? (iOS 17+)
       if enableDepthData {
         photoOutput!.isDepthDataDeliveryEnabled = photoOutput!.isDepthDataDeliverySupported
       }

@@ -73,7 +73,15 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
 
   override fun hasConstants(): Boolean = true
 
-  override fun getConstants(): MutableMap<String, Any> = mutableMapOf("availableCameraDevices" to getDevicesJson())
+  override fun getConstants(): MutableMap<String, Any?> {
+    val devices = getDevicesJson()
+    val preferredDevice = if (devices.size() > 0) devices.getMap(0) else null
+
+    return mutableMapOf(
+      "availableCameraDevices" to devices,
+      "userPreferredCameraDevice" to preferredDevice
+    )
+  }
 
   // Required for NativeEventEmitter, this is just a dummy implementation:
   @ReactMethod

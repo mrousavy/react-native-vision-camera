@@ -14,7 +14,7 @@ export type CameraPosition = 'front' | 'back' | 'external';
  * Indentifiers for a physical camera (one that actually exists on the back/front of the device)
  *
  * * `"ultra-wide-angle-camera"`: A built-in camera with a shorter focal length than that of a wide-angle camera. (focal length between below 24mm)
- * * `"wide-angle-camera"`: A built-in wide-angle camera. (focal length between 24mm and 35mm)
+ * * `"wide-angle-camera"`: A built-in wide-angle camera. (focal length between 24mm and 43mm)
  * * `"telephoto-camera"`: A built-in camera device with a longer focal length than a wide-angle camera. (focal length between above 85mm)
  *
  * Some Camera devices consist of multiple physical devices. They can be interpreted as _logical devices_, for example:
@@ -90,6 +90,10 @@ export interface CameraDeviceFormat {
    */
   supportsPhotoHDR: boolean;
   /**
+   * Specifies whether this format supports delivering depth data for photo or video capture.
+   */
+  supportsDepthCapture: boolean;
+  /**
    * The minum frame rate this Format needs to run at. High resolution formats often run at lower frame rates.
    */
   minFps: number;
@@ -121,14 +125,14 @@ export interface CameraDevice {
    */
   id: string;
   /**
-   * The physical devices this `CameraDevice` contains.
+   * The physical devices this `CameraDevice` consists of.
    *
-   * * If this camera device is a **logical camera** (combination of multiple physical cameras), there are multiple cameras in this array.
-   * * If this camera device is a **physical camera**, there is only a single element in this array.
+   * * If this camera device is a **logical camera** (combination of multiple physical cameras, e.g. "Triple Camera"), there are multiple cameras in this array.
+   * * If this camera device is a **physical camera** (e.g. "wide-angle-camera"), there is only a single element in this array.
    *
    * You can check if the camera is a logical multi-camera by using the `isMultiCam` property.
    */
-  devices: PhysicalCameraDeviceType[];
+  physicalDevices: PhysicalCameraDeviceType[];
   /**
    * Specifies the physical position of this camera. (back or front)
    */
@@ -187,12 +191,6 @@ export interface CameraDevice {
    * Whether this camera device supports low light boost.
    */
   supportsLowLightBoost: boolean;
-  /**
-   * Whether this camera supports taking photos with depth data.
-   *
-   * **! Work in Progress !**
-   */
-  supportsDepthCapture: boolean;
   /**
    * Whether this camera supports taking photos in RAW format
    *
