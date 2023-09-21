@@ -70,14 +70,22 @@ class CameraDevicesManager: RCTEventEmitter {
 
   private static func getAllDeviceTypes() -> [AVCaptureDevice.DeviceType] {
     var deviceTypes: [AVCaptureDevice.DeviceType] = []
+    deviceTypes.append(.builtInDualCamera)
+    deviceTypes.append(.builtInWideAngleCamera)
+    deviceTypes.append(.builtInTelephotoCamera)
+    deviceTypes.append(.builtInTrueDepthCamera)
     if #available(iOS 13.0, *) {
       deviceTypes.append(.builtInTripleCamera)
       deviceTypes.append(.builtInDualWideCamera)
       deviceTypes.append(.builtInUltraWideCamera)
     }
-    deviceTypes.append(.builtInDualCamera)
-    deviceTypes.append(.builtInWideAngleCamera)
-    deviceTypes.append(.builtInTelephotoCamera)
+    if #available(iOS 15.4, *) {
+      deviceTypes.append(.builtInLiDARDepthCamera)
+    }
+    if #available(iOS 17.0, *) {
+      deviceTypes.append(.external)
+      deviceTypes.append(.continuityCamera)
+    }
     return deviceTypes
   }
 }
