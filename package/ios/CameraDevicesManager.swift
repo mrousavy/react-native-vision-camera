@@ -37,33 +37,24 @@ class CameraDevicesManager: RCTEventEmitter {
   }
 
   override func constantsToExport() -> [AnyHashable: Any]! {
+    let devices = getDevicesJson()
+    let preferredDevice: [String: Any]
+    if #available(iOS 17.0, *),
+       let userPreferred = AVCaptureDevice.userPreferredCamera {
+      preferredDevice = userPreferred.toDictionary()
+    } else {
+      preferredDevice = devices[0]
+    }
+    
     return [
-      "availableCameraDevices": getDevicesJson(),
+      "availableCameraDevices": devices,
+      "userPreferredCameraDevice": preferredDevice
     ]
   }
 
   private func getDevicesJson() -> [[String: Any]] {
     return discoverySession.devices.map {
-      return [
-        "id": $0.uniqueID,
-        "physicalDevices": $0.physicalDevices.map(\.deviceType.physicalDeviceDescriptor),
-        "position": $0.position.descriptor,
-        "name": $0.localizedName,
-        "hasFlash": $0.hasFlash,
-        "hasTorch": $0.hasTorch,
-        "minZoom": $0.minAvailableVideoZoomFactor,
-        "neutralZoom": $0.neutralZoomFactor,
-        "maxZoom": $0.maxAvailableVideoZoomFactor,
-        "isMultiCam": $0.isMultiCam,
-        "supportsRawCapture": false, // TODO: supportsRawCapture
-        "supportsLowLightBoost": $0.isLowLightBoostSupported,
-        "supportsFocus": $0.isFocusPointOfInterestSupported,
-        "hardwareLevel": "full",
-        "sensorOrientation": "portrait", // TODO: Sensor Orientation?
-        "formats": $0.formats.map { format -> [String: Any] in
-          format.toDictionary()
-        },
-      ]
+      return $0.toDictionary()
     }
   }
 
