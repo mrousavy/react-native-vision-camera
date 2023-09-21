@@ -26,9 +26,9 @@ private let propsThatRequireReconfiguration = ["cameraId",
                                                "photo",
                                                "video",
                                                "enableFrameProcessor",
+                                               "hdr",
                                                "pixelFormat"]
 private let propsThatRequireDeviceReconfiguration = ["fps",
-                                                     "hdr",
                                                      "lowLightBoost"]
 
 // MARK: - CameraView

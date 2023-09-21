@@ -220,17 +220,6 @@ extension CameraView {
         device.activeVideoMinFrameDuration = CMTime.invalid
         device.activeVideoMaxFrameDuration = CMTime.invalid
       }
-      if hdr != nil {
-        if hdr == true && !device.activeFormat.isVideoHDRSupported {
-          invokeOnError(.format(.invalidHdr))
-          return
-        }
-        if !device.automaticallyAdjustsVideoHDREnabled {
-          if device.isVideoHDREnabled != hdr!.boolValue {
-            device.isVideoHDREnabled = hdr!.boolValue
-          }
-        }
-      }
       if lowLightBoost != nil {
         if lowLightBoost == true && !device.isLowLightBoostSupported {
           invokeOnError(.device(.lowLightBoostNotSupported))
