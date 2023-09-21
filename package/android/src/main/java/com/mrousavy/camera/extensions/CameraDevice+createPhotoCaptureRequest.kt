@@ -23,14 +23,16 @@ private fun supportsSnapshotCapture(cameraCharacteristics: CameraCharacteristics
   return true
 }
 
-fun CameraDevice.createPhotoCaptureRequest(cameraManager: CameraManager,
-                                           surface: Surface,
-                                           zoom: Float,
-                                           qualityPrioritization: QualityPrioritization,
-                                           flashMode: Flash,
-                                           enableRedEyeReduction: Boolean,
-                                           enableAutoStabilization: Boolean,
-                                           orientation: Orientation): CaptureRequest {
+fun CameraDevice.createPhotoCaptureRequest(
+  cameraManager: CameraManager,
+  surface: Surface,
+  zoom: Float,
+  qualityPrioritization: QualityPrioritization,
+  flashMode: Flash,
+  enableRedEyeReduction: Boolean,
+  enableAutoStabilization: Boolean,
+  orientation: Orientation
+): CaptureRequest {
   val cameraCharacteristics = cameraManager.getCameraCharacteristics(this.id)
 
   val template = if (qualityPrioritization == QualityPrioritization.SPEED && supportsSnapshotCapture(cameraCharacteristics)) {

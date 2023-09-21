@@ -80,38 +80,6 @@ final class CameraViewManager: RCTViewManager {
   }
 
   @objc
-  final func getAvailableCameraDevices(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    withPromise(resolve: resolve, reject: reject) {
-      let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: getAllDeviceTypes(),
-                                                              mediaType: .video,
-                                                              position: .unspecified)
-      return discoverySession.devices.map {
-        return [
-          "id": $0.uniqueID,
-          "devices": $0.physicalDevices.map(\.deviceType.descriptor),
-          "position": $0.position.descriptor,
-          "name": $0.localizedName,
-          "hasFlash": $0.hasFlash,
-          "hasTorch": $0.hasTorch,
-          "minZoom": $0.minAvailableVideoZoomFactor,
-          "neutralZoom": $0.neutralZoomFactor,
-          "maxZoom": $0.maxAvailableVideoZoomFactor,
-          "isMultiCam": $0.isMultiCam,
-          "supportsDepthCapture": false, // TODO: supportsDepthCapture
-          "supportsRawCapture": false, // TODO: supportsRawCapture
-          "supportsLowLightBoost": $0.isLowLightBoostSupported,
-          "supportsFocus": $0.isFocusPointOfInterestSupported,
-          "hardwareLevel": "full",
-          "sensorOrientation": "portrait", // TODO: Sensor Orientation?
-          "formats": $0.formats.map { format -> [String: Any] in
-            format.toDictionary()
-          },
-        ]
-      }
-    }
-  }
-
-  @objc
   final func getCameraPermissionStatus(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     withPromise(resolve: resolve, reject: reject) {
       let status = AVCaptureDevice.authorizationStatus(for: .video)
@@ -149,18 +117,5 @@ final class CameraViewManager: RCTViewManager {
     // swiftlint:disable force_cast
     return bridge.uiManager.view(forReactTag: tag) as! CameraView
     // swiftlint:enable force_cast
-  }
-
-  private final func getAllDeviceTypes() -> [AVCaptureDevice.DeviceType] {
-    var deviceTypes: [AVCaptureDevice.DeviceType] = []
-    if #available(iOS 13.0, *) {
-      deviceTypes.append(.builtInTripleCamera)
-      deviceTypes.append(.builtInDualWideCamera)
-      deviceTypes.append(.builtInUltraWideCamera)
-    }
-    deviceTypes.append(.builtInDualCamera)
-    deviceTypes.append(.builtInWideAngleCamera)
-    deviceTypes.append(.builtInTelephotoCamera)
-    return deviceTypes
   }
 }

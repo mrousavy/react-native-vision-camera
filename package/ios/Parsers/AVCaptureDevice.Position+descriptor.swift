@@ -17,7 +17,7 @@ extension AVCaptureDevice.Position {
     case .front:
       return "front"
     case .unspecified:
-      return "unspecified"
+      return "external"
     @unknown default:
       fatalError("AVCaptureDevice.Position has unknown state.")
     }

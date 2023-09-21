@@ -19,7 +19,8 @@ RCT_EXTERN_METHOD(getMicrophonePermissionStatus : (RCTPromiseResolveBlock)resolv
 RCT_EXTERN_METHOD(requestCameraPermission : (RCTPromiseResolveBlock)resolve reject : (RCTPromiseRejectBlock)reject);
 RCT_EXTERN_METHOD(requestMicrophonePermission : (RCTPromiseResolveBlock)resolve reject : (RCTPromiseRejectBlock)reject);
 
-RCT_EXTERN_METHOD(getAvailableCameraDevices : (RCTPromiseResolveBlock)resolve reject : (RCTPromiseRejectBlock)reject);
+RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(getAvailableCameraDevices);
+RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(installFrameProcessorBindings);
 
 // Camera View Properties
 RCT_EXPORT_VIEW_PROPERTY(isActive, BOOL);
@@ -27,6 +28,7 @@ RCT_EXPORT_VIEW_PROPERTY(cameraId, NSString);
 RCT_EXPORT_VIEW_PROPERTY(enableDepthData, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(enableHighQualityPhotos, NSNumber); // nullable bool
 RCT_EXPORT_VIEW_PROPERTY(enablePortraitEffectsMatteDelivery, BOOL);
+RCT_EXPORT_VIEW_PROPERTY(enableBufferCompression, BOOL);
 // use cases
 RCT_EXPORT_VIEW_PROPERTY(photo, NSNumber); // nullable bool
 RCT_EXPORT_VIEW_PROPERTY(video, NSNumber); // nullable bool
@@ -74,8 +76,5 @@ RCT_EXTERN_METHOD(focus
                   : (NSDictionary*)point resolve
                   : (RCTPromiseResolveBlock)resolve reject
                   : (RCTPromiseRejectBlock)reject);
-
-// Static Methods
-RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(installFrameProcessorBindings);
 
 @end

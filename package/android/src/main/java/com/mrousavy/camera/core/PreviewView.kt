@@ -13,15 +13,16 @@ import com.mrousavy.camera.parsers.ResizeMode
 import kotlin.math.roundToInt
 
 @SuppressLint("ViewConstructor")
-class PreviewView(context: Context,
-                  val targetSize: Size,
-                  private val resizeMode: ResizeMode,
-                  private val onSurfaceChanged: (surface: Surface?) -> Unit): SurfaceView(context) {
+class PreviewView(
+  context: Context,
+  val targetSize: Size,
+  private val resizeMode: ResizeMode,
+  private val onSurfaceChanged: (surface: Surface?) -> Unit): SurfaceView(context) {
 
   init {
     Log.i(TAG, "Using Preview Size ${targetSize.width} x ${targetSize.height}.")
     holder.setFixedSize(targetSize.width, targetSize.height)
-    holder.addCallback(object: SurfaceHolder.Callback {
+    holder.addCallback(object : SurfaceHolder.Callback {
       override fun surfaceCreated(holder: SurfaceHolder) {
         Log.i(TAG, "Surface created! ${holder.surface}")
         onSurfaceChanged(holder.surface)

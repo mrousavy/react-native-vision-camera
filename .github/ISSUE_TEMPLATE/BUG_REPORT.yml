@@ -22,7 +22,7 @@ body:
         const device = useCameraDevices()
 
         // ...
-      
+
         <Camera
           style={StyleSheet.absoluteFill}
           device={device}
@@ -32,31 +32,40 @@ body:
   - type: textarea
     attributes:
       label: Relevant log output
-      description: > 
+      description: >
         Paste any relevant **native log output** (Xcode Logs/Android Studio Logcat) here.
         This will be automatically formatted into code, so no need for backticks.
-        
+
         * For iOS, run the project through Xcode and copy the logs from the log window.
-        
+
         * For Android, either open the project through Android Studio and paste the logs from the logcat window, or run `adb logcat` in terminal.
       render: shell
+      placeholder: >
+        09:03:46 I ReactNativeJS: Running "VisionCameraExample" with {"rootTag":11}
+
+        09:03:47 I ReactNativeJS: Re-rendering App. Camera: undefined | Microphone: undefined
+
+        09:03:47 I VisionCamera: Installing JSI bindings...
+
+        09:03:47 I VisionCamera: Finished installing JSI bindings!
+        ...
     validations:
       required: true
   - type: textarea
     attributes:
       label: Camera Device
-      description: > 
+      description: >
         Paste the JSON Camera `device` that was used here.
         Make sure to leave out the `formats` prop as that is too long for the issue.
-        
+
         ```
-        
+
         device.formats = undefined
-        
+
         console.log(JSON.stringify(device, null, 2))
-        
+
         ```
-        
+
         This will be automatically formatted into code, so no need for backticks.
       render: json
       placeholder: >
@@ -76,7 +85,6 @@ body:
           "maxZoom": 123.75,
           "name": "Back Dual Wide Camera",
           "position": "back",
-          "supportsDepthCapture": false,
           "supportsFocus": true,
           "supportsLowLightBoost": false,
           "supportsParallelVideoProcessing": true,
@@ -87,7 +95,7 @@ body:
   - type: input
     attributes:
       label: Device
-      description: > 
+      description: >
         Which device are you seeing this Problem on?
         Mention the full name of the phone, as well as the operating system and version.
         If you have tested this on multiple devices (ex. Android and iOS) then mention all of those devices (comma separated)
@@ -101,12 +109,19 @@ body:
       placeholder: ex. 3.1.6
     validations:
       required: true
-  - type: checkboxes
+  - type: dropdown
     attributes:
       label: Can you reproduce this issue in the VisionCamera Example app?
-      description: Run the example app (`package/example/`) and see if the issue is reproduceable here.
+      description: >
+        Try to build the example app (`package/example/`) and see if the issue is reproduceable here.
+        **Note:** If you don't try this in the example app, I most likely won't help you with your issue.
       options:
-      - label: I can reproduce the issue in the VisionCamera Example app.
+        - I didn't try (⚠️ your issue might get ignored & closed if you don't try this)
+        - Yes, I can reproduce the same issue in the Example app here
+        - No, I cannot reproduce the issue in the Example app
+      default: 0
+    validations:
+      required: true
   - type: checkboxes
     attributes:
       label: Additional information

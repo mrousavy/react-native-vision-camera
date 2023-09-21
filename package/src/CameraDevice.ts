@@ -1,47 +1,29 @@
-import type { CameraPosition } from './CameraPosition';
 import { Orientation } from './Orientation';
 import type { PixelFormat } from './PixelFormat';
+
+/**
+ * Represents the camera device position.
+ *
+ * * `"back"`: Indicates that the device is physically located on the back of the system hardware
+ * * `"front"`: Indicates that the device is physically located on the front of the system hardware
+ * * `"external"`: The camera device is an external camera, and has no fixed facing relative to the device's screen.
+ */
+export type CameraPosition = 'front' | 'back' | 'external';
 
 /**
  * Indentifiers for a physical camera (one that actually exists on the back/front of the device)
  *
  * * `"ultra-wide-angle-camera"`: A built-in camera with a shorter focal length than that of a wide-angle camera. (focal length between below 24mm)
- * * `"wide-angle-camera"`: A built-in wide-angle camera. (focal length between 24mm and 35mm)
+ * * `"wide-angle-camera"`: A built-in wide-angle camera. (focal length between 24mm and 43mm)
  * * `"telephoto-camera"`: A built-in camera device with a longer focal length than a wide-angle camera. (focal length between above 85mm)
+ *
+ * Some Camera devices consist of multiple physical devices. They can be interpreted as _logical devices_, for example:
+ *
+ * * `"ultra-wide-angle-camera"` + `"wide-angle-camera"` = **dual wide-angle camera**.
+ * * `"wide-angle-camera"` + `"telephoto-camera"` = **dual camera**.
+ * * `"ultra-wide-angle-camera"` + `"wide-angle-camera"` + `"telephoto-camera"` = **triple camera**.
  */
 export type PhysicalCameraDeviceType = 'ultra-wide-angle-camera' | 'wide-angle-camera' | 'telephoto-camera';
-
-/**
- * Indentifiers for a logical camera (Combinations of multiple physical cameras to create a single logical camera).
- *
- * * `"dual-camera"`: A combination of wide-angle and telephoto cameras that creates a capture device.
- * * `"dual-wide-camera"`: A device that consists of two cameras of fixed focal length, one ultrawide angle and one wide angle.
- * * `"triple-camera"`: A device that consists of three cameras of fixed focal length, one ultrawide angle, one wide angle, and one telephoto.
- */
-export type LogicalCameraDeviceType = 'dual-camera' | 'dual-wide-camera' | 'triple-camera';
-
-/**
- * Parses an array of physical device types into a single {@linkcode PhysicalCameraDeviceType} or {@linkcode LogicalCameraDeviceType}, depending what matches.
- * @method
- */
-export const parsePhysicalDeviceTypes = (
-  physicalDeviceTypes: PhysicalCameraDeviceType[],
-): PhysicalCameraDeviceType | LogicalCameraDeviceType => {
-  if (physicalDeviceTypes.length === 1) {
-    // @ts-expect-error for very obvious reasons
-    return physicalDeviceTypes[0];
-  }
-
-  const hasWide = physicalDeviceTypes.includes('wide-angle-camera');
-  const hasUltra = physicalDeviceTypes.includes('ultra-wide-angle-camera');
-  const hasTele = physicalDeviceTypes.includes('telephoto-camera');
-
-  if (hasTele && hasWide && hasUltra) return 'triple-camera';
-  if (hasWide && hasUltra) return 'dual-wide-camera';
-  if (hasWide && hasTele) return 'dual-camera';
-
-  throw new Error(`Invalid physical device type combination! ${physicalDeviceTypes.join(' + ')}`);
-};
 
 /**
  * Indicates a format's autofocus system.
@@ -108,6 +90,10 @@ export interface CameraDeviceFormat {
    */
   supportsPhotoHDR: boolean;
   /**
+   * Specifies whether this format supports delivering depth data for photo or video capture.
+   */
+  supportsDepthCapture: boolean;
+  /**
    * The minum frame rate this Format needs to run at. High resolution formats often run at lower frame rates.
    */
   minFps: number;
@@ -139,14 +125,14 @@ export interface CameraDevice {
    */
   id: string;
   /**
-   * The physical devices this `CameraDevice` contains.
+   * The physical devices this `CameraDevice` consists of.
    *
-   * * If this camera device is a **logical camera** (combination of multiple physical cameras), there are multiple cameras in this array.
-   * * If this camera device is a **physical camera**, there is only a single element in this array.
+   * * If this camera device is a **logical camera** (combination of multiple physical cameras, e.g. "Triple Camera"), there are multiple cameras in this array.
+   * * If this camera device is a **physical camera** (e.g. "wide-angle-camera"), there is only a single element in this array.
    *
    * You can check if the camera is a logical multi-camera by using the `isMultiCam` property.
    */
-  devices: PhysicalCameraDeviceType[];
+  physicalDevices: PhysicalCameraDeviceType[];
   /**
    * Specifies the physical position of this camera. (back or front)
    */
@@ -205,12 +191,6 @@ export interface CameraDevice {
    * Whether this camera device supports low light boost.
    */
   supportsLowLightBoost: boolean;
-  /**
-   * Whether this camera supports taking photos with depth data.
-   *
-   * **! Work in Progress !**
-   */
-  supportsDepthCapture: boolean;
   /**
    * Whether this camera supports taking photos in RAW format
    *
