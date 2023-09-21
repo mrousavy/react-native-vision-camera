@@ -81,5 +81,5 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: ktlint-report
-          path: ./package/android/build/*.xml
+          path: build/*.xml
 
