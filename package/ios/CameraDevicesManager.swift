@@ -45,10 +45,10 @@ class CameraDevicesManager: RCTEventEmitter {
     } else {
       preferredDevice = devices[0]
     }
-    
+
     return [
       "availableCameraDevices": devices,
-      "userPreferredCameraDevice": preferredDevice
+      "userPreferredCameraDevice": preferredDevice,
     ]
   }
 

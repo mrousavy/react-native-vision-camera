@@ -78,8 +78,8 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
     val preferredDevice = if (devices.size() > 0) devices.getMap(0) else null
 
     return mutableMapOf(
-        "availableCameraDevices" to devices,
-        "userPreferredCameraDevice" to preferredDevice
+      "availableCameraDevices" to devices,
+      "userPreferredCameraDevice" to preferredDevice
     )
   }
 
