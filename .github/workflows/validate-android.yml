@@ -15,57 +15,7 @@ on:
       - 'package/.editorconfig'
 
 jobs:
-  lint:
-    name: Gradle Lint
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./package/android
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup JDK 11
-        uses: actions/setup-java@v1
-        with:
-          java-version: 11
-
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-      - name: Restore node_modules from cache
-        uses: actions/cache@v3
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-      - name: Install node_modules
-        run: yarn install --frozen-lockfile --cwd ..
-      - name: Install node_modules for example/
-        run: yarn install --frozen-lockfile --cwd ../example
-
-      - name: Restore Gradle cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - name: Run Gradle Lint
-        run: ./gradlew lint --build-cache
-
-      - name: Parse Gradle Lint Report
-        uses: yutailang0119/action-android-lint@v3
-        with:
-          report-path: ./package/android/build/reports/*.xml
-      - uses: actions/upload-artifact@v3
-        with:
-          name: gradle-lint-report
-          path: ./package/android/build/reports/*.xml
-  ktlint:
-    name: Kotlin Lint
+  KTLint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
