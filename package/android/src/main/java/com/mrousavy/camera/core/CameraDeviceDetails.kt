@@ -14,10 +14,10 @@ import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.extensions.bigger
 import com.mrousavy.camera.extensions.getPhotoSizes
 import com.mrousavy.camera.extensions.getVideoSizes
-import com.mrousavy.camera.parsers.PixelFormat
 import com.mrousavy.camera.parsers.HardwareLevel
 import com.mrousavy.camera.parsers.LensFacing
 import com.mrousavy.camera.parsers.Orientation
+import com.mrousavy.camera.parsers.PixelFormat
 import com.mrousavy.camera.parsers.VideoStabilizationMode
 import kotlin.math.PI
 import kotlin.math.atan
@@ -29,50 +29,64 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
   private val extensions = getSupportedExtensions()
 
   // device characteristics
-  private val isMultiCam = capabilities.contains(11 /* TODO: CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA */)
-  private val supportsDepthCapture = capabilities.contains(8 /* TODO: CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DEPTH_OUTPUT */)
+  private val isMultiCam = capabilities.contains(11) // TODO: CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
+  private val supportsDepthCapture = capabilities.contains(8) // TODO: CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DEPTH_OUTPUT
   private val supportsRawCapture = capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW)
-  private val supportsLowLightBoost = extensions.contains(4 /* TODO: CameraExtensionCharacteristics.EXTENSION_NIGHT */)
+  private val supportsLowLightBoost = extensions.contains(4) // TODO: CameraExtensionCharacteristics.EXTENSION_NIGHT
   private val lensFacing = LensFacing.fromCameraCharacteristics(characteristics)
   private val hasFlash = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) ?: false
-  private val focalLengths = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS) ?: floatArrayOf(35f /* 35mm default */)
+  private val focalLengths =
+    characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
+      // 35mm is the film standard sensor size
+      ?: floatArrayOf(35f)
   private val sensorSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)!!
   private val sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)!!
-  private val name = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) characteristics.get(CameraCharacteristics.INFO_VERSION)
-                      else null) ?: "$lensFacing (${cameraId})"
+  private val name = (
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      characteristics.get(CameraCharacteristics.INFO_VERSION)
+    } else {
+      null
+    }
+    ) ?: "$lensFacing ($cameraId)"
 
   // "formats" (all possible configurations for this device)
-  private val zoomRange = (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) characteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
-                           else null) ?: Range(1f, characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM) ?: 1f)
+  private val zoomRange = (
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+      characteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
+    } else {
+      null
+    }
+    ) ?: Range(1f, characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM) ?: 1f)
   private val minZoom = zoomRange.lower.toDouble()
   private val maxZoom = zoomRange.upper.toDouble()
 
   private val cameraConfig = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
   private val isoRange = characteristics.get(CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE) ?: Range(0, 0)
-  private val digitalStabilizationModes = characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES) ?: IntArray(0)
-  private val opticalStabilizationModes = characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_OPTICAL_STABILIZATION) ?: IntArray(0)
-  private val supportsPhotoHdr = extensions.contains(3 /* TODO: CameraExtensionCharacteristics.EXTENSION_HDR */)
+  private val digitalStabilizationModes =
+    characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES) ?: IntArray(0)
+  private val opticalStabilizationModes =
+    characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_OPTICAL_STABILIZATION) ?: IntArray(0)
+  private val supportsPhotoHdr = extensions.contains(3) // TODO: CameraExtensionCharacteristics.EXTENSION_HDR
   private val supportsVideoHdr = getHasVideoHdr()
 
   private val videoFormat = ImageFormat.YUV_420_888
 
   // get extensions (HDR, Night Mode, ..)
-  private fun getSupportedExtensions(): List<Int> {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+  private fun getSupportedExtensions(): List<Int> =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
       val extensions = cameraManager.getCameraExtensionCharacteristics(cameraId)
       extensions.supportedExtensions
     } else {
       emptyList()
     }
-  }
 
   private fun getHasVideoHdr(): Boolean {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
       if (capabilities.contains(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT)) {
         val availableProfiles = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES)
           ?: DynamicRangeProfiles(LongArray(0))
-        return availableProfiles.supportedProfiles.contains(DynamicRangeProfiles.HLG10)
-          || availableProfiles.supportedProfiles.contains(DynamicRangeProfiles.HDR10)
+        return availableProfiles.supportedProfiles.contains(DynamicRangeProfiles.HLG10) ||
+          availableProfiles.supportedProfiles.contains(DynamicRangeProfiles.HDR10)
       }
     }
     return false
@@ -117,16 +131,10 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     return deviceTypes
   }
 
-  private fun getFieldOfView(): Double {
-    return 2 * atan(sensorSize.bigger / (focalLengths[0] * 2)) * (180 / PI)
-  }
+  private fun getFieldOfView(): Double = 2 * atan(sensorSize.bigger / (focalLengths[0] * 2)) * (180 / PI)
 
-  private fun getVideoSizes(): List<Size> {
-    return characteristics.getVideoSizes(cameraId, videoFormat)
-  }
-  private fun getPhotoSizes(): List<Size> {
-    return characteristics.getPhotoSizes(ImageFormat.JPEG)
-  }
+  private fun getVideoSizes(): List<Size> = characteristics.getVideoSizes(cameraId, videoFormat)
+  private fun getPhotoSizes(): List<Size> = characteristics.getPhotoSizes(ImageFormat.JPEG)
 
   private fun getFormats(): ReadableArray {
     val array = Arguments.createArray()

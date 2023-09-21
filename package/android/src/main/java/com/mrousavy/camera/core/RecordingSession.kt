@@ -14,17 +14,20 @@ import com.mrousavy.camera.parsers.VideoCodec
 import com.mrousavy.camera.parsers.VideoFileType
 import java.io.File
 
-class RecordingSession(context: Context,
-                       val size: Size,
-                       private val enableAudio: Boolean,
-                       private val fps: Int? = null,
-                       private val codec: VideoCodec = VideoCodec.H264,
-                       private val orientation: Orientation,
-                       private val fileType: VideoFileType = VideoFileType.MP4,
-                       private val callback: (video: Video) -> Unit,
-                       private val onError: (error: RecorderError) -> Unit) {
+class RecordingSession(
+  context: Context,
+  val size: Size,
+  private val enableAudio: Boolean,
+  private val fps: Int? = null,
+  private val codec: VideoCodec = VideoCodec.H264,
+  private val orientation: Orientation,
+  private val fileType: VideoFileType = VideoFileType.MP4,
+  private val callback: (video: Video) -> Unit,
+  private val onError: (error: RecorderError) -> Unit
+) {
   companion object {
     private const val TAG = "RecordingSession"
+
     // bits per second
     private const val VIDEO_BIT_RATE = 10_000_000
     private const val AUDIO_SAMPLING_RATE = 44_100
@@ -67,7 +70,7 @@ class RecordingSession(context: Context,
       recorder.setAudioChannels(AUDIO_CHANNELS)
     }
     recorder.setInputSurface(surface)
-    //recorder.setOrientationHint(orientation.toDegrees())
+    // recorder.setOrientationHint(orientation.toDegrees())
 
     recorder.setOnErrorListener { _, what, extra ->
       Log.e(TAG, "MediaRecorder Error: $what ($extra)")

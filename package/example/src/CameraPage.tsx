@@ -1,16 +1,8 @@
 import * as React from 'react';
-import { useRef, useState, useMemo, useCallback } from 'react';
+import { useRef, useState, useCallback } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler';
-import {
-  CameraDeviceFormat,
-  CameraRuntimeError,
-  PhotoFile,
-  sortFormats,
-  useCameraDevices,
-  useFrameProcessor,
-  VideoFile,
-} from 'react-native-vision-camera';
+import { CameraRuntimeError, PhotoFile, useCameraDevice, useCameraFormat, useFrameProcessor, VideoFile } from 'react-native-vision-camera';
 import { Camera } from 'react-native-vision-camera';
 import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING } from './Constants';
 import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated';
@@ -53,58 +45,23 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const [enableNightMode, setEnableNightMode] = useState(false);
 
   // camera format settings
-  const devices = useCameraDevices();
-  const device = devices[cameraPosition];
-  const formats = useMemo<CameraDeviceFormat[]>(() => {
-    if (device?.formats == null) return [];
-    return device.formats.sort(sortFormats);
-  }, [device?.formats]);
+  const device = useCameraDevice(cameraPosition);
+  const format = useCameraFormat(device, {
+    fps: {
+      target: 60,
+      priority: 1,
+    },
+  });
 
   //#region Memos
-  const [is60Fps, setIs60Fps] = useState(true);
-  const fps = useMemo(() => {
-    if (!is60Fps) return 30;
+  const [targetFps, setTargetFps] = useState(30);
+  const fps = Math.min(format?.maxFps ?? 1, targetFps);
 
-    if (enableNightMode && !device?.supportsLowLightBoost) {
-      // User has enabled Night Mode, but Night Mode is not natively supported, so we simulate it by lowering the frame rate.
-      return 30;
-    }
-
-    const supportsHdrAt60Fps = formats.some((f) => f.supportsVideoHDR && f.maxFps >= 60);
-    if (enableHdr && !supportsHdrAt60Fps) {
-      // User has enabled HDR, but HDR is not supported at 60 FPS.
-      return 30;
-    }
-
-    const supports60Fps = formats.some((f) => f.maxFps >= 60);
-    if (!supports60Fps) {
-      // 60 FPS is not supported by any format.
-      return 30;
-    }
-    // If nothing blocks us from using it, we default to 60 FPS.
-    return 60;
-  }, [device?.supportsLowLightBoost, enableHdr, enableNightMode, formats, is60Fps]);
-
-  const supportsCameraFlipping = useMemo(() => devices.back != null && devices.front != null, [devices.back, devices.front]);
   const supportsFlash = device?.hasFlash ?? false;
-  const supportsHdr = useMemo(() => formats.some((f) => f.supportsVideoHDR || f.supportsPhotoHDR), [formats]);
-  const supports60Fps = useMemo(() => formats.some((f) => f.maxFps >= 60), [formats]);
-  const canToggleNightMode = enableNightMode
-    ? true // it's enabled so you have to be able to turn it off again
-    : (device?.supportsLowLightBoost ?? false) || fps > 30; // either we have native support, or we can lower the FPS
+  const supportsHdr = format?.supportsPhotoHDR;
+  const supports60Fps = (format?.maxFps ?? 0) >= 60;
+  const canToggleNightMode = device?.supportsLowLightBoost ?? false;
   //#endregion
-
-  const format = useMemo(() => {
-    let result = formats;
-    if (enableHdr) {
-      // We only filter by HDR capable formats if HDR is set to true.
-      // Otherwise we ignore the `supportsVideoHDR` property and accept formats which support HDR `true` or `false`
-      result = result.filter((f) => f.supportsVideoHDR || f.supportsPhotoHDR);
-    }
-
-    // find the first format that includes the given FPS
-    return result.find((f) => f.maxFps >= fps);
-  }, [formats, fps, enableHdr]);
 
   //#region Animated Zoom
   // This just maps the zoom factor to a percentage value.
@@ -249,22 +206,17 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
       <StatusBarBlurBackground />
 
       <View style={styles.rightButtonRow}>
-        {supportsCameraFlipping && (
-          <PressableOpacity style={styles.button} onPress={onFlipCameraPressed} disabledOpacity={0.4}>
-            <IonIcon name="camera-reverse" color="white" size={24} />
-          </PressableOpacity>
-        )}
+        <PressableOpacity style={styles.button} onPress={onFlipCameraPressed} disabledOpacity={0.4}>
+          <IonIcon name="camera-reverse" color="white" size={24} />
+        </PressableOpacity>
         {supportsFlash && (
           <PressableOpacity style={styles.button} onPress={onFlashPressed} disabledOpacity={0.4}>
             <IonIcon name={flash === 'on' ? 'flash' : 'flash-off'} color="white" size={24} />
           </PressableOpacity>
         )}
         {supports60Fps && (
-          <PressableOpacity style={styles.button} onPress={() => setIs60Fps(!is60Fps)}>
-            <Text style={styles.text}>
-              {is60Fps ? '60' : '30'}
-              {'\n'}FPS
-            </Text>
+          <PressableOpacity style={styles.button} onPress={() => setTargetFps((t) => (t === 30 ? 60 : 30))}>
+            <Text style={styles.text}>{`${targetFps} FPS`}</Text>
           </PressableOpacity>
         )}
         {supportsHdr && (

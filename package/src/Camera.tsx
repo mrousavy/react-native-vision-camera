@@ -9,6 +9,8 @@ import type { PhotoFile, TakePhotoOptions } from './PhotoFile';
 import type { Point } from './Point';
 import type { RecordVideoOptions, VideoFile } from './VideoFile';
 import { VisionCameraProxy } from './FrameProcessorPlugins';
+import { CameraDevices } from './CameraDevices';
+import type { EmitterSubscription } from 'react-native';
 
 //#region Types
 export type CameraPermissionStatus = 'granted' | 'not-determined' | 'denied' | 'restricted';
@@ -37,7 +39,7 @@ type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>;
  *
  * The `<Camera>` component's most important (and therefore _required_) properties are:
  *
- * * {@linkcode CameraProps.device | device}: Specifies the {@linkcode CameraDevice} to use. Get a {@linkcode CameraDevice} by using the {@linkcode useCameraDevices | useCameraDevices()} hook, or manually by using the {@linkcode Camera.getAvailableCameraDevices Camera.getAvailableCameraDevices()} function.
+ * * {@linkcode CameraProps.device | device}: Specifies the {@linkcode CameraDevice} to use. Get a {@linkcode CameraDevice} by using the {@linkcode useCameraDevice | useCameraDevice()} hook, or manually by using the {@linkcode CameraDevices.getAvailableCameraDevices CameraDevices.getAvailableCameraDevices()} function.
  * * {@linkcode CameraProps.isActive | isActive}: A boolean value that specifies whether the Camera should actively stream video frames or not. This can be compared to a Video component, where `isActive` specifies whether the video is paused or not. If you fully unmount the `<Camera>` component instead of using `isActive={false}`, the Camera will take a bit longer to start again.
  *
  * @example
@@ -116,12 +118,6 @@ export class Camera extends React.PureComponent<CameraProps> {
   /**
    * Start a new video recording.
    *
-   * Records in the following formats:
-   * * **iOS**: QuickTime (`.mov`)
-   * * **Android**: MPEG4 (`.mp4`)
-   *
-   * @blocking This function is synchronized/blocking.
-   *
    * @throws {@linkcode CameraCaptureError} When any kind of error occured while starting the video recording. Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
    *
    * @example
@@ -144,8 +140,8 @@ export class Camera extends React.PureComponent<CameraProps> {
       if (error != null) return onRecordingError(error);
       if (video != null) return onRecordingFinished(video);
     };
-    // TODO: Use TurboModules to either make this a sync invokation, or make it async.
     try {
+      // TODO: Use TurboModules to make this awaitable.
       CameraModule.startRecording(this.handle, passThroughOptions, onRecordCallback);
     } catch (e) {
       throw tryParseNativeCameraError(e);
@@ -231,8 +227,8 @@ export class Camera extends React.PureComponent<CameraProps> {
 
   /**
    * Focus the camera to a specific point in the coordinate system.
-   * @param {Point} point The point to focus to. This should be relative to the Camera view's coordinate system,
-   * and expressed in Pixel on iOS and Points on Android.
+   * @param {Point} point The point to focus to. This should be relative
+   * to the Camera view's coordinate system and is expressed in points.
    *  * `(0, 0)` means **top left**.
    *  * `(CameraView.width, CameraView.height)` means **bottom right**.
    *
@@ -257,28 +253,32 @@ export class Camera extends React.PureComponent<CameraProps> {
   //#endregion
 
   //#region Static Functions (NativeModule)
-
   /**
    * Get a list of all available camera devices on the current phone.
    *
-   * @throws {@linkcode CameraRuntimeError} When any kind of error occured while getting all available camera devices. Use the {@linkcode CameraRuntimeError.code | code} property to get the actual error
+   * If you use Hooks, use the `useCameraDevices()` hook instead.
+   *
+   * * For Camera Devices attached to the phone, it is safe to assume that this will never change.
+   * * For external Camera Devices (USB cameras, Mac continuity cameras, etc.) the available Camera Devices could change over time when the external Camera device gets plugged in or plugged out, so use {@link addCameraDevicesChangedListener | addCameraDevicesChangedListener(...)} to listen for such changes.
+   *
    * @example
    * ```ts
-   * const devices = await Camera.getAvailableCameraDevices()
-   * const filtered = devices.filter((d) => matchesMyExpectations(d))
-   * const sorted = devices.sort(sortDevicesByAmountOfCameras)
-   * return {
-   *   back: sorted.find((d) => d.position === "back"),
-   *   front: sorted.find((d) => d.position === "front")
-   * }
+   * const devices = Camera.getAvailableCameraDevices()
+   * const backCameras = devices.filter((d) => d.position === "back")
+   * const frontCameras = devices.filter((d) => d.position === "front")
    * ```
    */
-  public static async getAvailableCameraDevices(): Promise<CameraDevice[]> {
-    try {
-      return await CameraModule.getAvailableCameraDevices();
-    } catch (e) {
-      throw tryParseNativeCameraError(e);
-    }
+  public static getAvailableCameraDevices(): CameraDevice[] {
+    return CameraDevices.getAvailableCameraDevices();
+  }
+  /**
+   * Adds a listener that gets called everytime the Camera Devices change, for example
+   * when an external Camera Device (USB or continuity Camera) gets plugged in or plugged out.
+   *
+   * If you use Hooks, use the `useCameraDevices()` hook instead.
+   */
+  public static addCameraDevicesChangedListener(listener: (newDevices: CameraDevice[]) => void): EmitterSubscription {
+    return CameraDevices.addCameraDevicesChangedListener(listener);
   }
   /**
    * Gets the current Camera Permission Status. Check this before mounting the Camera to ensure

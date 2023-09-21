@@ -3,7 +3,6 @@ package com.mrousavy.camera.core
 import android.graphics.ImageFormat
 import android.media.ImageReader
 import android.media.ImageWriter
-import android.media.MediaRecorder
 import android.util.Log
 import android.view.Surface
 import com.mrousavy.camera.CameraQueues
@@ -13,10 +12,9 @@ import com.mrousavy.camera.parsers.Orientation
 import java.io.Closeable
 
 @Suppress("JoinDeclarationAndAssignment")
-class VideoPipeline(val width: Int,
-                    val height: Int,
-                    val format: Int = ImageFormat.PRIVATE,
-                    private val isMirrored: Boolean = false): ImageReader.OnImageAvailableListener, Closeable {
+class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageFormat.PRIVATE, private val isMirrored: Boolean = false) :
+  ImageReader.OnImageAvailableListener,
+  Closeable {
   companion object {
     private const val MAX_IMAGES = 3
     private const val TAG = "VideoPipeline"

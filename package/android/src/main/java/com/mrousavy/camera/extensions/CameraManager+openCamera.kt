@@ -9,20 +9,22 @@ import com.mrousavy.camera.CameraCannotBeOpenedError
 import com.mrousavy.camera.CameraDisconnectedError
 import com.mrousavy.camera.CameraQueues
 import com.mrousavy.camera.parsers.CameraDeviceError
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 private const val TAG = "CameraManager"
 
 @SuppressLint("MissingPermission")
-suspend fun CameraManager.openCamera(cameraId: String,
-                                     onDisconnected: (camera: CameraDevice, reason: Throwable) -> Unit,
-                                     queue: CameraQueues.CameraQueue): CameraDevice {
-  return suspendCancellableCoroutine { continuation ->
+suspend fun CameraManager.openCamera(
+  cameraId: String,
+  onDisconnected: (camera: CameraDevice, reason: Throwable) -> Unit,
+  queue: CameraQueues.CameraQueue
+): CameraDevice =
+  suspendCancellableCoroutine { continuation ->
     Log.i(TAG, "Camera $cameraId: Opening...")
 
-    val callback = object: CameraDevice.StateCallback() {
+    val callback = object : CameraDevice.StateCallback() {
       override fun onOpened(camera: CameraDevice) {
         Log.i(TAG, "Camera $cameraId: Opened!")
         continuation.resume(camera)
@@ -56,4 +58,3 @@ suspend fun CameraManager.openCamera(cameraId: String,
       this.openCamera(cameraId, callback, queue.handler)
     }
   }
-}

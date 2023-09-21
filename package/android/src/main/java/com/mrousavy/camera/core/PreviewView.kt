@@ -12,10 +12,12 @@ import com.mrousavy.camera.extensions.getPreviewSize
 import kotlin.math.roundToInt
 
 @SuppressLint("ViewConstructor")
-class PreviewView(context: Context,
-                  cameraManager: CameraManager,
-                  cameraId: String,
-                  private val onSurfaceChanged: (surface: Surface?) -> Unit): SurfaceView(context) {
+class PreviewView(
+  context: Context,
+  cameraManager: CameraManager,
+  cameraId: String,
+  private val onSurfaceChanged: (surface: Surface?) -> Unit
+) : SurfaceView(context) {
   private val targetSize: Size
   private val aspectRatio: Float
     get() = targetSize.width.toFloat() / targetSize.height.toFloat()
@@ -26,7 +28,7 @@ class PreviewView(context: Context,
 
     Log.i(TAG, "Using Preview Size ${targetSize.width} x ${targetSize.height}.")
     holder.setFixedSize(targetSize.width, targetSize.height)
-    holder.addCallback(object: SurfaceHolder.Callback {
+    holder.addCallback(object : SurfaceHolder.Callback {
       override fun surfaceCreated(holder: SurfaceHolder) {
         Log.i(TAG, "Surface created! ${holder.surface}")
         onSurfaceChanged(holder.surface)

@@ -1,9 +1,7 @@
 package com.mrousavy.camera
 
 import android.Manifest
-import android.content.Context
 import android.content.pm.PackageManager
-import android.hardware.camera2.CameraManager
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
@@ -11,22 +9,21 @@ import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener
 import com.facebook.react.uimanager.UIManagerHelper
-import com.mrousavy.camera.core.CameraDeviceDetails
 import com.mrousavy.camera.frameprocessor.VisionCameraInstaller
 import com.mrousavy.camera.frameprocessor.VisionCameraProxy
 import com.mrousavy.camera.parsers.*
 import com.mrousavy.camera.utils.*
-import kotlinx.coroutines.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import kotlinx.coroutines.*
 
 @ReactModule(name = CameraViewModule.TAG)
 @Suppress("unused")
-class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJavaModule(reactContext) {
+class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
   companion object {
     const val TAG = "CameraView"
-    var RequestCode = 10
+    var sharedRequestCode = 10
   }
 
   private val coroutineScope = CoroutineScope(Dispatchers.Default) // TODO: or Dispatchers.Main?
@@ -38,25 +35,32 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
     }
   }
 
-  override fun getName(): String {
-    return TAG
-  }
+  override fun getName(): String = TAG
 
-  private suspend fun findCameraView(viewId: Int): CameraView {
-    return suspendCoroutine { continuation ->
+  private suspend fun findCameraView(viewId: Int): CameraView =
+    suspendCoroutine { continuation ->
       UiThreadUtil.runOnUiThread {
         Log.d(TAG, "Finding view $viewId...")
-        val view = if (reactApplicationContext != null) UIManagerHelper.getUIManager(reactApplicationContext, viewId)?.resolveView(viewId) as CameraView? else null
-        Log.d(TAG,  if (reactApplicationContext != null) "Found view $viewId!" else "Couldn't find view $viewId!")
-        if (view != null) continuation.resume(view)
-        else continuation.resumeWithException(ViewNotFoundError(viewId))
+        val view = if (reactApplicationContext != null) {
+          UIManagerHelper.getUIManager(
+            reactApplicationContext,
+            viewId
+          )?.resolveView(viewId) as CameraView?
+        } else {
+          null
+        }
+        Log.d(TAG, if (reactApplicationContext != null) "Found view $viewId!" else "Couldn't find view $viewId!")
+        if (view != null) {
+          continuation.resume(view)
+        } else {
+          continuation.resumeWithException(ViewNotFoundError(viewId))
+        }
       }
     }
-  }
 
   @ReactMethod(isBlockingSynchronousMethod = true)
-  fun installFrameProcessorBindings(): Boolean {
-    return try {
+  fun installFrameProcessorBindings(): Boolean =
+    try {
       val proxy = VisionCameraProxy(reactApplicationContext)
       VisionCameraInstaller.install(proxy)
       true
@@ -64,7 +68,6 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
       Log.e(TAG, "Failed to install Frame Processor JSI Bindings!", e)
       false
     }
-  }
 
   @ReactMethod
   fun takePhoto(viewTag: Int, options: ReadableMap, promise: Promise) {
@@ -87,7 +90,8 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
         val map = makeErrorMap("${error.domain}/${error.id}", error.message, error)
         onRecordCallback(null, map)
       } catch (error: Throwable) {
-        val map = makeErrorMap("capture/unknown", "An unknown error occurred while trying to start a video recording! ${error.message}", error)
+        val map =
+          makeErrorMap("capture/unknown", "An unknown error occurred while trying to start a video recording! ${error.message}", error)
         onRecordCallback(null, map)
       }
     }
@@ -137,22 +141,6 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
     }
   }
 
-  @ReactMethod
-  fun getAvailableCameraDevices(promise: Promise) {
-    coroutineScope.launch {
-      withPromise(promise) {
-        val manager = reactApplicationContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-
-        val devices = Arguments.createArray()
-        manager.cameraIdList.forEach { cameraId ->
-          val device = CameraDeviceDetails(manager, cameraId)
-          devices.pushMap(device.toMap())
-        }
-        promise.resolve(devices)
-      }
-    }
-  }
-
   private fun canRequestPermission(permission: String): Boolean {
     val activity = currentActivity as? PermissionAwareActivity
     return activity?.shouldShowRequestPermissionRationale(permission) ?: false
@@ -182,7 +170,7 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
   fun requestCameraPermission(promise: Promise) {
     val activity = reactApplicationContext.currentActivity
     if (activity is PermissionAwareActivity) {
-      val currentRequestCode = RequestCode++
+      val currentRequestCode = sharedRequestCode++
       val listener = PermissionListener { requestCode: Int, _: Array<String>, grantResults: IntArray ->
         if (requestCode == currentRequestCode) {
           val permissionStatus = if (grantResults.isNotEmpty()) grantResults[0] else PackageManager.PERMISSION_DENIED
@@ -202,7 +190,7 @@ class CameraViewModule(reactContext: ReactApplicationContext): ReactContextBaseJ
   fun requestMicrophonePermission(promise: Promise) {
     val activity = reactApplicationContext.currentActivity
     if (activity is PermissionAwareActivity) {
-      val currentRequestCode = RequestCode++
+      val currentRequestCode = sharedRequestCode++
       val listener = PermissionListener { requestCode: Int, _: Array<String>, grantResults: IntArray ->
         if (requestCode == currentRequestCode) {
           val permissionStatus = if (grantResults.isNotEmpty()) grantResults[0] else PackageManager.PERMISSION_DENIED

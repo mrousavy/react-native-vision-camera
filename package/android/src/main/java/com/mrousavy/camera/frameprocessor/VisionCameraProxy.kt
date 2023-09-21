@@ -26,6 +26,7 @@ class VisionCameraProxy(context: ReactApplicationContext) {
       }
     }
   }
+
   @DoNotStrip
   @Keep
   private var mHybridData: HybridData
@@ -45,7 +46,7 @@ class VisionCameraProxy(context: ReactApplicationContext) {
     Log.d(TAG, "Finding view $viewId...")
     val ctx = mContext.get()
     val view = if (ctx != null) UIManagerHelper.getUIManager(ctx, viewId)?.resolveView(viewId) as CameraView? else null
-    Log.d(TAG,  if (view != null) "Found view $viewId!" else "Couldn't find view $viewId!")
+    Log.d(TAG, if (view != null) "Found view $viewId!" else "Couldn't find view $viewId!")
     return view ?: throw ViewNotFoundError(viewId)
   }
 
@@ -69,12 +70,9 @@ class VisionCameraProxy(context: ReactApplicationContext) {
 
   @DoNotStrip
   @Keep
-  fun getFrameProcessorPlugin(name: String, options: Map<String, Any>): FrameProcessorPlugin {
-    return FrameProcessorPluginRegistry.getPlugin(name, options)
-  }
+  fun getFrameProcessorPlugin(name: String, options: Map<String, Any>): FrameProcessorPlugin =
+    FrameProcessorPluginRegistry.getPlugin(name, options)
 
   // private C++ funcs
-  private external fun initHybrid(jsContext: Long,
-                                  jsCallInvokerHolder: CallInvokerHolderImpl,
-                                  scheduler: VisionCameraScheduler): HybridData
+  private external fun initHybrid(jsContext: Long, jsCallInvokerHolder: CallInvokerHolderImpl, scheduler: VisionCameraScheduler): HybridData
 }

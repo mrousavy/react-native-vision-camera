@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.core.CameraSession
 import com.mrousavy.camera.core.PreviewView
+import com.mrousavy.camera.core.outputs.CameraOutputs
 import com.mrousavy.camera.extensions.containsAny
 import com.mrousavy.camera.extensions.installHierarchyFitter
 import com.mrousavy.camera.frameprocessor.FrameProcessor
@@ -22,7 +23,6 @@ import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.PixelFormat
 import com.mrousavy.camera.parsers.Torch
 import com.mrousavy.camera.parsers.VideoStabilizationMode
-import com.mrousavy.camera.core.outputs.CameraOutputs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,7 +42,8 @@ class CameraView(context: Context) : FrameLayout(context) {
     const val TAG = "CameraView"
 
     private val propsThatRequirePreviewReconfiguration = arrayListOf("cameraId")
-    private val propsThatRequireSessionReconfiguration = arrayListOf("cameraId", "format", "photo", "video", "enableFrameProcessor", "pixelFormat")
+    private val propsThatRequireSessionReconfiguration =
+      arrayListOf("cameraId", "format", "photo", "video", "enableFrameProcessor", "pixelFormat")
     private val propsThatRequireFormatReconfiguration = arrayListOf("fps", "hdr", "videoStabilizationMode", "lowLightBoost")
   }
 
@@ -52,18 +53,21 @@ class CameraView(context: Context) : FrameLayout(context) {
   var enableDepthData = false
   var enableHighQualityPhotos: Boolean? = null
   var enablePortraitEffectsMatteDelivery = false
+
   // use-cases
   var photo: Boolean? = null
   var video: Boolean? = null
   var audio: Boolean? = null
   var enableFrameProcessor = false
   var pixelFormat: PixelFormat = PixelFormat.NATIVE
+
   // props that require format reconfiguring
   var format: ReadableMap? = null
   var fps: Int? = null
   var videoStabilizationMode: VideoStabilizationMode? = null
   var hdr: Boolean? = null // nullable bool
   var lowLightBoost: Boolean? = null // nullable bool
+
   // other props
   var isActive = false
   var torch: Torch = Torch.OFF
@@ -129,7 +133,7 @@ class CameraView(context: Context) : FrameLayout(context) {
     Log.i(TAG, "Props changed: $changedProps")
     try {
       val shouldReconfigurePreview = changedProps.containsAny(propsThatRequirePreviewReconfiguration)
-      val shouldReconfigureSession =  shouldReconfigurePreview || changedProps.containsAny(propsThatRequireSessionReconfiguration)
+      val shouldReconfigureSession = shouldReconfigurePreview || changedProps.containsAny(propsThatRequireSessionReconfiguration)
       val shouldReconfigureFormat = shouldReconfigureSession || changedProps.containsAny(propsThatRequireFormatReconfiguration)
       val shouldReconfigureZoom = shouldReconfigureSession || changedProps.contains("zoom")
       val shouldReconfigureTorch = shouldReconfigureSession || changedProps.contains("torch")
@@ -182,10 +186,14 @@ class CameraView(context: Context) : FrameLayout(context) {
       val previewOutput = CameraOutputs.PreviewOutput(previewSurface)
       val photoOutput = if (photo == true) {
         CameraOutputs.PhotoOutput(targetPhotoSize)
-      } else null
+      } else {
+        null
+      }
       val videoOutput = if (video == true || enableFrameProcessor) {
         CameraOutputs.VideoOutput(targetVideoSize, video == true, enableFrameProcessor, pixelFormat.toImageFormat())
-      } else null
+      } else {
+        null
+      }
 
       cameraSession.configureSession(cameraId, previewOutput, photoOutput, videoOutput)
     } catch (e: Throwable) {
@@ -215,13 +223,16 @@ class CameraView(context: Context) : FrameLayout(context) {
   @SuppressLint("ClickableViewAccessibility")
   private fun updateZoomGesture() {
     if (enableZoomGesture) {
-      val scaleGestureDetector = ScaleGestureDetector(context, object: ScaleGestureDetector.SimpleOnScaleGestureListener() {
-        override fun onScale(detector: ScaleGestureDetector): Boolean {
-          zoom *= detector.scaleFactor
-          cameraSession.setZoom(zoom)
-          return true
+      val scaleGestureDetector = ScaleGestureDetector(
+        context,
+        object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+          override fun onScale(detector: ScaleGestureDetector): Boolean {
+            zoom *= detector.scaleFactor
+            cameraSession.setZoom(zoom)
+            return true
+          }
         }
-      })
+      )
       setOnTouchListener { _, event ->
         scaleGestureDetector.onTouchEvent(event)
       }

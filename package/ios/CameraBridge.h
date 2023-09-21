@@ -10,6 +10,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import <React/RCTEventEmitter.h>
 #import <React/RCTFPSGraph.h>
 #import <React/RCTLog.h>
 #import <React/RCTUIManager.h>
