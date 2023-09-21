@@ -1,5 +1,6 @@
 import type { CameraDevice, CameraDeviceFormat, VideoStabilizationMode } from '../CameraDevice';
 import { CameraRuntimeError } from '../CameraError';
+import { PixelFormat } from '../PixelFormat';
 import { Filter } from './Filter';
 
 interface Size {
@@ -53,10 +54,15 @@ export interface FormatFilter {
    * If no format supports the target video stabilization mode, the best other matching format will be used.
    */
   videoStabilizationMode?: Filter<VideoStabilizationMode>;
+  /**
+   * The target pixel format you want to use.
+   * If no format supports the target pixel format, the best other matching format will be used.
+   */
+  pixelFormat?: Filter<PixelFormat>;
 }
 
 /**
- * Get the best matching Camera format for the given device that satisfies your requirements using a sorting filter.
+ * Get the best matching Camera format for the given device that satisfies your requirements using a sorting filter. By default, formats are sorted by highest to lowest resolution.
  * @param device The Camera Device you're currently using
  * @param filter The filter you want to use. The format that matches your filter the closest will be returned
  * @returns The format that matches your filter the closest.
@@ -129,6 +135,12 @@ export function getCameraFormat(device: CameraDevice, filter: FormatFilter): Cam
     if (filter.videoStabilizationMode != null) {
       if (left.videoStabilizationModes.includes(filter.videoStabilizationMode.target)) leftPoints++;
       if (right.videoStabilizationModes.includes(filter.videoStabilizationMode.target)) rightPoints++;
+    }
+
+    // Find pixel format
+    if (filter.pixelFormat != null) {
+      if (left.pixelFormats.includes(filter.pixelFormat.target)) leftPoints++;
+      if (right.pixelFormats.includes(filter.pixelFormat.target)) rightPoints++;
     }
 
     return rightPoints - leftPoints;

@@ -3,7 +3,7 @@ import { CameraDevice, CameraDeviceFormat } from '../CameraDevice';
 import { FormatFilter, getCameraFormat } from '../devices/getCameraFormat';
 
 /**
- * Get the best matching Camera format for the given device that satisfies your requirements using a sorting filter.
+ * Get the best matching Camera format for the given device that satisfies your requirements using a sorting filter. By default, formats are sorted by highest to lowest resolution.
  * @param device The Camera Device you're currently using
  * @param filter The filter you want to use. The format that matches your filter the closest will be returned
  * @returns The format that matches your filter the closest.

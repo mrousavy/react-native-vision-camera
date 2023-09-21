@@ -11,7 +11,9 @@ import { useCameraDevices } from './useCameraDevices';
  * @example
  * ```ts
  * const [position, setPosition] = useState<CameraPosition>('back')
- * const device = useCameraDevice(position, { devices: ['wide-angle-camera'] })
+ * const device = useCameraDevice(position, {
+ *    physicalDevices: ['wide-angle-camera']
+ * })
  * ```
  */
 export function useCameraDevice(position: CameraPosition, filter?: DeviceFilter): CameraDevice | undefined {
