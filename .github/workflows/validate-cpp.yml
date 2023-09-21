@@ -27,7 +27,7 @@ jobs:
           - 'package/android/src/main/cpp'
           - 'package/ios'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Run clang-format style check
         uses: mrousavy/clang-format-action@v1
         with:
