@@ -129,7 +129,7 @@ extension CameraView {
             invokeOnError(.device(.pixelFormatNotSupported))
           }
         case "rgb":
-          if supportedPixelFormats.contains(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange) {
+          if supportedPixelFormats.contains(kCVPixelFormatType_32BGRA) {
             pixelFormatType = kCVPixelFormatType_32BGRA
           } else {
             invokeOnError(.device(.pixelFormatNotSupported))
