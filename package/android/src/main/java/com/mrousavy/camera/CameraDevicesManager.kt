@@ -79,7 +79,7 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
 
     return mutableMapOf(
       "availableCameraDevices" to devices,
-      "userPreferredCameraDevice" to preferredDevice
+      "userPreferredCameraDevice" to preferredDevice?.toHashMap()
     )
   }
 
