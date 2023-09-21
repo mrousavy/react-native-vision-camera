@@ -118,12 +118,6 @@ export class Camera extends React.PureComponent<CameraProps> {
   /**
    * Start a new video recording.
    *
-   * Records in the following formats:
-   * * **iOS**: QuickTime (`.mov`)
-   * * **Android**: MPEG4 (`.mp4`)
-   *
-   * @blocking This function is synchronized/blocking.
-   *
    * @throws {@linkcode CameraCaptureError} When any kind of error occured while starting the video recording. Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
    *
    * @example
@@ -146,8 +140,8 @@ export class Camera extends React.PureComponent<CameraProps> {
       if (error != null) return onRecordingError(error);
       if (video != null) return onRecordingFinished(video);
     };
-    // TODO: Use TurboModules to either make this a sync invokation, or make it async.
     try {
+      // TODO: Use TurboModules to make this awaitable.
       CameraModule.startRecording(this.handle, passThroughOptions, onRecordCallback);
     } catch (e) {
       throw tryParseNativeCameraError(e);
@@ -233,8 +227,8 @@ export class Camera extends React.PureComponent<CameraProps> {
 
   /**
    * Focus the camera to a specific point in the coordinate system.
-   * @param {Point} point The point to focus to. This should be relative to the Camera view's coordinate system,
-   * and expressed in Pixel on iOS and Points on Android.
+   * @param {Point} point The point to focus to. This should be relative
+   * to the Camera view's coordinate system and is expressed in points.
    *  * `(0, 0)` means **top left**.
    *  * `(CameraView.width, CameraView.height)` means **bottom right**.
    *
@@ -259,11 +253,13 @@ export class Camera extends React.PureComponent<CameraProps> {
   //#endregion
 
   //#region Static Functions (NativeModule)
-
   /**
    * Get a list of all available camera devices on the current phone.
    *
    * If you use Hooks, use the `useCameraDevices()` hook instead.
+   *
+   * * For Camera Devices attached to the phone, it is safe to assume that this will never change.
+   * * For external Camera Devices (USB cameras, Mac continuity cameras, etc.) the available Camera Devices could change over time when the external Camera device gets plugged in or plugged out, so use {@link addCameraDevicesChangedListener | addCameraDevicesChangedListener(...)} to listen for such changes.
    *
    * @example
    * ```ts
@@ -273,16 +269,13 @@ export class Camera extends React.PureComponent<CameraProps> {
    * ```
    */
   public static getAvailableCameraDevices(): CameraDevice[] {
-    try {
-      return CameraModule.getAvailableCameraDevices();
-    } catch (e) {
-      throw tryParseNativeCameraError(e);
-    }
+    return CameraDevices.getAvailableCameraDevices();
   }
-
   /**
    * Adds a listener that gets called everytime the Camera Devices change, for example
    * when an external Camera Device (USB or continuity Camera) gets plugged in or plugged out.
+   *
+   * If you use Hooks, use the `useCameraDevices()` hook instead.
    */
   public static addCameraDevicesChangedListener(listener: (newDevices: CameraDevice[]) => void): EmitterSubscription {
     return CameraDevices.addCameraDevicesChangedListener(listener);
