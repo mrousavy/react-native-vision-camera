@@ -46,7 +46,7 @@ class CameraDevicesManager: RCTEventEmitter {
     return discoverySession.devices.map {
       return [
         "id": $0.uniqueID,
-        "devices": $0.physicalDevices.map(\.deviceType.descriptor),
+        "physicalDevices": $0.physicalDevices.map(\.deviceType.descriptor),
         "position": $0.position.descriptor,
         "name": $0.localizedName,
         "hasFlash": $0.hasFlash,

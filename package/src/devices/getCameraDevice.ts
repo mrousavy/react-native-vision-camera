@@ -43,11 +43,11 @@ export function getCameraDevice(devices: CameraDevice[], position: CameraPositio
     // 1. user wants all cameras ([ultra-wide, wide, tele]) to zoom. prefer those devices that have all 3 cameras.
     // 2. user wants only one ([wide]) for faster performance. prefer those devices that only have one camera, if they have more, we rank them lower.
     if (filter.physicalDevices != null) {
-      for (const device of left.devices) {
+      for (const device of left.physicalDevices) {
         if (filter.physicalDevices.includes(device)) leftPoints += 1;
         else leftPoints -= 1;
       }
-      for (const device of right.devices) {
+      for (const device of right.physicalDevices) {
         if (filter.physicalDevices.includes(device)) rightPoints += 1;
         else rightPoints -= 1;
       }

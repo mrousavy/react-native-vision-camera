@@ -121,14 +121,14 @@ export interface CameraDevice {
    */
   id: string;
   /**
-   * The physical devices this `CameraDevice` contains.
+   * The physical devices this `CameraDevice` consists of.
    *
-   * * If this camera device is a **logical camera** (combination of multiple physical cameras), there are multiple cameras in this array.
-   * * If this camera device is a **physical camera**, there is only a single element in this array.
+   * * If this camera device is a **logical camera** (combination of multiple physical cameras, e.g. "Triple Camera"), there are multiple cameras in this array.
+   * * If this camera device is a **physical camera** (e.g. "wide-angle-camera"), there is only a single element in this array.
    *
    * You can check if the camera is a logical multi-camera by using the `isMultiCam` property.
    */
-  devices: PhysicalCameraDeviceType[];
+  physicalDevices: PhysicalCameraDeviceType[];
   /**
    * Specifies the physical position of this camera. (back or front)
    */

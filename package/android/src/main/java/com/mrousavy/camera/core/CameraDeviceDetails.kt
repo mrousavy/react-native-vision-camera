@@ -192,7 +192,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
   fun toMap(): ReadableMap {
     val map = Arguments.createMap()
     map.putString("id", cameraId)
-    map.putArray("devices", getDeviceTypes())
+    map.putArray("physicalDevices", getDeviceTypes())
     map.putString("position", lensFacing.unionValue)
     map.putString("name", name)
     map.putBoolean("hasFlash", hasFlash)
