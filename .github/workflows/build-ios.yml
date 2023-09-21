@@ -43,7 +43,7 @@ jobs:
         run: yarn install --frozen-lockfile --cwd ..
 
       - name: Restore buildcache
-        uses: mikehardy/buildcache-action@v1
+        uses: mikehardy/buildcache-action@v2
         continue-on-error: true
 
       - name: Setup Ruby (bundle)
@@ -104,7 +104,7 @@ jobs:
         run: yarn remove react-native-worklets-core --cwd ..
 
       - name: Restore buildcache
-        uses: mikehardy/buildcache-action@v1
+        uses: mikehardy/buildcache-action@v2
         continue-on-error: true
 
       - name: Setup Ruby (bundle)
