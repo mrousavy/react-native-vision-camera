@@ -112,6 +112,10 @@ export interface CameraProps extends ViewProps {
    */
   format?: CameraDeviceFormat;
   /**
+   * Specify how you want the preview to fit the container it's in
+   */
+  resizeMode?: 'cover' | 'contain';
+  /**
    * Specify the frames per second this camera should use. Make sure the given `format` includes a frame rate range with the given `fps`.
    *
    * Requires `format` to be set.
