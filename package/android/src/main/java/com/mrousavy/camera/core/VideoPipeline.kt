@@ -9,6 +9,7 @@ import com.facebook.jni.HybridData
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.parsers.Orientation
+import com.mrousavy.camera.parsers.PixelFormat
 import java.io.Closeable
 
 /**
@@ -109,6 +110,12 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
   }
 
   private fun getImageReader(): ImageReader {
+    if (format != ImageFormat.PRIVATE) {
+      Log.w(TAG, "Warning: pixelFormat \"${PixelFormat.fromImageFormat(format).unionValue}\" might " +
+          "not be supported on this device because the C++ OpenGL GPU Video Pipeline operates in RGBA_8888. " +
+          "I wanted to use an ImageReader -> ImageWriter setup for this, but I couldn't get it to work. " +
+          "See this PR for more details: https://github.com/mrousavy/react-native-vision-camera/pull/1836")
+    }
     val imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES)
     imageReader.setOnImageAvailableListener({ reader ->
       Log.i("VideoPipeline", "ImageReader::onImageAvailable!")
