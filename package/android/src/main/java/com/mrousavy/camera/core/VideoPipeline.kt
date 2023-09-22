@@ -76,7 +76,7 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
     //  For example, ImageReader/ImageWriter is way too buggy and does not work with MediaRecorder.
     //  See this issue ($4.000 bounty!) for more details:
     //  https://github.com/mrousavy/react-native-vision-camera/issues/1837
-    if (format != 0x23) {
+    if (format != ImageFormat.PRIVATE && format != 0x23) {
       throw PixelFormatNotSupportedInVideoPipelineError(PixelFormat.fromImageFormat(format).unionValue)
     }
     mHybridData = initHybrid(width, height)
