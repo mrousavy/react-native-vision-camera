@@ -46,6 +46,13 @@ class NoCameraDeviceError :
   CameraError("device", "no-device", "No device was set! Use `getAvailableCameraDevices()` to select a suitable Camera device.")
 class PixelFormatNotSupportedError(format: String) :
   CameraError("device", "pixel-format-not-supported", "The pixelFormat $format is not supported on the given Camera Device!")
+class PixelFormatNotSupportedInVideoPipelineError(format: String) :
+  CameraError(
+    "device",
+    "pixel-format-not-supported",
+    "The pixelFormat $format is currently not supported in the VideoPipeline! " +
+      "See this issue for more details ($4.000 bounty!): https://github.com/mrousavy/react-native-vision-camera/issues/1837"
+  )
 
 class CameraNotReadyError :
   CameraError("session", "camera-not-ready", "The Camera is not ready yet! Wait for the onInitialized() callback!")
