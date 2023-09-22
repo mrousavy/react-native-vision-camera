@@ -96,14 +96,15 @@ class RecordingSession(
       }
     } else {
       // SDR
-      if (codec == VideoCodec.H264) {
-        format.setInteger(MediaFormat.KEY_PROFILE, MediaCodecInfo.CodecProfileLevel.AVCProfileHigh)
-        format.setInteger(MediaFormat.KEY_LEVEL, MediaCodecInfo.CodecProfileLevel.AVCLevel31)
-      } else if (codec == VideoCodec.H265) {
-        format.setInteger(MediaFormat.KEY_PROFILE, MediaCodecInfo.CodecProfileLevel.HEVCProfileMain)
-        format.setInteger(MediaFormat.KEY_LEVEL, MediaCodecInfo.CodecProfileLevel.HEVCHighTierLevel31)
-      } else {
-        throw InvalidTypeScriptUnionError("videoCodec", codec.unionValue)
+      when (codec) {
+        VideoCodec.H264 -> {
+          format.setInteger(MediaFormat.KEY_PROFILE, MediaCodecInfo.CodecProfileLevel.AVCProfileHigh)
+          format.setInteger(MediaFormat.KEY_LEVEL, MediaCodecInfo.CodecProfileLevel.AVCLevel31)
+        }
+        VideoCodec.H265 -> {
+          format.setInteger(MediaFormat.KEY_PROFILE, MediaCodecInfo.CodecProfileLevel.HEVCProfileMain)
+          format.setInteger(MediaFormat.KEY_LEVEL, MediaCodecInfo.CodecProfileLevel.HEVCHighTierLevel31)
+        }
       }
     }
     Log.i(TAG, "Configuring MediaCodec with format: $format")
