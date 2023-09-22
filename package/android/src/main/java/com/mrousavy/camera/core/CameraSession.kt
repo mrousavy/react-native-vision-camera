@@ -10,6 +10,7 @@ import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
+import android.hardware.camera2.params.DynamicRangeProfiles
 import android.hardware.camera2.params.MeteringRectangle
 import android.media.Image
 import android.os.Build
@@ -287,7 +288,17 @@ class CameraSession(
       val outputs = outputs ?: throw CameraNotReadyError()
       val videoOutput = outputs.videoOutput ?: throw VideoNotEnabledError()
 
-      val recording = RecordingSession(context, videoOutput.size, enableAudio, fps, codec, orientation, fileType, callback, onError)
+      val dynamicRangeProfile = DynamicRangeProfiles.STANDARD
+      val recording = RecordingSession(context,
+          videoOutput.size,
+          enableAudio,
+          fps ?: 30,
+          dynamicRangeProfile,
+          codec,
+          orientation,
+          fileType,
+          callback,
+          onError)
       recording.start()
       this.recording = recording
     }

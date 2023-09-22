@@ -1,15 +1,20 @@
 package com.mrousavy.camera.core
 
 import android.graphics.ImageFormat
+import android.hardware.HardwareBuffer
 import android.media.Image
 import android.media.ImageReader
 import android.media.ImageWriter
+import android.os.Build
 import android.util.Log
 import android.view.Surface
+import com.mrousavy.camera.CameraError
 import com.mrousavy.camera.CameraQueues
+import com.mrousavy.camera.PixelFormatNotSupportedError
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.parsers.Orientation
+import com.mrousavy.camera.parsers.PixelFormat
 import java.io.Closeable
 
 @Suppress("JoinDeclarationAndAssignment")
@@ -17,7 +22,7 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
   ImageReader.OnImageAvailableListener,
   Closeable {
   companion object {
-    private const val MAX_IMAGES = 5
+    private const val MAX_IMAGES = 3
     private const val TAG = "VideoPipeline"
   }
 
@@ -33,7 +38,9 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
   val surface: Surface
 
   init {
-    imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES)
+    Log.i(TAG, "Initializing $width x $height Video Pipeline (Format: $format)")
+    val flags = HardwareBuffer.USAGE_VIDEO_ENCODE or HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE
+    imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES, flags)
     imageReader.setOnImageAvailableListener(this, CameraQueues.videoQueue.handler)
     surface = imageReader.surface
   }
@@ -57,17 +64,13 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
       this.recordingSessionImageWriter?.close()
       this.recordingSessionImageWriter = null
       this.recordingSession = recordingSession
-
-      if (recordingSession != null) {
-        this.recordingSessionImageWriter = ImageWriter.newInstance(recordingSession.surface, MAX_IMAGES)
-      }
     }
   }
 
   override fun onImageAvailable(reader: ImageReader) {
     val image: Image?
     try {
-      image = reader.acquireLatestImage()
+      image = reader.acquireNextImage()
       if (image == null) {
         Log.w(TAG, "ImageReader failed to acquire a new image!")
         return
@@ -77,15 +80,29 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
       return
     }
 
-    val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, isMirrored)
-    frame.incrementRefCount()
-
-    // If we have a Frame Processor, call it
-    frameProcessor?.call(frame)
-
     // If we have a RecordingSession, pass the image through
-    recordingSessionImageWriter?.queueInputImage(frame.image)
-
-    frame.decrementRefCount()
+    synchronized(this) {
+      if (recordingSession != null) {
+        if (recordingSessionImageWriter == null) {
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // API 29+: We support format
+            recordingSessionImageWriter = ImageWriter.newInstance(recordingSession!!.surface, MAX_IMAGES, format)
+          } else {
+            // API <29: We don't support format
+            if (format == ImageFormat.PRIVATE) {
+              recordingSessionImageWriter = ImageWriter.newInstance(recordingSession!!.surface, MAX_IMAGES)
+            } else {
+              throw PixelFormatNotSupportedError(PixelFormat.fromImageFormat(format).unionValue)
+            }
+          }
+          recordingSessionImageWriter!!.setOnImageReleasedListener({
+            recordingSession?.frameAvailable()
+          }, CameraQueues.videoQueue.handler)
+        }
+        recordingSessionImageWriter!!.queueInputImage(image)
+      } else {
+        image.close()
+      }
+    }
   }
 }
