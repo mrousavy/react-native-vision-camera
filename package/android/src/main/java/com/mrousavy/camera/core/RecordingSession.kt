@@ -1,7 +1,10 @@
 package com.mrousavy.camera.core
 
 import android.content.Context
+import android.hardware.camera2.params.DynamicRangeProfiles
 import android.media.MediaCodec
+import android.media.MediaCodecInfo
+import android.media.MediaFormat
 import android.media.MediaRecorder
 import android.os.Build
 import android.util.Log
@@ -17,7 +20,8 @@ class RecordingSession(
   context: Context,
   val size: Size,
   private val enableAudio: Boolean,
-  private val fps: Int? = null,
+  private val fps: Int = 30,
+  private val dynamicRangeProfile: Long? = null,
   private val codec: VideoCodec = VideoCodec.H264,
   private val orientation: Orientation,
   private val fileType: VideoFileType = VideoFileType.MP4,
@@ -29,6 +33,7 @@ class RecordingSession(
 
     // bits per second
     private const val VIDEO_BIT_RATE = 10_000_000
+    private const val VIDEO_IFRAME_INTERVAL = 1
     private const val AUDIO_SAMPLING_RATE = 44_100
     private const val AUDIO_BIT_RATE = 16 * AUDIO_SAMPLING_RATE
     private const val AUDIO_CHANNELS = 1
@@ -36,63 +41,66 @@ class RecordingSession(
 
   data class Video(val path: String, val durationMs: Long)
 
-  private val recorder: MediaRecorder
+  private val recorder: MediaCodec
   private val outputFile: File
   private var startTime: Long? = null
   val surface: Surface
-    get() = recorder.surface
 
   init {
-
     outputFile = File.createTempFile("mrousavy", fileType.toExtension(), context.cacheDir)
-
     Log.i(TAG, "Creating RecordingSession for ${outputFile.absolutePath}")
 
-    recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(context) else MediaRecorder()
-
-    if (enableAudio) recorder.setAudioSource(MediaRecorder.AudioSource.CAMCORDER)
-    recorder.setVideoSource(MediaRecorder.VideoSource.SURFACE)
-
-    recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-    recorder.setOutputFile(outputFile.absolutePath)
-    recorder.setVideoEncodingBitRate(VIDEO_BIT_RATE)
-    recorder.setVideoSize(size.height, size.width)
-    if (fps != null) recorder.setVideoFrameRate(fps)
-
-    Log.i(TAG, "Using $codec Video Codec..")
-    recorder.setVideoEncoder(codec.toVideoCodec())
-    if (enableAudio) {
-      Log.i(TAG, "Adding Audio Channel..")
-      recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-      recorder.setAudioEncodingBitRate(AUDIO_BIT_RATE)
-      recorder.setAudioSamplingRate(AUDIO_SAMPLING_RATE)
-      recorder.setAudioChannels(AUDIO_CHANNELS)
+    // Set up either H264 (mp4) or H265 (hevc) profile
+    val mimeType = when (codec) {
+      VideoCodec.H264 -> MediaFormat.MIMETYPE_VIDEO_AVC
+      VideoCodec.H265 -> MediaFormat.MIMETYPE_VIDEO_HEVC
     }
-    val surface = MediaCodec.createPersistentInputSurface()
-    recorder.setInputSurface(surface)
-    // recorder.setOrientationHint(orientation.toDegrees())
+    recorder = MediaCodec.createEncoderByType(mimeType)
 
-    recorder.setOnErrorListener { _, what, extra ->
-      Log.e(TAG, "MediaRecorder Error: $what ($extra)")
-      stop()
-      val name = when (what) {
-        MediaRecorder.MEDIA_RECORDER_ERROR_UNKNOWN -> "unknown"
-        MediaRecorder.MEDIA_ERROR_SERVER_DIED -> "server-died"
-        else -> "unknown"
+    Log.i(TAG, "Creating ${size.width}x${size.height}@$fps $codec MediaCodec")
+    val format = MediaFormat.createVideoFormat(mimeType, size.width, size.height)
+
+    // Configure standard video metadata
+    format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
+    format.setInteger(MediaFormat.KEY_BIT_RATE, VIDEO_BIT_RATE)
+    format.setInteger(MediaFormat.KEY_FRAME_RATE, fps)
+    format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, VIDEO_IFRAME_INTERVAL)
+
+    // Configure HDR
+    val codecProfile = when (dynamicRangeProfile) {
+      DynamicRangeProfiles.HLG10 -> MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10
+      DynamicRangeProfiles.HDR10 -> MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10HDR10
+      DynamicRangeProfiles.HDR10_PLUS -> MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10HDR10Plus
+      else -> -1
+    }
+    if (codecProfile != -1) {
+      format.setInteger(MediaFormat.KEY_PROFILE, codecProfile)
+      format.setInteger(MediaFormat.KEY_COLOR_STANDARD, MediaFormat.COLOR_STANDARD_BT2020)
+      format.setInteger(MediaFormat.KEY_COLOR_RANGE, MediaFormat.COLOR_RANGE_FULL)
+      format.setInteger(MediaFormat.KEY_COLOR_TRANSFER, getTransferFunction(codecProfile))
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        format.setFeatureEnabled(MediaCodecInfo.CodecCapabilities.FEATURE_HdrEditing, true)
       }
-      onError(RecorderError(name, extra))
     }
-    recorder.setOnInfoListener { _, what, extra ->
-      Log.i(TAG, "MediaRecorder Info: $what ($extra)")
-    }
+    Log.i(TAG, "Configuring MediaCodec with format: $format")
+
+    // Configure MediaCodec, after that the Surface is ready
+    recorder.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
+    surface = recorder.createInputSurface()
 
     Log.i(TAG, "Created $this!")
+  }
+
+  private fun getTransferFunction(codecProfile: Int) = when (codecProfile) {
+    MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10 -> MediaFormat.COLOR_TRANSFER_HLG
+    MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10HDR10 -> MediaFormat.COLOR_TRANSFER_ST2084
+    MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10HDR10Plus -> MediaFormat.COLOR_TRANSFER_ST2084
+    else -> MediaFormat.COLOR_TRANSFER_SDR_VIDEO
   }
 
   fun start() {
     synchronized(this) {
       Log.i(TAG, "Starting RecordingSession..")
-      recorder.prepare()
       recorder.start()
       startTime = System.currentTimeMillis()
     }
@@ -117,14 +125,16 @@ class RecordingSession(
   fun pause() {
     synchronized(this) {
       Log.i(TAG, "Pausing Recording Session..")
-      recorder.pause()
+      // TODO: Confirm pause() works
+      recorder.stop()
     }
   }
 
   fun resume() {
     synchronized(this) {
       Log.i(TAG, "Resuming Recording Session..")
-      recorder.resume()
+      // TODO: Confirm resume() works
+      recorder.start()
     }
   }
 
