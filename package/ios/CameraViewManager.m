@@ -47,6 +47,7 @@ RCT_EXPORT_VIEW_PROPERTY(zoom, NSNumber);
 RCT_EXPORT_VIEW_PROPERTY(enableZoomGesture, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(enableFpsGraph, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(orientation, NSString);
+RCT_EXPORT_VIEW_PROPERTY(resizeMode, NSString);
 // Camera View Events
 RCT_EXPORT_VIEW_PROPERTY(onError, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onInitialized, RCTDirectEventBlock);
