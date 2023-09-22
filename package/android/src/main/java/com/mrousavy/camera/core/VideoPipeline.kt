@@ -3,7 +3,6 @@ package com.mrousavy.camera.core
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.media.ImageReader
-import android.media.ImageWriter
 import android.util.Log
 import android.view.Surface
 import com.facebook.jni.HybridData
@@ -21,10 +20,9 @@ import java.io.Closeable
  * @param [format] The format of the Frames to stream. ([ImageFormat.PRIVATE], [ImageFormat.YUV_420_888] or [ImageFormat.JPEG])
  */
 @Suppress("KotlinJniMissingFunction")
-class VideoPipeline(val width: Int,
-                    val height: Int,
-                    val format: Int = ImageFormat.PRIVATE,
-                    private val isMirrored: Boolean = false): SurfaceTexture.OnFrameAvailableListener, Closeable {
+class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageFormat.PRIVATE, private val isMirrored: Boolean = false) :
+  SurfaceTexture.OnFrameAvailableListener,
+  Closeable {
   companion object {
     private const val MAX_IMAGES = 3
     private const val TAG = "VideoPipeline"
@@ -33,8 +31,12 @@ class VideoPipeline(val width: Int,
       try {
         System.loadLibrary("VisionCamera")
       } catch (e: UnsatisfiedLinkError) {
-        Log.e(TAG, "Failed to load VisionCamera C++ library! " +
-                    "OpenGL GPU VideoPipeline cannot be used.", e)
+        Log.e(
+          TAG,
+          "Failed to load VisionCamera C++ library! " +
+            "OpenGL GPU VideoPipeline cannot be used.",
+          e
+        )
         throw e
       }
     }
@@ -57,8 +59,11 @@ class VideoPipeline(val width: Int,
   val surface: Surface
 
   init {
-    Log.i(TAG, "Initializing $width x $height Video Pipeline " +
-      "(format: ${PixelFormat.fromImageFormat(format)} #$format)")
+    Log.i(
+      TAG,
+      "Initializing $width x $height Video Pipeline " +
+        "(format: ${PixelFormat.fromImageFormat(format)} #$format)"
+    )
     mHybridData = initHybrid(width, height)
     surfaceTexture = SurfaceTexture(false)
     surfaceTexture.setDefaultBufferSize(width, height)
