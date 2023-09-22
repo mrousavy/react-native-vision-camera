@@ -1,84 +1,162 @@
 package com.mrousavy.camera.core
 
 import android.graphics.ImageFormat
+import android.graphics.SurfaceTexture
 import android.media.ImageReader
 import android.media.ImageWriter
 import android.util.Log
 import android.view.Surface
-import com.mrousavy.camera.CameraQueues
+import com.facebook.jni.HybridData
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.parsers.Orientation
 import java.io.Closeable
 
-@Suppress("JoinDeclarationAndAssignment")
-class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageFormat.PRIVATE, private val isMirrored: Boolean = false) :
-  ImageReader.OnImageAvailableListener,
-  Closeable {
+/**
+ * An OpenGL pipeline for streaming Camera Frames to one or more outputs.
+ * Currently, [VideoPipeline] can stream to a [FrameProcessor] and a [MediaRecorder].
+ *
+ * @param [width] The width of the Frames to stream (> 0)
+ * @param [height] The height of the Frames to stream (> 0)
+ * @param [format] The format of the Frames to stream. ([ImageFormat.PRIVATE], [ImageFormat.YUV_420_888] or [ImageFormat.JPEG])
+ */
+@Suppress("KotlinJniMissingFunction")
+class VideoPipeline(val width: Int,
+                    val height: Int,
+                    val format: Int = ImageFormat.PRIVATE,
+                    private val isMirrored: Boolean = false): SurfaceTexture.OnFrameAvailableListener, Closeable {
   companion object {
     private const val MAX_IMAGES = 3
     private const val TAG = "VideoPipeline"
   }
 
+  private val mHybridData: HybridData
+  private var openGLTextureId: Int? = null
+  private var transformMatrix = FloatArray(16)
+  private var isActive = true
+
   // Output 1
   private var frameProcessor: FrameProcessor? = null
+  private var imageReader: ImageReader? = null
 
   // Output 2
   private var recordingSession: RecordingSession? = null
-  private var recordingSessionImageWriter: ImageWriter? = null
 
   // Input
-  private val imageReader: ImageReader
+  private val surfaceTexture: SurfaceTexture
   val surface: Surface
 
   init {
-    imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES)
-    imageReader.setOnImageAvailableListener(this, CameraQueues.videoQueue.handler)
-    surface = imageReader.surface
+    mHybridData = initHybrid(width, height)
+    surfaceTexture = SurfaceTexture(false)
+    surfaceTexture.setDefaultBufferSize(width, height)
+    surfaceTexture.setOnFrameAvailableListener(this)
+    surface = Surface(surfaceTexture)
   }
 
   override fun close() {
     synchronized(this) {
-      imageReader.close()
+      isActive = false
+      imageReader?.close()
+      imageReader = null
       frameProcessor = null
-      recordingSessionImageWriter?.close()
-      recordingSessionImageWriter = null
       recordingSession = null
+      surfaceTexture.release()
+      mHybridData.resetNative()
     }
   }
 
-  fun setFrameProcessorOutput(frameProcessor: FrameProcessor?) {
-    this.frameProcessor = frameProcessor
+  override fun onFrameAvailable(surfaceTexture: SurfaceTexture) {
+    synchronized(this) {
+      if (!isActive) return@synchronized
+
+      // 1. Attach Surface to OpenGL context
+      if (openGLTextureId == null) {
+        openGLTextureId = getInputTextureId()
+        surfaceTexture.attachToGLContext(openGLTextureId!!)
+        Log.i(TAG, "Attached Texture to Context $openGLTextureId")
+      }
+
+      // 2. Prepare the OpenGL context (eglMakeCurrent)
+      onBeforeFrame()
+
+      // 3. Update the OpenGL texture
+      surfaceTexture.updateTexImage()
+
+      // 4. Get the transform matrix from the SurfaceTexture (rotations/scales applied by Camera)
+      surfaceTexture.getTransformMatrix(transformMatrix)
+
+      // 5. Draw it with applied rotation/mirroring
+      onFrame(transformMatrix)
+    }
   }
 
-  fun setRecordingSessionOutput(recordingSession: RecordingSession?) {
-    synchronized(this) {
-      this.recordingSessionImageWriter?.close()
-      this.recordingSessionImageWriter = null
-      this.recordingSession = recordingSession
+  private fun getImageReader(): ImageReader {
+    val imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES)
+    imageReader.setOnImageAvailableListener({ reader ->
+      Log.i("VideoPipeline", "ImageReader::onImageAvailable!")
+      val image = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
 
-      if (recordingSession != null) {
-        this.recordingSessionImageWriter = ImageWriter.newInstance(recordingSession.surface, MAX_IMAGES)
+      // TODO: Get correct orientation and isMirrored
+      val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, isMirrored)
+      frame.incrementRefCount()
+      frameProcessor?.call(frame)
+      frame.decrementRefCount()
+    }, null)
+    return imageReader
+  }
+
+  /**
+   * Configures the Pipeline to also call the given [FrameProcessor] (or null).
+   */
+  fun setFrameProcessorOutput(frameProcessor: FrameProcessor?) {
+    synchronized(this) {
+      Log.i(TAG, "Setting $width x $height FrameProcessor Output...")
+      this.frameProcessor = frameProcessor
+
+      if (frameProcessor != null) {
+        if (this.imageReader == null) {
+          // 1. Create new ImageReader that just calls the Frame Processor
+          this.imageReader = getImageReader()
+        }
+
+        // 2. Configure OpenGL pipeline to stream Frames into the ImageReader's surface
+        setFrameProcessorOutputSurface(imageReader!!.surface)
+      } else {
+        // 1. Configure OpenGL pipeline to stop streaming Frames into the ImageReader's surface
+        removeFrameProcessorOutputSurface()
+
+        // 2. Close the ImageReader
+        this.imageReader?.close()
+        this.imageReader = null
       }
     }
   }
 
-  override fun onImageAvailable(reader: ImageReader) {
-    val image = reader.acquireLatestImage()
-    if (image == null) {
-      Log.w(TAG, "ImageReader failed to acquire a new image!")
-      return
+  /**
+   * Configures the Pipeline to also write Frames to a Surface from a [MediaRecorder] (or null)
+   */
+  fun setRecordingSessionOutput(recordingSession: RecordingSession?) {
+    synchronized(this) {
+      Log.i(TAG, "Setting $width x $height RecordingSession Output...")
+      if (recordingSession != null) {
+        // Configure OpenGL pipeline to stream Frames into the Recording Session's surface
+        setRecordingSessionOutputSurface(recordingSession.surface)
+        this.recordingSession = recordingSession
+      } else {
+        // Configure OpenGL pipeline to stop streaming Frames into the Recording Session's surface
+        removeRecordingSessionOutputSurface()
+        this.recordingSession = null
+      }
     }
-
-    // If we have a Frame Processor, call it
-    frameProcessor?.let { fp ->
-      val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, isMirrored)
-      frame.incrementRefCount()
-      fp.call(frame)
-      frame.decrementRefCount()
-    }
-
-    // If we have a RecordingSession, pass the image through
-    recordingSessionImageWriter?.queueInputImage(image)
   }
+
+  private external fun getInputTextureId(): Int
+  private external fun onBeforeFrame()
+  private external fun onFrame(transformMatrix: FloatArray)
+  private external fun setFrameProcessorOutputSurface(surface: Any)
+  private external fun removeFrameProcessorOutputSurface()
+  private external fun setRecordingSessionOutputSurface(surface: Any)
+  private external fun removeRecordingSessionOutputSurface()
+  private external fun initHybrid(width: Int, height: Int): HybridData
 }

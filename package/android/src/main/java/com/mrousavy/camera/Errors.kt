@@ -4,12 +4,27 @@ import com.mrousavy.camera.core.outputs.CameraOutputs
 import com.mrousavy.camera.parsers.CameraDeviceError
 
 abstract class CameraError(
-  // example: "permission"
+  /**
+   * The domain of the error. Error domains are used to group errors.
+   *
+   * Example: "permission"
+   */
   val domain: String,
-  // example: "microphone-permission-denied"
+  /**
+   * The id of the error. Errors are uniquely identified under a given domain.
+   *
+   * Example: "microphone-permission-denied"
+   */
   val id: String,
-  // example: "The microphone permission was denied!"
+  /**
+   * A detailed error description of "what went wrong".
+   *
+   * Example: "The microphone permission was denied!"
+   */
   message: String,
+  /**
+   * A throwable that caused this error.
+   */
   cause: Throwable? = null
 ) : Throwable("[$domain/$id] $message", cause)
 
