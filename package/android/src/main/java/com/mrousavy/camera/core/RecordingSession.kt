@@ -6,7 +6,6 @@ import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.media.MediaMuxer
-import android.media.MediaRecorder
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -14,7 +13,6 @@ import android.os.Message
 import android.util.Log
 import android.util.Size
 import android.view.Surface
-import com.mrousavy.camera.InvalidTypeScriptUnionError
 import com.mrousavy.camera.RecorderError
 import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.VideoCodec
@@ -114,16 +112,16 @@ class RecordingSession(
     surface = recorder.createInputSurface()
     encoderThread = EncoderThread(recorder, outputFile, 0)
 
-
     Log.i(TAG, "Created $this!")
   }
 
-  private fun getTransferFunction(codecProfile: Int) = when (codecProfile) {
-    MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10 -> MediaFormat.COLOR_TRANSFER_HLG
-    MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10HDR10 -> MediaFormat.COLOR_TRANSFER_ST2084
-    MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10HDR10Plus -> MediaFormat.COLOR_TRANSFER_ST2084
-    else -> MediaFormat.COLOR_TRANSFER_SDR_VIDEO
-  }
+  private fun getTransferFunction(codecProfile: Int) =
+    when (codecProfile) {
+      MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10 -> MediaFormat.COLOR_TRANSFER_HLG
+      MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10HDR10 -> MediaFormat.COLOR_TRANSFER_ST2084
+      MediaCodecInfo.CodecProfileLevel.HEVCProfileMain10HDR10Plus -> MediaFormat.COLOR_TRANSFER_ST2084
+      else -> MediaFormat.COLOR_TRANSFER_SDR_VIDEO
+    }
 
   fun start() {
     synchronized(this) {
@@ -183,11 +181,13 @@ class RecordingSession(
     synchronized(this) {
       if (!isRecording) return
       val handler = encoderThread.getHandler()
-      handler.sendMessage(handler.obtainMessage(
-          EncoderThread.EncoderHandler.MSG_FRAME_AVAILABLE))
+      handler.sendMessage(
+        handler.obtainMessage(
+          EncoderThread.EncoderHandler.MSG_FRAME_AVAILABLE
+        )
+      )
     }
   }
-
 
   /**
    * Object that encapsulates the encoder thread.
@@ -204,9 +204,7 @@ class RecordingSession(
    * should be fully started before the thread is created, and not shut down until this
    * thread has been joined.
    */
-  private class EncoderThread(mediaCodec: MediaCodec,
-                              outputFile: File,
-                              orientationHint: Int): Thread() {
+  private class EncoderThread(mediaCodec: MediaCodec, outputFile: File, orientationHint: Int) : Thread() {
     val mEncoder = mediaCodec
     var mEncodedFormat: MediaFormat? = null
     val mBufferInfo = MediaCodec.BufferInfo()
@@ -229,16 +227,16 @@ class RecordingSession(
      */
     public override fun run() {
       Looper.prepare()
-      mHandler = EncoderHandler(this)    // must create on encoder thread
+      mHandler = EncoderHandler(this) // must create on encoder thread
       Log.d(TAG, "encoder thread ready")
-      synchronized (mLock) {
+      synchronized(mLock) {
         mReady = true
-        mLock.notify()    // signal waitUntilReady()
+        mLock.notify() // signal waitUntilReady()
       }
 
       Looper.loop()
 
-      synchronized (mLock) {
+      synchronized(mLock) {
         mReady = false
         mHandler = null
       }
@@ -251,7 +249,7 @@ class RecordingSession(
      * Call from non-encoder thread.
      */
     public fun waitUntilReady() {
-      synchronized (mLock) {
+      synchronized(mLock) {
         while (!mReady) {
           try {
             mLock.wait()
@@ -266,23 +264,23 @@ class RecordingSession(
      * Call from non-encoder thread.
      */
     public fun waitForFirstFrame() {
-      synchronized (mLock) {
+      synchronized(mLock) {
         while (mFrameNum < 1) {
           try {
             mLock.wait()
           } catch (ie: InterruptedException) {
-            ie.printStackTrace();
+            ie.printStackTrace()
           }
         }
       }
-      Log.d(TAG, "Waited for first frame");
+      Log.d(TAG, "Waited for first frame")
     }
 
     /**
      * Returns the Handler used to send messages to the encoder thread.
      */
     public fun getHandler(): EncoderHandler {
-      synchronized (mLock) {
+      synchronized(mLock) {
         // Confirm ready state.
         if (!mReady) {
           throw RuntimeException("not ready")
@@ -295,14 +293,14 @@ class RecordingSession(
      * Drains all pending output from the encoder, and adds it to the circular buffer.
      */
     public fun drainEncoder(): Boolean {
-      val TIMEOUT_USEC: Long = 0     // no timeout -- check for buffers, bail if none
+      val timeoutUs: Long = 0 // no timeout -- check for buffers, bail if none
       var encodedFrame = false
 
       while (true) {
-        var encoderStatus: Int = mEncoder.dequeueOutputBuffer(mBufferInfo, TIMEOUT_USEC)
+        val encoderStatus: Int = mEncoder.dequeueOutputBuffer(mBufferInfo, timeoutUs)
         if (encoderStatus == MediaCodec.INFO_TRY_AGAIN_LATER) {
           // no output available yet
-          break;
+          break
         } else if (encoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
           // Should happen before receiving buffers, and should only happen once.
           // The MediaFormat contains the csd-0 and csd-1 keys, which we'll need
@@ -312,14 +310,19 @@ class RecordingSession(
           mEncodedFormat = mEncoder.getOutputFormat()
           Log.d(TAG, "encoder output format changed: " + mEncodedFormat)
         } else if (encoderStatus < 0) {
-          Log.w(TAG, "unexpected result from encoder.dequeueOutputBuffer: " +
-              encoderStatus)
+          Log.w(
+            TAG,
+            "unexpected result from encoder.dequeueOutputBuffer: " +
+              encoderStatus
+          )
           // let's ignore it
         } else {
           var encodedData: ByteBuffer? = mEncoder.getOutputBuffer(encoderStatus)
           if (encodedData == null) {
-            throw RuntimeException("encoderOutputBuffer " + encoderStatus +
-                " was null");
+            throw RuntimeException(
+              "encoderOutputBuffer " + encoderStatus +
+                " was null"
+            )
           }
 
           if ((mBufferInfo.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
@@ -349,8 +352,11 @@ class RecordingSession(
             encodedFrame = true
 
             if (VERBOSE) {
-              Log.d(TAG, "sent " + mBufferInfo.size + " bytes to muxer, ts=" +
-                  mBufferInfo.presentationTimeUs)
+              Log.d(
+                TAG,
+                "sent " + mBufferInfo.size + " bytes to muxer, ts=" +
+                  mBufferInfo.presentationTimeUs
+              )
             }
           }
 
@@ -358,7 +364,7 @@ class RecordingSession(
 
           if ((mBufferInfo.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0) {
             Log.w(TAG, "reached end of stream unexpectedly")
-            break      // out of while
+            break // out of while
           }
         }
       }
@@ -374,7 +380,7 @@ class RecordingSession(
     fun frameAvailable() {
       if (VERBOSE) Log.d(TAG, "frameAvailable")
       if (drainEncoder()) {
-        synchronized (mLock) {
+        synchronized(mLock) {
           mFrameNum++
           mLock.notify()
         }
@@ -397,7 +403,7 @@ class RecordingSession(
      * <p>
      * The object is created on the encoder thread.
      */
-    public class EncoderHandler(et: EncoderThread): Handler() {
+    public class EncoderHandler(et: EncoderThread) : Handler() {
       companion object {
         val MSG_FRAME_AVAILABLE: Int = 0
         val MSG_SHUTDOWN: Int = 1

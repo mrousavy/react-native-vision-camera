@@ -289,16 +289,18 @@ class CameraSession(
       val videoOutput = outputs.videoOutput ?: throw VideoNotEnabledError()
 
       val dynamicRangeProfile = DynamicRangeProfiles.STANDARD
-      val recording = RecordingSession(context,
-          videoOutput.size,
-          enableAudio,
-          fps ?: 30,
-          dynamicRangeProfile,
-          codec,
-          orientation,
-          fileType,
-          callback,
-          onError)
+      val recording = RecordingSession(
+        context,
+        videoOutput.size,
+        enableAudio,
+        fps ?: 30,
+        dynamicRangeProfile,
+        codec,
+        orientation,
+        fileType,
+        callback,
+        onError
+      )
       recording.start()
       this.recording = recording
     }

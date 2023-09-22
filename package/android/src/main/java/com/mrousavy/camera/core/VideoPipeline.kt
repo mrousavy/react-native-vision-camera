@@ -8,12 +8,9 @@ import android.media.ImageWriter
 import android.os.Build
 import android.util.Log
 import android.view.Surface
-import com.mrousavy.camera.CameraError
 import com.mrousavy.camera.CameraQueues
 import com.mrousavy.camera.PixelFormatNotSupportedError
-import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
-import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.PixelFormat
 import java.io.Closeable
 
