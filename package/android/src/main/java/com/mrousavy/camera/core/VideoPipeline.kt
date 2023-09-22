@@ -57,7 +57,8 @@ class VideoPipeline(val width: Int,
   val surface: Surface
 
   init {
-    Log.i(TAG, "Initializing $width x $height Video Pipeline (format: #$format)")
+    Log.i(TAG, "Initializing $width x $height Video Pipeline " +
+      "(format: ${PixelFormat.fromImageFormat(format)} #$format)")
     mHybridData = initHybrid(width, height)
     surfaceTexture = SurfaceTexture(false)
     surfaceTexture.setDefaultBufferSize(width, height)
