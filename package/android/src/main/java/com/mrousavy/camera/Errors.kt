@@ -4,12 +4,27 @@ import com.mrousavy.camera.core.outputs.CameraOutputs
 import com.mrousavy.camera.parsers.CameraDeviceError
 
 abstract class CameraError(
-  // example: "permission"
+  /**
+   * The domain of the error. Error domains are used to group errors.
+   *
+   * Example: "permission"
+   */
   val domain: String,
-  // example: "microphone-permission-denied"
+  /**
+   * The id of the error. Errors are uniquely identified under a given domain.
+   *
+   * Example: "microphone-permission-denied"
+   */
   val id: String,
-  // example: "The microphone permission was denied!"
+  /**
+   * A detailed error description of "what went wrong".
+   *
+   * Example: "The microphone permission was denied!"
+   */
   message: String,
+  /**
+   * A throwable that caused this error.
+   */
   cause: Throwable? = null
 ) : Throwable("[$domain/$id] $message", cause)
 
@@ -31,6 +46,13 @@ class NoCameraDeviceError :
   CameraError("device", "no-device", "No device was set! Use `getAvailableCameraDevices()` to select a suitable Camera device.")
 class PixelFormatNotSupportedError(format: String) :
   CameraError("device", "pixel-format-not-supported", "The pixelFormat $format is not supported on the given Camera Device!")
+class PixelFormatNotSupportedInVideoPipelineError(format: String) :
+  CameraError(
+    "device",
+    "pixel-format-not-supported",
+    "The pixelFormat $format is currently not supported in the VideoPipeline! " +
+      "See this issue for more details ($4.000 bounty!): https://github.com/mrousavy/react-native-vision-camera/issues/1837"
+  )
 
 class CameraNotReadyError :
   CameraError("session", "camera-not-ready", "The Camera is not ready yet! Wait for the onInitialized() callback!")
