@@ -135,7 +135,7 @@ android {
   }
 
   defaultConfig {
-    minSdkVersion 21
+    minSdkVersion getExtOrIntegerDefault('minSdkVersion')
     targetSdkVersion getExtOrIntegerDefault('targetSdkVersion')
 
     if (ENABLE_FRAME_PROCESSORS) {
