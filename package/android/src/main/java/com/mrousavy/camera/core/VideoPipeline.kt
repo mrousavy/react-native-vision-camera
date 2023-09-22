@@ -6,6 +6,7 @@ import android.media.ImageReader
 import android.util.Log
 import android.view.Surface
 import com.facebook.jni.HybridData
+import com.mrousavy.camera.CameraQueues
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.parsers.Orientation
@@ -122,14 +123,14 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
     val imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES)
     imageReader.setOnImageAvailableListener({ reader ->
       Log.i("VideoPipeline", "ImageReader::onImageAvailable!")
-      val image = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
+      val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
 
       // TODO: Get correct orientation and isMirrored
       val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, isMirrored)
       frame.incrementRefCount()
       frameProcessor?.call(frame)
       frame.decrementRefCount()
-    }, null)
+    }, CameraQueues.videoQueue.handler)
     return imageReader
   }
 
