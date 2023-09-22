@@ -93,7 +93,7 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
             }
           }
           recordingSessionImageWriter!!.setOnImageReleasedListener({
-            recordingSession?.frameAvailable()
+            Log.i(TAG, "ImageWriter: Image consumed by MediaCodec!")
           }, CameraQueues.videoQueue.handler)
         }
         recordingSessionImageWriter!!.queueInputImage(image)
