@@ -64,6 +64,7 @@ public final class CameraView: UIView {
       previewView.resizeMode = ResizeMode(fromTypeScriptUnion: resizeMode as String)
     }
   }
+
   // events
   @objc var onInitialized: RCTDirectEventBlock?
   @objc var onError: RCTDirectEventBlock?

@@ -19,13 +19,13 @@ class PreviewView: UIView {
     return layer as! AVCaptureVideoPreviewLayer
     // swiftlint:enable force_cast
   }
-  
+
   /**
    Gets or sets the resize mode of the PreviewView.
    */
   var resizeMode: ResizeMode = .cover {
     didSet {
-      switch (resizeMode) {
+      switch resizeMode {
       case .cover:
         videoPreviewLayer.videoGravity = .resizeAspectFill
       case .contain:

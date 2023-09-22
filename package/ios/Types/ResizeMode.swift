@@ -20,9 +20,9 @@ enum ResizeMode {
    Keep aspect ratio, but make sure the entire content is visible even if it introduces additional blank areas (centered).
    */
   case contain
-  
+
   init(fromTypeScriptUnion union: String) {
-    switch (union) {
+    switch union {
     case "cover":
       self = .cover
     case "contain":

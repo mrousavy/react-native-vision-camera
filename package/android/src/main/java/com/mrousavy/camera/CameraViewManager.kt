@@ -132,8 +132,9 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
   @ReactProp(name = "resizeMode")
   fun setResizeMode(view: CameraView, resizeMode: String) {
     val newMode = ResizeMode.fromUnionValue(resizeMode)
-    if (view.resizeMode != newMode)
+    if (view.resizeMode != newMode) {
       addChangedPropToTransaction(view, "resizeMode")
+    }
     view.resizeMode = newMode
   }
 

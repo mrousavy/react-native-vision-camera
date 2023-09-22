@@ -7,8 +7,6 @@ import android.util.Size
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import com.mrousavy.camera.extensions.bigger
-import com.mrousavy.camera.extensions.smaller
 import com.mrousavy.camera.parsers.ResizeMode
 import kotlin.math.roundToInt
 
@@ -17,7 +15,8 @@ class PreviewView(
   context: Context,
   val targetSize: Size,
   private val resizeMode: ResizeMode,
-  private val onSurfaceChanged: (surface: Surface?) -> Unit): SurfaceView(context) {
+  private val onSurfaceChanged: (surface: Surface?) -> Unit
+) : SurfaceView(context) {
 
   init {
     Log.i(TAG, "Using Preview Size ${targetSize.width} x ${targetSize.height}.")
@@ -43,7 +42,7 @@ class PreviewView(
     val contentAspectRatio = contentSize.height.toDouble() / contentSize.width
     val containerAspectRatio = containerWidth.toDouble() / containerHeight
 
-    Log.d(TAG, "coverSize :: $contentSize ($contentAspectRatio), ${containerWidth}x${containerHeight} ($containerAspectRatio)")
+    Log.d(TAG, "coverSize :: $contentSize ($contentAspectRatio), ${containerWidth}x$containerHeight ($containerAspectRatio)")
 
     return if (contentAspectRatio > containerAspectRatio) {
       // Scale by width to cover height
@@ -60,7 +59,7 @@ class PreviewView(
     val contentAspectRatio = contentSize.height.toDouble() / contentSize.width
     val containerAspectRatio = containerWidth.toDouble() / containerHeight
 
-    Log.d(TAG, "containSize :: $contentSize ($contentAspectRatio), ${containerWidth}x${containerHeight} ($containerAspectRatio)")
+    Log.d(TAG, "containSize :: $contentSize ($contentAspectRatio), ${containerWidth}x$containerHeight ($containerAspectRatio)")
 
     return if (contentAspectRatio > containerAspectRatio) {
       // Scale by height to fit within width
@@ -81,8 +80,8 @@ class PreviewView(
     Log.d(TAG, "onMeasure($viewWidth, $viewHeight)")
 
     val fittedSize = when (resizeMode) {
-        ResizeMode.COVER -> this.coverSize(targetSize, viewWidth, viewHeight)
-        ResizeMode.CONTAIN -> this.containSize(targetSize, viewWidth, viewHeight)
+      ResizeMode.COVER -> this.coverSize(targetSize, viewWidth, viewHeight)
+      ResizeMode.CONTAIN -> this.containSize(targetSize, viewWidth, viewHeight)
     }
 
     Log.d(TAG, "Fitted dimensions set: $fittedSize")
