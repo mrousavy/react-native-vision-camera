@@ -25,7 +25,7 @@ export interface DeviceFilter {
 
 /**
  * Get the best matching Camera device that satisfies your requirements using a sorting filter.
- * @param devices All available Camera Devices this function will use for filtering. To get devices, use `Camera.getAvailableCameraDevices()`.
+ * @param devices All available Camera Devices this function will use for filtering. To get devices, use `useCameraDevices()` or `Camera.getAvailableCameraDevices()`.
  * @param filter The filter you want to use. The device that matches your filter the closest will be returned.
  * @returns The device that matches your filter the closest.
  */

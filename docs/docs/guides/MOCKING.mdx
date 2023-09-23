@@ -64,7 +64,7 @@ import RNFS, { writeFile } from 'react-native-fs';
 console.log('[DETOX] Using mocked react-native-vision-camera');
 
 export class VisionCamera extends React.PureComponent {
-  static async getAvailableCameraDevices() {
+  static getAvailableCameraDevices() {
     return (
       [
         {
