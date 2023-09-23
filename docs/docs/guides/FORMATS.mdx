@@ -12,19 +12,22 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 ### What are camera formats?
 
-Each camera device (see [Camera Devices](devices)) provides a number of capture formats that have different specifications. There are formats specifically designed for high-resolution photo capture, which have very high photo output quality but in return only support frame-rates of up to 30 FPS. On the other side, there might be formats that are designed for slow-motion video capture which have frame-rates up to 240 FPS.
+Each camera device (see ["Camera Devices"](devices)) provides a number of formats that have different specifications.
+There are formats specifically designed for high-resolution photo capture (but lower FPS), or formats that are designed for slow-motion video capture which have frame-rates up to 240 FPS (but lower resolution).
 
 ### What if I don't want to choose a format?
 
 If you don't want to specify the best format for your camera device, you don't have to. The Camera _automatically chooses the best matching format_ for the current camera device. This is why the Camera's `format` property is _optional_.
 
-### What you need to know about cameras
+**🚀 Continue with: [Taking Photos/Recording Videos](./capturing)**
+
+### Choosing custom formats
 
 To understand a bit more about camera formats, you first need to understand a few "general camera basics":
 
-* Each camera device is built differently, e.g. _Telephoto devices_ often don't provide frame-rates as high as _Wide-Angle devices_.
+* Each camera device is built differently, e.g. _Telephoto devices_ often don't provide frame-rates as high as _Wide-Angle devices_. (see ["Camera Devices"](devices))
 * Formats are designed for specific use-cases, so formats with high resolution photo output don't support frame-rates as high as formats with lower resolution.
-* Different formats provide different field-of-views (FOV), maximum zoom factors, color spaces (iOS only), resolutions, frame rate ranges, and systems to assist with capture (auto-focus systems, video stabilization systems, ...)
+* Different formats provide different field-of-views (FOV), maximum zoom factors, resolutions, frame rate ranges, and systems to assist with capture (auto-focus systems, video stabilization systems, ...)
 
 ### Get started
 
