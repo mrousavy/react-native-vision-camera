@@ -30,7 +30,10 @@ const frameProcessor = useSkiaFrameProcessor((frame) => {
 
   // Draw faces using GPU-accelerated Skia drawing API
   for (const face of faces) {
-    const rect = Skia.XYWHRect(face.x, face.y, face.width, face.height)
+    const rect = Skia.XYWHRect(face.x,
+                               face.y,
+                               face.width,
+                               face.height)
     const paint = Skia.Paint()
     paint.setColor(Skia.Color('red'))
     frame.drawRect(rect, paint)
