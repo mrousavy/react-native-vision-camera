@@ -112,7 +112,11 @@ export interface CameraProps extends ViewProps {
    */
   format?: CameraDeviceFormat;
   /**
-   * Specify how you want the preview to fit the container it's in
+   * Specifies the Preview's resize mode.
+   * * `"cover"`: Keep aspect ratio and fill entire parent view (centered).
+   * * `"contain"`: Keep aspect ratio and make sure the entire content is visible inside the parent view, even if it introduces additional blank areas (centered).
+   *
+   * @default "cover"
    */
   resizeMode?: 'cover' | 'contain';
   /**

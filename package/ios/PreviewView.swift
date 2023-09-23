@@ -11,11 +11,27 @@ import Foundation
 import UIKit
 
 class PreviewView: UIView {
-  /// Convenience wrapper to get layer as its statically known type.
+  /**
+   Convenience wrapper to get layer as its statically known type.
+   */
   var videoPreviewLayer: AVCaptureVideoPreviewLayer {
     // swiftlint:disable force_cast
     return layer as! AVCaptureVideoPreviewLayer
     // swiftlint:enable force_cast
+  }
+
+  /**
+   Gets or sets the resize mode of the PreviewView.
+   */
+  var resizeMode: ResizeMode = .cover {
+    didSet {
+      switch resizeMode {
+      case .cover:
+        videoPreviewLayer.videoGravity = .resizeAspectFill
+      case .contain:
+        videoPreviewLayer.videoGravity = .resizeAspect
+      }
+    }
   }
 
   override public class var layerClass: AnyClass {

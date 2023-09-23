@@ -16,17 +16,17 @@ import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.core.CameraSession
 import com.mrousavy.camera.core.PreviewView
 import com.mrousavy.camera.core.outputs.CameraOutputs
+import com.mrousavy.camera.extensions.bigger
 import com.mrousavy.camera.extensions.containsAny
+import com.mrousavy.camera.extensions.getPreviewTargetSize
 import com.mrousavy.camera.extensions.installHierarchyFitter
+import com.mrousavy.camera.extensions.smaller
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.PixelFormat
+import com.mrousavy.camera.parsers.ResizeMode
 import com.mrousavy.camera.parsers.Torch
 import com.mrousavy.camera.parsers.VideoStabilizationMode
-import com.mrousavy.camera.extensions.bigger
-import com.mrousavy.camera.extensions.getPreviewTargetSize
-import com.mrousavy.camera.extensions.smaller
-import com.mrousavy.camera.parsers.ResizeMode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -141,9 +141,10 @@ class CameraView(context: Context) : FrameLayout(context) {
       configureSession()
     }
     previewView.layoutParams = LayoutParams(
-      LayoutParams.MATCH_PARENT, 
-      LayoutParams.MATCH_PARENT, 
-      Gravity.CENTER)
+      LayoutParams.MATCH_PARENT,
+      LayoutParams.MATCH_PARENT,
+      Gravity.CENTER
+    )
     addView(previewView)
     this.previewView = previewView
   }
