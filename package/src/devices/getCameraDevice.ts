@@ -24,10 +24,17 @@ export interface DeviceFilter {
 }
 
 /**
- * Get the best matching Camera device that satisfies your requirements using a sorting filter.
- * @param devices All available Camera Devices this function will use for filtering. To get devices, use `useCameraDevices()` or `Camera.getAvailableCameraDevices()`.
- * @param filter The filter you want to use. The device that matches your filter the closest will be returned.
- * @returns The device that matches your filter the closest.
+ * Get the best matching Camera device that best satisfies your requirements using a sorting filter.
+ * @param position The position of the Camera device relative to the phone.
+ * @param filter The filter you want to use. The Camera device that matches your filter the closest will be returned
+ * @returns The Camera device that matches your filter the closest, or `undefined` if no such Camera Device exists on the given {@linkcode position}.
+ * @example
+ * ```ts
+ * const devices = Camera.getAvailableCameraDevices()
+ * const device = getCameraDevice(devices, 'back', {
+ *    physicalDevices: ['wide-angle-camera']
+ * })
+ * ```
  */
 export function getCameraDevice(devices: CameraDevice[], position: CameraPosition, filter: DeviceFilter = {}): CameraDevice {
   const explicitlyWantsNonWideAngle = filter.physicalDevices != null && !filter.physicalDevices.includes('wide-angle-camera');

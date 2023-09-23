@@ -84,9 +84,21 @@ function filtersToFilterMap(filters: FormatFilter[]): FilterMap {
 
 /**
  * Get the best matching Camera format for the given device that satisfies your requirements using a sorting filter. By default, formats are sorted by highest to lowest resolution.
+ *
+ * The {@linkcode filters | filters} are ranked by priority, from highest to lowest.
+ * This means the first item you pass will have a higher priority than the second, and so on.
+ *
  * @param device The Camera Device you're currently using
- * @param filters The filter you want to use. The format that matches your filter the closest will be returned. The filter is ranked by priority, descending.
+ * @param filter The filter you want to use. The format that matches your filter the closest will be returned
  * @returns The format that matches your filter the closest.
+ *
+ * @example
+ * ```ts
+ * const format = getCameraFormat(device, [
+ *   { videoResolution: { width: 3048, height: 2160 } },
+ *   { fps: 60 }
+ * ])
+ * ```
  */
 export function getCameraFormat(device: CameraDevice, filters: FormatFilter[]): CameraDeviceFormat {
   // Combine filters into a single filter map for constant-time lookup
