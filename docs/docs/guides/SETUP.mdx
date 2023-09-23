@@ -173,7 +173,7 @@ A permission status can have the following values:
 * `granted`: Your app is authorized to use said permission. Continue with [**using the `<Camera>` view**](#use-the-camera-view).
 * `not-determined`: Your app has not yet requested permission from the user. [Continue by calling the **request** functions.](#requesting-permissions)
 * `denied`: Your app has already requested permissions from the user, but was explicitly denied. You cannot use the **request** functions again, but you can use the [`Linking` API](https://reactnative.dev/docs/linking#opensettings) to redirect the user to the Settings App where he can manually grant the permission.
-* `restricted`: (iOS only) Your app cannot use the Camera or Microphone because that functionality has been restricted, possibly due to active restrictions such as parental controls being in place.
+* `restricted`: Your app cannot use the Camera or Microphone because that functionality has been restricted, possibly due to active restrictions such as parental controls being in place.
 
 ### Requesting Permissions
 
@@ -192,19 +192,18 @@ The permission request status can have the following values:
 
 * `granted`: Your app is authorized to use said permission. Continue with [**using the `<Camera>` view**](#use-the-camera-view).
 * `denied`: The user explicitly denied the permission request alert. You cannot use the **request** functions again, but you can use the [`Linking` API](https://reactnative.dev/docs/linking#opensettings) to redirect the user to the Settings App where he can manually grant the permission.
-* `restricted`: (iOS only) Your app cannot use the Camera or Microphone because that functionality has been restricted, possibly due to active restrictions such as parental controls being in place.
+* `restricted`: Your app cannot use the Camera or Microphone because that functionality has been restricted, possibly due to active restrictions such as parental controls being in place.
 
 </TabItem>
 </Tabs>
 
 ## Use the `<Camera>` view
 
-If your app has permission to use the Camera and Microphone, simply use the [`useCameraDevices(...)`](/docs/api#usecameradevices) hook to get a Camera device (see [Camera Devices](/docs/guides/devices)) and mount the `<Camera>` view:
+If your app has permission to use the Camera and Microphone, simply use the [`useCameraDevice(...)`](/docs/api#usecameradevice) hook to get a Camera device (see [Camera Devices](/docs/guides/devices)) and mount the `<Camera>` view:
 
 ```tsx
 function App() {
-  const devices = useCameraDevices()
-  const device = devices.back
+  const device = useCameraDevice('back')
 
   if (device == null) return <LoadingView />
   return (
