@@ -3,8 +3,8 @@ module.exports = {
     Guides: [
       'guides/setup',
       'guides/devices',
-      'guides/formats',
       'guides/lifecycle',
+      'guides/formats',
       'guides/capturing',
       {
         type: 'category',
