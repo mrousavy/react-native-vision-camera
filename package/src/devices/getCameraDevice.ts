@@ -30,6 +30,8 @@ export interface DeviceFilter {
  * @returns The device that matches your filter the closest.
  */
 export function getCameraDevice(devices: CameraDevice[], position: CameraPosition, filter: DeviceFilter = {}): CameraDevice {
+  const explicitlyWantsNonWideAngle = filter.physicalDevices != null && !filter.physicalDevices.includes('wide-angle-camera');
+
   const filtered = devices.filter((d) => d.position === position);
   const sortedDevices = filtered.sort((left, right) => {
     let leftPoints = 0;
@@ -38,6 +40,12 @@ export function getCameraDevice(devices: CameraDevice[], position: CameraPositio
     // prefer higher hardware-level
     if (left.hardwareLevel === 'full') leftPoints += 4;
     if (right.hardwareLevel === 'full') rightPoints += 4;
+
+    if (!explicitlyWantsNonWideAngle) {
+      // prefer wide-angle-camera as a default
+      if (left.physicalDevices.includes('wide-angle-camera')) leftPoints += 1;
+      if (right.physicalDevices.includes('wide-angle-camera')) rightPoints += 1;
+    }
 
     // compare devices. two possible scenarios:
     // 1. user wants all cameras ([ultra-wide, wide, tele]) to zoom. prefer those devices that have all 3 cameras.
