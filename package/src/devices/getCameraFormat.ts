@@ -1,7 +1,6 @@
 import type { CameraDevice, CameraDeviceFormat, VideoStabilizationMode } from '../CameraDevice';
 import { CameraRuntimeError } from '../CameraError';
 import { PixelFormat } from '../PixelFormat';
-import { Filter } from './Filter';
 
 interface Size {
   width: number;
@@ -13,12 +12,12 @@ export interface FormatFilter {
    * The target resolution of the video (and frame processor) output pipeline.
    * If no format supports the given resolution, the format closest to this value will be used.
    */
-  videoResolution?: Filter<Size>;
+  videoResolution?: Size;
   /**
    * The target resolution of the photo output pipeline.
    * If no format supports the given resolution, the format closest to this value will be used.
    */
-  photoResolution?: Filter<Size>;
+  photoResolution?: Size;
   /**
    * The target aspect ratio of the video (and preview) output, expressed as a factor: `width / height`.
    *
@@ -30,7 +29,7 @@ export interface FormatFilter {
    * targetVideoAspectRatio: screen.width / screen.height
    * ```
    */
-  videoAspectRatio?: Filter<number>;
+  videoAspectRatio?: number;
   /**
    * The target aspect ratio of the photo output, expressed as a factor: `width / height`.
    *
@@ -43,31 +42,58 @@ export interface FormatFilter {
    * targetPhotoAspectRatio: screen.width / screen.height
    * ```
    */
-  photoAspectRatio?: Filter<number>;
+  photoAspectRatio?: number;
   /**
    * The target FPS you want to record video at.
    * If the FPS requirements can not be met, the format closest to this value will be used.
    */
-  fps?: Filter<number>;
+  fps?: number;
   /**
    * The target video stabilization mode you want to use.
    * If no format supports the target video stabilization mode, the best other matching format will be used.
    */
-  videoStabilizationMode?: Filter<VideoStabilizationMode>;
+  videoStabilizationMode?: VideoStabilizationMode;
   /**
    * The target pixel format you want to use.
    * If no format supports the target pixel format, the best other matching format will be used.
    */
-  pixelFormat?: Filter<PixelFormat>;
+  pixelFormat?: PixelFormat;
+}
+
+type FilterWithPriority<T> = {
+  target: Exclude<T, null | undefined>;
+  priority: number;
+};
+type FilterMap = {
+  [K in keyof FormatFilter]: FilterWithPriority<FormatFilter[K]>;
+};
+function filtersToFilterMap(filters: FormatFilter[]): FilterMap {
+  return filters.reduce<FilterMap>((map, curr, index) => {
+    for (const key in curr) {
+      // @ts-expect-error keys are untyped
+      map[key] = {
+        // @ts-expect-error keys are untyped
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        target: curr[key],
+        priority: filters.length - index,
+      };
+    }
+    return map;
+  }, {});
 }
 
 /**
  * Get the best matching Camera format for the given device that satisfies your requirements using a sorting filter. By default, formats are sorted by highest to lowest resolution.
  * @param device The Camera Device you're currently using
- * @param filter The filter you want to use. The format that matches your filter the closest will be returned
+ * @param filters The filter you want to use. The format that matches your filter the closest will be returned. The filter is ranked by priority, descending.
  * @returns The format that matches your filter the closest.
  */
-export function getCameraFormat(device: CameraDevice, filter: FormatFilter): CameraDeviceFormat {
+export function getCameraFormat(device: CameraDevice, filters: FormatFilter[]): CameraDeviceFormat {
+  // Combine filters into a single filter map for constant-time lookup
+  const filter = filtersToFilterMap(filters);
+
+  // Sort list because we will pick first element
+  // TODO: Use reduce instead of sort?
   const copy = [...device.formats];
   const sortedFormats = copy.sort((left, right) => {
     let leftPoints = 0;

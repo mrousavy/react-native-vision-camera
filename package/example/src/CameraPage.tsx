@@ -45,13 +45,13 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const [enableNightMode, setEnableNightMode] = useState(false);
 
   // camera format settings
-  const device = useCameraDevice(cameraPosition);
-  const format = useCameraFormat(device, {
-    fps: {
-      target: 60,
-      priority: 1,
-    },
+  const device = useCameraDevice(cameraPosition, {
+    physicalDevices: ['ultra-wide-angle-camera', 'wide-angle-camera', 'telephoto-camera'],
   });
+
+  const format = useCameraFormat(device, [
+    { fps: 60 }, //
+  ]);
 
   //#region Memos
   const [targetFps, setTargetFps] = useState(30);

@@ -10,7 +10,6 @@ export * from './PixelFormat';
 export * from './Point';
 export * from './VideoFile';
 
-export * from './devices/Filter';
 export * from './devices/getCameraFormat';
 export * from './devices/getCameraDevice';
 
