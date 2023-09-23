@@ -4,9 +4,9 @@ import type { PixelFormat } from './PixelFormat';
 /**
  * Represents the camera device position.
  *
- * * `"back"`: Indicates that the device is physically located on the back of the system hardware
- * * `"front"`: Indicates that the device is physically located on the front of the system hardware
- * * `"external"`: The camera device is an external camera, and has no fixed facing relative to the device's screen.
+ * * `"back"`: Indicates that the device is physically located on the back of the phone
+ * * `"front"`: Indicates that the device is physically located on the front of the phone
+ * * `"external"`: The camera device is an external camera, and has no fixed facing relative to the phone. (e.g. USB or Continuity Cameras)
  */
 export type CameraPosition = 'front' | 'back' | 'external';
 
@@ -46,7 +46,14 @@ export type AutoFocusSystem = 'contrast-detection' | 'phase-detection' | 'none';
 export type VideoStabilizationMode = 'off' | 'standard' | 'cinematic' | 'cinematic-extended' | 'auto';
 
 /**
- * A Camera Device's video format. Do not create instances of this type yourself, only use {@linkcode Camera.getAvailableCameraDevices | Camera.getAvailableCameraDevices()}.
+ * A Camera Device's stream-configuration format.
+ *
+ * A format specifies:
+ * - Video Resolution (`videoWidth`/`videoHeight`)
+ * - Photo Resolution (`photoWidth`/`photoHeight`)
+ * - Possible FPS ranges (`fps`)
+ * - Video Stabilization Modes (`videoStabilizationModes`)
+ * - Pixel Formats (`pixelFormats`)
  */
 export interface CameraDeviceFormat {
   /**
@@ -134,7 +141,13 @@ export interface CameraDevice {
    */
   physicalDevices: PhysicalCameraDeviceType[];
   /**
-   * Specifies the physical position of this camera. (back or front)
+   * Specifies the physical position of this camera.
+   * - `back`: The Camera Device is located on the back of the phone. These devices can be used for capturing what's in front of the user.
+   * - `front`: The Camera Device is located on the front of the phone. These devices can be used for selfies or FaceTime.
+   * - `external`: The Camera Device is an external device. These devices can be either:
+   *     - USB Camera Devices (if they support the [USB Video Class (UVC) Specification](https://en.wikipedia.org/wiki/List_of_USB_video_class_devices))
+   *     - [Continuity Camera Devices](https://support.apple.com/en-us/HT213244) (e.g. your iPhone's or Mac's Camera connected through WiFi/Continuity)
+   *     - Bluetooth/WiFi Camera Devices (if they are supported in the platform-native Camera APIs; Camera2 and AVFoundation)
    */
   position: CameraPosition;
   /**
