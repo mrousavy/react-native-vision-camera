@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler';
 import { CameraRuntimeError, PhotoFile, useCameraDevice, useCameraFormat, useFrameProcessor, VideoFile } from 'react-native-vision-camera';
 import { Camera } from 'react-native-vision-camera';
-import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING } from './Constants';
+import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING, SCREEN_HEIGHT, SCREEN_WIDTH } from './Constants';
 import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated';
 import { useEffect } from 'react';
 import { useIsForeground } from './hooks/useIsForeground';
@@ -49,12 +49,17 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     physicalDevices: ['ultra-wide-angle-camera', 'wide-angle-camera', 'telephoto-camera'],
   });
 
+  const screenAspectRatio = SCREEN_HEIGHT / SCREEN_WIDTH;
   const format = useCameraFormat(device, [
-    { fps: 60 }, //
+    { videoAspectRatio: screenAspectRatio },
+    { videoResolution: 'max' },
+    { fps: 60 },
+    { photoAspectRatio: screenAspectRatio },
+    { photoResolution: 'max' },
   ]);
 
   //#region Memos
-  const [targetFps, setTargetFps] = useState(30);
+  const [targetFps, setTargetFps] = useState(60);
   const fps = Math.min(format?.maxFps ?? 1, targetFps);
 
   const supportsFlash = device?.hasFlash ?? false;
