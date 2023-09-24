@@ -115,6 +115,39 @@ const format = getCameraFormat(device, [
 
 If there is no format that has exactly 240 FPS, the closest thing to it will be used.
 
+You can also use the `'max'` flag to just use the maximum available resolution:
+
+<Tabs
+  groupId="component-style"
+  defaultValue="hooks"
+  values={[
+    {label: 'Hooks API', value: 'hooks'},
+    {label: 'Imperative API', value: 'imperative'}
+  ]}>
+<TabItem value="hooks">
+
+```ts
+const device = ...
+const format = useCameraFormat(device, [
+  { videoResolution: 'max' },
+  { photoResolution: 'max' }
+])
+```
+
+</TabItem>
+<TabItem value="imperative">
+
+```ts
+const device = ...
+const format = getCameraFormat(device, [
+  { videoResolution: 'max' },
+  { photoResolution: 'max' }
+])
+```
+
+</TabItem>
+</Tabs>
+
 ### Camera Props
 
 The `Camera` View provides a few props that depend on the specified `format`. For example, you can only set the `fps` prop to a value that is supported by the current `format`. So if you have a format that supports 240 FPS, you can set the `fps` to `240`:

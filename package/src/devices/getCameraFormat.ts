@@ -12,12 +12,12 @@ export interface FormatFilter {
    * The target resolution of the video (and frame processor) output pipeline.
    * If no format supports the given resolution, the format closest to this value will be used.
    */
-  videoResolution?: Size;
+  videoResolution?: Size | 'max';
   /**
    * The target resolution of the photo output pipeline.
    * If no format supports the given resolution, the format closest to this value will be used.
    */
-  photoResolution?: Size;
+  photoResolution?: Size | 'max';
   /**
    * The target aspect ratio of the video (and preview) output, expressed as a factor: `width / height`.
    *
@@ -104,6 +104,8 @@ export function getCameraFormat(device: CameraDevice, filters: FormatFilter[]): 
   // Combine filters into a single filter map for constant-time lookup
   const filter = filtersToFilterMap(filters);
 
+  console.log(JSON.stringify(filter));
+
   // Sort list because we will pick first element
   // TODO: Use reduce instead of sort?
   const copy = [...device.formats];
@@ -114,31 +116,35 @@ export function getCameraFormat(device: CameraDevice, filters: FormatFilter[]): 
     const leftVideoResolution = left.videoWidth * left.videoHeight;
     const rightVideoResolution = right.videoWidth * right.videoHeight;
     if (filter.videoResolution != null) {
-      // Find video resolution closest to the filter (ignoring orientation)
-      const targetResolution = filter.videoResolution.target.width * filter.videoResolution.target.height;
-      const leftDiff = Math.abs(leftVideoResolution - targetResolution);
-      const rightDiff = Math.abs(rightVideoResolution - targetResolution);
-      if (leftDiff < rightDiff) leftPoints += filter.videoResolution.priority;
-      if (rightDiff < leftDiff) rightPoints += filter.videoResolution.priority;
-    } else {
-      // No filter is set, so just prefer higher resolutions
-      if (leftVideoResolution > rightVideoResolution) leftPoints++;
-      if (rightVideoResolution > leftVideoResolution) rightPoints++;
+      if (filter.videoResolution.target === 'max') {
+        // We just want the maximum resolution
+        if (leftVideoResolution > rightVideoResolution) leftPoints++;
+        if (rightVideoResolution > leftVideoResolution) rightPoints++;
+      } else {
+        // Find video resolution closest to the filter (ignoring orientation)
+        const targetResolution = filter.videoResolution.target.width * filter.videoResolution.target.height;
+        const leftDiff = Math.abs(leftVideoResolution - targetResolution);
+        const rightDiff = Math.abs(rightVideoResolution - targetResolution);
+        if (leftDiff < rightDiff) leftPoints += filter.videoResolution.priority;
+        if (rightDiff < leftDiff) rightPoints += filter.videoResolution.priority;
+      }
     }
 
     const leftPhotoResolution = left.photoWidth * left.photoHeight;
     const rightPhotoResolution = right.photoWidth * right.photoHeight;
     if (filter.photoResolution != null) {
-      // Find closest photo resolution to the filter (ignoring orientation)
-      const targetResolution = filter.photoResolution.target.width * filter.photoResolution.target.height;
-      const leftDiff = Math.abs(leftPhotoResolution - targetResolution);
-      const rightDiff = Math.abs(rightPhotoResolution - targetResolution);
-      if (leftDiff < rightDiff) leftPoints += filter.photoResolution.priority;
-      if (rightDiff < leftDiff) rightPoints += filter.photoResolution.priority;
-    } else {
-      // No filter is set, so just prefer higher resolutions
-      if (leftPhotoResolution > rightPhotoResolution) leftPoints++;
-      if (rightPhotoResolution > leftPhotoResolution) rightPoints++;
+      if (filter.photoResolution.target === 'max') {
+        // We just want the maximum resolution
+        if (leftPhotoResolution > rightPhotoResolution) leftPoints++;
+        if (rightPhotoResolution > leftPhotoResolution) rightPoints++;
+      } else {
+        // Find closest photo resolution to the filter (ignoring orientation)
+        const targetResolution = filter.photoResolution.target.width * filter.photoResolution.target.height;
+        const leftDiff = Math.abs(leftPhotoResolution - targetResolution);
+        const rightDiff = Math.abs(rightPhotoResolution - targetResolution);
+        if (leftDiff < rightDiff) leftPoints += filter.photoResolution.priority;
+        if (rightDiff < leftDiff) rightPoints += filter.photoResolution.priority;
+      }
     }
 
     // Find closest aspect ratio (video)
