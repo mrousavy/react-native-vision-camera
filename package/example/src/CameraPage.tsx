@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler';
 import { CameraRuntimeError, PhotoFile, useCameraDevice, useCameraFormat, useFrameProcessor, VideoFile } from 'react-native-vision-camera';
@@ -49,24 +49,23 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     physicalDevices: ['ultra-wide-angle-camera', 'wide-angle-camera', 'telephoto-camera'],
   });
 
+  const [targetFps, setTargetFps] = useState(60);
+
   const screenAspectRatio = SCREEN_HEIGHT / SCREEN_WIDTH;
   const format = useCameraFormat(device, [
+    { fps: targetFps },
     { videoAspectRatio: screenAspectRatio },
     { videoResolution: 'max' },
-    { fps: 60 },
     { photoAspectRatio: screenAspectRatio },
     { photoResolution: 'max' },
   ]);
 
-  //#region Memos
-  const [targetFps, setTargetFps] = useState(60);
   const fps = Math.min(format?.maxFps ?? 1, targetFps);
 
   const supportsFlash = device?.hasFlash ?? false;
   const supportsHdr = format?.supportsPhotoHDR;
-  const supports60Fps = (format?.maxFps ?? 0) >= 60;
+  const supports60Fps = useMemo(() => device?.formats.some((f) => f.maxFps >= 60), [device?.formats]);
   const canToggleNightMode = device?.supportsLowLightBoost ?? false;
-  //#endregion
 
   //#region Animated Zoom
   // This just maps the zoom factor to a percentage value.
