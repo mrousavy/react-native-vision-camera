@@ -149,18 +149,17 @@ export function getCameraFormat(device: CameraDevice, filters: FormatFilter[]): 
 
     // Find closest aspect ratio (video)
     if (filter.videoAspectRatio != null) {
-      const leftAspect = bestFormat.videoWidth / format.videoHeight;
+      const leftAspect = bestFormat.videoWidth / bestFormat.videoHeight;
       const rightAspect = format.videoWidth / format.videoHeight;
-      const leftDiff = Math.round(Math.abs(leftAspect - filter.videoAspectRatio.target) * 100) / 100;
-      const rightDiff = Math.round(Math.abs(rightAspect - filter.videoAspectRatio.target) * 100) / 100;
-      console.log(`${format.videoWidth}x${format.videoHeight} = ${rightAspect} vs ${filter.videoAspectRatio.target} (${rightDiff})`);
+      const leftDiff = Math.abs(leftAspect - filter.videoAspectRatio.target);
+      const rightDiff = Math.abs(rightAspect - filter.videoAspectRatio.target);
       if (leftDiff < rightDiff) leftPoints += filter.videoAspectRatio.priority;
       if (rightDiff < leftDiff) rightPoints += filter.videoAspectRatio.priority;
     }
 
     // Find closest aspect ratio (photo)
     if (filter.photoAspectRatio != null) {
-      const leftAspect = bestFormat.photoWidth / format.photoHeight;
+      const leftAspect = bestFormat.photoWidth / bestFormat.photoHeight;
       const rightAspect = format.photoWidth / format.photoHeight;
       const leftDiff = Math.abs(leftAspect - filter.photoAspectRatio.target);
       const rightDiff = Math.abs(rightAspect - filter.photoAspectRatio.target);
