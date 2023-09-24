@@ -45,10 +45,9 @@ type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>;
  * @example
  * ```tsx
  * function App() {
- *   const devices = useCameraDevices('wide-angle-camera')
- *   const device = devices.back
+ *   const device = useCameraDevice('back')
  *
- *   if (device == null) return <LoadingView />
+ *   if (device == null) return <NoCameraErrorView />
  *   return (
  *     <Camera
  *       style={StyleSheet.absoluteFill}

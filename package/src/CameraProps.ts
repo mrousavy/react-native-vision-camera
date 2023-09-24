@@ -22,9 +22,9 @@ export interface CameraProps extends ViewProps {
    *
    * @example
    * ```tsx
-   * const devices = useCameraDevices('wide-angle-camera')
-   * const device = devices.back
+   * const device = useCameraDevice('back')
    *
+   * if (device == null) return <NoCameraErrorView />
    * return (
    *   <Camera
    *     device={device}
