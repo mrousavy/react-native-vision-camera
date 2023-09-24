@@ -20,6 +20,14 @@ Some general tips:
 - Use Shared Values (`useSharedValue(..)`) instead of React State (`useState(..)`) when sharing data
 - Prefer native Frame Processor Plugins instead of pure JavaScript based plugins
 
+### FPS Graph
+
+Use the FPS Graph to profile your Frame Processor's performance over time:
+
+```tsx
+<Camera {...props} enableFpsGraph={true} />
+```
+
 ### Fast Frame Processor Plugins
 
 If you use native Frame Processor Plugins, make sure they are optimized for realtime Camera use-cases. Some general tips:
