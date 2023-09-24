@@ -104,22 +104,22 @@ export function getCameraFormat(device: CameraDevice, filters: FormatFilter[]): 
   // Combine filters into a single filter map for constant-time lookup
   const filter = filtersToFilterMap(filters);
 
-  console.log(JSON.stringify(filter));
+  let bestFormat = device.formats[0];
+  if (bestFormat == null)
+    throw new CameraRuntimeError('device/invalid-device', `The given Camera Device (${device.id}) does not have any formats!`);
 
-  // Sort list because we will pick first element
-  // TODO: Use reduce instead of sort?
-  const copy = [...device.formats];
-  const sortedFormats = copy.sort((left, right) => {
+  // Compare each format using a point scoring system
+  for (const format of device.formats) {
     let leftPoints = 0;
     let rightPoints = 0;
 
-    const leftVideoResolution = left.videoWidth * left.videoHeight;
-    const rightVideoResolution = right.videoWidth * right.videoHeight;
+    const leftVideoResolution = bestFormat.videoWidth * bestFormat.videoHeight;
+    const rightVideoResolution = format.videoWidth * format.videoHeight;
     if (filter.videoResolution != null) {
       if (filter.videoResolution.target === 'max') {
         // We just want the maximum resolution
-        if (leftVideoResolution > rightVideoResolution) leftPoints++;
-        if (rightVideoResolution > leftVideoResolution) rightPoints++;
+        if (leftVideoResolution > rightVideoResolution) leftPoints += filter.videoResolution.priority;
+        if (rightVideoResolution > leftVideoResolution) rightPoints += filter.videoResolution.priority;
       } else {
         // Find video resolution closest to the filter (ignoring orientation)
         const targetResolution = filter.videoResolution.target.width * filter.videoResolution.target.height;
@@ -130,13 +130,13 @@ export function getCameraFormat(device: CameraDevice, filters: FormatFilter[]): 
       }
     }
 
-    const leftPhotoResolution = left.photoWidth * left.photoHeight;
-    const rightPhotoResolution = right.photoWidth * right.photoHeight;
+    const leftPhotoResolution = bestFormat.photoWidth * bestFormat.photoHeight;
+    const rightPhotoResolution = format.photoWidth * format.photoHeight;
     if (filter.photoResolution != null) {
       if (filter.photoResolution.target === 'max') {
         // We just want the maximum resolution
-        if (leftPhotoResolution > rightPhotoResolution) leftPoints++;
-        if (rightPhotoResolution > leftPhotoResolution) rightPoints++;
+        if (leftPhotoResolution > rightPhotoResolution) leftPoints += filter.photoResolution.priority;
+        if (rightPhotoResolution > leftPhotoResolution) rightPoints += filter.photoResolution.priority;
       } else {
         // Find closest photo resolution to the filter (ignoring orientation)
         const targetResolution = filter.photoResolution.target.width * filter.photoResolution.target.height;
@@ -149,18 +149,19 @@ export function getCameraFormat(device: CameraDevice, filters: FormatFilter[]): 
 
     // Find closest aspect ratio (video)
     if (filter.videoAspectRatio != null) {
-      const leftAspect = left.videoWidth / right.videoHeight;
-      const rightAspect = right.videoWidth / right.videoHeight;
-      const leftDiff = Math.abs(leftAspect - filter.videoAspectRatio.target);
-      const rightDiff = Math.abs(rightAspect - filter.videoAspectRatio.target);
+      const leftAspect = bestFormat.videoWidth / format.videoHeight;
+      const rightAspect = format.videoWidth / format.videoHeight;
+      const leftDiff = Math.round(Math.abs(leftAspect - filter.videoAspectRatio.target) * 100) / 100;
+      const rightDiff = Math.round(Math.abs(rightAspect - filter.videoAspectRatio.target) * 100) / 100;
+      console.log(`${format.videoWidth}x${format.videoHeight} = ${rightAspect} vs ${filter.videoAspectRatio.target} (${rightDiff})`);
       if (leftDiff < rightDiff) leftPoints += filter.videoAspectRatio.priority;
       if (rightDiff < leftDiff) rightPoints += filter.videoAspectRatio.priority;
     }
 
     // Find closest aspect ratio (photo)
     if (filter.photoAspectRatio != null) {
-      const leftAspect = left.photoWidth / right.photoHeight;
-      const rightAspect = right.photoWidth / right.photoHeight;
+      const leftAspect = bestFormat.photoWidth / format.photoHeight;
+      const rightAspect = format.photoWidth / format.photoHeight;
       const leftDiff = Math.abs(leftAspect - filter.photoAspectRatio.target);
       const rightDiff = Math.abs(rightAspect - filter.photoAspectRatio.target);
       if (leftDiff < rightDiff) leftPoints += filter.photoAspectRatio.priority;
@@ -169,27 +170,24 @@ export function getCameraFormat(device: CameraDevice, filters: FormatFilter[]): 
 
     // Find closest max FPS
     if (filter.fps != null) {
-      if (left.maxFps >= filter.fps.target) leftPoints += filter.fps.priority;
-      if (right.maxFps >= filter.fps.target) rightPoints += filter.fps.priority;
+      if (bestFormat.maxFps >= filter.fps.target) leftPoints += filter.fps.priority;
+      if (format.maxFps >= filter.fps.target) rightPoints += filter.fps.priority;
     }
 
     // Find video stabilization mode
     if (filter.videoStabilizationMode != null) {
-      if (left.videoStabilizationModes.includes(filter.videoStabilizationMode.target)) leftPoints++;
-      if (right.videoStabilizationModes.includes(filter.videoStabilizationMode.target)) rightPoints++;
+      if (bestFormat.videoStabilizationModes.includes(filter.videoStabilizationMode.target)) leftPoints++;
+      if (format.videoStabilizationModes.includes(filter.videoStabilizationMode.target)) rightPoints++;
     }
 
     // Find pixel format
     if (filter.pixelFormat != null) {
-      if (left.pixelFormats.includes(filter.pixelFormat.target)) leftPoints++;
-      if (right.pixelFormats.includes(filter.pixelFormat.target)) rightPoints++;
+      if (bestFormat.pixelFormats.includes(filter.pixelFormat.target)) leftPoints++;
+      if (format.pixelFormats.includes(filter.pixelFormat.target)) rightPoints++;
     }
 
-    return rightPoints - leftPoints;
-  });
+    if (rightPoints > leftPoints) bestFormat = format;
+  }
 
-  const format = sortedFormats[0];
-  if (format == null)
-    throw new CameraRuntimeError('device/invalid-device', `The given Camera Device (${device.id}) does not have any formats!`);
-  return format;
+  return bestFormat;
 }
