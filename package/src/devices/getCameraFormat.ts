@@ -20,18 +20,20 @@ export interface FormatFilter {
   photoResolution?: Size | 'max';
   /**
    * The target aspect ratio of the video (and preview) output, expressed as a factor: `width / height`.
+   * (Note: Cameras are in landscape orientation)
    *
    * In most cases, you want this to be as close to the screen's aspect ratio as possible (usually ~9:16).
    *
    * @example
    * ```ts
    * const screen = Dimensions.get('screen')
-   * targetVideoAspectRatio: screen.width / screen.height
+   * targetVideoAspectRatio: screen.height / screen.width
    * ```
    */
   videoAspectRatio?: number;
   /**
    * The target aspect ratio of the photo output, expressed as a factor: `width / height`.
+   * (Note: Cameras are in landscape orientation)
    *
    * In most cases, you want this to be the same as `targetVideoAspectRatio`, which you often want
    * to be as close to the screen's aspect ratio as possible (usually ~9:16)
@@ -39,7 +41,7 @@ export interface FormatFilter {
    * @example
    * ```ts
    * const screen = Dimensions.get('screen')
-   * targetPhotoAspectRatio: screen.width / screen.height
+   * targetPhotoAspectRatio: screen.height / screen.width
    * ```
    */
   photoAspectRatio?: number;
