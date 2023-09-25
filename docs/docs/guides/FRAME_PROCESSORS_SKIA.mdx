@@ -1,7 +1,7 @@
 ---
-id: frame-processors-skia
-title: Skia Frame Processors
-sidebar_label: Skia Frame Processors
+id: skia-frame-processors
+title: Drawing to a Frame (Skia)
+sidebar_label: Drawing to a Frame (Skia)
 ---
 
 import Tabs from '@theme/Tabs';
@@ -10,110 +10,62 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 <div>
   <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535" style={{ float: 'right' }}>
-    <image href={useBaseUrl("img/frame-processors.gif")} x="18" y="33" width="247" height="469"  />
+    <image href={useBaseUrl("img/demo_drawing.mp4")} x="18" y="33" width="247" height="469"  />
     <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
   </svg>
 </div>
 
-### What are Skia Frame Processors?
+## Skia Frame Processors
 
-Skia Frame Processors are [Frame Processors](frame-processors) that allow you to draw onto the Frame using [react-native-skia](https://github.com/Shopify/react-native-skia).
+It is technically pretty difficult to draw onto a Camera Frame and have it rendered into the resulting photo or video in realtime, but I have built a working proof of concept of that using Metal/OpenGL and [Skia](https://skia.org) straight in VisionCamera.
 
-Skia Frame Processors were introduced in VisionCamera V3 RC.0, but were removed again after VisionCamera V3 RC.9 due to the significantly increased complexity of the video pipeline in the codebase.
+This allows you to draw onto a Frame using [react-native-skia](https://shopify.github.io/react-native-skia/)'s easy to use JavaScript APIs:
 
-```
-yarn add react-native-vision-camera@rc.9
-```
+```ts
+const frameProcessor = useSkiaFrameProcessor((frame) => {
+  'worklet'
 
-They worked perfectly fine for those RCs with some minor inconsistencies (landscape orientation didn't work on Android), which proves the concept. If you want to learn more about Skia Frame Processors, we at [Margelo](https://margelo.io) can build a custom solution for your company to implement drawable Frame Processors (e.g. filters, blurring, masks, colors, etc). See [PR #1740](https://github.com/mrousavy/react-native-vision-camera/pull/1740) for more details.
+  // Detect objects using GPU-accelerated ML API
+  const bananas = detectBananas()
 
-### Documentation
-
-For example, you might want to draw a rectangle around a user's face **without writing any native code**, while still **achieving native performance**:
-
-```jsx
-function App() {
-  const frameProcessor = useSkiaFrameProcessor((frame) => {
-    'worklet'
-    const faces = detectFaces(frame)
-    faces.forEach((face) => {
-      frame.drawRect(face.rectangle, redPaint)
-    })
-  }, [])
-
-  return (
-    <Camera
-      {...cameraProps}
-      frameProcessor={frameProcessor}
-    />
-  )
-}
+  // Draw banana outline using GPU-accelerated Skia drawing API
+  for (const banana of bananas) {
+    const rect = Skia.XYWHRect(banana.x,
+                               banana.y,
+                               banana.width,
+                               banana.height)
+    const paint = Skia.Paint()
+    paint.setColor(Skia.Color('red'))
+    frame.drawRect(rect, paint)
+  }
+}, [])
 ```
 
-With Skia, you can also implement realtime filters, blurring, shaders, and much more. For example, this is how you invert the colors in a Frame:
+..or even apply color-filters in realtime:
 
-```jsx
-const INVERTED_COLORS_SHADER = `
-uniform shader image;
+```ts
+const invertColorsFilter = Skia.RuntimeEffect.Make(`
+  uniform shader image;
+  half4 main(vec2 pos) {
+    vec4 color = image.eval(pos);
+    return vec4((1.0 - color).rgb, 1.0);
+  }
+`)
+const paint = Skia.Paint(invertColorsFilter)
 
-half4 main(vec2 pos) {
-  vec4 color = image.eval(pos);
-  return vec4(1.0 - color.rgb, 1.0);
-}
-`;
+const frameProcessor = useSkiaFrameProcessor((frame) => {
+  'worklet'
 
-function App() {
-  const imageFilter = Skia.ImageFilter.MakeRuntimeShader(/* INVERTED_COLORS_SHADER */)
-  const paint = Skia.Paint()
-  paint.setImageFilter(imageFilter)
-
-  const frameProcessor = useSkiaFrameProcessor((frame) => {
-    'worklet'
-    frame.render(paint)
-  }, [])
-
-  return (
-    <Camera
-      {...cameraProps}
-      frameProcessor={frameProcessor}
-    />
-  )
-}
+  // Draw frame using Skia Shader to invert colors
+  frame.render(paint)
+}, [])
 ```
 
-### Rendered outputs
+## VisionCamera Skia Integration
 
-The rendered results of the Skia Frame Processor are rendered to an offscreen context and will be displayed in the Camera Preview, recorded to a video file (`startRecording()`) and captured in a photo (`takePhoto()`). In other words, you draw into the Frame, not just ontop of it.
+While the Skia Integration was originally planned for V3, I decided to remove it again because VisionCamera got insanely complex with that code integrated (custom Metal/OpenGL rendering pipeline with intermediate steps and tons of build setup, and fully custom Skia Preview View) and I wanted to keep VisionCamera lean so other users aren't affected by build issues caused by Skia or those GPU APIs. See [PR #1740](https://github.com/mrousavy/react-native-vision-camera/pull/1740) for more information.
 
-### Performance
-
-VisionCamera sets up an additional Skia rendering context which requires a few resources.
-
-On iOS, Metal is used for GPU Acceleration. On Android, OpenGL is used for GPU Acceleration.
-C++/JSI is used for highly efficient communication between JS and Skia.
-
-### Disabling Skia Frame Processors
-
-Skia Frame Processors ship with additional C++ files which might slightly increase the app's build time. If you're not using Skia Frame Processors at all, you can disable them:
-
-#### Android
-
-Inside your `gradle.properties` file, add the `disableSkia` flag:
-
-```groovy
-VisionCamera_disableSkia=true
-```
-
-Then, clean and rebuild your project.
-
-#### iOS
-
-Inside your `Podfile`, add the `VCDisableSkia` flag:
-
-```ruby
-$VCDisableSkia = true
-```
-
+At my app development agency, [Margelo](https://margelo.io), we have worked a lot with 2D and 3D graphics and Camera realtime processing (see the Snapchat-style mask filter on our website for example - that is running in VisionCamera/React Native!), if you need this feature [reach out to us](https://margelo.io#contact) and we'll build a customized/tailored solution for your company! :)
 
 <br />
 

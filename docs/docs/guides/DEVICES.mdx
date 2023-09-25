@@ -15,7 +15,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
   </svg>
 </div>
 
-### What are Camera Devices?
+## What are Camera Devices?
 
 Camera Devices are the physical (or "virtual") devices that can be used to record videos or capture photos.
 
@@ -26,7 +26,7 @@ Camera Devices are the physical (or "virtual") devices that can be used to recor
 
   > Examples: _"Triple-Camera"_, _"Dual-Wide-Angle Camera"_
 
-### Select the default Camera
+## Select the default Camera
 
 If you simply want to use the default [`CameraDevice`](/docs/api/interfaces/CameraDevice), you can just use whatever is available:
 
@@ -58,7 +58,7 @@ And VisionCamera will automatically find the best matching [`CameraDevice`](/doc
 
 **🚀 Continue with: [Camera Lifecycle](lifecycle)**
 
-### Custom Device Selection
+## Custom Device Selection
 
 For advanced use-cases, you might want to select a different [`CameraDevice`](/docs/api/interfaces/CameraDevice) for your app.
 
@@ -87,6 +87,20 @@ A [`CameraDevice`](/docs/api/interfaces/CameraDevice) consists of the following 
   - Video Stabilization Mode (see: ["Formats: Video Stabilization Mode"](/docs/guides/formats#videoStabilization))
   - Pixel Format (see: ["Formats: Pixel Format"](/docs/guides/formats#pixelFormat))
 
+### Examples on an iPhone
+
+Here's a list of some Camera Devices an iPhone 13 Pro has:
+
+- Back Wide Angle Camera (`['wide-angle-camera']`)
+- Back Ultra-Wide Angle Camera (`['ultra-wide-angle-camera']`)
+- Back Telephoto Camera (`['telephoto-camera']`)
+- Back Dual Camera (Wide + Telephoto)
+- Back Dual-Wide Camera (Ultra-Wide + Wide)
+- Back Triple Camera (Ultra-Wide + Wide + Telephoto)
+- Back LiDAR Camera (Wide + LiDAR-Depth)
+- Front Wide Angle (`['wide-angle-camera']`)
+- Front True-Depth (Wide + Depth)
+
 ### Selecting Multi-Cams
 
 Multi-Cams are virtual Camera Devices that consist of more than one physical Camera Device. For example:
@@ -102,7 +116,7 @@ Benefits of Multi-Cams:
 
 Downsides of Multi-Cams:
 
-- They take longer to start and use more resources
+- The Camera takes longer to initialize and uses more resources
 
 To use the "Triple-Camera" in your app, you can just search for a device that contains all three physical Camera Devices:
 
@@ -142,7 +156,11 @@ const device = getCameraDevice(devices, 'back', {
 </TabItem>
 </Tabs>
 
-This will try to find a [`CameraDevice`](/docs/api/interfaces/CameraDevice) that consists of all three physical Camera Devices, or the next best match (e.g. "Dual-Camera", or just a single wide-angle-camera) if not found.
+This will try to find a [`CameraDevice`](/docs/api/interfaces/CameraDevice) that consists of all three physical Camera Devices, or the next best match (e.g. "Dual-Camera", or just a single wide-angle-camera) if not found. With the "Triple-Camera", we can now zoom out to a wider field of view:
+
+<div align="center">
+  <img src="/img/multi-camera.gif" width="55%" />
+</div>
 
 If you want to do the filtering/sorting fully yourself, you can also just get all devices, then implement your own filter:
 

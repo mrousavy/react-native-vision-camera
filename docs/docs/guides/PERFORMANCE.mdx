@@ -1,0 +1,137 @@
+---
+id: performance
+title: Performance
+sidebar_label: Performance
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+## Performance of VisionCamera
+
+VisionCamera is highly optimized to be **as fast as a native Camera app**, and is sometimes even faster than that.
+I am using highly efficient native GPU buffer formats (such as YUV 4:2:0, or lossless compressed YUV 4:2:0), running the video pipelines in parallel, using C++ for the Frame Processors implementation, and other tricks to make sure VisionCamera is as efficient as possible.
+
+## Making it faster
+
+There are a few things you can do to make your Camera faster which requires a core understanding of how Cameras work under the hood:
+
+### Simpler Camera Device
+
+Selecting a "simpler" Camera Device (i.e. a Camera Device with _less physical cameras_) allows the Camera to initialize faster as it does not have to start multiple devices at once.
+You can prefer a simple wide-angle Camera (`['wide-angle-camera']`) over a triple camera (`['ultra-wide-angle-camera', 'wide-angle-camera', 'telephoto-camera']`) to significantly speed up initialization time.
+
+<Tabs
+  groupId="component-style"
+  defaultValue="hooks"
+  values={[
+    {label: 'Hooks API', value: 'hooks'},
+    {label: 'Imperative API', value: 'imperative'}
+  ]}>
+<TabItem value="hooks">
+
+```ts
+const fasterDevice = useCameraDevice('back', {
+  physicalDevices: ['wide-angle-camera']
+})
+const slowerDevice = useCameraDevice('back', {
+  physicalDevices: ['ultra-wide-angle-camera', 'wide-angle-camera', 'telephoto-camera']
+})
+```
+
+</TabItem>
+<TabItem value="imperative">
+
+```ts
+const devices = Camera.getAvailableCameraDevices()
+const fasterDevice = getCameraDevice(devices, 'back', {
+  physicalDevices: ['wide-angle-camera']
+})
+const slowerDevice = getCameraDevice(devices, 'back', {
+  physicalDevices: ['ultra-wide-angle-camera', 'wide-angle-camera', 'telephoto-camera']
+})
+```
+
+</TabItem>
+</Tabs>
+
+See ["Camera Devices"](devices) for more information.
+
+Note: By default (when not passing the options object), a simpler device is already chosen.
+
+### No HDR
+
+HDR uses 10-bit formats and/or additional processing steps that come with additional computation overhead. Disable HDR (don't pass `hdr` to the `<Camera>`) for higher efficiency.
+
+### Buffer Compression
+
+Enable Buffer Compression ([`enableBufferCompression`](/docs/api/interfaces/CameraProps#enablebuffercompression)) to use lossless-compressed buffers for the Camera's video pipeline. These buffers can use less memory and are more efficient.
+
+Note: When not using a `frameProcessor`, buffer compression is automatically enabled.
+
+### Video Stabilization
+
+Video Stabilization requires additional overhead to start the algorithm, so disabling [`videoStabilizationMode`](/docs/api/interfaces/CameraProps#videoStabilizationMode) can significantly speed up the Camera initialization time.
+
+### Pixel Format
+
+By default, the `native` [`PixelFormat`](/docs/api#PixelFormat) is used, which is much more efficient than `rgb`.
+
+### Disable unneeded pipelines
+
+Only enable [`photo`](/docs/api/interfaces/CameraProps#photo) and [`video`](/docs/api/interfaces/CameraProps#video) if needed.
+
+### Fast Photos
+
+If you need to take photos as fast as possible, use a [`qualityPrioritization`](/docs/api/interfaces/TakePhotoOptions#qualityprioritization) of `'speed'` to speed up the photo pipeline:
+
+```ts
+camera.current.takePhoto({
+  qualityPrioritization: 'speed'
+})
+```
+
+### Appropriate Format resolution
+
+Choose formats efficiently. If your backend can only handle 1080p videos, don't select a 4k format if you have to downsize it later anyways - instead use 1080p already for the Camera:
+
+<Tabs
+  groupId="component-style"
+  defaultValue="hooks"
+  values={[
+    {label: 'Hooks API', value: 'hooks'},
+    {label: 'Imperative API', value: 'imperative'}
+  ]}>
+<TabItem value="hooks">
+
+```ts
+const format = useCameraFormat(device, [
+  { videoResolution: { width: 1920, height: 1080 } }
+])
+```
+
+</TabItem>
+<TabItem value="imperative">
+
+```ts
+const format = getCameraFormat(device, [
+  { videoResolution: { width: 1920, height: 1080 } }
+])
+```
+
+</TabItem>
+</Tabs>
+
+### Appropriate Format FPS
+
+Same as with format resolutions, also record at the frame rate you expect. Setting your frame rate higher can use more memory and heat up the battery.
+If your backend can only handle 30 FPS, there is no need to record at 60 FPS, instead set the Camera' [`fps`](/docs/api/interfaces/CameraProps#fps) to 30:
+
+```jsx
+return <Camera {...props} fps={30} />
+```
+
+<br />
+
+#### 🚀 Next section: [Camera Errors](errors)

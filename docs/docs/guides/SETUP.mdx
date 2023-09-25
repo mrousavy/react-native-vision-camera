@@ -205,7 +205,7 @@ If your app has permission to use the Camera and Microphone, simply use the [`us
 function App() {
   const device = useCameraDevice('back')
 
-  if (device == null) return <LoadingView />
+  if (device == null) return <NoCameraDeviceError />
   return (
     <Camera
       style={StyleSheet.absoluteFill}

@@ -1,0 +1,83 @@
+---
+id: hdr
+title: HDR
+sidebar_label: HDR
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+## What is HDR?
+
+HDR ("High Dynamic Range") is a capture mode that captures colors in a much wider range, allowing for much better details and brighter colors.
+
+<div align="center">
+  <img src="/img/sdr_comparison.png" width="51%" />
+  <img src="/img/hdr_comparison.png" width="51%" />
+</div>
+
+### Photo HDR
+
+Photo HDR is accomplished by running three captures instead of one, an underexposed photo, a normal photo, and an overexposed photo. Then, these images are fused together to create darker darks and brighter brights.
+
+<div align="center">
+  <img src="/img/hdr_photo_demo.webp" width="65%" />
+</div>
+
+### Video HDR
+
+Video HDR is accomplished by using a 10-bit HDR pixel format with custom configuration on the hardware sensor that allows for capturing wider color ranges.
+
+* On iOS, this uses the `kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange` Pixel Format.
+* On Android, this uses the Dynamic Range Format `HLG10`, `HDR10` or `DOLBY_VISION_10B_HDR_OEM`.
+
+If true 10-bit Video HDR is not available, the OS will sometimes fall back to EDR ("Extended Dynamic Range"), which, similar to how Photo HDR works, just doubles the video frame rate to capture one longer-exposed frame and one shorter exposed frame.
+
+## Using HDR
+
+To enable HDR capture, you need to select a format (see ["Camera Formats"](formats)) that supports HDR capture:
+
+<Tabs
+  groupId="component-style"
+  defaultValue="hooks"
+  values={[
+    {label: 'Hooks API', value: 'hooks'},
+    {label: 'Imperative API', value: 'imperative'}
+  ]}>
+<TabItem value="hooks">
+
+```ts
+const format = useCameraFormat(device, [
+  { photoHDR: true },
+  { videoHDR: true },
+])
+```
+
+</TabItem>
+<TabItem value="imperative">
+
+```ts
+const format = getCameraFormat(device, [
+  { photoHDR: true },
+  { videoHDR: true },
+])
+```
+
+</TabItem>
+</Tabs>
+
+Then, pass the `format` to the Camera and enable the `hdr` prop if it is supported:
+
+```tsx
+const format = ...
+const supportsHdr = format.supportsPhotoHDR && format.supportsVideoHDR
+
+return <Camera {...props} format={format} hdr={supportsHdr} />
+```
+
+Now, all captures (`takePhoto(..)` and `startRecording(..)`) will be configured to use HDR.
+
+<br />
+
+#### 🚀 Next section: [Video Stabilization](stabilization)

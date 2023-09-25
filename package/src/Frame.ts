@@ -2,11 +2,21 @@ import type { Orientation } from './Orientation';
 import { PixelFormat } from './PixelFormat';
 
 /**
- * A single frame, as seen by the camera.
+ * A single frame, as seen by the camera. This is backed by a C++ HostObject wrapping the native GPU buffer.
+ * At a 4k resolution, a Frame can be 1.5MB in size.
+ *
+ * @example
+ * ```ts
+ * const frameProcessor = useFrameProcessor((frame) => {
+ *   'worklet'
+ *   console.log(`Frame: ${frame.width}x${frame.height} (${frame.pixelFormat})`)
+ * }, [])
+ * ```
  */
 export interface Frame {
   /**
-   * Whether the underlying buffer is still valid or not. The buffer will be released after the frame processor returns, or `close()` is called.
+   * Whether the underlying buffer is still valid or not.
+   * A Frame is valid as long as your Frame Processor (or a `runAsync(..)` operation) is still running
    */
   isValid: boolean;
   /**
@@ -37,7 +47,7 @@ export interface Frame {
    * Represents the orientation of the Frame.
    *
    * Some ML Models are trained for specific orientations, so they need to be taken into
-   * consideration when running a frame processor. See also: `isMirrored`
+   * consideration when running a frame processor. See also: {@linkcode isMirrored}
    */
   orientation: Orientation;
   /**
@@ -47,8 +57,21 @@ export interface Frame {
 
   /**
    * Get the underlying data of the Frame as a uint8 array buffer.
+   * The format of the buffer depends on the Frame's {@linkcode pixelFormat}.
    *
    * Note that Frames are allocated on the GPU, so calling `toArrayBuffer()` will copy from the GPU to the CPU.
+   *
+   * @example
+   * ```ts
+   * const frameProcessor = useFrameProcessor((frame) => {
+   *   'worklet'
+   *
+   *   if (frame.pixelFormat === 'rgb') {
+   *     const data = frame.toArrayBuffer()
+   *     console.log(`Pixel at 0,0: RGB(${data[0]}, ${data[1]}, ${data[2]})`)
+   *   }
+   * }, [])
+   * ```
    */
   toArrayBuffer(): Uint8Array;
   /**
@@ -61,17 +84,20 @@ export interface Frame {
   toString(): string;
 }
 
+/** @internal */
 export interface FrameInternal extends Frame {
   /**
    * Increment the Frame Buffer ref-count by one.
    *
    * This is a private API, do not use this.
+   * @internal
    */
   incrementRefCount(): void;
   /**
    * Increment the Frame Buffer ref-count by one.
    *
    * This is a private API, do not use this.
+   * @internal
    */
   decrementRefCount(): void;
 }

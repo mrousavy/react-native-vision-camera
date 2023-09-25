@@ -75,7 +75,7 @@ The Frame Processor Plugin will be exposed to JS through the `VisionCameraProxy`
 4. **Implement your Frame Processing.** See the [Example Plugin (Java)](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/example/android/app/src/main/java/com/mrousavy/camera/example/ExampleFrameProcessorPlugin.java) for reference.
 5. Create a new Java file which registers the Frame Processor Plugin in a React Package, for the Face Detector plugin this file will be called `FaceDetectorFrameProcessorPluginPackage.java`:
 
-```java {12}
+```java {13}
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -140,7 +140,7 @@ The Frame Processor Plugin will be exposed to JS through the `VisionCameraProxy`
 4. **Implement your Frame Processing.** See the [Example Plugin (Java)](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/example/android/app/src/main/java/com/mrousavy/camera/example/ExampleFrameProcessorPlugin.java) for reference.
 5. Create a new Kotlin file which registers the Frame Processor Plugin in a React Package, for the Face Detector plugin this file will be called `FaceDetectorFrameProcessorPluginPackage.kt`:
 
-```kotlin {9}
+```kotlin {9-11}
 import com.facebook.react.ReactPackage
 import com.facebook.react.bridge.NativeModule
 import com.facebook.react.bridge.ReactApplicationContext

@@ -10,7 +10,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
   <img align="right" width="283" src={useBaseUrl("img/example.png")} />
 </div>
 
-### The `isActive` prop
+## The `isActive` prop
 
 The Camera's `isActive` property can be used to _pause_ the session (`isActive={false}`) while still keeping the session "warm". This is more desirable than completely unmounting the camera, since _resuming_ the session (`isActive={true}`) will be **much faster** than re-mounting the camera view.
 
@@ -28,7 +28,7 @@ function App() {
 }
 ```
 
-### Interruptions
+## Interruptions
 
 VisionCamera gracefully handles Camera interruptions such as incoming calls, phone overheating, a different app opening the Camera, etc., and will automatically resume the Camera once it becomes available again.
 
