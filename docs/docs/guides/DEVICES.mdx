@@ -87,7 +87,21 @@ A [`CameraDevice`](/docs/api/interfaces/CameraDevice) consists of the following 
   - Video Stabilization Mode (see: ["Formats: Video Stabilization Mode"](/docs/guides/formats#videoStabilization))
   - Pixel Format (see: ["Formats: Pixel Format"](/docs/guides/formats#pixelFormat))
 
-## Selecting Multi-Cams
+### Examples on an iPhone
+
+Here's a list of some Camera Devices an iPhone 13 Pro has:
+
+- Back Wide Angle Camera (`['wide-angle-camera']`)
+- Back Ultra-Wide Angle Camera (`['ultra-wide-angle-camera']`)
+- Back Telephoto Camera (`['telephoto-camera']`)
+- Back Dual Camera (Wide + Telephoto)
+- Back Dual-Wide Camera (Ultra-Wide + Wide)
+- Back Triple Camera (Ultra-Wide + Wide + Telephoto)
+- Back LiDAR Camera (Wide + LiDAR-Depth)
+- Front Wide Angle (`['wide-angle-camera']`)
+- Front True-Depth (Wide + Depth)
+
+### Selecting Multi-Cams
 
 Multi-Cams are virtual Camera Devices that consist of more than one physical Camera Device. For example:
 
@@ -175,7 +189,7 @@ const device = findBestDevice(devices)
 </TabItem>
 </Tabs>
 
-## Selecting external Cameras
+### Selecting external Cameras
 
 VisionCamera supports using `external` Camera Devices, such as:
 - USB Camera Devices (if they support the [USB Video Class (UVC) Specification](https://en.wikipedia.org/wiki/List_of_USB_video_class_devices))
