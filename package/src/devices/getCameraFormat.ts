@@ -58,6 +58,14 @@ export interface FormatFilter {
    * If no format supports the target pixel format, the best other matching format will be used.
    */
   pixelFormat?: PixelFormat;
+  /**
+   * Whether you want to find a format that supports Photo HDR.
+   */
+  photoHDR?: boolean;
+  /**
+   * Whether you want to find a format that supports Photo HDR.
+   */
+  videoHDR?: boolean;
 }
 
 type FilterWithPriority<T> = {
@@ -183,6 +191,18 @@ export function getCameraFormat(device: CameraDevice, filters: FormatFilter[]): 
     if (filter.pixelFormat != null) {
       if (bestFormat.pixelFormats.includes(filter.pixelFormat.target)) leftPoints++;
       if (format.pixelFormats.includes(filter.pixelFormat.target)) rightPoints++;
+    }
+
+    // Find Photo HDR formats
+    if (filter.photoHDR != null) {
+      if (bestFormat.supportsPhotoHDR === filter.photoHDR.target) leftPoints++;
+      if (format.supportsPhotoHDR === filter.photoHDR.target) rightPoints++;
+    }
+
+    // Find Video HDR formats
+    if (filter.videoHDR != null) {
+      if (bestFormat.supportsVideoHDR === filter.videoHDR.target) leftPoints++;
+      if (format.supportsVideoHDR === filter.videoHDR.target) rightPoints++;
     }
 
     if (rightPoints > leftPoints) bestFormat = format;
