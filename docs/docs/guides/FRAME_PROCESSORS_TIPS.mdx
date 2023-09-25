@@ -10,7 +10,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 ### Avoiding Frame-drops
 
-Frame Processors will be **synchronously** called for each frame the Camera sees and have to finish executing before the next frame arrives, otherwise the next frame(s) will be dropped. For a frame rate of **30 FPS**, you have about **33ms** to finish processing frames.
+Frame Processors will be **synchronously** called for each frame the Camera sees and have to finish executing before the next frame arrives, otherwise the next frame(s) will be dropped. For a frame rate of **30 FPS**, you have about **33ms** to finish processing frames. At **60 FPS**, you only have **16ms**.
 If your Frame Procesor has not finished executing when the next frame arrives, the next frame will be dropped.
 
 Some general tips:
