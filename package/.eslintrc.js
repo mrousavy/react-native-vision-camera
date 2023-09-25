@@ -88,4 +88,4 @@ module.exports = {
   globals: {
     _log: 'readonly',
   },
-};
+}

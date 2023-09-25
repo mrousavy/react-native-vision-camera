@@ -1,7 +1,7 @@
-import { useMemo } from 'react';
-import { CameraDevice, CameraPosition } from '../CameraDevice';
-import { getCameraDevice, DeviceFilter } from '../devices/getCameraDevice';
-import { useCameraDevices } from './useCameraDevices';
+import { useMemo } from 'react'
+import { CameraDevice, CameraPosition } from '../CameraDevice'
+import { getCameraDevice, DeviceFilter } from '../devices/getCameraDevice'
+import { useCameraDevices } from './useCameraDevices'
 
 /**
  * Get the best matching Camera device that best satisfies your requirements using a sorting filter.
@@ -16,13 +16,13 @@ import { useCameraDevices } from './useCameraDevices';
  * ```
  */
 export function useCameraDevice(position: CameraPosition, filter?: DeviceFilter): CameraDevice | undefined {
-  const devices = useCameraDevices();
+  const devices = useCameraDevices()
 
   const device = useMemo(
     () => getCameraDevice(devices, position, filter),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [devices, position, JSON.stringify(filter)],
-  );
+  )
 
-  return device;
+  return device
 }

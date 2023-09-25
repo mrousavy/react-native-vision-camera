@@ -1,13 +1,13 @@
-import type { ViewProps } from 'react-native';
-import type { CameraDevice, CameraDeviceFormat, VideoStabilizationMode } from './CameraDevice';
-import type { CameraRuntimeError } from './CameraError';
-import type { Frame } from './Frame';
-import type { Orientation } from './Orientation';
+import type { ViewProps } from 'react-native'
+import type { CameraDevice, CameraDeviceFormat, VideoStabilizationMode } from './CameraDevice'
+import type { CameraRuntimeError } from './CameraError'
+import type { Frame } from './Frame'
+import type { Orientation } from './Orientation'
 
 export type FrameProcessor = {
-  frameProcessor: (frame: Frame) => void;
-  type: 'frame-processor';
-};
+  frameProcessor: (frame: Frame) => void
+  type: 'frame-processor'
+}
 
 // TODO: Replace `enableHighQualityPhotos: boolean` in favor of `priorization: 'photo' | 'video'`
 // TODO: Use RCT_ENUM_PARSER for stuff like torch, videoStabilizationMode, and orientation
@@ -34,7 +34,7 @@ export interface CameraProps extends ViewProps {
    * )
    * ```
    */
-  device: CameraDevice;
+  device: CameraDevice
   /**
    * Whether the Camera should actively stream video frames, or not. See the [documentation about the `isActive` prop](https://react-native-vision-camera.com/docs/guides/lifecycle#the-isactive-prop) for more information.
    *
@@ -42,23 +42,23 @@ export interface CameraProps extends ViewProps {
    *
    * > Note: If you fully unmount the `<Camera>` component instead of using `isActive={false}`, the Camera will take a bit longer to start again. In return, it will use less resources since the Camera will be completely destroyed when unmounted.
    */
-  isActive: boolean;
+  isActive: boolean
 
   //#region Use-cases
   /**
    * Enables **photo capture** with the `takePhoto` function (see ["Taking Photos"](https://react-native-vision-camera.com/docs/guides/capturing#taking-photos))
    */
-  photo?: boolean;
+  photo?: boolean
   /**
    * Enables **video capture** with the `startRecording` function (see ["Recording Videos"](https://react-native-vision-camera.com/docs/guides/capturing/#recording-videos))
    *
    * Note: If both the `photo` and `video` properties are enabled at the same time and the device is running at a `hardwareLevel` of `'legacy'` or `'limited'`, VisionCamera _might_ use a lower resolution for video capture due to hardware constraints.
    */
-  video?: boolean;
+  video?: boolean
   /**
    * Enables **audio capture** for video recordings (see ["Recording Videos"](https://react-native-vision-camera.com/docs/guides/capturing/#recording-videos))
    */
-  audio?: boolean;
+  audio?: boolean
   /**
    * Specifies the pixel format for the video pipeline.
    *
@@ -72,7 +72,7 @@ export interface CameraProps extends ViewProps {
    *
    * @default `native`
    */
-  pixelFormat?: 'native' | 'yuv' | 'rgb';
+  pixelFormat?: 'native' | 'yuv' | 'rgb'
   //#endregion
 
   //#region Common Props (torch, zoom)
@@ -83,7 +83,7 @@ export interface CameraProps extends ViewProps {
    *
    * @default "off"
    */
-  torch?: 'off' | 'on';
+  torch?: 'off' | 'on'
   /**
    * Specifies the zoom factor of the current camera, in "factor"/scale.
    *
@@ -95,7 +95,7 @@ export interface CameraProps extends ViewProps {
    *
    * @default 1.0
    */
-  zoom?: number;
+  zoom?: number
   /**
    * Enables or disables the native pinch to zoom gesture.
    *
@@ -103,14 +103,14 @@ export interface CameraProps extends ViewProps {
    *
    * @default false
    */
-  enableZoomGesture?: boolean;
+  enableZoomGesture?: boolean
   //#endregion
 
   //#region Format/Preset selection
   /**
    * Selects a given format. By default, the best matching format is chosen.
    */
-  format?: CameraDeviceFormat;
+  format?: CameraDeviceFormat
   /**
    * Specifies the Preview's resize mode.
    * * `"cover"`: Keep aspect ratio and fill entire parent view (centered).
@@ -118,19 +118,19 @@ export interface CameraProps extends ViewProps {
    *
    * @default "cover"
    */
-  resizeMode?: 'cover' | 'contain';
+  resizeMode?: 'cover' | 'contain'
   /**
    * Specify the frames per second this camera should use. Make sure the given `format` includes a frame rate range with the given `fps`.
    *
    * Requires `format` to be set that supports the given `fps`.
    */
-  fps?: number;
+  fps?: number
   /**
    * Enables or disables HDR on this camera device. Make sure the given `format` supports HDR mode.
    *
    * Requires `format` to be set that supports `photoHDR`/`videoHDR`.
    */
-  hdr?: boolean;
+  hdr?: boolean
   /**
    * Enables or disables lossless buffer compression for the video stream.
    * If you only use {@linkcode video} or a {@linkcode frameProcessor}, this
@@ -151,19 +151,19 @@ export interface CameraProps extends ViewProps {
    * - true // if video={true} and frameProcessor={undefined}
    * - false // otherwise
    */
-  enableBufferCompression?: boolean;
+  enableBufferCompression?: boolean
   /**
    * Enables or disables low-light boost on this camera device. Make sure the given `format` supports low-light boost.
    *
    * Requires a `format` to be set that supports `lowLightBoost`.
    */
-  lowLightBoost?: boolean;
+  lowLightBoost?: boolean
   /**
    * Specifies the video stabilization mode to use.
    *
    * Requires a `format` to be set that contains the given `videoStabilizationMode`.
    */
-  videoStabilizationMode?: VideoStabilizationMode;
+  videoStabilizationMode?: VideoStabilizationMode
   //#endregion
 
   /**
@@ -171,7 +171,7 @@ export interface CameraProps extends ViewProps {
    *
    * @default false
    */
-  enableDepthData?: boolean;
+  enableDepthData?: boolean
   /**
    * A boolean specifying whether the photo render pipeline is prepared for portrait effects matte delivery.
    *
@@ -180,7 +180,7 @@ export interface CameraProps extends ViewProps {
    * @platform iOS 12.0+
    * @default false
    */
-  enablePortraitEffectsMatteDelivery?: boolean;
+  enablePortraitEffectsMatteDelivery?: boolean
   /**
    * Indicates whether the Camera should prepare the photo pipeline to provide maximum quality photos.
    *
@@ -192,28 +192,28 @@ export interface CameraProps extends ViewProps {
    *
    * @default false
    */
-  enableHighQualityPhotos?: boolean;
+  enableHighQualityPhotos?: boolean
   /**
    * If `true`, show a debug view to display the FPS of the Camera session.
    * This is useful for debugging your Frame Processor's speed.
    *
    * @default false
    */
-  enableFpsGraph?: boolean;
+  enableFpsGraph?: boolean
   /**
    * Represents the orientation of all Camera Outputs (Photo, Video, and Frame Processor). If this value is not set, the device orientation is used.
    */
-  orientation?: Orientation;
+  orientation?: Orientation
 
   //#region Events
   /**
    * Called when any kind of runtime error occured.
    */
-  onError?: (error: CameraRuntimeError) => void;
+  onError?: (error: CameraRuntimeError) => void
   /**
    * Called when the camera was successfully initialized.
    */
-  onInitialized?: () => void;
+  onInitialized?: () => void
   /**
    * A worklet which will be called for every frame the Camera "sees".
    *
@@ -230,6 +230,6 @@ export interface CameraProps extends ViewProps {
    * return <Camera {...cameraProps} frameProcessor={frameProcessor} />
    * ```
    */
-  frameProcessor?: FrameProcessor;
+  frameProcessor?: FrameProcessor
   //#endregion
 }

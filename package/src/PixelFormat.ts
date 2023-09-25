@@ -12,4 +12,4 @@
  * - `native`: Frame is in the Camera's native Hardware Buffer format (PRIVATE). This is the most efficient Format.
  * - `unknown`: Frame has unknown/unsupported pixel-format.
  */
-export type PixelFormat = 'yuv' | 'rgb' | 'dng' | 'native' | 'unknown';
+export type PixelFormat = 'yuv' | 'rgb' | 'dng' | 'native' | 'unknown'
