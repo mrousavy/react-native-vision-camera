@@ -30,6 +30,7 @@ module.exports = {
       'guides/focusing',
       'guides/hdr',
       'guides/stabilization',
+      'guides/performance',
       'guides/errors',
       'guides/mocking',
       'guides/troubleshooting',
