@@ -12,6 +12,7 @@ export * from './VideoFile';
 
 export * from './devices/getCameraFormat';
 export * from './devices/getCameraDevice';
+export * from './devices/Templates';
 
 export * from './hooks/useCameraDevice';
 export * from './hooks/useCameraDevices';
