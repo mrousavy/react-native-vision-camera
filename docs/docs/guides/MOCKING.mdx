@@ -10,8 +10,9 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
   <img align="right" width="283" src={useBaseUrl("img/11_back.png")} />
 </div>
 
-The provided library doesn't work on simulators. These steps allow you to mock the library
-and use it for developing or testing. Based on
+## Mocking VisionCamera
+
+These steps allow you to mock VisionCamera and use it for developing or testing. Based on
 [Detox Mock Guide](https://github.com/wix/Detox/blob/master/docs/Guide.Mocking.md).
 
 ### Configure the Metro bundler
@@ -65,7 +66,7 @@ import RNFS, { writeFile } from 'react-native-fs';
 console.log('[DETOX] Using mocked react-native-vision-camera');
 
 export class VisionCamera extends React.PureComponent {
-  static async getAvailableCameraDevices() {
+  static getAvailableCameraDevices() {
     return (
       [
         {

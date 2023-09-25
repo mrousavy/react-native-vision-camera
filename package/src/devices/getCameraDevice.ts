@@ -24,39 +24,57 @@ export interface DeviceFilter {
 }
 
 /**
- * Get the best matching Camera device that satisfies your requirements using a sorting filter.
- * @param devices All available Camera Devices this function will use for filtering. To get devices, use `Camera.getAvailableCameraDevices()`.
- * @param filter The filter you want to use. The device that matches your filter the closest will be returned.
- * @returns The device that matches your filter the closest.
+ * Get the best matching Camera device that best satisfies your requirements using a sorting filter.
+ * @param position The position of the Camera device relative to the phone.
+ * @param filter The filter you want to use. The Camera device that matches your filter the closest will be returned
+ * @returns The Camera device that matches your filter the closest, or `undefined` if no such Camera Device exists on the given {@linkcode position}.
+ * @example
+ * ```ts
+ * const devices = Camera.getAvailableCameraDevices()
+ * const device = getCameraDevice(devices, 'back', {
+ *    physicalDevices: ['wide-angle-camera']
+ * })
+ * ```
  */
 export function getCameraDevice(devices: CameraDevice[], position: CameraPosition, filter: DeviceFilter = {}): CameraDevice {
+  const explicitlyWantsNonWideAngle = filter.physicalDevices != null && !filter.physicalDevices.includes('wide-angle-camera');
+
   const filtered = devices.filter((d) => d.position === position);
-  const sortedDevices = filtered.sort((left, right) => {
+
+  let bestDevice = filtered[0];
+  if (bestDevice == null) throw new CameraRuntimeError('device/invalid-device', 'No Camera Device could be found!');
+
+  // Compare each device using a point scoring system
+  for (const device of devices) {
     let leftPoints = 0;
     let rightPoints = 0;
 
     // prefer higher hardware-level
-    if (left.hardwareLevel === 'full') leftPoints += 4;
-    if (right.hardwareLevel === 'full') rightPoints += 4;
+    if (bestDevice.hardwareLevel === 'full') leftPoints += 4;
+    if (device.hardwareLevel === 'full') rightPoints += 4;
+
+    if (!explicitlyWantsNonWideAngle) {
+      // prefer wide-angle-camera as a default
+      if (bestDevice.physicalDevices.includes('wide-angle-camera')) leftPoints += 1;
+      if (device.physicalDevices.includes('wide-angle-camera')) rightPoints += 1;
+    }
 
     // compare devices. two possible scenarios:
     // 1. user wants all cameras ([ultra-wide, wide, tele]) to zoom. prefer those devices that have all 3 cameras.
     // 2. user wants only one ([wide]) for faster performance. prefer those devices that only have one camera, if they have more, we rank them lower.
     if (filter.physicalDevices != null) {
-      for (const device of left.physicalDevices) {
-        if (filter.physicalDevices.includes(device)) leftPoints += 1;
+      for (const d of bestDevice.physicalDevices) {
+        if (filter.physicalDevices.includes(d)) leftPoints += 1;
         else leftPoints -= 1;
       }
-      for (const device of right.physicalDevices) {
-        if (filter.physicalDevices.includes(device)) rightPoints += 1;
+      for (const d of device.physicalDevices) {
+        if (filter.physicalDevices.includes(d)) rightPoints += 1;
         else rightPoints -= 1;
       }
     }
 
-    return leftPoints - rightPoints;
-  });
+    if (rightPoints > leftPoints) bestDevice = device;
+  }
 
-  const device = sortedDevices[0];
-  if (device == null) throw new CameraRuntimeError('device/invalid-device', 'No Camera Device could be found!');
-  return device;
+  return bestDevice;
 }

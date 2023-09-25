@@ -4,15 +4,26 @@ title: Troubleshooting
 sidebar_label: Troubleshooting
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 <div>
   <img align="right" width="283" src={useBaseUrl("img/11_back.png")} />
 </div>
 
-Before opening an issue, make sure you try the following:
+## Steps to try
 
-## iOS
+If you're experiencing build issues or runtime issues in VisionCamera, make sure you try the following before opening an issue:
+
+<Tabs
+  groupId="platform"
+  defaultValue="ios"
+  values={[
+    {label: 'iOS', value: 'ios'},
+    {label: 'Android', value: 'android'}
+  ]}>
+<TabItem value="ios">
 
 ### Build Issues
 
@@ -52,10 +63,12 @@ Before opening an issue, make sure you try the following:
    ```
 5. Investigate the camera devices this phone has and make sure you're using a valid one. Look for properties such as `pixelFormats`, `id`, and `hardwareLevel`.
    ```tsx
-   Camera.getAvailableCameraDevices().then((d) => console.log(JSON.stringify(d, null, 2)))
+   const devices = Camera.getAvailableCameraDevices()
+   console.log(JSON.stringify(d, null, 2))
    ```
 
-## Android
+</TabItem>
+<TabItem value="android">
 
 ### Build Issues
 
@@ -88,7 +101,14 @@ Before opening an issue, make sure you try the following:
 
 ### Runtime Issues
 
-1. Check the logs in Android Studio/Logcat to find out more. In Android Studio, go to **View** > **Tool Windows** > **Logcat** (<kbd>⌘</kbd>+<kbd>6</kbd>) or run `adb logcat` in Terminal.
+1. Check the logs in Android Studio/Logcat to find out more. In Android Studio, go to **View** > **Tool Windows** > **Logcat** (<kbd>⌘</kbd>+<kbd>6</kbd>) or run `adb logcat` in Terminal. Android Logcat logs look like this:
+   ```logcat
+   09:03:46 I ReactNativeJS: Running "App" with {"rootTag":11}
+   09:03:47 I VisionCamera: Loading native C++ library...
+   09:03:47 I VisionCamera: Installing JSI bindings...
+   09:03:47 I VisionCamera: Finished installing JSI bindings!
+   ...
+   ```
 2. If a camera device is not being returned by [`Camera.getAvailableCameraDevices()`](/docs/api/classes/Camera#getavailablecameradevices), make sure it is a Camera2 compatible device. See [this section in the Android docs](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#reprocessing) for more information.
 3. If your Frame Processor is not running, make sure you check the native Android Studio/Logcat logs. There is useful information about the Frame Processor Runtime that will tell you if something goes wrong.
 4. If your Frame Processor is not running, make sure you are not using a remote JS debugger such as Google Chrome, since those don't work with JSI.
@@ -98,8 +118,12 @@ Before opening an issue, make sure you try the following:
    ```
 6. Investigate the camera devices this phone has and make sure you're using a valid one. Look for properties such as `pixelFormats`, `id`, and `hardwareLevel`.
    ```tsx
-   Camera.getAvailableCameraDevices().then((d) => console.log(JSON.stringify(d, null, 2)))
+   const devices = Camera.getAvailableCameraDevices()
+   console.log(JSON.stringify(d, null, 2))
    ```
+
+</TabItem>
+</Tabs>
 
 ## Issues
 

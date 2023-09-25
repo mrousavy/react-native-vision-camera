@@ -13,9 +13,9 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
   </svg>
 </div>
 
-## Camera Actions
+## Camera Functions
 
-The Camera provides certain actions using member functions which are available by using a [ref object](https://reactjs.org/docs/refs-and-the-dom.html):
+The Camera provides certain functions which are available through a [ref object](https://reactjs.org/docs/refs-and-the-dom.html):
 
 ```tsx
 function App() {
@@ -31,17 +31,17 @@ function App() {
 }
 ```
 
-The most important actions are:
+To use these functions, you need to wait until the [`onInitialized`](/docs/api/interfaces/CameraProps#oninitialized) event has been fired.
 
-* [Taking Photos](#taking-photos)
-* [Recording Videos](#recording-videos)
-
-## Taking Photos
+### Taking Photos
 
 To take a photo you first have to enable photo capture:
 
 ```tsx
-<Camera {...props} photo={true} />
+<Camera
+  {...props}
+  photo={true}
+/>
 ```
 
 Then, simply use the Camera's [`takePhoto(...)`](/docs/api/classes/Camera#takephoto) function:
@@ -52,11 +52,11 @@ const photo = await camera.current.takePhoto({
 })
 ```
 
-You can customize capture options such as [automatic red-eye reduction](/docs/api/interfaces/TakePhotoOptions#enableautoredeyereduction), [automatic image stabilization](/docs/api/interfaces/TakePhotoOptions#enableautostabilization), [combining images from constituent physical camera devices](/docs/api/interfaces/TakePhotoOptions#enablevirtualdevicefusion) to create a single high quality fused image, [enable flash](/docs/api/interfaces/TakePhotoOptions#flash), [prioritize speed over quality](/docs/api/interfaces/TakePhotoOptions#qualityprioritization) and more using the `options` parameter. (See [`TakePhotoOptions`](/docs/api/interfaces/TakePhotoOptions))
+You can customize capture options such as [automatic red-eye reduction](/docs/api/interfaces/TakePhotoOptions#enableautoredeyereduction), [automatic image stabilization](/docs/api/interfaces/TakePhotoOptions#enableautostabilization), [enable flash](/docs/api/interfaces/TakePhotoOptions#flash), [prioritize speed over quality](/docs/api/interfaces/TakePhotoOptions#qualityprioritization), [disable the shutter sound](/docs/api/interfaces/TakePhotoOptions#enableshuttersound) and more using the [`TakePhotoOptions`](/docs/api/interfaces/TakePhotoOptions) parameter.
 
-This function returns a [`PhotoFile`](/docs/api/interfaces/PhotoFile) which contains a [`path`](/docs/api/interfaces/PhotoFile#path) property you can display in your App using an `<Image>` or `<FastImage>`.
+This function returns a [`PhotoFile`](/docs/api/interfaces/PhotoFile) which is stored in a temporary directory and can either be displayed using `<Image>` or `<FastImage>`, uploaded to a backend, or saved to the Camera Roll using [react-native-cameraroll](https://github.com/react-native-cameraroll/react-native-cameraroll).
 
-## Recording Videos
+### Recording Videos
 
 To start a video recording you first have to enable video capture:
 
@@ -78,6 +78,8 @@ camera.current.startRecording({
 })
 ```
 
+You can customize capture options such as [video codec](/docs/api/interfaces/RecordVideoOptions#videoCodec), [file type](/docs/api/interfaces/RecordVideoOptions#fileType), [enable flash](/docs/api/interfaces/RecordVideoOptions#flash) and more using the [`RecordVideoOptions`](/docs/api/interfaces/RecordVideoOptions) parameter.
+
 For any error that occured _while recording the video_, the `onRecordingError` callback will be invoked with a [`CaptureError`](/docs/api/classes/CameraCaptureError) and the recording is therefore cancelled.
 
 To stop the video recording, you can call [`stopRecording(...)`](/docs/api/classes/Camera#stoprecording):
@@ -86,7 +88,7 @@ To stop the video recording, you can call [`stopRecording(...)`](/docs/api/class
 await camera.current.stopRecording()
 ```
 
-Once a recording has been stopped, the `onRecordingFinished` callback passed to the `startRecording` function will be invoked with a [`VideoFile`](/docs/api/interfaces/VideoFile) which you can then use to display in a [`<Video>`](https://github.com/react-native-video/react-native-video) component.
+Once a recording has been stopped, the `onRecordingFinished` callback passed to the `startRecording(..)` function will be invoked with a [`VideoFile`](/docs/api/interfaces/VideoFile) which you can then use to display in a [`<Video>`](https://github.com/react-native-video/react-native-video) component, uploaded to a backend, or saved to the Camera Roll using [react-native-cameraroll](https://github.com/react-native-cameraroll/react-native-cameraroll).
 
 To pause/resume the recordings, you can use `pauseRecording()` and `resumeRecording()`:
 

@@ -19,7 +19,6 @@ RCT_EXTERN_METHOD(getMicrophonePermissionStatus : (RCTPromiseResolveBlock)resolv
 RCT_EXTERN_METHOD(requestCameraPermission : (RCTPromiseResolveBlock)resolve reject : (RCTPromiseRejectBlock)reject);
 RCT_EXTERN_METHOD(requestMicrophonePermission : (RCTPromiseResolveBlock)resolve reject : (RCTPromiseRejectBlock)reject);
 
-RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(getAvailableCameraDevices);
 RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(installFrameProcessorBindings);
 
 // Camera View Properties

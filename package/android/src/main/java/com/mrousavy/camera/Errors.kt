@@ -43,7 +43,11 @@ class InvalidTypeScriptUnionError(unionName: String, unionValue: String) :
   CameraError("parameter", "invalid-parameter", "The given value for $unionName could not be parsed! (Received: $unionValue)")
 
 class NoCameraDeviceError :
-  CameraError("device", "no-device", "No device was set! Use `getAvailableCameraDevices()` to select a suitable Camera device.")
+  CameraError(
+    "device",
+    "no-device",
+    "No device was set! Use `useCameraDevice(..)` or `Camera.getAvailableCameraDevices()` to select a suitable Camera device."
+  )
 class PixelFormatNotSupportedError(format: String) :
   CameraError("device", "pixel-format-not-supported", "The pixelFormat $format is not supported on the given Camera Device!")
 class PixelFormatNotSupportedInVideoPipelineError(format: String) :

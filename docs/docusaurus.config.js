@@ -14,6 +14,9 @@ module.exports = {
       apiKey: '64bc77eda92b7efcb7003b56815f1113',
       indexName: 'react-native-vision-camera',
     },
+    colorMode: {
+      respectPrefersColorScheme: true
+    },
     prism: {
       additionalLanguages: ['swift', 'java', 'kotlin'],
     },

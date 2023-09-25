@@ -15,19 +15,19 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
   </svg>
 </div>
 
-### What are frame processors?
+## What are frame processors?
 
-Frame processors are functions that are written in JavaScript (or TypeScript) which can be used to **process frames the camera "sees"**.
+Frame processors are functions that are written in JavaScript (or TypeScript) which can be used to process frames the camera "sees".
 Inside those functions you can call **Frame Processor Plugins**, which are high performance native functions specifically designed for certain use-cases.
 
-For example, you might want to create a [Hotdog/Not Hotdog detector app](https://apps.apple.com/us/app/not-hotdog/id1212457521) **without writing any native code**, while still **achieving native performance**:
+For example, you might want to create an object detector app without writing any native code, while still achieving native performance:
 
 ```jsx
 function App() {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet'
-    const isHotdog = detectIsHotdog(frame)
-    console.log(isHotdog ? "Hotdog!" : "Not Hotdog.")
+    const objects = detectObjects(frame)
+    console.log(`Detected ${objects.length} objects.`)
   }, [])
 
   return (
@@ -39,74 +39,101 @@ function App() {
 }
 ```
 
-Frame processors are by far not limited to Hotdog detection, other examples include:
+Frame processors are by far not limited to object detection, other examples include:
 
-* **AI** for **facial recognition**
-* **AI** for **object detection**
+* **ML** for **facial recognition**
 * Using **Tensorflow**, **MLKit Vision**, **Apple Vision** or other libraries
 * Creating **realtime video-chats** using **WebRTC** to directly send the camera frames over the network
 * Creating scanners for **QR codes**, **Barcodes** or even custom codes such as **Snapchat's SnapCodes** or **Apple's AppClips**
 * Creating **snapchat-like filters**, e.g. draw a dog-mask filter over the user's face
 * Creating **color filters** with depth-detection
-* Drawing boxes, text, overlays, or colors on the screen in realtime
-* Rendering filters and shaders such as Blur, inverted colors, beauty filter, or more on the screen
+* **Drawing** boxes, text, overlays, or colors on the screen in realtime
+* Rendering **filters** and shaders such as Blur, inverted colors, beauty filter, or more on the screen
 
-Because they are written in JS, Frame Processors are **simple**, **powerful**, **extensible** and **easy to create** while still running at **native performance**. (Frame Processors can run up to **1000 times a second**!) Also, you can use **fast-refresh** to quickly see changes while developing or publish [over-the-air updates](https://github.com/microsoft/react-native-code-push) to tweak the Hotdog detector's sensitivity in live apps without pushing a native update.
+Because they are written in JS, Frame Processors are simple, powerful, extensible and easy to create while still running at native performance. (Frame Processors can run up to 1000 times a second!) Also, you can use fast-refresh to quickly see changes while developing or publish [over-the-air updates](https://github.com/microsoft/react-native-code-push) to tweak the object detector's sensitivity in live apps without pushing a native update.
 
 :::note
-Frame Processors require [**react-native-worklets-core**](https://github.com/margelo/react-native-worklets-core) 1.0.0 or higher.
+Frame Processors require [**react-native-worklets-core**](https://github.com/margelo/react-native-worklets-core) 0.2.0 or higher.
 :::
 
-### Interacting with Frame Processors
+## The `Frame`
 
-Since Frame Processors run in [**Worklets**](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/worklets), you can directly use JS values such as React state:
+A Frame Processor is called for every Camera frame, and exposes information about the frame in the [`Frame`](/docs/api/interfaces/Frame) parameter.
+The [`Frame`](/docs/api/interfaces/Frame) parameter wraps the native GPU-based frame buffer in a C++ HostObject (a ~1.5MB buffer at 4k), and allows you to access information such as it's resolution or pixel format directly from JS:
+
+```ts
+const frameProcessor = useFrameProcessor((frame) => {
+  'worklet'
+  console.log(`Frame: ${frame.width}x${frame.height} (${frame.pixelFormat})`)
+}, [])
+```
+
+Additionally, you can also directly access the Frame's pixel data using [`toArrayBuffer()`](/docs/api/interfaces/Frame#toarraybuffer):
+
+```ts
+const frameProcessor = useFrameProcessor((frame) => {
+  'worklet'
+  if (frame.pixelFormat === 'rgb') {
+    const data = frame.toArrayBuffer()
+    console.log(`Pixel at 0,0: RGB(${data[0]}, ${data[1]}, ${data[2]})`)
+  }
+}, [])
+```
+
+It is however recommended to use native **Frame Processor Plugins** for processing, as those are much faster than JavaScript and can sometimes operate with the GPU buffer directly.
+You can simply pass a `Frame` to a native Frame Processor Plugin directly.
+
+## Interacting with Frame Processors
+
+### Access JS values
+
+Since Frame Processors run in [**Worklets**](https://github.com/margelo/react-native-worklets-core/blob/main/docs/WORKLETS.md), you can directly use JS values such as React state which are readonly-copied into the Frame Processor:
 
 ```tsx
-// can be controlled with a Slider
-const [sensitivity, setSensitivity] = useState(0.4)
+// User can look for specific objects
+const targetObject = 'banana'
 
 const frameProcessor = useFrameProcessor((frame) => {
   'worklet'
-  const isHotdog = detectIsHotdog(frame, sensitivity)
-  console.log(isHotdog ? "Hotdog!" : "Not Hotdog.")
-}, [sensitivity])
+  const objects = detectObjects(frame)
+  const bananas = objects.filter((o) => o.type === targetObject)
+  console.log(`Detected ${bananas} bananas!`)
+}, [targetObject])
 ```
 
-You can also easily read from, and assign to [**Shared Values**](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/shared-values) to create smooth, 60 FPS animations.
+### Shared Values
 
-In this example, we detect a cat in the frame - if a cat was found, we assign the `catBounds` Shared Value to the coordinates of the cat (relative to the screen) which we can then use in a `useAnimatedStyle` hook to position the red rectangle surrounding the cat. This updates in realtime on the UI Thread, and can also be smoothly animated with `withSpring` or `withTiming`.
+You can also easily read from, and assign to [**Shared Values**](https://github.com/margelo/react-native-worklets-core/blob/main/docs/WORKLETS.md#shared-values), which can be written to from inside a Frame Processor and read from any other context (either React JS, Skia, or Reanimated):
 
-```tsx {7}
-// represents position of the cat on the screen 🐈
-const catBounds = useSharedValue({ top: 0, left: 0, right: 0, bottom: 0 })
+```tsx
+const bananas = useSharedValue([])
 
-// continously sets 'catBounds' to the cat's coordinates on screen
+// Detect Bananas in Frame Processor
 const frameProcessor = useFrameProcessor((frame) => {
   'worklet'
-  catBounds.value = scanFrameForCat(frame)
-}, [catBounds])
+  const objects = detectObjects(frame)
+  bananas.value = objects.filter((o) => o.type === 'banana')
+}, [bananas])
 
-// uses 'catBounds' to position the red rectangle on screen.
-// smoothly updates on UI thread whenever 'catBounds' is changed
-const boxOverlayStyle = useAnimatedStyle(() => ({
-  position: 'absolute',
-  borderWidth: 1,
-  borderColor: 'red',
-  ...catBounds.value
-}), [catBounds])
-
-return (
-  <View>
-    <Camera {...cameraProps} frameProcessor={frameProcessor} />
-    // draws a red rectangle on the screen which surrounds the cat
-    <Reanimated.View style={boxOverlayStyle} />
-  </View>
-)
+// Draw bananas in a Skia Canvas
+const onDraw = useDrawCallback((canvas) => {
+  for (const banana of bananas.value) {
+    const rect = Skia.XYWHRect(banana.x,
+                               banana.y,
+                               banana.width,
+                               banana.height)
+    const paint = Skia.Paint()
+    paint.setColor(Skia.Color('red'))
+    frame.drawRect(rect, paint)
+  }
+})
 ```
+
+### Call functions
 
 And you can also call back to the React-JS thread by using `createRunInJsFn(...)`:
 
-```tsx {1}
+```tsx
 const onQRCodeDetected = Worklets.createRunInJsFn((qrCode: string) => {
   navigation.push("ProductPage", { productId: qrCode })
 })
@@ -120,14 +147,20 @@ const frameProcessor = useFrameProcessor((frame) => {
 }, [onQRCodeDetected])
 ```
 
+## Threading
+
+By default, Frame Processors run synchronously with the Camera pipeline. Anything that takes longer than one Frame interval might block the Camera from streaming new Frames.
+For example, if your Camera is running at **30 FPS**, your Frame Processor has **33ms** to finish executing before the next Frame is dropped. At **60 FPS**, you only have **16ms**.
+
 ### Running asynchronously
 
-Since Frame Processors run synchronously with the Camera Pipeline, anything taking longer than one Frame interval might block the Camera from streaming new Frames. To avoid this, you can use `runAsync` to run code asynchronously on a different Thread:
+For longer running processing, you can use [`runAsync(..)`](/docs/api/#runasync) to run code asynchronously on a different Thread:
 
 ```ts
 const frameProcessor = useFrameProcessor((frame) => {
   'worklet'
   console.log("I'm running synchronously at 60 FPS!")
+
   runAsync(() => {
     'worklet'
     console.log("I'm running asynchronously, possibly at a lower FPS rate!")
@@ -137,12 +170,13 @@ const frameProcessor = useFrameProcessor((frame) => {
 
 ### Running at a throttled FPS rate
 
-Some Frame Processor Plugins don't need to run on every Frame, for example a Frame Processor that detects the brightness in a Frame only needs to run twice per second:
+Some Frame Processor Plugins don't need to run on every Frame, for example a Frame Processor that detects the brightness in a Frame only needs to run twice per second. You can achieve this by using [`runAtTargetFps(..)`](/docs/api/#runAtTargetFps):
 
 ```ts
 const frameProcessor = useFrameProcessor((frame) => {
   'worklet'
   console.log("I'm running synchronously at 60 FPS!")
+
   runAtTargetFps(2, () => {
     'worklet'
     console.log("I'm running synchronously at 2 FPS!")
@@ -150,9 +184,22 @@ const frameProcessor = useFrameProcessor((frame) => {
 }, [])
 ```
 
-### Using Frame Processor Plugins
+## Native Frame Processor Plugins
 
-Frame Processor Plugins are distributed through npm. To install the [**vision-camera-image-labeler**](https://github.com/mrousavy/vision-camera-image-labeler) plugin, run:
+Since JavaScript is slower than native languages, it is recommended to use native Frame Processor Plugins for heavy processing.
+Such native plugins benefit of faster languages (Objective-C/Swift, Java/Kotlin, or C++), and can make use of CPU-Vector- or GPU-acceleration.
+
+### Creating native Frame Processor Plugins
+
+VisionCamera provides an easy-to-use API for creating native Frame Processor Plugins, which are used to either wrap existing algorithms (example: ["MLKit Face Detection"](https://developers.google.com/ml-kit/vision/face-detection)), or build your own custom algorithms.
+It's binding point is a simple callback function that gets called with the native frame type (`CMSampleBuffer` or `Image`), that you can use for any kind of processing.
+The native plugin can accept parameters (e.g. for configuration) and return any kind of values for result, which are bridged through JSI.
+
+See: ["Creating Frame Processor Plugins"](/docs/guides/frame-processors-plugins-overview).
+
+### Using Community Plugins
+
+Community Frame Processor Plugins are distributed through npm. To install the [**vision-camera-image-labeler**](https://github.com/mrousavy/vision-camera-image-labeler) plugin, run:
 
 ```bash
 npm i vision-camera-image-labeler
@@ -169,53 +216,26 @@ const frameProcessor = useFrameProcessor((frame) => {
 }, [])
 ```
 
-Check out [**Frame Processor community plugins**](/docs/guides/frame-processor-plugin-list) to discover plugins, or [**start creating a plugin yourself**](/docs/guides/frame-processors-plugins-overview)!
+Check out [Frame Processor community plugins](/docs/guides/frame-processor-plugin-list) to discover available community plugins.
 
-### Selecting a Format for a Frame Processor
+## Selecting a Format for a Frame Processor
 
 When running frame processors, it is often important to choose an appropriate [format](/docs/guides/formats). Here are some general tips to consider:
 
-* If you are running heavy AI/ML calculations in your frame processor, make sure to [select a format](/docs/guides/formats) that has a lower resolution to optimize it's performance.
-* Sometimes a frame processor plugin only works with specific [pixel formats](/docs/api/interfaces/CameraDeviceFormat#pixelformat). Some plugins (like MLKit) don't work with `x420`.
+* If you are running heavy AI/ML calculations in your frame processor, make sure to [select a format](/docs/guides/formats) that has a lower resolution to optimize it's performance. You can also resize the Frame on-demand.
+* Sometimes a frame processor plugin only works with specific [pixel formats](/docs/api/interfaces/CameraDeviceFormat#pixelformats). Some plugins (like Tensorflow Lite Models) don't work with `yuv`, so use a [`pixelFormat`](/docs/api/interfaces/CameraProps#pixelFormat) of `rgb` instead.
+* Some Frame Processor plugins don't work with HDR formats. In this case you need to disable [`hdr`](/docs/api/interfaces/CameraProps#hdr).
 
-### Benchmarks
+## Benchmarks
 
 Frame Processors are _really_ fast. I have used [MLKit Vision Image Labeling](https://firebase.google.com/docs/ml-kit/ios/label-images) to label 4k Camera frames in realtime, and measured the following results:
 
 * Fully natively (written in pure Objective-C, no React interaction at all), I have measured an average of **68ms** per call.
 * As a Frame Processor Plugin (written in Objective-C, called through a JS Frame Processor function), I have measured an average of **69ms** per call.
 
-This means that **the Frame Processor API only takes ~1ms longer than a fully native implementation**, making it **the fastest and easiest way to run any sort of Frame Processing in React Native**.
+This means that the Frame Processor API only takes ~1ms longer than a fully native implementation, making it **the fastest and easiest way to run any sort of Frame Processing in React Native**.
 
-> All measurements are recorded on an iPhone 11 Pro, benchmarked total execution time of the [`captureOutput`](https://developer.apple.com/documentation/avfoundation/avcapturevideodataoutputsamplebufferdelegate/1385775-captureoutput) function by using [`CFAbsoluteTimeGetCurrent`](https://developer.apple.com/documentation/corefoundation/1543542-cfabsolutetimegetcurrent). Running smaller images (lower than 4k resolution) is much quicker and many algorithms can even run at 60 FPS.
-
-### Avoiding Frame-drops
-
-Frame Processors will be **synchronously** called for each frame the Camera sees and have to finish executing before the next frame arrives, otherwise the next frame(s) will be dropped. For a frame rate of **30 FPS**, you have about **33ms** to finish processing frames. For a QR Code Scanner, **5 FPS** (200ms) might suffice, while a object tracking AI might run at the same frame rate as the Camera itself (e.g. **60 FPS** (16ms)).
-
-### ESLint react-hooks plugin
-
-If you are using the [react-hooks ESLint plugin](https://www.npmjs.com/package/eslint-plugin-react-hooks), make sure to add `useFrameProcessor` to `additionalHooks` inside your ESLint config. (See ["advanced configuration"](https://www.npmjs.com/package/eslint-plugin-react-hooks#advanced-configuration))
-
-### Technical
-
-#### Frame Processors
-
-**Frame Processors** are JS functions that will be **workletized** using [react-native-worklets-core](https://github.com/margelo/react-native-worklets-core). They are created on a **parallel camera thread** using a separate JavaScript Runtime (_"VisionCamera JS-Runtime"_) and are **invoked synchronously** (using JSI) without ever going over the bridge. In a **Frame Processor** you can write normal JS code, call back to the React-JS Thread (e.g. `setState`), use [Shared Values](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/shared-values/) and call **Frame Processor Plugins**.
-
-#### Frame Processor Plugins
-
-**Frame Processor Plugins** are native functions (written in Objective-C, Swift, C++, Java or Kotlin) that are injected into the VisionCamera JS-Runtime. They can be **synchronously called** from your JS Frame Processors (using JSI) without ever going over the bridge. Because VisionCamera provides an easy-to-use plugin API, you can easily create a **Frame Processor Plugin** yourself. Some examples include [Barcode Scanning](https://developers.google.com/ml-kit/vision/barcode-scanning), [Face Detection](https://developers.google.com/ml-kit/vision/face-detection), [Image Labeling](https://developers.google.com/ml-kit/vision/image-labeling), [Text Recognition](https://developers.google.com/ml-kit/vision/text-recognition) and more.
-
-> Learn how to [**create Frame Processor Plugins**](frame-processors-plugins-overview), or check out the [**example Frame Processor Plugin for iOS**](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/example/ios/Frame%20Processor%20Plugins/Example%20Plugin%20(Swift)/ExamplePluginSwift.swift) or [**Android**](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/example/android/app/src/main/java/com/mrousavy/camera/example/ExampleFrameProcessorPlugin.java).
-
-#### The `Frame` object
-
-The Frame Processor gets called with a `Frame` object, which is a **JSI HostObject**. It holds a reference to the native (C++) Frame Image Buffer (~10 MB in size) and exposes properties such as `width`, `height`, `bytesPerRow` and more to JavaScript so you can synchronously access them. The `Frame` object can be passed around in JS, as well as returned from- and passed to a native **Frame Processor Plugin**.
-
-> See [**this tweet**](https://twitter.com/mrousavy/status/1412300883149393921) for more information.
-
-### Disabling Frame Processors
+## Disabling Frame Processors
 
 The Frame Processor API spawns a secondary JavaScript Runtime which consumes a small amount of extra CPU and RAM. Additionally, compile time increases since Frame Processors are written in native C++. If you're not using Frame Processors at all, you can disable them:
 
@@ -228,7 +248,7 @@ The Frame Processor API spawns a secondary JavaScript Runtime which consumes a s
   ]}>
 <TabItem value="rn">
 
-#### Android
+### Android
 
 Inside your `gradle.properties` file, add the `disableFrameProcessors` flag:
 
@@ -238,7 +258,7 @@ VisionCamera_disableFrameProcessors=true
 
 Then, clean and rebuild your project.
 
-#### iOS
+### iOS
 
 Inside your `Podfile`, add the `VCDisableFrameProcessors` flag:
 

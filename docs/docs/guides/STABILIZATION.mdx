@@ -1,0 +1,79 @@
+---
+id: stabilization
+title: Video Stabilization
+sidebar_label: Video Stabilization
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+## What is Video Stabilization?
+
+Video Stabilization is an algorithm that stabilizes the recorded video to smoothen any jitters, shaking, or abrupt movements from the user's camera movement.
+
+<div align="center">
+  <img src="/img/action_mode_demo.gif" width="65%" />
+</div>
+
+There are multiple different approaches to Video Stabilization, either software- or hardware-based. Video Stabilization always crops the image to a smaller view area so it has room to shift the image around, so expect a "zoomed-in" effect. Also, since Video Stabilization is a complex algorithm, enabling it will increase the time the Camera takes to initialize.
+
+### Software Based Video Stabilization
+
+A software-based Video Stabilization mode uses CPU or GPU based algorithms that keep track of the camera movement over time by using multiple past frames to compare the change in pixels.
+
+### Hardware Based Video Stabilization
+
+Hardware-based Video Stabilization algorithms work with the gyroscope sensor on the device and an actual moving part on the Camera lens to immediately cancel out any abrupt movements like jitters or shaking from the Camera.
+
+## Using Video Stabilization
+
+To use Video Stabilization, you need to select a format (see ["Camera Formats"](formats)) that supports the given Video Stabilization mode:
+
+<Tabs
+  groupId="component-style"
+  defaultValue="hooks"
+  values={[
+    {label: 'Hooks API', value: 'hooks'},
+    {label: 'Imperative API', value: 'imperative'}
+  ]}>
+<TabItem value="hooks">
+
+```ts
+const format = useCameraFormat(device, [
+  { videoStabilizationMode: 'cinematic-extended' }
+])
+```
+
+</TabItem>
+<TabItem value="imperative">
+
+```ts
+const format = getCameraFormat(device, [
+  { videoStabilizationMode: 'cinematic-extended' }
+])
+```
+
+</TabItem>
+</Tabs>
+
+Then, pass the `format` to the Camera and enable the `videoStabilizationMode` prop if it is supported:
+
+```tsx
+const format = ...
+const supportsVideoStabilization = format.videoStabilizationModes.includes('cinematic-extended')
+
+return (
+  <Camera
+    {...props}
+    format={format}
+    videoStabilizationMode={supportsVideoStabilization}
+  />
+)
+```
+
+Now, the video pipeline will stabilize frames over time.
+
+<br />
+
+#### 🚀 Next section: [Performance](performance)

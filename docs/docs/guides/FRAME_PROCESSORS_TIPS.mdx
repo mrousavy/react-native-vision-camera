@@ -1,0 +1,69 @@
+---
+id: frame-processors-tips
+title: Frame Processors Tips
+sidebar_label: Frame Processors Tips
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+## Avoiding Frame-drops
+
+Frame Processors will be **synchronously** called for each frame the Camera sees and have to finish executing before the next frame arrives, otherwise the next frame(s) will be dropped. For a frame rate of **30 FPS**, you have about **33ms** to finish processing frames. At **60 FPS**, you only have **16ms**.
+If your Frame Procesor has not finished executing when the next frame arrives, the next frame will be dropped.
+
+Some general tips:
+
+- Use `runAsync(..)` if you don't need your Frame Processor to run synchronously
+- Use `runAtTargetFps(..)` if you don't need your Frame Processor to run on every frame
+- Use Shared Values (`useSharedValue(..)`) instead of React State (`useState(..)`) when sharing data
+- Prefer native Frame Processor Plugins instead of pure JavaScript based plugins
+
+### FPS Graph
+
+Use the FPS Graph to profile your Frame Processor's performance over time:
+
+```tsx
+<Camera {...props} enableFpsGraph={true} />
+```
+
+## Fast Frame Processor Plugins
+
+If you use native Frame Processor Plugins, make sure they are optimized for realtime Camera use-cases. Some general tips:
+
+- Prefer plugins that use the **[PixelFormat](/docs/api#pixelformat) `yuv` instead of `rgb`**, as `yuv` is more efficient in both memory usage and processing efficiency
+- Prefer plugins that can work with the **native Frame types** (`CMSampleBuffer` and `Image`/`HardwareBuffer`) instead of passing the byte array (`frame.toArrayBuffer()`), as the latter involves a GPU -> CPU copy
+- If you need to use the byte array (`frame.toArrayBuffer()`), prefer plugins that work with **`uint8` instead of `float`** types, as `uint8` is much more efficient
+- Prefer plugins that support **GPU acceleration**. For Tensorflow, this might be the CoreML or Metal GPU delegates
+- For operations such as resizing, **prefer GPU or CPU vector acceleration** (e.g. Accelerate/vImage) instead of just array loops
+
+## ESLint react-hooks plugin
+
+If you are using the [react-hooks ESLint plugin](https://www.npmjs.com/package/eslint-plugin-react-hooks), make sure to add `useFrameProcessor` to `additionalHooks` inside your ESLint config so dependencies are detected properly. (See ["advanced configuration"](https://www.npmjs.com/package/eslint-plugin-react-hooks#advanced-configuration))
+
+## Technical
+
+### Frame Processors
+
+Frame Processors are JS functions that will be _workletized_ using [react-native-worklets-core](https://github.com/margelo/react-native-worklets-core). They are created on a parallel camera thread using a separate JavaScript Runtime (_"VisionCamera JS-Runtime"_) and are invoked synchronously (using JSI) without ever going over the bridge. In a Frame Processor you can write normal JS code, call back to the React-JS Thread (e.g. `setState`), use [Shared Values](https://github.com/margelo/react-native-worklets-core/blob/main/docs/WORKLETS.md#shared-values) and call Frame Processor Plugins.
+
+### Frame Processor Plugins
+
+Frame Processor Plugins are native functions (written in Objective-C, Swift, C++, Java or Kotlin) that are injected into the VisionCamera JS-Runtime. They can be synchronously called from your JS Frame Processors (using JSI) without ever going over the bridge. Because VisionCamera provides an easy-to-use plugin API, you can easily create a Frame Processor Plugin yourself. Some examples include [Barcode Scanning](https://developers.google.com/ml-kit/vision/barcode-scanning), [Face Detection](https://developers.google.com/ml-kit/vision/face-detection), [Image Labeling](https://developers.google.com/ml-kit/vision/image-labeling), [Text Recognition](https://developers.google.com/ml-kit/vision/text-recognition) and more.
+
+> Learn how to [**create Frame Processor Plugins**](frame-processors-plugins-overview), or check out the [**example Frame Processor Plugin for iOS**](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/example/ios/Frame%20Processor%20Plugins/Example%20Plugin%20(Swift)/ExamplePluginSwift.swift) or [**Android**](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/example/android/app/src/main/java/com/mrousavy/camera/example/ExampleFrameProcessorPlugin.java).
+
+### The `Frame` object
+
+The Frame Processor gets called with a `Frame` object, which is a JSI HostObject. It holds a reference to the native (C++) Frame's GPU Buffer (~10 MB in size) and exposes properties such as `width`, `height`, `bytesPerRow` and more to JavaScript so you can synchronously access them. You can access the Frame data in JavaScript using `frame.toArrayBuffer()`, which copies over the GPU buffer to the CPU.
+The `Frame` object can be passed around in JS, as well as returned from- and passed to a native Frame Processor Plugin.
+
+With 4k Frames, roughly 1.5 GB of Frame data flow through your Frame Processor per second.
+
+> See [**this tweet**](https://twitter.com/mrousavy/status/1412300883149393921) for more information.
+
+
+<br />
+
+#### 🚀 Next section: [Zooming](/docs/guides/zooming) (or [creating a Frame Processor Plugin](/docs/guides/frame-processors-plugins-overview))

@@ -22,9 +22,9 @@ export interface CameraProps extends ViewProps {
    *
    * @example
    * ```tsx
-   * const devices = useCameraDevices('wide-angle-camera')
-   * const device = devices.back
+   * const device = useCameraDevice('back')
    *
+   * if (device == null) return <NoCameraErrorView />
    * return (
    *   <Camera
    *     device={device}
@@ -122,13 +122,13 @@ export interface CameraProps extends ViewProps {
   /**
    * Specify the frames per second this camera should use. Make sure the given `format` includes a frame rate range with the given `fps`.
    *
-   * Requires `format` to be set.
+   * Requires `format` to be set that supports the given `fps`.
    */
   fps?: number;
   /**
    * Enables or disables HDR on this camera device. Make sure the given `format` supports HDR mode.
    *
-   * Requires `format` to be set.
+   * Requires `format` to be set that supports `photoHDR`/`videoHDR`.
    */
   hdr?: boolean;
   /**
@@ -155,7 +155,7 @@ export interface CameraProps extends ViewProps {
   /**
    * Enables or disables low-light boost on this camera device. Make sure the given `format` supports low-light boost.
    *
-   * Requires `format` to be set.
+   * Requires a `format` to be set that supports `lowLightBoost`.
    */
   lowLightBoost?: boolean;
   /**

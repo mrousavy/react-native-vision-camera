@@ -25,7 +25,7 @@ export interface TakePhotoOptions {
    */
   enableAutoRedEyeReduction?: boolean;
   /**
-   * Indicates whether still image stabilization will be employed when capturing the photo
+   * Indicates whether still image stabilization will be enabled when capturing the photo
    *
    * @default false
    */

@@ -4,6 +4,8 @@ title: Camera Devices
 sidebar_label: Camera Devices
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 <div>
@@ -13,93 +15,220 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
   </svg>
 </div>
 
-### What are camera devices?
+## What are Camera Devices?
 
-Camera devices are the physical (or "virtual") devices that can be used to record videos or capture photos.
+Camera Devices are the physical (or "virtual") devices that can be used to record videos or capture photos.
 
-* **Physical**: A physical camera device is a **camera lens on your phone**. Different physical camera devices have different specifications, such as different capture formats, field of views, frame rates, focal lengths, and more. Some phones have multiple physical camera devices.
+* **Physical**: A physical Camera Device is a **camera lens on your phone**. Different physical Camera Devices have different specifications, such as different capture formats, resolutions, zoom levels, and more. Some phones have multiple physical Camera Devices.
 
-  > Examples: _"Backside Wide-Angle Camera"_, _"Frontside Wide-Angle Camera (FaceTime HD)"_, _"Ultra-Wide-Angle back camera"_.
-
-* **Virtual**: A virtual camera device is a **combination of one or more physical camera devices**, and provides features such as _virtual-device-switchover_ while zooming or _combined photo delivery_ from all physical cameras to produce higher quality images.
+  > Examples: _"Backside Wide-Angle Camera"_, _"Frontside Wide-Angle Camera (FaceTime HD)"_, _"Ultra-Wide-Angle back camera"_
+* **Virtual**: A virtual camera device is a **combination of one or more physical camera devices**, and provides features such as _virtual-device-switchover_ while zooming (see video on the right) or _combined photo delivery_ from all physical cameras to produce higher quality images.
 
   > Examples: _"Triple-Camera"_, _"Dual-Wide-Angle Camera"_
 
-### Get available camera devices
+## Select the default Camera
 
-To get a list of all available camera devices, use [the `getAvailableCameraDevices` function](/docs/api/classes/Camera#getavailablecameradevices):
+If you simply want to use the default [`CameraDevice`](/docs/api/interfaces/CameraDevice), you can just use whatever is available:
+
+<Tabs
+  groupId="component-style"
+  defaultValue="hooks"
+  values={[
+    {label: 'Hooks API', value: 'hooks'},
+    {label: 'Imperative API', value: 'imperative'}
+  ]}>
+<TabItem value="hooks">
 
 ```ts
-const devices = await Camera.getAvailableCameraDevices()
+const device = useCameraDevice('back')
 ```
 
-Each camera device provides properties describing the features of this device. For example, a camera device provides the `hasFlash` property which is `true` if the device supports activating the flash when taking photos or recording videos.
+</TabItem>
+<TabItem value="imperative">
 
-The most important properties are:
-
-* `devices`: A list of physical device types this camera device consists of. For a **single physical camera device**, this property is always an array of one element. **For virtual multi-cameras** this property contains all the physical camera devices that are combined to create this virtual multi-camera device
-* `position`: The position of the camera device relative to the phone (`front`, `back`)
-* `hasFlash`: Whether this camera device supports using the flash to take photos or record videos
-* `hasTorch`: Whether this camera device supports enabling/disabling the torch at any time ([`Camera.torch` prop](/docs/api/interfaces/CameraProps#torch))
-* `isMultiCam`: Determines whether the camera device is a virtual multi-camera device which contains multiple combined physical camera devices.
-* `minZoom`: The minimum available zoom factor. This value is often `1`. When you pass `zoom={0}` to the Camera, the `minZoom` factor will be applied.
-* `neutralZoom`: The zoom factor where the camera is "neutral". For any wide-angle cameras this property might be the same as `minZoom`, where as for ultra-wide-angle cameras ("fish-eye") this might be a value higher than `minZoom` (e.g. `2`). It is recommended that you always start at `neutralZoom` and let the user manually zoom out to `minZoom` on demand.
-* `maxZoom`: The maximum available zoom factor. When you pass `zoom={1}` to the Camera, the `maxZoom` factor will be applied.
-* `formats`: A list of all available formats (See [Camera Formats](formats))
-* `supportsFocus`: Determines whether this camera device supports focusing (See [Focusing](focusing))
-
-:::note
-See the [`CameraDevice` type](/docs/api/interfaces/CameraDevice) for full API reference
-:::
-
-For debugging purposes you can use the `id` or `name` properties to log and compare devices. You can also use the `devices` properties to determine the physical camera devices this camera device consists of, for example:
-
-* For a single Wide-Angle camera, this would be `["wide-angle-camera"]`
-* For a Triple-Camera, this would be `["wide-angle-camera", "ultra-wide-angle-camera", "telephoto-camera"]`
-
-Always choose a camera device that is best fitted for your use-case; so you might filter out any cameras that do not support flash, have low zoom values, are not on the back side of the phone, do not contain a format with high resolution or fps, and more.
-
-:::caution
-Make sure to be careful when filtering out unneeded camera devices, since not every phone supports all camera device types. Some phones don't even have front-cameras. You always want to have a camera device, even when it's not the one that has the best features.
-:::
-
-### The `useCameraDevices` hook
-
-VisionCamera provides a hook to make camera device selection a lot easier. You can specify a device type to only find devices with the given type:
-
-```tsx
-function App() {
-  const devices = useCameraDevices('wide-angle-camera')
-  const device = devices.back
-
-  if (device == null) return <LoadingView />
-  return (
-    <Camera
-      style={StyleSheet.absoluteFill}
-      device={device}
-    />
-  )
-}
+```ts
+const devices = Camera.getAvailableCameraDevices()
+const device = devices.find((d) => d.position === 'back')
 ```
 
-Or just return the "best matching camera device". This function prefers camera devices with more physical cameras, and always ranks "wide-angle" physical camera devices first.
+</TabItem>
+</Tabs>
 
-> Example: `triple-camera` > `dual-wide-camera` > `dual-camera` > `wide-angle-camera` > `ultra-wide-angle-camera` > `telephoto-camera` > ...
+And VisionCamera will automatically find the best matching [`CameraDevice`](/docs/api/interfaces/CameraDevice) for you!
 
-```tsx
-function App() {
-  const devices = useCameraDevices()
-  const device = devices.back
+**🚀 Continue with: [Camera Lifecycle](lifecycle)**
 
-  if (device == null) return <LoadingView />
-  return (
-    <Camera
-      style={StyleSheet.absoluteFill}
-      device={device}
-    />
-  )
-}
+## Custom Device Selection
+
+For advanced use-cases, you might want to select a different [`CameraDevice`](/docs/api/interfaces/CameraDevice) for your app.
+
+A [`CameraDevice`](/docs/api/interfaces/CameraDevice) consists of the following specifications:
+
+- [`id`](/docs/api/interfaces/CameraDevice#id): A unique ID used to identify this Camera Device
+- [`position`](/docs/api/interfaces/CameraDevice#position): The position of this Camera Device relative to the phone
+  - `back`: The Camera Device is located on the back of the phone
+  - `front`: The Camera Device is located on the front of the phone
+  - `external`: The Camera Device is an external device. These devices can be either:
+    - USB Camera Devices (if they support the [USB Video Class (UVC) Specification](https://en.wikipedia.org/wiki/List_of_USB_video_class_devices))
+    - [Continuity Camera Devices](https://support.apple.com/en-us/HT213244) (e.g. your iPhone's or Mac's Camera connected through WiFi/Continuity)
+    - Bluetooth/WiFi Camera Devices (if they are supported in the platform-native Camera APIs)
+- [`physicalDevices`](/docs/api/interfaces/CameraDevice#physicalDevices): The physical Camera Devices (lenses) this Camera Device consists of. This can either be one of these values ("physical" device) or any combination of these values ("virtual" device):
+  - `ultra-wide-angle-camera`: The "fish-eye" camera for 0.5x zoom
+  - `wide-angle-camera`: The "default" camera for 1x zoom
+  - `telephoto-camera`: A zoomed-in camera for 3x zoom
+- [`sensorOrientation`](/docs/api/interfaces/CameraDevice#sensorOrientation): The orientation of the Camera sensor/lens relative to the phone. Cameras are usually in `landscapeLeft` orientation, meaning they are rotated by 90°. This includes their resolutions, so a 4k format might be 3840x2160, not 2160x3840
+- [`minZoom`](/docs/api/interfaces/CameraDevice#minZoom): The minimum possible zoom factor for this Camera Device. If this is a multi-cam, this is the point where the device with the widest field of view is used (e.g. ultra-wide)
+- [`maxZoom`](/docs/api/interfaces/CameraDevice#maxZoom): The maximum possible zoom factor for this Camera Device. If this is a multi-cam, this is the point where the device with the lowest field of view is used (e.g. telephoto)
+- [`neutralZoom`](/docs/api/interfaces/CameraDevice#neutralZoom): A value between `minZoom` and `maxZoom` where the "default" Camera Device is used (e.g. wide-angle). When using multi-cams, make sure to start off at this zoom level, so the user can optionally zoom out to the ultra-wide-angle Camera instead of already starting zoomed out
+- [`formats`](/docs/api/interfaces/CameraDevice#formats): The list of [`CameraDeviceFormat`s](/docs/api/interfaces/CameraDeviceFormat) (See ["Camera Formats"](/docs/guides/formats)) this Camera Device supports. A format specifies:
+  - Video Resolution (see ["Formats: Video Resolution"](/docs/guides/formats#video-resolution))
+  - Photo Resolution (see ["Formats: Photo Resolution"](/docs/guides/formats#photo-resolution))
+  - FPS (see ["Formats: FPS"](/docs/guides/formats#fps))
+  - Video Stabilization Mode (see: ["Formats: Video Stabilization Mode"](/docs/guides/formats#videoStabilization))
+  - Pixel Format (see: ["Formats: Pixel Format"](/docs/guides/formats#pixelFormat))
+
+### Examples on an iPhone
+
+Here's a list of some Camera Devices an iPhone 13 Pro has:
+
+- Back Wide Angle Camera (`['wide-angle-camera']`)
+- Back Ultra-Wide Angle Camera (`['ultra-wide-angle-camera']`)
+- Back Telephoto Camera (`['telephoto-camera']`)
+- Back Dual Camera (Wide + Telephoto)
+- Back Dual-Wide Camera (Ultra-Wide + Wide)
+- Back Triple Camera (Ultra-Wide + Wide + Telephoto)
+- Back LiDAR Camera (Wide + LiDAR-Depth)
+- Front Wide Angle (`['wide-angle-camera']`)
+- Front True-Depth (Wide + Depth)
+
+### Selecting Multi-Cams
+
+Multi-Cams are virtual Camera Devices that consist of more than one physical Camera Device. For example:
+
+- ultra-wide + wide + telephoto = "Triple-Camera"
+- ultra-wide + wide = "Dual-Wide-Camera"
+- wide + telephoto = "Dual-Camera"
+
+Benefits of Multi-Cams:
+
+- Multi-Cams can smoothly switch between the physical Camera Devices (lenses) while zooming.
+- Multi-Cams can capture Frames from all physical Camera Devices at the same time and fuse them together to create higher-quality Photos.
+
+Downsides of Multi-Cams:
+
+- The Camera takes longer to initialize and uses more resources
+
+To use the "Triple-Camera" in your app, you can just search for a device that contains all three physical Camera Devices:
+
+<Tabs
+  groupId="component-style"
+  defaultValue="hooks"
+  values={[
+    {label: 'Hooks API', value: 'hooks'},
+    {label: 'Imperative API', value: 'imperative'}
+  ]}>
+<TabItem value="hooks">
+
+```ts
+const device = useCameraDevice('back', {
+  physicalDevices: [
+    'ultra-wide-angle-camera',
+    'wide-angle-camera',
+    'telephoto-camera'
+  ]
+})
 ```
+
+</TabItem>
+<TabItem value="imperative">
+
+```ts
+const devices = Camera.getAvailableCameraDevices()
+const device = getCameraDevice(devices, 'back', {
+  physicalDevices: [
+    'ultra-wide-angle-camera',
+    'wide-angle-camera',
+    'telephoto-camera'
+  ]
+})
+```
+
+</TabItem>
+</Tabs>
+
+This will try to find a [`CameraDevice`](/docs/api/interfaces/CameraDevice) that consists of all three physical Camera Devices, or the next best match (e.g. "Dual-Camera", or just a single wide-angle-camera) if not found. With the "Triple-Camera", we can now zoom out to a wider field of view:
+
+<div align="center">
+  <img src="/img/multi-camera.gif" width="55%" />
+</div>
+
+If you want to do the filtering/sorting fully yourself, you can also just get all devices, then implement your own filter:
+
+<Tabs
+  groupId="component-style"
+  defaultValue="hooks"
+  values={[
+    {label: 'Hooks API', value: 'hooks'},
+    {label: 'Imperative API', value: 'imperative'}
+  ]}>
+<TabItem value="hooks">
+
+```ts
+const devices = useCameraDevices()
+const device = useMemo(() => findBestDevice(devices), [devices])
+```
+
+</TabItem>
+<TabItem value="imperative">
+
+```ts
+const devices = Camera.getAvailableCameraDevices()
+const device = findBestDevice(devices)
+```
+
+</TabItem>
+</Tabs>
+
+### Selecting external Cameras
+
+VisionCamera supports using `external` Camera Devices, such as:
+- USB Camera Devices (if they support the [USB Video Class (UVC) Specification](https://en.wikipedia.org/wiki/List_of_USB_video_class_devices))
+- [Continuity Camera Devices](https://support.apple.com/en-us/HT213244) (e.g. your iPhone's or Mac's Camera connected through WiFi/Continuity)
+- Bluetooth/WiFi Camera Devices (if they are supported in the platform-native Camera APIs)
+
+Since `external` Camera Devices can be plugged in/out at any point, you need to make sure to listen for changes in the Camera Devices list when using `external` Cameras:
+
+<Tabs
+  groupId="component-style"
+  defaultValue="hooks"
+  values={[
+    {label: 'Hooks API', value: 'hooks'},
+    {label: 'Imperative API', value: 'imperative'}
+  ]}>
+<TabItem value="hooks">
+
+The hooks (`useCameraDevice(..)` and `useCameraDevices()`) already automatically listen for Camera Device changes!
+
+```ts
+const usbCamera = useCameraDevice('external')
+```
+
+</TabItem>
+<TabItem value="imperative">
+
+Add a listener by using the [`addCameraDevicesChangedListener(..)`](/docs/api/classes/Camera#addcameradeviceschangedlistener) API:
+
+```ts
+const listener = Camera.addCameraDevicesChangedListener((devices) => {
+  console.log(`Devices changed: ${devices}`)
+  this.usbCamera = devices.find((d) => d.position === "external")
+})
+// ...
+listener.remove()
+```
+
+</TabItem>
+</Tabs>
 
 <br />
 

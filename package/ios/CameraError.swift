@@ -90,9 +90,9 @@ enum DeviceError: String {
     case .configureError:
       return "Failed to lock the device for configuration."
     case .noDevice:
-      return "No device was set! Use `getAvailableCameraDevices()` to select a suitable Camera device."
+      return "No device was set! Use `useCameraDevice(..)` or `Camera.getAvailableCameraDevices()` to select a suitable Camera device."
     case .invalid:
-      return "The given Camera device was invalid. Use `getAvailableCameraDevices()` to select a suitable Camera device."
+      return "The given Camera device was invalid. Use `useCameraDevice(..)` or `Camera.getAvailableCameraDevices()` to select a suitable Camera device."
     case .flashUnavailable:
       return "The Camera Device does not have a flash unit! Make sure you select a device where `hasFlash`/`hasTorch` is true!"
     case .lowLightBoostNotSupported:
@@ -133,7 +133,7 @@ enum FormatError {
   var message: String {
     switch self {
     case .invalidFormat:
-      return "The given format was invalid. Did you check if the current device supports the given format by using `getAvailableCameraDevices(...)`?"
+      return "The given format was invalid. Did you check if the current device supports the given format in `device.formats`?"
     case let .invalidFps(fps):
       return "The given format cannot run at \(fps) FPS! Make sure your FPS is lower than `format.maxFps` but higher than `format.minFps`."
     case .invalidHdr:

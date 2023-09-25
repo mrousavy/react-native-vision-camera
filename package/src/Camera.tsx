@@ -37,18 +37,17 @@ type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>;
  *
  * Read the [VisionCamera documentation](https://react-native-vision-camera.com/) for more information.
  *
- * The `<Camera>` component's most important (and therefore _required_) properties are:
+ * The `<Camera>` component's most important properties are:
  *
- * * {@linkcode CameraProps.device | device}: Specifies the {@linkcode CameraDevice} to use. Get a {@linkcode CameraDevice} by using the {@linkcode useCameraDevice | useCameraDevice()} hook, or manually by using the {@linkcode CameraDevices.getAvailableCameraDevices CameraDevices.getAvailableCameraDevices()} function.
+ * * {@linkcode CameraProps.device | device}: Specifies the {@linkcode CameraDevice} to use. Get a {@linkcode CameraDevice} by using the {@linkcode useCameraDevice | useCameraDevice(..)} hook, or manually by using the {@linkcode CameraDevices.getAvailableCameraDevices CameraDevices.getAvailableCameraDevices()} function.
  * * {@linkcode CameraProps.isActive | isActive}: A boolean value that specifies whether the Camera should actively stream video frames or not. This can be compared to a Video component, where `isActive` specifies whether the video is paused or not. If you fully unmount the `<Camera>` component instead of using `isActive={false}`, the Camera will take a bit longer to start again.
  *
  * @example
  * ```tsx
  * function App() {
- *   const devices = useCameraDevices('wide-angle-camera')
- *   const device = devices.back
+ *   const device = useCameraDevice('back')
  *
- *   if (device == null) return <LoadingView />
+ *   if (device == null) return <NoCameraErrorView />
  *   return (
  *     <Camera
  *       style={StyleSheet.absoluteFill}
@@ -256,7 +255,7 @@ export class Camera extends React.PureComponent<CameraProps> {
   /**
    * Get a list of all available camera devices on the current phone.
    *
-   * If you use Hooks, use the `useCameraDevices()` hook instead.
+   * If you use Hooks, use the `useCameraDevices(..)` hook instead.
    *
    * * For Camera Devices attached to the phone, it is safe to assume that this will never change.
    * * For external Camera Devices (USB cameras, Mac continuity cameras, etc.) the available Camera Devices could change over time when the external Camera device gets plugged in or plugged out, so use {@link addCameraDevicesChangedListener | addCameraDevicesChangedListener(...)} to listen for such changes.

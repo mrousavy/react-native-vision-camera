@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler';
 import { CameraRuntimeError, PhotoFile, useCameraDevice, useCameraFormat, useFrameProcessor, VideoFile } from 'react-native-vision-camera';
 import { Camera } from 'react-native-vision-camera';
-import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING } from './Constants';
+import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING, SCREEN_HEIGHT, SCREEN_WIDTH } from './Constants';
 import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated';
 import { useEffect } from 'react';
 import { useIsForeground } from './hooks/useIsForeground';
@@ -49,19 +49,23 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     physicalDevices: ['ultra-wide-angle-camera', 'wide-angle-camera', 'telephoto-camera'],
   });
 
+  const [targetFps, setTargetFps] = useState(60);
+
+  const screenAspectRatio = SCREEN_HEIGHT / SCREEN_WIDTH;
   const format = useCameraFormat(device, [
-    { fps: 60 }, //
+    { fps: targetFps },
+    { videoAspectRatio: screenAspectRatio },
+    { videoResolution: 'max' },
+    { photoAspectRatio: screenAspectRatio },
+    { photoResolution: 'max' },
   ]);
 
-  //#region Memos
-  const [targetFps, setTargetFps] = useState(30);
   const fps = Math.min(format?.maxFps ?? 1, targetFps);
 
   const supportsFlash = device?.hasFlash ?? false;
   const supportsHdr = format?.supportsPhotoHDR;
-  const supports60Fps = (format?.maxFps ?? 0) >= 60;
+  const supports60Fps = useMemo(() => device?.formats.some((f) => f.maxFps >= 60), [device?.formats]);
   const canToggleNightMode = device?.supportsLowLightBoost ?? false;
-  //#endregion
 
   //#region Animated Zoom
   // This just maps the zoom factor to a percentage value.

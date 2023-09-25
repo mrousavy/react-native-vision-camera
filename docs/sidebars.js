@@ -11,6 +11,7 @@ module.exports = {
         label: 'Realtime Frame Processing',
         items: [
           'guides/frame-processors',
+          'guides/frame-processors-tips',
           'guides/frame-processor-plugin-list',
           'guides/skia-frame-processors',
           {
@@ -27,6 +28,9 @@ module.exports = {
       },
       'guides/zooming',
       'guides/focusing',
+      'guides/hdr',
+      'guides/stabilization',
+      'guides/performance',
       'guides/errors',
       'guides/mocking',
       'guides/troubleshooting',

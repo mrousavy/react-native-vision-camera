@@ -13,15 +13,42 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
   </svg>
 </div>
 
-The `<Camera>` component already provides a natively implemented zoom gesture which you can enable with the [`enableZoomGesture`](/docs/api/interfaces/CameraProps#enablezoomgesture) prop. This does not require any additional work, but if you want to setup a custom gesture, such as the one in Snapchat or Instagram where you move up your finger while recording, continue reading.
+## Native Zoom Gesture
 
-### Animation libraries
+The `<Camera>` component already provides a natively implemented zoom gesture which you can enable with the [`enableZoomGesture`](/docs/api/interfaces/CameraProps#enablezoomgesture) prop. If you don't need any additional logic in your zoom gesture, you can skip to the next section.
 
-While you can use any animation library to animate the `zoom` property (or use no animation library at all) it is recommended to use [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated) (v2) to achieve best performance. Head over to their [Installation guide](https://docs.swmansion.com/react-native-reanimated/docs/installation) to install Reanimated if you haven't already.
+**🚀 Next section: [Focusing](focusing)**
 
-### Implementation
+If you want to setup a custom gesture, such as the one in Snapchat or Instagram where you move up your finger while recording, first understand how zoom is expressed.
 
-#### Overview
+## Min, Max and Neutral Zoom
+
+A Camera device has different minimum, maximum and neutral zoom values. Those values are expressed through the `CameraDevice`'s [`minZoom`](/docs/api/interfaces/CameraDevice#minzoom), [`maxZoom`](/docs/api/interfaces/CameraDevice#maxzoom) and [`neutralZoom`](/docs/api/interfaces/CameraDevice#neutralzoom) props, and are represented in "scale". So if the `maxZoom` property of a device is `2`, that means the view can be enlarged by twice it's zoom, aka the viewport halves.
+
+* The `minZoom` value is always `1`.
+* The `maxZoom` value can have very high values (such as `128`), but often you want to clamp this value to something realistic like `16`.
+* The `neutralZoom` value is often `1`, but can be larger than `1` for devices with "fish-eye" (ultra-wide-angle) cameras. In those cases, the user expects to be at whatever zoom value `neutralZoom` is (e.g. `2`) per default, and if he tries to zoom out even more, he goes to `minZoom` (`1`), which switches over to the "fish-eye" (ultra-wide-angle) camera as seen in this GIF:
+
+<div align="center">
+  <img src="/img/multi-camera.gif" width="55%" />
+</div>
+
+The Camera's `zoom` property expects values to be in the same "factor" scale as the `minZoom`, `neutralZoom` and `maxZoom` values - so if you pass `zoom={device.minZoom}` it is at the minimum available zoom, where as if you pass `zoom={device.maxZoom}` the maximum zoom value possible is zoomed in. It is recommended that you start at `device.neutralZoom` and let the user manually zoom out to the fish-eye camera on demand (if available).
+
+## Logarithmic scale
+
+A Camera's `zoom` property is represented in a **logarithmic scale**. That means, increasing from `1` to `2` will appear to be a much larger offset than increasing from `127` to `128`. If you want to implement a zoom gesture (`<PinchGestureHandler>`, `<PanGestureHandler>`), try to flatten the `zoom` property to a **linear scale** by raising it **exponentially**. (`zoom.value ** 2`)
+
+## Pinch-to-zoom
+
+The above example only demonstrates how to animate the `zoom` property. To actually implement pinch-to-zoom or pan-to-zoom, take a look at the [VisionCamera example app](https://github.com/mrousavy/react-native-vision-camera/tree/main/package/example), the pinch-to-zoom gesture can be found [here](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/example/src/views/CaptureButton.tsx#L189-L208), and the pan-to-zoom gesture can be found [here](https://github.com/mrousavy/react-native-vision-camera/blob/d8551792e97eaa6fa768f54059ffce054bf748d9/example/src/views/CaptureButton.tsx#L185-L205). They implement a real world use-case, where the maximum zoom value is clamped to a realistic value, and the zoom responds very gracefully by using a logarithmic scale.
+
+
+## Implementation (Reanimated)
+
+While you can use any animation library to animate the `zoom` property (or use no animation library at all) it is recommended to use [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated) to achieve best performance. Head over to their [Installation guide](https://docs.swmansion.com/react-native-reanimated/docs/installation) to install Reanimated if you haven't already.
+
+### Overview
 
 1. Make the Camera View animatable using `createAnimatedComponent`
 2. Make the Camera's `zoom` property animatable using `addWhitelistedNativeProps`
@@ -29,7 +56,7 @@ While you can use any animation library to animate the `zoom` property (or use n
 4. Use [`useAnimatedProps`](https://docs.swmansion.com/react-native-reanimated/docs/api/useAnimatedProps) to map the zoom SharedValue to the zoom property.
 5. We apply the animated props to the `ReanimatedCamera` component's `animatedProps` property.
 
-#### Code
+### Code
 
 The following example implements a button which smoothly zooms to a random value using [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated):
 
@@ -38,28 +65,28 @@ import Reanimated, {
   useAnimatedProps,
   useSharedValue,
   withSpring,
+  addWhitelistedNativeProps
 } from "react-native-reanimated"
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
-Reanimated.addWhitelistedNativeProps({
+addWhitelistedNativeProps({
   zoom: true,
 })
 
 export function App() {
-  const devices = useCameraDevices()
-  const device = devices.back
+  const device = useCameraDevice('back')
   const zoom = useSharedValue(0)
 
   const onRandomZoomPress = useCallback(() => {
     zoom.value = withSpring(Math.random())
-  }, [])
+  }, [zoom])
 
   const animatedProps = useAnimatedProps<Partial<CameraProps>>(
     () => ({ zoom: zoom.value }),
     [zoom]
   )
 
-  if (device == null) return <LoadingView />
+  if (device == null) return <NoCameraDeviceError />
   return (
     <>
       <ReanimatedCamera
@@ -77,28 +104,6 @@ export function App() {
   )
 }
 ```
-
-### Min, Max and Neutral Zoom
-
-A Camera device has different minimum, maximum and neutral zoom values. Those values are expressed through the `CameraDevice`'s [`minZoom`](/docs/api/interfaces/CameraDevice#minzoom), [`maxZoom`](/docs/api/interfaces/CameraDevice#maxzoom) and [`neutralZoom`](/docs/api/interfaces/CameraDevice#neutralzoom) props, and are represented in "scale". So if the `maxZoom` property of a device is `2`, that means the view can be enlarged by twice it's zoom, aka the viewport halves.
-
-* The `minZoom` value is always `1`.
-* The `maxZoom` value can have very high values (such as `128`), but often you want to clamp this value to something realistic like `16`.
-* The `neutralZoom` value is often `1`, but can be larger than `1` for devices with "fish-eye" (ultra-wide-angle) cameras. In those cases, the user expects to be at whatever zoom value `neutralZoom` is (e.g. `2`) per default, and if he tries to zoom out even more, he goes to `minZoom` (`1`), which switches over to the "fish-eye" (ultra-wide-angle) camera as seen in this GIF:
-
-<div align="center">
-  <img src="/img/multi-camera.gif" width="45%" />
-</div>
-
-The Camera's `zoom` property expects values to be in the same "factor" scale as the `minZoom`, `neutralZoom` and `maxZoom` values - so if you pass `zoom={device.minZoom}` it is at the minimum available zoom, where as if you pass `zoom={device.maxZoom}` the maximum zoom value possible is zoomed in. It is recommended that you start at `device.neutralZoom` and let the user manually zoom out to the fish-eye camera on demand (if available).
-
-### Logarithmic scale
-
-A Camera's `zoom` property is represented in a **logarithmic scale**. That means, increasing from `1` to `2` will appear to be a much larger offset than increasing from `127` to `128`. If you want to implement a zoom gesture (`<PinchGestureHandler>`, `<PanGestureHandler>`), try to flatten the `zoom` property to a **linear scale** by raising it **exponentially**. (`zoom.value ** 2`)
-
-### Pinch-to-zoom
-
-The above example only demonstrates how to animate the `zoom` property. To actually implement pinch-to-zoom or pan-to-zoom, take a look at the [VisionCamera example app](https://github.com/mrousavy/react-native-vision-camera/tree/main/package/example), the pinch-to-zoom gesture can be found [here](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/example/src/views/CaptureButton.tsx#L189-L208), and the pan-to-zoom gesture can be found [here](https://github.com/mrousavy/react-native-vision-camera/blob/d8551792e97eaa6fa768f54059ffce054bf748d9/example/src/views/CaptureButton.tsx#L185-L205). They implement a real world use-case, where the maximum zoom value is clamped to a realistic value, and the zoom responds very gracefully by using a logarithmic scale.
 
 <br />
 
