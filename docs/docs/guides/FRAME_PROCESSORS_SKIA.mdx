@@ -15,7 +15,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
   </svg>
 </div>
 
-### Skia Frame Processors
+## Skia Frame Processors
 
 It is technically pretty difficult to draw onto a Camera Frame and have it rendered into the resulting photo or video in realtime, but I have built a working proof of concept of that using Metal/OpenGL and [Skia](https://skia.org) straight in VisionCamera.
 
@@ -61,7 +61,9 @@ const frameProcessor = useSkiaFrameProcessor((frame) => {
 }, [])
 ```
 
-While this API was originally planned for V3, I decided to remove it again because VisionCamera got insanely complex with that code integrated (custom Metal/OpenGL rendering pipeline with intermediate steps and tons of build setup) and I wanted to keep VisionCamera lean so other users aren't affected by build issues caused by Skia or those GPU APIs. See [PR #1740](https://github.com/mrousavy/react-native-vision-camera/pull/1740) for more information.
+## VisionCamera Skia Integration
+
+While the Skia Integration was originally planned for V3, I decided to remove it again because VisionCamera got insanely complex with that code integrated (custom Metal/OpenGL rendering pipeline with intermediate steps and tons of build setup, and fully custom Skia Preview View) and I wanted to keep VisionCamera lean so other users aren't affected by build issues caused by Skia or those GPU APIs. See [PR #1740](https://github.com/mrousavy/react-native-vision-camera/pull/1740) for more information.
 
 At my app development agency, [Margelo](https://margelo.io), we have worked a lot with 2D and 3D graphics and Camera realtime processing (see the Snapchat-style mask filter on our website for example - that is running in VisionCamera/React Native!), if you need this feature [reach out to us](https://margelo.io#contact) and we'll build a customized/tailored solution for your company! :)
 

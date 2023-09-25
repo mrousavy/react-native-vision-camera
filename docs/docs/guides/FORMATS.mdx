@@ -12,18 +12,18 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
   <img align="right" width="283" src={useBaseUrl("img/example.png")} />
 </div>
 
-### What are camera formats?
+## What are camera formats?
 
 Each camera device (see ["Camera Devices"](devices)) provides a number of formats that have different specifications.
 There are formats specifically designed for high-resolution photo capture (but lower FPS), or formats that are designed for slow-motion video capture which have frame-rates of up to 240 FPS (but lower resolution).
 
-### What if I don't want to choose a format?
+## What if I don't want to choose a format?
 
 If you don't want to specify a Camera Format, you don't have to. The Camera automatically chooses the best matching format for the current camera device. This is why the Camera's `format` property is _optional_.
 
 **🚀 Continue with: [Taking Photos/Recording Videos](./capturing)**
 
-### Choosing custom formats
+## Choosing custom formats
 
 To understand a bit more about camera formats, you first need to understand a few "general camera basics":
 
@@ -148,7 +148,7 @@ const format = getCameraFormat(device, [
 </TabItem>
 </Tabs>
 
-### Camera Props
+## Camera Props
 
 The `Camera` View provides a few props that depend on the specified `format`. For example, you can only set the `fps` prop to a value that is supported by the current `format`. So if you have a format that supports 240 FPS, you can set the `fps` to `240`:
 

@@ -15,7 +15,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
   </svg>
 </div>
 
-### What are Camera Devices?
+## What are Camera Devices?
 
 Camera Devices are the physical (or "virtual") devices that can be used to record videos or capture photos.
 
@@ -26,7 +26,7 @@ Camera Devices are the physical (or "virtual") devices that can be used to recor
 
   > Examples: _"Triple-Camera"_, _"Dual-Wide-Angle Camera"_
 
-### Select the default Camera
+## Select the default Camera
 
 If you simply want to use the default [`CameraDevice`](/docs/api/interfaces/CameraDevice), you can just use whatever is available:
 
@@ -58,7 +58,7 @@ And VisionCamera will automatically find the best matching [`CameraDevice`](/doc
 
 **🚀 Continue with: [Camera Lifecycle](lifecycle)**
 
-### Custom Device Selection
+## Custom Device Selection
 
 For advanced use-cases, you might want to select a different [`CameraDevice`](/docs/api/interfaces/CameraDevice) for your app.
 
@@ -87,7 +87,7 @@ A [`CameraDevice`](/docs/api/interfaces/CameraDevice) consists of the following 
   - Video Stabilization Mode (see: ["Formats: Video Stabilization Mode"](/docs/guides/formats#videoStabilization))
   - Pixel Format (see: ["Formats: Pixel Format"](/docs/guides/formats#pixelFormat))
 
-### Selecting Multi-Cams
+## Selecting Multi-Cams
 
 Multi-Cams are virtual Camera Devices that consist of more than one physical Camera Device. For example:
 
@@ -175,7 +175,7 @@ const device = findBestDevice(devices)
 </TabItem>
 </Tabs>
 
-### Selecting external Cameras
+## Selecting external Cameras
 
 VisionCamera supports using `external` Camera Devices, such as:
 - USB Camera Devices (if they support the [USB Video Class (UVC) Specification](https://en.wikipedia.org/wiki/List_of_USB_video_class_devices))
