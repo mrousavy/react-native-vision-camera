@@ -59,6 +59,29 @@ Frame Processors require [**react-native-worklets-core**](https://github.com/mar
 ## The `Frame`
 
 A Frame Processor is called for every Camera frame, and exposes information about the frame in the [`Frame`](/docs/api/interfaces/Frame) parameter.
+The [`Frame`](/docs/api/interfaces/Frame) parameter wraps the native GPU-based frame buffer in a C++ HostObject (a ~1.5MB buffer at 4k), and allows you to access information such as it's resolution or pixel format directly from JS:
+
+```ts
+const frameProcessor = useFrameProcessor((frame) => {
+  'worklet'
+  console.log(`Frame: ${frame.width}x${frame.height} (${frame.pixelFormat})`)
+}, [])
+```
+
+Additionally, you can also directly access the Frame's pixel data using [`toArrayBuffer()`](/docs/api/interfaces/Frame#toarraybuffer):
+
+```ts
+const frameProcessor = useFrameProcessor((frame) => {
+  'worklet'
+  if (frame.pixelFormat === 'rgb') {
+    const data = frame.toArrayBuffer()
+    console.log(`Pixel at 0,0: RGB(${data[0]}, ${data[1]}, ${data[2]})`)
+  }
+}, [])
+```
+
+It is however recommended to use native **Frame Processor Plugins** for processing, as those are much faster than JavaScript and can sometimes operate with the GPU buffer directly.
+You can simply pass a `Frame` to a native Frame Processor Plugin directly.
 
 ## Interacting with Frame Processors
 
@@ -124,9 +147,14 @@ const frameProcessor = useFrameProcessor((frame) => {
 }, [onQRCodeDetected])
 ```
 
-## Running asynchronously
+## Threading
 
-Since Frame Processors run synchronously with the Camera Pipeline, anything taking longer than one Frame interval might block the Camera from streaming new Frames. To avoid this, you can use [`runAsync(..)`](/docs/api/#runasync) to run code asynchronously on a different Thread:
+By default, Frame Processors run synchronously with the Camera pipeline. Anything that takes longer than one Frame interval might block the Camera from streaming new Frames.
+For example, if your Camera is running at **30 FPS**, your Frame Processor has **33ms** to finish executing before the next Frame is dropped. At **60 FPS**, you only have **16ms**.
+
+### Running asynchronously
+
+For longer running processing, you can use [`runAsync(..)`](/docs/api/#runasync) to run code asynchronously on a different Thread:
 
 ```ts
 const frameProcessor = useFrameProcessor((frame) => {
@@ -140,7 +168,7 @@ const frameProcessor = useFrameProcessor((frame) => {
 }, [])
 ```
 
-## Running at a throttled FPS rate
+### Running at a throttled FPS rate
 
 Some Frame Processor Plugins don't need to run on every Frame, for example a Frame Processor that detects the brightness in a Frame only needs to run twice per second. You can achieve this by using [`runAtTargetFps(..)`](/docs/api/#runAtTargetFps):
 
@@ -156,9 +184,22 @@ const frameProcessor = useFrameProcessor((frame) => {
 }, [])
 ```
 
-## Using Frame Processor Plugins
+## Native Frame Processor Plugins
 
-Frame Processor Plugins are distributed through npm. To install the [**vision-camera-image-labeler**](https://github.com/mrousavy/vision-camera-image-labeler) plugin, run:
+Since JavaScript is slower than native languages, it is recommended to use native Frame Processor Plugins for heavy processing.
+Such native plugins benefit of faster languages (Objective-C/Swift, Java/Kotlin, or C++), and can make use of CPU-Vector- or GPU-acceleration.
+
+### Creating native Frame Processor Plugins
+
+VisionCamera provides an easy-to-use API for creating native Frame Processor Plugins, which are used to either wrap existing algorithms (example: ["MLKit Face Detection"](https://developers.google.com/ml-kit/vision/face-detection)), or build your own custom algorithms.
+It's binding point is a simple callback function that gets called with the native frame type (`CMSampleBuffer` or `Image`), that you can use for any kind of processing.
+The native plugin can accept parameters (e.g. for configuration) and return any kind of values for result, which are bridged through JSI.
+
+See: ["Creating Frame Processor Plugins"](/docs/guides/frame-processors-plugins-overview).
+
+### Using Community Plugins
+
+Community Frame Processor Plugins are distributed through npm. To install the [**vision-camera-image-labeler**](https://github.com/mrousavy/vision-camera-image-labeler) plugin, run:
 
 ```bash
 npm i vision-camera-image-labeler
@@ -175,7 +216,7 @@ const frameProcessor = useFrameProcessor((frame) => {
 }, [])
 ```
 
-Check out [**Frame Processor community plugins**](/docs/guides/frame-processor-plugin-list) to discover plugins, or [**start creating a plugin yourself**](/docs/guides/frame-processors-plugins-overview)!
+Check out [Frame Processor community plugins](/docs/guides/frame-processor-plugin-list) to discover available community plugins.
 
 ## Selecting a Format for a Frame Processor
 
@@ -194,7 +235,7 @@ Frame Processors are _really_ fast. I have used [MLKit Vision Image Labeling](ht
 
 This means that the Frame Processor API only takes ~1ms longer than a fully native implementation, making it **the fastest and easiest way to run any sort of Frame Processing in React Native**.
 
-### Disabling Frame Processors
+## Disabling Frame Processors
 
 The Frame Processor API spawns a secondary JavaScript Runtime which consumes a small amount of extra CPU and RAM. Additionally, compile time increases since Frame Processors are written in native C++. If you're not using Frame Processors at all, you can disable them:
 
@@ -207,7 +248,7 @@ The Frame Processor API spawns a secondary JavaScript Runtime which consumes a s
   ]}>
 <TabItem value="rn">
 
-#### Android
+### Android
 
 Inside your `gradle.properties` file, add the `disableFrameProcessors` flag:
 
@@ -217,7 +258,7 @@ VisionCamera_disableFrameProcessors=true
 
 Then, clean and rebuild your project.
 
-#### iOS
+### iOS
 
 Inside your `Podfile`, add the `VCDisableFrameProcessors` flag:
 
