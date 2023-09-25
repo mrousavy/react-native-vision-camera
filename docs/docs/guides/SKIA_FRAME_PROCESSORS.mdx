@@ -17,9 +17,9 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 ### Drawing onto Frame Processors
 
-It is technically pretty difficult to draw onto a Camera Frame and have it rendered into the resulting photo or video in realtime, but I have built a working proof of concept of that using Metal/OpenGL and Skia straight in VisionCamera.
+It is technically pretty difficult to draw onto a Camera Frame and have it rendered into the resulting photo or video in realtime, but I have built a working proof of concept of that using Metal/OpenGL and [Skia](https://skia.org) straight in VisionCamera.
 
-This allows you to draw onto a Frame using simple JavaScript APIs:
+This allows you to draw onto a Frame using [react-native-skia](https://shopify.github.io/react-native-skia/)'s easy to use JavaScript APIs:
 
 ```ts
 const frameProcessor = useSkiaFrameProcessor((frame) => {
