@@ -28,6 +28,7 @@ module.exports = {
       },
       'guides/zooming',
       'guides/focusing',
+      'guides/hdr',
       'guides/errors',
       'guides/mocking',
       'guides/troubleshooting',
