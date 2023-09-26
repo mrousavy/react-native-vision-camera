@@ -1,5 +1,4 @@
 import { CameraDevice, CameraPosition, PhysicalCameraDeviceType } from '../CameraDevice';
-import { CameraRuntimeError } from '../CameraError';
 
 export interface DeviceFilter {
   /**
@@ -24,7 +23,7 @@ export interface DeviceFilter {
 }
 
 /**
- * Get the best matching Camera device that best satisfies your requirements using a sorting filter.
+ * Get the best matching Camera device that best satisfies your requirements using a sorting filter, or `undefined` if {@linkcode devices} does not contain any devices.
  * @param position The position of the Camera device relative to the phone.
  * @param filter The filter you want to use. The Camera device that matches your filter the closest will be returned
  * @returns The Camera device that matches your filter the closest, or `undefined` if no such Camera Device exists on the given {@linkcode position}.
@@ -36,13 +35,13 @@ export interface DeviceFilter {
  * })
  * ```
  */
-export function getCameraDevice(devices: CameraDevice[], position: CameraPosition, filter: DeviceFilter = {}): CameraDevice {
+export function getCameraDevice(devices: CameraDevice[], position: CameraPosition, filter: DeviceFilter = {}): CameraDevice | undefined {
   const explicitlyWantsNonWideAngle = filter.physicalDevices != null && !filter.physicalDevices.includes('wide-angle-camera');
 
   const filtered = devices.filter((d) => d.position === position);
 
   let bestDevice = filtered[0];
-  if (bestDevice == null) throw new CameraRuntimeError('device/invalid-device', 'No Camera Device could be found!');
+  if (bestDevice == null) return undefined;
 
   // Compare each device using a point scoring system
   for (const device of devices) {
