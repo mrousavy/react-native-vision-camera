@@ -29,34 +29,30 @@
   height: auto;
 }
 
-/* Float the image to the right */
+/* align image to the right */
 .image-container {
   float: right;
-  margin-left: 20px; /* Add some margin for spacing */
 }
 
-/* Add styles for mobile screens */
-@media (max-width: 768px) {
+/* mobile screen; align center */
+@media (max-width: 600px) {
   .image-container {
-      float: none; /* Remove float on mobile screens */
-      margin-left: 0;
-      text-align: center; /* Center the image on mobile screens */
+      float: none;
+      text-align: center;
   }
 }
 
-/* Add styles for mobile screens */
-@media (min-width: 768px) and (max-width: 1000px) {
+/* wider screen; align right again */
+@media (min-width: 600px) and (max-width: 997px) {
   .image-container {
     float: right;
-    margin-left: 20px; /* Add some margin for spacing */
   }
 }
 
-/* Add styles for mobile screens */
-@media (min-width: 1000px) and (max-width: 1200px) {
+/* even wider screen but with sidebars; align center cuz we dont have enough space for right */
+@media (min-width: 997px) and (max-width: 1145px) {
   .image-container {
-    float: none; /* Remove float on mobile screens */
-    margin-left: 0;
-    text-align: center; /* Center the image on mobile screens */
+    float: none;
+    text-align: center;
   }
 }
