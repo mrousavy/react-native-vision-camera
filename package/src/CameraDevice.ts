@@ -1,5 +1,5 @@
-import { Orientation } from './Orientation';
-import type { PixelFormat } from './PixelFormat';
+import { Orientation } from './Orientation'
+import type { PixelFormat } from './PixelFormat'
 
 /**
  * Represents the camera device position.
@@ -8,7 +8,7 @@ import type { PixelFormat } from './PixelFormat';
  * * `"front"`: Indicates that the device is physically located on the front of the phone
  * * `"external"`: The camera device is an external camera, and has no fixed facing relative to the phone. (e.g. USB or Continuity Cameras)
  */
-export type CameraPosition = 'front' | 'back' | 'external';
+export type CameraPosition = 'front' | 'back' | 'external'
 
 /**
  * Indentifiers for a physical camera (one that actually exists on the back/front of the device)
@@ -23,7 +23,7 @@ export type CameraPosition = 'front' | 'back' | 'external';
  * * `"wide-angle-camera"` + `"telephoto-camera"` = **dual camera**.
  * * `"ultra-wide-angle-camera"` + `"wide-angle-camera"` + `"telephoto-camera"` = **triple camera**.
  */
-export type PhysicalCameraDeviceType = 'ultra-wide-angle-camera' | 'wide-angle-camera' | 'telephoto-camera';
+export type PhysicalCameraDeviceType = 'ultra-wide-angle-camera' | 'wide-angle-camera' | 'telephoto-camera'
 
 /**
  * Indicates a format's autofocus system.
@@ -32,7 +32,7 @@ export type PhysicalCameraDeviceType = 'ultra-wide-angle-camera' | 'wide-angle-c
  * * `"contrast-detection"`: Indicates that autofocus is achieved by contrast detection. Contrast detection performs a focus scan to find the optimal position
  * * `"phase-detection"`: Indicates that autofocus is achieved by phase detection. Phase detection has the ability to achieve focus in many cases without a focus scan. Phase detection autofocus is typically less visually intrusive than contrast detection autofocus
  */
-export type AutoFocusSystem = 'contrast-detection' | 'phase-detection' | 'none';
+export type AutoFocusSystem = 'contrast-detection' | 'phase-detection' | 'none'
 
 /**
  * Indicates a format's supported video stabilization mode. Enabling video stabilization may introduce additional latency into the video capture pipeline.
@@ -43,7 +43,7 @@ export type AutoFocusSystem = 'contrast-detection' | 'phase-detection' | 'none';
  * * `"cinematic-extended"`: Extended software- and hardware-based stabilization that aggressively crops and transforms the video to apply a smooth cinematic stabilization.
  * * `"auto"`: Indicates that the most appropriate video stabilization mode for the device and format should be chosen automatically
  */
-export type VideoStabilizationMode = 'off' | 'standard' | 'cinematic' | 'cinematic-extended' | 'auto';
+export type VideoStabilizationMode = 'off' | 'standard' | 'cinematic' | 'cinematic-extended' | 'auto'
 
 /**
  * A Camera Device's stream-configuration format.
@@ -59,68 +59,68 @@ export interface CameraDeviceFormat {
   /**
    * The height of the highest resolution a still image (photo) can be produced in
    */
-  photoHeight: number;
+  photoHeight: number
   /**
    * The width of the highest resolution a still image (photo) can be produced in
    */
-  photoWidth: number;
+  photoWidth: number
   /**
    * The video resolutions's height
    */
-  videoHeight: number;
+  videoHeight: number
   /**
    * The video resolution's width
    */
-  videoWidth: number;
+  videoWidth: number
   /**
    * Maximum supported ISO value
    */
-  maxISO: number;
+  maxISO: number
   /**
    * Minimum supported ISO value
    */
-  minISO: number;
+  minISO: number
   /**
    * The video field of view in degrees
    */
-  fieldOfView: number;
+  fieldOfView: number
   /**
    * The maximum zoom factor (e.g. `128`)
    */
-  maxZoom: number;
+  maxZoom: number
   /**
    * Specifies whether this format supports HDR mode for video capture
    */
-  supportsVideoHDR: boolean;
+  supportsVideoHDR: boolean
   /**
    * Specifies whether this format supports HDR mode for photo capture
    */
-  supportsPhotoHDR: boolean;
+  supportsPhotoHDR: boolean
   /**
    * Specifies whether this format supports delivering depth data for photo or video capture.
    */
-  supportsDepthCapture: boolean;
+  supportsDepthCapture: boolean
   /**
    * The minum frame rate this Format needs to run at. High resolution formats often run at lower frame rates.
    */
-  minFps: number;
+  minFps: number
   /**
    * The maximum frame rate this Format is able to run at. High resolution formats often run at lower frame rates.
    */
-  maxFps: number;
+  maxFps: number
   /**
    * Specifies this format's auto focus system.
    */
-  autoFocusSystem: AutoFocusSystem;
+  autoFocusSystem: AutoFocusSystem
   /**
    * All supported video stabilization modes
    */
-  videoStabilizationModes: VideoStabilizationMode[];
+  videoStabilizationModes: VideoStabilizationMode[]
   /**
    * Specifies this format's supported pixel-formats.
    * In most cases, this is `['native', 'yuv']`.
    */
-  pixelFormats: PixelFormat[];
+  pixelFormats: PixelFormat[]
 }
 
 /**
@@ -130,7 +130,7 @@ export interface CameraDevice {
   /**
    * The native ID of the camera device instance.
    */
-  id: string;
+  id: string
   /**
    * The physical devices this `CameraDevice` consists of.
    *
@@ -139,7 +139,7 @@ export interface CameraDevice {
    *
    * You can check if the camera is a logical multi-camera by using the `isMultiCam` property.
    */
-  physicalDevices: PhysicalCameraDeviceType[];
+  physicalDevices: PhysicalCameraDeviceType[]
   /**
    * Specifies the physical position of this camera.
    * - `back`: The Camera Device is located on the back of the phone. These devices can be used for capturing what's in front of the user.
@@ -149,19 +149,19 @@ export interface CameraDevice {
    *     - [Continuity Camera Devices](https://support.apple.com/en-us/HT213244) (e.g. your iPhone's or Mac's Camera connected through WiFi/Continuity)
    *     - Bluetooth/WiFi Camera Devices (if they are supported in the platform-native Camera APIs; Camera2 and AVFoundation)
    */
-  position: CameraPosition;
+  position: CameraPosition
   /**
    * A friendly localized name describing the camera.
    */
-  name: string;
+  name: string
   /**
    * Specifies whether this camera supports enabling flash for photo capture.
    */
-  hasFlash: boolean;
+  hasFlash: boolean
   /**
    * Specifies whether this camera supports continuously enabling the flash to act like a torch (flash with video capture)
    */
-  hasTorch: boolean;
+  hasTorch: boolean
   /**
    * A property indicating whether the device is a virtual multi-camera consisting of multiple combined physical cameras.
    *
@@ -169,15 +169,15 @@ export interface CameraDevice {
    * * The Dual Camera, which supports seamlessly switching between a wide and telephoto camera while zooming and generating depth data from the disparities between the different points of view of the physical cameras.
    * * The TrueDepth Camera, which generates depth data from disparities between a YUV camera and an Infrared camera pointed in the same direction.
    */
-  isMultiCam: boolean;
+  isMultiCam: boolean
   /**
    * Minimum available zoom factor (e.g. `1`)
    */
-  minZoom: number;
+  minZoom: number
   /**
    * Maximum available zoom factor (e.g. `128`)
    */
-  maxZoom: number;
+  maxZoom: number
   /**
    * The zoom factor where the camera is "neutral".
    *
@@ -193,36 +193,36 @@ export interface CameraDevice {
    *   zoom: zoom.value
    * }))
    */
-  neutralZoom: number;
+  neutralZoom: number
   /**
    * All available formats for this camera device. Use this to find the best format for your use case and set it to the Camera's {@linkcode CameraProps.format | Camera's .format} property.
    *
    * See [the Camera Formats documentation](https://react-native-vision-camera.com/docs/guides/formats) for more information about Camera Formats.
    */
-  formats: CameraDeviceFormat[];
+  formats: CameraDeviceFormat[]
   /**
    * Whether this camera device supports low light boost.
    */
-  supportsLowLightBoost: boolean;
+  supportsLowLightBoost: boolean
   /**
    * Whether this camera supports taking photos in RAW format
    *
    * **! Work in Progress !**
    */
-  supportsRawCapture: boolean;
+  supportsRawCapture: boolean
   /**
    * Specifies whether this device supports focusing ({@linkcode Camera.focus | Camera.focus(...)})
    */
-  supportsFocus: boolean;
+  supportsFocus: boolean
   /**
    * The hardware level of the Camera.
    * - On Android, some older devices are running at a `legacy` or `limited` level which means they are running in a backwards compatible mode.
    * - On iOS, all devices are `full`.
    */
-  hardwareLevel: 'legacy' | 'limited' | 'full';
+  hardwareLevel: 'legacy' | 'limited' | 'full'
   /**
    * Represents the sensor's orientation relative to the phone.
    * For most phones this will be landscape, as Camera sensors are usually always rotated by 90 degrees (i.e. width and height are flipped).
    */
-  sensorOrientation: Orientation;
+  sensorOrientation: Orientation
 }

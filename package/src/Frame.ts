@@ -1,5 +1,5 @@
-import type { Orientation } from './Orientation';
-import { PixelFormat } from './PixelFormat';
+import type { Orientation } from './Orientation'
+import { PixelFormat } from './PixelFormat'
 
 /**
  * A single frame, as seen by the camera. This is backed by a C++ HostObject wrapping the native GPU buffer.
@@ -18,42 +18,42 @@ export interface Frame {
    * Whether the underlying buffer is still valid or not.
    * A Frame is valid as long as your Frame Processor (or a `runAsync(..)` operation) is still running
    */
-  isValid: boolean;
+  isValid: boolean
   /**
    * Returns the width of the frame, in pixels.
    */
-  width: number;
+  width: number
   /**
    * Returns the height of the frame, in pixels.
    */
-  height: number;
+  height: number
   /**
    * Returns the amount of bytes per row.
    */
-  bytesPerRow: number;
+  bytesPerRow: number
   /**
    * Returns the number of planes this frame contains.
    */
-  planesCount: number;
+  planesCount: number
   /**
    * Returns whether the Frame is mirrored (selfie camera) or not.
    */
-  isMirrored: boolean;
+  isMirrored: boolean
   /**
    * Returns the timestamp of the Frame relative to the host sytem's clock.
    */
-  timestamp: number;
+  timestamp: number
   /**
    * Represents the orientation of the Frame.
    *
    * Some ML Models are trained for specific orientations, so they need to be taken into
    * consideration when running a frame processor. See also: {@linkcode isMirrored}
    */
-  orientation: Orientation;
+  orientation: Orientation
   /**
    * Represents the pixel-format of the Frame.
    */
-  pixelFormat: PixelFormat;
+  pixelFormat: PixelFormat
 
   /**
    * Get the underlying data of the Frame as a uint8 array buffer.
@@ -73,7 +73,7 @@ export interface Frame {
    * }, [])
    * ```
    */
-  toArrayBuffer(): Uint8Array;
+  toArrayBuffer(): Uint8Array
   /**
    * Returns a string representation of the frame.
    * @example
@@ -81,7 +81,7 @@ export interface Frame {
    * console.log(frame.toString()) // -> "3840 x 2160 Frame"
    * ```
    */
-  toString(): string;
+  toString(): string
 }
 
 /** @internal */
@@ -92,12 +92,12 @@ export interface FrameInternal extends Frame {
    * This is a private API, do not use this.
    * @internal
    */
-  incrementRefCount(): void;
+  incrementRefCount(): void
   /**
    * Increment the Frame Buffer ref-count by one.
    *
    * This is a private API, do not use this.
    * @internal
    */
-  decrementRefCount(): void;
+  decrementRefCount(): void
 }

@@ -1,13 +1,13 @@
-import { Dimensions } from 'react-native';
-import { FormatFilter } from './getCameraFormat';
+import { Dimensions } from 'react-native'
+import { FormatFilter } from './getCameraFormat'
 
 type TTemplates = {
-  [key: string]: FormatFilter[];
-};
+  [key: string]: FormatFilter[]
+}
 
-const SnapchatResolution = { width: 1920, height: 1080 };
-const InstagramResolution = { width: 3840, height: 2160 };
-const ScreenAspectRatio = Dimensions.get('window').height / Dimensions.get('window').width;
+const SnapchatResolution = { width: 1920, height: 1080 }
+const InstagramResolution = { width: 3840, height: 2160 }
+const ScreenAspectRatio = Dimensions.get('window').height / Dimensions.get('window').width
 
 /**
  * Predefined templates for use in `useCameraFormat`/`getCameraFormat`.
@@ -69,4 +69,4 @@ export const Templates: TTemplates = {
     { photoAspectRatio: ScreenAspectRatio },
     { photoResolution: InstagramResolution },
   ],
-};
+}

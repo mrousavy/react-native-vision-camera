@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
-import { CameraDevice, CameraDeviceFormat } from '../CameraDevice';
-import { FormatFilter, getCameraFormat } from '../devices/getCameraFormat';
+import { useMemo } from 'react'
+import { CameraDevice, CameraDeviceFormat } from '../CameraDevice'
+import { FormatFilter, getCameraFormat } from '../devices/getCameraFormat'
 
 /**
  * Get the best matching Camera format for the given device that satisfies your requirements using a sorting filter. By default, formats are sorted by highest to lowest resolution.
@@ -22,10 +22,10 @@ import { FormatFilter, getCameraFormat } from '../devices/getCameraFormat';
  */
 export function useCameraFormat(device: CameraDevice | undefined, filters: FormatFilter[]): CameraDeviceFormat | undefined {
   const format = useMemo(() => {
-    if (device == null) return undefined;
-    return getCameraFormat(device, filters);
+    if (device == null) return undefined
+    return getCameraFormat(device, filters)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [device, JSON.stringify(filters)]);
+  }, [device, JSON.stringify(filters)])
 
-  return format;
+  return format
 }

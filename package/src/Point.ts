@@ -5,9 +5,9 @@ export interface Point {
   /**
    * The X coordinate of this Point. (double)
    */
-  x: number;
+  x: number
   /**
    * The Y coordinate of this Point. (double)
    */
-  y: number;
+  y: number
 }

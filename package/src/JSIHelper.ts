@@ -1,4 +1,4 @@
-import { CameraRuntimeError } from './CameraError';
+import { CameraRuntimeError } from './CameraError'
 
 export function assertJSIAvailable(): void {
   // Check if we are running on-device (JSI)
@@ -7,6 +7,6 @@ export function assertJSIAvailable(): void {
     throw new CameraRuntimeError(
       'system/frame-processors-unavailable',
       'Failed to initialize VisionCamera Frame Processors: React Native is not running on-device. Frame Processors can only be used when synchronous method invocations (JSI) are possible. If you are using a remote debugger (e.g. Chrome), switch to an on-device debugger (e.g. Flipper) instead.',
-    );
+    )
   }
 }

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import type { CameraDevice } from '../CameraDevice';
-import { CameraDevices } from '../CameraDevices';
+import { useEffect, useState } from 'react'
+import type { CameraDevice } from '../CameraDevice'
+import { CameraDevices } from '../CameraDevices'
 
 /**
  * Get all available Camera Devices this phone has.
@@ -10,14 +10,14 @@ import { CameraDevices } from '../CameraDevices';
  * so the result of this function might update over time.
  */
 export function useCameraDevices(): CameraDevice[] {
-  const [devices, setDevices] = useState(() => CameraDevices.getAvailableCameraDevices());
+  const [devices, setDevices] = useState(() => CameraDevices.getAvailableCameraDevices())
 
   useEffect(() => {
     const listener = CameraDevices.addCameraDevicesChangedListener((newDevices) => {
-      setDevices(newDevices);
-    });
-    return () => listener.remove();
-  }, []);
+      setDevices(newDevices)
+    })
+    return () => listener.remove()
+  }, [])
 
-  return devices;
+  return devices
 }

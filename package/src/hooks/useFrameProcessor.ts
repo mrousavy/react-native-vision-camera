@@ -1,6 +1,6 @@
-import { DependencyList, useMemo } from 'react';
-import type { Frame, FrameInternal } from '../Frame';
-import { FrameProcessor } from '../CameraProps';
+import { DependencyList, useMemo } from 'react'
+import type { Frame, FrameInternal } from '../Frame'
+import { FrameProcessor } from '../CameraProps'
 
 /**
  * Create a new Frame Processor function which you can pass to the `<Camera>`.
@@ -13,19 +13,20 @@ import { FrameProcessor } from '../CameraProps';
 export function createFrameProcessor(frameProcessor: FrameProcessor['frameProcessor'], type: FrameProcessor['type']): FrameProcessor {
   return {
     frameProcessor: (frame: Frame) => {
-      'worklet';
+      'worklet'
       // Increment ref-count by one
-      (frame as FrameInternal).incrementRefCount();
+      const internal = frame as FrameInternal
+      internal.incrementRefCount()
       try {
         // Call sync frame processor
-        frameProcessor(frame);
+        frameProcessor(frame)
       } finally {
         // Potentially delete Frame if we were the last ref (no runAsync)
-        (frame as FrameInternal).decrementRefCount();
+        internal.decrementRefCount()
       }
     },
     type: type,
-  };
+  }
 }
 
 /**
@@ -48,5 +49,5 @@ export function createFrameProcessor(frameProcessor: FrameProcessor['frameProces
  */
 export function useFrameProcessor(frameProcessor: (frame: Frame) => void, dependencies: DependencyList): FrameProcessor {
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(() => createFrameProcessor(frameProcessor, 'frame-processor'), dependencies);
+  return useMemo(() => createFrameProcessor(frameProcessor, 'frame-processor'), dependencies)
 }
