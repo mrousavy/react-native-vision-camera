@@ -15,13 +15,14 @@ export function createFrameProcessor(frameProcessor: FrameProcessor['frameProces
     frameProcessor: (frame: Frame) => {
       'worklet'
       // Increment ref-count by one
-      ;(frame as FrameInternal).incrementRefCount()
+      const internal = frame as FrameInternal
+      internal.incrementRefCount()
       try {
         // Call sync frame processor
         frameProcessor(frame)
       } finally {
         // Potentially delete Frame if we were the last ref (no runAsync)
-        (frame as FrameInternal).decrementRefCount()
+        internal.decrementRefCount()
       }
     },
     type: type,

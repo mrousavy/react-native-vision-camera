@@ -54,7 +54,8 @@ try {
       func()
     } finally {
       // Potentially delete Frame if we were the last ref
-      (frame as FrameInternal).decrementRefCount()
+      const internal = frame as FrameInternal
+      internal.decrementRefCount()
 
       isAsyncContextBusy.value = false
     }
@@ -184,7 +185,8 @@ export function runAsync(frame: Frame, func: () => void): void {
   }
 
   // Increment ref count by one
-  (frame as FrameInternal).incrementRefCount()
+  const internal = frame as FrameInternal
+  internal.incrementRefCount()
 
   isAsyncContextBusy.value = true
 
