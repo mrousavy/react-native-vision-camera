@@ -7,4 +7,4 @@
  * - `portrait-upside-down`: **180°** (home-button at the top)
  * - `landscape-right`: **270°** (home-button on the right)
  */
-export type Orientation = 'portrait' | 'portrait-upside-down' | 'landscape-left' | 'landscape-right';
+export type Orientation = 'portrait' | 'portrait-upside-down' | 'landscape-left' | 'landscape-right'

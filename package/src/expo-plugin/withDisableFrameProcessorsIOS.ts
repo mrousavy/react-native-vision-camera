@@ -1,4 +1,4 @@
-import { ConfigPlugin, withPodfileProperties } from '@expo/config-plugins';
+import { ConfigPlugin, withPodfileProperties } from '@expo/config-plugins'
 
 /**
  * Set the `disableFrameProcessors` inside of the XcodeProject.
@@ -7,7 +7,7 @@ import { ConfigPlugin, withPodfileProperties } from '@expo/config-plugins';
 export const withDisableFrameProcessorsIOS: ConfigPlugin = (c) => {
   return withPodfileProperties(c, (config) => {
     // TODO: Implement Podfile writing
-    config.ios = config.ios;
-    return config;
-  });
-};
+    config.ios = config.ios
+    return config
+  })
+}

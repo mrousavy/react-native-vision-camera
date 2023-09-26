@@ -8,7 +8,7 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "pods": "cd ios && pod install",
-    "lint": "eslint .",
+    "lint": "eslint . --fix",
     "lint-ci": "yarn lint -f ../node_modules/@firmnav/eslint-github-actions-formatter/dist/formatter.js",
     "typescript": "tsc --noEmit"
   },

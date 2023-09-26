@@ -7,6 +7,7 @@ import com.facebook.react.uimanager.ViewGroupManager
 import com.facebook.react.uimanager.annotations.ReactProp
 import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.PixelFormat
+import com.mrousavy.camera.parsers.ResizeMode
 import com.mrousavy.camera.parsers.Torch
 import com.mrousavy.camera.parsers.VideoStabilizationMode
 
@@ -126,6 +127,15 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
       addChangedPropToTransaction(view, "format")
     }
     view.format = format
+  }
+
+  @ReactProp(name = "resizeMode")
+  fun setResizeMode(view: CameraView, resizeMode: String) {
+    val newMode = ResizeMode.fromUnionValue(resizeMode)
+    if (view.resizeMode != newMode) {
+      addChangedPropToTransaction(view, "resizeMode")
+    }
+    view.resizeMode = newMode
   }
 
   // TODO: Change when TurboModules release.

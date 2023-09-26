@@ -10,10 +10,12 @@ import android.util.Size
 import android.view.Surface
 import com.mrousavy.camera.CameraQueues
 import com.mrousavy.camera.core.VideoPipeline
+import com.mrousavy.camera.extensions.bigger
 import com.mrousavy.camera.extensions.closestToOrMax
 import com.mrousavy.camera.extensions.getPhotoSizes
-import com.mrousavy.camera.extensions.getPreviewSize
+import com.mrousavy.camera.extensions.getPreviewTargetSize
 import com.mrousavy.camera.extensions.getVideoSizes
+import com.mrousavy.camera.extensions.smaller
 import java.io.Closeable
 
 class CameraOutputs(
@@ -30,7 +32,7 @@ class CameraOutputs(
     const val PHOTO_OUTPUT_BUFFER_SIZE = 3
   }
 
-  data class PreviewOutput(val surface: Surface)
+  data class PreviewOutput(val surface: Surface, val targetSize: Size? = null)
   data class PhotoOutput(val targetSize: Size? = null, val format: Int = ImageFormat.JPEG)
   data class VideoOutput(
     val targetSize: Size? = null,
@@ -63,6 +65,7 @@ class CameraOutputs(
     if (other !is CameraOutputs) return false
     return this.cameraId == other.cameraId &&
       this.preview?.surface == other.preview?.surface &&
+      this.preview?.targetSize == other.preview?.targetSize &&
       this.photo?.targetSize == other.photo?.targetSize &&
       this.photo?.format == other.photo?.format &&
       this.video?.enableRecording == other.video?.enableRecording &&
@@ -101,7 +104,18 @@ class CameraOutputs(
     // Preview output: Low resolution repeating images (SurfaceView)
     if (preview != null) {
       Log.i(TAG, "Adding native preview view output.")
-      previewOutput = SurfaceOutput(preview.surface, characteristics.getPreviewSize(), SurfaceOutput.OutputType.PREVIEW)
+      val previewSizeAspectRatio = if (preview.targetSize !=
+        null
+      ) {
+        preview.targetSize.bigger.toDouble() / preview.targetSize.smaller
+      } else {
+        null
+      }
+      previewOutput = SurfaceOutput(
+        preview.surface,
+        characteristics.getPreviewTargetSize(previewSizeAspectRatio),
+        SurfaceOutput.OutputType.PREVIEW
+      )
     }
 
     // Photo output: High quality still images (takePhoto())

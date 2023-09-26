@@ -24,7 +24,7 @@ VisionCamera is a powerful and fast Camera component for React Native. It featur
 * 🔍 Smooth zooming (Reanimated)
 * ⏯️ Fast pause and resume
 * 🌓 HDR & Night modes
-* ⚡ Highly efficient C++/GPU buffers
+* ⚡ Custom C++/GPU accelerated video pipeline (OpenGL)
 
 Install VisionCamera from npm:
 
@@ -50,10 +50,9 @@ You're looking at the V3 version of VisionCamera, which features a full rewrite 
 
 ```tsx
 function App() {
-  const devices = useCameraDevices('wide-angle-camera')
-  const device = devices.back
+  const device = useCameraDevice('back')
 
-  if (device == null) return <LoadingView />
+  if (device == null) return <NoCameraErrorView />
   return (
     <Camera
       style={StyleSheet.absoluteFill}

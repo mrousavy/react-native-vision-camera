@@ -4,8 +4,8 @@ title: Creating Frame Processor Plugins
 sidebar_label: Creating Frame Processor Plugins (iOS)
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import Tabs from '@theme/Tabs'
+import TabItem from '@theme/TabItem'
 
 ## Creating a Frame Processor Plugin for iOS
 
@@ -118,7 +118,7 @@ public class FaceDetectorFrameProcessorPlugin: FrameProcessorPlugin {
 
 6. In your `AppDelegate.m`, add the following code to `application:didFinishLaunchingWithOptions:`:
 
-```objc {5}
+```objc {5-8}
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
   ...

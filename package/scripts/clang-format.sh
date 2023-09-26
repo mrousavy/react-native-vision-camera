@@ -5,5 +5,5 @@ if which clang-format >/dev/null; then
     clang-format -style=file:./cpp/.clang-format -i "$file"
   done
 else
-  echo "warning: clang-format not installed, download from https://clang.llvm.org/docs/ClangFormat.html (or run brew install clang-format)"
+  echo "warning: clang-format not installed, install with 'brew install clang-format' (or manually from https://clang.llvm.org/docs/ClangFormat.html)"
 fi

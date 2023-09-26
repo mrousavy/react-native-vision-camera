@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B80175EC2ABDEBD000E7DE90 /* ResizeMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B80175EB2ABDEBD000E7DE90 /* ResizeMode.swift */; };
 		B80C0E00260BDDF7001699AB /* FrameProcessorPluginRegistry.m in Sources */ = {isa = PBXBuildFile; fileRef = B80C0DFF260BDDF7001699AB /* FrameProcessorPluginRegistry.m */; };
 		B80E06A0266632F000728644 /* AVAudioSession+updateCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B80E069F266632F000728644 /* AVAudioSession+updateCategory.swift */; };
 		B81BE1BF26B936FF002696CC /* AVCaptureDevice.Format+videoDimensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B81BE1BE26B936FF002696CC /* AVCaptureDevice.Format+videoDimensions.swift */; };
@@ -80,6 +81,7 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libVisionCamera.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libVisionCamera.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		B80175EB2ABDEBD000E7DE90 /* ResizeMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResizeMode.swift; sourceTree = "<group>"; };
 		B80C02EB2A6A954D001975E2 /* FrameProcessorPluginHostObject.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessorPluginHostObject.mm; sourceTree = "<group>"; };
 		B80C02EC2A6A9552001975E2 /* FrameProcessorPluginHostObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorPluginHostObject.h; sourceTree = "<group>"; };
 		B80C0DFE260BDD97001699AB /* FrameProcessorPluginRegistry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorPluginRegistry.h; sourceTree = "<group>"; };
@@ -174,6 +176,7 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				B80175EA2ABDEBBB00E7DE90 /* Types */,
 				B8DCF2D725EA940700EA5C72 /* Frame Processor */,
 				B887515E25E0102000DB86D6 /* CameraBridge.h */,
 				B84760DE2608F57D004C3180 /* CameraQueues.swift */,
@@ -199,6 +202,14 @@
 				B887516D25E0102000DB86D6 /* React Utils */,
 				134814211AA4EA7D00B7C361 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		B80175EA2ABDEBBB00E7DE90 /* Types */ = {
+			isa = PBXGroup;
+			children = (
+				B80175EB2ABDEBD000E7DE90 /* ResizeMode.swift */,
+			);
+			path = Types;
 			sourceTree = "<group>";
 		};
 		B887516125E0102000DB86D6 /* Extensions */ = {
@@ -418,6 +429,7 @@
 				B881D35E2ABC775E009B21C8 /* AVCaptureDevice+toDictionary.swift in Sources */,
 				B87B11BF2A8E63B700732EBF /* PixelFormat.swift in Sources */,
 				B88751A625E0102000DB86D6 /* CameraViewManager.swift in Sources */,
+				B80175EC2ABDEBD000E7DE90 /* ResizeMode.swift in Sources */,
 				B887519F25E0102000DB86D6 /* AVCaptureDevice.DeviceType+physicalDeviceDescriptor.swift in Sources */,
 				B8D22CDC2642DB4D00234472 /* AVAssetWriterInputPixelBufferAdaptor+initWithVideoSettings.swift in Sources */,
 				B84760DF2608F57D004C3180 /* CameraQueues.swift in Sources */,

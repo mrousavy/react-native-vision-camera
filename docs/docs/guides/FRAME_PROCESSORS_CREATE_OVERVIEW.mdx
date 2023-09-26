@@ -4,15 +4,15 @@ title: Creating Frame Processor Plugins
 sidebar_label: Overview
 ---
 
-import useBaseUrl from '@docusaurus/useBaseUrl';
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import useBaseUrl from '@docusaurus/useBaseUrl'
+import Tabs from '@theme/Tabs'
+import TabItem from '@theme/TabItem'
 
 ## Overview
 
 Frame Processor Plugins are **native functions** which can be directly called from a JS Frame Processor. (See ["Frame Processors"](frame-processors))
 
-They **receive a frame from the Camera** as an input and can return any kind of output. For example, a `detectFaces` function returns an array of detected faces in the frame:
+They receive a frame from the Camera as an input and can return any kind of output. For example, a `detectFaces` function returns an array of detected faces in the frame:
 
 ```tsx {4-5}
 function App() {
@@ -28,7 +28,7 @@ function App() {
 }
 ```
 
-To achieve **maximum performance**, the `detectFaces` function is written in a native language (e.g. Objective-C), but it will be directly called from the VisionCamera Frame Processor JavaScript-Runtime.
+For maximum performance, the `detectFaces` function is written in a native language (e.g. Objective-C), but it will be directly called from the VisionCamera Frame Processor JavaScript-Runtime through JSI.
 
 ### Types
 
@@ -80,7 +80,7 @@ Which returns a [`Frame`](https://github.com/mrousavy/react-native-vision-camera
 
 ```js
 const frameProcessor = useFrameProcessor((frame) => {
-  'worklet';
+  'worklet'
   // creates a new `Frame` that's 720x480
   const resizedFrame = resize(frame, 720, 480)
 

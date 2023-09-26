@@ -59,6 +59,12 @@ public final class CameraView: UIView {
   @objc var zoom: NSNumber = 1.0 // in "factor"
   @objc var enableFpsGraph = false
   @objc var videoStabilizationMode: NSString?
+  @objc var resizeMode: NSString = "cover" {
+    didSet {
+      previewView.resizeMode = ResizeMode(fromTypeScriptUnion: resizeMode as String)
+    }
+  }
+
   // events
   @objc var onInitialized: RCTDirectEventBlock?
   @objc var onError: RCTDirectEventBlock?
