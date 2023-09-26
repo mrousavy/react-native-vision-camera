@@ -19,7 +19,44 @@
 
 .docusaurus-highlight-code-line {
   background-color: rgb(72, 77, 91);
-  display: block;
+  display: flex;
   margin: 0 calc(-1 * var(--ifm-pre-padding));
   padding: 0 var(--ifm-pre-padding);
+}
+
+.image-container img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Float the image to the right */
+.image-container {
+  float: right;
+  margin-left: 20px; /* Add some margin for spacing */
+}
+
+/* Add styles for mobile screens */
+@media (max-width: 768px) {
+  .image-container {
+      float: none; /* Remove float on mobile screens */
+      margin-left: 0;
+      text-align: center; /* Center the image on mobile screens */
+  }
+}
+
+/* Add styles for mobile screens */
+@media (min-width: 768px) and (max-width: 1000px) {
+  .image-container {
+    float: right;
+    margin-left: 20px; /* Add some margin for spacing */
+  }
+}
+
+/* Add styles for mobile screens */
+@media (min-width: 1000px) and (max-width: 1200px) {
+  .image-container {
+    float: none; /* Remove float on mobile screens */
+    margin-left: 0;
+    text-align: center; /* Center the image on mobile screens */
+  }
 }
