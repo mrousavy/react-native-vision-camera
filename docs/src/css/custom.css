@@ -24,6 +24,10 @@
   padding: 0 var(--ifm-pre-padding);
 }
 
+img {
+  border-radius: 15px;
+}
+
 /* align image to the right */
 .image-container {
   float: right;
