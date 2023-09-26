@@ -53,7 +53,7 @@ Frame processors are by far not limited to object detection, other examples incl
 Because they are written in JS, Frame Processors are simple, powerful, extensible and easy to create while still running at native performance. (Frame Processors can run up to 1000 times a second!) Also, you can use fast-refresh to quickly see changes while developing or publish [over-the-air updates](https://github.com/microsoft/react-native-code-push) to tweak the object detector's sensitivity in live apps without pushing a native update.
 
 :::note
-Frame Processors require [**react-native-worklets-core**](https://github.com/margelo/react-native-worklets-core) 0.2.0 or higher.
+Frame Processors require [react-native-worklets-core](https://github.com/margelo/react-native-worklets-core) 0.2.0 or higher.
 :::
 
 ## The `Frame`
@@ -87,7 +87,7 @@ You can simply pass a `Frame` to a native Frame Processor Plugin directly.
 
 ### Access JS values
 
-Since Frame Processors run in [**Worklets**](https://github.com/margelo/react-native-worklets-core/blob/main/docs/WORKLETS.md), you can directly use JS values such as React state which are readonly-copied into the Frame Processor:
+Since Frame Processors run in [Worklets](https://github.com/margelo/react-native-worklets-core/blob/main/docs/WORKLETS.md), you can directly use JS values such as React state which are readonly-copied into the Frame Processor:
 
 ```tsx
 // User can look for specific objects
@@ -103,7 +103,7 @@ const frameProcessor = useFrameProcessor((frame) => {
 
 ### Shared Values
 
-You can also easily read from, and assign to [**Shared Values**](https://github.com/margelo/react-native-worklets-core/blob/main/docs/WORKLETS.md#shared-values), which can be written to from inside a Frame Processor and read from any other context (either React JS, Skia, or Reanimated):
+You can also easily read from, and assign to [Shared Values](https://github.com/margelo/react-native-worklets-core/blob/main/docs/WORKLETS.md#shared-values), which can be written to from inside a Frame Processor and read from any other context (either React JS, Skia, or Reanimated):
 
 ```tsx
 const bananas = useSharedValue([])
@@ -199,7 +199,7 @@ See: ["Creating Frame Processor Plugins"](/docs/guides/frame-processors-plugins-
 
 ### Using Community Plugins
 
-Community Frame Processor Plugins are distributed through npm. To install the [**vision-camera-image-labeler**](https://github.com/mrousavy/vision-camera-image-labeler) plugin, run:
+Community Frame Processor Plugins are distributed through npm. To install the [vision-camera-image-labeler](https://github.com/mrousavy/vision-camera-image-labeler) plugin, run:
 
 ```bash
 npm i vision-camera-image-labeler

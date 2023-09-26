@@ -52,7 +52,7 @@ Frame Processors are JS functions that will be _workletized_ using [react-native
 
 Frame Processor Plugins are native functions (written in Objective-C, Swift, C++, Java or Kotlin) that are injected into the VisionCamera JS-Runtime. They can be synchronously called from your JS Frame Processors (using JSI) without ever going over the bridge. Because VisionCamera provides an easy-to-use plugin API, you can easily create a Frame Processor Plugin yourself. Some examples include [Barcode Scanning](https://developers.google.com/ml-kit/vision/barcode-scanning), [Face Detection](https://developers.google.com/ml-kit/vision/face-detection), [Image Labeling](https://developers.google.com/ml-kit/vision/image-labeling), [Text Recognition](https://developers.google.com/ml-kit/vision/text-recognition) and more.
 
-> Learn how to [**create Frame Processor Plugins**](frame-processors-plugins-overview), or check out the [**example Frame Processor Plugin for iOS**](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/example/ios/Frame%20Processor%20Plugins/Example%20Plugin%20(Swift)/ExamplePluginSwift.swift) or [**Android**](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/example/android/app/src/main/java/com/mrousavy/camera/example/ExampleFrameProcessorPlugin.java).
+> Learn how to [create Frame Processor Plugins](frame-processors-plugins-overview), or check out the [example Frame Processor Plugin for iOS](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/example/ios/Frame%20Processor%20Plugins/Example%20Plugin%20(Swift)/ExamplePluginSwift.swift) or [Android](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/example/android/app/src/main/java/com/mrousavy/camera/example/ExampleFrameProcessorPlugin.java).
 
 ### The `Frame` object
 
@@ -61,7 +61,7 @@ The `Frame` object can be passed around in JS, as well as returned from- and pas
 
 With 4k Frames, roughly 1.5 GB of Frame data flow through your Frame Processor per second.
 
-> See [**this tweet**](https://twitter.com/mrousavy/status/1412300883149393921) for more information.
+> See [this tweet](https://twitter.com/mrousavy/status/1412300883149393921) for more information.
 
 
 <br />
