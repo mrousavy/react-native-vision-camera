@@ -20,10 +20,6 @@
   padding: 0 var(--ifm-pre-padding);
 }
 
-div[role=tabpanel]:not([hidden]) {
-  display: flow-root;
-}
-
 img {
   border-radius: 15px;
 }
@@ -64,4 +60,8 @@ code {
 a:hover {
   text-decoration: none;
   color: var(--highlight-color);
+}
+
+.theme-code-block {
+  display: flow-root;
 }
