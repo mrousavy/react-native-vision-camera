@@ -13,4 +13,4 @@ module.exports = {
   ignorePatterns: ['babel.config.js', 'metro.config.js', '.eslintrc.js'],
   plugins: ['@typescript-eslint'],
   extends: ['plugin:@typescript-eslint/recommended', '@react-native', '../.eslintrc.js'],
-};
+}

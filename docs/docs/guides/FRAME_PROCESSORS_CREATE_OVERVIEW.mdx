@@ -4,9 +4,9 @@ title: Creating Frame Processor Plugins
 sidebar_label: Overview
 ---
 
-import useBaseUrl from '@docusaurus/useBaseUrl';
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+import useBaseUrl from '@docusaurus/useBaseUrl'
+import Tabs from '@theme/Tabs'
+import TabItem from '@theme/TabItem'
 
 ## Overview
 
@@ -80,7 +80,7 @@ Which returns a [`Frame`](https://github.com/mrousavy/react-native-vision-camera
 
 ```js
 const frameProcessor = useFrameProcessor((frame) => {
-  'worklet';
+  'worklet'
   // creates a new `Frame` that's 720x480
   const resizedFrame = resize(frame, 720, 480)
 

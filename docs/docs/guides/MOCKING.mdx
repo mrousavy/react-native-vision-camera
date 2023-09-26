@@ -4,7 +4,7 @@ title: Mocking
 sidebar_label: Mocking
 ---
 
-import useBaseUrl from '@docusaurus/useBaseUrl';
+import useBaseUrl from '@docusaurus/useBaseUrl'
 
 <div>
   <img align="right" width="283" src={useBaseUrl("img/11_back.png")} />
@@ -22,8 +22,8 @@ In order to override React Native modules, allow bundler to use the flag `RN_SRC
 
 Add to your [Metro Config](https://facebook.github.io/metro/docs/configuration/):
 ```js
-const { getDefaultConfig } = require("metro-config");
-const { resolver: defaultResolver } = getDefaultConfig.getDefaultValues();
+const { getDefaultConfig } = require("metro-config")
+const { resolver: defaultResolver } = getDefaultConfig.getDefaultValues()
 
 module.exports = {
   ...
@@ -34,8 +34,7 @@ module.exports = {
       ...defaultResolver.sourceExts,
     ],
   },
-};
-
+}
 ```
 
 ### Create proxy for original and mocked modules
@@ -51,19 +50,18 @@ Define your mocks following the [original definitions](https://github.com/mrousa
 ```js
 // vision-camera.js
 
-import { Camera, sortDevices } from 'react-native-vision-camera';
+import { Camera, sortDevices } from 'react-native-vision-camera'
 
-export const VisionCamera = Camera;
-export const visionCameraSortDevices = sortDevices;
+export const VisionCamera = Camera
 ```
 
 ```js
 // vision-camera.e2e.js
 
-import React from 'react';
-import RNFS, { writeFile } from 'react-native-fs';
+import React from 'react'
+import RNFS, { writeFile } from 'react-native-fs'
 
-console.log('[DETOX] Using mocked react-native-vision-camera');
+console.log('[DETOX] Using mocked react-native-vision-camera')
 
 export class VisionCamera extends React.PureComponent {
   static getAvailableCameraDevices() {
@@ -73,32 +71,30 @@ export class VisionCamera extends React.PureComponent {
           position: 'back',
         },
       ]
-    );
+    )
   }
 
   static async getCameraPermissionStatus() {
-    return 'granted';
+    return 'granted'
   }
 
   static async requestCameraPermission() {
-    return 'granted';
+    return 'granted'
   }
 
   async takePhoto() {
-    const writePath = `${RNFS.DocumentDirectoryPath}/simulated_camera_photo.png`;
+    const writePath = `${RNFS.DocumentDirectoryPath}/simulated_camera_photo.png`
 
-    const imageDataBase64 = 'some_large_base_64_encoded_simulated_camera_photo';
-    await writeFile(writePath, imageDataBase64, 'base64');
+    const imageDataBase64 = 'some_large_base_64_encoded_simulated_camera_photo'
+    await writeFile(writePath, imageDataBase64, 'base64')
 
-    return { path: writePath };
+    return { path: writePath }
   }
 
   render() {
-    return null;
+    return null
   }
 }
-
-export const visionCameraSortDevices = (_left, _right) => 1;
 ```
 
 These mocked modules allows us to get granted camera permissions, get one back camera
@@ -111,10 +107,10 @@ we must reference the proxy module.
 
 ```ts
 // before
-import { Camera } from 'react-native-vision-camera';
+import { Camera } from 'react-native-vision-camera'
 
 // now
-import { VisionCamera } from '/your_path_to_created_folder/vision-camera/vision-camera';
+import { VisionCamera } from '/your_path_to_created_folder/vision-camera/vision-camera'
 ```
 
 ### Trigger
