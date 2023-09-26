@@ -19,7 +19,35 @@
 
 .docusaurus-highlight-code-line {
   background-color: rgb(72, 77, 91);
-  display: block;
+  display: flex;
   margin: 0 calc(-1 * var(--ifm-pre-padding));
   padding: 0 var(--ifm-pre-padding);
+}
+
+/* align image to the right */
+.image-container {
+  float: right;
+}
+
+/* mobile screen; align center */
+@media (max-width: 600px) {
+  .image-container {
+      float: none;
+      text-align: center;
+  }
+}
+
+/* wider screen; align right again */
+@media (min-width: 600px) and (max-width: 997px) {
+  .image-container {
+    float: right;
+  }
+}
+
+/* even wider screen but with sidebars; align center cuz we dont have enough space for right */
+@media (min-width: 997px) and (max-width: 1145px) {
+  .image-container {
+    float: none;
+    text-align: center;
+  }
 }
