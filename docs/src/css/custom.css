@@ -20,6 +20,10 @@
   padding: 0 var(--ifm-pre-padding);
 }
 
+div[role=tabpanel]:not([hidden]) {
+  display: flow-root;
+}
+
 img {
   border-radius: 15px;
 }
