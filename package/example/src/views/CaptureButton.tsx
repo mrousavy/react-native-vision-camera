@@ -1,12 +1,12 @@
-import React, { useCallback, useMemo, useRef } from 'react';
-import { StyleSheet, View, ViewProps } from 'react-native';
+import React, { useCallback, useMemo, useRef } from 'react'
+import { StyleSheet, View, ViewProps } from 'react-native'
 import {
   PanGestureHandler,
   PanGestureHandlerGestureEvent,
   State,
   TapGestureHandler,
   TapGestureHandlerStateChangeEvent,
-} from 'react-native-gesture-handler';
+} from 'react-native-gesture-handler'
 import Reanimated, {
   cancelAnimation,
   Easing,
@@ -18,29 +18,29 @@ import Reanimated, {
   useAnimatedGestureHandler,
   useSharedValue,
   withRepeat,
-} from 'react-native-reanimated';
-import type { Camera, PhotoFile, TakePhotoOptions, VideoFile } from 'react-native-vision-camera';
-import { CAPTURE_BUTTON_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH } from './../Constants';
+} from 'react-native-reanimated'
+import type { Camera, PhotoFile, TakePhotoOptions, VideoFile } from 'react-native-vision-camera'
+import { CAPTURE_BUTTON_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH } from './../Constants'
 
-const PAN_GESTURE_HANDLER_FAIL_X = [-SCREEN_WIDTH, SCREEN_WIDTH];
-const PAN_GESTURE_HANDLER_ACTIVE_Y = [-2, 2];
+const PAN_GESTURE_HANDLER_FAIL_X = [-SCREEN_WIDTH, SCREEN_WIDTH]
+const PAN_GESTURE_HANDLER_ACTIVE_Y = [-2, 2]
 
-const START_RECORDING_DELAY = 200;
-const BORDER_WIDTH = CAPTURE_BUTTON_SIZE * 0.1;
+const START_RECORDING_DELAY = 200
+const BORDER_WIDTH = CAPTURE_BUTTON_SIZE * 0.1
 
 interface Props extends ViewProps {
-  camera: React.RefObject<Camera>;
-  onMediaCaptured: (media: PhotoFile | VideoFile, type: 'photo' | 'video') => void;
+  camera: React.RefObject<Camera>
+  onMediaCaptured: (media: PhotoFile | VideoFile, type: 'photo' | 'video') => void
 
-  minZoom: number;
-  maxZoom: number;
-  cameraZoom: Reanimated.SharedValue<number>;
+  minZoom: number
+  maxZoom: number
+  cameraZoom: Reanimated.SharedValue<number>
 
-  flash: 'off' | 'on';
+  flash: 'off' | 'on'
 
-  enabled: boolean;
+  enabled: boolean
 
-  setIsPressingButton: (isPressingButton: boolean) => void;
+  setIsPressingButton: (isPressingButton: boolean) => void
 }
 
 const _CaptureButton: React.FC<Props> = ({
@@ -55,9 +55,9 @@ const _CaptureButton: React.FC<Props> = ({
   style,
   ...props
 }): React.ReactElement => {
-  const pressDownDate = useRef<Date | undefined>(undefined);
-  const isRecording = useRef(false);
-  const recordingProgress = useSharedValue(0);
+  const pressDownDate = useRef<Date | undefined>(undefined)
+  const isRecording = useRef(false)
+  const recordingProgress = useSharedValue(0)
   const takePhotoOptions = useMemo<TakePhotoOptions>(
     () => ({
       photoCodec: 'jpeg',
@@ -67,66 +67,66 @@ const _CaptureButton: React.FC<Props> = ({
       enableShutterSound: false,
     }),
     [flash],
-  );
-  const isPressingButton = useSharedValue(false);
+  )
+  const isPressingButton = useSharedValue(false)
 
   //#region Camera Capture
   const takePhoto = useCallback(async () => {
     try {
-      if (camera.current == null) throw new Error('Camera ref is null!');
+      if (camera.current == null) throw new Error('Camera ref is null!')
 
-      console.log('Taking photo...');
-      const photo = await camera.current.takePhoto(takePhotoOptions);
-      onMediaCaptured(photo, 'photo');
+      console.log('Taking photo...')
+      const photo = await camera.current.takePhoto(takePhotoOptions)
+      onMediaCaptured(photo, 'photo')
     } catch (e) {
-      console.error('Failed to take photo!', e);
+      console.error('Failed to take photo!', e)
     }
-  }, [camera, onMediaCaptured, takePhotoOptions]);
+  }, [camera, onMediaCaptured, takePhotoOptions])
 
   const onStoppedRecording = useCallback(() => {
-    isRecording.current = false;
-    cancelAnimation(recordingProgress);
-    console.log('stopped recording video!');
-  }, [recordingProgress]);
+    isRecording.current = false
+    cancelAnimation(recordingProgress)
+    console.log('stopped recording video!')
+  }, [recordingProgress])
   const stopRecording = useCallback(async () => {
     try {
-      if (camera.current == null) throw new Error('Camera ref is null!');
+      if (camera.current == null) throw new Error('Camera ref is null!')
 
-      console.log('calling stopRecording()...');
-      await camera.current.stopRecording();
-      console.log('called stopRecording()!');
+      console.log('calling stopRecording()...')
+      await camera.current.stopRecording()
+      console.log('called stopRecording()!')
     } catch (e) {
-      console.error('failed to stop recording!', e);
+      console.error('failed to stop recording!', e)
     }
-  }, [camera]);
+  }, [camera])
   const startRecording = useCallback(() => {
     try {
-      if (camera.current == null) throw new Error('Camera ref is null!');
+      if (camera.current == null) throw new Error('Camera ref is null!')
 
-      console.log('calling startRecording()...');
+      console.log('calling startRecording()...')
       camera.current.startRecording({
         flash: flash,
         onRecordingError: (error) => {
-          console.error('Recording failed!', error);
-          onStoppedRecording();
+          console.error('Recording failed!', error)
+          onStoppedRecording()
         },
         onRecordingFinished: (video) => {
-          console.log(`Recording successfully finished! ${video.path}`);
-          onMediaCaptured(video, 'video');
-          onStoppedRecording();
+          console.log(`Recording successfully finished! ${video.path}`)
+          onMediaCaptured(video, 'video')
+          onStoppedRecording()
         },
-      });
+      })
       // TODO: wait until startRecording returns to actually find out if the recording has successfully started
-      console.log('called startRecording()!');
-      isRecording.current = true;
+      console.log('called startRecording()!')
+      isRecording.current = true
     } catch (e) {
-      console.error('failed to start recording!', e, 'camera');
+      console.error('failed to start recording!', e, 'camera')
     }
-  }, [camera, flash, onMediaCaptured, onStoppedRecording]);
+  }, [camera, flash, onMediaCaptured, onStoppedRecording])
   //#endregion
 
   //#region Tap handler
-  const tapHandler = useRef<TapGestureHandler>();
+  const tapHandler = useRef<TapGestureHandler>()
   const onHandlerStateChanged = useCallback(
     async ({ nativeEvent: event }: TapGestureHandlerStateChangeEvent) => {
       // This is the gesture handler for the circular "shutter" button.
@@ -138,73 +138,73 @@ const _CaptureButton: React.FC<Props> = ({
       // if `pressDownDate` was less than 200ms ago, we know that the intention of the user is to take a photo. We check the `takePhotoPromise` if
       // there already is an ongoing (or already resolved) takePhoto() call (remember that we called takePhoto() when the user pressed down), and
       // if yes, use that. If no, we just try calling takePhoto() again
-      console.debug(`state: ${Object.keys(State)[event.state]}`);
+      console.debug(`state: ${Object.keys(State)[event.state]}`)
       switch (event.state) {
         case State.BEGAN: {
           // enter "recording mode"
-          recordingProgress.value = 0;
-          isPressingButton.value = true;
-          const now = new Date();
-          pressDownDate.current = now;
+          recordingProgress.value = 0
+          isPressingButton.value = true
+          const now = new Date()
+          pressDownDate.current = now
           setTimeout(() => {
             if (pressDownDate.current === now) {
               // user is still pressing down after 200ms, so his intention is to create a video
-              startRecording();
+              startRecording()
             }
-          }, START_RECORDING_DELAY);
-          setIsPressingButton(true);
-          return;
+          }, START_RECORDING_DELAY)
+          setIsPressingButton(true)
+          return
         }
         case State.END:
         case State.FAILED:
         case State.CANCELLED: {
           // exit "recording mode"
           try {
-            if (pressDownDate.current == null) throw new Error('PressDownDate ref .current was null!');
-            const now = new Date();
-            const diff = now.getTime() - pressDownDate.current.getTime();
-            pressDownDate.current = undefined;
+            if (pressDownDate.current == null) throw new Error('PressDownDate ref .current was null!')
+            const now = new Date()
+            const diff = now.getTime() - pressDownDate.current.getTime()
+            pressDownDate.current = undefined
             if (diff < START_RECORDING_DELAY) {
               // user has released the button within 200ms, so his intention is to take a single picture.
-              await takePhoto();
+              await takePhoto()
             } else {
               // user has held the button for more than 200ms, so he has been recording this entire time.
-              await stopRecording();
+              await stopRecording()
             }
           } finally {
             setTimeout(() => {
-              isPressingButton.value = false;
-              setIsPressingButton(false);
-            }, 500);
+              isPressingButton.value = false
+              setIsPressingButton(false)
+            }, 500)
           }
-          return;
+          return
         }
         default:
-          break;
+          break
       }
     },
     [isPressingButton, recordingProgress, setIsPressingButton, startRecording, stopRecording, takePhoto],
-  );
+  )
   //#endregion
   //#region Pan handler
-  const panHandler = useRef<PanGestureHandler>();
+  const panHandler = useRef<PanGestureHandler>()
   const onPanGestureEvent = useAnimatedGestureHandler<PanGestureHandlerGestureEvent, { offsetY?: number; startY?: number }>({
     onStart: (event, context) => {
-      context.startY = event.absoluteY;
-      const yForFullZoom = context.startY * 0.7;
-      const offsetYForFullZoom = context.startY - yForFullZoom;
+      context.startY = event.absoluteY
+      const yForFullZoom = context.startY * 0.7
+      const offsetYForFullZoom = context.startY - yForFullZoom
 
       // extrapolate [0 ... 1] zoom -> [0 ... Y_FOR_FULL_ZOOM] finger position
-      context.offsetY = interpolate(cameraZoom.value, [minZoom, maxZoom], [0, offsetYForFullZoom], Extrapolate.CLAMP);
+      context.offsetY = interpolate(cameraZoom.value, [minZoom, maxZoom], [0, offsetYForFullZoom], Extrapolate.CLAMP)
     },
     onActive: (event, context) => {
-      const offset = context.offsetY ?? 0;
-      const startY = context.startY ?? SCREEN_HEIGHT;
-      const yForFullZoom = startY * 0.7;
+      const offset = context.offsetY ?? 0
+      const startY = context.startY ?? SCREEN_HEIGHT
+      const yForFullZoom = startY * 0.7
 
-      cameraZoom.value = interpolate(event.absoluteY - offset, [yForFullZoom, startY], [maxZoom, minZoom], Extrapolate.CLAMP);
+      cameraZoom.value = interpolate(event.absoluteY - offset, [yForFullZoom, startY], [maxZoom, minZoom], Extrapolate.CLAMP)
     },
-  });
+  })
   //#endregion
 
   const shadowStyle = useAnimatedStyle(
@@ -220,9 +220,9 @@ const _CaptureButton: React.FC<Props> = ({
       ],
     }),
     [isPressingButton],
-  );
+  )
   const buttonStyle = useAnimatedStyle(() => {
-    let scale: number;
+    let scale: number
     if (enabled) {
       if (isPressingButton.value) {
         scale = withRepeat(
@@ -232,18 +232,18 @@ const _CaptureButton: React.FC<Props> = ({
           }),
           -1,
           true,
-        );
+        )
       } else {
         scale = withSpring(0.9, {
           stiffness: 500,
           damping: 300,
-        });
+        })
       }
     } else {
       scale = withSpring(0.6, {
         stiffness: 500,
         damping: 300,
-      });
+      })
     }
 
     return {
@@ -256,8 +256,8 @@ const _CaptureButton: React.FC<Props> = ({
           scale: scale,
         },
       ],
-    };
-  }, [enabled, isPressingButton]);
+    }
+  }, [enabled, isPressingButton])
 
   return (
     <TapGestureHandler
@@ -282,10 +282,10 @@ const _CaptureButton: React.FC<Props> = ({
         </PanGestureHandler>
       </Reanimated.View>
     </TapGestureHandler>
-  );
-};
+  )
+}
 
-export const CaptureButton = React.memo(_CaptureButton);
+export const CaptureButton = React.memo(_CaptureButton)
 
 const styles = StyleSheet.create({
   flex: {
@@ -305,4 +305,4 @@ const styles = StyleSheet.create({
     borderWidth: BORDER_WIDTH,
     borderColor: 'white',
   },
-});
+})

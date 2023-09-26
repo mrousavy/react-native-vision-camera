@@ -1,82 +1,82 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { StyleSheet, View, ActivityIndicator, PermissionsAndroid, Platform } from 'react-native';
-import Video, { LoadError, OnLoadData } from 'react-native-video';
-import { SAFE_AREA_PADDING } from './Constants';
-import { useIsForeground } from './hooks/useIsForeground';
-import { PressableOpacity } from 'react-native-pressable-opacity';
-import IonIcon from 'react-native-vector-icons/Ionicons';
-import { Alert } from 'react-native';
-import { CameraRoll } from '@react-native-camera-roll/camera-roll';
-import { StatusBarBlurBackground } from './views/StatusBarBlurBackground';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { Routes } from './Routes';
-import { useIsFocused } from '@react-navigation/core';
-import FastImage, { OnLoadEvent } from 'react-native-fast-image';
+import React, { useCallback, useMemo, useState } from 'react'
+import { StyleSheet, View, ActivityIndicator, PermissionsAndroid, Platform } from 'react-native'
+import Video, { LoadError, OnLoadData } from 'react-native-video'
+import { SAFE_AREA_PADDING } from './Constants'
+import { useIsForeground } from './hooks/useIsForeground'
+import { PressableOpacity } from 'react-native-pressable-opacity'
+import IonIcon from 'react-native-vector-icons/Ionicons'
+import { Alert } from 'react-native'
+import { CameraRoll } from '@react-native-camera-roll/camera-roll'
+import { StatusBarBlurBackground } from './views/StatusBarBlurBackground'
+import type { NativeStackScreenProps } from '@react-navigation/native-stack'
+import type { Routes } from './Routes'
+import { useIsFocused } from '@react-navigation/core'
+import FastImage, { OnLoadEvent } from 'react-native-fast-image'
 
 const requestSavePermission = async (): Promise<boolean> => {
-  if (Platform.OS !== 'android') return true;
+  if (Platform.OS !== 'android') return true
 
-  const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
-  if (permission == null) return false;
-  let hasPermission = await PermissionsAndroid.check(permission);
+  const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
+  if (permission == null) return false
+  let hasPermission = await PermissionsAndroid.check(permission)
   if (!hasPermission) {
-    const permissionRequestResult = await PermissionsAndroid.request(permission);
-    hasPermission = permissionRequestResult === 'granted';
+    const permissionRequestResult = await PermissionsAndroid.request(permission)
+    hasPermission = permissionRequestResult === 'granted'
   }
-  return hasPermission;
-};
+  return hasPermission
+}
 
-const isVideoOnLoadEvent = (event: OnLoadData | OnLoadEvent): event is OnLoadData => 'duration' in event && 'naturalSize' in event;
+const isVideoOnLoadEvent = (event: OnLoadData | OnLoadEvent): event is OnLoadData => 'duration' in event && 'naturalSize' in event
 
-type Props = NativeStackScreenProps<Routes, 'MediaPage'>;
+type Props = NativeStackScreenProps<Routes, 'MediaPage'>
 export function MediaPage({ navigation, route }: Props): React.ReactElement {
-  const { path, type } = route.params;
-  const [hasMediaLoaded, setHasMediaLoaded] = useState(false);
-  const isForeground = useIsForeground();
-  const isScreenFocused = useIsFocused();
-  const isVideoPaused = !isForeground || !isScreenFocused;
-  const [savingState, setSavingState] = useState<'none' | 'saving' | 'saved'>('none');
+  const { path, type } = route.params
+  const [hasMediaLoaded, setHasMediaLoaded] = useState(false)
+  const isForeground = useIsForeground()
+  const isScreenFocused = useIsFocused()
+  const isVideoPaused = !isForeground || !isScreenFocused
+  const [savingState, setSavingState] = useState<'none' | 'saving' | 'saved'>('none')
 
   const onMediaLoad = useCallback((event: OnLoadData | OnLoadEvent) => {
     if (isVideoOnLoadEvent(event)) {
       console.log(
         `Video loaded. Size: ${event.naturalSize.width}x${event.naturalSize.height} (${event.naturalSize.orientation}, ${event.duration} seconds)`,
-      );
+      )
     } else {
-      console.log(`Image loaded. Size: ${event.nativeEvent.width}x${event.nativeEvent.height}`);
+      console.log(`Image loaded. Size: ${event.nativeEvent.width}x${event.nativeEvent.height}`)
     }
-  }, []);
+  }, [])
   const onMediaLoadEnd = useCallback(() => {
-    console.log('media has loaded.');
-    setHasMediaLoaded(true);
-  }, []);
+    console.log('media has loaded.')
+    setHasMediaLoaded(true)
+  }, [])
   const onMediaLoadError = useCallback((error: LoadError) => {
-    console.log(`failed to load media: ${JSON.stringify(error)}`);
-  }, []);
+    console.log(`failed to load media: ${JSON.stringify(error)}`)
+  }, [])
 
   const onSavePressed = useCallback(async () => {
     try {
-      setSavingState('saving');
+      setSavingState('saving')
 
-      const hasPermission = await requestSavePermission();
+      const hasPermission = await requestSavePermission()
       if (!hasPermission) {
-        Alert.alert('Permission denied!', 'Vision Camera does not have permission to save the media to your camera roll.');
-        return;
+        Alert.alert('Permission denied!', 'Vision Camera does not have permission to save the media to your camera roll.')
+        return
       }
       await CameraRoll.save(`file://${path}`, {
         type: type,
-      });
-      setSavingState('saved');
+      })
+      setSavingState('saved')
     } catch (e) {
-      const message = e instanceof Error ? e.message : JSON.stringify(e);
-      setSavingState('none');
-      Alert.alert('Failed to save!', `An unexpected error occured while trying to save your ${type}. ${message}`);
+      const message = e instanceof Error ? e.message : JSON.stringify(e)
+      setSavingState('none')
+      Alert.alert('Failed to save!', `An unexpected error occured while trying to save your ${type}. ${message}`)
     }
-  }, [path, type]);
+  }, [path, type])
 
-  const source = useMemo(() => ({ uri: `file://${path}` }), [path]);
+  const source = useMemo(() => ({ uri: `file://${path}` }), [path])
 
-  const screenStyle = useMemo(() => ({ opacity: hasMediaLoaded ? 1 : 0 }), [hasMediaLoaded]);
+  const screenStyle = useMemo(() => ({ opacity: hasMediaLoaded ? 1 : 0 }), [hasMediaLoaded])
 
   return (
     <View style={[styles.container, screenStyle]}>
@@ -116,7 +116,7 @@ export function MediaPage({ navigation, route }: Props): React.ReactElement {
 
       <StatusBarBlurBackground />
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -148,4 +148,4 @@ const styles = StyleSheet.create({
     },
     textShadowRadius: 1,
   },
-});
+})

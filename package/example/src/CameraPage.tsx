@@ -1,135 +1,135 @@
-import * as React from 'react';
-import { useRef, useState, useCallback, useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler';
-import { CameraRuntimeError, PhotoFile, useCameraDevice, useCameraFormat, useFrameProcessor, VideoFile } from 'react-native-vision-camera';
-import { Camera } from 'react-native-vision-camera';
-import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING, SCREEN_HEIGHT, SCREEN_WIDTH } from './Constants';
-import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated';
-import { useEffect } from 'react';
-import { useIsForeground } from './hooks/useIsForeground';
-import { StatusBarBlurBackground } from './views/StatusBarBlurBackground';
-import { CaptureButton } from './views/CaptureButton';
-import { PressableOpacity } from 'react-native-pressable-opacity';
-import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import IonIcon from 'react-native-vector-icons/Ionicons';
-import type { Routes } from './Routes';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useIsFocused } from '@react-navigation/core';
-import { examplePlugin } from './frame-processors/ExamplePlugin';
+import * as React from 'react'
+import { useRef, useState, useCallback, useMemo } from 'react'
+import { StyleSheet, Text, View } from 'react-native'
+import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler'
+import { CameraRuntimeError, PhotoFile, useCameraDevice, useCameraFormat, useFrameProcessor, VideoFile } from 'react-native-vision-camera'
+import { Camera } from 'react-native-vision-camera'
+import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING, SCREEN_HEIGHT, SCREEN_WIDTH } from './Constants'
+import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated'
+import { useEffect } from 'react'
+import { useIsForeground } from './hooks/useIsForeground'
+import { StatusBarBlurBackground } from './views/StatusBarBlurBackground'
+import { CaptureButton } from './views/CaptureButton'
+import { PressableOpacity } from 'react-native-pressable-opacity'
+import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons'
+import IonIcon from 'react-native-vector-icons/Ionicons'
+import type { Routes } from './Routes'
+import type { NativeStackScreenProps } from '@react-navigation/native-stack'
+import { useIsFocused } from '@react-navigation/core'
+import { examplePlugin } from './frame-processors/ExamplePlugin'
 
-const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
+const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 Reanimated.addWhitelistedNativeProps({
   zoom: true,
-});
+})
 
-const SCALE_FULL_ZOOM = 3;
-const BUTTON_SIZE = 40;
+const SCALE_FULL_ZOOM = 3
+const BUTTON_SIZE = 40
 
-type Props = NativeStackScreenProps<Routes, 'CameraPage'>;
+type Props = NativeStackScreenProps<Routes, 'CameraPage'>
 export function CameraPage({ navigation }: Props): React.ReactElement {
-  const camera = useRef<Camera>(null);
-  const [isCameraInitialized, setIsCameraInitialized] = useState(false);
-  const [hasMicrophonePermission, setHasMicrophonePermission] = useState(false);
-  const zoom = useSharedValue(0);
-  const isPressingButton = useSharedValue(false);
+  const camera = useRef<Camera>(null)
+  const [isCameraInitialized, setIsCameraInitialized] = useState(false)
+  const [hasMicrophonePermission, setHasMicrophonePermission] = useState(false)
+  const zoom = useSharedValue(0)
+  const isPressingButton = useSharedValue(false)
 
   // check if camera page is active
-  const isFocussed = useIsFocused();
-  const isForeground = useIsForeground();
-  const isActive = isFocussed && isForeground;
+  const isFocussed = useIsFocused()
+  const isForeground = useIsForeground()
+  const isActive = isFocussed && isForeground
 
-  const [cameraPosition, setCameraPosition] = useState<'front' | 'back'>('back');
-  const [enableHdr, setEnableHdr] = useState(false);
-  const [flash, setFlash] = useState<'off' | 'on'>('off');
-  const [enableNightMode, setEnableNightMode] = useState(false);
+  const [cameraPosition, setCameraPosition] = useState<'front' | 'back'>('back')
+  const [enableHdr, setEnableHdr] = useState(false)
+  const [flash, setFlash] = useState<'off' | 'on'>('off')
+  const [enableNightMode, setEnableNightMode] = useState(false)
 
   // camera format settings
   const device = useCameraDevice(cameraPosition, {
     physicalDevices: ['ultra-wide-angle-camera', 'wide-angle-camera', 'telephoto-camera'],
-  });
+  })
 
-  const [targetFps, setTargetFps] = useState(60);
+  const [targetFps, setTargetFps] = useState(60)
 
-  const screenAspectRatio = SCREEN_HEIGHT / SCREEN_WIDTH;
+  const screenAspectRatio = SCREEN_HEIGHT / SCREEN_WIDTH
   const format = useCameraFormat(device, [
     { fps: targetFps },
     { videoAspectRatio: screenAspectRatio },
     { videoResolution: 'max' },
     { photoAspectRatio: screenAspectRatio },
     { photoResolution: 'max' },
-  ]);
+  ])
 
-  const fps = Math.min(format?.maxFps ?? 1, targetFps);
+  const fps = Math.min(format?.maxFps ?? 1, targetFps)
 
-  const supportsFlash = device?.hasFlash ?? false;
-  const supportsHdr = format?.supportsPhotoHDR;
-  const supports60Fps = useMemo(() => device?.formats.some((f) => f.maxFps >= 60), [device?.formats]);
-  const canToggleNightMode = device?.supportsLowLightBoost ?? false;
+  const supportsFlash = device?.hasFlash ?? false
+  const supportsHdr = format?.supportsPhotoHDR
+  const supports60Fps = useMemo(() => device?.formats.some((f) => f.maxFps >= 60), [device?.formats])
+  const canToggleNightMode = device?.supportsLowLightBoost ?? false
 
   //#region Animated Zoom
   // This just maps the zoom factor to a percentage value.
   // so e.g. for [min, neutr., max] values [1, 2, 128] this would result in [0, 0.0081, 1]
-  const minZoom = device?.minZoom ?? 1;
-  const maxZoom = Math.min(device?.maxZoom ?? 1, MAX_ZOOM_FACTOR);
+  const minZoom = device?.minZoom ?? 1
+  const maxZoom = Math.min(device?.maxZoom ?? 1, MAX_ZOOM_FACTOR)
 
   const cameraAnimatedProps = useAnimatedProps(() => {
-    const z = Math.max(Math.min(zoom.value, maxZoom), minZoom);
+    const z = Math.max(Math.min(zoom.value, maxZoom), minZoom)
     return {
       zoom: z,
-    };
-  }, [maxZoom, minZoom, zoom]);
+    }
+  }, [maxZoom, minZoom, zoom])
   //#endregion
 
   //#region Callbacks
   const setIsPressingButton = useCallback(
     (_isPressingButton: boolean) => {
-      isPressingButton.value = _isPressingButton;
+      isPressingButton.value = _isPressingButton
     },
     [isPressingButton],
-  );
+  )
   // Camera callbacks
   const onError = useCallback((error: CameraRuntimeError) => {
-    console.error(error);
-  }, []);
+    console.error(error)
+  }, [])
   const onInitialized = useCallback(() => {
-    console.log('Camera initialized!');
-    setIsCameraInitialized(true);
-  }, []);
+    console.log('Camera initialized!')
+    setIsCameraInitialized(true)
+  }, [])
   const onMediaCaptured = useCallback(
     (media: PhotoFile | VideoFile, type: 'photo' | 'video') => {
-      console.log(`Media captured! ${JSON.stringify(media)}`);
+      console.log(`Media captured! ${JSON.stringify(media)}`)
       navigation.navigate('MediaPage', {
         path: media.path,
         type: type,
-      });
+      })
     },
     [navigation],
-  );
+  )
   const onFlipCameraPressed = useCallback(() => {
-    setCameraPosition((p) => (p === 'back' ? 'front' : 'back'));
-  }, []);
+    setCameraPosition((p) => (p === 'back' ? 'front' : 'back'))
+  }, [])
   const onFlashPressed = useCallback(() => {
-    setFlash((f) => (f === 'off' ? 'on' : 'off'));
-  }, []);
+    setFlash((f) => (f === 'off' ? 'on' : 'off'))
+  }, [])
   //#endregion
 
   //#region Tap Gesture
   const onDoubleTap = useCallback(() => {
-    onFlipCameraPressed();
-  }, [onFlipCameraPressed]);
+    onFlipCameraPressed()
+  }, [onFlipCameraPressed])
   //#endregion
 
   //#region Effects
-  const neutralZoom = device?.neutralZoom ?? 1;
+  const neutralZoom = device?.neutralZoom ?? 1
   useEffect(() => {
     // Run everytime the neutralZoomScaled value changes. (reset zoom when device changes)
-    zoom.value = neutralZoom;
-  }, [neutralZoom, zoom]);
+    zoom.value = neutralZoom
+  }, [neutralZoom, zoom])
 
   useEffect(() => {
-    Camera.getMicrophonePermissionStatus().then((status) => setHasMicrophonePermission(status === 'granted'));
-  }, []);
+    Camera.getMicrophonePermissionStatus().then((status) => setHasMicrophonePermission(status === 'granted'))
+  }, [])
   //#endregion
 
   //#region Pinch to Zoom Gesture
@@ -137,32 +137,32 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   // function does not appear linear to the user. (aka zoom 0.1 -> 0.2 does not look equal in difference as 0.8 -> 0.9)
   const onPinchGesture = useAnimatedGestureHandler<PinchGestureHandlerGestureEvent, { startZoom?: number }>({
     onStart: (_, context) => {
-      context.startZoom = zoom.value;
+      context.startZoom = zoom.value
     },
     onActive: (event, context) => {
       // we're trying to map the scale gesture to a linear zoom here
-      const startZoom = context.startZoom ?? 0;
-      const scale = interpolate(event.scale, [1 - 1 / SCALE_FULL_ZOOM, 1, SCALE_FULL_ZOOM], [-1, 0, 1], Extrapolate.CLAMP);
-      zoom.value = interpolate(scale, [-1, 0, 1], [minZoom, startZoom, maxZoom], Extrapolate.CLAMP);
+      const startZoom = context.startZoom ?? 0
+      const scale = interpolate(event.scale, [1 - 1 / SCALE_FULL_ZOOM, 1, SCALE_FULL_ZOOM], [-1, 0, 1], Extrapolate.CLAMP)
+      zoom.value = interpolate(scale, [-1, 0, 1], [minZoom, startZoom, maxZoom], Extrapolate.CLAMP)
     },
-  });
+  })
   //#endregion
 
   if (device != null && format != null) {
     console.log(
       `Re-rendering camera page with ${isActive ? 'active' : 'inactive'} camera. ` +
         `Device: "${device.name}" (${format.photoWidth}x${format.photoHeight} photo / ${format.videoWidth}x${format.videoHeight} video @ ${fps}fps)`,
-    );
+    )
   } else {
-    console.log('re-rendering camera page without active camera');
+    console.log('re-rendering camera page without active camera')
   }
 
   const frameProcessor = useFrameProcessor((frame) => {
-    'worklet';
+    'worklet'
 
-    console.log(`${frame.timestamp}: ${frame.width}x${frame.height} ${frame.pixelFormat} Frame (${frame.orientation})`);
-    examplePlugin(frame);
-  }, []);
+    console.log(`${frame.timestamp}: ${frame.width}x${frame.height} ${frame.pixelFormat} Frame (${frame.orientation})`)
+    examplePlugin(frame)
+  }, [])
 
   return (
     <View style={styles.container}>
@@ -235,7 +235,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
         )}
       </View>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -268,4 +268,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
   },
-});
+})

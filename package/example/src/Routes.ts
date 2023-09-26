@@ -1,8 +1,8 @@
 export type Routes = {
-  PermissionsPage: undefined;
-  CameraPage: undefined;
+  PermissionsPage: undefined
+  CameraPage: undefined
   MediaPage: {
-    path: string;
-    type: 'video' | 'photo';
-  };
-};
+    path: string
+    type: 'video' | 'photo'
+  }
+}
