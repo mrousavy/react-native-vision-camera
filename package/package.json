@@ -80,7 +80,7 @@
     "@types/react": "^18.2.22",
     "@types/react-native": "^0.72.2",
     "eslint": "^8.50.0",
-    "eslint-plugin-prettier": "^4.9.0",
+    "eslint-plugin-prettier": "^5.0.0",
     "pod-install": "^0.1.39",
     "prettier": "^3.0.3",
     "react": "^18.2.0",
