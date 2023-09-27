@@ -1,7 +1,9 @@
 package com.mrousavy.camera.core
 
+import android.annotation.SuppressLint
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
+import android.hardware.HardwareBuffer
 import android.media.ImageReader
 import android.util.Log
 import android.view.Surface
@@ -13,6 +15,8 @@ import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.PixelFormat
 import java.io.Closeable
+
+val SUPPORTED_FORMATS: Array<Int> = arrayOf(ImageFormat.PRIVATE, ImageFormat.JPEG)
 
 /**
  * An OpenGL pipeline for streaming Camera Frames to one or more outputs.
@@ -68,7 +72,7 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
         "(format: ${PixelFormat.fromImageFormat(format)} #$format)"
     )
     // TODO: We currently use OpenGL for the Video Pipeline.
-    //  OpenGL only works in the RGB (RGBA_8888; 0x23) pixel-format, so we cannot
+    //  OpenGL only works in the RGB (RGBA_8888; 0x1)) pixel-format, so we cannot
     //  override the pixel-format to something like YUV or PRIVATE.
     //  This absolutely sucks and I would prefer to replace the OpenGL pipeline with
     //  something similar to how iOS works where we just pass GPU buffers around,
@@ -76,7 +80,7 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
     //  For example, ImageReader/ImageWriter is way too buggy and does not work with MediaRecorder.
     //  See this issue ($4.000 bounty!) for more details:
     //  https://github.com/mrousavy/react-native-vision-camera/issues/1837
-    if (format != ImageFormat.PRIVATE && format != 0x23) {
+    if (format !in SUPPORTED_FORMATS) {
       throw PixelFormatNotSupportedInVideoPipelineError(PixelFormat.fromImageFormat(format).unionValue)
     }
     mHybridData = initHybrid(width, height)
@@ -123,6 +127,7 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
     }
   }
 
+  @SuppressLint("WrongConstant")
   private fun getImageReader(): ImageReader {
     if (format != ImageFormat.PRIVATE) {
       Log.w(
@@ -133,7 +138,15 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
           "See this PR for more details: https://github.com/mrousavy/react-native-vision-camera/pull/1836"
       )
     }
-    val imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES)
+    /*
+     * Note(rodgomesc):
+     *   workaround to ensure that the imageReader is created with the correct format when using rgb
+     *   due to our current VideoPipeline implementation
+    */
+    val adjustedFormat = if (format == ImageFormat.JPEG) HardwareBuffer.RGBA_8888 else format
+
+    val imageReader = ImageReader.newInstance(width, height, adjustedFormat, MAX_IMAGES)
+
     imageReader.setOnImageAvailableListener({ reader ->
       Log.i("VideoPipeline", "ImageReader::onImageAvailable!")
       val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener

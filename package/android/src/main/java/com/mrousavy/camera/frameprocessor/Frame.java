@@ -1,5 +1,5 @@
 package com.mrousavy.camera.frameprocessor;
-
+import android.hardware.HardwareBuffer;
 import android.graphics.ImageFormat;
 import android.media.Image;
 import com.facebook.proguard.annotations.DoNotStrip;
@@ -113,6 +113,7 @@ public class Frame {
 
                 return byteArrayCache;
             case ImageFormat.JPEG:
+            case HardwareBuffer.RGBA_8888:
                 return image.getPlanes()[0].getBuffer();
             default:
                 throw new RuntimeException("Cannot convert Frame with Format " + image.getFormat() + " to byte array!");
