@@ -64,10 +64,12 @@ For reference see the [CLI's docs](https://github.com/mateusz1913/vision-camera-
 }
 
 + (void) load {
+  // highlight-start
   [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"detectFaces"
                                         withInitializer:^FrameProcessorPlugin*(NSDictionary* options) {
     return [[FaceDetectorFrameProcessorPlugin alloc] initWithOptions:options];
   }];
+  // highlight-end
 }
 
 @end
@@ -99,7 +101,9 @@ The Frame Processor Plugin will be exposed to JS through the `VisionCameraProxy`
 ```swift
 @objc(FaceDetectorFrameProcessorPlugin)
 public class FaceDetectorFrameProcessorPlugin: FrameProcessorPlugin {
-  public override func callback(_ frame: Frame!, withArguments arguments: [String:Any]) -> Any {
+
+  public override func callback(_ frame: Frame!,
+                                withArguments arguments: [String:Any]) -> Any {
     let buffer = frame.buffer
     let orientation = frame.orientation
     // code goes here
@@ -123,12 +127,12 @@ public class FaceDetectorFrameProcessorPlugin: FrameProcessorPlugin {
 {
   // ...
 
-  // hightlight-start
+  // highlight-start
   [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"detectFaces"
                                         withInitializer:^FrameProcessorPlugin*(NSDictionary* options) {
     return [[FaceDetectorFrameProcessorPlugin alloc] initWithOptions:options];
   }];
-  // hightlight-end
+  // highlight-end
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }

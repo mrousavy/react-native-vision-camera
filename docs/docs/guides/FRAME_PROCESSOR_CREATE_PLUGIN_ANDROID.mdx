@@ -69,10 +69,6 @@ public class FaceDetectorFrameProcessorPlugin extends FrameProcessorPlugin {
 }
 ```
 
-:::note
-The Frame Processor Plugin will be exposed to JS through the `VisionCameraProxy` object. In this case, it would be `VisionCameraProxy.getFrameProcessorPlugin("detectFaces")`.
-:::
-
 4. **Implement your Frame Processing.** See the [Example Plugin (Java)](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/example/android/app/src/main/java/com/mrousavy/camera/example/ExampleFrameProcessorPlugin.java) for reference.
 5. Create a new Java file which registers the Frame Processor Plugin in a React Package, for the Face Detector plugin this file will be called `FaceDetectorFrameProcessorPluginPackage.java`:
 
@@ -105,6 +101,10 @@ public class FaceDetectorFrameProcessorPluginPackage implements ReactPackage {
   }
 }
 ```
+
+:::note
+The Frame Processor Plugin will be exposed to JS through the `VisionCameraProxy` object. In this case, it would be `VisionCameraProxy.getFrameProcessorPlugin("detectFaces")`.
+:::
 
 6. Register the package in MainApplication.java
 
@@ -140,10 +140,6 @@ class FaceDetectorFrameProcessorPlugin: FrameProcessorPlugin() {
 }
 ```
 
-:::note
-The Frame Processor Plugin will be exposed to JS through the `VisionCameraProxy` object. In this case, it would be `VisionCameraProxy.getFrameProcessorPlugin("detectFaces")`.
-:::
-
 4. **Implement your Frame Processing.** See the [Example Plugin (Java)](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/example/android/app/src/main/java/com/mrousavy/camera/example/ExampleFrameProcessorPlugin.java) for reference.
 5. Create a new Kotlin file which registers the Frame Processor Plugin in a React Package, for the Face Detector plugin this file will be called `FaceDetectorFrameProcessorPluginPackage.kt`:
 
@@ -172,6 +168,10 @@ class FaceDetectorFrameProcessorPluginPackage : ReactPackage {
   }
 }
 ```
+
+:::note
+The Frame Processor Plugin will be exposed to JS through the `VisionCameraProxy` object. In this case, it would be `VisionCameraProxy.getFrameProcessorPlugin("detectFaces")`.
+:::
 
 6. Register the package in MainApplication.java
 
