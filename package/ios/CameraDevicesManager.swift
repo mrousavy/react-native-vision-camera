@@ -38,22 +38,22 @@ class CameraDevicesManager: RCTEventEmitter {
 
   override func constantsToExport() -> [AnyHashable: Any]! {
     let devices = getDevicesJson()
-    let preferredDevice: [String: Any]
+    let preferredDevice: [String: Any]?
     // TODO: Remove this #if once Xcode 15 is rolled out
     #if swift(>=5.9)
       if #available(iOS 17.0, *),
          let userPreferred = AVCaptureDevice.userPreferredCamera {
         preferredDevice = userPreferred.toDictionary()
       } else {
-        preferredDevice = devices[0]
+        preferredDevice = devices.first
       }
     #else
-      preferredDevice = devices[0]
+      preferredDevice = devices.first
     #endif
 
     return [
       "availableCameraDevices": devices,
-      "userPreferredCameraDevice": preferredDevice,
+      "userPreferredCameraDevice": preferredDevice as Any,
     ]
   }
 
