@@ -30,10 +30,6 @@ public:
   // -> SurfaceTexture input
   int getInputTextureId();
 
-  // <- Frame Processor output
-  void setFrameProcessorOutputSurface(jobject surface);
-  void removeFrameProcessorOutputSurface();
-
   // <- MediaRecorder output
   void setRecordingSessionOutputSurface(jobject surface);
   void removeRecordingSessionOutputSurface();
@@ -54,7 +50,6 @@ private:
 
   // Output Contexts
   std::shared_ptr<OpenGLContext> _context = nullptr;
-  std::unique_ptr<OpenGLRenderer> _frameProcessorOutput = nullptr;
   std::unique_ptr<OpenGLRenderer> _recordingSessionOutput = nullptr;
 
 private:

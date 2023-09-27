@@ -50,9 +50,11 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
   private var transformMatrix = FloatArray(16)
   private var isActive = true
 
+  private var imageReader: ImageReader
+  private var imageWriter: ImageWriter
+
   // Output 1
   private var frameProcessor: FrameProcessor? = null
-  private var imageReader: ImageReader? = null
 
   // Output 2
   private var recordingSession: RecordingSession? = null
@@ -83,14 +85,32 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
     surfaceTexture = SurfaceTexture(false)
     surfaceTexture.setDefaultBufferSize(width, height)
     surfaceTexture.setOnFrameAvailableListener(this)
-    surface = Surface(surfaceTexture)
+    val glSurface = Surface(surfaceTexture)
+
+    imageWriter = ImageWriter.newInstance(glSurface, MAX_IMAGES)
+    imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES)
+    imageReader.setOnImageAvailableListener({ reader ->
+      Log.i("VideoPipeline", "ImageReader::onImageAvailable!")
+      val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
+
+      // // TODO: Get correct orientation and isMirrored
+      // val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, isMirrored)
+      // frame.incrementRefCount()
+      // frameProcessor?.call(frame)
+
+      imageWriter.queueInputImage(image)
+
+      // frame.decrementRefCount()
+    }, CameraQueues.videoQueue.handler)
+
+    surface = imageReader.surface
   }
 
   override fun close() {
     synchronized(this) {
       isActive = false
-      imageReader?.close()
-      imageReader = null
+      imageWriter.close()
+      imageReader.close()
       frameProcessor = null
       recordingSession = null
       surfaceTexture.release()
@@ -123,30 +143,6 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
     }
   }
 
-  private fun getImageReader(): ImageReader {
-    if (format != ImageFormat.PRIVATE) {
-      Log.w(
-        TAG,
-        "Warning: pixelFormat \"${PixelFormat.fromImageFormat(format).unionValue}\" might " +
-          "not be supported on this device because the C++ OpenGL GPU Video Pipeline operates in RGBA_8888. " +
-          "I wanted to use an ImageReader -> ImageWriter setup for this, but I couldn't get it to work. " +
-          "See this PR for more details: https://github.com/mrousavy/react-native-vision-camera/pull/1836"
-      )
-    }
-    val imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES)
-    imageReader.setOnImageAvailableListener({ reader ->
-      Log.i("VideoPipeline", "ImageReader::onImageAvailable!")
-      val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
-
-      // TODO: Get correct orientation and isMirrored
-      val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, isMirrored)
-      frame.incrementRefCount()
-      frameProcessor?.call(frame)
-      frame.decrementRefCount()
-    }, CameraQueues.videoQueue.handler)
-    return imageReader
-  }
-
   /**
    * Configures the Pipeline to also call the given [FrameProcessor] (or null).
    */
@@ -154,23 +150,6 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
     synchronized(this) {
       Log.i(TAG, "Setting $width x $height FrameProcessor Output...")
       this.frameProcessor = frameProcessor
-
-      if (frameProcessor != null) {
-        if (this.imageReader == null) {
-          // 1. Create new ImageReader that just calls the Frame Processor
-          this.imageReader = getImageReader()
-        }
-
-        // 2. Configure OpenGL pipeline to stream Frames into the ImageReader's surface
-        setFrameProcessorOutputSurface(imageReader!!.surface)
-      } else {
-        // 1. Configure OpenGL pipeline to stop streaming Frames into the ImageReader's surface
-        removeFrameProcessorOutputSurface()
-
-        // 2. Close the ImageReader
-        this.imageReader?.close()
-        this.imageReader = null
-      }
     }
   }
 
@@ -195,8 +174,6 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
   private external fun getInputTextureId(): Int
   private external fun onBeforeFrame()
   private external fun onFrame(transformMatrix: FloatArray)
-  private external fun setFrameProcessorOutputSurface(surface: Any)
-  private external fun removeFrameProcessorOutputSurface()
   private external fun setRecordingSessionOutputSurface(surface: Any)
   private external fun removeRecordingSessionOutputSurface()
   private external fun initHybrid(width: Int, height: Int): HybridData
