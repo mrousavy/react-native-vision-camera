@@ -7,15 +7,14 @@ import com.mrousavy.camera.PixelFormatNotSupportedError
 enum class PixelFormat(override val unionValue: String) : JSUnionValue {
   YUV("yuv"),
   RGB("rgb"),
-  DNG("dng"),
   NATIVE("native"),
   UNKNOWN("unknown");
 
   fun toImageFormat(): Int {
     val result = when (this) {
       YUV -> ImageFormat.YUV_420_888
-      RGB -> ImageFormat.JPEG
-      DNG -> ImageFormat.RAW_SENSOR
+      ImageFormat.JPEG
+      RGB -> android.graphics.PixelFormat.RGBA_8888
       NATIVE -> ImageFormat.PRIVATE
       UNKNOWN -> null
     }
@@ -29,8 +28,7 @@ enum class PixelFormat(override val unionValue: String) : JSUnionValue {
     fun fromImageFormat(imageFormat: Int): PixelFormat =
       when (imageFormat) {
         ImageFormat.YUV_420_888 -> YUV
-        ImageFormat.JPEG, ImageFormat.DEPTH_JPEG -> RGB
-        ImageFormat.RAW_SENSOR -> DNG
+        android.graphics.PixelFormat.RGBA_8888 -> RGB
         ImageFormat.PRIVATE -> NATIVE
         else -> UNKNOWN
       }
@@ -39,7 +37,6 @@ enum class PixelFormat(override val unionValue: String) : JSUnionValue {
       when (unionValue) {
         "yuv" -> YUV
         "rgb" -> RGB
-        "dng" -> DNG
         "native" -> NATIVE
         "unknown" -> UNKNOWN
         else -> null
