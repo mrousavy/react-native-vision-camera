@@ -75,6 +75,10 @@ module.exports = {
           title: 'Community',
           items: [
             {
+              label: 'Community Discord',
+              href: 'https://discord.com/invite/6CSHz2qAvA',
+            },
+            {
               label: 'GitHub discussions',
               href: 'https://github.com/mrousavy/react-native-vision-camera/discussions',
             },
