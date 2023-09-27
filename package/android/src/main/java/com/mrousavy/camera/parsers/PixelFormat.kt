@@ -13,7 +13,6 @@ enum class PixelFormat(override val unionValue: String) : JSUnionValue {
   fun toImageFormat(): Int {
     val result = when (this) {
       YUV -> ImageFormat.YUV_420_888
-      ImageFormat.JPEG
       RGB -> android.graphics.PixelFormat.RGBA_8888
       NATIVE -> ImageFormat.PRIVATE
       UNKNOWN -> null
