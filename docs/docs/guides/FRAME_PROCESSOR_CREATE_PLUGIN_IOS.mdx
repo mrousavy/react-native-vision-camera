@@ -118,15 +118,17 @@ public class FaceDetectorFrameProcessorPlugin: FrameProcessorPlugin {
 
 6. In your `AppDelegate.m`, add the following code to `application:didFinishLaunchingWithOptions:`:
 
-```objc {5-8}
+```objc
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  ...
+  // ...
 
+  // hightlight-start
   [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"detectFaces"
                                         withInitializer:^FrameProcessorPlugin*(NSDictionary* options) {
     return [[FaceDetectorFrameProcessorPlugin alloc] initWithOptions:options];
   }];
+  // hightlight-end
 
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }

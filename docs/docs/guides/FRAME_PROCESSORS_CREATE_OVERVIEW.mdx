@@ -14,10 +14,11 @@ Frame Processor Plugins are **native functions** which can be directly called fr
 
 They receive a frame from the Camera as an input and can return any kind of output. For example, a `detectFaces` function returns an array of detected faces in the frame:
 
-```tsx {4-5}
+```tsx
 function App() {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet'
+    // highlight-next-line
     const faces = detectFaces(frame)
     console.log(`Faces in Frame: ${faces}`)
   }, [])

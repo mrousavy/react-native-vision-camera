@@ -26,10 +26,11 @@ export function scanFaces(frame: Frame): object {
 
 Simply call the wrapper Worklet in your Frame Processor:
 
-```tsx {4}
+```tsx
 function App() {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet'
+    // highlight-next-line
     const faces = scanFaces(frame)
     console.log(`Faces in Frame: ${faces}`)
   }, [])
