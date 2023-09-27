@@ -30,7 +30,7 @@ A Camera device has different minimum, maximum and neutral zoom values. Those va
 * The `neutralZoom` value is often `1`, but can be larger than `1` for devices with "fish-eye" (ultra-wide-angle) cameras. In those cases, the user expects to be at whatever zoom value `neutralZoom` is (e.g. `2`) per default, and if he tries to zoom out even more, he goes to `minZoom` (`1`), which switches over to the "fish-eye" (ultra-wide-angle) camera as seen in this GIF:
 
 <div align="center">
-  <img src="/img/multi-camera.gif" width="55%" />
+  <img class="doc-image" src="/img/multi-camera.gif" />
 </div>
 
 The Camera's `zoom` property expects values to be in the same "factor" scale as the `minZoom`, `neutralZoom` and `maxZoom` values - so if you pass `zoom={device.minZoom}` it is at the minimum available zoom, where as if you pass `zoom={device.maxZoom}` the maximum zoom value possible is zoomed in. It is recommended that you start at `device.neutralZoom` and let the user manually zoom out to the fish-eye camera on demand (if available).

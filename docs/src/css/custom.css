@@ -19,15 +19,35 @@
   --docusaurus-highlighted-code-line-bg: rgb(61, 63, 67);
 }
 
-img {
+/* Images inside the docs that are centered/inside text */
+.doc-image {
   border-radius: 15px;
+  max-width: 55%;
+  max-height: 30vh;
+}
+@media (max-width: 600px) {
+  .doc-image {
+    max-width: 80%;
+    max-height: 50vh;
+  }
+}
+@media (min-width: 600px) and (max-width: 997px) {
+  .doc-image {
+    max-width: 55%;
+    max-height: 50vh;
+  }
+}
+@media (min-width: 997px) and (max-width: 1145px) {
+  .doc-image {
+    max-width: 80%;
+    max-height: 30vh;
+  }
 }
 
 /* align image to the right */
 .image-container {
   float: right;
 }
-
 /* mobile screen; align center */
 @media (max-width: 600px) {
   .image-container {
@@ -35,14 +55,12 @@ img {
       text-align: center;
   }
 }
-
 /* wider screen; align right again */
 @media (min-width: 600px) and (max-width: 997px) {
   .image-container {
     float: right;
   }
 }
-
 /* even wider screen but with sidebars; align center cuz we dont have enough space for right */
 @media (min-width: 997px) and (max-width: 1145px) {
   .image-container {
