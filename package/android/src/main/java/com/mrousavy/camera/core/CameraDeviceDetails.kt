@@ -158,15 +158,11 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
   }
 
   private fun createPixelFormats(size: Size): ReadableArray {
-    val formats = cameraConfig.outputFormats
+    // Every output in Camera2 supports YUV, RGB and NATIVE
     val array = Arguments.createArray()
-    formats.forEach { format ->
-      val sizes = cameraConfig.getOutputSizes(format)
-      val hasSize = sizes.any { it.width == size.width && it.height == size.height }
-      if (hasSize) {
-        array.pushString(PixelFormat.fromImageFormat(format).unionValue)
-      }
-    }
+    array.pushString(PixelFormat.YUV.unionValue)
+    array.pushString(PixelFormat.RGB.unionValue)
+    array.pushString(PixelFormat.NATIVE.unionValue)
     return array
   }
 
