@@ -3,6 +3,7 @@ package com.mrousavy.camera.core
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.media.ImageReader
+import android.media.ImageWriter
 import android.util.Log
 import android.view.Surface
 import com.facebook.jni.HybridData
@@ -69,18 +70,6 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
       "Initializing $width x $height Video Pipeline " +
         "(format: ${PixelFormat.fromImageFormat(format)} #$format)"
     )
-    // TODO: We currently use OpenGL for the Video Pipeline.
-    //  OpenGL only works in the RGB (RGBA_8888; 0x23) pixel-format, so we cannot
-    //  override the pixel-format to something like YUV or PRIVATE.
-    //  This absolutely sucks and I would prefer to replace the OpenGL pipeline with
-    //  something similar to how iOS works where we just pass GPU buffers around,
-    //  but android.media APIs are just not as advanced yet.
-    //  For example, ImageReader/ImageWriter is way too buggy and does not work with MediaRecorder.
-    //  See this issue ($4.000 bounty!) for more details:
-    //  https://github.com/mrousavy/react-native-vision-camera/issues/1837
-    if (format != ImageFormat.PRIVATE && format != 0x23) {
-      throw PixelFormatNotSupportedInVideoPipelineError(PixelFormat.fromImageFormat(format).unionValue)
-    }
     mHybridData = initHybrid(width, height)
     surfaceTexture = SurfaceTexture(false)
     surfaceTexture.setDefaultBufferSize(width, height)
@@ -154,7 +143,7 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
   }
 
   /**
-   * Configures the Pipeline to also write Frames to a Surface from a [MediaRecorder] (or null)
+   * Configures the Pipeline to also write Frames to a Surface from a `MediaRecorder` (or null)
    */
   fun setRecordingSessionOutput(recordingSession: RecordingSession?) {
     synchronized(this) {
