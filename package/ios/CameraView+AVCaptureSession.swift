@@ -144,12 +144,12 @@ extension CameraView {
     if enableBufferCompression {
       // use compressed format instead if we enabled buffer compression
       if defaultFormat == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange &&
-          videoOutput.availableVideoPixelFormatTypes.contains(kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarVideoRange) {
+        videoOutput.availableVideoPixelFormatTypes.contains(kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarVideoRange) {
         // YUV 4:2:0 8-bit (limited video colors; compressed)
         defaultFormat = kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarVideoRange
       }
       if defaultFormat == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange &&
-          videoOutput.availableVideoPixelFormatTypes.contains(kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarFullRange) {
+        videoOutput.availableVideoPixelFormatTypes.contains(kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarFullRange) {
         // YUV 4:2:0 8-bit (full video colors; compressed)
         defaultFormat = kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarFullRange
       }
