@@ -50,13 +50,6 @@ class NoCameraDeviceError :
   )
 class PixelFormatNotSupportedError(format: String) :
   CameraError("device", "pixel-format-not-supported", "The pixelFormat $format is not supported on the given Camera Device!")
-class PixelFormatNotSupportedInVideoPipelineError(format: String) :
-  CameraError(
-    "device",
-    "pixel-format-not-supported",
-    "The pixelFormat $format is currently not supported in the VideoPipeline! " +
-      "See this issue for more details ($4.000 bounty!): https://github.com/mrousavy/react-native-vision-camera/issues/1837"
-  )
 
 class CameraNotReadyError :
   CameraError("session", "camera-not-ready", "The Camera is not ready yet! Wait for the onInitialized() callback!")
@@ -77,10 +70,8 @@ class CaptureAbortedError(wasImageCaptured: Boolean) :
   CameraError("capture", "aborted", "The image capture was aborted! Was Image captured: $wasImageCaptured")
 class UnknownCaptureError(wasImageCaptured: Boolean) :
   CameraError("capture", "unknown", "An unknown error occurred while trying to capture an Image! Was Image captured: $wasImageCaptured")
-
 class RecorderError(name: String, extra: Int) :
   CameraError("capture", "recorder-error", "An error occured while recording a video! $name $extra")
-
 class NoRecordingInProgressError :
   CameraError("capture", "no-recording-in-progress", "There was no active video recording in progress! Did you call stopRecording() twice?")
 class RecordingInProgressError :
@@ -92,5 +83,9 @@ class RecordingInProgressError :
 
 class ViewNotFoundError(viewId: Int) :
   CameraError("system", "view-not-found", "The given view (ID $viewId) was not found in the view manager.")
+class FrameProcessorsUnavailableError(reason: String) :
+  CameraError("system", "frame-processors-unavailable", "Frame Processors are unavailable! Reason: $reason")
+class HardwareBuffersNotAvailableError :
+  CameraError("system", "hardware-buffers-unavailable", "HardwareBuffers are only available on API 28 or higher!")
 
 class UnknownCameraError(cause: Throwable?) : CameraError("unknown", "unknown", cause?.message ?: "An unknown camera error occured.", cause)
