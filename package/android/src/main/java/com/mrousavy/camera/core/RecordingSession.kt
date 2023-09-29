@@ -22,7 +22,7 @@ class RecordingSession(
   private val codec: VideoCodec = VideoCodec.H264,
   private val orientation: Orientation,
   private val fileType: VideoFileType = VideoFileType.MP4,
-  private val bitRate: Double? = DEFAULT_VIDEO_BIT_RATE,
+  private videoBitRate: Double? = DEFAULT_VIDEO_BIT_RATE,
   private val callback: (video: Video) -> Unit,
   private val onError: (error: RecorderError) -> Unit
 ) {
@@ -38,6 +38,7 @@ class RecordingSession(
 
   data class Video(val path: String, val durationMs: Long)
 
+  private val bitRate = videoBitRate ?: DEFAULT_VIDEO_BIT_RATE
   private val recorder: MediaRecorder
   private val outputFile: File
   private var startTime: Long? = null
@@ -45,7 +46,6 @@ class RecordingSession(
   val surface: Surface = MediaCodec.createPersistentInputSurface()
 
   init {
-
     outputFile = File.createTempFile("mrousavy", fileType.toExtension(), context.cacheDir)
 
     Log.i(TAG, "Creating RecordingSession for ${outputFile.absolutePath}")
@@ -57,12 +57,11 @@ class RecordingSession(
 
     recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
     recorder.setOutputFile(outputFile.absolutePath)
-    val encodingBitRate = (bitRate ?: DEFAULT_VIDEO_BIT_RATE) * 1_000_000
-    recorder.setVideoEncodingBitRate(encodingBitRate.toInt())
+    recorder.setVideoEncodingBitRate((bitRate * 1_000_000).toInt())
     recorder.setVideoSize(size.height, size.width)
     if (fps != null) recorder.setVideoFrameRate(fps)
 
-    Log.i(TAG, "Using $codec Video Codec at $encodingBitRate bits per second..")
+    Log.i(TAG, "Using $codec Video Codec at $bitRate Mbps..")
     recorder.setVideoEncoder(codec.toVideoCodec())
     if (enableAudio) {
       Log.i(TAG, "Adding Audio Channel..")
