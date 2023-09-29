@@ -77,6 +77,16 @@ await CameraRoll.save(`file://${path}`, {
 })
 ```
 
+## Getting the Photo's data
+
+To get the Photo's pixel data, you can use [`fetch(...)`](https://reactnative.dev/docs/network#using-fetch) to read the local file as a Blob:
+
+```ts
+const path = await camera.current.takePhoto()
+const result = await fetch(`file://${path}`)
+const data = await result.blob();
+```
+
 <br />
 
 #### 🚀 Next section: [Recording Videos](recording-videos)
