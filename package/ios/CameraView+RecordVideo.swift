@@ -116,10 +116,18 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       }
 
       // Init Video
-      guard let videoSettings = self.recommendedVideoSettings(videoOutput: videoOutput, fileType: fileType, videoCodec: videoCodec),
+      guard var videoSettings = self.recommendedVideoSettings(videoOutput: videoOutput, fileType: fileType, videoCodec: videoCodec),
             !videoSettings.isEmpty else {
         callback.reject(error: .capture(.createRecorderError(message: "Failed to get video settings!")))
         return
+      }
+
+      // Custom Video Bit Rate (Mbps -> bps)
+      if let videoBitRate = options["videoBitRate"] as? NSNumber {
+        let bitsPerSecond = videoBitRate.doubleValue * 1_000_000
+        videoSettings[AVVideoCompressionPropertiesKey] = [
+          AVVideoAverageBitRateKey: NSNumber(value: bitsPerSecond),
+        ]
       }
 
       // get pixel format (420f, 420v, x420)

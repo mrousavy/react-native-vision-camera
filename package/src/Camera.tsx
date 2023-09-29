@@ -114,6 +114,32 @@ export class Camera extends React.PureComponent<CameraProps> {
     }
   }
 
+  private calculateBitRate(bitRate: 'low' | 'normal' | 'high', codec: 'h264' | 'h265' = 'h264'): number {
+    const format = this.props.format
+    if (format == null) {
+      throw new CameraRuntimeError(
+        'parameter/invalid-combination',
+        `A videoBitRate of '${bitRate}' can only be used in combination with a 'format'!`,
+      )
+    }
+
+    const factor = {
+      low: 0.8,
+      normal: 1,
+      high: 1.2,
+    }[bitRate]
+    let result = (30 / (3840 * 2160 * 0.75)) * (format.videoWidth * format.videoHeight)
+    // FPS - 30 is default, 60 would be 2x, 120 would be 4x
+    const fps = this.props.fps ?? Math.min(format.maxFps, 30)
+    result = (result / 30) * fps
+    // H.265 (HEVC) codec is 20% more efficient
+    if (codec === 'h265') result = result * 0.8
+    // HDR (10-bit) instead of SDR (8-bit) takes up 20% more pixels
+    if (this.props.hdr) result = result * 1.2
+    // Return overall result
+    return result * factor
+  }
+
   /**
    * Start a new video recording.
    *
@@ -134,6 +160,9 @@ export class Camera extends React.PureComponent<CameraProps> {
     const { onRecordingError, onRecordingFinished, ...passThroughOptions } = options
     if (typeof onRecordingError !== 'function' || typeof onRecordingFinished !== 'function')
       throw new CameraRuntimeError('parameter/invalid-parameter', 'The onRecordingError or onRecordingFinished functions were not set!')
+
+    const videoBitRate = passThroughOptions.videoBitRate
+    if (typeof videoBitRate === 'string') passThroughOptions.videoBitRate = this.calculateBitRate(videoBitRate, options.videoCodec)
 
     const onRecordCallback = (video?: VideoFile, error?: CameraCaptureError): void => {
       if (error != null) return onRecordingError(error)

@@ -5,7 +5,8 @@ module.exports = {
       'guides/devices',
       'guides/lifecycle',
       'guides/formats',
-      'guides/capturing',
+      'guides/taking-photos',
+      'guides/recording-videos',
       {
         type: 'category',
         label: 'Realtime Frame Processing',

@@ -1,0 +1,166 @@
+---
+id: recording-videos
+title: Recording Videos
+sidebar_label: Recording Videos
+---
+
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+<div class="image-container">
+  <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535">
+    <image href={useBaseUrl("img/demo_capture.gif")} x="18" y="33" width="247" height="469" />
+    <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
+  </svg>
+</div>
+
+## Camera Functions
+
+The Camera provides certain functions which are available through a [ref object](https://reactjs.org/docs/refs-and-the-dom.html):
+
+```tsx
+function App() {
+  const camera = useRef<Camera>(null)
+  // ...
+
+  return (
+    <Camera
+      ref={camera}
+      {...cameraProps}
+    />
+  )
+}
+```
+
+To use these functions, you need to wait until the [`onInitialized`](/docs/api/interfaces/CameraProps#oninitialized) event has been fired.
+
+## Recording Videos
+
+To start a video recording you first have to enable video capture:
+
+```tsx
+<Camera
+  {...props}
+  video={true}
+  audio={true} // <-- optional
+/>
+```
+
+Then, simply use the Camera's [`startRecording(...)`](/docs/api/classes/Camera#startrecording) function:
+
+```ts
+camera.current.startRecording({
+  onRecordingFinished: (video) => console.log(video),
+  onRecordingError: (error) => console.error(error)
+})
+```
+
+You can customize capture options such as [video codec](/docs/api/interfaces/RecordVideoOptions#videoCodec), [video bit-rate](/docs/api/interfaces/RecordVideoOptions#videoBitRate), [file type](/docs/api/interfaces/RecordVideoOptions#fileType), [enable flash](/docs/api/interfaces/RecordVideoOptions#flash) and more using the [`RecordVideoOptions`](/docs/api/interfaces/RecordVideoOptions) parameter.
+
+For any error that occured _while recording the video_, the `onRecordingError` callback will be invoked with a [`CaptureError`](/docs/api/classes/CameraCaptureError) and the recording is therefore cancelled.
+
+To stop the video recording, you can call [`stopRecording(...)`](/docs/api/classes/Camera#stoprecording):
+
+```ts
+await camera.current.stopRecording()
+```
+
+Once a recording has been stopped, the `onRecordingFinished` callback passed to the [`stopRecording(...)`](/docs/api/classes/Camera#stoprecording) function will be invoked with a [`VideoFile`](/docs/api/interfaces/VideoFile) which you can then use to display in a [`<Video>`](https://github.com/react-native-video/react-native-video) component, uploaded to a backend, or saved to the Camera Roll using [react-native-cameraroll](https://github.com/react-native-cameraroll/react-native-cameraroll).
+
+### Pause/Resume
+
+To pause/resume the recordings, you can use [`pauseRecording()`](/docs/api/classes/Camera#pauserecording) and [`resumeRecording()`](/docs/api/classes/Camera#resumerecording):
+
+```ts
+await camera.current.pauseRecording()
+...
+await camera.current.resumeRecording()
+```
+
+### Video Codec
+
+By default, videos are recorded in the H.264 video codec which is a widely adopted video codec.
+
+VisionCamera also supports H.265 ([HEVC](https://en.wikipedia.org/wiki/High_Efficiency_Video_Coding)), which is much more efficient in encoding performance as well as an up to 20% smaller file size:
+
+```ts
+camera.current.startRecording({
+  ...props,
+  videoCodec: 'h265'
+})
+```
+
+### Video Bit Rate
+
+Videos are recorded with a target bit-rate, which the encoder aims to match as closely as possible. A lower bit-rate means less quality (and less file size), a higher bit-rate means higher quality (and larger file size) since it can assign more bits to moving pixels.
+
+To simply record videos with higher quality, use a [`videoBitRate`](/docs/api/interfaces/RecordVideoOptions#videoBitRate) of `'high'`, which effectively increases the bit-rate by 20%:
+
+```ts
+camera.current.startRecording({
+  ...props,
+  videoBitRate: 'high'
+})
+```
+
+To use a lower bit-rate for lower quality and lower file-size, use a [`videoBitRate`](/docs/api/interfaces/RecordVideoOptions#videoBitRate) of `'low'`, which effectively decreases the bit-rate by 20%:
+
+```ts
+camera.current.startRecording({
+  ...props,
+  videoBitRate: 'low'
+})
+```
+
+#### Custom Bit Rate
+
+If you want to use a custom bit-rate, you first need to understand how bit-rate is calculated.
+
+The bit-rate is a product of multiple factors such as resolution, FPS, pixel-format (HDR or non HDR), and video codec.
+As a good starting point, those are the recommended base bit-rates for their respective resolutions:
+
+- 480p: 2 Mbps
+- 720p: 5 Mbps
+- 1080p: 10 Mbps
+- 4K: 30 Mbps
+- 8K: 100 Mbps
+
+These bit-rates assume a frame rate of 30 FPS, a non-HDR pixel-format, and a H.264 video codec.
+
+To calculate your target bit-rate, you can use this formula:
+
+```ts
+let bitRate = baseBitRate
+bitRate = bitRate / 30 * fps // FPS
+if (hdr === true) bitRate *= 1.2 // HDR
+if (codec === 'h265') bitRate *= 0.8 // H.265
+bitRate *= yourCustomFactor // e.g. 0.5x for half the bit-rate
+```
+
+And then pass it to the [`startRecording(...)`](/docs/api/classes/Camera#startrecording) function (in Mbps):
+
+```ts
+camera.current.startRecording({
+  ...props,
+  videoBitRate: bitRate // Mbps
+})
+```
+
+## Saving the Video to the Camera Roll
+
+Since the Video is stored as a temporary file, you need save it to the Camera Roll to permanentely store it. You can use [react-native-cameraroll](https://github.com/react-native-cameraroll/react-native-cameraroll) for this:
+
+```ts
+camera.current.startRecording({
+  ...props,
+  onRecordingFinished: (video) => {
+    const path = video.path
+    await CameraRoll.save(`file://${path}`, {
+      type: 'video',
+    })
+  },
+})
+```
+
+<br />
+
+#### 🚀 Next section: [Frame Processors](frame-processors)

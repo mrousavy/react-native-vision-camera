@@ -279,6 +279,7 @@ class CameraSession(
     enableAudio: Boolean,
     codec: VideoCodec,
     fileType: VideoFileType,
+    bitRate: Double?,
     callback: (video: RecordingSession.Video) -> Unit,
     onError: (error: RecorderError) -> Unit
   ) {
@@ -287,7 +288,8 @@ class CameraSession(
       val outputs = outputs ?: throw CameraNotReadyError()
       val videoOutput = outputs.videoOutput ?: throw VideoNotEnabledError()
 
-      val recording = RecordingSession(context, videoOutput.size, enableAudio, fps, codec, orientation, fileType, callback, onError)
+      val recording =
+        RecordingSession(context, videoOutput.size, enableAudio, fps, codec, orientation, fileType, bitRate, callback, onError)
       recording.start()
       this.recording = recording
     }
