@@ -22,7 +22,7 @@ class RecordingSession(
   private val codec: VideoCodec = VideoCodec.H264,
   private val orientation: Orientation,
   private val fileType: VideoFileType = VideoFileType.MP4,
-  private videoBitRate: Double? = DEFAULT_VIDEO_BIT_RATE,
+  videoBitRate: Double? = DEFAULT_VIDEO_BIT_RATE,
   private val callback: (video: Video) -> Unit,
   private val onError: (error: RecorderError) -> Unit
 ) {
