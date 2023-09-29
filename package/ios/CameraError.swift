@@ -32,7 +32,6 @@ enum PermissionError: String {
 
 enum ParameterError {
   case invalid(unionName: String, receivedValue: String)
-  case unsupportedOS(unionName: String, receivedValue: String, supportedOnOs: String)
   case unsupportedOutput(outputDescriptor: String)
   case unsupportedInput(inputDescriptor: String)
   case invalidCombination(provided: String, missing: String)
@@ -41,8 +40,6 @@ enum ParameterError {
     switch self {
     case .invalid:
       return "invalid-parameter"
-    case .unsupportedOS:
-      return "unsupported-os"
     case .unsupportedOutput:
       return "unsupported-output"
     case .unsupportedInput:
@@ -56,8 +53,6 @@ enum ParameterError {
     switch self {
     case let .invalid(unionName: unionName, receivedValue: receivedValue):
       return "The value \"\(receivedValue)\" could not be parsed to type \(unionName)!"
-    case let .unsupportedOS(unionName: unionName, receivedValue: receivedValue, supportedOnOs: os):
-      return "The value \"\(receivedValue)\" for type \(unionName) is not supported on the current iOS version! Required OS: \(os) or higher"
     case let .unsupportedOutput(outputDescriptor: output):
       return "The output \"\(output)\" is not supported!"
     case let .unsupportedInput(inputDescriptor: input):
@@ -148,7 +143,6 @@ enum FormatError {
 
 enum SessionError {
   case cameraNotReady
-  case audioSessionSetupFailed(reason: String)
   case audioSessionFailedToActivate
   case audioInUseByOtherApp
 
@@ -156,8 +150,6 @@ enum SessionError {
     switch self {
     case .cameraNotReady:
       return "camera-not-ready"
-    case .audioSessionSetupFailed:
-      return "audio-session-setup-failed"
     case .audioInUseByOtherApp:
       return "audio-in-use-by-other-app"
     case .audioSessionFailedToActivate:
@@ -169,8 +161,6 @@ enum SessionError {
     switch self {
     case .cameraNotReady:
       return "The Camera is not ready yet! Wait for the onInitialized() callback!"
-    case let .audioSessionSetupFailed(reason):
-      return "The audio session failed to setup! \(reason)"
     case .audioInUseByOtherApp:
       return "The audio session is already in use by another app with higher priority!"
     case .audioSessionFailedToActivate:
@@ -182,13 +172,11 @@ enum SessionError {
 // MARK: - CaptureError
 
 enum CaptureError {
-  case invalidPhotoFormat
   case recordingInProgress
   case noRecordingInProgress
   case fileError
   case createTempFileError
   case createRecorderError(message: String? = nil)
-  case invalidPhotoCodec
   case videoNotEnabled
   case photoNotEnabled
   case aborted
@@ -196,8 +184,6 @@ enum CaptureError {
 
   var code: String {
     switch self {
-    case .invalidPhotoFormat:
-      return "invalid-photo-format"
     case .recordingInProgress:
       return "recording-in-progress"
     case .noRecordingInProgress:
@@ -208,8 +194,6 @@ enum CaptureError {
       return "create-temp-file-error"
     case .createRecorderError:
       return "create-recorder-error"
-    case .invalidPhotoCodec:
-      return "invalid-photo-codec"
     case .videoNotEnabled:
       return "video-not-enabled"
     case .photoNotEnabled:
@@ -223,10 +207,6 @@ enum CaptureError {
 
   var message: String {
     switch self {
-    case .invalidPhotoFormat:
-      return "The given photo format was invalid!"
-    case .invalidPhotoCodec:
-      return "The given photo codec was invalid!"
     case .recordingInProgress:
       return "There is already an active video recording in progress! Did you call startRecording() twice?"
     case .noRecordingInProgress:
@@ -249,26 +229,6 @@ enum CaptureError {
   }
 }
 
-// MARK: - SystemError
-
-enum SystemError: String {
-  case noManager = "no-camera-manager"
-  case frameProcessorsUnavailable = "frame-processors-unavailable"
-
-  var code: String {
-    return rawValue
-  }
-
-  var message: String {
-    switch self {
-    case .noManager:
-      return "No Camera Manager was found."
-    case .frameProcessorsUnavailable:
-      return "Frame Processors are unavailable - is react-native-worklets-core installed?"
-    }
-  }
-}
-
 // MARK: - CameraError
 
 enum CameraError: Error {
@@ -278,7 +238,6 @@ enum CameraError: Error {
   case format(_ id: FormatError)
   case session(_ id: SessionError)
   case capture(_ id: CaptureError)
-  case system(_ id: SystemError)
   case unknown(message: String? = nil)
 
   var code: String {
@@ -295,8 +254,6 @@ enum CameraError: Error {
       return "session/\(id.code)"
     case let .capture(id: id):
       return "capture/\(id.code)"
-    case let .system(id: id):
-      return "system/\(id.code)"
     case .unknown:
       return "unknown/unknown"
     }
@@ -315,8 +272,6 @@ enum CameraError: Error {
     case let .session(id: id):
       return id.message
     case let .capture(id: id):
-      return id.message
-    case let .system(id: id):
       return id.message
     case let .unknown(message: message):
       return message ?? "An unexpected error occured."

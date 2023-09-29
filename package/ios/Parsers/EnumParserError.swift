@@ -13,10 +13,6 @@ import Foundation
  */
 enum EnumParserError: Error {
   /**
-   Raised when the descriptor is not supported on the current OS.
-   */
-  case unsupportedOS(supportedOnOS: String)
-  /**
    Raised when the descriptor does not match any of the possible values.
    */
   case invalidValue
