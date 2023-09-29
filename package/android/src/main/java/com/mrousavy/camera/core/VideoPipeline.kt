@@ -11,13 +11,15 @@ import android.view.Surface
 import com.facebook.jni.HybridData
 import com.mrousavy.camera.CameraQueues
 import com.mrousavy.camera.FrameProcessorsUnavailableError
+import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
+import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.PixelFormat
 import java.io.Closeable
 
 /**
  * An OpenGL pipeline for streaming Camera Frames to one or more outputs.
- * Currently, [VideoPipeline] can stream to a [FrameProcessor] and a [MediaRecorder].
+ * Currently, [VideoPipeline] can stream to a [FrameProcessor] and a [RecordingSession].
  *
  * @param [width] The width of the Frames to stream (> 0)
  * @param [height] The height of the Frames to stream (> 0)
@@ -98,13 +100,13 @@ class VideoPipeline(val width: Int,
         Log.i(TAG, "Image Format: ${image.format}")
 
         // // TODO: Get correct orientation and isMirrored
-        // val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, isMirrored)
-        // frame.incrementRefCount()
-        // frameProcessor?.call(frame)
+        val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, isMirrored)
+        frame.incrementRefCount()
+        frameProcessor?.call(frame)
 
         imageWriter!!.queueInputImage(image)
 
-        // frame.decrementRefCount()
+        frame.decrementRefCount()
       }, CameraQueues.videoQueue.handler)
 
       surface = imageReader!!.surface
