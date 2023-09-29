@@ -1,7 +1,7 @@
 ---
-id: capturing
-title: Taking Photos/Recording Videos
-sidebar_label: Taking Photos/Recording Videos
+id: recording-videos
+title: Recording Videos
+sidebar_label: Recording Videos
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl'
@@ -33,30 +33,7 @@ function App() {
 
 To use these functions, you need to wait until the [`onInitialized`](/docs/api/interfaces/CameraProps#oninitialized) event has been fired.
 
-### Taking Photos
-
-To take a photo you first have to enable photo capture:
-
-```tsx
-<Camera
-  {...props}
-  photo={true}
-/>
-```
-
-Then, simply use the Camera's [`takePhoto(...)`](/docs/api/classes/Camera#takephoto) function:
-
-```ts
-const photo = await camera.current.takePhoto({
-  flash: 'on'
-})
-```
-
-You can customize capture options such as [automatic red-eye reduction](/docs/api/interfaces/TakePhotoOptions#enableautoredeyereduction), [automatic image stabilization](/docs/api/interfaces/TakePhotoOptions#enableautostabilization), [enable flash](/docs/api/interfaces/TakePhotoOptions#flash), [prioritize speed over quality](/docs/api/interfaces/TakePhotoOptions#qualityprioritization), [disable the shutter sound](/docs/api/interfaces/TakePhotoOptions#enableshuttersound) and more using the [`TakePhotoOptions`](/docs/api/interfaces/TakePhotoOptions) parameter.
-
-This function returns a [`PhotoFile`](/docs/api/interfaces/PhotoFile) which is stored in a temporary directory and can either be displayed using `<Image>` or `<FastImage>`, uploaded to a backend, or saved to the Camera Roll using [react-native-cameraroll](https://github.com/react-native-cameraroll/react-native-cameraroll).
-
-### Recording Videos
+## Recording Videos
 
 To start a video recording you first have to enable video capture:
 
@@ -96,6 +73,22 @@ To pause/resume the recordings, you can use `pauseRecording()` and `resumeRecord
 await camera.current.pauseRecording()
 ...
 await camera.current.resumeRecording()
+```
+
+## Saving the Video to the Camera Roll
+
+Since the Video is stored as a temporary file, you need save it to the Camera Roll to permanentely store it. You can use [react-native-cameraroll](https://github.com/react-native-cameraroll/react-native-cameraroll) for this:
+
+```ts
+camera.current.startRecording({
+  ...props,
+  onRecordingFinished: (video) => {
+    const path = video.path
+    await CameraRoll.save(`file://${path}`, {
+      type: 'video',
+    })
+  },
+})
 ```
 
 <br />
