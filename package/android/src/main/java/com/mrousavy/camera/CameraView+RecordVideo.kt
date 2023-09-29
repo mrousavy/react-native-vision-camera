@@ -33,6 +33,10 @@ suspend fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Ca
   if (options.hasKey("fileType")) {
     fileType = VideoFileType.fromUnionValue(options.getString("fileType"))
   }
+  var bitRate: Double? = null
+  if (options.hasKey("videoBitRate")) {
+    bitRate = options.getDouble("videoBitRate")
+  }
 
   val callback = { video: RecordingSession.Video ->
     val map = Arguments.createMap()
@@ -44,7 +48,7 @@ suspend fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Ca
     val errorMap = makeErrorMap(error.code, error.message)
     onRecordCallback(null, errorMap)
   }
-  cameraSession.startRecording(audio == true, codec, fileType, callback, onError)
+  cameraSession.startRecording(audio == true, codec, fileType, bitRate, callback, onError)
 }
 
 @SuppressLint("RestrictedApi")
