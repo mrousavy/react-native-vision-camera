@@ -4,7 +4,6 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
-import android.os.Build
 import android.view.Surface
 import com.mrousavy.camera.parsers.Flash
 import com.mrousavy.camera.parsers.Orientation
@@ -86,12 +85,7 @@ fun CameraDevice.createPhotoCaptureRequest(
     }
   }
 
-  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-    captureRequest.set(CaptureRequest.CONTROL_ZOOM_RATIO, zoom)
-  } else {
-    val size = cameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)!!
-    captureRequest.set(CaptureRequest.SCALER_CROP_REGION, size.zoomed(zoom))
-  }
+  captureRequest.setZoom(zoom, cameraCharacteristics)
 
   captureRequest.addTarget(surface)
 
