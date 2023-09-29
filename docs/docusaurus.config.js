@@ -10,8 +10,8 @@ module.exports = {
   projectName: 'react-native-vision-camera',
   themeConfig: {
     algolia: {
-      appId: 'HBHXBT6T9E',
-      apiKey: '64bc77eda92b7efcb7003b56815f1113',
+      appId: 'NRK7PZXU6O',
+      apiKey: '33d54e627c4587a6d8dbff79d5209e46',
       indexName: 'react-native-vision-camera',
     },
     colorMode: {
