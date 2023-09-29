@@ -89,7 +89,8 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 
       AHardwareBuffer_Desc bufferDescription;
       AHardwareBuffer_describe(hardwareBuffer, &bufferDescription);
-      __android_log_print(ANDROID_LOG_INFO, "Frame", "Buffer %i x %i @ %i", bufferDescription.width, bufferDescription.height, bufferDescription.stride);
+      __android_log_print(ANDROID_LOG_INFO, "Frame", "Buffer %i x %i @ %i", bufferDescription.width, bufferDescription.height,
+                          bufferDescription.stride);
       size_t size = bufferDescription.height * bufferDescription.stride;
 
       static constexpr auto ARRAYBUFFER_CACHE_PROP_NAME = "__frameArrayBufferCache";

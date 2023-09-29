@@ -4,10 +4,10 @@
 
 #pragma once
 
+#include <android/hardware_buffer.h>
 #include <fbjni/ByteBuffer.h>
 #include <fbjni/fbjni.h>
 #include <jni.h>
-#include <android/hardware_buffer.h>
 
 namespace vision {
 

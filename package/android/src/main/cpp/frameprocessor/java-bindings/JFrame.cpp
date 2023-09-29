@@ -4,10 +4,10 @@
 
 #include "JFrame.h"
 
+#include <android/hardware_buffer_jni.h>
 #include <fbjni/ByteBuffer.h>
 #include <fbjni/fbjni.h>
 #include <jni.h>
-#include <android/hardware_buffer_jni.h>
 
 namespace vision {
 
