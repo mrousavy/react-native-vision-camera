@@ -31,7 +31,6 @@ VideoPipeline::VideoPipeline(jni::alias_ref<jhybridobject> jThis, int width, int
 
 VideoPipeline::~VideoPipeline() {
   // 1. Remove output surfaces
-  removeFrameProcessorOutputSurface();
   removeRecordingSessionOutputSurface();
   // 2. Delete the input textures
   if (_inputTexture != std::nullopt) {
@@ -40,21 +39,6 @@ VideoPipeline::~VideoPipeline() {
   }
   // 3. Destroy the OpenGL context
   _context = nullptr;
-}
-
-void VideoPipeline::removeFrameProcessorOutputSurface() {
-  if (_frameProcessorOutput)
-    _frameProcessorOutput->destroy();
-  _frameProcessorOutput = nullptr;
-}
-
-void VideoPipeline::setFrameProcessorOutputSurface(jobject surface) {
-  // 1. Delete existing output surface
-  removeFrameProcessorOutputSurface();
-
-  // 2. Set new output surface if it is not null
-  ANativeWindow* window = ANativeWindow_fromSurface(jni::Environment::current(), surface);
-  _frameProcessorOutput = OpenGLRenderer::CreateWithWindowSurface(_context, window);
 }
 
 void VideoPipeline::removeRecordingSessionOutputSurface() {
@@ -93,10 +77,6 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
 
   OpenGLTexture& texture = _inputTexture.value();
 
-  if (_frameProcessorOutput) {
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to FrameProcessor..");
-    _frameProcessorOutput->renderTextureToSurface(texture, transformMatrix);
-  }
   if (_recordingSessionOutput) {
     __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to RecordingSession..");
     _recordingSessionOutput->renderTextureToSurface(texture, transformMatrix);
@@ -106,8 +86,6 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
 void VideoPipeline::registerNatives() {
   registerHybrid({
       makeNativeMethod("initHybrid", VideoPipeline::initHybrid),
-      makeNativeMethod("setFrameProcessorOutputSurface", VideoPipeline::setFrameProcessorOutputSurface),
-      makeNativeMethod("removeFrameProcessorOutputSurface", VideoPipeline::removeFrameProcessorOutputSurface),
       makeNativeMethod("setRecordingSessionOutputSurface", VideoPipeline::setRecordingSessionOutputSurface),
       makeNativeMethod("removeRecordingSessionOutputSurface", VideoPipeline::removeRecordingSessionOutputSurface),
       makeNativeMethod("getInputTextureId", VideoPipeline::getInputTextureId),

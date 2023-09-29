@@ -1,8 +1,10 @@
 package com.mrousavy.camera.frameprocessor;
 
-import android.graphics.ImageFormat;
+import android.hardware.HardwareBuffer;
 import android.media.Image;
+import android.os.Build;
 import com.facebook.proguard.annotations.DoNotStrip;
+import com.mrousavy.camera.HardwareBuffersNotAvailableError;
 import com.mrousavy.camera.parsers.PixelFormat;
 import com.mrousavy.camera.parsers.Orientation;
 
@@ -14,6 +16,7 @@ public class Frame {
     private final long timestamp;
     private final Orientation orientation;
     private int refCount = 0;
+    private HardwareBuffer hardwareBuffer = null;
 
     public Frame(Image image, long timestamp, Orientation orientation, boolean isMirrored) {
         this.image = image;
@@ -89,34 +92,20 @@ public class Frame {
         return image.getPlanes()[0].getRowStride();
     }
 
-    private static ByteBuffer byteArrayCache;
-
     @SuppressWarnings("unused")
     @DoNotStrip
-    public ByteBuffer toByteBuffer() {
-        switch (image.getFormat()) {
-            case ImageFormat.YUV_420_888:
-                ByteBuffer yBuffer = image.getPlanes()[0].getBuffer();
-                ByteBuffer uBuffer = image.getPlanes()[1].getBuffer();
-                ByteBuffer vBuffer = image.getPlanes()[2].getBuffer();
-                int ySize = yBuffer.remaining();
-                int uSize = uBuffer.remaining();
-                int vSize = vBuffer.remaining();
-                int totalSize = ySize + uSize + vSize;
+    public Object getHardwareBufferBoxed() throws HardwareBuffersNotAvailableError {
+        return getHardwareBuffer();
+    }
 
-                if (byteArrayCache != null) byteArrayCache.rewind();
-                if (byteArrayCache == null || byteArrayCache.remaining() != totalSize) {
-                    byteArrayCache = ByteBuffer.allocateDirect(totalSize);
-                }
-
-                byteArrayCache.put(yBuffer).put(uBuffer).put(vBuffer);
-
-                return byteArrayCache;
-            case ImageFormat.JPEG:
-                return image.getPlanes()[0].getBuffer();
-            default:
-                throw new RuntimeException("Cannot convert Frame with Format " + image.getFormat() + " to byte array!");
+    public HardwareBuffer getHardwareBuffer() throws HardwareBuffersNotAvailableError {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            throw new HardwareBuffersNotAvailableError();
         }
+        if (hardwareBuffer == null) {
+            hardwareBuffer = image.getHardwareBuffer();
+        }
+        return hardwareBuffer;
     }
 
     @SuppressWarnings("unused")
@@ -142,6 +131,9 @@ public class Frame {
     @SuppressWarnings("unused")
     @DoNotStrip
     private void close() {
+        if (hardwareBuffer != null) {
+            hardwareBuffer.close();
+        }
         image.close();
     }
 }

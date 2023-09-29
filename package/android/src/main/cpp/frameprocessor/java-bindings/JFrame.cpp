@@ -4,6 +4,7 @@
 
 #include "JFrame.h"
 
+#include <android/hardware_buffer_jni.h>
 #include <fbjni/ByteBuffer.h>
 #include <fbjni/fbjni.h>
 #include <jni.h>
@@ -58,9 +59,10 @@ int JFrame::getBytesPerRow() const {
   return getBytesPerRowMethod(self());
 }
 
-local_ref<JByteBuffer> JFrame::toByteBuffer() const {
-  static const auto toByteBufferMethod = getClass()->getMethod<JByteBuffer()>("toByteBuffer");
-  return toByteBufferMethod(self());
+AHardwareBuffer* JFrame::getHardwareBuffer() const {
+  static const auto getHardwareBufferMethod = getClass()->getMethod<jobject()>("getHardwareBufferBoxed");
+  auto hardwareBuffer = getHardwareBufferMethod(self());
+  return AHardwareBuffer_fromHardwareBuffer(jni::Environment::current(), hardwareBuffer.get());
 }
 
 void JFrame::incrementRefCount() {
