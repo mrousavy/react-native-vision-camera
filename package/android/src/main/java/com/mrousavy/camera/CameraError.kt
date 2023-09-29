@@ -83,8 +83,6 @@ class RecordingInProgressError :
 
 class ViewNotFoundError(viewId: Int) :
   CameraError("system", "view-not-found", "The given view (ID $viewId) was not found in the view manager.")
-class FrameProcessorsUnavailableError(reason: String) :
-  CameraError("system", "frame-processors-unavailable", "Frame Processors are unavailable! Reason: $reason")
 class HardwareBuffersNotAvailableError :
   CameraError("system", "hardware-buffers-unavailable", "HardwareBuffers are only available on API 28 or higher!")
 
