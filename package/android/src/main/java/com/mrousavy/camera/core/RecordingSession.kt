@@ -132,11 +132,11 @@ class RecordingSession(
 
   private fun getDefaultBitRate(): Double {
     var baseBitRate = when (size.width * size.height) {
-      in 0..640*480 -> 2.0
-      in 640*480..1280*720 -> 5.0
-      in 1280*720..1920*1080 -> 10.0
-      in 1920*1080..3840*2160 -> 30.0
-      in 3840*2160..7680*4320 -> 100.0
+      in 0..640 * 480 -> 2.0
+      in 640 * 480..1280 * 720 -> 5.0
+      in 1280 * 720..1920 * 1080 -> 10.0
+      in 1920 * 1080..3840 * 2160 -> 30.0
+      in 3840 * 2160..7680 * 4320 -> 100.0
       else -> 100.0
     }
     baseBitRate = baseBitRate / 30.0 * (fps ?: 30).toDouble()
