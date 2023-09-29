@@ -15,6 +15,7 @@
   --ifm-color-primary-lighter: rgb(156, 180, 173);
   --ifm-color-primary-lightest: rgb(195, 207, 204);
   --ifm-code-font-size: 95%;
+  --ifm-font-family-monospace: "Fira Code"
 }
 
 .docusaurus-highlight-code-line {
