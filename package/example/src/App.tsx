@@ -7,6 +7,7 @@ import { CameraPage } from './CameraPage'
 import type { Routes } from './Routes'
 import { Camera, CameraPermissionStatus } from 'react-native-vision-camera'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
+import { StyleSheet } from 'react-native'
 
 const Stack = createNativeStackNavigator<Routes>()
 
@@ -29,7 +30,7 @@ export function App(): React.ReactElement | null {
   const showPermissionsPage = cameraPermission !== 'granted' || microphonePermission === 'not-determined'
   return (
     <NavigationContainer>
-      <GestureHandlerRootView style={{ flex: 1 }}>
+      <GestureHandlerRootView style={styles.root}>
         <Stack.Navigator
           screenOptions={{
             headerShown: false,
@@ -52,3 +53,9 @@ export function App(): React.ReactElement | null {
     </NavigationContainer>
   )
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+})
