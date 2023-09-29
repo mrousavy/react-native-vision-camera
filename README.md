@@ -14,7 +14,7 @@
 
 ### Features
 
-VisionCamera is a powerful and fast Camera component for React Native. It features:
+VisionCamera is a powerful, high-performance Camera library for React Native. It features:
 
 * 📸 Photo and Video capture
 * 📱 Customizable devices and multi-cameras ("fish-eye" zoom)
