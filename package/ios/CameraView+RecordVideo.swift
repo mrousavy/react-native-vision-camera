@@ -126,7 +126,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       if let videoBitRate = options["videoBitRate"] as? NSNumber {
         let bitsPerSecond = videoBitRate.doubleValue * 1_000_000
         videoSettings[AVVideoCompressionPropertiesKey] = [
-          AVVideoAverageBitRateKey: NSNumber(value: bitsPerSecond)
+          AVVideoAverageBitRateKey: NSNumber(value: bitsPerSecond),
         ]
       }
 
