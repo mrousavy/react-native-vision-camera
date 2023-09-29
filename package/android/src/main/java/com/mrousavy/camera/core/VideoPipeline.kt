@@ -26,12 +26,13 @@ import java.io.Closeable
  * @param [format] The format of the Frames to stream. ([ImageFormat.PRIVATE], [ImageFormat.YUV_420_888] or [ImageFormat.JPEG])
  */
 @Suppress("KotlinJniMissingFunction")
-class VideoPipeline(val width: Int,
-                    val height: Int,
-                    val format: PixelFormat = PixelFormat.NATIVE,
-                    private val isMirrored: Boolean = false,
-                    enableFrameProcessor: Boolean = false) :
-  SurfaceTexture.OnFrameAvailableListener,
+class VideoPipeline(
+  val width: Int,
+  val height: Int,
+  val format: PixelFormat = PixelFormat.NATIVE,
+  private val isMirrored: Boolean = false,
+  enableFrameProcessor: Boolean = false
+) : SurfaceTexture.OnFrameAvailableListener,
   Closeable {
   companion object {
     private const val MAX_IMAGES = 3
@@ -66,6 +67,7 @@ class VideoPipeline(val width: Int,
   // Input
   private val surfaceTexture: SurfaceTexture
   val surface: Surface
+
   // If Frame Processors are enabled, we go through ImageReader first before we go thru OpenGL
   private var imageReader: ImageReader? = null
   private var imageWriter: ImageWriter? = null
@@ -153,14 +155,13 @@ class VideoPipeline(val width: Int,
     }
   }
 
-  private fun getImageReaderFormat(): Int {
-    return when (format) {
+  private fun getImageReaderFormat(): Int =
+    when (format) {
       PixelFormat.NATIVE -> ImageFormat.PRIVATE
       PixelFormat.RGB -> HardwareBuffer.RGBA_8888
       PixelFormat.YUV -> ImageFormat.YUV_420_888
       else -> ImageFormat.PRIVATE
     }
-  }
 
   /**
    * Configures the Pipeline to also call the given [FrameProcessor] (or null).

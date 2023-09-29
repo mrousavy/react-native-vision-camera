@@ -56,7 +56,7 @@ void VideoPipeline::setRecordingSessionOutputSurface(jobject surface) {
   auto format = ANativeWindow_getFormat(window);
   bool yuv = false;
   if (format == AHARDWAREBUFFER_FORMAT_Y8Cb8Cr8_420) {
-      yuv = true;
+    yuv = true;
   }
   __android_log_print(ANDROID_LOG_INFO, TAG, "Format is %i (YUV: %i)..", format, yuv);
   _recordingSessionOutput = OpenGLRenderer::CreateWithWindowSurface(_context, window);
