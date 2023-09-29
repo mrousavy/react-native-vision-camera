@@ -273,8 +273,6 @@ enum CameraError: Error {
       return id.message
     case let .capture(id: id):
       return id.message
-    case let .system(id: id):
-      return id.message
     case let .unknown(message: message):
       return message ?? "An unexpected error occured."
     }
