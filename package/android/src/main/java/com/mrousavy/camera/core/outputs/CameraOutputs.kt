@@ -16,6 +16,7 @@ import com.mrousavy.camera.extensions.getPhotoSizes
 import com.mrousavy.camera.extensions.getPreviewTargetSize
 import com.mrousavy.camera.extensions.getVideoSizes
 import com.mrousavy.camera.extensions.smaller
+import com.mrousavy.camera.parsers.PixelFormat
 import java.io.Closeable
 
 class CameraOutputs(
@@ -38,7 +39,7 @@ class CameraOutputs(
     val targetSize: Size? = null,
     val enableRecording: Boolean = false,
     val enableFrameProcessor: Boolean? = false,
-    val format: Int = ImageFormat.PRIVATE
+    val format: PixelFormat = PixelFormat.NATIVE
   )
 
   interface Callback {
@@ -134,8 +135,11 @@ class CameraOutputs(
 
     // Video output: High resolution repeating images (startRecording() or useFrameProcessor())
     if (video != null) {
-      val size = characteristics.getVideoSizes(cameraId, video.format).closestToOrMax(video.targetSize)
-      val videoPipeline = VideoPipeline(size.width, size.height, video.format, isMirrored)
+      // TODO: Should this be dynamic?
+      val format = ImageFormat.YUV_420_888
+      val size = characteristics.getVideoSizes(cameraId, format).closestToOrMax(video.targetSize)
+      val enableFrameProcessor = video.enableFrameProcessor ?: false
+      val videoPipeline = VideoPipeline(size.width, size.height, video.format, isMirrored, enableFrameProcessor)
 
       Log.i(TAG, "Adding ${size.width}x${size.height} video output. (Format: ${video.format})")
       videoOutput = VideoPipelineOutput(videoPipeline, SurfaceOutput.OutputType.VIDEO)

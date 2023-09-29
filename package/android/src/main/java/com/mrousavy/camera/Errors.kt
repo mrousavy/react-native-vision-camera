@@ -66,6 +66,8 @@ class CameraSessionCannotBeConfiguredError(cameraId: String, outputs: CameraOutp
   CameraError("session", "cannot-create-session", "Failed to create a Camera Session for Camera $cameraId! Outputs: $outputs")
 class CameraDisconnectedError(cameraId: String, error: CameraDeviceError) :
   CameraError("session", "camera-has-been-disconnected", "The given Camera device (id: $cameraId) has been disconnected! Error: $error")
+class FrameProcessorsUnavailableError(reason: String) :
+  CameraError("system", "frame-processors-unavailable", "Frame Processors are unavailable! Reason: $reason")
 
 class VideoNotEnabledError :
   CameraError("capture", "video-not-enabled", "Video capture is disabled! Pass `video={true}` to enable video recordings.")

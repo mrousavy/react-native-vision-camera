@@ -2,12 +2,15 @@ package com.mrousavy.camera.core
 
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
+import android.hardware.HardwareBuffer
 import android.media.ImageReader
+import android.media.ImageWriter
+import android.os.Build
 import android.util.Log
 import android.view.Surface
 import com.facebook.jni.HybridData
 import com.mrousavy.camera.CameraQueues
-import com.mrousavy.camera.PixelFormatNotSupportedInVideoPipelineError
+import com.mrousavy.camera.FrameProcessorsUnavailableError
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.parsers.Orientation
@@ -16,15 +19,20 @@ import java.io.Closeable
 
 /**
  * An OpenGL pipeline for streaming Camera Frames to one or more outputs.
- * Currently, [VideoPipeline] can stream to a [FrameProcessor] and a [MediaRecorder].
+ * Currently, [VideoPipeline] can stream to a [FrameProcessor] and a [RecordingSession].
  *
  * @param [width] The width of the Frames to stream (> 0)
  * @param [height] The height of the Frames to stream (> 0)
  * @param [format] The format of the Frames to stream. ([ImageFormat.PRIVATE], [ImageFormat.YUV_420_888] or [ImageFormat.JPEG])
  */
 @Suppress("KotlinJniMissingFunction")
-class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageFormat.PRIVATE, private val isMirrored: Boolean = false) :
-  SurfaceTexture.OnFrameAvailableListener,
+class VideoPipeline(
+  val width: Int,
+  val height: Int,
+  val format: PixelFormat = PixelFormat.NATIVE,
+  private val isMirrored: Boolean = false,
+  enableFrameProcessor: Boolean = false
+) : SurfaceTexture.OnFrameAvailableListener,
   Closeable {
   companion object {
     private const val MAX_IMAGES = 3
@@ -52,7 +60,6 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
 
   // Output 1
   private var frameProcessor: FrameProcessor? = null
-  private var imageReader: ImageReader? = null
 
   // Output 2
   private var recordingSession: RecordingSession? = null
@@ -61,36 +68,61 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
   private val surfaceTexture: SurfaceTexture
   val surface: Surface
 
+  // If Frame Processors are enabled, we go through ImageReader first before we go thru OpenGL
+  private var imageReader: ImageReader? = null
+  private var imageWriter: ImageWriter? = null
+
   init {
     Log.i(
       TAG,
-      "Initializing $width x $height Video Pipeline " +
-        "(format: ${PixelFormat.fromImageFormat(format)} #$format)"
+      "Initializing $width x $height Video Pipeline (format: $format)"
     )
-    // TODO: We currently use OpenGL for the Video Pipeline.
-    //  OpenGL only works in the RGB (RGBA_8888; 0x23) pixel-format, so we cannot
-    //  override the pixel-format to something like YUV or PRIVATE.
-    //  This absolutely sucks and I would prefer to replace the OpenGL pipeline with
-    //  something similar to how iOS works where we just pass GPU buffers around,
-    //  but android.media APIs are just not as advanced yet.
-    //  For example, ImageReader/ImageWriter is way too buggy and does not work with MediaRecorder.
-    //  See this issue ($4.000 bounty!) for more details:
-    //  https://github.com/mrousavy/react-native-vision-camera/issues/1837
-    if (format != ImageFormat.PRIVATE && format != 0x23) {
-      throw PixelFormatNotSupportedInVideoPipelineError(PixelFormat.fromImageFormat(format).unionValue)
-    }
     mHybridData = initHybrid(width, height)
     surfaceTexture = SurfaceTexture(false)
     surfaceTexture.setDefaultBufferSize(width, height)
     surfaceTexture.setOnFrameAvailableListener(this)
-    surface = Surface(surfaceTexture)
+    val glSurface = Surface(surfaceTexture)
+
+    if (enableFrameProcessor) {
+      // User has passed a Frame Processor, we need to route images through ImageReader so we can get
+      // CPU access to the Frames, then send them to the OpenGL pipeline later.
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+        throw FrameProcessorsUnavailableError("Frame Processors require API 29 or higher. (Q)")
+      }
+      // GPU_SAMPLED because we redirect to OpenGL, CPU_READ because we read pixels before that.
+      val usage = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or HardwareBuffer.USAGE_CPU_READ_OFTEN
+      val format = getImageReaderFormat()
+      Log.i(TAG, "Using ImageReader round-trip (format: #$format)")
+      imageWriter = ImageWriter.newInstance(glSurface, MAX_IMAGES, format)
+      imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES, usage)
+      imageReader!!.setOnImageAvailableListener({ reader ->
+        Log.i(TAG, "ImageReader::onImageAvailable!")
+        val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
+
+        Log.i(TAG, "Image Format: ${image.format}")
+
+        // // TODO: Get correct orientation and isMirrored
+        val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, isMirrored)
+        frame.incrementRefCount()
+        frameProcessor?.call(frame)
+
+        imageWriter!!.queueInputImage(image)
+
+        frame.decrementRefCount()
+      }, CameraQueues.videoQueue.handler)
+
+      surface = imageReader!!.surface
+    } else {
+      // No Frame Processor will be used, directly render into the OpenGL pipeline to avoid ImageReader roundtrip.
+      surface = glSurface
+    }
   }
 
   override fun close() {
     synchronized(this) {
       isActive = false
+      imageWriter?.close()
       imageReader?.close()
-      imageReader = null
       frameProcessor = null
       recordingSession = null
       surfaceTexture.release()
@@ -123,29 +155,13 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
     }
   }
 
-  private fun getImageReader(): ImageReader {
-    if (format != ImageFormat.PRIVATE) {
-      Log.w(
-        TAG,
-        "Warning: pixelFormat \"${PixelFormat.fromImageFormat(format).unionValue}\" might " +
-          "not be supported on this device because the C++ OpenGL GPU Video Pipeline operates in RGBA_8888. " +
-          "I wanted to use an ImageReader -> ImageWriter setup for this, but I couldn't get it to work. " +
-          "See this PR for more details: https://github.com/mrousavy/react-native-vision-camera/pull/1836"
-      )
+  private fun getImageReaderFormat(): Int =
+    when (format) {
+      PixelFormat.NATIVE -> ImageFormat.PRIVATE
+      PixelFormat.RGB -> HardwareBuffer.RGBA_8888
+      PixelFormat.YUV -> ImageFormat.YUV_420_888
+      else -> ImageFormat.PRIVATE
     }
-    val imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES)
-    imageReader.setOnImageAvailableListener({ reader ->
-      Log.i("VideoPipeline", "ImageReader::onImageAvailable!")
-      val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
-
-      // TODO: Get correct orientation and isMirrored
-      val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, isMirrored)
-      frame.incrementRefCount()
-      frameProcessor?.call(frame)
-      frame.decrementRefCount()
-    }, CameraQueues.videoQueue.handler)
-    return imageReader
-  }
 
   /**
    * Configures the Pipeline to also call the given [FrameProcessor] (or null).
@@ -154,28 +170,11 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
     synchronized(this) {
       Log.i(TAG, "Setting $width x $height FrameProcessor Output...")
       this.frameProcessor = frameProcessor
-
-      if (frameProcessor != null) {
-        if (this.imageReader == null) {
-          // 1. Create new ImageReader that just calls the Frame Processor
-          this.imageReader = getImageReader()
-        }
-
-        // 2. Configure OpenGL pipeline to stream Frames into the ImageReader's surface
-        setFrameProcessorOutputSurface(imageReader!!.surface)
-      } else {
-        // 1. Configure OpenGL pipeline to stop streaming Frames into the ImageReader's surface
-        removeFrameProcessorOutputSurface()
-
-        // 2. Close the ImageReader
-        this.imageReader?.close()
-        this.imageReader = null
-      }
     }
   }
 
   /**
-   * Configures the Pipeline to also write Frames to a Surface from a [MediaRecorder] (or null)
+   * Configures the Pipeline to also write Frames to a Surface from a `MediaRecorder` (or null)
    */
   fun setRecordingSessionOutput(recordingSession: RecordingSession?) {
     synchronized(this) {
@@ -195,8 +194,6 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
   private external fun getInputTextureId(): Int
   private external fun onBeforeFrame()
   private external fun onFrame(transformMatrix: FloatArray)
-  private external fun setFrameProcessorOutputSurface(surface: Any)
-  private external fun removeFrameProcessorOutputSurface()
   private external fun setRecordingSessionOutputSurface(surface: Any)
   private external fun removeRecordingSessionOutputSurface()
   private external fun initHybrid(width: Int, height: Int): HybridData
