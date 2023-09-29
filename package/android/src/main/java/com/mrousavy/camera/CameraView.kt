@@ -210,7 +210,7 @@ class CameraView(context: Context) : FrameLayout(context) {
         null
       }
       val videoOutput = if (video == true || enableFrameProcessor) {
-        CameraOutputs.VideoOutput(targetVideoSize, video == true, enableFrameProcessor, pixelFormat.toImageFormat())
+        CameraOutputs.VideoOutput(targetVideoSize, video == true, enableFrameProcessor, pixelFormat)
       } else {
         null
       }

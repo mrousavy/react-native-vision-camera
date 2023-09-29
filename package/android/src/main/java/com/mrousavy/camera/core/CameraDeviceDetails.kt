@@ -157,11 +157,10 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     return array
   }
 
-  private fun createPixelFormats(size: Size): ReadableArray {
-    // Every output in Camera2 supports YUV, RGB and NATIVE
+  private fun createPixelFormats(): ReadableArray {
+    // Every output in Camera2 supports YUV and NATIVE
     val array = Arguments.createArray()
     array.pushString(PixelFormat.YUV.unionValue)
-    array.pushString(PixelFormat.RGB.unionValue)
     array.pushString(PixelFormat.NATIVE.unionValue)
     return array
   }
@@ -182,7 +181,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     map.putBoolean("supportsDepthCapture", supportsDepthCapture)
     map.putString("autoFocusSystem", "contrast-detection") // TODO: Is this wrong?
     map.putArray("videoStabilizationModes", createStabilizationModes())
-    map.putArray("pixelFormats", createPixelFormats(videoSize))
+    map.putArray("pixelFormats", createPixelFormats())
     return map
   }
 

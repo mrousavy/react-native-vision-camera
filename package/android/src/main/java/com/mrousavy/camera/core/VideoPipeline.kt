@@ -2,12 +2,15 @@ package com.mrousavy.camera.core
 
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
+import android.hardware.HardwareBuffer
 import android.media.ImageReader
 import android.media.ImageWriter
+import android.os.Build
 import android.util.Log
 import android.view.Surface
 import com.facebook.jni.HybridData
 import com.mrousavy.camera.CameraQueues
+import com.mrousavy.camera.FrameProcessorsUnavailableError
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.parsers.PixelFormat
 import java.io.Closeable
@@ -21,7 +24,11 @@ import java.io.Closeable
  * @param [format] The format of the Frames to stream. ([ImageFormat.PRIVATE], [ImageFormat.YUV_420_888] or [ImageFormat.JPEG])
  */
 @Suppress("KotlinJniMissingFunction")
-class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageFormat.PRIVATE, private val isMirrored: Boolean = false) :
+class VideoPipeline(val width: Int,
+                    val height: Int,
+                    val format: PixelFormat = PixelFormat.NATIVE,
+                    private val isMirrored: Boolean = false,
+                    enableFrameProcessor: Boolean = false) :
   SurfaceTexture.OnFrameAvailableListener,
   Closeable {
   companion object {
@@ -48,9 +55,6 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
   private var transformMatrix = FloatArray(16)
   private var isActive = true
 
-  private var imageReader: ImageReader
-  private var imageWriter: ImageWriter
-
   // Output 1
   private var frameProcessor: FrameProcessor? = null
 
@@ -60,12 +64,14 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
   // Input
   private val surfaceTexture: SurfaceTexture
   val surface: Surface
+  // If Frame Processors are enabled, we go through ImageReader first before we go thru OpenGL
+  private var imageReader: ImageReader? = null
+  private var imageWriter: ImageWriter? = null
 
   init {
     Log.i(
       TAG,
-      "Initializing $width x $height Video Pipeline " +
-        "(format: ${PixelFormat.fromImageFormat(format)} #$format)"
+      "Initializing $width x $height Video Pipeline (format: $format)"
     )
     mHybridData = initHybrid(width, height)
     surfaceTexture = SurfaceTexture(false)
@@ -73,30 +79,46 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
     surfaceTexture.setOnFrameAvailableListener(this)
     val glSurface = Surface(surfaceTexture)
 
-    imageWriter = ImageWriter.newInstance(glSurface, MAX_IMAGES)
-    imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES)
-    imageReader.setOnImageAvailableListener({ reader ->
-      Log.i("VideoPipeline", "ImageReader::onImageAvailable!")
-      val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
+    if (enableFrameProcessor) {
+      // User has passed a Frame Processor, we need to route images through ImageReader so we can get
+      // CPU access to the Frames, then send them to the OpenGL pipeline later.
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+        throw FrameProcessorsUnavailableError("Frame Processors require API 29 or higher. (Q)")
+      }
+      // GPU_SAMPLED because we redirect to OpenGL, CPU_READ because we read pixels before that.
+      val usage = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or HardwareBuffer.USAGE_CPU_READ_OFTEN
+      val format = getImageReaderFormat()
+      Log.i(TAG, "Using ImageReader round-trip (format: #$format)")
+      imageWriter = ImageWriter.newInstance(glSurface, MAX_IMAGES, format)
+      imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES, usage)
+      imageReader!!.setOnImageAvailableListener({ reader ->
+        Log.i(TAG, "ImageReader::onImageAvailable!")
+        val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
 
-      // // TODO: Get correct orientation and isMirrored
-      // val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, isMirrored)
-      // frame.incrementRefCount()
-      // frameProcessor?.call(frame)
+        Log.i(TAG, "Image Format: ${image.format}")
 
-      imageWriter.queueInputImage(image)
+        // // TODO: Get correct orientation and isMirrored
+        // val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, isMirrored)
+        // frame.incrementRefCount()
+        // frameProcessor?.call(frame)
 
-      // frame.decrementRefCount()
-    }, CameraQueues.videoQueue.handler)
+        imageWriter!!.queueInputImage(image)
 
-    surface = imageReader.surface
+        // frame.decrementRefCount()
+      }, CameraQueues.videoQueue.handler)
+
+      surface = imageReader!!.surface
+    } else {
+      // No Frame Processor will be used, directly render into the OpenGL pipeline to avoid ImageReader roundtrip.
+      surface = glSurface
+    }
   }
 
   override fun close() {
     synchronized(this) {
       isActive = false
-      imageWriter.close()
-      imageReader.close()
+      imageWriter?.close()
+      imageReader?.close()
       frameProcessor = null
       recordingSession = null
       surfaceTexture.release()
@@ -126,6 +148,15 @@ class VideoPipeline(val width: Int, val height: Int, val format: Int = ImageForm
 
       // 5. Draw it with applied rotation/mirroring
       onFrame(transformMatrix)
+    }
+  }
+
+  private fun getImageReaderFormat(): Int {
+    return when (format) {
+      PixelFormat.NATIVE -> ImageFormat.PRIVATE
+      PixelFormat.RGB -> HardwareBuffer.RGBA_8888
+      PixelFormat.YUV -> ImageFormat.YUV_420_888
+      else -> ImageFormat.PRIVATE
     }
   }
 
