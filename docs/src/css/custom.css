@@ -5,22 +5,82 @@
  * work well for content-centric websites.
  */
 
-/* You can override the default Infima variables here. */
 :root {
-  --ifm-color-primary: rgb(131, 141, 129);
-  --ifm-color-primary-dark: rgb(95, 102, 96);
-  --ifm-color-primary-darker: rgb(85, 91, 87);
-  --ifm-color-primary-darkest: rgb(63, 72, 67);
-  --ifm-color-primary-light: rgb(153, 163, 149);
-  --ifm-color-primary-lighter: rgb(156, 180, 173);
-  --ifm-color-primary-lightest: rgb(195, 207, 204);
   --ifm-code-font-size: 95%;
   --ifm-font-family-monospace: "Fira Code"
+  --docusaurus-highlighted-code-line-bg: rgb(229, 229, 232);
+  --ifm-color-primary: rgb(79, 151, 77);
+  --ifm-link-color: var(--ifm-color-primary);
+  --highlight-color: rgb(70, 203, 43);
 }
 
-.docusaurus-highlight-code-line {
-  background-color: rgb(72, 77, 91);
-  display: block;
-  margin: 0 calc(-1 * var(--ifm-pre-padding));
-  padding: 0 var(--ifm-pre-padding);
+[data-theme='dark'] {
+  --docusaurus-highlighted-code-line-bg: rgb(61, 63, 67);
+  --ifm-color-primary: rgb(132, 170, 124);
+  --ifm-link-color: var(--ifm-color-primary);
+  --highlight-color: rgb(140, 209, 126);
+}
+
+/* Images inside the docs that are centered/inside text */
+.doc-image {
+  border-radius: 15px;
+  max-width: 55%;
+  max-height: 30vh;
+}
+@media (max-width: 600px) {
+  .doc-image {
+    max-width: 80%;
+    max-height: 50vh;
+  }
+}
+@media (min-width: 600px) and (max-width: 997px) {
+  .doc-image {
+    max-width: 55%;
+    max-height: 50vh;
+  }
+}
+@media (min-width: 997px) and (max-width: 1145px) {
+  .doc-image {
+    max-width: 80%;
+    max-height: 30vh;
+  }
+}
+
+/* align image to the right */
+.image-container {
+  float: right;
+}
+/* mobile screen; align center */
+@media (max-width: 600px) {
+  .image-container {
+      float: none;
+      text-align: center;
+  }
+}
+/* wider screen; align right again */
+@media (min-width: 600px) and (max-width: 997px) {
+  .image-container {
+    float: right;
+  }
+}
+/* even wider screen but with sidebars; align center cuz we dont have enough space for right */
+@media (min-width: 997px) and (max-width: 1145px) {
+  .image-container {
+    float: none;
+    text-align: center;
+  }
+}
+
+code {
+  border-width: 0;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+a:hover {
+  text-decoration: none;
+  color: var(--highlight-color);
+}
+
+.theme-code-block {
+  display: flow-root;
 }

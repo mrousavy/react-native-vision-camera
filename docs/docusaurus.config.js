@@ -10,14 +10,17 @@ module.exports = {
   projectName: 'react-native-vision-camera',
   themeConfig: {
     algolia: {
-      appId: 'HBHXBT6T9E',
-      apiKey: '64bc77eda92b7efcb7003b56815f1113',
-      indexName: 'react-native-vision-camera',
+      appId: 'NRK7PZXU6O',
+      apiKey: '33d54e627c4587a6d8dbff79d5209e46',
+      indexName: 'react-native-vision-camera2',
+      contextualSearch: false
     },
     colorMode: {
       respectPrefersColorScheme: true
     },
     prism: {
+      theme: require('prism-react-renderer/themes/github'),
+      darkTheme: require('prism-react-renderer/themes/palenight'),
       additionalLanguages: ['swift', 'java', 'kotlin'],
     },
     navbar: {
@@ -72,6 +75,10 @@ module.exports = {
         {
           title: 'Community',
           items: [
+            {
+              label: 'Community Discord',
+              href: 'https://discord.com/invite/6CSHz2qAvA',
+            },
             {
               label: 'GitHub discussions',
               href: 'https://github.com/mrousavy/react-native-vision-camera/discussions',

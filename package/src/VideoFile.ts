@@ -24,6 +24,17 @@ export interface RecordVideoOptions {
    * - `h265`: The HEVC (High-Efficient-Video-Codec) for higher efficient video recordings.
    */
   videoCodec?: 'h264' | 'h265'
+  /**
+   * The bit-rate for encoding the video into a file, in Mbps (Megabits per second).
+   *
+   * Bit-rate is dependant on various factors such as resolution, FPS, pixel format (whether it's 10 bit HDR or not), and codec.
+   *
+   * By default, it will be calculated using those factors.
+   * For example, at 1080p, 30 FPS, H.264 codec, without HDR it will result to 10 Mbps.
+   *
+   * @default 'normal'
+   */
+  videoBitRate?: 'low' | 'normal' | 'high' | number
 }
 
 /**

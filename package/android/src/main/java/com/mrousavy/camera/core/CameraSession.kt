@@ -30,7 +30,7 @@ import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.createPhotoCaptureRequest
 import com.mrousavy.camera.extensions.openCamera
-import com.mrousavy.camera.extensions.zoomed
+import com.mrousavy.camera.extensions.setZoom
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.parsers.Flash
 import com.mrousavy.camera.parsers.Orientation
@@ -279,6 +279,7 @@ class CameraSession(
     enableAudio: Boolean,
     codec: VideoCodec,
     fileType: VideoFileType,
+    bitRate: Double?,
     callback: (video: RecordingSession.Video) -> Unit,
     onError: (error: RecorderError) -> Unit
   ) {
@@ -287,7 +288,8 @@ class CameraSession(
       val outputs = outputs ?: throw CameraNotReadyError()
       val videoOutput = outputs.videoOutput ?: throw VideoNotEnabledError()
 
-      val recording = RecordingSession(context, videoOutput.size, enableAudio, fps, codec, orientation, fileType, callback, onError)
+      val recording =
+        RecordingSession(context, videoOutput.size, enableAudio, fps, codec, orientation, fileType, bitRate, callback, onError)
       recording.start()
       this.recording = recording
     }
@@ -479,13 +481,8 @@ class CameraSession(
     )
 
     // Zoom
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-      captureRequest.set(CaptureRequest.CONTROL_ZOOM_RATIO, zoom)
-    } else {
-      val cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId!!)
-      val size = cameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)!!
-      captureRequest.set(CaptureRequest.SCALER_CROP_REGION, size.zoomed(zoom))
-    }
+    val cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId!!)
+    captureRequest.setZoom(zoom, cameraCharacteristics)
 
     // Torch Mode
     val torchMode = if (torch == true) CaptureRequest.FLASH_MODE_TORCH else CaptureRequest.FLASH_MODE_OFF
