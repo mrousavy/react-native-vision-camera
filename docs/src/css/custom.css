@@ -5,18 +5,20 @@
  * work well for content-centric websites.
  */
 
-/* You can override the default Infima variables here. */
 :root {
-  --docusaurus-highlighted-code-line-bg: rgb(229, 229, 232);
-  --ifm-color-primary: rgb(132, 170, 124);
-  --ifm-link-color: rgb(62, 166, 41);
   --ifm-code-font-size: 95%;
-  --highlight-color: rgb(118, 228, 97);
+
+  --docusaurus-highlighted-code-line-bg: rgb(229, 229, 232);
+  --ifm-color-primary: rgb(79, 151, 77);
+  --ifm-link-color: var(--ifm-color-primary);
+  --highlight-color: rgb(70, 203, 43);
 }
 
 [data-theme='dark'] {
-  /* Color which works with dark mode syntax highlighting theme */
   --docusaurus-highlighted-code-line-bg: rgb(61, 63, 67);
+  --ifm-color-primary: rgb(132, 170, 124);
+  --ifm-link-color: var(--ifm-color-primary);
+  --highlight-color: rgb(140, 209, 126);
 }
 
 /* Images inside the docs that are centered/inside text */
