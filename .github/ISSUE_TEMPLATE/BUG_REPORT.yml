@@ -87,7 +87,6 @@ body:
           "position": "back",
           "supportsFocus": true,
           "supportsLowLightBoost": false,
-          "supportsParallelVideoProcessing": true,
           "supportsRawCapture": false
         }
     validations:
