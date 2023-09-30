@@ -44,7 +44,7 @@ export function getCameraDevice(devices: CameraDevice[], position: CameraPositio
   if (bestDevice == null) return undefined
 
   // Compare each device using a point scoring system
-  for (const device of devices) {
+  for (const device of filtered) {
     let leftPoints = 0
     let rightPoints = 0
 
