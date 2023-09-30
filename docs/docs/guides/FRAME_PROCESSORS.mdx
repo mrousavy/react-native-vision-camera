@@ -161,7 +161,7 @@ const frameProcessor = useFrameProcessor((frame) => {
   'worklet'
   console.log("I'm running synchronously at 60 FPS!")
 
-  runAsync(() => {
+  runAsync(frame, () => {
     'worklet'
     console.log("I'm running asynchronously, possibly at a lower FPS rate!")
   })
