@@ -36,7 +36,7 @@ using namespace facebook;
 
   try {
     // Wrap entire call in a jsi::Scope so it requests GC after it returns
-    jsi::Scope scope;
+    jsi::Scope scope(runtime);
 
     // Wrap HostObject as JSI Value
     auto argument = jsi::Object::createFromHostObject(runtime, frameHostObject);
