@@ -1,19 +1,26 @@
 module.exports = {
   title: 'VisionCamera',
   tagline: '📸 The Camera library that sees the vision.',
-  url: 'https://mrousavy.github.io',
-  baseUrl: '/react-native-vision-camera/',
+  url: 'https://react-native-vision-camera.com',
+  baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'throw',
-  favicon: './favicon.ico',
+  favicon: '/favicon.ico',
   organizationName: 'mrousavy',
   projectName: 'react-native-vision-camera',
   themeConfig: {
     algolia: {
-      apiKey: 'ab7f44570bb62d0e07c0f7d92312ed1a',
-      indexName: 'react-native-vision-camera',
+      appId: 'NRK7PZXU6O',
+      apiKey: '33d54e627c4587a6d8dbff79d5209e46',
+      indexName: 'react-native-vision-camera2',
+      contextualSearch: false
+    },
+    colorMode: {
+      respectPrefersColorScheme: true
     },
     prism: {
+      theme: require('prism-react-renderer/themes/github'),
+      darkTheme: require('prism-react-renderer/themes/palenight'),
       additionalLanguages: ['swift', 'java', 'kotlin'],
     },
     navbar: {
@@ -34,7 +41,7 @@ module.exports = {
           position: 'left'
         },
         {
-          href: 'https://github.com/mrousavy/react-native-vision-camera/tree/main/example',
+          href: 'https://github.com/mrousavy/react-native-vision-camera/tree/main/package/example',
           label: 'Example App',
           position: 'left'
         },
@@ -61,13 +68,17 @@ module.exports = {
             },
             {
               label: 'Example App',
-              href: 'https://github.com/mrousavy/react-native-vision-camera/tree/main/example',
+              href: 'https://github.com/mrousavy/react-native-vision-camera/tree/main/package/example',
             },
           ],
         },
         {
           title: 'Community',
           items: [
+            {
+              label: 'Community Discord',
+              href: 'https://discord.com/invite/6CSHz2qAvA',
+            },
             {
               label: 'GitHub discussions',
               href: 'https://github.com/mrousavy/react-native-vision-camera/discussions',
@@ -87,24 +98,57 @@ module.exports = {
             },
             {
               label: 'Marc\'s Portfolio',
-              href: 'https://mrousavy.github.io',
+              href: 'https://mrousavy.com',
             },
           ],
         },
       ],
       copyright: `Copyright © ${new Date().getFullYear()} Marc Rousavy`,
     },
+    image: 'img/11.png',
+    metadata: [
+      {
+        name: 'keywords',
+        content: 'documentation, coding, docs, guides, camera, react, native, react-native'
+      },
+      {
+        name: 'og:title',
+        content: 'VisionCamera Documentation'
+      },
+      {
+        name: 'og:type',
+        content: 'application'
+      },
+      {
+        name: 'og:description',
+        content: '📸 The Camera library that sees the vision.'
+      },
+      {
+        name: 'og:image',
+        content: '/img/11.png'
+      },
+    ],
   },
   presets: [
     [
       '@docusaurus/preset-classic',
       {
+        sitemap: {
+          changefreq: 'weekly',
+          priority: 1.0,
+          ignorePatterns: ['/tags/**'],
+          filename: 'sitemap.xml',
+        },
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl: 'https://github.com/mrousavy/react-native-vision-camera/edit/main/docs/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
+        },
+        gtag: {
+          trackingID: 'G-FX9Q0YKV7S',
+          anonymizeIP: false,
         },
       },
     ],
@@ -114,9 +158,9 @@ module.exports = {
       'docusaurus-plugin-typedoc',
       {
         name: 'VisionCamera',
-        entryPoints: ['../src'],
-        exclude: "../src/index.ts",
-        tsconfig: '../tsconfig.json',
+        entryPoints: ['../package/src'],
+        exclude: "../package/src/index.ts",
+        tsconfig: '../package/tsconfig.json',
         watch: process.env.TYPEDOC_WATCH,
         excludePrivate: true,
         excludeProtected: true,
@@ -129,4 +173,4 @@ module.exports = {
       },
     ],
   ],
-};
+}

@@ -1,0 +1,167 @@
+import java.nio.file.Paths
+
+buildscript {
+  def kotlin_version = rootProject.ext.has('kotlinVersion') ? rootProject.ext.get('kotlinVersion') : project.properties['VisionCamera_kotlinVersion']
+
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+    mavenCentral()
+    google()
+  }
+
+  dependencies {
+    classpath "com.android.tools.build:gradle:7.4.2"
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
+  }
+}
+
+def resolveBuildType() {
+    Gradle gradle = getGradle()
+    String tskReqStr = gradle.getStartParameter().getTaskRequests()['args'].toString()
+
+    return tskReqStr.contains('Release') ? 'release' : 'debug'
+}
+
+def isNewArchitectureEnabled() {
+  // To opt-in for the New Architecture, you can either:
+  // - Set `newArchEnabled` to true inside the `gradle.properties` file
+  // - Invoke gradle with `-newArchEnabled=true`
+  // - Set an environment variable `ORG_GRADLE_PROJECT_newArchEnabled=true`
+  return project.hasProperty("newArchEnabled") && project.newArchEnabled == "true"
+}
+
+if (isNewArchitectureEnabled()) {
+  apply plugin: 'com.facebook.react'
+}
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+def safeExtGet(prop, fallback) {
+  rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
+
+def reactNativeArchitectures() {
+  def value = project.getProperties().get("reactNativeArchitectures")
+  return value ? value.split(",") : ["armeabi-v7a", "x86", "x86_64", "arm64-v8a"]
+}
+
+static def findNodeModules(baseDir) {
+  def basePath = baseDir.toPath().normalize()
+  // Node's module resolution algorithm searches up to the root directory,
+  // after which the base path will be null
+  while (basePath) {
+    def nodeModulesPath = Paths.get(basePath.toString(), "node_modules")
+    def reactNativePath = Paths.get(nodeModulesPath.toString(), "react-native")
+    if (nodeModulesPath.toFile().exists() && reactNativePath.toFile().exists()) {
+      return nodeModulesPath.toString()
+    }
+    basePath = basePath.getParent()
+  }
+  throw new GradleException("react-native-vision-camera: Failed to find node_modules/ path!")
+}
+
+def nodeModules = findNodeModules(projectDir)
+
+def hasWorklets = !safeExtGet("VisionCamera_disableFrameProcessors", false) && findProject(":react-native-worklets-core") != null
+logger.warn("[VisionCamera] react-native-worklets-core ${hasWorklets ? "found" : "not found"}, Frame Processors ${hasWorklets ? "enabled" : "disabled"}!")
+
+repositories {
+  google()
+  mavenCentral()
+}
+
+android {
+  namespace "com.mrousavy.camera.example"
+
+  // Used to override the NDK path/version on internal CI or by allowing
+  // users to customize the NDK path/version from their root project (e.g. for M1 support)
+  if (rootProject.hasProperty("ndkPath")) {
+    ndkPath rootProject.ext.ndkPath
+  }
+  if (rootProject.hasProperty("ndkVersion")) {
+    ndkVersion rootProject.ext.ndkVersion
+  }
+
+  buildFeatures {
+    prefab true
+  }
+
+  defaultConfig {
+    minSdkVersion safeExtGet('minSdkVersion', 26)
+    compileSdkVersion safeExtGet('compileSdkVersion', 33)
+    targetSdkVersion safeExtGet('targetSdkVersion', 33)
+    versionCode 1
+    versionName "1.0"
+    buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
+
+    externalNativeBuild {
+      cmake {
+        cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all"
+        arguments "-DANDROID_STL=c++_shared",
+                "-DNODE_MODULES_DIR=${nodeModules}",
+                "-DENABLE_FRAME_PROCESSORS=${hasWorklets}"
+        abiFilters (*reactNativeArchitectures())
+      }
+    }
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+
+  externalNativeBuild {
+    cmake {
+      path "CMakeLists.txt"
+    }
+  }
+  packagingOptions {
+    doNotStrip resolveBuildType() == 'debug' ? "**/**/*.so" : ''
+    excludes = [
+            "META-INF",
+            "META-INF/**",
+            "**/libc++_shared.so",
+            "**/libfbjni.so",
+            "**/libjsi.so",
+            "**/libfolly_json.so",
+            "**/libfolly_runtime.so",
+            "**/libglog.so",
+            "**/libhermes.so",
+            "**/libhermes-executor-debug.so",
+            "**/libhermes_executor.so",
+            "**/libreactnativejni.so",
+            "**/libturbomodulejsijni.so",
+            "**/libreact_nativemodule_core.so",
+            "**/libjscexecutor.so"
+    ]
+  }
+}
+
+dependencies {
+  //noinspection GradleDynamicVersion
+  implementation 'com.facebook.react:react-android:+'
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2"
+
+  if (hasWorklets) {
+    // Frame Processor integration (optional)
+    implementation project(":react-native-worklets-core")
+  }
+}
+
+// Resolves "LOCAL_SRC_FILES points to a missing file, Check that libfb.so exists or that its path is correct".
+tasks.configureEach { task ->
+  if (task.name.contains("configureCMakeDebug")) {
+    rootProject.getTasksByName("packageReactNdkDebugLibs", true).forEach {
+      task.dependsOn(it)
+    }
+  }
+  // We want to add a dependency for both configureCMakeRelease and configureCMakeRelWithDebInfo
+  if (task.name.contains("configureCMakeRel")) {
+    rootProject.getTasksByName("packageReactNdkReleaseLibs", true).forEach {
+      task.dependsOn(it)
+    }
+  }
+}

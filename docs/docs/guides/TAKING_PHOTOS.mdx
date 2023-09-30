@@ -1,0 +1,92 @@
+---
+id: taking-photos
+title: Taking Photos
+sidebar_label: Taking Photos
+---
+
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+<div class="image-container">
+  <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535">
+    <image href={useBaseUrl("img/demo_capture.gif")} x="18" y="33" width="247" height="469" />
+    <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
+  </svg>
+</div>
+
+## Camera Functions
+
+The Camera provides certain functions which are available through a [ref object](https://reactjs.org/docs/refs-and-the-dom.html):
+
+```tsx
+function App() {
+  const camera = useRef<Camera>(null)
+  // ...
+
+  return (
+    <Camera
+      ref={camera}
+      {...cameraProps}
+    />
+  )
+}
+```
+
+To use these functions, you need to wait until the [`onInitialized`](/docs/api/interfaces/CameraProps#oninitialized) event has been fired.
+
+## Taking Photos
+
+To take a photo you first have to enable photo capture:
+
+```tsx
+<Camera
+  {...props}
+  photo={true}
+/>
+```
+
+Then, simply use the Camera's [`takePhoto(...)`](/docs/api/classes/Camera#takephoto) function:
+
+```ts
+const photo = await camera.current.takePhoto()
+```
+
+You can customize capture options such as [automatic red-eye reduction](/docs/api/interfaces/TakePhotoOptions#enableautoredeyereduction), [automatic image stabilization](/docs/api/interfaces/TakePhotoOptions#enableautostabilization), [enable flash](/docs/api/interfaces/TakePhotoOptions#flash), [prioritize speed over quality](/docs/api/interfaces/TakePhotoOptions#qualityprioritization), [disable the shutter sound](/docs/api/interfaces/TakePhotoOptions#enableshuttersound) and more using the [`TakePhotoOptions`](/docs/api/interfaces/TakePhotoOptions) parameter.
+
+This function returns a [`PhotoFile`](/docs/api/interfaces/PhotoFile) which is stored in a temporary directory and can either be displayed using `<Image>` or `<FastImage>`, uploaded to a backend, or saved to the Camera Roll using [react-native-cameraroll](https://github.com/react-native-cameraroll/react-native-cameraroll).
+
+### Fast Capture
+
+The [`takePhoto(...)`](/docs/api/classes/Camera#takephoto) function can be configured for faster capture at the cost of lower quality:
+
+```ts
+const photo = await camera.current.takePhoto({
+  qualityPrioritization: 'speed',
+  flash: 'off',
+  enableShutterSound: false
+})
+```
+
+## Saving the Photo to the Camera Roll
+
+Since the Photo is stored as a temporary file, you need to save it to the Camera Roll to permanentely store it. You can use [react-native-cameraroll](https://github.com/react-native-cameraroll/react-native-cameraroll) for this:
+
+```ts
+const path = await camera.current.takePhoto()
+await CameraRoll.save(`file://${path}`, {
+  type: 'photo',
+})
+```
+
+## Getting the Photo's data
+
+To get the Photo's pixel data, you can use [`fetch(...)`](https://reactnative.dev/docs/network#using-fetch) to read the local file as a Blob:
+
+```ts
+const path = await camera.current.takePhoto()
+const result = await fetch(`file://${path}`)
+const data = await result.blob();
+```
+
+<br />
+
+#### 🚀 Next section: [Recording Videos](recording-videos)

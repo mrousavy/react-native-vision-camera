@@ -5,21 +5,33 @@ module.exports = {
       'guides/devices',
       'guides/lifecycle',
       'guides/formats',
-      'guides/capturing',
-      'guides/frame-processors',
+      'guides/taking-photos',
+      'guides/recording-videos',
       {
         type: 'category',
-        label: 'Creating Frame Processor Plugins',
+        label: 'Realtime Frame Processing',
         items: [
-          'guides/frame-processors-plugins-overview',
-          'guides/frame-processors-plugins-ios',
-          'guides/frame-processors-plugins-android',
-          'guides/frame-processors-plugins-final',
-          'guides/frame-processor-plugin-list'
+          'guides/frame-processors',
+          'guides/frame-processors-tips',
+          'guides/frame-processor-plugin-list',
+          'guides/skia-frame-processors',
+          {
+            type: 'category',
+            label: 'Creating Frame Processor Plugins',
+            items: [
+              'guides/frame-processors-plugins-overview',
+              'guides/frame-processors-plugins-ios',
+              'guides/frame-processors-plugins-android',
+              'guides/frame-processors-plugins-final',
+            ]
+          },
         ]
       },
       'guides/zooming',
       'guides/focusing',
+      'guides/hdr',
+      'guides/stabilization',
+      'guides/performance',
       'guides/errors',
       'guides/mocking',
       'guides/troubleshooting',
@@ -31,4 +43,4 @@ module.exports = {
       }
     ],
   },
-};
+}

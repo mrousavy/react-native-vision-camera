@@ -2,7 +2,8 @@
 
 ## Guidelines
 
-1. Don't be rude.
+1. Don't be an asshole.
+2. Don't waste anyone's time.
 
 ## Get started
 
@@ -10,6 +11,7 @@
 2. Install dependencies
    ```
    cd react-native-vision-camera
+   cd package
    yarn bootstrap
    ```
 
@@ -39,7 +41,11 @@ Read the READMEs in [`android/`](android/README.md) and [`ios/`](ios/README.md) 
 1. Open the `example/android/` folder with Android Studio
 2. Start the metro bundler in the `example/` directory using `yarn start`
 3. Select your device in the devices drop-down
-4. Hit run
+4. Once your device is connected, make sure it can find the metro bundler's port:
+   ```
+   adb reverse tcp:8081 tcp:8081
+   ```
+6. Hit run
 
 > Run `yarn check-android` to validate codestyle
 
