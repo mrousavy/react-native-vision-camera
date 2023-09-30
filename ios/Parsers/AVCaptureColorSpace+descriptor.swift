@@ -38,7 +38,7 @@ extension AVCaptureColorSpace {
     case .sRGB:
       return "srgb"
     default:
-      fatalError("AVCaptureDevice.Position has unknown state.")
+      return "unknown"
     }
   }
 }
