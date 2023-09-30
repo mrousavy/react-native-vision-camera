@@ -1,0 +1,3 @@
+BUNDLE_BUILD__FFI: "--with-cflags=-Wno-error=implicit-function-declaration"
+BUNDLE_PATH: "vendor/bundle"
+BUNDLE_FORCE_RUBY_PLATFORM: 1

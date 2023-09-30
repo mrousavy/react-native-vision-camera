@@ -1,61 +1,58 @@
 <a href="https://margelo.io">
-  <img src="./docs/static/img/banner.svg" width="100%" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./docs/static/img/banner-dark.png" />
+    <source media="(prefers-color-scheme: light)" srcset="./docs/static/img/banner-light.png" />
+    <img alt="VisionCamera" src="./docs/static/img/banner-light.png" />
+  </picture>
 </a>
 
-<h1 align="center">Vision Camera</h1>
-
-<div align="center">
-  <img src="docs/static/img/11.png" width="50%">
-  <br />
-  <br />
-  <blockquote><b>📸 The Camera library that sees the vision.</b></blockquote>
-  <pre align="center">npm i <a href="https://www.npmjs.com/package/react-native-vision-camera">react-native-vision-camera</a><br/>npx pod-install                 </pre>
-  <a align="center" href='https://ko-fi.com/F1F8CLXG' target='_blank'>
-    <img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi2.png?v=0' border='0' alt='Buy Me a Coffee at ko-fi.com' />
-  </a>
-  <br/>
-  <a align="center" href="https://github.com/mrousavy?tab=followers">
-    <img src="https://img.shields.io/github/followers/mrousavy?label=Follow%20%40mrousavy&style=social" />
-  </a>
-  <br />
-  <a align="center" href="https://twitter.com/mrousavy">
-    <img src="https://img.shields.io/twitter/follow/mrousavy?label=Follow%20%40mrousavy&style=social" />
-  </a>
-</div>
-
-<br/>
-<br/>
+<br />
 
 <div>
   <img align="right" width="35%" src="docs/static/img/example.png">
 </div>
 
-### Documentation
-
-* [Guides](https://mrousavy.github.io/react-native-vision-camera/docs/guides)
-* [API](https://mrousavy.github.io/react-native-vision-camera/docs/api)
-* [Example](./example/)
-
 ### Features
 
-* Photo, Video and Snapshot capture
-* Customizable devices and multi-cameras (smoothly zoom out to "fish-eye" camera)
-* Customizable FPS
-* [Frame Processors](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors) (JS worklets to run QR-Code scanning, facial recognition, AI object detection, realtime video chats, ...)
-* Smooth zooming (Reanimated)
-* Fast pause and resume
-* HDR & Night modes
+VisionCamera is a powerful, high-performance Camera library for React Native. It features:
 
-> See the [example](./example/) app
+* 📸 Photo and Video capture
+* 📱 Customizable devices and multi-cameras ("fish-eye" zoom)
+* 🎞️ Customizable resolutions and aspect-ratios (4k/8k images)
+* ⏱️ Customizable FPS (30..240 FPS)
+* 🧩 [Frame Processors](https://react-native-vision-camera.com/docs/guides/frame-processors) (JS worklets to run QR-Code scanning, facial recognition, AI object detection, realtime video chats, ...)
+* 🔍 Smooth zooming (Reanimated)
+* ⏯️ Fast pause and resume
+* 🌓 HDR & Night modes
+* ⚡ Custom C++/GPU accelerated video pipeline (OpenGL)
+
+Install VisionCamera from npm:
+
+```sh
+yarn add react-native-vision-camera
+cd ios && pod install
+```
+
+..and get started by [setting up permissions](https://react-native-vision-camera.com/docs/guides)!
+
+### Documentation
+
+* [Guides](https://react-native-vision-camera.com/docs/guides)
+* [API](https://react-native-vision-camera.com/docs/api)
+* [Example](./package/example/)
+* [Frame Processor Plugins](https://react-native-vision-camera.com/docs/guides/frame-processor-plugin-list)
+
+### V3
+
+You're looking at the V3 version of VisionCamera, which features a full rewrite on the Android codebase and a huge refactor on the iOS codebase. If you encounter issues on V3, you can also [downgrade to V2](https://github.com/mrousavy/react-native-vision-camera/tree/v2), which is still partially supported.
 
 ### Example
 
 ```tsx
 function App() {
-  const devices = useCameraDevices('wide-angle-camera')
-  const device = devices.back
+  const device = useCameraDevice('back')
 
-  if (device == null) return <LoadingView />
+  if (device == null) return <NoCameraErrorView />
   return (
     <Camera
       style={StyleSheet.absoluteFill}
@@ -65,6 +62,8 @@ function App() {
   )
 }
 ```
+
+> See the [example](./package/example/) app
 
 ### Adopting at scale
 
@@ -76,6 +75,10 @@ VisionCamera is provided _as is_, I work on it in my free time.
 
 If you're integrating VisionCamera in a production app, consider [funding this project](https://github.com/sponsors/mrousavy) and <a href="mailto:me@mrousavy.com?subject=Adopting VisionCamera at scale">contact me</a> to receive premium enterprise support, help with issues, prioritize bugfixes, request features, help at integrating VisionCamera and/or Frame Processors, and more.
 
-<br />
+### Socials
 
-#### 🚀 Get started by [setting up permissions](https://mrousavy.github.io/react-native-vision-camera/docs/guides/)!
+* 🐦 [**Follow me on Twitter**](https://twitter.com/mrousavy) for updates
+* 📝 [**Check out my blog**](https://mrousavy.com/blog) for examples and experiments
+* 💬 [**Join the Margelo Community Discord**](https://discord.gg/6CSHz2qAvA) for chatting about VisionCamera
+* 💖 [**Sponsor me on GitHub**](https://github.com/sponsors/mrousavy) to support my work
+* 🍪 [**Buy me a Ko-Fi**](https://ko-fi.com/mrousavy) to support my work

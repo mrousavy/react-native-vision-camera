@@ -6,34 +6,37 @@ on:
       - main
     paths:
       - '.github/workflows/validate-js.yml'
-      - 'src/**'
-      - '*.json'
-      - '*.js'
-      - '*.lock'
-      - 'example/src/**'
-      - 'example/*.json'
-      - 'example/*.js'
-      - 'example/*.lock'
-      - 'example/*.tsx'
+      - 'package/src/**'
+      - 'package/*.json'
+      - 'package/*.js'
+      - 'package/*.lock'
+      - 'package/example/src/**'
+      - 'package/example/*.json'
+      - 'package/example/*.js'
+      - 'package/example/*.lock'
+      - 'package/example/*.tsx'
   pull_request:
     paths:
       - '.github/workflows/validate-js.yml'
-      - 'src/**'
-      - '*.json'
-      - '*.js'
-      - '*.lock'
-      - 'example/src/**'
-      - 'example/*.json'
-      - 'example/*.js'
-      - 'example/*.lock'
-      - 'example/*.tsx'
+      - 'package/src/**'
+      - 'package/*.json'
+      - 'package/*.js'
+      - 'package/*.lock'
+      - 'package/example/src/**'
+      - 'package/example/*.json'
+      - 'package/example/*.js'
+      - 'package/example/*.lock'
+      - 'package/example/*.tsx'
 
 jobs:
   compile:
     name: Compile JS (tsc)
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./package
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Install reviewdog
       uses: reviewdog/action-setup@v1
@@ -42,7 +45,7 @@ jobs:
       id: yarn-cache-dir-path
       run: echo "::set-output name=dir::$(yarn cache dir)"
     - name: Restore node_modules from cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       id: yarn-cache
       with:
         path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -70,14 +73,17 @@ jobs:
   lint:
     name: Lint JS (eslint, prettier)
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./package
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Get yarn cache directory path
       id: yarn-cache-dir-path
       run: echo "::set-output name=dir::$(yarn cache dir)"
     - name: Restore node_modules from cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       id: yarn-cache
       with:
         path: ${{ steps.yarn-cache-dir-path.outputs.dir }}

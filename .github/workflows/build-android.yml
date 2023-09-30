@@ -6,35 +6,42 @@ on:
       - main
     paths:
       - '.github/workflows/build-android.yml'
-      - 'android/**'
-      - 'example/android/**'
-      - 'yarn.lock'
-      - 'example/yarn.lock'
+      - 'package/cpp/**'
+      - 'package/android/**'
+      - 'package/example/android/**'
+      - 'package/yarn.lock'
+      - 'package/example/yarn.lock'
   pull_request:
     paths:
       - '.github/workflows/build-android.yml'
-      - 'android/**'
-      - 'example/android/**'
-      - 'yarn.lock'
-      - 'example/yarn.lock'
+      - 'package/cpp/**'
+      - 'package/android/**'
+      - 'package/example/android/**'
+      - 'package/yarn.lock'
+      - 'package/example/yarn.lock'
 
 jobs:
-  build_example:
+  build:
     name: Build Android Example App
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./package
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: Setup JDK 1.8
-        uses: actions/setup-java@v1
+      - name: Setup JDK 11
+        uses: actions/setup-java@v2
         with:
-          java-version: 1.8
+          distribution: 'zulu'
+          java-version: 11
+          java-package: jdk
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
       - name: Restore node_modules from cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -47,7 +54,7 @@ jobs:
         run: yarn install --frozen-lockfile --cwd example
 
       - name: Restore Gradle cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.gradle/caches
@@ -55,7 +62,51 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-      - name: Run Gradle Build for android/
-        run: cd android && ./gradlew assembleDebug --build-cache && cd ..
+      - name: Run Gradle Build for example/android/
+        run: cd example/android && ./gradlew assembleDebug --build-cache && cd ../..
+
+  build-no-frame-processors:
+    name: Build Android Example App (without Frame Processors)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./package
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup JDK 11
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: 11
+          java-package: jdk
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - name: Restore node_modules from cache
+        uses: actions/cache@v3
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Install node_modules
+        run: yarn install --frozen-lockfile
+      - name: Install node_modules for example/
+        run: yarn install --frozen-lockfile --cwd example
+      - name: Remove react-native-worklets-core
+        run: yarn remove react-native-worklets-core --cwd example
+
+      - name: Restore Gradle cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
       - name: Run Gradle Build for example/android/
         run: cd example/android && ./gradlew assembleDebug --build-cache && cd ../..
