@@ -16,7 +16,7 @@ export const SAFE_AREA_PADDING = {
 }
 
 // The maximum zoom _factor_ you should be able to zoom in
-export const MAX_ZOOM_FACTOR = 20
+export const MAX_ZOOM_FACTOR = 10
 
 export const SCREEN_WIDTH = Dimensions.get('window').width
 export const SCREEN_HEIGHT = Platform.select<number>({
