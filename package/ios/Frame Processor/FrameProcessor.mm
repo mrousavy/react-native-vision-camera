@@ -35,6 +35,9 @@ using namespace facebook;
   jsi::Runtime& runtime = _workletContext->getWorkletRuntime();
 
   try {
+    // Wrap entire call in a jsi::Scope so it requests GC after it returns
+    jsi::Scope scope;
+
     // Wrap HostObject as JSI Value
     auto argument = jsi::Object::createFromHostObject(runtime, frameHostObject);
     jsi::Value jsValue(std::move(argument));
