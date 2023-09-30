@@ -1,7 +1,6 @@
 package com.mrousavy.camera.core
 
 import android.content.Context
-import android.media.ImageWriter
 import android.media.MediaCodec
 import android.media.MediaRecorder
 import android.os.Build
@@ -40,7 +39,6 @@ class RecordingSession(
   private val recorder: MediaRecorder
   private val outputFile: File
   private var startTime: Long? = null
-  private var imageWriter: ImageWriter? = null
   val surface: Surface = MediaCodec.createPersistentInputSurface()
 
   init {
@@ -103,9 +101,6 @@ class RecordingSession(
       try {
         recorder.stop()
         recorder.release()
-
-        imageWriter?.close()
-        imageWriter = null
       } catch (e: Error) {
         Log.e(TAG, "Failed to stop MediaRecorder!", e)
       }
