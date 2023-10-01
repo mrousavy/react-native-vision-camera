@@ -71,8 +71,8 @@ const photo = await camera.current.takePhoto({
 Since the Photo is stored as a temporary file, you need to save it to the Camera Roll to permanentely store it. You can use [react-native-cameraroll](https://github.com/react-native-cameraroll/react-native-cameraroll) for this:
 
 ```ts
-const path = await camera.current.takePhoto()
-await CameraRoll.save(`file://${path}`, {
+const file = await camera.current.takePhoto()
+await CameraRoll.save(`file://${file.path}`, {
   type: 'photo',
 })
 ```
@@ -82,8 +82,8 @@ await CameraRoll.save(`file://${path}`, {
 To get the Photo's pixel data, you can use [`fetch(...)`](https://reactnative.dev/docs/network#using-fetch) to read the local file as a Blob:
 
 ```ts
-const path = await camera.current.takePhoto()
-const result = await fetch(`file://${path}`)
+const file = await camera.current.takePhoto()
+const result = await fetch(`file://${file.path}`)
 const data = await result.blob();
 ```
 
