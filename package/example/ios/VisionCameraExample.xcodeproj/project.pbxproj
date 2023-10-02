@@ -11,7 +11,8 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		B8DB3BD5263DE8B7004C18D7 /* BuildFile in Sources */ = {isa = PBXBuildFile; };
+		839E2C632ACB2E330037BC2B /* ExampleSwiftFrameProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = 839E2C622ACB2E330037BC2B /* ExampleSwiftFrameProcessor.m */; };
+		839E2C652ACB2E420037BC2B /* ExampleSwiftFrameProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 839E2C642ACB2E420037BC2B /* ExampleSwiftFrameProcessor.swift */; };
 		B8DB3BDC263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BD8263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m */; };
 		B8F0E10825E0199F00586F16 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8F0E10725E0199F00586F16 /* File.swift */; };
 		C0B129659921D2EA967280B2 /* libPods-VisionCameraExample.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CDCFE89C25C89320B98945E /* libPods-VisionCameraExample.a */; };
@@ -27,6 +28,8 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = VisionCameraExample/main.m; sourceTree = "<group>"; };
 		3CDCFE89C25C89320B98945E /* libPods-VisionCameraExample.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-VisionCameraExample.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = VisionCameraExample/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		839E2C622ACB2E330037BC2B /* ExampleSwiftFrameProcessor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ExampleSwiftFrameProcessor.m; sourceTree = "<group>"; };
+		839E2C642ACB2E420037BC2B /* ExampleSwiftFrameProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleSwiftFrameProcessor.swift; sourceTree = "<group>"; };
 		B8DB3BD8263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExampleFrameProcessorPlugin.m; sourceTree = "<group>"; };
 		B8F0E10625E0199F00586F16 /* VisionCameraExample-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VisionCameraExample-Bridging-Header.h"; sourceTree = "<group>"; };
 		B8F0E10725E0199F00586F16 /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
@@ -91,6 +94,15 @@
 			name = Libraries;
 			sourceTree = "<group>";
 		};
+		839E2C612ACB2E140037BC2B /* Example Swift Plugin */ = {
+			isa = PBXGroup;
+			children = (
+				839E2C622ACB2E330037BC2B /* ExampleSwiftFrameProcessor.m */,
+				839E2C642ACB2E420037BC2B /* ExampleSwiftFrameProcessor.swift */,
+			);
+			path = "Example Swift Plugin";
+			sourceTree = "<group>";
+		};
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
@@ -117,6 +129,7 @@
 			isa = PBXGroup;
 			children = (
 				B8DB3BD7263DEA31004C18D7 /* Example Plugin */,
+				839E2C612ACB2E140037BC2B /* Example Swift Plugin */,
 			);
 			path = "Frame Processor Plugins";
 			sourceTree = "<group>";
@@ -375,7 +388,8 @@
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				B8DB3BDC263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m in Sources */,
-				B8DB3BD5263DE8B7004C18D7 /* BuildFile in Sources */,
+				839E2C652ACB2E420037BC2B /* ExampleSwiftFrameProcessor.swift in Sources */,
+				839E2C632ACB2E330037BC2B /* ExampleSwiftFrameProcessor.m in Sources */,
 				B8F0E10825E0199F00586F16 /* File.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 			);
@@ -396,6 +410,7 @@
 				INFOPLIST_FILE = VisionCameraExample/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Vision Camera";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -426,6 +441,7 @@
 				INFOPLIST_FILE = VisionCameraExample/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Vision Camera";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -504,6 +520,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited) -DVISION_CAMERA_ENABLE_FRAME_PROCESSORS";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 			};
@@ -561,6 +578,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited) -DVISION_CAMERA_ENABLE_FRAME_PROCESSORS";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
