@@ -66,5 +66,6 @@ public class MainApplication extends Application implements ReactApplication {
     }
 
     FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_plugin", options -> new ExampleFrameProcessorPlugin());
+    FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_kotlin_swift_plugin", options -> new ExampleKotlinFrameProcessorPlugin());
   }
 }
