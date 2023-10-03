@@ -63,7 +63,7 @@ extension AVMetadataObject.ObjectType {
         return "codabar"
       }
     }
-    
+
     switch self {
     case .code128:
       return "code-128"

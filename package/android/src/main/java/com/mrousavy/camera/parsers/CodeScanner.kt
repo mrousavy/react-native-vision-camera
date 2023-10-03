@@ -18,7 +18,5 @@ class CodeScanner(map: ReadableMap) {
     return codeTypes.size == other.codeTypes.size && codeTypes.containsAll(other.codeTypes)
   }
 
-  override fun hashCode(): Int {
-    return codeTypes.hashCode()
-  }
+  override fun hashCode(): Int = codeTypes.hashCode()
 }

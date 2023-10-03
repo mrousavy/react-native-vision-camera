@@ -234,7 +234,7 @@ enum CaptureError {
 enum CodeScannerError {
   case notCompatibleWithOutputs
   case codeTypeNotSupported(codeType: String)
-  
+
   var code: String {
     switch self {
     case .notCompatibleWithOutputs:

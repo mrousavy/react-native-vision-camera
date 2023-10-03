@@ -2,7 +2,6 @@ package com.mrousavy.camera
 
 import com.mrousavy.camera.core.outputs.CameraOutputs
 import com.mrousavy.camera.parsers.CameraDeviceError
-import com.mrousavy.camera.parsers.CodeType
 
 abstract class CameraError(
   /**
@@ -81,11 +80,11 @@ class RecordingInProgressError :
   )
 
 class CodeTypeNotSupportedError(codeType: String) :
-    CameraError(
-      "code-scanner",
-      "code-type-not-supported",
-      "The codeType \"$codeType\" is not supported by the Code Scanner!"
-    )
+  CameraError(
+    "code-scanner",
+    "code-type-not-supported",
+    "The codeType \"$codeType\" is not supported by the Code Scanner!"
+  )
 
 class ViewNotFoundError(viewId: Int) :
   CameraError("system", "view-not-found", "The given view (ID $viewId) was not found in the view manager.")

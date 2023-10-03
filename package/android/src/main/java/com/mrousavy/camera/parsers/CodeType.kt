@@ -19,8 +19,8 @@ enum class CodeType(override val unionValue: String) : JSUnionValue {
   DATA_MATRIX("data-matrix"),
   UNKNOWN("unknown");
 
-  fun toBarcodeType(): Int {
-    return when (this) {
+  fun toBarcodeType(): Int =
+    when (this) {
       CODE_128 -> Barcode.FORMAT_CODE_128
       CODE_39 -> Barcode.FORMAT_CODE_39
       CODE_93 -> Barcode.FORMAT_CODE_93
@@ -35,7 +35,6 @@ enum class CodeType(override val unionValue: String) : JSUnionValue {
       DATA_MATRIX -> Barcode.FORMAT_DATA_MATRIX
       UNKNOWN -> throw CodeTypeNotSupportedError(this.unionValue)
     }
-  }
 
   companion object : JSUnionValue.Companion<CodeType> {
     fun fromBarcodeType(barcodeType: Int): CodeType =

@@ -220,9 +220,11 @@ class CameraView(context: Context) : FrameLayout(context) {
         null
       }
       val codeScanner = if (codeScannerOptions != null) {
-        CameraOutputs.CodeScannerOutput(codeScannerOptions,
+        CameraOutputs.CodeScannerOutput(
+          codeScannerOptions,
           { codes -> invokeOnCodeScanned(codes) },
-          { error -> invokeOnError(error) })
+          { error -> invokeOnError(error) }
+        )
       } else {
         null
       }

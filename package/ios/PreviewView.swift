@@ -37,7 +37,7 @@ class PreviewView: UIView {
   override public class var layerClass: AnyClass {
     return AVCaptureVideoPreviewLayer.self
   }
-  
+
   func layerRectConverted(fromMetadataOutputRect rect: CGRect) -> CGRect {
     return videoPreviewLayer.layerRectConverted(fromMetadataOutputRect: rect)
   }

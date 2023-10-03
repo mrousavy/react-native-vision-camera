@@ -200,7 +200,7 @@ class CameraOutputs(
           }
       }, CameraQueues.videoQueue.handler)
 
-      Log.i(TAG, "Adding ${size.width}x${size.height} code scanner output. (Code Types: ${types})")
+      Log.i(TAG, "Adding ${size.width}x${size.height} code scanner output. (Code Types: $types)")
       codeScannerOutput = ImageReaderOutput(imageReader, SurfaceOutput.OutputType.VIDEO)
     }
 
