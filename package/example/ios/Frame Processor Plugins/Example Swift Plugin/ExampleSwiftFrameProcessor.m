@@ -19,9 +19,9 @@
 
 @implementation ExampleSwiftFrameProcessorPlugin (FrameProcessorPluginLoader)
 
-+ (void)load
-{
-  [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"example_kotlin_swift_plugin" withInitializer:^FrameProcessorPlugin * _Nonnull(NSDictionary * _Nullable options) {
++ (void)initialize {
+  [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"example_kotlin_swift_plugin"
+                                        withInitializer:^FrameProcessorPlugin* _Nonnull(NSDictionary* _Nullable options) {
     return [[ExampleSwiftFrameProcessorPlugin alloc] init];
   }];
 }
