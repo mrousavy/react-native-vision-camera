@@ -132,15 +132,14 @@ extension CameraView {
       }
       let metadataOutput = AVCaptureMetadataOutput()
       guard captureSession.canAddOutput(metadataOutput) else {
-        // TODO: Throw more explicit error (tell the user to disable photo or video)
-        invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "code-scanner")))
+        invokeOnError(.codeScanner(.notCompatibleWithOutputs))
         return
       }
       captureSession.addOutput(metadataOutput)
 
       for codeType in codeScanner.codeTypes {
         if !metadataOutput.availableMetadataObjectTypes.contains(codeType) {
-          invokeOnError(.session(.codeNotSupported(code: codeType.descriptor)))
+          invokeOnError(.codeScanner(.codeTypeNotSupported(codeType: codeType.descriptor)))
           return
         }
       }
@@ -150,7 +149,6 @@ extension CameraView {
       if let rectOfInterest = codeScanner.regionOfInterest {
         metadataOutput.rectOfInterest = rectOfInterest
       }
-      // TODO: Interval??????????????????????????????????????
     }
 
     if outputOrientation != .portrait {

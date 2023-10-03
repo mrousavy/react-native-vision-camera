@@ -24,6 +24,10 @@ export type SessionError =
   | 'session/camera-has-been-disconnected'
   | 'session/audio-in-use-by-other-app'
   | 'session/audio-session-failed-to-activate'
+export type CodeScannerError =
+  | 'code-scanner/not-compatible-with-outputs'
+  | 'code-scanner/code-type-not-supported'
+  | 'code-scanner/cannot-load-model'
 export type CaptureError =
   | 'capture/recording-in-progress'
   | 'capture/no-recording-in-progress'

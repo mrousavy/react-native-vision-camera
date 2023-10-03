@@ -145,7 +145,6 @@ enum SessionError {
   case cameraNotReady
   case audioSessionFailedToActivate
   case audioInUseByOtherApp
-  case codeNotSupported(code: String)
 
   var code: String {
     switch self {
@@ -155,8 +154,6 @@ enum SessionError {
       return "audio-in-use-by-other-app"
     case .audioSessionFailedToActivate:
       return "audio-session-failed-to-activate"
-    case .codeNotSupported:
-      return "code-not-supported"
     }
   }
 
@@ -168,8 +165,6 @@ enum SessionError {
       return "The audio session is already in use by another app with higher priority!"
     case .audioSessionFailedToActivate:
       return "Failed to activate Audio Session!"
-    case let .codeNotSupported(code):
-      return "The code \"\(code)\" is not supported by the Camera!"
     }
   }
 }
@@ -234,6 +229,31 @@ enum CaptureError {
   }
 }
 
+// MARK: - CodeScannerError
+
+enum CodeScannerError {
+  case notCompatibleWithOutputs
+  case codeTypeNotSupported(codeType: String)
+  
+  var code: String {
+    switch self {
+    case .notCompatibleWithOutputs:
+      return "not-compatible-with-outputs"
+    case .codeTypeNotSupported:
+      return "code-type-not-supported"
+    }
+  }
+
+  var message: String {
+    switch self {
+    case .notCompatibleWithOutputs:
+      return "The Code Scanner is not supported in combination with the current outputs! Either disable video or photo outputs."
+    case let .codeTypeNotSupported(codeType: codeType):
+      return "The codeType \"\(codeType)\" is not supported by the Code Scanner!"
+    }
+  }
+}
+
 // MARK: - CameraError
 
 enum CameraError: Error {
@@ -243,6 +263,7 @@ enum CameraError: Error {
   case format(_ id: FormatError)
   case session(_ id: SessionError)
   case capture(_ id: CaptureError)
+  case codeScanner(_ id: CodeScannerError)
   case unknown(message: String? = nil)
 
   var code: String {
@@ -259,6 +280,8 @@ enum CameraError: Error {
       return "session/\(id.code)"
     case let .capture(id: id):
       return "capture/\(id.code)"
+    case let .codeScanner(id: id):
+      return "code-scanner/\(id.code)"
     case .unknown:
       return "unknown/unknown"
     }
@@ -277,6 +300,8 @@ enum CameraError: Error {
     case let .session(id: id):
       return id.message
     case let .capture(id: id):
+      return id.message
+    case let .codeScanner(id: id):
       return id.message
     case let .unknown(message: message):
       return message ?? "An unexpected error occured."

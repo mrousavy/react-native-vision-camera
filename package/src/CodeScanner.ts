@@ -1,11 +1,27 @@
 /**
+ * The type of the code to scan.
  */
-export type CodeType = 'qr' | 'aztec' | 'ean-13'
+export type CodeType =
+  | 'code-128'
+  | 'code-39'
+  | 'code-93'
+  | 'codabar'
+  | 'ean-13'
+  | 'ean-8'
+  | 'itf'
+  | 'upc-e'
+  | 'qr'
+  | 'pdf-417'
+  | 'aztec'
+  | 'data-matrix'
 
+/**
+ * A scanned code.
+ */
 export interface Code {
-  type: CodeType
-  value: string
-  frame: {
+  type: CodeType | 'unknown'
+  value?: string
+  frame?: {
     x: number
     y: number
     width: number
@@ -13,6 +29,9 @@ export interface Code {
   }
 }
 
+/**
+ * A scanner for detecting codes in a Camera Stream.
+ */
 export interface CodeScanner {
   codeTypes: CodeType[]
   onCodeScanned: (codes: Code[]) => void
@@ -22,8 +41,4 @@ export interface CodeScanner {
     width: number
     height: number
   }
-  /**
-   * ms
-   */
-  interval?: number
 }
