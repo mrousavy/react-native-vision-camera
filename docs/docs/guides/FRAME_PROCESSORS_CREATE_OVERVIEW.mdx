@@ -51,8 +51,9 @@ Similar to a TurboModule, the Frame Processor Plugin Registry API automatically 
 Return values will automatically be converted to JS values, assuming they are representable in the ["Types" table](#types). So the following Java Frame Processor Plugin:
 
 ```java
+@Nullable
 @Override
-public Object callback(Frame frame, Object[] params) {
+public Object callback(@NonNull Frame frame, @Nullable Map<String, Object> arguments) {
   return "cat";
 }
 ```
@@ -70,8 +71,9 @@ export function detectObject(frame: Frame): string {
 You can also manipulate the buffer and return it (or a copy of it) by returning a [`Frame`][2]/[`Frame`][3] instance:
 
 ```java
+@Nullable
 @Override
-public Object callback(Frame frame, Object[] params) {
+public Object callback(@NonNull Frame frame, @Nullable Map<String, Object> arguments) {
   Frame resizedFrame = new Frame(/* ... */);
   return resizedFrame;
 }
@@ -107,12 +109,13 @@ const frameProcessor = useFrameProcessor((frame) => {
 To let the user know that something went wrong you can use Exceptions:
 
 ```java
+@Nullable
 @Override
-public Object callback(Frame frame, Object[] params) {
-  if (params[0] instanceof String) {
+public Object callback(@NonNull Frame frame, @Nullable Map<String, Object> arguments) {
+  if (arguments != null && arguments.get("codeType") instanceof String) {
     // ...
   } else {
-    throw new Exception("First argument has to be a string!");
+    throw new Exception("codeType property has to be a string!");
   }
 }
 ```
@@ -123,7 +126,7 @@ Which will throw a JS-error:
 const frameProcessor = useFrameProcessor((frame) => {
   'worklet'
   try {
-    const codes = scanCodes(frame, true)
+    const codes = scanCodes(frame, { codeType: 1234 })
   } catch (e) {
     console.log(`Error: ${e.message}`)
   }
@@ -143,9 +146,14 @@ If your Frame Processor takes longer than a single frame interval to execute, or
 For example, a realtime video chat application might use WebRTC to send the frames to the server. I/O operations (networking) are asynchronous, and we don't _need_ to wait for the upload to succeed before pushing the next frame, so we copy the frame and perform the upload on another Thread.
 
 ```java
+@Nullable
 @Override
-public Object callback(Frame frame, Object[] params) {
-  String serverURL = (String)params[0];
+public Object callback(@NonNull Frame frame, @Nullable Map<String, Object> arguments) {
+  if (arguments == null) {
+    return null;
+  }
+
+  String serverURL = (String)arguments.get("serverURL");
   Frame frameCopy = new Frame(/* ... */);
 
   uploaderQueue.runAsync(() -> {

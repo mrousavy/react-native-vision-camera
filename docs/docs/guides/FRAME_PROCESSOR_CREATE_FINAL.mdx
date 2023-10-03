@@ -18,6 +18,7 @@ const plugin = VisionCameraProxy.getFrameProcessorPlugin('scanFaces')
  */
 export function scanFaces(frame: Frame): object {
   'worklet'
+  if (plugin == null) throw new Error('Failed to load Frame Processor Plugin "scanFaces"!')
   return plugin.call(frame)
 }
 ```

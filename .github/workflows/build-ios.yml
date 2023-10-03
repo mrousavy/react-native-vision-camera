@@ -56,7 +56,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            example/ios/Pods
+            package/example/ios/Pods
             ~/Library/Caches/CocoaPods
             ~/.cocoapods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
@@ -117,7 +117,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            example/ios/Pods
+            package/example/ios/Pods
             ~/Library/Caches/CocoaPods
             ~/.cocoapods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
