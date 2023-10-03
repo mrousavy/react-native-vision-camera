@@ -135,8 +135,7 @@ class CameraOutputs(
 
     // Video output: High resolution repeating images (startRecording() or useFrameProcessor())
     if (video != null) {
-      // TODO: Should this be dynamic?
-      val format = ImageFormat.YUV_420_888
+      val format = video.format.toImageFormat()
       val size = characteristics.getVideoSizes(cameraId, format).closestToOrMax(video.targetSize)
       val enableFrameProcessor = video.enableFrameProcessor ?: false
       val videoPipeline = VideoPipeline(size.width, size.height, video.format, isMirrored, enableFrameProcessor)
