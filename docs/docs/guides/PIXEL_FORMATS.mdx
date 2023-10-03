@@ -1,0 +1,80 @@
+---
+id: pixel-formats
+title: Pixel Formats
+sidebar_label: Pixel Formats
+---
+
+import Tabs from '@theme/Tabs'
+import TabItem from '@theme/TabItem'
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+## What are Pixel Formats?
+
+A Camera's video pipeline operates in a specific pixel format which specifies how the pixels are laid out in a memory buffer.
+
+If you are simply recording videos (`video={true}`), the most efficient pixel format (`native`) will be automatically chosen for you, and [buffer compression](/docs/guides/performance#buffer-compression) will be enabled if available.
+
+If you are using Frame Processors, it is important to understand what pixel format you are using.
+
+The most commonly known pixel format is _RGB_, which lays out pixels in 3 channels (R, G and B), and each channel has a value ranging from 0 to 255 (8-byte), making it a total of 24-bytes per pixel:
+```
+RGBRGBRGBRGBRGBRGB
+```
+
+Cameras however don't operate in RGB, they use YUV instead. Instead of storing a color value for each channel, it stores the brightness ("luma") in it's first channel (Y), and the colors ("chroma") in the U and V channels. This is much closer to what a Camera hardware actually sees, as it is essentially a light sensor. Also, it is more memory efficient, since the UV channels are usually half the size of the Y channel:
+```
+YYYYUVYYYYUVYYYYUV
+```
+
+In VisionCamera, pixel formats are abstracted under a simple [`PixelFormat`](/docs/api/#pixelformat) API with three possible values:
+
+- `yuv`: The YUV (often 4:2:0, 8-bit per channel) pixel format.
+- `native`: Whatever native format is most efficient, likely the same as YUV on iOS, but some PRIVATE format on Android.
+- `rgb`: An RGB (often BGRA, 8-bit per channel) pixel format.
+
+A [`CameraFormat`](/docs/api/interfaces/CameraDeviceFormat) specifies which pixel formats it can use for this specific configuration. For example, let's inspect the 4k Video format on an iPhone:
+
+```json
+// ...
+"pixelFormats": [
+  "yuv",
+  "rgb"
+]
+```
+
+This Format supports both YUV and RGB streaming, so we can configure the Camera to stream in RGB if we want:
+
+```tsx
+function App() {
+  // ...
+  const format = ...
+  const pixelFormat = format.pixelFormats.includes("rgb") ? "rgb" : "native"
+
+  return (
+    <Camera
+      style={StyleSheet.absoluteFill}
+      device={device}
+      format={format}
+      pixelFormat={pixelFormat}
+    />
+  )
+}
+```
+
+However this is not recommended, as YUV is much more efficient.
+
+On Android, only YUV and NATIVE (PRIVATE) are supported, as RGB requires explicit conversion.
+
+As a general tip, try to always use YUV, and stay away from RGB. If you have some specific models (e.g. Face Detectors), try converting them to YUV (4:2:0) instead of trying to run your Camera in RGB, as the conversion beforehand will be worth the effort.
+
+### HDR
+
+When HDR is enabled, a different pixel format (10-bit instead of 8-bit) will be chosen. Make sure your Frame Processor can handle these formats, or disable HDR. See ["Understanding YpCbCr Image Formats"](https://developer.apple.com/documentation/accelerate/conversion/understanding_ypcbcr_image_formats) for more information.
+
+Instead of [`kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange`](https://developer.apple.com/documentation/corevideo/kcvpixelformattype_420ypcbcr8biplanarvideorange), it uses [`kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange`](https://developer.apple.com/documentation/corevideo/1563591-pixel_format_identifiers/kcvpixelformattype_420ypcbcr10biplanarvideorange), same for full-range.
+
+### Buffer Compression
+
+[Buffer Compression](/docs/guides/performance#buffer-compression) is automatically enabled if you are not using a Frame Processor. If you are using a Frame Processor, buffer compression will be turned off, as it essentially uses a different format than YUV. See ["Understanding YpCbCr Image Formats"](https://developer.apple.com/documentation/accelerate/conversion/understanding_ypcbcr_image_formats) for more information.
+
+Instead of [`kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange`](https://developer.apple.com/documentation/corevideo/kcvpixelformattype_420ypcbcr8biplanarvideorange), it uses [`kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarVideoRange`](https://developer.apple.com/documentation/corevideo/3746862-anonymous/kcvpixelformattype_lossless_420ypcbcr8biplanarvideorange), same for full-range.
