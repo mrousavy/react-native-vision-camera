@@ -27,7 +27,8 @@ private let propsThatRequireReconfiguration = ["cameraId",
                                                "video",
                                                "enableFrameProcessor",
                                                "hdr",
-                                               "pixelFormat"]
+                                               "pixelFormat",
+                                               "codeScannerOptions"]
 private let propsThatRequireDeviceReconfiguration = ["fps",
                                                      "lowLightBoost"]
 
@@ -46,6 +47,7 @@ public final class CameraView: UIView {
   @objc var video: NSNumber? // nullable bool
   @objc var audio: NSNumber? // nullable bool
   @objc var enableFrameProcessor = false
+  @objc var codeScannerOptions: NSDictionary?
   @objc var pixelFormat: NSString?
   // props that require format reconfiguring
   @objc var format: NSDictionary?
@@ -69,6 +71,7 @@ public final class CameraView: UIView {
   @objc var onInitialized: RCTDirectEventBlock?
   @objc var onError: RCTDirectEventBlock?
   @objc var onViewReady: RCTDirectEventBlock?
+  @objc var onCodeScanned: RCTDirectEventBlock?
   // zoom
   @objc var enableZoomGesture = false {
     didSet {

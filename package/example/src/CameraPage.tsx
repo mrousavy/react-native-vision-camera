@@ -57,8 +57,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
   const [targetFps, setTargetFps] = useState(60)
 
-  const codeScanner = useCodeScanner(['barcode'], (code) => {
-    console.log(code)
+  const codeScanner = useCodeScanner(['qr'], (codes) => {
+    console.log(codes)
   })
 
   const screenAspectRatio = SCREEN_HEIGHT / SCREEN_WIDTH
@@ -195,7 +195,6 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 enableFpsGraph={true}
                 orientation="portrait"
                 photo={true}
-                video={true}
                 audio={hasMicrophonePermission}
                 codeScanner={codeScanner}
               />

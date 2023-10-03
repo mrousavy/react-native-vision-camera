@@ -1,7 +1,10 @@
-export type CodeType = 'qr' | 'barcode'
+/**
+ */
+export type CodeType = 'qr' | 'aztec' | 'ean-13'
 
 export interface Code {
   type: CodeType
+  value: string
   frame: {
     x: number
     y: number
@@ -12,5 +15,15 @@ export interface Code {
 
 export interface CodeScanner {
   codeTypes: CodeType[]
-  onCodeScanned: (code: Code) => void
+  onCodeScanned: (codes: Code[]) => void
+  regionOfInterest?: {
+    x: number
+    y: number
+    width: number
+    height: number
+  }
+  /**
+   * ms
+   */
+  interval?: number
 }

@@ -123,6 +123,35 @@ extension CameraView {
       ]
       captureSession.addOutput(videoOutput!)
     }
+    
+    // Code Scanner
+    if let codeScannerOptions = codeScannerOptions {
+      guard let codeScanner = try? CodeScanner(fromJsValue: codeScannerOptions) else {
+        invokeOnError(.parameter(.invalid(unionName: "codeScanner", receivedValue: codeScannerOptions.description)))
+        return
+      }
+      let metadataOutput = AVCaptureMetadataOutput()
+      guard captureSession.canAddOutput(metadataOutput) else {
+        // TODO: Throw more explicit error (tell the user to disable photo or video)
+        invokeOnError(.parameter(.unsupportedOutput(outputDescriptor: "code-scanner")))
+        return
+      }
+      captureSession.addOutput(metadataOutput)
+      
+      for codeType in codeScanner.codeTypes {
+        if !metadataOutput.availableMetadataObjectTypes.contains(codeType) {
+          invokeOnError(.session(.codeNotSupported(code: codeType.descriptor)))
+          return
+        }
+      }
+      
+      metadataOutput.setMetadataObjectsDelegate(self, queue: CameraQueues.videoQueue)
+      metadataOutput.metadataObjectTypes = codeScanner.codeTypes
+      if let rectOfInterest = codeScanner.regionOfInterest {
+        metadataOutput.rectOfInterest = rectOfInterest
+      }
+      // TODO: Interval??????????????????????????????????????
+    }
 
     if outputOrientation != .portrait {
       updateOrientation()

@@ -145,6 +145,7 @@ enum SessionError {
   case cameraNotReady
   case audioSessionFailedToActivate
   case audioInUseByOtherApp
+  case codeNotSupported(code: String)
 
   var code: String {
     switch self {
@@ -154,6 +155,8 @@ enum SessionError {
       return "audio-in-use-by-other-app"
     case .audioSessionFailedToActivate:
       return "audio-session-failed-to-activate"
+    case .codeNotSupported:
+      return "code-not-supported"
     }
   }
 
@@ -165,6 +168,8 @@ enum SessionError {
       return "The audio session is already in use by another app with higher priority!"
     case .audioSessionFailedToActivate:
       return "Failed to activate Audio Session!"
+    case let .codeNotSupported(code):
+      return "The code \"\(code)\" is not supported by the Camera!"
     }
   }
 }
