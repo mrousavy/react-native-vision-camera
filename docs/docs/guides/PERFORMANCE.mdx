@@ -72,11 +72,14 @@ Note: When not using a `frameProcessor`, buffer compression is automatically ena
 
 ### Video Stabilization
 
-Video Stabilization requires additional overhead to start the algorithm, so disabling [`videoStabilizationMode`](/docs/api/interfaces/CameraProps#videoStabilizationMode) can significantly speed up the Camera initialization time.
+Video Stabilization requires additional overhead to start the algorithm, so disabling [`videoStabilizationMode`](/docs/api/interfaces/CameraProps#videostabilizationmode) can significantly speed up the Camera initialization time.
 
 ### Pixel Format
 
-By default, the `native` [`PixelFormat`](/docs/api#PixelFormat) is used, which is much more efficient than `rgb`.
+By default, the `native` [`PixelFormat`](/docs/api#pixelformat) is used, which is much more efficient than `rgb`.
+
+- On iOS, `native` is `yuv`
+- On Android `native` is some kind of vendor specific format, which might be `yuv`
 
 ### Disable unneeded pipelines
 

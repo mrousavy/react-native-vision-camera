@@ -170,7 +170,7 @@ const frameProcessor = useFrameProcessor((frame) => {
 
 ### Running at a throttled FPS rate
 
-Some Frame Processor Plugins don't need to run on every Frame, for example a Frame Processor that detects the brightness in a Frame only needs to run twice per second. You can achieve this by using [`runAtTargetFps(..)`](/docs/api/#runAtTargetFps):
+Some Frame Processor Plugins don't need to run on every Frame, for example a Frame Processor that detects the brightness in a Frame only needs to run twice per second. You can achieve this by using [`runAtTargetFps(..)`](/docs/api/#runattargetfps):
 
 ```ts
 const frameProcessor = useFrameProcessor((frame) => {
@@ -223,7 +223,7 @@ Check out [Frame Processor community plugins](/docs/guides/frame-processor-plugi
 When running frame processors, it is often important to choose an appropriate [format](/docs/guides/formats). Here are some general tips to consider:
 
 * If you are running heavy AI/ML calculations in your frame processor, make sure to [select a format](/docs/guides/formats) that has a lower resolution to optimize it's performance. You can also resize the Frame on-demand.
-* Sometimes a frame processor plugin only works with specific [pixel formats](/docs/api/interfaces/CameraDeviceFormat#pixelformats). Some plugins (like Tensorflow Lite Models) don't work with `yuv`, so use a [`pixelFormat`](/docs/api/interfaces/CameraProps#pixelFormat) of `rgb` instead.
+* Sometimes a frame processor plugin only works with specific [pixel formats](/docs/api/interfaces/CameraDeviceFormat#pixelformats). Some plugins (like Tensorflow Lite Models) don't work with `yuv`, so use a [`pixelFormat`](/docs/api/interfaces/CameraProps#pixelformat) of `rgb` instead.
 * Some Frame Processor plugins don't work with HDR formats. In this case you need to disable [`hdr`](/docs/api/interfaces/CameraProps#hdr).
 
 ## Benchmarks

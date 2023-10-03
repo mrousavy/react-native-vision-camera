@@ -72,20 +72,20 @@ A [`CameraDevice`](/docs/api/interfaces/CameraDevice) consists of the following 
     - USB Camera Devices (if they support the [USB Video Class (UVC) Specification](https://en.wikipedia.org/wiki/List_of_USB_video_class_devices))
     - [Continuity Camera Devices](https://support.apple.com/en-us/HT213244) (e.g. your iPhone's or Mac's Camera connected through WiFi/Continuity)
     - Bluetooth/WiFi Camera Devices (if they are supported in the platform-native Camera APIs)
-- [`physicalDevices`](/docs/api/interfaces/CameraDevice#physicalDevices): The physical Camera Devices (lenses) this Camera Device consists of. This can either be one of these values ("physical" device) or any combination of these values ("virtual" device):
+- [`physicalDevices`](/docs/api/interfaces/CameraDevice#physicaldevices): The physical Camera Devices (lenses) this Camera Device consists of. This can either be one of these values ("physical" device) or any combination of these values ("virtual" device):
   - `ultra-wide-angle-camera`: The "fish-eye" camera for 0.5x zoom
   - `wide-angle-camera`: The "default" camera for 1x zoom
   - `telephoto-camera`: A zoomed-in camera for 3x zoom
-- [`sensorOrientation`](/docs/api/interfaces/CameraDevice#sensorOrientation): The orientation of the Camera sensor/lens relative to the phone. Cameras are usually in `landscapeLeft` orientation, meaning they are rotated by 90°. This includes their resolutions, so a 4k format might be 3840x2160, not 2160x3840
-- [`minZoom`](/docs/api/interfaces/CameraDevice#minZoom): The minimum possible zoom factor for this Camera Device. If this is a multi-cam, this is the point where the device with the widest field of view is used (e.g. ultra-wide)
-- [`maxZoom`](/docs/api/interfaces/CameraDevice#maxZoom): The maximum possible zoom factor for this Camera Device. If this is a multi-cam, this is the point where the device with the lowest field of view is used (e.g. telephoto)
-- [`neutralZoom`](/docs/api/interfaces/CameraDevice#neutralZoom): A value between `minZoom` and `maxZoom` where the "default" Camera Device is used (e.g. wide-angle). When using multi-cams, make sure to start off at this zoom level, so the user can optionally zoom out to the ultra-wide-angle Camera instead of already starting zoomed out
+- [`sensorOrientation`](/docs/api/interfaces/CameraDevice#sensororientation): The orientation of the Camera sensor/lens relative to the phone. Cameras are usually in `landscapeLeft` orientation, meaning they are rotated by 90°. This includes their resolutions, so a 4k format might be 3840x2160, not 2160x3840
+- [`minZoom`](/docs/api/interfaces/CameraDevice#minzoom): The minimum possible zoom factor for this Camera Device. If this is a multi-cam, this is the point where the device with the widest field of view is used (e.g. ultra-wide)
+- [`maxZoom`](/docs/api/interfaces/CameraDevice#maxzoom): The maximum possible zoom factor for this Camera Device. If this is a multi-cam, this is the point where the device with the lowest field of view is used (e.g. telephoto)
+- [`neutralZoom`](/docs/api/interfaces/CameraDevice#neutralzoom): A value between `minZoom` and `maxZoom` where the "default" Camera Device is used (e.g. wide-angle). When using multi-cams, make sure to start off at this zoom level, so the user can optionally zoom out to the ultra-wide-angle Camera instead of already starting zoomed out
 - [`formats`](/docs/api/interfaces/CameraDevice#formats): The list of [`CameraDeviceFormat`s](/docs/api/interfaces/CameraDeviceFormat) (See ["Camera Formats"](/docs/guides/formats)) this Camera Device supports. A format specifies:
   - Video Resolution (see ["Formats: Video Resolution"](/docs/guides/formats#video-resolution))
   - Photo Resolution (see ["Formats: Photo Resolution"](/docs/guides/formats#photo-resolution))
   - FPS (see ["Formats: FPS"](/docs/guides/formats#fps))
-  - Video Stabilization Mode (see: ["Formats: Video Stabilization Mode"](/docs/guides/formats#videoStabilization))
-  - Pixel Format (see: ["Formats: Pixel Format"](/docs/guides/formats#pixelFormat))
+  - Video Stabilization Mode (see: ["Formats: Video Stabilization Mode"](/docs/guides/formats#videostabilization))
+  - Pixel Format (see: ["Formats: Pixel Format"](/docs/guides/formats#pixelformat))
 
 ### Examples on an iPhone
 
