@@ -33,10 +33,10 @@
  */
 #define VISION_EXPORT_FRAME_PROCESSOR(frame_processor)                              \
                                                                                     \
-+(void)initialize                                                                         \
++(void)initialize                                                                   \
 {                                                                                   \
   [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"__" @ #frame_processor callback:^id(Frame* frame, NSArray<id>* args) { \
-    return frame_processor(frame, args);                                           \
+    return frame_processor(frame, args);                                            \
   }];                                                                               \
 }
 
@@ -53,10 +53,10 @@ objc_name : NSObject<FrameProcessorPluginBase>                                  
 @end                                                                                \
 @implementation objc_name (FrameProcessorPlugin)                                    \
                                                                                     \
-+(void)initialize                                                                          \
+__attribute__((constructor)) static void VISION_CONCAT(initialize_, objc_name)()    \
 {                                                                                   \
   [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"__" @ #name callback:^id(Frame* frame, NSArray<id>* args) {    \
-    return [objc_name callback:frame withArgs:args];                               \
+    return [objc_name callback:frame withArgs:args];                                \
   }];                                                                               \
 }
 
