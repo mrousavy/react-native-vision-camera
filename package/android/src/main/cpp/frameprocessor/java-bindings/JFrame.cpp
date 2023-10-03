@@ -4,8 +4,8 @@
 
 #include "JFrame.h"
 
-#include <jni.h>
 #include <fbjni/fbjni.h>
+#include <jni.h>
 
 #include <android/hardware_buffer_jni.h>
 

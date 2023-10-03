@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <jni.h>
 #include <fbjni/fbjni.h>
+#include <jni.h>
 
 #include <android/hardware_buffer.h>
 
