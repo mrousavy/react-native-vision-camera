@@ -171,7 +171,7 @@ class CameraOutputs(
 
       val types = codeScanner.codeScanner.codeTypes.map { it.toBarcodeType() }
       val barcodeScannerOptions = BarcodeScannerOptions.Builder()
-        .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
+        .setBarcodeFormats(types[0], *types.toIntArray())
         .setExecutor(CameraQueues.codeScannerQueue.executor)
         .build()
       val scanner = BarcodeScanning.getClient(barcodeScannerOptions)
