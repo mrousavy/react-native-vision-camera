@@ -16,6 +16,7 @@ import android.os.Build
 import android.util.Log
 import android.util.Range
 import android.util.Size
+import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.CameraNotReadyError
 import com.mrousavy.camera.CameraQueues
 import com.mrousavy.camera.CameraView

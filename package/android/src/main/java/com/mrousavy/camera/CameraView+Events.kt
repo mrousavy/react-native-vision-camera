@@ -61,7 +61,7 @@ fun CameraView.invokeOnCodeScanned(barcodes: List<Barcode>) {
   val event = Arguments.createMap()
   event.putArray("codes", codes)
   val reactContext = context as ReactContext
-  reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraCodeDetected", event)
+  reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraCodeScanned", event)
 }
 
 private fun errorToMap(error: Throwable): WritableMap {

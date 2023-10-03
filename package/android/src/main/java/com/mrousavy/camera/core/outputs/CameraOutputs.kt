@@ -48,7 +48,11 @@ class CameraOutputs(
     val enableFrameProcessor: Boolean? = false,
     val format: PixelFormat = PixelFormat.NATIVE
   )
-  data class CodeScannerOutput(val codeScanner: CodeScanner)
+  data class CodeScannerOutput(
+    val codeScanner: CodeScanner,
+    val onCodeScanned: (codes: List<Barcode>) -> Unit,
+    val onError: (error: Throwable) -> Unit
+  )
 
   interface Callback {
     fun onPhotoCaptured(image: Image)
@@ -185,18 +189,16 @@ class CameraOutputs(
           .addOnSuccessListener { barcodes ->
             image.close()
             isBusy = false
-            // TODO: Send event to JS
-            barcodes.forEach {
-              Log.i(TAG, "Codes: ${it.format}: ${it.rawValue}")
+            if (barcodes.isNotEmpty()) {
+              codeScanner.onCodeScanned(barcodes)
             }
           }
           .addOnFailureListener { error ->
             image.close()
             isBusy = false
-            // TODO: Send error to JS
-            throw error
+            codeScanner.onError(error)
           }
-      }, CameraQueues.codeScannerQueue.handler)
+      }, CameraQueues.videoQueue.handler)
 
       Log.i(TAG, "Adding ${size.width}x${size.height} code scanner output. (Code Types: ${types})")
       codeScannerOutput = ImageReaderOutput(imageReader, SurfaceOutput.OutputType.VIDEO)
