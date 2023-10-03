@@ -8,8 +8,7 @@
  *
  * - `yuv`: Frame is in YUV pixel-format (Y'CbCr 4:2:0 or NV21, 8-bit)
  * - `rgb`: Frame is in RGB pixel-format (RGB or RGBA, 8-bit)
- * - `dng`: Frame is in a depth-data pixel format (DNG)
  * - `native`: Frame is in the Camera's native Hardware Buffer format (PRIVATE). This is the most efficient Format.
  * - `unknown`: Frame has unknown/unsupported pixel-format.
  */
-export type PixelFormat = 'yuv' | 'rgb' | 'dng' | 'native' | 'unknown'
+export type PixelFormat = 'yuv' | 'rgb' | 'native' | 'unknown'

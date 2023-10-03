@@ -12,7 +12,6 @@ import Foundation
 enum PixelFormat {
   case yuv
   case rgb
-  case dng
   case native
   case unknown
 
@@ -22,8 +21,6 @@ enum PixelFormat {
       return "yuv"
     case .rgb:
       return "rgb"
-    case .dng:
-      return "dng"
     case .native:
       return "native"
     case .unknown:
@@ -37,8 +34,6 @@ enum PixelFormat {
       self = .yuv
     case "rgb":
       self = .rgb
-    case "dng":
-      self = .dng
     case "native":
       self = .native
     case "unknown":
