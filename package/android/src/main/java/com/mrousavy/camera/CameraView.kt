@@ -206,6 +206,7 @@ class CameraView(context: Context) : FrameLayout(context) {
       val targetPhotoSize = if (format != null) Size(format.getInt("photoWidth"), format.getInt("photoHeight")) else null
       // TODO: Allow previewSurface to be null/none
       val previewSurface = previewSurface ?: return
+      val codeScannerOptions = codeScannerOptions
 
       val previewOutput = CameraOutputs.PreviewOutput(previewSurface, previewView?.targetSize)
       val photoOutput = if (photo == true) {
@@ -218,8 +219,13 @@ class CameraView(context: Context) : FrameLayout(context) {
       } else {
         null
       }
+      val codeScanner = if (codeScannerOptions != null) {
+        CameraOutputs.CodeScannerOutput(codeScannerOptions)
+      } else {
+        null
+      }
 
-      cameraSession.configureSession(cameraId, previewOutput, photoOutput, videoOutput)
+      cameraSession.configureSession(cameraId, previewOutput, photoOutput, videoOutput, codeScanner)
     } catch (e: Throwable) {
       Log.e(TAG, "Failed to configure session: ${e.message}", e)
       invokeOnError(e)

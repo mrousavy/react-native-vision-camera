@@ -10,6 +10,7 @@ import android.util.Size
 import android.view.Surface
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 import com.mrousavy.camera.CameraQueues
 import com.mrousavy.camera.core.VideoPipeline
@@ -47,8 +48,7 @@ class CameraOutputs(
     val enableFrameProcessor: Boolean? = false,
     val format: PixelFormat = PixelFormat.NATIVE
   )
-  data class CodeScannerOutput(val targetSize: Size? = null,
-                               val codeScannerOptions: CodeScanner)
+  data class CodeScannerOutput(val codeScanner: CodeScanner)
 
   interface Callback {
     fun onPhotoCaptured(image: Image)
@@ -83,7 +83,7 @@ class CameraOutputs(
       this.video?.enableRecording == other.video?.enableRecording &&
       this.video?.targetSize == other.video?.targetSize &&
       this.video?.format == other.video?.format &&
-      this.codeScanner?.codeScannerOptions == other.codeScanner?.codeScannerOptions &&
+      this.codeScanner?.codeScanner == other.codeScanner?.codeScanner &&
       this.enableHdr == other.enableHdr
   }
 
@@ -165,29 +165,39 @@ class CameraOutputs(
       val targetSize = Size(1280, 720)
       val size = characteristics.getVideoSizes(cameraId, format).closestToOrMax(targetSize)
 
-      val types = codeScanner.codeScannerOptions.codeTypes.map { it.toBarcodeType() }
+      val types = codeScanner.codeScanner.codeTypes.map { it.toBarcodeType() }
       val barcodeScannerOptions = BarcodeScannerOptions.Builder()
-        .setBarcodeFormats(types[0], *types.toIntArray())
+        .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
         .setExecutor(CameraQueues.videoQueue.executor)
         .build()
       val scanner = BarcodeScanning.getClient(barcodeScannerOptions)
 
-      val imageReader = ImageReader.newInstance(size.width, size.height, format, 3)
+      val imageReader = ImageReader.newInstance(size.width, size.height, format, 1)
       imageReader.setOnImageAvailableListener({ reader ->
-        val image = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
-        // TODO: Get correct orientation
-        val inputImage = InputImage.fromMediaImage(image, Orientation.PORTRAIT.toDegrees())
-        scanner.process(inputImage)
-          .addOnSuccessListener { barcodes ->
-            // TODO: Send event to JS
-            barcodes.forEach {
-              Log.i(TAG, "Codes: ${it.format}: ${it.rawValue}")
+        try {
+          val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
+
+          Log.i(TAG, "New Frame!")
+
+          // TODO: Get correct orientation
+          val inputImage = InputImage.fromMediaImage(image, Orientation.PORTRAIT.toDegrees())
+          scanner.process(inputImage)
+            .addOnSuccessListener { barcodes ->
+              image.close()
+              // TODO: Send event to JS
+              barcodes.forEach {
+                Log.i(TAG, "Codes: ${it.format}: ${it.rawValue}")
+              }
             }
-          }
-          .addOnFailureListener { error ->
-            // TODO: Send error to JS
-            throw error
-          }
+            .addOnFailureListener { error ->
+              image.close()
+              // TODO: Send error to JS
+              throw error
+            }
+        } catch (e: Throwable) {
+          // TODO: Send error to JS
+          Log.e(TAG, "Failed bla $e", e)
+        }
       }, CameraQueues.videoQueue.handler)
 
       Log.i(TAG, "Adding ${size.width}x${size.height} code scanner output. (Code Types: ${types})")
