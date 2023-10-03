@@ -6,23 +6,28 @@ import android.os.Build
 import android.util.Size
 
 private fun getMaximumVideoSize(cameraId: String): Size? {
-  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-    val profiles = CamcorderProfile.getAll(cameraId, CamcorderProfile.QUALITY_HIGH)
-    if (profiles != null) {
-      val largestProfile = profiles.videoProfiles.filterNotNull().maxByOrNull { it.width * it.height }
-      if (largestProfile != null) {
-        return Size(largestProfile.width, largestProfile.height)
+  try {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+      val profiles = CamcorderProfile.getAll(cameraId, CamcorderProfile.QUALITY_HIGH)
+      if (profiles != null) {
+        val largestProfile = profiles.videoProfiles.filterNotNull().maxByOrNull { it.width * it.height }
+        if (largestProfile != null) {
+          return Size(largestProfile.width, largestProfile.height)
+        }
       }
     }
-  }
 
-  val cameraIdInt = cameraId.toIntOrNull()
-  if (cameraIdInt != null) {
-    val profile = CamcorderProfile.get(cameraIdInt, CamcorderProfile.QUALITY_HIGH)
-    return Size(profile.videoFrameWidth, profile.videoFrameHeight)
-  }
+    val cameraIdInt = cameraId.toIntOrNull()
+    if (cameraIdInt != null) {
+      val profile = CamcorderProfile.get(cameraIdInt, CamcorderProfile.QUALITY_HIGH)
+      return Size(profile.videoFrameWidth, profile.videoFrameHeight)
+    }
 
-  return null
+    return null
+  } catch (e: Throwable) {
+    // some Samsung phones just crash when trying to get the CamcorderProfile. Only god knows why.
+    return null
+  }
 }
 
 fun CameraCharacteristics.getVideoSizes(cameraId: String, format: Int): List<Size> {
