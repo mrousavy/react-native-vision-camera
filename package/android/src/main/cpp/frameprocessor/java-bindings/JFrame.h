@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include <android/hardware_buffer.h>
-#include <fbjni/ByteBuffer.h>
 #include <fbjni/fbjni.h>
 #include <jni.h>
+
+#include <android/hardware_buffer.h>
 
 namespace vision {
 
@@ -27,7 +27,10 @@ public:
   jlong getTimestamp() const;
   local_ref<JString> getOrientation() const;
   local_ref<JString> getPixelFormat() const;
+#if __ANDROID_API__ >= 26
   AHardwareBuffer* getHardwareBuffer() const;
+#endif
+
   void incrementRefCount();
   void decrementRefCount();
   void close();

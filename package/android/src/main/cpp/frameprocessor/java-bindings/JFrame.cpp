@@ -4,10 +4,10 @@
 
 #include "JFrame.h"
 
-#include <android/hardware_buffer_jni.h>
-#include <fbjni/ByteBuffer.h>
 #include <fbjni/fbjni.h>
 #include <jni.h>
+
+#include <android/hardware_buffer_jni.h>
 
 namespace vision {
 
@@ -59,11 +59,13 @@ int JFrame::getBytesPerRow() const {
   return getBytesPerRowMethod(self());
 }
 
+#if __ANDROID_API__ >= 26
 AHardwareBuffer* JFrame::getHardwareBuffer() const {
   static const auto getHardwareBufferMethod = getClass()->getMethod<jobject()>("getHardwareBufferBoxed");
   auto hardwareBuffer = getHardwareBufferMethod(self());
   return AHardwareBuffer_fromHardwareBuffer(jni::Environment::current(), hardwareBuffer.get());
 }
+#endif
 
 void JFrame::incrementRefCount() {
   static const auto incrementRefCountMethod = getClass()->getMethod<void()>("incrementRefCount");

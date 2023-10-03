@@ -85,6 +85,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "toArrayBuffer") {
     jsi::HostFunctionType toArrayBuffer = [=](jsi::Runtime& runtime, const jsi::Value& thisArg, const jsi::Value* args,
                                               size_t count) -> jsi::Value {
+#if __ANDROID_API__ >= 26
       AHardwareBuffer* hardwareBuffer = this->frame->getHardwareBuffer();
 
       AHardwareBuffer_Desc bufferDescription;
@@ -120,6 +121,9 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       AHardwareBuffer_release(hardwareBuffer);
 
       return arrayBuffer;
+#else
+      throw jsi::JSError(runtime, "Frame.toArrayBuffer() is only available if minSdkVersion is set to 26 or higher!");
+#endif
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toArrayBuffer"), 0, toArrayBuffer);
   }
