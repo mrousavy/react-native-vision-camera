@@ -45,9 +45,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const [enableNightMode, setEnableNightMode] = useState(false)
 
   // camera format settings
-  const device = useCameraDevice(cameraPosition, {
-    physicalDevices: ['ultra-wide-angle-camera', 'wide-angle-camera', 'telephoto-camera'],
-  })
+  const device = useCameraDevice(cameraPosition)
 
   const [targetFps, setTargetFps] = useState(60)
 
@@ -148,14 +146,13 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   })
   //#endregion
 
-  if (device != null && format != null) {
-    console.log(
-      `Re-rendering camera page with ${isActive ? 'active' : 'inactive'} camera. ` +
-        `Device: "${device.name}" (${format.photoWidth}x${format.photoHeight} photo / ${format.videoWidth}x${format.videoHeight} video @ ${fps}fps)`,
-    )
-  } else {
-    console.log('re-rendering camera page without active camera')
-  }
+  useEffect(() => {
+    const f =
+      format != null
+        ? `(${format.photoWidth}x${format.photoHeight} photo / ${format.videoWidth}x${format.videoHeight}@${format.maxFps} video @ ${fps}fps)`
+        : undefined
+    console.log(`Camera: ${device?.name} | Format: ${f}`)
+  }, [device?.name, format, fps])
 
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet'

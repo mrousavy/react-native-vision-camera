@@ -54,8 +54,11 @@ export function getCameraDevice(devices: CameraDevice[], position: CameraPositio
 
     if (!explicitlyWantsNonWideAngle) {
       // prefer wide-angle-camera as a default
-      if (bestDevice.physicalDevices.includes('wide-angle-camera')) leftPoints += 1
-      if (device.physicalDevices.includes('wide-angle-camera')) rightPoints += 1
+      if (bestDevice.physicalDevices.includes('wide-angle-camera')) leftPoints += 2
+      if (device.physicalDevices.includes('wide-angle-camera')) rightPoints += 2
+      // if we have more than one device, we rank it lower. we only want a simple camera
+      if (bestDevice.physicalDevices.length > device.physicalDevices.length) leftPoints -= 1
+      if (device.physicalDevices.length > bestDevice.physicalDevices.length) rightPoints -= 1
     }
 
     // compare devices. two possible scenarios:
