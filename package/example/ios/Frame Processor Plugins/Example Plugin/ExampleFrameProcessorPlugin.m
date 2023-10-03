@@ -18,7 +18,7 @@
 
 @implementation ExampleFrameProcessorPlugin
 
-- (id)callback:(Frame *)frame withArguments:(NSArray<id> *)arguments {
+- (id)callback:(Frame *)frame withArguments:(NSDictionary *)arguments {
   CVPixelBufferRef imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
   NSLog(@"ExamplePlugin: %zu x %zu Image. Logging %lu parameters:", CVPixelBufferGetWidth(imageBuffer), CVPixelBufferGetHeight(imageBuffer), (unsigned long)arguments.count);
 
@@ -28,11 +28,11 @@
 
   return @{
     @"example_str": @"Test",
-    @"example_bool": @true,
+    @"example_bool": @(YES),
     @"example_double": @5.3,
     @"example_array": @[
       @"Hello",
-      @true,
+      @(YES),
       @17.38
     ]
   };
