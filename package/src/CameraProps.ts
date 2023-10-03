@@ -1,6 +1,7 @@
 import type { ViewProps } from 'react-native'
 import type { CameraDevice, CameraDeviceFormat, VideoStabilizationMode } from './CameraDevice'
 import type { CameraRuntimeError } from './CameraError'
+import { CodeScanner } from './CodeScanner'
 import type { Frame } from './Frame'
 import type { Orientation } from './Orientation'
 
@@ -231,5 +232,9 @@ export interface CameraProps extends ViewProps {
    * ```
    */
   frameProcessor?: FrameProcessor
+  /**
+   * TODO: Desc
+   */
+  codeScanner?: CodeScanner
   //#endregion
 }
