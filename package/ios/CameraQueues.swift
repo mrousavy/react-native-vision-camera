@@ -16,9 +16,16 @@ public class CameraQueues: NSObject {
                                                       attributes: [],
                                                       autoreleaseFrequency: .inherit,
                                                       target: nil)
-
+  
   /// The serial execution queue for output processing of videos for recording or synchronous frame processing.
   @objc public static let videoQueue = DispatchQueue(label: "mrousavy/VisionCamera.video",
+                                                     qos: .userInteractive,
+                                                     attributes: [],
+                                                     autoreleaseFrequency: .inherit,
+                                                     target: nil)
+  
+  /// The serial execution queue for output processing of QR/barcodes.
+  @objc public static let codeScannerQueue = DispatchQueue(label: "mrousavy/VisionCamera.codeScanner",
                                                      qos: .userInteractive,
                                                      attributes: [],
                                                      autoreleaseFrequency: .inherit,

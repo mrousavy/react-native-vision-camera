@@ -145,7 +145,7 @@ extension CameraView {
         }
       }
 
-      metadataOutput.setMetadataObjectsDelegate(self, queue: CameraQueues.videoQueue)
+      metadataOutput.setMetadataObjectsDelegate(self, queue: CameraQueues.codeScannerQueue)
       metadataOutput.metadataObjectTypes = codeScanner.codeTypes
       if let rectOfInterest = codeScanner.regionOfInterest {
         metadataOutput.rectOfInterest = rectOfInterest
