@@ -168,37 +168,35 @@ class CameraOutputs(
       val types = codeScanner.codeScanner.codeTypes.map { it.toBarcodeType() }
       val barcodeScannerOptions = BarcodeScannerOptions.Builder()
         .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
-        .setExecutor(CameraQueues.videoQueue.executor)
+        .setExecutor(CameraQueues.codeScannerQueue.executor)
         .build()
       val scanner = BarcodeScanning.getClient(barcodeScannerOptions)
 
+      var isBusy = false
       val imageReader = ImageReader.newInstance(size.width, size.height, format, 1)
       imageReader.setOnImageAvailableListener({ reader ->
-        try {
-          val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
+        if (isBusy) return@setOnImageAvailableListener
+        val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
 
-          Log.i(TAG, "New Frame!")
-
-          // TODO: Get correct orientation
-          val inputImage = InputImage.fromMediaImage(image, Orientation.PORTRAIT.toDegrees())
-          scanner.process(inputImage)
-            .addOnSuccessListener { barcodes ->
-              image.close()
-              // TODO: Send event to JS
-              barcodes.forEach {
-                Log.i(TAG, "Codes: ${it.format}: ${it.rawValue}")
-              }
+        isBusy = true
+        // TODO: Get correct orientation
+        val inputImage = InputImage.fromMediaImage(image, Orientation.PORTRAIT.toDegrees())
+        scanner.process(inputImage)
+          .addOnSuccessListener { barcodes ->
+            image.close()
+            isBusy = false
+            // TODO: Send event to JS
+            barcodes.forEach {
+              Log.i(TAG, "Codes: ${it.format}: ${it.rawValue}")
             }
-            .addOnFailureListener { error ->
-              image.close()
-              // TODO: Send error to JS
-              throw error
-            }
-        } catch (e: Throwable) {
-          // TODO: Send error to JS
-          Log.e(TAG, "Failed bla $e", e)
-        }
-      }, CameraQueues.videoQueue.handler)
+          }
+          .addOnFailureListener { error ->
+            image.close()
+            isBusy = false
+            // TODO: Send error to JS
+            throw error
+          }
+      }, CameraQueues.codeScannerQueue.handler)
 
       Log.i(TAG, "Adding ${size.width}x${size.height} code scanner output. (Code Types: ${types})")
       codeScannerOutput = ImageReaderOutput(imageReader, SurfaceOutput.OutputType.VIDEO)

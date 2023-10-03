@@ -11,6 +11,7 @@ class CameraQueues {
   companion object {
     val cameraQueue = CameraQueue("mrousavy/VisionCamera.main")
     val videoQueue = CameraQueue("mrousavy/VisionCamera.video")
+    val codeScannerQueue = CameraQueue("mrousavy/VisionCamera.codeScanner")
   }
 
   class CameraQueue(name: String) {
