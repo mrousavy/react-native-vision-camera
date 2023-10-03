@@ -142,8 +142,9 @@ android {
 
 dependencies {
   //noinspection GradleDynamicVersion
-  implementation 'com.facebook.react:react-android:+'
+  implementation "com.facebook.react:react-android:+"
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2"
+  implementation "com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.0"
 
   if (hasWorklets) {
     // Frame Processor integration (optional)
