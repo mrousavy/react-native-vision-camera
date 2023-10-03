@@ -6,29 +6,29 @@
 //  Copyright © 2023 mrousavy. All rights reserved.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 
 class CodeScanner {
   let codeTypes: [AVMetadataObject.ObjectType]
   let interval: Int
   let regionOfInterest: CGRect?
-  
+
   init(fromJsValue dictionary: NSDictionary) throws {
     if let codeTypes = dictionary["codeTypes"] as? [String] {
-      self.codeTypes = try codeTypes.map({ value in
+      self.codeTypes = try codeTypes.map { value in
         return try AVMetadataObject.ObjectType(withString: value)
-      })
+      }
     } else {
       throw CameraError.parameter(.invalidCombination(provided: "codeScanner", missing: "codeTypes"))
     }
-    
+
     if let interval = dictionary["interval"] as? Double {
       self.interval = Int(interval)
     } else {
-      self.interval = 300
+      interval = 300
     }
-    
+
     if let regionOfInterest = dictionary["regionOfInterest"] as? NSDictionary {
       guard let x = regionOfInterest["x"] as? Double,
             let y = regionOfInterest["y"] as? Double,
@@ -36,10 +36,10 @@ class CodeScanner {
             let height = regionOfInterest["height"] as? Double else {
         throw CameraError.parameter(.invalid(unionName: "regionOfInterest", receivedValue: regionOfInterest.description))
       }
-      
+
       self.regionOfInterest = CGRect(x: x, y: y, width: width, height: height)
     } else {
-      self.regionOfInterest = nil
+      regionOfInterest = nil
     }
   }
 }

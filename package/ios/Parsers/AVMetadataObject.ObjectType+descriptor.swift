@@ -6,8 +6,8 @@
 //  Copyright © 2023 mrousavy. All rights reserved.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 
 extension AVMetadataObject.ObjectType {
   init(withString string: String) throws {
@@ -21,12 +21,12 @@ extension AVMetadataObject.ObjectType {
     case "ean-13":
       self = .ean13
       return
-      // TODO: Add other types here
+    // TODO: Add other types here
     default:
       throw EnumParserError.invalidValue
     }
   }
-  
+
   var descriptor: String {
     switch self {
     case .qr:
@@ -35,7 +35,7 @@ extension AVMetadataObject.ObjectType {
       return "aztec"
     case .ean13:
       return "ean-13"
-      // TODO: Add other types here
+    // TODO: Add other types here
     default:
       fatalError("Unknown AVMetadataObject.ObjectType value! \(rawValue)")
     }

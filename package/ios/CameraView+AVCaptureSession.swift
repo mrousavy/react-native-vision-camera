@@ -123,7 +123,7 @@ extension CameraView {
       ]
       captureSession.addOutput(videoOutput!)
     }
-    
+
     // Code Scanner
     if let codeScannerOptions = codeScannerOptions {
       guard let codeScanner = try? CodeScanner(fromJsValue: codeScannerOptions) else {
@@ -137,14 +137,14 @@ extension CameraView {
         return
       }
       captureSession.addOutput(metadataOutput)
-      
+
       for codeType in codeScanner.codeTypes {
         if !metadataOutput.availableMetadataObjectTypes.contains(codeType) {
           invokeOnError(.session(.codeNotSupported(code: codeType.descriptor)))
           return
         }
       }
-      
+
       metadataOutput.setMetadataObjectsDelegate(self, queue: CameraQueues.videoQueue)
       metadataOutput.metadataObjectTypes = codeScanner.codeTypes
       if let rectOfInterest = codeScanner.regionOfInterest {
