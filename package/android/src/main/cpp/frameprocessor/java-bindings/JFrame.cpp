@@ -59,7 +59,7 @@ int JFrame::getBytesPerRow() const {
   return getBytesPerRowMethod(self());
 }
 
-#if __ANDROID_API >= 26
+#if __ANDROID_API__ >= 26
 AHardwareBuffer* JFrame::getHardwareBuffer() const {
   static const auto getHardwareBufferMethod = getClass()->getMethod<jobject()>("getHardwareBufferBoxed");
   auto hardwareBuffer = getHardwareBufferMethod(self());

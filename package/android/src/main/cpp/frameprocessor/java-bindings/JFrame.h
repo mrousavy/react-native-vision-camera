@@ -27,7 +27,7 @@ public:
   jlong getTimestamp() const;
   local_ref<JString> getOrientation() const;
   local_ref<JString> getPixelFormat() const;
-#if __ANDROID_API >= 26
+#if __ANDROID_API__ >= 26
   AHardwareBuffer* getHardwareBuffer() const;
 #endif
 
