@@ -61,7 +61,11 @@
     "ar",
     "qr",
     "qr-code",
-    "scanner"
+    "barcode",
+    "scanner",
+    "frame",
+    "processing",
+    "realtime"
   ],
   "repository": "https://github.com/mrousavy/react-native-vision-camera",
   "author": "Marc Rousavy <marcrousavy@hotmail.com> (https://github.com/mrousavy)",

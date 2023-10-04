@@ -100,7 +100,7 @@ Frame Processors can also accept parameters, following the same type convention 
 ```ts
 const frameProcessor = useFrameProcessor((frame) => {
   'worklet'
-  const codes = scanCodes(frame, { codes: ['qr', 'barcode'] })
+  const faces = scanFaces(frame, { accuracy: 'fast' })
 }, [])
 ```
 
