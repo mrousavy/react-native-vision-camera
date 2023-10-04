@@ -22,6 +22,7 @@ import com.mrousavy.camera.extensions.getPreviewTargetSize
 import com.mrousavy.camera.extensions.installHierarchyFitter
 import com.mrousavy.camera.extensions.smaller
 import com.mrousavy.camera.frameprocessor.FrameProcessor
+import com.mrousavy.camera.parsers.CodeScanner
 import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.PixelFormat
 import com.mrousavy.camera.parsers.ResizeMode
@@ -47,7 +48,7 @@ class CameraView(context: Context) : FrameLayout(context) {
 
     private val propsThatRequirePreviewReconfiguration = arrayListOf("cameraId", "format", "resizeMode")
     private val propsThatRequireSessionReconfiguration =
-      arrayListOf("cameraId", "format", "photo", "video", "enableFrameProcessor", "pixelFormat")
+      arrayListOf("cameraId", "format", "photo", "video", "enableFrameProcessor", "codeScannerOptions", "pixelFormat")
     private val propsThatRequireFormatReconfiguration = arrayListOf("fps", "hdr", "videoStabilizationMode", "lowLightBoost")
   }
 
@@ -79,6 +80,9 @@ class CameraView(context: Context) : FrameLayout(context) {
   var zoom: Float = 1f // in "factor"
   var orientation: Orientation? = null
   var enableZoomGesture: Boolean = false
+
+  // code scanner
+  var codeScannerOptions: CodeScanner? = null
 
   // private properties
   private var isMounted = false
@@ -202,6 +206,7 @@ class CameraView(context: Context) : FrameLayout(context) {
       val targetPhotoSize = if (format != null) Size(format.getInt("photoWidth"), format.getInt("photoHeight")) else null
       // TODO: Allow previewSurface to be null/none
       val previewSurface = previewSurface ?: return
+      val codeScannerOptions = codeScannerOptions
 
       val previewOutput = CameraOutputs.PreviewOutput(previewSurface, previewView?.targetSize)
       val photoOutput = if (photo == true) {
@@ -214,8 +219,17 @@ class CameraView(context: Context) : FrameLayout(context) {
       } else {
         null
       }
+      val codeScanner = if (codeScannerOptions != null) {
+        CameraOutputs.CodeScannerOutput(
+          codeScannerOptions,
+          { codes -> invokeOnCodeScanned(codes) },
+          { error -> invokeOnError(error) }
+        )
+      } else {
+        null
+      }
 
-      cameraSession.configureSession(cameraId, previewOutput, photoOutput, videoOutput)
+      cameraSession.configureSession(cameraId, previewOutput, photoOutput, videoOutput, codeScanner)
     } catch (e: Throwable) {
       Log.e(TAG, "Failed to configure session: ${e.message}", e)
       invokeOnError(e)

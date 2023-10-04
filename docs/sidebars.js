@@ -7,6 +7,7 @@ module.exports = {
       'guides/formats',
       'guides/taking-photos',
       'guides/recording-videos',
+      'guides/code-scanning',
       {
         type: 'category',
         label: 'Realtime Frame Processing',

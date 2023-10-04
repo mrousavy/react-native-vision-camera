@@ -24,6 +24,13 @@ public class CameraQueues: NSObject {
                                                      autoreleaseFrequency: .inherit,
                                                      target: nil)
 
+  /// The serial execution queue for output processing of QR/barcodes.
+  @objc public static let codeScannerQueue = DispatchQueue(label: "mrousavy/VisionCamera.codeScanner",
+                                                           qos: .userInteractive,
+                                                           attributes: [],
+                                                           autoreleaseFrequency: .inherit,
+                                                           target: nil)
+
   /// The serial execution queue for output processing of audio buffers.
   @objc public static let audioQueue = DispatchQueue(label: "mrousavy/VisionCamera.audio",
                                                      qos: .userInteractive,

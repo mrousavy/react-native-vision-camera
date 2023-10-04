@@ -62,6 +62,9 @@ suspend fun CameraDevice.createCaptureSession(
     outputs.videoOutput?.let { output ->
       outputConfigurations.add(output.toOutputConfiguration(characteristics))
     }
+    outputs.codeScannerOutput?.let { output ->
+      outputConfigurations.add(output.toOutputConfiguration(characteristics))
+    }
     if (outputs.enableHdr == true && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
       val supportedProfiles = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES)
       val hdrProfile = supportedProfiles?.bestProfile ?: supportedProfiles?.supportedProfiles?.firstOrNull()

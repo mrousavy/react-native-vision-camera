@@ -79,6 +79,13 @@ class RecordingInProgressError :
     "There is already an active video recording in progress! Did you call startRecording() twice?"
   )
 
+class CodeTypeNotSupportedError(codeType: String) :
+  CameraError(
+    "code-scanner",
+    "code-type-not-supported",
+    "The codeType \"$codeType\" is not supported by the Code Scanner!"
+  )
+
 class ViewNotFoundError(viewId: Int) :
   CameraError("system", "view-not-found", "The given view (ID $viewId) was not found in the view manager.")
 class FrameProcessorsUnavailableError(reason: String) :

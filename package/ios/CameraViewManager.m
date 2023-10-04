@@ -51,6 +51,9 @@ RCT_EXPORT_VIEW_PROPERTY(resizeMode, NSString);
 RCT_EXPORT_VIEW_PROPERTY(onError, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onInitialized, RCTDirectEventBlock);
 RCT_EXPORT_VIEW_PROPERTY(onViewReady, RCTDirectEventBlock);
+// Code Scanner
+RCT_EXPORT_VIEW_PROPERTY(codeScannerOptions, NSDictionary);
+RCT_EXPORT_VIEW_PROPERTY(onCodeScanned, RCTDirectEventBlock);
 
 // Camera View Functions
 RCT_EXTERN_METHOD(startRecording

@@ -42,8 +42,8 @@ export function createFrameProcessor(frameProcessor: FrameProcessor['frameProces
  * ```ts
  * const frameProcessor = useFrameProcessor((frame) => {
  *   'worklet'
- *   const qrCodes = scanQRCodes(frame)
- *   console.log(`QR Codes: ${qrCodes}`)
+ *   const faces = scanFaces(frame)
+ *   console.log(`Faces: ${faces}`)
  * }, [])
  * ```
  */

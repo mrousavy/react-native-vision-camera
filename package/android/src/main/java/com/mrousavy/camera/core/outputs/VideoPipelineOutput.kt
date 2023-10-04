@@ -16,6 +16,7 @@ class VideoPipelineOutput(val videoPipeline: VideoPipeline, outputType: OutputTy
   override fun close() {
     Log.i(TAG, "Closing ${videoPipeline.width}x${videoPipeline.height} Video Pipeline..")
     videoPipeline.close()
+    super.close()
   }
 
   override fun toString(): String = "$outputType (${videoPipeline.width} x ${videoPipeline.height} in format #${videoPipeline.format})"

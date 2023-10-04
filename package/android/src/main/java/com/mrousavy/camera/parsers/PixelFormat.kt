@@ -9,31 +9,28 @@ enum class PixelFormat(override val unionValue: String) : JSUnionValue {
   NATIVE("native"),
   UNKNOWN("unknown");
 
-  fun toImageFormat(): Int {
-    return when (this) {
+  fun toImageFormat(): Int =
+    when (this) {
       YUV -> ImageFormat.YUV_420_888
       NATIVE -> ImageFormat.PRIVATE
       else -> throw PixelFormatNotSupportedError(this.unionValue)
     }
-  }
 
   companion object : JSUnionValue.Companion<PixelFormat> {
-    fun fromImageFormat(imageFormat: Int): PixelFormat {
-      return when (imageFormat) {
+    fun fromImageFormat(imageFormat: Int): PixelFormat =
+      when (imageFormat) {
         ImageFormat.YUV_420_888 -> YUV
         ImageFormat.PRIVATE -> NATIVE
         else -> UNKNOWN
       }
-    }
 
-    override fun fromUnionValue(unionValue: String?): PixelFormat? {
-      return when (unionValue) {
+    override fun fromUnionValue(unionValue: String?): PixelFormat? =
+      when (unionValue) {
         "yuv" -> YUV
         "rgb" -> RGB
         "native" -> NATIVE
         "unknown" -> UNKNOWN
         else -> null
       }
-    }
   }
 }

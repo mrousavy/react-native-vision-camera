@@ -124,6 +124,34 @@ extension CameraView {
       captureSession.addOutput(videoOutput!)
     }
 
+    // Code Scanner
+    if let codeScannerOptions = codeScannerOptions {
+      guard let codeScanner = try? CodeScanner(fromJsValue: codeScannerOptions) else {
+        invokeOnError(.parameter(.invalid(unionName: "codeScanner", receivedValue: codeScannerOptions.description)))
+        return
+      }
+      let metadataOutput = AVCaptureMetadataOutput()
+      guard captureSession.canAddOutput(metadataOutput) else {
+        invokeOnError(.codeScanner(.notCompatibleWithOutputs))
+        return
+      }
+      captureSession.addOutput(metadataOutput)
+
+      for codeType in codeScanner.codeTypes {
+        // swiftlint:disable:next for_where
+        if !metadataOutput.availableMetadataObjectTypes.contains(codeType) {
+          invokeOnError(.codeScanner(.codeTypeNotSupported(codeType: codeType.descriptor)))
+          return
+        }
+      }
+
+      metadataOutput.setMetadataObjectsDelegate(self, queue: CameraQueues.codeScannerQueue)
+      metadataOutput.metadataObjectTypes = codeScanner.codeTypes
+      if let rectOfInterest = codeScanner.regionOfInterest {
+        metadataOutput.rectOfInterest = rectOfInterest
+      }
+    }
+
     if outputOrientation != .portrait {
       updateOrientation()
     }

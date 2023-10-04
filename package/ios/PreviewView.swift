@@ -38,6 +38,10 @@ class PreviewView: UIView {
     return AVCaptureVideoPreviewLayer.self
   }
 
+  func layerRectConverted(fromMetadataOutputRect rect: CGRect) -> CGRect {
+    return videoPreviewLayer.layerRectConverted(fromMetadataOutputRect: rect)
+  }
+
   init(frame: CGRect, session: AVCaptureSession) {
     super.init(frame: frame)
     videoPreviewLayer.session = session

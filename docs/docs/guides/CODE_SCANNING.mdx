@@ -1,0 +1,104 @@
+---
+id: code-scanning
+title: QR/Barcode Scanning
+sidebar_label: QR/Barcode Scanning
+---
+
+import Tabs from '@theme/Tabs'
+import TabItem from '@theme/TabItem'
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+<div class="image-container">
+  <svg xmlns="http://www.w3.org/2000/svg" width="283" height="535">
+    <image href={useBaseUrl("img/demo.gif")} x="18" y="33" width="247" height="469" />
+    <image href={useBaseUrl("img/frame.png")} width="283" height="535" />
+  </svg>
+</div>
+
+## What is a Code Scanner?
+
+A Code Scanner is a separate Camera output (just like photo or video) that can detect a variety of machine-readable codes, such as:
+
+- **QR**: Square QR codes
+- **Aztec**: Square Aztec codes
+- **Data Matrix**: Square Data Matrix codes
+- **Barcode (EAN)**: EAN-13 or EAN-8 Barcodes
+- **Barcode (Code)**: Code-128, Code-39 or Code-93 Barcodes
+- **Barcode (other)**: Codabar, ITF-14, UPC-E or PDF-417 Barcodes
+
+## Setup
+
+On iOS, the Code Scanner uses the platform-native APIs and can be used out of the box.
+
+On Android, the [MLKit Vision Barcode Scanning](https://developers.google.com/ml-kit/vision/barcode-scanning) API will be used, and the model (2.2MB) needs to be downloaded first. To download the model when the user installs your app, add this to your `AndroidManifest.xml` file:
+
+```xml
+<application ...>
+      ...
+      <meta-data
+          android:name="com.google.mlkit.vision.DEPENDENCIES"
+          android:value="barcode">
+</application>
+```
+
+## Usage
+
+To use a codescanner, simply create a [`CodeScanner`](/docs/api/interfaces/CodeScanner) and pass it to the `<Camera>`:
+
+<Tabs
+  groupId="component-style"
+  defaultValue="hooks"
+  values={[
+    {label: 'Hooks API', value: 'hooks'},
+    {label: 'Imperative API', value: 'imperative'}
+  ]}>
+<TabItem value="hooks">
+
+```tsx
+const codeScanner = useCodeScanner({
+  codeTypes: ['qr', 'ean-13'],
+  onCodeScanned: (codes) => {
+    console.log(`Scanned ${codes.length} codes!`)
+  }
+})
+
+return <Camera {...props} codeScanner={codeScanner} />
+```
+
+The result of this will automatically be memoized.
+
+</TabItem>
+<TabItem value="imperative">
+
+```ts
+const codeScanner: CodeScanner = {
+  codeTypes: ['qr', 'ean-13'],
+  onCodeScanned: (codes) => {
+    console.log(`Scanned ${codes.length} codes!`)
+  }
+}
+```
+
+Make sure to memoize the result of this, as every change in this will trigger a Camera session re-build.
+
+```tsx
+render() {
+  return <Camera {...props} codeScanner={this.codeScanner} />
+}
+```
+
+</TabItem>
+</Tabs>
+
+## Separate Output
+
+Since the Code Scanner is a separate camera output (just like photo or video), it cannot be attached simultaneously with photo and video enabled.
+You need to disable either `photo`, `video`, or the `codeScanner`.
+
+## Code result
+
+The Code Scanner will call your `onCodeScanned` callback with all detected codes ([`Code`](/docs/api/interfaces/Code)), including their decoded string value, and their coordinates on the screen relative to the Preview.
+
+<br />
+
+#### 🚀 Next section: [Camera Lifecycle](lifecycle)

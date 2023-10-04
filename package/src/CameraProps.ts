@@ -1,6 +1,7 @@
 import type { ViewProps } from 'react-native'
 import type { CameraDevice, CameraDeviceFormat, VideoStabilizationMode } from './CameraDevice'
 import type { CameraRuntimeError } from './CameraError'
+import { CodeScanner } from './CodeScanner'
 import type { Frame } from './Frame'
 import type { Orientation } from './Orientation'
 
@@ -223,13 +224,17 @@ export interface CameraProps extends ViewProps {
    * ```tsx
    * const frameProcessor = useFrameProcessor((frame) => {
    *   'worklet'
-   *   const qrCodes = scanQRCodes(frame)
-   *   console.log(`Detected QR Codes: ${qrCodes}`)
+   *   const faces = scanFaces(frame)
+   *   console.log(`Faces: ${faces}`)
    * }, [])
    *
    * return <Camera {...cameraProps} frameProcessor={frameProcessor} />
    * ```
    */
   frameProcessor?: FrameProcessor
+  /**
+   * TODO: Desc
+   */
+  codeScanner?: CodeScanner
   //#endregion
 }

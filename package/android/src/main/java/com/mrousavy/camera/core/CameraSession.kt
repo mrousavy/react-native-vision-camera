@@ -139,7 +139,8 @@ class CameraSession(
     cameraId: String,
     preview: CameraOutputs.PreviewOutput? = null,
     photo: CameraOutputs.PhotoOutput? = null,
-    video: CameraOutputs.VideoOutput? = null
+    video: CameraOutputs.VideoOutput? = null,
+    codeScanner: CameraOutputs.CodeScannerOutput? = null
   ) {
     Log.i(TAG, "Configuring Session for Camera $cameraId...")
     val outputs = CameraOutputs(
@@ -148,6 +149,7 @@ class CameraSession(
       preview,
       photo,
       video,
+      codeScanner,
       hdr == true,
       this
     )
@@ -190,6 +192,7 @@ class CameraSession(
         currentOutputs.preview,
         currentOutputs.photo,
         currentOutputs.video,
+        currentOutputs.codeScanner,
         hdr,
         this
       )
@@ -534,11 +537,15 @@ class CameraSession(
         val template = if (outputs.videoOutput != null) CameraDevice.TEMPLATE_RECORD else CameraDevice.TEMPLATE_PREVIEW
         val captureRequest = camera.createCaptureRequest(template)
         outputs.previewOutput?.let { output ->
-          Log.i(TAG, "Adding output surface ${output.outputType}..")
+          Log.i(TAG, "Adding preview output surface ${output.outputType}..")
           captureRequest.addTarget(output.surface)
         }
         outputs.videoOutput?.let { output ->
-          Log.i(TAG, "Adding output surface ${output.outputType}..")
+          Log.i(TAG, "Adding video output surface ${output.outputType}..")
+          captureRequest.addTarget(output.surface)
+        }
+        outputs.codeScannerOutput?.let { output ->
+          Log.i(TAG, "Adding code scanner output surface ${output.outputType}")
           captureRequest.addTarget(output.surface)
         }
 
