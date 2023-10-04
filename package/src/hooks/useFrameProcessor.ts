@@ -4,7 +4,7 @@ import { FrameProcessor } from '../CameraProps'
 
 /**
  * Create a new Frame Processor function which you can pass to the `<Camera>`.
- * (See ["Frame Processors"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors))
+ * (See ["Frame Processors"](https://react-native-vision-camera.com/docs/guides/frame-processors))
  *
  * Make sure to add the `'worklet'` directive to the top of the Frame Processor function, otherwise it will not get compiled into a worklet.
  *
@@ -31,7 +31,7 @@ export function createFrameProcessor(frameProcessor: FrameProcessor['frameProces
 
 /**
  * Returns a memoized Frame Processor function wich you can pass to the `<Camera>`.
- * (See ["Frame Processors"](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors))
+ * (See ["Frame Processors"](https://react-native-vision-camera.com/docs/guides/frame-processors))
  *
  * Make sure to add the `'worklet'` directive to the top of the Frame Processor function, otherwise it will not get compiled into a worklet.
  *

@@ -63,7 +63,7 @@ export interface CameraProps extends ViewProps {
   /**
    * Specifies the pixel format for the video pipeline.
    *
-   * Frames from a [Frame Processor](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors) will be streamed in the pixel format specified here.
+   * Frames from a [Frame Processor](https://react-native-vision-camera.com/docs/guides/frame-processors) will be streamed in the pixel format specified here.
    *
    * While `native` and `yuv` are the most efficient formats, some ML models (such as MLKit Barcode detection) require input Frames to be in RGB colorspace, otherwise they just output nonsense.
    *
@@ -218,7 +218,7 @@ export interface CameraProps extends ViewProps {
   /**
    * A worklet which will be called for every frame the Camera "sees".
    *
-   * > See [the Frame Processors documentation](https://mrousavy.github.io/react-native-vision-camera/docs/guides/frame-processors) for more information
+   * > See [the Frame Processors documentation](https://react-native-vision-camera.com/docs/guides/frame-processors) for more information
    *
    * @example
    * ```tsx
@@ -233,7 +233,20 @@ export interface CameraProps extends ViewProps {
    */
   frameProcessor?: FrameProcessor
   /**
-   * TODO: Desc
+   * A CodeScanner that can detect QR-Codes or Barcodes using platform-native APIs.
+   *
+   * > See [the Code Scanner documentation](https://react-native-vision-camera.com/docs/guides/code-scanning) for more information
+   *
+   * @example
+   * ```tsx
+   * const codeScanner = useCodeScanner({
+   *   codeTypes: ['qr', 'ean-13'],
+   *   onCodeScanned: (codes) => {
+   *     console.log(`Scanned ${codes.length} codes!`)
+   *   }
+   * })
+   *
+   * return <Camera {...props} codeScanner={codeScanner} />
    */
   codeScanner?: CodeScanner
   //#endregion
