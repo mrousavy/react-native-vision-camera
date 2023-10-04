@@ -14,6 +14,9 @@ extension CameraView: AVCaptureMetadataOutputObjectsDelegate {
     guard let onCodeScanned = onCodeScanned else {
       return
     }
+    guard !metadataObjects.isEmpty else {
+      return
+    }
 
     // Map codes to JS values
     let codes = metadataObjects.map { object in
