@@ -1,12 +1,23 @@
-import { useMemo } from 'react'
-import { Code, CodeScanner, CodeType } from '../CodeScanner'
+import { useCallback, useMemo, useRef } from 'react'
+import { Code, CodeScanner } from '../CodeScanner'
 
-export function useCodeScanner(types: CodeType[], callback: (codes: Code[]) => void): CodeScanner {
+export function useCodeScanner(codeScanner: CodeScanner): CodeScanner {
+  const { onCodeScanned, ...codeScannerOptions } = codeScanner
+
+  // Memoize the  function once and use a ref on any identity changes
+  const ref = useRef(onCodeScanned)
+  ref.current = onCodeScanned
+  const callback = useCallback((codes: Code[]) => {
+    ref.current(codes)
+  }, [])
+
+  // CodeScanner needs to be memoized so it doesn't trigger a Camera Session re-build
   return useMemo(
     () => ({
-      codeTypes: types,
+      ...codeScannerOptions,
       onCodeScanned: callback,
     }),
-    [callback, types],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(codeScannerOptions), callback],
   )
 }
