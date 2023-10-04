@@ -138,6 +138,7 @@ extension CameraView {
       captureSession.addOutput(metadataOutput)
 
       for codeType in codeScanner.codeTypes {
+        // swiftlint:disable:next for_where
         if !metadataOutput.availableMetadataObjectTypes.contains(codeType) {
           invokeOnError(.codeScanner(.codeTypeNotSupported(codeType: codeType.descriptor)))
           return
