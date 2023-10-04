@@ -151,17 +151,27 @@ dependencies {
   }
 }
 
-// Resolves "LOCAL_SRC_FILES points to a missing file, Check that libfb.so exists or that its path is correct".
+task cleanCmakeCache() {
+  tasks.getByName("clean").dependsOn(cleanCmakeCache)
+  doFirst {
+    delete "${projectDir}/.cxx"
+  }
+}
+
 tasks.configureEach { task ->
+  // C++ build
   if (task.name.contains("configureCMakeDebug")) {
     rootProject.getTasksByName("packageReactNdkDebugLibs", true).forEach {
       task.dependsOn(it)
     }
   }
-  // We want to add a dependency for both configureCMakeRelease and configureCMakeRelWithDebInfo
   if (task.name.contains("configureCMakeRel")) {
     rootProject.getTasksByName("packageReactNdkReleaseLibs", true).forEach {
       task.dependsOn(it)
     }
+  }
+  // C++ clean
+  if (task.name.contains("clean")) {
+    task.dependsOn(cleanCmakeCache)
   }
 }
