@@ -5,7 +5,7 @@ import android.util.Log
 import android.util.Size
 import java.io.Closeable
 
-class ImageReaderOutput(private val imageReader: ImageReader, outputType: OutputType, dynamicRangeProfile: Long? = null) :
+open class ImageReaderOutput(private val imageReader: ImageReader, outputType: OutputType, dynamicRangeProfile: Long? = null) :
   SurfaceOutput(
     imageReader.surface,
     Size(imageReader.width, imageReader.height),
@@ -16,6 +16,7 @@ class ImageReaderOutput(private val imageReader: ImageReader, outputType: Output
   override fun close() {
     Log.i(TAG, "Closing ${imageReader.width}x${imageReader.height} $outputType ImageReader..")
     imageReader.close()
+    super.close()
   }
 
   override fun toString(): String = "$outputType (${imageReader.width} x ${imageReader.height} in format #${imageReader.imageFormat})"

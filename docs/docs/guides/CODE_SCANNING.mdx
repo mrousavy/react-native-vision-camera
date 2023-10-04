@@ -20,11 +20,26 @@ import useBaseUrl from '@docusaurus/useBaseUrl'
 A Code Scanner is a separate Camera output (just like photo or video) that can detect a variety of machine-readable codes, such as:
 
 - **QR**: Square QR codes
-- **Data Matrix**: Square Data Matrix codes
 - **Aztec**: Square Aztec codes
+- **Data Matrix**: Square Data Matrix codes
 - **Barcode (EAN)**: EAN-13 or EAN-8 Barcodes
 - **Barcode (Code)**: Code-128, Code-39 or Code-93 Barcodes
 - **Barcode (other)**: Codabar, ITF-14, UPC-E or PDF-417 Barcodes
+
+## Setup
+
+On iOS, the Code Scanner uses the platform-native APIs and can be used out of the box.
+
+On Android, the [MLKit Vision Barcode Scanning](https://developers.google.com/ml-kit/vision/barcode-scanning) API will be used, and the model (2.2MB) needs to be downloaded first. To download the model when the user installs your app, add this to your `AndroidManifest.xml` file:
+
+```xml
+<application ...>
+      ...
+      <meta-data
+          android:name="com.google.mlkit.vision.DEPENDENCIES"
+          android:value="barcode">
+</application>
+```
 
 ## Usage
 
