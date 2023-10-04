@@ -37,7 +37,7 @@ On Android, the [MLKit Vision Barcode Scanning](https://developers.google.com/ml
       ...
       <meta-data
           android:name="com.google.mlkit.vision.DEPENDENCIES"
-          android:value="barcode">
+          android:value="barcode" />
 </application>
 ```
 
@@ -56,7 +56,21 @@ To use a codescanner, simply create a [`CodeScanner`](/docs/api/interfaces/CodeS
 
 ```tsx
 const codeScanner = useCodeScanner({
-  codeTypes: ['qr', 'ean-13'],
+  codeTypes: [
+    'code-128',
+    'code-39',
+    'code-93',
+    'codabar',
+    'ean-13',
+    'ean-8',
+    'itf',
+    'upc-e',
+    'qr',
+    'pdf-417',
+    'aztec',
+    'data-matrix',
+    // remove unused code types
+  ],
   onCodeScanned: (codes) => {
     console.log(`Scanned ${codes.length} codes!`)
   }
