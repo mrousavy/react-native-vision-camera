@@ -155,6 +155,8 @@ task cleanCmakeCache() {
   tasks.getByName("clean").dependsOn(cleanCmakeCache)
   doFirst {
     delete "${projectDir}/.cxx"
+    delete "${nodeModules}/react-native-vision-camera/android/.cxx"
+    delete "${nodeModules}/react-native-vision-camera/android/build"
   }
 }
 
