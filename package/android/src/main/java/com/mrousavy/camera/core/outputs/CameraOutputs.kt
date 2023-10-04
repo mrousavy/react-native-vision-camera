@@ -8,8 +8,6 @@ import android.media.ImageReader
 import android.util.Log
 import android.util.Size
 import android.view.Surface
-import com.google.android.gms.common.api.OptionalModuleApi
-import com.google.android.gms.common.moduleinstall.ModuleInstall
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
