@@ -2,15 +2,7 @@ import * as React from 'react'
 import { useRef, useState, useCallback, useMemo } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler'
-import {
-  CameraRuntimeError,
-  PhotoFile,
-  useCameraDevice,
-  useCameraFormat,
-  useCodeScanner,
-  useFrameProcessor,
-  VideoFile,
-} from 'react-native-vision-camera'
+import { CameraRuntimeError, PhotoFile, useCameraDevice, useCameraFormat, useFrameProcessor, VideoFile } from 'react-native-vision-camera'
 import { Camera } from 'react-native-vision-camera'
 import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING, SCREEN_HEIGHT, SCREEN_WIDTH } from './Constants'
 import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated'
@@ -56,11 +48,6 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const device = useCameraDevice(cameraPosition)
 
   const [targetFps, setTargetFps] = useState(60)
-
-  const codeScanner = useCodeScanner({
-    codeTypes: ['qr'],
-    onCodeScanned: (codes) => console.log(codes),
-  })
 
   const screenAspectRatio = SCREEN_HEIGHT / SCREEN_WIDTH
   const format = useCameraFormat(device, [
@@ -196,8 +183,9 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 enableFpsGraph={true}
                 orientation="portrait"
                 photo={true}
+                video={true}
                 audio={hasMicrophonePermission}
-                codeScanner={codeScanner}
+                frameProcessor={frameProcessor}
               />
             </TapGestureHandler>
           </Reanimated.View>
