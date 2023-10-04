@@ -224,8 +224,8 @@ export interface CameraProps extends ViewProps {
    * ```tsx
    * const frameProcessor = useFrameProcessor((frame) => {
    *   'worklet'
-   *   const qrCodes = scanQRCodes(frame)
-   *   console.log(`Detected QR Codes: ${qrCodes}`)
+   *   const faces = scanFaces(frame)
+   *   console.log(`Faces: ${faces}`)
    * }, [])
    *
    * return <Camera {...cameraProps} frameProcessor={frameProcessor} />

@@ -134,17 +134,17 @@ const onDraw = useDrawCallback((canvas) => {
 And you can also call back to the React-JS thread by using `createRunInJsFn(...)`:
 
 ```tsx
-const onQRCodeDetected = Worklets.createRunInJsFn((qrCode: string) => {
-  navigation.push("ProductPage", { productId: qrCode })
+const onFaceDetected = Worklets.createRunInJsFn((face: Face) => {
+  navigation.push("FiltersPage", { face: face })
 })
 
 const frameProcessor = useFrameProcessor((frame) => {
   'worklet'
-  const qrCodes = scanQRCodes(frame)
-  if (qrCodes.length > 0) {
-    onQRCodeDetected(qrCodes[0])
+  const faces = scanFaces(frame)
+  if (faces.length > 0) {
+    onFaceDetected(faces[0])
   }
-}, [onQRCodeDetected])
+}, [onFaceDetected])
 ```
 
 ## Threading

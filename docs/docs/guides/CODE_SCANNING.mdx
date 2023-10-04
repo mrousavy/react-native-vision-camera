@@ -50,7 +50,7 @@ const codeScanner = useCodeScanner({
 return <Camera {...props} codeScanner={codeScanner} />
 ```
 
-Make sure to use the dependency array properly, as any change in this will trigger a Camera session re-build.
+The result of this will automatically be memoized.
 
 </TabItem>
 <TabItem value="imperative">
