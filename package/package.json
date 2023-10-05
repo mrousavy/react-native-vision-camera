@@ -160,8 +160,5 @@
         }
       ]
     ]
-  },
-  "dependencies": {
-    "string-hash-64": "^1.0.3"
   }
 }
