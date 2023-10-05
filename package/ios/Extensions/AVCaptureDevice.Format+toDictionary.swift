@@ -37,9 +37,12 @@ extension AVCaptureDevice.Format {
 
   var supportsVideoHDR: Bool {
     let pixelFormat = CMFormatDescriptionGetMediaSubType(formatDescription)
-    return pixelFormat == kCVPixelFormatType_420YpCbCr10BiPlanarFullRange
-      || pixelFormat == kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange
-      || pixelFormat == kCVPixelFormatType_Lossless_420YpCbCr10PackedBiPlanarVideoRange
+    let hdrFormats = [
+      kCVPixelFormatType_420YpCbCr10BiPlanarFullRange,
+      kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange,
+      kCVPixelFormatType_Lossless_420YpCbCr10PackedBiPlanarVideoRange
+    ]
+    return hdrFormats.contains(pixelFormat)
   }
 
   func toDictionary() -> [String: AnyHashable] {
