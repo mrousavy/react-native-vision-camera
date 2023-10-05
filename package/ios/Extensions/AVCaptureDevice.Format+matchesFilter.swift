@@ -25,12 +25,12 @@ extension AVCaptureDevice.Format {
       }
     }
     if let videoHeight = filter.value(forKey: "videoHeight") as? NSNumber {
-      if videoDimensions.height != CGFloat(videoHeight.doubleValue) {
+      if videoDimensions.height != videoHeight.int32Value {
         return false
       }
     }
     if let videoWidth = filter.value(forKey: "videoWidth") as? NSNumber {
-      if videoDimensions.width != CGFloat(videoWidth.doubleValue) {
+      if videoDimensions.width != videoWidth.int32Value {
         return false
       }
     }
