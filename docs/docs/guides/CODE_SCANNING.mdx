@@ -56,21 +56,7 @@ To use a codescanner, simply create a [`CodeScanner`](/docs/api/interfaces/CodeS
 
 ```tsx
 const codeScanner = useCodeScanner({
-  codeTypes: [
-    'code-128',
-    'code-39',
-    'code-93',
-    'codabar',
-    'ean-13',
-    'ean-8',
-    'itf',
-    'upc-e',
-    'qr',
-    'pdf-417',
-    'aztec',
-    'data-matrix',
-    // remove unused code types
-  ],
+  codeTypes: ['qr', 'ean-13'],
   onCodeScanned: (codes) => {
     console.log(`Scanned ${codes.length} codes!`)
   }
