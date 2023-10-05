@@ -34,6 +34,11 @@ extension AVCaptureDevice.Format {
     }
     return maxRange?.maxFrameRate ?? 0
   }
+  
+  var supportsVideoHDR: Bool {
+    let pixelFormat = CMFormatDescriptionGetMediaSubType(formatDescription)
+    return pixelFormat == kCVPixelFormatType_420YpCbCr10BiPlanarFullRange || pixelFormat == kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange || pixelFormat == kCVPixelFormatType_Lossless_420YpCbCr10PackedBiPlanarVideoRange
+  }
 
   func toDictionary() -> [String: AnyHashable] {
     let availablePixelFormats = AVCaptureVideoDataOutput().availableVideoPixelFormatTypes
@@ -50,7 +55,7 @@ extension AVCaptureDevice.Format {
       "minISO": minISO,
       "fieldOfView": videoFieldOfView,
       "maxZoom": videoMaxZoomFactor,
-      "supportsVideoHDR": availablePixelFormats.contains(kCVPixelFormatType_420YpCbCr10BiPlanarFullRange),
+      "supportsVideoHDR": supportsVideoHDR,
       "supportsPhotoHDR": false,
       "minFps": minFrameRate,
       "maxFps": maxFrameRate,
@@ -73,6 +78,10 @@ extension AVCaptureDevice.Format {
     }
     
     guard dict["minFps"] as? Float64 == minFrameRate && dict["maxFps"] as? Float64 == maxFrameRate else {
+      return false
+    }
+    
+    guard dict["supportsVideoHDR"] as? Bool == supportsVideoHDR else {
       return false
     }
     
