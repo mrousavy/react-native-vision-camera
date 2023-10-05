@@ -1,5 +1,5 @@
 //
-//  AVCaptureDevice.Format+videoDimensions.swift
+//  AVCaptureDevice.Format+dimensions.swift
 //  VisionCamera
 //
 //  Created by Marc Rousavy on 03.08.21.
@@ -20,5 +20,18 @@ extension AVCaptureDevice.Format {
     return CMVideoFormatDescriptionGetPresentationDimensions(formatDescription,
                                                              usePixelAspectRatio: true,
                                                              useCleanAperture: true)
+  
+  /**
+   Returns the maximum available photo resolution this format can use.
+   */
+  var photoDimensions: CMVideoDimensions {
+    if #available(iOS 16.0, *) {
+      if let max = supportedMaxPhotoDimensions.max(by: { left, right in
+        return left.width * left.height < right.width * right.height
+      }) {
+        return max
+      }
+    }
+    return highResolutionStillImageDimensions
   }
 }

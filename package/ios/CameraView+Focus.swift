@@ -33,7 +33,7 @@ extension CameraView {
       return .zero
     }
 
-    let frameSize = rotateFrameSize(frameSize: videoDeviceInput.device.activeFormat.videoDimensions,
+    let frameSize = rotateFrameSize(frameSize: videoDeviceInput.device.activeFormat.videoDimensions.toCGSize(),
                                     orientation: outputOrientation)
     let viewSize = CGSize(width: previewView.bounds.width * viewScale,
                           height: previewView.bounds.height * viewScale)
@@ -54,7 +54,7 @@ extension CameraView {
       invokeOnError(.session(.cameraNotReady))
       return .zero
     }
-    let frameSize = rotateFrameSize(frameSize: videoDeviceInput.device.activeFormat.videoDimensions,
+    let frameSize = rotateFrameSize(frameSize: videoDeviceInput.device.activeFormat.videoDimensions.toCGSize(),
                                     orientation: outputOrientation)
     let pointInFrame = convertLayerPointToFramePoint(layerPoint: pointInLayer)
     return CGPoint(x: pointInFrame.x / frameSize.width, y: pointInFrame.y / frameSize.height)

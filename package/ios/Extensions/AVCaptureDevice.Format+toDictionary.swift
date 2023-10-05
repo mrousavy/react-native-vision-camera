@@ -42,8 +42,8 @@ extension AVCaptureDevice.Format {
     return [
       "videoStabilizationModes": videoStabilizationModes.map(\.descriptor),
       "autoFocusSystem": autoFocusSystem.descriptor,
-      "photoHeight": highResolutionStillImageDimensions.height,
-      "photoWidth": highResolutionStillImageDimensions.width,
+      "photoHeight": photoDimensions.height,
+      "photoWidth": photoDimensions.width,
       "videoHeight": videoDimensions.height,
       "videoWidth": videoDimensions.width,
       "maxISO": maxISO,
