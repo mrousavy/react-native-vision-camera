@@ -40,6 +40,7 @@ extension AVCaptureDevice.Format {
     let pixelFormats = availablePixelFormats.map { format in PixelFormat(mediaSubType: format) }
 
     return [
+      "id": hash, // hidden property to identify it on iOS
       "videoStabilizationModes": videoStabilizationModes.map(\.descriptor),
       "autoFocusSystem": autoFocusSystem.descriptor,
       "photoHeight": photoDimensions.height,

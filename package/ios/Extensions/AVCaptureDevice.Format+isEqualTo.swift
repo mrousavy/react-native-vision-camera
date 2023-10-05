@@ -14,6 +14,10 @@ extension AVCaptureDevice.Format {
    * The `jsFormat` dictionary must be of type `CameraDeviceFormat` (from `CameraDevice.ts`)
    */
   func isEqualTo(jsFormat: NSDictionary) -> Bool {
-    return jsFormat.isEqual(to: toDictionary())
+    guard let id = jsFormat.value(forKey: "id") as? Int else {
+      return false
+    }
+    let thisId = hash
+    return thisId == id
   }
 }
