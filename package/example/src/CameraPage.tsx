@@ -230,6 +230,9 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
             <IonIcon name={enableNightMode ? 'moon' : 'moon-outline'} color="white" size={24} />
           </PressableOpacity>
         )}
+        <PressableOpacity style={styles.button} onPress={() => navigation.navigate('Devices')}>
+          <IonIcon name="settings-outline" color="white" size={24} />
+        </PressableOpacity>
       </View>
     </View>
   )

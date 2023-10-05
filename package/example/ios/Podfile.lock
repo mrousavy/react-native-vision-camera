@@ -338,7 +338,7 @@ PODS:
     - react-native-video/Video (= 5.2.1)
   - react-native-video/Video (5.2.1):
     - React-Core
-  - react-native-worklets-core (0.2.0):
+  - react-native-worklets-core (0.2.1):
     - React
     - React-callinvoker
     - React-Core
@@ -458,7 +458,7 @@ PODS:
     - SDWebImageWebPCoder (~> 0.8.4)
   - RNGestureHandler (2.12.1):
     - React-Core
-  - RNReanimated (3.4.2):
+  - RNReanimated (3.5.4):
     - DoubleConversion
     - FBLazyVector
     - glog
@@ -706,7 +706,7 @@ SPEC CHECKSUMS:
   react-native-cameraroll: 134805127580aed23403b8c2cb1548920dd77b3a
   react-native-safe-area-context: 9697629f7b2cda43cf52169bb7e0767d330648c2
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
-  react-native-worklets-core: 7ad416a8965086b98b07964f7f6932560a54a14c
+  react-native-worklets-core: 7de763135ed696ba16e8d5471e41f595ba9802bb
   React-NativeModulesApple: c57f3efe0df288a6532b726ad2d0322a9bf38472
   React-perflogger: 6bd153e776e6beed54c56b0847e1220a3ff92ba5
   React-RCTActionSheet: c0b62af44e610e69d9a2049a682f5dba4e9dff17
@@ -726,7 +726,7 @@ SPEC CHECKSUMS:
   ReactCommon: 3ccb8fb14e6b3277e38c73b0ff5e4a1b8db017a9
   RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
   RNGestureHandler: c0d04458598fcb26052494ae23dda8f8f5162b13
-  RNReanimated: 726395a2fa2f04cea340274ba57a4e659bc0d9c1
+  RNReanimated: ab2e96c6d5591c3dfbb38a464f54c8d17fb34a87
   RNScreens: b21dc57dfa2b710c30ec600786a3fc223b1b92e7
   RNStaticSafeAreaInsets: 055ddbf5e476321720457cdaeec0ff2ba40ec1b8
   RNVectorIcons: 8b5bb0fa61d54cd2020af4f24a51841ce365c7e9
