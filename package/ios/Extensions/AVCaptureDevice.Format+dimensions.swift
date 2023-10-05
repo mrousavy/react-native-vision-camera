@@ -16,7 +16,7 @@ extension AVCaptureDevice.Format {
   var videoDimensions: CMVideoDimensions {
     return CMVideoFormatDescriptionGetDimensions(formatDescription)
   }
-  
+
   /**
    Returns the maximum available photo resolution this format can use.
    */

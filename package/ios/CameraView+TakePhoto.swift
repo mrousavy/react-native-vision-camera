@@ -62,7 +62,7 @@ extension CameraView {
         }
         photoSettings.photoQualityPrioritization = photoQualityPrioritization
       }
-      
+
       // photo size is always the one selected in the format
       if #available(iOS 16.0, *) {
         photoSettings.maxPhotoDimensions = photoOutput.maxPhotoDimensions

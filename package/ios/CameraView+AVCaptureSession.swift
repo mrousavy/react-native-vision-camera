@@ -329,17 +329,17 @@ extension CameraView {
       defer {
         device.unlockForConfiguration()
       }
-      
+
       let shouldReconfigurePhotoOutput = device.activeFormat.photoDimensions.toCGSize() != format.photoDimensions.toCGSize()
       device.activeFormat = format
-      
+
       // The Photo Output uses the smallest available Dimension by default. We need to configure it for the maximum here
       if shouldReconfigurePhotoOutput, #available(iOS 16.0, *) {
         if let photoOutput = photoOutput {
           photoOutput.maxPhotoDimensions = format.photoDimensions
         }
       }
-      
+
       ReactLogger.log(level: .info, message: "Format successfully configured!")
     } catch let error as NSError {
       invokeOnError(.device(.configureError), cause: error)
