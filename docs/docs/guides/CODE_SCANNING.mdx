@@ -30,7 +30,18 @@ A Code Scanner is a separate Camera output (just like photo or video) that can d
 
 On iOS, the Code Scanner uses the platform-native APIs and can be used out of the box.
 
-On Android, the [MLKit Vision Barcode Scanning](https://developers.google.com/ml-kit/vision/barcode-scanning) API will be used, and the model (2.2MB) needs to be downloaded first. To download the model when the user installs your app, add this to your `AndroidManifest.xml` file:
+On Android, the [MLKit Vision Barcode Scanning](https://developers.google.com/ml-kit/vision/barcode-scanning) API will be used, and the model (2.2MB) needs to be downloaded first.
+
+<Tabs
+  groupId="environment"
+  defaultValue="rn"
+  values={[
+    {label: 'React Native', value: 'rn'},
+    {label: 'Expo', value: 'expo'}
+  ]}>
+<TabItem value="rn">
+
+To download the model when the user installs your app, add this to your `AndroidManifest.xml` file:
 
 ```xml
 <application ...>
@@ -40,6 +51,29 @@ On Android, the [MLKit Vision Barcode Scanning](https://developers.google.com/ml
           android:value="barcode">
 </application>
 ```
+
+</TabItem>
+<TabItem value="expo">
+
+To download the model when the user installs your app, add the `enableCodeScanner` flag to your Expo config (`app.json`, `app.config.json` or `app.config.js`):
+
+```json
+{
+  "name": "my app",
+  "plugins": [
+    [
+      "react-native-vision-camera",
+      {
+        // ...
+        "enableCodeScanner": true
+      }
+    ]
+  ]
+}
+```
+
+</TabItem>
+</Tabs>
 
 ## Usage
 

@@ -9,10 +9,36 @@ const CAMERA_USAGE = 'Allow $(PRODUCT_NAME) to access your camera'
 const MICROPHONE_USAGE = 'Allow $(PRODUCT_NAME) to access your microphone'
 
 type Props = {
+  /**
+   * The text to show in the native dialog when asking for Camera Permissions.
+   * @default 'Allow $(PRODUCT_NAME) to access your camera'
+   */
   cameraPermissionText?: string
+  /**
+   * Whether to add Microphone Permissions to the native manifest or not.
+   * @default false
+   */
   enableMicrophonePermission?: boolean
+  /**
+   * The text to show in the native dialog when asking for Camera Permissions.
+   * @default 'Allow $(PRODUCT_NAME) to access your microphone'
+   */
   microphonePermissionText?: string
+  /**
+   * Whether to enable the Frame Processors runtime, or explicitly disable it.
+   * Disabling Frame Processors will make your app smaller as the C++ files will not be compiled.
+   * See [Frame Processors](https://www.react-native-vision-camera.com/docs/guides/frame-processors)
+   * @default false
+   */
   disableFrameProcessors?: boolean
+  /**
+   * Whether to enable the QR/Barcode Scanner Model. If true, the MLKit Model will
+   * automatically be downloaded on app startup. If false, it will be downloaded
+   * once the Camera is created with a `CodeScanner`.
+   * See [QR/Barcode Scanning](https://www.react-native-vision-camera.com/docs/guides/code-scanning)
+   * @default false
+   */
+  enableCodeScanner?: boolean
 }
 
 const withCamera: ConfigPlugin<Props> = (config, props = {}) => {
@@ -32,7 +58,12 @@ const withCamera: ConfigPlugin<Props> = (config, props = {}) => {
     config = withDisableFrameProcessorsIOS(config)
   }
 
-  return withPlugins(config, [[AndroidConfig.Permissions.withPermissions, androidPermissions], withAndroidMLKitVisionModel])
+  if (props.enableCodeScanner) {
+    // Adds meta download-request tag to AndroidManifest
+    config = withAndroidMLKitVisionModel(config)
+  }
+
+  return withPlugins(config, [[AndroidConfig.Permissions.withPermissions, androidPermissions]])
 }
 
 export default createRunOncePlugin(withCamera, pkg.name, pkg.version)
