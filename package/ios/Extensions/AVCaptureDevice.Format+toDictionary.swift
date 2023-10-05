@@ -40,7 +40,6 @@ extension AVCaptureDevice.Format {
     let pixelFormats = availablePixelFormats.map { format in PixelFormat(mediaSubType: format) }
 
     return [
-      "id": hash, // hidden property to identify it on iOS
       "videoStabilizationModes": videoStabilizationModes.map(\.descriptor),
       "autoFocusSystem": autoFocusSystem.descriptor,
       "photoHeight": photoDimensions.height,
@@ -58,5 +57,25 @@ extension AVCaptureDevice.Format {
       "pixelFormats": pixelFormats.map(\.unionValue),
       "supportsDepthCapture": !supportedDepthDataFormats.isEmpty,
     ]
+  }
+  
+  /**
+   Compares this format to the given JS `CameraDeviceFormat`.
+   Only the most important properties (such as dimensions and FPS) are taken into consideration, so this is not an exact equals, but more like a "matches filter" comparison.
+   */
+  func isEqualTo(jsFormat dict: NSDictionary) -> Bool {
+    guard dict["photoWidth"] as? Int32 == photoDimensions.width && dict["photoHeight"] as? Int32 == photoDimensions.height else {
+      return false
+    }
+    
+    guard dict["videoWidth"] as? Int32 == videoDimensions.width && dict["videoHeight"] as? Int32 == videoDimensions.height else {
+      return false
+    }
+    
+    guard dict["minFps"] as? Float64 == minFrameRate && dict["maxFps"] as? Float64 == maxFrameRate else {
+      return false
+    }
+    
+    return true
   }
 }
