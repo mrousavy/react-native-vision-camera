@@ -54,6 +54,18 @@ You can customize capture options such as [automatic red-eye reduction](/docs/ap
 
 This function returns a [`PhotoFile`](/docs/api/interfaces/PhotoFile) which is stored in a temporary directory and can either be displayed using `<Image>` or `<FastImage>`, uploaded to a backend, or saved to the Camera Roll using [react-native-cameraroll](https://github.com/react-native-cameraroll/react-native-cameraroll).
 
+### Flash
+
+The [`takePhoto(...)`](/docs/api/classes/Camera#takephoto) function can be configured to enable the [flash](/docs/api/interfaces/TakePhotoOptions#flash) automatically (when the scene is dark), always or never, which will only be used for this specific capture request:
+
+```ts
+const photo = await camera.current.takePhoto({
+  flash: 'on' // 'auto' | 'off'
+})
+```
+
+Note that flash is only available on camera devices where [`hasFlash`](/docs/api/interfaces/CameraDevice#hasflash) is `true`; for example most front cameras don't have a flash.
+
 ### Fast Capture
 
 The [`takePhoto(...)`](/docs/api/classes/Camera#takephoto) function can be configured for faster capture at the cost of lower quality:

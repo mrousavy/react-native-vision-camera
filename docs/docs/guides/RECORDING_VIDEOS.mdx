@@ -76,6 +76,19 @@ await camera.current.pauseRecording()
 await camera.current.resumeRecording()
 ```
 
+### Flash
+
+The [`startRecording(...)`](/docs/api/classes/Camera#startrecording) function can be configured to enable the [flash](/docs/api/interfaces/RecordVideoOptions#flash) while recording, which natively just enables the [`torch`](/docs/api/interfaces/CameraProps#torch) under the hood:
+
+```ts
+camera.current.startRecording({
+  flash: 'on',
+  ...
+})
+```
+
+Note that flash is only available on camera devices where [`hasTorch`](/docs/api/interfaces/CameraDevice#hastorch) is `true`; for example most front cameras don't have a torch.
+
 ### Video Codec
 
 By default, videos are recorded in the H.264 video codec which is a widely adopted video codec.

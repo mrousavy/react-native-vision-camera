@@ -5,7 +5,7 @@ export interface RecordVideoOptions {
   /**
    * Set the video flash mode. Natively, this just enables the torch while recording.
    */
-  flash?: 'on' | 'off' | 'auto'
+  flash?: 'on' | 'off'
   /**
    * Specifies the output file type to record videos into.
    */
