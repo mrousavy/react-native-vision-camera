@@ -17,6 +17,7 @@ import type { Routes } from './Routes'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useIsFocused } from '@react-navigation/core'
 import { examplePlugin } from './frame-processors/ExamplePlugin'
+import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 Reanimated.addWhitelistedNativeProps({
@@ -44,7 +45,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const [flash, setFlash] = useState<'off' | 'on'>('off')
   const [enableNightMode, setEnableNightMode] = useState(false)
 
-  // camera format settings
+  // camera device settings
+  const [preferredDevice] = usePreferredCameraDevice()
   const device = useCameraDevice(cameraPosition)
 
   const [targetFps, setTargetFps] = useState(60)
@@ -170,7 +172,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
               <ReanimatedCamera
                 ref={camera}
                 style={StyleSheet.absoluteFill}
-                device={device}
+                device={preferredDevice ?? device}
                 format={format}
                 fps={fps}
                 hdr={enableHdr}
@@ -230,6 +232,9 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
             <IonIcon name={enableNightMode ? 'moon' : 'moon-outline'} color="white" size={24} />
           </PressableOpacity>
         )}
+        <PressableOpacity style={styles.button} onPress={() => navigation.navigate('Devices')}>
+          <IonIcon name="settings-outline" color="white" size={24} />
+        </PressableOpacity>
       </View>
     </View>
   )

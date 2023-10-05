@@ -8,6 +8,7 @@ import type { Routes } from './Routes'
 import { Camera, CameraPermissionStatus } from 'react-native-vision-camera'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { StyleSheet } from 'react-native'
+import { DevicesPage } from './DevicesPage'
 
 const Stack = createNativeStackNavigator<Routes>()
 
@@ -48,6 +49,7 @@ export function App(): React.ReactElement | null {
               presentation: 'transparentModal',
             }}
           />
+          <Stack.Screen name="Devices" component={DevicesPage} />
         </Stack.Navigator>
       </GestureHandlerRootView>
     </NavigationContainer>

@@ -5,4 +5,5 @@ export type Routes = {
     path: string
     type: 'video' | 'photo'
   }
+  Devices: undefined
 }
