@@ -11,15 +11,11 @@ import Foundation
 
 extension AVCaptureDevice.Format {
   /**
-   * Returns the video dimensions, adjusted to take pixel aspect ratio and/or clean
-   * aperture into account.
-   *
-   * Pixel aspect ratio is used to adjust the width, leaving the height alone.
+   * Returns the dimensions the video pipeline is streaming at.
    */
-  var videoDimensions: CGSize {
-    return CMVideoFormatDescriptionGetPresentationDimensions(formatDescription,
-                                                             usePixelAspectRatio: true,
-                                                             useCleanAperture: true)
+  var videoDimensions: CMVideoDimensions {
+    return CMVideoFormatDescriptionGetDimensions(formatDescription)
+  }
   
   /**
    Returns the maximum available photo resolution this format can use.
