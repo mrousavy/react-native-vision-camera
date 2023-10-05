@@ -303,8 +303,8 @@ extension CameraView {
    */
   final func configureFormat() {
     ReactLogger.log(level: .info, message: "Configuring Format...")
-    guard let filter = format else {
-      // Format Filter was null. Ignore it.
+    guard let jsFormat = format else {
+      // JS Format was null. Ignore it, use default.
       return
     }
     guard let device = videoDeviceInput?.device else {
@@ -312,14 +312,14 @@ extension CameraView {
       return
     }
 
-    if device.activeFormat.matchesFilter(filter) {
-      ReactLogger.log(level: .info, message: "Active format already matches filter.")
+    if device.activeFormat.isEqualTo(jsFormat: jsFormat) {
+      ReactLogger.log(level: .info, message: "Already selected active format.")
       return
     }
 
     // get matching format
-    let matchingFormats = device.formats.filter { $0.matchesFilter(filter) }.sorted { $0.isBetterThan($1) }
-    guard let format = matchingFormats.first else {
+    let format = device.formats.first { $0.isEqualTo(jsFormat: jsFormat) }
+    guard let format else {
       invokeOnError(.format(.invalidFormat))
       return
     }

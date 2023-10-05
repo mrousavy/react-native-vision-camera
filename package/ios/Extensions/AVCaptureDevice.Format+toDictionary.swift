@@ -35,7 +35,7 @@ extension AVCaptureDevice.Format {
     return maxRange?.maxFrameRate ?? 0
   }
 
-  func toDictionary() -> [String: Any] {
+  func toDictionary() -> [String: AnyHashable] {
     let availablePixelFormats = AVCaptureVideoDataOutput().availableVideoPixelFormatTypes
     let pixelFormats = availablePixelFormats.map { format in PixelFormat(mediaSubType: format) }
 
