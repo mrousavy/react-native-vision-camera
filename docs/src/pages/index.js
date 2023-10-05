@@ -58,7 +58,7 @@ function Home() {
   return (
     <Layout
       title="VisionCamera Documentation"
-      description="📸 The Camera library that sees the vision.">
+      description="📸 A powerful, high-performance React Native Camera library.">
       <header className={clsx('hero hero--primary', styles.heroBanner)}>
         <div className="container">
           <h1 className="hero__title">{siteConfig.title}</h1>
