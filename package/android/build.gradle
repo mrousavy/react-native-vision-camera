@@ -152,8 +152,7 @@ dependencies {
   }
 }
 
-task cleanCmakeCache() {
-  tasks.getByName("clean").dependsOn(cleanCmakeCache)
+task deleteCmakeCache() {
   doFirst {
     delete "${projectDir}/.cxx"
     delete "${nodeModules}/react-native-vision-camera/android/.cxx"
@@ -175,6 +174,6 @@ tasks.configureEach { task ->
   }
   // C++ clean
   if (task.name.contains("clean")) {
-    task.dependsOn(cleanCmakeCache)
+    task.dependsOn(deleteCmakeCache)
   }
 }
