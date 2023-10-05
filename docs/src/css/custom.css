@@ -84,3 +84,9 @@ a:hover {
 .theme-code-block {
   display: flow-root;
 }
+
+@media (max-width: 600px) {
+  .hero__title {
+    font-size: 2.5rem;
+  }
+}

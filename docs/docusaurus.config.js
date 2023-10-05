@@ -1,6 +1,6 @@
 module.exports = {
   title: 'VisionCamera',
-  tagline: '📸 The Camera library that sees the vision.',
+  tagline: '📸 A powerful, high-performance React Native Camera library.',
   url: 'https://react-native-vision-camera.com',
   baseUrl: '/',
   onBrokenLinks: 'throw',
@@ -121,7 +121,7 @@ module.exports = {
       },
       {
         name: 'og:description',
-        content: '📸 The Camera library that sees the vision.'
+        content: '📸 A powerful, high-performance React Native Camera library.'
       },
       {
         name: 'og:image',
