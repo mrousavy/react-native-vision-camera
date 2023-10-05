@@ -34,10 +34,12 @@ extension AVCaptureDevice.Format {
     }
     return maxRange?.maxFrameRate ?? 0
   }
-  
+
   var supportsVideoHDR: Bool {
     let pixelFormat = CMFormatDescriptionGetMediaSubType(formatDescription)
-    return pixelFormat == kCVPixelFormatType_420YpCbCr10BiPlanarFullRange || pixelFormat == kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange || pixelFormat == kCVPixelFormatType_Lossless_420YpCbCr10PackedBiPlanarVideoRange
+    return pixelFormat == kCVPixelFormatType_420YpCbCr10BiPlanarFullRange
+      || pixelFormat == kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange
+      || pixelFormat == kCVPixelFormatType_Lossless_420YpCbCr10PackedBiPlanarVideoRange
   }
 
   func toDictionary() -> [String: AnyHashable] {
@@ -63,28 +65,29 @@ extension AVCaptureDevice.Format {
       "supportsDepthCapture": !supportedDepthDataFormats.isEmpty,
     ]
   }
-  
+
   /**
    Compares this format to the given JS `CameraDeviceFormat`.
-   Only the most important properties (such as dimensions and FPS) are taken into consideration, so this is not an exact equals, but more like a "matches filter" comparison.
+   Only the most important properties (such as dimensions and FPS) are taken into consideration,
+   so this is not an exact equals, but more like a "matches filter" comparison.
    */
   func isEqualTo(jsFormat dict: NSDictionary) -> Bool {
     guard dict["photoWidth"] as? Int32 == photoDimensions.width && dict["photoHeight"] as? Int32 == photoDimensions.height else {
       return false
     }
-    
+
     guard dict["videoWidth"] as? Int32 == videoDimensions.width && dict["videoHeight"] as? Int32 == videoDimensions.height else {
       return false
     }
-    
+
     guard dict["minFps"] as? Float64 == minFrameRate && dict["maxFps"] as? Float64 == maxFrameRate else {
       return false
     }
-    
+
     guard dict["supportsVideoHDR"] as? Bool == supportsVideoHDR else {
       return false
     }
-    
+
     return true
   }
 }
