@@ -6,20 +6,78 @@ import { CameraDevice, useCameraDevices } from 'react-native-vision-camera'
 import { CONTENT_SPACING, SAFE_AREA_PADDING } from './Constants'
 import type { Routes } from './Routes'
 import { PressableOpacity } from 'react-native-pressable-opacity'
+import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
 
 const keyExtractor = (item: CameraDevice): string => item.id
 
 interface SectionType {
-  position: CameraDevice['position']
+  position: CameraDevice['position'] | 'preferred'
 }
 type SectionData = SectionListData<CameraDevice, SectionType>
+
+interface DeviceProps {
+  device: CameraDevice
+  onPress: () => void
+}
+
+function Device({ device, onPress }: DeviceProps): React.ReactElement {
+  const maxPhotoRes = useMemo(
+    () =>
+      device.formats.reduce((prev, curr) => {
+        if (curr.photoWidth * curr.photoHeight > prev.photoWidth * prev.photoHeight) return curr
+        return prev
+      }),
+    [device.formats],
+  )
+  const maxVideoRes = useMemo(
+    () =>
+      device.formats.reduce((prev, curr) => {
+        if (curr.videoWidth * curr.videoHeight > prev.videoWidth * prev.videoHeight) return curr
+        return prev
+      }),
+    [device.formats],
+  )
+  const deviceTypes = useMemo(() => device.physicalDevices.map((t) => t.replace('-camera', '')).join(' + '), [device.physicalDevices])
+
+  return (
+    <PressableOpacity style={styles.itemContainer} onPress={onPress}>
+      <View style={styles.horizontal}>
+        <IonIcon name="camera" size={18} color="black" style={styles.icon} />
+        <Text style={styles.deviceName} numberOfLines={3}>
+          {device.name} <Text style={styles.devicePosition}>({device.position})</Text>
+        </Text>
+      </View>
+      <Text style={styles.deviceTypes}>{deviceTypes}</Text>
+      <View style={styles.horizontal}>
+        <IonIcon name="camera" size={12} color="black" style={styles.inlineIcon} />
+        <Text style={styles.resolutionText}>
+          {maxPhotoRes.photoWidth}x{maxPhotoRes.photoHeight}
+        </Text>
+      </View>
+      <View style={styles.horizontal}>
+        <IonIcon name="videocam" size={12} color="black" style={styles.inlineIcon} />
+        <Text style={styles.resolutionText}>
+          {maxVideoRes.videoWidth}x{maxVideoRes.videoHeight} @ {maxVideoRes.maxFps} FPS
+        </Text>
+      </View>
+      <Text style={styles.deviceId} numberOfLines={2} ellipsizeMode="middle">
+        {device.id}
+      </Text>
+    </PressableOpacity>
+  )
+}
 
 type Props = NativeStackScreenProps<Routes, 'Devices'>
 export function DevicesPage({ navigation }: Props): React.ReactElement {
   const devices = useCameraDevices()
+  const [preferredDevice, setPreferredDevice] = usePreferredCameraDevice()
 
   const sections = useMemo((): SectionData[] => {
     return [
+      {
+        position: 'preferred',
+        data: preferredDevice != null ? [preferredDevice] : [],
+      },
       {
         position: 'back',
         data: devices.filter((d) => d.position === 'back'),
@@ -33,20 +91,22 @@ export function DevicesPage({ navigation }: Props): React.ReactElement {
         data: devices.filter((d) => d.position === 'external'),
       },
     ]
-  }, [devices])
+  }, [devices, preferredDevice])
 
-  const renderItem = useCallback(({ item: device }: ListRenderItemInfo<CameraDevice>) => {
-    return (
-      <PressableOpacity style={styles.itemContainer}>
-        <View style={styles.horizontal}>
-          <IonIcon name="camera" size={18} color="black" style={styles.icon} />
-          <Text style={styles.deviceName}>{device.name}</Text>
-          <Text style={styles.deviceTypes}>({device.physicalDevices.join(' + ')})</Text>
-        </View>
-        <Text style={styles.deviceId}>{device.id}</Text>
-      </PressableOpacity>
-    )
-  }, [])
+  const onDevicePressed = useCallback(
+    (device: CameraDevice) => {
+      setPreferredDevice(device)
+      navigation.navigate('CameraPage')
+    },
+    [navigation, setPreferredDevice],
+  )
+
+  const renderItem = useCallback(
+    ({ item }: ListRenderItemInfo<CameraDevice>) => {
+      return <Device device={item} onPress={() => onDevicePressed(item)} />
+    },
+    [onDevicePressed],
+  )
 
   const renderSectionHeader = useCallback(({ section }: { section: SectionData }) => {
     if (section.data.length === 0) return null
@@ -90,7 +150,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   headerContainer: {
-    ...SAFE_AREA_PADDING,
+    paddingTop: SAFE_AREA_PADDING.paddingTop,
+    paddingLeft: SAFE_AREA_PADDING.paddingLeft,
+    paddingRight: SAFE_AREA_PADDING.paddingRight,
   },
   header: {
     fontSize: 38,
@@ -102,9 +164,10 @@ const styles = StyleSheet.create({
     fontSize: 18,
     maxWidth: '80%',
   },
-  list: {},
+  list: {
+    marginTop: CONTENT_SPACING,
+  },
   listContent: {
-    paddingTop: CONTENT_SPACING,
     paddingBottom: SAFE_AREA_PADDING.paddingBottom,
   },
   sectionHeader: {
@@ -122,14 +185,19 @@ const styles = StyleSheet.create({
   deviceName: {
     fontSize: 17,
     marginLeft: 5,
+    flexShrink: 1,
+    fontWeight: 'bold',
+  },
+  devicePosition: {
+    opacity: 0.4,
   },
   deviceId: {
     fontSize: 12,
     opacity: 0.4,
   },
   deviceTypes: {
-    fontSize: 14,
-    marginLeft: 7,
+    fontSize: 12,
+    opacity: 0.4,
   },
   horizontal: {
     flexDirection: 'row',
@@ -141,4 +209,9 @@ const styles = StyleSheet.create({
     marginTop: 7,
   },
   icon: {},
+  inlineIcon: {},
+  resolutionText: {
+    marginLeft: 5,
+    fontSize: 12,
+  },
 })
