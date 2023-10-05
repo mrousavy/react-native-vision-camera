@@ -5797,10 +5797,12 @@ react-native-video@^5.2.1:
     prop-types "^15.7.2"
     shaka-player "^2.5.9"
 
-react-native-worklets-core@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/react-native-worklets-core/-/react-native-worklets-core-0.2.0.tgz#6dae14c40fdaf709d5d54851cc24d5deaecfd4a1"
-  integrity sha512-gxpfl3KnoRmDtBBVs08K7Ru3xaOrBTGXKQtcjwDzgIcaiNhPfKiJdUz1AIa3SX+M2I/f/7fgWK2W9OFYae/AzA==
+react-native-worklets-core@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/react-native-worklets-core/-/react-native-worklets-core-0.2.1.tgz#d30cd779eb31d21f889517524249b13759746bb3"
+  integrity sha512-ezKjljddT4V1Ble3b+mF8XL02OpJfaHApH4XtxxhMoP/G/0Eplp0bAI7qI+SnIIPYVTEL66/kzMAYiXbcC00Ug==
+  dependencies:
+    string-hash-64 "^1.0.3"
 
 react-native@^0.72.3:
   version "0.72.3"
@@ -6290,6 +6292,11 @@ strict-uri-encode@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/strict-uri-encode/-/strict-uri-encode-2.0.0.tgz#b9c7330c7042862f6b142dc274bbcc5866ce3546"
   integrity sha512-QwiXZgpRcKkhTj2Scnn++4PKtWsH0kpzZ62L2R6c/LUVYv7hVnZqcg2+sMuT6R7Jusu1vviK/MFsu6kNJfWlEQ==
+
+string-hash-64@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/string-hash-64/-/string-hash-64-1.0.3.tgz#0deb56df58678640db5c479ccbbb597aaa0de322"
+  integrity sha512-D5OKWKvDhyVWWn2x5Y9b+37NUllks34q1dCDhk/vYcso9fmhs+Tl3KR/gE4v5UNj2UA35cnX4KdVVGkG1deKqw==
 
 string-natural-compare@^3.0.1:
   version "3.0.1"
