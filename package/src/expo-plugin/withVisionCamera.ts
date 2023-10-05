@@ -1,6 +1,7 @@
 import { withPlugins, AndroidConfig, ConfigPlugin, createRunOncePlugin } from '@expo/config-plugins'
 import { withDisableFrameProcessorsAndroid } from './withDisableFrameProcessorsAndroid'
 import { withDisableFrameProcessorsIOS } from './withDisableFrameProcessorsIOS'
+import { withAndroidMLKitVisionModel } from './withAndroidMLKitVisionModel'
 // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-unsafe-assignment
 const pkg = require('../../../package.json')
 
@@ -31,7 +32,7 @@ const withCamera: ConfigPlugin<Props> = (config, props = {}) => {
     config = withDisableFrameProcessorsIOS(config)
   }
 
-  return withPlugins(config, [[AndroidConfig.Permissions.withPermissions, androidPermissions]])
+  return withPlugins(config, [[AndroidConfig.Permissions.withPermissions, androidPermissions], withAndroidMLKitVisionModel])
 }
 
 export default createRunOncePlugin(withCamera, pkg.name, pkg.version)
