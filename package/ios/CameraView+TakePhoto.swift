@@ -63,6 +63,11 @@ extension CameraView {
         photoSettings.photoQualityPrioritization = photoQualityPrioritization
       }
 
+      // photo size is always the one selected in the format
+      if #available(iOS 16.0, *) {
+        photoSettings.maxPhotoDimensions = photoOutput.maxPhotoDimensions
+      }
+
       // red-eye reduction
       if #available(iOS 12.0, *), let autoRedEyeReduction = options["enableAutoRedEyeReduction"] as? Bool {
         photoSettings.isAutoRedEyeReductionEnabled = autoRedEyeReduction

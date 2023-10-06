@@ -262,6 +262,7 @@ extension CameraView {
     do {
       try device.lockForConfiguration()
 
+      // Configure FPS
       if let fps = fps?.int32Value {
         let supportsGivenFps = device.activeFormat.videoSupportedFrameRateRanges.contains { range in
           return range.includes(fps: Double(fps))
@@ -278,14 +279,14 @@ extension CameraView {
         device.activeVideoMinFrameDuration = CMTime.invalid
         device.activeVideoMaxFrameDuration = CMTime.invalid
       }
+
+      // Configure Low-Light-Boost
       if lowLightBoost != nil {
         if lowLightBoost == true && !device.isLowLightBoostSupported {
           invokeOnError(.device(.lowLightBoostNotSupported))
           return
         }
-        if device.automaticallyEnablesLowLightBoostWhenAvailable != lowLightBoost!.boolValue {
-          device.automaticallyEnablesLowLightBoostWhenAvailable = lowLightBoost!.boolValue
-        }
+        device.automaticallyEnablesLowLightBoostWhenAvailable = lowLightBoost!.boolValue
       }
 
       device.unlockForConfiguration()
@@ -303,8 +304,8 @@ extension CameraView {
    */
   final func configureFormat() {
     ReactLogger.log(level: .info, message: "Configuring Format...")
-    guard let filter = format else {
-      // Format Filter was null. Ignore it.
+    guard let jsFormat = format else {
+      // JS Format was null. Ignore it, use default.
       return
     }
     guard let device = videoDeviceInput?.device else {
@@ -312,22 +313,34 @@ extension CameraView {
       return
     }
 
-    if device.activeFormat.matchesFilter(filter) {
-      ReactLogger.log(level: .info, message: "Active format already matches filter.")
+    if device.activeFormat.isEqualTo(jsFormat: jsFormat) {
+      ReactLogger.log(level: .info, message: "Already selected active format.")
       return
     }
 
     // get matching format
-    let matchingFormats = device.formats.filter { $0.matchesFilter(filter) }.sorted { $0.isBetterThan($1) }
-    guard let format = matchingFormats.first else {
+    let format = device.formats.first { $0.isEqualTo(jsFormat: jsFormat) }
+    guard let format else {
       invokeOnError(.format(.invalidFormat))
       return
     }
 
     do {
       try device.lockForConfiguration()
+      defer {
+        device.unlockForConfiguration()
+      }
+
+      let shouldReconfigurePhotoOutput = device.activeFormat.photoDimensions.toCGSize() != format.photoDimensions.toCGSize()
       device.activeFormat = format
-      device.unlockForConfiguration()
+
+      // The Photo Output uses the smallest available Dimension by default. We need to configure it for the maximum here
+      if shouldReconfigurePhotoOutput, #available(iOS 16.0, *) {
+        if let photoOutput = photoOutput {
+          photoOutput.maxPhotoDimensions = format.photoDimensions
+        }
+      }
+
       ReactLogger.log(level: .info, message: "Format successfully configured!")
     } catch let error as NSError {
       invokeOnError(.device(.configureError), cause: error)
