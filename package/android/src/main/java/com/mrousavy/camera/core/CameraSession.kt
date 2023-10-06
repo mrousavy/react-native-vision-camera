@@ -296,6 +296,9 @@ class CameraSession(
       recording.start()
       this.recording = recording
     }
+
+    // Change from PREVIEW -> RECORD template
+    updateRepeatingRequest()
   }
 
   suspend fun stopRecording() {
@@ -305,6 +308,9 @@ class CameraSession(
       recording.stop()
       this.recording = null
     }
+
+    // Change from RECORD -> PREVIEW template
+    updateRepeatingRequest()
   }
 
   suspend fun pauseRecording() {
@@ -459,9 +465,29 @@ class CameraSession(
     videoStabilizationMode: VideoStabilizationMode? = null,
     lowLightBoost: Boolean? = null,
     hdr: Boolean? = null,
-    torch: Boolean? = null
+    torch: Boolean? = null,
+    isRecording: Boolean = false
   ): CaptureRequest {
-    val captureRequest = previewRequest ?: throw CameraNotReadyError()
+    val camera = cameraDevice ?: throw CameraNotReadyError()
+    val outputs = outputs ?: throw CameraNotReadyError()
+
+    // Create Capture Request (RECORD if recording, PREVIEW otherwise)
+    val template = if (isRecording) CameraDevice.TEMPLATE_RECORD else CameraDevice.TEMPLATE_PREVIEW
+    val captureRequest = camera.createCaptureRequest(template)
+
+    // Add output Surfaces
+    outputs.previewOutput?.let { output ->
+      Log.i(TAG, "Adding preview output surface ${output.outputType}..")
+      captureRequest.addTarget(output.surface)
+    }
+    outputs.videoOutput?.let { output ->
+      Log.i(TAG, "Adding video output surface ${output.outputType}..")
+      captureRequest.addTarget(output.surface)
+    }
+    outputs.codeScannerOutput?.let { output ->
+      Log.i(TAG, "Adding code scanner output surface ${output.outputType}")
+      captureRequest.addTarget(output.surface)
+    }
 
     // FPS
     val fpsRange = if (fps != null && CAN_SET_FPS) Range(fps, fps) else Range(30, 30)
@@ -490,6 +516,9 @@ class CameraSession(
     // Torch Mode
     val torchMode = if (torch == true) CaptureRequest.FLASH_MODE_TORCH else CaptureRequest.FLASH_MODE_OFF
     captureRequest.set(CaptureRequest.FLASH_MODE, torchMode)
+
+    // TODO: Remove this and use another more predictable approach in focus()
+    previewRequest = captureRequest
 
     return captureRequest.build()
   }
@@ -533,25 +562,8 @@ class CameraSession(
           isRunning = false
         }
 
-        // 3. Create request template
-        val template = if (outputs.videoOutput != null) CameraDevice.TEMPLATE_RECORD else CameraDevice.TEMPLATE_PREVIEW
-        val captureRequest = camera.createCaptureRequest(template)
-        outputs.previewOutput?.let { output ->
-          Log.i(TAG, "Adding preview output surface ${output.outputType}..")
-          captureRequest.addTarget(output.surface)
-        }
-        outputs.videoOutput?.let { output ->
-          Log.i(TAG, "Adding video output surface ${output.outputType}..")
-          captureRequest.addTarget(output.surface)
-        }
-        outputs.codeScannerOutput?.let { output ->
-          Log.i(TAG, "Adding code scanner output surface ${output.outputType}")
-          captureRequest.addTarget(output.surface)
-        }
-
         Log.i(TAG, "Camera Session initialized! Starting repeating request..")
         isRunning = true
-        this.previewRequest = captureRequest
         this.captureSession = session
         this.cameraDevice = camera
       }
@@ -571,12 +583,8 @@ class CameraSession(
         return
       }
 
-      val fps = fps
-      val videoStabilizationMode = videoStabilizationMode
-      val lowLightBoost = lowLightBoost
-      val hdr = hdr
-
-      val repeatingRequest = getPreviewCaptureRequest(fps, videoStabilizationMode, lowLightBoost, hdr)
+      val isRecording = recording != null
+      val repeatingRequest = getPreviewCaptureRequest(fps, videoStabilizationMode, lowLightBoost, hdr, isRecording)
       Log.d(TAG, "Setting Repeating Request..")
       session.setRepeatingRequest(repeatingRequest, null, null)
     }
