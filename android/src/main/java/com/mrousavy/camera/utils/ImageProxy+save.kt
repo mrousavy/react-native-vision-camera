@@ -49,6 +49,9 @@ fun flipImage(imageBytes: ByteArray): ByteArray {
   val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
 
   when (orientation) {
+    ExifInterface.ORIENTATION_NORMAL -> {
+      matrix.postScale(-1f, 1f)
+    }
     ExifInterface.ORIENTATION_ROTATE_180 -> {
       matrix.setRotate(180f)
       matrix.postScale(-1f, 1f)
