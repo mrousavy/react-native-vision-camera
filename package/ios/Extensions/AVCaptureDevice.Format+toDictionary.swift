@@ -40,7 +40,7 @@ extension AVCaptureDevice.Format {
     let hdrFormats = [
       kCVPixelFormatType_420YpCbCr10BiPlanarFullRange,
       kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange,
-      kCVPixelFormatType_Lossless_420YpCbCr10PackedBiPlanarVideoRange
+      kCVPixelFormatType_Lossless_420YpCbCr10PackedBiPlanarVideoRange,
     ]
     return hdrFormats.contains(pixelFormat)
   }
