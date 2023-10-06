@@ -76,7 +76,7 @@ A [`CameraDevice`](/docs/api/interfaces/CameraDevice) consists of the following 
   - `ultra-wide-angle-camera`: The "fish-eye" camera for 0.5x zoom
   - `wide-angle-camera`: The "default" camera for 1x zoom
   - `telephoto-camera`: A zoomed-in camera for 3x zoom
-- [`sensorOrientation`](/docs/api/interfaces/CameraDevice#sensororientation): The orientation of the Camera sensor/lens relative to the phone. Cameras are usually in `landscapeLeft` orientation, meaning they are rotated by 90°. This includes their resolutions, so a 4k format might be 3840x2160, not 2160x3840
+- [`sensorOrientation`](/docs/api/interfaces/CameraDevice#sensororientation): The orientation of the Camera sensor/lens relative to the phone. Cameras are usually in `landscape-left` orientation, meaning they are rotated by 90°. This includes their resolutions, so a 4k format might be 3840x2160, not 2160x3840
 - [`minZoom`](/docs/api/interfaces/CameraDevice#minzoom): The minimum possible zoom factor for this Camera Device. If this is a multi-cam, this is the point where the device with the widest field of view is used (e.g. ultra-wide)
 - [`maxZoom`](/docs/api/interfaces/CameraDevice#maxzoom): The maximum possible zoom factor for this Camera Device. If this is a multi-cam, this is the point where the device with the lowest field of view is used (e.g. telephoto)
 - [`neutralZoom`](/docs/api/interfaces/CameraDevice#neutralzoom): A value between `minZoom` and `maxZoom` where the "default" Camera Device is used (e.g. wide-angle). When using multi-cams, make sure to start off at this zoom level, so the user can optionally zoom out to the ultra-wide-angle Camera instead of already starting zoomed out

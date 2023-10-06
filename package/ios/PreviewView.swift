@@ -42,6 +42,10 @@ class PreviewView: UIView {
     return videoPreviewLayer.layerRectConverted(fromMetadataOutputRect: rect)
   }
 
+  func captureDevicePointConverted(fromLayerPoint point: CGPoint) -> CGPoint {
+    return videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: point)
+  }
+
   init(frame: CGRect, session: AVCaptureSession) {
     super.init(frame: frame)
     videoPreviewLayer.session = session

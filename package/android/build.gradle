@@ -1,7 +1,7 @@
 import java.nio.file.Paths
 
 buildscript {
-  def kotlin_version = rootProject.ext.has('kotlinVersion') ? rootProject.ext.get('kotlinVersion') : project.properties['VisionCamera_kotlinVersion']
+  def kotlin_version = rootProject.ext.has("kotlinVersion") ? rootProject.ext.get("kotlinVersion") : project.properties["VisionCamera_kotlinVersion"]
 
   repositories {
     maven {
@@ -20,9 +20,9 @@ buildscript {
 
 def resolveBuildType() {
     Gradle gradle = getGradle()
-    String tskReqStr = gradle.getStartParameter().getTaskRequests()['args'].toString()
+    String tskReqStr = gradle.getStartParameter().getTaskRequests()["args"].toString()
 
-    return tskReqStr.contains('Release') ? 'release' : 'debug'
+    return tskReqStr.contains("Release") ? "release" : "debug"
 }
 
 def isNewArchitectureEnabled() {
@@ -34,10 +34,10 @@ def isNewArchitectureEnabled() {
 }
 
 if (isNewArchitectureEnabled()) {
-  apply plugin: 'com.facebook.react'
+  apply plugin: "com.facebook.react"
 }
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
 
 def safeExtGet(prop, fallback) {
   rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
@@ -50,7 +50,7 @@ def reactNativeArchitectures() {
 
 static def findNodeModules(baseDir) {
   def basePath = baseDir.toPath().normalize()
-  // Node's module resolution algorithm searches up to the root directory,
+  // Node"s module resolution algorithm searches up to the root directory,
   // after which the base path will be null
   while (basePath) {
     def nodeModulesPath = Paths.get(basePath.toString(), "node_modules")
@@ -90,9 +90,9 @@ android {
   }
 
   defaultConfig {
-    minSdkVersion safeExtGet('minSdkVersion', 26)
-    compileSdkVersion safeExtGet('compileSdkVersion', 33)
-    targetSdkVersion safeExtGet('targetSdkVersion', 33)
+    minSdkVersion safeExtGet("minSdkVersion", 26)
+    compileSdkVersion safeExtGet("compileSdkVersion", 33)
+    targetSdkVersion safeExtGet("targetSdkVersion", 33)
     versionCode 1
     versionName "1.0"
     buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
@@ -119,7 +119,7 @@ android {
     }
   }
   packagingOptions {
-    doNotStrip resolveBuildType() == 'debug' ? "**/**/*.so" : ''
+    doNotStrip resolveBuildType() == "debug" ? "**/**/*.so" : ""
     excludes = [
             "META-INF",
             "META-INF/**",
