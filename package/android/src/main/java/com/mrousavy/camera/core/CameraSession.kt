@@ -584,7 +584,7 @@ class CameraSession(
       }
 
       val isRecording = recording != null
-      val repeatingRequest = getPreviewCaptureRequest(fps, videoStabilizationMode, lowLightBoost, hdr, isRecording)
+      val repeatingRequest = getPreviewCaptureRequest(fps, videoStabilizationMode, lowLightBoost, hdr, enableTorch, isRecording)
       Log.d(TAG, "Setting Repeating Request..")
       session.setRepeatingRequest(repeatingRequest, null, null)
     }
