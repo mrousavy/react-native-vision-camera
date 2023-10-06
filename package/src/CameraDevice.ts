@@ -118,7 +118,9 @@ export interface CameraDeviceFormat {
   videoStabilizationModes: VideoStabilizationMode[]
   /**
    * Specifies this format's supported pixel-formats.
-   * In most cases, this is `['native', 'yuv']`.
+   * In most cases, this is `['native', 'yuv']`, some iPhones also support `'rgb'`.
+   *
+   * Any value represented here can be used to configure the Camera to stream Frames in the given {@linkcode PixelFormat}.
    */
   pixelFormats: PixelFormat[]
 }

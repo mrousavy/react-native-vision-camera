@@ -52,8 +52,6 @@ export interface CameraProps extends ViewProps {
   photo?: boolean
   /**
    * Enables **video capture** with the `startRecording` function (see ["Recording Videos"](https://react-native-vision-camera.com/docs/guides/recording-videos))
-   *
-   * Note: If both the `photo` and `video` properties are enabled at the same time and the device is running at a `hardwareLevel` of `'legacy'` or `'limited'`, VisionCamera _might_ use a lower resolution for video capture due to hardware constraints.
    */
   video?: boolean
   /**
@@ -63,9 +61,14 @@ export interface CameraProps extends ViewProps {
   /**
    * Specifies the pixel format for the video pipeline.
    *
-   * Frames from a [Frame Processor](https://react-native-vision-camera.com/docs/guides/frame-processors) will be streamed in the pixel format specified here.
+   * Make sure the given {@linkcode format} supports the given {@linkcode pixelFormat} (see {@linkcode CameraDeviceFormat.pixelFormats format.pixelFormats}).
    *
-   * While `native` and `yuv` are the most efficient formats, some ML models (such as MLKit Barcode detection) require input Frames to be in RGB colorspace, otherwise they just output nonsense.
+   * Affects:
+   * * {@linkcode frameProcessor}: The format of Frames from a [Frame Processor](https://react-native-vision-camera.com/docs/guides/frame-processors).
+   * While `'native'` and `'yuv'` are the most efficient formats, some ML models (such as TensorFlow Face Detection Models) require input Frames to be in RGB colorspace, otherwise they just output nonsense.
+   * * {@linkcode video}: The format of Frames streamed in the Video Pipeline. The format `'native'` is most efficient here.
+   *
+   * The following values are supported:
    *
    * - `native`: The hardware native GPU buffer format. This is the most efficient format. (`PRIVATE` on Android, sometimes YUV on iOS)
    * - `yuv`: The YUV (Y'CbCr 4:2:0 or NV21, 8-bit) format, either video- or full-range, depending on hardware capabilities. This is the second most efficient format.
@@ -80,7 +83,7 @@ export interface CameraProps extends ViewProps {
   /**
    * Set the current torch mode.
    *
-   * Note: The torch is only available on `"back"` cameras, and isn't supported by every phone.
+   * Make sure the given {@linkcode device} has a torch (see {@linkcode CameraDevice.hasTorch device.hasTorch}).
    *
    * @default "off"
    */
@@ -100,7 +103,7 @@ export interface CameraProps extends ViewProps {
   /**
    * Enables or disables the native pinch to zoom gesture.
    *
-   * If you want to implement a custom zoom gesture, see [the Zooming with Reanimated documentation](https://react-native-vision-camera.com/docs/guides/animated).
+   * If you want to implement a custom zoom gesture, see [the Zooming with Reanimated documentation](https://react-native-vision-camera.com/docs/guides/zooming).
    *
    * @default false
    */
@@ -110,6 +113,15 @@ export interface CameraProps extends ViewProps {
   //#region Format/Preset selection
   /**
    * Selects a given format. By default, the best matching format is chosen.
+   *
+   * The format defines the possible values for properties like:
+   * - {@linkcode fps}: {@linkcode CameraDeviceFormat.minFps format.minFps}...{@linkcode CameraDeviceFormat.maxFps format.maxFps}
+   * - {@linkcode hdr}: {@linkcode CameraDeviceFormat.supportsVideoHDR format.supportsVideoHDR}
+   * - {@linkcode pixelFormat}: {@linkcode CameraDeviceFormat.pixelFormats format.pixelFormats}
+   * - {@linkcode enableDepthData}: {@linkcode CameraDeviceFormat.supportsDepthCapture format.supportsDepthCapture}
+   * - {@linkcode videoStabilizationMode}: {@linkcode CameraDeviceFormat.videoStabilizationModes format.videoStabilizationModes}
+   *
+   * In other words; {@linkcode enableDepthData} can only be set to true if {@linkcode CameraDeviceFormat.supportsDepthCapture format.supportsDepthCapture} is true.
    */
   format?: CameraDeviceFormat
   /**
@@ -121,15 +133,15 @@ export interface CameraProps extends ViewProps {
    */
   resizeMode?: 'cover' | 'contain'
   /**
-   * Specify the frames per second this camera should use. Make sure the given `format` includes a frame rate range with the given `fps`.
+   * Specify the frames per second this camera should stream frames at.
    *
-   * Requires `format` to be set that supports the given `fps`.
+   * Make sure the given {@linkcode format} can stream at the target {@linkcode fps} value (see {@linkcode CameraDeviceFormat.minFps format.minFps} and {@linkcode CameraDeviceFormat.maxFps format.maxFps}).
    */
   fps?: number
   /**
-   * Enables or disables HDR on this camera device. Make sure the given `format` supports HDR mode.
+   * Enables or disables HDR streaming.
    *
-   * Requires `format` to be set that supports `photoHDR`/`videoHDR`.
+   * Make sure the given {@linkcode format} supports HDR (see {@linkcode CameraDeviceFormat.supportsVideoHDR format.supportsVideoHDR}).
    */
   hdr?: boolean
   /**
@@ -154,21 +166,23 @@ export interface CameraProps extends ViewProps {
    */
   enableBufferCompression?: boolean
   /**
-   * Enables or disables low-light boost on this camera device. Make sure the given `format` supports low-light boost.
+   * Enables or disables low-light boost on this camera device.
    *
-   * Requires a `format` to be set that supports `lowLightBoost`.
+   * Make sure the given {@linkcode device} supports low-light-boost (see {@linkcode CameraDevice.supportsLowLightBoost device.supportsLowLightBoost}).
    */
   lowLightBoost?: boolean
   /**
    * Specifies the video stabilization mode to use.
    *
-   * Requires a `format` to be set that contains the given `videoStabilizationMode`.
+   * Make sure the given {@linkcode format} supports the given {@linkcode videoStabilizationMode} (see {@linkcode CameraDeviceFormat.videoStabilizationModes format.videoStabilizationModes}).
    */
   videoStabilizationMode?: VideoStabilizationMode
   //#endregion
 
   /**
-   * Also captures data from depth-perception sensors. (e.g. disparity maps)
+   * Enables or disables depth data delivery for photo capture.
+   *
+   * Make sure the given {@linkcode format} supports depth data (see {@linkcode CameraDeviceFormat.supportsDepthCapture format.supportsDepthCapture}).
    *
    * @default false
    */
