@@ -262,6 +262,7 @@ extension CameraView {
     do {
       try device.lockForConfiguration()
 
+      // Configure FPS
       if let fps = fps?.int32Value {
         let supportsGivenFps = device.activeFormat.videoSupportedFrameRateRanges.contains { range in
           return range.includes(fps: Double(fps))
@@ -278,14 +279,14 @@ extension CameraView {
         device.activeVideoMinFrameDuration = CMTime.invalid
         device.activeVideoMaxFrameDuration = CMTime.invalid
       }
+      
+      // Configure Low-Light-Boost
       if lowLightBoost != nil {
         if lowLightBoost == true && !device.isLowLightBoostSupported {
           invokeOnError(.device(.lowLightBoostNotSupported))
           return
         }
-        if device.automaticallyEnablesLowLightBoostWhenAvailable != lowLightBoost!.boolValue {
-          device.automaticallyEnablesLowLightBoostWhenAvailable = lowLightBoost!.boolValue
-        }
+        device.automaticallyEnablesLowLightBoostWhenAvailable = lowLightBoost!.boolValue
       }
 
       device.unlockForConfiguration()
