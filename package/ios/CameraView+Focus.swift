@@ -9,55 +9,8 @@
 import Foundation
 
 extension CameraView {
-  private func rotateFrameSize(frameSize: CGSize, orientation: UIInterfaceOrientation) -> CGSize {
-    switch orientation {
-    case .portrait, .portraitUpsideDown, .unknown:
-      // swap width and height since the input orientation is rotated
-      return CGSize(width: frameSize.height, height: frameSize.width)
-    case .landscapeLeft, .landscapeRight:
-      // is same as camera sensor orientation
-      return frameSize
-    @unknown default:
-      return frameSize
-    }
-  }
-
-  /// Converts a Point in the UI View Layer to a Point in the Camera Frame coordinate system
-  private func convertLayerPointToFramePoint(layerPoint point: CGPoint) -> CGPoint {
-    guard let videoDeviceInput = videoDeviceInput else {
-      invokeOnError(.session(.cameraNotReady))
-      return .zero
-    }
-    guard let viewScale = window?.screen.scale else {
-      invokeOnError(.unknown(message: "View has no parent Window!"))
-      return .zero
-    }
-
-    let frameSize = rotateFrameSize(frameSize: videoDeviceInput.device.activeFormat.videoDimensions,
-                                    orientation: outputOrientation)
-    let viewSize = CGSize(width: previewView.bounds.width * viewScale,
-                          height: previewView.bounds.height * viewScale)
-    let scale = min(frameSize.width / viewSize.width, frameSize.height / viewSize.height)
-    let scaledViewSize = CGSize(width: viewSize.width * scale, height: viewSize.height * scale)
-
-    let overlapX = scaledViewSize.width - frameSize.width
-    let overlapY = scaledViewSize.height - frameSize.height
-
-    let scaledPoint = CGPoint(x: point.x * scale, y: point.y * scale)
-
-    return CGPoint(x: scaledPoint.x - (overlapX / 2), y: scaledPoint.y - (overlapY / 2))
-  }
-
-  /// Converts a Point in the UI View Layer to a Point in the Camera Device Sensor coordinate system (x: [0..1], y: [0..1])
-  private func captureDevicePointConverted(fromLayerPoint pointInLayer: CGPoint) -> CGPoint {
-    guard let videoDeviceInput = videoDeviceInput else {
-      invokeOnError(.session(.cameraNotReady))
-      return .zero
-    }
-    let frameSize = rotateFrameSize(frameSize: videoDeviceInput.device.activeFormat.videoDimensions,
-                                    orientation: outputOrientation)
-    let pointInFrame = convertLayerPointToFramePoint(layerPoint: pointInLayer)
-    return CGPoint(x: pointInFrame.x / frameSize.width, y: pointInFrame.y / frameSize.height)
+  private func convertPreviewCoordinatesToCameraCoordinates(_ point: CGPoint) -> CGPoint {
+    return previewView.captureDevicePointConverted(fromLayerPoint: point)
   }
 
   func focus(point: CGPoint, promise: Promise) {
@@ -70,24 +23,71 @@ extension CameraView {
       }
 
       // in {0..1} system
-      let normalizedPoint = captureDevicePointConverted(fromLayerPoint: point)
+      let normalizedPoint = convertPreviewCoordinatesToCameraCoordinates(point)
 
       do {
         try device.lockForConfiguration()
-
-        device.focusPointOfInterest = normalizedPoint
-        device.focusMode = .continuousAutoFocus
-
-        if device.isExposurePointOfInterestSupported {
-          device.exposurePointOfInterest = normalizedPoint
-          device.exposureMode = .continuousAutoExposure
+        defer {
+          device.unlockForConfiguration()
         }
 
-        device.unlockForConfiguration()
+        // Set Focus
+        if device.isFocusPointOfInterestSupported {
+          device.focusPointOfInterest = normalizedPoint
+          device.focusMode = .autoFocus
+        }
+
+        // Set Exposure
+        if device.isExposurePointOfInterestSupported {
+          device.exposurePointOfInterest = normalizedPoint
+          device.exposureMode = .autoExpose
+        }
+
+        // Remove any existing listeners
+        NotificationCenter.default.removeObserver(self,
+                                                  name: NSNotification.Name.AVCaptureDeviceSubjectAreaDidChange,
+                                                  object: nil)
+
+        // Listen for focus completion
+        device.isSubjectAreaChangeMonitoringEnabled = true
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(subjectAreaDidChange),
+                                               name: NSNotification.Name.AVCaptureDeviceSubjectAreaDidChange,
+                                               object: nil)
         return nil
       } catch {
         throw CameraError.device(DeviceError.configureError)
       }
+    }
+  }
+
+  @objc
+  func subjectAreaDidChange(notification _: NSNotification) {
+    guard let device = videoDeviceInput?.device else {
+      invokeOnError(.session(.cameraNotReady))
+      return
+    }
+
+    do {
+      try device.lockForConfiguration()
+      defer {
+        device.unlockForConfiguration()
+      }
+
+      // Reset Focus to continuous/auto
+      if device.isFocusPointOfInterestSupported {
+        device.focusMode = .continuousAutoFocus
+      }
+
+      // Reset Exposure to continuous/auto
+      if device.isExposurePointOfInterestSupported {
+        device.exposureMode = .continuousAutoExposure
+      }
+
+      // Disable listeners
+      device.isSubjectAreaChangeMonitoringEnabled = false
+    } catch {
+      invokeOnError(.device(.configureError))
     }
   }
 }
