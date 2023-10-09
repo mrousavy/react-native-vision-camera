@@ -55,7 +55,7 @@ def REACT_NATIVE_VERSION = reactProperties.getProperty("VERSION_NAME").split("\\
 def FOR_HERMES = System.getenv("FOR_HERMES") == "True"
 rootProject.getSubprojects().forEach({project ->
   if (project.plugins.hasPlugin("com.android.application")) {
-    FOR_HERMES = REACT_NATIVE_VERSION >= 71 && project.hermesEnabled || project.ext.react.enableHermes
+    FOR_HERMES = (REACT_NATIVE_VERSION >= 71 && project?.hermesEnabled?.toBoolean()) || project?.ext?.react?.enableHermes?.toBoolean()
   }
 })
 def jsRuntimeDir = {
