@@ -13,6 +13,5 @@ class BarcodeScannerOutput(private val codeScannerPipeline: CodeScannerPipeline)
     super.close()
   }
 
-  override fun toString(): String =
-    "$outputType ($codeScannerPipeline)"
+  override fun toString(): String = "$outputType ($codeScannerPipeline)"
 }

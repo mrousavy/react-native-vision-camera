@@ -1,6 +1,5 @@
 package com.mrousavy.camera.core
 
-import android.graphics.ImageFormat
 import android.media.ImageReader
 import android.util.Size
 import android.view.Surface
@@ -13,9 +12,7 @@ import com.mrousavy.camera.core.outputs.CameraOutputs
 import com.mrousavy.camera.parsers.Orientation
 import java.io.Closeable
 
-class CodeScannerPipeline(val size: Size,
-                          val format: Int,
-                          val output: CameraOutputs.CodeScannerOutput): Closeable {
+class CodeScannerPipeline(val size: Size, val format: Int, val output: CameraOutputs.CodeScannerOutput) : Closeable {
   companion object {
     // We want to have a buffer of 2 images, but we always only acquire one.
     // That way the pipeline is free to stream frames
