@@ -115,11 +115,11 @@ export interface CameraProps extends ViewProps {
    * Selects a given format. By default, the best matching format is chosen.
    *
    * The format defines the possible values for properties like:
-   * - {@linkcode fps}: {@linkcode CameraDeviceFormat.minFps format.minFps} and {@linkcode CameraDeviceFormat.maxFps format.maxFps}
-   * - {@linkcode hdr}: {@linkcode CameraDeviceFormat.supportsVideoHDR format.supportsVideoHDR}
-   * - {@linkcode pixelFormat}: {@linkcode CameraDeviceFormat.pixelFormats format.pixelFormats}
-   * - {@linkcode enableDepthData}: {@linkcode CameraDeviceFormat.supportsDepthCapture format.supportsDepthCapture}
-   * - {@linkcode videoStabilizationMode}: {@linkcode CameraDeviceFormat.videoStabilizationModes format.videoStabilizationModes}
+   * - {@linkcode fps}: See {@linkcode CameraDeviceFormat.minFps format.minFps} and {@linkcode CameraDeviceFormat.maxFps format.maxFps}
+   * - {@linkcode hdr}: See {@linkcode CameraDeviceFormat.supportsVideoHDR format.supportsVideoHDR}
+   * - {@linkcode pixelFormat}: See {@linkcode CameraDeviceFormat.pixelFormats format.pixelFormats}
+   * - {@linkcode enableDepthData}: See {@linkcode CameraDeviceFormat.supportsDepthCapture format.supportsDepthCapture}
+   * - {@linkcode videoStabilizationMode}: See {@linkcode CameraDeviceFormat.videoStabilizationModes format.videoStabilizationModes}
    *
    * In other words; {@linkcode enableDepthData} can only be set to true if {@linkcode CameraDeviceFormat.supportsDepthCapture format.supportsDepthCapture} is true.
    */
