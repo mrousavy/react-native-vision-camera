@@ -28,9 +28,9 @@ import com.mrousavy.camera.parsers.PixelFormat
 import com.mrousavy.camera.parsers.ResizeMode
 import com.mrousavy.camera.parsers.Torch
 import com.mrousavy.camera.parsers.VideoStabilizationMode
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
 //
 // TODOs for the CameraView which are currently too hard to implement either because of CameraX' limitations, or my brain capacity.
@@ -42,7 +42,9 @@ import kotlin.coroutines.CoroutineContext
 // TODO: takePhoto() return with jsi::Value Image reference for faster capture
 
 @SuppressLint("ClickableViewAccessibility", "ViewConstructor", "MissingPermission")
-class CameraView(context: Context) : FrameLayout(context), CoroutineScope {
+class CameraView(context: Context) :
+  FrameLayout(context),
+  CoroutineScope {
   companion object {
     const val TAG = "CameraView"
 
