@@ -489,6 +489,9 @@ class CameraSession(
     cameraDevice?.close()
     cameraDevice = null
 
+    outputs?.close()
+    outputs = null
+
     isRunning = false
   }
 
