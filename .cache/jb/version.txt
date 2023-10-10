@@ -1,0 +1,1 @@
+(ssh://git@git.jetbrains.team/llvm/llvm-project.git 8f193d135b5e285f03a4863d7cf657c97c24b0b3 based on LLVM ed5dd8e5f0fb6ca4af26adcb6193a9d9106eb36a revision)

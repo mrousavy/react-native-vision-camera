@@ -121,6 +121,7 @@ class CameraView(context: Context) : FrameLayout(context) {
 
   override fun onDetachedFromWindow() {
     super.onDetachedFromWindow()
+    cameraSession.close()
     updateLifecycle()
   }
 
