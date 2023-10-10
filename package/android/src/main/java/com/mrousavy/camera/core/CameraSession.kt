@@ -178,6 +178,7 @@ class CameraSession(
     val currentOutputs = outputs
     if (currentOutputs != null && currentOutputs.enableHdr != hdr) {
       // Update existing HDR for Outputs
+      this.outputs?.close()
       this.outputs = CameraOutputs(
         currentOutputs.cameraId,
         cameraManager,

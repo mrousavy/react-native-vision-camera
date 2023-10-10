@@ -98,6 +98,7 @@ class CameraOutputs(
   }
 
   override fun close() {
+    previewOutput?.close()
     photoOutput?.close()
     videoOutput?.close()
     codeScannerOutput?.close()
