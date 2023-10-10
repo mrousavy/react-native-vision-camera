@@ -159,16 +159,16 @@ class CameraView(context: Context) :
 
   fun update(changedProps: ArrayList<String>) {
     Log.i(TAG, "Props changed: $changedProps")
-    try {
-      val shouldReconfigurePreview = changedProps.containsAny(propsThatRequirePreviewReconfiguration)
-      val shouldReconfigureSession = shouldReconfigurePreview || changedProps.containsAny(propsThatRequireSessionReconfiguration)
-      val shouldReconfigureFormat = shouldReconfigureSession || changedProps.containsAny(propsThatRequireFormatReconfiguration)
-      val shouldReconfigureZoom = shouldReconfigureSession || changedProps.contains("zoom")
-      val shouldReconfigureTorch = shouldReconfigureSession || changedProps.contains("torch")
-      val shouldCheckActive = shouldReconfigureFormat || changedProps.contains("isActive")
-      val shouldReconfigureZoomGesture = changedProps.contains("enableZoomGesture")
+    val shouldReconfigurePreview = changedProps.containsAny(propsThatRequirePreviewReconfiguration)
+    val shouldReconfigureSession = shouldReconfigurePreview || changedProps.containsAny(propsThatRequireSessionReconfiguration)
+    val shouldReconfigureFormat = shouldReconfigureSession || changedProps.containsAny(propsThatRequireFormatReconfiguration)
+    val shouldReconfigureZoom = shouldReconfigureSession || changedProps.contains("zoom")
+    val shouldReconfigureTorch = shouldReconfigureSession || changedProps.contains("torch")
+    val shouldCheckActive = shouldReconfigureFormat || changedProps.contains("isActive")
+    val shouldReconfigureZoomGesture = changedProps.contains("enableZoomGesture")
 
-      launch {
+    launch {
+      try {
         // Expensive Calls
         if (shouldReconfigurePreview) {
           setupPreviewView()
@@ -192,10 +192,10 @@ class CameraView(context: Context) :
         if (shouldReconfigureZoomGesture) {
           updateZoomGesture()
         }
+      } catch (e: Throwable) {
+        Log.e(TAG, "update() threw: ${e.message}")
+        invokeOnError(e)
       }
-    } catch (e: Throwable) {
-      Log.e(TAG, "update() threw: ${e.message}")
-      invokeOnError(e)
     }
   }
 
