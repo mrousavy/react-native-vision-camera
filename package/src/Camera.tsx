@@ -431,6 +431,13 @@ export class Camera extends React.PureComponent<CameraProps> {
       this.lastFrameProcessor = frameProcessor
     }
   }
+
+  /** @internal */
+  componentWillUnmount(): void {
+    if (this.lastFrameProcessor !== null) {
+      this.unsetFrameProcessor()
+    }
+  }
   //#endregion
 
   /** @internal */
