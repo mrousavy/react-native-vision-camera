@@ -28,8 +28,8 @@ import com.mrousavy.camera.parsers.PixelFormat
 import com.mrousavy.camera.parsers.ResizeMode
 import com.mrousavy.camera.parsers.Torch
 import com.mrousavy.camera.parsers.VideoStabilizationMode
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 //
@@ -42,7 +42,9 @@ import kotlinx.coroutines.launch
 // TODO: takePhoto() return with jsi::Value Image reference for faster capture
 
 @SuppressLint("ClickableViewAccessibility", "ViewConstructor", "MissingPermission")
-class CameraView(context: Context) : FrameLayout(context) {
+class CameraView(context: Context) :
+  FrameLayout(context),
+  CoroutineScope {
   companion object {
     const val TAG = "CameraView"
 
@@ -104,6 +106,8 @@ class CameraView(context: Context) : FrameLayout(context) {
   internal val outputOrientation: Orientation
     get() = orientation ?: inputOrientation
 
+  override val coroutineContext: CoroutineContext = CameraQueues.cameraQueue.coroutineDispatcher
+
   init {
     this.installHierarchyFitter()
     setupPreviewView()
@@ -116,12 +120,12 @@ class CameraView(context: Context) : FrameLayout(context) {
       isMounted = true
       invokeOnViewReady()
     }
-    updateLifecycle()
+    launch { updateLifecycle() }
   }
 
   override fun onDetachedFromWindow() {
     super.onDetachedFromWindow()
-    updateLifecycle()
+    launch { updateLifecycle() }
   }
 
   private fun getPreviewTargetSize(): Size {
@@ -142,7 +146,7 @@ class CameraView(context: Context) : FrameLayout(context) {
 
     val previewView = PreviewView(context, this.getPreviewTargetSize(), resizeMode) { surface ->
       previewSurface = surface
-      configureSession()
+      launch { configureSession() }
     }
     previewView.layoutParams = LayoutParams(
       LayoutParams.MATCH_PARENT,
@@ -164,27 +168,30 @@ class CameraView(context: Context) : FrameLayout(context) {
       val shouldCheckActive = shouldReconfigureFormat || changedProps.contains("isActive")
       val shouldReconfigureZoomGesture = changedProps.contains("enableZoomGesture")
 
-      if (shouldReconfigurePreview) {
-        setupPreviewView()
-      }
-      if (shouldReconfigureSession) {
-        configureSession()
-      }
-      if (shouldReconfigureFormat) {
-        configureFormat()
-      }
-      if (shouldCheckActive) {
-        updateLifecycle()
-      }
-
-      if (shouldReconfigureZoom) {
-        updateZoom()
-      }
-      if (shouldReconfigureTorch) {
-        updateTorch()
-      }
-      if (shouldReconfigureZoomGesture) {
-        updateZoomGesture()
+      launch {
+        // Expensive Calls
+        if (shouldReconfigurePreview) {
+          setupPreviewView()
+        }
+        if (shouldReconfigureSession) {
+          configureSession()
+        }
+        if (shouldReconfigureFormat) {
+          configureFormat()
+        }
+        if (shouldCheckActive) {
+          updateLifecycle()
+        }
+        // Fast Calls
+        if (shouldReconfigureZoom) {
+          updateZoom()
+        }
+        if (shouldReconfigureTorch) {
+          updateTorch()
+        }
+        if (shouldReconfigureZoomGesture) {
+          updateZoomGesture()
+        }
       }
     } catch (e: Throwable) {
       Log.e(TAG, "update() threw: ${e.message}")
@@ -192,7 +199,7 @@ class CameraView(context: Context) : FrameLayout(context) {
     }
   }
 
-  private fun configureSession() {
+  private suspend fun configureSession() {
     try {
       Log.i(TAG, "Configuring Camera Device...")
 
@@ -236,22 +243,20 @@ class CameraView(context: Context) : FrameLayout(context) {
     }
   }
 
-  private fun configureFormat() {
+  private suspend fun configureFormat() {
     cameraSession.configureFormat(fps, videoStabilizationMode, hdr, lowLightBoost)
   }
 
-  private fun updateLifecycle() {
+  private suspend fun updateLifecycle() {
     cameraSession.setIsActive(isActive && isAttachedToWindow)
   }
 
-  private fun updateZoom() {
+  private suspend fun updateZoom() {
     cameraSession.setZoom(zoom)
   }
 
-  private fun updateTorch() {
-    CoroutineScope(Dispatchers.Default).launch {
-      cameraSession.setTorchMode(torch == Torch.ON)
-    }
+  private suspend fun updateTorch() {
+    cameraSession.setTorchMode(torch == Torch.ON)
   }
 
   @SuppressLint("ClickableViewAccessibility")
@@ -262,7 +267,7 @@ class CameraView(context: Context) : FrameLayout(context) {
         object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
           override fun onScale(detector: ScaleGestureDetector): Boolean {
             zoom *= detector.scaleFactor
-            cameraSession.setZoom(zoom)
+            launch { updateZoom() }
             return true
           }
         }
