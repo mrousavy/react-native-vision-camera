@@ -40,9 +40,6 @@ import com.mrousavy.camera.parsers.VideoFileType
 import com.mrousavy.camera.parsers.VideoStabilizationMode
 import java.io.Closeable
 import java.util.concurrent.CancellationException
-import kotlin.coroutines.CoroutineContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -52,7 +49,6 @@ class CameraSession(
   private val onInitialized: () -> Unit,
   private val onError: (e: Throwable) -> Unit
 ) : CameraManager.AvailabilityCallback(),
-  CoroutineScope,
   Closeable,
   CameraOutputs.Callback {
   companion object {
@@ -112,8 +108,6 @@ class CameraSession(
       updateVideoOutputs()
     }
 
-  override val coroutineContext: CoroutineContext = CameraQueues.cameraQueue.coroutineDispatcher
-
   init {
     cameraManager.registerAvailabilityCallback(this, CameraQueues.cameraQueue.handler)
   }
@@ -135,7 +129,7 @@ class CameraSession(
       return Orientation.fromRotationDegrees(sensorRotation)
     }
 
-  fun configureSession(
+  suspend fun configureSession(
     cameraId: String,
     preview: CameraOutputs.PreviewOutput? = null,
     photo: CameraOutputs.PhotoOutput? = null,
@@ -165,12 +159,10 @@ class CameraSession(
     updateVideoOutputs()
 
     this.cameraId = cameraId
-    launch {
-      startRunning()
-    }
+    startRunning()
   }
 
-  fun configureFormat(
+  suspend fun configureFormat(
     fps: Int? = null,
     videoStabilizationMode: VideoStabilizationMode? = null,
     hdr: Boolean? = null,
@@ -198,29 +190,25 @@ class CameraSession(
       )
       needsReconfiguration = true
     }
-    launch {
-      if (needsReconfiguration) {
-        startRunning()
-      } else {
-        updateRepeatingRequest()
-      }
+    if (needsReconfiguration) {
+      startRunning()
+    } else {
+      updateRepeatingRequest()
     }
   }
 
   /**
    * Starts or stops the Camera.
    */
-  fun setIsActive(isActive: Boolean) {
+  suspend fun setIsActive(isActive: Boolean) {
     Log.i(TAG, "Setting isActive: $isActive (isRunning: $isRunning)")
     this.isActive = isActive
     if (isActive == isRunning) return
 
-    launch {
-      if (isActive) {
-        startRunning()
-      } else {
-        stopRunning()
-      }
+    if (isActive) {
+      startRunning()
+    } else {
+      stopRunning()
     }
   }
 
@@ -328,12 +316,10 @@ class CameraSession(
     }
   }
 
-  fun setZoom(zoom: Float) {
+  suspend fun setZoom(zoom: Float) {
     if (this.zoom != zoom) {
       this.zoom = zoom
-      launch {
-        updateRepeatingRequest()
-      }
+      updateRepeatingRequest()
     }
   }
 
