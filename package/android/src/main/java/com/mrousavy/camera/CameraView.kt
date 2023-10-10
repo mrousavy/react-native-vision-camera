@@ -125,7 +125,6 @@ class CameraView(context: Context) :
 
   override fun onDetachedFromWindow() {
     super.onDetachedFromWindow()
-    cameraSession.close()
     launch { updateLifecycle() }
   }
 
