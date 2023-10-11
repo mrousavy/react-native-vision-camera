@@ -18,28 +18,28 @@ extension CameraView: AVCaptureMetadataOutputObjectsDelegate {
       return
     }
 
-    // Map codes to JS values
-    let codes = metadataObjects.map { object in
-      var value: String?
-      if let code = object as? AVMetadataMachineReadableCodeObject {
-        value = code.stringValue
+    DispatchQueue.main.async {
+      let codes = metadataObjects.map { object in
+          var value: String?
+          if let code = object as? AVMetadataMachineReadableCodeObject {
+              value = code.stringValue
+          }
+          let frame = self.previewView.layerRectConverted(fromMetadataOutputRect: object.bounds)
+          
+          return [
+              "type": object.type.descriptor,
+              "value": value as Any,
+              "frame": [
+                  "x": frame.origin.x,
+                  "y": frame.origin.y,
+                  "width": frame.size.width,
+                  "height": frame.size.height,
+              ],
+          ]
       }
-      let frame = previewView.layerRectConverted(fromMetadataOutputRect: object.bounds)
 
-      return [
-        "type": object.type.descriptor,
-        "value": value as Any,
-        "frame": [
-          "x": frame.origin.x,
-          "y": frame.origin.y,
-          "width": frame.size.width,
-          "height": frame.size.height,
-        ],
-      ]
+      // Call JS event
+      onCodeScanned(["codes": codes])
     }
-    // Call JS event
-    onCodeScanned([
-      "codes": codes,
-    ])
   }
 }
