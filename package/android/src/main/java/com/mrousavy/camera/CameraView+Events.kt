@@ -6,6 +6,9 @@ import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.uimanager.events.RCTEventEmitter
 import com.google.mlkit.vision.barcode.common.Barcode
+import com.mrousavy.camera.core.CameraError
+import com.mrousavy.camera.core.UnknownCameraError
+import com.mrousavy.camera.core.code
 import com.mrousavy.camera.parsers.CodeType
 
 fun CameraView.invokeOnInitialized() {

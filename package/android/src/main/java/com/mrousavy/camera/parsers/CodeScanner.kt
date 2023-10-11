@@ -1,7 +1,7 @@
 package com.mrousavy.camera.parsers
 
 import com.facebook.react.bridge.ReadableMap
-import com.mrousavy.camera.InvalidTypeScriptUnionError
+import com.mrousavy.camera.core.InvalidTypeScriptUnionError
 
 class CodeScanner(map: ReadableMap) {
   val codeTypes: List<CodeType>

@@ -7,7 +7,6 @@ import android.os.Build
 import android.util.Log
 import android.util.Size
 import android.view.Surface
-import com.mrousavy.camera.RecorderError
 import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.VideoCodec
 import com.mrousavy.camera.parsers.VideoFileType

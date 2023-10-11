@@ -2,9 +2,7 @@ package com.mrousavy.camera.frameprocessor;
 
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
-import com.mrousavy.camera.CameraQueues;
-
-import java.util.concurrent.ExecutorService;
+import com.mrousavy.camera.core.CameraQueues;
 
 @SuppressWarnings("JavaJniMissingFunction") // using fbjni here
 public class VisionCameraScheduler {

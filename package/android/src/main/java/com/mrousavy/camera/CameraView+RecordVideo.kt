@@ -5,7 +5,10 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
+import com.mrousavy.camera.core.MicrophonePermissionError
+import com.mrousavy.camera.core.RecorderError
 import com.mrousavy.camera.core.RecordingSession
+import com.mrousavy.camera.core.code
 import com.mrousavy.camera.parsers.Torch
 import com.mrousavy.camera.parsers.VideoCodec
 import com.mrousavy.camera.parsers.VideoFileType

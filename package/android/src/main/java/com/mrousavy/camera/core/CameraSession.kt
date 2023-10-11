@@ -16,15 +16,7 @@ import android.os.Build
 import android.util.Log
 import android.util.Range
 import android.util.Size
-import com.mrousavy.camera.CameraNotReadyError
-import com.mrousavy.camera.CameraQueues
 import com.mrousavy.camera.CameraView
-import com.mrousavy.camera.CaptureAbortedError
-import com.mrousavy.camera.NoRecordingInProgressError
-import com.mrousavy.camera.PhotoNotEnabledError
-import com.mrousavy.camera.RecorderError
-import com.mrousavy.camera.RecordingInProgressError
-import com.mrousavy.camera.VideoNotEnabledError
 import com.mrousavy.camera.core.outputs.CameraOutputs
 import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession

@@ -1,7 +1,7 @@
 package com.mrousavy.camera.parsers
 
 import android.graphics.ImageFormat
-import com.mrousavy.camera.PixelFormatNotSupportedError
+import com.mrousavy.camera.core.PixelFormatNotSupportedError
 
 enum class PixelFormat(override val unionValue: String) : JSUnionValue {
   YUV("yuv"),

@@ -9,7 +9,7 @@ import android.util.Log
 import android.util.Size
 import android.view.Surface
 import com.google.mlkit.vision.barcode.common.Barcode
-import com.mrousavy.camera.CameraQueues
+import com.mrousavy.camera.core.CameraQueues
 import com.mrousavy.camera.core.CodeScannerPipeline
 import com.mrousavy.camera.core.VideoPipeline
 import com.mrousavy.camera.extensions.bigger
