@@ -46,8 +46,7 @@ class CameraSession: NSObject {
    Create a new instance of the `CameraSession`.
    The `onError` callback is used for any runtime errors.
    */
-  init(delegate: CameraSessionDelegate) {
-    self.delegate = delegate
+  override init() {
     super.init()
 
     NotificationCenter.default.addObserver(self,

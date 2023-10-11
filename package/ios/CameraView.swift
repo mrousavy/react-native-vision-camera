@@ -20,7 +20,8 @@ import UIKit
 
 // MARK: - CameraView
 
-public final class CameraView: UIView {
+public final class CameraView: UIView, CameraSessionDelegate {
+  
   // pragma MARK: React Properties
   // props that require reconfiguring
   @objc var cameraId: NSString?
@@ -38,8 +39,8 @@ public final class CameraView: UIView {
   // props that require format reconfiguring
   @objc var format: NSDictionary?
   @objc var fps: NSNumber?
-  @objc var hdr: Bool
-  @objc var lowLightBoost: Bool
+  @objc var hdr: Bool = false
+  @objc var lowLightBoost: Bool = false
   @objc var orientation: NSString?
   // other props
   @objc var isActive = false
@@ -89,13 +90,10 @@ public final class CameraView: UIView {
 
   override public init(frame: CGRect) {
     // Create CameraSession
-    cameraSession = CameraSession(onError: { error in
-      self.invokeOnError(error)
-    }, onInitialized: {
-      self.invokeOnInitialized()
-    })
+    cameraSession = CameraSession()
     previewView = cameraSession.createPreviewView(frame: frame)
     super.init(frame: frame)
+    cameraSession.delegate = self
 
     addSubview(previewView)
   }
@@ -128,9 +126,9 @@ public final class CameraView: UIView {
         return try PixelFormat(unionValue: pixelFormat)
       } catch {
         if let error = error as? CameraError {
-          invokeOnError(error)
+          onError(error)
         } else {
-          invokeOnError(.unknown(message: error.localizedDescription, cause: error as NSError))
+          onError(.unknown(message: error.localizedDescription, cause: error as NSError))
         }
       }
     }
@@ -257,12 +255,14 @@ public final class CameraView: UIView {
   }
 
   // pragma MARK: Event Invokers
-  final func invokeOnError(_ error: CameraError, cause: NSError? = nil) {
+  
+  func onError(_ error: CameraError) {
     ReactLogger.log(level: .error, message: "Invoking onError(): \(error.message)")
     guard let onError = onError else { return }
 
     var causeDictionary: [String: Any]?
-    if let cause = cause {
+    if case let .unknown(_, cause) = error,
+       let cause = cause {
       causeDictionary = [
         "code": cause.code,
         "domain": cause.domain,
@@ -276,10 +276,19 @@ public final class CameraView: UIView {
       "cause": causeDictionary ?? NSNull(),
     ])
   }
-
-  final func invokeOnInitialized() {
+  
+  func onSessionInitialized() {
     ReactLogger.log(level: .info, message: "Camera initialized!")
     guard let onInitialized = onInitialized else { return }
     onInitialized([String: Any]())
   }
+  
+  func onTick() {
+    #if DEBUG
+    if let fpsGraph {
+      fpsGraph.onTick(CACurrentMediaTime())
+    }
+    #endif
+  }
+
 }

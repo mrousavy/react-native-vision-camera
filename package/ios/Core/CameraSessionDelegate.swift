@@ -19,7 +19,7 @@ protocol CameraSessionDelegate: AnyObject {
   /**
    Called when the [CameraSession] successfully initializes
    */
-  func onInitialized()
+  func onSessionInitialized()
   /**
    Called for every frame (if video or frameProcessor is enabled)
    */
