@@ -28,6 +28,9 @@
 		B882721026AEB1A100B14107 /* AVCaptureConnection+setInterfaceOrientation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B882720F26AEB1A100B14107 /* AVCaptureConnection+setInterfaceOrientation.swift */; };
 		B88685E52AD68D9300E93869 /* CameraSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B88685E42AD68D9300E93869 /* CameraSession.swift */; };
 		B88685E72AD698DF00E93869 /* CameraConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B88685E62AD698DF00E93869 /* CameraConfiguration.swift */; };
+		B88685E92AD6A5D600E93869 /* CameraSession+Video.swift in Sources */ = {isa = PBXBuildFile; fileRef = B88685E82AD6A5D600E93869 /* CameraSession+Video.swift */; };
+		B88685EB2AD6A5DE00E93869 /* CameraSession+Photo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B88685EA2AD6A5DE00E93869 /* CameraSession+Photo.swift */; };
+		B88685ED2AD6A5E600E93869 /* CameraSession+CodeScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B88685EC2AD6A5E600E93869 /* CameraSession+CodeScanner.swift */; };
 		B887518525E0102000DB86D6 /* PhotoCaptureDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887515C25E0102000DB86D6 /* PhotoCaptureDelegate.swift */; };
 		B887518625E0102000DB86D6 /* CameraView+RecordVideo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887515D25E0102000DB86D6 /* CameraView+RecordVideo.swift */; };
 		B887518725E0102000DB86D6 /* CameraViewManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B887515F25E0102000DB86D6 /* CameraViewManager.m */; };
@@ -112,6 +115,9 @@
 		B882720F26AEB1A100B14107 /* AVCaptureConnection+setInterfaceOrientation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVCaptureConnection+setInterfaceOrientation.swift"; sourceTree = "<group>"; };
 		B88685E42AD68D9300E93869 /* CameraSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraSession.swift; sourceTree = "<group>"; };
 		B88685E62AD698DF00E93869 /* CameraConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraConfiguration.swift; sourceTree = "<group>"; };
+		B88685E82AD6A5D600E93869 /* CameraSession+Video.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraSession+Video.swift"; sourceTree = "<group>"; };
+		B88685EA2AD6A5DE00E93869 /* CameraSession+Photo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraSession+Photo.swift"; sourceTree = "<group>"; };
+		B88685EC2AD6A5E600E93869 /* CameraSession+CodeScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraSession+CodeScanner.swift"; sourceTree = "<group>"; };
 		B887515C25E0102000DB86D6 /* PhotoCaptureDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoCaptureDelegate.swift; sourceTree = "<group>"; };
 		B887515D25E0102000DB86D6 /* CameraView+RecordVideo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CameraView+RecordVideo.swift"; sourceTree = "<group>"; };
 		B887515E25E0102000DB86D6 /* CameraBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CameraBridge.h; sourceTree = "<group>"; };
@@ -222,6 +228,9 @@
 			isa = PBXGroup;
 			children = (
 				B88685E42AD68D9300E93869 /* CameraSession.swift */,
+				B88685E82AD6A5D600E93869 /* CameraSession+Video.swift */,
+				B88685EA2AD6A5DE00E93869 /* CameraSession+Photo.swift */,
+				B88685EC2AD6A5E600E93869 /* CameraSession+CodeScanner.swift */,
 				B88685E62AD698DF00E93869 /* CameraConfiguration.swift */,
 				B83D5EE629377117000AFD2F /* PreviewView.swift */,
 				B8DB3BC9263DC4D8004C18D7 /* RecordingSession.swift */,
@@ -412,6 +421,7 @@
 				B86DC974260E310600FB17B2 /* CameraView+AVAudioSession.swift in Sources */,
 				B887518625E0102000DB86D6 /* CameraView+RecordVideo.swift in Sources */,
 				B81BE1BF26B936FF002696CC /* AVCaptureDevice.Format+dimensions.swift in Sources */,
+				B88685E92AD6A5D600E93869 /* CameraSession+Video.swift in Sources */,
 				B8DB3BCA263DC4D8004C18D7 /* RecordingSession.swift in Sources */,
 				B83D5EE729377117000AFD2F /* PreviewView.swift in Sources */,
 				B887518925E0102000DB86D6 /* Collection+safe.swift in Sources */,
@@ -430,6 +440,7 @@
 				B887519425E0102000DB86D6 /* MakeReactError.swift in Sources */,
 				B887519525E0102000DB86D6 /* ReactLogger.swift in Sources */,
 				B86400522784A23400E9D2CA /* CameraView+Orientation.swift in Sources */,
+				B88685EB2AD6A5DE00E93869 /* CameraSession+Photo.swift in Sources */,
 				B88751A725E0102000DB86D6 /* CameraView+Zoom.swift in Sources */,
 				B887518525E0102000DB86D6 /* PhotoCaptureDelegate.swift in Sources */,
 				B8BD3BA2266E22D2006C80A2 /* Callback.swift in Sources */,
@@ -454,6 +465,7 @@
 				B8FF60AC2ACC93EF009D612F /* CameraView+CodeScanner.swift in Sources */,
 				B80175EC2ABDEBD000E7DE90 /* ResizeMode.swift in Sources */,
 				B887519F25E0102000DB86D6 /* AVCaptureDevice.DeviceType+physicalDeviceDescriptor.swift in Sources */,
+				B88685ED2AD6A5E600E93869 /* CameraSession+CodeScanner.swift in Sources */,
 				B8D22CDC2642DB4D00234472 /* AVAssetWriterInputPixelBufferAdaptor+initWithVideoSettings.swift in Sources */,
 				B84760DF2608F57D004C3180 /* CameraQueues.swift in Sources */,
 				B8FF60AE2ACC9731009D612F /* CodeScanner.swift in Sources */,

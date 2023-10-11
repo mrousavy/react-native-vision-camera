@@ -264,7 +264,7 @@ enum CameraError: Error {
   case session(_ id: SessionError)
   case capture(_ id: CaptureError)
   case codeScanner(_ id: CodeScannerError)
-  case unknown(message: String? = nil)
+  case unknown(message: String? = nil, cause: NSError? = nil)
 
   var code: String {
     switch self {
@@ -303,8 +303,17 @@ enum CameraError: Error {
       return id.message
     case let .codeScanner(id: id):
       return id.message
-    case let .unknown(message: message):
-      return message ?? "An unexpected error occured."
+    case let .unknown(message: message, cause: cause):
+      return message ?? cause?.description ?? "An unexpected error occured."
+    }
+  }
+  
+  var cause: NSError? {
+    switch self {
+    case let .unknown(message: _, cause: cause):
+      return cause
+    default:
+      return nil
     }
   }
 }
