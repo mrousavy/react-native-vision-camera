@@ -23,6 +23,7 @@
 		B86DC974260E310600FB17B2 /* CameraView+AVAudioSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B86DC973260E310600FB17B2 /* CameraView+AVAudioSession.swift */; };
 		B86DC977260E315100FB17B2 /* CameraView+AVCaptureSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B86DC976260E315100FB17B2 /* CameraView+AVCaptureSession.swift */; };
 		B87B11BF2A8E63B700732EBF /* PixelFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = B87B11BE2A8E63B700732EBF /* PixelFormat.swift */; };
+		B88103DB2AD6F0A00087F063 /* CameraSession+Audio.swift in Sources */ = {isa = PBXBuildFile; fileRef = B88103DA2AD6F0A00087F063 /* CameraSession+Audio.swift */; };
 		B881D35E2ABC775E009B21C8 /* AVCaptureDevice+toDictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = B881D35D2ABC775E009B21C8 /* AVCaptureDevice+toDictionary.swift */; };
 		B881D3602ABC8E4E009B21C8 /* AVCaptureVideoDataOutput+findPixelFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = B881D35F2ABC8E4E009B21C8 /* AVCaptureVideoDataOutput+findPixelFormat.swift */; };
 		B882721026AEB1A100B14107 /* AVCaptureConnection+setInterfaceOrientation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B882720F26AEB1A100B14107 /* AVCaptureConnection+setInterfaceOrientation.swift */; };
@@ -110,6 +111,7 @@
 		B86DC973260E310600FB17B2 /* CameraView+AVAudioSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraView+AVAudioSession.swift"; sourceTree = "<group>"; };
 		B86DC976260E315100FB17B2 /* CameraView+AVCaptureSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraView+AVCaptureSession.swift"; sourceTree = "<group>"; };
 		B87B11BE2A8E63B700732EBF /* PixelFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelFormat.swift; sourceTree = "<group>"; };
+		B88103DA2AD6F0A00087F063 /* CameraSession+Audio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraSession+Audio.swift"; sourceTree = "<group>"; };
 		B881D35D2ABC775E009B21C8 /* AVCaptureDevice+toDictionary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVCaptureDevice+toDictionary.swift"; sourceTree = "<group>"; };
 		B881D35F2ABC8E4E009B21C8 /* AVCaptureVideoDataOutput+findPixelFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVCaptureVideoDataOutput+findPixelFormat.swift"; sourceTree = "<group>"; };
 		B882720F26AEB1A100B14107 /* AVCaptureConnection+setInterfaceOrientation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVCaptureConnection+setInterfaceOrientation.swift"; sourceTree = "<group>"; };
@@ -231,6 +233,7 @@
 				B88685E82AD6A5D600E93869 /* CameraSession+Video.swift */,
 				B88685EA2AD6A5DE00E93869 /* CameraSession+Photo.swift */,
 				B88685EC2AD6A5E600E93869 /* CameraSession+CodeScanner.swift */,
+				B88103DA2AD6F0A00087F063 /* CameraSession+Audio.swift */,
 				B88685E62AD698DF00E93869 /* CameraConfiguration.swift */,
 				B83D5EE629377117000AFD2F /* PreviewView.swift */,
 				B8DB3BC9263DC4D8004C18D7 /* RecordingSession.swift */,
@@ -452,6 +455,7 @@
 				B882721026AEB1A100B14107 /* AVCaptureConnection+setInterfaceOrientation.swift in Sources */,
 				B8E957D02A693AD2008F5480 /* CameraView+Torch.swift in Sources */,
 				B881D3602ABC8E4E009B21C8 /* AVCaptureVideoDataOutput+findPixelFormat.swift in Sources */,
+				B88103DB2AD6F0A00087F063 /* CameraSession+Audio.swift in Sources */,
 				B86DC977260E315100FB17B2 /* CameraView+AVCaptureSession.swift in Sources */,
 				B887518A25E0102000DB86D6 /* AVCaptureDevice+neutralZoom.swift in Sources */,
 				B88751A325E0102000DB86D6 /* AVCaptureDevice.FlashMode+descriptor.swift in Sources */,

@@ -46,11 +46,6 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
         return
       }
 
-      // TODO: The startRecording() func cannot be async because RN doesn't allow
-      //       both a callback and a Promise in a single function. Wait for TurboModules?
-      //       This means that any errors that occur in this function have to be delegated through
-      //       the callback, but I'd prefer for them to throw for the original function instead.
-
       let enableAudio = self.audio?.boolValue == true
 
       let onFinish = { (recordingSession: RecordingSession, status: AVAssetWriter.Status, error: Error?) in
@@ -139,7 +134,7 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
       }
 
       // get pixel format (420f, 420v, x420)
-      let pixelFormat = configuration?.getPixelFormat(videoOutput: videoOutput)
+      let pixelFormat = configuration.getPixelFormat(videoOutput: videoOutput)
       recordingSession.initializeVideoWriter(withSettings: videoSettings,
                                              pixelFormat: pixelFormat)
 

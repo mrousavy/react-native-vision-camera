@@ -42,6 +42,39 @@ class CameraSession: NSObject {
        onInitialized: @escaping () -> Void) {
     self.onError = onError
     self.onInitialized = onInitialized
+    super.init()
+    
+    NotificationCenter.default.addObserver(self,
+                                           selector: #selector(sessionRuntimeError),
+                                           name: .AVCaptureSessionRuntimeError,
+                                           object: captureSession)
+    NotificationCenter.default.addObserver(self,
+                                           selector: #selector(sessionRuntimeError),
+                                           name: .AVCaptureSessionRuntimeError,
+                                           object: audioCaptureSession)
+    NotificationCenter.default.addObserver(self,
+                                           selector: #selector(audioSessionInterrupted),
+                                           name: AVAudioSession.interruptionNotification,
+                                           object: AVAudioSession.sharedInstance)
+  }
+  
+  deinit {
+    NotificationCenter.default.removeObserver(self,
+                                              name: .AVCaptureSessionRuntimeError,
+                                              object: captureSession)
+    NotificationCenter.default.removeObserver(self,
+                                              name: .AVCaptureSessionRuntimeError,
+                                              object: audioCaptureSession)
+    NotificationCenter.default.removeObserver(self,
+                                              name: AVAudioSession.interruptionNotification,
+                                              object: AVAudioSession.sharedInstance)
+  }
+  
+  /**
+   Creates a PreviewView for the current Capture Session
+   */
+  func createPreviewView(frame: CGRect) -> PreviewView {
+    return PreviewView(frame: frame, session: captureSession)
   }
   
   /**
@@ -55,6 +88,7 @@ class CameraSession: NSObject {
     let config = CameraConfiguration()
     lambda(config)
     
+    // Set up Camera (Video) Capture Session (on camera queue)
     CameraQueues.cameraQueue.async {
       do {
         if config.isDirty {
@@ -106,6 +140,32 @@ class CameraSession: NSObject {
         }
       }
     }
+    
+    // Set up Audio Capture Session (on audio queue)
+    if config.requiresOutputsConfiguration {
+      CameraQueues.audioQueue.async {
+        do {
+          // Lock Capture Session for configuration
+          ReactLogger.log(level: .info, message: "Beginning AudioSession configuration...")
+          self.audioCaptureSession.beginConfiguration()
+          
+          try self.configureAudioSession()
+          
+          // Unlock Capture Session again and submit configuration to Hardware
+          self.audioCaptureSession.commitConfiguration()
+          ReactLogger.log(level: .info, message: "Committed AudioSession configuration!")
+        } catch (let error) {
+          if let error = error as? CameraError {
+            // It's a typed Error
+            self.onError(error)
+          } else {
+            // It's any kind of unknown error
+            let cameraError = CameraError.unknown(message: error.localizedDescription)
+            self.onError(cameraError)
+          }
+        }
+      }
+    }
   }
   
   // pragma MARK: Session Configuration
@@ -115,6 +175,12 @@ class CameraSession: NSObject {
    */
   private func configureDevice(configuration: CameraConfiguration) throws {
     ReactLogger.log(level: .info, message: "Configuring Input Device...")
+    
+    // Remove all inputs
+    captureSession.inputs.forEach { input in
+      captureSession.removeInput(input)
+    }
+    videoDeviceInput = nil
     
 #if targetEnvironment(simulator)
     // iOS Simulators don't have Cameras
@@ -126,19 +192,16 @@ class CameraSession: NSObject {
     }
     
     ReactLogger.log(level: .info, message: "Configuring Camera \(cameraId)...")
-    // Video Input
-    if let videoDeviceInput = videoDeviceInput {
-      captureSession.removeInput(videoDeviceInput)
-      self.videoDeviceInput = nil
-    }
+    // Video Input (Camera Device/Sensor)
     guard let videoDevice = AVCaptureDevice(uniqueID: cameraId) else {
       throw CameraError.device(.invalid)
     }
-    videoDeviceInput = try AVCaptureDeviceInput(device: videoDevice)
-    guard captureSession.canAddInput(videoDeviceInput!) else {
+    let input = try AVCaptureDeviceInput(device: videoDevice)
+    guard captureSession.canAddInput(input) else {
       throw CameraError.parameter(.unsupportedInput(inputDescriptor: "video-input"))
     }
-    captureSession.addInput(videoDeviceInput!)
+    captureSession.addInput(input)
+    videoDeviceInput = input
     
     ReactLogger.log(level: .info, message: "Successfully configured Input Device!")
   }

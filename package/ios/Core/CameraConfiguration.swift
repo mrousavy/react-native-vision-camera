@@ -135,9 +135,19 @@ class CameraConfiguration {
     var enableBufferCompression = false
     var enableHdr = false
     var enableFrameProcessor = false
+    var enableAudio = false
   }
   
   // pragma MARK: Helper Functions
+  
+  var isAudioEnabled: Bool {
+    get {
+      if case let .enabled(config) = video {
+        return config.enableAudio
+      }
+      return false
+    }
+  }
   
   /**
    Returns the pixel format that should be used for the AVCaptureVideoDataOutput.
