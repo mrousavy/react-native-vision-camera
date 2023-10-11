@@ -44,4 +44,30 @@ enum Orientation {
       throw CameraError.parameter(.invalid(unionName: "orientation", receivedValue: union))
     }
   }
+  
+  func toAVCaptureVideoOrientation() -> AVCaptureVideoOrientation {
+    switch self {
+    case .portrait:
+      return .portrait
+    case .landscapeLeft:
+      return .landscapeLeft
+    case .portraitUpsideDown:
+      return .portraitUpsideDown
+    case .landscapeRight:
+      return .landscapeRight
+    }
+  }
+  
+  func toDegrees() -> Double {
+    switch self {
+    case .portrait:
+      return 0
+    case .landscapeLeft:
+      return 90
+    case .portraitUpsideDown:
+      return 180
+    case .landscapeRight:
+      return 270
+    }
+  }
 }

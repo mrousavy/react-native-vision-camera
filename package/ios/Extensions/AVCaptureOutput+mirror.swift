@@ -29,10 +29,17 @@ extension AVCaptureOutput {
    - For Photos, an EXIF tag is used.
    - For Videos, the buffers are physically rotated if available, since we use an AVCaptureVideoDataOutput instead of an AVCaptureMovieFileOutput.
    */
-  func setOrientation(_ orientation: AVCaptureVideoOrientation) {
+  func setOrientation(_ orientation: Orientation) {
     connections.forEach { connection in
-      if connection.isVideoOrientationSupported {
-        connection.videoOrientation = orientation
+      if #available(iOS 17.0, *) {
+        let degrees = orientation.toDegrees()
+        if connection.isVideoRotationAngleSupported(degrees) {
+          connection.videoRotationAngle = degrees
+        }
+      } else {
+        if connection.isVideoOrientationSupported {
+          connection.videoOrientation = orientation.toAVCaptureVideoOrientation()
+        }
       }
     }
   }

@@ -54,7 +54,11 @@ class CameraConfiguration {
   private(set) var requiresAudioConfiguration = false
 
   var isDirty: Bool {
-    return requiresDeviceConfiguration || requiresOutputsConfiguration || requiresFormatConfiguration || requiresSidePropsConfiguration || requiresZoomConfiguration
+    return requiresDeviceConfiguration
+    || requiresOutputsConfiguration
+    || requiresFormatConfiguration
+    || requiresSidePropsConfiguration
+    || requiresZoomConfiguration
   }
 
   // pragma MARK: Configuration Props
