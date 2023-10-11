@@ -34,6 +34,16 @@ class CameraSession: NSObject {
   private let onError: (_ error: CameraError) -> Void
   private let onInitialized: () -> Void
   
+  // Public accessors
+  var maxZoom: Double {
+    get {
+      if let device = videoDeviceInput?.device {
+        return device.maxAvailableVideoZoomFactor
+      }
+      return 1.0
+    }
+  }
+  
   /**
    Create a new instance of the `CameraSession`.
    The `onError` callback is used for any runtime errors.
@@ -77,16 +87,31 @@ class CameraSession: NSObject {
     return PreviewView(frame: frame, session: captureSession)
   }
   
+  private func onConfigureError(_ error: Error) {
+    if let error = error as? CameraError {
+      // It's a typed Error
+      self.onError(error)
+    } else {
+      // It's any kind of unknown error
+      let cameraError = CameraError.unknown(message: error.localizedDescription)
+      self.onError(cameraError)
+    }
+  }
+  
   /**
    Update the session configuration.
    Any changes in here will be re-configured only if required, and under a lock.
    */
-  func configure(_ lambda: (_ configuration: CameraConfiguration) -> Void) {
+  func configure(_ lambda: (_ configuration: CameraConfiguration) throws -> Void) {
     ReactLogger.log(level: .info, message: "Updating Session Configuration...")
     
-    // Let caller configure a new configuration for the Camera
+    // Let caller configure a new, blank configuration for the Camera
     let config = CameraConfiguration()
-    lambda(config)
+    do {
+      try lambda(config)
+    } catch (let error) {
+      onConfigureError(error)
+    }
     
     // Set up Camera (Video) Capture Session (on camera queue)
     CameraQueues.cameraQueue.async {
@@ -130,19 +155,12 @@ class CameraSession: NSObject {
         // Update successful, set the new configuration!
         self.configuration = config
       } catch (let error) {
-        if let error = error as? CameraError {
-          // It's a typed Error
-          self.onError(error)
-        } else {
-          // It's any kind of unknown error
-          let cameraError = CameraError.unknown(message: error.localizedDescription)
-          self.onError(cameraError)
-        }
+        onConfigureError(error)
       }
     }
     
     // Set up Audio Capture Session (on audio queue)
-    if config.requiresOutputsConfiguration {
+    if config.requiresAudioConfiguration {
       CameraQueues.audioQueue.async {
         do {
           // Lock Capture Session for configuration
@@ -155,14 +173,7 @@ class CameraSession: NSObject {
           self.audioCaptureSession.commitConfiguration()
           ReactLogger.log(level: .info, message: "Committed AudioSession configuration!")
         } catch (let error) {
-          if let error = error as? CameraError {
-            // It's a typed Error
-            self.onError(error)
-          } else {
-            // It's any kind of unknown error
-            let cameraError = CameraError.unknown(message: error.localizedDescription)
-            self.onError(cameraError)
-          }
+          onConfigureError(error)
         }
       }
     }
@@ -301,11 +312,15 @@ class CameraSession: NSObject {
       self.codeScannerOutput = codeScannerOutput
     }
     
-    // If front camera, mirror all outputs
-    if videoDeviceInput?.device.position == .front {
-      captureSession.outputs.forEach { output in
+    
+    // Set up orientation and mirroring for all outputs.
+    // Note: Photos are only rotated through EXIF tags
+    let isMirrored = videoDeviceInput?.device.position == .front
+    captureSession.outputs.forEach { output in
+      if isMirrored {
         output.mirror()
       }
+      output.setOrientation(configuration.orientation)
     }
     
     // Done!
@@ -359,7 +374,7 @@ class CameraSession: NSObject {
   }
   
   /**
-   Configures format-dependant "side-props" (`fps`, `lowLightBoost`)
+   Configures format-dependant "side-props" (`fps`, `lowLightBoost`, `torch`)
    */
   private func configureSideProps(configuration: CameraConfiguration) throws {
     guard let device = videoDeviceInput?.device else {
@@ -390,6 +405,16 @@ class CameraSession: NSObject {
         throw CameraError.device(.lowLightBoostNotSupported)
       }
       device.automaticallyEnablesLowLightBoostWhenAvailable = configuration.enableLowLightBoost
+    }
+    
+    // Configure Torch
+    if configuration.torch != .off {
+      guard device.hasTorch else {
+        throw CameraError.device(.flashUnavailable)
+      }
+      
+      device.torchMode = configuration.torch
+      try device.setTorchModeOn(level: 1.0)
     }
   }
   

@@ -21,7 +21,7 @@ extension CameraSession {
 
     // Prevent iOS from automatically configuring the Audio Session for us
     audioCaptureSession.automaticallyConfiguresApplicationAudioSession = false
-    let enableAudio = configuration.isAudioEnabled
+    let enableAudio = configuration.audio != .disabled
 
     // Check microphone permission
     if enableAudio {

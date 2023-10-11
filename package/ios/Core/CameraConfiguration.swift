@@ -12,33 +12,41 @@ import AVFoundation
 class CameraConfiguration {
   // pragma MARK: Dirty Flags
   
+  // Updates cameraId
   private(set) var requiresDeviceConfiguration = false {
-    
     didSet {
       requiresOutputsConfiguration = requiresDeviceConfiguration
     }
   }
+  // Updates photo, video, frameProcessor, codeScanner
   private(set) var requiresOutputsConfiguration = false {
     didSet {
       requiresFormatConfiguration = requiresOutputsConfiguration
     }
   }
+  // Updates format
   private(set) var requiresFormatConfiguration = false {
     didSet {
       requiresSidePropsConfiguration = requiresFormatConfiguration
     }
   }
+  // Updates fps, lowLightBoost, ...
   private(set) var requiresSidePropsConfiguration = false {
     didSet {
       requiresZoomConfiguration = requiresSidePropsConfiguration
     }
   }
+  // Updates zoom
   private(set) var requiresZoomConfiguration = false {
     didSet {
       requiresRunningCheck = true
     }
   }
+  // Updates isActive
   private(set) var requiresRunningCheck = false
+  
+  // This is a separate check in the update function as it's also running on another AVCaptureSession and another Queue
+  private(set) var requiresAudioConfiguration = false
   
   var isDirty: Bool {
     get {
@@ -65,7 +73,17 @@ class CameraConfiguration {
       requiresOutputsConfiguration = true
     }
   }
+  var audio: OutputConfiguration<Audio> = .disabled {
+    didSet {
+      requiresAudioConfiguration = true
+    }
+  }
   var codeScanner: OutputConfiguration<CodeScanner> = .disabled {
+    didSet {
+      requiresOutputsConfiguration = true
+    }
+  }
+  var orientation: Orientation = .portrait {
     didSet {
       requiresOutputsConfiguration = true
     }
@@ -83,6 +101,11 @@ class CameraConfiguration {
     }
   }
   var enableLowLightBoost: Bool = false {
+    didSet {
+      requiresSidePropsConfiguration = true
+    }
+  }
+  var torch: AVCaptureDevice.TorchMode = .off {
     didSet {
       requiresSidePropsConfiguration = true
     }
@@ -135,19 +158,16 @@ class CameraConfiguration {
     var enableBufferCompression = false
     var enableHdr = false
     var enableFrameProcessor = false
-    var enableAudio = false
+  }
+  
+  /**
+   An Audio Output configuration
+   */
+  struct Audio: Equatable {
+    // no props for audio at the moment
   }
   
   // pragma MARK: Helper Functions
-  
-  var isAudioEnabled: Bool {
-    get {
-      if case let .enabled(config) = video {
-        return config.enableAudio
-      }
-      return false
-    }
-  }
   
   /**
    Returns the pixel format that should be used for the AVCaptureVideoDataOutput.

@@ -10,27 +10,13 @@ import AVFoundation
 import Foundation
 import UIKit
 
-//
 // TODOs for the CameraView which are currently too hard to implement either because of AVFoundation's limitations, or my brain capacity
 //
 // CameraView+RecordVideo
 // TODO: Better startRecording()/stopRecording() (promise + callback, wait for TurboModules/JSI)
-
+// 
 // CameraView+TakePhoto
 // TODO: Photo HDR
-
-private let propsThatRequireReconfiguration = ["cameraId",
-                                               "enableDepthData",
-                                               "enableHighQualityPhotos",
-                                               "enablePortraitEffectsMatteDelivery",
-                                               "photo",
-                                               "video",
-                                               "enableFrameProcessor",
-                                               "hdr",
-                                               "pixelFormat",
-                                               "codeScannerOptions"]
-private let propsThatRequireDeviceReconfiguration = ["fps",
-                                                     "lowLightBoost"]
 
 // MARK: - CameraView
 
@@ -52,8 +38,8 @@ public final class CameraView: UIView {
   // props that require format reconfiguring
   @objc var format: NSDictionary?
   @objc var fps: NSNumber?
-  @objc var hdr: NSNumber? // nullable bool
-  @objc var lowLightBoost: NSNumber? // nullable bool
+  @objc var hdr: Bool
+  @objc var lowLightBoost: Bool
   @objc var orientation: NSString?
   // other props
   @objc var isActive = false
@@ -99,12 +85,8 @@ public final class CameraView: UIView {
     var fpsGraph: RCTFPSGraph?
   #endif
 
-  /// Returns whether the AVCaptureSession is currently running (reflected by isActive)
-  var isRunning: Bool {
-    return captureSession.isRunning
-  }
-
   // pragma MARK: Setup
+  
   override public init(frame: CGRect) {
     // Create CameraSession
     cameraSession = CameraSession(onError: { error in
@@ -160,6 +142,7 @@ public final class CameraView: UIView {
     ReactLogger.log(level: .info, message: "Updating \(changedProps.count) props: [\(changedProps.joined(separator: ", "))]")
     
     cameraSession.configure { config in
+      // Input Camera Device
       config.cameraId = cameraId as? String
       
       // Photo
@@ -172,9 +155,39 @@ public final class CameraView: UIView {
       if video || enableFrameProcessor {
         config.video = .enabled(config: CameraConfiguration.Video(pixelFormat: getPixelFormat(),
                                                                   enableBufferCompression: enableBufferCompression,
-                                                                  enableHdr: hdr?.boolValue == true,
+                                                                  enableHdr: hdr,
                                                                   enableFrameProcessor: enableFrameProcessor))
       }
+      // Audio
+      if audio {
+        config.audio = .enabled(config: CameraConfiguration.Audio())
+      }
+      // Code Scanner
+      if let codeScannerOptions {
+        let codeScanner = try CodeScanner(fromJsValue: codeScannerOptions)
+        config.codeScanner = .enabled(config: codeScanner)
+      }
+      
+      // Orientation
+      if let jsOrientation = orientation as? String {
+        let orientation = try Orientation(fromTypeScriptUnion: jsOrientation)
+        config.orientation = orientation
+      }
+      
+      // Format
+      config.format = format
+      
+      // Side-Props
+      config.fps = fps?.int32Value
+      config.enableLowLightBoost = lowLightBoost
+      // TODO: Parse TorchMode properly
+      config.torch = torch == "on" ? .on : .off
+      
+      // Zoom
+      config.zoom = zoom.doubleValue
+      
+      // isActive
+      config.isActive = isActive
     }
     
     // Store `zoom` offset for native pinch-gesture
