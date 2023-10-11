@@ -18,12 +18,15 @@ extension CameraView: AVCaptureMetadataOutputObjectsDelegate {
       return
     }
 
+    // Run this on the main queue, since we access the view's layout from here to convert the coordinates
     DispatchQueue.main.async {
+      // Map codes to JS values
       let codes = metadataObjects.map { object in
           var value: String?
           if let code = object as? AVMetadataMachineReadableCodeObject {
               value = code.stringValue
           }
+
           let frame = self.previewView.layerRectConverted(fromMetadataOutputRect: object.bounds)
           
           return [
