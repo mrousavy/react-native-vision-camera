@@ -1,5 +1,5 @@
 //
-//  AVCapturePhotoOutput+mirror.swift
+//  AVCaptureOutput+mirror.swift
 //  mrousavy
 //
 //  Created by Marc Rousavy on 18.01.21.
@@ -8,7 +8,7 @@
 
 import AVFoundation
 
-extension AVCapturePhotoOutput {
+extension AVCaptureOutput {
   func mirror() {
     connections.forEach { connection in
       if connection.isVideoMirroringSupported {

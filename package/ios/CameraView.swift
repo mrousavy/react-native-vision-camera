@@ -86,15 +86,6 @@ public final class CameraView: UIView {
   // pragma MARK: Internal Properties
   var isMounted = false
   var isReady = false
-  // Capture Session
-  let captureSession = AVCaptureSession()
-  let audioCaptureSession = AVCaptureSession()
-  // Inputs & Outputs
-  var videoDeviceInput: AVCaptureDeviceInput?
-  var audioDeviceInput: AVCaptureDeviceInput?
-  var photoOutput: AVCapturePhotoOutput?
-  var videoOutput: AVCaptureVideoDataOutput?
-  var audioOutput: AVCaptureAudioDataOutput?
   // CameraView+RecordView (+ Frame Processor)
   var isRecording = false
   var recordingSession: RecordingSession?
