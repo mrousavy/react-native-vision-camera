@@ -29,10 +29,10 @@ class CameraSession: NSObject {
   // State
   var recordingSession: RecordingSession?
   var isRecording = false
+  var frameProcessor: FrameProcessor?
 
   // Callbacks
-  private let onError: (_ error: CameraError) -> Void
-  private let onInitialized: () -> Void
+  weak var delegate: CameraSessionDelegate?
 
   // Public accessors
   var maxZoom: Double {
@@ -46,10 +46,8 @@ class CameraSession: NSObject {
    Create a new instance of the `CameraSession`.
    The `onError` callback is used for any runtime errors.
    */
-  init(onError: @escaping (_ error: CameraError) -> Void,
-       onInitialized: @escaping () -> Void) {
-    self.onError = onError
-    self.onInitialized = onInitialized
+  init(delegate: CameraSessionDelegate) {
+    self.delegate = delegate
     super.init()
 
     NotificationCenter.default.addObserver(self,
@@ -153,7 +151,7 @@ class CameraSession: NSObject {
         // Update successful, set the new configuration!
         self.configuration = config
       } catch {
-        onConfigureError(error)
+        self.onConfigureError(error)
       }
     }
 
@@ -171,7 +169,7 @@ class CameraSession: NSObject {
           self.audioCaptureSession.commitConfiguration()
           ReactLogger.log(level: .info, message: "Committed AudioSession configuration!")
         } catch {
-          onConfigureError(error)
+          self.onConfigureError(error)
         }
       }
     }
@@ -322,7 +320,7 @@ class CameraSession: NSObject {
 
     // Done!
     ReactLogger.log(level: .info, message: "Successfully configured all outputs!")
-    onInitialized()
+    delegate?.onInitialized()
   }
 
   /**
@@ -456,7 +454,7 @@ class CameraSession: NSObject {
     }
 
     // Notify consumer about runtime error
-    onError(.unknown(message: error._nsError.description, cause: error._nsError))
+    delegate?.onError(.unknown(message: error._nsError.description, cause: error._nsError))
 
     let shouldRestart = configuration?.isActive == true
     if shouldRestart {

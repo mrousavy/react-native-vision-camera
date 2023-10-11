@@ -121,7 +121,7 @@ class CameraConfiguration {
     }
   }
 
-  var torch: AVCaptureDevice.TorchMode = .off {
+  var torch: Torch = .off {
     didSet {
       requiresSidePropsConfiguration = true
     }

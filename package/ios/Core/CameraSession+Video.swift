@@ -20,9 +20,12 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
       ReactLogger.log(level: .info, message: "Starting Video recording...")
       let callback = Callback(jsCallbackFunc)
 
-      if let flashMode = options["flash"] as? String {
+      if let flashMode = options["flash"] as? String,
+         let torch = try? Torch(fromTypeScriptUnion: flashMode) {
         // use the torch as the video's flash
-        self.setTorchMode(flashMode)
+        self.configure { config in
+          config.torch = torch.toTorchMode()
+        }
       }
 
       // Get Video configuration
@@ -46,18 +49,24 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
         return
       }
 
-      let enableAudio = self.audio?.boolValue == true
+      let enableAudio = self.configuration?.audio != .disabled
 
+      // Callback for when the recording ends
       let onFinish = { (recordingSession: RecordingSession, status: AVAssetWriter.Status, error: Error?) in
         defer {
+          // Disable Audio Session again
           if enableAudio {
             CameraQueues.audioQueue.async {
               self.deactivateAudioSession()
             }
           }
+          // Reset flash
           if options["flash"] != nil {
             // Set torch mode back to what it was before if we used it for the video flash.
-            self.setTorchMode(self.torch)
+            self.configure { config in
+              let torch = self.configuration?.torch ?? .off
+              config.torch = torch.toTorchMode()
+            }
           }
         }
 
@@ -66,6 +75,7 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
         ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
 
         if let error = error as NSError? {
+          // Something went wrong, we have an error
           if error.domain == "capture/aborted" {
             callback.reject(error: .capture(.aborted), cause: error)
           } else {
@@ -73,16 +83,19 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
           }
         } else {
           if status == .completed {
+            // Recording was successfully saved
             callback.resolve([
               "path": recordingSession.url.absoluteString,
               "duration": recordingSession.duration,
             ])
           } else {
+            // Recording wasn't saved and we don't have an error either.
             callback.reject(error: .unknown(message: "AVAssetWriter completed with status: \(status.descriptor)"))
           }
         }
       }
 
+      // File Type (.mov or .mp4)
       var fileType = AVFileType.mov
       if let fileTypeOption = options["fileType"] as? String {
         guard let parsed = try? AVFileType(withString: fileTypeOption) else {
@@ -92,6 +105,7 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
         fileType = parsed
       }
 
+      // Create temporary file
       let errorPointer = ErrorPointer(nilLiteral: ())
       let fileExtension = fileType.descriptor ?? "mov"
       guard let tempFilePath = RCTTempFilePath(fileExtension, errorPointer) else {
@@ -113,6 +127,7 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
       }
       self.recordingSession = recordingSession
 
+      // Set Video Codec (h264 or h265)
       var videoCodec: AVVideoCodecType?
       if let codecString = options["videoCodec"] as? String {
         videoCodec = AVVideoCodecType(withString: codecString)
@@ -138,7 +153,7 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
       recordingSession.initializeVideoWriter(withSettings: videoSettings,
                                              pixelFormat: pixelFormat)
 
-      // Init Audio (optional)
+      // Enable/Activate Audio Session (optional)
       if enableAudio {
         // Activate Audio Session asynchronously
         CameraQueues.audioQueue.async {
@@ -216,7 +231,7 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
     // Record Video Frame/Audio Sample to File
     if isRecording {
       guard let recordingSession = recordingSession else {
-        invokeOnError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
+        onError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
         return
       }
 
@@ -235,12 +250,7 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
 
     #if DEBUG
       if captureOutput is AVCaptureVideoDataOutput {
-        // Update FPS Graph per Frame
-        if let fpsGraph = fpsGraph {
-          DispatchQueue.main.async {
-            fpsGraph.onTick(CACurrentMediaTime())
-          }
-        }
+        delegate?.onTick()
       }
     #endif
   }
@@ -262,8 +272,10 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
     guard let cameraPosition = videoDeviceInput?.device.position else {
       return .up
     }
+    let orientation = configuration?.orientation ?? .portrait
 
-    switch outputOrientation {
+    // TODO: I think this is wrong.
+    switch orientation {
     case .portrait:
       return cameraPosition == .front ? .leftMirrored : .right
     case .landscapeLeft:
@@ -272,10 +284,6 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
       return cameraPosition == .front ? .rightMirrored : .left
     case .landscapeRight:
       return cameraPosition == .front ? .upMirrored : .down
-    case .unknown:
-      return .up
-    @unknown default:
-      return .up
     }
   }
 }
