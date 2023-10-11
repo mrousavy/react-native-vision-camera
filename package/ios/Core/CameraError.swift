@@ -307,7 +307,7 @@ enum CameraError: Error {
       return message ?? cause?.description ?? "An unexpected error occured."
     }
   }
-  
+
   var cause: NSError? {
     switch self {
     case let .unknown(message: _, cause: cause):

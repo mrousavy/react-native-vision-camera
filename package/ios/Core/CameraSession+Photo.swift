@@ -6,8 +6,8 @@
 //  Copyright © 2023 mrousavy. All rights reserved.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 
 extension CameraSession {
   /**
@@ -27,7 +27,7 @@ extension CameraSession {
         promise.reject(error: .capture(.photoNotEnabled))
         return
       }
-      
+
       // Check if Photo Output is available
       guard let photoOutput = self.photoOutput,
             let videoDeviceInput = self.videoDeviceInput else {
@@ -104,6 +104,4 @@ extension CameraSession {
       photoOutput.setPreparedPhotoSettingsArray([photoSettings], completionHandler: nil)
     }
   }
-  
-  
 }

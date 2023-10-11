@@ -6,15 +6,15 @@
 //  Copyright © 2023 mrousavy. All rights reserved.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 
 extension CameraSession {
   /**
    Focuses the Camera to the specified point. The point must be in the Camera coordinate system, so {0...1} on both axis.
    */
   func focus(point: CGPoint) throws {
-    guard let device = self.videoDeviceInput?.device else {
+    guard let device = videoDeviceInput?.device else {
       throw CameraError.session(SessionError.cameraNotReady)
     }
     if !device.isFocusPointOfInterestSupported {

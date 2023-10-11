@@ -14,7 +14,7 @@ import UIKit
 //
 // CameraView+RecordVideo
 // TODO: Better startRecording()/stopRecording() (promise + callback, wait for TurboModules/JSI)
-// 
+//
 // CameraView+TakePhoto
 // TODO: Photo HDR
 
@@ -86,7 +86,7 @@ public final class CameraView: UIView {
   #endif
 
   // pragma MARK: Setup
-  
+
   override public init(frame: CGRect) {
     // Create CameraSession
     cameraSession = CameraSession(onError: { error in
@@ -120,13 +120,13 @@ public final class CameraView: UIView {
     previewView.frame = frame
     previewView.bounds = bounds
   }
-  
+
   func getPixelFormat() -> PixelFormat {
     // TODO: Use ObjC RCT enum parser for this
-    if let pixelFormat = self.pixelFormat as? String {
+    if let pixelFormat = pixelFormat as? String {
       do {
         return try PixelFormat(unionValue: pixelFormat)
-      } catch (let error) {
+      } catch {
         if let error = error as? CameraError {
           invokeOnError(error)
         } else {
@@ -140,11 +140,11 @@ public final class CameraView: UIView {
   // pragma MARK: Props updating
   override public final func didSetProps(_ changedProps: [String]!) {
     ReactLogger.log(level: .info, message: "Updating \(changedProps.count) props: [\(changedProps.joined(separator: ", "))]")
-    
+
     cameraSession.configure { config in
       // Input Camera Device
       config.cameraId = cameraId as? String
-      
+
       // Photo
       if photo {
         config.photo = .enabled(config: CameraConfiguration.Photo(enableHighQualityPhotos: enableHighQualityPhotos,
@@ -167,34 +167,34 @@ public final class CameraView: UIView {
         let codeScanner = try CodeScanner(fromJsValue: codeScannerOptions)
         config.codeScanner = .enabled(config: codeScanner)
       }
-      
+
       // Orientation
       if let jsOrientation = orientation as? String {
         let orientation = try Orientation(fromTypeScriptUnion: jsOrientation)
         config.orientation = orientation
       }
-      
+
       // Format
       config.format = format
-      
+
       // Side-Props
       config.fps = fps?.int32Value
       config.enableLowLightBoost = lowLightBoost
       // TODO: Parse TorchMode properly
       config.torch = torch == "on" ? .on : .off
-      
+
       // Zoom
       config.zoom = zoom.doubleValue
-      
+
       // isActive
       config.isActive = isActive
     }
-    
+
     // Store `zoom` offset for native pinch-gesture
     if changedProps.contains("zoom") {
-      self.pinchScaleOffset = zoom.doubleValue
+      pinchScaleOffset = zoom.doubleValue
     }
-    
+
     // Set up Debug FPS Graph
     if changedProps.contains("enableFpsGraph") {
       DispatchQueue.main.async {

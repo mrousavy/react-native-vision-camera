@@ -6,150 +6,164 @@
 //  Copyright © 2023 mrousavy. All rights reserved.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 
 class CameraConfiguration {
   // pragma MARK: Dirty Flags
-  
+
   // Updates cameraId
   private(set) var requiresDeviceConfiguration = false {
     didSet {
       requiresOutputsConfiguration = requiresDeviceConfiguration
     }
   }
+
   // Updates photo, video, frameProcessor, codeScanner
   private(set) var requiresOutputsConfiguration = false {
     didSet {
       requiresFormatConfiguration = requiresOutputsConfiguration
     }
   }
+
   // Updates format
   private(set) var requiresFormatConfiguration = false {
     didSet {
       requiresSidePropsConfiguration = requiresFormatConfiguration
     }
   }
+
   // Updates fps, lowLightBoost, ...
   private(set) var requiresSidePropsConfiguration = false {
     didSet {
       requiresZoomConfiguration = requiresSidePropsConfiguration
     }
   }
+
   // Updates zoom
   private(set) var requiresZoomConfiguration = false {
     didSet {
       requiresRunningCheck = true
     }
   }
+
   // Updates isActive
   private(set) var requiresRunningCheck = false
-  
+
   // This is a separate check in the update function as it's also running on another AVCaptureSession and another Queue
   private(set) var requiresAudioConfiguration = false
-  
+
   var isDirty: Bool {
-    get {
-      return requiresDeviceConfiguration || requiresOutputsConfiguration || requiresFormatConfiguration || requiresSidePropsConfiguration || requiresZoomConfiguration 
-    }
+    return requiresDeviceConfiguration || requiresOutputsConfiguration || requiresFormatConfiguration || requiresSidePropsConfiguration || requiresZoomConfiguration
   }
-  
+
   // pragma MARK: Configuration Props
-  
+
   // Input
-  var cameraId: String? = nil {
+  var cameraId: String? {
     didSet {
       requiresDeviceConfiguration = true
     }
   }
+
   // Outputs
   var photo: OutputConfiguration<Photo> = .disabled {
     didSet {
       requiresOutputsConfiguration = true
     }
   }
+
   var video: OutputConfiguration<Video> = .disabled {
     didSet {
       requiresOutputsConfiguration = true
     }
   }
+
   var audio: OutputConfiguration<Audio> = .disabled {
     didSet {
       requiresAudioConfiguration = true
     }
   }
+
   var codeScanner: OutputConfiguration<CodeScanner> = .disabled {
     didSet {
       requiresOutputsConfiguration = true
     }
   }
+
   var orientation: Orientation = .portrait {
     didSet {
       requiresOutputsConfiguration = true
     }
   }
+
   // Format
-  var format: NSDictionary? = nil {
+  var format: NSDictionary? {
     didSet {
       requiresFormatConfiguration = true
     }
   }
+
   // Side-Props
-  var fps: Int32? = nil {
+  var fps: Int32? {
     didSet {
       requiresSidePropsConfiguration = true
     }
   }
-  var enableLowLightBoost: Bool = false {
+
+  var enableLowLightBoost = false {
     didSet {
       requiresSidePropsConfiguration = true
     }
   }
+
   var torch: AVCaptureDevice.TorchMode = .off {
     didSet {
       requiresSidePropsConfiguration = true
     }
   }
+
   // Zoom
-  var zoom: CGFloat? = nil {
+  var zoom: CGFloat? {
     didSet {
       requiresZoomConfiguration = true
     }
   }
+
   // isActive (Start/Stop)
-  var isActive: Bool = false {
+  var isActive = false {
     didSet {
       requiresRunningCheck = true
     }
   }
-  
+
   // pragma MARK: Types
-  
+
   enum OutputConfiguration<T: Equatable>: Equatable {
     case disabled
     case enabled(config: T)
-    
-    public static func ==(lhs: OutputConfiguration, rhs: OutputConfiguration) -> Bool {
+
+    public static func == (lhs: OutputConfiguration, rhs: OutputConfiguration) -> Bool {
       switch (lhs, rhs) {
       case (.disabled, .disabled):
         return true
-      case (.enabled(let a), .enabled(let b)):
+      case let (.enabled(a), .enabled(b)):
         return a == b
       default:
         return false
       }
     }
   }
-  
+
   /**
    A Photo Output configuration
    */
   struct Photo: Equatable {
-    var enableHighQualityPhotos: Bool = false
-    var enableDepthData: Bool = false
-    var enablePortraitEffectsMatte: Bool = false
+    var enableHighQualityPhotos = false
+    var enableDepthData = false
+    var enablePortraitEffectsMatte = false
   }
-  
+
   /**
    A Video Output configuration
    */
@@ -159,16 +173,16 @@ class CameraConfiguration {
     var enableHdr = false
     var enableFrameProcessor = false
   }
-  
+
   /**
    An Audio Output configuration
    */
   struct Audio: Equatable {
     // no props for audio at the moment
   }
-  
+
   // pragma MARK: Helper Functions
-  
+
   /**
    Returns the pixel format that should be used for the AVCaptureVideoDataOutput.
    If HDR is enabled, this will return YUV 4:2:0 10-bit.
@@ -178,7 +192,7 @@ class CameraConfiguration {
     guard case let .enabled(video) = video else {
       throw CameraError.capture(.videoNotEnabled)
     }
-    
+
     // as per documentation, the first value is always the most efficient format
     var defaultFormat = videoOutput.availableVideoPixelFormatTypes.first!
     if video.enableBufferCompression {

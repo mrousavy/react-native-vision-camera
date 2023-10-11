@@ -6,8 +6,8 @@
 //  Copyright © 2023 mrousavy. All rights reserved.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 import UIKit
 
 extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
@@ -24,7 +24,7 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
         // use the torch as the video's flash
         self.setTorchMode(flashMode)
       }
-      
+
       // Get Video configuration
       guard let configuration = self.configuration else {
         callback.reject(error: .session(.cameraNotReady))
@@ -82,7 +82,7 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
           }
         }
       }
-      
+
       var fileType = AVFileType.mov
       if let fileTypeOption = options["fileType"] as? String {
         guard let parsed = try? AVFileType(withString: fileTypeOption) else {

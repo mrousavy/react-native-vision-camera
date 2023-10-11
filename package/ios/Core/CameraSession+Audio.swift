@@ -6,8 +6,8 @@
 //  Copyright © 2023 mrousavy. All rights reserved.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 
 extension CameraSession {
   /**
@@ -15,7 +15,7 @@ extension CameraSession {
    */
   final func configureAudioSession() throws {
     ReactLogger.log(level: .info, message: "Configuring Audio Session...")
-    guard let configuration = self.configuration else {
+    guard let configuration = configuration else {
       throw CameraError.session(.cameraNotReady)
     }
 
@@ -30,7 +30,7 @@ extension CameraSession {
         throw CameraError.permission(.microphone)
       }
     }
-    
+
     // Remove all current inputs
     audioCaptureSession.inputs.forEach { input in
       audioCaptureSession.removeInput(input)
@@ -50,7 +50,7 @@ extension CameraSession {
       audioCaptureSession.addInput(input)
       audioDeviceInput = input
     }
-    
+
     // Remove all current outputs
     audioCaptureSession.outputs.forEach { output in
       audioCaptureSession.removeOutput(output)

@@ -38,7 +38,6 @@ final class CameraViewManager: RCTViewManager {
     #endif
   }
 
-  
   // TODO: The startRecording() func cannot be async because RN doesn't allow
   //       both a callback and a Promise in a single function. Wait for TurboModules?
   //       This means that any errors that occur in this function have to be delegated through

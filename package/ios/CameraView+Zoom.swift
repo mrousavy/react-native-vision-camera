@@ -17,7 +17,7 @@ extension CameraView {
       pinchScaleOffset = scale
       return
     }
-    
+
     // Update zoom on Camera
     cameraSession.configure { configuration in
       configuration.zoom = scale

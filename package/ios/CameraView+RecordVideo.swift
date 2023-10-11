@@ -14,9 +14,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
   /**
    Starts a video + audio recording with a custom Asset Writer.
    */
-  func startRecording(options: NSDictionary, callback jsCallbackFunc: @escaping RCTResponseSenderBlock) {
-    
-  }
+  func startRecording(options _: NSDictionary, callback _: @escaping RCTResponseSenderBlock) {}
 
   func stopRecording(promise: Promise) {
     CameraQueues.cameraQueue.async {
