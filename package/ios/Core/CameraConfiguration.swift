@@ -102,15 +102,26 @@ class CameraConfiguration {
   
   // pragma MARK: Types
   
-  enum OutputConfiguration<T> {
+  enum OutputConfiguration<T: Equatable>: Equatable {
     case disabled
     case enabled(config: T)
+    
+    public static func ==(lhs: OutputConfiguration, rhs: OutputConfiguration) -> Bool {
+      switch (lhs, rhs) {
+      case (.disabled, .disabled):
+        return true
+      case (.enabled(let a), .enabled(let b)):
+        return a == b
+      default:
+        return false
+      }
+    }
   }
   
   /**
    A Photo Output configuration
    */
-  struct Photo {
+  struct Photo: Equatable {
     var enableHighQualityPhotos: Bool = false
     var enableDepthData: Bool = false
     var enablePortraitEffectsMatte: Bool = false
@@ -119,7 +130,7 @@ class CameraConfiguration {
   /**
    A Video Output configuration
    */
-  struct Video {
+  struct Video: Equatable {
     var pixelFormat: PixelFormat = .native
     var enableBufferCompression = false
     var enableHdr = false

@@ -8,6 +8,7 @@
 
 import AVFoundation
 
+// Keeps a strong reference on delegates, as the AVCapturePhotoOutput only holds a weak reference.
 private var delegatesReferences: [NSObject] = []
 
 // MARK: - PhotoCaptureDelegate

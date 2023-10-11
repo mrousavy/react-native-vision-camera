@@ -7,3 +7,8 @@
 //
 
 import Foundation
+import AVFoundation
+
+extension CameraSession: AVCaptureMetadataOutputObjectsDelegate {
+  
+}

@@ -9,19 +9,26 @@
 import Foundation
 import AVFoundation
 
-class CameraSession {
+/**
+ A fully-featured Camera Session supporting preview, video, photo, frame processing, and code scanning outputs.
+ All changes to the session have to be controlled via the `configure` function.
+ */
+class CameraSession: NSObject {
   // Configuration
-  var configuration: CameraConfiguration? = nil
+  var configuration: CameraConfiguration?
   // Capture Session
-  private let captureSession = AVCaptureSession()
-  private let audioCaptureSession = AVCaptureSession()
+  internal let captureSession = AVCaptureSession()
+  internal let audioCaptureSession = AVCaptureSession()
   // Inputs & Outputs
-  private var videoDeviceInput: AVCaptureDeviceInput?
-  private var audioDeviceInput: AVCaptureDeviceInput?
-  private var photoOutput: AVCapturePhotoOutput?
-  private var videoOutput: AVCaptureVideoDataOutput?
-  private var audioOutput: AVCaptureAudioDataOutput?
-  private var codeScannerOutput: AVCaptureMetadataOutput?
+  internal var videoDeviceInput: AVCaptureDeviceInput?
+  internal var audioDeviceInput: AVCaptureDeviceInput?
+  internal var photoOutput: AVCapturePhotoOutput?
+  internal var videoOutput: AVCaptureVideoDataOutput?
+  internal var audioOutput: AVCaptureAudioDataOutput?
+  internal var codeScannerOutput: AVCaptureMetadataOutput?
+  // State
+  internal var recordingSession: RecordingSession?
+  internal var isRecording: Bool = false
   
   // Callbacks
   private let onError: (_ error: CameraError) -> Void
@@ -363,10 +370,12 @@ class CameraSession {
     guard let error = notification.userInfo?[AVCaptureSessionErrorKey] as? AVError else {
       return
     }
-
+    
+    // Notify consumer about runtime error
     onError(.unknown(message: error._nsError.description, cause: error._nsError))
 
-    if isActive {
+    let shouldRestart = configuration?.isActive == true
+    if shouldRestart {
       // restart capture session after an error occured
       CameraQueues.cameraQueue.async {
         self.captureSession.startRunning()
