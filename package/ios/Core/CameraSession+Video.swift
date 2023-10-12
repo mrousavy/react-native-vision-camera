@@ -33,7 +33,7 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate, AVCapture
         callback.reject(error: .session(.cameraNotReady))
         return
       }
-      guard case .enabled(config: _) = configuration.video else {
+      guard case .enabled = configuration.video else {
         callback.reject(error: .capture(.videoNotEnabled))
         return
       }
@@ -137,7 +137,7 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate, AVCapture
       guard var videoSettings = self.recommendedVideoSettings(videoOutput: videoOutput,
                                                               fileType: fileType,
                                                               videoCodec: videoCodec),
-            !videoSettings.isEmpty else {
+        !videoSettings.isEmpty else {
         callback.reject(error: .capture(.createRecorderError(message: "Failed to get video settings!")))
         return
       }
@@ -150,7 +150,7 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate, AVCapture
           AVVideoAverageBitRateKey: NSNumber(value: bitsPerSecond),
         ]
       }
-      
+
       // get pixel format (420f, 420v, x420)
       let pixelFormat = videoOutput.pixelFormat
       recordingSession.initializeVideoWriter(withSettings: videoSettings,
@@ -163,11 +163,11 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate, AVCapture
           CameraQueues.audioQueue.async {
             do {
               try self.activateAudioSession()
-            } catch (let error) {
+            } catch {
               self.onConfigureError(error)
             }
           }
-          
+
           // Initialize audio asset writer
           let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: fileType)
           recordingSession.initializeAudioWriter(withSettings: audioSettings)

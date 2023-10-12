@@ -6,8 +6,8 @@
 //  Copyright © 2023 mrousavy. All rights reserved.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 
 extension AVCaptureVideoDataOutput {
   /**

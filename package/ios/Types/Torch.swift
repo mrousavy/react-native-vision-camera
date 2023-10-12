@@ -6,8 +6,8 @@
 //  Copyright © 2023 mrousavy. All rights reserved.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 
 /**
  A Torch used for permanent flash.
@@ -32,7 +32,7 @@ enum Torch {
       throw CameraError.parameter(.invalid(unionName: "torch", receivedValue: union))
     }
   }
-  
+
   func toTorchMode() -> AVCaptureDevice.TorchMode {
     switch self {
     case .on:

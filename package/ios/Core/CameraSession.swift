@@ -82,7 +82,7 @@ class CameraSession: NSObject {
     return PreviewView(frame: frame, session: captureSession)
   }
 
-  internal func onConfigureError(_ error: Error) {
+  func onConfigureError(_ error: Error) {
     if let error = error as? CameraError {
       // It's a typed Error
       delegate?.onError(error)
@@ -102,13 +102,13 @@ class CameraSession: NSObject {
     ReactLogger.log(level: .info, message: "Updating Session Configuration...")
 
     // Let caller configure a new configuration for the Camera.
-    let config = CameraConfiguration(copyOf: self.configuration)
+    let config = CameraConfiguration(copyOf: configuration)
     do {
       try lambda(config)
     } catch {
       onConfigureError(error)
     }
-    let difference = CameraConfiguration.Difference(between: self.configuration, and: config)
+    let difference = CameraConfiguration.Difference(between: configuration, and: config)
 
     // Set up Camera (Video) Capture Session (on camera queue)
     CameraQueues.cameraQueue.async {
@@ -131,12 +131,12 @@ class CameraSession: NSObject {
           if difference.orientationChanged {
             self.configureOrientation(configuration: config)
           }
-          
+
           // Unlock Capture Session again and submit configuration to Hardware
           self.captureSession.commitConfiguration()
           ReactLogger.log(level: .info, message: "Committed CameraSession configuration!")
         }
-          
+
         // If needed, configure the AVCaptureDevice (format, zoom, low-light-boost, ..)
         if difference.isDeviceConfigurationDirty {
           guard let device = self.videoDeviceInput?.device else {
@@ -144,7 +144,7 @@ class CameraSession: NSObject {
           }
           ReactLogger.log(level: .info, message: "Beginning CaptureDevice configuration...")
           try device.lockForConfiguration()
-          
+
           // 4. Configure format
           if difference.formatChanged {
             try self.configureFormat(configuration: config)
@@ -157,7 +157,7 @@ class CameraSession: NSObject {
           if difference.zoomChanged {
             try self.configureZoom(configuration: config)
           }
-          
+
           device.unlockForConfiguration()
           ReactLogger.log(level: .info, message: "Committed CaptureDevice configuration!")
         }
@@ -329,7 +329,7 @@ class CameraSession: NSObject {
     ReactLogger.log(level: .info, message: "Successfully configured all outputs!")
     delegate?.onSessionInitialized()
   }
-  
+
   private func configureOrientation(configuration: CameraConfiguration) {
     // Set up orientation and mirroring for all outputs.
     // Note: Photos are only rotated through EXIF tags, and Preview through view transforms

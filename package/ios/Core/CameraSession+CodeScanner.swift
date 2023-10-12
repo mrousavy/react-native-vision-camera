@@ -10,7 +10,6 @@ import AVFoundation
 import Foundation
 
 extension CameraSession: AVCaptureMetadataOutputObjectsDelegate {
-  
   public func metadataOutput(_: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from _: AVCaptureConnection) {
     guard let onCodeScanned = delegate?.onCodeScanned else {
       // No delegate callback
@@ -40,11 +39,11 @@ extension CameraSession: AVCaptureMetadataOutputObjectsDelegate {
 
       return Code(type: object.type, value: value, frame: frame)
     }
-    
+
     // Call delegate (JS) event
     onCodeScanned(codes)
   }
-  
+
   /**
    A scanned QR/Barcode.
    */
@@ -61,7 +60,7 @@ extension CameraSession: AVCaptureMetadataOutputObjectsDelegate {
      Location of the code on-screen, relative to the video output layer
      */
     let frame: CGRect
-    
+
     /**
      Converts this Code to a JS Object (Dictionary)
      */

@@ -21,7 +21,6 @@ import UIKit
 // MARK: - CameraView
 
 public final class CameraView: UIView, CameraSessionDelegate {
-  
   // pragma MARK: React Properties
   // props that require reconfiguring
   @objc var cameraId: NSString?
@@ -39,8 +38,8 @@ public final class CameraView: UIView, CameraSessionDelegate {
   // props that require format reconfiguring
   @objc var format: NSDictionary?
   @objc var fps: NSNumber?
-  @objc var hdr: Bool = false
-  @objc var lowLightBoost: Bool = false
+  @objc var hdr = false
+  @objc var lowLightBoost = false
   @objc var orientation: NSString?
   // other props
   @objc var isActive = false
@@ -134,7 +133,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
     }
     return .native
   }
-  
+
   func getTorch() -> Torch {
     // TODO: Use ObjC RCT enum parser for this
     if let torch = try? Torch(fromTypeScriptUnion: torch) {
@@ -159,7 +158,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
       } else {
         config.photo = .disabled
       }
-      
+
       // Video/Frame Processor
       if video || enableFrameProcessor {
         config.video = .enabled(config: CameraConfiguration.Video(pixelFormat: getPixelFormat(),
@@ -169,14 +168,14 @@ public final class CameraView: UIView, CameraSessionDelegate {
       } else {
         config.video = .disabled
       }
-      
+
       // Audio
       if audio {
         config.audio = .enabled(config: CameraConfiguration.Audio())
       } else {
         config.audio = .disabled
       }
-      
+
       // Code Scanner
       if let codeScannerOptions {
         let codeScanner = try CodeScanner(fromJsValue: codeScannerOptions)
@@ -236,7 +235,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   }
 
   // pragma MARK: Event Invokers
-  
+
   func onError(_ error: CameraError) {
     ReactLogger.log(level: .error, message: "Invoking onError(): \(error.message)")
     guard let onError = onError else {
@@ -259,7 +258,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
       "cause": causeDictionary ?? NSNull(),
     ])
   }
-  
+
   func onSessionInitialized() {
     ReactLogger.log(level: .info, message: "Camera initialized!")
     guard let onInitialized = onInitialized else {
@@ -267,12 +266,12 @@ public final class CameraView: UIView, CameraSessionDelegate {
     }
     onInitialized([String: Any]())
   }
-  
+
   func onTick() {
     #if DEBUG
-    if let fpsGraph {
-      fpsGraph.onTick(CACurrentMediaTime())
-    }
+      if let fpsGraph {
+        fpsGraph.onTick(CACurrentMediaTime())
+      }
     #endif
   }
 
@@ -281,7 +280,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
       return
     }
     onCodeScanned([
-      "codes": codes.map({ $0.toJSValue() })
+      "codes": codes.map { $0.toJSValue() },
     ])
   }
 }

@@ -11,7 +11,6 @@ import AVFoundation
 // MARK: - CameraView + AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate
 
 extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
-  
   func startRecording(options: NSDictionary, callback: @escaping RCTResponseSenderBlock) {
     cameraSession.startRecording(options: options, callback: callback)
   }

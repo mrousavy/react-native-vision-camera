@@ -19,7 +19,7 @@ class CameraConfiguration {
   var photo: OutputConfiguration<Photo> = .disabled
   var video: OutputConfiguration<Video> = .disabled
   var codeScanner: OutputConfiguration<CodeScanner> = .disabled
-  
+
   // Orientation
   var orientation: Orientation = .portrait
 
@@ -36,33 +36,32 @@ class CameraConfiguration {
 
   // isActive (Start/Stop)
   var isActive = false
-  
+
   // Audio Session
   var audio: OutputConfiguration<Audio> = .disabled
-  
+
   init(copyOf other: CameraConfiguration?) {
     if let other {
       // copy over all values
-      self.cameraId = other.cameraId
-      self.photo = other.photo
-      self.video = other.video
-      self.codeScanner = other.codeScanner
-      self.orientation = other.orientation
-      self.format = other.format
-      self.fps = other.fps
-      self.enableLowLightBoost = other.enableLowLightBoost
-      self.torch = other.torch
-      self.zoom = other.zoom
-      self.isActive = other.isActive
-      self.audio = other.audio
+      cameraId = other.cameraId
+      photo = other.photo
+      video = other.video
+      codeScanner = other.codeScanner
+      orientation = other.orientation
+      format = other.format
+      fps = other.fps
+      enableLowLightBoost = other.enableLowLightBoost
+      torch = other.torch
+      zoom = other.zoom
+      isActive = other.isActive
+      audio = other.audio
     } else {
       // self will just be initialized with the default values.
     }
   }
-  
 
   // pragma MARK: Types
-  
+
   struct Difference {
     let inputChanged: Bool
     let outputsChanged: Bool
@@ -70,29 +69,25 @@ class CameraConfiguration {
     let formatChanged: Bool
     let sidePropsChanged: Bool
     let zoomChanged: Bool
-    
+
     let audioSessionChanged: Bool
-    
+
     /**
      Returns `true` when props that affect the AVCaptureSession configuration (i.e. props that require beginConfiguration()) have changed.
      [`inputChanged`, `outputsChanged`, `orientationChanged`]
      */
     var isSessionConfigurationDirty: Bool {
-      get {
-        return inputChanged || outputsChanged || orientationChanged
-      }
+      return inputChanged || outputsChanged || orientationChanged
     }
-    
+
     /**
      Returns `true` when props that affect the AVCaptureDevice configuration (i.e. props that require lockForConfiguration()) have changed.
      [`formatChanged`, `sidePropsChanged`, `zoomChanged`]
      */
     var isDeviceConfigurationDirty: Bool {
-      get {
-        return isSessionConfigurationDirty || formatChanged || sidePropsChanged || zoomChanged
-      }
+      return isSessionConfigurationDirty || formatChanged || sidePropsChanged || zoomChanged
     }
-    
+
     init(between left: CameraConfiguration?, and right: CameraConfiguration) {
       // cameraId
       inputChanged = left?.cameraId != right.cameraId
@@ -106,7 +101,7 @@ class CameraConfiguration {
       sidePropsChanged = formatChanged || left?.fps != right.fps || left?.enableLowLightBoost != right.enableLowLightBoost || left?.torch != right.torch
       // zoom (depends on format)
       zoomChanged = formatChanged || left?.zoom != right.zoom
-      
+
       // audio session
       audioSessionChanged = left?.audio != right.audio
     }
