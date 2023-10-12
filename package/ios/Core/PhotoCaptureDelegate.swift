@@ -43,7 +43,8 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     let error = ErrorPointer(nilLiteral: ())
     guard let tempFilePath = RCTTempFilePath("jpeg", error)
     else {
-      promise.reject(error: .capture(.createTempFileError), cause: error?.pointee)
+      let message = error?.pointee?.description
+      promise.reject(error: .capture(.createTempFileError(message: message)), cause: error?.pointee)
       return
     }
     let url = URL(string: "file://\(tempFilePath)")!

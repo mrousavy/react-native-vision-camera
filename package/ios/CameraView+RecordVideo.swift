@@ -11,8 +11,27 @@ import AVFoundation
 // MARK: - CameraView + AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate
 
 extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
-  func startRecording(options: NSDictionary, callback: @escaping RCTResponseSenderBlock) {
-    cameraSession.startRecording(options: options, callback: callback)
+  func startRecording(options: NSDictionary, callback jsCallback: @escaping RCTResponseSenderBlock) {
+    // Type-safety
+    let callback = Callback(jsCallback)
+    
+    do {
+      let options = try RecordVideoOptions(fromJSValue: options)
+      
+      // Start Recording with success and error callbacks
+      cameraSession.startRecording(options: options, onVideoRecorded: { video in
+        callback.resolve(video.toJSValue())
+      }) { error in
+        callback.reject(error: error)
+      }
+    } catch (let error) {
+      // Some error occured while initializing VideoSettings
+      if let error = error as? CameraError {
+        callback.reject(error: error)
+      } else {
+        callback.reject(error: .capture(.unknown(message: error.localizedDescription)), cause: error as NSError)
+      }
+    }
   }
 
   func stopRecording(promise: Promise) {
