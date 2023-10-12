@@ -10,7 +10,7 @@ import AVFoundation
 import Foundation
 import UIKit
 
-extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
+extension CameraSession {
   /**
    Starts a video + audio recording with a custom Asset Writer.
    */
@@ -205,33 +205,6 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate, AVCapture
         }
         self.isRecording = true
         return nil
-      }
-    }
-  }
-
-  public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
-    // Call Frame Processor (delegate) for every Video Frame
-    if captureOutput is AVCaptureVideoDataOutput {
-      delegate?.onFrame(sampleBuffer: sampleBuffer)
-    }
-
-    // Record Video Frame/Audio Sample to File in custom `RecordingSession` (AVAssetWriter)
-    if isRecording {
-      guard let recordingSession = recordingSession else {
-        delegate?.onError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
-        return
-      }
-
-      switch captureOutput {
-      case is AVCaptureVideoDataOutput:
-        recordingSession.appendBuffer(sampleBuffer, type: .video, timestamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
-      case is AVCaptureAudioDataOutput:
-        let timestamp = CMSyncConvertTime(CMSampleBufferGetPresentationTimeStamp(sampleBuffer),
-                                          from: audioCaptureSession.masterClock ?? CMClockGetHostTimeClock(),
-                                          to: captureSession.masterClock ?? CMClockGetHostTimeClock())
-        recordingSession.appendBuffer(sampleBuffer, type: .audio, timestamp: timestamp)
-      default:
-        break
       }
     }
   }

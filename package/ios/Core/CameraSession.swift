@@ -13,7 +13,7 @@ import Foundation
  A fully-featured Camera Session supporting preview, video, photo, frame processing, and code scanning outputs.
  All changes to the session have to be controlled via the `configure` function.
  */
-class CameraSession: NSObject {
+class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
   // Configuration
   var configuration: CameraConfiguration?
   // Capture Session
@@ -204,6 +204,36 @@ class CameraSession: NSObject {
       captureSession.startRunning()
     } else {
       captureSession.stopRunning()
+    }
+  }
+
+  /**
+   Called for every new Frame in the Video output
+   */
+  public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
+    // Call Frame Processor (delegate) for every Video Frame
+    if captureOutput is AVCaptureVideoDataOutput {
+      delegate?.onFrame(sampleBuffer: sampleBuffer)
+    }
+
+    // Record Video Frame/Audio Sample to File in custom `RecordingSession` (AVAssetWriter)
+    if isRecording {
+      guard let recordingSession = recordingSession else {
+        delegate?.onError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
+        return
+      }
+
+      switch captureOutput {
+      case is AVCaptureVideoDataOutput:
+        recordingSession.appendBuffer(sampleBuffer, type: .video, timestamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
+      case is AVCaptureAudioDataOutput:
+        let timestamp = CMSyncConvertTime(CMSampleBufferGetPresentationTimeStamp(sampleBuffer),
+                                          from: audioCaptureSession.masterClock ?? CMClockGetHostTimeClock(),
+                                          to: captureSession.masterClock ?? CMClockGetHostTimeClock())
+        recordingSession.appendBuffer(sampleBuffer, type: .audio, timestamp: timestamp)
+      default:
+        break
+      }
     }
   }
 
