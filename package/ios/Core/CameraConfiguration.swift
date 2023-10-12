@@ -9,6 +9,8 @@
 import AVFoundation
 import Foundation
 
+// MARK: - CameraConfiguration
+
 class CameraConfiguration {
   // pragma MARK: Configuration Props
 

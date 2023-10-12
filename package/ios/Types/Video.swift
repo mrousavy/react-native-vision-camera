@@ -6,8 +6,8 @@
 //  Copyright © 2023 mrousavy. All rights reserved.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 
 struct Video {
   /**
@@ -18,11 +18,11 @@ struct Video {
    Duration of the recorded video (in seconds)
    */
   var duration: Double
-  
+
   func toJSValue() -> NSDictionary {
     return [
       "path": path,
-      "duration": duration
+      "duration": duration,
     ]
   }
 }

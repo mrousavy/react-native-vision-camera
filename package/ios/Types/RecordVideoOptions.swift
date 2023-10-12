@@ -6,19 +6,18 @@
 //  Copyright © 2023 mrousavy. All rights reserved.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 
 struct RecordVideoOptions {
   var fileType: AVFileType = .mov
   var flash: Torch = .off
-  var codec: AVVideoCodecType? = nil
+  var codec: AVVideoCodecType?
   /**
    Bit-Rate of the Video, in Megabits per second (Mbps)
    */
-  var bitRate: Double? = nil
-  
-  
+  var bitRate: Double?
+
   init(fromJSValue dictionary: NSDictionary) throws {
     // File Type (.mov or .mp4)
     if let fileTypeOption = dictionary["fileType"] as? String {
