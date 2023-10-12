@@ -94,9 +94,9 @@ class CameraConfiguration {
       // cameraId
       inputChanged = left?.cameraId != right.cameraId
       // photo, video, codeScanner
-      outputsChanged = left?.photo != right.photo || left?.video != right.video || left?.codeScanner != right.codeScanner
+      outputsChanged = inputChanged || left?.photo != right.photo || left?.video != right.video || left?.codeScanner != right.codeScanner
       // orientation
-      orientationChanged = left?.orientation != right.orientation
+      orientationChanged = outputsChanged || left?.orientation != right.orientation
       // format (depends on cameraId)
       formatChanged = inputChanged || left?.format != right.format
       // side-props (depends on format)

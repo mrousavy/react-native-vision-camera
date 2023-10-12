@@ -19,11 +19,15 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       let options = try RecordVideoOptions(fromJSValue: options)
 
       // Start Recording with success and error callbacks
-      cameraSession.startRecording(options: options, onVideoRecorded: { video in
-        callback.resolve(video.toJSValue())
-      }) { error in
-        callback.reject(error: error)
-      }
+      cameraSession.startRecording(
+        options: options,
+        onVideoRecorded: { video in
+          callback.resolve(video.toJSValue())
+        },
+        onError: { error in
+          callback.reject(error: error)
+        }
+      )
     } catch {
       // Some error occured while initializing VideoSettings
       if let error = error as? CameraError {
