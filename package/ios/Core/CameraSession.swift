@@ -29,7 +29,6 @@ class CameraSession: NSObject {
   // State
   var recordingSession: RecordingSession?
   var isRecording = false
-  var frameProcessor: FrameProcessor?
 
   // Callbacks
   weak var delegate: CameraSessionDelegate?

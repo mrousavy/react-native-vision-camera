@@ -235,17 +235,12 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate, AVCapture
   }
 
   public final func captureOutput(_ captureOutput: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from _: AVCaptureConnection) {
-    #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
-      if captureOutput is AVCaptureVideoDataOutput {
-        if let frameProcessor = frameProcessor {
-          // Call Frame Processor
-          let frame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
-          frameProcessor.call(frame)
-        }
-      }
-    #endif
+    // Call Frame Processor (delegate) for every Video Frame
+    if captureOutput is AVCaptureVideoDataOutput {
+      delegate?.onFrame(sampleBuffer: sampleBuffer)
+    }
 
-    // Record Video Frame/Audio Sample to File
+    // Record Video Frame/Audio Sample to File in custom `RecordingSession` (AVAssetWriter)
     if isRecording {
       guard let recordingSession = recordingSession else {
         delegate?.onError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
@@ -264,12 +259,6 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate, AVCapture
         break
       }
     }
-
-    #if DEBUG
-      if captureOutput is AVCaptureVideoDataOutput {
-        delegate?.onTick()
-      }
-    #endif
   }
 
   private func recommendedVideoSettings(videoOutput: AVCaptureVideoDataOutput,
@@ -279,28 +268,6 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate, AVCapture
       return videoOutput.recommendedVideoSettings(forVideoCodecType: videoCodec!, assetWriterOutputFileType: fileType)
     } else {
       return videoOutput.recommendedVideoSettingsForAssetWriter(writingTo: fileType)
-    }
-  }
-
-  /**
-   Gets the orientation of the CameraView's images (CMSampleBuffers).
-   */
-  private var bufferOrientation: UIImage.Orientation {
-    guard let cameraPosition = videoDeviceInput?.device.position else {
-      return .up
-    }
-    let orientation = configuration?.orientation ?? .portrait
-
-    // TODO: I think this is wrong.
-    switch orientation {
-    case .portrait:
-      return cameraPosition == .front ? .leftMirrored : .right
-    case .landscapeLeft:
-      return cameraPosition == .front ? .downMirrored : .up
-    case .portraitUpsideDown:
-      return cameraPosition == .front ? .rightMirrored : .left
-    case .landscapeRight:
-      return cameraPosition == .front ? .upMirrored : .down
     }
   }
 }

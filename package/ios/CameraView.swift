@@ -267,7 +267,15 @@ public final class CameraView: UIView, CameraSessionDelegate {
     onInitialized([String: Any]())
   }
 
-  func onTick() {
+  func onFrame(sampleBuffer: CMSampleBuffer) {
+    #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
+      if let frameProcessor = frameProcessor {
+        // Call Frame Processor
+        let frame = Frame(buffer: sampleBuffer, orientation: bufferOrientation)
+        frameProcessor.call(frame)
+      }
+    #endif
+
     #if DEBUG
       if let fpsGraph {
         fpsGraph.onTick(CACurrentMediaTime())
@@ -282,5 +290,27 @@ public final class CameraView: UIView, CameraSessionDelegate {
     onCodeScanned([
       "codes": codes.map { $0.toJSValue() },
     ])
+  }
+
+  /**
+   Gets the orientation of the CameraView's images (CMSampleBuffers).
+   */
+  private var bufferOrientation: UIImage.Orientation {
+    guard let cameraPosition = cameraSession.videoDeviceInput?.device.position else {
+      return .up
+    }
+    let orientation = cameraSession.configuration?.orientation ?? .portrait
+
+    // TODO: I think this is wrong.
+    switch orientation {
+    case .portrait:
+      return cameraPosition == .front ? .leftMirrored : .right
+    case .landscapeLeft:
+      return cameraPosition == .front ? .downMirrored : .up
+    case .portraitUpsideDown:
+      return cameraPosition == .front ? .rightMirrored : .left
+    case .landscapeRight:
+      return cameraPosition == .front ? .upMirrored : .down
+    }
   }
 }
