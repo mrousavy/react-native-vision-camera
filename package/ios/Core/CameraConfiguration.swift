@@ -10,138 +10,78 @@ import AVFoundation
 import Foundation
 
 class CameraConfiguration {
-  // pragma MARK: Dirty Flags
-
-  // Updates cameraId
-  private(set) var requiresDeviceConfiguration = false {
-    didSet {
-      requiresOutputsConfiguration = requiresDeviceConfiguration
-    }
-  }
-
-  // Updates photo, video, frameProcessor, codeScanner
-  private(set) var requiresOutputsConfiguration = false {
-    didSet {
-      requiresFormatConfiguration = requiresOutputsConfiguration
-    }
-  }
-
-  // Updates format
-  private(set) var requiresFormatConfiguration = false {
-    didSet {
-      requiresSidePropsConfiguration = requiresFormatConfiguration
-    }
-  }
-
-  // Updates fps, lowLightBoost, ...
-  private(set) var requiresSidePropsConfiguration = false {
-    didSet {
-      requiresZoomConfiguration = requiresSidePropsConfiguration
-    }
-  }
-
-  // Updates zoom
-  private(set) var requiresZoomConfiguration = false {
-    didSet {
-      requiresRunningCheck = true
-    }
-  }
-
-  // Updates isActive
-  private(set) var requiresRunningCheck = false
-
-  // This is a separate check in the update function as it's also running on another AVCaptureSession and another Queue
-  private(set) var requiresAudioConfiguration = false
-
-  var isDirty: Bool {
-    return requiresDeviceConfiguration
-    || requiresOutputsConfiguration
-    || requiresFormatConfiguration
-    || requiresSidePropsConfiguration
-    || requiresZoomConfiguration
-  }
-
   // pragma MARK: Configuration Props
 
   // Input
-  var cameraId: String? {
-    didSet {
-      requiresDeviceConfiguration = true
-    }
-  }
+  var cameraId: String?
 
   // Outputs
-  var photo: OutputConfiguration<Photo> = .disabled {
-    didSet {
-      requiresOutputsConfiguration = true
-    }
-  }
-
-  var video: OutputConfiguration<Video> = .disabled {
-    didSet {
-      requiresOutputsConfiguration = true
-    }
-  }
-
-  var audio: OutputConfiguration<Audio> = .disabled {
-    didSet {
-      requiresAudioConfiguration = true
-    }
-  }
-
-  var codeScanner: OutputConfiguration<CodeScanner> = .disabled {
-    didSet {
-      requiresOutputsConfiguration = true
-    }
-  }
-
-  var orientation: Orientation = .portrait {
-    didSet {
-      requiresOutputsConfiguration = true
-    }
-  }
+  var photo: OutputConfiguration<Photo> = .disabled
+  var video: OutputConfiguration<Video> = .disabled
+  var codeScanner: OutputConfiguration<CodeScanner> = .disabled
+  
+  // Orientation
+  var orientation: Orientation = .portrait
 
   // Format
-  var format: NSDictionary? {
-    didSet {
-      requiresFormatConfiguration = true
-    }
-  }
+  var format: NSDictionary?
 
   // Side-Props
-  var fps: Int32? {
-    didSet {
-      requiresSidePropsConfiguration = true
-    }
-  }
-
-  var enableLowLightBoost = false {
-    didSet {
-      requiresSidePropsConfiguration = true
-    }
-  }
-
-  var torch: Torch = .off {
-    didSet {
-      requiresSidePropsConfiguration = true
-    }
-  }
+  var fps: Int32?
+  var enableLowLightBoost = false
+  var torch: Torch = .off
 
   // Zoom
-  var zoom: CGFloat? {
-    didSet {
-      requiresZoomConfiguration = true
-    }
-  }
+  var zoom: CGFloat?
 
   // isActive (Start/Stop)
-  var isActive = false {
-    didSet {
-      requiresRunningCheck = true
-    }
-  }
+  var isActive = false
+  
+  // Audio Session
+  var audio: OutputConfiguration<Audio> = .disabled
+  
+  
 
   // pragma MARK: Types
+  
+  struct Difference {
+    let inputChanged: Bool
+    let outputsChanged: Bool
+    let orientationChanged: Bool
+    let formatChanged: Bool
+    let sidePropsChanged: Bool
+    let zoomChanged: Bool
+    
+    let audioSessionChanged: Bool
+    
+    /**
+     Returns `true` when props that affect the session configuration (i.e. props that require begin-/commitConfiguration()) have changed.
+     [`inputChanged`, `outputsChanged`, `orientationChanged`, `formatChanged`, `sidePropsChanged`, `zoomChanged`]
+     */
+    var isSessionConfigurationDirty: Bool {
+      get {
+        return inputChanged || outputsChanged || orientationChanged || formatChanged || sidePropsChanged || zoomChanged
+      }
+    }
+    
+    init(between left: CameraConfiguration?, and right: CameraConfiguration) {
+      // cameraId
+      inputChanged = left?.cameraId != right.cameraId
+      // photo, video, codeScanner
+      outputsChanged = left?.photo != right.photo || left?.video != right.video || left?.codeScanner != right.codeScanner
+      // orientation
+      orientationChanged = left?.orientation != right.orientation
+      // format (depends on cameraId)
+      formatChanged = inputChanged || left?.format != right.format
+      // side-props (depends on format)
+      sidePropsChanged = formatChanged || left?.fps != right.fps || left?.enableLowLightBoost != right.enableLowLightBoost || left?.torch != right.torch
+      // zoom (depends on format)
+      zoomChanged = formatChanged || left?.zoom != right.zoom
+      
+      // audio session
+      audioSessionChanged = left?.audio != right.audio
+    }
+  }
 
   enum OutputConfiguration<T: Equatable>: Equatable {
     case disabled

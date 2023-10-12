@@ -10,7 +10,7 @@ import AVFoundation
 import Foundation
 import UIKit
 
-extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
+extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
   /**
    Starts a video + audio recording with a custom Asset Writer.
    */
@@ -24,7 +24,7 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
          let torch = try? Torch(fromTypeScriptUnion: flashMode) {
         // use the torch as the video's flash
         self.configure { config in
-          config.torch = torch.toTorchMode()
+          config.torch = torch
         }
       }
 
@@ -33,7 +33,7 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
         callback.reject(error: .session(.cameraNotReady))
         return
       }
-      guard case let .enabled(config: video) = configuration.video else {
+      guard case .enabled(config: _) = configuration.video else {
         callback.reject(error: .capture(.videoNotEnabled))
         return
       }
@@ -65,7 +65,7 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
             // Set torch mode back to what it was before if we used it for the video flash.
             self.configure { config in
               let torch = self.configuration?.torch ?? .off
-              config.torch = torch.toTorchMode()
+              config.torch = torch
             }
           }
         }
@@ -134,11 +134,14 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
       }
 
       // Init Video
-      guard var videoSettings = self.recommendedVideoSettings(videoOutput: videoOutput, fileType: fileType, videoCodec: videoCodec),
+      guard var videoSettings = self.recommendedVideoSettings(videoOutput: videoOutput,
+                                                              fileType: fileType,
+                                                              videoCodec: videoCodec),
             !videoSettings.isEmpty else {
         callback.reject(error: .capture(.createRecorderError(message: "Failed to get video settings!")))
         return
       }
+      ReactLogger.log(level: .trace, message: "Recommended Video Settings: \(videoSettings.description)")
 
       // Custom Video Bit Rate (Mbps -> bps)
       if let videoBitRate = options["videoBitRate"] as? NSNumber {
@@ -147,9 +150,9 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
           AVVideoAverageBitRateKey: NSNumber(value: bitsPerSecond),
         ]
       }
-
+      
       // get pixel format (420f, 420v, x420)
-      let pixelFormat = configuration.getPixelFormat(videoOutput: videoOutput)
+      let pixelFormat = videoOutput.pixelFormat
       recordingSession.initializeVideoWriter(withSettings: videoSettings,
                                              pixelFormat: pixelFormat)
 
@@ -157,7 +160,11 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
       if enableAudio {
         // Activate Audio Session asynchronously
         CameraQueues.audioQueue.async {
-          self.activateAudioSession()
+          do {
+            try self.activateAudioSession()
+          } catch (let error) {
+            self.onConfigureError(error)
+          }
         }
 
         if let audioOutput = self.audioOutput,
@@ -231,7 +238,7 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate {
     // Record Video Frame/Audio Sample to File
     if isRecording {
       guard let recordingSession = recordingSession else {
-        onError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
+        delegate?.onError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
         return
       }
 

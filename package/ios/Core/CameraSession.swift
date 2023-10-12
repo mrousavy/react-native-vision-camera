@@ -82,14 +82,14 @@ class CameraSession: NSObject {
     return PreviewView(frame: frame, session: captureSession)
   }
 
-  private func onConfigureError(_ error: Error) {
+  internal func onConfigureError(_ error: Error) {
     if let error = error as? CameraError {
       // It's a typed Error
-      onError(error)
+      delegate?.onError(error)
     } else {
       // It's any kind of unknown error
       let cameraError = CameraError.unknown(message: error.localizedDescription)
-      onError(cameraError)
+      delegate?.onError(cameraError)
     }
   }
 
@@ -107,33 +107,38 @@ class CameraSession: NSObject {
     } catch {
       onConfigureError(error)
     }
+    let difference = CameraConfiguration.Difference(between: self.configuration, and: config)
 
     // Set up Camera (Video) Capture Session (on camera queue)
     CameraQueues.cameraQueue.async {
       do {
-        if config.isDirty {
+        if difference.isSessionConfigurationDirty {
           // Lock Capture Session for configuration
           ReactLogger.log(level: .info, message: "Beginning CameraSession configuration...")
           self.captureSession.beginConfiguration()
 
           // 1. Update input device
-          if config.requiresDeviceConfiguration {
+          if difference.inputChanged {
             try self.configureDevice(configuration: config)
           }
           // 2. Update outputs
-          if config.requiresOutputsConfiguration {
+          if difference.outputsChanged {
             try self.configureOutputs(configuration: config)
           }
-          // 3. Configure format
-          if config.requiresFormatConfiguration {
+          // 3. Update output orientation
+          if difference.orientationChanged {
+            self.configureOrientation(configuration: config)
+          }
+          // 4. Configure format
+          if difference.formatChanged {
             try self.configureFormat(configuration: config)
           }
-          // 4. Configure side-props (fps, lowLightBoost)
-          if config.requiresSidePropsConfiguration {
+          // 5. Configure side-props (fps, lowLightBoost)
+          if difference.sidePropsChanged {
             try self.configureSideProps(configuration: config)
           }
-          // 5. Configure zoom
-          if config.requiresZoomConfiguration {
+          // 6. Configure zoom
+          if difference.zoomChanged {
             try self.configureZoom(configuration: config)
           }
 
@@ -143,9 +148,7 @@ class CameraSession: NSObject {
         }
 
         // 6. Start or stop the session if needed
-        if config.requiresRunningCheck {
-          try self.checkIsActive(configuration: config)
-        }
+        self.checkIsActive(configuration: config)
 
         // Update successful, set the new configuration!
         self.configuration = config
@@ -155,7 +158,7 @@ class CameraSession: NSObject {
     }
 
     // Set up Audio Capture Session (on audio queue)
-    if config.requiresAudioConfiguration {
+    if difference.audioSessionChanged {
       CameraQueues.audioQueue.async {
         do {
           // Lock Capture Session for configuration
@@ -307,8 +310,14 @@ class CameraSession: NSObject {
       self.codeScannerOutput = codeScannerOutput
     }
 
+    // Done!
+    ReactLogger.log(level: .info, message: "Successfully configured all outputs!")
+    delegate?.onSessionInitialized()
+  }
+  
+  private func configureOrientation(configuration: CameraConfiguration) {
     // Set up orientation and mirroring for all outputs.
-    // Note: Photos are only rotated through EXIF tags
+    // Note: Photos are only rotated through EXIF tags, and Preview through view transforms
     let isMirrored = videoDeviceInput?.device.position == .front
     captureSession.outputs.forEach { output in
       if isMirrored {
@@ -316,10 +325,6 @@ class CameraSession: NSObject {
       }
       output.setOrientation(configuration.orientation)
     }
-
-    // Done!
-    ReactLogger.log(level: .info, message: "Successfully configured all outputs!")
-    delegate?.onInitialized()
   }
 
   /**
@@ -407,7 +412,7 @@ class CameraSession: NSObject {
         throw CameraError.device(.flashUnavailable)
       }
 
-      device.torchMode = configuration.torch
+      device.torchMode = configuration.torch.toTorchMode()
       try device.setTorchModeOn(level: 1.0)
     }
   }
@@ -430,7 +435,7 @@ class CameraSession: NSObject {
   /**
    Starts or stops the CaptureSession if needed (`isActive`)
    */
-  private func checkIsActive(configuration: CameraConfiguration) throws {
+  private func checkIsActive(configuration: CameraConfiguration) {
     if configuration.isActive == captureSession.isRunning {
       return
     }
