@@ -55,12 +55,22 @@ class CameraConfiguration {
     let audioSessionChanged: Bool
     
     /**
-     Returns `true` when props that affect the session configuration (i.e. props that require begin-/commitConfiguration()) have changed.
-     [`inputChanged`, `outputsChanged`, `orientationChanged`, `formatChanged`, `sidePropsChanged`, `zoomChanged`]
+     Returns `true` when props that affect the AVCaptureSession configuration (i.e. props that require beginConfiguration()) have changed.
+     [`inputChanged`, `outputsChanged`, `orientationChanged`]
      */
     var isSessionConfigurationDirty: Bool {
       get {
-        return inputChanged || outputsChanged || orientationChanged || formatChanged || sidePropsChanged || zoomChanged
+        return inputChanged || outputsChanged || orientationChanged
+      }
+    }
+    
+    /**
+     Returns `true` when props that affect the AVCaptureDevice configuration (i.e. props that require lockForConfiguration()) have changed.
+     [`formatChanged`, `sidePropsChanged`, `zoomChanged`]
+     */
+    var isDeviceConfigurationDirty: Bool {
+      get {
+        return isSessionConfigurationDirty || formatChanged || sidePropsChanged || zoomChanged
       }
     }
     

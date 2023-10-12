@@ -13,11 +13,8 @@ extension CameraSession {
   /**
    Configures the Audio Capture Session with an audio input and audio data output.
    */
-  final func configureAudioSession() throws {
+  final func configureAudioSession(configuration: CameraConfiguration) throws {
     ReactLogger.log(level: .info, message: "Configuring Audio Session...")
-    guard let configuration = configuration else {
-      throw CameraError.session(.cameraNotReady)
-    }
 
     // Prevent iOS from automatically configuring the Audio Session for us
     audioCaptureSession.automaticallyConfiguresApplicationAudioSession = false

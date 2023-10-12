@@ -113,6 +113,7 @@ class CameraSession: NSObject {
     // Set up Camera (Video) Capture Session (on camera queue)
     CameraQueues.cameraQueue.async {
       do {
+        // If needed, configure the AVCaptureSession (inputs, outputs)
         if difference.isSessionConfigurationDirty {
           // Lock Capture Session for configuration
           ReactLogger.log(level: .info, message: "Beginning CameraSession configuration...")
@@ -130,6 +131,20 @@ class CameraSession: NSObject {
           if difference.orientationChanged {
             self.configureOrientation(configuration: config)
           }
+          
+          // Unlock Capture Session again and submit configuration to Hardware
+          self.captureSession.commitConfiguration()
+          ReactLogger.log(level: .info, message: "Committed CameraSession configuration!")
+        }
+          
+        // If needed, configure the AVCaptureDevice (format, zoom, low-light-boost, ..)
+        if difference.isDeviceConfigurationDirty {
+          guard let device = self.videoDeviceInput?.device else {
+            throw CameraError.session(.cameraNotReady)
+          }
+          ReactLogger.log(level: .info, message: "Beginning CaptureDevice configuration...")
+          try device.lockForConfiguration()
+          
           // 4. Configure format
           if difference.formatChanged {
             try self.configureFormat(configuration: config)
@@ -142,10 +157,9 @@ class CameraSession: NSObject {
           if difference.zoomChanged {
             try self.configureZoom(configuration: config)
           }
-
-          // Unlock Capture Session again and submit configuration to Hardware
-          self.captureSession.commitConfiguration()
-          ReactLogger.log(level: .info, message: "Committed CameraSession configuration!")
+          
+          device.unlockForConfiguration()
+          ReactLogger.log(level: .info, message: "Committed CaptureDevice configuration!")
         }
 
         // 6. Start or stop the session if needed
@@ -166,7 +180,7 @@ class CameraSession: NSObject {
           ReactLogger.log(level: .info, message: "Beginning AudioSession configuration...")
           self.audioCaptureSession.beginConfiguration()
 
-          try self.configureAudioSession()
+          try self.configureAudioSession(configuration: config)
 
           // Unlock Capture Session again and submit configuration to Hardware
           self.audioCaptureSession.commitConfiguration()
