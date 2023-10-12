@@ -36,16 +36,17 @@ extension AVCaptureOutput {
 
     // Set orientation for each connection
     connections.forEach { connection in
-      if #available(iOS 17.0, *) {
-        let degrees = cameraOrientation.toDegrees()
-        if connection.isVideoRotationAngleSupported(degrees) {
-          connection.videoRotationAngle = degrees
-        }
-      } else {
-        if connection.isVideoOrientationSupported {
-          connection.videoOrientation = cameraOrientation.toAVCaptureVideoOrientation()
-        }
+      // TODO: Use this once Xcode 15 is rolled out
+      // if #available(iOS 17.0, *) {
+      //   let degrees = cameraOrientation.toDegrees()
+      //   if connection.isVideoRotationAngleSupported(degrees) {
+      //     connection.videoRotationAngle = degrees
+      //   }
+      // } else {
+      if connection.isVideoOrientationSupported {
+        connection.videoOrientation = cameraOrientation.toAVCaptureVideoOrientation()
       }
+      // }
     }
   }
 }
