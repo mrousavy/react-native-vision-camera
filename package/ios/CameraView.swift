@@ -229,7 +229,9 @@ public final class CameraView: UIView, CameraSessionDelegate {
   
   func onError(_ error: CameraError) {
     ReactLogger.log(level: .error, message: "Invoking onError(): \(error.message)")
-    guard let onError = onError else { return }
+    guard let onError = onError else {
+      return
+    }
 
     var causeDictionary: [String: Any]?
     if case let .unknown(_, cause) = error,
@@ -250,7 +252,9 @@ public final class CameraView: UIView, CameraSessionDelegate {
   
   func onSessionInitialized() {
     ReactLogger.log(level: .info, message: "Camera initialized!")
-    guard let onInitialized = onInitialized else { return }
+    guard let onInitialized = onInitialized else {
+      return
+    }
     onInitialized([String: Any]())
   }
   
@@ -262,4 +266,12 @@ public final class CameraView: UIView, CameraSessionDelegate {
     #endif
   }
 
+  func onCodeScanned(codes: [CameraSession.Code]) {
+    guard let onCodeScanned = onCodeScanned else {
+      return
+    }
+    onCodeScanned([
+      "codes": codes.map({ $0.toJSValue() })
+    ])
+  }
 }

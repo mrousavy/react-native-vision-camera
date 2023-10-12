@@ -24,4 +24,8 @@ protocol CameraSessionDelegate: AnyObject {
    Called for every frame (if video or frameProcessor is enabled)
    */
   func onTick()
+  /**
+   Called whenever a QR/Barcode has been scanned. Only if the CodeScanner Output is enabled
+   */
+  func onCodeScanned(codes: [CameraSession.Code])
 }
