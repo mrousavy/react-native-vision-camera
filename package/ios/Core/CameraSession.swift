@@ -96,13 +96,13 @@ class CameraSession: NSObject {
   /**
    Update the session configuration.
    Any changes in here will be re-configured only if required, and under a lock.
-   The `configuration` object is a new, blank configuration with default values.
+   The `configuration` object is a copy of the currently active configuration that can be modified by the caller in the lambda.
    */
   func configure(_ lambda: (_ configuration: CameraConfiguration) throws -> Void) {
     ReactLogger.log(level: .info, message: "Updating Session Configuration...")
 
-    // Let caller configure a new, blank configuration for the Camera
-    let config = CameraConfiguration()
+    // Let caller configure a new configuration for the Camera.
+    let config = CameraConfiguration(copyOf: self.configuration)
     do {
       try lambda(config)
     } catch {

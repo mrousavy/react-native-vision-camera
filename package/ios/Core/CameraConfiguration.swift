@@ -40,6 +40,25 @@ class CameraConfiguration {
   // Audio Session
   var audio: OutputConfiguration<Audio> = .disabled
   
+  init(copyOf other: CameraConfiguration?) {
+    if let other {
+      // copy over all values
+      self.cameraId = other.cameraId
+      self.photo = other.photo
+      self.video = other.video
+      self.codeScanner = other.codeScanner
+      self.orientation = other.orientation
+      self.format = other.format
+      self.fps = other.fps
+      self.enableLowLightBoost = other.enableLowLightBoost
+      self.torch = other.torch
+      self.zoom = other.zoom
+      self.isActive = other.isActive
+      self.audio = other.audio
+    } else {
+      // self will just be initialized with the default values.
+    }
+  }
   
 
   // pragma MARK: Types
