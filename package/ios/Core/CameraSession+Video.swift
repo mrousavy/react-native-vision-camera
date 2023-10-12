@@ -158,17 +158,18 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate, AVCapture
 
       // Enable/Activate Audio Session (optional)
       if enableAudio {
-        // Activate Audio Session asynchronously
-        CameraQueues.audioQueue.async {
-          do {
-            try self.activateAudioSession()
-          } catch (let error) {
-            self.onConfigureError(error)
+        if let audioOutput = self.audioOutput {
+          // Activate Audio Session asynchronously
+          CameraQueues.audioQueue.async {
+            do {
+              try self.activateAudioSession()
+            } catch (let error) {
+              self.onConfigureError(error)
+            }
           }
-        }
-
-        if let audioOutput = self.audioOutput,
-           let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: fileType) {
+          
+          // Initialize audio asset writer
+          let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: fileType)
           recordingSession.initializeAudioWriter(withSettings: audioSettings)
         }
       }

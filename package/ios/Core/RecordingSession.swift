@@ -93,11 +93,7 @@ class RecordingSession {
   /**
    Initializes an AssetWriter for audio frames (CMSampleBuffers).
    */
-  func initializeAudioWriter(withSettings settings: [String: Any]) {
-    guard !settings.isEmpty else {
-      ReactLogger.log(level: .error, message: "Tried to initialize Audio Writer with empty settings!")
-      return
-    }
+  func initializeAudioWriter(withSettings settings: [String: Any]?) {
     guard audioWriter == nil else {
       ReactLogger.log(level: .error, message: "Tried to add Audio Writer twice!")
       return
