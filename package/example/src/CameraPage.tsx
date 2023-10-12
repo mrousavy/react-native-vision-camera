@@ -163,16 +163,18 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     examplePlugin(frame)
   }, [])
 
+  const actualDevice = preferredDevice != null && preferredDevice.position === cameraPosition ? preferredDevice : device
+
   return (
     <View style={styles.container}>
-      {device != null && (
+      {actualDevice != null && (
         <PinchGestureHandler onGestureEvent={onPinchGesture} enabled={isActive}>
           <Reanimated.View style={StyleSheet.absoluteFill}>
             <TapGestureHandler onEnded={onDoubleTap} numberOfTaps={2}>
               <ReanimatedCamera
                 ref={camera}
                 style={StyleSheet.absoluteFill}
-                device={preferredDevice ?? device}
+                device={actualDevice}
                 format={format}
                 fps={fps}
                 hdr={enableHdr}
