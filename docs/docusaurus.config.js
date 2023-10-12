@@ -12,7 +12,7 @@ module.exports = {
     algolia: {
       appId: 'NRK7PZXU6O',
       apiKey: '33d54e627c4587a6d8dbff79d5209e46',
-      indexName: 'react-native-vision-camera2',
+      indexName: 'react-native-vision-camera',
       contextualSearch: false
     },
     colorMode: {
