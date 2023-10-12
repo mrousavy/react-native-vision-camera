@@ -100,14 +100,14 @@ extension CameraSession {
     }
 
     // Video Output + Frame Processor
-    if case .enabled(_) = configuration.video {
+    if case let .enabled(video) = configuration.video {
       ReactLogger.log(level: .info, message: "Adding Video Data output...")
       let videoOutput = AVCaptureVideoDataOutput()
 
       // 1. Configure
       videoOutput.setSampleBufferDelegate(self, queue: CameraQueues.videoQueue)
       videoOutput.alwaysDiscardsLateVideoFrames = false
-      let pixelFormatType = try configuration.getPixelFormat(videoOutput: videoOutput)
+      let pixelFormatType = try video.getPixelFormat(for: videoOutput)
       videoOutput.videoSettings = [
         String(kCVPixelBufferPixelFormatTypeKey): pixelFormatType,
       ]
