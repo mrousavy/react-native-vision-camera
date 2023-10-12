@@ -156,6 +156,8 @@ public final class CameraView: UIView, CameraSessionDelegate {
         config.photo = .enabled(config: CameraConfiguration.Photo(enableHighQualityPhotos: enableHighQualityPhotos,
                                                                   enableDepthData: enableDepthData,
                                                                   enablePortraitEffectsMatte: enablePortraitEffectsMatteDelivery))
+      } else {
+        config.photo = .disabled
       }
       
       // Video/Frame Processor
@@ -164,23 +166,31 @@ public final class CameraView: UIView, CameraSessionDelegate {
                                                                   enableBufferCompression: enableBufferCompression,
                                                                   enableHdr: hdr,
                                                                   enableFrameProcessor: enableFrameProcessor))
+      } else {
+        config.video = .disabled
       }
       
       // Audio
       if audio {
         config.audio = .enabled(config: CameraConfiguration.Audio())
+      } else {
+        config.audio = .disabled
       }
       
       // Code Scanner
       if let codeScannerOptions {
         let codeScanner = try CodeScanner(fromJsValue: codeScannerOptions)
         config.codeScanner = .enabled(config: codeScanner)
+      } else {
+        config.codeScanner = .disabled
       }
 
       // Orientation
       if let jsOrientation = orientation as? String {
         let orientation = try Orientation(fromTypeScriptUnion: jsOrientation)
         config.orientation = orientation
+      } else {
+        config.orientation = .portrait
       }
 
       // Format

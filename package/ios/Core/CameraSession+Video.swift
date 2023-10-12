@@ -185,6 +185,9 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate, AVCapture
     }
   }
 
+  /**
+   Stops an active recording.
+   */
   func stopRecording(promise: Promise) {
     CameraQueues.cameraQueue.async {
       self.isRecording = false
@@ -199,6 +202,9 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate, AVCapture
     }
   }
 
+  /**
+   Pauses an active recording.
+   */
   func pauseRecording(promise: Promise) {
     CameraQueues.cameraQueue.async {
       withPromise(promise) {
@@ -212,6 +218,9 @@ extension CameraSession: AVCaptureVideoDataOutputSampleBufferDelegate, AVCapture
     }
   }
 
+  /**
+   Resumes an active, but paused recording.
+   */
   func resumeRecording(promise: Promise) {
     CameraQueues.cameraQueue.async {
       withPromise(promise) {
