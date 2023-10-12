@@ -15,7 +15,7 @@ extension CameraSession {
   /**
    Configures the Input Device (`cameraId`)
    */
-  private func configureDevice(configuration: CameraConfiguration) throws {
+  func configureDevice(configuration: CameraConfiguration) throws {
     ReactLogger.log(level: .info, message: "Configuring Input Device...")
 
     // Remove all inputs
@@ -53,7 +53,7 @@ extension CameraSession {
   /**
    Configures all outputs (`photo` + `video` + `codeScanner`)
    */
-  private func configureOutputs(configuration: CameraConfiguration) throws {
+  func configureOutputs(configuration: CameraConfiguration) throws {
     ReactLogger.log(level: .info, message: "Configuring Outputs...")
 
     // Remove all outputs
@@ -100,7 +100,7 @@ extension CameraSession {
     }
 
     // Video Output + Frame Processor
-    if case let .enabled(video) = configuration.video {
+    if case .enabled(_) = configuration.video {
       ReactLogger.log(level: .info, message: "Adding Video Data output...")
       let videoOutput = AVCaptureVideoDataOutput()
 
@@ -152,7 +152,7 @@ extension CameraSession {
 
   // pragma MARK: Orientation
 
-  private func configureOrientation(configuration: CameraConfiguration) {
+  func configureOrientation(configuration: CameraConfiguration) {
     // Set up orientation and mirroring for all outputs.
     // Note: Photos are only rotated through EXIF tags, and Preview through view transforms
     let isMirrored = videoDeviceInput?.device.position == .front
@@ -169,7 +169,7 @@ extension CameraSession {
   /**
    Configures the active format (`format`)
    */
-  private func configureFormat(configuration: CameraConfiguration) throws {
+  func configureFormat(configuration: CameraConfiguration) throws {
     guard let jsFormat = configuration.format else {
       // No format was set, just use the default.
       return
@@ -216,7 +216,7 @@ extension CameraSession {
   /**
    Configures format-dependant "side-props" (`fps`, `lowLightBoost`, `torch`)
    */
-  private func configureSideProps(configuration: CameraConfiguration) throws {
+  func configureSideProps(configuration: CameraConfiguration) throws {
     guard let device = videoDeviceInput?.device else {
       throw CameraError.session(.cameraNotReady)
     }
@@ -263,7 +263,7 @@ extension CameraSession {
   /**
    Configures zoom (`zoom`)
    */
-  private func configureZoom(configuration: CameraConfiguration) throws {
+  func configureZoom(configuration: CameraConfiguration) throws {
     guard let device = videoDeviceInput?.device else {
       throw CameraError.session(.cameraNotReady)
     }
@@ -280,7 +280,7 @@ extension CameraSession {
   /**
    Configures the Audio Capture Session with an audio input and audio data output.
    */
-  final func configureAudioSession(configuration: CameraConfiguration) throws {
+  func configureAudioSession(configuration: CameraConfiguration) throws {
     ReactLogger.log(level: .info, message: "Configuring Audio Session...")
 
     // Prevent iOS from automatically configuring the Audio Session for us
