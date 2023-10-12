@@ -11,63 +11,6 @@ import Foundation
 
 extension CameraSession {
   /**
-   Configures the Audio Capture Session with an audio input and audio data output.
-   */
-  final func configureAudioSession(configuration: CameraConfiguration) throws {
-    ReactLogger.log(level: .info, message: "Configuring Audio Session...")
-
-    // Prevent iOS from automatically configuring the Audio Session for us
-    audioCaptureSession.automaticallyConfiguresApplicationAudioSession = false
-    let enableAudio = configuration.audio != .disabled
-
-    // Check microphone permission
-    if enableAudio {
-      let audioPermissionStatus = AVCaptureDevice.authorizationStatus(for: .audio)
-      if audioPermissionStatus != .authorized {
-        throw CameraError.permission(.microphone)
-      }
-    }
-
-    // Remove all current inputs
-    audioCaptureSession.inputs.forEach { input in
-      audioCaptureSession.removeInput(input)
-    }
-    audioDeviceInput = nil
-
-    // Audio Input (Microphone)
-    if enableAudio {
-      ReactLogger.log(level: .info, message: "Adding Audio input...")
-      guard let microphone = AVCaptureDevice.default(for: .audio) else {
-        throw CameraError.device(.microphoneUnavailable)
-      }
-      let input = try AVCaptureDeviceInput(device: microphone)
-      guard audioCaptureSession.canAddInput(input) else {
-        throw CameraError.parameter(.unsupportedInput(inputDescriptor: "audio-input"))
-      }
-      audioCaptureSession.addInput(input)
-      audioDeviceInput = input
-    }
-
-    // Remove all current outputs
-    audioCaptureSession.outputs.forEach { output in
-      audioCaptureSession.removeOutput(output)
-    }
-    audioOutput = nil
-
-    // Audio Output
-    if enableAudio {
-      ReactLogger.log(level: .info, message: "Adding Audio Data output...")
-      let output = AVCaptureAudioDataOutput()
-      guard audioCaptureSession.canAddOutput(output) else {
-        throw CameraError.parameter(.unsupportedOutput(outputDescriptor: "audio-output"))
-      }
-      output.setSampleBufferDelegate(self, queue: CameraQueues.audioQueue)
-      audioCaptureSession.addOutput(output)
-      audioOutput = output
-    }
-  }
-
-  /**
    Configures the Audio session and activates it. If the session was active it will shortly be deactivated before configuration.
 
    The Audio Session will be configured to allow background music, haptics (vibrations) and system sound playback while recording.

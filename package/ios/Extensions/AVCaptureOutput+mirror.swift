@@ -33,7 +33,7 @@ extension AVCaptureOutput {
     // Camera Sensors are always in 90deg rotation.
     // We are setting the target rotation here, so we need to rotate by 90deg once.
     let cameraOrientation = orientation.rotateRight()
-    
+
     // Set orientation for each connection
     connections.forEach { connection in
       if #available(iOS 17.0, *) {

@@ -44,7 +44,7 @@ enum Orientation {
       throw CameraError.parameter(.invalid(unionName: "orientation", receivedValue: union))
     }
   }
-  
+
   func toJSValue() -> String {
     switch self {
     case .portrait:
@@ -83,7 +83,7 @@ enum Orientation {
       return 270
     }
   }
-  
+
   func rotateRight() -> Orientation {
     switch self {
     case .portrait:
