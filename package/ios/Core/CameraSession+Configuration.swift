@@ -106,7 +106,7 @@ extension CameraSession {
 
       // 1. Configure
       videoOutput.setSampleBufferDelegate(self, queue: CameraQueues.videoQueue)
-      videoOutput.alwaysDiscardsLateVideoFrames = false
+      videoOutput.alwaysDiscardsLateVideoFrames = true
       let pixelFormatType = try video.getPixelFormat(for: videoOutput)
       videoOutput.videoSettings = [
         String(kCVPixelBufferPixelFormatTypeKey): pixelFormatType,
