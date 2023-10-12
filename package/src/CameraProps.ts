@@ -61,7 +61,7 @@ export interface CameraProps extends ViewProps {
   /**
    * Specifies the pixel format for the video pipeline.
    *
-   * Make sure the given {@linkcode format} supports the given {@linkcode pixelFormat} (see {@linkcode CameraDeviceFormat.pixelFormats format.pixelFormats}).
+   * Make sure the given {@linkcode format} supports the given {@linkcode pixelFormat}.
    *
    * Affects:
    * * {@linkcode frameProcessor}: The format of Frames from a [Frame Processor](https://react-native-vision-camera.com/docs/guides/frame-processors).
@@ -112,14 +112,14 @@ export interface CameraProps extends ViewProps {
 
   //#region Format/Preset selection
   /**
-   * Selects a given format. By default, the best matching format is chosen.
+   * Selects a given format. By default, the best matching format is chosen. See {@linkcode CameraDeviceFormat}
    *
    * The format defines the possible values for properties like:
-   * - {@linkcode fps}: See {@linkcode CameraDeviceFormat.minFps format.minFps} and {@linkcode CameraDeviceFormat.maxFps format.maxFps}
-   * - {@linkcode hdr}: See {@linkcode CameraDeviceFormat.supportsVideoHDR format.supportsVideoHDR}
-   * - {@linkcode pixelFormat}: See {@linkcode CameraDeviceFormat.pixelFormats format.pixelFormats}
-   * - {@linkcode enableDepthData}: See {@linkcode CameraDeviceFormat.supportsDepthCapture format.supportsDepthCapture}
-   * - {@linkcode videoStabilizationMode}: See {@linkcode CameraDeviceFormat.videoStabilizationModes format.videoStabilizationModes}
+   * - {@linkcode fps}: `format.minFps`...`format.maxFps`
+   * - {@linkcode hdr}: `format.supportsVideoHDR`
+   * - {@linkcode pixelFormat}: `format.pixelFormats``
+   * - {@linkcode enableDepthData}: `format.supportsDepthCapture``
+   * - {@linkcode videoStabilizationMode}: `format.videoStabilizationModes``
    *
    * In other words; {@linkcode enableDepthData} can only be set to true if {@linkcode CameraDeviceFormat.supportsDepthCapture format.supportsDepthCapture} is true.
    */
@@ -174,7 +174,7 @@ export interface CameraProps extends ViewProps {
   /**
    * Specifies the video stabilization mode to use.
    *
-   * Make sure the given {@linkcode format} supports the given {@linkcode videoStabilizationMode} (see {@linkcode CameraDeviceFormat.videoStabilizationModes format.videoStabilizationModes}).
+   * Make sure the given {@linkcode format} supports the given {@linkcode videoStabilizationMode}.
    */
   videoStabilizationMode?: VideoStabilizationMode
   //#endregion
