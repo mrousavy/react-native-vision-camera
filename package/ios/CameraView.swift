@@ -134,6 +134,14 @@ public final class CameraView: UIView, CameraSessionDelegate {
     }
     return .native
   }
+  
+  func getTorch() -> Torch {
+    // TODO: Use ObjC RCT enum parser for this
+    if let torch = try? Torch(fromTypeScriptUnion: torch) {
+      return torch
+    }
+    return .off
+  }
 
   // pragma MARK: Props updating
   override public final func didSetProps(_ changedProps: [String]!) {
@@ -141,90 +149,53 @@ public final class CameraView: UIView, CameraSessionDelegate {
 
     cameraSession.configure { config in
       // Input Camera Device
-      if changedProps.contains("cameraId") {
-        config.cameraId = cameraId as? String
-      }
+      config.cameraId = cameraId as? String
 
       // Photo
-      if changedProps.contains("photo") {
-        if photo {
-          config.photo = .enabled(config: CameraConfiguration.Photo(enableHighQualityPhotos: enableHighQualityPhotos,
-                                                                    enableDepthData: enableDepthData,
-                                                                    enablePortraitEffectsMatte: enablePortraitEffectsMatteDelivery))
-        } else {
-          config.photo = .disabled
-        }
+      if photo {
+        config.photo = .enabled(config: CameraConfiguration.Photo(enableHighQualityPhotos: enableHighQualityPhotos,
+                                                                  enableDepthData: enableDepthData,
+                                                                  enablePortraitEffectsMatte: enablePortraitEffectsMatteDelivery))
       }
       
       // Video/Frame Processor
-      if changedProps.contains("video") || changedProps.contains("enableFrameProcessor")
-          || changedProps.contains("pixelFormat") || changedProps.contains("enableBufferCompression")
-          || changedProps.contains("hdr") {
-        if video || enableFrameProcessor {
-          config.video = .enabled(config: CameraConfiguration.Video(pixelFormat: getPixelFormat(),
-                                                                    enableBufferCompression: enableBufferCompression,
-                                                                    enableHdr: hdr,
-                                                                    enableFrameProcessor: enableFrameProcessor))
-        } else {
-          config.video = .disabled
-        }
+      if video || enableFrameProcessor {
+        config.video = .enabled(config: CameraConfiguration.Video(pixelFormat: getPixelFormat(),
+                                                                  enableBufferCompression: enableBufferCompression,
+                                                                  enableHdr: hdr,
+                                                                  enableFrameProcessor: enableFrameProcessor))
       }
       
       // Audio
-      if changedProps.contains("audio") {
-        if audio {
-          config.audio = .enabled(config: CameraConfiguration.Audio())
-        } else {
-          config.audio = .disabled
-        }
+      if audio {
+        config.audio = .enabled(config: CameraConfiguration.Audio())
       }
       
       // Code Scanner
-      if changedProps.contains("codeScannerOptions") {
-        if let codeScannerOptions {
-          let codeScanner = try CodeScanner(fromJsValue: codeScannerOptions)
-          config.codeScanner = .enabled(config: codeScanner)
-        } else {
-          config.codeScanner = .disabled
-        }
+      if let codeScannerOptions {
+        let codeScanner = try CodeScanner(fromJsValue: codeScannerOptions)
+        config.codeScanner = .enabled(config: codeScanner)
       }
 
       // Orientation
-      if changedProps.contains("orientation") {
-        if let jsOrientation = orientation as? String {
-          let orientation = try Orientation(fromTypeScriptUnion: jsOrientation)
-          config.orientation = orientation
-        } else {
-          config.orientation = .portrait
-        }
+      if let jsOrientation = orientation as? String {
+        let orientation = try Orientation(fromTypeScriptUnion: jsOrientation)
+        config.orientation = orientation
       }
 
       // Format
-      if changedProps.contains("format") {
-        config.format = format
-      }
+      config.format = format
 
       // Side-Props
-      if changedProps.contains("fps") {
-        config.fps = fps?.int32Value
-      }
-      if changedProps.contains("lowLightBoost") {
-        config.enableLowLightBoost = lowLightBoost
-      }
-      if changedProps.contains("torch") {
-        // TODO: Parse TorchMode properly
-        config.torch = torch == "on" ? .on : .off
-      }
+      config.fps = fps?.int32Value
+      config.enableLowLightBoost = lowLightBoost
+      config.torch = getTorch()
 
       // Zoom
-      if changedProps.contains("zoom") {
-        config.zoom = zoom.doubleValue
-      }
+      config.zoom = zoom.doubleValue
 
       // isActive
-      if changedProps.contains("isActive") {
-        config.isActive = isActive
-      }
+      config.isActive = isActive
     }
 
     // Store `zoom` offset for native pinch-gesture
