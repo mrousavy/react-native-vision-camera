@@ -25,7 +25,7 @@ extension AVCaptureDevice {
       "supportsLowLightBoost": isLowLightBoostSupported,
       "supportsFocus": isFocusPointOfInterestSupported,
       "hardwareLevel": "full",
-      "sensorOrientation": "portrait", // TODO: Sensor Orientation?
+      "sensorOrientation": Orientation.landscapeLeft.toJSValue(),
       "formats": formats.map { format -> [String: Any] in
         format.toDictionary()
       },
