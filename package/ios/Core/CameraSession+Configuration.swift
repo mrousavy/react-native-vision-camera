@@ -226,22 +226,23 @@ extension CameraSession {
     }
 
     // Configure Low-Light-Boost
-    if configuration.enableLowLightBoost {
-      let isDifferent = configuration.enableLowLightBoost != device.automaticallyEnablesLowLightBoostWhenAvailable
-      if isDifferent && !device.isLowLightBoostSupported {
+    if device.automaticallyEnablesLowLightBoostWhenAvailable != configuration.enableLowLightBoost {
+      guard device.isLowLightBoostSupported else {
         throw CameraError.device(.lowLightBoostNotSupported)
       }
       device.automaticallyEnablesLowLightBoostWhenAvailable = configuration.enableLowLightBoost
     }
 
     // Configure Torch
-    if configuration.torch != .off {
+    let torchMode = configuration.torch.toTorchMode()
+    if device.torchMode != torchMode {
       guard device.hasTorch else {
         throw CameraError.device(.flashUnavailable)
       }
-
-      device.torchMode = configuration.torch.toTorchMode()
-      try device.setTorchModeOn(level: 1.0)
+      device.torchMode = torchMode
+      if torchMode == .on {
+        try device.setTorchModeOn(level: 1.0)
+      }
     }
   }
 
