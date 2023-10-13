@@ -258,7 +258,7 @@ extension CameraSession {
       return
     }
 
-    let clamped = max(min(zoom, device.activeFormat.videoMaxZoomFactor), CGFloat(1.0))
+    let clamped = max(min(zoom, device.activeFormat.videoMaxZoomFactor), device.minAvailableVideoZoomFactor)
     device.videoZoomFactor = clamped
   }
 
