@@ -121,12 +121,6 @@ class CameraSession(
       return Orientation.fromRotationDegrees(sensorRotation)
     }
 
-  suspend fun configure(callback: (session: CameraSession) -> Unit) {
-    mutex.withLock {
-      callback(this)
-    }
-  }
-
   suspend fun configureSession(
     cameraId: String,
     preview: CameraOutputs.PreviewOutput? = null,
