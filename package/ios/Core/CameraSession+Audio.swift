@@ -20,15 +20,22 @@ extension CameraSession {
     ReactLogger.log(level: .info, message: "Activating Audio Session...")
 
     do {
-      try AVAudioSession.sharedInstance().updateCategory(AVAudioSession.Category.playAndRecord,
-                                                         options: [.mixWithOthers,
-                                                                   .allowBluetoothA2DP,
-                                                                   .defaultToSpeaker,
-                                                                   .allowAirPlay])
+      let audioSession = AVAudioSession.sharedInstance()
+      
+      try audioSession.updateCategory(AVAudioSession.Category.playAndRecord,
+                                      options: [.mixWithOthers,
+                                                .allowBluetoothA2DP,
+                                                .defaultToSpeaker,
+                                                .allowAirPlay])
 
       if #available(iOS 14.5, *) {
         // prevents the audio session from being interrupted by a phone call
-        try AVAudioSession.sharedInstance().setPrefersNoInterruptionsFromSystemAlerts(true)
+        try audioSession.setPrefersNoInterruptionsFromSystemAlerts(true)
+      }
+      
+      if #available(iOS 13.0, *) {
+        // allow system sounds (notifications, calls, music) to play while recording
+        try audioSession.setAllowHapticsAndSystemSoundsDuringRecording(true)
       }
 
       audioCaptureSession.startRunning()

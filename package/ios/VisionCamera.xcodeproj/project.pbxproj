@@ -21,7 +21,6 @@
 		B85882362AD96AFF00317161 /* AutoFocusSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85882352AD96AFF00317161 /* AutoFocusSystem.swift */; };
 		B85882382AD96B4400317161 /* JSUnionValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85882372AD96B4400317161 /* JSUnionValue.swift */; };
 		B85F7AE92A77BB680089C539 /* FrameProcessorPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = B85F7AE82A77BB680089C539 /* FrameProcessorPlugin.m */; };
-		B86DC971260E2D5200FB17B2 /* AVAudioSession+trySetAllowHaptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = B86DC970260E2D5200FB17B2 /* AVAudioSession+trySetAllowHaptics.swift */; };
 		B87B11BF2A8E63B700732EBF /* PixelFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = B87B11BE2A8E63B700732EBF /* PixelFormat.swift */; };
 		B88103DB2AD6F0A00087F063 /* CameraSession+Audio.swift in Sources */ = {isa = PBXBuildFile; fileRef = B88103DA2AD6F0A00087F063 /* CameraSession+Audio.swift */; };
 		B88103DD2AD6F62C0087F063 /* CameraSession+Focus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B88103DC2AD6F62C0087F063 /* CameraSession+Focus.swift */; };
@@ -115,7 +114,6 @@
 		B85882352AD96AFF00317161 /* AutoFocusSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoFocusSystem.swift; sourceTree = "<group>"; };
 		B85882372AD96B4400317161 /* JSUnionValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSUnionValue.swift; sourceTree = "<group>"; };
 		B85F7AE82A77BB680089C539 /* FrameProcessorPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FrameProcessorPlugin.m; sourceTree = "<group>"; };
-		B86DC970260E2D5200FB17B2 /* AVAudioSession+trySetAllowHaptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAudioSession+trySetAllowHaptics.swift"; sourceTree = "<group>"; };
 		B87B11BE2A8E63B700732EBF /* PixelFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelFormat.swift; sourceTree = "<group>"; };
 		B88103DA2AD6F0A00087F063 /* CameraSession+Audio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraSession+Audio.swift"; sourceTree = "<group>"; };
 		B88103DC2AD6F62C0087F063 /* CameraSession+Focus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraSession+Focus.swift"; sourceTree = "<group>"; };
@@ -267,7 +265,6 @@
 			isa = PBXGroup;
 			children = (
 				B8D22CDB2642DB4D00234472 /* AVAssetWriterInputPixelBufferAdaptor+initWithVideoSettings.swift */,
-				B86DC970260E2D5200FB17B2 /* AVAudioSession+trySetAllowHaptics.swift */,
 				B80E069F266632F000728644 /* AVAudioSession+updateCategory.swift */,
 				B882720F26AEB1A100B14107 /* AVCaptureConnection+setInterfaceOrientation.swift */,
 				B887516325E0102000DB86D6 /* AVCaptureDevice+neutralZoom.swift */,
@@ -506,7 +503,6 @@
 				B88103DF2AD6FB230087F063 /* Orientation.swift in Sources */,
 				B8F127D02ACF054A00B39EA3 /* CMVideoDimensions+toCGSize.swift in Sources */,
 				B8994E6C263F03E100069589 /* JSINSObjectConversion.mm in Sources */,
-				B86DC971260E2D5200FB17B2 /* AVAudioSession+trySetAllowHaptics.swift in Sources */,
 				B8A1AEC62AD7F08E00169C0D /* CameraView+Focus.swift in Sources */,
 				B88B47472667C8E00091F538 /* AVCaptureSession+setVideoStabilizationMode.swift in Sources */,
 				B88103E32AD7065C0087F063 /* CameraSessionDelegate.swift in Sources */,
