@@ -192,22 +192,8 @@ extension CameraSession {
       throw CameraError.format(.invalidFormat)
     }
 
-    let shouldReconfigurePhotoOutput = device.activeFormat.photoDimensions.toCGSize() != format.photoDimensions.toCGSize()
-
     // Set new device Format
     device.activeFormat = format
-
-    // The Photo Output uses the smallest available Dimension by default. We need to configure it for the maximum here
-    if shouldReconfigurePhotoOutput, #available(iOS 16.0, *) {
-      if let photoOutput = photoOutput {
-        let currentMax = photoOutput.maxPhotoDimensions
-        let currW = currentMax.width
-        let currH = currentMax.height
-        ReactLogger.log(level: .warning, message: "Current: \(currW) x \(currH) | Next: \(format.photoDimensions.width) x \(format.photoDimensions.height)")
-
-        photoOutput.maxPhotoDimensions = format.photoDimensions
-      }
-    }
 
     ReactLogger.log(level: .info, message: "Successfully configured Format!")
   }
