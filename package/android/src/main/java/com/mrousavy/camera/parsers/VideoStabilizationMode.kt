@@ -28,13 +28,13 @@ enum class VideoStabilizationMode(override val unionValue: String) : JSUnionValu
     }
 
   companion object : JSUnionValue.Companion<VideoStabilizationMode> {
-    override fun fromUnionValue(unionValue: String?): VideoStabilizationMode? =
+    override fun fromUnionValue(unionValue: String?): VideoStabilizationMode =
       when (unionValue) {
         "off" -> OFF
         "standard" -> STANDARD
         "cinematic" -> CINEMATIC
         "cinematic-extended" -> CINEMATIC_EXTENDED
-        else -> null
+        else -> OFF
       }
 
     fun fromDigitalVideoStabilizationMode(stabiliazionMode: Int): VideoStabilizationMode =

@@ -62,6 +62,8 @@ class CameraSession(
     }
   }
 
+  private var configuration: CameraConfiguration? = null
+
   // setInput(..)
   private var cameraId: String? = null
 

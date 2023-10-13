@@ -24,13 +24,13 @@ enum class PixelFormat(override val unionValue: String) : JSUnionValue {
         else -> UNKNOWN
       }
 
-    override fun fromUnionValue(unionValue: String?): PixelFormat? =
+    override fun fromUnionValue(unionValue: String?): PixelFormat =
       when (unionValue) {
         "yuv" -> YUV
         "rgb" -> RGB
         "native" -> NATIVE
         "unknown" -> UNKNOWN
-        else -> null
+        else -> UNKNOWN
       }
   }
 }
