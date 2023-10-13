@@ -123,9 +123,29 @@ class CameraSession(
       return Orientation.fromRotationDegrees(sensorRotation)
     }
 
-  suspend fun configure(callback: (session: CameraSession) -> Unit) {
+  suspend fun configure(callback: (configuration: CameraConfiguration) -> Unit) {
+    Log.i(TAG, "Updating CameraSession Configuration...")
+
+    val config = CameraConfiguration.copyOf(this.configuration)
+    callback(config)
+    val diff = CameraConfiguration.difference(this.configuration, config)
+
     mutex.withLock {
-      callback(this)
+      try {
+        if (diff.deviceChanged) {
+          configureCameraDevice()
+        }
+        if (diff.outputsChanged) {
+          configureOutputs()
+        }
+
+        // etc...
+
+        Log.i(TAG, "Successfully updated CameraSession Configuration!")
+      } catch (error: Throwable) {
+        Log.e(TAG, "Failed to configure CameraSession! Error: ${error.message}, Config-Diff: $difference", error)
+        onError(error)
+      }
     }
   }
 
