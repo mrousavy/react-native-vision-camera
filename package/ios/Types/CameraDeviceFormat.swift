@@ -58,6 +58,7 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
   }
 
   init(jsValue: NSDictionary) throws {
+    // swiftlint:disable force_cast
     videoWidth = jsValue["videoWidth"] as! Int
     videoHeight = jsValue["videoHeight"] as! Int
     photoWidth = jsValue["photoWidth"] as! Int
@@ -77,6 +78,7 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
     let jsPixelFormats = jsValue["pixelFormats"] as! [String]
     pixelFormats = try jsPixelFormats.map { try PixelFormat(jsValue: $0) }
     supportsDepthCapture = jsValue["supportsDepthCapture"] as! Bool
+    // swiftlint:enable force_cast
   }
 
   func isEqualTo(format other: AVCaptureDevice.Format) -> Bool {

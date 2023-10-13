@@ -21,7 +21,7 @@ extension CameraSession {
 
     do {
       let audioSession = AVAudioSession.sharedInstance()
-      
+
       try audioSession.updateCategory(AVAudioSession.Category.playAndRecord,
                                       options: [.mixWithOthers,
                                                 .allowBluetoothA2DP,
@@ -32,7 +32,7 @@ extension CameraSession {
         // prevents the audio session from being interrupted by a phone call
         try audioSession.setPrefersNoInterruptionsFromSystemAlerts(true)
       }
-      
+
       if #available(iOS 13.0, *) {
         // allow system sounds (notifications, calls, music) to play while recording
         try audioSession.setAllowHapticsAndSystemSoundsDuringRecording(true)
