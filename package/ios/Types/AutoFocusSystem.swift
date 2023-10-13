@@ -6,6 +6,7 @@
 //  Copyright © 2023 mrousavy. All rights reserved.
 //
 
+import AVFoundation
 import Foundation
 
 enum AutoFocusSystem: String, JSUnionValue {
