@@ -1,4 +1,4 @@
-package com.mrousavy.camera
+package com.mrousavy.camera.core
 
 import com.mrousavy.camera.core.outputs.CameraOutputs
 import com.mrousavy.camera.parsers.CameraDeviceError

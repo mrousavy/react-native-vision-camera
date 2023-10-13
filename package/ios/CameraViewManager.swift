@@ -38,6 +38,10 @@ final class CameraViewManager: RCTViewManager {
     #endif
   }
 
+  // TODO: The startRecording() func cannot be async because RN doesn't allow
+  //       both a callback and a Promise in a single function. Wait for TurboModules?
+  //       This means that any errors that occur in this function have to be delegated through
+  //       the callback, but I'd prefer for them to throw for the original function instead.
   @objc
   final func startRecording(_ node: NSNumber, options: NSDictionary, onRecordCallback: @escaping RCTResponseSenderBlock) {
     let component = getCameraView(withTag: node)

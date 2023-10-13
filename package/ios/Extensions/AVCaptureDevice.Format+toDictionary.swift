@@ -8,27 +8,20 @@
 
 import AVFoundation
 
-private func getAllVideoStabilizationModes() -> [AVCaptureVideoStabilizationMode] {
-  var modes: [AVCaptureVideoStabilizationMode] = [.auto, .cinematic, .off, .standard]
-  if #available(iOS 13, *) {
-    modes.append(.cinematicExtended)
-  }
-  return modes
-}
-
 extension AVCaptureDevice.Format {
   var videoStabilizationModes: [AVCaptureVideoStabilizationMode] {
-    return getAllVideoStabilizationModes().filter { self.isVideoStabilizationModeSupported($0) }
+    let allModes = AVCaptureDevice.Format.getAllVideoStabilizationModes()
+    return allModes.filter { self.isVideoStabilizationModeSupported($0) }
   }
 
-  var minFrameRate: Float64 {
+  var minFps: Float64 {
     let maxRange = videoSupportedFrameRateRanges.max { l, r in
       return l.maxFrameRate < r.maxFrameRate
     }
     return maxRange?.maxFrameRate ?? 0
   }
 
-  var maxFrameRate: Float64 {
+  var maxFps: Float64 {
     let maxRange = videoSupportedFrameRateRanges.max { l, r in
       return l.maxFrameRate < r.maxFrameRate
     }
@@ -45,52 +38,20 @@ extension AVCaptureDevice.Format {
     return hdrFormats.contains(pixelFormat)
   }
 
-  func toDictionary() -> [String: AnyHashable] {
-    let availablePixelFormats = AVCaptureVideoDataOutput().availableVideoPixelFormatTypes
-    let pixelFormats = availablePixelFormats.map { format in PixelFormat(mediaSubType: format) }
-
-    return [
-      "videoStabilizationModes": videoStabilizationModes.map(\.descriptor),
-      "autoFocusSystem": autoFocusSystem.descriptor,
-      "photoHeight": photoDimensions.height,
-      "photoWidth": photoDimensions.width,
-      "videoHeight": videoDimensions.height,
-      "videoWidth": videoDimensions.width,
-      "maxISO": maxISO,
-      "minISO": minISO,
-      "fieldOfView": videoFieldOfView,
-      "maxZoom": videoMaxZoomFactor,
-      "supportsVideoHDR": supportsVideoHDR,
-      "supportsPhotoHDR": false,
-      "minFps": minFrameRate,
-      "maxFps": maxFrameRate,
-      "pixelFormats": pixelFormats.map(\.unionValue),
-      "supportsDepthCapture": !supportedDepthDataFormats.isEmpty,
-    ]
+  var supportsPhotoHDR: Bool {
+    // TODO: Supports Photo HDR on iOS?
+    return false
   }
 
-  /**
-   Compares this format to the given JS `CameraDeviceFormat`.
-   Only the most important properties (such as dimensions and FPS) are taken into consideration,
-   so this is not an exact equals, but more like a "matches filter" comparison.
-   */
-  func isEqualTo(jsFormat dict: NSDictionary) -> Bool {
-    guard dict["photoWidth"] as? Int32 == photoDimensions.width && dict["photoHeight"] as? Int32 == photoDimensions.height else {
-      return false
-    }
+  var supportsDepthCapture: Bool {
+    return !supportedDepthDataFormats.isEmpty
+  }
 
-    guard dict["videoWidth"] as? Int32 == videoDimensions.width && dict["videoHeight"] as? Int32 == videoDimensions.height else {
-      return false
+  private static func getAllVideoStabilizationModes() -> [AVCaptureVideoStabilizationMode] {
+    var modes: [AVCaptureVideoStabilizationMode] = [.auto, .cinematic, .off, .standard]
+    if #available(iOS 13, *) {
+      modes.append(.cinematicExtended)
     }
-
-    guard dict["minFps"] as? Float64 == minFrameRate && dict["maxFps"] as? Float64 == maxFrameRate else {
-      return false
-    }
-
-    guard dict["supportsVideoHDR"] as? Bool == supportsVideoHDR else {
-      return false
-    }
-
-    return true
+    return modes
   }
 }

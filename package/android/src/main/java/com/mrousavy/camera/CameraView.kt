@@ -13,7 +13,10 @@ import android.view.Surface
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.ReadableMap
+import com.mrousavy.camera.core.CameraPermissionError
+import com.mrousavy.camera.core.CameraQueues
 import com.mrousavy.camera.core.CameraSession
+import com.mrousavy.camera.core.NoCameraDeviceError
 import com.mrousavy.camera.core.PreviewView
 import com.mrousavy.camera.core.outputs.CameraOutputs
 import com.mrousavy.camera.extensions.bigger

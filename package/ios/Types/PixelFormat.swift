@@ -9,38 +9,22 @@
 import AVFoundation
 import Foundation
 
-enum PixelFormat {
+enum PixelFormat: String, JSUnionValue {
   case yuv
   case rgb
   case native
   case unknown
 
-  var unionValue: String {
-    switch self {
-    case .yuv:
-      return "yuv"
-    case .rgb:
-      return "rgb"
-    case .native:
-      return "native"
-    case .unknown:
-      return "unknown"
+  init(jsValue: String) throws {
+    if let parsed = PixelFormat(rawValue: jsValue) {
+      self = parsed
+    } else {
+      throw CameraError.parameter(.invalid(unionName: "pixelFormat", receivedValue: jsValue))
     }
   }
 
-  init(unionValue: String) throws {
-    switch unionValue {
-    case "yuv":
-      self = .yuv
-    case "rgb":
-      self = .rgb
-    case "native":
-      self = .native
-    case "unknown":
-      self = .unknown
-    default:
-      throw CameraError.parameter(.invalid(unionName: "pixelFormat", receivedValue: unionValue))
-    }
+  var jsValue: String {
+    return rawValue
   }
 
   init(mediaSubType: OSType) {

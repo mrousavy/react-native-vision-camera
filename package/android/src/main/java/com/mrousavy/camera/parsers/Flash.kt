@@ -1,6 +1,6 @@
 package com.mrousavy.camera.parsers
 
-import com.mrousavy.camera.InvalidTypeScriptUnionError
+import com.mrousavy.camera.core.InvalidTypeScriptUnionError
 
 enum class Flash(override val unionValue: String) : JSUnionValue {
   OFF("off"),

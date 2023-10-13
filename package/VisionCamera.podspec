@@ -41,6 +41,7 @@ Pod::Spec.new do |s|
   s.source_files = [
     # Core
     "ios/*.{m,mm,swift}",
+    "ios/Core/*.{m,mm,swift}",
     "ios/Extensions/*.{m,mm,swift}",
     "ios/Parsers/*.{m,mm,swift}",
     "ios/React Utils/*.{m,mm,swift}",

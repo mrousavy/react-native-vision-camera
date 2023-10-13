@@ -1,4 +1,4 @@
-package com.mrousavy.camera
+package com.mrousavy.camera.core
 
 import android.os.Handler
 import android.os.HandlerThread

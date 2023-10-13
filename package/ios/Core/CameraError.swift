@@ -175,7 +175,7 @@ enum CaptureError {
   case recordingInProgress
   case noRecordingInProgress
   case fileError
-  case createTempFileError
+  case createTempFileError(message: String? = nil)
   case createRecorderError(message: String? = nil)
   case videoNotEnabled
   case photoNotEnabled
@@ -213,8 +213,8 @@ enum CaptureError {
       return "There was no active video recording in progress! Did you call stopRecording() twice?"
     case .fileError:
       return "An unexpected File IO error occured!"
-    case .createTempFileError:
-      return "Failed to create a temporary file!"
+    case let .createTempFileError(message: message):
+      return "Failed to create a temporary file! \(message ?? "(no additional message)")"
     case let .createRecorderError(message: message):
       return "Failed to create the AVAssetWriter (Recorder)! \(message ?? "(no additional message)")"
     case .videoNotEnabled:
@@ -264,7 +264,7 @@ enum CameraError: Error {
   case session(_ id: SessionError)
   case capture(_ id: CaptureError)
   case codeScanner(_ id: CodeScannerError)
-  case unknown(message: String? = nil)
+  case unknown(message: String? = nil, cause: NSError? = nil)
 
   var code: String {
     switch self {
@@ -303,8 +303,17 @@ enum CameraError: Error {
       return id.message
     case let .codeScanner(id: id):
       return id.message
-    case let .unknown(message: message):
-      return message ?? "An unexpected error occured."
+    case let .unknown(message: message, cause: cause):
+      return message ?? cause?.description ?? "An unexpected error occured."
+    }
+  }
+
+  var cause: NSError? {
+    switch self {
+    case let .unknown(message: _, cause: cause):
+      return cause
+    default:
+      return nil
     }
   }
 }

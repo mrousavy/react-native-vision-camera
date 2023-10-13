@@ -10,7 +10,7 @@ import com.facebook.react.bridge.UiThreadUtil
 import com.facebook.react.turbomodule.core.CallInvokerHolderImpl
 import com.facebook.react.uimanager.UIManagerHelper
 import com.mrousavy.camera.CameraView
-import com.mrousavy.camera.ViewNotFoundError
+import com.mrousavy.camera.core.ViewNotFoundError
 import java.lang.ref.WeakReference
 
 @Suppress("KotlinJniMissingFunction") // we use fbjni.

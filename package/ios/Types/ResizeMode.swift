@@ -6,12 +6,13 @@
 //  Copyright © 2023 mrousavy. All rights reserved.
 //
 
+import AVFoundation
 import Foundation
 
 /**
  A ResizeMode used for the PreviewView.
  */
-enum ResizeMode {
+enum ResizeMode: String, JSUnionValue {
   /**
    Keep aspect ratio, but fill entire parent view (centered).
    */
@@ -21,15 +22,15 @@ enum ResizeMode {
    */
   case contain
 
-  init(fromTypeScriptUnion union: String) {
-    switch union {
-    case "cover":
-      self = .cover
-    case "contain":
-      self = .contain
-    default:
-      // TODO: Use the onError event for safer error handling!
-      fatalError("Invalid value passed for resizeMode! (\(union))")
+  init(jsValue: String) throws {
+    if let parsed = ResizeMode(rawValue: jsValue) {
+      self = parsed
+    } else {
+      throw CameraError.parameter(.invalid(unionName: "resizeMode", receivedValue: jsValue))
     }
+  }
+
+  var jsValue: String {
+    return rawValue
   }
 }

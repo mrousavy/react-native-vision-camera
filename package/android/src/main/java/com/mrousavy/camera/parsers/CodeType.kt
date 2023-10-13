@@ -1,8 +1,8 @@
 package com.mrousavy.camera.parsers
 
 import com.google.mlkit.vision.barcode.common.Barcode
-import com.mrousavy.camera.CodeTypeNotSupportedError
-import com.mrousavy.camera.InvalidTypeScriptUnionError
+import com.mrousavy.camera.core.CodeTypeNotSupportedError
+import com.mrousavy.camera.core.InvalidTypeScriptUnionError
 
 enum class CodeType(override val unionValue: String) : JSUnionValue {
   CODE_128("code-128"),

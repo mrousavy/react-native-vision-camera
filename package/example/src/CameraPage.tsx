@@ -47,7 +47,12 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
   // camera device settings
   const [preferredDevice] = usePreferredCameraDevice()
-  const device = useCameraDevice(cameraPosition)
+  let device = useCameraDevice(cameraPosition)
+
+  if (preferredDevice != null && preferredDevice.position === cameraPosition) {
+    // override default device with the one selected by the user in settings
+    device = preferredDevice
+  }
 
   const [targetFps, setTargetFps] = useState(60)
 
@@ -172,7 +177,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
               <ReanimatedCamera
                 ref={camera}
                 style={StyleSheet.absoluteFill}
-                device={preferredDevice ?? device}
+                device={device}
                 format={format}
                 fps={fps}
                 hdr={enableHdr}

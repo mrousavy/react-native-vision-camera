@@ -9,8 +9,6 @@ import android.os.Build
 import android.util.Log
 import android.view.Surface
 import com.facebook.jni.HybridData
-import com.mrousavy.camera.CameraQueues
-import com.mrousavy.camera.FrameProcessorsUnavailableError
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.parsers.Orientation
