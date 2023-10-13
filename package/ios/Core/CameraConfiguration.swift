@@ -26,7 +26,7 @@ class CameraConfiguration {
   var orientation: Orientation = .portrait
 
   // Format
-  var format: NSDictionary?
+  var format: CameraDeviceFormat?
 
   // Side-Props
   var fps: Int32?

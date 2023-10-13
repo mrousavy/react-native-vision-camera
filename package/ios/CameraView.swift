@@ -49,7 +49,8 @@ public final class CameraView: UIView, CameraSessionDelegate {
   @objc var videoStabilizationMode: NSString?
   @objc var resizeMode: NSString = "cover" {
     didSet {
-      previewView.resizeMode = ResizeMode(fromTypeScriptUnion: resizeMode as String)
+      let parsed = try? ResizeMode(jsValue: resizeMode as String)
+      previewView.resizeMode = parsed ?? .cover
     }
   }
 
@@ -122,7 +123,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
     // TODO: Use ObjC RCT enum parser for this
     if let pixelFormat = pixelFormat as? String {
       do {
-        return try PixelFormat(unionValue: pixelFormat)
+        return try PixelFormat(jsValue: pixelFormat)
       } catch {
         if let error = error as? CameraError {
           onError(error)
@@ -136,7 +137,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
 
   func getTorch() -> Torch {
     // TODO: Use ObjC RCT enum parser for this
-    if let torch = try? Torch(fromTypeScriptUnion: torch) {
+    if let torch = try? Torch(jsValue: torch) {
       return torch
     }
     return .off
@@ -186,14 +187,19 @@ public final class CameraView: UIView, CameraSessionDelegate {
 
       // Orientation
       if let jsOrientation = orientation as? String {
-        let orientation = try Orientation(fromTypeScriptUnion: jsOrientation)
+        let orientation = try Orientation(jsValue: jsOrientation)
         config.orientation = orientation
       } else {
         config.orientation = .portrait
       }
 
       // Format
-      config.format = format
+      if let jsFormat = format {
+        let format = try CameraDeviceFormat(jsValue: jsFormat)
+        config.format = format
+      } else {
+        config.format = nil
+      }
 
       // Side-Props
       config.fps = fps?.int32Value

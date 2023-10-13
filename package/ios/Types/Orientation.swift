@@ -12,7 +12,7 @@ import Foundation
 /**
  The Orientation used for the Preview, Photo, Video and Frame Processor outputs.
  */
-enum Orientation {
+enum Orientation: String, JSUnionValue {
   /**
    Phone is in upright portrait mode, home button/indicator is at the bottom
    */
@@ -20,42 +20,26 @@ enum Orientation {
   /**
    Phone is in landscape mode, home button/indicator is on the left
    */
-  case landscapeLeft
+  case landscapeLeft = "landscape-left"
   /**
    Phone is in upside-down portrait mode, home button/indicator is at the top
    */
-  case portraitUpsideDown
+  case portraitUpsideDown = "portrait-upside-down"
   /**
    Phone is in landscape mode, home button/indicator is on the right
    */
-  case landscapeRight
+  case landscapeRight = "landscape-right"
 
-  init(fromTypeScriptUnion union: String) throws {
-    switch union {
-    case "portrait":
-      self = .portrait
-    case "landscape-left":
-      self = .landscapeLeft
-    case "portrait-upside-down":
-      self = .portraitUpsideDown
-    case "landscape-right":
-      self = .landscapeRight
-    default:
-      throw CameraError.parameter(.invalid(unionName: "orientation", receivedValue: union))
+  init(jsValue: String) throws {
+    if let parsed = Orientation(rawValue: jsValue) {
+      self = parsed
+    } else {
+      throw CameraError.parameter(.invalid(unionName: "orientation", receivedValue: jsValue))
     }
   }
 
-  func toJSValue() -> String {
-    switch self {
-    case .portrait:
-      return "portrait"
-    case .landscapeLeft:
-      return "landscape-left"
-    case .portraitUpsideDown:
-      return "portrait-upside-down"
-    case .landscapeRight:
-      return "landscape-right"
-    }
+  var jsValue: String {
+    return rawValue
   }
 
   func toAVCaptureVideoOrientation() -> AVCaptureVideoOrientation {

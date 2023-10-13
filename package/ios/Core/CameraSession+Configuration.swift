@@ -170,23 +170,24 @@ extension CameraSession {
    Configures the active format (`format`)
    */
   func configureFormat(configuration: CameraConfiguration) throws {
-    guard let jsFormat = configuration.format else {
+    guard let targetFormat = configuration.format else {
       // No format was set, just use the default.
       return
     }
 
-    ReactLogger.log(level: .info, message: "Configuring Format (\(jsFormat))...")
+    ReactLogger.log(level: .info, message: "Configuring Format (\(targetFormat))...")
     guard let device = videoDeviceInput?.device else {
       throw CameraError.session(.cameraNotReady)
     }
 
-    if device.activeFormat.isEqualTo(jsFormat: jsFormat) {
+    let currentFormat = CameraDeviceFormat(fromFormat: device.activeFormat)
+    if currentFormat == targetFormat {
       ReactLogger.log(level: .info, message: "Already selected active format.")
       return
     }
 
     // Find matching format (JS Dictionary -> strongly typed Swift class)
-    let format = device.formats.first { $0.isEqualTo(jsFormat: jsFormat) }
+    let format = device.formats.first { targetFormat.isEqualTo(format: $0) }
     guard let format else {
       throw CameraError.format(.invalidFormat)
     }

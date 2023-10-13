@@ -12,7 +12,7 @@ import Foundation
 /**
  A Torch used for permanent flash.
  */
-enum Torch {
+enum Torch: String, JSUnionValue {
   /**
    Torch (flash unit) is always off.
    */
@@ -22,15 +22,16 @@ enum Torch {
    */
   case on
 
-  init(fromTypeScriptUnion union: String) throws {
-    switch union {
-    case "on":
-      self = .on
-    case "off":
-      self = .off
-    default:
-      throw CameraError.parameter(.invalid(unionName: "torch", receivedValue: union))
+  init(jsValue: String) throws {
+    if let parsed = Torch(rawValue: jsValue) {
+      self = parsed
+    } else {
+      throw CameraError.parameter(.invalid(unionName: "torch", receivedValue: jsValue))
     }
+  }
+
+  var jsValue: String {
+    return rawValue
   }
 
   func toTorchMode() -> AVCaptureDevice.TorchMode {
