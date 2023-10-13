@@ -12,7 +12,7 @@ import Foundation
 /**
  A serializable representation of [AVCaptureDevice.Format]
  */
-struct CameraDeviceFormat: Equatable {
+struct CameraDeviceFormat: Equatable, CustomStringConvertible {
   let videoWidth: Int
   let videoHeight: Int
 

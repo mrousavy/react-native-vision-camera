@@ -182,7 +182,7 @@ extension CameraSession {
 
     let currentFormat = CameraDeviceFormat(fromFormat: device.activeFormat)
     if currentFormat == targetFormat {
-      ReactLogger.log(level: .info, message: "Already selected active format.")
+      ReactLogger.log(level: .info, message: "Already selected active format, no need to configure.")
       return
     }
 
