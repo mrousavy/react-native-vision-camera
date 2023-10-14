@@ -11,9 +11,9 @@ data class CameraConfiguration(
   var cameraId: String? = null,
 
   // Outputs
-  var photo: OutputConfiguration<Photo> = OutputConfiguration.Disabled.create(),
-  var video: OutputConfiguration<Video> = OutputConfiguration.Disabled.create(),
-  var codeScanner: OutputConfiguration<CodeScanner> = OutputConfiguration.Disabled.create(),
+  var photo: Output<Photo> = Output.Disabled.create(),
+  var video: Output<Video> = Output.Disabled.create(),
+  var codeScanner: Output<CodeScanner> = Output.Disabled.create(),
 
   // Orientation
   var orientation: Orientation = Orientation.PORTRAIT,
@@ -33,7 +33,7 @@ data class CameraConfiguration(
   var isActive: Boolean = false,
 
   // Audio Session
-  var audio: OutputConfiguration<Audio> = OutputConfiguration.Disabled.create()
+  var audio: Output<Audio> = Output.Disabled.create()
 ) {
 
   data class CodeScanner(val codeTypes: List<CodeType>)
@@ -46,10 +46,10 @@ data class CameraConfiguration(
   class Audio
 
   @Suppress("EqualsOrHashCode")
-  sealed class OutputConfiguration<T> {
+  sealed class Output<T> {
     val isEnabled: Boolean
       get() = this is Enabled<*>
-    class Disabled<T> private constructor(): OutputConfiguration<T>() {
+    class Disabled<T> private constructor(): Output<T>() {
       override fun equals(other: Any?): Boolean {
         return other is Disabled<*>
       }
@@ -57,7 +57,7 @@ data class CameraConfiguration(
         fun <T> create(): Disabled<T> = Disabled()
       }
     }
-    class Enabled<T> private constructor(val config: T): OutputConfiguration<T>() {
+    class Enabled<T> private constructor(val config: T): Output<T>() {
       override fun equals(other: Any?): Boolean {
         return other is Enabled<*> && config == other.config
       }
