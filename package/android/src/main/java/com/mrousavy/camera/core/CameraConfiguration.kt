@@ -33,38 +33,40 @@ data class CameraConfiguration(
   var isActive: Boolean = false,
 
   // Audio Session
-  var audio: OutputConfiguration = OutputConfiguration.Disabled
+  var audio: OutputConfiguration<Audio> = OutputConfiguration.Disabled.create()
 ) {
 
-  class CodeScanner(
-    val codeTypes: List<CodeType>
-  )
+  data class CodeScanner(
+    val codeTypes: Array<CodeType>
+  ) {
+    override fun equals(other: Any?): Boolean {
+      return other is CodeScanner && other.codeTypes.contentEquals(codeTypes)
+    }
+    override fun hashCode(): Int {
+      return codeTypes.contentHashCode()
+    }
+  }
   class Photo
   data class Video(
     val pixelFormat: PixelFormat,
     var enableHdr: Boolean,
     val enableFrameProcessor: Boolean
   )
+  class Audio
 
+  @Suppress("EqualsOrHashCode")
   sealed class OutputConfiguration<T> {
     class Disabled<T> private constructor(): OutputConfiguration<T>() {
       override fun equals(other: Any?): Boolean {
         return other is Disabled<*>
       }
-      override fun hashCode(): Int {
-        return javaClass.hashCode()
-      }
       companion object {
         fun <T> create(): Disabled<T> = Disabled()
       }
     }
-    // class Enabled<T>(val config: T): OutputConfiguration<T>()
     class Enabled<T> private constructor(val config: T): OutputConfiguration<T>() {
       override fun equals(other: Any?): Boolean {
         return other is Enabled<*> && config == other.config
-      }
-      override fun hashCode(): Int {
-        return javaClass.hashCode()
       }
       companion object {
         fun <T> create(config: T): Enabled<T> = Enabled(config)
