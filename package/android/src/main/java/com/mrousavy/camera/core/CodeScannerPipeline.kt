@@ -29,7 +29,6 @@ class CodeScannerPipeline(val size: Size, val format: Int, val output: CameraOut
     val types = output.codeScanner.codeTypes.map { it.toBarcodeType() }
     val barcodeScannerOptions = BarcodeScannerOptions.Builder()
       .setBarcodeFormats(types[0], *types.toIntArray())
-      .setExecutor(CameraQueues.codeScannerQueue.executor)
       .build()
     scanner = BarcodeScanning.getClient(barcodeScannerOptions)
 
