@@ -11,6 +11,7 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.MeteringRectangle
+import android.hardware.camera2.params.OutputConfiguration
 import android.media.Image
 import android.os.Build
 import android.util.Log
@@ -155,8 +156,28 @@ class CameraSession(
   }
 
   suspend fun configureSession(config: CameraConfiguration) {
-    val cameraId = config.cameraId ?: throw NoCameraDeviceError()
+    val cameraDevice = cameraDevice ?: throw NoCameraDeviceError()
     Log.i(TAG, "Configuring Session for Camera $cameraId...")
+
+    captureSession?.close()
+    captureSession = null
+
+    val session = cameraDevice.createCaptureSession(cameraManager, outputs, { session ->
+      Log.d(TAG, "Capture Session Closed ($captureSession == $session)")
+      if (captureSession == session) {
+        // The current CameraCaptureSession has been closed, handle that!
+        onClosed()
+        captureSession = null
+      } else {
+        // A new CameraCaptureSession has been opened, we don't care about this one anymore.
+      }
+    }, CameraQueues.cameraQueue)
+
+    // Cache session in memory
+    captureSession = session
+    lastOutputsHashCode = outputs.hashCode()
+    // New session initialized
+    onInitialized()
 
     val outputs = CameraOutputs(
       cameraId,

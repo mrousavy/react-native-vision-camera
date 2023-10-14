@@ -36,16 +36,7 @@ data class CameraConfiguration(
   var audio: OutputConfiguration<Audio> = OutputConfiguration.Disabled.create()
 ) {
 
-  data class CodeScanner(
-    val codeTypes: Array<CodeType>
-  ) {
-    override fun equals(other: Any?): Boolean {
-      return other is CodeScanner && other.codeTypes.contentEquals(codeTypes)
-    }
-    override fun hashCode(): Int {
-      return codeTypes.contentHashCode()
-    }
-  }
+  data class CodeScanner(val codeTypes: List<CodeType>)
   class Photo
   data class Video(
     val pixelFormat: PixelFormat,
@@ -56,6 +47,8 @@ data class CameraConfiguration(
 
   @Suppress("EqualsOrHashCode")
   sealed class OutputConfiguration<T> {
+    val isEnabled: Boolean
+      get() = this is Enabled<*>
     class Disabled<T> private constructor(): OutputConfiguration<T>() {
       override fun equals(other: Any?): Boolean {
         return other is Disabled<*>

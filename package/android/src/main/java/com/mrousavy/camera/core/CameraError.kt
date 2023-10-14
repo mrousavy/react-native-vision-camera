@@ -1,5 +1,6 @@
 package com.mrousavy.camera.core
 
+import android.hardware.camera2.params.OutputConfiguration
 import com.mrousavy.camera.core.outputs.CameraOutputs
 import com.mrousavy.camera.parsers.CameraDeviceError
 
@@ -55,7 +56,7 @@ class CameraNotReadyError :
   CameraError("session", "camera-not-ready", "The Camera is not ready yet! Wait for the onInitialized() callback!")
 class CameraCannotBeOpenedError(cameraId: String, error: CameraDeviceError) :
   CameraError("session", "camera-cannot-be-opened", "The given Camera device (id: $cameraId) could not be opened! Error: $error")
-class CameraSessionCannotBeConfiguredError(cameraId: String, outputs: CameraOutputs) :
+class CameraSessionCannotBeConfiguredError(cameraId: String, outputs: ArrayList<OutputConfiguration>) :
   CameraError("session", "cannot-create-session", "Failed to create a Camera Session for Camera $cameraId! Outputs: $outputs")
 class CameraDisconnectedError(cameraId: String, error: CameraDeviceError) :
   CameraError("session", "camera-has-been-disconnected", "The given Camera device (id: $cameraId) has been disconnected! Error: $error")
