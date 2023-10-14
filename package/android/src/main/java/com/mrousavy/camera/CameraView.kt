@@ -114,6 +114,7 @@ class CameraView(context: Context) :
 
   init {
     this.installHierarchyFitter()
+    clipToOutline = true
     setupPreviewView()
     cameraSession = CameraSession(context, cameraManager, { invokeOnInitialized() }, { error -> invokeOnError(error) })
   }
