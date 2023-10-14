@@ -284,7 +284,9 @@ public final class CameraView: UIView, CameraSessionDelegate {
 
     #if DEBUG
       if let fpsGraph {
-        fpsGraph.onTick(CACurrentMediaTime())
+        DispatchQueue.main.async {
+          fpsGraph.onTick(CACurrentMediaTime())
+        }
       }
     #endif
   }
