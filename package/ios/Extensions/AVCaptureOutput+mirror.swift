@@ -30,7 +30,6 @@ extension AVCaptureOutput {
    - For Videos, the buffers are physically rotated if available, since we use an AVCaptureVideoDataOutput instead of an AVCaptureMovieFileOutput.
    */
   func setOrientation(_ orientation: Orientation) {
-
     // Set orientation for each connection
     connections.forEach { connection in
       if #available(iOS 17.0, *) {
