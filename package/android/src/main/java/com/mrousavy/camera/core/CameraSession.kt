@@ -40,9 +40,7 @@ class CameraSession(
   private val cameraManager: CameraManager,
   private val onInitialized: () -> Unit,
   private val onError: (e: Throwable) -> Unit
-) : CameraManager.AvailabilityCallback(),
-  Closeable,
-  CameraOutputs.Callback {
+) : Closeable, CameraOutputs.Callback {
   companion object {
     private const val TAG = "CameraSession"
 
@@ -64,24 +62,6 @@ class CameraSession(
 
   private var configuration: CameraConfiguration? = null
 
-  // setInput(..)
-  private var cameraId: String? = null
-
-  // setOutputs(..)
-  private var outputs: CameraOutputs? = null
-
-  // setIsActive(..)
-  private var isActive = false
-
-  // configureFormat(..)
-  private var fps: Int? = null
-  private var videoStabilizationMode: VideoStabilizationMode? = null
-  private var lowLightBoost: Boolean? = null
-  private var hdr: Boolean? = null
-
-  // zoom(..)
-  private var zoom: Float = 1.0f
-
   private var captureSession: CameraCaptureSession? = null
   private var cameraDevice: CameraDevice? = null
   private var previewRequest: CaptureRequest.Builder? = null
@@ -102,12 +82,7 @@ class CameraSession(
       updateVideoOutputs()
     }
 
-  init {
-    cameraManager.registerAvailabilityCallback(this, CameraQueues.cameraQueue.handler)
-  }
-
   override fun close() {
-    cameraManager.unregisterAvailabilityCallback(this)
     photoOutputSynchronizer.clear()
     captureSession?.close()
     cameraDevice?.close()
@@ -133,7 +108,7 @@ class CameraSession(
     mutex.withLock {
       try {
         if (diff.deviceChanged) {
-          configureCameraDevice()
+          configureCameraDevice(config)
         }
         if (diff.outputsChanged) {
           configureOutputs()
@@ -143,20 +118,46 @@ class CameraSession(
 
         Log.i(TAG, "Successfully updated CameraSession Configuration!")
       } catch (error: Throwable) {
-        Log.e(TAG, "Failed to configure CameraSession! Error: ${error.message}, Config-Diff: $difference", error)
+        Log.e(TAG, "Failed to configure CameraSession! Error: ${error.message}, Config-Diff: $diff", error)
         onError(error)
       }
     }
   }
 
-  suspend fun configureSession(
-    cameraId: String,
-    preview: CameraOutputs.PreviewOutput? = null,
-    photo: CameraOutputs.PhotoOutput? = null,
-    video: CameraOutputs.VideoOutput? = null,
-    codeScanner: CameraOutputs.CodeScannerOutput? = null
-  ) {
+  private suspend fun configureCameraDevice(config: CameraConfiguration) {
+    val cameraId = config.cameraId ?: throw NoCameraDeviceError()
+    Log.i(TAG, "Configuring Camera Device #$cameraId...")
+
+    val currentDevice = cameraDevice
+    if (currentDevice?.id == cameraId) {
+      // We already opened that device
+      return
+    }
+    // Close previous device
+    cameraDevice?.close()
+    cameraDevice = null
+
+    val device = cameraManager.openCamera(cameraId, { camera, reason ->
+      Log.d(TAG, "Camera Closed ($cameraDevice == $camera)")
+      if (cameraDevice == camera) {
+        // The current CameraDevice has been closed, handle that!
+        isRunning = false
+        cameraDevice = null
+        onError(reason)
+      } else {
+        // A new CameraDevice has been opened, we don't care about this one anymore.
+      }
+    }, CameraQueues.cameraQueue)
+
+    // Cache device in memory
+    cameraDevice = device
+    Log.i(TAG, "Successfully configured Camera Device #$cameraId!")
+  }
+
+  suspend fun configureSession(config: CameraConfiguration) {
+    val cameraId = config.cameraId ?: throw NoCameraDeviceError()
     Log.i(TAG, "Configuring Session for Camera $cameraId...")
+
     val outputs = CameraOutputs(
       cameraId,
       cameraManager,
@@ -356,16 +357,6 @@ class CameraSession(
 
     Log.i(TAG, "Focusing (${point.x}, ${point.y})...")
     focus(point)
-  }
-
-  override fun onCameraAvailable(cameraId: String) {
-    super.onCameraAvailable(cameraId)
-    Log.i(TAG, "Camera became available: $cameraId")
-  }
-
-  override fun onCameraUnavailable(cameraId: String) {
-    super.onCameraUnavailable(cameraId)
-    Log.i(TAG, "Camera became un-available: $cameraId")
   }
 
   private suspend fun focus(point: Point) {
