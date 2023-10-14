@@ -244,7 +244,7 @@ extension CameraSession {
         try device.setTorchModeOn(level: 1.0)
       }
     }
-    
+
     // Configure Auto-Focus
     if device.isFocusModeSupported(.continuousAutoFocus) {
       device.focusMode = .continuousAutoFocus
