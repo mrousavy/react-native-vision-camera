@@ -13,10 +13,10 @@ import java.io.Closeable
 
 class CodeScannerPipeline(val size: Size, val format: Int, val output: CameraOutputs.CodeScannerOutput) : Closeable {
   companion object {
-    // We want to have a buffer of 2 images, but we always only acquire one.
-    // That way the pipeline is free to stream frames into the unused buffer,
+    // We want to have a buffer of 3 images, but we always only acquire one.
+    // That way the pipeline is free to stream up to two frames into the unused buffer,
     // while the other buffer is being used for code scanning.
-    private const val MAX_IMAGES = 2
+    private const val MAX_IMAGES = 3
   }
 
   private val imageReader: ImageReader
@@ -29,7 +29,6 @@ class CodeScannerPipeline(val size: Size, val format: Int, val output: CameraOut
     val types = output.codeScanner.codeTypes.map { it.toBarcodeType() }
     val barcodeScannerOptions = BarcodeScannerOptions.Builder()
       .setBarcodeFormats(types[0], *types.toIntArray())
-      .setExecutor(CameraQueues.codeScannerQueue.executor)
       .build()
     scanner = BarcodeScanning.getClient(barcodeScannerOptions)
 
