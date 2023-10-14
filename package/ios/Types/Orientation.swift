@@ -38,6 +38,19 @@ enum Orientation: String, JSUnionValue {
     }
   }
 
+  init(degrees: Double) {
+    switch degrees {
+    case 45 ..< 135:
+      self = .landscapeLeft
+    case 135 ..< 225:
+      self = .portraitUpsideDown
+    case 225 ..< 315:
+      self = .landscapeRight
+    default:
+      self = .portrait
+    }
+  }
+
   var jsValue: String {
     return rawValue
   }
@@ -68,16 +81,9 @@ enum Orientation: String, JSUnionValue {
     }
   }
 
-  func rotateRight() -> Orientation {
-    switch self {
-    case .portrait:
-      return .landscapeLeft
-    case .landscapeLeft:
-      return .portraitUpsideDown
-    case .portraitUpsideDown:
-      return .landscapeRight
-    case .landscapeRight:
-      return .portrait
-    }
+  func rotateBy(orientation: Orientation) -> Orientation {
+    let added = toDegrees() + orientation.toDegrees()
+    let degress = added.truncatingRemainder(dividingBy: 360)
+    return Orientation(degrees: degress)
   }
 }

@@ -30,23 +30,22 @@ extension AVCaptureOutput {
    - For Videos, the buffers are physically rotated if available, since we use an AVCaptureVideoDataOutput instead of an AVCaptureMovieFileOutput.
    */
   func setOrientation(_ orientation: Orientation) {
-    // Camera Sensors are always in 90deg rotation.
-    // We are setting the target rotation here, so we need to rotate by 90deg once.
-    let cameraOrientation = orientation.rotateRight()
-
     // Set orientation for each connection
     connections.forEach { connection in
-      // TODO: Use this once Xcode 15 is rolled out
-      // if #available(iOS 17.0, *) {
-      //   let degrees = cameraOrientation.toDegrees()
-      //   if connection.isVideoRotationAngleSupported(degrees) {
-      //     connection.videoRotationAngle = degrees
-      //   }
-      // } else {
-      if connection.isVideoOrientationSupported {
-        connection.videoOrientation = cameraOrientation.toAVCaptureVideoOrientation()
+      if #available(iOS 17.0, *) {
+        // Camera Sensors are always in landscape rotation (90deg).
+        // We are setting the target rotation here, so we need to rotate by landscape once.
+        let cameraOrientation = orientation.rotateBy(orientation: .landscapeLeft)
+        let degrees = cameraOrientation.toDegrees()
+
+        if connection.isVideoRotationAngleSupported(degrees) {
+          connection.videoRotationAngle = degrees
+        }
+      } else {
+        if connection.isVideoOrientationSupported {
+          connection.videoOrientation = orientation.toAVCaptureVideoOrientation()
+        }
       }
-      // }
     }
   }
 }
