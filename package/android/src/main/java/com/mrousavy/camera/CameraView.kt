@@ -13,6 +13,7 @@ import android.view.Surface
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.bridge.UiThreadUtil
 import com.mrousavy.camera.core.CameraPermissionError
 import com.mrousavy.camera.core.CameraQueues
 import com.mrousavy.camera.core.CameraSession
@@ -156,8 +157,10 @@ class CameraView(context: Context) :
       LayoutParams.MATCH_PARENT,
       Gravity.CENTER
     )
-    addView(previewView)
     this.previewView = previewView
+    UiThreadUtil.runOnUiThread {
+      addView(previewView)
+    }
   }
 
   fun update(changedProps: ArrayList<String>) {
