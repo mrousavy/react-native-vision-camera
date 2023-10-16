@@ -13,10 +13,10 @@ import java.io.Closeable
 
 class CodeScannerPipeline(val size: Size, val format: Int, val output: CameraOutputs.CodeScannerOutput) : Closeable {
   companion object {
-    // We want to have a buffer of 3 images, but we always only acquire one.
-    // That way the pipeline is free to stream up to two frames into the unused buffer,
+    // We want to have a buffer of 2 images, but we always only acquire one.
+    // That way the pipeline is free to stream one frame into the unused buffer,
     // while the other buffer is being used for code scanning.
-    private const val MAX_IMAGES = 3
+    private const val MAX_IMAGES = 2
   }
 
   private val imageReader: ImageReader
@@ -35,12 +35,14 @@ class CodeScannerPipeline(val size: Size, val format: Int, val output: CameraOut
     var isBusy = false
     imageReader = ImageReader.newInstance(size.width, size.height, format, MAX_IMAGES)
     imageReader.setOnImageAvailableListener({ reader ->
+      val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
+
       if (isBusy) {
         // We're currently executing on a previous Frame, so we skip this one.
-        // We don't try to acquire a new one, so that the Camera is not blocked/stalling.
+        // Close it and free it again, so that the Camera does not stall.
+        image.close()
         return@setOnImageAvailableListener
       }
-      val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
 
       isBusy = true
       // TODO: Get correct orientation
