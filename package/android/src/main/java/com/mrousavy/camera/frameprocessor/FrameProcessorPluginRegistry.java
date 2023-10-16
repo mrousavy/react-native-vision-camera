@@ -19,19 +19,19 @@ public class FrameProcessorPluginRegistry {
         assert !Plugins.containsKey(name) : "Tried to add a Frame Processor Plugin with a name that already exists! " +
                 "Either choose unique names, or remove the unused plugin. Name: " + name;
         Plugins.put(name, pluginInitializer);
-        Log.i(TAG, "Successfully registered Frame Processor Plugin \"%s\"!", name);
+        Log.i(TAG, "Successfully registered Frame Processor Plugin \"" + name + "\"!");
     }
 
     @DoNotStrip
     @Keep
     public static FrameProcessorPlugin getPlugin(String name, Map<String, Object> options) {
-        Log.i(TAG, "Looking up Frame Processor Plugin \"%s\"...", name);
+        Log.i(TAG, "Looking up Frame Processor Plugin \"" + name + "\"...");
         PluginInitializer initializer = Plugins.get(name);
         if (initializer == null) {
-            Log.i(TAG, "Frame Processor Plugin \"%s\" does not exist!", name);
+            Log.i(TAG, "Frame Processor Plugin \"" + name + "\" does not exist!");
             return null;
         }
-        Log.i(TAG, "Frame Processor Plugin \"%s\" found! Initializing...", name);
+        Log.i(TAG, "Frame Processor Plugin \"" + name + "\" found! Initializing...");
         return initializer.initializePlugin(options);
     }
 
