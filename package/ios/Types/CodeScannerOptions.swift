@@ -9,7 +9,7 @@
 import AVFoundation
 import Foundation
 
-struct CodeScanner: Equatable {
+struct CodeScannerOptions: Equatable {
   let codeTypes: [AVMetadataObject.ObjectType]
   let interval: Int
   let regionOfInterest: CGRect?

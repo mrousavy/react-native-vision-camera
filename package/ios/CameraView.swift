@@ -179,8 +179,8 @@ public final class CameraView: UIView, CameraSessionDelegate {
 
       // Code Scanner
       if let codeScannerOptions {
-        let codeScanner = try CodeScanner(fromJsValue: codeScannerOptions)
-        config.codeScanner = .enabled(config: codeScanner)
+        let options = try CodeScannerOptions(fromJsValue: codeScannerOptions)
+        config.codeScanner = .enabled(config: CameraConfiguration.CodeScanner(options: options))
       } else {
         config.codeScanner = .disabled
       }
