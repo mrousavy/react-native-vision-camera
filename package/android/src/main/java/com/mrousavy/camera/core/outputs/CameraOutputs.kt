@@ -18,7 +18,7 @@ import com.mrousavy.camera.extensions.getPhotoSizes
 import com.mrousavy.camera.extensions.getPreviewTargetSize
 import com.mrousavy.camera.extensions.getVideoSizes
 import com.mrousavy.camera.extensions.smaller
-import com.mrousavy.camera.parsers.CodeScanner
+import com.mrousavy.camera.parsers.CodeScannerOptions
 import com.mrousavy.camera.parsers.PixelFormat
 import java.io.Closeable
 
@@ -46,7 +46,7 @@ class CameraOutputs(
     val format: PixelFormat = PixelFormat.NATIVE
   )
   data class CodeScannerOutput(
-    val codeScanner: CodeScanner,
+    val options: CodeScannerOptions,
     val onCodeScanned: (codes: List<Barcode>) -> Unit,
     val onError: (error: Throwable) -> Unit
   )
@@ -84,7 +84,7 @@ class CameraOutputs(
       this.video?.enableRecording == other.video?.enableRecording &&
       this.video?.targetSize == other.video?.targetSize &&
       this.video?.format == other.video?.format &&
-      this.codeScanner?.codeScanner == other.codeScanner?.codeScanner &&
+      this.codeScanner?.options == other.codeScanner?.options &&
       this.enableHdr == other.enableHdr
   }
 
@@ -168,7 +168,7 @@ class CameraOutputs(
       val size = characteristics.getVideoSizes(cameraId, format).closestToOrMax(targetSize)
       val pipeline = CodeScannerPipeline(size, format, codeScanner)
 
-      Log.i(TAG, "Adding ${size.width}x${size.height} code scanner output. (Code Types: ${codeScanner.codeScanner.codeTypes})")
+      Log.i(TAG, "Adding ${size.width}x${size.height} code scanner output. (Code Types: ${codeScanner.options.codeTypes})")
       codeScannerOutput = BarcodeScannerOutput(pipeline)
     }
 

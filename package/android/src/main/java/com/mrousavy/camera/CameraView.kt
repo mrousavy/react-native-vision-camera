@@ -26,7 +26,7 @@ import com.mrousavy.camera.extensions.getPreviewTargetSize
 import com.mrousavy.camera.extensions.installHierarchyFitter
 import com.mrousavy.camera.extensions.smaller
 import com.mrousavy.camera.frameprocessor.FrameProcessor
-import com.mrousavy.camera.parsers.CodeScanner
+import com.mrousavy.camera.parsers.CodeScannerOptions
 import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.PixelFormat
 import com.mrousavy.camera.parsers.ResizeMode
@@ -88,7 +88,7 @@ class CameraView(context: Context) :
   var enableZoomGesture: Boolean = false
 
   // code scanner
-  var codeScannerOptions: CodeScanner? = null
+  var codeScannerOptions: CodeScannerOptions? = null
 
   // private properties
   private var isMounted = false
