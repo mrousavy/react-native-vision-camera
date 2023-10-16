@@ -28,6 +28,7 @@
            name);
 
   [[FrameProcessorPluginRegistry frameProcessorPlugins] setValue:pluginInitializer forKey:name];
+  NSLog(@"Successfully registered Frame Processor Plugin \"%@\"!", name);
 }
 
 + (FrameProcessorPlugin*)getPlugin:(NSString* _Nonnull)name withOptions:(NSDictionary* _Nullable)options {
