@@ -26,7 +26,7 @@ class CodeScannerPipeline(val size: Size, val format: Int, val output: CameraOut
     get() = imageReader.surface
 
   init {
-    val types = output.codeScanner.codeTypes.map { it.toBarcodeType() }
+    val types = output.options.codeTypes.map { it.toBarcodeType() }
     val barcodeScannerOptions = BarcodeScannerOptions.Builder()
       .setBarcodeFormats(types[0], *types.toIntArray())
       .build()
@@ -69,7 +69,7 @@ class CodeScannerPipeline(val size: Size, val format: Int, val output: CameraOut
   }
 
   override fun toString(): String {
-    val codeTypes = output.codeScanner.codeTypes.joinToString(", ")
+    val codeTypes = output.options.codeTypes.joinToString(", ")
     return "${size.width} x ${size.height} CodeScanner for [$codeTypes] ($format)"
   }
 }

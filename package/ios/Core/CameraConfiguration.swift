@@ -150,6 +150,13 @@ class CameraConfiguration {
   struct Audio: Equatable {
     // no props for audio at the moment
   }
+
+  /**
+   A CodeScanner Output configuration
+   */
+  struct CodeScanner: Equatable {
+    var options: CodeScannerOptions
+  }
 }
 
 extension CameraConfiguration.Video {

@@ -3,7 +3,7 @@ package com.mrousavy.camera.parsers
 import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.core.InvalidTypeScriptUnionError
 
-class CodeScanner(map: ReadableMap) {
+class CodeScannerOptions(map: ReadableMap) {
   val codeTypes: List<CodeType>
 
   init {
@@ -14,7 +14,7 @@ class CodeScanner(map: ReadableMap) {
   }
 
   override fun equals(other: Any?): Boolean {
-    if (other !is CodeScanner) return false
+    if (other !is CodeScannerOptions) return false
     return codeTypes.size == other.codeTypes.size && codeTypes.containsAll(other.codeTypes)
   }
 

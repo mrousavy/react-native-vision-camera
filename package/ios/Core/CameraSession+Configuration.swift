@@ -126,14 +126,15 @@ extension CameraSession {
       let codeScannerOutput = AVCaptureMetadataOutput()
 
       // 1. Configure
-      try codeScanner.codeTypes.forEach { type in
+      let options = codeScanner.options
+      try codeScanner.options.codeTypes.forEach { type in
         if !codeScannerOutput.availableMetadataObjectTypes.contains(type) {
           throw CameraError.codeScanner(.codeTypeNotSupported(codeType: type.descriptor))
         }
       }
       codeScannerOutput.setMetadataObjectsDelegate(self, queue: CameraQueues.codeScannerQueue)
-      codeScannerOutput.metadataObjectTypes = codeScanner.codeTypes
-      if let rectOfInterest = codeScanner.regionOfInterest {
+      codeScannerOutput.metadataObjectTypes = options.codeTypes
+      if let rectOfInterest = options.regionOfInterest {
         codeScannerOutput.rectOfInterest = rectOfInterest
       }
 

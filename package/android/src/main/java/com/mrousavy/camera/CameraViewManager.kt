@@ -5,7 +5,7 @@ import com.facebook.react.common.MapBuilder
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.ViewGroupManager
 import com.facebook.react.uimanager.annotations.ReactProp
-import com.mrousavy.camera.parsers.CodeScanner
+import com.mrousavy.camera.parsers.CodeScannerOptions
 import com.mrousavy.camera.parsers.Orientation
 import com.mrousavy.camera.parsers.PixelFormat
 import com.mrousavy.camera.parsers.ResizeMode
@@ -204,7 +204,7 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
 
   @ReactProp(name = "codeScannerOptions")
   fun setCodeScanner(view: CameraView, codeScannerOptions: ReadableMap) {
-    val newCodeScannerOptions = CodeScanner(codeScannerOptions)
+    val newCodeScannerOptions = CodeScannerOptions(codeScannerOptions)
     if (view.codeScannerOptions != newCodeScannerOptions) {
       addChangedPropToTransaction(view, "codeScannerOptions")
     }
