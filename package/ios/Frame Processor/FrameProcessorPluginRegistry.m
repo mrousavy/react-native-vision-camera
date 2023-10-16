@@ -28,14 +28,18 @@
            name);
 
   [[FrameProcessorPluginRegistry frameProcessorPlugins] setValue:pluginInitializer forKey:name];
+  NSLog(@"Successfully registered Frame Processor Plugin \"%@\"!", name);
 }
 
 + (FrameProcessorPlugin*)getPlugin:(NSString* _Nonnull)name withOptions:(NSDictionary* _Nullable)options {
+  NSLog(@"Looking up Frame Processor Plugin \"%@\"...", name);
   PluginInitializerFunction initializer = [[FrameProcessorPluginRegistry frameProcessorPlugins] objectForKey:name];
   if (initializer == nil) {
+    NSLog(@"Frame Processor Plugin \"%@\" does not exist!", name);
     return nil;
   }
 
+  NSLog(@"Frame Processor Plugin \"%@\" found! Initializing...", name);
   return initializer(options);
 }
 
