@@ -1,5 +1,6 @@
 package com.mrousavy.camera.frameprocessor;
 
+import android.util.Log;
 import androidx.annotation.Keep;
 import androidx.annotation.Nullable;
 import com.facebook.proguard.annotations.DoNotStrip;
@@ -10,6 +11,7 @@ import java.util.HashMap;
 @Keep
 public class FrameProcessorPluginRegistry {
     private static final Map<String, PluginInitializer> Plugins = new HashMap<>();
+    private static final String TAG = "FrameProcessorPluginRegistry";
 
     @DoNotStrip
     @Keep
@@ -17,6 +19,7 @@ public class FrameProcessorPluginRegistry {
         assert !Plugins.containsKey(name) : "Tried to add a Frame Processor Plugin with a name that already exists! " +
                 "Either choose unique names, or remove the unused plugin. Name: " + name;
         Plugins.put(name, pluginInitializer);
+        Log.i(TAG, "Successfully registered Frame Processor Plugin \"%s\"!", name);
     }
 
     @DoNotStrip
