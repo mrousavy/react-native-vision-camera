@@ -38,6 +38,11 @@ def isNewArchitectureEnabled() {
     return project.hasProperty("newArchEnabled") && project.newArchEnabled == "true"
 }
 
+def reactNativeArchitectures() {
+    def value = project.getProperties().get("reactNativeArchitectures")
+    return value ? value.split(",") : ["armeabi-v7a", "x86", "x86_64", "arm64-v8a"]
+}
+
 def nodeModules = findNodeModules(projectDir)
 logger.warn("VisionCamera: node_modules/ found at: ${nodeModules}")
 def reactNative = new File("$nodeModules/react-native")
@@ -50,7 +55,7 @@ def REACT_NATIVE_VERSION = reactProperties.getProperty("VERSION_NAME").split("\\
 def FOR_HERMES = System.getenv("FOR_HERMES") == "True"
 rootProject.getSubprojects().forEach({project ->
   if (project.plugins.hasPlugin("com.android.application")) {
-    FOR_HERMES = REACT_NATIVE_VERSION >= 71 && project.hermesEnabled || project.ext.react.enableHermes
+    FOR_HERMES = (REACT_NATIVE_VERSION >= 71 && project?.hermesEnabled?.toBoolean()) || project?.ext?.react?.enableHermes?.toBoolean()
   }
 })
 def jsRuntimeDir = {
@@ -135,14 +140,14 @@ android {
   }
 
   defaultConfig {
-    minSdkVersion 21
+    minSdkVersion getExtOrIntegerDefault('minSdkVersion')
     targetSdkVersion getExtOrIntegerDefault('targetSdkVersion')
 
     if (ENABLE_FRAME_PROCESSORS) {
       externalNativeBuild {
         cmake {
           cppFlags "-fexceptions", "-frtti", "-std=c++1y", "-DONANDROID"
-          abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
+          abiFilters (*reactNativeArchitectures())
           arguments '-DANDROID_STL=c++_shared',
                   "-DREACT_NATIVE_VERSION=${REACT_NATIVE_VERSION}",
                   "-DNODE_MODULES_DIR=${nodeModules}",
