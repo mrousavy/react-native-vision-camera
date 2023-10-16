@@ -25,10 +25,13 @@ public class FrameProcessorPluginRegistry {
     @DoNotStrip
     @Keep
     public static FrameProcessorPlugin getPlugin(String name, Map<String, Object> options) {
+        Log.i(TAG, "Looking up Frame Processor Plugin \"%s\"...", name);
         PluginInitializer initializer = Plugins.get(name);
         if (initializer == null) {
+            Log.i(TAG, "Frame Processor Plugin \"%s\" does not exist!", name);
             return null;
         }
+        Log.i(TAG, "Frame Processor Plugin \"%s\" found! Initializing...", name);
         return initializer.initializePlugin(options);
     }
 
