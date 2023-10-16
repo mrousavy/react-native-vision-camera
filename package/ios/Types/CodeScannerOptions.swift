@@ -1,5 +1,5 @@
 //
-//  CodeScanner.swift
+//  CodeScannerOptions.swift
 //  VisionCamera
 //
 //  Created by Marc Rousavy on 03.10.23.

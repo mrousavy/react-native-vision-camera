@@ -150,7 +150,7 @@ class CameraConfiguration {
   struct Audio: Equatable {
     // no props for audio at the moment
   }
-  
+
   /**
    A CodeScanner Output configuration
    */
