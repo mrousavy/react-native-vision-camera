@@ -1,2 +1,6 @@
-ios/**/*.h linguist-language=Objective-C++
-ios/**/*.m linguist-language=Objective-C++
+*.pbxproj -text
+# specific for windows script files
+*.bat text eol=crlf
+
+# For detecting headers on GitHub
+ios/**/*.h linguist-language=Objective-C

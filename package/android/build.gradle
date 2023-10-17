@@ -1,111 +1,137 @@
-import java.nio.file.Paths
-
 buildscript {
+  // Buildscript is evaluated before everything else so we can't use getExtOrDefault
   def kotlin_version = rootProject.ext.has("kotlinVersion") ? rootProject.ext.get("kotlinVersion") : project.properties["VisionCamera_kotlinVersion"]
 
   repositories {
-    maven {
-      url "https://plugins.gradle.org/m2/"
-    }
-    mavenCentral()
     google()
+    mavenCentral()
   }
 
   dependencies {
-    classpath "com.android.tools.build:gradle:7.4.2"
+    classpath "com.android.tools.build:gradle:7.2.1"
+    // noinspection DifferentKotlinGradleVersion
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
   }
 }
 
-def resolveBuildType() {
-    Gradle gradle = getGradle()
-    String tskReqStr = gradle.getStartParameter().getTaskRequests()["args"].toString()
-
-    return tskReqStr.contains("Release") ? "release" : "debug"
-}
-
 def isNewArchitectureEnabled() {
-  // To opt-in for the New Architecture, you can either:
-  // - Set `newArchEnabled` to true inside the `gradle.properties` file
-  // - Invoke gradle with `-newArchEnabled=true`
-  // - Set an environment variable `ORG_GRADLE_PROJECT_newArchEnabled=true`
-  return project.hasProperty("newArchEnabled") && project.newArchEnabled == "true"
+  return rootProject.hasProperty("newArchEnabled") && rootProject.getProperty("newArchEnabled") == "true"
 }
+
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
+
+import groovy.json.JsonSlurper
+
+// https://github.com/callstack/react-native-builder-bob/discussions/359
+def registrationCompat = {
+  // The new distribution model uses Maven Central https://reactnative.dev/blog/2023/01/12/version-071
+  def reactAndroidProject = rootProject.allprojects.find { it.name == 'ReactAndroid' }
+  if (reactAndroidProject == null) return false
+
+  def reactNativeManifest = file("${reactAndroidProject.projectDir}/../package.json")
+  def reactNativeVersion = new JsonSlurper().parseText(reactNativeManifest.text).version as String
+  // Fabric was introduced at react-native@0.68, full CMake support were introduced at react-native@0.70
+  // Use Android.mk for compatibility with react-native@0.68/0.69
+  reactNativeVersion.matches('(0.68.*|0.69.*)')
+}()
+
+def codegenViewLibraryName = "VisionCameraView"
+def codegenViewModuleName = {
+  // Autolink for Fabric uses codegenConfig.name in package.json since react-native@0.70
+  // Use codegenViewLibraryName for compatibility with react-native@0.68/0.69
+  def libraryManifestJson = new JsonSlurper().parseText(file("$projectDir/../package.json").text)
+  registrationCompat ? codegenViewLibraryName : libraryManifestJson.codegenConfig.name
+}()
+
+def appProject = rootProject.allprojects.find { it.plugins.hasPlugin('com.android.application') }
 
 if (isNewArchitectureEnabled()) {
   apply plugin: "com.facebook.react"
 }
-apply plugin: "com.android.library"
-apply plugin: "kotlin-android"
 
-def safeExtGet(prop, fallback) {
-  rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+def getExtOrDefault(name) {
+  return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties["VisionCamera_" + name]
 }
 
-def reactNativeArchitectures() {
-  def value = project.getProperties().get("reactNativeArchitectures")
-  return value ? value.split(",") : ["armeabi-v7a", "x86", "x86_64", "arm64-v8a"]
+def getExtOrIntegerDefault(name) {
+  return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties["VisionCamera_" + name]).toInteger()
 }
 
-static def findNodeModules(baseDir) {
-  def basePath = baseDir.toPath().normalize()
-  // Node"s module resolution algorithm searches up to the root directory,
-  // after which the base path will be null
-  while (basePath) {
-    def nodeModulesPath = Paths.get(basePath.toString(), "node_modules")
-    def reactNativePath = Paths.get(nodeModulesPath.toString(), "react-native")
-    if (nodeModulesPath.toFile().exists() && reactNativePath.toFile().exists()) {
-      return nodeModulesPath.toString()
-    }
-    basePath = basePath.getParent()
+def supportsNamespace() {
+  def parsed = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')
+  def major = parsed[0].toInteger()
+  def minor = parsed[1].toInteger()
+
+  // Namespace support was added in 7.3.0
+  if (major == 7 && minor >= 3) {
+    return true
   }
-  throw new GradleException("react-native-vision-camera: Failed to find node_modules/ path!")
-}
 
-def nodeModules = findNodeModules(projectDir)
-
-def hasWorklets = !safeExtGet("VisionCamera_disableFrameProcessors", false) && findProject(":react-native-worklets-core") != null
-logger.warn("[VisionCamera] react-native-worklets-core ${hasWorklets ? "found" : "not found"}, Frame Processors ${hasWorklets ? "enabled" : "disabled"}!")
-
-repositories {
-  google()
-  mavenCentral()
+  return major >= 8
 }
 
 android {
-  namespace "com.mrousavy.camera.example"
+  if (supportsNamespace()) {
+    namespace "com.mrousavy.camera"
 
-  // Used to override the NDK path/version on internal CI or by allowing
-  // users to customize the NDK path/version from their root project (e.g. for M1 support)
-  if (rootProject.hasProperty("ndkPath")) {
-    ndkPath rootProject.ext.ndkPath
+    sourceSets {
+      main {
+        manifest.srcFile "src/main/AndroidManifestNew.xml"
+      }
+    }
   }
-  if (rootProject.hasProperty("ndkVersion")) {
-    ndkVersion rootProject.ext.ndkVersion
+
+  ndkVersion getExtOrDefault("ndkVersion")
+  compileSdkVersion getExtOrIntegerDefault("compileSdkVersion")
+
+  defaultConfig {
+    minSdkVersion getExtOrIntegerDefault("minSdkVersion")
+    targetSdkVersion getExtOrIntegerDefault("targetSdkVersion")
+    buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
+    buildConfigField "String", "CODEGEN_MODULE_REGISTRATION", (isNewArchitectureEnabled() && registrationCompat ? "\"${codegenViewModuleName}_registration\"" : "null")
+
+    if (isNewArchitectureEnabled() && registrationCompat) {
+      def reactAndroidProject = project(':ReactAndroid')
+      externalNativeBuild {
+        ndkBuild {
+          arguments "APP_PLATFORM=android-21",
+                    "APP_STL=c++_shared",
+                    "NDK_TOOLCHAIN_VERSION=clang",
+                    "GENERATED_SRC_DIR=$buildDir/generated/source", // for react_codegen_* in this library's codegen/jni
+                    "PROJECT_BUILD_DIR=${appProject.buildDir}", // for REACT_NDK_EXPORT_DIR in ReactAndroid's Android-prebuilt.mk
+                    "REACT_ANDROID_DIR=${reactAndroidProject.projectDir}",
+                    "REACT_ANDROID_BUILD_DIR=${reactAndroidProject.buildDir}",
+                    "CODEGEN_MODULE_NAME=$codegenViewModuleName"
+          cFlags "-Wall", "-Werror", "-fexceptions", "-frtti", "-DWITH_INSPECTOR=1"
+          cppFlags "-std=c++17"
+          targets "${codegenViewModuleName}_registration"
+        }
+      }
+    }
+  }
+
+  if (isNewArchitectureEnabled() && registrationCompat) {
+    // We configure the NDK build only if you decide to opt-in for the New Architecture.
+    externalNativeBuild {
+      ndkBuild {
+        path "Android.mk"
+      }
+    }
   }
 
   buildFeatures {
-    prefab true
+    buildConfig true
   }
 
-  defaultConfig {
-    minSdkVersion safeExtGet("minSdkVersion", 26)
-    compileSdkVersion safeExtGet("compileSdkVersion", 33)
-    targetSdkVersion safeExtGet("targetSdkVersion", 33)
-    versionCode 1
-    versionName "1.0"
-    buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
-
-    externalNativeBuild {
-      cmake {
-        cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all"
-        arguments "-DANDROID_STL=c++_shared",
-                "-DNODE_MODULES_DIR=${nodeModules}",
-                "-DENABLE_FRAME_PROCESSORS=${hasWorklets}"
-        abiFilters (*reactNativeArchitectures())
-      }
+  buildTypes {
+    release {
+      minifyEnabled false
     }
+  }
+
+  lintOptions {
+    disable "GradleCompatible"
   }
 
   compileOptions {
@@ -113,67 +139,40 @@ android {
     targetCompatibility JavaVersion.VERSION_1_8
   }
 
-  externalNativeBuild {
-    cmake {
-      path "CMakeLists.txt"
+  sourceSets {
+    main {
+      if (isNewArchitectureEnabled()) {
+        java.srcDirs += [
+          "src/newarch",
+          // This is needed to build Kotlin project with NewArch enabled
+          "${project.buildDir}/generated/source/codegen/java"
+        ]
+      } else {
+        java.srcDirs += ["src/oldarch"]
+      }
     }
   }
-  packagingOptions {
-    doNotStrip resolveBuildType() == "debug" ? "**/**/*.so" : ""
-    excludes = [
-            "META-INF",
-            "META-INF/**",
-            "**/libc++_shared.so",
-            "**/libfbjni.so",
-            "**/libjsi.so",
-            "**/libfolly_json.so",
-            "**/libfolly_runtime.so",
-            "**/libglog.so",
-            "**/libhermes.so",
-            "**/libhermes-executor-debug.so",
-            "**/libhermes_executor.so",
-            "**/libreactnativejni.so",
-            "**/libturbomodulejsijni.so",
-            "**/libreact_nativemodule_core.so",
-            "**/libjscexecutor.so"
-    ]
-  }
 }
+
+repositories {
+  mavenCentral()
+  google()
+}
+
+def kotlin_version = getExtOrDefault("kotlinVersion")
 
 dependencies {
+  // For < 0.71, this will be from the local maven repo
+  // For > 0.71, this will be replaced by `com.facebook.react:react-android:$version` by react gradle plugin
   //noinspection GradleDynamicVersion
-  implementation "com.facebook.react:react-android:+"
-  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2"
-  implementation "com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.0"
-
-  if (hasWorklets) {
-    // Frame Processor integration (optional)
-    implementation project(":react-native-worklets-core")
-  }
+  implementation "com.facebook.react:react-native:+"
+  implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
-task deleteCmakeCache() {
-  doFirst {
-    delete "${projectDir}/.cxx"
-    delete "${nodeModules}/react-native-vision-camera/android/.cxx"
-    delete "${nodeModules}/react-native-vision-camera/android/build"
-  }
-}
-
-tasks.configureEach { task ->
-  // C++ build
-  if (task.name.contains("configureCMakeDebug")) {
-    rootProject.getTasksByName("packageReactNdkDebugLibs", true).forEach {
-      task.dependsOn(it)
-    }
-  }
-  if (task.name.contains("configureCMakeRel")) {
-    rootProject.getTasksByName("packageReactNdkReleaseLibs", true).forEach {
-      task.dependsOn(it)
-    }
-  }
-  // C++ clean
-  if (task.name.contains("clean")) {
-    task.dependsOn(deleteCmakeCache)
+if (isNewArchitectureEnabled()) {
+  react {
+    jsRootDir = file("../src/")
+    libraryName = codegenViewLibraryName
+    codegenJavaPackageName = "com.mrousavy.camera"
   }
 }
