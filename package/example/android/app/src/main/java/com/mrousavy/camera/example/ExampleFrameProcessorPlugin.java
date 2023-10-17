@@ -40,7 +40,7 @@ public class ExampleFrameProcessorPlugin extends FrameProcessorPlugin {
         return map;
     }
 
-    ExampleFrameProcessorPlugin() {
-
+    ExampleFrameProcessorPlugin(@Nullable Map<String, Object> options) {
+        Log.d("ExamplePlugin", " - options: " + options.toString());
     }
 }

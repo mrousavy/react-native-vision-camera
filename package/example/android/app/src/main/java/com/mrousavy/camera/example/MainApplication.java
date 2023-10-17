@@ -65,7 +65,7 @@ public class MainApplication extends Application implements ReactApplication {
       DefaultNewArchitectureEntryPoint.load();
     }
 
-    FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_plugin", options -> new ExampleFrameProcessorPlugin());
-    FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_kotlin_swift_plugin", options -> new ExampleKotlinFrameProcessorPlugin());
+    FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_plugin", options -> new ExampleFrameProcessorPlugin(options));
+    FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_kotlin_swift_plugin", options -> new ExampleKotlinFrameProcessorPlugin(options));
   }
 }

@@ -4,7 +4,11 @@ import android.util.Log
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin
 
-class ExampleKotlinFrameProcessorPlugin: FrameProcessorPlugin() {
+class ExampleKotlinFrameProcessorPlugin(options: Map<String, Any>?): FrameProcessorPlugin(options) {
+    init {
+        Log.d("ExampleKotlinPlugin", " - options" + options?.toString())
+    }
+
     override fun callback(frame: Frame, params: Map<String, Any>?): Any? {
         if (params == null) {
             return null

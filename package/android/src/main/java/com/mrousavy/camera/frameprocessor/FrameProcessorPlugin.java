@@ -12,6 +12,14 @@ import java.util.Map;
 @DoNotStrip
 @Keep
 public abstract class FrameProcessorPlugin {
+    public FrameProcessorPlugin() {}
+
+    /**
+     * The initializer for a Frame Processor Plugin class that takes optional object that consists
+     * options passed from JS layer
+     */
+    public FrameProcessorPlugin(@Nullable Map<String, Object> options) {}
+
     /**
      * The actual Frame Processor plugin callback. Called for every frame the ImageAnalyzer receives.
      * @param frame The Frame from the Camera. Don't call .close() on this, as VisionCamera handles that.
