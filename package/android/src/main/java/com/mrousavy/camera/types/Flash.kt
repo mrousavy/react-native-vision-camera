@@ -1,4 +1,4 @@
-package com.mrousavy.camera.parsers
+package com.mrousavy.camera.types
 
 import com.mrousavy.camera.core.InvalidTypeScriptUnionError
 

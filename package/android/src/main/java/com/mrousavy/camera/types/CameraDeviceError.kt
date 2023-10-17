@@ -1,4 +1,4 @@
-package com.mrousavy.camera.parsers
+package com.mrousavy.camera.types
 
 import android.hardware.camera2.CameraDevice
 

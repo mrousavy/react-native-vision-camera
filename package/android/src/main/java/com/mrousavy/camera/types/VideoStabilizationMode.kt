@@ -1,4 +1,4 @@
-package com.mrousavy.camera.parsers
+package com.mrousavy.camera.types
 
 import android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_OFF
 import android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_ON

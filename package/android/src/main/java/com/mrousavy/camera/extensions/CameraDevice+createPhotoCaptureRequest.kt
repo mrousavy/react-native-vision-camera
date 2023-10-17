@@ -5,9 +5,9 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.view.Surface
-import com.mrousavy.camera.parsers.Flash
-import com.mrousavy.camera.parsers.Orientation
-import com.mrousavy.camera.parsers.QualityPrioritization
+import com.mrousavy.camera.types.Flash
+import com.mrousavy.camera.types.Orientation
+import com.mrousavy.camera.types.QualityPrioritization
 
 private fun supportsSnapshotCapture(cameraCharacteristics: CameraCharacteristics): Boolean {
   // As per CameraDevice.TEMPLATE_VIDEO_SNAPSHOT in documentation:

@@ -8,7 +8,7 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import com.mrousavy.camera.core.outputs.CameraOutputs
-import com.mrousavy.camera.parsers.Orientation
+import com.mrousavy.camera.types.Orientation
 import java.io.Closeable
 
 class CodeScannerPipeline(val size: Size, val format: Int, val output: CameraOutputs.CodeScannerOutput) : Closeable {

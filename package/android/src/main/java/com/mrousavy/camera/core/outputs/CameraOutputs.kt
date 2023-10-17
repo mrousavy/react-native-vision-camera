@@ -18,8 +18,8 @@ import com.mrousavy.camera.extensions.getPhotoSizes
 import com.mrousavy.camera.extensions.getPreviewTargetSize
 import com.mrousavy.camera.extensions.getVideoSizes
 import com.mrousavy.camera.extensions.smaller
-import com.mrousavy.camera.parsers.CodeScannerOptions
-import com.mrousavy.camera.parsers.PixelFormat
+import com.mrousavy.camera.types.CodeScannerOptions
+import com.mrousavy.camera.types.PixelFormat
 import java.io.Closeable
 
 class CameraOutputs(

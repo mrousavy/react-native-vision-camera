@@ -1,4 +1,4 @@
-package com.mrousavy.camera.parsers
+package com.mrousavy.camera.types
 
 enum class ResizeMode(override val unionValue: String) : JSUnionValue {
   COVER("cover"),
