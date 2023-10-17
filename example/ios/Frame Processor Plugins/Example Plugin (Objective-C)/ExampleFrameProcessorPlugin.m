@@ -25,7 +25,6 @@ static inline id example_plugin(Frame* frame, NSArray* arguments) {
   }
 
   return @{
-    @"type": @"objc",
     @"example_str": @"Test",
     @"example_bool": @true,
     @"example_double": @5.3,
