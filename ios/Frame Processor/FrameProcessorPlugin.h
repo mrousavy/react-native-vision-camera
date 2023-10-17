@@ -33,7 +33,7 @@
  */
 #define VISION_EXPORT_FRAME_PROCESSOR(frame_processor)                              \
                                                                                     \
-+(void)initialize                                                                   \
++(void)load                                                                   \
 {                                                                                   \
   [FrameProcessorPluginRegistry addFrameProcessorPlugin:@"__" @ #frame_processor callback:^id(Frame* frame, NSArray<id>* args) { \
     return frame_processor(frame, args);                                            \
