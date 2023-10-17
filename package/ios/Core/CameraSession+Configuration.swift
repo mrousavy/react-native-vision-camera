@@ -68,9 +68,15 @@ extension CameraSession {
     // Photo Output
     if case let .enabled(photo) = configuration.photo {
       ReactLogger.log(level: .info, message: "Adding Photo output...")
-      let photoOutput = AVCapturePhotoOutput()
 
-      // 1. Configure
+      // 1. Add
+      let photoOutput = AVCapturePhotoOutput()
+      guard captureSession.canAddOutput(photoOutput) else {
+        throw CameraError.parameter(.unsupportedOutput(outputDescriptor: "photo-output"))
+      }
+      captureSession.addOutput(photoOutput)
+
+      // 2. Configure
       if photo.enableHighQualityPhotos {
         // TODO: In iOS 16 this will be removed in favor of maxPhotoDimensions.
         photoOutput.isHighResolutionCaptureEnabled = true
@@ -91,20 +97,21 @@ extension CameraSession {
         photoOutput.isPortraitEffectsMatteDeliveryEnabled = photoOutput.isPortraitEffectsMatteDeliverySupported
       }
 
-      // 2. Add
-      guard captureSession.canAddOutput(photoOutput) else {
-        throw CameraError.parameter(.unsupportedOutput(outputDescriptor: "photo-output"))
-      }
-      captureSession.addOutput(photoOutput)
       self.photoOutput = photoOutput
     }
 
     // Video Output + Frame Processor
     if case let .enabled(video) = configuration.video {
       ReactLogger.log(level: .info, message: "Adding Video Data output...")
-      let videoOutput = AVCaptureVideoDataOutput()
 
-      // 1. Configure
+      // 1. Add
+      let videoOutput = AVCaptureVideoDataOutput()
+      guard captureSession.canAddOutput(videoOutput) else {
+        throw CameraError.parameter(.unsupportedOutput(outputDescriptor: "video-output"))
+      }
+      captureSession.addOutput(videoOutput)
+
+      // 2. Configure
       videoOutput.setSampleBufferDelegate(self, queue: CameraQueues.videoQueue)
       videoOutput.alwaysDiscardsLateVideoFrames = true
       let pixelFormatType = try video.getPixelFormat(for: videoOutput)
@@ -112,11 +119,6 @@ extension CameraSession {
         String(kCVPixelBufferPixelFormatTypeKey): pixelFormatType,
       ]
 
-      // 2. Add
-      guard captureSession.canAddOutput(videoOutput) else {
-        throw CameraError.parameter(.unsupportedOutput(outputDescriptor: "video-output"))
-      }
-      captureSession.addOutput(videoOutput)
       self.videoOutput = videoOutput
     }
 
@@ -125,24 +127,27 @@ extension CameraSession {
       ReactLogger.log(level: .info, message: "Adding Code Scanner output...")
       let codeScannerOutput = AVCaptureMetadataOutput()
 
-      // 1. Configure
+      // 1. Add
+      guard captureSession.canAddOutput(codeScannerOutput) else {
+        throw CameraError.codeScanner(.notCompatibleWithOutputs)
+      }
+      captureSession.addOutput(codeScannerOutput)
+
+      // 2. Configure
       let options = codeScanner.options
+      codeScannerOutput.setMetadataObjectsDelegate(self, queue: CameraQueues.codeScannerQueue)
       try codeScanner.options.codeTypes.forEach { type in
+        // CodeScanner::availableMetadataObjectTypes depends on the connection to the
+        // AVCaptureSession, so this list is only available after we add the output to the session.
         if !codeScannerOutput.availableMetadataObjectTypes.contains(type) {
           throw CameraError.codeScanner(.codeTypeNotSupported(codeType: type.descriptor))
         }
       }
-      codeScannerOutput.setMetadataObjectsDelegate(self, queue: CameraQueues.codeScannerQueue)
       codeScannerOutput.metadataObjectTypes = options.codeTypes
       if let rectOfInterest = options.regionOfInterest {
         codeScannerOutput.rectOfInterest = rectOfInterest
       }
 
-      // 2. Add
-      guard captureSession.canAddOutput(codeScannerOutput) else {
-        throw CameraError.codeScanner(.notCompatibleWithOutputs)
-      }
-      captureSession.addOutput(codeScannerOutput)
       self.codeScannerOutput = codeScannerOutput
     }
 
