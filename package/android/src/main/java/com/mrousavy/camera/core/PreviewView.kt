@@ -40,34 +40,34 @@ class PreviewView(
 
   private fun coverSize(contentSize: Size, containerWidth: Int, containerHeight: Int): Size {
     val contentAspectRatio = contentSize.height.toDouble() / contentSize.width
-    val containerAspectRatio = containerWidth.toDouble() / containerHeight
+    val containerAspectRatio = containerHeight.toDouble() / containerWidth
 
     Log.d(TAG, "coverSize :: $contentSize ($contentAspectRatio), ${containerWidth}x$containerHeight ($containerAspectRatio)")
 
-    return if (contentAspectRatio > containerAspectRatio) {
+    return if (contentAspectRatio < containerAspectRatio) {
       // Scale by width to cover height
-      val scaledWidth = containerHeight * contentAspectRatio
+      val scaledWidth = containerHeight / contentAspectRatio
       Size(scaledWidth.roundToInt(), containerHeight)
     } else {
       // Scale by height to cover width
-      val scaledHeight = containerWidth / contentAspectRatio
+      val scaledHeight = containerWidth * contentAspectRatio
       Size(containerWidth, scaledHeight.roundToInt())
     }
   }
 
   private fun containSize(contentSize: Size, containerWidth: Int, containerHeight: Int): Size {
     val contentAspectRatio = contentSize.height.toDouble() / contentSize.width
-    val containerAspectRatio = containerWidth.toDouble() / containerHeight
+    val containerAspectRatio = containerHeight.toDouble() / containerWidth
 
     Log.d(TAG, "containSize :: $contentSize ($contentAspectRatio), ${containerWidth}x$containerHeight ($containerAspectRatio)")
 
-    return if (contentAspectRatio > containerAspectRatio) {
+    return if (contentAspectRatio < containerAspectRatio) {
       // Scale by height to fit within width
-      val scaledHeight = containerWidth / contentAspectRatio
+      val scaledHeight = containerWidth * contentAspectRatio
       return Size(containerWidth, scaledHeight.roundToInt())
     } else {
       // Scale by width to fit within height
-      val scaledWidth = containerHeight * contentAspectRatio
+      val scaledWidth = containerHeight / contentAspectRatio
       return Size(scaledWidth.roundToInt(), containerHeight)
     }
   }
