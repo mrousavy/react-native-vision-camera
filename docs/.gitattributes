@@ -1,3 +1,5 @@
 # This is just so that GitHub shows the language "Swift" as the repo language.
 # I don't want it to say Kotlin, so I tell it that .png files are also accounting for Swift % lol.
 static/**/*.png linguist-language=Swift
+static/**/*.gif linguist-language=Swift
+static/**/*.mp4 linguist-language=Swift
