@@ -9,7 +9,7 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.core.CameraError
 import com.mrousavy.camera.core.UnknownCameraError
 import com.mrousavy.camera.core.code
-import com.mrousavy.camera.parsers.CodeType
+import com.mrousavy.camera.types.CodeType
 
 fun CameraView.invokeOnInitialized() {
   Log.i(CameraView.TAG, "invokeOnInitialized()")

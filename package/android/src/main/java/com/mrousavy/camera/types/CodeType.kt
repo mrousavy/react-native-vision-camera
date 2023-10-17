@@ -1,4 +1,4 @@
-package com.mrousavy.camera.parsers
+package com.mrousavy.camera.types
 
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.core.CodeTypeNotSupportedError

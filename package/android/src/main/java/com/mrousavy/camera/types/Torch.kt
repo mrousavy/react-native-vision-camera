@@ -1,4 +1,4 @@
-package com.mrousavy.camera.parsers
+package com.mrousavy.camera.types
 
 enum class Torch(override val unionValue: String) : JSUnionValue {
   OFF("off"),

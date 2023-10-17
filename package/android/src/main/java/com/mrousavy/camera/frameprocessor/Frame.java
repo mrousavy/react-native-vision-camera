@@ -5,8 +5,8 @@ import android.media.Image;
 import android.os.Build;
 import com.facebook.proguard.annotations.DoNotStrip;
 import com.mrousavy.camera.core.HardwareBuffersNotAvailableError;
-import com.mrousavy.camera.parsers.PixelFormat;
-import com.mrousavy.camera.parsers.Orientation;
+import com.mrousavy.camera.types.PixelFormat;
+import com.mrousavy.camera.types.Orientation;
 
 public class Frame {
     private final Image image;

@@ -7,7 +7,7 @@ import android.util.Size
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import com.mrousavy.camera.parsers.ResizeMode
+import com.mrousavy.camera.types.ResizeMode
 import kotlin.math.roundToInt
 
 @SuppressLint("ViewConstructor")

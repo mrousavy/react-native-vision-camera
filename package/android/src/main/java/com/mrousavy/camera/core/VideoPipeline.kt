@@ -11,8 +11,8 @@ import android.view.Surface
 import com.facebook.jni.HybridData
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
-import com.mrousavy.camera.parsers.Orientation
-import com.mrousavy.camera.parsers.PixelFormat
+import com.mrousavy.camera.types.Orientation
+import com.mrousavy.camera.types.PixelFormat
 import java.io.Closeable
 
 /**

@@ -5,12 +5,12 @@ import com.facebook.react.common.MapBuilder
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.ViewGroupManager
 import com.facebook.react.uimanager.annotations.ReactProp
-import com.mrousavy.camera.parsers.CodeScannerOptions
-import com.mrousavy.camera.parsers.Orientation
-import com.mrousavy.camera.parsers.PixelFormat
-import com.mrousavy.camera.parsers.ResizeMode
-import com.mrousavy.camera.parsers.Torch
-import com.mrousavy.camera.parsers.VideoStabilizationMode
+import com.mrousavy.camera.types.CodeScannerOptions
+import com.mrousavy.camera.types.Orientation
+import com.mrousavy.camera.types.PixelFormat
+import com.mrousavy.camera.types.ResizeMode
+import com.mrousavy.camera.types.Torch
+import com.mrousavy.camera.types.VideoStabilizationMode
 
 @Suppress("unused")
 class CameraViewManager : ViewGroupManager<CameraView>() {

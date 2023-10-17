@@ -7,9 +7,9 @@ import android.os.Build
 import android.util.Log
 import android.util.Size
 import android.view.Surface
-import com.mrousavy.camera.parsers.Orientation
-import com.mrousavy.camera.parsers.VideoCodec
-import com.mrousavy.camera.parsers.VideoFileType
+import com.mrousavy.camera.types.Orientation
+import com.mrousavy.camera.types.VideoCodec
+import com.mrousavy.camera.types.VideoFileType
 import java.io.File
 
 class RecordingSession(

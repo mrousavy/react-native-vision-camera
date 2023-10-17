@@ -13,7 +13,7 @@ import com.mrousavy.camera.core.CameraError
 import com.mrousavy.camera.core.ViewNotFoundError
 import com.mrousavy.camera.frameprocessor.VisionCameraInstaller
 import com.mrousavy.camera.frameprocessor.VisionCameraProxy
-import com.mrousavy.camera.parsers.*
+import com.mrousavy.camera.types.*
 import com.mrousavy.camera.utils.*
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException

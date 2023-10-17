@@ -14,11 +14,11 @@ import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.extensions.bigger
 import com.mrousavy.camera.extensions.getPhotoSizes
 import com.mrousavy.camera.extensions.getVideoSizes
-import com.mrousavy.camera.parsers.HardwareLevel
-import com.mrousavy.camera.parsers.LensFacing
-import com.mrousavy.camera.parsers.Orientation
-import com.mrousavy.camera.parsers.PixelFormat
-import com.mrousavy.camera.parsers.VideoStabilizationMode
+import com.mrousavy.camera.types.HardwareLevel
+import com.mrousavy.camera.types.LensFacing
+import com.mrousavy.camera.types.Orientation
+import com.mrousavy.camera.types.PixelFormat
+import com.mrousavy.camera.types.VideoStabilizationMode
 import kotlin.math.PI
 import kotlin.math.atan
 
