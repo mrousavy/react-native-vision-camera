@@ -19,12 +19,13 @@
 static inline id example_plugin(Frame* frame, NSArray* arguments) {
   CVPixelBufferRef imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
   NSLog(@"ExamplePlugin: %zu x %zu Image. Logging %lu parameters:", CVPixelBufferGetWidth(imageBuffer), CVPixelBufferGetHeight(imageBuffer), (unsigned long)arguments.count);
-  
+
   for (id param in arguments) {
     NSLog(@"ExamplePlugin:   -> %@ (%@)", param == nil ? @"(nil)" : [param description], NSStringFromClass([param classForCoder]));
   }
-  
+
   return @{
+    @"type": @"objc",
     @"example_str": @"Test",
     @"example_bool": @true,
     @"example_double": @5.3,

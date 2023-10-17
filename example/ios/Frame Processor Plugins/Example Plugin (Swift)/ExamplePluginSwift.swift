@@ -29,6 +29,7 @@ public class ExamplePluginSwift: NSObject, FrameProcessorPluginBase {
         }
 
         return [
+            "type": "swift",
             "example_str": "Test",
             "example_bool": true,
             "example_double": 5.3,
