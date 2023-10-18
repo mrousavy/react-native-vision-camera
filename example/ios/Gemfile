@@ -1,4 +1,7 @@
 source "https://rubygems.org"
 
-gem 'cocoapods', '1.10.2'
+ruby ">= 2.6.10"
+
+gem 'cocoapods', '~> 1.13'
 gem 'cocoapods-check'
+gem 'activesupport', '>= 6.1.7.3', '< 7.1.0'

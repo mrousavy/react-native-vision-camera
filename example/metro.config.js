@@ -1,3 +1,5 @@
+const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
+
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path');
@@ -7,11 +9,15 @@ const pak = require('../package.json');
 
 const root = path.resolve(__dirname, '..');
 
-const modules = Object.keys({
-  ...pak.peerDependencies,
-});
+const modules = Object.keys(pak.peerDependencies);
 
-module.exports = {
+/**
+ * Metro configuration
+ * https://facebook.github.io/metro/docs/configuration
+ *
+ * @type {import('metro-config').MetroConfig}
+ */
+const config = {
   projectRoot: __dirname,
   watchFolders: [root],
 
@@ -25,14 +31,6 @@ module.exports = {
       return acc;
     }, {}),
   },
-
-  transformer: {
-    // eslint-disable-next-line require-await
-    getTransformOptions: async () => ({
-      transform: {
-        experimentalImportSupport: true,
-        inlineRequires: true,
-      },
-    }),
-  },
 };
+
+module.exports = mergeConfig(getDefaultConfig(__dirname), config);
