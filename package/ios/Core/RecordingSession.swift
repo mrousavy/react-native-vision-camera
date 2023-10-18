@@ -36,10 +36,16 @@ class RecordingSession {
   private var hasWrittenFirstVideoFrame = false
   private var isFinishing = false
 
+  /**
+   Gets the file URL of the recorded video.
+   */
   var url: URL {
     return assetWriter.outputURL
   }
 
+  /**
+   Get the duration (in seconds) of the recorded video.
+   */
   var duration: Double {
     guard let latestTimestamp = latestTimestamp,
           let initialTimestamp = initialTimestamp else {
