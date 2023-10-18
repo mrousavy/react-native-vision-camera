@@ -239,7 +239,7 @@ extension CameraSession {
       device.automaticallyEnablesLowLightBoostWhenAvailable = configuration.enableLowLightBoost
     }
   }
-  
+
   /**
    Configures the torch.
    The CaptureSession has to be running for the Torch to work.
@@ -248,14 +248,14 @@ extension CameraSession {
     guard let device = videoDeviceInput?.device else {
       throw CameraError.session(.cameraNotReady)
     }
-    
+
     // Configure Torch
     let torchMode = configuration.torch.toTorchMode()
     if device.torchMode != torchMode {
       guard device.hasTorch else {
         throw CameraError.device(.flashUnavailable)
       }
-      
+
       device.torchMode = torchMode
       if torchMode == .on {
         try device.setTorchModeOn(level: 1.0)
