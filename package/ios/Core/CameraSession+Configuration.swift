@@ -175,16 +175,13 @@ extension CameraSession {
   /**
    Configures the active format (`format`)
    */
-  func configureFormat(configuration: CameraConfiguration) throws {
+  func configureFormat(configuration: CameraConfiguration, device: AVCaptureDevice) throws {
     guard let targetFormat = configuration.format else {
       // No format was set, just use the default.
       return
     }
 
     ReactLogger.log(level: .info, message: "Configuring Format (\(targetFormat))...")
-    guard let device = videoDeviceInput?.device else {
-      throw CameraError.session(.cameraNotReady)
-    }
 
     let currentFormat = CameraDeviceFormat(fromFormat: device.activeFormat)
     if currentFormat == targetFormat {
@@ -207,13 +204,9 @@ extension CameraSession {
   // pragma MARK: Side-Props
 
   /**
-   Configures format-dependant "side-props" (`fps`, `lowLightBoost`, `torch`)
+   Configures format-dependant "side-props" (`fps`, `lowLightBoost`)
    */
-  func configureSideProps(configuration: CameraConfiguration) throws {
-    guard let device = videoDeviceInput?.device else {
-      throw CameraError.session(.cameraNotReady)
-    }
-
+  func configureSideProps(configuration: CameraConfiguration, device: AVCaptureDevice) throws {
     // Configure FPS
     if let fps = configuration.fps {
       let supportsGivenFps = device.activeFormat.videoSupportedFrameRateRanges.contains { range in
@@ -238,13 +231,20 @@ extension CameraSession {
       }
       device.automaticallyEnablesLowLightBoostWhenAvailable = configuration.enableLowLightBoost
     }
+  }
 
+  /**
+   Configures the torch.
+   The CaptureSession has to be running for the Torch to work.
+   */
+  func configureTorch(configuration: CameraConfiguration, device: AVCaptureDevice) throws {
     // Configure Torch
     let torchMode = configuration.torch.toTorchMode()
     if device.torchMode != torchMode {
       guard device.hasTorch else {
         throw CameraError.device(.flashUnavailable)
       }
+
       device.torchMode = torchMode
       if torchMode == .on {
         try device.setTorchModeOn(level: 1.0)
@@ -257,10 +257,7 @@ extension CameraSession {
   /**
    Configures zoom (`zoom`)
    */
-  func configureZoom(configuration: CameraConfiguration) throws {
-    guard let device = videoDeviceInput?.device else {
-      throw CameraError.session(.cameraNotReady)
-    }
+  func configureZoom(configuration: CameraConfiguration, device: AVCaptureDevice) {
     guard let zoom = configuration.zoom else {
       return
     }

@@ -70,6 +70,7 @@ class CameraConfiguration {
     let orientationChanged: Bool
     let formatChanged: Bool
     let sidePropsChanged: Bool
+    let torchChanged: Bool
     let zoomChanged: Bool
 
     let audioSessionChanged: Bool
@@ -100,7 +101,9 @@ class CameraConfiguration {
       // format (depends on cameraId)
       formatChanged = inputChanged || left?.format != right.format
       // side-props (depends on format)
-      sidePropsChanged = formatChanged || left?.fps != right.fps || left?.enableLowLightBoost != right.enableLowLightBoost || left?.torch != right.torch
+      sidePropsChanged = formatChanged || left?.fps != right.fps || left?.enableLowLightBoost != right.enableLowLightBoost
+      // torch (depends on isActive)
+      torchChanged = left?.isActive != right.isActive || left?.torch != right.torch
       // zoom (depends on format)
       zoomChanged = formatChanged || left?.zoom != right.zoom
 
