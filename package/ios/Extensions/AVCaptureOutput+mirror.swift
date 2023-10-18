@@ -32,20 +32,26 @@ extension AVCaptureOutput {
   func setOrientation(_ orientation: Orientation) {
     // Set orientation for each connection
     connections.forEach { connection in
-      if #available(iOS 17.0, *) {
-        // Camera Sensors are always in landscape rotation (90deg).
-        // We are setting the target rotation here, so we need to rotate by landscape once.
-        let cameraOrientation = orientation.rotateBy(orientation: .landscapeLeft)
-        let degrees = cameraOrientation.toDegrees()
+      #if swift(>=5.9)
+        if #available(iOS 17.0, *) {
+          // Camera Sensors are always in landscape rotation (90deg).
+          // We are setting the target rotation here, so we need to rotate by landscape once.
+          let cameraOrientation = orientation.rotateBy(orientation: .landscapeLeft)
+          let degrees = cameraOrientation.toDegrees()
 
-        if connection.isVideoRotationAngleSupported(degrees) {
-          connection.videoRotationAngle = degrees
+          if connection.isVideoRotationAngleSupported(degrees) {
+            connection.videoRotationAngle = degrees
+          }
+        } else {
+          if connection.isVideoOrientationSupported {
+            connection.videoOrientation = orientation.toAVCaptureVideoOrientation()
+          }
         }
-      } else {
+      #else
         if connection.isVideoOrientationSupported {
           connection.videoOrientation = orientation.toAVCaptureVideoOrientation()
         }
-      }
+      #endif
     }
   }
 }

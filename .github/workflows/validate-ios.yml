@@ -27,7 +27,7 @@ jobs:
         env:
           WORKING_DIRECTORY: ios
   SwiftFormat:
-    runs-on: macOS-13
+    runs-on: macOS-latest
     defaults:
       run:
         working-directory: ./package/ios

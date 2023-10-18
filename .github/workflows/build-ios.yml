@@ -21,7 +21,7 @@ on:
 jobs:
   build:
     name: Build iOS Example App
-    runs-on: macOS-13
+    runs-on: macOS-latest
     defaults:
       run:
         working-directory: package/example/ios
@@ -80,7 +80,7 @@ jobs:
 
   build-no-frame-processors:
     name: Build iOS Example App without Frame Processors
-    runs-on: macOS-13
+    runs-on: macOS-latest
     defaults:
       run:
         working-directory: package/example/ios
