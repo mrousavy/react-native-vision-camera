@@ -32,7 +32,6 @@ class RecordingSession {
 
   private var initialTimestamp: CMTime?
   private var latestTimestamp: CMTime?
-  private var hasStartedWritingSession = false
   private var hasWrittenFirstVideoFrame = false
   private var isFinishing = false
 
@@ -122,6 +121,13 @@ class RecordingSession {
       ReactLogger.log(level: .error, message: "Failed to start Asset Writer(s)!")
       throw RecordingSessionError.failedToStartSession
     }
+
+    ReactLogger.log(level: .info, message: "Asset Writer(s) started, starting session...")
+
+    let now = CMTime(seconds: CACurrentMediaTime(), preferredTimescale: 1_000_000_000)
+    assetWriter.startSession(atSourceTime: now)
+
+    ReactLogger.log(level: .info, message: "Started RecordingSession at \(now.seconds) seconds!")
   }
 
   /**
@@ -155,15 +161,12 @@ class RecordingSession {
         ReactLogger.log(level: .error, message: "Failed to get the CVImageBuffer!")
         return
       }
-      // Start the writing session before we write the first video frame
-      if !hasStartedWritingSession {
-        initialTimestamp = timestamp
-        assetWriter.startSession(atSourceTime: timestamp)
-        ReactLogger.log(level: .info, message: "Started RecordingSession at \(timestamp.seconds) seconds.")
-        hasStartedWritingSession = true
-      }
+      // Write the Video Frame
       bufferAdaptor.append(imageBuffer, withPresentationTime: timestamp)
+
+      // Set start timestamp
       if !hasWrittenFirstVideoFrame {
+        initialTimestamp = timestamp
         hasWrittenFirstVideoFrame = true
       }
     case .audio:
@@ -174,10 +177,12 @@ class RecordingSession {
       if !audioWriter.isReadyForMoreMediaData {
         return
       }
-      if !hasWrittenFirstVideoFrame || !hasStartedWritingSession {
+      if !hasWrittenFirstVideoFrame {
         // first video frame has not been written yet, so skip this audio frame.
         return
       }
+
+      // Write Audio Frame
       audioWriter.append(buffer)
     }
 
