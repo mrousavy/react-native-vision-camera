@@ -1,0 +1,3 @@
+# This is just so that GitHub shows the language "Swift" as the repo language.
+# I don't want it to say Kotlin, so I tell it that some .kt files here are also accounting for Swift % lol.
+*.kt linguist-language=Swift
