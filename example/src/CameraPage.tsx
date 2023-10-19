@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useRef, useState, useMemo, useCallback } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler';
 import {
   CameraDeviceFormat,
@@ -22,7 +22,7 @@ import { CaptureButton } from './views/CaptureButton';
 import { PressableOpacity } from 'react-native-pressable-opacity';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { examplePlugin } from './frame-processors/ExamplePlugin';
+import { examplePlugin, examplePluginSwift } from './frame-processors/ExamplePlugin';
 import type { Routes } from './Routes';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/core';
@@ -200,6 +200,13 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
     const values = examplePlugin(frame);
+
+    // Check if RN is on iOS
+    if (Platform.OS === 'ios') {
+      const swiftValues = examplePluginSwift(frame);
+      console.log(`Swift Values: ${JSON.stringify(swiftValues)}`);
+    }
+
     console.log(`Return Values: ${JSON.stringify(values)}`);
   }, []);
 
