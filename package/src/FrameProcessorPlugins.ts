@@ -100,7 +100,19 @@ if (hasWorklets) {
   }
 }
 
-export const VisionCameraProxy = proxy
+export const VisionCameraProxy: TVisionCameraProxy = {
+  initFrameProcessorPlugin: proxy.initFrameProcessorPlugin,
+  removeFrameProcessor: proxy.removeFrameProcessor,
+  setFrameProcessor: proxy.setFrameProcessor,
+  // TODO: Remove this in the next version
+  // @ts-expect-error
+  getFrameProcessorPlugin: (name, options) => {
+    console.warn(
+      '"getFrameProcessorPlugin" has been renamed to "initFrameProcessorPlugin". This function will be removed in the next release.',
+    )
+    return proxy.initFrameProcessorPlugin(name, options)
+  },
+}
 
 declare global {
   // eslint-disable-next-line no-var
