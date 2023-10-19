@@ -88,7 +88,7 @@ import com.mrousavy.camera.frameprocessor.FrameProcessorPluginRegistry;
 
 public class FaceDetectorFrameProcessorPluginPackage implements ReactPackage {
   // highlight-start
-  FaceDetectorFrameProcessorPluginPackage() {
+  static {
     FrameProcessorPluginRegistry.addFrameProcessorPlugin("detectFaces", options -> new FaceDetectorFrameProcessorPlugin(options));
   }
   // highlight-end
@@ -158,9 +158,11 @@ import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin
 
 class FaceDetectorFrameProcessorPluginPackage : ReactPackage {
   // highlight-start
-  init {
-    FrameProcessorPluginRegistry.addFrameProcessorPlugin("detectFaces") { options ->
-      FaceDetectorFrameProcessorPlugin(options)
+  companion object {
+    init {
+      FrameProcessorPluginRegistry.addFrameProcessorPlugin("detectFaces") { options ->
+        FaceDetectorFrameProcessorPlugin(options)
+      }
     }
   }
   // highlight-end
