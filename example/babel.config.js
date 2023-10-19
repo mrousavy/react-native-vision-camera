@@ -6,17 +6,17 @@ module.exports = {
   presets: ['module:metro-react-native-babel-preset'],
   plugins: [
     [
-      'react-native-reanimated/plugin',
-      {
-        globals: ['__example_plugin', '__example_plugin_swift', '__scanCodes'],
-      },
-    ],
-    [
       'module-resolver',
       {
         alias: {
           [pak.name]: path.join(__dirname, '..', pak.source),
         },
+      },
+    ],
+    [
+      'react-native-reanimated/plugin',
+      {
+        globals: ['__example_plugin', '__example_plugin_swift'],
       },
     ],
   ],
