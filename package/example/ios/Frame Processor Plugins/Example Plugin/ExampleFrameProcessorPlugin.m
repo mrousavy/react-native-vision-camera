@@ -18,7 +18,7 @@
 
 @implementation ExampleFrameProcessorPlugin
 
-- (instancetype)initWithOptions:(NSDictionary * _Nullable)options
+- (instancetype)initWithOptions:(NSDictionary* _Nullable)options
 {
   self = [super initWithOptions:options];
   NSLog(@"ExamplePlugin - options: %@", options);
