@@ -76,6 +76,7 @@
 
 /* Begin PBXFileReference section */
 		134814201AA4EA6300B7C361 /* libVisionCamera.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libVisionCamera.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		B46705F02AE14988002C6D29 /* VisionCamera.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VisionCamera.h; sourceTree = "<group>"; };
 		B4DC40072A430B8C001326CA /* RNCameraView.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; path = RNCameraView.h; sourceTree = "<group>"; };
 		B4DC40082A430B8C001326CA /* RNCameraView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RNCameraView.mm; sourceTree = "<group>"; };
 		B4DC400B2A44685E001326CA /* CameraModule.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = CameraModule.mm; sourceTree = "<group>"; };
@@ -159,6 +160,7 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				B46705F02AE14988002C6D29 /* VisionCamera.h */,
 				B4DC400B2A44685E001326CA /* CameraModule.mm */,
 				B4DC400C2A44685E001326CA /* CameraModule.h */,
 				B84760DE2608F57D004C3180 /* CameraQueues.swift */,

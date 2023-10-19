@@ -42,6 +42,7 @@ Pod::Spec.new do |s|
   # All source files that should be publicly visible
   # Note how this does not include headers, since those can nameclash.
   s.source_files = [
+    "VisionCamera.h",
     "ios/**/*.{m,mm,swift}",
     "ios/CameraBridge.h",
     "ios/React Utils/RCTBridge+runOnJS.h",
