@@ -6,7 +6,7 @@ import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin
 
 class ExampleKotlinFrameProcessorPlugin(options: Map<String, Any>?): FrameProcessorPlugin(options) {
     init {
-        Log.d("ExampleKotlinPlugin", " - options" + options?.toString())
+        Log.d("ExampleKotlinPlugin", "ExampleKotlinFrameProcessorPlugin initialized with options: " + options?.toString())
     }
 
     override fun callback(frame: Frame, params: Map<String, Any>?): Any? {
