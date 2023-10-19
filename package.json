@@ -83,7 +83,7 @@
     "react": "^18.2.0",
     "react-native": "^0.71.10",
     "react-native-builder-bob": "^0.20.4",
-    "react-native-reanimated": "software-mansion/react-native-reanimated#5b93afe19c5451f67c3667efe1b6497daff54d4a",
+    "react-native-reanimated": "^3.5.4",
     "release-it": "^15.11.0",
     "typescript": "^5.1.3"
   },
