@@ -70,6 +70,9 @@ class VideoPipeline(
   private var imageReader: ImageReader? = null
   private var imageWriter: ImageWriter? = null
 
+  private val hasOutputs: Boolean
+    get() = recordingSession != null
+
   init {
     Log.i(
       TAG,
@@ -84,15 +87,20 @@ class VideoPipeline(
     if (enableFrameProcessor) {
       // User has passed a Frame Processor, we need to route images through ImageReader so we can get
       // CPU access to the Frames, then send them to the OpenGL pipeline later.
-      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-        throw FrameProcessorsUnavailableError("Frame Processors require API 29 or higher. (Q)")
-      }
-      // GPU_SAMPLED because we redirect to OpenGL, CPU_READ because we read pixels before that.
-      val usage = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or HardwareBuffer.USAGE_CPU_READ_OFTEN
       val format = getImageReaderFormat()
       Log.i(TAG, "Using ImageReader round-trip (format: #$format)")
-      imageWriter = ImageWriter.newInstance(glSurface, MAX_IMAGES, format)
-      imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES, usage)
+
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        Log.i(TAG, "Using API 29 for GPU ImageReader...")
+        // GPU_SAMPLED because we redirect to OpenGL, CPU_READ because we read pixels before that.
+        val usage = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or HardwareBuffer.USAGE_CPU_READ_OFTEN
+        imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES, usage)
+        imageWriter = ImageWriter.newInstance(glSurface, MAX_IMAGES, format)
+      } else {
+        Log.i(TAG, "Using legacy API for CPU ImageReader...")
+        imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES)
+        imageWriter = ImageWriter.newInstance(glSurface, MAX_IMAGES)
+      }
       imageReader!!.setOnImageAvailableListener({ reader ->
         Log.i(TAG, "ImageReader::onImageAvailable!")
         val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
@@ -104,7 +112,10 @@ class VideoPipeline(
         frame.incrementRefCount()
         frameProcessor?.call(frame)
 
-        imageWriter!!.queueInputImage(image)
+        if (hasOutputs) {
+          // If we have outputs (e.g. a RecordingSession), pass the frame along to the OpenGL pipeline
+          imageWriter!!.queueInputImage(image)
+        }
 
         frame.decrementRefCount()
       }, CameraQueues.videoQueue.handler)
