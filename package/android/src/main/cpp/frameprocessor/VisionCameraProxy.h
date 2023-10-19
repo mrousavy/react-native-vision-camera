@@ -28,7 +28,7 @@ public:
 private:
   void setFrameProcessor(int viewTag, jsi::Runtime& runtime, const jsi::Object& frameProcessor);
   void removeFrameProcessor(int viewTag);
-  jsi::Value getFrameProcessorPlugin(jsi::Runtime& runtime, const std::string& name, const jsi::Object& options);
+  jsi::Value initFrameProcessorPlugin(jsi::Runtime& runtime, const std::string& name, const jsi::Object& options);
 
 private:
   jni::global_ref<JVisionCameraProxy::javaobject> _javaProxy;

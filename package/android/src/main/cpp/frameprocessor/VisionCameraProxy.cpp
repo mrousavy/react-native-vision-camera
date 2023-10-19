@@ -37,7 +37,7 @@ std::vector<jsi::PropNameID> VisionCameraProxy::getPropertyNames(jsi::Runtime& r
   std::vector<jsi::PropNameID> result;
   result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("setFrameProcessor")));
   result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("removeFrameProcessor")));
-  result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("getFrameProcessorPlugin")));
+  result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("initFrameProcessorPlugin")));
   return result;
 }
 
@@ -49,10 +49,10 @@ void VisionCameraProxy::removeFrameProcessor(int viewTag) {
   _javaProxy->cthis()->removeFrameProcessor(viewTag);
 }
 
-jsi::Value VisionCameraProxy::getFrameProcessorPlugin(jsi::Runtime& runtime, const std::string& name, const jsi::Object& jsOptions) {
+jsi::Value VisionCameraProxy::initFrameProcessorPlugin(jsi::Runtime& runtime, const std::string& name, const jsi::Object& jsOptions) {
   auto options = JSIJNIConversion::convertJSIObjectToJNIMap(runtime, jsOptions);
 
-  auto plugin = _javaProxy->cthis()->getFrameProcessorPlugin(name, options);
+  auto plugin = _javaProxy->cthis()->initFrameProcessorPlugin(name, options);
 
   auto pluginHostObject = std::make_shared<FrameProcessorPluginHostObject>(plugin);
   return jsi::Object::createFromHostObject(runtime, pluginHostObject);
@@ -80,9 +80,9 @@ jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& 
           return jsi::Value::undefined();
         });
   }
-  if (name == "getFrameProcessorPlugin") {
+  if (name == "initFrameProcessorPlugin") {
     return jsi::Function::createFromHostFunction(
-        runtime, jsi::PropNameID::forUtf8(runtime, "getFrameProcessorPlugin"), 1,
+        runtime, jsi::PropNameID::forUtf8(runtime, "initFrameProcessorPlugin"), 1,
         [this](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
           if (count < 1 || !arguments[0].isString()) {
             throw jsi::JSError(runtime, "First argument needs to be a string (pluginName)!");
@@ -90,7 +90,7 @@ jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& 
           auto pluginName = arguments[0].asString(runtime).utf8(runtime);
           auto options = count > 1 ? arguments[1].asObject(runtime) : jsi::Object(runtime);
 
-          return this->getFrameProcessorPlugin(runtime, pluginName, options);
+          return this->initFrameProcessorPlugin(runtime, pluginName, options);
         });
   }
 

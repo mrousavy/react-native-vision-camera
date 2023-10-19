@@ -11,7 +11,7 @@ To make the Frame Processor Plugin available to the Frame Processor Worklet Runt
 ```ts
 import { VisionCameraProxy, Frame } from 'react-native-vision-camera'
 
-const plugin = VisionCameraProxy.getFrameProcessorPlugin('scanFaces')
+const plugin = VisionCameraProxy.initFrameProcessorPlugin('scanFaces')
 
 /**
  * Scans faces.

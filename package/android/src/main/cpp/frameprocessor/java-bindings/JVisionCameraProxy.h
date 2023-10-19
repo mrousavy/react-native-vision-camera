@@ -30,8 +30,8 @@ public:
 
   void setFrameProcessor(int viewTag, jsi::Runtime& runtime, const jsi::Object& frameProcessor);
   void removeFrameProcessor(int viewTag);
-  jni::local_ref<JFrameProcessorPlugin::javaobject> getFrameProcessorPlugin(const std::string& name,
-                                                                            jni::local_ref<JMap<jstring, jobject>> options);
+  jni::local_ref<JFrameProcessorPlugin::javaobject> initFrameProcessorPlugin(const std::string& name,
+                                                                             jni::local_ref<JMap<jstring, jobject>> options);
 
   jsi::Runtime* getJSRuntime() {
     return _runtime;

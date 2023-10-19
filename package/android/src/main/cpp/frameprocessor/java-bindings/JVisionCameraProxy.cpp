@@ -82,10 +82,10 @@ void JVisionCameraProxy::removeFrameProcessor(int viewTag) {
   removeFrameProcessorMethod(_javaPart, viewTag);
 }
 
-local_ref<JFrameProcessorPlugin::javaobject> JVisionCameraProxy::getFrameProcessorPlugin(const std::string& name, TOptions options) {
-  auto getFrameProcessorPluginMethod =
-      javaClassLocal()->getMethod<JFrameProcessorPlugin(local_ref<jstring>, TOptions)>("getFrameProcessorPlugin");
-  return getFrameProcessorPluginMethod(_javaPart, make_jstring(name), std::move(options));
+local_ref<JFrameProcessorPlugin::javaobject> JVisionCameraProxy::initFrameProcessorPlugin(const std::string& name, TOptions options) {
+  auto initFrameProcessorPluginMethod =
+      javaClassLocal()->getMethod<JFrameProcessorPlugin(local_ref<jstring>, TOptions)>("initFrameProcessorPlugin");
+  return initFrameProcessorPluginMethod(_javaPart, make_jstring(name), std::move(options));
 }
 
 void JVisionCameraProxy::registerNatives() {
