@@ -28,14 +28,6 @@ public abstract class FrameProcessorPlugin {
     public FrameProcessorPlugin(@Nullable Map<String, Object> options) {}
 
     /**
-     * The actual Frame Processor Plugin's implementation that runs for every frame in the Camera Video Pipeline.
-     * @param frame The Frame from the Camera. Don't call .close() on this, as VisionCamera handles that.
-     * @return You can return any primitive, map or array you want. See the
-     * <a href="https://react-native-vision-camera.com/docs/guides/frame-processors-plugins-overview#types">Types</a>
-     * table for a list of supported types.
-     */
-
-    /**
      * The actual Frame Processor Plugin's implementation that runs when `plugin.call(..)` is called in the JS Frame Processor.
      * Implement your Frame Processing here, and keep in mind that this is a hot-path so optimize as good as possible.
      * See: <a href="https://react-native-vision-camera.com/docs/guides/frame-processors-tips#fast-frame-processor-plugins">Performance Tips</a>
