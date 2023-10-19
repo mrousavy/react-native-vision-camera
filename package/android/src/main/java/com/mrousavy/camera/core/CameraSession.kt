@@ -40,9 +40,7 @@ class CameraSession(
   private val cameraManager: CameraManager,
   private val onInitialized: () -> Unit,
   private val onError: (e: Throwable) -> Unit
-) : CameraManager.AvailabilityCallback(),
-  Closeable,
-  CameraOutputs.Callback {
+): Closeable, CameraOutputs.Callback {
   companion object {
     private const val TAG = "CameraSession"
 
@@ -100,12 +98,7 @@ class CameraSession(
       updateVideoOutputs()
     }
 
-  init {
-    cameraManager.registerAvailabilityCallback(this, CameraQueues.cameraQueue.handler)
-  }
-
   override fun close() {
-    cameraManager.unregisterAvailabilityCallback(this)
     photoOutputSynchronizer.clear()
     captureSession?.close()
     cameraDevice?.close()
@@ -120,6 +113,32 @@ class CameraSession(
       val sensorRotation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
       return Orientation.fromRotationDegrees(sensorRotation)
     }
+
+  suspend fun configure(callback: (configuration: CameraConfiguration) -> Unit) {
+    Log.i(TAG, "Updating CameraSession Configuration...")
+
+    val config = CameraConfiguration.copyOf(this.configuration)
+    callback(config)
+    val diff = CameraConfiguration.difference(this.configuration, config)
+
+    mutex.withLock {
+      try {
+        if (diff.deviceChanged) {
+          configureCameraDevice(config)
+        }
+        if (diff.outputsChanged) {
+          configureOutputs()
+        }
+
+        // etc...
+
+        Log.i(TAG, "Successfully updated CameraSession Configuration!")
+      } catch (error: Throwable) {
+        Log.e(TAG, "Failed to configure CameraSession! Error: ${error.message}, Config-Diff: $diff", error)
+        onError(error)
+      }
+    }
+  }
 
   suspend fun configureSession(
     cameraId: String,
@@ -328,16 +347,6 @@ class CameraSession(
 
     Log.i(TAG, "Focusing (${point.x}, ${point.y})...")
     focus(point)
-  }
-
-  override fun onCameraAvailable(cameraId: String) {
-    super.onCameraAvailable(cameraId)
-    Log.i(TAG, "Camera became available: $cameraId")
-  }
-
-  override fun onCameraUnavailable(cameraId: String) {
-    super.onCameraUnavailable(cameraId)
-    Log.i(TAG, "Camera became un-available: $cameraId")
   }
 
   private suspend fun focus(point: Point) {
