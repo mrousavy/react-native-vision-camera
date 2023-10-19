@@ -41,7 +41,7 @@ It is recommended that everybody upgrades to VisionCamera V3. If you have any is
 > [!NOTE]
 > The documentation hosted on https://react-native-vision-camera.com represents the documentation for V3. For V2, read the [docs/](docs/) folder here.
 
-VisionCamera V2 requires React Native 0.70+, iOS 11+, Android API 21+.
+VisionCamera V2 requires React Native 0.70+, iOS 11+, Android API 21+, Xcode 15+.
 
 
 ### Documentation
