@@ -27,7 +27,7 @@ interface TVisionCameraProxy {
    * Creates a new instance of a Frame Processor Plugin.
    * The Plugin has to be registered on the native side, otherwise this returns `undefined`
    */
-  getFrameProcessorPlugin: (name: string) => FrameProcessorPlugin | undefined
+  getFrameProcessorPlugin: (name: string, options?: Record<string, ParameterType>) => FrameProcessorPlugin | undefined
 }
 
 let hasWorklets = false

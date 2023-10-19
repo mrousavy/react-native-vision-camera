@@ -1,6 +1,6 @@
 import { VisionCameraProxy, Frame } from 'react-native-vision-camera'
 
-const plugin = VisionCameraProxy.getFrameProcessorPlugin('example_kotlin_swift_plugin')
+const plugin = VisionCameraProxy.getFrameProcessorPlugin('example_kotlin_swift_plugin', { foo: 'bar' })
 
 export function exampleKotlinSwiftPlugin(frame: Frame): string[] {
   'worklet'

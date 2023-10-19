@@ -11,6 +11,12 @@ import VisionCamera
 // Example for a Swift Frame Processor plugin
 @objc(ExampleSwiftFrameProcessorPlugin)
 public class ExampleSwiftFrameProcessorPlugin: FrameProcessorPlugin {
+  public override init(options: [AnyHashable: Any]! = [:]) {
+    super.init(options: options)
+
+    print("ExampleSwiftPlugin - options: \(String(describing: options))")
+  }
+
   public override func callback(_ frame: Frame, withArguments arguments: [AnyHashable: Any]?) -> Any? {
     let imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer)
 
