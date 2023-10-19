@@ -30,7 +30,7 @@ public:
 private:
   void setFrameProcessor(jsi::Runtime& runtime, int viewTag, const jsi::Object& frameProcessor);
   void removeFrameProcessor(jsi::Runtime& runtime, int viewTag);
-  jsi::Value getFrameProcessorPlugin(jsi::Runtime& runtime, std::string name, const jsi::Object& options);
+  jsi::Value initFrameProcessorPlugin(jsi::Runtime& runtime, std::string name, const jsi::Object& options);
 
 private:
   std::shared_ptr<RNWorklet::JsiWorkletContext> _workletContext;

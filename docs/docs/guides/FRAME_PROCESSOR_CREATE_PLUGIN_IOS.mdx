@@ -51,7 +51,7 @@ For reference see the [CLI's docs](https://github.com/mateusz1913/vision-camera-
 
 @implementation FaceDetectorFrameProcessorPlugin
 
-- (instancetype) initWithOptions:(NSDictionary*)options; {
+- (instancetype) initWithOptions:(NSDictionary* _Nullable)options; {
   self = [super initWithOptions:options];
   return self;
 }
@@ -71,10 +71,10 @@ VISION_EXPORT_FRAME_PROCESSOR(FaceDetectorFrameProcessorPlugin, detectFaces)
 ```
 
 :::note
-The Frame Processor Plugin will be exposed to JS through the `VisionCameraProxy` object. In this case, it would be `VisionCameraProxy.getFrameProcessorPlugin("detectFaces")`.
+The Frame Processor Plugin will be exposed to JS through the `VisionCameraProxy` object. In this case, it would be `VisionCameraProxy.initFrameProcessorPlugin("detectFaces")`.
 :::
 
-4. **Implement your Frame Processing.** See the [Example Plugin (Objective-C)](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/example/ios/Frame%20Processor%20Plugins/Example%20Plugin%20%28Objective%2DC%29) for reference.
+4. **Implement your Frame Processing.** See the [Example Plugin (Objective-C)](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/example/ios/Frame%20Processor%20Plugins/Example%20Plugin/ExampleFrameProcessorPlugin.m) for reference.
 
 </TabItem>
 <TabItem value="swift">
@@ -117,7 +117,7 @@ VISION_EXPORT_SWIFT_FRAME_PROCESSOR(FaceDetectorFrameProcessorPlugin, detectFace
 // highlight-end
 ```
 
-5. **Implement your frame processing.** See [Example Plugin (Swift)](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/example/ios/Frame%20Processor%20Plugins/Example%20Plugin%20%28Swift%29) for reference.
+5. **Implement your frame processing.** See [Example Plugin (Swift)](https://github.com/mrousavy/react-native-vision-camera/blob/main/package/example/ios/Frame%20Processor%20Plugins/Example%20Swift%20Plugin/ExampleSwiftFrameProcessor.swift) for reference.
 
 
 </TabItem>

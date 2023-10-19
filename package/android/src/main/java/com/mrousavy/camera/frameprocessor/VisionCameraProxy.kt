@@ -70,7 +70,7 @@ class VisionCameraProxy(context: ReactApplicationContext) {
 
   @DoNotStrip
   @Keep
-  fun getFrameProcessorPlugin(name: String, options: Map<String, Any>): FrameProcessorPlugin =
+  fun initFrameProcessorPlugin(name: String, options: Map<String, Any>): FrameProcessorPlugin =
     FrameProcessorPluginRegistry.getPlugin(name, options)
 
   // private C++ funcs

@@ -14,7 +14,7 @@ public class ExampleSwiftFrameProcessorPlugin: FrameProcessorPlugin {
   public override init(options: [AnyHashable: Any]! = [:]) {
     super.init(options: options)
 
-    print("ExampleSwiftPlugin - options: \(String(describing: options))")
+    print("ExampleSwiftFrameProcessorPlugin initialized with options: \(String(describing: options))")
   }
 
   public override func callback(_ frame: Frame, withArguments arguments: [AnyHashable: Any]?) -> Any? {

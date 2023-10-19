@@ -41,6 +41,7 @@ public class ExampleFrameProcessorPlugin extends FrameProcessorPlugin {
     }
 
     ExampleFrameProcessorPlugin(@Nullable Map<String, Object> options) {
-        Log.d("ExamplePlugin", " - options: " + options.toString());
+        super(options);
+        Log.d("ExamplePlugin", "ExampleFrameProcessorPlugin initialized with options: " + options);
     }
 }

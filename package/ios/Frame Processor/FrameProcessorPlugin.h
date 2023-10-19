@@ -11,22 +11,38 @@
 #import "Frame.h"
 #import <Foundation/Foundation.h>
 
-/// The base class for a Frame Processor Plugin which can be called synchronously from a JS Frame
-/// Processor.
-///
-/// Subclass this class in a Swift or Objective-C class and override the `callback:withArguments:`
-/// method, and implement your Frame Processing there.
-///
-/// Use `[FrameProcessorPluginRegistry addFrameProcessorPlugin:]` to register the Plugin to the
-/// VisionCamera Runtime.
+/**
+ * The base class of a native Frame Processor Plugin.
+ *
+ * Subclass this to create a custom Frame Processor Plugin, which can be called from a JS Frame Processor.
+ * Once subclassed, it needs to be registered in the VisionCamera Frame Processor runtime via
+ * the `VISION_EXPORT_FRAME_PROCESSOR` or `VISION_EXPORT_SWIFT_FRAME_PROCESSOR` macros.
+
+ * See: <a href="https://react-native-vision-camera.com/docs/guides/frame-processors-plugins-ios">Creating Frame Processor Plugins (iOS)</a>
+ * for more information
+ */
 @interface FrameProcessorPlugin : NSObject
 
-/// The initializer for a Frame Processor Plugin class that takes optional object that consists
-/// options passed from JS layer
+/**
+ * The initializer of this Frame Processor Plugin.
+ * This is called everytime this Frame Processor Plugin is loaded from the JS side (`initFrameProcessorPlugin(..)`).
+ * Optionally override this method to implement custom initialization logic.
+ * - Parameters:
+ *   - options: An options dictionary passed from the JS side, or `nil` if none.
+ */
 - (instancetype _Nonnull)initWithOptions:(NSDictionary* _Nullable)options;
 
-/// The actual callback when calling this plugin. Any Frame Processing should be handled there.
-/// Make sure your code is optimized, as this is a hot path.
+/**
+ * The actual Frame Processor Plugin's implementation that runs when `plugin.call(..)` is called in the JS Frame Processor.
+ * Implement your Frame Processing here, and keep in mind that this is a hot-path so optimize as good as possible.
+ * See: <a href="https://react-native-vision-camera.com/docs/guides/frame-processors-tips#fast-frame-processor-plugins">Performance Tips</a>
+ *
+ * - Parameters:
+ *   - frame: The Frame from the Camera. Don't do any ref-counting on this, as VisionCamera handles that.
+ * - Returns: You can return any primitive, map or array you want.
+ *            See the <a href="https://react-native-vision-camera.com/docs/guides/frame-processors-plugins-overview#types">Types</a>
+ *            table for a list of supported types.
+ */
 - (id _Nullable)callback:(Frame* _Nonnull)frame withArguments:(NSDictionary* _Nullable)arguments;
 
 @end
