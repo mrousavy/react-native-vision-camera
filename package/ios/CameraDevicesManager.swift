@@ -51,7 +51,7 @@ class CameraDevicesManager: RCTEventEmitter {
       return $0.toDictionary()
     }
   }
-  
+
   private func getPreferredDevice() -> AVCaptureDevice? {
     #if swift(>=5.9)
       if #available(iOS 17.0, *) {
