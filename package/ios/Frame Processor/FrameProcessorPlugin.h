@@ -15,8 +15,8 @@
  * The base class of a native Frame Processor Plugin.
  *
  * Subclass this to create a custom Frame Processor Plugin, which can be called from a JS Frame Processor.
- * Once subclassed, it needs to be registered in the VisionCamera Frame Processor
- * runtime via `[FrameProcessorPluginRegistry addFrameProcessorPlugin:]` - ideally at app startup.
+ * Once subclassed, it needs to be registered in the VisionCamera Frame Processor runtime via
+ * the `VISION_EXPORT_FRAME_PROCESSOR` or `VISION_EXPORT_SWIFT_FRAME_PROCESSOR` macros.
 
  * See: <a href="https://react-native-vision-camera.com/docs/guides/frame-processors-plugins-ios">Creating Frame Processor Plugins (iOS)</a>
  * for more information
