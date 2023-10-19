@@ -49,7 +49,7 @@
 objc_name : NSObject<FrameProcessorPluginBase>                                      \
 @end                                                                                \
                                                                                     \
-@interface objc_name (FrameProcessorPlugin)                                         \
+@interface objc_name (FrameProcessorPlugin) <FrameProcessorPluginBase>              \
 @end                                                                                \
 @implementation objc_name (FrameProcessorPlugin)                                    \
                                                                                     \
