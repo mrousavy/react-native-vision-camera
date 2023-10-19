@@ -38,19 +38,11 @@ class CameraDevicesManager: RCTEventEmitter {
 
   override func constantsToExport() -> [AnyHashable: Any]! {
     let devices = getDevicesJson()
-    let preferredDevice = devices.first
-
-    #if swift(>=5.9)
-      if #available(iOS 17.0, *) {
-        if let userPreferred = AVCaptureDevice.userPreferredCamera {
-          preferredDevice = userPreferred.toDictionary()
-        }
-      }
-    #endif
+    let preferredDevice = getPreferredDevice()
 
     return [
       "availableCameraDevices": devices,
-      "userPreferredCameraDevice": preferredDevice as Any,
+      "userPreferredCameraDevice": preferredDevice?.toDictionary() as Any,
     ]
   }
 
@@ -58,6 +50,19 @@ class CameraDevicesManager: RCTEventEmitter {
     return discoverySession.devices.map {
       return $0.toDictionary()
     }
+  }
+
+  private func getPreferredDevice() -> AVCaptureDevice? {
+    #if swift(>=5.9)
+      if #available(iOS 17.0, *) {
+        if let userPreferred = AVCaptureDevice.userPreferredCamera {
+          // Return the device that was explicitly marked as a preferred camera by the user
+          return userPreferred
+        }
+      }
+    #endif
+    // Just return the first device
+    return discoverySession.devices.first
   }
 
   private static func getAllDeviceTypes() -> [AVCaptureDevice.DeviceType] {
