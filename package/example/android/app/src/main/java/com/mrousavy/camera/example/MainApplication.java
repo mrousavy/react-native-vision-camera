@@ -18,6 +18,11 @@ import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
 import com.mrousavy.camera.frameprocessor.FrameProcessorPluginRegistry;
 
 public class MainApplication extends Application implements ReactApplication {
+  // Register the Frame Processor Plugins for our app
+  static {
+    FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_plugin", options -> new ExampleFrameProcessorPlugin(options));
+    FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_kotlin_swift_plugin", options -> new ExampleKotlinFrameProcessorPlugin(options));
+  }
 
   private final ReactNativeHost mReactNativeHost =
       new DefaultReactNativeHost(this) {
@@ -64,8 +69,5 @@ public class MainApplication extends Application implements ReactApplication {
       // If you opted-in for the New Architecture, we load the native entry point for this app.
       DefaultNewArchitectureEntryPoint.load();
     }
-
-    FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_plugin", options -> new ExampleFrameProcessorPlugin(options));
-    FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_kotlin_swift_plugin", options -> new ExampleKotlinFrameProcessorPlugin(options));
   }
 }
