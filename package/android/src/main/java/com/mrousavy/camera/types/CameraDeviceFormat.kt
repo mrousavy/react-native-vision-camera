@@ -1,5 +1,6 @@
 package com.mrousavy.camera.types
 
+import android.util.Size
 import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.core.InvalidTypeScriptUnionError
 
@@ -21,6 +22,10 @@ data class CameraDeviceFormat(
     val pixelFormats: Array<PixelFormat>,
     val supportsDepthCapture: Boolean,
 ) {
+  val photoSize: Size
+    get() = Size(photoWidth, photoHeight)
+  val videoSize: Size
+    get() = Size(videoWidth, videoHeight)
 
   companion object {
     fun fromJSValue(value: ReadableMap): CameraDeviceFormat {

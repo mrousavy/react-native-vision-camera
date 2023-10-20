@@ -39,7 +39,7 @@ class MicrophonePermissionError :
   )
 class CameraPermissionError : CameraError("permission", "camera-permission-denied", "The Camera permission was denied!")
 
-class InvalidTypeScriptUnionError(unionName: String, unionValue: String) :
+class InvalidTypeScriptUnionError(unionName: String, unionValue: String?) :
   CameraError("parameter", "invalid-parameter", "The given value for $unionName could not be parsed! (Received: $unionValue)")
 
 class NoCameraDeviceError :
@@ -55,7 +55,7 @@ class CameraNotReadyError :
   CameraError("session", "camera-not-ready", "The Camera is not ready yet! Wait for the onInitialized() callback!")
 class CameraCannotBeOpenedError(cameraId: String, error: CameraDeviceError) :
   CameraError("session", "camera-cannot-be-opened", "The given Camera device (id: $cameraId) could not be opened! Error: $error")
-class CameraSessionCannotBeConfiguredError(cameraId: String, outputs: CameraOutputs) :
+class CameraSessionCannotBeConfiguredError(cameraId: String, outputs: CameraOutputs?) :
   CameraError("session", "cannot-create-session", "Failed to create a Camera Session for Camera $cameraId! Outputs: $outputs")
 class CameraDisconnectedError(cameraId: String, error: CameraDeviceError) :
   CameraError("session", "camera-has-been-disconnected", "The given Camera device (id: $cameraId) has been disconnected! Error: $error")

@@ -5,6 +5,7 @@ import com.mrousavy.camera.types.CodeType
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.PixelFormat
 import com.mrousavy.camera.types.Torch
+import com.mrousavy.camera.types.VideoStabilizationMode
 
 data class CameraConfiguration(
   // Input
@@ -14,6 +15,7 @@ data class CameraConfiguration(
   var photo: Output<Photo> = Output.Disabled.create(),
   var video: Output<Video> = Output.Disabled.create(),
   var codeScanner: Output<CodeScanner> = Output.Disabled.create(),
+  val enableHdr: Boolean = false,
 
   // Orientation
   var orientation: Orientation = Orientation.PORTRAIT,
@@ -22,12 +24,13 @@ data class CameraConfiguration(
   var format: CameraDeviceFormat? = null,
 
   // Side-Props
-  var fps: Int = 30,
+  var fps: Int? = null,
   var enableLowLightBoost: Boolean = false,
   var torch: Torch = Torch.OFF,
+  var videoStabilizationMode: VideoStabilizationMode = VideoStabilizationMode.OFF,
 
   // Zoom
-  var zoom: Double = 1.0,
+  var zoom: Float = 1f,
 
   // isActive (Start/Stop)
   var isActive: Boolean = false,
@@ -40,7 +43,6 @@ data class CameraConfiguration(
   class Photo
   data class Video(
     val pixelFormat: PixelFormat,
-    var enableHdr: Boolean,
     val enableFrameProcessor: Boolean
   )
   class Audio
@@ -68,11 +70,12 @@ data class CameraConfiguration(
   }
 
   data class Difference(
-      val deviceChanged: Boolean,
-      val outputsChanged: Boolean,
-      val formatChanged: Boolean,
-      val sidePropsChanged: Boolean,
-      val zoomChanged: Boolean,
+    // Input Camera (cameraId)
+    val deviceChanged: Boolean,
+    // Outputs & Session (Photo, Video, CodeScanner, HDR, Format)
+    val outputsChanged: Boolean,
+    // Side-Props for CaptureRequest (fps, low-light-boost, torch, zoom, videoStabilization and isActive)
+    val sidePropsChanged: Boolean
   )
 
   companion object {
@@ -82,17 +85,19 @@ data class CameraConfiguration(
 
     fun difference(left: CameraConfiguration?, right: CameraConfiguration): Difference {
       val deviceChanged = left?.cameraId != right.cameraId
-      val outputsChanged = deviceChanged || left?.photo != right.photo || left?.video != right.video || left?.codeScanner != right.codeScanner
-      val formatChanged = left?.format != right.format
-      val sidePropsChanged = left?.fps != right.fps || left?.enableLowLightBoost != right.enableLowLightBoost || left?.torch != right.torch
-      val zoomChanged = left?.zoom != right.zoom
+
+      val outputsChanged = deviceChanged // input device
+          || left?.photo != right.photo || left.video != right.video || left.codeScanner != right.codeScanner // outputs
+          || left.enableHdr != right.enableHdr || left.format != right.format // props that affect the outputs (hdr, format, ..)
+
+      val sidePropsChanged = outputsChanged // depend on outputs
+          || left?.torch != right.torch || left.enableLowLightBoost != right.enableLowLightBoost || left.fps != right.fps
+          || left.zoom != right.zoom || left.videoStabilizationMode != right.videoStabilizationMode || left.isActive != right.isActive
 
       return Difference(
           deviceChanged,
           outputsChanged,
-          formatChanged,
-          sidePropsChanged,
-          zoomChanged
+          sidePropsChanged
       )
     }
   }

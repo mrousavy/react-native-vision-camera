@@ -5,6 +5,7 @@ import android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_
 import android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
 import android.hardware.camera2.CameraMetadata.LENS_OPTICAL_STABILIZATION_MODE_OFF
 import android.hardware.camera2.CameraMetadata.LENS_OPTICAL_STABILIZATION_MODE_ON
+import com.mrousavy.camera.core.InvalidTypeScriptUnionError
 
 enum class VideoStabilizationMode(override val unionValue: String) : JSUnionValue {
   OFF("off"),
@@ -28,13 +29,13 @@ enum class VideoStabilizationMode(override val unionValue: String) : JSUnionValu
     }
 
   companion object : JSUnionValue.Companion<VideoStabilizationMode> {
-    override fun fromUnionValue(unionValue: String?): VideoStabilizationMode? =
+    override fun fromUnionValue(unionValue: String?): VideoStabilizationMode =
       when (unionValue) {
         "off" -> OFF
         "standard" -> STANDARD
         "cinematic" -> CINEMATIC
         "cinematic-extended" -> CINEMATIC_EXTENDED
-        else -> null
+        else -> throw InvalidTypeScriptUnionError("videoStabilizationMode", unionValue)
       }
 
     fun fromDigitalVideoStabilizationMode(stabiliazionMode: Int): VideoStabilizationMode =

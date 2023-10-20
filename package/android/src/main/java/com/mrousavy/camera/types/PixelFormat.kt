@@ -1,6 +1,7 @@
 package com.mrousavy.camera.types
 
 import android.graphics.ImageFormat
+import com.mrousavy.camera.core.InvalidTypeScriptUnionError
 import com.mrousavy.camera.core.PixelFormatNotSupportedError
 
 enum class PixelFormat(override val unionValue: String) : JSUnionValue {
@@ -24,13 +25,13 @@ enum class PixelFormat(override val unionValue: String) : JSUnionValue {
         else -> UNKNOWN
       }
 
-    override fun fromUnionValue(unionValue: String?): PixelFormat? =
+    override fun fromUnionValue(unionValue: String?): PixelFormat =
       when (unionValue) {
         "yuv" -> YUV
         "rgb" -> RGB
         "native" -> NATIVE
         "unknown" -> UNKNOWN
-        else -> null
+        else -> throw InvalidTypeScriptUnionError("pixelFormat", unionValue)
       }
   }
 }
