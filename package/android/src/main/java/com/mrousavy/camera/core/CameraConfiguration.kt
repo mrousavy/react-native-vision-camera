@@ -1,10 +1,10 @@
 package com.mrousavy.camera.core
 
-import com.mrousavy.camera.parsers.CameraDeviceFormat
-import com.mrousavy.camera.parsers.CodeType
-import com.mrousavy.camera.parsers.Orientation
-import com.mrousavy.camera.parsers.PixelFormat
-import com.mrousavy.camera.parsers.Torch
+import com.mrousavy.camera.types.CameraDeviceFormat
+import com.mrousavy.camera.types.CodeType
+import com.mrousavy.camera.types.Orientation
+import com.mrousavy.camera.types.PixelFormat
+import com.mrousavy.camera.types.Torch
 
 data class CameraConfiguration(
   // Input
