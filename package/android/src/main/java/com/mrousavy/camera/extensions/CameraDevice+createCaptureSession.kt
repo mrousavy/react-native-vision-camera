@@ -41,8 +41,7 @@ suspend fun CameraDevice.createCaptureSession(
 
       override fun onConfigureFailed(session: CameraCaptureSession) {
         Log.e(TAG, "Camera $id: Failed to configure Capture Session #$sessionId!")
-        // TODO: Pass correct outputs here, use our own type?
-        continuation.resumeWithException(CameraSessionCannotBeConfiguredError(id, null))
+        continuation.resumeWithException(CameraSessionCannotBeConfiguredError(id))
       }
 
       override fun onClosed(session: CameraCaptureSession) {
