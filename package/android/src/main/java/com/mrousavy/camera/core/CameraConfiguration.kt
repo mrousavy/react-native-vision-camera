@@ -47,9 +47,9 @@ data class CameraConfiguration(
     val onCodeScanned: (codes: List<Barcode>) -> Unit,
     val onError: (error: Throwable) -> Unit
   )
-  class Photo
+  data class Photo(val nothing: Unit)
   data class Video(val pixelFormat: PixelFormat, val enableFrameProcessor: Boolean)
-  class Audio
+  data class Audio(val nothing: Unit)
   data class Preview(val surface: Surface)
 
   @Suppress("EqualsOrHashCode")

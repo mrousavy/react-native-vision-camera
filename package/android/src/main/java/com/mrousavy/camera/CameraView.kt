@@ -137,7 +137,7 @@ class CameraView(context: Context) :
 
         // Photo
         if (photo == true) {
-          config.photo = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Photo())
+          config.photo = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Photo(Unit))
         } else {
           config.photo = CameraConfiguration.Output.Disabled.create()
         }
@@ -156,7 +156,7 @@ class CameraView(context: Context) :
 
         // Audio
         if (audio == true) {
-          config.audio = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Audio())
+          config.audio = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Audio(Unit))
         } else {
           config.audio = CameraConfiguration.Output.Disabled.create()
         }
