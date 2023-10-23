@@ -77,13 +77,16 @@ data class CameraConfiguration(
     val outputsChanged: Boolean,
     // Side-Props for CaptureRequest (fps, low-light-boost, torch, zoom, videoStabilization)
     val sidePropsChanged: Boolean
-  )
+  ) {
+    val hasAnyDifference: Boolean
+      get() = sidePropsChanged || outputsChanged || deviceChanged
+  }
 
   companion object {
     fun copyOf(other: CameraConfiguration?): CameraConfiguration = other?.copy() ?: CameraConfiguration()
 
     fun difference(left: CameraConfiguration?, right: CameraConfiguration): Difference {
-      val deviceChanged = left?.cameraId != right.cameraId || left?.isActive != right.isActive
+      val deviceChanged = left?.cameraId != right.cameraId
 
       val outputsChanged = deviceChanged || // input device
         left?.photo != right.photo || left.video != right.video || left.codeScanner != right.codeScanner ||
@@ -92,7 +95,7 @@ data class CameraConfiguration(
 
       val sidePropsChanged = outputsChanged || // depend on outputs
         left?.torch != right.torch || left.enableLowLightBoost != right.enableLowLightBoost || left.fps != right.fps ||
-        left.zoom != right.zoom || left.videoStabilizationMode != right.videoStabilizationMode
+        left.zoom != right.zoom || left.videoStabilizationMode != right.videoStabilizationMode || left.isActive != right.isActive
 
       return Difference(
         deviceChanged,

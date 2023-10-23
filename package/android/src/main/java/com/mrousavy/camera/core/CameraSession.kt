@@ -116,39 +116,34 @@ class CameraSession(
     }
 
   suspend fun configure(callback: (configuration: CameraConfiguration) -> Unit) {
-    Log.i(TAG, "Updating CameraSession Configuration...")
-
-    val config = CameraConfiguration.copyOf(this.configuration)
-    callback(config)
-    val diff = CameraConfiguration.difference(this.configuration, config)
-
-    if (this.configuration == config) {
-      Log.w(TAG, "Called configure(...) but nothing changed...")
-      return
-    }
-
     mutex.withLock {
+      Log.i(TAG, "Updating CameraSession Configuration...")
+
+      val config = CameraConfiguration.copyOf(this.configuration)
+      callback(config)
+      val diff = CameraConfiguration.difference(this.configuration, config)
+
+      if (!diff.hasAnyDifference) {
+        Log.w(TAG, "Called configure(...) but nothing changed...")
+        return
+      }
+
       try {
-        if (config.isActive) {
-          // Build up session or update any props
-          if (diff.deviceChanged) {
-            // 1. cameraId changed, open device
-            configureCameraDevice(config)
-          }
-          if (diff.outputsChanged) {
-            // 2. outputs changed, build new session
-            configureOutputs(config)
-          }
-          if (diff.sidePropsChanged) {
-            // 3. zoom etc changed, update repeating request
-            configureCaptureRequest(config)
-          }
-        } else {
-          // Session is inactive, destroy everything.
-          destroy()
+        // Build up session or update any props
+        if (diff.deviceChanged) {
+          // 1. cameraId changed, open device
+          configureCameraDevice(config)
+        }
+        if (diff.outputsChanged) {
+          // 2. outputs changed, build new session
+          configureOutputs(config)
+        }
+        if (diff.sidePropsChanged) {
+          // 3. zoom etc changed, update repeating request
+          configureCaptureRequest(config)
         }
 
-        Log.i(TAG, "Successfully updated CameraSession Configuration!")
+        Log.i(TAG, "Successfully updated CameraSession Configuration! isActive: ${config.isActive}")
         this.configuration = config
       } catch (error: Throwable) {
         Log.e(TAG, "Failed to configure CameraSession! Error: ${error.message}, Config-Diff: $diff", error)
