@@ -7,11 +7,12 @@ import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
-import com.mrousavy.camera.core.outputs.CameraOutputs
 import com.mrousavy.camera.types.Orientation
 import java.io.Closeable
 
-class CodeScannerPipeline(val size: Size, val format: Int, val output: CameraOutputs.CodeScannerOutput) : Closeable {
+class CodeScannerPipeline(val size: Size,
+                          val format: Int,
+                          val configuration: CameraConfiguration.CodeScanner) : Closeable {
   companion object {
     // We want to have a buffer of 2 images, but we always only acquire one.
     // That way the pipeline is free to stream one frame into the unused buffer,
@@ -26,7 +27,7 @@ class CodeScannerPipeline(val size: Size, val format: Int, val output: CameraOut
     get() = imageReader.surface
 
   init {
-    val types = output.options.codeTypes.map { it.toBarcodeType() }
+    val types = configuration.codeTypes.map { it.toBarcodeType() }
     val barcodeScannerOptions = BarcodeScannerOptions.Builder()
       .setBarcodeFormats(types[0], *types.toIntArray())
       .build()
@@ -52,13 +53,13 @@ class CodeScannerPipeline(val size: Size, val format: Int, val output: CameraOut
           image.close()
           isBusy = false
           if (barcodes.isNotEmpty()) {
-            output.onCodeScanned(barcodes)
+            configuration.onCodeScanned(barcodes)
           }
         }
         .addOnFailureListener { error ->
           image.close()
           isBusy = false
-          output.onError(error)
+          configuration.onError(error)
         }
     }, CameraQueues.videoQueue.handler)
   }
@@ -69,7 +70,7 @@ class CodeScannerPipeline(val size: Size, val format: Int, val output: CameraOut
   }
 
   override fun toString(): String {
-    val codeTypes = output.options.codeTypes.joinToString(", ")
+    val codeTypes = configuration.codeTypes.joinToString(", ")
     return "${size.width} x ${size.height} CodeScanner for [$codeTypes] ($format)"
   }
 }

@@ -19,7 +19,6 @@ import com.mrousavy.camera.core.CameraQueues
 import com.mrousavy.camera.core.CameraSession
 import com.mrousavy.camera.core.NoCameraDeviceError
 import com.mrousavy.camera.core.PreviewView
-import com.mrousavy.camera.core.outputs.CameraOutputs
 import com.mrousavy.camera.extensions.bigger
 import com.mrousavy.camera.extensions.containsAny
 import com.mrousavy.camera.extensions.getPreviewTargetSize

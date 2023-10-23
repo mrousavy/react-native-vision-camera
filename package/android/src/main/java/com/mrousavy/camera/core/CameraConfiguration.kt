@@ -1,5 +1,8 @@
 package com.mrousavy.camera.core
 
+import android.util.Size
+import android.view.Surface
+import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.types.CameraDeviceFormat
 import com.mrousavy.camera.types.CodeType
 import com.mrousavy.camera.types.Orientation
@@ -12,6 +15,7 @@ data class CameraConfiguration(
   var cameraId: String? = null,
 
   // Outputs
+  var preview: Output<Preview> = Output.Disabled.create(),
   var photo: Output<Photo> = Output.Disabled.create(),
   var video: Output<Video> = Output.Disabled.create(),
   var codeScanner: Output<CodeScanner> = Output.Disabled.create(),
@@ -39,13 +43,21 @@ data class CameraConfiguration(
   var audio: Output<Audio> = Output.Disabled.create()
 ) {
 
-  data class CodeScanner(val codeTypes: List<CodeType>)
+  data class CodeScanner(
+      val codeTypes: List<CodeType>,
+      val onCodeScanned: (codes: List<Barcode>) -> Unit,
+      val onError: (error: Throwable) -> Unit
+  )
   class Photo
   data class Video(
     val pixelFormat: PixelFormat,
     val enableFrameProcessor: Boolean
   )
   class Audio
+  class Preview(
+    val surface: Surface,
+    val size: Size
+  )
 
   @Suppress("EqualsOrHashCode")
   sealed class Output<T> {
