@@ -130,13 +130,14 @@ class CameraSession(
             // 3. zoom etc changed, update repeating request
             configureCaptureRequest(config)
           }
+          this.configuration = config
         } else {
           // Session is inactive, destroy everything.
           destroy()
+          this.configuration = null
         }
 
         Log.i(TAG, "Successfully updated CameraSession Configuration!")
-        this.configuration = config
       } catch (error: Throwable) {
         Log.e(TAG, "Failed to configure CameraSession! Error: ${error.message}, Config-Diff: $diff", error)
         onError(error)
@@ -301,6 +302,13 @@ class CameraSession(
 
     val template = if (config.video.isEnabled) CameraDevice.TEMPLATE_RECORD else CameraDevice.TEMPLATE_PREVIEW
     val captureRequest = device.createCaptureRequest(template)
+
+    previewOutput?.let { output ->
+      captureRequest.addTarget(output.surface)
+    }
+    videoOutput?.let { output ->
+      captureRequest.addTarget(output.surface)
+    }
 
     // Set FPS
     // TODO: Check if the FPS range is actually supported in the current configuration.
