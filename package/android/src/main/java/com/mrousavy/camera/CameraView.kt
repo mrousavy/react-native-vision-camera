@@ -54,6 +54,14 @@ class CameraView(context: Context) :
   // react properties
   // props that require reconfiguring
   var cameraId: String? = null
+    set(value) {
+      if (value != null) {
+        // TODO: Move this into CameraSession
+        val f = if (format != null) CameraDeviceFormat.fromJSValue(format!!) else null
+        previewView.resizeToInputCamera(value, cameraManager, f)
+      }
+      field = value
+    }
   var enableDepthData = false
   var enableHighQualityPhotos: Boolean? = null
   var enablePortraitEffectsMatteDelivery = false
@@ -67,7 +75,6 @@ class CameraView(context: Context) :
 
   // props that require format reconfiguring
   var format: ReadableMap? = null
-  var resizeMode: ResizeMode = ResizeMode.COVER
   var fps: Int? = null
   var videoStabilizationMode: VideoStabilizationMode? = null
   var hdr: Boolean? = null // nullable bool
@@ -83,6 +90,11 @@ class CameraView(context: Context) :
       field = value
       updateZoomGesture()
     }
+  var resizeMode: ResizeMode = ResizeMode.COVER
+    set(value) {
+      previewView.resizeMode = value
+      field = value
+    }
 
   // code scanner
   var codeScannerOptions: CodeScannerOptions? = null
@@ -93,7 +105,7 @@ class CameraView(context: Context) :
 
   // session
   internal val cameraSession: CameraSession
-  private var previewView: PreviewView? = null
+  private val previewView: PreviewView
   private var previewSurface: Surface? = null
 
   internal var frameProcessor: FrameProcessor? = null
@@ -107,8 +119,9 @@ class CameraView(context: Context) :
   init {
     this.installHierarchyFitter()
     clipToOutline = true
-    setupPreviewView()
     cameraSession = CameraSession(context, cameraManager, { invokeOnInitialized() }, { error -> invokeOnError(error) })
+    previewView = PreviewView(context, this)
+    addView(previewView)
   }
 
   override fun onAttachedToWindow() {
@@ -123,29 +136,6 @@ class CameraView(context: Context) :
   override fun onDetachedFromWindow() {
     update()
     super.onDetachedFromWindow()
-  }
-
-  private fun getPreviewTargetSize(): Size {
-    val cameraId = cameraId ?: throw NoCameraDeviceError()
-
-    val format = format
-    val targetPreviewSize = if (format != null) Size(format.getInt("videoWidth"), format.getInt("videoHeight")) else null
-    val formatAspectRatio = if (targetPreviewSize != null) targetPreviewSize.bigger.toDouble() / targetPreviewSize.smaller else null
-
-    return this.cameraManager.getCameraCharacteristics(cameraId).getPreviewTargetSize(formatAspectRatio)
-  }
-
-  private fun setupPreviewView() {
-    removeView(previewView)
-    this.previewSurface = null
-
-    if (cameraId == null) return
-
-    val previewView = PreviewView(context, this.getPreviewTargetSize(), resizeMode, this)
-    this.previewView = previewView
-    UiThreadUtil.runOnUiThread {
-      addView(previewView)
-    }
   }
 
   override fun surfaceCreated(holder: SurfaceHolder) {
@@ -178,11 +168,11 @@ class CameraView(context: Context) :
 
         // Preview
         val surface = previewSurface
-        val previewView = previewView
-        if (surface != null && previewView != null) {
+        Log.d(TAG, "Preview surface: $surface | view: $previewView")
+        if (surface != null) {
           config.preview = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Preview(
-              surface,
-              previewView.targetSize
+            surface,
+            previewView.size
           ))
         } else {
           config.preview = CameraConfiguration.Output.Disabled.create()

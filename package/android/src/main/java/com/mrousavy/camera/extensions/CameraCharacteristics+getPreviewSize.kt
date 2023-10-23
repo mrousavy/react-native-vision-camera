@@ -6,7 +6,7 @@ import android.util.Size
 import android.view.SurfaceHolder
 import kotlin.math.abs
 
-private fun getMaximumPreviewSize(): Size {
+fun getMaximumPreviewSize(): Size {
   // See https://developer.android.com/reference/android/hardware/camera2/params/StreamConfigurationMap
   // According to the Android Developer documentation, PREVIEW streams can have a resolution
   // of up to the phone's display's resolution, with a maximum of 1920x1080.

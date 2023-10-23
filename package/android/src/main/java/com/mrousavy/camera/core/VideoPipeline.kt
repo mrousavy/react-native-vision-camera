@@ -177,7 +177,11 @@ class VideoPipeline(
    */
   fun setFrameProcessorOutput(frameProcessor: FrameProcessor?) {
     synchronized(this) {
-      Log.i(TAG, "Setting $width x $height FrameProcessor Output...")
+      if (frameProcessor != null) {
+        Log.i(TAG, "Setting $width x $height FrameProcessor Output...")
+      } else {
+        Log.i(TAG, "Removing FrameProcessor Output...")
+      }
       this.frameProcessor = frameProcessor
     }
   }
@@ -187,13 +191,14 @@ class VideoPipeline(
    */
   fun setRecordingSessionOutput(recordingSession: RecordingSession?) {
     synchronized(this) {
-      Log.i(TAG, "Setting $width x $height RecordingSession Output...")
       if (recordingSession != null) {
         // Configure OpenGL pipeline to stream Frames into the Recording Session's surface
+        Log.i(TAG, "Setting $width x $height RecordingSession Output...")
         setRecordingSessionOutputSurface(recordingSession.surface)
         this.recordingSession = recordingSession
       } else {
         // Configure OpenGL pipeline to stop streaming Frames into the Recording Session's surface
+        Log.i(TAG, "Removing RecordingSession Output...")
         removeRecordingSessionOutputSurface()
         this.recordingSession = null
       }
