@@ -105,9 +105,7 @@ class VideoPipeline(
         Log.i(TAG, "ImageReader::onImageAvailable!")
         val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
 
-        Log.i(TAG, "Image Format: ${image.format}")
-
-        // // TODO: Get correct orientation and isMirrored
+        // TODO: Get correct orientation and isMirrored
         val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, isMirrored)
         frame.incrementRefCount()
         frameProcessor?.call(frame)

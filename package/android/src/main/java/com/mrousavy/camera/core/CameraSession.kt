@@ -19,6 +19,9 @@ import android.os.Build
 import android.util.Log
 import android.util.Range
 import android.util.Size
+import android.view.Surface
+import android.view.SurfaceHolder
+import com.mrousavy.camera.CameraView
 import com.mrousavy.camera.core.outputs.BarcodeScannerOutput
 import com.mrousavy.camera.core.outputs.PhotoOutput
 import com.mrousavy.camera.core.outputs.SurfaceOutput
@@ -39,11 +42,14 @@ import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.VideoCodec
 import com.mrousavy.camera.types.VideoFileType
 import com.mrousavy.camera.types.VideoStabilizationMode
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import java.io.Closeable
 import java.util.concurrent.CancellationException
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlin.coroutines.CoroutineContext
 
 class CameraSession(
   private val context: Context,
@@ -69,6 +75,7 @@ class CameraSession(
   private var videoOutput: VideoPipelineOutput? = null
   private var previewOutput: SurfaceOutput? = null
   private var codeScannerOutput: BarcodeScannerOutput? = null
+  private var previewView: PreviewView? = null
   private val photoOutputSynchronizer = PhotoOutputSynchronizer()
   private val mutex = Mutex()
   private var isRunning = false
@@ -116,7 +123,8 @@ class CameraSession(
 
     mutex.withLock {
       try {
-        if (config.isActive) {
+        val isSessionActive = config.isActive && config.preview is CameraConfiguration.Output.Enabled
+        if (isSessionActive) {
           // Build up session or update any props
           if (diff.deviceChanged) {
             // 1. cameraId changed, open device
@@ -166,6 +174,48 @@ class CameraSession(
     isRunning = false
   }
 
+  fun createPreviewView(context: Context): PreviewView {
+    val previewView = PreviewView(context, object: SurfaceHolder.Callback {
+      override fun surfaceCreated(holder: SurfaceHolder) {
+        Log.i(TAG, "PreviewView Surface created! ${holder.surface}")
+        // TODO: Do we want to call updatePreviewOutput here already?
+      }
+
+      override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+        Log.i(TAG, "PreviewView Surface updated! ${holder.surface} $width x $height")
+        updatePreviewOutput(holder.surface, Size(width, height))
+      }
+
+      override fun surfaceDestroyed(holder: SurfaceHolder) {
+        Log.i(TAG, "PreviewView Surface destroyed! ${holder.surface}")
+        destroyPreviewOutputSync()
+      }
+    })
+    this.previewView = previewView
+    return previewView
+  }
+
+  private fun updatePreviewOutput(surface: Surface, size: Size) {
+    if (previewOutput?.surface == surface && previewOutput?.size == size) {
+      // already same configuration
+      return
+    }
+    // TODO: Don't run this blocking!!!!
+    runBlocking {
+      configure { config ->
+        config.preview = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Preview(surface, size))
+      }
+    }
+  }
+
+  private fun destroyPreviewOutputSync() {
+    runBlocking {
+      configure { config ->
+        config.preview = CameraConfiguration.Output.Disabled.create()
+      }
+    }
+  }
+
   /**
    * Set up the `CameraDevice` (`cameraId`)
    */
@@ -173,8 +223,6 @@ class CameraSession(
     val cameraId = configuration.cameraId ?: throw NoCameraDeviceError()
 
     Log.i(TAG, "Configuring Camera #$cameraId...")
-
-    // TODO: Do we want to skip this is this.cameraDevice is already cameraId?
 
     cameraDevice?.close()
     cameraDevice = cameraManager.openCamera(cameraId, { device, error ->
@@ -186,6 +234,9 @@ class CameraSession(
         // this is just normal behavior
       }
     }, CameraQueues.cameraQueue)
+
+    // Update PreviewView's Surface Size to a supported value from this Capture Device
+    previewView?.resizeToInputCamera(cameraId, cameraManager, configuration.format)
 
     Log.i(TAG, "Successfully configured Camera #$cameraId!")
   }
@@ -274,6 +325,11 @@ class CameraSession(
       codeScannerOutput = output
     }
 
+    if (outputs.isEmpty()) {
+      Log.i(TAG, "Cannot create Session without any outputs. Canceling...")
+      return
+    }
+
     // Create new session
     captureSession?.close()
     captureSession = cameraDevice.createCaptureSession(cameraManager, outputs, { session ->
@@ -283,7 +339,7 @@ class CameraSession(
       }
     }, CameraQueues.cameraQueue)
 
-    Log.i(TAG, "Successfully configured Session for Camera #${cameraDevice.id}!")
+    Log.i(TAG, "Successfully configured Session with ${outputs.size} outputs for Camera #${cameraDevice.id}!")
     onInitialized()
   }
 
