@@ -355,6 +355,9 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
     Log.i(TAG, "Successfully configured Session with ${outputs.size} outputs for Camera #${cameraDevice.id}!")
     callback.onInitialized()
+
+    // Update Frame Processor and RecordingSession for newly changed output
+    updateVideoOutputs()
   }
 
   private fun configureCaptureRequest(config: CameraConfiguration) {
