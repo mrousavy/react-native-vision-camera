@@ -109,6 +109,11 @@ class CameraSession(
     callback(config)
     val diff = CameraConfiguration.difference(this.configuration, config)
 
+    if (this.configuration == config) {
+      Log.w(TAG, "Called configure(...) but nothing changed...")
+      return
+    }
+
     mutex.withLock {
       try {
         if (config.isActive) {
@@ -131,7 +136,7 @@ class CameraSession(
         }
 
         Log.i(TAG, "Successfully updated CameraSession Configuration!")
-        onInitialized()
+        this.configuration = config
       } catch (error: Throwable) {
         Log.e(TAG, "Failed to configure CameraSession! Error: ${error.message}, Config-Diff: $diff", error)
         onError(error)
@@ -278,6 +283,7 @@ class CameraSession(
     }, CameraQueues.cameraQueue)
 
     Log.i(TAG, "Successfully configured Session for Camera #${cameraDevice.id}!")
+    onInitialized()
   }
 
   private fun configureCaptureRequest(config: CameraConfiguration) {

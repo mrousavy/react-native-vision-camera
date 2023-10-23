@@ -4,9 +4,11 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import android.util.Size
+import android.view.Gravity
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import android.widget.FrameLayout
 import com.mrousavy.camera.types.ResizeMode
 import kotlin.math.roundToInt
 
@@ -15,27 +17,18 @@ class PreviewView(
   context: Context,
   val targetSize: Size,
   private val resizeMode: ResizeMode,
-  private val onSurfaceChanged: (surface: Surface?) -> Unit
+  callback: SurfaceHolder.Callback
 ) : SurfaceView(context) {
 
   init {
     Log.i(TAG, "Using Preview Size ${targetSize.width} x ${targetSize.height}.")
+    layoutParams = FrameLayout.LayoutParams(
+        FrameLayout.LayoutParams.MATCH_PARENT,
+        FrameLayout.LayoutParams.MATCH_PARENT,
+        Gravity.CENTER
+    )
     holder.setFixedSize(targetSize.width, targetSize.height)
-    holder.addCallback(object : SurfaceHolder.Callback {
-      override fun surfaceCreated(holder: SurfaceHolder) {
-        Log.i(TAG, "Surface created! ${holder.surface}")
-        onSurfaceChanged(holder.surface)
-      }
-
-      override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        Log.i(TAG, "Surface resized! ${holder.surface} ($width x $height in format #$format)")
-      }
-
-      override fun surfaceDestroyed(holder: SurfaceHolder) {
-        Log.i(TAG, "Surface destroyed! ${holder.surface}")
-        onSurfaceChanged(null)
-      }
-    })
+    holder.addCallback(callback)
   }
 
   private fun coverSize(contentSize: Size, containerWidth: Int, containerHeight: Int): Size {

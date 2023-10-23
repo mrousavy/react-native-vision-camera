@@ -19,7 +19,7 @@ data class CameraConfiguration(
   var photo: Output<Photo> = Output.Disabled.create(),
   var video: Output<Video> = Output.Disabled.create(),
   var codeScanner: Output<CodeScanner> = Output.Disabled.create(),
-  val enableHdr: Boolean = false,
+  var enableHdr: Boolean = false,
 
   // Orientation
   var orientation: Orientation = Orientation.PORTRAIT,
