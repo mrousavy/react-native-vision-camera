@@ -55,9 +55,7 @@ class PreviewView(
 
     val targetPreviewSize = format?.videoSize
     val formatAspectRatio = if (targetPreviewSize != null) targetPreviewSize.bigger.toDouble() / targetPreviewSize.smaller else null
-    val size = characteristics.getPreviewTargetSize(formatAspectRatio)
-
-    holder.setFixedSize(size.width, size.height)
+    size = characteristics.getPreviewTargetSize(formatAspectRatio)
   }
 
   private fun getSize(contentSize: Size, containerSize: Size, resizeMode: ResizeMode): Size {

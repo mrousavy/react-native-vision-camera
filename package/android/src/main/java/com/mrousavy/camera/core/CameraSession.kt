@@ -26,14 +26,17 @@ import com.mrousavy.camera.core.outputs.BarcodeScannerOutput
 import com.mrousavy.camera.core.outputs.PhotoOutput
 import com.mrousavy.camera.core.outputs.SurfaceOutput
 import com.mrousavy.camera.core.outputs.VideoPipelineOutput
+import com.mrousavy.camera.extensions.bigger
 import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.closestToOrMax
 import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.createPhotoCaptureRequest
 import com.mrousavy.camera.extensions.getPhotoSizes
+import com.mrousavy.camera.extensions.getPreviewTargetSize
 import com.mrousavy.camera.extensions.getVideoSizes
 import com.mrousavy.camera.extensions.openCamera
 import com.mrousavy.camera.extensions.setZoom
+import com.mrousavy.camera.extensions.smaller
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
@@ -44,6 +47,7 @@ import com.mrousavy.camera.types.VideoFileType
 import com.mrousavy.camera.types.VideoStabilizationMode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.Closeable
 import java.util.concurrent.CancellationException
@@ -52,11 +56,11 @@ import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.CoroutineContext
 
 class CameraSession(
-  private val context: Context,
-  private val cameraManager: CameraManager,
-  private val onInitialized: () -> Unit,
-  private val onError: (e: Throwable) -> Unit
-): Closeable {
+    private val context: Context,
+    private val cameraManager: CameraManager,
+    private val onInitialized: () -> Unit,
+    private val onError: (e: Throwable) -> Unit
+): Closeable, CoroutineScope {
   companion object {
     private const val TAG = "CameraSession"
 
@@ -79,6 +83,9 @@ class CameraSession(
   private val photoOutputSynchronizer = PhotoOutputSynchronizer()
   private val mutex = Mutex()
   private var isRunning = false
+
+  override val coroutineContext: CoroutineContext
+    get() = CameraQueues.cameraQueue.coroutineDispatcher
 
   // Video Outputs
   private var recording: RecordingSession? = null
@@ -123,8 +130,7 @@ class CameraSession(
 
     mutex.withLock {
       try {
-        val isSessionActive = config.isActive && config.preview is CameraConfiguration.Output.Enabled
-        if (isSessionActive) {
+        if (config.isActive) {
           // Build up session or update any props
           if (diff.deviceChanged) {
             // 1. cameraId changed, open device
@@ -138,14 +144,13 @@ class CameraSession(
             // 3. zoom etc changed, update repeating request
             configureCaptureRequest(config)
           }
-          this.configuration = config
         } else {
           // Session is inactive, destroy everything.
           destroy()
-          this.configuration = null
         }
 
         Log.i(TAG, "Successfully updated CameraSession Configuration!")
+        this.configuration = config
       } catch (error: Throwable) {
         Log.e(TAG, "Failed to configure CameraSession! Error: ${error.message}, Config-Diff: $diff", error)
         onError(error)
@@ -178,12 +183,11 @@ class CameraSession(
     val previewView = PreviewView(context, object: SurfaceHolder.Callback {
       override fun surfaceCreated(holder: SurfaceHolder) {
         Log.i(TAG, "PreviewView Surface created! ${holder.surface}")
-        // TODO: Do we want to call updatePreviewOutput here already?
+        createPreviewOutput(holder.surface)
       }
 
       override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
         Log.i(TAG, "PreviewView Surface updated! ${holder.surface} $width x $height")
-        updatePreviewOutput(holder.surface, Size(width, height))
       }
 
       override fun surfaceDestroyed(holder: SurfaceHolder) {
@@ -195,20 +199,17 @@ class CameraSession(
     return previewView
   }
 
-  private fun updatePreviewOutput(surface: Surface, size: Size) {
-    if (previewOutput?.surface == surface && previewOutput?.size == size) {
-      // already same configuration
-      return
-    }
-    // TODO: Don't run this blocking!!!!
-    runBlocking {
+  private fun createPreviewOutput(surface: Surface) {
+    Log.i(TAG, "Setting Preview Output...")
+    launch {
       configure { config ->
-        config.preview = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Preview(surface, size))
+        config.preview = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Preview(surface))
       }
     }
   }
 
   private fun destroyPreviewOutputSync() {
+    Log.i(TAG, "Destroying Preview Output...")
     runBlocking {
       configure { config ->
         config.preview = CameraConfiguration.Output.Disabled.create()
@@ -252,24 +253,19 @@ class CameraSession(
     Log.i(TAG, "Configuring Session for Camera #${cameraDevice.id}...")
 
     // TODO: Do we want to skip this is this.cameraSession already contains all outputs?
+    // Destroy previous outputs
+    photoOutput?.close()
+    photoOutput = null
+    videoOutput?.close()
+    videoOutput = null
+    previewOutput?.close()
+    previewOutput = null
+    codeScannerOutput?.close()
+    codeScannerOutput = null
 
     val isSelfie = characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
 
     val outputs = mutableListOf<OutputConfiguration>()
-
-    // Preview Output
-    val preview = configuration.preview as? CameraConfiguration.Output.Enabled<CameraConfiguration.Preview>
-    if (preview != null) {
-      val size = preview.config.size
-      Log.i(TAG, "Adding ${size.width} x ${size.height} Preview Output...")
-      val output = SurfaceOutput(
-          preview.config.surface,
-          preview.config.size,
-          SurfaceOutput.OutputType.PREVIEW,
-          configuration.enableHdr)
-      outputs.add(output.toOutputConfiguration(characteristics))
-      previewOutput = output
-    }
 
     // Photo Output
     val photo = configuration.photo as? CameraConfiguration.Output.Enabled<CameraConfiguration.Photo>
@@ -309,6 +305,29 @@ class CameraSession(
       val output = VideoPipelineOutput(videoPipeline, configuration.enableHdr)
       outputs.add(output.toOutputConfiguration(characteristics))
       videoOutput = output
+    }
+
+    // Preview Output
+    val preview = configuration.preview as? CameraConfiguration.Output.Enabled<CameraConfiguration.Preview>
+    if (preview != null) {
+      // Compute Preview Size based on chosen video size
+      val videoSize = videoOutput?.size ?: format?.videoSize
+      val size = if (videoSize != null) {
+        val formatAspectRatio = videoSize.bigger.toDouble() / videoSize.smaller
+        characteristics.getPreviewTargetSize(formatAspectRatio)
+      } else {
+        characteristics.getPreviewTargetSize(null)
+      }
+
+      Log.i(TAG, "Adding ${size.width} x ${size.height} Preview Output...")
+      val output = SurfaceOutput(
+          preview.config.surface,
+          size,
+          SurfaceOutput.OutputType.PREVIEW,
+          configuration.enableHdr)
+      outputs.add(output.toOutputConfiguration(characteristics))
+      previewOutput = output
+      previewView?.size = size
     }
 
     // CodeScanner Output

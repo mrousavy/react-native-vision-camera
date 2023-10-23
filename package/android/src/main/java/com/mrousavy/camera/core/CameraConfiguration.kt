@@ -54,9 +54,8 @@ data class CameraConfiguration(
     val enableFrameProcessor: Boolean
   )
   class Audio
-  class Preview(
-    val surface: Surface,
-    val size: Size
+  data class Preview(
+    val surface: Surface
   )
 
   @Suppress("EqualsOrHashCode")
@@ -99,7 +98,7 @@ data class CameraConfiguration(
       val deviceChanged = left?.cameraId != right.cameraId || left?.isActive != right.isActive
 
       val outputsChanged = deviceChanged // input device
-          || left?.photo != right.photo || left.video != right.video || left.codeScanner != right.codeScanner // outputs
+          || left?.photo != right.photo || left.video != right.video || left.codeScanner != right.codeScanner || left.preview != right.preview // outputs
           || left.enableHdr != right.enableHdr || left.format != right.format // props that affect the outputs (hdr, format, ..)
 
       val sidePropsChanged = outputsChanged // depend on outputs

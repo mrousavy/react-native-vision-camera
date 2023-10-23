@@ -4,22 +4,14 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.hardware.camera2.CameraManager
 import android.util.Log
-import android.util.Size
 import android.view.ScaleGestureDetector
-import android.view.Surface
-import android.view.SurfaceHolder
 import android.widget.FrameLayout
 import com.facebook.react.bridge.ReadableMap
-import com.facebook.react.bridge.UiThreadUtil
 import com.mrousavy.camera.core.CameraConfiguration
 import com.mrousavy.camera.core.CameraQueues
 import com.mrousavy.camera.core.CameraSession
-import com.mrousavy.camera.core.NoCameraDeviceError
 import com.mrousavy.camera.core.PreviewView
-import com.mrousavy.camera.extensions.bigger
-import com.mrousavy.camera.extensions.getPreviewTargetSize
 import com.mrousavy.camera.extensions.installHierarchyFitter
-import com.mrousavy.camera.extensions.smaller
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.types.CameraDeviceFormat
 import com.mrousavy.camera.types.CodeScannerOptions
@@ -30,7 +22,6 @@ import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.VideoStabilizationMode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlin.coroutines.CoroutineContext
 
 //
@@ -45,8 +36,7 @@ import kotlin.coroutines.CoroutineContext
 @SuppressLint("ClickableViewAccessibility", "ViewConstructor", "MissingPermission")
 class CameraView(context: Context) :
   FrameLayout(context),
-  CoroutineScope,
-  SurfaceHolder.Callback {
+  CoroutineScope {
   companion object {
     const val TAG = "CameraView"
   }
@@ -106,7 +96,6 @@ class CameraView(context: Context) :
   // session
   internal val cameraSession: CameraSession
   private val previewView: PreviewView
-  private var previewSurface: Surface? = null
 
   internal var frameProcessor: FrameProcessor? = null
     set(value) {
@@ -120,7 +109,7 @@ class CameraView(context: Context) :
     this.installHierarchyFitter()
     clipToOutline = true
     cameraSession = CameraSession(context, cameraManager, { invokeOnInitialized() }, { error -> invokeOnError(error) })
-    previewView = PreviewView(context, this)
+    previewView = cameraSession.createPreviewView(context)
     addView(previewView)
   }
 
@@ -138,26 +127,6 @@ class CameraView(context: Context) :
     super.onDetachedFromWindow()
   }
 
-  override fun surfaceCreated(holder: SurfaceHolder) {
-    Log.i(TAG, "Preview Surface created!")
-    previewSurface = holder.surface
-    update()
-  }
-  override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-    Log.i(TAG, "Preview Surface changed ($width x $height @ $format)!")
-  }
-  override fun surfaceDestroyed(holder: SurfaceHolder) {
-    Log.i(TAG, "Preview Surface destroyed!")
-    previewSurface = null
-    // We need to synchronously tear down the Camera Session before `surfaceDestroyed` callback returns,
-    // otherwise the Camera still tries to stream into the destroyed preview surface.
-    runBlocking {
-      cameraSession.configure { config ->
-        config.preview = CameraConfiguration.Output.Disabled.create()
-      }
-    }
-  }
-
   fun update() {
     Log.i(TAG, "Updating CameraSession...")
 
@@ -165,18 +134,6 @@ class CameraView(context: Context) :
       cameraSession.configure { config ->
         // Input Camera Device
         config.cameraId = cameraId
-
-        // Preview
-        val surface = previewSurface
-        Log.d(TAG, "Preview surface: $surface | view: $previewView")
-        if (surface != null) {
-          config.preview = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Preview(
-            surface,
-            previewView.size
-          ))
-        } else {
-          config.preview = CameraConfiguration.Output.Disabled.create()
-        }
 
         // Photo
         if (photo == true) {

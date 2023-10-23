@@ -2,6 +2,7 @@ package com.mrousavy.camera.extensions
 
 import android.content.res.Resources
 import android.hardware.camera2.CameraCharacteristics
+import android.util.Log
 import android.util.Size
 import android.view.SurfaceHolder
 import kotlin.math.abs
@@ -26,6 +27,8 @@ fun CameraCharacteristics.getPreviewSizeFromAspectRatio(aspectRatio: Double): Si
   val outputSizes = config.getOutputSizes(SurfaceHolder::class.java)
     .sortedByDescending { it.width * it.height }
     .sortedBy { abs(aspectRatio - (it.bigger.toDouble() / it.smaller)) }
+
+  Log.i("YEET", "Maximum: $maximumPreviewSize (aspect $aspectRatio), first: ${outputSizes.firstOrNull()}")
 
   return outputSizes.first { it.bigger <= maximumPreviewSize.bigger && it.smaller <= maximumPreviewSize.smaller }
 }
