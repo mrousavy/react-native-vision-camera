@@ -1,7 +1,6 @@
 package com.mrousavy.camera.core
 
 import android.view.Surface
-import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.types.CameraDeviceFormat
 import com.mrousavy.camera.types.CodeType
 import com.mrousavy.camera.types.Orientation
@@ -43,9 +42,7 @@ data class CameraConfiguration(
 ) {
 
   // Output<T> types, those need to be comparable
-  data class CodeScanner(
-    val codeTypes: List<CodeType>,
-  )
+  data class CodeScanner(val codeTypes: List<CodeType>)
   data class Photo(val nothing: Unit)
   data class Video(val pixelFormat: PixelFormat, val enableFrameProcessor: Boolean)
   data class Audio(val nothing: Unit)

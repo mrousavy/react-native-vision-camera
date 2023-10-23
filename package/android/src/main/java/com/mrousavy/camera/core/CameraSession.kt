@@ -54,11 +54,8 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-class CameraSession(
-  private val context: Context,
-  private val cameraManager: CameraManager,
-  private val callback: CameraSessionCallback
-) : Closeable,
+class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: CameraSessionCallback) :
+  Closeable,
   CoroutineScope {
   companion object {
     private const val TAG = "CameraSession"
