@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.ScaleGestureDetector
 import android.widget.FrameLayout
 import com.facebook.react.bridge.ReadableMap
+import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.core.CameraConfiguration
 import com.mrousavy.camera.core.CameraQueues
 import com.mrousavy.camera.core.CameraSession
@@ -36,7 +37,8 @@ import kotlinx.coroutines.launch
 @SuppressLint("ClickableViewAccessibility", "ViewConstructor", "MissingPermission")
 class CameraView(context: Context) :
   FrameLayout(context),
-  CoroutineScope {
+  CoroutineScope,
+  CameraSession.CameraSessionCallback {
   companion object {
     const val TAG = "CameraView"
   }
@@ -108,7 +110,7 @@ class CameraView(context: Context) :
   init {
     this.installHierarchyFitter()
     clipToOutline = true
-    cameraSession = CameraSession(context, cameraManager, { invokeOnInitialized() }, { error -> invokeOnError(error) })
+    cameraSession = CameraSession(context, cameraManager, this)
     previewView = cameraSession.createPreviewView(context)
     addView(previewView)
   }
@@ -165,11 +167,7 @@ class CameraView(context: Context) :
         val codeScanner = codeScannerOptions
         if (codeScanner != null) {
           config.codeScanner = CameraConfiguration.Output.Enabled.create(
-            CameraConfiguration.CodeScanner(
-              codeScanner.codeTypes,
-              { codes -> invokeOnCodeScanned(codes) },
-              { error -> invokeOnError(error) }
-            )
+            CameraConfiguration.CodeScanner(codeScanner.codeTypes)
           )
         } else {
           config.codeScanner = CameraConfiguration.Output.Disabled.create()
@@ -220,5 +218,17 @@ class CameraView(context: Context) :
     } else {
       setOnTouchListener(null)
     }
+  }
+
+  override fun onError(error: Throwable) {
+    invokeOnError(error)
+  }
+
+  override fun onInitialized() {
+    invokeOnInitialized()
+  }
+
+  override fun onCodeScanned(codes: List<Barcode>) {
+    invokeOnCodeScanned(codes)
   }
 }

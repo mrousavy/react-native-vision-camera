@@ -42,10 +42,9 @@ data class CameraConfiguration(
   var audio: Output<Audio> = Output.Disabled.create()
 ) {
 
+  // Output<T> types, those need to be comparable
   data class CodeScanner(
     val codeTypes: List<CodeType>,
-    val onCodeScanned: (codes: List<Barcode>) -> Unit,
-    val onError: (error: Throwable) -> Unit
   )
   data class Photo(val nothing: Unit)
   data class Video(val pixelFormat: PixelFormat, val enableFrameProcessor: Boolean)

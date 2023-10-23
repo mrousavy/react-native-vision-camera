@@ -10,7 +10,10 @@ import com.google.mlkit.vision.common.InputImage
 import com.mrousavy.camera.types.Orientation
 import java.io.Closeable
 
-class CodeScannerPipeline(val size: Size, val format: Int, val configuration: CameraConfiguration.CodeScanner) : Closeable {
+class CodeScannerPipeline(val size: Size,
+                          val format: Int,
+                          val configuration: CameraConfiguration.CodeScanner,
+                          val callback: CameraSession.CameraSessionCallback) : Closeable {
   companion object {
     // We want to have a buffer of 2 images, but we always only acquire one.
     // That way the pipeline is free to stream one frame into the unused buffer,
@@ -51,13 +54,13 @@ class CodeScannerPipeline(val size: Size, val format: Int, val configuration: Ca
           image.close()
           isBusy = false
           if (barcodes.isNotEmpty()) {
-            configuration.onCodeScanned(barcodes)
+            callback.onCodeScanned(barcodes)
           }
         }
         .addOnFailureListener { error ->
           image.close()
           isBusy = false
-          configuration.onError(error)
+          callback.onError(error)
         }
     }, CameraQueues.videoQueue.handler)
   }

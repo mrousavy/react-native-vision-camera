@@ -21,6 +21,7 @@ import android.util.Range
 import android.util.Size
 import android.view.Surface
 import android.view.SurfaceHolder
+import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.core.outputs.BarcodeScannerOutput
 import com.mrousavy.camera.core.outputs.PhotoOutput
 import com.mrousavy.camera.core.outputs.SurfaceOutput
@@ -56,8 +57,7 @@ import kotlinx.coroutines.sync.withLock
 class CameraSession(
   private val context: Context,
   private val cameraManager: CameraManager,
-  private val onInitialized: () -> Unit,
-  private val onError: (e: Throwable) -> Unit
+  private val callback: CameraSessionCallback
 ) : Closeable,
   CoroutineScope {
   companion object {
@@ -115,12 +115,12 @@ class CameraSession(
       return Orientation.fromRotationDegrees(sensorRotation)
     }
 
-  suspend fun configure(callback: (configuration: CameraConfiguration) -> Unit) {
+  suspend fun configure(lambda: (configuration: CameraConfiguration) -> Unit) {
     mutex.withLock {
       Log.i(TAG, "Updating CameraSession Configuration...")
 
       val config = CameraConfiguration.copyOf(this.configuration)
-      callback(config)
+      lambda(config)
       val diff = CameraConfiguration.difference(this.configuration, config)
 
       if (!diff.hasAnyDifference) {
@@ -147,7 +147,7 @@ class CameraSession(
         this.configuration = config
       } catch (error: Throwable) {
         Log.e(TAG, "Failed to configure CameraSession! Error: ${error.message}, Config-Diff: $diff", error)
-        onError(error)
+        callback.onError(error)
       }
     }
   }
@@ -226,7 +226,7 @@ class CameraSession(
     cameraDevice = cameraManager.openCamera(cameraId, { device, error ->
       if (this.cameraDevice == device) {
         Log.e(TAG, "Camera Device $device has been disconnected!", error)
-        onError(error)
+        callback.onError(error)
       } else {
         // a previous device has been disconnected, but we already have a new one.
         // this is just normal behavior
@@ -336,7 +336,7 @@ class CameraSession(
       val size = sizes.closestToOrMax(Size(1280, 720))
 
       Log.i(TAG, "Adding ${size.width} x ${size.height} CodeScanner Output in Format #$imageFormat...")
-      val pipeline = CodeScannerPipeline(size, imageFormat, codeScanner.config)
+      val pipeline = CodeScannerPipeline(size, imageFormat, codeScanner.config, callback)
       val output = BarcodeScannerOutput(pipeline)
       outputs.add(output.toOutputConfiguration(characteristics))
       codeScannerOutput = output
@@ -357,7 +357,7 @@ class CameraSession(
     }, CameraQueues.cameraQueue)
 
     Log.i(TAG, "Successfully configured Session with ${outputs.size} outputs for Camera #${cameraDevice.id}!")
-    onInitialized()
+    callback.onInitialized()
   }
 
   private fun configureCaptureRequest(config: CameraConfiguration) {
@@ -592,5 +592,11 @@ class CameraSession(
     override fun close() {
       image.close()
     }
+  }
+
+  interface CameraSessionCallback {
+    fun onError(error: Throwable)
+    fun onInitialized()
+    fun onCodeScanned(codes: List<Barcode>)
   }
 }
