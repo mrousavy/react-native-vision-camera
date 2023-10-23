@@ -5,8 +5,7 @@ import android.util.Log
 import android.util.Size
 import java.io.Closeable
 
-open class PhotoOutput(private val imageReader: ImageReader,
-                       enableHdr: Boolean = false) :
+open class PhotoOutput(private val imageReader: ImageReader, enableHdr: Boolean = false) :
   SurfaceOutput(
     imageReader.surface,
     Size(imageReader.width, imageReader.height),

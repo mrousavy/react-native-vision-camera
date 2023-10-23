@@ -21,7 +21,6 @@ import android.util.Range
 import android.util.Size
 import android.view.Surface
 import android.view.SurfaceHolder
-import com.mrousavy.camera.CameraView
 import com.mrousavy.camera.core.outputs.BarcodeScannerOutput
 import com.mrousavy.camera.core.outputs.PhotoOutput
 import com.mrousavy.camera.core.outputs.SurfaceOutput
@@ -45,22 +44,22 @@ import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.VideoCodec
 import com.mrousavy.camera.types.VideoFileType
 import com.mrousavy.camera.types.VideoStabilizationMode
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.io.Closeable
 import java.util.concurrent.CancellationException
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlin.coroutines.CoroutineContext
 
 class CameraSession(
-    private val context: Context,
-    private val cameraManager: CameraManager,
-    private val onInitialized: () -> Unit,
-    private val onError: (e: Throwable) -> Unit
-): Closeable, CoroutineScope {
+  private val context: Context,
+  private val cameraManager: CameraManager,
+  private val onInitialized: () -> Unit,
+  private val onError: (e: Throwable) -> Unit
+) : Closeable,
+  CoroutineScope {
   companion object {
     private const val TAG = "CameraSession"
 
@@ -180,21 +179,24 @@ class CameraSession(
   }
 
   fun createPreviewView(context: Context): PreviewView {
-    val previewView = PreviewView(context, object: SurfaceHolder.Callback {
-      override fun surfaceCreated(holder: SurfaceHolder) {
-        Log.i(TAG, "PreviewView Surface created! ${holder.surface}")
-        createPreviewOutput(holder.surface)
-      }
+    val previewView = PreviewView(
+      context,
+      object : SurfaceHolder.Callback {
+        override fun surfaceCreated(holder: SurfaceHolder) {
+          Log.i(TAG, "PreviewView Surface created! ${holder.surface}")
+          createPreviewOutput(holder.surface)
+        }
 
-      override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        Log.i(TAG, "PreviewView Surface updated! ${holder.surface} $width x $height")
-      }
+        override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+          Log.i(TAG, "PreviewView Surface updated! ${holder.surface} $width x $height")
+        }
 
-      override fun surfaceDestroyed(holder: SurfaceHolder) {
-        Log.i(TAG, "PreviewView Surface destroyed! ${holder.surface}")
-        destroyPreviewOutputSync()
+        override fun surfaceDestroyed(holder: SurfaceHolder) {
+          Log.i(TAG, "PreviewView Surface destroyed! ${holder.surface}")
+          destroyPreviewOutputSync()
+        }
       }
-    })
+    )
     this.previewView = previewView
     return previewView
   }
@@ -321,10 +323,11 @@ class CameraSession(
 
       Log.i(TAG, "Adding ${size.width} x ${size.height} Preview Output...")
       val output = SurfaceOutput(
-          preview.config.surface,
-          size,
-          SurfaceOutput.OutputType.PREVIEW,
-          configuration.enableHdr)
+        preview.config.surface,
+        size,
+        SurfaceOutput.OutputType.PREVIEW,
+        configuration.enableHdr
+      )
       outputs.add(output.toOutputConfiguration(characteristics))
       previewOutput = output
       previewView?.size = size
@@ -399,7 +402,13 @@ class CameraSession(
       }
       VideoStabilizationMode.STANDARD -> {
         // TODO: Check if that stabilization mode is even supported
-        val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION else CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_ON
+        val mode = if (Build.VERSION.SDK_INT >=
+          Build.VERSION_CODES.TIRAMISU
+        ) {
+          CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
+        } else {
+          CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_ON
+        }
         captureRequest.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, mode)
       }
       VideoStabilizationMode.CINEMATIC, VideoStabilizationMode.CINEMATIC_EXTENDED -> {

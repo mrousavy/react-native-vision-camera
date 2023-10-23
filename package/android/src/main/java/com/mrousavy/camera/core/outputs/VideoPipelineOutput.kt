@@ -5,8 +5,7 @@ import android.util.Size
 import com.mrousavy.camera.core.VideoPipeline
 import java.io.Closeable
 
-class VideoPipelineOutput(val videoPipeline: VideoPipeline,
-                          enableHdr: Boolean = false) :
+class VideoPipelineOutput(val videoPipeline: VideoPipeline, enableHdr: Boolean = false) :
   SurfaceOutput(
     videoPipeline.surface,
     Size(videoPipeline.width, videoPipeline.height),

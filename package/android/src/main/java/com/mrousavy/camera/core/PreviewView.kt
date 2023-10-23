@@ -6,7 +6,6 @@ import android.hardware.camera2.CameraManager
 import android.util.Log
 import android.util.Size
 import android.view.Gravity
-import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.widget.FrameLayout
@@ -19,10 +18,7 @@ import com.mrousavy.camera.types.ResizeMode
 import kotlin.math.roundToInt
 
 @SuppressLint("ViewConstructor")
-class PreviewView(
-  context: Context,
-  callback: SurfaceHolder.Callback
-) : SurfaceView(context) {
+class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceView(context) {
   var size: Size = getMaximumPreviewSize()
     set(value) {
       Log.i(TAG, "Resizing PreviewView to ${value.width} x ${value.height}...")
@@ -43,9 +39,9 @@ class PreviewView(
   init {
     Log.i(TAG, "Creating PreviewView...")
     layoutParams = FrameLayout.LayoutParams(
-        FrameLayout.LayoutParams.MATCH_PARENT,
-        FrameLayout.LayoutParams.MATCH_PARENT,
-        Gravity.CENTER
+      FrameLayout.LayoutParams.MATCH_PARENT,
+      FrameLayout.LayoutParams.MATCH_PARENT,
+      Gravity.CENTER
     )
     holder.addCallback(callback)
   }

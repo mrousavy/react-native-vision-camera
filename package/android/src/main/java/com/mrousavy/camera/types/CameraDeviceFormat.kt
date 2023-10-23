@@ -5,22 +5,22 @@ import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.core.InvalidTypeScriptUnionError
 
 data class CameraDeviceFormat(
-    val videoWidth: Int,
-    val videoHeight: Int,
-    val photoWidth: Int,
-    val photoHeight: Int,
-    val minFps: Double,
-    val maxFps: Double,
-    val minISO: Double,
-    val maxISO: Double,
-    val fieldOfView: Double,
-    val maxZoom: Double,
-    val videoStabilizationModes: Array<VideoStabilizationMode>,
-    val autoFocusSystem: AutoFocusSystem,
-    val supportsVideoHDR: Boolean,
-    val supportsPhotoHDR: Boolean,
-    val pixelFormats: Array<PixelFormat>,
-    val supportsDepthCapture: Boolean,
+  val videoWidth: Int,
+  val videoHeight: Int,
+  val photoWidth: Int,
+  val photoHeight: Int,
+  val minFps: Double,
+  val maxFps: Double,
+  val minISO: Double,
+  val maxISO: Double,
+  val fieldOfView: Double,
+  val maxZoom: Double,
+  val videoStabilizationModes: Array<VideoStabilizationMode>,
+  val autoFocusSystem: AutoFocusSystem,
+  val supportsVideoHDR: Boolean,
+  val supportsPhotoHDR: Boolean,
+  val pixelFormats: Array<PixelFormat>,
+  val supportsDepthCapture: Boolean
 ) {
   val photoSize: Size
     get() = Size(photoWidth, photoHeight)
@@ -38,22 +38,22 @@ data class CameraDeviceFormat(
       val autoFocusSystem = AutoFocusSystem.fromUnionValue(value.getString("autoFocusSystem"))
 
       return CameraDeviceFormat(
-          value.getInt("videoWidth"),
-          value.getInt("videoHeight"),
-          value.getInt("photoWidth"),
-          value.getInt("photoHeight"),
-          value.getDouble("minFps"),
-          value.getDouble("maxFps"),
-          value.getDouble("minISO"),
-          value.getDouble("maxISO"),
-          value.getDouble("fieldOfView"),
-          value.getDouble("maxZoom"),
-          videoStabilizationModes.toTypedArray(),
-          autoFocusSystem,
-          value.getBoolean("supportsVideoHDR"),
-          value.getBoolean("supportsPhotoHDR"),
-          pixelFormats.toTypedArray(),
-          value.getBoolean("supportsDepthCapture"),
+        value.getInt("videoWidth"),
+        value.getInt("videoHeight"),
+        value.getInt("photoWidth"),
+        value.getInt("photoHeight"),
+        value.getDouble("minFps"),
+        value.getDouble("maxFps"),
+        value.getDouble("minISO"),
+        value.getDouble("maxISO"),
+        value.getDouble("fieldOfView"),
+        value.getDouble("maxZoom"),
+        videoStabilizationModes.toTypedArray(),
+        autoFocusSystem,
+        value.getBoolean("supportsVideoHDR"),
+        value.getBoolean("supportsPhotoHDR"),
+        pixelFormats.toTypedArray(),
+        value.getBoolean("supportsDepthCapture")
       )
     }
   }

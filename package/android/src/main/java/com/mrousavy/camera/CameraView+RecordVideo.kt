@@ -70,7 +70,7 @@ suspend fun CameraView.resumeRecording() {
 suspend fun CameraView.stopRecording() {
   cameraSession.stopRecording()
   // Set torch back to it's original value in case we just used it as a flash for the recording.
-  cameraSession.configure{ config ->
+  cameraSession.configure { config ->
     config.torch = torch
   }
 }

@@ -20,9 +20,9 @@ import com.mrousavy.camera.types.PixelFormat
 import com.mrousavy.camera.types.ResizeMode
 import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.VideoStabilizationMode
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
 //
 // TODOs for the CameraView which are currently too hard to implement either because of CameraX' limitations, or my brain capacity.
@@ -144,10 +144,12 @@ class CameraView(context: Context) :
 
         // Video/Frame Processor
         if (video == true || enableFrameProcessor) {
-          config.video = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Video(
+          config.video = CameraConfiguration.Output.Enabled.create(
+            CameraConfiguration.Video(
               pixelFormat,
               enableFrameProcessor
-          ))
+            )
+          )
         } else {
           config.video = CameraConfiguration.Output.Disabled.create()
         }
@@ -162,11 +164,13 @@ class CameraView(context: Context) :
         // Code Scanner
         val codeScanner = codeScannerOptions
         if (codeScanner != null) {
-          config.codeScanner = CameraConfiguration.Output.Enabled.create(CameraConfiguration.CodeScanner(
+          config.codeScanner = CameraConfiguration.Output.Enabled.create(
+            CameraConfiguration.CodeScanner(
               codeScanner.codeTypes,
               { codes -> invokeOnCodeScanned(codes) },
               { error -> invokeOnError(error) }
-          ))
+            )
+          )
         } else {
           config.codeScanner = CameraConfiguration.Output.Disabled.create()
         }

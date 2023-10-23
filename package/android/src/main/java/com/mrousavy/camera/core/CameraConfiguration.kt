@@ -1,6 +1,5 @@
 package com.mrousavy.camera.core
 
-import android.util.Size
 import android.view.Surface
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.types.CameraDeviceFormat
@@ -44,36 +43,27 @@ data class CameraConfiguration(
 ) {
 
   data class CodeScanner(
-      val codeTypes: List<CodeType>,
-      val onCodeScanned: (codes: List<Barcode>) -> Unit,
-      val onError: (error: Throwable) -> Unit
+    val codeTypes: List<CodeType>,
+    val onCodeScanned: (codes: List<Barcode>) -> Unit,
+    val onError: (error: Throwable) -> Unit
   )
   class Photo
-  data class Video(
-    val pixelFormat: PixelFormat,
-    val enableFrameProcessor: Boolean
-  )
+  data class Video(val pixelFormat: PixelFormat, val enableFrameProcessor: Boolean)
   class Audio
-  data class Preview(
-    val surface: Surface
-  )
+  data class Preview(val surface: Surface)
 
   @Suppress("EqualsOrHashCode")
   sealed class Output<T> {
     val isEnabled: Boolean
       get() = this is Enabled<*>
-    class Disabled<T> private constructor(): Output<T>() {
-      override fun equals(other: Any?): Boolean {
-        return other is Disabled<*>
-      }
+    class Disabled<T> private constructor() : Output<T>() {
+      override fun equals(other: Any?): Boolean = other is Disabled<*>
       companion object {
         fun <T> create(): Disabled<T> = Disabled()
       }
     }
-    class Enabled<T> private constructor(val config: T): Output<T>() {
-      override fun equals(other: Any?): Boolean {
-        return other is Enabled<*> && config == other.config
-      }
+    class Enabled<T> private constructor(val config: T) : Output<T>() {
+      override fun equals(other: Any?): Boolean = other is Enabled<*> && config == other.config
       companion object {
         fun <T> create(config: T): Enabled<T> = Enabled(config)
       }
@@ -90,25 +80,24 @@ data class CameraConfiguration(
   )
 
   companion object {
-    fun copyOf(other: CameraConfiguration?): CameraConfiguration {
-      return other?.copy() ?: CameraConfiguration()
-    }
+    fun copyOf(other: CameraConfiguration?): CameraConfiguration = other?.copy() ?: CameraConfiguration()
 
     fun difference(left: CameraConfiguration?, right: CameraConfiguration): Difference {
       val deviceChanged = left?.cameraId != right.cameraId || left?.isActive != right.isActive
 
-      val outputsChanged = deviceChanged // input device
-          || left?.photo != right.photo || left.video != right.video || left.codeScanner != right.codeScanner || left.preview != right.preview // outputs
-          || left.enableHdr != right.enableHdr || left.format != right.format // props that affect the outputs (hdr, format, ..)
+      val outputsChanged = deviceChanged || // input device
+        left?.photo != right.photo || left.video != right.video || left.codeScanner != right.codeScanner ||
+        left.preview != right.preview || // outputs
+        left.enableHdr != right.enableHdr || left.format != right.format // props that affect the outputs (hdr, format, ..)
 
-      val sidePropsChanged = outputsChanged // depend on outputs
-          || left?.torch != right.torch || left.enableLowLightBoost != right.enableLowLightBoost || left.fps != right.fps
-          || left.zoom != right.zoom || left.videoStabilizationMode != right.videoStabilizationMode
+      val sidePropsChanged = outputsChanged || // depend on outputs
+        left?.torch != right.torch || left.enableLowLightBoost != right.enableLowLightBoost || left.fps != right.fps ||
+        left.zoom != right.zoom || left.videoStabilizationMode != right.videoStabilizationMode
 
       return Difference(
-          deviceChanged,
-          outputsChanged,
-          sidePropsChanged
+        deviceChanged,
+        outputsChanged,
+        sidePropsChanged
       )
     }
   }
