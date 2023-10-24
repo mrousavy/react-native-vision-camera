@@ -8,6 +8,7 @@ import android.hardware.camera2.params.DynamicRangeProfiles
 import android.os.Build
 import android.util.Range
 import android.util.Size
+import android.util.SizeF
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
@@ -40,7 +41,11 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
       // 35mm is the film standard sensor size
       ?: floatArrayOf(35f)
-  private val sensorSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)!!
+
+  // 35mm is 135 film format, a standard in which focal lengths are usually measured
+  private val size35mm = SizeF(36f, 24f)
+
+  private val sensorSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE) ?: size35mm
   private val sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)!!
   private val name = (
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -105,9 +110,6 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     }
     return array
   }
-
-  // 35mm is 135 film format, a standard in which focal lengths are usually measured
-  private val size35mm = Size(36, 24)
 
   private fun getDeviceTypes(): ReadableArray {
     // To get valid focal length standards we have to upscale to the 35mm measurement (film standard)
