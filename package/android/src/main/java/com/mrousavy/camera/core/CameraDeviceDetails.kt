@@ -59,6 +59,11 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
       null
     }
     ) ?: Range(1f, characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM) ?: 1f)
+  private val physicalDevices = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && characteristics.physicalCameraIds.isNotEmpty()) {
+    characteristics.physicalCameraIds
+  } else {
+    setOf(cameraId)
+  }
   private val minZoom = zoomRange.lower.toDouble()
   private val maxZoom = zoomRange.upper.toDouble()
 
@@ -108,13 +113,14 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
   }
 
   private fun getDeviceTypes(): List<DeviceType> {
-    val deviceTypes = focalLengths.map { focalLength ->
-      val fov = getFieldOfView(focalLength)
+    val deviceTypes = physicalDevices.map { id ->
+      val details = CameraDeviceDetails(cameraManager, id)
+      val fov = details.getMaxFieldOfView()
       return@map when {
         fov > 94 -> DeviceType.ULTRA_WIDE_ANGLE
         fov in 60f..94f -> DeviceType.WIDE_ANGLE
         fov < 60f -> DeviceType.TELEPHOTO
-        else -> throw Error("Invalid focal length! (${focalLength}mm)")
+        else -> throw Error("Invalid Field Of View! ($fov)")
       }
     }
     return deviceTypes

@@ -12,6 +12,8 @@ import { CameraDevices } from '../CameraDevices'
 export function useCameraDevices(): CameraDevice[] {
   const [devices, setDevices] = useState(() => CameraDevices.getAvailableCameraDevices())
 
+  console.log(JSON.stringify(devices.map((d) => ({ ...d, formats: [] }))))
+
   useEffect(() => {
     const listener = CameraDevices.addCameraDevicesChangedListener((newDevices) => {
       setDevices(newDevices)
