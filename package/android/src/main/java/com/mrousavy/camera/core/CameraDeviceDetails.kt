@@ -11,17 +11,18 @@ import android.util.Size
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
-import com.mrousavy.camera.extensions.bigger
 import com.mrousavy.camera.extensions.getPhotoSizes
 import com.mrousavy.camera.extensions.getVideoSizes
+import com.mrousavy.camera.extensions.toJSValue
 import com.mrousavy.camera.types.AutoFocusSystem
+import com.mrousavy.camera.types.DeviceType
 import com.mrousavy.camera.types.HardwareLevel
 import com.mrousavy.camera.types.LensFacing
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.PixelFormat
 import com.mrousavy.camera.types.VideoStabilizationMode
-import kotlin.math.PI
-import kotlin.math.atan
+import kotlin.math.atan2
+import kotlin.math.sqrt
 
 class CameraDeviceDetails(private val cameraManager: CameraManager, private val cameraId: String) {
   private val characteristics = cameraManager.getCameraCharacteristics(cameraId)
@@ -106,33 +107,29 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     return array
   }
 
-  // 35mm is 135 film format, a standard in which focal lengths are usually measured
-  private val size35mm = Size(36, 24)
-
-  private fun getDeviceTypes(): ReadableArray {
-    // To get valid focal length standards we have to upscale to the 35mm measurement (film standard)
-    val cropFactor = size35mm.bigger / sensorSize.bigger
-
-    val deviceTypes = Arguments.createArray()
-
-    focalLengths.forEach { focalLength ->
-      // scale to the 35mm film standard
-      val l = focalLength * cropFactor
-      when {
-        // https://en.wikipedia.org/wiki/Ultra_wide_angle_lens
-        l < 24f -> deviceTypes.pushString("ultra-wide-angle-camera")
-        // https://en.wikipedia.org/wiki/Wide-angle_lens
-        l in 24f..43f -> deviceTypes.pushString("wide-angle-camera")
-        // https://en.wikipedia.org/wiki/Telephoto_lens
-        l > 43f -> deviceTypes.pushString("telephoto-camera")
+  private fun getDeviceTypes(): List<DeviceType> {
+    val deviceTypes = focalLengths.map { focalLength ->
+      val fov = getFieldOfView(focalLength)
+      return@map when {
+        fov > 94 -> DeviceType.ULTRA_WIDE_ANGLE
+        fov in 60f..94f -> DeviceType.WIDE_ANGLE
+        fov < 60f -> DeviceType.TELEPHOTO
         else -> throw Error("Invalid focal length! (${focalLength}mm)")
       }
     }
-
     return deviceTypes
   }
 
-  private fun getFieldOfView(): Double = 2 * atan(sensorSize.bigger / (focalLengths[0] * 2)) * (180 / PI)
+  private fun getFieldOfView(focalLength: Float): Double {
+    val sensorDiagonal = sqrt((sensorSize.width * sensorSize.width + sensorSize.height * sensorSize.height).toDouble())
+    val fovRadians = 2.0 * atan2(sensorDiagonal, (2.0 * focalLength))
+    return Math.toDegrees(fovRadians)
+  }
+
+  private fun getMaxFieldOfView(): Double {
+    val smallestFocalLength = focalLengths.minOrNull() ?: return 0.0
+    return getFieldOfView(smallestFocalLength)
+  }
 
   private fun getVideoSizes(): List<Size> = characteristics.getVideoSizes(cameraId, videoFormat)
   private fun getPhotoSizes(): List<Size> = characteristics.getPhotoSizes(ImageFormat.JPEG)
@@ -177,7 +174,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     map.putInt("minFps", fpsRange.lower)
     map.putInt("maxFps", fpsRange.upper)
     map.putDouble("maxZoom", maxZoom)
-    map.putDouble("fieldOfView", getFieldOfView())
+    map.putDouble("fieldOfView", getMaxFieldOfView())
     map.putBoolean("supportsVideoHDR", supportsVideoHdr)
     map.putBoolean("supportsPhotoHDR", supportsPhotoHdr)
     map.putBoolean("supportsDepthCapture", supportsDepthCapture)
@@ -188,9 +185,11 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
   }
 
   fun toMap(): ReadableMap {
+    val deviceTypes = getDeviceTypes()
+
     val map = Arguments.createMap()
     map.putString("id", cameraId)
-    map.putArray("physicalDevices", getDeviceTypes())
+    map.putArray("physicalDevices", deviceTypes.toJSValue())
     map.putString("position", lensFacing.unionValue)
     map.putString("name", name)
     map.putBoolean("hasFlash", hasFlash)
