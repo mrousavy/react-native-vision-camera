@@ -247,6 +247,9 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     Log.i(TAG, "Configuring Session for Camera #${cameraDevice.id}...")
 
     // TODO: Do we want to skip this is this.cameraSession already contains all outputs?
+    // Destroy previous CaptureSession
+    captureSession?.close()
+    captureSession = null
     // Destroy previous outputs
     photoOutput?.close()
     photoOutput = null
@@ -339,13 +342,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       codeScannerOutput = output
     }
 
-    if (outputs.isEmpty()) {
-      Log.i(TAG, "Cannot create Session without any outputs. Canceling...")
-      return
-    }
-
     // Create new session
-    captureSession?.close()
     captureSession = cameraDevice.createCaptureSession(cameraManager, outputs, { session ->
       if (this.captureSession == session) {
         Log.i(TAG, "Camera Session $session has been closed!")

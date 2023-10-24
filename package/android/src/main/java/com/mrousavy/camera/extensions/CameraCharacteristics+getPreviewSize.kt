@@ -28,8 +28,6 @@ fun CameraCharacteristics.getPreviewSizeFromAspectRatio(aspectRatio: Double): Si
     .sortedByDescending { it.width * it.height }
     .sortedBy { abs(aspectRatio - (it.bigger.toDouble() / it.smaller)) }
 
-  Log.i("YEET", "Maximum: $maximumPreviewSize (aspect $aspectRatio), first: ${outputSizes.firstOrNull()}")
-
   return outputSizes.first { it.bigger <= maximumPreviewSize.bigger && it.smaller <= maximumPreviewSize.smaller }
 }
 
