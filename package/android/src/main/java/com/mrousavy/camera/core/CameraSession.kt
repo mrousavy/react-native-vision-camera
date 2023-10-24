@@ -347,6 +347,11 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       codeScannerOutput = output
     }
 
+    if (outputs.isEmpty()) {
+      Log.w(TAG, "Cannot create Camera Session without any outputs. Aborting...")
+      return
+    }
+
     // Create new session
     captureSession = cameraDevice.createCaptureSession(cameraManager, outputs, { session ->
       if (this.captureSession == session) {
@@ -372,14 +377,18 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       return
     }
 
+    val previewOutput = previewOutput
+    if (previewOutput == null) {
+      Log.w(TAG, "Preview Output is null, aborting...")
+      return
+    }
+
     val cameraCharacteristics = cameraManager.getCameraCharacteristics(device.id)
 
     val template = if (config.video.isEnabled) CameraDevice.TEMPLATE_RECORD else CameraDevice.TEMPLATE_PREVIEW
     val captureRequest = device.createCaptureRequest(template)
 
-    previewOutput?.let { output ->
-      captureRequest.addTarget(output.surface)
-    }
+    captureRequest.addTarget(previewOutput.surface)
     videoOutput?.let { output ->
       captureRequest.addTarget(output.surface)
     }
