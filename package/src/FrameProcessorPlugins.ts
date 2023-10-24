@@ -37,13 +37,12 @@ interface TVisionCameraProxy {
   initFrameProcessorPlugin: (name: string, options?: Record<string, ParameterType>) => FrameProcessorPlugin | undefined
 }
 
+const errorMessage = 'Frame Processors are not available, react-native-worklets-core is not installed!'
+
 let hasWorklets = false
 let isAsyncContextBusy = { value: false }
 let runOnAsyncContext = (_frame: Frame, _func: () => void): void => {
-  throw new CameraRuntimeError(
-    'system/frame-processors-unavailable',
-    'Frame Processors are not available, react-native-worklets-core is not installed!',
-  )
+  throw new CameraRuntimeError('system/frame-processors-unavailable', errorMessage)
 }
 
 try {
@@ -74,13 +73,13 @@ try {
 
 let proxy: TVisionCameraProxy = {
   initFrameProcessorPlugin: () => {
-    throw new CameraRuntimeError('system/frame-processors-unavailable', 'Frame Processors are not enabled!')
+    throw new CameraRuntimeError('system/frame-processors-unavailable', errorMessage)
   },
   removeFrameProcessor: () => {
-    throw new CameraRuntimeError('system/frame-processors-unavailable', 'Frame Processors are not enabled!')
+    throw new CameraRuntimeError('system/frame-processors-unavailable', errorMessage)
   },
   setFrameProcessor: () => {
-    throw new CameraRuntimeError('system/frame-processors-unavailable', 'Frame Processors are not enabled!')
+    throw new CameraRuntimeError('system/frame-processors-unavailable', errorMessage)
   },
 }
 if (hasWorklets) {
