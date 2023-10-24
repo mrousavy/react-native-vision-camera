@@ -163,7 +163,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
 
         // Notify about Camera initialization
         if difference.inputChanged {
-          delegate?.onSessionInitialized()
+          self.delegate?.onSessionInitialized()
         }
       } catch {
         self.onConfigureError(error)
