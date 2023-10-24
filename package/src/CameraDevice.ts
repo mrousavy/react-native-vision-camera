@@ -13,9 +13,9 @@ export type CameraPosition = 'front' | 'back' | 'external'
 /**
  * Indentifiers for a physical camera (one that actually exists on the back/front of the device)
  *
- * * `"ultra-wide-angle-camera"`: A built-in camera with a shorter focal length than that of a wide-angle camera. (focal length between below 24mm)
- * * `"wide-angle-camera"`: A built-in wide-angle camera. (focal length between 24mm and 43mm)
- * * `"telephoto-camera"`: A built-in camera device with a longer focal length than a wide-angle camera. (focal length between above 85mm)
+ * * `"ultra-wide-angle-camera"`: A built-in camera with a shorter focal length than that of a wide-angle camera. (FOV of 94° or higher)
+ * * `"wide-angle-camera"`: A built-in wide-angle camera. (FOV between 60° and 94°)
+ * * `"telephoto-camera"`: A built-in camera device with a longer focal length than a wide-angle camera. (FOV of 60° or lower)
  *
  * Some Camera devices consist of multiple physical devices. They can be interpreted as _logical devices_, for example:
  *
