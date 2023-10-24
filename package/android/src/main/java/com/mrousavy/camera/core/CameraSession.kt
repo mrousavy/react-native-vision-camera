@@ -398,9 +398,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       }
       VideoStabilizationMode.STANDARD -> {
         // TODO: Check if that stabilization mode is even supported
-        val mode = if (Build.VERSION.SDK_INT >=
-          Build.VERSION_CODES.TIRAMISU
-        ) {
+        val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
           CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
         } else {
           CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_ON
