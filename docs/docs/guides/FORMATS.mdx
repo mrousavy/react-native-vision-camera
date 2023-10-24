@@ -148,6 +148,35 @@ const format = getCameraFormat(device, [
 </TabItem>
 </Tabs>
 
+### Templates
+
+For common use-cases, VisionCamera also exposes pre-defined Format templates:
+
+<Tabs
+  groupId="component-style"
+  defaultValue="hooks"
+  values={[
+    {label: 'Hooks API', value: 'hooks'},
+    {label: 'Imperative API', value: 'imperative'}
+  ]}>
+<TabItem value="hooks">
+
+```ts
+const device = ...
+const format = useCameraFormat(device, Templates.Snapchat)
+```
+
+</TabItem>
+<TabItem value="imperative">
+
+```ts
+const device = ...
+const format = getCameraFormat(device, Templates.Snapchat)
+```
+
+</TabItem>
+</Tabs>
+
 ## Camera Props
 
 The `Camera` View provides a few props that depend on the specified `format`. For example, you can only set the `fps` prop to a value that is supported by the current `format`. So if you have a format that supports 240 FPS, you can set the `fps` to `240`:
