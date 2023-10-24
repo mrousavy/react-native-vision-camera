@@ -2,7 +2,6 @@ package com.mrousavy.camera.extensions
 
 import android.content.res.Resources
 import android.hardware.camera2.CameraCharacteristics
-import android.util.Log
 import android.util.Size
 import android.view.SurfaceHolder
 import kotlin.math.abs
