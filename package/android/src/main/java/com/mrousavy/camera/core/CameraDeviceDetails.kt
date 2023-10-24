@@ -11,17 +11,16 @@ import android.util.Size
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
-import com.mrousavy.camera.extensions.bigger
 import com.mrousavy.camera.extensions.getPhotoSizes
 import com.mrousavy.camera.extensions.getVideoSizes
+import com.mrousavy.camera.extensions.toJSValue
 import com.mrousavy.camera.types.AutoFocusSystem
+import com.mrousavy.camera.types.DeviceType
 import com.mrousavy.camera.types.HardwareLevel
 import com.mrousavy.camera.types.LensFacing
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.PixelFormat
 import com.mrousavy.camera.types.VideoStabilizationMode
-import kotlin.math.PI
-import kotlin.math.atan
 import kotlin.math.atan2
 import kotlin.math.sqrt
 
@@ -108,22 +107,16 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     return array
   }
 
-  private fun getDeviceTypes(): ReadableArray {
-    val deviceTypes = Arguments.createArray()
-
-    focalLengths.forEach { focalLength ->
+  private fun getDeviceTypes(): List<DeviceType> {
+    val deviceTypes = focalLengths.map { focalLength ->
       val fov = getFieldOfView(focalLength)
-      when {
-        // https://en.wikipedia.org/wiki/Ultra_wide_angle_lens
-        fov > 94 -> deviceTypes.pushString("ultra-wide-angle-camera")
-        // https://en.wikipedia.org/wiki/Wide-angle_lens
-        fov in 60f..94f -> deviceTypes.pushString("wide-angle-camera")
-        // https://en.wikipedia.org/wiki/Telephoto_lens
-        fov < 60f -> deviceTypes.pushString("telephoto-camera")
+      return@map when {
+        fov > 94 -> DeviceType.ULTRA_WIDE_ANGLE
+        fov in 60f..94f -> DeviceType.WIDE_ANGLE
+        fov < 60f -> DeviceType.TELEPHOTO
         else -> throw Error("Invalid focal length! (${focalLength}mm)")
       }
     }
-
     return deviceTypes
   }
 
@@ -192,9 +185,11 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
   }
 
   fun toMap(): ReadableMap {
+    val deviceTypes = getDeviceTypes()
+
     val map = Arguments.createMap()
     map.putString("id", cameraId)
-    map.putArray("physicalDevices", getDeviceTypes())
+    map.putArray("physicalDevices", deviceTypes.toJSValue())
     map.putString("position", lensFacing.unionValue)
     map.putString("name", name)
     map.putBoolean("hasFlash", hasFlash)
