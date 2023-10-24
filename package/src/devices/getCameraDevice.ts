@@ -36,8 +36,6 @@ export interface DeviceFilter {
  * ```
  */
 export function getCameraDevice(devices: CameraDevice[], position: CameraPosition, filter: DeviceFilter = {}): CameraDevice | undefined {
-  const explicitlyWantsNonWideAngle = filter.physicalDevices != null && !filter.physicalDevices.includes('wide-angle-camera')
-
   const filtered = devices.filter((d) => d.position === position)
 
   let bestDevice = filtered[0]
@@ -52,19 +50,10 @@ export function getCameraDevice(devices: CameraDevice[], position: CameraPositio
     if (bestDevice.hardwareLevel === 'full') leftPoints += 4
     if (device.hardwareLevel === 'full') rightPoints += 4
 
-    if (!explicitlyWantsNonWideAngle) {
-      // prefer wide-angle-camera as a default
-      if (bestDevice.physicalDevices.includes('wide-angle-camera')) leftPoints += 2
-      if (device.physicalDevices.includes('wide-angle-camera')) rightPoints += 2
-      // if we have more than one device, we rank it lower. we only want a simple camera
-      if (bestDevice.physicalDevices.length > device.physicalDevices.length) leftPoints -= 1
-      if (device.physicalDevices.length > bestDevice.physicalDevices.length) rightPoints -= 1
-    }
-
-    // compare devices. two possible scenarios:
-    // 1. user wants all cameras ([ultra-wide, wide, tele]) to zoom. prefer those devices that have all 3 cameras.
-    // 2. user wants only one ([wide]) for faster performance. prefer those devices that only have one camera, if they have more, we rank them lower.
     if (filter.physicalDevices != null) {
+      // user did pass a physical device filter, two possible scenarios:
+      // 1. user wants all cameras ([ultra-wide, wide, tele]) to zoom. prefer those devices that have all 3 cameras.
+      // 2. user wants only one ([wide]) for faster performance. prefer those devices that only have one camera, if they have more, we rank them lower.
       for (const d of bestDevice.physicalDevices) {
         if (filter.physicalDevices.includes(d)) leftPoints += 1
         else leftPoints -= 1
@@ -73,6 +62,13 @@ export function getCameraDevice(devices: CameraDevice[], position: CameraPositio
         if (filter.physicalDevices.includes(d)) rightPoints += 1
         else rightPoints -= 1
       }
+    } else {
+      // user did not pass a physical device filter. prefer wide-angle-camera as a default
+      if (bestDevice.physicalDevices.includes('wide-angle-camera')) leftPoints += 2
+      if (device.physicalDevices.includes('wide-angle-camera')) rightPoints += 2
+      // if we have more than one device, we rank it lower. we only want a simple camera
+      if (bestDevice.physicalDevices.length > device.physicalDevices.length) leftPoints -= 1
+      if (device.physicalDevices.length > bestDevice.physicalDevices.length) rightPoints -= 1
     }
 
     if (rightPoints > leftPoints) bestDevice = device
