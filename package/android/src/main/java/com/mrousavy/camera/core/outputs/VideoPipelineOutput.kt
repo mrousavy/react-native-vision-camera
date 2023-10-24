@@ -5,12 +5,12 @@ import android.util.Size
 import com.mrousavy.camera.core.VideoPipeline
 import java.io.Closeable
 
-class VideoPipelineOutput(val videoPipeline: VideoPipeline, outputType: OutputType, dynamicRangeProfile: Long? = null) :
+class VideoPipelineOutput(val videoPipeline: VideoPipeline, enableHdr: Boolean = false) :
   SurfaceOutput(
     videoPipeline.surface,
     Size(videoPipeline.width, videoPipeline.height),
-    outputType,
-    dynamicRangeProfile
+    OutputType.VIDEO,
+    enableHdr
   ),
   Closeable {
   override fun close() {

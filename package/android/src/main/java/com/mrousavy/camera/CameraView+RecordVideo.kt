@@ -23,10 +23,12 @@ suspend fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Ca
     }
   }
 
-  if (options.hasKey("flash")) {
-    val enableFlash = options.getString("flash") == "on"
+  val enableFlash = options.getString("flash") == "on"
+  if (enableFlash) {
     // overrides current torch mode value to enable flash while recording
-    cameraSession.setTorchMode(enableFlash)
+    cameraSession.configure { config ->
+      config.torch = Torch.ON
+    }
   }
   var codec = VideoCodec.H264
   if (options.hasKey("videoCodec")) {
@@ -67,5 +69,8 @@ suspend fun CameraView.resumeRecording() {
 @SuppressLint("RestrictedApi")
 suspend fun CameraView.stopRecording() {
   cameraSession.stopRecording()
-  cameraSession.setTorchMode(torch == Torch.ON)
+  // Set torch back to it's original value in case we just used it as a flash for the recording.
+  cameraSession.configure { config ->
+    config.torch = torch
+  }
 }

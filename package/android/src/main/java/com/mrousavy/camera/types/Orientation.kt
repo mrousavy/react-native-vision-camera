@@ -33,13 +33,13 @@ enum class Orientation(override val unionValue: String) : JSUnionValue {
   }
 
   companion object : JSUnionValue.Companion<Orientation> {
-    override fun fromUnionValue(unionValue: String?): Orientation? =
+    override fun fromUnionValue(unionValue: String?): Orientation =
       when (unionValue) {
         "portrait" -> PORTRAIT
         "landscape-right" -> LANDSCAPE_RIGHT
         "portrait-upside-down" -> PORTRAIT_UPSIDE_DOWN
         "landscape-left" -> LANDSCAPE_LEFT
-        else -> null
+        else -> PORTRAIT
       }
 
     fun fromRotationDegrees(rotationDegrees: Int): Orientation =

@@ -14,7 +14,7 @@ open class SurfaceOutput(
   val surface: Surface,
   val size: Size,
   val outputType: OutputType,
-  private val dynamicRangeProfile: Long? = null,
+  private val enableHdr: Boolean = false,
   private val closeSurfaceOnEnd: Boolean = false
 ) : Closeable {
   companion object {
@@ -37,9 +37,12 @@ open class SurfaceOutput(
   fun toOutputConfiguration(characteristics: CameraCharacteristics): OutputConfiguration {
     val result = OutputConfiguration(surface)
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-      if (dynamicRangeProfile != null) {
-        result.dynamicRangeProfile = dynamicRangeProfile
-        Log.i(TAG, "Using dynamic range profile ${result.dynamicRangeProfile} for $outputType output.")
+      if (enableHdr) {
+        val profile = characteristics.get(CameraCharacteristics.REQUEST_RECOMMENDED_TEN_BIT_DYNAMIC_RANGE_PROFILE)
+        if (profile != null) {
+          result.dynamicRangeProfile = profile
+          Log.i(TAG, "Using dynamic range profile ${result.dynamicRangeProfile} for $outputType output.")
+        }
       }
       if (supportsOutputType(characteristics, outputType)) {
         result.streamUseCase = outputType.toOutputType().toLong()

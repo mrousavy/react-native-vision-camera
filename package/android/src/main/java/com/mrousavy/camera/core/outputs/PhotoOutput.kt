@@ -5,12 +5,12 @@ import android.util.Log
 import android.util.Size
 import java.io.Closeable
 
-open class ImageReaderOutput(private val imageReader: ImageReader, outputType: OutputType, dynamicRangeProfile: Long? = null) :
+open class PhotoOutput(private val imageReader: ImageReader, enableHdr: Boolean = false) :
   SurfaceOutput(
     imageReader.surface,
     Size(imageReader.width, imageReader.height),
-    outputType,
-    dynamicRangeProfile
+    OutputType.PHOTO,
+    enableHdr
   ),
   Closeable {
   override fun close() {

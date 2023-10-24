@@ -14,6 +14,7 @@ import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.extensions.bigger
 import com.mrousavy.camera.extensions.getPhotoSizes
 import com.mrousavy.camera.extensions.getVideoSizes
+import com.mrousavy.camera.types.AutoFocusSystem
 import com.mrousavy.camera.types.HardwareLevel
 import com.mrousavy.camera.types.LensFacing
 import com.mrousavy.camera.types.Orientation
@@ -175,11 +176,12 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     map.putInt("maxISO", isoRange.upper)
     map.putInt("minFps", fpsRange.lower)
     map.putInt("maxFps", fpsRange.upper)
+    map.putDouble("maxZoom", maxZoom)
     map.putDouble("fieldOfView", getFieldOfView())
     map.putBoolean("supportsVideoHDR", supportsVideoHdr)
     map.putBoolean("supportsPhotoHDR", supportsPhotoHdr)
     map.putBoolean("supportsDepthCapture", supportsDepthCapture)
-    map.putString("autoFocusSystem", "contrast-detection") // TODO: Is this wrong?
+    map.putString("autoFocusSystem", AutoFocusSystem.CONTRAST_DETECTION.unionValue)
     map.putArray("videoStabilizationModes", createStabilizationModes())
     map.putArray("pixelFormats", createPixelFormats())
     return map
