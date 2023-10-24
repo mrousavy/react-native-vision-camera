@@ -142,6 +142,11 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
         Log.i(TAG, "Successfully updated CameraSession Configuration! isActive: ${config.isActive}")
         this.configuration = config
+
+        // Notify about Camera initialization
+        if (diff.deviceChanged) {
+          callback.onInitialized()
+        }
       } catch (error: Throwable) {
         Log.e(TAG, "Failed to configure CameraSession! Error: ${error.message}, Config-Diff: $diff", error)
         callback.onError(error)
@@ -351,7 +356,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     }, CameraQueues.cameraQueue)
 
     Log.i(TAG, "Successfully configured Session with ${outputs.size} outputs for Camera #${cameraDevice.id}!")
-    callback.onInitialized()
 
     // Update Frame Processor and RecordingSession for newly changed output
     updateVideoOutputs()

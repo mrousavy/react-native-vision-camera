@@ -153,7 +153,6 @@ extension CameraSession {
 
     // Done!
     ReactLogger.log(level: .info, message: "Successfully configured all outputs!")
-    delegate?.onSessionInitialized()
   }
 
   // pragma MARK: Orientation
