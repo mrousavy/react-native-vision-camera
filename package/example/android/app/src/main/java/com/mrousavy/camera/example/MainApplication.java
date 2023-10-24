@@ -21,10 +21,10 @@ public class MainApplication extends Application implements ReactApplication {
   // Register the Frame Processor Plugins for our app
   static {
     FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_plugin", (context, options) -> {
-      return new ExampleFrameProcessorPlugin(options)
+      return new ExampleFrameProcessorPlugin(options);
     });
     FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_kotlin_swift_plugin", (context, options) -> {
-      return new ExampleKotlinFrameProcessorPlugin(options)
+      return new ExampleKotlinFrameProcessorPlugin(options);
     });
   }
 

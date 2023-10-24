@@ -90,7 +90,7 @@ public class FaceDetectorFrameProcessorPluginPackage implements ReactPackage {
   // highlight-start
   static {
     FrameProcessorPluginRegistry.addFrameProcessorPlugin("detectFaces", (context, options) -> {
-      return new FaceDetectorFrameProcessorPlugin(options)
+      return new FaceDetectorFrameProcessorPlugin(options);
     });
   }
   // highlight-end
