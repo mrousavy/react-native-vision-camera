@@ -24,6 +24,7 @@ import android.view.SurfaceHolder
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.core.outputs.BarcodeScannerOutput
 import com.mrousavy.camera.core.outputs.PhotoOutput
+import com.mrousavy.camera.core.outputs.PreviewOutput
 import com.mrousavy.camera.core.outputs.SurfaceOutput
 import com.mrousavy.camera.core.outputs.VideoPipelineOutput
 import com.mrousavy.camera.extensions.bigger
@@ -71,11 +72,13 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   private var captureSession: CameraCaptureSession? = null
   private var cameraDevice: CameraDevice? = null
   private var previewRequest: CaptureRequest.Builder? = null
+
   private var photoOutput: PhotoOutput? = null
   private var videoOutput: VideoPipelineOutput? = null
-  private var previewOutput: SurfaceOutput? = null
+  private var previewOutput: PreviewOutput? = null
   private var codeScannerOutput: BarcodeScannerOutput? = null
   private var previewView: PreviewView? = null
+
   private val photoOutputSynchronizer = PhotoOutputSynchronizer()
   private val mutex = Mutex()
   private var isRunning = false
@@ -163,8 +166,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     cameraDevice?.close()
     cameraDevice = null
 
-    previewOutput?.close()
-    previewOutput = null
     photoOutput?.close()
     photoOutput = null
     videoOutput?.close()
@@ -202,7 +203,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     Log.i(TAG, "Setting Preview Output...")
     launch {
       configure { config ->
-        config.preview = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Preview(surface))
+        config.previewSurface = surface
       }
     }
   }
@@ -211,7 +212,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     Log.i(TAG, "Destroying Preview Output...")
     runBlocking {
       configure { config ->
-        config.preview = CameraConfiguration.Output.Disabled.create()
+        config.previewSurface = null
       }
     }
   }
@@ -260,7 +261,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     photoOutput = null
     videoOutput?.close()
     videoOutput = null
-    previewOutput?.close()
     previewOutput = null
     codeScannerOutput?.close()
     codeScannerOutput = null
@@ -321,14 +321,9 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         characteristics.getPreviewTargetSize(null)
       }
 
-      Log.i(TAG, "Adding ${size.width} x ${size.height} Preview Output...")
-      val output = SurfaceOutput(
-        preview.config.surface,
-        size,
-        SurfaceOutput.OutputType.PREVIEW,
-        configuration.enableHdr
-      )
-      outputs.add(output.toOutputConfiguration(characteristics))
+      Log.i(TAG, "Adding ${size.width} x ${size.height} lazy Preview Output...")
+      val output = PreviewOutput(size, configuration.enableHdr)
+      outputs.add(output.outputConfiguration)
       previewOutput = output
       previewView?.size = size
     }
@@ -372,10 +367,12 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       return
     }
 
-    val previewOutput = previewOutput
-    if (previewOutput == null) {
-      Log.w(TAG, "Preview Output is null, aborting...")
-      return
+    val previewOutput = previewOutput ?: return
+    val previewSurface = config.previewSurface ?: return
+    if (previewOutput.surface == null) {
+      // Surface just lazily loaded
+      previewOutput.surface = previewSurface
+      captureSession.finalizeOutputConfigurations(listOf(previewOutput.outputConfiguration))
     }
 
     val cameraCharacteristics = cameraManager.getCameraCharacteristics(device.id)
@@ -383,7 +380,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     val template = if (config.video.isEnabled) CameraDevice.TEMPLATE_RECORD else CameraDevice.TEMPLATE_PREVIEW
     val captureRequest = device.createCaptureRequest(template)
 
-    captureRequest.addTarget(previewOutput.surface)
+    captureRequest.addTarget(previewSurface)
     videoOutput?.let { output ->
       captureRequest.addTarget(output.surface)
     }
