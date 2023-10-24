@@ -4,6 +4,7 @@ import android.util.Log;
 import androidx.annotation.Keep;
 import androidx.annotation.Nullable;
 import com.facebook.proguard.annotations.DoNotStrip;
+import com.facebook.react.bridge.ReactApplicationContext;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -24,7 +25,7 @@ public class FrameProcessorPluginRegistry {
 
     @DoNotStrip
     @Keep
-    public static FrameProcessorPlugin getPlugin(String name, Map<String, Object> options) {
+    public static FrameProcessorPlugin getPlugin(ReactApplicationContext context, String name, Map<String, Object> options) {
         Log.i(TAG, "Looking up Frame Processor Plugin \"" + name + "\"...");
         PluginInitializer initializer = Plugins.get(name);
         if (initializer == null) {
@@ -32,10 +33,10 @@ public class FrameProcessorPluginRegistry {
             return null;
         }
         Log.i(TAG, "Frame Processor Plugin \"" + name + "\" found! Initializing...");
-        return initializer.initializePlugin(options);
+        return initializer.initializePlugin(context, options);
     }
 
     public interface PluginInitializer {
-        FrameProcessorPlugin initializePlugin(@Nullable Map<String, Object> options);
+        FrameProcessorPlugin initializePlugin(ReactApplicationContext context, @Nullable Map<String, Object> options);
     }
 }
