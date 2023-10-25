@@ -228,6 +228,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     cameraDevice = cameraManager.openCamera(cameraId, { device, error ->
       if (this.cameraDevice == device) {
         Log.e(TAG, "Camera Device $device has been disconnected!", error)
+        isRunning = false
         callback.onError(error)
       } else {
         // a previous device has been disconnected, but we already have a new one.
@@ -441,6 +442,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     // Start repeating request if the Camera is active
     val request = captureRequest.build()
     captureSession.setRepeatingRequest(request, null, null)
+    isRunning = true
   }
 
   suspend fun takePhoto(
