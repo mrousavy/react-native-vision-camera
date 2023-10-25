@@ -63,7 +63,8 @@ extension CameraSession {
       let enableShutterSound = options["enableShutterSound"] as? Bool ?? true
 
       // depth data
-      photoSettings.isDepthDataDeliveryEnabled = photoOutput.isDepthDataDeliveryEnabled
+      photoSettings.isDepthDataDeliveryEnabled = photoOutput.isDepthDataDeliveryEnabled && photoOutput.isDepthDataDeliverySupported
+      photoSettings.embedsDepthDataInPhoto = photoSettings.isDepthDataDeliveryEnabled
       if #available(iOS 12.0, *) {
         photoSettings.isPortraitEffectsMatteDeliveryEnabled = photoOutput.isPortraitEffectsMatteDeliveryEnabled
       }
