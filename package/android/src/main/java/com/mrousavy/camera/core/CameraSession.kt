@@ -347,11 +347,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       codeScannerOutput = output
     }
 
-    if (outputs.isEmpty()) {
-      Log.w(TAG, "Cannot create Camera Session without any outputs. Aborting...")
-      return
-    }
-
     // Create new session
     captureSession = cameraDevice.createCaptureSession(cameraManager, outputs, { session ->
       if (this.captureSession == session) {

@@ -11,7 +11,7 @@ import Foundation
 
 enum AutoFocusSystem: String, JSUnionValue {
   case contrastDetection = "contrast-detection"
-  case phaseDetection
+  case phaseDetection = "phase-detection"
   case none
 
   init(jsValue: String) throws {
