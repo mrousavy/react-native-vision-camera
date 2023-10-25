@@ -12,7 +12,7 @@ import Foundation
 enum AutoFocusSystem: String, JSUnionValue {
   case contrastDetection = "contrast-detection"
   case phaseDetection = "phase-detection"
-  case none = "none"
+  case none
 
   init(jsValue: String) throws {
     if let parsed = AutoFocusSystem(rawValue: jsValue) {
