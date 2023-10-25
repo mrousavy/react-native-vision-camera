@@ -192,6 +192,6 @@ module.exports = {
     },
   ],
   stylesheets: [
-    "https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap"
+    "https://fonts.googleapis.com/css2?family=Fira+Code:wght@500;700&display=swap"
   ]
 }
