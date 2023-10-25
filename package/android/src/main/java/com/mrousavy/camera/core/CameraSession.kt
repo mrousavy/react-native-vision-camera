@@ -392,6 +392,9 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     videoOutput?.let { output ->
       captureRequest.addTarget(output.surface)
     }
+    codeScannerOutput?.let { output ->
+      captureRequest.addTarget(output.surface)
+    }
 
     // Set FPS
     // TODO: Check if the FPS range is actually supported in the current configuration.
