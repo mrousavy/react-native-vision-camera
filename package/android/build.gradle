@@ -73,7 +73,7 @@ repositories {
 }
 
 android {
-  namespace "com.mrousavy.camera.example"
+  namespace "com.mrousavy.camera"
 
   // Used to override the NDK path/version on internal CI or by allowing
   // users to customize the NDK path/version from their root project (e.g. for M1 support)
