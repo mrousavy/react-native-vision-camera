@@ -26,5 +26,23 @@ struct RecordVideoOptions {
       }
       fileType = parsed
     }
+    // Flash
+    if let flashOption = dictionary["flash"] as? String {
+      guard let parsed = try? Torch(jsValue: flashOption) else {
+        throw CameraError.parameter(.invalid(unionName: "flash", receivedValue: flashOption))
+      }
+      flash = parsed
+    }
+    // Codec
+    if let codecOption = dictionary["codec"] as? String {
+      guard let parsed = try? AVVideoCodecType(withString: codecOption) else {
+        throw CameraError.parameter(.invalid(unionName: "codec", receivedValue: codecOption))
+      }
+      codec = parsed
+    }
+    // BitRate
+    if let parsed = dictionary["bitRate"] as? Double {
+      bitRate = parsed
+    }
   }
 }
