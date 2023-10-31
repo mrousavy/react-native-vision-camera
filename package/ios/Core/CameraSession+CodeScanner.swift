@@ -28,8 +28,10 @@ extension CameraSession: AVCaptureMetadataOutputObjectsDelegate {
     // Map codes to JS values
     let codes = metadataObjects.map { object in
       var value: String?
+      var corners:[CGPoint]?
       if let code = object as? AVMetadataMachineReadableCodeObject {
         value = code.stringValue
+        corners = code.corners
       }
       let x = object.bounds.origin.x * Double(size.width)
       let y = object.bounds.origin.y * Double(size.height)
@@ -37,11 +39,11 @@ extension CameraSession: AVCaptureMetadataOutputObjectsDelegate {
       let h = object.bounds.height * Double(size.height)
       let frame = CGRect(x: x, y: y, width: w, height: h)
 
-      return Code(type: object.type, value: value, frame: frame)
+      return Code(type: object.type, value: value, frame: frame, corners: corners)
     }
 
     // Call delegate (JS) event
-    onCodeScanned(codes)
+    onCodeScanned(codes, CodeScannerFrame(width: size.width, height: size.height))
   }
 
   /**
@@ -60,11 +62,23 @@ extension CameraSession: AVCaptureMetadataOutputObjectsDelegate {
      Location of the code on-screen, relative to the video output layer
      */
     let frame: CGRect
+      
+    /**
+     Location of the code on-screen, relative to the video output layer
+    */
+    let corners: [CGPoint]?
 
     /**
      Converts this Code to a JS Object (Dictionary)
      */
     func toJSValue() -> [String: AnyHashable] {
+      var jsCorners: [[String: CGFloat]] = []
+      if let corners {
+          jsCorners = corners.map{ [
+            "x": $0.x,
+            "y": $0.y
+          ]}
+      }
       return [
         "type": type.descriptor,
         "value": value,
@@ -74,6 +88,26 @@ extension CameraSession: AVCaptureMetadataOutputObjectsDelegate {
           "width": frame.size.width,
           "height": frame.size.height,
         ],
+        "corners": jsCorners
+      ]
+    }
+  }
+    
+  struct CodeScannerFrame {
+      
+    /**
+    Width of the scanned frame
+    */
+    let width: Int32
+    /**
+    Height of the scanned frame
+    */
+    let height: Int32
+      
+    func toJSValue()-> [String: AnyHashable] {
+      return [
+        "width": width,
+        "height": height,
       ]
     }
   }
