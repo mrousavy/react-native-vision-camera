@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { PermissionsPage } from './PermissionsPage'
 import { MediaPage } from './MediaPage'
 import { CameraPage } from './CameraPage'
+import { CodeScannerPage } from './CodeScannerPage'
 import type { Routes } from './Routes'
 import { Camera, CameraPermissionStatus } from 'react-native-vision-camera'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
@@ -41,6 +42,7 @@ export function App(): React.ReactElement | null {
           initialRouteName={showPermissionsPage ? 'PermissionsPage' : 'CameraPage'}>
           <Stack.Screen name="PermissionsPage" component={PermissionsPage} />
           <Stack.Screen name="CameraPage" component={CameraPage} />
+          <Stack.Screen name="CodeScannerPage" component={CodeScannerPage} />
           <Stack.Screen
             name="MediaPage"
             component={MediaPage}
