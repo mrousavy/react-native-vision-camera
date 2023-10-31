@@ -56,7 +56,7 @@ class CodeScannerPipeline(
           image.close()
           isBusy = false
           if (barcodes.isNotEmpty()) {
-            callback.onCodeScanned(barcodes)
+            callback.onCodeScanned(barcodes, CodeScannerFrame(inputImage.width, inputImage.height))
           }
         }
         .addOnFailureListener { error ->

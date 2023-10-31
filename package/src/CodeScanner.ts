@@ -16,6 +16,20 @@ export type CodeType =
   | 'data-matrix'
 
 /**
+ * A scanned frame.
+ */
+export interface CodeScannerFrame {
+  /**
+   * The width of the scanned frame
+   */
+  width: number
+  /**
+   * The height of the scanned frame
+   */
+  height: number
+}
+
+/**
  * A scanned code.
  */
 export interface Code {
@@ -36,6 +50,13 @@ export interface Code {
     width: number
     height: number
   }
+  /**
+   * The location of each corner relative to the Camera Preview (in dp).
+   */
+  corners?: {
+    x: number
+    y: number
+  }[]
 }
 
 /**
@@ -49,7 +70,7 @@ export interface CodeScanner {
   /**
    * A callback to call whenever the scanned codes change.
    */
-  onCodeScanned: (codes: Code[]) => void
+  onCodeScanned: (codes: Code[], frame: CodeScannerFrame) => void
   /**
    * Crops the scanner's view area to the specific region of interest.
    */

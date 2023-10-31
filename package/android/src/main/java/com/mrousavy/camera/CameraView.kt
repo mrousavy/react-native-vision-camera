@@ -11,6 +11,7 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.core.CameraConfiguration
 import com.mrousavy.camera.core.CameraQueues
 import com.mrousavy.camera.core.CameraSession
+import com.mrousavy.camera.core.CodeScannerFrame
 import com.mrousavy.camera.core.PreviewView
 import com.mrousavy.camera.extensions.installHierarchyFitter
 import com.mrousavy.camera.frameprocessor.FrameProcessor
@@ -228,7 +229,7 @@ class CameraView(context: Context) :
     invokeOnInitialized()
   }
 
-  override fun onCodeScanned(codes: List<Barcode>) {
-    invokeOnCodeScanned(codes)
+  override fun onCodeScanned(codes: List<Barcode>, scannerFrame: CodeScannerFrame) {
+    invokeOnCodeScanned(codes, scannerFrame)
   }
 }

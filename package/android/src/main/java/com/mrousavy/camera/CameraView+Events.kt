@@ -7,6 +7,7 @@ import com.facebook.react.bridge.WritableMap
 import com.facebook.react.uimanager.events.RCTEventEmitter
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.core.CameraError
+import com.mrousavy.camera.core.CodeScannerFrame
 import com.mrousavy.camera.core.UnknownCameraError
 import com.mrousavy.camera.core.code
 import com.mrousavy.camera.types.CodeType
@@ -42,7 +43,7 @@ fun CameraView.invokeOnViewReady() {
   reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraViewReady", event)
 }
 
-fun CameraView.invokeOnCodeScanned(barcodes: List<Barcode>) {
+fun CameraView.invokeOnCodeScanned(barcodes: List<Barcode>, scannerFrame: CodeScannerFrame) {
   val codes = Arguments.createArray()
   barcodes.forEach { barcode ->
     val code = Arguments.createMap()
@@ -58,11 +59,26 @@ fun CameraView.invokeOnCodeScanned(barcodes: List<Barcode>) {
       frame.putInt("height", rect.bottom - rect.top)
       code.putMap("frame", frame)
     }
+
+    barcode.cornerPoints?.let { points ->
+      val corners = Arguments.createArray()
+      points.forEach { point ->
+        val pt = Arguments.createMap()
+        pt.putInt("x", point.x)
+        pt.putInt("y", point.y)
+        corners.pushMap(pt)
+      }
+      code.putArray("corners", corners)
+    }
     codes.pushMap(code)
   }
 
   val event = Arguments.createMap()
   event.putArray("codes", codes)
+  val codeScannerFrame = Arguments.createMap()
+  codeScannerFrame.putInt("width", scannerFrame.width)
+  codeScannerFrame.putInt("height", scannerFrame.height)
+  event.putMap("frame", codeScannerFrame)
   val reactContext = context as ReactContext
   reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraCodeScanned", event)
 }
