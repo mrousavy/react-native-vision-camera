@@ -52,9 +52,24 @@ Frame processors are by far not limited to object detection, other examples incl
 
 Because they are written in JS, Frame Processors are simple, powerful, extensible and easy to create while still running at native performance. (Frame Processors can run up to 1000 times a second!) Also, you can use fast-refresh to quickly see changes while developing or publish [over-the-air updates](https://github.com/microsoft/react-native-code-push) to tweak the object detector's sensitivity in live apps without pushing a native update.
 
-:::note
-Frame Processors require [react-native-worklets-core](https://github.com/margelo/react-native-worklets-core) 0.2.0 or higher.
-:::
+### react-native-worklets-core
+
+Frame Processors require [react-native-worklets-core](https://github.com/margelo/react-native-worklets-core) 0.2.0 or higher. Install it:
+
+```sh
+yarn add react-native-worklets-core
+```
+
+And add the plugin to your `babel.config.js`:
+
+```js
+module.exports = {
+  plugins: [
+// highlight-next-line
+    ['react-native-worklets-core/plugin'],
+  ],
+}
+```
 
 ## The `Frame`
 
