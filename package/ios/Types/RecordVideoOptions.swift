@@ -28,7 +28,7 @@ struct RecordVideoOptions {
     }
     // Flash
     if let flashOption = dictionary["flash"] as? String {
-      guard let parsed = try? Torch(withString: flashOption) else {
+      guard let parsed = try? Torch(jsValue: flashOption) else {
         throw CameraError.parameter(.invalid(unionName: "flash", receivedValue: flashOption))
       }
       flash = parsed
