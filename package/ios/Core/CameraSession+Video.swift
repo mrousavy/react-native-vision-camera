@@ -211,9 +211,16 @@ extension CameraSession {
 
   private func recommendedVideoSettings(videoOutput: AVCaptureVideoDataOutput,
                                         fileType: AVFileType,
-                                        videoCodec: AVVideoCodecType?) -> [String: Any]? {
-    if videoCodec != nil {
-      return videoOutput.recommendedVideoSettings(forVideoCodecType: videoCodec!, assetWriterOutputFileType: fileType)
+                                        videoCodec: String?) -> [String: Any]? {
+    if let videoCodecName = videoCodec {
+      var codec: AVVideoCodecType
+      switch videoCodecName {
+      case "h264":
+        codec = .h264
+      default:
+        codec = .hevc
+      }
+      return videoOutput.recommendedVideoSettings(forVideoCodecType: codec, assetWriterOutputFileType: fileType)
     } else {
       return videoOutput.recommendedVideoSettingsForAssetWriter(writingTo: fileType)
     }

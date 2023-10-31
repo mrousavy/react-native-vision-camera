@@ -12,13 +12,14 @@ import Foundation
 struct RecordVideoOptions {
   var fileType: AVFileType = .mov
   var flash: Torch = .off
-  var codec: AVVideoCodecType?
+  var codec: String?
   /**
    Bit-Rate of the Video, in Megabits per second (Mbps)
    */
   var bitRate: Double?
 
   init(fromJSValue dictionary: NSDictionary) throws {
+    codec = dictionary["videoCodec"] as? String
     // File Type (.mov or .mp4)
     if let fileTypeOption = dictionary["fileType"] as? String {
       guard let parsed = try? AVFileType(withString: fileTypeOption) else {
