@@ -61,7 +61,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     private const val TAG = "CameraSession"
 
     // TODO: Samsung advertises 60 FPS but only allows 30 FPS for some reason.
-    private val CAN_SET_FPS = !Build.MANUFACTURER.equals("samsung", true)
+    private val CAN_DO_60_FPS = !Build.MANUFACTURER.equals("samsung", true)
   }
 
   // Camera Configuration
@@ -394,8 +394,12 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
     // Set FPS
     // TODO: Check if the FPS range is actually supported in the current configuration.
-    val fps = config.fps
-    if (fps != null && CAN_SET_FPS) {
+    var fps = config.fps
+    if (fps != null) {
+      if (!CAN_DO_60_FPS) {
+        // If we can't do 60 FPS, we clamp it to 30 FPS - that's always supported.
+        fps = Math.min(30, fps)
+      }
       captureRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(fps, fps))
     }
 
