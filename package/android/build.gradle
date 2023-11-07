@@ -107,7 +107,7 @@ android {
         cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all"
         arguments "-DANDROID_STL=c++_shared",
                 "-DNODE_MODULES_DIR=${nodeModules}",
-                "-DENABLE_FRAME_PROCESSORS=${hasWorklets}"
+                "-DENABLE_FRAME_PROCESSORS=${hasWorklets ? "ON" : "OFF"}"
         abiFilters (*reactNativeArchitectures())
       }
     }
