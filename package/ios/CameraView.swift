@@ -297,7 +297,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
     }
     onCodeScanned([
       "codes": codes.map { $0.toJSValue() },
-      "frame": scannerFrame.toJSValue()
+      "frame": scannerFrame.toJSValue(),
     ])
   }
 
