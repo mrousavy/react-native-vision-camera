@@ -68,6 +68,8 @@ export interface CodeScanner {
   codeTypes: CodeType[]
   /**
    * A callback to call whenever the scanned codes change.
+   * @param codes The scanned codes, or an empty array if none.
+   * @param frame The full area that is used for scanning. Code bounds and corners are relative to this frame.
    */
   onCodeScanned: (codes: Code[], frame: CodeScannerFrame) => void
   /**
