@@ -22,7 +22,7 @@ export type CodeType =
  */
 export interface CodeScannerFrame {
   /**
-   * The width of the scanned frame
+   * The width of the frame
    */
   width: number
   /**
