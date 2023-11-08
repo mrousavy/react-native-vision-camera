@@ -26,7 +26,7 @@ export interface CodeScannerFrame {
    */
   width: number
   /**
-   * The height of the scanned frame
+   * The height of the frame
    */
   height: number
 }
