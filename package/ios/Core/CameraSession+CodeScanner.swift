@@ -99,9 +99,6 @@ extension CameraSession: AVCaptureMetadataOutputObjectsDelegate {
     Width of the scanned frame
     */
     let width: Int32
-    /**
-    Height of the scanned frame
-    */
     let height: Int32
       
     func toJSValue()-> [String: AnyHashable] {
