@@ -95,9 +95,6 @@ extension CameraSession: AVCaptureMetadataOutputObjectsDelegate {
     
   struct CodeScannerFrame {
       
-    /**
-    Width of the scanned frame
-    */
     let width: Int32
     let height: Int32
       
