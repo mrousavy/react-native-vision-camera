@@ -31,7 +31,9 @@ extension CameraSession: AVCaptureMetadataOutputObjectsDelegate {
       var corners: [CGPoint]?
       if let code = object as? AVMetadataMachineReadableCodeObject {
         value = code.stringValue
-        corners = code.corners
+        corners = code.corners.map {
+          CGPoint(x: $0.x * Double(size.width), y: $0.y * Double(size.height))
+        }
       }
       let x = object.bounds.origin.x * Double(size.width)
       let y = object.bounds.origin.y * Double(size.height)
