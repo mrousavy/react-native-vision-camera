@@ -1,3 +1,5 @@
+import {Point} from './Point';
+
 /**
  * The type of the code to scan.
  */
@@ -53,10 +55,7 @@ export interface Code {
   /**
    * The location of each corner relative to the Camera Preview (in dp).
    */
-  corners?: {
-    x: number
-    y: number
-  }[]
+  corners?: Point[]
 }
 
 /**
