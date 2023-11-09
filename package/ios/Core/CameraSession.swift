@@ -187,7 +187,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
     }
 
     // After configuring, set this to the new configuration.
-    self.configuration = config
+    configuration = config
   }
 
   /**
