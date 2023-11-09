@@ -62,7 +62,6 @@ extension CameraSession {
     }
     photoOutput = nil
     videoOutput = nil
-    audioOutput = nil
     codeScannerOutput = nil
 
     // Photo Output
