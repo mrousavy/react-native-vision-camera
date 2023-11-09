@@ -291,12 +291,13 @@ public final class CameraView: UIView, CameraSessionDelegate {
     #endif
   }
 
-  func onCodeScanned(codes: [CameraSession.Code]) {
+  func onCodeScanned(codes: [CameraSession.Code], scannerFrame: CameraSession.CodeScannerFrame) {
     guard let onCodeScanned = onCodeScanned else {
       return
     }
     onCodeScanned([
       "codes": codes.map { $0.toJSValue() },
+      "frame": scannerFrame.toJSValue(),
     ])
   }
 

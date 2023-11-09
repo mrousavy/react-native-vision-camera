@@ -11,7 +11,7 @@ import type { RecordVideoOptions, VideoFile } from './VideoFile'
 import { VisionCameraProxy } from './FrameProcessorPlugins'
 import { CameraDevices } from './CameraDevices'
 import type { EmitterSubscription } from 'react-native'
-import { Code, CodeScanner } from './CodeScanner'
+import { Code, CodeScanner, CodeScannerFrame } from './CodeScanner'
 
 //#region Types
 export type CameraPermissionStatus = 'granted' | 'not-determined' | 'denied' | 'restricted'
@@ -19,6 +19,7 @@ export type CameraPermissionRequestResult = 'granted' | 'denied'
 
 interface OnCodeScannedEvent {
   codes: Code[]
+  frame: CodeScannerFrame
 }
 interface OnErrorEvent {
   code: string
@@ -398,7 +399,7 @@ export class Camera extends React.PureComponent<CameraProps> {
     const codeScanner = this.props.codeScanner
     if (codeScanner == null) return
 
-    codeScanner.onCodeScanned(event.nativeEvent.codes)
+    codeScanner.onCodeScanned(event.nativeEvent.codes, event.nativeEvent.frame)
   }
 
   //#region Lifecycle

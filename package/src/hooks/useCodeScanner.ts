@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef } from 'react'
-import { Code, CodeScanner } from '../CodeScanner'
+import { Code, CodeScanner, CodeScannerFrame } from '../CodeScanner'
 
 export function useCodeScanner(codeScanner: CodeScanner): CodeScanner {
   const { onCodeScanned, ...codeScannerOptions } = codeScanner
@@ -7,8 +7,8 @@ export function useCodeScanner(codeScanner: CodeScanner): CodeScanner {
   // Memoize the  function once and use a ref on any identity changes
   const ref = useRef(onCodeScanned)
   ref.current = onCodeScanned
-  const callback = useCallback((codes: Code[]) => {
-    ref.current(codes)
+  const callback = useCallback((codes: Code[], frame: CodeScannerFrame) => {
+    ref.current(codes, frame)
   }, [])
 
   // CodeScanner needs to be memoized so it doesn't trigger a Camera Session re-build

@@ -1,23 +1,19 @@
 import * as React from 'react'
-import { useRef, useState, useCallback, useMemo } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { useRef, useState, useCallback } from 'react'
+import { StyleSheet, View } from 'react-native'
 import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler'
-import { CameraRuntimeError, PhotoFile, useCameraDevice, useCameraFormat, useFrameProcessor, VideoFile } from 'react-native-vision-camera'
+import { CameraRuntimeError, useCameraDevice, useCameraFormat, useCodeScanner } from 'react-native-vision-camera'
 import { Camera } from 'react-native-vision-camera'
 import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING, SCREEN_HEIGHT, SCREEN_WIDTH } from './Constants'
 import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated'
 import { useEffect } from 'react'
 import { useIsForeground } from './hooks/useIsForeground'
 import { StatusBarBlurBackground } from './views/StatusBarBlurBackground'
-import { CaptureButton } from './views/CaptureButton'
 import { PressableOpacity } from 'react-native-pressable-opacity'
-import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import IonIcon from 'react-native-vector-icons/Ionicons'
 import type { Routes } from './Routes'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useIsFocused } from '@react-navigation/core'
-import { examplePlugin } from './frame-processors/ExamplePlugin'
-import { exampleKotlinSwiftPlugin } from './frame-processors/ExampleKotlinSwiftPlugin'
 import { usePreferredCameraDevice } from './hooks/usePreferredCameraDevice'
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
@@ -28,11 +24,10 @@ Reanimated.addWhitelistedNativeProps({
 const SCALE_FULL_ZOOM = 3
 const BUTTON_SIZE = 40
 
-type Props = NativeStackScreenProps<Routes, 'CameraPage'>
-export function CameraPage({ navigation }: Props): React.ReactElement {
+type Props = NativeStackScreenProps<Routes, 'CodeScannerPage'>
+export function CodeScannerPage({ navigation }: Props): React.ReactElement {
   const camera = useRef<Camera>(null)
   const [isCameraInitialized, setIsCameraInitialized] = useState(false)
-  const [hasMicrophonePermission, setHasMicrophonePermission] = useState(false)
   const zoom = useSharedValue(0)
   const isPressingButton = useSharedValue(false)
 
@@ -43,7 +38,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
   const [cameraPosition, setCameraPosition] = useState<'front' | 'back'>('back')
   const [enableHdr, setEnableHdr] = useState(false)
-  const [flash, setFlash] = useState<'off' | 'on'>('off')
+  const [torch, setTorch] = useState<'off' | 'on'>('off')
   const [enableNightMode, setEnableNightMode] = useState(false)
 
   // camera device settings
@@ -68,10 +63,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
 
   const fps = Math.min(format?.maxFps ?? 1, targetFps)
 
-  const supportsFlash = device?.hasFlash ?? false
-  const supportsHdr = format?.supportsPhotoHDR
-  const supports60Fps = useMemo(() => device?.formats.some((f) => f.maxFps >= 60), [device?.formats])
-  const canToggleNightMode = device?.supportsLowLightBoost ?? false
+  const supportsTorch = device?.hasTorch ?? false
 
   //#region Animated Zoom
   // This just maps the zoom factor to a percentage value.
@@ -88,12 +80,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   //#endregion
 
   //#region Callbacks
-  const setIsPressingButton = useCallback(
-    (_isPressingButton: boolean) => {
-      isPressingButton.value = _isPressingButton
-    },
-    [isPressingButton],
-  )
+
   // Camera callbacks
   const onError = useCallback((error: CameraRuntimeError) => {
     console.error(error)
@@ -102,21 +89,11 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log('Camera initialized!')
     setIsCameraInitialized(true)
   }, [])
-  const onMediaCaptured = useCallback(
-    (media: PhotoFile | VideoFile, type: 'photo' | 'video') => {
-      console.log(`Media captured! ${JSON.stringify(media)}`)
-      navigation.navigate('MediaPage', {
-        path: media.path,
-        type: type,
-      })
-    },
-    [navigation],
-  )
   const onFlipCameraPressed = useCallback(() => {
     setCameraPosition((p) => (p === 'back' ? 'front' : 'back'))
   }, [])
-  const onFlashPressed = useCallback(() => {
-    setFlash((f) => (f === 'off' ? 'on' : 'off'))
+  const onTorchPressed = useCallback(() => {
+    setTorch((f) => (f === 'off' ? 'on' : 'off'))
   }, [])
   //#endregion
 
@@ -133,9 +110,6 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     zoom.value = neutralZoom
   }, [neutralZoom, zoom])
 
-  useEffect(() => {
-    Camera.getMicrophonePermissionStatus().then((status) => setHasMicrophonePermission(status === 'granted'))
-  }, [])
   //#endregion
 
   //#region Pinch to Zoom Gesture
@@ -162,13 +136,12 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log(`Camera: ${device?.name} | Format: ${f}`)
   }, [device?.name, format, fps])
 
-  const frameProcessor = useFrameProcessor((frame) => {
-    'worklet'
-
-    console.log(`${frame.timestamp}: ${frame.width}x${frame.height} ${frame.pixelFormat} Frame (${frame.orientation})`)
-    examplePlugin(frame)
-    exampleKotlinSwiftPlugin(frame)
-  }, [])
+  const codeScanner = useCodeScanner({
+    codeTypes: ['qr'],
+    onCodeScanned: (codes, frame) => {
+      console.log(codes, frame)
+    },
+  })
 
   return (
     <View style={styles.container}>
@@ -183,6 +156,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 format={format}
                 fps={fps}
                 hdr={enableHdr}
+                torch={supportsTorch ? torch : 'off'}
                 lowLightBoost={device.supportsLowLightBoost && enableNightMode}
                 isActive={isActive}
                 onInitialized={onInitialized}
@@ -191,27 +165,12 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 animatedProps={cameraAnimatedProps}
                 enableFpsGraph={true}
                 orientation="portrait"
-                photo={true}
-                video={true}
-                audio={hasMicrophonePermission}
-                frameProcessor={frameProcessor}
+                codeScanner={codeScanner}
               />
             </TapGestureHandler>
           </Reanimated.View>
         </PinchGestureHandler>
       )}
-
-      <CaptureButton
-        style={styles.captureButton}
-        camera={camera}
-        onMediaCaptured={onMediaCaptured}
-        cameraZoom={zoom}
-        minZoom={minZoom}
-        maxZoom={maxZoom}
-        flash={supportsFlash ? flash : 'off'}
-        enabled={isCameraInitialized && isActive}
-        setIsPressingButton={setIsPressingButton}
-      />
 
       <StatusBarBlurBackground />
 
@@ -219,31 +178,16 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
         <PressableOpacity style={styles.button} onPress={onFlipCameraPressed} disabledOpacity={0.4}>
           <IonIcon name="camera-reverse" color="white" size={24} />
         </PressableOpacity>
-        {supportsFlash && (
-          <PressableOpacity style={styles.button} onPress={onFlashPressed} disabledOpacity={0.4}>
-            <IonIcon name={flash === 'on' ? 'flash' : 'flash-off'} color="white" size={24} />
+        {torch && (
+          <PressableOpacity style={styles.button} onPress={onTorchPressed} disabledOpacity={0.4}>
+            <IonIcon name={torch === 'on' ? 'flash' : 'flash-off'} color="white" size={24} />
           </PressableOpacity>
         )}
-        {supports60Fps && (
-          <PressableOpacity style={styles.button} onPress={() => setTargetFps((t) => (t === 30 ? 60 : 30))}>
-            <Text style={styles.text}>{`${targetFps}\nFPS`}</Text>
-          </PressableOpacity>
-        )}
-        {supportsHdr && (
-          <PressableOpacity style={styles.button} onPress={() => setEnableHdr((h) => !h)}>
-            <MaterialIcon name={enableHdr ? 'hdr' : 'hdr-off'} color="white" size={24} />
-          </PressableOpacity>
-        )}
-        {canToggleNightMode && (
-          <PressableOpacity style={styles.button} onPress={() => setEnableNightMode(!enableNightMode)} disabledOpacity={0.4}>
-            <IonIcon name={enableNightMode ? 'moon' : 'moon-outline'} color="white" size={24} />
-          </PressableOpacity>
-        )}
+        <PressableOpacity style={styles.button} onPress={() => navigation.navigate('CameraPage')}>
+          <IonIcon name="videocam" color="white" size={24} />
+        </PressableOpacity>
         <PressableOpacity style={styles.button} onPress={() => navigation.navigate('Devices')}>
           <IonIcon name="settings-outline" color="white" size={24} />
-        </PressableOpacity>
-        <PressableOpacity style={styles.button} onPress={() => navigation.navigate('CodeScannerPage')}>
-          <IonIcon name="qr-code-outline" color="white" size={24} />
         </PressableOpacity>
       </View>
     </View>
@@ -254,11 +198,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'black',
-  },
-  captureButton: {
-    position: 'absolute',
-    alignSelf: 'center',
-    bottom: SAFE_AREA_PADDING.paddingBottom,
   },
   button: {
     marginBottom: CONTENT_SPACING,

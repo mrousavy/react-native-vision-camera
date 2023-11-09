@@ -611,6 +611,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   interface CameraSessionCallback {
     fun onError(error: Throwable)
     fun onInitialized()
-    fun onCodeScanned(codes: List<Barcode>)
+    fun onCodeScanned(codes: List<Barcode>, scannerFrame: CodeScannerFrame)
   }
 }

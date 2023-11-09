@@ -1,3 +1,5 @@
+import { Point } from './Point'
+
 /**
  * The type of the code to scan.
  */
@@ -14,6 +16,20 @@ export type CodeType =
   | 'pdf-417'
   | 'aztec'
   | 'data-matrix'
+
+/**
+ * The full area that is used for code scanning. In most cases, this is 1280x720 or 1920x1080.
+ */
+export interface CodeScannerFrame {
+  /**
+   * The width of the frame
+   */
+  width: number
+  /**
+   * The height of the frame
+   */
+  height: number
+}
 
 /**
  * A scanned code.
@@ -36,6 +52,10 @@ export interface Code {
     width: number
     height: number
   }
+  /**
+   * The location of each corner relative to the Camera Preview (in dp).
+   */
+  corners?: Point[]
 }
 
 /**
@@ -48,8 +68,10 @@ export interface CodeScanner {
   codeTypes: CodeType[]
   /**
    * A callback to call whenever the scanned codes change.
+   * @param codes The scanned codes, or an empty array if none.
+   * @param frame The full area that is used for scanning. Code bounds and corners are relative to this frame.
    */
-  onCodeScanned: (codes: Code[]) => void
+  onCodeScanned: (codes: Code[], frame: CodeScannerFrame) => void
   /**
    * Crops the scanner's view area to the specific region of interest.
    */

@@ -28,8 +28,12 @@ extension CameraSession: AVCaptureMetadataOutputObjectsDelegate {
     // Map codes to JS values
     let codes = metadataObjects.map { object in
       var value: String?
+      var corners: [CGPoint]?
       if let code = object as? AVMetadataMachineReadableCodeObject {
         value = code.stringValue
+        corners = code.corners.map {
+          CGPoint(x: $0.x * Double(size.width), y: $0.y * Double(size.height))
+        }
       }
       let x = object.bounds.origin.x * Double(size.width)
       let y = object.bounds.origin.y * Double(size.height)
@@ -37,11 +41,11 @@ extension CameraSession: AVCaptureMetadataOutputObjectsDelegate {
       let h = object.bounds.height * Double(size.height)
       let frame = CGRect(x: x, y: y, width: w, height: h)
 
-      return Code(type: object.type, value: value, frame: frame)
+      return Code(type: object.type, value: value, frame: frame, corners: corners)
     }
 
     // Call delegate (JS) event
-    onCodeScanned(codes)
+    onCodeScanned(codes, CodeScannerFrame(width: size.width, height: size.height))
   }
 
   /**
@@ -62,6 +66,11 @@ extension CameraSession: AVCaptureMetadataOutputObjectsDelegate {
     let frame: CGRect
 
     /**
+      Location of the code on-screen, relative to the video output layer
+     */
+    let corners: [CGPoint]?
+
+    /**
      Converts this Code to a JS Object (Dictionary)
      */
     func toJSValue() -> [String: AnyHashable] {
@@ -74,6 +83,22 @@ extension CameraSession: AVCaptureMetadataOutputObjectsDelegate {
           "width": frame.size.width,
           "height": frame.size.height,
         ],
+        "corners": corners?.map { [
+          "x": $0.x,
+          "y": $0.y,
+        ] } ?? [],
+      ]
+    }
+  }
+
+  struct CodeScannerFrame {
+    let width: Int32
+    let height: Int32
+
+    func toJSValue() -> [String: AnyHashable] {
+      return [
+        "width": width,
+        "height": height,
       ]
     }
   }
