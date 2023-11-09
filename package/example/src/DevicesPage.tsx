@@ -42,20 +42,20 @@ function Device({ device, onPress }: DeviceProps): React.ReactElement {
   return (
     <PressableOpacity style={styles.itemContainer} onPress={onPress}>
       <View style={styles.horizontal}>
-        <IonIcon name="camera" size={18} color="black" style={styles.icon} />
+        <IonIcon name="camera" size={18} color="black" />
         <Text style={styles.deviceName} numberOfLines={3}>
           {device.name} <Text style={styles.devicePosition}>({device.position})</Text>
         </Text>
       </View>
       <Text style={styles.deviceTypes}>{deviceTypes}</Text>
       <View style={styles.horizontal}>
-        <IonIcon name="camera" size={12} color="black" style={styles.inlineIcon} />
+        <IonIcon name="camera" size={12} color="black" />
         <Text style={styles.resolutionText}>
           {maxPhotoRes.photoWidth}x{maxPhotoRes.photoHeight}
         </Text>
       </View>
       <View style={styles.horizontal}>
-        <IonIcon name="videocam" size={12} color="black" style={styles.inlineIcon} />
+        <IonIcon name="videocam" size={12} color="black" />
         <Text style={styles.resolutionText}>
           {maxVideoRes.videoWidth}x{maxVideoRes.videoHeight} @ {maxVideoRes.maxFps} FPS
         </Text>
@@ -122,7 +122,7 @@ export function DevicesPage({ navigation }: Props): React.ReactElement {
       <View style={styles.headerContainer}>
         <View style={styles.horizontal}>
           <PressableOpacity style={styles.backButton} onPress={navigation.goBack}>
-            <IonIcon name="chevron-back" size={35} color="black" style={styles.icon} />
+            <IonIcon name="chevron-back" size={35} color="black" />
           </PressableOpacity>
           <Text style={styles.header}>Camera Devices</Text>
         </View>
@@ -208,8 +208,6 @@ const styles = StyleSheet.create({
     height: 40,
     marginTop: 7,
   },
-  icon: {},
-  inlineIcon: {},
   resolutionText: {
     marginLeft: 5,
     fontSize: 12,
