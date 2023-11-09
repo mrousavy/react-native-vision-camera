@@ -92,8 +92,8 @@ class VideoPipeline(
 
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         Log.i(TAG, "Using API 29 for GPU ImageReader...")
-        // GPU_SAMPLED because we redirect to OpenGL, CPU_READ because we read pixels before that.
-        val usage = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or HardwareBuffer.USAGE_CPU_READ_OFTEN
+        // GPU_SAMPLED because we redirect to OpenGL
+        val usage = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE
         imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES, usage)
         imageWriter = ImageWriter.newInstance(glSurface, MAX_IMAGES, format)
       } else {
