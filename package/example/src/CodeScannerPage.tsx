@@ -25,9 +25,9 @@ export function CodeScannerPage({ navigation }: Props): React.ReactElement {
   // 3. (Optional) enable a torch setting
   const [torch, setTorch] = useState(false)
 
-  // 3. Initialize the Code Scanner to scan QR codes
+  // 4. Initialize the Code Scanner to scan QR codes and Barcodes
   const codeScanner = useCodeScanner({
-    codeTypes: ['qr'],
+    codeTypes: ['qr', 'ean-13'],
     onCodeScanned: (codes, frame) => {
       console.log(codes, frame)
     },
