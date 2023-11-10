@@ -1,7 +1,7 @@
 import * as React from 'react'
-import { useState } from 'react'
-import { StyleSheet, View } from 'react-native'
-import { useCameraDevice, useCodeScanner } from 'react-native-vision-camera'
+import { useCallback, useRef, useState } from 'react'
+import { Alert, AlertButton, Linking, StyleSheet, View } from 'react-native'
+import { Code, useCameraDevice, useCodeScanner } from 'react-native-vision-camera'
 import { Camera } from 'react-native-vision-camera'
 import { CONTENT_SPACING, CONTROL_BUTTON_SIZE, SAFE_AREA_PADDING } from './Constants'
 import { useIsForeground } from './hooks/useIsForeground'
@@ -11,6 +11,26 @@ import IonIcon from 'react-native-vector-icons/Ionicons'
 import type { Routes } from './Routes'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useIsFocused } from '@react-navigation/core'
+
+const showCodeAlert = (value: string, onDismissed: () => void): void => {
+  const buttons: AlertButton[] = [
+    {
+      text: 'Close',
+      style: 'cancel',
+      onPress: onDismissed,
+    },
+  ]
+  if (value.startsWith('http')) {
+    buttons.push({
+      text: 'Open URL',
+      onPress: () => {
+        Linking.openURL(value)
+        onDismissed()
+      },
+    })
+  }
+  Alert.alert('Scanned Code', value, buttons)
+}
 
 type Props = NativeStackScreenProps<Routes, 'CodeScannerPage'>
 export function CodeScannerPage({ navigation }: Props): React.ReactElement {
@@ -25,12 +45,23 @@ export function CodeScannerPage({ navigation }: Props): React.ReactElement {
   // 3. (Optional) enable a torch setting
   const [torch, setTorch] = useState(false)
 
-  // 4. Initialize the Code Scanner to scan QR codes and Barcodes
+  // 4. On code scanned, we show an aler to the user
+  const isShowingAlert = useRef(false)
+  const onCodeScanned = useCallback((codes: Code[]) => {
+    console.log(`Scanned ${codes.length} codes:`, codes)
+    const value = codes[0]?.value
+    if (value == null) return
+    if (isShowingAlert.current) return
+    showCodeAlert(value, () => {
+      isShowingAlert.current = false
+    })
+    isShowingAlert.current = true
+  }, [])
+
+  // 5. Initialize the Code Scanner to scan QR codes and Barcodes
   const codeScanner = useCodeScanner({
     codeTypes: ['qr', 'ean-13'],
-    onCodeScanned: (codes, frame) => {
-      console.log(codes, frame)
-    },
+    onCodeScanned: onCodeScanned,
   })
 
   return (
