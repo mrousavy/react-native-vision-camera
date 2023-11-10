@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from 'react-native'
 import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler'
 import { CameraRuntimeError, PhotoFile, useCameraDevice, useCameraFormat, useFrameProcessor, VideoFile } from 'react-native-vision-camera'
 import { Camera } from 'react-native-vision-camera'
-import { CONTENT_SPACING, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING, SCREEN_HEIGHT, SCREEN_WIDTH } from './Constants'
+import { CONTENT_SPACING, CONTROL_BUTTON_SIZE, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING, SCREEN_HEIGHT, SCREEN_WIDTH } from './Constants'
 import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated'
 import { useEffect } from 'react'
 import { useIsForeground } from './hooks/useIsForeground'
@@ -26,7 +26,6 @@ Reanimated.addWhitelistedNativeProps({
 })
 
 const SCALE_FULL_ZOOM = 3
-const BUTTON_SIZE = 40
 
 type Props = NativeStackScreenProps<Routes, 'CameraPage'>
 export function CameraPage({ navigation }: Props): React.ReactElement {
@@ -262,9 +261,9 @@ const styles = StyleSheet.create({
   },
   button: {
     marginBottom: CONTENT_SPACING,
-    width: BUTTON_SIZE,
-    height: BUTTON_SIZE,
-    borderRadius: BUTTON_SIZE / 2,
+    width: CONTROL_BUTTON_SIZE,
+    height: CONTROL_BUTTON_SIZE,
+    borderRadius: CONTROL_BUTTON_SIZE / 2,
     backgroundColor: 'rgba(140, 140, 140, 0.3)',
     justifyContent: 'center',
     alignItems: 'center',
