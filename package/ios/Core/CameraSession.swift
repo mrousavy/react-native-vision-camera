@@ -158,9 +158,6 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
           }
         }
 
-        // Update successful, set the new configuration!
-        self.configuration = config
-
         // Notify about Camera initialization
         if difference.inputChanged {
           self.delegate?.onSessionInitialized()
@@ -188,6 +185,9 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
         }
       }
     }
+
+    // After configuring, set this to the new configuration.
+    configuration = config
   }
 
   /**
