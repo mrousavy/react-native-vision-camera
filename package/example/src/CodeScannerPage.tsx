@@ -73,6 +73,7 @@ export function CodeScannerPage({ navigation }: Props): React.ReactElement {
           isActive={isActive}
           codeScanner={codeScanner}
           torch={torch ? 'on' : 'off'}
+          enableZoomGesture={true}
         />
       )}
 
