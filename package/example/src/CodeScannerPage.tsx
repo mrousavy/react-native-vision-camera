@@ -55,7 +55,7 @@ export function CodeScannerPage({ navigation }: Props): React.ReactElement {
 
       {/* Back Button */}
       <PressableOpacity style={styles.backButton} onPress={navigation.goBack}>
-        <IonIcon name="chevron-back" size={35} color="black" />
+        <IonIcon name="chevron-back" color="white" size={35} />
       </PressableOpacity>
     </View>
   )
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    left: SAFE_AREA_PADDING.paddingLeft + CONTENT_SPACING,
-    top: SAFE_AREA_PADDING.paddingTop + CONTENT_SPACING,
+    left: SAFE_AREA_PADDING.paddingLeft,
+    top: SAFE_AREA_PADDING.paddingTop,
   },
 })
