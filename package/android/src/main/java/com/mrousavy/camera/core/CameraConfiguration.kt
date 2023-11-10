@@ -13,7 +13,7 @@ data class CameraConfiguration(
   var cameraId: String? = null,
 
   // Outputs
-  var preview: Output<Preview> = Output.Disabled.create(),
+  var preview: Output<Preview> = Output.Enabled.create(Preview(Unit)),
   var photo: Output<Photo> = Output.Disabled.create(),
   var video: Output<Video> = Output.Disabled.create(),
   var codeScanner: Output<CodeScanner> = Output.Disabled.create(),
@@ -38,7 +38,10 @@ data class CameraConfiguration(
   var isActive: Boolean = false,
 
   // Audio Session
-  var audio: Output<Audio> = Output.Disabled.create()
+  var audio: Output<Audio> = Output.Disabled.create(),
+
+  // Preview Surface (lazily created)
+  var previewSurface: Surface? = null
 ) {
 
   // Output<T> types, those need to be comparable
@@ -46,7 +49,7 @@ data class CameraConfiguration(
   data class Photo(val nothing: Unit)
   data class Video(val pixelFormat: PixelFormat, val enableFrameProcessor: Boolean)
   data class Audio(val nothing: Unit)
-  data class Preview(val surface: Surface)
+  data class Preview(val nothing: Unit)
 
   @Suppress("EqualsOrHashCode")
   sealed class Output<T> {
@@ -71,7 +74,7 @@ data class CameraConfiguration(
     val deviceChanged: Boolean,
     // Outputs & Session (Photo, Video, CodeScanner, HDR, Format)
     val outputsChanged: Boolean,
-    // Side-Props for CaptureRequest (fps, low-light-boost, torch, zoom, videoStabilization)
+    // Side-Props for CaptureRequest (fps, low-light-boost, torch, zoom, videoStabilization, previewSurface)
     val sidePropsChanged: Boolean
   ) {
     val hasAnyDifference: Boolean
@@ -91,7 +94,8 @@ data class CameraConfiguration(
 
       val sidePropsChanged = outputsChanged || // depend on outputs
         left?.torch != right.torch || left.enableLowLightBoost != right.enableLowLightBoost || left.fps != right.fps ||
-        left.zoom != right.zoom || left.videoStabilizationMode != right.videoStabilizationMode || left.isActive != right.isActive
+        left.zoom != right.zoom || left.videoStabilizationMode != right.videoStabilizationMode || left.isActive != right.isActive ||
+        left.previewSurface != right.previewSurface
 
       return Difference(
         deviceChanged,
