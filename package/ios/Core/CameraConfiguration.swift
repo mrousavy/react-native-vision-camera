@@ -21,10 +21,10 @@ class CameraConfiguration {
   var photo: OutputConfiguration<Photo> = .disabled
   var video: OutputConfiguration<Video> = .disabled
   var codeScanner: OutputConfiguration<CodeScanner> = .disabled
-  
+
   // Video Stabilization
   var videoStabilizationMode: VideoStabilizationMode = .off
-  
+
   // Orientation
   var orientation: Orientation = .portrait
 

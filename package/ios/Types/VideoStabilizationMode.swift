@@ -40,7 +40,7 @@ enum VideoStabilizationMode: String, JSUnionValue {
       self = .off
     }
   }
-  
+
   func toAVCaptureVideoStabilizationMode() -> AVCaptureVideoStabilizationMode {
     switch self {
     case .off:
