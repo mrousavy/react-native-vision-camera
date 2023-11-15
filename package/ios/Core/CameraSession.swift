@@ -125,7 +125,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
             }
             // 3. Update Video Stabilization
             if difference.videoStabilizationChanged {
-              try self.configureVideoStabilization(configuration: config)
+              self.configureVideoStabilization(configuration: config)
             }
             // 4. Update output orientation
             if difference.orientationChanged {
