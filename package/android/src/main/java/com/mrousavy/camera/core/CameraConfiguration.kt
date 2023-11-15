@@ -17,7 +17,10 @@ data class CameraConfiguration(
   var photo: Output<Photo> = Output.Disabled.create(),
   var video: Output<Video> = Output.Disabled.create(),
   var codeScanner: Output<CodeScanner> = Output.Disabled.create(),
-  var enableHdr: Boolean = false,
+
+  // HDR
+  var videoHdr: Boolean = false,
+  var photoHdr: Boolean = false,
 
   // Orientation
   var orientation: Orientation = Orientation.PORTRAIT,
@@ -87,7 +90,7 @@ data class CameraConfiguration(
       val outputsChanged = deviceChanged || // input device
         left?.photo != right.photo || left.video != right.video || left.codeScanner != right.codeScanner ||
         left.preview != right.preview || // outputs
-        left.enableHdr != right.enableHdr || left.format != right.format // props that affect the outputs (hdr, format, ..)
+        left.videoHdr != right.videoHdr || left.photoHdr != right.photoHdr || left.format != right.format // props that affect the outputs
 
       val sidePropsChanged = outputsChanged || // depend on outputs
         left?.torch != right.torch || left.enableLowLightBoost != right.enableLowLightBoost || left.fps != right.fps ||

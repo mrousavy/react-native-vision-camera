@@ -38,7 +38,8 @@ public final class CameraView: UIView, CameraSessionDelegate {
   // props that require format reconfiguring
   @objc var format: NSDictionary?
   @objc var fps: NSNumber?
-  @objc var hdr = false
+  @objc var videoHdr = false
+  @objc var photoHdr = false
   @objc var lowLightBoost = false
   @objc var orientation: NSString?
   // other props
@@ -164,7 +165,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
       if video || enableFrameProcessor {
         config.video = .enabled(config: CameraConfiguration.Video(pixelFormat: getPixelFormat(),
                                                                   enableBufferCompression: enableBufferCompression,
-                                                                  enableHdr: hdr,
+                                                                  enableHdr: videoHdr,
                                                                   enableFrameProcessor: enableFrameProcessor))
       } else {
         config.video = .disabled

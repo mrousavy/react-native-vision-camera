@@ -207,7 +207,7 @@ extension CameraConfiguration.Video {
 
       // Find the best matching format
       guard let format = videoOutput.findPixelFormat(firstOf: targetFormats) else {
-        throw CameraError.format(.invalidHdr)
+        throw CameraError.format(.invalidVideoHdr)
       }
       // YUV 4:2:0 10-bit (compressed/uncompressed)
       return format

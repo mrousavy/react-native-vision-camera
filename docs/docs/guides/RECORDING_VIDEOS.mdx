@@ -145,7 +145,7 @@ To calculate your target bit-rate, you can use this formula:
 ```ts
 let bitRate = baseBitRate
 bitRate = bitRate / 30 * fps // FPS
-if (hdr === true) bitRate *= 1.2 // HDR
+if (videoHdr === true) bitRate *= 1.2 // 10-Bit Video HDR
 if (codec === 'h265') bitRate *= 0.8 // H.265
 bitRate *= yourCustomFactor // e.g. 0.5x for half the bit-rate
 ```

@@ -141,21 +141,26 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
             if difference.formatChanged {
               try self.configureFormat(configuration: config, device: device)
             }
-            // 5. Configure side-props (fps, lowLightBoost)
+            // 5. After step 2. and 4., we also need to configure the PixelFormat.
+            //    This needs to be done AFTER we updated the `format`, as this controls the supported PixelFormats.
+            if difference.outputsChanged || difference.formatChanged {
+              try self.configurePixelFormat(configuration: config)
+            }
+            // 6. Configure side-props (fps, lowLightBoost)
             if difference.sidePropsChanged {
               try self.configureSideProps(configuration: config, device: device)
             }
-            // 6. Configure zoom
+            // 7. Configure zoom
             if difference.zoomChanged {
               self.configureZoom(configuration: config, device: device)
             }
           }
         }
 
-        // 7. Start or stop the session if needed
+        // 8. Start or stop the session if needed
         self.checkIsActive(configuration: config)
 
-        // 8. Enable or disable the Torch if needed (requires session to be running)
+        // 9. Enable or disable the Torch if needed (requires session to be running)
         if difference.torchChanged {
           try self.withDeviceLock { device in
             try self.configureTorch(configuration: config, device: device)

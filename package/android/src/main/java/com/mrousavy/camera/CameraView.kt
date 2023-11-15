@@ -70,7 +70,8 @@ class CameraView(context: Context) :
   var format: ReadableMap? = null
   var fps: Int? = null
   var videoStabilizationMode: VideoStabilizationMode? = null
-  var hdr: Boolean? = null // nullable bool
+  var videoHdr = false
+  var photoHdr = false
   var lowLightBoost: Boolean? = null // nullable bool
 
   // other props
@@ -177,6 +178,10 @@ class CameraView(context: Context) :
         // Orientation
         config.orientation = orientation
 
+        // HDR
+        config.videoHdr = videoHdr
+        config.photoHdr = photoHdr
+
         // Format
         val format = format
         if (format != null) {
@@ -188,7 +193,6 @@ class CameraView(context: Context) :
         // Side-Props
         config.fps = fps
         config.enableLowLightBoost = lowLightBoost ?: false
-        config.enableHdr = hdr ?: false
         config.torch = torch
 
         // Zoom

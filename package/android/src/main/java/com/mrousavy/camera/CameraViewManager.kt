@@ -107,9 +107,14 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
     view.fps = if (fps > 0) fps else null
   }
 
-  @ReactProp(name = "hdr")
-  fun setHdr(view: CameraView, hdr: Boolean?) {
-    view.hdr = hdr
+  @ReactProp(name = "photoHdr", defaultBoolean = false)
+  fun setPhotoHdr(view: CameraView, photoHdr: Boolean) {
+    view.photoHdr = photoHdr
+  }
+
+  @ReactProp(name = "videoHdr", defaultBoolean = false)
+  fun setVideoHdr(view: CameraView, videoHdr: Boolean) {
+    view.videoHdr = videoHdr
   }
 
   @ReactProp(name = "lowLightBoost")
@@ -117,7 +122,7 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
     view.lowLightBoost = lowLightBoost
   }
 
-  @ReactProp(name = "isActive")
+  @ReactProp(name = "isActive", defaultBoolean = false)
   fun setIsActive(view: CameraView, isActive: Boolean) {
     view.isActive = isActive
   }

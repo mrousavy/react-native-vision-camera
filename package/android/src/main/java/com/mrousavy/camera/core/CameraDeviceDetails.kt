@@ -4,7 +4,6 @@ import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
-import android.hardware.camera2.params.DynamicRangeProfiles
 import android.os.Build
 import android.util.Range
 import android.util.Size
@@ -90,10 +89,8 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
   private fun getHasVideoHdr(): Boolean {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
       if (capabilities.contains(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT)) {
-        val availableProfiles = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES)
-          ?: DynamicRangeProfiles(LongArray(0))
-        return availableProfiles.supportedProfiles.contains(DynamicRangeProfiles.HLG10) ||
-          availableProfiles.supportedProfiles.contains(DynamicRangeProfiles.HDR10)
+        val recommendedHdrProfile = characteristics.get(CameraCharacteristics.REQUEST_RECOMMENDED_TEN_BIT_DYNAMIC_RANGE_PROFILE)
+        return recommendedHdrProfile != null
       }
     }
     return false
@@ -181,8 +178,8 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     map.putInt("maxFps", fpsRange.upper)
     map.putDouble("maxZoom", maxZoom)
     map.putDouble("fieldOfView", getMaxFieldOfView())
-    map.putBoolean("supportsVideoHDR", supportsVideoHdr)
-    map.putBoolean("supportsPhotoHDR", supportsPhotoHdr)
+    map.putBoolean("supportsVideoHdr", supportsVideoHdr)
+    map.putBoolean("supportsPhotoHdr", supportsPhotoHdr)
     map.putBoolean("supportsDepthCapture", supportsDepthCapture)
     map.putString("autoFocusSystem", AutoFocusSystem.CONTRAST_DETECTION.unionValue)
     map.putArray("videoStabilizationModes", createStabilizationModes())

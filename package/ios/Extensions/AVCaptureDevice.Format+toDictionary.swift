@@ -28,7 +28,7 @@ extension AVCaptureDevice.Format {
     return maxRange?.maxFrameRate ?? 0
   }
 
-  var supportsVideoHDR: Bool {
+  var supportsVideoHdr: Bool {
     let pixelFormat = CMFormatDescriptionGetMediaSubType(formatDescription)
     let hdrFormats = [
       kCVPixelFormatType_420YpCbCr10BiPlanarFullRange,
@@ -38,7 +38,7 @@ extension AVCaptureDevice.Format {
     return hdrFormats.contains(pixelFormat)
   }
 
-  var supportsPhotoHDR: Bool {
+  var supportsPhotoHdr: Bool {
     // TODO: Supports Photo HDR on iOS?
     return false
   }

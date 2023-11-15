@@ -142,8 +142,8 @@ export class Camera extends React.PureComponent<CameraProps> {
     result = (result / 30) * fps
     // H.265 (HEVC) codec is 20% more efficient
     if (codec === 'h265') result = result * 0.8
-    // HDR (10-bit) instead of SDR (8-bit) takes up 20% more pixels
-    if (this.props.hdr) result = result * 1.2
+    // 10-Bit Video HDR takes up 20% more pixels than standard range (8-bit SDR)
+    if (this.props.videoHdr) result = result * 1.2
     // Return overall result
     return result * factor
   }
