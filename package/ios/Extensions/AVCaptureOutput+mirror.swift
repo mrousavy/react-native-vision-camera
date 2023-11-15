@@ -39,6 +39,8 @@ extension AVCaptureOutput {
           let cameraOrientation = orientation.rotateBy(orientation: .landscapeLeft)
           let degrees = cameraOrientation.toDegrees()
 
+          // TODO: Don't rotate the video output because it adds overhead. Instead just use EXIF flags for the .mp4 file if recording.
+          //       Does that work when we flip the camera?
           if connection.isVideoRotationAngleSupported(degrees) {
             connection.videoRotationAngle = degrees
           }

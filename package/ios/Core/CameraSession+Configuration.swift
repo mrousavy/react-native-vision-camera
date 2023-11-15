@@ -154,6 +154,17 @@ extension CameraSession {
     ReactLogger.log(level: .info, message: "Successfully configured all outputs!")
   }
 
+  // pragma MARK: Video Stabilization
+  func configureVideoStabilization(configuration: CameraConfiguration) {
+    captureSession.outputs.forEach { output in
+      output.connections.forEach { connection in
+        if connection.isVideoStabilizationSupported {
+          connection.preferredVideoStabilizationMode = configuration.videoStabilizationMode.toAVCaptureVideoStabilizationMode()
+        }
+      }
+    }
+  }
+
   // pragma MARK: Orientation
 
   func configureOrientation(configuration: CameraConfiguration) {

@@ -22,6 +22,9 @@ class CameraConfiguration {
   var video: OutputConfiguration<Video> = .disabled
   var codeScanner: OutputConfiguration<CodeScanner> = .disabled
 
+  // Video Stabilization
+  var videoStabilizationMode: VideoStabilizationMode = .off
+
   // Orientation
   var orientation: Orientation = .portrait
 
@@ -49,6 +52,7 @@ class CameraConfiguration {
       photo = other.photo
       video = other.video
       codeScanner = other.codeScanner
+      videoStabilizationMode = other.videoStabilizationMode
       orientation = other.orientation
       format = other.format
       fps = other.fps
@@ -67,6 +71,7 @@ class CameraConfiguration {
   struct Difference {
     let inputChanged: Bool
     let outputsChanged: Bool
+    let videoStabilizationChanged: Bool
     let orientationChanged: Bool
     let formatChanged: Bool
     let sidePropsChanged: Bool
@@ -80,7 +85,7 @@ class CameraConfiguration {
      [`inputChanged`, `outputsChanged`, `orientationChanged`]
      */
     var isSessionConfigurationDirty: Bool {
-      return inputChanged || outputsChanged || orientationChanged
+      return inputChanged || outputsChanged || videoStabilizationChanged || orientationChanged
     }
 
     /**
@@ -96,6 +101,8 @@ class CameraConfiguration {
       inputChanged = left?.cameraId != right.cameraId
       // photo, video, codeScanner
       outputsChanged = inputChanged || left?.photo != right.photo || left?.video != right.video || left?.codeScanner != right.codeScanner
+      // videoStabilizationMode
+      videoStabilizationChanged = outputsChanged || left?.videoStabilizationMode != right.videoStabilizationMode
       // orientation
       orientationChanged = outputsChanged || left?.orientation != right.orientation
       // format (depends on cameraId)
