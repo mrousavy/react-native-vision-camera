@@ -156,9 +156,11 @@ extension CameraSession {
   
   // pragma MARK: Video Stabilization
   func configureVideoStabilization(configuration: CameraConfiguration) {
-    captureSession.connections.forEach { connection in
-      if connection.isVideoStabilizationSupported {
-        connection.preferredVideoStabilizationMode = configuration.videoStabilizationMode.toAVCaptureVideoStabilizationMode()
+    captureSession.outputs.forEach { output in
+      output.connections.forEach { connection in
+        if connection.isVideoStabilizationSupported {
+          connection.preferredVideoStabilizationMode = configuration.videoStabilizationMode.toAVCaptureVideoStabilizationMode()
+        }
       }
     }
   }
