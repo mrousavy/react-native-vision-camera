@@ -123,7 +123,11 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
             if difference.outputsChanged {
               try self.configureOutputs(configuration: config)
             }
-            // 3. Update output orientation
+            // 3. Update Video Stabilization
+            if difference.videoStabilizationChanged {
+              try self.configureVideoStabilization(configuration: config)
+            }
+            // 4. Update output orientation
             if difference.orientationChanged {
               self.configureOrientation(configuration: config)
             }

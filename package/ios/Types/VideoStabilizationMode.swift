@@ -40,6 +40,25 @@ enum VideoStabilizationMode: String, JSUnionValue {
       self = .off
     }
   }
+  
+  func toAVCaptureVideoStabilizationMode() -> AVCaptureVideoStabilizationMode {
+    switch self {
+    case .off:
+      return .off
+    case .standard:
+      return .standard
+    case .cinematic:
+      return .cinematic
+    case .cinematicExtended:
+      if #available(iOS 13.0, *) {
+        return .cinematicExtended
+      } else {
+        return .cinematic
+      }
+    case .auto:
+      return .auto
+    }
+  }
 
   var jsValue: String {
     return rawValue
