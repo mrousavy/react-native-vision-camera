@@ -4,7 +4,6 @@ import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
-import android.hardware.camera2.params.DynamicRangeProfiles
 import android.os.Build
 import android.util.Range
 import android.util.Size
