@@ -139,7 +139,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
             }
             // 5. After step 2. and 4., we also need to configure the PixelFormat.
             //    This needs to be done AFTER we updated the `format`, as this controls the supported PixelFormats.
-            if difference.outputsChanged {
+            if difference.outputsChanged || difference.formatChanged {
               try self.configurePixelFormat(configuration: config)
             }
             // 6. Configure side-props (fps, lowLightBoost)
