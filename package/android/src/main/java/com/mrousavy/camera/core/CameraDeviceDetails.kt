@@ -90,10 +90,8 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
   private fun getHasVideoHdr(): Boolean {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
       if (capabilities.contains(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT)) {
-        val availableProfiles = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES)
-          ?: DynamicRangeProfiles(LongArray(0))
-        return availableProfiles.supportedProfiles.contains(DynamicRangeProfiles.HLG10) ||
-          availableProfiles.supportedProfiles.contains(DynamicRangeProfiles.HDR10)
+        val recommendedHdrProfile = characteristics.get(CameraCharacteristics.REQUEST_RECOMMENDED_TEN_BIT_DYNAMIC_RANGE_PROFILE)
+        return recommendedHdrProfile != null
       }
     }
     return false
