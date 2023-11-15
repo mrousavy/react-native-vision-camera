@@ -285,7 +285,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         val image = reader.acquireLatestImage()
         onPhotoCaptured(image)
       }, CameraQueues.cameraQueue.handler)
-      val output = PhotoOutput(imageReader, configuration.enableHdr)
+      val output = PhotoOutput(imageReader, configuration.photoHdr)
       outputs.add(output.toOutputConfiguration(characteristics))
       photoOutput = output
     }
@@ -305,7 +305,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         isSelfie,
         video.config.enableFrameProcessor
       )
-      val output = VideoPipelineOutput(videoPipeline, configuration.enableHdr)
+      val output = VideoPipelineOutput(videoPipeline, configuration.videoHdr)
       outputs.add(output.toOutputConfiguration(characteristics))
       videoOutput = output
     }
@@ -327,7 +327,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         preview.config.surface,
         size,
         SurfaceOutput.OutputType.PREVIEW,
-        configuration.enableHdr
+        configuration.videoHdr
       )
       outputs.add(output.toOutputConfiguration(characteristics))
       previewOutput = output
@@ -398,7 +398,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     if (fps != null) {
       if (!CAN_DO_60_FPS) {
         // If we can't do 60 FPS, we clamp it to 30 FPS - that's always supported.
-        fps = Math.min(30, fps)
+        fps = 30.coerceAtMost(fps)
       }
       captureRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(fps, fps))
     }
@@ -427,7 +427,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
     // Set HDR
     // TODO: Check if that value is even supported
-    if (config.enableHdr) {
+    if (config.videoHdr) {
       captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_HDR)
     } else if (config.enableLowLightBoost) {
       captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_NIGHT)

@@ -178,6 +178,10 @@ class CameraView(context: Context) :
         // Orientation
         config.orientation = orientation
 
+        // HDR
+        config.videoHdr = videoHdr
+        config.photoHdr = photoHdr
+
         // Format
         val format = format
         if (format != null) {
@@ -189,7 +193,6 @@ class CameraView(context: Context) :
         // Side-Props
         config.fps = fps
         config.enableLowLightBoost = lowLightBoost ?: false
-        config.enableHdr = photoHdr
         config.torch = torch
 
         // Zoom
