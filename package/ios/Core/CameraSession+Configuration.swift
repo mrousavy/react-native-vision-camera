@@ -100,7 +100,7 @@ extension CameraSession {
     }
 
     // Video Output + Frame Processor
-    if case .enabled(_) = configuration.video {
+    if case .enabled = configuration.video {
       ReactLogger.log(level: .info, message: "Adding Video Data output...")
 
       // 1. Add
@@ -193,14 +193,14 @@ extension CameraSession {
 
     ReactLogger.log(level: .info, message: "Successfully configured Format!")
   }
-  
+
   func configurePixelFormat(configuration: CameraConfiguration) throws {
     guard case let .enabled(video) = configuration.video,
           let videoOutput else {
       // Video is not enabled
       return
     }
-    
+
     // Configure the VideoOutput Settings to use the given Pixel Format.
     // We need to run this after device.activeFormat has been set, otherwise the VideoOutput can't stream the given Pixel Format.
     let pixelFormatType = try video.getPixelFormat(for: videoOutput)
