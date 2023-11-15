@@ -87,7 +87,7 @@ data class CameraConfiguration(
       val outputsChanged = deviceChanged || // input device
         left?.photo != right.photo || left.video != right.video || left.codeScanner != right.codeScanner ||
         left.preview != right.preview || // outputs
-        left.enableHdr != right.enableHdr || left.format != right.format // props that affect the outputs (hdr, format, ..)
+        left.enableHdr != right.enableHdr || left.format != right.format // props that affect the outputs (photoHdr, videoHdr, format, ..)
 
       val sidePropsChanged = outputsChanged || // depend on outputs
         left?.torch != right.torch || left.enableLowLightBoost != right.enableLowLightBoost || left.fps != right.fps ||

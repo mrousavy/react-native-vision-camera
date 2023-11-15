@@ -49,8 +49,8 @@ To enable HDR capture, you need to select a format (see ["Camera Formats"](forma
 
 ```ts
 const format = useCameraFormat(device, [
-  { photoHDR: true },
-  { videoHDR: true },
+  { photoHdr: true },
+  { videoHdr: true },
 ])
 ```
 
@@ -59,21 +59,27 @@ const format = useCameraFormat(device, [
 
 ```ts
 const format = getCameraFormat(device, [
-  { photoHDR: true },
-  { videoHDR: true },
+  { photoHdr: true },
+  { videoHdr: true },
 ])
 ```
 
 </TabItem>
 </Tabs>
 
-Then, pass the `format` to the Camera and enable the `hdr` prop if it is supported:
+Then, pass the `format` to the Camera and enable the `videoHdr`/`photoHdr` props if it is supported:
 
 ```tsx
 const format = ...
-const supportsHdr = format.supportsPhotoHDR && format.supportsVideoHDR
 
-return <Camera {...props} format={format} hdr={supportsHdr} />
+return (
+  <Camera
+    {...props}
+    format={format}
+    videoHdr={format.supportsVideoHdr}
+    photoHdr={format.supportsPhotoHdr}
+  />
+)
 ```
 
 Now, all captures (`takePhoto(..)` and `startRecording(..)`) will be configured to use HDR.

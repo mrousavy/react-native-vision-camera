@@ -31,8 +31,8 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
   let videoStabilizationModes: [VideoStabilizationMode]
   let autoFocusSystem: AutoFocusSystem
 
-  let supportsVideoHDR: Bool
-  let supportsPhotoHDR: Bool
+  let supportsVideoHdr: Bool
+  let supportsPhotoHdr: Bool
 
   let pixelFormats: [PixelFormat]
 
@@ -51,8 +51,8 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
     maxZoom = format.videoMaxZoomFactor
     videoStabilizationModes = format.videoStabilizationModes.map { VideoStabilizationMode(from: $0) }
     autoFocusSystem = AutoFocusSystem(fromFocusSystem: format.autoFocusSystem)
-    supportsVideoHDR = format.supportsVideoHDR
-    supportsPhotoHDR = format.supportsPhotoHDR
+    supportsVideoHdr = format.supportsVideoHdr
+    supportsPhotoHdr = format.supportsPhotoHdr
     pixelFormats = CameraDeviceFormat.getAllPixelFormats()
     supportsDepthCapture = format.supportsDepthCapture
   }
@@ -73,8 +73,8 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
     videoStabilizationModes = try jsVideoStabilizationModes.map { try VideoStabilizationMode(jsValue: $0) }
     let jsAutoFocusSystem = jsValue["autoFocusSystem"] as! String
     autoFocusSystem = try AutoFocusSystem(jsValue: jsAutoFocusSystem)
-    supportsVideoHDR = jsValue["supportsVideoHDR"] as! Bool
-    supportsPhotoHDR = jsValue["supportsPhotoHDR"] as! Bool
+    supportsVideoHdr = jsValue["supportsVideoHdr"] as! Bool
+    supportsPhotoHdr = jsValue["supportsPhotoHdr"] as! Bool
     let jsPixelFormats = jsValue["pixelFormats"] as! [String]
     pixelFormats = try jsPixelFormats.map { try PixelFormat(jsValue: $0) }
     supportsDepthCapture = jsValue["supportsDepthCapture"] as! Bool
@@ -98,8 +98,8 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
       "minISO": minISO,
       "fieldOfView": fieldOfView,
       "maxZoom": maxZoom,
-      "supportsVideoHDR": supportsVideoHDR,
-      "supportsPhotoHDR": supportsPhotoHDR,
+      "supportsVideoHdr": supportsVideoHdr,
+      "supportsPhotoHdr": supportsPhotoHdr,
       "minFps": minFps,
       "maxFps": maxFps,
       "pixelFormats": pixelFormats.map(\.jsValue),

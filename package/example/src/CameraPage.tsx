@@ -68,7 +68,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const fps = Math.min(format?.maxFps ?? 1, targetFps)
 
   const supportsFlash = device?.hasFlash ?? false
-  const supportsHdr = format?.supportsPhotoHDR
+  const supportsHdr = format?.supportsPhotoHdr
   const supports60Fps = useMemo(() => device?.formats.some((f) => f.maxFps >= 60), [device?.formats])
   const canToggleNightMode = device?.supportsLowLightBoost ?? false
 

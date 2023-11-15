@@ -17,8 +17,8 @@ data class CameraDeviceFormat(
   val maxZoom: Double,
   val videoStabilizationModes: List<VideoStabilizationMode>,
   val autoFocusSystem: AutoFocusSystem,
-  val supportsVideoHDR: Boolean,
-  val supportsPhotoHDR: Boolean,
+  val supportsVideoHdr: Boolean,
+  val supportsPhotoHdr: Boolean,
   val pixelFormats: List<PixelFormat>,
   val supportsDepthCapture: Boolean
 ) {
@@ -50,8 +50,8 @@ data class CameraDeviceFormat(
         value.getDouble("maxZoom"),
         videoStabilizationModes,
         autoFocusSystem,
-        value.getBoolean("supportsVideoHDR"),
-        value.getBoolean("supportsPhotoHDR"),
+        value.getBoolean("supportsVideoHdr"),
+        value.getBoolean("supportsPhotoHdr"),
         pixelFormats,
         value.getBoolean("supportsDepthCapture")
       )

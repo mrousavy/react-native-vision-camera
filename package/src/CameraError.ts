@@ -15,7 +15,7 @@ export type DeviceError =
   | 'device/camera-not-available-on-simulator'
 export type FormatError =
   | 'format/invalid-fps'
-  | 'format/invalid-hdr'
+  | 'format/invalid-video-hdr'
   | 'format/incompatible-pixel-format-with-hdr-setting'
   | 'format/invalid-format'
 export type SessionError =

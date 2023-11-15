@@ -108,7 +108,7 @@ enum DeviceError: String {
 
 enum FormatError {
   case invalidFps(fps: Int)
-  case invalidHdr
+  case invalidVideoHdr
   case invalidFormat
   case incompatiblePixelFormatWithHDR
 
@@ -118,8 +118,8 @@ enum FormatError {
       return "invalid-format"
     case .invalidFps:
       return "invalid-fps"
-    case .invalidHdr:
-      return "invalid-hdr"
+    case .invalidVideoHdr:
+      return "invalid-video-hdr"
     case .incompatiblePixelFormatWithHDR:
       return "incompatible-pixel-format-with-hdr-setting"
     }
@@ -131,8 +131,8 @@ enum FormatError {
       return "The given format was invalid. Did you check if the current device supports the given format in `device.formats`?"
     case let .invalidFps(fps):
       return "The given format cannot run at \(fps) FPS! Make sure your FPS is lower than `format.maxFps` but higher than `format.minFps`."
-    case .invalidHdr:
-      return "The currently selected format does not support HDR capture! Make sure you select a format which includes `supportsPhotoHDR`/`supportsVideoHDR`!"
+    case .invalidVideoHdr:
+      return "The currently selected format does not support 10-bit Video HDR streaming! Make sure you select a format which includes `supportsVideoHdr`!"
     case .incompatiblePixelFormatWithHDR:
       return "The currently selected pixelFormat is not compatible with HDR! HDR only works with the `yuv` pixelFormat."
     }
