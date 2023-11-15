@@ -30,6 +30,7 @@ fun CameraDevice.createPhotoCaptureRequest(
   flashMode: Flash,
   enableRedEyeReduction: Boolean,
   enableAutoStabilization: Boolean,
+  enableHdr: Boolean,
   orientation: Orientation
 ): CaptureRequest {
   val cameraCharacteristics = cameraManager.getCameraCharacteristics(this.id)
@@ -40,6 +41,7 @@ fun CameraDevice.createPhotoCaptureRequest(
     CameraDevice.TEMPLATE_STILL_CAPTURE
   }
   val captureRequest = this.createCaptureRequest(template)
+  captureRequest.addTarget(surface)
 
   // TODO: Maybe we can even expose that prop directly?
   val jpegQuality = when (qualityPrioritization) {
@@ -50,6 +52,8 @@ fun CameraDevice.createPhotoCaptureRequest(
   captureRequest.set(CaptureRequest.JPEG_QUALITY, jpegQuality.toByte())
 
   captureRequest.set(CaptureRequest.JPEG_ORIENTATION, orientation.toDegrees())
+
+  // TODO: Use the same options as from the preview request. This is duplicate code!
 
   when (flashMode) {
     // Set the Flash Mode
@@ -87,9 +91,14 @@ fun CameraDevice.createPhotoCaptureRequest(
     }
   }
 
+  // TODO: Check if that zoom value is even supported.
   captureRequest.setZoom(zoom, cameraCharacteristics)
 
-  captureRequest.addTarget(surface)
+  // Set HDR
+  // TODO: Check if that value is even supported
+  if (enableHdr) {
+    captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_HDR)
+  }
 
   return captureRequest.build()
 }

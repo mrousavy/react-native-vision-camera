@@ -466,6 +466,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
     val cameraCharacteristics = cameraManager.getCameraCharacteristics(captureSession.device.id)
     val orientation = outputOrientation.toSensorRelativeOrientation(cameraCharacteristics)
+    val enableHdr = configuration?.photoHdr ?: false
     val captureRequest = captureSession.device.createPhotoCaptureRequest(
       cameraManager,
       photoOutput.surface,
@@ -474,6 +475,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       flashMode,
       enableRedEyeReduction,
       enableAutoStabilization,
+      enableHdr,
       orientation
     )
     Log.i(TAG, "Photo capture 1/3 - starting capture...")
