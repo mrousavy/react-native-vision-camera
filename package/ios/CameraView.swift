@@ -185,6 +185,14 @@ public final class CameraView: UIView, CameraSessionDelegate {
         config.codeScanner = .disabled
       }
 
+      // Video Stabilization
+      if let jsVideoStabilizationMode = videoStabilizationMode as? String {
+        let videoStabilizationMode = try VideoStabilizationMode(jsValue: jsVideoStabilizationMode)
+        config.videoStabilizationMode = videoStabilizationMode
+      } else {
+        config.videoStabilizationMode = .off
+      }
+
       // Orientation
       if let jsOrientation = orientation as? String {
         let orientation = try Orientation(jsValue: jsOrientation)
