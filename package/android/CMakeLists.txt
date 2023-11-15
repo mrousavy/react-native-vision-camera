@@ -12,7 +12,11 @@ find_package(ReactAndroid REQUIRED CONFIG)
 find_package(fbjni REQUIRED CONFIG)
 find_library(LOG_LIB log)
 
-add_definitions(-DVISION_CAMERA_ENABLE_FRAME_PROCESSORS=${ENABLE_FRAME_PROCESSORS})
+if (ENABLE_FRAME_PROCESSORS)
+        add_definitions(-DVISION_CAMERA_ENABLE_FRAME_PROCESSORS=true)
+else()
+        add_definitions(-DVISION_CAMERA_ENABLE_FRAME_PROCESSORS=false)
+endif()
 
 
 # Add react-native-vision-camera sources
@@ -63,11 +67,12 @@ target_link_libraries(
 )
 
 # Optionally also add Frame Processors here
-if(ENABLE_FRAME_PROCESSORS)
+message("VisionCamera: Frame Processors: ${ENABLE_FRAME_PROCESSORS}!")
+if (ENABLE_FRAME_PROCESSORS)
+    message("VisionCamera: Linking react-native-worklets...")
     find_package(react-native-worklets-core REQUIRED CONFIG)
     target_link_libraries(
             ${PACKAGE_NAME}
             react-native-worklets-core::rnworklets
     )
-    message("VisionCamera: Frame Processors enabled!")
 endif()
