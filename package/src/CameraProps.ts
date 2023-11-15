@@ -139,11 +139,17 @@ export interface CameraProps extends ViewProps {
    */
   fps?: number
   /**
-   * Enables or disables HDR streaming.
+   * Enables or disables HDR Video Streaming for Preview, Video and Frame Processor via a 10-bit wide-color pixel format.
    *
    * Make sure the given {@linkcode format} supports HDR (see {@linkcode CameraDeviceFormat.supportsVideoHDR format.supportsVideoHDR}).
    */
-  hdr?: boolean
+  videoHdr?: boolean
+  /**
+   * Enables or disables HDR Photo Capture via a double capture routine that combines low- and high exposure photos.
+   *
+   * Make sure the given {@linkcode format} supports HDR (see {@linkcode CameraDeviceFormat.supportsPhotoHDR format.supportsPhotoHDR}).
+   */
+  photoHdr?: boolean
   /**
    * Enables or disables lossless buffer compression for the video stream.
    * If you only use {@linkcode video} or a {@linkcode frameProcessor}, this
