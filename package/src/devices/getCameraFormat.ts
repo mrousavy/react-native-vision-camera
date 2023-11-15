@@ -123,9 +123,10 @@ export function getCameraFormat(device: CameraDevice, filters: FormatFilter[]): 
     let leftPoints = 0
     let rightPoints = 0
 
-    const leftVideoResolution = bestFormat.videoWidth * bestFormat.videoHeight
-    const rightVideoResolution = format.videoWidth * format.videoHeight
+    // Video Resolution
     if (filter.videoResolution != null) {
+      const leftVideoResolution = bestFormat.videoWidth * bestFormat.videoHeight
+      const rightVideoResolution = format.videoWidth * format.videoHeight
       if (filter.videoResolution.target === 'max') {
         // We just want the maximum resolution
         if (leftVideoResolution > rightVideoResolution) leftPoints += filter.videoResolution.priority
@@ -140,9 +141,10 @@ export function getCameraFormat(device: CameraDevice, filters: FormatFilter[]): 
       }
     }
 
-    const leftPhotoResolution = bestFormat.photoWidth * bestFormat.photoHeight
-    const rightPhotoResolution = format.photoWidth * format.photoHeight
+    // Photo Resolution
     if (filter.photoResolution != null) {
+      const leftPhotoResolution = bestFormat.photoWidth * bestFormat.photoHeight
+      const rightPhotoResolution = format.photoWidth * format.photoHeight
       if (filter.photoResolution.target === 'max') {
         // We just want the maximum resolution
         if (leftPhotoResolution > rightPhotoResolution) leftPoints += filter.photoResolution.priority
