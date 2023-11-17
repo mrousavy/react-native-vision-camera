@@ -156,23 +156,27 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
   private fun destroy() {
     Log.i(TAG, "Destroying session..")
-    captureSession?.stopRepeating()
-    captureSession?.close()
-    captureSession = null
+    runBlocking {
+      mutex.withLock {
+        captureSession?.stopRepeating()
+        captureSession?.close()
+        captureSession = null
 
-    cameraDevice?.close()
-    cameraDevice = null
+        cameraDevice?.close()
+        cameraDevice = null
 
-    previewOutput?.close()
-    previewOutput = null
-    photoOutput?.close()
-    photoOutput = null
-    videoOutput?.close()
-    videoOutput = null
-    codeScannerOutput?.close()
-    codeScannerOutput = null
+        previewOutput?.close()
+        previewOutput = null
+        photoOutput?.close()
+        photoOutput = null
+        videoOutput?.close()
+        videoOutput = null
+        codeScannerOutput?.close()
+        codeScannerOutput = null
 
-    isRunning = false
+        isRunning = false
+      }
+    }
   }
 
   fun createPreviewView(context: Context): PreviewView {
