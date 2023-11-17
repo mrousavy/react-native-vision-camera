@@ -8,7 +8,9 @@ import android.media.ImageWriter
 import android.os.Build
 import android.util.Log
 import android.view.Surface
+import androidx.annotation.Keep
 import com.facebook.jni.HybridData
+import com.facebook.proguard.annotations.DoNotStrip
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.types.Orientation
@@ -51,6 +53,8 @@ class VideoPipeline(
     }
   }
 
+  @DoNotStrip
+  @Keep
   private val mHybridData: HybridData
   private var openGLTextureId: Int? = null
   private var transformMatrix = FloatArray(16)

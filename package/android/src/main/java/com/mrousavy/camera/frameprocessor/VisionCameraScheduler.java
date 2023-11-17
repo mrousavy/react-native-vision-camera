@@ -1,5 +1,6 @@
 package com.mrousavy.camera.frameprocessor;
 
+import androidx.annotation.Keep;
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
 import com.mrousavy.camera.core.CameraQueues;
@@ -8,6 +9,7 @@ import com.mrousavy.camera.core.CameraQueues;
 public class VisionCameraScheduler {
     @SuppressWarnings({"unused", "FieldCanBeLocal"})
     @DoNotStrip
+    @Keep
     private final HybridData mHybridData;
 
     public VisionCameraScheduler() {
