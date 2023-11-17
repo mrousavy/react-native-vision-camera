@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0087B9D62B078E9F00F2B9BF /* AVCaptureDevice+isMirrored.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0087B9D52B078E9F00F2B9BF /* AVCaptureDevice+isMirrored.swift */; };
+		0087B9D82B07911200F2B9BF /* AVAssetWriterInput+applyVideoOrientation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0087B9D72B07911200F2B9BF /* AVAssetWriterInput+applyVideoOrientation.swift */; };
+		0087B9DA2B0791F700F2B9BF /* AVCaptureOutput+applyPhotoOrientation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0087B9D92B0791F700F2B9BF /* AVCaptureOutput+applyPhotoOrientation.swift */; };
 		B80175EC2ABDEBD000E7DE90 /* ResizeMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B80175EB2ABDEBD000E7DE90 /* ResizeMode.swift */; };
 		B80C0E00260BDDF7001699AB /* FrameProcessorPluginRegistry.m in Sources */ = {isa = PBXBuildFile; fileRef = B80C0DFF260BDDF7001699AB /* FrameProcessorPluginRegistry.m */; };
 		B80E06A0266632F000728644 /* AVAudioSession+updateCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B80E069F266632F000728644 /* AVAudioSession+updateCategory.swift */; };
@@ -91,6 +94,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0087B9D52B078E9F00F2B9BF /* AVCaptureDevice+isMirrored.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVCaptureDevice+isMirrored.swift"; sourceTree = "<group>"; };
+		0087B9D72B07911200F2B9BF /* AVAssetWriterInput+applyVideoOrientation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVAssetWriterInput+applyVideoOrientation.swift"; sourceTree = "<group>"; };
+		0087B9D92B0791F700F2B9BF /* AVCaptureOutput+applyPhotoOrientation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVCaptureOutput+applyPhotoOrientation.swift"; sourceTree = "<group>"; };
 		134814201AA4EA6300B7C361 /* libVisionCamera.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libVisionCamera.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		B80175EB2ABDEBD000E7DE90 /* ResizeMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResizeMode.swift; sourceTree = "<group>"; };
 		B80C02EB2A6A954D001975E2 /* FrameProcessorPluginHostObject.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameProcessorPluginHostObject.mm; sourceTree = "<group>"; };
@@ -266,6 +272,7 @@
 				B887516325E0102000DB86D6 /* AVCaptureDevice+neutralZoom.swift */,
 				B81BE1BE26B936FF002696CC /* AVCaptureDevice.Format+dimensions.swift */,
 				B887516525E0102000DB86D6 /* AVCaptureDevice+isMultiCam.swift */,
+				0087B9D52B078E9F00F2B9BF /* AVCaptureDevice+isMirrored.swift */,
 				B887516625E0102000DB86D6 /* AVCaptureDevice+physicalDevices.swift */,
 				B887516725E0102000DB86D6 /* AVFrameRateRange+includes.swift */,
 				B887516825E0102000DB86D6 /* AVCaptureOutput+mirror.swift */,
@@ -275,6 +282,8 @@
 				B881D35F2ABC8E4E009B21C8 /* AVCaptureVideoDataOutput+findPixelFormat.swift */,
 				B8F127CF2ACF054A00B39EA3 /* CMVideoDimensions+toCGSize.swift */,
 				B8A1AEC32AD7EDE800169C0D /* AVCaptureVideoDataOutput+pixelFormat.swift */,
+				0087B9D72B07911200F2B9BF /* AVAssetWriterInput+applyVideoOrientation.swift */,
+				0087B9D92B0791F700F2B9BF /* AVCaptureOutput+applyPhotoOrientation.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -432,12 +441,14 @@
 			files = (
 				B887518625E0102000DB86D6 /* CameraView+RecordVideo.swift in Sources */,
 				B8A1AECA2AD8034E00169C0D /* RecordVideoOptions.swift in Sources */,
+				0087B9D82B07911200F2B9BF /* AVAssetWriterInput+applyVideoOrientation.swift in Sources */,
 				B85882322AD966FC00317161 /* CameraDeviceFormat.swift in Sources */,
 				B81BE1BF26B936FF002696CC /* AVCaptureDevice.Format+dimensions.swift in Sources */,
 				B8A1AEC82AD8005400169C0D /* CameraSession+Configuration.swift in Sources */,
 				B88685E92AD6A5D600E93869 /* CameraSession+Video.swift in Sources */,
 				B8DB3BCA263DC4D8004C18D7 /* RecordingSession.swift in Sources */,
 				B83D5EE729377117000AFD2F /* PreviewView.swift in Sources */,
+				0087B9DA2B0791F700F2B9BF /* AVCaptureOutput+applyPhotoOrientation.swift in Sources */,
 				B887518925E0102000DB86D6 /* Collection+safe.swift in Sources */,
 				B8A1AEC42AD7EDE800169C0D /* AVCaptureVideoDataOutput+pixelFormat.swift in Sources */,
 				B887519125E0102000DB86D6 /* AVCaptureDevice.Format+toDictionary.swift in Sources */,
@@ -454,6 +465,7 @@
 				B80E06A0266632F000728644 /* AVAudioSession+updateCategory.swift in Sources */,
 				B887519425E0102000DB86D6 /* MakeReactError.swift in Sources */,
 				B887519525E0102000DB86D6 /* ReactLogger.swift in Sources */,
+				0087B9D62B078E9F00F2B9BF /* AVCaptureDevice+isMirrored.swift in Sources */,
 				B88685EB2AD6A5DE00E93869 /* CameraSession+Photo.swift in Sources */,
 				B88751A725E0102000DB86D6 /* CameraView+Zoom.swift in Sources */,
 				B887518525E0102000DB86D6 /* PhotoCaptureDelegate.swift in Sources */,

@@ -144,7 +144,15 @@ extension CameraSession {
 
       self.codeScannerOutput = codeScannerOutput
     }
-
+    
+    // Set up mirroring for all outputs.
+    let isMirrored = videoDeviceInput?.device.isMirrored ?? false
+    if isMirrored {
+      captureSession.outputs.forEach { output in
+        output.mirror()
+      }
+    }
+    
     // Done!
     ReactLogger.log(level: .info, message: "Successfully configured all outputs!")
   }
@@ -157,20 +165,6 @@ extension CameraSession {
           connection.preferredVideoStabilizationMode = configuration.videoStabilizationMode.toAVCaptureVideoStabilizationMode()
         }
       }
-    }
-  }
-
-  // pragma MARK: Orientation
-
-  func configureOrientation(configuration: CameraConfiguration) {
-    // Set up orientation and mirroring for all outputs.
-    // Note: Photos are only rotated through EXIF tags, and Preview through view transforms
-    let isMirrored = videoDeviceInput?.device.position == .front
-    captureSession.outputs.forEach { output in
-      if isMirrored {
-        output.mirror()
-      }
-      output.setOrientation(configuration.orientation)
     }
   }
 

@@ -72,7 +72,6 @@ class CameraConfiguration {
     let inputChanged: Bool
     let outputsChanged: Bool
     let videoStabilizationChanged: Bool
-    let orientationChanged: Bool
     let formatChanged: Bool
     let sidePropsChanged: Bool
     let torchChanged: Bool
@@ -85,7 +84,7 @@ class CameraConfiguration {
      [`inputChanged`, `outputsChanged`, `orientationChanged`]
      */
     var isSessionConfigurationDirty: Bool {
-      return inputChanged || outputsChanged || videoStabilizationChanged || orientationChanged
+      return inputChanged || outputsChanged || videoStabilizationChanged
     }
 
     /**
@@ -103,8 +102,6 @@ class CameraConfiguration {
       outputsChanged = inputChanged || left?.photo != right.photo || left?.video != right.video || left?.codeScanner != right.codeScanner
       // videoStabilizationMode
       videoStabilizationChanged = outputsChanged || left?.videoStabilizationMode != right.videoStabilizationMode
-      // orientation
-      orientationChanged = outputsChanged || left?.orientation != right.orientation
       // format (depends on cameraId)
       formatChanged = inputChanged || left?.format != right.format
       // side-props (depends on format)
