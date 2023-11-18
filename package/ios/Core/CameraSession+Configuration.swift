@@ -284,6 +284,20 @@ extension CameraSession {
     let clamped = max(min(zoom, device.activeFormat.videoMaxZoomFactor), device.minAvailableVideoZoomFactor)
     device.videoZoomFactor = clamped
   }
+  
+  // pragma MARK: Exposure
+  
+  /**
+   Configures exposure (`exposure`) as a bias that adjusts exposureTime and ISO.
+   */
+  func configureExposure(configuration: CameraConfiguration, device: AVCaptureDevice) {
+    guard let exposure = configuration.exposure else {
+      return
+    }
+    
+    let clamped = max(min(exposure, device.maxExposureTargetBias), device.minExposureTargetBias)
+    device.setExposureTargetBias(clamped)
+  }
 
   // pragma MARK: Audio
 

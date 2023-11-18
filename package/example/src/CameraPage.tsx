@@ -189,6 +189,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 onError={onError}
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
+                exposure={-2}
                 enableFpsGraph={true}
                 orientation="portrait"
                 photo={true}

@@ -81,6 +81,14 @@ export interface CameraDeviceFormat {
    */
   minISO: number
   /**
+   * The minimum Exposure-Bias value this format supports. When setting the `exposure` to this value, the image is almost completely dark (under-exposed).
+   */
+  minExposure: number
+  /**
+   * The maximum Exposure-Bias value this format supports. When setting the `exposure` to this value, the image is almost completely bright (over-exposed).
+   */
+  maxExposure: number
+  /**
    * The video field of view in degrees
    */
   fieldOfView: number

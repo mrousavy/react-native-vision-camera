@@ -174,6 +174,9 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     map.putInt("videoWidth", videoSize.width)
     map.putInt("minISO", isoRange.lower)
     map.putInt("maxISO", isoRange.upper)
+    // TODO: Implement minExposureBias
+    map.putDouble("minExposure", -1)
+    map.putDouble("maxExposure", 1)
     map.putInt("minFps", fpsRange.lower)
     map.putInt("maxFps", fpsRange.upper)
     map.putDouble("maxZoom", maxZoom)

@@ -154,13 +154,17 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
             if difference.zoomChanged {
               self.configureZoom(configuration: config, device: device)
             }
+            // 8. Configure exposure bias
+            if difference.exposureChanged {
+              self.configureExposure(configuration: config, device: device)
+            }
           }
         }
 
-        // 8. Start or stop the session if needed
+        // 9. Start or stop the session if needed
         self.checkIsActive(configuration: config)
 
-        // 9. Enable or disable the Torch if needed (requires session to be running)
+        // 10. Enable or disable the Torch if needed (requires session to be running)
         if difference.torchChanged {
           try self.withDeviceLock { device in
             try self.configureTorch(configuration: config, device: device)
