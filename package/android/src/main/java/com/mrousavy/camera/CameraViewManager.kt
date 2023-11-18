@@ -31,6 +31,11 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
 
   override fun getName(): String = TAG
 
+  override fun onDropViewInstance(view: CameraView) {
+    view.destroy()
+    super.onDropViewInstance(view)
+  }
+
   @ReactProp(name = "cameraId")
   fun setCameraId(view: CameraView, cameraId: String) {
     view.cameraId = cameraId

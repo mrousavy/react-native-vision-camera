@@ -131,6 +131,10 @@ class CameraView(context: Context) :
     super.onDetachedFromWindow()
   }
 
+  fun destroy() {
+    cameraSession.close()
+  }
+
   fun update() {
     Log.i(TAG, "Updating CameraSession...")
 
