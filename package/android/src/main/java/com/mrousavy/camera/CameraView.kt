@@ -5,6 +5,7 @@ import android.content.Context
 import android.hardware.camera2.CameraManager
 import android.util.Log
 import android.view.ScaleGestureDetector
+import android.view.View
 import android.widget.FrameLayout
 import com.facebook.react.bridge.ReadableMap
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -129,6 +130,11 @@ class CameraView(context: Context) :
   override fun onDetachedFromWindow() {
     update()
     super.onDetachedFromWindow()
+  }
+
+  override fun onViewRemoved(child: View?) {
+    cameraSession.close()
+    super.onViewRemoved(child)
   }
 
   fun update() {
