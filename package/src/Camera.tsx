@@ -380,13 +380,16 @@ export class Camera extends React.PureComponent<CameraProps> {
 
   //#region Events (Wrapped to maintain reference equality)
   private onError(event: NativeSyntheticEvent<OnErrorEvent>): void {
+    const error = event.nativeEvent
+    const cause = isErrorWithCause(error.cause) ? error.cause : undefined
+    // @ts-expect-error We're casting from unknown bridge types to TS unions, I expect it to hopefully work
+    const cameraError = new CameraRuntimeError(error.code, error.message, cause)
+
     if (this.props.onError != null) {
-      const error = event.nativeEvent
-      const cause = isErrorWithCause(error.cause) ? error.cause : undefined
-      this.props.onError(
-        // @ts-expect-error We're casting from unknown bridge types to TS unions, I expect it to hopefully work
-        new CameraRuntimeError(error.code, error.message, cause),
-      )
+      this.props.onError(cameraError)
+    } else {
+      // User didn't pass an `onError` handler, so just log it to console
+      console.error(`Camera.onError(${cameraError.code}): ${cameraError.message}`, cameraError)
     }
   }
 
