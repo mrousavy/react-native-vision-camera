@@ -105,7 +105,6 @@ extension CameraSession {
         onError(.capture(.createRecorderError(message: error.description)))
         return
       }
-      self.recordingSession = recordingSession
 
       // Init Video
       guard var videoSettings = self.recommendedVideoSettings(videoOutput: videoOutput,
@@ -152,6 +151,7 @@ extension CameraSession {
       // start recording session with or without audio.
       do {
         try recordingSession.startAssetWriter()
+        self.recordingSession = recordingSession
         self.isRecording = true
       } catch let error as NSError {
         onError(.capture(.createRecorderError(message: "RecordingSession failed to start asset writer. \(error.description)")))
