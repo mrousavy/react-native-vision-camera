@@ -38,7 +38,7 @@ class CameraConfiguration {
 
   // Zoom
   var zoom: CGFloat?
-  
+
   // Exposure
   var exposure: Float?
 

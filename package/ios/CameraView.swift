@@ -218,7 +218,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
 
       // Zoom
       config.zoom = zoom.doubleValue
-      
+
       // Exposure
       config.exposure = exposure.floatValue
 
