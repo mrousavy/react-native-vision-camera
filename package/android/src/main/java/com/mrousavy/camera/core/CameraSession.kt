@@ -172,6 +172,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     codeScannerOutput?.close()
     codeScannerOutput = null
 
+    configuration = null
     isRunning = false
   }
 
