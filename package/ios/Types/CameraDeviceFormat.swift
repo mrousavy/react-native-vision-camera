@@ -21,7 +21,7 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
 
   let minFps: Double
   let maxFps: Double
-  
+
   let minExposure: Float
   let maxExposure: Float
 
