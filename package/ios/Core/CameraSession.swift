@@ -114,6 +114,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
       do {
         // If needed, configure the AVCaptureSession (inputs, outputs)
         if difference.isSessionConfigurationDirty {
+          self.setPreviewEnabled(enabled: false)
           try self.withSessionLock {
             // 1. Update input device
             if difference.inputChanged {
@@ -249,7 +250,11 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
     // Start/Stop session
     if configuration.isActive {
       captureSession.startRunning()
+      // Continue streaming into the Preview once the session started
+      self.setPreviewEnabled(enabled: true)
     } else {
+      // Stop streaming into the Preview
+      self.setPreviewEnabled(enabled: false)
       captureSession.stopRunning()
     }
   }
