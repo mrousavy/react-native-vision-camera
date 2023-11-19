@@ -6,12 +6,12 @@ import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isEr
 import type { CameraProps, FrameProcessor } from './CameraProps'
 import { CameraModule } from './NativeCameraModule'
 import type { PhotoFile, TakePhotoOptions } from './PhotoFile'
-import type { Point } from './Point'
 import type { RecordVideoOptions, VideoFile } from './VideoFile'
 import { VisionCameraProxy } from './FrameProcessorPlugins'
 import { CameraDevices } from './CameraDevices'
 import type { EmitterSubscription } from 'react-native'
 import { Code, CodeScanner, CodeScannerFrame } from './CodeScanner'
+import { FocusOptions } from './FocusOptions'
 
 //#region Types
 export type CameraPermissionStatus = 'granted' | 'not-determined' | 'denied' | 'restricted'
@@ -263,25 +263,21 @@ export class Camera extends React.PureComponent<CameraProps> {
 
   /**
    * Focus the camera to a specific point in the coordinate system.
-   * @param {Point} point The point to focus to. This should be relative
-   * to the Camera view's coordinate system and is expressed in points.
-   *  * `(0, 0)` means **top left**.
-   *  * `(CameraView.width, CameraView.height)` means **bottom right**.
-   *
-   * Make sure the value doesn't exceed the CameraView's dimensions.
    *
    * @throws {@linkcode CameraRuntimeError} When any kind of error occured while focussing. Use the {@linkcode CameraRuntimeError.code | code} property to get the actual error
    * @example
    * ```ts
    * await camera.current.focus({
-   *   x: tapEvent.x,
-   *   y: tapEvent.y
+   *   point: {
+   *     x: tapEvent.x,
+   *     y: tapEvent.y
+   *   }
    * })
    * ```
    */
-  public async focus(point: Point): Promise<void> {
+  public async focus(options: FocusOptions): Promise<void> {
     try {
-      return await CameraModule.focus(this.handle, point)
+      return await CameraModule.focus(this.handle, options)
     } catch (e) {
       throw tryParseNativeCameraError(e)
     }
