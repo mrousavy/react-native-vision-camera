@@ -139,7 +139,7 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
   }
 
   @ReactProp(name = "exposure")
-  fun setZoom(view: CameraView, exposure: Double) {
+  fun setExposure(view: CameraView, exposure: Double) {
     view.exposure = exposure.toFloat()
   }
 
