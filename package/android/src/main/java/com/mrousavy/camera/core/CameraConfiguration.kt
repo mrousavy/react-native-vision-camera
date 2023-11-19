@@ -33,7 +33,7 @@ data class CameraConfiguration(
   var enableLowLightBoost: Boolean = false,
   var torch: Torch = Torch.OFF,
   var videoStabilizationMode: VideoStabilizationMode = VideoStabilizationMode.OFF,
-  var exposure: Float? = null,
+  var exposure: Double? = null,
 
   // Zoom
   var zoom: Float = 1f,
