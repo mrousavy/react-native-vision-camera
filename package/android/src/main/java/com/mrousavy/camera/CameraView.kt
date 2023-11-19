@@ -195,6 +195,7 @@ class CameraView(context: Context) :
         config.fps = fps
         config.enableLowLightBoost = lowLightBoost ?: false
         config.torch = torch
+        config.exposure = exposure
 
         // Zoom
         config.zoom = zoom
