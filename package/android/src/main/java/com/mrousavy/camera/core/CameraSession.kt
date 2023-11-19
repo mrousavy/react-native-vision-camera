@@ -435,6 +435,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     }
 
     // Set Exposure Bias
+    // TODO: Check if that exposure value is even supported
     val exposure = config.exposure?.toInt()
     if (exposure != null) {
       captureRequest.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, exposure)
