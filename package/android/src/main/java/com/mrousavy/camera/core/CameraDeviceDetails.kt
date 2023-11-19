@@ -178,8 +178,8 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     map.putInt("minISO", isoRange.lower)
     map.putInt("maxISO", isoRange.upper)
     // TODO: Implement minExposureBias
-    map.putDouble("minExposure", exposureRange.lower.toDouble() * exposureStep.toDouble())
-    map.putDouble("maxExposure", exposureRange.upper * exposureStep.toDouble())
+    map.putDouble("minExposure", exposureRange.lower.toDouble() / exposureStep.toDouble())
+    map.putDouble("maxExposure", exposureRange.upper.toDouble() / exposureStep.toDouble())
     map.putInt("minFps", fpsRange.lower)
     map.putInt("maxFps", fpsRange.upper)
     map.putDouble("maxZoom", maxZoom)
