@@ -22,6 +22,9 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
   let minFps: Double
   let maxFps: Double
 
+  let minExposure: Float
+  let maxExposure: Float
+
   let minISO: Float
   let maxISO: Float
 
@@ -38,13 +41,15 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
 
   let supportsDepthCapture: Bool
 
-  init(fromFormat format: AVCaptureDevice.Format) {
+  init(fromFormat format: AVCaptureDevice.Format, forDevice device: AVCaptureDevice) {
     videoWidth = Int(format.videoDimensions.width)
     videoHeight = Int(format.videoDimensions.height)
     photoWidth = Int(format.photoDimensions.width)
     photoHeight = Int(format.photoDimensions.height)
     minFps = format.minFps
     maxFps = format.maxFps
+    minExposure = device.minExposureTargetBias
+    maxExposure = device.maxExposureTargetBias
     minISO = format.minISO
     maxISO = format.maxISO
     fieldOfView = format.videoFieldOfView
@@ -67,6 +72,8 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
     maxFps = jsValue["maxFps"] as! Double
     minISO = jsValue["minISO"] as! Float
     maxISO = jsValue["maxISO"] as! Float
+    minExposure = jsValue["minExposure"] as! Float
+    maxExposure = jsValue["maxExposure"] as! Float
     fieldOfView = jsValue["fieldOfView"] as! Float
     maxZoom = jsValue["maxZoom"] as! Double
     let jsVideoStabilizationModes = jsValue["videoStabilizationModes"] as! [String]
@@ -81,8 +88,8 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
     // swiftlint:enable force_cast
   }
 
-  func isEqualTo(format other: AVCaptureDevice.Format) -> Bool {
-    let other = CameraDeviceFormat(fromFormat: other)
+  func isEqualTo(format other: AVCaptureDevice.Format, device otherDevice: AVCaptureDevice) -> Bool {
+    let other = CameraDeviceFormat(fromFormat: other, forDevice: otherDevice)
     return self == other
   }
 
@@ -94,8 +101,10 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
       "photoWidth": photoWidth,
       "videoHeight": videoHeight,
       "videoWidth": videoWidth,
-      "maxISO": maxISO,
       "minISO": minISO,
+      "maxISO": maxISO,
+      "minExposure": minExposure,
+      "maxExposure": maxExposure,
       "fieldOfView": fieldOfView,
       "maxZoom": maxZoom,
       "supportsVideoHdr": supportsVideoHdr,
