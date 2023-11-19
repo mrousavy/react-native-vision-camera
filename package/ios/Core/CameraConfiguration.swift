@@ -95,10 +95,10 @@ class CameraConfiguration {
 
     /**
      Returns `true` when props that affect the AVCaptureDevice configuration (i.e. props that require lockForConfiguration()) have changed.
-     [`formatChanged`, `sidePropsChanged`, `zoomChanged`]
+     [`formatChanged`, `sidePropsChanged`, `zoomChanged`, `exposureChanged`]
      */
     var isDeviceConfigurationDirty: Bool {
-      return isSessionConfigurationDirty || formatChanged || sidePropsChanged || zoomChanged
+      return isSessionConfigurationDirty || formatChanged || sidePropsChanged || zoomChanged || exposureChanged
     }
 
     init(between left: CameraConfiguration?, and right: CameraConfiguration) {
