@@ -434,6 +434,12 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_NIGHT)
     }
 
+    // Set Exposure Bias
+    val exposure = config.exposure?.toInt()
+    if (exposure != null) {
+      captureRequest.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, exposure)
+    }
+
     // Set Zoom
     // TODO: Check if that zoom value is even supported
     captureRequest.setZoom(config.zoom, cameraCharacteristics)

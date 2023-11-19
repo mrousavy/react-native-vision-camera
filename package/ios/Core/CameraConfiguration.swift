@@ -39,6 +39,9 @@ class CameraConfiguration {
   // Zoom
   var zoom: CGFloat?
 
+  // Exposure
+  var exposure: Float?
+
   // isActive (Start/Stop)
   var isActive = false
 
@@ -59,6 +62,7 @@ class CameraConfiguration {
       enableLowLightBoost = other.enableLowLightBoost
       torch = other.torch
       zoom = other.zoom
+      exposure = other.exposure
       isActive = other.isActive
       audio = other.audio
     } else {
@@ -77,6 +81,7 @@ class CameraConfiguration {
     let sidePropsChanged: Bool
     let torchChanged: Bool
     let zoomChanged: Bool
+    let exposureChanged: Bool
 
     let audioSessionChanged: Bool
 
@@ -113,6 +118,8 @@ class CameraConfiguration {
       torchChanged = left?.isActive != right.isActive || left?.torch != right.torch
       // zoom (depends on format)
       zoomChanged = formatChanged || left?.zoom != right.zoom
+      // exposure (depends on format)
+      exposureChanged = formatChanged || left?.exposure != right.exposure
 
       // audio session
       audioSessionChanged = left?.audio != right.audio

@@ -33,6 +33,7 @@ data class CameraConfiguration(
   var enableLowLightBoost: Boolean = false,
   var torch: Torch = Torch.OFF,
   var videoStabilizationMode: VideoStabilizationMode = VideoStabilizationMode.OFF,
+  var exposure: Float? = null,
 
   // Zoom
   var zoom: Float = 1f,
@@ -94,7 +95,8 @@ data class CameraConfiguration(
 
       val sidePropsChanged = outputsChanged || // depend on outputs
         left?.torch != right.torch || left.enableLowLightBoost != right.enableLowLightBoost || left.fps != right.fps ||
-        left.zoom != right.zoom || left.videoStabilizationMode != right.videoStabilizationMode || left.isActive != right.isActive
+        left.zoom != right.zoom || left.videoStabilizationMode != right.videoStabilizationMode || left.isActive != right.isActive ||
+        left.exposure != right.exposure
 
       return Difference(
         deviceChanged,

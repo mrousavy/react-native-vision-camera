@@ -140,8 +140,12 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
 
   @ReactProp(name = "zoom")
   fun setZoom(view: CameraView, zoom: Double) {
-    val zoomFloat = zoom.toFloat()
-    view.zoom = zoomFloat
+    view.zoom = zoom.toFloat()
+  }
+
+  @ReactProp(name = "exposure")
+  fun setExposure(view: CameraView, exposure: Double) {
+    view.exposure = exposure.toFloat()
   }
 
   @ReactProp(name = "orientation")

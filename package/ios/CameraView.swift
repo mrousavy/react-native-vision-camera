@@ -46,6 +46,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   @objc var isActive = false
   @objc var torch = "off"
   @objc var zoom: NSNumber = 1.0 // in "factor"
+  @objc var exposure: NSNumber = 1.0
   @objc var enableFpsGraph = false
   @objc var videoStabilizationMode: NSString?
   @objc var resizeMode: NSString = "cover" {
@@ -217,6 +218,9 @@ public final class CameraView: UIView, CameraSessionDelegate {
 
       // Zoom
       config.zoom = zoom.doubleValue
+
+      // Exposure
+      config.exposure = exposure.floatValue
 
       // isActive
       config.isActive = isActive

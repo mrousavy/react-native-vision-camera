@@ -78,6 +78,7 @@ class CameraView(context: Context) :
   var isActive = false
   var torch: Torch = Torch.OFF
   var zoom: Float = 1f // in "factor"
+  var exposure: Float = 1f // TODO: Implement exposure bias
   var orientation: Orientation = Orientation.PORTRAIT
   var enableZoomGesture: Boolean = false
     set(value) {
@@ -198,6 +199,7 @@ class CameraView(context: Context) :
         config.fps = fps
         config.enableLowLightBoost = lowLightBoost ?: false
         config.torch = torch
+        config.exposure = exposure
 
         // Zoom
         config.zoom = zoom

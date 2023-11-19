@@ -1,0 +1,71 @@
+---
+id: exposure
+title: Exposure
+sidebar_label: Exposure
+---
+
+### Adjusting exposure
+
+To adjust the exposure of the Camera, you can use the Camera's [`exposure`](/docs/api/interfaces/CameraProps#exposure) property:
+
+```tsx
+<Camera {...props} exposure={-1} />
+```
+
+Values for the `exposure` prop range from [`format.minExposure`](/docs/api/interfaces/CameraDeviceFormat#maxExposure) to [`format.maxExposure`](/docs/api/interfaces/CameraDeviceFormat#minExposure), inclusively. By default (`undefined`), it is set to neutral auto exposure.
+
+Instead of manually adjusting ISO and Exposure-Duration, this acts as an "exposure compensation bias", meaning the Camera will still continuously automatically adjust exposure as it goes, but premultiplies the given exposure value to it's ISO and Exposure Duration settings.
+
+### Examples
+
+![Exposure Example (-2, 0, 2)](/img/exposure.jpg)
+
+### Animating
+
+Just like [`zoom`](zooming), this property can be animated using Reanimated.
+
+1. Add the `exposure` prop to the whitelisted animateable properties:
+
+  ```tsx
+  import Reanimated, { addWhitelistedNativeProps } from "react-native-reanimated"
+
+  const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
+  addWhitelistedNativeProps({
+    exposure: true,
+  })
+  ```
+
+2. Implement your animation, for example with an exposure slider:
+
+  ```jsx
+  function App() {
+    // 1. create shared value for exposure slider (from -1..0..1)
+    const exposureSlider = useSharedValue(0)
+
+    // 2. map slider to [minExposure, 0, maxExposure]
+    const exposureValue = useDerivedValue(() => {
+      if (format == null) return 0
+
+      return interpolate(exposureSlider.value,
+                         [-1, 0, 1],
+                         [format.minExposure, 0, format.maxExposure])
+    }, [exposureSlider, format])
+
+    // 3. pass it as an animated prop
+    const animatedProps = useAnimatedProps(() => ({
+      exposure: exposureValue.value
+    }), [exposureValue])
+
+    // 4. render Camera
+    return (
+      <ReanimatedCamera
+        {...props}
+        animatedProps={animatedProps}
+      />
+    )
+  }
+  ```
+
+<br />
+
+#### 🚀 Next section: [HDR](hdr)

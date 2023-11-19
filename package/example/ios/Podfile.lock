@@ -507,7 +507,7 @@ PODS:
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.10)
   - SocketRocket (0.6.1)
-  - VisionCamera (3.6.4):
+  - VisionCamera (3.6.6):
     - React
     - React-callinvoker
     - React-Core
@@ -747,7 +747,7 @@ SPEC CHECKSUMS:
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  VisionCamera: db57ca079c4f933f1ddd07f2f8fb2d171a826b85
+  VisionCamera: 47d2342b724c78fb9ff3e2607c21ceda4ba21e75
   Yoga: 8796b55dba14d7004f980b54bcc9833ee45b28ce
 
 PODFILE CHECKSUM: 27f53791141a3303d814e09b55770336416ff4eb

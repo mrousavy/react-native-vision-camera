@@ -110,6 +110,19 @@ export interface CameraProps extends ViewProps {
   enableZoomGesture?: boolean
   //#endregion
 
+  //#region Camera Controls
+  /**
+   * Specifies the Exposure bias of the current camera. A lower value means darker images, a higher value means brighter images.
+   *
+   * The Camera will still continue to auto-adjust exposure and focus, but will premultiply the exposure setting with the provided value here.
+   *
+   * This values ranges from {@linkcode CameraDeviceFormat.minExposure format.minExposure} to {@linkcode CameraDeviceFormat.maxExposure format.maxExposure}.
+   *
+   * The value between min- and max supported exposure is considered the default, neutral value.
+   */
+  exposure?: number
+  //#endregion
+
   //#region Format/Preset selection
   /**
    * Selects a given format. By default, the best matching format is chosen. See {@linkcode CameraDeviceFormat}
