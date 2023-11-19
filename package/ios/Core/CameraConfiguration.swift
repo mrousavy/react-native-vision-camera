@@ -118,8 +118,8 @@ class CameraConfiguration {
       torchChanged = left?.isActive != right.isActive || left?.torch != right.torch
       // zoom (depends on format)
       zoomChanged = formatChanged || left?.zoom != right.zoom
-      // exposure (depends on format)
-      exposureChanged = formatChanged || left?.exposure != right.exposure
+      // exposure (depends on device)
+      exposureChanged = inputChanged || left?.exposure != right.exposure
 
       // audio session
       audioSessionChanged = left?.audio != right.audio
