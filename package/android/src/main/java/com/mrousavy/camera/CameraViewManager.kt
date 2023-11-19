@@ -145,7 +145,7 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
 
   @ReactProp(name = "exposure")
   fun setExposure(view: CameraView, exposure: Double) {
-    view.exposure = exposure.toFloat()
+    view.exposure = exposure
   }
 
   @ReactProp(name = "orientation")
