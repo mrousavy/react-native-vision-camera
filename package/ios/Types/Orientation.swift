@@ -83,7 +83,7 @@ enum Orientation: String, JSUnionValue {
 
   func rotateBy(orientation: Orientation) -> Orientation {
     let added = toDegrees() + orientation.toDegrees()
-    let degress = added.truncatingRemainder(dividingBy: 360)
-    return Orientation(degrees: degress)
+    let degrees = added.truncatingRemainder(dividingBy: 360)
+    return Orientation(degrees: degrees)
   }
 }

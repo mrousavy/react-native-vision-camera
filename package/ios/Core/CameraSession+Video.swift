@@ -19,6 +19,17 @@ extension CameraSession {
                       onError: @escaping (_ error: CameraError) -> Void) {
     // Run on Camera Queue
     CameraQueues.cameraQueue.async {
+      // Get Video Output configuration
+      guard let configuration = self.configuration else {
+        onError(.session(.cameraNotReady))
+        return
+      }
+      
+      guard let videoDeviceInput = self.videoDeviceInput else {
+        onError(.session(.cameraNotReady))
+        return
+      }
+      
       ReactLogger.log(level: .info, message: "Starting Video recording...")
 
       if options.flash != .off {
@@ -30,7 +41,7 @@ extension CameraSession {
 
       // Get Video Output
       guard let videoOutput = self.videoOutput else {
-        if self.configuration?.video == .disabled {
+        if configuration.video == .disabled {
           onError(.capture(.videoNotEnabled))
         } else {
           onError(.session(.cameraNotReady))
@@ -38,7 +49,7 @@ extension CameraSession {
         return
       }
 
-      let enableAudio = self.configuration?.audio != .disabled
+      let enableAudio = configuration.audio != .disabled
 
       // Callback for when the recording ends
       let onFinish = { (recordingSession: RecordingSession, status: AVAssetWriter.Status, error: Error?) in
@@ -128,8 +139,11 @@ extension CameraSession {
 
       // get pixel format (420f, 420v, x420)
       let pixelFormat = videoOutput.pixelFormat
+      let isMirrored = videoDeviceInput.device.isMirrored
       recordingSession.initializeVideoWriter(withSettings: videoSettings,
-                                             pixelFormat: pixelFormat)
+                                             pixelFormat: pixelFormat, 
+                                             orientation: configuration.orientation,
+                                             isMirrored: isMirrored)
 
       // Enable/Activate Audio Session (optional)
       if enableAudio {

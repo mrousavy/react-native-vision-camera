@@ -37,6 +37,8 @@ extension CameraSession {
       }
 
       ReactLogger.log(level: .info, message: "Capturing photo...")
+      
+      photoOutput.applyPhotoOrientation(configuration.orientation, isMirrored: videoDeviceInput.device.isMirrored)
 
       // Create photo settings
       let photoSettings = AVCapturePhotoSettings()
@@ -88,7 +90,7 @@ extension CameraSession {
       }
 
       // stabilization
-      if let enableAutoStabilization = options["enableAutoStabilization"] as? Bool {
+        if let enableAutoStabilization = options["enableAutoStabilization"] as? Bool {
         photoSettings.isAutoStillImageStabilizationEnabled = enableAutoStabilization
       }
 
