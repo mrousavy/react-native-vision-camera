@@ -155,7 +155,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    *
    * @example
    * ```ts
-   * camera.current.startRecording({
+   * await camera.current.startRecording({
    *   onRecordingFinished: (video) => console.log(video),
    *   onRecordingError: (error) => console.error(error),
    * })
