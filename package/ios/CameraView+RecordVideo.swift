@@ -11,9 +11,10 @@ import AVFoundation
 // MARK: - CameraView + AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate
 
 extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
-  func startRecording(options: NSDictionary, callback jsCallback: @escaping RCTResponseSenderBlock) {
+  func startRecording(options: NSDictionary, onRecordingStarted: @escaping RCTResponseSenderBlock, onRecordingEnded: @escaping RCTResponseSenderBlock) {
     // Type-safety
-    let callback = Callback(jsCallback)
+    let callback = Callback(onRecordingStarted)
+    let promise = Promise(wrapCallback: onRecordingStarted)
 
     do {
       let options = try RecordVideoOptions(fromJSValue: options)
@@ -21,6 +22,7 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       // Start Recording with success and error callbacks
       cameraSession.startRecording(
         options: options,
+        promise: promise,
         onVideoRecorded: { video in
           callback.resolve(video.toJSValue())
         },
@@ -31,9 +33,9 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
     } catch {
       // Some error occured while initializing VideoSettings
       if let error = error as? CameraError {
-        callback.reject(error: error)
+        promise.reject(error: error)
       } else {
-        callback.reject(error: .capture(.unknown(message: error.localizedDescription)), cause: error as NSError)
+        promise.reject(error: .capture(.unknown(message: error.localizedDescription)), cause: error as NSError)
       }
     }
   }

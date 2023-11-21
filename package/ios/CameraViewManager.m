@@ -60,8 +60,9 @@ RCT_EXPORT_VIEW_PROPERTY(onCodeScanned, RCTDirectEventBlock);
 // Camera View Functions
 RCT_EXTERN_METHOD(startRecording
                   : (nonnull NSNumber*)node options
-                  : (NSDictionary*)options onRecordCallback
-                  : (RCTResponseSenderBlock)onRecordCallback);
+                  : (NSDictionary*)options onRecordingStartedCallback
+                  : (RCTResponseSenderBlock)onRecordingStartedCallback onRecordingEndedCallback
+                  : (RCTResponseSenderBlock)onRecordingEndedCallback);
 RCT_EXTERN_METHOD(pauseRecording
                   : (nonnull NSNumber*)node resolve
                   : (RCTPromiseResolveBlock)resolve reject

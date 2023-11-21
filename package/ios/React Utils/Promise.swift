@@ -18,6 +18,24 @@ class Promise {
     self.resolver = resolver
     self.rejecter = rejecter
   }
+  
+  init(wrapCallback callback: @escaping RCTResponseSenderBlock) {
+    self.resolver = { _ in
+      callback([NSNull(), NSNull()])
+    }
+    self.rejecter = { code, message, error in
+      let reactError = RCTMakeError(
+        "\(code as Any): \(message as Any)",
+        nil,
+        [
+          "code": code as Any,
+          "message": message as Any,
+          "cause": error ?? NSNull(),
+        ]
+      )
+      callback([NSNull(), reactError as Any])
+    }
+  }
 
   func reject(error: CameraError, cause: NSError?) {
     rejecter(error.code, error.message, cause)
