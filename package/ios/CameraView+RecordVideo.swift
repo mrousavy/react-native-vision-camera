@@ -11,25 +11,16 @@ import AVFoundation
 // MARK: - CameraView + AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate
 
 extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
-  func startRecording(options: NSDictionary, onRecordingStarted: @escaping RCTResponseSenderBlock, onRecordingEnded _: @escaping RCTResponseSenderBlock) {
+  func startRecording(options jsOptions: NSDictionary,
+                      onRecordingStarted: @escaping RCTResponseSenderBlock,
+                      onRecordingEnded: @escaping RCTResponseSenderBlock) {
     // Type-safety
-    let callback = Callback(onRecordingStarted)
+    let callback = Callback(onRecordingEnded)
     let promise = Promise(wrapCallback: onRecordingStarted)
-
+    
+    let options: RecordVideoOptions
     do {
-      let options = try RecordVideoOptions(fromJSValue: options)
-
-      // Start Recording with success and error callbacks
-      cameraSession.startRecording(
-        options: options,
-        promise: promise,
-        onVideoRecorded: { video in
-          callback.resolve(video.toJSValue())
-        },
-        onError: { error in
-          callback.reject(error: error)
-        }
-      )
+      options = try RecordVideoOptions(fromJSValue: jsOptions)
     } catch {
       // Some error occured while initializing VideoSettings
       if let error = error as? CameraError {
@@ -37,7 +28,20 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
       } else {
         promise.reject(error: .capture(.unknown(message: error.localizedDescription)), cause: error as NSError)
       }
+      return
     }
+
+    // Start Recording with promise for immediate resolving, and success and error callbacks for later.
+    cameraSession.startRecording(
+      options: options,
+      promise: promise,
+      onVideoRecorded: { video in
+        callback.resolve(video.toJSValue())
+      },
+      onError: { error in
+        callback.reject(error: error)
+      }
+    )
   }
 
   func stopRecording(promise: Promise) {
