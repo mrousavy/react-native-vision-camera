@@ -118,7 +118,7 @@ const _CaptureButton: React.FC<Props> = ({
       console.log('called startRecording()!')
       isRecording.current = true
     } catch (e) {
-      console.error('failed to start recording!', e, 'camera')
+      console.error('failed to start recording!', JSON.stringify(e))
     }
   }, [camera, flash, onMediaCaptured, onStoppedRecording])
   //#endregion
