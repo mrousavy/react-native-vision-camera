@@ -39,6 +39,7 @@ extension CameraSession {
       }
 
       audioCaptureSession.startRunning()
+      ReactLogger.log(level: .info, message: "Audio Session activated!")
     } catch let error as NSError {
       ReactLogger.log(level: .error, message: "Failed to activate audio session! Error \(error.code): \(error.description)")
       switch error.code {
@@ -54,6 +55,7 @@ extension CameraSession {
     ReactLogger.log(level: .info, message: "Deactivating Audio Session...")
 
     audioCaptureSession.stopRunning()
+    ReactLogger.log(level: .info, message: "Audio Session deactivated!")
   }
 
   @objc
