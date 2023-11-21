@@ -8,14 +8,13 @@ import com.facebook.react.bridge.*
 import com.mrousavy.camera.core.MicrophonePermissionError
 import com.mrousavy.camera.core.RecorderError
 import com.mrousavy.camera.core.RecordingSession
-import com.mrousavy.camera.core.code
 import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.VideoCodec
 import com.mrousavy.camera.types.VideoFileType
 import com.mrousavy.camera.utils.makeErrorMap
 import java.util.*
 
-suspend fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Callback) {
+suspend fun CameraView.startRecording(options: ReadableMap, onRecordingEnded: Callback) {
   // check audio permission
   if (audio == true) {
     if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
@@ -47,11 +46,11 @@ suspend fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Ca
     val map = Arguments.createMap()
     map.putString("path", video.path)
     map.putDouble("duration", video.durationMs.toDouble() / 1000.0)
-    onRecordCallback(map, null)
+    onRecordingEnded(map, null)
   }
   val onError = { error: RecorderError ->
-    val errorMap = makeErrorMap(error.code, error.message)
-    onRecordCallback(null, errorMap)
+    val errorMap = makeErrorMap(error)
+    onRecordingEnded(null, errorMap)
   }
   cameraSession.startRecording(audio == true, codec, fileType, bitRate, callback, onError)
 }

@@ -30,7 +30,6 @@ import kotlinx.coroutines.launch
 // TODOs for the CameraView which are currently too hard to implement either because of CameraX' limitations, or my brain capacity.
 //
 // TODO: High-speed video recordings (export in CameraViewModule::getAvailableVideoDevices(), and set in CameraView::configurePreview()) (120FPS+)
-// TODO: Better startRecording()/stopRecording() (promise + callback, wait for TurboModules/JSI)
 // TODO: takePhoto() depth data
 // TODO: takePhoto() raw capture
 // TODO: takePhoto() return with jsi::Value Image reference for faster capture

@@ -1,6 +1,8 @@
 package com.mrousavy.camera.utils
 
 import com.facebook.react.bridge.*
+import com.mrousavy.camera.core.CameraError
+import com.mrousavy.camera.core.code
 
 private fun makeErrorCauseMap(throwable: Throwable): ReadableMap {
   val map = Arguments.createMap()
@@ -20,3 +22,5 @@ fun makeErrorMap(code: String? = null, message: String? = null, throwable: Throw
   map.putMap("userInfo", userInfo)
   return map
 }
+
+fun makeErrorMap(error: CameraError): ReadableMap = makeErrorMap(error.code, error.message, error.cause)
