@@ -37,6 +37,11 @@ extension CameraSession {
         }
         return
       }
+      
+      guard let videoInput = self.videoDeviceInput else {
+        onError(.session(.cameraNotReady))
+        return
+      }
 
       let enableAudio = self.configuration?.audio != .disabled
 
@@ -129,23 +134,27 @@ extension CameraSession {
       // get pixel format (420f, 420v, x420)
       let pixelFormat = videoOutput.pixelFormat
       recordingSession.initializeVideoWriter(withSettings: videoSettings,
-                                             pixelFormat: pixelFormat)
+                                             pixelFormat: pixelFormat,
+                                             format: videoInput.device.activeFormat.formatDescription)
 
       // Init Audio + Activate Audio Session (optional)
-      if enableAudio, let audioOutput = self.audioOutput {
+      if enableAudio,
+         let audioOutput = self.audioOutput,
+         let audioInput = self.audioDeviceInput {
         ReactLogger.log(level: .trace, message: "Enabling Audio for Recording...")
         // Activate Audio Session asynchronously
         CameraQueues.audioQueue.async {
           do {
-            // Initialize audio asset writer
-            let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: options.fileType)
-            recordingSession.initializeAudioWriter(withSettings: audioSettings)
-
             try self.activateAudioSession()
           } catch {
             self.onConfigureError(error)
           }
         }
+        
+        // Initialize audio asset writer
+        let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: options.fileType)
+        recordingSession.initializeAudioWriter(withSettings: audioSettings,
+                                               format: audioInput.device.activeFormat.formatDescription)
       }
 
       // start recording session with or without audio.

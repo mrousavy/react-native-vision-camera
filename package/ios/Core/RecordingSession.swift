@@ -76,7 +76,7 @@ class RecordingSession {
   /**
    Initializes an AssetWriter for video frames (CMSampleBuffers).
    */
-  func initializeVideoWriter(withSettings settings: [String: Any], pixelFormat: OSType) {
+  func initializeVideoWriter(withSettings settings: [String: Any], pixelFormat: OSType, format: CMFormatDescription) {
     guard !settings.isEmpty else {
       ReactLogger.log(level: .error, message: "Tried to initialize Video Writer with empty settings!")
       return
@@ -87,7 +87,7 @@ class RecordingSession {
     }
 
     ReactLogger.log(level: .info, message: "Initializing Video AssetWriter for pixel format \(pixelFormat), with settings: \(settings.description)")
-    let videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: settings)
+    let videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: settings, sourceFormatHint: format)
     videoWriter.expectsMediaDataInRealTime = true
     assetWriter.add(videoWriter)
     bufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter,
@@ -99,14 +99,18 @@ class RecordingSession {
   /**
    Initializes an AssetWriter for audio frames (CMSampleBuffers).
    */
-  func initializeAudioWriter(withSettings settings: [String: Any]?) {
+  func initializeAudioWriter(withSettings settings: [String: Any]?, format: CMFormatDescription) {
     guard audioWriter == nil else {
       ReactLogger.log(level: .error, message: "Tried to add Audio Writer twice!")
       return
     }
 
-    ReactLogger.log(level: .info, message: "Initializing Audio AssetWriter with settings: \(settings?.description)")
-    audioWriter = AVAssetWriterInput(mediaType: .audio, outputSettings: settings)
+    if let settings = settings {
+      ReactLogger.log(level: .info, message: "Initializing Audio AssetWriter with settings: \(settings.description)")
+    } else {
+      ReactLogger.log(level: .info, message: "Initializing Audio AssetWriter default settings...")
+    }
+    audioWriter = AVAssetWriterInput(mediaType: .audio, outputSettings: settings, sourceFormatHint: format)
     audioWriter!.expectsMediaDataInRealTime = true
     assetWriter.add(audioWriter!)
     ReactLogger.log(level: .info, message: "Initialized Audio AssetWriter.")
