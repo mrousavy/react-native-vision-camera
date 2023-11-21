@@ -145,6 +145,7 @@ extension CameraSession {
 
           // Initialize audio asset writer
           let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: options.fileType)
+          ReactLogger.log(level: .trace, message: "Recommended Audio Settings: \(audioSettings?.description ?? "nil")")
           recordingSession.initializeAudioWriter(withSettings: audioSettings)
         }
       }

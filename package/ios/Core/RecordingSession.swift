@@ -86,6 +86,7 @@ class RecordingSession {
       return
     }
 
+    ReactLogger.log(level: .info, message: "Initializing Video AssetWriter...")
     let videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: settings)
     videoWriter.expectsMediaDataInRealTime = true
 
@@ -105,6 +106,7 @@ class RecordingSession {
       return
     }
 
+    ReactLogger.log(level: .info, message: "Initializing Audio AssetWriter...")
     audioWriter = AVAssetWriterInput(mediaType: .audio, outputSettings: settings)
     audioWriter!.expectsMediaDataInRealTime = true
     assetWriter.add(audioWriter!)
@@ -118,7 +120,9 @@ class RecordingSession {
     ReactLogger.log(level: .info, message: "Starting Asset Writer(s)...")
 
     let success = assetWriter.startWriting()
-    if !success {
+    if success {
+      ReactLogger.log(level: .info, message: "Asset Writer(s) started!")
+    } else {
       ReactLogger.log(level: .error, message: "Failed to start Asset Writer(s)!")
       throw RecordingSessionError.failedToStartSession
     }
