@@ -81,7 +81,7 @@ await camera.current.resumeRecording()
 The [`startRecording(...)`](/docs/api/classes/Camera#startrecording) function can be configured to enable the [flash](/docs/api/interfaces/RecordVideoOptions#flash) while recording, which natively just enables the [`torch`](/docs/api/interfaces/CameraProps#torch) under the hood:
 
 ```ts
-camera.current.startRecording({
+await camera.current.startRecording({
   flash: 'on',
   ...
 })
@@ -97,7 +97,7 @@ VisionCamera also supports H.265 ([HEVC](https://en.wikipedia.org/wiki/High_Effi
 If you can handle H.265 on your backend, configure the video recorder to encode in H.265:
 
 ```ts
-camera.current.startRecording({
+await camera.current.startRecording({
   ...props,
   videoCodec: 'h265'
 })
@@ -110,7 +110,7 @@ Videos are recorded with a target bit-rate, which the encoder aims to match as c
 To simply record videos with higher quality, use a [`videoBitRate`](/docs/api/interfaces/RecordVideoOptions#videobitrate) of `'high'`, which effectively increases the bit-rate by 20%:
 
 ```ts
-camera.current.startRecording({
+await camera.current.startRecording({
   ...props,
   videoBitRate: 'high'
 })
@@ -119,7 +119,7 @@ camera.current.startRecording({
 To use a lower bit-rate for lower quality and lower file-size, use a [`videoBitRate`](/docs/api/interfaces/RecordVideoOptions#videobitrate) of `'low'`, which effectively decreases the bit-rate by 20%:
 
 ```ts
-camera.current.startRecording({
+await camera.current.startRecording({
   ...props,
   videoBitRate: 'low'
 })
@@ -153,7 +153,7 @@ bitRate *= yourCustomFactor // e.g. 0.5x for half the bit-rate
 And then pass it to the [`startRecording(...)`](/docs/api/classes/Camera#startrecording) function (in Mbps):
 
 ```ts
-camera.current.startRecording({
+await camera.current.startRecording({
   ...props,
   videoBitRate: bitRate // Mbps
 })
@@ -164,7 +164,7 @@ camera.current.startRecording({
 Since the Video is stored as a temporary file, you need save it to the Camera Roll to permanentely store it. You can use [react-native-cameraroll](https://github.com/react-native-cameraroll/react-native-cameraroll) for this:
 
 ```ts
-camera.current.startRecording({
+await camera.current.startRecording({
   ...props,
   onRecordingFinished: (video) => {
     const path = video.path

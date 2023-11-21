@@ -155,7 +155,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    *
    * @example
    * ```ts
-   * camera.current.startRecording({
+   * await camera.current.startRecording({
    *   onRecordingFinished: (video) => console.log(video),
    *   onRecordingError: (error) => console.error(error),
    * })
@@ -164,7 +164,7 @@ export class Camera extends React.PureComponent<CameraProps> {
    * }, 5000)
    * ```
    */
-  public startRecording(options: RecordVideoOptions): void {
+  public startRecording(options: RecordVideoOptions): Promise<void> {
     const { onRecordingError, onRecordingFinished, ...passThroughOptions } = options
     if (typeof onRecordingError !== 'function' || typeof onRecordingFinished !== 'function')
       throw new CameraRuntimeError('parameter/invalid-parameter', 'The onRecordingError or onRecordingFinished functions were not set!')
@@ -172,16 +172,23 @@ export class Camera extends React.PureComponent<CameraProps> {
     const videoBitRate = passThroughOptions.videoBitRate
     if (typeof videoBitRate === 'string') passThroughOptions.videoBitRate = this.calculateBitRate(videoBitRate, options.videoCodec)
 
-    const onRecordCallback = (video?: VideoFile, error?: CameraCaptureError): void => {
-      if (error != null) return onRecordingError(error)
-      if (video != null) return onRecordingFinished(video)
-    }
-    try {
-      // TODO: Use TurboModules to make this awaitable.
-      CameraModule.startRecording(this.handle, passThroughOptions, onRecordCallback)
-    } catch (e) {
-      throw tryParseNativeCameraError(e)
-    }
+    return new Promise((resolve, reject) => {
+      const onRecordingStarted = (_: never, error?: CameraCaptureError): void => {
+        if (error == null) resolve()
+        else reject(tryParseNativeCameraError(error))
+      }
+      const onRecordingEnded = (video?: VideoFile, error?: CameraCaptureError): void => {
+        if (error != null) return onRecordingError(error)
+        if (video != null) return onRecordingFinished(video)
+      }
+      try {
+        // This method does not return a Promise since I have two Callbacks. We treat the first Callback as a Promise.
+        CameraModule.startRecording(this.handle, passThroughOptions, onRecordingStarted, onRecordingEnded)
+      } catch (e) {
+        // A synchronous error occured - e.g. native module couldn't be found.
+        reject(tryParseNativeCameraError(e))
+      }
+    })
   }
 
   /**

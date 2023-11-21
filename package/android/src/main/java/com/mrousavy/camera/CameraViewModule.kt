@@ -9,7 +9,6 @@ import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.PermissionAwareActivity
 import com.facebook.react.modules.core.PermissionListener
 import com.facebook.react.uimanager.UIManagerHelper
-import com.mrousavy.camera.core.CameraError
 import com.mrousavy.camera.core.ViewNotFoundError
 import com.mrousavy.camera.frameprocessor.VisionCameraInstaller
 import com.mrousavy.camera.frameprocessor.VisionCameraProxy
@@ -81,20 +80,12 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
-  // TODO: startRecording() cannot be awaited, because I can't have a Promise and a onRecordedCallback in the same function. Hopefully TurboModules allows that
   @ReactMethod
-  fun startRecording(viewTag: Int, options: ReadableMap, onRecordCallback: Callback) {
+  fun startRecording(viewTag: Int, options: ReadableMap, onRecordingStarted: Callback, onRecordingEnded: Callback) {
     coroutineScope.launch {
       val view = findCameraView(viewTag)
-      try {
-        view.startRecording(options, onRecordCallback)
-      } catch (error: CameraError) {
-        val map = makeErrorMap("${error.domain}/${error.id}", error.message, error)
-        onRecordCallback(null, map)
-      } catch (error: Throwable) {
-        val map =
-          makeErrorMap("capture/unknown", "An unknown error occurred while trying to start a video recording! ${error.message}", error)
-        onRecordCallback(null, map)
+      withCallback(onRecordingStarted) {
+        view.startRecording(options, onRecordingEnded)
       }
     }
   }
