@@ -18,6 +18,7 @@ extension AVAudioSession {
       ReactLogger.log(level: .info,
                       message: "Changing AVAudioSession category from \(self.category.rawValue) -> \(category.rawValue)")
       try setCategory(category, options: options)
+      ReactLogger.log(level: .info, message: "AVAudioSession category changed!")
     }
   }
 }
