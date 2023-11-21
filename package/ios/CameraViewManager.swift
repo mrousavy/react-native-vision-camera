@@ -39,7 +39,10 @@ final class CameraViewManager: RCTViewManager {
   }
 
   @objc
-  final func startRecording(_ node: NSNumber, options: NSDictionary, onRecordingStarted: @escaping RCTResponseSenderBlock, onRecordingEnded: @escaping RCTResponseSenderBlock) {
+  final func startRecording(_ node: NSNumber,
+                            options: NSDictionary,
+                            onRecordingStarted: @escaping RCTResponseSenderBlock,
+                            onRecordingEnded: @escaping RCTResponseSenderBlock) {
     let component = getCameraView(withTag: node)
     component.startRecording(options: options, onRecordingStarted: onRecordingStarted, onRecordingEnded: onRecordingEnded)
   }

@@ -22,14 +22,14 @@ extension CameraSession {
     CameraQueues.cameraQueue.async {
       withPromise(promise) {
         ReactLogger.log(level: .info, message: "Starting Video recording...")
-        
+
         if options.flash != .off {
           // use the torch as the video's flash
           self.configure { config in
             config.torch = options.flash
           }
         }
-        
+
         // Get Video Output
         guard let videoOutput = self.videoOutput else {
           if self.configuration?.video == .disabled {
@@ -38,9 +38,9 @@ extension CameraSession {
             throw CameraError.session(.cameraNotReady)
           }
         }
-        
+
         let enableAudio = self.configuration?.audio != .disabled
-        
+
         // Callback for when the recording ends
         let onFinish = { (recordingSession: RecordingSession, status: AVAssetWriter.Status, error: Error?) in
           defer {
@@ -59,11 +59,11 @@ extension CameraSession {
               }
             }
           }
-          
+
           self.recordingSession = nil
           self.isRecording = false
           ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
-          
+
           if let error = error as NSError? {
             ReactLogger.log(level: .error, message: "RecordingSession Error \(error.code): \(error.description)")
             // Something went wrong, we have an error
@@ -84,7 +84,7 @@ extension CameraSession {
             }
           }
         }
-        
+
         // Create temporary file
         let errorPointer = ErrorPointer(nilLiteral: ())
         let fileExtension = options.fileType.descriptor ?? "mov"
@@ -92,10 +92,10 @@ extension CameraSession {
           let message = errorPointer?.pointee?.description
           throw CameraError.capture(.createTempFileError(message: message))
         }
-        
+
         ReactLogger.log(level: .info, message: "File path: \(tempFilePath)")
         let tempURL = URL(string: "file://\(tempFilePath)")!
-        
+
         let recordingSession: RecordingSession
         do {
           recordingSession = try RecordingSession(url: tempURL,
@@ -105,16 +105,16 @@ extension CameraSession {
           throw CameraError.capture(.createRecorderError(message: error.description))
         }
         self.recordingSession = recordingSession
-        
+
         // Init Video
         guard var videoSettings = self.recommendedVideoSettings(videoOutput: videoOutput,
                                                                 fileType: options.fileType,
                                                                 videoCodec: options.codec),
-              !videoSettings.isEmpty else {
+          !videoSettings.isEmpty else {
           throw CameraError.capture(.createRecorderError(message: "Failed to get video settings!"))
         }
         ReactLogger.log(level: .trace, message: "Recommended Video Settings: \(videoSettings.description)")
-        
+
         // Custom Video Bit Rate
         if let videoBitRate = options.bitRate {
           // Convert from Mbps -> bps
@@ -123,12 +123,12 @@ extension CameraSession {
             AVVideoAverageBitRateKey: NSNumber(value: bitsPerSecond),
           ]
         }
-        
+
         // get pixel format (420f, 420v, x420)
         let pixelFormat = videoOutput.pixelFormat
         recordingSession.initializeVideoWriter(withSettings: videoSettings,
                                                pixelFormat: pixelFormat)
-        
+
         // Enable/Activate Audio Session (optional)
         if enableAudio {
           if let audioOutput = self.audioOutput {
@@ -140,13 +140,13 @@ extension CameraSession {
                 self.onConfigureError(error)
               }
             }
-            
+
             // Initialize audio asset writer
             let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: options.fileType)
             recordingSession.initializeAudioWriter(withSettings: audioSettings)
           }
         }
-        
+
         // start recording session with or without audio.
         do {
           try recordingSession.startAssetWriter()

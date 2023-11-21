@@ -18,12 +18,12 @@ class Promise {
     self.resolver = resolver
     self.rejecter = rejecter
   }
-  
+
   init(wrapCallback callback: @escaping RCTResponseSenderBlock) {
-    self.resolver = { _ in
+    resolver = { _ in
       callback([NSNull(), NSNull()])
     }
-    self.rejecter = { code, message, error in
+    rejecter = { code, message, error in
       let reactError = RCTMakeError(
         "\(code as Any): \(message as Any)",
         nil,
