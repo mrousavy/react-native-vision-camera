@@ -7,7 +7,8 @@ import com.mrousavy.camera.core.UnknownCameraError
 inline fun withCallback(callback: Callback, closure: () -> Any?) {
   try {
     val result = closure()
-    callback.invoke(result, null)
+    val argument = if (result is Unit) null else result
+    callback.invoke(argument, null)
   } catch (e: Throwable) {
     e.printStackTrace()
     val error = if (e is CameraError) e else UnknownCameraError(e)
