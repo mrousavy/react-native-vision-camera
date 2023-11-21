@@ -110,19 +110,19 @@ extension CameraSession {
       // Init Audio + Activate Audio Session (optional)
       if enableAudio {
         if let audioOutput = self.audioOutput {
+          ReactLogger.log(level: .trace, message: "Enabling Audio for Recording...")
           // Activate Audio Session asynchronously
           CameraQueues.audioQueue.async {
             do {
+              // Initialize audio asset writer
+              let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: options.fileType)
+              recordingSession.initializeAudioWriter(withSettings: audioSettings)
+
               try self.activateAudioSession()
             } catch {
               self.onConfigureError(error)
             }
           }
-
-          // Initialize audio asset writer
-          let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: options.fileType)
-          ReactLogger.log(level: .trace, message: "Recommended Audio Settings: \(audioSettings?.description ?? "nil")")
-          recordingSession.initializeAudioWriter(withSettings: audioSettings)
         }
       }
 
