@@ -107,25 +107,6 @@ extension CameraSession {
       }
       self.recordingSession = recordingSession
 
-      // Init Audio + Activate Audio Session (optional)
-      if enableAudio {
-        if let audioOutput = self.audioOutput {
-          ReactLogger.log(level: .trace, message: "Enabling Audio for Recording...")
-          // Activate Audio Session asynchronously
-          CameraQueues.audioQueue.async {
-            do {
-              // Initialize audio asset writer
-              let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: options.fileType)
-              recordingSession.initializeAudioWriter(withSettings: audioSettings)
-
-              try self.activateAudioSession()
-            } catch {
-              self.onConfigureError(error)
-            }
-          }
-        }
-      }
-
       // Init Video
       guard var videoSettings = self.recommendedVideoSettings(videoOutput: videoOutput,
                                                               fileType: options.fileType,
@@ -149,6 +130,23 @@ extension CameraSession {
       let pixelFormat = videoOutput.pixelFormat
       recordingSession.initializeVideoWriter(withSettings: videoSettings,
                                              pixelFormat: pixelFormat)
+
+      // Init Audio + Activate Audio Session (optional)
+      if enableAudio, let audioOutput = self.audioOutput {
+        ReactLogger.log(level: .trace, message: "Enabling Audio for Recording...")
+        // Activate Audio Session asynchronously
+        CameraQueues.audioQueue.async {
+          do {
+            // Initialize audio asset writer
+            let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: options.fileType)
+            recordingSession.initializeAudioWriter(withSettings: audioSettings)
+
+            try self.activateAudioSession()
+          } catch {
+            self.onConfigureError(error)
+          }
+        }
+      }
 
       // start recording session with or without audio.
       do {
