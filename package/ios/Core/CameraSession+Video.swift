@@ -107,6 +107,25 @@ extension CameraSession {
       }
       self.recordingSession = recordingSession
 
+      // Init Audio + Activate Audio Session (optional)
+      if enableAudio {
+        if let audioOutput = self.audioOutput {
+          // Activate Audio Session asynchronously
+          CameraQueues.audioQueue.async {
+            do {
+              try self.activateAudioSession()
+            } catch {
+              self.onConfigureError(error)
+            }
+          }
+
+          // Initialize audio asset writer
+          let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: options.fileType)
+          ReactLogger.log(level: .trace, message: "Recommended Audio Settings: \(audioSettings?.description ?? "nil")")
+          recordingSession.initializeAudioWriter(withSettings: audioSettings)
+        }
+      }
+
       // Init Video
       guard var videoSettings = self.recommendedVideoSettings(videoOutput: videoOutput,
                                                               fileType: options.fileType,
@@ -130,25 +149,6 @@ extension CameraSession {
       let pixelFormat = videoOutput.pixelFormat
       recordingSession.initializeVideoWriter(withSettings: videoSettings,
                                              pixelFormat: pixelFormat)
-
-      // Enable/Activate Audio Session (optional)
-      if enableAudio {
-        if let audioOutput = self.audioOutput {
-          // Activate Audio Session asynchronously
-          CameraQueues.audioQueue.async {
-            do {
-              try self.activateAudioSession()
-            } catch {
-              self.onConfigureError(error)
-            }
-          }
-
-          // Initialize audio asset writer
-          let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: options.fileType)
-          ReactLogger.log(level: .trace, message: "Recommended Audio Settings: \(audioSettings?.description ?? "nil")")
-          recordingSession.initializeAudioWriter(withSettings: audioSettings)
-        }
-      }
 
       // start recording session with or without audio.
       do {

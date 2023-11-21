@@ -86,10 +86,9 @@ class RecordingSession {
       return
     }
 
-    ReactLogger.log(level: .info, message: "Initializing Video AssetWriter...")
+    ReactLogger.log(level: .info, message: "Initializing Video AssetWriter for pixel format \(pixelFormat), with settings: \(settings.description)")
     let videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: settings)
     videoWriter.expectsMediaDataInRealTime = true
-
     assetWriter.add(videoWriter)
     bufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter,
                                                          withVideoSettings: settings,
@@ -106,7 +105,7 @@ class RecordingSession {
       return
     }
 
-    ReactLogger.log(level: .info, message: "Initializing Audio AssetWriter...")
+    ReactLogger.log(level: .info, message: "Initializing Audio AssetWriter with settings: \(settings?.description)")
     audioWriter = AVAssetWriterInput(mediaType: .audio, outputSettings: settings)
     audioWriter!.expectsMediaDataInRealTime = true
     assetWriter.add(audioWriter!)
