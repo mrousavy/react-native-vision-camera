@@ -59,10 +59,18 @@ class CodeScannerPipeline(
             callback.onCodeScanned(barcodes, CodeScannerFrame(inputImage.width, inputImage.height))
           }
         }
+        .addOnCanceledListener {
+          image.close()
+          isBusy = false
+        }
         .addOnFailureListener { error ->
           image.close()
           isBusy = false
           callback.onError(error)
+        }
+        .addOnCompleteListener {
+          image.close()
+          isBusy = false
         }
     }, CameraQueues.videoQueue.handler)
   }
