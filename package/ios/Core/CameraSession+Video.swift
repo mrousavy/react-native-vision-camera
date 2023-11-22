@@ -129,9 +129,7 @@ extension CameraSession {
 
       // get pixel format (420f, 420v, x420)
       let start1 = DispatchTime.now()
-      let pixelFormat = videoOutput.pixelFormat
-      recordingSession.initializeVideoWriter(withSettings: videoSettings,
-                                             pixelFormat: pixelFormat)
+      recordingSession.initializeVideoWriter(withSettings: videoSettings)
       ReactLogger.log(level: .info, message: "MEASURE: InitializeVideoWriter() took \((DispatchTime.now().uptimeNanoseconds - start1.uptimeNanoseconds) / 1_000_000)ms")
 
       // Init Audio + Activate Audio Session (optional)

@@ -272,9 +272,9 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
 
       switch captureOutput {
       case is AVCaptureVideoDataOutput:
-        recordingSession.appendBuffer(sampleBuffer, type: .video, timestamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
+        recordingSession.appendBuffer(sampleBuffer, type: .video)
       case is AVCaptureAudioDataOutput:
-        recordingSession.appendBuffer(sampleBuffer, type: .audio, timestamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
+        recordingSession.appendBuffer(sampleBuffer, type: .audio)
       default:
         break
       }
