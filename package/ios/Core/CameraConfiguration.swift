@@ -181,22 +181,17 @@ extension CameraConfiguration.Video {
    Returns the pixel format that should be used for the given AVCaptureVideoDataOutput.
    If HDR is enabled, this will return YUV 4:2:0 10-bit.
    If HDR is disabled, this will return whatever the user specified as a pixelFormat, or the most efficient format as a fallback.
+   If no options are enabled and the truly native format can be used, this returns nil.
    */
-  func getPixelFormat(for videoOutput: AVCaptureVideoDataOutput) throws -> OSType {
+  func getPixelFormat(for videoOutput: AVCaptureVideoDataOutput) throws -> OSType? {
     // as per documentation, the first value is always the most efficient format
-    var defaultFormat = videoOutput.availableVideoPixelFormatTypes.first!
+    var defaultFormat: OSType?
     if enableBufferCompression {
-      // use compressed format instead if we enabled buffer compression
-      if defaultFormat == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange &&
-        videoOutput.availableVideoPixelFormatTypes.contains(kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarVideoRange) {
-        // YUV 4:2:0 8-bit (limited video colors; compressed)
-        defaultFormat = kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarVideoRange
-      }
-      if defaultFormat == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange &&
-        videoOutput.availableVideoPixelFormatTypes.contains(kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarFullRange) {
-        // YUV 4:2:0 8-bit (full video colors; compressed)
-        defaultFormat = kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarFullRange
-      }
+      // try to use a compressed format instead if we enabled buffer compression
+      defaultFormat = videoOutput.findPixelFormat(firstOf: [
+        kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarVideoRange,
+        kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarFullRange,
+      ])
     }
 
     // If the user enabled HDR, we can only use the YUV 4:2:0 10-bit pixel format.
