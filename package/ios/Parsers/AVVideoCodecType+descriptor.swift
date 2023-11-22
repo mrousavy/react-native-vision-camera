@@ -19,7 +19,7 @@ extension AVVideoCodecType {
       self = .hevc
       return
     default:
-      throw CameraError.parameter(.invalid(unionName: "codec", receivedValue: string))
+      throw CameraError.parameter(.invalid(unionName: "videoCodec", receivedValue: string))
     }
   }
 }
