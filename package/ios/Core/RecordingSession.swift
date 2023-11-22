@@ -148,8 +148,6 @@ class RecordingSession {
       return
     }
 
-    latestTimestamp = timestamp
-
     switch bufferType {
     case .video:
       guard let bufferAdaptor = bufferAdaptor else {
@@ -173,6 +171,7 @@ class RecordingSession {
         hasStartedWritingSession = true
       }
       bufferAdaptor.append(imageBuffer, withPresentationTime: timestamp)
+      latestTimestamp = timestamp
       if !hasWrittenFirstVideoFrame {
         hasWrittenFirstVideoFrame = true
       }
