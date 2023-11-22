@@ -188,14 +188,14 @@ extension CameraConfiguration.Video {
     if enableBufferCompression {
       // use compressed format instead if we enabled buffer compression
       if defaultFormat == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange &&
-        videoOutput.availableVideoPixelFormatTypes.contains(kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarVideoRange) {
+        videoOutput.availableVideoPixelFormatTypes.contains(kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarVideoRange) {
         // YUV 4:2:0 8-bit (limited video colors; compressed)
-        defaultFormat = kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarVideoRange
+        defaultFormat = kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarVideoRange
       }
       if defaultFormat == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange &&
-        videoOutput.availableVideoPixelFormatTypes.contains(kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarFullRange) {
+        videoOutput.availableVideoPixelFormatTypes.contains(kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarFullRange) {
         // YUV 4:2:0 8-bit (full video colors; compressed)
-        defaultFormat = kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarFullRange
+        defaultFormat = kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarFullRange
       }
     }
 
@@ -208,8 +208,8 @@ extension CameraConfiguration.Video {
       var targetFormats = [kCVPixelFormatType_420YpCbCr10BiPlanarFullRange,
                            kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange]
       if enableBufferCompression {
-        // If we enable buffer compression, try to use a lossless compressed YUV format first, otherwise fall back to the others.
-        targetFormats.insert(kCVPixelFormatType_Lossless_420YpCbCr10PackedBiPlanarVideoRange, at: 0)
+        // If we enable buffer compression, try to use a lossy compressed YUV format first, otherwise fall back to the others.
+        targetFormats.insert(kCVPixelFormatType_Lossy_420YpCbCr10PackedBiPlanarVideoRange, at: 0)
       }
 
       // Find the best matching format
@@ -228,8 +228,8 @@ extension CameraConfiguration.Video {
                            kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange]
       if enableBufferCompression {
         // YUV 4:2:0 8-bit (full/limited video colors; compressed)
-        targetFormats.insert(kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarVideoRange, at: 0)
-        targetFormats.insert(kCVPixelFormatType_Lossless_420YpCbCr8BiPlanarFullRange, at: 0)
+        targetFormats.insert(kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarVideoRange, at: 0)
+        targetFormats.insert(kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarFullRange, at: 0)
       }
       guard let format = videoOutput.findPixelFormat(firstOf: targetFormats) else {
         throw CameraError.device(.pixelFormatNotSupported)
@@ -240,7 +240,7 @@ extension CameraConfiguration.Video {
       var targetFormats = [kCVPixelFormatType_32BGRA]
       if enableBufferCompression {
         // RGBA 8-bit (compressed)
-        targetFormats.insert(kCVPixelFormatType_Lossless_32BGRA, at: 0)
+        targetFormats.insert(kCVPixelFormatType_Lossy_32BGRA, at: 0)
       }
       guard let format = videoOutput.findPixelFormat(firstOf: targetFormats) else {
         throw CameraError.device(.pixelFormatNotSupported)
