@@ -28,11 +28,11 @@ struct RecordVideoOptions {
       flash = try Torch(jsValue: flashOption)
     }
     // Codec
-    if let codecOption = dictionary["codec"] as? String {
+    if let codecOption = dictionary["videoCodec"] as? String {
       codec = try AVVideoCodecType(withString: codecOption)
     }
     // BitRate
-    if let parsed = dictionary["bitRate"] as? Double {
+    if let parsed = dictionary["videoBitRate"] as? Double {
       bitRate = parsed
     }
   }
