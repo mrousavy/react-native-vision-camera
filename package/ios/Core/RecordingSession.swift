@@ -120,9 +120,7 @@ class RecordingSession {
   func startAssetWriter() throws {
     ReactLogger.log(level: .info, message: "Starting Asset Writer(s)...")
     
-    let start = DispatchTime.now()
     let success = assetWriter.startWriting()
-    ReactLogger.log(level: .info, message: "MEASURE: assetWriter.startWriting() took \((DispatchTime.now().uptimeNanoseconds - start.uptimeNanoseconds) / 1_000_000)ms")
     if success {
       ReactLogger.log(level: .info, message: "Asset Writer(s) started!")
     } else {

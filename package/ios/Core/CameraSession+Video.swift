@@ -19,7 +19,6 @@ extension CameraSession {
                       onError: @escaping (_ error: CameraError) -> Void) {
     // Run on Camera Queue
     CameraQueues.cameraQueue.async {
-      let start0 = DispatchTime.now()
       ReactLogger.log(level: .info, message: "Starting Video recording...")
 
       if options.flash != .off {
@@ -128,9 +127,7 @@ extension CameraSession {
       }
 
       // get pixel format (420f, 420v, x420)
-      let start1 = DispatchTime.now()
       recordingSession.initializeVideoWriter(withSettings: videoSettings)
-      ReactLogger.log(level: .info, message: "MEASURE: InitializeVideoWriter() took \((DispatchTime.now().uptimeNanoseconds - start1.uptimeNanoseconds) / 1_000_000)ms")
 
       // Init Audio + Activate Audio Session (optional)
       if enableAudio,
@@ -148,17 +145,14 @@ extension CameraSession {
         
         // Initialize audio asset writer
         let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: options.fileType)
-        let start = DispatchTime.now()
         recordingSession.initializeAudioWriter(withSettings: audioSettings,
                                                format: audioInput.device.activeFormat.formatDescription)
-        ReactLogger.log(level: .info, message: "MEASURE: InitializeAudioWriter() took \((DispatchTime.now().uptimeNanoseconds - start.uptimeNanoseconds) / 1_000_000)ms")
       }
 
       // start recording session with or without audio.
       do {
         try recordingSession.startAssetWriter()
         self.isRecording = true
-        ReactLogger.log(level: .info, message: "MEASURE: entire startRecording() took \((DispatchTime.now().uptimeNanoseconds - start0.uptimeNanoseconds) / 1_000_000)ms")
       } catch let error as NSError {
         onError(.capture(.createRecorderError(message: "RecordingSession failed to start asset writer. \(error.description)")))
         return
