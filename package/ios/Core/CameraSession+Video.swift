@@ -142,7 +142,7 @@ extension CameraSession {
             self.onConfigureError(error)
           }
         }
-        
+
         // Initialize audio asset writer
         let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: options.fileType)
         recordingSession.initializeAudioWriter(withSettings: audioSettings,

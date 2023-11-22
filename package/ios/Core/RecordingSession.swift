@@ -119,7 +119,7 @@ class RecordingSession {
    */
   func startAssetWriter() throws {
     ReactLogger.log(level: .info, message: "Starting Asset Writer(s)...")
-    
+
     let success = assetWriter.startWriting()
     if success {
       ReactLogger.log(level: .info, message: "Asset Writer(s) started!")
