@@ -6,8 +6,8 @@
 //  Copyright © 2023 mrousavy. All rights reserved.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 
 extension AVCaptureVideoDataOutput {
   /**
@@ -23,7 +23,7 @@ extension AVCaptureVideoDataOutput {
     guard var settings else {
       throw CameraError.capture(.createRecorderError(message: "Failed to get video settings!"))
     }
-    
+
     if let bitRate = options.bitRate {
       // Convert from Mbps -> bps
       let bitsPerSecond = bitRate * 1_000_000
@@ -31,7 +31,7 @@ extension AVCaptureVideoDataOutput {
         AVVideoAverageBitRateKey: NSNumber(value: bitsPerSecond),
       ]
     }
-    
+
     return settings
   }
 }

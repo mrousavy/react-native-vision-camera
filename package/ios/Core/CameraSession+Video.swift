@@ -59,7 +59,7 @@ extension CameraSession {
             }
           }
         }
-        
+
         self.isRecording = false
         self.recordingSession = nil
         ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
@@ -102,7 +102,7 @@ extension CameraSession {
         let recordingSession = try RecordingSession(url: tempURL,
                                                     fileType: options.fileType,
                                                     completion: onFinish)
-        
+
         // Init Audio + Activate Audio Session (optional)
         if enableAudio,
            let audioOutput = self.audioOutput,
@@ -122,17 +122,16 @@ extension CameraSession {
           recordingSession.initializeAudioWriter(withSettings: audioSettings,
                                                  format: audioInput.device.activeFormat.formatDescription)
         }
-        
-        
+
         // Init Video
         let videoSettings = try videoOutput.recommendedVideoSettings(forOptions: options)
         recordingSession.initializeVideoWriter(withSettings: videoSettings)
-        
+
         // start recording session with or without audio.
         try recordingSession.startAssetWriter()
         self.recordingSession = recordingSession
         self.isRecording = true
-        
+
         let end = DispatchTime.now()
         ReactLogger.log(level: .info, message: "RecordingSesssion started in \(Double(end.uptimeNanoseconds - start.uptimeNanoseconds) / 1_000_000)ms!")
       } catch let error as NSError {
