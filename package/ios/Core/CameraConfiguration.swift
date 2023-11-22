@@ -189,7 +189,7 @@ extension CameraConfiguration.Video {
     if enableBufferCompression {
       // try to use a compressed format instead if we enabled buffer compression
       defaultFormat = videoOutput.findPixelFormat(firstOf: [
-        kCVPixelFormatType_Lossy420YpCbCr8BiPlanarVideoRange,
+        kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarVideoRange,
         kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarFullRange,
       ])
     }
