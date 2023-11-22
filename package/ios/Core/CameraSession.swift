@@ -274,6 +274,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
       case is AVCaptureVideoDataOutput:
         recordingSession.appendBuffer(sampleBuffer, type: .video)
       case is AVCaptureAudioDataOutput:
+        audioCaptureSession.synchronizeBuffer(sampleBuffer, toSession: captureSession)
         recordingSession.appendBuffer(sampleBuffer, type: .audio)
       default:
         break
