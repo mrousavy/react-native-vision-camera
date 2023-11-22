@@ -11,7 +11,7 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
-		B8DB3BD5263DE8B7004C18D7 /* BuildFile in Sources */ = {isa = PBXBuildFile; };
+		B8DB3BD5263DE8B7004C18D7 /* (null) in Sources */ = {isa = PBXBuildFile; };
 		B8DB3BDC263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BD8263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m */; };
 		B8DB3BDD263DEA31004C18D7 /* ExamplePluginSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BDA263DEA31004C18D7 /* ExamplePluginSwift.swift */; };
 		B8DB3BDE263DEA31004C18D7 /* ExamplePluginSwift.m in Sources */ = {isa = PBXBuildFile; fileRef = B8DB3BDB263DEA31004C18D7 /* ExamplePluginSwift.m */; };
@@ -179,7 +179,7 @@
 				LastUpgradeCheck = 1250;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
-						DevelopmentTeam = BK5G6UCRVX;
+						DevelopmentTeam = CJW62Q77E7;
 						LastSwiftMigration = 1240;
 					};
 				};
@@ -383,7 +383,7 @@
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				B8DB3BDC263DEA31004C18D7 /* ExampleFrameProcessorPlugin.m in Sources */,
-				B8DB3BD5263DE8B7004C18D7 /* BuildFile in Sources */,
+				B8DB3BD5263DE8B7004C18D7 /* (null) in Sources */,
 				B8DB3BDD263DEA31004C18D7 /* ExamplePluginSwift.swift in Sources */,
 				B8F0E10825E0199F00586F16 /* File.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
@@ -401,7 +401,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = BK5G6UCRVX;
+				DEVELOPMENT_TEAM = CJW62Q77E7;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = VisionCameraExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -410,7 +410,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.mrousavy.camera.example.tomekzaw;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mrousavy.camera.example;
 				PRODUCT_NAME = VisionCameraExample;
 				SWIFT_OBJC_BRIDGING_HEADER = "VisionCameraExample-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -426,7 +426,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = BK5G6UCRVX;
+				DEVELOPMENT_TEAM = CJW62Q77E7;
 				INFOPLIST_FILE = VisionCameraExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
@@ -434,7 +434,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.mrousavy.camera.example.tomekzaw;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mrousavy.camera.example;
 				PRODUCT_NAME = VisionCameraExample;
 				SWIFT_OBJC_BRIDGING_HEADER = "VisionCameraExample-Bridging-Header.h";
 				SWIFT_VERSION = 5.2;
