@@ -16,12 +16,6 @@ enum BufferType {
   case video
 }
 
-// MARK: - RecordingSessionError
-
-enum RecordingSessionError: Error {
-  case failedToStartSession
-}
-
 // MARK: - RecordingSession
 
 class RecordingSession {
@@ -125,7 +119,7 @@ class RecordingSession {
       ReactLogger.log(level: .info, message: "Asset Writer(s) started!")
     } else {
       ReactLogger.log(level: .error, message: "Failed to start Asset Writer(s)!")
-      throw RecordingSessionError.failedToStartSession
+      throw CameraError.capture(.createRecorderError(message: "Failed to start Asset Writer(s)!"))
     }
   }
 
