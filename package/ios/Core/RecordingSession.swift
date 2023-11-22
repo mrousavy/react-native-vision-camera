@@ -61,6 +61,7 @@ class RecordingSession {
 
     do {
       assetWriter = try AVAssetWriter(outputURL: url, fileType: fileType)
+      assetWriter.shouldOptimizeForNetworkUse = false
     } catch let error as NSError {
       throw CameraError.capture(.createRecorderError(message: error.description))
     }
