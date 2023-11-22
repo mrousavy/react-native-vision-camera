@@ -23,6 +23,7 @@ extension CameraSession {
       let audioSession = AVAudioSession.sharedInstance()
 
       try audioSession.updateCategory(AVAudioSession.Category.playAndRecord,
+                                      mode: .videoRecording,
                                       options: [.mixWithOthers,
                                                 .allowBluetoothA2DP,
                                                 .defaultToSpeaker,
