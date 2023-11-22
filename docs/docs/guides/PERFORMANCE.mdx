@@ -11,7 +11,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl'
 ## Performance of VisionCamera
 
 VisionCamera is highly optimized to be **as fast as a native Camera app**, and is sometimes even faster than that.
-I am using highly efficient native GPU buffer formats (such as YUV 4:2:0, or lossless compressed YUV 4:2:0), running the video pipelines in parallel, using C++ for the Frame Processors implementation, and other tricks to make sure VisionCamera is as efficient as possible.
+I am using highly efficient native GPU buffer formats (such as YUV 4:2:0, or lossy compressed YUV 4:2:0), running the video pipelines in parallel, using C++ for the Frame Processors implementation, and other tricks to make sure VisionCamera is as efficient as possible.
 
 ## Making it faster
 
@@ -66,7 +66,7 @@ Video HDR uses 10-bit formats and/or additional processing steps that come with 
 
 ### Buffer Compression
 
-Enable Buffer Compression ([`enableBufferCompression`](/docs/api/interfaces/CameraProps#enablebuffercompression)) to use lossless-compressed buffers for the Camera's video pipeline. These buffers can use less memory and are more efficient.
+Enable Buffer Compression ([`enableBufferCompression`](/docs/api/interfaces/CameraProps#enablebuffercompression)) to use lossy-compressed buffers for the Camera's video pipeline. These buffers can use less memory and are more efficient.
 
 Note: When not using a `frameProcessor`, buffer compression is automatically enabled.
 

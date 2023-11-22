@@ -165,12 +165,12 @@ export interface CameraProps extends ViewProps {
    */
   photoHdr?: boolean
   /**
-   * Enables or disables lossless buffer compression for the video stream.
+   * Enables or disables lossy buffer compression for the video stream.
    * If you only use {@linkcode video} or a {@linkcode frameProcessor}, this
    * can increase the efficiency and lower memory usage of the Camera.
    *
    * If buffer compression is enabled, the video pipeline will try to use a
-   * lossless-compressed pixel format instead of the normal one.
+   * lossy-compressed pixel format instead of the normal one.
    *
    * If you use a {@linkcode frameProcessor}, you might need to change how pixels
    * are read inside your native frame processor function as this is different
