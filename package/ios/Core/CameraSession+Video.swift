@@ -37,11 +37,6 @@ extension CameraSession {
         }
         return
       }
-      
-      guard let videoInput = self.videoDeviceInput else {
-        onError(.session(.cameraNotReady))
-        return
-      }
 
       let enableAudio = self.configuration?.audio != .disabled
 
@@ -134,8 +129,7 @@ extension CameraSession {
       // get pixel format (420f, 420v, x420)
       let pixelFormat = videoOutput.pixelFormat
       recordingSession.initializeVideoWriter(withSettings: videoSettings,
-                                             pixelFormat: pixelFormat,
-                                             format: videoInput.device.activeFormat.formatDescription)
+                                             pixelFormat: pixelFormat)
 
       // Init Audio + Activate Audio Session (optional)
       if enableAudio,
