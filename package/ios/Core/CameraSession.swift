@@ -274,10 +274,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
       case is AVCaptureVideoDataOutput:
         recordingSession.appendBuffer(sampleBuffer, type: .video, timestamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
       case is AVCaptureAudioDataOutput:
-        let timestamp = CMSyncConvertTime(CMSampleBufferGetPresentationTimeStamp(sampleBuffer),
-                                          from: audioCaptureSession.masterClock ?? CMClockGetHostTimeClock(),
-                                          to: captureSession.masterClock ?? CMClockGetHostTimeClock())
-        recordingSession.appendBuffer(sampleBuffer, type: .audio, timestamp: timestamp)
+        recordingSession.appendBuffer(sampleBuffer, type: .audio, timestamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
       default:
         break
       }
