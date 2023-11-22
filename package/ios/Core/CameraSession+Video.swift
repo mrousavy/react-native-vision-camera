@@ -132,7 +132,9 @@ extension CameraSession {
                                              pixelFormat: pixelFormat)
 
       // Init Audio + Activate Audio Session (optional)
-      if enableAudio, let audioInput = self.audioDeviceInput {
+      if enableAudio,
+         let audioOutput = self.audioOutput,
+         let audioInput = self.audioDeviceInput {
         ReactLogger.log(level: .trace, message: "Enabling Audio for Recording...")
         // Activate Audio Session asynchronously
         CameraQueues.audioQueue.async {
@@ -144,7 +146,9 @@ extension CameraSession {
         }
         
         // Initialize audio asset writer
-        recordingSession.initializeAudioWriter(format: audioInput.device.activeFormat.formatDescription)
+        let audioSettings = audioOutput.recommendedAudioSettingsForAssetWriter(writingTo: options.fileType)
+        recordingSession.initializeAudioWriter(withSettings: audioSettings,
+                                               format: audioInput.device.activeFormat.formatDescription)
       }
 
       // start recording session with or without audio.
