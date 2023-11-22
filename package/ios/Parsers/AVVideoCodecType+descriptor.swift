@@ -10,7 +10,7 @@ import AVFoundation
 import Foundation
 
 extension AVVideoCodecType {
-  init?(withString string: String) {
+  init(withString string: String) throws {
     switch string {
     case "h264":
       self = .h264
@@ -19,7 +19,7 @@ extension AVVideoCodecType {
       self = .hevc
       return
     default:
-      return nil
+      throw CameraError.parameter(.invalid(unionName: "codec", receivedValue: string))
     }
   }
 }

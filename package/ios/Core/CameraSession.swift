@@ -272,12 +272,12 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
 
       switch captureOutput {
       case is AVCaptureVideoDataOutput:
-        recordingSession.appendBuffer(sampleBuffer, type: .video, timestamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer))
+        // Write the Video Buffer to the .mov/.mp4 file, this is the first timestamp if nothing has been recorded yet
+        recordingSession.appendBuffer(sampleBuffer, type: .video)
       case is AVCaptureAudioDataOutput:
-        let timestamp = CMSyncConvertTime(CMSampleBufferGetPresentationTimeStamp(sampleBuffer),
-                                          from: audioCaptureSession.masterClock ?? CMClockGetHostTimeClock(),
-                                          to: captureSession.masterClock ?? CMClockGetHostTimeClock())
-        recordingSession.appendBuffer(sampleBuffer, type: .audio, timestamp: timestamp)
+        // Synchronize the Audio Buffer with the Video Session's time because it's two separate AVCaptureSessions
+        audioCaptureSession.synchronizeBuffer(sampleBuffer, toSession: captureSession)
+        recordingSession.appendBuffer(sampleBuffer, type: .audio)
       default:
         break
       }

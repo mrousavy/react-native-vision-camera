@@ -16,18 +16,12 @@ enum BufferType {
   case video
 }
 
-// MARK: - RecordingSessionError
-
-enum RecordingSessionError: Error {
-  case failedToStartSession
-}
-
 // MARK: - RecordingSession
 
 class RecordingSession {
   private let assetWriter: AVAssetWriter
   private var audioWriter: AVAssetWriterInput?
-  private var bufferAdaptor: AVAssetWriterInputPixelBufferAdaptor?
+  private var videoWriter: AVAssetWriterInput?
   private let completionHandler: (RecordingSession, AVAssetWriter.Status, Error?) -> Void
 
   private var initialTimestamp: CMTime?
@@ -61,6 +55,7 @@ class RecordingSession {
 
     do {
       assetWriter = try AVAssetWriter(outputURL: url, fileType: fileType)
+      assetWriter.shouldOptimizeForNetworkUse = false
     } catch let error as NSError {
       throw CameraError.capture(.createRecorderError(message: error.description))
     }
@@ -76,36 +71,38 @@ class RecordingSession {
   /**
    Initializes an AssetWriter for video frames (CMSampleBuffers).
    */
-  func initializeVideoWriter(withSettings settings: [String: Any], pixelFormat: OSType) {
+  func initializeVideoWriter(withSettings settings: [String: Any]) {
     guard !settings.isEmpty else {
       ReactLogger.log(level: .error, message: "Tried to initialize Video Writer with empty settings!")
       return
     }
-    guard bufferAdaptor == nil else {
+    guard videoWriter == nil else {
       ReactLogger.log(level: .error, message: "Tried to add Video Writer twice!")
       return
     }
 
-    let videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: settings)
-    videoWriter.expectsMediaDataInRealTime = true
-
-    assetWriter.add(videoWriter)
-    bufferAdaptor = AVAssetWriterInputPixelBufferAdaptor(assetWriterInput: videoWriter,
-                                                         withVideoSettings: settings,
-                                                         pixelFormat: pixelFormat)
+    ReactLogger.log(level: .info, message: "Initializing Video AssetWriter with settings: \(settings.description)")
+    videoWriter = AVAssetWriterInput(mediaType: .video, outputSettings: settings)
+    videoWriter!.expectsMediaDataInRealTime = true
+    assetWriter.add(videoWriter!)
     ReactLogger.log(level: .info, message: "Initialized Video AssetWriter.")
   }
 
   /**
    Initializes an AssetWriter for audio frames (CMSampleBuffers).
    */
-  func initializeAudioWriter(withSettings settings: [String: Any]?) {
+  func initializeAudioWriter(withSettings settings: [String: Any]?, format: CMFormatDescription) {
     guard audioWriter == nil else {
       ReactLogger.log(level: .error, message: "Tried to add Audio Writer twice!")
       return
     }
 
-    audioWriter = AVAssetWriterInput(mediaType: .audio, outputSettings: settings)
+    if let settings = settings {
+      ReactLogger.log(level: .info, message: "Initializing Audio AssetWriter with settings: \(settings.description)")
+    } else {
+      ReactLogger.log(level: .info, message: "Initializing Audio AssetWriter default settings...")
+    }
+    audioWriter = AVAssetWriterInput(mediaType: .audio, outputSettings: settings, sourceFormatHint: format)
     audioWriter!.expectsMediaDataInRealTime = true
     assetWriter.add(audioWriter!)
     ReactLogger.log(level: .info, message: "Initialized Audio AssetWriter.")
@@ -118,17 +115,18 @@ class RecordingSession {
     ReactLogger.log(level: .info, message: "Starting Asset Writer(s)...")
 
     let success = assetWriter.startWriting()
-    if !success {
+    if success {
+      ReactLogger.log(level: .info, message: "Asset Writer(s) started!")
+    } else {
       ReactLogger.log(level: .error, message: "Failed to start Asset Writer(s)!")
-      throw RecordingSessionError.failedToStartSession
+      throw CameraError.capture(.createRecorderError(message: "Failed to start Asset Writer(s)!"))
     }
   }
 
   /**
    Appends a new CMSampleBuffer to the Asset Writer. Use bufferType to specify if this is a video or audio frame.
-   The timestamp parameter represents the presentation timestamp of the buffer, which should be synchronized across video and audio frames.
    */
-  func appendBuffer(_ buffer: CMSampleBuffer, type bufferType: BufferType, timestamp: CMTime) {
+  func appendBuffer(_ buffer: CMSampleBuffer, type bufferType: BufferType) {
     guard assetWriter.status == .writing else {
       ReactLogger.log(level: .error, message: "Frame arrived, but AssetWriter status is \(assetWriter.status.descriptor)!")
       return
@@ -138,23 +136,18 @@ class RecordingSession {
       return
     }
 
-    latestTimestamp = timestamp
-
     switch bufferType {
     case .video:
-      guard let bufferAdaptor = bufferAdaptor else {
+      guard let videoWriter = videoWriter else {
         ReactLogger.log(level: .error, message: "Video Frame arrived but VideoWriter was nil!")
         return
       }
-      if !bufferAdaptor.assetWriterInput.isReadyForMoreMediaData {
+      if !videoWriter.isReadyForMoreMediaData {
         ReactLogger.log(level: .warning,
                         message: "The Video AVAssetWriterInput was not ready for more data! Is your frame rate too high?")
         return
       }
-      guard let imageBuffer = CMSampleBufferGetImageBuffer(buffer) else {
-        ReactLogger.log(level: .error, message: "Failed to get the CVImageBuffer!")
-        return
-      }
+      let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
       // Start the writing session before we write the first video frame
       if !hasStartedWritingSession {
         initialTimestamp = timestamp
@@ -162,7 +155,10 @@ class RecordingSession {
         ReactLogger.log(level: .info, message: "Started RecordingSession at \(timestamp.seconds) seconds.")
         hasStartedWritingSession = true
       }
-      bufferAdaptor.append(imageBuffer, withPresentationTime: timestamp)
+      // Write Video Buffer!
+      videoWriter.append(buffer)
+      // Update state
+      latestTimestamp = timestamp
       if !hasWrittenFirstVideoFrame {
         hasWrittenFirstVideoFrame = true
       }
@@ -178,9 +174,11 @@ class RecordingSession {
         // first video frame has not been written yet, so skip this audio frame.
         return
       }
+      // Write Audio Sample!
       audioWriter.append(buffer)
     }
 
+    // If we failed to write the frames, stop the Recording
     if assetWriter.status == .failed {
       ReactLogger.log(level: .error,
                       message: "AssetWriter failed to write buffer! Error: \(assetWriter.error?.localizedDescription ?? "none")")
@@ -206,7 +204,7 @@ class RecordingSession {
       completionHandler(self, .failed, error)
     } else if assetWriter.status == .writing {
       isFinishing = true
-      bufferAdaptor?.assetWriterInput.markAsFinished()
+      videoWriter?.markAsFinished()
       audioWriter?.markAsFinished()
       assetWriter.finishWriting {
         self.isFinishing = false
