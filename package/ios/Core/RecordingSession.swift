@@ -99,18 +99,14 @@ class RecordingSession {
   /**
    Initializes an AssetWriter for audio frames (CMSampleBuffers).
    */
-  func initializeAudioWriter(withSettings settings: [String: Any]?, format: CMFormatDescription) {
+  func initializeAudioWriter(format: CMFormatDescription) {
     guard audioWriter == nil else {
       ReactLogger.log(level: .error, message: "Tried to add Audio Writer twice!")
       return
     }
 
-    if let settings = settings {
-      ReactLogger.log(level: .info, message: "Initializing Audio AssetWriter with settings: \(settings.description)")
-    } else {
-      ReactLogger.log(level: .info, message: "Initializing Audio AssetWriter default settings...")
-    }
-    audioWriter = AVAssetWriterInput(mediaType: .audio, outputSettings: settings, sourceFormatHint: format)
+    ReactLogger.log(level: .info, message: "Initializing Audio AssetWriter default settings...")
+    audioWriter = AVAssetWriterInput(mediaType: .audio, outputSettings: nil, sourceFormatHint: format)
     audioWriter!.expectsMediaDataInRealTime = true
     assetWriter.add(audioWriter!)
     ReactLogger.log(level: .info, message: "Initialized Audio AssetWriter.")
