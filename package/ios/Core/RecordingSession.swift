@@ -241,7 +241,6 @@ class RecordingSession {
       ReactLogger.log(level: .warning, message: "\(bufferType) AssetWriter is not ready for more data, dropping this Frame...")
       return
     }
-    ReactLogger.log(level: .info, message: "Writing \(bufferType) Sample at \(timestamp.seconds)...")
     writer.append(buffer)
     lastWrittenTimestamp = timestamp
 
