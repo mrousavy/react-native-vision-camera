@@ -254,7 +254,7 @@ class RecordingSession {
     
     // 5. If we finished writing both the last video and audio buffers, finish the recording
     if hasWrittenLastAudioFrame && hasWrittenLastVideoFrame {
-      ReactLogger.log(level: .info, message: "Successfully appended last \(bufferType) Buffer (at \(timestamp)), finishing RecordingSession...")
+      ReactLogger.log(level: .info, message: "Successfully appended last \(bufferType) Buffer (at \(timestamp.seconds) seconds), finishing RecordingSession...")
       finish()
     }
   }
