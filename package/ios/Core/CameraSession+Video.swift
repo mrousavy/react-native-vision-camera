@@ -22,13 +22,6 @@ extension CameraSession {
       let start = DispatchTime.now()
       ReactLogger.log(level: .info, message: "Starting Video recording...")
 
-      if options.flash != .off {
-        // use the torch as the video's flash
-        self.configure { config in
-          config.torch = options.flash
-        }
-      }
-
       // Get Video Output
       guard let videoOutput = self.videoOutput else {
         if self.configuration?.video == .disabled {
