@@ -214,7 +214,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
       // Side-Props
       config.fps = fps?.int32Value
       config.enableLowLightBoost = lowLightBoost
-      config.torch = getTorch()
+      config.torch = try Torch(jsValue: torch)
 
       // Zoom
       config.zoom = zoom.doubleValue
