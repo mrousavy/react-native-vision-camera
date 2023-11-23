@@ -34,7 +34,7 @@ class RecordingSession {
   private var startTimestamp: CMTime?
   private var stopTimestamp: CMTime?
   
-  private var lastWrittenVideoTimestamp: CMTime?
+  private var lastWrittenTimestamp: CMTime?
   
   private var isFinishing = false
   private var hasWrittenLastVideoFrame = false
@@ -56,7 +56,7 @@ class RecordingSession {
    Get the duration (in seconds) of the recorded video.
    */
   var duration: Double {
-    guard let lastWrittenTimestamp = lastWrittenVideoTimestamp,
+    guard let lastWrittenTimestamp = lastWrittenTimestamp,
           let startTimestamp = startTimestamp else {
       return 0.0
     }
@@ -236,27 +236,14 @@ class RecordingSession {
     }
 
     // 3. Actually write the Buffer to the AssetWriter
-    switch bufferType {
-    case .video:
-      guard let videoWriter = videoWriter, videoWriter.isReadyForMoreMediaData else {
-        ReactLogger.log(level: .error, message: "Video Frame arrived but VideoWriter was not ready!")
-        return
-      }
-      
-      // Write Video Buffer!
-      ReactLogger.log(level: .info, message: "Writing Video Sample at \(timestamp.seconds)...")
-      videoWriter.append(buffer)
-      lastWrittenVideoTimestamp = timestamp
-    case .audio:
-      guard let audioWriter = audioWriter, audioWriter.isReadyForMoreMediaData else {
-        ReactLogger.log(level: .error, message: "Audio Frame arrived but AudioWriter was not ready!")
-        return
-      }
-      
-      // Write Audio Sample!
-      ReactLogger.log(level: .info, message: "Writing Audio Sample at \(timestamp.seconds)...")
-      audioWriter.append(buffer)
+    let writer = getAssetWriter(forType: bufferType)
+    guard writer.isReadyForMoreMediaData else {
+      ReactLogger.log(level: .warning, message: "\(bufferType) AssetWriter is not ready for more data, dropping this Frame...")
+      return
     }
+    ReactLogger.log(level: .info, message: "Writing \(bufferType) Sample at \(timestamp.seconds)...")
+    writer.append(buffer)
+    lastWrittenTimestamp = timestamp
 
     // 4. If we failed to write the frames, stop the Recording
     if assetWriter.status == .failed {
@@ -269,6 +256,21 @@ class RecordingSession {
     if hasWrittenLastAudioFrame && hasWrittenLastVideoFrame {
       ReactLogger.log(level: .info, message: "Successfully appended last \(bufferType) Buffer (at \(timestamp)), finishing RecordingSession...")
       finish()
+    }
+  }
+  
+  private func getAssetWriter(forType type: BufferType) -> AVAssetWriterInput {
+    switch type {
+    case .video:
+      guard let videoWriter = videoWriter else {
+        fatalError("Tried to append to a Video Buffer, which was nil!")
+      }
+      return videoWriter
+    case .audio:
+      guard let audioWriter = audioWriter else {
+        fatalError("Tried to append to a Audio Buffer, which was nil!")
+      }
+      return audioWriter
     }
   }
 
@@ -287,7 +289,7 @@ class RecordingSession {
       ReactLogger.log(level: .warning, message: "Tried calling finish() twice while AssetWriter is still writing!")
       return
     }
-    guard lastWrittenVideoTimestamp != nil else {
+    guard lastWrittenTimestamp != nil else {
       let error = NSError(domain: "capture/aborted",
                           code: 1,
                           userInfo: [NSLocalizedDescriptionKey: "Stopped Recording Session too early, no frames have been recorded!"])
