@@ -289,13 +289,6 @@ class RecordingSession {
       ReactLogger.log(level: .warning, message: "Tried calling finish() twice while AssetWriter is still writing!")
       return
     }
-    guard lastWrittenTimestamp != nil else {
-      let error = NSError(domain: "capture/aborted",
-                          code: 1,
-                          userInfo: [NSLocalizedDescriptionKey: "Stopped Recording Session too early, no frames have been recorded!"])
-      completionHandler(self, .failed, error)
-      return
-    }
     guard assetWriter.status == .writing else {
       completionHandler(self, assetWriter.status, assetWriter.error)
       return
