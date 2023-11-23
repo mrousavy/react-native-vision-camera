@@ -128,7 +128,8 @@ extension CameraSession {
         recordingSession.initializeVideoWriter(withSettings: videoSettings)
 
         // start recording session with or without audio.
-        try recordingSession.startAssetWriter()
+        // Use Video [AVCaptureSession] clock as a timebase - all other sessions (here; audio) have to be synced to that Clock.
+        try recordingSession.start(clock: self.captureSession.clock)
         self.recordingSession = recordingSession
         self.isRecording = true
 
@@ -150,13 +151,13 @@ extension CameraSession {
    */
   func stopRecording(promise: Promise) {
     CameraQueues.cameraQueue.async {
-      self.isRecording = false
-
       withPromise(promise) {
         guard let recordingSession = self.recordingSession else {
           throw CameraError.capture(.noRecordingInProgress)
         }
-        recordingSession.finish()
+        // Use Video [AVCaptureSession] clock as a timebase - all other sessions (here; audio) have to be synced to that Clock.
+        recordingSession.stop(clock: self.captureSession.clock)
+        // There might be late frames, so maybe we need to still provide more Frames to the RecordingSession. Let's keep isRecording true for now.
         return nil
       }
     }
