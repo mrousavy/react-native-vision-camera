@@ -176,7 +176,7 @@ class RecordingSession {
     // Start a timeout that will force-stop the session if none of the late frames actually arrive
     CameraQueues.cameraQueue.asyncAfter(deadline: .now() + automaticallyStopTimeoutSeconds) {
       if !self.isFinishing {
-        ReactLogger.log(level: .info, message: "Waited \(self.automaticallyStopTimeoutSeconds) seconds but no late Frames came in, aborting capture...")
+        ReactLogger.log(level: .error, message: "Waited \(self.automaticallyStopTimeoutSeconds) seconds but no late Frames came in, aborting capture...")
         self.finish()
       }
     }
@@ -250,10 +250,6 @@ class RecordingSession {
     case .audio:
       guard let audioWriter = audioWriter, audioWriter.isReadyForMoreMediaData else {
         ReactLogger.log(level: .error, message: "Audio Frame arrived but AudioWriter was not ready!")
-        return
-      }
-      guard lastWrittenVideoTimestamp != nil else {
-        // First video frame has not been written yet, so skip this audio frame.
         return
       }
       
