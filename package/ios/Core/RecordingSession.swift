@@ -18,17 +18,32 @@ enum BufferType {
 
 // MARK: - RecordingSession
 
+/**
+ A [RecordingSession] class that can record video and audio [CMSampleBuffers] from [AVCaptureVideoDataOutput] and
+ [AVCaptureAudioDataOutput] into a .mov/.mp4 file using [AVAssetWriter].
+ 
+ It also synchronizes buffers to the CMTime by the CaptureSession so that late frames are removed from the beginning and added
+ towards the end (useful e.g. for videoStabilization).
+ */
 class RecordingSession {
   private let assetWriter: AVAssetWriter
   private var audioWriter: AVAssetWriterInput?
   private var videoWriter: AVAssetWriterInput?
   private let completionHandler: (RecordingSession, AVAssetWriter.Status, Error?) -> Void
 
-  private var initialTimestamp: CMTime?
-  private var latestTimestamp: CMTime?
-  private var hasStartedWritingSession = false
-  private var hasWrittenFirstVideoFrame = false
+  private var startTimestamp: CMTime?
+  private var stopTimestamp: CMTime?
+  
+  private var lastWrittenVideoTimestamp: CMTime?
+  
   private var isFinishing = false
+  private var hasWrittenLastVideoFrame = false
+  private var hasWrittenLastAudioFrame = false
+  
+  private let lock = DispatchSemaphore(value: 1)
+  
+  // If we are waiting for late frames and none actually arrive, we force stop the session after the given timeout.
+  private let automaticallyStopTimeoutSeconds = 4.0
 
   /**
    Gets the file URL of the recorded video.
@@ -41,11 +56,11 @@ class RecordingSession {
    Get the duration (in seconds) of the recorded video.
    */
   var duration: Double {
-    guard let latestTimestamp = latestTimestamp,
-          let initialTimestamp = initialTimestamp else {
+    guard let lastWrittenTimestamp = lastWrittenVideoTimestamp,
+          let startTimestamp = startTimestamp else {
       return 0.0
     }
-    return (latestTimestamp - initialTimestamp).seconds
+    return (lastWrittenTimestamp - startTimestamp).seconds
   }
 
   init(url: URL,
@@ -109,30 +124,104 @@ class RecordingSession {
   }
 
   /**
-   Start the Asset Writer(s). If the AssetWriter failed to start, an error will be thrown.
+   Start the RecordingSession using the current time of the provided synchronization clock.
+   All buffers passed to [append] must be synchronized to this Clock.
    */
-  func startAssetWriter() throws {
+  func start(clock: CMClock) throws {
+    lock.wait()
+    defer {
+      lock.signal()
+    }
+    
     ReactLogger.log(level: .info, message: "Starting Asset Writer(s)...")
 
     let success = assetWriter.startWriting()
-    if success {
-      ReactLogger.log(level: .info, message: "Asset Writer(s) started!")
-    } else {
+    guard success else {
       ReactLogger.log(level: .error, message: "Failed to start Asset Writer(s)!")
       throw CameraError.capture(.createRecorderError(message: "Failed to start Asset Writer(s)!"))
+    }
+    
+    ReactLogger.log(level: .info, message: "Asset Writer(s) started!")
+    
+    // Get the current time of the AVCaptureSession.
+    // Note: The current time might be more advanced than this buffer's timestamp, for example if the video
+    // pipeline had some additional delay in processing the buffer (aka it is late) - eg because of Video Stabilization (~1s delay).
+    let currentTime = CMClockGetTime(clock)
+    
+    // Start the sesssion at the given time. Frames with earlier timestamps (e.g. late frames) will be dropped.
+    assetWriter.startSession(atSourceTime: currentTime)
+    startTimestamp = currentTime
+    ReactLogger.log(level: .info, message: "Started RecordingSession at time: \(currentTime.seconds)")
+  }
+  
+  /**
+   Requests the RecordingSession to stop writing frames at the current time of the provided synchronization clock.
+   The RecordingSession will continue to write video frames and audio frames for a little longer if there was a delay
+   in the video pipeline (e.g. caused by video stabilization) to avoid the video cutting off late frames.
+   Once all late frames have been captured (or an artificial abort timeout has been triggered), the [completionHandler] will be called.
+   */
+  func stop(clock: CMClock) {
+    lock.wait()
+    defer {
+      lock.signal()
+    }
+    
+    // Current time of the synchronization clock (e.g. from [AVCaptureSession]) - this marks the end of the video.
+    let currentTime = CMClockGetTime(clock)
+    
+    // Request a stop at the given time. Frames with later timestamps (e.g. early frames, while we are waiting for late frames) will be dropped.
+    stopTimestamp = currentTime
+    ReactLogger.log(level: .info, message: "Requesting stop at \(currentTime.seconds) seconds for AssetWriter with status \"\(assetWriter.status.descriptor)\"...")
+    
+    // Start a timeout that will force-stop the session if none of the late frames actually arrive
+    CameraQueues.cameraQueue.asyncAfter(deadline: .now() + automaticallyStopTimeoutSeconds) {
+      if !self.isFinishing {
+        self.finish()
+      }
     }
   }
 
   /**
-   Appends a new CMSampleBuffer to the Asset Writer. Use bufferType to specify if this is a video or audio frame.
+   Appends a new CMSampleBuffer to the Asset Writer.
+   - Use clock to specify the CMClock instance this CMSampleBuffer uses for relative time
+   - Use bufferType to specify if this is a video or audio frame.
    */
-  func appendBuffer(_ buffer: CMSampleBuffer, type bufferType: BufferType) {
+  func appendBuffer(_ buffer: CMSampleBuffer, clock: CMClock, type bufferType: BufferType) {
+    guard let startTimestamp = startTimestamp else {
+      // Session not yet started
+      return
+    }
     guard assetWriter.status == .writing else {
       ReactLogger.log(level: .error, message: "Frame arrived, but AssetWriter status is \(assetWriter.status.descriptor)!")
       return
     }
     if !CMSampleBufferDataIsReady(buffer) {
       ReactLogger.log(level: .error, message: "Frame arrived, but sample buffer is not ready!")
+      return
+    }
+    
+    // Ensure the Buffer arrived after we started recording, and before we requested a session stop.
+    let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
+    if timestamp < startTimestamp {
+      // Don't write this Frame, it was captured before we even started recording.
+      // The reason this can happen is because the capture pipeline can have a delay, e.g. because of stabilization.
+      let delay = CMTimeSubtract(startTimestamp, timestamp)
+      ReactLogger.log(level: .info, message: "Capture Pipeline has a delay of \(delay.seconds) seconds. Skipping this late Frame...")
+      return
+    }
+    if let stopTimestamp = stopTimestamp,
+       timestamp > stopTimestamp {
+      // Don't write this Frame, it was captured after we requested the RecordingSession to stop.
+      // The RecordingSession might be finishing up the recording right now in the meantime.
+      switch bufferType {
+      case .video:
+        hasWrittenLastVideoFrame = true
+      case .audio:
+        hasWrittenLastAudioFrame = true
+      }
+      
+      ReactLogger.log(level: .info, message: "RecordingSession has already been requested to stop at \(stopTimestamp.seconds) seconds, " +
+                      "skipping this Frame at \(timestamp.seconds).")
       return
     }
 
@@ -147,21 +236,10 @@ class RecordingSession {
                         message: "The Video AVAssetWriterInput was not ready for more data! Is your frame rate too high?")
         return
       }
-      let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
-      // Start the writing session before we write the first video frame
-      if !hasStartedWritingSession {
-        initialTimestamp = timestamp
-        assetWriter.startSession(atSourceTime: timestamp)
-        ReactLogger.log(level: .info, message: "Started RecordingSession at \(timestamp.seconds) seconds.")
-        hasStartedWritingSession = true
-      }
+      
       // Write Video Buffer!
       videoWriter.append(buffer)
-      // Update state
-      latestTimestamp = timestamp
-      if !hasWrittenFirstVideoFrame {
-        hasWrittenFirstVideoFrame = true
-      }
+      lastWrittenVideoTimestamp = timestamp
     case .audio:
       guard let audioWriter = audioWriter else {
         ReactLogger.log(level: .error, message: "Audio Frame arrived but AudioWriter was nil!")
@@ -170,10 +248,11 @@ class RecordingSession {
       if !audioWriter.isReadyForMoreMediaData {
         return
       }
-      if !hasWrittenFirstVideoFrame || !hasStartedWritingSession {
-        // first video frame has not been written yet, so skip this audio frame.
+      if lastWrittenVideoTimestamp == nil {
+        // First video frame has not been written yet, so skip this audio frame.
         return
       }
+      
       // Write Audio Sample!
       audioWriter.append(buffer)
     }
@@ -187,31 +266,38 @@ class RecordingSession {
   }
 
   /**
-   Marks the AssetWriters as finished and stops writing frames. The callback will be invoked either with an error or the status "success".
+   Stops the AssetWriters and calls the completion callback.
    */
-  func finish() {
-    ReactLogger.log(level: .info, message: "Finishing Recording with AssetWriter status \"\(assetWriter.status.descriptor)\"...")
+  private func finish() {
+    lock.wait()
+    defer {
+      lock.signal()
+    }
+    
+    ReactLogger.log(level: .info, message: "Stopping AssetWriter with status \"\(assetWriter.status.descriptor)\"...")
 
-    if isFinishing {
+    guard !isFinishing else {
       ReactLogger.log(level: .warning, message: "Tried calling finish() twice while AssetWriter is still writing!")
       return
     }
-
-    if !hasWrittenFirstVideoFrame {
+    guard lastWrittenVideoTimestamp != nil else {
       let error = NSError(domain: "capture/aborted",
                           code: 1,
                           userInfo: [NSLocalizedDescriptionKey: "Stopped Recording Session too early, no frames have been recorded!"])
       completionHandler(self, .failed, error)
-    } else if assetWriter.status == .writing {
-      isFinishing = true
-      videoWriter?.markAsFinished()
-      audioWriter?.markAsFinished()
-      assetWriter.finishWriting {
-        self.isFinishing = false
-        self.completionHandler(self, self.assetWriter.status, self.assetWriter.error)
-      }
-    } else {
+      return
+    }
+    guard assetWriter.status == .writing else {
       completionHandler(self, assetWriter.status, assetWriter.error)
+      return
+    }
+
+    isFinishing = true
+    videoWriter?.markAsFinished()
+    audioWriter?.markAsFinished()
+    assetWriter.finishWriting {
+      self.isFinishing = false
+      self.completionHandler(self, self.assetWriter.status, self.assetWriter.error)
     }
   }
 }

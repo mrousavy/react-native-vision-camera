@@ -10,7 +10,10 @@ import AVFoundation
 import Foundation
 
 extension AVCaptureSession {
-  private var clock: CMClock {
+  /**
+   Returns the clock that is used by this AVCaptureSession.
+   */
+  var clock: CMClock {
     if #available(iOS 15.4, *), let synchronizationClock {
       return synchronizationClock
     }
