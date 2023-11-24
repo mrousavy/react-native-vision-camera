@@ -194,7 +194,7 @@ extension CameraSession {
     }
 
     // Find matching format (JS Dictionary -> strongly typed Swift class)
-    let format = device.formats.first { targetFormat.isEqualTo(format: $0, device: device) }
+    let format = device.formats.first { targetFormat.isEqualTo(format: $0) }
     guard let format else {
       throw CameraError.format(.invalidFormat)
     }

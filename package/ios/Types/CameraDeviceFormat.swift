@@ -81,7 +81,7 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
     // swiftlint:enable force_cast
   }
 
-  func isEqualTo(format other: AVCaptureDevice.Format, device otherDevice: AVCaptureDevice) -> Bool {
+  func isEqualTo(format other: AVCaptureDevice.Format) -> Bool {
     let other = CameraDeviceFormat(fromFormat: other)
     return self == other
   }
