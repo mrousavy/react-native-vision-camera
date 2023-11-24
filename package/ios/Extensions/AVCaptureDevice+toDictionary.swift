@@ -10,7 +10,7 @@ import AVFoundation
 
 extension AVCaptureDevice {
   func toDictionary() -> [String: Any] {
-    let formats = formats.map { CameraDeviceFormat(fromFormat: $0, forDevice: self) }
+    let formats = formats.map { CameraDeviceFormat(fromFormat: $0) }
 
     return [
       "id": uniqueID,
@@ -20,8 +20,10 @@ extension AVCaptureDevice {
       "hasFlash": hasFlash,
       "hasTorch": hasTorch,
       "minZoom": minAvailableVideoZoomFactor,
-      "neutralZoom": neutralZoomFactor,
       "maxZoom": maxAvailableVideoZoomFactor,
+      "neutralZoom": neutralZoomFactor,
+      "minExposure": minExposureTargetBias,
+      "maxExposure": maxExposureTargetBias,
       "isMultiCam": isMultiCam,
       "supportsRawCapture": false, // TODO: supportsRawCapture
       "supportsLowLightBoost": isLowLightBoostSupported,

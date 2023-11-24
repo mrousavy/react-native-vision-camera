@@ -116,7 +116,7 @@ export interface CameraProps extends ViewProps {
    *
    * The Camera will still continue to auto-adjust exposure and focus, but will premultiply the exposure setting with the provided value here.
    *
-   * This values ranges from {@linkcode CameraDeviceFormat.minExposure format.minExposure} to {@linkcode CameraDeviceFormat.maxExposure format.maxExposure}.
+   * This values ranges from {@linkcode CameraDevice.minExposure device.minExposure} to {@linkcode CameraDevice.maxExposure device.maxExposure}.
    *
    * The value between min- and max supported exposure is considered the default, neutral value.
    */

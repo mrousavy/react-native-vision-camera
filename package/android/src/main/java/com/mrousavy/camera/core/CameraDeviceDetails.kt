@@ -177,8 +177,6 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     map.putInt("videoWidth", videoSize.width)
     map.putInt("minISO", isoRange.lower)
     map.putInt("maxISO", isoRange.upper)
-    map.putDouble("minExposure", exposureRange.lower.toDouble() / exposureStep.toDouble())
-    map.putDouble("maxExposure", exposureRange.upper.toDouble() / exposureStep.toDouble())
     map.putInt("minFps", fpsRange.lower)
     map.putInt("maxFps", fpsRange.upper)
     map.putDouble("maxZoom", maxZoom)
@@ -209,6 +207,8 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, private val 
     map.putDouble("minZoom", minZoom)
     map.putDouble("maxZoom", maxZoom)
     map.putDouble("neutralZoom", 1.0) // Zoom is always relative to 1.0 on Android
+    map.putDouble("minExposure", exposureRange.lower.toDouble() / exposureStep.toDouble())
+    map.putDouble("maxExposure", exposureRange.upper.toDouble() / exposureStep.toDouble())
     map.putString("hardwareLevel", hardwareLevel.unionValue)
     map.putString("sensorOrientation", Orientation.fromRotationDegrees(sensorOrientation).unionValue)
     map.putArray("formats", getFormats())

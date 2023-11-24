@@ -187,14 +187,14 @@ extension CameraSession {
 
     ReactLogger.log(level: .info, message: "Configuring Format (\(targetFormat))...")
 
-    let currentFormat = CameraDeviceFormat(fromFormat: device.activeFormat, forDevice: device)
+    let currentFormat = CameraDeviceFormat(fromFormat: device.activeFormat)
     if currentFormat == targetFormat {
       ReactLogger.log(level: .info, message: "Already selected active format, no need to configure.")
       return
     }
 
     // Find matching format (JS Dictionary -> strongly typed Swift class)
-    let format = device.formats.first { targetFormat.isEqualTo(format: $0, device: device) }
+    let format = device.formats.first { targetFormat.isEqualTo(format: $0) }
     guard let format else {
       throw CameraError.format(.invalidFormat)
     }
@@ -295,7 +295,7 @@ extension CameraSession {
       return
     }
 
-    let clamped = max(min(exposure, device.maxExposureTargetBias), device.minExposureTargetBias)
+    let clamped = min(max(exposure, device.minExposureTargetBias), device.maxExposureTargetBias)
     device.setExposureTargetBias(clamped)
   }
 
