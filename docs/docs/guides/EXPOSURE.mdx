@@ -12,7 +12,7 @@ To adjust the exposure of the Camera, you can use the Camera's [`exposure`](/doc
 <Camera {...props} exposure={-1} />
 ```
 
-Values for the `exposure` prop range from [`format.minExposure`](/docs/api/interfaces/CameraDeviceFormat#maxExposure) to [`format.maxExposure`](/docs/api/interfaces/CameraDeviceFormat#minExposure), inclusively. By default (`undefined`), it is set to neutral auto exposure.
+Values for the `exposure` prop range from [`device.minExposure`](/docs/api/interfaces/CameraDevice#minexposure) to [`device.maxExposure`](/docs/api/interfaces/CameraDevice#maxexposure), inclusively. By default (`undefined`), it is set to neutral auto exposure.
 
 Instead of manually adjusting ISO and Exposure-Duration, this acts as an "exposure compensation bias", meaning the Camera will still continuously automatically adjust exposure as it goes, but premultiplies the given exposure value to it's ISO and Exposure Duration settings.
 
@@ -44,12 +44,12 @@ Just like [`zoom`](zooming), this property can be animated using Reanimated.
 
     // 2. map slider to [minExposure, 0, maxExposure]
     const exposureValue = useDerivedValue(() => {
-      if (format == null) return 0
+      if (device == null) return 0
 
       return interpolate(exposureSlider.value,
                          [-1, 0, 1],
-                         [format.minExposure, 0, format.maxExposure])
-    }, [exposureSlider, format])
+                         [device.minExposure, 0, device.maxExposure])
+    }, [exposureSlider, device])
 
     // 3. pass it as an animated prop
     const animatedProps = useAnimatedProps(() => ({

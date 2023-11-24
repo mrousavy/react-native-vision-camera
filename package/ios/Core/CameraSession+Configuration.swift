@@ -295,7 +295,7 @@ extension CameraSession {
       return
     }
 
-    let clamped = max(min(exposure, device.maxExposureTargetBias), device.minExposureTargetBias)
+    let clamped = min(max(exposure, device.minExposureTargetBias), device.maxExposureTargetBias)
     device.setExposureTargetBias(clamped)
   }
 
