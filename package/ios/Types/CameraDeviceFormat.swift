@@ -38,7 +38,7 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
 
   let supportsDepthCapture: Bool
 
-  init(fromFormat format: AVCaptureDevice.Format, forDevice device: AVCaptureDevice) {
+  init(fromFormat format: AVCaptureDevice.Format) {
     videoWidth = Int(format.videoDimensions.width)
     videoHeight = Int(format.videoDimensions.height)
     photoWidth = Int(format.photoDimensions.width)
@@ -82,7 +82,7 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
   }
 
   func isEqualTo(format other: AVCaptureDevice.Format, device otherDevice: AVCaptureDevice) -> Bool {
-    let other = CameraDeviceFormat(fromFormat: other, forDevice: otherDevice)
+    let other = CameraDeviceFormat(fromFormat: other)
     return self == other
   }
 

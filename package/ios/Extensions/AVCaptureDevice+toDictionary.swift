@@ -10,7 +10,7 @@ import AVFoundation
 
 extension AVCaptureDevice {
   func toDictionary() -> [String: Any] {
-    let formats = formats.map { CameraDeviceFormat(fromFormat: $0, forDevice: self) }
+    let formats = formats.map { CameraDeviceFormat(fromFormat: $0) }
 
     return [
       "id": uniqueID,
