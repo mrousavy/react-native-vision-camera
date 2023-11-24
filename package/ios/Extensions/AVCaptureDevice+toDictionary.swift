@@ -20,8 +20,10 @@ extension AVCaptureDevice {
       "hasFlash": hasFlash,
       "hasTorch": hasTorch,
       "minZoom": minAvailableVideoZoomFactor,
-      "neutralZoom": neutralZoomFactor,
       "maxZoom": maxAvailableVideoZoomFactor,
+      "neutralZoom": neutralZoomFactor,
+      "minExposure": minExposureTargetBias,
+      "maxExposure": maxExposureTargetBias,
       "isMultiCam": isMultiCam,
       "supportsRawCapture": false, // TODO: supportsRawCapture
       "supportsLowLightBoost": isLowLightBoostSupported,
