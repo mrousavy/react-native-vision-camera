@@ -53,6 +53,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.Dispatchers
 
 class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: CameraSessionCallback) :
   Closeable,
@@ -210,7 +211,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
   private fun destroyPreviewOutputSync() {
     Log.i(TAG, "Destroying Preview Output...")
-    runBlocking {
+    launch(Dispatchers.Main) {
       configure { config ->
         config.preview = CameraConfiguration.Output.Disabled.create()
       }
