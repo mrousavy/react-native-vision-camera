@@ -42,6 +42,10 @@ suspend fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Ca
   if (options.hasKey("videoBitRate")) {
     bitRate = options.getDouble("videoBitRate")
   }
+  var bitRateMultiplier: Double? = null
+  if (options.hasKey("videoBitRateMultiplier")) {
+    bitRateMultiplier = options.getDouble("videoBitRateMultiplier")
+  }
 
   val callback = { video: RecordingSession.Video ->
     val map = Arguments.createMap()

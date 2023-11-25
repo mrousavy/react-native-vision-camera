@@ -122,30 +122,15 @@ export class Camera extends React.PureComponent<CameraProps> {
     }
   }
 
-  private calculateBitRate(bitRate: 'low' | 'normal' | 'high', codec: 'h264' | 'h265' = 'h264'): number {
-    const format = this.props.format
-    if (format == null) {
-      throw new CameraRuntimeError(
-        'parameter/invalid-combination',
-        `A videoBitRate of '${bitRate}' can only be used in combination with a 'format'!`,
-      )
+  private getBitRateMultiplier(bitRate: RecordVideoOptions['videoBitRate']): number {
+    switch (bitRate) {
+      case 'low':
+        return 0.8
+      case 'high':
+        return 1.2
+      default:
+        return 1
     }
-
-    const factor = {
-      low: 0.8,
-      normal: 1,
-      high: 1.2,
-    }[bitRate]
-    let result = (30 / (3840 * 2160 * 0.75)) * (format.videoWidth * format.videoHeight)
-    // FPS - 30 is default, 60 would be 2x, 120 would be 4x
-    const fps = this.props.fps ?? Math.min(format.maxFps, 30)
-    result = (result / 30) * fps
-    // H.265 (HEVC) codec is 20% more efficient
-    if (codec === 'h265') result = result * 0.8
-    // 10-Bit Video HDR takes up 20% more pixels than standard range (8-bit SDR)
-    if (this.props.videoHdr) result = result * 1.2
-    // Return overall result
-    return result * factor
   }
 
   /**
@@ -169,8 +154,11 @@ export class Camera extends React.PureComponent<CameraProps> {
     if (typeof onRecordingError !== 'function' || typeof onRecordingFinished !== 'function')
       throw new CameraRuntimeError('parameter/invalid-parameter', 'The onRecordingError or onRecordingFinished functions were not set!')
 
-    const videoBitRate = passThroughOptions.videoBitRate
-    if (typeof videoBitRate === 'string') passThroughOptions.videoBitRate = this.calculateBitRate(videoBitRate, options.videoCodec)
+    if (typeof passThroughOptions.videoBitRate === 'string') {
+      // If the user passed 'low'/'normal'/'high', we need to apply this as a multiplier to the native bitrate instead of absolutely setting it
+      delete passThroughOptions.videoBitRate
+      passThroughOptions.videoBitRateMultiplier = this.getBitRateMultiplier(passThroughOptions.videoBitRate)
+    }
 
     const onRecordCallback = (video?: VideoFile, error?: CameraCaptureError): void => {
       if (error != null) return onRecordingError(error)

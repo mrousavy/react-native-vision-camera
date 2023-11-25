@@ -27,9 +27,17 @@ extension AVCaptureVideoDataOutput {
     if let bitRate = options.bitRate {
       // Convert from Mbps -> bps
       let bitsPerSecond = bitRate * 1_000_000
-      settings[AVVideoCompressionPropertiesKey] = [
-        AVVideoAverageBitRateKey: NSNumber(value: bitsPerSecond),
-      ]
+      if (settings[AVVideoCompressionPropertiesKey] == nil) {
+        settings[AVVideoCompressionPropertiesKey] = [:]
+      }
+      settings[AVVideoCompressionPropertiesKey][AVVideoAverageBitRateKey] = NSNumber(value: bitsPerSecond)
+    }
+
+    if let bitRateMultiplier = options.bitRateMultiplier {
+      // Convert from Mbps -> bps
+      let bitsPerSecond = bitRate * 1_000_000
+      let compressionSettings = settings[AVVideoCompressionPropertiesKey] ?? [:]
+      compressionSettings[AVVideoAverageBitRateKey] = compressionSettings[AVVideoAverageBitRateKey] * NSNumber(value: bitRateMultiplier)
     }
 
     return settings
