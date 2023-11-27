@@ -43,8 +43,6 @@ import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.QualityPrioritization
 import com.mrousavy.camera.types.RecordVideoOptions
 import com.mrousavy.camera.types.Torch
-import com.mrousavy.camera.types.VideoCodec
-import com.mrousavy.camera.types.VideoFileType
 import com.mrousavy.camera.types.VideoStabilizationMode
 import java.io.Closeable
 import java.util.concurrent.CancellationException
@@ -526,10 +524,12 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       val videoOutput = videoOutput ?: throw VideoNotEnabledError()
       val cameraDevice = cameraDevice ?: throw CameraNotReadyError()
 
+      // TODO: Implement HDR
+      val hdr = configuration?.videoHdr ?: false
       val fps = configuration?.fps ?: 30
 
       val recording =
-        RecordingSession(context, cameraDevice.id, videoOutput.size, enableAudio, fps, orientation, options, callback, onError)
+        RecordingSession(context, cameraDevice.id, videoOutput.size, enableAudio, fps, hdr, orientation, options, callback, onError)
       recording.start()
       this.recording = recording
     }

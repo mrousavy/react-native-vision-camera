@@ -12,8 +12,6 @@ import com.mrousavy.camera.core.code
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.RecordVideoOptions
 import com.mrousavy.camera.types.Torch
-import com.mrousavy.camera.types.VideoCodec
-import com.mrousavy.camera.types.VideoFileType
 import com.mrousavy.camera.utils.makeErrorMap
 import java.util.*
 

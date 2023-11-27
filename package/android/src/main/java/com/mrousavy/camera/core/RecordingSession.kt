@@ -18,6 +18,7 @@ class RecordingSession(
   val size: Size,
   private val enableAudio: Boolean,
   private val fps: Int? = null,
+  private val hdr: Boolean = false,
   private val orientation: Orientation,
   private val options: RecordVideoOptions,
   private val callback: (video: Video) -> Unit,
@@ -128,7 +129,7 @@ class RecordingSession(
    * This can either be overridden, multiplied, or just left at the recommended value.
    */
   private fun getBitRate(): Int {
-    var bitRate = getRecommendedBitRate()
+    var bitRate = getRecommendedBitRate(fps ?: 30, options.videoCodec, hdr)
     options.videoBitRateOverride?.let { override ->
       // Mbps -> bps
       bitRate = (override * 1_000_000).toInt()
@@ -143,6 +144,6 @@ class RecordingSession(
   override fun toString(): String {
     val audio = if (enableAudio) "with audio" else "without audio"
     return "${size.width} x ${size.height} @ $fps FPS ${options.videoCodec} ${options.fileType} " +
-        "$orientation ${bitRate / 1_000_000.0} Mbps RecordingSession ($audio)"
+      "$orientation ${bitRate / 1_000_000.0} Mbps RecordingSession ($audio)"
   }
 }
