@@ -18,7 +18,7 @@
 		B8446E502ABA14C900E56077 /* CameraDevicesManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B8446E4F2ABA14C900E56077 /* CameraDevicesManager.m */; };
 		B84760A62608EE7C004C3180 /* FrameHostObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = B84760A52608EE7C004C3180 /* FrameHostObject.mm */; };
 		B84760DF2608F57D004C3180 /* CameraQueues.swift in Sources */ = {isa = PBXBuildFile; fileRef = B84760DE2608F57D004C3180 /* CameraQueues.swift */; };
-		B851A7012B1506AB00D4B193 /* AudioBufferQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = B851A7002B1506AB00D4B193 /* AudioBufferQueue.swift */; };
+		B851A7012B1506AB00D4B193 /* QueueableAssetWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B851A7002B1506AB00D4B193 /* QueueableAssetWriter.swift */; };
 		B85882322AD966FC00317161 /* CameraDeviceFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85882312AD966FC00317161 /* CameraDeviceFormat.swift */; };
 		B85882342AD969E000317161 /* VideoStabilizationMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85882332AD969E000317161 /* VideoStabilizationMode.swift */; };
 		B85882362AD96AFF00317161 /* AutoFocusSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85882352AD96AFF00317161 /* AutoFocusSystem.swift */; };
@@ -112,7 +112,7 @@
 		B84760A22608EE38004C3180 /* FrameHostObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameHostObject.h; sourceTree = "<group>"; };
 		B84760A52608EE7C004C3180 /* FrameHostObject.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FrameHostObject.mm; sourceTree = "<group>"; };
 		B84760DE2608F57D004C3180 /* CameraQueues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraQueues.swift; sourceTree = "<group>"; };
-		B851A7002B1506AB00D4B193 /* AudioBufferQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioBufferQueue.swift; sourceTree = "<group>"; };
+		B851A7002B1506AB00D4B193 /* QueueableAssetWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueueableAssetWriter.swift; sourceTree = "<group>"; };
 		B85882312AD966FC00317161 /* CameraDeviceFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraDeviceFormat.swift; sourceTree = "<group>"; };
 		B85882332AD969E000317161 /* VideoStabilizationMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoStabilizationMode.swift; sourceTree = "<group>"; };
 		B85882352AD96AFF00317161 /* AutoFocusSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoFocusSystem.swift; sourceTree = "<group>"; };
@@ -259,7 +259,7 @@
 				B887515C25E0102000DB86D6 /* PhotoCaptureDelegate.swift */,
 				B84760DE2608F57D004C3180 /* CameraQueues.swift */,
 				B887518325E0102000DB86D6 /* CameraError.swift */,
-				B851A7002B1506AB00D4B193 /* AudioBufferQueue.swift */,
+				B851A7002B1506AB00D4B193 /* QueueableAssetWriter.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -465,7 +465,7 @@
 				B887519525E0102000DB86D6 /* ReactLogger.swift in Sources */,
 				B88685EB2AD6A5DE00E93869 /* CameraSession+Photo.swift in Sources */,
 				B88751A725E0102000DB86D6 /* CameraView+Zoom.swift in Sources */,
-				B851A7012B1506AB00D4B193 /* AudioBufferQueue.swift in Sources */,
+				B851A7012B1506AB00D4B193 /* QueueableAssetWriter.swift in Sources */,
 				B887518525E0102000DB86D6 /* PhotoCaptureDelegate.swift in Sources */,
 				B8BD3BA2266E22D2006C80A2 /* Callback.swift in Sources */,
 				B8FF60B12ACC981B009D612F /* AVMetadataObject.ObjectType+descriptor.swift in Sources */,
