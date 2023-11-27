@@ -268,7 +268,7 @@ class RecordingSession {
       guard let startTimestamp = startTimestamp else {
         // Audio Buffer arrived before we started the session. Queue it for now.
         ReactLogger.log(level: .info, message: "Queueing early audio buffer (\(timestamp.seconds))")
-        audioBufferQueue.append(buffer)
+        queueAudioBuffer(buffer)
         return
       }
       guard timestamp >= startTimestamp else {
@@ -302,6 +302,15 @@ class RecordingSession {
       ReactLogger.log(level: .info, message: "Successfully appended last \(bufferType) Buffer (at \(timestamp.seconds) seconds), finishing RecordingSession...")
       finish()
     }
+  }
+  
+  private func queueAudioBuffer(_ buffer: CMSampleBuffer) {
+    lock.wait()
+    defer {
+      lock.signal()
+    }
+    
+    audioBufferQueue.append(buffer)
   }
   
   private func dequeueAudioBuffers() {
