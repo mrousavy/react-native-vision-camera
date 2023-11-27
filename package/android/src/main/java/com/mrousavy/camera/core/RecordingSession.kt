@@ -55,7 +55,7 @@ class RecordingSession(
     recorder.setVideoSize(size.height, size.width)
     if (fps != null) recorder.setVideoFrameRate(fps)
 
-    Log.i(TAG, "Using ${options.videoCodec} Video Codec at $bitRate Mbps..")
+    Log.i(TAG, "Using ${options.videoCodec} Video Codec at ${bitRate / 1_000_000.0} Mbps..")
     recorder.setVideoEncoder(options.videoCodec.toVideoEncoder())
     if (enableAudio) {
       Log.i(TAG, "Adding Audio Channel..")
@@ -142,6 +142,7 @@ class RecordingSession(
 
   override fun toString(): String {
     val audio = if (enableAudio) "with audio" else "without audio"
-    return "${size.width} x ${size.height} @ $fps FPS ${options.videoCodec} ${options.fileType} $orientation $bitRate Mbps RecordingSession ($audio)"
+    return "${size.width} x ${size.height} @ $fps FPS ${options.videoCodec} ${options.fileType} " +
+        "$orientation ${bitRate / 1_000_000.0} Mbps RecordingSession ($audio)"
   }
 }
