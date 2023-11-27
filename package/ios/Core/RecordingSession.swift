@@ -322,19 +322,21 @@ class RecordingSession {
     }
   }
   
+  private let queueLock = DispatchSemaphore(value: 1)
+  
   private func queueAudioBuffer(_ buffer: CMSampleBuffer) {
-    lock.wait()
+    queueLock.wait()
     defer {
-      lock.signal()
+      queueLock.signal()
     }
     
     audioBufferQueue.append(buffer)
   }
   
   private func dequeueAudioBuffers() {
-    lock.wait()
+    queueLock.wait()
     defer {
-      lock.signal()
+      queueLock.signal()
     }
     
     guard let audioWriter = audioWriter,
@@ -346,7 +348,7 @@ class RecordingSession {
     ReactLogger.log(level: .info, message: "Writing \(audioBufferQueue.count) late Audio Buffers...")
     
     // Safely iterate through the list in reverse order - otherwise we can't remove items in between
-    for (i, buffer) in audioBufferQueue.enumerated().reversed() {
+    for buffer in audioBufferQueue {
       guard audioWriter.isReadyForMoreMediaData else {
         continue
       }
@@ -354,7 +356,7 @@ class RecordingSession {
       let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
       if timestamp < startTimestamp {
         // This audio buffer was before we started recording. Drop it
-        audioBufferQueue.remove(at: i)
+        audioBufferQueue.removeAll { buffer == $0 }
         continue
       }
       
@@ -363,7 +365,7 @@ class RecordingSession {
       let successful = audioWriter.append(buffer)
       if successful {
         // If the buffer has been successfully written, remove it from the queue.
-        audioBufferQueue.remove(at: i)
+        audioBufferQueue.removeAll { buffer == $0 }
       }
     }
   }
