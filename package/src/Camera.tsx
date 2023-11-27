@@ -35,6 +35,10 @@ type NativeCameraViewProps = Omit<CameraProps, 'device' | 'onInitialized' | 'onE
   onCodeScanned?: (event: NativeSyntheticEvent<OnCodeScannedEvent>) => void
   onViewReady: () => void
 }
+type NativeRecordVideoOptions = Omit<RecordVideoOptions, 'onRecordingError' | 'onRecordingFinished' | 'videoBitRate'> & {
+  videoBitRateOverride?: number
+  videoBitRateMultiplier?: number
+}
 type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>
 //#endregion
 
@@ -122,30 +126,15 @@ export class Camera extends React.PureComponent<CameraProps> {
     }
   }
 
-  private calculateBitRate(bitRate: 'low' | 'normal' | 'high', codec: 'h264' | 'h265' = 'h264'): number {
-    const format = this.props.format
-    if (format == null) {
-      throw new CameraRuntimeError(
-        'parameter/invalid-combination',
-        `A videoBitRate of '${bitRate}' can only be used in combination with a 'format'!`,
-      )
+  private getBitRateMultiplier(bitRate: RecordVideoOptions['videoBitRate']): number {
+    switch (bitRate) {
+      case 'low':
+        return 0.8
+      case 'high':
+        return 1.2
+      default:
+        return 1
     }
-
-    const factor = {
-      low: 0.8,
-      normal: 1,
-      high: 1.2,
-    }[bitRate]
-    let result = (30 / (3840 * 2160 * 0.75)) * (format.videoWidth * format.videoHeight)
-    // FPS - 30 is default, 60 would be 2x, 120 would be 4x
-    const fps = this.props.fps ?? Math.min(format.maxFps, 30)
-    result = (result / 30) * fps
-    // H.265 (HEVC) codec is 20% more efficient
-    if (codec === 'h265') result = result * 0.8
-    // 10-Bit Video HDR takes up 20% more pixels than standard range (8-bit SDR)
-    if (this.props.videoHdr) result = result * 1.2
-    // Return overall result
-    return result * factor
   }
 
   /**
@@ -165,12 +154,20 @@ export class Camera extends React.PureComponent<CameraProps> {
    * ```
    */
   public startRecording(options: RecordVideoOptions): void {
-    const { onRecordingError, onRecordingFinished, ...passThroughOptions } = options
+    const { onRecordingError, onRecordingFinished, videoBitRate, ...passThruOptions } = options
     if (typeof onRecordingError !== 'function' || typeof onRecordingFinished !== 'function')
       throw new CameraRuntimeError('parameter/invalid-parameter', 'The onRecordingError or onRecordingFinished functions were not set!')
 
-    const videoBitRate = passThroughOptions.videoBitRate
-    if (typeof videoBitRate === 'string') passThroughOptions.videoBitRate = this.calculateBitRate(videoBitRate, options.videoCodec)
+    const nativeOptions: NativeRecordVideoOptions = passThruOptions
+    if (typeof videoBitRate === 'string') {
+      // If the user passed 'low'/'normal'/'high', we need to apply this as a multiplier to the native bitrate instead of absolutely setting it
+      delete nativeOptions.videoBitRateOverride
+      nativeOptions.videoBitRateMultiplier = this.getBitRateMultiplier(videoBitRate)
+    } else {
+      // If the user passed an absolute number as a bit-rate, we just use this as a full override.
+      delete nativeOptions.videoBitRateOverride
+      nativeOptions.videoBitRateOverride = videoBitRate
+    }
 
     const onRecordCallback = (video?: VideoFile, error?: CameraCaptureError): void => {
       if (error != null) return onRecordingError(error)
@@ -178,7 +175,7 @@ export class Camera extends React.PureComponent<CameraProps> {
     }
     try {
       // TODO: Use TurboModules to make this awaitable.
-      CameraModule.startRecording(this.handle, passThroughOptions, onRecordCallback)
+      CameraModule.startRecording(this.handle, nativeOptions, onRecordCallback)
     } catch (e) {
       throw tryParseNativeCameraError(e)
     }

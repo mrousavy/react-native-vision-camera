@@ -14,9 +14,14 @@ struct RecordVideoOptions {
   var flash: Torch = .off
   var codec: AVVideoCodecType?
   /**
-   Bit-Rate of the Video, in Megabits per second (Mbps)
+   * Full Bit-Rate override for the Video Encoder, in Megabits per second (Mbps)
    */
-  var bitRate: Double?
+  var bitRateOverride: Double?
+  /**
+   * A multiplier applied to whatever the currently set bit-rate is, whether it's automatically computed by the OS Encoder,
+   * or set via bitRate, in Megabits per second (Mbps)
+   */
+  var bitRateMultiplier: Double?
 
   init(fromJSValue dictionary: NSDictionary) throws {
     // File Type (.mov or .mp4)
@@ -31,9 +36,13 @@ struct RecordVideoOptions {
     if let codecOption = dictionary["videoCodec"] as? String {
       codec = try AVVideoCodecType(withString: codecOption)
     }
-    // BitRate
-    if let parsed = dictionary["videoBitRate"] as? Double {
-      bitRate = parsed
+    // BitRate Override
+    if let parsed = dictionary["videoBitRateOverride"] as? Double {
+      bitRateOverride = parsed
+    }
+    // BitRate Multiplier
+    if let parsed = dictionary["videoBitRateMultiplier"] as? Double {
+      bitRateMultiplier = parsed
     }
   }
 }

@@ -24,12 +24,31 @@ extension AVCaptureVideoDataOutput {
       throw CameraError.capture(.createRecorderError(message: "Failed to get video settings!"))
     }
 
-    if let bitRate = options.bitRate {
+    if let bitRateOverride = options.bitRateOverride {
       // Convert from Mbps -> bps
-      let bitsPerSecond = bitRate * 1_000_000
-      settings[AVVideoCompressionPropertiesKey] = [
-        AVVideoAverageBitRateKey: NSNumber(value: bitsPerSecond),
-      ]
+      let bitsPerSecond = bitRateOverride * 1_000_000
+      if settings[AVVideoCompressionPropertiesKey] == nil {
+        settings[AVVideoCompressionPropertiesKey] = [:]
+      }
+      var compressionSettings = settings[AVVideoCompressionPropertiesKey] as? [String: Any] ?? [:]
+      let currentBitRate = compressionSettings[AVVideoAverageBitRateKey] as? NSNumber
+      ReactLogger.log(level: .info, message: "Setting Video Bit-Rate from \(currentBitRate?.doubleValue.description ?? "nil") bps to \(bitsPerSecond) bps...")
+
+      compressionSettings[AVVideoAverageBitRateKey] = NSNumber(value: bitsPerSecond)
+      settings[AVVideoCompressionPropertiesKey] = compressionSettings
+    }
+
+    if let bitRateMultiplier = options.bitRateMultiplier {
+      // Check if the bit-rate even exists in the settings
+      if var compressionSettings = settings[AVVideoCompressionPropertiesKey] as? [String: Any],
+         let currentBitRate = compressionSettings[AVVideoAverageBitRateKey] as? NSNumber {
+        // Multiply the current value by the given multiplier
+        let newBitRate = Int(currentBitRate.doubleValue * bitRateMultiplier)
+        ReactLogger.log(level: .info, message: "Setting Video Bit-Rate from \(currentBitRate) bps to \(newBitRate) bps...")
+
+        compressionSettings[AVVideoAverageBitRateKey] = NSNumber(value: newBitRate)
+        settings[AVVideoCompressionPropertiesKey] = compressionSettings
+      }
     }
 
     return settings

@@ -6,7 +6,7 @@ enum class VideoCodec(override val unionValue: String) : JSUnionValue {
   H264("h264"),
   H265("h265");
 
-  fun toVideoCodec(): Int =
+  fun toVideoEncoder(): Int =
     when (this) {
       H264 -> MediaRecorder.VideoEncoder.H264
       H265 -> MediaRecorder.VideoEncoder.HEVC
