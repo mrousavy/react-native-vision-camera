@@ -21,6 +21,8 @@ extension CameraSession {
       throw CameraError.device(DeviceError.focusNotSupported)
     }
 
+    ReactLogger.log(level: .info, message: "Focusing (\(point.x), \(point.y))...")
+
     do {
       try device.lockForConfiguration()
       defer {
