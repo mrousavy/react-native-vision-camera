@@ -327,14 +327,12 @@ class RecordingSession {
     
     ReactLogger.log(level: .info, message: "Writing \(audioBufferQueue.count) late Audio Buffers...")
     
-    for i in 0..<audioBufferQueue.count {
+    // Safely iterate through the already enumerated list - otherwise we can't remove items in between
+    for (i, buffer) in audioBufferQueue.enumerated() {
       guard audioWriter.isReadyForMoreMediaData else {
         continue
       }
       
-      // Try writing the buffer in the queue.
-      let buffer = audioBufferQueue[i]
-    
       let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
       if timestamp < startTimestamp {
         // This audio buffer was before we started recording. Drop it
@@ -342,6 +340,7 @@ class RecordingSession {
         continue
       }
       
+      // Try writing the buffer in the queue.
       let successful = audioWriter.append(buffer)
       if successful {
         // If the buffer has been successfully written, remove it from the queue.
