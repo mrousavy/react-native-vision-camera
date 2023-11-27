@@ -13,7 +13,7 @@ extension CameraSession {
   /**
    Focuses the Camera to the specified point. The point must be in the Camera coordinate system, so {0...1} on both axis.
    */
-  func focus(point: CGPoint) throws {
+  func focus(options: FocusOptions) throws {
     guard let device = videoDeviceInput?.device else {
       throw CameraError.session(SessionError.cameraNotReady)
     }
@@ -21,7 +21,7 @@ extension CameraSession {
       throw CameraError.device(DeviceError.focusNotSupported)
     }
 
-    ReactLogger.log(level: .info, message: "Focusing (\(point.x), \(point.y))...")
+    ReactLogger.log(level: .info, message: "Focusing \(options.point) (\(options.modes))...")
 
     do {
       try device.lockForConfiguration()
@@ -30,14 +30,14 @@ extension CameraSession {
       }
 
       // Set Focus
-      if device.isFocusPointOfInterestSupported {
-        device.focusPointOfInterest = point
+      if options.modes.contains(.af) && device.isFocusPointOfInterestSupported {
+        device.focusPointOfInterest = options.point
         device.focusMode = .autoFocus
       }
-
+      
       // Set Exposure
-      if device.isExposurePointOfInterestSupported {
-        device.exposurePointOfInterest = point
+      if options.modes.contains(.ae) && device.isExposurePointOfInterestSupported {
+        device.exposurePointOfInterest = options.point
         device.exposureMode = .autoExpose
       }
 

@@ -73,14 +73,14 @@ final class CameraViewManager: RCTViewManager {
   }
 
   @objc
-  final func focus(_ node: NSNumber, point: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+  final func focus(_ node: NSNumber, jsOptions: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     let promise = Promise(resolver: resolve, rejecter: reject)
-    guard let x = point["x"] as? NSNumber, let y = point["y"] as? NSNumber else {
-      promise.reject(error: .parameter(.invalid(unionName: "point", receivedValue: point.description)))
+    guard let options = try? FocusOptions(fromJsValue: jsOptions) else {
+      promise.reject(error: .parameter(.invalid(unionName: "options", receivedValue: jsOptions.description)))
       return
     }
     let component = getCameraView(withTag: node)
-    component.focus(point: CGPoint(x: x.doubleValue, y: y.doubleValue), promise: promise)
+    component.focus(options: options, promise: promise)
   }
 
   @objc

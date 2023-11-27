@@ -10,10 +10,11 @@ import AVFoundation
 import Foundation
 
 extension CameraView {
-  func focus(point: CGPoint, promise: Promise) {
+  func focus(options: FocusOptions, promise: Promise) {
     withPromise(promise) {
-      let normalized = previewView.captureDevicePointConverted(fromLayerPoint: point)
-      try cameraSession.focus(point: normalized)
+      let normalizedPoint = previewView.captureDevicePointConverted(fromLayerPoint: options.point)
+      let newOptions = FocusOptions(point: normalizedPoint, modes: options.modes)
+      try cameraSession.focus(options: newOptions)
       return nil
     }
   }
