@@ -31,14 +31,18 @@ class RecordingSession {
   private var videoWriter: AVAssetWriterInput?
   private let completionHandler: (RecordingSession, AVAssetWriter.Status, Error?) -> Void
 
+  private var initTimestamp: CMTime?
   private var startTimestamp: CMTime?
   private var stopTimestamp: CMTime?
 
   private var lastWrittenTimestamp: CMTime?
 
   private var isFinishing = false
+  private var hasWrittenFirstVideoFrame = false
   private var hasWrittenLastVideoFrame = false
   private var hasWrittenLastAudioFrame = false
+  
+  private var audioBufferQueue: [CMSampleBuffer] = []
 
   private let lock = DispatchSemaphore(value: 1)
 
@@ -127,32 +131,28 @@ class RecordingSession {
    Start the RecordingSession using the current time of the provided synchronization clock.
    All buffers passed to [append] must be synchronized to this Clock.
    */
-  func start(clock: CMClock) throws {
+  func prepare(clock: CMClock) throws {
+    // Get the current time of the AVCaptureSession.
+    // Note: The current time might be more advanced than this buffer's timestamp, for example if the video
+    // pipeline had some additional delay in processing the buffer (aka it is late) - eg because of Video Stabilization (~1s delay).
+    let currentTime = CMClockGetTime(clock)
+    initTimestamp = currentTime
+    
     lock.wait()
     defer {
       lock.signal()
     }
 
-    ReactLogger.log(level: .info, message: "Starting Asset Writer(s)...")
+    ReactLogger.log(level: .info, message: "Preparing Asset Writer at \(currentTime.seconds)...")
 
     let success = assetWriter.startWriting()
     guard success else {
-      ReactLogger.log(level: .error, message: "Failed to start Asset Writer(s)!")
-      throw CameraError.capture(.createRecorderError(message: "Failed to start Asset Writer(s)!"))
+      ReactLogger.log(level: .error, message: "Failed to prepare Asset Writer!")
+      throw CameraError.capture(.createRecorderError(message: "Failed to prepare Asset Writer!"))
     }
 
-    ReactLogger.log(level: .info, message: "Asset Writer(s) started!")
-
-    // Get the current time of the AVCaptureSession.
-    // Note: The current time might be more advanced than this buffer's timestamp, for example if the video
-    // pipeline had some additional delay in processing the buffer (aka it is late) - eg because of Video Stabilization (~1s delay).
-    let currentTime = CMClockGetTime(clock)
-
-    // Start the sesssion at the given time. Frames with earlier timestamps (e.g. late frames) will be dropped.
-    assetWriter.startSession(atSourceTime: currentTime)
-    startTimestamp = currentTime
-    ReactLogger.log(level: .info, message: "Started RecordingSession at time: \(currentTime.seconds)")
-
+    ReactLogger.log(level: .info, message: "Asset Writer prepared!")
+    
     if audioWriter == nil {
       // Audio was enabled, mark the Audio track as finished so we won't wait for it.
       hasWrittenLastAudioFrame = true
@@ -193,14 +193,16 @@ class RecordingSession {
    - Use clock to specify the CMClock instance this CMSampleBuffer uses for relative time
    - Use bufferType to specify if this is a video or audio frame.
    */
-  func appendBuffer(_ buffer: CMSampleBuffer, clock _: CMClock, type bufferType: BufferType) {
+  func appendBuffer(_ buffer: CMSampleBuffer, type bufferType: BufferType) {
     // 1. Check if the data is even ready
-    guard let startTimestamp = startTimestamp else {
+    guard let initTimestamp = initTimestamp else {
       // Session not yet started
+      print("session not yet started?")
       return
     }
     guard !isFinishing else {
       // Session is already finishing, can't write anything more
+      print("finishing?")
       return
     }
     guard assetWriter.status == .writing else {
@@ -214,15 +216,16 @@ class RecordingSession {
 
     // 2. Check the timing of the buffer and make sure it's within our session start and stop times
     let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
-    if timestamp < startTimestamp {
+    if timestamp < initTimestamp {
       // Don't write this Frame, it was captured before we even started recording.
       // The reason this can happen is because the capture pipeline can have a delay, e.g. because of stabilization.
-      let delay = CMTimeSubtract(startTimestamp, timestamp)
+      let delay = initTimestamp - timestamp
       ReactLogger.log(level: .info, message: "Capture Pipeline has a delay of \(delay.seconds) seconds. Skipping this late Frame...")
       return
     }
     if let stopTimestamp = stopTimestamp,
        timestamp >= stopTimestamp {
+      print("after stop?")
       // This Frame is exactly at, or after the point in time when RecordingSession.stop() has been called.
       // Consider this the last Frame we write
       switch bufferType {
@@ -243,11 +246,48 @@ class RecordingSession {
 
     // 3. Actually write the Buffer to the AssetWriter
     let writer = getAssetWriter(forType: bufferType)
-    guard writer.isReadyForMoreMediaData else {
+    
+    if !writer.isReadyForMoreMediaData {
       ReactLogger.log(level: .warning, message: "\(bufferType) AssetWriter is not ready for more data, dropping this Frame...")
-      return
     }
-    writer.append(buffer)
+    
+    // 4. Decide whether we want to put this Buffer into a queue, or write it immediately.
+    switch bufferType {
+    case .video:
+      if startTimestamp == nil {
+        // We haven't started the session yet, start it now!
+        let delay = initTimestamp - timestamp
+        ReactLogger.log(level: .info, message: "Writing first Video Frame at \(timestamp.seconds) seconds (\(delay.seconds) seconds after initializing)...")
+        startTimestamp = timestamp
+        assetWriter.startSession(atSourceTime: timestamp)
+      }
+      
+      // Write it!
+      writer.append(buffer)
+    case .audio:
+      guard let startTimestamp = startTimestamp else {
+        // Audio Buffer arrived before we started the session. Queue it for now.
+        ReactLogger.log(level: .info, message: "Queueing early audio buffer (\(timestamp.seconds))")
+        audioBufferQueue.append(buffer)
+        return
+      }
+      guard timestamp >= startTimestamp else {
+        // Audio buffer should be presented before we started recording. Drop it.
+        ReactLogger.log(level: .info, message: "Dropping early audio buffer (\(timestamp.seconds))")
+        return
+      }
+      
+      // Write it!
+      print("writing audio buffer?")
+      writer.append(buffer)
+      
+      // Dequeue any buffers in the audio queue if there are any
+      if !audioBufferQueue.isEmpty {
+        print("dequeueing audio queueue?")
+        dequeueAudioBuffers()
+      }
+    }
+    
     lastWrittenTimestamp = timestamp
 
     // 4. If we failed to write the frames, stop the Recording
@@ -261,6 +301,43 @@ class RecordingSession {
     if hasWrittenLastAudioFrame && hasWrittenLastVideoFrame {
       ReactLogger.log(level: .info, message: "Successfully appended last \(bufferType) Buffer (at \(timestamp.seconds) seconds), finishing RecordingSession...")
       finish()
+    }
+  }
+  
+  private func dequeueAudioBuffers() {
+    lock.wait()
+    defer {
+      lock.signal()
+    }
+    
+    guard let audioWriter = audioWriter,
+          let startTimestamp = startTimestamp,
+          !audioBufferQueue.isEmpty else {
+      return
+    }
+    
+    ReactLogger.log(level: .info, message: "Writing \(audioBufferQueue.count) late Audio Buffers...")
+    
+    for i in 0..<audioBufferQueue.count {
+      guard audioWriter.isReadyForMoreMediaData else {
+        continue
+      }
+      
+      // Try writing the buffer in the queue.
+      let buffer = audioBufferQueue[i]
+    
+      let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
+      if timestamp < startTimestamp {
+        // This audio buffer was before we started recording. Drop it
+        audioBufferQueue.remove(at: i)
+        continue
+      }
+      
+      let successful = audioWriter.append(buffer)
+      if successful {
+        // If the buffer has been successfully written, remove it from the queue.
+        audioBufferQueue.remove(at: i)
+      }
     }
   }
 
