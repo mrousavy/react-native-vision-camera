@@ -27,13 +27,13 @@ extension AVCaptureVideoDataOutput {
     if let bitRate = options.bitRate {
       // Convert from Mbps -> bps
       let bitsPerSecond = bitRate * 1_000_000
-      if (settings[AVVideoCompressionPropertiesKey] == nil) {
+      if settings[AVVideoCompressionPropertiesKey] == nil {
         settings[AVVideoCompressionPropertiesKey] = [:]
       }
       var compressionSettings = settings[AVVideoCompressionPropertiesKey] as? [String: Any] ?? [:]
       let currentBitRate = compressionSettings[AVVideoAverageBitRateKey] as? NSNumber
       ReactLogger.log(level: .info, message: "Setting Video Bit-Rate from \(currentBitRate?.doubleValue.description ?? "nil") bps to \(bitsPerSecond) bps...")
-      
+
       compressionSettings[AVVideoAverageBitRateKey] = NSNumber(value: bitsPerSecond)
       settings[AVVideoCompressionPropertiesKey] = compressionSettings
     }
@@ -45,7 +45,7 @@ extension AVCaptureVideoDataOutput {
         // Multiply the current value by the given multiplier
         let newBitRate = Int(currentBitRate.doubleValue * bitRateMultiplier)
         ReactLogger.log(level: .info, message: "Setting Video Bit-Rate from \(currentBitRate) bps to \(newBitRate) bps...")
-        
+
         compressionSettings[AVVideoAverageBitRateKey] = NSNumber(value: newBitRate)
         settings[AVVideoCompressionPropertiesKey] = compressionSettings
       }
