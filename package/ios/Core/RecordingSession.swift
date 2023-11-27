@@ -198,18 +198,16 @@ class RecordingSession {
   }
   
   private func dequeueAllAudioBuffers(startingFromTimestamp startingTimestamp: CMTime) {
-    audioQueue.forEach { buffer in
+    let buffersAfterTimestamp = audioQueue.filter { buffer in
       let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
-      guard timestamp >= startingTimestamp else {
-        // skipping this one, it was before our starting point
-        return
-      }
-      
-      let writer = getAssetWriter(forType: .audio)
-      ReactLogger.log(level: .info, message: "Writing late Audio Buffer at \(timestamp.seconds)...")
-      writer.append(buffer)
+      return timestamp > startingTimestamp
     }
     
+    ReactLogger.log(level: .info, message: "Dequeuing \(buffersAfterTimestamp.count) out of \(audioQueue.count) late audio buffers...")
+    buffersAfterTimestamp.forEach { buffer in
+      let writer = getAssetWriter(forType: .audio)
+      writer.append(buffer)
+    }
     audioQueue.removeAll()
   }
 
@@ -243,7 +241,7 @@ class RecordingSession {
       // Don't write this Frame, it was captured before we even started recording.
       // The reason this can happen is because the capture pipeline can have a delay, e.g. because of stabilization.
       let delay = CMTimeSubtract(startTimestamp, timestamp)
-      ReactLogger.log(level: .info, message: "Capture Pipeline has a delay of \(delay.seconds) seconds. Skipping this late Frame...")
+      ReactLogger.log(level: .info, message: "\(bufferType) Capture Pipeline has a delay of \(delay.seconds) seconds. Skipping this late Frame...")
       return
     }
     if let stopTimestamp = stopTimestamp,
@@ -279,8 +277,9 @@ class RecordingSession {
       writer.append(buffer)
       if !hasWrittenFirstVideoFrame {
         // We previously queued some buffers, so now let's write them
-        dequeueAllAudioBuffers(startingFromTimestamp: timestamp)
+        ReactLogger.log(level: .info, message: "Wrote first video frame at \(timestamp.seconds)!")
         hasWrittenFirstVideoFrame = true
+        dequeueAllAudioBuffers(startingFromTimestamp: timestamp)
       }
     case .audio:
       if hasWrittenFirstVideoFrame {
