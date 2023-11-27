@@ -72,8 +72,8 @@ fun RecordingSession.getRecommendedBitRate(fps: Int, codec: VideoCodec, hdr: Boo
   return bitRate.toInt()
 }
 
-private fun getResolutionForCamcorderProfileQuality(camcorderProfile: Int): Int {
-  return when (camcorderProfile) {
+private fun getResolutionForCamcorderProfileQuality(camcorderProfile: Int): Int =
+  when (camcorderProfile) {
     CamcorderProfile.QUALITY_QCIF -> 176 * 144
     CamcorderProfile.QUALITY_QVGA -> 320 * 240
     CamcorderProfile.QUALITY_CIF -> 352 * 288
@@ -88,7 +88,6 @@ private fun getResolutionForCamcorderProfileQuality(camcorderProfile: Int): Int 
     CamcorderProfile.QUALITY_8KUHD -> 7680 * 4320
     else -> throw Error("Invalid CamcorderProfile \"$camcorderProfile\"!")
   }
-}
 
 private fun findClosestCamcorderProfileQuality(resolution: Size): Int {
   // Iterate through all available CamcorderProfiles and find the one that matches the closest
