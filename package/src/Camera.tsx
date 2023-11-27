@@ -127,13 +127,18 @@ export class Camera extends React.PureComponent<CameraProps> {
   }
 
   private getBitRateMultiplier(bitRate: RecordVideoOptions['videoBitRate']): number {
+    if (typeof bitRate === 'number' || bitRate == null) return 1
     switch (bitRate) {
+      case 'extra-low':
+        return 0.6
       case 'low':
         return 0.8
+      case 'normal':
+        return 1
       case 'high':
         return 1.2
-      default:
-        return 1
+      case 'extra-high':
+        return 1.4
     }
   }
 
@@ -159,14 +164,12 @@ export class Camera extends React.PureComponent<CameraProps> {
       throw new CameraRuntimeError('parameter/invalid-parameter', 'The onRecordingError or onRecordingFinished functions were not set!')
 
     const nativeOptions: NativeRecordVideoOptions = passThruOptions
-    if (typeof videoBitRate === 'string') {
-      // If the user passed 'low'/'normal'/'high', we need to apply this as a multiplier to the native bitrate instead of absolutely setting it
-      delete nativeOptions.videoBitRateOverride
-      nativeOptions.videoBitRateMultiplier = this.getBitRateMultiplier(videoBitRate)
-    } else {
+    if (typeof videoBitRate === 'number') {
       // If the user passed an absolute number as a bit-rate, we just use this as a full override.
-      delete nativeOptions.videoBitRateOverride
       nativeOptions.videoBitRateOverride = videoBitRate
+    } else if (typeof videoBitRate === 'string' && videoBitRate !== 'normal') {
+      // If the user passed 'low'/'normal'/'high', we need to apply this as a multiplier to the native bitrate instead of absolutely setting it
+      nativeOptions.videoBitRateMultiplier = this.getBitRateMultiplier(videoBitRate)
     }
 
     const onRecordCallback = (video?: VideoFile, error?: CameraCaptureError): void => {
