@@ -15,15 +15,13 @@ import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.utils.makeErrorMap
 import java.util.*
 
-suspend fun CameraView.startRecording(jsOptions: ReadableMap, onRecordCallback: Callback) {
+suspend fun CameraView.startRecording(options: RecordVideoOptions, onRecordCallback: Callback) {
   // check audio permission
   if (audio == true) {
     if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
       throw MicrophonePermissionError()
     }
   }
-
-  val options = RecordVideoOptions(jsOptions)
 
   val enableFlash = options.flash == Flash.ON
   if (enableFlash) {
