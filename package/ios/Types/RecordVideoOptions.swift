@@ -37,7 +37,7 @@ struct RecordVideoOptions {
       codec = try AVVideoCodecType(withString: codecOption)
     }
     // BitRate Override
-    if let parsed = dictionary["videoBitRate"] as? Double {
+    if let parsed = dictionary["videoBitRateOverride"] as? Double {
       bitRate = parsed
     }
     // BitRate Multiplier

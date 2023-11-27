@@ -39,8 +39,8 @@ suspend fun CameraView.startRecording(options: ReadableMap, onRecordCallback: Ca
     fileType = VideoFileType.fromUnionValue(options.getString("fileType"))
   }
   var bitRate: Double? = null
-  if (options.hasKey("videoBitRate")) {
-    bitRate = options.getDouble("videoBitRate")
+  if (options.hasKey("videoBitRateOverride")) {
+    bitRate = options.getDouble("videoBitRateOverride")
   }
   var bitRateMultiplier: Double? = null
   if (options.hasKey("videoBitRateMultiplier")) {

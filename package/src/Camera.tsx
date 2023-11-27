@@ -35,6 +35,10 @@ type NativeCameraViewProps = Omit<CameraProps, 'device' | 'onInitialized' | 'onE
   onCodeScanned?: (event: NativeSyntheticEvent<OnCodeScannedEvent>) => void
   onViewReady: () => void
 }
+type NativeRecordVideoOptions = Omit<RecordVideoOptions, 'onRecordingError' | 'onRecordingFinished' | 'videoBitRate'> & {
+  videoBitRateOverride?: number
+  videoBitRateMultiplier?: number
+}
 type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>
 //#endregion
 
@@ -150,14 +154,19 @@ export class Camera extends React.PureComponent<CameraProps> {
    * ```
    */
   public startRecording(options: RecordVideoOptions): void {
-    const { onRecordingError, onRecordingFinished, ...passThroughOptions } = options
+    const { onRecordingError, onRecordingFinished, videoBitRate, ...passThruOptions } = options
     if (typeof onRecordingError !== 'function' || typeof onRecordingFinished !== 'function')
       throw new CameraRuntimeError('parameter/invalid-parameter', 'The onRecordingError or onRecordingFinished functions were not set!')
 
-    if (typeof passThroughOptions.videoBitRate === 'string') {
+    const nativeOptions: NativeRecordVideoOptions = passThruOptions
+    if (typeof videoBitRate === 'string') {
       // If the user passed 'low'/'normal'/'high', we need to apply this as a multiplier to the native bitrate instead of absolutely setting it
-      delete passThroughOptions.videoBitRate
-      passThroughOptions.videoBitRateMultiplier = this.getBitRateMultiplier(passThroughOptions.videoBitRate)
+      delete nativeOptions.videoBitRateOverride
+      nativeOptions.videoBitRateMultiplier = this.getBitRateMultiplier(videoBitRate)
+    } else {
+      // If the user passed an absolute number as a bit-rate, we just use this as a full override.
+      delete nativeOptions.videoBitRateOverride
+      nativeOptions.videoBitRateOverride = videoBitRate
     }
 
     const onRecordCallback = (video?: VideoFile, error?: CameraCaptureError): void => {
@@ -166,7 +175,7 @@ export class Camera extends React.PureComponent<CameraProps> {
     }
     try {
       // TODO: Use TurboModules to make this awaitable.
-      CameraModule.startRecording(this.handle, passThroughOptions, onRecordCallback)
+      CameraModule.startRecording(this.handle, nativeOptions, onRecordCallback)
     } catch (e) {
       throw tryParseNativeCameraError(e)
     }
