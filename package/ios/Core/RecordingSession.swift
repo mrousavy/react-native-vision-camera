@@ -152,6 +152,11 @@ class RecordingSession {
     assetWriter.startSession(atSourceTime: currentTime)
     startTimestamp = currentTime
     ReactLogger.log(level: .info, message: "Started RecordingSession at time: \(currentTime.seconds)")
+
+    if audioWriter == nil {
+      // Audio was enabled, mark the Audio track as finished so we won't wait for it.
+      hasWrittenLastAudioFrame = true
+    }
   }
 
   /**
