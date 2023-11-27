@@ -42,7 +42,7 @@ class RecordingSession {
   private var hasWrittenLastAudioFrame = false
   
   // Audio queue for queueing buffers while the first video frame has not yet been written.
-  private let audioQueue = AudioBufferList()
+  private var audioQueue: [CMSampleBuffer] = []
 
   private let lock = DispatchSemaphore(value: 1)
 
@@ -193,17 +193,24 @@ class RecordingSession {
   }
   
   private func queueAudioBuffer(_ buffer: CMSampleBuffer) {
-    let size = CMSampleBufferGetNumSamples(buffer)
-    let pointer: UnsafeMutablePointer<AudioBufferList>
-    pointer.pointee = audioQueue
-    CMSampleBufferCopyPCMDataIntoAudioBufferList(buffer, at: 0, frameCount: Int32(size), into: pointer)
+    ReactLogger.log(level: .info, message: "Queueing early Audio Buffer at \(CMSampleBufferGetPresentationTimeStamp(buffer).seconds)...")
+    audioQueue.append(buffer)
   }
   
-  private func dequeueAllAudioBuffers(startingFromTimestamp timestamp: CMTime) {
-    for i in 0...audioQueue.mNumberBuffers {
-      let data = audioQueue.mBuffers.mData
-      ReactLogger.log(level: .info, message: "Should I add \(i)? \(data)")
+  private func dequeueAllAudioBuffers(startingFromTimestamp startingTimestamp: CMTime) {
+    audioQueue.forEach { buffer in
+      let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
+      guard timestamp >= startingTimestamp else {
+        // skipping this one, it was before our starting point
+        return
+      }
+      
+      let writer = getAssetWriter(forType: .audio)
+      ReactLogger.log(level: .info, message: "Writing late Audio Buffer at \(timestamp.seconds)...")
+      writer.append(buffer)
     }
+    
+    audioQueue.removeAll()
   }
 
   /**
