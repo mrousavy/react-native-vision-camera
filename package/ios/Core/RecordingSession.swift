@@ -34,13 +34,14 @@ class RecordingSession {
   private var initTimestamp: CMTime?
   private var startTimestamp: CMTime?
   private var stopTimestamp: CMTime?
-
-  private var lastWrittenTimestamp: CMTime?
+  
+  private var lastAudioTimestamp: CMTime?
+  private var lastVideoTimestamp: CMTime?
+  private var hasWrittenLastVideoFrame = false
+  private var hasWrittenLastAudioFrame = false
 
   private var isFinishing = false
   private var hasWrittenFirstVideoFrame = false
-  private var hasWrittenLastVideoFrame = false
-  private var hasWrittenLastAudioFrame = false
   
   private var audioBufferQueue: [CMSampleBuffer] = []
 
@@ -55,12 +56,11 @@ class RecordingSession {
   var url: URL {
     return assetWriter.outputURL
   }
-
   /**
    Get the duration (in seconds) of the recorded video.
    */
   var duration: Double {
-    guard let lastWrittenTimestamp = lastWrittenTimestamp,
+    guard let lastWrittenTimestamp = lastVideoTimestamp,
           let startTimestamp = startTimestamp else {
       return 0.0
     }
@@ -225,22 +225,39 @@ class RecordingSession {
     }
     if let stopTimestamp = stopTimestamp,
        timestamp >= stopTimestamp {
-      print("after stop?")
-      // This Frame is exactly at, or after the point in time when RecordingSession.stop() has been called.
+      // This Frame is after the point in time when RecordingSession.stop() has been called.
       // Consider this the last Frame we write
       switch bufferType {
       case .video:
-        if hasWrittenLastVideoFrame {
-          // already wrote last Video Frame before, so skip this one.
-          return
+        if audioWriter != nil, let lastAudioTimestamp = lastAudioTimestamp, timestamp < lastAudioTimestamp {
+          // We wrote an audio frame with a more recent timestamp than this video-frame. We need more video frames, so write this one!
+          print("will write this video frame.")
+        } else {
+          if hasWrittenLastVideoFrame {
+            // we already wrote the last video frame previously, so don't write this one now.
+            print("will NOT write this video frame.")
+            return
+          } else {
+            // fallthrough and still write this last frame.
+            hasWrittenLastVideoFrame = true
+            print("will write ONE MORE video frame.")
+          }
         }
-        hasWrittenLastVideoFrame = true // flip to true, then write it
       case .audio:
-        if hasWrittenLastAudioFrame {
-          // already wrote last Audio Frame before, so skip this one.
-          return
+        if let lastVideoTimestamp = lastVideoTimestamp, timestamp < lastVideoTimestamp {
+          // It was BEFORE the last video frame, we could still write this audio file without extending the track.
+          print("will write this audio frame.")
+        } else {
+          if hasWrittenLastAudioFrame {
+            // We already wrote the last audio frame previously, so don't write this one now.
+            print("will NOT write this audio frame.")
+            return
+          } else {
+            // fallthrough and still write this last frame.
+            hasWrittenLastAudioFrame = true
+            print("will write ONE MORE audio frame.")
+          }
         }
-        hasWrittenLastAudioFrame = true // flip to true, then write it
       }
     }
 
@@ -263,7 +280,9 @@ class RecordingSession {
       }
       
       // Write it!
+      ReactLogger.log(level: .info, message: "Writing VIDEO buffer at \(timestamp.seconds)...")
       writer.append(buffer)
+      lastVideoTimestamp = timestamp
     case .audio:
       guard let startTimestamp = startTimestamp else {
         // Audio Buffer arrived before we started the session. Queue it for now.
@@ -278,8 +297,9 @@ class RecordingSession {
       }
       
       // Write it!
-      print("writing audio buffer?")
+      ReactLogger.log(level: .info, message: "Writing AUDIO buffer at \(timestamp.seconds)...")
       writer.append(buffer)
+      lastAudioTimestamp = timestamp
       
       // Dequeue any buffers in the audio queue if there are any
       if !audioBufferQueue.isEmpty {
@@ -287,8 +307,6 @@ class RecordingSession {
         dequeueAudioBuffers()
       }
     }
-    
-    lastWrittenTimestamp = timestamp
 
     // 4. If we failed to write the frames, stop the Recording
     if assetWriter.status == .failed {
@@ -341,6 +359,7 @@ class RecordingSession {
       }
       
       // Try writing the buffer in the queue.
+      ReactLogger.log(level: .info, message: "Writing AUDIO buffer at \(timestamp.seconds)...")
       let successful = audioWriter.append(buffer)
       if successful {
         // If the buffer has been successfully written, remove it from the queue.
