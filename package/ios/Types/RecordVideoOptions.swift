@@ -16,7 +16,7 @@ struct RecordVideoOptions {
   /**
    * Full Bit-Rate override for the Video Encoder, in Megabits per second (Mbps)
    */
-  var bitRate: Double?
+  var bitRateOverride: Double?
   /**
    * A multiplier applied to whatever the currently set bit-rate is, whether it's automatically computed by the OS Encoder,
    * or set via bitRate, in Megabits per second (Mbps)
@@ -38,7 +38,7 @@ struct RecordVideoOptions {
     }
     // BitRate Override
     if let parsed = dictionary["videoBitRateOverride"] as? Double {
-      bitRate = parsed
+      bitRateOverride = parsed
     }
     // BitRate Multiplier
     if let parsed = dictionary["videoBitRateMultiplier"] as? Double {

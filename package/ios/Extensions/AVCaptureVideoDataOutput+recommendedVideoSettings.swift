@@ -24,9 +24,9 @@ extension AVCaptureVideoDataOutput {
       throw CameraError.capture(.createRecorderError(message: "Failed to get video settings!"))
     }
 
-    if let bitRate = options.bitRate {
+    if let bitRateOverride = options.bitRateOverride {
       // Convert from Mbps -> bps
-      let bitsPerSecond = bitRate * 1_000_000
+      let bitsPerSecond = bitRateOverride * 1_000_000
       if settings[AVVideoCompressionPropertiesKey] == nil {
         settings[AVVideoCompressionPropertiesKey] = [:]
       }
