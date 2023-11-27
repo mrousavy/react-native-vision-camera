@@ -37,8 +37,12 @@ class RecordingSession {
   private var lastWrittenTimestamp: CMTime?
 
   private var isFinishing = false
+  private var hasWrittenFirstVideoFrame = false
   private var hasWrittenLastVideoFrame = false
   private var hasWrittenLastAudioFrame = false
+  
+  // Audio queue for queueing buffers while the first video frame has not yet been written.
+  private let audioQueue = AudioBufferList()
 
   private let lock = DispatchSemaphore(value: 1)
 
@@ -187,6 +191,20 @@ class RecordingSession {
       }
     }
   }
+  
+  private func queueAudioBuffer(_ buffer: CMSampleBuffer) {
+    let size = CMSampleBufferGetNumSamples(buffer)
+    let pointer: UnsafeMutablePointer<AudioBufferList>
+    pointer.pointee = audioQueue
+    CMSampleBufferCopyPCMDataIntoAudioBufferList(buffer, at: 0, frameCount: Int32(size), into: pointer)
+  }
+  
+  private func dequeueAllAudioBuffers(startingFromTimestamp timestamp: CMTime) {
+    for i in 0...audioQueue.mNumberBuffers {
+      let data = audioQueue.mBuffers.mData
+      ReactLogger.log(level: .info, message: "Should I add \(i)? \(data)")
+    }
+  }
 
   /**
    Appends a new CMSampleBuffer to the Asset Writer.
@@ -247,7 +265,27 @@ class RecordingSession {
       ReactLogger.log(level: .warning, message: "\(bufferType) AssetWriter is not ready for more data, dropping this Frame...")
       return
     }
-    writer.append(buffer)
+    
+    switch bufferType {
+    case .video:
+      // Write the video Frame!
+      writer.append(buffer)
+      if !hasWrittenFirstVideoFrame {
+        // We previously queued some buffers, so now let's write them
+        dequeueAllAudioBuffers(startingFromTimestamp: timestamp)
+        hasWrittenFirstVideoFrame = true
+      }
+    case .audio:
+      if hasWrittenFirstVideoFrame {
+        // We already wrote a Video Frame, we can add Audio here.
+        writer.append(buffer)
+      } else {
+        // We didn't write video Frames yet, so let's put the buffer in a queue and wait until the first Video Frame arrives.
+        queueAudioBuffer(buffer)
+      }
+    }
+    
+    
     lastWrittenTimestamp = timestamp
 
     // 4. If we failed to write the frames, stop the Recording
