@@ -265,21 +265,32 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
 
     // Record Video Frame/Audio Sample to File in custom `RecordingSession` (AVAssetWriter)
     if isRecording {
+      let type = captureOutput is AVCaptureVideoDataOutput ? "Video":  "Audio"
+      ReactLogger.log(level: .trace, message: "Incoming \(type) frame at \(CMSampleBufferGetPresentationTimeStamp(sampleBuffer).seconds) seconds...")
+      
       guard let recordingSession = recordingSession else {
         delegate?.onError(.capture(.unknown(message: "isRecording was true but the RecordingSession was null!")))
         return
       }
 
-      switch captureOutput {
-      case is AVCaptureVideoDataOutput:
-        // Write the Video Buffer to the .mov/.mp4 file, this is the first timestamp if nothing has been recorded yet
-        recordingSession.appendBuffer(sampleBuffer, clock: captureSession.clock, type: .video)
-      case is AVCaptureAudioDataOutput:
-        // Synchronize the Audio Buffer with the Video Session's time because it's two separate AVCaptureSessions
-        audioCaptureSession.synchronizeBuffer(sampleBuffer, toSession: captureSession)
-        recordingSession.appendBuffer(sampleBuffer, clock: audioCaptureSession.clock, type: .audio)
-      default:
-        break
+      do {
+        switch captureOutput {
+        case is AVCaptureVideoDataOutput:
+          // Write the Video Buffer to the .mov/.mp4 file, this is the first timestamp if nothing has been recorded yet
+          try recordingSession.appendBuffer(sampleBuffer, clock: captureSession.clock, type: .video)
+        case is AVCaptureAudioDataOutput:
+          // Synchronize the Audio Buffer with the Video Session's time because it's two separate AVCaptureSessions
+          audioCaptureSession.synchronizeBuffer(sampleBuffer, toSession: captureSession)
+          try recordingSession.appendBuffer(sampleBuffer, clock: audioCaptureSession.clock, type: .audio)
+        default:
+          break
+        }
+      } catch {
+        if let error = error as? CameraError {
+          delegate?.onError(error)
+        } else {
+          delegate?.onError(.unknown(message: error.localizedDescription, cause: error as NSError))
+        }
       }
     }
   }

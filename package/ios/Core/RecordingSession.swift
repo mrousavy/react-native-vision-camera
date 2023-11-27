@@ -41,6 +41,8 @@ class RecordingSession {
   private var isFinishing = false
   private var hasWrittenLastVideoFrame = false
   private var hasWrittenLastAudioFrame = false
+  
+  private var audioBufferQueue: [CMSampleBuffer] = []
 
   // If we are waiting for late frames and none actually arrive, we force stop the session after the given timeout.
   private let automaticallyStopTimeoutSeconds = 4.0
@@ -132,11 +134,6 @@ class RecordingSession {
     ReactLogger.log(level: .info, message: "Preparing Asset Writer at \(currentTime.seconds)...")
     
     prepareTimestamp = currentTime
-    let success = assetWriter.startWriting()
-    guard success else {
-      ReactLogger.log(level: .error, message: "Failed to prepare Asset Writer!")
-      throw CameraError.capture(.createRecorderError(message: "Failed to prepare Asset Writer!"))
-    }
     ReactLogger.log(level: .info, message: "Asset Writer prepared!")
 
     if audioWriter == nil {
@@ -168,29 +165,30 @@ class RecordingSession {
       }
     }
   }
+  
+  enum RecordingSessionError: Error {
+    case sessionNotPrepared
+    case bufferNotReady
+    case assetWriterStartFailed
+  }
 
   /**
    Appends a new CMSampleBuffer to the Asset Writer.
    - Use clock to specify the CMClock instance this CMSampleBuffer uses for relative time
    - Use bufferType to specify if this is a video or audio frame.
    */
-  func appendBuffer(_ buffer: CMSampleBuffer, clock _: CMClock, type bufferType: BufferType) {
+  func appendBuffer(_ buffer: CMSampleBuffer, clock _: CMClock, type bufferType: BufferType) throws {
     // 1. Check if the data is even ready
     guard let prepareTimestamp = prepareTimestamp else {
       // Session not yet prepared
-      return
+      throw RecordingSessionError.sessionNotPrepared
     }
     guard !isFinishing else {
       // Session is already finishing, can't write anything more
       return
     }
-    guard assetWriter.status == .writing else {
-      ReactLogger.log(level: .error, message: "Frame arrived, but AssetWriter status is \(assetWriter.status.descriptor)!")
-      return
-    }
     if !CMSampleBufferDataIsReady(buffer) {
-      ReactLogger.log(level: .error, message: "Frame arrived, but sample buffer is not ready!")
-      return
+      throw RecordingSessionError.bufferNotReady
     }
 
     // 2. Check the timing of the buffer and make sure it's within our session start and stop times
@@ -223,17 +221,40 @@ class RecordingSession {
       }
     }
     
+    // Check for null again after acquiring lock
     if startTimestamp == nil {
-      // Session has not yet been started
-      ReactLogger.log(level: .info, message: "Buffer arrived at \(timestamp.seconds), but session has not yet been started.")
-      
-      if bufferType == .video {
-        ReactLogger.log(level: .info, message: "It's a video frame, let's start the session!")
-        startTimestamp = timestamp
+      switch (bufferType) {
+      case .video:
+        // First Video Frame is here, this dictates the start of the video
+        ReactLogger.log(level: .info, message: "First Video Frame arrived, starting session at \(timestamp.seconds) seconds...")
+        let success = assetWriter.startWriting()
+        guard success else {
+          throw RecordingSessionError.assetWriterStartFailed
+        }
         assetWriter.startSession(atSourceTime: timestamp)
-      } else {
+        startTimestamp = timestamp
+        ReactLogger.log(level: .info, message: "Session started!")
+      case .audio:
+        // Audio Frame arrived but we didn't start yet. Queue it for writing later...
+        ReactLogger.log(level: .info, message: "Queuing early audio buffer at \(timestamp.seconds) seconds...")
+        audioBufferQueue.append(buffer)
         return
       }
+    }
+    
+    // Make sure the Frame is not _before_ we started the session (e.g. audio cannot come before video)
+    guard let startTimestamp = startTimestamp else {
+      // This can never happen.
+      return
+    }
+    guard timestamp >= startTimestamp else {
+      ReactLogger.log(level: .info, message: "Skipping \(bufferType) Frame at \(timestamp) because it was before we started the session (\(startTimestamp)).")
+      return
+    }
+    
+    // Ensure there are no remaining audio frames in queue
+    if bufferType == .audio && !audioBufferQueue.isEmpty {
+      dequeueAudioBuffers()
     }
 
     // 3. Actually write the Buffer to the AssetWriter
@@ -242,6 +263,7 @@ class RecordingSession {
       ReactLogger.log(level: .warning, message: "\(bufferType) AssetWriter is not ready for more data, dropping this Frame...")
       return
     }
+    ReactLogger.log(level: .trace, message: "Writing \(bufferType) frame at \(timestamp.seconds) seconds.")
     writer.append(buffer)
     lastWrittenTimestamp = timestamp
 
@@ -257,6 +279,36 @@ class RecordingSession {
       ReactLogger.log(level: .info, message: "Successfully appended last \(bufferType) Buffer (at \(timestamp.seconds) seconds), finishing RecordingSession...")
       finish()
     }
+  }
+  
+  private func dequeueAudioBuffers() {
+    guard let startTimestamp,
+          let audioWriter else {
+      // Session has not yet been started.
+      return
+    }
+    
+    ReactLogger.log(level: .info, message: "Dequeueing \(audioBufferQueue.count) audio buffers...")
+    
+    audioBufferQueue = audioBufferQueue.filter({ buffer in
+      guard audioWriter.isReadyForMoreMediaData else {
+        return true // include it for next dequeue
+      }
+      
+      let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
+      guard timestamp >= startTimestamp else {
+        ReactLogger.log(level: .info, message: "Dropping late Audio Buffer as it was BEFORE start.")
+        return false // drop it
+      }
+      
+      ReactLogger.log(level: .info, message: "Writing late Audio Buffer at \(timestamp) seconds...")
+      let successful = audioWriter.append(buffer)
+      if (successful) {
+        return false // drop it
+      }
+      
+      return true // include it for next dequeue
+    })
   }
 
   private func getAssetWriter(forType type: BufferType) -> AVAssetWriterInput {

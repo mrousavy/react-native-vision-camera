@@ -27,6 +27,9 @@ extension AVCaptureSession {
   func synchronizeBuffer(_ buffer: CMSampleBuffer, toSession to: AVCaptureSession) {
     let timestamp = CMSampleBufferGetPresentationTimeStamp(buffer)
     let synchronizedTimestamp = CMSyncConvertTime(timestamp, from: clock, to: to.clock)
+    if timestamp != synchronizedTimestamp {
+      ReactLogger.log(level: .trace, message: "Timestamp changed from \(timestamp.seconds) to \(synchronizedTimestamp.seconds)")
+    }
     CMSampleBufferSetOutputPresentationTimeStamp(buffer, newValue: synchronizedTimestamp)
   }
 }
