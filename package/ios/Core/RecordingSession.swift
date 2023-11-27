@@ -327,8 +327,8 @@ class RecordingSession {
     
     ReactLogger.log(level: .info, message: "Writing \(audioBufferQueue.count) late Audio Buffers...")
     
-    // Safely iterate through the already enumerated list - otherwise we can't remove items in between
-    for (i, buffer) in audioBufferQueue.enumerated() {
+    // Safely iterate through the list in reverse order - otherwise we can't remove items in between
+    for (i, buffer) in audioBufferQueue.enumerated().reversed() {
       guard audioWriter.isReadyForMoreMediaData else {
         continue
       }
