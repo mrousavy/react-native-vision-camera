@@ -42,14 +42,16 @@ extension CameraSession {
       if #available(iOS 14.0, *) {
         if let inputs = audioSession.availableInputs,
            let mic = inputs.first(where: { $0.portType == .builtInMic }) {
-          // Microphone
-          try audioSession.setPreferredInput(mic)
           
+          // Configure mic to use stereo audio
           if let back = mic.dataSources?.first(where: { $0.orientation == .back }) {
             try back.setPreferredPolarPattern(.stereo)
             try mic.setPreferredDataSource(back)
-            try audioSession.setPreferredInputOrientation(.portrait)
           }
+          
+          // Use mic for Audio Session
+          try audioSession.setPreferredInput(mic)
+          try audioSession.setPreferredInputOrientation(.portrait)
         }
       }
 
