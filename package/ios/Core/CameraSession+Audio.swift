@@ -38,6 +38,20 @@ extension CameraSession {
         // allow system sounds (notifications, calls, music) to play while recording
         try audioSession.setAllowHapticsAndSystemSoundsDuringRecording(true)
       }
+      
+      if #available(iOS 14.0, *) {
+        if let inputs = audioSession.availableInputs,
+           let mic = inputs.first(where: { $0.portType == .builtInMic }) {
+          // Microphone
+          try audioSession.setPreferredInput(mic)
+          
+          if let back = mic.dataSources?.first(where: { $0.orientation == .back }) {
+            try back.setPreferredPolarPattern(.stereo)
+            try mic.setPreferredDataSource(back)
+            try audioSession.setPreferredInputOrientation(.portrait)
+          }
+        }
+      }
 
       audioCaptureSession.startRunning()
       ReactLogger.log(level: .info, message: "Audio Session activated!")
