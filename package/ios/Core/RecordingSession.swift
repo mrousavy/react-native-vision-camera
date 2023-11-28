@@ -154,7 +154,7 @@ class RecordingSession {
     ReactLogger.log(level: .info, message: "Started RecordingSession at time: \(currentTime.seconds)")
 
     if audioWriter == nil {
-      // Audio was enabled, mark the Audio track as finished so we won't wait for it.
+      // Audio was disabled, mark the Audio track as finished so we won't wait for it.
       hasWrittenLastAudioFrame = true
     }
   }

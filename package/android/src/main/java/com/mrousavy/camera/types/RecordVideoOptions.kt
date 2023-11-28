@@ -17,7 +17,7 @@ class RecordVideoOptions(map: ReadableMap) {
       flash = Flash.fromUnionValue(map.getString("flash"))
     }
     if (map.hasKey("videoCodec")) {
-      videoCodec = VideoCodec.fromUnionValue(map.getString("fileType"))
+      videoCodec = VideoCodec.fromUnionValue(map.getString("videoCodec"))
     }
     if (map.hasKey("videoBitRateOverride")) {
       videoBitRateOverride = map.getDouble("videoBitRateOverride")
