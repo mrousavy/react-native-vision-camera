@@ -13,7 +13,24 @@ import Foundation
  A fully-featured Camera Session supporting preview, video, photo, frame processing, and code scanning outputs.
  All changes to the session have to be controlled via the `configure` function.
  */
-class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
+class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate, AVCaptureDataOutputSynchronizerDelegate {
+  func dataOutputSynchronizer(_ synchronizer: AVCaptureDataOutputSynchronizer, didOutput synchronizedDataCollection: AVCaptureSynchronizedDataCollection) {
+    print("Received \(synchronizedDataCollection.count) items!")
+    if let audioOutput = audioOutput,
+       let audioData = synchronizedDataCollection.synchronizedData(for: audioOutput),
+       let audioBuffer = audioData as? AVCaptureSynchronizedSampleBufferData {
+      let buffer = audioBuffer.sampleBuffer
+      print("Audio buffer at: \(CMSampleBufferGetPresentationTimeStamp(buffer).seconds) seconds")
+    }
+    
+    if let videoOutput = videoOutput,
+       let videoData = synchronizedDataCollection.synchronizedData(for: videoOutput),
+       let videoBuffer = videoData as? AVCaptureSynchronizedSampleBufferData {
+      let buffer = videoBuffer.sampleBuffer
+      print("Video buffer at: \(CMSampleBufferGetPresentationTimeStamp(buffer).seconds) seconds")
+    }
+  }
+  
   // Configuration
   var configuration: CameraConfiguration?
   // Capture Session
@@ -26,6 +43,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   var videoOutput: AVCaptureVideoDataOutput?
   var audioOutput: AVCaptureAudioDataOutput?
   var codeScannerOutput: AVCaptureMetadataOutput?
+  var synchronizedOutput: AVCaptureDataOutputSynchronizer?
   // State
   var recordingSession: RecordingSession?
   var isRecording = false
