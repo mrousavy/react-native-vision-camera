@@ -298,6 +298,25 @@ extension CameraSession {
     let clamped = min(max(exposure, device.minExposureTargetBias), device.maxExposureTargetBias)
     device.setExposureTargetBias(clamped)
   }
+  
+  // pragma MARK: Preview Pausing
+  
+  /**
+   Enables or disables the Preview streaming.
+   This is useful to stop the preview streaming half-exposed frames while the session is still starting.
+   */
+  func setPreviewEnabled(enabled: Bool) {
+    ReactLogger.log(level: .info, message: "Preview Enabled: \(enabled)")
+    
+    if #available(iOS 13.0, *) {
+      captureSession.connections.forEach { connection in
+        if connection.videoPreviewLayer != nil {
+          // Connection to the Preview Layer
+          connection.isEnabled = enabled
+        }
+      }
+    }
+  }
 
   // pragma MARK: Audio
 
