@@ -18,7 +18,7 @@ extension AVCaptureDevice.Format {
     let minRange = videoSupportedFrameRateRanges.min { l, r in
       return l.minFrameRate < r.minFrameRate
     }
-    return maxRange?.minFrameRate ?? 0
+    return minRange?.minFrameRate ?? 0
   }
 
   var maxFps: Float64 {
