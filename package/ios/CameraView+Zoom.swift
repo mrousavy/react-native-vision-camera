@@ -19,7 +19,7 @@ extension CameraView {
     }
 
     // Update zoom React prop
-    zoom = NSNumber(floatLiteral: scale)
+    zoom = NSNumber(value: scale)
     didSetProps(["zoom"])
   }
 
