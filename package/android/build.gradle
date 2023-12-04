@@ -92,6 +92,13 @@ android {
 
   buildFeatures {
     prefab true
+    prefabPublishing true
+  }
+
+  prefab {
+    VisionCamera {
+      headers "${project.buildDir}/headers/visioncamera/"
+    }
   }
 
   defaultConfig {
@@ -170,6 +177,14 @@ task deleteCmakeCache() {
     delete "${nodeModules}/react-native-vision-camera/android/build"
   }
 }
+
+task prepareHeaders(type: Copy) {
+  from fileTree('./src/main/cpp').filter { it.isFile() }
+  into "${project.buildDir}/headers/visioncamera/react-native-vision-camera/"
+  includeEmptyDirs = false
+}
+
+preBuild.dependsOn(prepareHeaders)
 
 tasks.configureEach { task ->
   // C++ build
