@@ -18,13 +18,6 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
     do {
       let options = try RecordVideoOptions(fromJSValue: options)
 
-      // If flash is on, just enable torch
-      if options.flash != .off {
-        cameraSession.configure { config in
-          config.torch = options.flash
-        }
-      }
-
       // Start Recording with success and error callbacks
       cameraSession.startRecording(
         options: options,
@@ -47,11 +40,6 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
 
   func stopRecording(promise: Promise) {
     cameraSession.stopRecording(promise: promise)
-
-    // If flash was used, we had the torch enabled. Now set it back to it's original state.
-    cameraSession.configure { config in
-      config.torch = try Torch(jsValue: torch)
-    }
   }
 
   func pauseRecording(promise: Promise) {

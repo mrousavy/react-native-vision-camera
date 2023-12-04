@@ -18,10 +18,9 @@ extension CameraView {
       return
     }
 
-    // Update zoom on Camera
-    cameraSession.configure { configuration in
-      configuration.zoom = scale
-    }
+    // Update zoom React prop
+    zoom = NSNumber(value: scale)
+    didSetProps(["zoom"])
   }
 
   func addPinchGestureRecognizer() {

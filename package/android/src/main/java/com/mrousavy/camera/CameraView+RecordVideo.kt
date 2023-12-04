@@ -9,9 +9,7 @@ import com.mrousavy.camera.core.MicrophonePermissionError
 import com.mrousavy.camera.core.RecorderError
 import com.mrousavy.camera.core.RecordingSession
 import com.mrousavy.camera.core.code
-import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.RecordVideoOptions
-import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.utils.makeErrorMap
 import java.util.*
 
@@ -20,14 +18,6 @@ suspend fun CameraView.startRecording(options: RecordVideoOptions, onRecordCallb
   if (audio == true) {
     if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
       throw MicrophonePermissionError()
-    }
-  }
-
-  val enableFlash = options.flash == Flash.ON
-  if (enableFlash) {
-    // overrides current torch mode value to enable flash while recording
-    cameraSession.configure { config ->
-      config.torch = Torch.ON
     }
   }
 
@@ -57,8 +47,4 @@ suspend fun CameraView.resumeRecording() {
 @SuppressLint("RestrictedApi")
 suspend fun CameraView.stopRecording() {
   cameraSession.stopRecording()
-  // Set torch back to it's original value in case we just used it as a flash for the recording.
-  cameraSession.configure { config ->
-    config.torch = torch
-  }
 }
