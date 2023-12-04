@@ -40,6 +40,9 @@ type NativeRecordVideoOptions = Omit<RecordVideoOptions, 'onRecordingError' | 'o
   videoBitRateMultiplier?: number
 }
 type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>
+interface CameraState {
+  isRecordingWithFlash: boolean
+}
 //#endregion
 
 //#region Camera Component
@@ -71,7 +74,7 @@ type RefType = React.Component<NativeCameraViewProps> & Readonly<NativeMethods>
  *
  * @component
  */
-export class Camera extends React.PureComponent<CameraProps> {
+export class Camera extends React.PureComponent<CameraProps, CameraState> {
   /** @internal */
   static displayName = 'Camera'
   /** @internal */
@@ -90,6 +93,9 @@ export class Camera extends React.PureComponent<CameraProps> {
     this.onCodeScanned = this.onCodeScanned.bind(this)
     this.ref = React.createRef<RefType>()
     this.lastFrameProcessor = undefined
+    this.state = {
+      isRecordingWithFlash: false,
+    }
   }
 
   private get handle(): number {
@@ -163,6 +169,13 @@ export class Camera extends React.PureComponent<CameraProps> {
     if (typeof onRecordingError !== 'function' || typeof onRecordingFinished !== 'function')
       throw new CameraRuntimeError('parameter/invalid-parameter', 'The onRecordingError or onRecordingFinished functions were not set!')
 
+    if (options.flash === 'on') {
+      // Enable torch for video recording
+      this.setState({
+        isRecordingWithFlash: true,
+      })
+    }
+
     const nativeOptions: NativeRecordVideoOptions = passThruOptions
     if (typeof videoBitRate === 'number') {
       // If the user passed an absolute number as a bit-rate, we just use this as a full override.
@@ -173,6 +186,13 @@ export class Camera extends React.PureComponent<CameraProps> {
     }
 
     const onRecordCallback = (video?: VideoFile, error?: CameraCaptureError): void => {
+      if (this.state.isRecordingWithFlash) {
+        // disable torch again if it was enabled
+        this.setState({
+          isRecordingWithFlash: false,
+        })
+      }
+
       if (error != null) return onRecordingError(error)
       if (video != null) return onRecordingFinished(video)
     }
@@ -450,12 +470,14 @@ export class Camera extends React.PureComponent<CameraProps> {
     }
 
     const shouldEnableBufferCompression = props.video === true && frameProcessor == null
+    const torch = this.state.isRecordingWithFlash ? 'on' : props.torch
 
     return (
       <NativeCameraView
         {...props}
         cameraId={device.id}
         ref={this.ref}
+        torch={torch}
         onViewReady={this.onViewReady}
         onInitialized={this.onInitialized}
         onCodeScanned={this.onCodeScanned}
