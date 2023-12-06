@@ -20,6 +20,30 @@ interface PermissionState {
   requestPermission: () => Promise<boolean>
 }
 
+const usePermission = (
+  getPermissionStatus: () => Promise<CameraPermissionStatus>,
+  requestPermissionFunc: () => Promise<CameraPermissionStatus>,
+): PermissionState => {
+  const [status, setStatus] = useState<CameraPermissionStatus>('not-determined')
+
+  const requestPermission = useCallback(async () => {
+    const result = await requestPermissionFunc()
+    const hasPermissionNow = result === 'granted'
+    setStatus(result)
+    return hasPermissionNow
+  }, [requestPermissionFunc])
+
+  useEffect(() => {
+    getPermissionStatus().then(setStatus)
+  }, [getPermissionStatus])
+
+  return {
+    status,
+    hasPermission: status === 'granted',
+    requestPermission,
+  }
+}
+
 /**
  * Returns whether the user has granted permission to use the Camera, or not.
  *
@@ -36,26 +60,7 @@ interface PermissionState {
  * }
  * ```
  */
-export function useCameraPermission(): PermissionState {
-  const [status, setStatus] = useState<CameraPermissionStatus>('not-determined')
-
-  const requestPermission = useCallback(async () => {
-    const result = await Camera.requestCameraPermission()
-    const hasPermissionNow = result === 'granted'
-    setStatus(result)
-    return hasPermissionNow
-  }, [])
-
-  useEffect(() => {
-    Camera.getCameraPermissionStatus().then(setStatus)
-  }, [])
-
-  return {
-    status,
-    hasPermission: status === 'granted',
-    requestPermission,
-  }
-}
+export const useCameraPermission = () => usePermission(Camera.getCameraPermissionStatus, Camera.requestCameraPermission)
 
 /**
  * Returns whether the user has granted permission to use the Microphone, or not.
@@ -71,23 +76,4 @@ export function useCameraPermission(): PermissionState {
  * return <Camera video={true} audio={canRecordAudio} />
  * ```
  */
-export function useMicrophonePermission(): PermissionState {
-  const [status, setStatus] = useState<CameraPermissionStatus>('not-determined')
-
-  const requestPermission = useCallback(async () => {
-    const result = await Camera.requestMicrophonePermission()
-    const hasPermissionNow = result === 'granted'
-    setStatus(result)
-    return hasPermissionNow
-  }, [])
-
-  useEffect(() => {
-    Camera.getMicrophonePermissionStatus().then(setStatus)
-  }, [])
-
-  return {
-    status,
-    hasPermission: status === 'granted',
-    requestPermission,
-  }
-}
+export const useMicrophonePermission = () => usePermission(Camera.getMicrophonePermissionStatus, Camera.requestMicrophonePermission)
