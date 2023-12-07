@@ -495,8 +495,4 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
 type ComponentType = React.ComponentClass<NativeCameraViewProps>
 
 // requireNativeComponent automatically resolves 'CameraView' to 'CameraViewManager'
-const NativeCameraView = requireNativeComponent<NativeCameraViewProps>(
-  'CameraView',
-  // @ts-expect-error because the type declarations are kinda wrong, no?
-  Camera,
-) as ComponentType
+const NativeCameraView = requireNativeComponent<NativeCameraViewProps>('CameraView') as ComponentType
