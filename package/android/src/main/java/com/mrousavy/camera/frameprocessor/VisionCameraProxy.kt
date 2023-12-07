@@ -35,7 +35,8 @@ class VisionCameraProxy(context: ReactApplicationContext) {
 
   init {
     val jsCallInvokerHolder = context.catalystInstance.jsCallInvokerHolder as CallInvokerHolderImpl
-    val jsRuntimeHolder = context.javaScriptContextHolder.get()
+    val jsRuntimeHolder =
+      context.javaScriptContextHolder?.get() ?: throw Error("JSI Runtime is null! VisionCamera does not yet support bridgeless mode..")
     mScheduler = VisionCameraScheduler()
     mContext = WeakReference(context)
     mHybridData = initHybrid(jsRuntimeHolder, jsCallInvokerHolder, mScheduler)
