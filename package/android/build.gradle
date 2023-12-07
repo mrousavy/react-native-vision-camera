@@ -5,8 +5,6 @@ def agpVersion = Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')[0].toIntege
 def androidManifestPath = agpVersion >= 7 ? 'src/main/AndroidManifest.xml' : 'src/hasNamespace/AndroidManifest.xml'
 
 buildscript {
-  def kotlin_version = rootProject.ext.has("kotlinVersion") ? rootProject.ext.get("kotlinVersion") : project.properties["VisionCamera_kotlinVersion"]
-
   repositories {
     maven {
       url "https://plugins.gradle.org/m2/"
@@ -16,8 +14,8 @@ buildscript {
   }
 
   dependencies {
-    classpath "com.android.tools.build:gradle:7.4.2"
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    classpath "com.android.tools.build:gradle"
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin"
   }
 }
 
@@ -40,7 +38,7 @@ if (isNewArchitectureEnabled()) {
   apply plugin: "com.facebook.react"
 }
 apply plugin: "com.android.library"
-apply plugin: "kotlin-android"
+apply plugin: "org.jetbrains.kotlin.android"
 
 def safeExtGet(prop, fallback) {
   rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
@@ -96,8 +94,8 @@ android {
 
   defaultConfig {
     minSdkVersion safeExtGet("minSdkVersion", 26)
-    compileSdkVersion safeExtGet("compileSdkVersion", 33)
-    targetSdkVersion safeExtGet("targetSdkVersion", 33)
+    compileSdkVersion safeExtGet("compileSdkVersion", 34)
+    targetSdkVersion safeExtGet("targetSdkVersion", 34)
     versionCode 1
     versionName "1.0"
     buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()

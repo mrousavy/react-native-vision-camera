@@ -26,14 +26,10 @@
 	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-		<key>NSExceptionDomains</key>
-		<dict>
-			<key>localhost</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-			</dict>
-		</dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>VisionCamera needs access to your Camera for very obvious reasons.</string>
@@ -60,5 +56,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-</dict>
+	<key>NSAllowsArbitraryLoads</key>
+	<false/>
+	<key>NSAllowsLocalNetworking</key>
+	<true/>
+	</dict>
 </plist>
