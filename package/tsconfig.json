@@ -1,26 +1,19 @@
 {
   "extends": "@react-native/typescript-config/tsconfig.json",
   "compilerOptions": {
+    // RN one's also has jest in here, we don't use jest.
+    "types": ["react-native"],
     "allowJs": false,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "jsx": "react-native",
-    "lib": ["esnext"],
-    "module": "esnext",
-    "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
     "noStrictGenericChecks": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noUncheckedIndexedAccess": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "target": "esnext",
-    "outDir": "lib"
+    "noEmit": false,
+    "allowImportingTsExtensions": false
   },
   "include": [
     "src",
