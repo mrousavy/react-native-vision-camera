@@ -113,6 +113,15 @@ export const VisionCameraProxy: TVisionCameraProxy = {
   },
 }
 
+// eslint-disable-next-line no-var
+declare var global: {
+  __frameProcessorRunAtTargetFpsMap: Record<string, number | undefined> | undefined
+}
+// eslint-disable-next-line no-var
+declare var performance: {
+  now: () => number
+}
+
 function getLastFrameProcessorCall(frameProcessorFuncId: string): number {
   'worklet'
   return global.__frameProcessorRunAtTargetFpsMap?.[frameProcessorFuncId] ?? 0
