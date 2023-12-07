@@ -90,6 +90,7 @@
     "@react-native/typescript-config": "^0.74.0",
     "@release-it/conventional-changelog": "^8.0.1",
     "@types/react": "^18.2.42",
+    "@types/react-native": "^0.72.8",
     "@types/react-test-renderer": "^18.0.7",
     "babel-jest": "^29.7.0",
     "eslint": "^8.55.0",
