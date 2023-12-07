@@ -54,7 +54,7 @@ static def findNodeModules(baseDir) {
   // Node"s module resolution algorithm searches up to the root directory,
   // after which the base path will be null
   while (basePath) {
-    logger.warn("Looking at ${basePath.toString()}...")
+    throw new GradleException("Looking at ${basePath.toString()}...")
     def nodeModulesPath = Paths.get(basePath.toString(), "node_modules")
     def reactNativePath = Paths.get(nodeModulesPath.toString(), "react-native")
     if (nodeModulesPath.toFile().exists() && reactNativePath.toFile().exists()) {
