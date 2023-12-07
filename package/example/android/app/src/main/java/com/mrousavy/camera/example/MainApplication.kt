@@ -9,15 +9,15 @@ import com.facebook.react.ReactPackage
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
-import com.facebook.react.flipper.ReactNativeFlipper
 import com.facebook.soloader.SoLoader
+import com.mrousavy.camera.frameprocessor.FrameProcessorPluginRegistry
 
 class MainApplication : Application(), ReactApplication {
   companion object {
     init {
       // Register the Frame Processor Plugins for our app
-      FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_plugin", options -> new ExampleFrameProcessorPlugin(options));
-      FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_kotlin_swift_plugin", options -> new ExampleKotlinFrameProcessorPlugin(options));
+      FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_plugin") { options -> ExampleFrameProcessorPlugin(options) }
+      FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_kotlin_swift_plugin") { options -> ExampleKotlinFrameProcessorPlugin(options) }
     }
   }
 
@@ -47,6 +47,5 @@ class MainApplication : Application(), ReactApplication {
       // If you opted-in for the New Architecture, we load the native entry point for this app.
       load()
     }
-    ReactNativeFlipper.initializeFlipper(this, reactNativeHost.reactInstanceManager)
   }
 }
