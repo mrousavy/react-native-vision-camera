@@ -2,6 +2,7 @@ module.exports = {
   root: true,
   parser: '@typescript-eslint/parser',
   parserOptions: {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     tsconfigRootDir: __dirname,
     project: ['./tsconfig.json'],
     ecmaFeatures: {
@@ -10,7 +11,7 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: 'module',
   },
-  ignorePatterns: ['scripts', 'lib', 'docs', 'example', 'app.plugin.js'],
+  ignorePatterns: ['scripts', 'lib', 'docs', 'example', 'app.plugin.js', 'react-native.config.js'],
   plugins: ['@typescript-eslint'],
   extends: ['plugin:@typescript-eslint/recommended', '@react-native'],
   rules: {

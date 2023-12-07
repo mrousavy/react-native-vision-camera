@@ -30,11 +30,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup JDK 11
-        uses: actions/setup-java@v2
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: 11
+          java-version: '17'
           java-package: jdk
 
       - name: Get yarn cache directory path
@@ -74,11 +74,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup JDK 11
-        uses: actions/setup-java@v2
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: 11
+          java-version: '17'
           java-package: jdk
 
       - name: Get yarn cache directory path

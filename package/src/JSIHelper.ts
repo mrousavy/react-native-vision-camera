@@ -6,7 +6,7 @@ export function assertJSIAvailable(): void {
   if (global.nativeCallSyncHook == null) {
     throw new CameraRuntimeError(
       'system/frame-processors-unavailable',
-      'Failed to initialize VisionCamera Frame Processors: React Native is not running on-device. Frame Processors can only be used when synchronous method invocations (JSI) are possible. If you are using a remote debugger (e.g. Chrome), switch to an on-device debugger (e.g. Flipper) instead.',
+      'Failed to initialize VisionCamera Frame Processors: React Native is not running on-device. Frame Processors can only be used when synchronous method invocations (JSI) are possible. If you are using a remote debugger (e.g. Chrome), switch to an on-device debugger (e.g. React Native Dev Tools) instead.',
     )
   }
 }
