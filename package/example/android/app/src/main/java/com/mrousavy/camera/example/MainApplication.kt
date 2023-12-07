@@ -17,8 +17,12 @@ class MainApplication : Application(), ReactApplication {
   companion object {
     init {
       // Register the Frame Processor Plugins for our app
-      FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_plugin") { options -> ExampleFrameProcessorPlugin(options) }
-      FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_kotlin_swift_plugin") { options -> ExampleKotlinFrameProcessorPlugin(options) }
+      FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_plugin") { options ->
+        ExampleFrameProcessorPlugin(options)
+      }
+      FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_kotlin_swift_plugin") { options ->
+        ExampleKotlinFrameProcessorPlugin(options)
+      }
     }
   }
 
