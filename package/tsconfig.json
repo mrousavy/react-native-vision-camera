@@ -24,6 +24,7 @@
     "node_modules",
     "lib",
     "docs",
-    "example"
+    "example",
+    "react-native.config.js"
   ]
 }
