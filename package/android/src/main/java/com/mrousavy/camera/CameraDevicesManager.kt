@@ -71,8 +71,6 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
     eventEmitter.emit("CameraDevicesChanged", getDevicesJson())
   }
 
-  override fun hasConstants(): Boolean = true
-
   override fun getConstants(): MutableMap<String, Any?> {
     val devices = getDevicesJson()
     val preferredDevice = if (devices.size() > 0) devices.getMap(0) else null

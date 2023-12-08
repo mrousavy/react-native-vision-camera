@@ -31,7 +31,7 @@ fun RecordingSession.getRecommendedBitRate(fps: Int, codec: VideoCodec, hdr: Boo
   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
     val profiles = CamcorderProfile.getAll(cameraId, quality)
     if (profiles != null) {
-      val best = profiles.videoProfiles.filterNotNull().minBy {
+      val best = profiles.videoProfiles.filterNotNull().minByOrNull {
         abs(it.width * it.height - targetResolution.width * targetResolution.height)
       }
 
