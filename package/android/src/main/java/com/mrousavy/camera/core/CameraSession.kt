@@ -150,8 +150,11 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         // Notify about Camera start/stop
         if (diff.isActiveChanged) {
           // TODO: Move that into the CaptureRequest callback to get actual first-frame arrive time?
-          if (config.isActive) callback.onStarted()
-          else callback.onStopped()
+          if (config.isActive) {
+            callback.onStarted()
+          } else {
+            callback.onStopped()
+          }
         }
       } catch (error: Throwable) {
         Log.e(TAG, "Failed to configure CameraSession! Error: ${error.message}, Config-Diff: $diff", error)
