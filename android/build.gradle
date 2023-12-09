@@ -449,18 +449,10 @@ if (ENABLE_FRAME_PROCESSORS) {
   }
 
   task prepareThirdPartyNdkHeaders {
-    if (!boost_file.exists()) {
-      dependsOn(prepareBoost)
-    }
-    if (!double_conversion_file.exists()) {
-      dependsOn(prepareDoubleConversion)
-    }
-    if (!folly_file.exists()) {
-      dependsOn(prepareFolly)
-    }
-    if (!glog_file.exists()) {
-      dependsOn(prepareGlog)
-    }
+    dependsOn(prepareBoost)
+    dependsOn(prepareDoubleConversion)
+    dependsOn(prepareFolly)
+    dependsOn(prepareGlog)
   }
 
   prepareThirdPartyNdkHeaders.mustRunAfter createNativeDepsDirectories
