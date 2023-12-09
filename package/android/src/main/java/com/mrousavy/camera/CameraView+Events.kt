@@ -19,6 +19,20 @@ fun CameraView.invokeOnInitialized() {
   reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraInitialized", null)
 }
 
+fun CameraView.invokeOnStarted() {
+  Log.i(CameraView.TAG, "invokeOnStarted()")
+
+  val reactContext = context as ReactContext
+  reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraStarted", null)
+}
+
+fun CameraView.invokeOnStopped() {
+  Log.i(CameraView.TAG, "invokeOnStopped()")
+
+  val reactContext = context as ReactContext
+  reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraStopped", null)
+}
+
 fun CameraView.invokeOnError(error: Throwable) {
   Log.e(CameraView.TAG, "invokeOnError(...):")
   error.printStackTrace()

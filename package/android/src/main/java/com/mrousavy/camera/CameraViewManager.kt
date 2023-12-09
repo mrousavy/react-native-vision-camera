@@ -25,6 +25,8 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
     MapBuilder.builder<String, Any>()
       .put("cameraViewReady", MapBuilder.of("registrationName", "onViewReady"))
       .put("cameraInitialized", MapBuilder.of("registrationName", "onInitialized"))
+      .put("cameraStarted", MapBuilder.of("registrationName", "onStarted"))
+      .put("cameraStopped", MapBuilder.of("registrationName", "onStopped"))
       .put("cameraError", MapBuilder.of("registrationName", "onError"))
       .put("cameraCodeScanned", MapBuilder.of("registrationName", "onCodeScanned"))
       .build()
