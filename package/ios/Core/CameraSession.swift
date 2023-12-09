@@ -249,8 +249,10 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
     // Start/Stop session
     if configuration.isActive {
       captureSession.startRunning()
+      delegate?.onCameraStarted()
     } else {
       captureSession.stopRunning()
+      delegate?.onCameraStopped()
     }
   }
 

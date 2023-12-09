@@ -246,9 +246,17 @@ export interface CameraProps extends ViewProps {
    */
   onError?: (error: CameraRuntimeError) => void
   /**
-   * Called when the camera was successfully initialized.
+   * Called when the camera session was successfully initialized. This will get called everytime a new device is set.
    */
   onInitialized?: () => void
+  /**
+   * Called when the camera started the session (`isActive={true}`)
+   */
+  onStarted?: () => void
+  /**
+   * Called when the camera stopped the session (`isActive={false}`)
+   */
+  onStopped?: () => void
   /**
    * A worklet which will be called for every frame the Camera "sees".
    *
