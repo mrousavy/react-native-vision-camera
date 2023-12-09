@@ -26,7 +26,7 @@ protocol CameraSessionDelegate: AnyObject {
    */
   func onCameraStarted()
   /**
-   Called when the [CameraSession] stopped streaming frames. (isActive=true)
+   Called when the [CameraSession] stopped streaming frames. (isActive=false)
    */
   func onCameraStopped()
   /**
