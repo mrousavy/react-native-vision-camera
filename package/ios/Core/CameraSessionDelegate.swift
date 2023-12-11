@@ -22,6 +22,14 @@ protocol CameraSessionDelegate: AnyObject {
    */
   func onSessionInitialized()
   /**
+   Called when the [CameraSession] starts streaming frames. (isActive=true)
+   */
+  func onCameraStarted()
+  /**
+   Called when the [CameraSession] stopped streaming frames. (isActive=false)
+   */
+  func onCameraStopped()
+  /**
    Called for every frame (if video or frameProcessor is enabled)
    */
   func onFrame(sampleBuffer: CMSampleBuffer)

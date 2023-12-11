@@ -146,6 +146,16 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         if (diff.deviceChanged) {
           callback.onInitialized()
         }
+
+        // Notify about Camera start/stop
+        if (diff.isActiveChanged) {
+          // TODO: Move that into the CaptureRequest callback to get actual first-frame arrive time?
+          if (config.isActive) {
+            callback.onStarted()
+          } else {
+            callback.onStopped()
+          }
+        }
       } catch (error: Throwable) {
         Log.e(TAG, "Failed to configure CameraSession! Error: ${error.message}, Config-Diff: $diff", error)
         callback.onError(error)
@@ -367,6 +377,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       // TODO: Do we want to do stopRepeating() or entirely destroy the session?
       // If the Camera is not active, we don't do anything.
       captureSession?.stopRepeating()
+      isRunning = false
       return
     }
 
@@ -621,6 +632,8 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   interface CameraSessionCallback {
     fun onError(error: Throwable)
     fun onInitialized()
+    fun onStarted()
+    fun onStopped()
     fun onCodeScanned(codes: List<Barcode>, scannerFrame: CodeScannerFrame)
   }
 }

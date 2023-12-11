@@ -76,7 +76,9 @@ data class CameraConfiguration(
     // Outputs & Session (Photo, Video, CodeScanner, HDR, Format)
     val outputsChanged: Boolean,
     // Side-Props for CaptureRequest (fps, low-light-boost, torch, zoom, videoStabilization)
-    val sidePropsChanged: Boolean
+    val sidePropsChanged: Boolean,
+    // (isActive) changed
+    val isActiveChanged: Boolean
   ) {
     val hasAnyDifference: Boolean
       get() = sidePropsChanged || outputsChanged || deviceChanged
@@ -98,10 +100,13 @@ data class CameraConfiguration(
         left.zoom != right.zoom || left.videoStabilizationMode != right.videoStabilizationMode || left.isActive != right.isActive ||
         left.exposure != right.exposure
 
+      val isActiveChanged = left?.isActive != right.isActive
+
       return Difference(
         deviceChanged,
         outputsChanged,
-        sidePropsChanged
+        sidePropsChanged,
+        isActiveChanged
       )
     }
   }
