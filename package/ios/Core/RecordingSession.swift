@@ -51,6 +51,7 @@ class RecordingSession {
   var url: URL {
     return assetWriter.outputURL
   }
+
   /**
    Gets the size of the recorded video, in pixels.
    */
