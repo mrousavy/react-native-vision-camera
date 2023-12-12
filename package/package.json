@@ -1,6 +1,6 @@
 {
   "name": "react-native-vision-camera",
-  "version": "3.6.14",
+  "version": "3.6.15",
   "description": "A powerful, high-performance React Native Camera library.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
