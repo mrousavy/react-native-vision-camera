@@ -1,0 +1,107 @@
+---
+id: frame-processors-plugins-cpp
+title: Creating Frame Processor Plugins (C++)
+sidebar_label: Creating Frame Processor Plugins (C++)
+---
+
+import Tabs from '@theme/Tabs'
+import TabItem from '@theme/TabItem'
+import useBaseUrl from '@docusaurus/useBaseUrl'
+
+## C++ Frame Processor Plugins
+
+C++ based Frame Processor Plugins are built with JSI and can be directly called from a Frame Processor as native JSI functions can be shared across contexts.
+The benefits of C++ based Frame Processor Plugins lie in the nature of C++ based code:
+
+- **Better Performance** due to less marshalling required and lower level access
+- **Shared platform code** - e.g. OpenCV Frame Processor Plugins only need to be implemented once
+
+For example:
+
+```cpp
+// 1. Include headers
+#include "frameprocessor/FrameHostObject.h"
+
+// 2. Create C++ func
+auto myPlugin = [=](jsi::Runtime& runtime,
+                    const jsi::Value& thisArg,
+                    const jsi::Value* args,
+                    size_t count) -> jsi::Value {
+  auto frame = args[0].asObject(runtime).asHostObject<FrameHostObject>(runtime);
+  // Unwrap the Frame, then do your Frame Processing here, and return any JSI value as a result.
+  // For example, you can run very efficient OpenCV tasks here.
+  return jsi::Value(42);
+};
+// 3. Wrap C++ func in jsi::Function
+auto jsiFunc = jsi::Function::createFromHostFunction(runtime,
+                                                     jsi::PropNameID::forUtf8(runtime,
+                                                                              "myCppPlugin"),
+                                                     1,
+                                                     myPlugin);
+// 4. Add it to global so it can be called from JS
+runtime.global().setProperty(runtime, "myCppPlugin", jsiFunc);
+```
+
+Then to call that function:
+
+```js
+const frameProcessor = useFrameProcessor((frame) => {
+  'worklet'
+  const result = global.myCppPlugin(frame)
+  console.log(`C++ result: ${result}`) // <-- 42
+}, [])
+```
+
+To include VisionCamera's C++ library in your plugin's C++ code, you need to link it and include the headers.
+
+
+<Tabs
+  groupId="platform"
+  defaultValue="ios"
+  values={[
+    {label: 'iOS', value: 'ios'},
+    {label: 'android', value: 'android'}
+  ]}>
+<TabItem value="ios">
+
+VisionCamera is built using **CocoaPods**, which allow you to include local dependencies.
+To add VisionCamera to your package's `.podspec`, just add the dependency:
+
+```ruby
+s.dependency "VisionCamera"
+```
+
+Then include it in your C++ code:
+
+```cpp
+#include "Frame Processor/FrameHostObject.h"
+```
+
+</TabItem>
+<TabItem value="android">
+
+VisionCamera is built using **prefabs**, which allow you to easily extend the library with your own native code.
+To link VisionCamera in your package's `CMakeLists.txt`, just add the library:
+
+```make
+find_package(react-native-vision-camera REQUIRED CONFIG)
+# ...
+target_link_libraries(
+  ${PACKAGE_NAME}
+  # ... other libs
+  react-native-vision-camera::VisionCamera
+)
+```
+
+Then include it in your C++ code:
+
+```cpp
+#include "frame-processor/FrameHostObject.h"
+```
+
+</TabItem>
+</Tabs>
+
+<br />
+
+#### 🚀 Next section: [Browse Community Plugins](frame-processor-plugin-list)

@@ -98,36 +98,6 @@ const frameProcessor = useFrameProcessor((frame) => {
 It is however recommended to use native **Frame Processor Plugins** for processing, as those are much faster than JavaScript and can sometimes operate with the GPU buffer directly.
 You can simply pass a `Frame` to a native Frame Processor Plugin directly.
 
-## Advanced Frame Handling in C++
-
-**vision-camera** is built using prefabs, which allow you to easily extend the library with your own native code.
-you can link it in your `CMakeLists.txt` like this:
-
-```make
-find_package(react-native-vision-camera REQUIRED CONFIG)
-# ...
-target_link_libraries(
-  ${PACKAGE_NAME}
-  # ... other libs
-  react-native-vision-camera::VisionCamera
-)
-```
-
-then pass a `jsi::Object` to your C++ code. and then use the `FrameHostObject` to access the frame data:
-
-```cpp
- #include "frameprocessor/FrameHostObject.h"
-
-# in your jsi::Function
-jni::global_ref <JFrame> unwrappedFrame = frame->frame;
-auto frameWidth = unwrappedFrame->getWidth();
-__android_log_print(ANDROID_LOG_DEBUG, "VisionCamera",
-                    "frame width: %d", frameWidth);
-auto frameHeight = unwrappedFrame->getHeight();
-__android_log_print(ANDROID_LOG_DEBUG, "VisionCamera",
-                    "frame height: %d", frameHeight);
-```
-
 ## Interacting with Frame Processors
 
 ### Access JS values
