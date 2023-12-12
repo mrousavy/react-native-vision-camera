@@ -99,12 +99,14 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
    The `configuration` object is a copy of the currently active configuration that can be modified by the caller in the lambda.
    */
   func configure(_ lambda: (_ configuration: CameraConfiguration) throws -> Void) {
-    ReactLogger.log(level: .info, message: "Updating Session Configuration...")
+    // This is the latest call to configure()
     let time = DispatchTime.now()
     currentConfigureCall = time
 
     // Set up Camera (Video) Capture Session (on camera queue, acts like a lock)
     CameraQueues.cameraQueue.async {
+      ReactLogger.log(level: .info, message: "Updating Session Configuration...")
+
       // Let caller configure a new configuration for the Camera.
       let config = CameraConfiguration(copyOf: self.configuration)
       do {
