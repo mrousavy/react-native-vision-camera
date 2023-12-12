@@ -49,7 +49,7 @@ export interface FormatFilter {
    * The target FPS you want to record video at.
    * If the FPS requirements can not be met, the format closest to this value will be used.
    */
-  fps?: number
+  fps?: number | 'max'
   /**
    * The target video stabilization mode you want to use.
    * If no format supports the target video stabilization mode, the best other matching format will be used.
@@ -68,6 +68,12 @@ export interface FormatFilter {
    * Whether you want to find a format that supports Photo HDR.
    */
   videoHdr?: boolean
+  /**
+   * The target ISO value for capturing photos.
+   * Higher ISO values tend to capture sharper photos, at the cost of reduced capture speed.
+   * Lower ISO values tend to capture photos quicker.
+   */
+  iso?: number | 'max' | 'min'
 }
 
 type FilterWithPriority<T> = {
@@ -181,8 +187,27 @@ export function getCameraFormat(device: CameraDevice, filters: FormatFilter[]): 
 
     // Find closest max FPS
     if (filter.fps != null) {
-      if (bestFormat.maxFps >= filter.fps.target) leftPoints += filter.fps.priority
-      if (format.maxFps >= filter.fps.target) rightPoints += filter.fps.priority
+      if (filter.fps.target === 'max') {
+        if (bestFormat.maxFps > format.maxFps) leftPoints += filter.fps.priority
+        if (format.maxFps > bestFormat.maxFps) rightPoints += filter.fps.priority
+      } else {
+        if (bestFormat.maxFps >= filter.fps.target) leftPoints += filter.fps.priority
+        if (format.maxFps >= filter.fps.target) rightPoints += filter.fps.priority
+      }
+    }
+
+    // Find closest ISO
+    if (filter.iso != null) {
+      if (filter.iso.target === 'max') {
+        if (bestFormat.maxISO > format.maxISO) leftPoints += filter.iso.priority
+        if (format.maxISO > bestFormat.maxISO) rightPoints += filter.iso.priority
+      } else if (filter.iso.target === 'min') {
+        if (bestFormat.minISO < format.minISO) leftPoints += filter.iso.priority
+        if (format.minISO < bestFormat.minISO) rightPoints += filter.iso.priority
+      } else {
+        if (filter.iso.target >= bestFormat.minISO && filter.iso.target <= bestFormat.maxISO) leftPoints += filter.iso.priority
+        if (filter.iso.target >= format.minISO && filter.iso.target <= format.maxISO) rightPoints += filter.iso.priority
+      }
     }
 
     // Find video stabilization mode
