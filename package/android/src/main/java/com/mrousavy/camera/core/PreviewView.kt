@@ -9,6 +9,7 @@ import android.view.Gravity
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.widget.FrameLayout
+import com.facebook.react.bridge.UiThreadUtil
 import com.mrousavy.camera.extensions.bigger
 import com.mrousavy.camera.extensions.getMaximumPreviewSize
 import com.mrousavy.camera.extensions.getPreviewTargetSize
@@ -21,19 +22,21 @@ import kotlin.math.roundToInt
 class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceView(context) {
   var size: Size = getMaximumPreviewSize()
     set(value) {
-      Log.i(TAG, "Resizing PreviewView to ${value.width} x ${value.height}...")
-      holder.setFixedSize(value.width, value.height)
-      requestLayout()
-      invalidate()
       field = value
-    }
-  var resizeMode: ResizeMode = ResizeMode.COVER
-    set(value) {
-      if (value != field) {
+      UiThreadUtil.runOnUiThread {
+        Log.i(TAG, "Resizing PreviewView to ${value.width} x ${value.height}...")
+        holder.setFixedSize(value.width, value.height)
         requestLayout()
         invalidate()
       }
+    }
+  var resizeMode: ResizeMode = ResizeMode.COVER
+    set(value) {
       field = value
+      UiThreadUtil.runOnUiThread {
+        requestLayout()
+        invalidate()
+      }
     }
 
   init {
