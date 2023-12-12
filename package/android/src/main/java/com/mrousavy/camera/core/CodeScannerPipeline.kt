@@ -64,6 +64,10 @@ class CodeScannerPipeline(
           isBusy = false
           callback.onError(error)
         }
+        .addOnCompleteListener {
+          image.close()
+          isBusy = false
+        }
     }, CameraQueues.videoQueue.handler)
   }
 
