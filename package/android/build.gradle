@@ -180,6 +180,7 @@ task deleteCmakeCache() {
 
 task prepareHeaders(type: Copy) {
   from fileTree('./src/main/cpp').filter { it.isFile() }
+  include "*.h"
   into "${project.buildDir}/headers/visioncamera/react-native-vision-camera/"
   includeEmptyDirs = false
 }
