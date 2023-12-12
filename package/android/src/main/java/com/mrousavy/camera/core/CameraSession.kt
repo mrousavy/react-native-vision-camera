@@ -78,6 +78,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   private val photoOutputSynchronizer = PhotoOutputSynchronizer()
   private val mutex = Mutex()
   private var isRunning = false
+  private var isOpen = false
 
   override val coroutineContext: CoroutineContext
     get() = CameraQueues.cameraQueue.coroutineDispatcher
@@ -118,23 +119,24 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       val config = CameraConfiguration.copyOf(this.configuration)
       lambda(config)
       val diff = CameraConfiguration.difference(this.configuration, config)
+      val shouldRecreate = !isOpen
 
-      if (!diff.hasAnyDifference) {
+      if (!diff.hasAnyDifference && !shouldRecreate) {
         Log.w(TAG, "Called configure(...) but nothing changed...")
         return
       }
 
       try {
         // Build up session or update any props
-        if (diff.deviceChanged) {
+        if (diff.deviceChanged || shouldRecreate) {
           // 1. cameraId changed, open device
           configureCameraDevice(config)
         }
-        if (diff.outputsChanged) {
+        if (diff.outputsChanged || shouldRecreate) {
           // 2. outputs changed, build new session
           configureOutputs(config)
         }
-        if (diff.sidePropsChanged) {
+        if (diff.sidePropsChanged || shouldRecreate) {
           // 3. zoom etc changed, update repeating request
           configureCaptureRequest(config)
         }
@@ -239,16 +241,18 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       if (this.cameraDevice == device) {
         Log.e(TAG, "Camera Device $device has been disconnected!", error)
         isRunning = false
+        isOpen = false
         callback.onError(error)
       } else {
         // a previous device has been disconnected, but we already have a new one.
         // this is just normal behavior
       }
     }, CameraQueues.cameraQueue)
+    isOpen = true
 
     // Update PreviewView's Surface Size to a supported value from this Capture Device
     previewView?.resizeToInputCamera(cameraId, cameraManager, configuration.format)
-
+    
     Log.i(TAG, "Successfully configured Camera #$cameraId!")
   }
 
