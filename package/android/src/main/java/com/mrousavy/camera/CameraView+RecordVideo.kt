@@ -25,6 +25,8 @@ suspend fun CameraView.startRecording(options: RecordVideoOptions, onRecordCallb
     val map = Arguments.createMap()
     map.putString("path", video.path)
     map.putDouble("duration", video.durationMs.toDouble() / 1000.0)
+    map.putInt("width", video.size.width)
+    map.putInt("height", video.size.height)
     onRecordCallback(map, null)
   }
   val onError = { error: RecorderError ->

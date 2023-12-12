@@ -53,4 +53,12 @@ export interface VideoFile extends TemporaryFile {
    * Represents the duration of the video, in seconds.
    */
   duration: number
+  /**
+   * The width of the video, in pixels.
+   */
+  width: number
+  /**
+   * The height of the video, in pixels.
+   */
+  height: number
 }

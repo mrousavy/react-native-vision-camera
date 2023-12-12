@@ -51,6 +51,12 @@ class RecordingSession {
   var url: URL {
     return assetWriter.outputURL
   }
+  /**
+   Gets the size of the recorded video, in pixels.
+   */
+  var size: CGSize? {
+    return videoWriter?.naturalSize
+  }
 
   /**
    Get the duration (in seconds) of the recorded video.
