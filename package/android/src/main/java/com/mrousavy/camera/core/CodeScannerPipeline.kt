@@ -53,15 +53,11 @@ class CodeScannerPipeline(
       val inputImage = InputImage.fromMediaImage(image, Orientation.PORTRAIT.toDegrees())
       scanner.process(inputImage)
         .addOnSuccessListener { barcodes ->
-          image.close()
-          isBusy = false
           if (barcodes.isNotEmpty()) {
             callback.onCodeScanned(barcodes, CodeScannerFrame(inputImage.width, inputImage.height))
           }
         }
         .addOnFailureListener { error ->
-          image.close()
-          isBusy = false
           callback.onError(error)
         }
         .addOnCompleteListener {
