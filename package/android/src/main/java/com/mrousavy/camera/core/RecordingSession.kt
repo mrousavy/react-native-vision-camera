@@ -32,7 +32,7 @@ class RecordingSession(
     private const val AUDIO_CHANNELS = 1
   }
 
-  data class Video(val path: String, val durationMs: Long)
+  data class Video(val path: String, val durationMs: Long, val size: Size)
 
   private val bitRate = getBitRate()
   private val recorder: MediaRecorder
@@ -106,7 +106,7 @@ class RecordingSession(
 
       val stopTime = System.currentTimeMillis()
       val durationMs = stopTime - (startTime ?: stopTime)
-      callback(Video(outputFile.absolutePath, durationMs))
+      callback(Video(outputFile.absolutePath, durationMs, size))
     }
   }
 
