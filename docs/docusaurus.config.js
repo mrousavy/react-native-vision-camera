@@ -23,6 +23,13 @@ module.exports = {
       darkTheme: require('prism-react-renderer/themes/palenight'),
       additionalLanguages: ['swift', 'java', 'kotlin'],
     },
+    announcementBar: {
+      id: 'shadowlens',
+      content: 'ShadowLens is out!!! 🥳🥳 Download the iOS app to see VisionCamera in action: <a target="_blank" rel="noopener noreferrer" href="https://apps.apple.com/at/app/shadowlens/id6471849004?l=en-GB">apps.apple.com/shadowlens</a>',
+      backgroundColor: '#b59204',
+      textColor: '#ffffff',
+      isCloseable: false,
+    },
     navbar: {
       title: 'VisionCamera',
       logo: {
