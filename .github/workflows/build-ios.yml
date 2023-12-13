@@ -51,6 +51,7 @@ jobs:
         with:
           ruby-version: 2.6.10
           bundler-cache: true
+          working-directory: package/example/ios
 
       - name: Restore Pods cache
         uses: actions/cache@v3
@@ -63,7 +64,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pods-
       - name: Install Pods
-        run: pod install
+        run: bundle exec pod install
       - name: Install xcpretty
         run: gem install xcpretty
       - name: Build App
@@ -112,6 +113,7 @@ jobs:
         with:
           ruby-version: 2.6.10
           bundler-cache: true
+          working-directory: package/example/ios
 
       - name: Restore Pods cache
         uses: actions/cache@v3
@@ -124,7 +126,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pods-
       - name: Install Pods
-        run: pod install
+        run: bundle exec pod install
       - name: Install xcpretty
         run: gem install xcpretty
       - name: Build App
