@@ -115,7 +115,8 @@ class CameraConfiguration {
       // side-props (depends on format)
       sidePropsChanged = formatChanged || left?.fps != right.fps || left?.enableLowLightBoost != right.enableLowLightBoost
       // torch (depends on isActive)
-      torchChanged = left?.isActive != right.isActive || left?.torch != right.torch
+      let wasInactiveAndNeedsToEnableTorchAgain = left?.isActive == false && right.isActive == true && right.torch == .on
+      torchChanged = inputChanged || wasInactiveAndNeedsToEnableTorchAgain || left?.torch != right.torch
       // zoom (depends on format)
       zoomChanged = formatChanged || left?.zoom != right.zoom
       // exposure (depends on device)
