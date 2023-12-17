@@ -40,7 +40,10 @@ class FrameProcessorRuntimeManager(context: ReactApplicationContext, frameProces
       val holder = context.catalystInstance.jsCallInvokerHolder as CallInvokerHolderImpl
       mScheduler = VisionCameraScheduler(frameProcessorThread)
       mContext = WeakReference(context)
-      mHybridData = initHybrid(context.javaScriptContextHolder.get(), holder, mScheduler!!)
+
+      val jsRuntimeHolder = context.javaScriptContextHolder?.get() ?: throw Error("JSI Runtime is null! VisionCamera does not yet support bridgeless mode..")
+
+      mHybridData = initHybrid(jsRuntimeHolder, holder, mScheduler!!)
       initializeRuntime()
 
       Log.i(TAG, "Installing JSI Bindings on JS Thread...")
