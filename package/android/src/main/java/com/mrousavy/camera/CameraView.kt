@@ -205,7 +205,7 @@ class CameraView(context: Context) :
         config.zoom = zoom
 
         // isActive
-        config.isActive = isActive && isAttachedToWindow
+        config.isActive = isActive
       }
     }
   }
