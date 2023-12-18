@@ -25,7 +25,7 @@ module.exports = {
     },
     announcementBar: {
       id: 'shadowlens',
-      content: '<b>ShadowLens is out!!! 🥳🥳</b> Please vote for ShadowLens on ProductHunt: <a target="_blank" rel="noopener noreferrer" href="https://www.producthunt.com/posts/shadowlens">producthunt.com/posts/shadowlens</a>',
+      content: '<b>ShadowLens is out!!! 🥳🥳</b> Download the iOS app to see VisionCamera in action: <a target="_blank" rel="noopener noreferrer" href="https://apps.apple.com/at/app/shadowlens/id6471849004?l=en-GB">apps.apple.com/shadowlens</a>',
       backgroundColor: '#e39600',
       textColor: '#ffffff',
       isCloseable: false,
