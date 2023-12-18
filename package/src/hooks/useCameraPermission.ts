@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { Camera } from '../Camera'
 
 interface PermissionState {
@@ -31,17 +31,13 @@ interface PermissionState {
  * ```
  */
 export function useCameraPermission(): PermissionState {
-  const [hasPermission, setHasPermission] = useState(false)
+  const [hasPermission, setHasPermission] = useState(() => Camera.getCameraPermissionStatus() === 'granted')
 
   const requestPermission = useCallback(async () => {
     const result = await Camera.requestCameraPermission()
     const hasPermissionNow = result === 'granted'
     setHasPermission(hasPermissionNow)
     return hasPermissionNow
-  }, [])
-
-  useEffect(() => {
-    Camera.getCameraPermissionStatus().then((s) => setHasPermission(s === 'granted'))
   }, [])
 
   return {
@@ -65,17 +61,13 @@ export function useCameraPermission(): PermissionState {
  * ```
  */
 export function useMicrophonePermission(): PermissionState {
-  const [hasPermission, setHasPermission] = useState(false)
+  const [hasPermission, setHasPermission] = useState(() => Camera.getMicrophonePermissionStatus() === 'granted')
 
   const requestPermission = useCallback(async () => {
     const result = await Camera.requestMicrophonePermission()
     const hasPermissionNow = result === 'granted'
     setHasPermission(hasPermissionNow)
     return hasPermissionNow
-  }, [])
-
-  useEffect(() => {
-    Camera.getMicrophonePermissionStatus().then((s) => setHasPermission(s === 'granted'))
   }, [])
 
   return {

@@ -1,12 +1,12 @@
 import { NavigationContainer } from '@react-navigation/native'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { PermissionsPage } from './PermissionsPage'
 import { MediaPage } from './MediaPage'
 import { CameraPage } from './CameraPage'
 import { CodeScannerPage } from './CodeScannerPage'
 import type { Routes } from './Routes'
-import { Camera, CameraPermissionStatus } from 'react-native-vision-camera'
+import { Camera } from 'react-native-vision-camera'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { StyleSheet } from 'react-native'
 import { DevicesPage } from './DevicesPage'
@@ -14,20 +14,10 @@ import { DevicesPage } from './DevicesPage'
 const Stack = createNativeStackNavigator<Routes>()
 
 export function App(): React.ReactElement | null {
-  const [cameraPermission, setCameraPermission] = useState<CameraPermissionStatus>()
-  const [microphonePermission, setMicrophonePermission] = useState<CameraPermissionStatus>()
-
-  useEffect(() => {
-    Camera.getCameraPermissionStatus().then(setCameraPermission)
-    Camera.getMicrophonePermissionStatus().then(setMicrophonePermission)
-  }, [])
+  const cameraPermission = Camera.getCameraPermissionStatus()
+  const microphonePermission = Camera.getMicrophonePermissionStatus()
 
   console.log(`Re-rendering Navigator. Camera: ${cameraPermission} | Microphone: ${microphonePermission}`)
-
-  if (cameraPermission == null || microphonePermission == null) {
-    // still loading
-    return null
-  }
 
   const showPermissionsPage = cameraPermission !== 'granted' || microphonePermission === 'not-determined'
   return (

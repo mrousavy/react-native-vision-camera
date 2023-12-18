@@ -164,8 +164,8 @@ There could be three states to this:
 Simply use the **get** functions to find out if a user has granted or denied permission before:
 
 ```ts
-const cameraPermission = await Camera.getCameraPermissionStatus()
-const microphonePermission = await Camera.getMicrophonePermissionStatus()
+const cameraPermission = Camera.getCameraPermissionStatus()
+const microphonePermission = Camera.getMicrophonePermissionStatus()
 ```
 
 A permission status can have the following values:
