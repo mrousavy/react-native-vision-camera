@@ -149,24 +149,24 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     return activity?.shouldShowRequestPermissionRationale(permission) ?: false
   }
 
-  @ReactMethod
-  fun getCameraPermissionStatus(promise: Promise) {
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  fun getCameraPermissionStatus(): String {
     val status = ContextCompat.checkSelfPermission(reactApplicationContext, Manifest.permission.CAMERA)
     var parsed = PermissionStatus.fromPermissionStatus(status)
     if (parsed == PermissionStatus.DENIED && canRequestPermission(Manifest.permission.CAMERA)) {
       parsed = PermissionStatus.NOT_DETERMINED
     }
-    promise.resolve(parsed.unionValue)
+    return parsed.unionValue
   }
 
-  @ReactMethod
-  fun getMicrophonePermissionStatus(promise: Promise) {
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  fun getMicrophonePermissionStatus(): String {
     val status = ContextCompat.checkSelfPermission(reactApplicationContext, Manifest.permission.RECORD_AUDIO)
     var parsed = PermissionStatus.fromPermissionStatus(status)
     if (parsed == PermissionStatus.DENIED && canRequestPermission(Manifest.permission.RECORD_AUDIO)) {
       parsed = PermissionStatus.NOT_DETERMINED
     }
-    promise.resolve(parsed.unionValue)
+    return parsed.unionValue
   }
 
   @ReactMethod

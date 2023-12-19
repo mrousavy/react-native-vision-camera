@@ -31,7 +31,7 @@ type Props = NativeStackScreenProps<Routes, 'CameraPage'>
 export function CameraPage({ navigation }: Props): React.ReactElement {
   const camera = useRef<Camera>(null)
   const [isCameraInitialized, setIsCameraInitialized] = useState(false)
-  const [hasMicrophonePermission, setHasMicrophonePermission] = useState(false)
+  const hasMicrophonePermission = useMemo(() => Camera.getMicrophonePermissionStatus() === 'granted', [])
   const zoom = useSharedValue(0)
   const isPressingButton = useSharedValue(false)
 
@@ -131,10 +131,6 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     // Run everytime the neutralZoomScaled value changes. (reset zoom when device changes)
     zoom.value = neutralZoom
   }, [neutralZoom, zoom])
-
-  useEffect(() => {
-    Camera.getMicrophonePermissionStatus().then((status) => setHasMicrophonePermission(status === 'granted'))
-  }, [])
   //#endregion
 
   //#region Pinch to Zoom Gesture

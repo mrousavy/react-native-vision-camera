@@ -345,30 +345,18 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * the user has permitted the app to use the camera.
    *
    * To actually prompt the user for camera permission, use {@linkcode Camera.requestCameraPermission | requestCameraPermission()}.
-   *
-   * @throws {@linkcode CameraRuntimeError} When any kind of error occured while getting the current permission status. Use the {@linkcode CameraRuntimeError.code | code} property to get the actual error
    */
-  public static async getCameraPermissionStatus(): Promise<CameraPermissionStatus> {
-    try {
-      return await CameraModule.getCameraPermissionStatus()
-    } catch (e) {
-      throw tryParseNativeCameraError(e)
-    }
+  public static getCameraPermissionStatus(): CameraPermissionStatus {
+    return CameraModule.getCameraPermissionStatus()
   }
   /**
    * Gets the current Microphone-Recording Permission Status. Check this before mounting the Camera to ensure
    * the user has permitted the app to use the microphone.
    *
    * To actually prompt the user for microphone permission, use {@linkcode Camera.requestMicrophonePermission | requestMicrophonePermission()}.
-   *
-   * @throws {@linkcode CameraRuntimeError} When any kind of error occured while getting the current permission status. Use the {@linkcode CameraRuntimeError.code | code} property to get the actual error
    */
-  public static async getMicrophonePermissionStatus(): Promise<CameraPermissionStatus> {
-    try {
-      return await CameraModule.getMicrophonePermissionStatus()
-    } catch (e) {
-      throw tryParseNativeCameraError(e)
-    }
+  public static getMicrophonePermissionStatus(): CameraPermissionStatus {
+    return CameraModule.getMicrophonePermissionStatus()
   }
   /**
    * Shows a "request permission" alert to the user, and resolves with the new camera permission status.

@@ -84,19 +84,15 @@ final class CameraViewManager: RCTViewManager {
   }
 
   @objc
-  final func getCameraPermissionStatus(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    withPromise(resolve: resolve, reject: reject) {
-      let status = AVCaptureDevice.authorizationStatus(for: .video)
-      return status.descriptor
-    }
+  final func getCameraPermissionStatus() -> String {
+    let status = AVCaptureDevice.authorizationStatus(for: .video)
+    return status.descriptor
   }
 
   @objc
-  final func getMicrophonePermissionStatus(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    withPromise(resolve: resolve, reject: reject) {
-      let status = AVCaptureDevice.authorizationStatus(for: .audio)
-      return status.descriptor
-    }
+  final func getMicrophonePermissionStatus() -> String {
+    let status = AVCaptureDevice.authorizationStatus(for: .audio)
+    return status.descriptor
   }
 
   @objc
