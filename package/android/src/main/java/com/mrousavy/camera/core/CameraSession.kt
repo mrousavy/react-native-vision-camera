@@ -15,7 +15,6 @@ import android.hardware.camera2.params.MeteringRectangle
 import android.hardware.camera2.params.OutputConfiguration
 import android.media.Image
 import android.media.ImageReader
-import android.os.Build
 import android.util.Log
 import android.util.Range
 import android.util.Size
@@ -58,9 +57,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   CoroutineScope {
   companion object {
     private const val TAG = "CameraSession"
-
-    // TODO: Samsung advertises 60 FPS but only allows 30 FPS for some reason.
-    private val CAN_DO_60_FPS = !Build.MANUFACTURER.equals("samsung", true)
   }
 
   // Camera Configuration
@@ -417,12 +413,8 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
     // Set FPS
     // TODO: Check if the FPS range is actually supported in the current configuration.
-    var fps = config.fps
+    val fps = config.fps
     if (fps != null) {
-      if (!CAN_DO_60_FPS) {
-        // If we can't do 60 FPS, we clamp it to 30 FPS - that's always supported.
-        fps = 30.coerceAtMost(fps)
-      }
       captureRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(fps, fps))
     }
 
