@@ -1,6 +1,10 @@
 package com.mrousavy.camera.frameprocessor;
 
+import android.util.Log;
+
 import androidx.annotation.Keep;
+
+import com.facebook.jni.CppException;
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
 import com.mrousavy.camera.core.CameraQueues;
@@ -22,8 +26,12 @@ public class VisionCameraScheduler {
     @SuppressWarnings("unused")
     @DoNotStrip
     private void scheduleTrigger() {
-        CameraQueues.CameraQueue videoQueue = CameraQueues.Companion.getVideoQueue();
-        // TODO: Make sure post(this::trigger) works.
-        videoQueue.getHandler().post(this::trigger);
+        try{
+            CameraQueues.CameraQueue videoQueue = CameraQueues.Companion.getVideoQueue();
+            // TODO: Make sure post(this::trigger) works.
+            videoQueue.getHandler().post(this::trigger);
+        }catch (CppException error){
+            Log.e("VisionCameraScheduler", "scheduleTrigger: ", error);
+        }
     }
 }

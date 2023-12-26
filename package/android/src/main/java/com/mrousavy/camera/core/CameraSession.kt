@@ -44,14 +44,14 @@ import com.mrousavy.camera.types.QualityPrioritization
 import com.mrousavy.camera.types.RecordVideoOptions
 import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.VideoStabilizationMode
-import java.io.Closeable
-import java.util.concurrent.CancellationException
-import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.io.Closeable
+import java.util.concurrent.CancellationException
+import kotlin.coroutines.CoroutineContext
 
 class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: CameraSessionCallback) :
   Closeable,
@@ -176,25 +176,30 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   }
 
   private fun destroy() {
-    Log.i(TAG, "Destroying session..")
-    captureSession?.stopRepeating()
-    captureSession?.close()
-    captureSession = null
+    try {
+      Log.i(TAG, "Destroying session..")
+      captureSession?.stopRepeating()
+      captureSession?.close()
+      captureSession = null
+      cameraDevice?.close()
+      cameraDevice = null
 
-    cameraDevice?.close()
-    cameraDevice = null
+      previewOutput?.close()
+      previewOutput = null
+      photoOutput?.close()
+      photoOutput = null
+      videoOutput?.close()
+      videoOutput = null
+      codeScannerOutput?.close()
+      codeScannerOutput = null
 
-    previewOutput?.close()
-    previewOutput = null
-    photoOutput?.close()
-    photoOutput = null
-    videoOutput?.close()
-    videoOutput = null
-    codeScannerOutput?.close()
-    codeScannerOutput = null
+      configuration = null
+      isRunning = false
+    } catch (error: Throwable) {
+      Log.e(TAG, "Failed to destroy CameraSession! Error: ${error.message}", error)
+      callback.onError(error)
+    }
 
-    configuration = null
-    isRunning = false
   }
 
   fun createPreviewView(context: Context): PreviewView {
@@ -325,9 +330,11 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         size.height,
         video.config.pixelFormat,
         isSelfie,
-        video.config.enableFrameProcessor
+        video.config.enableFrameProcessor,
+        callback
       )
       val output = VideoPipelineOutput(videoPipeline, configuration.videoHdr)
+
       outputs.add(output.toOutputConfiguration(characteristics))
       videoOutput = output
     }
