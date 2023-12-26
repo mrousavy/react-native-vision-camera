@@ -31,7 +31,8 @@ class VideoPipeline(
   val height: Int,
   val format: PixelFormat = PixelFormat.NATIVE,
   private val isMirrored: Boolean = false,
-  enableFrameProcessor: Boolean = false
+  enableFrameProcessor: Boolean = false,
+  private val callback: CameraSession.CameraSessionCallback
 ) : SurfaceTexture.OnFrameAvailableListener,
   Closeable {
   companion object {
@@ -193,16 +194,21 @@ class VideoPipeline(
    */
   fun setRecordingSessionOutput(recordingSession: RecordingSession?) {
     synchronized(this) {
-      if (recordingSession != null) {
-        // Configure OpenGL pipeline to stream Frames into the Recording Session's surface
-        Log.i(TAG, "Setting $width x $height RecordingSession Output...")
-        setRecordingSessionOutputSurface(recordingSession.surface)
-        this.recordingSession = recordingSession
-      } else {
-        // Configure OpenGL pipeline to stop streaming Frames into the Recording Session's surface
-        Log.i(TAG, "Removing RecordingSession Output...")
-        removeRecordingSessionOutputSurface()
-        this.recordingSession = null
+      try {
+        if (recordingSession != null) {
+          // Configure OpenGL pipeline to stream Frames into the Recording Session's surface
+          Log.i(TAG, "Setting $width x $height RecordingSession Output...")
+          setRecordingSessionOutputSurface(recordingSession.surface)
+          this.recordingSession = recordingSession
+        } else {
+          // Configure OpenGL pipeline to stop streaming Frames into the Recording Session's surface
+          Log.i(TAG, "Removing RecordingSession Output...")
+          removeRecordingSessionOutputSurface()
+          this.recordingSession = null
+        }
+      } catch (error: Throwable) {
+        Log.e(TAG, "setRecordingSessionOutput: ", error)
+        callback.onError(error)
       }
     }
   }
