@@ -11,7 +11,7 @@ import type { RecordVideoOptions, VideoFile } from './VideoFile'
 import { VisionCameraProxy } from './FrameProcessorPlugins'
 import { CameraDevices } from './CameraDevices'
 import type { EmitterSubscription } from 'react-native'
-import { Code, CodeScanner, CodeScannerFrame } from './CodeScanner'
+import type { Code, CodeScanner, CodeScannerFrame } from './CodeScanner'
 
 //#region Types
 export type CameraPermissionStatus = 'granted' | 'not-determined' | 'denied' | 'restricted'
