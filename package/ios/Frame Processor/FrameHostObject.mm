@@ -38,8 +38,15 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   auto name = propName.utf8(runtime);
 
   if (name == "toString") {
-    auto toString = JSI_HOST_FUNCTION_LAMBDA {
-      if (this->frame == nil) {
+    auto toString = [this](jsi::Runtime & runtime,
+                           const jsi::Value &thisValue,
+                           const jsi::Value *arguments, size_t count) -> jsi::Value {
+      // Lock Frame so it cannot be deallocated while we access it
+      std::lock_guard lock(this->_mutex);
+      
+      // Print debug description (width, height)
+      Frame* frame = this->frame;
+      if (!CMSampleBufferIsValid(frame.buffer)) {
         return jsi::String::createFromUtf8(runtime, "[closed frame]");
       }
       auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
@@ -52,25 +59,41 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
   }
   if (name == "incrementRefCount") {
-    auto incrementRefCount = JSI_HOST_FUNCTION_LAMBDA {
+    auto incrementRefCount = [this](jsi::Runtime & runtime,
+                                    const jsi::Value &thisValue,
+                                    const jsi::Value *arguments, size_t count) -> jsi::Value {
+      // Lock Frame so it cannot be deallocated while we access it
+      std::lock_guard lock(this->_mutex);
+      
       // Increment retain count by one so ARC doesn't destroy the Frame Buffer.
-      CFRetain(frame.buffer);
+      CFRetain(this->frame.buffer);
       return jsi::Value::undefined();
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "incrementRefCount"), 0, incrementRefCount);
   }
   if (name == "decrementRefCount") {
-    auto decrementRefCount = JSI_HOST_FUNCTION_LAMBDA {
+    auto decrementRefCount = [this](jsi::Runtime & runtime,
+                                    const jsi::Value &thisValue,
+                                    const jsi::Value *arguments, size_t count) -> jsi::Value {
+      // Lock Frame so it cannot be deallocated while we access it
+      std::lock_guard lock(this->_mutex);
+      
       // Decrement retain count by one. If the retain count is zero, ARC will destroy the Frame
       // Buffer.
-      CFRelease(frame.buffer);
+      CFRelease(this->frame.buffer);
       return jsi::Value::undefined();
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "decrementRefCount"), 0, decrementRefCount);
   }
   if (name == "toArrayBuffer") {
-    auto toArrayBuffer = JSI_HOST_FUNCTION_LAMBDA {
-      auto pixelBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
+    auto toArrayBuffer = [this](jsi::Runtime & runtime,
+                                const jsi::Value &thisValue,
+                                const jsi::Value *arguments, size_t count) -> jsi::Value {
+      // Lock Frame so it cannot be deallocated while we access it
+      std::lock_guard lock(this->_mutex);
+      
+      // Get CPU readable Pixel Buffer from Frame and write it to a jsi::ArrayBuffer
+      auto pixelBuffer = CMSampleBufferGetImageBuffer(this->frame.buffer);
       auto bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer);
       auto height = CVPixelBufferGetHeight(pixelBuffer);
 
@@ -101,15 +124,24 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   }
 
   if (name == "isValid") {
+    // Lock Frame so it cannot be deallocated while we access it
+    std::lock_guard lock(this->_mutex);
+    
     auto isValid = frame != nil && frame.buffer != nil && CFGetRetainCount(frame.buffer) > 0 && CMSampleBufferIsValid(frame.buffer);
     return jsi::Value(isValid);
   }
   if (name == "width") {
+    // Lock Frame so it cannot be deallocated while we access it
+    std::lock_guard lock(this->_mutex);
+    
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     auto width = CVPixelBufferGetWidth(imageBuffer);
     return jsi::Value((double)width);
   }
   if (name == "height") {
+    // Lock Frame so it cannot be deallocated while we access it
+    std::lock_guard lock(this->_mutex);
+    
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     auto height = CVPixelBufferGetHeight(imageBuffer);
     return jsi::Value((double)height);
@@ -145,11 +177,17 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     }
   }
   if (name == "timestamp") {
+    // Lock Frame so it cannot be deallocated while we access it
+    std::lock_guard lock(this->_mutex);
+    
     auto timestamp = CMSampleBufferGetPresentationTimeStamp(frame.buffer);
     auto seconds = static_cast<double>(CMTimeGetSeconds(timestamp));
     return jsi::Value(seconds * 1000.0);
   }
   if (name == "pixelFormat") {
+    // Lock Frame so it cannot be deallocated while we access it
+    std::lock_guard lock(this->_mutex);
+    
     auto format = CMSampleBufferGetFormatDescription(frame.buffer);
     auto mediaType = CMFormatDescriptionGetMediaSubType(format);
     switch (mediaType) {
@@ -169,11 +207,17 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     }
   }
   if (name == "bytesPerRow") {
+    // Lock Frame so it cannot be deallocated while we access it
+    std::lock_guard lock(this->_mutex);
+    
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     auto bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
     return jsi::Value((double)bytesPerRow);
   }
   if (name == "planesCount") {
+    // Lock Frame so it cannot be deallocated while we access it
+    std::lock_guard lock(this->_mutex);
+    
     auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
     auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
     return jsi::Value((double)planesCount);
