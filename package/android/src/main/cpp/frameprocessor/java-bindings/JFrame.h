@@ -33,7 +33,6 @@ public:
 
   void incrementRefCount();
   void decrementRefCount();
-  void close();
 };
 
 } // namespace vision

@@ -77,9 +77,4 @@ void JFrame::decrementRefCount() {
   decrementRefCountMethod(self());
 }
 
-void JFrame::close() {
-  static const auto closeMethod = getClass()->getMethod<void()>("close");
-  closeMethod(self());
-}
-
 } // namespace vision
