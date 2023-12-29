@@ -12,7 +12,7 @@
 
 @implementation Frame {
   CMSampleBufferRef _Nonnull buffer;
-  UIImageOrientation _orientation;
+  UIImageOrientation orientation;
 }
 
 - (instancetype)initWithBuffer:(CMSampleBufferRef _Nonnull)buffer orientation:(UIImageOrientation)orientation {
@@ -30,23 +30,7 @@
 }
 
 @synthesize buffer = _buffer;
-
-- (NSString*)orientation {
-  switch (_orientation) {
-    case UIImageOrientationUp:
-    case UIImageOrientationUpMirrored:
-      return @"portrait";
-    case UIImageOrientationDown:
-    case UIImageOrientationDownMirrored:
-      return @"portrait-upside-down";
-    case UIImageOrientationLeft:
-    case UIImageOrientationLeftMirrored:
-      return @"landscape-left";
-    case UIImageOrientationRight:
-    case UIImageOrientationRightMirrored:
-      return @"landscape-right";
-  }
-}
+@synthesize orientation = _orientation;
 
 - (NSString*)pixelFormat {
   CMFormatDescriptionRef format = CMSampleBufferGetFormatDescription(_buffer);

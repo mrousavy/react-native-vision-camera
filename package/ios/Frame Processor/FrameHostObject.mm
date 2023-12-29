@@ -10,6 +10,7 @@
 #import "WKTJsiHostObject.h"
 #import <Foundation/Foundation.h>
 #import <jsi/jsi.h>
+#import "UIImageOrientation+descriptor.h"
 
 #import "../../cpp/JSITypedArray.h"
 
@@ -155,7 +156,8 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     std::lock_guard lock(this->_mutex);
 
     Frame* frame = this->getFrame();
-    return jsi::String::createFromUtf8(runtime, frame.orientation.UTF8String);
+    NSString* orientation = [NSString stringWithParsed:frame.orientation];
+    return jsi::String::createFromUtf8(runtime, orientation.UTF8String);
   }
   if (name == "isMirrored") {
     // Lock Frame so it cannot be deallocated while we access it
