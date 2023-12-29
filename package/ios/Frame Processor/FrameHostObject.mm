@@ -56,11 +56,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 
       // Print debug description (width, height)
       Frame* frame = this->getFrame();
-      auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
-      auto width = CVPixelBufferGetWidth(imageBuffer);
-      auto height = CVPixelBufferGetHeight(imageBuffer);
-
-      NSMutableString* string = [NSMutableString stringWithFormat:@"%lu x %lu Frame", width, height];
+      NSMutableString* string = [NSMutableString stringWithFormat:@"%lu x %lu %@ Frame", frame.width, frame.height, frame.pixelFormat];
       return jsi::String::createFromUtf8(runtime, string.UTF8String);
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
@@ -138,106 +134,63 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 
     // unsafely access the Frame and try to see if it's valid
     Frame* frame = this->frame;
-    auto isValid = frame != nil && frame.buffer != nil && CMSampleBufferIsValid(frame.buffer);
-    return jsi::Value(isValid);
+    return jsi::Value(frame != nil && frame.isValid);
   }
   if (name == "width") {
     // Lock Frame so it cannot be deallocated while we access it
     std::lock_guard lock(this->_mutex);
 
     Frame* frame = this->getFrame();
-    auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
-    auto width = CVPixelBufferGetWidth(imageBuffer);
-    return jsi::Value((double)width);
+    return jsi::Value((double)frame.width);
   }
   if (name == "height") {
     // Lock Frame so it cannot be deallocated while we access it
     std::lock_guard lock(this->_mutex);
 
     Frame* frame = this->getFrame();
-    auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
-    auto height = CVPixelBufferGetHeight(imageBuffer);
-    return jsi::Value((double)height);
+    return jsi::Value((double)frame.height);
   }
   if (name == "orientation") {
-    switch (frame.orientation) {
-      case UIImageOrientationUp:
-      case UIImageOrientationUpMirrored:
-        return jsi::String::createFromUtf8(runtime, "portrait");
-      case UIImageOrientationDown:
-      case UIImageOrientationDownMirrored:
-        return jsi::String::createFromUtf8(runtime, "portrait-upside-down");
-      case UIImageOrientationLeft:
-      case UIImageOrientationLeftMirrored:
-        return jsi::String::createFromUtf8(runtime, "landscape-left");
-      case UIImageOrientationRight:
-      case UIImageOrientationRightMirrored:
-        return jsi::String::createFromUtf8(runtime, "landscape-right");
-    }
+    // Lock Frame so it cannot be deallocated while we access it
+    std::lock_guard lock(this->_mutex);
+    
+    Frame* frame = this->getFrame();
+    return jsi::String::createFromUtf8(runtime, frame.orientation.UTF8String);
   }
   if (name == "isMirrored") {
-    switch (frame.orientation) {
-      case UIImageOrientationUp:
-      case UIImageOrientationDown:
-      case UIImageOrientationLeft:
-      case UIImageOrientationRight:
-        return jsi::Value(false);
-      case UIImageOrientationDownMirrored:
-      case UIImageOrientationUpMirrored:
-      case UIImageOrientationLeftMirrored:
-      case UIImageOrientationRightMirrored:
-        return jsi::Value(true);
-    }
+    // Lock Frame so it cannot be deallocated while we access it
+    std::lock_guard lock(this->_mutex);
+    
+    Frame* frame = this->getFrame();
+    return jsi::Value(frame.isMirrored);
   }
   if (name == "timestamp") {
     // Lock Frame so it cannot be deallocated while we access it
     std::lock_guard lock(this->_mutex);
 
     Frame* frame = this->getFrame();
-    auto timestamp = CMSampleBufferGetPresentationTimeStamp(frame.buffer);
-    auto seconds = static_cast<double>(CMTimeGetSeconds(timestamp));
-    return jsi::Value(seconds * 1000.0);
+    return jsi::Value(frame.timestamp);
   }
   if (name == "pixelFormat") {
     // Lock Frame so it cannot be deallocated while we access it
     std::lock_guard lock(this->_mutex);
 
     Frame* frame = this->getFrame();
-    auto format = CMSampleBufferGetFormatDescription(frame.buffer);
-    auto mediaType = CMFormatDescriptionGetMediaSubType(format);
-    switch (mediaType) {
-      case kCVPixelFormatType_32BGRA:
-      case kCVPixelFormatType_Lossy_32BGRA:
-        return jsi::String::createFromUtf8(runtime, "rgb");
-      case kCVPixelFormatType_420YpCbCr8BiPlanarFullRange:
-      case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
-      case kCVPixelFormatType_420YpCbCr10BiPlanarFullRange:
-      case kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange:
-      case kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarFullRange:
-      case kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarVideoRange:
-      case kCVPixelFormatType_Lossy_420YpCbCr10PackedBiPlanarVideoRange:
-        return jsi::String::createFromUtf8(runtime, "yuv");
-      default:
-        return jsi::String::createFromUtf8(runtime, "unknown");
-    }
+    return jsi::String::createFromUtf8(runtime, frame.pixelFormat.UTF8String);
   }
   if (name == "bytesPerRow") {
     // Lock Frame so it cannot be deallocated while we access it
     std::lock_guard lock(this->_mutex);
 
     Frame* frame = this->getFrame();
-    auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
-    auto bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer);
-    return jsi::Value((double)bytesPerRow);
+    return jsi::Value((double)frame.bytesPerRow);
   }
   if (name == "planesCount") {
     // Lock Frame so it cannot be deallocated while we access it
     std::lock_guard lock(this->_mutex);
 
     Frame* frame = this->getFrame();
-    auto imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
-    auto planesCount = CVPixelBufferGetPlaneCount(imageBuffer);
-    return jsi::Value((double)planesCount);
+    return jsi::Value((double)frame.planesCount);
   }
 
   // fallback to base implementation
