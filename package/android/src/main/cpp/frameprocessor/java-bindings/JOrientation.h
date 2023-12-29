@@ -4,17 +4,17 @@
 
 #pragma once
 
+#include "JJSUnionValue.h"
 #include <fbjni/fbjni.h>
 #include <jni.h>
-#include "JJSUnionValue.h"
 
 namespace vision {
 
 using namespace facebook;
 using namespace jni;
 
-struct JOrientation: public JavaClass<JOrientation, JJSUnionValue> {
-    static constexpr auto kJavaDescriptor = "Lcom/mrousavy/camera/types/Orientation;";
+struct JOrientation : public JavaClass<JOrientation, JJSUnionValue> {
+  static constexpr auto kJavaDescriptor = "Lcom/mrousavy/camera/types/Orientation;";
 };
 
 } // namespace vision

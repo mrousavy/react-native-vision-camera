@@ -4,10 +4,10 @@
 
 #include "JFrame.h"
 
+#include "JOrientation.h"
+#include "JPixelFormat.h"
 #include <fbjni/fbjni.h>
 #include <jni.h>
-#include "JPixelFormat.h"
-#include "JOrientation.h"
 
 #include <android/hardware_buffer_jni.h>
 
