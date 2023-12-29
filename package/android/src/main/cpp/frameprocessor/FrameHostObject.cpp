@@ -77,7 +77,9 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       }
       auto width = this->frame->getWidth();
       auto height = this->frame->getHeight();
-      auto str = std::to_string(width) + " x " + std::to_string(height) + " Frame";
+      auto format = this->frame->getPixelFormat();
+      auto formatString = format->getUnionValue();
+      auto str = std::to_string(width) + " x " + std::to_string(height) + " " + formatString->toString() + " Frame";
       return jsi::String::createFromUtf8(runtime, str);
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
@@ -141,11 +143,13 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     return jsi::Value(this->frame->getIsMirrored());
   }
   if (name == "orientation") {
-    auto string = this->frame->getOrientation();
+    auto orientation = this->frame->getOrientation();
+    auto string = orientation->getUnionValue();
     return jsi::String::createFromUtf8(runtime, string->toStdString());
   }
   if (name == "pixelFormat") {
-    auto string = this->frame->getPixelFormat();
+    auto pixelFormat = this->frame->getPixelFormat();
+    auto string = pixelFormat->getUnionValue();
     return jsi::String::createFromUtf8(runtime, string->toStdString());
   }
   if (name == "timestamp") {

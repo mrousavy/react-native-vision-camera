@@ -19,4 +19,14 @@
 @property(nonatomic, readonly) CMSampleBufferRef _Nonnull buffer;
 @property(nonatomic, readonly) UIImageOrientation orientation;
 
+// Getters
+- (NSString* _Nonnull)pixelFormat;
+- (BOOL)isMirrored;
+- (BOOL)isValid;
+- (size_t)width;
+- (size_t)height;
+- (double)timestamp;
+- (size_t)bytesPerRow;
+- (size_t)planesCount;
+
 @end

@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "JOrientation.h"
+#include "JPixelFormat.h"
 #include <fbjni/fbjni.h>
 #include <jni.h>
 
@@ -25,15 +27,14 @@ public:
   int getPlanesCount() const;
   int getBytesPerRow() const;
   jlong getTimestamp() const;
-  local_ref<JString> getOrientation() const;
-  local_ref<JString> getPixelFormat() const;
+  local_ref<JOrientation> getOrientation() const;
+  local_ref<JPixelFormat> getPixelFormat() const;
 #if __ANDROID_API__ >= 26
   AHardwareBuffer* getHardwareBuffer() const;
 #endif
 
   void incrementRefCount();
   void decrementRefCount();
-  void close();
 };
 
 } // namespace vision

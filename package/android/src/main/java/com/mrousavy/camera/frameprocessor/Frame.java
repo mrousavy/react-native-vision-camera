@@ -7,6 +7,7 @@ import com.facebook.proguard.annotations.DoNotStrip;
 import com.mrousavy.camera.core.HardwareBuffersNotAvailableError;
 import com.mrousavy.camera.types.PixelFormat;
 import com.mrousavy.camera.types.Orientation;
+import java.lang.IllegalStateException;
 
 public class Frame {
     private final Image image;
@@ -24,30 +25,44 @@ public class Frame {
     }
 
     public Image getImage() {
-        return image;
+        synchronized (this) {
+            Image img = image;
+            if (!getIsImageValid(img)) {
+                throw new RuntimeException("Frame is already closed! " +
+                    "Are you trying to access the Image data outside of a Frame Processor's lifetime?\n" +
+                    "- If you want to use `console.log(frame)`, use `console.log(frame.toString())` instead.\n" +
+                    "- If you want to do async processing, use `runAsync(...)` instead.\n" +
+                    "- If you want to use runOnJS, increment it's ref-count: `frame.incrementRefCount()`");
+            }
+            return img;
+        }
     }
 
     @SuppressWarnings("unused")
     @DoNotStrip
     public int getWidth() {
-        return image.getWidth();
+        return getImage().getWidth();
     }
 
     @SuppressWarnings("unused")
     @DoNotStrip
     public int getHeight() {
-        return image.getHeight();
+        return getImage().getHeight();
     }
 
     @SuppressWarnings("unused")
     @DoNotStrip
     public boolean getIsValid() {
+        return getIsImageValid(getImage());
+    }
+
+    private boolean getIsImageValid(Image image) {
         try {
             // will throw an exception if the image is already closed
-            image.getCropRect();
+            synchronized (this) { image.getFormat(); }
             // no exception thrown, image must still be valid.
             return true;
-        } catch (Exception e) {
+        } catch (IllegalStateException e) {
             // exception thrown, image has already been closed.
             return false;
         }
@@ -67,27 +82,26 @@ public class Frame {
 
     @SuppressWarnings("unused")
     @DoNotStrip
-    public String getOrientation() {
-        return orientation.getUnionValue();
+    public Orientation getOrientation() {
+        return orientation;
     }
 
     @SuppressWarnings("unused")
     @DoNotStrip
-    public String getPixelFormat() {
-        PixelFormat format = PixelFormat.Companion.fromImageFormat(image.getFormat());
-        return format.getUnionValue();
+    public PixelFormat getPixelFormat() {
+        return PixelFormat.Companion.fromImageFormat(getImage().getFormat());
     }
 
     @SuppressWarnings("unused")
     @DoNotStrip
     public int getPlanesCount() {
-        return image.getPlanes().length;
+        return getImage().getPlanes().length;
     }
 
     @SuppressWarnings("unused")
     @DoNotStrip
     public int getBytesPerRow() {
-        return image.getPlanes()[0].getRowStride();
+        return getImage().getPlanes()[0].getRowStride();
     }
 
     @SuppressWarnings("unused")
@@ -101,7 +115,7 @@ public class Frame {
             throw new HardwareBuffersNotAvailableError();
         }
         if (hardwareBuffer == null) {
-            hardwareBuffer = image.getHardwareBuffer();
+            hardwareBuffer = getImage().getHardwareBuffer();
         }
         return hardwareBuffer;
     }
@@ -121,17 +135,17 @@ public class Frame {
             refCount--;
             if (refCount <= 0) {
                 // If no reference is held on this Image, close it.
-                image.close();
+                close();
             }
         }
     }
 
-    @SuppressWarnings("unused")
-    @DoNotStrip
-    private void close() {
-        if (hardwareBuffer != null) {
-            hardwareBuffer.close();
+    private synchronized void close() {
+        synchronized (this) {
+            if (hardwareBuffer != null) {
+                hardwareBuffer.close();
+            }
+            image.close();
         }
-        image.close();
     }
 }
