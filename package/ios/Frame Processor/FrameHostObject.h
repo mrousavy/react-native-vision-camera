@@ -10,6 +10,7 @@
 
 #import <CoreMedia/CMSampleBuffer.h>
 #import <jsi/jsi.h>
+#import <mutex>
 
 #import "Frame.h"
 
@@ -25,4 +26,7 @@ public:
 
 public:
   Frame* frame;
+  
+private:
+  std::mutex _mutex;
 };
