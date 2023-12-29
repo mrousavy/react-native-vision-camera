@@ -31,7 +31,7 @@
 
 @synthesize buffer = _buffer;
 
-- (NSString*) orientation {
+- (NSString*)orientation {
   switch (_orientation) {
     case UIImageOrientationUp:
     case UIImageOrientationUpMirrored:
@@ -48,7 +48,7 @@
   }
 }
 
-- (NSString*) pixelFormat {
+- (NSString*)pixelFormat {
   CMFormatDescriptionRef format = CMSampleBufferGetFormatDescription(_buffer);
   FourCharCode mediaType = CMFormatDescriptionGetMediaSubType(format);
   switch (mediaType) {
@@ -68,7 +68,7 @@
   }
 }
 
-- (BOOL) isMirrored {
+- (BOOL)isMirrored {
   switch (_orientation) {
     case UIImageOrientationUp:
     case UIImageOrientationDown:
@@ -83,31 +83,31 @@
   }
 }
 
-- (BOOL) isValid {
+- (BOOL)isValid {
   return _buffer != nil && CMSampleBufferIsValid(_buffer);
 }
 
-- (size_t) width {
+- (size_t)width {
   CVPixelBufferRef imageBuffer = CMSampleBufferGetImageBuffer(_buffer);
   return CVPixelBufferGetWidth(imageBuffer);
 }
 
-- (size_t) height {
+- (size_t)height {
   CVPixelBufferRef imageBuffer = CMSampleBufferGetImageBuffer(_buffer);
   return CVPixelBufferGetHeight(imageBuffer);
 }
 
-- (double) timestamp {
+- (double)timestamp {
   CMTime timestamp = CMSampleBufferGetPresentationTimeStamp(_buffer);
   return CMTimeGetSeconds(timestamp) * 1000.0;
 }
 
-- (size_t) bytesPerRow {
+- (size_t)bytesPerRow {
   CVPixelBufferRef imageBuffer = CMSampleBufferGetImageBuffer(_buffer);
   return CVPixelBufferGetBytesPerRow(imageBuffer);
 }
 
-- (size_t) planesCount {
+- (size_t)planesCount {
   CVPixelBufferRef imageBuffer = CMSampleBufferGetImageBuffer(_buffer);
   return CVPixelBufferGetPlaneCount(imageBuffer);
 }

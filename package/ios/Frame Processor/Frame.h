@@ -19,14 +19,14 @@
 @property(nonatomic, readonly) CMSampleBufferRef _Nonnull buffer;
 
 // Getters
-- (NSString* _Nonnull) pixelFormat;
-- (NSString* _Nonnull) orientation;
-- (BOOL) isMirrored;
-- (BOOL) isValid;
-- (size_t) width;
-- (size_t) height;
-- (double) timestamp;
-- (size_t) bytesPerRow;
-- (size_t) planesCount;
+- (NSString* _Nonnull)pixelFormat;
+- (NSString* _Nonnull)orientation;
+- (BOOL)isMirrored;
+- (BOOL)isValid;
+- (size_t)width;
+- (size_t)height;
+- (double)timestamp;
+- (size_t)bytesPerRow;
+- (size_t)planesCount;
 
 @end

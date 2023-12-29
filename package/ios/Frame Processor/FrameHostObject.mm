@@ -153,14 +153,14 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   if (name == "orientation") {
     // Lock Frame so it cannot be deallocated while we access it
     std::lock_guard lock(this->_mutex);
-    
+
     Frame* frame = this->getFrame();
     return jsi::String::createFromUtf8(runtime, frame.orientation.UTF8String);
   }
   if (name == "isMirrored") {
     // Lock Frame so it cannot be deallocated while we access it
     std::lock_guard lock(this->_mutex);
-    
+
     Frame* frame = this->getFrame();
     return jsi::Value(frame.isMirrored);
   }
