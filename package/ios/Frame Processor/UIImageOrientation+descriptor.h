@@ -13,13 +13,13 @@
 
 @interface NSString (UIImageOrientationJSDescriptor)
 
-+ (NSString*) stringWithParsed:(UIImageOrientation)orientation;
++ (NSString*)stringWithParsed:(UIImageOrientation)orientation;
 
 @end
 
-@implementation UIImageOrientation
+@implementation NSString (UIImageOrientationJSDescriptor)
 
-+ (NSString*) stringWithParsed:(UIImageOrientation)orientation {
++ (NSString*)stringWithParsed:(UIImageOrientation)orientation {
   switch (orientation) {
     case UIImageOrientationUp:
     case UIImageOrientationUpMirrored:

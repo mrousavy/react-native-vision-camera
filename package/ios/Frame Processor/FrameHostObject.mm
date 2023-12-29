@@ -7,10 +7,10 @@
 //
 
 #import "FrameHostObject.h"
+#import "UIImageOrientation+descriptor.h"
 #import "WKTJsiHostObject.h"
 #import <Foundation/Foundation.h>
 #import <jsi/jsi.h>
-#import "UIImageOrientation+descriptor.h"
 
 #import "../../cpp/JSITypedArray.h"
 
