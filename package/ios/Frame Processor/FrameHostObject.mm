@@ -127,7 +127,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     // Lock Frame so it cannot be deallocated while we access it
     std::lock_guard lock(this->_mutex);
     
-    auto isValid = frame != nil && frame.buffer != nil && CFGetRetainCount(frame.buffer) > 0 && CMSampleBufferIsValid(frame.buffer);
+    auto isValid = frame != nil && frame.buffer != nil && CMSampleBufferIsValid(frame.buffer);
     return jsi::Value(isValid);
   }
   if (name == "width") {
