@@ -77,7 +77,8 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
       }
       auto width = this->frame->getWidth();
       auto height = this->frame->getHeight();
-      auto str = std::to_string(width) + " x " + std::to_string(height) + " Frame";
+      auto format = this->frame->getPixelFormat();
+      auto str = std::to_string(width) + " x " + std::to_string(height) + " " + format->toString() + " Frame";
       return jsi::String::createFromUtf8(runtime, str);
     };
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
