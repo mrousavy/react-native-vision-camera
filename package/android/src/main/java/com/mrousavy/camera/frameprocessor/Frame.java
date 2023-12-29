@@ -28,7 +28,9 @@ public class Frame {
         synchronized (this) {
             Image img = image;
             if (!getIsImageValid(img)) {
-                throw new RuntimeException("Frame is already closed! Are you trying to access the Image data outside of a Frame Processor's lifetime? If yes, increment it's ref-count: `frame.incrementRefCount()`");
+                throw new RuntimeException("Frame is already closed! " +
+                    "Are you trying to access the Image data outside of a Frame Processor's lifetime? " +
+                    "If yes, increment it's ref-count: `frame.incrementRefCount()`");
             }
             return img;
         }

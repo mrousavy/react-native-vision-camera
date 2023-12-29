@@ -20,8 +20,13 @@
   if (self) {
     _buffer = buffer;
     _orientation = orientation;
+    CFRetain(buffer);
   }
   return self;
+}
+
+- (void)dealloc {
+  CFRelease(_buffer);
 }
 
 @synthesize buffer = _buffer;
