@@ -59,7 +59,7 @@ public class Frame {
     private boolean getIsImageValid(Image image) {
         try {
             // will throw an exception if the image is already closed
-            image.getFormat();
+            synchronized (this) { image.getFormat(); }
             // no exception thrown, image must still be valid.
             return true;
         } catch (IllegalStateException e) {
