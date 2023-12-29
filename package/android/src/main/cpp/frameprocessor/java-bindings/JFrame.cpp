@@ -6,6 +6,8 @@
 
 #include <fbjni/fbjni.h>
 #include <jni.h>
+#include "JPixelFormat.h"
+#include "JOrientation.h"
 
 #include <android/hardware_buffer_jni.h>
 
@@ -39,13 +41,13 @@ jlong JFrame::getTimestamp() const {
   return getTimestampMethod(self());
 }
 
-local_ref<JString> JFrame::getOrientation() const {
-  static const auto getOrientationMethod = getClass()->getMethod<JString()>("getOrientation");
+local_ref<JOrientation> JFrame::getOrientation() const {
+  static const auto getOrientationMethod = getClass()->getMethod<JOrientation()>("getOrientation");
   return getOrientationMethod(self());
 }
 
-local_ref<JString> JFrame::getPixelFormat() const {
-  static const auto getPixelFormatMethod = getClass()->getMethod<JString()>("getPixelFormat");
+local_ref<JPixelFormat> JFrame::getPixelFormat() const {
+  static const auto getPixelFormatMethod = getClass()->getMethod<JPixelFormat()>("getPixelFormat");
   return getPixelFormatMethod(self());
 }
 

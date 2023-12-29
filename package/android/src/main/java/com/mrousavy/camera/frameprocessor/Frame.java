@@ -82,15 +82,14 @@ public class Frame {
 
     @SuppressWarnings("unused")
     @DoNotStrip
-    public String getOrientation() {
-        return orientation.getUnionValue();
+    public Orientation getOrientation() {
+        return orientation;
     }
 
     @SuppressWarnings("unused")
     @DoNotStrip
-    public String getPixelFormat() {
-        PixelFormat format = PixelFormat.Companion.fromImageFormat(getImage().getFormat());
-        return format.getUnionValue();
+    public PixelFormat getPixelFormat() {
+        return PixelFormat.Companion.fromImageFormat(getImage().getFormat());
     }
 
     @SuppressWarnings("unused")
