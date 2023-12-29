@@ -37,8 +37,11 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
 Frame* FrameHostObject::getFrame() {
   Frame* frame = this->frame;
   if (frame == nil || !CMSampleBufferIsValid(frame.buffer)) {
-    throw std::runtime_error("Frame is already closed! Are you trying to access the Image data outside of a Frame Processor's lifetime? "
-                             "If yes, increment it's ref-count: `frame.incrementRefCount()`");
+    throw std::runtime_error("Frame is already closed! "
+                             "Are you trying to access the Image data outside of a Frame Processor's lifetime?\n"
+                             "- If you want to use `console.log(frame)`, use `console.log(frame.toString())` instead.\n"
+                             "- If you want to do async processing, use `runAsync(...)` instead.\n"
+                             "- If you want to use runOnJS, increment it's ref-count: `frame.incrementRefCount()`");
   }
   return frame;
 }

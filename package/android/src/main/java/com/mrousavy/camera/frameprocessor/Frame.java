@@ -29,8 +29,10 @@ public class Frame {
             Image img = image;
             if (!getIsImageValid(img)) {
                 throw new RuntimeException("Frame is already closed! " +
-                    "Are you trying to access the Image data outside of a Frame Processor's lifetime? " +
-                    "If yes, increment it's ref-count: `frame.incrementRefCount()`");
+                    "Are you trying to access the Image data outside of a Frame Processor's lifetime?\n" +
+                    "- If you want to use `console.log(frame)`, use `console.log(frame.toString())` instead.\n" +
+                    "- If you want to do async processing, use `runAsync(...)` instead.\n" +
+                    "- If you want to use runOnJS, increment it's ref-count: `frame.incrementRefCount()`");
             }
             return img;
         }
