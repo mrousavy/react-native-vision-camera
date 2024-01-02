@@ -137,23 +137,18 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       }
 
       try {
-        if (config.isActive) {
-          // Build up session or update any props
-          if (diff.deviceChanged) {
-            // 1. cameraId changed, open device
-            configureCameraDevice(config)
-          }
-          if (diff.outputsChanged) {
-            // 2. outputs changed, build new session
-            configureOutputs(config)
-          }
-          if (diff.sidePropsChanged) {
-            // 3. zoom etc changed, update repeating request
-            configureCaptureRequest(config)
-          }
-        } else {
-          // If session is not active, we destroy the entire thing since Android doesn't have interruptions.
-          destroy()
+        // Build up session or update any props
+        if (diff.deviceChanged || cameraDevice == null) {
+          // 1. cameraId changed, open device
+          configureCameraDevice(config)
+        }
+        if (diff.outputsChanged || captureSession == null) {
+          // 2. outputs changed, build new session
+          configureOutputs(config)
+        }
+        if (diff.sidePropsChanged) {
+          // 3. zoom etc changed, update repeating request
+          configureCaptureRequest(config)
         }
 
         Log.i(TAG, "Successfully updated CameraSession Configuration! isActive: ${config.isActive}")
@@ -255,6 +250,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       if (this.cameraDevice == device) {
         Log.e(TAG, "Camera Device $device has been disconnected!", error)
         isRunning = false
+        this.cameraDevice = null
         callback.onError(error)
       } else {
         // a previous device has been disconnected, but we already have a new one.
@@ -379,6 +375,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       if (this.captureSession == session) {
         Log.i(TAG, "Camera Session $session has been closed!")
         isRunning = false
+        this.captureSession = null
       }
     }, CameraQueues.cameraQueue)
 
