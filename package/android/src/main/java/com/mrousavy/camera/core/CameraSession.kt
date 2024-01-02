@@ -248,10 +248,19 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     cameraDevice?.close()
     cameraDevice = cameraManager.openCamera(cameraId, { device, error ->
       if (this.cameraDevice == device) {
-        Log.e(TAG, "Camera Device $device has been disconnected!", error)
-        isRunning = false
-        this.cameraDevice = null
-        callback.onError(error)
+        runBlocking {
+          mutex.withLock {
+            isRunning = false
+            cameraDevice = null
+          }
+        }
+
+        if (error != null) {
+          Log.e(TAG, "Camera Device $device has been unexpectedly disconnected!", error)
+          callback.onError(error)
+        } else {
+          Log.i(TAG, "Camera Device $device has been gracefully disconnected!")
+        }
       } else {
         // a previous device has been disconnected, but we already have a new one.
         // this is just normal behavior
@@ -374,8 +383,12 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     captureSession = cameraDevice.createCaptureSession(cameraManager, outputs, { session ->
       if (this.captureSession == session) {
         Log.i(TAG, "Camera Session $session has been closed!")
-        isRunning = false
-        this.captureSession = null
+        runBlocking {
+          mutex.withLock {
+            isRunning = false
+            captureSession = null
+          }
+        }
       }
     }, CameraQueues.cameraQueue)
 

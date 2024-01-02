@@ -18,7 +18,7 @@ private const val TAG = "CameraManager"
 @SuppressLint("MissingPermission")
 suspend fun CameraManager.openCamera(
   cameraId: String,
-  onDisconnected: (camera: CameraDevice, reason: Throwable) -> Unit,
+  onDisconnected: (camera: CameraDevice, error: Throwable?) -> Unit,
   queue: CameraQueues.CameraQueue
 ): CameraDevice =
   suspendCancellableCoroutine { continuation ->
@@ -35,7 +35,7 @@ suspend fun CameraManager.openCamera(
         if (continuation.isActive) {
           continuation.resumeWithException(CameraCannotBeOpenedError(cameraId, CameraDeviceError.DISCONNECTED))
         } else {
-          onDisconnected(camera, CameraDisconnectedError(cameraId, CameraDeviceError.DISCONNECTED))
+          onDisconnected(camera, null)
         }
         camera.close()
       }
