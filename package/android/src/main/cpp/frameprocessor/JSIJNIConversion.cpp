@@ -104,12 +104,14 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime& runtime, c
     // Boolean
 
     auto boxed = static_ref_cast<JBoolean>(object);
-    return jsi::Value(boxed->value());
+    bool value = boxed->value();
+    return jsi::Value(value);
   } else if (object->isInstanceOf(jni::JDouble::javaClassStatic())) {
     // Double
 
     auto boxed = static_ref_cast<JDouble>(object);
-    return jsi::Value(boxed->value());
+    double value = boxed->value();
+    return jsi::Value(value);
   } else if (object->isInstanceOf(jni::JInteger::javaClassStatic())) {
     // Integer
 
