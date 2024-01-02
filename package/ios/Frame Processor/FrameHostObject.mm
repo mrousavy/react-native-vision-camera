@@ -20,7 +20,7 @@ std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt)
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isValid")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("incrementRefCount")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("decrementRefCount")));
-  
+
   if (frame != nil && frame.isValid) {
     // Frame Properties
     result.push_back(jsi::PropNameID::forUtf8(rt, std::string("width")));
@@ -51,13 +51,11 @@ Frame* FrameHostObject::getFrame() {
   return frame;
 }
 
-#define JSI_FUNC                                               \
-  [=](jsi::Runtime & runtime, const jsi::Value &thisValue,     \
-      const jsi::Value *arguments, size_t count) -> jsi::Value
+#define JSI_FUNC [=](jsi::Runtime & runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value
 
 jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {
   auto name = propName.utf8(runtime);
-  
+
   if (name == "toString") {
     auto toString = JSI_FUNC {
       // Lock Frame so it cannot be deallocated while we access it

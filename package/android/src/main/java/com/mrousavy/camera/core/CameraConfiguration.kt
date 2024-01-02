@@ -90,14 +90,25 @@ data class CameraConfiguration(
     fun difference(left: CameraConfiguration?, right: CameraConfiguration): Difference {
       val deviceChanged = left?.cameraId != right.cameraId
 
-      val outputsChanged = deviceChanged || // input device
-        left?.photo != right.photo || left.video != right.video || left.codeScanner != right.codeScanner ||
-        left.preview != right.preview || // outputs
-        left.videoHdr != right.videoHdr || left.photoHdr != right.photoHdr || left.format != right.format // props that affect the outputs
+      val outputsChanged = deviceChanged ||
+        // input device
+        left?.photo != right.photo ||
+        left.video != right.video ||
+        left.codeScanner != right.codeScanner ||
+        left.preview != right.preview ||
+        // outputs
+        left.videoHdr != right.videoHdr ||
+        left.photoHdr != right.photoHdr ||
+        left.format != right.format // props that affect the outputs
 
-      val sidePropsChanged = outputsChanged || // depend on outputs
-        left?.torch != right.torch || left.enableLowLightBoost != right.enableLowLightBoost || left.fps != right.fps ||
-        left.zoom != right.zoom || left.videoStabilizationMode != right.videoStabilizationMode || left.isActive != right.isActive ||
+      val sidePropsChanged = outputsChanged ||
+        // depend on outputs
+        left?.torch != right.torch ||
+        left.enableLowLightBoost != right.enableLowLightBoost ||
+        left.fps != right.fps ||
+        left.zoom != right.zoom ||
+        left.videoStabilizationMode != right.videoStabilizationMode ||
+        left.isActive != right.isActive ||
         left.exposure != right.exposure
 
       val isActiveChanged = left?.isActive != right.isActive
