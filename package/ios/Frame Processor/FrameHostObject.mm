@@ -16,21 +16,25 @@
 
 std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt) {
   std::vector<jsi::PropNameID> result;
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("width")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("height")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("orientation")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isMirrored")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("timestamp")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("pixelFormat")));
-  // Conversion
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toArrayBuffer")));
   // Ref Management
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isValid")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("incrementRefCount")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("decrementRefCount")));
+  
+  if (frame != nil && frame.isValid) {
+    // Frame Properties
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("width")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("height")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("orientation")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isMirrored")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("timestamp")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("pixelFormat")));
+    // Conversion
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toArrayBuffer")));
+  }
 
   return result;
 }
@@ -53,29 +57,7 @@ Frame* FrameHostObject::getFrame() {
 
 jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {
   auto name = propName.utf8(runtime);
-
-  if (name == "toJSON") {
-    // Overrides `console.log(frame)` behaviour
-    auto toJSON = JSI_FUNC {
-      // Lock Frame so it cannot be deallocated while we access it
-      std::lock_guard lock(this->_mutex);
-
-      // Print debug description (width, height)
-      Frame* frame = this->frame;
-      jsi::Object object(runtime);
-      if (frame != nil && frame.isValid) {
-        object.setProperty(runtime, "width", frame.width);
-        object.setProperty(runtime, "height", frame.height);
-        object.setProperty(runtime, "pixelFormat", frame.pixelFormat);
-        object.setProperty(runtime, "orientation", frame.orientation);
-        object.setProperty(runtime, "isValid", true);
-      } else {
-        object.setProperty(runtime, "isValid", false);
-      }
-      return object;
-    };
-    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toJSON"), 0, toJSON);
-  }
+  
   if (name == "toString") {
     auto toString = JSI_FUNC {
       // Lock Frame so it cannot be deallocated while we access it
