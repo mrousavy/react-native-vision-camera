@@ -47,11 +47,37 @@ Frame* FrameHostObject::getFrame() {
   return frame;
 }
 
+#define JSI_FUNC                                               \
+  [=](jsi::Runtime & runtime, const jsi::Value &thisValue,     \
+      const jsi::Value *arguments, size_t count) -> jsi::Value
+
 jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {
   auto name = propName.utf8(runtime);
 
+  if (name == "toJSON") {
+    // Overrides `console.log(frame)` behaviour
+    auto toJSON = JSI_FUNC {
+      // Lock Frame so it cannot be deallocated while we access it
+      std::lock_guard lock(this->_mutex);
+
+      // Print debug description (width, height)
+      Frame* frame = this->frame;
+      jsi::Object object(runtime);
+      if (frame != nil && frame.isValid) {
+        object.setProperty(runtime, "width", frame.width);
+        object.setProperty(runtime, "height", frame.height);
+        object.setProperty(runtime, "pixelFormat", frame.pixelFormat);
+        object.setProperty(runtime, "orientation", frame.orientation);
+        object.setProperty(runtime, "isValid", true);
+      } else {
+        object.setProperty(runtime, "isValid", false);
+      }
+      return object;
+    };
+    return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toJSON"), 0, toJSON);
+  }
   if (name == "toString") {
-    auto toString = [this](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+    auto toString = JSI_FUNC {
       // Lock Frame so it cannot be deallocated while we access it
       std::lock_guard lock(this->_mutex);
 
@@ -63,8 +89,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
   }
   if (name == "incrementRefCount") {
-    auto incrementRefCount = [this](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments,
-                                    size_t count) -> jsi::Value {
+    auto incrementRefCount = JSI_FUNC {
       // Lock Frame so it cannot be deallocated while we access it
       std::lock_guard lock(this->_mutex);
 
@@ -75,8 +100,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "incrementRefCount"), 0, incrementRefCount);
   }
   if (name == "decrementRefCount") {
-    auto decrementRefCount = [this](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments,
-                                    size_t count) -> jsi::Value {
+    auto decrementRefCount = JSI_FUNC {
       // Lock Frame so it cannot be deallocated while we access it
       std::lock_guard lock(this->_mutex);
 
@@ -92,8 +116,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "decrementRefCount"), 0, decrementRefCount);
   }
   if (name == "toArrayBuffer") {
-    auto toArrayBuffer = [this](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments,
-                                size_t count) -> jsi::Value {
+    auto toArrayBuffer = JSI_FUNC {
       // Lock Frame so it cannot be deallocated while we access it
       std::lock_guard lock(this->_mutex);
 
