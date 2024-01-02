@@ -16,28 +16,32 @@
 
 std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt) {
   std::vector<jsi::PropNameID> result;
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("width")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("height")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("orientation")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isMirrored")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("timestamp")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("pixelFormat")));
-  // Conversion
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
-  result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toArrayBuffer")));
   // Ref Management
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isValid")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("incrementRefCount")));
   result.push_back(jsi::PropNameID::forUtf8(rt, std::string("decrementRefCount")));
+
+  if (frame != nil && frame.isValid) {
+    // Frame Properties
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("width")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("height")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("bytesPerRow")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("planesCount")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("orientation")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("isMirrored")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("timestamp")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("pixelFormat")));
+    // Conversion
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toString")));
+    result.push_back(jsi::PropNameID::forUtf8(rt, std::string("toArrayBuffer")));
+  }
 
   return result;
 }
 
 Frame* FrameHostObject::getFrame() {
   Frame* frame = this->frame;
-  if (frame == nil || !CMSampleBufferIsValid(frame.buffer)) {
+  if (frame == nil || !frame.isValid) {
     throw std::runtime_error("Frame is already closed! "
                              "Are you trying to access the Image data outside of a Frame Processor's lifetime?\n"
                              "- If you want to use `console.log(frame)`, use `console.log(frame.toString())` instead.\n"
@@ -47,11 +51,13 @@ Frame* FrameHostObject::getFrame() {
   return frame;
 }
 
+#define JSI_FUNC [=](jsi::Runtime & runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value
+
 jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& propName) {
   auto name = propName.utf8(runtime);
 
   if (name == "toString") {
-    auto toString = [this](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
+    auto toString = JSI_FUNC {
       // Lock Frame so it cannot be deallocated while we access it
       std::lock_guard lock(this->_mutex);
 
@@ -63,8 +69,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "toString"), 0, toString);
   }
   if (name == "incrementRefCount") {
-    auto incrementRefCount = [this](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments,
-                                    size_t count) -> jsi::Value {
+    auto incrementRefCount = JSI_FUNC {
       // Lock Frame so it cannot be deallocated while we access it
       std::lock_guard lock(this->_mutex);
 
@@ -75,8 +80,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "incrementRefCount"), 0, incrementRefCount);
   }
   if (name == "decrementRefCount") {
-    auto decrementRefCount = [this](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments,
-                                    size_t count) -> jsi::Value {
+    auto decrementRefCount = JSI_FUNC {
       // Lock Frame so it cannot be deallocated while we access it
       std::lock_guard lock(this->_mutex);
 
@@ -92,8 +96,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     return jsi::Function::createFromHostFunction(runtime, jsi::PropNameID::forUtf8(runtime, "decrementRefCount"), 0, decrementRefCount);
   }
   if (name == "toArrayBuffer") {
-    auto toArrayBuffer = [this](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments,
-                                size_t count) -> jsi::Value {
+    auto toArrayBuffer = JSI_FUNC {
       // Lock Frame so it cannot be deallocated while we access it
       std::lock_guard lock(this->_mutex);
 
