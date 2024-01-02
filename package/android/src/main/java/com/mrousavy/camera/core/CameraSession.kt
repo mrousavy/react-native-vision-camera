@@ -137,18 +137,23 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       }
 
       try {
-        // Build up session or update any props
-        if (diff.deviceChanged) {
-          // 1. cameraId changed, open device
-          configureCameraDevice(config)
-        }
-        if (diff.outputsChanged) {
-          // 2. outputs changed, build new session
-          configureOutputs(config)
-        }
-        if (diff.sidePropsChanged) {
-          // 3. zoom etc changed, update repeating request
-          configureCaptureRequest(config)
+        if (config.isActive) {
+          // Build up session or update any props
+          if (diff.deviceChanged) {
+            // 1. cameraId changed, open device
+            configureCameraDevice(config)
+          }
+          if (diff.outputsChanged) {
+            // 2. outputs changed, build new session
+            configureOutputs(config)
+          }
+          if (diff.sidePropsChanged) {
+            // 3. zoom etc changed, update repeating request
+            configureCaptureRequest(config)
+          }
+        } else {
+          // If session is not active, we destroy the entire thing since Android doesn't have interruptions.
+          destroy()
         }
 
         Log.i(TAG, "Successfully updated CameraSession Configuration! isActive: ${config.isActive}")
@@ -193,7 +198,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     codeScannerOutput?.close()
     codeScannerOutput = null
 
-    configuration = null
     isRunning = false
   }
 
@@ -384,45 +388,25 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     updateVideoOutputs()
   }
 
-  private fun configureCaptureRequest(config: CameraConfiguration) {
-    if (!config.isActive) {
-      // TODO: Do we want to do stopRepeating() or entirely destroy the session?
-      // If the Camera is not active, we don't do anything.
-      captureSession?.stopRepeating()
-      isRunning = false
-      return
-    }
-
+  private fun createRepeatingRequest(): CaptureRequest {
     val device = cameraDevice ?: throw NoCameraDeviceError()
-    val captureSession = captureSession ?: throw CameraNotReadyError()
-
-    val previewOutput = previewOutput
-    if (previewOutput == null) {
-      Log.w(TAG, "Preview Output is null, aborting...")
-      return
-    }
+    val config = configuration ?: throw CameraNotReadyError()
 
     val cameraCharacteristics = cameraManager.getCameraCharacteristics(device.id)
 
     val template = if (config.video.isEnabled) CameraDevice.TEMPLATE_RECORD else CameraDevice.TEMPLATE_PREVIEW
     val captureRequest = device.createCaptureRequest(template)
 
-    captureRequest.addTarget(previewOutput.surface)
-    videoOutput?.let { output ->
-      captureRequest.addTarget(output.surface)
+    val targets = listOfNotNull(previewOutput, videoOutput, codeScannerOutput)
+    if (targets.isEmpty()) {
+      // TODO: Throw if there are no outputs?
     }
-    codeScannerOutput?.let { output ->
-      captureRequest.addTarget(output.surface)
-    }
+    targets.forEach { t -> captureRequest.addTarget(t.surface) }
 
     // Set FPS
     // TODO: Check if the FPS range is actually supported in the current configuration.
-    var fps = config.fps
+    val fps = config.fps
     if (fps != null) {
-      if (!CAN_DO_60_FPS) {
-        // If we can't do 60 FPS, we clamp it to 30 FPS - that's always supported.
-        fps = 30.coerceAtMost(fps)
-      }
       captureRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(fps, fps))
     }
 
@@ -434,7 +418,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       VideoStabilizationMode.STANDARD -> {
         // TODO: Check if that stabilization mode is even supported
         val mode = if (Build.VERSION.SDK_INT >=
-          Build.VERSION_CODES.TIRAMISU
+            Build.VERSION_CODES.TIRAMISU
         ) {
           CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
         } else {
@@ -474,7 +458,20 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     }
 
     // Start repeating request if the Camera is active
-    val request = captureRequest.build()
+    return captureRequest.build()
+  }
+
+  private fun configureCaptureRequest(config: CameraConfiguration) {
+    if (!config.isActive) {
+      // If the Camera is not active, we don't do anything.
+      captureSession?.stopRepeating()
+      isRunning = false
+      return
+    }
+
+    val captureSession = captureSession ?: throw CameraNotReadyError()
+
+    val request = createRepeatingRequest()
     captureSession.setRepeatingRequest(request, null, null)
     isRunning = true
   }
