@@ -103,21 +103,20 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime& runtime, c
   } else if (object->isInstanceOf(jni::JBoolean::javaClassStatic())) {
     // Boolean
 
-    static const auto getBooleanFunc = jni::findClassLocal("java/lang/Boolean")->getMethod<jboolean()>("booleanValue");
-    auto boolean = getBooleanFunc(object.get());
-    return jsi::Value(boolean == true);
+    auto boxed = static_ref_cast<JBoolean>(object);
+    bool value = boxed->value();
+    return jsi::Value(value);
   } else if (object->isInstanceOf(jni::JDouble::javaClassStatic())) {
     // Double
 
-    static const auto getDoubleFunc = jni::findClassLocal("java/lang/Double")->getMethod<jdouble()>("doubleValue");
-    auto d = getDoubleFunc(object.get());
-    return jsi::Value(d);
+    auto boxed = static_ref_cast<JDouble>(object);
+    double value = boxed->value();
+    return jsi::Value(value);
   } else if (object->isInstanceOf(jni::JInteger::javaClassStatic())) {
     // Integer
 
-    static const auto getIntegerFunc = jni::findClassLocal("java/lang/Integer")->getMethod<jint()>("intValue");
-    auto i = getIntegerFunc(object.get());
-    return jsi::Value(i);
+    auto boxed = static_ref_cast<JInteger>(object);
+    return jsi::Value(boxed->value());
   } else if (object->isInstanceOf(jni::JString::javaClassStatic())) {
     // String
 
