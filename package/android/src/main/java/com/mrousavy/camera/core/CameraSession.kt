@@ -451,7 +451,9 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   }
 
   private fun configureCaptureRequest(config: CameraConfiguration) {
-    if (!config.isActive) {
+    val hasOutputs = config.preview.isEnabled || config.photo.isEnabled || config.codeScanner.isEnabled || config.video.isEnabled
+
+    if (!config.isActive || !hasOutputs) {
       // If the Camera is not active, we don't do anything.
       captureSession?.stopRepeating()
       isRunning = false
