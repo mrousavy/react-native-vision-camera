@@ -226,8 +226,9 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     Log.i(TAG, "Configuring Camera #$cameraId...")
 
     cameraDevice?.close()
+    cameraDevice = null
     cameraDevice = cameraManager.openCamera(cameraId, { device, error ->
-      if (this.cameraDevice == device) {
+      if (cameraDevice == device) {
         runBlocking {
           mutex.withLock {
             isRunning = false
