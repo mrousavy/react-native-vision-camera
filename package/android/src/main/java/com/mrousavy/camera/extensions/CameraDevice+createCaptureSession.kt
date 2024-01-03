@@ -17,6 +17,11 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 private const val TAG = "CreateCaptureSession"
 private var sessionId = 1000
 
+fun OutputConfiguration.toDebugString(): String {
+  val useCase = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) this.streamUseCase else "UNKNOWN"
+  return "$useCase Output (Surface: $surface)"
+}
+
 suspend fun CameraDevice.createCaptureSession(
   cameraManager: CameraManager,
   outputs: List<OutputConfiguration>,
@@ -30,7 +35,7 @@ suspend fun CameraDevice.createCaptureSession(
     Log.i(
       TAG,
       "Camera $id: Creating Capture Session #$sessionId... " +
-        "Hardware Level: $hardwareLevel} | Outputs: $outputs"
+        "Hardware Level: $hardwareLevel | Outputs: ${outputs.joinToString { it.toDebugString() }}"
     )
 
     val callback = object : CameraCaptureSession.StateCallback() {
