@@ -69,7 +69,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   private var previewRequest: CaptureRequest.Builder? = null
   private var photoOutput: PhotoOutput? = null
   private var videoOutput: VideoPipelineOutput? = null
-  private var previewOutput: SurfaceOutput? = null
   private var codeScannerOutput: BarcodeScannerOutput? = null
   private var previewView: PreviewView? = null
   private val photoOutputSynchronizer = PhotoOutputSynchronizer()
@@ -167,8 +166,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     cameraDevice?.close()
     cameraDevice = null
 
-    previewOutput?.close()
-    previewOutput = null
     photoOutput?.close()
     photoOutput = null
     videoOutput?.close()
@@ -272,8 +269,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     photoOutput = null
     videoOutput?.close()
     videoOutput = null
-    previewOutput?.close()
-    previewOutput = null
     codeScannerOutput?.close()
     codeScannerOutput = null
 
@@ -341,7 +336,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         configuration.videoHdr
       )
       outputs.add(output.toOutputConfiguration(characteristics))
-      previewOutput = output
       previewView?.size = size
     }
 
@@ -386,11 +380,14 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     val template = if (config.video.isEnabled) CameraDevice.TEMPLATE_RECORD else CameraDevice.TEMPLATE_PREVIEW
     val captureRequest = device.createCaptureRequest(template)
 
-    val targets = listOfNotNull(previewOutput, videoOutput, codeScannerOutput)
+    val preview = config.preview as? CameraConfiguration.Output.Enabled<CameraConfiguration.Preview>
+    val previewSurface = preview?.config?.surface
+
+    val targets = listOfNotNull(previewSurface, videoOutput?.surface, codeScannerOutput?.surface)
     if (targets.isEmpty()) {
-      // TODO: Throw if there are no outputs?
+      throw NoOutputsError()
     }
-    targets.forEach { t -> captureRequest.addTarget(t.surface) }
+    targets.forEach { t -> captureRequest.addTarget(t) }
 
     // Set FPS
     // TODO: Check if the FPS range is actually supported in the current configuration.
@@ -451,9 +448,9 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   }
 
   private fun configureCaptureRequest(config: CameraConfiguration) {
-    val hasOutputs = config.preview.isEnabled || config.photo.isEnabled || config.codeScanner.isEnabled || config.video.isEnabled
+    val hasRepeatingOutputs = config.preview.isEnabled || config.codeScanner.isEnabled || config.video.isEnabled
 
-    if (!config.isActive || !hasOutputs) {
+    if (!config.isActive || !hasRepeatingOutputs) {
       // If the Camera is not active, we don't do anything.
       captureSession?.stopRepeating()
       isRunning = false
@@ -570,17 +567,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   }
 
   suspend fun focus(x: Int, y: Int) {
-    val captureSession = captureSession ?: throw CameraNotReadyError()
-    val previewOutput = previewOutput ?: throw CameraNotReadyError()
-    val characteristics = cameraManager.getCameraCharacteristics(captureSession.device.id)
-    val sensorSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)!!
-    val previewSize = previewOutput.size
-    val pX = x.toDouble() / previewSize.width * sensorSize.height()
-    val pY = y.toDouble() / previewSize.height * sensorSize.width()
-    val point = Point(pX.toInt(), pY.toInt())
-
-    Log.i(TAG, "Focusing (${point.x}, ${point.y})...")
-    focus(point)
+    throw NotImplementedError("focus() is not yet implemented!")
   }
 
   private suspend fun focus(point: Point) {
