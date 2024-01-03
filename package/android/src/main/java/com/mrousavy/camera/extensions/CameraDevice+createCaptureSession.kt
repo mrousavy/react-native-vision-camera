@@ -15,7 +15,7 @@ import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 private const val TAG = "CreateCaptureSession"
-private var sessionId = 1000
+private var sessionId = 1
 
 suspend fun CameraDevice.createCaptureSession(
   cameraManager: CameraManager,
