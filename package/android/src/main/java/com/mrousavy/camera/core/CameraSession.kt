@@ -378,9 +378,8 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     updateVideoOutputs()
   }
 
-  private fun createRepeatingRequest(): CaptureRequest {
+  private fun createRepeatingRequest(config: CameraConfiguration): CaptureRequest {
     val device = cameraDevice ?: throw NoCameraDeviceError()
-    val config = configuration ?: throw CameraNotReadyError()
 
     val cameraCharacteristics = cameraManager.getCameraCharacteristics(device.id)
 
@@ -461,7 +460,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
     val captureSession = captureSession ?: throw CameraNotReadyError()
 
-    val request = createRepeatingRequest()
+    val request = createRepeatingRequest(config)
     captureSession.setRepeatingRequest(request, null, null)
     isRunning = true
   }
