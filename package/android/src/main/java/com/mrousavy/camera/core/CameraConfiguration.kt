@@ -79,10 +79,7 @@ data class CameraConfiguration(
     val sidePropsChanged: Boolean,
     // (isActive) changed
     val isActiveChanged: Boolean
-  ) {
-    val hasAnyDifference: Boolean
-      get() = sidePropsChanged || outputsChanged || deviceChanged
-  }
+  )
 
   companion object {
     fun copyOf(other: CameraConfiguration?): CameraConfiguration = other?.copy() ?: CameraConfiguration()

@@ -101,6 +101,7 @@ class CameraView(context: Context) :
   // session
   internal val cameraSession: CameraSession
   private val previewView: PreviewView
+  private var currentConfigureCall: Long = System.currentTimeMillis()
 
   internal var frameProcessor: FrameProcessor? = null
     set(value) {
@@ -138,9 +139,18 @@ class CameraView(context: Context) :
 
   fun update() {
     Log.i(TAG, "Updating CameraSession...")
+    val now = System.currentTimeMillis()
+    currentConfigureCall = now
 
     launch {
       cameraSession.configure { config ->
+        if (currentConfigureCall != now) {
+          // configure waits for a lock, and if a new call to update() happens in the meantime we can drop this one.
+          // this works similar to how React implemented concurrent rendering, the newer call to update() has higher priority.
+          Log.i(TAG, "A new configure { ... } call arrived, aborting this one...")
+          return@configure
+        }
+
         // Input Camera Device
         config.cameraId = cameraId
 

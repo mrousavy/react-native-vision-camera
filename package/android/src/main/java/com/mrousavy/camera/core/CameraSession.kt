@@ -65,7 +65,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
   // Camera Configuration
   private var configuration: CameraConfiguration? = null
-  private var currentConfigureCall: Long = System.currentTimeMillis()
 
   // Camera State
   private var captureSession: CameraCaptureSession? = null
@@ -113,29 +112,13 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     }
 
   suspend fun configure(lambda: (configuration: CameraConfiguration) -> Unit) {
-    // This is the latest call to configure()
-    val now = System.currentTimeMillis()
-    currentConfigureCall = now
-
     Log.i(TAG, "configure { ... }: Waiting for lock...")
 
     mutex.withLock {
-      // Cancel configuration if there has already been a new config
-      if (currentConfigureCall != now) {
-        // configure() has been called again just now, skip this one so the new call takes over.
-        Log.i(TAG, "configure { ... }: Dropping this call, new call just arrived...")
-        return
-      }
-
       // Let caller configure a new configuration for the Camera.
       val config = CameraConfiguration.copyOf(this.configuration)
       lambda(config)
       val diff = CameraConfiguration.difference(this.configuration, config)
-
-      if (!diff.hasAnyDifference) {
-        Log.w(TAG, "configure { ... }: Dropping this call, nothing changed...")
-        return
-      }
 
       Log.i(TAG, "configure { ... }: Updating CameraSession Configuration...")
 
