@@ -58,9 +58,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   CoroutineScope {
   companion object {
     private const val TAG = "CameraSession"
-
-    // TODO: Samsung advertises 60 FPS but only allows 30 FPS for some reason.
-    private val CAN_DO_60_FPS = !Build.MANUFACTURER.equals("samsung", true)
   }
 
   // Camera Configuration
@@ -252,9 +249,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         // this is just normal behavior
       }
     }, CameraQueues.cameraQueue)
-
-    // Update PreviewView's Surface Size to a supported value from this Capture Device
-    previewView?.resizeToInputCamera(cameraId, cameraManager, configuration.format)
 
     Log.i(TAG, "Successfully configured Camera #$cameraId!")
   }

@@ -47,14 +47,6 @@ class CameraView(context: Context) :
   // react properties
   // props that require reconfiguring
   var cameraId: String? = null
-    set(value) {
-      if (value != null) {
-        // TODO: Move this into CameraSession
-        val f = if (format != null) CameraDeviceFormat.fromJSValue(format!!) else null
-        previewView.resizeToInputCamera(value, cameraManager, f)
-      }
-      field = value
-    }
   var enableDepthData = false
   var enableHighQualityPhotos: Boolean? = null
   var enablePortraitEffectsMatteDelivery = false

@@ -49,13 +49,13 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
     holder.addCallback(callback)
   }
 
-  fun resizeToInputCamera(cameraId: String, cameraManager: CameraManager, format: CameraDeviceFormat?) {
+  /*fun resizeToInputCamera(cameraId: String, cameraManager: CameraManager, format: CameraDeviceFormat?) {
     val characteristics = cameraManager.getCameraCharacteristics(cameraId)
 
     val targetPreviewSize = format?.videoSize
     val formatAspectRatio = if (targetPreviewSize != null) targetPreviewSize.bigger.toDouble() / targetPreviewSize.smaller else null
     size = characteristics.getPreviewTargetSize(formatAspectRatio)
-  }
+  }*/
 
   private fun getSize(contentSize: Size, containerSize: Size, resizeMode: ResizeMode): Size {
     val contentAspectRatio = contentSize.height.toDouble() / contentSize.width
