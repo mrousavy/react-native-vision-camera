@@ -151,7 +151,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
           }
         }
       } catch (error: Throwable) {
-        Log.e(TAG, "Failed to configure CameraSession! Error: ${error.message}, Config-Diff: $diff", error)
+        Log.e(TAG, "Failed to configure CameraSession! Error: ${error.message}, isRunning: $isRunning, Config-Diff: $diff", error)
         callback.onError(error)
       }
     }
