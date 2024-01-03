@@ -45,8 +45,8 @@ suspend fun CameraDevice.createCaptureSession(
       }
 
       override fun onClosed(session: CameraCaptureSession) {
-        super.onClosed(session)
         Log.i(TAG, "Camera $id: Capture Session #$sessionId closed!")
+        super.onClosed(session)
         onClosed(session)
       }
     }

@@ -227,6 +227,11 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
     cameraDevice?.close()
     cameraDevice = null
+
+    if (!configuration.isActive) {
+      return
+    }
+
     cameraDevice = cameraManager.openCamera(cameraId, { device, error ->
       if (cameraDevice == device) {
         runBlocking {
@@ -255,16 +260,20 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
    * Set up the `CaptureSession` with all outputs (preview, photo, video, codeScanner) and their HDR/Format settings.
    */
   private suspend fun configureOutputs(configuration: CameraConfiguration) {
+    // Destroy previous CaptureSession
+    captureSession?.close()
+    captureSession = null
+
+    if (!configuration.isActive) {
+      return
+    }
+
     val cameraDevice = cameraDevice ?: throw NoCameraDeviceError()
     val characteristics = cameraManager.getCameraCharacteristics(cameraDevice.id)
     val format = configuration.format
 
     Log.i(TAG, "Configuring Session for Camera #${cameraDevice.id}...")
 
-    // TODO: Do we want to skip this is this.cameraSession already contains all outputs?
-    // Destroy previous CaptureSession
-    captureSession?.close()
-    captureSession = null
     // Destroy previous outputs
     photoOutput?.close()
     photoOutput = null
