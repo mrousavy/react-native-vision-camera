@@ -7,12 +7,9 @@ export const withAndroidMLKitVisionModel: ConfigPlugin<ConfigProps> = (config, p
   if (props.enableCodeScanner === 'gradle-implementation') {
     return withAppBuildGradle(config, (conf) => {
       const buildGradle = conf.modResults
-
       const implementation = "implementation 'com.google.mlkit:barcode-scanning:17.2.0'"
-      const dependencyPattern = /dependencies\s*\{([\s\S]*?)\}/
-      const dependencies = RegExp(dependencyPattern).exec(buildGradle.contents)
 
-      if (dependencies && !dependencies[0].includes(implementation)) {
+      if (buildGradle.contents?.includes(implementation) === false) {
         // Inspired by https://github.com/invertase/react-native-firebase/blob/main/packages/app/plugin/src/android/buildscriptDependency.ts
         // TODO: Find a better way to do this
         buildGradle.contents = buildGradle.contents.replace(
