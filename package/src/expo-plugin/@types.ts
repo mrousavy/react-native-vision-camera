@@ -31,4 +31,4 @@ export type ConfigProps = {
    * @default false
    */
   enableCodeScanner?: boolean | 'android-manifest' | 'gradle-implementation'
-};
+}
