@@ -148,7 +148,7 @@ class CameraView(context: Context) :
 
         // Photo
         if (photo == true) {
-          config.photo = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Photo(Unit))
+          config.photo = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Photo(photoHdr))
         } else {
           config.photo = CameraConfiguration.Output.Disabled.create()
         }
@@ -157,6 +157,7 @@ class CameraView(context: Context) :
         if (video == true || enableFrameProcessor) {
           config.video = CameraConfiguration.Output.Enabled.create(
             CameraConfiguration.Video(
+              videoHdr,
               pixelFormat,
               enableFrameProcessor
             )
@@ -184,10 +185,6 @@ class CameraView(context: Context) :
 
         // Orientation
         config.orientation = orientation
-
-        // HDR
-        config.videoHdr = videoHdr
-        config.photoHdr = photoHdr
 
         // Format
         val format = format
