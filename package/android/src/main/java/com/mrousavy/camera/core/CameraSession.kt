@@ -246,6 +246,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         config.preview = CameraConfiguration.Output.Disabled.create()
       }
     }
+    Log.i(TAG, "Preview Output destroyed!")
   }
 
   /**
