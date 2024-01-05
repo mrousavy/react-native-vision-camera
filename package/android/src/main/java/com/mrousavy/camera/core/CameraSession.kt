@@ -468,7 +468,9 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
     // Set HDR
     // TODO: Check if that value is even supported
-    if (config.videoHdr) {
+    val video = config.video as? CameraConfiguration.Output.Enabled<CameraConfiguration.Video>
+    val videoHdr = video?.config?.enableHdr
+    if (videoHdr == true) {
       captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_HDR)
     } else if (config.enableLowLightBoost) {
       captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_NIGHT)
