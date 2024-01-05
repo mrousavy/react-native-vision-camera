@@ -9,16 +9,16 @@ export const withAndroidMLKitVisionModel: ConfigPlugin<ConfigProps> = (config, p
       const buildGradle = conf.modResults
       const implementation = "implementation 'com.google.mlkit:barcode-scanning:17.2.0'"
 
-      if (buildGradle.contents?.includes(implementation) === false) {
+      if (buildGradle.contents.includes(implementation) === false) {
         // Inspired by https://github.com/invertase/react-native-firebase/blob/main/packages/app/plugin/src/android/buildscriptDependency.ts
         // TODO: Find a better way to do this
         buildGradle.contents = buildGradle.contents.replace(
           /dependencies\s?{/,
           `dependencies {
     ${implementation}`,
-        );
+        )
       }
-      
+
       return conf
     })
   }
@@ -30,7 +30,7 @@ export const withAndroidMLKitVisionModel: ConfigPlugin<ConfigProps> = (config, p
     addMetaDataItemToMainApplication(mainApplication, 'com.google.mlkit.vision.DEPENDENCIES', 'barcode')
 
     conf.modResults = androidManifest
-    
+
     return conf
   })
 }
