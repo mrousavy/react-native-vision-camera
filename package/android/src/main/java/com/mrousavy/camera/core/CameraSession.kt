@@ -1,6 +1,8 @@
 package com.mrousavy.camera.core
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.ImageFormat
 import android.graphics.Point
 import android.hardware.camera2.CameraCaptureSession
@@ -20,6 +22,7 @@ import android.util.Range
 import android.util.Size
 import android.view.Surface
 import android.view.SurfaceHolder
+import androidx.core.content.ContextCompat
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.core.outputs.BarcodeScannerOutput
 import com.mrousavy.camera.core.outputs.PhotoOutput
@@ -264,6 +267,10 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       cameraDevice = null
     }
     isRunning = false
+
+    // Check Camera Permission
+    val cameraPermission = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+    if (cameraPermission != PackageManager.PERMISSION_GRANTED) throw CameraPermissionError()
 
     // Open new device
     val cameraId = configuration.cameraId ?: throw NoCameraDeviceError()
