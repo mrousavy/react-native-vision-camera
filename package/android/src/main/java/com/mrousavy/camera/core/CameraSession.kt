@@ -298,7 +298,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       val imageFormat = ImageFormat.JPEG
       val sizes = characteristics.getPhotoSizes(imageFormat)
       val size = sizes.closestToOrMax(format?.photoSize)
-      val maxImages = 3
+      val maxImages = 10
 
       Log.i(TAG, "Adding ${size.width} x ${size.height} Photo Output in Format #$imageFormat...")
       val imageReader = ImageReader.newInstance(size.width, size.height, imageFormat, maxImages)
