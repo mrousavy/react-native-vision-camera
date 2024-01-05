@@ -14,6 +14,8 @@ export function createFrameProcessor(frameProcessor: FrameProcessor['frameProces
   return {
     frameProcessor: (frame: Frame) => {
       'worklet'
+      if (__DEV__) Object.freeze(frame)
+
       // Increment ref-count by one
       const internal = frame as FrameInternal
       internal.incrementRefCount()
