@@ -171,15 +171,27 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
         <PinchGestureHandler onGestureEvent={onPinchGesture} enabled={isActive}>
           <Reanimated.View style={StyleSheet.absoluteFill}>
             <TapGestureHandler onEnded={onDoubleTap} numberOfTaps={2}>
-              <Camera
+              <ReanimatedCamera
                 ref={camera}
                 style={StyleSheet.absoluteFill}
                 device={device}
                 format={format}
+                fps={fps}
+                photoHdr={enableHdr}
+                videoHdr={enableHdr}
+                lowLightBoost={device.supportsLowLightBoost && enableNightMode}
                 isActive={isActive}
                 onInitialized={onInitialized}
                 onError={onError}
+                enableZoomGesture={false}
+                animatedProps={cameraAnimatedProps}
+                exposure={0}
+                enableFpsGraph={true}
+                orientation="portrait"
                 photo={true}
+                video={true}
+                audio={hasMicrophonePermission}
+                frameProcessor={frameProcessor}
               />
             </TapGestureHandler>
           </Reanimated.View>
