@@ -132,9 +132,8 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
   override fun onCameraAvailable(cameraId: String) {
     super.onCameraAvailable(cameraId)
-    Log.i(TAG, "Camera #$cameraId is now available!")
-    if (this.configuration?.cameraId == cameraId && cameraDevice == null) {
-      Log.i(TAG, "We need Camera #$cameraId, trying to re-open it now...")
+    if (this.configuration?.cameraId == cameraId && cameraDevice == null && configuration?.isActive == true) {
+      Log.i(TAG, "Camera #$cameraId is now available again, trying to re-open it now...")
       launch {
         configure {
           // re-open CameraDevice if needed
