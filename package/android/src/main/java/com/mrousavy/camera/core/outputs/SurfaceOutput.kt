@@ -14,7 +14,7 @@ open class SurfaceOutput(
   val surface: Surface,
   val size: Size,
   val outputType: OutputType,
-  private val enableHdr: Boolean = false,
+  val enableHdr: Boolean = false,
   private val closeSurfaceOnEnd: Boolean = false
 ) : Closeable {
   companion object {

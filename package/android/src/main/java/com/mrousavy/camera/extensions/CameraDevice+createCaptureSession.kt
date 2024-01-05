@@ -10,6 +10,7 @@ import android.os.Build
 import android.util.Log
 import com.mrousavy.camera.core.CameraQueues
 import com.mrousavy.camera.core.CameraSessionCannotBeConfiguredError
+import com.mrousavy.camera.core.outputs.SurfaceOutput
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -19,7 +20,7 @@ private var sessionId = 1
 
 suspend fun CameraDevice.createCaptureSession(
   cameraManager: CameraManager,
-  outputs: List<OutputConfiguration>,
+  outputs: List<SurfaceOutput>,
   onClosed: (session: CameraCaptureSession) -> Unit,
   queue: CameraQueues.CameraQueue
 ): CameraCaptureSession =
@@ -51,12 +52,13 @@ suspend fun CameraDevice.createCaptureSession(
       }
     }
 
+    val configurations = outputs.map { it.toOutputConfiguration(characteristics) }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
       Log.i(TAG, "Using new API (>=28)")
-      val config = SessionConfiguration(SessionConfiguration.SESSION_REGULAR, outputs, queue.executor, callback)
+      val config = SessionConfiguration(SessionConfiguration.SESSION_REGULAR, configurations, queue.executor, callback)
       this.createCaptureSession(config)
     } else {
       Log.i(TAG, "Using legacy API (<28)")
-      this.createCaptureSessionByOutputConfigurations(outputs, callback, queue.handler)
+      this.createCaptureSessionByOutputConfigurations(configurations, callback, queue.handler)
     }
   }
