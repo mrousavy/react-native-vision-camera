@@ -429,19 +429,12 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     updateVideoOutputs()
   }
 
-  private fun createRepeatingRequest(device: CameraDevice, config: CameraConfiguration): CaptureRequest {
+  private fun createRepeatingRequest(device: CameraDevice, targets: List<Surface>, config: CameraConfiguration): CaptureRequest {
     val cameraCharacteristics = cameraManager.getCameraCharacteristics(device.id)
 
     val template = if (config.video.isEnabled) CameraDevice.TEMPLATE_RECORD else CameraDevice.TEMPLATE_PREVIEW
     val captureRequest = device.createCaptureRequest(template)
 
-    val preview = config.preview as? CameraConfiguration.Output.Enabled<CameraConfiguration.Preview>
-    val previewSurface = preview?.config?.surface
-
-    val targets = listOfNotNull(previewSurface, videoOutput?.surface, codeScannerOutput?.surface)
-    if (targets.isEmpty()) {
-      throw NoOutputsError()
-    }
     targets.forEach { t -> captureRequest.addTarget(t) }
 
     // Set FPS
@@ -505,7 +498,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   }
 
   private fun configureCaptureRequest(config: CameraConfiguration) {
-    val hasRepeatingOutputs = config.preview.isEnabled || config.codeScanner.isEnabled || config.video.isEnabled
     val captureSession = captureSession
 
     if (!config.isActive) {
@@ -516,12 +508,16 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       Log.i(TAG, "CameraSession hasn't configured the capture session, skipping CaptureRequest...")
       return
     }
-    if (!hasRepeatingOutputs) {
+
+    val preview = config.preview as? CameraConfiguration.Output.Enabled<CameraConfiguration.Preview>
+    val previewSurface = preview?.config?.surface
+    val targets = listOfNotNull(previewSurface, videoOutput?.surface, codeScannerOutput?.surface)
+    if (targets.isEmpty()) {
       Log.i(TAG, "CameraSession has no repeating outputs (Preview, Video, CodeScanner), skipping CaptureRequest...")
       return
     }
 
-    val request = createRepeatingRequest(captureSession.device, config)
+    val request = createRepeatingRequest(captureSession.device, targets, config)
     captureSession.setRepeatingRequest(request, null, null)
     isRunning = true
   }

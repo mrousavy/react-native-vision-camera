@@ -58,12 +58,6 @@ class CameraSessionCannotBeConfiguredError(cameraId: String) :
   CameraError("session", "cannot-create-session", "Failed to create a Camera Session for Camera #$cameraId!")
 class CameraDisconnectedError(cameraId: String, error: CameraDeviceError) :
   CameraError("session", "camera-has-been-disconnected", "The given Camera device (id: $cameraId) has been disconnected! Error: $error")
-class NoOutputsError :
-  CameraError(
-    "session",
-    "no-outputs",
-    "Tried to create a CameraSession without any outputs! Wait for Preview, photo, video or codeScanner!"
-  )
 
 class VideoNotEnabledError :
   CameraError("capture", "video-not-enabled", "Video capture is disabled! Pass `video={true}` to enable video recordings.")
@@ -93,8 +87,6 @@ class CodeTypeNotSupportedError(codeType: String) :
 
 class ViewNotFoundError(viewId: Int) :
   CameraError("system", "view-not-found", "The given view (ID $viewId) was not found in the view manager.")
-class FrameProcessorsUnavailableError(reason: String) :
-  CameraError("system", "frame-processors-unavailable", "Frame Processors are unavailable! Reason: $reason")
 class HardwareBuffersNotAvailableError :
   CameraError("system", "hardware-buffers-unavailable", "HardwareBuffers are only available on API 28 or higher!")
 

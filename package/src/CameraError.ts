@@ -23,7 +23,6 @@ export type SessionError =
   | 'session/camera-cannot-be-opened'
   | 'session/camera-has-been-disconnected'
   | 'session/audio-in-use-by-other-app'
-  | 'session/no-outputs'
   | 'session/audio-session-failed-to-activate'
 export type CodeScannerError =
   | 'code-scanner/not-compatible-with-outputs'
