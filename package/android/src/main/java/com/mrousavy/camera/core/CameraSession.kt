@@ -76,7 +76,15 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   private var previewView: PreviewView? = null
   private val photoOutputSynchronizer = PhotoOutputSynchronizer()
   private val mutex = Mutex()
+  private var isDestroyed = false
   private var isRunning = false
+    set(value) {
+      if (field != value) {
+        if (value) callback.onStarted()
+        else callback.onStopped()
+      }
+      field = value
+    }
 
   override val coroutineContext: CoroutineContext
     get() = CameraQueues.cameraQueue.coroutineDispatcher
@@ -107,6 +115,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
   override fun close() {
     Log.i(TAG, "Closing CameraSession...")
+    isDestroyed = true
     cameraManager.unregisterAvailabilityCallback(this)
     runBlocking {
       mutex.withLock {
@@ -121,7 +130,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     super.onCameraAvailable(cameraId)
     Log.i(TAG, "Camera #$cameraId is now available!")
     if (this.configuration?.cameraId == cameraId && cameraDevice == null) {
-      Log.i(TAG, "We need Camera #$cameraId, trying to re-open it $cameraId now...")
+      Log.i(TAG, "We need Camera #$cameraId, trying to re-open it now...")
       launch {
         configure {
           // re-open CameraDevice if needed
@@ -138,6 +147,11 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       val config = CameraConfiguration.copyOf(this.configuration)
       lambda(config)
       val diff = CameraConfiguration.difference(this.configuration, config)
+
+      if (isDestroyed) {
+        Log.i(TAG, "CameraSession is already destroyed. Skipping configure { ... }")
+        return@withLock
+      }
 
       Log.i(TAG, "configure { ... }: Updating CameraSession Configuration... $diff")
 
@@ -167,16 +181,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         // Notify about Camera initialization
         if (diff.deviceChanged && config.isActive) {
           callback.onInitialized()
-        }
-
-        // Notify about Camera start/stop
-        if (diff.isActiveChanged) {
-          // TODO: Move that into the CaptureRequest callback to get actual first-frame arrive time?
-          if (config.isActive) {
-            callback.onStarted()
-          } else {
-            callback.onStopped()
-          }
         }
       } catch (error: Throwable) {
         Log.e(TAG, "Failed to configure CameraSession! Error: ${error.message}, isRunning: $isRunning, Config-Diff: $diff", error)
