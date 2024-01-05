@@ -11,9 +11,9 @@ import java.io.Closeable
 /**
  * A [CameraDevice] instance that treats Camera disconnects as temporary interruptions and automatically reconnects the device when possible.
  */
-class InterruptibleCameraDevice(private val cameraManager: CameraManager,
-                                val cameraId: String,
-                                private val onInterrupted: () -> Unit): CameraDevice.StateCallback(), Closeable {
+class InterruptibleCameraDevice(private val cameraManager: CameraManager, val cameraId: String, private val onInterrupted: () -> Unit) :
+  CameraDevice.StateCallback(),
+  Closeable {
   companion object {
     private const val TAG = "ActiveCameraDevice"
   }
@@ -28,7 +28,7 @@ class InterruptibleCameraDevice(private val cameraManager: CameraManager,
         false
       }
     }
-  private val availabilityCallback = object: AvailabilityCallback() {
+  private val availabilityCallback = object : AvailabilityCallback() {
     override fun onCameraAvailable(cameraId: String) {
       super.onCameraAvailable(cameraId)
       if (cameraId == this@InterruptibleCameraDevice.cameraId) {

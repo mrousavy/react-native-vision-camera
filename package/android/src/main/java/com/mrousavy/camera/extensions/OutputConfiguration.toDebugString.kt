@@ -5,7 +5,7 @@ import android.hardware.camera2.params.OutputConfiguration
 import android.os.Build
 
 val OutputConfiguration.streamUseCaseString: String
-  get () {
+  get() {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return "UNKNOWN"
     return when (streamUseCase.toInt()) {
       CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT -> "DEFAULT"
@@ -18,6 +18,4 @@ val OutputConfiguration.streamUseCaseString: String
     }
   }
 
-fun OutputConfiguration.toDebugString(): String {
-  return "$streamUseCaseString Output (Surface: $surface)"
-}
+fun OutputConfiguration.toDebugString(): String = "$streamUseCaseString Output (Surface: $surface)"

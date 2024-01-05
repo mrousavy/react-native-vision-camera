@@ -7,9 +7,11 @@ import android.os.Build
 import android.util.Log
 import com.mrousavy.camera.core.outputs.SurfaceOutput
 
-class ActiveCameraCaptureSession(private val cameraManager: CameraManager,
-                                 private val onError: (error: CameraError) -> Unit,
-                                 private val onInterrupted: () -> Unit): CameraCaptureSession.StateCallback() {
+class ActiveCameraCaptureSession(
+  private val cameraManager: CameraManager,
+  private val onError: (error: CameraError) -> Unit,
+  private val onInterrupted: () -> Unit
+) : CameraCaptureSession.StateCallback() {
   companion object {
     private const val TAG = "ActiveCameraCaptureSession"
   }
@@ -33,9 +35,7 @@ class ActiveCameraCaptureSession(private val cameraManager: CameraManager,
   }
 
   fun createSession() {
-    
   }
-
 
   fun setInputCameraId(cameraId: String) {
     Log.i(TAG, "Setting Input Camera ID: $cameraId")

@@ -12,7 +12,6 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.MeteringRectangle
-import android.hardware.camera2.params.OutputConfiguration
 import android.media.Image
 import android.media.ImageReader
 import android.os.Build
@@ -53,12 +52,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.lang.IllegalStateException
 
 class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: CameraSessionCallback) :
+  CameraManager.AvailabilityCallback(),
   Closeable,
-  CoroutineScope,
-  CameraManager.AvailabilityCallback() {
+  CoroutineScope {
   companion object {
     private const val TAG = "CameraSession"
   }
@@ -80,8 +78,11 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   private var isRunning = false
     set(value) {
       if (field != value) {
-        if (value) callback.onStarted()
-        else callback.onStopped()
+        if (value) {
+          callback.onStarted()
+        } else {
+          callback.onStopped()
+        }
       }
       field = value
     }
@@ -422,7 +423,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   }
 
   private fun createRepeatingRequest(device: CameraDevice, config: CameraConfiguration): CaptureRequest {
-
     val cameraCharacteristics = cameraManager.getCameraCharacteristics(device.id)
 
     val template = if (config.video.isEnabled) CameraDevice.TEMPLATE_RECORD else CameraDevice.TEMPLATE_PREVIEW
@@ -452,7 +452,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       VideoStabilizationMode.STANDARD -> {
         // TODO: Check if that stabilization mode is even supported
         val mode = if (Build.VERSION.SDK_INT >=
-            Build.VERSION_CODES.TIRAMISU
+          Build.VERSION_CODES.TIRAMISU
         ) {
           CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
         } else {
@@ -588,8 +588,18 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
       val fps = configuration?.fps ?: 30
 
-      val recording =
-        RecordingSession(context, cameraDevice.id, videoOutput.size, enableAudio, fps, videoOutput.enableHdr, orientation, options, callback, onError)
+      val recording = RecordingSession(
+        context,
+        cameraDevice.id,
+        videoOutput.size,
+        enableAudio,
+        fps,
+        videoOutput.enableHdr,
+        orientation,
+        options,
+        callback,
+        onError
+      )
       recording.start()
       this.recording = recording
     }
@@ -618,9 +628,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     }
   }
 
-  suspend fun focus(x: Int, y: Int) {
-    throw NotImplementedError("focus() is not yet implemented!")
-  }
+  suspend fun focus(x: Int, y: Int): Unit = throw NotImplementedError("focus() is not yet implemented!")
 
   private suspend fun focus(point: Point) {
     mutex.withLock {

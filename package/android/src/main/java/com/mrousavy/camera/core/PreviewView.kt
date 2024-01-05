@@ -2,7 +2,6 @@ package com.mrousavy.camera.core
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.hardware.camera2.CameraManager
 import android.util.Log
 import android.util.Size
 import android.view.Gravity
@@ -10,11 +9,7 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.widget.FrameLayout
 import com.facebook.react.bridge.UiThreadUtil
-import com.mrousavy.camera.extensions.bigger
 import com.mrousavy.camera.extensions.getMaximumPreviewSize
-import com.mrousavy.camera.extensions.getPreviewTargetSize
-import com.mrousavy.camera.extensions.smaller
-import com.mrousavy.camera.types.CameraDeviceFormat
 import com.mrousavy.camera.types.ResizeMode
 import kotlin.math.roundToInt
 

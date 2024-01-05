@@ -84,7 +84,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   // CameraView+Zoom
   var pinchGestureRecognizer: UIPinchGestureRecognizer?
   var pinchScaleOffset: CGFloat = 1.0
-  private var currentConfigureCall: DispatchTime? = nil
+  private var currentConfigureCall: DispatchTime?
 
   var previewView: PreviewView
   #if DEBUG
@@ -162,7 +162,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
         ReactLogger.log(level: .info, message: "A new configure { ... } call arrived, aborting this one...")
         return
       }
-      
+
       // Input Camera Device
       config.cameraId = cameraId as? String
 

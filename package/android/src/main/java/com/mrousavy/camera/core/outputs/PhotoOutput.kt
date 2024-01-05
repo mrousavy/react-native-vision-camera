@@ -4,7 +4,6 @@ import android.media.ImageReader
 import android.util.Log
 import android.util.Size
 import com.mrousavy.camera.utils.ImageFormatUtils
-import java.io.Closeable
 
 open class PhotoOutput(private val imageReader: ImageReader, enableHdr: Boolean = false) :
   SurfaceOutput(
@@ -19,5 +18,8 @@ open class PhotoOutput(private val imageReader: ImageReader, enableHdr: Boolean 
     super.close()
   }
 
-  override fun toString(): String = "$outputType (${size.width}x${size.height} in ${ImageFormatUtils.imageFormatToString(imageReader.imageFormat)})"
+  override fun toString(): String =
+    "$outputType (${size.width}x${size.height} in ${ImageFormatUtils.imageFormatToString(
+      imageReader.imageFormat
+    )})"
 }

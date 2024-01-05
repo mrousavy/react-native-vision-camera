@@ -5,8 +5,8 @@ import android.graphics.PixelFormat
 
 class ImageFormatUtils {
   companion object {
-    fun imageFormatToString(format: Int): String {
-      return when (format) {
+    fun imageFormatToString(format: Int): String =
+      when (format) {
         ImageFormat.YUV_420_888 -> "YUV_420_888"
         ImageFormat.NV21 -> "NV21"
         ImageFormat.NV16 -> "NV16"
@@ -24,6 +24,5 @@ class ImageFormatUtils {
         ImageFormat.PRIVATE -> "PRIVATE"
         else -> "UNKNOWN ($format)"
       }
-    }
   }
 }
