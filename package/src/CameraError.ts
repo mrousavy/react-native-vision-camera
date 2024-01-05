@@ -16,8 +16,10 @@ export type DeviceError =
 export type FormatError =
   | 'format/invalid-fps'
   | 'format/invalid-video-hdr'
+  | 'format/invalid-video-stabilization-mode'
   | 'format/incompatible-pixel-format-with-hdr-setting'
   | 'format/invalid-format'
+  | 'format/format-required'
 export type SessionError =
   | 'session/camera-not-ready'
   | 'session/camera-cannot-be-opened'
