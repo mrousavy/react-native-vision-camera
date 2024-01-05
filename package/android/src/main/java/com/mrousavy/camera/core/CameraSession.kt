@@ -455,7 +455,12 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     // Set Video Stabilization
     if (config.videoStabilizationMode != VideoStabilizationMode.OFF) {
       if (format == null) throw PropRequiresFormatToBeNonNullError("videoStabilizationMode")
-      if (!format.videoStabilizationModes.contains(config.videoStabilizationMode)) throw InvalidVideoStabilizationMode(config.videoStabilizationMode)
+      if (!format.videoStabilizationModes.contains(
+          config.videoStabilizationMode
+        )
+      ) {
+        throw InvalidVideoStabilizationMode(config.videoStabilizationMode)
+      }
     }
     when (config.videoStabilizationMode) {
       VideoStabilizationMode.OFF -> {
