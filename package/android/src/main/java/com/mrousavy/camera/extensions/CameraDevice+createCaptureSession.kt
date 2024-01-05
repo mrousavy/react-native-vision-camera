@@ -29,23 +29,23 @@ suspend fun CameraDevice.createCaptureSession(
     val sessionId = sessionId++
     Log.i(
       TAG,
-      "Camera $id: Creating Capture Session #$sessionId... " +
-        "Hardware Level: $hardwareLevel | Outputs: ${outputs.joinToString { it.toDebugString() }}"
+      "Camera #$id: Creating Capture Session #$sessionId... " +
+        "(Hardware Level: $hardwareLevel | Outputs: [${outputs.joinToString()}])"
     )
 
     val callback = object : CameraCaptureSession.StateCallback() {
       override fun onConfigured(session: CameraCaptureSession) {
-        Log.i(TAG, "Camera $id: Capture Session #$sessionId configured!")
+        Log.i(TAG, "Camera #$id: Successfully created CameraCaptureSession #$sessionId!")
         continuation.resume(session)
       }
 
       override fun onConfigureFailed(session: CameraCaptureSession) {
-        Log.e(TAG, "Camera $id: Failed to configure Capture Session #$sessionId!")
+        Log.e(TAG, "Camera #$id: Failed to create CameraCaptureSession #$sessionId!")
         continuation.resumeWithException(CameraSessionCannotBeConfiguredError(id))
       }
 
       override fun onClosed(session: CameraCaptureSession) {
-        Log.i(TAG, "Camera $id: Capture Session #$sessionId closed!")
+        Log.i(TAG, "Camera #$id: CameraCaptureSession #$sessionId has been closed.")
         super.onClosed(session)
         onClosed(session)
       }

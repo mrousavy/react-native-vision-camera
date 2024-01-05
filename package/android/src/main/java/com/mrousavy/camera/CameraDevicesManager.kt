@@ -30,7 +30,7 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
       }
 
     override fun onCameraAvailable(cameraId: String) {
-      Log.i(TAG, "Camera #$cameraId: Available!")
+      Log.i(TAG, "Camera #$cameraId is now available.")
       if (!devices.contains(cameraId)) {
         devices.add(cameraId)
         sendAvailableDevicesChangedEvent()
@@ -38,7 +38,7 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
     }
 
     override fun onCameraUnavailable(cameraId: String) {
-      Log.i(TAG, "Camera #$cameraId: Unavailable!")
+      Log.i(TAG, "Camera #$cameraId is now unavailable.")
       if (devices.contains(cameraId) && !isDeviceConnected(cameraId)) {
         devices.remove(cameraId)
         sendAvailableDevicesChangedEvent()

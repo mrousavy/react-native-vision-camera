@@ -112,7 +112,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
       }
       let difference = CameraConfiguration.Difference(between: self.configuration, and: config)
 
-      ReactLogger.log(level: .info, message: "configure { ... }: Updating CameraSession Configuration...")
+      ReactLogger.log(level: .info, message: "configure { ... }: Updating CameraSession Configuration... \(difference)")
 
       do {
         // If needed, configure the AVCaptureSession (inputs, outputs)

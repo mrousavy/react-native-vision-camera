@@ -3,6 +3,7 @@ package com.mrousavy.camera.core.outputs
 import android.util.Log
 import android.util.Size
 import com.mrousavy.camera.core.VideoPipeline
+import com.mrousavy.camera.utils.ImageFormatUtils
 import java.io.Closeable
 
 class VideoPipelineOutput(val videoPipeline: VideoPipeline, enableHdr: Boolean = false) :
@@ -19,5 +20,5 @@ class VideoPipelineOutput(val videoPipeline: VideoPipeline, enableHdr: Boolean =
     super.close()
   }
 
-  override fun toString(): String = "$outputType (${videoPipeline.width} x ${videoPipeline.height} in format #${videoPipeline.format})"
+  override fun toString(): String = "$outputType (${size.width}x${size.height} in ${videoPipeline.format})"
 }
