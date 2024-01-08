@@ -18,30 +18,30 @@ private const val TAG = "CameraManager"
 @SuppressLint("MissingPermission")
 suspend fun CameraManager.openCamera(
   cameraId: String,
-  onDisconnected: (camera: CameraDevice, reason: Throwable) -> Unit,
+  onDisconnected: (camera: CameraDevice, error: Throwable?) -> Unit,
   queue: CameraQueues.CameraQueue
 ): CameraDevice =
   suspendCancellableCoroutine { continuation ->
-    Log.i(TAG, "Camera $cameraId: Opening...")
+    Log.i(TAG, "Camera #$cameraId: Opening...")
 
     val callback = object : CameraDevice.StateCallback() {
       override fun onOpened(camera: CameraDevice) {
-        Log.i(TAG, "Camera $cameraId: Opened!")
+        Log.i(TAG, "Camera #$cameraId: Opened!")
         continuation.resume(camera)
       }
 
       override fun onDisconnected(camera: CameraDevice) {
-        Log.i(TAG, "Camera $cameraId: Disconnected!")
+        Log.i(TAG, "Camera #$cameraId: Disconnected!")
         if (continuation.isActive) {
           continuation.resumeWithException(CameraCannotBeOpenedError(cameraId, CameraDeviceError.DISCONNECTED))
         } else {
-          onDisconnected(camera, CameraDisconnectedError(cameraId, CameraDeviceError.DISCONNECTED))
+          onDisconnected(camera, null)
         }
         camera.close()
       }
 
       override fun onError(camera: CameraDevice, errorCode: Int) {
-        Log.e(TAG, "Camera $cameraId: Error! $errorCode")
+        Log.e(TAG, "Camera #$cameraId: Error! $errorCode")
         val error = CameraDeviceError.fromCameraDeviceError(errorCode)
         if (continuation.isActive) {
           continuation.resumeWithException(CameraCannotBeOpenedError(cameraId, error))

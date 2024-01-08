@@ -40,6 +40,7 @@ class RecordingSession(
   private var startTime: Long? = null
   val surface: Surface = MediaCodec.createPersistentInputSurface()
 
+  // TODO: Implement HDR
   init {
     outputFile = File.createTempFile("mrousavy", options.fileType.toExtension(), context.cacheDir)
 

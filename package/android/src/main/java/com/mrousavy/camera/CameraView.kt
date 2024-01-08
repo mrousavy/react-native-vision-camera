@@ -47,14 +47,6 @@ class CameraView(context: Context) :
   // react properties
   // props that require reconfiguring
   var cameraId: String? = null
-    set(value) {
-      if (value != null) {
-        // TODO: Move this into CameraSession
-        val f = if (format != null) CameraDeviceFormat.fromJSValue(format!!) else null
-        previewView.resizeToInputCamera(value, cameraManager, f)
-      }
-      field = value
-    }
   var enableDepthData = false
   var enableHighQualityPhotos: Boolean? = null
   var enablePortraitEffectsMatteDelivery = false
@@ -101,6 +93,7 @@ class CameraView(context: Context) :
   // session
   internal val cameraSession: CameraSession
   private val previewView: PreviewView
+  private var currentConfigureCall: Long = System.currentTimeMillis()
 
   internal var frameProcessor: FrameProcessor? = null
     set(value) {
@@ -138,15 +131,24 @@ class CameraView(context: Context) :
 
   fun update() {
     Log.i(TAG, "Updating CameraSession...")
+    val now = System.currentTimeMillis()
+    currentConfigureCall = now
 
     launch {
       cameraSession.configure { config ->
+        if (currentConfigureCall != now) {
+          // configure waits for a lock, and if a new call to update() happens in the meantime we can drop this one.
+          // this works similar to how React implemented concurrent rendering, the newer call to update() has higher priority.
+          Log.i(TAG, "A new configure { ... } call arrived, aborting this one...")
+          return@configure
+        }
+
         // Input Camera Device
         config.cameraId = cameraId
 
         // Photo
         if (photo == true) {
-          config.photo = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Photo(Unit))
+          config.photo = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Photo(photoHdr))
         } else {
           config.photo = CameraConfiguration.Output.Disabled.create()
         }
@@ -155,6 +157,7 @@ class CameraView(context: Context) :
         if (video == true || enableFrameProcessor) {
           config.video = CameraConfiguration.Output.Enabled.create(
             CameraConfiguration.Video(
+              videoHdr,
               pixelFormat,
               enableFrameProcessor
             )
@@ -182,10 +185,6 @@ class CameraView(context: Context) :
 
         // Orientation
         config.orientation = orientation
-
-        // HDR
-        config.videoHdr = videoHdr
-        config.photoHdr = photoHdr
 
         // Format
         val format = format

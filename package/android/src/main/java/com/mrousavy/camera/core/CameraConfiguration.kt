@@ -18,10 +18,6 @@ data class CameraConfiguration(
   var video: Output<Video> = Output.Disabled.create(),
   var codeScanner: Output<CodeScanner> = Output.Disabled.create(),
 
-  // HDR
-  var videoHdr: Boolean = false,
-  var photoHdr: Boolean = false,
-
   // Orientation
   var orientation: Orientation = Orientation.PORTRAIT,
 
@@ -47,8 +43,8 @@ data class CameraConfiguration(
 
   // Output<T> types, those need to be comparable
   data class CodeScanner(val codeTypes: List<CodeType>)
-  data class Photo(val nothing: Unit)
-  data class Video(val pixelFormat: PixelFormat, val enableFrameProcessor: Boolean)
+  data class Photo(val enableHdr: Boolean)
+  data class Video(val enableHdr: Boolean, val pixelFormat: PixelFormat, val enableFrameProcessor: Boolean)
   data class Audio(val nothing: Unit)
   data class Preview(val surface: Surface)
 
@@ -71,7 +67,7 @@ data class CameraConfiguration(
   }
 
   data class Difference(
-    // Input Camera (cameraId and isActive)
+    // Input Camera (cameraId, isActive)
     val deviceChanged: Boolean,
     // Outputs & Session (Photo, Video, CodeScanner, HDR, Format)
     val outputsChanged: Boolean,
@@ -79,36 +75,30 @@ data class CameraConfiguration(
     val sidePropsChanged: Boolean,
     // (isActive) changed
     val isActiveChanged: Boolean
-  ) {
-    val hasAnyDifference: Boolean
-      get() = sidePropsChanged || outputsChanged || deviceChanged
-  }
+  )
 
   companion object {
     fun copyOf(other: CameraConfiguration?): CameraConfiguration = other?.copy() ?: CameraConfiguration()
 
     fun difference(left: CameraConfiguration?, right: CameraConfiguration): Difference {
-      val deviceChanged = left?.cameraId != right.cameraId
+      // input device
+      val deviceChanged = left?.cameraId != right.cameraId || left?.isActive != right.isActive
 
+      // outputs
       val outputsChanged = deviceChanged ||
-        // input device
         left?.photo != right.photo ||
         left.video != right.video ||
         left.codeScanner != right.codeScanner ||
         left.preview != right.preview ||
-        // outputs
-        left.videoHdr != right.videoHdr ||
-        left.photoHdr != right.photoHdr ||
-        left.format != right.format // props that affect the outputs
+        left.format != right.format
 
+      // repeating request
       val sidePropsChanged = outputsChanged ||
-        // depend on outputs
         left?.torch != right.torch ||
         left.enableLowLightBoost != right.enableLowLightBoost ||
         left.fps != right.fps ||
         left.zoom != right.zoom ||
         left.videoStabilizationMode != right.videoStabilizationMode ||
-        left.isActive != right.isActive ||
         left.exposure != right.exposure
 
       val isActiveChanged = left?.isActive != right.isActive

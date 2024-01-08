@@ -98,29 +98,21 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
    Any changes in here will be re-configured only if required, and under a lock.
    The `configuration` object is a copy of the currently active configuration that can be modified by the caller in the lambda.
    */
-  func configure(_ lambda: (_ configuration: CameraConfiguration) throws -> Void) {
-    // This is the latest call to configure()
-    let time = DispatchTime.now()
-    currentConfigureCall = time
-
-    ReactLogger.log(level: .info, message: "Updating Session Configuration...")
-
-    // Let caller configure a new configuration for the Camera.
-    let config = CameraConfiguration(copyOf: configuration)
-    do {
-      try lambda(config)
-    } catch {
-      onConfigureError(error)
-    }
-    let difference = CameraConfiguration.Difference(between: configuration, and: config)
+  func configure(_ lambda: @escaping (_ configuration: CameraConfiguration) throws -> Void) {
+    ReactLogger.log(level: .info, message: "configure { ... }: Waiting for lock...")
 
     // Set up Camera (Video) Capture Session (on camera queue, acts like a lock)
     CameraQueues.cameraQueue.async {
-      // Cancel configuration if there has already been a new config
-      guard self.currentConfigureCall == time else {
-        // configure() has been called again just now, skip this one so the new call takes over.
-        return
+      // Let caller configure a new configuration for the Camera.
+      let config = CameraConfiguration(copyOf: self.configuration)
+      do {
+        try lambda(config)
+      } catch {
+        self.onConfigureError(error)
       }
+      let difference = CameraConfiguration.Difference(between: self.configuration, and: config)
+
+      ReactLogger.log(level: .info, message: "configure { ... }: Updating CameraSession Configuration... \(difference)")
 
       do {
         // If needed, configure the AVCaptureSession (inputs, outputs)
