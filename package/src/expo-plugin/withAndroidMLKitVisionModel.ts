@@ -1,36 +1,24 @@
-import { AndroidConfig, ConfigPlugin, withAndroidManifest, withAppBuildGradle } from '@expo/config-plugins'
+import { ConfigPlugin, withGradleProperties } from '@expo/config-plugins'
 import { ConfigProps } from './@types'
 
-const { addMetaDataItemToMainApplication, getMainApplicationOrThrow } = AndroidConfig.Manifest
-
-export const withAndroidMLKitVisionModel: ConfigPlugin<ConfigProps> = (config, props) => {
-  if (props.enableCodeScanner === 'gradle-implementation') {
-    return withAppBuildGradle(config, (conf) => {
-      const buildGradle = conf.modResults
-      const implementation = "implementation 'com.google.mlkit:barcode-scanning:17.2.0'"
-
-      if (buildGradle.contents.includes(implementation) === false) {
-        // Inspired by https://github.com/invertase/react-native-firebase/blob/main/packages/app/plugin/src/android/buildscriptDependency.ts
-        // TODO: Find a better way to do this
-        buildGradle.contents = buildGradle.contents.replace(
-          /dependencies\s?{/,
-          `dependencies {
-    ${implementation}`,
-        )
-      }
-
-      return conf
+/**
+ * Set the `VisionCamera_enableCodeScanner` value in the static `gradle.properties` file.
+ * This is used to add the full MLKit dependency to the project.
+ */
+export const withAndroidMLKitVisionModel: ConfigPlugin<ConfigProps> = (c) => {
+  const key = 'VisionCamera_enableCodeScanner'
+  return withGradleProperties(c, (config) => {
+    config.modResults = config.modResults.filter((item) => {
+      if (item.type === 'property' && item.key === key) return false
+      return true
     })
-  }
 
-  return withAndroidManifest(config, (conf) => {
-    const androidManifest = conf.modResults
-    const mainApplication = getMainApplicationOrThrow(androidManifest)
+    config.modResults.push({
+      type: 'property',
+      key: key,
+      value: 'true',
+    })
 
-    addMetaDataItemToMainApplication(mainApplication, 'com.google.mlkit.vision.DEPENDENCIES', 'barcode')
-
-    conf.modResults = androidManifest
-
-    return conf
+    return config
   })
 }

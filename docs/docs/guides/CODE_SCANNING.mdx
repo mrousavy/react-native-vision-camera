@@ -30,7 +30,7 @@ A Code Scanner is a separate Camera output (just like photo or video) that can d
 
 On iOS, the Code Scanner uses the platform-native APIs and can be used out of the box.
 
-On Android, the [MLKit Vision Barcode Scanning](https://developers.google.com/ml-kit/vision/barcode-scanning) API will be used, and the model (2.2MB) needs to be downloaded first.
+On Android, the [MLKit Vision Barcode Scanning](https://developers.google.com/ml-kit/vision/barcode-scanning) API will be used, and the model (2.2MB) needs to be included into your app first.
 
 <Tabs
   groupId="environment"
@@ -41,21 +41,16 @@ On Android, the [MLKit Vision Barcode Scanning](https://developers.google.com/ml
   ]}>
 <TabItem value="rn">
 
-To download the model when the user installs your app, add this to your `AndroidManifest.xml` file:
+Inside your `gradle.properties` file, add the `enableCodeScanner` flag:
 
-```xml
-<application ...>
-      ...
-      <meta-data
-          android:name="com.google.mlkit.vision.DEPENDENCIES"
-          android:value="barcode" />
-</application>
+```groovy
+VisionCamera_enableCodeScanner=true
 ```
 
 </TabItem>
 <TabItem value="expo">
 
-To download the model when the user installs your app, add the `enableCodeScanner` flag to your Expo config (`app.json`, `app.config.json` or `app.config.js`):
+Add the `enableCodeScanner` flag to your Expo config (`app.json`, `app.config.json` or `app.config.js`):
 
 ```json
 {
@@ -77,7 +72,7 @@ To download the model when the user installs your app, add the `enableCodeScanne
 
 ## Usage
 
-To use a codescanner, simply create a [`CodeScanner`](/docs/api/interfaces/CodeScanner) and pass it to the `<Camera>`:
+To scan codes, simply create a [`CodeScanner`](/docs/api/interfaces/CodeScanner) instance and pass it to the `<Camera>`:
 
 <Tabs
   groupId="component-style"
