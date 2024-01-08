@@ -1,21 +1,24 @@
-import { ConfigPlugin, withAppBuildGradle } from '@expo/config-plugins'
+import { ConfigPlugin, withGradleProperties } from '@expo/config-plugins'
 import { ConfigProps } from './@types'
 
-export const withAndroidMLKitVisionModel: ConfigPlugin<ConfigProps> = (config) => {
-  return withAppBuildGradle(config, (conf) => {
-    const buildGradle = conf.modResults
-    const implementation = "implementation 'com.google.mlkit:barcode-scanning:17.2.0'"
+/**
+ * Set the `VisionCamera_enableCodeScanner` value in the static `gradle.properties` file.
+ * This is used to add the full MLKit dependency to the project.
+ */
+export const withAndroidMLKitVisionModel: ConfigPlugin<ConfigProps> = (c) => {
+  const key = 'VisionCamera_enableCodeScanner'
+  return withGradleProperties(c, (config) => {
+    config.modResults = config.modResults.filter((item) => {
+      if (item.type === 'property' && item.key === key) return false
+      return true
+    })
 
-    if (buildGradle.contents.includes(implementation) === false) {
-      // Inspired by https://github.com/invertase/react-native-firebase/blob/main/packages/app/plugin/src/android/buildscriptDependency.ts
-      // TODO: Find a better way to do this
-      buildGradle.contents = buildGradle.contents.replace(
-        /dependencies\s?{/,
-        `dependencies {
-    ${implementation}`,
-      )
-    }
+    config.modResults.push({
+      type: 'property',
+      key: key,
+      value: 'true',
+    })
 
-    return conf
+    return config
   })
 }
