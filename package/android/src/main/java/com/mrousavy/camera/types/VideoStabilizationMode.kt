@@ -32,6 +32,7 @@ enum class VideoStabilizationMode(override val unionValue: String) : JSUnionValu
     override fun fromUnionValue(unionValue: String?): VideoStabilizationMode =
       when (unionValue) {
         "off" -> OFF
+        "auto" -> OFF
         "standard" -> STANDARD
         "cinematic" -> CINEMATIC
         "cinematic-extended" -> CINEMATIC_EXTENDED
