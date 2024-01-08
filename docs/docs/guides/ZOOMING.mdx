@@ -58,52 +58,57 @@ While you can use any animation library to animate the `zoom` property (or use n
 
 ### Code
 
-The following example implements a button which smoothly zooms to a random value using [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated):
+The following example implements a pinch-to-zoom gesture using [react-native-gesture-handler](https://github.com/software-mansion/react-native-gesture-handler/) and [react-native-reanimated](https://github.com/software-mansion/react-native-reanimated):
 
 ```tsx
-import Reanimated, {
-  useAnimatedProps,
-  useSharedValue,
-  withSpring,
-  addWhitelistedNativeProps
-} from "react-native-reanimated"
+import { Camera, useCameraDevice, CameraProps } from "react-native-vision-camera"
+import Reanimated, { useAnimatedProps, useSharedValue } from "react-native-reanimated"
+import { Gesture, GestureDetector } from 'react-native-gesture-handler'
 
-const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
-addWhitelistedNativeProps({
+Reanimated.addWhitelistedNativeProps({
   zoom: true,
 })
+const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera)
 
 export function App() {
   const device = useCameraDevice('back')
-  const zoom = useSharedValue(0)
+  const zoom = useSharedValue(device.neutralZoom)
 
-  const onRandomZoomPress = useCallback(() => {
-    zoom.value = withSpring(Math.random())
-  }, [zoom])
+  const zoomOffset = useSharedValue(0);
+  const gesture = Gesture.Pinch()
+    .onBegin(() => {
+      zoomOffset.value = zoom.value
+    })
+    .onUpdate(event => {
+      const z = zoomOffset.value * event.scale
+      zoom.value = interpolate(
+        z,
+        [1, 10],
+        [device.minZoom, device.maxZoom],
+        Extrapolation.CLAMP,
+      )
+    })
 
-  const animatedProps = useAnimatedProps<Partial<CameraProps>>(
+  const animatedProps = useAnimatedProps<CameraProps>(
     () => ({ zoom: zoom.value }),
     [zoom]
   )
 
   if (device == null) return <NoCameraDeviceError />
   return (
-    <>
+    <GestureDetector gesture={gesture}>
       <ReanimatedCamera
         style={StyleSheet.absoluteFill}
         device={device}
         isActive={true}
         animatedProps={animatedProps}
       />
-      <TouchableOpacity
-        style={styles.zoomButton}
-        onPress={onRandomZoomPress}>
-        <Text>Zoom randomly!</Text>
-      </TouchableOpacity>
-    </>
+    </GestureDetector>
   )
 }
 ```
+
+You can also use Gesture Handler to implement different zoom gestures, such as the slide-up-to-zoom as seen in Instagram or Snapchat, or a slider as seen in the stock iOS Camera app.
 
 <br />
 
