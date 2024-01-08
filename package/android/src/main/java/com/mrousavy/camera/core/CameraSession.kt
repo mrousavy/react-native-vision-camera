@@ -68,8 +68,13 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   private var configuration: CameraConfiguration? = null
 
   // Camera State
-  private var captureSession: CameraCaptureSession? = null
   private var cameraDevice: CameraDevice? = null
+    set(value) {
+      field = value
+      cameraDeviceDetails = if (value != null) CameraDeviceDetails(cameraManager, value.id) else null
+    }
+  private var cameraDeviceDetails: CameraDeviceDetails? = null
+  private var captureSession: CameraCaptureSession? = null
   private var previewRequest: CaptureRequest.Builder? = null
   private var photoOutput: PhotoOutput? = null
   private var videoOutput: VideoPipelineOutput? = null
@@ -430,27 +435,38 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   }
 
   private fun createRepeatingRequest(device: CameraDevice, targets: List<Surface>, config: CameraConfiguration): CaptureRequest {
-    val cameraCharacteristics = cameraManager.getCameraCharacteristics(device.id)
+    val deviceDetails = cameraDeviceDetails ?: CameraDeviceDetails(cameraManager, device.id)
 
     val template = if (config.video.isEnabled) CameraDevice.TEMPLATE_RECORD else CameraDevice.TEMPLATE_PREVIEW
     val captureRequest = device.createCaptureRequest(template)
 
     targets.forEach { t -> captureRequest.addTarget(t) }
 
+    val format = config.format
+
     // Set FPS
-    // TODO: Check if the FPS range is actually supported in the current configuration.
     val fps = config.fps
     if (fps != null) {
+      if (format == null) throw PropRequiresFormatToBeNonNullError("fps")
+      if (format.maxFps < fps) throw InvalidFpsError(fps)
       captureRequest.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(fps, fps))
     }
 
     // Set Video Stabilization
+    if (config.videoStabilizationMode != VideoStabilizationMode.OFF) {
+      if (format == null) throw PropRequiresFormatToBeNonNullError("videoStabilizationMode")
+      if (!format.videoStabilizationModes.contains(
+          config.videoStabilizationMode
+        )
+      ) {
+        throw InvalidVideoStabilizationMode(config.videoStabilizationMode)
+      }
+    }
     when (config.videoStabilizationMode) {
       VideoStabilizationMode.OFF -> {
         // do nothing
       }
       VideoStabilizationMode.STANDARD -> {
-        // TODO: Check if that stabilization mode is even supported
         val mode = if (Build.VERSION.SDK_INT >=
           Build.VERSION_CODES.TIRAMISU
         ) {
@@ -461,35 +477,37 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         captureRequest.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, mode)
       }
       VideoStabilizationMode.CINEMATIC, VideoStabilizationMode.CINEMATIC_EXTENDED -> {
-        // TODO: Check if that stabilization mode is even supported
         captureRequest.set(CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE, CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE_ON)
       }
     }
 
     // Set HDR
-    // TODO: Check if that value is even supported
     val video = config.video as? CameraConfiguration.Output.Enabled<CameraConfiguration.Video>
     val videoHdr = video?.config?.enableHdr
     if (videoHdr == true) {
+      if (format == null) throw PropRequiresFormatToBeNonNullError("videoHdr")
+      if (!format.supportsVideoHdr) throw InvalidVideoHdrError()
       captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_HDR)
     } else if (config.enableLowLightBoost) {
+      if (!deviceDetails.supportsLowLightBoost) throw LowLightBoostNotSupportedError()
       captureRequest.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_NIGHT)
     }
 
     // Set Exposure Bias
-    // TODO: Check if that exposure value is even supported
     val exposure = config.exposure?.toInt()
     if (exposure != null) {
-      captureRequest.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, exposure)
+      val clamped = deviceDetails.exposureRange.clamp(exposure)
+      captureRequest.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, clamped)
     }
 
     // Set Zoom
-    // TODO: Check if that zoom value is even supported
+    // TODO: Cache camera characteristics? Check perf.
+    val cameraCharacteristics = cameraManager.getCameraCharacteristics(device.id)
     captureRequest.setZoom(config.zoom, cameraCharacteristics)
 
     // Set Torch
-    // TODO: Check if torch is even supported
     if (config.torch == Torch.ON) {
+      if (!deviceDetails.hasFlash) throw FlashUnavailableError()
       captureRequest.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH)
     }
 

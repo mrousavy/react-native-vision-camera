@@ -89,9 +89,9 @@ enum DeviceError: String {
     case .invalid:
       return "The given Camera device was invalid. Use `useCameraDevice(..)` or `Camera.getAvailableCameraDevices()` to select a suitable Camera device."
     case .flashUnavailable:
-      return "The Camera Device does not have a flash unit! Make sure you select a device where `hasFlash`/`hasTorch` is true!"
+      return "The Camera Device does not have a flash unit! Select a device where `device.hasFlash`/`device.hasTorch` is true."
     case .lowLightBoostNotSupported:
-      return "The currently selected camera device does not support low-light boost! Make sure you select a device where `supportsLowLightBoost` is true!"
+      return "The currently selected camera device does not support low-light boost! Select a device where `device.supportsLowLightBoost` is true."
     case .focusNotSupported:
       return "The currently selected camera device does not support focussing!"
     case .microphoneUnavailable:
