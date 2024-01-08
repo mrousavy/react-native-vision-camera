@@ -22,13 +22,15 @@ export type ConfigProps = {
    */
   disableFrameProcessors?: boolean
   /**
-   * Whether to enable the QR/Barcode Scanner Model. If true, the MLKit Model will
-   * automatically be downloaded on app startup. If false, it will be downloaded
-   * once the Camera is created with a `CodeScanner`.
+   * Whether to enable the QR/Barcode Scanner Model.
+   *
+   * - When set to `true`, the MLKit Model will be bundled alongside
+   * with your app. (~2.4 MB in size).
+   * - When set to `false`, it can still be downloaded on-the-fly on devices with Google Play Services installed if you are using the `CodeScanner`.
+   *
    * See [QR/Barcode Scanning](https://react-native-vision-camera.com/docs/guides/code-scanning)
    *
-   * If set to true, it fallbacks to `android-manifest`.
    * @default false
    */
-  enableCodeScanner?: boolean | 'android-manifest' | 'gradle-implementation'
+  enableCodeScanner?: boolean
 }

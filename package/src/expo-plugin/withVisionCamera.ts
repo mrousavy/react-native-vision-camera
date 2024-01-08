@@ -26,7 +26,7 @@ const withCamera: ConfigPlugin<ConfigProps> = (config, props = {}) => {
     config = withDisableFrameProcessorsIOS(config)
   }
 
-  if (props.enableCodeScanner !== false) config = withAndroidMLKitVisionModel(config, props)
+  if (props.enableCodeScanner) config = withAndroidMLKitVisionModel(config, props)
 
   return withPlugins(config, [[AndroidConfig.Permissions.withPermissions, androidPermissions]])
 }
