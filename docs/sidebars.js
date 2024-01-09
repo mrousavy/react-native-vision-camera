@@ -39,6 +39,7 @@ module.exports = {
       'guides/errors',
       'guides/mocking',
       'guides/troubleshooting',
+      'guides/shadowlens',
     ],
     API: [
       {
