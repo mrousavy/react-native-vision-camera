@@ -43,9 +43,9 @@ cd ios && pod install
 * [Example](./package/example/)
 * [Frame Processor Plugins](https://react-native-vision-camera.com/docs/guides/frame-processor-plugin-list)
 
-### V3
+### ShadowLens
 
-You're looking at the V3 version of VisionCamera, which features a full rewrite on the Android codebase and a huge refactor on the iOS codebase. If you encounter issues on V3, you can also [downgrade to V2](https://github.com/mrousavy/react-native-vision-camera/tree/v2), which is still partially supported.
+To see VisionCamera in action, check out [ShadowLens](https://mrousavy.com/projects/shadowlens)!
 
 ### Example
 
