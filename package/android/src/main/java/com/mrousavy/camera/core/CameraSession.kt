@@ -520,6 +520,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
     if (!config.isActive) {
       isRunning = false
+      captureSession?.stopRepeating()
       return
     }
     if (captureSession == null) {
