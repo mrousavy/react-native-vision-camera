@@ -10,7 +10,7 @@ To focus the camera to a specific point, simply use the Camera's [`focus(...)`](
 await camera.current.focus({ x: tapEvent.x, y: tapEvent.y })
 ```
 
-The focus function expects a [`Point`](/docs/api/interfaces/Point) parameter which represents the location relative to the Camera view where you want to focus the Camera to (in _points_). If you use [react-native-gesture-handler](https://docs.swmansion.com/react-native-gesture-handler/), this will consist of the [`x`](https://docs.swmansion.com/react-native-gesture-handler/docs/next/gesture-handlers/api/tap-gh/#x) and [`y`](https://docs.swmansion.com/react-native-gesture-handler/docs/next/gesture-handlers/api/tap-gh/#y) properties of the tap event payload.
+The focus function expects a [`Point`](/docs/api/interfaces/Point) parameter which represents the location relative to the Camera view where you want to focus the Camera to (in _points_). If you use [react-native-gesture-handler](https://github.com/software-mansion/react-native-gesture-handler/), this will consist of the [`x`](https://docs.swmansion.com/react-native-gesture-handler/docs/next/gesture-handlers/api/tap-gh/#x) and [`y`](https://docs.swmansion.com/react-native-gesture-handler/docs/next/gesture-handlers/api/tap-gh/#y) properties of the tap event payload.
 
 So for example, `{ x: 0, y: 0 }` will focus to the upper left corner, while `{ x: VIEW_WIDTH, y: VIEW_HEIGHT }` will focus to the bottom right corner.
 
@@ -19,6 +19,43 @@ Focussing adjusts auto-focus (AF) and auto-exposure (AE).
 :::note
 `focus(...)` will fail if the selected Camera device does not support focusing (see [`CameraDevice.supportsFocus`](/docs/api/interfaces/CameraDevice#supportsfocus))
 :::
+
+## Example (Gesture Handler)
+
+This is an Example on how to use [react-native-gesture-handler](https://github.com/software-mansion/react-native-gesture-handler/) to focus the Camera to a specific point on the screen:
+
+```tsx
+import { Camera, useCameraDevice } from 'react-native-vision-camera'
+import { Gesture, GestureDetector } from 'react-native-gesture-handler'
+
+export function App() {
+  const camera = useRef<Camera>(null)
+  const device = useCameraDevice('back')
+
+  const focus = useCallback((point: Point) => {
+    const c = camera.current
+    if (c == null) return
+    c.focus()
+  }, [])
+
+  const gesture = Gesture.Tap()
+    .onEnd(({ x, y }) => {
+      runOnJS(focus)({ x, y })
+    })
+
+  if (device == null) return <NoCameraDeviceError />
+  return (
+    <GestureDetector gesture={gesture}>
+      <Camera
+        ref={camera}
+        style={StyleSheet.absoluteFill}
+        device={device}
+        isActive={true}
+      />
+    </GestureDetector>
+  )
+}
+```
 
 <br />
 
