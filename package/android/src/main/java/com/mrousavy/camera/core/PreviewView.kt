@@ -41,7 +41,7 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
       FrameLayout.LayoutParams.MATCH_PARENT,
       Gravity.CENTER
     )
-    holder.addCallback(object: SurfaceHolder.Callback {
+    holder.addCallback(object : SurfaceHolder.Callback {
       override fun surfaceCreated(holder: SurfaceHolder) = callback.surfaceCreated(holder)
       override fun surfaceDestroyed(holder: SurfaceHolder) = callback.surfaceDestroyed(holder)
 
