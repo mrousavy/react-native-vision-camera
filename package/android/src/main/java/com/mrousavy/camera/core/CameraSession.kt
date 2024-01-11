@@ -28,7 +28,6 @@ import com.mrousavy.camera.core.outputs.BarcodeScannerOutput
 import com.mrousavy.camera.core.outputs.PhotoOutput
 import com.mrousavy.camera.core.outputs.SurfaceOutput
 import com.mrousavy.camera.core.outputs.VideoPipelineOutput
-import com.mrousavy.camera.extensions.bigger
 import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.closestToOrMax
 import com.mrousavy.camera.extensions.createCaptureSession
@@ -38,7 +37,6 @@ import com.mrousavy.camera.extensions.getPreviewTargetSize
 import com.mrousavy.camera.extensions.getVideoSizes
 import com.mrousavy.camera.extensions.openCamera
 import com.mrousavy.camera.extensions.setZoom
-import com.mrousavy.camera.extensions.smaller
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
@@ -48,6 +46,7 @@ import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.VideoStabilizationMode
 import com.mrousavy.camera.utils.ImageFormatUtils
 import java.io.Closeable
+import java.lang.IllegalStateException
 import java.util.concurrent.CancellationException
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
@@ -246,6 +245,8 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
   private fun destroyPreviewOutputSync() {
     Log.i(TAG, "Destroying Preview Output...")
+    // This needs to run synchronously because after this method returns, the Preview Surface is no longer valid,
+    // and trying to use it will crash. This might result in a short UI Thread freeze though.
     runBlocking {
       configure { config ->
         config.preview = CameraConfiguration.Output.Disabled.create()
@@ -379,12 +380,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     if (preview != null) {
       // Compute Preview Size based on chosen video size
       val videoSize = videoOutput?.size ?: format?.videoSize
-      val size = if (videoSize != null) {
-        val formatAspectRatio = videoSize.bigger.toDouble() / videoSize.smaller
-        characteristics.getPreviewTargetSize(formatAspectRatio)
-      } else {
-        characteristics.getPreviewTargetSize(null)
-      }
+      val size = characteristics.getPreviewTargetSize(videoSize)
 
       val enableHdr = video?.config?.enableHdr ?: false
 
@@ -396,7 +392,8 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         enableHdr
       )
       outputs.add(output)
-      previewView?.size = size
+      // Size is usually landscape, so we flip it here
+      previewView?.size = Size(size.height, size.width)
     }
 
     // CodeScanner Output
@@ -520,7 +517,11 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
     if (!config.isActive) {
       isRunning = false
-      captureSession?.stopRepeating()
+      try {
+        captureSession?.stopRepeating()
+      } catch (e: IllegalStateException) {
+        // ignore - captureSession is already closed.
+      }
       return
     }
     if (captureSession == null) {

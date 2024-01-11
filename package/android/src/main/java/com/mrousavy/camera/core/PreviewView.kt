@@ -19,8 +19,8 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
     set(value) {
       field = value
       UiThreadUtil.runOnUiThread {
-        Log.i(TAG, "Resizing PreviewView to ${value.width} x ${value.height}...")
-        holder.setFixedSize(value.width, value.height)
+        Log.i(TAG, "Setting PreviewView Surface Size to $width x $height...")
+        holder.setFixedSize(value.height, value.width)
         requestLayout()
         invalidate()
       }
@@ -44,19 +44,9 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
     holder.addCallback(callback)
   }
 
-  /*fun resizeToInputCamera(cameraId: String, cameraManager: CameraManager, format: CameraDeviceFormat?) {
-    val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-
-    val targetPreviewSize = format?.videoSize
-    val formatAspectRatio = if (targetPreviewSize != null) targetPreviewSize.bigger.toDouble() / targetPreviewSize.smaller else null
-    size = characteristics.getPreviewTargetSize(formatAspectRatio)
-  }*/
-
   private fun getSize(contentSize: Size, containerSize: Size, resizeMode: ResizeMode): Size {
-    val contentAspectRatio = contentSize.height.toDouble() / contentSize.width
+    val contentAspectRatio = contentSize.width.toDouble() / contentSize.height
     val containerAspectRatio = containerSize.width.toDouble() / containerSize.height
-
-    Log.i(TAG, "Content Size: $contentSize ($contentAspectRatio) | Container Size: $containerSize ($containerAspectRatio)")
 
     val widthOverHeight = when (resizeMode) {
       ResizeMode.COVER -> contentAspectRatio > containerAspectRatio

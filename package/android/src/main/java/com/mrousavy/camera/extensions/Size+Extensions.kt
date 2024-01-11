@@ -9,7 +9,7 @@ import kotlin.math.min
 
 fun List<Size>.closestToOrMax(size: Size?): Size =
   if (size != null) {
-    this.minBy { abs(it.width - size.width) + abs(it.height - size.height) }
+    this.minBy { abs((it.width * it.height) - (size.width * size.height)) }
   } else {
     this.maxBy { it.width * it.height }
   }

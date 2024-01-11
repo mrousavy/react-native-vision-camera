@@ -10,7 +10,6 @@ import com.facebook.proguard.annotations.DoNotStrip;
 /**
  * Represents a JS Frame Processor
  */
-@SuppressWarnings("JavaJniMissingFunction") // we're using fbjni.
 public final class FrameProcessor {
     /**
      * Call the JS Frame Processor function with the given Frame
