@@ -26,11 +26,5 @@ fun CameraCharacteristics.getPreviewTargetSize(targetSize: Size?): Size {
   val outputSizes = config.getOutputSizes(SurfaceHolder::class.java)
       .filter { it.bigger <= maximumPreviewSize.bigger && it.smaller <= maximumPreviewSize.smaller }
 
-  return if (targetSize != null) {
-    // Find closest resolution match
-    outputSizes.minBy { abs((it.width * it.height) - (targetSize.width * targetSize.height)) }
-  } else {
-    // Find maximum available preview resolution
-    outputSizes.maxBy { it.width * it.height }
-  }
+  return outputSizes.closestToOrMax(targetSize)
 }
