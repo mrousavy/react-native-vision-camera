@@ -379,12 +379,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     if (preview != null) {
       // Compute Preview Size based on chosen video size
       val videoSize = videoOutput?.size ?: format?.videoSize
-      val size = if (videoSize != null) {
-        val formatAspectRatio = videoSize.bigger.toDouble() / videoSize.smaller
-        characteristics.getPreviewTargetSize(formatAspectRatio)
-      } else {
-        characteristics.getPreviewTargetSize(null)
-      }
+      val size = characteristics.getPreviewTargetSize(videoSize)
 
       val enableHdr = video?.config?.enableHdr ?: false
 
