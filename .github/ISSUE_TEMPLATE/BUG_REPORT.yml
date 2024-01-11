@@ -58,11 +58,11 @@ body:
         Paste the JSON Camera `device` that was used here.
         Make sure to leave out the `formats` prop as that is too long for the issue.
 
+        Run this code in your app to get the `device` as a JSON:
+
         ```
 
-        device.formats = undefined
-
-        console.log(JSON.stringify(device, null, 2))
+        console.log(JSON.stringify(device, (k, v) => k === "formats" ? [] : v, 2))
 
         ```
 
