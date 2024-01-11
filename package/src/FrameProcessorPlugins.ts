@@ -48,7 +48,7 @@ let isAsyncContextBusy = { value: false }
 let runOnAsyncContext = (_frame: Frame, _func: () => void): void => {
   throw new CameraRuntimeError('system/frame-processors-unavailable', errorMessage)
 }
-let throwJSError = (error: unknown): Promise<void> => {
+let throwJSError = (error: unknown): void => {
   throw error
 }
 
@@ -58,9 +58,12 @@ try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { Worklets } = require('react-native-worklets-core') as typeof TWorklets
 
-  throwJSError = Worklets.createRunInJsFn((error) => {
-    throw error
-  })
+  throwJSError = (error) => {
+    'worklet'
+    const message = (error as Error | undefined)?.message ?? JSON.stringify(error)
+    // TODO: Can we throw on the JS Thread (+ LogBox) instead of only using console.log?
+    console.error(`Frame Processor threw an error: ${message}`)
+  }
 
   isAsyncContextBusy = Worklets.createSharedValue(false)
   const asyncContext = Worklets.createContext('VisionCamera.async')
