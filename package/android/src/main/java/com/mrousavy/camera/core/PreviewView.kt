@@ -18,12 +18,7 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
   var size: Size = getMaximumPreviewSize()
     set(value) {
       field = value
-      UiThreadUtil.runOnUiThread {
-        Log.i(TAG, "Resizing PreviewView to ${value.width} x ${value.height}...")
-        holder.setFixedSize(value.width, value.height)
-        requestLayout()
-        invalidate()
-      }
+      holder.setFixedSize(value.width, value.height)
     }
   var resizeMode: ResizeMode = ResizeMode.COVER
     set(value) {
@@ -48,6 +43,7 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
       override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
         callback.surfaceChanged(holder, format, width, height)
         UiThreadUtil.runOnUiThread {
+          Log.i(TAG, "Resizing PreviewView to $width x $height...")
           requestLayout()
           invalidate()
         }
@@ -55,16 +51,8 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
     })
   }
 
-  /*fun resizeToInputCamera(cameraId: String, cameraManager: CameraManager, format: CameraDeviceFormat?) {
-    val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-
-    val targetPreviewSize = format?.videoSize
-    val formatAspectRatio = if (targetPreviewSize != null) targetPreviewSize.bigger.toDouble() / targetPreviewSize.smaller else null
-    size = characteristics.getPreviewTargetSize(formatAspectRatio)
-  }*/
-
   private fun getSize(contentSize: Size, containerSize: Size, resizeMode: ResizeMode): Size {
-    val contentAspectRatio = contentSize.height.toDouble() / contentSize.width // <-- content size is landscape, to be rendered in portrait
+    val contentAspectRatio = contentSize.width.toDouble() / contentSize.height
     val containerAspectRatio = containerSize.width.toDouble() / containerSize.height
 
     Log.i(TAG, "Content Size: $contentSize ($contentAspectRatio) | Container Size: $containerSize ($containerAspectRatio)")

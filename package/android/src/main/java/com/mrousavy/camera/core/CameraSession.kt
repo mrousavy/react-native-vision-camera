@@ -392,7 +392,8 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         enableHdr
       )
       outputs.add(output)
-      previewView?.size = size
+      // Size is usually landscape, so we flip it here
+      previewView?.size = Size(size.height, size.width)
     }
 
     // CodeScanner Output
