@@ -4,7 +4,6 @@ import android.content.res.Resources
 import android.hardware.camera2.CameraCharacteristics
 import android.util.Size
 import android.view.SurfaceHolder
-import kotlin.math.abs
 
 fun getMaximumPreviewSize(): Size {
   // See https://developer.android.com/reference/android/hardware/camera2/params/StreamConfigurationMap
@@ -24,7 +23,7 @@ fun CameraCharacteristics.getPreviewTargetSize(targetSize: Size?): Size {
   val config = this.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
   val maximumPreviewSize = getMaximumPreviewSize()
   val outputSizes = config.getOutputSizes(SurfaceHolder::class.java)
-      .filter { it.bigger <= maximumPreviewSize.bigger && it.smaller <= maximumPreviewSize.smaller }
+    .filter { it.bigger <= maximumPreviewSize.bigger && it.smaller <= maximumPreviewSize.smaller }
 
   return outputSizes.closestToOrMax(targetSize)
 }
