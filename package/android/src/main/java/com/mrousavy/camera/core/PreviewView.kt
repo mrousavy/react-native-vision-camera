@@ -41,7 +41,18 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
       FrameLayout.LayoutParams.MATCH_PARENT,
       Gravity.CENTER
     )
-    holder.addCallback(callback)
+    holder.addCallback(object: SurfaceHolder.Callback {
+      override fun surfaceCreated(holder: SurfaceHolder) = callback.surfaceCreated(holder)
+      override fun surfaceDestroyed(holder: SurfaceHolder) = callback.surfaceDestroyed(holder)
+
+      override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+        callback.surfaceChanged(holder, format, width, height)
+        UiThreadUtil.runOnUiThread {
+          requestLayout()
+          invalidate()
+        }
+      }
+    })
   }
 
   /*fun resizeToInputCamera(cameraId: String, cameraManager: CameraManager, format: CameraDeviceFormat?) {
@@ -53,7 +64,7 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
   }*/
 
   private fun getSize(contentSize: Size, containerSize: Size, resizeMode: ResizeMode): Size {
-    val contentAspectRatio = contentSize.height.toDouble() / contentSize.width
+    val contentAspectRatio = contentSize.height.toDouble() / contentSize.width // <-- content size is landscape, to be rendered in portrait
     val containerAspectRatio = containerSize.width.toDouble() / containerSize.height
 
     Log.i(TAG, "Content Size: $contentSize ($contentAspectRatio) | Container Size: $containerSize ($containerAspectRatio)")
