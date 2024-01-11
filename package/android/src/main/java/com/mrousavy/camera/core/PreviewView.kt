@@ -55,11 +55,11 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
 
     return if (widthOverHeight) {
       // Scale by width to cover height
-      val scaledWidth = containerSize.width * contentAspectRatio
+      val scaledWidth = containerSize.height * contentAspectRatio
       Size(scaledWidth.roundToInt(), containerSize.height)
     } else {
       // Scale by height to cover width
-      val scaledHeight = containerSize.height * contentAspectRatio
+      val scaledHeight = containerSize.width / contentAspectRatio
       Size(containerSize.width, scaledHeight.roundToInt())
     }
   }
