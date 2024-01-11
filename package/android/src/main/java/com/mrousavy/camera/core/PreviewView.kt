@@ -18,7 +18,12 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
   var size: Size = getMaximumPreviewSize()
     set(value) {
       field = value
-      holder.setFixedSize(value.width, value.height)
+      UiThreadUtil.runOnUiThread {
+        Log.i(TAG, "Setting PreviewView Surface Size to $width x $height...")
+        holder.setFixedSize(value.width, value.height)
+        requestLayout()
+        invalidate()
+      }
     }
   var resizeMode: ResizeMode = ResizeMode.COVER
     set(value) {
@@ -36,26 +41,12 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
       FrameLayout.LayoutParams.MATCH_PARENT,
       Gravity.CENTER
     )
-    holder.addCallback(object : SurfaceHolder.Callback {
-      override fun surfaceCreated(holder: SurfaceHolder) = callback.surfaceCreated(holder)
-      override fun surfaceDestroyed(holder: SurfaceHolder) = callback.surfaceDestroyed(holder)
-
-      override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-        callback.surfaceChanged(holder, format, width, height)
-        UiThreadUtil.runOnUiThread {
-          Log.i(TAG, "Resizing PreviewView to $width x $height...")
-          requestLayout()
-          invalidate()
-        }
-      }
-    })
+    holder.addCallback(callback)
   }
 
   private fun getSize(contentSize: Size, containerSize: Size, resizeMode: ResizeMode): Size {
     val contentAspectRatio = contentSize.width.toDouble() / contentSize.height
     val containerAspectRatio = containerSize.width.toDouble() / containerSize.height
-
-    Log.i(TAG, "Content Size: $contentSize ($contentAspectRatio) | Container Size: $containerSize ($containerAspectRatio)")
 
     val widthOverHeight = when (resizeMode) {
       ResizeMode.COVER -> contentAspectRatio > containerAspectRatio
@@ -64,11 +55,11 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
 
     return if (widthOverHeight) {
       // Scale by width to cover height
-      val scaledWidth = containerSize.height * contentAspectRatio
+      val scaledWidth = containerSize.width * contentAspectRatio
       Size(scaledWidth.roundToInt(), containerSize.height)
     } else {
       // Scale by height to cover width
-      val scaledHeight = containerSize.width / contentAspectRatio
+      val scaledHeight = containerSize.height * contentAspectRatio
       Size(containerSize.width, scaledHeight.roundToInt())
     }
   }
