@@ -245,6 +245,8 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
   private fun destroyPreviewOutputSync() {
     Log.i(TAG, "Destroying Preview Output...")
+    // This needs to run synchronously because after this method returns, the Preview Surface is no longer valid,
+    // and trying to use it will crash. This might result in a short UI Thread freeze though.
     runBlocking {
       configure { config ->
         config.preview = CameraConfiguration.Output.Disabled.create()
