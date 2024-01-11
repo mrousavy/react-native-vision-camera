@@ -20,7 +20,7 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
       field = value
       UiThreadUtil.runOnUiThread {
         Log.i(TAG, "Setting PreviewView Surface Size to $width x $height...")
-        holder.setFixedSize(value.width, value.height)
+        holder.setFixedSize(value.height, value.width)
         requestLayout()
         invalidate()
       }
