@@ -55,6 +55,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.lang.IllegalStateException
 
 class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: CameraSessionCallback) :
   CameraManager.AvailabilityCallback(),
@@ -515,7 +516,11 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
     if (!config.isActive) {
       isRunning = false
-      captureSession?.stopRepeating()
+      try {
+        captureSession?.stopRepeating()
+      } catch (e: IllegalStateException) {
+        // ignore - captureSession is already closed.
+      }
       return
     }
     if (captureSession == null) {
