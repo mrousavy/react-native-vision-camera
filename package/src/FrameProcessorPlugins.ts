@@ -35,6 +35,10 @@ interface TVisionCameraProxy {
    * ```
    */
   initFrameProcessorPlugin: (name: string, options?: Record<string, ParameterType>) => FrameProcessorPlugin | undefined
+  /**
+   * Throws the given error.
+   */
+  throwJSError: (error: unknown) => void
 }
 
 const errorMessage = 'Frame Processors are not available, react-native-worklets-core is not installed!'
@@ -44,12 +48,33 @@ let isAsyncContextBusy = { value: false }
 let runOnAsyncContext = (_frame: Frame, _func: () => void): void => {
   throw new CameraRuntimeError('system/frame-processors-unavailable', errorMessage)
 }
+let throwJSError = (error: unknown): void => {
+  throw error
+}
 
 try {
   assertJSIAvailable()
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { Worklets } = require('react-native-worklets-core') as typeof TWorklets
+
+  const throwErrorOnJS = Worklets.createRunInJsFn((message: string, stack: string | undefined) => {
+    const error = new Error()
+    error.message = message
+    error.stack = stack
+    error.name = 'Frame Processor Error'
+    // @ts-expect-error this is react-native specific
+    error.jsEngine = 'VisionCamera'
+    // From react-native:
+    // @ts-ignore the reportFatalError method is an internal method of ErrorUtils not exposed in the type definitions
+    global.ErrorUtils.reportFatalError(error)
+  })
+  throwJSError = (error) => {
+    'worklet'
+    const safeError = error as Error | undefined
+    const message = safeError != null && 'message' in safeError ? safeError.message : 'Frame Processor threw an error.'
+    throwErrorOnJS(message, safeError?.stack)
+  }
 
   isAsyncContextBusy = Worklets.createSharedValue(false)
   const asyncContext = Worklets.createContext('VisionCamera.async')
@@ -58,6 +83,9 @@ try {
     try {
       // Call long-running function
       func()
+    } catch (e) {
+      // Re-throw error on JS Thread
+      throwJSError(e)
     } finally {
       // Potentially delete Frame if we were the last ref
       const internal = frame as FrameInternal
@@ -81,6 +109,7 @@ let proxy: TVisionCameraProxy = {
   setFrameProcessor: () => {
     throw new CameraRuntimeError('system/frame-processors-unavailable', errorMessage)
   },
+  throwJSError: throwJSError,
 }
 if (hasWorklets) {
   // Install native Frame Processor Runtime Manager
@@ -103,6 +132,7 @@ export const VisionCameraProxy: TVisionCameraProxy = {
   initFrameProcessorPlugin: proxy.initFrameProcessorPlugin,
   removeFrameProcessor: proxy.removeFrameProcessor,
   setFrameProcessor: proxy.setFrameProcessor,
+  throwJSError: throwJSError,
   // TODO: Remove this in the next version
   // @ts-expect-error
   getFrameProcessorPlugin: (name, options) => {
@@ -116,6 +146,12 @@ export const VisionCameraProxy: TVisionCameraProxy = {
 declare global {
   // eslint-disable-next-line no-var
   var __frameProcessorRunAtTargetFpsMap: Record<string, number | undefined> | undefined
+  // eslint-disable-next-line no-var
+  var __ErrorUtils:
+    | {
+        reportFatalError: (error: unknown) => void
+      }
+    | undefined
 }
 
 function getLastFrameProcessorCall(frameProcessorFuncId: string): number {

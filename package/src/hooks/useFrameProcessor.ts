@@ -1,6 +1,7 @@
 import { DependencyList, useMemo } from 'react'
 import type { Frame, FrameInternal } from '../Frame'
 import { FrameProcessor } from '../CameraProps'
+import { VisionCameraProxy } from '../FrameProcessorPlugins'
 
 /**
  * Create a new Frame Processor function which you can pass to the `<Camera>`.
@@ -20,6 +21,9 @@ export function createFrameProcessor(frameProcessor: FrameProcessor['frameProces
       try {
         // Call sync frame processor
         frameProcessor(frame)
+      } catch (e) {
+        // Re-throw error on JS Thread
+        VisionCameraProxy.throwJSError(e)
       } finally {
         // Potentially delete Frame if we were the last ref (no runAsync)
         internal.decrementRefCount()
