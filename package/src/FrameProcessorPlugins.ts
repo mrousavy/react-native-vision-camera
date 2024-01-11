@@ -95,7 +95,7 @@ let proxy: TVisionCameraProxy = {
   setFrameProcessor: () => {
     throw new CameraRuntimeError('system/frame-processors-unavailable', errorMessage)
   },
-  throwJSError: throwJSError
+  throwJSError: throwJSError,
 }
 if (hasWorklets) {
   // Install native Frame Processor Runtime Manager
@@ -118,7 +118,7 @@ export const VisionCameraProxy: TVisionCameraProxy = {
   initFrameProcessorPlugin: proxy.initFrameProcessorPlugin,
   removeFrameProcessor: proxy.removeFrameProcessor,
   setFrameProcessor: proxy.setFrameProcessor,
-  throwJSError: proxy.throwJSError,
+  throwJSError: throwJSError,
   // TODO: Remove this in the next version
   // @ts-expect-error
   getFrameProcessorPlugin: (name, options) => {
