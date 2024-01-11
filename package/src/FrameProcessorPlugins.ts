@@ -58,11 +58,22 @@ try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { Worklets } = require('react-native-worklets-core') as typeof TWorklets
 
+  const throwErrorOnJS = Worklets.createRunInJsFn((message: string, stack: string | undefined) => {
+    const error = new Error()
+    error.message = message
+    error.stack = stack
+    error.name = 'Frame Processor Error'
+    // @ts-expect-error this is react-native specific
+    error.jsEngine = 'VisionCamera'
+    // From react-native:
+    // @ts-ignore the reportFatalError method is an internal method of ErrorUtils not exposed in the type definitions
+    global.ErrorUtils.reportFatalError(error)
+  })
   throwJSError = (error) => {
     'worklet'
-    const message = (error as Error | undefined)?.message ?? JSON.stringify(error)
-    // TODO: Can we throw on the JS Thread (+ LogBox) instead of only using console.log?
-    console.error(`Frame Processor threw an error: ${message}`)
+    const safeError = error as Error | undefined
+    const message = safeError != null && 'message' in safeError ? safeError.message : 'Frame Processor threw an error.'
+    throwErrorOnJS(message, safeError?.stack)
   }
 
   isAsyncContextBusy = Worklets.createSharedValue(false)
@@ -135,6 +146,12 @@ export const VisionCameraProxy: TVisionCameraProxy = {
 declare global {
   // eslint-disable-next-line no-var
   var __frameProcessorRunAtTargetFpsMap: Record<string, number | undefined> | undefined
+  // eslint-disable-next-line no-var
+  var __ErrorUtils:
+    | {
+        reportFatalError: (error: unknown) => void
+      }
+    | undefined
 }
 
 function getLastFrameProcessorCall(frameProcessorFuncId: string): number {
