@@ -163,23 +163,38 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       Log.i(TAG, "configure { ... }: Updating CameraSession Configuration... $diff")
 
       try {
-        val needsRebuild = config.isActive && (cameraDevice == null || captureSession == null)
+        val needsRebuild = cameraDevice == null || captureSession == null
         if (needsRebuild) {
           Log.i(TAG, "Need to rebuild CameraDevice and CameraCaptureSession...")
         }
 
-        // Build up session or update any props
-        if (diff.deviceChanged || needsRebuild) {
-          // 1. cameraId changed, open device
-          configureCameraDevice(config)
-        }
-        if (diff.outputsChanged || needsRebuild) {
-          // 2. outputs changed, build new session
-          configureOutputs(config)
-        }
-        if (diff.sidePropsChanged || needsRebuild) {
-          // 3. zoom etc changed, update repeating request
-          configureCaptureRequest(config)
+        // Since cameraDevice and captureSession are OS resources, we have three possible paths here:
+        if (needsRebuild) {
+          if (config.isActive) {
+            // A: The Camera has been torn down by the OS and we want it to be active - rebuild everything
+            Log.i(TAG, "Need to rebuild CameraDevice and CameraCaptureSession...")
+            configureCameraDevice(config)
+            configureOutputs(config)
+            configureCaptureRequest(config)
+          } else {
+            // B: The Camera has been torn down by the OS but it's currently in the background - ignore this
+            Log.i(TAG, "CameraDevice and CameraCaptureSession is torn down but Camera is not active, skipping update...")
+          }
+        } else {
+          // C: The Camera has not been torn down and we just want to update some props - update incrementally
+          // Build up session or update any props
+          if (diff.deviceChanged) {
+            // 1. cameraId changed, open device
+            configureCameraDevice(config)
+          }
+          if (diff.outputsChanged) {
+            // 2. outputs changed, build new session
+            configureOutputs(config)
+          }
+          if (diff.sidePropsChanged) {
+            // 3. zoom etc changed, update repeating request
+            configureCaptureRequest(config)
+          }
         }
 
         Log.i(TAG, "Successfully updated CameraSession Configuration! isActive: ${config.isActive}")
