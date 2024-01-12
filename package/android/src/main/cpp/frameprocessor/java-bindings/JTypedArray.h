@@ -27,6 +27,10 @@ public:
     std::shared_ptr<TypedArrayBase> getTypedArray();
 
 private:
+    jni::global_ref<jni::JByteBuffer> wrapInByteBuffer(jsi::Runtime& runtime,
+                                                       std::shared_ptr<TypedArrayBase> typedArray);
+
+private:
     static auto constexpr TAG = "TypedArray";
     friend HybridBase;
     jni::global_ref<javaobject> _javaPart;

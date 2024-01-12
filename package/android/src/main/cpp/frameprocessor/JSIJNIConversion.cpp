@@ -178,7 +178,6 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime& runtime, c
     auto typedArray = static_ref_cast<JTypedArray::javaobject>(object);
 
     std::shared_ptr<TypedArrayBase> array = typedArray->cthis()->getTypedArray();
-    jsi::Object obj(runtime);
     return array->getBuffer(runtime);
   }
 

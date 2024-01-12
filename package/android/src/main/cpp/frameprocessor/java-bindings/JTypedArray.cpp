@@ -18,14 +18,18 @@ jni::local_ref<JTypedArray::javaobject> JTypedArray::create(jsi::Runtime &runtim
     return newObjectCxxArgs(runtime, std::make_shared<TypedArrayBase>(std::move(array)));
 }
 
-JTypedArray::JTypedArray(jsi::Runtime& runtime, std::shared_ptr<TypedArrayBase> array) {
-    _array = array;
-
-    jsi::ArrayBuffer arrayBuffer = _array->getBuffer(runtime);
+jni::global_ref<jni::JByteBuffer> JTypedArray::wrapInByteBuffer(jsi::Runtime& runtime,
+                                                                std::shared_ptr<TypedArrayBase> typedArray) {
+    jsi::ArrayBuffer arrayBuffer = typedArray->getBuffer(runtime);
     __android_log_print(ANDROID_LOG_INFO, TAG, "Wrapping ArrayBuffer in a JNI ByteBuffer...");
     auto byteBuffer = jni::JByteBuffer::wrapBytes(arrayBuffer.data(runtime), arrayBuffer.size(runtime));
-    _byteBuffer = jni::make_global(byteBuffer);
-    __android_log_print(ANDROID_LOG_INFO, TAG, "Successfully created TypedArray (JNI Size: %i)!", _byteBuffer->getDirectSize());
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Successfully created TypedArray (JNI Size: %i)!", byteBuffer->getDirectSize());
+    return jni::make_global(byteBuffer);
+}
+
+JTypedArray::JTypedArray(jsi::Runtime& runtime, std::shared_ptr<TypedArrayBase> array) {
+    _array = array;
+    _byteBuffer = wrapInByteBuffer(runtime, _array);
 }
 
 JTypedArray::JTypedArray(const jni::alias_ref<JTypedArray::jhybridobject>& javaThis,
@@ -36,9 +40,8 @@ JTypedArray::JTypedArray(const jni::alias_ref<JTypedArray::jhybridobject>& javaT
     jsi::Runtime& runtime = *proxy->cthis()->getJSRuntime();
     TypedArrayKind kind = getTypedArrayKind(dataType);
     __android_log_print(ANDROID_LOG_INFO, TAG, "Allocating ArrayBuffer with size %i and type %i...", size, dataType);
-    auto array = std::make_shared<TypedArrayBase>(runtime, size, kind);
-
-    JTypedArray(runtime, array);
+    _array = std::make_shared<TypedArrayBase>(runtime, size, kind);
+    _byteBuffer = wrapInByteBuffer(runtime, _array);
 }
 
 void JTypedArray::registerNatives() {
