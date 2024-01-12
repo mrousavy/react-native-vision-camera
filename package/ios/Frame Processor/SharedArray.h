@@ -34,7 +34,7 @@ typedef NS_ENUM(NSInteger, SharedArrayType) {
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy type:(SharedArrayType)type size:(int)size;
+- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy type:(SharedArrayType)type size:(NSInteger)size;
 
 #ifdef __cplusplus
 - (instancetype)initWithRuntime:(jsi::Runtime&)runtime typedArray:(std::shared_ptr<vision::TypedArrayBase>)typedArray;

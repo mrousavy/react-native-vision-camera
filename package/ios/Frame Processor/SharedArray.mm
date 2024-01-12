@@ -7,7 +7,7 @@
 //
 
 #import "JSITypedArray.h"
-#import "TypedArray.h"
+#import "SharedArray.h"
 #import <Foundation/Foundation.h>
 #import <jsi/jsi.h>
 
