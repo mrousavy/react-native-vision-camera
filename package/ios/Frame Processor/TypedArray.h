@@ -8,12 +8,12 @@
 
 #pragma once
 
-#import <Foundation/Foundation.h>
 #import "VisionCameraProxy.h"
+#import <Foundation/Foundation.h>
 
 #ifdef __cplusplus
-#import <jsi/jsi.h>
 #import "JSITypedArray.h"
+#import <jsi/jsi.h>
 using namespace facebook;
 #endif
 
@@ -32,15 +32,14 @@ typedef enum TypedArrayType : NSUInteger {
 
 @interface TypedArray : NSObject
 
-- (instancetype) initWithProxy:(VisionCameraProxyHolder*)proxy type:(TypedArrayType)type size:(int)size;
+- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy type:(TypedArrayType)type size:(int)size;
 
 #ifdef __cplusplus
-- (instancetype) initWithRuntime:(jsi::Runtime&)runtime
-                      typedArray:(std::shared_ptr<vision::TypedArrayBase>)typedArray;
+- (instancetype)initWithRuntime:(jsi::Runtime&)runtime typedArray:(std::shared_ptr<vision::TypedArrayBase>)typedArray;
 
-- (std::shared_ptr<vision::TypedArrayBase>) typedArray;
+- (std::shared_ptr<vision::TypedArrayBase>)typedArray;
 #endif
 
-- (NSMutableData*) data;
+- (NSMutableData*)data;
 
 @end

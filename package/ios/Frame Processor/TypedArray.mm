@@ -6,9 +6,9 @@
 //  Copyright © 2024 mrousavy. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import "TypedArray.h"
 #import "JSITypedArray.h"
+#import <Foundation/Foundation.h>
 #import <jsi/jsi.h>
 
 using namespace facebook;
@@ -24,14 +24,10 @@ vision::TypedArrayKind getTypedArrayKind(int unsafeEnumValue) {
 
 NSMutableData* wrapInNSData(jsi::Runtime& runtime, std::shared_ptr<vision::TypedArrayBase> typedArray) {
   jsi::ArrayBuffer buffer = typedArray->getBuffer(runtime);
-  return [NSMutableData dataWithBytesNoCopy:buffer.data(runtime)
-                                     length:buffer.length(runtime)
-                               freeWhenDone:false];
+  return [NSMutableData dataWithBytesNoCopy:buffer.data(runtime) length:buffer.length(runtime) freeWhenDone:false];
 }
 
-- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy
-                         type:(TypedArrayType)type
-                         size:(int)size {
+- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy type:(TypedArrayType)type size:(int)size {
   if (self = [super init]) {
     jsi::Runtime& runtime = proxy.proxy->getWorkletRuntime();
     vision::TypedArrayKind kind = getTypedArrayKind((int)type);
@@ -41,8 +37,7 @@ NSMutableData* wrapInNSData(jsi::Runtime& runtime, std::shared_ptr<vision::Typed
   return self;
 }
 
-- (instancetype) initWithRuntime:(jsi::Runtime&)runtime
-                      typedArray:(std::shared_ptr<vision::TypedArrayBase>)typedArray {
+- (instancetype)initWithRuntime:(jsi::Runtime&)runtime typedArray:(std::shared_ptr<vision::TypedArrayBase>)typedArray {
   if (self = [super init]) {
     _array = typedArray;
     _data = wrapInNSData(runtime, typedArray);
@@ -50,11 +45,11 @@ NSMutableData* wrapInNSData(jsi::Runtime& runtime, std::shared_ptr<vision::Typed
   return self;
 }
 
-- (std::shared_ptr<vision::TypedArrayBase>) typedArray {
+- (std::shared_ptr<vision::TypedArrayBase>)typedArray {
   return _array;
 }
 
-- (NSMutableData*) data {
+- (NSMutableData*)data {
   return _data;
 }
 

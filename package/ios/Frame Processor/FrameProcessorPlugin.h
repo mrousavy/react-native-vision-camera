@@ -46,8 +46,7 @@
  *            See the <a href="https://react-native-vision-camera.com/docs/guides/frame-processors-plugins-overview#types">Types</a>
  *            table for a list of supported types.
  */
-- (id _Nullable)callback:(Frame* _Nonnull)frame
-           withArguments:(NSDictionary* _Nullable)arguments;
+- (id _Nullable)callback:(Frame* _Nonnull)frame withArguments:(NSDictionary* _Nullable)arguments;
 
 @end
 
@@ -56,11 +55,11 @@
 
 #define VISION_EXPORT_FRAME_PROCESSOR(frame_processor_class, frame_processor_plugin_name)                                                  \
   +(void)load {                                                                                                                            \
-    [FrameProcessorPluginRegistry addFrameProcessorPlugin:@ #frame_processor_plugin_name                                                   \
-                                          withInitializer:^FrameProcessorPlugin*(VisionCameraProxyHolder* _Nonnull proxy,                  \
-                                                                                 NSDictionary* _Nullable options) {                        \
-                                            return [[frame_processor_class alloc] initWithProxy:proxy withOptions:options];                \
-                                          }];                                                                                              \
+    [FrameProcessorPluginRegistry                                                                                                          \
+        addFrameProcessorPlugin:@ #frame_processor_plugin_name                                                                             \
+                withInitializer:^FrameProcessorPlugin*(VisionCameraProxyHolder* _Nonnull proxy, NSDictionary* _Nullable options) {         \
+                  return [[frame_processor_class alloc] initWithProxy:proxy withOptions:options];                                          \
+                }];                                                                                                                        \
   }
 
 #define VISION_EXPORT_SWIFT_FRAME_PROCESSOR(frame_processor_class, frame_processor_plugin_name)                                            \

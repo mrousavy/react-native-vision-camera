@@ -26,7 +26,7 @@ public:
 public:
   std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime& runtime) override;
   jsi::Value get(jsi::Runtime& runtime, const jsi::PropNameID& name) override;
-  
+
   jsi::Runtime& getWorkletRuntime() {
     return _workletContext->getWorkletRuntime();
   }
@@ -42,17 +42,15 @@ private:
 };
 #endif
 
-
 @interface VisionCameraProxyHolder : NSObject
 
-- (_Nonnull instancetype) initWithProxy:(void* _Nonnull)proxy;
+- (_Nonnull instancetype)initWithProxy:(void* _Nonnull)proxy;
 
 #ifdef __cplusplus
-- (VisionCameraProxy* _Nonnull) proxy;
+- (VisionCameraProxy* _Nonnull)proxy;
 #endif
 
 @end
-
 
 @interface VisionCameraInstaller : NSObject
 

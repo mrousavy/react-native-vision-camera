@@ -98,9 +98,7 @@ jsi::Value VisionCameraProxy::initFrameProcessorPlugin(jsi::Runtime& runtime, st
   NSString* key = [NSString stringWithUTF8String:name.c_str()];
   NSDictionary* optionsObjc = JSINSObjectConversion::convertJSIObjectToNSDictionary(runtime, options, _callInvoker);
   VisionCameraProxyHolder* proxy = [[VisionCameraProxyHolder alloc] initWithProxy:this];
-  FrameProcessorPlugin* plugin = [FrameProcessorPluginRegistry getPlugin:key
-                                                               withProxy:proxy
-                                                             withOptions:optionsObjc];
+  FrameProcessorPlugin* plugin = [FrameProcessorPluginRegistry getPlugin:key withProxy:proxy withOptions:optionsObjc];
   if (plugin == nil) {
     return jsi::Value::undefined();
   }
@@ -152,14 +150,14 @@ jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& 
   VisionCameraProxy* _proxy;
 }
 
-- (instancetype) initWithProxy:(void*)proxy {
+- (instancetype)initWithProxy:(void*)proxy {
   if (self = [super init]) {
     _proxy = (VisionCameraProxy*)proxy;
   }
   return self;
 }
 
-- (VisionCameraProxy*) proxy {
+- (VisionCameraProxy*)proxy {
   return _proxy;
 }
 

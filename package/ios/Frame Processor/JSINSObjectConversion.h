@@ -8,10 +8,10 @@
 
 #pragma once
 
+#import "../Frame Processor/TypedArray.h"
 #import <React/RCTBridgeModule.h>
 #import <ReactCommon/CallInvoker.h>
 #import <jsi/jsi.h>
-#import "../Frame Processor/TypedArray.h"
 
 namespace JSINSObjectConversion {
 

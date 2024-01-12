@@ -31,7 +31,7 @@
   NSLog(@"Successfully registered Frame Processor Plugin \"%@\"!", name);
 }
 
-+ (FrameProcessorPlugin*)getPlugin:(NSString* _Nonnull)name 
++ (FrameProcessorPlugin*)getPlugin:(NSString* _Nonnull)name
                          withProxy:(VisionCameraProxyHolder* _Nonnull)proxy
                        withOptions:(NSDictionary* _Nullable)options {
   NSLog(@"Looking up Frame Processor Plugin \"%@\"...", name);
