@@ -34,7 +34,11 @@ JTypedArray::JTypedArray(const jni::alias_ref<JTypedArray::jhybridobject>& javaT
                          const jni::alias_ref<JVisionCameraProxy::javaobject>& proxy, int dataType, int size) {
   _javaPart = jni::make_global(javaThis);
 
+#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
   jsi::Runtime& runtime = proxy->cthis()->getWorkletRuntime();
+#else
+  jsi::Runtime& runtime = *proxy->cthis()->getJSRuntime();
+#endif
   TypedArrayKind kind = getTypedArrayKind(dataType);
   __android_log_print(ANDROID_LOG_INFO, TAG, "Allocating ArrayBuffer with size %i and type %i...", size, dataType);
   _array = std::make_shared<TypedArrayBase>(runtime, size, kind);

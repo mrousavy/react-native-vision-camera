@@ -37,9 +37,11 @@ public:
     return _runtime;
   }
 
+#if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
   jsi::Runtime& getWorkletRuntime() {
     return _workletContext->getWorkletRuntime();
   }
+#endif
 
 private:
   friend HybridBase;
