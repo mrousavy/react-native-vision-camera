@@ -35,7 +35,7 @@
 - (instancetype _Nonnull)initWithProxy:(VisionCameraProxyHolder* _Nonnull)proxy
                            withOptions:(NSDictionary* _Nullable)options NS_SWIFT_NAME(init(proxy:options:));
 
-- (instancetype)init NS_UNAVAILABLE;
+- (instancetype _Nonnull)init NS_UNAVAILABLE;
 
 /**
  * The actual Frame Processor Plugin's implementation that runs when `plugin.call(..)` is called in the JS Frame Processor.
