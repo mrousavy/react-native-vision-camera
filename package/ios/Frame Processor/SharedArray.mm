@@ -27,7 +27,7 @@ NSData* wrapInNSData(jsi::Runtime& runtime, std::shared_ptr<vision::TypedArrayBa
   return [NSData dataWithBytesNoCopy:buffer.data(runtime) length:buffer.size(runtime) freeWhenDone:NO];
 }
 
-- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy type:(SharedArrayType)type size:(int)size {
+- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy type:(SharedArrayType)type size:(NSInteger)size {
   if (self = [super init]) {
     jsi::Runtime& runtime = proxy.proxy->getWorkletRuntime();
     vision::TypedArrayKind kind = getTypedArrayKind((int)type);
