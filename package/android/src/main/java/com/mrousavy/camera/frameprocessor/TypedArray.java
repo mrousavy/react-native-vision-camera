@@ -7,7 +7,12 @@ import com.facebook.proguard.annotations.DoNotStrip;
 
 import java.nio.ByteBuffer;
 
-/** @noinspection JavaJniMissingFunction*/
+/**
+ * A JSI TypedArray/ArrayBuffer implementation used for passing buffers between JS and Native.
+ * ByteBuffers are used for efficient data transfer.
+ *
+ * @noinspection JavaJniMissingFunction
+ */
 public final class TypedArray {
     @DoNotStrip
     @Keep
