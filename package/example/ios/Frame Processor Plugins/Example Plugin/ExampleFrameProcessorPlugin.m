@@ -40,9 +40,8 @@
     NSLog(@"ExamplePlugin:   -> %@ (%@)", param == nil ? @"(nil)" : [param description], NSStringFromClass([param classForCoder]));
   }
 
-  NSData* data = _sharedArray.data;
-  uint8_t* bytes = (uint8_t*)data.bytes;
-  bytes[0] = (uint8_t)(random() * 100);
+  uint8_t* data = _sharedArray.data;
+  data[0] = (uint8_t)(random() * 100);
 
   return @{
     @"example_str": @"Test",

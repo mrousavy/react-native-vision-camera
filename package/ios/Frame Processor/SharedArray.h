@@ -32,16 +32,17 @@ typedef NS_ENUM(NSInteger, SharedArrayType) {
 
 @interface SharedArray : NSObject
 
-- (instancetype)init NS_UNAVAILABLE;
+- (instancetype _Nonnull)init NS_UNAVAILABLE;
 
-- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy type:(SharedArrayType)type size:(NSInteger)size;
+- (instancetype _Nonnull)initWithProxy:(VisionCameraProxyHolder* _Nonnull)proxy type:(SharedArrayType)type size:(NSInteger)size;
 
 #ifdef __cplusplus
-- (instancetype)initWithRuntime:(jsi::Runtime&)runtime typedArray:(std::shared_ptr<vision::TypedArrayBase>)typedArray;
+- (instancetype _Nonnull)initWithRuntime:(jsi::Runtime&)runtime typedArray:(std::shared_ptr<vision::TypedArrayBase>)typedArray;
 
 - (std::shared_ptr<vision::TypedArrayBase>)typedArray;
 #endif
 
-- (NSData*)data;
+@property(nonatomic, readonly, nonnull) uint8_t* data;
+@property(nonatomic, readonly) NSInteger count;
 
 @end
