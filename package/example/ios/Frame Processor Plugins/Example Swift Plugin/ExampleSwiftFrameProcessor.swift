@@ -12,7 +12,7 @@ import VisionCamera
 @objc(ExampleSwiftFrameProcessorPlugin)
 public class ExampleSwiftFrameProcessorPlugin: FrameProcessorPlugin {
   public override init(proxy: VisionCameraProxyHolder, options: [AnyHashable: Any]! = [:]) {
-    super.init()
+    super.init(proxy: proxy, options: options)
 
     print("ExampleSwiftFrameProcessorPlugin initialized with options: \(String(describing: options))")
   }
