@@ -5,6 +5,7 @@
 #pragma once
 
 #include <fbjni/fbjni.h>
+#include <fbjni/ByteBuffer.h>
 #include <jni.h>
 #include "JSITypedArray.h"
 #include "JVisionCameraProxy.h"
@@ -19,11 +20,13 @@ public:
     static void registerNatives();
 
 public:
+    jni::local_ref<jni::JByteBuffer> getByteBuffer();
 
 private:
     friend HybridBase;
     jni::global_ref<javaobject> _javaPart;
     jni::global_ref<JVisionCameraProxy::javaobject> _proxy;
+    jni::global_ref<jni::JByteBuffer> _byteBuffer;
     std::shared_ptr<TypedArrayBase> _array;
 
 private:

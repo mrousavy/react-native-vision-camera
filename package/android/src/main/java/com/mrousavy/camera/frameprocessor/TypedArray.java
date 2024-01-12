@@ -5,6 +5,8 @@ import androidx.annotation.Keep;
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;
 
+import java.nio.ByteBuffer;
+
 /** @noinspection JavaJniMissingFunction*/
 public final class TypedArray {
     @DoNotStrip
@@ -14,6 +16,11 @@ public final class TypedArray {
     public TypedArray(VisionCameraProxy proxy, Type dataType, int size) {
         mHybridData = initHybrid(proxy, dataType.ordinal(), size);
     }
+
+    /**
+     * Gets the direct ByteBuffer that can be used to directly update the JSI ArrayBuffer.
+     */
+    public native ByteBuffer getByteBuffer();
 
     private native HybridData initHybrid(VisionCameraProxy proxy, int dataType, int size);
 
