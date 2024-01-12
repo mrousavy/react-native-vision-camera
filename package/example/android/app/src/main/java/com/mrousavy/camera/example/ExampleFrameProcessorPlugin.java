@@ -42,6 +42,8 @@ public class ExampleFrameProcessorPlugin extends FrameProcessorPlugin {
         array.add(17.38);
 
         map.put("example_array", array);
+
+        testArray.getByteBuffer().put(0, (byte)(Math.random() * 100));
         map.put("example_array_buffer", testArray);
         return map;
     }
