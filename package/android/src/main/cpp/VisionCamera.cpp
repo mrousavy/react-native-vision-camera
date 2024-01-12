@@ -1,9 +1,9 @@
 #include "JFrameProcessor.h"
+#include "JTypedArray.h"
 #include "JVisionCameraProxy.h"
 #include "JVisionCameraScheduler.h"
 #include "VideoPipeline.h"
 #include "VisionCameraProxy.h"
-#include "JTypedArray.h"
 #include <fbjni/fbjni.h>
 #include <jni.h>
 

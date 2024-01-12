@@ -38,7 +38,7 @@ public:
   }
 
   jsi::Runtime& getWorkletRuntime() {
-      return _workletContext->getWorkletRuntime();
+    return _workletContext->getWorkletRuntime();
   }
 
 private:

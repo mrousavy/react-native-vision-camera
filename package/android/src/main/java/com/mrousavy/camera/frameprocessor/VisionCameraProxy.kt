@@ -71,9 +71,8 @@ class VisionCameraProxy(context: ReactApplicationContext) {
 
   @DoNotStrip
   @Keep
-  fun initFrameProcessorPlugin(name: String, options: Map<String, Any>): FrameProcessorPlugin {
-    return FrameProcessorPluginRegistry.getPlugin(name, this, options)
-  }
+  fun initFrameProcessorPlugin(name: String, options: Map<String, Any>): FrameProcessorPlugin =
+    FrameProcessorPluginRegistry.getPlugin(name, this, options)
 
   // private C++ funcs
   private external fun initHybrid(jsContext: Long, jsCallInvokerHolder: CallInvokerHolderImpl, scheduler: VisionCameraScheduler): HybridData

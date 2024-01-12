@@ -15,9 +15,8 @@
 
 #include "FrameHostObject.h"
 #include "JFrame.h"
-#include "JTypedArray.h"
-#include "FrameHostObject.h"
 #include "JSITypedArray.h"
+#include "JTypedArray.h"
 
 namespace vision {
 
