@@ -3,6 +3,7 @@
 #include "JVisionCameraScheduler.h"
 #include "VideoPipeline.h"
 #include "VisionCameraProxy.h"
+#include "JTypedArray.h"
 #include <fbjni/fbjni.h>
 #include <jni.h>
 
@@ -14,6 +15,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*) {
     vision::VideoPipeline::registerNatives();
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
     vision::JFrameProcessor::registerNatives();
+    vision::JTypedArray::registerNatives();
 #endif
   });
 }

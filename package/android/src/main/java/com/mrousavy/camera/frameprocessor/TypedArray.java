@@ -13,6 +13,16 @@ public final class TypedArray {
     @Keep
     private final HybridData mHybridData;
 
+    public TypedArray(HybridData hybridData) {
+        mHybridData = hybridData;
+    }
+
+    /**
+     * Allocate a new TypedArray. Use `getByteBuffer` to obtain a reference to the direct ByteBuffer for writing.
+     * @param proxy The VisionCamera Proxy from the Frame Processor Plugin's initializer.
+     * @param dataType The ArrayBuffer's data type. `Type.Int8Array` = `Int8Array` in JS
+     * @param size The size of the ArrayBuffer.
+     */
     public TypedArray(VisionCameraProxy proxy, Type dataType, int size) {
         mHybridData = initHybrid(proxy, dataType.ordinal(), size);
     }

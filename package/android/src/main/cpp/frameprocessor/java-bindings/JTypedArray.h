@@ -14,23 +14,27 @@ namespace vision {
 
 using namespace facebook;
 
-struct JTypedArray : public jni::HybridClass<JTypedArray> {
+class JTypedArray : public jni::HybridClass<JTypedArray> {
 public:
     static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/TypedArray;";
     static void registerNatives();
 
 public:
+    static jni::local_ref<JTypedArray::javaobject> create(jsi::Runtime& runtime, TypedArrayBase array);
+
+public:
     jni::local_ref<jni::JByteBuffer> getByteBuffer();
+    std::shared_ptr<TypedArrayBase> getTypedArray();
 
 private:
     static auto constexpr TAG = "TypedArray";
     friend HybridBase;
     jni::global_ref<javaobject> _javaPart;
-    jni::global_ref<JVisionCameraProxy::javaobject> _proxy;
     jni::global_ref<jni::JByteBuffer> _byteBuffer;
     std::shared_ptr<TypedArrayBase> _array;
 
 private:
+    explicit JTypedArray(jsi::Runtime& runtime, std::shared_ptr<TypedArrayBase> array);
     explicit JTypedArray(const jni::alias_ref<jhybridobject>& javaThis,
                          const jni::alias_ref<JVisionCameraProxy::javaobject>& proxy,
                          int dataType,
