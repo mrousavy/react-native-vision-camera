@@ -11,8 +11,8 @@ public final class TypedArray {
     @Keep
     private final HybridData mHybridData;
 
-    public TypedArray(VisionCameraProxy proxy, int dataType, int size) {
-        mHybridData = initHybrid(proxy, dataType, size);
+    public TypedArray(VisionCameraProxy proxy, Type dataType, int size) {
+        mHybridData = initHybrid(proxy, dataType.ordinal(), size);
     }
 
     private native HybridData initHybrid(VisionCameraProxy proxy, int dataType, int size);
