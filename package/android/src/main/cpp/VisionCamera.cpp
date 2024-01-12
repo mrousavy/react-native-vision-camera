@@ -1,5 +1,5 @@
 #include "JFrameProcessor.h"
-#include "JTypedArray.h"
+#include "JSharedArray.h"
 #include "JVisionCameraProxy.h"
 #include "JVisionCameraScheduler.h"
 #include "VideoPipeline.h"
@@ -15,7 +15,7 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*) {
     vision::VideoPipeline::registerNatives();
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
     vision::JFrameProcessor::registerNatives();
-    vision::JTypedArray::registerNatives();
+    vision::JSharedArray::registerNatives();
 #endif
   });
 }

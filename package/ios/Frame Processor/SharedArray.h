@@ -1,5 +1,5 @@
 //
-//  TypedArray.h
+//  SharedArray.h
 //  VisionCamera
 //
 //  Created by Marc Rousavy on 12.01.24.
@@ -17,7 +17,7 @@
 using namespace facebook;
 #endif
 
-typedef enum TypedArrayType : NSUInteger {
+typedef enum SharedArrayType : NSUInteger {
   // Needs to be in sync with JSITypedArray.h as the index is used
   Int8Array,
   Int16Array,
@@ -30,7 +30,7 @@ typedef enum TypedArrayType : NSUInteger {
   Float64Array,
 } TypedArrayType;
 
-@interface TypedArray : NSObject
+@interface SharedArray : NSObject
 
 - (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy type:(TypedArrayType)type size:(int)size;
 

@@ -18,7 +18,7 @@
 #import "JSINSObjectConversion.h"
 #import "../Frame Processor/Frame.h"
 #import "../Frame Processor/FrameHostObject.h"
-#import "../Frame Processor/TypedArray.h"
+#import "../Frame Processor/SharedArray.h"
 #import "JSITypedArray.h"
 #import <Foundation/Foundation.h>
 #import <React/RCTBridge.h>
@@ -60,8 +60,8 @@ jsi::Array convertNSArrayToJSIArray(jsi::Runtime& runtime, NSArray* value) {
   return result;
 }
 
-jsi::Object convertTypedArrayToJSIArrayBuffer(jsi::Runtime& runtime, TypedArray* typedArray) {
-  std::shared_ptr<vision::TypedArrayBase> array = typedArray.typedArray;
+jsi::Object convertSharedArrayToJSIArrayBuffer(jsi::Runtime& runtime, SharedArray* sharedArray) {
+  std::shared_ptr<vision::TypedArrayBase> array = sharedArray.typedArray;
   return array->getBuffer(runtime);
 }
 
@@ -84,8 +84,8 @@ jsi::Value convertObjCObjectToJSIValue(jsi::Runtime& runtime, id value) {
   } else if ([value isKindOfClass:[Frame class]]) {
     auto frameHostObject = std::make_shared<FrameHostObject>((Frame*)value);
     return jsi::Object::createFromHostObject(runtime, frameHostObject);
-  } else if ([value isKindOfClass:[TypedArray class]]) {
-    return convertTypedArrayToJSIArrayBuffer(runtime, (TypedArray*)value);
+  } else if ([value isKindOfClass:[SharedArray class]]) {
+    return convertSharedArrayToJSIArrayBuffer(runtime, (SharedArray*)value);
   }
   return jsi::Value::undefined();
 }
@@ -172,7 +172,7 @@ id convertJSIValueToObjCObject(jsi::Runtime& runtime, const jsi::Value& value, s
     } else if (o.isArrayBuffer(runtime)) {
       // ArrayBuffer
       auto typedArray = std::make_shared<vision::TypedArrayBase>(vision::getTypedArray(runtime, o));
-      return [[TypedArray alloc] initWithRuntime:runtime typedArray:typedArray];
+      return [[SharedArray alloc] initWithRuntime:runtime typedArray:typedArray];
     } else {
       // object
       return convertJSIObjectToNSDictionary(runtime, o, jsInvoker);

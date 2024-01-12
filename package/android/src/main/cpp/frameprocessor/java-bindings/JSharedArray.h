@@ -14,13 +14,13 @@ namespace vision {
 
 using namespace facebook;
 
-class JTypedArray : public jni::HybridClass<JTypedArray> {
+class JSharedArray : public jni::HybridClass<JSharedArray> {
 public:
   static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/TypedArray;";
   static void registerNatives();
 
 public:
-  static jni::local_ref<JTypedArray::javaobject> create(jsi::Runtime& runtime, TypedArrayBase array);
+  static jni::local_ref<JSharedArray::javaobject> create(jsi::Runtime& runtime, TypedArrayBase array);
 
 public:
   jni::local_ref<jni::JByteBuffer> getByteBuffer();
@@ -37,8 +37,8 @@ private:
   std::shared_ptr<TypedArrayBase> _array;
 
 private:
-  explicit JTypedArray(jsi::Runtime& runtime, std::shared_ptr<TypedArrayBase> array);
-  explicit JTypedArray(const jni::alias_ref<jhybridobject>& javaThis, const jni::alias_ref<JVisionCameraProxy::javaobject>& proxy,
+  explicit JSharedArray(jsi::Runtime& runtime, std::shared_ptr<TypedArrayBase> array);
+  explicit JSharedArray(const jni::alias_ref<jhybridobject>& javaThis, const jni::alias_ref<JVisionCameraProxy::javaobject>& proxy,
                        int dataType, int size);
   static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> javaThis,
                                                 jni::alias_ref<JVisionCameraProxy::javaobject> proxy, jint dataType, jint size);

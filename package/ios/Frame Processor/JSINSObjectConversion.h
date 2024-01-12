@@ -8,7 +8,7 @@
 
 #pragma once
 
-#import "../Frame Processor/TypedArray.h"
+#import "../Frame Processor/SharedArray.h"
 #import <React/RCTBridgeModule.h>
 #import <ReactCommon/CallInvoker.h>
 #import <jsi/jsi.h>
@@ -33,8 +33,8 @@ jsi::Object convertNSDictionaryToJSIObject(jsi::Runtime& runtime, NSDictionary* 
 // NSArray -> []
 jsi::Array convertNSArrayToJSIArray(jsi::Runtime& runtime, NSArray* value);
 
-// TypedArray -> ArrayBuffer
-jsi::Object convertTypedArrayToJSIArrayBuffer(jsi::Runtime& runtime, TypedArray* typedArray);
+// SharedArray -> ArrayBuffer
+jsi::Object convertSharedArrayToJSIArrayBuffer(jsi::Runtime& runtime, SharedArray* sharedArray);
 
 // id -> ???
 jsi::Value convertObjCObjectToJSIValue(jsi::Runtime& runtime, id value);

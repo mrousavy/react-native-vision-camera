@@ -1,5 +1,5 @@
 //
-//  TypedArray.mm
+//  SharedArray.mm
 //  VisionCamera
 //
 //  Created by Marc Rousavy on 12.01.24.
@@ -13,7 +13,7 @@
 
 using namespace facebook;
 
-@implementation TypedArray {
+@implementation SharedArray {
   NSData* _data;
   std::shared_ptr<vision::TypedArrayBase> _array;
 }

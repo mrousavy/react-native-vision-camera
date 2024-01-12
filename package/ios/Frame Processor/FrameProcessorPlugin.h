@@ -29,7 +29,7 @@
  * This is called everytime this Frame Processor Plugin is loaded from the JS side (`initFrameProcessorPlugin(..)`).
  * Optionally override this method to implement custom initialization logic.
  * - Parameters:
- *   - proxy: The VisionCameraProxy instance for using the Frame Processor Context, e.g. to initialize TypedArrays.
+ *   - proxy: The VisionCameraProxy instance for using the Frame Processor Context, e.g. to initialize SharedArrays.
  *   - options: An options dictionary passed from the JS side, or `nil` if none.
  */
 - (instancetype _Nonnull)initWithProxy:(VisionCameraProxyHolder* _Nonnull)proxy
