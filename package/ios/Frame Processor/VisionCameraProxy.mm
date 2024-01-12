@@ -151,15 +151,22 @@ jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& 
 @implementation VisionCameraProxyHolder {
   VisionCameraProxy* _proxy;
 }
-- (instancetype) initWithProxy:(void *)proxy {
+
+- (instancetype) initWithProxy:(void*)proxy {
   if (self = [super init]) {
     _proxy = (VisionCameraProxy*)proxy;
   }
   return self;
 }
+
+- (VisionCameraProxy*) proxy {
+  return _proxy;
+}
+
 @end
 
 @implementation VisionCameraInstaller
+
 + (BOOL)installToBridge:(RCTBridge* _Nonnull)bridge {
   RCTCxxBridge* cxxBridge = (RCTCxxBridge*)[RCTBridge currentBridge];
   if (!cxxBridge.runtime) {
@@ -174,4 +181,5 @@ jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& 
 
   return YES;
 }
+
 @end

@@ -10,17 +10,23 @@
 #import <VisionCamera/FrameProcessorPlugin.h>
 #import <VisionCamera/FrameProcessorPluginRegistry.h>
 #import <VisionCamera/Frame.h>
+#import <VisionCamera/TypedArray.h>
 
 // Example for an Objective-C Frame Processor plugin
 
 @interface ExampleFrameProcessorPlugin : FrameProcessorPlugin
 @end
 
-@implementation ExampleFrameProcessorPlugin
+@implementation ExampleFrameProcessorPlugin {
+  TypedArray* _arrayBuffer;
+}
 
-- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy withOptions:(NSDictionary* _Nullable)options
-{
+- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy
+                  withOptions:(NSDictionary* _Nullable)options {
   self = [super initWithProxy:proxy withOptions:options];
+  _arrayBuffer = [[TypedArray alloc] initWithProxy:proxy
+                                              type:Int8Array
+                                              size:5];
   NSLog(@"ExampleFrameProcessorPlugin initialized with options: %@", options);
   return self;
 }
@@ -32,6 +38,10 @@
   for (id param in arguments) {
     NSLog(@"ExamplePlugin:   -> %@ (%@)", param == nil ? @"(nil)" : [param description], NSStringFromClass([param classForCoder]));
   }
+  
+  NSMutableData* data = _arrayBuffer.data;
+  uint8_t* bytes = (uint8_t*)data.mutableBytes;
+  bytes[0] = (uint8_t)(random() * 100);
 
   return @{
     @"example_str": @"Test",
@@ -41,7 +51,8 @@
       @"Hello",
       @(YES),
       @17.38
-    ]
+    ],
+    @"example_array_buffer": _arrayBuffer
   };
 }
 

@@ -11,6 +11,7 @@
 #import <React/RCTBridgeModule.h>
 #import <ReactCommon/CallInvoker.h>
 #import <jsi/jsi.h>
+#import "../Frame Processor/TypedArray.h"
 
 namespace JSINSObjectConversion {
 
@@ -31,6 +32,9 @@ jsi::Object convertNSDictionaryToJSIObject(jsi::Runtime& runtime, NSDictionary* 
 
 // NSArray -> []
 jsi::Array convertNSArrayToJSIArray(jsi::Runtime& runtime, NSArray* value);
+
+// TypedArray -> ArrayBuffer
+jsi::Object convertTypedArrayToJSIArrayBuffer(jsi::Runtime& runtime, TypedArray* typedArray);
 
 // id -> ???
 jsi::Value convertObjCObjectToJSIValue(jsi::Runtime& runtime, id value);
