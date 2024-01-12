@@ -97,7 +97,10 @@ void VisionCameraProxy::removeFrameProcessor(jsi::Runtime& runtime, int viewTag)
 jsi::Value VisionCameraProxy::initFrameProcessorPlugin(jsi::Runtime& runtime, std::string name, const jsi::Object& options) {
   NSString* key = [NSString stringWithUTF8String:name.c_str()];
   NSDictionary* optionsObjc = JSINSObjectConversion::convertJSIObjectToNSDictionary(runtime, options, _callInvoker);
-  FrameProcessorPlugin* plugin = [FrameProcessorPluginRegistry getPlugin:key withOptions:optionsObjc];
+  VisionCameraProxyHolder* proxy = [[VisionCameraProxyHolder alloc] initWithProxy:this];
+  FrameProcessorPlugin* plugin = [FrameProcessorPluginRegistry getPlugin:key
+                                                               withProxy:proxy
+                                                             withOptions:optionsObjc];
   if (plugin == nil) {
     return jsi::Value::undefined();
   }
@@ -144,6 +147,17 @@ jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& 
 
   return jsi::Value::undefined();
 }
+
+@implementation VisionCameraProxyHolder {
+  VisionCameraProxy* _proxy;
+}
+- (instancetype) initWithProxy:(void *)proxy {
+  if (self = [super init]) {
+    _proxy = (VisionCameraProxy*)proxy;
+  }
+  return self;
+}
+@end
 
 @implementation VisionCameraInstaller
 + (BOOL)installToBridge:(RCTBridge* _Nonnull)bridge {

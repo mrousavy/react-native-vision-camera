@@ -26,6 +26,10 @@ public:
 public:
   std::vector<jsi::PropNameID> getPropertyNames(jsi::Runtime& runtime) override;
   jsi::Value get(jsi::Runtime& runtime, const jsi::PropNameID& name) override;
+  
+  jsi::Runtime& getWorkletRuntime() {
+    return _workletContext->getWorkletRuntime();
+  }
 
 private:
   void setFrameProcessor(jsi::Runtime& runtime, int viewTag, const jsi::Object& frameProcessor);
@@ -37,6 +41,10 @@ private:
   std::shared_ptr<react::CallInvoker> _callInvoker;
 };
 #endif
+
+@interface VisionCameraProxyHolder : NSObject
+- (_Nonnull instancetype) initWithProxy:(void* _Nonnull)proxy;
+@end
 
 @interface VisionCameraInstaller : NSObject
 + (BOOL)installToBridge:(RCTBridge* _Nonnull)bridge;

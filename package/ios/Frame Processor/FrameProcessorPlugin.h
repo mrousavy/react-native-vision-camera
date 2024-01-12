@@ -9,6 +9,7 @@
 #pragma once
 
 #import "Frame.h"
+#import "VisionCameraProxy.h"
 #import <Foundation/Foundation.h>
 
 /**
@@ -28,9 +29,11 @@
  * This is called everytime this Frame Processor Plugin is loaded from the JS side (`initFrameProcessorPlugin(..)`).
  * Optionally override this method to implement custom initialization logic.
  * - Parameters:
+ *   - proxy: The VisionCameraProxy instance for using the Frame Processor Context, e.g. to initialize TypedArrays.
  *   - options: An options dictionary passed from the JS side, or `nil` if none.
  */
-- (instancetype _Nonnull)initWithOptions:(NSDictionary* _Nullable)options;
+- (instancetype _Nonnull)initWithProxy:(VisionCameraProxyHolder* _Nonnull)proxy
+                           withOptions:(NSDictionary* _Nullable)options NS_SWIFT_NAME(init(proxy:options:));
 
 /**
  * The actual Frame Processor Plugin's implementation that runs when `plugin.call(..)` is called in the JS Frame Processor.
@@ -43,7 +46,8 @@
  *            See the <a href="https://react-native-vision-camera.com/docs/guides/frame-processors-plugins-overview#types">Types</a>
  *            table for a list of supported types.
  */
-- (id _Nullable)callback:(Frame* _Nonnull)frame withArguments:(NSDictionary* _Nullable)arguments;
+- (id _Nullable)callback:(Frame* _Nonnull)frame
+           withArguments:(NSDictionary* _Nullable)arguments;
 
 @end
 
@@ -53,8 +57,9 @@
 #define VISION_EXPORT_FRAME_PROCESSOR(frame_processor_class, frame_processor_plugin_name)                                                  \
   +(void)load {                                                                                                                            \
     [FrameProcessorPluginRegistry addFrameProcessorPlugin:@ #frame_processor_plugin_name                                                   \
-                                          withInitializer:^FrameProcessorPlugin*(NSDictionary* _Nullable options) {                        \
-                                            return [[frame_processor_class alloc] initWithOptions:options];                                \
+                                          withInitializer:^FrameProcessorPlugin*(VisionCameraProxyHolder* _Nonnull proxy,                  \
+                                                                                 NSDictionary* _Nullable options) {                        \
+                                            return [[frame_processor_class alloc] initWithProxy:proxy withOptions:options];                \
                                           }];                                                                                              \
   }
 
@@ -67,8 +72,9 @@
                                                                                                                                            \
   __attribute__((constructor)) static void VISION_CONCAT(initialize_, frame_processor_plugin_name)(void) {                                 \
     [FrameProcessorPluginRegistry addFrameProcessorPlugin:@ #frame_processor_plugin_name                                                   \
-                                          withInitializer:^FrameProcessorPlugin* _Nonnull(NSDictionary* _Nullable options) {               \
-                                            return [[frame_processor_class alloc] initWithOptions:options];                                \
+                                          withInitializer:^FrameProcessorPlugin* _Nonnull(VisionCameraProxyHolder* _Nonnull proxy,         \
+                                                                                          NSDictionary* _Nullable options) {               \
+                                            return [[frame_processor_class alloc] initWithProxy:proxy withOptions:options];                \
                                           }];                                                                                              \
   }                                                                                                                                        \
                                                                                                                                            \

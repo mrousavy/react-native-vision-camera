@@ -18,9 +18,9 @@
 
 @implementation ExampleFrameProcessorPlugin
 
-- (instancetype)initWithOptions:(NSDictionary* _Nullable)options
+- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy withOptions:(NSDictionary* _Nullable)options
 {
-  self = [super initWithOptions:options];
+  self = [super initWithProxy:proxy withOptions:options];
   NSLog(@"ExampleFrameProcessorPlugin initialized with options: %@", options);
   return self;
 }
