@@ -37,6 +37,10 @@ public:
     return _runtime;
   }
 
+  jsi::Runtime& getWorkletRuntime() {
+      return _workletContext->getWorkletRuntime();
+  }
+
 private:
   friend HybridBase;
   jni::global_ref<JVisionCameraProxy::javaobject> _javaPart;

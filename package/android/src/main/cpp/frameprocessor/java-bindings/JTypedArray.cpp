@@ -37,7 +37,7 @@ JTypedArray::JTypedArray(const jni::alias_ref<JTypedArray::jhybridobject>& javaT
                          int dataType, int size) {
     _javaPart = jni::make_global(javaThis);
 
-    jsi::Runtime& runtime = *proxy->cthis()->getJSRuntime();
+    jsi::Runtime& runtime = proxy->cthis()->getWorkletRuntime();
     TypedArrayKind kind = getTypedArrayKind(dataType);
     __android_log_print(ANDROID_LOG_INFO, TAG, "Allocating ArrayBuffer with size %i and type %i...", size, dataType);
     _array = std::make_shared<TypedArrayBase>(runtime, size, kind);

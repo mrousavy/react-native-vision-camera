@@ -4,6 +4,7 @@ const plugin = VisionCameraProxy.initFrameProcessorPlugin('example_plugin')
 
 interface Result {
   example_array: (string | number | boolean)[]
+  example_array_buffer: ArrayBuffer
   example_str: string
   example_bool: boolean
   example_double: number
