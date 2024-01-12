@@ -53,7 +53,7 @@ For reference see the [CLI's docs](https://github.com/mateusz1913/vision-camera-
 
 - (instancetype) initWithProxy:(VisionCameraProxyHolder*)proxy
                    withOptions:(NSDictionary* _Nullable)options {
-  self = [super initWithProxy:proxy options:options];
+  self = [super init];
   return self;
 }
 
@@ -93,7 +93,7 @@ import VisionCamera
 @objc(FaceDetectorFrameProcessorPlugin)
 public class FaceDetectorFrameProcessorPlugin: FrameProcessorPlugin {
   public override init(options: [AnyHashable : Any]! = [:]) {
-    super.init(options: options)
+    super.init()
   }
 
   public override func callback(_ frame: Frame, withArguments arguments: [AnyHashable : Any]?) -> Any {

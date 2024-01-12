@@ -23,7 +23,7 @@
 
 - (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy
                   withOptions:(NSDictionary* _Nullable)options {
-  if (self = [super initWithProxy:proxy withOptions:options]) {
+  if (self = [super init]) {
     _sharedArray = [[SharedArray alloc] initWithProxy:proxy
                                                  type:Int8Array
                                                  size:5];
