@@ -11,6 +11,7 @@ import com.mrousavy.camera.frameprocessor.VisionCameraProxy;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

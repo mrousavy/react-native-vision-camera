@@ -18,6 +18,8 @@ public final class SharedArray {
     @Keep
     private final HybridData mHybridData;
 
+    @DoNotStrip
+    @Keep
     public SharedArray(HybridData hybridData) {
         mHybridData = hybridData;
     }
