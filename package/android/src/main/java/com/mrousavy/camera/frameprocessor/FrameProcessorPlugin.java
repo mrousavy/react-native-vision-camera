@@ -20,6 +20,11 @@ import java.util.Map;
 @Keep
 public abstract class FrameProcessorPlugin {
     /**
+     * The VisionCameraProxy is useful in Frame Processor contexts, e.g. for creating TypedArrays.
+     */
+    protected VisionCameraProxy proxy;
+
+    /**
      * The initializer of this Frame Processor Plugin.
      * This is called everytime this Frame Processor Plugin is loaded from the JS side (`initFrameProcessorPlugin(..)`).
      * Optionally override this method to implement custom initialization logic.
