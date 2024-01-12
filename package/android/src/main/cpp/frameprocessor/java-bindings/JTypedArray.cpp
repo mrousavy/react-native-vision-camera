@@ -3,6 +3,7 @@
 //
 
 #include "JTypedArray.h"
+#include <android/log.h>
 
 namespace vision {
 
@@ -20,11 +21,14 @@ JTypedArray::JTypedArray(const jni::alias_ref<JTypedArray::jhybridobject>& javaT
 
     jsi::Runtime& runtime = *proxy->cthis()->getJSRuntime();
     TypedArrayKind kind = getTypedArrayKind(dataType);
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Allocating ArrayBuffer with size %i and type %i...", size, dataType);
     _array = std::make_shared<TypedArrayBase>(runtime, size, kind);
 
     jsi::ArrayBuffer arrayBuffer = _array->getBuffer(runtime);
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Wrapping ArrayBuffer in a JNI ByteBuffer");
     auto byteBuffer = jni::JByteBuffer::wrapBytes(arrayBuffer.data(runtime), arrayBuffer.size(runtime));
     _byteBuffer = jni::make_global(byteBuffer);
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Successfully created TypedArray!");
 }
 
 void JTypedArray::registerNatives() {

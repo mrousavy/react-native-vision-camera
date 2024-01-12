@@ -23,6 +23,7 @@ public:
     jni::local_ref<jni::JByteBuffer> getByteBuffer();
 
 private:
+    static auto constexpr TAG = "TypedArray";
     friend HybridBase;
     jni::global_ref<javaobject> _javaPart;
     jni::global_ref<JVisionCameraProxy::javaobject> _proxy;
