@@ -51,8 +51,9 @@ For reference see the [CLI's docs](https://github.com/mateusz1913/vision-camera-
 
 @implementation FaceDetectorFrameProcessorPlugin
 
-- (instancetype) initWithOptions:(NSDictionary* _Nullable)options; {
-  self = [super initWithOptions:options];
+- (instancetype) initWithProxy:(VisionCameraProxyHolder*)proxy
+                   withOptions:(NSDictionary* _Nullable)options {
+  self = [super initWithProxy:proxy options:options];
   return self;
 }
 

@@ -14,7 +14,7 @@
 using namespace facebook;
 
 @implementation TypedArray {
-  NSMutableData* _data;
+  NSData* _data;
   std::shared_ptr<vision::TypedArrayBase> _array;
 }
 
@@ -22,9 +22,9 @@ vision::TypedArrayKind getTypedArrayKind(int unsafeEnumValue) {
   return static_cast<vision::TypedArrayKind>(unsafeEnumValue);
 }
 
-NSMutableData* wrapInNSData(jsi::Runtime& runtime, std::shared_ptr<vision::TypedArrayBase> typedArray) {
+NSData* wrapInNSData(jsi::Runtime& runtime, std::shared_ptr<vision::TypedArrayBase> typedArray) {
   jsi::ArrayBuffer buffer = typedArray->getBuffer(runtime);
-  return [NSMutableData dataWithBytesNoCopy:buffer.data(runtime) length:buffer.length(runtime) freeWhenDone:false];
+  return [NSData dataWithBytesNoCopy:buffer.data(runtime) length:buffer.size(runtime) freeWhenDone:NO];
 }
 
 - (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy type:(TypedArrayType)type size:(int)size {
@@ -49,7 +49,7 @@ NSMutableData* wrapInNSData(jsi::Runtime& runtime, std::shared_ptr<vision::Typed
   return _array;
 }
 
-- (NSMutableData*)data {
+- (NSData*)data {
   return _data;
 }
 

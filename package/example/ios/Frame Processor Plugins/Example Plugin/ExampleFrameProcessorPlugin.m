@@ -23,11 +23,12 @@
 
 - (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy
                   withOptions:(NSDictionary* _Nullable)options {
-  self = [super initWithProxy:proxy withOptions:options];
-  _arrayBuffer = [[TypedArray alloc] initWithProxy:proxy
-                                              type:Int8Array
-                                              size:5];
-  NSLog(@"ExampleFrameProcessorPlugin initialized with options: %@", options);
+  if (self = [super initWithProxy:proxy withOptions:options]) {
+    _arrayBuffer = [[TypedArray alloc] initWithProxy:proxy
+                                                type:Int8Array
+                                                size:5];
+    NSLog(@"ExampleFrameProcessorPlugin initialized with options: %@", options);
+  }
   return self;
 }
 
@@ -39,8 +40,8 @@
     NSLog(@"ExamplePlugin:   -> %@ (%@)", param == nil ? @"(nil)" : [param description], NSStringFromClass([param classForCoder]));
   }
   
-  NSMutableData* data = _arrayBuffer.data;
-  uint8_t* bytes = (uint8_t*)data.mutableBytes;
+  NSData* data = _arrayBuffer.data;
+  uint8_t* bytes = (uint8_t*)data.bytes;
   bytes[0] = (uint8_t)(random() * 100);
 
   return @{

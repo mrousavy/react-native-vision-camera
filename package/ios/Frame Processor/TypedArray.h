@@ -40,6 +40,6 @@ typedef enum TypedArrayType : NSUInteger {
 - (std::shared_ptr<vision::TypedArrayBase>)typedArray;
 #endif
 
-- (NSMutableData*)data;
+- (NSData*)data;
 
 @end
