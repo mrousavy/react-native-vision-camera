@@ -32,6 +32,8 @@ typedef NS_ENUM(NSInteger, SharedArrayType) {
 
 @interface SharedArray : NSObject
 
+- (instancetype)init NS_UNAVAILABLE;
+
 - (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy type:(SharedArrayType)type size:(int)size;
 
 #ifdef __cplusplus

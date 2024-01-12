@@ -21,6 +21,8 @@
 
 @interface FrameProcessor : NSObject
 
+- (instancetype)init NS_UNAVAILABLE;
+
 #ifdef __cplusplus
 - (instancetype _Nonnull)initWithWorklet:(std::shared_ptr<RNWorklet::JsiWorklet>)worklet
                                  context:(std::shared_ptr<RNWorklet::JsiWorkletContext>)context;

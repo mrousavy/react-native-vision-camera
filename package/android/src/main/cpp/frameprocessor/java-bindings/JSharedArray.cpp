@@ -31,7 +31,7 @@ JSharedArray::JSharedArray(jsi::Runtime& runtime, std::shared_ptr<TypedArrayBase
 }
 
 JSharedArray::JSharedArray(const jni::alias_ref<JSharedArray::jhybridobject>& javaThis,
-                         const jni::alias_ref<JVisionCameraProxy::javaobject>& proxy, int dataType, int size) {
+                           const jni::alias_ref<JVisionCameraProxy::javaobject>& proxy, int dataType, int size) {
   _javaPart = jni::make_global(javaThis);
 
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
@@ -61,8 +61,8 @@ std::shared_ptr<TypedArrayBase> JSharedArray::getTypedArray() {
 }
 
 jni::local_ref<JSharedArray::jhybriddata> JSharedArray::initHybrid(jni::alias_ref<jhybridobject> javaThis,
-                                                                 jni::alias_ref<JVisionCameraProxy::javaobject> proxy, jint type,
-                                                                 jint size) {
+                                                                   jni::alias_ref<JVisionCameraProxy::javaobject> proxy, jint type,
+                                                                   jint size) {
   return makeCxxInstance(javaThis, proxy, type, size);
 }
 

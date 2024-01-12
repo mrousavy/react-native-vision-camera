@@ -6,8 +6,8 @@
 //  Copyright © 2024 mrousavy. All rights reserved.
 //
 
-#import "TypedArray.h"
 #import "JSITypedArray.h"
+#import "TypedArray.h"
 #import <Foundation/Foundation.h>
 #import <jsi/jsi.h>
 
