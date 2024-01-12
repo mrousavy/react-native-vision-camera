@@ -16,7 +16,7 @@ using namespace facebook;
 
 class JSharedArray : public jni::HybridClass<JSharedArray> {
 public:
-  static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/TypedArray;";
+  static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/SharedArray;";
   static void registerNatives();
 
 public:
