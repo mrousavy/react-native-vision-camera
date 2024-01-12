@@ -17,8 +17,8 @@
 using namespace facebook;
 #endif
 
-typedef enum SharedArrayType : NSUInteger {
-  // Needs to be in sync with JSITypedArray.h as the index is used
+// Needs to be in sync with JSITypedArray.h as the index is used
+typedef NS_ENUM(NSInteger, SharedArrayType) {
   Int8Array,
   Int16Array,
   Int32Array,
@@ -28,11 +28,11 @@ typedef enum SharedArrayType : NSUInteger {
   Uint32Array,
   Float32Array,
   Float64Array,
-} TypedArrayType;
+};
 
 @interface SharedArray : NSObject
 
-- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy type:(TypedArrayType)type size:(int)size;
+- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy type:(SharedArrayType)type size:(int)size;
 
 #ifdef __cplusplus
 - (instancetype)initWithRuntime:(jsi::Runtime&)runtime typedArray:(std::shared_ptr<vision::TypedArrayBase>)typedArray;
