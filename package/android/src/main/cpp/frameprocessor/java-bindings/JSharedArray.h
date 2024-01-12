@@ -30,7 +30,7 @@ private:
   jni::global_ref<jni::JByteBuffer> wrapInByteBuffer(jsi::Runtime& runtime, std::shared_ptr<TypedArrayBase> typedArray);
 
 private:
-  static auto constexpr TAG = "TypedArray";
+  static auto constexpr TAG = "SharedArray";
   friend HybridBase;
   jni::global_ref<javaobject> _javaPart;
   jni::global_ref<jni::JByteBuffer> _byteBuffer;
