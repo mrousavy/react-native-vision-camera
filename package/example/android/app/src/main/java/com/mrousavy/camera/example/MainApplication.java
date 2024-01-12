@@ -20,8 +20,8 @@ import com.mrousavy.camera.frameprocessor.FrameProcessorPluginRegistry;
 public class MainApplication extends Application implements ReactApplication {
   // Register the Frame Processor Plugins for our app
   static {
-    FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_plugin", options -> new ExampleFrameProcessorPlugin(options));
-    FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_kotlin_swift_plugin", options -> new ExampleKotlinFrameProcessorPlugin(options));
+    FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_plugin", ExampleFrameProcessorPlugin::new);
+    FrameProcessorPluginRegistry.addFrameProcessorPlugin("example_kotlin_swift_plugin", ExampleKotlinFrameProcessorPlugin::new);
   }
 
   private final ReactNativeHost mReactNativeHost =
@@ -33,7 +33,6 @@ public class MainApplication extends Application implements ReactApplication {
 
         @Override
         protected List<ReactPackage> getPackages() {
-          @SuppressWarnings("UnnecessaryLocalVariable")
           List<ReactPackage> packages = new PackageList(this).getPackages();
           // Packages that cannot be autolinked yet can be added manually here, for VisionCameraExample:
           packages.add(new CameraPackage());

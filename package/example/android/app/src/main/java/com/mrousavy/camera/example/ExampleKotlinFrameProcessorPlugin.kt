@@ -3,8 +3,9 @@ package com.mrousavy.camera.example
 import android.util.Log
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin
+import com.mrousavy.camera.frameprocessor.VisionCameraProxy
 
-class ExampleKotlinFrameProcessorPlugin(options: Map<String, Any>?): FrameProcessorPlugin(options) {
+class ExampleKotlinFrameProcessorPlugin(proxy: VisionCameraProxy, options: Map<String, Any>?): FrameProcessorPlugin() {
     init {
         Log.d("ExampleKotlinPlugin", "ExampleKotlinFrameProcessorPlugin initialized with options: " + options?.toString())
     }

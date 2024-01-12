@@ -20,7 +20,7 @@ public final class TypedArray {
     /**
      * The Type of the TypedArray.
      */
-    enum Type {
+    public enum Type {
         // Values start at 0 and need to match with JSITypedArray.h::TypedArrayKind
         Int8Array,
         Int16Array,
