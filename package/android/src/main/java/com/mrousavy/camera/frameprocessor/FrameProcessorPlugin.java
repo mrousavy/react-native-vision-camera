@@ -23,9 +23,8 @@ public abstract class FrameProcessorPlugin {
      * The initializer of this Frame Processor Plugin.
      * This is called everytime this Frame Processor Plugin is loaded from the JS side (`initFrameProcessorPlugin(..)`).
      * Optionally override this method to implement custom initialization logic.
-     * @param options An options dictionary passed from the JS side, or null if none.
      */
-    public FrameProcessorPlugin(@Nullable Map<String, Object> options) {}
+    public FrameProcessorPlugin() { }
 
     /**
      * The actual Frame Processor Plugin's implementation that runs when `plugin.call(..)` is called in the JS Frame Processor.

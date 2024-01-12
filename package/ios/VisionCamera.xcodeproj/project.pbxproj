@@ -105,6 +105,8 @@
 		B81D41EF263C86F900B041FD /* JSINSObjectConversion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSINSObjectConversion.h; sourceTree = "<group>"; };
 		B8207AAC2B0E5DD70002990F /* AVCaptureSession+synchronizeBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVCaptureSession+synchronizeBuffer.swift"; sourceTree = "<group>"; };
 		B8207AAE2B0E67460002990F /* AVCaptureVideoDataOutput+recommendedVideoSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVCaptureVideoDataOutput+recommendedVideoSettings.swift"; sourceTree = "<group>"; };
+		B82186C72B514B5F00CE68CE /* SharedArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SharedArray.h; sourceTree = "<group>"; };
+		B82186C82B514B6D00CE68CE /* SharedArray.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = SharedArray.mm; sourceTree = "<group>"; };
 		B83D5EE629377117000AFD2F /* PreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewView.swift; sourceTree = "<group>"; };
 		B8446E4C2ABA147C00E56077 /* CameraDevicesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraDevicesManager.swift; sourceTree = "<group>"; };
 		B8446E4F2ABA14C900E56077 /* CameraDevicesManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CameraDevicesManager.m; sourceTree = "<group>"; };
@@ -336,6 +338,8 @@
 				B8994E6B263F03E100069589 /* JSINSObjectConversion.mm */,
 				B85F7AE82A77BB680089C539 /* FrameProcessorPlugin.m */,
 				B89A79692B3EF60F005E0357 /* UIImageOrientation+descriptor.h */,
+				B82186C72B514B5F00CE68CE /* SharedArray.h */,
+				B82186C82B514B6D00CE68CE /* SharedArray.mm */,
 			);
 			path = "Frame Processor";
 			sourceTree = "<group>";

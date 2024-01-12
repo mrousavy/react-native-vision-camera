@@ -5,15 +5,21 @@ import android.util.Log;
 
 import com.mrousavy.camera.frameprocessor.Frame;
 import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
+import com.mrousavy.camera.frameprocessor.SharedArray;
+import com.mrousavy.camera.frameprocessor.VisionCameraProxy;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ExampleFrameProcessorPlugin extends FrameProcessorPlugin {
+    SharedArray _sharedArray;
+
     @Override
     public Object callback(@NotNull Frame frame, @Nullable Map<String, Object> params) {
         if (params == null) return null;
@@ -37,11 +43,17 @@ public class ExampleFrameProcessorPlugin extends FrameProcessorPlugin {
         array.add(17.38);
 
         map.put("example_array", array);
+
+        ByteBuffer byteBuffer = _sharedArray.getByteBuffer();
+        byteBuffer.put(0, (byte)(Math.random() * 100));
+        map.put("example_array_buffer", _sharedArray);
+
         return map;
     }
 
-    ExampleFrameProcessorPlugin(@Nullable Map<String, Object> options) {
-        super(options);
+    ExampleFrameProcessorPlugin(VisionCameraProxy proxy, @Nullable Map<String, Object> options) {
+        super();
+        _sharedArray = new SharedArray(proxy, SharedArray.Type.Uint8Array, 5);
         Log.d("ExamplePlugin", "ExampleFrameProcessorPlugin initialized with options: " + options);
     }
 }

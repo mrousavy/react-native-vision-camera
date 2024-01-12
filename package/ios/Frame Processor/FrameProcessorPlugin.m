@@ -11,7 +11,7 @@
 // Base implementation (empty)
 @implementation FrameProcessorPlugin
 
-- (instancetype)initWithOptions:(NSDictionary* _Nullable)options {
+- (instancetype)initWithProxy:(VisionCameraProxyHolder* _Nonnull)proxy withOptions:(NSDictionary* _Nullable)options {
   self = [super init];
   return self;
 }

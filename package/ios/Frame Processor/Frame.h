@@ -16,6 +16,8 @@
 
 - (instancetype _Nonnull)initWithBuffer:(CMSampleBufferRef _Nonnull)buffer orientation:(UIImageOrientation)orientation;
 
+- (instancetype)init NS_UNAVAILABLE;
+
 @property(nonatomic, readonly) CMSampleBufferRef _Nonnull buffer;
 @property(nonatomic, readonly) UIImageOrientation orientation;
 

@@ -60,9 +60,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.mrousavy.camera.frameprocessor.Frame;
 import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
+import com.mrousavy.camera.frameprocessor.VisionCameraProxy;
 
 public class FaceDetectorFrameProcessorPlugin extends FrameProcessorPlugin {
-  FaceDetectorFrameProcessorPlugin(@Nullable Map<String, Object> options) {}
+  FaceDetectorFrameProcessorPlugin(@NonNull VisionCameraProxy proxy, @Nullable Map<String, Object> options) {}
 
   @Nullable
   @Override
@@ -89,7 +90,7 @@ import com.mrousavy.camera.frameprocessor.FrameProcessorPluginRegistry;
 public class FaceDetectorFrameProcessorPluginPackage implements ReactPackage {
   // highlight-start
   static {
-    FrameProcessorPluginRegistry.addFrameProcessorPlugin("detectFaces", options -> new FaceDetectorFrameProcessorPlugin(options));
+    FrameProcessorPluginRegistry.addFrameProcessorPlugin("detectFaces", FaceDetectorFrameProcessorPlugin::new);
   }
   // highlight-end
 
@@ -135,8 +136,9 @@ The Frame Processor Plugin will be exposed to JS through the `VisionCameraProxy`
 ```kotlin
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin
+import com.mrousavy.camera.frameprocessor.VisionCameraProxy
 
-class FaceDetectorFrameProcessorPlugin(options: Map<String, Any>?): FrameProcessorPlugin(options) {
+class FaceDetectorFrameProcessorPlugin(proxy: VisionCameraProxy, options: Map<String, Any>?): FrameProcessorPlugin() {
 
   override fun callback(frame: Frame, arguments: Map<String, Any>?): Any? {
 // highlight-next-line
@@ -161,8 +163,8 @@ class FaceDetectorFrameProcessorPluginPackage : ReactPackage {
   // highlight-start
   companion object {
     init {
-      FrameProcessorPluginRegistry.addFrameProcessorPlugin("detectFaces") { options ->
-        FaceDetectorFrameProcessorPlugin(options)
+      FrameProcessorPluginRegistry.addFrameProcessorPlugin("detectFaces") { proxy, options ->
+        FaceDetectorFrameProcessorPlugin(proxy, options)
       }
     }
   }

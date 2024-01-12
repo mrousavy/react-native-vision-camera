@@ -44,6 +44,7 @@ Similar to a TurboModule, the Frame Processor Plugin Registry API automatically 
 | `{}`                 | `NSDictionary*`               | `Map<String, Object>`      |
 | `undefined` / `null` | `nil`                         | `null`                     |
 | `(any, any) => void` | [`RCTResponseSenderBlock`][4] | `(Object, Object) -> void` |
+| `ArrayBuffer`        | [`SharedArray`][7]            | [`SharedArray`][8]         |
 | [`Frame`][1]         | [`Frame*`][2]                 | [`Frame`][3]               |
 
 ### Return values
@@ -207,3 +208,5 @@ Your Frame Processor Plugins have to be fast. Use the FPS Graph (`enableFpsGraph
 [4]: https://github.com/facebook/react-native/blob/9a43eac7a32a6ba3164a048960101022a92fcd5a/React/Base/RCTBridgeModule.h#L20-L24
 [5]: https://developer.apple.com/documentation/coremedia/cmsamplebuffer
 [6]: https://developer.android.com/reference/androidx/camera/core/ImageProxy
+[7]: https://github.com/mrousavy/react-native-vision-camera/blob/main/package/ios/Frame%20Processor/SharedArray.h
+[8]: https://github.com/mrousavy/react-native-vision-camera/blob/main/package/android/src/main/java/com/mrousavy/camera/frameprocessor/SharedArray.java

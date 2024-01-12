@@ -54,6 +54,7 @@ Pod::Spec.new do |s|
     hasWorklets ? "ios/Frame Processor/FrameProcessor.h" : "",
     hasWorklets ? "ios/Frame Processor/FrameProcessorPlugin.h" : "",
     hasWorklets ? "ios/Frame Processor/FrameProcessorPluginRegistry.h" : "",
+    hasWorklets ? "ios/Frame Processor/SharedArray.h" : "",
     hasWorklets ? "ios/Frame Processor/VisionCameraProxy.h" : "",
     hasWorklets ? "cpp/**/*.{cpp}" : "",
   ]

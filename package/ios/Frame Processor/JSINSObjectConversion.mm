@@ -18,6 +18,8 @@
 #import "JSINSObjectConversion.h"
 #import "../Frame Processor/Frame.h"
 #import "../Frame Processor/FrameHostObject.h"
+#import "../Frame Processor/SharedArray.h"
+#import "JSITypedArray.h"
 #import <Foundation/Foundation.h>
 #import <React/RCTBridge.h>
 #import <ReactCommon/CallInvoker.h>
@@ -58,6 +60,11 @@ jsi::Array convertNSArrayToJSIArray(jsi::Runtime& runtime, NSArray* value) {
   return result;
 }
 
+jsi::Object convertSharedArrayToJSIArrayBuffer(jsi::Runtime& runtime, SharedArray* sharedArray) {
+  std::shared_ptr<vision::TypedArrayBase> array = sharedArray.typedArray;
+  return array->getBuffer(runtime);
+}
+
 jsi::Value convertObjCObjectToJSIValue(jsi::Runtime& runtime, id value) {
   if (value == nil) {
     return jsi::Value::undefined();
@@ -77,6 +84,8 @@ jsi::Value convertObjCObjectToJSIValue(jsi::Runtime& runtime, id value) {
   } else if ([value isKindOfClass:[Frame class]]) {
     auto frameHostObject = std::make_shared<FrameHostObject>((Frame*)value);
     return jsi::Object::createFromHostObject(runtime, frameHostObject);
+  } else if ([value isKindOfClass:[SharedArray class]]) {
+    return convertSharedArrayToJSIArrayBuffer(runtime, (SharedArray*)value);
   }
   return jsi::Value::undefined();
 }
@@ -132,36 +141,46 @@ NSDictionary* convertJSIObjectToNSDictionary(jsi::Runtime& runtime, const jsi::O
 
 id convertJSIValueToObjCObject(jsi::Runtime& runtime, const jsi::Value& value, std::shared_ptr<CallInvoker> jsInvoker) {
   if (value.isUndefined() || value.isNull()) {
+    // undefined/null
     return nil;
-  }
-  if (value.isBool()) {
+  } else if (value.isBool()) {
+    // bool
     return @(value.getBool());
-  }
-  if (value.isNumber()) {
+  } else if (value.isNumber()) {
+    // number
     return @(value.getNumber());
-  }
-  if (value.isString()) {
+  } else if (value.isString()) {
+    // string
     return convertJSIStringToNSString(runtime, value.getString(runtime));
-  }
-  if (value.isObject()) {
+  } else if (value.isObject()) {
+    // object
     jsi::Object o = value.getObject(runtime);
     if (o.isArray(runtime)) {
+      // array[]
       return convertJSIArrayToNSArray(runtime, o.getArray(runtime), jsInvoker);
-    }
-    if (o.isFunction(runtime)) {
+    } else if (o.isFunction(runtime)) {
+      // function () => {}
       return convertJSIFunctionToCallback(runtime, std::move(o.getFunction(runtime)), jsInvoker);
-    }
-    if (o.isHostObject(runtime)) {
-      auto hostObject = o.asHostObject(runtime);
-      auto frame = dynamic_cast<FrameHostObject*>(hostObject.get());
-      if (frame != nullptr) {
-        return frame->frame;
+    } else if (o.isHostObject(runtime)) {
+      if (o.isHostObject<FrameHostObject>(runtime)) {
+        // Frame
+        auto hostObject = o.getHostObject<FrameHostObject>(runtime);
+        return hostObject->frame;
+      } else {
+        throw std::runtime_error("The given HostObject is not supported by a Frame Processor Plugin!");
       }
+    } else if (o.isArrayBuffer(runtime)) {
+      // ArrayBuffer
+      auto typedArray = std::make_shared<vision::TypedArrayBase>(vision::getTypedArray(runtime, o));
+      return [[SharedArray alloc] initWithRuntime:runtime typedArray:typedArray];
+    } else {
+      // object
+      return convertJSIObjectToNSDictionary(runtime, o, jsInvoker);
     }
-    return convertJSIObjectToNSDictionary(runtime, o, jsInvoker);
   }
 
-  throw std::runtime_error("Unsupported jsi::jsi::Value kind");
+  auto stringRepresentation = value.toString(runtime).utf8(runtime);
+  throw std::runtime_error("Failed to convert jsi::Value to JNI value - unsupported type! " + stringRepresentation);
 }
 
 RCTResponseSenderBlock convertJSIFunctionToCallback(jsi::Runtime& runtime, const jsi::Function& value,

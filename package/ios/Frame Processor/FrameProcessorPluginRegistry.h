@@ -10,14 +10,18 @@
 
 #import "Frame.h"
 #import "FrameProcessorPlugin.h"
+#import "VisionCameraProxy.h"
 #import <Foundation/Foundation.h>
 
 @interface FrameProcessorPluginRegistry : NSObject
 
-typedef FrameProcessorPlugin* _Nonnull (^PluginInitializerFunction)(NSDictionary* _Nullable options);
+typedef FrameProcessorPlugin* _Nonnull (^PluginInitializerFunction)(VisionCameraProxyHolder* _Nonnull proxy,
+                                                                    NSDictionary* _Nullable options);
 
 + (void)addFrameProcessorPlugin:(NSString* _Nonnull)name withInitializer:(PluginInitializerFunction _Nonnull)pluginInitializer;
 
-+ (FrameProcessorPlugin* _Nullable)getPlugin:(NSString* _Nonnull)name withOptions:(NSDictionary* _Nullable)options;
++ (FrameProcessorPlugin* _Nullable)getPlugin:(NSString* _Nonnull)name
+                                   withProxy:(VisionCameraProxyHolder* _Nonnull)proxy
+                                 withOptions:(NSDictionary* _Nullable)options;
 
 @end

@@ -34,6 +34,7 @@ add_library(
         src/main/cpp/frameprocessor/FrameProcessorPluginHostObject.cpp
         src/main/cpp/frameprocessor/JSIJNIConversion.cpp
         src/main/cpp/frameprocessor/VisionCameraProxy.cpp
+        src/main/cpp/frameprocessor/java-bindings/JSharedArray.cpp
         src/main/cpp/frameprocessor/java-bindings/JFrame.cpp
         src/main/cpp/frameprocessor/java-bindings/JFrameProcessor.cpp
         src/main/cpp/frameprocessor/java-bindings/JFrameProcessorPlugin.cpp
