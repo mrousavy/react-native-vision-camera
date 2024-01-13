@@ -74,6 +74,8 @@ export interface CodeScanner {
   onCodeScanned: (codes: Code[], frame: CodeScannerFrame) => void
   /**
    * Crops the scanner's view area to the specific region of interest.
+   *
+   * @platform iOS
    */
   regionOfInterest?: {
     x: number
