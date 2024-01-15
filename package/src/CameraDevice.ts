@@ -73,6 +73,10 @@ export interface CameraDeviceFormat {
    */
   videoWidth: number
   /**
+   * The minimum distance this device can properly focus to, in meters.
+   */
+  minFocusDistance: number
+  /**
    * Maximum supported ISO value
    */
   maxISO: number

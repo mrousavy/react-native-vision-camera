@@ -42,6 +42,7 @@ class CameraDeviceDetails(val cameraManager: CameraManager, val cameraId: String
       ?: floatArrayOf(35f)
   val sensorSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)!!
   val sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)!!
+  val minFocusDistance = characteristics.get(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE) ?: 0f
   val name = (
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
       characteristics.get(CameraCharacteristics.INFO_VERSION)
@@ -198,6 +199,7 @@ class CameraDeviceDetails(val cameraManager: CameraManager, val cameraId: String
     map.putString("name", name)
     map.putBoolean("hasFlash", hasFlash)
     map.putBoolean("hasTorch", hasFlash)
+    map.putInt("minFocusDistance", minFocusDistance)
     map.putBoolean("isMultiCam", isMultiCam)
     map.putBoolean("supportsRawCapture", supportsRawCapture)
     map.putBoolean("supportsLowLightBoost", supportsLowLightBoost)
