@@ -96,7 +96,11 @@ private fun getResolutionForCamcorderProfileQuality(camcorderProfile: Int): Int 
 private fun findClosestCamcorderProfileQuality(resolution: Size): Int {
   // Iterate through all available CamcorderProfiles and find the one that matches the closest
   val targetResolution = resolution.width * resolution.height
-  val closestProfile = (CamcorderProfile.QUALITY_QCIF..CamcorderProfile.QUALITY_8KUHD).minBy { profile ->
+
+  val profiles = (CamcorderProfile.QUALITY_QCIF..CamcorderProfile.QUALITY_8KUHD).filter { profile ->
+    return@filter CamcorderProfile.hasProfile(profile)
+  }
+  val closestProfile = profiles.minBy { profile ->
     val currentResolution = getResolutionForCamcorderProfileQuality(profile)
     return@minBy abs(currentResolution - targetResolution)
   }
