@@ -199,7 +199,7 @@ class CameraDeviceDetails(val cameraManager: CameraManager, val cameraId: String
     map.putString("name", name)
     map.putBoolean("hasFlash", hasFlash)
     map.putBoolean("hasTorch", hasFlash)
-    map.putInt("minFocusDistance", minFocusDistance)
+    map.putDouble("minFocusDistance", minFocusDistance.toDouble())
     map.putBoolean("isMultiCam", isMultiCam)
     map.putBoolean("supportsRawCapture", supportsRawCapture)
     map.putBoolean("supportsLowLightBoost", supportsLowLightBoost)
