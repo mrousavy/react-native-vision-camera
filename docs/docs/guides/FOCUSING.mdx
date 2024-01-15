@@ -35,7 +35,7 @@ export function App() {
   const focus = useCallback((point: Point) => {
     const c = camera.current
     if (c == null) return
-    c.focus()
+    c.focus(point)
   }, [])
 
   const gesture = Gesture.Tap()
