@@ -85,6 +85,10 @@ By default, the `native` [`PixelFormat`](/docs/api#pixelformat) is used, which i
 
 Only enable [`photo`](/docs/api/interfaces/CameraProps#photo), [`video`](/docs/api/interfaces/CameraProps#video), [`codeScanner`](/docs/api/interfaces/CameraProps#codescanner) or [`frameProcessor`](/docs/api/interfaces/CameraProps#frameprocessor) if needed.
 
+### Using `isActive`
+
+The [`isActive`](/docs/api/interfaces/CameraProps#isactive) prop controls whether the Camera should actively stream frames. Instead of fully unmounting the `<Camera>` component and remounting it again, keep it mounted and just switch `isActive` on or off. This makes the Camera resume much faster as it internally keeps the session warmed up.
+
 ### Fast Photos
 
 If you need to take photos as fast as possible, use a [`qualityPrioritization`](/docs/api/interfaces/TakePhotoOptions#qualityprioritization) of `'speed'` to speed up the photo pipeline:
