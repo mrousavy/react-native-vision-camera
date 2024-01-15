@@ -165,7 +165,7 @@ export interface CameraDevice {
    */
   hasTorch: boolean
   /**
-   * The minimum distance this device can properly focus to, in meters.
+   * The minimum distance this device can properly focus to, in centi-meters (cm).
    */
   minFocusDistance: number
   /**

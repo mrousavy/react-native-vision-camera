@@ -11,11 +11,11 @@ import Foundation
 
 extension AVCaptureDevice {
   /**
-   * The minimum distance this device can focus to, in meters.
+   * The minimum distance this device can focus to, in centi-meters.
    */
   var minFocusDistance: Double {
     if #available(iOS 15.0, *) {
-      return Double(minFocusDistance) / 1000
+      return Double(minFocusDistance) / 100
     }
     return 0
   }
