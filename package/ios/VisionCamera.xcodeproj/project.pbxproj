@@ -64,6 +64,7 @@
 		B88751A725E0102000DB86D6 /* CameraView+Zoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887518225E0102000DB86D6 /* CameraView+Zoom.swift */; };
 		B88751A825E0102000DB86D6 /* CameraError.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887518325E0102000DB86D6 /* CameraError.swift */; };
 		B88751A925E0102000DB86D6 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887518425E0102000DB86D6 /* CameraView.swift */; };
+		B88977BE2B556DBA0095C92C /* AVCaptureDevice+minFocusDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = B88977BD2B556DBA0095C92C /* AVCaptureDevice+minFocusDistance.swift */; };
 		B8994E6C263F03E100069589 /* JSINSObjectConversion.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8994E6B263F03E100069589 /* JSINSObjectConversion.mm */; };
 		B8A1AEC42AD7EDE800169C0D /* AVCaptureVideoDataOutput+pixelFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8A1AEC32AD7EDE800169C0D /* AVCaptureVideoDataOutput+pixelFormat.swift */; };
 		B8A1AEC62AD7F08E00169C0D /* CameraView+Focus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8A1AEC52AD7F08E00169C0D /* CameraView+Focus.swift */; };
@@ -161,6 +162,7 @@
 		B887518325E0102000DB86D6 /* CameraError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraError.swift; sourceTree = "<group>"; };
 		B887518425E0102000DB86D6 /* CameraView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		B88873E5263D46C7008B1D0E /* FrameProcessorPlugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameProcessorPlugin.h; sourceTree = "<group>"; };
+		B88977BD2B556DBA0095C92C /* AVCaptureDevice+minFocusDistance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVCaptureDevice+minFocusDistance.swift"; sourceTree = "<group>"; };
 		B8994E6B263F03E100069589 /* JSINSObjectConversion.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = JSINSObjectConversion.mm; sourceTree = "<group>"; };
 		B89A79692B3EF60F005E0357 /* UIImageOrientation+descriptor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIImageOrientation+descriptor.h"; sourceTree = "<group>"; };
 		B8A1AEC32AD7EDE800169C0D /* AVCaptureVideoDataOutput+pixelFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVCaptureVideoDataOutput+pixelFormat.swift"; sourceTree = "<group>"; };
@@ -284,6 +286,7 @@
 				B8A1AEC32AD7EDE800169C0D /* AVCaptureVideoDataOutput+pixelFormat.swift */,
 				B8207AAC2B0E5DD70002990F /* AVCaptureSession+synchronizeBuffer.swift */,
 				B8207AAE2B0E67460002990F /* AVCaptureVideoDataOutput+recommendedVideoSettings.swift */,
+				B88977BD2B556DBA0095C92C /* AVCaptureDevice+minFocusDistance.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -488,6 +491,7 @@
 				B881D35E2ABC775E009B21C8 /* AVCaptureDevice+toDictionary.swift in Sources */,
 				B87B11BF2A8E63B700732EBF /* PixelFormat.swift in Sources */,
 				B88751A625E0102000DB86D6 /* CameraViewManager.swift in Sources */,
+				B88977BE2B556DBA0095C92C /* AVCaptureDevice+minFocusDistance.swift in Sources */,
 				B80175EC2ABDEBD000E7DE90 /* ResizeMode.swift in Sources */,
 				B887519F25E0102000DB86D6 /* AVCaptureDevice.DeviceType+physicalDeviceDescriptor.swift in Sources */,
 				B88685ED2AD6A5E600E93869 /* CameraSession+CodeScanner.swift in Sources */,

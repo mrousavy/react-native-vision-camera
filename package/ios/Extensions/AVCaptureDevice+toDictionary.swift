@@ -19,6 +19,7 @@ extension AVCaptureDevice {
       "name": localizedName,
       "hasFlash": hasFlash,
       "hasTorch": hasTorch,
+      "minFocusDistance": minFocusDistance,
       "minZoom": minAvailableVideoZoomFactor,
       "maxZoom": maxAvailableVideoZoomFactor,
       "neutralZoom": neutralZoomFactor,

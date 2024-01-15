@@ -165,6 +165,10 @@ export interface CameraDevice {
    */
   hasTorch: boolean
   /**
+   * The minimum distance this device can properly focus to (in centimeters/cm) or `0` if unknown.
+   */
+  minFocusDistance: number
+  /**
    * A property indicating whether the device is a virtual multi-camera consisting of multiple combined physical cameras.
    *
    * Examples:

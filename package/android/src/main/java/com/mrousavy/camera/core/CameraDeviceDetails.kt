@@ -42,6 +42,7 @@ class CameraDeviceDetails(val cameraManager: CameraManager, val cameraId: String
       ?: floatArrayOf(35f)
   val sensorSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)!!
   val sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)!!
+  val minFocusDistance = getMinFocusDistanceCm()
   val name = (
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
       characteristics.get(CameraCharacteristics.INFO_VERSION)
@@ -95,6 +96,13 @@ class CameraDeviceDetails(val cameraManager: CameraManager, val cameraId: String
       }
     }
     return false
+  }
+
+  private fun getMinFocusDistanceCm(): Double {
+    val distance = characteristics.get(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE)
+    if (distance == null || distance == 0f) return 0.0
+    // distance is in "diopters", meaning 1/meter. Convert to meters, then centi-meters
+    return 1.0 / distance * 100.0
   }
 
   private fun createStabilizationModes(): ReadableArray {
@@ -198,6 +206,7 @@ class CameraDeviceDetails(val cameraManager: CameraManager, val cameraId: String
     map.putString("name", name)
     map.putBoolean("hasFlash", hasFlash)
     map.putBoolean("hasTorch", hasFlash)
+    map.putDouble("minFocusDistance", minFocusDistance)
     map.putBoolean("isMultiCam", isMultiCam)
     map.putBoolean("supportsRawCapture", supportsRawCapture)
     map.putBoolean("supportsLowLightBoost", supportsLowLightBoost)

@@ -62,7 +62,7 @@ Note: By default (when not passing the options object), a simpler device is alre
 
 ### No Video HDR
 
-Video HDR uses 10-bit formats and/or additional processing steps that come with additional computation overhead. Disable Video HDR (don't pass `videoHdr` to the `<Camera>`) for higher efficiency.
+Video HDR uses 10-bit formats and/or additional processing steps that come with additional computation overhead. Disable [`videoHdr`](/docs/api/interfaces/CameraProps#videohdr) for higher efficiency.
 
 ### Buffer Compression
 
@@ -83,7 +83,11 @@ By default, the `native` [`PixelFormat`](/docs/api#pixelformat) is used, which i
 
 ### Disable unneeded pipelines
 
-Only enable [`photo`](/docs/api/interfaces/CameraProps#photo) and [`video`](/docs/api/interfaces/CameraProps#video) if needed.
+Only enable [`photo`](/docs/api/interfaces/CameraProps#photo), [`video`](/docs/api/interfaces/CameraProps#video), [`codeScanner`](/docs/api/interfaces/CameraProps#codescanner) or [`frameProcessor`](/docs/api/interfaces/CameraProps#frameprocessor) if needed.
+
+### Using `isActive`
+
+The [`isActive`](/docs/api/interfaces/CameraProps#isactive) prop controls whether the Camera should actively stream frames. Instead of fully unmounting the `<Camera>` component and remounting it again, keep it mounted and just switch `isActive` on or off. This makes the Camera resume much faster as it internally keeps the session warmed up.
 
 ### Fast Photos
 
