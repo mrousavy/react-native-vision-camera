@@ -73,10 +73,6 @@ export interface CameraDeviceFormat {
    */
   videoWidth: number
   /**
-   * The minimum distance this device can properly focus to, in meters.
-   */
-  minFocusDistance: number
-  /**
    * Maximum supported ISO value
    */
   maxISO: number
@@ -168,6 +164,10 @@ export interface CameraDevice {
    * Specifies whether this camera supports continuously enabling the flash to act like a torch (flash with video capture)
    */
   hasTorch: boolean
+  /**
+   * The minimum distance this device can properly focus to, in meters.
+   */
+  minFocusDistance: number
   /**
    * A property indicating whether the device is a virtual multi-camera consisting of multiple combined physical cameras.
    *
