@@ -14,7 +14,7 @@ extension AVCaptureDevice {
    */
   var minFocusDistance: Double {
     if #available(iOS 15.0, *) {
-      return Double(minFocusDistance) / 1_000
+      return Double(minFocusDistance) / 1000
     }
     return 0
   }
