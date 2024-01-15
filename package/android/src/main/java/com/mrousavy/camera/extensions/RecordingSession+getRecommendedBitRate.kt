@@ -23,7 +23,7 @@ fun RecordingSession.getRecommendedBitRate(fps: Int, codec: VideoCodec, hdr: Boo
   val targetResolution = size
   val encoder = codec.toVideoEncoder()
   val bitDepth = if (hdr) 10 else 8
-  val quality = findClosestCamcorderProfileQuality(targetResolution)
+  val quality = findClosestCamcorderProfileQuality(cameraId, targetResolution)
   Log.i("CamcorderProfile", "Closest matching CamcorderProfile: $quality")
 
   var recommendedProfile: RecommendedProfile? = null
@@ -93,10 +93,19 @@ private fun getResolutionForCamcorderProfileQuality(camcorderProfile: Int): Int 
     else -> throw Error("Invalid CamcorderProfile \"$camcorderProfile\"!")
   }
 
-private fun findClosestCamcorderProfileQuality(resolution: Size): Int {
+private fun findClosestCamcorderProfileQuality(cameraId: String, resolution: Size): Int {
   // Iterate through all available CamcorderProfiles and find the one that matches the closest
   val targetResolution = resolution.width * resolution.height
-  val closestProfile = (CamcorderProfile.QUALITY_QCIF..CamcorderProfile.QUALITY_8KUHD).minBy { profile ->
+  val cameraIdInt = cameraId.toIntOrNull()
+
+  val profiles = (CamcorderProfile.QUALITY_QCIF..CamcorderProfile.QUALITY_8KUHD).filter { profile ->
+    if (cameraIdInt != null) {
+      return@filter CamcorderProfile.hasProfile(cameraIdInt, profile)
+    } else {
+      return@filter CamcorderProfile.hasProfile(profile)
+    }
+  }
+  val closestProfile = profiles.minBy { profile ->
     val currentResolution = getResolutionForCamcorderProfileQuality(profile)
     return@minBy abs(currentResolution - targetResolution)
   }
