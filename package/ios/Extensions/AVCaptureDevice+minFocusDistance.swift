@@ -6,6 +6,7 @@
 //  Copyright © 2024 mrousavy. All rights reserved.
 //
 
+import AVFoundation
 import Foundation
 
 extension AVCaptureDevice {
