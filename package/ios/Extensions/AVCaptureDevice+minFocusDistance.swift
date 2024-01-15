@@ -14,9 +14,12 @@ extension AVCaptureDevice {
    * The minimum distance this device can focus to, in centi-meters.
    */
   var minFocusDistance: Double {
-    if #available(iOS 15.0, *) {
-      return Double(minimumFocusDistance) / 10
+    guard #available(iOS 15.0, *), minimumFocusDistance > 0 else {
+      // focus distance is unknown/unavailable
+      return 0
     }
-    return 0
+
+    // convert from millimeters to centimeters
+    return Double(minimumFocusDistance) / 10
   }
 }
