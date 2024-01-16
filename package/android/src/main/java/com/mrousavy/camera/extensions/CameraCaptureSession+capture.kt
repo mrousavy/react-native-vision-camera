@@ -29,7 +29,10 @@ suspend fun CameraCaptureSession.capture(captureRequest: CaptureRequest, enableS
 
         override fun onCaptureStarted(session: CameraCaptureSession, request: CaptureRequest, timestamp: Long, frameNumber: Long) {
           super.onCaptureStarted(session, request, timestamp, frameNumber)
-          shutterSound?.play(MediaActionSound.SHUTTER_CLICK)
+
+          if (enableShutterSound) {
+            shutterSound?.play(MediaActionSound.SHUTTER_CLICK)
+          }
         }
 
         override fun onCaptureFailed(session: CameraCaptureSession, request: CaptureRequest, failure: CaptureFailure) {
