@@ -18,10 +18,10 @@
 
 - (instancetype)init NS_UNAVAILABLE;
 
-@property(nonatomic, readonly, nonnull) CMSampleBufferRef _Nonnull buffer;
+@property(nonatomic, readonly) CMSampleBufferRef _Nonnull buffer;
 @property(nonatomic, readonly) UIImageOrientation orientation;
 
-@property(nonatomic, readonly, nonnull) NSString* pixelFormat;
+@property(nonatomic, readonly) NSString* _Nonnull pixelFormat;
 @property(nonatomic, readonly) BOOL isMirrored;
 @property(nonatomic, readonly) BOOL isValid;
 @property(nonatomic, readonly) size_t width;
