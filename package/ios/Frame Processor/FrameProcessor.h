@@ -19,6 +19,8 @@
 #import <memory.h>
 #endif
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface FrameProcessor : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -30,6 +32,8 @@
 - (void)callWithFrameHostObject:(std::shared_ptr<FrameHostObject>)frameHostObject;
 #endif
 
-- (void)call:(Frame* _Nonnull)frame;
+- (void)call:(Frame*)frame;
 
 @end
+
+NS_ASSUME_NONNULL_END
