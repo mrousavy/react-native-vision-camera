@@ -12,16 +12,17 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIImage.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface Frame : NSObject
 
-- (instancetype _Nonnull)initWithBuffer:(CMSampleBufferRef _Nonnull)buffer orientation:(UIImageOrientation)orientation;
-
+- (instancetype)initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation;
 - (instancetype)init NS_UNAVAILABLE;
 
-@property(nonatomic, readonly) CMSampleBufferRef _Nonnull buffer;
+@property(nonatomic, readonly) CMSampleBufferRef buffer;
 @property(nonatomic, readonly) UIImageOrientation orientation;
 
-@property(nonatomic, readonly) NSString* _Nonnull pixelFormat;
+@property(nonatomic, readonly) NSString* pixelFormat;
 @property(nonatomic, readonly) BOOL isMirrored;
 @property(nonatomic, readonly) BOOL isValid;
 @property(nonatomic, readonly) size_t width;
@@ -31,3 +32,5 @@
 @property(nonatomic, readonly) size_t planesCount;
 
 @end
+
+NS_ASSUME_NONNULL_END
