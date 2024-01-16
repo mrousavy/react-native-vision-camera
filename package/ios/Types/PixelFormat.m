@@ -45,7 +45,7 @@
   }
 }
 
-+ (NSString*)stringForPixelFormat:(PixelFormat)pixelFormat error:(NSError**)error __attribute__((swift_error(nonnull_error))) {
++ (NSString*)stringForPixelFormat:(PixelFormat)pixelFormat {
   switch (pixelFormat) {
     case kPixelFormat_yuv:
       return @"yuv";
@@ -54,10 +54,8 @@
     case kPixelFormat_native:
       return @"native";
     case kPixelFormat_unknown:
-      return @"unknown";
     default:
-      *error = [NSError errorWithDomain:@"PixelFormatParserError" code:1 userInfo:nil];
-      return nil;
+      return @"unknown";
   }
 }
 
