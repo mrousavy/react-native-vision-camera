@@ -45,7 +45,7 @@ Pod::Spec.new do |s|
     "ios/Extensions/*.{m,mm,swift}",
     "ios/Parsers/*.{m,mm,swift}",
     "ios/React Utils/*.{m,mm,swift}",
-    "ios/Types/*.{m,mm,swift}",
+    "ios/Types/*.{m,mm,swift,h}",
     "ios/CameraBridge.h",
 
     # Frame Processors

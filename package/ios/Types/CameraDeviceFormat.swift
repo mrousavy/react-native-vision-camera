@@ -76,7 +76,7 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
     supportsVideoHdr = jsValue["supportsVideoHdr"] as! Bool
     supportsPhotoHdr = jsValue["supportsPhotoHdr"] as! Bool
     let jsPixelFormats = jsValue["pixelFormats"] as! [String]
-    pixelFormats = try jsPixelFormats.map { try PixelFormat(jsValue: $0) }
+    pixelFormats = try jsPixelFormats.map { try PixelFormatUtils.pixelFormat(forJSValue: $0) }
     supportsDepthCapture = jsValue["supportsDepthCapture"] as! Bool
     // swiftlint:enable force_cast
   }
@@ -102,7 +102,7 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
       "supportsPhotoHdr": supportsPhotoHdr,
       "minFps": minFps,
       "maxFps": maxFps,
-      "pixelFormats": pixelFormats.map(\.jsValue),
+      "pixelFormats": pixelFormats.map { PixelFormatUtils.string(for: $0) },
       "supportsDepthCapture": supportsDepthCapture,
     ]
   }
@@ -114,6 +114,6 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
   // On iOS, all PixelFormats are always supported for every format (it can convert natively)
   private static func getAllPixelFormats() -> [PixelFormat] {
     let availablePixelFormats = AVCaptureVideoDataOutput().availableVideoPixelFormatTypes
-    return availablePixelFormats.map { format in PixelFormat(mediaSubType: format) }
+    return availablePixelFormats.map { format in PixelFormatUtils.pixelFormat(forMediaType: format) }
   }
 }

@@ -16,6 +16,8 @@
 #import <React/RCTUIManager.h>
 #import <React/RCTViewManager.h>
 
+#import "PixelFormat.h"
+
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
 #import "Frame.h"
 #import "FrameProcessor.h"

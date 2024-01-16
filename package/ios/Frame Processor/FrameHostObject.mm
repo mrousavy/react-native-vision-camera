@@ -7,6 +7,7 @@
 //
 
 #import "FrameHostObject.h"
+#import "PixelFormat.h"
 #import "UIImageOrientation+descriptor.h"
 #import "WKTJsiHostObject.h"
 #import <Foundation/Foundation.h>
@@ -181,7 +182,9 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     std::lock_guard lock(this->_mutex);
 
     Frame* frame = this->getFrame();
-    return jsi::String::createFromUtf8(runtime, frame.pixelFormat.UTF8String);
+    PixelFormat pixelFormat = frame.pixelFormat;
+    NSString* string = [PixelFormatUtils stringForPixelFormat:pixelFormat];
+    return jsi::String::createFromUtf8(runtime, string.UTF8String);
   }
   if (name == "bytesPerRow") {
     // Lock Frame so it cannot be deallocated while we access it

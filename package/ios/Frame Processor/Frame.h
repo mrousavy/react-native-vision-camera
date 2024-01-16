@@ -8,6 +8,7 @@
 
 #pragma once
 
+#import "PixelFormat.h"
 #import <CoreMedia/CMSampleBuffer.h>
 #import <Foundation/Foundation.h>
 #import <UIKit/UIImage.h>
@@ -22,7 +23,7 @@
 @property(nonatomic, readonly) UIImageOrientation orientation;
 
 // Getters
-- (NSString* _Nonnull)pixelFormat;
+- (PixelFormat)pixelFormat;
 - (BOOL)isMirrored;
 - (BOOL)isValid;
 - (size_t)width;
