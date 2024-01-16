@@ -13,7 +13,7 @@ extension AVCaptureOutput {
    Mirrors the video output if possible.
    */
   func mirror() {
-    connections.forEach { connection in
+    for connection in connections {
       if connection.isVideoMirroringSupported {
         connection.automaticallyAdjustsVideoMirroring = false
         connection.isVideoMirrored = true
@@ -31,7 +31,7 @@ extension AVCaptureOutput {
    */
   func setOrientation(_ orientation: Orientation) {
     // Set orientation for each connection
-    connections.forEach { connection in
+    for connection in connections {
       #if swift(>=5.9)
         if #available(iOS 17.0, *) {
           // Camera Sensors are always in landscape rotation (90deg).

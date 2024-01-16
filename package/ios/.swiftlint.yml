@@ -5,6 +5,7 @@ disabled_rules:
   - type_body_length
   - cyclomatic_complexity
   - function_body_length
+  - for_where
 opt_in_rules:
   - contains_over_filter_count
   - contains_over_filter_is_empty
