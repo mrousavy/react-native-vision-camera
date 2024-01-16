@@ -12,9 +12,12 @@
 #import <Foundation/Foundation.h>
 
 #ifdef __cplusplus
-#import "JSITypedArray.h"
 #import <jsi/jsi.h>
 using namespace facebook;
+
+namespace vision {
+class TypedArrayBase;
+}
 #endif
 
 // Needs to be in sync with JSITypedArray.h as the index is used
