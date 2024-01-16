@@ -14,6 +14,9 @@ import kotlin.coroutines.suspendCoroutine
 
 suspend fun CameraCaptureSession.capture(captureRequest: CaptureRequest, enableShutterSound: Boolean): TotalCaptureResult =
   suspendCoroutine { continuation ->
+    val shutterSound = if (enableShutterSound) MediaActionSound() else null
+    shutterSound?.load(MediaActionSound.SHUTTER_CLICK)
+
     this.capture(
       captureRequest,
       object : CameraCaptureSession.CaptureCallback() {
@@ -21,14 +24,14 @@ suspend fun CameraCaptureSession.capture(captureRequest: CaptureRequest, enableS
           super.onCaptureCompleted(session, request, result)
 
           continuation.resume(result)
+          shutterSound?.release()
         }
 
         override fun onCaptureStarted(session: CameraCaptureSession, request: CaptureRequest, timestamp: Long, frameNumber: Long) {
           super.onCaptureStarted(session, request, timestamp, frameNumber)
 
           if (enableShutterSound) {
-            val mediaActionSound = MediaActionSound()
-            mediaActionSound.play(MediaActionSound.SHUTTER_CLICK)
+            shutterSound?.play(MediaActionSound.SHUTTER_CLICK)
           }
         }
 
