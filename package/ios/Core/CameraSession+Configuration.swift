@@ -19,7 +19,7 @@ extension CameraSession {
     ReactLogger.log(level: .info, message: "Configuring Input Device...")
 
     // Remove all inputs
-    for input in captureSession.inputs {
+    captureSession.inputs.forEach { input in
       captureSession.removeInput(input)
     }
     videoDeviceInput = nil
@@ -57,7 +57,7 @@ extension CameraSession {
     ReactLogger.log(level: .info, message: "Configuring Outputs...")
 
     // Remove all outputs
-    for output in captureSession.outputs {
+    captureSession.outputs.forEach { output in
       captureSession.removeOutput(output)
     }
     photoOutput = nil
@@ -130,7 +130,7 @@ extension CameraSession {
       // 2. Configure
       let options = codeScanner.options
       codeScannerOutput.setMetadataObjectsDelegate(self, queue: CameraQueues.codeScannerQueue)
-      for type in codeScanner.options.codeTypes {
+      try codeScanner.options.codeTypes.forEach { type in
         // CodeScanner::availableMetadataObjectTypes depends on the connection to the
         // AVCaptureSession, so this list is only available after we add the output to the session.
         if !codeScannerOutput.availableMetadataObjectTypes.contains(type) {
@@ -151,8 +151,8 @@ extension CameraSession {
 
   // pragma MARK: Video Stabilization
   func configureVideoStabilization(configuration: CameraConfiguration) {
-    for output in captureSession.outputs {
-      for connection in output.connections {
+    captureSession.outputs.forEach { output in
+      output.connections.forEach { connection in
         if connection.isVideoStabilizationSupported {
           connection.preferredVideoStabilizationMode = configuration.videoStabilizationMode.toAVCaptureVideoStabilizationMode()
         }
@@ -166,7 +166,7 @@ extension CameraSession {
     // Set up orientation and mirroring for all outputs.
     // Note: Photos are only rotated through EXIF tags, and Preview through view transforms
     let isMirrored = videoDeviceInput?.device.position == .front
-    for output in captureSession.outputs {
+    captureSession.outputs.forEach { output in
       if isMirrored {
         output.mirror()
       }
@@ -320,7 +320,7 @@ extension CameraSession {
     }
 
     // Remove all current inputs
-    for input in audioCaptureSession.inputs {
+    audioCaptureSession.inputs.forEach { input in
       audioCaptureSession.removeInput(input)
     }
     audioDeviceInput = nil
@@ -340,7 +340,7 @@ extension CameraSession {
     }
 
     // Remove all current outputs
-    for output in audioCaptureSession.outputs {
+    audioCaptureSession.outputs.forEach { output in
       audioCaptureSession.removeOutput(output)
     }
     audioOutput = nil
