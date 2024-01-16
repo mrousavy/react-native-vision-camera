@@ -16,6 +16,7 @@
 using namespace facebook;
 
 namespace vision {
+// forward-declaration since we cannot import C++ headers here yet.
 class TypedArrayBase;
 }
 #endif
