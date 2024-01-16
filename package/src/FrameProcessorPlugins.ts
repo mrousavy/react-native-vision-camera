@@ -17,12 +17,12 @@ interface FrameProcessorPlugin {
    * @param options (optional) Additional options. Options will be converted to a native dictionary
    * @returns (optional) A value returned from the native Frame Processor Plugin (or undefined)
    */
-  call: (frame: Frame, options?: Record<string, ParameterType>) => ParameterType
+  call(frame: Frame, options?: Record<string, ParameterType>): ParameterType
 }
 
 interface TVisionCameraProxy {
-  setFrameProcessor: (viewTag: number, frameProcessor: FrameProcessor) => void
-  removeFrameProcessor: (viewTag: number) => void
+  setFrameProcessor(viewTag: number, frameProcessor: FrameProcessor): void
+  removeFrameProcessor(viewTag: number): void
   /**
    * Creates a new instance of a native Frame Processor Plugin.
    * The Plugin has to be registered on the native side, otherwise this returns `undefined`.
@@ -34,11 +34,11 @@ interface TVisionCameraProxy {
    * if (plugin == null) throw new Error("Failed to load scanFaces plugin!")
    * ```
    */
-  initFrameProcessorPlugin: (name: string, options?: Record<string, ParameterType>) => FrameProcessorPlugin | undefined
+  initFrameProcessorPlugin(name: string, options?: Record<string, ParameterType>): FrameProcessorPlugin | undefined
   /**
    * Throws the given error.
    */
-  throwJSError: (error: unknown) => void
+  throwJSError(error: unknown): void
 }
 
 const errorMessage = 'Frame Processors are not available, react-native-worklets-core is not installed!'
