@@ -17,8 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FrameProcessorPluginRegistry : NSObject
 
-typedef FrameProcessorPlugin* _Nonnull (^PluginInitializerFunction)(VisionCameraProxyHolder* proxy,
-                                                                    NSDictionary* _Nullable options);
+typedef FrameProcessorPlugin* _Nonnull (^PluginInitializerFunction)(VisionCameraProxyHolder* proxy, NSDictionary* _Nullable options);
 
 + (void)addFrameProcessorPlugin:(NSString*)name withInitializer:(PluginInitializerFunction)pluginInitializer;
 
