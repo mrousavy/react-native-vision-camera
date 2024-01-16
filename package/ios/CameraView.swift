@@ -128,7 +128,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
     // TODO: Use ObjC RCT enum parser for this
     if let pixelFormat = pixelFormat as? String {
       do {
-        return try PixelFormat(jsValue: pixelFormat)
+        return try PixelFormatUtils.pixelFormat(forJSValue: pixelFormat)
       } catch {
         if let error = error as? CameraError {
           onError(error)

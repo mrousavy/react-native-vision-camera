@@ -32,24 +32,10 @@
 @synthesize buffer = _buffer;
 @synthesize orientation = _orientation;
 
-- (NSString*)pixelFormat {
+- (PixelFormat)pixelFormat {
   CMFormatDescriptionRef format = CMSampleBufferGetFormatDescription(_buffer);
   FourCharCode mediaType = CMFormatDescriptionGetMediaSubType(format);
-  switch (mediaType) {
-    case kCVPixelFormatType_32BGRA:
-    case kCVPixelFormatType_Lossy_32BGRA:
-      return @"rgb";
-    case kCVPixelFormatType_420YpCbCr8BiPlanarFullRange:
-    case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
-    case kCVPixelFormatType_420YpCbCr10BiPlanarFullRange:
-    case kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange:
-    case kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarFullRange:
-    case kCVPixelFormatType_Lossy_420YpCbCr8BiPlanarVideoRange:
-    case kCVPixelFormatType_Lossy_420YpCbCr10PackedBiPlanarVideoRange:
-      return @"yuv";
-    default:
-      return @"unknown";
-  }
+  return [PixelFormatUtils pixelFormatForMediaType:mediaType];
 }
 
 - (BOOL)isMirrored {
