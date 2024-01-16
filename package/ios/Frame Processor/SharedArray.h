@@ -18,7 +18,7 @@ using namespace facebook;
 namespace vision {
 // forward-declaration since we cannot import C++ headers here yet.
 class TypedArrayBase;
-}
+} // namespace vision
 #endif
 
 // Needs to be in sync with JSITypedArray.h as the index is used
