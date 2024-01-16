@@ -11,11 +11,11 @@
 #import <Foundation/Foundation.h>
 
 @implementation Frame {
-  CMSampleBufferRef _Nonnull buffer;
-  UIImageOrientation orientation;
+  CMSampleBufferRef _Nonnull _buffer;
+  UIImageOrientation _orientation;
 }
 
-- (instancetype)initWithBuffer:(CMSampleBufferRef _Nonnull)buffer orientation:(UIImageOrientation)orientation {
+- (instancetype)initWithBuffer:(CMSampleBufferRef)buffer orientation:(UIImageOrientation)orientation {
   self = [super init];
   if (self) {
     _buffer = buffer;
@@ -29,8 +29,13 @@
   CFRelease(_buffer);
 }
 
-@synthesize buffer = _buffer;
-@synthesize orientation = _orientation;
+- (CMSampleBufferRef)buffer {
+  return _buffer;
+}
+
+- (UIImageOrientation)orientation {
+  return _orientation;
+}
 
 - (NSString*)pixelFormat {
   CMFormatDescriptionRef format = CMSampleBufferGetFormatDescription(_buffer);

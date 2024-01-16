@@ -42,18 +42,22 @@ private:
 };
 #endif
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface VisionCameraProxyHolder : NSObject
 
-- (_Nonnull instancetype)initWithProxy:(void* _Nonnull)proxy;
+- (_Nonnull instancetype)initWithProxy:(void*)proxy;
 
 #ifdef __cplusplus
-- (VisionCameraProxy* _Nonnull)proxy;
+- (VisionCameraProxy*)proxy;
 #endif
 
 @end
 
 @interface VisionCameraInstaller : NSObject
 
-+ (BOOL)installToBridge:(RCTBridge* _Nonnull)bridge;
++ (BOOL)installToBridge:(RCTBridge*)bridge;
 
 @end
+
+NS_ASSUME_NONNULL_END

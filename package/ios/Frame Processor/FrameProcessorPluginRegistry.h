@@ -13,15 +13,18 @@
 #import "VisionCameraProxy.h"
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface FrameProcessorPluginRegistry : NSObject
 
-typedef FrameProcessorPlugin* _Nonnull (^PluginInitializerFunction)(VisionCameraProxyHolder* _Nonnull proxy,
-                                                                    NSDictionary* _Nullable options);
+typedef FrameProcessorPlugin* _Nonnull (^PluginInitializerFunction)(VisionCameraProxyHolder* proxy, NSDictionary* _Nullable options);
 
-+ (void)addFrameProcessorPlugin:(NSString* _Nonnull)name withInitializer:(PluginInitializerFunction _Nonnull)pluginInitializer;
++ (void)addFrameProcessorPlugin:(NSString*)name withInitializer:(PluginInitializerFunction)pluginInitializer;
 
-+ (FrameProcessorPlugin* _Nullable)getPlugin:(NSString* _Nonnull)name
-                                   withProxy:(VisionCameraProxyHolder* _Nonnull)proxy
++ (FrameProcessorPlugin* _Nullable)getPlugin:(NSString*)name
+                                   withProxy:(VisionCameraProxyHolder*)proxy
                                  withOptions:(NSDictionary* _Nullable)options;
 
 @end
+
+NS_ASSUME_NONNULL_END
