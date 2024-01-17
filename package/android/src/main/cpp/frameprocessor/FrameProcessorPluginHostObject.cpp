@@ -12,9 +12,8 @@ namespace vision {
 
 using namespace facebook;
 
-FrameProcessorPluginHostObject::FrameProcessorPluginHostObject(jni::alias_ref<JFrameProcessorPlugin::javaobject> plugin):
-  _plugin(make_global(plugin)) {
-}
+FrameProcessorPluginHostObject::FrameProcessorPluginHostObject(jni::alias_ref<JFrameProcessorPlugin::javaobject> plugin)
+    : _plugin(make_global(plugin)) {}
 
 FrameProcessorPluginHostObject::~FrameProcessorPluginHostObject() {
   jni::ThreadScope::WithClassLoader([&] { _plugin.reset(); });
