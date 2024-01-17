@@ -28,7 +28,7 @@ jni::global_ref<jni::JByteBuffer> JSharedArray::wrapInByteBuffer(jsi::Runtime& r
 JSharedArray::JSharedArray(jsi::Runtime& runtime, std::shared_ptr<TypedArrayBase> array) {
   _array = array;
   _byteBuffer = wrapInByteBuffer(runtime, _array);
-  _size = _array.size(runtime);
+  _size = _array->size(runtime);
 }
 
 JSharedArray::JSharedArray(const jni::alias_ref<JSharedArray::jhybridobject>& javaThis,
