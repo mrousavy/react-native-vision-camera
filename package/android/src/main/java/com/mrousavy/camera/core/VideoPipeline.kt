@@ -109,17 +109,21 @@ class VideoPipeline(
         Log.i(TAG, "ImageReader::onImageAvailable!")
         val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
 
-        // TODO: Get correct orientation and isMirrored
-        val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, isMirrored)
-        frame.incrementRefCount()
-        frameProcessor?.call(frame)
+        try {
+          // TODO: Get correct orientation and isMirrored
+          val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, isMirrored)
+          frame.incrementRefCount()
+          frameProcessor?.call(frame)
 
-        if (hasOutputs) {
-          // If we have outputs (e.g. a RecordingSession), pass the frame along to the OpenGL pipeline
-          imageWriter!!.queueInputImage(image)
+          if (hasOutputs) {
+            // If we have outputs (e.g. a RecordingSession), pass the frame along to the OpenGL pipeline
+            imageWriter!!.queueInputImage(image)
+          }
+
+          frame.decrementRefCount()
+        } catch (e: Throwable) {
+          Log.e(TAG, "Failed to call Frame Processor!", e)
         }
-
-        frame.decrementRefCount()
       }, CameraQueues.videoQueue.handler)
 
       surface = imageReader!!.surface
