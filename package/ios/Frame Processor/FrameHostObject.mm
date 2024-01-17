@@ -202,3 +202,5 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   // fallback to base implementation
   return HostObject::get(runtime, propName);
 }
+
+#undef JSI_FUNC

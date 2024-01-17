@@ -7,7 +7,7 @@
 #include <fbjni/fbjni.h>
 #include <jni.h>
 
-#include "JSITypedArray.h"
+#include "MutableRawBuffer.h"
 
 #include <string>
 #include <vector>
@@ -102,15 +102,18 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 
       static constexpr auto ARRAYBUFFER_CACHE_PROP_NAME = "__frameArrayBufferCache";
       if (!runtime.global().hasProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME)) {
-        vision::TypedArray<vision::TypedArrayKind::Uint8ClampedArray> arrayBuffer(runtime, size);
+        auto mutableBuffer = std::make_shared<vision::MutableRawBuffer>(size);
+        jsi::ArrayBuffer arrayBuffer(runtime, mutableBuffer);
         runtime.global().setProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME, arrayBuffer);
       }
 
       // Get from global JS cache
       auto arrayBufferCache = runtime.global().getPropertyAsObject(runtime, ARRAYBUFFER_CACHE_PROP_NAME);
-      auto arrayBuffer = vision::getTypedArray(runtime, arrayBufferCache).get<vision::TypedArrayKind::Uint8ClampedArray>(runtime);
+      auto arrayBuffer = arrayBufferCache.getArrayBuffer(runtime);
+
       if (arrayBuffer.size(runtime) != size) {
-        arrayBuffer = vision::TypedArray<vision::TypedArrayKind::Uint8ClampedArray>(runtime, size);
+        auto mutableBuffer = std::make_shared<vision::MutableRawBuffer>(size);
+        arrayBuffer = jsi::ArrayBuffer(runtime, mutableBuffer);
         runtime.global().setProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME, arrayBuffer);
       }
 
@@ -169,5 +172,7 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   // fallback to base implementation
   return HostObject::get(runtime, propName);
 }
+
+#undef JSI_FUNC
 
 } // namespace vision

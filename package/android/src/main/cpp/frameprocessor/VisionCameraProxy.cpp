@@ -13,7 +13,6 @@
 #include <fbjni/fbjni.h>
 
 #include "FrameProcessorPluginHostObject.h"
-#include "JSITypedArray.h"
 
 #include <memory>
 #include <string>

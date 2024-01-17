@@ -54,7 +54,7 @@ VisionCameraProxy::VisionCameraProxy(jsi::Runtime& runtime, std::shared_ptr<reac
 }
 
 VisionCameraProxy::~VisionCameraProxy() {
-  NSLog(@"VisionCameraProxy: Destroying context...");
+  NSLog(@"VisionCameraProxy: Destroying VisionCameraProxy...");
 }
 
 std::vector<jsi::PropNameID> VisionCameraProxy::getPropertyNames(jsi::Runtime& runtime) {
