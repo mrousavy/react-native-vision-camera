@@ -19,17 +19,18 @@ import java.util.Map;
 
 public class ExampleFrameProcessorPlugin extends FrameProcessorPlugin {
     SharedArray _sharedArray;
+    private static final String TAG = "ExamplePlugin";
 
     @Override
     public Object callback(@NotNull Frame frame, @Nullable Map<String, Object> params) {
         if (params == null) return null;
         Image image = frame.getImage();
 
-        Log.d("ExamplePlugin", image.getWidth() + " x " + image.getHeight() + " Image with format #" + image.getFormat() + ". Logging " + params.size() + " parameters:");
+        Log.d(TAG, image.getWidth() + " x " + image.getHeight() + " Image with format #" + image.getFormat() + ". Logging " + params.size() + " parameters:");
 
         for (String key : params.keySet()) {
             Object value = params.get(key);
-            Log.d("ExamplePlugin", "  -> " + (value == null ? "(null)" : value + " (" + value.getClass().getName() + ")"));
+            Log.d(TAG, "  -> " + (value == null ? "(null)" : value + " (" + value.getClass().getName() + ")"));
         }
 
         Map<String, Object> map = new HashMap<>();
@@ -53,7 +54,13 @@ public class ExampleFrameProcessorPlugin extends FrameProcessorPlugin {
 
     ExampleFrameProcessorPlugin(VisionCameraProxy proxy, @Nullable Map<String, Object> options) {
         super();
-        _sharedArray = new SharedArray(proxy, SharedArray.Type.Uint8Array, 5);
-        Log.d("ExamplePlugin", "ExampleFrameProcessorPlugin initialized with options: " + options);
+        _sharedArray = new SharedArray(proxy, 5);
+        Log.d(TAG, "Successfully allocated SharedArray! Size: " + _sharedArray.getSize());
+
+        ByteBuffer buffer = ByteBuffer.allocateDirect(10);
+        SharedArray testArray = new SharedArray(proxy, buffer);
+        Log.d(TAG, "Successfully wrapped SharedArray in ByteBuffer! Size: " + testArray.getSize());
+
+        Log.d(TAG, "ExampleFrameProcessorPlugin initialized with options: " + options);
     }
 }

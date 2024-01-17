@@ -29,6 +29,7 @@ add_library(
         src/main/cpp/PassThroughShader.cpp
         src/main/cpp/OpenGLContext.cpp
         src/main/cpp/OpenGLRenderer.cpp
+        src/main/cpp/MutableJByteBuffer.cpp
         # Frame Processor
         src/main/cpp/frameprocessor/FrameHostObject.cpp
         src/main/cpp/frameprocessor/FrameProcessorPluginHostObject.cpp
