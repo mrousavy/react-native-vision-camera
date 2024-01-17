@@ -31,7 +31,7 @@ private:
   static auto constexpr TAG = "SharedArray";
   friend HybridBase;
   jni::global_ref<javaobject> _javaPart;
-  std::shared_ptr<MutableJByteBuffer> _byteBuffer;
+  jni::global_ref<jni::JByteBuffer> _byteBuffer;
   std::shared_ptr<jsi::ArrayBuffer> _arrayBuffer;
   int _size;
 

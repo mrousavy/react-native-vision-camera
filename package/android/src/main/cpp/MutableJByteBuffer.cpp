@@ -14,7 +14,7 @@ MutableJByteBuffer::MutableJByteBuffer(jni::alias_ref<jni::JByteBuffer> byteBuff
   _byteBuffer = jni::make_global(byteBuffer);
 }
 
-uint8_t *MutableJByteBuffer::data() {
+uint8_t* MutableJByteBuffer::data() {
   return _byteBuffer->getDirectBytes();
 }
 
