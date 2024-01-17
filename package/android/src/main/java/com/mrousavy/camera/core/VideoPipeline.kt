@@ -96,8 +96,9 @@ class VideoPipeline(
 
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         Log.i(TAG, "Using API 29 for GPU ImageReader...")
-        // CPU_READ_OFTEN because we read pixel data, GPU_SAMPLED because we redirect to OpenGL
-        val usage = HardwareBuffer.USAGE_CPU_READ_OFTEN or HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE
+        // If we are in PRIVATE, we just pass it to the GPU as efficiently as possible - so use GPU flag.
+        // If we are in YUV/RGB/..., we probably want to access Frame data - so use CPU flag.
+        val usage = if (format == ImageFormat.PRIVATE) HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE else HardwareBuffer.USAGE_CPU_READ_OFTEN
         imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES, usage)
         imageWriter = ImageWriter.newInstance(glSurface, MAX_IMAGES, format)
       } else {
