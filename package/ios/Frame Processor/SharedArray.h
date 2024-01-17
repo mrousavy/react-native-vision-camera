@@ -13,38 +13,22 @@
 
 #ifdef __cplusplus
 #import <jsi/jsi.h>
+#import "../../cpp/MutableRawBuffer.h"
 using namespace facebook;
-
-namespace vision {
-// forward-declaration since we cannot import C++ headers here yet.
-class TypedArrayBase;
-} // namespace vision
 #endif
 
-// Needs to be in sync with JSITypedArray.h as the index is used
-typedef NS_ENUM(NSInteger, SharedArrayType) {
-  Int8Array,
-  Int16Array,
-  Int32Array,
-  Uint8Array,
-  Uint8ClampedArray,
-  Uint16Array,
-  Uint32Array,
-  Float32Array,
-  Float64Array,
-};
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SharedArray : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy type:(SharedArrayType)type size:(NSInteger)size;
+- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy size:(NSInteger)size;
 
 #ifdef __cplusplus
-- (instancetype)initWithRuntime:(jsi::Runtime&)runtime typedArray:(std::shared_ptr<vision::TypedArrayBase>)typedArray;
+- (instancetype)initWithRuntime:(jsi::Runtime&)runtime arrayBuffer:(std::shared_ptr<jsi::ArrayBuffer>)arrayBuffer;
 
-- (std::shared_ptr<vision::TypedArrayBase>)typedArray;
+- (std::shared_ptr<jsi::ArrayBuffer>)arrayBuffer;
 #endif
 
 @property(nonatomic, readonly, nonnull) uint8_t* data;

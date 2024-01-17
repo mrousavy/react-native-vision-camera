@@ -23,7 +23,6 @@ endif()
 add_library(
         ${PACKAGE_NAME}
         SHARED
-        ../cpp/JSITypedArray.cpp
         src/main/cpp/VisionCamera.cpp
         src/main/cpp/VideoPipeline.cpp
         src/main/cpp/PassThroughShader.cpp
@@ -47,7 +46,6 @@ add_library(
 target_include_directories(
         ${PACKAGE_NAME}
         PRIVATE
-        "../cpp"
         "src/main/cpp"
         "src/main/cpp/frameprocessor"
         "src/main/cpp/frameprocessor/java-bindings"
