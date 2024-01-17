@@ -15,7 +15,7 @@ using namespace facebook;
 
 @implementation SharedArray {
   uint8_t* _data;
-  NSInteger _count;
+  NSInteger _size;
   std::shared_ptr<vision::TypedArrayBase> _array;
 }
 
@@ -29,7 +29,7 @@ vision::TypedArrayKind getTypedArrayKind(int unsafeEnumValue) {
     vision::TypedArrayKind kind = getTypedArrayKind((int)type);
     _array = std::make_shared<vision::TypedArrayBase>(vision::TypedArrayBase(runtime, size, kind));
     _data = _array->getBuffer(runtime).data(runtime);
-    _count = size;
+    _size = size;
   }
   return self;
 }
@@ -38,7 +38,7 @@ vision::TypedArrayKind getTypedArrayKind(int unsafeEnumValue) {
   if (self = [super init]) {
     _array = typedArray;
     _data = _array->getBuffer(runtime).data(runtime);
-    _count = _array->getBuffer(runtime).size(runtime);
+    _size = _array->getBuffer(runtime).size(runtime);
   }
   return self;
 }
@@ -51,8 +51,8 @@ vision::TypedArrayKind getTypedArrayKind(int unsafeEnumValue) {
   return _data;
 }
 
-- (NSInteger)count {
-  return _count;
+- (NSInteger)size {
+  return _size;
 }
 
 @end

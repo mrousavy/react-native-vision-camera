@@ -39,6 +39,11 @@ public final class SharedArray {
      */
     public native ByteBuffer getByteBuffer();
 
+    /**
+     * Gets the size of the ByteBuffer.
+     */
+    public native int getSize();
+
     private native HybridData initHybrid(VisionCameraProxy proxy, int dataType, int size);
 
     /**

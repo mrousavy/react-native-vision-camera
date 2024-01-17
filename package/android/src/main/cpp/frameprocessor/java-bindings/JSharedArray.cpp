@@ -28,6 +28,7 @@ jni::global_ref<jni::JByteBuffer> JSharedArray::wrapInByteBuffer(jsi::Runtime& r
 JSharedArray::JSharedArray(jsi::Runtime& runtime, std::shared_ptr<TypedArrayBase> array) {
   _array = array;
   _byteBuffer = wrapInByteBuffer(runtime, _array);
+  _size = _array->size(runtime);
 }
 
 JSharedArray::JSharedArray(const jni::alias_ref<JSharedArray::jhybridobject>& javaThis,
@@ -43,17 +44,23 @@ JSharedArray::JSharedArray(const jni::alias_ref<JSharedArray::jhybridobject>& ja
   __android_log_print(ANDROID_LOG_INFO, TAG, "Allocating ArrayBuffer with size %i and type %i...", size, dataType);
   _array = std::make_shared<TypedArrayBase>(runtime, size, kind);
   _byteBuffer = wrapInByteBuffer(runtime, _array);
+  _size = size;
 }
 
 void JSharedArray::registerNatives() {
   registerHybrid({
       makeNativeMethod("initHybrid", JSharedArray::initHybrid),
       makeNativeMethod("getByteBuffer", JSharedArray::getByteBuffer),
+      makeNativeMethod("getSize", JSharedArray::getSize),
   });
 }
 
 jni::local_ref<jni::JByteBuffer> JSharedArray::getByteBuffer() {
   return jni::make_local(_byteBuffer);
+}
+
+jint JSharedArray::getSize() {
+  return _size;
 }
 
 std::shared_ptr<TypedArrayBase> JSharedArray::getTypedArray() {

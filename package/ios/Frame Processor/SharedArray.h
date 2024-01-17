@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 #endif
 
 @property(nonatomic, readonly, nonnull) uint8_t* data;
-@property(nonatomic, readonly) NSInteger count;
+@property(nonatomic, readonly) NSInteger size;
 
 @end
 
