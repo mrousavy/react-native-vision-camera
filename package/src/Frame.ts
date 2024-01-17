@@ -67,13 +67,14 @@ export interface Frame {
    *   'worklet'
    *
    *   if (frame.pixelFormat === 'rgb') {
-   *     const data = frame.toArrayBuffer()
+   *     const buffer = frame.toArrayBuffer()
+   *     const data = new Uint8Array(buffer)
    *     console.log(`Pixel at 0,0: RGB(${data[0]}, ${data[1]}, ${data[2]})`)
    *   }
    * }, [])
    * ```
    */
-  toArrayBuffer(): Uint8Array
+  toArrayBuffer(): ArrayBuffer
   /**
    * Returns a string representation of the frame.
    * @example
