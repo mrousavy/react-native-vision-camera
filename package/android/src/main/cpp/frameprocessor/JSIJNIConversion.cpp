@@ -15,7 +15,6 @@
 
 #include "FrameHostObject.h"
 #include "JFrame.h"
-#include "JSITypedArray.h"
 #include "JSharedArray.h"
 
 namespace vision {
@@ -61,8 +60,8 @@ jni::local_ref<jobject> JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtim
     } else if (valueAsObject.isArrayBuffer(runtime)) {
       // ArrayBuffer/TypedArray
 
-      TypedArrayBase array = getTypedArray(runtime, valueAsObject);
-      return JSharedArray::create(runtime, std::move(array));
+      jsi::ArrayBuffer arrayBuffer = valueAsObject.getArrayBuffer(runtime);
+      return JSharedArray::create(runtime, std::move(arrayBuffer));
 
     } else if (valueAsObject.isHostObject(runtime)) {
 
@@ -176,8 +175,8 @@ jsi::Value JSIJNIConversion::convertJNIObjectToJSIValue(jsi::Runtime& runtime, c
     // SharedArray
     auto sharedArray = static_ref_cast<JSharedArray::javaobject>(object);
 
-    std::shared_ptr<TypedArrayBase> array = sharedArray->cthis()->getTypedArray();
-    return array->getBuffer(runtime);
+    std::shared_ptr<jsi::ArrayBuffer> array = sharedArray->cthis()->getArrayBuffer();
+    return array->getArrayBuffer(runtime);
   }
 
   auto type = object->getClass()->toString();

@@ -20,18 +20,26 @@ public final class SharedArray {
 
     @DoNotStrip
     @Keep
-    public SharedArray(HybridData hybridData) {
+    private SharedArray(HybridData hybridData) {
         mHybridData = hybridData;
     }
 
     /**
      * Allocate a new SharedArray. Use `getByteBuffer` to obtain a reference to the direct ByteBuffer for writing.
      * @param proxy The VisionCamera Proxy from the Frame Processor Plugin's initializer.
-     * @param dataType The ArrayBuffer's data type. `Type.Int8Array` = `Int8Array` in JS
      * @param size The size of the ArrayBuffer.
      */
-    public SharedArray(VisionCameraProxy proxy, Type dataType, int size) {
-        mHybridData = initHybrid(proxy, dataType.ordinal(), size);
+    public SharedArray(VisionCameraProxy proxy, int size) {
+        mHybridData = initHybrid(proxy, size);
+    }
+
+    /**
+     * Wraps the given ByteBuffer in a JSI ArrayBuffer. Using `getByteBuffer` will return the same instance which can be used for writing.
+     * @param proxy The VisionCamera Proxy from the Frame Processor Plugin's initializer.
+     * @param byteBuffer The ByteBuffer to wrap.
+     */
+    public SharedArray(VisionCameraProxy proxy, ByteBuffer byteBuffer) {
+        mHybridData = initHybrid(proxy, byteBuffer);
     }
 
     /**
@@ -44,21 +52,6 @@ public final class SharedArray {
      */
     public native int getSize();
 
-    private native HybridData initHybrid(VisionCameraProxy proxy, int dataType, int size);
-
-    /**
-     * The Type of the SharedArray.
-     */
-    public enum Type {
-        // Values start at 0 and need to match with JSITypedArray.h::TypedArrayKind
-        Int8Array,
-        Int16Array,
-        Int32Array,
-        Uint8Array,
-        Uint8ClampedArray,
-        Uint16Array,
-        Uint32Array,
-        Float32Array,
-        Float64Array,
-    }
+    private native HybridData initHybrid(VisionCameraProxy proxy, int size);
+    private native HybridData initHybrid(VisionCameraProxy proxy, ByteBuffer byteBuffer);
 }

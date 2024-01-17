@@ -9,30 +9,23 @@ namespace vision {
 
 using namespace facebook;
 
-TypedArrayKind getTypedArrayKind(int unsafeEnumValue) {
-  return static_cast<TypedArrayKind>(unsafeEnumValue);
+jni::local_ref<JSharedArray::javaobject> JSharedArray::create(jsi::Runtime& runtime, jsi::ArrayBuffer arrayBuffer) {
+  jni::local_ref<JSharedArray::javaobject> instance = newObjectCxxArgs(runtime, std::make_shared<jsi::ArrayBuffer>(std::move(arrayBuffer)));
+  instance->cthis()->_javaPart = jni::make_global(instance);
+  return instance;
 }
 
-jni::local_ref<JSharedArray::javaobject> JSharedArray::create(jsi::Runtime& runtime, TypedArrayBase array) {
-  return newObjectCxxArgs(runtime, std::make_shared<TypedArrayBase>(std::move(array)));
+JSharedArray::JSharedArray(jsi::Runtime& runtime, std::shared_ptr<jsi::ArrayBuffer> arrayBuffer) {
+  size_t size = arrayBuffer->size(runtime);
+  jni::local_ref<JByteBuffer> byteBuffer = JByteBuffer::allocateDirect(size);
+
+  _arrayBuffer = arrayBuffer;
+  _byteBuffer = jni::make_global(byteBuffer);
+  _size = size;
 }
 
-jni::global_ref<jni::JByteBuffer> JSharedArray::wrapInByteBuffer(jsi::Runtime& runtime, std::shared_ptr<TypedArrayBase> typedArray) {
-  jsi::ArrayBuffer arrayBuffer = typedArray->getBuffer(runtime);
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Wrapping ArrayBuffer in a JNI ByteBuffer...");
-  auto byteBuffer = jni::JByteBuffer::wrapBytes(arrayBuffer.data(runtime), arrayBuffer.size(runtime));
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Successfully created TypedArray (JNI Size: %i)!", byteBuffer->getDirectSize());
-  return jni::make_global(byteBuffer);
-}
-
-JSharedArray::JSharedArray(jsi::Runtime& runtime, std::shared_ptr<TypedArrayBase> array) {
-  _array = array;
-  _byteBuffer = wrapInByteBuffer(runtime, _array);
-  _size = _array->size(runtime);
-}
-
-JSharedArray::JSharedArray(const jni::alias_ref<JSharedArray::jhybridobject>& javaThis,
-                           const jni::alias_ref<JVisionCameraProxy::javaobject>& proxy, int dataType, int size) {
+JSharedArray::JSharedArray(const jni::alias_ref<jhybridobject>& javaThis, const jni::alias_ref<JVisionCameraProxy::javaobject>& proxy,
+                           jni::alias_ref<JByteBuffer> byteBuffer) {
   _javaPart = jni::make_global(javaThis);
 
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
@@ -40,37 +33,48 @@ JSharedArray::JSharedArray(const jni::alias_ref<JSharedArray::jhybridobject>& ja
 #else
   jsi::Runtime& runtime = *proxy->cthis()->getJSRuntime();
 #endif
-  TypedArrayKind kind = getTypedArrayKind(dataType);
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Allocating ArrayBuffer with size %i and type %i...", size, dataType);
-  _array = std::make_shared<TypedArrayBase>(runtime, size, kind);
-  _byteBuffer = wrapInByteBuffer(runtime, _array);
-  _size = size;
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Allocating ArrayBuffer with size %i...", byteBuffer->getDirectSize());
+  _byteBuffer = jni::make_global(byteBuffer);
+  _size = _byteBuffer->getDirectSize();
+
+  auto mutableByteBuffer = std::make_shared<MutableJByteBuffer>(byteBuffer);
+  _arrayBuffer = std::make_shared<jsi::ArrayBuffer>(runtime, std::move(mutableByteBuffer));
 }
+
+JSharedArray::JSharedArray(const jni::alias_ref<JSharedArray::jhybridobject>& javaThis,
+                           const jni::alias_ref<JVisionCameraProxy::javaobject>& proxy, int size)
+    : JSharedArray(javaThis, proxy, JByteBuffer::allocateDirect(size)) {}
 
 void JSharedArray::registerNatives() {
   registerHybrid({
-      makeNativeMethod("initHybrid", JSharedArray::initHybrid),
+      makeNativeMethod("initHybrid", JSharedArray::initHybridAllocate),
+      makeNativeMethod("initHybrid", JSharedArray::initHybridWrap),
       makeNativeMethod("getByteBuffer", JSharedArray::getByteBuffer),
       makeNativeMethod("getSize", JSharedArray::getSize),
   });
 }
 
-jni::local_ref<jni::JByteBuffer> JSharedArray::getByteBuffer() {
-  return jni::make_local(_byteBuffer);
+jni::global_ref<jni::JByteBuffer> JSharedArray::getByteBuffer() {
+  return _byteBuffer;
+}
+
+std::shared_ptr<jsi::ArrayBuffer> JSharedArray::getArrayBuffer() {
+  return _arrayBuffer;
 }
 
 jint JSharedArray::getSize() {
   return _size;
 }
 
-std::shared_ptr<TypedArrayBase> JSharedArray::getTypedArray() {
-  return _array;
+jni::local_ref<JSharedArray::jhybriddata>
+JSharedArray::initHybridAllocate(jni::alias_ref<jhybridobject> javaThis, jni::alias_ref<JVisionCameraProxy::javaobject> proxy, jint size) {
+  return makeCxxInstance(javaThis, proxy, size);
 }
 
-jni::local_ref<JSharedArray::jhybriddata> JSharedArray::initHybrid(jni::alias_ref<jhybridobject> javaThis,
-                                                                   jni::alias_ref<JVisionCameraProxy::javaobject> proxy, jint type,
-                                                                   jint size) {
-  return makeCxxInstance(javaThis, proxy, type, size);
+jni::local_ref<JSharedArray::jhybriddata> JSharedArray::initHybridWrap(jni::alias_ref<jhybridobject> javaThis,
+                                                                       jni::alias_ref<JVisionCameraProxy::javaobject> proxy,
+                                                                       jni::alias_ref<JByteBuffer> byteBuffer) {
+  return makeCxxInstance(javaThis, proxy, byteBuffer);
 }
 
 } // namespace vision

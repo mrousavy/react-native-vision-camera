@@ -7,12 +7,11 @@
 //
 
 #import "FrameHostObject.h"
+#import "MutableRawBuffer.h"
 #import "UIImageOrientation+descriptor.h"
 #import "WKTJsiHostObject.h"
 #import <Foundation/Foundation.h>
 #import <jsi/jsi.h>
-
-#import "../../cpp/JSITypedArray.h"
 
 std::vector<jsi::PropNameID> FrameHostObject::getPropertyNames(jsi::Runtime& rt) {
   std::vector<jsi::PropNameID> result;
@@ -110,21 +109,23 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 
       static constexpr auto ARRAYBUFFER_CACHE_PROP_NAME = "__frameArrayBufferCache";
       if (!runtime.global().hasProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME)) {
-        vision::TypedArray<vision::TypedArrayKind::Uint8ClampedArray> arrayBuffer(runtime, arraySize);
-        runtime.global().setProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME, arrayBuffer);
+        auto mutableBuffer = std::make_shared<vision::MutableRawBuffer>(arraySize);
+        jsi::ArrayBuffer arrayBuffer(runtime, mutableBuffer);
+        runtime.global().setProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME, std::move(arrayBuffer));
       }
 
       auto arrayBufferCache = runtime.global().getPropertyAsObject(runtime, ARRAYBUFFER_CACHE_PROP_NAME);
-      auto arrayBuffer = vision::getTypedArray(runtime, arrayBufferCache).get<vision::TypedArrayKind::Uint8ClampedArray>(runtime);
+      auto arrayBuffer = arrayBufferCache.getArrayBuffer(runtime);
 
       if (arrayBuffer.size(runtime) != arraySize) {
-        arrayBuffer = vision::TypedArray<vision::TypedArrayKind::Uint8ClampedArray>(runtime, arraySize);
+        auto mutableBuffer = std::make_shared<vision::MutableRawBuffer>(arraySize);
+        arrayBuffer = jsi::ArrayBuffer(runtime, mutableBuffer);
         runtime.global().setProperty(runtime, ARRAYBUFFER_CACHE_PROP_NAME, arrayBuffer);
       }
 
       CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
       auto buffer = (uint8_t*)CVPixelBufferGetBaseAddress(pixelBuffer);
-      arrayBuffer.updateUnsafe(runtime, buffer, arraySize);
+      memcpy(arrayBuffer.data(runtime), buffer, arraySize);
       CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
 
       return arrayBuffer;
@@ -201,3 +202,5 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
   // fallback to base implementation
   return HostObject::get(runtime, propName);
 }
+
+#undef JSI_FUNC

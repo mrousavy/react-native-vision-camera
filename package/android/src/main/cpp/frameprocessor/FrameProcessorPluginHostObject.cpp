@@ -12,6 +12,13 @@ namespace vision {
 
 using namespace facebook;
 
+FrameProcessorPluginHostObject::FrameProcessorPluginHostObject(jni::alias_ref<JFrameProcessorPlugin::javaobject> plugin)
+    : _plugin(make_global(plugin)) {}
+
+FrameProcessorPluginHostObject::~FrameProcessorPluginHostObject() {
+  jni::ThreadScope::WithClassLoader([&] { _plugin.reset(); });
+}
+
 std::vector<jsi::PropNameID> FrameProcessorPluginHostObject::getPropertyNames(jsi::Runtime& runtime) {
   std::vector<jsi::PropNameID> result;
   result.push_back(jsi::PropNameID::forUtf8(runtime, std::string("call")));

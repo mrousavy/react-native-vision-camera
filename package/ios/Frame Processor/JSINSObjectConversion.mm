@@ -19,7 +19,6 @@
 #import "../Frame Processor/Frame.h"
 #import "../Frame Processor/FrameHostObject.h"
 #import "../Frame Processor/SharedArray.h"
-#import "JSITypedArray.h"
 #import <Foundation/Foundation.h>
 #import <React/RCTBridge.h>
 #import <ReactCommon/CallInvoker.h>
@@ -61,8 +60,7 @@ jsi::Array convertNSArrayToJSIArray(jsi::Runtime& runtime, NSArray* value) {
 }
 
 jsi::Object convertSharedArrayToJSIArrayBuffer(jsi::Runtime& runtime, SharedArray* sharedArray) {
-  std::shared_ptr<vision::TypedArrayBase> array = sharedArray.typedArray;
-  return array->getBuffer(runtime);
+  return sharedArray.arrayBuffer->getArrayBuffer(runtime);
 }
 
 jsi::Value convertObjCObjectToJSIValue(jsi::Runtime& runtime, id value) {
@@ -171,8 +169,8 @@ id convertJSIValueToObjCObject(jsi::Runtime& runtime, const jsi::Value& value, s
       }
     } else if (o.isArrayBuffer(runtime)) {
       // ArrayBuffer
-      auto typedArray = std::make_shared<vision::TypedArrayBase>(vision::getTypedArray(runtime, o));
-      return [[SharedArray alloc] initWithRuntime:runtime typedArray:typedArray];
+      auto arrayBuffer = std::make_shared<jsi::ArrayBuffer>(o.getArrayBuffer(runtime));
+      return [[SharedArray alloc] initWithRuntime:runtime arrayBuffer:arrayBuffer];
     } else {
       // object
       return convertJSIObjectToNSDictionary(runtime, o, jsInvoker);

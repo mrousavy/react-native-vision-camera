@@ -57,7 +57,9 @@ export interface Frame {
 
   /**
    * Get the underlying data of the Frame as a uint8 array buffer.
+   *
    * The format of the buffer depends on the Frame's {@linkcode pixelFormat}.
+   * This function might fail if the {@linkcode pixelFormat} is `private`.
    *
    * Note that Frames are allocated on the GPU, so calling `toArrayBuffer()` will copy from the GPU to the CPU.
    *
@@ -67,13 +69,14 @@ export interface Frame {
    *   'worklet'
    *
    *   if (frame.pixelFormat === 'rgb') {
-   *     const data = frame.toArrayBuffer()
+   *     const buffer = frame.toArrayBuffer()
+   *     const data = new Uint8Array(buffer)
    *     console.log(`Pixel at 0,0: RGB(${data[0]}, ${data[1]}, ${data[2]})`)
    *   }
    * }, [])
    * ```
    */
-  toArrayBuffer(): Uint8Array
+  toArrayBuffer(): ArrayBuffer
   /**
    * Returns a string representation of the frame.
    * @example

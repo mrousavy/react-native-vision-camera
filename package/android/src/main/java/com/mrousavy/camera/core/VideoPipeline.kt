@@ -96,8 +96,9 @@ class VideoPipeline(
 
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         Log.i(TAG, "Using API 29 for GPU ImageReader...")
-        // GPU_SAMPLED because we redirect to OpenGL
-        val usage = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE
+        // If we are in PRIVATE, we just pass it to the GPU as efficiently as possible - so use GPU flag.
+        // If we are in YUV/RGB/..., we probably want to access Frame data - so use CPU flag.
+        val usage = if (format == ImageFormat.PRIVATE) HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE else HardwareBuffer.USAGE_CPU_READ_OFTEN
         imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES, usage)
         imageWriter = ImageWriter.newInstance(glSurface, MAX_IMAGES, format)
       } else {
@@ -109,17 +110,21 @@ class VideoPipeline(
         Log.i(TAG, "ImageReader::onImageAvailable!")
         val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
 
-        // TODO: Get correct orientation and isMirrored
-        val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, isMirrored)
-        frame.incrementRefCount()
-        frameProcessor?.call(frame)
+        try {
+          // TODO: Get correct orientation and isMirrored
+          val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, isMirrored)
+          frame.incrementRefCount()
+          frameProcessor?.call(frame)
 
-        if (hasOutputs) {
-          // If we have outputs (e.g. a RecordingSession), pass the frame along to the OpenGL pipeline
-          imageWriter!!.queueInputImage(image)
+          if (hasOutputs) {
+            // If we have outputs (e.g. a RecordingSession), pass the frame along to the OpenGL pipeline
+            imageWriter!!.queueInputImage(image)
+          }
+
+          frame.decrementRefCount()
+        } catch (e: Throwable) {
+          Log.e(TAG, "Failed to call Frame Processor!", e)
         }
-
-        frame.decrementRefCount()
       }, CameraQueues.videoQueue.handler)
 
       surface = imageReader!!.surface

@@ -10,7 +10,6 @@
 #import <Foundation/Foundation.h>
 #import <jsi/jsi.h>
 
-#import "../../cpp/JSITypedArray.h"
 #import "FrameHostObject.h"
 #import "FrameProcessor.h"
 #import "FrameProcessorPluginHostObject.h"
@@ -55,10 +54,7 @@ VisionCameraProxy::VisionCameraProxy(jsi::Runtime& runtime, std::shared_ptr<reac
 }
 
 VisionCameraProxy::~VisionCameraProxy() {
-  NSLog(@"VisionCameraProxy: Destroying context...");
-  // Destroy ArrayBuffer cache for both the JS and the Worklet Runtime.
-  vision::invalidateArrayBufferCache(*_workletContext->getJsRuntime());
-  vision::invalidateArrayBufferCache(_workletContext->getWorkletRuntime());
+  NSLog(@"VisionCameraProxy: Destroying VisionCameraProxy...");
 }
 
 std::vector<jsi::PropNameID> VisionCameraProxy::getPropertyNames(jsi::Runtime& runtime) {

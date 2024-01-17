@@ -11,7 +11,6 @@
 #include <jsi/jsi.h>
 
 #include "FrameProcessorPluginHostObject.h"
-#include "JSITypedArray.h"
 
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
 #include <react-native-worklets-core/WKTJsiWorklet.h>
@@ -51,10 +50,7 @@ JVisionCameraProxy::JVisionCameraProxy(const jni::alias_ref<JVisionCameraProxy::
 
 JVisionCameraProxy::~JVisionCameraProxy() {
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
-  __android_log_write(ANDROID_LOG_INFO, TAG, "Destroying Context...");
-  // Destroy ArrayBuffer cache for both the JS and the Worklet Runtime.
-  invalidateArrayBufferCache(*_workletContext->getJsRuntime());
-  invalidateArrayBufferCache(_workletContext->getWorkletRuntime());
+  __android_log_write(ANDROID_LOG_INFO, TAG, "Destroying JVisionCameraProxy...");
 #endif
 }
 

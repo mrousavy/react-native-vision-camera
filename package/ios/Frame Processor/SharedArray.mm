@@ -7,7 +7,7 @@
 //
 
 #import "SharedArray.h"
-#import "JSITypedArray.h"
+#import "../../cpp/MutableRawBuffer.h"
 #import <Foundation/Foundation.h>
 #import <jsi/jsi.h>
 
@@ -16,35 +16,33 @@ using namespace facebook;
 @implementation SharedArray {
   uint8_t* _data;
   NSInteger _size;
-  std::shared_ptr<vision::TypedArrayBase> _array;
+  std::shared_ptr<jsi::ArrayBuffer> _arrayBuffer;
 }
 
-vision::TypedArrayKind getTypedArrayKind(int unsafeEnumValue) {
-  return static_cast<vision::TypedArrayKind>(unsafeEnumValue);
-}
-
-- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy type:(SharedArrayType)type size:(NSInteger)size {
+- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy size:(NSInteger)size {
   if (self = [super init]) {
     jsi::Runtime& runtime = proxy.proxy->getWorkletRuntime();
-    vision::TypedArrayKind kind = getTypedArrayKind((int)type);
-    _array = std::make_shared<vision::TypedArrayBase>(vision::TypedArrayBase(runtime, size, kind));
-    _data = _array->getBuffer(runtime).data(runtime);
+
+    uint8_t* data = (uint8_t*)malloc(size * sizeof(uint8_t));
+    auto mutableBuffer = std::make_shared<vision::MutableRawBuffer>(data, size, [=]() { free(data); });
+    _arrayBuffer = std::make_shared<jsi::ArrayBuffer>(runtime, mutableBuffer);
+    _data = data;
     _size = size;
   }
   return self;
 }
 
-- (instancetype)initWithRuntime:(jsi::Runtime&)runtime typedArray:(std::shared_ptr<vision::TypedArrayBase>)typedArray {
+- (instancetype)initWithRuntime:(jsi::Runtime&)runtime arrayBuffer:(std::shared_ptr<jsi::ArrayBuffer>)arrayBuffer {
   if (self = [super init]) {
-    _array = typedArray;
-    _data = _array->getBuffer(runtime).data(runtime);
-    _size = _array->getBuffer(runtime).size(runtime);
+    _arrayBuffer = arrayBuffer;
+    _data = _arrayBuffer->data(runtime);
+    _size = _arrayBuffer->size(runtime);
   }
   return self;
 }
 
-- (std::shared_ptr<vision::TypedArrayBase>)typedArray {
-  return _array;
+- (std::shared_ptr<jsi::ArrayBuffer>)arrayBuffer {
+  return _arrayBuffer;
 }
 
 - (uint8_t*)data {
