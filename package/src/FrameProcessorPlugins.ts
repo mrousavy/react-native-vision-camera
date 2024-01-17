@@ -10,7 +10,11 @@ import { assertJSIAvailable } from './JSIHelper'
 type BasicParameterType = string | number | boolean | undefined
 type ParameterType = BasicParameterType | BasicParameterType[] | Record<string, BasicParameterType | undefined>
 
-interface FrameProcessorPlugin {
+/**
+ * An initialized native instance of a FrameProcessorPlugin.
+ * All memory allocated by this plugin will be deleted once this value goes out of scope.
+ */
+export interface FrameProcessorPlugin {
   /**
    * Call the native Frame Processor Plugin with the given Frame and options.
    * @param frame The Frame from the Frame Processor.
