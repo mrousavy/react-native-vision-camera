@@ -57,7 +57,9 @@ export interface Frame {
 
   /**
    * Get the underlying data of the Frame as a uint8 array buffer.
+   *
    * The format of the buffer depends on the Frame's {@linkcode pixelFormat}.
+   * This function might fail if the {@linkcode pixelFormat} is `private`.
    *
    * Note that Frames are allocated on the GPU, so calling `toArrayBuffer()` will copy from the GPU to the CPU.
    *
