@@ -23,6 +23,7 @@ public:
   static jni::local_ref<JSharedArray::javaobject> create(jsi::Runtime& runtime, TypedArrayBase array);
 
 public:
+  jint getSize();
   jni::local_ref<jni::JByteBuffer> getByteBuffer();
   std::shared_ptr<TypedArrayBase> getTypedArray();
 
@@ -35,6 +36,7 @@ private:
   jni::global_ref<javaobject> _javaPart;
   jni::global_ref<jni::JByteBuffer> _byteBuffer;
   std::shared_ptr<TypedArrayBase> _array;
+  int _size;
 
 private:
   explicit JSharedArray(jsi::Runtime& runtime, std::shared_ptr<TypedArrayBase> array);
