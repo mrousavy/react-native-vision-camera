@@ -12,11 +12,10 @@
 #import <Foundation/Foundation.h>
 
 #ifdef __cplusplus
-#import <jsi/jsi.h>
 #import "../../cpp/MutableRawBuffer.h"
+#import <jsi/jsi.h>
 using namespace facebook;
 #endif
-
 
 NS_ASSUME_NONNULL_BEGIN
 

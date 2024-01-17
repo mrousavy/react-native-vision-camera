@@ -4,9 +4,9 @@
 
 #include "MutableJByteBuffer.h"
 
-#include <jsi/jsi.h>
-#include <fbjni/fbjni.h>
 #include <fbjni/ByteBuffer.h>
+#include <fbjni/fbjni.h>
+#include <jsi/jsi.h>
 
 namespace vision {
 
@@ -26,4 +26,4 @@ jni::global_ref<jni::JByteBuffer> MutableJByteBuffer::getByteBuffer() {
   return _byteBuffer;
 }
 
-} // vision
+} // namespace vision

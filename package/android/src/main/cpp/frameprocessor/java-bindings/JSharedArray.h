@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "MutableJByteBuffer.h"
 #include "JVisionCameraProxy.h"
+#include "MutableJByteBuffer.h"
 #include <fbjni/ByteBuffer.h>
 #include <fbjni/fbjni.h>
 #include <jni.h>
@@ -42,9 +42,10 @@ private:
   explicit JSharedArray(const jni::alias_ref<jhybridobject>& javaThis, const jni::alias_ref<JVisionCameraProxy::javaobject>& proxy,
                         jni::alias_ref<JByteBuffer> byteBuffer);
   static jni::local_ref<jhybriddata> initHybridAllocate(jni::alias_ref<jhybridobject> javaThis,
-                                                jni::alias_ref<JVisionCameraProxy::javaobject> proxy, jint size);
+                                                        jni::alias_ref<JVisionCameraProxy::javaobject> proxy, jint size);
   static jni::local_ref<jhybriddata> initHybridWrap(jni::alias_ref<jhybridobject> javaThis,
-                                                jni::alias_ref<JVisionCameraProxy::javaobject> proxy, jni::alias_ref<JByteBuffer> byteBuffer);
+                                                    jni::alias_ref<JVisionCameraProxy::javaobject> proxy,
+                                                    jni::alias_ref<JByteBuffer> byteBuffer);
 };
 
 } // namespace vision

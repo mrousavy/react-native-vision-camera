@@ -10,8 +10,7 @@ namespace vision {
 using namespace facebook;
 
 jni::local_ref<JSharedArray::javaobject> JSharedArray::create(jsi::Runtime& runtime, jsi::ArrayBuffer arrayBuffer) {
-  jni::local_ref<JSharedArray::javaobject> instance = newObjectCxxArgs(runtime,
-                                                                       std::make_shared<jsi::ArrayBuffer>(std::move(arrayBuffer)));
+  jni::local_ref<JSharedArray::javaobject> instance = newObjectCxxArgs(runtime, std::make_shared<jsi::ArrayBuffer>(std::move(arrayBuffer)));
   instance->cthis()->_javaPart = jni::make_global(instance);
   return instance;
 }
@@ -43,8 +42,8 @@ JSharedArray::JSharedArray(const jni::alias_ref<jhybridobject>& javaThis, const 
 }
 
 JSharedArray::JSharedArray(const jni::alias_ref<JSharedArray::jhybridobject>& javaThis,
-                           const jni::alias_ref<JVisionCameraProxy::javaobject>& proxy, int size): JSharedArray(javaThis, proxy, JByteBuffer::allocateDirect(size)) {
-}
+                           const jni::alias_ref<JVisionCameraProxy::javaobject>& proxy, int size)
+    : JSharedArray(javaThis, proxy, JByteBuffer::allocateDirect(size)) {}
 
 void JSharedArray::registerNatives() {
   registerHybrid({
@@ -67,9 +66,8 @@ jint JSharedArray::getSize() {
   return _size;
 }
 
-jni::local_ref<JSharedArray::jhybriddata> JSharedArray::initHybridAllocate(jni::alias_ref<jhybridobject> javaThis,
-                                                                   jni::alias_ref<JVisionCameraProxy::javaobject> proxy,
-                                                                   jint size) {
+jni::local_ref<JSharedArray::jhybriddata>
+JSharedArray::initHybridAllocate(jni::alias_ref<jhybridobject> javaThis, jni::alias_ref<JVisionCameraProxy::javaobject> proxy, jint size) {
   return makeCxxInstance(javaThis, proxy, size);
 }
 

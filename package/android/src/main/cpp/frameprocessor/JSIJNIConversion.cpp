@@ -61,7 +61,8 @@ jni::local_ref<jobject> JSIJNIConversion::convertJSIValueToJNIObject(jsi::Runtim
     } else if (valueAsObject.isArrayBuffer(runtime)) {
       // ArrayBuffer/TypedArray
 
-      jsi::ArrayBuffer arrayBuffer = valueAsObject.getArrayBuffer(runtime);;
+      jsi::ArrayBuffer arrayBuffer = valueAsObject.getArrayBuffer(runtime);
+      ;
       return JSharedArray::create(runtime, std::move(arrayBuffer));
 
     } else if (valueAsObject.isHostObject(runtime)) {

@@ -7,9 +7,9 @@
 //
 
 #import "SharedArray.h"
+#import "../../cpp/MutableRawBuffer.h"
 #import <Foundation/Foundation.h>
 #import <jsi/jsi.h>
-#import "../../cpp/MutableRawBuffer.h"
 
 using namespace facebook;
 
@@ -22,11 +22,9 @@ using namespace facebook;
 - (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy size:(NSInteger)size {
   if (self = [super init]) {
     jsi::Runtime& runtime = proxy.proxy->getWorkletRuntime();
-    
-    uint8_t* data = (uint8_t*) malloc(size * sizeof(uint8_t));
-    auto mutableBuffer = std::make_shared<vision::MutableRawBuffer>(data, size, [=] () {
-      free(data);
-    });
+
+    uint8_t* data = (uint8_t*)malloc(size * sizeof(uint8_t));
+    auto mutableBuffer = std::make_shared<vision::MutableRawBuffer>(data, size, [=]() { free(data); });
     _arrayBuffer = std::make_shared<jsi::ArrayBuffer>(runtime, mutableBuffer);
     _data = data;
     _size = size;

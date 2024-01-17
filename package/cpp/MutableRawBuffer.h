@@ -8,24 +8,24 @@
 
 #pragma once
 
+#include <functional>
 #include <jsi/jsi.h>
 #include <memory>
-#include <functional>
 
 namespace vision {
 
 using namespace facebook;
 
-class MutableRawBuffer: public jsi::MutableBuffer {
+class MutableRawBuffer : public jsi::MutableBuffer {
 
- public:
+public:
   explicit MutableRawBuffer(size_t size);
   explicit MutableRawBuffer(uint8_t* data, size_t size, std::function<void()> cleanup);
   ~MutableRawBuffer();
 
 public:
- uint8_t* data() override;
- size_t size() const override;
+  uint8_t* data() override;
+  size_t size() const override;
 
 private:
   uint8_t* _data;
