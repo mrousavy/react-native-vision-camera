@@ -15,7 +15,6 @@ public class Frame {
     private final long timestamp;
     private final Orientation orientation;
     private int refCount = 0;
-    private HardwareBuffer hardwareBuffer = null;
 
     public Frame(Image image, long timestamp, Orientation orientation, boolean isMirrored) {
         this.image = image;
@@ -114,10 +113,7 @@ public class Frame {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
             throw new HardwareBuffersNotAvailableError();
         }
-        if (hardwareBuffer == null) {
-            hardwareBuffer = getImage().getHardwareBuffer();
-        }
-        return hardwareBuffer;
+        return getImage().getHardwareBuffer();
     }
 
     @SuppressWarnings("unused")
@@ -142,9 +138,6 @@ public class Frame {
 
     private synchronized void close() {
         synchronized (this) {
-            if (hardwareBuffer != null) {
-                hardwareBuffer.close();
-            }
             image.close();
         }
     }
