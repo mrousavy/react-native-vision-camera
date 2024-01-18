@@ -82,9 +82,11 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
   }
 
   // Required for NativeEventEmitter, this is just a dummy implementation:
+  @Suppress("unused", "UNUSED_PARAMETER")
   @ReactMethod
   fun addListener(eventName: String) {}
 
+  @Suppress("unused", "UNUSED_PARAMETER")
   @ReactMethod
   fun removeListeners(count: Int) {}
 }

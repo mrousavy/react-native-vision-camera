@@ -8,10 +8,10 @@ import java.util.Map;
 
 /**
  * The base class of a native Frame Processor Plugin.
- *
+ * <p></p>
  * Subclass this to create a custom Frame Processor Plugin, which can be called from a JS Frame Processor.
  * Once subclassed, it needs to be registered in the VisionCamera Frame Processor
- * runtime via `FrameProcessorPluginRegistry.addFrameProcessorPlugin` - ideally at app startup.
+ * runtime via <code>FrameProcessorPluginRegistry.addFrameProcessorPlugin</code> - ideally at app startup.
 
  * See: <a href="https://react-native-vision-camera.com/docs/guides/frame-processors-plugins-android">Creating Frame Processor Plugins (Android)</a>
  * for more information
