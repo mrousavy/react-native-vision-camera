@@ -412,7 +412,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     }
 
     // CodeScanner Output
-    val codeScanner = configuration.codeScanner as? CameraConfiguration.Output.Enabled<CameraConfiguration.CodeScanner>
     if (codeScanner != null) {
       val imageFormat = ImageFormat.YUV_420_888
       val sizes = characteristics.getVideoSizes(cameraDevice.id, imageFormat)

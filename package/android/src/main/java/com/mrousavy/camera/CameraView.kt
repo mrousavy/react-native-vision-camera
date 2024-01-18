@@ -154,12 +154,14 @@ class CameraView(context: Context) :
         }
 
         // Video/Frame Processor
-        if (video == true || enableFrameProcessor) {
+        val codeScanner = codeScannerOptions
+        if (video == true || enableFrameProcessor || codeScanner != null) {
           config.video = CameraConfiguration.Output.Enabled.create(
             CameraConfiguration.Video(
               videoHdr,
               pixelFormat,
-              enableFrameProcessor
+              enableFrameProcessor,
+              codeScanner
             )
           )
         } else {
@@ -171,16 +173,6 @@ class CameraView(context: Context) :
           config.audio = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Audio(Unit))
         } else {
           config.audio = CameraConfiguration.Output.Disabled.create()
-        }
-
-        // Code Scanner
-        val codeScanner = codeScannerOptions
-        if (codeScanner != null) {
-          config.codeScanner = CameraConfiguration.Output.Enabled.create(
-            CameraConfiguration.CodeScanner(codeScanner.codeTypes)
-          )
-        } else {
-          config.codeScanner = CameraConfiguration.Output.Disabled.create()
         }
 
         // Orientation
