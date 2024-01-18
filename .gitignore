@@ -1,6 +1,6 @@
 .DS_Store
+**/node_modules/
 
 # no yarn/npm in the root repo!
-./package-lock.json
-./yarn.lock
-**/node_modules/
+/package-lock.json
+/yarn.lock
