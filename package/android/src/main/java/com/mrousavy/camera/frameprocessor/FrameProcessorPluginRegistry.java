@@ -14,6 +14,17 @@ public class FrameProcessorPluginRegistry {
     private static final Map<String, PluginInitializer> Plugins = new HashMap<>();
     private static final String TAG = "FrameProcessorPluginRegistry";
 
+    /**
+     * Adds the given Plugin to the Frame Processor Plugin Registry.
+     * The given Plugin might then be initialized later from JavaScript, through the <code>VisionCameraProxy</code>.
+     * The returned Plugin will be deallocated once the value is no longer used in JavaScript.
+     * <p></p>
+     * This function can be called from any Thread, and should be called as soon as possible - ideally on app start
+     * or in a static initializer.
+     *
+     * @param name The name of the plugin which will be used to find the plugin from the JS side.
+     * @param pluginInitializer An initializer function to create instances of this Plugin.
+     */
     @DoNotStrip
     @Keep
     public static void addFrameProcessorPlugin(String name, PluginInitializer pluginInitializer) {

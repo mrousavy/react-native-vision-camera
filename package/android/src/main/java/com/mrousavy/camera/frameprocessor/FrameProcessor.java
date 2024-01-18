@@ -9,6 +9,7 @@ import com.facebook.proguard.annotations.DoNotStrip;
 
 /**
  * Represents a JS Frame Processor
+ * @noinspection JavaJniMissingFunction
  */
 public final class FrameProcessor {
     /**
