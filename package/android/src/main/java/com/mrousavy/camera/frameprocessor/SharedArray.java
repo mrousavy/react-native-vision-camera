@@ -25,7 +25,7 @@ public final class SharedArray {
     }
 
     /**
-     * Allocate a new SharedArray. Use `getByteBuffer` to obtain a reference to the direct ByteBuffer for writing.
+     * Allocate a new SharedArray with the given size. Use `getByteBuffer` to obtain a reference to the direct ByteBuffer for writing.
      * @param proxy The VisionCamera Proxy from the Frame Processor Plugin's initializer.
      * @param size The size of the ArrayBuffer.
      */
@@ -34,7 +34,7 @@ public final class SharedArray {
     }
 
     /**
-     * Wraps the given ByteBuffer in a JSI ArrayBuffer. Using `getByteBuffer` will return the same instance which can be used for writing.
+     * Wraps the given ByteBuffer in a SharedArray without copying. Using `getByteBuffer` will return the same instance which can be used for writing.
      * @param proxy The VisionCamera Proxy from the Frame Processor Plugin's initializer.
      * @param byteBuffer The ByteBuffer to wrap.
      */

@@ -25,7 +25,7 @@
                   withOptions:(NSDictionary* _Nullable)options {
   if (self = [super initWithProxy:proxy withOptions:options]) {
     _sharedArray = [[SharedArray alloc] initWithProxy:proxy
-                                                 size:5];
+                                     allocateWithSize:5];
     NSLog(@"ExampleFrameProcessorPlugin initialized with options: %@", options);
   }
   return self;

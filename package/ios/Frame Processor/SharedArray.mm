@@ -7,7 +7,7 @@
 //
 
 #import "SharedArray.h"
-#import "../../cpp/MutableRawBuffer.h"
+#import "MutableRawBuffer.h"
 #import <Foundation/Foundation.h>
 #import <jsi/jsi.h>
 
@@ -19,12 +19,19 @@ using namespace facebook;
   std::shared_ptr<jsi::ArrayBuffer> _arrayBuffer;
 }
 
-- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy size:(NSInteger)size {
+- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy allocateWithSize:(NSInteger)size {
+  uint8_t* data = (uint8_t*)malloc(size * sizeof(uint8_t));
+  return [self initWithProxy:proxy wrapData:data withSize:size freeOnDealloc:YES];
+}
+
+- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy
+                     wrapData:(uint8_t*)data
+                     withSize:(NSInteger)size
+                freeOnDealloc:(BOOL)freeOnDealloc {
   if (self = [super init]) {
     jsi::Runtime& runtime = proxy.proxy->getWorkletRuntime();
 
-    uint8_t* data = (uint8_t*)malloc(size * sizeof(uint8_t));
-    auto mutableBuffer = std::make_shared<vision::MutableRawBuffer>(data, size, [=]() { free(data); });
+    auto mutableBuffer = std::make_shared<vision::MutableRawBuffer>(data, size, freeOnDealloc);
     _arrayBuffer = std::make_shared<jsi::ArrayBuffer>(runtime, mutableBuffer);
     _data = data;
     _size = size;
@@ -32,7 +39,7 @@ using namespace facebook;
   return self;
 }
 
-- (instancetype)initWithRuntime:(jsi::Runtime&)runtime arrayBuffer:(std::shared_ptr<jsi::ArrayBuffer>)arrayBuffer {
+- (instancetype)initWithRuntime:(jsi::Runtime&)runtime wrapArrayBuffer:(std::shared_ptr<jsi::ArrayBuffer>)arrayBuffer {
   if (self = [super init]) {
     _arrayBuffer = arrayBuffer;
     _data = _arrayBuffer->data(runtime);

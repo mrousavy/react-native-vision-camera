@@ -12,17 +12,19 @@
 
 namespace vision {
 
-MutableRawBuffer::MutableRawBuffer(uint8_t* data, size_t size, std::function<void()> cleanup)
-    : _data(data), _size(size), _cleanup(std::move(cleanup)) {}
+MutableRawBuffer::MutableRawBuffer(uint8_t* data, size_t size, bool freeOnDealloc)
+    : _data(data), _size(size), _freeOnDealloc(freeOnDealloc) {}
 
 MutableRawBuffer::MutableRawBuffer(size_t size) {
   _size = size;
   _data = (uint8_t*)malloc(size * sizeof(uint8_t));
-  _cleanup = [=]() { free(_data); };
+  _freeOnDealloc = true;
 }
 
 MutableRawBuffer::~MutableRawBuffer() {
-  _cleanup();
+  if (_freeOnDealloc) {
+    free(_data);
+  }
 }
 
 size_t MutableRawBuffer::size() const {
