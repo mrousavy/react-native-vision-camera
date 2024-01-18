@@ -119,6 +119,13 @@ class CodeTypeNotSupportedError(codeType: String) :
     "code-type-not-supported",
     "The codeType \"$codeType\" is not supported by the Code Scanner!"
   )
+class CodeScannerTooManyOutputsError :
+  CameraError(
+    "code-scanner",
+    "not-compatible-with-outputs",
+    "CodeScanner can only be enabled when both video and frameProcessor are disabled! " +
+      "Use a Frame Processor Plugin for code scanning instead."
+  )
 
 class ViewNotFoundError(viewId: Int) :
   CameraError("system", "view-not-found", "The given view (ID $viewId) was not found in the view manager.")

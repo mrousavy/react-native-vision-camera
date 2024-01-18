@@ -414,6 +414,12 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     // CodeScanner Output
     val codeScanner = configuration.codeScanner as? CameraConfiguration.Output.Enabled<CameraConfiguration.CodeScanner>
     if (codeScanner != null) {
+      if (video != null) {
+        // CodeScanner and VideoPipeline are two repeating streams - they cannot be both added.
+        // In this case, the user should use a Frame Processor Plugin for code scanning instead.
+        throw CodeScannerTooManyOutputsError()
+      }
+
       val imageFormat = ImageFormat.YUV_420_888
       val sizes = characteristics.getVideoSizes(cameraDevice.id, imageFormat)
       val size = sizes.closestToOrMax(Size(1280, 720))
