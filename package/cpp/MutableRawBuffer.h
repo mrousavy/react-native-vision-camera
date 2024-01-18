@@ -20,7 +20,7 @@ class MutableRawBuffer : public jsi::MutableBuffer {
 
 public:
   explicit MutableRawBuffer(size_t size);
-  explicit MutableRawBuffer(uint8_t* data, size_t size, std::function<void()> cleanup);
+  explicit MutableRawBuffer(uint8_t* data, size_t size, bool freeOnDealloc);
   ~MutableRawBuffer();
 
 public:
@@ -30,7 +30,7 @@ public:
 private:
   uint8_t* _data;
   size_t _size;
-  std::function<void()> _cleanup;
+  bool _freeOnDealloc;
 };
 
 } // namespace vision

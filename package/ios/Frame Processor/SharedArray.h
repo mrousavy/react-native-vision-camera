@@ -12,7 +12,6 @@
 #import <Foundation/Foundation.h>
 
 #ifdef __cplusplus
-#import "../../cpp/MutableRawBuffer.h"
 #import <jsi/jsi.h>
 using namespace facebook;
 #endif
@@ -22,10 +21,18 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SharedArray : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy size:(NSInteger)size;
+
+- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy
+             allocateWithSize:(NSInteger)size;
+
+- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy
+                     wrapData:(uint8_t*)data
+                     withSize:(NSInteger)size
+                freeOnDealloc:(BOOL)freeOnDealloc;
 
 #ifdef __cplusplus
-- (instancetype)initWithRuntime:(jsi::Runtime&)runtime arrayBuffer:(std::shared_ptr<jsi::ArrayBuffer>)arrayBuffer;
+- (instancetype)initWithRuntime:(jsi::Runtime&)runtime
+                wrapArrayBuffer:(std::shared_ptr<jsi::ArrayBuffer>)arrayBuffer;
 
 - (std::shared_ptr<jsi::ArrayBuffer>)arrayBuffer;
 #endif
