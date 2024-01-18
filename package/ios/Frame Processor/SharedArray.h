@@ -22,8 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy
-             allocateWithSize:(NSInteger)size;
+- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy allocateWithSize:(NSInteger)size;
 
 - (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy
                      wrapData:(uint8_t*)data
@@ -31,8 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
                 freeOnDealloc:(BOOL)freeOnDealloc;
 
 #ifdef __cplusplus
-- (instancetype)initWithRuntime:(jsi::Runtime&)runtime
-                wrapArrayBuffer:(std::shared_ptr<jsi::ArrayBuffer>)arrayBuffer;
+- (instancetype)initWithRuntime:(jsi::Runtime&)runtime wrapArrayBuffer:(std::shared_ptr<jsi::ArrayBuffer>)arrayBuffer;
 
 - (std::shared_ptr<jsi::ArrayBuffer>)arrayBuffer;
 #endif

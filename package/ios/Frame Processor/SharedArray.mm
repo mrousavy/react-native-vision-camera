@@ -19,14 +19,13 @@ using namespace facebook;
   std::shared_ptr<jsi::ArrayBuffer> _arrayBuffer;
 }
 
-- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy
-             allocateWithSize:(NSInteger)size {
+- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy allocateWithSize:(NSInteger)size {
   uint8_t* data = (uint8_t*)malloc(size * sizeof(uint8_t));
   return [self initWithProxy:proxy wrapData:data withSize:size freeOnDealloc:YES];
 }
 
-- (instancetype)initWithProxy:(VisionCameraProxyHolder *)proxy
-                     wrapData:(uint8_t *)data
+- (instancetype)initWithProxy:(VisionCameraProxyHolder*)proxy
+                     wrapData:(uint8_t*)data
                      withSize:(NSInteger)size
                 freeOnDealloc:(BOOL)freeOnDealloc {
   if (self = [super init]) {
@@ -40,8 +39,7 @@ using namespace facebook;
   return self;
 }
 
-- (instancetype)initWithRuntime:(jsi::Runtime&)runtime
-                wrapArrayBuffer:(std::shared_ptr<jsi::ArrayBuffer>)arrayBuffer {
+- (instancetype)initWithRuntime:(jsi::Runtime&)runtime wrapArrayBuffer:(std::shared_ptr<jsi::ArrayBuffer>)arrayBuffer {
   if (self = [super init]) {
     _arrayBuffer = arrayBuffer;
     _data = _arrayBuffer->data(runtime);
