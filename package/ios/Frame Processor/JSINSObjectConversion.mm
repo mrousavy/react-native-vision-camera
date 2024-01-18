@@ -170,7 +170,7 @@ id convertJSIValueToObjCObject(jsi::Runtime& runtime, const jsi::Value& value, s
     } else if (o.isArrayBuffer(runtime)) {
       // ArrayBuffer
       auto arrayBuffer = std::make_shared<jsi::ArrayBuffer>(o.getArrayBuffer(runtime));
-      return [[SharedArray alloc] initWithRuntime:runtime arrayBuffer:arrayBuffer];
+      return [[SharedArray alloc] initWithRuntime:runtime wrapArrayBuffer:arrayBuffer];
     } else {
       // object
       return convertJSIObjectToNSDictionary(runtime, o, jsInvoker);
