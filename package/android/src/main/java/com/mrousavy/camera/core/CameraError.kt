@@ -123,7 +123,8 @@ class CodeScannerTooManyOutputsError :
   CameraError(
     "code-scanner",
     "not-compatible-with-outputs",
-    "CodeScanner can only be enabled when both video and frameProcessor are disabled! Use a Frame Processor Plugin for code scanning instead."
+    "CodeScanner can only be enabled when both video and frameProcessor are disabled! " +
+      "Use a Frame Processor Plugin for code scanning instead."
   )
 
 class ViewNotFoundError(viewId: Int) :
