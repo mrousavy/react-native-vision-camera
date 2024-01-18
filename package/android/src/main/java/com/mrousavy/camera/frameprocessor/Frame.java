@@ -136,7 +136,7 @@ public class Frame {
         }
     }
 
-    private synchronized void close() {
+    private void close() {
         synchronized (this) {
             image.close();
         }
