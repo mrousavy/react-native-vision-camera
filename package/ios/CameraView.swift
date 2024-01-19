@@ -250,6 +250,9 @@ public final class CameraView: UIView, CameraSessionDelegate {
         self.setupFpsGraph()
       }
     }
+
+    // Prevent phone from going to sleep
+    UIApplication.shared.isIdleTimerDisabled = isActive
   }
 
   func setupFpsGraph() {
