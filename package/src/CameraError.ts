@@ -36,6 +36,7 @@ export type CaptureError =
   | 'capture/file-io-error'
   | 'capture/create-temp-file-error'
   | 'capture/create-recorder-error'
+  | 'capture/insufficient-storage'
   | 'capture/recorder-error'
   | 'capture/video-not-enabled'
   | 'capture/photo-not-enabled'
