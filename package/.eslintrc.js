@@ -85,7 +85,4 @@ module.exports = {
   env: {
     node: true,
   },
-  globals: {
-    _log: 'readonly',
-  },
 }
