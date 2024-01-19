@@ -7,9 +7,11 @@ import android.os.Build
 import android.util.Log
 import android.util.Size
 import android.view.Surface
+import com.facebook.common.statfs.StatFsHelper
 import com.mrousavy.camera.extensions.getRecommendedBitRate
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.RecordVideoOptions
+import com.mrousavy.camera.utils.FileUtils
 import java.io.File
 
 class RecordingSession(
@@ -22,7 +24,7 @@ class RecordingSession(
   private val orientation: Orientation,
   private val options: RecordVideoOptions,
   private val callback: (video: Video) -> Unit,
-  private val onError: (error: RecorderError) -> Unit
+  private val onError: (error: CameraError) -> Unit
 ) {
   companion object {
     private const val TAG = "RecordingSession"
@@ -42,7 +44,7 @@ class RecordingSession(
 
   // TODO: Implement HDR
   init {
-    outputFile = File.createTempFile("mrousavy", options.fileType.toExtension(), context.cacheDir)
+    outputFile = FileUtils.createTempFile(context, options.fileType.toExtension())
 
     Log.i(TAG, "Creating RecordingSession for ${outputFile.absolutePath}")
 
@@ -52,9 +54,11 @@ class RecordingSession(
     recorder.setVideoSource(MediaRecorder.VideoSource.SURFACE)
 
     recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+
     recorder.setOutputFile(outputFile.absolutePath)
     recorder.setVideoEncodingBitRate(bitRate)
     recorder.setVideoSize(size.height, size.width)
+    recorder.setMaxFileSize(getMaxFileSize())
     if (fps != null) recorder.setVideoFrameRate(fps)
 
     Log.i(TAG, "Using ${options.videoCodec} Video Codec at ${bitRate / 1_000_000.0} Mbps..")
@@ -81,6 +85,9 @@ class RecordingSession(
     }
     recorder.setOnInfoListener { _, what, extra ->
       Log.i(TAG, "MediaRecorder Info: $what ($extra)")
+      if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_FILESIZE_REACHED) {
+        onError(InsufficientStorageError())
+      }
     }
 
     Log.i(TAG, "Created $this!")
@@ -140,6 +147,13 @@ class RecordingSession(
       bitRate = (bitRate * multiplier).toInt()
     }
     return bitRate
+  }
+
+  private fun getMaxFileSize(): Long {
+    val statFs = StatFsHelper.getInstance()
+    val availableStorage = statFs.getAvailableStorageSpace(StatFsHelper.StorageType.INTERNAL)
+    Log.i(TAG, "Maximum available storage space: ${availableStorage / 1_000} kB")
+    return availableStorage
   }
 
   override fun toString(): String {

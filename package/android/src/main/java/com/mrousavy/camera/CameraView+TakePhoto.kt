@@ -93,7 +93,7 @@ private suspend fun savePhotoToFile(
     when (photo.format) {
       // When the format is JPEG or DEPTH JPEG we can simply save the bytes as-is
       ImageFormat.JPEG, ImageFormat.DEPTH_JPEG -> {
-        val file = createFile(context, ".jpg")
+        val file = FileUtils.createTempFile(context, ".jpg")
         writePhotoToFile(photo, file)
         return@withContext file.absolutePath
       }
@@ -101,7 +101,7 @@ private suspend fun savePhotoToFile(
       // When the format is RAW we use the DngCreator utility library
       ImageFormat.RAW_SENSOR -> {
         val dngCreator = DngCreator(cameraCharacteristics, photo.metadata)
-        val file = createFile(context, ".dng")
+        val file = FileUtils.createTempFile(context, ".dng")
         FileOutputStream(file).use { stream ->
           // TODO: Make sure orientation is loaded properly here?
           dngCreator.writeImage(stream, photo.image)
@@ -113,9 +113,4 @@ private suspend fun savePhotoToFile(
         throw Error("Failed to save Photo to file, image format is not supported! ${photo.format}")
       }
     }
-  }
-
-private fun createFile(context: Context, extension: String): File =
-  File.createTempFile("mrousavy", extension, context.cacheDir).apply {
-    deleteOnExit()
   }
