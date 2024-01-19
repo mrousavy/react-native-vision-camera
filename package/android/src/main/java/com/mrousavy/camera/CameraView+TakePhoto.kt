@@ -12,11 +12,13 @@ import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
 import com.mrousavy.camera.core.CameraSession
+import com.mrousavy.camera.core.InsufficientStorageError
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.QualityPrioritization
 import com.mrousavy.camera.utils.*
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import kotlinx.coroutines.*
 
 private const val TAG = "CameraView.takePhoto"
@@ -49,7 +51,15 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
 
     val cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId!!)
 
-    val path = savePhotoToFile(context, cameraCharacteristics, photo)
+    val path = try {
+      savePhotoToFile(context, cameraCharacteristics, photo)
+    } catch (e: IOException) {
+      if (e.message?.contains("no space left", true) == true) {
+        throw InsufficientStorageError()
+      } else {
+        throw e
+      }
+    }
 
     Log.i(TAG, "Successfully saved photo to file! $path")
 
