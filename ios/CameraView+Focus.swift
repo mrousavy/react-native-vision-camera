@@ -24,11 +24,11 @@ extension CameraView {
         try device.lockForConfiguration()
 
         device.focusPointOfInterest = normalizedPoint
-        device.focusMode = .continuousAutoFocus
+        device.focusMode = .autoFocus
 
         if device.isExposurePointOfInterestSupported {
           device.exposurePointOfInterest = normalizedPoint
-          device.exposureMode = .continuousAutoExposure
+          device.exposureMode = .autoExpose
         }
 
         device.unlockForConfiguration()
