@@ -35,7 +35,7 @@ extension CameraView {
           device.exposurePointOfInterest = normalizedPoint
           device.exposureMode = .autoExpose
         }
-        
+
         // Remove any existing listeners
         NotificationCenter.default.removeObserver(self,
                                                   name: NSNotification.Name.AVCaptureDeviceSubjectAreaDidChange,
@@ -54,7 +54,7 @@ extension CameraView {
       }
     }
   }
-  
+
   @objc
   func subjectAreaDidChange(notification _: NSNotification) {
     guard let device = videoDeviceInput?.device else {
