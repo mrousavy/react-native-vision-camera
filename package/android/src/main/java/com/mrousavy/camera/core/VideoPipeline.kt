@@ -123,6 +123,7 @@ class VideoPipeline(
 
           frame.decrementRefCount()
         } catch (e: Throwable) {
+          image.close()
           Log.e(TAG, "Failed to call Frame Processor!", e)
         }
       }, CameraQueues.videoQueue.handler)
