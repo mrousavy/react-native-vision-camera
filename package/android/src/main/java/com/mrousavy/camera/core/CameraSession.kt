@@ -623,7 +623,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     enableAudio: Boolean,
     options: RecordVideoOptions,
     callback: (video: RecordingSession.Video) -> Unit,
-    onError: (error: RecorderError) -> Unit
+    onError: (error: CameraError) -> Unit
   ) {
     mutex.withLock {
       if (recording != null) throw RecordingInProgressError()

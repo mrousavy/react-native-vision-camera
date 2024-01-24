@@ -84,7 +84,11 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
       delegatesReferences.removeAll(where: { $0 == self })
     }
     if let error = error as NSError? {
-      promise.reject(error: .capture(.unknown(message: error.description)), cause: error)
+      if error.code == -11807 {
+        promise.reject(error: .capture(.insufficientStorage), cause: error)
+      } else {
+        promise.reject(error: .capture(.unknown(message: error.description)), cause: error)
+      }
       return
     }
   }
