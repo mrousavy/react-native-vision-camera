@@ -8,11 +8,12 @@ import android.media.MediaActionSound
 import com.mrousavy.camera.core.CameraQueues
 import com.mrousavy.camera.core.CaptureAbortedError
 import com.mrousavy.camera.core.UnknownCaptureError
+import android.content.Context
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
-suspend fun CameraCaptureSession.capture(captureRequest: CaptureRequest, enableShutterSound: Boolean): TotalCaptureResult =
+suspend fun CameraCaptureSession.capture(captureRequest: CaptureRequest, enableShutterSound: Boolean, context: Context): TotalCaptureResult =
   suspendCoroutine { continuation ->
     val shutterSound = if (enableShutterSound) MediaActionSound() else null
     shutterSound?.load(MediaActionSound.SHUTTER_CLICK)
@@ -27,11 +28,29 @@ suspend fun CameraCaptureSession.capture(captureRequest: CaptureRequest, enableS
           shutterSound?.release()
         }
 
+        private var audioManager: AudioManager? = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
         override fun onCaptureStarted(session: CameraCaptureSession, request: CaptureRequest, timestamp: Long, frameNumber: Long) {
           super.onCaptureStarted(session, request, timestamp, frameNumber)
 
-          if (enableShutterSound) {
-            shutterSound?.play(MediaActionSound.SHUTTER_CLICK)
+          when (audioManager?.ringerMode) {
+            AudioManager.RINGER_MODE_NORMAL -> {
+              if (enableShutterSound) {
+                val mediaActionSound = MediaActionSound()
+                mediaActionSound.play(MediaActionSound.SHUTTER_CLICK)
+              }
+            }
+
+            AudioManager.RINGER_MODE_SILENT -> {
+              // handle with silent mode
+            }
+            AudioManager.RINGER_MODE_VIBRATE -> {
+              // handle with vibrate mode
+            }
+
+            else -> {
+              Log.i("error", "ringerMode is not work")
+            }
           }
         }
 

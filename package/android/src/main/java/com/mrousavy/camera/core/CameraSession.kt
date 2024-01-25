@@ -592,7 +592,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       orientation
     )
     Log.i(TAG, "Photo capture 1/3 - starting capture...")
-    val result = captureSession.capture(captureRequest, enableShutterSound)
+    val result = captureSession.capture(captureRequest, enableShutterSound, context)
     val timestamp = result[CaptureResult.SENSOR_TIMESTAMP]!!
     Log.i(TAG, "Photo capture 2/3 complete - received metadata with timestamp $timestamp")
     try {
@@ -700,7 +700,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
       request.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_START)
 
-      captureSession.capture(request.build(), false)
+      captureSession.capture(request.build(), false, context)
 
       // Resume preview
       request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE)
