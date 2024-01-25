@@ -214,24 +214,30 @@ See: ["Creating Frame Processor Plugins"](/docs/guides/frame-processors-plugins-
 
 ### Using Community Plugins
 
-Community Frame Processor Plugins are distributed through npm. To install the [vision-camera-image-labeler](https://github.com/mrousavy/vision-camera-image-labeler) plugin, run:
+Community Frame Processor Plugins are distributed through npm. To install the [vision-camera-resize-plugin](https://github.com/mrousavy/vision-camera-resize-plugin) plugin, run:
 
 ```bash
-npm i vision-camera-image-labeler
+yarn add vision-camera-resize-plugin
 cd ios && pod install
 ```
 
 That's it! 🎉 Now you can use it:
 
 ```ts
+const { resize } = useResizePlugin()
+
 const frameProcessor = useFrameProcessor((frame) => {
   'worklet'
-  const labels = labelImage(frame)
+  const smallerFrame = resize(frame, {
+    size: {
+      // ...
+    },
+  })
   // ...
-}, [])
+}, [resize])
 ```
 
-Check out [Frame Processor community plugins](/docs/guides/frame-processor-plugin-list) to discover available community plugins.
+Check out [Frame Processor community plugins](/docs/guides/frame-processor-plugins) to discover available community plugins.
 
 ## Selecting a Format for a Frame Processor
 
