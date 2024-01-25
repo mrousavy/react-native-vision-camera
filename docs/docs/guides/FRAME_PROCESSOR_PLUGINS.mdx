@@ -1,17 +1,21 @@
 ---
-id: frame-processor-plugin-list
-title: Community Plugins
-sidebar_label: Community Plugins
+id: frame-processor-plugins
+title: Frame Processor Plugins
+sidebar_label: Frame Processor Plugins
 ---
 
-These are VisionCamera Frame Processor Plugins created by the community.
+Frame Processor Plugins are native plugins that can process data in a Frame and return values to a JS Frame Processor.
+
+These plugins are written in native languages such as Java/Kotlin, Objective-C/Swift, or even C++ to make use of GPU-acceleration, low-level APIs, and overall faster performance.
+
+Similar to react-native libraries, Frame Processor Plugins are distributed through npm and come with a native module boilerplate so they can be autolinked.
 
 ## Installing a Plugin
 
 1. Install using npm:
 
 ```
-npm i vision-camera-xxxxx
+yarn add vision-camera-xxxxx
 cd ios && pod install
 ```
 
@@ -20,8 +24,8 @@ cd ios && pod install
 ## Plugin List
 
 * [mrousavy/**react-native-fast-tflite**](https://github.com/mrousavy/react-native-fast-tflite): A plugin to run any Tensorflow Lite model inside React Native, written in C++ with GPU acceleration.
+* [mrousavy/**vision-camera-resize-plugin**](https://github.com/mrousavy/vision-camera-resize-plugin): A plugin for fast frame resizing, cropping and YUV/RGB pixel-format conversion using SIMD and CPU-Vector acceleration.
 * [mrousavy/**vision-camera-image-labeler**](https://github.com/mrousavy/vision-camera-image-labeler): A plugin to label images using MLKit Vision Image Labeler.
-* [mrousavy/**vision-camera-resize-plugin**](https://github.com/mrousavy/vision-camera-resize-plugin): A plugin for fast frame resizing to optimize execution speed of expensive AI algorithms.
 * [rodgomesc/**vision-camera-face-detector**](https://github.com/rodgomesc/vision-camera-face-detector): A plugin to detect faces using MLKit Vision Face Detector.
 * [rodgomesc/**vision-camera-qrcode-scanner**](https://github.com/rodgomesc/vision-camera-qrcode-scanner): A plugin to read barcodes using MLKit Vision QrCode Scanning
 * [mgcrea/**vision-camera-barcode-scanner**](https://github.com/mgcrea/vision-camera-barcode-scanner): A high performance barcode scanner for React Native using VisionCamera
