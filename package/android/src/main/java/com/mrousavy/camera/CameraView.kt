@@ -3,6 +3,7 @@ package com.mrousavy.camera
 import android.annotation.SuppressLint
 import android.content.Context
 import android.hardware.camera2.CameraManager
+import android.media.AudioManager
 import android.util.Log
 import android.view.ScaleGestureDetector
 import android.widget.FrameLayout
@@ -89,6 +90,7 @@ class CameraView(context: Context) :
   // private properties
   private var isMounted = false
   internal val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+  internal val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
   // session
   internal val cameraSession: CameraSession
