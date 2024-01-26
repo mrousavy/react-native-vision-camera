@@ -18,7 +18,7 @@ jni::local_ref<JSharedArray::javaobject> JSharedArray::create(jsi::Runtime& runt
 JSharedArray::JSharedArray(jsi::Runtime& runtime, std::shared_ptr<jsi::ArrayBuffer> arrayBuffer) {
   size_t size = arrayBuffer->size(runtime);
   __android_log_print(ANDROID_LOG_INFO, TAG, "Wrapping JSI ArrayBuffer with size %zu...", size);
-  jni::local_ref<JByteBuffer> byteBuffer = JByteBuffer::allocateDirect(size);
+  jni::local_ref<JByteBuffer> byteBuffer = JByteBuffer::wrapBytes(arrayBuffer->data(runtime), size);
 
   _arrayBuffer = arrayBuffer;
   _byteBuffer = jni::make_global(byteBuffer);
