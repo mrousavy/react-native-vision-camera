@@ -3,12 +3,9 @@ contact_links:
   - name: Troubleshooting Guide
     url: https://react-native-vision-camera.com/docs/guides/troubleshooting
     about: Please read the Troubleshooting Guide before opening an issue.
-  - name: VisionCamera Discussions
-    url: https://github.com/mrousavy/react-native-vision-camera/discussions
-    about: Please ask and answer questions here.
   - name: Margelo Community Discord
     url: https://discord.gg/6CSHz2qAvA
-    about: Discuss and chat about react-native-vision-camera or other Margelo libraries with our team or other community members
+    about: Discuss and chat about react-native-vision-camera or other Margelo libraries with our team or other community members. Remember to read the rules!
   - name: CameraX Issue Tracker
     url: https://issuetracker.google.com/issues?q=componentid:618491%20status:open#
     about: If you experience an issue on Android, browsing through CameraX issues often leads to a solution that we can implement in VisionCamera as well.
