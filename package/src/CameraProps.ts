@@ -74,7 +74,9 @@ export interface CameraProps extends ViewProps {
    * - `yuv`: The YUV (Y'CbCr 4:2:0 or NV21, 8-bit) format, either video- or full-range, depending on hardware capabilities. This is the second most efficient format.
    * - `rgb`: The RGB (RGB, RGBA or ABGRA, 8-bit) format. This is least efficient and requires explicit conversion.
    *
-   * @default `native`
+   * @default
+   * - Without a Frame Processor: `native`
+   * - With a Frame Processor: `yuv`
    */
   pixelFormat?: 'native' | 'yuv' | 'rgb'
   //#endregion
