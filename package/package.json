@@ -127,12 +127,12 @@
               "section": "✨ Features"
             },
             {
-              "type": "fix",
-              "section": "🐛 Bug Fixes"
-            },
-            {
               "type": "perf",
               "section": "💨 Performance Improvements"
+            },
+            {
+              "type": "fix",
+              "section": "🐛 Bug Fixes"
             },
             {
               "type": "chore(deps)",
