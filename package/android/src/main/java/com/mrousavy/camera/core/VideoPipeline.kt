@@ -144,7 +144,6 @@ class VideoPipeline(
       frameProcessor = null
       recordingSession = null
       surfaceTexture.release()
-      mHybridData.resetNative()
     }
   }
 
