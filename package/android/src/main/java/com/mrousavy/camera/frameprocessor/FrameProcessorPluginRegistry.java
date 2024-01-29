@@ -36,7 +36,7 @@ public class FrameProcessorPluginRegistry {
 
     @DoNotStrip
     @Keep
-    public static FrameProcessorPlugin getPlugin(String name, VisionCameraProxy proxy, Map<String, Object> options) {
+    public static @Nullable FrameProcessorPlugin getPlugin(String name, VisionCameraProxy proxy, Map<String, Object> options) {
         Log.i(TAG, "Looking up Frame Processor Plugin \"" + name + "\"...");
         PluginInitializer initializer = Plugins.get(name);
         if (initializer == null) {
@@ -48,6 +48,6 @@ public class FrameProcessorPluginRegistry {
     }
 
     public interface PluginInitializer {
-        FrameProcessorPlugin initializePlugin(@NonNull VisionCameraProxy proxy, @Nullable Map<String, Object> options);
+        @NonNull FrameProcessorPlugin initializePlugin(@NonNull VisionCameraProxy proxy, @Nullable Map<String, Object> options);
     }
 }
