@@ -7,24 +7,27 @@ on:
     paths:
       - '.github/workflows/validate-android.yml'
       - 'package/android/**'
-      - 'package/.editorconfig'
+      - 'package/android/.editorconfig'
   pull_request:
     paths:
       - '.github/workflows/validate-android.yml'
       - 'package/android/**'
-      - 'package/.editorconfig'
+      - 'package/android/.editorconfig'
 
 jobs:
   KTLint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: |
-          curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.0.0/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
-      - name: run ktlint
+      - name: Download ktlint
         working-directory: ./package/android/
         run: |
-          ktlint --reporter=checkstyle,output=build/ktlint-report.xml --relative --editorconfig=./.editorconfig
+          curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.1.1/ktlint
+          chmod a+x ktlint
+      - name: Run ktlint
+        working-directory: ./package/android/
+        run: |
+          ./ktlint --reporter=checkstyle,output=build/ktlint-report.xml --relative --editorconfig=./.editorconfig
         continue-on-error: true
       - uses: yutailang0119/action-ktlint@v3
         with:
