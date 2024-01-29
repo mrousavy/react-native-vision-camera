@@ -22,7 +22,7 @@ jobs:
       - name: Download ktlint
         working-directory: ./package/android/
         run: |
-          curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.0.0/ktlint
+          curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.1.1/ktlint
           chmod a+x ktlint
       - name: Run ktlint
         working-directory: ./package/android/
