@@ -470,7 +470,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     }
 
     const shouldEnableBufferCompression = props.video === true && frameProcessor == null
-    const pixelFormat = props.pixelFormat ?? (frameProcessor == null ? 'yuv' : 'native')
+    const pixelFormat = props.pixelFormat ?? (frameProcessor != null ? 'yuv' : 'native')
     const torch = this.state.isRecordingWithFlash ? 'on' : props.torch
 
     return (
