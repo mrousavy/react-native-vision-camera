@@ -76,7 +76,7 @@ class CameraDeviceDetails(val cameraManager: CameraManager, val cameraId: String
     characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_OPTICAL_STABILIZATION) ?: IntArray(0)
   val supportsPhotoHdr = extensions.contains(3) // TODO: CameraExtensionCharacteristics.EXTENSION_HDR
   val supportsVideoHdr = getHasVideoHdr()
-  val autoFocusSystem = getAutoFocusSystem()
+  val autoFocusSystem = getAutoFocusSystemMode()
 
   val videoFormat = ImageFormat.YUV_420_888
 
@@ -133,7 +133,7 @@ class CameraDeviceDetails(val cameraManager: CameraManager, val cameraId: String
     return deviceTypes
   }
 
-  private fun getAutoFocusSystem(): AutoFocusSystem {
+  private fun getAutoFocusSystemMode(): AutoFocusSystem {
     val supportedAFModes = characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)
     val supportsAF = supportedAFModes?.contains(CameraCharacteristics.CONTROL_AF_MODE_AUTO) == true
     if (!supportsAF) return AutoFocusSystem.NONE
