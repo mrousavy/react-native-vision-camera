@@ -22,7 +22,6 @@ import com.mrousavy.camera.types.PixelFormat
 import com.mrousavy.camera.types.ResizeMode
 import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.VideoStabilizationMode
-import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -38,7 +37,6 @@ import kotlinx.coroutines.launch
 @SuppressLint("ClickableViewAccessibility", "ViewConstructor", "MissingPermission")
 class CameraView(context: Context) :
   FrameLayout(context),
-  CoroutineScope,
   CameraSession.CameraSessionCallback {
   companion object {
     const val TAG = "CameraView"
@@ -101,7 +99,7 @@ class CameraView(context: Context) :
       cameraSession.frameProcessor = frameProcessor
     }
 
-  override val coroutineContext: CoroutineContext = CameraQueues.cameraQueue.coroutineDispatcher
+  private val coroutineScope = CoroutineScope(CameraQueues.cameraQueue.coroutineDispatcher)
 
   init {
     this.installHierarchyFitter()
@@ -134,7 +132,7 @@ class CameraView(context: Context) :
     val now = System.currentTimeMillis()
     currentConfigureCall = now
 
-    launch {
+    coroutineScope.launch {
       cameraSession.configure { config ->
         if (currentConfigureCall != now) {
           // configure waits for a lock, and if a new call to update() happens in the meantime we can drop this one.
