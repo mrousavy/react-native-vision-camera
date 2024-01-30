@@ -78,3 +78,6 @@ docs/docs/api
 .cxx/
 *.keystore
 !debug.keystore
+
+# When switching branches from v3 to v2 everything is in the package/ folder.
+package/
