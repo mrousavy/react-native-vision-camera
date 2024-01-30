@@ -81,22 +81,28 @@ class CameraView(context: Context) :
       previewView.resizeMode = value
       field = value
     }
+  var enableFpsGraph: Boolean = false
+    set(value) {
+      field = value
+      updateFpsGraph()
+    }
 
   // code scanner
   var codeScannerOptions: CodeScannerOptions? = null
 
   // private properties
   private var isMounted = false
+  private val coroutineScope = CoroutineScope(CameraQueues.cameraQueue.coroutineDispatcher)
   internal val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
   // session
   internal val cameraSession: CameraSession
   private val previewView: PreviewView
   private var currentConfigureCall: Long = System.currentTimeMillis()
-
   internal var frameProcessor: FrameProcessor? = null
 
-  private val coroutineScope = CoroutineScope(CameraQueues.cameraQueue.coroutineDispatcher)
+  // other
+  private var fpsGraph: FpsGraphView? = null
 
   init {
     this.installHierarchyFitter()
@@ -225,8 +231,22 @@ class CameraView(context: Context) :
     }
   }
 
+  private fun updateFpsGraph() {
+    if (enableFpsGraph) {
+      if (fpsGraph != null) return
+      fpsGraph = FpsGraphView(context)
+      addView(fpsGraph)
+    } else {
+      if (fpsGraph == null) return
+      removeView(fpsGraph)
+      fpsGraph = null
+    }
+  }
+
   override fun onFrame(frame: Frame) {
     frameProcessor?.call(frame)
+
+    fpsGraph?.onTick()
   }
 
   override fun onError(error: Throwable) {
