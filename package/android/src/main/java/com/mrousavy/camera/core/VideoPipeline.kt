@@ -32,7 +32,7 @@ class VideoPipeline(
   val format: PixelFormat = PixelFormat.NATIVE,
   private val isMirrored: Boolean = false,
   enableFrameProcessor: Boolean = false,
-  private val callback: CameraSession.CameraSessionCallback
+  private val callback: CameraSession.Callback
 ) : SurfaceTexture.OnFrameAvailableListener,
   Closeable {
   companion object {
@@ -139,7 +139,6 @@ class VideoPipeline(
       isActive = false
       imageWriter?.close()
       imageReader?.close()
-      frameProcessor = null
       recordingSession = null
       surfaceTexture.release()
     }
@@ -177,20 +176,6 @@ class VideoPipeline(
       PixelFormat.YUV -> ImageFormat.YUV_420_888
       else -> ImageFormat.PRIVATE
     }
-
-  /**
-   * Configures the Pipeline to also call the given [FrameProcessor] (or null).
-   */
-  fun setFrameProcessorOutput(frameProcessor: FrameProcessor?) {
-    synchronized(this) {
-      if (frameProcessor != null) {
-        Log.i(TAG, "Setting $width x $height FrameProcessor Output...")
-      } else {
-        Log.i(TAG, "Removing FrameProcessor Output...")
-      }
-      this.frameProcessor = frameProcessor
-    }
-  }
 
   /**
    * Configures the Pipeline to also write Frames to a Surface from a `MediaRecorder` (or null)

@@ -56,7 +56,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: CameraSessionCallback) :
+class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: Callback) :
   CameraManager.AvailabilityCallback(),
   Closeable,
   CoroutineScope {
@@ -617,7 +617,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   private fun updateVideoOutputs() {
     val videoOutput = videoOutput ?: return
     Log.i(TAG, "Updating Video Outputs...")
-    videoOutput.videoPipeline.setFrameProcessorOutput(frameProcessor)
     videoOutput.videoPipeline.setRecordingSessionOutput(recording)
   }
 
@@ -722,7 +721,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     }
   }
 
-  interface CameraSessionCallback {
+  interface Callback {
     fun onError(error: Throwable)
     fun onFrame(frame: Frame)
     fun onInitialized()

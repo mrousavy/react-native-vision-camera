@@ -14,6 +14,7 @@ import com.mrousavy.camera.core.CameraSession
 import com.mrousavy.camera.core.CodeScannerFrame
 import com.mrousavy.camera.core.PreviewView
 import com.mrousavy.camera.extensions.installHierarchyFitter
+import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.types.CameraDeviceFormat
 import com.mrousavy.camera.types.CodeScannerOptions
@@ -39,7 +40,7 @@ import kotlinx.coroutines.launch
 class CameraView(context: Context) :
   FrameLayout(context),
   CoroutineScope,
-  CameraSession.CameraSessionCallback {
+  CameraSession.Callback {
   companion object {
     const val TAG = "CameraView"
   }
