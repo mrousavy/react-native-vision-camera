@@ -13,7 +13,7 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 
 @SuppressLint("SetTextI18n")
-class FpsGraphView(context: Context): FrameLayout(context) {
+class FpsGraphView(context: Context) : FrameLayout(context) {
   private val textView = TextView(context)
   private val graph = Graph(context)
 
@@ -39,7 +39,9 @@ class FpsGraphView(context: Context): FrameLayout(context) {
     graph.onTick()
   }
 
-  class Graph(context: Context): View(context), Runnable {
+  class Graph(context: Context) :
+    View(context),
+    Runnable {
     private val maxBars = 30
     private val ticks = arrayListOf<Double>()
     private val bars = arrayListOf<Int>()
@@ -97,9 +99,11 @@ class FpsGraphView(context: Context): FrameLayout(context) {
         if (fps != null) {
           val blockHeight = (fps / maxFps) * height
           canvas.drawRect(
-              i * blockWidth, height - blockHeight,
-              (i + 1) * blockWidth, height.toFloat(),
-              paint
+            i * blockWidth,
+            height - blockHeight,
+            (i + 1) * blockWidth,
+            height.toFloat(),
+            paint
           )
         }
       }
