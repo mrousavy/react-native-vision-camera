@@ -176,6 +176,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 style={StyleSheet.absoluteFill}
                 device={device}
                 format={format}
+                fps={fps}
                 photoHdr={enableHdr}
                 videoHdr={enableHdr}
                 lowLightBoost={device.supportsLowLightBoost && enableNightMode}
