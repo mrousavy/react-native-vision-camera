@@ -102,7 +102,7 @@ class CameraView(context: Context) :
   internal var frameProcessor: FrameProcessor? = null
 
   // other
-  private var fpsGraph: FpsCounterView? = null
+  private var fpsGraph: FpsGraphView? = null
 
   init {
     this.installHierarchyFitter()
@@ -234,7 +234,7 @@ class CameraView(context: Context) :
   private fun updateFpsGraph() {
     if (enableFpsGraph) {
       if (fpsGraph != null) return
-      fpsGraph = FpsCounterView(context)
+      fpsGraph = FpsGraphView(context)
       addView(fpsGraph)
     } else {
       if (fpsGraph == null) return
