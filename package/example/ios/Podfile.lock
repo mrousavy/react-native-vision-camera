@@ -344,7 +344,7 @@ PODS:
     - react-native-video/Video (= 5.2.1)
   - react-native-video/Video (5.2.1):
     - React-Core
-  - react-native-worklets-core (0.2.4):
+  - react-native-worklets-core (0.3.0):
     - React
     - React-callinvoker
     - React-Core
@@ -697,7 +697,7 @@ SPEC CHECKSUMS:
   react-native-mmkv: e97c0c79403fb94577e5d902ab1ebd42b0715b43
   react-native-safe-area-context: d1c8161a1e9560f7066e8926a7d825eb57c5dab5
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
-  react-native-worklets-core: b4094f51cb2bc649e297206425cb8956f4945e3e
+  react-native-worklets-core: a894d572639fcf37c6d284cc799882d25d00c93d
   React-NativeModulesApple: b6868ee904013a7923128892ee4a032498a1024a
   React-perflogger: 31ea61077185eb1428baf60c0db6e2886f141a5a
   React-RCTActionSheet: 392090a3abc8992eb269ef0eaa561750588fc39d
@@ -729,4 +729,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 27f53791141a3303d814e09b55770336416ff4eb
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.14.3
