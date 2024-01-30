@@ -14,6 +14,7 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.MeteringRectangle
+import android.media.AudioManager
 import android.media.Image
 import android.media.ImageReader
 import android.os.Build
@@ -55,7 +56,9 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: CameraSessionCallback) :
+class CameraSession(private val context: Context,
+                    private val cameraManager: CameraManager,
+                    private val callback: CameraSessionCallback) :
   CameraManager.AvailabilityCallback(),
   Closeable,
   CoroutineScope {

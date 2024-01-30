@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory
 import android.graphics.ImageFormat
 import android.graphics.Matrix
 import android.hardware.camera2.*
+import android.media.AudioManager
 import android.util.Log
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableMap
@@ -32,7 +33,12 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
   val flash = options["flash"] as? String ?: "off"
   val enableAutoRedEyeReduction = options["enableAutoRedEyeReduction"] == true
   val enableAutoStabilization = options["enableAutoStabilization"] == true
-  val enableShutterSound = options["enableShutterSound"] as? Boolean ?: true
+  var enableShutterSound = options["enableShutterSound"] as? Boolean ?: true
+
+  val canPlaySound = audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL
+  if (!canPlaySound) {
+    enableShutterSound = false
+  }
 
   val flashMode = Flash.fromUnionValue(flash)
   val qualityPrioritizationMode = QualityPrioritization.fromUnionValue(qualityPrioritization)
