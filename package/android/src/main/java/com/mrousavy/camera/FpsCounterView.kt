@@ -13,11 +13,12 @@ class FpsCounterView(context: Context): FrameLayout(context) {
   private var lastTick = System.currentTimeMillis()
 
   init {
-    textView.textSize = 16f
+    textView.textSize = 20f
+    textView.text
     textView.text = "0 FPS"
 
     val layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
-    layoutParams.setMargins(15, 15, 0, 0)
+    layoutParams.setMargins(15, 150, 0, 0)
     layoutParams.gravity = Gravity.TOP or Gravity.LEFT
     addView(textView, layoutParams)
   }
@@ -27,5 +28,6 @@ class FpsCounterView(context: Context): FrameLayout(context) {
     val diffToLast = currentTick - lastTick
     val fps = (1_000.0 / diffToLast.toDouble()).roundToInt()
     textView.text = "$fps FPS"
+    lastTick = currentTick
   }
 }
