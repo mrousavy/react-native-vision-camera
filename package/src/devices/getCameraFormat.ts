@@ -248,6 +248,12 @@ export function getCameraFormat(device: CameraDevice, filters: FormatFilter[]): 
       if (format.autoFocusSystem === filter.autoFocusSystem.target) rightPoints += filter.autoFocusSystem.priority
     }
 
+    // phase-detection is generally the best AF system
+    if (filter.autoFocusSystem != null) {
+      if (bestFormat.autoFocusSystem === filter.autoFocusSystem.target) leftPoints++
+      if (format.autoFocusSystem === filter.autoFocusSystem.target) rightPoints++
+    }
+
     if (rightPoints > leftPoints) bestFormat = format
   }
 
