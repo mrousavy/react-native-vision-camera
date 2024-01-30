@@ -27,6 +27,17 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   companion object {
     const val TAG = "CameraView"
     var sharedRequestCode = 10
+
+    init {
+      try {
+        // Load the native part of VisionCamera.
+        // Includes the OpenGL VideoPipeline, as well as Frame Processor JSI bindings
+        System.loadLibrary("VisionCamera")
+      } catch (e: UnsatisfiedLinkError) {
+        Log.e(VisionCameraProxy.TAG, "Failed to load VisionCamera C++ library!", e)
+        throw e
+      }
+    }
   }
 
   private val coroutineScope = CoroutineScope(CameraQueues.cameraQueue.coroutineDispatcher)

@@ -14,7 +14,7 @@ class CodeScannerPipeline(
   val size: Size,
   val format: Int,
   val configuration: CameraConfiguration.CodeScanner,
-  val callback: CameraSession.CameraSessionCallback
+  val callback: CameraSession.Callback
 ) : Closeable {
   companion object {
     // We want to have a buffer of 2 images, but we always only acquire one.

@@ -14,6 +14,7 @@ import com.mrousavy.camera.core.CameraSession
 import com.mrousavy.camera.core.CodeScannerFrame
 import com.mrousavy.camera.core.PreviewView
 import com.mrousavy.camera.extensions.installHierarchyFitter
+import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.types.CameraDeviceFormat
 import com.mrousavy.camera.types.CodeScannerOptions
@@ -37,7 +38,7 @@ import kotlinx.coroutines.launch
 @SuppressLint("ClickableViewAccessibility", "ViewConstructor", "MissingPermission")
 class CameraView(context: Context) :
   FrameLayout(context),
-  CameraSession.CameraSessionCallback {
+  CameraSession.Callback {
   companion object {
     const val TAG = "CameraView"
   }
@@ -94,10 +95,6 @@ class CameraView(context: Context) :
   private var currentConfigureCall: Long = System.currentTimeMillis()
 
   internal var frameProcessor: FrameProcessor? = null
-    set(value) {
-      field = value
-      cameraSession.frameProcessor = frameProcessor
-    }
 
   private val coroutineScope = CoroutineScope(CameraQueues.cameraQueue.coroutineDispatcher)
 
@@ -226,6 +223,10 @@ class CameraView(context: Context) :
     } else {
       setOnTouchListener(null)
     }
+  }
+
+  override fun onFrame(frame: Frame) {
+    frameProcessor?.call(frame)
   }
 
   override fun onError(error: Throwable) {
