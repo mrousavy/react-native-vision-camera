@@ -7,7 +7,6 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
 import kotlin.math.max
@@ -29,11 +28,10 @@ class FpsGraphView(context: Context): FrameLayout(context) {
       }
     }
 
-    this.layoutParams = LayoutParams(300, 150).apply {
-      setMargins(15, 150, 0, 0)
-      gravity = Gravity.TOP or Gravity.LEFT
-    }
-    addView(graph, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+    val layoutParams = LayoutParams(300, 150)
+    layoutParams.setMargins(15, 150, 0, 0)
+    layoutParams.gravity = Gravity.TOP or Gravity.LEFT
+    addView(graph, layoutParams)
     addView(textView, layoutParams)
   }
 
