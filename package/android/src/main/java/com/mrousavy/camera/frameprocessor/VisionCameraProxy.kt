@@ -17,14 +17,6 @@ import java.lang.ref.WeakReference
 class VisionCameraProxy(context: ReactApplicationContext) {
   companion object {
     const val TAG = "VisionCameraProxy"
-    init {
-      try {
-        System.loadLibrary("VisionCamera")
-      } catch (e: UnsatisfiedLinkError) {
-        Log.e(TAG, "Failed to load VisionCamera C++ library!", e)
-        throw e
-      }
-    }
   }
 
   @DoNotStrip

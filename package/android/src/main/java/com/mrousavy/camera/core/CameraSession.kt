@@ -37,6 +37,7 @@ import com.mrousavy.camera.extensions.getPreviewTargetSize
 import com.mrousavy.camera.extensions.getVideoSizes
 import com.mrousavy.camera.extensions.openCamera
 import com.mrousavy.camera.extensions.setZoom
+import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
@@ -55,7 +56,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: CameraSessionCallback) :
+class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: Callback) :
   CameraManager.AvailabilityCallback(),
   Closeable,
   CoroutineScope {
@@ -383,7 +384,8 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         size.height,
         video.config.pixelFormat,
         isSelfie,
-        video.config.enableFrameProcessor
+        video.config.enableFrameProcessor,
+        callback
       )
       val output = VideoPipelineOutput(videoPipeline, video.config.enableHdr)
       outputs.add(output)
@@ -615,7 +617,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   private fun updateVideoOutputs() {
     val videoOutput = videoOutput ?: return
     Log.i(TAG, "Updating Video Outputs...")
-    videoOutput.videoPipeline.setFrameProcessorOutput(frameProcessor)
     videoOutput.videoPipeline.setRecordingSessionOutput(recording)
   }
 
@@ -720,8 +721,9 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     }
   }
 
-  interface CameraSessionCallback {
+  interface Callback {
     fun onError(error: Throwable)
+    fun onFrame(frame: Frame)
     fun onInitialized()
     fun onStarted()
     fun onStopped()

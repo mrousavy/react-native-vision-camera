@@ -31,26 +31,13 @@ class VideoPipeline(
   val height: Int,
   val format: PixelFormat = PixelFormat.NATIVE,
   private val isMirrored: Boolean = false,
-  enableFrameProcessor: Boolean = false
+  enableFrameProcessor: Boolean = false,
+  private val callback: CameraSession.Callback
 ) : SurfaceTexture.OnFrameAvailableListener,
   Closeable {
   companion object {
     private const val MAX_IMAGES = 3
     private const val TAG = "VideoPipeline"
-
-    init {
-      try {
-        System.loadLibrary("VisionCamera")
-      } catch (e: UnsatisfiedLinkError) {
-        Log.e(
-          TAG,
-          "Failed to load VisionCamera C++ library! " +
-            "OpenGL GPU VideoPipeline cannot be used.",
-          e
-        )
-        throw e
-      }
-    }
   }
 
   @DoNotStrip
@@ -60,15 +47,12 @@ class VideoPipeline(
   private var transformMatrix = FloatArray(16)
   private var isActive = true
 
-  // Output 1
-  private var frameProcessor: FrameProcessor? = null
-
-  // Output 2
-  private var recordingSession: RecordingSession? = null
-
   // Input
   private val surfaceTexture: SurfaceTexture
   val surface: Surface
+
+  // Output
+  private var recordingSession: RecordingSession? = null
 
   // If Frame Processors are enabled, we go through ImageReader first before we go thru OpenGL
   private var imageReader: ImageReader? = null
@@ -115,7 +99,7 @@ class VideoPipeline(
         frame.incrementRefCount()
 
         try {
-          frameProcessor?.call(frame)
+          callback.onFrame(frame)
 
           if (hasOutputs) {
             // If we have outputs (e.g. a RecordingSession), pass the frame along to the OpenGL pipeline
@@ -141,7 +125,6 @@ class VideoPipeline(
       isActive = false
       imageWriter?.close()
       imageReader?.close()
-      frameProcessor = null
       recordingSession = null
       surfaceTexture.release()
     }
@@ -179,20 +162,6 @@ class VideoPipeline(
       PixelFormat.YUV -> ImageFormat.YUV_420_888
       else -> ImageFormat.PRIVATE
     }
-
-  /**
-   * Configures the Pipeline to also call the given [FrameProcessor] (or null).
-   */
-  fun setFrameProcessorOutput(frameProcessor: FrameProcessor?) {
-    synchronized(this) {
-      if (frameProcessor != null) {
-        Log.i(TAG, "Setting $width x $height FrameProcessor Output...")
-      } else {
-        Log.i(TAG, "Removing FrameProcessor Output...")
-      }
-      this.frameProcessor = frameProcessor
-    }
-  }
 
   /**
    * Configures the Pipeline to also write Frames to a Surface from a `MediaRecorder` (or null)
