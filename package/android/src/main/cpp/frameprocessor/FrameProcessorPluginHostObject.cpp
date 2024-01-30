@@ -16,7 +16,12 @@ FrameProcessorPluginHostObject::FrameProcessorPluginHostObject(jni::alias_ref<JF
     : _plugin(make_global(plugin)) {}
 
 FrameProcessorPluginHostObject::~FrameProcessorPluginHostObject() {
-  jni::ThreadScope::WithClassLoader([&] { _plugin.reset(); });
+  // Hermes GC might destroy HostObjects on an arbitrary Thread which might not be
+  // connected to the JNI environment. To make sure fbjni can properly destroy
+  // the Java method, we connect to a JNI environment first.
+  jni::ThreadScope::WithClassLoader([&] {
+    this->_plugin = nullptr;
+  });
 }
 
 std::vector<jsi::PropNameID> FrameProcessorPluginHostObject::getPropertyNames(jsi::Runtime& runtime) {
