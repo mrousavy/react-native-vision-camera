@@ -30,7 +30,12 @@ VisionCameraProxy::VisionCameraProxy(const jni::alias_ref<JVisionCameraProxy::ja
   _javaProxy = make_global(javaProxy);
 }
 
-VisionCameraProxy::~VisionCameraProxy() {}
+VisionCameraProxy::~VisionCameraProxy() {
+  // Hermes GC might destroy HostObjects on an arbitrary Thread which might not be
+  // connected to the JNI environment. To make sure fbjni can properly destroy
+  // the Java method, we connect to a JNI environment first.
+  jni::ThreadScope::WithClassLoader([&] { _javaProxy.reset(); });
+}
 
 std::vector<jsi::PropNameID> VisionCameraProxy::getPropertyNames(jsi::Runtime& runtime) {
   std::vector<jsi::PropNameID> result;
@@ -94,6 +99,10 @@ jsi::Value VisionCameraProxy::get(jsi::Runtime& runtime, const jsi::PropNameID& 
   }
 
   return jsi::Value::undefined();
+}
+
+void VisionCameraInstaller::registerNatives() {
+  javaClassStatic()->registerNatives({makeNativeMethod("install", VisionCameraInstaller::install)});
 }
 
 void VisionCameraInstaller::install(jni::alias_ref<jni::JClass>, jni::alias_ref<JVisionCameraProxy::javaobject> proxy) {

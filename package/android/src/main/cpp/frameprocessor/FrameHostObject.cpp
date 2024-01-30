@@ -22,10 +22,9 @@ using namespace facebook;
 FrameHostObject::FrameHostObject(const jni::alias_ref<JFrame::javaobject>& frame) : frame(make_global(frame)) {}
 
 FrameHostObject::~FrameHostObject() {
-  // Hermes' Garbage Collector (Hades GC) calls destructors on a separate Thread
-  // which might not be attached to JNI. Ensure that we use the JNI class loader when
-  // deallocating the `frame` HybridClass, because otherwise JNI cannot call the Java
-  // destroy() function.
+  // Hermes GC might destroy HostObjects on an arbitrary Thread which might not be
+  // connected to the JNI environment. To make sure fbjni can properly destroy
+  // the Java method, we connect to a JNI environment first.
   jni::ThreadScope::WithClassLoader([&] { frame.reset(); });
 }
 

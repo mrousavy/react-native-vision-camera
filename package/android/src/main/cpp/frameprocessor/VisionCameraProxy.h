@@ -38,9 +38,7 @@ private:
 class VisionCameraInstaller : public jni::JavaClass<VisionCameraInstaller> {
 public:
   static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/frameprocessor/VisionCameraInstaller;";
-  static void registerNatives() {
-    javaClassStatic()->registerNatives({makeNativeMethod("install", VisionCameraInstaller::install)});
-  }
+  static void registerNatives();
   static void install(jni::alias_ref<jni::JClass> clazz, jni::alias_ref<JVisionCameraProxy::javaobject> proxy);
 };
 
