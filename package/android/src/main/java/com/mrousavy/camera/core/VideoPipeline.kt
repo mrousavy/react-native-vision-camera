@@ -38,20 +38,6 @@ class VideoPipeline(
   companion object {
     private const val MAX_IMAGES = 3
     private const val TAG = "VideoPipeline"
-
-    init {
-      try {
-        System.loadLibrary("VisionCamera")
-      } catch (e: UnsatisfiedLinkError) {
-        Log.e(
-          TAG,
-          "Failed to load VisionCamera C++ library! " +
-            "OpenGL GPU VideoPipeline cannot be used.",
-          e
-        )
-        throw e
-      }
-    }
   }
 
   @DoNotStrip
