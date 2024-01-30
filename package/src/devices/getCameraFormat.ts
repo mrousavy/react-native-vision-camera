@@ -1,4 +1,4 @@
-import type { CameraDevice, CameraDeviceFormat, VideoStabilizationMode } from '../CameraDevice'
+import type { AutoFocusSystem, CameraDevice, CameraDeviceFormat, VideoStabilizationMode } from '../CameraDevice'
 import { CameraRuntimeError } from '../CameraError'
 import { PixelFormat } from '../PixelFormat'
 
@@ -74,6 +74,12 @@ export interface FormatFilter {
    * Lower ISO values tend to capture photos quicker.
    */
   iso?: number | 'max' | 'min'
+  /**
+   * The target auto-focus system.
+   * While `phase-detection` is generally the best system available,
+   * you might want to choose a different auto-focus system.
+   */
+  autoFocusSystem?: AutoFocusSystem
 }
 
 type FilterWithPriority<T> = {
@@ -232,6 +238,12 @@ export function getCameraFormat(device: CameraDevice, filters: FormatFilter[]): 
     if (filter.videoHdr != null) {
       if (bestFormat.supportsVideoHdr === filter.videoHdr.target) leftPoints++
       if (format.supportsVideoHdr === filter.videoHdr.target) rightPoints++
+    }
+
+    // phase-detection is generally the best AF system
+    if (filter.autoFocusSystem != null) {
+      if (bestFormat.autoFocusSystem === filter.autoFocusSystem.target) leftPoints++
+      if (format.autoFocusSystem === filter.autoFocusSystem.target) rightPoints++
     }
 
     if (rightPoints > leftPoints) bestFormat = format
