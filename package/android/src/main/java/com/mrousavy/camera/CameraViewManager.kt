@@ -79,6 +79,11 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
     view.enableZoomGesture = enableZoomGesture
   }
 
+  @ReactProp(name = "enableFpsGraph")
+  fun setEnableFpsGraph(view: CameraView, enableFpsGraph: Boolean) {
+    view.enableFpsGraph = enableFpsGraph
+  }
+
   @ReactProp(name = "videoStabilizationMode")
   fun setVideoStabilizationMode(view: CameraView, videoStabilizationMode: String?) {
     val newMode = VideoStabilizationMode.fromUnionValue(videoStabilizationMode)
