@@ -49,7 +49,6 @@ import com.mrousavy.camera.utils.ImageFormatUtils
 import java.io.Closeable
 import java.lang.IllegalStateException
 import java.util.concurrent.CancellationException
-import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -58,8 +57,7 @@ import kotlinx.coroutines.sync.withLock
 
 class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: Callback) :
   CameraManager.AvailabilityCallback(),
-  Closeable,
-  CoroutineScope {
+  Closeable {
   companion object {
     private const val TAG = "CameraSession"
   }
@@ -95,8 +93,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       field = value
     }
 
-  override val coroutineContext: CoroutineContext
-    get() = CameraQueues.cameraQueue.coroutineDispatcher
+  private val coroutineScope = CoroutineScope(CameraQueues.cameraQueue.coroutineDispatcher)
 
   // Video Outputs
   private var recording: RecordingSession? = null
@@ -139,7 +136,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     super.onCameraAvailable(cameraId)
     if (this.configuration?.cameraId == cameraId && cameraDevice == null && configuration?.isActive == true) {
       Log.i(TAG, "Camera #$cameraId is now available again, trying to re-open it now...")
-      launch {
+      coroutineScope.launch {
         configure {
           // re-open CameraDevice if needed
         }
@@ -252,7 +249,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
   private fun createPreviewOutput(surface: Surface) {
     Log.i(TAG, "Setting Preview Output...")
-    launch {
+    coroutineScope.launch {
       configure { config ->
         config.preview = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Preview(surface))
       }
