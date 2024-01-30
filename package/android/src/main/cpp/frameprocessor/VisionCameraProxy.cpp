@@ -34,7 +34,7 @@ VisionCameraProxy::~VisionCameraProxy() {
   // Hermes GC might destroy HostObjects on an arbitrary Thread which might not be
   // connected to the JNI environment. To make sure fbjni can properly destroy
   // the Java method, we connect to a JNI environment first.
-  jni::ThreadScope::WithClassLoader([&] { this->_javaProxy.reset(); });
+  jni::ThreadScope::WithClassLoader([&] { _javaProxy.reset(); });
 }
 
 std::vector<jsi::PropNameID> VisionCameraProxy::getPropertyNames(jsi::Runtime& runtime) {

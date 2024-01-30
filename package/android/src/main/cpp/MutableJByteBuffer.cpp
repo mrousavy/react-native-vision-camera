@@ -18,7 +18,7 @@ MutableJByteBuffer::~MutableJByteBuffer() noexcept {
   // Hermes GC might destroy HostObjects on an arbitrary Thread which might not be
   // connected to the JNI environment. To make sure fbjni can properly destroy
   // the Java method, we connect to a JNI environment first.
-  jni::ThreadScope::WithClassLoader([&] { this->_byteBuffer.reset(); });
+  jni::ThreadScope::WithClassLoader([&] { _byteBuffer.reset(); });
 }
 
 uint8_t* MutableJByteBuffer::data() {
