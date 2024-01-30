@@ -26,7 +26,7 @@ FrameHostObject::~FrameHostObject() {
   // connected to the JNI environment. To make sure fbjni can properly destroy
   // the Java method, we connect to a JNI environment first.
   jni::ThreadScope::WithClassLoader([&] {
-    this->frame = nullptr;
+    this->frame.reset();
   });
 }
 

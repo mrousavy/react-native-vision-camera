@@ -35,7 +35,7 @@ VisionCameraProxy::~VisionCameraProxy() {
   // connected to the JNI environment. To make sure fbjni can properly destroy
   // the Java method, we connect to a JNI environment first.
   jni::ThreadScope::WithClassLoader([&] {
-    this->_javaProxy = nullptr;
+    this->_javaProxy.reset();
   });
 }
 
