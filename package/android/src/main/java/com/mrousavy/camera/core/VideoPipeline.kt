@@ -31,7 +31,8 @@ class VideoPipeline(
   val height: Int,
   val format: PixelFormat = PixelFormat.NATIVE,
   private val isMirrored: Boolean = false,
-  enableFrameProcessor: Boolean = false
+  enableFrameProcessor: Boolean = false,
+  private val callback: CameraSession.CameraSessionCallback
 ) : SurfaceTexture.OnFrameAvailableListener,
   Closeable {
   companion object {
@@ -60,15 +61,12 @@ class VideoPipeline(
   private var transformMatrix = FloatArray(16)
   private var isActive = true
 
-  // Output 1
-  private var frameProcessor: FrameProcessor? = null
-
-  // Output 2
-  private var recordingSession: RecordingSession? = null
-
   // Input
   private val surfaceTexture: SurfaceTexture
   val surface: Surface
+
+  // Output
+  private var recordingSession: RecordingSession? = null
 
   // If Frame Processors are enabled, we go through ImageReader first before we go thru OpenGL
   private var imageReader: ImageReader? = null
@@ -115,7 +113,7 @@ class VideoPipeline(
         frame.incrementRefCount()
 
         try {
-          frameProcessor?.call(frame)
+          callback.onFrame(frame)
 
           if (hasOutputs) {
             // If we have outputs (e.g. a RecordingSession), pass the frame along to the OpenGL pipeline

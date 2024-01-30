@@ -37,6 +37,7 @@ import com.mrousavy.camera.extensions.getPreviewTargetSize
 import com.mrousavy.camera.extensions.getVideoSizes
 import com.mrousavy.camera.extensions.openCamera
 import com.mrousavy.camera.extensions.setZoom
+import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
@@ -383,7 +384,8 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         size.height,
         video.config.pixelFormat,
         isSelfie,
-        video.config.enableFrameProcessor
+        video.config.enableFrameProcessor,
+        callback
       )
       val output = VideoPipelineOutput(videoPipeline, video.config.enableHdr)
       outputs.add(output)
@@ -722,6 +724,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
   interface CameraSessionCallback {
     fun onError(error: Throwable)
+    fun onFrame(frame: Frame)
     fun onInitialized()
     fun onStarted()
     fun onStopped()

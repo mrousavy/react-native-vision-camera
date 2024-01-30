@@ -96,10 +96,6 @@ class CameraView(context: Context) :
   private var currentConfigureCall: Long = System.currentTimeMillis()
 
   internal var frameProcessor: FrameProcessor? = null
-    set(value) {
-      field = value
-      cameraSession.frameProcessor = frameProcessor
-    }
 
   override val coroutineContext: CoroutineContext = CameraQueues.cameraQueue.coroutineDispatcher
 
@@ -228,6 +224,10 @@ class CameraView(context: Context) :
     } else {
       setOnTouchListener(null)
     }
+  }
+
+  override fun onFrame(frame: Frame) {
+    frameProcessor?.call(frame)
   }
 
   override fun onError(error: Throwable) {
