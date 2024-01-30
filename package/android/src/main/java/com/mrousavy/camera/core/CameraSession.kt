@@ -49,7 +49,6 @@ import com.mrousavy.camera.utils.ImageFormatUtils
 import java.io.Closeable
 import java.lang.IllegalStateException
 import java.util.concurrent.CancellationException
-import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
