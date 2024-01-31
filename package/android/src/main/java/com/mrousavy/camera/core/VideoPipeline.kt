@@ -219,9 +219,8 @@ class VideoPipeline(
   }
 
   @RequiresApi(Build.VERSION_CODES.Q)
-  private fun supportsHardwareBufferFlags(flags: Long): Boolean {
-    return HardwareBuffer.isSupported(width, height, format.toImageFormat(), 1, flags)
-  }
+  private fun supportsHardwareBufferFlags(flags: Long): Boolean =
+    HardwareBuffer.isSupported(width, height, format.toImageFormat(), 1, flags)
 
   private external fun getInputTextureId(): Int
   private external fun onBeforeFrame()
