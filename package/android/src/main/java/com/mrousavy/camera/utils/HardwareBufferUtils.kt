@@ -2,13 +2,8 @@ package com.mrousavy.camera.utils
 
 import android.graphics.ImageFormat
 import android.hardware.HardwareBuffer
-import android.media.Image
 import android.media.ImageReader
-import android.media.ImageWriter
 import android.os.Build
-import android.util.Log
-import androidx.annotation.RequiresApi
-import java.io.Closeable
 
 class HardwareBufferUtils {
   companion object {
