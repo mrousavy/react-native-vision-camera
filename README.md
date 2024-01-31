@@ -30,7 +30,7 @@ VisionCamera is a powerful, high-performance Camera library for React Native. It
 Install VisionCamera from npm:
 
 ```sh
-yarn add react-native-vision-camera
+npm i react-native-vision-camera
 cd ios && pod install
 ```
 
