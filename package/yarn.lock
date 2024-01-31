@@ -6369,10 +6369,10 @@ plist@^3.0.5:
     base64-js "^1.5.1"
     xmlbuilder "^15.1.1"
 
-pod-install@^0.1.38:
-  version "0.1.39"
-  resolved "https://registry.yarnpkg.com/pod-install/-/pod-install-0.1.39.tgz#853a0585bafbd332c2ca6543854fd4919958cfb3"
-  integrity sha512-0kVvdLYe0CtfJEr+ISvTMxAEB0UF4JMRToPjuu9xAAq1mEqA2Ql5u7uLWX1m45BMM+7NfU4LnBbnfNjmQE9GCw==
+pod-install@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/pod-install/-/pod-install-0.2.0.tgz#11f87e919f83bbd4deaa159aa5ce2f617ee0ff9d"
+  integrity sha512-NxNEq5OpIFn0UjS9hznBNDMvQw2+3diEegChIr2Zv2XlWaNRcOoUp6Kc2zrD372C49QXoZRwzc0Aqf6605Ftjg==
 
 prelude-ls@^1.2.1:
   version "1.2.1"
