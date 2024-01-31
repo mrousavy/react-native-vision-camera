@@ -33,7 +33,7 @@ jobs:
         with:
           report-path: ./package/android/build/*.xml
         continue-on-error: false
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: ktlint-report
           path: ./package/android/build/*.xml
