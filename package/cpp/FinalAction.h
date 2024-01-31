@@ -10,13 +10,17 @@
 
 namespace vision {
 
-template <typename F>
-struct FinalAction {
+template <typename F> struct FinalAction {
 
 public:
   FinalAction(F f) : clean_{f} {}
-  ~FinalAction() { if(enabled_) clean_(); }
-  void disable() { enabled_ = false; };
+  ~FinalAction() {
+    if (enabled_)
+      clean_();
+  }
+  void disable() {
+    enabled_ = false;
+  };
 
 private:
   F clean_;
@@ -25,7 +29,6 @@ private:
 
 } // namespace vision
 
-template <typename F>
-vision::FinalAction<F> finally(F f) {
+template <typename F> vision::FinalAction<F> finally(F f) {
   return vision::FinalAction<F>(std::move(f));
 }

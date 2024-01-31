@@ -95,14 +95,12 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 #if __ANDROID_API__ >= 26
       AHardwareBuffer* hardwareBuffer = this->frame->getHardwareBuffer();
       AHardwareBuffer_acquire(hardwareBuffer);
-      finally([&] () {
-        AHardwareBuffer_release(hardwareBuffer);
-      });
+      finally([&]() { AHardwareBuffer_release(hardwareBuffer); });
 
       AHardwareBuffer_Desc bufferDescription;
       AHardwareBuffer_describe(hardwareBuffer, &bufferDescription);
-      __android_log_print(ANDROID_LOG_INFO, "Frame", "Converting %i x %i @ %i HardwareBuffer...",
-                          bufferDescription.width, bufferDescription.height, bufferDescription.stride);
+      __android_log_print(ANDROID_LOG_INFO, "Frame", "Converting %i x %i @ %i HardwareBuffer...", bufferDescription.width,
+                          bufferDescription.height, bufferDescription.stride);
       size_t size = bufferDescription.height * bufferDescription.stride;
 
       static constexpr auto ARRAYBUFFER_CACHE_PROP_NAME = "__frameArrayBufferCache";
@@ -129,10 +127,10 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
         throw jsi::JSError(runtime, "Failed to lock HardwareBuffer for reading!");
       }
       finally([&]() {
-          int result = AHardwareBuffer_unlock(hardwareBuffer, nullptr);
-          if (result != 0) {
-              throw jsi::JSError(runtime, "Failed to lock HardwareBuffer for reading!");
-          }
+        int result = AHardwareBuffer_unlock(hardwareBuffer, nullptr);
+        if (result != 0) {
+          throw jsi::JSError(runtime, "Failed to lock HardwareBuffer for reading!");
+        }
       });
 
       // directly write to C++ JSI ArrayBuffer
