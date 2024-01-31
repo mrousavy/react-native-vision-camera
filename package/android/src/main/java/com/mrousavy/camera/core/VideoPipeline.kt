@@ -194,23 +194,23 @@ class VideoPipeline(
     val gpuFlag = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE
     val bothFlags = gpuFlag or cpuFlag
 
-    if (enableFrameProcessor) {
-      // We have a Frame Processor, so we need CPU access on the Frame
+    if (format == PixelFormat.NATIVE) {
+      // We don't need CPU access, so we can use GPU optimized buffers
+      if (supportsHardwareBufferFlags(gpuFlag)) {
+        // We support GPU Buffers directly and
+        return gpuFlag
+      } else {
+        // no flags are supported - fall back to default
+        return 0
+      }
+    } else {
+      // We are using YUV or RGB formats, so we need CPU access on the Frame
       if (supportsHardwareBufferFlags(bothFlags)) {
         // We support both CPU and GPU flags!
         return bothFlags
       } else if (supportsHardwareBufferFlags(cpuFlag)) {
         // We only support a CPU read flag, that's fine
         return cpuFlag
-      } else {
-        // no flags are supported - fall back to default
-        return 0
-      }
-    } else {
-      // We don't need Frame Processors, so we can use GPU optimized buffers
-      if (supportsHardwareBufferFlags(gpuFlag)) {
-        // We support GPU Buffers directly and
-        return gpuFlag
       } else {
         // no flags are supported - fall back to default
         return 0
