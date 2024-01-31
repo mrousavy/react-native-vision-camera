@@ -2,9 +2,24 @@ version: 2
 
 updates:
   - package-ecosystem: "gradle"
-    directory: "/android/"
+    directory: "package/android/"
     schedule:
       interval: "daily"
     labels:
       - "🛠 dependencies"
       - "🤖 android"
+  - package-ecosystem: "yarn"
+    directory: "package/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "🛠 dependencies"
+      - "☕️ js"
+  - package-ecosystem: "yarn"
+    directory: "docs/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "🛠 dependencies"
+      - "📚 documentation"
+      - "☕️ js"
