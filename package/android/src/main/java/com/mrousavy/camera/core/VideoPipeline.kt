@@ -82,6 +82,7 @@ class VideoPipeline(
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         Log.i(TAG, "Using API 29 for GPU ImageReader...")
         val usageFlags = getRecommendedHardwareBufferFlags()
+        Log.i(TAG, "Using ImageReader flags: $usageFlags")
         imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES, usageFlags)
         imageWriter = ImageWriter.newInstance(glSurface, MAX_IMAGES, format)
       } else {
@@ -102,7 +103,7 @@ class VideoPipeline(
 
           if (hasOutputs) {
             // If we have outputs (e.g. a RecordingSession), pass the frame along to the OpenGL pipeline
-            imageWriter!!.queueInputImage(image)
+            imageWriter?.queueInputImage(image)
           }
         } catch (e: Throwable) {
           Log.e(TAG, "FrameProcessor/ImageReader pipeline threw an error!", e)
@@ -198,6 +199,7 @@ class VideoPipeline(
       // We don't need CPU access, so we can use GPU optimized buffers
       if (supportsHardwareBufferFlags(gpuFlag)) {
         // We support GPU Buffers directly and
+        Log.i(TAG, "GPU HardwareBuffers are supported!")
         return gpuFlag
       } else {
         // no flags are supported - fall back to default
@@ -207,9 +209,11 @@ class VideoPipeline(
       // We are using YUV or RGB formats, so we need CPU access on the Frame
       if (supportsHardwareBufferFlags(bothFlags)) {
         // We support both CPU and GPU flags!
+        Log.i(TAG, "GPU + CPU HardwareBuffers are supported!")
         return bothFlags
       } else if (supportsHardwareBufferFlags(cpuFlag)) {
         // We only support a CPU read flag, that's fine
+        Log.i(TAG, "CPU HardwareBuffers are supported!")
         return cpuFlag
       } else {
         // no flags are supported - fall back to default
