@@ -18,6 +18,7 @@
 @end
 
 @implementation ExampleFrameProcessorPlugin {
+  // testing cache hit
   SharedArray* _sharedArray;
 }
 
