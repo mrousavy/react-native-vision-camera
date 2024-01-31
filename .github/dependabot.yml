@@ -8,14 +8,14 @@ updates:
     labels:
       - "🛠 dependencies"
       - "🤖 android"
-  - package-ecosystem: "yarn"
+  - package-ecosystem: "npm"
     directory: "package/"
     schedule:
       interval: "monthly"
     labels:
       - "🛠 dependencies"
       - "☕️ js"
-  - package-ecosystem: "yarn"
+  - package-ecosystem: "npm"
     directory: "docs/"
     schedule:
       interval: "monthly"
