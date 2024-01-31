@@ -15,6 +15,8 @@
 #include <android/hardware_buffer.h>
 #include <android/hardware_buffer_jni.h>
 
+#include "FinalAction.h"
+
 namespace vision {
 
 using namespace facebook;
@@ -92,11 +94,13 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
     jsi::HostFunctionType toArrayBuffer = JSI_FUNC {
 #if __ANDROID_API__ >= 26
       AHardwareBuffer* hardwareBuffer = this->frame->getHardwareBuffer();
+      AHardwareBuffer_acquire(hardwareBuffer);
+      finally([&]() { AHardwareBuffer_release(hardwareBuffer); });
 
       AHardwareBuffer_Desc bufferDescription;
       AHardwareBuffer_describe(hardwareBuffer, &bufferDescription);
-      __android_log_print(ANDROID_LOG_INFO, "Frame", "Buffer %i x %i @ %i", bufferDescription.width, bufferDescription.height,
-                          bufferDescription.stride);
+      __android_log_print(ANDROID_LOG_INFO, "Frame", "Converting %i x %i @ %i HardwareBuffer...", bufferDescription.width,
+                          bufferDescription.height, bufferDescription.stride);
       size_t size = bufferDescription.height * bufferDescription.stride;
 
       static constexpr auto ARRAYBUFFER_CACHE_PROP_NAME = "__frameArrayBufferCache";
@@ -118,15 +122,20 @@ jsi::Value FrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& pr
 
       // Get CPU access to the HardwareBuffer (&buffer is a virtual temporary address)
       void* buffer;
-      AHardwareBuffer_lock(hardwareBuffer, AHARDWAREBUFFER_USAGE_CPU_READ_MASK, -1, nullptr, &buffer);
+      int result = AHardwareBuffer_lock(hardwareBuffer, AHARDWAREBUFFER_USAGE_CPU_READ_MASK, -1, nullptr, &buffer);
+      if (result != 0) {
+        throw jsi::JSError(runtime, "Failed to lock HardwareBuffer for reading!");
+      }
+      finally([&]() {
+        int result = AHardwareBuffer_unlock(hardwareBuffer, nullptr);
+        if (result != 0) {
+          throw jsi::JSError(runtime, "Failed to lock HardwareBuffer for reading!");
+        }
+      });
 
       // directly write to C++ JSI ArrayBuffer
       auto destinationBuffer = arrayBuffer.data(runtime);
       memcpy(destinationBuffer, buffer, sizeof(uint8_t) * size);
-
-      // Release HardwareBuffer again
-      AHardwareBuffer_unlock(hardwareBuffer, nullptr);
-      AHardwareBuffer_release(hardwareBuffer);
 
       return arrayBuffer;
 #else
