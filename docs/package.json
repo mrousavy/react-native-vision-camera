@@ -14,7 +14,7 @@
   "dependencies": {
     "@docusaurus/core": "^3.0.0-alpha.0",
     "@docusaurus/plugin-google-gtag": "^3.0.0-alpha.0",
-    "@docusaurus/plugin-sitemap": "^3.0.0-alpha.0",
+    "@docusaurus/plugin-sitemap": "^3.1.1",
     "@docusaurus/preset-classic": "^3.0.0-alpha.0",
     "@mdx-js/react": "^2.3.0",
     "@vercel/analytics": "^1.0.2",
