@@ -1,13 +1,11 @@
 package com.mrousavy.camera.types
 
 import android.graphics.ImageFormat
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import com.mrousavy.camera.core.InvalidTypeScriptUnionError
 import com.mrousavy.camera.core.PixelFormatNotSupportedError
+import com.mrousavy.camera.utils.HardwareBufferUtils
 import com.mrousavy.camera.utils.ImageFormatUtils
-import com.mrousavy.camera.utils.ImageGenerator
 
 enum class PixelFormat(override val unionValue: String) : JSUnionValue {
   YUV("yuv"),
@@ -22,17 +20,9 @@ enum class PixelFormat(override val unionValue: String) : JSUnionValue {
       else -> throw PixelFormatNotSupportedError(this.unionValue)
     }
 
-  private var hardwareBufferFormat: Int? = null
-  @RequiresApi(Build.VERSION_CODES.Q)
-  fun toHardwareBufferFormat(): Int? {
-    if (hardwareBufferFormat == null) {
-      // Creates an ImageReader with this PixelFormat and creates one 1x1 image.
-      // Then, from that image we know what the native HardwareBuffer format is.
-      val imageGenerator = ImageGenerator(1, 1, toImageFormat())
-      hardwareBufferFormat = imageGenerator.getHardwareBufferFormat()
-      imageGenerator.close()
-    }
-    return hardwareBufferFormat!!
+  fun toHardwareBufferFormat(): Int {
+    val imageFormat = toImageFormat()
+    return HardwareBufferUtils.getHardwareBufferFormat(imageFormat)
   }
 
   companion object : JSUnionValue.Companion<PixelFormat> {

@@ -224,7 +224,7 @@ class VideoPipeline(
 
   @RequiresApi(Build.VERSION_CODES.Q)
   private fun supportsHardwareBufferFlags(flags: Long): Boolean {
-    val hardwareBufferFormat = format.toHardwareBufferFormat() ?: return false
+    val hardwareBufferFormat = format.toHardwareBufferFormat()
     return HardwareBuffer.isSupported(width, height, hardwareBufferFormat, 1, flags)
   }
 
