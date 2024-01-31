@@ -27,9 +27,9 @@ PODS:
   - libwebp/sharpyuv (1.3.2)
   - libwebp/webp (1.3.2):
     - libwebp/sharpyuv
-  - MMKV (1.3.2):
-    - MMKVCore (~> 1.3.2)
-  - MMKVCore (1.3.2)
+  - MMKV (1.3.3):
+    - MMKVCore (~> 1.3.3)
+  - MMKVCore (1.3.3)
   - RCT-Folly (2021.07.22.00):
     - boost
     - DoubleConversion
@@ -337,7 +337,7 @@ PODS:
   - react-native-mmkv (2.11.0):
     - MMKV (>= 1.2.13)
     - React-Core
-  - react-native-safe-area-context (4.8.0):
+  - react-native-safe-area-context (4.8.2):
     - React-Core
   - react-native-video (5.2.1):
     - React-Core
@@ -675,8 +675,8 @@ SPEC CHECKSUMS:
   hermes-engine: 9180d43df05c1ed658a87cc733dc3044cf90c00a
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   libwebp: 1786c9f4ff8a279e4dac1e8f385004d5fc253009
-  MMKV: f21593c0af4b3f2a0ceb8f820f28bb639ea22bb7
-  MMKVCore: 31b4cb83f8266467eef20a35b6d78e409a11060d
+  MMKV: f902fb6719da13c2ab0965233d8963a59416f911
+  MMKVCore: d26e4d3edd5cb8588c2569222cbd8be4231374e9
   RCT-Folly: 424b8c9a7a0b9ab2886ffe9c3b041ef628fd4fb1
   RCTRequired: 83bca1c184feb4d2e51c72c8369b83d641443f95
   RCTTypeSafety: 13c4a87a16d7db6cd66006ce9759f073402ef85b
@@ -695,7 +695,7 @@ SPEC CHECKSUMS:
   react-native-blur: cfdad7b3c01d725ab62a8a729f42ea463998afa2
   react-native-cameraroll: 4701ae7c3dbcd3f5e9e150ca17f250a276154b35
   react-native-mmkv: e97c0c79403fb94577e5d902ab1ebd42b0715b43
-  react-native-safe-area-context: d1c8161a1e9560f7066e8926a7d825eb57c5dab5
+  react-native-safe-area-context: 0ee144a6170530ccc37a0fd9388e28d06f516a89
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
   react-native-worklets-core: a894d572639fcf37c6d284cc799882d25d00c93d
   React-NativeModulesApple: b6868ee904013a7923128892ee4a032498a1024a
