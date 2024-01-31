@@ -1,22 +1,36 @@
 version: 2
 
 updates:
-  - package-ecosystem: "gradle"
-    directory: "package/android/"
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+    labels:
+      - "🛠 dependencies"
+  - package-ecosystem: "gradle"
+    directory: "/package/android/"
+    schedule:
+      interval: "weekly"
     labels:
       - "🛠 dependencies"
       - "🤖 android"
   - package-ecosystem: "npm"
-    directory: "package/"
+    directory: "/package/"
     schedule:
       interval: "monthly"
     labels:
       - "🛠 dependencies"
       - "☕️ js"
   - package-ecosystem: "npm"
-    directory: "docs/"
+    directory: "/package/example/"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "🛠 dependencies"
+      - "🛸 example"
+      - "☕️ js"
+  - package-ecosystem: "npm"
+    directory: "/docs/"
     schedule:
       interval: "monthly"
     labels:
