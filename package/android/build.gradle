@@ -163,7 +163,7 @@ android {
 dependencies {
   //noinspection GradleDynamicVersion
   implementation "com.facebook.react:react-android:+"
-  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2"
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
 
   if (enableCodeScanner) {
     // User enabled code-scanner, so we bundle the 2.4 MB model in the app.
