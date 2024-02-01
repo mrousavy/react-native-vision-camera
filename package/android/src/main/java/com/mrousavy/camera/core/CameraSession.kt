@@ -103,6 +103,11 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       lambda(config)
       val diff = CameraConfiguration.difference(this.configuration, config)
 
+      if (!diff.hasChanges) {
+        Log.i(TAG, "Nothing changed, aborting configure { ... }")
+        return@withLock
+      }
+
       if (isDestroyed) {
         Log.i(TAG, "CameraSession is already destroyed. Skipping configure { ... }")
         return@withLock
