@@ -8,8 +8,9 @@ import android.util.Log
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
+import java.io.Closeable
 
-open class SurfaceOutput(val surface: Surface, val size: Size, val outputType: OutputType, val enableHdr: Boolean = false) {
+open class SurfaceOutput(val surface: Surface, val size: Size, val outputType: OutputType, val enableHdr: Boolean = false): Closeable {
   companion object {
     const val TAG = "SurfaceOutput"
 
@@ -54,6 +55,10 @@ open class SurfaceOutput(val surface: Surface, val size: Size, val outputType: O
     }
 
   override fun toString(): String = "$outputType (${size.width} x ${size.height})"
+
+  override fun close() {
+    // close() does nothing by default
+  }
 
   enum class OutputType {
     PHOTO,
