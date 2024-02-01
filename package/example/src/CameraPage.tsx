@@ -192,6 +192,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 video={true}
                 audio={hasMicrophonePermission}
                 frameProcessor={frameProcessor}
+                onStarted={() => 'Camera started!'}
+                onStopped={() => 'Camera stopped!'}
               />
             </TapGestureHandler>
           </Reanimated.View>
