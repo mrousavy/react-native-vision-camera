@@ -38,7 +38,6 @@ import com.mrousavy.camera.extensions.getVideoSizes
 import com.mrousavy.camera.extensions.openCamera
 import com.mrousavy.camera.extensions.setZoom
 import com.mrousavy.camera.frameprocessor.Frame
-import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.QualityPrioritization
@@ -97,11 +96,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
   // Video Outputs
   private var recording: RecordingSession? = null
-    set(value) {
-      field = value
-      updateVideoOutputs()
-    }
-  var frameProcessor: FrameProcessor? = null
     set(value) {
       field = value
       updateVideoOutputs()
