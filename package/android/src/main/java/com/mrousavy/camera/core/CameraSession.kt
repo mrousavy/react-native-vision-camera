@@ -112,8 +112,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         // Build up session or update any props
         if (diff.deviceChanged) {
           // 1. cameraId changed, open device
-          val cameraId = config.cameraId ?: throw NoCameraDeviceError()
-          captureSession.setInput(cameraId)
+          configureInput(config)
         }
         if (diff.outputsChanged) {
           // 2. outputs changed, build new session
@@ -130,6 +129,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
         Log.i(TAG, "Successfully updated CameraSession Configuration! isActive: ${config.isActive}")
         this.configuration = config
+        isRunning = captureSession.isRunning
 
         // Notify about Camera initialization
         if (diff.deviceChanged) {
@@ -198,6 +198,13 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       }
     }
     Log.i(TAG, "Preview Output destroyed!")
+  }
+
+  private suspend fun configureInput(configuration: CameraConfiguration) {
+    Log.i(TAG, "Configuring inputs for CameraSession...")
+    val cameraId = configuration.cameraId ?: throw NoCameraDeviceError()
+    isRunning = false
+    captureSession.setInput(cameraId)
   }
 
   /**
