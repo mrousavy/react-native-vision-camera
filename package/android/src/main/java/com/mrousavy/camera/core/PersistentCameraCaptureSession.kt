@@ -11,6 +11,7 @@ import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.isValid
 import com.mrousavy.camera.extensions.openCamera
+import com.mrousavy.camera.extensions.tryAbortCaptures
 import java.io.Closeable
 
 /**
@@ -47,6 +48,8 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   private suspend fun createDevice(cameraId: String): CameraDevice =
     cameraManager.openCamera(cameraId, { device, error ->
       if (this.device == device) {
+        this.session?.tryAbortCaptures()
+        this.session = null
         this.device = null
         this.isActive = false
       }
@@ -62,6 +65,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
 
     return device.createCaptureSession(cameraManager, outputs, { session ->
       if (this.session == session) {
+        this.session?.tryAbortCaptures()
         this.session = null
         this.isActive = false
       }
