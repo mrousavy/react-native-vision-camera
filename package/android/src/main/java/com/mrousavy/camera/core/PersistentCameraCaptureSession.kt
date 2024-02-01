@@ -39,6 +39,8 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager) :
 
   val outputs: List<SurfaceOutput>
     get() = surfaceOutputs
+  val isRunning: Boolean
+    get() = isActive
 
   private suspend fun createDevice(cameraId: String): CameraDevice =
     cameraManager.openCamera(cameraId, { device, error ->
