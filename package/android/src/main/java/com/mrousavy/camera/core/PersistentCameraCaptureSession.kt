@@ -44,9 +44,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager): 
     return cameraManager.openCamera(cameraId, { device, error ->
       if (this.device == device) {
         this.device = null
-      }
-      if (error != null) {
-        Log.e(TAG, "Camera #$cameraId has been disconnected!", error)
+        this.isActive = false
       }
     }, CameraQueues.cameraQueue)
   }
@@ -59,21 +57,23 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager): 
     return device.createCaptureSession(cameraManager, outputs, { session ->
        if (this.session == session) {
          this.session = null
+         this.isActive = false
        }
     }, CameraQueues.cameraQueue)
   }
 
   private fun updateRepeatingRequest() {
-    val request = repeatingRequest ?: return
     val session = session ?: return
-    val device = device ?: return
-    val cameraDeviceDetails = cameraDeviceDetails ?: return
-    if (!isActive) {
-      return
-    }
+    if (isActive) {
+      val request = repeatingRequest ?: return
+      val device = device ?: return
+      val cameraDeviceDetails = cameraDeviceDetails ?: return
 
-    val repeatingRequest = request.toRepeatingRequest(device, cameraDeviceDetails, outputs)
-    session.setRepeatingRequest(repeatingRequest, null, null)
+      val repeatingRequest = request.toRepeatingRequest(device, cameraDeviceDetails, outputs)
+      session.setRepeatingRequest(repeatingRequest, null, null)
+    } else {
+      session.stopRepeating()
+    }
   }
 
   suspend fun setInput(cameraId: String) {
@@ -113,17 +113,18 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager): 
     }
   }
 
-  fun startRepeating(request: RepeatingRequest) {
+  fun setRepeatingRequest(request: RepeatingRequest) {
     if (this.repeatingRequest != request) {
       this.repeatingRequest = request
-      this.isActive = true
       updateRepeatingRequest()
     }
   }
 
-  fun stopRepeating() {
-    this.isActive = false
-    session?.stopRepeating()
+  fun setIsActive(isActive: Boolean) {
+    if (this.isActive != isActive) {
+      this.isActive = isActive
+      updateRepeatingRequest()
+    }
   }
 
   suspend fun capture(request: CaptureRequest, enableShutterSound: Boolean): TotalCaptureResult {

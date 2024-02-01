@@ -144,6 +144,10 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
           // 3. zoom etc changed, update repeating request
           configureCaptureRequest(config)
         }
+        if (diff.isActiveChanged) {
+          // 4. Either start or stop the session
+          captureSession.setIsActive(config.isActive)
+        }
 
         Log.i(TAG, "Successfully updated CameraSession Configuration! isActive: ${config.isActive}")
         this.configuration = config
@@ -339,7 +343,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     val video = config.video as? CameraConfiguration.Output.Enabled<CameraConfiguration.Video>
     val enableVideoHdr = video?.config?.enableHdr == true
 
-    captureSession.startRepeating(RepeatingRequest(
+    captureSession.setRepeatingRequest(RepeatingRequest(
       template,
       config.torch,
       config.fps,
@@ -360,40 +364,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     enableAutoStabilization: Boolean,
     outputOrientation: Orientation
   ): CapturedPhoto {
-    val captureSession = captureSession ?: throw CameraNotReadyError()
-    val photoOutput = photoOutput ?: throw PhotoNotEnabledError()
-
-    Log.i(TAG, "Photo capture 0/3 - preparing capture request (${photoOutput.size.width}x${photoOutput.size.height})...")
-
-    val zoom = configuration?.zoom ?: 1f
-
-    val cameraCharacteristics = cameraManager.getCameraCharacteristics(captureSession.device.id)
-    val orientation = outputOrientation.toSensorRelativeOrientation(cameraCharacteristics)
-    val captureRequest = captureSession.device.createPhotoCaptureRequest(
-      cameraManager,
-      photoOutput.surface,
-      zoom,
-      qualityPrioritization,
-      flashMode,
-      enableRedEyeReduction,
-      enableAutoStabilization,
-      photoOutput.enableHdr,
-      orientation
-    )
-    Log.i(TAG, "Photo capture 1/3 - starting capture...")
-    val result = captureSession.capture(captureRequest, enableShutterSound)
-    val timestamp = result[CaptureResult.SENSOR_TIMESTAMP]!!
-    Log.i(TAG, "Photo capture 2/3 complete - received metadata with timestamp $timestamp")
-    try {
-      val image = photoOutputSynchronizer.await(timestamp)
-
-      val isMirrored = cameraCharacteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
-
-      Log.i(TAG, "Photo capture 3/3 complete - received ${image.width} x ${image.height} image.")
-      return CapturedPhoto(image, result, orientation, isMirrored, image.format)
-    } catch (e: CancellationException) {
-      throw CaptureAbortedError(false)
-    }
+    throw NotImplementedError()
   }
 
   private fun onPhotoCaptured(image: Image) {
@@ -416,13 +387,13 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     mutex.withLock {
       if (recording != null) throw RecordingInProgressError()
       val videoOutput = videoOutput ?: throw VideoNotEnabledError()
-      val cameraDevice = cameraDevice ?: throw CameraNotReadyError()
+      val cameraId = configuration?.cameraId ?: throw NoCameraDeviceError()
 
       val fps = configuration?.fps ?: 30
 
       val recording = RecordingSession(
         context,
-        cameraDevice.id,
+        cameraId,
         videoOutput.size,
         enableAudio,
         fps,
@@ -463,37 +434,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   suspend fun focus(x: Int, y: Int): Unit = throw NotImplementedError("focus() is not yet implemented!")
 
   private suspend fun focus(point: Point) {
-    mutex.withLock {
-      // TODO: Fix this method
-      val captureSession = captureSession ?: throw CameraNotReadyError()
-      val request = previewRequest ?: throw CameraNotReadyError()
-
-      val weight = MeteringRectangle.METERING_WEIGHT_MAX - 1
-      val focusAreaTouch = MeteringRectangle(point, Size(150, 150), weight)
-
-      // Quickly pause preview
-      captureSession.stopRepeating()
-
-      request.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_CANCEL)
-      request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF)
-      captureSession.capture(request.build(), null, null)
-
-      // Add AF trigger with focus region
-      val characteristics = cameraManager.getCameraCharacteristics(captureSession.device.id)
-      val maxSupportedFocusRegions = characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AE) ?: 0
-      if (maxSupportedFocusRegions >= 1) {
-        request.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(focusAreaTouch))
-      }
-      request.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO)
-      request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
-      request.set(CaptureRequest.CONTROL_AF_TRIGGER, CameraMetadata.CONTROL_AF_TRIGGER_START)
-
-      captureSession.capture(request.build(), false)
-
-      // Resume preview
-      request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE)
-      captureSession.setRepeatingRequest(request.build(), null, null)
-    }
+    throw NotImplementedError()
   }
 
   data class CapturedPhoto(
