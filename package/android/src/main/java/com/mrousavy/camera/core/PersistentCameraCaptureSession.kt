@@ -5,9 +5,11 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
+import android.util.Log
 import com.mrousavy.camera.core.outputs.SurfaceOutput
 import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession
+import com.mrousavy.camera.extensions.isValid
 import com.mrousavy.camera.extensions.openCamera
 import java.io.Closeable
 
@@ -85,7 +87,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       // Set target input values
       this.cameraId = cameraId
 
-      if (device?.id != cameraId) {
+      if (device?.id != cameraId || device?.isValid != true) {
         // Close everything that depends on that device
         session?.abortCaptures()
         session = null
@@ -93,6 +95,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
 
         // Create a new device
         device = createDevice(cameraId)
+        Log.i(TAG, "Device updated! ${device?.id}")
       }
     }
   }
@@ -100,7 +103,6 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   suspend fun setOutputs(outputs: List<SurfaceOutput>) {
     if (this.surfaceOutputs != outputs) {
       // Set target input values
-      this.surfaceOutputs.forEach { it.close() }
       this.surfaceOutputs = outputs
 
       if (outputs.isNotEmpty()) {

@@ -67,7 +67,7 @@ data class CameraConfiguration(
   }
 
   data class Difference(
-    // Input Camera (cameraId, isActive)
+    // Input Camera (cameraId)
     val deviceChanged: Boolean,
     // Outputs & Session (Photo, Video, CodeScanner, HDR, Format)
     val outputsChanged: Boolean,
@@ -75,14 +75,17 @@ data class CameraConfiguration(
     val sidePropsChanged: Boolean,
     // (isActive) changed
     val isActiveChanged: Boolean
-  )
+  ) {
+    val hasChanges: Boolean
+      get() = deviceChanged || outputsChanged || sidePropsChanged || isActiveChanged
+  }
 
   companion object {
     fun copyOf(other: CameraConfiguration?): CameraConfiguration = other?.copy() ?: CameraConfiguration()
 
     fun difference(left: CameraConfiguration?, right: CameraConfiguration): Difference {
       // input device
-      val deviceChanged = left?.cameraId != right.cameraId || left?.isActive != right.isActive
+      val deviceChanged = left?.cameraId != right.cameraId
 
       // outputs
       val outputsChanged = deviceChanged ||
