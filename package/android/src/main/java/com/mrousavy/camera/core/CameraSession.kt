@@ -299,8 +299,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         size,
         SurfaceOutput.OutputType.PREVIEW,
         enableHdr,
-        true,
-        false
       )
       outputs.add(output)
       // Size is usually landscape, so we flip it here
