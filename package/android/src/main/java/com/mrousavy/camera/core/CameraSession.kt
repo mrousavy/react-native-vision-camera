@@ -1,61 +1,40 @@
 package com.mrousavy.camera.core
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.ImageFormat
 import android.graphics.Point
-import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
-import android.hardware.camera2.CameraMetadata
-import android.hardware.camera2.CaptureRequest
-import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
-import android.hardware.camera2.params.MeteringRectangle
 import android.media.Image
 import android.media.ImageReader
-import android.os.Build
 import android.util.Log
-import android.util.Range
 import android.util.Size
 import android.view.Surface
 import android.view.SurfaceHolder
-import androidx.core.content.ContextCompat
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.core.outputs.BarcodeScannerOutput
 import com.mrousavy.camera.core.outputs.PhotoOutput
 import com.mrousavy.camera.core.outputs.SurfaceOutput
 import com.mrousavy.camera.core.outputs.VideoPipelineOutput
-import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.closestToOrMax
-import com.mrousavy.camera.extensions.createCaptureSession
-import com.mrousavy.camera.extensions.createPhotoCaptureRequest
 import com.mrousavy.camera.extensions.getPhotoSizes
 import com.mrousavy.camera.extensions.getPreviewTargetSize
 import com.mrousavy.camera.extensions.getVideoSizes
-import com.mrousavy.camera.extensions.openCamera
-import com.mrousavy.camera.extensions.setZoom
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.QualityPrioritization
 import com.mrousavy.camera.types.RecordVideoOptions
-import com.mrousavy.camera.types.Torch
-import com.mrousavy.camera.types.VideoStabilizationMode
 import com.mrousavy.camera.utils.ImageFormatUtils
 import java.io.Closeable
-import java.lang.IllegalStateException
-import java.util.concurrent.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: Callback) :
-  Closeable {
+class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: Callback) : Closeable {
   companion object {
     private const val TAG = "CameraSession"
   }
@@ -241,7 +220,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     val characteristics = cameraManager.getCameraCharacteristics(cameraId)
     val format = configuration.format
 
-    Log.i(TAG, "Creating outputs for Camera #${cameraId}...")
+    Log.i(TAG, "Creating outputs for Camera #$cameraId...")
 
     val isSelfie = characteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
 
@@ -302,7 +281,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         preview.config.surface,
         size,
         SurfaceOutput.OutputType.PREVIEW,
-        enableHdr,
+        enableHdr
       )
       outputs.add(output)
       // Size is usually landscape, so we flip it here
@@ -332,7 +311,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     // Create session
     captureSession.setOutputs(outputs)
 
-    Log.i(TAG, "Successfully configured Session with ${outputs.size} outputs for Camera #${cameraId}!")
+    Log.i(TAG, "Successfully configured Session with ${outputs.size} outputs for Camera #$cameraId!")
 
     // Update Frame Processor and RecordingSession for newly changed output
     updateVideoOutputs()
@@ -343,17 +322,19 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     val video = config.video as? CameraConfiguration.Output.Enabled<CameraConfiguration.Video>
     val enableVideoHdr = video?.config?.enableHdr == true
 
-    captureSession.setRepeatingRequest(RepeatingRequest(
-      template,
-      config.torch,
-      config.fps,
-      config.videoStabilizationMode,
-      enableVideoHdr,
-      config.enableLowLightBoost,
-      config.exposure,
-      config.zoom,
-      config.format
-    ))
+    captureSession.setRepeatingRequest(
+      RepeatingRequest(
+        template,
+        config.torch,
+        config.fps,
+        config.videoStabilizationMode,
+        enableVideoHdr,
+        config.enableLowLightBoost,
+        config.exposure,
+        config.zoom,
+        config.format
+      )
+    )
   }
 
   suspend fun takePhoto(
@@ -363,9 +344,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     enableRedEyeReduction: Boolean,
     enableAutoStabilization: Boolean,
     outputOrientation: Orientation
-  ): CapturedPhoto {
-    throw NotImplementedError()
-  }
+  ): CapturedPhoto = throw NotImplementedError()
 
   private fun onPhotoCaptured(image: Image) {
     Log.i(TAG, "Photo captured! ${image.width} x ${image.height}")
@@ -433,9 +412,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
   suspend fun focus(x: Int, y: Int): Unit = throw NotImplementedError("focus() is not yet implemented!")
 
-  private suspend fun focus(point: Point) {
-    throw NotImplementedError()
-  }
+  private suspend fun focus(point: Point): Unit = throw NotImplementedError()
 
   data class CapturedPhoto(
     val image: Image,

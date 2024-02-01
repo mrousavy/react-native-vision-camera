@@ -8,14 +8,8 @@ import android.util.Log
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
-import java.io.Closeable
 
-open class SurfaceOutput(
-  val surface: Surface,
-  val size: Size,
-  val outputType: OutputType,
-  val enableHdr: Boolean = false
-) {
+open class SurfaceOutput(val surface: Surface, val size: Size, val outputType: OutputType, val enableHdr: Boolean = false) {
   companion object {
     const val TAG = "SurfaceOutput"
 
