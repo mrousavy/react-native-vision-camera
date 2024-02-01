@@ -8,16 +8,13 @@ import android.hardware.camera2.TotalCaptureResult
 import com.mrousavy.camera.core.outputs.SurfaceOutput
 import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import java.io.Closeable
 
 /**
  * A [CameraCaptureSession] wrapper that safely handles interruptions and remains open whenever available.
  */
 class PersistentCameraCaptureSession(private val cameraManager: CameraManager,
-                                     private val device: CameraDevice,
-                                     coroutineScope: CoroutineScope): Closeable {
+                                     private val device: CameraDevice): Closeable {
   private var session: CameraCaptureSession? = null
   private var repeatingRequest: RepeatingRequest? = null
   private var outputs: List<SurfaceOutput> = emptyList()
