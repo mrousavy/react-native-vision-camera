@@ -24,12 +24,11 @@ data class RepeatingRequest(
     RECORD,
     PREVIEW;
 
-    fun toRequestTemplate(): Int {
-      return when (this) {
+    fun toRequestTemplate(): Int =
+      when (this) {
         RECORD -> CameraDevice.TEMPLATE_RECORD
         PREVIEW -> CameraDevice.TEMPLATE_PREVIEW
       }
-    }
   }
 
   fun toRepeatingRequest(device: CameraDevice, deviceDetails: CameraDeviceDetails, outputs: List<SurfaceOutput>): CaptureRequest {

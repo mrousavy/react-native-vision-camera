@@ -5,7 +5,6 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
-import android.util.Log
 import com.mrousavy.camera.core.outputs.SurfaceOutput
 import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession
@@ -15,10 +14,11 @@ import java.io.Closeable
 /**
  * A [CameraCaptureSession] wrapper that safely handles interruptions and remains open whenever available.
  */
-class PersistentCameraCaptureSession(private val cameraManager: CameraManager): Closeable {
+class PersistentCameraCaptureSession(private val cameraManager: CameraManager) : Closeable {
   companion object {
     private const val TAG = "PersistentCameraCaptureSession"
   }
+
   // Inputs/Dependencies
   private var repeatingRequest: RepeatingRequest? = null
   private var surfaceOutputs: List<SurfaceOutput> = emptyList()
@@ -40,14 +40,13 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager): 
   val outputs: List<SurfaceOutput>
     get() = surfaceOutputs
 
-  private suspend fun createDevice(cameraId: String): CameraDevice {
-    return cameraManager.openCamera(cameraId, { device, error ->
+  private suspend fun createDevice(cameraId: String): CameraDevice =
+    cameraManager.openCamera(cameraId, { device, error ->
       if (this.device == device) {
         this.device = null
         this.isActive = false
       }
     }, CameraQueues.cameraQueue)
-  }
 
   private suspend fun createSession(device: CameraDevice, outputs: List<SurfaceOutput>): CameraCaptureSession {
     if (outputs.isEmpty()) {
@@ -55,10 +54,10 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager): 
     }
 
     return device.createCaptureSession(cameraManager, outputs, { session ->
-       if (this.session == session) {
-         this.session = null
-         this.isActive = false
-       }
+      if (this.session == session) {
+        this.session = null
+        this.isActive = false
+      }
     }, CameraQueues.cameraQueue)
   }
 
