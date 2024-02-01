@@ -33,15 +33,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   // State/Dependants
   private var device: CameraDevice? = null // depends on [cameraId]
   private var session: CameraCaptureSession? = null // depends on [device, surfaceOutputs]
-  private var captureRequest: CaptureRequest? = null // depends on [cameraId, repeatingRequest]
   private var cameraDeviceDetails: CameraDeviceDetails? = null // depends on [device]
-    get() {
-      val device = device ?: return null
-      if (field == null || field?.cameraId != device.id) {
-        field = CameraDeviceDetails(cameraManager, device.id)
-      }
-      return field
-    }
 
   private val mutex = Mutex()
 
@@ -90,10 +82,20 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
     return newSession
   }
 
+  private fun getOrCreateCameraDeviceDetails(device: CameraDevice): CameraDeviceDetails {
+    val currentDetails = cameraDeviceDetails
+    if (currentDetails?.cameraId == device.id) {
+      return currentDetails
+    }
+
+    val newDetails = CameraDeviceDetails(cameraManager, device.id)
+    cameraDeviceDetails = newDetails
+    return newDetails
+  }
+
   private suspend fun configure() {
-    val cameraId = cameraId ?: return
-    val repeatingRequest = repeatingRequest ?: return
-    val cameraDeviceDetails = cameraDeviceDetails ?: return
+    val cameraId = cameraId ?: throw NoCameraDeviceError()
+    val repeatingRequest = repeatingRequest ?: throw CameraNotReadyError()
     val outputs = outputs
     if (outputs.isEmpty()) {
       return
@@ -103,8 +105,10 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
     val session = getOrCreateSession(device, outputs)
 
     if (isActive) {
-      val captureRequest = repeatingRequest.toRepeatingRequest(device, cameraDeviceDetails, outputs)
+      val details = getOrCreateCameraDeviceDetails(device)
+      val captureRequest = repeatingRequest.toRepeatingRequest(device, details, outputs)
       session.setRepeatingRequest(captureRequest, null, null)
+      Log.i(TAG, "Done!")
     } else {
       session.stopRepeating()
     }
