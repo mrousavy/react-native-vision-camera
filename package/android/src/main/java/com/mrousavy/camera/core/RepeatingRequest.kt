@@ -16,10 +16,9 @@ data class RepeatingRequest(
   private val videoStabilizationMode: VideoStabilizationMode = VideoStabilizationMode.OFF,
   private val enableVideoHdr: Boolean = false,
   private val enableLowLightBoost: Boolean = false,
-  private val exposureBias: Int? = null,
+  private val exposureBias: Double? = null,
   private val zoom: Float = 1.0f,
-  private val format: CameraDeviceFormat? = null,
-  private val outputs: List<SurfaceOutput>
+  private val format: CameraDeviceFormat? = null
 ) {
   enum class Template {
     RECORD,
@@ -33,10 +32,14 @@ data class RepeatingRequest(
     }
   }
 
-  fun toRepeatingRequest(device: CameraDevice, deviceDetails: CameraDeviceDetails): CaptureRequest {
+  fun toRepeatingRequest(device: CameraDevice, deviceDetails: CameraDeviceDetails, outputs: List<SurfaceOutput>): CaptureRequest {
     val captureRequest = device.createCaptureRequest(template.toRequestTemplate())
 
-    outputs.forEach { t -> captureRequest.addTarget(t.surface) }
+    outputs.forEach { output ->
+      if (output.isRepeating) {
+        captureRequest.addTarget(output.surface)
+      }
+    }
 
     // Set FPS
     if (fps != null) {
@@ -77,7 +80,7 @@ data class RepeatingRequest(
 
     // Set Exposure Bias
     if (exposureBias != null) {
-      val clamped = deviceDetails.exposureRange.clamp(exposureBias)
+      val clamped = deviceDetails.exposureRange.clamp(exposureBias.toInt())
       captureRequest.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, clamped)
     }
 
