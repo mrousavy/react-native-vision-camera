@@ -21,7 +21,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager): 
   }
   // Inputs/Dependencies
   private var repeatingRequest: RepeatingRequest? = null
-  private var outputs: List<SurfaceOutput> = emptyList()
+  private var surfaceOutputs: List<SurfaceOutput> = emptyList()
   private var cameraId: String? = null
   private var isActive = false
 
@@ -36,6 +36,9 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager): 
       }
       return field
     }
+
+  val outputs: List<SurfaceOutput>
+    get() = surfaceOutputs
 
   private suspend fun createDevice(cameraId: String): CameraDevice {
     return cameraManager.openCamera(cameraId, { device, error ->
@@ -69,7 +72,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager): 
       return
     }
 
-    val repeatingRequest = request.toRepeatingRequest(device, cameraDeviceDetails)
+    val repeatingRequest = request.toRepeatingRequest(device, cameraDeviceDetails, outputs)
     session.setRepeatingRequest(repeatingRequest, null, null)
   }
 
@@ -91,17 +94,21 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager): 
   }
 
   suspend fun setOutputs(outputs: List<SurfaceOutput>) {
-    if (this.outputs != outputs) {
+    if (this.surfaceOutputs != outputs) {
       // Set target input values
-      this.outputs = outputs
+      this.surfaceOutputs = outputs
 
-      val device = device
-      if (outputs.isNotEmpty() && device != null) {
+      if (outputs.isNotEmpty()) {
         // Update output session
+        val device = device ?: return
         session?.abortCaptures()
         session = null
         session = createSession(device, outputs)
         updateRepeatingRequest()
+      } else {
+        // Just stop it, we don't have any outputs
+        session?.close()
+        session = null
       }
     }
   }

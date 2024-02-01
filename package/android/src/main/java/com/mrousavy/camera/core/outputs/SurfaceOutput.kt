@@ -52,6 +52,14 @@ open class SurfaceOutput(
     return result
   }
 
+  val isRepeating: Boolean
+    get() {
+      return when (outputType) {
+        OutputType.VIDEO, OutputType.PREVIEW, OutputType.VIDEO_AND_PREVIEW -> true
+        OutputType.PHOTO -> false
+      }
+    }
+
   override fun toString(): String = "$outputType (${size.width} x ${size.height})"
 
   override fun close() {
