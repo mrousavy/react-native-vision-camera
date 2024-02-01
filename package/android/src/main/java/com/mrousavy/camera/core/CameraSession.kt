@@ -134,7 +134,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
           captureSession.setIsActive(config.isActive)
         }
 
-        Log.i(TAG, "Successfully updated CameraSession Configuration! isActive: ${config.isActive}")
+        Log.i(TAG, "configure { ... }: Completed CameraSession Configuration! (isActive: ${config.isActive}, isRunning: ${captureSession.isRunning})")
         this.configuration = config
         isRunning = captureSession.isRunning
 
