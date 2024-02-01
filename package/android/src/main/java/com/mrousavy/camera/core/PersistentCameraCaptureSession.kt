@@ -131,11 +131,8 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager): 
     return session.capture(request, enableShutterSound)
   }
 
-  fun abortCaptures() {
-    session?.abortCaptures()
-  }
-
   override fun close() {
-    session?.close()
+    session?.abortCaptures()
+    device?.close()
   }
 }
