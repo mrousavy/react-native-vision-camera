@@ -97,6 +97,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager) :
   suspend fun setOutputs(outputs: List<SurfaceOutput>) {
     if (this.surfaceOutputs != outputs) {
       // Set target input values
+      this.surfaceOutputs.forEach { it.close() }
       this.surfaceOutputs = outputs
 
       if (outputs.isNotEmpty()) {
