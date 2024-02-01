@@ -14,8 +14,7 @@ import java.io.Closeable
 /**
  * A [CameraCaptureSession] wrapper that safely handles interruptions and remains open whenever available.
  */
-class PersistentCameraCaptureSession(private val cameraManager: CameraManager,
-  private val callback: Callback) : Closeable {
+class PersistentCameraCaptureSession(private val cameraManager: CameraManager, private val callback: Callback) : Closeable {
   companion object {
     private const val TAG = "PersistentCameraCaptureSession"
   }

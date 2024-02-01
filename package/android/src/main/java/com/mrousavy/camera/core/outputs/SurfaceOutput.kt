@@ -10,7 +10,7 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import java.io.Closeable
 
-open class SurfaceOutput(val surface: Surface, val size: Size, val outputType: OutputType, val enableHdr: Boolean = false): Closeable {
+open class SurfaceOutput(val surface: Surface, val size: Size, val outputType: OutputType, val enableHdr: Boolean = false) : Closeable {
   companion object {
     const val TAG = "SurfaceOutput"
 
