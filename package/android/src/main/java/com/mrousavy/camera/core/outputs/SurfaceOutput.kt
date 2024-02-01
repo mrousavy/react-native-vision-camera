@@ -14,9 +14,8 @@ open class SurfaceOutput(
   val surface: Surface,
   val size: Size,
   val outputType: OutputType,
-  val enableHdr: Boolean = false,
-  private val closeSurfaceOnEnd: Boolean = false
-) : Closeable {
+  val enableHdr: Boolean = false
+) {
   companion object {
     const val TAG = "SurfaceOutput"
 
@@ -61,12 +60,6 @@ open class SurfaceOutput(
     }
 
   override fun toString(): String = "$outputType (${size.width} x ${size.height})"
-
-  override fun close() {
-    if (closeSurfaceOnEnd) {
-      surface.release()
-    }
-  }
 
   enum class OutputType {
     PHOTO,
