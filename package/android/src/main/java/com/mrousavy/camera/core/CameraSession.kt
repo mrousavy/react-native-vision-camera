@@ -116,22 +116,24 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       Log.i(TAG, "configure { ... }: Updating CameraSession Configuration... $diff")
 
       try {
-        // Build up session or update any props
-        if (diff.deviceChanged) {
-          // 1. cameraId changed, open device
-          configureInput(config)
-        }
-        if (diff.outputsChanged) {
-          // 2. outputs changed, build new session
-          configureOutputs(config)
-        }
-        if (diff.sidePropsChanged) {
-          // 3. zoom etc changed, update repeating request
-          configureCaptureRequest(config)
-        }
-        if (diff.isActiveChanged) {
-          // 4. Either start or stop the session
-          captureSession.setIsActive(config.isActive)
+        captureSession.withConfiguration {
+          // Build up session or update any props
+          if (diff.deviceChanged) {
+            // 1. cameraId changed, open device
+            configureInput(config)
+          }
+          if (diff.outputsChanged) {
+            // 2. outputs changed, build new session
+            configureOutputs(config)
+          }
+          if (diff.sidePropsChanged) {
+            // 3. zoom etc changed, update repeating request
+            configureCaptureRequest(config)
+          }
+          if (diff.isActiveChanged) {
+            // 4. Either start or stop the session
+            captureSession.setIsActive(config.isActive)
+          }
         }
 
         Log.i(TAG, "configure { ... }: Completed CameraSession Configuration! (isActive: ${config.isActive}, isRunning: ${captureSession.isRunning})")

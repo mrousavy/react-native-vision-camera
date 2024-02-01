@@ -12,6 +12,8 @@ import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.isValid
 import com.mrousavy.camera.extensions.openCamera
 import com.mrousavy.camera.extensions.tryAbortCaptures
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.Closeable
 
 /**
@@ -23,15 +25,16 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   }
 
   // Inputs/Dependencies
-  private var repeatingRequest: RepeatingRequest? = null
-  private var surfaceOutputs: List<SurfaceOutput> = emptyList()
   private var cameraId: String? = null
+  private var outputs: List<SurfaceOutput> = emptyList()
+  private var repeatingRequest: RepeatingRequest? = null
   private var isActive = false
 
   // State/Dependants
-  private var session: CameraCaptureSession? = null
-  private var device: CameraDevice? = null
-  private var cameraDeviceDetails: CameraDeviceDetails? = null
+  private var device: CameraDevice? = null // depends on [cameraId]
+  private var session: CameraCaptureSession? = null // depends on [device, surfaceOutputs]
+  private var captureRequest: CaptureRequest? = null // depends on [cameraId, repeatingRequest]
+  private var cameraDeviceDetails: CameraDeviceDetails? = null // depends on [device]
     get() {
       val device = device ?: return null
       if (field == null || field?.cameraId != device.id) {
@@ -40,13 +43,18 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       return field
     }
 
-  val outputs: List<SurfaceOutput>
-    get() = surfaceOutputs
+  private val mutex = Mutex()
+
   val isRunning: Boolean
     get() = isActive && session != null && device != null
 
-  private suspend fun createDevice(cameraId: String): CameraDevice =
-    cameraManager.openCamera(cameraId, { device, error ->
+  private suspend fun getOrCreateDevice(cameraId: String): CameraDevice {
+    val currentDevice = device
+    if (currentDevice?.id == cameraId && currentDevice.isValid) {
+      return currentDevice
+    }
+
+    val newDevice = cameraManager.openCamera(cameraId, { device, error ->
       if (this.device == device) {
         this.session?.tryAbortCaptures()
         this.session = null
@@ -57,84 +65,106 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
         callback.onError(error)
       }
     }, CameraQueues.cameraQueue)
+    this.device = newDevice
+    return newDevice
+  }
 
-  private suspend fun createSession(device: CameraDevice, outputs: List<SurfaceOutput>): CameraCaptureSession {
+  private suspend fun getOrCreateSession(device: CameraDevice, outputs: List<SurfaceOutput>): CameraCaptureSession {
+    val currentSession = session
+    if (currentSession?.device == device) {
+      return currentSession
+    }
+
     if (outputs.isEmpty()) {
       throw Error("Cannot configure PersistentCameraCaptureSession without outputs!")
     }
 
-    return device.createCaptureSession(cameraManager, outputs, { session ->
+    val newSession = device.createCaptureSession(cameraManager, outputs, { session ->
       if (this.session == session) {
         this.session?.tryAbortCaptures()
         this.session = null
         this.isActive = false
       }
     }, CameraQueues.cameraQueue)
+    session = newSession
+    return newSession
   }
 
-  private fun updateRepeatingRequest() {
-    val session = session ?: return
-    if (isActive) {
-      val request = repeatingRequest ?: return
-      val device = device ?: return
-      val cameraDeviceDetails = cameraDeviceDetails ?: return
+  private suspend fun configure() {
+    val cameraId = cameraId ?: return
+    val repeatingRequest = repeatingRequest ?: return
+    val cameraDeviceDetails = cameraDeviceDetails ?: return
+    val outputs = outputs
+    if (outputs.isEmpty()) {
+      return
+    }
 
-      val repeatingRequest = request.toRepeatingRequest(device, cameraDeviceDetails, outputs)
-      session.setRepeatingRequest(repeatingRequest, null, null)
+    val device = getOrCreateDevice(cameraId)
+    val session = getOrCreateSession(device, outputs)
+
+    if (isActive) {
+      val captureRequest = repeatingRequest.toRepeatingRequest(device, cameraDeviceDetails, outputs)
+      session.setRepeatingRequest(captureRequest, null, null)
     } else {
       session.stopRepeating()
     }
   }
 
-  suspend fun setInput(cameraId: String) {
-    if (this.cameraId != cameraId) {
-      // Set target input values
-      this.cameraId = cameraId
-
-      if (device?.id != cameraId || device?.isValid != true) {
-        // Close everything that depends on that device
-        session?.abortCaptures()
-        session = null
-        device?.close() // <-- this will close the session as well
-
-        // Create a new device
-        device = createDevice(cameraId)
-        Log.i(TAG, "Device updated! ${device?.id}")
-      }
+  private fun assertLocked(method: String) {
+    if (!mutex.isLocked) {
+      throw SessionIsNotLockedError("Failed to call $method, session is not locked! Call beginConfiguration() first.")
     }
   }
 
-  suspend fun setOutputs(outputs: List<SurfaceOutput>) {
-    if (this.surfaceOutputs != outputs) {
-      // Set target input values
-      this.surfaceOutputs = outputs
+  suspend fun withConfiguration(block: suspend () -> Unit) {
+    mutex.withLock {
+      block()
+      configure()
+    }
+  }
+
+  fun setInput(cameraId: String) {
+    assertLocked("setInput")
+    if (this.cameraId != cameraId || device?.id != cameraId) {
+      this.cameraId = cameraId
+
+      // Abort any captures in the session so we get the onCaptureFailed handler for any outstanding photos
+      session?.tryAbortCaptures()
+      session = null
+      // Closing the device will also close the session above - even faster than manually closing it.
+      device?.close()
+      device = null
+    }
+  }
+
+  fun setOutputs(outputs: List<SurfaceOutput>) {
+    assertLocked("setOutputs")
+    if (this.outputs != outputs) {
+      this.outputs = outputs
 
       if (outputs.isNotEmpty()) {
-        // Update output session
-        val device = device ?: return
-        session?.abortCaptures()
-        session = null
-        session = createSession(device, outputs)
-        updateRepeatingRequest()
+        // Outputs have changed to something else, we don't wanna destroy the session directly
+        // so the outputs can be kept warm. The session that gets created next will take over the outputs.
+        session?.tryAbortCaptures()
       } else {
         // Just stop it, we don't have any outputs
         session?.close()
-        session = null
       }
+      session = null
     }
   }
 
   fun setRepeatingRequest(request: RepeatingRequest) {
+    assertLocked("setRepeatingRequest")
     if (this.repeatingRequest != request) {
       this.repeatingRequest = request
-      updateRepeatingRequest()
     }
   }
 
   fun setIsActive(isActive: Boolean) {
+    assertLocked("setIsActive")
     if (this.isActive != isActive) {
       this.isActive = isActive
-      updateRepeatingRequest()
     }
   }
 
@@ -144,11 +174,13 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   }
 
   override fun close() {
-    session?.abortCaptures()
+    session?.tryAbortCaptures()
     device?.close()
   }
 
   interface Callback {
     fun onError(error: Throwable)
   }
+
+  class SessionIsNotLockedError(message: String): Error(message)
 }
