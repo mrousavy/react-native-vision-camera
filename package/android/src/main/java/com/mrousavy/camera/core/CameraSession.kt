@@ -38,8 +38,9 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   Closeable,
   PersistentCameraCaptureSession.Callback {
   companion object {
-    private const val TAG = "CameraSession"
+    private var counter = 1
   }
+  private val TAG = "CameraSession${counter++}"
 
   // Camera Configuration
   private var configuration: CameraConfiguration? = null

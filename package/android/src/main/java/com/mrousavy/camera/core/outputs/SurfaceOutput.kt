@@ -12,7 +12,7 @@ import java.io.Closeable
 
 open class SurfaceOutput(val surface: Surface, val size: Size, val outputType: OutputType, val enableHdr: Boolean = false) : Closeable {
   companion object {
-    const val TAG = "SurfaceOutput"
+    private var counter = 1
 
     private fun supportsOutputType(characteristics: CameraCharacteristics, outputType: OutputType): Boolean {
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -27,6 +27,7 @@ open class SurfaceOutput(val surface: Surface, val size: Size, val outputType: O
       return false
     }
   }
+  val TAG = "SurfaceOutput${counter++}"
 
   fun toOutputConfiguration(characteristics: CameraCharacteristics): OutputConfiguration {
     val result = OutputConfiguration(surface)

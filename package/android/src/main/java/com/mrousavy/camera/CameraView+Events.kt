@@ -13,28 +13,28 @@ import com.mrousavy.camera.core.code
 import com.mrousavy.camera.types.CodeType
 
 fun CameraView.invokeOnInitialized() {
-  Log.i(CameraView.TAG, "invokeOnInitialized()")
+  Log.i(TAG, "invokeOnInitialized()")
 
   val reactContext = context as ReactContext
   reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraInitialized", null)
 }
 
 fun CameraView.invokeOnStarted() {
-  Log.i(CameraView.TAG, "invokeOnStarted()")
+  Log.i(TAG, "invokeOnStarted()")
 
   val reactContext = context as ReactContext
   reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraStarted", null)
 }
 
 fun CameraView.invokeOnStopped() {
-  Log.i(CameraView.TAG, "invokeOnStopped()")
+  Log.i(TAG, "invokeOnStopped()")
 
   val reactContext = context as ReactContext
   reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraStopped", null)
 }
 
 fun CameraView.invokeOnError(error: Throwable) {
-  Log.e(CameraView.TAG, "invokeOnError(...):")
+  Log.e(TAG, "invokeOnError(...):")
   error.printStackTrace()
 
   val cameraError = when (error) {

@@ -40,8 +40,9 @@ class CameraView(context: Context) :
   FrameLayout(context),
   CameraSession.Callback {
   companion object {
-    const val TAG = "CameraView"
+    private var counter = 1
   }
+  val TAG = "CameraView${counter++}"
 
   // react properties
   // props that require reconfiguring
