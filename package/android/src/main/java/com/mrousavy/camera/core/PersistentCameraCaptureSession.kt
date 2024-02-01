@@ -14,7 +14,8 @@ import java.io.Closeable
 /**
  * A [CameraCaptureSession] wrapper that safely handles interruptions and remains open whenever available.
  */
-class PersistentCameraCaptureSession(private val cameraManager: CameraManager) : Closeable {
+class PersistentCameraCaptureSession(private val cameraManager: CameraManager,
+  private val callback: Callback) : Closeable {
   companion object {
     private const val TAG = "PersistentCameraCaptureSession"
   }
@@ -47,6 +48,9 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager) :
       if (this.device == device) {
         this.device = null
         this.isActive = false
+      }
+      if (error != null) {
+        callback.onError(error)
       }
     }, CameraQueues.cameraQueue)
 
@@ -137,5 +141,9 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager) :
   override fun close() {
     session?.abortCaptures()
     device?.close()
+  }
+
+  interface Callback {
+    fun onError(error: Throwable)
   }
 }

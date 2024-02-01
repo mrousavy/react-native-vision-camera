@@ -34,7 +34,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: Callback) : Closeable {
+class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: Callback) : Closeable, PersistentCameraCaptureSession.Callback {
   companion object {
     private const val TAG = "CameraSession"
   }
@@ -43,7 +43,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   private var configuration: CameraConfiguration? = null
 
   // Camera State
-  private val captureSession = PersistentCameraCaptureSession(cameraManager)
+  private val captureSession = PersistentCameraCaptureSession(cameraManager, this)
   private var photoOutput: PhotoOutput? = null
   private var videoOutput: VideoPipelineOutput? = null
   private var codeScannerOutput: BarcodeScannerOutput? = null
@@ -415,6 +415,10 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       val recording = recording ?: throw NoRecordingInProgressError()
       recording.resume()
     }
+  }
+
+  override fun onError(error: Throwable) {
+    callback.onError(error)
   }
 
   suspend fun focus(x: Int, y: Int): Unit = throw NotImplementedError("focus() is not yet implemented!")
