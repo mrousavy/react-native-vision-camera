@@ -22,11 +22,14 @@ import java.io.Closeable
 
 /**
  * A [CameraCaptureSession] wrapper that safely handles interruptions and remains open whenever available.
+ *
+ * This class aims to be similar to Apple's `AVCaptureSession`.
  */
 class PersistentCameraCaptureSession(private val cameraManager: CameraManager, private val callback: Callback) : Closeable {
   companion object {
     private var counter = 1
   }
+  @Suppress("PrivatePropertyName")
   private val TAG = "PersistentCameraCaptureSession${counter++}"
 
   // Inputs/Dependencies
