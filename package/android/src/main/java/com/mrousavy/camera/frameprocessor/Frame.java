@@ -31,6 +31,7 @@ public class Frame {
     }
 
     private synchronized boolean getIsImageValid(Image image) {
+        if (refCount <= 0) return false;
         try {
             // will throw an exception if the image is already closed
             image.getFormat();
