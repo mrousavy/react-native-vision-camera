@@ -14,6 +14,7 @@ import com.mrousavy.camera.extensions.isValid
 import com.mrousavy.camera.extensions.openCamera
 import com.mrousavy.camera.extensions.tryAbortCaptures
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -43,7 +44,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   private var didDestroyFromOutside = false
 
   val isRunning: Boolean
-    get() = isActive && session != null && device != null
+    get() = isActive && session != null && device != null && !didDestroyFromOutside
 
   private suspend fun getOrCreateDevice(cameraId: String): CameraDevice {
     val currentDevice = device
@@ -73,13 +74,10 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   private suspend fun getOrCreateSession(device: CameraDevice, outputs: List<SurfaceOutput>): CameraCaptureSession {
     val currentSession = session
     if (currentSession?.device == device) {
-      Log.i(TAG, "Reusing current session.")
       return currentSession
     }
 
-    if (outputs.isEmpty()) {
-      throw Error("Cannot configure PersistentCameraCaptureSession without outputs!")
-    }
+    if (outputs.isEmpty()) throw NoOutputsError()
 
     Log.i(TAG, "Creating new session...")
     val newSession = device.createCaptureSession(cameraManager, outputs, { session ->
