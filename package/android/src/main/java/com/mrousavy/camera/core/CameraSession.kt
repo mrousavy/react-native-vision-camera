@@ -209,7 +209,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     Log.i(TAG, "Preview Output destroyed!")
   }
 
-  private suspend fun configureInput(configuration: CameraConfiguration) {
+  private fun configureInput(configuration: CameraConfiguration) {
     Log.i(TAG, "Configuring inputs for CameraSession...")
     val cameraId = configuration.cameraId ?: throw NoCameraDeviceError()
     isRunning = false
@@ -219,7 +219,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   /**
    * Set up the `CaptureSession` with all outputs (preview, photo, video, codeScanner) and their HDR/Format settings.
    */
-  private suspend fun configureOutputs(configuration: CameraConfiguration) {
+  private fun configureOutputs(configuration: CameraConfiguration) {
     val cameraId = configuration.cameraId ?: throw NoCameraDeviceError()
 
     // Destroy previous outputs
