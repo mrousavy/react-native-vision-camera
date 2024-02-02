@@ -34,6 +34,7 @@ To understand a bit more about camera formats, you first need to understand a fe
   * 4k Photos, 1080p Videos, 240 FPS (ultra high FPS/slow motion)
   * 720p Photos, 720p Videos, 30 FPS (smaller buffers/e.g. faster face detection)
 * Each app has different requirements, so the format filtering is up to you.
+* The `videoResolution` and `videoAspectRatio` options also affect the preview, as preview is also running in the video stream.
 
 To get all available formats, simply use the `CameraDevice`'s [`formats` property](/docs/api/interfaces/CameraDevice#formats).  These are a [CameraFormat's](/docs/api/interfaces/CameraDeviceFormat) props:
 
@@ -61,6 +62,7 @@ You can either find a matching format manually by looping through your `CameraDe
 ```ts
 const device = ...
 const format = useCameraFormat(device, [
+  { videoAspectRatio: 16 / 9 },
   { videoResolution: { width: 3048, height: 2160 } },
   { fps: 60 }
 ])
@@ -72,6 +74,7 @@ const format = useCameraFormat(device, [
 ```ts
 const device = ...
 const format = getCameraFormat(device, [
+  { videoAspectRatio: 16 / 9 },
   { videoResolution: { width: 3048, height: 2160 } },
   { fps: 60 }
 ])
