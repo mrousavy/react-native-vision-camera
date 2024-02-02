@@ -121,6 +121,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
     try {
       val device = getOrCreateDevice(cameraId)
       val session = getOrCreateSession(device, outputs)
+      didDestroyFromOutside = false
 
       if (isActive) {
         val details = getOrCreateCameraDeviceDetails(device)
