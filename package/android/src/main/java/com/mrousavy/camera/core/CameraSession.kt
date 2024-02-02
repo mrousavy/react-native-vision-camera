@@ -224,7 +224,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
     // Destroy previous outputs
     Log.i(TAG, "Destroying previous outputs...")
-    captureSession.setOutputs(emptyList())
     photoOutput?.close()
     photoOutput = null
     videoOutput?.close()

@@ -12,6 +12,8 @@ import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.isValid
 import com.mrousavy.camera.extensions.openCamera
 import com.mrousavy.camera.extensions.tryAbortCaptures
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.Closeable
@@ -21,8 +23,9 @@ import java.io.Closeable
  */
 class PersistentCameraCaptureSession(private val cameraManager: CameraManager, private val callback: Callback) : Closeable {
   companion object {
-    private const val TAG = "PersistentCameraCaptureSession"
+    private var counter = 1
   }
+  private val TAG = "PersistentCameraCaptureSession${counter++}"
 
   // Inputs/Dependencies
   private var cameraId: String? = null
@@ -44,10 +47,13 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   private suspend fun getOrCreateDevice(cameraId: String): CameraDevice {
     val currentDevice = device
     if (currentDevice?.id == cameraId && currentDevice.isValid) {
+      Log.i(TAG, "Reusing current device.")
       return currentDevice
     }
 
+    Log.i(TAG, "Creating new device...")
     val newDevice = cameraManager.openCamera(cameraId, { device, error ->
+      Log.i(TAG, "Camera $device closed!")
       if (this.device == device) {
         this.didDestroyFromOutside = true
         this.session?.tryAbortCaptures()
@@ -58,7 +64,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       if (error != null) {
         callback.onError(error)
       }
-    }, CameraQueues.cameraQueue)
+    }, CameraQueues.videoQueue)
     this.device = newDevice
     return newDevice
   }
@@ -66,6 +72,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   private suspend fun getOrCreateSession(device: CameraDevice, outputs: List<SurfaceOutput>): CameraCaptureSession {
     val currentSession = session
     if (currentSession?.device == device) {
+      Log.i(TAG, "Reusing current session.")
       return currentSession
     }
 
@@ -73,14 +80,16 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       throw Error("Cannot configure PersistentCameraCaptureSession without outputs!")
     }
 
+    Log.i(TAG, "Creating new session...")
     val newSession = device.createCaptureSession(cameraManager, outputs, { session ->
+      Log.i(TAG, "Session $session closed!")
       if (this.session == session) {
         this.didDestroyFromOutside = true
         this.session?.tryAbortCaptures()
         this.session = null
         this.isActive = false
       }
-    }, CameraQueues.cameraQueue)
+    }, CameraQueues.videoQueue)
     session = newSession
     return newSession
   }
@@ -97,6 +106,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   }
 
   private suspend fun configure() {
+    Log.i(TAG, "Configure() with isActive: $isActive, ID: $cameraId, device: $device, session: $session")
     if (didDestroyFromOutside) {
       return
     }
@@ -134,6 +144,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   }
 
   fun setInput(cameraId: String) {
+    Log.i(TAG, "Changing input to $cameraId!")
     assertLocked("setInput")
     if (this.cameraId != cameraId || device?.id != cameraId) {
       this.cameraId = cameraId
@@ -148,6 +159,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   }
 
   fun setOutputs(outputs: List<SurfaceOutput>) {
+    Log.i(TAG, "Changing outputs to $outputs!")
     assertLocked("setOutputs")
     if (this.outputs != outputs) {
       this.outputs = outputs
