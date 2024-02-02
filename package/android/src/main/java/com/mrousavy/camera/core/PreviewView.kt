@@ -44,35 +44,14 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
     holder.addCallback(callback)
   }
 
-  private fun getSize(contentSize: Size, containerSize: Size, resizeMode: ResizeMode): Size {
-    val contentAspectRatio = contentSize.width.toDouble() / contentSize.height
-    val containerAspectRatio = containerSize.width.toDouble() / containerSize.height
-
-    val widthOverHeight = when (resizeMode) {
-      ResizeMode.COVER -> contentAspectRatio > containerAspectRatio
-      ResizeMode.CONTAIN -> contentAspectRatio < containerAspectRatio
-    }
-
-    return if (widthOverHeight) {
-      // Scale by width to cover height
-      val scaledWidth = containerSize.height * contentAspectRatio
-      Size(scaledWidth.roundToInt(), containerSize.height)
-    } else {
-      // Scale by height to cover width
-      val scaledHeight = containerSize.width / contentAspectRatio
-      Size(containerSize.width, scaledHeight.roundToInt())
-    }
-  }
-
   @SuppressLint("DrawAllocation")
   override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
     super.onMeasure(widthMeasureSpec, heightMeasureSpec)
 
     val viewSize = Size(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec))
-    val fittedSize = getSize(size, viewSize, resizeMode)
 
-    Log.i(TAG, "PreviewView is $viewSize, rendering $size content. Resizing to: $fittedSize ($resizeMode)")
-    setMeasuredDimension(fittedSize.width, fittedSize.height)
+    Log.i(TAG, "PreviewView is $viewSize. Resizing to: $viewSize ($resizeMode)")
+    setMeasuredDimension(viewSize.width, viewSize.height)
   }
 
   companion object {
