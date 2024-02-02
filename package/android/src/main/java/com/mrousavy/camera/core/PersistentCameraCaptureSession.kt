@@ -55,12 +55,12 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       return currentDevice
     }
 
-    Log.i(TAG, "Creating new device...")
     this.session?.tryAbortCaptures()
     this.device?.close()
     this.device = null
     this.session = null
 
+    Log.i(TAG, "Creating new device...")
     val newDevice = cameraManager.openCamera(cameraId, { device, error ->
       Log.i(TAG, "Camera $device closed!")
       if (this.device == device) {
@@ -87,8 +87,6 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
     if (outputs.isEmpty()) throw NoOutputsError()
 
     Log.i(TAG, "Creating new session...")
-    this.session?.tryAbortCaptures()
-    
     val newSession = device.createCaptureSession(cameraManager, outputs, { session ->
       Log.i(TAG, "Session $session closed!")
       if (this.session == session) {
@@ -220,8 +218,10 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   }
 
   suspend fun capture(request: CaptureRequest, enableShutterSound: Boolean): TotalCaptureResult {
-    val session = session ?: throw CameraNotReadyError()
-    return session.capture(request, enableShutterSound)
+    mutex.withLock {
+      val session = session ?: throw CameraNotReadyError()
+      return session.capture(request, enableShutterSound)
+    }
   }
 
   override fun close() {
