@@ -1,6 +1,8 @@
 package com.mrousavy.camera.core
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.ImageFormat
 import android.graphics.Point
 import android.hardware.camera2.CameraCharacteristics
@@ -12,6 +14,7 @@ import android.util.Log
 import android.util.Size
 import android.view.Surface
 import android.view.SurfaceHolder
+import androidx.core.content.ContextCompat
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.core.outputs.BarcodeScannerOutput
 import com.mrousavy.camera.core.outputs.PhotoOutput
@@ -213,6 +216,8 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   private fun configureInput(configuration: CameraConfiguration) {
     Log.i(TAG, "Configuring inputs for CameraSession...")
     val cameraId = configuration.cameraId ?: throw NoCameraDeviceError()
+    val status = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+    if (status != PackageManager.PERMISSION_GRANTED) throw CameraPermissionError()
     isRunning = false
     captureSession.setInput(cameraId)
   }
