@@ -114,31 +114,37 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
     val cameraId = cameraId ?: throw NoCameraDeviceError()
     val repeatingRequest = repeatingRequest ?: throw CameraNotReadyError()
     val outputs = outputs
-    if (outputs.isEmpty()) {
-      return
-    }
 
     try {
-      val device = getOrCreateDevice(cameraId)
-      val session = getOrCreateSession(device, outputs)
       didDestroyFromOutside = false
 
+      val device = getOrCreateDevice(cameraId)
+      if (didDestroyFromOutside) return
+
+      if (outputs.isEmpty()) return
+      val session = getOrCreateSession(device, outputs)
+      if (didDestroyFromOutside) return
+
       if (isActive) {
+        Log.i(TAG, "Starting repeating request...")
         val details = getOrCreateCameraDeviceDetails(device)
         val captureRequest = repeatingRequest.toRepeatingRequest(device, details, outputs)
         session.setRepeatingRequest(captureRequest, null, null)
       } else {
         session.stopRepeating()
+        Log.i(TAG, "Stopping repeating request...")
       }
+      didDestroyFromOutside = false
+      Log.i(TAG, "Configure() done! isActive: $isActive, ID: $cameraId, device: $device, session: $session")
     } catch (e: CameraAccessException) {
       if (didDestroyFromOutside) {
         // Camera device has been destroyed in the meantime, that's fine.
+        Log.i(TAG, "Configure() canceled, session has been destroyed in the meantime!")
       } else {
         // Camera should still be active, so not sure what went wrong. Rethrow
         throw e
       }
     }
-    Log.i(TAG, "Configure() done! isActive: $isActive, ID: $cameraId, device: $device, session: $session")
   }
 
   private fun assertLocked(method: String) {

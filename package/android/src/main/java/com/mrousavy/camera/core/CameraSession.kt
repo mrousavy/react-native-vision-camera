@@ -132,7 +132,8 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
           }
           if (diff.isActiveChanged) {
             // 4. Either start or stop the session
-            captureSession.setIsActive(config.isActive)
+            val isActive = config.isActive && config.preview.isEnabled
+            captureSession.setIsActive(isActive)
           }
         }
 
