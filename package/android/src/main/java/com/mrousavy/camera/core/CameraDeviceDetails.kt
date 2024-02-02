@@ -102,6 +102,7 @@ class CameraDeviceDetails(val cameraManager: CameraManager, val cameraId: String
   private fun getMinFocusDistanceCm(): Double {
     val distance = characteristics.get(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE)
     if (distance == null || distance == 0f) return 0.0
+    if (distance.isNaN() || distance.isInfinite()) return 0.0
     // distance is in "diopters", meaning 1/meter. Convert to meters, then centi-meters
     return 1.0 / distance * 100.0
   }
