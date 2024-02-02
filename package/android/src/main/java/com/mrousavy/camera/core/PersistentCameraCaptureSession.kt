@@ -1,5 +1,6 @@
 package com.mrousavy.camera.core
 
+import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
@@ -107,7 +108,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
 
   private suspend fun configure() {
     Log.i(TAG, "Configure() with isActive: $isActive, ID: $cameraId, device: $device, session: $session")
-    if (didDestroyFromOutside) {
+    if (didDestroyFromOutside && !isActive) {
       return
     }
     val cameraId = cameraId ?: throw NoCameraDeviceError()
@@ -117,15 +118,24 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       return
     }
 
-    val device = getOrCreateDevice(cameraId)
-    val session = getOrCreateSession(device, outputs)
+    try {
+      val device = getOrCreateDevice(cameraId)
+      val session = getOrCreateSession(device, outputs)
 
-    if (isActive) {
-      val details = getOrCreateCameraDeviceDetails(device)
-      val captureRequest = repeatingRequest.toRepeatingRequest(device, details, outputs)
-      session.setRepeatingRequest(captureRequest, null, null)
-    } else {
-      session.stopRepeating()
+      if (isActive) {
+        val details = getOrCreateCameraDeviceDetails(device)
+        val captureRequest = repeatingRequest.toRepeatingRequest(device, details, outputs)
+        session.setRepeatingRequest(captureRequest, null, null)
+      } else {
+        session.stopRepeating()
+      }
+    } catch (e: CameraAccessException) {
+      if (didDestroyFromOutside) {
+        // Camera device has been destroyed in the meantime, that's fine.
+      } else {
+        // Camera should still be active, so not sure what went wrong. Rethrow
+        throw e
+      }
     }
     Log.i(TAG, "Configure() done! isActive: $isActive, ID: $cameraId, device: $device, session: $session")
   }
