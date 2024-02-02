@@ -193,7 +193,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 photo={true}
                 video={true}
                 audio={hasMicrophonePermission}
-                frameProcessor={frameProcessor}
+                // frameProcessor={frameProcessor}
               />
             </TapGestureHandler>
           </Reanimated.View>
