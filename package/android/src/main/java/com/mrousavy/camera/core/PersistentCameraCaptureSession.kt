@@ -36,6 +36,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   private var cameraDeviceDetails: CameraDeviceDetails? = null // depends on [device]
 
   private val mutex = Mutex()
+  private var didDestroyFromOutside = false
 
   val isRunning: Boolean
     get() = isActive && session != null && device != null
@@ -48,6 +49,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
 
     val newDevice = cameraManager.openCamera(cameraId, { device, error ->
       if (this.device == device) {
+        this.didDestroyFromOutside = true
         this.session?.tryAbortCaptures()
         this.session = null
         this.device = null
@@ -73,6 +75,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
 
     val newSession = device.createCaptureSession(cameraManager, outputs, { session ->
       if (this.session == session) {
+        this.didDestroyFromOutside = true
         this.session?.tryAbortCaptures()
         this.session = null
         this.isActive = false
@@ -94,6 +97,9 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   }
 
   private suspend fun configure() {
+    if (didDestroyFromOutside) {
+      return
+    }
     val cameraId = cameraId ?: throw NoCameraDeviceError()
     val repeatingRequest = repeatingRequest ?: throw CameraNotReadyError()
     val outputs = outputs
@@ -169,6 +175,9 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
     assertLocked("setIsActive")
     if (this.isActive != isActive) {
       this.isActive = isActive
+    }
+    if (isActive && didDestroyFromOutside) {
+      didDestroyFromOutside = false
     }
   }
 
