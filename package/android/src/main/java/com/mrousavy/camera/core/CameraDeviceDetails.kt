@@ -79,12 +79,11 @@ class CameraDeviceDetails(val cameraManager: CameraManager, val cameraId: String
   val opticalStabilizationModes by lazy {
     characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_OPTICAL_STABILIZATION) ?: IntArray(0)
   }
-  val supportsPhotoHdr by lazy {
-    extensions.contains(3) // TODO: CameraExtensionCharacteristics.EXTENSION_HDR
-  }
+  val supportsPhotoHdr by lazy { extensions.contains(CameraExtensionCharacteristics.EXTENSION_HDR) }
   val supportsVideoHdr by lazy { getHasVideoHdr() }
   val autoFocusSystem by lazy { getAutoFocusSystemMode() }
 
+  // TODO: Also add 10-bit YUV here?
   val videoFormat = ImageFormat.YUV_420_888
 
   // get extensions (HDR, Night Mode, ..)
@@ -182,8 +181,6 @@ class CameraDeviceDetails(val cameraManager: CameraManager, val cameraId: String
         array.pushMap(map)
       }
     }
-
-    // TODO: Add high-speed video ranges (high-fps / slow-motion)
 
     return array
   }
