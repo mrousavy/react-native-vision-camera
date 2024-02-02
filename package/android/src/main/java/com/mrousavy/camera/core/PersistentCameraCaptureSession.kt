@@ -49,7 +49,6 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   private suspend fun getOrCreateDevice(cameraId: String): CameraDevice {
     val currentDevice = device
     if (currentDevice?.id == cameraId && currentDevice.isValid) {
-      Log.i(TAG, "Reusing current device.")
       return currentDevice
     }
 
@@ -106,10 +105,10 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
 
   private suspend fun configure() {
     if (didDestroyFromOutside && !isActive) {
-      Log.i(TAG, "CameraCaptureSession has been destroyed by Android, skipping configuration until isActive is set to `true` again.")
+      Log.d(TAG, "CameraCaptureSession has been destroyed by Android, skipping configuration until isActive is set to `true` again.")
       return
     }
-    Log.i(TAG, "Configure() with isActive: $isActive, ID: $cameraId, device: $device, session: $session")
+    Log.d(TAG, "Configure() with isActive: $isActive, ID: $cameraId, device: $device, session: $session")
     val cameraId = cameraId ?: throw NoCameraDeviceError()
     val repeatingRequest = repeatingRequest ?: throw CameraNotReadyError()
     val outputs = outputs
@@ -125,19 +124,19 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       if (didDestroyFromOutside) return
 
       if (isActive) {
-        Log.i(TAG, "Starting repeating request...")
+        Log.d(TAG, "Updating repeating request...")
         val details = getOrCreateCameraDeviceDetails(device)
         val captureRequest = repeatingRequest.toRepeatingRequest(device, details, outputs)
         session.setRepeatingRequest(captureRequest, null, null)
       } else {
         session.stopRepeating()
-        Log.i(TAG, "Stopping repeating request...")
+        Log.d(TAG, "Stopping repeating request...")
       }
-      Log.i(TAG, "Configure() done! isActive: $isActive, ID: $cameraId, device: $device, session: $session")
+      Log.d(TAG, "Configure() done! isActive: $isActive, ID: $cameraId, device: $device, session: $session")
     } catch (e: CameraAccessException) {
       if (didDestroyFromOutside) {
         // Camera device has been destroyed in the meantime, that's fine.
-        Log.i(TAG, "Configure() canceled, session has been destroyed in the meantime!")
+        Log.d(TAG, "Configure() canceled, session has been destroyed in the meantime!")
       } else {
         // Camera should still be active, so not sure what went wrong. Rethrow
         throw e
@@ -159,7 +158,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   }
 
   fun setInput(cameraId: String) {
-    Log.i(TAG, "--> setInput($cameraId)")
+    Log.d(TAG, "--> setInput($cameraId)")
     assertLocked("setInput")
     if (this.cameraId != cameraId || device?.id != cameraId) {
       this.cameraId = cameraId
@@ -174,7 +173,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   }
 
   fun setOutputs(outputs: List<SurfaceOutput>) {
-    Log.i(TAG, "--> setOutputs($outputs)")
+    Log.d(TAG, "--> setOutputs($outputs)")
     assertLocked("setOutputs")
     if (this.outputs != outputs) {
       this.outputs = outputs
@@ -193,7 +192,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
 
   fun setRepeatingRequest(request: RepeatingRequest) {
     assertLocked("setRepeatingRequest")
-    Log.i(TAG, "--> setRepeatingRequest(...)")
+    Log.d(TAG, "--> setRepeatingRequest(...)")
     if (this.repeatingRequest != request) {
       this.repeatingRequest = request
     }
@@ -201,7 +200,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
 
   fun setIsActive(isActive: Boolean) {
     assertLocked("setIsActive")
-    Log.i(TAG, "--> setIsActive($isActive)")
+    Log.d(TAG, "--> setIsActive($isActive)")
     if (this.isActive != isActive) {
       this.isActive = isActive
     }
