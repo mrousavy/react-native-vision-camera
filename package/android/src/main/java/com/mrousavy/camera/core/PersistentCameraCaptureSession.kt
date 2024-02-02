@@ -53,6 +53,11 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
     }
 
     Log.i(TAG, "Creating new device...")
+    this.session?.tryAbortCaptures()
+    this.device?.close()
+    this.device = null
+    this.session = null
+
     val newDevice = cameraManager.openCamera(cameraId, { device, error ->
       Log.i(TAG, "Camera $device closed!")
       if (this.device == device) {
@@ -79,6 +84,8 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
     if (outputs.isEmpty()) throw NoOutputsError()
 
     Log.i(TAG, "Creating new session...")
+    this.session?.tryAbortCaptures()
+    
     val newSession = device.createCaptureSession(cameraManager, outputs, { session ->
       Log.i(TAG, "Session $session closed!")
       if (this.session == session) {

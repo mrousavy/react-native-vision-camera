@@ -105,6 +105,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       val config = CameraConfiguration.copyOf(this.configuration)
       lambda(config)
       val diff = CameraConfiguration.difference(this.configuration, config)
+      this.configuration = config
 
       if (!diff.hasChanges) {
         Log.i(TAG, "Nothing changed, aborting configure { ... }")
@@ -141,7 +142,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         }
 
         Log.i(TAG, "configure { ... }: Completed CameraSession Configuration! (isActive: ${config.isActive}, isRunning: ${captureSession.isRunning})")
-        this.configuration = config
         isRunning = captureSession.isRunning
 
         // Notify about Camera initialization
