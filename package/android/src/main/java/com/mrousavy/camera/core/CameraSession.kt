@@ -16,6 +16,7 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import androidx.core.content.ContextCompat
 import com.google.mlkit.vision.barcode.common.Barcode
+import com.mrousavy.camera.core.capture.RepeatingRequest
 import com.mrousavy.camera.core.outputs.BarcodeScannerOutput
 import com.mrousavy.camera.core.outputs.PhotoOutput
 import com.mrousavy.camera.core.outputs.SurfaceOutput

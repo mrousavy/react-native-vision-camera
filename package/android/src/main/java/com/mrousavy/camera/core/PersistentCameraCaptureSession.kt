@@ -7,15 +7,13 @@ import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
 import android.util.Log
+import com.mrousavy.camera.core.capture.RepeatingRequest
 import com.mrousavy.camera.core.outputs.SurfaceOutput
 import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.isValid
 import com.mrousavy.camera.extensions.openCamera
 import com.mrousavy.camera.extensions.tryAbortCaptures
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.Closeable
@@ -134,8 +132,9 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       if (isActive) {
         Log.d(TAG, "Updating repeating request...")
         val details = getOrCreateCameraDeviceDetails(device)
-        val captureRequest = repeatingRequest.toRepeatingRequest(device, details, outputs)
-        session.setRepeatingRequest(captureRequest, null, null)
+        val builder = device.createCaptureRequest(repeatingRequest.)
+        val captureRequest = repeatingRequest.toCaptureRequest(device, details, outputs)
+        session.setRepeatingRequest(captureRequest.build(), null, null)
       } else {
         session.stopRepeating()
         Log.d(TAG, "Stopping repeating request...")
@@ -233,5 +232,5 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
     fun onError(error: Throwable)
   }
 
-  class SessionIsNotLockedError(message: String): Error(message)
+    class SessionIsNotLockedError(message: String): Error(message)
 }
