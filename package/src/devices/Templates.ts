@@ -1,9 +1,17 @@
 import { Dimensions } from 'react-native'
 import { FormatFilter } from './getCameraFormat'
 
-type TTemplates = {
-  [key: string]: FormatFilter[]
-}
+type PredefinedTemplates =
+  | 'Video'
+  | 'Video60Fps'
+  | 'VideoSlowMotion'
+  | 'VideoStabilized'
+  | 'Photo'
+  | 'PhotoPortrait'
+  | 'FrameProcessingYUV'
+  | 'FrameProcessingRGB'
+  | 'Snapchat'
+  | 'Instagram'
 
 const SnapchatResolution = { width: 1920, height: 1080 }
 const InstagramResolution = { width: 3840, height: 2160 }
@@ -16,7 +24,7 @@ const ScreenAspectRatio = Dimensions.get('window').height / Dimensions.get('wind
  * const format = useCameraFormat(device, Templates.Snapchat)
  * ```
  */
-export const Templates: TTemplates = {
+export const Templates: Record<PredefinedTemplates, FormatFilter[]> = {
   /**
    * Highest resolution video recordings (e.g. 4k)
    */
