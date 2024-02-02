@@ -124,10 +124,10 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       val details = getOrCreateCameraDeviceDetails(device)
       val captureRequest = repeatingRequest.toRepeatingRequest(device, details, outputs)
       session.setRepeatingRequest(captureRequest, null, null)
-      Log.i(TAG, "Done!")
     } else {
       session.stopRepeating()
     }
+    Log.i(TAG, "Configure() done! isActive: $isActive, ID: $cameraId, device: $device, session: $session")
   }
 
   private fun assertLocked(method: String) {
