@@ -40,6 +40,7 @@ export type CaptureError =
   | 'capture/recorder-error'
   | 'capture/video-not-enabled'
   | 'capture/photo-not-enabled'
+  | 'capture/frame-invalid'
   | 'capture/aborted'
   | 'capture/unknown'
 export type SystemError =
