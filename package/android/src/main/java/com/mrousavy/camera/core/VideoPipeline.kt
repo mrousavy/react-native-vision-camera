@@ -228,7 +228,7 @@ class VideoPipeline(
       val hardwareBufferFormat = format.toHardwareBufferFormat()
       return HardwareBuffer.isSupported(width, height, hardwareBufferFormat, 1, flags)
     } catch (e: Throwable) {
-      Log.e(TAG, "HardwareBuffer.isSupported($width, $height, $hardwareBufferFormat, 1, $flags) failed!", e)
+      Log.e(TAG, "HardwareBuffer.isSupported($width, $height, $format, 1, $flags) failed!", e)
       return false
     }
   }
