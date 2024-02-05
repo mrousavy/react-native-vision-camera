@@ -224,8 +224,13 @@ class VideoPipeline(
 
   @RequiresApi(Build.VERSION_CODES.Q)
   private fun supportsHardwareBufferFlags(flags: Long): Boolean {
-    val hardwareBufferFormat = format.toHardwareBufferFormat()
-    return HardwareBuffer.isSupported(width, height, hardwareBufferFormat, 1, flags)
+    try {
+      val hardwareBufferFormat = format.toHardwareBufferFormat()
+      return HardwareBuffer.isSupported(width, height, hardwareBufferFormat, 1, flags)
+    } catch (e: Throwable) {
+      Log.e(TAG, "HardwareBuffer.isSupported($width, $height, $hardwareBufferFormat, 1, $flags) failed!", e)
+      return false
+    }
   }
 
   private external fun getInputTextureId(): Int
