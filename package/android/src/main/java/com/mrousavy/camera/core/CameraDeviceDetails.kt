@@ -83,9 +83,13 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
   val supportsPhotoHdr by lazy { extensions.contains(CameraExtensionCharacteristics.EXTENSION_HDR) }
   val supportsVideoHdr by lazy { getHasVideoHdr() }
   val autoFocusSystem by lazy { getAutoFocusSystemMode() }
+
   val supportsYuvProcessing by lazy { capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING) }
   val supportsPrivateProcessing by lazy { capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING) }
   val supportsZsl by lazy { supportsYuvProcessing || supportsPrivateProcessing }
+
+  val isBackwardsCompatible by lazy { capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE) }
+  val supportsSnapshotCapture by lazy { supportsSnapshotCapture() }
 
   // TODO: Also add 10-bit YUV here?
   val videoFormat = ImageFormat.YUV_420_888
@@ -115,6 +119,14 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
     if (distance.isNaN() || distance.isInfinite()) return 0.0
     // distance is in "diopters", meaning 1/meter. Convert to meters, then centi-meters
     return 1.0 / distance * 100.0
+  }
+
+  @Suppress("RedundantIf")
+  private fun supportsSnapshotCapture(): Boolean {
+    // As per CameraDevice.TEMPLATE_VIDEO_SNAPSHOT in documentation:
+    if (hardwareLevel == HardwareLevel.LEGACY) return false
+    if (supportsDepthCapture && !isBackwardsCompatible) return false
+    return true
   }
 
   private fun createStabilizationModes(): ReadableArray {

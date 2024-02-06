@@ -24,6 +24,7 @@ abstract class CameraCaptureRequest(
     RECORD,
     PHOTO,
     PHOTO_ZSL,
+    PHOTO_SNAPSHOT,
     PREVIEW;
 
     fun toRequestTemplate(): Int =
@@ -31,6 +32,7 @@ abstract class CameraCaptureRequest(
         RECORD -> CameraDevice.TEMPLATE_RECORD
         PHOTO -> CameraDevice.TEMPLATE_STILL_CAPTURE
         PHOTO_ZSL -> CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+        PHOTO_SNAPSHOT -> CameraDevice.TEMPLATE_VIDEO_SNAPSHOT
         PREVIEW -> CameraDevice.TEMPLATE_PREVIEW
       }
   }

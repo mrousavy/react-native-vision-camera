@@ -3,6 +3,7 @@ package com.mrousavy.camera.core.capture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
+import android.util.Log
 import com.mrousavy.camera.core.CameraDeviceDetails
 import com.mrousavy.camera.core.outputs.SurfaceOutput
 import com.mrousavy.camera.types.Flash
@@ -26,12 +27,28 @@ class PhotoCaptureRequest(
   repeatingRequest.zoom,
   repeatingRequest.format
 ) {
+  companion object {
+    private const val TAG = "PhotoCaptureRequest"
+  }
+
   override fun createCaptureRequest(
     device: CameraDevice,
     deviceDetails: CameraDeviceDetails,
     outputs: List<SurfaceOutput>
   ): CaptureRequest.Builder {
-    val template = if (deviceDetails.supportsZsl) Template.PHOTO_ZSL else Template.PHOTO
+    val template = when (qualityPrioritization) {
+      QualityPrioritization.QUALITY -> Template.PHOTO
+      QualityPrioritization.BALANCED -> {
+        if (deviceDetails.supportsZsl) Template.PHOTO_ZSL
+        else Template.PHOTO
+      }
+      QualityPrioritization.SPEED -> {
+        if (deviceDetails.supportsSnapshotCapture) Template.PHOTO_SNAPSHOT
+        else if (deviceDetails.supportsZsl) Template.PHOTO_ZSL
+        else Template.PHOTO
+      }
+    }
+    Log.i(TAG, "Using CaptureRequest Template $template...")
     return this.createCaptureRequest(template, device, deviceDetails, outputs)
   }
 
