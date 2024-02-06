@@ -42,6 +42,7 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
       FrameLayout.LayoutParams.MATCH_PARENT,
       Gravity.CENTER
     )
+    holder.setKeepScreenOn(true)
     holder.addCallback(callback)
   }
 
