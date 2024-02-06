@@ -104,7 +104,7 @@ data class CameraConfiguration(
         left.videoStabilizationMode != right.videoStabilizationMode ||
         left.exposure != right.exposure
 
-      val isActiveChanged = sidePropsChanged || left?.isActive != right.isActive
+      val isActiveChanged = left?.isActive != right.isActive
 
       return Difference(
         deviceChanged,
