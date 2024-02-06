@@ -165,16 +165,6 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     exampleKotlinSwiftPlugin(frame)
   }, [])
 
-  const [s, setS] = useState(false)
-
-  useEffect(() => {
-    setS(false)
-    const c = setTimeout(() => {
-      setS(true)
-    }, 3000)
-    return () => clearTimeout(c)
-  }, [])
-
   return (
     <View style={styles.container}>
       {device != null && (
@@ -201,7 +191,9 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 enableFpsGraph={true}
                 orientation="portrait"
                 photo={true}
-                video={s}
+                video={true}
+                audio={hasMicrophonePermission}
+                frameProcessor={frameProcessor}
               />
             </TapGestureHandler>
           </Reanimated.View>

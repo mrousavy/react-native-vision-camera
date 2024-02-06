@@ -2,8 +2,8 @@ package com.mrousavy.camera.extensions
 
 import android.view.SurfaceHolder
 import androidx.annotation.UiThread
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 @UiThread
 suspend fun SurfaceHolder.resize(width: Int, height: Int) {
@@ -15,7 +15,7 @@ suspend fun SurfaceHolder.resize(width: Int, height: Int) {
       return@suspendCancellableCoroutine
     }
 
-    val callback = object: SurfaceHolder.Callback {
+    val callback = object : SurfaceHolder.Callback {
       override fun surfaceCreated(holder: SurfaceHolder) = Unit
       override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
         holder.removeCallback(this)

@@ -12,17 +12,9 @@ import com.facebook.react.bridge.UiThreadUtil
 import com.mrousavy.camera.extensions.getMaximumPreviewSize
 import com.mrousavy.camera.extensions.resize
 import com.mrousavy.camera.types.ResizeMode
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 import kotlin.math.roundToInt
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @SuppressLint("ViewConstructor")
 class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceView(context) {
