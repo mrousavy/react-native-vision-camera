@@ -32,7 +32,7 @@ class PhotoRequest(
     outputs: List<SurfaceOutput>
   ): CaptureRequest.Builder {
     val template = if (deviceDetails.supportsZsl) Template.PHOTO_ZSL else Template.PHOTO
-    return super.createCaptureRequest(template, device, deviceDetails, outputs)
+    return this.createCaptureRequest(template, device, deviceDetails, outputs)
   }
 
   override fun createCaptureRequest(

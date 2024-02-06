@@ -30,7 +30,7 @@ class RepeatingRequest(
     outputs: List<SurfaceOutput>
   ): CaptureRequest.Builder {
     val template = if (enableVideoPipeline) Template.RECORD else Template.PREVIEW
-    return createCaptureRequest(template, device, deviceDetails, outputs)
+    return this.createCaptureRequest(template, device, deviceDetails, outputs)
   }
 
   private fun getBestDigitalStabilizationMode(deviceDetails: CameraDeviceDetails): Int {
