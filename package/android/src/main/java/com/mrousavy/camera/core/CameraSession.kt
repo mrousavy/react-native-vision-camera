@@ -376,7 +376,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     val photoOutput = photoOutput ?: throw PhotoNotEnabledError()
 
     Log.i(TAG, "Photo capture 1/3 - capturing ${photoOutput.size.width}x${photoOutput.size.height} image...")
-
     val result = captureSession.capture(
       qualityPrioritization,
       flash,
@@ -386,15 +385,15 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       outputOrientation,
       enableShutterSound
     )
-    val timestamp = result[CaptureResult.SENSOR_TIMESTAMP]!!
-    Log.i(TAG, "Photo capture 2/3 - waiting for image with timestamp $timestamp now...")
+
     try {
+      val timestamp = result[CaptureResult.SENSOR_TIMESTAMP]!!
+      Log.i(TAG, "Photo capture 2/3 - waiting for image with timestamp $timestamp now...")
       val image = photoOutputSynchronizer.await(timestamp)
 
+      Log.i(TAG, "Photo capture 3/3 - received ${image.width} x ${image.height} image, preparing result...")
       val deviceDetails = captureSession.getActiveDeviceDetails()
       val isMirrored = deviceDetails?.lensFacing == LensFacing.FRONT
-
-      Log.i(TAG, "Photo capture 3/3 - received ${image.width} x ${image.height} image.")
       return CapturedPhoto(image, result, orientation, isMirrored, image.format)
     } catch (e: CancellationException) {
       throw CaptureAbortedError(false)

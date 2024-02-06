@@ -26,7 +26,7 @@ import kotlin.math.atan2
 import kotlin.math.sqrt
 
 @SuppressLint("InlinedApi")
-class CameraDeviceDetails(val cameraManager: CameraManager, val cameraId: String) {
+class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId: String) {
   val characteristics by lazy { cameraManager.getCameraCharacteristics(cameraId) }
   val hardwareLevel by lazy { HardwareLevel.fromCameraCharacteristics(characteristics) }
   val capabilities by lazy { characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES) ?: IntArray(0) }
