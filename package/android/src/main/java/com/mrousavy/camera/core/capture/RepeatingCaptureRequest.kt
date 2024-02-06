@@ -13,7 +13,7 @@ import com.mrousavy.camera.types.CameraDeviceFormat
 import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.VideoStabilizationMode
 
-class RepeatingRequest(
+class RepeatingCaptureRequest(
   private val enableVideoPipeline: Boolean,
   torch: Torch = Torch.OFF,
   private val fps: Int? = null,

@@ -10,8 +10,8 @@ import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.QualityPrioritization
 import com.mrousavy.camera.types.Torch
 
-class PhotoRequest(
-  repeatingRequest: RepeatingRequest,
+class PhotoCaptureRequest(
+  repeatingRequest: RepeatingCaptureRequest,
   private val qualityPrioritization: QualityPrioritization,
   private val flash: Flash,
   private val enableRedEyeReduction: Boolean,

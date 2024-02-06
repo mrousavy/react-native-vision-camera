@@ -6,8 +6,8 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.TotalCaptureResult
 import android.util.Log
-import com.mrousavy.camera.core.capture.PhotoRequest
-import com.mrousavy.camera.core.capture.RepeatingRequest
+import com.mrousavy.camera.core.capture.PhotoCaptureRequest
+import com.mrousavy.camera.core.capture.RepeatingCaptureRequest
 import com.mrousavy.camera.core.outputs.SurfaceOutput
 import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession
@@ -34,7 +34,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   // Inputs/Dependencies
   private var cameraId: String? = null
   private var outputs: List<SurfaceOutput> = emptyList()
-  private var repeatingRequest: RepeatingRequest? = null
+  private var repeatingRequest: RepeatingCaptureRequest? = null
   private var isActive = false
 
   // State/Dependants
@@ -99,7 +99,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
     }
   }
 
-  fun setRepeatingRequest(request: RepeatingRequest) {
+  fun setRepeatingRequest(request: RepeatingCaptureRequest) {
     assertLocked("setRepeatingRequest")
     Log.d(TAG, "--> setRepeatingRequest(...)")
     if (this.repeatingRequest != request) {
@@ -130,7 +130,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
     mutex.withLock {
       val session = session ?: throw CameraNotReadyError()
       val repeatingRequest = repeatingRequest ?: throw CameraNotReadyError()
-      val photoRequest = PhotoRequest(
+      val photoRequest = PhotoCaptureRequest(
         repeatingRequest,
         qualityPrioritization,
         flash,
@@ -142,10 +142,19 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       val device = session.device
       val deviceDetails = getOrCreateCameraDeviceDetails(device)
 
-      // TODO: Submit capture request into all output surfaces?
-      val request = photoRequest.createCaptureRequest(device, deviceDetails, outputs)
-
-      return session.capture(request.build(), enableShutterSound)
+      // Stop the preview from repeating so we can fit in a photo request
+      session.stopRepeating()
+      try {
+        // Submit a single high-res capture to photo output as well as all preview outputs
+        val outputs = outputs
+        val request = photoRequest.createCaptureRequest(device, deviceDetails, outputs)
+        return session.capture(request.build(), enableShutterSound)
+      } finally {
+        // Start the repeating preview captures again
+        val outputs = outputs.filter { it.isRepeating }
+        val request = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
+        session.setRepeatingRequest(request.build(), null, null)
+      }
     }
   }
 
