@@ -149,6 +149,11 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
     }
   }
 
+  fun getActiveDeviceDetails(): CameraDeviceDetails? {
+    val device = device ?: return null
+    return getOrCreateCameraDeviceDetails(device)
+  }
+
   private suspend fun configure() {
     if (didDestroyFromOutside && !isActive) {
       Log.d(TAG, "CameraCaptureSession has been destroyed by Android, skipping configuration until isActive is set to `true` again.")

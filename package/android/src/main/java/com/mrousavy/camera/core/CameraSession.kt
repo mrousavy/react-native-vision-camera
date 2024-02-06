@@ -28,6 +28,7 @@ import com.mrousavy.camera.extensions.getPreviewTargetSize
 import com.mrousavy.camera.extensions.getVideoSizes
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.types.Flash
+import com.mrousavy.camera.types.LensFacing
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.QualityPrioritization
 import com.mrousavy.camera.types.RecordVideoOptions
@@ -389,8 +390,9 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     Log.i(TAG, "Photo capture 2/3 - waiting for image with timestamp $timestamp now...")
     try {
       val image = photoOutputSynchronizer.await(timestamp)
-      // TODO: Implement isMirrored?
-      val isMirrored = false
+
+      val deviceDetails = captureSession.getActiveDeviceDetails()
+      val isMirrored = deviceDetails?.lensFacing == LensFacing.FRONT
 
       Log.i(TAG, "Photo capture 3/3 - received ${image.width} x ${image.height} image.")
       return CapturedPhoto(image, result, orientation, isMirrored, image.format)
