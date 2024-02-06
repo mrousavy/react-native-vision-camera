@@ -82,6 +82,9 @@ class CameraDeviceDetails(val cameraManager: CameraManager, val cameraId: String
   val supportsPhotoHdr by lazy { extensions.contains(CameraExtensionCharacteristics.EXTENSION_HDR) }
   val supportsVideoHdr by lazy { getHasVideoHdr() }
   val autoFocusSystem by lazy { getAutoFocusSystemMode() }
+  val supportsYuvProcessing by lazy { capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING) }
+  val supportsPrivateProcessing by lazy { capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING) }
+  val supportsZsl by lazy { supportsYuvProcessing || supportsPrivateProcessing }
 
   // TODO: Also add 10-bit YUV here?
   val videoFormat = ImageFormat.YUV_420_888

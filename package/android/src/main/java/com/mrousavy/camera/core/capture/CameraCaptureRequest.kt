@@ -1,34 +1,83 @@
 package com.mrousavy.camera.core.capture
 
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
+import android.util.Range
+import com.mrousavy.camera.core.CameraDeviceDetails
+import com.mrousavy.camera.core.FlashUnavailableError
+import com.mrousavy.camera.core.InvalidFpsError
+import com.mrousavy.camera.core.InvalidVideoHdrError
+import com.mrousavy.camera.core.InvalidVideoStabilizationMode
+import com.mrousavy.camera.core.LowLightBoostNotSupportedError
+import com.mrousavy.camera.core.PropRequiresFormatToBeNonNullError
 import com.mrousavy.camera.core.outputs.SurfaceOutput
+import com.mrousavy.camera.extensions.setZoom
+import com.mrousavy.camera.types.CameraDeviceFormat
+import com.mrousavy.camera.types.Flash
+import com.mrousavy.camera.types.QualityPrioritization
+import com.mrousavy.camera.types.Torch
+import com.mrousavy.camera.types.VideoStabilizationMode
 
-class CameraCaptureRequest(val device: CameraDevice, private val builder: CaptureRequest.Builder) {
-  private var targets = arrayListOf<SurfaceOutput>()
+abstract class CameraCaptureRequest(
+  private val torch: Torch = Torch.OFF,
+  private val enableVideoHdr: Boolean = false,
+  val enableLowLightBoost: Boolean = false,
+  val exposureBias: Double? = null,
+  val zoom: Float = 1.0f,
+  val format: CameraDeviceFormat? = null
+) {
+  enum class Template {
+    RECORD,
+    PHOTO,
+    PHOTO_ZSL,
+    PREVIEW;
 
-  fun addOutput(output: SurfaceOutput) {
-    targets.add(output)
-    builder.addTarget(output.surface)
+    fun toRequestTemplate(): Int =
+      when (this) {
+        RECORD -> CameraDevice.TEMPLATE_RECORD
+        PHOTO -> CameraDevice.TEMPLATE_STILL_CAPTURE
+        PHOTO_ZSL -> CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+        PREVIEW -> CameraDevice.TEMPLATE_PREVIEW
+      }
   }
 
-  fun removeOutput(output: SurfaceOutput) {
-    targets.remove(output)
-    builder.removeTarget(output.surface)
-  }
+  abstract fun createCaptureRequest(device: CameraDevice, deviceDetails: CameraDeviceDetails, outputs: List<SurfaceOutput>): CaptureRequest.Builder
 
-  fun removeAllOutputs() {
-    targets.forEach { builder.removeTarget(it.surface) }
-    targets.clear()
-  }
+  protected open fun createCaptureRequest(template: Template, device: CameraDevice, deviceDetails: CameraDeviceDetails, outputs: List<SurfaceOutput>): CaptureRequest.Builder {
+    val builder = device.createCaptureRequest(template.toRequestTemplate())
 
-  fun build(): CaptureRequest {
-    return builder.build()
-  }
+    // Add all repeating output surfaces
+    outputs.forEach { output ->
+      builder.addTarget(output.surface)
+    }
+
+    // Set HDR
+    if (enableVideoHdr) {
+      if (format == null) throw PropRequiresFormatToBeNonNullError("videoHdr")
+      if (!format.supportsVideoHdr) throw InvalidVideoHdrError()
+      builder.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_HDR)
+    } else if (enableLowLightBoost) {
+      if (!deviceDetails.supportsLowLightBoost) throw LowLightBoostNotSupportedError()
+      builder.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_NIGHT)
+    }
+
+    // Set Exposure Bias
+    if (exposureBias != null) {
+      val clamped = deviceDetails.exposureRange.clamp(exposureBias.toInt())
+      builder.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, clamped)
+    }
+
+    // Set Zoom
+    builder.setZoom(zoom, deviceDetails.characteristics)
+
+    // Set Torch
+    if (torch == Torch.ON) {
+      if (!deviceDetails.hasFlash) throw FlashUnavailableError()
+      builder.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH)
+    }
 
 
-  interface Preset {
-    fun createCaptureRequest(device: CameraDevice): CameraCaptureRequest
-    fun applyToCaptureRequest(request: CameraCaptureRequest)
+    return builder
   }
 }

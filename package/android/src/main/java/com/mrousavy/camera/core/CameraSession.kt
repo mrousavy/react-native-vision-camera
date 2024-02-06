@@ -7,6 +7,7 @@ import android.graphics.ImageFormat
 import android.graphics.Point
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
+import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.media.Image
 import android.media.ImageReader
@@ -37,6 +38,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlin.coroutines.cancellation.CancellationException
 
 class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: Callback) :
   Closeable,
@@ -340,13 +342,13 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   }
 
   private fun configureCaptureRequest(config: CameraConfiguration) {
-    val template = if (config.video.isEnabled) RepeatingRequest.Template.RECORD else RepeatingRequest.Template.PREVIEW
     val video = config.video as? CameraConfiguration.Output.Enabled<CameraConfiguration.Video>
+    val enableVideo = video != null
     val enableVideoHdr = video?.config?.enableHdr == true
 
     captureSession.setRepeatingRequest(
       RepeatingRequest(
-        template,
+        enableVideo,
         config.torch,
         config.fps,
         config.videoStabilizationMode,
@@ -361,12 +363,36 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
   suspend fun takePhoto(
     qualityPrioritization: QualityPrioritization,
-    flashMode: Flash,
+    flash: Flash,
     enableShutterSound: Boolean,
     enableRedEyeReduction: Boolean,
     enableAutoStabilization: Boolean,
     outputOrientation: Orientation
-  ): CapturedPhoto = throw NotImplementedError()
+  ): CapturedPhoto {
+    val photoOutput = photoOutput ?: throw PhotoNotEnabledError()
+
+    Log.i(TAG, "Photo capture 1/3 - capturing ${photoOutput.size.width}x${photoOutput.size.height} image...")
+
+    val result = captureSession.capture(qualityPrioritization,
+      flash,
+      enableRedEyeReduction,
+      enableAutoStabilization,
+      photoOutput.enableHdr,
+      outputOrientation,
+      enableShutterSound)
+    val timestamp = result[CaptureResult.SENSOR_TIMESTAMP]!!
+    Log.i(TAG, "Photo capture 2/3 - waiting for image with timestamp $timestamp now...")
+    try {
+      val image = photoOutputSynchronizer.await(timestamp)
+      // TODO: Implement isMirrored?
+      val isMirrored = false
+
+      Log.i(TAG, "Photo capture 3/3 - received ${image.width} x ${image.height} image.")
+      return CapturedPhoto(image, result, orientation, isMirrored, image.format)
+    } catch (e: CancellationException) {
+      throw CaptureAbortedError(false)
+    }
+  }
 
   private fun onPhotoCaptured(image: Image) {
     Log.i(TAG, "Photo captured! ${image.width} x ${image.height}")
