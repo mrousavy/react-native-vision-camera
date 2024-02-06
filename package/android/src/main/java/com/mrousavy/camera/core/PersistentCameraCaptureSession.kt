@@ -142,19 +142,10 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       val device = session.device
       val deviceDetails = getOrCreateCameraDeviceDetails(device)
 
-      // Stop the preview from repeating so we can fit in a photo request
-      session.stopRepeating()
-      try {
-        // Submit a single high-res capture to photo output as well as all preview outputs
-        val outputs = outputs
-        val request = photoRequest.createCaptureRequest(device, deviceDetails, outputs)
-        return session.capture(request.build(), enableShutterSound)
-      } finally {
-        // Start the repeating preview captures again
-        val outputs = outputs.filter { it.isRepeating }
-        val request = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
-        session.setRepeatingRequest(request.build(), null, null)
-      }
+      // Submit a single high-res capture to photo output as well as all preview outputs
+      val outputs = outputs
+      val request = photoRequest.createCaptureRequest(device, deviceDetails, outputs)
+      return session.capture(request.build(), enableShutterSound)
     }
   }
 
