@@ -19,7 +19,7 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
     set(value) {
       field = value
       UiThreadUtil.runOnUiThread {
-        Log.i(TAG, "Setting PreviewView Surface Size to $width x $height...")
+        Log.i(TAG, "Setting PreviewView Surface Size to $value...")
         holder.setFixedSize(value.height, value.width)
         requestLayout()
         invalidate()
@@ -29,6 +29,7 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
     set(value) {
       field = value
       UiThreadUtil.runOnUiThread {
+        Log.i(TAG, "Setting PreviewView ResizeMode to $value...")
         requestLayout()
         invalidate()
       }
