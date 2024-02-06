@@ -232,7 +232,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   /**
    * Set up the `CaptureSession` with all outputs (preview, photo, video, codeScanner) and their HDR/Format settings.
    */
-  private fun configureOutputs(configuration: CameraConfiguration) {
+  private suspend fun configureOutputs(configuration: CameraConfiguration) {
     val cameraId = configuration.cameraId ?: throw NoCameraDeviceError()
 
     // Destroy previous outputs
@@ -313,7 +313,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       )
       outputs.add(output)
       // Size is usually landscape, so we flip it here
-      previewView?.size = Size(size.height, size.width)
+      previewView?.setSurfaceSize(size.width, size.height)
     }
 
     // CodeScanner Output
