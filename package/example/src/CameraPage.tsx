@@ -2,7 +2,15 @@ import * as React from 'react'
 import { useRef, useState, useCallback, useMemo } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler'
-import { CameraRuntimeError, PhotoFile, useCameraDevice, useCameraFormat, useFrameProcessor, VideoFile } from 'react-native-vision-camera'
+import {
+  CameraProps,
+  CameraRuntimeError,
+  PhotoFile,
+  useCameraDevice,
+  useCameraFormat,
+  useFrameProcessor,
+  VideoFile,
+} from 'react-native-vision-camera'
 import { Camera } from 'react-native-vision-camera'
 import { CONTENT_SPACING, CONTROL_BUTTON_SIZE, MAX_ZOOM_FACTOR, SAFE_AREA_PADDING, SCREEN_HEIGHT, SCREEN_WIDTH } from './Constants'
 import Reanimated, { Extrapolate, interpolate, useAnimatedGestureHandler, useAnimatedProps, useSharedValue } from 'react-native-reanimated'
@@ -32,7 +40,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const camera = useRef<Camera>(null)
   const [isCameraInitialized, setIsCameraInitialized] = useState(false)
   const hasMicrophonePermission = useMemo(() => Camera.getMicrophonePermissionStatus() === 'granted', [])
-  const zoom = useSharedValue(0)
+  const zoom = useSharedValue(1)
   const isPressingButton = useSharedValue(false)
 
   // check if camera page is active
@@ -73,12 +81,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const canToggleNightMode = device?.supportsLowLightBoost ?? false
 
   //#region Animated Zoom
-  // This just maps the zoom factor to a percentage value.
-  // so e.g. for [min, neutr., max] values [1, 2, 128] this would result in [0, 0.0081, 1]
   const minZoom = device?.minZoom ?? 1
   const maxZoom = Math.min(device?.maxZoom ?? 1, MAX_ZOOM_FACTOR)
 
-  const cameraAnimatedProps = useAnimatedProps(() => {
+  const cameraAnimatedProps = useAnimatedProps<CameraProps>(() => {
     const z = Math.max(Math.min(zoom.value, maxZoom), minZoom)
     return {
       zoom: z,
@@ -126,11 +132,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   //#endregion
 
   //#region Effects
-  const neutralZoom = device?.neutralZoom ?? 1
   useEffect(() => {
-    // Run everytime the neutralZoomScaled value changes. (reset zoom when device changes)
-    zoom.value = neutralZoom
-  }, [neutralZoom, zoom])
+    // Reset zoom to it's default everytime the `device` changes.
+    zoom.value = device?.neutralZoom ?? 1
+  }, [zoom, device])
   //#endregion
 
   //#region Pinch to Zoom Gesture
