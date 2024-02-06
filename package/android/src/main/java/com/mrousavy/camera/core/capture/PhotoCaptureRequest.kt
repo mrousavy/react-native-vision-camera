@@ -39,13 +39,20 @@ class PhotoCaptureRequest(
     val template = when (qualityPrioritization) {
       QualityPrioritization.QUALITY -> Template.PHOTO
       QualityPrioritization.BALANCED -> {
-        if (deviceDetails.supportsZsl) Template.PHOTO_ZSL
-        else Template.PHOTO
+        if (deviceDetails.supportsZsl) {
+          Template.PHOTO_ZSL
+        } else {
+          Template.PHOTO
+        }
       }
       QualityPrioritization.SPEED -> {
-        if (deviceDetails.supportsSnapshotCapture) Template.PHOTO_SNAPSHOT
-        else if (deviceDetails.supportsZsl) Template.PHOTO_ZSL
-        else Template.PHOTO
+        if (deviceDetails.supportsSnapshotCapture) {
+          Template.PHOTO_SNAPSHOT
+        } else if (deviceDetails.supportsZsl) {
+          Template.PHOTO_ZSL
+        } else {
+          Template.PHOTO
+        }
       }
     }
     Log.i(TAG, "Using CaptureRequest Template $template...")
