@@ -10,13 +10,7 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import java.io.Closeable
 
-open class SurfaceOutput(
-  val surface: Surface,
-  val size: Size,
-  val outputType: OutputType,
-  val enableHdr: Boolean = false,
-  private val closeSurfaceOnEnd: Boolean = false
-) : Closeable {
+open class SurfaceOutput(val surface: Surface, val size: Size, val outputType: OutputType, val enableHdr: Boolean = false) : Closeable {
   companion object {
     const val TAG = "SurfaceOutput"
 
@@ -52,12 +46,18 @@ open class SurfaceOutput(
     return result
   }
 
+  val isRepeating: Boolean
+    get() {
+      return when (outputType) {
+        OutputType.VIDEO, OutputType.PREVIEW, OutputType.VIDEO_AND_PREVIEW -> true
+        OutputType.PHOTO -> false
+      }
+    }
+
   override fun toString(): String = "$outputType (${size.width} x ${size.height})"
 
   override fun close() {
-    if (closeSurfaceOnEnd) {
-      surface.release()
-    }
+    // close() does nothing by default
   }
 
   enum class OutputType {

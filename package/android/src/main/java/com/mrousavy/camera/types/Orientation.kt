@@ -1,6 +1,6 @@
 package com.mrousavy.camera.types
 
-import android.hardware.camera2.CameraCharacteristics
+import com.mrousavy.camera.core.CameraDeviceDetails
 
 enum class Orientation(override val unionValue: String) : JSUnionValue {
   PORTRAIT("portrait"),
@@ -16,18 +16,17 @@ enum class Orientation(override val unionValue: String) : JSUnionValue {
       LANDSCAPE_LEFT -> 270
     }
 
-  fun toSensorRelativeOrientation(cameraCharacteristics: CameraCharacteristics): Orientation {
-    val sensorOrientation = cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)!!
-
+  fun toSensorRelativeOrientation(deviceDetails: CameraDeviceDetails): Orientation {
     // Convert target orientation to rotation degrees (0, 90, 180, 270)
     var rotationDegrees = this.toDegrees()
 
     // Reverse device orientation for front-facing cameras
-    val facingFront = cameraCharacteristics.get(CameraCharacteristics.LENS_FACING) == CameraCharacteristics.LENS_FACING_FRONT
-    if (facingFront) rotationDegrees = -rotationDegrees
+    if (deviceDetails.lensFacing == LensFacing.FRONT) {
+      rotationDegrees = -rotationDegrees
+    }
 
     // Rotate sensor rotation by target rotation
-    val newRotationDegrees = (sensorOrientation + rotationDegrees + 360) % 360
+    val newRotationDegrees = (deviceDetails.sensorOrientation + rotationDegrees + 360) % 360
 
     return fromRotationDegrees(newRotationDegrees)
   }

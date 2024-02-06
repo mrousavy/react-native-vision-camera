@@ -13,21 +13,6 @@ enum class VideoStabilizationMode(override val unionValue: String) : JSUnionValu
   CINEMATIC("cinematic"),
   CINEMATIC_EXTENDED("cinematic-extended");
 
-  fun toDigitalStabilizationMode(): Int =
-    when (this) {
-      OFF -> CONTROL_VIDEO_STABILIZATION_MODE_OFF
-      STANDARD -> CONTROL_VIDEO_STABILIZATION_MODE_ON
-      CINEMATIC -> 2 // TODO: CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
-      else -> CONTROL_VIDEO_STABILIZATION_MODE_OFF
-    }
-
-  fun toOpticalStabilizationMode(): Int =
-    when (this) {
-      OFF -> LENS_OPTICAL_STABILIZATION_MODE_OFF
-      CINEMATIC_EXTENDED -> LENS_OPTICAL_STABILIZATION_MODE_ON
-      else -> LENS_OPTICAL_STABILIZATION_MODE_OFF
-    }
-
   companion object : JSUnionValue.Companion<VideoStabilizationMode> {
     override fun fromUnionValue(unionValue: String?): VideoStabilizationMode =
       when (unionValue) {

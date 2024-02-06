@@ -1,7 +1,9 @@
 package com.mrousavy.camera.core
 
+import android.annotation.SuppressLint
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraExtensionCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
 import android.os.Build
@@ -23,61 +25,73 @@ import com.mrousavy.camera.types.VideoStabilizationMode
 import kotlin.math.atan2
 import kotlin.math.sqrt
 
-class CameraDeviceDetails(val cameraManager: CameraManager, val cameraId: String) {
-  val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-  val hardwareLevel = HardwareLevel.fromCameraCharacteristics(characteristics)
-  val capabilities = characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES) ?: IntArray(0)
-  val extensions = getSupportedExtensions()
+@SuppressLint("InlinedApi")
+class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId: String) {
+  val characteristics by lazy { cameraManager.getCameraCharacteristics(cameraId) }
+  val hardwareLevel by lazy { HardwareLevel.fromCameraCharacteristics(characteristics) }
+  val capabilities by lazy { characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES) ?: IntArray(0) }
+  val extensions by lazy { getSupportedExtensions() }
 
   // device characteristics
-  val isMultiCam = capabilities.contains(11) // TODO: CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
-  val supportsDepthCapture = capabilities.contains(8) // TODO: CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DEPTH_OUTPUT
-  val supportsRawCapture = capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW)
-  val supportsLowLightBoost = extensions.contains(4) // TODO: CameraExtensionCharacteristics.EXTENSION_NIGHT
-  val lensFacing = LensFacing.fromCameraCharacteristics(characteristics)
-  val hasFlash = characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) ?: false
-  val focalLengths =
-    characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
-      // 35mm is the film standard sensor size
-      ?: floatArrayOf(35f)
-  val sensorSize = characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)!!
-  val sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION)!!
-  val minFocusDistance = getMinFocusDistanceCm()
-  val name = (
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-      characteristics.get(CameraCharacteristics.INFO_VERSION)
-    } else {
-      null
-    }
-    ) ?: "$lensFacing ($cameraId)"
+  val isMultiCam by lazy { capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA) }
+  val supportsDepthCapture by lazy { capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DEPTH_OUTPUT) }
+  val supportsRawCapture by lazy { capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW) }
+  val supportsLowLightBoost by lazy { extensions.contains(CameraExtensionCharacteristics.EXTENSION_NIGHT) }
+  val lensFacing by lazy { LensFacing.fromCameraCharacteristics(characteristics) }
+  val hasFlash by lazy { characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) ?: false }
+  val focalLengths by lazy {
+    // 35mm is the film standard sensor size
+    characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS) ?: floatArrayOf(35f)
+  }
+  val sensorSize by lazy { characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)!! }
+  val sensorOrientation by lazy { characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0 }
+  val minFocusDistance by lazy { getMinFocusDistanceCm() }
+  val name by lazy {
+    val info = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) characteristics.get(CameraCharacteristics.INFO_VERSION) else null
+    return@lazy info ?: "$lensFacing ($cameraId)"
+  }
 
   // "formats" (all possible configurations for this device)
-  val zoomRange = (
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+  val maxDigitalZoom by lazy { characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM) ?: 1f }
+  val zoomRange by lazy {
+    val range = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
       characteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
     } else {
       null
     }
-    ) ?: Range(1f, characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM) ?: 1f)
-  val physicalDevices = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && characteristics.physicalCameraIds.isNotEmpty()) {
-    characteristics.physicalCameraIds
-  } else {
-    setOf(cameraId)
+    return@lazy range ?: Range(1f, maxDigitalZoom)
   }
-  val minZoom = zoomRange.lower.toDouble()
-  val maxZoom = zoomRange.upper.toDouble()
+  val physicalDevices by lazy {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && characteristics.physicalCameraIds.isNotEmpty()) {
+      characteristics.physicalCameraIds
+    } else {
+      setOf(cameraId)
+    }
+  }
+  val minZoom by lazy { zoomRange.lower.toDouble() }
+  val maxZoom by lazy { zoomRange.upper.toDouble() }
 
-  val cameraConfig = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
-  val isoRange = characteristics.get(CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE) ?: Range(0, 0)
-  val exposureRange = characteristics.get(CameraCharacteristics.CONTROL_AE_COMPENSATION_RANGE) ?: Range(0, 0)
-  val digitalStabilizationModes =
+  val cameraConfig by lazy { characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!! }
+  val isoRange by lazy { characteristics.get(CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE) ?: Range(0, 0) }
+  val exposureRange by lazy { characteristics.get(CameraCharacteristics.CONTROL_AE_COMPENSATION_RANGE) ?: Range(0, 0) }
+  val digitalStabilizationModes by lazy {
     characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES) ?: IntArray(0)
-  val opticalStabilizationModes =
+  }
+  val opticalStabilizationModes by lazy {
     characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_OPTICAL_STABILIZATION) ?: IntArray(0)
-  val supportsPhotoHdr = extensions.contains(3) // TODO: CameraExtensionCharacteristics.EXTENSION_HDR
-  val supportsVideoHdr = getHasVideoHdr()
-  val autoFocusSystem = getAutoFocusSystemMode()
+  }
+  val supportsPhotoHdr by lazy { extensions.contains(CameraExtensionCharacteristics.EXTENSION_HDR) }
+  val supportsVideoHdr by lazy { getHasVideoHdr() }
+  val autoFocusSystem by lazy { getAutoFocusSystemMode() }
 
+  val supportsYuvProcessing by lazy { capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING) }
+  val supportsPrivateProcessing by lazy { capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING) }
+  val supportsZsl by lazy { supportsYuvProcessing || supportsPrivateProcessing }
+
+  val isBackwardsCompatible by lazy { capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE) }
+  val supportsSnapshotCapture by lazy { supportsSnapshotCapture() }
+
+  // TODO: Also add 10-bit YUV here?
   val videoFormat = ImageFormat.YUV_420_888
 
   // get extensions (HDR, Night Mode, ..)
@@ -105,6 +119,14 @@ class CameraDeviceDetails(val cameraManager: CameraManager, val cameraId: String
     if (distance.isNaN() || distance.isInfinite()) return 0.0
     // distance is in "diopters", meaning 1/meter. Convert to meters, then centi-meters
     return 1.0 / distance * 100.0
+  }
+
+  @Suppress("RedundantIf")
+  private fun supportsSnapshotCapture(): Boolean {
+    // As per CameraDevice.TEMPLATE_VIDEO_SNAPSHOT in documentation:
+    if (hardwareLevel == HardwareLevel.LEGACY) return false
+    if (supportsDepthCapture && !isBackwardsCompatible) return false
+    return true
   }
 
   private fun createStabilizationModes(): ReadableArray {
@@ -175,8 +197,6 @@ class CameraDeviceDetails(val cameraManager: CameraManager, val cameraId: String
         array.pushMap(map)
       }
     }
-
-    // TODO: Add high-speed video ranges (high-fps / slow-motion)
 
     return array
   }

@@ -172,17 +172,19 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
           <Reanimated.View style={StyleSheet.absoluteFill}>
             <TapGestureHandler onEnded={onDoubleTap} numberOfTaps={2}>
               <ReanimatedCamera
-                ref={camera}
                 style={StyleSheet.absoluteFill}
                 device={device}
+                isActive={isActive}
+                ref={camera}
+                onInitialized={onInitialized}
+                onError={onError}
+                onStarted={() => 'Camera started!'}
+                onStopped={() => 'Camera stopped!'}
                 format={format}
                 fps={fps}
                 photoHdr={enableHdr}
                 videoHdr={enableHdr}
                 lowLightBoost={device.supportsLowLightBoost && enableNightMode}
-                isActive={isActive}
-                onInitialized={onInitialized}
-                onError={onError}
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
                 exposure={0}

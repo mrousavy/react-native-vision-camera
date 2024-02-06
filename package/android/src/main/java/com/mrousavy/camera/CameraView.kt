@@ -113,17 +113,17 @@ class CameraView(context: Context) :
   }
 
   override fun onAttachedToWindow() {
+    super.onAttachedToWindow()
     if (!isMounted) {
       isMounted = true
       invokeOnViewReady()
     }
     update()
-    super.onAttachedToWindow()
   }
 
   override fun onDetachedFromWindow() {
-    update()
     super.onDetachedFromWindow()
+    update()
   }
 
   fun destroy() {
