@@ -8,8 +8,8 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 @UiThread
 suspend fun SurfaceHolder.resize(width: Int, height: Int) {
   return suspendCancellableCoroutine { continuation ->
-    val frame = this.surfaceFrame
-    if (frame.width() == width && frame.height() == height) {
+    val currentSize = this.surfaceFrame
+    if (currentSize.width() == width && currentSize.height() == height) {
       // Already in target size
       continuation.resume(Unit)
       return@suspendCancellableCoroutine
