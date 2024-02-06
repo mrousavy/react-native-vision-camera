@@ -126,7 +126,9 @@ class VideoPipeline(
       imageWriter?.close()
       imageReader?.close()
       recordingSession = null
+      surfaceTexture.setOnFrameAvailableListener(null, null)
       surfaceTexture.release()
+      surface.release()
     }
   }
 
