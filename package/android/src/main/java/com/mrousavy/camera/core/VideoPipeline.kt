@@ -170,7 +170,7 @@ class VideoPipeline(
     synchronized(this) {
       if (recordingSession != null) {
         // Configure OpenGL pipeline to stream Frames into the Recording Session's surface
-        Log.i(TAG, "Setting $width x $height RecordingSession Output...")
+        Log.i(TAG, "Setting ${recordingSession.size} RecordingSession Output...")
         setRecordingSessionOutputSurface(recordingSession.surface)
         this.recordingSession = recordingSession
       } else {
