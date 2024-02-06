@@ -5,14 +5,10 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.util.Range
 import com.mrousavy.camera.core.CameraDeviceDetails
-import com.mrousavy.camera.core.FlashUnavailableError
 import com.mrousavy.camera.core.InvalidFpsError
-import com.mrousavy.camera.core.InvalidVideoHdrError
 import com.mrousavy.camera.core.InvalidVideoStabilizationMode
-import com.mrousavy.camera.core.LowLightBoostNotSupportedError
 import com.mrousavy.camera.core.PropRequiresFormatToBeNonNullError
 import com.mrousavy.camera.core.outputs.SurfaceOutput
-import com.mrousavy.camera.extensions.setZoom
 import com.mrousavy.camera.types.CameraDeviceFormat
 import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.VideoStabilizationMode
@@ -27,7 +23,7 @@ class RepeatingRequest(
   exposureBias: Double? = null,
   zoom: Float = 1.0f,
   format: CameraDeviceFormat? = null
-): CameraCaptureRequest(torch, enableVideoHdr, enableLowLightBoost, exposureBias, zoom, format) {
+) : CameraCaptureRequest(torch, enableVideoHdr, enableLowLightBoost, exposureBias, zoom, format) {
   override fun createCaptureRequest(
     device: CameraDevice,
     deviceDetails: CameraDeviceDetails,

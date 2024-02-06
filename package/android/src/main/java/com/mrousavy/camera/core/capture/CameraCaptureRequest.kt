@@ -1,23 +1,16 @@
 package com.mrousavy.camera.core.capture
 
-import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
-import android.util.Range
 import com.mrousavy.camera.core.CameraDeviceDetails
 import com.mrousavy.camera.core.FlashUnavailableError
-import com.mrousavy.camera.core.InvalidFpsError
 import com.mrousavy.camera.core.InvalidVideoHdrError
-import com.mrousavy.camera.core.InvalidVideoStabilizationMode
 import com.mrousavy.camera.core.LowLightBoostNotSupportedError
 import com.mrousavy.camera.core.PropRequiresFormatToBeNonNullError
 import com.mrousavy.camera.core.outputs.SurfaceOutput
 import com.mrousavy.camera.extensions.setZoom
 import com.mrousavy.camera.types.CameraDeviceFormat
-import com.mrousavy.camera.types.Flash
-import com.mrousavy.camera.types.QualityPrioritization
 import com.mrousavy.camera.types.Torch
-import com.mrousavy.camera.types.VideoStabilizationMode
 
 abstract class CameraCaptureRequest(
   private val torch: Torch = Torch.OFF,
@@ -42,9 +35,18 @@ abstract class CameraCaptureRequest(
       }
   }
 
-  abstract fun createCaptureRequest(device: CameraDevice, deviceDetails: CameraDeviceDetails, outputs: List<SurfaceOutput>): CaptureRequest.Builder
+  abstract fun createCaptureRequest(
+    device: CameraDevice,
+    deviceDetails: CameraDeviceDetails,
+    outputs: List<SurfaceOutput>
+  ): CaptureRequest.Builder
 
-  protected open fun createCaptureRequest(template: Template, device: CameraDevice, deviceDetails: CameraDeviceDetails, outputs: List<SurfaceOutput>): CaptureRequest.Builder {
+  protected open fun createCaptureRequest(
+    template: Template,
+    device: CameraDevice,
+    deviceDetails: CameraDeviceDetails,
+    outputs: List<SurfaceOutput>
+  ): CaptureRequest.Builder {
     val builder = device.createCaptureRequest(template.toRequestTemplate())
 
     // Add all repeating output surfaces
@@ -76,7 +78,6 @@ abstract class CameraCaptureRequest(
       if (!deviceDetails.hasFlash) throw FlashUnavailableError()
       builder.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH)
     }
-
 
     return builder
   }

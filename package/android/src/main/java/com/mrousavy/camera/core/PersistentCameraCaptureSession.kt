@@ -4,7 +4,6 @@ import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
-import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
 import android.util.Log
 import com.mrousavy.camera.core.capture.PhotoRequest
@@ -18,9 +17,9 @@ import com.mrousavy.camera.extensions.tryAbortCaptures
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.QualityPrioritization
+import java.io.Closeable
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.io.Closeable
 
 /**
  * A [CameraCaptureSession] wrapper that safely handles interruptions and remains open whenever available.
@@ -29,10 +28,8 @@ import java.io.Closeable
  */
 class PersistentCameraCaptureSession(private val cameraManager: CameraManager, private val callback: Callback) : Closeable {
   companion object {
-    private var counter = 1
+    private const val TAG = "PersistentCameraCaptureSession"
   }
-  @Suppress("PrivatePropertyName")
-  private val TAG = "PersistentCameraCaptureSession${counter++}"
 
   // Inputs/Dependencies
   private var cameraId: String? = null
@@ -121,23 +118,27 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
     }
   }
 
-  suspend fun capture(qualityPrioritization: QualityPrioritization,
-                      flash: Flash,
-                      enableRedEyeReduction: Boolean,
-                      enableAutoStabilization: Boolean,
-                      enablePhotoHdr: Boolean,
-                      orientation: Orientation,
-                      enableShutterSound: Boolean): TotalCaptureResult {
+  suspend fun capture(
+    qualityPrioritization: QualityPrioritization,
+    flash: Flash,
+    enableRedEyeReduction: Boolean,
+    enableAutoStabilization: Boolean,
+    enablePhotoHdr: Boolean,
+    orientation: Orientation,
+    enableShutterSound: Boolean
+  ): TotalCaptureResult {
     mutex.withLock {
       val session = session ?: throw CameraNotReadyError()
       val repeatingRequest = repeatingRequest ?: throw CameraNotReadyError()
-      val photoRequest = PhotoRequest(repeatingRequest,
+      val photoRequest = PhotoRequest(
+        repeatingRequest,
         qualityPrioritization,
         flash,
         enableRedEyeReduction,
         enableAutoStabilization,
         enablePhotoHdr,
-        orientation)
+        orientation
+      )
       val device = session.device
       val deviceDetails = getOrCreateCameraDeviceDetails(device)
 
@@ -256,5 +257,5 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
     fun onError(error: Throwable)
   }
 
-  class SessionIsNotLockedError(message: String): Error(message)
+  class SessionIsNotLockedError(message: String) : Error(message)
 }

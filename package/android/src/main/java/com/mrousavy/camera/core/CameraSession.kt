@@ -33,12 +33,12 @@ import com.mrousavy.camera.types.QualityPrioritization
 import com.mrousavy.camera.types.RecordVideoOptions
 import com.mrousavy.camera.utils.ImageFormatUtils
 import java.io.Closeable
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlin.coroutines.cancellation.CancellationException
 
 class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: Callback) :
   Closeable,
@@ -144,7 +144,10 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
           }
         }
 
-        Log.i(TAG, "configure { ... }: Completed CameraSession Configuration! (isActive: ${config.isActive}, isRunning: ${captureSession.isRunning})")
+        Log.i(
+          TAG,
+          "configure { ... }: Completed CameraSession Configuration! (isActive: ${config.isActive}, isRunning: ${captureSession.isRunning})"
+        )
         isRunning = captureSession.isRunning
 
         // Notify about Camera initialization
@@ -373,13 +376,15 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
     Log.i(TAG, "Photo capture 1/3 - capturing ${photoOutput.size.width}x${photoOutput.size.height} image...")
 
-    val result = captureSession.capture(qualityPrioritization,
+    val result = captureSession.capture(
+      qualityPrioritization,
       flash,
       enableRedEyeReduction,
       enableAutoStabilization,
       photoOutput.enableHdr,
       outputOrientation,
-      enableShutterSound)
+      enableShutterSound
+    )
     val timestamp = result[CaptureResult.SENSOR_TIMESTAMP]!!
     Log.i(TAG, "Photo capture 2/3 - waiting for image with timestamp $timestamp now...")
     try {

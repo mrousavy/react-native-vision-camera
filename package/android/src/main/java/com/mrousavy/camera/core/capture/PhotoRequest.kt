@@ -9,21 +9,23 @@ import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.QualityPrioritization
 import com.mrousavy.camera.types.Torch
-import com.mrousavy.camera.types.VideoStabilizationMode
 
-class PhotoRequest(repeatingRequest: RepeatingRequest,
-                   private val qualityPrioritization: QualityPrioritization,
-                   private val flash: Flash,
-                   private val enableRedEyeReduction: Boolean,
-                   private val enableAutoStabilization: Boolean,
-                   enablePhotoHdr: Boolean,
-                   private val outputOrientation: Orientation
-): CameraCaptureRequest(Torch.OFF,
-                        enablePhotoHdr,
-                        repeatingRequest.enableLowLightBoost,
-                        repeatingRequest.exposureBias,
-                        repeatingRequest.zoom,
-                        repeatingRequest.format) {
+class PhotoRequest(
+  repeatingRequest: RepeatingRequest,
+  private val qualityPrioritization: QualityPrioritization,
+  private val flash: Flash,
+  private val enableRedEyeReduction: Boolean,
+  private val enableAutoStabilization: Boolean,
+  enablePhotoHdr: Boolean,
+  private val outputOrientation: Orientation
+) : CameraCaptureRequest(
+  Torch.OFF,
+  enablePhotoHdr,
+  repeatingRequest.enableLowLightBoost,
+  repeatingRequest.exposureBias,
+  repeatingRequest.zoom,
+  repeatingRequest.format
+) {
   override fun createCaptureRequest(
     device: CameraDevice,
     deviceDetails: CameraDeviceDetails,

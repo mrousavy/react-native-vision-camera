@@ -1,6 +1,5 @@
 package com.mrousavy.camera.types
 
-import android.hardware.camera2.CameraCharacteristics
 import com.mrousavy.camera.core.CameraDeviceDetails
 
 enum class Orientation(override val unionValue: String) : JSUnionValue {

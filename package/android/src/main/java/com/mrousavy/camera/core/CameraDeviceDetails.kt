@@ -75,7 +75,8 @@ class CameraDeviceDetails(val cameraManager: CameraManager, val cameraId: String
   val isoRange by lazy { characteristics.get(CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE) ?: Range(0, 0) }
   val exposureRange by lazy { characteristics.get(CameraCharacteristics.CONTROL_AE_COMPENSATION_RANGE) ?: Range(0, 0) }
   val digitalStabilizationModes by lazy {
-  characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES) ?: IntArray(0) }
+    characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES) ?: IntArray(0)
+  }
   val opticalStabilizationModes by lazy {
     characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_OPTICAL_STABILIZATION) ?: IntArray(0)
   }
