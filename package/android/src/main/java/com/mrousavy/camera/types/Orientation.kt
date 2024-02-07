@@ -1,6 +1,8 @@
 package com.mrousavy.camera.types
 
 import android.graphics.Point
+import android.graphics.PointF
+import android.util.Log
 import android.util.Size
 import com.mrousavy.camera.core.CameraDeviceDetails
 
@@ -13,9 +15,9 @@ enum class Orientation(override val unionValue: String) : JSUnionValue {
   fun toDegrees(): Int =
     when (this) {
       PORTRAIT -> 0
-      LANDSCAPE_RIGHT -> 90
+      LANDSCAPE_LEFT -> 90
       PORTRAIT_UPSIDE_DOWN -> 180
-      LANDSCAPE_LEFT -> 270
+      LANDSCAPE_RIGHT -> 270
     }
 
   fun toSensorRelativeOrientation(deviceDetails: CameraDeviceDetails): Orientation {
@@ -51,15 +53,22 @@ enum class Orientation(override val unionValue: String) : JSUnionValue {
         else -> PORTRAIT
       }
 
-    fun rotatePoint(point: Point, viewSize: Size, fromOrientation: Orientation, toOrientation: Orientation): Point {
+    fun rotatePoint(point: Point, fromSize: Size, toSize: Size, fromOrientation: Orientation, toOrientation: Orientation): Point {
       val differenceDegrees = (fromOrientation.toDegrees() + toOrientation.toDegrees()) % 360
       val difference = Orientation.fromRotationDegrees(differenceDegrees)
-      return when (difference) {
-        PORTRAIT -> point
-        PORTRAIT_UPSIDE_DOWN -> Point(point.x, viewSize.height - point.y)
-        LANDSCAPE_RIGHT -> Point(point.y, point.x)
-        LANDSCAPE_LEFT -> Point(point.y, viewSize.width - point.x)
+      val normalizedPoint = PointF(point.x / fromSize.width.toFloat(), point.y / fromSize.height.toFloat())
+
+      val rotatedNormalizedPoint = when (difference) {
+        PORTRAIT -> normalizedPoint
+        PORTRAIT_UPSIDE_DOWN -> PointF(1 - normalizedPoint.x, 1 - normalizedPoint.y)
+        LANDSCAPE_LEFT -> PointF(1 - normalizedPoint.y, normalizedPoint.x)
+        LANDSCAPE_RIGHT -> PointF(normalizedPoint.y, 1 - normalizedPoint.x)
       }
+
+      val rotatedX = rotatedNormalizedPoint.x * toSize.width
+      val rotatedY = rotatedNormalizedPoint.y * toSize.height
+      Log.i("ROTATE", "$point -> $normalizedPoint -> $difference -> $rotatedX, $rotatedY")
+      return Point(rotatedX.toInt(), rotatedY.toInt())
     }
   }
 }

@@ -64,10 +64,10 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
 
   fun convertLayerPointToCameraCoordinates(point: Point, cameraDeviceDetails: CameraDeviceDetails): Point {
     val sensorOrientation = Orientation.fromRotationDegrees(cameraDeviceDetails.sensorOrientation)
-    val activeSize = cameraDeviceDetails.activeSize
-    val pxPoint = convertDpPointToPxPoint(point)
-    val rotated = Orientation.rotatePoint(pxPoint, Size(activeSize.width(), activeSize.height()), Orientation.PORTRAIT, sensorOrientation)
-    Log.i(TAG, "$point -> $pxPoint -> $sensorOrientation (in $activeSize) -> $rotated")
+    val cameraSize = Size(cameraDeviceDetails.activeSize.width(), cameraDeviceDetails.activeSize.height())
+    val viewSize = Size(width, height)
+    val rotated = Orientation.rotatePoint(point, viewSize, cameraSize, Orientation.PORTRAIT, sensorOrientation)
+    Log.i(TAG, "$point -> $sensorOrientation (in $cameraSize -> $viewSize) -> $rotated")
     return rotated
   }
 
