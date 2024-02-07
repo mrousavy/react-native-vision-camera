@@ -99,7 +99,6 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     },
     [isPressingButton],
   )
-  // Camera callbacks
   const onError = useCallback((error: CameraRuntimeError) => {
     console.error(error)
   }, [])

@@ -10,25 +10,21 @@ import android.view.SurfaceView
 import android.widget.FrameLayout
 import com.facebook.react.bridge.UiThreadUtil
 import com.mrousavy.camera.extensions.getMaximumPreviewSize
+import com.mrousavy.camera.extensions.resize
 import com.mrousavy.camera.types.ResizeMode
 import kotlin.math.roundToInt
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @SuppressLint("ViewConstructor")
 class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceView(context) {
   var size: Size = getMaximumPreviewSize()
-    set(value) {
-      field = value
-      UiThreadUtil.runOnUiThread {
-        Log.i(TAG, "Setting PreviewView Surface Size to $width x $height...")
-        holder.setFixedSize(value.height, value.width)
-        requestLayout()
-        invalidate()
-      }
-    }
+    private set
   var resizeMode: ResizeMode = ResizeMode.COVER
     set(value) {
       field = value
       UiThreadUtil.runOnUiThread {
+        Log.i(TAG, "Setting PreviewView ResizeMode to $value...")
         requestLayout()
         invalidate()
       }
@@ -41,11 +37,23 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
       FrameLayout.LayoutParams.MATCH_PARENT,
       Gravity.CENTER
     )
+    holder.setKeepScreenOn(true)
     holder.addCallback(callback)
   }
 
+  suspend fun setSurfaceSize(width: Int, height: Int) {
+    withContext(Dispatchers.Main) {
+      size = Size(width, height)
+      Log.i(TAG, "Setting PreviewView Surface Size to $size...")
+      requestLayout()
+      invalidate()
+      holder.resize(width, height)
+    }
+  }
+
   private fun getSize(contentSize: Size, containerSize: Size, resizeMode: ResizeMode): Size {
-    val contentAspectRatio = contentSize.width.toDouble() / contentSize.height
+    // TODO: Take sensor orientation into account here
+    val contentAspectRatio = contentSize.height.toDouble() / contentSize.width
     val containerAspectRatio = containerSize.width.toDouble() / containerSize.height
 
     val widthOverHeight = when (resizeMode) {
