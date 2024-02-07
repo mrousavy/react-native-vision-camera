@@ -53,6 +53,6 @@ suspend fun CameraCaptureSession.capture(captureRequest: CaptureRequest, enableS
           }
         }
       },
-      CameraQueues.cameraQueue.handler
+      null
     )
   }
