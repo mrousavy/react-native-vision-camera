@@ -91,6 +91,8 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
   val isBackwardsCompatible by lazy { capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE) }
   val supportsSnapshotCapture by lazy { supportsSnapshotCapture() }
 
+  val supportsTapToFocus by lazy { (characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AF) ?: 0) > 0 }
+
   // TODO: Also add 10-bit YUV here?
   val videoFormat = ImageFormat.YUV_420_888
 

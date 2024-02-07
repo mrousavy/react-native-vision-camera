@@ -468,9 +468,9 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     callback.onError(error)
   }
 
-  suspend fun focus(x: Int, y: Int): Unit = throw NotImplementedError("focus() is not yet implemented!")
-
-  private suspend fun focus(point: Point): Unit = throw NotImplementedError()
+  suspend fun focus(x: Int, y: Int) {
+    captureSession.focus(x, y)
+  }
 
   data class CapturedPhoto(
     val image: Image,

@@ -4,7 +4,9 @@ import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
+import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
+import android.hardware.camera2.params.MeteringRectangle
 import android.util.Log
 import com.mrousavy.camera.core.capture.PhotoCaptureRequest
 import com.mrousavy.camera.core.capture.RepeatingCaptureRequest
@@ -146,6 +148,32 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       val outputs = outputs
       val request = photoRequest.createCaptureRequest(device, deviceDetails, outputs)
       return session.capture(request.build(), enableShutterSound)
+    }
+  }
+
+  suspend fun focus(x: Int, y: Int) {
+    mutex.withLock {
+      val session = session ?: throw CameraNotReadyError()
+      val repeatingRequest = repeatingRequest ?: throw CameraNotReadyError()
+      val device = session.device
+      val deviceDetails = getOrCreateCameraDeviceDetails(device)
+
+      val request = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
+
+      request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
+      request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF)
+      val result1 = session.capture(request.build(), false)
+
+      if (deviceDetails.supportsTapToFocus) {
+        // TODO: Convert view coordinates to camera coordinates
+        val meteringRectangle = MeteringRectangle(x, y, 100, 100, MeteringRectangle.METERING_WEIGHT_MAX)
+        request.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(meteringRectangle))
+      }
+      request.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO) // TODO: Do I need this?
+      request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
+      request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
+      val result2 = session.capture(request.build(), false)
+      // focus should be complete now?
     }
   }
 
