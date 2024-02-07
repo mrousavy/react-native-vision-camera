@@ -3,7 +3,6 @@ package com.mrousavy.camera.extensions
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
-import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.media.MediaActionSound
 import com.mrousavy.camera.core.CameraQueues

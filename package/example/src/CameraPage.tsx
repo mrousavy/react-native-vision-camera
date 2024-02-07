@@ -1,12 +1,7 @@
 import * as React from 'react'
 import { useRef, useState, useCallback, useMemo } from 'react'
 import { GestureResponderEvent, StyleSheet, Text, View } from 'react-native'
-import {
-  HandlerStateChangeEvent,
-  PinchGestureHandler,
-  PinchGestureHandlerGestureEvent,
-  TapGestureHandler,
-} from 'react-native-gesture-handler'
+import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler'
 import {
   CameraProps,
   CameraRuntimeError,
