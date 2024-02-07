@@ -14,7 +14,8 @@ import { useIsFocused } from '@react-navigation/core'
 import FastImage, { OnLoadEvent } from 'react-native-fast-image'
 
 const requestSavePermission = async (): Promise<boolean> => {
-  if (Platform.OS !== 'android') return true
+  // On Android 13 and above, scoped storage is used instead and no permission is needed
+  if (Platform.OS !== 'android' || Platform.Version >= 33) return true
 
   const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
   if (permission == null) return false
