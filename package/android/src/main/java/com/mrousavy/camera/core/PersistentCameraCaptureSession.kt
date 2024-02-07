@@ -190,6 +190,10 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
         request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
         session.capture(request.build(), false)
 
+        // 4. Set the AF back to idle
+        request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE)
+        session.capture(request.build(), false)
+
         Log.i(TAG, "Finished focusing!")
       } finally {
         // 4. Set the Repeating Request without any pre-capture mode again
