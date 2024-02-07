@@ -1,5 +1,6 @@
 package com.mrousavy.camera.core
 
+import android.graphics.Point
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
@@ -8,6 +9,7 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.MeteringRectangle
 import android.util.Log
+import android.util.Size
 import com.mrousavy.camera.core.capture.PhotoCaptureRequest
 import com.mrousavy.camera.core.capture.RepeatingCaptureRequest
 import com.mrousavy.camera.core.outputs.SurfaceOutput
@@ -31,6 +33,7 @@ import kotlinx.coroutines.sync.withLock
 class PersistentCameraCaptureSession(private val cameraManager: CameraManager, private val callback: Callback) : Closeable {
   companion object {
     private const val TAG = "PersistentCameraCaptureSession"
+    private val DEFAULT_METERING_SIZE = Size(100, 100)
   }
 
   // Inputs/Dependencies
@@ -152,9 +155,9 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
     }
   }
 
-  suspend fun focus(x: Int, y: Int) {
+  suspend fun focus(point: Point) {
     mutex.withLock {
-      Log.i(TAG, "Focusing to ($x, $y)...")
+      Log.i(TAG, "Focusing to $point...")
       val session = session ?: throw CameraNotReadyError()
       val repeatingRequest = repeatingRequest ?: throw CameraNotReadyError()
       val device = session.device
@@ -173,7 +176,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
 
       // TODO: Convert view coordinates to camera coordinates
       Log.i(TAG, "Metering Rectangle is supported!")
-      val meteringRectangle = MeteringRectangle(x, y, 100, 100, MeteringRectangle.METERING_WEIGHT_MAX)
+      val meteringRectangle = MeteringRectangle(point, DEFAULT_METERING_SIZE, MeteringRectangle.METERING_WEIGHT_MAX)
       request.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(meteringRectangle))
       request.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO) // TODO: Do I need this?
       request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)

@@ -1,5 +1,7 @@
 package com.mrousavy.camera.types
 
+import android.graphics.Point
+import android.util.Size
 import com.mrousavy.camera.core.CameraDeviceDetails
 
 enum class Orientation(override val unionValue: String) : JSUnionValue {
@@ -43,10 +45,21 @@ enum class Orientation(override val unionValue: String) : JSUnionValue {
 
     fun fromRotationDegrees(rotationDegrees: Int): Orientation =
       when (rotationDegrees) {
-        in 45..135 -> LANDSCAPE_RIGHT
+        in 45..135 -> LANDSCAPE_LEFT
         in 135..225 -> PORTRAIT_UPSIDE_DOWN
-        in 225..315 -> LANDSCAPE_LEFT
+        in 225..315 -> LANDSCAPE_RIGHT
         else -> PORTRAIT
       }
+
+    fun rotatePoint(point: Point, viewSize: Size, fromOrientation: Orientation, toOrientation: Orientation): Point {
+      val differenceDegrees = (fromOrientation.toDegrees() + toOrientation.toDegrees()) % 360
+      val difference = Orientation.fromRotationDegrees(differenceDegrees)
+      return when (difference) {
+        PORTRAIT -> point
+        PORTRAIT_UPSIDE_DOWN -> Point(point.x, viewSize.height - point.y)
+        LANDSCAPE_RIGHT -> Point(point.y, viewSize.width - point.x)
+        LANDSCAPE_LEFT -> Point(point.y, point.x)
+      }
+    }
   }
 }

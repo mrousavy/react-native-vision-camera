@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.ImageFormat
+import android.graphics.Point
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureResult
@@ -468,7 +469,11 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   }
 
   suspend fun focus(x: Int, y: Int) {
-    captureSession.focus(x, y)
+    val previewView = previewView ?: throw CameraNotReadyError()
+    val deviceDetails = captureSession.getActiveDeviceDetails() ?: throw CameraNotReadyError()
+
+    val cameraPoint = previewView.convertLayerPointToCameraCoordinates(Point(x, y), deviceDetails)
+    captureSession.focus(cameraPoint)
   }
 
   data class CapturedPhoto(
