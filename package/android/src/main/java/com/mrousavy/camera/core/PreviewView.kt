@@ -12,6 +12,7 @@ import android.widget.FrameLayout
 import com.facebook.react.bridge.UiThreadUtil
 import com.mrousavy.camera.extensions.getMaximumPreviewSize
 import com.mrousavy.camera.extensions.resize
+import com.mrousavy.camera.extensions.rotatedBy
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.ResizeMode
 import kotlin.math.roundToInt
@@ -53,20 +54,12 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
     }
   }
 
-  private fun convertDpPointToPxPoint(point: Point): Point {
-    val displayMetrics = context.resources.displayMetrics
-    val dpWidth = width / displayMetrics.density
-    val dpHeight = height / displayMetrics.density
-    val dpX = point.x / dpWidth * width
-    val dpY = point.y / dpHeight * height
-    return Point(dpX.toInt(), dpY.toInt())
-  }
-
   fun convertLayerPointToCameraCoordinates(point: Point, cameraDeviceDetails: CameraDeviceDetails): Point {
     val sensorOrientation = Orientation.fromRotationDegrees(cameraDeviceDetails.sensorOrientation)
     val cameraSize = Size(cameraDeviceDetails.activeSize.width(), cameraDeviceDetails.activeSize.height())
+    val rotatedCameraSize = cameraSize.rotatedBy(sensorOrientation)
     val viewSize = Size(width, height)
-    val rotated = Orientation.rotatePoint(point, viewSize, cameraSize, Orientation.PORTRAIT, sensorOrientation)
+    val rotated = Orientation.rotatePoint(point, viewSize, rotatedCameraSize, Orientation.PORTRAIT, sensorOrientation)
     Log.i(TAG, "$point -> $sensorOrientation (in $cameraSize -> $viewSize) -> $rotated")
     return rotated
   }
