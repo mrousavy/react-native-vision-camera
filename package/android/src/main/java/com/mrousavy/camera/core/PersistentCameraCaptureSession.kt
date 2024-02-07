@@ -174,14 +174,17 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
 
         // 2. Cancel all ongoing pre-captures
         request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
-        request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF)
         session.capture(request.build(), false)
 
         // 3. Submit an AF pre-capture sequence
-        val meteringRectangle = MeteringRectangle(point, DEFAULT_METERING_SIZE, MeteringRectangle.METERING_WEIGHT_MAX)
-        request.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(meteringRectangle))
-        request.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO) // TODO: Do I need this?
-        request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
+        val meteringRectangle = MeteringRectangle(point, DEFAULT_METERING_SIZE, MeteringRectangle.METERING_WEIGHT_MAX - 1)
+        if (deviceDetails.supportsTapToExposure) {
+          request.set(CaptureRequest.CONTROL_AE_REGIONS, arrayOf(meteringRectangle))
+        }
+        if (deviceDetails.supportsTapToFocus) {
+          request.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(meteringRectangle))
+          request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
+        }
         request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
         session.capture(request.build(), false)
 

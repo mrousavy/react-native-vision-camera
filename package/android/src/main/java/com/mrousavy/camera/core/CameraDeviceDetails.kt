@@ -93,6 +93,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
   val supportsSnapshotCapture by lazy { supportsSnapshotCapture() }
 
   val supportsTapToFocus by lazy { (characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AF) ?: 0) > 0 }
+  val supportsTapToExposure by lazy { (characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AE) ?: 0) > 0 }
 
   // TODO: Also add 10-bit YUV here?
   val videoFormat = ImageFormat.YUV_420_888
