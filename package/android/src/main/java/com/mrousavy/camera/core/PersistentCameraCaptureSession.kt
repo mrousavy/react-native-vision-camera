@@ -162,28 +162,35 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       val repeatingRequest = repeatingRequest ?: throw CameraNotReadyError()
       val device = session.device
       val deviceDetails = getOrCreateCameraDeviceDetails(device)
-
       if (!deviceDetails.supportsTapToFocus) {
         throw FocusNotSupportedError()
       }
-
       val outputs = outputs.filter { it.isRepeating }
-      val request = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
 
-      request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
-      request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF)
-      session.capture(request.build(), false)
+      // 1. Stop the current repeating request to not mess up the pre-capture
+      session.stopRepeating()
+      try {
+        val request = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
 
-      // TODO: Convert view coordinates to camera coordinates
-      Log.i(TAG, "Metering Rectangle is supported!")
-      val meteringRectangle = MeteringRectangle(point, DEFAULT_METERING_SIZE, MeteringRectangle.METERING_WEIGHT_MAX)
-      request.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(meteringRectangle))
-      request.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO) // TODO: Do I need this?
-      request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
-      request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
-      session.capture(request.build(), false)
+        // 2. Cancel all ongoing pre-captures
+        request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
+        request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF)
+        session.capture(request.build(), false)
 
-      Log.i(TAG, "Finished focusing!")
+        // 3. Submit an AF pre-capture sequence
+        val meteringRectangle = MeteringRectangle(point, DEFAULT_METERING_SIZE, MeteringRectangle.METERING_WEIGHT_MAX)
+        request.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(meteringRectangle))
+        request.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO) // TODO: Do I need this?
+        request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
+        request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
+        session.capture(request.build(), false)
+
+        Log.i(TAG, "Finished focusing!")
+      } finally {
+        // 4. Set the Repeating Request without any pre-capture mode again
+        val request = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
+        session.setRepeatingRequest(request.build(), null, null)
+      }
     }
   }
 

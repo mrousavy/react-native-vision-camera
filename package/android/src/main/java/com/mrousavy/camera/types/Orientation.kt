@@ -57,8 +57,8 @@ enum class Orientation(override val unionValue: String) : JSUnionValue {
       return when (difference) {
         PORTRAIT -> point
         PORTRAIT_UPSIDE_DOWN -> Point(point.x, viewSize.height - point.y)
-        LANDSCAPE_RIGHT -> Point(point.y, viewSize.width - point.x)
-        LANDSCAPE_LEFT -> Point(point.y, point.x)
+        LANDSCAPE_RIGHT -> Point(point.y, point.x)
+        LANDSCAPE_LEFT -> Point(point.y, viewSize.width - point.x)
       }
     }
   }
