@@ -53,11 +53,21 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
     }
   }
 
+  private fun convertDpPointToPxPoint(point: Point): Point {
+    val displayMetrics = context.resources.displayMetrics
+    val dpWidth = width / displayMetrics.density
+    val dpHeight = height / displayMetrics.density
+    val dpX = point.x / dpWidth * width
+    val dpY = point.y / dpHeight * height
+    return Point(dpX.toInt(), dpY.toInt())
+  }
+
   fun convertLayerPointToCameraCoordinates(point: Point, cameraDeviceDetails: CameraDeviceDetails): Point {
     val sensorOrientation = Orientation.fromRotationDegrees(cameraDeviceDetails.sensorOrientation)
     val activeSize = cameraDeviceDetails.activeSize
-    val rotated = Orientation.rotatePoint(point, Size(activeSize.width(), activeSize.height()), Orientation.PORTRAIT, sensorOrientation)
-    Log.i(TAG, "$point -> $sensorOrientation (in $activeSize) -> $rotated")
+    val pxPoint = convertDpPointToPxPoint(point)
+    val rotated = Orientation.rotatePoint(pxPoint, Size(activeSize.width(), activeSize.height()), Orientation.PORTRAIT, sensorOrientation)
+    Log.i(TAG, "$point -> $pxPoint -> $sensorOrientation (in $activeSize) -> $rotated")
     return rotated
   }
 

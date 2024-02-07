@@ -189,6 +189,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       } finally {
         // 4. Set the Repeating Request without any pre-capture mode again
         val request = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
+        request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE)
         session.setRepeatingRequest(request.build(), null, null)
       }
     }
