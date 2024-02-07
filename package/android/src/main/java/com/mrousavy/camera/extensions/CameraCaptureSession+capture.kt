@@ -5,7 +5,6 @@ import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
 import android.media.MediaActionSound
-import com.mrousavy.camera.core.CameraQueues
 import com.mrousavy.camera.core.CaptureAbortedError
 import com.mrousavy.camera.core.UnknownCaptureError
 import kotlin.coroutines.resume

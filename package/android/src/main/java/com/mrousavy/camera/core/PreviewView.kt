@@ -12,7 +12,6 @@ import android.widget.FrameLayout
 import com.facebook.react.bridge.UiThreadUtil
 import com.mrousavy.camera.extensions.getMaximumPreviewSize
 import com.mrousavy.camera.extensions.resize
-import com.mrousavy.camera.extensions.rotatedBy
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.ResizeMode
 import kotlin.math.roundToInt
@@ -55,7 +54,7 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
   }
 
   private val viewSize: Size
-    get () {
+    get() {
       val displayMetrics = context.resources.displayMetrics
       val dpX = width / displayMetrics.density
       val dpY = height / displayMetrics.density
@@ -68,7 +67,7 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
     val viewOrientation = Orientation.PORTRAIT
 
     val rotated = Orientation.rotatePoint(point, viewSize, cameraSize, viewOrientation, sensorOrientation)
-    Log.i(TAG, "$point -> $sensorOrientation (in $cameraSize -> ${viewSize}) -> $rotated")
+    Log.i(TAG, "$point -> $sensorOrientation (in $cameraSize -> $viewSize) -> $rotated")
     return rotated
   }
 

@@ -2,7 +2,6 @@ package com.mrousavy.camera.extensions
 
 import android.util.Size
 import android.util.SizeF
-import android.view.Surface
 import com.mrousavy.camera.types.Orientation
 import kotlin.math.abs
 import kotlin.math.max

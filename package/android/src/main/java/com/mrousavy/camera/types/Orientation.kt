@@ -5,7 +5,6 @@ import android.graphics.PointF
 import android.util.Log
 import android.util.Size
 import com.mrousavy.camera.core.CameraDeviceDetails
-import com.mrousavy.camera.extensions.rotatedBy
 
 enum class Orientation(override val unionValue: String) : JSUnionValue {
   PORTRAIT("portrait"),
@@ -54,7 +53,13 @@ enum class Orientation(override val unionValue: String) : JSUnionValue {
         else -> PORTRAIT
       }
 
-    fun rotatePoint(point: Point, fromSize: Size, toSize: Size, fromOrientation: Orientation, toOrientation: Orientation): Point {
+    fun rotatePoint(
+      point: Point,
+      fromSize: Size,
+      toSize: Size,
+      fromOrientation: Orientation,
+      toOrientation: Orientation
+    ): Point {
       val differenceDegrees = (fromOrientation.toDegrees() + toOrientation.toDegrees()) % 360
       val difference = Orientation.fromRotationDegrees(differenceDegrees)
       val normalizedPoint = PointF(point.x / fromSize.width.toFloat(), point.y / fromSize.height.toFloat())
