@@ -1,7 +1,12 @@
 import * as React from 'react'
 import { useRef, useState, useCallback, useMemo } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
-import { PinchGestureHandler, PinchGestureHandlerGestureEvent, TapGestureHandler } from 'react-native-gesture-handler'
+import { GestureResponderEvent, StyleSheet, Text, View } from 'react-native'
+import {
+  HandlerStateChangeEvent,
+  PinchGestureHandler,
+  PinchGestureHandlerGestureEvent,
+  TapGestureHandler,
+} from 'react-native-gesture-handler'
 import {
   CameraProps,
   CameraRuntimeError,
@@ -125,6 +130,12 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   //#endregion
 
   //#region Tap Gesture
+  const onFocusTap = useCallback(({ nativeEvent: event }: GestureResponderEvent) => {
+    camera.current?.focus({
+      x: event.locationX,
+      y: event.locationY,
+    })
+  }, [])
   const onDoubleTap = useCallback(() => {
     onFlipCameraPressed()
   }, [onFlipCameraPressed])
@@ -173,7 +184,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     <View style={styles.container}>
       {device != null && (
         <PinchGestureHandler onGestureEvent={onPinchGesture} enabled={isActive}>
-          <Reanimated.View style={StyleSheet.absoluteFill}>
+          <Reanimated.View onTouchEnd={onFocusTap} style={StyleSheet.absoluteFill}>
             <TapGestureHandler onEnded={onDoubleTap} numberOfTaps={2}>
               <ReanimatedCamera
                 style={StyleSheet.absoluteFill}
