@@ -125,12 +125,16 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   //#endregion
 
   //#region Tap Gesture
-  const onFocusTap = useCallback(({ nativeEvent: event }: GestureResponderEvent) => {
-    camera.current?.focus({
-      x: event.locationX,
-      y: event.locationY,
-    })
-  }, [])
+  const onFocusTap = useCallback(
+    ({ nativeEvent: event }: GestureResponderEvent) => {
+      if (!device?.supportsFocus) return
+      camera.current?.focus({
+        x: event.locationX,
+        y: event.locationY,
+      })
+    },
+    [device?.supportsFocus],
+  )
   const onDoubleTap = useCallback(() => {
     onFlipCameraPressed()
   }, [onFlipCameraPressed])
