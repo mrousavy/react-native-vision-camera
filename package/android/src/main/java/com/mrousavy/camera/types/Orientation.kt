@@ -5,6 +5,7 @@ import android.graphics.PointF
 import android.util.Log
 import android.util.Size
 import com.mrousavy.camera.core.CameraDeviceDetails
+import com.mrousavy.camera.extensions.rotatedBy
 
 enum class Orientation(override val unionValue: String) : JSUnionValue {
   PORTRAIT("portrait"),
@@ -61,8 +62,8 @@ enum class Orientation(override val unionValue: String) : JSUnionValue {
       val rotatedNormalizedPoint = when (difference) {
         PORTRAIT -> normalizedPoint
         PORTRAIT_UPSIDE_DOWN -> PointF(1 - normalizedPoint.x, 1 - normalizedPoint.y)
-        LANDSCAPE_LEFT -> PointF(1 - normalizedPoint.y, normalizedPoint.x)
-        LANDSCAPE_RIGHT -> PointF(normalizedPoint.y, 1 - normalizedPoint.x)
+        LANDSCAPE_LEFT -> PointF(normalizedPoint.y, 1 - normalizedPoint.x)
+        LANDSCAPE_RIGHT -> PointF(1 - normalizedPoint.y, normalizedPoint.x)
       }
 
       val rotatedX = rotatedNormalizedPoint.x * toSize.width
