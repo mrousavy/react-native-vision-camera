@@ -246,7 +246,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
     map.putBoolean("isMultiCam", isMultiCam)
     map.putBoolean("supportsRawCapture", supportsRawCapture)
     map.putBoolean("supportsLowLightBoost", supportsLowLightBoost)
-    map.putBoolean("supportsFocus", true) // I believe every device here supports focussing
+    map.putBoolean("supportsFocus", supportsTapToFocus)
     map.putDouble("minZoom", minZoom)
     map.putDouble("maxZoom", maxZoom)
     map.putDouble("neutralZoom", 1.0) // Zoom is always relative to 1.0 on Android

@@ -130,6 +130,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
     enableShutterSound: Boolean
   ): TotalCaptureResult {
     mutex.withLock {
+      Log.i(TAG, "Capturing photo...")
       val session = session ?: throw CameraNotReadyError()
       val repeatingRequest = repeatingRequest ?: throw CameraNotReadyError()
       val photoRequest = PhotoCaptureRequest(
@@ -153,27 +154,33 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
 
   suspend fun focus(x: Int, y: Int) {
     mutex.withLock {
+      Log.i(TAG, "Focusing to ($x, $y)...")
       val session = session ?: throw CameraNotReadyError()
       val repeatingRequest = repeatingRequest ?: throw CameraNotReadyError()
       val device = session.device
       val deviceDetails = getOrCreateCameraDeviceDetails(device)
 
+      if (!deviceDetails.supportsTapToFocus) {
+        throw FocusNotSupportedError()
+      }
+
+      val outputs = outputs.filter { it.isRepeating }
       val request = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
 
       request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
       request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF)
-      val result1 = session.capture(request.build(), false)
+      session.capture(request.build(), false)
 
-      if (deviceDetails.supportsTapToFocus) {
-        // TODO: Convert view coordinates to camera coordinates
-        val meteringRectangle = MeteringRectangle(x, y, 100, 100, MeteringRectangle.METERING_WEIGHT_MAX)
-        request.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(meteringRectangle))
-      }
+      // TODO: Convert view coordinates to camera coordinates
+      Log.i(TAG, "Metering Rectangle is supported!")
+      val meteringRectangle = MeteringRectangle(x, y, 100, 100, MeteringRectangle.METERING_WEIGHT_MAX)
+      request.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(meteringRectangle))
       request.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO) // TODO: Do I need this?
       request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
       request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
-      val result2 = session.capture(request.build(), false)
-      // focus should be complete now?
+      session.capture(request.build(), false)
+
+      Log.i(TAG, "Finished focusing!")
     }
   }
 
