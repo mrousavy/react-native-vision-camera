@@ -3,6 +3,7 @@ package com.mrousavy.camera.core
 import android.graphics.Point
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
@@ -21,6 +22,7 @@ import com.mrousavy.camera.extensions.tryAbortCaptures
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.QualityPrioritization
+import kotlinx.coroutines.delay
 import java.io.Closeable
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -172,32 +174,38 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       try {
         val request = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
 
-        val defaultAFMode = request.get(CaptureRequest.CONTROL_AF_MODE)
+        request.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
 
         // 2. Cancel all ongoing pre-captures
-        request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
-        session.capture(request.build(), false)
 
         // 3. Submit an AF pre-capture sequence
-        val centerPoint = Point(point.x - (DEFAULT_METERING_SIZE.width / 2), point.y - (DEFAULT_METERING_SIZE.height / 2))
-        val meteringRectangle = MeteringRectangle(centerPoint, DEFAULT_METERING_SIZE, MeteringRectangle.METERING_WEIGHT_MAX - 1)
+        val meteringRectangle = MeteringRectangle(point, DEFAULT_METERING_SIZE, MeteringRectangle.METERING_WEIGHT_MAX - 1)
+        if (deviceDetails.supportsTapToFocus) {
+          request.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(meteringRectangle))
+        }
         if (deviceDetails.supportsTapToExposure) {
           request.set(CaptureRequest.CONTROL_AE_REGIONS, arrayOf(meteringRectangle))
         }
-        if (deviceDetails.supportsTapToFocus) {
-          request.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(meteringRectangle))
-          request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
+        if (deviceDetails.supportsTapToWhiteBalance) {
+          request.set(CaptureRequest.CONTROL_AWB_REGIONS, arrayOf(meteringRectangle))
         }
-        request.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
         request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
+        request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START)
         session.capture(request.build(), false)
 
-        // 4. Set the AF back to idle
-        request.set(CaptureRequest.CONTROL_AE_REGIONS, null)
+        delay(500)
+
+        // 4. Set the AF/AE/AWB back to idle
         request.set(CaptureRequest.CONTROL_AF_REGIONS, null)
-        request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE)
-        request.set(CaptureRequest.CONTROL_AF_MODE, defaultAFMode)
+        request.set(CaptureRequest.CONTROL_AE_REGIONS, null)
+        request.set(CaptureRequest.CONTROL_AWB_REGIONS, null)
+        request.set(CaptureRequest.CONTROL_AE_LOCK, false)
+        request.set(CaptureRequest.CONTROL_AWB_LOCK, false)
+        //request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE)
+        //request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_IDLE)
         session.capture(request.build(), false)
+
+        delay(500)
 
         Log.i(TAG, "Finished focusing!")
       } finally {
