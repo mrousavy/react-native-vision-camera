@@ -196,8 +196,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 onStopped={() => 'Camera stopped!'}
                 format={format}
                 fps={fps}
-                photoHdr={enableHdr}
-                videoHdr={enableHdr}
+                photoHdr={format?.supportsPhotoHdr && enableHdr}
+                videoHdr={format?.supportsVideoHdr && enableHdr}
                 lowLightBoost={device.supportsLowLightBoost && enableNightMode}
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
