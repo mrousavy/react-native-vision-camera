@@ -3,12 +3,9 @@ package com.mrousavy.camera.core
 import android.graphics.Point
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCaptureSession
-import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
-import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
-import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.MeteringRectangle
 import android.util.Log
@@ -24,18 +21,12 @@ import com.mrousavy.camera.extensions.tryAbortCaptures
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.QualityPrioritization
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import java.io.Closeable
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.io.Closeable
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.util.concurrent.Executors
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 /**
  * A [CameraCaptureSession] wrapper that safely handles interruptions and remains open whenever available.
