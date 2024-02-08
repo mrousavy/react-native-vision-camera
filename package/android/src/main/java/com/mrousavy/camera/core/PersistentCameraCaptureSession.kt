@@ -6,7 +6,9 @@ import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
+import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.MeteringRectangle
 import android.util.Log
@@ -22,10 +24,17 @@ import com.mrousavy.camera.extensions.tryAbortCaptures
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.QualityPrioritization
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.Closeable
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.util.concurrent.Executors
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * A [CameraCaptureSession] wrapper that safely handles interruptions and remains open whenever available.
@@ -169,50 +178,49 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       }
       val outputs = outputs.filter { it.isRepeating }
 
-      // 1. Stop the current repeating request to not mess up the pre-capture
-      session.stopRepeating()
       try {
-        val request = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
+        session.stopRepeating()
 
-        request.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
+        val request1 = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
+        request1.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
+        request1.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
+        request1.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
+        session.setRepeatingRequest(request1.build(), null, null)
 
-        // 2. Cancel all ongoing pre-captures
 
-        // 3. Submit an AF pre-capture sequence
-        val meteringRectangle = MeteringRectangle(point, DEFAULT_METERING_SIZE, MeteringRectangle.METERING_WEIGHT_MAX - 1)
-        if (deviceDetails.supportsTapToFocus) {
-          request.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(meteringRectangle))
-        }
-        if (deviceDetails.supportsTapToExposure) {
-          request.set(CaptureRequest.CONTROL_AE_REGIONS, arrayOf(meteringRectangle))
-        }
-        if (deviceDetails.supportsTapToWhiteBalance) {
-          request.set(CaptureRequest.CONTROL_AWB_REGIONS, arrayOf(meteringRectangle))
-        }
-        request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
-        request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START)
-        session.capture(request.build(), false)
+        val AF_TAG = "auto_focus_tag"
+        val request2 = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
+        val meteringRectangle = MeteringRectangle(Point(0, 0), DEFAULT_METERING_SIZE, MeteringRectangle.METERING_WEIGHT_MAX - 1)
+        request2.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(meteringRectangle))
+        request2.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
+        request2.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
+        request2.setTag(AF_TAG)
+        session.capture(request2.build(), object: CameraCaptureSession.CaptureCallback() {
+          override fun onCaptureCompleted(session: CameraCaptureSession, request: CaptureRequest, result: TotalCaptureResult) {
+            super.onCaptureCompleted(session, request, result)
 
-        delay(500)
+            if (request.tag == AF_TAG) {
+              session.stopRepeating()
+              val request3 = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
+              request3.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
+              request3.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE)
+              request3.set(CaptureRequest.CONTROL_AF_REGIONS, request.get(CaptureRequest.CONTROL_AF_REGIONS))
+              session.setRepeatingRequest(request3.build(), null, null)
 
-        // 4. Set the AF/AE/AWB back to idle
-        request.set(CaptureRequest.CONTROL_AF_REGIONS, null)
-        request.set(CaptureRequest.CONTROL_AE_REGIONS, null)
-        request.set(CaptureRequest.CONTROL_AWB_REGIONS, null)
-        request.set(CaptureRequest.CONTROL_AE_LOCK, false)
-        request.set(CaptureRequest.CONTROL_AWB_LOCK, false)
-        //request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE)
-        //request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_IDLE)
-        session.capture(request.build(), false)
+              val x = CoroutineScope(Dispatchers.Default)
+              x.launch {
+                delay(5000)
+                session.stopRepeating()
+                val request4 = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
+                session.setRepeatingRequest(request4.build(), null, null)
+              }
+            } else {
+              Log.e(TAG, "HOLUP WRONG TAG ${request.tag}")
+            }
+          }
+        }, null)
 
-        delay(500)
-
-        Log.i(TAG, "Finished focusing!")
       } finally {
-        // 4. Set the Repeating Request without any pre-capture mode again
-        val request = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
-        request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE)
-        session.setRepeatingRequest(request.build(), null, null)
       }
     }
   }
