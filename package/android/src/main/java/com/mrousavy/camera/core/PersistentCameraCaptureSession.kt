@@ -166,7 +166,6 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   }
 
   suspend fun focus(point: Point) {
-    Log.i(TAG, "focus() start")
     mutex.withLock {
       Log.i(TAG, "Focusing to $point...")
       val session = session ?: throw CameraNotReadyError()
@@ -246,7 +245,6 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
         }
       }
     }
-    Log.i(TAG, "focus() end")
   }
 
   fun getActiveDeviceDetails(): CameraDeviceDetails? {
