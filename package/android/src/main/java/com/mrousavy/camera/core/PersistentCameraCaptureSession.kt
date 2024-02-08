@@ -173,39 +173,53 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       val outputs = outputs.filter { it.isRepeating }
       val meteringRectangle = MeteringRectangle(point, DEFAULT_METERING_SIZE, MeteringRectangle.METERING_WEIGHT_MAX - 1)
 
-      try {
-        // 1. Cancel any ongoing AF/AE/AWB request
-        val request1 = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
+      // 1. Cancel any ongoing AF/AE/AWB request
+      val request1 = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
+      if (deviceDetails.supportsTapToFocus) {
         request1.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
-        session.capture(request1.build(), false)
+      }
+      if (deviceDetails.supportsTapToExposure) {
+        request1.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL)
+      }
+      session.capture(request1.build(), false)
 
-        // 2. After previous AF/AE/AWB requests have been canceled, start a new one
-        val request2 = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
-        request2.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
+      // 2. After previous AF/AE/AWB requests have been canceled, start a new one
+      val request2 = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
+      request2.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
+      if (deviceDetails.supportsTapToFocus) {
         request2.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
         request2.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(meteringRectangle))
         request2.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
-        session.setRepeatingRequestWaitForFocus(request2.build())
+      }
+      if (deviceDetails.supportsTapToExposure) {
+        request2.set(CaptureRequest.CONTROL_AE_REGIONS, arrayOf(meteringRectangle))
+        request2.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START)
+      }
+      session.setRepeatingRequestWaitForFocus(request2.build())
 
-        // 3. After the Camera has successfully found the AF/AE/AWB lock-point, we set it to idle and keep the point metered
-        val request3 = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
-        request2.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
+      // 3. After the Camera has successfully found the AF/AE/AWB lock-point, we set it to idle and keep the point metered
+      val request3 = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
+      request2.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
+      if (deviceDetails.supportsTapToFocus) {
         request3.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
         request3.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(meteringRectangle))
         request3.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE)
-        session.setRepeatingRequest(request3.build(), null, null)
+      }
+      if (deviceDetails.supportsTapToExposure) {
+        request2.set(CaptureRequest.CONTROL_AE_REGIONS, arrayOf(meteringRectangle))
+        request2.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_IDLE)
+      }
+      session.setRepeatingRequest(request3.build(), null, null)
 
-        // 4. Wait 3 seconds
-        coroutineScope {
-          launch {
-            delay(FOCUS_RESET_TIMEOUT)
-            Log.i(TAG, "Resetting focus to auto-focus...")
-            // 5. Reset AF/AE/AWB to continuous auto-focus again, which is the default here.
-            val request4 = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
-            session.setRepeatingRequest(request4.build(), null, null)
-          }
+      // 4. Wait 3 seconds
+      coroutineScope {
+        launch {
+          delay(FOCUS_RESET_TIMEOUT)
+          Log.i(TAG, "Resetting focus to auto-focus...")
+          // 5. Reset AF/AE/AWB to continuous auto-focus again, which is the default here.
+          val request4 = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
+          session.setRepeatingRequest(request4.build(), null, null)
         }
-      } finally {
       }
     }
   }
