@@ -2,7 +2,7 @@ package com.mrousavy.camera.extensions
 
 import android.util.Size
 import android.util.SizeF
-import android.view.Surface
+import com.mrousavy.camera.types.Orientation
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -14,13 +14,10 @@ fun List<Size>.closestToOrMax(size: Size?): Size =
     this.maxBy { it.width * it.height }
   }
 
-fun Size.rotated(surfaceRotation: Int): Size =
-  when (surfaceRotation) {
-    Surface.ROTATION_0 -> Size(width, height)
-    Surface.ROTATION_90 -> Size(height, width)
-    Surface.ROTATION_180 -> Size(width, height)
-    Surface.ROTATION_270 -> Size(height, width)
-    else -> Size(width, height)
+fun Size.rotatedBy(orientation: Orientation): Size =
+  when (orientation) {
+    Orientation.PORTRAIT, Orientation.PORTRAIT_UPSIDE_DOWN -> this
+    Orientation.LANDSCAPE_LEFT, Orientation.LANDSCAPE_RIGHT -> Size(height, width)
   }
 
 val Size.bigger: Int

@@ -2,6 +2,7 @@ package com.mrousavy.camera.core
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Point
 import android.util.Log
 import android.util.Size
 import android.view.Gravity
@@ -11,6 +12,7 @@ import android.widget.FrameLayout
 import com.facebook.react.bridge.UiThreadUtil
 import com.mrousavy.camera.extensions.getMaximumPreviewSize
 import com.mrousavy.camera.extensions.resize
+import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.ResizeMode
 import kotlin.math.roundToInt
 import kotlinx.coroutines.Dispatchers
@@ -49,6 +51,24 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
       invalidate()
       holder.resize(width, height)
     }
+  }
+
+  private val viewSize: Size
+    get() {
+      val displayMetrics = context.resources.displayMetrics
+      val dpX = width / displayMetrics.density
+      val dpY = height / displayMetrics.density
+      return Size(dpX.toInt(), dpY.toInt())
+    }
+
+  fun convertLayerPointToCameraCoordinates(point: Point, cameraDeviceDetails: CameraDeviceDetails): Point {
+    val sensorOrientation = Orientation.fromRotationDegrees(cameraDeviceDetails.sensorOrientation)
+    val cameraSize = Size(cameraDeviceDetails.activeSize.width(), cameraDeviceDetails.activeSize.height())
+    val viewOrientation = Orientation.PORTRAIT
+
+    val rotated = Orientation.rotatePoint(point, viewSize, cameraSize, viewOrientation, sensorOrientation)
+    Log.i(TAG, "$point -> $sensorOrientation (in $cameraSize -> $viewSize) -> $rotated")
+    return rotated
   }
 
   private fun getSize(contentSize: Size, containerSize: Size, resizeMode: ResizeMode): Size {

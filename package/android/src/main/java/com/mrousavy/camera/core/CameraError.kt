@@ -62,6 +62,8 @@ class FlashUnavailableError :
     "flash-unavailable",
     "The Camera Device does not have a flash unit! Make sure you select a device where `device.hasFlash`/`device.hasTorch` is true."
   )
+class FocusNotSupportedError :
+  CameraError("device", "focus-not-supported", "The currently selected camera device does not support focusing!")
 
 class CameraNotReadyError :
   CameraError("session", "camera-not-ready", "The Camera is not ready yet! Wait for the onInitialized() callback!")

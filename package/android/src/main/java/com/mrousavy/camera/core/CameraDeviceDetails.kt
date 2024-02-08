@@ -44,6 +44,8 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
     characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS) ?: floatArrayOf(35f)
   }
   val sensorSize by lazy { characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)!! }
+  val activeSize
+    get() = characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)!!
   val sensorOrientation by lazy { characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0 }
   val minFocusDistance by lazy { getMinFocusDistanceCm() }
   val name by lazy {
@@ -90,6 +92,14 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
 
   val isBackwardsCompatible by lazy { capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE) }
   val supportsSnapshotCapture by lazy { supportsSnapshotCapture() }
+
+  val supportsTapToFocus by lazy { (characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AF) ?: 0) > 0 }
+  val supportsTapToExposure by lazy { (characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AE) ?: 0) > 0 }
+  val supportsTapToWhiteBalance by lazy { (characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AWB) ?: 0) > 0 }
+
+  val afModes by lazy { characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)?.toList() ?: emptyList() }
+  val aeModes by lazy { characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES)?.toList() ?: emptyList() }
+  val awbModes by lazy { characteristics.get(CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES)?.toList() ?: emptyList() }
 
   // TODO: Also add 10-bit YUV here?
   val videoFormat = ImageFormat.YUV_420_888
@@ -244,7 +254,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
     map.putBoolean("isMultiCam", isMultiCam)
     map.putBoolean("supportsRawCapture", supportsRawCapture)
     map.putBoolean("supportsLowLightBoost", supportsLowLightBoost)
-    map.putBoolean("supportsFocus", true) // I believe every device here supports focussing
+    map.putBoolean("supportsFocus", supportsTapToFocus)
     map.putDouble("minZoom", minZoom)
     map.putDouble("maxZoom", maxZoom)
     map.putDouble("neutralZoom", 1.0) // Zoom is always relative to 1.0 on Android
