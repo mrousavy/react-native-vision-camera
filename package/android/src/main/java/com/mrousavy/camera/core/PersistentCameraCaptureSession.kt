@@ -26,6 +26,7 @@ import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.QualityPrioritization
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.Closeable
@@ -45,6 +46,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   companion object {
     private const val TAG = "PersistentCameraCaptureSession"
     private val DEFAULT_METERING_SIZE = Size(100, 100)
+    private const val FOCUS_RESET_TIMEOUT = 3000L
   }
 
   // Inputs/Dependencies
@@ -177,49 +179,38 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
         throw FocusNotSupportedError()
       }
       val outputs = outputs.filter { it.isRepeating }
+      val meteringRectangle = MeteringRectangle(point, DEFAULT_METERING_SIZE, MeteringRectangle.METERING_WEIGHT_MAX - 1)
 
       try {
         session.stopRepeating()
-
         val request1 = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
         request1.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
         request1.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
         request1.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
         session.setRepeatingRequest(request1.build(), null, null)
 
-
-        val AF_TAG = "auto_focus_tag"
         val request2 = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
-        val meteringRectangle = MeteringRectangle(point, DEFAULT_METERING_SIZE, MeteringRectangle.METERING_WEIGHT_MAX - 1)
-        request2.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(meteringRectangle))
         request2.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
+        request2.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(meteringRectangle))
         request2.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
-        request2.setTag(AF_TAG)
-        session.capture(request2.build(), object: CameraCaptureSession.CaptureCallback() {
-          override fun onCaptureCompleted(session: CameraCaptureSession, request: CaptureRequest, result: TotalCaptureResult) {
-            super.onCaptureCompleted(session, request, result)
+        session.capture(request2.build(), false)
 
-            if (request.tag == AF_TAG) {
-              session.stopRepeating()
-              val request3 = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
-              request3.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
-              request3.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE)
-              request3.set(CaptureRequest.CONTROL_AF_REGIONS, request.get(CaptureRequest.CONTROL_AF_REGIONS))
-              session.setRepeatingRequest(request3.build(), null, null)
+        session.stopRepeating()
+        val request3 = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
+        request3.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
+        request3.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(meteringRectangle))
+        request3.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE)
+        session.setRepeatingRequest(request3.build(), null, null)
 
-              val x = CoroutineScope(Dispatchers.Default)
-              x.launch {
-                delay(5000)
-                session.stopRepeating()
-                val request4 = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
-                session.setRepeatingRequest(request4.build(), null, null)
-              }
-            } else {
-              Log.e(TAG, "HOLUP WRONG TAG ${request.tag}")
-            }
+        coroutineScope {
+          launch {
+            delay(FOCUS_RESET_TIMEOUT)
+            Log.i(TAG, "Resetting focus to auto-focus...")
+            session.stopRepeating()
+            val request4 = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
+            session.setRepeatingRequest(request4.build(), null, null)
           }
-        }, null)
-
+        }
       } finally {
       }
     }
