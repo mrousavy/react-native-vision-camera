@@ -61,9 +61,11 @@ abstract class CameraCaptureRequest(
       if (format == null) throw PropRequiresFormatToBeNonNullError("videoHdr")
       if (!format.supportsVideoHdr) throw InvalidVideoHdrError()
       builder.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_HDR)
+      builder.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_USE_SCENE_MODE)
     } else if (enableLowLightBoost) {
       if (!deviceDetails.supportsLowLightBoost) throw LowLightBoostNotSupportedError()
       builder.set(CaptureRequest.CONTROL_SCENE_MODE, CaptureRequest.CONTROL_SCENE_MODE_NIGHT)
+      builder.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_USE_SCENE_MODE)
     }
 
     // Set Exposure Bias
