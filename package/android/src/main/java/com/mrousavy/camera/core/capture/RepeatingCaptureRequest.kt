@@ -14,7 +14,7 @@ import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.VideoStabilizationMode
 
 class RepeatingCaptureRequest(
-  private val enableVideoPipeline: Boolean,
+  val enableVideoPipeline: Boolean,
   torch: Torch = Torch.OFF,
   private val fps: Int? = null,
   private val videoStabilizationMode: VideoStabilizationMode = VideoStabilizationMode.OFF,
@@ -47,6 +47,32 @@ class RepeatingCaptureRequest(
     outputs: List<SurfaceOutput>
   ): CaptureRequest.Builder {
     val builder = super.createCaptureRequest(template, device, deviceDetails, outputs)
+
+    builder.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
+
+    // Set AF
+    if (enableVideoPipeline && deviceDetails.afModes.contains(CameraCharacteristics.CONTROL_AF_MODE_CONTINUOUS_VIDEO)) {
+      builder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO)
+    } else if (deviceDetails.afModes.contains(CameraCharacteristics.CONTROL_AF_MODE_CONTINUOUS_PICTURE)) {
+      builder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+    } else if (deviceDetails.afModes.contains(CameraCharacteristics.CONTROL_AF_MODE_AUTO)) {
+      builder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
+    } else if (deviceDetails.afModes.contains(CameraCharacteristics.CONTROL_AF_MODE_OFF)) {
+      builder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF)
+      builder.set(CaptureRequest.LENS_FOCUS_DISTANCE, 0f)
+    }
+
+    // Set AE
+    if (deviceDetails.aeModes.contains(CameraCharacteristics.CONTROL_AE_MODE_ON)) {
+      builder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON)
+    } else if (deviceDetails.aeModes.contains(CameraCharacteristics.CONTROL_AE_MODE_OFF)) {
+      builder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_OFF)
+    }
+
+    // Set AWB
+    if (deviceDetails.awbModes.contains(CameraCharacteristics.CONTROL_AWB_MODE_AUTO)) {
+      builder.set(CaptureRequest.CONTROL_AWB_MODE, CaptureRequest.CONTROL_AWB_MODE_AUTO)
+    }
 
     // Set FPS
     if (fps != null) {
