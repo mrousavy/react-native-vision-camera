@@ -17,24 +17,20 @@ import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.isValid
 import com.mrousavy.camera.extensions.openCamera
-import com.mrousavy.camera.extensions.setRepeatingRequestWaitForFocus
+import com.mrousavy.camera.extensions.setRepeatingRequestAndWaitForAF
 import com.mrousavy.camera.extensions.tryAbortCaptures
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.QualityPrioritization
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import java.io.Closeable
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
-import kotlin.coroutines.coroutineContext
 
 /**
  * A [CameraCaptureSession] wrapper that safely handles interruptions and remains open whenever available.
@@ -195,9 +191,6 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
         if (deviceDetails.supportsTapToExposure) {
           request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL)
         }
-        if (deviceDetails.supportsTapToWhiteBalance) {
-          request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL)
-        }
         session.capture(request.build(), null, null)
       }
 
@@ -213,12 +206,15 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
           request.set(CaptureRequest.CONTROL_AE_REGIONS, arrayOf(meteringRectangle))
           request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START)
         }
+        if (deviceDetails.supportsTapToWhiteBalance) {
+          request.set(CaptureRequest.CONTROL_AWB_REGIONS, arrayOf(meteringRectangle))
+        }
         session.capture(request.build(), null, null)
 
         // 3. Start a repeating request without the trigger and wait until AF/AE/AWB locks
         request.set(CaptureRequest.CONTROL_AF_TRIGGER, null)
         request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null)
-        session.setRepeatingRequestWaitForFocus(request.build())
+        session.setRepeatingRequestAndWaitForAF(request.build())
       }
 
       // 4. After the Camera has successfully found the AF/AE/AWB lock-point, we set it to idle and keep the point metered

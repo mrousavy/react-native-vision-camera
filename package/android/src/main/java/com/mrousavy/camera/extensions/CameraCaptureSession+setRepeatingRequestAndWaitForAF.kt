@@ -12,9 +12,9 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 /**
- * Set a new repeating request for the [CameraCaptureSession] that contains an AF/AE/AWB trigger, and wait until that has completed.
+ * Set a new repeating request for the [CameraCaptureSession] that contains an AF trigger, and wait until AF has locked.
  */
-suspend fun CameraCaptureSession.setRepeatingRequestWaitForFocus(request: CaptureRequest) {
+suspend fun CameraCaptureSession.setRepeatingRequestAndWaitForAF(request: CaptureRequest) {
   return suspendCancellableCoroutine { continuation ->
     this.setRepeatingRequest(request, object: CameraCaptureSession.CaptureCallback() {
       override fun onCaptureCompleted(session: CameraCaptureSession, request: CaptureRequest, result: TotalCaptureResult) {
