@@ -190,7 +190,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
 
         val AF_TAG = "auto_focus_tag"
         val request2 = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
-        val meteringRectangle = MeteringRectangle(Point(0, 0), DEFAULT_METERING_SIZE, MeteringRectangle.METERING_WEIGHT_MAX - 1)
+        val meteringRectangle = MeteringRectangle(point, DEFAULT_METERING_SIZE, MeteringRectangle.METERING_WEIGHT_MAX - 1)
         request2.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(meteringRectangle))
         request2.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
         request2.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
