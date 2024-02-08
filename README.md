@@ -9,7 +9,7 @@
   <br />
   <br />
   <blockquote><b>📸 The Camera library that sees the vision.</b></blockquote>
-  <pre align="center">npm i <a href="https://www.npmjs.com/package/react-native-vision-camera">react-native-vision-camera</a>@2<br/>npx pod-install                   </pre>
+  <pre align="center">npm i <a href="https://www.npmjs.com/package/react-native-vision-camera">react-native-vision-camera</a>@vc2<br/>npx pod-install                     </pre>
   <a align="center" href='https://ko-fi.com/F1F8CLXG' target='_blank'>
     <img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi2.png?v=0' border='0' alt='Buy Me a Coffee at ko-fi.com' />
   </a>
@@ -32,7 +32,7 @@
 
 ### V2
 
-This is the V2 branch of VisionCamera (`2.x.x` on npm). Since VisionCamera V3 (current main, `3.x.x` on npm) features a full codebase rewrite on Android and a huge refactor on the iOS codebase, I will try to provide limited support for VisionCamera V2 for a while until V3 has been tested enough to be considered fully stable.
+This is the V2 branch of VisionCamera (`2.x.x` on npm, tag: `vc2`). Since VisionCamera V3 (current main, `3.x.x` on npm, tag: `latest`) features a full codebase rewrite on Android and a huge refactor on the iOS codebase, I will try to provide limited support for VisionCamera V2 for a while until V3 has been tested enough to be considered fully stable.
 
 However, I will not provide free support for V2 anymore. I will be merging community PRs to the v2 branch if necessary as well as fixing some critical issues and releasing them, but I will not help you fix your app on v2.
 
