@@ -3,24 +3,30 @@ package com.mrousavy.camera.extensions
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
+import android.util.Log
 import com.mrousavy.camera.core.CaptureAbortedError
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 /**
- * Set a new repeating request for the [CameraCaptureSession], and wait until the first Frame has arrived.
+ * Set a new repeating request for the [CameraCaptureSession] that contains an AF/AE/AWB trigger, and wait until that has completed.
  */
-suspend fun CameraCaptureSession.setRepeatingRequestAndWait(request: CaptureRequest) {
+suspend fun CameraCaptureSession.setRepeatingRequestWaitForFocus(request: CaptureRequest) {
   return suspendCancellableCoroutine { continuation ->
     this.setRepeatingRequest(request, object: CameraCaptureSession.CaptureCallback() {
       override fun onCaptureCompleted(session: CameraCaptureSession, request: CaptureRequest, result: TotalCaptureResult) {
         super.onCaptureCompleted(session, request, result)
 
         if (continuation.isActive) {
-          continuation.resume(Unit)
-          session.setRepeatingRequest(request, null, null)
+          val afState = result.get(CaptureResult.CONTROL_AF_STATE)
+          Log.i("CaptureSession", "AF State: $afState")
+          if (afState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED || afState == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED) {
+            continuation.resume(Unit)
+            session.setRepeatingRequest(request, null, null)
+          }
         }
       }
       override fun onCaptureFailed(session: CameraCaptureSession, request: CaptureRequest, failure: CaptureFailure) {

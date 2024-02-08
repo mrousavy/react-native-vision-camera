@@ -17,6 +17,7 @@ import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.isValid
 import com.mrousavy.camera.extensions.openCamera
+import com.mrousavy.camera.extensions.setRepeatingRequestWaitForFocus
 import com.mrousavy.camera.extensions.tryAbortCaptures
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
@@ -173,31 +174,33 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       val meteringRectangle = MeteringRectangle(point, DEFAULT_METERING_SIZE, MeteringRectangle.METERING_WEIGHT_MAX - 1)
 
       try {
-        session.stopRepeating()
+        // 1. Cancel any ongoing AF/AE/AWB request
         val request1 = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
-        request1.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
-        request1.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
-        request1.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
-        session.setRepeatingRequest(request1.build(), null, null)
+        request1.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
+        session.capture(request1.build(), false)
 
+        // 2. After previous AF/AE/AWB requests have been canceled, start a new one
         val request2 = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
+        request2.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
         request2.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
         request2.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(meteringRectangle))
         request2.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
-        session.capture(request2.build(), false)
+        session.setRepeatingRequestWaitForFocus(request2.build())
 
-        session.stopRepeating()
+        // 3. After the Camera has successfully found the AF/AE/AWB lock-point, we set it to idle and keep the point metered
         val request3 = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
+        request2.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
         request3.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
         request3.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(meteringRectangle))
         request3.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE)
         session.setRepeatingRequest(request3.build(), null, null)
 
+        // 4. Wait 3 seconds
         coroutineScope {
           launch {
             delay(FOCUS_RESET_TIMEOUT)
             Log.i(TAG, "Resetting focus to auto-focus...")
-            session.stopRepeating()
+            // 5. Reset AF/AE/AWB to continuous auto-focus again, which is the default here.
             val request4 = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
             session.setRepeatingRequest(request4.build(), null, null)
           }
