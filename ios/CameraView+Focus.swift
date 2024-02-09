@@ -1,5 +1,5 @@
 //
-//  CameraView+focus.swift
+//  CameraView+Focus.swift
 //  mrousavy
 //
 //  Created by Marc Rousavy on 19.02.21.
@@ -22,20 +22,61 @@ extension CameraView {
 
       do {
         try device.lockForConfiguration()
-
-        device.focusPointOfInterest = normalizedPoint
-        device.focusMode = .continuousAutoFocus
-
-        if device.isExposurePointOfInterestSupported {
-          device.exposurePointOfInterest = normalizedPoint
-          device.exposureMode = .continuousAutoExposure
+        defer {
+          device.unlockForConfiguration()
         }
 
-        device.unlockForConfiguration()
+        // Set Focus
+        device.focusPointOfInterest = normalizedPoint
+        device.focusMode = .autoFocus
+
+        // Set Exposure
+        if device.isExposurePointOfInterestSupported {
+          device.exposurePointOfInterest = normalizedPoint
+          device.exposureMode = .autoExpose
+        }
+
+        // Remove any existing listeners
+        NotificationCenter.default.removeObserver(self,
+                                                  name: NSNotification.Name.AVCaptureDeviceSubjectAreaDidChange,
+                                                  object: nil)
+
+        // Listen for focus completion
+        device.isSubjectAreaChangeMonitoringEnabled = true
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(subjectAreaDidChange),
+                                               name: NSNotification.Name.AVCaptureDeviceSubjectAreaDidChange,
+                                               object: nil)
+
         return nil
       } catch {
         throw CameraError.device(DeviceError.configureError)
       }
     }
+  }
+
+  @objc
+  func subjectAreaDidChange(notification _: NSNotification) {
+    guard let device = videoDeviceInput?.device else {
+      return
+    }
+
+    try? device.lockForConfiguration()
+    defer {
+      device.unlockForConfiguration()
+    }
+
+    // Reset Focus to continuous/auto
+    if device.isFocusPointOfInterestSupported {
+      device.focusMode = .continuousAutoFocus
+    }
+
+    // Reset Exposure to continuous/auto
+    if device.isExposurePointOfInterestSupported {
+      device.exposureMode = .continuousAutoExposure
+    }
+
+    // Disable listeners
+    device.isSubjectAreaChangeMonitoringEnabled = false
   }
 }
