@@ -117,7 +117,11 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
       do {
         // If needed, configure the AVCaptureSession (inputs, outputs)
         if difference.isSessionConfigurationDirty {
-          try self.withSessionLock {
+         self.session.beginConfiguration()
+         defer {
+           self.session.commitConfiguration()
+         }
+         try self.withSessionLock {
             // 1. Update input device
             if difference.inputChanged {
               try self.configureDevice(configuration: config)
