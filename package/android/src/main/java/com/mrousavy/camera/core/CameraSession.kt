@@ -237,13 +237,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
     // Destroy previous outputs
     Log.i(TAG, "Destroying previous outputs...")
-    photoOutput?.close()
-    photoOutput = null
-    videoOutput?.close()
-    videoOutput = null
-    codeScannerOutput?.close()
-    codeScannerOutput = null
-    isRunning = false
+    destroy()
 
     val characteristics = cameraManager.getCameraCharacteristics(cameraId)
     val format = configuration.format
