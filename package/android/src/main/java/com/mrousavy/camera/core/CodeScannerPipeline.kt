@@ -39,7 +39,7 @@ class CodeScannerPipeline(
     var isBusy = false
     imageReader = ImageReader.newInstance(size.width, size.height, format, MAX_IMAGES)
     imageReader.setOnImageAvailableListener({ reader ->
-      val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
+      val image = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
 
       if (isBusy) {
         // We're currently executing on a previous Frame, so we skip this one.
