@@ -52,7 +52,9 @@ NS_ASSUME_NONNULL_BEGIN
  *            See the <a href="https://react-native-vision-camera.com/docs/guides/frame-processors-plugins-overview#types">Types</a>
  *            table for a list of supported types.
  */
-- (id _Nullable)callback:(Frame*)frame withArguments:(NSDictionary* _Nullable)arguments error:(NSError* _Nullable __autoreleasing*)error;
+- (id _Nullable)callback:(Frame*)frame
+           withArguments:(NSDictionary* _Nullable)arguments
+                   error:(NSError* __autoreleasing _Nullable* _Nullable)error;
 
 @end
 
