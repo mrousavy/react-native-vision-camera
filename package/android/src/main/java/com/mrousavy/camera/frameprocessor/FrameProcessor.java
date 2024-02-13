@@ -21,6 +21,8 @@ public final class FrameProcessor {
     @Keep
     private final HybridData mHybridData;
 
+    @DoNotStrip
+    @Keep
     public FrameProcessor(HybridData hybridData) {
         mHybridData = hybridData;
     }
