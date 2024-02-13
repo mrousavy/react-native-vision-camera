@@ -14,7 +14,7 @@ import com.mrousavy.camera.core.ViewNotFoundError
 import java.lang.ref.WeakReference
 
 @Suppress("KotlinJniMissingFunction") // we use fbjni.
-class VisionCameraProxy(context: ReactApplicationContext) {
+class VisionCameraProxy(private val reactContext: ReactApplicationContext) {
   companion object {
     const val TAG = "VisionCameraProxy"
   }
@@ -24,6 +24,8 @@ class VisionCameraProxy(context: ReactApplicationContext) {
   private var mHybridData: HybridData
   private var mContext: WeakReference<ReactApplicationContext>
   private var mScheduler: VisionCameraScheduler
+  val context: ReactApplicationContext
+    get() = reactContext
 
   init {
     val jsCallInvokerHolder = context.catalystInstance.jsCallInvokerHolder as CallInvokerHolderImpl
