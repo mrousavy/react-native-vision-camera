@@ -31,7 +31,9 @@
   return self;
 }
 
-- (id)callback:(Frame *)frame withArguments:(NSDictionary *)arguments error:(NSError *__autoreleasing  _Nullable * _Nullable)error {
+- (id)callback:(Frame *)frame
+ withArguments:(NSDictionary *)arguments
+         error:(NSError *__autoreleasing  _Nullable * _Nullable)error {
   CVPixelBufferRef imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer);
   NSLog(@"ExamplePlugin: %zu x %zu Image. Logging %lu parameters:", CVPixelBufferGetWidth(imageBuffer), CVPixelBufferGetHeight(imageBuffer), (unsigned long)arguments.count);
 
