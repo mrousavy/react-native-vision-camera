@@ -86,8 +86,12 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
 
   @ReactProp(name = "videoStabilizationMode")
   fun setVideoStabilizationMode(view: CameraView, videoStabilizationMode: String?) {
-    val newMode = VideoStabilizationMode.fromUnionValue(videoStabilizationMode)
-    view.videoStabilizationMode = newMode
+    if (videoStabilizationMode != null) {
+      val newMode = VideoStabilizationMode.fromUnionValue(videoStabilizationMode)
+      view.videoStabilizationMode = newMode
+    } else {
+      view.videoStabilizationMode = null
+    }
   }
 
   @ReactProp(name = "enableHighQualityPhotos")

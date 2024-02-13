@@ -44,7 +44,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   @objc var orientation: NSString?
   // other props
   @objc var isActive = false
-  @objc var torch = "off"
+  @objc var torch: NSString?
   @objc var zoom: NSNumber = 1.0 // in "factor"
   @objc var exposure: NSNumber = 1.0
   @objc var enableFpsGraph = false
@@ -142,8 +142,16 @@ public final class CameraView: UIView, CameraSessionDelegate {
 
   func getTorch() -> Torch {
     // TODO: Use ObjC RCT enum parser for this
-    if let torch = try? Torch(jsValue: torch) {
-      return torch
+    if let torch = torch as? String {
+      do {
+        return try Torch(jsValue: pixelFormat)
+      } catch {
+        if let error = error as? CameraError {
+          onError(error)
+        } else {
+          onError(.unknown(message: error.localizedDescription, cause: error as NSError))
+        }
+      }
     }
     return .off
   }
@@ -227,7 +235,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
       // Side-Props
       config.fps = fps?.int32Value
       config.enableLowLightBoost = lowLightBoost
-      config.torch = try Torch(jsValue: torch)
+      config.torch = getTorch()
 
       // Zoom
       config.zoom = zoom.doubleValue
