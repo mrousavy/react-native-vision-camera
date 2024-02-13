@@ -47,11 +47,12 @@ NS_ASSUME_NONNULL_BEGIN
  * - Parameters:
  *   - frame: The Frame from the Camera. Don't do any ref-counting on this, as VisionCamera handles that.
  *   - arguments: An options dictionary passed from the JS side, or `nil` if none.
+ *   - error: An error, if the Frame Processor Plugin threw one.
  * - Returns: You can return any primitive, map or array you want.
  *            See the <a href="https://react-native-vision-camera.com/docs/guides/frame-processors-plugins-overview#types">Types</a>
  *            table for a list of supported types.
  */
-- (id _Nullable)callback:(Frame*)frame withArguments:(NSDictionary* _Nullable)arguments;
+- (id _Nullable)callback:(Frame*)frame withArguments:(NSDictionary* _Nullable)arguments error:(NSError* _Nullable __autoreleasing*)error;
 
 @end
 

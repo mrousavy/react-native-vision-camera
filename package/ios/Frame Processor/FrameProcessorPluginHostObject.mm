@@ -39,7 +39,12 @@ jsi::Value FrameProcessorPluginHostObject::get(jsi::Runtime& runtime, const jsi:
           }
 
           // Call actual Frame Processor Plugin
-          id result = [_plugin callback:frame withArguments:options];
+          NSError* error;
+          id result = [_plugin callback:frame withArguments:options error:&error];
+          if (error != nil) {
+            NSString* message = [NSString stringWithFormat:@"%@ (%li): %@", error.domain, (long)error.code, error.localizedDescription];
+            throw jsi::JSError(runtime, message.UTF8String);
+          }
 
           // Convert result value to jsi::Value (possibly undefined)
           return JSINSObjectConversion::convertObjCObjectToJSIValue(runtime, result);

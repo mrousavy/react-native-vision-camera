@@ -17,7 +17,7 @@ public class ExampleSwiftFrameProcessorPlugin: FrameProcessorPlugin {
     print("ExampleSwiftFrameProcessorPlugin initialized with options: \(String(describing: options))")
   }
 
-  public override func callback(_ frame: Frame, withArguments arguments: [AnyHashable: Any]?) -> Any? {
+  public override func callback(_ frame: Frame, withArguments arguments: [AnyHashable: Any]?) throws -> Any {
     let imageBuffer = CMSampleBufferGetImageBuffer(frame.buffer)
 
     if let arguments, let imageBuffer {

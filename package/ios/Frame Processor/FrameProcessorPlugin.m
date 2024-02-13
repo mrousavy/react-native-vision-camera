@@ -16,7 +16,9 @@
   return self;
 }
 
-- (id _Nullable)callback:(Frame* _Nonnull)frame withArguments:(NSDictionary* _Nullable)arguments {
+- (id _Nullable)callback:(Frame* _Nonnull)frame
+           withArguments:(NSDictionary* _Nullable)arguments
+                   error:(NSError * _Nullable __autoreleasing * _Nullable)error {
   [NSException raise:NSInternalInconsistencyException
               format:@"Frame Processor Plugin does not override the `callback(frame:withArguments:)` method!"];
   return nil;
