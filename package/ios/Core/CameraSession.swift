@@ -171,6 +171,8 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
         }
 
         if difference.isSessionConfigurationDirty {
+          // We commit the session config updates AFTER the device config,
+          // that way we can also batch those changes into one update instead of doing two updates.
           self.captureSession.commitConfiguration()
         }
 
