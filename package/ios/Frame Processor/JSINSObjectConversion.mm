@@ -64,7 +64,7 @@ jsi::Object convertSharedArrayToJSIArrayBuffer(jsi::Runtime& runtime, SharedArra
 }
 
 jsi::Value convertObjCObjectToJSIValue(jsi::Runtime& runtime, id value) {
-  if (value == nil) {
+  if (value == nil || value == (id)kCFNull) {
     return jsi::Value::undefined();
   } else if ([value isKindOfClass:[NSString class]]) {
     return convertNSStringToJSIString(runtime, (NSString*)value);
@@ -77,8 +77,6 @@ jsi::Value convertObjCObjectToJSIValue(jsi::Runtime& runtime, id value) {
     return convertNSDictionaryToJSIObject(runtime, (NSDictionary*)value);
   } else if ([value isKindOfClass:[NSArray class]]) {
     return convertNSArrayToJSIArray(runtime, (NSArray*)value);
-  } else if (value == (id)kCFNull) {
-    return jsi::Value::null();
   } else if ([value isKindOfClass:[Frame class]]) {
     auto frameHostObject = std::make_shared<FrameHostObject>((Frame*)value);
     return jsi::Object::createFromHostObject(runtime, frameHostObject);

@@ -57,7 +57,9 @@ For reference see the [CLI's docs](https://github.com/mateusz1913/vision-camera-
   return self;
 }
 
-- (id)callback:(Frame*)frame withArguments:(NSDictionary*)arguments {
+- (id _Nullable)callback:(Frame*)frame
+           withArguments:(NSDictionary* _Nullable)arguments
+                   error:(NSError* _Nullable* _Nullable)error {
   CMSampleBufferRef buffer = frame.buffer;
   UIImageOrientation orientation = frame.orientation;
   // code goes here
@@ -96,11 +98,12 @@ public class FaceDetectorFrameProcessorPlugin: FrameProcessorPlugin {
     super.init(proxy: proxy, options: options)
   }
 
-  public override func callback(_ frame: Frame, withArguments arguments: [AnyHashable : Any]?) -> Any {
+  public override func callback(_ frame: Frame,
+                                withArguments arguments: [AnyHashable : Any]?) throws -> Any {
     let buffer = frame.buffer
     let orientation = frame.orientation
     // code goes here
-    return nil
+    return NSNull()
   }
 }
 ```
