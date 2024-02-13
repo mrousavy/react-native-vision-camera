@@ -238,6 +238,10 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
           // this job got canceled from the outside
           return@launch
         }
+        if (!isRunning || this@PersistentCameraCaptureSession.session != session) {
+          // the view/session has already been destroyed in the meantime
+          return@launch
+        }
         Log.i(TAG, "Resetting focus to auto-focus...")
         // 6. Reset AF/AE/AWB to continuous auto-focus again, which is the default here.
         repeatingRequest.createCaptureRequest(device, deviceDetails, outputs).also { request ->
