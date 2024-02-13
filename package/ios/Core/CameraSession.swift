@@ -144,6 +144,9 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
         // If needed, configure the AVCaptureDevice (format, zoom, low-light-boost, ..)
         if difference.isDeviceConfigurationDirty {
           try device.lockForConfiguration()
+          defer {
+            device.unlockForConfiguration()
+          }
 
           // 4. Configure format
           if difference.formatChanged {
@@ -166,8 +169,6 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
           if difference.exposureChanged {
             self.configureExposure(configuration: config, device: device)
           }
-
-          device.unlockForConfiguration()
         }
 
         if difference.isSessionConfigurationDirty {
@@ -182,8 +183,10 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
         // 10. Enable or disable the Torch if needed (requires session to be running)
         if difference.torchChanged {
           try device.lockForConfiguration()
+          defer {
+            device.unlockForConfiguration()
+          }
           try self.configureTorch(configuration: config, device: device)
-          device.unlockForConfiguration()
         }
 
         // Notify about Camera initialization
