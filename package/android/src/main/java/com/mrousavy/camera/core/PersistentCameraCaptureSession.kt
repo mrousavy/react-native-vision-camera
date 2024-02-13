@@ -238,7 +238,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
           // this job got canceled from the outside
           return@launch
         }
-        if (!this@PersistentCameraCaptureSession.isActive || !isRunning || didDestroyFromOutside || this@PersistentCameraCaptureSession.session != session) {
+        if (!isRunning || this@PersistentCameraCaptureSession.session != session) {
           // the view/session has already been destroyed in the meantime
           return@launch
         }
