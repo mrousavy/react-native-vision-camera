@@ -138,7 +138,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
         }
 
         guard let device = self.videoDeviceInput?.device else {
-          throw CameraError.session(.cameraNotReady)
+          throw CameraError.device(.noDevice)
         }
 
         // If needed, configure the AVCaptureDevice (format, zoom, low-light-boost, ..)
