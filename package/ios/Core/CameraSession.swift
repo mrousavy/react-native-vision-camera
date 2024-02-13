@@ -118,7 +118,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
         // If needed, configure the AVCaptureSession (inputs, outputs)
         if difference.isSessionConfigurationDirty {
           self.captureSession.beginConfiguration()
-          
+
           // 1. Update input device
           if difference.inputChanged {
             try self.configureDevice(configuration: config)
@@ -136,7 +136,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
             self.configureOrientation(configuration: config)
           }
         }
-        
+
         guard let device = self.videoDeviceInput?.device else {
           throw CameraError.session(.cameraNotReady)
         }
@@ -144,7 +144,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
         // If needed, configure the AVCaptureDevice (format, zoom, low-light-boost, ..)
         if difference.isDeviceConfigurationDirty {
           try device.lockForConfiguration()
-          
+
           // 4. Configure format
           if difference.formatChanged {
             try self.configureFormat(configuration: config, device: device)
@@ -166,10 +166,10 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
           if difference.exposureChanged {
             self.configureExposure(configuration: config, device: device)
           }
-          
+
           device.unlockForConfiguration()
         }
-        
+
         if difference.isSessionConfigurationDirty {
           self.captureSession.commitConfiguration()
         }
