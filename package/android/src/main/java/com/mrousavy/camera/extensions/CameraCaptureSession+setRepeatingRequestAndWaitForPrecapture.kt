@@ -35,6 +35,8 @@ enum class FocusState {
 
   val isCompleted: Boolean
     get() = this == Focused || this == Unfocused
+  val isPassivelyFocused: Boolean
+    get() = this == PassiveFocused
 
   companion object {
     fun fromAFState(afState: Int): FocusState =
@@ -60,6 +62,8 @@ enum class ExposureState {
 
   val isCompleted: Boolean
     get() = this == Converged || this == FlashRequired
+  val isPassivelyFocused: Boolean
+    get() = this == Converged
 
   companion object {
     fun fromAEState(aeState: Int): ExposureState =
@@ -82,6 +86,8 @@ enum class WhiteBalanceState {
   Converged;
 
   val isCompleted: Boolean
+    get() = this == Converged
+  val isPassivelyFocused: Boolean
     get() = this == Converged
 
   companion object {

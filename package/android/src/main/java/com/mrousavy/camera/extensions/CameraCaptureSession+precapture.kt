@@ -11,7 +11,7 @@ import com.mrousavy.camera.core.CameraDeviceDetails
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.HardwareLevel
 
-data class PrecaptureOptions(val modes: List<PrecaptureTrigger>, val flash: Flash = Flash.OFF, val pointsOfInterest: List<Point>)
+data class PrecaptureOptions(val modes: List<PrecaptureTrigger>, val flash: Flash = Flash.OFF, val pointsOfInterest: List<Point>, val skipIfPassivelyFocused: Boolean)
 
 data class PrecaptureResult(val needsFlash: Boolean)
 
@@ -33,15 +33,22 @@ suspend fun CameraCaptureSession.precapture(
   request.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
 
   var enableFlash = options.flash == Flash.ON
+  var afState = FocusState.Inactive
+  var aeState = ExposureState.Inactive
+  var awbState = WhiteBalanceState.Inactive
 
   // 1. Cancel any ongoing precapture sequences
   request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
   request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL)
-  if (options.flash == Flash.AUTO) {
-    // we want Auto-Flash, so check the current lighting conditions if we need it.
+  if (options.flash == Flash.AUTO || options.skipIfPassivelyFocused) {
+    // We want to read the current AE/AF/AWB values to determine if we need flash or can skip AF/AE/AWB precapture
     val result = this.capture(request.build(), false)
-    val aeState = result.get(CaptureResult.CONTROL_AE_STATE)
-    if (aeState == CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED) {
+
+    afState = FocusState.fromAFState(result.get(CaptureResult.CONTROL_AF_STATE) ?: CaptureResult.CONTROL_AF_STATE_INACTIVE)
+    aeState = ExposureState.fromAEState(result.get(CaptureResult.CONTROL_AE_STATE) ?: CaptureResult.CONTROL_AE_STATE_INACTIVE)
+    awbState = WhiteBalanceState.fromAWBState(result.get(CaptureResult.CONTROL_AWB_STATE) ?: CaptureResult.CONTROL_AWB_STATE_INACTIVE)
+
+    if (aeState == ExposureState.FlashRequired) {
       Log.i(TAG, "Auto-Flash: Flash is required for photo capture, enabling flash...")
       enableFlash = true
     } else {
@@ -57,11 +64,18 @@ suspend fun CameraCaptureSession.precapture(
     MeteringRectangle(point, DEFAULT_METERING_SIZE, meteringWeight)
   }.toTypedArray()
 
+  val skipAF = options.skipIfPassivelyFocused && afState.isPassivelyFocused
+  val skipAE = options.skipIfPassivelyFocused && aeState.isPassivelyFocused
+  val skipAWB = options.skipIfPassivelyFocused && awbState.isPassivelyFocused
+  if (skipAF || skipAE || skipAWB) {
+    Log.i(TAG, "Skipping AF: $skipAF, Skipping AE: $skipAE, Skipping AWB: $skipAWB")
+  }
+
   // 2. Submit a precapture start sequence
   if (enableFlash && deviceDetails.hasFlash) {
     request.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH)
   }
-  if (options.modes.contains(PrecaptureTrigger.AF)) {
+  if (options.modes.contains(PrecaptureTrigger.AF) && !skipAF) {
     // AF Precapture
     if (deviceDetails.afModes.contains(CaptureRequest.CONTROL_AF_MODE_AUTO)) {
       request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
@@ -71,14 +85,14 @@ suspend fun CameraCaptureSession.precapture(
     }
     request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
   }
-  if (options.modes.contains(PrecaptureTrigger.AE) && deviceDetails.hardwareLevel.isAtLeast(HardwareLevel.LIMITED)) {
+  if (options.modes.contains(PrecaptureTrigger.AE) && deviceDetails.hardwareLevel.isAtLeast(HardwareLevel.LIMITED) && !skipAE) {
     // AE Precapture
     if (meteringRectangles.isNotEmpty() && deviceDetails.supportsExposureRegions) {
       request.set(CaptureRequest.CONTROL_AE_REGIONS, meteringRectangles)
     }
     request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START)
   }
-  if (options.modes.contains(PrecaptureTrigger.AWB)) {
+  if (options.modes.contains(PrecaptureTrigger.AWB) && !skipAWB) {
     // AWB Precapture
     if (meteringRectangles.isNotEmpty() && deviceDetails.supportsWhiteBalanceRegions) {
       request.set(CaptureRequest.CONTROL_AWB_REGIONS, meteringRectangles)
