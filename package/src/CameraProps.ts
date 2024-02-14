@@ -200,9 +200,9 @@ export interface CameraProps extends ViewProps {
    * (See [`USAGE_GPU_SAMPLED_IMAGE`](https://developer.android.com/reference/android/hardware/HardwareBuffer#USAGE_GPU_SAMPLED_IMAGE))
    *
    * In general, it is recommended to set this to `true` if possible, as this can increase performance and efficiency of the Video Pipeline.
-   * This is an experimental feature flag however, so use at your own risk.
    *
-   * @platform Android
+   * @experimental This is an experimental feature flag, use at your own risk. Some devices (especially Samsungs) may crash when trying to use GPU buffers.
+   * @platform Android (API 29+)
    * @default false
    */
   enableGpuBuffers?: boolean
