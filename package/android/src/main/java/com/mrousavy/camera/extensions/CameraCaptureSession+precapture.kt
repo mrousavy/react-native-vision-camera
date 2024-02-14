@@ -1,18 +1,21 @@
 package com.mrousavy.camera.extensions
 
+import android.graphics.Point
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.MeteringRectangle
 import android.util.Log
+import android.util.Size
 import com.mrousavy.camera.core.CameraDeviceDetails
 import com.mrousavy.camera.types.Flash
 
-data class PrecaptureOptions(val modes: List<PrecaptureTrigger>, val flash: Flash = Flash.OFF, val pointOfInterest: MeteringRectangle?)
+data class PrecaptureOptions(val modes: List<PrecaptureTrigger>, val flash: Flash = Flash.OFF, val pointsOfInterest: List<Point>)
 
 data class PrecaptureResult(val needsFlash: Boolean)
 
 private const val TAG = "Precapture"
+private val DEFAULT_METERING_SIZE = Size(100, 100)
 
 /**
  * Run a precapture sequence to trigger an AF, AE or AWB scan and lock to the optimal values.
@@ -48,6 +51,11 @@ suspend fun CameraCaptureSession.precapture(
     this.capture(request.build(), null, null)
   }
 
+  val meteringWeight = MeteringRectangle.METERING_WEIGHT_MAX - 1
+  val meteringRectangles = options.pointsOfInterest.map { point ->
+    MeteringRectangle(point, DEFAULT_METERING_SIZE, meteringWeight)
+  }.toTypedArray()
+
   // 2. Submit a precapture start sequence
   if (enableFlash) {
     request.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH)
@@ -55,22 +63,22 @@ suspend fun CameraCaptureSession.precapture(
   if (options.modes.contains(PrecaptureTrigger.AF)) {
     // AF Precapture
     request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
-    if (options.pointOfInterest != null && deviceDetails.supportsFocusRegions) {
-      request.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(options.pointOfInterest))
+    if (deviceDetails.supportsFocusRegions) {
+      request.set(CaptureRequest.CONTROL_AF_REGIONS, meteringRectangles)
     }
     request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
   }
   if (options.modes.contains(PrecaptureTrigger.AE)) {
     // AE Precapture
-    if (options.pointOfInterest != null && deviceDetails.supportsExposureRegions) {
-      request.set(CaptureRequest.CONTROL_AE_REGIONS, arrayOf(options.pointOfInterest))
+    if (deviceDetails.supportsExposureRegions) {
+      request.set(CaptureRequest.CONTROL_AE_REGIONS, meteringRectangles)
     }
     request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START)
   }
   if (options.modes.contains(PrecaptureTrigger.AWB)) {
     // AWB Precapture
-    if (options.pointOfInterest != null && deviceDetails.supportsWhiteBalanceRegions) {
-      request.set(CaptureRequest.CONTROL_AWB_REGIONS, arrayOf(options.pointOfInterest))
+    if (deviceDetails.supportsWhiteBalanceRegions) {
+      request.set(CaptureRequest.CONTROL_AWB_REGIONS, meteringRectangles)
     }
   }
   this.capture(request.build(), null, null)

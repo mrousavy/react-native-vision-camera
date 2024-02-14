@@ -7,9 +7,7 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
-import android.hardware.camera2.params.MeteringRectangle
 import android.util.Log
-import android.util.Size
 import com.mrousavy.camera.core.capture.PhotoCaptureRequest
 import com.mrousavy.camera.core.capture.RepeatingCaptureRequest
 import com.mrousavy.camera.core.outputs.SurfaceOutput
@@ -42,7 +40,6 @@ import kotlinx.coroutines.sync.withLock
 class PersistentCameraCaptureSession(private val cameraManager: CameraManager, private val callback: Callback) : Closeable {
   companion object {
     private const val TAG = "PersistentCameraCaptureSession"
-    private val DEFAULT_METERING_SIZE = Size(100, 100)
     private const val FOCUS_RESET_TIMEOUT = 3000L
   }
 
@@ -175,7 +172,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
 
       // 1. Run precapture sequence
       val precaptureRequest = repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs)
-      val options = PrecaptureOptions(listOf(PrecaptureTrigger.AF, PrecaptureTrigger.AE, PrecaptureTrigger.AWB), flash, null)
+      val options = PrecaptureOptions(listOf(PrecaptureTrigger.AF, PrecaptureTrigger.AE, PrecaptureTrigger.AWB), flash, emptyList())
       val result = session.precapture(precaptureRequest, deviceDetails, options)
 
       try {
@@ -204,7 +201,6 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
         throw FocusNotSupportedError()
       }
       val outputs = outputs.filter { it.isRepeating }
-      val meteringRectangle = MeteringRectangle(point, DEFAULT_METERING_SIZE, MeteringRectangle.METERING_WEIGHT_MAX - 1)
 
       // 0. Cancel the 3 second focus reset task
       focusResetJob?.cancelAndJoin()
@@ -212,7 +208,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
 
       // 1. Run a precapture sequence for AF, AE and AWB.
       val request = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
-      val options = PrecaptureOptions(listOf(PrecaptureTrigger.AF, PrecaptureTrigger.AE), Flash.OFF, meteringRectangle)
+      val options = PrecaptureOptions(listOf(PrecaptureTrigger.AF, PrecaptureTrigger.AE), Flash.OFF, listOf(point))
       session.precapture(request, deviceDetails, options)
 
       // 2. Wait 3 seconds
