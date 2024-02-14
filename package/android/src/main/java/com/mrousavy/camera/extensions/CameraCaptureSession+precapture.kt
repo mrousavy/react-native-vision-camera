@@ -9,6 +9,7 @@ import android.util.Log
 import android.util.Size
 import com.mrousavy.camera.core.CameraDeviceDetails
 import com.mrousavy.camera.types.Flash
+import com.mrousavy.camera.types.HardwareLevel
 
 data class PrecaptureOptions(val modes: List<PrecaptureTrigger>, val flash: Flash = Flash.OFF, val pointsOfInterest: List<Point>)
 
@@ -65,21 +66,21 @@ suspend fun CameraCaptureSession.precapture(
     if (deviceDetails.afModes.contains(CaptureRequest.CONTROL_AF_MODE_AUTO)) {
       request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
     }
-    if (deviceDetails.supportsFocusRegions) {
+    if (meteringRectangles.isNotEmpty() && deviceDetails.supportsFocusRegions) {
       request.set(CaptureRequest.CONTROL_AF_REGIONS, meteringRectangles)
     }
     request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
   }
-  if (options.modes.contains(PrecaptureTrigger.AE)) {
+  if (options.modes.contains(PrecaptureTrigger.AE) && deviceDetails.hardwareLevel.isAtLeast(HardwareLevel.LIMITED)) {
     // AE Precapture
-    if (deviceDetails.supportsExposureRegions) {
+    if (meteringRectangles.isNotEmpty() && deviceDetails.supportsExposureRegions) {
       request.set(CaptureRequest.CONTROL_AE_REGIONS, meteringRectangles)
     }
     request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START)
   }
   if (options.modes.contains(PrecaptureTrigger.AWB)) {
     // AWB Precapture
-    if (deviceDetails.supportsWhiteBalanceRegions) {
+    if (meteringRectangles.isNotEmpty() && deviceDetails.supportsWhiteBalanceRegions) {
       request.set(CaptureRequest.CONTROL_AWB_REGIONS, meteringRectangles)
     }
   }
