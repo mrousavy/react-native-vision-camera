@@ -109,7 +109,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
   val availableAberrationModes by lazy { characteristics.get(CameraCharacteristics.COLOR_CORRECTION_AVAILABLE_ABERRATION_MODES) ?: intArrayOf() }
   val availableHotPixelModes by lazy { characteristics.get(CameraCharacteristics.HOT_PIXEL_AVAILABLE_HOT_PIXEL_MODES) ?: intArrayOf() }
   val availableEdgeModes by lazy { characteristics.get(CameraCharacteristics.EDGE_AVAILABLE_EDGE_MODES) ?: intArrayOf() }
-  val availableDistortionCorrectionModes by lazy { getAvailableDistortionCorrectionModes() }
+  val availableDistortionCorrectionModes by lazy { getAvailableDistortionCorrectionModesOrEmptyArray() }
   val availableShadingModes by lazy { characteristics.get(CameraCharacteristics.SHADING_AVAILABLE_MODES) ?: intArrayOf() }
   val availableToneMapModes by lazy { characteristics.get(CameraCharacteristics.TONEMAP_AVAILABLE_TONE_MAP_MODES) ?: intArrayOf() }
   val availableNoiseReductionModes by lazy { characteristics.get(CameraCharacteristics.NOISE_REDUCTION_AVAILABLE_NOISE_REDUCTION_MODES) ?: intArrayOf() }
@@ -126,7 +126,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
       emptyList()
     }
 
-  private fun getAvailableDistortionCorrectionModes(): IntArray {
+  private fun getAvailableDistortionCorrectionModesOrEmptyArray(): IntArray {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
       characteristics.get(CameraCharacteristics.DISTORTION_CORRECTION_AVAILABLE_MODES) ?: intArrayOf()
     } else {
