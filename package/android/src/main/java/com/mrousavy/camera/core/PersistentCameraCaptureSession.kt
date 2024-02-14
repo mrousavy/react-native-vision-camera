@@ -163,6 +163,15 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       val outputs = outputs
       val repeatingOutputs = outputs.filter { it.isRepeating }
 
+      if (qualityPrioritization == QualityPrioritization.SPEED && flash == Flash.OFF) {
+        // 0. We want to take a picture as fast as possible, so skip any precapture sequence and just capture one Frame.
+        Log.i(TAG, "Using fast capture path without pre-capture sequence...")
+        val request = photoRequest.createCaptureRequest(device, deviceDetails, outputs)
+        return session.capture(request.build(), enableShutterSound)
+      }
+
+      Log.i(TAG, "Locking AF/AE/AWB...")
+
       // 1. Cancel any ongoing AF/AE/AWB triggers
       repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs).also { request ->
         request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
@@ -179,18 +188,17 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
         request.set(CaptureRequest.CONTROL_AF_TRIGGER, null)
         request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null)
         val result = session.setRepeatingRequestAndWaitForPrecapture(request.build(), PrecaptureTrigger.AF, PrecaptureTrigger.AE, PrecaptureTrigger.AWB)
-        Log.i(TAG, "Result: $result")
+        Log.i(TAG, "Successfully locked AF/AE/AWB! AF: ${result.focusState}, AE: ${result.exposureState}")
       }
 
       try {
         // 3. Once AF/AE/AWB successfully locked, submit the actual photo request
-        photoRequest.createCaptureRequest(device, deviceDetails, outputs).also { request ->
-          return session.capture(request.build(), enableShutterSound)
-        }
+        val request = photoRequest.createCaptureRequest(device, deviceDetails, outputs)
+        return session.capture(request.build(), enableShutterSound)
       } finally {
-        repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs).also { request ->
-          session.setRepeatingRequest(request.build(), null, null)
-        }
+        // 4. After taking a photo we set the repeating request back to idle to remove the AE/AF/AWB locks again
+        val request = repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs)
+        session.setRepeatingRequest(request.build(), null, null)
       }
     }
   }
