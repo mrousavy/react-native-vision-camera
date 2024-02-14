@@ -7,9 +7,16 @@ import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.util.Log
 import com.mrousavy.camera.core.CaptureAbortedError
+import com.mrousavy.camera.core.CaptureTimedOutError
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.coroutineContext
 
 private const val TAG = "CameraCaptureSession"
 
@@ -42,6 +49,20 @@ suspend fun CameraCaptureSession.setRepeatingRequestAndWaitForPrecapture(
     val completed = precaptureTriggers.associateWith { false }.toMutableMap()
     var focusState: FocusState? = null
     var exposureState: ExposureState? = null
+
+    CoroutineScope(Dispatchers.Default).launch {
+      delay(5000) // after 5s, cancel capture
+      if (continuation.isActive) {
+        Log.e(TAG, "Precapture timed out after 5 seconds!")
+        continuation.resumeWithException(CaptureTimedOutError())
+        try {
+          setRepeatingRequest(request, null, null)
+        } catch (e: Throwable) {
+          // session might have already been closed
+          Log.e(TAG, "Error resetting session repeating request..", e)
+        }
+      }
+    }
 
     this.setRepeatingRequest(
       request,

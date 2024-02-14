@@ -43,6 +43,7 @@ export type CaptureError =
   | 'capture/photo-not-enabled'
   | 'capture/frame-invalid'
   | 'capture/aborted'
+  | 'capture/timed-out'
   | 'capture/unknown'
 export type SystemError =
   | 'system/camera-module-not-found'
