@@ -27,12 +27,32 @@ enum class PrecaptureTrigger {
 }
 
 enum class FocusState {
-  Locked,
-  NotLocked
+  Focused,
+  NotFocused;
+
+  companion object {
+    fun fromAFState(aeState: Int): FocusState? {
+      return when (aeState) {
+        CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED -> Focused
+        CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED -> NotFocused
+        else -> null
+      }
+    }
+  }
 }
 enum class ExposureState {
   Converged,
-  FlashRequired
+  FlashRequired;
+
+  companion object {
+    fun fromAEState(aeState: Int): ExposureState? {
+      return when (aeState) {
+        CaptureResult.CONTROL_AE_STATE_CONVERGED -> Converged
+        CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED -> FlashRequired
+        else -> null
+      }
+    }
+  }
 }
 
 data class ResultState(val focusState: FocusState?, val exposureState: ExposureState?)
@@ -75,32 +95,29 @@ suspend fun CameraCaptureSession.setRepeatingRequestAndWaitForPrecapture(
             if (precaptureTriggers.contains(PrecaptureTrigger.AF)) {
               val afState = result.get(CaptureResult.CONTROL_AF_STATE)
               Log.i(TAG, "AF State: $afState")
-              if (afState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED) {
-                focusState = FocusState.Locked
+              if (afState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED || afState == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED) {
+                focusState = FocusState.fromAFState(afState)
                 completed[PrecaptureTrigger.AF] = true
-              } else if (afState == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED) {
-                focusState = FocusState.NotLocked
-                completed[PrecaptureTrigger.AF] = true
+                Log.i(TAG, "AF precapture completed! State: $focusState")
               }
             }
             // AE Precapture
             if (precaptureTriggers.contains(PrecaptureTrigger.AE)) {
               val aeState = result.get(CaptureResult.CONTROL_AE_STATE)
               Log.i(TAG, "AE State: $aeState")
-              if (aeState == CaptureResult.CONTROL_AE_STATE_CONVERGED) {
-                exposureState = ExposureState.Converged
+              if (aeState == CaptureResult.CONTROL_AE_STATE_CONVERGED || aeState == CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED) {
+                exposureState = ExposureState.fromAEState(aeState)
                 completed[PrecaptureTrigger.AE] = true
-              } else if (aeState == CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED) {
-                exposureState = ExposureState.FlashRequired
-                completed[PrecaptureTrigger.AE] = true
+                Log.i(TAG, "AE precapture completed! State: $exposureState")
               }
             }
             // AWB Precapture
             if (precaptureTriggers.contains(PrecaptureTrigger.AWB)) {
               val aeState = result.get(CaptureResult.CONTROL_AWB_STATE)
-              Log.i(TAG, "AE State: $aeState")
+              Log.i(TAG, "AWB State: $aeState")
               if (aeState == CaptureResult.CONTROL_AWB_STATE_CONVERGED) {
                 completed[PrecaptureTrigger.AWB] = true
+                Log.i(TAG, "AWB precapture completed!")
               }
             }
 
