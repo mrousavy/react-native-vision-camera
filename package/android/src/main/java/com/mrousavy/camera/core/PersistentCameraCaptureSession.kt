@@ -176,6 +176,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
 
       // 1. Cancel any ongoing AF/AE/AWB triggers
       repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs).also { request ->
+        request.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
         request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
         request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL)
         if (flash == Flash.AUTO) {
@@ -194,10 +195,13 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
 
       // 2. Start an actual AF/AE/AWB trigger
       repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs).also { request ->
+        request.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
         if (needsFlash) {
           request.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH)
         }
+        request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
         request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
+        request.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON)
         request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START)
         session.capture(request.build(), null, null)
 
@@ -210,17 +214,22 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
           PrecaptureTrigger.AWB
         )
         Log.i(TAG, "Successfully locked AF/AE/AWB! AF: ${result.focusState}, AE: ${result.exposureState}")
+
+        // 3. After the Camera has locked AE/AF/AWB, we lock AE/AF/AWB
+        request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE)
+        request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_IDLE)
+        session.setRepeatingRequest(request.build(), null, null)
       }
 
       try {
-        // 3. Once AF/AE/AWB successfully locked, submit the actual photo request
+        // 4. Once AF/AE/AWB successfully locked, submit the actual photo request
         val request = photoRequest.createCaptureRequest(device, deviceDetails, outputs)
         if (needsFlash) {
           request.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_SINGLE)
         }
         return session.capture(request.build(), enableShutterSound)
       } finally {
-        // 4. After taking a photo we set the repeating request back to idle to remove the AE/AF/AWB locks again
+        // 5. After taking a photo we set the repeating request back to idle to remove the AE/AF/AWB locks again
         val request = repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs)
         session.setRepeatingRequest(request.build(), null, null)
       }
@@ -246,6 +255,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
 
       // 1. Cancel any ongoing AF/AE/AWB request
       repeatingRequest.createCaptureRequest(device, deviceDetails, outputs).also { request ->
+        request.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
         if (deviceDetails.supportsTapToFocus) {
           request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
         }
@@ -275,7 +285,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
         // 3. Start a repeating request without the trigger and wait until AF/AE/AWB locks
         request.set(CaptureRequest.CONTROL_AF_TRIGGER, null)
         request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null)
-        session.setRepeatingRequestAndWaitForPrecapture(request.build(), PrecaptureTrigger.AF)
+        session.setRepeatingRequestAndWaitForPrecapture(request.build(), PrecaptureTrigger.AF, PrecaptureTrigger.AE)
       }
 
       // 4. After the Camera has successfully found the AF/AE/AWB lock-point, we set it to idle and keep the point metered
