@@ -6,6 +6,7 @@ import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.MeteringRectangle
 import android.util.Log
@@ -171,16 +172,31 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       }
 
       Log.i(TAG, "Locking AF/AE/AWB...")
+      var needsFlash = flash == Flash.ON
 
       // 1. Cancel any ongoing AF/AE/AWB triggers
       repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs).also { request ->
         request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
         request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL)
-        session.capture(request.build(), null, null)
+        if (flash == Flash.AUTO) {
+          val result = session.capture(request.build(), false)
+          val aeState = result.get(CaptureResult.CONTROL_AE_STATE)
+          if (aeState == CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED) {
+            Log.i(TAG, "Auto-Flash: Flash is required for photo capture, enabling flash...")
+            needsFlash = true
+          } else {
+            Log.i(TAG, "Auto-Flash: Flash is not required for photo capture.")
+          }
+        } else {
+          session.capture(request.build(), null, null)
+        }
       }
 
       // 2. Start an actual AF/AE/AWB trigger
       repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs).also { request ->
+        if (needsFlash) {
+          request.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH)
+        }
         request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
         request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START)
         session.capture(request.build(), null, null)
@@ -199,6 +215,9 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       try {
         // 3. Once AF/AE/AWB successfully locked, submit the actual photo request
         val request = photoRequest.createCaptureRequest(device, deviceDetails, outputs)
+        if (needsFlash) {
+          request.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_SINGLE)
+        }
         return session.capture(request.build(), enableShutterSound)
       } finally {
         // 4. After taking a photo we set the repeating request back to idle to remove the AE/AF/AWB locks again
