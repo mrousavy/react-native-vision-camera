@@ -8,15 +8,9 @@ import android.util.Log
 import com.mrousavy.camera.core.CameraDeviceDetails
 import com.mrousavy.camera.types.Flash
 
-data class PrecaptureOptions(
-    val modes: List<PrecaptureTrigger>,
-    val flash: Flash = Flash.OFF,
-    val pointOfInterest: MeteringRectangle?
-)
+data class PrecaptureOptions(val modes: List<PrecaptureTrigger>, val flash: Flash = Flash.OFF, val pointOfInterest: MeteringRectangle?)
 
-data class PrecaptureResult(
-    val needsFlash: Boolean
-)
+data class PrecaptureResult(val needsFlash: Boolean)
 
 private const val TAG = "Precapture"
 
@@ -26,7 +20,11 @@ private const val TAG = "Precapture"
  *
  * To reset to auto-focus again, create a new `RepeatingRequest` with a fresh set of CONTROL_MODEs set.
  */
-suspend fun CameraCaptureSession.precapture(request: CaptureRequest.Builder, deviceDetails: CameraDeviceDetails, options: PrecaptureOptions): PrecaptureResult {
+suspend fun CameraCaptureSession.precapture(
+  request: CaptureRequest.Builder,
+  deviceDetails: CameraDeviceDetails,
+  options: PrecaptureOptions
+): PrecaptureResult {
   Log.i(TAG, "Running precapture sequence... ($options)")
   request.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
 
@@ -49,7 +47,6 @@ suspend fun CameraCaptureSession.precapture(request: CaptureRequest.Builder, dev
     // we either want Flash ON or OFF, so we don't care about lighting conditions - do a fast capture.
     this.capture(request.build(), null, null)
   }
-
 
   // 2. Submit a precapture start sequence
   if (enableFlash) {
