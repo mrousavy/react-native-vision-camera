@@ -109,6 +109,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
         try lambda(config)
       } catch {
         self.onConfigureError(error)
+        return
       }
       let difference = CameraConfiguration.Difference(between: self.configuration, and: config)
 
