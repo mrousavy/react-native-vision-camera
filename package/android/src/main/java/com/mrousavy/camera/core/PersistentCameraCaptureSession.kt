@@ -13,11 +13,12 @@ import android.util.Size
 import com.mrousavy.camera.core.capture.PhotoCaptureRequest
 import com.mrousavy.camera.core.capture.RepeatingCaptureRequest
 import com.mrousavy.camera.core.outputs.SurfaceOutput
+import com.mrousavy.camera.extensions.PrecaptureTrigger
 import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.isValid
 import com.mrousavy.camera.extensions.openCamera
-import com.mrousavy.camera.extensions.setRepeatingRequestAndWaitForAF
+import com.mrousavy.camera.extensions.setRepeatingRequestAndWaitForPrecapture
 import com.mrousavy.camera.extensions.tryAbortCaptures
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
@@ -213,7 +214,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
         // 3. Start a repeating request without the trigger and wait until AF/AE/AWB locks
         request.set(CaptureRequest.CONTROL_AF_TRIGGER, null)
         request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null)
-        session.setRepeatingRequestAndWaitForAF(request.build())
+        session.setRepeatingRequestAndWaitForPrecapture(request.build(), PrecaptureTrigger.AF)
       }
 
       // 4. After the Camera has successfully found the AF/AE/AWB lock-point, we set it to idle and keep the point metered
