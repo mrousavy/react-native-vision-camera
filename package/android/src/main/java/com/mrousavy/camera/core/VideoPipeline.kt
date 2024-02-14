@@ -9,7 +9,6 @@ import android.os.Build
 import android.util.Log
 import android.view.Surface
 import androidx.annotation.Keep
-import androidx.annotation.RequiresApi
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.mrousavy.camera.frameprocessor.Frame
@@ -79,15 +78,12 @@ class VideoPipeline(
       val format = getImageReaderFormat()
       Log.i(TAG, "Using ImageReader round-trip (format: #$format)")
 
+      imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES)
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        Log.i(TAG, "Using API 29 for GPU ImageReader...")
-        val usageFlags = getRecommendedHardwareBufferFlags()
-        Log.i(TAG, "Using ImageReader flags: $usageFlags")
-        imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES, usageFlags)
+        Log.i(TAG, "Using ImageWriter with custom format (#$format)...")
         imageWriter = ImageWriter.newInstance(glSurface, MAX_IMAGES, format)
       } else {
-        Log.i(TAG, "Using legacy API for CPU ImageReader...")
-        imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES)
+        Log.i(TAG, "Using ImageWriter with default format...")
         imageWriter = ImageWriter.newInstance(glSurface, MAX_IMAGES)
       }
       imageReader!!.setOnImageAvailableListener({ reader ->
@@ -182,56 +178,6 @@ class VideoPipeline(
         removeRecordingSessionOutputSurface()
         this.recordingSession = null
       }
-    }
-  }
-
-  /**
-   * Get the recommended HardwareBuffer flags for creating ImageReader instances with.
-   *
-   * Tries to use [HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE] if possible, [HardwareBuffer.USAGE_CPU_READ_OFTEN]
-   * or a combination of both flags if CPU access is needed ([enableFrameProcessor]), and [0] otherwise.
-   */
-  @RequiresApi(Build.VERSION_CODES.Q)
-  @Suppress("LiftReturnOrAssignment")
-  private fun getRecommendedHardwareBufferFlags(): Long {
-    val cpuFlag = HardwareBuffer.USAGE_CPU_READ_OFTEN
-    val gpuFlag = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE
-    val bothFlags = gpuFlag or cpuFlag
-
-    if (format == PixelFormat.NATIVE) {
-      // We don't need CPU access, so we can use GPU optimized buffers
-      if (supportsHardwareBufferFlags(gpuFlag)) {
-        // We support GPU Buffers directly and
-        Log.i(TAG, "GPU HardwareBuffers are supported!")
-        return gpuFlag
-      } else {
-        // no flags are supported - fall back to default
-        return 0
-      }
-    } else {
-      // We are using YUV or RGB formats, so we need CPU access on the Frame
-      if (supportsHardwareBufferFlags(bothFlags)) {
-        // We support both CPU and GPU flags!
-        Log.i(TAG, "GPU + CPU HardwareBuffers are supported!")
-        return bothFlags
-      } else if (supportsHardwareBufferFlags(cpuFlag)) {
-        // We only support a CPU read flag, that's fine
-        Log.i(TAG, "CPU HardwareBuffers are supported!")
-        return cpuFlag
-      } else {
-        // no flags are supported - fall back to default
-        return 0
-      }
-    }
-  }
-
-  @RequiresApi(Build.VERSION_CODES.Q)
-  private fun supportsHardwareBufferFlags(flags: Long): Boolean {
-    val hardwareBufferFormat = format.toHardwareBufferFormat()
-    try {
-      return HardwareBuffer.isSupported(width, height, hardwareBufferFormat, 1, flags)
-    } catch (_: Throwable) {
-      return false
     }
   }
 
