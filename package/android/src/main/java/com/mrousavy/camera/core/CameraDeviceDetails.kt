@@ -29,8 +29,11 @@ import kotlin.math.atan2
 import kotlin.math.min
 import kotlin.math.sqrt
 
-@SuppressLint("InlinedApi")
 class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId: String) {
+  companion object {
+    private const val TAG = "CameraDeviceDetails"
+  }
+
   val characteristics by lazy { cameraManager.getCameraCharacteristics(cameraId) }
   val hardwareLevel by lazy { HardwareLevel.fromCameraCharacteristics(characteristics) }
   val capabilities by lazy { characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES) ?: IntArray(0) }
@@ -207,6 +210,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
       var maxFps = (1.0 / (frameDuration.toDouble() / 1_000_000_000)).toInt()
       val maxEncoderFps = CamcorderProfileUtils.getMaximumFps(cameraId, videoSize)
       if (maxEncoderFps != null && maxEncoderFps < maxFps) {
+        Log.i(TAG, "Camera could do $maxFps FPS, but Media Encoder can only do $maxEncoderFps FPS. Clamping to $maxEncoderFps FPS...")
         maxFps = maxEncoderFps
       }
 
