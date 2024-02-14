@@ -33,6 +33,7 @@ class VideoPipeline(
   val format: PixelFormat = PixelFormat.NATIVE,
   private val isMirrored: Boolean = false,
   private val enableFrameProcessor: Boolean = false,
+  private val enableGpuBuffers: Boolean = false,
   private val callback: CameraSession.Callback
 ) : SurfaceTexture.OnFrameAvailableListener,
   Closeable {
@@ -79,7 +80,7 @@ class VideoPipeline(
       val format = getImageReaderFormat()
       Log.i(TAG, "Using ImageReader round-trip (format: #$format)")
 
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+      if (enableGpuBuffers && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         Log.i(TAG, "Using API 29 for GPU ImageReader...")
         val usageFlags = getRecommendedHardwareBufferFlags()
         Log.i(TAG, "Using ImageReader flags: $usageFlags")

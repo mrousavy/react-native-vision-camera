@@ -112,7 +112,7 @@ If you're experiencing build issues or runtime issues in VisionCamera, make sure
 2. If a camera device is not being returned by [`Camera.getAvailableCameraDevices()`](/docs/api/classes/Camera#getavailablecameradevices), make sure it is a Camera2 compatible device. See [this section in the Android docs](https://developer.android.com/reference/android/hardware/camera2/CameraDevice#reprocessing) for more information.
 3. If your Frame Processor is not running, make sure you check the native Android Studio/Logcat logs. There is useful information about the Frame Processor Runtime that will tell you if something goes wrong.
 4. If your Frame Processor is not running, make sure you are not using a remote JS debugger such as Google Chrome, since those don't work with JSI.
-5. If you are experiencing black-screens, try removing all properties such as `fps`, `videoHdr` or `format` on the `<Camera>` component except for the required ones:
+5. If you are experiencing black-screens, try removing all properties such as `fps`, `videoHdr`, `enableGpuBuffers` or `format` on the `<Camera>` component except for the required ones:
    ```tsx
    <Camera device={device} isActive={true} style={{ width: 500, height: 500 }} />
    ```

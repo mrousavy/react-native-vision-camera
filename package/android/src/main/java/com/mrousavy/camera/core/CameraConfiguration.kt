@@ -44,7 +44,7 @@ data class CameraConfiguration(
   // Output<T> types, those need to be comparable
   data class CodeScanner(val codeTypes: List<CodeType>)
   data class Photo(val enableHdr: Boolean)
-  data class Video(val enableHdr: Boolean, val pixelFormat: PixelFormat, val enableFrameProcessor: Boolean)
+  data class Video(val enableHdr: Boolean, val pixelFormat: PixelFormat, val enableFrameProcessor: Boolean, val enableGpuBuffers: Boolean)
   data class Audio(val nothing: Unit)
   data class Preview(val surface: Surface)
 
