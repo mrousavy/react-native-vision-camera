@@ -24,19 +24,17 @@ enum class PrecaptureTrigger {
   AWB
 }
 
-enum class AutoMode {
-  Active,
-  Passive
-}
-
 enum class FocusState {
   Inactive,
   Scanning,
   Focused,
-  NotFocused;
+  Unfocused,
+  PassiveScanning,
+  PassiveFocused,
+  PassiveUnfocused;
 
   val isCompleted: Boolean
-    get() = this == Focused || this == NotFocused
+    get() = this == Focused || this == Unfocused
 
   companion object {
     fun fromAFState(afState: Int): FocusState =
@@ -44,10 +42,10 @@ enum class FocusState {
         CaptureResult.CONTROL_AF_STATE_INACTIVE -> Inactive
         CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN -> Scanning
         CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED -> Focused
-        CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED -> NotFocused
-        CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN -> Scanning
-        CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED -> Focused
-        CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED -> NotFocused
+        CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED -> Unfocused
+        CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN -> PassiveScanning
+        CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED -> PassiveFocused
+        CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED -> PassiveUnfocused
         else -> throw Error("Invalid CONTROL_AF_STATE! $afState")
       }
   }
