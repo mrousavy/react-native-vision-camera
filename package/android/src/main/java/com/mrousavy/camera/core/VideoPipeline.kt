@@ -80,17 +80,25 @@ class VideoPipeline(
       val format = getImageReaderFormat()
       Log.i(TAG, "Using ImageReader round-trip (format: #$format)")
 
+      // Create ImageReader
       if (enableGpuBuffers && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        Log.i(TAG, "Using API 29 for GPU ImageReader...")
         val usageFlags = getRecommendedHardwareBufferFlags()
-        Log.i(TAG, "Using ImageReader flags: $usageFlags")
+        Log.i(TAG, "Creating ImageReader with GPU-optimized usage flags: $usageFlags")
         imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES, usageFlags)
+      } else {
+        Log.i(TAG, "Creating ImageReader with default usage flags...")
+        imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES)
+      }
+
+      // Create ImageWriter
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        Log.i(TAG, "Creating ImageWriter with format #$format...")
         imageWriter = ImageWriter.newInstance(glSurface, MAX_IMAGES, format)
       } else {
-        Log.i(TAG, "Using legacy API for CPU ImageReader...")
-        imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES)
+        Log.i(TAG, "Creating ImageWriter with default format...")
         imageWriter = ImageWriter.newInstance(glSurface, MAX_IMAGES)
       }
+
       imageReader!!.setOnImageAvailableListener({ reader ->
         Log.i(TAG, "ImageReader::onImageAvailable!")
         val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
