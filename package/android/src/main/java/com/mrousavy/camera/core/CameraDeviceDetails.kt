@@ -1,12 +1,12 @@
 package com.mrousavy.camera.core
 
-import android.annotation.SuppressLint
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraExtensionCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
 import android.os.Build
+import android.util.Log
 import android.util.Range
 import android.util.Size
 import com.facebook.react.bridge.Arguments
@@ -22,11 +22,15 @@ import com.mrousavy.camera.types.LensFacing
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.PixelFormat
 import com.mrousavy.camera.types.VideoStabilizationMode
+import com.mrousavy.camera.utils.CamcorderProfileUtils
 import kotlin.math.atan2
 import kotlin.math.sqrt
 
-@SuppressLint("InlinedApi")
 class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId: String) {
+  companion object {
+    private const val TAG = "CameraDeviceDetails"
+  }
+
   val characteristics by lazy { cameraManager.getCameraCharacteristics(cameraId) }
   val hardwareLevel by lazy { HardwareLevel.fromCameraCharacteristics(characteristics) }
   val capabilities by lazy { characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES) ?: IntArray(0) }
@@ -200,7 +204,15 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
 
     videoSizes.forEach { videoSize ->
       val frameDuration = cameraConfig.getOutputMinFrameDuration(videoFormat, videoSize)
-      val maxFps = (1.0 / (frameDuration.toDouble() / 1_000_000_000)).toInt()
+      var maxFps = (1.0 / (frameDuration.toDouble() / 1_000_000_000)).toInt()
+      val maxEncoderFps = CamcorderProfileUtils.getMaximumFps(cameraId, videoSize)
+      if (maxEncoderFps != null && maxEncoderFps < maxFps) {
+        Log.i(
+          TAG,
+          "Camera could do $maxFps FPS at $videoSize, but Media Encoder can only do $maxEncoderFps FPS. Clamping to $maxEncoderFps FPS..."
+        )
+        maxFps = maxEncoderFps
+      }
 
       photoSizes.forEach { photoSize ->
         val map = buildFormatMap(photoSize, videoSize, Range(1, maxFps))

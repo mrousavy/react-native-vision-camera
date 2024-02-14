@@ -4,9 +4,9 @@ import android.media.CamcorderProfile
 import android.media.MediaRecorder.VideoEncoder
 import android.os.Build
 import android.util.Log
-import android.util.Size
 import com.mrousavy.camera.core.RecordingSession
 import com.mrousavy.camera.types.VideoCodec
+import com.mrousavy.camera.utils.CamcorderProfileUtils
 import kotlin.math.abs
 
 data class RecommendedProfile(
@@ -23,7 +23,7 @@ fun RecordingSession.getRecommendedBitRate(fps: Int, codec: VideoCodec, hdr: Boo
   val targetResolution = size
   val encoder = codec.toVideoEncoder()
   val bitDepth = if (hdr) 10 else 8
-  val quality = findClosestCamcorderProfileQuality(cameraId, targetResolution)
+  val quality = CamcorderProfileUtils.findClosestCamcorderProfileQuality(cameraId, targetResolution, true)
   Log.i("CamcorderProfile", "Closest matching CamcorderProfile: $quality")
 
   var recommendedProfile: RecommendedProfile? = null
@@ -74,40 +74,4 @@ fun RecordingSession.getRecommendedBitRate(fps: Int, codec: VideoCodec, hdr: Boo
     bitRate *= 1.2
   }
   return bitRate.toInt()
-}
-
-private fun getResolutionForCamcorderProfileQuality(camcorderProfile: Int): Int =
-  when (camcorderProfile) {
-    CamcorderProfile.QUALITY_QCIF -> 176 * 144
-    CamcorderProfile.QUALITY_QVGA -> 320 * 240
-    CamcorderProfile.QUALITY_CIF -> 352 * 288
-    CamcorderProfile.QUALITY_VGA -> 640 * 480
-    CamcorderProfile.QUALITY_480P -> 720 * 480
-    CamcorderProfile.QUALITY_720P -> 1280 * 720
-    CamcorderProfile.QUALITY_1080P -> 1920 * 1080
-    CamcorderProfile.QUALITY_2K -> 2048 * 1080
-    CamcorderProfile.QUALITY_QHD -> 2560 * 1440
-    CamcorderProfile.QUALITY_2160P -> 3840 * 2160
-    CamcorderProfile.QUALITY_4KDCI -> 4096 * 2160
-    CamcorderProfile.QUALITY_8KUHD -> 7680 * 4320
-    else -> throw Error("Invalid CamcorderProfile \"$camcorderProfile\"!")
-  }
-
-private fun findClosestCamcorderProfileQuality(cameraId: String, resolution: Size): Int {
-  // Iterate through all available CamcorderProfiles and find the one that matches the closest
-  val targetResolution = resolution.width * resolution.height
-  val cameraIdInt = cameraId.toIntOrNull()
-
-  val profiles = (CamcorderProfile.QUALITY_QCIF..CamcorderProfile.QUALITY_8KUHD).filter { profile ->
-    if (cameraIdInt != null) {
-      return@filter CamcorderProfile.hasProfile(cameraIdInt, profile)
-    } else {
-      return@filter CamcorderProfile.hasProfile(profile)
-    }
-  }
-  val closestProfile = profiles.minBy { profile ->
-    val currentResolution = getResolutionForCamcorderProfileQuality(profile)
-    return@minBy abs(currentResolution - targetResolution)
-  }
-  return closestProfile
 }
