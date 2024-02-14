@@ -36,6 +36,7 @@ suspend fun CameraCaptureSession.precapture(
   var afState = FocusState.Inactive
   var aeState = ExposureState.Inactive
   var awbState = WhiteBalanceState.Inactive
+  val precaptureModes = options.modes.toMutableList()
 
   // 1. Cancel any ongoing precapture sequences
   request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
@@ -64,18 +65,27 @@ suspend fun CameraCaptureSession.precapture(
     MeteringRectangle(point, DEFAULT_METERING_SIZE, meteringWeight)
   }.toTypedArray()
 
-  val skipAF = options.skipIfPassivelyFocused && afState.isPassivelyFocused
-  val skipAE = options.skipIfPassivelyFocused && aeState.isPassivelyFocused
-  val skipAWB = options.skipIfPassivelyFocused && awbState.isPassivelyFocused
-  if (skipAF || skipAE || skipAWB) {
-    Log.i(TAG, "Skipping AF: $skipAF, Skipping AE: $skipAE, Skipping AWB: $skipAWB")
+  if (options.skipIfPassivelyFocused) {
+    // If user allows us to skip precapture for values that are already focused, remove them from the precapture modes.
+    if (afState.isPassivelyFocused) {
+      Log.i(TAG, "AF is already focused, skipping...")
+      precaptureModes.remove(PrecaptureTrigger.AF)
+    }
+    if (aeState.isPassivelyFocused) {
+      Log.i(TAG, "AE is already focused, skipping...")
+      precaptureModes.remove(PrecaptureTrigger.AE)
+    }
+    if (awbState.isPassivelyFocused) {
+      Log.i(TAG, "AWB is already focused, skipping...")
+      precaptureModes.remove(PrecaptureTrigger.AWB)
+    }
   }
 
   // 2. Submit a precapture start sequence
   if (enableFlash && deviceDetails.hasFlash) {
     request.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH)
   }
-  if (options.modes.contains(PrecaptureTrigger.AF) && !skipAF) {
+  if (precaptureModes.contains(PrecaptureTrigger.AF)) {
     // AF Precapture
     if (deviceDetails.afModes.contains(CaptureRequest.CONTROL_AF_MODE_AUTO)) {
       request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
@@ -85,14 +95,14 @@ suspend fun CameraCaptureSession.precapture(
     }
     request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
   }
-  if (options.modes.contains(PrecaptureTrigger.AE) && deviceDetails.hardwareLevel.isAtLeast(HardwareLevel.LIMITED) && !skipAE) {
+  if (precaptureModes.contains(PrecaptureTrigger.AE) && deviceDetails.hardwareLevel.isAtLeast(HardwareLevel.LIMITED)) {
     // AE Precapture
     if (meteringRectangles.isNotEmpty() && deviceDetails.supportsExposureRegions) {
       request.set(CaptureRequest.CONTROL_AE_REGIONS, meteringRectangles)
     }
     request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START)
   }
-  if (options.modes.contains(PrecaptureTrigger.AWB) && !skipAWB) {
+  if (precaptureModes.contains(PrecaptureTrigger.AWB)) {
     // AWB Precapture
     if (meteringRectangles.isNotEmpty() && deviceDetails.supportsWhiteBalanceRegions) {
       request.set(CaptureRequest.CONTROL_AWB_REGIONS, meteringRectangles)
@@ -103,7 +113,7 @@ suspend fun CameraCaptureSession.precapture(
   // 3. Start a repeating request without the trigger and wait until AF/AE/AWB locks
   request.set(CaptureRequest.CONTROL_AF_TRIGGER, null)
   request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null)
-  val result = this.setRepeatingRequestAndWaitForPrecapture(request.build(), *options.modes.toTypedArray())
+  val result = this.setRepeatingRequestAndWaitForPrecapture(request.build(), *precaptureModes.toTypedArray())
 
   Log.i(TAG, "AF/AE/AWB successfully locked!")
   // TODO: Set to idle again?
