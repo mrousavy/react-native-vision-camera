@@ -210,7 +210,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
       var maxFps = (1.0 / (frameDuration.toDouble() / 1_000_000_000)).toInt()
       val maxEncoderFps = CamcorderProfileUtils.getMaximumFps(cameraId, videoSize)
       if (maxEncoderFps != null && maxEncoderFps < maxFps) {
-        Log.i(TAG, "Camera could do $maxFps FPS, but Media Encoder can only do $maxEncoderFps FPS. Clamping to $maxEncoderFps FPS...")
+        Log.i(TAG, "Camera could do $maxFps FPS at $videoSize, but Media Encoder can only do $maxEncoderFps FPS. Clamping to $maxEncoderFps FPS...")
         maxFps = maxEncoderFps
       }
 
