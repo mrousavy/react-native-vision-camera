@@ -137,17 +137,17 @@ suspend fun CameraCaptureSession.setRepeatingRequestAndWaitForPrecapture(
               result.get(CaptureResult.CONTROL_AWB_STATE) ?: CaptureResult.CONTROL_AWB_STATE_INACTIVE
             )
 
-            if (precaptureTriggers.contains(PrecaptureTrigger.AF) && completed[PrecaptureTrigger.AF] != true) {
+            if (precaptureTriggers.contains(PrecaptureTrigger.AF)) {
               Log.i(TAG, "AF State: $afState (isCompleted: ${afState.isCompleted})")
               completed[PrecaptureTrigger.AF] = afState.isCompleted
             }
             // AE Precapture
-            if (precaptureTriggers.contains(PrecaptureTrigger.AE) && completed[PrecaptureTrigger.AE] != true) {
+            if (precaptureTriggers.contains(PrecaptureTrigger.AE)) {
               Log.i(TAG, "AE State: $aeState (isCompleted: ${aeState.isCompleted})")
               completed[PrecaptureTrigger.AE] = aeState.isCompleted
             }
             // AWB Precapture
-            if (precaptureTriggers.contains(PrecaptureTrigger.AWB) && completed[PrecaptureTrigger.AWB] != true) {
+            if (precaptureTriggers.contains(PrecaptureTrigger.AWB)) {
               Log.i(TAG, "AWB State: $awbState (isCompleted: ${awbState.isCompleted})")
               completed[PrecaptureTrigger.AWB] = awbState.isCompleted
             }
