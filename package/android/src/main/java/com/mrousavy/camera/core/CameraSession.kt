@@ -288,6 +288,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         video.config.pixelFormat,
         isSelfie,
         video.config.enableFrameProcessor,
+        video.config.enableGpuBuffers,
         callback
       )
       val output = VideoPipelineOutput(videoPipeline, video.config.enableHdr)

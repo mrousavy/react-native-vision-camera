@@ -64,6 +64,7 @@ class CameraView(context: Context) :
   var videoHdr = false
   var photoHdr = false
   var lowLightBoost: Boolean? = null // nullable bool
+  var enableGpuBuffers: Boolean = false
 
   // other props
   var isActive = false
@@ -160,7 +161,8 @@ class CameraView(context: Context) :
             CameraConfiguration.Video(
               videoHdr,
               pixelFormat,
-              enableFrameProcessor
+              enableFrameProcessor,
+              enableGpuBuffers
             )
           )
         } else {
