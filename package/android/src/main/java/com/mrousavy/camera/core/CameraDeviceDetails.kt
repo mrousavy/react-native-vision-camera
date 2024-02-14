@@ -1,12 +1,10 @@
 package com.mrousavy.camera.core
 
-import android.annotation.SuppressLint
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraExtensionCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
-import android.media.CamcorderProfile
 import android.os.Build
 import android.util.Log
 import android.util.Range
@@ -26,7 +24,6 @@ import com.mrousavy.camera.types.PixelFormat
 import com.mrousavy.camera.types.VideoStabilizationMode
 import com.mrousavy.camera.utils.CamcorderProfileUtils
 import kotlin.math.atan2
-import kotlin.math.min
 import kotlin.math.sqrt
 
 class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId: String) {
@@ -210,7 +207,10 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
       var maxFps = (1.0 / (frameDuration.toDouble() / 1_000_000_000)).toInt()
       val maxEncoderFps = CamcorderProfileUtils.getMaximumFps(cameraId, videoSize)
       if (maxEncoderFps != null && maxEncoderFps < maxFps) {
-        Log.i(TAG, "Camera could do $maxFps FPS at $videoSize, but Media Encoder can only do $maxEncoderFps FPS. Clamping to $maxEncoderFps FPS...")
+        Log.i(
+          TAG,
+          "Camera could do $maxFps FPS at $videoSize, but Media Encoder can only do $maxEncoderFps FPS. Clamping to $maxEncoderFps FPS..."
+        )
         maxFps = maxEncoderFps
       }
 

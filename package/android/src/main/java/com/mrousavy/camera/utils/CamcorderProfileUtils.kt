@@ -8,21 +8,21 @@ import kotlin.math.abs
 class CamcorderProfileUtils {
   companion object {
     private fun getResolutionForCamcorderProfileQuality(camcorderProfile: Int): Int =
-        when (camcorderProfile) {
-          CamcorderProfile.QUALITY_QCIF -> 176 * 144
-          CamcorderProfile.QUALITY_QVGA -> 320 * 240
-          CamcorderProfile.QUALITY_CIF -> 352 * 288
-          CamcorderProfile.QUALITY_VGA -> 640 * 480
-          CamcorderProfile.QUALITY_480P -> 720 * 480
-          CamcorderProfile.QUALITY_720P -> 1280 * 720
-          CamcorderProfile.QUALITY_1080P -> 1920 * 1080
-          CamcorderProfile.QUALITY_2K -> 2048 * 1080
-          CamcorderProfile.QUALITY_QHD -> 2560 * 1440
-          CamcorderProfile.QUALITY_2160P -> 3840 * 2160
-          CamcorderProfile.QUALITY_4KDCI -> 4096 * 2160
-          CamcorderProfile.QUALITY_8KUHD -> 7680 * 4320
-          else -> throw Error("Invalid CamcorderProfile \"$camcorderProfile\"!")
-        }
+      when (camcorderProfile) {
+        CamcorderProfile.QUALITY_QCIF -> 176 * 144
+        CamcorderProfile.QUALITY_QVGA -> 320 * 240
+        CamcorderProfile.QUALITY_CIF -> 352 * 288
+        CamcorderProfile.QUALITY_VGA -> 640 * 480
+        CamcorderProfile.QUALITY_480P -> 720 * 480
+        CamcorderProfile.QUALITY_720P -> 1280 * 720
+        CamcorderProfile.QUALITY_1080P -> 1920 * 1080
+        CamcorderProfile.QUALITY_2K -> 2048 * 1080
+        CamcorderProfile.QUALITY_QHD -> 2560 * 1440
+        CamcorderProfile.QUALITY_2160P -> 3840 * 2160
+        CamcorderProfile.QUALITY_4KDCI -> 4096 * 2160
+        CamcorderProfile.QUALITY_8KUHD -> 7680 * 4320
+        else -> throw Error("Invalid CamcorderProfile \"$camcorderProfile\"!")
+      }
 
     fun findClosestCamcorderProfileQuality(cameraId: String, resolution: Size, allowLargerSize: Boolean): Int {
       // Iterate through all available CamcorderProfiles and find the one that matches the closest

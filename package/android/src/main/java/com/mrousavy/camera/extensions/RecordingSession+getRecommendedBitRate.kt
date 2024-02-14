@@ -4,7 +4,6 @@ import android.media.CamcorderProfile
 import android.media.MediaRecorder.VideoEncoder
 import android.os.Build
 import android.util.Log
-import android.util.Size
 import com.mrousavy.camera.core.RecordingSession
 import com.mrousavy.camera.types.VideoCodec
 import com.mrousavy.camera.utils.CamcorderProfileUtils
@@ -76,4 +75,3 @@ fun RecordingSession.getRecommendedBitRate(fps: Int, codec: VideoCodec, hdr: Boo
   }
   return bitRate.toInt()
 }
-
