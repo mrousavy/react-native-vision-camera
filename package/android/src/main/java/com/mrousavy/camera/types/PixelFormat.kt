@@ -4,6 +4,7 @@ import android.graphics.ImageFormat
 import android.util.Log
 import com.mrousavy.camera.core.InvalidTypeScriptUnionError
 import com.mrousavy.camera.core.PixelFormatNotSupportedError
+import com.mrousavy.camera.utils.HardwareBufferUtils
 import com.mrousavy.camera.utils.ImageFormatUtils
 
 enum class PixelFormat(override val unionValue: String) : JSUnionValue {
@@ -18,6 +19,11 @@ enum class PixelFormat(override val unionValue: String) : JSUnionValue {
       NATIVE -> ImageFormat.PRIVATE
       else -> throw PixelFormatNotSupportedError(this.unionValue)
     }
+
+  fun toHardwareBufferFormat(): Int {
+    val imageFormat = toImageFormat()
+    return HardwareBufferUtils.getHardwareBufferFormat(imageFormat)
+  }
 
   companion object : JSUnionValue.Companion<PixelFormat> {
     private const val TAG = "PixelFormat"
