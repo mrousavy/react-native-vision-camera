@@ -3,6 +3,7 @@ package com.mrousavy.camera.core.capture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
+import android.os.Build
 import android.util.Range
 import com.mrousavy.camera.core.CameraDeviceDetails
 import com.mrousavy.camera.core.InvalidFpsError
@@ -14,7 +15,7 @@ import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.VideoStabilizationMode
 
 class RepeatingCaptureRequest(
-  val enableVideoPipeline: Boolean,
+  private val enableVideoPipeline: Boolean,
   torch: Torch = Torch.OFF,
   private val fps: Int? = null,
   private val videoStabilizationMode: VideoStabilizationMode = VideoStabilizationMode.OFF,
@@ -34,8 +35,10 @@ class RepeatingCaptureRequest(
   }
 
   private fun getBestDigitalStabilizationMode(deviceDetails: CameraDeviceDetails): Int {
-    if (deviceDetails.digitalStabilizationModes.contains(CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION)) {
-      return CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      if (deviceDetails.digitalStabilizationModes.contains(CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION)) {
+        return CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
+      }
     }
     return CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_ON
   }
@@ -87,16 +90,14 @@ class RepeatingCaptureRequest(
       if (!format.videoStabilizationModes.contains(videoStabilizationMode)) {
         throw InvalidVideoStabilizationMode(videoStabilizationMode)
       }
-    }
-    when (videoStabilizationMode) {
-      VideoStabilizationMode.OFF -> {
-        // do nothing
-      }
-      VideoStabilizationMode.STANDARD -> {
-        builder.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, getBestDigitalStabilizationMode(deviceDetails))
-      }
-      VideoStabilizationMode.CINEMATIC, VideoStabilizationMode.CINEMATIC_EXTENDED -> {
-        builder.set(CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE, CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE_ON)
+      when (videoStabilizationMode) {
+        VideoStabilizationMode.STANDARD -> {
+          builder.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, getBestDigitalStabilizationMode(deviceDetails))
+        }
+        VideoStabilizationMode.CINEMATIC, VideoStabilizationMode.CINEMATIC_EXTENDED -> {
+          builder.set(CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE, CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE_ON)
+        }
+        else -> throw InvalidVideoStabilizationMode(videoStabilizationMode)
       }
     }
 
