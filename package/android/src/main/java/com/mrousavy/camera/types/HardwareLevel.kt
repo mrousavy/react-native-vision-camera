@@ -9,6 +9,19 @@ enum class HardwareLevel(override val unionValue: String) : JSUnionValue {
   FULL("full"),
   LEVEL_3("full");
 
+  private val rank: Int
+    get() {
+      return when (this) {
+        LEGACY -> 0
+        LIMITED -> 1
+        EXTERNAL -> 1
+        FULL -> 2
+        LEVEL_3 -> 3
+      }
+    }
+
+  fun isAtLeast(level: HardwareLevel): Boolean = this.rank >= level.rank
+
   companion object {
     fun fromCameraCharacteristics(cameraCharacteristics: CameraCharacteristics): HardwareLevel =
       when (cameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)) {

@@ -50,7 +50,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
   val sensorSize by lazy { characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)!! }
   val activeSize
     get() = characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)!!
-  val sensorOrientation by lazy { characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0 }
+  val sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
   val minFocusDistance by lazy { getMinFocusDistanceCm() }
   val name by lazy {
     val info = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) characteristics.get(CameraCharacteristics.INFO_VERSION) else null
@@ -97,13 +97,27 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
   val isBackwardsCompatible by lazy { capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE) }
   val supportsSnapshotCapture by lazy { supportsSnapshotCapture() }
 
-  val supportsTapToFocus by lazy { (characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AF) ?: 0) > 0 }
-  val supportsTapToExposure by lazy { (characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AE) ?: 0) > 0 }
-  val supportsTapToWhiteBalance by lazy { (characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AWB) ?: 0) > 0 }
+  val supportsFocusRegions by lazy { (characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AF) ?: 0) > 0 }
+  val supportsExposureRegions by lazy { (characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AE) ?: 0) > 0 }
+  val supportsWhiteBalanceRegions by lazy { (characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AWB) ?: 0) > 0 }
 
   val afModes by lazy { characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)?.toList() ?: emptyList() }
   val aeModes by lazy { characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES)?.toList() ?: emptyList() }
   val awbModes by lazy { characteristics.get(CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES)?.toList() ?: emptyList() }
+
+  val availableAberrationModes by lazy {
+    characteristics.get(CameraCharacteristics.COLOR_CORRECTION_AVAILABLE_ABERRATION_MODES)
+      ?: intArrayOf()
+  }
+  val availableHotPixelModes by lazy { characteristics.get(CameraCharacteristics.HOT_PIXEL_AVAILABLE_HOT_PIXEL_MODES) ?: intArrayOf() }
+  val availableEdgeModes by lazy { characteristics.get(CameraCharacteristics.EDGE_AVAILABLE_EDGE_MODES) ?: intArrayOf() }
+  val availableDistortionCorrectionModes by lazy { getAvailableDistortionCorrectionModesOrEmptyArray() }
+  val availableShadingModes by lazy { characteristics.get(CameraCharacteristics.SHADING_AVAILABLE_MODES) ?: intArrayOf() }
+  val availableToneMapModes by lazy { characteristics.get(CameraCharacteristics.TONEMAP_AVAILABLE_TONE_MAP_MODES) ?: intArrayOf() }
+  val availableNoiseReductionModes by lazy {
+    characteristics.get(CameraCharacteristics.NOISE_REDUCTION_AVAILABLE_NOISE_REDUCTION_MODES)
+      ?: intArrayOf()
+  }
 
   // TODO: Also add 10-bit YUV here?
   val videoFormat = ImageFormat.YUV_420_888
@@ -115,6 +129,13 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
       extensions.supportedExtensions
     } else {
       emptyList()
+    }
+
+  private fun getAvailableDistortionCorrectionModesOrEmptyArray(): IntArray =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      characteristics.get(CameraCharacteristics.DISTORTION_CORRECTION_AVAILABLE_MODES) ?: intArrayOf()
+    } else {
+      intArrayOf()
     }
 
   private fun getHasVideoHdr(): Boolean {
@@ -266,7 +287,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
     map.putBoolean("isMultiCam", isMultiCam)
     map.putBoolean("supportsRawCapture", supportsRawCapture)
     map.putBoolean("supportsLowLightBoost", supportsLowLightBoost)
-    map.putBoolean("supportsFocus", supportsTapToFocus)
+    map.putBoolean("supportsFocus", supportsFocusRegions)
     map.putDouble("minZoom", minZoom)
     map.putDouble("maxZoom", maxZoom)
     map.putDouble("neutralZoom", 1.0) // Zoom is always relative to 1.0 on Android

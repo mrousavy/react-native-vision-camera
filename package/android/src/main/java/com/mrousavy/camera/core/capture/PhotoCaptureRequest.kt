@@ -3,10 +3,12 @@ package com.mrousavy.camera.core.capture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
+import android.os.Build
 import android.util.Log
 import com.mrousavy.camera.core.CameraDeviceDetails
 import com.mrousavy.camera.core.outputs.SurfaceOutput
 import com.mrousavy.camera.types.Flash
+import com.mrousavy.camera.types.HardwareLevel
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.QualityPrioritization
 import com.mrousavy.camera.types.Torch
@@ -67,13 +69,70 @@ class PhotoCaptureRequest(
   ): CaptureRequest.Builder {
     val builder = super.createCaptureRequest(template, device, deviceDetails, outputs)
 
-    // Set JPEG quality
-    val jpegQuality = when (qualityPrioritization) {
-      QualityPrioritization.SPEED -> 85
-      QualityPrioritization.BALANCED -> 92
-      QualityPrioritization.QUALITY -> 100
+    // Set various speed vs quality optimization flags
+    when (qualityPrioritization) {
+      QualityPrioritization.SPEED -> {
+        if (deviceDetails.hardwareLevel.isAtLeast(HardwareLevel.FULL)) {
+          builder.set(CaptureRequest.COLOR_CORRECTION_MODE, CaptureRequest.COLOR_CORRECTION_MODE_FAST)
+          if (deviceDetails.availableEdgeModes.contains(CaptureRequest.EDGE_MODE_FAST)) {
+            builder.set(CaptureRequest.EDGE_MODE, CaptureRequest.EDGE_MODE_FAST)
+          }
+        }
+        if (deviceDetails.availableAberrationModes.contains(CaptureRequest.COLOR_CORRECTION_ABERRATION_MODE_FAST)) {
+          builder.set(CaptureRequest.COLOR_CORRECTION_ABERRATION_MODE, CaptureRequest.COLOR_CORRECTION_ABERRATION_MODE_FAST)
+        }
+        if (deviceDetails.availableHotPixelModes.contains(CaptureRequest.HOT_PIXEL_MODE_FAST)) {
+          builder.set(CaptureRequest.HOT_PIXEL_MODE, CaptureRequest.HOT_PIXEL_MODE_FAST)
+        }
+        if (deviceDetails.availableDistortionCorrectionModes.contains(CaptureRequest.DISTORTION_CORRECTION_MODE_FAST) &&
+          Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
+        ) {
+          builder.set(CaptureRequest.DISTORTION_CORRECTION_MODE, CaptureRequest.DISTORTION_CORRECTION_MODE_FAST)
+        }
+        if (deviceDetails.availableNoiseReductionModes.contains(CaptureRequest.NOISE_REDUCTION_MODE_FAST)) {
+          builder.set(CaptureRequest.NOISE_REDUCTION_MODE, CaptureRequest.NOISE_REDUCTION_MODE_FAST)
+        }
+        if (deviceDetails.availableShadingModes.contains(CaptureRequest.SHADING_MODE_FAST)) {
+          builder.set(CaptureRequest.SHADING_MODE, CaptureRequest.SHADING_MODE_FAST)
+        }
+        if (deviceDetails.availableToneMapModes.contains(CaptureRequest.TONEMAP_MODE_FAST)) {
+          builder.set(CaptureRequest.TONEMAP_MODE, CaptureRequest.TONEMAP_MODE_FAST)
+        }
+        builder.set(CaptureRequest.JPEG_QUALITY, 85)
+      }
+      QualityPrioritization.BALANCED -> {
+        builder.set(CaptureRequest.JPEG_QUALITY, 92)
+      }
+      QualityPrioritization.QUALITY -> {
+        if (deviceDetails.hardwareLevel.isAtLeast(HardwareLevel.FULL)) {
+          builder.set(CaptureRequest.COLOR_CORRECTION_MODE, CaptureRequest.COLOR_CORRECTION_MODE_HIGH_QUALITY)
+          if (deviceDetails.availableEdgeModes.contains(CaptureRequest.EDGE_MODE_HIGH_QUALITY)) {
+            builder.set(CaptureRequest.EDGE_MODE, CaptureRequest.EDGE_MODE_HIGH_QUALITY)
+          }
+        }
+        if (deviceDetails.availableAberrationModes.contains(CaptureRequest.COLOR_CORRECTION_ABERRATION_MODE_HIGH_QUALITY)) {
+          builder.set(CaptureRequest.COLOR_CORRECTION_ABERRATION_MODE, CaptureRequest.COLOR_CORRECTION_ABERRATION_MODE_HIGH_QUALITY)
+        }
+        if (deviceDetails.availableHotPixelModes.contains(CaptureRequest.HOT_PIXEL_MODE_HIGH_QUALITY)) {
+          builder.set(CaptureRequest.HOT_PIXEL_MODE, CaptureRequest.HOT_PIXEL_MODE_HIGH_QUALITY)
+        }
+        if (deviceDetails.availableDistortionCorrectionModes.contains(CaptureRequest.DISTORTION_CORRECTION_MODE_HIGH_QUALITY) &&
+          Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
+        ) {
+          builder.set(CaptureRequest.DISTORTION_CORRECTION_MODE, CaptureRequest.DISTORTION_CORRECTION_MODE_HIGH_QUALITY)
+        }
+        if (deviceDetails.availableNoiseReductionModes.contains(CaptureRequest.NOISE_REDUCTION_MODE_HIGH_QUALITY)) {
+          builder.set(CaptureRequest.NOISE_REDUCTION_MODE, CaptureRequest.NOISE_REDUCTION_MODE_HIGH_QUALITY)
+        }
+        if (deviceDetails.availableShadingModes.contains(CaptureRequest.SHADING_MODE_HIGH_QUALITY)) {
+          builder.set(CaptureRequest.SHADING_MODE, CaptureRequest.SHADING_MODE_HIGH_QUALITY)
+        }
+        if (deviceDetails.availableToneMapModes.contains(CaptureRequest.TONEMAP_MODE_HIGH_QUALITY)) {
+          builder.set(CaptureRequest.TONEMAP_MODE, CaptureRequest.TONEMAP_MODE_HIGH_QUALITY)
+        }
+        builder.set(CaptureRequest.JPEG_QUALITY, 100)
+      }
     }
-    builder.set(CaptureRequest.JPEG_QUALITY, jpegQuality.toByte())
 
     // Set JPEG Orientation
     val targetOrientation = outputOrientation.toSensorRelativeOrientation(deviceDetails)
