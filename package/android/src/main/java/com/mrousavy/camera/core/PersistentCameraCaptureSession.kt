@@ -161,8 +161,37 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
 
       // Submit a single high-res capture to photo output as well as all preview outputs
       val outputs = outputs
-      val request = photoRequest.createCaptureRequest(device, deviceDetails, outputs)
-      return session.capture(request.build(), enableShutterSound)
+      val repeatingOutputs = outputs.filter { it.isRepeating }
+
+      // 1. Cancel any ongoing AF/AE/AWB triggers
+      repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs).also { request ->
+        request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
+        request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL)
+        session.capture(request.build(), null, null)
+      }
+
+      // 2. Start an actual AF/AE/AWB trigger
+      repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs).also { request ->
+        request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
+        request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START)
+        session.capture(request.build(), null, null)
+
+        request.set(CaptureRequest.CONTROL_AF_TRIGGER, null)
+        request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null)
+        val result = session.setRepeatingRequestAndWaitForPrecapture(request.build(), PrecaptureTrigger.AF, PrecaptureTrigger.AE, PrecaptureTrigger.AWB)
+        Log.i(TAG, "Result: $result")
+      }
+
+      try {
+        // 3. Once AF/AE/AWB successfully locked, submit the actual photo request
+        photoRequest.createCaptureRequest(device, deviceDetails, outputs).also { request ->
+          return session.capture(request.build(), enableShutterSound)
+        }
+      } finally {
+        repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs).also { request ->
+          session.setRepeatingRequest(request.build(), null, null)
+        }
+      }
     }
   }
 
