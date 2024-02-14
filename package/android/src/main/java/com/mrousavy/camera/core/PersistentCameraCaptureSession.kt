@@ -6,7 +6,6 @@ import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
-import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.MeteringRectangle
 import android.util.Log
@@ -14,12 +13,13 @@ import android.util.Size
 import com.mrousavy.camera.core.capture.PhotoCaptureRequest
 import com.mrousavy.camera.core.capture.RepeatingCaptureRequest
 import com.mrousavy.camera.core.outputs.SurfaceOutput
+import com.mrousavy.camera.extensions.PrecaptureOptions
 import com.mrousavy.camera.extensions.PrecaptureTrigger
 import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.isValid
 import com.mrousavy.camera.extensions.openCamera
-import com.mrousavy.camera.extensions.setRepeatingRequestAndWaitForPrecapture
+import com.mrousavy.camera.extensions.precapture
 import com.mrousavy.camera.extensions.tryAbortCaptures
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
@@ -167,71 +167,28 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       if (qualityPrioritization == QualityPrioritization.SPEED && flash == Flash.OFF) {
         // 0. We want to take a picture as fast as possible, so skip any precapture sequence and just capture one Frame.
         Log.i(TAG, "Using fast capture path without pre-capture sequence...")
-        val request = photoRequest.createCaptureRequest(device, deviceDetails, outputs)
-        return session.capture(request.build(), enableShutterSound)
+        val singleRequest = photoRequest.createCaptureRequest(device, deviceDetails, outputs)
+        return session.capture(singleRequest.build(), enableShutterSound)
       }
 
       Log.i(TAG, "Locking AF/AE/AWB...")
-      var needsFlash = flash == Flash.ON
 
-      // 1. Cancel any ongoing AF/AE/AWB triggers
-      repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs).also { request ->
-        request.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
-        request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
-        request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL)
-        if (flash == Flash.AUTO) {
-          val result = session.capture(request.build(), false)
-          val aeState = result.get(CaptureResult.CONTROL_AE_STATE)
-          if (aeState == CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED) {
-            Log.i(TAG, "Auto-Flash: Flash is required for photo capture, enabling flash...")
-            needsFlash = true
-          } else {
-            Log.i(TAG, "Auto-Flash: Flash is not required for photo capture.")
-          }
-        } else {
-          session.capture(request.build(), null, null)
-        }
-      }
-
-      // 2. Start an actual AF/AE/AWB trigger
-      repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs).also { request ->
-        request.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
-        if (needsFlash) {
-          request.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH)
-        }
-        request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
-        request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
-        request.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON)
-        request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START)
-        session.capture(request.build(), null, null)
-
-        request.set(CaptureRequest.CONTROL_AF_TRIGGER, null)
-        request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null)
-        val result = session.setRepeatingRequestAndWaitForPrecapture(
-          request.build(),
-          PrecaptureTrigger.AF,
-          PrecaptureTrigger.AE,
-          PrecaptureTrigger.AWB
-        )
-        Log.i(TAG, "Successfully locked AF/AE/AWB! AF: ${result.focusState}, AE: ${result.exposureState}")
-
-        // 3. After the Camera has locked AE/AF/AWB, we lock AE/AF/AWB
-        request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE)
-        request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_IDLE)
-        session.setRepeatingRequest(request.build(), null, null)
-      }
+      // 1. Run precapture sequence
+      val precaptureRequest = repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs)
+      val options = PrecaptureOptions(listOf(PrecaptureTrigger.AF, PrecaptureTrigger.AE, PrecaptureTrigger.AWB), flash, null)
+      val result = session.precapture(precaptureRequest, deviceDetails, options)
 
       try {
-        // 4. Once AF/AE/AWB successfully locked, submit the actual photo request
-        val request = photoRequest.createCaptureRequest(device, deviceDetails, outputs)
-        if (needsFlash) {
-          request.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_SINGLE)
+        // 2. Once precapture AF/AE/AWB successfully locked, capture the actual photo
+        val singleRequest = photoRequest.createCaptureRequest(device, deviceDetails, outputs)
+        if (result.needsFlash) {
+          singleRequest.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_SINGLE)
         }
-        return session.capture(request.build(), enableShutterSound)
+        return session.capture(singleRequest.build(), enableShutterSound)
       } finally {
         // 5. After taking a photo we set the repeating request back to idle to remove the AE/AF/AWB locks again
-        val request = repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs)
-        session.setRepeatingRequest(request.build(), null, null)
+        val idleRequest = repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs)
+        session.setRepeatingRequest(idleRequest.build(), null, null)
       }
     }
   }
@@ -243,7 +200,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       val repeatingRequest = repeatingRequest ?: throw CameraNotReadyError()
       val device = session.device
       val deviceDetails = getOrCreateCameraDeviceDetails(device)
-      if (!deviceDetails.supportsTapToFocus) {
+      if (!deviceDetails.supportsFocusRegions) {
         throw FocusNotSupportedError()
       }
       val outputs = outputs.filter { it.isRepeating }
@@ -253,57 +210,12 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       focusResetJob?.cancelAndJoin()
       focusResetJob = null
 
-      // 1. Cancel any ongoing AF/AE/AWB request
-      repeatingRequest.createCaptureRequest(device, deviceDetails, outputs).also { request ->
-        request.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
-        if (deviceDetails.supportsTapToFocus) {
-          request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
-        }
-        if (deviceDetails.supportsTapToExposure) {
-          request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL)
-        }
-        session.capture(request.build(), null, null)
-      }
+      // 1. Run a precapture sequence for AF, AE and AWB.
+      val request = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
+      val options = PrecaptureOptions(listOf(PrecaptureTrigger.AF, PrecaptureTrigger.AE), Flash.OFF, meteringRectangle)
+      session.precapture(request, deviceDetails, options)
 
-      // 2. After previous AF/AE/AWB requests have been canceled, start a new AF/AE/AWB request
-      repeatingRequest.createCaptureRequest(device, deviceDetails, outputs).also { request ->
-        request.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
-        if (deviceDetails.supportsTapToFocus) {
-          request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
-          request.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(meteringRectangle))
-          request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
-        }
-        if (deviceDetails.supportsTapToExposure) {
-          request.set(CaptureRequest.CONTROL_AE_REGIONS, arrayOf(meteringRectangle))
-          request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START)
-        }
-        if (deviceDetails.supportsTapToWhiteBalance) {
-          request.set(CaptureRequest.CONTROL_AWB_REGIONS, arrayOf(meteringRectangle))
-        }
-        session.capture(request.build(), null, null)
-
-        // 3. Start a repeating request without the trigger and wait until AF/AE/AWB locks
-        request.set(CaptureRequest.CONTROL_AF_TRIGGER, null)
-        request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null)
-        session.setRepeatingRequestAndWaitForPrecapture(request.build(), PrecaptureTrigger.AF, PrecaptureTrigger.AE)
-      }
-
-      // 4. After the Camera has successfully found the AF/AE/AWB lock-point, we set it to idle and keep the point metered
-      repeatingRequest.createCaptureRequest(device, deviceDetails, outputs).also { request ->
-        request.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
-        if (deviceDetails.supportsTapToFocus) {
-          request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
-          request.set(CaptureRequest.CONTROL_AF_REGIONS, arrayOf(meteringRectangle))
-          request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_IDLE)
-        }
-        if (deviceDetails.supportsTapToExposure) {
-          request.set(CaptureRequest.CONTROL_AE_REGIONS, arrayOf(meteringRectangle))
-          request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_IDLE)
-        }
-        session.setRepeatingRequest(request.build(), null, null)
-      }
-
-      // 5. Wait 3 seconds
+      // 2. Wait 3 seconds
       focusResetJob = coroutineScope.launch {
         delay(FOCUS_RESET_TIMEOUT)
         if (!this.isActive) {
@@ -315,7 +227,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
           return@launch
         }
         Log.i(TAG, "Resetting focus to auto-focus...")
-        // 6. Reset AF/AE/AWB to continuous auto-focus again, which is the default here.
+        // 3. Reset AF/AE/AWB to continuous auto-focus again, which is the default here.
         repeatingRequest.createCaptureRequest(device, deviceDetails, outputs).also { request ->
           session.setRepeatingRequest(request.build(), null, null)
         }

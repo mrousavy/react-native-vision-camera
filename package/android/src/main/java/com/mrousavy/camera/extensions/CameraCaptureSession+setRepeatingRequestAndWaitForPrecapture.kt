@@ -163,8 +163,13 @@ suspend fun CameraCaptureSession.setRepeatingRequestAndWaitForPrecapture(
           super.onCaptureFailed(session, request, failure)
 
           if (continuation.isActive) {
+            // Capture failed or session closed.
             continuation.resumeWithException(CaptureAbortedError(failure.wasImageCaptured()))
-            session.setRepeatingRequest(request, null, null)
+            try {
+              session.setRepeatingRequest(request, null, null)
+            } catch (e: Throwable) {
+              Log.e(TAG, "Failed to continue repeating request!", e)
+            }
           }
         }
       },
