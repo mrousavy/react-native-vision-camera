@@ -57,12 +57,14 @@ suspend fun CameraCaptureSession.precapture(
   }.toTypedArray()
 
   // 2. Submit a precapture start sequence
-  if (enableFlash) {
+  if (enableFlash && deviceDetails.hasFlash) {
     request.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH)
   }
   if (options.modes.contains(PrecaptureTrigger.AF)) {
     // AF Precapture
-    request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
+    if (deviceDetails.afModes.contains(CaptureRequest.CONTROL_AF_MODE_AUTO)) {
+      request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
+    }
     if (deviceDetails.supportsFocusRegions) {
       request.set(CaptureRequest.CONTROL_AF_REGIONS, meteringRectangles)
     }
