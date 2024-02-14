@@ -172,7 +172,14 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
 
       // 1. Run precapture sequence
       val precaptureRequest = repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs)
-      val options = PrecaptureOptions(listOf(PrecaptureTrigger.AF, PrecaptureTrigger.AE, PrecaptureTrigger.AWB), flash, emptyList())
+      val skipIfPassivelyFocused = flash == Flash.OFF
+      val options =
+        PrecaptureOptions(
+          listOf(PrecaptureTrigger.AF, PrecaptureTrigger.AE, PrecaptureTrigger.AWB),
+          flash,
+          emptyList(),
+          skipIfPassivelyFocused
+        )
       val result = session.precapture(precaptureRequest, deviceDetails, options)
 
       try {
@@ -208,7 +215,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
 
       // 1. Run a precapture sequence for AF, AE and AWB.
       val request = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
-      val options = PrecaptureOptions(listOf(PrecaptureTrigger.AF, PrecaptureTrigger.AE), Flash.OFF, listOf(point))
+      val options = PrecaptureOptions(listOf(PrecaptureTrigger.AF, PrecaptureTrigger.AE), Flash.OFF, listOf(point), false)
       session.precapture(request, deviceDetails, options)
 
       // 2. Wait 3 seconds

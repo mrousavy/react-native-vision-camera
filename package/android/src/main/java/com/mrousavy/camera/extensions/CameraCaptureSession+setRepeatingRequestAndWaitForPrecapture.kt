@@ -24,7 +24,12 @@ enum class PrecaptureTrigger {
   AWB
 }
 
-enum class FocusState {
+interface AutoState {
+  val isCompleted: Boolean
+  val isPassivelyFocused: Boolean
+}
+
+enum class FocusState : AutoState {
   Inactive,
   Scanning,
   Focused,
@@ -33,8 +38,10 @@ enum class FocusState {
   PassiveFocused,
   PassiveUnfocused;
 
-  val isCompleted: Boolean
+  override val isCompleted: Boolean
     get() = this == Focused || this == Unfocused
+  override val isPassivelyFocused: Boolean
+    get() = this == PassiveFocused
 
   companion object {
     fun fromAFState(afState: Int): FocusState =
@@ -50,7 +57,7 @@ enum class FocusState {
       }
   }
 }
-enum class ExposureState {
+enum class ExposureState : AutoState {
   Locked,
   Inactive,
   Precapture,
@@ -58,8 +65,10 @@ enum class ExposureState {
   Converged,
   FlashRequired;
 
-  val isCompleted: Boolean
+  override val isCompleted: Boolean
     get() = this == Converged || this == FlashRequired
+  override val isPassivelyFocused: Boolean
+    get() = this == Converged
 
   companion object {
     fun fromAEState(aeState: Int): ExposureState =
@@ -75,13 +84,15 @@ enum class ExposureState {
   }
 }
 
-enum class WhiteBalanceState {
+enum class WhiteBalanceState : AutoState {
   Inactive,
   Locked,
   Searching,
   Converged;
 
-  val isCompleted: Boolean
+  override val isCompleted: Boolean
+    get() = this == Converged
+  override val isPassivelyFocused: Boolean
     get() = this == Converged
 
   companion object {
