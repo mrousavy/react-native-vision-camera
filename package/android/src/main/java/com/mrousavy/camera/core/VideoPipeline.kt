@@ -9,7 +9,6 @@ import android.os.Build
 import android.util.Log
 import android.view.Surface
 import androidx.annotation.Keep
-import androidx.annotation.RequiresApi
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.mrousavy.camera.frameprocessor.Frame
