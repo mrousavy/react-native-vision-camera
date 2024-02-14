@@ -8,15 +8,13 @@ import android.hardware.camera2.TotalCaptureResult
 import android.util.Log
 import com.mrousavy.camera.core.CaptureAbortedError
 import com.mrousavy.camera.core.CaptureTimedOutError
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.coroutineContext
 
 private const val TAG = "CameraCaptureSession"
 
@@ -41,8 +39,8 @@ enum class FocusState {
     get() = this == Focused || this == NotFocused
 
   companion object {
-    fun fromAFState(afState: Int): FocusState {
-      return when (afState) {
+    fun fromAFState(afState: Int): FocusState =
+      when (afState) {
         CaptureResult.CONTROL_AF_STATE_INACTIVE -> Inactive
         CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN -> Scanning
         CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED -> Focused
@@ -52,7 +50,6 @@ enum class FocusState {
         CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED -> NotFocused
         else -> throw Error("Invalid CONTROL_AF_STATE! $afState")
       }
-    }
   }
 }
 enum class ExposureState {
@@ -67,8 +64,8 @@ enum class ExposureState {
     get() = this == Converged || this == FlashRequired
 
   companion object {
-    fun fromAEState(aeState: Int): ExposureState {
-      return when (aeState) {
+    fun fromAEState(aeState: Int): ExposureState =
+      when (aeState) {
         CaptureResult.CONTROL_AE_STATE_INACTIVE -> Inactive
         CaptureResult.CONTROL_AE_STATE_SEARCHING -> Searching
         CaptureResult.CONTROL_AE_STATE_PRECAPTURE -> Precapture
@@ -77,7 +74,6 @@ enum class ExposureState {
         CaptureResult.CONTROL_AE_STATE_LOCKED -> Locked
         else -> throw Error("Invalid CONTROL_AE_STATE! $aeState")
       }
-    }
   }
 }
 
@@ -91,15 +87,14 @@ enum class WhiteBalanceState {
     get() = this == Converged
 
   companion object {
-    fun fromAWBState(awbState: Int): WhiteBalanceState {
-      return when (awbState) {
+    fun fromAWBState(awbState: Int): WhiteBalanceState =
+      when (awbState) {
         CaptureResult.CONTROL_AWB_STATE_INACTIVE -> Inactive
         CaptureResult.CONTROL_AWB_STATE_SEARCHING -> Searching
         CaptureResult.CONTROL_AWB_STATE_CONVERGED -> Converged
         CaptureResult.CONTROL_AWB_STATE_LOCKED -> Locked
         else -> throw Error("Invalid CONTROL_AWB_STATE! $awbState")
       }
-    }
   }
 }
 
@@ -140,7 +135,9 @@ suspend fun CameraCaptureSession.setRepeatingRequestAndWaitForPrecapture(
             // AF Precapture
             val afState = FocusState.fromAFState(result.get(CaptureResult.CONTROL_AF_STATE) ?: CaptureResult.CONTROL_AF_STATE_INACTIVE)
             val aeState = ExposureState.fromAEState(result.get(CaptureResult.CONTROL_AE_STATE) ?: CaptureResult.CONTROL_AE_STATE_INACTIVE)
-            val awbState = WhiteBalanceState.fromAWBState(result.get(CaptureResult.CONTROL_AWB_STATE) ?: CaptureResult.CONTROL_AWB_STATE_INACTIVE)
+            val awbState = WhiteBalanceState.fromAWBState(
+              result.get(CaptureResult.CONTROL_AWB_STATE) ?: CaptureResult.CONTROL_AWB_STATE_INACTIVE
+            )
 
             if (precaptureTriggers.contains(PrecaptureTrigger.AF) && completed[PrecaptureTrigger.AF] != true) {
               if (afState.isCompleted) {

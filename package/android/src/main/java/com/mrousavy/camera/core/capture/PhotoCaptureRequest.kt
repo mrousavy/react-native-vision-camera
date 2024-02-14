@@ -84,7 +84,9 @@ class PhotoCaptureRequest(
         if (deviceDetails.availableHotPixelModes.contains(CaptureRequest.HOT_PIXEL_MODE_FAST)) {
           builder.set(CaptureRequest.HOT_PIXEL_MODE, CaptureRequest.HOT_PIXEL_MODE_FAST)
         }
-        if (deviceDetails.availableDistortionCorrectionModes.contains(CaptureRequest.DISTORTION_CORRECTION_MODE_FAST) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        if (deviceDetails.availableDistortionCorrectionModes.contains(CaptureRequest.DISTORTION_CORRECTION_MODE_FAST) &&
+          Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
+        ) {
           builder.set(CaptureRequest.DISTORTION_CORRECTION_MODE, CaptureRequest.DISTORTION_CORRECTION_MODE_FAST)
         }
         if (deviceDetails.availableNoiseReductionModes.contains(CaptureRequest.NOISE_REDUCTION_MODE_FAST)) {
@@ -114,7 +116,9 @@ class PhotoCaptureRequest(
         if (deviceDetails.availableHotPixelModes.contains(CaptureRequest.HOT_PIXEL_MODE_HIGH_QUALITY)) {
           builder.set(CaptureRequest.HOT_PIXEL_MODE, CaptureRequest.HOT_PIXEL_MODE_HIGH_QUALITY)
         }
-        if (deviceDetails.availableDistortionCorrectionModes.contains(CaptureRequest.DISTORTION_CORRECTION_MODE_HIGH_QUALITY) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        if (deviceDetails.availableDistortionCorrectionModes.contains(CaptureRequest.DISTORTION_CORRECTION_MODE_HIGH_QUALITY) &&
+          Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
+        ) {
           builder.set(CaptureRequest.DISTORTION_CORRECTION_MODE, CaptureRequest.DISTORTION_CORRECTION_MODE_HIGH_QUALITY)
         }
         if (deviceDetails.availableNoiseReductionModes.contains(CaptureRequest.NOISE_REDUCTION_MODE_HIGH_QUALITY)) {

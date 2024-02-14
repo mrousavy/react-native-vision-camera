@@ -9,14 +9,13 @@ import android.util.Log
 import com.mrousavy.camera.core.CaptureAbortedError
 import com.mrousavy.camera.core.CaptureTimedOutError
 import com.mrousavy.camera.core.UnknownCaptureError
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 private const val TAG = "CameraCaptureSession"
 

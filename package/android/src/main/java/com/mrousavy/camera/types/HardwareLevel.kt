@@ -20,9 +20,7 @@ enum class HardwareLevel(override val unionValue: String) : JSUnionValue {
       }
     }
 
-  fun isAtLeast(level: HardwareLevel): Boolean {
-    return this.rank >= level.rank
-  }
+  fun isAtLeast(level: HardwareLevel): Boolean = this.rank >= level.rank
 
   companion object {
     fun fromCameraCharacteristics(cameraCharacteristics: CameraCharacteristics): HardwareLevel =
