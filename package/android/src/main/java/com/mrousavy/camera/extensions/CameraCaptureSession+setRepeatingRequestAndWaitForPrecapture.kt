@@ -92,7 +92,7 @@ suspend fun CameraCaptureSession.setRepeatingRequestAndWaitForPrecapture(
 
           if (continuation.isActive) {
             // AF Precapture
-            if (precaptureTriggers.contains(PrecaptureTrigger.AF)) {
+            if (precaptureTriggers.contains(PrecaptureTrigger.AF) && completed[PrecaptureTrigger.AF] != true) {
               val afState = result.get(CaptureResult.CONTROL_AF_STATE)
               Log.i(TAG, "AF State: $afState")
               if (afState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED || afState == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED) {
@@ -102,7 +102,7 @@ suspend fun CameraCaptureSession.setRepeatingRequestAndWaitForPrecapture(
               }
             }
             // AE Precapture
-            if (precaptureTriggers.contains(PrecaptureTrigger.AE)) {
+            if (precaptureTriggers.contains(PrecaptureTrigger.AE) && completed[PrecaptureTrigger.AE] != true) {
               val aeState = result.get(CaptureResult.CONTROL_AE_STATE)
               Log.i(TAG, "AE State: $aeState")
               if (aeState == CaptureResult.CONTROL_AE_STATE_CONVERGED || aeState == CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED) {
@@ -112,7 +112,7 @@ suspend fun CameraCaptureSession.setRepeatingRequestAndWaitForPrecapture(
               }
             }
             // AWB Precapture
-            if (precaptureTriggers.contains(PrecaptureTrigger.AWB)) {
+            if (precaptureTriggers.contains(PrecaptureTrigger.AWB) && completed[PrecaptureTrigger.AWB] != true) {
               val aeState = result.get(CaptureResult.CONTROL_AWB_STATE)
               Log.i(TAG, "AWB State: $aeState")
               if (aeState == CaptureResult.CONTROL_AWB_STATE_CONVERGED) {
