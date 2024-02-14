@@ -11,7 +11,12 @@ import com.mrousavy.camera.core.CameraDeviceDetails
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.HardwareLevel
 
-data class PrecaptureOptions(val modes: List<PrecaptureTrigger>, val flash: Flash = Flash.OFF, val pointsOfInterest: List<Point>, val skipIfPassivelyFocused: Boolean)
+data class PrecaptureOptions(
+  val modes: List<PrecaptureTrigger>,
+  val flash: Flash = Flash.OFF,
+  val pointsOfInterest: List<Point>,
+  val skipIfPassivelyFocused: Boolean
+)
 
 data class PrecaptureResult(val needsFlash: Boolean)
 
