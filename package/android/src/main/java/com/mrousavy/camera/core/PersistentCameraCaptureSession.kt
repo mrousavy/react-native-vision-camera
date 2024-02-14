@@ -187,7 +187,12 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
 
         request.set(CaptureRequest.CONTROL_AF_TRIGGER, null)
         request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null)
-        val result = session.setRepeatingRequestAndWaitForPrecapture(request.build(), PrecaptureTrigger.AF, PrecaptureTrigger.AE, PrecaptureTrigger.AWB)
+        val result = session.setRepeatingRequestAndWaitForPrecapture(
+          request.build(),
+          PrecaptureTrigger.AF,
+          PrecaptureTrigger.AE,
+          PrecaptureTrigger.AWB
+        )
         Log.i(TAG, "Successfully locked AF/AE/AWB! AF: ${result.focusState}, AE: ${result.exposureState}")
       }
 

@@ -28,15 +28,15 @@ enum class ExposureState {
   FlashRequired
 }
 
-data class ResultState(
-    val focusState: FocusState?,
-    val exposureState: ExposureState?
-)
+data class ResultState(val focusState: FocusState?, val exposureState: ExposureState?)
 
 /**
  * Set a new repeating request for the [CameraCaptureSession] that contains a precapture trigger, and wait until the given precaptures have locked.
  */
-suspend fun CameraCaptureSession.setRepeatingRequestAndWaitForPrecapture(request: CaptureRequest, vararg precaptureTriggers: PrecaptureTrigger): ResultState =
+suspend fun CameraCaptureSession.setRepeatingRequestAndWaitForPrecapture(
+  request: CaptureRequest,
+  vararg precaptureTriggers: PrecaptureTrigger
+): ResultState =
   suspendCancellableCoroutine { continuation ->
     // Map<PrecaptureTrigger, Boolean> of all completed precaptures
     val completed = precaptureTriggers.associateWith { false }.toMutableMap()
