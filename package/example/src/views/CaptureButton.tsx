@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from 'react'
+import React, { useCallback, useRef } from 'react'
 import { StyleSheet, View, ViewProps } from 'react-native'
 import {
   PanGestureHandler,
@@ -19,7 +19,7 @@ import Reanimated, {
   useSharedValue,
   withRepeat,
 } from 'react-native-reanimated'
-import type { Camera, PhotoFile, TakePhotoOptions, VideoFile } from 'react-native-vision-camera'
+import type { Camera, PhotoFile, VideoFile } from 'react-native-vision-camera'
 import { CAPTURE_BUTTON_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH } from './../Constants'
 
 const PAN_GESTURE_HANDLER_FAIL_X = [-SCREEN_WIDTH, SCREEN_WIDTH]
@@ -58,15 +58,6 @@ const _CaptureButton: React.FC<Props> = ({
   const pressDownDate = useRef<Date | undefined>(undefined)
   const isRecording = useRef(false)
   const recordingProgress = useSharedValue(0)
-  const takePhotoOptions = useMemo<TakePhotoOptions>(
-    () => ({
-      qualityPrioritization: 'speed',
-      flash: flash,
-      quality: 90,
-      enableShutterSound: false,
-    }),
-    [flash],
-  )
   const isPressingButton = useSharedValue(false)
 
   //#region Camera Capture
@@ -75,12 +66,16 @@ const _CaptureButton: React.FC<Props> = ({
       if (camera.current == null) throw new Error('Camera ref is null!')
 
       console.log('Taking photo...')
-      const photo = await camera.current.takePhoto(takePhotoOptions)
+      const photo = await camera.current.takePhoto({
+        qualityPrioritization: 'quality',
+        flash: flash,
+        enableShutterSound: false,
+      })
       onMediaCaptured(photo, 'photo')
     } catch (e) {
       console.error('Failed to take photo!', e)
     }
-  }, [camera, onMediaCaptured, takePhotoOptions])
+  }, [camera, flash, onMediaCaptured])
 
   const onStoppedRecording = useCallback(() => {
     isRecording.current = false
