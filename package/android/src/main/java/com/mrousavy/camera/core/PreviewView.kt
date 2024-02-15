@@ -34,6 +34,15 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
         invalidate()
       }
     }
+  private var inputOrientation: Orientation = Orientation.PORTRAIT
+    set(value) {
+      field = value
+      UiThreadUtil.runOnUiThread {
+        Log.i(TAG, "Camera Input Orientation changed to $value!")
+        requestLayout()
+        invalidate()
+      }
+    }
   private val viewSize: Size
     get() {
       val displayMetrics = context.resources.displayMetrics
@@ -42,7 +51,6 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
       return Size(dpX.toInt(), dpY.toInt())
     }
   private val surfaceView = SurfaceView(context)
-  private var inputOrientation: Orientation = Orientation.PORTRAIT
 
   init {
     Log.i(TAG, "Creating PreviewView...")
@@ -80,7 +88,7 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
     val viewOrientation = Orientation.PORTRAIT
 
     val rotated = Orientation.rotatePoint(point, viewSize, cameraSize, viewOrientation, sensorOrientation)
-    Log.i(TAG, "$point -> $sensorOrientation (in $cameraSize -> $viewSize) -> $rotated")
+    Log.i(TAG, "Converted layer point $point to camera point $rotated! ($sensorOrientation, $cameraSize -> $viewSize)")
     return rotated
   }
 
