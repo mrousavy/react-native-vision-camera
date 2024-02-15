@@ -47,12 +47,12 @@ cd ios && pod install
 
 To see VisionCamera in action, check out [ShadowLens](https://mrousavy.com/projects/shadowlens)!
 
-<div style="display: flex; align-items: center;">
+<div>
   <a href="https://apps.apple.com/app/shadowlens/id6471849004">
     <img height="40" src="docs/static/img/appstore.svg" />
   </a>
   <a href="https://play.google.com/store/apps/details?id=com.mrousavy.shadowlens">
-    <img height="58" src="docs/static/img/playstore.png" />
+    <img height="40" src="docs/static/img/googleplay.svg" />
   </a>
 </div>
 
