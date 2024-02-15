@@ -87,8 +87,6 @@ extension AVMetadataObject.ObjectType {
       return "aztec"
     case .dataMatrix:
       return "data-matrix"
-    default:
-      return "unknown"
     }
   }
 }

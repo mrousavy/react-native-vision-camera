@@ -16,6 +16,8 @@ export type CodeType =
   | 'pdf-417'
   | 'aztec'
   | 'data-matrix'
+  // Android only
+  | 'upc-a'
 
 /**
  * The full area that is used for code scanning. In most cases, this is 1280x720 or 1920x1080.
