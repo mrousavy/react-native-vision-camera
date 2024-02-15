@@ -19,6 +19,7 @@ import com.mrousavy.camera.extensions.isValid
 import com.mrousavy.camera.extensions.openCamera
 import com.mrousavy.camera.extensions.precapture
 import com.mrousavy.camera.extensions.tryAbortCaptures
+import com.mrousavy.camera.extensions.tryStopRepeating
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.QualityPrioritization
@@ -280,8 +281,8 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
         val builder = repeatingRequest.createCaptureRequest(device, details, repeatingOutputs)
         session.setRepeatingRequest(builder.build(), null, null)
       } else {
-        session.stopRepeating()
         Log.d(TAG, "Stopping repeating request...")
+        session.tryStopRepeating()
       }
       Log.d(TAG, "Configure() done! isActive: $isActive, ID: $cameraId, device: $device, session: $session")
     } catch (e: CameraAccessException) {
