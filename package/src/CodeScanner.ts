@@ -12,6 +12,7 @@ export type CodeType =
   | 'ean-8'
   | 'itf'
   | 'upc-e'
+  | 'upc-a'
   | 'qr'
   | 'pdf-417'
   | 'aztec'

@@ -40,6 +40,9 @@ extension AVMetadataObject.ObjectType {
     case "upc-e":
       self = .upce
       return
+    case "upc-a":
+      self = .ean13
+      return
     case "qr":
       self = .qr
       return
