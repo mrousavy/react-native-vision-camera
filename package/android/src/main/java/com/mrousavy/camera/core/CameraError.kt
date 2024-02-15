@@ -104,6 +104,7 @@ class PhotoNotEnabledError :
   CameraError("capture", "photo-not-enabled", "Photo capture is disabled! Pass `photo={true}` to enable photo capture.")
 class CaptureAbortedError(wasImageCaptured: Boolean) :
   CameraError("capture", "aborted", "The image capture was aborted! Was Image captured: $wasImageCaptured")
+class FocusCanceledError : CameraError("capture", "focus-canceled", "The focus operation was canceled.")
 class CaptureTimedOutError : CameraError("capture", "timed-out", "The image capture was aborted because it timed out.")
 class UnknownCaptureError(wasImageCaptured: Boolean) :
   CameraError("capture", "unknown", "An unknown error occurred while trying to capture an Image! Was Image captured: $wasImageCaptured")
