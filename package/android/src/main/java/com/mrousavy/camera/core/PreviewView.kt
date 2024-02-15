@@ -5,12 +5,9 @@ import android.content.Context
 import android.graphics.Point
 import android.util.Log
 import android.util.Size
-import android.view.Gravity
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import android.widget.FrameLayout
 import com.facebook.react.bridge.UiThreadUtil
-import com.mrousavy.camera.extensions.installHierarchyFitter
 import com.mrousavy.camera.extensions.resize
 import com.mrousavy.camera.extensions.rotatedBy
 import com.mrousavy.camera.types.Orientation
