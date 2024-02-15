@@ -43,6 +43,7 @@ export type CaptureError =
   | 'capture/photo-not-enabled'
   | 'capture/frame-invalid'
   | 'capture/aborted'
+  | 'capture/focus-canceled'
   | 'capture/timed-out'
   | 'capture/unknown'
 export type SystemError =

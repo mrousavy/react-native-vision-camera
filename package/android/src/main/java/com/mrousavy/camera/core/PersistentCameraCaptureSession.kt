@@ -25,7 +25,7 @@ import com.mrousavy.camera.types.QualityPrioritization
 import java.io.Closeable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -56,7 +56,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
 
   private val mutex = Mutex()
   private var didDestroyFromOutside = false
-  private var focusResetJob: Job? = null
+  private var focusJob: Job? = null
   private val coroutineScope = CoroutineScope(CameraQueues.cameraQueue.coroutineDispatcher)
 
   val isRunning: Boolean
@@ -74,6 +74,10 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   }
 
   suspend fun withConfiguration(block: suspend () -> Unit) {
+    // Cancel any ongoing focus jobs
+    focusJob?.cancel()
+    focusJob = null
+
     mutex.withLock {
       block()
       configure()
@@ -141,6 +145,10 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
     orientation: Orientation,
     enableShutterSound: Boolean
   ): TotalCaptureResult {
+    // Cancel any ongoing focus jobs
+    focusJob?.cancel()
+    focusJob = null
+
     mutex.withLock {
       Log.i(TAG, "Capturing photo...")
       val session = session ?: throw CameraNotReadyError()
@@ -198,6 +206,10 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   }
 
   suspend fun focus(point: Point) {
+    // Cancel any previous focus jobs
+    focusJob?.cancel()
+    focusJob = null
+
     mutex.withLock {
       Log.i(TAG, "Focusing to $point...")
       val session = session ?: throw CameraNotReadyError()
@@ -209,17 +221,16 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       }
       val outputs = outputs.filter { it.isRepeating }
 
-      // 0. Cancel the 3 second focus reset task
-      focusResetJob?.cancelAndJoin()
-      focusResetJob = null
-
       // 1. Run a precapture sequence for AF, AE and AWB.
-      val request = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
-      val options = PrecaptureOptions(listOf(PrecaptureTrigger.AF, PrecaptureTrigger.AE), Flash.OFF, listOf(point), false)
-      session.precapture(request, deviceDetails, options)
+      focusJob = coroutineScope.launch {
+        val request = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
+        val options = PrecaptureOptions(listOf(PrecaptureTrigger.AF, PrecaptureTrigger.AE), Flash.OFF, listOf(point), false)
+        session.precapture(request, deviceDetails, options)
+      }
+      focusJob?.join()
 
-      // 2. Wait 3 seconds
-      focusResetJob = coroutineScope.launch {
+      // 2. Reset AF/AE/AWB again after 3 seconds timeout
+      focusJob = coroutineScope.launch {
         delay(FOCUS_RESET_TIMEOUT)
         if (!this.isActive) {
           // this job got canceled from the outside
@@ -230,7 +241,6 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
           return@launch
         }
         Log.i(TAG, "Resetting focus to auto-focus...")
-        // 3. Reset AF/AE/AWB to continuous auto-focus again, which is the default here.
         repeatingRequest.createCaptureRequest(device, deviceDetails, outputs).also { request ->
           session.setRepeatingRequest(request.build(), null, null)
         }

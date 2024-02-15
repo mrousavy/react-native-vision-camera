@@ -8,8 +8,11 @@ import android.hardware.camera2.params.MeteringRectangle
 import android.util.Log
 import android.util.Size
 import com.mrousavy.camera.core.CameraDeviceDetails
+import com.mrousavy.camera.core.FocusCanceledError
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.HardwareLevel
+import kotlin.coroutines.coroutineContext
+import kotlinx.coroutines.isActive
 
 data class PrecaptureOptions(
   val modes: List<PrecaptureTrigger>,
@@ -65,6 +68,8 @@ suspend fun CameraCaptureSession.precapture(
     this.capture(request.build(), null, null)
   }
 
+  if (!coroutineContext.isActive) throw FocusCanceledError()
+
   val meteringWeight = MeteringRectangle.METERING_WEIGHT_MAX - 1
   val meteringRectangles = options.pointsOfInterest.map { point ->
     MeteringRectangle(point, DEFAULT_METERING_SIZE, meteringWeight)
@@ -115,13 +120,16 @@ suspend fun CameraCaptureSession.precapture(
   }
   this.capture(request.build(), null, null)
 
+  if (!coroutineContext.isActive) throw FocusCanceledError()
+
   // 3. Start a repeating request without the trigger and wait until AF/AE/AWB locks
   request.set(CaptureRequest.CONTROL_AF_TRIGGER, null)
   request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null)
   val result = this.setRepeatingRequestAndWaitForPrecapture(request.build(), *precaptureModes.toTypedArray())
 
+  if (!coroutineContext.isActive) throw FocusCanceledError()
+
   Log.i(TAG, "AF/AE/AWB successfully locked!")
-  // TODO: Set to idle again?
 
   val needsFlash = result.exposureState == ExposureState.FlashRequired
   return PrecaptureResult(needsFlash)
