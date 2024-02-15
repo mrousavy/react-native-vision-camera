@@ -10,9 +10,9 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.widget.FrameLayout
 import com.facebook.react.bridge.UiThreadUtil
-import com.mrousavy.camera.extensions.getMaximumPreviewSize
 import com.mrousavy.camera.extensions.installHierarchyFitter
 import com.mrousavy.camera.extensions.resize
+import com.mrousavy.camera.extensions.rotatedBy
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.ResizeMode
 import kotlin.math.roundToInt
@@ -23,13 +23,22 @@ import kotlinx.coroutines.withContext
 class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
   FrameLayout(context),
   SurfaceHolder.Callback {
-  var size: Size = getMaximumPreviewSize()
+  var size: Size = CameraDeviceDetails.getMaximumPreviewSize()
     private set
   var resizeMode: ResizeMode = ResizeMode.COVER
     set(value) {
       field = value
       UiThreadUtil.runOnUiThread {
         Log.i(TAG, "Setting PreviewView ResizeMode to $value...")
+        requestLayout()
+        invalidate()
+      }
+    }
+  private var inputOrientation: Orientation = Orientation.LANDSCAPE_LEFT
+    set(value) {
+      field = value
+      UiThreadUtil.runOnUiThread {
+        Log.i(TAG, "Camera Input Orientation changed to $value!")
         requestLayout()
         invalidate()
       }
@@ -66,25 +75,26 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
     invalidate()
   }
 
-  suspend fun setSurfaceSize(width: Int, height: Int) {
+  suspend fun setSurfaceSize(width: Int, height: Int, cameraSensorOrientation: Orientation) {
     withContext(Dispatchers.Main) {
+      inputOrientation = cameraSensorOrientation
       surfaceView.holder.resize(width, height)
     }
   }
 
   fun convertLayerPointToCameraCoordinates(point: Point, cameraDeviceDetails: CameraDeviceDetails): Point {
-    val sensorOrientation = Orientation.fromRotationDegrees(cameraDeviceDetails.sensorOrientation)
+    val sensorOrientation = cameraDeviceDetails.sensorOrientation
     val cameraSize = Size(cameraDeviceDetails.activeSize.width(), cameraDeviceDetails.activeSize.height())
     val viewOrientation = Orientation.PORTRAIT
 
-    val rotated = Orientation.rotatePoint(point, viewSize, cameraSize, viewOrientation, sensorOrientation)
-    Log.i(TAG, "$point -> $sensorOrientation (in $cameraSize -> $viewSize) -> $rotated")
+    val rotated = point.rotatedBy(viewSize, cameraSize, viewOrientation, sensorOrientation)
+    Log.i(TAG, "Converted layer point $point to camera point $rotated! ($sensorOrientation, $cameraSize -> $viewSize)")
     return rotated
   }
 
   private fun getSize(contentSize: Size, containerSize: Size, resizeMode: ResizeMode): Size {
     // TODO: Take sensor orientation into account here
-    val contentAspectRatio = contentSize.height.toDouble() / contentSize.width
+    val contentAspectRatio = contentSize.width.toDouble() / contentSize.height
     val containerAspectRatio = containerSize.width.toDouble() / containerSize.height
 
     val widthOverHeight = when (resizeMode) {
@@ -108,9 +118,10 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
     super.onMeasure(widthMeasureSpec, heightMeasureSpec)
 
     val viewSize = Size(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec))
-    val fittedSize = getSize(size, viewSize, resizeMode)
+    val surfaceSize = size.rotatedBy(inputOrientation)
+    val fittedSize = getSize(surfaceSize, viewSize, resizeMode)
 
-    Log.i(TAG, "PreviewView is $viewSize, rendering $size content. Resizing to: $fittedSize ($resizeMode)")
+    Log.i(TAG, "PreviewView is $viewSize, rendering $surfaceSize content ($inputOrientation). Resizing to: $fittedSize ($resizeMode)")
     setMeasuredDimension(fittedSize.width, fittedSize.height)
   }
 

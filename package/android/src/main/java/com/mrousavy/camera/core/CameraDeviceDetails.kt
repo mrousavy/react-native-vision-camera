@@ -1,5 +1,6 @@
 package com.mrousavy.camera.core
 
+import android.content.res.Resources
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraExtensionCharacteristics
@@ -9,11 +10,14 @@ import android.os.Build
 import android.util.Log
 import android.util.Range
 import android.util.Size
+import android.view.SurfaceHolder
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
+import com.mrousavy.camera.extensions.bigger
 import com.mrousavy.camera.extensions.getPhotoSizes
 import com.mrousavy.camera.extensions.getVideoSizes
+import com.mrousavy.camera.extensions.smaller
 import com.mrousavy.camera.extensions.toJSValue
 import com.mrousavy.camera.types.AutoFocusSystem
 import com.mrousavy.camera.types.DeviceType
@@ -29,6 +33,20 @@ import kotlin.math.sqrt
 class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId: String) {
   companion object {
     private const val TAG = "CameraDeviceDetails"
+
+    fun getMaximumPreviewSize(): Size {
+      // See https://developer.android.com/reference/android/hardware/camera2/params/StreamConfigurationMap
+      // According to the Android Developer documentation, PREVIEW streams can have a resolution
+      // of up to the phone's display's resolution, with a maximum of 1920x1080.
+      val display1080p = Size(1920, 1080)
+      val displaySize = Size(
+        Resources.getSystem().displayMetrics.widthPixels,
+        Resources.getSystem().displayMetrics.heightPixels
+      )
+      val isHighResScreen = displaySize.bigger >= display1080p.bigger || displaySize.smaller >= display1080p.smaller
+
+      return if (isHighResScreen) display1080p else displaySize
+    }
   }
 
   val characteristics by lazy { cameraManager.getCameraCharacteristics(cameraId) }
@@ -50,7 +68,10 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
   val sensorSize by lazy { characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)!! }
   val activeSize
     get() = characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)!!
-  val sensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
+  val sensorOrientation by lazy {
+    val degrees = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
+    return@lazy Orientation.fromRotationDegrees(degrees)
+  }
   val minFocusDistance by lazy { getMinFocusDistanceCm() }
   val name by lazy {
     val info = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) characteristics.get(CameraCharacteristics.INFO_VERSION) else null
@@ -121,6 +142,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
 
   // TODO: Also add 10-bit YUV here?
   val videoFormat = ImageFormat.YUV_420_888
+  val photoFormat = ImageFormat.JPEG
 
   // get extensions (HDR, Night Mode, ..)
   private fun getSupportedExtensions(): List<Int> =
@@ -214,13 +236,18 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
     return getFieldOfView(smallestFocalLength)
   }
 
-  private fun getVideoSizes(): List<Size> = characteristics.getVideoSizes(cameraId, videoFormat)
-  private fun getPhotoSizes(): List<Size> = characteristics.getPhotoSizes(ImageFormat.JPEG)
+  fun getVideoSizes(format: Int): List<Size> = characteristics.getVideoSizes(cameraId, format)
+  fun getPhotoSizes(): List<Size> = characteristics.getPhotoSizes(photoFormat)
+  fun getPreviewSizes(): List<Size> {
+    val maximumPreviewSize = getMaximumPreviewSize()
+    return cameraConfig.getOutputSizes(SurfaceHolder::class.java)
+      .filter { it.bigger <= maximumPreviewSize.bigger && it.smaller <= maximumPreviewSize.smaller }
+  }
 
   private fun getFormats(): ReadableArray {
     val array = Arguments.createArray()
 
-    val videoSizes = getVideoSizes()
+    val videoSizes = getVideoSizes(videoFormat)
     val photoSizes = getPhotoSizes()
 
     videoSizes.forEach { videoSize ->
@@ -294,7 +321,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
     map.putDouble("minExposure", exposureRange.lower.toDouble())
     map.putDouble("maxExposure", exposureRange.upper.toDouble())
     map.putString("hardwareLevel", hardwareLevel.unionValue)
-    map.putString("sensorOrientation", Orientation.fromRotationDegrees(sensorOrientation).unionValue)
+    map.putString("sensorOrientation", sensorOrientation.unionValue)
     map.putArray("formats", getFormats())
     return map
   }
