@@ -1,9 +1,5 @@
 package com.mrousavy.camera.types
 
-import android.graphics.Point
-import android.graphics.PointF
-import android.util.Log
-import android.util.Size
 import com.mrousavy.camera.core.CameraDeviceDetails
 
 enum class Orientation(override val unionValue: String) : JSUnionValue {
@@ -30,7 +26,7 @@ enum class Orientation(override val unionValue: String) : JSUnionValue {
     }
 
     // Rotate sensor rotation by target rotation
-    val newRotationDegrees = (deviceDetails.sensorOrientation + rotationDegrees + 360) % 360
+    val newRotationDegrees = (deviceDetails.sensorOrientation.toDegrees() + rotationDegrees + 360) % 360
 
     return fromRotationDegrees(newRotationDegrees)
   }
@@ -52,29 +48,5 @@ enum class Orientation(override val unionValue: String) : JSUnionValue {
         in 225..315 -> LANDSCAPE_RIGHT
         else -> PORTRAIT
       }
-
-    fun rotatePoint(
-      point: Point,
-      fromSize: Size,
-      toSize: Size,
-      fromOrientation: Orientation,
-      toOrientation: Orientation
-    ): Point {
-      val differenceDegrees = (fromOrientation.toDegrees() + toOrientation.toDegrees()) % 360
-      val difference = Orientation.fromRotationDegrees(differenceDegrees)
-      val normalizedPoint = PointF(point.x / fromSize.width.toFloat(), point.y / fromSize.height.toFloat())
-
-      val rotatedNormalizedPoint = when (difference) {
-        PORTRAIT -> normalizedPoint
-        PORTRAIT_UPSIDE_DOWN -> PointF(1 - normalizedPoint.x, 1 - normalizedPoint.y)
-        LANDSCAPE_LEFT -> PointF(normalizedPoint.y, 1 - normalizedPoint.x)
-        LANDSCAPE_RIGHT -> PointF(1 - normalizedPoint.y, normalizedPoint.x)
-      }
-
-      val rotatedX = rotatedNormalizedPoint.x * toSize.width
-      val rotatedY = rotatedNormalizedPoint.y * toSize.height
-      Log.i("ROTATE", "$point -> $normalizedPoint -> $difference -> $rotatedX, $rotatedY")
-      return Point(rotatedX.toInt(), rotatedY.toInt())
-    }
   }
 }

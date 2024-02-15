@@ -312,8 +312,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       )
       outputs.add(output)
       // Size is usually landscape, so we flip it here
-      val cameraOrientation = Orientation.fromRotationDegrees(deviceDetails.sensorOrientation)
-      previewView?.setSurfaceSize(size.width, size.height, cameraOrientation)
+      previewView?.setSurfaceSize(size.width, size.height, deviceDetails.sensorOrientation)
     }
 
     // CodeScanner Output

@@ -83,11 +83,11 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
   }
 
   fun convertLayerPointToCameraCoordinates(point: Point, cameraDeviceDetails: CameraDeviceDetails): Point {
-    val sensorOrientation = Orientation.fromRotationDegrees(cameraDeviceDetails.sensorOrientation)
+    val sensorOrientation = cameraDeviceDetails.sensorOrientation
     val cameraSize = Size(cameraDeviceDetails.activeSize.width(), cameraDeviceDetails.activeSize.height())
     val viewOrientation = Orientation.PORTRAIT
 
-    val rotated = Orientation.rotatePoint(point, viewSize, cameraSize, viewOrientation, sensorOrientation)
+    val rotated = point.rotatedBy(viewSize, cameraSize, viewOrientation, sensorOrientation)
     Log.i(TAG, "Converted layer point $point to camera point $rotated! ($sensorOrientation, $cameraSize -> $viewSize)")
     return rotated
   }
