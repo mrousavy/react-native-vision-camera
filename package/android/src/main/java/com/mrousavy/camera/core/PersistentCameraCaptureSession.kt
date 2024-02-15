@@ -25,16 +25,12 @@ import com.mrousavy.camera.types.QualityPrioritization
 import java.io.Closeable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
-import kotlin.coroutines.coroutineContext
 
 /**
  * A [CameraCaptureSession] wrapper that safely handles interruptions and remains open whenever available.
@@ -81,7 +77,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
     // Cancel any ongoing focus jobs
     focusJob?.cancel()
     focusJob = null
-    
+
     mutex.withLock {
       block()
       configure()

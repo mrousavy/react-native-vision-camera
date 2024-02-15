@@ -11,8 +11,8 @@ import com.mrousavy.camera.core.CameraDeviceDetails
 import com.mrousavy.camera.core.FocusCanceledError
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.HardwareLevel
-import kotlinx.coroutines.isActive
 import kotlin.coroutines.coroutineContext
+import kotlinx.coroutines.isActive
 
 data class PrecaptureOptions(
   val modes: List<PrecaptureTrigger>,
