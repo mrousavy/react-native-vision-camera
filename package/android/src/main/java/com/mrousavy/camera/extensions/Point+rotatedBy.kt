@@ -6,12 +6,7 @@ import android.util.Log
 import android.util.Size
 import com.mrousavy.camera.types.Orientation
 
-fun Point.rotatedBy(
-    fromSize: Size,
-    toSize: Size,
-    fromOrientation: Orientation,
-    toOrientation: Orientation
-): Point {
+fun Point.rotatedBy(fromSize: Size, toSize: Size, fromOrientation: Orientation, toOrientation: Orientation): Point {
   val differenceDegrees = (fromOrientation.toDegrees() + toOrientation.toDegrees()) % 360
   val difference = Orientation.fromRotationDegrees(differenceDegrees)
   val normalizedPoint = PointF(this.x / fromSize.width.toFloat(), this.y / fromSize.height.toFloat())

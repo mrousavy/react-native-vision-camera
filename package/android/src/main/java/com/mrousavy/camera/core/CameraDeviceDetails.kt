@@ -40,8 +40,8 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
       // of up to the phone's display's resolution, with a maximum of 1920x1080.
       val display1080p = Size(1920, 1080)
       val displaySize = Size(
-          Resources.getSystem().displayMetrics.widthPixels,
-          Resources.getSystem().displayMetrics.heightPixels
+        Resources.getSystem().displayMetrics.widthPixels,
+        Resources.getSystem().displayMetrics.heightPixels
       )
       val isHighResScreen = displaySize.bigger >= display1080p.bigger || displaySize.smaller >= display1080p.smaller
 
@@ -241,7 +241,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
   fun getPreviewSizes(): List<Size> {
     val maximumPreviewSize = getMaximumPreviewSize()
     return cameraConfig.getOutputSizes(SurfaceHolder::class.java)
-        .filter { it.bigger <= maximumPreviewSize.bigger && it.smaller <= maximumPreviewSize.smaller }
+      .filter { it.bigger <= maximumPreviewSize.bigger && it.smaller <= maximumPreviewSize.smaller }
   }
 
   private fun getFormats(): ReadableArray {
