@@ -21,7 +21,7 @@ import kotlinx.coroutines.withContext
 
 @SuppressLint("ViewConstructor")
 class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
-  FrameLayout(context),
+  SurfaceView(context),
   SurfaceHolder.Callback {
   var size: Size = CameraDeviceDetails.getMaximumPreviewSize()
     set(value) {
@@ -54,21 +54,13 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
       val dpY = height / displayMetrics.density
       return Size(dpX.toInt(), dpY.toInt())
     }
-  private val surfaceView = SurfaceView(context)
 
   init {
     Log.i(TAG, "Creating PreviewView...")
-    this.installHierarchyFitter()
-    surfaceView.layoutParams = LayoutParams(
-      LayoutParams.MATCH_PARENT,
-      LayoutParams.MATCH_PARENT,
-      Gravity.CENTER
-    )
-    surfaceView.holder.setFixedSize(size.width, size.height)
-    surfaceView.holder.setKeepScreenOn(true)
-    surfaceView.holder.addCallback(this)
-    surfaceView.holder.addCallback(callback)
-    addView(surfaceView)
+    holder.setKeepScreenOn(true)
+    holder.addCallback(this)
+    holder.addCallback(callback)
+    holder.setFixedSize(size.width, size.height)
   }
 
   override fun surfaceCreated(holder: SurfaceHolder) = Unit
@@ -80,7 +72,7 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
   suspend fun setSurfaceSize(width: Int, height: Int, cameraSensorOrientation: Orientation) {
     withContext(Dispatchers.Main) {
       inputOrientation = cameraSensorOrientation
-      surfaceView.holder.resize(width, height)
+      holder.resize(width, height)
     }
   }
 
