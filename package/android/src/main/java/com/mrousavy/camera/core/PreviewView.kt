@@ -64,6 +64,7 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
       LayoutParams.MATCH_PARENT,
       Gravity.CENTER
     )
+    surfaceView.holder.setFixedSize(size.width, size.height)
     surfaceView.holder.setKeepScreenOn(true)
     surfaceView.holder.addCallback(this)
     surfaceView.holder.addCallback(callback)
