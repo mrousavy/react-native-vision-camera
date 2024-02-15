@@ -10,9 +10,9 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.widget.FrameLayout
 import com.facebook.react.bridge.UiThreadUtil
-import com.mrousavy.camera.extensions.getMaximumPreviewSize
 import com.mrousavy.camera.extensions.installHierarchyFitter
 import com.mrousavy.camera.extensions.resize
+import com.mrousavy.camera.extensions.rotatedBy
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.ResizeMode
 import kotlin.math.roundToInt
@@ -23,7 +23,7 @@ import kotlinx.coroutines.withContext
 class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
   FrameLayout(context),
   SurfaceHolder.Callback {
-  var size: Size = getMaximumPreviewSize()
+  var size: Size = CameraDeviceDetails.getMaximumPreviewSize()
     private set
   var resizeMode: ResizeMode = ResizeMode.COVER
     set(value) {
@@ -42,6 +42,7 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
       return Size(dpX.toInt(), dpY.toInt())
     }
   private val surfaceView = SurfaceView(context)
+  private var inputOrientation: Orientation = Orientation.PORTRAIT
 
   init {
     Log.i(TAG, "Creating PreviewView...")
@@ -66,8 +67,9 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
     invalidate()
   }
 
-  suspend fun setSurfaceSize(width: Int, height: Int) {
+  suspend fun setSurfaceSize(width: Int, height: Int, cameraSensorOrientation: Orientation) {
     withContext(Dispatchers.Main) {
+      inputOrientation = cameraSensorOrientation
       surfaceView.holder.resize(width, height)
     }
   }
@@ -108,9 +110,10 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
     super.onMeasure(widthMeasureSpec, heightMeasureSpec)
 
     val viewSize = Size(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec))
-    val fittedSize = getSize(size, viewSize, resizeMode)
+    val surfaceSize = size.rotatedBy(inputOrientation)
+    val fittedSize = getSize(surfaceSize, viewSize, resizeMode)
 
-    Log.i(TAG, "PreviewView is $viewSize, rendering $size content. Resizing to: $fittedSize ($resizeMode)")
+    Log.i(TAG, "PreviewView is $viewSize, rendering $surfaceSize content ($inputOrientation). Resizing to: $fittedSize ($resizeMode)")
     setMeasuredDimension(fittedSize.width, fittedSize.height)
   }
 
