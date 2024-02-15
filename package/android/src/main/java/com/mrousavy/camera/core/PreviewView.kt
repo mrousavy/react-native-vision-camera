@@ -94,7 +94,7 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
 
   private fun getSize(contentSize: Size, containerSize: Size, resizeMode: ResizeMode): Size {
     // TODO: Take sensor orientation into account here
-    val contentAspectRatio = contentSize.height.toDouble() / contentSize.width
+    val contentAspectRatio = contentSize.width.toDouble() / contentSize.height
     val containerAspectRatio = containerSize.width.toDouble() / containerSize.height
 
     val widthOverHeight = when (resizeMode) {
