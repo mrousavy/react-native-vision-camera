@@ -6,7 +6,6 @@ import android.hardware.camera2.CameraManager
 import android.util.Log
 import android.view.Gravity
 import android.view.ScaleGestureDetector
-import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.facebook.react.bridge.ReadableMap
 import com.google.mlkit.vision.barcode.common.Barcode

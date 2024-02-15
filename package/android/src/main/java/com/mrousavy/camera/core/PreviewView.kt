@@ -20,7 +20,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 @SuppressLint("ViewConstructor")
-class PreviewView(context: Context, callback: SurfaceHolder.Callback) : FrameLayout(context), SurfaceHolder.Callback {
+class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
+  FrameLayout(context),
+  SurfaceHolder.Callback {
   var size: Size = getMaximumPreviewSize()
     private set
   var resizeMode: ResizeMode = ResizeMode.COVER
@@ -58,7 +60,7 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : FrameLay
   override fun surfaceCreated(holder: SurfaceHolder) = Unit
   override fun surfaceDestroyed(holder: SurfaceHolder) = Unit
   override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-    Log.i(TAG, "PreviewView Surface size changed: $size -> ${width}x${height}, re-computing layout...")
+    Log.i(TAG, "PreviewView Surface size changed: $size -> ${width}x$height, re-computing layout...")
     size = Size(width, height)
     requestLayout()
     invalidate()
