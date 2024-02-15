@@ -34,7 +34,7 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
         invalidate()
       }
     }
-  private var inputOrientation: Orientation = Orientation.PORTRAIT
+  private var inputOrientation: Orientation = Orientation.LANDSCAPE_LEFT
     set(value) {
       field = value
       UiThreadUtil.runOnUiThread {
