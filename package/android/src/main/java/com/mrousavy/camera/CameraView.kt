@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.hardware.camera2.CameraManager
 import android.util.Log
+import android.view.Gravity
 import android.view.ScaleGestureDetector
 import android.widget.FrameLayout
 import com.facebook.react.bridge.ReadableMap
@@ -110,6 +111,11 @@ class CameraView(context: Context) :
     clipToOutline = true
     cameraSession = CameraSession(context, cameraManager, this)
     previewView = cameraSession.createPreviewView(context)
+    previewView.layoutParams = LayoutParams(
+      LayoutParams.MATCH_PARENT,
+      LayoutParams.MATCH_PARENT,
+      Gravity.CENTER
+    )
     addView(previewView)
   }
 

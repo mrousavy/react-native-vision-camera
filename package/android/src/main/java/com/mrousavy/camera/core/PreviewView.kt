@@ -11,6 +11,7 @@ import android.view.SurfaceView
 import android.widget.FrameLayout
 import com.facebook.react.bridge.UiThreadUtil
 import com.mrousavy.camera.extensions.getMaximumPreviewSize
+import com.mrousavy.camera.extensions.installHierarchyFitter
 import com.mrousavy.camera.extensions.resize
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.ResizeMode
@@ -19,7 +20,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 @SuppressLint("ViewConstructor")
-class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceView(context) {
+class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
+  FrameLayout(context),
+  SurfaceHolder.Callback {
   var size: Size = getMaximumPreviewSize()
     private set
   var resizeMode: ResizeMode = ResizeMode.COVER
@@ -31,28 +34,6 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
         invalidate()
       }
     }
-
-  init {
-    Log.i(TAG, "Creating PreviewView...")
-    layoutParams = FrameLayout.LayoutParams(
-      FrameLayout.LayoutParams.MATCH_PARENT,
-      FrameLayout.LayoutParams.MATCH_PARENT,
-      Gravity.CENTER
-    )
-    holder.setKeepScreenOn(true)
-    holder.addCallback(callback)
-  }
-
-  suspend fun setSurfaceSize(width: Int, height: Int) {
-    withContext(Dispatchers.Main) {
-      size = Size(width, height)
-      Log.i(TAG, "Setting PreviewView Surface Size to $size...")
-      requestLayout()
-      invalidate()
-      holder.resize(width, height)
-    }
-  }
-
   private val viewSize: Size
     get() {
       val displayMetrics = context.resources.displayMetrics
@@ -60,6 +41,36 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) : SurfaceV
       val dpY = height / displayMetrics.density
       return Size(dpX.toInt(), dpY.toInt())
     }
+  private val surfaceView = SurfaceView(context)
+
+  init {
+    Log.i(TAG, "Creating PreviewView...")
+    this.installHierarchyFitter()
+    surfaceView.layoutParams = LayoutParams(
+      LayoutParams.MATCH_PARENT,
+      LayoutParams.MATCH_PARENT,
+      Gravity.CENTER
+    )
+    surfaceView.holder.setKeepScreenOn(true)
+    surfaceView.holder.addCallback(this)
+    surfaceView.holder.addCallback(callback)
+    addView(surfaceView)
+  }
+
+  override fun surfaceCreated(holder: SurfaceHolder) = Unit
+  override fun surfaceDestroyed(holder: SurfaceHolder) = Unit
+  override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+    Log.i(TAG, "PreviewView Surface size changed: $size -> ${width}x$height, re-computing layout...")
+    size = Size(width, height)
+    requestLayout()
+    invalidate()
+  }
+
+  suspend fun setSurfaceSize(width: Int, height: Int) {
+    withContext(Dispatchers.Main) {
+      surfaceView.holder.resize(width, height)
+    }
+  }
 
   fun convertLayerPointToCameraCoordinates(point: Point, cameraDeviceDetails: CameraDeviceDetails): Point {
     val sensorOrientation = Orientation.fromRotationDegrees(cameraDeviceDetails.sensorOrientation)
