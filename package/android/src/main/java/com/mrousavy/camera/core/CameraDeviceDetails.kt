@@ -58,7 +58,10 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
   val isMultiCam by lazy { capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA) }
   val supportsDepthCapture by lazy { capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DEPTH_OUTPUT) }
   val supportsRawCapture by lazy { capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW) }
-  val supportsLowLightBoost by lazy { extensions.contains(CameraExtensionCharacteristics.EXTENSION_NIGHT) }
+  val supportsLowLightBoost by lazy {
+    extensions.contains(CameraExtensionCharacteristics.EXTENSION_NIGHT) &&
+      modes.contains(CameraCharacteristics.CONTROL_MODE_USE_SCENE_MODE)
+  }
   val lensFacing by lazy { LensFacing.fromCameraCharacteristics(characteristics) }
   val hasFlash by lazy { characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) ?: false }
   val focalLengths by lazy {
@@ -122,6 +125,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
   val supportsExposureRegions by lazy { (characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AE) ?: 0) > 0 }
   val supportsWhiteBalanceRegions by lazy { (characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AWB) ?: 0) > 0 }
 
+  val modes by lazy { characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_MODES)?.toList() ?: emptyList() }
   val afModes by lazy { characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)?.toList() ?: emptyList() }
   val aeModes by lazy { characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES)?.toList() ?: emptyList() }
   val awbModes by lazy { characteristics.get(CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES)?.toList() ?: emptyList() }

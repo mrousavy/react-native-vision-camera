@@ -1,20 +1,18 @@
 package com.mrousavy.camera.extensions
 
-import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
-import android.util.Range
+import com.mrousavy.camera.core.CameraDeviceDetails
+import com.mrousavy.camera.types.HardwareLevel
 
-fun CaptureRequest.Builder.setZoom(zoom: Float, cameraCharacteristics: CameraCharacteristics) {
-  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-    val zoomRange = cameraCharacteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE) ?: Range(1f, 1f)
-    val zoomClamped = zoomRange.clamp(zoom)
+fun CaptureRequest.Builder.setZoom(zoom: Float, deviceDetails: CameraDeviceDetails) {
+  val zoomRange = deviceDetails.zoomRange
+  val zoomClamped = zoomRange.clamp(zoom)
+
+  if (deviceDetails.hardwareLevel.isAtLeast(HardwareLevel.LIMITED) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
     this.set(CaptureRequest.CONTROL_ZOOM_RATIO, zoomClamped)
   } else {
-    val maxZoom = cameraCharacteristics.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM)
-    val zoomRange = Range(1f, maxZoom ?: 1f)
-    val size = cameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)!!
-    val zoomClamped = zoomRange.clamp(zoom)
+    val size = deviceDetails.activeSize
     this.set(CaptureRequest.SCALER_CROP_REGION, size.zoomed(zoomClamped))
   }
 }
