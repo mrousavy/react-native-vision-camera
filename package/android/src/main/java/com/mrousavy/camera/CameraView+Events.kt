@@ -4,57 +4,64 @@ import android.util.Log
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactContext
 import com.facebook.react.bridge.WritableMap
-import com.facebook.react.uimanager.events.RCTEventEmitter
+import com.facebook.react.uimanager.UIManagerHelper
+import com.facebook.react.uimanager.events.Event
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.core.CameraError
 import com.mrousavy.camera.core.CodeScannerFrame
 import com.mrousavy.camera.core.UnknownCameraError
 import com.mrousavy.camera.core.code
-import com.mrousavy.camera.types.CodeType
+import com.mrousavy.camera.types.*
 
 fun CameraView.invokeOnInitialized() {
   Log.i(CameraView.TAG, "invokeOnInitialized()")
 
-  val reactContext = context as ReactContext
-  reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraInitialized", null)
+  val surfaceId = UIManagerHelper.getSurfaceId(this)
+  val event = CameraInitializedEvent(surfaceId, id)
+  this.sendEvent(event)
 }
 
 fun CameraView.invokeOnStarted() {
   Log.i(CameraView.TAG, "invokeOnStarted()")
 
-  val reactContext = context as ReactContext
-  reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraStarted", null)
+  val surfaceId = UIManagerHelper.getSurfaceId(this)
+  val event = CameraStartedEvent(surfaceId, id)
+  this.sendEvent(event)
 }
 
 fun CameraView.invokeOnStopped() {
   Log.i(CameraView.TAG, "invokeOnStopped()")
 
-  val reactContext = context as ReactContext
-  reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraStopped", null)
+  val surfaceId = UIManagerHelper.getSurfaceId(this)
+  val event = CameraStoppedEvent(surfaceId, id)
+  this.sendEvent(event)
 }
 
 fun CameraView.invokeOnError(error: Throwable) {
   Log.e(CameraView.TAG, "invokeOnError(...):")
   error.printStackTrace()
 
-  val cameraError = when (error) {
-    is CameraError -> error
-    else -> UnknownCameraError(error)
-  }
-  val event = Arguments.createMap()
-  event.putString("code", cameraError.code)
-  event.putString("message", cameraError.message)
+  val cameraError =
+    when (error) {
+      is CameraError -> error
+      else -> UnknownCameraError(error)
+    }
+  val data = Arguments.createMap()
+  data.putString("code", cameraError.code)
+  data.putString("message", cameraError.message)
   cameraError.cause?.let { cause ->
-    event.putMap("cause", errorToMap(cause))
+    data.putMap("cause", errorToMap(cause))
   }
-  val reactContext = context as ReactContext
-  reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraError", event)
+
+  val surfaceId = UIManagerHelper.getSurfaceId(this)
+  val event = CameraErrorEvent(surfaceId, id, data)
+  this.sendEvent(event)
 }
 
 fun CameraView.invokeOnViewReady() {
-  val event = Arguments.createMap()
-  val reactContext = context as ReactContext
-  reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraViewReady", event)
+  val surfaceId = UIManagerHelper.getSurfaceId(this)
+  val event = CameraViewReadyEvent(surfaceId, id)
+  this.sendEvent(event)
 }
 
 fun CameraView.invokeOnCodeScanned(barcodes: List<Barcode>, scannerFrame: CodeScannerFrame) {
@@ -87,14 +94,23 @@ fun CameraView.invokeOnCodeScanned(barcodes: List<Barcode>, scannerFrame: CodeSc
     codes.pushMap(code)
   }
 
-  val event = Arguments.createMap()
-  event.putArray("codes", codes)
+  val data = Arguments.createMap()
+  data.putArray("codes", codes)
   val codeScannerFrame = Arguments.createMap()
   codeScannerFrame.putInt("width", scannerFrame.width)
   codeScannerFrame.putInt("height", scannerFrame.height)
-  event.putMap("frame", codeScannerFrame)
+  data.putMap("frame", codeScannerFrame)
+
+  val surfaceId = UIManagerHelper.getSurfaceId(this)
+  val event = CameraCodeScannedEvent(surfaceId, id, data)
+  this.sendEvent(event)
+}
+
+private fun CameraView.sendEvent(event: Event<*>) {
   val reactContext = context as ReactContext
-  reactContext.getJSModule(RCTEventEmitter::class.java).receiveEvent(id, "cameraCodeScanned", event)
+  val dispatcher =
+    UIManagerHelper.getEventDispatcherForReactTag(reactContext, id)
+  dispatcher?.dispatchEvent(event)
 }
 
 private fun errorToMap(error: Throwable): WritableMap {
