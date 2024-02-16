@@ -68,7 +68,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: VisionCamera Example (.apk)
-          path: package/example/android/app/build/outputs/apk/app-debug.apk
+          path: android/app/build/outputs/apk/app-debug.apk
           if-no-files-found: error
 
   build-no-frame-processors:
@@ -120,5 +120,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: VisionCamera Example (without Frame Processors) (.apk)
-          path: package/example/android/app/build/outputs/apk/app-debug.apk
+          path: android/app/build/outputs/apk/app-debug.apk
           if-no-files-found: error
