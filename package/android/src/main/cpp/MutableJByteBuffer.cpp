@@ -14,7 +14,7 @@ MutableJByteBuffer::MutableJByteBuffer(jni::alias_ref<jni::JByteBuffer> byteBuff
   _byteBuffer = jni::make_global(byteBuffer);
 }
 
-MutableJByteBuffer::~MutableJByteBuffer() noexcept {
+MutableJByteBuffer::~MutableJByteBuffer() {
   // Hermes GC might destroy HostObjects on an arbitrary Thread which might not be
   // connected to the JNI environment. To make sure fbjni can properly destroy
   // the Java method, we connect to a JNI environment first.

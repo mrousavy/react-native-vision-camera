@@ -34,7 +34,7 @@ JSharedArray::JSharedArray(const jni::alias_ref<jhybridobject>& javaThis, const 
 #else
   jsi::Runtime& runtime = *proxy->cthis()->getJSRuntime();
 #endif
-  __android_log_print(ANDROID_LOG_INFO, TAG, "Wrapping Java ByteBuffer with size %i...", byteBuffer->getDirectSize());
+  __android_log_print(ANDROID_LOG_INFO, TAG, "Wrapping Java ByteBuffer with size %zu...", byteBuffer->getDirectSize());
   _byteBuffer = jni::make_global(byteBuffer);
   _size = _byteBuffer->getDirectSize();
 
