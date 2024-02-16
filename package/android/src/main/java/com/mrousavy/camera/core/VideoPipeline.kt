@@ -238,7 +238,14 @@ class VideoPipeline(
   private fun supportsHardwareBufferFlags(flags: Long): Boolean {
     val hardwareBufferFormat = format.toHardwareBufferFormat()
     try {
-      return HardwareBuffer.isSupported(width, height, hardwareBufferFormat, 1, flags)
+      val isSupported = HardwareBuffer.isSupported(width, height, hardwareBufferFormat, 1, flags)
+      if (!isSupported) return false
+
+      // double check if we can actually use those HardwareBuffers because we can't trust these APIs on Samsung.
+      val testBuffer = HardwareBuffer.create(width, height, hardwareBufferFormat, 1, flags)
+      testBuffer.format // <-- if this doesn't crash it's probably fine
+      testBuffer.close()
+      return true
     } catch (_: Throwable) {
       return false
     }
