@@ -5,6 +5,7 @@ import com.facebook.react.common.MapBuilder
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.ViewGroupManager
 import com.facebook.react.uimanager.annotations.ReactProp
+import com.mrousavy.camera.types.CameraDeviceFormat
 import com.mrousavy.camera.types.CodeScannerOptions
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.PixelFormat
@@ -44,17 +45,17 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
   }
 
   @ReactProp(name = "photo")
-  fun setPhoto(view: CameraView, photo: Boolean?) {
+  fun setPhoto(view: CameraView, photo: Boolean) {
     view.photo = photo
   }
 
   @ReactProp(name = "video")
-  fun setVideo(view: CameraView, video: Boolean?) {
+  fun setVideo(view: CameraView, video: Boolean) {
     view.video = video
   }
 
   @ReactProp(name = "audio")
-  fun setAudio(view: CameraView, audio: Boolean?) {
+  fun setAudio(view: CameraView, audio: Boolean) {
     view.audio = audio
   }
 
@@ -65,8 +66,12 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
 
   @ReactProp(name = "pixelFormat")
   fun setPixelFormat(view: CameraView, pixelFormat: String?) {
-    val newPixelFormat = PixelFormat.fromUnionValue(pixelFormat)
-    view.pixelFormat = newPixelFormat
+    if (pixelFormat != null) {
+      val newPixelFormat = PixelFormat.fromUnionValue(pixelFormat)
+      view.pixelFormat = newPixelFormat
+    } else {
+      view.pixelFormat = PixelFormat.NATIVE
+    }
   }
 
   @ReactProp(name = "enableDepthData")
@@ -91,13 +96,12 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
 
   @ReactProp(name = "videoStabilizationMode")
   fun setVideoStabilizationMode(view: CameraView, videoStabilizationMode: String?) {
-    val newMode = VideoStabilizationMode.fromUnionValue(videoStabilizationMode)
-    view.videoStabilizationMode = newMode
-  }
-
-  @ReactProp(name = "enableHighQualityPhotos")
-  fun setEnableHighQualityPhotos(view: CameraView, enableHighQualityPhotos: Boolean?) {
-    view.enableHighQualityPhotos = enableHighQualityPhotos
+    if (videoStabilizationMode != null) {
+      val newMode = VideoStabilizationMode.fromUnionValue(videoStabilizationMode)
+      view.videoStabilizationMode = newMode
+    } else {
+      view.videoStabilizationMode = null
+    }
   }
 
   @ReactProp(name = "enablePortraitEffectsMatteDelivery")
@@ -107,13 +111,22 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
 
   @ReactProp(name = "format")
   fun setFormat(view: CameraView, format: ReadableMap?) {
-    view.format = format
+    if (format != null) {
+      val newFormat = CameraDeviceFormat.fromJSValue(format)
+      view.format = newFormat
+    } else {
+      view.format = null
+    }
   }
 
   @ReactProp(name = "resizeMode")
-  fun setResizeMode(view: CameraView, resizeMode: String) {
-    val newMode = ResizeMode.fromUnionValue(resizeMode)
-    view.resizeMode = newMode
+  fun setResizeMode(view: CameraView, resizeMode: String?) {
+    if (resizeMode != null) {
+      val newMode = ResizeMode.fromUnionValue(resizeMode)
+      view.resizeMode = newMode
+    } else {
+      view.resizeMode = ResizeMode.COVER
+    }
   }
 
   // TODO: Change when TurboModules release.
@@ -124,30 +137,34 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
     view.fps = if (fps > 0) fps else null
   }
 
-  @ReactProp(name = "photoHdr", defaultBoolean = false)
+  @ReactProp(name = "photoHdr")
   fun setPhotoHdr(view: CameraView, photoHdr: Boolean) {
     view.photoHdr = photoHdr
   }
 
-  @ReactProp(name = "videoHdr", defaultBoolean = false)
+  @ReactProp(name = "videoHdr")
   fun setVideoHdr(view: CameraView, videoHdr: Boolean) {
     view.videoHdr = videoHdr
   }
 
   @ReactProp(name = "lowLightBoost")
-  fun setLowLightBoost(view: CameraView, lowLightBoost: Boolean?) {
+  fun setLowLightBoost(view: CameraView, lowLightBoost: Boolean) {
     view.lowLightBoost = lowLightBoost
   }
 
-  @ReactProp(name = "isActive", defaultBoolean = false)
+  @ReactProp(name = "isActive")
   fun setIsActive(view: CameraView, isActive: Boolean) {
     view.isActive = isActive
   }
 
   @ReactProp(name = "torch")
-  fun setTorch(view: CameraView, torch: String) {
-    val newMode = Torch.fromUnionValue(torch)
-    view.torch = newMode
+  fun setTorch(view: CameraView, torch: String?) {
+    if (torch != null) {
+      val newMode = Torch.fromUnionValue(torch)
+      view.torch = newMode
+    } else {
+      view.torch = Torch.OFF
+    }
   }
 
   @ReactProp(name = "zoom")
@@ -162,14 +179,22 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
 
   @ReactProp(name = "orientation")
   fun setOrientation(view: CameraView, orientation: String?) {
-    val newMode = Orientation.fromUnionValue(orientation)
-    view.orientation = newMode
+    if (orientation != null) {
+      val newMode = Orientation.fromUnionValue(orientation)
+      view.orientation = newMode
+    } else {
+      view.orientation = Orientation.PORTRAIT
+    }
   }
 
   @ReactProp(name = "codeScannerOptions")
-  fun setCodeScanner(view: CameraView, codeScannerOptions: ReadableMap) {
-    val newCodeScannerOptions = CodeScannerOptions(codeScannerOptions)
-    view.codeScannerOptions = newCodeScannerOptions
+  fun setCodeScanner(view: CameraView, codeScannerOptions: ReadableMap?) {
+    if (codeScannerOptions != null) {
+      val newCodeScannerOptions = CodeScannerOptions.fromJSValue(codeScannerOptions)
+      view.codeScannerOptions = newCodeScannerOptions
+    } else {
+      view.codeScannerOptions = null
+    }
   }
 
   companion object {
