@@ -140,7 +140,6 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   suspend fun capture(
     qualityPrioritization: QualityPrioritization,
     flash: Flash,
-    enableRedEyeReduction: Boolean,
     enableAutoStabilization: Boolean,
     enablePhotoHdr: Boolean,
     orientation: Orientation,
@@ -157,8 +156,6 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       val photoRequest = PhotoCaptureRequest(
         repeatingRequest,
         qualityPrioritization,
-        flash,
-        enableRedEyeReduction,
         enableAutoStabilization,
         enablePhotoHdr,
         orientation

@@ -7,7 +7,6 @@ import android.os.Build
 import android.util.Log
 import com.mrousavy.camera.core.CameraDeviceDetails
 import com.mrousavy.camera.core.outputs.SurfaceOutput
-import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.HardwareLevel
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.QualityPrioritization
@@ -16,8 +15,6 @@ import com.mrousavy.camera.types.Torch
 class PhotoCaptureRequest(
   repeatingRequest: RepeatingCaptureRequest,
   private val qualityPrioritization: QualityPrioritization,
-  private val flash: Flash,
-  private val enableRedEyeReduction: Boolean,
   private val enableAutoStabilization: Boolean,
   enablePhotoHdr: Boolean,
   private val outputOrientation: Orientation
@@ -137,26 +134,6 @@ class PhotoCaptureRequest(
     // Set JPEG Orientation
     val targetOrientation = outputOrientation.toSensorRelativeOrientation(deviceDetails)
     builder.set(CaptureRequest.JPEG_ORIENTATION, targetOrientation.toDegrees())
-
-    // TODO: Fix flash.
-    when (flash) {
-      // Set the Flash Mode
-      Flash.OFF -> {
-        builder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON)
-        builder.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_OFF)
-      }
-      Flash.ON -> {
-        builder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON)
-        builder.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH)
-      }
-      Flash.AUTO -> {
-        if (enableRedEyeReduction) {
-          builder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH_REDEYE)
-        } else {
-          builder.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH)
-        }
-      }
-    }
 
     // Set stabilization for this Frame
     if (enableAutoStabilization) {
