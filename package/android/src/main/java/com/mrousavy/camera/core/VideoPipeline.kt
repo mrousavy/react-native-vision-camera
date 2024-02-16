@@ -33,7 +33,7 @@ class VideoPipeline(
   val format: PixelFormat = PixelFormat.NATIVE,
   private val isMirrored: Boolean = false,
   private val enableFrameProcessor: Boolean = false,
-  private val enableGpuBuffers: Boolean = false,
+  enableGpuBuffers: Boolean = false,
   private val callback: CameraSession.Callback
 ) : SurfaceTexture.OnFrameAvailableListener,
   Closeable {
@@ -116,7 +116,7 @@ class VideoPipeline(
           }
         } catch (e: Throwable) {
           Log.e(TAG, "FrameProcessor/ImageReader pipeline threw an error!", e)
-          throw e
+          callback.onError(e)
         } finally {
           frame.decrementRefCount()
         }
