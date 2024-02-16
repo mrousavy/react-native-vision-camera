@@ -7,6 +7,7 @@ import android.os.Build
 import android.util.Log
 import com.mrousavy.camera.core.CameraDeviceDetails
 import com.mrousavy.camera.core.outputs.SurfaceOutput
+import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.HardwareLevel
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.QualityPrioritization
@@ -15,6 +16,8 @@ import com.mrousavy.camera.types.Torch
 class PhotoCaptureRequest(
   repeatingRequest: RepeatingCaptureRequest,
   private val qualityPrioritization: QualityPrioritization,
+  private val flash: Flash,
+  private val enableRedEyeReduction: Boolean,
   private val enableAutoStabilization: Boolean,
   enablePhotoHdr: Boolean,
   private val outputOrientation: Orientation
@@ -56,6 +59,21 @@ class PhotoCaptureRequest(
     }
     Log.i(TAG, "Using CaptureRequest Template $template...")
     return this.createCaptureRequest(template, device, deviceDetails, outputs)
+  }
+
+  private fun getTargetAEMode(): Int {
+    return when (flash) {
+      // Set the Flash Mode
+      Flash.OFF -> CaptureRequest.CONTROL_AE_MODE_ON
+      Flash.ON -> CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH
+      Flash.AUTO -> {
+        if (enableRedEyeReduction) {
+          CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH_REDEYE
+        } else {
+          CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
+        }
+      }
+    }
   }
 
   override fun createCaptureRequest(
@@ -134,6 +152,12 @@ class PhotoCaptureRequest(
     // Set JPEG Orientation
     val targetOrientation = outputOrientation.toSensorRelativeOrientation(deviceDetails)
     builder.set(CaptureRequest.JPEG_ORIENTATION, targetOrientation.toDegrees())
+
+    // Set the Flash Mode. We can assume that a pre-capture sequence already ran, and the Camera knows if it needs to trigger flash or not.
+    val aeMode = getTargetAEMode()
+    if (deviceDetails.aeModes.contains(aeMode)) {
+      builder.set(CaptureRequest.CONTROL_AE_MODE, aeMode)
+    }
 
     // Set stabilization for this Frame
     if (enableAutoStabilization) {

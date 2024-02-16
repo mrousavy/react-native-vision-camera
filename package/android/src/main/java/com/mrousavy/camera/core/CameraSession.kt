@@ -368,6 +368,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     qualityPrioritization: QualityPrioritization,
     flash: Flash,
     enableShutterSound: Boolean,
+    enableRedEyeReduction: Boolean,
     enableAutoStabilization: Boolean,
     outputOrientation: Orientation
   ): CapturedPhoto {
@@ -377,6 +378,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     val result = captureSession.capture(
       qualityPrioritization,
       flash,
+      enableRedEyeReduction,
       enableAutoStabilization,
       photoOutput.enableHdr,
       outputOrientation,
