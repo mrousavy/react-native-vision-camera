@@ -18,7 +18,7 @@ public:
   /**
    * Wraps the given JByteBuffer in a MutableBuffer for use in JS.
    */
-  MutableJByteBuffer(jni::alias_ref<jni::JByteBuffer> byteBuffer);
+  explicit MutableJByteBuffer(jni::alias_ref<jni::JByteBuffer> byteBuffer);
   ~MutableJByteBuffer();
 
 public:
