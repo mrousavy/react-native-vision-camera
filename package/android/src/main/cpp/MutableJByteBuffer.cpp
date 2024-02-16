@@ -10,7 +10,7 @@
 
 namespace vision {
 
-MutableJByteBuffer::MutableJByteBuffer(jni::alias_ref<jni::JByteBuffer> byteBuffer) {
+explicit MutableJByteBuffer::MutableJByteBuffer(jni::alias_ref<jni::JByteBuffer> byteBuffer) {
   _byteBuffer = jni::make_global(byteBuffer);
 }
 
