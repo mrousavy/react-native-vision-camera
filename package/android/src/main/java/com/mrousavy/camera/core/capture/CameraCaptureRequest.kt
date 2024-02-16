@@ -75,7 +75,7 @@ abstract class CameraCaptureRequest(
     }
 
     // Set Zoom
-    builder.setZoom(zoom, deviceDetails.characteristics)
+    builder.setZoom(zoom, deviceDetails)
 
     // Set Torch
     if (torch == Torch.ON) {

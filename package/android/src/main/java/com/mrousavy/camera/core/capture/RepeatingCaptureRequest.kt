@@ -11,6 +11,7 @@ import com.mrousavy.camera.core.InvalidVideoStabilizationMode
 import com.mrousavy.camera.core.PropRequiresFormatToBeNonNullError
 import com.mrousavy.camera.core.outputs.SurfaceOutput
 import com.mrousavy.camera.types.CameraDeviceFormat
+import com.mrousavy.camera.types.HardwareLevel
 import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.VideoStabilizationMode
 
@@ -51,7 +52,9 @@ class RepeatingCaptureRequest(
   ): CaptureRequest.Builder {
     val builder = super.createCaptureRequest(template, device, deviceDetails, outputs)
 
-    builder.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
+    if (deviceDetails.modes.contains(CameraCharacteristics.CONTROL_MODE_AUTO)) {
+      builder.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO)
+    }
 
     // Set AF
     if (enableVideoPipeline && deviceDetails.afModes.contains(CameraCharacteristics.CONTROL_AF_MODE_CONTINUOUS_VIDEO)) {
@@ -95,7 +98,11 @@ class RepeatingCaptureRequest(
           builder.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, getBestDigitalStabilizationMode(deviceDetails))
         }
         VideoStabilizationMode.CINEMATIC, VideoStabilizationMode.CINEMATIC_EXTENDED -> {
-          builder.set(CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE, CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE_ON)
+          if (deviceDetails.hardwareLevel.isAtLeast(HardwareLevel.LIMITED)) {
+            builder.set(CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE, CaptureRequest.LENS_OPTICAL_STABILIZATION_MODE_ON)
+          } else {
+            builder.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE, getBestDigitalStabilizationMode(deviceDetails))
+          }
         }
         else -> throw InvalidVideoStabilizationMode(videoStabilizationMode)
       }
