@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.Gravity
 import android.view.ScaleGestureDetector
 import android.widget.FrameLayout
-import com.facebook.react.bridge.ReadableMap
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.core.CameraConfiguration
 import com.mrousavy.camera.core.CameraQueues
@@ -48,24 +47,23 @@ class CameraView(context: Context) :
   // props that require reconfiguring
   var cameraId: String? = null
   var enableDepthData = false
-  var enableHighQualityPhotos: Boolean? = null
   var enablePortraitEffectsMatteDelivery = false
 
   // use-cases
-  var photo: Boolean? = null
-  var video: Boolean? = null
-  var audio: Boolean? = null
+  var photo = false
+  var video = false
+  var audio = false
   var enableFrameProcessor = false
   var pixelFormat: PixelFormat = PixelFormat.NATIVE
 
   // props that require format reconfiguring
-  var format: ReadableMap? = null
+  var format: CameraDeviceFormat? = null
   var fps: Int? = null
   var videoStabilizationMode: VideoStabilizationMode? = null
   var videoHdr = false
   var photoHdr = false
-  var lowLightBoost: Boolean? = null // nullable bool
-  var enableGpuBuffers: Boolean = false
+  var lowLightBoost = false
+  var enableGpuBuffers = false
 
   // other props
   var isActive = false
@@ -73,7 +71,7 @@ class CameraView(context: Context) :
   var zoom: Float = 1f // in "factor"
   var exposure: Double = 1.0
   var orientation: Orientation = Orientation.PORTRAIT
-  var enableZoomGesture: Boolean = false
+  var enableZoomGesture = false
     set(value) {
       field = value
       updateZoomGesture()
@@ -83,7 +81,7 @@ class CameraView(context: Context) :
       previewView.resizeMode = value
       field = value
     }
-  var enableFpsGraph: Boolean = false
+  var enableFpsGraph = false
     set(value) {
       field = value
       updateFpsGraph()
@@ -155,14 +153,14 @@ class CameraView(context: Context) :
         config.cameraId = cameraId
 
         // Photo
-        if (photo == true) {
+        if (photo) {
           config.photo = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Photo(photoHdr))
         } else {
           config.photo = CameraConfiguration.Output.Disabled.create()
         }
 
         // Video/Frame Processor
-        if (video == true || enableFrameProcessor) {
+        if (video || enableFrameProcessor) {
           config.video = CameraConfiguration.Output.Enabled.create(
             CameraConfiguration.Video(
               videoHdr,
@@ -176,7 +174,7 @@ class CameraView(context: Context) :
         }
 
         // Audio
-        if (audio == true) {
+        if (audio) {
           config.audio = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Audio(Unit))
         } else {
           config.audio = CameraConfiguration.Output.Disabled.create()
@@ -196,12 +194,7 @@ class CameraView(context: Context) :
         config.orientation = orientation
 
         // Format
-        val format = format
-        if (format != null) {
-          config.format = CameraDeviceFormat.fromJSValue(format)
-        } else {
-          config.format = null
-        }
+        config.format = format
 
         // Side-Props
         config.fps = fps
