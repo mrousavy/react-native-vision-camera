@@ -140,7 +140,6 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   suspend fun capture(
     qualityPrioritization: QualityPrioritization,
     flash: Flash,
-    enableRedEyeReduction: Boolean,
     enableAutoStabilization: Boolean,
     enablePhotoHdr: Boolean,
     orientation: Orientation,
@@ -157,8 +156,6 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       val photoRequest = PhotoCaptureRequest(
         repeatingRequest,
         qualityPrioritization,
-        flash,
-        enableRedEyeReduction,
         enableAutoStabilization,
         enablePhotoHdr,
         orientation
@@ -194,6 +191,9 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       try {
         // 2. Once precapture AF/AE/AWB successfully locked, capture the actual photo
         val singleRequest = photoRequest.createCaptureRequest(device, deviceDetails, outputs)
+        if (result.needsFlash) {
+          singleRequest.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_SINGLE)
+        }
         return session.capture(singleRequest.build(), enableShutterSound)
       } finally {
         // 5. After taking a photo we set the repeating request back to idle to remove the AE/AF/AWB locks again
