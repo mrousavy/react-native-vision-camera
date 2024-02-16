@@ -64,6 +64,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
     get() = isActive && session != null && device != null && !didDestroyFromOutside
 
   override fun close() {
+    focusJob?.cancel()
     session?.tryAbortCaptures()
     device?.close()
   }
