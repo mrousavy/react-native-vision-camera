@@ -234,7 +234,8 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       // 1. Run a precapture sequence for AF, AE and AWB.
       focusJob = coroutineScope.launch {
         val request = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
-        val options = PrecaptureOptions(listOf(PrecaptureTrigger.AF, PrecaptureTrigger.AE), Flash.OFF, listOf(point), false, FOCUS_RESET_TIMEOUT)
+        val options =
+          PrecaptureOptions(listOf(PrecaptureTrigger.AF, PrecaptureTrigger.AE), Flash.OFF, listOf(point), false, FOCUS_RESET_TIMEOUT)
         session.precapture(request, deviceDetails, options)
       }
       focusJob?.join()
