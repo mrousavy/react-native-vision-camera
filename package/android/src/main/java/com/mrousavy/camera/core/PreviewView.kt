@@ -90,9 +90,23 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
     }
   }
 
+  override fun requestLayout() {
+    super.requestLayout()
+    // Manually trigger measure & layout, as RN on Android skips those.
+    // See this issue: https://github.com/facebook/react-native/issues/17968#issuecomment-721958427
+    post {
+      measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY))
+      layout(left, top, right, bottom)
+    }
+  }
+
   private fun getSize(contentSize: Size, containerSize: Size, resizeMode: ResizeMode): Size {
     val contentAspectRatio = contentSize.width.toDouble() / contentSize.height
     val containerAspectRatio = containerSize.width.toDouble() / containerSize.height
+    if (!(contentAspectRatio > 0 && containerAspectRatio > 0)) {
+      // One of the aspect ratios is 0 or NaN, maybe the view hasn't been laid out yet.
+      return contentSize
+    }
 
     val widthOverHeight = when (resizeMode) {
       ResizeMode.COVER -> contentAspectRatio > containerAspectRatio
