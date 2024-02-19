@@ -78,7 +78,7 @@ class CameraView(context: Context) :
     }
   var resizeMode: ResizeMode = ResizeMode.COVER
     set(value) {
-      previewView.resizeMode = value
+      previewView.setResizeMode(value)
       field = value
     }
   var enableFpsGraph = false

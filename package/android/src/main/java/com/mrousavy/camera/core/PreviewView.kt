@@ -20,30 +20,9 @@ import kotlinx.coroutines.withContext
 class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
   SurfaceView(context),
   SurfaceHolder.Callback {
-  var size: Size = CameraDeviceDetails.getMaximumPreviewSize()
-    set(value) {
-      if (field != value) {
-        Log.i(TAG, "Surface Size changed: $field -> $value")
-        field = value
-        updateLayout()
-      }
-    }
-  var resizeMode: ResizeMode = ResizeMode.COVER
-    set(value) {
-      if (field != value) {
-        Log.i(TAG, "Resize Mode changed: $field -> $value")
-        field = value
-        updateLayout()
-      }
-    }
+  private var resizeMode: ResizeMode = ResizeMode.COVER
   private var inputOrientation: Orientation = Orientation.LANDSCAPE_LEFT
-    set(value) {
-      if (field != value) {
-        Log.i(TAG, "Input Orientation changed: $field -> $value")
-        field = value
-        updateLayout()
-      }
-    }
+  private var surfaceSize: Size = CameraDeviceDetails.getMaximumPreviewSize()
   private val viewSize: Size
     get() {
       val displayMetrics = context.resources.displayMetrics
@@ -57,13 +36,19 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
     holder.setKeepScreenOn(true)
     holder.addCallback(this)
     holder.addCallback(callback)
-    holder.setFixedSize(size.width, size.height)
+    holder.setFixedSize(surfaceSize.width, surfaceSize.height)
   }
 
   override fun surfaceCreated(holder: SurfaceHolder) = Unit
   override fun surfaceDestroyed(holder: SurfaceHolder) = Unit
   override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-    size = Size(width, height)
+    surfaceSize = Size(width, height)
+    updateLayout()
+  }
+
+  fun setResizeMode(resizeMode: ResizeMode) {
+    this.resizeMode = resizeMode
+    updateLayout()
   }
 
   suspend fun setSurfaceSize(width: Int, height: Int, cameraSensorOrientation: Orientation) {
@@ -84,9 +69,11 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
   }
 
   private fun updateLayout() {
-    UiThreadUtil.runOnUiThread {
-      requestLayout()
+    requestLayout()
+    if (UiThreadUtil.isOnUiThread()) {
       invalidate()
+    } else {
+      postInvalidate()
     }
   }
 
@@ -100,40 +87,44 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
     }
   }
 
-  private fun getSize(contentSize: Size, containerSize: Size, resizeMode: ResizeMode): Size {
-    val contentAspectRatio = contentSize.width.toDouble() / contentSize.height
-    val containerAspectRatio = containerSize.width.toDouble() / containerSize.height
-    if (!(contentAspectRatio > 0 && containerAspectRatio > 0)) {
-      // One of the aspect ratios is 0 or NaN, maybe the view hasn't been laid out yet.
-      return contentSize
-    }
-
-    val widthOverHeight = when (resizeMode) {
-      ResizeMode.COVER -> contentAspectRatio > containerAspectRatio
-      ResizeMode.CONTAIN -> contentAspectRatio < containerAspectRatio
-    }
-
-    return if (widthOverHeight) {
-      // Scale by width to cover height
-      val scaledWidth = containerSize.height * contentAspectRatio
-      Size(scaledWidth.roundToInt(), containerSize.height)
-    } else {
-      // Scale by height to cover width
-      val scaledHeight = containerSize.width / contentAspectRatio
-      Size(containerSize.width, scaledHeight.roundToInt())
-    }
-  }
-
   @SuppressLint("DrawAllocation")
   override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
     super.onMeasure(widthMeasureSpec, heightMeasureSpec)
 
-    val viewSize = Size(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec))
-    val surfaceSize = size.rotatedBy(inputOrientation)
-    val fittedSize = getSize(surfaceSize, viewSize, resizeMode)
+    val viewWidth = MeasureSpec.getSize(widthMeasureSpec)
+    val viewHeight = MeasureSpec.getSize(heightMeasureSpec)
 
-    Log.i(TAG, "PreviewView is $viewSize, rendering $surfaceSize content ($inputOrientation). Resizing to: $fittedSize ($resizeMode)")
-    setMeasuredDimension(fittedSize.width, fittedSize.height)
+    if (surfaceSize.width == 0 || surfaceSize.height == 0) {
+      // Camera size is not set yet. Just match the given specs.
+      setMeasuredDimension(viewWidth, viewHeight)
+      return
+    }
+
+    val size = surfaceSize.rotatedBy(inputOrientation)
+
+    val aspectRatio = size.width.toDouble() / size.height
+    val viewAspectRatio = viewWidth.toDouble() / viewHeight
+
+    when (resizeMode) {
+      ResizeMode.CONTAIN -> {
+        if (viewAspectRatio > aspectRatio) {
+          // Adjust width
+          setMeasuredDimension((viewHeight * aspectRatio).toInt(), viewHeight)
+        } else {
+          // Adjust height
+          setMeasuredDimension(viewWidth, (viewWidth / aspectRatio).toInt())
+        }
+      }
+      ResizeMode.COVER -> {
+        if (viewAspectRatio < aspectRatio) {
+          // Adjust width
+          setMeasuredDimension((viewHeight * aspectRatio).toInt(), viewHeight)
+        } else {
+          // Adjust height
+          setMeasuredDimension(viewWidth, (viewWidth / aspectRatio).toInt())
+        }
+      }
+    }
   }
 
   companion object {
