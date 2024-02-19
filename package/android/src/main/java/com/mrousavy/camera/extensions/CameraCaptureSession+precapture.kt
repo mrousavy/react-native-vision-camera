@@ -58,12 +58,8 @@ suspend fun CameraCaptureSession.precapture(
     aeState = ExposureState.fromAEState(result.get(CaptureResult.CONTROL_AE_STATE) ?: CaptureResult.CONTROL_AE_STATE_INACTIVE)
     awbState = WhiteBalanceState.fromAWBState(result.get(CaptureResult.CONTROL_AWB_STATE) ?: CaptureResult.CONTROL_AWB_STATE_INACTIVE)
 
-    if (aeState == ExposureState.FlashRequired) {
-      Log.i(TAG, "Auto-Flash: Flash is required for photo capture, enabling flash...")
-      enableFlash = true && options.flash == Flash.AUTO
-    } else {
-      Log.i(TAG, "Auto-Flash: Flash is not required for photo capture.")
-    }
+    Log.i(TAG, "Precapture current states: AF: $afState, AE: $aeState, AWB: $awbState")
+    enableFlash = aeState == ExposureState.FlashRequired && options.flash == Flash.AUTO
   } else {
     // we either want Flash ON or OFF, so we don't care about lighting conditions - do a fast capture.
     this.capture(request.build(), null, null)
