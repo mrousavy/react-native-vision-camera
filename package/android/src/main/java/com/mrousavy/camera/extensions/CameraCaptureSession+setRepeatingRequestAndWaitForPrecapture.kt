@@ -142,7 +142,6 @@ suspend fun CameraCaptureSession.setRepeatingRequestAndWaitForPrecapture(
           super.onCaptureCompleted(session, request, result)
 
           if (continuation.isActive) {
-            // AF Precapture
             val afState = FocusState.fromAFState(result.get(CaptureResult.CONTROL_AF_STATE) ?: CaptureResult.CONTROL_AF_STATE_INACTIVE)
             val aeState = ExposureState.fromAEState(
               result.get(CaptureResult.CONTROL_AE_STATE) ?: CaptureResult.CONTROL_AE_STATE_INACTIVE
@@ -152,6 +151,7 @@ suspend fun CameraCaptureSession.setRepeatingRequestAndWaitForPrecapture(
             )
             Log.i(TAG, "Precapture state: AF: $afState, AE: $aeState, AWB: $awbState")
 
+            // AF Precapture
             if (precaptureTriggers.contains(PrecaptureTrigger.AF)) {
               completed[PrecaptureTrigger.AF] = afState.isCompleted
             }
