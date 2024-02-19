@@ -60,7 +60,7 @@ suspend fun CameraCaptureSession.precapture(
 
     if (aeState == ExposureState.FlashRequired) {
       Log.i(TAG, "Auto-Flash: Flash is required for photo capture, enabling flash...")
-      enableFlash = true
+      enableFlash = true && options.flash == Flash.AUTO
     } else {
       Log.i(TAG, "Auto-Flash: Flash is not required for photo capture.")
     }
