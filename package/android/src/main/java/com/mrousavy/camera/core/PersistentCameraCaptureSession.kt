@@ -178,18 +178,17 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       Log.i(TAG, "Locking AF/AE/AWB...")
 
       // 1. Run precapture sequence
-      val precaptureRequest = repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs)
-      val skipIfPassivelyFocused = flash == Flash.OFF
-      val options =
-        PrecaptureOptions(
+      var needsFlash: Boolean
+      try {
+        val precaptureRequest = repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs)
+        val skipIfPassivelyFocused = flash == Flash.OFF
+        val options = PrecaptureOptions(
           listOf(PrecaptureTrigger.AF, PrecaptureTrigger.AE, PrecaptureTrigger.AWB),
           flash,
           emptyList(),
           skipIfPassivelyFocused,
           PRECAPTURE_LOCK_TIMEOUT
         )
-      var needsFlash: Boolean
-      try {
         val result = session.precapture(precaptureRequest, deviceDetails, options)
         needsFlash = result.needsFlash
       } catch (e: CaptureTimedOutError) {
