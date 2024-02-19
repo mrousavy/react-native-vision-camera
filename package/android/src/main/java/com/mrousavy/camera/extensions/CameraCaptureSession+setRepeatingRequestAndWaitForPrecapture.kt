@@ -30,6 +30,7 @@ interface AutoState {
 }
 
 enum class FocusState : AutoState {
+  Unknown,
   Inactive,
   Scanning,
   Focused,
@@ -53,11 +54,12 @@ enum class FocusState : AutoState {
         CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN -> PassiveScanning
         CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED -> PassiveFocused
         CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED -> PassiveUnfocused
-        else -> throw Error("Invalid CONTROL_AF_STATE! $afState")
+        else -> Unknown
       }
   }
 }
 enum class ExposureState : AutoState {
+  Unknown,
   Locked,
   Inactive,
   Precapture,
@@ -79,12 +81,13 @@ enum class ExposureState : AutoState {
         CaptureResult.CONTROL_AE_STATE_CONVERGED -> Converged
         CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED -> FlashRequired
         CaptureResult.CONTROL_AE_STATE_LOCKED -> Locked
-        else -> throw Error("Invalid CONTROL_AE_STATE! $aeState")
+        else -> Unknown
       }
   }
 }
 
 enum class WhiteBalanceState : AutoState {
+  Unknown,
   Inactive,
   Locked,
   Searching,
@@ -102,7 +105,7 @@ enum class WhiteBalanceState : AutoState {
         CaptureResult.CONTROL_AWB_STATE_SEARCHING -> Searching
         CaptureResult.CONTROL_AWB_STATE_CONVERGED -> Converged
         CaptureResult.CONTROL_AWB_STATE_LOCKED -> Locked
-        else -> throw Error("Invalid CONTROL_AWB_STATE! $awbState")
+        else -> Unknown
       }
   }
 }
