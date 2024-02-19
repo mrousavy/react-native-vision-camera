@@ -197,7 +197,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
         }
         return session.capture(singleRequest.build(), enableShutterSound)
       } finally {
-        // 5. After taking a photo we set the repeating request back to idle to remove the AE/AF/AWB locks again
+        // 3. After taking a photo we set the repeating request back to idle to remove the AE/AF/AWB locks again
         val idleRequest = repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs)
         session.setRepeatingRequest(idleRequest.build(), null, null)
       }
