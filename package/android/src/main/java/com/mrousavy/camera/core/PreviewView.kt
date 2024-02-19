@@ -103,6 +103,10 @@ class PreviewView(context: Context, callback: SurfaceHolder.Callback) :
   private fun getSize(contentSize: Size, containerSize: Size, resizeMode: ResizeMode): Size {
     val contentAspectRatio = contentSize.width.toDouble() / contentSize.height
     val containerAspectRatio = containerSize.width.toDouble() / containerSize.height
+    if (!(contentAspectRatio > 0 && containerAspectRatio > 0)) {
+      // One of the aspect ratios is 0 or NaN, maybe the view hasn't been laid out yet.
+      return contentSize
+    }
 
     val widthOverHeight = when (resizeMode) {
       ResizeMode.COVER -> contentAspectRatio > containerAspectRatio
