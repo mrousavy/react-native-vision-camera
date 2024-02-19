@@ -188,15 +188,15 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
           skipIfPassivelyFocused,
           PRECAPTURE_LOCK_TIMEOUT
         )
-      var needsFlash = flash != Flash.OFF
+      var needsFlash: Boolean
       try {
         val result = session.precapture(precaptureRequest, deviceDetails, options)
         needsFlash = result.needsFlash
-      } catch (e: FocusCanceledError) {
-        throw CaptureAbortedError(false)
       } catch (e: CaptureTimedOutError) {
         // the precapture just timed out after 5 seconds, take picture anyways without focus.
         needsFlash = false
+      } catch (e: FocusCanceledError) {
+        throw CaptureAbortedError(false)
       }
 
       try {
