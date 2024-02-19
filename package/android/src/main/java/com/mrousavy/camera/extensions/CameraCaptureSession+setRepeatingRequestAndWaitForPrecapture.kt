@@ -143,23 +143,23 @@ suspend fun CameraCaptureSession.setRepeatingRequestAndWaitForPrecapture(
           if (continuation.isActive) {
             // AF Precapture
             val afState = FocusState.fromAFState(result.get(CaptureResult.CONTROL_AF_STATE) ?: CaptureResult.CONTROL_AF_STATE_INACTIVE)
-            val aeState = ExposureState.fromAEState(result.get(CaptureResult.CONTROL_AE_STATE) ?: CaptureResult.CONTROL_AE_STATE_INACTIVE)
+            val aeState = ExposureState.fromAEState(
+              result.get(CaptureResult.CONTROL_AE_STATE) ?: CaptureResult.CONTROL_AE_STATE_INACTIVE
+            )
             val awbState = WhiteBalanceState.fromAWBState(
               result.get(CaptureResult.CONTROL_AWB_STATE) ?: CaptureResult.CONTROL_AWB_STATE_INACTIVE
             )
+            Log.i(TAG, "Precapture state: AF: $afState, AE: $aeState, AWB: $awbState")
 
             if (precaptureTriggers.contains(PrecaptureTrigger.AF)) {
-              Log.i(TAG, "AF State: $afState (isCompleted: ${afState.isCompleted})")
               completed[PrecaptureTrigger.AF] = afState.isCompleted
             }
             // AE Precapture
             if (precaptureTriggers.contains(PrecaptureTrigger.AE)) {
-              Log.i(TAG, "AE State: $aeState (isCompleted: ${aeState.isCompleted})")
               completed[PrecaptureTrigger.AE] = aeState.isCompleted
             }
             // AWB Precapture
             if (precaptureTriggers.contains(PrecaptureTrigger.AWB)) {
-              Log.i(TAG, "AWB State: $awbState (isCompleted: ${awbState.isCompleted})")
               completed[PrecaptureTrigger.AWB] = awbState.isCompleted
             }
 
