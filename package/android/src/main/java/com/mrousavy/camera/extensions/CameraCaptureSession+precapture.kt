@@ -100,23 +100,41 @@ suspend fun CameraCaptureSession.precapture(
     // AF Precapture
     if (deviceDetails.afModes.contains(CaptureRequest.CONTROL_AF_MODE_AUTO)) {
       request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
+      request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
+      if (meteringRectangles.isNotEmpty() && deviceDetails.supportsFocusRegions) {
+        request.set(CaptureRequest.CONTROL_AF_REGIONS, meteringRectangles)
+      }
+    } else {
+      // AF is not supported on this device.
+      precaptureModes.remove(PrecaptureTrigger.AF)
     }
-    if (meteringRectangles.isNotEmpty() && deviceDetails.supportsFocusRegions) {
-      request.set(CaptureRequest.CONTROL_AF_REGIONS, meteringRectangles)
-    }
-    request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
   }
-  if (precaptureModes.contains(PrecaptureTrigger.AE) && deviceDetails.hardwareLevel.isAtLeast(HardwareLevel.LIMITED)) {
+  if (precaptureModes.contains(PrecaptureTrigger.AE)) {
     // AE Precapture
-    if (meteringRectangles.isNotEmpty() && deviceDetails.supportsExposureRegions) {
-      request.set(CaptureRequest.CONTROL_AE_REGIONS, meteringRectangles)
+    if (deviceDetails.aeModes.contains(CaptureRequest.CONTROL_AE_MODE_ON) && deviceDetails.hardwareLevel.isAtLeast(HardwareLevel.LIMITED)) {
+      request.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON)
+      request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START)
+      if (meteringRectangles.isNotEmpty() &&
+        deviceDetails.supportsExposureRegions &&
+        deviceDetails.hardwareLevel.isAtLeast(HardwareLevel.LIMITED)
+      ) {
+        request.set(CaptureRequest.CONTROL_AE_REGIONS, meteringRectangles)
+      }
+    } else {
+      // AE is not supported on this device.
+      precaptureModes.remove(PrecaptureTrigger.AE)
     }
-    request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START)
   }
   if (precaptureModes.contains(PrecaptureTrigger.AWB)) {
     // AWB Precapture
-    if (meteringRectangles.isNotEmpty() && deviceDetails.supportsWhiteBalanceRegions) {
-      request.set(CaptureRequest.CONTROL_AWB_REGIONS, meteringRectangles)
+    if (deviceDetails.awbModes.contains(CaptureRequest.CONTROL_AWB_MODE_AUTO)) {
+      request.set(CaptureRequest.CONTROL_AWB_MODE, CaptureRequest.CONTROL_AWB_MODE_AUTO)
+      if (meteringRectangles.isNotEmpty() && deviceDetails.supportsWhiteBalanceRegions) {
+        request.set(CaptureRequest.CONTROL_AWB_REGIONS, meteringRectangles)
+      }
+    } else {
+      // AWB is not supported on this device.
+      precaptureModes.remove(PrecaptureTrigger.AWB)
     }
   }
   this.capture(request.build(), null, null)
