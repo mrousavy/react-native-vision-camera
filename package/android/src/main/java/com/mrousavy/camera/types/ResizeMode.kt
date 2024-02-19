@@ -1,5 +1,7 @@
 package com.mrousavy.camera.types
 
+import com.mrousavy.camera.core.InvalidTypeScriptUnionError
+
 enum class ResizeMode(override val unionValue: String) : JSUnionValue {
   COVER("cover"),
   CONTAIN("contain");
@@ -9,7 +11,7 @@ enum class ResizeMode(override val unionValue: String) : JSUnionValue {
       when (unionValue) {
         "cover" -> COVER
         "contain" -> CONTAIN
-        else -> COVER
+        else -> throw InvalidTypeScriptUnionError("resizeMode", unionValue)
       }
   }
 }

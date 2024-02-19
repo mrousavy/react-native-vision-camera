@@ -30,9 +30,11 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
 
   val qualityPrioritization = options["qualityPrioritization"] as? String ?: "balanced"
   val flash = options["flash"] as? String ?: "off"
-  val enableAutoRedEyeReduction = options["enableAutoRedEyeReduction"] == true
   val enableAutoStabilization = options["enableAutoStabilization"] == true
   val enableShutterSound = options["enableShutterSound"] as? Boolean ?: true
+
+  // TODO: Implement Red Eye Reduction
+  options["enableAutoRedEyeReduction"]
 
   val flashMode = Flash.fromUnionValue(flash)
   val qualityPrioritizationMode = QualityPrioritization.fromUnionValue(qualityPrioritization)
@@ -41,7 +43,6 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
     qualityPrioritizationMode,
     flashMode,
     enableShutterSound,
-    enableAutoRedEyeReduction,
     enableAutoStabilization,
     orientation
   )

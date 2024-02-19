@@ -33,6 +33,7 @@ class VideoPipeline(
   val format: PixelFormat = PixelFormat.NATIVE,
   private val isMirrored: Boolean = false,
   private val enableFrameProcessor: Boolean = false,
+  enableGpuBuffers: Boolean = false,
   private val callback: CameraSession.Callback
 ) : SurfaceTexture.OnFrameAvailableListener,
   Closeable {
@@ -79,17 +80,25 @@ class VideoPipeline(
       val format = getImageReaderFormat()
       Log.i(TAG, "Using ImageReader round-trip (format: #$format)")
 
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        Log.i(TAG, "Using API 29 for GPU ImageReader...")
+      // Create ImageReader
+      if (enableGpuBuffers && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         val usageFlags = getRecommendedHardwareBufferFlags()
-        Log.i(TAG, "Using ImageReader flags: $usageFlags")
+        Log.i(TAG, "Creating ImageReader with GPU-optimized usage flags: $usageFlags")
         imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES, usageFlags)
+      } else {
+        Log.i(TAG, "Creating ImageReader with default usage flags...")
+        imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES)
+      }
+
+      // Create ImageWriter
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        Log.i(TAG, "Creating ImageWriter with format #$format...")
         imageWriter = ImageWriter.newInstance(glSurface, MAX_IMAGES, format)
       } else {
-        Log.i(TAG, "Using legacy API for CPU ImageReader...")
-        imageReader = ImageReader.newInstance(width, height, format, MAX_IMAGES)
+        Log.i(TAG, "Creating ImageWriter with default format...")
         imageWriter = ImageWriter.newInstance(glSurface, MAX_IMAGES)
       }
+
       imageReader!!.setOnImageAvailableListener({ reader ->
         Log.i(TAG, "ImageReader::onImageAvailable!")
         val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
@@ -107,7 +116,7 @@ class VideoPipeline(
           }
         } catch (e: Throwable) {
           Log.e(TAG, "FrameProcessor/ImageReader pipeline threw an error!", e)
-          throw e
+          callback.onError(e)
         } finally {
           frame.decrementRefCount()
         }
@@ -228,7 +237,11 @@ class VideoPipeline(
   @RequiresApi(Build.VERSION_CODES.Q)
   private fun supportsHardwareBufferFlags(flags: Long): Boolean {
     val hardwareBufferFormat = format.toHardwareBufferFormat()
-    return HardwareBuffer.isSupported(width, height, hardwareBufferFormat, 1, flags)
+    try {
+      return HardwareBuffer.isSupported(width, height, hardwareBufferFormat, 1, flags)
+    } catch (_: Throwable) {
+      return false
+    }
   }
 
   private external fun getInputTextureId(): Int

@@ -64,6 +64,12 @@ jobs:
             ${{ runner.os }}-gradle-
       - name: Run Gradle Build for example/android/
         run: cd example/android && ./gradlew assembleDebug --build-cache && cd ../..
+      - name: Upload .apk to GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: VisionCamera Example (.apk)
+          path: package/example/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
 
   build-no-frame-processors:
     name: Build Android Example App (without Frame Processors)

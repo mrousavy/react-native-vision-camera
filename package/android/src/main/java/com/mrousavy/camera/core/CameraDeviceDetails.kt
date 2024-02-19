@@ -1,19 +1,23 @@
 package com.mrousavy.camera.core
 
-import android.annotation.SuppressLint
+import android.content.res.Resources
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraExtensionCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
 import android.os.Build
+import android.util.Log
 import android.util.Range
 import android.util.Size
+import android.view.SurfaceHolder
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
+import com.mrousavy.camera.extensions.bigger
 import com.mrousavy.camera.extensions.getPhotoSizes
 import com.mrousavy.camera.extensions.getVideoSizes
+import com.mrousavy.camera.extensions.smaller
 import com.mrousavy.camera.extensions.toJSValue
 import com.mrousavy.camera.types.AutoFocusSystem
 import com.mrousavy.camera.types.DeviceType
@@ -22,11 +26,29 @@ import com.mrousavy.camera.types.LensFacing
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.PixelFormat
 import com.mrousavy.camera.types.VideoStabilizationMode
+import com.mrousavy.camera.utils.CamcorderProfileUtils
 import kotlin.math.atan2
 import kotlin.math.sqrt
 
-@SuppressLint("InlinedApi")
 class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId: String) {
+  companion object {
+    private const val TAG = "CameraDeviceDetails"
+
+    fun getMaximumPreviewSize(): Size {
+      // See https://developer.android.com/reference/android/hardware/camera2/params/StreamConfigurationMap
+      // According to the Android Developer documentation, PREVIEW streams can have a resolution
+      // of up to the phone's display's resolution, with a maximum of 1920x1080.
+      val display1080p = Size(1920, 1080)
+      val displaySize = Size(
+        Resources.getSystem().displayMetrics.widthPixels,
+        Resources.getSystem().displayMetrics.heightPixels
+      )
+      val isHighResScreen = displaySize.bigger >= display1080p.bigger || displaySize.smaller >= display1080p.smaller
+
+      return if (isHighResScreen) display1080p else displaySize
+    }
+  }
+
   val characteristics by lazy { cameraManager.getCameraCharacteristics(cameraId) }
   val hardwareLevel by lazy { HardwareLevel.fromCameraCharacteristics(characteristics) }
   val capabilities by lazy { characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES) ?: IntArray(0) }
@@ -36,7 +58,10 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
   val isMultiCam by lazy { capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA) }
   val supportsDepthCapture by lazy { capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DEPTH_OUTPUT) }
   val supportsRawCapture by lazy { capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW) }
-  val supportsLowLightBoost by lazy { extensions.contains(CameraExtensionCharacteristics.EXTENSION_NIGHT) }
+  val supportsLowLightBoost by lazy {
+    extensions.contains(CameraExtensionCharacteristics.EXTENSION_NIGHT) &&
+      modes.contains(CameraCharacteristics.CONTROL_MODE_USE_SCENE_MODE)
+  }
   val lensFacing by lazy { LensFacing.fromCameraCharacteristics(characteristics) }
   val hasFlash by lazy { characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) ?: false }
   val focalLengths by lazy {
@@ -44,7 +69,12 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
     characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS) ?: floatArrayOf(35f)
   }
   val sensorSize by lazy { characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)!! }
-  val sensorOrientation by lazy { characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0 }
+  val activeSize
+    get() = characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)!!
+  val sensorOrientation by lazy {
+    val degrees = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
+    return@lazy Orientation.fromRotationDegrees(degrees)
+  }
   val minFocusDistance by lazy { getMinFocusDistanceCm() }
   val name by lazy {
     val info = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) characteristics.get(CameraCharacteristics.INFO_VERSION) else null
@@ -91,8 +121,32 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
   val isBackwardsCompatible by lazy { capabilities.contains(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE) }
   val supportsSnapshotCapture by lazy { supportsSnapshotCapture() }
 
+  val supportsFocusRegions by lazy { (characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AF) ?: 0) > 0 }
+  val supportsExposureRegions by lazy { (characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AE) ?: 0) > 0 }
+  val supportsWhiteBalanceRegions by lazy { (characteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AWB) ?: 0) > 0 }
+
+  val modes by lazy { characteristics.get(CameraCharacteristics.CONTROL_AVAILABLE_MODES)?.toList() ?: emptyList() }
+  val afModes by lazy { characteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES)?.toList() ?: emptyList() }
+  val aeModes by lazy { characteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES)?.toList() ?: emptyList() }
+  val awbModes by lazy { characteristics.get(CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES)?.toList() ?: emptyList() }
+
+  val availableAberrationModes by lazy {
+    characteristics.get(CameraCharacteristics.COLOR_CORRECTION_AVAILABLE_ABERRATION_MODES)
+      ?: intArrayOf()
+  }
+  val availableHotPixelModes by lazy { characteristics.get(CameraCharacteristics.HOT_PIXEL_AVAILABLE_HOT_PIXEL_MODES) ?: intArrayOf() }
+  val availableEdgeModes by lazy { characteristics.get(CameraCharacteristics.EDGE_AVAILABLE_EDGE_MODES) ?: intArrayOf() }
+  val availableDistortionCorrectionModes by lazy { getAvailableDistortionCorrectionModesOrEmptyArray() }
+  val availableShadingModes by lazy { characteristics.get(CameraCharacteristics.SHADING_AVAILABLE_MODES) ?: intArrayOf() }
+  val availableToneMapModes by lazy { characteristics.get(CameraCharacteristics.TONEMAP_AVAILABLE_TONE_MAP_MODES) ?: intArrayOf() }
+  val availableNoiseReductionModes by lazy {
+    characteristics.get(CameraCharacteristics.NOISE_REDUCTION_AVAILABLE_NOISE_REDUCTION_MODES)
+      ?: intArrayOf()
+  }
+
   // TODO: Also add 10-bit YUV here?
   val videoFormat = ImageFormat.YUV_420_888
+  val photoFormat = ImageFormat.JPEG
 
   // get extensions (HDR, Night Mode, ..)
   private fun getSupportedExtensions(): List<Int> =
@@ -101,6 +155,13 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
       extensions.supportedExtensions
     } else {
       emptyList()
+    }
+
+  private fun getAvailableDistortionCorrectionModesOrEmptyArray(): IntArray =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      characteristics.get(CameraCharacteristics.DISTORTION_CORRECTION_AVAILABLE_MODES) ?: intArrayOf()
+    } else {
+      intArrayOf()
     }
 
   private fun getHasVideoHdr(): Boolean {
@@ -179,18 +240,31 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
     return getFieldOfView(smallestFocalLength)
   }
 
-  private fun getVideoSizes(): List<Size> = characteristics.getVideoSizes(cameraId, videoFormat)
-  private fun getPhotoSizes(): List<Size> = characteristics.getPhotoSizes(ImageFormat.JPEG)
+  fun getVideoSizes(format: Int): List<Size> = characteristics.getVideoSizes(cameraId, format)
+  fun getPhotoSizes(): List<Size> = characteristics.getPhotoSizes(photoFormat)
+  fun getPreviewSizes(): List<Size> {
+    val maximumPreviewSize = getMaximumPreviewSize()
+    return cameraConfig.getOutputSizes(SurfaceHolder::class.java)
+      .filter { it.bigger <= maximumPreviewSize.bigger && it.smaller <= maximumPreviewSize.smaller }
+  }
 
   private fun getFormats(): ReadableArray {
     val array = Arguments.createArray()
 
-    val videoSizes = getVideoSizes()
+    val videoSizes = getVideoSizes(videoFormat)
     val photoSizes = getPhotoSizes()
 
     videoSizes.forEach { videoSize ->
       val frameDuration = cameraConfig.getOutputMinFrameDuration(videoFormat, videoSize)
-      val maxFps = (1.0 / (frameDuration.toDouble() / 1_000_000_000)).toInt()
+      var maxFps = (1.0 / (frameDuration.toDouble() / 1_000_000_000)).toInt()
+      val maxEncoderFps = CamcorderProfileUtils.getMaximumFps(cameraId, videoSize)
+      if (maxEncoderFps != null && maxEncoderFps < maxFps) {
+        Log.i(
+          TAG,
+          "Camera could do $maxFps FPS at $videoSize, but Media Encoder can only do $maxEncoderFps FPS. Clamping to $maxEncoderFps FPS..."
+        )
+        maxFps = maxEncoderFps
+      }
 
       photoSizes.forEach { photoSize ->
         val map = buildFormatMap(photoSize, videoSize, Range(1, maxFps))
@@ -244,14 +318,14 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
     map.putBoolean("isMultiCam", isMultiCam)
     map.putBoolean("supportsRawCapture", supportsRawCapture)
     map.putBoolean("supportsLowLightBoost", supportsLowLightBoost)
-    map.putBoolean("supportsFocus", true) // I believe every device here supports focussing
+    map.putBoolean("supportsFocus", supportsFocusRegions)
     map.putDouble("minZoom", minZoom)
     map.putDouble("maxZoom", maxZoom)
     map.putDouble("neutralZoom", 1.0) // Zoom is always relative to 1.0 on Android
     map.putDouble("minExposure", exposureRange.lower.toDouble())
     map.putDouble("maxExposure", exposureRange.upper.toDouble())
     map.putString("hardwareLevel", hardwareLevel.unionValue)
-    map.putString("sensorOrientation", Orientation.fromRotationDegrees(sensorOrientation).unionValue)
+    map.putString("sensorOrientation", sensorOrientation.unionValue)
     map.putArray("formats", getFormats())
     return map
   }

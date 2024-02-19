@@ -54,7 +54,7 @@ jobs:
           working-directory: package/example/ios
 
       - name: Restore Pods cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: package/example/ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
@@ -113,7 +113,7 @@ jobs:
           working-directory: package/example/ios
 
       - name: Restore Pods cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: package/example/ios/Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}

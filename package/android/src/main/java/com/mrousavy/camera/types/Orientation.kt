@@ -11,9 +11,9 @@ enum class Orientation(override val unionValue: String) : JSUnionValue {
   fun toDegrees(): Int =
     when (this) {
       PORTRAIT -> 0
-      LANDSCAPE_RIGHT -> 90
+      LANDSCAPE_LEFT -> 90
       PORTRAIT_UPSIDE_DOWN -> 180
-      LANDSCAPE_LEFT -> 270
+      LANDSCAPE_RIGHT -> 270
     }
 
   fun toSensorRelativeOrientation(deviceDetails: CameraDeviceDetails): Orientation {
@@ -26,7 +26,7 @@ enum class Orientation(override val unionValue: String) : JSUnionValue {
     }
 
     // Rotate sensor rotation by target rotation
-    val newRotationDegrees = (deviceDetails.sensorOrientation + rotationDegrees + 360) % 360
+    val newRotationDegrees = (deviceDetails.sensorOrientation.toDegrees() + rotationDegrees + 360) % 360
 
     return fromRotationDegrees(newRotationDegrees)
   }
@@ -43,9 +43,9 @@ enum class Orientation(override val unionValue: String) : JSUnionValue {
 
     fun fromRotationDegrees(rotationDegrees: Int): Orientation =
       when (rotationDegrees) {
-        in 45..135 -> LANDSCAPE_RIGHT
+        in 45..135 -> LANDSCAPE_LEFT
         in 135..225 -> PORTRAIT_UPSIDE_DOWN
-        in 225..315 -> LANDSCAPE_LEFT
+        in 225..315 -> LANDSCAPE_RIGHT
         else -> PORTRAIT
       }
   }

@@ -93,7 +93,7 @@ enum DeviceError: String {
     case .lowLightBoostNotSupported:
       return "The currently selected camera device does not support low-light boost! Select a device where `device.supportsLowLightBoost` is true."
     case .focusNotSupported:
-      return "The currently selected camera device does not support focussing!"
+      return "The currently selected camera device does not support focusing!"
     case .microphoneUnavailable:
       return "The microphone was unavailable."
     case .notAvailableOnSimulator:

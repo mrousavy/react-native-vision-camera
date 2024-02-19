@@ -1,23 +1,35 @@
 package com.mrousavy.camera.core
 
+import android.graphics.Point
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
+import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
 import android.util.Log
 import com.mrousavy.camera.core.capture.PhotoCaptureRequest
 import com.mrousavy.camera.core.capture.RepeatingCaptureRequest
 import com.mrousavy.camera.core.outputs.SurfaceOutput
+import com.mrousavy.camera.extensions.PrecaptureOptions
+import com.mrousavy.camera.extensions.PrecaptureTrigger
 import com.mrousavy.camera.extensions.capture
 import com.mrousavy.camera.extensions.createCaptureSession
 import com.mrousavy.camera.extensions.isValid
 import com.mrousavy.camera.extensions.openCamera
+import com.mrousavy.camera.extensions.precapture
 import com.mrousavy.camera.extensions.tryAbortCaptures
+import com.mrousavy.camera.extensions.tryStopRepeating
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.QualityPrioritization
 import java.io.Closeable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -29,6 +41,7 @@ import kotlinx.coroutines.sync.withLock
 class PersistentCameraCaptureSession(private val cameraManager: CameraManager, private val callback: Callback) : Closeable {
   companion object {
     private const val TAG = "PersistentCameraCaptureSession"
+    private const val FOCUS_RESET_TIMEOUT = 3000L
   }
 
   // Inputs/Dependencies
@@ -44,6 +57,8 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
 
   private val mutex = Mutex()
   private var didDestroyFromOutside = false
+  private var focusJob: Job? = null
+  private val coroutineScope = CoroutineScope(CameraQueues.cameraQueue.coroutineDispatcher)
 
   val isRunning: Boolean
     get() = isActive && session != null && device != null && !didDestroyFromOutside
@@ -60,6 +75,10 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   }
 
   suspend fun withConfiguration(block: suspend () -> Unit) {
+    // Cancel any ongoing focus jobs
+    focusJob?.cancel()
+    focusJob = null
+
     mutex.withLock {
       block()
       configure()
@@ -121,20 +140,22 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   suspend fun capture(
     qualityPrioritization: QualityPrioritization,
     flash: Flash,
-    enableRedEyeReduction: Boolean,
     enableAutoStabilization: Boolean,
     enablePhotoHdr: Boolean,
     orientation: Orientation,
     enableShutterSound: Boolean
   ): TotalCaptureResult {
+    // Cancel any ongoing focus jobs
+    focusJob?.cancel()
+    focusJob = null
+
     mutex.withLock {
+      Log.i(TAG, "Capturing photo...")
       val session = session ?: throw CameraNotReadyError()
       val repeatingRequest = repeatingRequest ?: throw CameraNotReadyError()
       val photoRequest = PhotoCaptureRequest(
         repeatingRequest,
         qualityPrioritization,
-        flash,
-        enableRedEyeReduction,
         enableAutoStabilization,
         enablePhotoHdr,
         orientation
@@ -142,18 +163,88 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       val device = session.device
       val deviceDetails = getOrCreateCameraDeviceDetails(device)
 
-      // Stop the preview from repeating so we can fit in a photo request
+      // Submit a single high-res capture to photo output as well as all preview outputs
+      val outputs = outputs
+      val repeatingOutputs = outputs.filter { it.isRepeating }
+
+      if (qualityPrioritization == QualityPrioritization.SPEED && flash == Flash.OFF) {
+        // 0. We want to take a picture as fast as possible, so skip any precapture sequence and just capture one Frame.
+        Log.i(TAG, "Using fast capture path without pre-capture sequence...")
+        val singleRequest = photoRequest.createCaptureRequest(device, deviceDetails, outputs)
+        return session.capture(singleRequest.build(), enableShutterSound)
+      }
+
+      Log.i(TAG, "Locking AF/AE/AWB...")
+
+      // 1. Run precapture sequence
+      val precaptureRequest = repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs)
+      val skipIfPassivelyFocused = flash == Flash.OFF
+      val options =
+        PrecaptureOptions(
+          listOf(PrecaptureTrigger.AF, PrecaptureTrigger.AE, PrecaptureTrigger.AWB),
+          flash,
+          emptyList(),
+          skipIfPassivelyFocused
+        )
+      val result = session.precapture(precaptureRequest, deviceDetails, options)
+
+      // 2. Stop the current repeating request to make room for the single photo request
       session.stopRepeating()
       try {
-        // Submit a single high-res capture to photo output as well as all preview outputs
-        val outputs = outputs
-        val request = photoRequest.createCaptureRequest(device, deviceDetails, outputs)
-        return session.capture(request.build(), enableShutterSound)
+        // 3. Once precapture AF/AE/AWB successfully locked, capture the actual photo
+        val singleRequest = photoRequest.createCaptureRequest(device, deviceDetails, outputs)
+        if (result.needsFlash) {
+          singleRequest.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON)
+          singleRequest.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_SINGLE)
+        }
+        return session.capture(singleRequest.build(), enableShutterSound)
       } finally {
-        // Start the repeating preview captures again
-        val outputs = outputs.filter { it.isRepeating }
+        // 4. After taking a photo we set the repeating request back to idle to remove the AE/AF/AWB locks again
+        val idleRequest = repeatingRequest.createCaptureRequest(device, deviceDetails, repeatingOutputs)
+        session.setRepeatingRequest(idleRequest.build(), null, null)
+      }
+    }
+  }
+
+  suspend fun focus(point: Point) {
+    // Cancel any previous focus jobs
+    focusJob?.cancel()
+    focusJob = null
+
+    mutex.withLock {
+      Log.i(TAG, "Focusing to $point...")
+      val session = session ?: throw CameraNotReadyError()
+      val repeatingRequest = repeatingRequest ?: throw CameraNotReadyError()
+      val device = session.device
+      val deviceDetails = getOrCreateCameraDeviceDetails(device)
+      if (!deviceDetails.supportsFocusRegions) {
+        throw FocusNotSupportedError()
+      }
+      val outputs = outputs.filter { it.isRepeating }
+
+      // 1. Run a precapture sequence for AF, AE and AWB.
+      focusJob = coroutineScope.launch {
         val request = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
-        session.setRepeatingRequest(request.build(), null, null)
+        val options = PrecaptureOptions(listOf(PrecaptureTrigger.AF, PrecaptureTrigger.AE), Flash.OFF, listOf(point), false)
+        session.precapture(request, deviceDetails, options)
+      }
+      focusJob?.join()
+
+      // 2. Reset AF/AE/AWB again after 3 seconds timeout
+      focusJob = coroutineScope.launch {
+        delay(FOCUS_RESET_TIMEOUT)
+        if (!this.isActive) {
+          // this job got canceled from the outside
+          return@launch
+        }
+        if (!isRunning || this@PersistentCameraCaptureSession.session != session) {
+          // the view/session has already been destroyed in the meantime
+          return@launch
+        }
+        Log.i(TAG, "Resetting focus to auto-focus...")
+        repeatingRequest.createCaptureRequest(device, deviceDetails, outputs).also { request ->
+          session.setRepeatingRequest(request.build(), null, null)
+        }
       }
     }
   }
@@ -190,8 +281,8 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
         val builder = repeatingRequest.createCaptureRequest(device, details, repeatingOutputs)
         session.setRepeatingRequest(builder.build(), null, null)
       } else {
-        session.stopRepeating()
         Log.d(TAG, "Stopping repeating request...")
+        session.tryStopRepeating()
       }
       Log.d(TAG, "Configure() done! isActive: $isActive, ID: $cameraId, device: $device, session: $session")
     } catch (e: CameraAccessException) {
