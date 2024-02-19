@@ -18,7 +18,8 @@ data class PrecaptureOptions(
   val modes: List<PrecaptureTrigger>,
   val flash: Flash = Flash.OFF,
   val pointsOfInterest: List<Point>,
-  val skipIfPassivelyFocused: Boolean
+  val skipIfPassivelyFocused: Boolean,
+  val timeoutMs: Long
 )
 
 data class PrecaptureResult(val needsFlash: Boolean)
@@ -125,7 +126,7 @@ suspend fun CameraCaptureSession.precapture(
   // 3. Start a repeating request without the trigger and wait until AF/AE/AWB locks
   request.set(CaptureRequest.CONTROL_AF_TRIGGER, null)
   request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null)
-  val result = this.setRepeatingRequestAndWaitForPrecapture(request.build(), *precaptureModes.toTypedArray())
+  val result = this.setRepeatingRequestAndWaitForPrecapture(request.build(), options.timeoutMs, *precaptureModes.toTypedArray())
 
   if (!coroutineContext.isActive) throw FocusCanceledError()
 

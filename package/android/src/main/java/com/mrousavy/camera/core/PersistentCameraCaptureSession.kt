@@ -42,6 +42,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
   companion object {
     private const val TAG = "PersistentCameraCaptureSession"
     private const val FOCUS_RESET_TIMEOUT = 3000L
+    private const val PRECAPTURE_LOCK_TIMEOUT = 5000L
   }
 
   // Inputs/Dependencies
@@ -184,14 +185,24 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
           listOf(PrecaptureTrigger.AF, PrecaptureTrigger.AE, PrecaptureTrigger.AWB),
           flash,
           emptyList(),
-          skipIfPassivelyFocused
+          skipIfPassivelyFocused,
+          PRECAPTURE_LOCK_TIMEOUT
         )
-      val result = session.precapture(precaptureRequest, deviceDetails, options)
+      var needsFlash = flash != Flash.OFF
+      try {
+        val result = session.precapture(precaptureRequest, deviceDetails, options)
+        needsFlash = result.needsFlash
+      } catch (e: FocusCanceledError) {
+        throw CaptureAbortedError(false)
+      } catch (e: CaptureTimedOutError) {
+        // the precapture just timed out after 5 seconds, take picture anyways without focus.
+        needsFlash = false
+      }
 
       try {
         // 2. Once precapture AF/AE/AWB successfully locked, capture the actual photo
         val singleRequest = photoRequest.createCaptureRequest(device, deviceDetails, outputs)
-        if (result.needsFlash) {
+        if (needsFlash) {
           singleRequest.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON)
           singleRequest.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_SINGLE)
         }
@@ -223,7 +234,7 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       // 1. Run a precapture sequence for AF, AE and AWB.
       focusJob = coroutineScope.launch {
         val request = repeatingRequest.createCaptureRequest(device, deviceDetails, outputs)
-        val options = PrecaptureOptions(listOf(PrecaptureTrigger.AF, PrecaptureTrigger.AE), Flash.OFF, listOf(point), false)
+        val options = PrecaptureOptions(listOf(PrecaptureTrigger.AF, PrecaptureTrigger.AE), Flash.OFF, listOf(point), false, FOCUS_RESET_TIMEOUT)
         session.precapture(request, deviceDetails, options)
       }
       focusJob?.join()

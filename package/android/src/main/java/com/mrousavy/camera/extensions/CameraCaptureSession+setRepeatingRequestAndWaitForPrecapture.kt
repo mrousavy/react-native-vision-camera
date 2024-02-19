@@ -114,6 +114,7 @@ data class ResultState(val focusState: FocusState, val exposureState: ExposureSt
  */
 suspend fun CameraCaptureSession.setRepeatingRequestAndWaitForPrecapture(
   request: CaptureRequest,
+  timeoutMs: Long,
   vararg precaptureTriggers: PrecaptureTrigger
 ): ResultState =
   suspendCancellableCoroutine { continuation ->
@@ -121,9 +122,9 @@ suspend fun CameraCaptureSession.setRepeatingRequestAndWaitForPrecapture(
     val completed = precaptureTriggers.associateWith { false }.toMutableMap()
 
     CoroutineScope(Dispatchers.Default).launch {
-      delay(5000) // after 5s, cancel capture
+      delay(timeoutMs) // after timeout, cancel capture
       if (continuation.isActive) {
-        Log.e(TAG, "Precapture timed out after 5 seconds!")
+        Log.e(TAG, "Precapture timed out after ${timeoutMs / 1000} seconds!")
         continuation.resumeWithException(CaptureTimedOutError())
         try {
           setRepeatingRequest(request, null, null)
