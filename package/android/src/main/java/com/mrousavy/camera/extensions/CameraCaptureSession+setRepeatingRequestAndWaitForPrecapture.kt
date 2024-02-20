@@ -117,6 +117,7 @@ data class ResultState(val focusState: FocusState, val exposureState: ExposureSt
  */
 suspend fun CameraCaptureSession.setRepeatingRequestAndWaitForPrecapture(
   request: CaptureRequest,
+  timeoutMs: Long,
   vararg precaptureTriggers: PrecaptureTrigger
 ): ResultState =
   suspendCancellableCoroutine { continuation ->
@@ -124,9 +125,9 @@ suspend fun CameraCaptureSession.setRepeatingRequestAndWaitForPrecapture(
     val completed = precaptureTriggers.associateWith { false }.toMutableMap()
 
     CoroutineScope(Dispatchers.Default).launch {
-      delay(5000) // after 5s, cancel capture
+      delay(timeoutMs) // after timeout, cancel capture
       if (continuation.isActive) {
-        Log.e(TAG, "Precapture timed out after 5 seconds!")
+        Log.e(TAG, "Precapture timed out after ${timeoutMs / 1000} seconds!")
         continuation.resumeWithException(CaptureTimedOutError())
         try {
           setRepeatingRequest(request, null, null)
@@ -144,25 +145,25 @@ suspend fun CameraCaptureSession.setRepeatingRequestAndWaitForPrecapture(
           super.onCaptureCompleted(session, request, result)
 
           if (continuation.isActive) {
-            // AF Precapture
             val afState = FocusState.fromAFState(result.get(CaptureResult.CONTROL_AF_STATE) ?: CaptureResult.CONTROL_AF_STATE_INACTIVE)
-            val aeState = ExposureState.fromAEState(result.get(CaptureResult.CONTROL_AE_STATE) ?: CaptureResult.CONTROL_AE_STATE_INACTIVE)
+            val aeState = ExposureState.fromAEState(
+              result.get(CaptureResult.CONTROL_AE_STATE) ?: CaptureResult.CONTROL_AE_STATE_INACTIVE
+            )
             val awbState = WhiteBalanceState.fromAWBState(
               result.get(CaptureResult.CONTROL_AWB_STATE) ?: CaptureResult.CONTROL_AWB_STATE_INACTIVE
             )
+            Log.i(TAG, "Precapture state: AF: $afState, AE: $aeState, AWB: $awbState")
 
+            // AF Precapture
             if (precaptureTriggers.contains(PrecaptureTrigger.AF)) {
-              Log.i(TAG, "AF State: $afState (isCompleted: ${afState.isCompleted})")
               completed[PrecaptureTrigger.AF] = afState.isCompleted
             }
             // AE Precapture
             if (precaptureTriggers.contains(PrecaptureTrigger.AE)) {
-              Log.i(TAG, "AE State: $aeState (isCompleted: ${aeState.isCompleted})")
               completed[PrecaptureTrigger.AE] = aeState.isCompleted
             }
             // AWB Precapture
             if (precaptureTriggers.contains(PrecaptureTrigger.AWB)) {
-              Log.i(TAG, "AWB State: $awbState (isCompleted: ${awbState.isCompleted})")
               completed[PrecaptureTrigger.AWB] = awbState.isCompleted
             }
 

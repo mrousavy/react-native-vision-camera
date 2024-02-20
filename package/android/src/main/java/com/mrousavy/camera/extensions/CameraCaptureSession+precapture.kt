@@ -18,7 +18,8 @@ data class PrecaptureOptions(
   val modes: List<PrecaptureTrigger>,
   val flash: Flash = Flash.OFF,
   val pointsOfInterest: List<Point>,
-  val skipIfPassivelyFocused: Boolean
+  val skipIfPassivelyFocused: Boolean,
+  val timeoutMs: Long
 )
 
 data class PrecaptureResult(val needsFlash: Boolean)
@@ -57,12 +58,8 @@ suspend fun CameraCaptureSession.precapture(
     aeState = ExposureState.fromAEState(result.get(CaptureResult.CONTROL_AE_STATE) ?: CaptureResult.CONTROL_AE_STATE_INACTIVE)
     awbState = WhiteBalanceState.fromAWBState(result.get(CaptureResult.CONTROL_AWB_STATE) ?: CaptureResult.CONTROL_AWB_STATE_INACTIVE)
 
-    if (aeState == ExposureState.FlashRequired) {
-      Log.i(TAG, "Auto-Flash: Flash is required for photo capture, enabling flash...")
-      enableFlash = true
-    } else {
-      Log.i(TAG, "Auto-Flash: Flash is not required for photo capture.")
-    }
+    Log.i(TAG, "Precapture current states: AF: $afState, AE: $aeState, AWB: $awbState")
+    enableFlash = aeState == ExposureState.FlashRequired && options.flash == Flash.AUTO
   } else {
     // we either want Flash ON or OFF, so we don't care about lighting conditions - do a fast capture.
     this.capture(request.build(), null, null)
@@ -99,23 +96,41 @@ suspend fun CameraCaptureSession.precapture(
     // AF Precapture
     if (deviceDetails.afModes.contains(CaptureRequest.CONTROL_AF_MODE_AUTO)) {
       request.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
+      request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
+      if (meteringRectangles.isNotEmpty() && deviceDetails.supportsFocusRegions) {
+        request.set(CaptureRequest.CONTROL_AF_REGIONS, meteringRectangles)
+      }
+    } else {
+      // AF is not supported on this device.
+      precaptureModes.remove(PrecaptureTrigger.AF)
     }
-    if (meteringRectangles.isNotEmpty() && deviceDetails.supportsFocusRegions) {
-      request.set(CaptureRequest.CONTROL_AF_REGIONS, meteringRectangles)
-    }
-    request.set(CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START)
   }
-  if (precaptureModes.contains(PrecaptureTrigger.AE) && deviceDetails.hardwareLevel.isAtLeast(HardwareLevel.LIMITED)) {
+  if (precaptureModes.contains(PrecaptureTrigger.AE)) {
     // AE Precapture
-    if (meteringRectangles.isNotEmpty() && deviceDetails.supportsExposureRegions) {
-      request.set(CaptureRequest.CONTROL_AE_REGIONS, meteringRectangles)
+    if (deviceDetails.aeModes.contains(CaptureRequest.CONTROL_AE_MODE_ON) && deviceDetails.hardwareLevel.isAtLeast(HardwareLevel.LIMITED)) {
+      request.set(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON)
+      request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START)
+      if (meteringRectangles.isNotEmpty() &&
+        deviceDetails.supportsExposureRegions &&
+        deviceDetails.hardwareLevel.isAtLeast(HardwareLevel.LIMITED)
+      ) {
+        request.set(CaptureRequest.CONTROL_AE_REGIONS, meteringRectangles)
+      }
+    } else {
+      // AE is not supported on this device.
+      precaptureModes.remove(PrecaptureTrigger.AE)
     }
-    request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START)
   }
   if (precaptureModes.contains(PrecaptureTrigger.AWB)) {
     // AWB Precapture
-    if (meteringRectangles.isNotEmpty() && deviceDetails.supportsWhiteBalanceRegions) {
-      request.set(CaptureRequest.CONTROL_AWB_REGIONS, meteringRectangles)
+    if (deviceDetails.awbModes.contains(CaptureRequest.CONTROL_AWB_MODE_AUTO)) {
+      request.set(CaptureRequest.CONTROL_AWB_MODE, CaptureRequest.CONTROL_AWB_MODE_AUTO)
+      if (meteringRectangles.isNotEmpty() && deviceDetails.supportsWhiteBalanceRegions) {
+        request.set(CaptureRequest.CONTROL_AWB_REGIONS, meteringRectangles)
+      }
+    } else {
+      // AWB is not supported on this device.
+      precaptureModes.remove(PrecaptureTrigger.AWB)
     }
   }
   this.capture(request.build(), null, null)
@@ -125,7 +140,7 @@ suspend fun CameraCaptureSession.precapture(
   // 3. Start a repeating request without the trigger and wait until AF/AE/AWB locks
   request.set(CaptureRequest.CONTROL_AF_TRIGGER, null)
   request.set(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null)
-  val result = this.setRepeatingRequestAndWaitForPrecapture(request.build(), *precaptureModes.toTypedArray())
+  val result = this.setRepeatingRequestAndWaitForPrecapture(request.build(), options.timeoutMs, *precaptureModes.toTypedArray())
 
   if (!coroutineContext.isActive) throw FocusCanceledError()
 
