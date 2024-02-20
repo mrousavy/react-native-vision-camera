@@ -89,7 +89,8 @@ Additionally, you can also directly access the Frame's pixel data using [`toArra
 const frameProcessor = useFrameProcessor((frame) => {
   'worklet'
   if (frame.pixelFormat === 'rgb') {
-    const data = frame.toArrayBuffer()
+    const buffer = frame.toArrayBuffer()
+    const data = new Uint8Array(buffer)
     console.log(`Pixel at 0,0: RGB(${data[0]}, ${data[1]}, ${data[2]})`)
   }
 }, [])
