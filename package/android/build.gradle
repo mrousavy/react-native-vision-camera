@@ -68,10 +68,10 @@ static def findNodeModules(baseDir) {
 
 def nodeModules = findNodeModules(projectDir)
 
-def hasWorklets = !safeExtGet("VisionCamera_disableFrameProcessors", false) && findProject(":react-native-worklets-core") != null
+def hasWorklets = !Boolean.parseBoolean("${safeExtGet('VisionCamera_disableFrameProcessors', false)}") && findProject(":react-native-worklets-core") != null
 logger.warn("[VisionCamera] react-native-worklets-core ${hasWorklets ? "found" : "not found"}, Frame Processors ${hasWorklets ? "enabled" : "disabled"}!")
 
-def enableCodeScanner = safeExtGet("VisionCamera_enableCodeScanner", false)
+def enableCodeScanner = Boolean.parseBoolean("${safeExtGet('VisionCamera_enableCodeScanner', false)}")
 
 repositories {
   google()
