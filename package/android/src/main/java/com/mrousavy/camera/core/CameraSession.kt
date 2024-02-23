@@ -15,6 +15,7 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import com.facebook.react.bridge.UiThreadUtil
@@ -69,6 +70,11 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
   init {
     lifecycleRegistry.currentState = Lifecycle.State.CREATED
+    lifecycle.addObserver(object: LifecycleEventObserver {
+      override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        Log.i(TAG, "Camera Lifecycle changed to ${event.targetState}!")
+      }
+    })
   }
 
   override fun close() {
