@@ -13,6 +13,7 @@ import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
 import com.mrousavy.camera.core.CameraSession
 import com.mrousavy.camera.core.InsufficientStorageError
+import com.mrousavy.camera.core.Photo
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.QualityPrioritization
 import com.mrousavy.camera.utils.*
@@ -50,10 +51,8 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
   photo.use {
     Log.i(TAG, "Successfully captured ${photo.image.width} x ${photo.image.height} photo!")
 
-    val cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId!!)
-
     val path = try {
-      savePhotoToFile(context, cameraCharacteristics, photo)
+      savePhotoToFile(context, photo)
     } catch (e: IOException) {
       if (e.message?.contains("no space left", true) == true) {
         throw InsufficientStorageError()
@@ -69,14 +68,14 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
     map.putInt("width", photo.image.width)
     map.putInt("height", photo.image.height)
     map.putString("orientation", photo.orientation.unionValue)
-    map.putBoolean("isRawPhoto", photo.format == ImageFormat.RAW_SENSOR)
+    map.putBoolean("isRawPhoto", photo.isRawPhoto)
     map.putBoolean("isMirrored", photo.isMirrored)
 
     return map
   }
 }
 
-private fun writePhotoToFile(photo: CameraSession.CapturedPhoto, file: File) {
+private fun writePhotoToFile(photo: Photo, file: File) {
   val byteBuffer = photo.image.planes[0].buffer
   if (photo.isMirrored) {
     val imageBytes = ByteArray(byteBuffer.remaining()).apply { byteBuffer.get(this) }
@@ -97,31 +96,31 @@ private fun writePhotoToFile(photo: CameraSession.CapturedPhoto, file: File) {
 
 private suspend fun savePhotoToFile(
   context: Context,
-  cameraCharacteristics: CameraCharacteristics,
-  photo: CameraSession.CapturedPhoto
+  photo: Photo
 ): String =
   withContext(Dispatchers.IO) {
-    when (photo.format) {
-      // When the format is JPEG or DEPTH JPEG we can simply save the bytes as-is
+    when (photo.image.format) {
       ImageFormat.JPEG, ImageFormat.DEPTH_JPEG -> {
+        // When the format is JPEG or DEPTH JPEG we can simply save the bytes as-is
         val file = FileUtils.createTempFile(context, ".jpg")
         writePhotoToFile(photo, file)
         return@withContext file.absolutePath
       }
-
-      // When the format is RAW we use the DngCreator utility library
       ImageFormat.RAW_SENSOR -> {
+        // When the format is RAW we use the DngCreator utility library
+        throw Error("Writing RAW photos is currently not supported!")
+        // TODO: Write RAW photos using DngCreator?
+        /**
         val dngCreator = DngCreator(cameraCharacteristics, photo.metadata)
         val file = FileUtils.createTempFile(context, ".dng")
         FileOutputStream(file).use { stream ->
-          // TODO: Make sure orientation is loaded properly here?
-          dngCreator.writeImage(stream, photo.image)
+          dngCreator.writeImage(stream, photo.image.image)
         }
         return@withContext file.absolutePath
+        */
       }
-
       else -> {
-        throw Error("Failed to save Photo to file, image format is not supported! ${photo.format}")
+        throw Error("Failed to save Photo to file, image format is not supported! ${photo.image.format}")
       }
     }
   }
