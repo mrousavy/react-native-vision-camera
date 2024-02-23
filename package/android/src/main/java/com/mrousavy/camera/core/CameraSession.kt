@@ -1,21 +1,37 @@
 package com.mrousavy.camera.core
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
+import android.provider.MediaStore
 import android.util.Log
 import android.util.Range
+import androidx.annotation.OptIn
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.MirrorMode
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.video.ExperimentalPersistentRecording
+import androidx.camera.video.FileOutputOptions
+import androidx.camera.video.MediaStoreOutputOptions
+import androidx.camera.video.Quality
+import androidx.camera.video.QualitySelector
+import androidx.camera.video.Recorder
+import androidx.camera.video.Recording
+import androidx.camera.video.VideoCapture
+import androidx.camera.video.VideoOutput
+import androidx.camera.video.VideoRecordEvent
 import androidx.core.content.ContextCompat
+import androidx.core.util.Consumer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -32,6 +48,7 @@ import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.QualityPrioritization
 import com.mrousavy.camera.types.RecordVideoOptions
+import com.mrousavy.camera.utils.FileUtils
 import com.mrousavy.camera.utils.runOnUiThread
 import com.mrousavy.camera.utils.runOnUiThreadAndWait
 import kotlinx.coroutines.sync.Mutex
@@ -50,21 +67,17 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   private val cameraProvider = ProcessCameraProvider.getInstance(context)
   private var camera: Camera? = null
 
-  // Camera State
+  // Camera Outputs
   private var previewOutput: Preview? = null
   private var photoOutput: ImageCapture? = null
-  private var videoOutput: VideoPipelineOutput? = null
+  private var videoOutput: VideoCapture<Recorder>? = null
   private var codeScannerOutput: BarcodeScannerOutput? = null
+
+  // Camera State
   private val mutex = Mutex()
   private var isDestroyed = false
   private val lifecycleRegistry = LifecycleRegistry(this)
-
-  // Video Outputs
-  private var recording: RecordingSession? = null
-    set(value) {
-      field = value
-      updateVideoOutputs()
-    }
+  private var recording: Recording? = null
 
   val orientation: Orientation
     get() {
@@ -90,8 +103,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
     }
 
-    videoOutput?.close()
-    videoOutput = null
     codeScannerOutput?.close()
     codeScannerOutput = null
     Log.i(TAG, "CameraSession closed!")
@@ -148,14 +159,19 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     }
   }
 
-  private fun checkPermission() {
+  private fun checkCameraPermission() {
     val status = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
     if (status != PackageManager.PERMISSION_GRANTED) throw CameraPermissionError()
   }
+  private fun checkMicrophonePermission() {
+    val status = ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO)
+    if (status != PackageManager.PERMISSION_GRANTED) throw MicrophonePermissionError()
+  }
 
+  @SuppressLint("RestrictedApi")
   private fun configureCamera(provider: ProcessCameraProvider, configuration: CameraConfiguration) {
     Log.i(TAG, "Initializing Camera...")
-    checkPermission()
+    checkCameraPermission()
 
     // Unbind previous Camera
     provider.unbindAll()
@@ -171,6 +187,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     val previewConfig = configuration.preview as? CameraConfiguration.Output.Enabled<CameraConfiguration.Preview>
     if (previewConfig != null) {
       val preview = Preview.Builder().also { preview ->
+        preview.setMirrorMode(MirrorMode.MIRROR_MODE_ON_FRONT_ONLY)
         configuration.fps?.let { fps ->
           preview.setTargetFrameRate(Range(fps, fps))
         }
@@ -185,12 +202,40 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     // 2. Image Capture
     val photoConfig = configuration.photo as? CameraConfiguration.Output.Enabled<CameraConfiguration.Photo>
     if (photoConfig != null) {
-      val photo = ImageCapture.Builder().build()
-      // TODO: Configure qualityPrioritization here
+      val photo = ImageCapture.Builder().also { photo ->
+        // TODO: Configure qualityPrioritization here
+        photo.setMirrorMode(MirrorMode.MIRROR_MODE_ON_FRONT_ONLY)
+      }.build()
       useCases.add(photo)
       photoOutput = photo
     } else {
       photoOutput = null
+    }
+
+    // 3. Video Capture
+    val videoConfig = configuration.video as? CameraConfiguration.Output.Enabled<CameraConfiguration.Video>
+    if (videoConfig != null) {
+      val recorder = Recorder.Builder().also { recorder ->
+        configuration.format?.let { format ->
+          recorder.setQualitySelector(format.videoQualitySelector)
+        }
+        // TODO: Make videoBitRate a Camera Prop
+        // video.setTargetVideoEncodingBitRate()
+      }.build()
+
+      val video = VideoCapture.Builder(recorder).also { video ->
+        video.setMirrorMode(MirrorMode.MIRROR_MODE_ON_FRONT_ONLY)
+        configuration.fps?.let { fps ->
+          video.setTargetFrameRate(Range(fps, fps))
+        }
+        if (videoConfig.config.enableHdr) {
+          video.setDynamicRange(DynamicRange.HDR_UNSPECIFIED_10_BIT)
+        }
+      }.build()
+      useCases.add(video)
+      videoOutput = video
+    } else {
+      videoOutput = null
     }
 
     // Bind it all together
@@ -248,16 +293,41 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   private fun updateVideoOutputs() {
     val videoOutput = videoOutput ?: return
     Log.i(TAG, "Updating Video Outputs...")
-    videoOutput.videoPipeline.setRecordingSessionOutput(recording)
+    // TODO: Add Frame Processor here somehow?
+    // videoOutput.videoPipeline.setRecordingSessionOutput(recording)
   }
 
+  @OptIn(ExperimentalPersistentRecording::class) @SuppressLint("MissingPermission")
   suspend fun startRecording(
     enableAudio: Boolean,
     options: RecordVideoOptions,
     callback: (video: RecordingSession.Video) -> Unit,
     onError: (error: CameraError) -> Unit
   ) {
-    throw NotImplementedError()
+    val camera = camera ?: throw CameraNotReadyError()
+    val videoOutput = videoOutput ?: throw VideoNotEnabledError()
+
+    val file = FileUtils.createTempFile(context, "mp4")
+    val outputOptions = FileOutputOptions.Builder(file).build()
+    var pendingRecording = videoOutput.output.prepareRecording(context, outputOptions)
+    if (enableAudio) {
+      checkMicrophonePermission()
+      pendingRecording = pendingRecording.withAudioEnabled()
+    }
+    pendingRecording = pendingRecording.asPersistentRecording()
+    recording = pendingRecording.start(CameraQueues.cameraQueue.executor) { event ->
+      when (event) {
+        is VideoRecordEvent.Start -> Log.i(TAG, "Recording started!")
+        is VideoRecordEvent.Resume -> Log.i(TAG, "Recording resumed!")
+        is VideoRecordEvent.Pause -> Log.i(TAG, "Recording paused!")
+        is VideoRecordEvent.Status -> Log.i(TAG, "Status update! Recorded ${event.recordingStats.numBytesRecorded} bytes.")
+        is VideoRecordEvent.Finalize -> {
+          Log.i(TAG, "Recording stopped!")
+          // TODO: Check for errors.
+          // TODO: Callback with resulting video now.
+        }
+      }
+    }
   }
 
   suspend fun stopRecording() {
