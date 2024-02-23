@@ -157,6 +157,9 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     Log.i(TAG, "Initializing Camera...")
     checkPermission()
 
+    // Unbind previous Camera
+    provider.unbindAll()
+
     // Input
     val cameraId = configuration.cameraId ?: throw NoCameraDeviceError()
     val cameraSelector = CameraSelector.Builder().byId(cameraId).build()
