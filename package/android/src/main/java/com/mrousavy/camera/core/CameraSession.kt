@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import com.facebook.react.bridge.UiThreadUtil
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.core.outputs.BarcodeScannerOutput
 import com.mrousavy.camera.core.outputs.PhotoOutput
@@ -73,7 +74,9 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   override fun close() {
     Log.i(TAG, "Closing CameraSession...")
     isDestroyed = true
-    lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
+    if (UiThreadUtil.isOnUiThread()) {
+      lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
+    }
 
     photoOutput?.close()
     photoOutput = null
@@ -143,7 +146,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   }
 
   private suspend fun configureCamera(configuration: CameraConfiguration) {
-    Log.i(TAG, "Configuring Camera...")
+    Log.i(TAG, "Initializing Camera...")
     checkPermission()
 
     // Get the ProcessCameraProvider (should only await on the first call, then be an instant return)
@@ -160,15 +163,20 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     }
 
     // Bind it all together
-    camera = provider.bindToLifecycle(this, cameraSelector, preview.build())
+    UiThreadUtil.runOnUiThread {
+      camera = provider.bindToLifecycle(this, cameraSelector, preview.build())
+      Log.i(TAG, "Successfully initialized Camera!")
+    }
   }
 
   private fun configureIsActive(config: CameraConfiguration) {
-    if (config.isActive) {
-      lifecycleRegistry.currentState = Lifecycle.State.RESUMED
-    } else {
-      // TODO: STARTED or CREATED? Which one keeps the camera warm?
-      lifecycleRegistry.currentState = Lifecycle.State.STARTED
+    UiThreadUtil.runOnUiThread {
+      if (config.isActive) {
+        lifecycleRegistry.currentState = Lifecycle.State.RESUMED
+      } else {
+        // TODO: STARTED or CREATED? Which one keeps the camera warm?
+        lifecycleRegistry.currentState = Lifecycle.State.STARTED
+      }
     }
   }
 
