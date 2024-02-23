@@ -10,6 +10,7 @@ import android.os.Build
 import android.util.Log
 import android.util.Range
 import android.util.Size
+import android.util.SizeF
 import android.view.SurfaceHolder
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
@@ -68,7 +69,7 @@ class CameraDeviceDetails(private val cameraManager: CameraManager, val cameraId
     // 35mm is the film standard sensor size
     characteristics.get(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS) ?: floatArrayOf(35f)
   }
-  val sensorSize by lazy { characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)!! }
+  val sensorSize by lazy { characteristics.get(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE) ?: SizeF(0f, 0f) }
   val activeSize
     get() = characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)!!
   val sensorOrientation by lazy {
