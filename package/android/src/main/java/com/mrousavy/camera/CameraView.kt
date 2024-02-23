@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.Gravity
 import android.view.ScaleGestureDetector
 import android.widget.FrameLayout
+import androidx.camera.core.Preview.SurfaceProvider
 import androidx.camera.view.PreviewView
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.core.CameraConfiguration
@@ -98,8 +99,9 @@ class CameraView(context: Context) :
   // session
   internal val cameraSession: CameraSession
   private val previewView: PreviewView
-  private var currentConfigureCall: Long = System.currentTimeMillis()
+  private val previewSurfaceProvider: SurfaceProvider
   internal var frameProcessor: FrameProcessor? = null
+  private var currentConfigureCall: Long = System.currentTimeMillis()
 
   // other
   private var fpsGraph: FpsGraphView? = null
@@ -115,6 +117,7 @@ class CameraView(context: Context) :
       Gravity.CENTER
     )
     addView(previewView)
+    previewSurfaceProvider = previewView.surfaceProvider
   }
 
   override fun onAttachedToWindow() {
@@ -153,7 +156,7 @@ class CameraView(context: Context) :
         config.cameraId = cameraId
 
         // Preview
-        config.preview = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Preview(previewView.surfaceProvider))
+        config.preview = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Preview(previewSurfaceProvider))
 
         // Photo
         if (photo) {
@@ -201,7 +204,7 @@ class CameraView(context: Context) :
 
         // Side-Props
         config.fps = fps
-        config.enableLowLightBoost = lowLightBoost ?: false
+        config.enableLowLightBoost = lowLightBoost
         config.torch = torch
         config.exposure = exposure
 
