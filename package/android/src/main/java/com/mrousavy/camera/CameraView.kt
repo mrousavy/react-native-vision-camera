@@ -111,6 +111,7 @@ class CameraView(context: Context) :
     clipToOutline = true
     cameraSession = CameraSession(context, cameraManager, this)
     previewView = PreviewView(context)
+    previewView.implementationMode = PreviewView.ImplementationMode.PERFORMANCE
     previewView.layoutParams = LayoutParams(
       LayoutParams.MATCH_PARENT,
       LayoutParams.MATCH_PARENT,
