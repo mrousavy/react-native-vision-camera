@@ -5,34 +5,37 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
-import android.hardware.camera2.TotalCaptureResult
-import android.media.Image
 import android.util.Log
 import android.util.Range
 import androidx.camera.core.Camera
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
+import androidx.camera.core.UseCase
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
-import com.facebook.react.bridge.UiThreadUtil
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.core.outputs.BarcodeScannerOutput
-import com.mrousavy.camera.core.outputs.PhotoOutput
 import com.mrousavy.camera.core.outputs.VideoPipelineOutput
 import com.mrousavy.camera.extensions.await
 import com.mrousavy.camera.extensions.byId
+import com.mrousavy.camera.extensions.takePicture
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.QualityPrioritization
 import com.mrousavy.camera.types.RecordVideoOptions
+import com.mrousavy.camera.utils.runOnUiThread
+import com.mrousavy.camera.utils.runOnUiThreadAndWait
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.Closeable
+import java.io.File
 
 class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: Callback) :
   Closeable, LifecycleOwner {
@@ -46,7 +49,8 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   private var camera: Camera? = null
 
   // Camera State
-  private var photoOutput: PhotoOutput? = null
+  private var previewOutput: Preview? = null
+  private var photoOutput: ImageCapture? = null
   private var videoOutput: VideoPipelineOutput? = null
   private var codeScannerOutput: BarcodeScannerOutput? = null
   private val mutex = Mutex()
@@ -80,12 +84,10 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   override fun close() {
     Log.i(TAG, "Closing CameraSession...")
     isDestroyed = true
-    if (UiThreadUtil.isOnUiThread()) {
+    runOnUiThread {
       lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
     }
 
-    photoOutput?.close()
-    photoOutput = null
     videoOutput?.close()
     videoOutput = null
     codeScannerOutput?.close()
@@ -121,13 +123,16 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
       try {
         // Build up session or update any props
-        if (diff.deviceChanged || diff.outputsChanged) {
-          // 1. cameraId changed, open device
-          configureCamera(config)
-        }
-        if (diff.isActiveChanged) {
-          // 4. Either start or stop the session
-          configureIsActive(config)
+        val provider = cameraProvider.await()
+        runOnUiThreadAndWait {
+          if (diff.deviceChanged || diff.outputsChanged) {
+            // 1. cameraId changed, open device
+            configureCamera(provider, config)
+          }
+          if (diff.isActiveChanged) {
+            // 4. Either start or stop the session
+            configureIsActive(config)
+          }
         }
 
         Log.i(
@@ -151,38 +156,54 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     if (status != PackageManager.PERMISSION_GRANTED) throw CameraPermissionError()
   }
 
-  private suspend fun configureCamera(configuration: CameraConfiguration) {
+  private fun configureCamera(provider: ProcessCameraProvider, configuration: CameraConfiguration) {
     Log.i(TAG, "Initializing Camera...")
     checkPermission()
-
-    // Get the ProcessCameraProvider (should only await on the first call, then be an instant return)
-    val provider = cameraProvider.await()
 
     // Input
     val cameraId = configuration.cameraId ?: throw NoCameraDeviceError()
     val cameraSelector = CameraSelector.Builder().byId(cameraId).build()
 
     // Outputs
-    val preview = Preview.Builder()
-    configuration.fps?.let { fps ->
-      preview.setTargetFrameRate(Range(fps, fps))
+    val useCases = mutableListOf<UseCase>()
+
+    // 1. Preview
+    val previewConfig = configuration.preview as? CameraConfiguration.Output.Enabled<CameraConfiguration.Preview>
+    if (previewConfig != null) {
+      val preview = Preview.Builder().also { preview ->
+        configuration.fps?.let { fps ->
+          preview.setTargetFrameRate(Range(fps, fps))
+        }
+      }.build()
+      preview.setSurfaceProvider(previewConfig.config.surfaceProvider)
+      useCases.add(preview)
+      previewOutput = preview
+    } else {
+      previewOutput = null
+    }
+
+    // 2. Image Capture
+    val photoConfig = configuration.photo as? CameraConfiguration.Output.Enabled<CameraConfiguration.Photo>
+    if (photoConfig != null) {
+      val photo = ImageCapture.Builder().build()
+      // TODO: Configure qualityPrioritization here
+      useCases.add(photo)
+      photoOutput = photo
+    } else {
+      photoOutput = null
     }
 
     // Bind it all together
-    UiThreadUtil.runOnUiThread {
-      camera = provider.bindToLifecycle(this, cameraSelector, preview.build())
-      Log.i(TAG, "Successfully initialized Camera!")
-    }
+    camera = provider.bindToLifecycle(this, cameraSelector, *useCases.toTypedArray())
+    Log.i(TAG, "Successfully initialized Camera!")
   }
 
   private fun configureIsActive(config: CameraConfiguration) {
-    UiThreadUtil.runOnUiThread {
-      if (config.isActive) {
-        lifecycleRegistry.currentState = Lifecycle.State.RESUMED
-      } else {
-        // TODO: STARTED or CREATED? Which one keeps the camera warm?
-        lifecycleRegistry.currentState = Lifecycle.State.STARTED
-      }
+    if (config.isActive) {
+      lifecycleRegistry.currentState = Lifecycle.State.RESUMED
+    } else {
+      // TODO: STARTED or CREATED? Which one keeps the camera warm?
+      lifecycleRegistry.currentState = Lifecycle.State.STARTED
     }
   }
 
@@ -192,8 +213,20 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     enableShutterSound: Boolean,
     enableAutoStabilization: Boolean,
     outputOrientation: Orientation
-  ): CapturedPhoto {
-    throw NotImplementedError()
+  ): Photo {
+    mutex.withLock {
+      val camera = camera ?: throw CameraNotReadyError()
+      val photoOutput = photoOutput ?: throw PhotoNotEnabledError()
+
+      // TODO: Add shutter sound, stabilization and quality prioritization support here?
+
+      photoOutput.flashMode = flash.toFlashMode()
+      photoOutput.targetRotation = outputOrientation.toDegrees()
+
+      val image = photoOutput.takePicture(CameraQueues.cameraQueue.executor)
+      val isMirrored = camera.cameraInfo.lensFacing == CameraSelector.LENS_FACING_FRONT
+      return Photo(image, isMirrored)
+    }
   }
 
   private fun updateVideoOutputs() {
@@ -236,18 +269,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
   suspend fun focus(x: Int, y: Int) {
     throw NotImplementedError()
-  }
-
-  data class CapturedPhoto(
-    val image: Image,
-    val metadata: TotalCaptureResult,
-    val orientation: Orientation,
-    val isMirrored: Boolean,
-    val format: Int
-  ) : Closeable {
-    override fun close() {
-      image.close()
-    }
   }
 
   interface Callback {
