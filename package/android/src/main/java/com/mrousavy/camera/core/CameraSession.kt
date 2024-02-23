@@ -3,17 +3,12 @@ package com.mrousavy.camera.core
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.ImageFormat
-import android.graphics.Point
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
-import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.media.Image
-import android.media.ImageReader
 import android.util.Log
 import android.util.Range
-import android.util.Size
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
@@ -25,23 +20,17 @@ import androidx.lifecycle.LifecycleRegistry
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.core.outputs.BarcodeScannerOutput
 import com.mrousavy.camera.core.outputs.PhotoOutput
-import com.mrousavy.camera.core.outputs.SurfaceOutput
 import com.mrousavy.camera.core.outputs.VideoPipelineOutput
 import com.mrousavy.camera.extensions.await
 import com.mrousavy.camera.extensions.byId
-import com.mrousavy.camera.extensions.closestToOrMax
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.types.Flash
-import com.mrousavy.camera.types.LensFacing
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.QualityPrioritization
 import com.mrousavy.camera.types.RecordVideoOptions
-import com.mrousavy.camera.utils.ImageFormatUtils
-import java.io.Closeable
-import kotlin.coroutines.cancellation.CancellationException
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.io.Closeable
 
 class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: Callback) :
   Closeable, LifecycleOwner {
@@ -61,8 +50,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   private val mutex = Mutex()
   private var isDestroyed = false
   private val lifecycleRegistry = LifecycleRegistry(this)
-
-  private val coroutineScope = CoroutineScope(CameraQueues.cameraQueue.coroutineDispatcher)
 
   // Video Outputs
   private var recording: RecordingSession? = null
