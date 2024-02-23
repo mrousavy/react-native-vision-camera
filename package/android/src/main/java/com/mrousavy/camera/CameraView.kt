@@ -7,12 +7,12 @@ import android.util.Log
 import android.view.Gravity
 import android.view.ScaleGestureDetector
 import android.widget.FrameLayout
+import androidx.camera.view.PreviewView
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.core.CameraConfiguration
 import com.mrousavy.camera.core.CameraQueues
 import com.mrousavy.camera.core.CameraSession
 import com.mrousavy.camera.core.CodeScannerFrame
-import com.mrousavy.camera.core.PreviewView
 import com.mrousavy.camera.extensions.installHierarchyFitter
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
@@ -78,7 +78,7 @@ class CameraView(context: Context) :
     }
   var resizeMode: ResizeMode = ResizeMode.COVER
     set(value) {
-      previewView.resizeMode = value
+      previewView.scaleType = value.toScaleType()
       field = value
     }
   var enableFpsGraph = false
@@ -151,6 +151,9 @@ class CameraView(context: Context) :
 
         // Input Camera Device
         config.cameraId = cameraId
+
+        // Preview
+        config.preview = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Preview(previewView.surfaceProvider))
 
         // Photo
         if (photo) {

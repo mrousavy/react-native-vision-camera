@@ -1,6 +1,6 @@
 package com.mrousavy.camera.core
 
-import android.view.Surface
+import androidx.camera.core.Preview.SurfaceProvider
 import com.mrousavy.camera.types.CameraDeviceFormat
 import com.mrousavy.camera.types.CodeType
 import com.mrousavy.camera.types.Orientation
@@ -46,7 +46,7 @@ data class CameraConfiguration(
   data class Photo(val enableHdr: Boolean)
   data class Video(val enableHdr: Boolean, val pixelFormat: PixelFormat, val enableFrameProcessor: Boolean, val enableGpuBuffers: Boolean)
   data class Audio(val nothing: Unit)
-  data class Preview(val surface: Surface)
+  data class Preview(val surfaceProvider: SurfaceProvider)
 
   @Suppress("EqualsOrHashCode")
   sealed class Output<T> {
