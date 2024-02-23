@@ -13,6 +13,7 @@ export type DeviceError =
   | 'device/low-light-boost-not-supported'
   | 'device/focus-not-supported'
   | 'device/camera-not-available-on-simulator'
+  | 'device/camera-already-in-use'
 export type FormatError =
   | 'format/invalid-fps'
   | 'format/invalid-video-hdr'
@@ -27,6 +28,7 @@ export type SessionError =
   | 'session/audio-in-use-by-other-app'
   | 'session/no-outputs'
   | 'session/audio-session-failed-to-activate'
+  | 'session/invalid-output-configuration'
 export type CodeScannerError =
   | 'code-scanner/not-compatible-with-outputs'
   | 'code-scanner/code-type-not-supported'
@@ -48,9 +50,12 @@ export type CaptureError =
   | 'capture/unknown'
 export type SystemError =
   | 'system/camera-module-not-found'
+  | 'system/camera-is-restricted'
   | 'system/no-camera-manager'
   | 'system/frame-processors-unavailable'
   | 'system/view-not-found'
+  | 'system/max-cameras-in-use'
+  | 'system/do-not-disturb-bug'
 export type UnknownError = 'unknown/unknown'
 
 /**
