@@ -108,7 +108,7 @@ class CameraView(context: Context) :
     this.installHierarchyFitter()
     clipToOutline = true
     cameraSession = CameraSession(context, cameraManager, this)
-    previewView = cameraSession.createPreviewView(context)
+    previewView = PreviewView(context)
     previewView.layoutParams = LayoutParams(
       LayoutParams.MATCH_PARENT,
       LayoutParams.MATCH_PARENT,
