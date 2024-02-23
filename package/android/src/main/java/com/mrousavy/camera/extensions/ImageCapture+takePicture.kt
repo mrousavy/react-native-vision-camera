@@ -8,7 +8,7 @@ import java.util.concurrent.Executor
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-suspend fun ImageCapture.takePicture(executor: Executor): ImageProxy {
+suspend inline fun ImageCapture.takePicture(executor: Executor): ImageProxy {
   return suspendCancellableCoroutine { continuation ->
     takePicture(executor, object: ImageCapture.OnImageCapturedCallback() {
       override fun onCaptureSuccess(image: ImageProxy) {

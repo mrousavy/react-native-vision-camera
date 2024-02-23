@@ -10,6 +10,7 @@ import android.util.Range
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraState
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
@@ -25,6 +26,7 @@ import com.mrousavy.camera.core.outputs.VideoPipelineOutput
 import com.mrousavy.camera.extensions.await
 import com.mrousavy.camera.extensions.byId
 import com.mrousavy.camera.extensions.takePicture
+import com.mrousavy.camera.extensions.toCameraError
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
@@ -139,11 +141,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
           TAG,
           "configure { ... }: Completed CameraSession Configuration! (State: ${lifecycle.currentState})"
         )
-
-        // Notify about Camera initialization
-        if (diff.deviceChanged) {
-          callback.onInitialized()
-        }
       } catch (error: Throwable) {
         Log.e(TAG, "Failed to configure CameraSession! Error: ${error.message}, Config-Diff: $diff", error)
         callback.onError(error)
@@ -195,6 +192,22 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
     // Bind it all together
     camera = provider.bindToLifecycle(this, cameraSelector, *useCases.toTypedArray())
+    var lastState = CameraState.Type.OPENING
+    camera!!.cameraInfo.cameraState.observeForever { state ->
+      Log.i(TAG, "Camera State: ${state.type} (has error: ${state.error != null}")
+
+      if (state.type == CameraState.Type.OPEN && state.type != lastState) {
+        // Camera has now been initialized!
+        callback.onInitialized()
+        lastState = state.type
+      }
+
+      val error = state.error
+      if (error != null) {
+        // A Camera error occurred!
+        callback.onError(error.toCameraError())
+      }
+    }
     Log.i(TAG, "Successfully initialized Camera!")
   }
 

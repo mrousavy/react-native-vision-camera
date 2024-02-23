@@ -5,7 +5,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.resume
 
-suspend fun<T> runOnUiThreadAndWait(function: () -> T): T {
+suspend inline fun<T> runOnUiThreadAndWait(crossinline function: () -> T): T {
   if (UiThreadUtil.isOnUiThread()) {
     // We are already on UI Thread - immediately call the function
     return function()
@@ -20,7 +20,7 @@ suspend fun<T> runOnUiThreadAndWait(function: () -> T): T {
   }
 }
 
-fun runOnUiThread(function: () -> Unit) {
+inline fun runOnUiThread(crossinline function: () -> Unit) {
   if (UiThreadUtil.isOnUiThread()) {
     // We are already on UI Thread - immediately call the function
     function()
