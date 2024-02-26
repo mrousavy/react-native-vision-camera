@@ -42,6 +42,7 @@ import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.QualityBalance
 import com.mrousavy.camera.types.RecordVideoOptions
+import com.mrousavy.camera.types.Video
 import com.mrousavy.camera.utils.FileUtils
 import com.mrousavy.camera.utils.runOnUiThread
 import com.mrousavy.camera.utils.runOnUiThreadAndWait
@@ -301,7 +302,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   suspend fun startRecording(
     enableAudio: Boolean,
     options: RecordVideoOptions,
-    callback: (video: RecordingSession.Video) -> Unit,
+    callback: (video: Video) -> Unit,
     onError: (error: CameraError) -> Unit
   ) {
     val camera = camera ?: throw CameraNotReadyError()
@@ -338,7 +339,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
           val durationMs = event.recordingStats.recordedDurationNanos / 1_000_000
           Log.i(TAG, "Successfully completed video recording! Captured ${durationMs.toDouble() / 1_000.0} seconds.")
           val path = event.outputResults.outputUri.path ?: throw UnknownRecorderError(false, null)
-          val video = RecordingSession.Video(path, durationMs, size)
+          val video = Video(path, durationMs, size)
           callback(video)
         }
       }
