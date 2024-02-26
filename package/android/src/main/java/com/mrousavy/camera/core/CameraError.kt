@@ -147,7 +147,7 @@ class FrameInvalidError :
       "- If you want to do async processing, use `runAsync(...)` instead.\n" +
       "- If you want to use runOnJS, increment it's ref-count: `frame.incrementRefCount()`"
   )
-class InvalidImageTypeError() : CameraError("capture", "invalid-image-type", "Captured an Image with an invalid Image type!")
+class InvalidImageTypeError : CameraError("capture", "invalid-image-type", "Captured an Image with an invalid Image type!")
 
 class CodeTypeNotSupportedError(codeType: String) :
   CameraError(

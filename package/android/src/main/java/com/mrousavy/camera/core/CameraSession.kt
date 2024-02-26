@@ -14,12 +14,10 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.ImageAnalysis.Analyzer
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.MirrorMode
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
-import androidx.camera.core.impl.CameraConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.video.ExperimentalPersistentRecording
 import androidx.camera.video.FileOutputOptions
@@ -33,7 +31,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import com.google.mlkit.vision.barcode.common.Barcode
-import com.mrousavy.camera.core.outputs.BarcodeScannerOutput
 import com.mrousavy.camera.extensions.await
 import com.mrousavy.camera.extensions.byId
 import com.mrousavy.camera.extensions.takePicture

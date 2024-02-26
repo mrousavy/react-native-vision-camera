@@ -10,13 +10,12 @@ enum class QualityBalance(override val unionValue: String) : JSUnionValue {
   QUALITY("quality");
 
   @OptIn(ExperimentalZeroShutterLag::class)
-  fun toCaptureMode(): Int {
-    return when (this) {
+  fun toCaptureMode(): Int =
+    when (this) {
       SPEED -> ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
       BALANCED -> ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG
       QUALITY -> ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
     }
-  }
 
   companion object : JSUnionValue.Companion<QualityBalance> {
     override fun fromUnionValue(unionValue: String?): QualityBalance =
