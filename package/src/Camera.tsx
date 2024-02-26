@@ -140,8 +140,8 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   /**
    * Captures a snapshot of the Camera view and write it's content to a temporary file.
    *
-   * On iOS, this waits for a Frame from the video pipeline (and therefore requires `video` to be enabled), on Android this
-   * uses a view screenshot from the preview view.
+   * - On iOS, `takeSnapshot` waits for a Frame from the video pipeline and therefore requires `video` to be enabled.
+   * - On Android, `takeSnapshot` performs a GPU view screenshot from the preview view.
    *
    * @throws {@linkcode CameraCaptureError} When any kind of error occured while capturing the photo. Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
    * @example
