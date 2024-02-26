@@ -181,6 +181,7 @@ enum CaptureError {
   case videoNotEnabled
   case photoNotEnabled
   case snapshotFailed
+  case timedOut
   case aborted
   case insufficientStorage
   case unknown(message: String? = nil)
@@ -203,6 +204,8 @@ enum CaptureError {
       return "image-data-access-error"
     case .snapshotFailed:
       return "snapshot-failed"
+    case .timedOut:
+      return "timed-out"
     case .photoNotEnabled:
       return "photo-not-enabled"
     case .insufficientStorage:
@@ -234,6 +237,8 @@ enum CaptureError {
       return "Photo capture is disabled! Pass `photo={true}` to enable photo capture."
     case .imageDataAccessError:
       return "An unexpected error occurred while trying to access the image data!"
+    case .timedOut:
+      return "The capture timed out."
     case .aborted:
       return "The capture has been stopped before any input data arrived."
     case .insufficientStorage:

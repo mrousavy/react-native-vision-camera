@@ -20,7 +20,7 @@ enum FileUtils {
       .appendingPathComponent(filename)
     do {
       try data.write(to: tempFilePath)
-    } catch (let error) {
+    } catch {
       throw CameraError.capture(.fileError(cause: error))
     }
     return tempFilePath
