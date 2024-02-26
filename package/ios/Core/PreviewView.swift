@@ -46,33 +46,12 @@ class PreviewView: UIView {
     return videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: point)
   }
 
-  // TODO: TRY IF NEW API WORKS?
-  private var newAPI = false
-
   func takeSnapshot() throws -> UIImage {
-    if newAPI {
-      // New API:
-      let renderer = UIGraphicsImageRenderer(size: videoPreviewLayer.bounds.size)
-      let image = renderer.image(actions: { context in
-        videoPreviewLayer.render(in: context.cgContext)
-      })
-      return image
-    } else {
-      UIGraphicsBeginImageContextWithOptions(videoPreviewLayer.frame.size, false, 0)
-      defer {
-        UIGraphicsEndImageContext()
-      }
-      guard let context = UIGraphicsGetCurrentContext() else {
-        throw CameraError.capture(.snapshotFailed)
-      }
-
-      videoPreviewLayer.render(in: context)
-
-      guard let image = UIGraphicsGetImageFromCurrentImageContext() else {
-        throw CameraError.capture(.snapshotFailed)
-      }
-      return image
-    }
+    let renderer = UIGraphicsImageRenderer(size: videoPreviewLayer.bounds.size)
+    let image = renderer.image(actions: { context in
+      videoPreviewLayer.render(in: context.cgContext)
+    })
+    return image
   }
 
   init(frame: CGRect, session: AVCaptureSession) {
