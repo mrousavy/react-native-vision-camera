@@ -126,6 +126,7 @@ class FocusCanceledError : CameraError("capture", "focus-canceled", "The focus o
 class CaptureTimedOutError : CameraError("capture", "timed-out", "The image capture was aborted because it timed out.")
 class UnknownCaptureError(wasImageCaptured: Boolean) :
   CameraError("capture", "unknown", "An unknown error occurred while trying to capture an Image! Was Image captured: $wasImageCaptured")
+class SnapshotFailedError() : CameraError("capture", "snapshot-failed", "Failed to take a Snapshot of the Preview View! Try using takePhoto() instead.")
 
 private fun getVideoCapturedMessage(wasVideoCaptured: Boolean): String {
   return if (wasVideoCaptured) {

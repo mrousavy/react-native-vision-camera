@@ -40,22 +40,9 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
       return
     }
 
-    let error = ErrorPointer(nilLiteral: ())
-    guard let tempFilePath = RCTTempFilePath("jpeg", error)
-    else {
-      let message = error?.pointee?.description
-      promise.reject(error: .capture(.createTempFileError(message: message)), cause: error?.pointee)
-      return
-    }
-    let url = URL(string: "file://\(tempFilePath)")!
-
-    guard let data = photo.fileDataRepresentation() else {
-      promise.reject(error: .capture(.fileError))
-      return
-    }
-
     do {
-      try data.write(to: url)
+      let path = try FileUtils.writePhotoToTempFile(photo: photo)
+      
       let exif = photo.metadata["{Exif}"] as? [String: Any]
       let width = exif?["PixelXDimension"]
       let height = exif?["PixelYDimension"]
@@ -65,7 +52,7 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
       let isMirrored = getIsMirrored(forExifOrientation: cgOrientation)
 
       promise.resolve([
-        "path": tempFilePath,
+        "path": path.absoluteString,
         "width": width as Any,
         "height": height as Any,
         "orientation": orientation,

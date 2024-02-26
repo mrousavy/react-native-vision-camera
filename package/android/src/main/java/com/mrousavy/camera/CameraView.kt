@@ -96,11 +96,11 @@ class CameraView(context: Context) :
   // private properties
   private var isMounted = false
   private val coroutineScope = CoroutineScope(CameraQueues.cameraQueue.coroutineDispatcher)
-  internal val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+  private val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
   // session
   internal val cameraSession: CameraSession
-  private val previewView: PreviewView
+  internal val previewView: PreviewView
   private val previewSurfaceProvider: SurfaceProvider
   internal var frameProcessor: FrameProcessor? = null
   private var currentConfigureCall: Long = System.currentTimeMillis()

@@ -198,6 +198,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 fps={fps}
                 photoHdr={format?.supportsPhotoHdr && enableHdr}
                 videoHdr={format?.supportsVideoHdr && enableHdr}
+                photoQualityBalance="quality"
                 lowLightBoost={device.supportsLowLightBoost && enableNightMode}
                 enableZoomGesture={false}
                 animatedProps={cameraAnimatedProps}
