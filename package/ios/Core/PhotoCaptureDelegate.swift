@@ -61,8 +61,10 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
         "metadata": photo.metadata,
         "thumbnail": photo.embeddedThumbnailPhotoFormat as Any,
       ])
+    } catch let error as CameraError {
+      promise.reject(error: error)
     } catch {
-      promise.reject(error: .capture(.fileError), cause: error as NSError)
+      promise.reject(error: .capture(.unknown(message: "An unknown error occured while capturing the photo!")), cause: error as NSError)
     }
   }
 
