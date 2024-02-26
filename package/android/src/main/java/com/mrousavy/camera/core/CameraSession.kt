@@ -189,7 +189,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     if (photoConfig != null) {
       val photo = ImageCapture.Builder().also { photo ->
         photo.setCaptureMode(photoConfig.config.photoQualityBalance.toCaptureMode())
-        photo.setMirrorMode(MirrorMode.MIRROR_MODE_ON_FRONT_ONLY)
       }.build()
       useCases.add(photo)
       photoOutput = photo
