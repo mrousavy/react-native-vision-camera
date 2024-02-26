@@ -15,10 +15,9 @@ enum FileUtils {
    Writes Data to a temporary file and returns the file path.
    */
   private static func writeDataToTempFile(data: Data, fileExtension: String = "jpeg") throws -> URL {
-    let fileId = UUID().uuidString
+    let filename = UUID().uuidString + "." + fileExtension
     let tempFilePath = FileManager.default.temporaryDirectory
-      .appendingPathComponent(fileId)
-      .appendingPathComponent(fileExtension)
+      .appendingPathComponent(filename)
     do {
       try data.write(to: tempFilePath)
     } catch (let error) {
