@@ -184,21 +184,21 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     val format = configuration.format
 
     // 1. Preview
-      val previewConfig = configuration.preview as? CameraConfiguration.Output.Enabled<CameraConfiguration.Preview>
-      if (previewConfig != null) {
-        Log.i(TAG, "Creating Preview output...")
-        runOnUiThreadAndWait {
-          val preview = Preview.Builder().also { preview ->
-            if (fpsRange != null) {
-              preview.setTargetFrameRate(fpsRange)
-            }
-          }.build()
-          preview.setSurfaceProvider(previewConfig.config.surfaceProvider)
-          previewOutput = preview
-        }
-      } else {
-        previewOutput = null
+    val previewConfig = configuration.preview as? CameraConfiguration.Output.Enabled<CameraConfiguration.Preview>
+    if (previewConfig != null) {
+      Log.i(TAG, "Creating Preview output...")
+      runOnUiThreadAndWait {
+        val preview = Preview.Builder().also { preview ->
+          if (fpsRange != null) {
+            preview.setTargetFrameRate(fpsRange)
+          }
+        }.build()
+        preview.setSurfaceProvider(previewConfig.config.surfaceProvider)
+        previewOutput = preview
       }
+    } else {
+      previewOutput = null
+    }
 
     // 2. Image Capture
     val photoConfig = configuration.photo as? CameraConfiguration.Output.Enabled<CameraConfiguration.Photo>
