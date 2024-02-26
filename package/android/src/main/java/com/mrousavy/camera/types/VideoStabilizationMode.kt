@@ -13,6 +13,20 @@ enum class VideoStabilizationMode(override val unionValue: String) : JSUnionValu
   CINEMATIC("cinematic"),
   CINEMATIC_EXTENDED("cinematic-extended");
 
+  private val score: Int
+    get() {
+      return when (this) {
+        OFF -> 0
+        STANDARD -> 1
+        CINEMATIC -> 2
+        CINEMATIC_EXTENDED -> 3
+      }
+    }
+
+  fun isAtLeast(mode: VideoStabilizationMode): Boolean {
+    return score >= mode.score
+  }
+
   companion object : JSUnionValue.Companion<VideoStabilizationMode> {
     override fun fromUnionValue(unionValue: String?): VideoStabilizationMode =
       when (unionValue) {

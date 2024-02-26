@@ -6,11 +6,13 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
+import android.media.MediaActionSound
 import android.util.Log
 import android.util.Range
 import android.util.Size
 import androidx.annotation.OptIn
 import androidx.camera.core.Camera
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
 import androidx.camera.core.DynamicRange
@@ -18,6 +20,7 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.MirrorMode
 import androidx.camera.core.Preview
+import androidx.camera.core.PreviewCapabilities
 import androidx.camera.core.TorchState
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.extensions.ExtensionMode
@@ -38,6 +41,7 @@ import com.mrousavy.camera.extensions.await
 import com.mrousavy.camera.extensions.byId
 import com.mrousavy.camera.extensions.forSize
 import com.mrousavy.camera.extensions.getCameraError
+import com.mrousavy.camera.extensions.id
 import com.mrousavy.camera.extensions.takePicture
 import com.mrousavy.camera.extensions.toCameraError
 import com.mrousavy.camera.extensions.withExtension
@@ -48,6 +52,7 @@ import com.mrousavy.camera.types.QualityBalance
 import com.mrousavy.camera.types.RecordVideoOptions
 import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.Video
+import com.mrousavy.camera.types.VideoStabilizationMode
 import com.mrousavy.camera.utils.FileUtils
 import com.mrousavy.camera.utils.runOnUiThread
 import com.mrousavy.camera.utils.runOnUiThreadAndWait
@@ -179,11 +184,14 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     }
   }
 
+  @Suppress("LiftReturnOrAssignment")
   @SuppressLint("RestrictedApi")
   private suspend fun configureOutputs(configuration: CameraConfiguration) {
     Log.i(TAG, "Creating new Outputs for Camera #${configuration.cameraId}...")
     val fpsRange = getTargetFpsRange(configuration)
     val format = configuration.format
+
+    // TODO: Check if all of the values we set are supported with Video/Photo/Preview Capabilities from CameraInfo.
 
     // 1. Preview
     val previewConfig = configuration.preview as? CameraConfiguration.Output.Enabled<CameraConfiguration.Preview>
@@ -191,6 +199,10 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       Log.i(TAG, "Creating Preview output...")
       runOnUiThreadAndWait {
         val preview = Preview.Builder().also { preview ->
+          // Configure Preview Output
+          if (configuration.videoStabilizationMode.isAtLeast(VideoStabilizationMode.CINEMATIC)) {
+            preview.setPreviewStabilizationEnabled(true)
+          }
           if (fpsRange != null) {
             preview.setTargetFrameRate(fpsRange)
           }
@@ -207,6 +219,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     if (photoConfig != null) {
       Log.i(TAG, "Creating Photo output...")
       val photo = ImageCapture.Builder().also { photo ->
+        // Configure Photo Output
         photo.setCaptureMode(photoConfig.config.photoQualityBalance.toCaptureMode())
         if (format != null) {
           Log.i(TAG, "Photo size: ${format.photoSize}")
@@ -231,8 +244,13 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         // video.setTargetVideoEncodingBitRate()
       }.build()
 
+
       val video = VideoCapture.Builder(recorder).also { video ->
+        // Configure Video Output
         video.setMirrorMode(MirrorMode.MIRROR_MODE_ON_FRONT_ONLY)
+        if (configuration.videoStabilizationMode.isAtLeast(VideoStabilizationMode.STANDARD)) {
+          video.setVideoStabilizationEnabled(true)
+        }
         if (fpsRange != null) {
           video.setTargetFrameRate(fpsRange)
         }
@@ -355,12 +373,13 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       val camera = camera ?: throw CameraNotReadyError()
       val photoOutput = photoOutput ?: throw PhotoNotEnabledError()
 
-      // TODO: Add shutter sound, stabilization and quality prioritization support here?
+      // TODO: Add stabilization and quality prioritization support here?
 
       photoOutput.flashMode = flash.toFlashMode()
       photoOutput.targetRotation = outputOrientation.toDegrees()
+      val playSound = enableShutterSound || CameraInfo.mustPlayShutterSound()
 
-      val image = photoOutput.takePicture(CameraQueues.cameraQueue.executor)
+      val image = photoOutput.takePicture(playSound, CameraQueues.cameraQueue.executor)
       val isMirrored = camera.cameraInfo.lensFacing == CameraSelector.LENS_FACING_FRONT
       return Photo(image, isMirrored)
     }
