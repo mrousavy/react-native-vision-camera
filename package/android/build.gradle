@@ -46,6 +46,10 @@ def safeExtGet(prop, fallback) {
   rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
 }
 
+def safeExtGetBool(prop, fallback) {
+  Boolean.parseBoolean("${safeExtGet(prop, fallback)}")
+}
+
 def reactNativeArchitectures() {
   def value = project.getProperties().get("reactNativeArchitectures")
   return value ? value.split(",") : ["armeabi-v7a", "x86", "x86_64", "arm64-v8a"]
@@ -68,10 +72,10 @@ static def findNodeModules(baseDir) {
 
 def nodeModules = findNodeModules(projectDir)
 
-def hasWorklets = !safeExtGet("VisionCamera_disableFrameProcessors", false) && findProject(":react-native-worklets-core") != null
+def hasWorklets = !safeExtGetBool('VisionCamera_disableFrameProcessors', false) && findProject(":react-native-worklets-core") != null
 logger.warn("[VisionCamera] react-native-worklets-core ${hasWorklets ? "found" : "not found"}, Frame Processors ${hasWorklets ? "enabled" : "disabled"}!")
 
-def enableCodeScanner = safeExtGet("VisionCamera_enableCodeScanner", false)
+def enableCodeScanner = safeExtGetBool('VisionCamera_enableCodeScanner', false)
 
 repositories {
   google()
