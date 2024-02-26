@@ -76,15 +76,25 @@ extension CameraSession {
       captureSession.addOutput(photoOutput)
 
       // 2. Configure
+      if #available(iOS 13.0, *) {
+        let qualityPrioritization = AVCapturePhotoOutput.QualityPrioritization(fromQualityBalance: photo.photoQualityBalance)
+        photoOutput.maxPhotoQualityPrioritization = qualityPrioritization
+      }
       if photo.enableHighQualityPhotos {
-        // TODO: In iOS 16 this will be removed in favor of maxPhotoDimensions.
-        photoOutput.isHighResolutionCaptureEnabled = true
-        if #available(iOS 13.0, *) {
-          // TODO: Test if this actually does any fusion or if this just calls the captureOutput twice. If the latter, remove it.
-          photoOutput.isVirtualDeviceConstituentPhotoDeliveryEnabled = photoOutput.isVirtualDeviceConstituentPhotoDeliverySupported
-          photoOutput.maxPhotoQualityPrioritization = .quality
+        // TODO: Refactor this into an extension method. Same for AVCapturePhotoOutput.
+        if #available(iOS 16.0, *) {
+          if let device = videoDeviceInput?.device,
+             let targetFormat = configuration.format {
+            guard let format = device.formats.first(where: { f in targetFormat.isEqualTo(format: f) }) else {
+              throw CameraError.parameter(.invalid(unionName: "format", receivedValue: targetFormat.toJSValue().description))
+            }
+            guard let maxSupportedDimension = format.supportedMaxPhotoDimensions.max(by: { ($0.width * $0.height) < ($1.width * $1.height) }) else {
+              throw CameraError.unknown(message: "supportedMaxPhotoDimensions was empty!", cause: nil)
+            }
+            photoOutput.maxPhotoDimensions = maxSupportedDimension
+          }
         } else {
-          photoOutput.isDualCameraDualPhotoDeliveryEnabled = photoOutput.isDualCameraDualPhotoDeliverySupported
+          photoOutput.isHighResolutionCaptureEnabled = true
         }
       }
       // TODO: Enable isResponsiveCaptureEnabled? (iOS 17+)

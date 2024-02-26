@@ -41,26 +41,15 @@ extension CameraSession {
       // Create photo settings
       let photoSettings = AVCapturePhotoSettings()
 
-      // default, overridable settings if high quality capture was enabled
+      // high resolution capture
       if photo.enableHighQualityPhotos {
         // TODO: On iOS 16+ this will be removed in favor of maxPhotoDimensions.
-        photoSettings.isHighResolutionPhotoEnabled = true
-        if #available(iOS 13.0, *) {
-          photoSettings.photoQualityPrioritization = .quality
+        if #available(iOS 16.0, *) {
+          photoSettings.maxPhotoDimensions = photoOutput.maxPhotoDimensions
+        } else {
+          photoSettings.isHighResolutionPhotoEnabled = true
         }
       }
-
-      // flash
-      if videoDeviceInput.device.isFlashAvailable, let flash = options["flash"] as? String {
-        guard let flashMode = AVCaptureDevice.FlashMode(withString: flash) else {
-          promise.reject(error: .parameter(.invalid(unionName: "FlashMode", receivedValue: flash)))
-          return
-        }
-        photoSettings.flashMode = flashMode
-      }
-
-      // shutter sound
-      let enableShutterSound = options["enableShutterSound"] as? Bool ?? true
 
       // depth data
       photoSettings.isDepthDataDeliveryEnabled = photoOutput.isDepthDataDeliveryEnabled
@@ -69,17 +58,8 @@ extension CameraSession {
       }
 
       // quality prioritization
-      if #available(iOS 13.0, *), let qualityPrioritization = options["qualityPrioritization"] as? String {
-        guard let photoQualityPrioritization = AVCapturePhotoOutput.QualityPrioritization(withString: qualityPrioritization) else {
-          promise.reject(error: .parameter(.invalid(unionName: "QualityPrioritization", receivedValue: qualityPrioritization)))
-          return
-        }
-        photoSettings.photoQualityPrioritization = photoQualityPrioritization
-      }
-
-      // photo size is always the one selected in the format
-      if #available(iOS 16.0, *) {
-        photoSettings.maxPhotoDimensions = photoOutput.maxPhotoDimensions
+      if #available(iOS 13.0, *) {
+        photoSettings.photoQualityPrioritization = photoOutput.maxPhotoQualityPrioritization
       }
 
       // red-eye reduction
@@ -96,6 +76,18 @@ extension CameraSession {
       if #available(iOS 14.1, *), let enableAutoDistortionCorrection = options["enableAutoDistortionCorrection"] as? Bool {
         photoSettings.isAutoContentAwareDistortionCorrectionEnabled = enableAutoDistortionCorrection
       }
+
+      // flash
+      if videoDeviceInput.device.isFlashAvailable, let flash = options["flash"] as? String {
+        guard let flashMode = AVCaptureDevice.FlashMode(withString: flash) else {
+          promise.reject(error: .parameter(.invalid(unionName: "FlashMode", receivedValue: flash)))
+          return
+        }
+        photoSettings.flashMode = flashMode
+      }
+
+      // shutter sound
+      let enableShutterSound = options["enableShutterSound"] as? Bool ?? true
 
       // Actually do the capture!
       photoOutput.capturePhoto(with: photoSettings, delegate: PhotoCaptureDelegate(promise: promise, enableShutterSound: enableShutterSound))

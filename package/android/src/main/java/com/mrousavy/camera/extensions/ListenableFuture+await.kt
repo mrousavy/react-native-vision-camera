@@ -2,12 +2,12 @@ package com.mrousavy.camera.extensions
 
 import com.google.common.util.concurrent.ListenableFuture
 import com.mrousavy.camera.core.CameraQueues
-import kotlinx.coroutines.isActive
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlinx.coroutines.isActive
 
-suspend fun<V> ListenableFuture<V>.await(): V {
+suspend fun <V> ListenableFuture<V>.await(): V {
   if (this.isCancelled) throw CancellationException("ListenableFuture<V> has been canceled!")
   if (this.isDone) return this.get()
 

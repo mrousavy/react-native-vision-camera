@@ -65,9 +65,9 @@ class FlashUnavailableError :
 class FocusNotSupportedError :
   CameraError("device", "focus-not-supported", "The currently selected camera device does not support focusing!")
 class CameraInUseError(cause: Throwable?) :
-    CameraError("device", "camera-already-in-use", "The given Camera Device is already in use!", cause)
+  CameraError("device", "camera-already-in-use", "The given Camera Device is already in use!", cause)
 class FatalCameraError(cause: Throwable?) :
-    CameraError("device", "fatal-error", "An unknown fatal error occurred in the Camera HAL! Try restarting the phone.", cause)
+  CameraError("device", "fatal-error", "An unknown fatal error occurred in the Camera HAL! Try restarting the phone.", cause)
 
 class CameraNotReadyError :
   CameraError("session", "camera-not-ready", "The Camera is not ready yet! Wait for the onInitialized() callback!")
@@ -80,9 +80,19 @@ class CameraDisconnectedError(cameraId: String, error: CameraDeviceError) :
 class NoOutputsError :
   CameraError("session", "no-outputs", "Cannot create a CameraCaptureSession without any outputs! (PREVIEW, PHOTO, VIDEO, ...)")
 class RecoverableError(cause: Throwable?) :
-    CameraError("session", "recoverable-error", "An unknown error occurred while creating the Camera Session, but the Camera can recover from it.", cause)
+  CameraError(
+    "session",
+    "recoverable-error",
+    "An unknown error occurred while creating the Camera Session, but the Camera can recover from it.",
+    cause
+  )
 class InvalidOutputConfigurationError(cause: Throwable?) :
-    CameraError("session", "invalid-output-configuration", "Failed to configure the Camera Session because the output/stream configurations are invalid!", cause)
+  CameraError(
+    "session",
+    "invalid-output-configuration",
+    "Failed to configure the Camera Session because the output/stream configurations are invalid!",
+    cause
+  )
 
 class PropRequiresFormatToBeNonNullError(propName: String) :
   CameraError("format", "format-required", "The prop \"$propName\" requires a format to be set, but format was null!")
@@ -157,11 +167,21 @@ class ViewNotFoundError(viewId: Int) :
 class HardwareBuffersNotAvailableError :
   CameraError("system", "hardware-buffers-unavailable", "HardwareBuffers are only available on API 28 or higher!")
 class MaxCamerasInUseError(cause: Throwable?) :
-    CameraError("system", "max-cameras-in-use", "The maximum amount of Cameras available for simultaneous use has been reached!", cause)
+  CameraError("system", "max-cameras-in-use", "The maximum amount of Cameras available for simultaneous use has been reached!", cause)
 class CameraIsRestrictedError(cause: Throwable?) :
-    CameraError("system", "camera-is-restricted", "Camera functionality is not available because it has been restricted by the operating system, possibly due to a device policy.", cause)
+  CameraError(
+    "system",
+    "camera-is-restricted",
+    "Camera functionality is not available because it has been restricted by the operating system, possibly due to a device policy.",
+    cause
+  )
 class DoNotDisturbBugError(cause: Throwable?) :
-    CameraError("system", "do-not-disturb-bug", "The Camera Device could not be opened because of a bug in Android 9 (API 28) when do-not-disturb mode is enabled! " +
-        "Either update your Android version, or disable do-not-disturb.", cause)
+  CameraError(
+    "system",
+    "do-not-disturb-bug",
+    "The Camera Device could not be opened because of a bug in Android 9 (API 28) when do-not-disturb mode is enabled! " +
+      "Either update your Android version, or disable do-not-disturb.",
+    cause
+  )
 
 class UnknownCameraError(cause: Throwable?) : CameraError("unknown", "unknown", cause?.message ?: "An unknown camera error occured.", cause)
