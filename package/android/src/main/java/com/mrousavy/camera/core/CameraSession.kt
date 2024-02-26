@@ -42,6 +42,7 @@ import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.QualityBalance
 import com.mrousavy.camera.types.RecordVideoOptions
+import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.Video
 import com.mrousavy.camera.utils.FileUtils
 import com.mrousavy.camera.utils.runOnUiThread
@@ -49,6 +50,7 @@ import com.mrousavy.camera.utils.runOnUiThreadAndWait
 import java.io.Closeable
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlin.math.roundToInt
 
 class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: Callback) :
   Closeable,
@@ -104,6 +106,8 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   suspend fun configure(lambda: (configuration: CameraConfiguration) -> Unit) {
     Log.i(TAG, "configure { ... }: Waiting for lock...")
 
+    val provider = cameraProvider.await()
+
     mutex.withLock {
       // Let caller configure a new configuration for the Camera.
       val config = CameraConfiguration.copyOf(this.configuration)
@@ -125,11 +129,13 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
       try {
         // Build up session or update any props
-        val provider = cameraProvider.await()
         runOnUiThreadAndWait {
           if (diff.deviceChanged || diff.outputsChanged) {
             // 1. cameraId changed, open device
             configureCamera(provider, config)
+          }
+          if (diff.sidePropsChanged) {
+            configureSideProps(config)
           }
           if (diff.isActiveChanged) {
             // 4. Either start or stop the session
@@ -257,6 +263,20 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       }
     }
     Log.i(TAG, "Successfully initialized Camera!")
+  }
+
+  private fun configureSideProps(config: CameraConfiguration) {
+    val camera = camera ?: throw CameraNotReadyError()
+
+    // Zoom
+    camera.cameraControl.setZoomRatio(config.zoom)
+
+    // Torch
+    camera.cameraControl.enableTorch(config.torch == Torch.ON)
+
+    // Exposure
+    val exposureCompensation = config.exposure?.roundToInt() ?: 0
+    camera.cameraControl.setExposureCompensationIndex(exposureCompensation)
   }
 
   private fun configureIsActive(config: CameraConfiguration) {
