@@ -272,12 +272,12 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     val cameraId = configuration.cameraId ?: throw NoCameraDeviceError()
     var cameraSelector = CameraSelector.Builder().byId(cameraId).build()
 
+    val needsImageAnalysis = codeScannerOutput != null
     if (configuration.enableHdr) {
-      cameraSelector = cameraSelector.withExtension(context, provider, ExtensionMode.HDR, "HDR")
+      cameraSelector = cameraSelector.withExtension(context, provider, needsImageAnalysis, ExtensionMode.HDR, "HDR")
     }
     if (configuration.enableLowLightBoost) {
-      // TODO: Check if both HDR and Low Light boost extensions work at the same time.
-      cameraSelector = cameraSelector.withExtension(context, provider, ExtensionMode.NIGHT, "NIGHT")
+      cameraSelector = cameraSelector.withExtension(context, provider, needsImageAnalysis, ExtensionMode.NIGHT, "NIGHT")
     }
 
     // Outputs
