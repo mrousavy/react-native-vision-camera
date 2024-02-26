@@ -8,6 +8,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.util.Log
 import android.util.Range
+import android.util.Size
 import androidx.annotation.OptIn
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
@@ -33,6 +34,7 @@ import androidx.lifecycle.LifecycleRegistry
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.extensions.await
 import com.mrousavy.camera.extensions.byId
+import com.mrousavy.camera.extensions.getCameraError
 import com.mrousavy.camera.extensions.takePicture
 import com.mrousavy.camera.extensions.toCameraError
 import com.mrousavy.camera.frameprocessor.Frame
@@ -295,7 +297,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   }
 
   @OptIn(ExperimentalPersistentRecording::class)
-  @SuppressLint("MissingPermission")
+  @SuppressLint("MissingPermission", "RestrictedApi")
   suspend fun startRecording(
     enableAudio: Boolean,
     options: RecordVideoOptions,
@@ -313,6 +315,8 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       pendingRecording = pendingRecording.withAudioEnabled()
     }
     pendingRecording = pendingRecording.asPersistentRecording()
+
+    val size = videoOutput.attachedSurfaceResolution ?: Size(0, 0)
     recording = pendingRecording.start(CameraQueues.cameraQueue.executor) { event ->
       when (event) {
         is VideoRecordEvent.Start -> Log.i(TAG, "Recording started!")
@@ -321,8 +325,21 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         is VideoRecordEvent.Status -> Log.i(TAG, "Status update! Recorded ${event.recordingStats.numBytesRecorded} bytes.")
         is VideoRecordEvent.Finalize -> {
           Log.i(TAG, "Recording stopped!")
-          // TODO: Check for errors.
-          // TODO: Callback with resulting video now.
+          val error = event.getCameraError()
+          if (error != null) {
+            if (error.wasVideoRecorded) {
+              Log.e(TAG, "Video Recorder encountered an error, but the video was recorded anyways.", error)
+            } else {
+              Log.e(TAG, "Video Recorder encountered a fatal error!", error)
+              onError(error)
+              return@start
+            }
+          }
+          val durationMs = event.recordingStats.recordedDurationNanos / 1_000_000
+          Log.i(TAG, "Successfully completed video recording! Captured ${durationMs.toDouble() / 1_000.0} seconds.")
+          val path = event.outputResults.outputUri.path ?: throw UnknownRecorderError(false, null)
+          val video = RecordingSession.Video(path, durationMs, size)
+          callback(video)
         }
       }
     }
