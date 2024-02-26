@@ -134,23 +134,21 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
       try {
         // Build up session or update any props
-        runOnUiThreadAndWait {
-          if (diff.outputsChanged) {
-            // 1. outputs changed, re-create them
-            configureOutputs(config)
-          }
-          if (diff.deviceChanged || diff.outputsChanged) {
-            // 2. input or outputs changed, rebind the session
-            configureCamera(provider, config)
-          }
-          if (diff.sidePropsChanged) {
-            // 3. side props such as zoom, exposure or torch changed.
-            configureSideProps(config)
-          }
-          if (diff.isActiveChanged) {
-            // 4. start or stop the session
-            configureIsActive(config)
-          }
+        if (diff.outputsChanged) {
+          // 1. outputs changed, re-create them
+          configureOutputs(config)
+        }
+        if (diff.deviceChanged || diff.outputsChanged) {
+          // 2. input or outputs changed, rebind the session
+          configureCamera(provider, config)
+        }
+        if (diff.sidePropsChanged) {
+          // 3. side props such as zoom, exposure or torch changed.
+          configureSideProps(config)
+        }
+        if (diff.isActiveChanged) {
+          // 4. start or stop the session
+          configureIsActive(config)
         }
 
         Log.i(
@@ -183,25 +181,27 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   }
 
   @SuppressLint("RestrictedApi")
-  private fun configureOutputs(configuration: CameraConfiguration) {
+  private suspend fun configureOutputs(configuration: CameraConfiguration) {
     Log.i(TAG, "Creating new Outputs for Camera #${configuration.cameraId}...")
     val fpsRange = getTargetFpsRange(configuration)
     val format = configuration.format
 
     // 1. Preview
-    val previewConfig = configuration.preview as? CameraConfiguration.Output.Enabled<CameraConfiguration.Preview>
-    if (previewConfig != null) {
-      Log.i(TAG, "Creating Preview output...")
-      val preview = Preview.Builder().also { preview ->
-        if (fpsRange != null) {
-          preview.setTargetFrameRate(fpsRange)
+      val previewConfig = configuration.preview as? CameraConfiguration.Output.Enabled<CameraConfiguration.Preview>
+      if (previewConfig != null) {
+        Log.i(TAG, "Creating Preview output...")
+        runOnUiThreadAndWait {
+          val preview = Preview.Builder().also { preview ->
+            if (fpsRange != null) {
+              preview.setTargetFrameRate(fpsRange)
+            }
+          }.build()
+          preview.setSurfaceProvider(previewConfig.config.surfaceProvider)
+          previewOutput = preview
         }
-      }.build()
-      preview.setSurfaceProvider(previewConfig.config.surfaceProvider)
-      previewOutput = preview
-    } else {
-      previewOutput = null
-    }
+      } else {
+        previewOutput = null
+      }
 
     // 2. Image Capture
     val photoConfig = configuration.photo as? CameraConfiguration.Output.Enabled<CameraConfiguration.Photo>
@@ -266,39 +266,41 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   }
 
   @SuppressLint("RestrictedApi")
-  private fun configureCamera(provider: ProcessCameraProvider, configuration: CameraConfiguration) {
+  private suspend fun configureCamera(provider: ProcessCameraProvider, configuration: CameraConfiguration) {
     Log.i(TAG, "Binding Camera #${configuration.cameraId}...")
     checkCameraPermission()
 
-    // Unbind previous Camera
-    provider.unbindAll()
+    runOnUiThreadAndWait {
+      // Unbind previous Camera
+      provider.unbindAll()
 
-    // Input
-    val cameraId = configuration.cameraId ?: throw NoCameraDeviceError()
-    val cameraSelector = CameraSelector.Builder().byId(cameraId).build()
+      // Input
+      val cameraId = configuration.cameraId ?: throw NoCameraDeviceError()
+      val cameraSelector = CameraSelector.Builder().byId(cameraId).build()
 
-    // Outputs
-    val useCases = mutableListOf(previewOutput, photoOutput, videoOutput, codeScannerOutput).filterNotNull()
+      // Outputs
+      val useCases = listOfNotNull(previewOutput, photoOutput, videoOutput, codeScannerOutput)
 
-    // Bind it all together
-    camera = provider.bindToLifecycle(this, cameraSelector, *useCases.toTypedArray())
-    var lastState = CameraState.Type.OPENING
-    camera!!.cameraInfo.cameraState.observeForever { state ->
-      Log.i(TAG, "Camera State: ${state.type} (has error: ${state.error != null})")
+      // Bind it all together
+      camera = provider.bindToLifecycle(this, cameraSelector, *useCases.toTypedArray())
+      var lastState = CameraState.Type.OPENING
+      camera!!.cameraInfo.cameraState.observeForever { state ->
+        Log.i(TAG, "Camera State: ${state.type} (has error: ${state.error != null})")
 
-      if (state.type == CameraState.Type.OPEN && state.type != lastState) {
-        // Camera has now been initialized!
-        callback.onInitialized()
-        lastState = state.type
+        if (state.type == CameraState.Type.OPEN && state.type != lastState) {
+          // Camera has now been initialized!
+          callback.onInitialized()
+          lastState = state.type
+        }
+
+        val error = state.error
+        if (error != null) {
+          // A Camera error occurred!
+          callback.onError(error.toCameraError())
+        }
       }
-
-      val error = state.error
-      if (error != null) {
-        // A Camera error occurred!
-        callback.onError(error.toCameraError())
-      }
+      Log.i(TAG, "Successfully bound Camera #${configuration.cameraId}!")
     }
-    Log.i(TAG, "Successfully bound Camera #${configuration.cameraId}!")
   }
 
   private fun configureSideProps(config: CameraConfiguration) {
@@ -326,10 +328,12 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   }
 
   private fun configureIsActive(config: CameraConfiguration) {
-    if (config.isActive) {
-      lifecycleRegistry.currentState = Lifecycle.State.RESUMED
-    } else {
-      lifecycleRegistry.currentState = Lifecycle.State.STARTED
+    runOnUiThread {
+      if (config.isActive) {
+        lifecycleRegistry.currentState = Lifecycle.State.RESUMED
+      } else {
+        lifecycleRegistry.currentState = Lifecycle.State.STARTED
+      }
     }
   }
 
