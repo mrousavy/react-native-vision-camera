@@ -19,7 +19,11 @@ enum FileUtils {
     let tempFilePath = FileManager.default.temporaryDirectory
       .appendingPathComponent(fileId)
       .appendingPathComponent(fileExtension)
-    try data.write(to: tempFilePath)
+    do {
+      try data.write(to: tempFilePath)
+    } catch (let error) {
+      throw CameraError.capture(.fileError(cause: error))
+    }
     return tempFilePath
   }
 
