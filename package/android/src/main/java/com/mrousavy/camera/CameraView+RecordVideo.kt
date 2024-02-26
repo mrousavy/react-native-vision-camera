@@ -7,21 +7,21 @@ import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
 import com.mrousavy.camera.core.CameraError
 import com.mrousavy.camera.core.MicrophonePermissionError
-import com.mrousavy.camera.core.RecordingSession
 import com.mrousavy.camera.core.code
 import com.mrousavy.camera.types.RecordVideoOptions
+import com.mrousavy.camera.types.Video
 import com.mrousavy.camera.utils.makeErrorMap
 import java.util.*
 
 suspend fun CameraView.startRecording(options: RecordVideoOptions, onRecordCallback: Callback) {
   // check audio permission
-  if (audio == true) {
+  if (audio) {
     if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
       throw MicrophonePermissionError()
     }
   }
 
-  val callback = { video: RecordingSession.Video ->
+  val callback = { video: Video ->
     val map = Arguments.createMap()
     map.putString("path", video.path)
     map.putDouble("duration", video.durationMs.toDouble() / 1000.0)
@@ -33,7 +33,7 @@ suspend fun CameraView.startRecording(options: RecordVideoOptions, onRecordCallb
     val errorMap = makeErrorMap(error.code, error.message)
     onRecordCallback(null, errorMap)
   }
-  cameraSession.startRecording(audio == true, options, callback, onError)
+  cameraSession.startRecording(audio, options, callback, onError)
 }
 
 @SuppressLint("RestrictedApi")

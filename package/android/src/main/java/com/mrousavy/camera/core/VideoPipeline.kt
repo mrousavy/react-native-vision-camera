@@ -26,6 +26,7 @@ import java.io.Closeable
  * @param [height] The height of the Frames to stream (> 0)
  * @param [format] The format of the Frames to stream. ([ImageFormat.PRIVATE], [ImageFormat.YUV_420_888] or [ImageFormat.JPEG])
  */
+@RequiresApi(Build.VERSION_CODES.O)
 @Suppress("KotlinJniMissingFunction")
 class VideoPipeline(
   val width: Int,
@@ -54,14 +55,11 @@ class VideoPipeline(
   val surface: Surface
 
   // Output
-  private var recordingSession: RecordingSession? = null
+  // TODO: Recording Session output?
 
   // If Frame Processors are enabled, we go through ImageReader first before we go thru OpenGL
   private var imageReader: ImageReader? = null
   private var imageWriter: ImageWriter? = null
-
-  private val hasOutputs: Boolean
-    get() = recordingSession != null
 
   init {
     Log.i(
@@ -110,7 +108,8 @@ class VideoPipeline(
         try {
           callback.onFrame(frame)
 
-          if (hasOutputs) {
+          // TODO: Outputs?
+          if (false) {
             // If we have outputs (e.g. a RecordingSession), pass the frame along to the OpenGL pipeline
             imageWriter?.queueInputImage(image)
           }
@@ -135,7 +134,6 @@ class VideoPipeline(
       imageWriter?.close()
       imageReader?.close()
       removeRecordingSessionOutputSurface()
-      recordingSession = null
       surfaceTexture.setOnFrameAvailableListener(null, null)
       surfaceTexture.release()
       surface.release()
@@ -174,25 +172,6 @@ class VideoPipeline(
       PixelFormat.YUV -> ImageFormat.YUV_420_888
       else -> ImageFormat.PRIVATE
     }
-
-  /**
-   * Configures the Pipeline to also write Frames to a Surface from a `MediaRecorder` (or null)
-   */
-  fun setRecordingSessionOutput(recordingSession: RecordingSession?) {
-    synchronized(this) {
-      if (recordingSession != null) {
-        // Configure OpenGL pipeline to stream Frames into the Recording Session's surface
-        Log.i(TAG, "Setting ${recordingSession.size} RecordingSession Output...")
-        setRecordingSessionOutputSurface(recordingSession.surface)
-        this.recordingSession = recordingSession
-      } else {
-        // Configure OpenGL pipeline to stop streaming Frames into the Recording Session's surface
-        Log.i(TAG, "Removing RecordingSession Output...")
-        removeRecordingSessionOutputSurface()
-        this.recordingSession = null
-      }
-    }
-  }
 
   /**
    * Get the recommended HardwareBuffer flags for creating ImageReader instances with.
