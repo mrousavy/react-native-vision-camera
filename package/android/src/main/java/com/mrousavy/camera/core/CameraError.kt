@@ -126,32 +126,58 @@ class FocusCanceledError : CameraError("capture", "focus-canceled", "The focus o
 class CaptureTimedOutError : CameraError("capture", "timed-out", "The image capture was aborted because it timed out.")
 class UnknownCaptureError(wasImageCaptured: Boolean) :
   CameraError("capture", "unknown", "An unknown error occurred while trying to capture an Image! Was Image captured: $wasImageCaptured")
-class SnapshotFailedError() : CameraError("capture", "snapshot-failed", "Failed to take a Snapshot of the Preview View! Try using takePhoto() instead.")
+class SnapshotFailedError :
+  CameraError("capture", "snapshot-failed", "Failed to take a Snapshot of the Preview View! Try using takePhoto() instead.")
 
-private fun getVideoCapturedMessage(wasVideoCaptured: Boolean): String {
-  return if (wasVideoCaptured) {
+private fun getVideoCapturedMessage(wasVideoCaptured: Boolean): String =
+  if (wasVideoCaptured) {
     "The output file was generated, so the recording may be valid."
   } else {
     "The output file was generated but the recording will not be valid, so you should delete the file."
   }
-}
 
 open class RecorderError(id: String, message: String, val wasVideoRecorded: Boolean, cause: Throwable?) :
   CameraError("capture", id, message, cause)
 class UnknownRecorderError(wasVideoRecorded: Boolean, cause: Throwable?) :
-    RecorderError("recorder-error", "An error occurred while recording a video! ${getVideoCapturedMessage(wasVideoRecorded)} ${cause?.message}", wasVideoRecorded, cause)
+  RecorderError(
+    "recorder-error",
+    "An error occurred while recording a video! ${getVideoCapturedMessage(wasVideoRecorded)} ${cause?.message}",
+    wasVideoRecorded,
+    cause
+  )
 class EncoderError(cause: Throwable?) :
   RecorderError("encoder-error", "The Video Encoder encountered an error occurred while recording a video!", false, cause)
 class NoDataError(cause: Throwable?) :
-  RecorderError("no-data", "The Video Recording failed because no data was received! (${cause?.message}) " +
-        "Did you stop the recording before any Frames arrived?", false, cause)
-class InvalidRecorderConfigurationError(cause: Throwable?):
-  RecorderError("invalid-recorder-configuration", "The Video Recording failed because it was configured with invalid settings! ${cause?.message}", false, cause)
+  RecorderError(
+    "no-data",
+    "The Video Recording failed because no data was received! (${cause?.message}) " +
+      "Did you stop the recording before any Frames arrived?",
+    false,
+    cause
+  )
+class InvalidRecorderConfigurationError(cause: Throwable?) :
+  RecorderError(
+    "invalid-recorder-configuration",
+    "The Video Recording failed because it was configured with invalid settings! ${cause?.message}",
+    false,
+    cause
+  )
 class FileSizeLimitReachedError(cause: Throwable?) :
-  RecorderError("file-size-limit-reached", "The Video Recording was stopped because the file size limit was reached. The output file may still be valid.", true, cause)
+  RecorderError(
+    "file-size-limit-reached",
+    "The Video Recording was stopped because the file size limit was reached. The output file may still be valid.",
+    true,
+    cause
+  )
 class DurationLimitReachedError(cause: Throwable?) :
-  RecorderError("duration-limit-reached", "The Video Recording was stopped because the duration limit was reached. The output file may still be valid.", true, cause)
-class InsufficientStorageForRecorderError(cause: Throwable?) : RecorderError("insufficient-storage", "There is not enough storage space available for a Video Recording.", false, cause)
+  RecorderError(
+    "duration-limit-reached",
+    "The Video Recording was stopped because the duration limit was reached. The output file may still be valid.",
+    true,
+    cause
+  )
+class InsufficientStorageForRecorderError(cause: Throwable?) :
+  RecorderError("insufficient-storage", "There is not enough storage space available for a Video Recording.", false, cause)
 class NoRecordingInProgressError :
   CameraError("capture", "no-recording-in-progress", "There was no active video recording in progress! Did you call stopRecording() twice?")
 class InsufficientStorageError : CameraError("capture", "insufficient-storage", "There is not enough storage space available.")

@@ -2,10 +2,7 @@ package com.mrousavy.camera
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.ImageFormat
-import android.graphics.Matrix
 import android.hardware.camera2.*
 import android.util.Log
 import com.facebook.react.bridge.Arguments
@@ -16,8 +13,6 @@ import com.mrousavy.camera.core.Photo
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.QualityBalance
 import com.mrousavy.camera.utils.*
-import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
 import kotlinx.coroutines.*
 

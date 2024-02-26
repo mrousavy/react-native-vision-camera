@@ -49,9 +49,9 @@ import com.mrousavy.camera.utils.FileUtils
 import com.mrousavy.camera.utils.runOnUiThread
 import com.mrousavy.camera.utils.runOnUiThreadAndWait
 import java.io.Closeable
+import kotlin.math.roundToInt
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlin.math.roundToInt
 
 class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: Callback) :
   Closeable,

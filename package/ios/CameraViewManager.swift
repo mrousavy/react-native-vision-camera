@@ -65,13 +65,13 @@ final class CameraViewManager: RCTViewManager {
     let component = getCameraView(withTag: node)
     component.stopRecording(promise: Promise(resolver: resolve, rejecter: reject))
   }
-  
+
   @objc
   final func takePhoto(_ node: NSNumber, options: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     let component = getCameraView(withTag: node)
     component.takePhoto(options: options, promise: Promise(resolver: resolve, rejecter: reject))
   }
-  
+
   @objc
   final func takeSnapshot(_ node: NSNumber, options: NSDictionary, resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     let component = getCameraView(withTag: node)

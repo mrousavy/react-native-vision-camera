@@ -6,11 +6,11 @@
 //  Copyright © 2024 mrousavy. All rights reserved.
 //
 
-import Foundation
 import AVFoundation
+import Foundation
 import UIKit
 
-class FileUtils {
+enum FileUtils {
   /**
    Writes Data to a temporary file and returns the file path.
    */
@@ -22,7 +22,7 @@ class FileUtils {
     try data.write(to: tempFilePath)
     return tempFilePath
   }
-  
+
   static func writePhotoToTempFile(photo: AVCapturePhoto) throws -> URL {
     guard let data = photo.fileDataRepresentation() else {
       throw CameraError.capture(.imageDataAccessError)
@@ -30,7 +30,7 @@ class FileUtils {
     let path = try writeDataToTempFile(data: data)
     return path
   }
-  
+
   static func writeUIImageToTempFile(image: UIImage, compressionQuality: CGFloat = 1.0) throws -> URL {
     guard let data = image.jpegData(compressionQuality: compressionQuality) else {
       throw CameraError.capture(.imageDataAccessError)

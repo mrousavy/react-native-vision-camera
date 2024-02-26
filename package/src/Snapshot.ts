@@ -1,3 +1,5 @@
+import { PhotoFile } from './PhotoFile'
+
 export interface TakeSnapshotOptions {
   /**
    * Specify a quality for the JPEG encoding of the snapshot.
@@ -5,3 +7,5 @@ export interface TakeSnapshotOptions {
    */
   quality?: number
 }
+
+export type SnapshotFile = Pick<PhotoFile, 'path' | 'width' | 'height' | 'orientation' | 'isMirrored'>
