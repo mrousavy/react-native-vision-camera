@@ -179,6 +179,7 @@ enum CaptureError {
   case createRecorderError(message: String? = nil)
   case videoNotEnabled
   case photoNotEnabled
+  case snapshotFailed
   case aborted
   case insufficientStorage
   case unknown(message: String? = nil)
@@ -197,6 +198,8 @@ enum CaptureError {
       return "create-recorder-error"
     case .videoNotEnabled:
       return "video-not-enabled"
+    case .snapshotFailed:
+      return "snapshot-failed"
     case .photoNotEnabled:
       return "photo-not-enabled"
     case .insufficientStorage:
@@ -222,6 +225,8 @@ enum CaptureError {
       return "Failed to create the AVAssetWriter (Recorder)! \(message ?? "(no additional message)")"
     case .videoNotEnabled:
       return "Video capture is disabled! Pass `video={true}` to enable video recordings."
+    case .snapshotFailed:
+      return "Failed to take a Snapshot of the Preview View! Try using takePhoto() instead."
     case .photoNotEnabled:
       return "Photo capture is disabled! Pass `photo={true}` to enable photo capture."
     case .aborted:
