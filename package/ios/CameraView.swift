@@ -86,6 +86,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   var pinchGestureRecognizer: UIPinchGestureRecognizer?
   var pinchScaleOffset: CGFloat = 1.0
   private var currentConfigureCall: DispatchTime?
+  var snapshotOnFrameListeners: [(_: CMSampleBuffer) -> Void] = []
 
   var previewView: PreviewView
   #if DEBUG
@@ -336,6 +337,11 @@ public final class CameraView: UIView, CameraSessionDelegate {
         frameProcessor.call(frame)
       }
     #endif
+
+    for callback in snapshotOnFrameListeners {
+      callback(sampleBuffer)
+    }
+    snapshotOnFrameListeners.removeAll()
 
     #if DEBUG
       if let fpsGraph {
