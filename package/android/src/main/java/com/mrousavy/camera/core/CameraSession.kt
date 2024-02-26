@@ -270,7 +270,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     camera = provider.bindToLifecycle(this, cameraSelector, *useCases.toTypedArray())
     var lastState = CameraState.Type.OPENING
     camera!!.cameraInfo.cameraState.observeForever { state ->
-      Log.i(TAG, "Camera State: ${state.type} (has error: ${state.error != null}")
+      Log.i(TAG, "Camera State: ${state.type} (has error: ${state.error != null})")
 
       if (state.type == CameraState.Type.OPEN && state.type != lastState) {
         // Camera has now been initialized!
