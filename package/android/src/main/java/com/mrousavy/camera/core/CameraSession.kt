@@ -19,6 +19,7 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.MirrorMode
 import androidx.camera.core.Preview
 import androidx.camera.core.TorchState
+import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.video.ExperimentalPersistentRecording
 import androidx.camera.video.FileOutputOptions
@@ -34,6 +35,7 @@ import androidx.lifecycle.LifecycleRegistry
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.extensions.await
 import com.mrousavy.camera.extensions.byId
+import com.mrousavy.camera.extensions.forSize
 import com.mrousavy.camera.extensions.getCameraError
 import com.mrousavy.camera.extensions.takePicture
 import com.mrousavy.camera.extensions.toCameraError
@@ -180,9 +182,11 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     }
   }
 
+  @SuppressLint("RestrictedApi")
   private fun configureOutputs(configuration: CameraConfiguration) {
     Log.i(TAG, "Creating new Outputs for Camera #${configuration.cameraId}...")
     val fpsRange = getTargetFpsRange(configuration)
+    val format = configuration.format
 
     // 1. Preview
     val previewConfig = configuration.preview as? CameraConfiguration.Output.Enabled<CameraConfiguration.Preview>
@@ -205,6 +209,11 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       Log.i(TAG, "Creating Photo output...")
       val photo = ImageCapture.Builder().also { photo ->
         photo.setCaptureMode(photoConfig.config.photoQualityBalance.toCaptureMode())
+        if (format != null) {
+          Log.i(TAG, "Photo size: ${format.photoSize}")
+          val resolutionSelector = ResolutionSelector.Builder().forSize(format.photoSize)
+          photo.setResolutionSelector(resolutionSelector.build())
+        }
       }.build()
       photoOutput = photo
     } else {
@@ -230,6 +239,11 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         }
         if (videoConfig.config.enableHdr) {
           video.setDynamicRange(DynamicRange.HDR_UNSPECIFIED_10_BIT)
+        }
+        if (format != null) {
+          Log.i(TAG, "Video size: ${format.videoSize}")
+          val resolutionSelector = ResolutionSelector.Builder().forSize(format.videoSize)
+          video.setResolutionSelector(resolutionSelector.build())
         }
       }.build()
       videoOutput = video

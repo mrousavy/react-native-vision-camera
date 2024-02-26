@@ -28,7 +28,7 @@ data class CameraDeviceFormat(
 ) {
   val photoSize: Size
     get() = Size(photoWidth, photoHeight)
-  private val videoSize: Size
+  val videoSize: Size
     get() = Size(videoWidth, videoHeight)
 
   private val qualitySizes = mapOf<Quality, Int>(
