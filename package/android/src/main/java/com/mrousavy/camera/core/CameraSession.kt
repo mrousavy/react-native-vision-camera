@@ -18,6 +18,7 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.MirrorMode
 import androidx.camera.core.Preview
+import androidx.camera.core.TorchState
 import androidx.camera.core.UseCase
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.video.ExperimentalPersistentRecording
@@ -269,14 +270,24 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     val camera = camera ?: throw CameraNotReadyError()
 
     // Zoom
-    camera.cameraControl.setZoomRatio(config.zoom)
+    val currentZoom = camera.cameraInfo.zoomState.value?.zoomRatio
+    if (currentZoom != config.zoom) {
+      camera.cameraControl.setZoomRatio(config.zoom)
+    }
 
     // Torch
-    camera.cameraControl.enableTorch(config.torch == Torch.ON)
+    val currentTorch = camera.cameraInfo.torchState.value == TorchState.ON
+    val newTorch = config.torch == Torch.ON
+    if (currentTorch != newTorch) {
+      camera.cameraControl.enableTorch(newTorch)
+    }
 
     // Exposure
+    val currentExposureCompensation = camera.cameraInfo.exposureState.exposureCompensationIndex
     val exposureCompensation = config.exposure?.roundToInt() ?: 0
-    camera.cameraControl.setExposureCompensationIndex(exposureCompensation)
+    if (currentExposureCompensation != exposureCompensation) {
+      camera.cameraControl.setExposureCompensationIndex(exposureCompensation)
+    }
   }
 
   private fun configureIsActive(config: CameraConfiguration) {
