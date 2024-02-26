@@ -108,10 +108,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   suspend fun configure(lambda: (configuration: CameraConfiguration) -> Unit) {
     Log.i(TAG, "configure { ... }: Waiting for lock...")
 
-    val start = System.currentTimeMillis()
     val provider = cameraProvider.await()
-    val end = System.currentTimeMillis()
-    Log.i(TAG, "Initialized ProcessCameraProvider in ${end - start}ms!")
 
     mutex.withLock {
       // Let caller configure a new configuration for the Camera.
@@ -265,7 +262,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     Log.i(TAG, "Successfully created new Outputs for Camera #${configuration.cameraId}!")
   }
 
-  @SuppressLint("RestrictedApi")
   private suspend fun configureCamera(provider: ProcessCameraProvider, configuration: CameraConfiguration) {
     Log.i(TAG, "Binding Camera #${configuration.cameraId}...")
     checkCameraPermission()
