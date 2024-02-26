@@ -15,7 +15,8 @@ extension CameraView {
     }
     
     do {
-      let path = try FileUtils.writeUIImageToTempFile(image: image)
+      let quality = options["quality"] as? Double ?? 100
+      let path = try FileUtils.writeUIImageToTempFile(image: image, compressionQuality: quality / 100.0)
       
       promise.resolve([
         "path": path.absoluteString,
