@@ -38,7 +38,7 @@ import com.mrousavy.camera.extensions.toCameraError
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
-import com.mrousavy.camera.types.QualityPrioritization
+import com.mrousavy.camera.types.QualityBalance
 import com.mrousavy.camera.types.RecordVideoOptions
 import com.mrousavy.camera.utils.FileUtils
 import com.mrousavy.camera.utils.runOnUiThread
@@ -193,7 +193,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     val photoConfig = configuration.photo as? CameraConfiguration.Output.Enabled<CameraConfiguration.Photo>
     if (photoConfig != null) {
       val photo = ImageCapture.Builder().also { photo ->
-        // TODO: Configure qualityPrioritization here
+        photo.setCaptureMode(photoConfig.config.photoQualityBalance.toCaptureMode())
         photo.setMirrorMode(MirrorMode.MIRROR_MODE_ON_FRONT_ONLY)
       }.build()
       useCases.add(photo)
@@ -216,7 +216,8 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       val video = VideoCapture.Builder(recorder).also { video ->
         video.setMirrorMode(MirrorMode.MIRROR_MODE_ON_FRONT_ONLY)
         configuration.fps?.let { fps ->
-          video.setTargetFrameRate(Range(fps, fps))
+          val minFps = if (configuration.enableLowLightBoost) fps / 2 else fps
+          video.setTargetFrameRate(Range(minFps, fps))
         }
         if (videoConfig.config.enableHdr) {
           video.setDynamicRange(DynamicRange.HDR_UNSPECIFIED_10_BIT)
@@ -259,7 +260,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   }
 
   suspend fun takePhoto(
-    qualityPrioritization: QualityPrioritization,
+    qualityBalance: QualityBalance,
     flash: Flash,
     enableShutterSound: Boolean,
     enableAutoStabilization: Boolean,

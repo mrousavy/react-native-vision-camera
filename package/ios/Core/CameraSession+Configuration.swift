@@ -245,9 +245,9 @@ extension CameraSession {
         throw CameraError.format(.invalidFps(fps: Int(fps)))
       }
 
-      let duration = CMTimeMake(value: 1, timescale: fps)
-      device.activeVideoMinFrameDuration = duration
-      device.activeVideoMaxFrameDuration = duration
+      let minFps = configuration.enableLowLightBoost ? fps / 2 : fps
+      device.activeVideoMinFrameDuration = CMTimeMake(value: 1, timescale: fps)
+      device.activeVideoMaxFrameDuration = CMTimeMake(value: 1, timescale: minFps)
     } else {
       device.activeVideoMinFrameDuration = CMTime.invalid
       device.activeVideoMaxFrameDuration = CMTime.invalid

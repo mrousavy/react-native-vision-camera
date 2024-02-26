@@ -9,6 +9,7 @@ import com.mrousavy.camera.types.CameraDeviceFormat
 import com.mrousavy.camera.types.CodeScannerOptions
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.PixelFormat
+import com.mrousavy.camera.types.QualityBalance
 import com.mrousavy.camera.types.ResizeMode
 import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.VideoStabilizationMode
@@ -140,6 +141,16 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
   @ReactProp(name = "photoHdr")
   fun setPhotoHdr(view: CameraView, photoHdr: Boolean) {
     view.photoHdr = photoHdr
+  }
+
+  @ReactProp(name = "photoQualityBalance")
+  fun setPhotoQualityBalance(view: CameraView, photoQualityBalance: String?) {
+    if (photoQualityBalance != null) {
+      val newMode = QualityBalance.fromUnionValue(photoQualityBalance)
+      view.photoQualityBalance = newMode
+    } else {
+      view.photoQualityBalance = QualityBalance.BALANCED
+    }
   }
 
   @ReactProp(name = "videoHdr")

@@ -21,6 +21,7 @@ import com.mrousavy.camera.types.CameraDeviceFormat
 import com.mrousavy.camera.types.CodeScannerOptions
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.PixelFormat
+import com.mrousavy.camera.types.QualityBalance
 import com.mrousavy.camera.types.ResizeMode
 import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.VideoStabilizationMode
@@ -63,6 +64,7 @@ class CameraView(context: Context) :
   var videoStabilizationMode: VideoStabilizationMode? = null
   var videoHdr = false
   var photoHdr = false
+  var photoQualityBalance = QualityBalance.BALANCED
   var lowLightBoost = false
   var enableGpuBuffers = false
 
@@ -161,7 +163,7 @@ class CameraView(context: Context) :
 
         // Photo
         if (photo) {
-          config.photo = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Photo(photoHdr))
+          config.photo = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Photo(photoHdr, photoQualityBalance))
         } else {
           config.photo = CameraConfiguration.Output.Disabled.create()
         }
