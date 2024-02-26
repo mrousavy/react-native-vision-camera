@@ -20,6 +20,7 @@ import androidx.camera.core.MirrorMode
 import androidx.camera.core.Preview
 import androidx.camera.core.TorchState
 import androidx.camera.core.resolutionselector.ResolutionSelector
+import androidx.camera.extensions.ExtensionMode
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.video.ExperimentalPersistentRecording
 import androidx.camera.video.FileOutputOptions
@@ -39,6 +40,7 @@ import com.mrousavy.camera.extensions.forSize
 import com.mrousavy.camera.extensions.getCameraError
 import com.mrousavy.camera.extensions.takePicture
 import com.mrousavy.camera.extensions.toCameraError
+import com.mrousavy.camera.extensions.withExtension
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
@@ -266,18 +268,27 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     Log.i(TAG, "Binding Camera #${configuration.cameraId}...")
     checkCameraPermission()
 
+    // Input
+    val cameraId = configuration.cameraId ?: throw NoCameraDeviceError()
+    var cameraSelector = CameraSelector.Builder().byId(cameraId).build()
+
+    if (configuration.enableHdr) {
+      cameraSelector = cameraSelector.withExtension(context, provider, ExtensionMode.HDR, "HDR")
+    }
+    if (configuration.enableLowLightBoost) {
+      // TODO: Check if both HDR and Low Light boost extensions work at the same time.
+      cameraSelector = cameraSelector.withExtension(context, provider, ExtensionMode.NIGHT, "NIGHT")
+    }
+
+    // Outputs
+    val useCases = listOfNotNull(previewOutput, photoOutput, videoOutput, codeScannerOutput)
+
+    // Camera lifecycle methods need to run on the UI Thread.... unfortunately.
     runOnUiThreadAndWait {
       // Unbind previous Camera
       provider.unbindAll()
 
-      // Input
-      val cameraId = configuration.cameraId ?: throw NoCameraDeviceError()
-      val cameraSelector = CameraSelector.Builder().byId(cameraId).build()
-
-      // Outputs
-      val useCases = listOfNotNull(previewOutput, photoOutput, videoOutput, codeScannerOutput)
-
-      // Bind it all together
+      // Bind it all together (must be on UI Thread)
       camera = provider.bindToLifecycle(this, cameraSelector, *useCases.toTypedArray())
       var lastState = CameraState.Type.OPENING
       camera!!.cameraInfo.cameraState.observeForever { state ->
