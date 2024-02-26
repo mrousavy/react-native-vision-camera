@@ -167,6 +167,15 @@ export interface CameraProps extends ViewProps {
    */
   photoHdr?: boolean
   /**
+   * Configures the photo pipeline for a specific quality balance prioritization.
+   * - `'speed'`: Prioritizes fast capture speed over quality (faster edge-detection, distortion correction, AF/AE/AWB times, etc.)
+   * - `'balanced'`: A balanced set of prioritization configurations
+   * - `'quality'`: Prioritizes high quality capture over speed (higher accuracy edge-detection, distortion correction, AF/AE/AWB times, etc.)
+   *
+   * @default 'balanced'
+   */
+  photoQualityBalance?: 'speed' | 'balanced' | 'quality'
+  /**
    * Enables or disables lossy buffer compression for the video stream.
    * If you only use {@linkcode video} or a {@linkcode frameProcessor}, this
    * can increase the efficiency and lower memory usage of the Camera.

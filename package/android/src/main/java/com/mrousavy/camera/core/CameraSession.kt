@@ -6,12 +6,10 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
-import android.provider.MediaStore
 import android.util.Log
 import android.util.Range
 import androidx.annotation.OptIn
 import androidx.camera.core.Camera
-import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
 import androidx.camera.core.DynamicRange
@@ -22,23 +20,17 @@ import androidx.camera.core.UseCase
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.video.ExperimentalPersistentRecording
 import androidx.camera.video.FileOutputOptions
-import androidx.camera.video.MediaStoreOutputOptions
-import androidx.camera.video.Quality
-import androidx.camera.video.QualitySelector
 import androidx.camera.video.Recorder
 import androidx.camera.video.Recording
 import androidx.camera.video.VideoCapture
-import androidx.camera.video.VideoOutput
 import androidx.camera.video.VideoRecordEvent
 import androidx.core.content.ContextCompat
-import androidx.core.util.Consumer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.core.outputs.BarcodeScannerOutput
-import com.mrousavy.camera.core.outputs.VideoPipelineOutput
 import com.mrousavy.camera.extensions.await
 import com.mrousavy.camera.extensions.byId
 import com.mrousavy.camera.extensions.takePicture
@@ -51,13 +43,13 @@ import com.mrousavy.camera.types.RecordVideoOptions
 import com.mrousavy.camera.utils.FileUtils
 import com.mrousavy.camera.utils.runOnUiThread
 import com.mrousavy.camera.utils.runOnUiThreadAndWait
+import java.io.Closeable
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.io.Closeable
-import java.io.File
 
 class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: Callback) :
-  Closeable, LifecycleOwner {
+  Closeable,
+  LifecycleOwner {
   companion object {
     private const val TAG = "CameraSession"
   }
@@ -89,7 +81,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
   init {
     lifecycleRegistry.currentState = Lifecycle.State.CREATED
-    lifecycle.addObserver(object: LifecycleEventObserver {
+    lifecycle.addObserver(object : LifecycleEventObserver {
       override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         Log.i(TAG, "Camera Lifecycle changed to ${event.targetState}!")
       }
@@ -108,9 +100,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     Log.i(TAG, "CameraSession closed!")
   }
 
-  override fun getLifecycle(): Lifecycle {
-    return lifecycleRegistry
-  }
+  override fun getLifecycle(): Lifecycle = lifecycleRegistry
 
   suspend fun configure(lambda: (configuration: CameraConfiguration) -> Unit) {
     Log.i(TAG, "configure { ... }: Waiting for lock...")
@@ -297,7 +287,8 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     // videoOutput.videoPipeline.setRecordingSessionOutput(recording)
   }
 
-  @OptIn(ExperimentalPersistentRecording::class) @SuppressLint("MissingPermission")
+  @OptIn(ExperimentalPersistentRecording::class)
+  @SuppressLint("MissingPermission")
   suspend fun startRecording(
     enableAudio: Boolean,
     options: RecordVideoOptions,
@@ -353,9 +344,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     }
   }
 
-  suspend fun focus(x: Int, y: Int) {
-    throw NotImplementedError()
-  }
+  suspend fun focus(x: Int, y: Int): Unit = throw NotImplementedError()
 
   interface Callback {
     fun onError(error: Throwable)

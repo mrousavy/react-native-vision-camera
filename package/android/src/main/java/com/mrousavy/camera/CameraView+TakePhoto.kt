@@ -11,7 +11,6 @@ import android.util.Log
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
-import com.mrousavy.camera.core.CameraSession
 import com.mrousavy.camera.core.InsufficientStorageError
 import com.mrousavy.camera.core.Photo
 import com.mrousavy.camera.types.Flash
@@ -94,10 +93,7 @@ private fun writePhotoToFile(photo: Photo, file: File) {
   }
 }
 
-private suspend fun savePhotoToFile(
-  context: Context,
-  photo: Photo
-): String =
+private suspend fun savePhotoToFile(context: Context, photo: Photo): String =
   withContext(Dispatchers.IO) {
     when (photo.image.format) {
       ImageFormat.JPEG, ImageFormat.DEPTH_JPEG -> {
@@ -111,13 +107,13 @@ private suspend fun savePhotoToFile(
         throw Error("Writing RAW photos is currently not supported!")
         // TODO: Write RAW photos using DngCreator?
         /**
-        val dngCreator = DngCreator(cameraCharacteristics, photo.metadata)
-        val file = FileUtils.createTempFile(context, ".dng")
-        FileOutputStream(file).use { stream ->
-          dngCreator.writeImage(stream, photo.image.image)
-        }
-        return@withContext file.absolutePath
-        */
+         val dngCreator = DngCreator(cameraCharacteristics, photo.metadata)
+         val file = FileUtils.createTempFile(context, ".dng")
+         FileOutputStream(file).use { stream ->
+         dngCreator.writeImage(stream, photo.image.image)
+         }
+         return@withContext file.absolutePath
+         */
       }
       else -> {
         throw Error("Failed to save Photo to file, image format is not supported! ${photo.image.format}")

@@ -5,10 +5,7 @@ import androidx.camera.core.ImageProxy
 import com.mrousavy.camera.types.Orientation
 import java.io.Closeable
 
-data class Photo(
-  val image: ImageProxy,
-  val isMirrored: Boolean,
-) : Closeable {
+data class Photo(val image: ImageProxy, val isMirrored: Boolean) : Closeable {
   val orientation: Orientation
     get() = Orientation.fromRotationDegrees(image.imageInfo.rotationDegrees)
   val isRawPhoto

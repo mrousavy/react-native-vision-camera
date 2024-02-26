@@ -35,7 +35,7 @@ data class CameraDeviceFormat(
     Quality.SD to 720 * 480,
     Quality.HD to 1280 * 720,
     Quality.FHD to 1920 * 1080,
-    Quality.UHD to 3840 * 2160,
+    Quality.UHD to 3840 * 2160
   )
 
   private fun getQualitySelector(size: Size): QualitySelector {

@@ -12,8 +12,8 @@ import com.mrousavy.camera.core.MaxCamerasInUseError
 import com.mrousavy.camera.core.RecoverableError
 import com.mrousavy.camera.core.UnknownCameraError
 
-fun StateError.toCameraError(): CameraError {
-  return when (this.code) {
+fun StateError.toCameraError(): CameraError =
+  when (this.code) {
     CameraState.ERROR_MAX_CAMERAS_IN_USE -> MaxCamerasInUseError(cause)
     CameraState.ERROR_CAMERA_IN_USE -> CameraInUseError(cause)
     CameraState.ERROR_CAMERA_FATAL_ERROR -> FatalCameraError(cause)
@@ -23,4 +23,3 @@ fun StateError.toCameraError(): CameraError {
     CameraState.ERROR_STREAM_CONFIG -> InvalidOutputConfigurationError(cause)
     else -> UnknownCameraError(cause)
   }
-}

@@ -8,12 +8,11 @@ enum class ResizeMode(override val unionValue: String) : JSUnionValue {
   COVER("cover"),
   CONTAIN("contain");
 
-  fun toScaleType(): PreviewView.ScaleType {
-    return when (this) {
+  fun toScaleType(): PreviewView.ScaleType =
+    when (this) {
       COVER -> PreviewView.ScaleType.FILL_CENTER
       CONTAIN -> PreviewView.ScaleType.FIT_CENTER
     }
-  }
 
   companion object : JSUnionValue.Companion<ResizeMode> {
     override fun fromUnionValue(unionValue: String?): ResizeMode =

@@ -8,13 +8,12 @@ enum class Flash(override val unionValue: String) : JSUnionValue {
   ON("on"),
   AUTO("auto");
 
-  fun toFlashMode(): Int {
-    return when (this) {
+  fun toFlashMode(): Int =
+    when (this) {
       OFF -> ImageCapture.FLASH_MODE_OFF
       ON -> ImageCapture.FLASH_MODE_ON
       AUTO -> ImageCapture.FLASH_MODE_AUTO
     }
-  }
 
   companion object : JSUnionValue.Companion<Flash> {
     override fun fromUnionValue(unionValue: String?): Flash =

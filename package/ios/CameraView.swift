@@ -40,6 +40,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   @objc var fps: NSNumber?
   @objc var videoHdr = false
   @objc var photoHdr = false
+  @objc var photoQualityBalance: NSString?
   @objc var lowLightBoost = false
   @objc var orientation: NSString?
   // other props
@@ -148,6 +149,14 @@ public final class CameraView: UIView, CameraSessionDelegate {
     return .off
   }
 
+  func getPhotoQualityBalance() -> QualityBalance {
+    if let photoQualityBalance = photoQualityBalance as? String,
+       let balance = try? QualityBalance(jsValue: photoQualityBalance) {
+      return balance
+    }
+    return .balanced
+  }
+
   // pragma MARK: Props updating
   override public final func didSetProps(_ changedProps: [String]!) {
     ReactLogger.log(level: .info, message: "Updating \(changedProps.count) props: [\(changedProps.joined(separator: ", "))]")
@@ -170,7 +179,8 @@ public final class CameraView: UIView, CameraSessionDelegate {
       if photo {
         config.photo = .enabled(config: CameraConfiguration.Photo(enableHighQualityPhotos: enableHighQualityPhotos,
                                                                   enableDepthData: enableDepthData,
-                                                                  enablePortraitEffectsMatte: enablePortraitEffectsMatteDelivery))
+                                                                  enablePortraitEffectsMatte: enablePortraitEffectsMatteDelivery,
+                                                                  photoQualityBalance: getPhotoQualityBalance()))
       } else {
         config.photo = .disabled
       }
