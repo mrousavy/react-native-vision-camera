@@ -89,23 +89,22 @@ data class CameraConfiguration(
       val deviceChanged = left?.cameraId != right.cameraId
 
       // outputs
-      val outputsChanged = deviceChanged ||
-        left?.photo != right.photo ||
+      val outputsChanged = left?.photo != right.photo ||
         left.video != right.video ||
         left.codeScanner != right.codeScanner ||
         left.preview != right.preview ||
-        left.format != right.format
+        left.format != right.format ||
+        left.fps != right.fps
 
       // repeating request
       val sidePropsChanged = outputsChanged ||
         left?.torch != right.torch ||
         left.enableLowLightBoost != right.enableLowLightBoost ||
-        left.fps != right.fps ||
         left.zoom != right.zoom ||
         left.videoStabilizationMode != right.videoStabilizationMode ||
         left.exposure != right.exposure
 
-      val isActiveChanged = sidePropsChanged || left?.isActive != right.isActive
+      val isActiveChanged = left?.isActive != right.isActive
 
       return Difference(
         deviceChanged,
