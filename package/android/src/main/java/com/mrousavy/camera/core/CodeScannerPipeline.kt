@@ -10,10 +10,9 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import java.io.Closeable
 
-class CodeScannerPipeline(
-  val configuration: CameraConfiguration.CodeScanner,
-  val callback: CameraSession.Callback
-) : Closeable, Analyzer {
+class CodeScannerPipeline(val configuration: CameraConfiguration.CodeScanner, val callback: CameraSession.Callback) :
+  Closeable,
+  Analyzer {
   private val scanner: BarcodeScanner
 
   init {

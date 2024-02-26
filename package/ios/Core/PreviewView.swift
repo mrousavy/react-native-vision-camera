@@ -45,7 +45,7 @@ class PreviewView: UIView {
   func captureDevicePointConverted(fromLayerPoint point: CGPoint) -> CGPoint {
     return videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: point)
   }
-  
+
   // TODO: TRY IF NEW API WORKS?
   private var newAPI = false
 
@@ -65,9 +65,9 @@ class PreviewView: UIView {
       guard let context = UIGraphicsGetCurrentContext() else {
         throw CameraError.capture(.snapshotFailed)
       }
-      
+
       videoPreviewLayer.render(in: context)
-      
+
       guard let image = UIGraphicsGetImageFromCurrentImageContext() else {
         throw CameraError.capture(.snapshotFailed)
       }
