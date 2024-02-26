@@ -86,7 +86,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     }
 
   init {
-    lifecycleRegistry.currentState = Lifecycle.State.CREATED
+    lifecycleRegistry.currentState = Lifecycle.State.STARTED
     lifecycle.addObserver(object : LifecycleEventObserver {
       override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         Log.i(TAG, "Camera Lifecycle changed to ${event.targetState}!")
@@ -107,7 +107,10 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   suspend fun configure(lambda: (configuration: CameraConfiguration) -> Unit) {
     Log.i(TAG, "configure { ... }: Waiting for lock...")
 
+    val start = System.currentTimeMillis()
     val provider = cameraProvider.await()
+    val end = System.currentTimeMillis()
+    Log.i(TAG, "Initialized ProcessCameraProvider in ${end - start}ms!")
 
     mutex.withLock {
       // Let caller configure a new configuration for the Camera.
@@ -131,15 +134,20 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       try {
         // Build up session or update any props
         runOnUiThreadAndWait {
+          if (diff.outputsChanged) {
+            // 1. outputs changed, re-create them
+            configureOutputs(config)
+          }
           if (diff.deviceChanged || diff.outputsChanged) {
-            // 1. cameraId changed, open device
+            // 2. input or outputs changed, rebind the session
             configureCamera(provider, config)
           }
           if (diff.sidePropsChanged) {
+            // 3. side props such as zoom, exposure or torch changed.
             configureSideProps(config)
           }
           if (diff.isActiveChanged) {
-            // 4. Either start or stop the session
+            // 4. start or stop the session
             configureIsActive(config)
           }
         }
@@ -164,31 +172,28 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     if (status != PackageManager.PERMISSION_GRANTED) throw MicrophonePermissionError()
   }
 
-  @SuppressLint("RestrictedApi")
-  private fun configureCamera(provider: ProcessCameraProvider, configuration: CameraConfiguration) {
-    Log.i(TAG, "Initializing Camera...")
-    checkCameraPermission()
+  private fun getTargetFpsRange(configuration: CameraConfiguration): Range<Int>? {
+    val fps = configuration.fps ?: return null
+    return if (configuration.enableLowLightBoost) {
+      Range(fps / 2, fps)
+    } else {
+      Range(fps, fps)
+    }
+  }
 
-    // Unbind previous Camera
-    provider.unbindAll()
-
-    // Input
-    val cameraId = configuration.cameraId ?: throw NoCameraDeviceError()
-    val cameraSelector = CameraSelector.Builder().byId(cameraId).build()
-
-    // Outputs
-    val useCases = mutableListOf<UseCase>()
+  private fun configureOutputs(configuration: CameraConfiguration) {
+    Log.i(TAG, "Creating new Outputs for Camera #${configuration.cameraId}...")
+    val fpsRange = getTargetFpsRange(configuration)
 
     // 1. Preview
     val previewConfig = configuration.preview as? CameraConfiguration.Output.Enabled<CameraConfiguration.Preview>
     if (previewConfig != null) {
       val preview = Preview.Builder().also { preview ->
-        configuration.fps?.let { fps ->
-          preview.setTargetFrameRate(Range(fps, fps))
+        if (fpsRange != null) {
+          preview.setTargetFrameRate(fpsRange)
         }
       }.build()
       preview.setSurfaceProvider(previewConfig.config.surfaceProvider)
-      useCases.add(preview)
       previewOutput = preview
     } else {
       previewOutput = null
@@ -200,7 +205,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       val photo = ImageCapture.Builder().also { photo ->
         photo.setCaptureMode(photoConfig.config.photoQualityBalance.toCaptureMode())
       }.build()
-      useCases.add(photo)
       photoOutput = photo
     } else {
       photoOutput = null
@@ -219,15 +223,13 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
       val video = VideoCapture.Builder(recorder).also { video ->
         video.setMirrorMode(MirrorMode.MIRROR_MODE_ON_FRONT_ONLY)
-        configuration.fps?.let { fps ->
-          val minFps = if (configuration.enableLowLightBoost) fps / 2 else fps
-          video.setTargetFrameRate(Range(minFps, fps))
+        if (fpsRange != null) {
+          video.setTargetFrameRate(fpsRange)
         }
         if (videoConfig.config.enableHdr) {
           video.setDynamicRange(DynamicRange.HDR_UNSPECIFIED_10_BIT)
         }
       }.build()
-      useCases.add(video)
       videoOutput = video
     } else {
       videoOutput = null
@@ -239,11 +241,27 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       val analyzer = ImageAnalysis.Builder().build()
       val pipeline = CodeScannerPipeline(codeScannerConfig.config, callback)
       analyzer.setAnalyzer(CameraQueues.analyzerQueue, pipeline)
-      useCases.add(analyzer)
       codeScannerOutput = analyzer
     } else {
       codeScannerOutput = null
     }
+    Log.i(TAG, "Successfully created new Outputs for Camera #${configuration.cameraId}!")
+  }
+
+  @SuppressLint("RestrictedApi")
+  private fun configureCamera(provider: ProcessCameraProvider, configuration: CameraConfiguration) {
+    Log.i(TAG, "Binding Camera #${configuration.cameraId}...")
+    checkCameraPermission()
+
+    // Unbind previous Camera
+    provider.unbindAll()
+
+    // Input
+    val cameraId = configuration.cameraId ?: throw NoCameraDeviceError()
+    val cameraSelector = CameraSelector.Builder().byId(cameraId).build()
+
+    // Outputs
+    val useCases = mutableListOf(previewOutput, photoOutput, videoOutput, codeScannerOutput).filterNotNull()
 
     // Bind it all together
     camera = provider.bindToLifecycle(this, cameraSelector, *useCases.toTypedArray())
@@ -263,7 +281,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         callback.onError(error.toCameraError())
       }
     }
-    Log.i(TAG, "Successfully initialized Camera!")
+    Log.i(TAG, "Successfully bound Camera #${configuration.cameraId}!")
   }
 
   private fun configureSideProps(config: CameraConfiguration) {
@@ -294,7 +312,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     if (config.isActive) {
       lifecycleRegistry.currentState = Lifecycle.State.RESUMED
     } else {
-      // TODO: STARTED or CREATED? Which one keeps the camera warm?
       lifecycleRegistry.currentState = Lifecycle.State.STARTED
     }
   }
