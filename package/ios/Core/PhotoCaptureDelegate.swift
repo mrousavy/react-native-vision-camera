@@ -42,7 +42,7 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
 
     do {
       let path = try FileUtils.writePhotoToTempFile(photo: photo)
-      
+
       let exif = photo.metadata["{Exif}"] as? [String: Any]
       let width = exif?["PixelXDimension"]
       let height = exif?["PixelYDimension"]

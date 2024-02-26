@@ -23,7 +23,6 @@ fun CameraView.takeSnapshot(options: SnapshotOptions): WritableMap {
   map.putInt("width", bitmap.width)
   map.putInt("height", bitmap.height)
   map.putString("orientation", orientation.unionValue)
-  map.putBoolean("isRawPhoto", false)
   map.putBoolean("isMirrored", false)
   return map
 }
