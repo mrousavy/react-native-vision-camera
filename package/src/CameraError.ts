@@ -47,6 +47,8 @@ export type CaptureError =
   | 'capture/aborted'
   | 'capture/focus-canceled'
   | 'capture/timed-out'
+  | 'capture/snapshot-failed'
+  | 'capture/invalid-image-type'
   | 'capture/unknown'
 export type SystemError =
   | 'system/camera-module-not-found'
