@@ -218,6 +218,9 @@ export interface CameraProps extends ViewProps {
   /**
    * Enables or disables low-light boost on this camera device.
    *
+   * Enabling low light boost allows the FPS rate to be throttled to up to half of what it is set to to allow for more
+   * exposure in low light conditions.
+   *
    * Make sure the given {@linkcode device} supports low-light-boost (see {@linkcode CameraDevice.supportsLowLightBoost device.supportsLowLightBoost}).
    */
   lowLightBoost?: boolean
