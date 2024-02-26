@@ -19,7 +19,6 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.MirrorMode
 import androidx.camera.core.Preview
 import androidx.camera.core.TorchState
-import androidx.camera.core.UseCase
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.video.ExperimentalPersistentRecording
 import androidx.camera.video.FileOutputOptions
@@ -188,6 +187,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     // 1. Preview
     val previewConfig = configuration.preview as? CameraConfiguration.Output.Enabled<CameraConfiguration.Preview>
     if (previewConfig != null) {
+      Log.i(TAG, "Creating Preview output...")
       val preview = Preview.Builder().also { preview ->
         if (fpsRange != null) {
           preview.setTargetFrameRate(fpsRange)
@@ -202,6 +202,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     // 2. Image Capture
     val photoConfig = configuration.photo as? CameraConfiguration.Output.Enabled<CameraConfiguration.Photo>
     if (photoConfig != null) {
+      Log.i(TAG, "Creating Photo output...")
       val photo = ImageCapture.Builder().also { photo ->
         photo.setCaptureMode(photoConfig.config.photoQualityBalance.toCaptureMode())
       }.build()
@@ -213,6 +214,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     // 3. Video Capture
     val videoConfig = configuration.video as? CameraConfiguration.Output.Enabled<CameraConfiguration.Video>
     if (videoConfig != null) {
+      Log.i(TAG, "Creating Video output...")
       val recorder = Recorder.Builder().also { recorder ->
         configuration.format?.let { format ->
           recorder.setQualitySelector(format.videoQualitySelector)
@@ -238,6 +240,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     // 4. Code Scanner
     val codeScannerConfig = configuration.codeScanner as? CameraConfiguration.Output.Enabled<CameraConfiguration.CodeScanner>
     if (codeScannerConfig != null) {
+      Log.i(TAG, "Creating CodeScanner output...")
       val analyzer = ImageAnalysis.Builder().build()
       val pipeline = CodeScannerPipeline(codeScannerConfig.config, callback)
       analyzer.setAnalyzer(CameraQueues.analyzerQueue, pipeline)
