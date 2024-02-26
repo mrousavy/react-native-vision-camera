@@ -300,6 +300,9 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
     // Outputs
     val useCases = listOfNotNull(previewOutput, photoOutput, videoOutput, codeScannerOutput)
+    if (useCases.isEmpty()) {
+      throw NoOutputsError()
+    }
 
     // Camera lifecycle methods need to run on the UI Thread.... unfortunately.
     runOnUiThreadAndWait {
