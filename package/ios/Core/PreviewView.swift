@@ -46,6 +46,23 @@ class PreviewView: UIView {
     return videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: point)
   }
 
+  func takeSnapshot() throws -> UIImage {
+    UIGraphicsBeginImageContextWithOptions(videoPreviewLayer.frame.size, false, 0)
+    defer {
+      UIGraphicsEndImageContext()
+    }
+    guard let context = UIGraphicsGetCurrentContext() else {
+      throw CameraError.capture(.snapshotFailed)
+    }
+
+    videoPreviewLayer.render(in: context)
+
+    guard let image = UIGraphicsGetImageFromCurrentImageContext() else {
+      throw CameraError.capture(.snapshotFailed)
+    }
+    return image
+  }
+
   init(frame: CGRect, session: AVCaptureSession) {
     super.init(frame: frame)
     videoPreviewLayer.session = session
