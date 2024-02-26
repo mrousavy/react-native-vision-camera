@@ -173,7 +173,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     val previewConfig = configuration.preview as? CameraConfiguration.Output.Enabled<CameraConfiguration.Preview>
     if (previewConfig != null) {
       val preview = Preview.Builder().also { preview ->
-        preview.setMirrorMode(MirrorMode.MIRROR_MODE_ON_FRONT_ONLY)
         configuration.fps?.let { fps ->
           preview.setTargetFrameRate(Range(fps, fps))
         }
