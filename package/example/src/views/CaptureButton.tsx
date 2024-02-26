@@ -67,7 +67,6 @@ const _CaptureButton: React.FC<Props> = ({
 
       console.log('Taking photo...')
       const photo = await camera.current.takePhoto({
-        qualityPrioritization: 'quality',
         flash: flash,
         enableShutterSound: false,
       })

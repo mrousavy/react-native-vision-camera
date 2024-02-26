@@ -175,6 +175,7 @@ enum CaptureError {
   case recordingInProgress
   case noRecordingInProgress
   case fileError
+  case imageDataAccessError
   case createTempFileError(message: String? = nil)
   case createRecorderError(message: String? = nil)
   case videoNotEnabled
@@ -198,6 +199,8 @@ enum CaptureError {
       return "create-recorder-error"
     case .videoNotEnabled:
       return "video-not-enabled"
+    case .imageDataAccessError:
+      return "image-data-access-error"
     case .snapshotFailed:
       return "snapshot-failed"
     case .photoNotEnabled:
@@ -229,6 +232,8 @@ enum CaptureError {
       return "Failed to take a Snapshot of the Preview View! Try using takePhoto() instead."
     case .photoNotEnabled:
       return "Photo capture is disabled! Pass `photo={true}` to enable photo capture."
+    case .imageDataAccessError:
+      return "An unexpected error occurred while trying to access the image data!"
     case .aborted:
       return "The capture has been stopped before any input data arrived."
     case .insufficientStorage:

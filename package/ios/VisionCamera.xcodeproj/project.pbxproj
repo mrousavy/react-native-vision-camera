@@ -66,6 +66,8 @@
 		B88751A925E0102000DB86D6 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B887518425E0102000DB86D6 /* CameraView.swift */; };
 		B88977BE2B556DBA0095C92C /* AVCaptureDevice+minFocusDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = B88977BD2B556DBA0095C92C /* AVCaptureDevice+minFocusDistance.swift */; };
 		B8994E6C263F03E100069589 /* JSINSObjectConversion.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8994E6B263F03E100069589 /* JSINSObjectConversion.mm */; };
+		B89AFFB32B8CB2BD003D071D /* CameraView+TakeSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = B89AFFB22B8CB2BD003D071D /* CameraView+TakeSnapshot.swift */; };
+		B89AFFB52B8CB33E003D071D /* FileUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B89AFFB42B8CB33E003D071D /* FileUtils.swift */; };
 		B8A1AEC42AD7EDE800169C0D /* AVCaptureVideoDataOutput+pixelFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8A1AEC32AD7EDE800169C0D /* AVCaptureVideoDataOutput+pixelFormat.swift */; };
 		B8A1AEC62AD7F08E00169C0D /* CameraView+Focus.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8A1AEC52AD7F08E00169C0D /* CameraView+Focus.swift */; };
 		B8A1AEC82AD8005400169C0D /* CameraSession+Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8A1AEC72AD8005400169C0D /* CameraSession+Configuration.swift */; };
@@ -165,6 +167,8 @@
 		B88977BD2B556DBA0095C92C /* AVCaptureDevice+minFocusDistance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVCaptureDevice+minFocusDistance.swift"; sourceTree = "<group>"; };
 		B8994E6B263F03E100069589 /* JSINSObjectConversion.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = JSINSObjectConversion.mm; sourceTree = "<group>"; };
 		B89A79692B3EF60F005E0357 /* UIImageOrientation+descriptor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIImageOrientation+descriptor.h"; sourceTree = "<group>"; };
+		B89AFFB22B8CB2BD003D071D /* CameraView+TakeSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraView+TakeSnapshot.swift"; sourceTree = "<group>"; };
+		B89AFFB42B8CB33E003D071D /* FileUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileUtils.swift; sourceTree = "<group>"; };
 		B8A1AEC32AD7EDE800169C0D /* AVCaptureVideoDataOutput+pixelFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVCaptureVideoDataOutput+pixelFormat.swift"; sourceTree = "<group>"; };
 		B8A1AEC52AD7F08E00169C0D /* CameraView+Focus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraView+Focus.swift"; sourceTree = "<group>"; };
 		B8A1AEC72AD8005400169C0D /* CameraSession+Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CameraSession+Configuration.swift"; sourceTree = "<group>"; };
@@ -207,6 +211,7 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				B89AFFB22B8CB2BD003D071D /* CameraView+TakeSnapshot.swift */,
 				B88685E32AD68D8A00E93869 /* Core */,
 				B80175EA2ABDEBBB00E7DE90 /* Types */,
 				B8DCF2D725EA940700EA5C72 /* Frame Processor */,
@@ -298,6 +303,7 @@
 				B887516F25E0102000DB86D6 /* ReactLogger.swift */,
 				B887517025E0102000DB86D6 /* Promise.swift */,
 				B8BD3BA1266E22D2006C80A2 /* Callback.swift */,
+				B89AFFB42B8CB33E003D071D /* FileUtils.swift */,
 			);
 			path = "React Utils";
 			sourceTree = "<group>";
@@ -486,6 +492,7 @@
 				B887519A25E0102000DB86D6 /* AVVideoCodecType+descriptor.swift in Sources */,
 				B88751A825E0102000DB86D6 /* CameraError.swift in Sources */,
 				B85F7AE92A77BB680089C539 /* FrameProcessorPlugin.m in Sources */,
+				B89AFFB52B8CB33E003D071D /* FileUtils.swift in Sources */,
 				B88685E52AD68D9300E93869 /* CameraSession.swift in Sources */,
 				B881D35E2ABC775E009B21C8 /* AVCaptureDevice+toDictionary.swift in Sources */,
 				B87B11BF2A8E63B700732EBF /* PixelFormat.swift in Sources */,
@@ -499,6 +506,7 @@
 				B84760DF2608F57D004C3180 /* CameraQueues.swift in Sources */,
 				B8FF60AE2ACC9731009D612F /* CodeScannerOptions.swift in Sources */,
 				B8446E502ABA14C900E56077 /* CameraDevicesManager.m in Sources */,
+				B89AFFB32B8CB2BD003D071D /* CameraView+TakeSnapshot.swift in Sources */,
 				B887518F25E0102000DB86D6 /* AVCaptureOutput+mirror.swift in Sources */,
 				B88751A425E0102000DB86D6 /* AVCaptureDevice.Format.AutoFocusSystem+descriptor.swift in Sources */,
 				B8DB3BCC263DC97E004C18D7 /* AVFileType+descriptor.swift in Sources */,

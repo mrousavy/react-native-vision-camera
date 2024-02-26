@@ -93,6 +93,22 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
+  @ReactMethod
+  fun takeSnapshot(viewTag: Int, jsOptions: ReadableMap, promise: Promise) {
+    coroutineScope.launch {
+      val view = findCameraView(viewTag)
+      runOnUiThread {
+        try {
+          val options = SnapshotOptions.fromJSValue(jsOptions)
+          val result = view.takeSnapshot(options)
+          promise.resolve(result)
+        } catch (e: Throwable) {
+          promise.reject(e)
+        }
+      }
+    }
+  }
+
   // TODO: startRecording() cannot be awaited, because I can't have a Promise and a onRecordedCallback in the same function. Hopefully TurboModules allows that
   @ReactMethod
   fun startRecording(viewTag: Int, jsOptions: ReadableMap, onRecordCallback: Callback) {

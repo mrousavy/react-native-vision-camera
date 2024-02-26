@@ -49,6 +49,7 @@ export type CaptureError =
   | 'capture/focus-canceled'
   | 'capture/timed-out'
   | 'capture/snapshot-failed'
+  | 'capture/image-data-access-error'
   | 'capture/encoder-error'
   | 'capture/invalid-image-type'
   | 'capture/unknown'

@@ -12,6 +12,7 @@ import { VisionCameraProxy } from './FrameProcessorPlugins'
 import { CameraDevices } from './CameraDevices'
 import type { EmitterSubscription } from 'react-native'
 import type { Code, CodeScanner, CodeScannerFrame } from './CodeScanner'
+import { TakeSnapshotOptions } from './Snapshot'
 
 //#region Types
 export type CameraPermissionStatus = 'granted' | 'not-determined' | 'denied' | 'restricted'
@@ -131,6 +132,25 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   public async takePhoto(options?: TakePhotoOptions): Promise<PhotoFile> {
     try {
       return await CameraModule.takePhoto(this.handle, options ?? {})
+    } catch (e) {
+      throw tryParseNativeCameraError(e)
+    }
+  }
+
+  /**
+   * Captures a snapshot of the Camera view and write it's content to a temporary file.
+   *
+   * @throws {@linkcode CameraCaptureError} When any kind of error occured while capturing the photo. Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
+   * @example
+   * ```ts
+   * const snapshot = await camera.current.takeSnapshot({
+   *   quality: 100
+   * })
+   * ```
+   */
+  public async takeSnapshot(options?: TakeSnapshotOptions): Promise<PhotoFile> {
+    try {
+      return await CameraModule.takeSnapshot(this.handle, options ?? {})
     } catch (e) {
       throw tryParseNativeCameraError(e)
     }
