@@ -25,8 +25,10 @@ extension CameraView {
         "orientation": orientation as Any,
         "isMirrored": false,
       ])
+    } catch let error as CameraError {
+      promise.reject(error: error)
     } catch {
-      promise.reject(error: .capture(.fileError), cause: error as NSError)
+      promise.reject(error: .capture(.unknown(message: "An unknown error occured while capturing the snapshot!")), cause: error as NSError)
     }
   }
 }
