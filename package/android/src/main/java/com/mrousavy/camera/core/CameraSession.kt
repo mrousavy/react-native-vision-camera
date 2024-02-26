@@ -13,10 +13,13 @@ import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
 import androidx.camera.core.DynamicRange
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageAnalysis.Analyzer
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.MirrorMode
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
+import androidx.camera.core.impl.CameraConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.video.ExperimentalPersistentRecording
 import androidx.camera.video.FileOutputOptions
@@ -63,7 +66,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   private var previewOutput: Preview? = null
   private var photoOutput: ImageCapture? = null
   private var videoOutput: VideoCapture<Recorder>? = null
-  private var codeScannerOutput: BarcodeScannerOutput? = null
+  private var codeScannerOutput: ImageAnalysis? = null
 
   // Camera State
   private val mutex = Mutex()
@@ -94,10 +97,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     runOnUiThread {
       lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
     }
-
-    codeScannerOutput?.close()
-    codeScannerOutput = null
-    Log.i(TAG, "CameraSession closed!")
   }
 
   override fun getLifecycle(): Lifecycle = lifecycleRegistry
@@ -227,6 +226,18 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       videoOutput = video
     } else {
       videoOutput = null
+    }
+
+    // 4. Code Scanner
+    val codeScannerConfig = configuration.codeScanner as? CameraConfiguration.Output.Enabled<CameraConfiguration.CodeScanner>
+    if (codeScannerConfig != null) {
+      val analyzer = ImageAnalysis.Builder().build()
+      val pipeline = CodeScannerPipeline(codeScannerConfig.config, callback)
+      analyzer.setAnalyzer(CameraQueues.analyzerQueue, pipeline)
+      useCases.add(analyzer)
+      codeScannerOutput = analyzer
+    } else {
+      codeScannerOutput = null
     }
 
     // Bind it all together

@@ -6,11 +6,13 @@ import java.util.concurrent.Executor
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.asExecutor
+import java.util.concurrent.Executors
 
 class CameraQueues {
   companion object {
     val cameraQueue = CameraQueue("mrousavy/VisionCamera.main")
     val videoQueue = CameraQueue("mrousavy/VisionCamera.video")
+    val analyzerQueue = Executors.newCachedThreadPool()
   }
 
   class CameraQueue(name: String) {
