@@ -10,6 +10,7 @@
 #include <GLES/gl.h>
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+#include <android/hardware_buffer_jni.h>
 #include <android/native_window_jni.h>
 
 #include <chrono>
@@ -33,10 +34,7 @@ VideoPipeline::~VideoPipeline() {
   // 2. Delete the input textures
   if (_inputTexture != std::nullopt) {
     glDeleteTextures(1, &_inputTexture->id);
-    _inputTexture = std::nullopt;
   }
-  // 3. Destroy the OpenGL context
-  _context = nullptr;
 }
 
 void VideoPipeline::removeRecordingSessionOutputSurface() {
@@ -56,12 +54,31 @@ void VideoPipeline::setRecordingSessionOutputSurface(jobject surface) {
 
 int VideoPipeline::createInputTexture(int width, int height) {
   if (_inputTexture != std::nullopt) {
-      glDeleteTextures(1, &_inputTexture->id);
-      _inputTexture = std::nullopt;
+    glDeleteTextures(1, &_inputTexture->id);
+    _inputTexture = std::nullopt;
   }
 
   _inputTexture = _context->createTexture(OpenGLTexture::Type::ExternalOES, width, height);
   return static_cast<int>(_inputTexture->id);
+}
+
+void VideoPipeline::renderHardwareBuffer(jobject hardwareBufferBoxed) {
+#if __ANDROID_API__ >= 26
+  AHardwareBuffer* hardwareBuffer = AHardwareBuffer_fromHardwareBuffer(jni::Environment::current(), hardwareBufferBoxed);
+  AHardwareBuffer_acquire(hardwareBuffer);
+
+  // TODO: Get a transform matrix from the HardwareBuffer caller?
+  constexpr float identityMatrix[16] = {1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+
+  if (_recordingSessionOutput) {
+    __android_log_print(ANDROID_LOG_INFO, TAG, "Rendering to RecordingSession..");
+    _recordingSessionOutput->renderHardwareBufferToSurface(hardwareBuffer, identityMatrix);
+  }
+
+  AHardwareBuffer_release(hardwareBuffer);
+#else
+  throw std::runtime_error("HardwareBuffer rendering is only supported is minSdk is set to API 26 or higher!");
+#endif
 }
 
 void VideoPipeline::onBeforeFrame() {
@@ -84,14 +101,12 @@ void VideoPipeline::onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrixPara
 }
 
 void VideoPipeline::registerNatives() {
-  registerHybrid({
-      makeNativeMethod("initHybrid", VideoPipeline::initHybrid),
-      makeNativeMethod("setRecordingSessionOutputSurface", VideoPipeline::setRecordingSessionOutputSurface),
-      makeNativeMethod("removeRecordingSessionOutputSurface", VideoPipeline::removeRecordingSessionOutputSurface),
-      makeNativeMethod("createInputTexture", VideoPipeline::createInputTexture),
-      makeNativeMethod("onBeforeFrame", VideoPipeline::onBeforeFrame),
-      makeNativeMethod("onFrame", VideoPipeline::onFrame),
-  });
+  registerHybrid({makeNativeMethod("initHybrid", VideoPipeline::initHybrid),
+                  makeNativeMethod("setRecordingSessionOutputSurface", VideoPipeline::setRecordingSessionOutputSurface),
+                  makeNativeMethod("removeRecordingSessionOutputSurface", VideoPipeline::removeRecordingSessionOutputSurface),
+                  makeNativeMethod("createInputTexture", VideoPipeline::createInputTexture),
+                  makeNativeMethod("onBeforeFrame", VideoPipeline::onBeforeFrame), makeNativeMethod("onFrame", VideoPipeline::onFrame),
+                  makeNativeMethod("renderHardwareBuffer", VideoPipeline::renderHardwareBuffer)});
 }
 
 } // namespace vision

@@ -9,6 +9,7 @@
 #include <GLES2/gl2.h>
 #include <android/native_window.h>
 #include <memory>
+#include <optional>
 
 #include "OpenGLContext.h"
 #include "OpenGLTexture.h"
@@ -33,7 +34,12 @@ public:
   /**
    * Renders the given Texture to the Surface
    */
-  void renderTextureToSurface(const OpenGLTexture& texture, float* transformMatrix);
+  void renderTextureToSurface(const OpenGLTexture& texture, const float* transformMatrix);
+
+  /**
+   * Renders the given HardwareBuffer to the Surface
+   */
+  void renderHardwareBufferToSurface(AHardwareBuffer* hardwareBuffer, const float* transformMatrix);
 
   /**
    * Destroys the OpenGL context. This needs to be called on the same thread that `use()` was
@@ -44,12 +50,14 @@ public:
 
 private:
   explicit OpenGLRenderer(std::shared_ptr<OpenGLContext> context, ANativeWindow* surface);
+  void ensureSurface();
 
 private:
   int _width = 0, _height = 0;
   std::shared_ptr<OpenGLContext> _context;
   ANativeWindow* _outputSurface;
   EGLSurface _surface = EGL_NO_SURFACE;
+  std::optional<OpenGLTexture> _hardwareBufferTexture;
 
 private:
   PassThroughShader _passThroughShader;

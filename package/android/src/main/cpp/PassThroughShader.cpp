@@ -24,7 +24,7 @@ PassThroughShader::~PassThroughShader() {
   }
 }
 
-void PassThroughShader::draw(const OpenGLTexture& texture, float* transformMatrix) {
+void PassThroughShader::draw(const OpenGLTexture& texture, const float* transformMatrix) {
   // 1. Set up Shader Program
   if (_programId == NO_SHADER) {
     _programId = createProgram();

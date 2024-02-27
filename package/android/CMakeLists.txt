@@ -11,6 +11,10 @@ find_package(ReactAndroid REQUIRED CONFIG)
 find_package(fbjni REQUIRED CONFIG)
 find_library(LOG_LIB log)
 
+# Enables OpenGL/EGL HardwareBuffer and EGLImageKHR APIs
+add_definitions(-DEGL_EGLEXT_PROTOTYPES)
+add_definitions(-DGL_GLEXT_PROTOTYPES)
+
 if (ENABLE_FRAME_PROCESSORS)
         add_definitions(-DVISION_CAMERA_ENABLE_FRAME_PROCESSORS=true)
 else()
