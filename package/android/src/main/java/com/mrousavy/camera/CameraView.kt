@@ -11,7 +11,6 @@ import androidx.camera.core.Preview.SurfaceProvider
 import androidx.camera.view.PreviewView
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.core.CameraConfiguration
-import com.mrousavy.camera.core.CameraQueues
 import com.mrousavy.camera.core.CameraSession
 import com.mrousavy.camera.core.CodeScannerFrame
 import com.mrousavy.camera.extensions.installHierarchyFitter
@@ -26,6 +25,7 @@ import com.mrousavy.camera.types.ResizeMode
 import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.VideoStabilizationMode
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 //
@@ -95,7 +95,7 @@ class CameraView(context: Context) :
 
   // private properties
   private var isMounted = false
-  private val coroutineScope = CoroutineScope(CameraQueues.cameraQueue.coroutineDispatcher)
+  private val mainCoroutineScope = CoroutineScope(Dispatchers.Main)
   private val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
   // session
@@ -146,7 +146,7 @@ class CameraView(context: Context) :
     val now = System.currentTimeMillis()
     currentConfigureCall = now
 
-    coroutineScope.launch {
+    mainCoroutineScope.launch {
       cameraSession.configure { config ->
         if (currentConfigureCall != now) {
           // configure waits for a lock, and if a new call to update() happens in the meantime we can drop this one.
