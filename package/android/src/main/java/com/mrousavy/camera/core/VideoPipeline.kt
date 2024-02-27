@@ -7,15 +7,19 @@ import android.hardware.HardwareBuffer
 import android.media.ImageReader
 import android.os.Build
 import android.util.Log
+import android.util.Range
 import android.view.Surface
 import androidx.annotation.Keep
 import androidx.annotation.RequiresApi
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.ConstantObservable
 import androidx.camera.core.impl.Observable
+import androidx.camera.core.processing.OpenGlRenderer
 import androidx.camera.video.MediaSpec
 import androidx.camera.video.Quality
 import androidx.camera.video.QualitySelector
+import androidx.camera.video.VideoCapabilities
 import androidx.camera.video.VideoOutput
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
@@ -61,6 +65,7 @@ class VideoPipeline(
   @SuppressLint("RestrictedApi")
   override fun getMediaSpec(): Observable<MediaSpec> {
     val mediaSpec = MediaSpec.builder().setOutputFormat(MediaSpec.OUTPUT_FORMAT_MPEG_4).configureVideo { video ->
+      video.setFrameRate(Range(0, 60))
       video.setQualitySelector(QualitySelector.from(Quality.HD))
     }
     return ConstantObservable.withValue(mediaSpec.build())
@@ -75,7 +80,7 @@ class VideoPipeline(
     if (enableFrameProcessor) {
       // User has passed a Frame Processor, we need to route images through ImageReader so we can get
       // CPU access to the Frames, then send them to the OpenGL pipeline using the underlying HardwareBuffer.
-      val format = 0x1 // TODO: getImageReaderFormat()
+      val format = getImageReaderFormat()
       Log.i(TAG, "Using ImageReader/HardwareBuffer round-trip (format: #$format)")
 
       // Create ImageReader

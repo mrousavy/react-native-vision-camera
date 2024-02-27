@@ -23,9 +23,7 @@ enum class VideoStabilizationMode(override val unionValue: String) : JSUnionValu
       }
     }
 
-  fun isAtLeast(mode: VideoStabilizationMode): Boolean {
-    return score >= mode.score
-  }
+  fun isAtLeast(mode: VideoStabilizationMode): Boolean = score >= mode.score
 
   companion object : JSUnionValue.Companion<VideoStabilizationMode> {
     override fun fromUnionValue(unionValue: String?): VideoStabilizationMode =
