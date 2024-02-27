@@ -289,7 +289,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       Log.i(TAG, "Creating CodeScanner output...")
       val analyzer = ImageAnalysis.Builder().build()
       val pipeline = CodeScannerPipeline(codeScannerConfig.config, callback)
-      analyzer.setAnalyzer(CameraQueues.analyzerQueue, pipeline)
+      analyzer.setAnalyzer(CameraQueues.analyzerExecutor, pipeline)
       codeScannerOutput = analyzer
     } else {
       codeScannerOutput = null
