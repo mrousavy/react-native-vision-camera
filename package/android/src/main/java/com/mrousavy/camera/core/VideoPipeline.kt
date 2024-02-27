@@ -11,9 +11,17 @@ import android.util.Log
 import android.view.Surface
 import androidx.annotation.Keep
 import androidx.annotation.RequiresApi
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.Preview.SurfaceProvider
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.SurfaceRequest.Result.ResultCode
+import androidx.camera.core.impl.ConstantObservable
+import androidx.camera.core.impl.Observable
+import androidx.camera.video.MediaSpec
+import androidx.camera.video.Quality
+import androidx.camera.video.QualitySelector
+import androidx.camera.video.StreamInfo
+import androidx.camera.video.VideoCapabilities
 import androidx.camera.video.VideoOutput
 import androidx.core.util.Consumer
 import com.facebook.jni.HybridData
@@ -53,7 +61,16 @@ class VideoPipeline(
   // TODO: Recording Session output?
 
   init {
+    Log.i(TAG, "Initializing VideoPipeline (Format: $format, Frame Processors: $enableFrameProcessor, GPU Buffers: $enableGpuBuffers)")
     mHybridData = initHybrid()
+  }
+
+  @SuppressLint("RestrictedApi")
+  override fun getMediaSpec(): Observable<MediaSpec> {
+    val mediaSpec = MediaSpec.builder().setOutputFormat(MediaSpec.OUTPUT_FORMAT_MPEG_4).configureVideo { video ->
+      video.setQualitySelector(QualitySelector.from(Quality.HD))
+    }
+    return ConstantObservable.withValue(mediaSpec.build())
   }
 
   @SuppressLint("RestrictedApi")
