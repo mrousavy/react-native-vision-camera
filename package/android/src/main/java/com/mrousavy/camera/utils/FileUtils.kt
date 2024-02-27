@@ -13,7 +13,7 @@ import java.nio.ByteBuffer
 class FileUtils {
   companion object {
     fun createTempFile(context: Context, extension: String): File =
-      File.createTempFile("mrousavy", extension, context.cacheDir).also {
+      File.createTempFile("mrousavy-", extension, context.cacheDir).also {
         it.deleteOnExit()
       }
 

@@ -421,7 +421,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     val camera = camera ?: throw CameraNotReadyError()
     val videoOutput = videoOutput ?: throw VideoNotEnabledError()
 
-    val file = FileUtils.createTempFile(context, "mp4")
+    val file = FileUtils.createTempFile(context, options.fileType.toExtension())
     val outputOptions = FileOutputOptions.Builder(file).build()
     var pendingRecording = videoOutput.output.prepareRecording(context, outputOptions)
     if (enableAudio) {
