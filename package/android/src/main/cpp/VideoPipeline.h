@@ -21,14 +21,14 @@ using namespace facebook;
 class VideoPipeline : public jni::HybridClass<VideoPipeline> {
 public:
   static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/core/VideoPipeline;";
-  static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis, int width, int height);
+  static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis);
   static void registerNatives();
 
 public:
   ~VideoPipeline();
 
   // -> SurfaceTexture input
-  int getInputTextureId();
+  int createInputTexture(int width, int height);
 
   // <- MediaRecorder output
   void setRecordingSessionOutputSurface(jobject surface);
@@ -40,7 +40,7 @@ public:
 
 private:
   // Private constructor. Use `create(..)` to create new instances.
-  explicit VideoPipeline(jni::alias_ref<jhybridobject> jThis, int width, int height);
+  explicit VideoPipeline(jni::alias_ref<jhybridobject> jThis);
 
 private:
   // Input Surface Texture

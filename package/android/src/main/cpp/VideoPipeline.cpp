@@ -19,13 +19,11 @@
 
 namespace vision {
 
-jni::local_ref<VideoPipeline::jhybriddata> VideoPipeline::initHybrid(jni::alias_ref<jhybridobject> jThis, int width, int height) {
-  return makeCxxInstance(jThis, width, height);
+jni::local_ref<VideoPipeline::jhybriddata> VideoPipeline::initHybrid(jni::alias_ref<jhybridobject> jThis) {
+  return makeCxxInstance(jThis);
 }
 
-VideoPipeline::VideoPipeline(jni::alias_ref<jhybridobject> jThis, int width, int height) : _javaPart(jni::make_global(jThis)) {
-  _width = width;
-  _height = height;
+VideoPipeline::VideoPipeline(jni::alias_ref<jhybridobject> jThis) : _javaPart(jni::make_global(jThis)) {
   _context = OpenGLContext::CreateWithOffscreenSurface();
 }
 
@@ -56,11 +54,13 @@ void VideoPipeline::setRecordingSessionOutputSurface(jobject surface) {
   _recordingSessionOutput = OpenGLRenderer::CreateWithWindowSurface(_context, window);
 }
 
-int VideoPipeline::getInputTextureId() {
-  if (_inputTexture == std::nullopt) {
-    _inputTexture = _context->createTexture(OpenGLTexture::Type::ExternalOES, _width, _height);
+int VideoPipeline::createInputTexture(int width, int height) {
+  if (_inputTexture != std::nullopt) {
+      glDeleteTextures(1, &_inputTexture->id);
+      _inputTexture = std::nullopt;
   }
 
+  _inputTexture = _context->createTexture(OpenGLTexture::Type::ExternalOES, width, height);
   return static_cast<int>(_inputTexture->id);
 }
 
@@ -88,7 +88,7 @@ void VideoPipeline::registerNatives() {
       makeNativeMethod("initHybrid", VideoPipeline::initHybrid),
       makeNativeMethod("setRecordingSessionOutputSurface", VideoPipeline::setRecordingSessionOutputSurface),
       makeNativeMethod("removeRecordingSessionOutputSurface", VideoPipeline::removeRecordingSessionOutputSurface),
-      makeNativeMethod("getInputTextureId", VideoPipeline::getInputTextureId),
+      makeNativeMethod("createInputTexture", VideoPipeline::createInputTexture),
       makeNativeMethod("onBeforeFrame", VideoPipeline::onBeforeFrame),
       makeNativeMethod("onFrame", VideoPipeline::onFrame),
   });
