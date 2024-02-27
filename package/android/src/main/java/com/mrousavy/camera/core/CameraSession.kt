@@ -10,6 +10,7 @@ import android.media.MediaActionSound
 import android.util.Log
 import android.util.Range
 import android.util.Size
+import androidx.annotation.MainThread
 import androidx.annotation.OptIn
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
@@ -36,6 +37,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import com.facebook.react.bridge.UiThreadUtil
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.extensions.await
 import com.mrousavy.camera.extensions.byId
@@ -55,7 +57,11 @@ import com.mrousavy.camera.types.Video
 import com.mrousavy.camera.types.VideoStabilizationMode
 import com.mrousavy.camera.utils.FileUtils
 import com.mrousavy.camera.utils.runOnUiThread
-import com.mrousavy.camera.utils.runOnUiThreadAndWait
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import java.io.Closeable
 import kotlin.math.roundToInt
 import kotlinx.coroutines.sync.Mutex
@@ -85,6 +91,9 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   private val lifecycleRegistry = LifecycleRegistry(this)
   private var recording: Recording? = null
 
+  // Threading
+  private val mainCoroutineScope = CoroutineScope(Dispatchers.Main)
+
   val orientation: Orientation
     get() {
       val cameraId = configuration?.cameraId ?: return Orientation.PORTRAIT
@@ -112,7 +121,15 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
   override fun getLifecycle(): Lifecycle = lifecycleRegistry
 
+  /**
+   * Configures the [CameraSession] with new values in one batch.
+   * This must be called from the Main UI Thread.
+   */
+  @MainThread
   suspend fun configure(lambda: (configuration: CameraConfiguration) -> Unit) {
+    if (!UiThreadUtil.isOnUiThread()) {
+      throw Error("configure { ... } must be called from the Main UI Thread!")
+    }
     Log.i(TAG, "configure { ... }: Waiting for lock...")
 
     val provider = cameraProvider.await()
@@ -185,8 +202,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   }
 
   @Suppress("LiftReturnOrAssignment")
-  @SuppressLint("RestrictedApi")
-  private suspend fun configureOutputs(configuration: CameraConfiguration) {
+  private fun configureOutputs(configuration: CameraConfiguration) {
     Log.i(TAG, "Creating new Outputs for Camera #${configuration.cameraId}...")
     val fpsRange = getTargetFpsRange(configuration)
     val format = configuration.format
@@ -197,19 +213,17 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     val previewConfig = configuration.preview as? CameraConfiguration.Output.Enabled<CameraConfiguration.Preview>
     if (previewConfig != null) {
       Log.i(TAG, "Creating Preview output...")
-      runOnUiThreadAndWait {
-        val preview = Preview.Builder().also { preview ->
-          // Configure Preview Output
-          if (configuration.videoStabilizationMode.isAtLeast(VideoStabilizationMode.CINEMATIC)) {
-            preview.setPreviewStabilizationEnabled(true)
-          }
-          if (fpsRange != null) {
-            preview.setTargetFrameRate(fpsRange)
-          }
-        }.build()
-        preview.setSurfaceProvider(previewConfig.config.surfaceProvider)
-        previewOutput = preview
-      }
+      val preview = Preview.Builder().also { preview ->
+        // Configure Preview Output
+        if (configuration.videoStabilizationMode.isAtLeast(VideoStabilizationMode.CINEMATIC)) {
+          preview.setPreviewStabilizationEnabled(true)
+        }
+        if (fpsRange != null) {
+          preview.setTargetFrameRate(fpsRange)
+        }
+      }.build()
+      preview.setSurfaceProvider(previewConfig.config.surfaceProvider)
+      previewOutput = preview
     } else {
       previewOutput = null
     }
@@ -304,31 +318,28 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       throw NoOutputsError()
     }
 
-    // Camera lifecycle methods need to run on the UI Thread.... unfortunately.
-    runOnUiThreadAndWait {
-      // Unbind previous Camera
-      provider.unbindAll()
+    // Unbind previous Camera
+    provider.unbindAll()
 
-      // Bind it all together (must be on UI Thread)
-      camera = provider.bindToLifecycle(this, cameraSelector, *useCases.toTypedArray())
-      var lastState = CameraState.Type.OPENING
-      camera!!.cameraInfo.cameraState.observeForever { state ->
-        Log.i(TAG, "Camera State: ${state.type} (has error: ${state.error != null})")
+    // Bind it all together (must be on UI Thread)
+    camera = provider.bindToLifecycle(this, cameraSelector, *useCases.toTypedArray())
+    var lastState = CameraState.Type.OPENING
+    camera!!.cameraInfo.cameraState.observeForever { state ->
+      Log.i(TAG, "Camera State: ${state.type} (has error: ${state.error != null})")
 
-        if (state.type == CameraState.Type.OPEN && state.type != lastState) {
-          // Camera has now been initialized!
-          callback.onInitialized()
-          lastState = state.type
-        }
-
-        val error = state.error
-        if (error != null) {
-          // A Camera error occurred!
-          callback.onError(error.toCameraError())
-        }
+      if (state.type == CameraState.Type.OPEN && state.type != lastState) {
+        // Camera has now been initialized!
+        callback.onInitialized()
+        lastState = state.type
       }
-      Log.i(TAG, "Successfully bound Camera #${configuration.cameraId}!")
+
+      val error = state.error
+      if (error != null) {
+        // A Camera error occurred!
+        callback.onError(error.toCameraError())
+      }
     }
+    Log.i(TAG, "Successfully bound Camera #${configuration.cameraId}!")
   }
 
   private fun configureSideProps(config: CameraConfiguration) {
@@ -356,12 +367,10 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   }
 
   private fun configureIsActive(config: CameraConfiguration) {
-    runOnUiThread {
-      if (config.isActive) {
-        lifecycleRegistry.currentState = Lifecycle.State.RESUMED
-      } else {
-        lifecycleRegistry.currentState = Lifecycle.State.STARTED
-      }
+    if (config.isActive) {
+      lifecycleRegistry.currentState = Lifecycle.State.RESUMED
+    } else {
+      lifecycleRegistry.currentState = Lifecycle.State.STARTED
     }
   }
 
@@ -382,7 +391,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       photoOutput.targetRotation = outputOrientation.toDegrees()
       val playSound = enableShutterSound || CameraInfo.mustPlayShutterSound()
 
-      val image = photoOutput.takePicture(playSound, CameraQueues.cameraQueue.executor)
+      val image = photoOutput.takePicture(playSound, CameraQueues.cameraExecutor)
       val isMirrored = camera.cameraInfo.lensFacing == CameraSelector.LENS_FACING_FRONT
       return Photo(image, isMirrored)
     }
@@ -416,7 +425,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     pendingRecording = pendingRecording.asPersistentRecording()
 
     val size = videoOutput.attachedSurfaceResolution ?: Size(0, 0)
-    recording = pendingRecording.start(CameraQueues.cameraQueue.executor) { event ->
+    recording = pendingRecording.start(CameraQueues.cameraExecutor) { event ->
       when (event) {
         is VideoRecordEvent.Start -> Log.i(TAG, "Recording started!")
         is VideoRecordEvent.Resume -> Log.i(TAG, "Recording resumed!")
