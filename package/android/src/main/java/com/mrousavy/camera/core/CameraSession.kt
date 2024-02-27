@@ -92,7 +92,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   private var recording: Recording? = null
 
   // Threading
-  private val mainCoroutineScope = CoroutineScope(Dispatchers.Main)
+  private val mainExecutor = ContextCompat.getMainExecutor(context)
 
   val orientation: Orientation
     get() {
@@ -132,7 +132,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     }
     Log.i(TAG, "configure { ... }: Waiting for lock...")
 
-    val provider = cameraProvider.await()
+    val provider = cameraProvider.await(mainExecutor)
 
     mutex.withLock {
       // Let caller configure a new configuration for the Camera.
