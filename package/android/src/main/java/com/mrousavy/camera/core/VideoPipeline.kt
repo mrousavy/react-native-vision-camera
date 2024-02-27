@@ -4,14 +4,22 @@ import android.annotation.SuppressLint
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.HardwareBuffer
+import android.media.Image
 import android.media.ImageReader
+import android.media.ImageWriter
 import android.os.Build
 import android.util.Log
 import android.util.Range
+import android.util.Size
 import android.view.Surface
 import androidx.annotation.Keep
+import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraInfo
+import androidx.camera.core.ExperimentalGetImage
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageAnalysis.Analyzer
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.ConstantObservable
 import androidx.camera.core.impl.Observable
@@ -35,7 +43,6 @@ import java.io.Closeable
  *
  * @param [format] The format of the Frames to stream. ([ImageFormat.PRIVATE], [ImageFormat.YUV_420_888] or [ImageFormat.JPEG])
  */
-@RequiresApi(Build.VERSION_CODES.O)
 @Suppress("KotlinJniMissingFunction")
 class VideoPipeline(
   val format: PixelFormat = PixelFormat.NATIVE,
@@ -43,16 +50,25 @@ class VideoPipeline(
   private val enableFrameProcessor: Boolean = false,
   private val enableGpuBuffers: Boolean = false,
   private val callback: CameraSession.Callback
-) : VideoOutput,
-  Closeable {
+) : Analyzer, Closeable {
   companion object {
     private const val MAX_IMAGES = 3
     private const val TAG = "VideoPipeline"
   }
+  data class OpenGLState(val surfaceTexture: SurfaceTexture, val surface: Surface, val size: Size): Closeable {
+    override fun close() {
+      surface.release()
+      surfaceTexture.release()
+    }
+  }
+  data class ImageWriterState(val imageWriter: ImageWriter, val size: Size, val format: Int)
 
   @DoNotStrip
   @Keep
   private val mHybridData: HybridData
+  private var openGlState: OpenGLState? = null
+  private var imageWriterState: ImageWriterState? = null
+  private var isActive = true
 
   // Output
   // TODO: Recording Session output?
@@ -62,130 +78,102 @@ class VideoPipeline(
     mHybridData = initHybrid()
   }
 
-  @SuppressLint("RestrictedApi")
-  override fun getMediaSpec(): Observable<MediaSpec> {
-    val mediaSpec = MediaSpec.builder().setOutputFormat(MediaSpec.OUTPUT_FORMAT_MPEG_4).configureVideo { video ->
-      video.setFrameRate(Range(0, 60))
-      video.setQualitySelector(QualitySelector.from(Quality.HD))
-    }
-    return ConstantObservable.withValue(mediaSpec.build())
-  }
+  @OptIn(ExperimentalGetImage::class)
+  override fun analyze(imageProxy: ImageProxy) {
+    val image = imageProxy.image ?: throw InvalidImageTypeError()
 
-  @SuppressLint("RestrictedApi")
-  override fun onSurfaceRequested(request: SurfaceRequest) {
-    val size = request.resolution
-    val surfaceSpec = request.deferrableSurface
-    Log.i(TAG, "Creating $size Surface... (${request.expectedFrameRate.upper} FPS, expected format: ${surfaceSpec.prescribedStreamFormat}, ${request.dynamicRange})")
+    // TODO: get is mirrored
+    val isMirrored = false
+    val frame = Frame(image, imageProxy.imageInfo.timestamp, Orientation.fromRotationDegrees(imageProxy.imageInfo.rotationDegrees), isMirrored)
+    frame.incrementRefCount()
+    try {
+      // 1. Call Frame Processor
+      callback.onFrame(frame)
 
-    if (enableFrameProcessor) {
-      // User has passed a Frame Processor, we need to route images through ImageReader so we can get
-      // CPU access to the Frames, then send them to the OpenGL pipeline using the underlying HardwareBuffer.
-      val format = getImageReaderFormat()
-      Log.i(TAG, "Using ImageReader/HardwareBuffer round-trip (format: #$format)")
-
-      // Create ImageReader
-      val imageReader = if (enableGpuBuffers && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        val usageFlags = getRecommendedHardwareBufferFlags(size.width, size.height)
-        Log.i(TAG, "Creating ImageReader with GPU-optimized usage flags: $usageFlags")
-        ImageReader.newInstance(size.width, size.height, format, MAX_IMAGES, usageFlags)
+      // 2. Forward to OpenGL pipeline
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val imageWriterState = getOrCreateImageWriter(imageProxy)
+        imageWriterState.imageWriter.queueInputImage(image)
       } else {
-        Log.i(TAG, "Creating ImageReader with default usage flags...")
-        ImageReader.newInstance(size.width, size.height, format, MAX_IMAGES)
+        throw Error("VideoPipeline with Frame Processors requires API 26 or above!")
       }
-
-      imageReader.setOnImageAvailableListener({ reader ->
-        Log.i(TAG, "ImageReader::onImageAvailable!")
-
-        try {
-          val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
-
-          // TODO: Get correct orientation and isMirrored
-          val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, isMirrored)
-          frame.incrementRefCount()
-
-          try {
-            callback.onFrame(frame)
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-              val hardwareBuffer = image.hardwareBuffer ?: throw HardwareBuffersNotAvailableError()
-              renderHardwareBuffer(hardwareBuffer)
-            }
-          } finally {
-            frame.decrementRefCount()
-          }
-        } catch (e: Throwable) {
-          Log.e(TAG, "FrameProcessor/ImageReader pipeline threw an error!", e)
-          callback.onError(e)
-        }
-      }, CameraQueues.videoQueue.handler)
-
-      request.provideSurface(imageReader.surface, CameraQueues.videoQueue.executor) { result ->
-        synchronized(this) {
-          imageReader.close()
-        }
-
-        onSurfaceClosed(result.resultCode)
-      }
-    } else {
-      // User did not pass a Frame Processor, we can just stream into the OpenGL surface directly.
-
-      val surfaceTexture = SurfaceTexture(false)
-      surfaceTexture.setDefaultBufferSize(size.width, size.height)
-      val glSurface = Surface(surfaceTexture)
-
-      var openGLTextureId: Int? = null
-      val transformMatrix = FloatArray(16)
-      var isActive = true
-      surfaceTexture.setOnFrameAvailableListener { texture ->
-        synchronized(this) {
-          if (!isActive) return@synchronized
-
-          // 1. Attach Surface to OpenGL context
-          if (openGLTextureId == null) {
-            openGLTextureId = createInputTexture(size.width, size.height)
-            texture.attachToGLContext(openGLTextureId!!)
-            Log.i(TAG, "Attached Texture to Context $openGLTextureId")
-          }
-
-          // 2. Prepare the OpenGL context (eglMakeCurrent)
-          onBeforeFrame()
-
-          // 3. Update the OpenGL texture
-          texture.updateTexImage()
-
-          // 4. Get the transform matrix from the SurfaceTexture (rotations/scales applied by Camera)
-          texture.getTransformMatrix(transformMatrix)
-
-          // 5. Draw it with applied rotation/mirroring
-          onFrame(transformMatrix)
-        }
-      }
-
-      request.provideSurface(glSurface, CameraQueues.videoQueue.executor) { result ->
-        synchronized(this) {
-          isActive = false
-          glSurface.release()
-          surfaceTexture.release()
-        }
-
-        onSurfaceClosed(result.resultCode)
-      }
+    } catch (e: Throwable) {
+      Log.e(TAG, "VideoPipeline threw an error! ${e.message}", e)
+      callback.onError(e)
+    } finally {
+        frame.decrementRefCount()
     }
   }
 
-  private fun onSurfaceClosed(resultCode: Int) {
-    when (resultCode) {
-      SurfaceRequest.Result.RESULT_INVALID_SURFACE -> throw Error("Invalid Surface!")
-      SurfaceRequest.Result.RESULT_REQUEST_CANCELLED -> throw Error("SurfaceRequest was canceled!")
-      SurfaceRequest.Result.RESULT_SURFACE_ALREADY_PROVIDED -> Log.i(TAG, "VideoPipeline surface was already provided.")
-      SurfaceRequest.Result.RESULT_SURFACE_USED_SUCCESSFULLY -> Log.i(TAG, "VideoPipeline Surface has been safely released by the Camera.")
-      SurfaceRequest.Result.RESULT_WILL_NOT_PROVIDE_SURFACE -> Log.i(TAG, "VideoPipeline will not provide a Surface to the Camera.")
-      else -> throw Error("Something went wrong. Code: $resultCode")
+  private fun getOrCreateImageWriter(image: ImageProxy): ImageWriterState {
+    val size = Size(image.width, image.height)
+    val format = image.format
+    val currentWriter = imageWriterState
+    if (currentWriter != null && currentWriter.size == size && currentWriter.format == format) {
+      return currentWriter
     }
+
+    val openGlState = getOrCreateGLState(size)
+
+    Log.i(TAG, "Initializing new $size ImageWriter in format $format...")
+    val imageWriter = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+      Log.i(TAG, "Creating $size ImageWriter with format $format...")
+      ImageWriter.newInstance(openGlState.surface, MAX_IMAGES, format)
+    } else {
+      Log.i(TAG, "Creating $size ImageWriter with default format...")
+      ImageWriter.newInstance(openGlState.surface, MAX_IMAGES)
+    }
+    val state = ImageWriterState(imageWriter, size, format)
+    imageWriterState = state
+    return state
+  }
+
+  private fun getOrCreateGLState(size: Size): OpenGLState {
+    val currentState = openGlState
+    if (currentState != null && currentState.size == size) {
+      return currentState
+    }
+
+    Log.i(TAG, "Creating $size OpenGL texture...")
+    val surfaceTexture = SurfaceTexture(false)
+    surfaceTexture.setDefaultBufferSize(size.width, size.height)
+
+    var openGLTextureId: Int? = null
+    val transformMatrix = FloatArray(16)
+    surfaceTexture.setOnFrameAvailableListener { texture ->
+      synchronized(this) {
+        if (!isActive) return@synchronized
+
+        // 1. Attach Surface to OpenGL context
+        if (openGLTextureId == null) {
+          openGLTextureId = createInputTexture(size.width, size.height)
+          texture.attachToGLContext(openGLTextureId!!)
+          Log.i(TAG, "Attached Texture to Context $openGLTextureId")
+        }
+
+        // 2. Prepare the OpenGL context (eglMakeCurrent)
+        onBeforeFrame()
+
+        // 3. Update the OpenGL texture
+        texture.updateTexImage()
+
+        // 4. Get the transform matrix from the SurfaceTexture (rotations/scales applied by Camera)
+        texture.getTransformMatrix(transformMatrix)
+
+        // 5. Draw it with applied rotation/mirroring
+        onFrame(transformMatrix)
+      }
+    }
+    val surface = Surface(surfaceTexture)
+
+    val state = OpenGLState(surfaceTexture, surface, size)
+    openGlState = state
+    return state
   }
 
   override fun close() {
     synchronized(this) {
+      isActive = false
       removeRecordingSessionOutputSurface()
     }
   }
