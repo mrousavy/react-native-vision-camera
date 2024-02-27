@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Point
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.media.MediaActionSound
@@ -17,11 +18,15 @@ import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
 import androidx.camera.core.DynamicRange
+import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.MeteringPoint
+import androidx.camera.core.MeteringPointFactory
 import androidx.camera.core.MirrorMode
 import androidx.camera.core.Preview
 import androidx.camera.core.PreviewCapabilities
+import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.core.TorchState
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.extensions.ExtensionMode
@@ -477,7 +482,13 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     }
   }
 
-  suspend fun focus(x: Int, y: Int): Unit = throw NotImplementedError()
+  suspend fun focus(meteringPoint: MeteringPoint) {
+    val camera = camera ?: throw CameraNotReadyError()
+
+    val action = FocusMeteringAction.Builder(meteringPoint)
+    val future = camera.cameraControl.startFocusAndMetering(action.build())
+    future.await(CameraQueues.cameraExecutor)
+  }
 
   interface Callback {
     fun onError(error: Throwable)
