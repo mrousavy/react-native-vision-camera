@@ -40,12 +40,12 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     }
   }
 
-  private val coroutineScope = CoroutineScope(CameraQueues.cameraQueue.coroutineDispatcher)
+  private val backgroundCoroutineScope = CoroutineScope(CameraQueues.cameraExecutor.asCoroutineDispatcher())
 
   override fun invalidate() {
     super.invalidate()
-    if (coroutineScope.isActive) {
-      coroutineScope.cancel("CameraViewModule has been destroyed.")
+    if (backgroundCoroutineScope.isActive) {
+      backgroundCoroutineScope.cancel("CameraViewModule has been destroyed.")
     }
   }
 
@@ -85,7 +85,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   @ReactMethod
   fun takePhoto(viewTag: Int, options: ReadableMap, promise: Promise) {
-    coroutineScope.launch {
+    backgroundCoroutineScope.launch {
       val view = findCameraView(viewTag)
       withPromise(promise) {
         view.takePhoto(options)
@@ -95,7 +95,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   @ReactMethod
   fun takeSnapshot(viewTag: Int, jsOptions: ReadableMap, promise: Promise) {
-    coroutineScope.launch {
+    backgroundCoroutineScope.launch {
       val view = findCameraView(viewTag)
       runOnUiThread {
         try {
@@ -112,7 +112,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   // TODO: startRecording() cannot be awaited, because I can't have a Promise and a onRecordedCallback in the same function. Hopefully TurboModules allows that
   @ReactMethod
   fun startRecording(viewTag: Int, jsOptions: ReadableMap, onRecordCallback: Callback) {
-    coroutineScope.launch {
+    backgroundCoroutineScope.launch {
       val view = findCameraView(viewTag)
       try {
         val options = RecordVideoOptions(jsOptions)
@@ -130,7 +130,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   @ReactMethod
   fun pauseRecording(viewTag: Int, promise: Promise) {
-    coroutineScope.launch {
+    backgroundCoroutineScope.launch {
       withPromise(promise) {
         val view = findCameraView(viewTag)
         view.pauseRecording()
@@ -141,7 +141,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   @ReactMethod
   fun resumeRecording(viewTag: Int, promise: Promise) {
-    coroutineScope.launch {
+    backgroundCoroutineScope.launch {
       val view = findCameraView(viewTag)
       withPromise(promise) {
         view.resumeRecording()
@@ -152,7 +152,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   @ReactMethod
   fun stopRecording(viewTag: Int, promise: Promise) {
-    coroutineScope.launch {
+    backgroundCoroutineScope.launch {
       val view = findCameraView(viewTag)
       withPromise(promise) {
         view.stopRecording()
@@ -163,7 +163,7 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   @ReactMethod
   fun focus(viewTag: Int, point: ReadableMap, promise: Promise) {
-    coroutineScope.launch {
+    backgroundCoroutineScope.launch {
       val view = findCameraView(viewTag)
       withPromise(promise) {
         view.focus(point)
