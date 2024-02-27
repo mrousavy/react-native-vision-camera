@@ -5,32 +5,24 @@ import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.HardwareBuffer
 import android.media.ImageReader
-import android.media.ImageWriter
 import android.os.Build
 import android.util.Log
 import android.view.Surface
 import androidx.annotation.Keep
 import androidx.annotation.RequiresApi
-import androidx.camera.core.CameraInfo
-import androidx.camera.core.Preview.SurfaceProvider
 import androidx.camera.core.SurfaceRequest
-import androidx.camera.core.SurfaceRequest.Result.ResultCode
 import androidx.camera.core.impl.ConstantObservable
 import androidx.camera.core.impl.Observable
 import androidx.camera.video.MediaSpec
 import androidx.camera.video.Quality
 import androidx.camera.video.QualitySelector
-import androidx.camera.video.StreamInfo
-import androidx.camera.video.VideoCapabilities
 import androidx.camera.video.VideoOutput
-import androidx.core.util.Consumer
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.PixelFormat
-import okhttp3.internal.wait
 import java.io.Closeable
 
 /**
@@ -47,7 +39,8 @@ class VideoPipeline(
   private val enableFrameProcessor: Boolean = false,
   private val enableGpuBuffers: Boolean = false,
   private val callback: CameraSession.Callback
-) : VideoOutput, Closeable {
+) : VideoOutput,
+  Closeable {
   companion object {
     private const val MAX_IMAGES = 3
     private const val TAG = "VideoPipeline"
@@ -76,45 +69,14 @@ class VideoPipeline(
   @SuppressLint("RestrictedApi")
   override fun onSurfaceRequested(request: SurfaceRequest) {
     val size = request.resolution
-    Log.i(TAG, "Creating $size Surface... (${request.dynamicRange} @ ${request.expectedFrameRate.upper})")
-
-    val surfaceTexture = SurfaceTexture(false)
-    surfaceTexture.setDefaultBufferSize(size.width, size.height)
-
-    var openGLTextureId: Int? = null
-    val transformMatrix = FloatArray(16)
-    var isActive = true
-    surfaceTexture.setOnFrameAvailableListener { texture ->
-      synchronized(this) {
-        if (!isActive) return@synchronized
-
-        // 1. Attach Surface to OpenGL context
-        if (openGLTextureId == null) {
-          openGLTextureId = createInputTexture(size.width, size.height)
-          texture.attachToGLContext(openGLTextureId!!)
-          Log.i(TAG, "Attached Texture to Context $openGLTextureId")
-        }
-
-        // 2. Prepare the OpenGL context (eglMakeCurrent)
-        onBeforeFrame()
-
-        // 3. Update the OpenGL texture
-        texture.updateTexImage()
-
-        // 4. Get the transform matrix from the SurfaceTexture (rotations/scales applied by Camera)
-        texture.getTransformMatrix(transformMatrix)
-
-        // 5. Draw it with applied rotation/mirroring
-        onFrame(transformMatrix)
-      }
-    }
-    val glSurface = Surface(surfaceTexture)
+    val surfaceSpec = request.deferrableSurface
+    Log.i(TAG, "Creating $size Surface... (${request.expectedFrameRate.upper} FPS, expected format: ${surfaceSpec.prescribedStreamFormat}, ${request.dynamicRange})")
 
     if (enableFrameProcessor) {
       // User has passed a Frame Processor, we need to route images through ImageReader so we can get
-      // CPU access to the Frames, then send them to the OpenGL pipeline later.
-      val format = getImageReaderFormat()
-      Log.i(TAG, "Using ImageReader round-trip (format: #$format)")
+      // CPU access to the Frames, then send them to the OpenGL pipeline using the underlying HardwareBuffer.
+      val format = 0x1 // TODO: getImageReaderFormat()
+      Log.i(TAG, "Using ImageReader/HardwareBuffer round-trip (format: #$format)")
 
       // Create ImageReader
       val imageReader = if (enableGpuBuffers && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -126,55 +88,80 @@ class VideoPipeline(
         ImageReader.newInstance(size.width, size.height, format, MAX_IMAGES)
       }
 
-      // Create ImageWriter
-      val imageWriter = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        Log.i(TAG, "Creating ImageWriter with format #$format...")
-        ImageWriter.newInstance(glSurface, MAX_IMAGES, format)
-      } else {
-        Log.i(TAG, "Creating ImageWriter with default format...")
-        ImageWriter.newInstance(glSurface, MAX_IMAGES)
-      }
-
       imageReader.setOnImageAvailableListener({ reader ->
         Log.i(TAG, "ImageReader::onImageAvailable!")
-        val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
-
-        // TODO: Get correct orientation and isMirrored
-        val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, isMirrored)
-        frame.incrementRefCount()
 
         try {
-          callback.onFrame(frame)
+          val image = reader.acquireNextImage() ?: return@setOnImageAvailableListener
 
-          // TODO: Outputs?
-          if (false) {
-            // If we have outputs (e.g. a RecordingSession), pass the frame along to the OpenGL pipeline
-            imageWriter.queueInputImage(image)
+          // TODO: Get correct orientation and isMirrored
+          val frame = Frame(image, image.timestamp, Orientation.PORTRAIT, isMirrored)
+          frame.incrementRefCount()
+
+          try {
+            callback.onFrame(frame)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+              val hardwareBuffer = image.hardwareBuffer ?: throw HardwareBuffersNotAvailableError()
+              renderHardwareBuffer(hardwareBuffer)
+            }
+          } finally {
+            frame.decrementRefCount()
           }
         } catch (e: Throwable) {
           Log.e(TAG, "FrameProcessor/ImageReader pipeline threw an error!", e)
           callback.onError(e)
-        } finally {
-          frame.decrementRefCount()
         }
       }, CameraQueues.videoQueue.handler)
 
       request.provideSurface(imageReader.surface, CameraQueues.videoQueue.executor) { result ->
         synchronized(this) {
-          isActive = false
           imageReader.close()
-          imageWriter.close()
-          glSurface.release()
-          surfaceTexture.release()
         }
 
         onSurfaceClosed(result.resultCode)
       }
     } else {
       // User did not pass a Frame Processor, we can just stream into the OpenGL surface directly.
+
+      val surfaceTexture = SurfaceTexture(false)
+      surfaceTexture.setDefaultBufferSize(size.width, size.height)
+      val glSurface = Surface(surfaceTexture)
+
+      var openGLTextureId: Int? = null
+      val transformMatrix = FloatArray(16)
+      var isActive = true
+      surfaceTexture.setOnFrameAvailableListener { texture ->
+        synchronized(this) {
+          if (!isActive) return@synchronized
+
+          // 1. Attach Surface to OpenGL context
+          if (openGLTextureId == null) {
+            openGLTextureId = createInputTexture(size.width, size.height)
+            texture.attachToGLContext(openGLTextureId!!)
+            Log.i(TAG, "Attached Texture to Context $openGLTextureId")
+          }
+
+          // 2. Prepare the OpenGL context (eglMakeCurrent)
+          onBeforeFrame()
+
+          // 3. Update the OpenGL texture
+          texture.updateTexImage()
+
+          // 4. Get the transform matrix from the SurfaceTexture (rotations/scales applied by Camera)
+          texture.getTransformMatrix(transformMatrix)
+
+          // 5. Draw it with applied rotation/mirroring
+          onFrame(transformMatrix)
+        }
+      }
+
       request.provideSurface(glSurface, CameraQueues.videoQueue.executor) { result ->
-        glSurface.release()
-        surfaceTexture.release()
+        synchronized(this) {
+          isActive = false
+          glSurface.release()
+          surfaceTexture.release()
+        }
 
         onSurfaceClosed(result.resultCode)
       }
@@ -259,6 +246,7 @@ class VideoPipeline(
   private external fun createInputTexture(width: Int, height: Int): Int
   private external fun onBeforeFrame()
   private external fun onFrame(transformMatrix: FloatArray)
+  private external fun renderHardwareBuffer(hardwareBufferBoxed: Any)
   private external fun setRecordingSessionOutputSurface(surface: Any)
   private external fun removeRecordingSessionOutputSurface()
   private external fun initHybrid(): HybridData

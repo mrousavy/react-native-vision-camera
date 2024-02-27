@@ -2,12 +2,12 @@ package com.mrousavy.camera.core
 
 import android.os.Handler
 import android.os.HandlerThread
+import java.util.concurrent.Executor
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.asExecutor
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors
-import java.util.concurrent.ExecutorService
 
 class CameraQueues {
   companion object {

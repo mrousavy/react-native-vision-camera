@@ -19,6 +19,7 @@ namespace vision {
 using namespace facebook;
 
 class VideoPipeline : public jni::HybridClass<VideoPipeline> {
+
 public:
   static auto constexpr kJavaDescriptor = "Lcom/mrousavy/camera/core/VideoPipeline;";
   static jni::local_ref<jhybriddata> initHybrid(jni::alias_ref<jhybridobject> jThis);
@@ -38,6 +39,8 @@ public:
   void onBeforeFrame();
   void onFrame(jni::alias_ref<jni::JArrayFloat> transformMatrix);
 
+  void renderHardwareBuffer(jobject hardwareBufferBoxed);
+
 private:
   // Private constructor. Use `create(..)` to create new instances.
   explicit VideoPipeline(jni::alias_ref<jhybridobject> jThis);
@@ -45,8 +48,6 @@ private:
 private:
   // Input Surface Texture
   std::optional<OpenGLTexture> _inputTexture = std::nullopt;
-  int _width = 0;
-  int _height = 0;
 
   // Output Contexts
   std::shared_ptr<OpenGLContext> _context = nullptr;

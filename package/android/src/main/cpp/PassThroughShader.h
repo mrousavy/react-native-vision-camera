@@ -29,7 +29,7 @@ public:
    * Draw the texture using this shader.
    * Note: At the moment, only EXTERNAL textures are supported by the Shader.
    */
-  void draw(const OpenGLTexture& texture, float* transformMatrix);
+  void draw(const OpenGLTexture& texture, const float* transformMatrix);
 
 private:
   // Loading
