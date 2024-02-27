@@ -201,6 +201,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     }
   }
 
+  @SuppressLint("RestrictedApi")
   @Suppress("LiftReturnOrAssignment")
   private fun configureOutputs(configuration: CameraConfiguration) {
     Log.i(TAG, "Creating new Outputs for Camera #${configuration.cameraId}...")
