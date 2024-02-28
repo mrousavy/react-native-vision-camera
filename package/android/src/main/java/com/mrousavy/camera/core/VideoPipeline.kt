@@ -1,34 +1,19 @@
 package com.mrousavy.camera.core
 
-import android.annotation.SuppressLint
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.HardwareBuffer
-import android.media.Image
-import android.media.ImageReader
 import android.media.ImageWriter
 import android.os.Build
 import android.util.Log
-import android.util.Range
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.Keep
 import androidx.annotation.OptIn
 import androidx.annotation.RequiresApi
-import androidx.camera.core.CameraInfo
 import androidx.camera.core.ExperimentalGetImage
-import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.Analyzer
 import androidx.camera.core.ImageProxy
-import androidx.camera.core.SurfaceRequest
-import androidx.camera.core.impl.ConstantObservable
-import androidx.camera.core.impl.Observable
-import androidx.camera.core.processing.OpenGlRenderer
-import androidx.camera.video.MediaSpec
-import androidx.camera.video.Quality
-import androidx.camera.video.QualitySelector
-import androidx.camera.video.VideoCapabilities
-import androidx.camera.video.VideoOutput
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStrip
 import com.mrousavy.camera.frameprocessor.Frame
@@ -50,12 +35,13 @@ class VideoPipeline(
   private val enableFrameProcessor: Boolean = false,
   private val enableGpuBuffers: Boolean = false,
   private val callback: CameraSession.Callback
-) : Analyzer, Closeable {
+) : Analyzer,
+  Closeable {
   companion object {
     private const val MAX_IMAGES = 3
     private const val TAG = "VideoPipeline"
   }
-  data class OpenGLState(val surfaceTexture: SurfaceTexture, val surface: Surface, val size: Size): Closeable {
+  data class OpenGLState(val surfaceTexture: SurfaceTexture, val surface: Surface, val size: Size) : Closeable {
     override fun close() {
       surface.release()
       surfaceTexture.release()
@@ -84,7 +70,8 @@ class VideoPipeline(
 
     // TODO: get is mirrored
     val isMirrored = false
-    val frame = Frame(image, imageProxy.imageInfo.timestamp, Orientation.fromRotationDegrees(imageProxy.imageInfo.rotationDegrees), isMirrored)
+    val frame =
+      Frame(image, imageProxy.imageInfo.timestamp, Orientation.fromRotationDegrees(imageProxy.imageInfo.rotationDegrees), isMirrored)
     frame.incrementRefCount()
     try {
       // 1. Call Frame Processor
@@ -101,7 +88,7 @@ class VideoPipeline(
       Log.e(TAG, "VideoPipeline threw an error! ${e.message}", e)
       callback.onError(e)
     } finally {
-        frame.decrementRefCount()
+      frame.decrementRefCount()
     }
   }
 

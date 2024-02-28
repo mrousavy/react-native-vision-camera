@@ -114,7 +114,7 @@ void OpenGLRenderer::renderHardwareBufferToSurface(AHardwareBuffer* hardwareBuff
   // 6. Cleanup
   eglDestroyImageKHR(_context->display, eglImage);
 #else
-    throw std::runtime_error("HardwareBuffer rendering is only supported is minSdk is set to API 26 or higher!");
+  throw std::runtime_error("HardwareBuffer rendering is only supported is minSdk is set to API 26 or higher!");
 #endif
 }
 

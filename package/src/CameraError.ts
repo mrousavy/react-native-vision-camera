@@ -58,6 +58,7 @@ export type SystemError =
   | 'system/camera-is-restricted'
   | 'system/no-camera-manager'
   | 'system/frame-processors-unavailable'
+  | 'system/recording-while-frame-processing-unavailable'
   | 'system/view-not-found'
   | 'system/max-cameras-in-use'
   | 'system/do-not-disturb-bug'
