@@ -204,6 +204,8 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     val fpsRange = getTargetFpsRange(configuration)
     val format = configuration.format
 
+    Log.i(TAG, "Using FPS Range: $fpsRange")
+
     // TODO: Check if all of the values we set are supported with Video/Photo/Preview Capabilities from CameraInfo.
 
     // 1. Preview
