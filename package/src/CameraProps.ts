@@ -261,7 +261,7 @@ export interface CameraProps extends ViewProps {
    */
   enableHighQualityPhotos?: boolean
   /**
-   * If `true`, show a debug view to display the FPS of the Camera session.
+   * If `true`, show a debug view to display the FPS of the Video Pipeline (Frame Processor).
    * This is useful for debugging your Frame Processor's speed.
    *
    * @default false
