@@ -98,11 +98,19 @@ The [`isActive`](/docs/api/interfaces/CameraProps#isactive) prop controls whethe
 
 ### Fast Photos
 
-If you need to take photos as fast as possible, use a [`qualityPrioritization`](/docs/api/interfaces/TakePhotoOptions#qualityprioritization) of `'speed'` to speed up the photo pipeline:
+If you need to take photos as fast as possible, use a [`qualityBalance`](/docs/api/interfaces/CameraProps#qualitybalance) of `'speed'` to speed up the photo pipeline:
+
+```jsx
+return <Camera {...props} qualityBalance="speed" />
+```
+
+### Snapshot Capture
+
+If photo capture is still too slow for your use-case, consider [taking snapshots](/docs/guides/taking-photos#taking-snapshots) instead:
 
 ```ts
-camera.current.takePhoto({
-  qualityPrioritization: 'speed'
+const snapshot = await camera.current.takeSnapshot({
+  quality: 85
 })
 ```
 

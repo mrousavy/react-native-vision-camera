@@ -10,7 +10,6 @@ export type FrameProcessor = {
   type: 'frame-processor'
 }
 
-// TODO: Replace `enableHighQualityPhotos: boolean` in favor of `priorization: 'photo' | 'video'`
 // TODO: Use RCT_ENUM_PARSER for stuff like torch, videoStabilizationMode, and orientation
 // TODO: Use Photo HostObject for stuff like depthData, portraitEffects, etc.
 // TODO: Add RAW capture support
@@ -256,7 +255,6 @@ export interface CameraProps extends ViewProps {
    * * High Resolution Capture ([`isHighResolutionCaptureEnabled`](https://developer.apple.com/documentation/avfoundation/avcapturephotooutput/1648721-ishighresolutioncaptureenabled))
    * * Virtual Device fusion for greater detail ([`isVirtualDeviceConstituentPhotoDeliveryEnabled`](https://developer.apple.com/documentation/avfoundation/avcapturephotooutput/3192189-isvirtualdeviceconstituentphotod))
    * * Dual Device fusion for greater detail ([`isDualCameraDualPhotoDeliveryEnabled`](https://developer.apple.com/documentation/avfoundation/avcapturephotosettings/2873917-isdualcameradualphotodeliveryena))
-   * * Sets the maximum quality prioritization to `.quality` ([`maxPhotoQualityPrioritization`](https://developer.apple.com/documentation/avfoundation/avcapturephotooutput/3182995-maxphotoqualityprioritization))
    *
    * @platform iOS
    * @default false

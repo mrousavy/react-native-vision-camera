@@ -123,7 +123,6 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * @example
    * ```ts
    * const photo = await camera.current.takePhoto({
-   *   qualityPrioritization: 'quality',
    *   flash: 'on',
    *   enableAutoRedEyeReduction: true
    * })
