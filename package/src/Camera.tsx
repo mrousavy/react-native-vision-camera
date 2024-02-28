@@ -513,6 +513,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
         enableFrameProcessor={frameProcessor != null}
         enableBufferCompression={props.enableBufferCompression ?? shouldEnableBufferCompression}
         pixelFormat={pixelFormat}
+        enableFpsGraph={frameProcessor != null && props.enableFpsGraph}
       />
     )
   }

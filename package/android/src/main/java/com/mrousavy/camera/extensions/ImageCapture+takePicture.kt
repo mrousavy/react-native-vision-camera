@@ -11,6 +11,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 
 suspend inline fun ImageCapture.takePicture(enableShutterSound: Boolean, executor: Executor): ImageProxy =
   suspendCancellableCoroutine { continuation ->
+    // Shutter sound
     val shutterSound = if (enableShutterSound) MediaActionSound() else null
     shutterSound?.load(MediaActionSound.SHUTTER_CLICK)
 

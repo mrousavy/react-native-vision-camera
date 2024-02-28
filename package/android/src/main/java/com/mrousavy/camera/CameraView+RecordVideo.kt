@@ -1,7 +1,6 @@
 package com.mrousavy.camera
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 import com.facebook.react.bridge.*
@@ -11,9 +10,8 @@ import com.mrousavy.camera.core.code
 import com.mrousavy.camera.types.RecordVideoOptions
 import com.mrousavy.camera.types.Video
 import com.mrousavy.camera.utils.makeErrorMap
-import java.util.*
 
-suspend fun CameraView.startRecording(options: RecordVideoOptions, onRecordCallback: Callback) {
+fun CameraView.startRecording(options: RecordVideoOptions, onRecordCallback: Callback) {
   // check audio permission
   if (audio) {
     if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
@@ -36,17 +34,14 @@ suspend fun CameraView.startRecording(options: RecordVideoOptions, onRecordCallb
   cameraSession.startRecording(audio, options, callback, onError)
 }
 
-@SuppressLint("RestrictedApi")
-suspend fun CameraView.pauseRecording() {
+fun CameraView.pauseRecording() {
   cameraSession.pauseRecording()
 }
 
-@SuppressLint("RestrictedApi")
-suspend fun CameraView.resumeRecording() {
+fun CameraView.resumeRecording() {
   cameraSession.resumeRecording()
 }
 
-@SuppressLint("RestrictedApi")
-suspend fun CameraView.stopRecording() {
+fun CameraView.stopRecording() {
   cameraSession.stopRecording()
 }
