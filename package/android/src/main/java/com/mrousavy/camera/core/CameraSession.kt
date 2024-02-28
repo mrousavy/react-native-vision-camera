@@ -404,7 +404,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     if (config.isActive) {
       lifecycleRegistry.currentState = Lifecycle.State.RESUMED
     } else {
-      lifecycleRegistry.currentState = Lifecycle.State.STARTED
+      lifecycleRegistry.currentState = Lifecycle.State.CREATED
     }
   }
 
