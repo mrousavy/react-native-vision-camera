@@ -23,8 +23,6 @@ export type FormatError =
   | 'format/format-required'
 export type SessionError =
   | 'session/camera-not-ready'
-  | 'session/camera-cannot-be-opened'
-  | 'session/camera-has-been-disconnected'
   | 'session/audio-in-use-by-other-app'
   | 'session/no-outputs'
   | 'session/audio-session-failed-to-activate'
@@ -43,7 +41,6 @@ export type CaptureError =
   | 'capture/video-not-enabled'
   | 'capture/photo-not-enabled'
   | 'capture/frame-invalid'
-  | 'capture/aborted'
   | 'capture/no-data'
   | 'capture/recorder-error'
   | 'capture/focus-canceled'

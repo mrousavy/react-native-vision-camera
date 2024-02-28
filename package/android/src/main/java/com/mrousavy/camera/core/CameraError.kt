@@ -1,6 +1,5 @@
 package com.mrousavy.camera.core
 
-import com.mrousavy.camera.types.CameraDeviceError
 import com.mrousavy.camera.types.VideoStabilizationMode
 
 abstract class CameraError(
@@ -71,12 +70,6 @@ class FatalCameraError(cause: Throwable?) :
 
 class CameraNotReadyError :
   CameraError("session", "camera-not-ready", "The Camera is not ready yet! Wait for the onInitialized() callback!")
-class CameraCannotBeOpenedError(cameraId: String, error: CameraDeviceError) :
-  CameraError("session", "camera-cannot-be-opened", "The given Camera device (id: $cameraId) could not be opened! Error: $error")
-class CameraSessionCannotBeConfiguredError(cameraId: String) :
-  CameraError("session", "cannot-create-session", "Failed to create a Camera Session for Camera #$cameraId!")
-class CameraDisconnectedError(cameraId: String, error: CameraDeviceError) :
-  CameraError("session", "camera-has-been-disconnected", "The given Camera device (id: $cameraId) has been disconnected! Error: $error")
 class NoOutputsError :
   CameraError("session", "no-outputs", "Cannot create a CameraCaptureSession without any outputs! (PREVIEW, PHOTO, VIDEO, ...)")
 class RecoverableError(cause: Throwable?) :
@@ -120,12 +113,6 @@ class VideoNotEnabledError :
   CameraError("capture", "video-not-enabled", "Video capture is disabled! Pass `video={true}` to enable video recordings.")
 class PhotoNotEnabledError :
   CameraError("capture", "photo-not-enabled", "Photo capture is disabled! Pass `photo={true}` to enable photo capture.")
-class CaptureAbortedError(wasImageCaptured: Boolean) :
-  CameraError("capture", "aborted", "The image capture was aborted! Was Image captured: $wasImageCaptured")
-class FocusCanceledError : CameraError("capture", "focus-canceled", "The focus operation was canceled.")
-class CaptureTimedOutError : CameraError("capture", "timed-out", "The image capture was aborted because it timed out.")
-class UnknownCaptureError(wasImageCaptured: Boolean) :
-  CameraError("capture", "unknown", "An unknown error occurred while trying to capture an Image! Was Image captured: $wasImageCaptured")
 class SnapshotFailedError :
   CameraError("capture", "snapshot-failed", "Failed to take a Snapshot of the Preview View! Try using takePhoto() instead.")
 
@@ -209,7 +196,7 @@ class CodeScannerTooManyOutputsError :
   CameraError(
     "code-scanner",
     "not-compatible-with-outputs",
-    "CodeScanner can only be enabled when both video and frameProcessor are disabled! " +
+    "CodeScanner can only be enabled when either photo or video (and frameProcessor) is disabled! " +
       "Use a Frame Processor Plugin for code scanning instead."
   )
 
