@@ -50,7 +50,6 @@ import com.mrousavy.camera.extensions.withExtension
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
-import com.mrousavy.camera.types.QualityBalance
 import com.mrousavy.camera.types.RecordVideoOptions
 import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.Video
@@ -79,6 +78,9 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   private var photoOutput: ImageCapture? = null
   private var videoOutput: VideoCapture<Recorder>? = null
   private var codeScannerOutput: ImageAnalysis? = null
+
+  // Camera Outputs State
+  private var recorderOutput: Recorder? = null
   private var frameProcessorEffect: FrameProcessorEffect? = null
 
   // Camera State
@@ -249,13 +251,23 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     val videoConfig = configuration.video as? CameraConfiguration.Output.Enabled<CameraConfiguration.Video>
     if (videoConfig != null) {
       Log.i(TAG, "Creating Video output...")
-      val recorder = Recorder.Builder().also { recorder ->
-        configuration.format?.let { format ->
-          recorder.setQualitySelector(format.videoQualitySelector)
-        }
-        // TODO: Make videoBitRate a Camera Prop
-        // video.setTargetVideoEncodingBitRate()
-      }.build()
+      val currentRecorder = recorderOutput
+      val recorder = if (recording != null && currentRecorder != null) {
+        // If we are currently recording, then don't re-create the recorder instance.
+        // Instead, re-use it so we don't cancel the active recording.
+        Log.i(TAG, "Re-using active Recorder because we are currently recording...")
+        currentRecorder
+      } else {
+        // We are currently not recording, so we can re-create a recorder instance if needed.
+        Log.i(TAG, "Creating new Recorder...")
+        Recorder.Builder().also { recorder ->
+          configuration.format?.let { format ->
+            recorder.setQualitySelector(format.videoQualitySelector)
+          }
+          // TODO: Make videoBitRate a Camera Prop
+          // video.setTargetVideoEncodingBitRate()
+        }.build()
+      }
 
       val video = VideoCapture.Builder(recorder).also { video ->
         // Configure Video Output
@@ -276,8 +288,10 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         }
       }.build()
       videoOutput = video
+      recorderOutput = recorder
     } else {
       videoOutput = null
+      recorderOutput = null
     }
 
     // 3.5 Frame Processor (middleman)
@@ -394,45 +408,28 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     }
   }
 
-  suspend fun takePhoto(
-    qualityBalance: QualityBalance,
-    flash: Flash,
-    enableShutterSound: Boolean,
-    enableAutoStabilization: Boolean,
-    outputOrientation: Orientation
-  ): Photo {
-    mutex.withLock {
-      val camera = camera ?: throw CameraNotReadyError()
-      val photoOutput = photoOutput ?: throw PhotoNotEnabledError()
+  suspend fun takePhoto(flash: Flash, enableShutterSound: Boolean, outputOrientation: Orientation): Photo {
+    val camera = camera ?: throw CameraNotReadyError()
+    val photoOutput = photoOutput ?: throw PhotoNotEnabledError()
 
-      // TODO: Add stabilization and quality prioritization support here?
+    photoOutput.flashMode = flash.toFlashMode()
+    photoOutput.targetRotation = outputOrientation.toDegrees()
+    val playSound = enableShutterSound || CameraInfo.mustPlayShutterSound()
 
-      photoOutput.flashMode = flash.toFlashMode()
-      photoOutput.targetRotation = outputOrientation.toDegrees()
-      val playSound = enableShutterSound || CameraInfo.mustPlayShutterSound()
-
-      val image = photoOutput.takePicture(playSound, CameraQueues.cameraExecutor)
-      val isMirrored = camera.cameraInfo.lensFacing == CameraSelector.LENS_FACING_FRONT
-      return Photo(image, isMirrored)
-    }
-  }
-
-  private fun updateVideoOutputs() {
-    val videoOutput = videoOutput ?: return
-    Log.i(TAG, "Updating Video Outputs...")
-    // TODO: Add Frame Processor here somehow?
-    // videoOutput.videoPipeline.setRecordingSessionOutput(recording)
+    val image = photoOutput.takePicture(playSound, CameraQueues.cameraExecutor)
+    val isMirrored = camera.cameraInfo.lensFacing == CameraSelector.LENS_FACING_FRONT
+    return Photo(image, isMirrored)
   }
 
   @OptIn(ExperimentalPersistentRecording::class)
   @SuppressLint("MissingPermission", "RestrictedApi")
-  suspend fun startRecording(
+  fun startRecording(
     enableAudio: Boolean,
     options: RecordVideoOptions,
     callback: (video: Video) -> Unit,
     onError: (error: CameraError) -> Unit
   ) {
-    val camera = camera ?: throw CameraNotReadyError()
+    if (camera == null) throw CameraNotReadyError()
     val videoOutput = videoOutput ?: throw VideoNotEnabledError()
 
     val file = FileUtils.createTempFile(context, options.fileType.toExtension())
@@ -473,27 +470,21 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     }
   }
 
-  suspend fun stopRecording() {
-    mutex.withLock {
-      val recording = recording ?: throw NoRecordingInProgressError()
+  fun stopRecording() {
+    val recording = recording ?: throw NoRecordingInProgressError()
 
-      recording.stop()
-      this.recording = null
-    }
+    recording.stop()
+    this.recording = null
   }
 
-  suspend fun pauseRecording() {
-    mutex.withLock {
-      val recording = recording ?: throw NoRecordingInProgressError()
-      recording.pause()
-    }
+  fun pauseRecording() {
+    val recording = recording ?: throw NoRecordingInProgressError()
+    recording.pause()
   }
 
-  suspend fun resumeRecording() {
-    mutex.withLock {
-      val recording = recording ?: throw NoRecordingInProgressError()
-      recording.resume()
-    }
+  fun resumeRecording() {
+    val recording = recording ?: throw NoRecordingInProgressError()
+    recording.resume()
   }
 
   suspend fun focus(meteringPoint: MeteringPoint) {
