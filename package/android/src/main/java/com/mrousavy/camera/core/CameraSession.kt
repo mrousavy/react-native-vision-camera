@@ -4,10 +4,8 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Point
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
-import android.media.MediaActionSound
 import android.util.Log
 import android.util.Range
 import android.util.Size
@@ -22,12 +20,10 @@ import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.MeteringPoint
-import androidx.camera.core.MeteringPointFactory
 import androidx.camera.core.MirrorMode
 import androidx.camera.core.Preview
-import androidx.camera.core.PreviewCapabilities
-import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.core.TorchState
+import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -48,7 +44,6 @@ import com.mrousavy.camera.extensions.await
 import com.mrousavy.camera.extensions.byId
 import com.mrousavy.camera.extensions.forSize
 import com.mrousavy.camera.extensions.getCameraError
-import com.mrousavy.camera.extensions.id
 import com.mrousavy.camera.extensions.takePicture
 import com.mrousavy.camera.extensions.toCameraError
 import com.mrousavy.camera.extensions.withExtension
@@ -62,11 +57,6 @@ import com.mrousavy.camera.types.Video
 import com.mrousavy.camera.types.VideoStabilizationMode
 import com.mrousavy.camera.utils.FileUtils
 import com.mrousavy.camera.utils.runOnUiThread
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asExecutor
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import java.io.Closeable
 import kotlin.math.roundToInt
 import kotlinx.coroutines.sync.Mutex
@@ -89,6 +79,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   private var photoOutput: ImageCapture? = null
   private var videoOutput: VideoCapture<Recorder>? = null
   private var codeScannerOutput: ImageAnalysis? = null
+  private var frameProcessorEffect: FrameProcessorEffect? = null
 
   // Camera State
   private val mutex = Mutex()
@@ -264,7 +255,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         // video.setTargetVideoEncodingBitRate()
       }.build()
 
-
       val video = VideoCapture.Builder(recorder).also { video ->
         // Configure Video Output
         video.setMirrorMode(MirrorMode.MIRROR_MODE_ON_FRONT_ONLY)
@@ -288,6 +278,14 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       videoOutput = null
     }
 
+    // 3.5 Frame Processor (middleman)
+    if (videoConfig != null && videoConfig.config.enableFrameProcessor) {
+      // The FrameProcessorEffect is a middle-man between the Camera stream and the output surfaces.
+      frameProcessorEffect = FrameProcessorEffect(videoConfig.config.pixelFormat, videoConfig.config.enableGpuBuffers, callback)
+    } else {
+      frameProcessorEffect = null
+    }
+
     // 4. Code Scanner
     val codeScannerConfig = configuration.codeScanner as? CameraConfiguration.Output.Enabled<CameraConfiguration.CodeScanner>
     if (codeScannerConfig != null) {
@@ -302,6 +300,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     Log.i(TAG, "Successfully created new Outputs for Camera #${configuration.cameraId}!")
   }
 
+  @Suppress("LiftReturnOrAssignment")
   private suspend fun configureCamera(provider: ProcessCameraProvider, configuration: CameraConfiguration) {
     Log.i(TAG, "Binding Camera #${configuration.cameraId}...")
     checkCameraPermission()
@@ -327,8 +326,19 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     // Unbind previous Camera
     provider.unbindAll()
 
-    // Bind it all together (must be on UI Thread)
-    camera = provider.bindToLifecycle(this, cameraSelector, *useCases.toTypedArray())
+    val frameProcessorEffect = frameProcessorEffect
+    if (frameProcessorEffect != null) {
+      val useCaseGroup = UseCaseGroup.Builder()
+      useCases.forEach { useCase -> useCaseGroup.addUseCase(useCase) }
+      useCaseGroup.addEffect(frameProcessorEffect)
+
+      // Bind it all together (must be on UI Thread)
+      camera = provider.bindToLifecycle(this, cameraSelector, useCaseGroup.build())
+    } else {
+      // Bind it all together (must be on UI Thread)
+      camera = provider.bindToLifecycle(this, cameraSelector, *useCases.toTypedArray())
+    }
+
     var lastState = CameraState.Type.OPENING
     camera!!.cameraInfo.cameraState.observeForever { state ->
       Log.i(TAG, "Camera State: ${state.type} (has error: ${state.error != null})")
