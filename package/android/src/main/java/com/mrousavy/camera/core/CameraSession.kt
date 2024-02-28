@@ -307,6 +307,10 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     // 4. Code Scanner
     val codeScannerConfig = configuration.codeScanner as? CameraConfiguration.Output.Enabled<CameraConfiguration.CodeScanner>
     if (codeScannerConfig != null) {
+      if (previewOutput != null && photoOutput != null && videoOutput != null) {
+        throw CodeScannerTooManyOutputsError()
+      }
+
       Log.i(TAG, "Creating CodeScanner output...")
       val analyzer = ImageAnalysis.Builder().build()
       val pipeline = CodeScannerPipeline(codeScannerConfig.config, callback)
@@ -389,6 +393,9 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     val currentTorch = camera.cameraInfo.torchState.value == TorchState.ON
     val newTorch = config.torch == Torch.ON
     if (currentTorch != newTorch) {
+      if (newTorch && !camera.cameraInfo.hasFlashUnit()) {
+        throw FlashUnavailableError()
+      }
       camera.cameraControl.enableTorch(newTorch)
     }
 
@@ -412,6 +419,10 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     val camera = camera ?: throw CameraNotReadyError()
     val photoOutput = photoOutput ?: throw PhotoNotEnabledError()
 
+    if (flash != Flash.OFF && !camera.cameraInfo.hasFlashUnit()) {
+      throw FlashUnavailableError()
+    }
+
     photoOutput.flashMode = flash.toFlashMode()
     photoOutput.targetRotation = outputOrientation.toDegrees()
     val playSound = enableShutterSound || CameraInfo.mustPlayShutterSound()
@@ -430,6 +441,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     onError: (error: CameraError) -> Unit
   ) {
     if (camera == null) throw CameraNotReadyError()
+    if (recording != null) throw RecordingInProgressError()
     val videoOutput = videoOutput ?: throw VideoNotEnabledError()
 
     val file = FileUtils.createTempFile(context, options.fileType.toExtension())
@@ -490,8 +502,12 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   suspend fun focus(meteringPoint: MeteringPoint) {
     val camera = camera ?: throw CameraNotReadyError()
 
-    val action = FocusMeteringAction.Builder(meteringPoint)
-    val future = camera.cameraControl.startFocusAndMetering(action.build())
+    val action = FocusMeteringAction.Builder(meteringPoint).build()
+    if (!camera.cameraInfo.isFocusMeteringSupported(action)) {
+      throw FocusNotSupportedError()
+    }
+
+    val future = camera.cameraControl.startFocusAndMetering(action)
     future.await(CameraQueues.cameraExecutor)
   }
 

@@ -182,7 +182,6 @@ enum CaptureError {
   case photoNotEnabled
   case snapshotFailed
   case timedOut
-  case aborted
   case insufficientStorage
   case unknown(message: String? = nil)
 
@@ -210,8 +209,6 @@ enum CaptureError {
       return "photo-not-enabled"
     case .insufficientStorage:
       return "insufficient-storage"
-    case .aborted:
-      return "aborted"
     case .unknown:
       return "unknown"
     }
@@ -239,8 +236,6 @@ enum CaptureError {
       return "An unexpected error occurred while trying to access the image data!"
     case .timedOut:
       return "The capture timed out."
-    case .aborted:
-      return "The capture has been stopped before any input data arrived."
     case .insufficientStorage:
       return "There is not enough storage space available."
     case let .unknown(message: message):
