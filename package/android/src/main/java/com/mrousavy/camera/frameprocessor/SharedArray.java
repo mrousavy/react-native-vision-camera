@@ -14,10 +14,12 @@ import java.nio.ByteBuffer;
  * @noinspection JavaJniMissingFunction
  */
 public final class SharedArray {
+    /** @noinspection FieldCanBeLocal, unused */
     @DoNotStrip
     @Keep
     private final HybridData mHybridData;
 
+    /** @noinspection unused */
     @DoNotStrip
     @Keep
     private SharedArray(HybridData hybridData) {

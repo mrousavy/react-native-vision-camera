@@ -11,7 +11,6 @@ import com.facebook.react.bridge.WritableMap
 import com.mrousavy.camera.core.InsufficientStorageError
 import com.mrousavy.camera.core.Photo
 import com.mrousavy.camera.types.Flash
-import com.mrousavy.camera.types.QualityBalance
 import com.mrousavy.camera.utils.*
 import java.io.IOException
 import kotlinx.coroutines.*
@@ -23,22 +22,12 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
   val options = optionsMap.toHashMap()
   Log.i(TAG, "Taking photo... Options: $options")
 
-  val qualityPrioritization = options["qualityPrioritization"] as? String ?: "balanced"
   val flash = options["flash"] as? String ?: "off"
-  val enableAutoStabilization = options["enableAutoStabilization"] == true
   val enableShutterSound = options["enableShutterSound"] as? Boolean ?: true
 
-  // TODO: Implement Red Eye Reduction
-  options["enableAutoRedEyeReduction"]
-
-  val flashMode = Flash.fromUnionValue(flash)
-  val qualityBalanceMode = QualityBalance.fromUnionValue(qualityPrioritization)
-
   val photo = cameraSession.takePhoto(
-    qualityBalanceMode,
-    flashMode,
+    Flash.fromUnionValue(flash),
     enableShutterSound,
-    enableAutoStabilization,
     orientation
   )
 

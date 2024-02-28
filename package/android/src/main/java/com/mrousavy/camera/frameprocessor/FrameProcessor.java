@@ -17,6 +17,7 @@ public final class FrameProcessor {
      */
     public native void call(Frame frame);
 
+    /** @noinspection FieldCanBeLocal, unused */
     @DoNotStrip
     @Keep
     private final HybridData mHybridData;

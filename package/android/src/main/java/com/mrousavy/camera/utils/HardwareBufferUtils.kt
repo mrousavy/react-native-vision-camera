@@ -22,7 +22,7 @@ class HardwareBufferUtils {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
           // We can assume that YUV 4:2:0 or RGB is used.
           return HardwareBuffer.YCBCR_420_888
-        } else {
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
           // Maybe assume we are on RGB if we're not on API R or above...
           return HardwareBuffer.RGB_888
         }

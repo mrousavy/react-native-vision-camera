@@ -11,12 +11,14 @@ export interface TakePhotoOptions {
   /**
    * Specifies whether red-eye reduction should be applied automatically on flash captures.
    *
+   * @platform iOS
    * @default false
    */
   enableAutoRedEyeReduction?: boolean
   /**
    * Indicates whether still image stabilization will be enabled when capturing the photo
    *
+   * @platform iOS
    * @default false
    */
   enableAutoStabilization?: boolean

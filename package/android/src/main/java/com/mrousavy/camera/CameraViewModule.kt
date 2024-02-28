@@ -16,9 +16,6 @@ import com.mrousavy.camera.frameprocessor.VisionCameraInstaller
 import com.mrousavy.camera.frameprocessor.VisionCameraProxy
 import com.mrousavy.camera.types.*
 import com.mrousavy.camera.utils.*
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.*
 
 @ReactModule(name = CameraViewModule.TAG)
@@ -52,24 +49,17 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   override fun getName(): String = TAG
 
   private suspend fun findCameraView(viewId: Int): CameraView =
-    suspendCoroutine { continuation ->
-      UiThreadUtil.runOnUiThread {
-        Log.d(TAG, "Finding view $viewId...")
-        val view = if (reactApplicationContext != null) {
-          UIManagerHelper.getUIManager(
-            reactApplicationContext,
-            viewId
-          )?.resolveView(viewId) as CameraView?
-        } else {
-          null
-        }
-        Log.d(TAG, if (reactApplicationContext != null) "Found view $viewId!" else "Couldn't find view $viewId!")
-        if (view != null) {
-          continuation.resume(view)
-        } else {
-          continuation.resumeWithException(ViewNotFoundError(viewId))
-        }
-      }
+    runOnUiThreadAndWait {
+      Log.d(TAG, "Finding view $viewId...")
+      val context = reactApplicationContext ?: throw Error("React Context was null!")
+
+      val view = UIManagerHelper.getUIManager(
+        context,
+        viewId
+      )?.resolveView(viewId) as CameraView?
+      Log.d(TAG, if (view != null) "Found view $viewId!" else "Couldn't find view $viewId!")
+      if (view == null) throw ViewNotFoundError(viewId)
+      return@runOnUiThreadAndWait view
     }
 
   @ReactMethod(isBlockingSynchronousMethod = true)

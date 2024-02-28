@@ -16,6 +16,9 @@ import com.mrousavy.camera.types.VideoStabilizationMode
 
 @Suppress("unused")
 class CameraViewManager : ViewGroupManager<CameraView>() {
+  companion object {
+    const val TAG = "CameraView"
+  }
   public override fun createViewInstance(context: ThemedReactContext): CameraView = CameraView(context)
 
   override fun onAfterUpdateTransaction(view: CameraView) {
@@ -206,9 +209,5 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
     } else {
       view.codeScannerOptions = null
     }
-  }
-
-  companion object {
-    const val TAG = "CameraView"
   }
 }
