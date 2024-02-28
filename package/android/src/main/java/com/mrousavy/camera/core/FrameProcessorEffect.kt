@@ -17,27 +17,34 @@ import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.PixelFormat
 import com.mrousavy.camera.utils.ImageFormatUtils
+import java.io.Closeable
 
 @SuppressLint("RestrictedApi")
 class FrameProcessorEffect(
   format: PixelFormat = PixelFormat.NATIVE,
   enableGpuBuffers: Boolean = false,
   callback: CameraSession.Callback,
-  targets: Int = PREVIEW
+  targets: Int = PREVIEW,
+  private val processor: FrameProcessorSurfaceProcessor = FrameProcessorSurfaceProcessor(format, enableGpuBuffers, callback)
 ) : CameraEffect(
   targets,
   CameraQueues.videoQueue.executor,
-  FrameProcessorSurfaceProcessor(format, enableGpuBuffers, callback),
+  processor,
   { error -> callback.onError(error) }
-) {
-  // CameraEffect holds the SurfaceProcessor
+),
+  Closeable {
+
+  override fun close() {
+    processor.close()
+  }
 
   class FrameProcessorSurfaceProcessor(
     private val format: PixelFormat,
     private val enableGpuBuffers: Boolean,
     private val callback: CameraSession.Callback
   ) : SurfaceProcessor,
-    OnImageAvailableListener {
+    OnImageAvailableListener,
+    Closeable {
     companion object {
       private const val TAG = "FrameProcessorEffect"
       private const val MAX_IMAGES = 3
@@ -91,9 +98,8 @@ class FrameProcessorEffect(
           Log.w(
             TAG,
             "Trying to use format ${ImageFormatUtils.imageFormatToString(actualFormat)}, but output " +
-              "surface is ${ImageFormatUtils.imageFormatToString(
-                requestedFormat
-              )} and ImageWriters with custom formats are not available. " +
+              "surface is ${ImageFormatUtils.imageFormatToString(requestedFormat)} " +
+              "and ImageWriters with custom formats are not available. " +
               "Falling back to using format ${ImageFormatUtils.imageFormatToString(requestedFormat)}..."
           )
           actualFormat = requestedFormat
@@ -196,6 +202,16 @@ class FrameProcessorEffect(
         }
 
         event.surfaceOutput.close()
+      }
+    }
+
+    override fun close() {
+      synchronized(this) {
+        Log.i(TAG, "Closing FrameProcessorEffect...")
+        imageReader?.close()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+          imageWriter?.close()
+        }
       }
     }
 

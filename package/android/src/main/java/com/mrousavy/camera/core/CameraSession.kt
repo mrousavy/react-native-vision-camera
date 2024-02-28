@@ -283,8 +283,10 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     // 3.5 Frame Processor (middleman)
     if (videoConfig != null && videoConfig.config.enableFrameProcessor) {
       // The FrameProcessorEffect is a middle-man between the Camera stream and the output surfaces.
+      frameProcessorEffect?.close()
       frameProcessorEffect = FrameProcessorEffect(videoConfig.config.pixelFormat, videoConfig.config.enableGpuBuffers, callback)
     } else {
+      frameProcessorEffect?.close()
       frameProcessorEffect = null
     }
 
