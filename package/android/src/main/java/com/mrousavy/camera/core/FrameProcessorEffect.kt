@@ -3,6 +3,7 @@ package com.mrousavy.camera.core
 import android.annotation.SuppressLint
 import android.hardware.HardwareBuffer
 import android.media.ImageReader
+import android.media.ImageReader.OnImageAvailableListener
 import android.media.ImageWriter
 import android.os.Build
 import android.util.Log
@@ -35,7 +36,8 @@ class FrameProcessorEffect(
     private val format: PixelFormat,
     private val enableGpuBuffers: Boolean,
     private val callback: CameraSession.Callback
-  ) : SurfaceProcessor {
+  ) : SurfaceProcessor,
+    OnImageAvailableListener {
     companion object {
       private const val TAG = "FrameProcessorEffect"
       private const val MAX_IMAGES = 3
@@ -43,6 +45,34 @@ class FrameProcessorEffect(
     private var imageReader: ImageReader? = null
     private var imageWriter: ImageWriter? = null
     private val queue = CameraQueues.videoQueue
+
+    override fun onImageAvailable(reader: ImageReader) {
+      try {
+        val image = reader.acquireLatestImage() ?: return
+
+        val orientation = Orientation.PORTRAIT // TODO: orientation
+        val isMirrored = false // TODO: isMirrored
+        val frame = Frame(image, image.timestamp, orientation, isMirrored)
+
+        frame.incrementRefCount()
+        try {
+          callback.onFrame(frame)
+
+          val imageWriter = imageWriter
+          if (imageWriter != null) {
+            Log.i(TAG, "Forwarding to ImageWriter...")
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+              imageWriter.queueInputImage(image)
+            }
+          }
+        } finally {
+          frame.decrementRefCount()
+        }
+      } catch (e: Throwable) {
+        Log.e(TAG, "Failed to process image! ${e.message}", e)
+        callback.onError(e)
+      }
+    }
 
     override fun onInputSurface(request: SurfaceRequest) {
       val requestedSize = request.resolution
@@ -92,33 +122,7 @@ class FrameProcessorEffect(
         ImageReader.newInstance(requestedSize.width, requestedSize.height, actualFormat, MAX_IMAGES)
       }
 
-      imageReader.setOnImageAvailableListener({ reader ->
-        try {
-          val image = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
-
-          val orientation = Orientation.PORTRAIT // TODO: orientation
-          val isMirrored = false // TODO: isMirrored
-          val frame = Frame(image, image.timestamp, orientation, isMirrored)
-
-          frame.incrementRefCount()
-          try {
-            callback.onFrame(frame)
-
-            val imageWriter = imageWriter
-            if (imageWriter != null) {
-              Log.i(TAG, "Forwarding to ImageWriter...")
-              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                imageWriter.queueInputImage(image)
-              }
-            }
-          } finally {
-            frame.decrementRefCount()
-          }
-        } catch (e: Throwable) {
-          Log.e(TAG, "Failed to process image! ${e.message}", e)
-          callback.onError(e)
-        }
-      }, CameraQueues.videoQueue.handler)
+      imageReader.setOnImageAvailableListener(this, CameraQueues.videoQueue.handler)
 
       request.provideSurface(imageReader.surface, queue.executor) { result ->
         onImageReaderSurfaceClosed(imageReader, result.resultCode)
