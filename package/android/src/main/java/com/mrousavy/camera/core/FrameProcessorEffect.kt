@@ -11,7 +11,6 @@ import androidx.camera.core.CameraEffect
 import androidx.camera.core.SurfaceOutput
 import androidx.camera.core.SurfaceProcessor
 import androidx.camera.core.SurfaceRequest
-import com.mrousavy.camera.CameraView
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.PixelFormat
