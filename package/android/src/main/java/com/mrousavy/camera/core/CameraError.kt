@@ -231,14 +231,15 @@ class DoNotDisturbBugError(cause: Throwable?) :
     "system",
     "do-not-disturb-bug",
     "The Camera Device could not be opened because of a bug in Android 9 (API 28) when do-not-disturb mode is enabled! " +
-        "Either update your Android version, or disable do-not-disturb.",
+      "Either update your Android version, or disable do-not-disturb.",
     cause
   )
 class RecordingWhileFrameProcessingUnavailable :
   CameraError(
     "system",
     "recording-while-frame-processing-unavailable",
-    "Video Recordings are not possible with a Frame Processor running, because the device is running on API 22 or lower and ImageWriters are not available."
+    "Video Recordings are not possible with a Frame Processor running, " +
+      "because the device is running on API 22 or lower and ImageWriters are not available."
   )
 
 class UnknownCameraError(cause: Throwable?) : CameraError("unknown", "unknown", cause?.message ?: "An unknown camera error occured.", cause)

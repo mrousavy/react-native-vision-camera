@@ -11,7 +11,6 @@ import androidx.camera.core.CameraEffect
 import androidx.camera.core.SurfaceOutput
 import androidx.camera.core.SurfaceProcessor
 import androidx.camera.core.SurfaceRequest
-import androidx.camera.core.impl.OutputSurface
 import com.mrousavy.camera.CameraView
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.types.Orientation
@@ -22,17 +21,20 @@ class FrameProcessorEffect(
   format: PixelFormat = PixelFormat.NATIVE,
   enableGpuBuffers: Boolean = false,
   callback: CameraSession.Callback,
-  targets: Int = VIDEO_CAPTURE,
+  targets: Int = PREVIEW
 ) : CameraEffect(
   targets,
-  TRANSFORMATION_CAMERA_AND_SURFACE_ROTATION,
   CameraQueues.videoQueue.executor,
   FrameProcessorSurfaceProcessor(format, enableGpuBuffers, callback),
   { error -> callback.onError(error) }
 ) {
   // CameraEffect holds the SurfaceProcessor
 
-  class FrameProcessorSurfaceProcessor(private val format: PixelFormat, private val enableGpuBuffers: Boolean, private val callback: CameraSession.Callback) : SurfaceProcessor {
+  class FrameProcessorSurfaceProcessor(
+    private val format: PixelFormat,
+    private val enableGpuBuffers: Boolean,
+    private val callback: CameraSession.Callback
+  ) : SurfaceProcessor {
     companion object {
       private const val TAG = "FrameProcessorEffect"
       private const val MAX_IMAGES = 3
@@ -50,7 +52,8 @@ class FrameProcessorEffect(
       if (currentImageReader != null &&
         currentImageReader.width == requestedSize.width &&
         currentImageReader.height == requestedSize.height &&
-        currentImageReader.imageFormat == requestedFormat) {
+        currentImageReader.imageFormat == requestedFormat
+      ) {
         Log.i(TAG, "Current ImageReader matches those requirements, attempting to re-use it...")
         request.provideSurface(currentImageReader.surface, queue.executor) { result ->
           onImageReaderSurfaceClosed(currentImageReader, result.resultCode)
@@ -69,23 +72,31 @@ class FrameProcessorEffect(
       }
 
       imageReader.setOnImageAvailableListener({ reader ->
-         try {
-           val image = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
+        try {
+          val image = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
 
-           val orientation = Orientation.PORTRAIT // TODO: orientation
-           val isMirrored = false // TODO: isMirrored
-           val frame = Frame(image, image.timestamp, orientation, isMirrored)
+          val orientation = Orientation.PORTRAIT // TODO: orientation
+          val isMirrored = false // TODO: isMirrored
+          val frame = Frame(image, image.timestamp, orientation, isMirrored)
 
-           frame.incrementRefCount()
-           try {
-             callback.onFrame(frame)
-           } finally {
-             frame.decrementRefCount()
-           }
-         } catch (e: Throwable) {
-           Log.e(TAG, "Failed to process image! ${e.message}", e)
-           callback.onError(e)
-         }
+          frame.incrementRefCount()
+          try {
+            callback.onFrame(frame)
+
+            val imageWriter = imageWriter
+            if (imageWriter != null) {
+              Log.i(TAG, "Forwarding to ImageWriter...")
+              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                imageWriter.queueInputImage(image)
+              }
+            }
+          } finally {
+            frame.decrementRefCount()
+          }
+        } catch (e: Throwable) {
+          Log.e(TAG, "Failed to process image! ${e.message}", e)
+          callback.onError(e)
+        }
       }, CameraQueues.videoQueue.handler)
 
       request.provideSurface(imageReader.surface, queue.executor) { result ->
