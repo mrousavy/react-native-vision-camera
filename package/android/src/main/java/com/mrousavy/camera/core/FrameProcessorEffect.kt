@@ -11,6 +11,8 @@ import androidx.camera.core.CameraEffect
 import androidx.camera.core.SurfaceOutput
 import androidx.camera.core.SurfaceProcessor
 import androidx.camera.core.SurfaceRequest
+import androidx.camera.core.impl.OutputSurface
+import com.mrousavy.camera.CameraView
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.PixelFormat
@@ -32,7 +34,7 @@ class FrameProcessorEffect(
 
   class FrameProcessorSurfaceProcessor(private val format: PixelFormat, private val enableGpuBuffers: Boolean, private val callback: CameraSession.Callback) : SurfaceProcessor {
     companion object {
-      private const val TAG = "FrameProcessor"
+      private const val TAG = "FrameProcessorEffect"
       private const val MAX_IMAGES = 3
     }
     private var imageReader: ImageReader? = null
@@ -51,7 +53,7 @@ class FrameProcessorEffect(
         currentImageReader.imageFormat == requestedFormat) {
         Log.i(TAG, "Current ImageReader matches those requirements, attempting to re-use it...")
         request.provideSurface(currentImageReader.surface, queue.executor) { result ->
-          Log.i(TAG, "TODO: TODO: TODO: TODO: TODO: TODO: TODO: TODO: Close ImageReader now")
+          onImageReaderSurfaceClosed(currentImageReader, result.resultCode)
         }
       }
 
@@ -87,16 +89,47 @@ class FrameProcessorEffect(
       }, CameraQueues.videoQueue.handler)
 
       request.provideSurface(imageReader.surface, queue.executor) { result ->
-        Log.i(TAG, "TODO: TODO: TODO: TODO: TODO: TODO: TODO: TODO: Close ImageReader now")
+        onImageReaderSurfaceClosed(imageReader, result.resultCode)
       }
       this.imageReader = imageReader
+    }
+
+    private fun onImageReaderSurfaceClosed(imageReader: ImageReader, resultCode: Int) {
+      when (resultCode) {
+        SurfaceRequest.Result.RESULT_SURFACE_USED_SUCCESSFULLY -> Log.i(TAG, "Camera is done using $imageReader!")
+        SurfaceRequest.Result.RESULT_INVALID_SURFACE -> Log.e(TAG, "Camera could not use $imageReader - invalid Surface!")
+        SurfaceRequest.Result.RESULT_SURFACE_ALREADY_PROVIDED -> Log.i(TAG, "Camera already used a different Surface!")
+        SurfaceRequest.Result.RESULT_REQUEST_CANCELLED -> Log.i(TAG, "Surface Request has been cancelled.!")
+        SurfaceRequest.Result.RESULT_WILL_NOT_PROVIDE_SURFACE -> Log.i(TAG, "Surface Request ignored.")
+        else -> throw Error("Invalid SurfaceRequest Result State!")
+      }
+      Log.i(TAG, "Closing ImageReader $imageReader...")
+      imageReader.close()
+      if (this.imageReader == imageReader) {
+        this.imageReader = null
+      }
+    }
+
+    private fun onOutputSurfaceClosed(event: SurfaceOutput.Event, imageWriter: ImageWriter?) {
+      Log.i(TAG, "Output Surface has been closed! Code: ${event.eventCode}")
+
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        Log.i(TAG, "Closing ImageWriter $imageWriter...")
+        imageWriter?.close()
+        if (this.imageWriter == imageWriter) {
+          this.imageWriter = null
+        }
+      }
+
+      event.surfaceOutput.close()
     }
 
     override fun onOutputSurface(surfaceOutput: SurfaceOutput) {
       Log.i(TAG, "Received new output surface: ${surfaceOutput.size} in format #${surfaceOutput.format}")
 
-      val surface = surfaceOutput.getSurface(queue.executor) { o ->
-        Log.i(TAG, "TODO: TODO: TODO: TODO: TODO: TODO: TODO: TODO: Close ImageWriter now")
+      var imageWriter: ImageWriter? = null
+      val surface = surfaceOutput.getSurface(queue.executor) { event ->
+        onOutputSurfaceClosed(event, imageWriter)
       }
 
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -113,6 +146,7 @@ class FrameProcessorEffect(
         Log.e(TAG, error.message)
         callback.onError(error)
       }
+      this.imageWriter = imageWriter
     }
 
     /**
