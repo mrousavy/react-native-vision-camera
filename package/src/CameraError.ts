@@ -33,6 +33,7 @@ export type CodeScannerError =
   | 'code-scanner/cannot-load-model'
 export type CaptureError =
   | 'capture/recording-in-progress'
+  | 'capture/recording-canceled'
   | 'capture/no-recording-in-progress'
   | 'capture/file-io-error'
   | 'capture/create-temp-file-error'
