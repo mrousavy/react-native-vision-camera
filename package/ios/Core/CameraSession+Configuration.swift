@@ -77,7 +77,7 @@ extension CameraSession {
 
       // 2. Configure
       if #available(iOS 13.0, *) {
-        let qualityPrioritization = AVCapturePhotoOutput.QualityPrioritization(fromQualityBalance: photo.photoQualityBalance)
+        let qualityPrioritization = AVCapturePhotoOutput.QualityPrioritization(fromQualityBalance: photo.qualityBalance)
         photoOutput.maxPhotoQualityPrioritization = qualityPrioritization
       }
       if photo.enableHighQualityPhotos {
