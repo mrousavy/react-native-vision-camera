@@ -348,6 +348,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     // Unbind previous Camera
     provider.unbindAll()
 
+    // Frame Processor is a CameraEffect (Surface middleman)
     val frameProcessorEffect = frameProcessorEffect
     if (frameProcessorEffect != null) {
       val useCaseGroup = UseCaseGroup.Builder()
@@ -361,6 +362,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       camera = provider.bindToLifecycle(this, cameraSelector, *useCases.toTypedArray())
     }
 
+    // Listen to Camera events
     var lastState = CameraState.Type.OPENING
     camera!!.cameraInfo.cameraState.observeForever { state ->
       Log.i(TAG, "Camera State: ${state.type} (has error: ${state.error != null})")
