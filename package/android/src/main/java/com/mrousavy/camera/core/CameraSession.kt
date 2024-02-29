@@ -12,6 +12,7 @@ import android.util.Size
 import androidx.annotation.MainThread
 import androidx.annotation.OptIn
 import androidx.camera.core.Camera
+import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
@@ -509,8 +510,12 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       throw FocusNotSupportedError()
     }
 
-    val future = camera.cameraControl.startFocusAndMetering(action)
-    future.await(CameraQueues.cameraExecutor)
+    try {
+      val future = camera.cameraControl.startFocusAndMetering(action)
+      future.await(CameraQueues.cameraExecutor)
+    } catch (e: CameraControl.OperationCanceledException) {
+      throw FocusCanceledError()
+    }
   }
 
   interface Callback {

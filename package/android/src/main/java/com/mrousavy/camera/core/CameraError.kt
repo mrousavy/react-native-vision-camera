@@ -115,6 +115,8 @@ class PhotoNotEnabledError :
   CameraError("capture", "photo-not-enabled", "Photo capture is disabled! Pass `photo={true}` to enable photo capture.")
 class SnapshotFailedError :
   CameraError("capture", "snapshot-failed", "Failed to take a Snapshot of the Preview View! Try using takePhoto() instead.")
+class FocusCanceledError :
+  CameraError("capture", "focus-canceled", "The focus operation has been canceled by a new focus request.")
 
 private fun getVideoCapturedMessage(wasVideoCaptured: Boolean): String =
   if (wasVideoCaptured) {
