@@ -5,6 +5,7 @@ module.exports = {
       'guides/devices',
       'guides/lifecycle',
       'guides/formats',
+      'guides/preview',
       'guides/taking-photos',
       'guides/recording-videos',
       'guides/code-scanning',

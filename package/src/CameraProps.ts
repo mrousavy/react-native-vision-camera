@@ -141,12 +141,22 @@ export interface CameraProps extends ViewProps {
   format?: CameraDeviceFormat
   /**
    * Specifies the Preview's resize mode.
-   * * `"cover"`: Keep aspect ratio and fill entire parent view (centered).
-   * * `"contain"`: Keep aspect ratio and make sure the entire content is visible inside the parent view, even if it introduces additional blank areas (centered).
+   * - `"cover"`: Keep aspect ratio and fill entire parent view (centered).
+   * - `"contain"`: Keep aspect ratio and make sure the entire content is visible inside the parent view, even if it introduces additional blank areas (centered).
    *
    * @default "cover"
    */
   resizeMode?: 'cover' | 'contain'
+  /**
+   * Specifies the implementation mode for the Preview View on Android.
+   * - `"surface-view"`: Uses a [`SurfaceView`](https://developer.android.com/reference/android/view/SurfaceView) for rendering.
+   * This is more efficient and supports HDR rendering, but doesn't support masks, transparency, rotations or clipping.
+   * - `"texture-view"`: Uses a [`TextureView`](https://developer.android.com/reference/android/view/TextureView) for rendering.
+   * This is less efficient and doesn't support HDR rendering, but supports masks, transparency, rotations and clipping.
+   *
+   * @default 'surface-view'
+   */
+  androidPreviewViewType?: 'surface-view' | 'texture-view'
   /**
    * Specify the frames per second this camera should stream frames at.
    *

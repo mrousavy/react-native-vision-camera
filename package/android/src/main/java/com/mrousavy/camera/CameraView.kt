@@ -100,9 +100,9 @@ class CameraView(context: Context) :
 
   // session
   internal val cameraSession: CameraSession
-  internal val previewView: PreviewView
-  private val previewSurfaceProvider: SurfaceProvider
   internal var frameProcessor: FrameProcessor? = null
+  internal val previewView: PreviewView
+  private var previewSurfaceProvider: SurfaceProvider
   private var currentConfigureCall: Long = System.currentTimeMillis()
 
   // other
