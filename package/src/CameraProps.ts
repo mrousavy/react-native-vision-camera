@@ -290,6 +290,12 @@ export interface CameraProps extends ViewProps {
    */
   onStopped?: () => void
   /**
+   * Called just before a photo or snapshot is captured.
+   *
+   * Inside this callback you can play a custom shutter sound or show visual feedback to the user.
+   */
+  onShutter?: () => void
+  /**
    * A worklet which will be called for every frame the Camera "sees".
    *
    * > See [the Frame Processors documentation](https://react-native-vision-camera.com/docs/guides/frame-processors) for more information

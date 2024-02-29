@@ -16,10 +16,12 @@ private var delegatesReferences: [NSObject] = []
 class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
   private let promise: Promise
   private let enableShutterSound: Bool
+  private let cameraSessionDelegate: CameraSessionDelegate
 
-  required init(promise: Promise, enableShutterSound: Bool) {
+  required init(promise: Promise, enableShutterSound: Bool, cameraSessionDelegate: CameraSessionDelegate) {
     self.promise = promise
     self.enableShutterSound = enableShutterSound
+    self.cameraSessionDelegate = cameraSessionDelegate
     super.init()
     delegatesReferences.append(self)
   }
@@ -29,6 +31,9 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
       // disable system shutter sound (see https://stackoverflow.com/a/55235949/5281431)
       AudioServicesDisposeSystemSoundID(1108)
     }
+    
+    // onShutter() event
+    cameraSessionDelegate.onCaptureShutter()
   }
 
   func photoOutput(_: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {

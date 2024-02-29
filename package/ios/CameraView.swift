@@ -62,6 +62,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   @objc var onError: RCTDirectEventBlock?
   @objc var onStarted: RCTDirectEventBlock?
   @objc var onStopped: RCTDirectEventBlock?
+  @objc var onShutter: RCTDirectEventBlock?
   @objc var onViewReady: RCTDirectEventBlock?
   @objc var onCodeScanned: RCTDirectEventBlock?
   // zoom
@@ -327,6 +328,13 @@ public final class CameraView: UIView, CameraSessionDelegate {
       return
     }
     onStopped([:])
+  }
+  
+  func onCaptureShutter() {
+    guard let onShutter = onShutter else {
+      return
+    }
+    onShutter([:])
   }
 
   func onFrame(sampleBuffer: CMSampleBuffer) {

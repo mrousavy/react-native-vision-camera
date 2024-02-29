@@ -36,6 +36,7 @@ type NativeCameraViewProps = Omit<CameraProps, 'device' | 'onInitialized' | 'onE
   onCodeScanned?: (event: NativeSyntheticEvent<OnCodeScannedEvent>) => void
   onStarted?: (event: NativeSyntheticEvent<void>) => void
   onStopped?: (event: NativeSyntheticEvent<void>) => void
+  onShutter?: () => void
   onViewReady: () => void
 }
 type NativeRecordVideoOptions = Omit<RecordVideoOptions, 'onRecordingError' | 'onRecordingFinished' | 'videoBitRate'> & {
@@ -94,6 +95,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     this.onInitialized = this.onInitialized.bind(this)
     this.onStarted = this.onStarted.bind(this)
     this.onStopped = this.onStopped.bind(this)
+    this.onShutter = this.onShutter.bind(this)
     this.onError = this.onError.bind(this)
     this.onCodeScanned = this.onCodeScanned.bind(this)
     this.ref = React.createRef<RefType>()
@@ -438,6 +440,10 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   private onStopped(): void {
     this.props.onStopped?.()
   }
+
+  private onShutter(): void {
+    this.props.onShutter?.()
+  }
   //#endregion
 
   private onCodeScanned(event: NativeSyntheticEvent<OnCodeScannedEvent>): void {
@@ -507,6 +513,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
         onCodeScanned={this.onCodeScanned}
         onStarted={this.onStarted}
         onStopped={this.onStopped}
+        onShutter={this.onShutter}
         onError={this.onError}
         codeScannerOptions={codeScanner}
         enableFrameProcessor={frameProcessor != null}

@@ -30,6 +30,8 @@ extension CameraView {
         // capture was already aborted (timed out)
         return
       }
+      
+      self.onCaptureShutter()
 
       guard let imageBuffer = CMSampleBufferGetImageBuffer(buffer) else {
         promise.reject(error: .capture(.imageDataAccessError))

@@ -37,6 +37,14 @@ fun CameraView.invokeOnStopped() {
   this.sendEvent(event)
 }
 
+fun CameraView.invokeOnShutter() {
+  Log.i(CameraView.TAG, "invokeOnShutter()")
+
+  val surfaceId = UIManagerHelper.getSurfaceId(this)
+  val event = CameraShutterEvent(surfaceId, id)
+  this.sendEvent(event)
+}
+
 fun CameraView.invokeOnError(error: Throwable) {
   Log.e(CameraView.TAG, "invokeOnError(...):")
   error.printStackTrace()
