@@ -137,12 +137,6 @@ class CameraView(context: Context) :
       isMounted = true
       invokeOnViewReady()
     }
-    update()
-  }
-
-  override fun onDetachedFromWindow() {
-    super.onDetachedFromWindow()
-    update()
   }
 
   fun destroy() {
@@ -223,7 +217,7 @@ class CameraView(context: Context) :
         config.zoom = zoom
 
         // isActive
-        config.isActive = this@CameraView.isActive && isAttachedToWindow
+        config.isActive = this@CameraView.isActive
       }
     }
   }
