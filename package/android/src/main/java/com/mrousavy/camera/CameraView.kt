@@ -277,6 +277,10 @@ class CameraView(context: Context) :
     invokeOnStopped()
   }
 
+  override fun onShutter() {
+    invokeOnShutter()
+  }
+
   override fun onCodeScanned(codes: List<Barcode>, scannerFrame: CodeScannerFrame) {
     invokeOnCodeScanned(codes, scannerFrame)
   }

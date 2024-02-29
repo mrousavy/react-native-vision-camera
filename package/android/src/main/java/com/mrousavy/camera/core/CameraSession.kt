@@ -430,7 +430,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     photoOutput.targetRotation = outputOrientation.toDegrees()
     val playSound = enableShutterSound || CameraInfo.mustPlayShutterSound()
 
-    val image = photoOutput.takePicture(playSound, CameraQueues.cameraExecutor)
+    val image = photoOutput.takePicture(playSound, callback, CameraQueues.cameraExecutor)
     val isMirrored = camera.cameraInfo.lensFacing == CameraSelector.LENS_FACING_FRONT
     return Photo(image, isMirrored)
   }
@@ -524,6 +524,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     fun onInitialized()
     fun onStarted()
     fun onStopped()
+    fun onShutter()
     fun onCodeScanned(codes: List<Barcode>, scannerFrame: CodeScannerFrame)
   }
 }

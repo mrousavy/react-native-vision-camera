@@ -4,12 +4,13 @@ import android.media.MediaActionSound
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
+import com.mrousavy.camera.core.CameraSession
 import java.util.concurrent.Executor
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
-suspend inline fun ImageCapture.takePicture(enableShutterSound: Boolean, executor: Executor): ImageProxy =
+suspend inline fun ImageCapture.takePicture(enableShutterSound: Boolean, callback: CameraSession.Callback, executor: Executor): ImageProxy =
   suspendCancellableCoroutine { continuation ->
     // Shutter sound
     val shutterSound = if (enableShutterSound) MediaActionSound() else null
@@ -23,6 +24,8 @@ suspend inline fun ImageCapture.takePicture(enableShutterSound: Boolean, executo
           if (enableShutterSound) {
             shutterSound?.play(MediaActionSound.SHUTTER_CLICK)
           }
+
+          callback.onShutter()
         }
 
         override fun onCaptureSuccess(image: ImageProxy) {
