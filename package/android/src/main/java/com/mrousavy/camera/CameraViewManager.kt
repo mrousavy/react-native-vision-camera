@@ -9,6 +9,7 @@ import com.mrousavy.camera.types.CameraDeviceFormat
 import com.mrousavy.camera.types.CodeScannerOptions
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.PixelFormat
+import com.mrousavy.camera.types.PreviewViewType
 import com.mrousavy.camera.types.QualityBalance
 import com.mrousavy.camera.types.ResizeMode
 import com.mrousavy.camera.types.Torch
@@ -131,6 +132,16 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
       view.resizeMode = newMode
     } else {
       view.resizeMode = ResizeMode.COVER
+    }
+  }
+
+  @ReactProp(name = "androidPreviewViewType")
+  fun setAndroidPreviewViewType(view: CameraView, androidPreviewViewType: String?) {
+    if (androidPreviewViewType != null) {
+      val newMode = PreviewViewType.fromUnionValue(androidPreviewViewType)
+      view.androidPreviewViewType = newMode
+    } else {
+      view.androidPreviewViewType = PreviewViewType.SURFACE_VIEW
     }
   }
 

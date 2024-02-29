@@ -20,10 +20,12 @@ import com.mrousavy.camera.types.CameraDeviceFormat
 import com.mrousavy.camera.types.CodeScannerOptions
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.PixelFormat
+import com.mrousavy.camera.types.PreviewViewType
 import com.mrousavy.camera.types.QualityBalance
 import com.mrousavy.camera.types.ResizeMode
 import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.VideoStabilizationMode
+import com.mrousavy.camera.utils.runOnUiThread
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -74,6 +76,11 @@ class CameraView(context: Context) :
   var zoom: Float = 1f // in "factor"
   var exposure: Double = 1.0
   var orientation: Orientation = Orientation.PORTRAIT
+  var androidPreviewViewType: PreviewViewType = PreviewViewType.SURFACE_VIEW
+    set(value) {
+      field = value
+      updatePreviewType()
+    }
   var enableZoomGesture = false
     set(value) {
       field = value
@@ -102,7 +109,7 @@ class CameraView(context: Context) :
   internal val cameraSession: CameraSession
   internal var frameProcessor: FrameProcessor? = null
   internal val previewView: PreviewView
-  private var previewSurfaceProvider: SurfaceProvider
+  private val previewSurfaceProvider: SurfaceProvider
   private var currentConfigureCall: Long = System.currentTimeMillis()
 
   // other
@@ -252,6 +259,13 @@ class CameraView(context: Context) :
       if (fpsGraph == null) return
       removeView(fpsGraph)
       fpsGraph = null
+    }
+  }
+
+  private fun updatePreviewType() {
+    runOnUiThread {
+      previewView.implementationMode = androidPreviewViewType.toPreviewImplementationMode()
+      update()
     }
   }
 
