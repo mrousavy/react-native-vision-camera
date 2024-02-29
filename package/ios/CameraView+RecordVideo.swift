@@ -42,6 +42,10 @@ extension CameraView: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAud
     cameraSession.stopRecording(promise: promise)
   }
 
+  func cancelRecording(promise: Promise) {
+    cameraSession.cancelRecording(promise: promise)
+  }
+
   func pauseRecording(promise: Promise) {
     cameraSession.pauseRecording(promise: promise)
   }

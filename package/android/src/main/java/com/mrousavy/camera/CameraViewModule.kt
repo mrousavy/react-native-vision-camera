@@ -152,6 +152,17 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
   }
 
   @ReactMethod
+  fun cancelRecording(viewTag: Int, promise: Promise) {
+    backgroundCoroutineScope.launch {
+      val view = findCameraView(viewTag)
+      withPromise(promise) {
+        view.cancelRecording()
+        return@withPromise null
+      }
+    }
+  }
+
+  @ReactMethod
   fun focus(viewTag: Int, point: ReadableMap, promise: Promise) {
     backgroundCoroutineScope.launch {
       val view = findCameraView(viewTag)

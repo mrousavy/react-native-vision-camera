@@ -89,6 +89,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
   private var isDestroyed = false
   private val lifecycleRegistry = LifecycleRegistry(this)
   private var recording: Recording? = null
+  private var isRecordingCanceled = false
 
   // Threading
   private val mainExecutor = ContextCompat.getMainExecutor(context)
@@ -457,6 +458,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     pendingRecording = pendingRecording.asPersistentRecording()
 
     val size = videoOutput.attachedSurfaceResolution ?: Size(0, 0)
+    isRecordingCanceled = false
     recording = pendingRecording.start(CameraQueues.cameraExecutor) { event ->
       when (event) {
         is VideoRecordEvent.Start -> Log.i(TAG, "Recording started!")
@@ -464,6 +466,17 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
         is VideoRecordEvent.Pause -> Log.i(TAG, "Recording paused!")
         is VideoRecordEvent.Status -> Log.i(TAG, "Status update! Recorded ${event.recordingStats.numBytesRecorded} bytes.")
         is VideoRecordEvent.Finalize -> {
+          if (isRecordingCanceled) {
+            Log.i(TAG, "Recording was canceled, deleting file..")
+            onError(RecordingCanceledError())
+            try {
+              file.delete()
+            } catch (e: Throwable) {
+              this.callback.onError(FileIOError(e))
+            }
+            return@start
+          }
+
           Log.i(TAG, "Recording stopped!")
           val error = event.getCameraError()
           if (error != null) {
@@ -490,6 +503,11 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
     recording.stop()
     this.recording = null
+  }
+
+  fun cancelRecording() {
+    isRecordingCanceled = true
+    stopRecording()
   }
 
   fun pauseRecording() {

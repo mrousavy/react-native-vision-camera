@@ -173,6 +173,7 @@ enum SessionError {
 
 enum CaptureError {
   case recordingInProgress
+  case recordingCanceled
   case noRecordingInProgress
   case fileError(cause: Error)
   case imageDataAccessError
@@ -189,6 +190,8 @@ enum CaptureError {
     switch self {
     case .recordingInProgress:
       return "recording-in-progress"
+    case .recordingCanceled:
+      return "recording-canceled"
     case .noRecordingInProgress:
       return "no-recording-in-progress"
     case .fileError:
@@ -218,10 +221,12 @@ enum CaptureError {
     switch self {
     case .recordingInProgress:
       return "There is already an active video recording in progress! Did you call startRecording() twice?"
+    case .recordingCanceled:
+      return "The active recording was canceled."
     case .noRecordingInProgress:
       return "There was no active video recording in progress! Did you call stopRecording() twice?"
     case let .fileError(cause: cause):
-      return "An unexpected File IO error occured! Error: \(cause.localizedDescription)"
+      return "An unexpected File IO error occurred! Error: \(cause.localizedDescription)"
     case let .createTempFileError(message: message):
       return "Failed to create a temporary file! \(message ?? "(no additional message)")"
     case let .createRecorderError(message: message):

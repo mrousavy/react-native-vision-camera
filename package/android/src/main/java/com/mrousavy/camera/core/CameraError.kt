@@ -168,6 +168,9 @@ class InsufficientStorageForRecorderError(cause: Throwable?) :
   RecorderError("insufficient-storage", "There is not enough storage space available for a Video Recording.", false, cause)
 class NoRecordingInProgressError :
   CameraError("capture", "no-recording-in-progress", "There was no active video recording in progress! Did you call stopRecording() twice?")
+class RecordingCanceledError : CameraError("capture", "recording-canceled", "The active recording was canceled.")
+class FileIOError(throwable: Throwable) :
+  CameraError("capture", "file-io-error", "An unexpected File IO error occurred! Error: ${throwable.message}.", throwable)
 class InsufficientStorageError : CameraError("capture", "insufficient-storage", "There is not enough storage space available.")
 class RecordingInProgressError :
   CameraError(

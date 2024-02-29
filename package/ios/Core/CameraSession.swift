@@ -29,6 +29,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   var codeScannerOutput: AVCaptureMetadataOutput?
   // State
   var recordingSession: RecordingSession?
+  var didCancelRecording = false
   var isRecording = false
 
   // Callbacks

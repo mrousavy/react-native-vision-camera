@@ -121,7 +121,8 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   /**
    * Take a single photo and write it's content to a temporary file.
    *
-   * @throws {@linkcode CameraCaptureError} When any kind of error occured while capturing the photo. Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
+   * @throws {@linkcode CameraCaptureError} When any kind of error occured while capturing the photo.
+   * Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
    * @example
    * ```ts
    * const photo = await camera.current.takePhoto({
@@ -144,7 +145,8 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * - On iOS, `takeSnapshot` waits for a Frame from the video pipeline and therefore requires `video` to be enabled.
    * - On Android, `takeSnapshot` performs a GPU view screenshot from the preview view.
    *
-   * @throws {@linkcode CameraCaptureError} When any kind of error occured while capturing the photo. Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
+   * @throws {@linkcode CameraCaptureError} When any kind of error occured while capturing the photo.
+   * Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
    * @example
    * ```ts
    * const snapshot = await camera.current.takeSnapshot({
@@ -179,7 +181,8 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   /**
    * Start a new video recording.
    *
-   * @throws {@linkcode CameraCaptureError} When any kind of error occured while starting the video recording. Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
+   * @throws {@linkcode CameraCaptureError} When any kind of error occured while starting the video recording.
+   * Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
    *
    * @example
    * ```ts
@@ -235,12 +238,16 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   /**
    * Pauses the current video recording.
    *
-   * @throws {@linkcode CameraCaptureError} When any kind of error occured while pausing the video recording. Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
+   * @throws {@linkcode CameraCaptureError} When any kind of error occured while pausing the video recording.
+   * Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
    *
    * @example
    * ```ts
    * // Start
-   * await camera.current.startRecording()
+   * await camera.current.startRecording({
+   *   onRecordingFinished: (video) => console.log(video),
+   *   onRecordingError: (error) => console.error(error),
+   * })
    * await timeout(1000)
    * // Pause
    * await camera.current.pauseRecording()
@@ -249,7 +256,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * await camera.current.resumeRecording()
    * await timeout(2000)
    * // Stop
-   * const video = await camera.current.stopRecording()
+   * await camera.current.stopRecording()
    * ```
    */
   public async pauseRecording(): Promise<void> {
@@ -263,12 +270,16 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   /**
    * Resumes a currently paused video recording.
    *
-   * @throws {@linkcode CameraCaptureError} When any kind of error occured while resuming the video recording. Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
+   * @throws {@linkcode CameraCaptureError} When any kind of error occured while resuming the video recording.
+   * Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
    *
    * @example
    * ```ts
    * // Start
-   * await camera.current.startRecording()
+   * await camera.current.startRecording({
+   *   onRecordingFinished: (video) => console.log(video),
+   *   onRecordingError: (error) => console.error(error),
+   * })
    * await timeout(1000)
    * // Pause
    * await camera.current.pauseRecording()
@@ -277,7 +288,7 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * await camera.current.resumeRecording()
    * await timeout(2000)
    * // Stop
-   * const video = await camera.current.stopRecording()
+   * await camera.current.stopRecording()
    * ```
    */
   public async resumeRecording(): Promise<void> {
@@ -291,19 +302,55 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   /**
    * Stop the current video recording.
    *
-   * @throws {@linkcode CameraCaptureError} When any kind of error occured while stopping the video recording. Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
+   * @throws {@linkcode CameraCaptureError} When any kind of error occured while stopping the video recording.
+   * Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
    *
    * @example
    * ```ts
-   * await camera.current.startRecording()
+   * await camera.current.startRecording({
+   *   onRecordingFinished: (video) => console.log(video),
+   *   onRecordingError: (error) => console.error(error),
+   * })
    * setTimeout(async () => {
-   *  const video = await camera.current.stopRecording()
+   *   await camera.current.stopRecording()
    * }, 5000)
    * ```
    */
   public async stopRecording(): Promise<void> {
     try {
       return await CameraModule.stopRecording(this.handle)
+    } catch (e) {
+      throw tryParseNativeCameraError(e)
+    }
+  }
+
+  /**
+   * Cancel the current video recording. The temporary video file will be deleted,
+   * and the `startRecording`'s `onRecordingError` callback will be invoked with a `capture/recording-canceled` error.
+   *
+   * @throws {@linkcode CameraCaptureError} When any kind of error occured while canceling the video recording.
+   * Use the {@linkcode CameraCaptureError.code | code} property to get the actual error
+   *
+   * @example
+   * ```ts
+   * await camera.current.startRecording({
+   *   onRecordingFinished: (video) => console.log(video),
+   *   onRecordingError: (error) => {
+   *     if (error.code === 'capture/recording-canceled') {
+   *       // recording was canceled.
+   *     } else {
+   *       console.error(error)
+   *     }
+   *   },
+   * })
+   * setTimeout(async () => {
+   *   await camera.current.cancelRecording()
+   * }, 5000)
+   * ```
+   */
+  public async cancelRecording(): Promise<void> {
+    try {
+      return await CameraModule.cancelRecording(this.handle)
     } catch (e) {
       throw tryParseNativeCameraError(e)
     }
@@ -318,7 +365,8 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    *
    * Make sure the value doesn't exceed the CameraView's dimensions.
    *
-   * @throws {@linkcode CameraRuntimeError} When any kind of error occured while focussing. Use the {@linkcode CameraRuntimeError.code | code} property to get the actual error
+   * @throws {@linkcode CameraRuntimeError} When any kind of error occured while focussing.
+   * Use the {@linkcode CameraRuntimeError.code | code} property to get the actual error
    * @example
    * ```ts
    * await camera.current.focus({
@@ -343,7 +391,9 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * If you use Hooks, use the `useCameraDevices(..)` hook instead.
    *
    * * For Camera Devices attached to the phone, it is safe to assume that this will never change.
-   * * For external Camera Devices (USB cameras, Mac continuity cameras, etc.) the available Camera Devices could change over time when the external Camera device gets plugged in or plugged out, so use {@link addCameraDevicesChangedListener | addCameraDevicesChangedListener(...)} to listen for such changes.
+   * * For external Camera Devices (USB cameras, Mac continuity cameras, etc.) the available Camera Devices
+   * could change over time when the external Camera device gets plugged in or plugged out, so
+   * use {@link addCameraDevicesChangedListener | addCameraDevicesChangedListener(...)} to listen for such changes.
    *
    * @example
    * ```ts
@@ -388,7 +438,8 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * If the user has previously blocked the app from using the camera, the alert will not be shown
    * and `"denied"` will be returned.
    *
-   * @throws {@linkcode CameraRuntimeError} When any kind of error occured while requesting permission. Use the {@linkcode CameraRuntimeError.code | code} property to get the actual error
+   * @throws {@linkcode CameraRuntimeError} When any kind of error occured while requesting permission.
+   * Use the {@linkcode CameraRuntimeError.code | code} property to get the actual error
    */
   public static async requestCameraPermission(): Promise<CameraPermissionRequestResult> {
     try {
@@ -403,7 +454,8 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
    * If the user has previously blocked the app from using the microphone, the alert will not be shown
    * and `"denied"` will be returned.
    *
-   * @throws {@linkcode CameraRuntimeError} When any kind of error occured while requesting permission. Use the {@linkcode CameraRuntimeError.code | code} property to get the actual error
+   * @throws {@linkcode CameraRuntimeError} When any kind of error occured while requesting permission.
+   * Use the {@linkcode CameraRuntimeError.code | code} property to get the actual error
    */
   public static async requestMicrophonePermission(): Promise<CameraPermissionRequestResult> {
     try {

@@ -47,6 +47,19 @@ extension CameraSession {
 
         self.isRecording = false
         self.recordingSession = nil
+
+        if self.didCancelRecording {
+          ReactLogger.log(level: .info, message: "RecordingSession finished because the recording was canceled.")
+          onError(.capture(.recordingCanceled))
+          do {
+            ReactLogger.log(level: .info, message: "Deleting temporary video file...")
+            try FileManager.default.removeItem(at: recordingSession.url)
+          } catch {
+            self.delegate?.onError(.capture(.fileError(cause: error)))
+          }
+          return
+        }
+
         ReactLogger.log(level: .info, message: "RecordingSession finished with status \(status.descriptor).")
 
         if let error = error as NSError? {
@@ -116,6 +129,7 @@ extension CameraSession {
         // start recording session with or without audio.
         // Use Video [AVCaptureSession] clock as a timebase - all other sessions (here; audio) have to be synced to that Clock.
         try recordingSession.start(clock: self.captureSession.clock)
+        self.didCancelRecording = false
         self.recordingSession = recordingSession
         self.isRecording = true
 
@@ -147,6 +161,14 @@ extension CameraSession {
         return nil
       }
     }
+  }
+
+  /**
+   Cancels an active recording.
+   */
+  func cancelRecording(promise: Promise) {
+    didCancelRecording = true
+    stopRecording(promise: promise)
   }
 
   /**

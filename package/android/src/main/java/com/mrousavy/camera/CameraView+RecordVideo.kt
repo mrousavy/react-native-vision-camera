@@ -45,3 +45,7 @@ fun CameraView.resumeRecording() {
 fun CameraView.stopRecording() {
   cameraSession.stopRecording()
 }
+
+fun CameraView.cancelRecording() {
+  cameraSession.cancelRecording()
+}

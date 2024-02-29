@@ -70,6 +70,10 @@ RCT_EXTERN_METHOD(pauseRecording
                   : (nonnull NSNumber*)node resolve
                   : (RCTPromiseResolveBlock)resolve reject
                   : (RCTPromiseRejectBlock)reject);
+RCT_EXTERN_METHOD(cancelRecording
+                  : (nonnull NSNumber*)node resolve
+                  : (RCTPromiseResolveBlock)resolve reject
+                  : (RCTPromiseRejectBlock)reject);
 RCT_EXTERN_METHOD(resumeRecording
                   : (nonnull NSNumber*)node resolve
                   : (RCTPromiseResolveBlock)resolve reject
