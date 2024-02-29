@@ -120,6 +120,13 @@ class CameraView(context: Context) :
       )
       addView(it)
       previewSurfaceProvider = it.surfaceProvider
+      it.previewStreamState.observeForever { state ->
+        when (state) {
+          PreviewView.StreamState.STREAMING -> onStarted()
+          PreviewView.StreamState.IDLE -> onStopped()
+          else -> Log.i(TAG, "PreviewView Stream State changed to $state")
+        }
+      }
     }
     cameraSession = CameraSession(context, cameraManager, this)
   }
