@@ -329,7 +329,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
     }
     onStopped([:])
   }
-  
+
   func onCaptureShutter() {
     guard let onShutter = onShutter else {
       return

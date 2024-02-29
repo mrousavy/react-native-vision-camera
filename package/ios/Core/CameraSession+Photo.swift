@@ -90,7 +90,10 @@ extension CameraSession {
       let enableShutterSound = options["enableShutterSound"] as? Bool ?? true
 
       // Actually do the capture!
-      photoOutput.capturePhoto(with: photoSettings, delegate: PhotoCaptureDelegate(promise: promise, enableShutterSound: enableShutterSound))
+      let photoCaptureDelegate = PhotoCaptureDelegate(promise: promise,
+                                                      enableShutterSound: enableShutterSound,
+                                                      cameraSessionDelegate: self.delegate)
+      photoOutput.capturePhoto(with: photoSettings, delegate: photoCaptureDelegate)
 
       // Assume that `takePhoto` is always called with the same parameters, so prepare the next call too.
       photoOutput.setPreparedPhotoSettingsArray([photoSettings], completionHandler: nil)
