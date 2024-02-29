@@ -150,7 +150,7 @@ class CameraConfiguration {
     var enableHighQualityPhotos = false
     var enableDepthData = false
     var enablePortraitEffectsMatte = false
-    var photoQualityBalance = QualityBalance.balanced
+    var qualityBalance = QualityBalance.balanced
   }
 
   /**

@@ -181,7 +181,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
         config.photo = .enabled(config: CameraConfiguration.Photo(enableHighQualityPhotos: enableHighQualityPhotos,
                                                                   enableDepthData: enableDepthData,
                                                                   enablePortraitEffectsMatte: enablePortraitEffectsMatteDelivery,
-                                                                  photoQualityBalance: getPhotoQualityBalance()))
+                                                                  qualityBalance: getPhotoQualityBalance()))
       } else {
         config.photo = .disabled
       }
