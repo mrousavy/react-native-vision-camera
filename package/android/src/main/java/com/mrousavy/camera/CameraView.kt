@@ -111,16 +111,17 @@ class CameraView(context: Context) :
   init {
     this.installHierarchyFitter()
     clipToOutline = true
+    previewView = PreviewView(context).also {
+      it.implementationMode = PreviewView.ImplementationMode.PERFORMANCE
+      it.layoutParams = LayoutParams(
+        LayoutParams.MATCH_PARENT,
+        LayoutParams.MATCH_PARENT,
+        Gravity.CENTER
+      )
+      addView(it)
+      previewSurfaceProvider = it.surfaceProvider
+    }
     cameraSession = CameraSession(context, cameraManager, this)
-    previewView = PreviewView(context)
-    previewView.implementationMode = PreviewView.ImplementationMode.PERFORMANCE
-    previewView.layoutParams = LayoutParams(
-      LayoutParams.MATCH_PARENT,
-      LayoutParams.MATCH_PARENT,
-      Gravity.CENTER
-    )
-    addView(previewView)
-    previewSurfaceProvider = previewView.surfaceProvider
   }
 
   override fun onAttachedToWindow() {
