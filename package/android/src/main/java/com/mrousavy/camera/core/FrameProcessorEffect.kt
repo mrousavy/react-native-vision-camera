@@ -179,6 +179,9 @@ class FrameProcessorEffect(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
           Log.i(TAG, "Closing ImageWriter $imageWriter...")
           imageWriter?.close()
+          if (this.imageWriter == imageWriter) {
+            this.imageWriter = null
+          }
         }
 
         event.surfaceOutput.close()
