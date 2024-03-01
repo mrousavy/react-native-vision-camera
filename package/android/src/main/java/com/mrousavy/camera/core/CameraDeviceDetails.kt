@@ -12,18 +12,23 @@ import android.util.Range
 import android.util.Rational
 import android.util.Size
 import android.util.SizeF
+import android.view.Display
 import android.view.SurfaceHolder
 import androidx.camera.camera2.internal.Camera2CameraInfoImpl
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.CameraInfo
+import androidx.camera.core.DisplayOrientedMeteringPointFactory
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.MeteringPoint
 import androidx.camera.core.MeteringPointFactory
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.capability.PreviewCapabilitiesImpl
+import androidx.camera.extensions.ExtensionMode
+import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.video.Recorder
 import com.facebook.react.bridge.Arguments
+import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.extensions.bigger
@@ -44,14 +49,13 @@ import kotlin.math.atan2
 import kotlin.math.sqrt
 
 @SuppressLint("RestrictedApi")
-class CameraDeviceDetails(val cameraInfo: CameraInfo) {
+class CameraDeviceDetails(private val cameraInfo: CameraInfo, extensionsManager: ExtensionsManager) {
   companion object {
     private const val TAG = "CameraDeviceDetails"
 
     fun getMaximumPreviewSize(): Size {
-      // See https://developer.android.com/reference/android/hardware/camera2/params/StreamConfigurationMap
       // According to the Android Developer documentation, PREVIEW streams can have a resolution
-      // of up to the phone's display's resolution, with a maximum of 1920x1080.
+      // of up to the phone's display's resolution, or 1920x1080, whichever is smaller.
       val display1080p = Size(1920, 1080)
       val displaySize = Size(
         Resources.getSystem().displayMetrics.widthPixels,
@@ -78,7 +82,10 @@ class CameraDeviceDetails(val cameraInfo: CameraInfo) {
 
   val previewCapabilities = PreviewCapabilitiesImpl.from(cameraInfo)
   val photoCapabilities = ImageCapture.getImageCaptureCapabilities(cameraInfo)
-  val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
+  val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo, Recorder.VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE)
+
+  // CameraX internal props
+  private val cameraInfoInternal = cameraInfo as CameraInfoInternal
 
   // Camera2 specific props
   private val camera2Details = cameraInfo as? Camera2CameraInfoImpl
@@ -88,11 +95,14 @@ class CameraDeviceDetails(val cameraInfo: CameraInfo) {
   private val sensorOrientation = Orientation.fromRotationDegrees(sensorRotationDegrees)
   private val cameraHardwareLevel = camera2Details?.cameraCharacteristicsCompat?.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
   private val hardwareLevel = HardwareLevel.fromCameraHardwareLevel(cameraHardwareLevel ?: CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
+  private val minFocusDistance = getMinFocusDistanceCm()
+
+  // Extensions
+  private val supportsHdr = extensionsManager.isExtensionAvailable(cameraInfo.cameraSelector, ExtensionMode.HDR)
+  private val supportsLowLightBoost = extensionsManager.isExtensionAvailable(cameraInfo.cameraSelector, ExtensionMode.NIGHT)
 
   fun toMap(): ReadableMap {
     val deviceTypes = getDeviceTypes()
-
-    (cameraInfo as CameraInfoInternal).getPhysicalCameraCharacteristics()
 
     val map = Arguments.createMap()
     map.putString("id", cameraId)
@@ -105,7 +115,7 @@ class CameraDeviceDetails(val cameraInfo: CameraInfo) {
     map.putBoolean("isMultiCam", isMultiCam)
     map.putBoolean("supportsRawCapture", supportsRawCapture)
     map.putBoolean("supportsLowLightBoost", supportsLowLightBoost)
-    map.putBoolean("supportsFocus", supportsFocusRegions)
+    map.putBoolean("supportsFocus", supportsFocus)
     map.putDouble("minZoom", minZoom.toDouble())
     map.putDouble("maxZoom", maxZoom.toDouble())
     map.putDouble("neutralZoom", 1.0) // Zoom is always relative to 1.0 on Android
@@ -117,10 +127,6 @@ class CameraDeviceDetails(val cameraInfo: CameraInfo) {
     return map
   }
 
-
-  // TODO: Also add 10-bit YUV here?
-  val videoFormat = ImageFormat.YUV_420_888
-  val photoFormat = ImageFormat.JPEG
 
   // get extensions (HDR, Night Mode, ..)
   private fun getSupportedExtensions(): List<Int> =
@@ -148,7 +154,16 @@ class CameraDeviceDetails(val cameraInfo: CameraInfo) {
     return false
   }
 
+  @Suppress("FoldInitializerAndIfToElvis")
   private fun getMinFocusDistanceCm(): Double {
+    val device = cameraInfo as? Camera2CameraInfoImpl
+    if (device == null) {
+      // Device is not a Camera2 device.
+      return 0.0
+    }
+    cameraInfo.
+
+    val characteristics = device.cameraCharacteristicsCompat
     val distance = characteristics.get(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE)
     if (distance == null || distance == 0f) return 0.0
     if (distance.isNaN() || distance.isInfinite()) return 0.0
@@ -219,12 +234,14 @@ class CameraDeviceDetails(val cameraInfo: CameraInfo) {
 
   fun getVideoSizes(format: Int): List<Size> = characteristics.getVideoSizes(cameraId, format)
   fun getPhotoSizes(): List<Size> = characteristics.getPhotoSizes(photoFormat)
-  fun getPreviewSizes(): List<Size> {
-    val maximumPreviewSize = getMaximumPreviewSize()
-    return cameraConfig.getOutputSizes(SurfaceHolder::class.java)
-      .filter { it.bigger <= maximumPreviewSize.bigger && it.smaller <= maximumPreviewSize.smaller }
-  }
 
+
+  /**
+   * Get a list of formats (or "possible stream resolution combinations") that this device supports.
+   *
+   * This filters all resolutions according to the
+   * [Camera2 "StreamConfigurationMap" documentation](https://developer.android.com/reference/android/hardware/camera2/params/StreamConfigurationMap)
+   */
   private fun getFormats(): ReadableArray {
     val array = Arguments.createArray()
 
@@ -270,7 +287,6 @@ class CameraDeviceDetails(val cameraInfo: CameraInfo) {
     map.putInt("maxISO", isoRange.upper)
     map.putInt("minFps", fpsRange.lower)
     map.putInt("maxFps", fpsRange.upper)
-    map.putDouble("maxZoom", maxZoom)
     map.putDouble("fieldOfView", getMaxFieldOfView())
     map.putBoolean("supportsVideoHdr", supportsVideoHdr)
     map.putBoolean("supportsPhotoHdr", supportsPhotoHdr)

@@ -38,7 +38,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   // Public accessors
   var maxZoom: Double {
     if let device = videoDeviceInput?.device {
-      return device.maxAvailableVideoZoomFactor
+      return device.activeFormat.videoMaxZoomFactor
     }
     return 1.0
   }
