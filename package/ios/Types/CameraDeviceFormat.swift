@@ -26,7 +26,6 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
   let maxISO: Float
 
   let fieldOfView: Float
-  let maxZoom: Double
 
   let videoStabilizationModes: [VideoStabilizationMode]
   let autoFocusSystem: AutoFocusSystem
@@ -48,7 +47,6 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
     minISO = format.minISO
     maxISO = format.maxISO
     fieldOfView = format.videoFieldOfView
-    maxZoom = format.videoMaxZoomFactor
     videoStabilizationModes = format.videoStabilizationModes.map { VideoStabilizationMode(from: $0) }
     autoFocusSystem = AutoFocusSystem(fromFocusSystem: format.autoFocusSystem)
     supportsVideoHdr = format.supportsVideoHdr
@@ -68,7 +66,6 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
     minISO = jsValue["minISO"] as! Float
     maxISO = jsValue["maxISO"] as! Float
     fieldOfView = jsValue["fieldOfView"] as! Float
-    maxZoom = jsValue["maxZoom"] as! Double
     let jsVideoStabilizationModes = jsValue["videoStabilizationModes"] as! [String]
     videoStabilizationModes = try jsVideoStabilizationModes.map { try VideoStabilizationMode(jsValue: $0) }
     let jsAutoFocusSystem = jsValue["autoFocusSystem"] as! String
@@ -97,7 +94,6 @@ struct CameraDeviceFormat: Equatable, CustomStringConvertible {
       "minISO": minISO,
       "maxISO": maxISO,
       "fieldOfView": fieldOfView,
-      "maxZoom": maxZoom,
       "supportsVideoHdr": supportsVideoHdr,
       "supportsPhotoHdr": supportsPhotoHdr,
       "minFps": minFps,

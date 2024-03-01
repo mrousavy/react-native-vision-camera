@@ -3,22 +3,33 @@ package com.mrousavy.camera
 import android.content.Context
 import android.hardware.camera2.CameraManager
 import android.util.Log
+import androidx.camera.extensions.ExtensionsManager
+import androidx.camera.lifecycle.ProcessCameraProvider
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReactContext.RCTDeviceEventEmitter
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableArray
-import com.facebook.react.modules.core.DeviceEventManagerModule
 import com.mrousavy.camera.core.CameraDeviceDetails
+import com.mrousavy.camera.core.CameraQueues
+import com.mrousavy.camera.extensions.await
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.launch
 
 class CameraDevicesManager(private val reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
   companion object {
     private const val TAG = "CameraDevices"
   }
+  private val executor = CameraQueues.cameraExecutor
+  private val coroutineScope = CoroutineScope(executor.asCoroutineDispatcher())
   private val cameraManager = reactContext.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+  private var cameraProvider: ProcessCameraProvider? = null
+  private var extensionsManager: ExtensionsManager? = null
 
   private val callback = object : CameraManager.AvailabilityCallback() {
-    private var devices = cameraManager.cameraIdList.toMutableList()
+    private var deviceIds = cameraManager.cameraIdList.toMutableList()
 
     // Check if device is still physically connected (even if onCameraUnavailable() is called)
     private fun isDeviceConnected(cameraId: String): Boolean =
@@ -31,24 +42,36 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
 
     override fun onCameraAvailable(cameraId: String) {
       Log.i(TAG, "Camera #$cameraId is now available.")
-      if (!devices.contains(cameraId)) {
-        devices.add(cameraId)
+      if (!deviceIds.contains(cameraId)) {
+        deviceIds.add(cameraId)
         sendAvailableDevicesChangedEvent()
       }
     }
 
     override fun onCameraUnavailable(cameraId: String) {
       Log.i(TAG, "Camera #$cameraId is now unavailable.")
-      if (devices.contains(cameraId) && !isDeviceConnected(cameraId)) {
-        devices.remove(cameraId)
+      if (deviceIds.contains(cameraId) && !isDeviceConnected(cameraId)) {
+        deviceIds.remove(cameraId)
         sendAvailableDevicesChangedEvent()
       }
+    }
+  }
+
+  init {
+    coroutineScope.launch {
+      Log.i(TAG, "Initializing ProcessCameraProvider...")
+      cameraProvider = ProcessCameraProvider.getInstance(reactContext).await(executor)
+      Log.i(TAG, "Initializing ExtensionsManager...")
+      extensionsManager = ExtensionsManager.getInstanceAsync(reactContext, cameraProvider!!).await(executor)
+      Log.i(TAG, "Successfully initialized!")
+      sendAvailableDevicesChangedEvent()
     }
   }
 
   override fun getName(): String = TAG
 
   override fun initialize() {
+    super.initialize()
     cameraManager.registerAvailabilityCallback(callback, null)
   }
 
@@ -59,16 +82,20 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
 
   private fun getDevicesJson(): ReadableArray {
     val devices = Arguments.createArray()
-    cameraManager.cameraIdList.forEach { cameraId ->
-      val device = CameraDeviceDetails(cameraManager, cameraId)
+    val cameraProvider = cameraProvider ?: return devices
+    val extensionsManager = extensionsManager ?: return devices
+
+    cameraProvider.availableCameraInfos.forEach { cameraInfo ->
+      val device = CameraDeviceDetails(cameraInfo, extensionsManager, reactContext)
       devices.pushMap(device.toMap())
     }
     return devices
   }
 
   fun sendAvailableDevicesChangedEvent() {
-    val eventEmitter = reactContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
-    eventEmitter.emit("CameraDevicesChanged", getDevicesJson())
+    val eventEmitter = reactContext.getJSModule(RCTDeviceEventEmitter::class.java)
+    val devices = getDevicesJson()
+    eventEmitter.emit("CameraDevicesChanged", devices)
   }
 
   override fun getConstants(): MutableMap<String, Any?> {
