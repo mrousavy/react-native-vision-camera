@@ -508,6 +508,7 @@ class CameraSession(private val context: Context, private val callback: Callback
     recording.resume()
   }
 
+  @SuppressLint("RestrictedApi")
   suspend fun focus(meteringPoint: MeteringPoint) {
     val camera = camera ?: throw CameraNotReadyError()
 
@@ -517,8 +518,14 @@ class CameraSession(private val context: Context, private val callback: Callback
     }
 
     try {
+      Log.i(TAG, "Focusing to ${action.meteringPointsAf.joinToString { "(${it.x}, ${it.y})" }}...")
       val future = camera.cameraControl.startFocusAndMetering(action)
-      future.await(CameraQueues.cameraExecutor)
+      val result = future.await(CameraQueues.cameraExecutor)
+      if (result.isFocusSuccessful) {
+        Log.i(TAG, "Focused successfully!")
+      } else {
+        Log.i(TAG, "Focus failed.")
+      }
     } catch (e: CameraControl.OperationCanceledException) {
       throw FocusCanceledError()
     }
