@@ -1,7 +1,5 @@
 package com.mrousavy.camera.types
 
-import com.mrousavy.camera.core.CameraDeviceDetails
-
 enum class Orientation(override val unionValue: String) : JSUnionValue {
   PORTRAIT("portrait"),
   LANDSCAPE_RIGHT("landscape-right"),
@@ -15,21 +13,6 @@ enum class Orientation(override val unionValue: String) : JSUnionValue {
       PORTRAIT_UPSIDE_DOWN -> 180
       LANDSCAPE_RIGHT -> 270
     }
-
-  fun toSensorRelativeOrientation(deviceDetails: CameraDeviceDetails): Orientation {
-    // Convert target orientation to rotation degrees (0, 90, 180, 270)
-    var rotationDegrees = this.toDegrees()
-
-    // Reverse device orientation for front-facing cameras
-    if (deviceDetails.position == Position.FRONT) {
-      rotationDegrees = -rotationDegrees
-    }
-
-    // Rotate sensor rotation by target rotation
-    val newRotationDegrees = (deviceDetails.sensorOrientation.toDegrees() + rotationDegrees + 360) % 360
-
-    return fromRotationDegrees(newRotationDegrees)
-  }
 
   companion object : JSUnionValue.Companion<Orientation> {
     override fun fromUnionValue(unionValue: String?): Orientation =
