@@ -1,7 +1,6 @@
 package com.mrousavy.camera.core
 
 import android.annotation.SuppressLint
-import android.graphics.Matrix
 import android.hardware.HardwareBuffer
 import android.media.ImageReader
 import android.media.ImageReader.OnImageAvailableListener
@@ -12,6 +11,7 @@ import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraEffect
+import androidx.camera.core.CameraSelector
 import androidx.camera.core.SurfaceOutput
 import androidx.camera.core.SurfaceProcessor
 import androidx.camera.core.SurfaceRequest
@@ -43,11 +43,15 @@ class FrameProcessorEffect(
     companion object {
       private const val TAG = "FrameProcessorEffect"
       private const val MAX_IMAGES = 3
+
+      data class ImageTransformationInfo(val orientation: Orientation, val isMirrored: Boolean)
     }
     private val queue = CameraQueues.videoQueue
     private val lock = Any()
+
     @GuardedBy("lock")
-    private var imageTransformationInfo = ImageTransformationInfo(Matrix())
+    private var imageTransformationInfo = ImageTransformationInfo(Orientation.PORTRAIT, false)
+
     @GuardedBy("lock")
     private var imageWriter: ImageWriter? = null
 
@@ -119,8 +123,14 @@ class FrameProcessorEffect(
 
       imageReader.setOnImageAvailableListener(this, CameraQueues.videoQueue.handler)
 
-      request.provideSurface(imageReader.surface, queue.executor) { result ->
-        onImageReaderSurfaceClosed(imageReader, result.resultCode)
+      synchronized(lock) {
+        val cameraInfo = request.camera.cameraInfo
+        val orientation = Orientation.fromRotationDegrees(cameraInfo.sensorRotationDegrees)
+        val isMirrored = cameraInfo.lensFacing == CameraSelector.LENS_FACING_FRONT
+        imageTransformationInfo = ImageTransformationInfo(orientation, isMirrored)
+        request.provideSurface(imageReader.surface, queue.executor) { result ->
+          onImageReaderSurfaceClosed(imageReader, result.resultCode)
+        }
       }
     }
 
@@ -151,8 +161,6 @@ class FrameProcessorEffect(
 
       synchronized(lock) {
         this.imageWriter = imageWriter
-        val transformMatrix = surfaceOutput.sensorToBufferTransform
-        this.imageTransformationInfo = ImageTransformationInfo(transformMatrix)
       }
     }
 
@@ -243,30 +251,6 @@ class FrameProcessorEffect(
       } catch (_: Throwable) {
         return false
       }
-    }
-
-    class ImageTransformationInfo(matrix: Matrix) {
-      val values: FloatArray by lazy {
-        val values = FloatArray(9) // 3x3 matrix
-        matrix.getValues(values)
-        return@lazy values
-      }
-      val isMirrored: Boolean
-        get() {
-          return when {
-            values[Matrix.MSCALE_X] == -1f || values[Matrix.MSKEW_Y] == -1f -> true
-            else -> false
-          }
-        }
-      val orientation: Orientation
-        get() {
-          return when {
-            values[Matrix.MSKEW_X] == -1f && values[Matrix.MSKEW_Y] == 1f -> Orientation.LANDSCAPE_RIGHT
-            values[Matrix.MSKEW_X] == 1f && values[Matrix.MSKEW_Y] == -1f -> Orientation.LANDSCAPE_RIGHT
-            values[Matrix.MSCALE_X] == -1f && values[Matrix.MSCALE_Y] == -1f -> Orientation.PORTRAIT_UPSIDE_DOWN
-            else -> Orientation.PORTRAIT
-          }
-        }
     }
   }
 }
