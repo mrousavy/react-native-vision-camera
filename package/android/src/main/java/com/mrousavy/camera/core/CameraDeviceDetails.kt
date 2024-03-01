@@ -18,6 +18,7 @@ import androidx.camera.camera2.internal.Camera2CameraInfoImpl
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.DisplayOrientedMeteringPointFactory
+import androidx.camera.core.DynamicRange
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.MeteringPoint
@@ -26,7 +27,9 @@ import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.capability.PreviewCapabilitiesImpl
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
+import androidx.camera.video.Quality.ConstantQuality
 import androidx.camera.video.Recorder
+import androidx.camera.video.VideoCapabilities
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableArray
@@ -49,22 +52,10 @@ import kotlin.math.atan2
 import kotlin.math.sqrt
 
 @SuppressLint("RestrictedApi")
+@Suppress("FoldInitializerAndIfToElvis")
 class CameraDeviceDetails(private val cameraInfo: CameraInfo, extensionsManager: ExtensionsManager) {
   companion object {
     private const val TAG = "CameraDeviceDetails"
-
-    fun getMaximumPreviewSize(): Size {
-      // According to the Android Developer documentation, PREVIEW streams can have a resolution
-      // of up to the phone's display's resolution, or 1920x1080, whichever is smaller.
-      val display1080p = Size(1920, 1080)
-      val displaySize = Size(
-        Resources.getSystem().displayMetrics.widthPixels,
-        Resources.getSystem().displayMetrics.heightPixels
-      )
-      val isHighResScreen = displaySize.bigger >= display1080p.bigger || displaySize.smaller >= display1080p.smaller
-
-      return if (isHighResScreen) display1080p else displaySize
-    }
   }
 
   // Generic props available on all implementations
@@ -74,15 +65,17 @@ class CameraDeviceDetails(private val cameraInfo: CameraInfo, extensionsManager:
   private val hasFlash = cameraInfo.hasFlashUnit()
   private val minZoom = cameraInfo.zoomState.value?.minZoomRatio ?: 0f
   private val maxZoom = cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
-  // TODO: Do I need to multiply by step, or no?
-  private val exposureStep = cameraInfo.exposureState.exposureCompensationStep.toDouble()
-  private val minExposure = cameraInfo.exposureState.exposureCompensationRange.lower * exposureStep
-  private val maxExposure = cameraInfo.exposureState.exposureCompensationRange.upper * exposureStep
+  private val minExposure = cameraInfo.exposureState.exposureCompensationRange.lower
+  private val maxExposure = cameraInfo.exposureState.exposureCompensationRange.upper
   private val supportsFocus = cameraInfo.isFocusMeteringSupported()
+  private val supportsRawCapture = false
+  private val supportsDepthCapture = false
+  private val autoFocusSystem = AutoFocusSystem.CONTRAST_DETECTION
 
-  val previewCapabilities = PreviewCapabilitiesImpl.from(cameraInfo)
-  val photoCapabilities = ImageCapture.getImageCaptureCapabilities(cameraInfo)
-  val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo, Recorder.VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE)
+  private val previewCapabilities = PreviewCapabilitiesImpl.from(cameraInfo)
+  private val photoCapabilities = ImageCapture.getImageCaptureCapabilities(cameraInfo)
+  private val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo, Recorder.VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE)
+  private val supports10BitHdr = supports10BitHDR()
 
   // CameraX internal props
   private val cameraInfoInternal = cameraInfo as CameraInfoInternal
@@ -96,13 +89,16 @@ class CameraDeviceDetails(private val cameraInfo: CameraInfo, extensionsManager:
   private val cameraHardwareLevel = camera2Details?.cameraCharacteristicsCompat?.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
   private val hardwareLevel = HardwareLevel.fromCameraHardwareLevel(cameraHardwareLevel ?: CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
   private val minFocusDistance = getMinFocusDistanceCm()
+  private val isoRange = getIsoRange()
+  private val maxFieldOfView = getMaxFieldOfView()
 
   // Extensions
-  private val supportsHdr = extensionsManager.isExtensionAvailable(cameraInfo.cameraSelector, ExtensionMode.HDR)
-  private val supportsLowLightBoost = extensionsManager.isExtensionAvailable(cameraInfo.cameraSelector, ExtensionMode.NIGHT)
+  private val supportsHdrExtension = extensionsManager.isExtensionAvailable(cameraInfo.cameraSelector, ExtensionMode.HDR)
+  private val supportsLowLightBoostExtension = extensionsManager.isExtensionAvailable(cameraInfo.cameraSelector, ExtensionMode.NIGHT)
 
   fun toMap(): ReadableMap {
     val deviceTypes = getDeviceTypes()
+    val formats = getFormats()
 
     val map = Arguments.createMap()
     map.putString("id", cameraId)
@@ -114,79 +110,122 @@ class CameraDeviceDetails(private val cameraInfo: CameraInfo, extensionsManager:
     map.putDouble("minFocusDistance", minFocusDistance)
     map.putBoolean("isMultiCam", isMultiCam)
     map.putBoolean("supportsRawCapture", supportsRawCapture)
-    map.putBoolean("supportsLowLightBoost", supportsLowLightBoost)
+    map.putBoolean("supportsLowLightBoost", supportsLowLightBoostExtension)
     map.putBoolean("supportsFocus", supportsFocus)
     map.putDouble("minZoom", minZoom.toDouble())
     map.putDouble("maxZoom", maxZoom.toDouble())
     map.putDouble("neutralZoom", 1.0) // Zoom is always relative to 1.0 on Android
-    map.putDouble("minExposure", minExposure)
-    map.putDouble("maxExposure", maxExposure)
+    map.putInt("minExposure", minExposure)
+    map.putInt("maxExposure", maxExposure)
     map.putString("hardwareLevel", hardwareLevel.unionValue)
     map.putString("sensorOrientation", sensorOrientation.unionValue)
-    map.putArray("formats", getFormats())
+    map.putArray("formats", formats)
     return map
   }
 
+  /**
+   * Get a list of formats (or "possible stream resolution combinations") that this device supports.
+   *
+   * This filters all resolutions according to the
+   * [Camera2 "StreamConfigurationMap" documentation](https://developer.android.com/reference/android/hardware/camera2/params/StreamConfigurationMap)
+   */
+  private fun getFormats(): ReadableArray {
+    val array = Arguments.createArray()
 
-  // get extensions (HDR, Night Mode, ..)
-  private fun getSupportedExtensions(): List<Int> =
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-      val extensions = cameraManager.getCameraExtensionCharacteristics(cameraId)
-      extensions.supportedExtensions
-    } else {
-      emptyList()
-    }
+    val dynamicRangeProfiles = videoCapabilities.supportedDynamicRanges
 
-  private fun getAvailableDistortionCorrectionModesOrEmptyArray(): IntArray =
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-      characteristics.get(CameraCharacteristics.DISTORTION_CORRECTION_AVAILABLE_MODES) ?: intArrayOf()
-    } else {
-      intArrayOf()
-    }
+    dynamicRangeProfiles.forEach { dynamicRange ->
+      val qualities = videoCapabilities.getSupportedQualities(dynamicRange)
+      val videoSizes = qualities.map { it as ConstantQuality }.flatMap { it.typicalSizes }
+      val photoSizes = cameraInfoInternal.getSupportedResolutions(ImageFormat.JPEG)
+      val fpsRanges = cameraInfo.supportedFrameRateRanges
+      val minFps = fpsRanges.minOf { it.lower }
+      val maxFps = fpsRanges.maxOf { it.upper }
 
-  private fun getHasVideoHdr(): Boolean {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-      if (capabilities.contains(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT)) {
-        val recommendedHdrProfile = characteristics.get(CameraCharacteristics.REQUEST_RECOMMENDED_TEN_BIT_DYNAMIC_RANGE_PROFILE)
-        return recommendedHdrProfile != null
+      videoSizes.forEach { videoSize ->
+        val maxFpsForSize = CamcorderProfileUtils.getMaximumFps(cameraId, videoSize) ?: maxFps
+        val fpsRange = Range(minFps, maxFpsForSize)
+
+        photoSizes.forEach { photoSize ->
+          val map = buildFormatMap(photoSize, videoSize, fpsRange)
+          array.pushMap(map)
+        }
       }
     }
-    return false
+
+    return array
   }
 
-  @Suppress("FoldInitializerAndIfToElvis")
+  private fun createPixelFormats(): ReadableArray {
+    // Every output in Camera2 supports YUV and NATIVE
+    val array = Arguments.createArray()
+    array.pushString(PixelFormat.YUV.unionValue)
+    array.pushString(PixelFormat.NATIVE.unionValue)
+    return array
+  }
+
+  private fun buildFormatMap(photoSize: Size, videoSize: Size, fpsRange: Range<Int>): ReadableMap {
+    val map = Arguments.createMap()
+    map.putInt("photoHeight", photoSize.height)
+    map.putInt("photoWidth", photoSize.width)
+    map.putInt("videoHeight", videoSize.height)
+    map.putInt("videoWidth", videoSize.width)
+    map.putInt("minFps", fpsRange.lower)
+    map.putInt("maxFps", fpsRange.upper)
+    map.putInt("minISO", isoRange.lower)
+    map.putInt("maxISO", isoRange.upper)
+    map.putDouble("fieldOfView", maxFieldOfView)
+    map.putBoolean("supportsVideoHdr", supports10BitHdr || supportsHdrExtension)
+    map.putBoolean("supportsPhotoHdr", supportsHdrExtension)
+    map.putBoolean("supportsDepthCapture", supportsDepthCapture)
+    map.putString("autoFocusSystem", autoFocusSystem.unionValue)
+    map.putArray("videoStabilizationModes", createStabilizationModes(videoSize))
+    map.putArray("pixelFormats", createPixelFormats())
+    return map
+  }
+
+  private fun supports10BitHDR(): Boolean {
+    return videoCapabilities.supportedDynamicRanges.any { range ->
+      range.is10BitHdr || range == DynamicRange.HDR_UNSPECIFIED_10_BIT
+    }
+  }
+
   private fun getMinFocusDistanceCm(): Double {
     val device = cameraInfo as? Camera2CameraInfoImpl
     if (device == null) {
       // Device is not a Camera2 device.
       return 0.0
     }
-    cameraInfo.
 
-    val characteristics = device.cameraCharacteristicsCompat
-    val distance = characteristics.get(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE)
+    val distance = device.cameraCharacteristicsCompat.get(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE)
     if (distance == null || distance == 0f) return 0.0
     if (distance.isNaN() || distance.isInfinite()) return 0.0
     // distance is in "diopters", meaning 1/meter. Convert to meters, then centi-meters
     return 1.0 / distance * 100.0
   }
 
-  @Suppress("RedundantIf")
-  private fun supportsSnapshotCapture(): Boolean {
-    // As per CameraDevice.TEMPLATE_VIDEO_SNAPSHOT in documentation:
-    if (hardwareLevel == HardwareLevel.LEGACY) return false
-    if (supportsDepthCapture && !isBackwardsCompatible) return false
-    return true
+  private fun getIsoRange(): Range<Int> {
+    val device = cameraInfo as? Camera2CameraInfoImpl
+    if (device == null) {
+      // Device is not a Camera2 device.
+      return Range(0, 0)
+    }
+
+    val range = device.cameraCharacteristicsCompat.get(CameraCharacteristics.SENSOR_INFO_SENSITIVITY_RANGE)
+    return range ?: Range(0, 0)
   }
 
-  private fun createStabilizationModes(): ReadableArray {
-    val array = Arguments.createArray()
-    digitalStabilizationModes.forEach { videoStabilizationMode ->
-      val mode = VideoStabilizationMode.fromDigitalVideoStabilizationMode(videoStabilizationMode)
-      array.pushString(mode.unionValue)
+  private fun createStabilizationModes(videoSize: Size): ReadableArray {
+    val modes = mutableSetOf(VideoStabilizationMode.OFF)
+    if (videoCapabilities.isStabilizationSupported) {
+      modes.add(VideoStabilizationMode.CINEMATIC)
     }
-    opticalStabilizationModes.forEach { videoStabilizationMode ->
-      val mode = VideoStabilizationMode.fromOpticalVideoStabilizationMode(videoStabilizationMode)
+    if (previewCapabilities.isStabilizationSupported) {
+      modes.add(VideoStabilizationMode.CINEMATIC_EXTENDED)
+    }
+
+    val array = Arguments.createArray()
+    modes.forEach { mode ->
       array.pushString(mode.unionValue)
     }
     return array
@@ -235,65 +274,4 @@ class CameraDeviceDetails(private val cameraInfo: CameraInfo, extensionsManager:
   fun getVideoSizes(format: Int): List<Size> = characteristics.getVideoSizes(cameraId, format)
   fun getPhotoSizes(): List<Size> = characteristics.getPhotoSizes(photoFormat)
 
-
-  /**
-   * Get a list of formats (or "possible stream resolution combinations") that this device supports.
-   *
-   * This filters all resolutions according to the
-   * [Camera2 "StreamConfigurationMap" documentation](https://developer.android.com/reference/android/hardware/camera2/params/StreamConfigurationMap)
-   */
-  private fun getFormats(): ReadableArray {
-    val array = Arguments.createArray()
-
-    val videoSizes = getVideoSizes(videoFormat)
-    val photoSizes = getPhotoSizes()
-
-    videoSizes.forEach { videoSize ->
-      val frameDuration = cameraConfig.getOutputMinFrameDuration(videoFormat, videoSize)
-      var maxFps = (1.0 / (frameDuration.toDouble() / 1_000_000_000)).toInt()
-      val maxEncoderFps = CamcorderProfileUtils.getMaximumFps(cameraId, videoSize)
-      if (maxEncoderFps != null && maxEncoderFps < maxFps) {
-        Log.i(
-          TAG,
-          "Camera could do $maxFps FPS at $videoSize, but Media Encoder can only do $maxEncoderFps FPS. Clamping to $maxEncoderFps FPS..."
-        )
-        maxFps = maxEncoderFps
-      }
-
-      photoSizes.forEach { photoSize ->
-        val map = buildFormatMap(photoSize, videoSize, Range(1, maxFps))
-        array.pushMap(map)
-      }
-    }
-
-    return array
-  }
-
-  private fun createPixelFormats(): ReadableArray {
-    // Every output in Camera2 supports YUV and NATIVE
-    val array = Arguments.createArray()
-    array.pushString(PixelFormat.YUV.unionValue)
-    array.pushString(PixelFormat.NATIVE.unionValue)
-    return array
-  }
-
-  private fun buildFormatMap(photoSize: Size, videoSize: Size, fpsRange: Range<Int>): ReadableMap {
-    val map = Arguments.createMap()
-    map.putInt("photoHeight", photoSize.height)
-    map.putInt("photoWidth", photoSize.width)
-    map.putInt("videoHeight", videoSize.height)
-    map.putInt("videoWidth", videoSize.width)
-    map.putInt("minISO", isoRange.lower)
-    map.putInt("maxISO", isoRange.upper)
-    map.putInt("minFps", fpsRange.lower)
-    map.putInt("maxFps", fpsRange.upper)
-    map.putDouble("fieldOfView", getMaxFieldOfView())
-    map.putBoolean("supportsVideoHdr", supportsVideoHdr)
-    map.putBoolean("supportsPhotoHdr", supportsPhotoHdr)
-    map.putBoolean("supportsDepthCapture", supportsDepthCapture)
-    map.putString("autoFocusSystem", autoFocusSystem.unionValue)
-    map.putArray("videoStabilizationModes", createStabilizationModes())
-    map.putArray("pixelFormats", createPixelFormats())
-    return map
-  }
 }
