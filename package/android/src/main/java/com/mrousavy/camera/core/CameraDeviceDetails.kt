@@ -46,7 +46,7 @@ class CameraDeviceDetails(
   // Generic props available on all implementations
   private val cameraId = cameraInfo.id ?: throw NoCameraDeviceError()
   private val position = Position.fromLensFacing(cameraInfo.lensFacing)
-  private val name = "${cameraInfo.implementationType} ($cameraId)"
+  private val name = "$cameraId ($position) ${cameraInfo.implementationType}"
   private val hasFlash = cameraInfo.hasFlashUnit()
   private val minZoom = cameraInfo.zoomState.value?.minZoomRatio ?: 0f
   private val maxZoom = cameraInfo.zoomState.value?.maxZoomRatio ?: 1f
