@@ -21,7 +21,7 @@ enum class Orientation(override val unionValue: String) : JSUnionValue {
     var rotationDegrees = this.toDegrees()
 
     // Reverse device orientation for front-facing cameras
-    if (deviceDetails.lensFacing == LensFacing.FRONT) {
+    if (deviceDetails.position == Position.FRONT) {
       rotationDegrees = -rotationDegrees
     }
 
