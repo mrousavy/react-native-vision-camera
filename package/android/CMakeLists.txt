@@ -16,9 +16,15 @@ add_definitions(-DEGL_EGLEXT_PROTOTYPES)
 add_definitions(-DGL_GLEXT_PROTOTYPES)
 
 if (ENABLE_FRAME_PROCESSORS)
-        add_definitions(-DVISION_CAMERA_ENABLE_FRAME_PROCESSORS=true)
+    add_definitions(-DVISION_CAMERA_ENABLE_FRAME_PROCESSORS=true)
 else()
-        add_definitions(-DVISION_CAMERA_ENABLE_FRAME_PROCESSORS=false)
+    add_definitions(-DVISION_CAMERA_ENABLE_FRAME_PROCESSORS=false)
+endif()
+
+if (ENABLE_SKIA)
+    add_definitions(-DVISION_CAMERA_ENABLE_SKIA=true)
+else()
+    add_definitions(-DVISION_CAMERA_ENABLE_SKIA=false)
 endif()
 
 
@@ -68,7 +74,7 @@ target_link_libraries(
 )
 
 # Optionally also add Frame Processors here
-message("VisionCamera: Frame Processors: ${ENABLE_FRAME_PROCESSORS}!")
+message("VisionCamera: Frame Processors: ${ENABLE_FRAME_PROCESSORS}")
 if (ENABLE_FRAME_PROCESSORS)
     message("VisionCamera: Linking react-native-worklets...")
     find_package(react-native-worklets-core REQUIRED CONFIG)
@@ -76,4 +82,14 @@ if (ENABLE_FRAME_PROCESSORS)
             ${PACKAGE_NAME}
             react-native-worklets-core::rnworklets
     )
+
+    message("VisionCamera: Skia: ${ENABLE_SKIA}")
+    if (ENABLE_SKIA)
+        message("VisionCamera: Linking react-native-skia...")
+        find_package(shopify_react-native-skia REQUIRED CONFIG)
+        target_link_libraries(
+                ${PACKAGE_NAME}
+                shopify_react-native-skia::rnskia
+        )
+    endif()
 endif()

@@ -72,8 +72,11 @@ static def findNodeModules(baseDir) {
 
 def nodeModules = findNodeModules(projectDir)
 
-def hasWorklets = !safeExtGetBool('VisionCamera_disableFrameProcessors', false) && findProject(":react-native-worklets-core") != null
-logger.warn("[VisionCamera] react-native-worklets-core ${hasWorklets ? "found" : "not found"}, Frame Processors ${hasWorklets ? "enabled" : "disabled"}!")
+def enableFrameProcessors = !safeExtGetBool('VisionCamera_disableFrameProcessors', false) && findProject(":react-native-worklets-core") != null
+logger.warn("[VisionCamera] react-native-worklets-core ${enableFrameProcessors ? "found" : "not found"}, Frame Processors ${enableFrameProcessors ? "enabled" : "disabled"}!")
+
+def enableSkia = enableFrameProcessors && !safeExtGetBool('VisionCamera_disableSkia', false) && findProject(":shopify_react-native-skia") != null
+logger.warn("[VisionCamera] react-native-skia ${enableSkia ? "found" : "not found"}, Skia Frame Processors ${enableSkia ? "enabled" : "disabled"}!")
 
 def enableCodeScanner = safeExtGetBool('VisionCamera_enableCodeScanner', false)
 
@@ -120,7 +123,8 @@ android {
         cppFlags "-O2 -frtti -fexceptions -Wall -Wno-unused-variable -fstack-protector-all"
         arguments "-DANDROID_STL=c++_shared",
                 "-DNODE_MODULES_DIR=${nodeModules}",
-                "-DENABLE_FRAME_PROCESSORS=${hasWorklets ? "ON" : "OFF"}"
+                "-DENABLE_FRAME_PROCESSORS=${enableFrameProcessors ? "ON" : "OFF"}",
+                "-DENABLE_SKIA=${enableSkia ? "ON" : "OFF"}"
         abiFilters (*reactNativeArchitectures())
       }
     }
@@ -189,9 +193,13 @@ dependencies {
     implementation "com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.0"
   }
 
-  if (hasWorklets) {
+  if (enableFrameProcessors) {
     // Frame Processor integration (optional)
     implementation project(":react-native-worklets-core")
+    if (enableSkia) {
+      // Skia integration (optional)
+      implementation project(":shopify_react-native-skia")
+    }
   }
 }
 
