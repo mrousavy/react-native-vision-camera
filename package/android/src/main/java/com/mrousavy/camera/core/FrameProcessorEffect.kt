@@ -19,8 +19,6 @@ import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.PixelFormat
 import com.mrousavy.camera.utils.ImageFormatUtils
-import kotlin.math.atan2
-import kotlin.math.roundToInt
 
 @SuppressLint("RestrictedApi")
 class FrameProcessorEffect(
@@ -28,7 +26,7 @@ class FrameProcessorEffect(
   enableGpuBuffers: Boolean = false,
   callback: CameraSession.Callback,
   targets: Int = PREVIEW,
-  private val processor: FrameProcessorSurfaceProcessor = FrameProcessorSurfaceProcessor(format, enableGpuBuffers, callback)
+  processor: FrameProcessorSurfaceProcessor = FrameProcessorSurfaceProcessor(format, enableGpuBuffers, callback)
 ) : CameraEffect(
   targets,
   CameraQueues.videoQueue.executor,
@@ -48,8 +46,8 @@ class FrameProcessorEffect(
     }
     private val queue = CameraQueues.videoQueue
     private val lock = Any()
+    @GuardedBy("lock")
     private var imageTransformationInfo = ImageTransformationInfo(Matrix())
-
     @GuardedBy("lock")
     private var imageWriter: ImageWriter? = null
 
@@ -58,7 +56,8 @@ class FrameProcessorEffect(
         try {
           val image = reader.acquireLatestImage() ?: return
 
-          val frame = Frame(image, image.timestamp, imageTransformationInfo.orientation, imageTransformationInfo.isMirrored)
+          val transformation = imageTransformationInfo
+          val frame = Frame(image, image.timestamp, transformation.orientation, transformation.isMirrored)
 
           frame.incrementRefCount()
           try {
@@ -247,24 +246,26 @@ class FrameProcessorEffect(
     }
 
     class ImageTransformationInfo(matrix: Matrix) {
-      private val values: FloatArray by lazy {
-        val values = FloatArray(9)
+      val values: FloatArray by lazy {
+        val values = FloatArray(9) // 3x3 matrix
         matrix.getValues(values)
         return@lazy values
       }
       val isMirrored: Boolean
         get() {
-          // If the scale on the X axis is -1, we are mirrored.
-          val scaleX = values[Matrix.MSCALE_X]
-          return scaleX == -1.0f
+          return when {
+            values[Matrix.MSCALE_X] == -1f || values[Matrix.MSKEW_Y] == -1f -> true
+            else -> false
+          }
         }
       val orientation: Orientation
         get() {
-          val skewX = values[Matrix.MSKEW_X].toDouble()
-          val scaleX = values[Matrix.MSCALE_X].toDouble()
-          val rotationRadians = atan2(-skewX, scaleX)
-          val rotationDegrees = Math.toDegrees(rotationRadians)
-          return Orientation.fromRotationDegrees(rotationDegrees.roundToInt())
+          return when {
+            values[Matrix.MSKEW_X] == -1f && values[Matrix.MSKEW_Y] == 1f -> Orientation.LANDSCAPE_RIGHT
+            values[Matrix.MSKEW_X] == 1f && values[Matrix.MSKEW_Y] == -1f -> Orientation.LANDSCAPE_RIGHT
+            values[Matrix.MSCALE_X] == -1f && values[Matrix.MSCALE_Y] == -1f -> Orientation.PORTRAIT_UPSIDE_DOWN
+            else -> Orientation.PORTRAIT
+          }
         }
     }
   }
