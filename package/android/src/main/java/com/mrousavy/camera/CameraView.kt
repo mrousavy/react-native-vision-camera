@@ -2,7 +2,6 @@ package com.mrousavy.camera
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.hardware.camera2.CameraManager
 import android.util.Log
 import android.view.Gravity
 import android.view.ScaleGestureDetector
@@ -103,7 +102,6 @@ class CameraView(context: Context) :
   // private properties
   private var isMounted = false
   private val mainCoroutineScope = CoroutineScope(Dispatchers.Main)
-  private val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
   // session
   internal val cameraSession: CameraSession
@@ -135,7 +133,7 @@ class CameraView(context: Context) :
         }
       }
     }
-    cameraSession = CameraSession(context, cameraManager, this)
+    cameraSession = CameraSession(context, this)
   }
 
   override fun onAttachedToWindow() {

@@ -4,8 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraManager
 import android.util.Log
 import android.util.Range
 import android.util.Size
@@ -62,7 +60,7 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-class CameraSession(private val context: Context, private val cameraManager: CameraManager, private val callback: Callback) :
+class CameraSession(private val context: Context, private val callback: Callback) :
   Closeable,
   LifecycleOwner {
   companion object {
@@ -93,14 +91,6 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
 
   // Threading
   private val mainExecutor = ContextCompat.getMainExecutor(context)
-
-  val orientation: Orientation
-    get() {
-      val cameraId = configuration?.cameraId ?: return Orientation.PORTRAIT
-      val characteristics = cameraManager.getCameraCharacteristics(cameraId)
-      val sensorRotation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION) ?: 0
-      return Orientation.fromRotationDegrees(sensorRotation)
-    }
 
   init {
     lifecycleRegistry.currentState = Lifecycle.State.STARTED
