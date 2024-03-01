@@ -1,6 +1,7 @@
 package com.mrousavy.camera.core
 
 import android.annotation.SuppressLint
+import android.graphics.Matrix
 import android.hardware.HardwareBuffer
 import android.media.ImageReader
 import android.media.ImageReader.OnImageAvailableListener
@@ -8,6 +9,7 @@ import android.media.ImageWriter
 import android.os.Build
 import android.util.Log
 import androidx.annotation.ChecksSdkIntAtLeast
+import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraEffect
 import androidx.camera.core.SurfaceOutput
@@ -17,7 +19,8 @@ import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.PixelFormat
 import com.mrousavy.camera.utils.ImageFormatUtils
-import java.io.Closeable
+import kotlin.math.atan2
+import kotlin.math.roundToInt
 
 @SuppressLint("RestrictedApi")
 class FrameProcessorEffect(
@@ -31,36 +34,31 @@ class FrameProcessorEffect(
   CameraQueues.videoQueue.executor,
   processor,
   { error -> callback.onError(error) }
-),
-  Closeable {
-
-  override fun close() {
-    processor.close()
-  }
+) {
 
   class FrameProcessorSurfaceProcessor(
     private val format: PixelFormat,
     private val enableGpuBuffers: Boolean,
     private val callback: CameraSession.Callback
   ) : SurfaceProcessor,
-    OnImageAvailableListener,
-    Closeable {
+    OnImageAvailableListener {
     companion object {
       private const val TAG = "FrameProcessorEffect"
       private const val MAX_IMAGES = 3
     }
-    private var imageReader: ImageReader? = null
-    private var imageWriter: ImageWriter? = null
     private val queue = CameraQueues.videoQueue
+    private val lock = Any()
+    private var imageTransformationInfo = ImageTransformationInfo(Matrix())
+
+    @GuardedBy("lock")
+    private var imageWriter: ImageWriter? = null
 
     override fun onImageAvailable(reader: ImageReader) {
-      synchronized(this) {
+      synchronized(lock) {
         try {
           val image = reader.acquireLatestImage() ?: return
 
-          val orientation = Orientation.PORTRAIT // TODO: orientation
-          val isMirrored = false // TODO: isMirrored
-          val frame = Frame(image, image.timestamp, orientation, isMirrored)
+          val frame = Frame(image, image.timestamp, imageTransformationInfo.orientation, imageTransformationInfo.isMirrored)
 
           frame.incrementRefCount()
           try {
@@ -84,95 +82,83 @@ class FrameProcessorEffect(
     }
 
     override fun onInputSurface(request: SurfaceRequest) {
-      synchronized(this) {
-        val requestedSize = request.resolution
-        val requestedFormat = request.deferrableSurface.prescribedStreamFormat
-        Log.i(TAG, "Requested new input surface: $requestedSize in format ${ImageFormatUtils.imageFormatToString(requestedFormat)}")
+      val requestedSize = request.resolution
+      val requestedFormat = request.deferrableSurface.prescribedStreamFormat
+      Log.i(TAG, "Requested new input surface: $requestedSize in format ${ImageFormatUtils.imageFormatToString(requestedFormat)}")
 
-        // The actual format we use might be different than the format of the output Surface (e.g. SurfaceView/MediaRecorder),
-        // because the user might want YUV images while the output Surface is PRIVATE.
-        // Since Android Q, ImageWriters can convert between such formats, so if that is possible, we will use a custom format,
-        // otherwise we will need to fall back to the default format.
-        var actualFormat = format.toImageFormat()
-        if (!isImageWriterCustomFormatsSupported() && actualFormat != requestedFormat) {
-          Log.w(
-            TAG,
-            "Trying to use format ${ImageFormatUtils.imageFormatToString(actualFormat)}, but output " +
-              "surface is ${ImageFormatUtils.imageFormatToString(requestedFormat)} " +
-              "and ImageWriters with custom formats are not available. " +
-              "Falling back to using format ${ImageFormatUtils.imageFormatToString(requestedFormat)}..."
-          )
-          actualFormat = requestedFormat
-        }
-        Log.i(
+      // The actual format we use might be different than the format of the output Surface (e.g. SurfaceView/MediaRecorder),
+      // because the user might want YUV images while the output Surface is PRIVATE.
+      // Since Android Q, ImageWriters can convert between such formats, so if that is possible, we will use a custom format,
+      // otherwise we will need to fall back to the default format.
+      var actualFormat = format.toImageFormat()
+      if (!isImageWriterCustomFormatsSupported() && actualFormat != requestedFormat) {
+        Log.w(
           TAG,
-          "Creating ImageReader (${ImageFormatUtils.imageFormatToString(actualFormat)}) -> " +
-            "ImageWriter (${ImageFormatUtils.imageFormatToString(requestedFormat)}) pipeline..."
+          "Trying to use format ${ImageFormatUtils.imageFormatToString(actualFormat)}, but output " +
+            "surface is ${ImageFormatUtils.imageFormatToString(requestedFormat)} " +
+            "and ImageWriters with custom formats are not available. " +
+            "Falling back to using format ${ImageFormatUtils.imageFormatToString(requestedFormat)}..."
         )
+        actualFormat = requestedFormat
+      }
+      Log.i(
+        TAG,
+        "Creating ImageReader (${ImageFormatUtils.imageFormatToString(actualFormat)}) -> " +
+          "ImageWriter (${ImageFormatUtils.imageFormatToString(requestedFormat)}) pipeline..."
+      )
 
-        val currentImageReader = imageReader
-        if (currentImageReader != null &&
-          currentImageReader.width == requestedSize.width &&
-          currentImageReader.height == requestedSize.height &&
-          currentImageReader.imageFormat == actualFormat
-        ) {
-          Log.i(TAG, "Current ImageReader matches those requirements, attempting to re-use it...")
-          request.provideSurface(currentImageReader.surface, queue.executor) { result ->
-            onImageReaderSurfaceClosed(currentImageReader, result.resultCode)
-          }
-        }
+      val imageReader = if (enableGpuBuffers && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        // Use GPU buffer flags for ImageReader for faster forwarding
+        val flags = getRecommendedHardwareBufferFlags(requestedSize.width, requestedSize.height)
+        Log.i(TAG, "Creating ImageReader with new GPU-Buffers API... (Usage Flags: $flags)")
+        ImageReader.newInstance(requestedSize.width, requestedSize.height, actualFormat, MAX_IMAGES, flags)
+      } else {
+        // Use default CPU flags for ImageReader
+        Log.i(TAG, "Creating ImageReader with default CPU usage flag...")
+        ImageReader.newInstance(requestedSize.width, requestedSize.height, actualFormat, MAX_IMAGES)
+      }
 
-        val imageReader = if (enableGpuBuffers && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-          // Use GPU buffer flags for ImageReader for faster forwarding
-          val flags = getRecommendedHardwareBufferFlags(requestedSize.width, requestedSize.height)
-          Log.i(TAG, "Creating ImageReader with new GPU-Buffers API... (Usage Flags: $flags)")
-          ImageReader.newInstance(requestedSize.width, requestedSize.height, actualFormat, MAX_IMAGES, flags)
-        } else {
-          // Use default CPU flags for ImageReader
-          Log.i(TAG, "Creating ImageReader with default CPU usage flag...")
-          ImageReader.newInstance(requestedSize.width, requestedSize.height, actualFormat, MAX_IMAGES)
-        }
+      imageReader.setOnImageAvailableListener(this, CameraQueues.videoQueue.handler)
 
-        imageReader.setOnImageAvailableListener(this, CameraQueues.videoQueue.handler)
-
-        request.provideSurface(imageReader.surface, queue.executor) { result ->
-          onImageReaderSurfaceClosed(imageReader, result.resultCode)
-        }
-        this.imageReader = imageReader
+      request.provideSurface(imageReader.surface, queue.executor) { result ->
+        onImageReaderSurfaceClosed(imageReader, result.resultCode)
       }
     }
 
     override fun onOutputSurface(surfaceOutput: SurfaceOutput) {
-      synchronized(this) {
-        val requestedFormat = surfaceOutput.format
-        Log.i(TAG, "Received new output surface: ${surfaceOutput.size} in format ${ImageFormatUtils.imageFormatToString(requestedFormat)}")
+      val requestedFormat = surfaceOutput.format
+      Log.i(TAG, "Received new output surface: ${surfaceOutput.size} in format ${ImageFormatUtils.imageFormatToString(requestedFormat)}")
 
-        var imageWriter: ImageWriter? = null
-        val surface = surfaceOutput.getSurface(queue.executor) { event ->
-          onOutputSurfaceClosed(event, imageWriter)
-        }
+      var imageWriter: ImageWriter? = null
+      val surface = surfaceOutput.getSurface(queue.executor) { event ->
+        onOutputSurfaceClosed(event, imageWriter)
+      }
 
-        if (isImageWriterCustomFormatsSupported()) {
-          // Use custom target format, ImageWriter might be able to convert between the formats.
-          val customFormat = format.toImageFormat()
-          Log.i(TAG, "Creating ImageWriter with target format ${ImageFormatUtils.imageFormatToString(customFormat)}...")
-          imageWriter = ImageWriter.newInstance(surface, MAX_IMAGES, customFormat)
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-          // Use default format, ImageWriter might not be able to convert between the formats and crash....
-          Log.i(TAG, "Creating ImageWriter with default format (${ImageFormatUtils.imageFormatToString(requestedFormat)})...")
-          imageWriter = ImageWriter.newInstance(surface, MAX_IMAGES)
-        } else {
-          // ImageWriters are not available at all.
-          val error = RecordingWhileFrameProcessingUnavailable()
-          Log.e(TAG, error.message)
-          callback.onError(error)
-        }
+      if (isImageWriterCustomFormatsSupported()) {
+        // Use custom target format, ImageWriter might be able to convert between the formats.
+        val customFormat = format.toImageFormat()
+        Log.i(TAG, "Creating ImageWriter with target format ${ImageFormatUtils.imageFormatToString(customFormat)}...")
+        imageWriter = ImageWriter.newInstance(surface, MAX_IMAGES, customFormat)
+      } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        // Use default format, ImageWriter might not be able to convert between the formats and crash....
+        Log.i(TAG, "Creating ImageWriter with default format (${ImageFormatUtils.imageFormatToString(requestedFormat)})...")
+        imageWriter = ImageWriter.newInstance(surface, MAX_IMAGES)
+      } else {
+        // ImageWriters are not available at all.
+        val error = RecordingWhileFrameProcessingUnavailable()
+        Log.e(TAG, error.message)
+        callback.onError(error)
+      }
+
+      synchronized(lock) {
         this.imageWriter = imageWriter
+        val transformMatrix = surfaceOutput.sensorToBufferTransform
+        this.imageTransformationInfo = ImageTransformationInfo(transformMatrix)
       }
     }
 
     private fun onImageReaderSurfaceClosed(imageReader: ImageReader, resultCode: Int) {
-      synchronized(this) {
+      synchronized(lock) {
         when (resultCode) {
           SurfaceRequest.Result.RESULT_SURFACE_USED_SUCCESSFULLY -> Log.i(TAG, "Camera is done using $imageReader!")
           SurfaceRequest.Result.RESULT_INVALID_SURFACE -> Log.e(TAG, "Camera could not use $imageReader - invalid Surface!")
@@ -183,35 +169,19 @@ class FrameProcessorEffect(
         }
         Log.i(TAG, "Closing ImageReader $imageReader...")
         imageReader.close()
-        if (this.imageReader == imageReader) {
-          this.imageReader = null
-        }
       }
     }
 
     private fun onOutputSurfaceClosed(event: SurfaceOutput.Event, imageWriter: ImageWriter?) {
-      synchronized(this) {
+      synchronized(lock) {
         Log.i(TAG, "Output Surface has been closed! Code: ${event.eventCode}")
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
           Log.i(TAG, "Closing ImageWriter $imageWriter...")
           imageWriter?.close()
-          if (this.imageWriter == imageWriter) {
-            this.imageWriter = null
-          }
         }
 
         event.surfaceOutput.close()
-      }
-    }
-
-    override fun close() {
-      synchronized(this) {
-        Log.i(TAG, "Closing FrameProcessorEffect...")
-        imageReader?.close()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-          imageWriter?.close()
-        }
       }
     }
 
@@ -271,6 +241,28 @@ class FrameProcessorEffect(
       } catch (_: Throwable) {
         return false
       }
+    }
+
+    class ImageTransformationInfo(matrix: Matrix) {
+      private val values: FloatArray by lazy {
+        val values = FloatArray(9)
+        matrix.getValues(values)
+        return@lazy values
+      }
+      val isMirrored: Boolean
+        get() {
+          // If the scale on the X axis is -1, we are mirrored.
+          val scaleX = values[Matrix.MSCALE_X]
+          return scaleX == -1.0f
+        }
+      val orientation: Orientation
+        get() {
+          val skewX = values[Matrix.MSKEW_X].toDouble()
+          val scaleX = values[Matrix.MSCALE_X].toDouble()
+          val rotationRadians = atan2(-skewX, scaleX)
+          val rotationDegrees = Math.toDegrees(rotationRadians)
+          return Orientation.fromRotationDegrees(rotationDegrees.roundToInt())
+        }
     }
   }
 }
