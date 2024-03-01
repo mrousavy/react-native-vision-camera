@@ -3,7 +3,6 @@ package com.mrousavy.camera.core
 import android.annotation.SuppressLint
 import android.hardware.HardwareBuffer
 import android.media.ImageReader
-import android.media.ImageReader.OnImageAvailableListener
 import android.media.ImageWriter
 import android.os.Build
 import android.util.Log
@@ -38,51 +37,16 @@ class FrameProcessorEffect(
     private val format: PixelFormat,
     private val enableGpuBuffers: Boolean,
     private val callback: CameraSession.Callback
-  ) : SurfaceProcessor,
-    OnImageAvailableListener {
+  ) : SurfaceProcessor {
     companion object {
       private const val TAG = "FrameProcessorEffect"
       private const val MAX_IMAGES = 3
-
-      data class ImageTransformationInfo(val orientation: Orientation, val isMirrored: Boolean)
     }
     private val queue = CameraQueues.videoQueue
     private val lock = Any()
 
     @GuardedBy("lock")
-    private var imageTransformationInfo = ImageTransformationInfo(Orientation.PORTRAIT, false)
-
-    @GuardedBy("lock")
     private var imageWriter: ImageWriter? = null
-
-    override fun onImageAvailable(reader: ImageReader) {
-      synchronized(lock) {
-        try {
-          val image = reader.acquireLatestImage() ?: return
-
-          val transformation = imageTransformationInfo
-          val frame = Frame(image, image.timestamp, transformation.orientation, transformation.isMirrored)
-
-          frame.incrementRefCount()
-          try {
-            callback.onFrame(frame)
-
-            val imageWriter = imageWriter
-            if (imageWriter != null) {
-              Log.i(TAG, "Forwarding to ImageWriter...")
-              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                imageWriter.queueInputImage(image)
-              }
-            }
-          } finally {
-            frame.decrementRefCount()
-          }
-        } catch (e: Throwable) {
-          Log.e(TAG, "Failed to process image! ${e.message}", e)
-          callback.onError(e)
-        }
-      }
-    }
 
     override fun onInputSurface(request: SurfaceRequest) {
       val requestedSize = request.resolution
@@ -121,16 +85,40 @@ class FrameProcessorEffect(
         ImageReader.newInstance(requestedSize.width, requestedSize.height, actualFormat, MAX_IMAGES)
       }
 
-      imageReader.setOnImageAvailableListener(this, CameraQueues.videoQueue.handler)
+      val cameraInfo = request.camera.cameraInfo
+      val orientation = Orientation.fromRotationDegrees(cameraInfo.sensorRotationDegrees)
+      val isMirrored = cameraInfo.lensFacing == CameraSelector.LENS_FACING_FRONT
 
-      synchronized(lock) {
-        val cameraInfo = request.camera.cameraInfo
-        val orientation = Orientation.fromRotationDegrees(cameraInfo.sensorRotationDegrees)
-        val isMirrored = cameraInfo.lensFacing == CameraSelector.LENS_FACING_FRONT
-        imageTransformationInfo = ImageTransformationInfo(orientation, isMirrored)
-        request.provideSurface(imageReader.surface, queue.executor) { result ->
-          onImageReaderSurfaceClosed(imageReader, result.resultCode)
+      imageReader.setOnImageAvailableListener({ reader ->
+        synchronized(lock) {
+          try {
+            val image = reader.acquireLatestImage() ?: return@setOnImageAvailableListener
+
+            val frame = Frame(image, image.timestamp, orientation, isMirrored)
+
+            frame.incrementRefCount()
+            try {
+              callback.onFrame(frame)
+
+              val imageWriter = imageWriter
+              if (imageWriter != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                  imageWriter.queueInputImage(image)
+                }
+              }
+            } finally {
+              frame.decrementRefCount()
+            }
+          } catch (e: Throwable) {
+            Log.e(TAG, "Failed to process image! ${e.message}", e)
+            callback.onError(e)
+          }
         }
+      }, CameraQueues.videoQueue.handler)
+
+      // Submit the Surface to CameraX which will start streaming
+      request.provideSurface(imageReader.surface, queue.executor) { result ->
+        onImageReaderSurfaceClosed(imageReader, result.resultCode)
       }
     }
 
