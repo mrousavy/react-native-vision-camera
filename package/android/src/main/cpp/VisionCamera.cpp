@@ -1,4 +1,5 @@
 #include "JFrameProcessor.h"
+#include "skia/JSkiaFrameProcessor.h"
 #include "JSharedArray.h"
 #include "JVisionCameraProxy.h"
 #include "JVisionCameraScheduler.h"
@@ -14,6 +15,9 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*) {
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
     vision::JFrameProcessor::registerNatives();
     vision::JSharedArray::registerNatives();
+#if VISION_CAMERA_ENABLE_SKIA
+    vision::JSkiaFrameProcessor::registerNatives();
+#endif
 #endif
   });
 }
