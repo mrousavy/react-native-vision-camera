@@ -15,6 +15,12 @@ namespace vision {
 
 using namespace facebook;
 
+void JSkiaFrameProcessor::registerNatives() {
+    registerHybrid({
+       makeNativeMethod("call", JSkiaFrameProcessor::call)
+    });
+}
+
 jni::local_ref<JSkiaFrameProcessor::javaobject> JSkiaFrameProcessor::create(const std::shared_ptr<RNWorklet::JsiWorklet>& worklet,
                                                                             const std::shared_ptr<RNWorklet::JsiWorkletContext>& context,
                                                                             const std::shared_ptr<react::CallInvoker>& callInvoker) {

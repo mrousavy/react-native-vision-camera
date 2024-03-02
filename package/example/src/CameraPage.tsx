@@ -174,6 +174,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet'
 
+    frame.render()
     console.log(`${frame.timestamp}: ${frame.width}x${frame.height} ${frame.pixelFormat} Frame (${frame.orientation})`)
     examplePlugin(frame)
     exampleKotlinSwiftPlugin(frame)
