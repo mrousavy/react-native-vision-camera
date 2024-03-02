@@ -88,6 +88,7 @@ if (ENABLE_FRAME_PROCESSORS)
 
     message("VisionCamera: Skia: ${ENABLE_SKIA}")
     if (ENABLE_SKIA)
+        # 1. Link react-native-skia
         message("VisionCamera: Linking react-native-skia...")
         find_package(shopify_react-native-skia REQUIRED CONFIG)
         target_link_libraries(
@@ -95,8 +96,18 @@ if (ENABLE_FRAME_PROCESSORS)
                 shopify_react-native-skia::rnskia
         )
 
-        get_target_property(RNSKIA_INCLUDE_DIR shopify_react-native-skia::rnskia INTERFACE_INCLUDE_DIRECTORIES)
-        message("VisionCamera: react-native-skia include directory: ${RNSKIA_INCLUDE_DIR}")
-        include_directories("${RNSKIA_INCLUDE_DIR}/react-native-skia")
+        # 2. Add react-native-skia to path so it itself can find it's relative imports
+        get_target_property(RN_SKIA_INCLUDE_DIR shopify_react-native-skia::rnskia INTERFACE_INCLUDE_DIRECTORIES)
+        message("VisionCamera: react-native-skia include directory: ${RN_SKIA_INCLUDE_DIR}")
+        include_directories("${RN_SKIA_INCLUDE_DIR}/react-native-skia")
+
+        # 3. Link skia itself
+        set(RN_SKIA_DIR "${NODE_MODULES_DIR}/@shopify/react-native-skia")
+        message("VisionCamera: react-native-skia directory: ${RN_SKIA_DIR}")
+        file(GLOB skiaLibraries "${RN_SKIA_DIR}/libs/android/${ANDROID_ABI}/*.a")
+        foreach(skiaLibrary ${skiaLibraries})
+            message("VisionCamera: Linking ${skiaLibrary}...")
+            target_link_libraries(${PACKAGE_NAME} "${skiaLibrary}")
+        endforeach()
     endif()
 endif()
