@@ -22,6 +22,8 @@
 #include <react-native-worklets-core/WKTJsiWorkletContext.h>
 #endif
 
+#include <react-native-skia/RNSkAndroidView.h>
+
 namespace vision {
 
 using namespace facebook;

@@ -23,6 +23,9 @@ endif()
 
 if (ENABLE_SKIA)
     add_definitions(-DVISION_CAMERA_ENABLE_SKIA=true)
+    add_definitions(-DSK_GL)
+    add_definitions(-DSK_GANESH)
+    add_definitions(-DSK_BUILD_FOR_ANDROID)
 else()
     add_definitions(-DVISION_CAMERA_ENABLE_SKIA=false)
 endif()
@@ -91,5 +94,9 @@ if (ENABLE_FRAME_PROCESSORS)
                 ${PACKAGE_NAME}
                 shopify_react-native-skia::rnskia
         )
+
+        get_target_property(RNSKIA_INCLUDE_DIR shopify_react-native-skia::rnskia INTERFACE_INCLUDE_DIRECTORIES)
+        message("VisionCamera: react-native-skia include directory: ${RNSKIA_INCLUDE_DIR}")
+        include_directories("${RNSKIA_INCLUDE_DIR}/react-native-skia")
     endif()
 endif()
