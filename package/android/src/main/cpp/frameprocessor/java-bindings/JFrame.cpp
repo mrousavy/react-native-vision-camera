@@ -61,13 +61,15 @@ int JFrame::getBytesPerRow() const {
   return getBytesPerRowMethod(self());
 }
 
-#if __ANDROID_API__ >= 26
 AHardwareBuffer* JFrame::getHardwareBuffer() const {
   static const auto getHardwareBufferMethod = getClass()->getMethod<jobject()>("getHardwareBufferBoxed");
   auto hardwareBuffer = getHardwareBufferMethod(self());
+#if __ANDROID_API__ >= 26
   return AHardwareBuffer_fromHardwareBuffer(jni::Environment::current(), hardwareBuffer.get());
-}
+#else
+  throw std::runtime_error("HardwareBuffers require API 26 or newer! (minSdk: >= 26)");
 #endif
+}
 
 void JFrame::incrementRefCount() {
   static const auto incrementRefCountMethod = getClass()->getMethod<void()>("incrementRefCount");

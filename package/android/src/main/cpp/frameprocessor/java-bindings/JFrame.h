@@ -29,9 +29,7 @@ public:
   jlong getTimestamp() const;
   local_ref<JOrientation> getOrientation() const;
   local_ref<JPixelFormat> getPixelFormat() const;
-#if __ANDROID_API__ >= 26
   AHardwareBuffer* getHardwareBuffer() const;
-#endif
 
   void incrementRefCount();
   void decrementRefCount();
