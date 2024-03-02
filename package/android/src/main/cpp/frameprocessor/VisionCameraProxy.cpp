@@ -22,7 +22,7 @@
 #include <react-native-worklets-core/WKTJsiWorkletContext.h>
 #endif
 
-#include <react-native-skia/RNSkAndroidView.h>
+#include <SkiaOpenGLSurfaceFactory.h>
 
 namespace vision {
 
@@ -48,6 +48,7 @@ std::vector<jsi::PropNameID> VisionCameraProxy::getPropertyNames(jsi::Runtime& r
 }
 
 void VisionCameraProxy::setFrameProcessor(int viewTag, jsi::Runtime& runtime, const jsi::Object& object) {
+    auto surface = RNSkia::SkiaOpenGLSurfaceFactory::makeOffscreenSurface(150, 150);
   _javaProxy->cthis()->setFrameProcessor(viewTag, runtime, object);
 }
 
