@@ -51,6 +51,10 @@ add_library(
         src/main/cpp/frameprocessor/java-bindings/JFrameProcessorPlugin.cpp
         src/main/cpp/frameprocessor/java-bindings/JVisionCameraProxy.cpp
         src/main/cpp/frameprocessor/java-bindings/JVisionCameraScheduler.cpp
+        # Skia Frame Processor
+        src/main/cpp/frameprocessor/java-bindings/skia/JSkiaFrameProcessor.cpp
+        src/main/cpp/frameprocessor/java-bindings/skia/DrawableFrameHostObject.cpp
+        src/main/cpp/frameprocessor/java-bindings/skia/VisionCameraSkiaContext.cpp
 )
 
 # Header Search Paths (includes)

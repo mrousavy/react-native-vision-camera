@@ -11,7 +11,7 @@ import com.facebook.proguard.annotations.DoNotStrip;
  * Represents a JS Frame Processor
  * @noinspection JavaJniMissingFunction
  */
-public final class FrameProcessor {
+public class FrameProcessor {
     /**
      * Call the JS Frame Processor function with the given Frame
      */

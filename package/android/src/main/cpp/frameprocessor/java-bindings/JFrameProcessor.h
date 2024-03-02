@@ -34,11 +34,11 @@ public:
    */
   void call(alias_ref<JFrame::javaobject> frame);
 
-private:
+protected:
   // Private constructor. Use `create(..)` to create new instances.
   explicit JFrameProcessor(std::shared_ptr<RNWorklet::JsiWorklet> worklet, std::shared_ptr<RNWorklet::JsiWorkletContext> context);
 
-private:
+protected:
   void callWithFrameHostObject(const std::shared_ptr<FrameHostObject>& frameHostObject) const;
 
 private:
