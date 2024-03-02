@@ -177,7 +177,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log(`${frame.timestamp}: ${frame.width}x${frame.height} ${frame.pixelFormat} Frame (${frame.orientation})`)
     examplePlugin(frame)
     exampleKotlinSwiftPlugin(frame)
-  }, [])
+  })
 
   return (
     <View style={styles.container}>

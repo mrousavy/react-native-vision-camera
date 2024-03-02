@@ -1,5 +1,24 @@
 import type { Orientation } from './Orientation'
 import { PixelFormat } from './PixelFormat'
+import type { SkCanvas, SkPaint } from '@shopify/react-native-skia'
+
+/** @internal */
+export interface FrameInternal {
+  /**
+   * Increment the Frame Buffer ref-count by one.
+   *
+   * This is a private API, do not use this.
+   * @internal
+   */
+  incrementRefCount(): void
+  /**
+   * Increment the Frame Buffer ref-count by one.
+   *
+   * This is a private API, do not use this.
+   * @internal
+   */
+  decrementRefCount(): void
+}
 
 /**
  * A single frame, as seen by the camera. This is backed by a C++ HostObject wrapping the native GPU buffer.
@@ -10,10 +29,12 @@ import { PixelFormat } from './PixelFormat'
  * const frameProcessor = useFrameProcessor((frame) => {
  *   'worklet'
  *   console.log(`Frame: ${frame.width}x${frame.height} (${frame.pixelFormat})`)
- * }, [])
+ * })
  * ```
  */
-export interface Frame {
+export interface Frame extends FrameInternal {
+  incrementRefCount: never
+  decrementRefCount: never
   /**
    * Whether the underlying buffer is still valid or not.
    * A Frame is valid as long as your Frame Processor (or a `runAsync(..)` operation) is still running
@@ -73,7 +94,7 @@ export interface Frame {
    *     const data = new Uint8Array(buffer)
    *     console.log(`Pixel at 0,0: RGB(${data[0]}, ${data[1]}, ${data[2]})`)
    *   }
-   * }, [])
+   * })
    * ```
    */
   toArrayBuffer(): ArrayBuffer
@@ -87,20 +108,32 @@ export interface Frame {
   toString(): string
 }
 
-/** @internal */
-export interface FrameInternal extends Frame {
+/**
+ * A single Frame, as seen by the Camera, with a Skia Canvas backed to it to allow for custom
+ * drawing operations on the Frame.
+ *
+ * All drawing operations will be rendered to the output surface, which is one of the following:
+ * - A preview (Frame will be rendered on screen)
+ * - A video recording (Frame will be rendered to a .mp4/.mov file when recording)
+ * - A photo (Frame will be rendered once to a .jpg photo)
+ *
+ * @example
+ * ```ts
+ * const invertColorsShader = ...
+ * const paint = SkiaApi.Paint()
+ * paint.setShader(invertColorsShader)
+ * const frameProcessor = useSkiaFrameProcessor((frame) => {
+ *   'worklet'
+ *    // inverts colors for the Camera
+ *   frame.render(paint)
+ * })
+ * ```
+ */
+export interface DrawableFrame extends Frame, SkCanvas {
   /**
-   * Increment the Frame Buffer ref-count by one.
-   *
-   * This is a private API, do not use this.
-   * @internal
+   * Renders this Frame to the attached output surface.
+   * In a Skia Frame Processor, this needs to be called at least once.
+   * @param paint A custom Paint object to
    */
-  incrementRefCount(): void
-  /**
-   * Increment the Frame Buffer ref-count by one.
-   *
-   * This is a private API, do not use this.
-   * @internal
-   */
-  decrementRefCount(): void
+  render(paint?: SkPaint): void
 }

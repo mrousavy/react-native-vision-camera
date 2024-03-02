@@ -1,7 +1,8 @@
-import { DependencyList, useMemo } from 'react'
+import { useMemo } from 'react'
 import type { Frame, FrameInternal } from '../Frame'
 import { FrameProcessor } from '../CameraProps'
 import { VisionCameraProxy } from '../FrameProcessorPlugins'
+import { useSharedValue } from 'react-native-worklets-core'
 
 /**
  * Create a new Frame Processor function which you can pass to the `<Camera>`.
@@ -40,7 +41,6 @@ export function createFrameProcessor(frameProcessor: FrameProcessor['frameProces
  * Make sure to add the `'worklet'` directive to the top of the Frame Processor function, otherwise it will not get compiled into a worklet.
  *
  * @param frameProcessor The Frame Processor
- * @param dependencies The React dependencies which will be copied into the VisionCamera JS-Runtime.
  * @returns The memoized Frame Processor.
  * @example
  * ```ts
@@ -48,10 +48,19 @@ export function createFrameProcessor(frameProcessor: FrameProcessor['frameProces
  *   'worklet'
  *   const faces = scanFaces(frame)
  *   console.log(`Faces: ${faces}`)
- * }, [])
+ * })
  * ```
  */
-export function useFrameProcessor(frameProcessor: (frame: Frame) => void, dependencies: DependencyList): FrameProcessor {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(() => createFrameProcessor(frameProcessor, 'frame-processor'), dependencies)
+export function useFrameProcessor(frameProcessor: (frame: Frame) => void): FrameProcessor {
+  const callback = useSharedValue(frameProcessor)
+  callback.value = frameProcessor
+
+  return useMemo(
+    () =>
+      createFrameProcessor((frame) => {
+        'worklet'
+        callback.value(frame)
+      }, 'frame-processor'),
+    [callback],
+  )
 }
