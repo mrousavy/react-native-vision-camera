@@ -12,6 +12,22 @@ void DrawableFrameHostObject::setCanvas(std::shared_ptr<RNSkia::JsiSkCanvas> ski
     _skiaCanvas = skiaCanvas;
 }
 
+std::vector<jsi::PropNameID> DrawableFrameHostObject::getPropertyNames(jsi::Runtime& runtime) {
+    // 1. prop names from Frame
+    auto frameProps = FrameHostObject::getPropertyNames(runtime);
+    // 2. prop names from Canvas
+    if (_skiaCanvas != nullptr) {
+        auto canvasProps = _skiaCanvas->getPropertyNames(runtime);
+        frameProps.insert(frameProps.end(),
+                          std::make_move_iterator(canvasProps.begin()),
+                          std::make_move_iterator(canvasProps.end()));
+    }
+    // 3. render() function
+    frameProps.push_back(jsi::PropNameID::forUtf8(runtime, "render"));
+
+    return frameProps;
+}
+
 jsi::Value DrawableFrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNameID& propNameId) {
     // Get value from super (FrameHostObject)
     auto frameValue = FrameHostObject::get(runtime, propNameId);
@@ -67,6 +83,8 @@ jsi::Value DrawableFrameHostObject::get(jsi::Runtime& runtime, const jsi::PropNa
                                                      1,
                                                      render);
     }
+
+    return jsi::Value::undefined();
 }
 
 

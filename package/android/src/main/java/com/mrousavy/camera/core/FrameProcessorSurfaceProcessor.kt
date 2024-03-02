@@ -6,6 +6,7 @@ import android.media.ImageReader
 import android.media.ImageWriter
 import android.os.Build
 import android.util.Log
+import android.view.Surface
 import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
@@ -32,7 +33,7 @@ class FrameProcessorSurfaceProcessor(
     private val lock = Any()
 
     @GuardedBy("lock")
-    private var imageWriter: ImageWriter? = null
+    private var outputSurface: Surface? = null
 
     override fun onInputSurface(request: SurfaceRequest) {
       val requestedFormat = request.deferrableSurface.prescribedStreamFormat
@@ -84,14 +85,8 @@ class FrameProcessorSurfaceProcessor(
 
             frame.incrementRefCount()
             try {
-              callback.onFrame(frame)
-
-              val imageWriter = imageWriter
-              if (imageWriter != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                  imageWriter.queueInputImage(image)
-                }
-              }
+              if (outputSurface != null)
+              callback.onFrame(frame, outputSurface!!)
             } finally {
               frame.decrementRefCount()
             }
@@ -112,29 +107,12 @@ class FrameProcessorSurfaceProcessor(
       val requestedFormat = surfaceOutput.format
       Log.i(TAG, "Received new output surface: ${surfaceOutput.size} in format ${ImageFormatUtils.imageFormatToString(requestedFormat)}")
 
-      var imageWriter: ImageWriter? = null
       val surface = surfaceOutput.getSurface(queue.executor) { event ->
-        onOutputSurfaceClosed(event, imageWriter)
-      }
-
-      if (isImageWriterCustomFormatsSupported()) {
-        // Use custom target format, ImageWriter might be able to convert between the formats.
-        val customFormat = format.toImageFormat()
-        Log.i(TAG, "Creating ImageWriter with target format ${ImageFormatUtils.imageFormatToString(customFormat)}...")
-        imageWriter = ImageWriter.newInstance(surface, MAX_IMAGES, customFormat)
-      } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        // Use default format, ImageWriter might not be able to convert between the formats and crash....
-        Log.i(TAG, "Creating ImageWriter with default format (${ImageFormatUtils.imageFormatToString(requestedFormat)})...")
-        imageWriter = ImageWriter.newInstance(surface, MAX_IMAGES)
-      } else {
-        // ImageWriters are not available at all.
-        val error = RecordingWhileFrameProcessingUnavailable()
-        Log.e(TAG, error.message)
-        callback.onError(error)
+        onOutputSurfaceClosed(event)
       }
 
       synchronized(lock) {
-        this.imageWriter = imageWriter
+        this.outputSurface = surface
       }
     }
 
@@ -153,17 +131,9 @@ class FrameProcessorSurfaceProcessor(
       }
     }
 
-    private fun onOutputSurfaceClosed(event: SurfaceOutput.Event, imageWriter: ImageWriter?) {
+    private fun onOutputSurfaceClosed(event: SurfaceOutput.Event) {
       synchronized(lock) {
         Log.i(TAG, "Output Surface has been closed! Code: ${event.eventCode}")
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-          Log.i(TAG, "Closing ImageWriter $imageWriter...")
-          imageWriter?.close()
-          if (this.imageWriter == imageWriter) {
-            this.imageWriter = null
-          }
-        }
 
         event.surfaceOutput.close()
       }

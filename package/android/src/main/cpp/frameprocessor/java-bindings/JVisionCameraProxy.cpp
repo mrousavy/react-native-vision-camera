@@ -11,6 +11,7 @@
 #include <jsi/jsi.h>
 
 #include "FrameProcessorPluginHostObject.h"
+#include "frameprocessor/java-bindings/skia/JSkiaFrameProcessor.h"
 
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
 #include <react-native-worklets-core/WKTJsiWorklet.h>
@@ -29,6 +30,7 @@ JVisionCameraProxy::JVisionCameraProxy(const jni::alias_ref<JVisionCameraProxy::
                                        const jni::global_ref<JVisionCameraScheduler::javaobject>& scheduler) {
   _javaPart = make_global(javaThis);
   _runtime = runtime;
+  _callInvoker = callInvoker;
 
 #if VISION_CAMERA_ENABLE_FRAME_PROCESSORS
   __android_log_write(ANDROID_LOG_INFO, TAG, "Creating Worklet Context...");
@@ -59,9 +61,9 @@ void JVisionCameraProxy::setFrameProcessor(int viewTag, jsi::Runtime& runtime, c
   auto frameProcessorType = frameProcessorObject.getProperty(runtime, "type").asString(runtime).utf8(runtime);
   auto worklet = std::make_shared<RNWorklet::JsiWorklet>(runtime, frameProcessorObject.getProperty(runtime, "frameProcessor"));
 
-  jni::local_ref<JFrameProcessor::javaobject> frameProcessor;
+  jni::local_ref<JSkiaFrameProcessor::javaobject> frameProcessor;
   if (frameProcessorType == "frame-processor") {
-    frameProcessor = JFrameProcessor::create(worklet, _workletContext);
+    frameProcessor = JSkiaFrameProcessor::create(worklet, _workletContext, _callInvoker);
   } else {
     throw std::runtime_error("Unknown FrameProcessor.type passed! Received: " + frameProcessorType);
   }

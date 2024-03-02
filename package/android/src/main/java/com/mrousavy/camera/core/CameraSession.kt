@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.util.Log
 import android.util.Range
 import android.util.Size
+import android.view.Surface
 import androidx.annotation.MainThread
 import androidx.annotation.OptIn
 import androidx.camera.core.Camera
@@ -533,7 +534,7 @@ class CameraSession(private val context: Context, private val callback: Callback
 
   interface Callback {
     fun onError(error: Throwable)
-    fun onFrame(frame: Frame)
+    fun onFrame(frame: Frame, outputSurface: Surface)
     fun onInitialized()
     fun onStarted()
     fun onStopped()

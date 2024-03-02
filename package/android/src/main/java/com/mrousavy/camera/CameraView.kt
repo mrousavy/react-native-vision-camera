@@ -5,6 +5,7 @@ import android.content.Context
 import android.util.Log
 import android.view.Gravity
 import android.view.ScaleGestureDetector
+import android.view.Surface
 import android.widget.FrameLayout
 import androidx.camera.core.Preview.SurfaceProvider
 import androidx.camera.view.PreviewView
@@ -15,6 +16,7 @@ import com.mrousavy.camera.core.CodeScannerFrame
 import com.mrousavy.camera.extensions.installHierarchyFitter
 import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.frameprocessor.FrameProcessor
+import com.mrousavy.camera.frameprocessor.skia.SkiaFrameProcessor
 import com.mrousavy.camera.types.CameraDeviceFormat
 import com.mrousavy.camera.types.CodeScannerOptions
 import com.mrousavy.camera.types.Orientation
@@ -267,8 +269,13 @@ class CameraView(context: Context) :
     }
   }
 
-  override fun onFrame(frame: Frame) {
-    frameProcessor?.call(frame)
+  override fun onFrame(frame: Frame, outputSurface: Surface) {
+    val frameProcessor = frameProcessor
+    if (frameProcessor is SkiaFrameProcessor) {
+      frameProcessor.call(frame, outputSurface)
+    } else {
+      frameProcessor?.call(frame)
+    }
 
     fpsGraph?.onTick()
   }
