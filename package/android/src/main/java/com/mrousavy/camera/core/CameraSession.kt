@@ -11,7 +11,6 @@ import androidx.annotation.MainThread
 import androidx.annotation.OptIn
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraControl
-import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
 import androidx.camera.core.DynamicRange
@@ -426,9 +425,8 @@ class CameraSession(private val context: Context, private val callback: Callback
 
     photoOutput.flashMode = flash.toFlashMode()
     photoOutput.targetRotation = outputOrientation.toDegrees()
-    val playSound = enableShutterSound || CameraInfo.mustPlayShutterSound()
 
-    val image = photoOutput.takePicture(playSound, callback, CameraQueues.cameraExecutor)
+    val image = photoOutput.takePicture(enableShutterSound, callback, CameraQueues.cameraExecutor)
     val isMirrored = camera.cameraInfo.lensFacing == CameraSelector.LENS_FACING_FRONT
     return Photo(image, isMirrored)
   }
