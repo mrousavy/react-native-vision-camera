@@ -44,6 +44,14 @@ export interface TakePhotoOptions {
    * @default true
    */
   enableShutterSound?: boolean
+  /**
+   * Whether to run the pre-capture sequence to properly lock AF, AE and AWB values.
+   * Enabling this results in greater photos, but might not work on some devices.
+   *
+   * @platform Android
+   * @default false
+   */
+  enablePrecapture?: boolean
 }
 
 /**

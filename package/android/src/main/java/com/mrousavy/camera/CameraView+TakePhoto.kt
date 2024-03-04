@@ -32,6 +32,7 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
   val flash = options["flash"] as? String ?: "off"
   val enableAutoStabilization = options["enableAutoStabilization"] == true
   val enableShutterSound = options["enableShutterSound"] as? Boolean ?: true
+  val enablePrecapture = options["enablePrecapture"] as? Boolean ?: false
 
   // TODO: Implement Red Eye Reduction
   options["enableAutoRedEyeReduction"]
@@ -44,6 +45,7 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
     flashMode,
     enableShutterSound,
     enableAutoStabilization,
+    enablePrecapture,
     orientation
   )
 
