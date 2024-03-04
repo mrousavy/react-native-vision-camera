@@ -116,6 +116,7 @@ class CameraView(context: Context) :
   init {
     this.installHierarchyFitter()
     clipToOutline = true
+    cameraSession = CameraSession(context, this)
     previewView = PreviewView(context).also {
       it.implementationMode = PreviewView.ImplementationMode.PERFORMANCE
       it.layoutParams = LayoutParams(
@@ -125,7 +126,7 @@ class CameraView(context: Context) :
       )
       addView(it)
       previewSurfaceProvider = it.surfaceProvider
-      it.previewStreamState.observeForever { state ->
+      it.previewStreamState.observe(cameraSession) { state ->
         when (state) {
           PreviewView.StreamState.STREAMING -> onStarted()
           PreviewView.StreamState.IDLE -> onStopped()
@@ -133,7 +134,6 @@ class CameraView(context: Context) :
         }
       }
     }
-    cameraSession = CameraSession(context, this)
   }
 
   override fun onAttachedToWindow() {
