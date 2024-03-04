@@ -369,6 +369,7 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
     flash: Flash,
     enableShutterSound: Boolean,
     enableAutoStabilization: Boolean,
+    enablePrecapture: Boolean,
     outputOrientation: Orientation
   ): CapturedPhoto {
     val photoOutput = photoOutput ?: throw PhotoNotEnabledError()
@@ -380,7 +381,8 @@ class CameraSession(private val context: Context, private val cameraManager: Cam
       enableAutoStabilization,
       photoOutput.enableHdr,
       outputOrientation,
-      enableShutterSound
+      enableShutterSound,
+      enablePrecapture
     )
 
     try {

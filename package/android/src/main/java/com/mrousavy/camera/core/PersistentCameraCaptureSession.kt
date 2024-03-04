@@ -145,7 +145,8 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
     enableAutoStabilization: Boolean,
     enablePhotoHdr: Boolean,
     orientation: Orientation,
-    enableShutterSound: Boolean
+    enableShutterSound: Boolean,
+    enablePrecapture: Boolean
   ): TotalCaptureResult {
     // Cancel any ongoing focus jobs
     focusJob?.cancel()
@@ -169,7 +170,8 @@ class PersistentCameraCaptureSession(private val cameraManager: CameraManager, p
       val outputs = outputs
       val repeatingOutputs = outputs.filter { it.isRepeating }
 
-      if (qualityPrioritization == QualityPrioritization.SPEED && flash == Flash.OFF) {
+      val skipPrecapture = !enablePrecapture || qualityPrioritization == QualityPrioritization.SPEED
+      if (skipPrecapture && flash == Flash.OFF) {
         // 0. We want to take a picture as fast as possible, so skip any precapture sequence and just capture one Frame.
         Log.i(TAG, "Using fast capture path without pre-capture sequence...")
         val singleRequest = photoRequest.createCaptureRequest(device, deviceDetails, outputs)
