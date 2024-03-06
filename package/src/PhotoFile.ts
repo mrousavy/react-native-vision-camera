@@ -16,13 +16,6 @@ export interface TakePhotoOptions {
    */
   enableAutoRedEyeReduction?: boolean
   /**
-   * Indicates whether still image stabilization will be enabled when capturing the photo
-   *
-   * @platform iOS
-   * @default false
-   */
-  enableAutoStabilization?: boolean
-  /**
    * Specifies whether the photo output should use content aware distortion correction on this photo request.
    * For example, the algorithm may not apply correction to faces in the center of a photo, but may apply it to faces near the photo’s edges.
    *

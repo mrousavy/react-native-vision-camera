@@ -50,7 +50,7 @@ Then, simply use the Camera's [`takePhoto(...)`](/docs/api/classes/Camera#takeph
 const photo = await camera.current.takePhoto()
 ```
 
-You can customize capture options such as [automatic red-eye reduction](/docs/api/interfaces/TakePhotoOptions#enableautoredeyereduction), [automatic image stabilization](/docs/api/interfaces/TakePhotoOptions#enableautostabilization), [enable flash](/docs/api/interfaces/TakePhotoOptions#flash), [disable the shutter sound](/docs/api/interfaces/TakePhotoOptions#enableshuttersound) and more using the [`TakePhotoOptions`](/docs/api/interfaces/TakePhotoOptions) parameter.
+You can customize capture options such as [automatic red-eye reduction](/docs/api/interfaces/TakePhotoOptions#enableautoredeyereduction), [enable flash](/docs/api/interfaces/TakePhotoOptions#flash), [disable the shutter sound](/docs/api/interfaces/TakePhotoOptions#enableshuttersound) and more using the [`TakePhotoOptions`](/docs/api/interfaces/TakePhotoOptions) parameter.
 
 This function returns a [`PhotoFile`](/docs/api/interfaces/PhotoFile) which is stored in a temporary directory and can either be displayed using `<Image>` or `<FastImage>`, uploaded to a backend, or saved to the Camera Roll using [react-native-cameraroll](https://github.com/react-native-cameraroll/react-native-cameraroll).
 

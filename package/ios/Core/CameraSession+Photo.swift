@@ -67,11 +67,6 @@ extension CameraSession {
         photoSettings.isAutoRedEyeReductionEnabled = autoRedEyeReduction
       }
 
-      // stabilization
-      if let enableAutoStabilization = options["enableAutoStabilization"] as? Bool {
-        photoSettings.isAutoStillImageStabilizationEnabled = enableAutoStabilization
-      }
-
       // distortion correction
       if #available(iOS 14.1, *), let enableAutoDistortionCorrection = options["enableAutoDistortionCorrection"] as? Bool {
         photoSettings.isAutoContentAwareDistortionCorrectionEnabled = enableAutoDistortionCorrection
