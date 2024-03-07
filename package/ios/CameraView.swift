@@ -330,11 +330,13 @@ public final class CameraView: UIView, CameraSessionDelegate {
     onStopped([:])
   }
 
-  func onCaptureShutter() {
+  func onCaptureShutter(shutterType: ShutterType) {
     guard let onShutter = onShutter else {
       return
     }
-    onShutter([:])
+    onShutter([
+      "type": shutterType.jsValue
+    ])
   }
 
   func onFrame(sampleBuffer: CMSampleBuffer) {

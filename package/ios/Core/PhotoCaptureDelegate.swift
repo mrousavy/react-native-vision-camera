@@ -33,7 +33,7 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     }
 
     // onShutter() event
-    cameraSessionDelegate?.onCaptureShutter()
+    cameraSessionDelegate?.onCaptureShutter(shutterType: .photo)
   }
 
   func photoOutput(_: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {

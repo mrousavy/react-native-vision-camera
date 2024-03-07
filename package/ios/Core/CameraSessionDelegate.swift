@@ -32,7 +32,7 @@ protocol CameraSessionDelegate: AnyObject {
   /**
    Called just before a photo or snapshot is captured.
    */
-  func onCaptureShutter()
+  func onCaptureShutter(shutterType: ShutterType)
   /**
    Called for every frame (if video or frameProcessor is enabled)
    */

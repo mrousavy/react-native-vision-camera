@@ -22,6 +22,7 @@ import com.mrousavy.camera.types.PixelFormat
 import com.mrousavy.camera.types.PreviewViewType
 import com.mrousavy.camera.types.QualityBalance
 import com.mrousavy.camera.types.ResizeMode
+import com.mrousavy.camera.types.ShutterType
 import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.VideoStabilizationMode
 import com.mrousavy.camera.utils.runOnUiThread
@@ -289,8 +290,8 @@ class CameraView(context: Context) :
     invokeOnStopped()
   }
 
-  override fun onShutter() {
-    invokeOnShutter()
+  override fun onShutter(type: ShutterType) {
+    invokeOnShutter(type)
   }
 
   override fun onCodeScanned(codes: List<Barcode>, scannerFrame: CodeScannerFrame) {

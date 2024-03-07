@@ -19,9 +19,9 @@ class CameraStoppedEvent(surfaceId: Int, viewId: Int) : Event<CameraStoppedEvent
   override fun getEventData(): WritableMap = Arguments.createMap()
 }
 
-class CameraShutterEvent(surfaceId: Int, viewId: Int) : Event<CameraShutterEvent>(surfaceId, viewId) {
+class CameraShutterEvent(surfaceId: Int, viewId: Int, private val data: WritableMap) : Event<CameraShutterEvent>(surfaceId, viewId) {
   override fun getEventName() = "cameraShutter"
-  override fun getEventData(): WritableMap = Arguments.createMap()
+  override fun getEventData() = data
 }
 
 class CameraErrorEvent(surfaceId: Int, viewId: Int, private val data: WritableMap) : Event<CameraErrorEvent>(surfaceId, viewId) {

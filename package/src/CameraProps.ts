@@ -5,9 +5,16 @@ import { CodeScanner } from './CodeScanner'
 import type { Frame } from './Frame'
 import type { Orientation } from './Orientation'
 
-export type FrameProcessor = {
+export interface FrameProcessor {
   frameProcessor: (frame: Frame) => void
   type: 'frame-processor'
+}
+
+export interface ShutterEvent {
+  /**
+   * The type of the media that was captured in this `onShutter` event.
+   */
+  type: 'photo' | 'snapshot'
 }
 
 // TODO: Use RCT_ENUM_PARSER for stuff like torch, videoStabilizationMode, and orientation
@@ -304,7 +311,7 @@ export interface CameraProps extends ViewProps {
    *
    * Inside this callback you can play a custom shutter sound or show visual feedback to the user.
    */
-  onShutter?: () => void
+  onShutter?: (event: ShutterEvent) => void
   /**
    * A worklet which will be called for every frame the Camera "sees".
    *

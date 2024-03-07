@@ -5,6 +5,7 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import com.mrousavy.camera.core.CameraSession
+import com.mrousavy.camera.types.ShutterType
 import java.util.concurrent.Executor
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -25,7 +26,7 @@ suspend inline fun ImageCapture.takePicture(enableShutterSound: Boolean, callbac
             shutterSound?.play(MediaActionSound.SHUTTER_CLICK)
           }
 
-          callback.onShutter()
+          callback.onShutter(ShutterType.PHOTO)
         }
 
         override fun onCaptureSuccess(image: ImageProxy) {

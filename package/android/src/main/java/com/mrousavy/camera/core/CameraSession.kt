@@ -49,6 +49,7 @@ import com.mrousavy.camera.frameprocessor.Frame
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.RecordVideoOptions
+import com.mrousavy.camera.types.ShutterType
 import com.mrousavy.camera.types.Torch
 import com.mrousavy.camera.types.Video
 import com.mrousavy.camera.types.VideoStabilizationMode
@@ -544,7 +545,7 @@ class CameraSession(private val context: Context, private val callback: Callback
     fun onInitialized()
     fun onStarted()
     fun onStopped()
-    fun onShutter()
+    fun onShutter(type: ShutterType)
     fun onCodeScanned(codes: List<Barcode>, scannerFrame: CodeScannerFrame)
   }
 }

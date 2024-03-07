@@ -31,7 +31,7 @@ extension CameraView {
         return
       }
 
-      self.onCaptureShutter()
+      self.onCaptureShutter(shutterType: .snapshot)
 
       guard let imageBuffer = CMSampleBufferGetImageBuffer(buffer) else {
         promise.reject(error: .capture(.imageDataAccessError))
