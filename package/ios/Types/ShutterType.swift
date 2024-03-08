@@ -20,7 +20,7 @@ enum ShutterType: String, JSUnionValue {
    A snapshot was captured on this `onShutter` event
    */
   case snapshot
-  
+
   init(jsValue: String) throws {
     if let parsed = ShutterType(rawValue: jsValue) {
       self = parsed

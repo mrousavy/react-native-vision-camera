@@ -42,6 +42,7 @@ import com.mrousavy.camera.extensions.await
 import com.mrousavy.camera.extensions.byId
 import com.mrousavy.camera.extensions.forSize
 import com.mrousavy.camera.extensions.getCameraError
+import com.mrousavy.camera.extensions.id
 import com.mrousavy.camera.extensions.takePicture
 import com.mrousavy.camera.extensions.toCameraError
 import com.mrousavy.camera.extensions.withExtension
@@ -70,8 +71,9 @@ class CameraSession(private val context: Context, private val callback: Callback
 
   // Reference
   private val instanceId = instancesCounter++
+
   @Suppress("PrivatePropertyName")
-  private val TAG = "CameraSession${instanceId}"
+  private val TAG = "CameraSession$instanceId"
 
   // Camera Configuration
   private var configuration: CameraConfiguration? = null
@@ -465,9 +467,13 @@ class CameraSession(private val context: Context, private val callback: Callback
     recording = pendingRecording.start(CameraQueues.cameraExecutor) { event ->
       when (event) {
         is VideoRecordEvent.Start -> Log.i(TAG, "Recording started!")
+
         is VideoRecordEvent.Resume -> Log.i(TAG, "Recording resumed!")
+
         is VideoRecordEvent.Pause -> Log.i(TAG, "Recording paused!")
+
         is VideoRecordEvent.Status -> Log.i(TAG, "Status update! Recorded ${event.recordingStats.numBytesRecorded} bytes.")
+
         is VideoRecordEvent.Finalize -> {
           if (isRecordingCanceled) {
             Log.i(TAG, "Recording was canceled, deleting file..")

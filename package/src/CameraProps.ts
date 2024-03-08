@@ -10,7 +10,7 @@ export interface FrameProcessor {
   type: 'frame-processor'
 }
 
-export interface ShutterEvent {
+export interface OnShutterEvent {
   /**
    * The type of the media that was captured in this `onShutter` event.
    */
@@ -311,7 +311,7 @@ export interface CameraProps extends ViewProps {
    *
    * Inside this callback you can play a custom shutter sound or show visual feedback to the user.
    */
-  onShutter?: (event: ShutterEvent) => void
+  onShutter?: (event: OnShutterEvent) => void
   /**
    * A worklet which will be called for every frame the Camera "sees".
    *

@@ -335,7 +335,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
       return
     }
     onShutter([
-      "type": shutterType.jsValue
+      "type": shutterType.jsValue,
     ])
   }
 

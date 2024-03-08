@@ -30,7 +30,9 @@ enum class PixelFormat(override val unionValue: String) : JSUnionValue {
     fun fromImageFormat(imageFormat: Int): PixelFormat =
       when (imageFormat) {
         ImageFormat.YUV_420_888 -> YUV
+
         ImageFormat.PRIVATE -> NATIVE
+
         else -> {
           Log.w(TAG, "Unknown PixelFormat! ${ImageFormatUtils.imageFormatToString(imageFormat)}")
           UNKNOWN

@@ -67,6 +67,7 @@ private suspend fun savePhotoToFile(context: Context, photo: Photo): String =
         FileUtils.writePhotoToFile(photo, file)
         return@withContext file.absolutePath
       }
+
       ImageFormat.RAW_SENSOR -> {
         // When the format is RAW we use the DngCreator utility library
         throw Error("Writing RAW photos is currently not supported!")
@@ -80,6 +81,7 @@ private suspend fun savePhotoToFile(context: Context, photo: Photo): String =
          return@withContext file.absolutePath
          */
       }
+
       else -> {
         throw Error("Failed to save Photo to file, image format is not supported! ${photo.image.format}")
       }

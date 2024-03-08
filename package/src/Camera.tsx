@@ -3,7 +3,7 @@ import { requireNativeComponent, NativeSyntheticEvent, findNodeHandle, NativeMet
 import type { CameraDevice } from './CameraDevice'
 import type { ErrorWithCause } from './CameraError'
 import { CameraCaptureError, CameraRuntimeError, tryParseNativeCameraError, isErrorWithCause } from './CameraError'
-import type { CameraProps, FrameProcessor } from './CameraProps'
+import type { CameraProps, FrameProcessor, OnShutterEvent } from './CameraProps'
 import { CameraModule } from './NativeCameraModule'
 import type { PhotoFile, TakePhotoOptions } from './PhotoFile'
 import type { Point } from './Point'
@@ -18,16 +18,16 @@ import { TakeSnapshotOptions } from './Snapshot'
 export type CameraPermissionStatus = 'granted' | 'not-determined' | 'denied' | 'restricted'
 export type CameraPermissionRequestResult = 'granted' | 'denied'
 
-interface OnCodeScannedEvent {
+export interface OnCodeScannedEvent {
   codes: Code[]
   frame: CodeScannerFrame
 }
-interface OnErrorEvent {
+export interface OnErrorEvent {
   code: string
   message: string
   cause?: ErrorWithCause
 }
-type NativeCameraViewProps = Omit<CameraProps, 'device' | 'onInitialized' | 'onError' | 'frameProcessor' | 'codeScanner'> & {
+type NativeCameraViewProps = Omit<CameraProps, 'device' | 'onInitialized' | 'onError' | 'onShutter' | 'frameProcessor' | 'codeScanner'> & {
   cameraId: string
   enableFrameProcessor: boolean
   codeScannerOptions?: Omit<CodeScanner, 'onCodeScanned'>
@@ -36,8 +36,8 @@ type NativeCameraViewProps = Omit<CameraProps, 'device' | 'onInitialized' | 'onE
   onCodeScanned?: (event: NativeSyntheticEvent<OnCodeScannedEvent>) => void
   onStarted?: (event: NativeSyntheticEvent<void>) => void
   onStopped?: (event: NativeSyntheticEvent<void>) => void
-  onShutter?: () => void
-  onViewReady: () => void
+  onShutter?: (event: NativeSyntheticEvent<OnShutterEvent>) => void
+  onViewReady: (event: NativeSyntheticEvent<void>) => void
 }
 type NativeRecordVideoOptions = Omit<RecordVideoOptions, 'onRecordingError' | 'onRecordingFinished' | 'videoBitRate'> & {
   videoBitRateOverride?: number
@@ -493,8 +493,8 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     this.props.onStopped?.()
   }
 
-  private onShutter(): void {
-    this.props.onShutter?.()
+  private onShutter(event: NativeSyntheticEvent<OnShutterEvent>): void {
+    this.props.onShutter?.(event.nativeEvent)
   }
   //#endregion
 
