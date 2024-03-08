@@ -155,6 +155,7 @@ class CameraSession(private val context: Context, private val callback: Callback
         // Build up session or update any props
         if (diff.outputsChanged) {
           // 1. outputs changed, re-create them
+          closeCurrentOutputs(provider)
           configureOutputs(config)
         }
         if (diff.deviceChanged || diff.outputsChanged || didSessionChangeFromOutside) {
@@ -320,6 +321,15 @@ class CameraSession(private val context: Context, private val callback: Callback
     Log.i(TAG, "Successfully created new Outputs for Camera #${configuration.cameraId}!")
   }
 
+  private fun closeCurrentOutputs(provider: ProcessCameraProvider) {
+    val useCases = listOfNotNull(previewOutput, photoOutput, videoOutput, codeScannerOutput)
+    if (useCases.isEmpty()) {
+      return
+    }
+    Log.i(TAG, "Unbinding ${useCases.size} use-cases for Camera #${camera?.cameraInfo?.id}...")
+    provider.unbind(*useCases.toTypedArray())
+  }
+
   @Suppress("LiftReturnOrAssignment")
   private suspend fun configureCamera(provider: ProcessCameraProvider, configuration: CameraConfiguration) {
     Log.i(TAG, "Binding Camera #${configuration.cameraId}...")
@@ -342,9 +352,6 @@ class CameraSession(private val context: Context, private val callback: Callback
     if (useCases.isEmpty()) {
       throw NoOutputsError()
     }
-
-    // Unbind previous Camera
-    provider.unbindAll()
 
     // Frame Processor is a CameraEffect (Surface middleman)
     val frameProcessorEffect = frameProcessorEffect
