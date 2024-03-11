@@ -83,7 +83,7 @@ class CameraDevicesManager(private val reactContext: ReactApplicationContext) : 
     val extensionsManager = extensionsManager ?: return devices
 
     cameraProvider.availableCameraInfos.forEach { cameraInfo ->
-      val device = CameraDeviceDetails(cameraInfo, extensionsManager, reactContext)
+      val device = CameraDeviceDetails(cameraInfo, extensionsManager)
       devices.pushMap(device.toMap())
     }
     return devices

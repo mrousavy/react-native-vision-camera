@@ -18,7 +18,6 @@ import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.video.Quality.ConstantQuality
 import androidx.camera.video.Recorder
 import com.facebook.react.bridge.Arguments
-import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
 import com.mrousavy.camera.extensions.id
@@ -38,8 +37,7 @@ import kotlin.math.sqrt
 @Suppress("FoldInitializerAndIfToElvis")
 class CameraDeviceDetails(
   private val cameraInfo: CameraInfo,
-  extensionsManager: ExtensionsManager,
-  private val context: ReactApplicationContext
+  extensionsManager: ExtensionsManager
 ) {
   // Generic props available on all implementations
   private val cameraId = cameraInfo.id ?: throw NoCameraDeviceError()
