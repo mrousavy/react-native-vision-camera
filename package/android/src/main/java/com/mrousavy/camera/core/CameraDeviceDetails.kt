@@ -1,18 +1,16 @@
 package com.mrousavy.camera.core
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.util.Range
 import android.util.Size
 import android.util.SizeF
-import android.view.WindowManager
 import androidx.camera.camera2.internal.Camera2CameraInfoImpl
 import androidx.camera.core.CameraInfo
-import androidx.camera.core.DisplayOrientedMeteringPointFactory
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.FocusMeteringAction
+import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.capability.PreviewCapabilitiesImpl
 import androidx.camera.extensions.ExtensionMode
@@ -175,12 +173,7 @@ class CameraDeviceDetails(
     }
 
   private fun getSupportsFocus(): Boolean {
-    val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-
-    @Suppress("DEPRECATION")
-    val display = windowManager.defaultDisplay
-    val pointFactory = DisplayOrientedMeteringPointFactory(display, cameraInfo, 1f, 1f)
-    val point = pointFactory.createPoint(0.5f, 0.5f)
+    val point = SurfaceOrientedMeteringPointFactory(1.0f, 1.0f).createPoint(0.5f, 0.5f)
     val action = FocusMeteringAction.Builder(point)
     return cameraInfo.isFocusMeteringSupported(action.build())
   }
