@@ -55,6 +55,8 @@ class CameraDeviceDetails(
   private val previewCapabilities = PreviewCapabilitiesImpl.from(cameraInfo)
   private val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo, Recorder.VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE)
   private val supports10BitHdr = getSupports10BitHDR()
+  private val sensorRotationDegrees = cameraInfo.sensorRotationDegrees
+  private val sensorOrientation = Orientation.fromRotationDegrees(sensorRotationDegrees)
 
   // CameraX internal props
   private val cameraInfoInternal = cameraInfo as CameraInfoInternal
@@ -63,8 +65,6 @@ class CameraDeviceDetails(
   private val camera2Details = cameraInfo as? Camera2CameraInfoImpl
   private val physicalDeviceIds = camera2Details?.cameraCharacteristicsMap?.keys ?: emptySet()
   private val isMultiCam = physicalDeviceIds.size > 1
-  private val sensorRotationDegrees = camera2Details?.sensorRotationDegrees ?: 0
-  private val sensorOrientation = Orientation.fromRotationDegrees(sensorRotationDegrees)
   private val cameraHardwareLevel = camera2Details?.cameraCharacteristicsCompat?.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
   private val hardwareLevel = HardwareLevel.fromCameraHardwareLevel(
     cameraHardwareLevel ?: CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
