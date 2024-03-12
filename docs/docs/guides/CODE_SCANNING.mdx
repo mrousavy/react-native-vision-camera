@@ -131,3 +131,22 @@ The Code Scanner will call your [`onCodeScanned`](/docs/api/interfaces/CodeScann
 <br />
 
 #### 🚀 Next section: [Frame Processors](frame-processors)
+
+## Special Case (UPC-A)
+
+UPC-A is a special case to handle if you need to cater for it. Android's SDK officially supports UPC-A but iOS does not, instead they handle the code as EAN-13. Since EAN-13 is a superset of UPC-A, with an extra 0 digit at the front.
+
+This means the following code gives you the wrong type.
+
+```jsx
+const codeScanner = useCodeScanner({
+  codeTypes: ['upc-a'], // <-- ✅ I configure 'upc-a'
+  onCodeScanned: (codes) => {
+    for (const code of codes) {
+      console.log(code.type); // <-- ❌ I receive 'ean-13' on iOS
+    }
+  }
+})
+```
+
+You will need to keep this in mind and do the conversion from EAN-13 to UPC-A yourself. This can be done by removing the front `0` digit from the code to get a UPC-A code.
