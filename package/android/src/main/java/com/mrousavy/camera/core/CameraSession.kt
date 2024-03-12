@@ -29,6 +29,7 @@ import androidx.camera.video.ExperimentalPersistentRecording
 import androidx.camera.video.FileOutputOptions
 import androidx.camera.video.Recorder
 import androidx.camera.video.Recording
+import androidx.camera.video.VideoCapabilities
 import androidx.camera.video.VideoCapture
 import androidx.camera.video.VideoRecordEvent
 import androidx.core.content.ContextCompat
@@ -47,6 +48,7 @@ import com.mrousavy.camera.extensions.takePicture
 import com.mrousavy.camera.extensions.toCameraError
 import com.mrousavy.camera.extensions.withExtension
 import com.mrousavy.camera.frameprocessor.Frame
+import com.mrousavy.camera.types.CameraDeviceFormat
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.types.Orientation
 import com.mrousavy.camera.types.RecordVideoOptions
@@ -202,6 +204,18 @@ class CameraSession(private val context: Context, private val callback: Callback
     }
   }
 
+  private fun assetFormatRequirement(propName: String, format: CameraDeviceFormat?, requirement: (format: CameraDeviceFormat) -> Boolean) {
+    if (format == null) {
+      // we need a format for this to work.
+      throw PropRequiresFormatToBeNonNullError(propName)
+    }
+    val isSupported = requirement(format)
+    if (!isSupported) {
+      // TODO: Throw actual Camera Device error
+      throw Error("$propName is not supported!")
+    }
+  }
+
   @SuppressLint("RestrictedApi")
   @Suppress("LiftReturnOrAssignment")
   private fun configureOutputs(configuration: CameraConfiguration) {
@@ -220,9 +234,15 @@ class CameraSession(private val context: Context, private val callback: Callback
       val preview = Preview.Builder().also { preview ->
         // Configure Preview Output
         if (configuration.videoStabilizationMode.isAtLeast(VideoStabilizationMode.CINEMATIC)) {
+          assetFormatRequirement("videoStabilizationMode", format) {
+            it.videoStabilizationModes.contains(configuration.videoStabilizationMode)
+          }
           preview.setPreviewStabilizationEnabled(true)
         }
         if (fpsRange != null) {
+          assetFormatRequirement("fps", format) {
+            fpsRange.lower >= it.minFps && fpsRange.upper <= it.maxFps
+          }
           preview.setTargetFrameRate(fpsRange)
         }
       }.build()
@@ -276,12 +296,17 @@ class CameraSession(private val context: Context, private val callback: Callback
         // Configure Video Output
         video.setMirrorMode(MirrorMode.MIRROR_MODE_ON_FRONT_ONLY)
         if (configuration.videoStabilizationMode.isAtLeast(VideoStabilizationMode.STANDARD)) {
+          assetFormatRequirement("videoStabilizationMode", format) {
+            it.videoStabilizationModes.contains(configuration.videoStabilizationMode)
+          }
           video.setVideoStabilizationEnabled(true)
         }
         if (fpsRange != null) {
+          assetFormatRequirement("fps", format) { fpsRange.lower >= it.minFps && fpsRange.upper <= it.maxFps }
           video.setTargetFrameRate(fpsRange)
         }
         if (videoConfig.config.enableHdr) {
+          assetFormatRequirement("videoHdr", format) { it.supportsVideoHdr }
           video.setDynamicRange(DynamicRange.HDR_UNSPECIFIED_10_BIT)
         }
         if (format != null) {
