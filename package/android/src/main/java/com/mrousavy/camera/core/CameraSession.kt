@@ -29,7 +29,6 @@ import androidx.camera.video.ExperimentalPersistentRecording
 import androidx.camera.video.FileOutputOptions
 import androidx.camera.video.Recorder
 import androidx.camera.video.Recording
-import androidx.camera.video.VideoCapabilities
 import androidx.camera.video.VideoCapture
 import androidx.camera.video.VideoRecordEvent
 import androidx.core.content.ContextCompat
@@ -333,10 +332,6 @@ class CameraSession(private val context: Context, private val callback: Callback
     // 4. Code Scanner
     val codeScannerConfig = configuration.codeScanner as? CameraConfiguration.Output.Enabled<CameraConfiguration.CodeScanner>
     if (codeScannerConfig != null) {
-      if (previewOutput != null && photoOutput != null && videoOutput != null) {
-        throw CodeScannerTooManyOutputsError()
-      }
-
       Log.i(TAG, "Creating CodeScanner output...")
       val analyzer = ImageAnalysis.Builder().build()
       val pipeline = CodeScannerPipeline(codeScannerConfig.config, callback)
