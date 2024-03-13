@@ -66,15 +66,8 @@ class CameraSession(private val context: Context, private val callback: Callback
   Closeable,
   LifecycleOwner {
   companion object {
-    private var instancesCounter = 1
-    private var latestOpenerTag = instancesCounter
+    private const val TAG = "CameraSession"
   }
-
-  // Reference
-  private val instanceId = instancesCounter++
-
-  @Suppress("PrivatePropertyName")
-  private val TAG = "CameraSession$instanceId"
 
   // Camera Configuration
   private var configuration: CameraConfiguration? = null
@@ -97,8 +90,6 @@ class CameraSession(private val context: Context, private val callback: Callback
   private val lifecycleRegistry = LifecycleRegistry(this)
   private var recording: Recording? = null
   private var isRecordingCanceled = false
-  private val didSessionChangeFromOutside: Boolean
-    get() = instanceId != latestOpenerTag
 
   // Threading
   private val mainExecutor = ContextCompat.getMainExecutor(context)
@@ -161,7 +152,7 @@ class CameraSession(private val context: Context, private val callback: Callback
           closeCurrentOutputs(provider)
           configureOutputs(config)
         }
-        if (diff.deviceChanged || diff.outputsChanged || didSessionChangeFromOutside) {
+        if (diff.deviceChanged || diff.outputsChanged) {
           // 2. input or outputs changed, or the session was destroyed from outside, rebind the session
           configureCamera(provider, config)
         }
@@ -388,7 +379,6 @@ class CameraSession(private val context: Context, private val callback: Callback
       // Bind it all together (must be on UI Thread)
       camera = provider.bindToLifecycle(this, cameraSelector, *useCases.toTypedArray())
     }
-    latestOpenerTag = instanceId
 
     // Listen to Camera events
     var lastState = CameraState.Type.OPENING

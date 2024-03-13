@@ -35,10 +35,7 @@ import kotlin.math.sqrt
 
 @SuppressLint("RestrictedApi")
 @Suppress("FoldInitializerAndIfToElvis")
-class CameraDeviceDetails(
-  private val cameraInfo: CameraInfo,
-  extensionsManager: ExtensionsManager
-) {
+class CameraDeviceDetails(private val cameraInfo: CameraInfo, extensionsManager: ExtensionsManager) {
   // Generic props available on all implementations
   private val cameraId = cameraInfo.id ?: throw NoCameraDeviceError()
   private val position = Position.fromLensFacing(cameraInfo.lensFacing)

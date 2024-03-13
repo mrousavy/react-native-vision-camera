@@ -72,14 +72,12 @@ private suspend fun savePhotoToFile(context: Context, photo: Photo): String =
         // When the format is RAW we use the DngCreator utility library
         throw Error("Writing RAW photos is currently not supported!")
         // TODO: Write RAW photos using DngCreator?
-        /**
-         val dngCreator = DngCreator(cameraCharacteristics, photo.metadata)
-         val file = FileUtils.createTempFile(context, ".dng")
-         FileOutputStream(file).use { stream ->
-         dngCreator.writeImage(stream, photo.image.image)
-         }
-         return@withContext file.absolutePath
-         */
+        //         val dngCreator = DngCreator(cameraCharacteristics, photo.metadata)
+        //         val file = FileUtils.createTempFile(context, ".dng")
+        //         FileOutputStream(file).use { stream ->
+        //         dngCreator.writeImage(stream, photo.image.image)
+        //         }
+        //         return@withContext file.absolutePath
       }
 
       else -> {
