@@ -431,7 +431,7 @@ class CameraSession(private val context: Context, private val callback: Callback
     if (config.isActive) {
       lifecycleRegistry.currentState = Lifecycle.State.RESUMED
     } else {
-      lifecycleRegistry.currentState = Lifecycle.State.CREATED
+      lifecycleRegistry.currentState = Lifecycle.State.STARTED
     }
   }
 
