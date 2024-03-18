@@ -344,6 +344,7 @@ class CameraSession(private val context: Context, private val callback: Callback
     provider.unbind(*useCases.toTypedArray())
   }
 
+  @SuppressLint("RestrictedApi")
   @Suppress("LiftReturnOrAssignment")
   private suspend fun configureCamera(provider: ProcessCameraProvider, configuration: CameraConfiguration) {
     Log.i(TAG, "Binding Camera #${configuration.cameraId}...")
