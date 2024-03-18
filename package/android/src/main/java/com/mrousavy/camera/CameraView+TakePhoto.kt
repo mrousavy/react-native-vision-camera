@@ -31,57 +31,15 @@ suspend fun CameraView.takePhoto(optionsMap: ReadableMap): WritableMap {
     orientation
   )
 
-  photo.use {
-    Log.i(TAG, "Successfully captured ${photo.image.width} x ${photo.image.height} photo!")
+  Log.i(TAG, "Successfully captured ${photo.width} x ${photo.height} photo!")
 
-    val path = try {
-      savePhotoToFile(context, photo)
-    } catch (e: IOException) {
-      if (e.message?.contains("no space left", true) == true) {
-        throw InsufficientStorageError()
-      } else {
-        throw e
-      }
-    }
+  val map = Arguments.createMap()
+  map.putString("path", photo.path)
+  map.putInt("width", photo.width)
+  map.putInt("height", photo.height)
+  map.putString("orientation", photo.orientation.unionValue)
+  map.putBoolean("isRawPhoto", false)
+  map.putBoolean("isMirrored", photo.isMirrored)
 
-    Log.i(TAG, "Successfully saved photo to file! $path")
-
-    val map = Arguments.createMap()
-    map.putString("path", path)
-    map.putInt("width", photo.image.width)
-    map.putInt("height", photo.image.height)
-    map.putString("orientation", photo.orientation.unionValue)
-    map.putBoolean("isRawPhoto", photo.isRawPhoto)
-    map.putBoolean("isMirrored", photo.isMirrored)
-
-    return map
-  }
+  return map
 }
-
-private suspend fun savePhotoToFile(context: Context, photo: Photo): String =
-  withContext(Dispatchers.IO) {
-    when (photo.image.format) {
-      ImageFormat.JPEG, ImageFormat.DEPTH_JPEG -> {
-        // When the format is JPEG or DEPTH JPEG we can simply save the bytes as-is
-        val file = FileUtils.createTempFile(context, ".jpg")
-        FileUtils.writePhotoToFile(photo, file)
-        return@withContext file.absolutePath
-      }
-
-      ImageFormat.RAW_SENSOR -> {
-        // When the format is RAW we use the DngCreator utility library
-        throw Error("Writing RAW photos is currently not supported!")
-        // TODO: Write RAW photos using DngCreator?
-        //         val dngCreator = DngCreator(cameraCharacteristics, photo.metadata)
-        //         val file = FileUtils.createTempFile(context, ".dng")
-        //         FileOutputStream(file).use { stream ->
-        //         dngCreator.writeImage(stream, photo.image.image)
-        //         }
-        //         return@withContext file.absolutePath
-      }
-
-      else -> {
-        throw Error("Failed to save Photo to file, image format is not supported! ${photo.image.format}")
-      }
-    }
-  }
