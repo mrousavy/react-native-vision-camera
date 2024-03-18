@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.util.Log
 import android.util.Range
 import android.util.Size
@@ -447,9 +448,18 @@ class CameraSession(private val context: Context, private val callback: Callback
     photoOutput.flashMode = flash.toFlashMode()
     photoOutput.targetRotation = outputOrientation.toDegrees()
 
-    val image = photoOutput.takePicture(enableShutterSound, callback, CameraQueues.cameraExecutor)
-    val isMirrored = camera.cameraInfo.lensFacing == CameraSelector.LENS_FACING_FRONT
-    return Photo(image, isMirrored)
+    val photoFile = photoOutput.takePicture(context, enableShutterSound, callback, CameraQueues.cameraExecutor)
+    val isMirrored = photoFile.metadata.isReversedHorizontal
+
+    val bitmapOptions = BitmapFactory.Options().also {
+      it.inJustDecodeBounds = true
+    }
+    BitmapFactory.decodeFile(photoFile.uri.path, bitmapOptions)
+    val width = bitmapOptions.outWidth
+    val height = bitmapOptions.outHeight
+    val orientation = outputOrientation
+
+    return Photo(photoFile.uri.path, width, height, orientation, isMirrored)
   }
 
   @OptIn(ExperimentalPersistentRecording::class)
