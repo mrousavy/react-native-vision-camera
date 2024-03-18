@@ -17,6 +17,7 @@ data class CameraConfiguration(
   var preview: Output<Preview> = Output.Disabled.create(),
   var photo: Output<Photo> = Output.Disabled.create(),
   var video: Output<Video> = Output.Disabled.create(),
+  var frameProcessor: Output<FrameProcessor> = Output.Disabled.create(),
   var codeScanner: Output<CodeScanner> = Output.Disabled.create(),
 
   // Orientation
@@ -44,7 +45,8 @@ data class CameraConfiguration(
   // Output<T> types, those need to be comparable
   data class CodeScanner(val codeTypes: List<CodeType>)
   data class Photo(val enableHdr: Boolean, val photoQualityBalance: QualityBalance)
-  data class Video(val enableHdr: Boolean, val pixelFormat: PixelFormat, val enableFrameProcessor: Boolean, val enableGpuBuffers: Boolean)
+  data class Video(val enableHdr: Boolean, val pixelFormat: PixelFormat)
+  data class FrameProcessor(val nothing: Unit)
   data class Audio(val nothing: Unit)
   data class Preview(val surfaceProvider: SurfaceProvider)
 
@@ -92,6 +94,7 @@ data class CameraConfiguration(
         left.video != right.video ||
         left.enableLowLightBoost != right.enableLowLightBoost ||
         left.videoStabilizationMode != right.videoStabilizationMode ||
+        left.frameProcessor != right.frameProcessor ||
         left.codeScanner != right.codeScanner ||
         left.preview != right.preview ||
         left.format != right.format ||

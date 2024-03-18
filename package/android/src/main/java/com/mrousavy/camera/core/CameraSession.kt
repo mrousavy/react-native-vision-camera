@@ -15,6 +15,7 @@ import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
 import androidx.camera.core.DynamicRange
+import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
@@ -22,7 +23,6 @@ import androidx.camera.core.MeteringPoint
 import androidx.camera.core.MirrorMode
 import androidx.camera.core.Preview
 import androidx.camera.core.TorchState
-import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -80,11 +80,11 @@ class CameraSession(private val context: Context, private val callback: Callback
   private var previewOutput: Preview? = null
   private var photoOutput: ImageCapture? = null
   private var videoOutput: VideoCapture<Recorder>? = null
+  private var frameProcessorOutput: ImageAnalysis? = null
   private var codeScannerOutput: ImageAnalysis? = null
 
   // Camera Outputs State
   private var recorderOutput: Recorder? = null
-  private var frameProcessorEffect: FrameProcessorEffect? = null
 
   // Camera State
   private val mutex = Mutex()
@@ -212,6 +212,7 @@ class CameraSession(private val context: Context, private val callback: Callback
     }
   }
 
+  @OptIn(ExperimentalGetImage::class)
   @SuppressLint("RestrictedApi")
   @Suppress("LiftReturnOrAssignment")
   private fun configureOutputs(configuration: CameraConfiguration) {
@@ -220,8 +221,6 @@ class CameraSession(private val context: Context, private val callback: Callback
     val format = configuration.format
 
     Log.i(TAG, "Using FPS Range: $fpsRange")
-
-    // TODO: Check if all of the values we set are supported with Video/Photo/Preview Capabilities from CameraInfo.
 
     // 1. Preview
     val previewConfig = configuration.preview as? CameraConfiguration.Output.Enabled<CameraConfiguration.Preview>
@@ -321,15 +320,33 @@ class CameraSession(private val context: Context, private val callback: Callback
       recorderOutput = null
     }
 
-    // 3.5 Frame Processor (middleman)
-    if (videoConfig != null && videoConfig.config.enableFrameProcessor) {
-      // The FrameProcessorEffect is a middle-man between the Camera stream and the output surfaces.
-      frameProcessorEffect = FrameProcessorEffect(videoConfig.config.pixelFormat, videoConfig.config.enableGpuBuffers, callback)
+
+    // 4. Frame Processor
+    val frameProcessorConfig = configuration.frameProcessor as? CameraConfiguration.Output.Enabled<CameraConfiguration.FrameProcessor>
+    if (frameProcessorConfig != null) {
+      Log.i(TAG, "Creating Frame Processor output...")
+      val analyzer = ImageAnalysis.Builder().also { analysis ->
+        analysis.setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
+        analysis.setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888)
+      }.build()
+      analyzer.setAnalyzer(CameraQueues.videoQueue.executor) { imageProxy ->
+        val orientation = Orientation.fromRotationDegrees(imageProxy.imageInfo.rotationDegrees)
+        val isMirrored = camera?.cameraInfo?.lensFacing == CameraSelector.LENS_FACING_FRONT
+        val frame = Frame(imageProxy.image, imageProxy.imageInfo.timestamp, orientation, isMirrored)
+        try {
+          frame.incrementRefCount()
+          callback.onFrame(frame)
+        } finally {
+          frame.decrementRefCount()
+        }
+      }
+      frameProcessorOutput = analyzer
     } else {
-      frameProcessorEffect = null
+      frameProcessorOutput = null
     }
 
-    // 4. Code Scanner
+
+    // 5. Code Scanner
     val codeScannerConfig = configuration.codeScanner as? CameraConfiguration.Output.Enabled<CameraConfiguration.CodeScanner>
     if (codeScannerConfig != null) {
       Log.i(TAG, "Creating CodeScanner output...")
@@ -353,13 +370,12 @@ class CameraSession(private val context: Context, private val callback: Callback
   }
 
   @SuppressLint("RestrictedApi")
-  @Suppress("LiftReturnOrAssignment")
   private suspend fun configureCamera(provider: ProcessCameraProvider, configuration: CameraConfiguration) {
     Log.i(TAG, "Binding Camera #${configuration.cameraId}...")
     checkCameraPermission()
 
     // Outputs
-    val useCases = listOfNotNull(previewOutput, photoOutput, videoOutput, codeScannerOutput)
+    val useCases = listOfNotNull(previewOutput, photoOutput, videoOutput, frameProcessorOutput, codeScannerOutput)
     if (useCases.isEmpty()) {
       throw NoOutputsError()
     }
@@ -394,19 +410,8 @@ class CameraSession(private val context: Context, private val callback: Callback
       cameraSelector = cameraSelector.withExtension(context, provider, needsImageAnalysis, ExtensionMode.NIGHT, "NIGHT")
     }
 
-    // Frame Processor is a CameraEffect (Surface middleman)
-    val frameProcessorEffect = frameProcessorEffect
-    if (frameProcessorEffect != null) {
-      val useCaseGroup = UseCaseGroup.Builder()
-      useCases.forEach { useCase -> useCaseGroup.addUseCase(useCase) }
-      useCaseGroup.addEffect(frameProcessorEffect)
-
-      // Bind it all together (must be on UI Thread)
-      camera = provider.bindToLifecycle(this, cameraSelector, useCaseGroup.build())
-    } else {
-      // Bind it all together (must be on UI Thread)
-      camera = provider.bindToLifecycle(this, cameraSelector, *useCases.toTypedArray())
-    }
+    // Bind it all together (must be on UI Thread)
+    camera = provider.bindToLifecycle(this, cameraSelector, *useCases.toTypedArray())
 
     // Listen to Camera events
     var lastState = CameraState.Type.OPENING

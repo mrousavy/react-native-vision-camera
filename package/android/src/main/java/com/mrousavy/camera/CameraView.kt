@@ -173,18 +173,18 @@ class CameraView(context: Context) :
           config.photo = CameraConfiguration.Output.Disabled.create()
         }
 
-        // Video/Frame Processor
+        // Video
         if (video || enableFrameProcessor) {
-          config.video = CameraConfiguration.Output.Enabled.create(
-            CameraConfiguration.Video(
-              videoHdr,
-              pixelFormat,
-              enableFrameProcessor,
-              enableGpuBuffers
-            )
-          )
+          config.video = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Video(videoHdr, pixelFormat))
         } else {
           config.video = CameraConfiguration.Output.Disabled.create()
+        }
+
+        // Frame Processor
+        if (enableFrameProcessor) {
+          config.frameProcessor = CameraConfiguration.Output.Enabled.create(CameraConfiguration.FrameProcessor(Unit))
+        } else {
+          config.frameProcessor = CameraConfiguration.Output.Disabled.create()
         }
 
         // Audio
