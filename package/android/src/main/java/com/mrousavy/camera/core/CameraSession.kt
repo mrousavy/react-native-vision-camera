@@ -195,15 +195,19 @@ class CameraSession(private val context: Context, private val callback: Callback
     }
   }
 
-  private fun assetFormatRequirement(propName: String, format: CameraDeviceFormat?, requirement: (format: CameraDeviceFormat) -> Boolean) {
+  private fun assertFormatRequirement(
+    propName: String,
+    format: CameraDeviceFormat?,
+    throwIfNotMet: CameraError,
+    requirement: (format: CameraDeviceFormat) -> Boolean
+  ) {
     if (format == null) {
       // we need a format for this to work.
       throw PropRequiresFormatToBeNonNullError(propName)
     }
     val isSupported = requirement(format)
     if (!isSupported) {
-      // TODO: Throw actual Camera Device error
-      throw Error("$propName is not supported!")
+      throw throwIfNotMet
     }
   }
 
@@ -225,13 +229,13 @@ class CameraSession(private val context: Context, private val callback: Callback
       val preview = Preview.Builder().also { preview ->
         // Configure Preview Output
         if (configuration.videoStabilizationMode.isAtLeast(VideoStabilizationMode.CINEMATIC)) {
-          assetFormatRequirement("videoStabilizationMode", format) {
+          assertFormatRequirement("videoStabilizationMode", format, InvalidVideoStabilizationMode(configuration.videoStabilizationMode)) {
             it.videoStabilizationModes.contains(configuration.videoStabilizationMode)
           }
           preview.setPreviewStabilizationEnabled(true)
         }
         if (fpsRange != null) {
-          assetFormatRequirement("fps", format) {
+          assertFormatRequirement("fps", format, InvalidFpsError(fpsRange.upper)) {
             fpsRange.lower >= it.minFps && fpsRange.upper <= it.maxFps
           }
           preview.setTargetFrameRate(fpsRange)
@@ -287,17 +291,20 @@ class CameraSession(private val context: Context, private val callback: Callback
         // Configure Video Output
         video.setMirrorMode(MirrorMode.MIRROR_MODE_ON_FRONT_ONLY)
         if (configuration.videoStabilizationMode.isAtLeast(VideoStabilizationMode.STANDARD)) {
-          assetFormatRequirement("videoStabilizationMode", format) {
+          assertFormatRequirement("videoStabilizationMode", format, InvalidVideoStabilizationMode(configuration.videoStabilizationMode)) {
             it.videoStabilizationModes.contains(configuration.videoStabilizationMode)
           }
           video.setVideoStabilizationEnabled(true)
         }
         if (fpsRange != null) {
-          assetFormatRequirement("fps", format) { fpsRange.lower >= it.minFps && fpsRange.upper <= it.maxFps }
+          assertFormatRequirement("fps", format, InvalidFpsError(fpsRange.upper)) {
+            fpsRange.lower >= it.minFps &&
+              fpsRange.upper <= it.maxFps
+          }
           video.setTargetFrameRate(fpsRange)
         }
         if (videoConfig.config.enableHdr) {
-          assetFormatRequirement("videoHdr", format) { it.supportsVideoHdr }
+          assertFormatRequirement("videoHdr", format, InvalidVideoHdrError()) { it.supportsVideoHdr }
           video.setDynamicRange(DynamicRange.HDR_UNSPECIFIED_10_BIT)
         }
         if (format != null) {

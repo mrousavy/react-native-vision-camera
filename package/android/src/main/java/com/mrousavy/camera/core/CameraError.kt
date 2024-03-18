@@ -49,12 +49,6 @@ class NoCameraDeviceError :
   )
 class PixelFormatNotSupportedError(format: String) :
   CameraError("device", "pixel-format-not-supported", "The pixelFormat $format is not supported on the given Camera Device!")
-class LowLightBoostNotSupportedError :
-  CameraError(
-    "device",
-    "low-light-boost-not-supported",
-    "The currently selected camera device does not support low-light boost! Select a device where `device.supportsLowLightBoost` is true."
-  )
 class FlashUnavailableError :
   CameraError(
     "device",
@@ -183,7 +177,6 @@ class NoRecordingInProgressError :
 class RecordingCanceledError : CameraError("capture", "recording-canceled", "The active recording was canceled.")
 class FileIOError(throwable: Throwable) :
   CameraError("capture", "file-io-error", "An unexpected File IO error occurred! Error: ${throwable.message}.", throwable)
-class InsufficientStorageError : CameraError("capture", "insufficient-storage", "There is not enough storage space available.")
 class RecordingInProgressError :
   CameraError(
     "capture",
