@@ -354,6 +354,7 @@ class CameraSession(private val context: Context, private val callback: Callback
 
     val needsImageAnalysis = codeScannerOutput != null
     if (configuration.enableHdr) {
+      // TODO: Fix Extensions are only supported for use with standard dynamic range.
       cameraSelector = cameraSelector.withExtension(context, provider, needsImageAnalysis, ExtensionMode.HDR, "HDR")
     }
     if (configuration.enableLowLightBoost) {
