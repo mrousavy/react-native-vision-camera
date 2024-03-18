@@ -108,11 +108,11 @@ class PhotoHdrAndVideoHdrNotSupportedSimultaneously :
     "photo-hdr-and-video-hdr-not-suppoted-simultaneously",
     "Photo HDR and Video HDR are not supported simultaneously! Disable either `videoHdr` or `photoHdr`."
   )
-class LowLightBoostNotSupportedWithVideoHdr :
+class LowLightBoostNotSupportedWithHdr :
   CameraError(
     "format",
-    "low-light-boost-not-supported-with-video-hdr",
-    "The low light boost extension does not work when video HDR is enabled! Disable either `lowLightBoost` or `videoHdr`."
+    "low-light-boost-not-supported-with-hdr",
+    "The low light boost extension does not work when HDR is enabled! Disable either `lowLightBoost` or `videoHdr`/`photoHdr`."
   )
 
 class VideoNotEnabledError :

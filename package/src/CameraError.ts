@@ -18,7 +18,7 @@ export type FormatError =
   | 'format/invalid-fps'
   | 'format/invalid-video-hdr'
   | 'format/photo-hdr-and-video-hdr-not-suppoted-simultaneously'
-  | 'format/low-light-boost-not-supported-with-video-hdr'
+  | 'format/low-light-boost-not-supported-with-hdr'
   | 'format/invalid-video-stabilization-mode'
   | 'format/incompatible-pixel-format-with-hdr-setting'
   | 'format/invalid-format'

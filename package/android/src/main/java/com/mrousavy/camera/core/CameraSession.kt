@@ -372,7 +372,8 @@ class CameraSession(private val context: Context, private val callback: Callback
     val isStreamingHDR = useCases.any { !it.currentConfig.dynamicRange.isSDR }
     val needsImageAnalysis = codeScannerOutput != null
     val photoOptions = configuration.photo as? CameraConfiguration.Output.Enabled<CameraConfiguration.Photo>
-    if (photoOptions != null && photoOptions.config.enableHdr) {
+    val enableHdrExtension = photoOptions != null && photoOptions.config.enableHdr
+    if (enableHdrExtension) {
       if (isStreamingHDR) {
         // extensions don't work if a camera stream is running at 10-bit HDR.
         throw PhotoHdrAndVideoHdrNotSupportedSimultaneously()
@@ -383,7 +384,11 @@ class CameraSession(private val context: Context, private val callback: Callback
     if (configuration.enableLowLightBoost) {
       if (isStreamingHDR) {
         // extensions don't work if a camera stream is running at 10-bit HDR.
-        throw LowLightBoostNotSupportedWithVideoHdr()
+        throw LowLightBoostNotSupportedWithHdr()
+      }
+      if (enableHdrExtension) {
+        // low-light boost does not work when another HDR extension is already applied
+        throw LowLightBoostNotSupportedWithHdr()
       }
       // Load night mode Vendor extension (only applies to image capture)
       cameraSelector = cameraSelector.withExtension(context, provider, needsImageAnalysis, ExtensionMode.NIGHT, "NIGHT")
