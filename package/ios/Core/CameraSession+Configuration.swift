@@ -81,21 +81,9 @@ extension CameraSession {
         photoOutput.maxPhotoQualityPrioritization = qualityPrioritization
       }
       if photo.enableHighQualityPhotos {
-        // TODO: Refactor this into an extension method. Same for AVCapturePhotoOutput.
-        if #available(iOS 16.0, *) {
-          if let device = videoDeviceInput?.device,
-             let targetFormat = configuration.format {
-            guard let format = device.formats.first(where: { f in targetFormat.isEqualTo(format: f) }) else {
-              throw CameraError.parameter(.invalid(unionName: "format", receivedValue: targetFormat.toJSValue().description))
-            }
-            guard let maxSupportedDimension = format.supportedMaxPhotoDimensions.max(by: { ($0.width * $0.height) < ($1.width * $1.height) }) else {
-              throw CameraError.unknown(message: "supportedMaxPhotoDimensions was empty!", cause: nil)
-            }
-            photoOutput.maxPhotoDimensions = maxSupportedDimension
-          }
-        } else {
-          photoOutput.isHighResolutionCaptureEnabled = true
-        }
+        // This is deprecated in favor of `maxPhotoDimensions`, but maxPhotoDimensions is by default
+        // already set to the highest resolution possible (i think?), so we don't need to set that again.
+        photoOutput.isHighResolutionCaptureEnabled = true
       }
       // TODO: Enable isResponsiveCaptureEnabled? (iOS 17+)
       // TODO: Enable isFastCapturePrioritizationEnabled? (iOS 17+)
@@ -213,29 +201,6 @@ extension CameraSession {
     device.activeFormat = format
 
     ReactLogger.log(level: .info, message: "Successfully configured Format!")
-  }
-
-  func configurePhotoOutputResolution(configuration: CameraConfiguration) {
-    guard case let .enabled(photo) = configuration.photo,
-          let photoOutput, let videoDeviceInput else {
-      // Video is not enabled
-      return
-    }
-
-    // Configure the PhotoOutput to use the maximum available resolution.
-    // We need to do this after device.activeFormat has been set.
-    if #available(iOS 16.0, *) {
-      let format = videoDeviceInput.device.activeFormat
-      let maxPhotoResolution = format.supportedMaxPhotoDimensions.max(by: { left, right in
-        (left.width * left.height) < (right.width * right.height)
-      })
-      guard let maxPhotoResolution else {
-        return
-      }
-      photoOutput.maxPhotoDimensions = maxPhotoResolution
-    } else {
-      photoOutput.isHighResolutionCaptureEnabled = true
-    }
   }
 
   func configurePixelFormat(configuration: CameraConfiguration) throws {
