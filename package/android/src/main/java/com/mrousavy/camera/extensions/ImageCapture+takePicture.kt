@@ -3,24 +3,27 @@ package com.mrousavy.camera.extensions
 import android.annotation.SuppressLint
 import android.content.Context
 import android.media.MediaActionSound
-import android.net.Uri
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.OutputFileOptions
 import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.ImageProxy
 import com.mrousavy.camera.core.CameraSession
 import com.mrousavy.camera.types.ShutterType
 import com.mrousavy.camera.utils.FileUtils
+import java.net.URI
 import java.util.concurrent.Executor
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
-import java.net.URI
 
 data class PhotoFileInfo(val uri: URI, val metadata: ImageCapture.Metadata)
 
 @SuppressLint("RestrictedApi")
-suspend inline fun ImageCapture.takePicture(context: Context, enableShutterSound: Boolean, callback: CameraSession.Callback, executor: Executor): PhotoFileInfo =
+suspend inline fun ImageCapture.takePicture(
+  context: Context,
+  enableShutterSound: Boolean,
+  callback: CameraSession.Callback,
+  executor: Executor
+): PhotoFileInfo =
   suspendCancellableCoroutine { continuation ->
     // Shutter sound
     val shutterSound = if (enableShutterSound) MediaActionSound() else null

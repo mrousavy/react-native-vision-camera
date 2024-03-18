@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.Gravity
 import android.view.ScaleGestureDetector
 import android.widget.FrameLayout
-import androidx.camera.core.Preview.SurfaceProvider
 import androidx.camera.view.PreviewView
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.mrousavy.camera.core.CameraConfiguration
@@ -143,7 +142,13 @@ class CameraView(context: Context) :
     }
   }
 
-  override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+  override fun onLayout(
+    changed: Boolean,
+    left: Int,
+    top: Int,
+    right: Int,
+    bottom: Int
+  ) {
     val width = right - left
     val height = bottom - top
 

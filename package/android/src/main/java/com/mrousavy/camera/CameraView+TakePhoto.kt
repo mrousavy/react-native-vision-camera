@@ -1,18 +1,13 @@
 package com.mrousavy.camera
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.graphics.ImageFormat
 import android.hardware.camera2.*
 import android.util.Log
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableMap
-import com.mrousavy.camera.core.InsufficientStorageError
-import com.mrousavy.camera.core.Photo
 import com.mrousavy.camera.types.Flash
 import com.mrousavy.camera.utils.*
-import java.io.IOException
 import kotlinx.coroutines.*
 
 private const val TAG = "CameraView.takePhoto"
