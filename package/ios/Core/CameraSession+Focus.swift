@@ -80,5 +80,9 @@ extension CameraSession {
 
     // Disable listeners
     device.isSubjectAreaChangeMonitoringEnabled = false
+    // Remove any existing listeners
+    NotificationCenter.default.removeObserver(self,
+                                              name: NSNotification.Name.AVCaptureDeviceSubjectAreaDidChange,
+                                              object: nil)
   }
 }
