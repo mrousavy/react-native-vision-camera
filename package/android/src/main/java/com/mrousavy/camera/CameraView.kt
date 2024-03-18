@@ -108,7 +108,6 @@ class CameraView(context: Context) :
   internal val cameraSession: CameraSession
   internal var frameProcessor: FrameProcessor? = null
   internal val previewView: PreviewView
-  private val previewSurfaceProvider: SurfaceProvider
   private var currentConfigureCall: Long = System.currentTimeMillis()
 
   // other
@@ -125,8 +124,6 @@ class CameraView(context: Context) :
         LayoutParams.MATCH_PARENT,
         Gravity.CENTER
       )
-      addView(it)
-      previewSurfaceProvider = it.surfaceProvider
       it.previewStreamState.observe(cameraSession) { state ->
         when (state) {
           PreviewView.StreamState.STREAMING -> onStarted()
@@ -135,6 +132,7 @@ class CameraView(context: Context) :
         }
       }
     }
+    addView(previewView)
   }
 
   override fun onAttachedToWindow() {
@@ -143,6 +141,15 @@ class CameraView(context: Context) :
       isMounted = true
       invokeOnViewReady()
     }
+  }
+
+  override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+    val width = right - left
+    val height = bottom - top
+
+    // In React Native, subview layouts aren't automatically updated - so we manually re-layout the PreviewView.
+    previewView.layout(0, 0, width, height)
+    postInvalidate(left, top, right, bottom)
   }
 
   fun destroy() {
@@ -167,7 +174,7 @@ class CameraView(context: Context) :
         config.cameraId = cameraId
 
         // Preview
-        config.preview = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Preview(previewSurfaceProvider))
+        config.preview = CameraConfiguration.Output.Enabled.create(CameraConfiguration.Preview(previewView.surfaceProvider))
 
         // Photo
         if (photo) {
