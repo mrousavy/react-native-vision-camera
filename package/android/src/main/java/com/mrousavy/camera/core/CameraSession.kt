@@ -328,6 +328,11 @@ class CameraSession(private val context: Context, private val callback: Callback
       val analyzer = ImageAnalysis.Builder().also { analysis ->
         analysis.setBackpressureStrategy(ImageAnalysis.STRATEGY_BLOCK_PRODUCER)
         analysis.setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_YUV_420_888)
+        if (format != null) {
+          Log.i(TAG, "Frame Processor size: ${format.videoSize}")
+          val resolutionSelector = ResolutionSelector.Builder().forSize(format.videoSize)
+          analysis.setResolutionSelector(resolutionSelector.build())
+        }
       }.build()
       analyzer.setAnalyzer(CameraQueues.videoQueue.executor) { imageProxy ->
         val orientation = Orientation.fromRotationDegrees(imageProxy.imageInfo.rotationDegrees)
