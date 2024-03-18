@@ -333,17 +333,8 @@ class CameraSession(private val context: Context, private val callback: Callback
           analysis.setResolutionSelector(resolutionSelector.build())
         }
       }.build()
-      analyzer.setAnalyzer(CameraQueues.videoQueue.executor) { imageProxy ->
-        val orientation = Orientation.fromRotationDegrees(imageProxy.imageInfo.rotationDegrees)
-        val isMirrored = camera?.cameraInfo?.lensFacing == CameraSelector.LENS_FACING_FRONT
-        val frame = Frame(imageProxy.image, imageProxy.imageInfo.timestamp, orientation, isMirrored)
-        try {
-          frame.incrementRefCount()
-          callback.onFrame(frame)
-        } finally {
-          frame.decrementRefCount()
-        }
-      }
+      val pipeline = FrameProcessorPipeline(callback)
+      analyzer.setAnalyzer(CameraQueues.videoQueue.executor, pipeline)
       frameProcessorOutput = analyzer
     } else {
       frameProcessorOutput = null
@@ -414,6 +405,7 @@ class CameraSession(private val context: Context, private val callback: Callback
     }
 
     // Bind it all together (must be on UI Thread)
+    Log.i(TAG, "Binding ${useCases.size} use-cases...")
     camera = provider.bindToLifecycle(this, cameraSelector, *useCases.toTypedArray())
 
     // Listen to Camera events
