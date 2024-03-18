@@ -90,6 +90,8 @@ data class CameraConfiguration(
       // outputs
       val outputsChanged = left?.photo != right.photo ||
         left.video != right.video ||
+        left.enableLowLightBoost != right.enableLowLightBoost ||
+        left.videoStabilizationMode != right.videoStabilizationMode ||
         left.codeScanner != right.codeScanner ||
         left.preview != right.preview ||
         left.format != right.format ||
@@ -98,9 +100,7 @@ data class CameraConfiguration(
       // repeating request
       val sidePropsChanged = outputsChanged ||
         left?.torch != right.torch ||
-        left.enableLowLightBoost != right.enableLowLightBoost ||
         left.zoom != right.zoom ||
-        left.videoStabilizationMode != right.videoStabilizationMode ||
         left.exposure != right.exposure
 
       val isActiveChanged = left?.isActive != right.isActive
