@@ -179,6 +179,9 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     exampleKotlinSwiftPlugin(frame)
   }, [])
 
+  const videoHdr = format?.supportsVideoHdr && enableHdr
+  const photoHdr = format?.supportsPhotoHdr && enableHdr && !videoHdr
+
   return (
     <View style={styles.container}>
       {device != null && (
@@ -196,8 +199,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 onStopped={() => 'Camera stopped!'}
                 format={format}
                 fps={fps}
-                // photoHdr={format?.supportsPhotoHdr && enableHdr}
-                videoHdr={format?.supportsVideoHdr && enableHdr}
+                photoHdr={photoHdr}
+                videoHdr={videoHdr}
                 photoQualityBalance="quality"
                 lowLightBoost={device.supportsLowLightBoost && enableNightMode}
                 enableZoomGesture={false}
