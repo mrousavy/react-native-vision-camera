@@ -113,10 +113,10 @@ class CameraView(context: Context) :
   private var fpsGraph: FpsGraphView? = null
 
   init {
-    this.installHierarchyFitter()
     clipToOutline = true
     cameraSession = CameraSession(context, this)
     previewView = PreviewView(context).also {
+      it.installHierarchyFitter()
       it.implementationMode = PreviewView.ImplementationMode.PERFORMANCE
       it.layoutParams = LayoutParams(
         LayoutParams.MATCH_PARENT,
@@ -140,21 +140,6 @@ class CameraView(context: Context) :
       isMounted = true
       invokeOnViewReady()
     }
-  }
-
-  override fun onLayout(
-    changed: Boolean,
-    left: Int,
-    top: Int,
-    right: Int,
-    bottom: Int
-  ) {
-    val width = right - left
-    val height = bottom - top
-
-    // In React Native, subview layouts aren't automatically updated - so we manually re-layout the PreviewView.
-    previewView.layout(0, 0, width, height)
-    postInvalidate(left, top, right, bottom)
   }
 
   fun destroy() {
