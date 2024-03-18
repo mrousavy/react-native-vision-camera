@@ -153,7 +153,7 @@ class CameraDeviceDetails(private val cameraInfo: CameraInfo, extensionsManager:
     map.putInt("minISO", isoRange.lower)
     map.putInt("maxISO", isoRange.upper)
     map.putDouble("fieldOfView", maxFieldOfView)
-    map.putBoolean("supportsVideoHdr", supports10BitHdr || supportsHdrExtension)
+    map.putBoolean("supportsVideoHdr", supports10BitHdr)
     map.putBoolean("supportsPhotoHdr", supportsHdrExtension)
     map.putBoolean("supportsDepthCapture", supportsDepthCapture)
     map.putString("autoFocusSystem", autoFocusSystem.unionValue)

@@ -349,23 +349,35 @@ class CameraSession(private val context: Context, private val callback: Callback
     Log.i(TAG, "Binding Camera #${configuration.cameraId}...")
     checkCameraPermission()
 
-    // Input
-    val cameraId = configuration.cameraId ?: throw NoCameraDeviceError()
-    var cameraSelector = CameraSelector.Builder().byId(cameraId).build()
-
-    val needsImageAnalysis = codeScannerOutput != null
-    if (configuration.enableHdr) {
-      // TODO: Fix Extensions are only supported for use with standard dynamic range.
-      cameraSelector = cameraSelector.withExtension(context, provider, needsImageAnalysis, ExtensionMode.HDR, "HDR")
-    }
-    if (configuration.enableLowLightBoost) {
-      cameraSelector = cameraSelector.withExtension(context, provider, needsImageAnalysis, ExtensionMode.NIGHT, "NIGHT")
-    }
-
     // Outputs
     val useCases = listOfNotNull(previewOutput, photoOutput, videoOutput, codeScannerOutput)
     if (useCases.isEmpty()) {
       throw NoOutputsError()
+    }
+
+    // Input
+    val cameraId = configuration.cameraId ?: throw NoCameraDeviceError()
+    var cameraSelector = CameraSelector.Builder().byId(cameraId).build()
+
+    // Wrap input with a vendor extension if needed (see https://developer.android.com/media/camera/camera-extensions)
+    val isStreamingHDR = useCases.any { it.currentConfig.dynamicRange != DynamicRange.SDR }
+    val needsImageAnalysis = codeScannerOutput != null
+    val photoOptions = configuration.photo as? CameraConfiguration.Output.Enabled<CameraConfiguration.Photo>
+    if (photoOptions != null && photoOptions.config.enableHdr) {
+      if (isStreamingHDR) {
+        // extensions don't work if a camera stream is running at 10-bit HDR.
+        throw PhotoHdrAndVideoHdrNotSupportedSimultaneously()
+      }
+      // Load HDR Vendor extension (HDR only applies to image capture)
+      cameraSelector = cameraSelector.withExtension(context, provider, needsImageAnalysis, ExtensionMode.HDR, "HDR")
+    }
+    if (configuration.enableLowLightBoost) {
+      if (isStreamingHDR) {
+        // extensions don't work if a camera stream is running at 10-bit HDR.
+        throw LowLightBoostNotSupportedWithVideoHdr()
+      }
+      // Load night mode Vendor extension (only applies to image capture)
+      cameraSelector = cameraSelector.withExtension(context, provider, needsImageAnalysis, ExtensionMode.NIGHT, "NIGHT")
     }
 
     // Frame Processor is a CameraEffect (Surface middleman)

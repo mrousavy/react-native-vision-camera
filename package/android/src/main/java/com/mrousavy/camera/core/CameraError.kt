@@ -108,6 +108,18 @@ class InvalidVideoHdrError :
     "invalid-video-hdr",
     "The given format does not support videoHdr! Select a format where `format.supportsVideoHdr` is true."
   )
+class PhotoHdrAndVideoHdrNotSupportedSimultaneously :
+  CameraError(
+    "format",
+    "photo-hdr-and-video-hdr-not-suppoted-simultaneously",
+    "Photo HDR and Video HDR are not supported simultaneously! Disable either `videoHdr` or `photoHdr`."
+  )
+class LowLightBoostNotSupportedWithVideoHdr :
+  CameraError(
+    "format",
+    "low-light-boost-not-supported-with-video-hdr",
+    "The low light boost extension does not work when video HDR is enabled! Disable either `lowLightBoost` or `videoHdr`."
+  )
 
 class VideoNotEnabledError :
   CameraError("capture", "video-not-enabled", "Video capture is disabled! Pass `video={true}` to enable video recordings.")

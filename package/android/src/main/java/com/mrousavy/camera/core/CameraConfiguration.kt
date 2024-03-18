@@ -41,13 +41,6 @@ data class CameraConfiguration(
   // Audio Session
   var audio: Output<Audio> = Output.Disabled.create()
 ) {
-  val enableHdr: Boolean
-    get() {
-      val photoConfig = photo as? Output.Enabled<Photo>
-      val videoConfig = video as? Output.Enabled<Video>
-      return photoConfig?.config?.enableHdr == true || videoConfig?.config?.enableHdr == true
-    }
-
   // Output<T> types, those need to be comparable
   data class CodeScanner(val codeTypes: List<CodeType>)
   data class Photo(val enableHdr: Boolean, val photoQualityBalance: QualityBalance)
