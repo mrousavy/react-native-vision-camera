@@ -159,15 +159,19 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
           if difference.outputsChanged || difference.formatChanged {
             try self.configurePixelFormat(configuration: config)
           }
-          // 6. Configure side-props (fps, lowLightBoost)
+          // 6. After step 2. and 4. we also need to configure the photo output resolution
+          if difference.outputsChanged || difference.formatChanged {
+            self.configurePhotoOutputResolution(configuration: config)
+          }
+          // 7. Configure side-props (fps, lowLightBoost)
           if difference.sidePropsChanged {
             try self.configureSideProps(configuration: config, device: device)
           }
-          // 7. Configure zoom
+          // 8. Configure zoom
           if difference.zoomChanged {
             self.configureZoom(configuration: config, device: device)
           }
-          // 8. Configure exposure bias
+          // 9. Configure exposure bias
           if difference.exposureChanged {
             self.configureExposure(configuration: config, device: device)
           }
@@ -179,10 +183,10 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
           self.captureSession.commitConfiguration()
         }
 
-        // 9. Start or stop the session if needed
+        // 10. Start or stop the session if needed
         self.checkIsActive(configuration: config)
 
-        // 10. Enable or disable the Torch if needed (requires session to be running)
+        // 11. Enable or disable the Torch if needed (requires session to be running)
         if difference.torchChanged {
           try device.lockForConfiguration()
           defer {

@@ -215,6 +215,29 @@ extension CameraSession {
     ReactLogger.log(level: .info, message: "Successfully configured Format!")
   }
 
+  func configurePhotoOutputResolution(configuration: CameraConfiguration) {
+    guard case let .enabled(photo) = configuration.photo,
+          let photoOutput, let videoDeviceInput else {
+      // Video is not enabled
+      return
+    }
+
+    // Configure the PhotoOutput to use the maximum available resolution.
+    // We need to do this after device.activeFormat has been set.
+    if #available(iOS 16.0, *) {
+      let format = videoDeviceInput.device.activeFormat
+      let maxPhotoResolution = format.supportedMaxPhotoDimensions.max(by: { left, right in
+        (left.width * left.height) < (right.width * right.height)
+      })
+      guard let maxPhotoResolution else {
+        return
+      }
+      photoOutput.maxPhotoDimensions = maxPhotoResolution
+    } else {
+      photoOutput.isHighResolutionCaptureEnabled = true
+    }
+  }
+
   func configurePixelFormat(configuration: CameraConfiguration) throws {
     guard case let .enabled(video) = configuration.video,
           let videoOutput else {
