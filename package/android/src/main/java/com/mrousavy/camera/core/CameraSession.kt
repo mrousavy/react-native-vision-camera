@@ -96,7 +96,7 @@ class CameraSession(private val context: Context, private val callback: Callback
   private val mainExecutor = ContextCompat.getMainExecutor(context)
 
   init {
-    lifecycleRegistry.currentState = Lifecycle.State.STARTED
+    lifecycleRegistry.currentState = Lifecycle.State.CREATED
     lifecycle.addObserver(object : LifecycleEventObserver {
       override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         Log.i(TAG, "Camera Lifecycle changed to ${event.targetState}!")
@@ -431,9 +431,11 @@ class CameraSession(private val context: Context, private val callback: Callback
 
   private fun configureIsActive(config: CameraConfiguration) {
     if (config.isActive) {
+      lifecycleRegistry.currentState = Lifecycle.State.STARTED
       lifecycleRegistry.currentState = Lifecycle.State.RESUMED
     } else {
       lifecycleRegistry.currentState = Lifecycle.State.STARTED
+      lifecycleRegistry.currentState = Lifecycle.State.CREATED
     }
   }
 
