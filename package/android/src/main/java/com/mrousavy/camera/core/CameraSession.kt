@@ -320,7 +320,6 @@ class CameraSession(private val context: Context, private val callback: Callback
       recorderOutput = null
     }
 
-
     // 4. Frame Processor
     val frameProcessorConfig = configuration.frameProcessor as? CameraConfiguration.Output.Enabled<CameraConfiguration.FrameProcessor>
     if (frameProcessorConfig != null) {
@@ -349,7 +348,6 @@ class CameraSession(private val context: Context, private val callback: Callback
     } else {
       frameProcessorOutput = null
     }
-
 
     // 5. Code Scanner
     val codeScannerConfig = configuration.codeScanner as? CameraConfiguration.Output.Enabled<CameraConfiguration.CodeScanner>
