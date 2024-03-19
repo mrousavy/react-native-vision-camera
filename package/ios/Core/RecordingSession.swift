@@ -142,8 +142,8 @@ class RecordingSession {
     }
 
     let locationSpec = [
-      kCMMetadataFormatDescriptionMetadataSpecificationKey_Identifier: AVMetadataIdentifier.quickTimeMetadataLocationISO6709,
-      kCMMetadataFormatDescriptionMetadataSpecificationKey_DataType: kCMMetadataDataType_QuickTimeMetadataLocation_ISO6709,
+      kCMMetadataFormatDescriptionMetadataSpecificationKey_Identifier as String: AVMetadataIdentifier.quickTimeMetadataLocationISO6709,
+      kCMMetadataFormatDescriptionMetadataSpecificationKey_DataType as String: kCMMetadataDataType_QuickTimeMetadataLocation_ISO6709
     ] as [String: Any]
     let metadataSpecifications: NSArray = [locationSpec]
     var metadataFormatDescription: CMFormatDescription?
@@ -166,6 +166,7 @@ class RecordingSession {
     metadataItem.keySpace = AVMetadataKeySpace.common
     metadataItem.value = String(format: "%+.6f%+.6f/", location.coordinate.latitude, location.coordinate.longitude) as (NSCopying & NSObjectProtocol)?
     metadataItem.identifier = AVMetadataIdentifier.quickTimeMetadataLocationISO6709
+    metadataItem.dataType = kCMMetadataDataType_QuickTimeMetadataLocation_ISO6709 as String
     return metadataItem
   }
 
