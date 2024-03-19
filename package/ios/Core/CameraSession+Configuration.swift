@@ -80,11 +80,6 @@ extension CameraSession {
         let qualityPrioritization = AVCapturePhotoOutput.QualityPrioritization(fromQualityBalance: photo.qualityBalance)
         photoOutput.maxPhotoQualityPrioritization = qualityPrioritization
       }
-      if photo.enableHighQualityPhotos {
-        // This is deprecated in favor of `maxPhotoDimensions`, but maxPhotoDimensions is by default
-        // already set to the highest resolution possible (i think?), so we don't need to set that again.
-        photoOutput.isHighResolutionCaptureEnabled = true
-      }
       // TODO: Enable isResponsiveCaptureEnabled? (iOS 17+)
       // TODO: Enable isFastCapturePrioritizationEnabled? (iOS 17+)
       if photo.enableDepthData {
@@ -203,7 +198,7 @@ extension CameraSession {
     ReactLogger.log(level: .info, message: "Successfully configured Format!")
   }
 
-  func configurePixelFormat(configuration: CameraConfiguration) throws {
+  func configureVideoOutputFormat(configuration: CameraConfiguration) throws {
     guard case let .enabled(video) = configuration.video,
           let videoOutput else {
       // Video is not enabled
@@ -216,6 +211,22 @@ extension CameraSession {
     videoOutput.videoSettings = [
       String(kCVPixelBufferPixelFormatTypeKey): pixelFormatType,
     ]
+  }
+
+  func configurePhotoOutputFormat(configuration: CameraConfiguration) throws {
+    guard let videoDeviceInput, let photoOutput else {
+      // Photo is not enabled
+      return
+    }
+
+    // Configure the PhotoOutput Settings to use the given max-resolution.
+    // We need to run this after device.activeFormat has been set, otherwise the resolution is different.
+    let format = videoDeviceInput.device.activeFormat
+    if #available(iOS 16.0, *) {
+      photoOutput.maxPhotoDimensions = format.photoDimensions
+    } else {
+      photoOutput.isHighResolutionCaptureEnabled = true
+    }
   }
 
   // pragma MARK: Side-Props

@@ -25,7 +25,6 @@ public final class CameraView: UIView, CameraSessionDelegate {
   // props that require reconfiguring
   @objc var cameraId: NSString?
   @objc var enableDepthData = false
-  @objc var enableHighQualityPhotos = false
   @objc var enablePortraitEffectsMatteDelivery = false
   @objc var enableBufferCompression = false
   // use cases
@@ -179,10 +178,9 @@ public final class CameraView: UIView, CameraSessionDelegate {
 
       // Photo
       if photo {
-        config.photo = .enabled(config: CameraConfiguration.Photo(enableHighQualityPhotos: enableHighQualityPhotos,
+        config.photo = .enabled(config: CameraConfiguration.Photo(qualityBalance: getPhotoQualityBalance(),
                                                                   enableDepthData: enableDepthData,
-                                                                  enablePortraitEffectsMatte: enablePortraitEffectsMatteDelivery,
-                                                                  qualityBalance: getPhotoQualityBalance()))
+                                                                  enablePortraitEffectsMatte: enablePortraitEffectsMatteDelivery))
       } else {
         config.photo = .disabled
       }
