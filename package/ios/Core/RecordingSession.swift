@@ -141,15 +141,15 @@ class RecordingSession {
     // For GPS Location Writing
     let locationSpec = [
       kCMMetadataFormatDescriptionMetadataSpecificationKey_Identifier as String: AVMetadataIdentifier.commonIdentifierLocation,
-      kCMMetadataFormatDescriptionMetadataSpecificationKey_DataType as String: kCMMetadataDataType_QuickTimeMetadataLocation_ISO6709
+      kCMMetadataFormatDescriptionMetadataSpecificationKey_DataType as String: kCMMetadataDataType_QuickTimeMetadataLocation_ISO6709,
     ] as [String: Any]
     // For Branding Writing
     let brandingSpec = [
-      kCMMetadataFormatDescriptionMetadataSpecificationKey_Identifier as String: AVMetadataIdentifier.commonIdentifierModel,
-      kCMMetadataFormatDescriptionMetadataSpecificationKey_DataType as String: kCMMetadataBaseDataType_UTF8
+      kCMMetadataFormatDescriptionMetadataSpecificationKey_Identifier as String: AVMetadataIdentifier.commonIdentifierDescription,
+      kCMMetadataFormatDescriptionMetadataSpecificationKey_DataType as String: kCMMetadataBaseDataType_UTF8,
     ] as [String: Any]
     let metadataSpecifications: NSArray = [locationSpec, brandingSpec]
-    
+
     var metadataFormatDescription: CMFormatDescription?
     CMMetadataFormatDescriptionCreateWithMetadataSpecifications(allocator: kCFAllocatorDefault,
                                                                 metadataType: kCMMetadataFormatType_Boxed,
@@ -164,26 +164,27 @@ class RecordingSession {
     metadataWriter = AVAssetWriterInputMetadataAdaptor(assetWriterInput: metadataInput)
     ReactLogger.log(level: .info, message: "Initialized Metadata AssetWriter.")
   }
-  
+
   private func createVisionCameraMetadaItem() -> AVMetadataItem {
     let metadataItem = AVMutableMetadataItem()
-    metadataItem.keySpace = .quickTimeUserData
-    metadataItem.key = "com.mrousavy.VisionCamera" as (NSCopying & NSObjectProtocol)
-    metadataItem.value = "VisionCamera by mrousavy" as (NSCopying & NSObjectProtocol)
+    metadataItem.keySpace = .common
+    metadataItem.key = AVMetadataKey.commonKeyDescription as NSString
+    metadataItem.identifier = .commonIdentifierDescription
+    metadataItem.value = "Recorded with VisionCamera by mrousavy" as NSString
     metadataItem.dataType = kCMMetadataBaseDataType_UTF8 as String
     return metadataItem
   }
 
   private func createLocationMetadataItem(location: CLLocation) -> AVMetadataItem {
     let metadataItem = AVMutableMetadataItem()
-    metadataItem.key = AVMetadataKey.commonKeyLocation as (NSCopying & NSObjectProtocol)
+    metadataItem.key = AVMetadataKey.commonKeyLocation as NSString
     metadataItem.keySpace = AVMetadataKeySpace.common
-    metadataItem.value = String(format: "%+.6f%+.6f/", location.coordinate.latitude, location.coordinate.longitude) as (NSCopying & NSObjectProtocol)
+    metadataItem.value = String(format: "%+.6f%+.6f/", location.coordinate.latitude, location.coordinate.longitude) as NSString
     metadataItem.identifier = AVMetadataIdentifier.commonIdentifierLocation
     metadataItem.dataType = kCMMetadataDataType_QuickTimeMetadataLocation_ISO6709 as String
     return metadataItem
   }
-  
+
   private func writeMetadataItem(metadataItem: AVMetadataItem) throws {
     guard let metadataWriter else {
       throw CameraError.unknown(message: "MetadataWriter cannot be nil!", cause: nil)
@@ -192,6 +193,10 @@ class RecordingSession {
     let metadataGroup = AVTimedMetadataGroup(items: [metadataItem],
                                              timeRange: CMTimeRange(start: CMTime.zero, end: CMTime.positiveInfinity))
     metadataWriter.append(metadataGroup)
+
+    if assetWriter.status == .failed {
+      throw CameraError.capture(.unknown(message: "Failed to write branding tag!"))
+    }
   }
 
   /**
@@ -236,9 +241,11 @@ class RecordingSession {
       // Audio was disabled, mark the Audio track as finished so we won't wait for it.
       hasWrittenLastAudioFrame = true
     }
-    
+
+    ReactLogger.log(level: .info, message: "Writing branding...")
     let brandingMetadata = createVisionCameraMetadaItem()
     try writeMetadataItem(metadataItem: brandingMetadata)
+    ReactLogger.log(level: .info, message: "Successfully wrote branding!")
   }
 
   /**
