@@ -23,6 +23,7 @@ import androidx.camera.core.MeteringPoint
 import androidx.camera.core.MirrorMode
 import androidx.camera.core.Preview
 import androidx.camera.core.TorchState
+import androidx.camera.core.UseCase
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -82,6 +83,8 @@ class CameraSession(private val context: Context, private val callback: Callback
   private var videoOutput: VideoCapture<Recorder>? = null
   private var frameProcessorOutput: ImageAnalysis? = null
   private var codeScannerOutput: ImageAnalysis? = null
+  private val useCases: List<UseCase>
+    get() = listOfNotNull(previewOutput, photoOutput, videoOutput, frameProcessorOutput, codeScannerOutput)
 
   // Camera Outputs State
   private var recorderOutput: Recorder? = null
@@ -355,7 +358,6 @@ class CameraSession(private val context: Context, private val callback: Callback
   }
 
   private fun closeCurrentOutputs(provider: ProcessCameraProvider) {
-    val useCases = listOfNotNull(previewOutput, photoOutput, videoOutput, codeScannerOutput)
     if (useCases.isEmpty()) {
       return
     }
@@ -369,7 +371,6 @@ class CameraSession(private val context: Context, private val callback: Callback
     checkCameraPermission()
 
     // Outputs
-    val useCases = listOfNotNull(previewOutput, photoOutput, videoOutput, frameProcessorOutput, codeScannerOutput)
     if (useCases.isEmpty()) {
       throw NoOutputsError()
     }
