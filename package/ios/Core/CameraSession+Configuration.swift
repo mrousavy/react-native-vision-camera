@@ -80,11 +80,6 @@ extension CameraSession {
         let qualityPrioritization = AVCapturePhotoOutput.QualityPrioritization(fromQualityBalance: photo.qualityBalance)
         photoOutput.maxPhotoQualityPrioritization = qualityPrioritization
       }
-      if photo.enableHighQualityPhotos {
-        // This is deprecated in favor of `maxPhotoDimensions`, but maxPhotoDimensions is by default
-        // already set to the highest resolution possible (i think?), so we don't need to set that again.
-        photoOutput.isHighResolutionCaptureEnabled = true
-      }
       // TODO: Enable isResponsiveCaptureEnabled? (iOS 17+)
       // TODO: Enable isFastCapturePrioritizationEnabled? (iOS 17+)
       if photo.enableDepthData {
