@@ -80,23 +80,6 @@ extension CameraSession {
         let qualityPrioritization = AVCapturePhotoOutput.QualityPrioritization(fromQualityBalance: photo.qualityBalance)
         photoOutput.maxPhotoQualityPrioritization = qualityPrioritization
       }
-      if photo.enableHighQualityPhotos {
-        // TODO: Refactor this into an extension method. Same for AVCapturePhotoOutput.
-        if #available(iOS 16.0, *) {
-          if let device = videoDeviceInput?.device,
-             let targetFormat = configuration.format {
-            guard let format = device.formats.first(where: { f in targetFormat.isEqualTo(format: f) }) else {
-              throw CameraError.parameter(.invalid(unionName: "format", receivedValue: targetFormat.toJSValue().description))
-            }
-            guard let maxSupportedDimension = format.supportedMaxPhotoDimensions.max(by: { ($0.width * $0.height) < ($1.width * $1.height) }) else {
-              throw CameraError.unknown(message: "supportedMaxPhotoDimensions was empty!", cause: nil)
-            }
-            photoOutput.maxPhotoDimensions = maxSupportedDimension
-          }
-        } else {
-          photoOutput.isHighResolutionCaptureEnabled = true
-        }
-      }
       // TODO: Enable isResponsiveCaptureEnabled? (iOS 17+)
       // TODO: Enable isFastCapturePrioritizationEnabled? (iOS 17+)
       if photo.enableDepthData {
@@ -215,7 +198,7 @@ extension CameraSession {
     ReactLogger.log(level: .info, message: "Successfully configured Format!")
   }
 
-  func configurePixelFormat(configuration: CameraConfiguration) throws {
+  func configureVideoOutputFormat(configuration: CameraConfiguration) throws {
     guard case let .enabled(video) = configuration.video,
           let videoOutput else {
       // Video is not enabled
@@ -228,6 +211,22 @@ extension CameraSession {
     videoOutput.videoSettings = [
       String(kCVPixelBufferPixelFormatTypeKey): pixelFormatType,
     ]
+  }
+
+  func configurePhotoOutputFormat(configuration _: CameraConfiguration) throws {
+    guard let videoDeviceInput, let photoOutput else {
+      // Photo is not enabled
+      return
+    }
+
+    // Configure the PhotoOutput Settings to use the given max-resolution.
+    // We need to run this after device.activeFormat has been set, otherwise the resolution is different.
+    let format = videoDeviceInput.device.activeFormat
+    if #available(iOS 16.0, *) {
+      photoOutput.maxPhotoDimensions = format.photoDimensions
+    } else {
+      photoOutput.isHighResolutionCaptureEnabled = true
+    }
   }
 
   // pragma MARK: Side-Props

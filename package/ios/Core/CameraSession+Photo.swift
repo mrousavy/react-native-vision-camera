@@ -41,14 +41,11 @@ extension CameraSession {
       // Create photo settings
       let photoSettings = AVCapturePhotoSettings()
 
-      // high resolution capture
-      if photo.enableHighQualityPhotos {
-        // TODO: On iOS 16+ this will be removed in favor of maxPhotoDimensions.
-        if #available(iOS 16.0, *) {
-          photoSettings.maxPhotoDimensions = photoOutput.maxPhotoDimensions
-        } else {
-          photoSettings.isHighResolutionPhotoEnabled = true
-        }
+      // set photo resolution
+      if #available(iOS 16.0, *) {
+        photoSettings.maxPhotoDimensions = photoOutput.maxPhotoDimensions
+      } else {
+        photoSettings.isHighResolutionPhotoEnabled = photoOutput.isHighResolutionCaptureEnabled
       }
 
       // depth data

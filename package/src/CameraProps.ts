@@ -266,18 +266,6 @@ export interface CameraProps extends ViewProps {
    */
   enablePortraitEffectsMatteDelivery?: boolean
   /**
-   * Indicates whether the Camera should prepare the photo pipeline to provide maximum quality photos.
-   *
-   * This enables:
-   * * High Resolution Capture ([`isHighResolutionCaptureEnabled`](https://developer.apple.com/documentation/avfoundation/avcapturephotooutput/1648721-ishighresolutioncaptureenabled))
-   * * Virtual Device fusion for greater detail ([`isVirtualDeviceConstituentPhotoDeliveryEnabled`](https://developer.apple.com/documentation/avfoundation/avcapturephotooutput/3192189-isvirtualdeviceconstituentphotod))
-   * * Dual Device fusion for greater detail ([`isDualCameraDualPhotoDeliveryEnabled`](https://developer.apple.com/documentation/avfoundation/avcapturephotosettings/2873917-isdualcameradualphotodeliveryena))
-   *
-   * @platform iOS
-   * @default false
-   */
-  enableHighQualityPhotos?: boolean
-  /**
    * If `true`, show a debug view to display the FPS of the Video Pipeline (Frame Processor).
    * This is useful for debugging your Frame Processor's speed.
    *

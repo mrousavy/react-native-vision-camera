@@ -25,7 +25,6 @@ RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(installFrameProcessorBindings);
 RCT_EXPORT_VIEW_PROPERTY(isActive, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(cameraId, NSString);
 RCT_EXPORT_VIEW_PROPERTY(enableDepthData, BOOL);
-RCT_EXPORT_VIEW_PROPERTY(enableHighQualityPhotos, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(enablePortraitEffectsMatteDelivery, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(enableBufferCompression, BOOL);
 // use cases

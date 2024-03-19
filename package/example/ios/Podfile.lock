@@ -344,7 +344,7 @@ PODS:
     - react-native-video/Video (= 5.2.1)
   - react-native-video/Video (5.2.1):
     - React-Core
-  - react-native-worklets-core (0.3.0):
+  - react-native-worklets-core (0.4.0):
     - React
     - React-callinvoker
     - React-Core
@@ -484,7 +484,7 @@ PODS:
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.10)
   - SocketRocket (0.6.1)
-  - VisionCamera (4.0.0-beta.6):
+  - VisionCamera (4.0.0-beta.7):
     - React
     - React-callinvoker
     - React-Core
@@ -697,7 +697,7 @@ SPEC CHECKSUMS:
   react-native-mmkv: e97c0c79403fb94577e5d902ab1ebd42b0715b43
   react-native-safe-area-context: 0ee144a6170530ccc37a0fd9388e28d06f516a89
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
-  react-native-worklets-core: a894d572639fcf37c6d284cc799882d25d00c93d
+  react-native-worklets-core: 2efe80a3ee87fe5e6fefa814e0e20c2708d3ad25
   React-NativeModulesApple: b6868ee904013a7923128892ee4a032498a1024a
   React-perflogger: 31ea61077185eb1428baf60c0db6e2886f141a5a
   React-RCTActionSheet: 392090a3abc8992eb269ef0eaa561750588fc39d
@@ -724,7 +724,7 @@ SPEC CHECKSUMS:
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  VisionCamera: 7a9e59cc5e65d458d9809a9ac23700265df0f14e
+  VisionCamera: e0f80a131dbfa1361fdfc0231cb02e3312903acf
   Yoga: 4c3aa327e4a6a23eeacd71f61c81df1bcdf677d5
 
 PODFILE CHECKSUM: 27f53791141a3303d814e09b55770336416ff4eb
