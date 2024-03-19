@@ -128,11 +128,6 @@ extension CameraSession {
         let videoSettings = try videoOutput.recommendedVideoSettings(forOptions: options)
         recordingSession.initializeVideoWriter(withSettings: videoSettings)
 
-        // Init Location
-        if self.locationOutput != nil {
-          try recordingSession.initializeMetadataWriter()
-        }
-
         // start recording session with or without audio.
         // Use Video [AVCaptureSession] clock as a timebase - all other sessions (here; audio) have to be synced to that Clock.
         try recordingSession.start(clock: self.captureSession.clock)

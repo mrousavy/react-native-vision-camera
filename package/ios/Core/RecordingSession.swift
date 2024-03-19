@@ -83,6 +83,7 @@ class RecordingSession {
     } catch let error as NSError {
       throw CameraError.capture(.createRecorderError(message: error.description))
     }
+    try initializeMetadataWriter()
   }
 
   deinit {
@@ -133,19 +134,22 @@ class RecordingSession {
   }
 
   /**
-   Initializes the metadata writer which is capable of writing location EXIF tags
+   Initializes the metadata writer which is capable of writing branding information and location EXIF tags
    */
-  func initializeMetadataWriter() throws {
-    guard metadataWriter == nil else {
-      ReactLogger.log(level: .error, message: "Tried to add Metadata Writer twice!")
-      return
-    }
-
+  private func initializeMetadataWriter() throws {
+    ReactLogger.log(level: .info, message: "Initializing Metadata writer...")
+    // For GPS Location Writing
     let locationSpec = [
-      kCMMetadataFormatDescriptionMetadataSpecificationKey_Identifier as String: AVMetadataIdentifier.quickTimeMetadataLocationISO6709,
+      kCMMetadataFormatDescriptionMetadataSpecificationKey_Identifier as String: AVMetadataIdentifier.commonIdentifierLocation,
       kCMMetadataFormatDescriptionMetadataSpecificationKey_DataType as String: kCMMetadataDataType_QuickTimeMetadataLocation_ISO6709
     ] as [String: Any]
-    let metadataSpecifications: NSArray = [locationSpec]
+    // For Branding Writing
+    let brandingSpec = [
+      kCMMetadataFormatDescriptionMetadataSpecificationKey_Identifier as String: AVMetadataIdentifier.commonIdentifierModel,
+      kCMMetadataFormatDescriptionMetadataSpecificationKey_DataType as String: kCMMetadataBaseDataType_UTF8
+    ] as [String: Any]
+    let metadataSpecifications: NSArray = [locationSpec, brandingSpec]
+    
     var metadataFormatDescription: CMFormatDescription?
     CMMetadataFormatDescriptionCreateWithMetadataSpecifications(allocator: kCFAllocatorDefault,
                                                                 metadataType: kCMMetadataFormatType_Boxed,
@@ -158,30 +162,44 @@ class RecordingSession {
     }
     assetWriter.add(metadataInput)
     metadataWriter = AVAssetWriterInputMetadataAdaptor(assetWriterInput: metadataInput)
+    ReactLogger.log(level: .info, message: "Initialized Metadata AssetWriter.")
+  }
+  
+  private func createVisionCameraMetadaItem() -> AVMetadataItem {
+    let metadataItem = AVMutableMetadataItem()
+    metadataItem.keySpace = .quickTimeUserData
+    metadataItem.key = "com.mrousavy.VisionCamera" as (NSCopying & NSObjectProtocol)
+    metadataItem.value = "VisionCamera by mrousavy" as (NSCopying & NSObjectProtocol)
+    metadataItem.dataType = kCMMetadataBaseDataType_UTF8 as String
+    return metadataItem
   }
 
   private func createLocationMetadataItem(location: CLLocation) -> AVMetadataItem {
     let metadataItem = AVMutableMetadataItem()
-    metadataItem.key = AVMetadataKey.commonKeyLocation as (NSCopying & NSObjectProtocol)?
+    metadataItem.key = AVMetadataKey.commonKeyLocation as (NSCopying & NSObjectProtocol)
     metadataItem.keySpace = AVMetadataKeySpace.common
-    metadataItem.value = String(format: "%+.6f%+.6f/", location.coordinate.latitude, location.coordinate.longitude) as (NSCopying & NSObjectProtocol)?
-    metadataItem.identifier = AVMetadataIdentifier.quickTimeMetadataLocationISO6709
+    metadataItem.value = String(format: "%+.6f%+.6f/", location.coordinate.latitude, location.coordinate.longitude) as (NSCopying & NSObjectProtocol)
+    metadataItem.identifier = AVMetadataIdentifier.commonIdentifierLocation
     metadataItem.dataType = kCMMetadataDataType_QuickTimeMetadataLocation_ISO6709 as String
     return metadataItem
+  }
+  
+  private func writeMetadataItem(metadataItem: AVMetadataItem) throws {
+    guard let metadataWriter else {
+      throw CameraError.unknown(message: "MetadataWriter cannot be nil!", cause: nil)
+    }
+
+    let metadataGroup = AVTimedMetadataGroup(items: [metadataItem],
+                                             timeRange: CMTimeRange(start: CMTime.zero, end: CMTime.positiveInfinity))
+    metadataWriter.append(metadataGroup)
   }
 
   /**
    Writes a Location tag to the video
    */
   func writeLocationTag(location: CLLocation) throws {
-    guard let metadataWriter else {
-      throw CameraError.location(.cannotWriteLocationToVideo)
-    }
-
     let metadataItem = createLocationMetadataItem(location: location)
-    let metadataGroup = AVTimedMetadataGroup(items: [metadataItem],
-                                             timeRange: CMTimeRange(start: CMTime.zero, end: CMTime.positiveInfinity))
-    metadataWriter.append(metadataGroup)
+    try writeMetadataItem(metadataItem: metadataItem)
   }
 
   /**
@@ -218,6 +236,9 @@ class RecordingSession {
       // Audio was disabled, mark the Audio track as finished so we won't wait for it.
       hasWrittenLastAudioFrame = true
     }
+    
+    let brandingMetadata = createVisionCameraMetadaItem()
+    try writeMetadataItem(metadataItem: brandingMetadata)
   }
 
   /**
