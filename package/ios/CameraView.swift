@@ -210,7 +210,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
       } else {
         config.codeScanner = .disabled
       }
-      
+
       // Location tagging
       config.enableLocation = enableLocation
 

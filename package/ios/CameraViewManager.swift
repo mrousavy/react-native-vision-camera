@@ -7,8 +7,8 @@
 //
 
 import AVFoundation
-import Foundation
 import CoreLocation
+import Foundation
 
 @objc(CameraViewManager)
 final class CameraViewManager: RCTViewManager {
@@ -95,7 +95,7 @@ final class CameraViewManager: RCTViewManager {
     let component = getCameraView(withTag: node)
     component.focus(point: CGPoint(x: x.doubleValue, y: y.doubleValue), promise: promise)
   }
-  
+
   @objc
   final func getCameraPermissionStatus() -> String {
     let status = AVCaptureDevice.authorizationStatus(for: .video)
@@ -107,7 +107,7 @@ final class CameraViewManager: RCTViewManager {
     let status = AVCaptureDevice.authorizationStatus(for: .audio)
     return status.descriptor
   }
-  
+
   @objc
   final func getLocationPermissionStatus() -> String {
     let status = CLLocationManager.authorizationStatus()
@@ -121,7 +121,7 @@ final class CameraViewManager: RCTViewManager {
       resolve(result.descriptor)
     }
   }
-  
+
   @objc
   final func requestMicrophonePermission(_ resolve: @escaping RCTPromiseResolveBlock, reject _: @escaping RCTPromiseRejectBlock) {
     AVCaptureDevice.requestAccess(for: .audio) { granted in
@@ -129,7 +129,7 @@ final class CameraViewManager: RCTViewManager {
       resolve(result.descriptor)
     }
   }
-  
+
   @objc
   final func requestLocationPermission(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
     let manager = CLLocationManager()

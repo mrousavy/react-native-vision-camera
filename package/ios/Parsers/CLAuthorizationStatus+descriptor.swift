@@ -5,8 +5,8 @@
 //  Created by Marc Rousavy on 19.03.24.
 //
 
-import Foundation
 import CoreLocation
+import Foundation
 
 extension CLAuthorizationStatus {
   var descriptor: String {

@@ -62,6 +62,7 @@ export type SystemError =
   | 'system/view-not-found'
   | 'system/max-cameras-in-use'
   | 'system/do-not-disturb-bug'
+export type LocationError = 'location/cannot-write-location-tag-to-video'
 export type UnknownError = 'unknown/unknown'
 
 /**
@@ -120,6 +121,7 @@ type CameraErrorCode =
   | SessionError
   | CaptureError
   | SystemError
+  | LocationError
   | UnknownError
 
 /**
@@ -172,7 +174,7 @@ export class CameraCaptureError extends CameraError<CaptureError> {}
  * See the ["Camera Errors" documentation](https://react-native-vision-camera.com/docs/guides/errors) for more information about Camera Errors.
  */
 export class CameraRuntimeError extends CameraError<
-  PermissionError | ParameterError | DeviceError | FormatError | SessionError | SystemError | UnknownError
+  PermissionError | ParameterError | DeviceError | FormatError | SessionError | SystemError | LocationError | UnknownError
 > {}
 
 /**

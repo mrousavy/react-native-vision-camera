@@ -21,7 +21,7 @@ class CameraConfiguration {
   var photo: OutputConfiguration<Photo> = .disabled
   var video: OutputConfiguration<Video> = .disabled
   var codeScanner: OutputConfiguration<CodeScanner> = .disabled
-  
+
   // Location
   var enableLocation = false
 
@@ -129,7 +129,7 @@ class CameraConfiguration {
 
       // audio session
       audioSessionChanged = left?.audio != right.audio
-      
+
       // location
       locationChanged = left?.enableLocation != right.enableLocation
     }

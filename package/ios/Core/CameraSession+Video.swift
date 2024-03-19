@@ -137,6 +137,19 @@ extension CameraSession {
 
         let end = DispatchTime.now()
         ReactLogger.log(level: .info, message: "RecordingSesssion started in \(Double(end.uptimeNanoseconds - start.uptimeNanoseconds) / 1_000_000)ms!")
+
+        if let locationOutput = self.locationOutput {
+          CameraQueues.locationQueue.async {
+            do {
+              ReactLogger.log(level: .info, message: "Adding location tag to video...")
+              try recordingSession.addLocationTag(locationOutput: locationOutput)
+              ReactLogger.log(level: .info, message: "Successfully added location metadata tag to video!")
+            } catch {
+              ReactLogger.log(level: .error, message: "Failed to add location tag to video!")
+              self.delegate?.onError(.location(.cannotWriteLocationToVideo))
+            }
+          }
+        }
       } catch let error as NSError {
         if let error = error as? CameraError {
           onError(error)

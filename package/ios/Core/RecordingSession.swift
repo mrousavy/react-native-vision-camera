@@ -29,6 +29,7 @@ class RecordingSession {
   private let assetWriter: AVAssetWriter
   private var audioWriter: AVAssetWriterInput?
   private var videoWriter: AVAssetWriterInput?
+  private var metadataWriter: AVAssetWriterInput?
   private let completionHandler: (RecordingSession, AVAssetWriter.Status, Error?) -> Void
 
   private var startTimestamp: CMTime?
@@ -88,6 +89,29 @@ class RecordingSession {
       ReactLogger.log(level: .info, message: "Cancelling AssetWriter...")
       assetWriter.cancelWriting()
     }
+  }
+
+  func addLocationTag(locationOutput: LocationDataOutput) throws {
+    guard let location = locationOutput.location else {
+      // no location available!
+      ReactLogger.log(level: .warning, message: "No Location is available, cannot add GPS location EXIF tag to video...")
+      return
+    }
+
+    let metadataItem = AVMutableMetadataItem()
+    metadataItem.key = AVMetadataKey.commonKeyLocation as (NSCopying & NSObjectProtocol)?
+    metadataItem.keySpace = AVMetadataKeySpace.common
+    metadataItem.value = String(format: "%+.6f%+.6f/", location.coordinate.latitude, location.coordinate.longitude) as (NSCopying & NSObjectProtocol)?
+    metadataItem.identifier = AVMetadataIdentifier.quickTimeMetadataLocationISO6709
+
+    metadataWriter = AVAssetWriterInput(mediaType: .metadata, outputSettings: nil)
+    guard assetWriter.canAdd(metadataWriter!) else {
+      throw CameraError.location(.cannotWriteLocationToVideo)
+    }
+    assetWriter.add(metadataWriter!)
+    let metadataAdapter = AVAssetWriterInputMetadataAdaptor(assetWriterInput: metadataWriter!)
+    let metadataGroup = AVTimedMetadataGroup(items: [metadataItem], timeRange: CMTimeRange(start: CMTime.zero, end: CMTime.positiveInfinity))
+    metadataAdapter.append(metadataGroup)
   }
 
   /**

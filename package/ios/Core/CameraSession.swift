@@ -222,7 +222,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
           }
         }
       }
-      
+
       // Set up Location streaming (on location queue)
       if difference.locationChanged {
         CameraQueues.locationQueue.async {
