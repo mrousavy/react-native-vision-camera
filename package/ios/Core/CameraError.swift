@@ -13,6 +13,7 @@ import Foundation
 enum PermissionError: String {
   case microphone = "microphone-permission-denied"
   case camera = "camera-permission-denied"
+  case location = "location-permission-denied"
 
   var code: String {
     return rawValue
@@ -22,6 +23,8 @@ enum PermissionError: String {
     switch self {
     case .microphone:
       return "The Microphone permission was denied! If you want to record Videos without sound, pass `audio={false}`."
+    case .location:
+      return "The Location permission was denied! If you want to capture photos or videos without location tags, pass `enableLocation={false}`."
     case .camera:
       return "The Camera permission was denied!"
     }

@@ -424,13 +424,24 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
     return CameraModule.getCameraPermissionStatus()
   }
   /**
-   * Gets the current Microphone-Recording Permission Status. Check this before mounting the Camera to ensure
-   * the user has permitted the app to use the microphone.
+   * Gets the current Microphone-Recording Permission Status.
+   * Check this before enabling the `audio={...}` property to make sure the
+   * user has permitted the app to use the microphone.
    *
    * To actually prompt the user for microphone permission, use {@linkcode Camera.requestMicrophonePermission | requestMicrophonePermission()}.
    */
   public static getMicrophonePermissionStatus(): CameraPermissionStatus {
     return CameraModule.getMicrophonePermissionStatus()
+  }
+  /**
+   * Gets the current Location Permission Status.
+   * Check this before enabling the `location={...}` property to make sure the
+   * the user has permitted the app to use the location.
+   *
+   * To actually prompt the user for location permission, use {@linkcode Camera.requestLocationPermission | requestLocationPermission()}.
+   */
+  public static getLocationPermissionStatus(): CameraPermissionStatus {
+    return CameraModule.getLocationPermissionStatus()
   }
   /**
    * Shows a "request permission" alert to the user, and resolves with the new camera permission status.
@@ -460,6 +471,22 @@ export class Camera extends React.PureComponent<CameraProps, CameraState> {
   public static async requestMicrophonePermission(): Promise<CameraPermissionRequestResult> {
     try {
       return await CameraModule.requestMicrophonePermission()
+    } catch (e) {
+      throw tryParseNativeCameraError(e)
+    }
+  }
+  /**
+   * Shows a "request permission" alert to the user, and resolves with the new location permission status.
+   *
+   * If the user has previously blocked the app from using the location, the alert will not be shown
+   * and `"denied"` will be returned.
+   *
+   * @throws {@linkcode CameraRuntimeError} When any kind of error occured while requesting permission.
+   * Use the {@linkcode CameraRuntimeError.code | code} property to get the actual error
+   */
+  public static async requestLocationPermission(): Promise<CameraPermissionRequestResult> {
+    try {
+      return await CameraModule.requestLocationPermission()
     } catch (e) {
       throw tryParseNativeCameraError(e)
     }

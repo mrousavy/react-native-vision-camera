@@ -17,11 +17,16 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
   private let promise: Promise
   private let enableShutterSound: Bool
   private let cameraSessionDelegate: CameraSessionDelegate?
+  private let locationDataOutput: LocationDataOutput?
 
-  required init(promise: Promise, enableShutterSound: Bool, cameraSessionDelegate: CameraSessionDelegate?) {
+  required init(promise: Promise,
+                enableShutterSound: Bool,
+                locationDataOutput: LocationDataOutput?,
+                cameraSessionDelegate: CameraSessionDelegate?) {
     self.promise = promise
     self.enableShutterSound = enableShutterSound
     self.cameraSessionDelegate = cameraSessionDelegate
+    self.locationDataOutput = locationDataOutput
     super.init()
     delegatesReferences.append(self)
   }
@@ -46,7 +51,7 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     }
 
     do {
-      let path = try FileUtils.writePhotoToTempFile(photo: photo)
+      let path = try FileUtils.writePhotoToTempFile(photo: photo, replacer: locationDataOutput)
 
       let exif = photo.metadata["{Exif}"] as? [String: Any]
       let width = exif?["PixelXDimension"]

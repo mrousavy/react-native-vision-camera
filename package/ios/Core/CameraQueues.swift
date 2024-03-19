@@ -30,11 +30,18 @@ public class CameraQueues: NSObject {
                                                            attributes: [],
                                                            autoreleaseFrequency: .inherit,
                                                            target: nil)
-
+  
   /// The serial execution queue for output processing of audio buffers.
   @objc public static let audioQueue = DispatchQueue(label: "mrousavy/VisionCamera.audio",
                                                      qos: .userInteractive,
                                                      attributes: [],
                                                      autoreleaseFrequency: .inherit,
                                                      target: nil)
+  
+  /// The serial execution queue for streaming location data.
+  @objc public static let locationQueue = DispatchQueue(label: "mrousavy/VisionCamera.location",
+                                                        qos: .utility,
+                                                        attributes: [],
+                                                        autoreleaseFrequency: .inherit,
+                                                        target: nil)
 }

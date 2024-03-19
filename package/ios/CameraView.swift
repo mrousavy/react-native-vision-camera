@@ -34,6 +34,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
   @objc var enableFrameProcessor = false
   @objc var codeScannerOptions: NSDictionary?
   @objc var pixelFormat: NSString?
+  @objc var enableLocation = false
   // props that require format reconfiguring
   @objc var format: NSDictionary?
   @objc var fps: NSNumber?
@@ -209,6 +210,9 @@ public final class CameraView: UIView, CameraSessionDelegate {
       } else {
         config.codeScanner = .disabled
       }
+      
+      // Location tagging
+      config.enableLocation = enableLocation
 
       // Video Stabilization
       if let jsVideoStabilizationMode = videoStabilizationMode as? String {

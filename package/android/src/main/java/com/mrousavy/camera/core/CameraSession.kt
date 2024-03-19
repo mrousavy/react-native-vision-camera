@@ -504,7 +504,9 @@ class CameraSession(private val context: Context, private val callback: Callback
     val videoOutput = videoOutput ?: throw VideoNotEnabledError()
 
     val file = FileUtils.createTempFile(context, options.fileType.toExtension())
-    val outputOptions = FileOutputOptions.Builder(file).build()
+    val outputOptions = FileOutputOptions.Builder(file).also { options ->
+      // TODO: Set options.setLocation
+    }.build()
     var pendingRecording = videoOutput.output.prepareRecording(context, outputOptions)
     if (enableAudio) {
       checkMicrophonePermission()
