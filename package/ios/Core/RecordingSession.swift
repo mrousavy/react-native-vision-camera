@@ -140,7 +140,7 @@ class RecordingSession {
     ReactLogger.log(level: .info, message: "Initializing Metadata writer...")
     // For GPS Location Writing
     let locationSpec = [
-      kCMMetadataFormatDescriptionMetadataSpecificationKey_Identifier as String: AVMetadataIdentifier.commonIdentifierLocation,
+      kCMMetadataFormatDescriptionMetadataSpecificationKey_Identifier as String: AVMetadataIdentifier.quickTimeMetadataLocationISO6709,
       kCMMetadataFormatDescriptionMetadataSpecificationKey_DataType as String: kCMMetadataDataType_QuickTimeMetadataLocation_ISO6709,
     ] as [String: Any]
     // For Branding Writing
@@ -177,10 +177,10 @@ class RecordingSession {
 
   private func createLocationMetadataItem(location: CLLocation) -> AVMetadataItem {
     let metadataItem = AVMutableMetadataItem()
-    metadataItem.key = AVMetadataKey.commonKeyLocation as NSString
-    metadataItem.keySpace = AVMetadataKeySpace.common
     metadataItem.value = String(format: "%+.6f%+.6f/", location.coordinate.latitude, location.coordinate.longitude) as NSString
-    metadataItem.identifier = AVMetadataIdentifier.commonIdentifierLocation
+    metadataItem.key = AVMetadataKey.quickTimeMetadataKeyLocationISO6709 as NSString
+    metadataItem.keySpace = AVMetadataKeySpace.quickTimeMetadata
+    metadataItem.identifier = AVMetadataIdentifier.quickTimeMetadataLocationISO6709
     metadataItem.dataType = kCMMetadataDataType_QuickTimeMetadataLocation_ISO6709 as String
     return metadataItem
   }
@@ -195,7 +195,7 @@ class RecordingSession {
     metadataWriter.append(metadataGroup)
 
     if assetWriter.status == .failed {
-      throw CameraError.capture(.unknown(message: "Failed to write branding tag!"))
+      throw CameraError.capture(.unknown(message: "Failed to write metadata tag!"))
     }
   }
 
