@@ -147,9 +147,10 @@ class CameraConfiguration {
    A Photo Output configuration
    */
   struct Photo: Equatable {
-    var qualityBalance = QualityBalance.balanced
+    var enableHighQualityPhotos = false
     var enableDepthData = false
     var enablePortraitEffectsMatte = false
+    var qualityBalance = QualityBalance.balanced
   }
 
   /**

@@ -212,6 +212,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 video={true}
                 audio={hasMicrophonePermission}
                 frameProcessor={frameProcessor}
+                enableHighQualityPhotos={true}
               />
             </TapGestureHandler>
           </Reanimated.View>
