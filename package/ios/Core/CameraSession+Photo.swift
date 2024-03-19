@@ -22,7 +22,7 @@ extension CameraSession {
         promise.reject(error: .session(.cameraNotReady))
         return
       }
-      guard case let .enabled(config: photo) = configuration.photo else {
+      guard configuration.photo != .disabled else {
         // User needs to enable photo={true}
         promise.reject(error: .capture(.photoNotEnabled))
         return
