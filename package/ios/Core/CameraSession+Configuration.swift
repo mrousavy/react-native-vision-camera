@@ -213,7 +213,7 @@ extension CameraSession {
     ]
   }
 
-  func configurePhotoOutputFormat(configuration: CameraConfiguration) throws {
+  func configurePhotoOutputFormat(configuration _: CameraConfiguration) throws {
     guard let videoDeviceInput, let photoOutput else {
       // Photo is not enabled
       return
