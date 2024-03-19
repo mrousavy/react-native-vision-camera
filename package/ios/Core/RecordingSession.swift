@@ -7,6 +7,7 @@
 //
 
 import AVFoundation
+import CoreLocation
 import Foundation
 
 // MARK: - BufferType
@@ -29,7 +30,7 @@ class RecordingSession {
   private let assetWriter: AVAssetWriter
   private var audioWriter: AVAssetWriterInput?
   private var videoWriter: AVAssetWriterInput?
-  private var metadataWriter: AVAssetWriterInput?
+  private var metadataWriter: AVAssetWriterInputMetadataAdaptor?
   private let completionHandler: (RecordingSession, AVAssetWriter.Status, Error?) -> Void
 
   private var startTimestamp: CMTime?
@@ -91,29 +92,6 @@ class RecordingSession {
     }
   }
 
-  func addLocationTag(locationOutput: LocationDataOutput) throws {
-    guard let location = locationOutput.location else {
-      // no location available!
-      ReactLogger.log(level: .warning, message: "No Location is available, cannot add GPS location EXIF tag to video...")
-      return
-    }
-
-    let metadataItem = AVMutableMetadataItem()
-    metadataItem.key = AVMetadataKey.commonKeyLocation as (NSCopying & NSObjectProtocol)?
-    metadataItem.keySpace = AVMetadataKeySpace.common
-    metadataItem.value = String(format: "%+.6f%+.6f/", location.coordinate.latitude, location.coordinate.longitude) as (NSCopying & NSObjectProtocol)?
-    metadataItem.identifier = AVMetadataIdentifier.quickTimeMetadataLocationISO6709
-
-    metadataWriter = AVAssetWriterInput(mediaType: .metadata, outputSettings: nil)
-    guard assetWriter.canAdd(metadataWriter!) else {
-      throw CameraError.location(.cannotWriteLocationToVideo)
-    }
-    assetWriter.add(metadataWriter!)
-    let metadataAdapter = AVAssetWriterInputMetadataAdaptor(assetWriterInput: metadataWriter!)
-    let metadataGroup = AVTimedMetadataGroup(items: [metadataItem], timeRange: CMTimeRange(start: CMTime.zero, end: CMTime.positiveInfinity))
-    metadataAdapter.append(metadataGroup)
-  }
-
   /**
    Initializes an AssetWriter for video frames (CMSampleBuffers).
    */
@@ -152,6 +130,57 @@ class RecordingSession {
     audioWriter!.expectsMediaDataInRealTime = true
     assetWriter.add(audioWriter!)
     ReactLogger.log(level: .info, message: "Initialized Audio AssetWriter.")
+  }
+
+  /**
+   Initializes the metadata writer which is capable of writing location EXIF tags
+   */
+  func initializeMetadataWriter() throws {
+    guard metadataWriter == nil else {
+      ReactLogger.log(level: .error, message: "Tried to add Metadata Writer twice!")
+      return
+    }
+
+    let locationSpec = [
+      kCMMetadataFormatDescriptionMetadataSpecificationKey_Identifier: AVMetadataIdentifier.quickTimeMetadataLocationISO6709,
+      kCMMetadataFormatDescriptionMetadataSpecificationKey_DataType: kCMMetadataDataType_QuickTimeMetadataLocation_ISO6709,
+    ] as [String: Any]
+    let metadataSpecifications: NSArray = [locationSpec]
+    var metadataFormatDescription: CMFormatDescription?
+    CMMetadataFormatDescriptionCreateWithMetadataSpecifications(allocator: kCFAllocatorDefault,
+                                                                metadataType: kCMMetadataFormatType_Boxed,
+                                                                metadataSpecifications: metadataSpecifications,
+                                                                formatDescriptionOut: &metadataFormatDescription)
+
+    let metadataInput = AVAssetWriterInput(mediaType: .metadata, outputSettings: nil, sourceFormatHint: metadataFormatDescription)
+    guard assetWriter.canAdd(metadataInput) else {
+      throw CameraError.location(.cannotWriteLocationToVideo)
+    }
+    assetWriter.add(metadataInput)
+    metadataWriter = AVAssetWriterInputMetadataAdaptor(assetWriterInput: metadataInput)
+  }
+
+  private func createLocationMetadataItem(location: CLLocation) -> AVMetadataItem {
+    let metadataItem = AVMutableMetadataItem()
+    metadataItem.key = AVMetadataKey.commonKeyLocation as (NSCopying & NSObjectProtocol)?
+    metadataItem.keySpace = AVMetadataKeySpace.common
+    metadataItem.value = String(format: "%+.6f%+.6f/", location.coordinate.latitude, location.coordinate.longitude) as (NSCopying & NSObjectProtocol)?
+    metadataItem.identifier = AVMetadataIdentifier.quickTimeMetadataLocationISO6709
+    return metadataItem
+  }
+
+  /**
+   Writes a Location tag to the video
+   */
+  func writeLocationTag(location: CLLocation) throws {
+    guard let metadataWriter else {
+      throw CameraError.location(.cannotWriteLocationToVideo)
+    }
+
+    let metadataItem = createLocationMetadataItem(location: location)
+    let metadataGroup = AVTimedMetadataGroup(items: [metadataItem],
+                                             timeRange: CMTimeRange(start: CMTime.zero, end: CMTime.positiveInfinity))
+    metadataWriter.append(metadataGroup)
   }
 
   /**

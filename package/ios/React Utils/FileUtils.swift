@@ -29,6 +29,7 @@ enum FileUtils {
 
   private static func getPhotoFileData(photo: AVCapturePhoto, replacer: AVCapturePhotoFileDataRepresentationCustomizer?) -> Data? {
     if let replacer {
+      ReactLogger.log(level: .info, message: "Adding GPS location EXIF tag to file...")
       return photo.fileDataRepresentation(with: replacer)
     } else {
       return photo.fileDataRepresentation()

@@ -128,6 +128,11 @@ extension CameraSession {
         let videoSettings = try videoOutput.recommendedVideoSettings(forOptions: options)
         recordingSession.initializeVideoWriter(withSettings: videoSettings)
 
+        // Init Location
+        if self.locationOutput != nil {
+          try recordingSession.initializeMetadataWriter()
+        }
+
         // start recording session with or without audio.
         // Use Video [AVCaptureSession] clock as a timebase - all other sessions (here; audio) have to be synced to that Clock.
         try recordingSession.start(clock: self.captureSession.clock)
@@ -135,14 +140,12 @@ extension CameraSession {
         self.recordingSession = recordingSession
         self.isRecording = true
 
-        let end = DispatchTime.now()
-        ReactLogger.log(level: .info, message: "RecordingSesssion started in \(Double(end.uptimeNanoseconds - start.uptimeNanoseconds) / 1_000_000)ms!")
-
-        if let locationOutput = self.locationOutput {
+        if let locationOutput = self.locationOutput,
+           let location = locationOutput.location {
           CameraQueues.locationQueue.async {
+            ReactLogger.log(level: .info, message: "Adding location tag to video...")
             do {
-              ReactLogger.log(level: .info, message: "Adding location tag to video...")
-              try recordingSession.addLocationTag(locationOutput: locationOutput)
+              try recordingSession.writeLocationTag(location: location)
               ReactLogger.log(level: .info, message: "Successfully added location metadata tag to video!")
             } catch {
               ReactLogger.log(level: .error, message: "Failed to add location tag to video!")
@@ -150,6 +153,9 @@ extension CameraSession {
             }
           }
         }
+
+        let end = DispatchTime.now()
+        ReactLogger.log(level: .info, message: "RecordingSesssion started in \(Double(end.uptimeNanoseconds - start.uptimeNanoseconds) / 1_000_000)ms!")
       } catch let error as NSError {
         if let error = error as? CameraError {
           onError(error)
