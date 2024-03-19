@@ -380,6 +380,7 @@ class RecordingSession {
     isFinishing = true
     videoWriter?.markAsFinished()
     audioWriter?.markAsFinished()
+    metadataWriter?.assetWriterInput.markAsFinished()
     assetWriter.finishWriting {
       self.completionHandler(self, self.assetWriter.status, self.assetWriter.error)
     }
