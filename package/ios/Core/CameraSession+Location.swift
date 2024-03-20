@@ -18,10 +18,10 @@ extension CameraSession {
       }
 
       // The object's init will start streaming locataion
-      self.metadataProvider.locationProvider = locationProvider
+      metadataProvider.locationProvider = locationProvider
     } else {
       // The object's deinit will stop streaming location
-      self.metadataProvider.locationProvider = nil
+      metadataProvider.locationProvider = nil
     }
   }
 }

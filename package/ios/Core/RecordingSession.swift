@@ -30,7 +30,7 @@ class RecordingSession {
   private let assetWriter: AVAssetWriter
   private var audioWriter: AVAssetWriterInput?
   private var videoWriter: AVAssetWriterInput?
-  private var metadataWriter: AVAssetWriterInputMetadataAdaptor?
+  private let metadataWriter: AVAssetWriterInputMetadataAdaptor
   private let completionHandler: (RecordingSession, AVAssetWriter.Status, Error?) -> Void
 
   private var startTimestamp: CMTime?
@@ -86,7 +86,16 @@ class RecordingSession {
     } catch let error as NSError {
       throw CameraError.capture(.createRecorderError(message: error.description))
     }
-    try initializeMetadataWriter()
+
+    ReactLogger.log(level: .info, message: "Initializing Metadata writer...")
+    let metadataFormatDescription = try metadataProvider.getVideoMetadataFormatDescription()
+    let metadataInput = AVAssetWriterInput(mediaType: .metadata, outputSettings: nil, sourceFormatHint: metadataFormatDescription)
+    guard assetWriter.canAdd(metadataInput) else {
+      throw CameraError.capture(.failedWritingMetadata)
+    }
+    assetWriter.add(metadataInput)
+    metadataWriter = AVAssetWriterInputMetadataAdaptor(assetWriterInput: metadataInput)
+    ReactLogger.log(level: .info, message: "Initialized Metadata AssetWriter.")
   }
 
   deinit {
@@ -137,80 +146,6 @@ class RecordingSession {
   }
 
   /**
-   Initializes the metadata writer which is capable of writing branding information and location EXIF tags
-   */
-  private func initializeMetadataWriter() throws {
-    ReactLogger.log(level: .info, message: "Initializing Metadata writer...")
-    // For GPS Location Writing
-    let locationSpec = [
-      kCMMetadataFormatDescriptionMetadataSpecificationKey_Identifier as String: AVMetadataIdentifier.quickTimeMetadataLocationISO6709,
-      kCMMetadataFormatDescriptionMetadataSpecificationKey_DataType as String: kCMMetadataDataType_QuickTimeMetadataLocation_ISO6709,
-    ] as [String: Any]
-    // For Branding Writing
-    let brandingSpec = [
-      kCMMetadataFormatDescriptionMetadataSpecificationKey_Identifier as String: AVMetadataIdentifier.commonIdentifierDescription,
-      kCMMetadataFormatDescriptionMetadataSpecificationKey_DataType as String: kCMMetadataBaseDataType_UTF8,
-    ] as [String: Any]
-    let metadataSpecifications: NSArray = [locationSpec, brandingSpec]
-
-    var metadataFormatDescription: CMFormatDescription?
-    CMMetadataFormatDescriptionCreateWithMetadataSpecifications(allocator: kCFAllocatorDefault,
-                                                                metadataType: kCMMetadataFormatType_Boxed,
-                                                                metadataSpecifications: metadataSpecifications,
-                                                                formatDescriptionOut: &metadataFormatDescription)
-
-    let metadataInput = AVAssetWriterInput(mediaType: .metadata, outputSettings: nil, sourceFormatHint: metadataFormatDescription)
-    guard assetWriter.canAdd(metadataInput) else {
-      throw CameraError.location(.cannotWriteLocationToVideo)
-    }
-    assetWriter.add(metadataInput)
-    metadataWriter = AVAssetWriterInputMetadataAdaptor(assetWriterInput: metadataInput)
-    ReactLogger.log(level: .info, message: "Initialized Metadata AssetWriter.")
-  }
-
-  private func createVisionCameraMetadaItem() -> AVMetadataItem {
-    let metadataItem = AVMutableMetadataItem()
-    metadataItem.keySpace = .common
-    metadataItem.key = AVMetadataKey.commonKeyDescription as NSString
-    metadataItem.identifier = .commonIdentifierDescription
-    metadataItem.value = "Recorded with VisionCamera by mrousavy" as NSString
-    metadataItem.dataType = kCMMetadataBaseDataType_UTF8 as String
-    return metadataItem
-  }
-
-  private func createLocationMetadataItem(location: CLLocation) -> AVMetadataItem {
-    let metadataItem = AVMutableMetadataItem()
-    metadataItem.value = String(format: "%+.6f%+.6f/", location.coordinate.latitude, location.coordinate.longitude) as NSString
-    metadataItem.key = AVMetadataKey.quickTimeMetadataKeyLocationISO6709 as NSString
-    metadataItem.keySpace = AVMetadataKeySpace.quickTimeMetadata
-    metadataItem.identifier = AVMetadataIdentifier.quickTimeMetadataLocationISO6709
-    metadataItem.dataType = kCMMetadataDataType_QuickTimeMetadataLocation_ISO6709 as String
-    return metadataItem
-  }
-
-  private func writeMetadataItem(metadataItem: AVMetadataItem) throws {
-    guard let metadataWriter else {
-      throw CameraError.unknown(message: "MetadataWriter cannot be nil!", cause: nil)
-    }
-
-    let metadataGroup = AVTimedMetadataGroup(items: [metadataItem],
-                                             timeRange: CMTimeRange(start: CMTime.zero, end: CMTime.positiveInfinity))
-    metadataWriter.append(metadataGroup)
-
-    if assetWriter.status == .failed {
-      throw CameraError.capture(.unknown(message: "Failed to write metadata tag!"))
-    }
-  }
-
-  /**
-   Writes a Location tag to the video
-   */
-  func writeLocationTag(location: CLLocation) throws {
-    let metadataItem = createLocationMetadataItem(location: location)
-    try writeMetadataItem(metadataItem: metadataItem)
-  }
-
-  /**
    Start the RecordingSession using the current time of the provided synchronization clock.
    All buffers passed to [append] must be synchronized to this Clock.
    */
@@ -245,10 +180,9 @@ class RecordingSession {
       hasWrittenLastAudioFrame = true
     }
 
-    ReactLogger.log(level: .info, message: "Writing branding...")
-    let brandingMetadata = createVisionCameraMetadaItem()
-    try writeMetadataItem(metadataItem: brandingMetadata)
-    ReactLogger.log(level: .info, message: "Successfully wrote branding!")
+    ReactLogger.log(level: .info, message: "Writing metadata...")
+    metadataProvider.writeVideoMetadata(writer: metadataWriter)
+    ReactLogger.log(level: .info, message: "Successfully wrote metadata!")
   }
 
   /**
@@ -383,7 +317,7 @@ class RecordingSession {
     isFinishing = true
     videoWriter?.markAsFinished()
     audioWriter?.markAsFinished()
-    metadataWriter?.assetWriterInput.markAsFinished()
+    metadataWriter.assetWriterInput.markAsFinished()
     assetWriter.finishWriting {
       self.completionHandler(self, self.assetWriter.status, self.assetWriter.error)
     }

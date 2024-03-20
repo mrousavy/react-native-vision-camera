@@ -102,6 +102,7 @@ extension CameraSession {
         // Create RecordingSession for the temp file
         let recordingSession = try RecordingSession(url: tempURL,
                                                     fileType: options.fileType,
+                                                    metadataProvider: self.metadataProvider,
                                                     completion: onFinish)
 
         // Init Audio + Activate Audio Session (optional)
@@ -134,20 +135,6 @@ extension CameraSession {
         self.didCancelRecording = false
         self.recordingSession = recordingSession
         self.isRecording = true
-
-        if let locationOutput = self.locationOutput,
-           let location = locationOutput.location {
-          CameraQueues.locationQueue.async {
-            ReactLogger.log(level: .info, message: "Adding location tag to video...")
-            do {
-              try recordingSession.writeLocationTag(location: location)
-              ReactLogger.log(level: .info, message: "Successfully added location metadata tag to video!")
-            } catch {
-              ReactLogger.log(level: .error, message: "Failed to add location tag to video!")
-              self.delegate?.onError(.location(.cannotWriteLocationToVideo))
-            }
-          }
-        }
 
         let end = DispatchTime.now()
         ReactLogger.log(level: .info, message: "RecordingSesssion started in \(Double(end.uptimeNanoseconds - start.uptimeNanoseconds) / 1_000_000)ms!")

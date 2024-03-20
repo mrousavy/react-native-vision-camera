@@ -5,8 +5,8 @@
 //  Created by Marc Rousavy on 20.03.24.
 //
 
-import Foundation
 import CoreLocation
+import Foundation
 
 class LocationProvider {
   private let locationManager = CLLocationManager()
@@ -21,7 +21,7 @@ class LocationProvider {
     locationManager.stopUpdatingLocation()
     locationManager.stopUpdatingHeading()
   }
-  
+
   private var authorizationStatus: CLAuthorizationStatus {
     if #available(iOS 14.0, *) {
       return locationManager.authorizationStatus
@@ -42,7 +42,7 @@ class LocationProvider {
   var location: CLLocation? {
     return locationManager.location
   }
-  
+
   var heading: CLHeading? {
     return locationManager.heading
   }
