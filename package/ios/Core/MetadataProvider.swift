@@ -136,9 +136,9 @@ class MetadataProvider: NSObject, AVCapturePhotoFileDataRepresentationCustomizer
 
   private func createBrandingMetadaItem() -> AVMetadataItem {
     let metadataItem = AVMutableMetadataItem()
-    metadataItem.keySpace = .common
-    metadataItem.key = AVMetadataKey.commonKeyDescription as NSString
-    metadataItem.identifier = .commonIdentifierDescription
+    metadataItem.keySpace = .quickTimeMetadata
+    metadataItem.key = AVMetadataKey.quickTimeMetadataKeyInformation as NSString
+    metadataItem.identifier = .quickTimeMetadataInformation
     metadataItem.value = "Captured with VisionCamera by mrousavy" as NSString
     metadataItem.dataType = kCMMetadataBaseDataType_UTF8 as String
     return metadataItem
