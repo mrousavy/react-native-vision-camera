@@ -145,12 +145,13 @@ class MetadataProvider: NSObject, AVCapturePhotoFileDataRepresentationCustomizer
   }
 
   private func createLocationMetadataItem(location: CLLocation) -> AVMetadataItem {
+    let iso6709String = location.iso6709String
     let metadataItem = AVMutableMetadataItem()
-    metadataItem.keySpace = .quickTimeMetadata
-    metadataItem.key = AVMetadataKey.quickTimeMetadataKeyLocationISO6709 as NSString
-    metadataItem.identifier = .quickTimeMetadataLocationISO6709
-    metadataItem.value = String(format: "%+.6f%+.6f/", location.coordinate.latitude, location.coordinate.longitude) as NSString
-    metadataItem.dataType = kCMMetadataDataType_QuickTimeMetadataLocation_ISO6709 as String
+    metadataItem.keySpace = .common
+    metadataItem.key = AVMetadataKey.commonKeyLocation as NSString
+    metadataItem.identifier = .commonIdentifierLocation
+    metadataItem.value = iso6709String as NSString
+    //metadataItem.dataType = kCMMetadataDataType_QuickTimeMetadataLocation_ISO6709 as String
     return metadataItem
   }
 }
