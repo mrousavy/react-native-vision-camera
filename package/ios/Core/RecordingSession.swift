@@ -91,7 +91,7 @@ class RecordingSession {
     let metadataFormatDescription = try metadataProvider.getVideoMetadataFormatDescription()
     let metadataInput = AVAssetWriterInput(mediaType: .metadata, outputSettings: nil, sourceFormatHint: metadataFormatDescription)
     guard assetWriter.canAdd(metadataInput) else {
-      throw CameraError.capture(.failedWritingMetadata)
+      throw CameraError.capture(.failedWritingMetadata(cause: nil))
     }
     assetWriter.add(metadataInput)
     metadataWriter = AVAssetWriterInputMetadataAdaptor(assetWriterInput: metadataInput)
@@ -182,6 +182,10 @@ class RecordingSession {
 
     ReactLogger.log(level: .info, message: "Writing metadata...")
     metadataProvider.writeVideoMetadata(writer: metadataWriter)
+    if let error = assetWriter.error {
+      ReactLogger.log(level: .error, message: "Failed writing metadata!")
+      throw CameraError.capture(.failedWritingMetadata(cause: error))
+    }
     ReactLogger.log(level: .info, message: "Successfully wrote metadata!")
   }
 

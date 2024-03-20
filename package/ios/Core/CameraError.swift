@@ -187,7 +187,7 @@ enum CaptureError {
   case snapshotFailed
   case timedOut
   case insufficientStorage
-  case failedWritingMetadata
+  case failedWritingMetadata(cause: Error?)
   case unknown(message: String? = nil)
 
   var code: String {
@@ -247,8 +247,8 @@ enum CaptureError {
       return "An unexpected error occurred while trying to access the image data!"
     case .timedOut:
       return "The capture timed out."
-    case .failedWritingMetadata:
-      return "Failed to write video/photo metadata!"
+    case let .failedWritingMetadata(cause: cause):
+      return "Failed to write video/photo metadata! (Cause: \(cause?.localizedDescription ?? "unknown"))"
     case .insufficientStorage:
       return "There is not enough storage space available."
     case let .unknown(message: message):

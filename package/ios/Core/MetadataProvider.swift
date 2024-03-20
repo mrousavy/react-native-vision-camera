@@ -113,7 +113,7 @@ class MetadataProvider: NSObject, AVCapturePhotoFileDataRepresentationCustomizer
                                                                 metadataSpecifications: metadataSpecifications,
                                                                 formatDescriptionOut: &metadataFormatDescription)
     guard let metadataFormatDescription else {
-      throw CameraError.capture(.failedWritingMetadata)
+      throw CameraError.capture(.failedWritingMetadata(cause: nil))
     }
     return metadataFormatDescription
   }
@@ -151,6 +151,8 @@ class MetadataProvider: NSObject, AVCapturePhotoFileDataRepresentationCustomizer
   }
 
   private func writeMetadataItem(writer: AVAssetWriterInputMetadataAdaptor, metadataItem: AVMetadataItem) {
+    let description = metadataItem.identifier?.rawValue ?? metadataItem.description
+    ReactLogger.log(level: .info, message: "Writing metadata item \(description)...")
     let metadataGroup = AVTimedMetadataGroup(items: [metadataItem],
                                              timeRange: CMTimeRange(start: CMTime.zero, end: CMTime.positiveInfinity))
     writer.append(metadataGroup)
