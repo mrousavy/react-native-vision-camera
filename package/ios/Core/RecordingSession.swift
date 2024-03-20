@@ -30,7 +30,6 @@ class RecordingSession {
   private let assetWriter: AVAssetWriter
   private var audioWriter: AVAssetWriterInput?
   private var videoWriter: AVAssetWriterInput?
-  private let metadataWriter: AVAssetWriterInputMetadataAdaptor
   private let completionHandler: (RecordingSession, AVAssetWriter.Status, Error?) -> Void
 
   private var startTimestamp: CMTime?
@@ -42,7 +41,6 @@ class RecordingSession {
   private var hasWrittenLastVideoFrame = false
   private var hasWrittenLastAudioFrame = false
 
-  private let metadataProvider: MetadataProvider
   private let lock = DispatchSemaphore(value: 1)
 
   // If we are waiting for late frames and none actually arrive, we force stop the session after the given timeout.
@@ -77,7 +75,6 @@ class RecordingSession {
        fileType: AVFileType,
        metadataProvider: MetadataProvider,
        completion: @escaping (RecordingSession, AVAssetWriter.Status, Error?) -> Void) throws {
-    self.metadataProvider = metadataProvider
     completionHandler = completion
 
     do {
@@ -87,15 +84,9 @@ class RecordingSession {
       throw CameraError.capture(.createRecorderError(message: error.description))
     }
 
-    ReactLogger.log(level: .info, message: "Initializing Metadata writer...")
-    let metadataFormatDescription = try metadataProvider.getVideoMetadataFormatDescription()
-    let metadataInput = AVAssetWriterInput(mediaType: .metadata, outputSettings: nil, sourceFormatHint: metadataFormatDescription)
-    guard assetWriter.canAdd(metadataInput) else {
-      throw CameraError.capture(.failedWritingMetadata(cause: nil))
-    }
-    assetWriter.add(metadataInput)
-    metadataWriter = AVAssetWriterInputMetadataAdaptor(assetWriterInput: metadataInput)
-    ReactLogger.log(level: .info, message: "Initialized Metadata AssetWriter.")
+    // Assign the metadata item to the asset writer
+    let metadataItems = metadataProvider.createVideoMetadata()
+    assetWriter.metadata.append(contentsOf: metadataItems)
   }
 
   deinit {
@@ -179,14 +170,6 @@ class RecordingSession {
       // Audio was disabled, mark the Audio track as finished so we won't wait for it.
       hasWrittenLastAudioFrame = true
     }
-
-    ReactLogger.log(level: .info, message: "Writing metadata...")
-    metadataProvider.writeVideoMetadata(writer: metadataWriter)
-    if let error = assetWriter.error {
-      ReactLogger.log(level: .error, message: "Failed writing metadata!")
-      throw CameraError.capture(.failedWritingMetadata(cause: error))
-    }
-    ReactLogger.log(level: .info, message: "Successfully wrote metadata!")
   }
 
   /**
@@ -321,7 +304,6 @@ class RecordingSession {
     isFinishing = true
     videoWriter?.markAsFinished()
     audioWriter?.markAsFinished()
-    metadataWriter.assetWriterInput.markAsFinished()
     assetWriter.finishWriting {
       self.completionHandler(self, self.assetWriter.status, self.assetWriter.error)
     }
