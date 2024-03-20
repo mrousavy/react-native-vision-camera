@@ -1,5 +1,5 @@
 //
-//  LocationDataOutput.swift
+//  MetadataProvider.swift
 //  VisionCamera
 //
 //  Created by Marc Rousavy on 19.03.24.
@@ -9,50 +9,28 @@ import AVFoundation
 import CoreLocation
 import Foundation
 
-class LocationDataOutput: NSObject, AVCapturePhotoFileDataRepresentationCustomizer {
-  private let locationManager = CLLocationManager()
-
-  override init() {
-    locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-    locationManager.startUpdatingLocation()
-    locationManager.startUpdatingHeading()
-  }
-
-  deinit {
-    locationManager.stopUpdatingLocation()
-    locationManager.stopUpdatingHeading()
-  }
-
-  private var authorizationStatus: CLAuthorizationStatus {
-    if #available(iOS 14.0, *) {
-      return locationManager.authorizationStatus
-    } else {
-      return CLLocationManager.authorizationStatus()
-    }
-  }
-
-  var hasPermission: Bool {
-    switch authorizationStatus {
-    case .authorizedAlways, .authorizedWhenInUse:
-      return true
-    default:
-      return false
-    }
-  }
-
-  var location: CLLocation? {
-    return locationManager.location
-  }
-
+class MetadataProvider: NSObject, AVCapturePhotoFileDataRepresentationCustomizer {
   /**
-   Adds GPS EXIF data to an AVCapturePhoto's metadata dictionary
+   Get or set the location provider to also set GPS tags for captured photos or videos.
+   */
+  var locationProvider: LocationProvider? = nil
+  
+  /**
+   Adds AVCapturePhoto's metadata dictionary
    */
   func replacementMetadata(for photo: AVCapturePhoto) -> [String: Any]? {
     var properties = photo.metadata
-
+    
+    // Add branding info
+    if var exifDictionary = properties[kCGImagePropertyExifDictionary as String] as? [String: Any] {
+      exifDictionary[kCGImagePropertyExifUserComment as String] = "Captured with VisionCamera by mrousavy"
+      properties[kCGImagePropertyExifDictionary as String] = exifDictionary
+    }
+    
     // Add GPS Location EXIF info
     let locationMetadata = createLocationMetadata()
     properties[kCGImagePropertyGPSDictionary as String] = locationMetadata
+    
     return properties
   }
 
@@ -60,7 +38,8 @@ class LocationDataOutput: NSObject, AVCapturePhotoFileDataRepresentationCustomiz
    Creates GPS EXIF data
    */
   func createLocationMetadata() -> NSMutableDictionary? {
-    guard let location = locationManager.location else {
+    guard let locationProvider,
+          let location = locationProvider.location else {
       return nil
     }
 
@@ -100,7 +79,7 @@ class LocationDataOutput: NSObject, AVCapturePhotoFileDataRepresentationCustomiz
     gpsDictionary[kCGImagePropertyGPSAltitudeRef] = altitudeRef
     gpsDictionary[kCGImagePropertyGPSAltitude] = altitude
 
-    if let heading = locationManager.heading {
+    if let heading = locationProvider.heading {
       gpsDictionary[kCGImagePropertyGPSImgDirectionRef] = "T"
       gpsDictionary[kCGImagePropertyGPSImgDirection] = heading.trueHeading
     }

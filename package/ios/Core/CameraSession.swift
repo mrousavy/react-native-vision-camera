@@ -28,7 +28,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   var audioOutput: AVCaptureAudioDataOutput?
   var codeScannerOutput: AVCaptureMetadataOutput?
   // State
-  var locationOutput: LocationDataOutput?
+  var metadataProvider = MetadataProvider()
   var recordingSession: RecordingSession?
   var didCancelRecording = false
   var isRecording = false

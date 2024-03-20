@@ -42,6 +42,7 @@ class RecordingSession {
   private var hasWrittenLastVideoFrame = false
   private var hasWrittenLastAudioFrame = false
 
+  private let metadataProvider: MetadataProvider
   private let lock = DispatchSemaphore(value: 1)
 
   // If we are waiting for late frames and none actually arrive, we force stop the session after the given timeout.
@@ -74,7 +75,9 @@ class RecordingSession {
 
   init(url: URL,
        fileType: AVFileType,
+       metadataProvider: MetadataProvider,
        completion: @escaping (RecordingSession, AVAssetWriter.Status, Error?) -> Void) throws {
+    self.metadataProvider = metadataProvider
     completionHandler = completion
 
     do {

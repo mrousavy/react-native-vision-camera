@@ -27,17 +27,8 @@ enum FileUtils {
     return tempFilePath
   }
 
-  private static func getPhotoFileData(photo: AVCapturePhoto, replacer: AVCapturePhotoFileDataRepresentationCustomizer?) -> Data? {
-    if let replacer {
-      ReactLogger.log(level: .info, message: "Adding GPS location EXIF tag to file...")
-      return photo.fileDataRepresentation(with: replacer)
-    } else {
-      return photo.fileDataRepresentation()
-    }
-  }
-
-  static func writePhotoToTempFile(photo: AVCapturePhoto, replacer: AVCapturePhotoFileDataRepresentationCustomizer?) throws -> URL {
-    guard let data = getPhotoFileData(photo: photo, replacer: replacer) else {
+  static func writePhotoToTempFile(photo: AVCapturePhoto, metadataProvider: MetadataProvider) throws -> URL {
+    guard let data = photo.fileDataRepresentation(with: metadataProvider) else {
       throw CameraError.capture(.imageDataAccessError)
     }
     let path = try writeDataToTempFile(data: data)

@@ -11,17 +11,17 @@ import Foundation
 extension CameraSession {
   func configureLocationOutput(configuration: CameraConfiguration) throws {
     if configuration.enableLocation {
-      let locationOutput = LocationDataOutput()
-      guard locationOutput.hasPermission else {
+      let locationProvider = LocationProvider()
+      guard locationProvider.hasPermission else {
         // Location permission has been denied
         throw CameraError.permission(.location)
       }
 
       // The object's init will start streaming locataion
-      self.locationOutput = locationOutput
+      self.metadataProvider.locationProvider = locationProvider
     } else {
       // The object's deinit will stop streaming location
-      locationOutput = nil
+      self.metadataProvider.locationProvider = nil
     }
   }
 }

@@ -187,6 +187,7 @@ enum CaptureError {
   case snapshotFailed
   case timedOut
   case insufficientStorage
+  case failedWritingMetadata
   case unknown(message: String? = nil)
 
   var code: String {
@@ -215,6 +216,8 @@ enum CaptureError {
       return "photo-not-enabled"
     case .insufficientStorage:
       return "insufficient-storage"
+    case .failedWritingMetadata:
+      return "failed-writing-metadata"
     case .unknown:
       return "unknown"
     }
@@ -244,6 +247,8 @@ enum CaptureError {
       return "An unexpected error occurred while trying to access the image data!"
     case .timedOut:
       return "The capture timed out."
+    case .failedWritingMetadata:
+      return "Failed to write video/photo metadata!"
     case .insufficientStorage:
       return "There is not enough storage space available."
     case let .unknown(message: message):
@@ -277,26 +282,6 @@ enum CodeScannerError {
   }
 }
 
-// MARK: - LocationError
-
-enum LocationError {
-  case cannotWriteLocationToVideo
-
-  var code: String {
-    switch self {
-    case .cannotWriteLocationToVideo:
-      return "cannot-write-location-tag-to-video"
-    }
-  }
-
-  var message: String {
-    switch self {
-    case .cannotWriteLocationToVideo:
-      return "Cannot add the location tag to the video asset writer!"
-    }
-  }
-}
-
 // MARK: - CameraError
 
 enum CameraError: Error {
@@ -307,7 +292,6 @@ enum CameraError: Error {
   case session(_ id: SessionError)
   case capture(_ id: CaptureError)
   case codeScanner(_ id: CodeScannerError)
-  case location(_ id: LocationError)
   case unknown(message: String? = nil, cause: NSError? = nil)
 
   var code: String {
@@ -326,8 +310,6 @@ enum CameraError: Error {
       return "capture/\(id.code)"
     case let .codeScanner(id: id):
       return "code-scanner/\(id.code)"
-    case let .location(id: id):
-      return "location/\(id.code)"
     case .unknown:
       return "unknown/unknown"
     }
@@ -348,8 +330,6 @@ enum CameraError: Error {
     case let .capture(id: id):
       return id.message
     case let .codeScanner(id: id):
-      return id.message
-    case let .location(id: id):
       return id.message
     case let .unknown(message: message, cause: cause):
       return message ?? cause?.description ?? "An unexpected error occured."
