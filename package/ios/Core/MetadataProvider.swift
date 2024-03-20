@@ -33,63 +33,13 @@ class MetadataProvider: NSObject, AVCapturePhotoFileDataRepresentationCustomizer
     }
 
     // Add GPS Location EXIF info
-    let locationMetadata = createLocationMetadata()
-    properties[kCGImagePropertyGPSDictionary as String] = locationMetadata
+    if let locationProvider,
+       let location = locationProvider.location {
+      let locationExif = location.toEXIF(heading: locationProvider.heading)
+      properties[kCGImagePropertyGPSDictionary as String] = locationExif
+    }
 
     return properties
-  }
-
-  /**
-   Creates GPS EXIF data
-   */
-  private func createLocationMetadata() -> NSMutableDictionary? {
-    guard let locationProvider,
-          let location = locationProvider.location else {
-      return nil
-    }
-
-    let gpsDictionary = NSMutableDictionary()
-    var latitude = location.coordinate.latitude
-    var longitude = location.coordinate.longitude
-    var altitude = location.altitude
-    var latitudeRef = "N"
-    var longitudeRef = "E"
-    var altitudeRef = 0
-
-    if latitude < 0.0 {
-      latitude = -latitude
-      latitudeRef = "S"
-    }
-
-    if longitude < 0.0 {
-      longitude = -longitude
-      longitudeRef = "W"
-    }
-
-    if altitude < 0.0 {
-      altitude = -altitude
-      altitudeRef = 1
-    }
-
-    let formatter = DateFormatter()
-    formatter.dateFormat = "yyyy:MM:dd"
-    gpsDictionary[kCGImagePropertyGPSDateStamp] = formatter.string(from: location.timestamp)
-    formatter.dateFormat = "HH:mm:ss"
-    gpsDictionary[kCGImagePropertyGPSTimeStamp] = formatter.string(from: location.timestamp)
-    gpsDictionary[kCGImagePropertyGPSLatitudeRef] = latitudeRef
-    gpsDictionary[kCGImagePropertyGPSLatitude] = latitude
-    gpsDictionary[kCGImagePropertyGPSLongitudeRef] = longitudeRef
-    gpsDictionary[kCGImagePropertyGPSLongitude] = longitude
-    gpsDictionary[kCGImagePropertyGPSDOP] = location.horizontalAccuracy
-    gpsDictionary[kCGImagePropertyGPSAltitudeRef] = altitudeRef
-    gpsDictionary[kCGImagePropertyGPSAltitude] = altitude
-
-    if let heading = locationProvider.heading {
-      gpsDictionary[kCGImagePropertyGPSImgDirectionRef] = "T"
-      gpsDictionary[kCGImagePropertyGPSImgDirection] = heading.trueHeading
-    }
-
-    return gpsDictionary
   }
 
   // MARK: - Video Metadata

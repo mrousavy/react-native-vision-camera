@@ -5,10 +5,13 @@
 //  Created by Marc Rousavy on 20.03.24.
 //
 
-import Foundation
 import CoreLocation
+import Foundation
 
 extension CLLocation {
+  /**
+   Get the ISO 6709 string representation of this CLLocation for saving to QuickTime video files.
+   */
   var iso6709String: String {
     let latitude = coordinate.latitude
     let longitude = coordinate.longitude
