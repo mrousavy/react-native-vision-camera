@@ -44,30 +44,6 @@ class MetadataProvider: NSObject, AVCapturePhotoFileDataRepresentationCustomizer
 
   // MARK: - Video Metadata
 
-  func getVideoMetadataFormatDescription() throws -> CMFormatDescription {
-    // For GPS Location Writing
-    let locationSpec = [
-      kCMMetadataFormatDescriptionMetadataSpecificationKey_Identifier as String: AVMetadataIdentifier.quickTimeMetadataLocationISO6709,
-      kCMMetadataFormatDescriptionMetadataSpecificationKey_DataType as String: kCMMetadataDataType_QuickTimeMetadataLocation_ISO6709,
-    ] as [String: Any]
-    // For Branding Writing
-    let brandingSpec = [
-      kCMMetadataFormatDescriptionMetadataSpecificationKey_Identifier as String: AVMetadataIdentifier.commonIdentifierDescription,
-      kCMMetadataFormatDescriptionMetadataSpecificationKey_DataType as String: kCMMetadataBaseDataType_UTF8,
-    ] as [String: Any]
-    let metadataSpecifications: NSArray = [locationSpec, brandingSpec]
-
-    var metadataFormatDescription: CMFormatDescription?
-    CMMetadataFormatDescriptionCreateWithMetadataSpecifications(allocator: kCFAllocatorDefault,
-                                                                metadataType: kCMMetadataFormatType_Boxed,
-                                                                metadataSpecifications: metadataSpecifications,
-                                                                formatDescriptionOut: &metadataFormatDescription)
-    guard let metadataFormatDescription else {
-      throw CameraError.capture(.failedWritingMetadata(cause: nil))
-    }
-    return metadataFormatDescription
-  }
-
   func createVideoMetadata() -> [AVMetadataItem] {
     var metadata: [AVMetadataItem] = []
 
