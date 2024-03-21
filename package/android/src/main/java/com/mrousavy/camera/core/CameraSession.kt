@@ -87,6 +87,7 @@ class CameraSession(private val context: Context, private val callback: Callback
     get() = listOfNotNull(previewOutput, photoOutput, videoOutput, frameProcessorOutput, codeScannerOutput)
 
   // Camera Outputs State
+  private val metadataProvider = MetadataProvider(context)
   private var recorderOutput: Recorder? = null
 
   // Camera State
@@ -168,6 +169,10 @@ class CameraSession(private val context: Context, private val callback: Callback
         if (diff.isActiveChanged) {
           // 4. start or stop the session
           configureIsActive(config)
+        }
+        if (diff.locationChanged) {
+          // 5. start or stop location update streaming
+          metadataProvider.enableLocationUpdates(config.enableLocation)
         }
 
         Log.i(
@@ -504,8 +509,8 @@ class CameraSession(private val context: Context, private val callback: Callback
     val videoOutput = videoOutput ?: throw VideoNotEnabledError()
 
     val file = FileUtils.createTempFile(context, options.fileType.toExtension())
-    val outputOptions = FileOutputOptions.Builder(file).also { options ->
-      // TODO: Set options.setLocation
+    val outputOptions = FileOutputOptions.Builder(file).also { outputOptions ->
+      outputOptions.setLocation(metadataProvider.location)
     }.build()
     var pendingRecording = videoOutput.output.prepareRecording(context, outputOptions)
     if (enableAudio) {

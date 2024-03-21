@@ -65,6 +65,11 @@ class CameraViewManager : ViewGroupManager<CameraView>() {
     view.audio = audio
   }
 
+  @ReactProp(name = "enableLocation")
+  fun setEnableLocation(view: CameraView, enableLocation: Boolean) {
+    view.enableLocation = enableLocation
+  }
+
   @ReactProp(name = "enableFrameProcessor")
   fun setEnableFrameProcessor(view: CameraView, enableFrameProcessor: Boolean) {
     view.enableFrameProcessor = enableFrameProcessor

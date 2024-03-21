@@ -178,63 +178,64 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
     return activity?.shouldShowRequestPermissionRationale(permission) ?: false
   }
 
-  @ReactMethod(isBlockingSynchronousMethod = true)
-  fun getCameraPermissionStatus(): String {
-    val status = ContextCompat.checkSelfPermission(reactApplicationContext, Manifest.permission.CAMERA)
+  private fun getPermission(permission: String): PermissionStatus {
+    val status = ContextCompat.checkSelfPermission(reactApplicationContext, permission)
     var parsed = PermissionStatus.fromPermissionStatus(status)
-    if (parsed == PermissionStatus.DENIED && canRequestPermission(Manifest.permission.CAMERA)) {
+    if (parsed == PermissionStatus.DENIED && canRequestPermission(permission)) {
       parsed = PermissionStatus.NOT_DETERMINED
     }
-    return parsed.unionValue
+    return parsed
+  }
+
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  fun getCameraPermissionStatus(): String {
+    val status = getPermission(Manifest.permission.CAMERA)
+    return status.unionValue
   }
 
   @ReactMethod(isBlockingSynchronousMethod = true)
   fun getMicrophonePermissionStatus(): String {
-    val status = ContextCompat.checkSelfPermission(reactApplicationContext, Manifest.permission.RECORD_AUDIO)
-    var parsed = PermissionStatus.fromPermissionStatus(status)
-    if (parsed == PermissionStatus.DENIED && canRequestPermission(Manifest.permission.RECORD_AUDIO)) {
-      parsed = PermissionStatus.NOT_DETERMINED
+    val status = getPermission(Manifest.permission.RECORD_AUDIO)
+    return status.unionValue
+  }
+
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  fun getLocationPermissionStatus(): String {
+    val status = getPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    return status.unionValue
+  }
+
+  private fun requestPermission(permission: String, promise: Promise) {
+    val activity = reactApplicationContext.currentActivity
+    if (activity is PermissionAwareActivity) {
+      val currentRequestCode = sharedRequestCode++
+      val listener = PermissionListener { requestCode: Int, _: Array<String>, grantResults: IntArray ->
+        if (requestCode == currentRequestCode) {
+          val permissionStatus = if (grantResults.isNotEmpty()) grantResults[0] else PackageManager.PERMISSION_DENIED
+          val parsed = PermissionStatus.fromPermissionStatus(permissionStatus)
+          promise.resolve(parsed.unionValue)
+          return@PermissionListener true
+        }
+        return@PermissionListener false
+      }
+      activity.requestPermissions(arrayOf(permission), currentRequestCode, listener)
+    } else {
+      promise.reject("NO_ACTIVITY", "No PermissionAwareActivity was found! Make sure the app has launched before calling this function.")
     }
-    return parsed.unionValue
   }
 
   @ReactMethod
   fun requestCameraPermission(promise: Promise) {
-    val activity = reactApplicationContext.currentActivity
-    if (activity is PermissionAwareActivity) {
-      val currentRequestCode = sharedRequestCode++
-      val listener = PermissionListener { requestCode: Int, _: Array<String>, grantResults: IntArray ->
-        if (requestCode == currentRequestCode) {
-          val permissionStatus = if (grantResults.isNotEmpty()) grantResults[0] else PackageManager.PERMISSION_DENIED
-          val parsed = PermissionStatus.fromPermissionStatus(permissionStatus)
-          promise.resolve(parsed.unionValue)
-          return@PermissionListener true
-        }
-        return@PermissionListener false
-      }
-      activity.requestPermissions(arrayOf(Manifest.permission.CAMERA), currentRequestCode, listener)
-    } else {
-      promise.reject("NO_ACTIVITY", "No PermissionAwareActivity was found! Make sure the app has launched before calling this function.")
-    }
+    requestPermission(Manifest.permission.CAMERA, promise)
   }
 
   @ReactMethod
   fun requestMicrophonePermission(promise: Promise) {
-    val activity = reactApplicationContext.currentActivity
-    if (activity is PermissionAwareActivity) {
-      val currentRequestCode = sharedRequestCode++
-      val listener = PermissionListener { requestCode: Int, _: Array<String>, grantResults: IntArray ->
-        if (requestCode == currentRequestCode) {
-          val permissionStatus = if (grantResults.isNotEmpty()) grantResults[0] else PackageManager.PERMISSION_DENIED
-          val parsed = PermissionStatus.fromPermissionStatus(permissionStatus)
-          promise.resolve(parsed.unionValue)
-          return@PermissionListener true
-        }
-        return@PermissionListener false
-      }
-      activity.requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), currentRequestCode, listener)
-    } else {
-      promise.reject("NO_ACTIVITY", "No PermissionAwareActivity was found! Make sure the app has launched before calling this function.")
-    }
+    requestPermission(Manifest.permission.RECORD_AUDIO, promise)
+  }
+
+  @ReactMethod
+  fun requestLocationPermission(promise: Promise) {
+    requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, promise)
   }
 }

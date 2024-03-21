@@ -32,8 +32,8 @@ suspend inline fun ImageCapture.takePicture(
     val file = FileUtils.createTempFile(context, ".jpg")
     val outputFileOptionsBuilder = OutputFileOptions.Builder(file).also { options ->
       val metadata = ImageCapture.Metadata()
+      metadata.location = metadata.location
       metadata.isReversedHorizontal = camera?.isFrontFacing == true
-      // TODO: Set metadata.location
       options.setMetadata(metadata)
     }
     val outputFileOptions = outputFileOptionsBuilder.build()
