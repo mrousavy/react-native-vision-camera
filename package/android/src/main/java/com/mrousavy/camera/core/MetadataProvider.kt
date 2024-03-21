@@ -20,8 +20,9 @@ class MetadataProvider(val context: Context) : LocationListener {
 
   private val hasLocationPermission: Boolean
     get() {
-      val status = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
-      return status == PackageManager.PERMISSION_GRANTED
+      val fineLocationStatus = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+      val coarseLocationStatus = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)
+      return fineLocationStatus == PackageManager.PERMISSION_GRANTED || coarseLocationStatus == PackageManager.PERMISSION_GRANTED
     }
   var location: Location? = null
     private set

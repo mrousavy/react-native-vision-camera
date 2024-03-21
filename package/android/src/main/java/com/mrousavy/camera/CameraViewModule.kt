@@ -201,8 +201,13 @@ class CameraViewModule(reactContext: ReactApplicationContext) : ReactContextBase
 
   @ReactMethod(isBlockingSynchronousMethod = true)
   fun getLocationPermissionStatus(): String {
-    val status = getPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-    return status.unionValue
+    val fineStatus = getPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    if (fineStatus == PermissionStatus.GRANTED) {
+      return fineStatus.unionValue
+    }
+
+    val coarseStatus = getPermission(Manifest.permission.ACCESS_COARSE_LOCATION)
+    return coarseStatus.unionValue
   }
 
   private fun requestPermission(permission: String, promise: Promise) {
