@@ -8,12 +8,12 @@
 
 import AVFoundation
 
-// Keeps a strong reference on delegates, as the AVCapturePhotoOutput only holds a weak reference.
-private var delegatesReferences: [NSObject] = []
-
 // MARK: - PhotoCaptureDelegate
 
 class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
+  // Keeps a strong reference on delegates, as the AVCapturePhotoOutput only holds a weak reference.
+  private static var delegateReferences: [NSObject] = []
+
   private let promise: Promise
   private let enableShutterSound: Bool
   private let cameraSessionDelegate: CameraSessionDelegate?
@@ -28,7 +28,7 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     self.metadataProvider = metadataProvider
     self.cameraSessionDelegate = cameraSessionDelegate
     super.init()
-    delegatesReferences.append(self)
+    PhotoCaptureDelegate.delegateReferences.append(self)
   }
 
   func photoOutput(_: AVCapturePhotoOutput, willCapturePhotoFor _: AVCaptureResolvedPhotoSettings) {
@@ -43,7 +43,7 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
 
   func photoOutput(_: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
     defer {
-      delegatesReferences.removeAll(where: { $0 == self })
+      PhotoCaptureDelegate.delegateReferences.removeAll(where: { $0 == self })
     }
     if let error = error as NSError? {
       promise.reject(error: .capture(.unknown(message: error.description)), cause: error)
@@ -80,7 +80,7 @@ class PhotoCaptureDelegate: NSObject, AVCapturePhotoCaptureDelegate {
 
   func photoOutput(_: AVCapturePhotoOutput, didFinishCaptureFor _: AVCaptureResolvedPhotoSettings, error: Error?) {
     defer {
-      delegatesReferences.removeAll(where: { $0 == self })
+      PhotoCaptureDelegate.delegateReferences.removeAll(where: { $0 == self })
     }
     if let error = error as NSError? {
       if error.code == -11807 {
