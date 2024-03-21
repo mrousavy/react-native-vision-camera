@@ -7,6 +7,7 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.OutputFileOptions
 import androidx.camera.core.ImageCaptureException
 import com.mrousavy.camera.core.CameraSession
+import com.mrousavy.camera.core.MetadataProvider
 import com.mrousavy.camera.types.ShutterType
 import com.mrousavy.camera.utils.FileUtils
 import java.net.URI
@@ -21,6 +22,7 @@ data class PhotoFileInfo(val uri: URI, val metadata: ImageCapture.Metadata)
 suspend inline fun ImageCapture.takePicture(
   context: Context,
   enableShutterSound: Boolean,
+  metadataProvider: MetadataProvider,
   callback: CameraSession.Callback,
   executor: Executor
 ): PhotoFileInfo =
@@ -32,7 +34,7 @@ suspend inline fun ImageCapture.takePicture(
     val file = FileUtils.createTempFile(context, ".jpg")
     val outputFileOptionsBuilder = OutputFileOptions.Builder(file).also { options ->
       val metadata = ImageCapture.Metadata()
-      metadata.location = metadata.location
+      metadata.location = metadataProvider.location
       metadata.isReversedHorizontal = camera?.isFrontFacing == true
       options.setMetadata(metadata)
     }
