@@ -58,6 +58,7 @@ class CameraView(context: Context) :
   var audio = false
   var enableFrameProcessor = false
   var pixelFormat: PixelFormat = PixelFormat.NATIVE
+  var enableLocation = false
 
   // props that require format reconfiguring
   var format: CameraDeviceFormat? = null
@@ -193,6 +194,9 @@ class CameraView(context: Context) :
         } else {
           config.audio = CameraConfiguration.Output.Disabled.create()
         }
+
+        // Location
+        config.enableLocation = enableLocation && this@CameraView.isActive
 
         // Code Scanner
         val codeScanner = codeScannerOptions

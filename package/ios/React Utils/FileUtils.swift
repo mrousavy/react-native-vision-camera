@@ -7,6 +7,7 @@
 //
 
 import AVFoundation
+import CoreLocation
 import Foundation
 import UIKit
 
@@ -26,8 +27,8 @@ enum FileUtils {
     return tempFilePath
   }
 
-  static func writePhotoToTempFile(photo: AVCapturePhoto) throws -> URL {
-    guard let data = photo.fileDataRepresentation() else {
+  static func writePhotoToTempFile(photo: AVCapturePhoto, metadataProvider: MetadataProvider) throws -> URL {
+    guard let data = photo.fileDataRepresentation(with: metadataProvider) else {
       throw CameraError.capture(.imageDataAccessError)
     }
     let path = try writeDataToTempFile(data: data)

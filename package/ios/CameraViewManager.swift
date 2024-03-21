@@ -7,6 +7,7 @@
 //
 
 import AVFoundation
+import CoreLocation
 import Foundation
 
 @objc(CameraViewManager)
@@ -108,6 +109,12 @@ final class CameraViewManager: RCTViewManager {
   }
 
   @objc
+  final func getLocationPermissionStatus() -> String {
+    let status = CLLocationManager.authorizationStatus()
+    return status.descriptor
+  }
+
+  @objc
   final func requestCameraPermission(_ resolve: @escaping RCTPromiseResolveBlock, reject _: @escaping RCTPromiseRejectBlock) {
     AVCaptureDevice.requestAccess(for: .video) { granted in
       let result: AVAuthorizationStatus = granted ? .authorized : .denied
@@ -121,6 +128,14 @@ final class CameraViewManager: RCTViewManager {
       let result: AVAuthorizationStatus = granted ? .authorized : .denied
       resolve(result.descriptor)
     }
+  }
+
+  @objc
+  final func requestLocationPermission(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
+    let manager = CLLocationManager()
+    let promise = Promise(resolver: resolve, rejecter: reject)
+    let delegate = LocationManagerDelegate(promise: promise)
+    manager.requestWhenInUseAuthorization()
   }
 
   // MARK: Private

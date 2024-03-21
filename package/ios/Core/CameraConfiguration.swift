@@ -22,6 +22,9 @@ class CameraConfiguration {
   var video: OutputConfiguration<Video> = .disabled
   var codeScanner: OutputConfiguration<CodeScanner> = .disabled
 
+  // Location
+  var enableLocation = false
+
   // Video Stabilization
   var videoStabilizationMode: VideoStabilizationMode = .off
 
@@ -55,6 +58,7 @@ class CameraConfiguration {
       photo = other.photo
       video = other.video
       codeScanner = other.codeScanner
+      enableLocation = other.enableLocation
       videoStabilizationMode = other.videoStabilizationMode
       orientation = other.orientation
       format = other.format
@@ -84,6 +88,7 @@ class CameraConfiguration {
     let exposureChanged: Bool
 
     let audioSessionChanged: Bool
+    let locationChanged: Bool
 
     /**
      Returns `true` when props that affect the AVCaptureSession configuration (i.e. props that require beginConfiguration()) have changed.
@@ -124,6 +129,9 @@ class CameraConfiguration {
 
       // audio session
       audioSessionChanged = left?.audio != right.audio
+
+      // location
+      locationChanged = left?.enableLocation != right.enableLocation
     }
   }
 

@@ -19,6 +19,7 @@ data class CameraConfiguration(
   var video: Output<Video> = Output.Disabled.create(),
   var frameProcessor: Output<FrameProcessor> = Output.Disabled.create(),
   var codeScanner: Output<CodeScanner> = Output.Disabled.create(),
+  var enableLocation: Boolean = false,
 
   // Orientation
   var orientation: Orientation = Orientation.PORTRAIT,
@@ -76,7 +77,9 @@ data class CameraConfiguration(
     // Side-Props for CaptureRequest (fps, low-light-boost, torch, zoom, videoStabilization)
     val sidePropsChanged: Boolean,
     // (isActive) changed
-    val isActiveChanged: Boolean
+    val isActiveChanged: Boolean,
+    // (locationChanged) changed
+    val locationChanged: Boolean
   ) {
     val hasChanges: Boolean
       get() = deviceChanged || outputsChanged || sidePropsChanged || isActiveChanged
@@ -108,11 +111,14 @@ data class CameraConfiguration(
 
       val isActiveChanged = left?.isActive != right.isActive
 
+      val locationChanged = left?.enableLocation != right.enableLocation
+
       return Difference(
         deviceChanged,
         outputsChanged,
         sidePropsChanged,
-        isActiveChanged
+        isActiveChanged,
+        locationChanged
       )
     }
   }

@@ -62,6 +62,8 @@ export interface CameraProps extends ViewProps {
   video?: boolean
   /**
    * Enables **audio capture** for video recordings (see ["Recording Videos"](https://react-native-vision-camera.com/docs/guides/recording-videos))
+   *
+   * Note: Requires audio permission.
    */
   audio?: boolean
   /**
@@ -85,6 +87,12 @@ export interface CameraProps extends ViewProps {
    * - With a Frame Processor: `yuv`
    */
   pixelFormat?: 'native' | 'yuv' | 'rgb'
+  /**
+   * Enables location streaming to add GPS EXIF tags to captured photos and videos.
+   *
+   * Note: Requires location permission.
+   */
+  enableLocation?: boolean
   //#endregion
 
   //#region Common Props (torch, zoom)

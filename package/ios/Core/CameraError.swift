@@ -13,6 +13,7 @@ import Foundation
 enum PermissionError: String {
   case microphone = "microphone-permission-denied"
   case camera = "camera-permission-denied"
+  case location = "location-permission-denied"
 
   var code: String {
     return rawValue
@@ -22,6 +23,8 @@ enum PermissionError: String {
     switch self {
     case .microphone:
       return "The Microphone permission was denied! If you want to record Videos without sound, pass `audio={false}`."
+    case .location:
+      return "The Location permission was denied! If you want to capture photos or videos without location tags, pass `enableLocation={false}`."
     case .camera:
       return "The Camera permission was denied!"
     }
@@ -184,6 +187,7 @@ enum CaptureError {
   case snapshotFailed
   case timedOut
   case insufficientStorage
+  case failedWritingMetadata(cause: Error?)
   case unknown(message: String? = nil)
 
   var code: String {
@@ -212,6 +216,8 @@ enum CaptureError {
       return "photo-not-enabled"
     case .insufficientStorage:
       return "insufficient-storage"
+    case .failedWritingMetadata:
+      return "failed-writing-metadata"
     case .unknown:
       return "unknown"
     }
@@ -241,6 +247,8 @@ enum CaptureError {
       return "An unexpected error occurred while trying to access the image data!"
     case .timedOut:
       return "The capture timed out."
+    case let .failedWritingMetadata(cause: cause):
+      return "Failed to write video/photo metadata! (Cause: \(cause?.localizedDescription ?? "unknown"))"
     case .insufficientStorage:
       return "There is not enough storage space available."
     case let .unknown(message: message):
