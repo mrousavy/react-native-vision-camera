@@ -28,6 +28,7 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
   var audioOutput: AVCaptureAudioDataOutput?
   var codeScannerOutput: AVCaptureMetadataOutput?
   // State
+  var metadataProvider = MetadataProvider()
   var recordingSession: RecordingSession?
   var didCancelRecording = false
   var isRecording = false
@@ -216,6 +217,19 @@ class CameraSession: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, AVC
             // Unlock Capture Session again and submit configuration to Hardware
             self.audioCaptureSession.commitConfiguration()
             ReactLogger.log(level: .info, message: "Committed AudioSession configuration!")
+          } catch {
+            self.onConfigureError(error)
+          }
+        }
+      }
+
+      // Set up Location streaming (on location queue)
+      if difference.locationChanged {
+        CameraQueues.locationQueue.async {
+          do {
+            ReactLogger.log(level: .info, message: "Beginning Location Output configuration...")
+            try self.configureLocationOutput(configuration: config)
+            ReactLogger.log(level: .info, message: "Finished Location Output configuration!")
           } catch {
             self.onConfigureError(error)
           }

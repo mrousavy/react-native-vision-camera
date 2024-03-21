@@ -9,6 +9,8 @@ import {
   useCameraDevice,
   useCameraFormat,
   useFrameProcessor,
+  useLocationPermission,
+  useMicrophonePermission,
   VideoFile,
 } from 'react-native-vision-camera'
 import { Camera } from 'react-native-vision-camera'
@@ -39,7 +41,8 @@ type Props = NativeStackScreenProps<Routes, 'CameraPage'>
 export function CameraPage({ navigation }: Props): React.ReactElement {
   const camera = useRef<Camera>(null)
   const [isCameraInitialized, setIsCameraInitialized] = useState(false)
-  const hasMicrophonePermission = useMemo(() => Camera.getMicrophonePermissionStatus() === 'granted', [])
+  const microphone = useMicrophonePermission()
+  const location = useLocationPermission()
   const zoom = useSharedValue(1)
   const isPressingButton = useSharedValue(false)
 
@@ -171,6 +174,10 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
     console.log(`Camera: ${device?.name} | Format: ${f}`)
   }, [device?.name, format, fps])
 
+  useEffect(() => {
+    location.requestPermission()
+  }, [location])
+
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet'
 
@@ -210,7 +217,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 orientation="portrait"
                 photo={true}
                 video={true}
-                audio={hasMicrophonePermission}
+                audio={microphone.hasPermission}
+                enableLocation={location.hasPermission}
                 frameProcessor={frameProcessor}
               />
             </TapGestureHandler>

@@ -16,8 +16,10 @@
 // Module Functions
 RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(getCameraPermissionStatus);
 RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(getMicrophonePermissionStatus);
+RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(getLocationPermissionStatus);
 RCT_EXTERN_METHOD(requestCameraPermission : (RCTPromiseResolveBlock)resolve reject : (RCTPromiseRejectBlock)reject);
 RCT_EXTERN_METHOD(requestMicrophonePermission : (RCTPromiseResolveBlock)resolve reject : (RCTPromiseRejectBlock)reject);
+RCT_EXTERN_METHOD(requestLocationPermission : (RCTPromiseResolveBlock)resolve reject : (RCTPromiseRejectBlock)reject);
 
 RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(installFrameProcessorBindings);
 
@@ -32,6 +34,7 @@ RCT_EXPORT_VIEW_PROPERTY(photo, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(video, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(audio, BOOL);
 RCT_EXPORT_VIEW_PROPERTY(enableFrameProcessor, BOOL);
+RCT_EXPORT_VIEW_PROPERTY(enableLocation, BOOL);
 // device format
 RCT_EXPORT_VIEW_PROPERTY(format, NSDictionary);
 RCT_EXPORT_VIEW_PROPERTY(fps, NSNumber);

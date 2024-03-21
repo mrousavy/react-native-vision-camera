@@ -30,13 +30,19 @@ abstract class CameraError(
 val CameraError.code: String
   get() = "$domain/$id"
 
+class CameraPermissionError : CameraError("permission", "camera-permission-denied", "The Camera permission was denied!")
 class MicrophonePermissionError :
   CameraError(
     "permission",
     "microphone-permission-denied",
     "The Microphone permission was denied! If you want to record Video without sound, pass `audio={false}`."
   )
-class CameraPermissionError : CameraError("permission", "camera-permission-denied", "The Camera permission was denied!")
+class LocationPermissionError :
+  CameraError(
+    "permission",
+    "location-permission-denied",
+    "The Location permission was denied! If you want to capture photos or videos without location tags, pass `enableLocation={false}`."
+  )
 
 class InvalidTypeScriptUnionError(unionName: String, unionValue: String?) :
   CameraError("parameter", "invalid-parameter", "The given value for $unionName could not be parsed! (Received: $unionValue)")

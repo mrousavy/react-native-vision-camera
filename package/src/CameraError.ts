@@ -52,6 +52,7 @@ export type CaptureError =
   | 'capture/image-data-access-error'
   | 'capture/encoder-error'
   | 'capture/invalid-image-type'
+  | 'capture/failed-writing-metadata'
   | 'capture/unknown'
 export type SystemError =
   | 'system/camera-module-not-found'
