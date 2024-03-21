@@ -33,6 +33,7 @@ class MetadataProvider(val context: Context) : LocationListener {
 
       locationManager.removeUpdates(this)
       locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, UPDATE_INTERVAL_MS, UPDATE_DISTANCE_M, this)
+      this.location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
     } else {
       locationManager.removeUpdates(this)
     }

@@ -3,6 +3,7 @@ package com.mrousavy.camera.extensions
 import android.annotation.SuppressLint
 import android.content.Context
 import android.media.MediaActionSound
+import android.util.Log
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.OutputFileOptions
 import androidx.camera.core.ImageCaptureException
@@ -34,7 +35,10 @@ suspend inline fun ImageCapture.takePicture(
     val file = FileUtils.createTempFile(context, ".jpg")
     val outputFileOptionsBuilder = OutputFileOptions.Builder(file).also { options ->
       val metadata = ImageCapture.Metadata()
-      metadata.location = metadataProvider.location
+      metadataProvider.location?.let { location ->
+        Log.i("ImageCapture", "Setting Photo Location to ${location.latitude}, ${location.longitude}...")
+        metadata.location = metadataProvider.location
+      }
       metadata.isReversedHorizontal = camera?.isFrontFacing == true
       options.setMetadata(metadata)
     }

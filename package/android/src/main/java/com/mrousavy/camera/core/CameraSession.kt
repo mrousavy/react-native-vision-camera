@@ -510,7 +510,10 @@ class CameraSession(private val context: Context, private val callback: Callback
 
     val file = FileUtils.createTempFile(context, options.fileType.toExtension())
     val outputOptions = FileOutputOptions.Builder(file).also { outputOptions ->
-      outputOptions.setLocation(metadataProvider.location)
+      metadataProvider.location?.let { location ->
+        Log.i(TAG, "Setting Video Location to ${location.latitude}, ${location.longitude}...")
+        outputOptions.setLocation(location)
+      }
     }.build()
     var pendingRecording = videoOutput.output.prepareRecording(context, outputOptions)
     if (enableAudio) {
