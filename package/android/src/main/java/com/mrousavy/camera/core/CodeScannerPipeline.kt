@@ -38,7 +38,7 @@ class CodeScannerPipeline(val configuration: CameraConfiguration.CodeScanner, va
         callback.onError(error)
       }
       .addOnCompleteListener {
-        image.close()
+        imageProxy.close()
       }
   }
 
