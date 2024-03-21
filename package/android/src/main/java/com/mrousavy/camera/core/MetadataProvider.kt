@@ -9,7 +9,7 @@ import android.location.LocationListener
 import android.location.LocationManager
 import androidx.core.content.ContextCompat
 
-class MetadataProvider(val context: Context): LocationListener {
+class MetadataProvider(val context: Context) : LocationListener {
   private val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
   companion object {
     private const val UPDATE_INTERVAL_MS = 5000L
@@ -28,7 +28,7 @@ class MetadataProvider(val context: Context): LocationListener {
   fun enableLocationUpdates(enable: Boolean) {
     if (enable) {
       if (!hasLocationPermission) {
-        throw LocationPermissionError( )
+        throw LocationPermissionError()
       }
 
       locationManager.removeUpdates(this)

@@ -196,7 +196,7 @@ class CameraView(context: Context) :
         }
 
         // Location
-        config.enableLocation = enableLocation
+        config.enableLocation = enableLocation && this@CameraView.isActive
 
         // Code Scanner
         val codeScanner = codeScannerOptions

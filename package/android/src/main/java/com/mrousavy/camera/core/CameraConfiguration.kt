@@ -77,9 +77,9 @@ data class CameraConfiguration(
     // Side-Props for CaptureRequest (fps, low-light-boost, torch, zoom, videoStabilization)
     val sidePropsChanged: Boolean,
     // (isActive) changed
-  val isActiveChanged: Boolean,
-      // (locationChanged) changed
-    val locationChanged: Boolean,
+    val isActiveChanged: Boolean,
+    // (locationChanged) changed
+    val locationChanged: Boolean
   ) {
     val hasChanges: Boolean
       get() = deviceChanged || outputsChanged || sidePropsChanged || isActiveChanged
