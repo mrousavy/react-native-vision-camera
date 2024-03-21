@@ -10,7 +10,8 @@ import Foundation
 
 extension CameraSession {
   func configureLocationOutput(configuration: CameraConfiguration) throws {
-    if configuration.enableLocation {
+    let locationServicesEnabled = CLLocationManager.locationServicesEnabled()
+    if configuration.enableLocation && locationServicesEnabled {
       let locationProvider = LocationProvider()
       guard locationProvider.hasPermission else {
         // Location permission has been denied

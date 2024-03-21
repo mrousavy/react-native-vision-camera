@@ -132,10 +132,9 @@ final class CameraViewManager: RCTViewManager {
 
   @objc
   final func requestLocationPermission(_ resolve: @escaping RCTPromiseResolveBlock, reject: @escaping RCTPromiseRejectBlock) {
-    let manager = CLLocationManager()
-    let promise = Promise(resolver: resolve, rejecter: reject)
-    let delegate = LocationManagerDelegate(promise: promise)
-    manager.requestWhenInUseAuthorization()
+    CLLocationManager.requestAccess(for: .whenInUse) { status in
+      resolve(status.descriptor)
+    }
   }
 
   // MARK: Private
