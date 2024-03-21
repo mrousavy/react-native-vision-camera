@@ -39,18 +39,22 @@ extension CLLocationManager {
       CLLocationManagerCallbackDelegate.delegateReferences.append(self)
     }
 
-    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-      defer {
-        CLLocationManagerCallbackDelegate.delegateReferences.removeAll(where: { $0 == self })
+    private var authorizationStatus: CLAuthorizationStatus {
+      if #available(iOS 14.0, *) {
+        return locationManager.authorizationStatus
+      } else {
+        return CLLocationManager.authorizationStatus()
+      }
+    }
+
+    func locationManagerDidChangeAuthorization(_: CLLocationManager) {
+      if authorizationStatus == .notDetermined {
+        // This method is called once on init with status "notDetermined", ignore the first call.
+        return
       }
 
-      if #available(iOS 14.0, *) {
-        let status = manager.authorizationStatus
-        callback(status)
-      } else {
-        let status = CLLocationManager.authorizationStatus()
-        callback(status)
-      }
+      CLLocationManagerCallbackDelegate.delegateReferences.removeAll(where: { $0 == self })
+      callback(authorizationStatus)
     }
   }
 }
