@@ -26,9 +26,7 @@ extension CLLocationManager {
     }
   }
 
-  private class CLLocationManagerCallbackDelegate: NSObject, CLLocationManagerDelegate {
-    private static var delegateReferences: [CLLocationManagerCallbackDelegate] = []
-
+  private class CLLocationManagerCallbackDelegate: GlobalReferenceHolder, CLLocationManagerDelegate {
     private let locationManager: CLLocationManager
     private let callback: (_ status: CLAuthorizationStatus) -> Void
 
@@ -36,7 +34,7 @@ extension CLLocationManager {
       self.locationManager = locationManager
       self.callback = callback
       super.init()
-      CLLocationManagerCallbackDelegate.delegateReferences.append(self)
+      makeGlobal()
     }
 
     private var authorizationStatus: CLAuthorizationStatus {
@@ -53,7 +51,7 @@ extension CLLocationManager {
         return
       }
 
-      CLLocationManagerCallbackDelegate.delegateReferences.removeAll(where: { $0 == self })
+      removeGlobal()
       callback(authorizationStatus)
     }
   }
