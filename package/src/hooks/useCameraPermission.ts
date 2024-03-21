@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Camera, CameraPermissionRequestResult, CameraPermissionStatus } from '../Camera'
 import { AppState } from 'react-native'
 
@@ -33,10 +33,13 @@ function usePermission(get: () => CameraPermissionStatus, request: () => Promise
     return () => listener.remove()
   }, [get])
 
-  return {
-    hasPermission,
-    requestPermission,
-  }
+  return useMemo(
+    () => ({
+      hasPermission,
+      requestPermission,
+    }),
+    [hasPermission, requestPermission],
+  )
 }
 
 /**
