@@ -14,7 +14,7 @@ class MetadataProvider(val context: Context) : LocationListener {
   private val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
   companion object {
     private const val TAG = "MetadataProvider"
-    private const val UPDATE_INTERVAL_MS = 0L
+    private const val UPDATE_INTERVAL_MS = 5000L
     private const val UPDATE_DISTANCE_M = 5f
   }
 
