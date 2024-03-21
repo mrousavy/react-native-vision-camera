@@ -13,6 +13,7 @@ enum class CodeType(override val unionValue: String) : JSUnionValue {
   EAN_8("ean-8"),
   ITF("itf"),
   UPC_E("upc-e"),
+  UPC_A("upc-a"),
   QR("qr"),
   PDF_417("pdf-417"),
   AZTEC("aztec"),
@@ -29,6 +30,7 @@ enum class CodeType(override val unionValue: String) : JSUnionValue {
       EAN_8 -> Barcode.FORMAT_EAN_8
       ITF -> Barcode.FORMAT_ITF
       UPC_E -> Barcode.FORMAT_UPC_E
+      UPC_A -> Barcode.FORMAT_UPC_A
       QR -> Barcode.FORMAT_QR_CODE
       PDF_417 -> Barcode.FORMAT_PDF417
       AZTEC -> Barcode.FORMAT_AZTEC
@@ -47,6 +49,7 @@ enum class CodeType(override val unionValue: String) : JSUnionValue {
         Barcode.FORMAT_EAN_8 -> EAN_8
         Barcode.FORMAT_ITF -> ITF
         Barcode.FORMAT_UPC_E -> UPC_E
+        Barcode.FORMAT_UPC_A -> UPC_A
         Barcode.FORMAT_QR_CODE -> QR
         Barcode.FORMAT_PDF417 -> PDF_417
         Barcode.FORMAT_AZTEC -> AZTEC
@@ -64,6 +67,7 @@ enum class CodeType(override val unionValue: String) : JSUnionValue {
         "ean-8" -> EAN_8
         "itf" -> ITF
         "upc-e" -> UPC_E
+        "upc-a" -> UPC_A
         "qr" -> QR
         "pdf-417" -> PDF_417
         "aztec" -> AZTEC
