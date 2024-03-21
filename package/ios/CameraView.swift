@@ -212,7 +212,7 @@ public final class CameraView: UIView, CameraSessionDelegate {
       }
 
       // Location tagging
-      config.enableLocation = enableLocation
+      config.enableLocation = enableLocation && isActive
 
       // Video Stabilization
       if let jsVideoStabilizationMode = videoStabilizationMode as? String {
