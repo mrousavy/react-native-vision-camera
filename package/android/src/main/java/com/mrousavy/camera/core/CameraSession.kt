@@ -480,7 +480,7 @@ class CameraSession(private val context: Context, private val callback: Callback
     }
 
     photoOutput.flashMode = flash.toFlashMode()
-    photoOutput.targetRotation = outputOrientation.toDegrees()
+    photoOutput.targetRotation = outputOrientation.toSurfaceRotation()
 
     val photoFile = photoOutput.takePicture(context, enableShutterSound, metadataProvider, callback, CameraQueues.cameraExecutor)
     val isMirrored = photoFile.metadata.isReversedHorizontal
