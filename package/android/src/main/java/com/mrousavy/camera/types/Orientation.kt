@@ -1,5 +1,7 @@
 package com.mrousavy.camera.types
 
+import android.view.Surface
+
 enum class Orientation(override val unionValue: String) : JSUnionValue {
   PORTRAIT("portrait"),
   LANDSCAPE_RIGHT("landscape-right"),
@@ -12,6 +14,14 @@ enum class Orientation(override val unionValue: String) : JSUnionValue {
       LANDSCAPE_LEFT -> 90
       PORTRAIT_UPSIDE_DOWN -> 180
       LANDSCAPE_RIGHT -> 270
+    }
+
+  fun toSurfaceRotation(): Int =
+    when (this) {
+      PORTRAIT -> Surface.ROTATION_0
+      LANDSCAPE_LEFT -> Surface.ROTATION_90
+      PORTRAIT_UPSIDE_DOWN -> Surface.ROTATION_180
+      LANDSCAPE_RIGHT -> Surface.ROTATION_270
     }
 
   companion object : JSUnionValue.Companion<Orientation> {
