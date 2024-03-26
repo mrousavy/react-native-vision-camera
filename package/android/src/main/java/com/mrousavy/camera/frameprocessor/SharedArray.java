@@ -7,6 +7,8 @@ import com.facebook.proguard.annotations.DoNotStrip;
 
 import java.nio.ByteBuffer;
 
+import dalvik.annotation.optimization.FastNative;
+
 /**
  * A JSI TypedArray/ArrayBuffer implementation used for passing buffers between JS and Native without copying data.
  * ByteBuffers are used for efficient data transfer.
@@ -47,13 +49,17 @@ public final class SharedArray {
     /**
      * Gets the direct ByteBuffer that can be used to directly update the JSI ArrayBuffer.
      */
+    @FastNative
     public native ByteBuffer getByteBuffer();
 
     /**
      * Gets the size of the ByteBuffer.
      */
+    @FastNative
     public native int getSize();
 
+    @FastNative
     private native HybridData initHybrid(VisionCameraProxy proxy, int size);
+    @FastNative
     private native HybridData initHybrid(VisionCameraProxy proxy, ByteBuffer byteBuffer);
 }
